@@ -22,36 +22,35 @@ export const ResetPassword = ({
   username,
   url,
 }: ResetPasswordProps): React.JSX.Element => (
-  <Html>
+  <Html lang="cs">
     <Head />
-    <Preview>Reset your Quacker password</Preview>
+    <Preview>Obnova hesla do kemp.io</Preview>
     <Tailwind>
       <Body className="bg-gray-50 font-sans py-10">
         <Container className="bg-white rounded-lg mx-auto p-8 max-w-xl">
           <Heading className="text-2xl font-bold text-gray-900 m-0">
-            Reset your password
+            Obnova hesla
           </Heading>
           <Text className="text-gray-700 text-base leading-6 mt-4">
-            Hi {username}, we received a request to reset your Quacker password.
-            Click the button below to choose a new one.
+            Ahoj {username}, dostali jsme žádost o obnovu hesla do kemp.io. Nové
+            heslo si nastavíš kliknutím na tlačítko níže.
           </Text>
           <Section className="text-center my-8">
             <Button
               href={url}
-              className="bg-yellow-400 text-gray-900 font-semibold rounded-md px-6 py-3"
+              className="bg-gray-900 text-white font-semibold rounded-md px-6 py-3"
             >
-              Reset password
+              Nastavit nové heslo
             </Button>
           </Section>
           <Text className="text-gray-600 text-sm leading-5">
-            If the button doesn&apos;t work, copy and paste this link into your
-            browser:
+            Pokud tlačítko nefunguje, zkopíruj tento odkaz do prohlížeče:
           </Text>
           <Text className="text-blue-600 text-sm break-all">{url}</Text>
           <Hr className="border-gray-200 my-6" />
           <Text className="text-gray-400 text-xs">
-            If you didn&apos;t request a password reset, you can safely ignore
-            this email — your password will stay the same.
+            Pokud jsi o obnovu hesla nežádal(a), tento e-mail ignoruj — heslo
+            zůstane stejné.
           </Text>
         </Container>
       </Body>

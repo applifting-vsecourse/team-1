@@ -1,4 +1,3 @@
-import { Link } from "@tanstack/react-router"
 import { LogOut } from "lucide-react"
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -19,16 +18,7 @@ export function HeaderMenu() {
   const { user } = useSession()
   const signOut = useSignOut()
 
-  if (!user) {
-    return (
-      <Button
-        asChild
-        size="sm"
-      >
-        <Link to="/login">Sign in</Link>
-      </Button>
-    )
-  }
+  if (!user) return null
 
   const initials = user.name
     .split(" ")
@@ -43,7 +33,7 @@ export function HeaderMenu() {
         <Button
           variant="ghost"
           size="icon"
-          aria-label="User menu"
+          aria-label="Uživatelské menu"
           className="rounded-full"
         >
           <Avatar className="size-8">
@@ -58,7 +48,7 @@ export function HeaderMenu() {
         <DropdownMenuLabel>
           <div className="flex flex-col">
             <span className="text-sm leading-none font-medium">{user.name}</span>
-            <span className="mt-1 text-xs text-muted-foreground">@{user.username}</span>
+            <span className="mt-1 text-xs text-muted-foreground">{user.email}</span>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
@@ -67,7 +57,7 @@ export function HeaderMenu() {
           disabled={signOut.isPending}
         >
           <LogOut className="size-4" />
-          Sign out
+          Odhlásit se
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

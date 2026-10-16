@@ -18,7 +18,7 @@ These are rules, not suggestions. When a rule and a "nicer looking" idea disagre
 
 ## Layout
 
-- **Cards are for separable items in a list** — a quack, a search result, a product. They are not page sections and not layout tools.
+- **Cards are for separable items in a list** — an event in a list, a participant on a phone screen, a search result. They are not page sections and not layout tools.
 - **Never nest a card inside a card.** If content needs grouping inside a card, use spacing and a hairline divider.
 - **A page is not a card.** Page content sits on `background` in a centred column (`max-w-2xl` for reading, `max-w-4xl` for wide layouts), not inside a floating panel.
 - **Every page keeps the app chrome.** The header is present on every route, including login and sign-up. Pages never render as standalone islands.

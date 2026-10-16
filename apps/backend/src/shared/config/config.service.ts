@@ -14,9 +14,9 @@ import {
 @Injectable()
 export class Config {
   // basic info
-  readonly name: string = 'Quacker backend';
+  readonly name: string = 'kemp.io backend';
   readonly description: string =
-    'Backend for Quacker, a social media platform for sharing short messages. Project example for educational purposes.';
+    'Backend for kemp.io, a registration platform for multi-term camps and events. 4IT580 team project.';
 
   @IsSemVer()
   readonly version: string = '0.1.0';
@@ -73,7 +73,7 @@ export class Config {
 
   @Env('EMAIL_FROM', {
     expose: true,
-    defaultValue: 'Quacker <onboarding@resend.dev>',
+    defaultValue: 'kemp.io <onboarding@resend.dev>',
   })
   @IsNotEmpty()
   readonly emailFrom!: string;

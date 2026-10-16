@@ -97,6 +97,15 @@ const commonRules = {
   ],
 }
 
+// Atomic design: a layer may import only from layers below it
+// (ui < atoms < molecules < organisms < templates < pages).
+const ATOMIC_LAYERS = ["atoms", "molecules", "organisms", "templates", "pages"]
+const atomicZones = ATOMIC_LAYERS.slice(0, -1).map((layer, index) => ({
+  target: `./src/components/${layer}`,
+  from: ATOMIC_LAYERS.slice(index + 1).map((higher) => `./src/components/${higher}`),
+  message: `components/${layer} may only import from lower layers (${["ui", ...ATOMIC_LAYERS.slice(0, index)].join(", ")}).`,
+}))
+
 const importRules = {
   "import/no-unresolved": "error",
   "import/no-cycle": "error",
@@ -105,6 +114,7 @@ const importRules = {
     {
       zones: [
         ...featureZones,
+        ...atomicZones,
         {
           target: FEATURES_DIR,
           from: ["./src/app", "./src/routes"],

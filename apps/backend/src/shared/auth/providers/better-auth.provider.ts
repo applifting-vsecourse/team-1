@@ -22,7 +22,12 @@ const createAuth = (
     database: prismaAdapter(prismaService, {
       provider: 'postgresql',
     }),
+    // If change (setup) affects database, must be in core config, in order to be able to run migrations.
+    // Spread first: anything below extends it. Spread last, it replaced the whole
+    // `emailAndPassword` object and silently dropped `sendResetPassword`.
+    ...betterAuthCoreConfig,
     emailAndPassword: {
+      ...betterAuthCoreConfig.emailAndPassword,
       enabled: true,
       sendResetPassword: async ({ user, token }) => {
         const passwordResetUrl = `${config.frontendUrl}/${config.frontendResetPasswordUrl}?token=${token}`;
@@ -30,17 +35,7 @@ const createAuth = (
           username: user.name,
           url: passwordResetUrl,
         });
-        await emailProvider.sendEmail(user.email, 'Password reset', html);
-      },
-    },
-    user: {
-      additionalFields: {
-        role: {
-          type: 'string',
-          required: true,
-          defaultValue: 'user',
-          input: false,
-        },
+        await emailProvider.sendEmail(user.email, 'Obnova hesla', html);
       },
     },
     trustedOrigins: [config.frontendUrl],
@@ -49,14 +44,12 @@ const createAuth = (
         const html = await renderEmail(VerifyEmail, { url });
         await emailProvider.sendEmail(
           user.email,
-          'Verify your email address',
+          'Ověření e-mailové adresy',
           html,
         );
       },
       sendOnSignUp: true,
     },
-    // If change (setup) affects database, must be in core config, in order to be able to run migrations
-    ...betterAuthCoreConfig,
     plugins: [...(betterAuthCoreConfig.plugins ?? [])],
   });
 

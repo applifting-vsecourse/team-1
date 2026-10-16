@@ -1,15 +1,20 @@
+# Local development database only. `name` keeps the compose project unique —
+# without it Docker derives the project from the folder name (`backend`) and
+# would reuse another starter clone's container on the same machine.
+name: kemp
+
 services:
   db:
     image: postgres:17-alpine
     restart: always
     environment:
-      POSTGRES_USER: quacker
-      POSTGRES_PASSWORD: quacker
-      POSTGRES_DB: quacker
+      POSTGRES_USER: kemp
+      POSTGRES_PASSWORD: kemp
+      POSTGRES_DB: kemp
     ports:
       - 5433:5432
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U quacker -d quacker']
+      test: ['CMD-SHELL', 'pg_isready -U kemp -d kemp']
       interval: 3s
       timeout: 3s
       retries: 20

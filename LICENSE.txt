@@ -1,5 +1,6 @@
 MIT License
 
+Copyright (c) 2026 Tým 1, 4IT580 VŠE (kemp.io)
 Copyright (c) 2024 Tomáš Horáček, Martin Kapal, Petr Vnenk, Tomáš Geržičák
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
