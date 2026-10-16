@@ -113,25 +113,27 @@ Tři PR za sebou:
 
 ### Fáze 1 — paralelně (vertikální řezy, každý dělá BE + FE + testy své story)
 
+Vyvíjí celý tým, včetně designera, product managera a testera. Každý vlastní jeden proud.
+
 ```
-A  Nastavení akce   US-12 → US-13 + US-16 → US-14
-B  Přihláška        US-23 + US-40 (UI) → US-27 (uložení + souběh) → US-25
-C  Účty a e-mail    US-02 → US-01 + US-56 → US-04 → US-54
-D  Přehledy         US-10 (testy izolace) → US-52 + US-44 → US-29
-—  Landing          US-96 (nezávislá)
+A  Nastavení akce + landing   Jakubkuba9000   US-12 → US-13 + US-16 → US-14; US-96
+B  Přihláška                  kudrle01        US-23 + US-40 (UI) → US-27 (uložení + souběh) → US-25
+C  Účty a e-mail              PJjiry          US-02 → US-01 + US-56 → US-04 → US-54
+D  Přehledy                   Aadikk          US-10 (testy izolace) → US-52 + US-44 → US-29
 ```
+
+Proč takhle: B obsahuje nejtěžší logiku (souběh, vyhodnocení), proto ho má tech lead. A je nejvíc UI podle vlastních wireframů. D jsou seznamy a platby, kde product manager nejlíp zná požadavky. C má nejvíc okrajových stavů (existující účet, kolize e-mailu, vypršelý odkaz), které tester vidí nejlíp.
 
 B, C a D nečekají na UI z proudu A: schéma je hotové ve fázi 0 a data jsou v seedu.
 
 ### Kdo sahá kam (aby se proudy nepraly o soubory)
 
-| Proud | Backend                                                                    | Frontend                                |
-| ----- | -------------------------------------------------------------------------- | --------------------------------------- |
-| A     | `modules/events` (akce, termíny, pokoje)                                   | `features/events`                       |
-| B     | `modules/applications` — veřejné endpointy, vyhodnocení, souběh            | `features/application-form`             |
-| C     | `modules/participants`, magic link v `shared/auth`, šablony v `core/email` | `features/auth`, `features/participant` |
-| D     | `modules/payments`, `modules/overview` (obsazenost, seznam přihlášek)      | `features/event-overview`               |
-| —     | —                                                                          | `features/landing`                      |
+| Proud | Kdo           | Backend                                                                    | Frontend                                |
+| ----- | ------------- | -------------------------------------------------------------------------- | --------------------------------------- |
+| A     | Jakubkuba9000 | `modules/events` (akce, termíny, pokoje)                                   | `features/events`, `features/landing`   |
+| B     | kudrle01      | `modules/applications` — veřejné endpointy, vyhodnocení, souběh            | `features/application-form`             |
+| C     | PJjiry        | `modules/participants`, magic link v `shared/auth`, šablony v `core/email` | `features/auth`, `features/participant` |
+| D     | Aadikk        | `modules/payments`, `modules/overview` (obsazenost, seznam přihlášek)      | `features/event-overview`               |
 
 Sdílené soubory (`schema.prisma`, `app.module.ts`, `routes.ts`, `components/*`) mění autor jen v rozsahu své story a v PR na to upozorní.
 
@@ -305,6 +307,7 @@ apps/frontend/src/
 | 2026-10-16 | Licence MIT: zachovat copyright autorů starteru + přidat tým.                                                                                                                                                                                                                       | tech lead |
 | 2026-10-16 | Jazyk: kód, DB, API, commity a komentáře anglicky; UI, URL stránek, dokumentace, issues a PR česky.                                                                                                                                                                                 | tech lead |
 | 2026-10-16 | Práce po vertikálních řezech: kdo vezme story, dělá BE + FE + testy.                                                                                                                                                                                                                | tech lead |
+| 2026-10-16 | Vyvíjí celý tým. Proudy: A + landing Jakubkuba9000, B kudrle01, C PJjiry, D Aadikk. Story schvaluje product manager Aadikk.                                                                                                                                                         | tech lead |
 | 2026-10-16 | Git: viz sekce 12.                                                                                                                                                                                                                                                                  | tech lead |
 
 ## 11. Rozdíly vůči boardu
@@ -346,4 +349,3 @@ Zapsáno jen tady — issues zatím **nejsou** upravené. Před implementací pr
 | 2   | Založit Brevo účet a ověřit odesílací adresu.                                                                                                                                        | tech lead      |
 | 3   | Připojit Figma konektor a převzít tokeny do `global.css`.                                                                                                                            | tech lead      |
 | 4   | Potvrdit s PO změnu jednorázové heslo → magic link (sekce 11).                                                                                                                       | tech lead / PO |
-| 5   | Rozdělit proudy A–D mezi lidi.                                                                                                                                                       | tech lead      |
