@@ -1,4 +1,4 @@
-# kemp.io — projektový dokument
+# Togena — projektový dokument
 
 Živý dokument týmu 1 (4IT580). Shrnuje, co stavíme, co je rozhodnuté a podle čeho pokračujeme.
 
@@ -12,7 +12,7 @@ Když se něco rozhodne (v týmu, s PO, s klientem), zapíše se do sekce 10 s d
 
 ## 1. O čem projekt je
 
-**kemp.io** je platforma pro pořadatele vícetermínových akcí (letní kempy, soustředění, LARP tábory, firemní výjezdy). Nahrazuje Google tabulky, ruční počítání kapacit a párování plateb.
+**Togena** je platforma pro pořadatele vícetermínových akcí (letní kempy, soustředění, LARP tábory, firemní výjezdy). Nahrazuje Google tabulky, ruční počítání kapacit a párování plateb.
 
 Problém klienta: přihlášky se otevírají v jeden okamžik (7. 2. 2027 ve 20:00), do druhého dne je plno a organizátor ručně počítá, kdo se vejde do dámských a pánských pokojů, kdo je náhradník a kdo kolik dluží.
 
@@ -41,7 +41,7 @@ Jádro MVP:
 
 ## 3. Tým
 
-**Klient:** [tomaskriz-max](https://github.com/tomaskriz-max) — vlastník produktu, pro kterého kemp.io stavíme; není členem týmu.
+**Klient:** [tomaskriz-max](https://github.com/tomaskriz-max) — vlastník produktu, pro kterého Togenu stavíme; není členem týmu.
 
 | Člen                                              | Role            | Poznámka                                         |
 | ------------------------------------------------- | --------------- | ------------------------------------------------ |
@@ -107,7 +107,7 @@ Klíčová čísla z akceptačních kritérií (musí sedět v testech):
 
 Tři PR za sebou:
 
-1. **Čistá šablona** — pryč s Quackerem, přejmenování na kemp.io, struktura FE (atomic) a BE (moduly), layouty a kostra rout pro všechny tři části, README, LICENSE, CONTRIBUTING, PR šablona, oprava CI.
+1. **Čistá šablona** — pryč s Quackerem, přejmenování na Togenu, struktura FE (atomic) a BE (moduly), layouty a kostra rout pro všechny tři části, README, LICENSE, CONTRIBUTING, PR šablona, oprava CI.
 2. **US-71 + doména** — kompletní Prisma schéma pro sprint 1, seed (2 organizace, organizátoři, ukázková akce), typ účtu a guardy rolí, kontrola přístupu k organizaci (příprava US-10), čisté doménové funkce pro kapacitu, vyhodnocení a cenu s unit testy (50+50 / 52+48).
 3. **US-72** — seed na stagingu, integrační testy proti Postgresu v CI, adresa stagingu v README.
 
@@ -288,6 +288,7 @@ apps/frontend/src/
 | (board)    | Potvrzování je automatické.                                                                                                                                                                                                                                                         | tým       |
 | (board)    | Platby bez brány a bez banky — ruční zápis. Platí se celá částka, bez záloh.                                                                                                                                                                                                        | klient    |
 | (board)    | Organizátorské účty ve sprintu 1 vznikají v seedu, ne registrací.                                                                                                                                                                                                                   | tým       |
+| 2026-10-16 | **Produkt se jmenuje Togena** (dříve pracovně kemp.io). Název platí v UI, e-mailech, dokumentaci i technických identifikátorech (compose projekt, DB `togena`).                                                                                                                     | tech lead |
 | 2026-10-16 | **Ve sprintu 1 se nikdo neregistruje.** Landing má dva vstupy: „Pro organizátory – přihlásit se“ a „Mám přihlášku – přihlásit se“. Účet účastníka vzniká odesláním přihlášky.                                                                                                       | tech lead |
 | 2026-10-16 | **Jeden typ na účet** (`ORGANIZER` / `PARTICIPANT` / `ADMIN`). Jeden e-mail nemůže být organizátor i účastník.                                                                                                                                                                      | tech lead |
 | 2026-10-16 | **Účastník dostává magic link místo jednorázového hesla.** Odkaz platí 7 dní a jde použít jednou. První vstup odkazem vynutí nastavení vlastního hesla (min. 8 znaků); dál se přihlašuje heslem. Na S10 si může nechat poslat nový odkaz. Magic link funguje jen pro `PARTICIPANT`. | tech lead |
@@ -300,9 +301,9 @@ apps/frontend/src/
 | 2026-10-16 | Cena termínu se při vyhodnocení zmrazí do `ApplicationTerm.priceCzk`.                                                                                                                                                                                                               | tech lead |
 | 2026-10-16 | Peníze jako celé Kč (`Int`). VS = globální sekvence `Application.number`. Platby jako řádky `Payment`.                                                                                                                                                                              | tech lead |
 | 2026-10-16 | E-maily: lokálně do konzole; na stagingu SMTP přes **Brevo** (free 300/den, ověřená jedna odesílací adresa, bez domény). Až bude doména, přepne se na Resend (`RESEND_API_KEY`, adaptér existuje).                                                                                  | tech lead |
-| 2026-10-16 | Staging: seed proběhne jednou a je idempotentní (přeskočí se, když v DB jsou uživatelé). Pro čistý start ruční workflow.                                                                                                                                                            | tech lead |
+| 2026-10-16 | Staging: seed běží při každém startu backendu a je idempotentní (přeskočí se, když v DB je organizace). Selhání seedu start nezastaví. Reset stagingu: v Admineru `TRUNCATE organization CASCADE` a ručně spustit workflow Build & Deploy.                                          | tech lead |
 | 2026-10-16 | Celé schéma pro sprint 1 vzniká ve fázi 0. Kdo přesto potřebuje migraci: max. jedna na PR, před mergem rebase na `main` a migraci vygenerovat znovu.                                                                                                                                | tech lead |
-| 2026-10-16 | Testy: unit pro doménové funkce + integrační proti Postgresu (CI service container).                                                                                                                                                                                                | tech lead |
+| 2026-10-16 | Testy: unit (`*.spec.ts`, bez DB) + integrační (`*.int-spec.ts`) proti sestavenému serveru a Postgresu; v CI jako service container, lokálně v DB `togena_test`.                                                                                                                    | tech lead |
 | 2026-10-16 | Organizace není v URL; akce jsou seskupené podle pořadatele.                                                                                                                                                                                                                        | tech lead |
 | 2026-10-16 | Stack zůstává ze starteru. FE podle atomic designu (globální `components/{atoms,molecules,organisms,templates}` + `features/`), shadcn zůstává v `components/ui`.                                                                                                                   | tech lead |
 | 2026-10-16 | Tokeny z Figmy, pravidla z DESIGN.md.                                                                                                                                                                                                                                               | tech lead |
@@ -335,13 +336,14 @@ Zapsáno jen tady — issues zatím **nejsou** upravené. Před implementací pr
   2. PR je mergnutý do `main` (review doporučené).
   3. Product manager ([Aadikk](https://github.com/Aadikk)) story schválil na stagingu.
 
-## 13. Zjištění ve starteru (vstup pro fázi 0)
+## 13. Zjištění ve starteru (vyřešeno ve fázi 0)
 
-- CI na `main` je červené: `format:check` padá na `.github/ISSUE_TEMPLATE/user-story.md`.
-- Deploy spouští jen `prisma migrate deploy`, **seed na stagingu neběží**. Seed běží přes `ts-node` ze `src/`, který v produkčním image není.
-- Staging běží Quacker (`/api` vrací „Welcome to Quacker backend“).
-- „Quacker“ je v configu, `package.json`, Swaggeru, e-mailech a `.env.example` (DB `quacker`).
-- CI nemá Postgres → integrační testy zatím nemají kde běžet.
+- CI na `main` bylo červené kvůli `user-story.md` → opraveno v PR 1.
+- `sendResetPassword` se zahazoval kvůli pořadí v konfiguraci BetterAuth → opraveno v PR 1.
+- Lokální compose projekt kolidoval s ostatními klony starteru (`backend`) → pojmenovaný `togena` v PR 1.
+- Veřejný `/api/auth/sign-up` dovoloval komukoliv založit účet → vypnuto v PR 2.
+- Seed na stagingu neběžel (ts-node v image není) → běží zkompilovaný seed při startu, PR 3.
+- CI nemělo Postgres → service container a integrační testy, PR 3.
 
 ## 14. Otevřené body
 

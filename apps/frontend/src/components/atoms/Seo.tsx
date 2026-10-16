@@ -1,6 +1,6 @@
 import { useEffect } from "react"
 
-const DEFAULT_TITLE = "kemp.io"
+const DEFAULT_TITLE = "Togena"
 
 type SeoProps = {
   title?: string

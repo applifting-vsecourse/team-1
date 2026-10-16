@@ -14,9 +14,9 @@ import {
 @Injectable()
 export class Config {
   // basic info
-  readonly name: string = 'kemp.io backend';
+  readonly name: string = 'Togena backend';
   readonly description: string =
-    'Backend for kemp.io, a registration platform for multi-term camps and events. 4IT580 team project.';
+    'Backend for Togena, a registration platform for multi-term camps and events. 4IT580 team project.';
 
   @IsSemVer()
   readonly version: string = '0.1.0';
@@ -30,10 +30,12 @@ export class Config {
   readonly betterAuthSecret!: string;
 
   @Env('SUPERADMIN_EMAIL')
-  readonly superadminEmail!: string;
+  @IsOptional()
+  readonly superadminEmail?: string;
 
   @Env('SUPERADMIN_PASSWORD')
-  readonly superadminPassword!: string;
+  @IsOptional()
+  readonly superadminPassword?: string;
 
   @Env('NODE_ENV', { expose: true })
   @IsOptional()
@@ -73,7 +75,7 @@ export class Config {
 
   @Env('EMAIL_FROM', {
     expose: true,
-    defaultValue: 'kemp.io <onboarding@resend.dev>',
+    defaultValue: 'Togena <onboarding@resend.dev>',
   })
   @IsNotEmpty()
   readonly emailFrom!: string;

@@ -1,4 +1,4 @@
-# kemp.io
+# Togena
 
 Platforma pro přihlášky na vícetermínové akce — letní kempy, soustředění, tábory, firemní výjezdy.
 
@@ -30,7 +30,7 @@ Frontend běží na http://localhost:3050, API na http://localhost:4050/api a Sw
 
 ## Tým
 
-**Klient:** [tomaskriz-max](https://github.com/tomaskriz-max) — vlastník produktu, pro kterého kemp.io stavíme; není členem týmu.
+**Klient:** [tomaskriz-max](https://github.com/tomaskriz-max) — vlastník produktu, pro kterého Togenu stavíme; není členem týmu.
 
 | Člen                                              | Role            |
 | ------------------------------------------------- | --------------- |

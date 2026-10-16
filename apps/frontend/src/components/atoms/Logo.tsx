@@ -8,7 +8,7 @@ export function Logo() {
       to={ROUTES.home}
       className="font-semibold tracking-tight"
     >
-      kemp.io
+      Togena
     </Link>
   )
 }

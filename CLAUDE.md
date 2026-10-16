@@ -1,4 +1,4 @@
-# kemp.io
+# Togena
 
 Registration platform for multi-term events (camps): organizers set up an event with terms, prices and gendered rooms; applicants apply from a public link without an account; each term is evaluated separately into confirmed / waitlisted by free beds per gender; organizers track occupancy, applications and manually recorded payments. School team project (4IT580).
 
@@ -18,6 +18,7 @@ Workflow (branches, PRs, Definition of Done): [`CONTRIBUTING.md`](CONTRIBUTING.m
 - `pnpm dev` — everything: env files, Postgres (Docker), migrate, seed, both dev servers
 - `pnpm check-all` — lint + type-check + tests + build (same as CI)
 - `pnpm backend test` / `pnpm frontend test:ci` — unit tests
+- `pnpm backend test:int` — backend integration tests (`*.int-spec.ts`): builds and starts the server against the `togena_test` database; helpers in `apps/backend/src/test/integration/test-api.ts`
 - `pnpm backend prisma:migrations:run` — create/apply migrations after schema changes
 
 ## Conventions

@@ -111,7 +111,7 @@ model User {
   @@map("user")
 }
 
-// --- kemp.io domain -------------------------------------------------------
+// --- Togena domain -------------------------------------------------------
 // Every table holding an organization's data carries `organizationId`
 // directly, so isolation between organizations (US-10) is a single filter.
 // Money is whole CZK as Int.
