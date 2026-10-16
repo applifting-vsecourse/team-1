@@ -1,8 +1,8 @@
 import { createRouter } from "@tanstack/react-router"
 
-import { AppLoadingScreen } from "@/components/AppLoadingScreen"
-import { NotFound } from "@/components/Error/NotFound"
-import { RootErrorBoundary } from "@/components/Error/RootErrorBoundary"
+import { ErrorPage } from "@/components/pages/ErrorPage"
+import { LoadingPage } from "@/components/pages/LoadingPage"
+import { NotFoundPage } from "@/components/pages/NotFoundPage"
 import { queryClient } from "@/config/react-query"
 import { routeTree } from "@/routeTree.gen"
 
@@ -12,9 +12,9 @@ export const router = createRouter({
   defaultPreload: "intent",
   defaultPreloadStaleTime: 0,
   scrollRestoration: true,
-  defaultNotFoundComponent: NotFound,
-  defaultErrorComponent: ({ error }) => <RootErrorBoundary error={error} />,
-  defaultPendingComponent: AppLoadingScreen,
+  defaultNotFoundComponent: NotFoundPage,
+  defaultErrorComponent: ({ error }) => <ErrorPage error={error} />,
+  defaultPendingComponent: LoadingPage,
 })
 
 declare module "@tanstack/react-router" {

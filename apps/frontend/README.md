@@ -1,45 +1,63 @@
-# 4IT580: Frontend
+# kemp.io — frontend
 
-This app was created using [Vite](https://vitejs.dev/).
+React + Vite, TanStack Router (file-based routy) a TanStack Query, Tailwind + shadcn/ui, `ky` + `zod` na hranici s API. Vzory vycházejí z [Applifting Frontend Playbooku](https://applifting.github.io/frontend-playbook/).
 
-It's part of an Applifting educational template that is **free for public use** (see the [LICENSE](../../LICENSE.txt)). Patterns here — data fetching with [ky](https://github.com/sindresorhus/ky), [TanStack Query](https://tanstack.com/query) `queryOptions` + query-key factories, [zod](https://zod.dev/) schemas at the network boundary — follow the [Applifting Frontend Playbook](https://applifting.github.io/frontend-playbook/), kept deliberately small (no codegen, no generated API client) so the moving parts are easy to read.
+Před prací na UI si přečti [DESIGN.md](../../DESIGN.md).
 
-## Local Installation
+## Struktura
 
-Run `pnpm install` in root folder of the monorepo:
-
-```bash
-cd ..
-pnpm install
-cd frontend
+```
+src/
+  app/                router, providers, ROUTES (všechny URL na jednom místě)
+  routes/             stránky (TanStack file-based) — tenké: načtou data, složí stránku
+    index.tsx                     /                    landing
+    prihlaska/                    /prihlaska/*         veřejná přihláška
+    organizator/prihlaseni.tsx    /organizator/prihlaseni
+    organizator/_app.tsx          layout + guard pro /organizator/*
+    ucastnik/…                    totéž pro účastníka
+  components/         sdílené komponenty podle atomic designu — viz src/components/README.md
+  features/<feature>/ doménová logika jedné oblasti
+    api/              zod schémata, queryOptions, query keys, mutace
+    hooks/            React hooky nad api/
+    components/       doménové bloky složené z components/**
+    lib/              pomocné funkce feature
+  config/ hooks/ lib/ styles/
 ```
 
-## Available Scripts
+- Importy přes alias `@/` (= `src/`). Relativně jen sourozenec ve stejné složce.
+- Feature neimportuje z jiné feature. Co potřebují dvě features, patří do `components/` nebo `lib/`.
+- `routeTree.gen.ts` je generovaný (dev server / build) a commituje se. Při konfliktu ho nespojuj ručně — vezmi kteroukoliv verzi a pusť `pnpm frontend build`.
 
-In the project directory, you can run:
+## Data z API (vzor)
 
-### `pnpm dev`
+```ts
+// features/events/api/eventSchemas.ts — každá odpověď serveru projde zod schématem
+export const eventSchema = z.object({ id: z.string(), name: z.string() })
+export type Event = z.infer<typeof eventSchema>
 
-Runs the app in the development mode.\ Open [http://localhost:3050](http://localhost:3050) to view it in the browser.
+// features/events/api/eventsQueryOptions.ts
+export const eventsQueryOptions = () =>
+  queryOptions({
+    queryKey: eventKeys.lists(),
+    queryFn: async () => z.array(eventSchema).parse(await api.get("organizer/events").json()),
+  })
+```
 
-The page will reload if you make edits.\ You will also see any lint errors in the console.
+Po mutaci invaliduj dotčené query (`queryClient.invalidateQueries`). Ruční tlačítko „Obnovit“ patří jen do chybového stavu.
 
-### `pnpm test`
+## Příkazy
 
-Launches the test runner in the interactive watch mode.
+Z kořene repozitáře:
 
-### `pnpm build`
+```bash
+pnpm frontend dev          # http://localhost:3050
+pnpm frontend test         # Vitest ve watch módu
+pnpm frontend test:ci
+pnpm frontend lint:check
+pnpm frontend type-check
+pnpm frontend build
+```
 
-Builds the app for production to the `build` folder.\ It correctly bundles React in production mode and optimizes the build for the best performance.
+## Env
 
-The build is minified and the filenames include the hashes.\ Your app is ready to be deployed!
-
-## Edit ENV Variables
-
-Copy [`./.env.example`](./.env.example) to `./.env` (or let `pnpm dev` do it for you).
-
-Any variable defined in `.env.local` has priority over `.env`.
-
-Any custom ENV variable that should be accessible in frontend needs an `VITE_` prefix (this is for security).
-
-More about [ENV variables in Vite documentation](https://vitejs.dev/guide/env-and-mode)
+`.env` vznikne z [`.env.example`](.env.example) při `pnpm dev`. Proměnné pro frontend musí mít prefix `VITE_` a zapékají se do bundlu při buildu.

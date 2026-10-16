@@ -1,180 +1,68 @@
-# Quacker Backend
+# kemp.io — backend
 
-A simplified version of Applifting's backend template for educational purposes.
+NestJS + Prisma + PostgreSQL + BetterAuth. REST API pod `/api`, Swagger na http://localhost:4050/api/docs.
 
-## What's been set up for you
+## Struktura
 
-Compared to the bare bones Nest app you get when you create a new project, we also set this all up for you:
-
-- **TypeScript Strict** mode
-- **Prisma ORM**
-- **Docker Compose** runs the **Postgres** database for local development
-- BetterAuth-based authentication - this should allow for easy extending with e.g. social login providers
-- Example database entity (**Quack**) with migrations
-- Configured tests and resolve common issues with them in Nest (like proper path resolving)
-- Decorator-based configuration with our `@applifting-io/nestjs-decorated-config` package
-- Unit tests
-
-## Basic feature module architecture
-
-Just a general example on how to structure a feature module, not a strict rule.
-
-```mermaid
-classDiagram
-
-  namespace services {
-    class FeatureService
-  }
-
-  namespace presentation {
-    class FeatureController
-    class CreateFeatureDto
-    class UpdateFeatureDto
-    class FeatureResponseDto
-  }
-
-  namespace repositories {
-    class FeatureRepository
-  }
-
-  FeatureController --> CreateFeatureDto
-  FeatureController --> UpdateFeatureDto
-  FeatureController --> FeatureResponseDto
-  FeatureController ..> FeatureService
-  FeatureService ..> FeatureRepository
+```
+src/
+  main.ts             start aplikace, CORS, BetterAuth na /api/auth/*, Swagger
+  app.module.ts       registrace modulů
+  core/               infrastruktura bez znalosti domény (prisma, email)
+  shared/             průřezové věci této aplikace (auth, config, guardy)
+  modules/            doménové moduly — viz src/modules/README.md
+  scripts/seed/       ukázková data
+  generated/prisma/   vygenerovaný Prisma klient (negitovaný)
+prisma/
+  schema.prisma       datový model
+  migrations/         SQL migrace (gitované)
 ```
 
-## Decisions explanation
+Vzor modulu a pravidla vrstev: [src/modules/README.md](src/modules/README.md).
 
-- PostgreSQL running in Docker Compose for consistent development and production environments
-- Prisma over TypeORM as it's newer, more type safe and offers a better developer experience overall
-- REST API documented via Swagger/OpenAPI (NestJS `@nestjs/swagger`)
-- BetterAuth library for authentication to provide battery-included solution for registering users, logging in, email verification etc. without having to re-invent the wheel
+## Příkazy
 
-## Database Configuration
-
-This project uses PostgreSQL running in Docker Compose for both development and production-like environments.
-
-1. Start the database (`pnpm dev` from the repo root does this for you):
+Spouštěj z kořene repozitáře s prefixem `pnpm backend`:
 
 ```bash
-pnpm backend docker:up
+pnpm backend start:dev                 # dev server s watch
+pnpm backend test                      # unit testy (Jest)
+pnpm backend test:cov                  # pokrytí → coverage/
+pnpm backend lint:check
+pnpm backend docker:up:wait            # jen databáze (Postgres na 5433)
+pnpm backend seed                      # ukázková data (přeskočí se, když v DB jsou uživatelé)
+pnpm backend db:reset                  # smaže DB, aplikuje migrace a znovu seedne
+pnpm backend prisma:studio             # prohlížeč dat na http://localhost:5555
 ```
 
-   It listens on host port **5433** so it can't clash with a Postgres you already run locally. Credentials for development are `quacker` / `quacker` / `quacker`.
+## Změna datového modelu
 
-2. Browse the data:
+1. Uprav `prisma/schema.prisma`.
+2. `pnpm backend prisma:migrations:run` — vytvoří a aplikuje migraci.
+3. Uprav seed, pokud nová data potřebuje.
 
-```bash
-pnpm backend prisma:studio
-```
+Pravidlo týmu: **jedna migrace na PR**. Než PR mergneš, rebasni na `main`; pokud mezitím přibyla jiná migrace, smaž svoji a vygeneruj ji znovu.
 
-## Running in Development
+## BetterAuth
 
-```bash
-pnpm backend start:dev
-```
+Autentizace je černá skříňka na `/api/auth/*` (dokumentace na `/api/auth/reference`). Konfigurace je na dvou místech:
 
-## API Documentation
+- `src/shared/auth/config/better-auth.config.ts` — část, která mění DB schéma (používá ji i CLI `pnpm backend auth:generate`),
+- `src/shared/auth/providers/better-auth.provider.ts` — kompletní konfigurace aplikace (e-maily, URL…), rozšiřuje tu první.
 
-REST API (Swagger/OpenAPI) is available at http://localhost:4050/api/docs when the server is running.
+Chráněný endpoint: `@UseGuards(AuthenticatedUserGuard)` a přihlášený uživatel přes `@User() user: Identity`.
 
-# Installation
+## E-maily
 
-First, make sure that you provided all the necessary env variables in .env file using .env.example as a template.
+Šablony jsou React komponenty ([react-email](https://react.email)) v `src/core/email/templates/`. Náhled: `pnpm backend email:dev`.
 
-```bash
-$ pnpm install
-```
+Odesílání vybírá adaptér podle env (první shoda vyhrává):
 
-or
-
-```bash
-$ pnpm backend docker:up # starts the Postgres container
-```
-
-### Running the app
-
-```bash
-# watch mode (you will mostly need this)
-$ pnpm backend start:dev
-
-# production mode
-$ pnpm backend start:prod
-
-# locally with docker compose (run in repo root) - will only run database for you now, you still need to run the server manually using the previous commands
-$ pnpm backend docker:up
-
-# regenerate prisma schema and reseed data after changes
-$ pnpm backend seed
-```
-
-### Prisma
-
-All Prisma commands should be run from the root directory of the project using the `pnpm backend` prefix:
-
-```bash
-# generate Prisma client and seed DB
-$ pnpm backend seed
-# open Prisma Studio to view/edit data
-$ pnpm backend prisma:studio
-```
-
-After changing `prisma/schema.prisma` you must create and apply a migration — the seed does not do it for you:
-
-```bash
-$ pnpm backend prisma:migrations:run   # creates + applies a migration
-$ pnpm backend seed                    # refill demo data
-```
-
-### Test
-
-There is one example unit test (`src/modules/quack/services/quacks.service.spec.ts`) showing the pattern: mock the repository, test the service in isolation. CI runs it on every PR.
-
-```bash
-# unit tests
-$ pnpm backend test
-
-# test with coverage (will generate a coverage report HTML files in the coverage folder)
-$ pnpm backend test:cov
-```
-
-### Better Auth
-
-In this application, [**better-auth**](https://www.npmjs.com/package/better-auth) is utilized as the authentication module. It is designed to be easily extended with additional features or plugins, such as social login providers, multi-factor authentication, and more. Whenever database changes related to authentication are required, the following command should be run:
-
-```bash
-# propagate changes to the database schema (schema.prisma)
-$ pnpm backend auth:generate
-```
-
-Hopefully you won't need to use this command and the following part, unless you want to change how the auth works/add more features to it (better ask us if you're trying to/need to for your project):
-
-Keep in mind that there are 2 better auth configurations, one in the src/shared/auth/providers/better-auth.provider.ts (the complete config that is being used in the whole app) and one in the src/shared/auth/config/better-auth.config.ts (this config is being used by the CLI command above). You need to add the necessary changes to the better-auth config file to generate new database schema changes.
-
-
-
-### Email Service
-
-Emails are sent via [Resend](https://resend.com). Templates are authored as React components using [react-email](https://react.email) and live in `src/core/email/templates/`.
-
-- `ResendAdapter` is used automatically when `RESEND_API_KEY` is set.
-- If `RESEND_API_KEY` is empty (the default in `.env.example`), the `ConsoleMailerAdapter` logs emails to stdout — handy for local dev.
-- The `from` address comes from `EMAIL_FROM`.
-
-#### Authoring templates
-
-Templates are plain `.tsx` React components receiving typed props. Use the components from `@react-email/components` to keep markup email-client safe.
-
-Preview templates locally with the bundled react-email dev server:
-
-```bash
-pnpm backend email:dev
-```
-
-To render a template to HTML at runtime, use the `renderEmail` helper in `src/core/email/render.ts`:
+1. `RESEND_API_KEY` → Resend,
+2. `SMTP_HOST` + `SMTP_USERNAME` + `SMTP_PASSWORD` → SMTP (na stagingu Brevo),
+3. jinak se e-mail vypíše do konzole backendu.
 
 ```ts
 const html = await renderEmail(VerifyEmail, { url });
-await emailProvider.sendEmail(user.email, 'Verify your email address', html);
+await emailProvider.sendEmail(user.email, 'Ověření e-mailové adresy', html);
 ```
