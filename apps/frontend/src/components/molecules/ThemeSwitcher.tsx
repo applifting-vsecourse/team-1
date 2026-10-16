@@ -1,4 +1,5 @@
 import { Monitor, Moon, Sun } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -10,6 +11,7 @@ import {
 import { useTheme } from "@/hooks/useTheme"
 
 export function ThemeSwitcher() {
+  const { t } = useTranslation()
   const { setTheme } = useTheme()
 
   return (
@@ -18,7 +20,7 @@ export function ThemeSwitcher() {
         <Button
           variant="ghost"
           size="icon"
-          aria-label="Přepnout vzhled"
+          aria-label={t("theme.toggle")}
         >
           <Sun className="size-4 dark:hidden" />
           <Moon className="hidden size-4 dark:block" />
@@ -26,13 +28,13 @@ export function ThemeSwitcher() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem onClick={() => setTheme("light")}>
-          <Sun className="size-4" /> Světlý
+          <Sun className="size-4" /> {t("theme.light")}
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => setTheme("dark")}>
-          <Moon className="size-4" /> Tmavý
+          <Moon className="size-4" /> {t("theme.dark")}
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => setTheme("system")}>
-          <Monitor className="size-4" /> Podle systému
+          <Monitor className="size-4" /> {t("theme.system")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

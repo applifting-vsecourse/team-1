@@ -1,3 +1,4 @@
+import { Locale } from '@/core/email/locale';
 import { User } from '@/generated/prisma/client';
 import { AccountType } from '@/shared/auth/domain/identity';
 import { BetterAuth } from '@/shared/auth/providers/better-auth.provider';
@@ -13,6 +14,8 @@ type CreateUserParams = {
   name: string;
   accountType: AccountType;
   mustSetPassword?: boolean;
+  /** Seed accounts are Czech (the client's audience). */
+  locale?: Locale;
 };
 
 /**
@@ -31,11 +34,19 @@ export async function createUser(
     name,
     accountType,
     mustSetPassword = false,
+    locale = 'cs',
   } = params;
   const context = await auth.$context;
 
   const user = (await context.internalAdapter.createUser(
-    { email, name, emailVerified: true, accountType, mustSetPassword },
+    {
+      email,
+      name,
+      emailVerified: true,
+      accountType,
+      mustSetPassword,
+      locale,
+    },
     { method: 'email-password' },
   )) as User;
 

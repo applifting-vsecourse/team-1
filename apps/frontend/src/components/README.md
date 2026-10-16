@@ -20,4 +20,4 @@ Stránky aplikace jsou routy v `src/routes/` — skládají template, organismy 
 - Chybí ovládací prvek? `pnpm dlx shadcn@latest add <name>` (z `apps/frontend`) a odstranit `shadow-xs` / `shadow-sm`, viz [DESIGN.md](../../../../DESIGN.md).
 - Nová komponenta jde do nejnižší vrstvy, kam dává smysl. Když ji použije jen jedna feature, zůstává ve feature.
 - Každý seznam má tři stavy: `LoadingState`, `EmptyState`, `ErrorState`.
-- Texty v UI česky, identifikátory anglicky.
+- Žádné texty napevno: každý text jde přes `useTranslation()` a klíče v `src/i18n/locales/{en,cs}`. Sdílené komponenty používají namespace `common`.

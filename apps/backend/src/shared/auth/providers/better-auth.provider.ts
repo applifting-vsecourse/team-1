@@ -1,7 +1,14 @@
 import { EmailService } from '@/core/email/interfaces/email-service.interface';
+import { toLocale } from '@/core/email/locale';
 import { renderEmail } from '@/core/email/render';
-import { ResetPassword } from '@/core/email/templates/reset-password';
-import { VerifyEmail } from '@/core/email/templates/verify-email';
+import {
+  ResetPassword,
+  resetPasswordSubject,
+} from '@/core/email/templates/reset-password';
+import {
+  VerifyEmail,
+  verifyEmailSubject,
+} from '@/core/email/templates/verify-email';
 import { PrismaService } from '@/core/prisma/prisma.service';
 import { betterAuthCoreConfig } from '@/shared/auth/config/better-auth.config';
 import { Config } from '@/shared/config/config.service';
@@ -35,20 +42,28 @@ const createAuth = (
       disableSignUp: true,
       sendResetPassword: async ({ user, token }) => {
         const passwordResetUrl = `${config.frontendUrl}/${config.frontendResetPasswordUrl}?token=${token}`;
+        // E-mails go out in the account's language (User.locale).
+        const locale = toLocale((user as { locale?: unknown }).locale);
         const html = await renderEmail(ResetPassword, {
           username: user.name,
           url: passwordResetUrl,
+          locale,
         });
-        await emailProvider.sendEmail(user.email, 'Obnova hesla', html);
+        await emailProvider.sendEmail(
+          user.email,
+          resetPasswordSubject(locale),
+          html,
+        );
       },
     },
     trustedOrigins: [config.frontendUrl],
     emailVerification: {
       sendVerificationEmail: async ({ user, url }) => {
-        const html = await renderEmail(VerifyEmail, { url });
+        const locale = toLocale((user as { locale?: unknown }).locale);
+        const html = await renderEmail(VerifyEmail, { url, locale });
         await emailProvider.sendEmail(
           user.email,
-          'Ověření e-mailové adresy',
+          verifyEmailSubject(locale),
           html,
         );
       },

@@ -1,3 +1,4 @@
+import { Locale } from '@/core/email/locale';
 import { AccountType } from '@/shared/auth/domain/identity';
 
 export type OrganizationSummary = {
@@ -11,6 +12,8 @@ export type Account = {
   name: string | null;
   accountType: AccountType;
   mustSetPassword: boolean;
+  /** Language of e-mails to this account. */
+  locale: Locale;
   /** Organizations an organizer acts for; empty for other account types. */
   organizations: OrganizationSummary[];
 };

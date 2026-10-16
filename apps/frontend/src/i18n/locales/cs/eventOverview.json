@@ -1,0 +1,11 @@
+{
+  "applications": {
+    "title": "Přihlášky"
+  },
+  "dashboard": {
+    "title": "Přehled"
+  },
+  "overview": {
+    "title": "Přehled akce"
+  }
+}

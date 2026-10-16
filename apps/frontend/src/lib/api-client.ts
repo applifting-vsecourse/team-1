@@ -2,6 +2,8 @@ import ky, { HTTPError } from "ky"
 
 import { env } from "@/config/env"
 import { queryClient } from "@/config/react-query"
+import { currentLanguage, i18n } from "@/i18n"
+import { resources } from "@/i18n/resources"
 import { authKeys } from "@/lib/auth-keys"
 
 // Single shared HTTP client. Per the Applifting frontend playbook:
@@ -12,21 +14,43 @@ import { authKeys } from "@/lib/auth-keys"
 //
 // Paths are joined onto `prefix`, and a leading slash is normalised away, so
 // both `api.get("organizer/events")` and `api.get("/organizer/events")` hit the same endpoint.
+type ErrorCode = keyof (typeof resources)["en"]["errors"]
+
+const isKnownErrorCode = (code: unknown): code is ErrorCode =>
+  typeof code === "string" && code in resources.en.errors
+
 export const api = ky.create({
   prefix: env.VITE_API_URL,
   credentials: "include",
   retry: { limit: 0 },
   hooks: {
-    // NestJS returns { message: string | string[] } on validation failures.
+    // The API tells the frontend which language the user reads, e.g. for the
+    // language of the confirmation e-mail (docs/PROJEKT.md, localization).
+    beforeRequest: [
+      ({ request }) => {
+        request.headers.set("Accept-Language", currentLanguage())
+      },
+    ],
+    // The API answers errors with { code, message }. The code is translated
+    // here (locales/*/errors.json), so the user reads the message in their
+    // language; the English `message` is the fallback for unknown codes.
     // Without this the user would see ky's generic "Request failed with status
     // code 400" and never learn what was actually wrong.
     beforeError: [
       async ({ error }) => {
         if (!(error instanceof HTTPError)) return error
         try {
-          const body = (await error.response.clone().json()) as { message?: string | string[] }
+          const body = (await error.response.clone().json()) as {
+            code?: string
+            message?: string | string[]
+          }
           const message = Array.isArray(body.message) ? body.message.join(", ") : body.message
-          if (message) error.message = message
+          if (isKnownErrorCode(body.code)) {
+            error.message = i18n.t(`errors:${body.code}`)
+          } else if (message) {
+            error.message = message
+          }
+          Object.assign(error, { code: body.code })
         } catch {
           // response had no JSON body — keep ky's default message
         }
@@ -44,3 +68,10 @@ export const api = ky.create({
 })
 
 export { HTTPError }
+
+/** Machine-readable error code from the API, e.g. `FORBIDDEN`. */
+export function apiErrorCode(error: unknown): string | undefined {
+  if (!(error instanceof HTTPError)) return undefined
+  const { code } = error as HTTPError & { code?: unknown }
+  return typeof code === "string" ? code : undefined
+}

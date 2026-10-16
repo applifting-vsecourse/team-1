@@ -18,6 +18,7 @@ describe('OrganizationAccessService (integration)', () => {
       user.name,
       user.accountType,
       user.mustSetPassword,
+      user.locale,
     );
   };
   const eventIdOf = async (publicToken: string): Promise<string> =>

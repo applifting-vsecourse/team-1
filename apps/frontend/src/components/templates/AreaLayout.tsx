@@ -14,7 +14,7 @@ type AreaLayoutProps = {
 /**
  * Chrome of the signed-in areas. Organizer and participant layouts differ only
  * in navigation and content width, so they share this template; the route
- * layouts (`routes/organizator/_app.tsx`, `routes/ucastnik/_app.tsx`) fill the
+ * layouts (`routes/organizer/_app.tsx`, `routes/participant/_app.tsx`) fill the
  * slots.
  */
 export function AreaLayout({ nav, userMenu, width, children }: AreaLayoutProps) {

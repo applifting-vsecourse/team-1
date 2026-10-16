@@ -37,9 +37,14 @@ describe('accounts (integration)', () => {
     ).toBe(0);
   });
 
-  it('answers /api/me without a session with 401', async () => {
+  it('answers /api/me without a session with 401 and a code to translate', async () => {
     const response = await fetch(api('/me'));
+
     expect(response.status).toBe(401);
+    expect(await response.json()).toMatchObject({
+      statusCode: 401,
+      code: 'UNAUTHORIZED',
+    });
   });
 
   it('rejects a wrong password', async () => {
@@ -70,6 +75,7 @@ describe('accounts (integration)', () => {
     expect(await response.json()).toMatchObject({
       accountType: 'PARTICIPANT',
       mustSetPassword: false,
+      locale: 'cs',
       organizations: [],
     });
   });

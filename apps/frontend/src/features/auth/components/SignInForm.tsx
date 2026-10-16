@@ -1,6 +1,9 @@
+import { useMemo } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
+import type { TFunction } from "i18next"
 import { Loader2 } from "lucide-react"
 import { useForm } from "react-hook-form"
+import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -15,12 +18,18 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 
-const schema = z.object({
-  email: z.string().trim().min(1, "Vyplňte e-mail").email("Neplatný e-mail"),
-  password: z.string().trim().min(1, "Vyplňte heslo"),
-})
+// Built per render language so validation messages follow the UI language.
+const createSchema = (t: TFunction<"auth">) =>
+  z.object({
+    email: z
+      .string()
+      .trim()
+      .min(1, t("form.errors.emailRequired"))
+      .email(t("form.errors.emailInvalid")),
+    password: z.string().trim().min(1, t("form.errors.passwordRequired")),
+  })
 
-type FormValues = z.infer<typeof schema>
+type FormValues = z.infer<ReturnType<typeof createSchema>>
 
 const defaultValues: FormValues = { email: "", password: "" }
 
@@ -31,6 +40,8 @@ type SignInFormProps = {
 }
 
 export function SignInForm({ isLoading, errorMessage, onSubmit }: SignInFormProps) {
+  const { t } = useTranslation("auth")
+  const schema = useMemo(() => createSchema(t), [t])
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues,
@@ -54,11 +65,11 @@ export function SignInForm({ isLoading, errorMessage, onSubmit }: SignInFormProp
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>E-mail</FormLabel>
+              <FormLabel>{t("form.email")}</FormLabel>
               <FormControl>
                 <Input
                   type="email"
-                  placeholder="např. jana@example.com"
+                  placeholder={t("form.emailPlaceholder")}
                   autoComplete="email"
                   {...field}
                 />
@@ -73,7 +84,7 @@ export function SignInForm({ isLoading, errorMessage, onSubmit }: SignInFormProp
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Heslo</FormLabel>
+              <FormLabel>{t("form.password")}</FormLabel>
               <FormControl>
                 <Input
                   type="password"
@@ -93,7 +104,7 @@ export function SignInForm({ isLoading, errorMessage, onSubmit }: SignInFormProp
           disabled={isLoading}
         >
           {isLoading ? <Loader2 className="size-4 animate-spin" /> : null}
-          Přihlásit se
+          {t("form.submit")}
         </Button>
       </form>
     </Form>

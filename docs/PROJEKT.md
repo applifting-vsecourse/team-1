@@ -144,7 +144,7 @@ Sdílené soubory (`schema.prisma`, `app.module.ts`, `routes.ts`, `components/*`
 
 ## 7. Slovník (doména → kód)
 
-Kód, DB a API anglicky; UI, URL stránek a dokumentace česky.
+Kód, DB, API i URL anglicky; texty v UI a e-mailech lokalizované (EN / CZ); dokumentace česky.
 
 | Česky                    | V kódu                                               |
 | ------------------------ | ---------------------------------------------------- |
@@ -189,32 +189,32 @@ Payment               organizationId, applicationId, amountCzk, recordedById, cr
 
 ## 9. Architektura
 
-### Routy (URL česky)
+### Routy (URL anglicky, stejné pro oba jazyky)
 
 ```
 Veřejné
-  /                                  landing (US-96)
-  /prihlaska/$token                  formulář přihlášky (US-23)
-  /prihlaska/potvrzeni/$accessToken  stav a platební údaje (US-25)
+  /                                    landing (US-96)
+  /apply/$token                        formulář přihlášky (US-23)
+  /apply/confirmation/$accessToken     stav a platební údaje (US-25)
 
 Přihlášení
-  /organizator/prihlaseni            e-mail + heslo (S01)
-  /ucastnik/prihlaseni               e-mail + heslo, nebo „pošlete mi odkaz“ (S10)
-  /ucastnik/nastaveni-hesla          povinně po prvním vstupu odkazem (S09)
+  /organizer/login                     e-mail + heslo (S01)
+  /participant/login                   e-mail + heslo, nebo „pošlete mi odkaz“ (S10)
+  /participant/set-password            povinně po prvním vstupu odkazem (S09)
 
 Organizátor (jen ORGANIZER, jinak 403)
-  /organizator                       dashboard (O01)
-  /organizator/akce                  akce seskupené podle pořadatele (O02)
-  /organizator/akce/nova
-  /organizator/akce/$eventId         přehled a obsazenost (US-29)
-  /organizator/akce/$eventId/terminy
-  /organizator/akce/$eventId/ubytovani
-  /organizator/akce/$eventId/prihlasky
-  /organizator/ucet
+  /organizer                           dashboard (O01)
+  /organizer/events                    akce seskupené podle pořadatele (O02)
+  /organizer/events/new
+  /organizer/events/$eventId           přehled a obsazenost (US-29)
+  /organizer/events/$eventId/terms
+  /organizer/events/$eventId/rooms
+  /organizer/events/$eventId/applications
+  /organizer/account
 
 Účastník (jen PARTICIPANT)
-  /ucastnik                          moje přihláška (US-54)
-  /ucastnik/ucet
+  /participant                         moje přihláška (US-54)
+  /participant/account
 ```
 
 Organizace v URL není. Přístup se ověřuje přes členství v organizaci, které akce patří.
@@ -235,6 +235,15 @@ Organizace v URL není. Přístup se ověřuje přes členství v organizaci, kt
 /organizer/applications/:id/payments[/:id] zápis a zrušení platby
 /participant/applications                  moje přihlášky
 ```
+
+### Lokalizace (EN / CZ)
+
+- **Frontend:** i18next + react-i18next. Výchozí jazyk je angličtina; při první návštěvě rozhoduje jazyk prohlížeče (český prohlížeč → čeština). Přepínač v hlavičce, volba se pamatuje v `localStorage` (`togena.language`). URL jsou pro oba jazyky stejné.
+- **Překlady:** `apps/frontend/src/i18n/locales/{en,cs}/<namespace>.json`, jeden namespace na feature složku (`events`, `applicationForm`, `participant`, `eventOverview`, `auth`, `landing`) + `common` a `errors`. Každý proud edituje svoje soubory. Klíče jsou typově kontrolované proti angličtině a test hlídá, že obě jazykové verze mají stejné klíče.
+- **Formáty:** peníze a data přes `formatCzk` / `formatDate` v `lib/`, podle aktuálního jazyka (`1 500 Kč` / `CZK 1,500`).
+- **Chyby z API:** backend vrací `{ statusCode, code, message }`; frontend přeloží `code` přes `errors.json`. Nový kód = `shared/errors/error-code.ts` + oba `errors.json`.
+- **Jazyk požadavku:** frontend posílá `Accept-Language`, backend ho čte dekorátorem `@RequestLocale()`.
+- **E-maily:** v jazyce účtu (`User.locale`) nebo přihlášky (`Application.locale`, uloží se při odeslání z `@RequestLocale()`). Šablony mají texty obou jazyků vedle sebe (`core/email/templates`).
 
 ### Backend (NestJS)
 
@@ -293,8 +302,8 @@ apps/frontend/src/
 | 2026-10-16 | **Jeden typ na účet** (`ORGANIZER` / `PARTICIPANT` / `ADMIN`). Jeden e-mail nemůže být organizátor i účastník.                                                                                                                                                                      | tech lead |
 | 2026-10-16 | **Účastník dostává magic link místo jednorázového hesla.** Odkaz platí 7 dní a jde použít jednou. První vstup odkazem vynutí nastavení vlastního hesla (min. 8 znaků); dál se přihlašuje heslem. Na S10 si může nechat poslat nový odkaz. Magic link funguje jen pro `PARTICIPANT`. | tech lead |
 | 2026-10-16 | Existuje-li účet účastníka k e-mailu, nová přihláška se k němu přiřadí a e-mail obsahuje odkaz na přihlášení (bez vynuceného nastavení hesla, pokud ho už má).                                                                                                                      | tech lead |
-| 2026-10-16 | Odkaz na přihlášku = neuhodnutelný token `/prihlaska/<token>`.                                                                                                                                                                                                                      | tech lead |
-| 2026-10-16 | Stránka po odeslání má tajnou URL `/prihlaska/potvrzeni/<accessToken>`, takže přežije obnovení a může být v e-mailu.                                                                                                                                                                | tech lead |
+| 2026-10-16 | Odkaz na přihlášku = neuhodnutelný token `/apply/<token>`.                                                                                                                                                                                                                          | tech lead |
+| 2026-10-16 | Stránka po odeslání má tajnou URL `/apply/confirmation/<accessToken>`, takže přežije obnovení a může být v e-mailu.                                                                                                                                                                 | tech lead |
 | 2026-10-16 | Další přihláška se stejným e-mailem na stejnou akci je povolená (přiřadí se k účtu).                                                                                                                                                                                                | tech lead |
 | 2026-10-16 | E-mail organizátora v přihlášce → chyba u pole „Tento e-mail nelze použít pro přihlášku, zadej jiný.“                                                                                                                                                                               | tech lead |
 | 2026-10-16 | Pokles kapacity pod počet potvrzených je povolený; zobrazí se přebookování. Nikdo se automaticky nepřesouvá — ani dolů, ani nahoru (US-28, US-31 později). Nové přihlášky jdou mezi náhradníky.                                                                                     | tech lead |
@@ -308,7 +317,7 @@ apps/frontend/src/
 | 2026-10-16 | Stack zůstává ze starteru. FE podle atomic designu (globální `components/{atoms,molecules,organisms,templates}` + `features/`), shadcn zůstává v `components/ui`.                                                                                                                   | tech lead |
 | 2026-10-16 | Tokeny z Figmy, pravidla z DESIGN.md.                                                                                                                                                                                                                                               | tech lead |
 | 2026-10-16 | Licence MIT: zachovat copyright autorů starteru + přidat tým.                                                                                                                                                                                                                       | tech lead |
-| 2026-10-16 | Jazyk: kód, DB, API, commity a komentáře anglicky; UI, URL stránek, dokumentace, issues a PR česky.                                                                                                                                                                                 | tech lead |
+| 2026-10-16 | Jazyk: kód, DB, API, **URL**, commity a komentáře anglicky; dokumentace, issues a PR česky. Texty v UI a e-mailech jsou **lokalizované EN / CZ** (viz sekce 9, Lokalizace).                                                                                                         | tech lead |
 | 2026-10-16 | Práce po vertikálních řezech: kdo vezme story, dělá BE + FE + testy.                                                                                                                                                                                                                | tech lead |
 | 2026-10-16 | Vyvíjí celý tým. Proudy: A + landing Jakubkuba9000, B kudrle01, C PJjiry, D Aadikk. Story schvaluje product manager Aadikk.                                                                                                                                                         | tech lead |
 | 2026-10-16 | Git: viz sekce 12.                                                                                                                                                                                                                                                                  | tech lead |

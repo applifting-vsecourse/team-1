@@ -1,11 +1,14 @@
 import { Loader2 } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 type LoadingStateProps = {
   /** Announced to screen readers; the spinner itself is decorative. */
   label?: string
 }
 
-export function LoadingState({ label = "Načítání…" }: LoadingStateProps) {
+export function LoadingState({ label }: LoadingStateProps) {
+  const { t } = useTranslation()
+
   return (
     <div
       role="status"
@@ -15,7 +18,7 @@ export function LoadingState({ label = "Načítání…" }: LoadingStateProps) {
         aria-hidden
         className="size-5 animate-spin"
       />
-      <span className="sr-only">{label}</span>
+      <span className="sr-only">{label ?? t("state.loading")}</span>
     </div>
   )
 }

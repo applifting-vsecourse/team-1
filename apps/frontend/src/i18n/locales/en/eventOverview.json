@@ -1,0 +1,11 @@
+{
+  "applications": {
+    "title": "Applications"
+  },
+  "dashboard": {
+    "title": "Overview"
+  },
+  "overview": {
+    "title": "Event overview"
+  }
+}
