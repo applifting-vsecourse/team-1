@@ -28,7 +28,7 @@ pnpm dev
 
 Frontend běží na http://localhost:3050, API na http://localhost:4050/api a Swagger na http://localhost:4050/api/docs.
 
-## Tým
+## Team
 
 **Technical lead:** [kudrle01](https://github.com/kudrle01)
 

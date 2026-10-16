@@ -39,7 +39,7 @@ Jádro MVP:
 - Hesla do logů a DB má tech lead; do repozitáře nepatří.
 - **Do Coolify (env proměnné stagingu) přístup nemáme.** Prostředí spravuje kurz. Viz otevřené body.
 
-## 3. Tým
+## 3. Team
 
 **Technical lead:** [kudrle01](https://github.com/kudrle01) — responsible for the technical foundation (Phase 0, US-71, US-72).
 
