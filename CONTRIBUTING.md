@@ -56,6 +56,20 @@ pnpm format                         # Prettier na celý repozitář
 | Auth API | http://localhost:4050/api/auth/reference               |
 | DB       | Postgres na `localhost:5433`, `kemp` / `kemp` / `kemp` |
 
+### Účty ze seedu
+
+Registrace je vypnutá (ve sprintu 1 se nikdo neregistruje), takže se přihlašuj účty ze seedu:
+
+| E-mail                     | Heslo           | Typ         | Co vidí                                                         |
+| -------------------------- | --------------- | ----------- | --------------------------------------------------------------- |
+| `organizator@example.com`  | `password1`     | organizátor | Letní kemp z. s. — akce „Letní kemp 2027“                       |
+| `organizator2@example.com` | `password2`     | organizátor | Horský spolek Sněžka — akce „Horský víkend 2027“ (s náhradnicí) |
+| `organizator3@example.com` | `password3`     | organizátor | obě organizace (akce seskupené podle pořadatele)                |
+| `ucastnik@example.com`     | `password4`     | účastník    | přihláška na oba týdny Letního kempu, zaplaceno                 |
+| `admin@example.com`        | `adminpassword` | admin       | zatím nic (bez UI)                                              |
+
+Odkazy na přihlášku ze seedu: `/prihlaska/demo-letni-kemp-2027` a `/prihlaska/demo-horsky-vikend-2027`. Skutečné akce dostanou náhodný token.
+
 Porty jsou zafixované: API přijímá požadavky jen z přesného originu frontendu, takže posunutý port se projeví jako CORS chyba.
 
 E-maily se lokálně vypisují do terminálu backendu.

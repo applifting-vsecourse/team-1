@@ -29,6 +29,10 @@ const createAuth = (
     emailAndPassword: {
       ...betterAuthCoreConfig.emailAndPassword,
       enabled: true,
+      // Nobody signs up in sprint 1 (docs/PROJEKT.md): organizers come from the
+      // seed, participant accounts from a submitted application. Accounts are
+      // created server-side through the internal adapter (see create-user.ts).
+      disableSignUp: true,
       sendResetPassword: async ({ user, token }) => {
         const passwordResetUrl = `${config.frontendUrl}/${config.frontendResetPasswordUrl}?token=${token}`;
         const html = await renderEmail(ResetPassword, {

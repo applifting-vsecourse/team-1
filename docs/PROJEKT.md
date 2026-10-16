@@ -166,7 +166,7 @@ Kód, DB a API anglicky; UI, URL stránek a dokumentace česky.
 ## 8. Datový model (US-71)
 
 ```
-User (BetterAuth)     accountType: ORGANIZER | PARTICIPANT | ADMIN, mustSetPassword
+User (BetterAuth)     accountType: ORGANIZER | PARTICIPANT | ADMIN, mustSetPassword (obojí v session)
 Organization          name, bankAccount
 OrganizationMember    userId, organizationId                       (M:N, organizátor ↔ organizace)
 Event                 organizationId, name, description?, location?, publicToken (unikátní, neuhodnutelný)
@@ -183,6 +183,8 @@ Payment               organizationId, applicationId, amountCzk, recordedById, cr
 - Peníze jako celé číslo v Kč (`Int`).
 - `Application.number` je globální autoincrement → VS.
 - Cena se při vyhodnocení zkopíruje do `ApplicationTerm.priceCzk`; pozdější změna ceny termínu se týká jen nových přihlášek.
+- `Application.userId` je nullable: přihláška se uloží, i když účet účastníka ještě nevznikl (proud C).
+- Veřejná registrace (`/api/auth/sign-up`) je vypnutá. Účty vznikají jen na serveru (seed, přihláška).
 - Platby jsou řádky (`Payment`), ne příznak na přihlášce — připraveno na import z banky (US-42). Ve sprintu 1 UI zapíše nebo smaže jednu platbu; „zaplaceno bez částky“ uloží aktuální částku k úhradě.
 
 ## 9. Architektura

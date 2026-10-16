@@ -7,6 +7,7 @@ import { AuthLayout } from "@/components/templates/AuthLayout"
 
 import { authSessionQueryOptions } from "@/features/auth/api/authSessionQueryOptions"
 import { SignInWithRedirect } from "@/features/auth/components/SignInWithRedirect"
+import { accountHome } from "@/features/auth/lib/account-home"
 
 const searchSchema = z.object({
   from: z.string().optional(),
@@ -17,7 +18,7 @@ export const Route = createFileRoute("/organizator/prihlaseni")({
   loader: async ({ context }) => {
     const session = await context.queryClient.ensureQueryData(authSessionQueryOptions())
     if (!session) return
-    throw redirect({ to: ROUTES.organizer.dashboard })
+    throw redirect({ to: accountHome(session.user) })
   },
   component: OrganizerLoginPage,
 })

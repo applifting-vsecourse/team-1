@@ -1,18 +1,25 @@
-import { createFileRoute } from "@tanstack/react-router"
+import { createFileRoute, redirect } from "@tanstack/react-router"
 
 import { ROUTES } from "@/app/routes"
 import { Seo } from "@/components/atoms/Seo"
 import { AuthLayout } from "@/components/templates/AuthLayout"
 
-import { requireSession } from "@/features/auth/lib/require-session"
+import { authSessionQueryOptions } from "@/features/auth/api/authSessionQueryOptions"
+import { encodeRedirectUri } from "@/features/auth/lib/redirect"
 
 export const Route = createFileRoute("/ucastnik/nastaveni-hesla")({
   loader: async ({ context, location }) => {
-    await requireSession({
-      queryClient: context.queryClient,
-      location,
-      loginRoute: ROUTES.participant.login,
-    })
+    const session = await context.queryClient.ensureQueryData(authSessionQueryOptions())
+    if (!session) {
+      throw redirect({
+        to: ROUTES.participant.login,
+        search: { from: encodeRedirectUri(location) },
+      })
+    }
+    // Only a participant still without a password belongs here.
+    if (session.user.accountType !== "PARTICIPANT" || !session.user.mustSetPassword) {
+      throw redirect({ to: ROUTES.participant.applications })
+    }
   },
   component: SetPasswordPage,
 })

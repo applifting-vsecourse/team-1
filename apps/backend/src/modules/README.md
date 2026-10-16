@@ -2,6 +2,8 @@
 
 Jeden modul = jedna doménová oblast (akce, přihlášky, platby…). Modul vlastní svoje endpointy, logiku i přístup k datům a ostatní moduly používají jen to, co exportuje.
 
+Vzorový modul se všemi vrstvami: [`account/`](account) (`GET /api/me`).
+
 ## Struktura
 
 ```
@@ -30,7 +32,13 @@ modules/<modul>/
 - **Repository** převádí Prisma modely na doménové typy, aby se Prisma typy nedostaly ven z modulu.
 - **Doménové výpočty** (kapacita, vyhodnocení, cena, dluh) jsou čisté funkce v `domain/` — testují se bez databáze a počítají se jen na jednom místě.
 - **Autor / vlastník záznamu se bere ze session** (`@User() user: Identity`), nikdy z body požadavku.
-- **Data organizace** se vždy filtrují podle `organizationId` a cizí záznam vrací 403 bez obsahu (US-10).
+- **Ochrana endpointu:** `@Auth('ORGANIZER')` na controlleru (bez session 401, jiný typ účtu 403). `@Auth()` pustí kohokoliv přihlášeného. Veřejné endpointy (přihláška) dekorátor nemají.
+- **Data organizace** se vždy filtrují podle `organizationId` a cizí záznam vrací 403 bez obsahu (US-10). Nepiš kontrolu sám, použij `OrganizationAccessService` z `shared/organization-access`:
+  ```ts
+  const { organizationId } = await this.organizationAccess.assertCanAccessEvent(user, eventId);
+  // seznamy: where: { organizationId: { in: await this.organizationAccess.getOrganizationIds(user) } }
+  ```
+- **Výpočty kapacity, stavu a ceny** jsou jen v `modules/applications/domain` (`capacity.ts`, `evaluation.ts`, `pricing.ts`). Nepočítej je znovu jinde.
 - Validace: `ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true })`.
 - Každý endpoint má `@ApiTags`, `@ApiOperation` a `@ApiResponse`, aby Swagger (`/api/docs`) sloužil jako kontrakt pro frontend.
 - Testy: `*.spec.ts` = unit (bez DB), `*.int-spec.ts` = integrační proti Postgresu.

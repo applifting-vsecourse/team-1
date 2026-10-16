@@ -15,11 +15,29 @@ datasource db {
   provider = "postgresql"
 }
 
-enum UserRole {
-  user
-  admin
+// One account type per user (docs/PROJEKT.md, section 10): an e-mail is either
+// an organizer, a participant or the platform admin — never two at once.
+enum AccountType {
+  ORGANIZER
+  PARTICIPANT
+  ADMIN
 
-  @@map("user_role")
+  @@map("account_type")
+}
+
+// Gender as on the ID document — rooms are women's or men's (US-14, US-23).
+enum Gender {
+  FEMALE
+  MALE
+
+  @@map("gender")
+}
+
+enum ApplicationTermStatus {
+  CONFIRMED
+  WAITLISTED
+
+  @@map("application_term_status")
 }
 
 model Session {
@@ -71,21 +89,193 @@ model Verification {
 }
 
 model User {
-  id              String    @id
+  id              String      @id
   name            String
   email           String
   emailVerified   Boolean
-  image           String?   @db.Text
+  image           String?     @db.Text
   createdAt       DateTime
   updatedAt       DateTime
   sessions        Session[]
   accounts        Account[]
-  role            UserRole  @default(user)
+  accountType     AccountType @default(PARTICIPANT)
+  // Set for participant accounts created from an application: the first
+  // sign-in via magic link forces choosing a password (US-04).
+  mustSetPassword Boolean     @default(false)
 
-  username        String? @db.VarChar(50)
-  displayUsername String? @db.VarChar(50)
+  memberships      OrganizationMember[]
+  applications     Application[]
+  recordedPayments Payment[]
 
   @@unique([email])
-  @@unique([username])
   @@map("user")
+}
+
+// --- kemp.io domain -------------------------------------------------------
+// Every table holding an organization's data carries `organizationId`
+// directly, so isolation between organizations (US-10) is a single filter.
+// Money is whole CZK as Int.
+
+model Organization {
+  id          String   @id @default(cuid())
+  name        String
+  // Czech account number, e.g. "2900123456/2010" — shown with payment details.
+  bankAccount String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+
+  members          OrganizationMember[]
+  events           Event[]
+  terms            Term[]
+  rooms            Room[]
+  applications     Application[]
+  applicationTerms ApplicationTerm[]
+  payments         Payment[]
+
+  @@map("organization")
+}
+
+// Organizer ↔ organization (M:N): one account may act for several organizations.
+model OrganizationMember {
+  id             String       @id @default(cuid())
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId         String
+  createdAt      DateTime     @default(now())
+
+  @@unique([organizationId, userId])
+  @@index([userId])
+  @@map("organization_member")
+}
+
+model Event {
+  id             String       @id @default(cuid())
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId String
+  name           String
+  description    String?      @db.Text
+  location       String?
+  // Unguessable token in the public application link /prihlaska/<publicToken>.
+  publicToken    String       @unique
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @default(now()) @updatedAt
+
+  terms        Term[]
+  rooms        Room[]
+  applications Application[]
+
+  @@index([organizationId])
+  @@map("event")
+}
+
+model Term {
+  id             String       @id @default(cuid())
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId String
+  event          Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId        String
+  name           String
+  startsOn       DateTime     @db.Date
+  endsOn         DateTime     @db.Date
+  priceCzk       Int
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @default(now()) @updatedAt
+
+  applicationTerms ApplicationTerm[]
+
+  @@index([organizationId])
+  @@index([eventId])
+  @@map("term")
+}
+
+// Rooms belong to the event and apply to all of its terms (US-14).
+model Room {
+  id             String       @id @default(cuid())
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId String
+  event          Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId        String
+  name           String
+  // 1–20 beds, validated in the DTO.
+  capacity       Int
+  gender         Gender
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @default(now()) @updatedAt
+
+  @@index([organizationId])
+  @@index([eventId])
+  @@map("room")
+}
+
+model Application {
+  id             String       @id @default(cuid())
+  // Sequential application number, used as the variable symbol (VS) for payment.
+  number         Int          @unique @default(autoincrement())
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId String
+  event          Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId        String
+  // Participant account the application is attached to (US-01). Nullable so
+  // the application can be stored before the account exists.
+  user           User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId         String?
+  // Secret for the confirmation page /prihlaska/potvrzeni/<accessToken> (US-25).
+  accessToken    String       @unique
+  firstName      String
+  lastName       String
+  birthDate      DateTime     @db.Date
+  gender         Gender
+  email          String
+  consentAt      DateTime
+  // Arrival time on the server — decides the order of evaluation (US-27).
+  submittedAt    DateTime     @default(now())
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @default(now()) @updatedAt
+
+  terms    ApplicationTerm[]
+  payments Payment[]
+
+  @@index([organizationId])
+  @@index([eventId, submittedAt])
+  @@index([userId])
+  @@map("application")
+}
+
+// Result of evaluating one selected term of an application (US-27).
+model ApplicationTerm {
+  id             String                @id @default(cuid())
+  organization   Organization          @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId String
+  application    Application           @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  applicationId  String
+  term           Term                  @relation(fields: [termId], references: [id], onDelete: Cascade)
+  termId         String
+  status         ApplicationTermStatus
+  // Term price frozen at evaluation; later price changes affect only new applications.
+  priceCzk       Int
+  evaluatedAt    DateTime              @default(now())
+
+  @@unique([applicationId, termId])
+  @@index([termId, status])
+  @@index([organizationId])
+  @@map("application_term")
+}
+
+// Manually recorded payment (US-44). Rows rather than a flag so a bank
+// statement import (US-42) can add more later.
+model Payment {
+  id             String       @id @default(cuid())
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId String
+  application    Application  @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  applicationId  String
+  amountCzk      Int
+  recordedBy     User         @relation(fields: [recordedById], references: [id])
+  recordedById   String
+  createdAt      DateTime     @default(now())
+
+  @@index([organizationId])
+  @@index([applicationId])
+  @@map("payment")
 }
