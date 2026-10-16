@@ -41,13 +41,13 @@ Jádro MVP:
 
 ## 3. Tým
 
-| GitHub        | Role                                              |
-| ------------- | ------------------------------------------------- |
-| kudrle01      | Tech lead (US-71, US-72, fáze 0)                  |
-| Jakubkuba9000 | _doplnit_ (na boardu přiřazená většina sprintu 1) |
-| Aadikk        | _doplnit_ (US-77)                                 |
-| PJjiry        | _doplnit_                                         |
-| tomaskriz-max | _doplnit_                                         |
+| GitHub        | Role                                                           |
+| ------------- | -------------------------------------------------------------- |
+| kudrle01      | Tech lead (US-71, US-72, fáze 0)                               |
+| Jakubkuba9000 | Design (wireframy; na boardu přiřazená většina sprintu 1)      |
+| Aadikk        | Produkťák (US-77)                                              |
+| PJjiry        | Tester                                                         |
+| tomaskriz-max | Vlastník produktu / klient — není člen týmu, děláme to pro něj |
 
 ## 4. Board
 
@@ -345,4 +345,4 @@ Zapsáno jen tady — issues zatím **nejsou** upravené. Před implementací pr
 | 2   | Založit Brevo účet a ověřit odesílací adresu.                                                                                                                                        | tech lead      |
 | 3   | Připojit Figma konektor a převzít tokeny do `global.css`.                                                                                                                            | tech lead      |
 | 4   | Potvrdit s PO změnu jednorázové heslo → magic link (sekce 11).                                                                                                                       | tech lead / PO |
-| 5   | Doplnit role v týmu (sekce 3) a rozdělit proudy A–D.                                                                                                                                 | tech lead      |
+| 5   | Rozdělit proudy A–D mezi lidi.                                                                                                                                                       | tech lead      |

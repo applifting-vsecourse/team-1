@@ -30,7 +30,12 @@ Frontend běží na http://localhost:3050, API na http://localhost:4050/api a Sw
 
 ## Tým
 
-[kudrle01](https://github.com/kudrle01) (tech lead) · [Jakubkuba9000](https://github.com/Jakubkuba9000) · [Aadikk](https://github.com/Aadikk) · [PJjiry](https://github.com/PJjiry) · [tomaskriz-max](https://github.com/tomaskriz-max)
+- [kudrle01](https://github.com/kudrle01) — tech lead
+- [Jakubkuba9000](https://github.com/Jakubkuba9000) — design
+- [Aadikk](https://github.com/Aadikk) — produkt
+- [PJjiry](https://github.com/PJjiry) — testování
+
+Vlastník produktu: [tomaskriz-max](https://github.com/tomaskriz-max).
 
 ## Licence
 
