@@ -324,11 +324,11 @@ Zapsáno jen tady — issues zatím **nejsou** upravené. Před implementací pr
 - **`main` je chráněná:** jen přes PR, CI (`verify`) musí být zelené, force-push zakázaný, platí i pro adminy.
 - **Review:** 0 povinných schválení — autor může PR mergnout sám (GitHub nedovoluje schválit vlastní PR, proto 0). **Review a schválení od člena týmu je doporučené**, zvlášť u změn schématu, auth a doménové logiky.
 - **Merge:** jen squash, větev se po merge smaže. Název PR = název commitu: `US-23 Přihláška přes odkaz`.
-- **Propojení s boardem:** v těle PR `Refs #23` (ne `Closes`), aby se issue nezavřelo samo. Issue přesune autor do In review; PO ověří na stagingu a zavře → Done.
+- **Propojení s boardem:** v těle PR `Refs #23` (ne `Closes`), aby se issue nezavřelo samo. Issue přesune autor do In review; product manager ([Aadikk](https://github.com/Aadikk)) ověří story na stagingu a issue zavře → Done.
 - **Definition of Done:**
   1. Všechna akceptační kritéria odškrtnutá, logika má testy, `pnpm check-all` je zelený.
   2. PR je mergnutý do `main` (review doporučené).
-  3. PO story schválil na stagingu.
+  3. Product manager ([Aadikk](https://github.com/Aadikk)) story schválil na stagingu.
 
 ## 13. Zjištění ve starteru (vstup pro fázi 0)
 

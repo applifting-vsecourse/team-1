@@ -16,17 +16,17 @@ Pravidla a rozhodnutí projektu jsou v [docs/PROJEKT.md](docs/PROJEKT.md). Tady 
 5. **Před pushem** pusť `pnpm check-all` (totéž, co CI).
 6. **Otevři PR** do `main`:
    - název = název story: `US-23 Přihláška přes odkaz` (stane se z něj commit na `main`),
-   - v těle `Refs #23` — **ne** `Closes`, issue zavírá PO,
+   - v těle `Refs #23` — **ne** `Closes`, issue zavírá product manager,
    - vyplň šablonu PR.
 7. **Review** — požádej člena týmu. Povinné není, ale doporučené — zvlášť u schématu, auth a doménové logiky.
 8. **Merge** — squash, až je CI zelené. Větev se smaže sama. Issue přesuň do **In review**.
-9. **PO** ověří story na stagingu a issue zavře → **Done**.
+9. **Product manager** ([Aadikk](https://github.com/Aadikk)) ověří story na stagingu a issue zavře → **Done**.
 
 ### Definition of Done
 
 - [ ] všechna akceptační kritéria splněná, logika má testy, `pnpm check-all` je zelený,
 - [ ] PR je mergnutý do `main` (review doporučené),
-- [ ] PO story schválil na stagingu.
+- [ ] product manager ([Aadikk](https://github.com/Aadikk)) story schválil na stagingu.
 
 ## Pravidla `main`
 

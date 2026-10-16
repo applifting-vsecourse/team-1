@@ -6,7 +6,7 @@ Refs #
 
 ## Jak ověřit
 
-<!-- Kroky pro reviewera / PO: kam kliknout, s jakým seed účtem, co má být vidět. -->
+<!-- Kroky pro reviewera / product managera: kam kliknout, s jakým seed účtem, co má být vidět. -->
 
 ## Checklist
 
