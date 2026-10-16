@@ -39,7 +39,8 @@ Pravidla a rozhodnutí projektu jsou v [docs/PROJEKT.md](docs/PROJEKT.md). Tady 
 ```shell
 pnpm dev                            # env soubory, Postgres v Dockeru, migrace, seed, oba dev servery
 pnpm check-all                      # lint + type-check + testy + build (totéž co CI)
-pnpm backend test                   # unit testy backendu (Jest)
+pnpm backend test                   # unit testy backendu (Jest, bez DB)
+pnpm backend test:int               # integrační testy: sestaví a spustí backend proti DB kemp_test
 pnpm frontend test:ci               # testy frontendu (Vitest)
 pnpm backend prisma:migrations:run  # vytvoří a aplikuje migraci po změně schématu
 pnpm backend prisma:studio          # prohlížeč dat
@@ -88,6 +89,8 @@ E-maily se lokálně vypisují do terminálu backendu.
 - https://team-1.vsepractical.applifting.dev — po každém merge do `main` se sestaví a nasadí (`.github/workflows/deploy.yml`, několik minut).
 - Logy: https://logs.vsepractical.applifting.dev, databáze: https://db.vsepractical.applifting.dev (přístupy má tech lead).
 - Env proměnné stagingu spravuje kurz (Coolify), my k nim přístup nemáme.
+- Při každém startu backend aplikuje migrace a spustí seed. Seed se přeskočí, když v DB už je organizace, takže data z dema zůstanou. Účty jsou stejné jako lokálně (viz výše), jen bez admina.
+- **Reset stagingu na čistá ukázková data:** v [Admineru](https://db.vsepractical.applifting.dev) spusť `TRUNCATE organization CASCADE;` a pak v GitHub Actions ručně spusť workflow **Build & Deploy** (Run workflow). Seed po startu vymaže zbytek a vytvoří data znovu.
 - Frontend má URL API zapečenou při buildu (`VITE_*` jsou build args).
 
 ## Když něco nefunguje

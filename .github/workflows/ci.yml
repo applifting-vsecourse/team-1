@@ -8,6 +8,23 @@ on:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    # Integration tests (pnpm backend test:int) need a real Postgres. Same
+    # port and credentials as the local docker-compose, so the .env created
+    # from .env.example works unchanged; the tests create `kemp_test` themselves.
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: kemp
+          POSTGRES_PASSWORD: kemp
+          POSTGRES_DB: kemp
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U kemp -d kemp"
+          --health-interval 3s
+          --health-timeout 3s
+          --health-retries 20
     steps:
       - uses: actions/checkout@v5
 
@@ -41,6 +58,9 @@ jobs:
 
       - name: Test backend
         run: pnpm backend test
+
+      - name: Integration tests backend
+        run: pnpm backend test:int
 
       - name: Test frontend
         run: pnpm frontend test:ci

@@ -43,12 +43,14 @@ export const seedDatabase = async (
   config: Config,
   betterAuth: BetterAuth,
 ): Promise<void> => {
-  // `pnpm dev` runs the seed on every start, so never clobber a database that
-  // already has data — that would delete the accounts and applications you just made.
-  const existingUsers = await prisma.user.count();
-  if (existingUsers > 0) {
+  // `pnpm dev` and every staging start run the seed, so never clobber a
+  // database that already has data. Organizations only come from the seed in
+  // sprint 1, so "has an organization" means "already seeded" — stray users
+  // (e.g. from the old starter on staging) don't block the first seed.
+  const existingOrganizations = await prisma.organization.count();
+  if (existingOrganizations > 0) {
     console.log(
-      `Database already has ${existingUsers} user(s) — skipping seed. ` +
+      `Database already has ${existingOrganizations} organization(s) — skipping seed. ` +
         'Run `pnpm backend db:reset` to wipe and start over.',
     );
     return;
@@ -65,13 +67,16 @@ export const seedDatabase = async (
 
   console.log('Creating accounts');
 
-  // Create a superadmin user. This should be delete in prod app
-  await createUser(betterAuth, {
-    email: config.superadminEmail,
-    password: config.superadminPassword,
-    name: 'Admin (Delete in Prod)',
-    accountType: 'ADMIN',
-  });
+  // Create a superadmin user. This should be delete in prod app.
+  // Optional: staging may not define SUPERADMIN_* (its env is managed by the course).
+  if (config.superadminEmail && config.superadminPassword) {
+    await createUser(betterAuth, {
+      email: config.superadminEmail,
+      password: config.superadminPassword,
+      name: 'Admin (Delete in Prod)',
+      accountType: 'ADMIN',
+    });
+  }
 
   const organizerA = await createUser(betterAuth, {
     email: 'organizator@example.com',

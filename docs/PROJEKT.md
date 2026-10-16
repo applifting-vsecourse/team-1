@@ -300,9 +300,9 @@ apps/frontend/src/
 | 2026-10-16 | Cena termínu se při vyhodnocení zmrazí do `ApplicationTerm.priceCzk`.                                                                                                                                                                                                               | tech lead |
 | 2026-10-16 | Peníze jako celé Kč (`Int`). VS = globální sekvence `Application.number`. Platby jako řádky `Payment`.                                                                                                                                                                              | tech lead |
 | 2026-10-16 | E-maily: lokálně do konzole; na stagingu SMTP přes **Brevo** (free 300/den, ověřená jedna odesílací adresa, bez domény). Až bude doména, přepne se na Resend (`RESEND_API_KEY`, adaptér existuje).                                                                                  | tech lead |
-| 2026-10-16 | Staging: seed proběhne jednou a je idempotentní (přeskočí se, když v DB jsou uživatelé). Pro čistý start ruční workflow.                                                                                                                                                            | tech lead |
+| 2026-10-16 | Staging: seed běží při každém startu backendu a je idempotentní (přeskočí se, když v DB je organizace). Selhání seedu start nezastaví. Reset stagingu: v Admineru `TRUNCATE organization CASCADE` a ručně spustit workflow Build & Deploy.                                          | tech lead |
 | 2026-10-16 | Celé schéma pro sprint 1 vzniká ve fázi 0. Kdo přesto potřebuje migraci: max. jedna na PR, před mergem rebase na `main` a migraci vygenerovat znovu.                                                                                                                                | tech lead |
-| 2026-10-16 | Testy: unit pro doménové funkce + integrační proti Postgresu (CI service container).                                                                                                                                                                                                | tech lead |
+| 2026-10-16 | Testy: unit (`*.spec.ts`, bez DB) + integrační (`*.int-spec.ts`) proti sestavenému serveru a Postgresu; v CI jako service container, lokálně v DB `kemp_test`.                                                                                                                      | tech lead |
 | 2026-10-16 | Organizace není v URL; akce jsou seskupené podle pořadatele.                                                                                                                                                                                                                        | tech lead |
 | 2026-10-16 | Stack zůstává ze starteru. FE podle atomic designu (globální `components/{atoms,molecules,organisms,templates}` + `features/`), shadcn zůstává v `components/ui`.                                                                                                                   | tech lead |
 | 2026-10-16 | Tokeny z Figmy, pravidla z DESIGN.md.                                                                                                                                                                                                                                               | tech lead |
@@ -335,13 +335,14 @@ Zapsáno jen tady — issues zatím **nejsou** upravené. Před implementací pr
   2. PR je mergnutý do `main` (review doporučené).
   3. Product manager ([Aadikk](https://github.com/Aadikk)) story schválil na stagingu.
 
-## 13. Zjištění ve starteru (vstup pro fázi 0)
+## 13. Zjištění ve starteru (vyřešeno ve fázi 0)
 
-- CI na `main` je červené: `format:check` padá na `.github/ISSUE_TEMPLATE/user-story.md`.
-- Deploy spouští jen `prisma migrate deploy`, **seed na stagingu neběží**. Seed běží přes `ts-node` ze `src/`, který v produkčním image není.
-- Staging běží Quacker (`/api` vrací „Welcome to Quacker backend“).
-- „Quacker“ je v configu, `package.json`, Swaggeru, e-mailech a `.env.example` (DB `quacker`).
-- CI nemá Postgres → integrační testy zatím nemají kde běžet.
+- CI na `main` bylo červené kvůli `user-story.md` → opraveno v PR 1.
+- `sendResetPassword` se zahazoval kvůli pořadí v konfiguraci BetterAuth → opraveno v PR 1.
+- Lokální compose projekt kolidoval s ostatními klony starteru (`backend`) → pojmenovaný `kemp` v PR 1.
+- Veřejný `/api/auth/sign-up` dovoloval komukoliv založit účet → vypnuto v PR 2.
+- Seed na stagingu neběžel (ts-node v image není) → běží zkompilovaný seed při startu, PR 3.
+- CI nemělo Postgres → service container a integrační testy, PR 3.
 
 ## 14. Otevřené body
 

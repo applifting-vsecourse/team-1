@@ -30,10 +30,12 @@ export class Config {
   readonly betterAuthSecret!: string;
 
   @Env('SUPERADMIN_EMAIL')
-  readonly superadminEmail!: string;
+  @IsOptional()
+  readonly superadminEmail?: string;
 
   @Env('SUPERADMIN_PASSWORD')
-  readonly superadminPassword!: string;
+  @IsOptional()
+  readonly superadminPassword?: string;
 
   @Env('NODE_ENV', { expose: true })
   @IsOptional()

@@ -18,6 +18,7 @@ Workflow (branches, PRs, Definition of Done): [`CONTRIBUTING.md`](CONTRIBUTING.m
 - `pnpm dev` — everything: env files, Postgres (Docker), migrate, seed, both dev servers
 - `pnpm check-all` — lint + type-check + tests + build (same as CI)
 - `pnpm backend test` / `pnpm frontend test:ci` — unit tests
+- `pnpm backend test:int` — backend integration tests (`*.int-spec.ts`): builds and starts the server against the `kemp_test` database; helpers in `apps/backend/src/test/integration/test-api.ts`
 - `pnpm backend prisma:migrations:run` — create/apply migrations after schema changes
 
 ## Conventions
