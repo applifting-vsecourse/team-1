@@ -10,18 +10,18 @@ jobs:
     runs-on: ubuntu-latest
     # Integration tests (pnpm backend test:int) need a real Postgres. Same
     # port and credentials as the local docker-compose, so the .env created
-    # from .env.example works unchanged; the tests create `kemp_test` themselves.
+    # from .env.example works unchanged; the tests create `togena_test` themselves.
     services:
       postgres:
         image: postgres:17-alpine
         env:
-          POSTGRES_USER: kemp
-          POSTGRES_PASSWORD: kemp
-          POSTGRES_DB: kemp
+          POSTGRES_USER: togena
+          POSTGRES_PASSWORD: togena
+          POSTGRES_DB: togena
         ports:
           - 5433:5432
         options: >-
-          --health-cmd "pg_isready -U kemp -d kemp"
+          --health-cmd "pg_isready -U togena -d togena"
           --health-interval 3s
           --health-timeout 3s
           --health-retries 20

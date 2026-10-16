@@ -1,4 +1,4 @@
-# kemp.io — backend
+# Togena — backend
 
 NestJS + Prisma + PostgreSQL + BetterAuth. REST API pod `/api`, Swagger na http://localhost:4050/api/docs.
 
@@ -27,7 +27,7 @@ Spouštěj z kořene repozitáře s prefixem `pnpm backend`:
 ```bash
 pnpm backend start:dev                 # dev server s watch
 pnpm backend test                      # unit testy (Jest, bez DB)
-pnpm backend test:int                  # integrační testy proti sestavenému serveru a DB kemp_test
+pnpm backend test:int                  # integrační testy proti sestavenému serveru a DB togena_test
 pnpm backend test:cov                  # pokrytí → coverage/
 pnpm backend lint:check
 pnpm backend docker:up:wait            # jen databáze (Postgres na 5433)
@@ -71,6 +71,6 @@ await emailProvider.sendEmail(user.email, 'Ověření e-mailové adresy', html);
 ## Testy
 
 - **Unit** (`*.spec.ts`) — bez databáze; doménové funkce a services s mockovaným repository. Vzor: `modules/account/services/account.service.spec.ts`.
-- **Integrační** (`*.int-spec.ts`) — `pnpm backend test:int` vytvoří DB `kemp_test` (vedle vývojové `kemp`), aplikuje migrace, sestaví backend, spustí ho a testy na něj volají přes HTTP. Každý soubor si data připraví přes `resetAndSeed()`. Vzor: `modules/account/account.int-spec.ts`; helpery v `src/test/integration/test-api.ts` (`api()`, `signIn()`, `connectTestPrisma()`).
+- **Integrační** (`*.int-spec.ts`) — `pnpm backend test:int` vytvoří DB `togena_test` (vedle vývojové `togena`), aplikuje migrace, sestaví backend, spustí ho a testy na něj volají přes HTTP. Každý soubor si data připraví přes `resetAndSeed()`. Vzor: `modules/account/account.int-spec.ts`; helpery v `src/test/integration/test-api.ts` (`api()`, `signIn()`, `connectTestPrisma()`).
 
 Integrační testy jdou proti sestavenému serveru, ne proti Nest aplikaci v Jestu: `better-auth` je čistě ESM a Jest běží v CommonJS.

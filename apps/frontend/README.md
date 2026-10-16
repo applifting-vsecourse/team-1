@@ -1,4 +1,4 @@
-# kemp.io — frontend
+# Togena — frontend
 
 React + Vite, TanStack Router (file-based routy) a TanStack Query, Tailwind + shadcn/ui, `ky` + `zod` na hranici s API. Vzory vycházejí z [Applifting Frontend Playbooku](https://applifting.github.io/frontend-playbook/).
 

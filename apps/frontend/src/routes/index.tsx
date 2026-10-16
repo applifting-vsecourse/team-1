@@ -20,7 +20,7 @@ function LandingPage() {
             Přihlášky na vícetermínové akce bez tabulek
           </h1>
           <p className="text-muted-foreground">
-            kemp.io hlídá kapacitu pokojů podle termínů, potvrzuje přihlášky a náhradníky a ukazuje,
+            Togena hlídá kapacitu pokojů podle termínů, potvrzuje přihlášky a náhradníky a ukazuje,
             kdo kolik dluží.
           </p>
           <div className="flex flex-wrap gap-3">

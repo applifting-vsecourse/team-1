@@ -24,7 +24,7 @@ export const ResetPassword = ({
 }: ResetPasswordProps): React.JSX.Element => (
   <Html lang="cs">
     <Head />
-    <Preview>Obnova hesla do kemp.io</Preview>
+    <Preview>Obnova hesla do Togeny</Preview>
     <Tailwind>
       <Body className="bg-gray-50 font-sans py-10">
         <Container className="bg-white rounded-lg mx-auto p-8 max-w-xl">
@@ -32,7 +32,7 @@ export const ResetPassword = ({
             Obnova hesla
           </Heading>
           <Text className="text-gray-700 text-base leading-6 mt-4">
-            Ahoj {username}, dostali jsme žádost o obnovu hesla do kemp.io. Nové
+            Ahoj {username}, dostali jsme žádost o obnovu hesla do Togeny. Nové
             heslo si nastavíš kliknutím na tlačítko níže.
           </Text>
           <Section className="text-center my-8">

@@ -20,12 +20,12 @@ export interface VerifyEmailProps {
 export const VerifyEmail = ({ url }: VerifyEmailProps): React.JSX.Element => (
   <Html lang="cs">
     <Head />
-    <Preview>Ověř svůj e-mail pro kemp.io</Preview>
+    <Preview>Ověř svůj e-mail pro Togenu</Preview>
     <Tailwind>
       <Body className="bg-gray-50 font-sans py-10">
         <Container className="bg-white rounded-lg mx-auto p-8 max-w-xl">
           <Heading className="text-2xl font-bold text-gray-900 m-0">
-            Vítej v kemp.io
+            Vítej v Togeně
           </Heading>
           <Text className="text-gray-700 text-base leading-6 mt-4">
             Kliknutím na tlačítko níže ověříš svou e-mailovou adresu a dokončíš
@@ -45,7 +45,7 @@ export const VerifyEmail = ({ url }: VerifyEmailProps): React.JSX.Element => (
           <Text className="text-blue-600 text-sm break-all">{url}</Text>
           <Hr className="border-gray-200 my-6" />
           <Text className="text-gray-400 text-xs">
-            Pokud sis účet v kemp.io nezakládal(a), tento e-mail ignoruj.
+            Pokud sis účet v Togeně nezakládal(a), tento e-mail ignoruj.
           </Text>
         </Container>
       </Body>

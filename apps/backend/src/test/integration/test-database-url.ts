@@ -3,7 +3,7 @@
 /**
  * Integration tests run against their own database so they can wipe it freely.
  * TEST_DATABASE_URL wins; otherwise it is DATABASE_URL with `_test` appended
- * to the database name (kemp → kemp_test). Never the development database.
+ * to the database name (togena → togena_test). Never the development database.
  */
 export function resolveTestDatabaseUrl(): string {
   const explicit = process.env.TEST_DATABASE_URL;

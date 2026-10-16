@@ -1,7 +1,7 @@
 {
   "name": "backend",
   "version": "0.1.0",
-  "description": "kemp.io backend \u2014 NestJS + Prisma + Postgres",
+  "description": "Togena backend \u2014 NestJS + Prisma + Postgres",
   "private": true,
   "license": "MIT",
   "engines": {

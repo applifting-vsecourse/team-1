@@ -1,20 +1,20 @@
 # Local development database only. `name` keeps the compose project unique —
 # without it Docker derives the project from the folder name (`backend`) and
 # would reuse another starter clone's container on the same machine.
-name: kemp
+name: togena
 
 services:
   db:
     image: postgres:17-alpine
     restart: always
     environment:
-      POSTGRES_USER: kemp
-      POSTGRES_PASSWORD: kemp
-      POSTGRES_DB: kemp
+      POSTGRES_USER: togena
+      POSTGRES_PASSWORD: togena
+      POSTGRES_DB: togena
     ports:
       - 5433:5432
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U kemp -d kemp']
+      test: ['CMD-SHELL', 'pg_isready -U togena -d togena']
       interval: 3s
       timeout: 3s
       retries: 20

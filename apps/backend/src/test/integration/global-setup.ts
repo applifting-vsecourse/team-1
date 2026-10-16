@@ -17,7 +17,7 @@ import { resolveTestDatabaseUrl } from './test-database-url';
 export const backendRoot = resolve(__dirname, '../../..');
 
 declare global {
-  var __KEMP_TEST_SERVER__: ChildProcess | undefined;
+  var __TOGENA_TEST_SERVER__: ChildProcess | undefined;
 }
 
 export default async function globalSetup(): Promise<void> {
@@ -44,7 +44,7 @@ export default async function globalSetup(): Promise<void> {
   let output = '';
   server.stdout?.on('data', (chunk: Buffer) => (output += chunk.toString()));
   server.stderr?.on('data', (chunk: Buffer) => (output += chunk.toString()));
-  globalThis.__KEMP_TEST_SERVER__ = server;
+  globalThis.__TOGENA_TEST_SERVER__ = server;
 
   await waitForHealth(baseUrl, () => output);
   // Inherited by the test workers.
@@ -119,6 +119,6 @@ async function waitForHealth(
     }
     await new Promise((wait) => setTimeout(wait, 250));
   }
-  globalThis.__KEMP_TEST_SERVER__?.kill();
+  globalThis.__TOGENA_TEST_SERVER__?.kill();
   throw new Error(`Test server did not start:\n${output()}`);
 }

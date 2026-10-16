@@ -40,7 +40,7 @@ Pravidla a rozhodnutí projektu jsou v [docs/PROJEKT.md](docs/PROJEKT.md). Tady 
 pnpm dev                            # env soubory, Postgres v Dockeru, migrace, seed, oba dev servery
 pnpm check-all                      # lint + type-check + testy + build (totéž co CI)
 pnpm backend test                   # unit testy backendu (Jest, bez DB)
-pnpm backend test:int               # integrační testy: sestaví a spustí backend proti DB kemp_test
+pnpm backend test:int               # integrační testy: sestaví a spustí backend proti DB togena_test
 pnpm frontend test:ci               # testy frontendu (Vitest)
 pnpm backend prisma:migrations:run  # vytvoří a aplikuje migraci po změně schématu
 pnpm backend prisma:studio          # prohlížeč dat
@@ -49,13 +49,13 @@ pnpm dev:down                       # zastaví databázi
 pnpm format                         # Prettier na celý repozitář
 ```
 
-| Co       | Kde                                                    |
-| -------- | ------------------------------------------------------ |
-| Frontend | http://localhost:3050                                  |
-| API      | http://localhost:4050/api                              |
-| Swagger  | http://localhost:4050/api/docs                         |
-| Auth API | http://localhost:4050/api/auth/reference               |
-| DB       | Postgres na `localhost:5433`, `kemp` / `kemp` / `kemp` |
+| Co       | Kde                                                          |
+| -------- | ------------------------------------------------------------ |
+| Frontend | http://localhost:3050                                        |
+| API      | http://localhost:4050/api                                    |
+| Swagger  | http://localhost:4050/api/docs                               |
+| Auth API | http://localhost:4050/api/auth/reference                     |
+| DB       | Postgres na `localhost:5433`, `togena` / `togena` / `togena` |
 
 ### Účty ze seedu
 
