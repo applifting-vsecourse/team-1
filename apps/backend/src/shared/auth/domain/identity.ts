@@ -1,8 +1,12 @@
+export type AccountType = 'ORGANIZER' | 'PARTICIPANT' | 'ADMIN';
+
+/** The signed-in user as the session carries it (`@User() user: Identity`). */
 export class Identity {
   constructor(
     public readonly id: string,
     public readonly email: string,
     public readonly name: string | null,
-    public readonly role: string,
+    public readonly accountType: AccountType,
+    public readonly mustSetPassword: boolean,
   ) {}
 }

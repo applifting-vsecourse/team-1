@@ -1,16 +1,23 @@
 import { queryOptions } from "@tanstack/react-query"
+import { z } from "zod"
 
 import { authKeys } from "@/lib/auth-keys"
 
 import { authClient } from "@/features/auth/lib/auth-client"
 
-export type SessionUser = {
-  id: string
-  email: string
-  name: string
-  username: string
-  role?: string
-}
+// `accountType` and `mustSetPassword` are BetterAuth additional fields set by
+// the server (apps/backend/src/shared/auth/config/better-auth.config.ts).
+export const accountTypeSchema = z.enum(["ORGANIZER", "PARTICIPANT", "ADMIN"])
+export type AccountType = z.infer<typeof accountTypeSchema>
+
+export const sessionUserSchema = z.object({
+  id: z.string(),
+  email: z.string(),
+  name: z.string(),
+  accountType: accountTypeSchema,
+  mustSetPassword: z.boolean(),
+})
+export type SessionUser = z.infer<typeof sessionUserSchema>
 
 export type Session = {
   user: SessionUser
@@ -21,23 +28,9 @@ export const authSessionQueryOptions = () =>
     queryKey: authKeys.session(),
     queryFn: async (): Promise<Session> => {
       const { data, error } = await authClient.getSession()
-      if (error) throw new Error(error.message ?? "Failed to load session")
+      if (error) throw new Error(error.message ?? "Nepodařilo se načíst přihlášení")
       if (!data?.user) return null
-
-      const user = data.user as typeof data.user & {
-        username?: string | null
-        role?: string | null
-      }
-
-      return {
-        user: {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          username: user.username ?? "",
-          role: user.role ?? undefined,
-        },
-      }
+      return { user: sessionUserSchema.parse(data.user) }
     },
     staleTime: 30_000,
   })

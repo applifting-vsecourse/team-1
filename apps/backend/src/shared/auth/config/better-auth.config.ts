@@ -1,4 +1,4 @@
-import { openAPI, username } from 'better-auth/plugins';
+import { openAPI } from 'better-auth/plugins';
 import { BetterAuthOptions } from 'better-auth/types';
 
 export const betterAuthCoreConfig: BetterAuthOptions = {
@@ -7,13 +7,21 @@ export const betterAuthCoreConfig: BetterAuthOptions = {
   },
   user: {
     additionalFields: {
-      role: {
+      // Both are set by the server only (`input: false`) and travel with the
+      // session, so the frontend can route by account type without an extra call.
+      accountType: {
         type: 'string',
         required: true,
-        defaultValue: 'user',
+        defaultValue: 'PARTICIPANT',
+        input: false,
+      },
+      mustSetPassword: {
+        type: 'boolean',
+        required: true,
+        defaultValue: false,
         input: false,
       },
     },
   },
-  plugins: [openAPI(), username()],
+  plugins: [openAPI()],
 };

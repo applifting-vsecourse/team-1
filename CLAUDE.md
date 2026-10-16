@@ -35,7 +35,10 @@ One module per domain area under `apps/backend/src/modules/<module>/` with `cont
 - Only repositories touch Prisma, and they return domain types, not Prisma types.
 - Domain calculations (capacity, evaluation, price, debt) are pure functions in `domain/`, computed in exactly one place and unit-tested without a database.
 - The acting user always comes from the session (`@User() user: Identity`), never from the request body.
-- Organization data is always filtered by `organizationId`; a foreign record returns 403 with no content.
+- Protect controllers with `@Auth('ORGANIZER')` / `@Auth('PARTICIPANT')` (401 without a session, 403 for the wrong account type). Public endpoints have no decorator.
+- Organization data is always filtered by `organizationId`; a foreign record returns 403 with no content. Use `OrganizationAccessService` (`shared/organization-access`) — never hand-roll the check.
+- Capacity, evaluation and price come only from `modules/applications/domain` (`capacity.ts`, `evaluation.ts`, `pricing.ts`). Reuse them; don't recompute.
+- The worked example module is `modules/account` (`GET /api/me`).
 - Money is whole CZK as `Int`.
 
 ### Frontend structure
@@ -45,6 +48,7 @@ One module per domain area under `apps/backend/src/modules/<module>/` with `cont
 - Route files in `src/routes/` stay thin: load data, compose the page. All paths are in `src/app/routes.ts` (`ROUTES`).
 - Imports use the `@/` alias; relative imports only for siblings.
 - Every server payload is parsed with a zod schema in `features/<feature>/api/`.
+- The session user carries `accountType` and `mustSetPassword`. Area layouts guard with `requireAccount` in `beforeLoad`; a wrong account type throws `ForbiddenError` and renders the 403 page.
 
 ### UI controls come from the kit
 
