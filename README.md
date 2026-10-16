@@ -28,17 +28,16 @@ pnpm dev
 
 Frontend běží na http://localhost:3050, API na http://localhost:4050/api a Swagger na http://localhost:4050/api/docs.
 
-## Team
+## Tým
 
-**Technical lead:** [kudrle01](https://github.com/kudrle01)
+**Klient:** [tomaskriz-max](https://github.com/tomaskriz-max) — vlastník produktu, pro kterého kemp.io stavíme; není členem týmu.
 
-| Member                                            | Role            |
+| Člen                                              | Role            |
 | ------------------------------------------------- | --------------- |
+| [kudrle01](https://github.com/kudrle01)           | Technical lead  |
 | [Jakubkuba9000](https://github.com/Jakubkuba9000) | Designer        |
 | [Aadikk](https://github.com/Aadikk)               | Product manager |
 | [PJjiry](https://github.com/PJjiry)               | Tester          |
-
-**Product owner:** [tomaskriz-max](https://github.com/tomaskriz-max) — the client for whom the product is built; not a member of the team.
 
 ## Licence
 

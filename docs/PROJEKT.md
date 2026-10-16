@@ -39,17 +39,16 @@ Jádro MVP:
 - Hesla do logů a DB má tech lead; do repozitáře nepatří.
 - **Do Coolify (env proměnné stagingu) přístup nemáme.** Prostředí spravuje kurz. Viz otevřené body.
 
-## 3. Team
+## 3. Tým
 
-**Technical lead:** [kudrle01](https://github.com/kudrle01) — responsible for the technical foundation (Phase 0, US-71, US-72).
+**Klient:** [tomaskriz-max](https://github.com/tomaskriz-max) — vlastník produktu, pro kterého kemp.io stavíme; není členem týmu.
 
-| Member                                            | Role                                                  |
-| ------------------------------------------------- | ----------------------------------------------------- |
-| [Jakubkuba9000](https://github.com/Jakubkuba9000) | Designer — wireframes; assigned most Sprint 1 stories |
-| [Aadikk](https://github.com/Aadikk)               | Product manager (US-77)                               |
-| [PJjiry](https://github.com/PJjiry)               | Tester                                                |
-
-**Product owner:** [tomaskriz-max](https://github.com/tomaskriz-max) — the client for whom the product is built; not a member of the team.
+| Člen                                              | Role            | Poznámka                                         |
+| ------------------------------------------------- | --------------- | ------------------------------------------------ |
+| [kudrle01](https://github.com/kudrle01)           | Technical lead  | technický základ (fáze 0, US-71, US-72)          |
+| [Jakubkuba9000](https://github.com/Jakubkuba9000) | Designer        | wireframy; na boardu přiřazená většina sprintu 1 |
+| [Aadikk](https://github.com/Aadikk)               | Product manager | US-77                                            |
+| [PJjiry](https://github.com/PJjiry)               | Tester          |                                                  |
 
 ## 4. Board
 
