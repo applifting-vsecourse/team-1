@@ -21,6 +21,12 @@ export const betterAuthCoreConfig: BetterAuthOptions = {
         defaultValue: false,
         input: false,
       },
+      locale: {
+        type: 'string',
+        required: true,
+        defaultValue: 'en',
+        input: false,
+      },
     },
   },
   plugins: [openAPI()],

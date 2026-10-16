@@ -19,6 +19,7 @@ export class AccountService {
       name: user.name,
       accountType: user.accountType,
       mustSetPassword: user.mustSetPassword,
+      locale: user.locale,
       organizations,
     };
   }

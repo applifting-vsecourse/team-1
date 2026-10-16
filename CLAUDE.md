@@ -27,7 +27,14 @@ This file grows as the team learns what it expects from generated code. Add rule
 
 ### Language
 
-Code, database, API paths, commit messages and code comments in English. Everything a user reads — UI copy, page URLs, e-mails — in Czech. Docs, issues and PR descriptions in Czech.
+Code, database, API paths, page URLs, commit messages and code comments in English. Docs, issues and PR descriptions in Czech.
+
+Everything a user reads — UI copy, e-mails, error messages — is localized English / Czech (English is the default):
+
+- Frontend: never hardcode copy. Add keys to both `apps/frontend/src/i18n/locales/en/<namespace>.json` and `cs/<namespace>.json` (namespace = your feature) and use `useTranslation("<namespace>")`. Keys are type-checked; a test fails when the two languages differ.
+- Money and dates: `formatCzk` / `formatDate` from `@/lib`, never `toLocaleString` by hand.
+- Backend errors: throw `AppException(status, code)` with a code from `shared/errors/error-code.ts` and add the code to both `errors.json` files. Every error response is `{ statusCode, code, message }`.
+- E-mails: copy for both locales lives in the template; send in `User.locale` / `Application.locale`. Read the request language with `@RequestLocale()`.
 
 ### Backend structure
 

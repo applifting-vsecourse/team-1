@@ -345,6 +345,7 @@ async function createEvent(
         gender: applicant.gender,
         email: applicant.email,
         consentAt: submittedAt,
+        locale: 'cs',
         submittedAt,
         terms: {
           create: evaluated.map((term) => ({

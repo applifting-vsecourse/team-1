@@ -1,4 +1,5 @@
 import { LogOut } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -15,6 +16,7 @@ import { useSession } from "@/features/auth/hooks/useSession"
 import { useSignOut } from "@/features/auth/hooks/useSignOut"
 
 export function HeaderMenu() {
+  const { t } = useTranslation("auth")
   const { user } = useSession()
   const signOut = useSignOut()
 
@@ -33,7 +35,7 @@ export function HeaderMenu() {
         <Button
           variant="ghost"
           size="icon"
-          aria-label="Uživatelské menu"
+          aria-label={t("menu.label")}
           className="rounded-full"
         >
           <Avatar className="size-8">
@@ -57,7 +59,7 @@ export function HeaderMenu() {
           disabled={signOut.isPending}
         >
           <LogOut className="size-4" />
-          Odhlásit se
+          {t("menu.signOut")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

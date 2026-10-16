@@ -4,6 +4,7 @@ import * as cookieParser from 'cookie-parser';
 import * as express from 'express';
 import { BetterAuth } from './shared/auth/providers/better-auth.provider';
 import { Config } from './shared/config/config.service';
+import { HttpErrorFilter } from './shared/errors/http-error.filter';
 
 /**
  * Everything the HTTP app needs besides its modules. Shared by `main.ts` and
@@ -29,4 +30,7 @@ export function configureApp(app: INestApplication): void {
 
   // Configure API prefix for all routes
   app.setGlobalPrefix('api');
+
+  // Every error response is { statusCode, code, message } (shared/errors).
+  app.useGlobalFilters(new HttpErrorFilter());
 }

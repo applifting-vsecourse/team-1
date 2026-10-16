@@ -28,7 +28,7 @@ export const authSessionQueryOptions = () =>
     queryKey: authKeys.session(),
     queryFn: async (): Promise<Session> => {
       const { data, error } = await authClient.getSession()
-      if (error) throw new Error(error.message ?? "Nepodařilo se načíst přihlášení")
+      if (error) throw new Error(error.message ?? "Failed to load the session")
       if (!data?.user) return null
       return { user: sessionUserSchema.parse(data.user) }
     },

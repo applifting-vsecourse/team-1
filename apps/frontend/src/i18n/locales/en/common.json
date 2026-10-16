@@ -1,0 +1,52 @@
+{
+  "area": {
+    "organizer": "Organizer",
+    "participant": "My application"
+  },
+  "comingSoon": "Coming soon — {{story}}.",
+  "eventTabs": {
+    "applications": "Applications",
+    "overview": "Overview",
+    "rooms": "Accommodation",
+    "terms": "Terms"
+  },
+  "language": {
+    "cs": "Čeština",
+    "en": "English",
+    "toggle": "Change language"
+  },
+  "nav": {
+    "account": "Account",
+    "eventSections": "Event sections",
+    "events": "Events",
+    "myApplication": "My application",
+    "overview": "Overview"
+  },
+  "pages": {
+    "error": {
+      "action": "Reload",
+      "description": "An unexpected error occurred.",
+      "title": "Something went wrong"
+    },
+    "forbidden": {
+      "action": "Go to the home page",
+      "description": "This page belongs to another account or another organization.",
+      "title": "You don't have access here"
+    },
+    "notFound": {
+      "action": "Go to the home page",
+      "description": "The page doesn't exist or the link is wrong.",
+      "title": "Page not found"
+    }
+  },
+  "state": {
+    "loading": "Loading…",
+    "retry": "Try again"
+  },
+  "theme": {
+    "dark": "Dark",
+    "light": "Light",
+    "system": "System",
+    "toggle": "Toggle theme"
+  }
+}

@@ -18,7 +18,7 @@ const user = (overrides: Partial<SessionUser>): SessionUser => ({
   ...overrides,
 })
 
-const location = { href: "/organizator/akce" } as ParsedLocation
+const location = { href: "/organizer/events" } as ParsedLocation
 
 const guard = (session: Session, accountType: SessionUser["accountType"]) => {
   const queryClient = new QueryClient()
@@ -52,7 +52,7 @@ describe("requireAccount", () => {
     expect(error).toMatchObject({
       options: {
         to: ROUTES.organizer.login,
-        search: { from: encodeURIComponent("/organizator/akce") },
+        search: { from: encodeURIComponent("/organizer/events") },
       },
     })
   })

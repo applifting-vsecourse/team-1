@@ -11,10 +11,11 @@ src/
   app/                router, providers, ROUTES (všechny URL na jednom místě)
   routes/             stránky (TanStack file-based) — tenké: načtou data, složí stránku
     index.tsx                     /                    landing
-    prihlaska/                    /prihlaska/*         veřejná přihláška
-    organizator/prihlaseni.tsx    /organizator/prihlaseni
-    organizator/_app.tsx          layout + guard pro /organizator/*
-    ucastnik/…                    totéž pro účastníka
+    apply/                        /apply/*             veřejná přihláška
+    organizer/login.tsx           /organizer/login
+    organizer/_app.tsx            layout + guard pro /organizer/*
+    participant/…                 totéž pro účastníka
+  i18n/               i18next: init, typy klíčů, locales/{en,cs}/<namespace>.json
   components/         sdílené komponenty podle atomic designu — viz src/components/README.md
   features/<feature>/ doménová logika jedné oblasti
     api/              zod schémata, queryOptions, query keys, mutace
@@ -27,6 +28,17 @@ src/
 - Importy přes alias `@/` (= `src/`). Relativně jen sourozenec ve stejné složce.
 - Feature neimportuje z jiné feature. Co potřebují dvě features, patří do `components/` nebo `lib/`.
 - `routeTree.gen.ts` je generovaný (dev server / build) a commituje se. Při konfliktu ho nespojuj ručně — vezmi kteroukoliv verzi a pusť `pnpm frontend build`.
+
+## Lokalizace
+
+Výchozí jazyk je angličtina, při první návštěvě rozhoduje prohlížeč, přepínač je v hlavičce. Texty nikdy nepiš napevno:
+
+```tsx
+const { t } = useTranslation("events") // namespace = tvoje feature
+<PageHeader title={t("list.title")} />
+```
+
+Nový text přidej do `src/i18n/locales/en/events.json` i `cs/events.json`. Klíče jsou typově kontrolované a test `i18n/locales.test.ts` spadne, když se jazykové verze liší. Peníze a data formátuj přes `formatCzk` / `formatDate` z `@/lib`.
 
 ## Data z API (vzor)
 

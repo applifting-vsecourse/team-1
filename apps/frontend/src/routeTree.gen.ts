@@ -10,260 +10,260 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as OrganizatorAppRouteImport } from './routes/organizator/_app'
-import { Route as OrganizatorPrihlaseniRouteImport } from './routes/organizator/prihlaseni'
-import { Route as PrihlaskaTokenRouteImport } from './routes/prihlaska/$token'
-import { Route as UcastnikAppRouteImport } from './routes/ucastnik/_app'
-import { Route as UcastnikNastaveniHeslaRouteImport } from './routes/ucastnik/nastaveni-hesla'
-import { Route as UcastnikPrihlaseniRouteImport } from './routes/ucastnik/prihlaseni'
-import { Route as OrganizatorAppIndexRouteImport } from './routes/organizator/_app/index'
-import { Route as OrganizatorAppUcetRouteImport } from './routes/organizator/_app/ucet'
-import { Route as PrihlaskaPotvrzeniAccessTokenRouteImport } from './routes/prihlaska/potvrzeni/$accessToken'
-import { Route as UcastnikAppIndexRouteImport } from './routes/ucastnik/_app/index'
-import { Route as UcastnikAppUcetRouteImport } from './routes/ucastnik/_app/ucet'
-import { Route as OrganizatorAppAkceIndexRouteImport } from './routes/organizator/_app/akce/index'
-import { Route as OrganizatorAppAkceEventIdRouteRouteImport } from './routes/organizator/_app/akce/$eventId/route'
-import { Route as OrganizatorAppAkceNovaRouteImport } from './routes/organizator/_app/akce/nova'
-import { Route as OrganizatorAppAkceEventIdIndexRouteImport } from './routes/organizator/_app/akce/$eventId/index'
-import { Route as OrganizatorAppAkceEventIdPrihlaskyRouteImport } from './routes/organizator/_app/akce/$eventId/prihlasky'
-import { Route as OrganizatorAppAkceEventIdTerminyRouteImport } from './routes/organizator/_app/akce/$eventId/terminy'
-import { Route as OrganizatorAppAkceEventIdUbytovaniRouteImport } from './routes/organizator/_app/akce/$eventId/ubytovani'
+import { Route as ApplyTokenRouteImport } from './routes/apply/$token'
+import { Route as OrganizerAppRouteImport } from './routes/organizer/_app'
+import { Route as OrganizerLoginRouteImport } from './routes/organizer/login'
+import { Route as ParticipantAppRouteImport } from './routes/participant/_app'
+import { Route as ParticipantLoginRouteImport } from './routes/participant/login'
+import { Route as ParticipantSetPasswordRouteImport } from './routes/participant/set-password'
+import { Route as ApplyConfirmationAccessTokenRouteImport } from './routes/apply/confirmation/$accessToken'
+import { Route as OrganizerAppIndexRouteImport } from './routes/organizer/_app/index'
+import { Route as OrganizerAppAccountRouteImport } from './routes/organizer/_app/account'
+import { Route as ParticipantAppIndexRouteImport } from './routes/participant/_app/index'
+import { Route as ParticipantAppAccountRouteImport } from './routes/participant/_app/account'
+import { Route as OrganizerAppEventsIndexRouteImport } from './routes/organizer/_app/events/index'
+import { Route as OrganizerAppEventsEventIdRouteRouteImport } from './routes/organizer/_app/events/$eventId/route'
+import { Route as OrganizerAppEventsNewRouteImport } from './routes/organizer/_app/events/new'
+import { Route as OrganizerAppEventsEventIdIndexRouteImport } from './routes/organizer/_app/events/$eventId/index'
+import { Route as OrganizerAppEventsEventIdApplicationsRouteImport } from './routes/organizer/_app/events/$eventId/applications'
+import { Route as OrganizerAppEventsEventIdRoomsRouteImport } from './routes/organizer/_app/events/$eventId/rooms'
+import { Route as OrganizerAppEventsEventIdTermsRouteImport } from './routes/organizer/_app/events/$eventId/terms'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const OrganizatorAppRoute = OrganizatorAppRouteImport.update({
-  id: '/organizator/_app',
-  path: '/organizator',
+const ApplyTokenRoute = ApplyTokenRouteImport.update({
+  id: '/apply/$token',
+  path: '/apply/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
-const OrganizatorPrihlaseniRoute = OrganizatorPrihlaseniRouteImport.update({
-  id: '/organizator/prihlaseni',
-  path: '/organizator/prihlaseni',
+const OrganizerAppRoute = OrganizerAppRouteImport.update({
+  id: '/organizer/_app',
+  path: '/organizer',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PrihlaskaTokenRoute = PrihlaskaTokenRouteImport.update({
-  id: '/prihlaska/$token',
-  path: '/prihlaska/$token',
+const OrganizerLoginRoute = OrganizerLoginRouteImport.update({
+  id: '/organizer/login',
+  path: '/organizer/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const UcastnikAppRoute = UcastnikAppRouteImport.update({
-  id: '/ucastnik/_app',
-  path: '/ucastnik',
+const ParticipantAppRoute = ParticipantAppRouteImport.update({
+  id: '/participant/_app',
+  path: '/participant',
   getParentRoute: () => rootRouteImport,
 } as any)
-const UcastnikNastaveniHeslaRoute = UcastnikNastaveniHeslaRouteImport.update({
-  id: '/ucastnik/nastaveni-hesla',
-  path: '/ucastnik/nastaveni-hesla',
+const ParticipantLoginRoute = ParticipantLoginRouteImport.update({
+  id: '/participant/login',
+  path: '/participant/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const UcastnikPrihlaseniRoute = UcastnikPrihlaseniRouteImport.update({
-  id: '/ucastnik/prihlaseni',
-  path: '/ucastnik/prihlaseni',
+const ParticipantSetPasswordRoute = ParticipantSetPasswordRouteImport.update({
+  id: '/participant/set-password',
+  path: '/participant/set-password',
   getParentRoute: () => rootRouteImport,
 } as any)
-const OrganizatorAppIndexRoute = OrganizatorAppIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => OrganizatorAppRoute,
-} as any)
-const OrganizatorAppUcetRoute = OrganizatorAppUcetRouteImport.update({
-  id: '/ucet',
-  path: '/ucet',
-  getParentRoute: () => OrganizatorAppRoute,
-} as any)
-const PrihlaskaPotvrzeniAccessTokenRoute =
-  PrihlaskaPotvrzeniAccessTokenRouteImport.update({
-    id: '/prihlaska/potvrzeni/$accessToken',
-    path: '/prihlaska/potvrzeni/$accessToken',
+const ApplyConfirmationAccessTokenRoute =
+  ApplyConfirmationAccessTokenRouteImport.update({
+    id: '/apply/confirmation/$accessToken',
+    path: '/apply/confirmation/$accessToken',
     getParentRoute: () => rootRouteImport,
   } as any)
-const UcastnikAppIndexRoute = UcastnikAppIndexRouteImport.update({
+const OrganizerAppIndexRoute = OrganizerAppIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => UcastnikAppRoute,
+  getParentRoute: () => OrganizerAppRoute,
 } as any)
-const UcastnikAppUcetRoute = UcastnikAppUcetRouteImport.update({
-  id: '/ucet',
-  path: '/ucet',
-  getParentRoute: () => UcastnikAppRoute,
+const OrganizerAppAccountRoute = OrganizerAppAccountRouteImport.update({
+  id: '/account',
+  path: '/account',
+  getParentRoute: () => OrganizerAppRoute,
 } as any)
-const OrganizatorAppAkceIndexRoute = OrganizatorAppAkceIndexRouteImport.update({
-  id: '/akce/',
-  path: '/akce/',
-  getParentRoute: () => OrganizatorAppRoute,
+const ParticipantAppIndexRoute = ParticipantAppIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ParticipantAppRoute,
 } as any)
-const OrganizatorAppAkceEventIdRouteRoute =
-  OrganizatorAppAkceEventIdRouteRouteImport.update({
-    id: '/akce/$eventId',
-    path: '/akce/$eventId',
-    getParentRoute: () => OrganizatorAppRoute,
+const ParticipantAppAccountRoute = ParticipantAppAccountRouteImport.update({
+  id: '/account',
+  path: '/account',
+  getParentRoute: () => ParticipantAppRoute,
+} as any)
+const OrganizerAppEventsIndexRoute = OrganizerAppEventsIndexRouteImport.update({
+  id: '/events/',
+  path: '/events/',
+  getParentRoute: () => OrganizerAppRoute,
+} as any)
+const OrganizerAppEventsEventIdRouteRoute =
+  OrganizerAppEventsEventIdRouteRouteImport.update({
+    id: '/events/$eventId',
+    path: '/events/$eventId',
+    getParentRoute: () => OrganizerAppRoute,
   } as any)
-const OrganizatorAppAkceNovaRoute = OrganizatorAppAkceNovaRouteImport.update({
-  id: '/akce/nova',
-  path: '/akce/nova',
-  getParentRoute: () => OrganizatorAppRoute,
+const OrganizerAppEventsNewRoute = OrganizerAppEventsNewRouteImport.update({
+  id: '/events/new',
+  path: '/events/new',
+  getParentRoute: () => OrganizerAppRoute,
 } as any)
-const OrganizatorAppAkceEventIdIndexRoute =
-  OrganizatorAppAkceEventIdIndexRouteImport.update({
+const OrganizerAppEventsEventIdIndexRoute =
+  OrganizerAppEventsEventIdIndexRouteImport.update({
     id: '/',
     path: '/',
-    getParentRoute: () => OrganizatorAppAkceEventIdRouteRoute,
+    getParentRoute: () => OrganizerAppEventsEventIdRouteRoute,
   } as any)
-const OrganizatorAppAkceEventIdPrihlaskyRoute =
-  OrganizatorAppAkceEventIdPrihlaskyRouteImport.update({
-    id: '/prihlasky',
-    path: '/prihlasky',
-    getParentRoute: () => OrganizatorAppAkceEventIdRouteRoute,
+const OrganizerAppEventsEventIdApplicationsRoute =
+  OrganizerAppEventsEventIdApplicationsRouteImport.update({
+    id: '/applications',
+    path: '/applications',
+    getParentRoute: () => OrganizerAppEventsEventIdRouteRoute,
   } as any)
-const OrganizatorAppAkceEventIdTerminyRoute =
-  OrganizatorAppAkceEventIdTerminyRouteImport.update({
-    id: '/terminy',
-    path: '/terminy',
-    getParentRoute: () => OrganizatorAppAkceEventIdRouteRoute,
+const OrganizerAppEventsEventIdRoomsRoute =
+  OrganizerAppEventsEventIdRoomsRouteImport.update({
+    id: '/rooms',
+    path: '/rooms',
+    getParentRoute: () => OrganizerAppEventsEventIdRouteRoute,
   } as any)
-const OrganizatorAppAkceEventIdUbytovaniRoute =
-  OrganizatorAppAkceEventIdUbytovaniRouteImport.update({
-    id: '/ubytovani',
-    path: '/ubytovani',
-    getParentRoute: () => OrganizatorAppAkceEventIdRouteRoute,
+const OrganizerAppEventsEventIdTermsRoute =
+  OrganizerAppEventsEventIdTermsRouteImport.update({
+    id: '/terms',
+    path: '/terms',
+    getParentRoute: () => OrganizerAppEventsEventIdRouteRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/organizator': typeof OrganizatorAppRouteWithChildren
-  '/organizator/prihlaseni': typeof OrganizatorPrihlaseniRoute
-  '/prihlaska/$token': typeof PrihlaskaTokenRoute
-  '/ucastnik': typeof UcastnikAppRouteWithChildren
-  '/ucastnik/nastaveni-hesla': typeof UcastnikNastaveniHeslaRoute
-  '/ucastnik/prihlaseni': typeof UcastnikPrihlaseniRoute
-  '/organizator/ucet': typeof OrganizatorAppUcetRoute
-  '/prihlaska/potvrzeni/$accessToken': typeof PrihlaskaPotvrzeniAccessTokenRoute
-  '/ucastnik/ucet': typeof UcastnikAppUcetRoute
-  '/organizator/': typeof OrganizatorAppIndexRoute
-  '/ucastnik/': typeof UcastnikAppIndexRoute
-  '/organizator/akce/$eventId': typeof OrganizatorAppAkceEventIdRouteRouteWithChildren
-  '/organizator/akce/nova': typeof OrganizatorAppAkceNovaRoute
-  '/organizator/akce/': typeof OrganizatorAppAkceIndexRoute
-  '/organizator/akce/$eventId/prihlasky': typeof OrganizatorAppAkceEventIdPrihlaskyRoute
-  '/organizator/akce/$eventId/terminy': typeof OrganizatorAppAkceEventIdTerminyRoute
-  '/organizator/akce/$eventId/ubytovani': typeof OrganizatorAppAkceEventIdUbytovaniRoute
-  '/organizator/akce/$eventId/': typeof OrganizatorAppAkceEventIdIndexRoute
+  '/apply/$token': typeof ApplyTokenRoute
+  '/organizer': typeof OrganizerAppRouteWithChildren
+  '/organizer/login': typeof OrganizerLoginRoute
+  '/participant': typeof ParticipantAppRouteWithChildren
+  '/participant/login': typeof ParticipantLoginRoute
+  '/participant/set-password': typeof ParticipantSetPasswordRoute
+  '/apply/confirmation/$accessToken': typeof ApplyConfirmationAccessTokenRoute
+  '/organizer/account': typeof OrganizerAppAccountRoute
+  '/participant/account': typeof ParticipantAppAccountRoute
+  '/organizer/': typeof OrganizerAppIndexRoute
+  '/participant/': typeof ParticipantAppIndexRoute
+  '/organizer/events/$eventId': typeof OrganizerAppEventsEventIdRouteRouteWithChildren
+  '/organizer/events/new': typeof OrganizerAppEventsNewRoute
+  '/organizer/events/': typeof OrganizerAppEventsIndexRoute
+  '/organizer/events/$eventId/applications': typeof OrganizerAppEventsEventIdApplicationsRoute
+  '/organizer/events/$eventId/rooms': typeof OrganizerAppEventsEventIdRoomsRoute
+  '/organizer/events/$eventId/terms': typeof OrganizerAppEventsEventIdTermsRoute
+  '/organizer/events/$eventId/': typeof OrganizerAppEventsEventIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/organizator/prihlaseni': typeof OrganizatorPrihlaseniRoute
-  '/prihlaska/$token': typeof PrihlaskaTokenRoute
-  '/ucastnik/nastaveni-hesla': typeof UcastnikNastaveniHeslaRoute
-  '/ucastnik/prihlaseni': typeof UcastnikPrihlaseniRoute
-  '/organizator/ucet': typeof OrganizatorAppUcetRoute
-  '/prihlaska/potvrzeni/$accessToken': typeof PrihlaskaPotvrzeniAccessTokenRoute
-  '/ucastnik/ucet': typeof UcastnikAppUcetRoute
-  '/organizator': typeof OrganizatorAppIndexRoute
-  '/ucastnik': typeof UcastnikAppIndexRoute
-  '/organizator/akce/nova': typeof OrganizatorAppAkceNovaRoute
-  '/organizator/akce': typeof OrganizatorAppAkceIndexRoute
-  '/organizator/akce/$eventId/prihlasky': typeof OrganizatorAppAkceEventIdPrihlaskyRoute
-  '/organizator/akce/$eventId/terminy': typeof OrganizatorAppAkceEventIdTerminyRoute
-  '/organizator/akce/$eventId/ubytovani': typeof OrganizatorAppAkceEventIdUbytovaniRoute
-  '/organizator/akce/$eventId': typeof OrganizatorAppAkceEventIdIndexRoute
+  '/apply/$token': typeof ApplyTokenRoute
+  '/organizer/login': typeof OrganizerLoginRoute
+  '/participant/login': typeof ParticipantLoginRoute
+  '/participant/set-password': typeof ParticipantSetPasswordRoute
+  '/apply/confirmation/$accessToken': typeof ApplyConfirmationAccessTokenRoute
+  '/organizer/account': typeof OrganizerAppAccountRoute
+  '/participant/account': typeof ParticipantAppAccountRoute
+  '/organizer': typeof OrganizerAppIndexRoute
+  '/participant': typeof ParticipantAppIndexRoute
+  '/organizer/events/new': typeof OrganizerAppEventsNewRoute
+  '/organizer/events': typeof OrganizerAppEventsIndexRoute
+  '/organizer/events/$eventId/applications': typeof OrganizerAppEventsEventIdApplicationsRoute
+  '/organizer/events/$eventId/rooms': typeof OrganizerAppEventsEventIdRoomsRoute
+  '/organizer/events/$eventId/terms': typeof OrganizerAppEventsEventIdTermsRoute
+  '/organizer/events/$eventId': typeof OrganizerAppEventsEventIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/organizator/_app': typeof OrganizatorAppRouteWithChildren
-  '/organizator/prihlaseni': typeof OrganizatorPrihlaseniRoute
-  '/prihlaska/$token': typeof PrihlaskaTokenRoute
-  '/ucastnik/_app': typeof UcastnikAppRouteWithChildren
-  '/ucastnik/nastaveni-hesla': typeof UcastnikNastaveniHeslaRoute
-  '/ucastnik/prihlaseni': typeof UcastnikPrihlaseniRoute
-  '/organizator/_app/ucet': typeof OrganizatorAppUcetRoute
-  '/prihlaska/potvrzeni/$accessToken': typeof PrihlaskaPotvrzeniAccessTokenRoute
-  '/ucastnik/_app/ucet': typeof UcastnikAppUcetRoute
-  '/organizator/_app/': typeof OrganizatorAppIndexRoute
-  '/ucastnik/_app/': typeof UcastnikAppIndexRoute
-  '/organizator/_app/akce/$eventId': typeof OrganizatorAppAkceEventIdRouteRouteWithChildren
-  '/organizator/_app/akce/nova': typeof OrganizatorAppAkceNovaRoute
-  '/organizator/_app/akce/': typeof OrganizatorAppAkceIndexRoute
-  '/organizator/_app/akce/$eventId/prihlasky': typeof OrganizatorAppAkceEventIdPrihlaskyRoute
-  '/organizator/_app/akce/$eventId/terminy': typeof OrganizatorAppAkceEventIdTerminyRoute
-  '/organizator/_app/akce/$eventId/ubytovani': typeof OrganizatorAppAkceEventIdUbytovaniRoute
-  '/organizator/_app/akce/$eventId/': typeof OrganizatorAppAkceEventIdIndexRoute
+  '/apply/$token': typeof ApplyTokenRoute
+  '/organizer/_app': typeof OrganizerAppRouteWithChildren
+  '/organizer/login': typeof OrganizerLoginRoute
+  '/participant/_app': typeof ParticipantAppRouteWithChildren
+  '/participant/login': typeof ParticipantLoginRoute
+  '/participant/set-password': typeof ParticipantSetPasswordRoute
+  '/apply/confirmation/$accessToken': typeof ApplyConfirmationAccessTokenRoute
+  '/organizer/_app/account': typeof OrganizerAppAccountRoute
+  '/participant/_app/account': typeof ParticipantAppAccountRoute
+  '/organizer/_app/': typeof OrganizerAppIndexRoute
+  '/participant/_app/': typeof ParticipantAppIndexRoute
+  '/organizer/_app/events/$eventId': typeof OrganizerAppEventsEventIdRouteRouteWithChildren
+  '/organizer/_app/events/new': typeof OrganizerAppEventsNewRoute
+  '/organizer/_app/events/': typeof OrganizerAppEventsIndexRoute
+  '/organizer/_app/events/$eventId/applications': typeof OrganizerAppEventsEventIdApplicationsRoute
+  '/organizer/_app/events/$eventId/rooms': typeof OrganizerAppEventsEventIdRoomsRoute
+  '/organizer/_app/events/$eventId/terms': typeof OrganizerAppEventsEventIdTermsRoute
+  '/organizer/_app/events/$eventId/': typeof OrganizerAppEventsEventIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/organizator'
-    | '/organizator/prihlaseni'
-    | '/prihlaska/$token'
-    | '/ucastnik'
-    | '/ucastnik/nastaveni-hesla'
-    | '/ucastnik/prihlaseni'
-    | '/organizator/ucet'
-    | '/prihlaska/potvrzeni/$accessToken'
-    | '/ucastnik/ucet'
-    | '/organizator/'
-    | '/ucastnik/'
-    | '/organizator/akce/$eventId'
-    | '/organizator/akce/nova'
-    | '/organizator/akce/'
-    | '/organizator/akce/$eventId/prihlasky'
-    | '/organizator/akce/$eventId/terminy'
-    | '/organizator/akce/$eventId/ubytovani'
-    | '/organizator/akce/$eventId/'
+    | '/apply/$token'
+    | '/organizer'
+    | '/organizer/login'
+    | '/participant'
+    | '/participant/login'
+    | '/participant/set-password'
+    | '/apply/confirmation/$accessToken'
+    | '/organizer/account'
+    | '/participant/account'
+    | '/organizer/'
+    | '/participant/'
+    | '/organizer/events/$eventId'
+    | '/organizer/events/new'
+    | '/organizer/events/'
+    | '/organizer/events/$eventId/applications'
+    | '/organizer/events/$eventId/rooms'
+    | '/organizer/events/$eventId/terms'
+    | '/organizer/events/$eventId/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/organizator/prihlaseni'
-    | '/prihlaska/$token'
-    | '/ucastnik/nastaveni-hesla'
-    | '/ucastnik/prihlaseni'
-    | '/organizator/ucet'
-    | '/prihlaska/potvrzeni/$accessToken'
-    | '/ucastnik/ucet'
-    | '/organizator'
-    | '/ucastnik'
-    | '/organizator/akce/nova'
-    | '/organizator/akce'
-    | '/organizator/akce/$eventId/prihlasky'
-    | '/organizator/akce/$eventId/terminy'
-    | '/organizator/akce/$eventId/ubytovani'
-    | '/organizator/akce/$eventId'
+    | '/apply/$token'
+    | '/organizer/login'
+    | '/participant/login'
+    | '/participant/set-password'
+    | '/apply/confirmation/$accessToken'
+    | '/organizer/account'
+    | '/participant/account'
+    | '/organizer'
+    | '/participant'
+    | '/organizer/events/new'
+    | '/organizer/events'
+    | '/organizer/events/$eventId/applications'
+    | '/organizer/events/$eventId/rooms'
+    | '/organizer/events/$eventId/terms'
+    | '/organizer/events/$eventId'
   id:
     | '__root__'
     | '/'
-    | '/organizator/_app'
-    | '/organizator/prihlaseni'
-    | '/prihlaska/$token'
-    | '/ucastnik/_app'
-    | '/ucastnik/nastaveni-hesla'
-    | '/ucastnik/prihlaseni'
-    | '/organizator/_app/ucet'
-    | '/prihlaska/potvrzeni/$accessToken'
-    | '/ucastnik/_app/ucet'
-    | '/organizator/_app/'
-    | '/ucastnik/_app/'
-    | '/organizator/_app/akce/$eventId'
-    | '/organizator/_app/akce/nova'
-    | '/organizator/_app/akce/'
-    | '/organizator/_app/akce/$eventId/prihlasky'
-    | '/organizator/_app/akce/$eventId/terminy'
-    | '/organizator/_app/akce/$eventId/ubytovani'
-    | '/organizator/_app/akce/$eventId/'
+    | '/apply/$token'
+    | '/organizer/_app'
+    | '/organizer/login'
+    | '/participant/_app'
+    | '/participant/login'
+    | '/participant/set-password'
+    | '/apply/confirmation/$accessToken'
+    | '/organizer/_app/account'
+    | '/participant/_app/account'
+    | '/organizer/_app/'
+    | '/participant/_app/'
+    | '/organizer/_app/events/$eventId'
+    | '/organizer/_app/events/new'
+    | '/organizer/_app/events/'
+    | '/organizer/_app/events/$eventId/applications'
+    | '/organizer/_app/events/$eventId/rooms'
+    | '/organizer/_app/events/$eventId/terms'
+    | '/organizer/_app/events/$eventId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  OrganizatorAppRoute: typeof OrganizatorAppRouteWithChildren
-  OrganizatorPrihlaseniRoute: typeof OrganizatorPrihlaseniRoute
-  PrihlaskaTokenRoute: typeof PrihlaskaTokenRoute
-  UcastnikAppRoute: typeof UcastnikAppRouteWithChildren
-  UcastnikNastaveniHeslaRoute: typeof UcastnikNastaveniHeslaRoute
-  UcastnikPrihlaseniRoute: typeof UcastnikPrihlaseniRoute
-  PrihlaskaPotvrzeniAccessTokenRoute: typeof PrihlaskaPotvrzeniAccessTokenRoute
+  ApplyTokenRoute: typeof ApplyTokenRoute
+  OrganizerAppRoute: typeof OrganizerAppRouteWithChildren
+  OrganizerLoginRoute: typeof OrganizerLoginRoute
+  ParticipantAppRoute: typeof ParticipantAppRouteWithChildren
+  ParticipantLoginRoute: typeof ParticipantLoginRoute
+  ParticipantSetPasswordRoute: typeof ParticipantSetPasswordRoute
+  ApplyConfirmationAccessTokenRoute: typeof ApplyConfirmationAccessTokenRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -275,202 +275,200 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/organizator/_app': {
-      id: '/organizator/_app'
-      path: '/organizator'
-      fullPath: '/organizator'
-      preLoaderRoute: typeof OrganizatorAppRouteImport
+    '/apply/$token': {
+      id: '/apply/$token'
+      path: '/apply/$token'
+      fullPath: '/apply/$token'
+      preLoaderRoute: typeof ApplyTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/organizator/prihlaseni': {
-      id: '/organizator/prihlaseni'
-      path: '/organizator/prihlaseni'
-      fullPath: '/organizator/prihlaseni'
-      preLoaderRoute: typeof OrganizatorPrihlaseniRouteImport
+    '/organizer/_app': {
+      id: '/organizer/_app'
+      path: '/organizer'
+      fullPath: '/organizer'
+      preLoaderRoute: typeof OrganizerAppRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/prihlaska/$token': {
-      id: '/prihlaska/$token'
-      path: '/prihlaska/$token'
-      fullPath: '/prihlaska/$token'
-      preLoaderRoute: typeof PrihlaskaTokenRouteImport
+    '/organizer/login': {
+      id: '/organizer/login'
+      path: '/organizer/login'
+      fullPath: '/organizer/login'
+      preLoaderRoute: typeof OrganizerLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/ucastnik/_app': {
-      id: '/ucastnik/_app'
-      path: '/ucastnik'
-      fullPath: '/ucastnik'
-      preLoaderRoute: typeof UcastnikAppRouteImport
+    '/participant/_app': {
+      id: '/participant/_app'
+      path: '/participant'
+      fullPath: '/participant'
+      preLoaderRoute: typeof ParticipantAppRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/ucastnik/nastaveni-hesla': {
-      id: '/ucastnik/nastaveni-hesla'
-      path: '/ucastnik/nastaveni-hesla'
-      fullPath: '/ucastnik/nastaveni-hesla'
-      preLoaderRoute: typeof UcastnikNastaveniHeslaRouteImport
+    '/participant/login': {
+      id: '/participant/login'
+      path: '/participant/login'
+      fullPath: '/participant/login'
+      preLoaderRoute: typeof ParticipantLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/ucastnik/prihlaseni': {
-      id: '/ucastnik/prihlaseni'
-      path: '/ucastnik/prihlaseni'
-      fullPath: '/ucastnik/prihlaseni'
-      preLoaderRoute: typeof UcastnikPrihlaseniRouteImport
+    '/participant/set-password': {
+      id: '/participant/set-password'
+      path: '/participant/set-password'
+      fullPath: '/participant/set-password'
+      preLoaderRoute: typeof ParticipantSetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/organizator/_app/': {
-      id: '/organizator/_app/'
+    '/apply/confirmation/$accessToken': {
+      id: '/apply/confirmation/$accessToken'
+      path: '/apply/confirmation/$accessToken'
+      fullPath: '/apply/confirmation/$accessToken'
+      preLoaderRoute: typeof ApplyConfirmationAccessTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/organizer/_app/': {
+      id: '/organizer/_app/'
       path: '/'
-      fullPath: '/organizator/'
-      preLoaderRoute: typeof OrganizatorAppIndexRouteImport
-      parentRoute: typeof OrganizatorAppRoute
+      fullPath: '/organizer/'
+      preLoaderRoute: typeof OrganizerAppIndexRouteImport
+      parentRoute: typeof OrganizerAppRoute
     }
-    '/organizator/_app/ucet': {
-      id: '/organizator/_app/ucet'
-      path: '/ucet'
-      fullPath: '/organizator/ucet'
-      preLoaderRoute: typeof OrganizatorAppUcetRouteImport
-      parentRoute: typeof OrganizatorAppRoute
+    '/organizer/_app/account': {
+      id: '/organizer/_app/account'
+      path: '/account'
+      fullPath: '/organizer/account'
+      preLoaderRoute: typeof OrganizerAppAccountRouteImport
+      parentRoute: typeof OrganizerAppRoute
     }
-    '/prihlaska/potvrzeni/$accessToken': {
-      id: '/prihlaska/potvrzeni/$accessToken'
-      path: '/prihlaska/potvrzeni/$accessToken'
-      fullPath: '/prihlaska/potvrzeni/$accessToken'
-      preLoaderRoute: typeof PrihlaskaPotvrzeniAccessTokenRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/ucastnik/_app/': {
-      id: '/ucastnik/_app/'
+    '/participant/_app/': {
+      id: '/participant/_app/'
       path: '/'
-      fullPath: '/ucastnik/'
-      preLoaderRoute: typeof UcastnikAppIndexRouteImport
-      parentRoute: typeof UcastnikAppRoute
+      fullPath: '/participant/'
+      preLoaderRoute: typeof ParticipantAppIndexRouteImport
+      parentRoute: typeof ParticipantAppRoute
     }
-    '/ucastnik/_app/ucet': {
-      id: '/ucastnik/_app/ucet'
-      path: '/ucet'
-      fullPath: '/ucastnik/ucet'
-      preLoaderRoute: typeof UcastnikAppUcetRouteImport
-      parentRoute: typeof UcastnikAppRoute
+    '/participant/_app/account': {
+      id: '/participant/_app/account'
+      path: '/account'
+      fullPath: '/participant/account'
+      preLoaderRoute: typeof ParticipantAppAccountRouteImport
+      parentRoute: typeof ParticipantAppRoute
     }
-    '/organizator/_app/akce/': {
-      id: '/organizator/_app/akce/'
-      path: '/akce'
-      fullPath: '/organizator/akce/'
-      preLoaderRoute: typeof OrganizatorAppAkceIndexRouteImport
-      parentRoute: typeof OrganizatorAppRoute
+    '/organizer/_app/events/': {
+      id: '/organizer/_app/events/'
+      path: '/events'
+      fullPath: '/organizer/events/'
+      preLoaderRoute: typeof OrganizerAppEventsIndexRouteImport
+      parentRoute: typeof OrganizerAppRoute
     }
-    '/organizator/_app/akce/$eventId': {
-      id: '/organizator/_app/akce/$eventId'
-      path: '/akce/$eventId'
-      fullPath: '/organizator/akce/$eventId'
-      preLoaderRoute: typeof OrganizatorAppAkceEventIdRouteRouteImport
-      parentRoute: typeof OrganizatorAppRoute
+    '/organizer/_app/events/$eventId': {
+      id: '/organizer/_app/events/$eventId'
+      path: '/events/$eventId'
+      fullPath: '/organizer/events/$eventId'
+      preLoaderRoute: typeof OrganizerAppEventsEventIdRouteRouteImport
+      parentRoute: typeof OrganizerAppRoute
     }
-    '/organizator/_app/akce/nova': {
-      id: '/organizator/_app/akce/nova'
-      path: '/akce/nova'
-      fullPath: '/organizator/akce/nova'
-      preLoaderRoute: typeof OrganizatorAppAkceNovaRouteImport
-      parentRoute: typeof OrganizatorAppRoute
+    '/organizer/_app/events/new': {
+      id: '/organizer/_app/events/new'
+      path: '/events/new'
+      fullPath: '/organizer/events/new'
+      preLoaderRoute: typeof OrganizerAppEventsNewRouteImport
+      parentRoute: typeof OrganizerAppRoute
     }
-    '/organizator/_app/akce/$eventId/': {
-      id: '/organizator/_app/akce/$eventId/'
+    '/organizer/_app/events/$eventId/': {
+      id: '/organizer/_app/events/$eventId/'
       path: '/'
-      fullPath: '/organizator/akce/$eventId/'
-      preLoaderRoute: typeof OrganizatorAppAkceEventIdIndexRouteImport
-      parentRoute: typeof OrganizatorAppAkceEventIdRouteRoute
+      fullPath: '/organizer/events/$eventId/'
+      preLoaderRoute: typeof OrganizerAppEventsEventIdIndexRouteImport
+      parentRoute: typeof OrganizerAppEventsEventIdRouteRoute
     }
-    '/organizator/_app/akce/$eventId/prihlasky': {
-      id: '/organizator/_app/akce/$eventId/prihlasky'
-      path: '/prihlasky'
-      fullPath: '/organizator/akce/$eventId/prihlasky'
-      preLoaderRoute: typeof OrganizatorAppAkceEventIdPrihlaskyRouteImport
-      parentRoute: typeof OrganizatorAppAkceEventIdRouteRoute
+    '/organizer/_app/events/$eventId/applications': {
+      id: '/organizer/_app/events/$eventId/applications'
+      path: '/applications'
+      fullPath: '/organizer/events/$eventId/applications'
+      preLoaderRoute: typeof OrganizerAppEventsEventIdApplicationsRouteImport
+      parentRoute: typeof OrganizerAppEventsEventIdRouteRoute
     }
-    '/organizator/_app/akce/$eventId/terminy': {
-      id: '/organizator/_app/akce/$eventId/terminy'
-      path: '/terminy'
-      fullPath: '/organizator/akce/$eventId/terminy'
-      preLoaderRoute: typeof OrganizatorAppAkceEventIdTerminyRouteImport
-      parentRoute: typeof OrganizatorAppAkceEventIdRouteRoute
+    '/organizer/_app/events/$eventId/rooms': {
+      id: '/organizer/_app/events/$eventId/rooms'
+      path: '/rooms'
+      fullPath: '/organizer/events/$eventId/rooms'
+      preLoaderRoute: typeof OrganizerAppEventsEventIdRoomsRouteImport
+      parentRoute: typeof OrganizerAppEventsEventIdRouteRoute
     }
-    '/organizator/_app/akce/$eventId/ubytovani': {
-      id: '/organizator/_app/akce/$eventId/ubytovani'
-      path: '/ubytovani'
-      fullPath: '/organizator/akce/$eventId/ubytovani'
-      preLoaderRoute: typeof OrganizatorAppAkceEventIdUbytovaniRouteImport
-      parentRoute: typeof OrganizatorAppAkceEventIdRouteRoute
+    '/organizer/_app/events/$eventId/terms': {
+      id: '/organizer/_app/events/$eventId/terms'
+      path: '/terms'
+      fullPath: '/organizer/events/$eventId/terms'
+      preLoaderRoute: typeof OrganizerAppEventsEventIdTermsRouteImport
+      parentRoute: typeof OrganizerAppEventsEventIdRouteRoute
     }
   }
 }
 
-interface OrganizatorAppAkceEventIdRouteRouteChildren {
-  OrganizatorAppAkceEventIdPrihlaskyRoute: typeof OrganizatorAppAkceEventIdPrihlaskyRoute
-  OrganizatorAppAkceEventIdTerminyRoute: typeof OrganizatorAppAkceEventIdTerminyRoute
-  OrganizatorAppAkceEventIdUbytovaniRoute: typeof OrganizatorAppAkceEventIdUbytovaniRoute
-  OrganizatorAppAkceEventIdIndexRoute: typeof OrganizatorAppAkceEventIdIndexRoute
+interface OrganizerAppEventsEventIdRouteRouteChildren {
+  OrganizerAppEventsEventIdApplicationsRoute: typeof OrganizerAppEventsEventIdApplicationsRoute
+  OrganizerAppEventsEventIdRoomsRoute: typeof OrganizerAppEventsEventIdRoomsRoute
+  OrganizerAppEventsEventIdTermsRoute: typeof OrganizerAppEventsEventIdTermsRoute
+  OrganizerAppEventsEventIdIndexRoute: typeof OrganizerAppEventsEventIdIndexRoute
 }
 
-const OrganizatorAppAkceEventIdRouteRouteChildren: OrganizatorAppAkceEventIdRouteRouteChildren =
+const OrganizerAppEventsEventIdRouteRouteChildren: OrganizerAppEventsEventIdRouteRouteChildren =
   {
-    OrganizatorAppAkceEventIdPrihlaskyRoute:
-      OrganizatorAppAkceEventIdPrihlaskyRoute,
-    OrganizatorAppAkceEventIdTerminyRoute:
-      OrganizatorAppAkceEventIdTerminyRoute,
-    OrganizatorAppAkceEventIdUbytovaniRoute:
-      OrganizatorAppAkceEventIdUbytovaniRoute,
-    OrganizatorAppAkceEventIdIndexRoute: OrganizatorAppAkceEventIdIndexRoute,
+    OrganizerAppEventsEventIdApplicationsRoute:
+      OrganizerAppEventsEventIdApplicationsRoute,
+    OrganizerAppEventsEventIdRoomsRoute: OrganizerAppEventsEventIdRoomsRoute,
+    OrganizerAppEventsEventIdTermsRoute: OrganizerAppEventsEventIdTermsRoute,
+    OrganizerAppEventsEventIdIndexRoute: OrganizerAppEventsEventIdIndexRoute,
   }
 
-const OrganizatorAppAkceEventIdRouteRouteWithChildren =
-  OrganizatorAppAkceEventIdRouteRoute._addFileChildren(
-    OrganizatorAppAkceEventIdRouteRouteChildren,
+const OrganizerAppEventsEventIdRouteRouteWithChildren =
+  OrganizerAppEventsEventIdRouteRoute._addFileChildren(
+    OrganizerAppEventsEventIdRouteRouteChildren,
   )
 
-interface OrganizatorAppRouteChildren {
-  OrganizatorAppUcetRoute: typeof OrganizatorAppUcetRoute
-  OrganizatorAppIndexRoute: typeof OrganizatorAppIndexRoute
-  OrganizatorAppAkceEventIdRouteRoute: typeof OrganizatorAppAkceEventIdRouteRouteWithChildren
-  OrganizatorAppAkceNovaRoute: typeof OrganizatorAppAkceNovaRoute
-  OrganizatorAppAkceIndexRoute: typeof OrganizatorAppAkceIndexRoute
+interface OrganizerAppRouteChildren {
+  OrganizerAppAccountRoute: typeof OrganizerAppAccountRoute
+  OrganizerAppIndexRoute: typeof OrganizerAppIndexRoute
+  OrganizerAppEventsEventIdRouteRoute: typeof OrganizerAppEventsEventIdRouteRouteWithChildren
+  OrganizerAppEventsNewRoute: typeof OrganizerAppEventsNewRoute
+  OrganizerAppEventsIndexRoute: typeof OrganizerAppEventsIndexRoute
 }
 
-const OrganizatorAppRouteChildren: OrganizatorAppRouteChildren = {
-  OrganizatorAppUcetRoute: OrganizatorAppUcetRoute,
-  OrganizatorAppIndexRoute: OrganizatorAppIndexRoute,
-  OrganizatorAppAkceEventIdRouteRoute:
-    OrganizatorAppAkceEventIdRouteRouteWithChildren,
-  OrganizatorAppAkceNovaRoute: OrganizatorAppAkceNovaRoute,
-  OrganizatorAppAkceIndexRoute: OrganizatorAppAkceIndexRoute,
+const OrganizerAppRouteChildren: OrganizerAppRouteChildren = {
+  OrganizerAppAccountRoute: OrganizerAppAccountRoute,
+  OrganizerAppIndexRoute: OrganizerAppIndexRoute,
+  OrganizerAppEventsEventIdRouteRoute:
+    OrganizerAppEventsEventIdRouteRouteWithChildren,
+  OrganizerAppEventsNewRoute: OrganizerAppEventsNewRoute,
+  OrganizerAppEventsIndexRoute: OrganizerAppEventsIndexRoute,
 }
 
-const OrganizatorAppRouteWithChildren = OrganizatorAppRoute._addFileChildren(
-  OrganizatorAppRouteChildren,
+const OrganizerAppRouteWithChildren = OrganizerAppRoute._addFileChildren(
+  OrganizerAppRouteChildren,
 )
 
-interface UcastnikAppRouteChildren {
-  UcastnikAppUcetRoute: typeof UcastnikAppUcetRoute
-  UcastnikAppIndexRoute: typeof UcastnikAppIndexRoute
+interface ParticipantAppRouteChildren {
+  ParticipantAppAccountRoute: typeof ParticipantAppAccountRoute
+  ParticipantAppIndexRoute: typeof ParticipantAppIndexRoute
 }
 
-const UcastnikAppRouteChildren: UcastnikAppRouteChildren = {
-  UcastnikAppUcetRoute: UcastnikAppUcetRoute,
-  UcastnikAppIndexRoute: UcastnikAppIndexRoute,
+const ParticipantAppRouteChildren: ParticipantAppRouteChildren = {
+  ParticipantAppAccountRoute: ParticipantAppAccountRoute,
+  ParticipantAppIndexRoute: ParticipantAppIndexRoute,
 }
 
-const UcastnikAppRouteWithChildren = UcastnikAppRoute._addFileChildren(
-  UcastnikAppRouteChildren,
+const ParticipantAppRouteWithChildren = ParticipantAppRoute._addFileChildren(
+  ParticipantAppRouteChildren,
 )
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  OrganizatorAppRoute: OrganizatorAppRouteWithChildren,
-  OrganizatorPrihlaseniRoute: OrganizatorPrihlaseniRoute,
-  PrihlaskaTokenRoute: PrihlaskaTokenRoute,
-  UcastnikAppRoute: UcastnikAppRouteWithChildren,
-  UcastnikNastaveniHeslaRoute: UcastnikNastaveniHeslaRoute,
-  UcastnikPrihlaseniRoute: UcastnikPrihlaseniRoute,
-  PrihlaskaPotvrzeniAccessTokenRoute: PrihlaskaPotvrzeniAccessTokenRoute,
+  ApplyTokenRoute: ApplyTokenRoute,
+  OrganizerAppRoute: OrganizerAppRouteWithChildren,
+  OrganizerLoginRoute: OrganizerLoginRoute,
+  ParticipantAppRoute: ParticipantAppRouteWithChildren,
+  ParticipantLoginRoute: ParticipantLoginRoute,
+  ParticipantSetPasswordRoute: ParticipantSetPasswordRoute,
+  ApplyConfirmationAccessTokenRoute: ApplyConfirmationAccessTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

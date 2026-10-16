@@ -1,4 +1,5 @@
 import { RefreshCw } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -11,6 +12,8 @@ type ErrorStateProps = {
 }
 
 export function ErrorState({ title, error, onRetry }: ErrorStateProps) {
+  const { t } = useTranslation()
+
   return (
     <Alert variant="destructive">
       <AlertTitle>{title}</AlertTitle>
@@ -23,7 +26,7 @@ export function ErrorState({ title, error, onRetry }: ErrorStateProps) {
             onClick={onRetry}
           >
             <RefreshCw className="size-4" />
-            Zkusit znovu
+            {t("state.retry")}
           </Button>
         ) : null}
       </AlertDescription>

@@ -12,7 +12,8 @@ Refs #
 
 - [ ] Akceptační kritéria story jsou splněná (nebo je níže napsané, co chybí a proč)
 - [ ] Logika má testy, `pnpm check-all` je zelený
-- [ ] UI odpovídá [DESIGN.md](../DESIGN.md) — žádné vnořené karty, tři stavy seznamu, texty česky
+- [ ] UI odpovídá [DESIGN.md](../DESIGN.md) — žádné vnořené karty, tři stavy seznamu
+- [ ] Žádné texty napevno — nové klíče v `en` i `cs` (i18n), chyby API mají `code`
 - [ ] Nejvýš jedna migrace, rebasnutá na aktuální `main`
 - [ ] Mění se sdílené soubory (`schema.prisma`, `app.module.ts`, `routes.ts`, `components/**`)? Pak je to napsané tady:
 - [ ] Review od člena týmu (doporučené, u schématu, auth a doménové logiky zvlášť)

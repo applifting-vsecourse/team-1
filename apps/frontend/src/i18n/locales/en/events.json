@@ -1,0 +1,14 @@
+{
+  "list": {
+    "title": "Events"
+  },
+  "new": {
+    "title": "New event"
+  },
+  "rooms": {
+    "title": "Accommodation"
+  },
+  "terms": {
+    "title": "Terms"
+  }
+}

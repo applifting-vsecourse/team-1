@@ -9,13 +9,13 @@ describe("ErrorState", () => {
   it("shows the title and the error message", () => {
     render(
       <ErrorState
-        title="Přihlášky se nepodařilo načíst"
-        error={new Error("Server neodpovídá")}
+        title="Couldn't load applications"
+        error={new Error("Server unreachable")}
       />,
     )
 
-    expect(screen.getByText("Přihlášky se nepodařilo načíst")).toBeInTheDocument()
-    expect(screen.getByText("Server neodpovídá")).toBeInTheDocument()
+    expect(screen.getByText("Couldn't load applications")).toBeInTheDocument()
+    expect(screen.getByText("Server unreachable")).toBeInTheDocument()
     expect(screen.queryByRole("button")).not.toBeInTheDocument()
   })
 
@@ -23,13 +23,13 @@ describe("ErrorState", () => {
     const onRetry = vi.fn()
     render(
       <ErrorState
-        title="Přihlášky se nepodařilo načíst"
-        error={new Error("Server neodpovídá")}
+        title="Couldn't load applications"
+        error={new Error("Server unreachable")}
         onRetry={onRetry}
       />,
     )
 
-    await userEvent.click(screen.getByRole("button", { name: "Zkusit znovu" }))
+    await userEvent.click(screen.getByRole("button", { name: "Try again" }))
     expect(onRetry).toHaveBeenCalledOnce()
   })
 })

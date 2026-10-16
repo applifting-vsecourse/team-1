@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next"
+
 import { ErrorLayout } from "@/components/templates/ErrorLayout"
 import { Button } from "@/components/ui/button"
 
@@ -6,11 +8,13 @@ type ErrorPageProps = {
 }
 
 export function ErrorPage({ error }: ErrorPageProps) {
+  const { t } = useTranslation()
+
   return (
     <ErrorLayout
-      title="Něco se pokazilo"
-      description={error.message || "Došlo k neočekávané chybě."}
-      action={<Button onClick={() => window.location.reload()}>Načíst znovu</Button>}
+      title={t("pages.error.title")}
+      description={error.message || t("pages.error.description")}
+      action={<Button onClick={() => window.location.reload()}>{t("pages.error.action")}</Button>}
     />
   )
 }

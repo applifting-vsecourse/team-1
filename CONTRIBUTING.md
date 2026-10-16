@@ -69,7 +69,7 @@ Registrace je vypnutá (ve sprintu 1 se nikdo neregistruje), takže se přihlaš
 | `ucastnik@example.com`     | `password4`     | účastník    | přihláška na oba týdny Letního kempu, zaplaceno                 |
 | `admin@example.com`        | `adminpassword` | admin       | zatím nic (bez UI)                                              |
 
-Odkazy na přihlášku ze seedu: `/prihlaska/demo-letni-kemp-2027` a `/prihlaska/demo-horsky-vikend-2027`. Skutečné akce dostanou náhodný token.
+Odkazy na přihlášku ze seedu: `/apply/demo-letni-kemp-2027` a `/apply/demo-horsky-vikend-2027`. Skutečné akce dostanou náhodný token.
 
 Porty jsou zafixované: API přijímá požadavky jen z přesného originu frontendu, takže posunutý port se projeví jako CORS chyba.
 

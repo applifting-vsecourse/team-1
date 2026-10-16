@@ -33,6 +33,14 @@ enum Gender {
   @@map("gender")
 }
 
+// Language of the UI and e-mails (docs/PROJEKT.md, localization).
+enum Locale {
+  en
+  cs
+
+  @@map("locale")
+}
+
 enum ApplicationTermStatus {
   CONFIRMED
   WAITLISTED
@@ -102,6 +110,8 @@ model User {
   // Set for participant accounts created from an application: the first
   // sign-in via magic link forces choosing a password (US-04).
   mustSetPassword Boolean     @default(false)
+  // Language of e-mails sent to the account (password reset, verification).
+  locale          Locale      @default(en)
 
   memberships      OrganizationMember[]
   applications     Application[]
@@ -228,6 +238,8 @@ model Application {
   gender         Gender
   email          String
   consentAt      DateTime
+  // UI language at submission — the confirmation e-mail goes out in it.
+  locale         Locale       @default(en)
   // Arrival time on the server — decides the order of evaluation (US-27).
   submittedAt    DateTime     @default(now())
   createdAt      DateTime     @default(now())

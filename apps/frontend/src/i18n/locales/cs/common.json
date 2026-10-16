@@ -1,0 +1,52 @@
+{
+  "area": {
+    "organizer": "Organizátor",
+    "participant": "Moje přihláška"
+  },
+  "comingSoon": "Připravuje se — {{story}}.",
+  "eventTabs": {
+    "applications": "Přihlášky",
+    "overview": "Přehled",
+    "rooms": "Ubytování",
+    "terms": "Termíny"
+  },
+  "language": {
+    "cs": "Čeština",
+    "en": "English",
+    "toggle": "Změnit jazyk"
+  },
+  "nav": {
+    "account": "Účet",
+    "eventSections": "Části akce",
+    "events": "Akce",
+    "myApplication": "Moje přihláška",
+    "overview": "Přehled"
+  },
+  "pages": {
+    "error": {
+      "action": "Načíst znovu",
+      "description": "Došlo k neočekávané chybě.",
+      "title": "Něco se pokazilo"
+    },
+    "forbidden": {
+      "action": "Na úvodní stránku",
+      "description": "Tato stránka patří jinému účtu nebo jiné organizaci.",
+      "title": "Sem nemáte přístup"
+    },
+    "notFound": {
+      "action": "Na úvodní stránku",
+      "description": "Stránka neexistuje, nebo byl odkaz zadán špatně.",
+      "title": "Stránka nenalezena"
+    }
+  },
+  "state": {
+    "loading": "Načítání…",
+    "retry": "Zkusit znovu"
+  },
+  "theme": {
+    "dark": "Tmavý",
+    "light": "Světlý",
+    "system": "Podle systému",
+    "toggle": "Přepnout vzhled"
+  }
+}

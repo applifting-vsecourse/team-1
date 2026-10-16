@@ -1,3 +1,4 @@
+import { Locale } from '@/core/email/locale';
 import { Account } from '@/modules/account/domain/account';
 import { AccountType } from '@/shared/auth/domain/identity';
 import { ApiProperty } from '@nestjs/swagger';
@@ -28,6 +29,12 @@ export class MeResponseDto {
   })
   mustSetPassword!: boolean;
 
+  @ApiProperty({
+    enum: ['en', 'cs'],
+    description: 'Language of e-mails to this account.',
+  })
+  locale!: Locale;
+
   @ApiProperty({ type: [OrganizationSummaryDto] })
   organizations!: OrganizationSummaryDto[];
 
@@ -38,6 +45,7 @@ export class MeResponseDto {
       name: account.name,
       accountType: account.accountType,
       mustSetPassword: account.mustSetPassword,
+      locale: account.locale,
       organizations: account.organizations.map((organization) => ({
         id: organization.id,
         name: organization.name,

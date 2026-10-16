@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { useNavigate } from "@tanstack/react-router"
+import { useTranslation } from "react-i18next"
 
 import { SignInForm } from "@/features/auth/components/SignInForm"
 import { useSignIn } from "@/features/auth/hooks/useSignIn"
@@ -13,6 +14,7 @@ type SignInWithRedirectProps = {
 }
 
 export function SignInWithRedirect({ from, fallback }: SignInWithRedirectProps) {
+  const { t } = useTranslation("auth")
   const navigate = useNavigate()
   const signIn = useSignIn()
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
@@ -24,7 +26,7 @@ export function SignInWithRedirect({ from, fallback }: SignInWithRedirectProps) 
       await navigate({ to: from ? decodeRedirectUri(from) : fallback })
     } catch {
       // One generic message for any failure — never reveal whether the e-mail exists (US-02).
-      setErrorMessage("Nesprávný e-mail nebo heslo.")
+      setErrorMessage(t("form.errors.invalidCredentials"))
     }
   }
 
