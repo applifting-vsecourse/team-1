@@ -41,13 +41,15 @@ Jádro MVP:
 
 ## 3. Tým
 
-| GitHub        | Role                                                           |
-| ------------- | -------------------------------------------------------------- |
-| kudrle01      | Tech lead (US-71, US-72, fáze 0)                               |
-| Jakubkuba9000 | Design (wireframy; na boardu přiřazená většina sprintu 1)      |
-| Aadikk        | Produkťák (US-77)                                              |
-| PJjiry        | Tester                                                         |
-| tomaskriz-max | Vlastník produktu / klient — není člen týmu, děláme to pro něj |
+**Technical lead:** [kudrle01](https://github.com/kudrle01) — responsible for the technical foundation (Phase 0, US-71, US-72).
+
+| Member                                            | Role                                                  |
+| ------------------------------------------------- | ----------------------------------------------------- |
+| [Jakubkuba9000](https://github.com/Jakubkuba9000) | Designer — wireframes; assigned most Sprint 1 stories |
+| [Aadikk](https://github.com/Aadikk)               | Product manager (US-77)                               |
+| [PJjiry](https://github.com/PJjiry)               | Tester                                                |
+
+**Product owner:** [tomaskriz-max](https://github.com/tomaskriz-max) — the client for whom the product is built; not a member of the team.
 
 ## 4. Board
 
