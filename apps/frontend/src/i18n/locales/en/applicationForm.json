@@ -3,6 +3,43 @@
     "title": "Application submitted"
   },
   "form": {
+    "addParticipant": "Add another participant",
+    "birthDate": "Date of birth *",
+    "consent": "I agree to the processing of personal data for the purpose of the application. *",
+    "contactHeading": "Contact for the whole application",
+    "email": "Contact e-mail *",
+    "emailHint": "The confirmation of the whole application will be sent to this e-mail.",
+    "errors": {
+      "birthDateInvalid": "Enter a valid date of birth.",
+      "consentRequired": "Consent to the processing of personal data is required to submit.",
+      "emailInvalid": "Enter a valid e-mail address.",
+      "firstNameRequired": "Enter the first name.",
+      "genderRequired": "Choose Woman or Man.",
+      "lastNameRequired": "Enter the last name.",
+      "termsRequired": "Choose at least one term."
+    },
+    "firstName": "First name *",
+    "gender": "Gender *",
+    "genderFemale": "Woman",
+    "genderMale": "Man",
+    "genderPlaceholder": "Select gender",
+    "heading": "Application for {{event}}",
+    "intro": "You can apply without an account. Choose one or more terms for each participant.",
+    "lastName": "Last name *",
+    "participantTitle": "Participant {{number}}",
+    "participantTitleNamed": "Participant {{number}} · {{name}}",
+    "removeParticipantAria": "Remove participant {{number}}",
+    "requiredNote": "* Required fields",
+    "submit": "Submit application",
+    "submitting": "Submitting…",
+    "submittingHint": "We're submitting your application. Please wait for the confirmation.",
+    "terms": "Choose terms (at least one) *",
     "title": "Application"
+  },
+  "notFound": {
+    "action": "Back to Togena",
+    "code": "404",
+    "description": "Check the link address or ask the event organizer for a new link.",
+    "title": "The application link doesn't work"
   }
 }
