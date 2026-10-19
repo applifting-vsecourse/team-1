@@ -6,17 +6,15 @@
 // Globs run in parallel, so each file gets exactly one glob and its commands
 // run in order.
 export default {
-  'apps/frontend/src/**/*.{ts,tsx,js,cjs,mjs}': [
-    'pnpm --filter frontend exec prettier --write',
-    'pnpm --filter frontend exec eslint --fix',
+  "apps/frontend/src/**/*.{ts,tsx,js,cjs,mjs}": [
+    "pnpm --filter frontend exec prettier --write",
+    "pnpm --filter frontend exec eslint --fix",
   ],
-  'apps/frontend/src/**/*.{css,json}': [
-    'pnpm --filter frontend exec prettier --write',
-  ],
-  'apps/backend/src/**/*.ts': [
-    'pnpm --filter backend exec prettier --write',
-    'pnpm --filter backend exec eslint --fix',
+  "apps/frontend/src/**/*.{css,json}": ["pnpm --filter frontend exec prettier --write"],
+  "apps/backend/src/**/*.ts": [
+    "pnpm --filter backend exec prettier --write",
+    "pnpm --filter backend exec eslint --fix",
   ],
   // App files match here too, but the root .prettierignore skips them.
-  '*.{json,md,yaml,yml}': ['prettier --write'],
-};
+  "*.{json,md,yaml,yml}": ["prettier --write"],
+}

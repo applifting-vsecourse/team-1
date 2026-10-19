@@ -10,7 +10,7 @@ name: AI review (Raspberry Pi)
 
 on:
   schedule:
-    - cron: '0 5 * * 1-5' # weekdays 07:00 Prague (CEST)
+    - cron: "0 5 * * 1-5" # weekdays 07:00 Prague (CEST)
   workflow_dispatch:
     inputs:
       pr:
@@ -35,7 +35,7 @@ jobs:
       GH_TOKEN: ${{ github.token }}
       AI_REVIEW_MODEL: haiku
       AI_REVIEW_BUDGET: ${{ vars.AI_REVIEW_BUDGET || '0.10' }}
-      AI_REVIEW_MAX_BYTES: '60000'
+      AI_REVIEW_MAX_BYTES: "60000"
       AI_REVIEW_SETTING_SOURCES: user
       MAX_PRS: ${{ vars.AI_REVIEW_MAX_PRS || '5' }}
       INPUT_PR: ${{ inputs.pr }}

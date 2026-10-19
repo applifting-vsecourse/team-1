@@ -1,9 +1,9 @@
-import { Config } from '@/shared/config/config.service';
-import { Global, Module } from '@nestjs/common';
-import { ConsoleMailerAdapterFactory } from './adapters/console-mailer/console-mailer.adapter.factory';
-import { ResendAdapterFactory } from './adapters/resend/resend.adapter.factory';
-import { SMTPAdapterFactory } from './adapters/smtp/smtp.adapter.factory';
-import { EmailModule } from './email.module';
+import { Config } from "@/shared/config/config.service"
+import { Global, Module } from "@nestjs/common"
+import { ConsoleMailerAdapterFactory } from "./adapters/console-mailer/console-mailer.adapter.factory"
+import { ResendAdapterFactory } from "./adapters/resend/resend.adapter.factory"
+import { SMTPAdapterFactory } from "./adapters/smtp/smtp.adapter.factory"
+import { EmailModule } from "./email.module"
 
 /**
  * Picks an email adapter based on env:
@@ -20,12 +20,12 @@ import { EmailModule } from './email.module';
   imports: [
     EmailModule.forRootAsync({
       useFactory: async (...args: unknown[]) => {
-        const config = args[0] as Config;
+        const config = args[0] as Config
         if (config.resendApiKey) {
           return ResendAdapterFactory.create({
             apiKey: config.resendApiKey,
             from: config.emailFrom,
-          });
+          })
         }
         if (config.smtpHost && config.smtpUsername && config.smtpPassword) {
           return SMTPAdapterFactory.create({
@@ -34,9 +34,9 @@ import { EmailModule } from './email.module';
             secure: config.smtpSecure,
             user: config.smtpUsername,
             pass: config.smtpPassword,
-          });
+          })
         }
-        return ConsoleMailerAdapterFactory.create();
+        return ConsoleMailerAdapterFactory.create()
       },
       inject: [Config],
     }),

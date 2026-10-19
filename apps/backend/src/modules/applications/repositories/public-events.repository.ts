@@ -1,8 +1,8 @@
-import { PrismaService } from '@/core/prisma/prisma.service';
-import { PublicEvent } from '@/modules/applications/domain/public-event';
-import { Injectable } from '@nestjs/common';
+import { PrismaService } from "@/core/prisma/prisma.service"
+import { PublicEvent } from "@/modules/applications/domain/public-event"
+import { Injectable } from "@nestjs/common"
 
-const isoDate = (date: Date): string => date.toISOString().slice(0, 10);
+const isoDate = (date: Date): string => date.toISOString().slice(0, 10)
 
 @Injectable()
 export class PublicEventsRepository {
@@ -14,11 +14,11 @@ export class PublicEventsRepository {
     const event = await this.prisma.event.findUnique({
       where: { publicToken },
       include: {
-        terms: { orderBy: [{ startsOn: 'asc' }, { name: 'asc' }] },
+        terms: { orderBy: [{ startsOn: "asc" }, { name: "asc" }] },
         _count: { select: { rooms: true } },
       },
-    });
-    if (!event) return null;
+    })
+    if (!event) return null
 
     return {
       roomCount: event._count.rooms,
@@ -34,6 +34,6 @@ export class PublicEventsRepository {
           priceCzk: term.priceCzk,
         })),
       },
-    };
+    }
   }
 }
