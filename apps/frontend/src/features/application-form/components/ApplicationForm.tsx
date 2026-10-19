@@ -115,7 +115,6 @@ export function ApplicationForm({ event, onSubmit, errorMessage, isDone }: Appli
                     type="email"
                     className="h-11"
                     autoComplete="email"
-                    placeholder={t("form.emailPlaceholder")}
                     {...field}
                   />
                 </FormControl>

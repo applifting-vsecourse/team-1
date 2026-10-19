@@ -9,7 +9,6 @@
     "contactHeading": "Kontakt pro celou přihlášku",
     "email": "Kontaktní e-mail *",
     "emailHint": "Na tento e-mail přijde potvrzení celé přihlášky.",
-    "emailPlaceholder": "jmeno@example.com",
     "errors": {
       "birthDateInvalid": "Zadejte platné datum narození.",
       "consentRequired": "Pro odeslání je nutný souhlas se zpracováním údajů.",

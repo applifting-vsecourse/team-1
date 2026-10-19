@@ -9,7 +9,6 @@
     "contactHeading": "Contact for the whole application",
     "email": "Contact e-mail *",
     "emailHint": "The confirmation of the whole application will be sent to this e-mail.",
-    "emailPlaceholder": "name@example.com",
     "errors": {
       "birthDateInvalid": "Enter a valid date of birth.",
       "consentRequired": "Consent to the processing of personal data is required to submit.",
