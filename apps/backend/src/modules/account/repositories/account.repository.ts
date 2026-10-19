@@ -1,6 +1,6 @@
-import { PrismaService } from '@/core/prisma/prisma.service';
-import { OrganizationSummary } from '@/modules/account/domain/account';
-import { Injectable } from '@nestjs/common';
+import { PrismaService } from "@/core/prisma/prisma.service"
+import { OrganizationSummary } from "@/modules/account/domain/account"
+import { Injectable } from "@nestjs/common"
 
 /**
  * If you decide to choose a different ORM or database, you should only need to change the repository files methods implementation.
@@ -10,17 +10,15 @@ import { Injectable } from '@nestjs/common';
 export class AccountRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findOrganizationsOfMember(
-    userId: string,
-  ): Promise<OrganizationSummary[]> {
+  async findOrganizationsOfMember(userId: string): Promise<OrganizationSummary[]> {
     const memberships = await this.prisma.organizationMember.findMany({
       where: { userId },
       include: { organization: { select: { id: true, name: true } } },
-      orderBy: { organization: { name: 'asc' } },
-    });
+      orderBy: { organization: { name: "asc" } },
+    })
     return memberships.map(({ organization }) => ({
       id: organization.id,
       name: organization.name,
-    }));
+    }))
   }
 }

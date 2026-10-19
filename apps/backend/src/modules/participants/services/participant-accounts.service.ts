@@ -1,26 +1,26 @@
-import { DEFAULT_LOCALE, Locale } from '@/core/email/locale';
-import { ParticipantAccountsRepository } from '@/modules/participants/repositories/participant-accounts.repository';
-import { AppException } from '@/shared/errors/app.exception';
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { DEFAULT_LOCALE, Locale } from "@/core/email/locale"
+import { ParticipantAccountsRepository } from "@/modules/participants/repositories/participant-accounts.repository"
+import { AppException } from "@/shared/errors/app.exception"
+import { HttpStatus, Injectable } from "@nestjs/common"
 
 export type EnsureAccountInput = {
-  email: string;
-  name: string;
+  email: string
+  name: string
   /** Language of the application; becomes the account's e-mail language. */
-  locale?: Locale;
-};
+  locale?: Locale
+}
 
 export type EnsureAccountResult = {
   /** Participant account the application is attached to. */
-  userId: string;
+  userId: string
   /** True when the account was created now. */
-  isNew: boolean;
+  isNew: boolean
   /**
    * The participant has no password yet — the e-mail must carry a magic link.
    * False: the account has its own password, the e-mail links to the sign-in.
    */
-  mustSetPassword: boolean;
-};
+  mustSetPassword: boolean
+}
 
 /**
  * Contract between stream B (application) and stream C (accounts). B calls
@@ -36,42 +36,42 @@ export class ParticipantAccountsService {
   constructor(private readonly accounts: ParticipantAccountsRepository) {}
 
   async ensureAccount(input: EnsureAccountInput): Promise<EnsureAccountResult> {
-    const email = input.email.trim().toLowerCase();
+    const email = input.email.trim().toLowerCase()
 
-    const existing = await this.accounts.findByEmail(email);
-    if (existing) return this.fromExisting(existing);
+    const existing = await this.accounts.findByEmail(email)
+    if (existing) return this.fromExisting(existing)
 
     const created = await this.accounts.createParticipant({
       email,
       name: input.name.trim(),
       locale: input.locale ?? DEFAULT_LOCALE,
-    });
+    })
     if (created) {
-      return { userId: created.id, isNew: true, mustSetPassword: true };
+      return { userId: created.id, isNew: true, mustSetPassword: true }
     }
 
     // Another application with the same new e-mail won the race.
-    const winner = await this.accounts.findByEmail(email);
-    if (!winner) throw new Error('Participant account vanished after a race');
-    return this.fromExisting(winner);
+    const winner = await this.accounts.findByEmail(email)
+    if (!winner) throw new Error("Participant account vanished after a race")
+    return this.fromExisting(winner)
   }
 
   private fromExisting(account: {
-    id: string;
-    accountType: string;
-    mustSetPassword: boolean;
+    id: string
+    accountType: string
+    mustSetPassword: boolean
   }): EnsureAccountResult {
-    if (account.accountType !== 'PARTICIPANT') {
+    if (account.accountType !== "PARTICIPANT") {
       throw new AppException(
         HttpStatus.CONFLICT,
-        'EMAIL_NOT_ALLOWED',
-        'This e-mail cannot be used for an application',
-      );
+        "EMAIL_NOT_ALLOWED",
+        "This e-mail cannot be used for an application",
+      )
     }
     return {
       userId: account.id,
       isNew: false,
       mustSetPassword: account.mustSetPassword,
-    };
+    }
   }
 }

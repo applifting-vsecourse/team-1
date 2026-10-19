@@ -1,42 +1,42 @@
-import { Locale } from '@/core/email/locale';
-import { Account } from '@/modules/account/domain/account';
-import { AccountType } from '@/shared/auth/domain/identity';
-import { ApiProperty } from '@nestjs/swagger';
+import { Locale } from "@/core/email/locale"
+import { Account } from "@/modules/account/domain/account"
+import { AccountType } from "@/shared/auth/domain/identity"
+import { ApiProperty } from "@nestjs/swagger"
 
 export class OrganizationSummaryDto {
   @ApiProperty()
-  id!: string;
+  id!: string
 
-  @ApiProperty({ example: 'Letní kemp z. s.' })
-  name!: string;
+  @ApiProperty({ example: "Letní kemp z. s." })
+  name!: string
 }
 
 export class MeResponseDto {
   @ApiProperty()
-  id!: string;
+  id!: string
 
-  @ApiProperty({ example: 'organizator@example.com' })
-  email!: string;
+  @ApiProperty({ example: "organizator@example.com" })
+  email!: string
 
   @ApiProperty({ type: String, nullable: true })
-  name!: string | null;
+  name!: string | null
 
-  @ApiProperty({ enum: ['ORGANIZER', 'PARTICIPANT', 'ADMIN'] })
-  accountType!: AccountType;
-
-  @ApiProperty({
-    description: 'Participant must choose a password first (US-04).',
-  })
-  mustSetPassword!: boolean;
+  @ApiProperty({ enum: ["ORGANIZER", "PARTICIPANT", "ADMIN"] })
+  accountType!: AccountType
 
   @ApiProperty({
-    enum: ['en', 'cs'],
-    description: 'Language of e-mails to this account.',
+    description: "Participant must choose a password first (US-04).",
   })
-  locale!: Locale;
+  mustSetPassword!: boolean
+
+  @ApiProperty({
+    enum: ["en", "cs"],
+    description: "Language of e-mails to this account.",
+  })
+  locale!: Locale
 
   @ApiProperty({ type: [OrganizationSummaryDto] })
-  organizations!: OrganizationSummaryDto[];
+  organizations!: OrganizationSummaryDto[]
 
   static fromDomain(account: Account): MeResponseDto {
     return {
@@ -50,6 +50,6 @@ export class MeResponseDto {
         id: organization.id,
         name: organization.name,
       })),
-    };
+    }
   }
 }

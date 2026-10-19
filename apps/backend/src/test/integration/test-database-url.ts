@@ -6,16 +6,16 @@
  * to the database name (togena → togena_test). Never the development database.
  */
 export function resolveTestDatabaseUrl(): string {
-  const explicit = process.env.TEST_DATABASE_URL;
-  if (explicit) return explicit;
+  const explicit = process.env.TEST_DATABASE_URL
+  if (explicit) return explicit
 
-  const base = process.env.DATABASE_URL;
+  const base = process.env.DATABASE_URL
   if (!base) {
     throw new Error(
-      'Set DATABASE_URL (apps/backend/.env) or TEST_DATABASE_URL to run integration tests.',
-    );
+      "Set DATABASE_URL (apps/backend/.env) or TEST_DATABASE_URL to run integration tests.",
+    )
   }
-  const url = new URL(base);
-  url.pathname = `${url.pathname}_test`;
-  return url.toString();
+  const url = new URL(base)
+  url.pathname = `${url.pathname}_test`
+  return url.toString()
 }
