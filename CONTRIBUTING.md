@@ -30,10 +30,10 @@ Pravidla a rozhodnutí projektu jsou v [docs/PROJEKT.md](docs/PROJEKT.md). Tady 
 
 ## Hooky a AI review
 
-| Hook         | Co dělá                                                                                                                          |
-| ------------ | -------------------------------------------------------------------------------------------------------------------------------- |
-| `pre-commit` | Prettier + ESLint na změněné soubory (lint-staged).                                                                              |
-| `pre-push`   | `pnpm check-fast` (lint, type-check, unit testy BE i FE — bez Dockeru), pak `pnpm ai-review`. Integrační testy a build hlídá CI. |
+| Hook         | Co dělá                                                                                                                                                                       |
+| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pre-commit` | Prettier + ESLint na změněné soubory (lint-staged).                                                                                                                           |
+| `pre-push`   | `pnpm check-fast` (lint, type-check, unit testy BE i FE — bez Dockeru), pak AI review (`scripts/ai-review.sh`, totéž co `pnpm ai-review`). Integrační testy a build hlídá CI. |
 
 **AI review** (`scripts/ai-review.sh`) pošle diff větve proti `origin/main` agentovi `reviewer` ([`.claude/agents/reviewer.md`](.claude/agents/reviewer.md)), který ho porovná s CLAUDE.md, PROJEKT.md a DESIGN.md. Nálezy jsou `BLOCKER`, `WARNING` a `NOTE`; **push zastaví jen `BLOCKER`**. Celý výstup posledního běhu je v `.git/ai-review-last.txt`.
 
