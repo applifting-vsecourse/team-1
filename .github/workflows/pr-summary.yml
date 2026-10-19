@@ -30,14 +30,16 @@ jobs:
           node-version-file: .nvmrc
 
       - name: Build summary
+        env:
+          BASE: ${{ github.base_ref }}
         run: |
-          git fetch --no-tags origin "${{ github.base_ref }}"
+          git fetch --no-tags origin "$BASE"
           # The script always comes from the base branch, so a PR can't change its own report.
-          git show "origin/${{ github.base_ref }}:scripts/pr-summary.mjs" > "$RUNNER_TEMP/pr-summary.mjs" ||
+          git show "origin/$BASE:scripts/pr-summary.mjs" > "$RUNNER_TEMP/pr-summary.mjs" ||
             cp scripts/pr-summary.mjs "$RUNNER_TEMP/pr-summary.mjs"
           {
             echo '<!-- pr-summary -->'
-            node "$RUNNER_TEMP/pr-summary.mjs" "origin/${{ github.base_ref }}"
+            node "$RUNNER_TEMP/pr-summary.mjs" "origin/$BASE"
           } > "$RUNNER_TEMP/summary.md"
 
       - name: Post sticky comment

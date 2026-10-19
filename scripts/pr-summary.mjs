@@ -16,7 +16,7 @@ const git = (...args) =>
   }).trim();
 const range = `${base}...HEAD`;
 
-const stats = git('diff', '--numstat', range)
+const stats = git('diff', '--numstat', '--no-renames', range)
   .split('\n')
   .filter(Boolean)
   .map((l) => {
