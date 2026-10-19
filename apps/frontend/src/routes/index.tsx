@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router"
+import { createFileRoute, Link, redirect } from "@tanstack/react-router"
 import { ArrowRight, BedDouble, CalendarRange, ListChecks, Wallet } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
@@ -8,7 +8,17 @@ import { FeatureCard } from "@/components/molecules/FeatureCard"
 import { PublicLayout } from "@/components/templates/PublicLayout"
 import { Button } from "@/components/ui/button"
 
+import { authSessionQueryOptions } from "@/features/auth/api/authSessionQueryOptions"
+import { accountHome } from "@/features/auth/lib/account-home"
+
 export const Route = createFileRoute("/")({
+  // The landing is for signed-out visitors; a signed-in user (e.g. clicking the logo) goes back to their area.
+  loader: async ({ context }) => {
+    const session = await context.queryClient.ensureQueryData(authSessionQueryOptions())
+    if (!session) return
+    const home = accountHome(session.user)
+    if (home !== ROUTES.home) throw redirect({ to: home })
+  },
   component: LandingPage,
 })
 
