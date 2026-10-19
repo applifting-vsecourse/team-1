@@ -25,6 +25,7 @@ export function ApplicationLinkNotFound() {
           <Button
             asChild
             variant="outline"
+            size="lg"
             className="w-full sm:w-auto sm:self-start"
           >
             <Link to={ROUTES.home}>{t("notFound.action")}</Link>

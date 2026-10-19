@@ -32,7 +32,7 @@ When a frame contradicts a rule below, build the frame and report the conflict i
 - **A page is not a card.** Page content sits on `background` in a column (`max-w-196` = 784 px for forms and settings, full width for overviews, `max-w-200` = 800 px for the application form in `PublicLayout`); the cards sit in that column.
 - **Every page keeps the app chrome.** The header is present on every route, including login and sign-up. Pages never render as standalone islands.
 - The landing is a centred hero (primary words, two XL buttons) followed by a `muted` band with a 2x2 grid of feature cards. Elsewhere, carousels, decorative illustrations or gradients, and any section whose only purpose is to look full are forbidden.
-- Signed-in areas: sidebar 240 px (`sidebar` tokens, nav items 40 px, support link at the bottom), top bar 64 px (role label, theme toggle, account dropdown), content padding 32.
+- Signed-in areas: sidebar 240 px (`sidebar` tokens, nav items 40 px; the Figma support link waits until a support channel exists), top bar 64 px (role label, theme toggle, account dropdown), content padding 32.
 
 ## Spacing
 
@@ -53,7 +53,7 @@ Use the scale only: `1, 2, 3, 4, 6, 8, 12, 16` (Tailwind units — 4px…64px). 
 
 ## Forms
 
-- Heights come from the kit: `Button` default 40, `lg` 44, `xl` 48 (with an arrow, for landing and sign-in primaries); `Input` and `Select` 44. Don't override heights per screen.
+- Heights come from the kit: `Button` default 40, `lg` 44, `xl` 48 (with an arrow, for landing and sign-in primaries); `Input` and `Select` 44. A button that sits in a form with inputs is `lg` (44), so it lines up with them; so are the actions of screens not yet in the remake (application form, error pages), which were drawn at 44. Don't override heights per screen.
 - Every input has a visible `<label>`. Placeholders are examples, never labels.
 - Validation runs client-side _and_ server-side. The client message appears under the field.
 - The submit button shows a pending state and is disabled while submitting.

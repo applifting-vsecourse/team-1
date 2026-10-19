@@ -14,7 +14,9 @@ export function ErrorPage({ error }: ErrorPageProps) {
     <ErrorLayout
       title={t("pages.error.title")}
       description={error.message || t("pages.error.description")}
-      action={<Button onClick={() => window.location.reload()}>{t("pages.error.action")}</Button>}
+      action={<Button
+          size="lg"
+          onClick={() => window.location.reload()}>{t("pages.error.action")}</Button>}
     />
   )
 }

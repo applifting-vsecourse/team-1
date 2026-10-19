@@ -154,6 +154,8 @@ Každá obrazovka je jeden auto-layout rámec pojmenovaný `<kód> / <název z o
 
 **Známé odchylky:**
 
+- V kódu chybí odkaz „Podpora Togeny“ v sidebaru, protože zatím neexistuje kanál podpory (adresa, URL). Doplní se, až bude rozhodnutý.
+
 - Primary `oklch(0.704 0.14 182.5)` s bílým textem má kontrast asi 2,6:1, takže nesplňuje AA. Uživatel zvolil přesné barvy tweaku. Pro kód je potřeba rozhodnutí tech leada.
 - O30 / U13 zatím nemají sekce „Zabezpečení“ a „Oznámení“, protože nejsou implementované (vlastní stories).
 - „Vytvořit akci“ je bez ikony plus, Button nemá slot na ikonu.

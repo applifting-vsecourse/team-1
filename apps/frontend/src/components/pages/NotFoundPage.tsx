@@ -13,7 +13,10 @@ export function NotFoundPage() {
       title={t("pages.notFound.title")}
       description={t("pages.notFound.description")}
       action={
-        <Button asChild>
+        <Button
+          asChild
+          size="lg"
+        >
           <Link to={ROUTES.home}>{t("pages.notFound.action")}</Link>
         </Button>
       }
