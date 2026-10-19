@@ -11,6 +11,7 @@ export const ERROR_CODES = [
   'FORBIDDEN',
   'NOT_FOUND',
   'VALIDATION_FAILED',
+  'EMAIL_NOT_ALLOWED',
   'INTERNAL',
 ] as const;
 

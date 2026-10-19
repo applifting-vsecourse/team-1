@@ -4,6 +4,7 @@ import { Config } from '@/shared/config/config.service';
 import { ConfigModule } from '@applifting-io/nestjs-decorated-config';
 import { Module } from '@nestjs/common';
 import { betterAuthProvider } from './providers/better-auth.provider';
+import { MagicLinkService } from './services/magic-link.service';
 
 @Module({
   imports: [
@@ -11,7 +12,7 @@ import { betterAuthProvider } from './providers/better-auth.provider';
     ConfigModule.forRootAsync(Config, { validate: true }),
     MailModule,
   ],
-  providers: [betterAuthProvider],
-  exports: [betterAuthProvider],
+  providers: [betterAuthProvider, MagicLinkService],
+  exports: [betterAuthProvider, MagicLinkService],
 })
 export class AuthModule {}
