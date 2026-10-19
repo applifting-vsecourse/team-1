@@ -2,6 +2,7 @@ import { X } from "lucide-react"
 import { useFormContext, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import { MoneyAmount } from "@/components/atoms/MoneyAmount"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -16,7 +17,6 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { formatDateRange } from "@/lib/date"
-import { formatCzk } from "@/lib/money"
 
 import type { PublicTerm } from "@/features/application-form/api/publicEvent"
 import {
@@ -197,7 +197,8 @@ export function ParticipantFields({
                       }
                       onBlur={field.onBlur}
                     />
-                    {formatDateRange(term.startsOn, term.endsOn)} · {formatCzk(term.priceCzk)}
+                    {formatDateRange(term.startsOn, term.endsOn)} ·{" "}
+                    <MoneyAmount amountCzk={term.priceCzk} />
                   </Label>
                 )
               })}
