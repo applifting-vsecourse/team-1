@@ -91,7 +91,9 @@ describe("SignInWithRedirect", () => {
     await submit("nobody@example.com", "whatever")
     const unknownEmail = (await screen.findByRole("alert")).textContent
 
-    expect(wrongPassword).toContain("Wrong e-mail or password.")
+    expect(wrongPassword).toContain(
+      "The e-mail or password is incorrect. Check your details and try again.",
+    )
     expect(unknownEmail).toBe(wrongPassword)
     expect(navigate).not.toHaveBeenCalled()
   })
@@ -103,7 +105,9 @@ describe("SignInWithRedirect", () => {
 
     await submit("ucastnik@example.com", "password4")
 
-    expect(await screen.findByRole("alert")).toHaveTextContent("Wrong e-mail or password.")
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "The e-mail or password is incorrect. Check your details and try again.",
+    )
     expect(signOut).toHaveBeenCalledOnce()
     expect(navigate).not.toHaveBeenCalled()
   })

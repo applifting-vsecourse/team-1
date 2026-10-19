@@ -38,7 +38,9 @@ describe("OrganizerAreaError", () => {
   it("shows a participant the 403 page with a way back, and nothing of the area", () => {
     renderWith(participant, new ForbiddenError())
 
-    expect(screen.getByRole("heading", { name: "You don't have access here" })).toBeInTheDocument()
+    expect(
+      screen.getByRole("heading", { name: "You don't have access to this page" }),
+    ).toBeInTheDocument()
     expect(screen.getByText(/A participant account can't manage events/)).toBeInTheDocument()
     expect(screen.getByRole("link", { name: "My application" })).toHaveAttribute(
       "href",

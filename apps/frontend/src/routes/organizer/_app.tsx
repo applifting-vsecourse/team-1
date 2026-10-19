@@ -1,9 +1,10 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router"
+import { Calendar, LayoutGrid } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
-import { NavLink } from "@/components/atoms/NavLink"
 import { Seo } from "@/components/atoms/Seo"
+import { SidebarLink } from "@/components/atoms/SidebarLink"
 import { AreaLayout } from "@/components/templates/AreaLayout"
 
 import { HeaderMenu } from "@/features/auth/components/HeaderMenu"
@@ -32,15 +33,22 @@ function OrganizerLayout() {
       <Seo title={t("area.organizer")} />
       <AreaLayout
         width="wide"
+        roleLabel={t("accountRole.ORGANIZER")}
         nav={
           <>
-            <NavLink
+            <SidebarLink
               to={ROUTES.organizer.dashboard}
               activeOptions={{ exact: true }}
+              icon={LayoutGrid}
             >
-              {t("nav.overview")}
-            </NavLink>
-            <NavLink to={ROUTES.organizer.events}>{t("nav.events")}</NavLink>
+              {t("nav.dashboard")}
+            </SidebarLink>
+            <SidebarLink
+              to={ROUTES.organizer.events}
+              icon={Calendar}
+            >
+              {t("nav.events")}
+            </SidebarLink>
           </>
         }
         userMenu={<HeaderMenu />}
