@@ -1,6 +1,25 @@
 {
-  "description": "Togena tracks room capacity per term, confirms applicants and the waitlist, and shows who owes how much.",
+  "description": "Togena helps organizers list terms, keep track of places and see applications and payments in one place. Participants apply from a link, without signing up.",
+  "features": {
+    "capacity": {
+      "body": "Rooms and their number of beds set the available capacity. An event can use shared rooms or split them by gender.",
+      "title": "Capacity by rooms"
+    },
+    "multiTerm": {
+      "body": "List several terms with prices for one event. Applicants pick one or more of them from the link.",
+      "title": "Applications for several terms"
+    },
+    "payments": {
+      "body": "For confirmed places you see the amount due. The organizer sees who has already paid and who hasn't yet.",
+      "title": "Payment overview"
+    },
+    "title": "What you can do in Togena",
+    "waitlist": {
+      "body": "After submitting, the status of each term is visible. When a term fills up, the applicant can wait as a substitute.",
+      "title": "Confirmation and waitlist"
+    }
+  },
+  "footer": "Togena · Managing multi-term events",
   "organizerCta": "For organizers – sign in",
-  "participantCta": "I have an application – sign in",
-  "title": "Registrations for multi-term events, without spreadsheets"
+  "title": "Registrations for events with multiple terms, without the chaos"
 }
