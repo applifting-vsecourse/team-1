@@ -10,6 +10,7 @@ Refs #
 
 ## Checklist
 
+- [ ] PR je malý (cca do 400 řádků kódu / 20 souborů); větší featura je rozdělená na části a tady je napsáno „část X/Y“
 - [ ] Akceptační kritéria story jsou splněná (nebo je níže napsané, co chybí a proč)
 - [ ] Logika má testy, `pnpm check-all` je zelený
 - [ ] UI odpovídá [DESIGN.md](../DESIGN.md) — žádné vnořené karty, tři stavy seznamu

@@ -6,6 +6,12 @@ These are rules, not suggestions. When a rule and a "nicer looking" idea disagre
 
 `src/components/ui/**` is vendored shadcn — treat it as a third-party kit and restyle via tokens rather than rewriting it.
 
+## Screens come from Figma
+
+This file says how to build; **Figma says what to build.** Every UI story links its frames in the issue, and the screen is implemented as drawn — structure, copy, control types, sizes, states. The rules below fill in only what a frame doesn't spell out (spacing scale, accessibility floor, three list states); they never license redesigning a screen or adding what the design doesn't contain. Process and the `design-reviewer` agent: [`CLAUDE.md`, "UI follows Figma"](CLAUDE.md#ui-follows-figma--dont-invent).
+
+When a frame contradicts a rule below, build the frame and report the conflict in the PR; the tech lead decides which one changes. Known cases so far: Figma draws the event summary and the contact block as cards although cards are for list items, DS controls are 44 px while the kit's are 36 px, and the public pages are 800 px wide on desktop while `max-w-2xl` is 672 px.
+
 **Tokens live in `apps/frontend/src/styles/global.css`.** That file is the only source of truth for colour, radius and shadows. This file says how to _use_ them.
 
 ## Colour

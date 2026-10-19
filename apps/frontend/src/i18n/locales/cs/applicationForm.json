@@ -3,6 +3,43 @@
     "title": "Přihláška odeslána"
   },
   "form": {
+    "addParticipant": "Přidat dalšího účastníka",
+    "birthDate": "Datum narození *",
+    "consent": "Souhlasím se zpracováním osobních údajů pro účely přihlášky. *",
+    "contactHeading": "Kontakt pro celou přihlášku",
+    "email": "Kontaktní e-mail *",
+    "emailHint": "Na tento e-mail přijde potvrzení celé přihlášky.",
+    "errors": {
+      "birthDateInvalid": "Zadejte platné datum narození.",
+      "consentRequired": "Pro odeslání je nutný souhlas se zpracováním údajů.",
+      "emailInvalid": "Zadejte platnou e-mailovou adresu.",
+      "firstNameRequired": "Vyplňte jméno.",
+      "genderRequired": "Vyberte Žena nebo Muž.",
+      "lastNameRequired": "Vyplňte příjmení.",
+      "termsRequired": "Vyberte alespoň jeden termín."
+    },
+    "firstName": "Jméno *",
+    "gender": "Pohlaví *",
+    "genderFemale": "Žena",
+    "genderMale": "Muž",
+    "genderPlaceholder": "Vyberte pohlaví",
+    "heading": "Přihláška na {{event}}",
+    "intro": "Přihlášku vyplníte bez účtu. Každému účastníkovi vyberte jeden nebo více termínů.",
+    "lastName": "Příjmení *",
+    "participantTitle": "Účastník {{number}}",
+    "participantTitleNamed": "Účastník {{number}} · {{name}}",
+    "removeParticipantAria": "Odebrat účastníka {{number}}",
+    "requiredNote": "* Povinná pole",
+    "submit": "Odeslat přihlášku",
+    "submitting": "Odesílání…",
+    "submittingHint": "Přihlášku odesíláme. Vyčkejte na potvrzení.",
+    "terms": "Vyberte termíny (alespoň jeden) *",
     "title": "Přihláška"
+  },
+  "notFound": {
+    "action": "Zpět na Togenu",
+    "code": "404",
+    "description": "Zkontrolujte adresu odkazu nebo požádejte organizátora akce o nový odkaz.",
+    "title": "Odkaz na přihlášku nefunguje"
   }
 }

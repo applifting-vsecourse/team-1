@@ -11,9 +11,9 @@ Pravidla a rozhodnutí projektu jsou v [docs/PROJEKT.md](docs/PROJEKT.md). Tady 
    git switch -c feat/US-23-prihlaska-pres-odkaz
    ```
    Prefixy: `feat/`, `fix/`, `chore/`, `docs/`.
-3. **Implementuj vertikálně** — backend, frontend i testy v jedné větvi. Drž se modulu a feature složky svého proudu (viz [PROJEKT.md, sekce 6](docs/PROJEKT.md#6-plán-práce-ve-sprintu-1)).
+3. **Implementuj vertikálně a po malých kouscích** — backend, frontend i testy v jedné větvi, ale PR drž do cca 400 řádků kódu a 20 souborů (bez testů, migrací, lockfilu a generovaných souborů). Větší featuru rozděl na víc PR, z nichž každý jde samostatně do `main` (např. 1. migrace + repository, 2. služba + endpoint, 3. UI) a v těle PR napiš „část 1/3“. Drž se modulu a feature složky svého proudu (viz [PROJEKT.md, sekce 6](docs/PROJEKT.md#6-plán-práce-ve-sprintu-1)).
 4. **Commity** piš anglicky, krátce a v rozkazovacím způsobu: `Add room capacity validation`.
-5. **Před pushem** pusť `pnpm check-all` (totéž, co CI).
+5. **Push** — pre-push hook sám pustí rychlé kontroly a AI review (viz [Hooky a AI review](#hooky-a-ai-review)). Před otevřením PR je dobré pustit i `pnpm check-all` (totéž, co CI, včetně integračních testů).
 6. **Otevři PR** do `main`:
    - název = název story: `US-23 Přihláška přes odkaz` (stane se z něj commit na `main`),
    - v těle `Refs #23` — **ne** `Closes`, issue zavírá product manager,
@@ -27,6 +27,65 @@ Pravidla a rozhodnutí projektu jsou v [docs/PROJEKT.md](docs/PROJEKT.md). Tady 
 - [ ] všechna akceptační kritéria splněná, logika má testy, `pnpm check-all` je zelený,
 - [ ] PR je mergnutý do `main` (review doporučené),
 - [ ] product manager ([Aadikk](https://github.com/Aadikk)) story schválil na stagingu.
+
+## Hooky a AI review
+
+| Hook         | Co dělá                                                                                                                                                                       |
+| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pre-commit` | Prettier + ESLint na změněné soubory (lint-staged).                                                                                                                           |
+| `pre-push`   | `pnpm check-fast` (lint, type-check, unit testy BE i FE — bez Dockeru), pak AI review (`scripts/ai-review.sh`, totéž co `pnpm ai-review`). Integrační testy a build hlídá CI. |
+
+**AI review** (`scripts/ai-review.sh`) pošle diff větve proti `origin/main` agentovi `reviewer` ([`.claude/agents/reviewer.md`](.claude/agents/reviewer.md)), který ho porovná s CLAUDE.md, PROJEKT.md a DESIGN.md. Nálezy jsou `BLOCKER`, `WARNING` a `NOTE`; **push zastaví jen `BLOCKER`**. Celý výstup posledního běhu je v `.git/ai-review-last.txt`.
+
+- Kdo nemá [Claude Code](https://claude.com/claude-code), tomu se AI review přeskočí — rychlé kontroly běží dál.
+- Když review nedoběhne (síť, limit), push projde s varováním. Tvrdá brána je CI.
+- Přeskočit jen AI review: `SKIP_AI_REVIEW=1 git push`. Přeskočit všechno: `git push --no-verify` (jen výjimečně).
+- Model a strop: `AI_REVIEW_MODEL` (výchozí `sonnet`), `AI_REVIEW_BUDGET` (výchozí 0,50 USD na běh, platí pro API klíč).
+- Ručně kdykoli: `pnpm ai-review`, v Claude Code `@reviewer`.
+
+**Pravidla review se mění jen v `.claude/agents/reviewer.md`**, ne v hooku ani ve workflow — stejný agent běží lokálně i na Raspberry Pi. Hlásí-li nesmysly nebo něco přehlíží, oprav agenta v PR.
+
+## Souhrn změn v PR
+
+Každý PR (i od agentů) dostane automaticky jeden krátký komentář **Co se změnilo**: počet commitů a souborů, dotčené moduly a feature, nové endpointy a řádek **Pozor** (příliš velký PR, víc migrací, sdílené soubory, změna kódu bez testu, rozdílné překlady, nové závislosti). Aktualizuje se při každém pushi. Generuje ho `scripts/pr-summary.mjs` z gitu (bez AI, zdarma) ve workflow [`pr-summary.yml`](.github/workflows/pr-summary.yml); lokálně `node scripts/pr-summary.mjs`.
+
+## Paralelní práce (worktrees)
+
+Na víc story najednou (nebo pro víc agentů vedle sebe) neklonuj repo znovu ani nepřepínej větve — založ worktree:
+
+```shell
+pnpm wt new feat/US-27-ulozeni-prihlasky   # ../team-1-wt/US-27-ulozeni-prihlasky, větev z origin/main
+cd ../team-1-wt/US-27-ulozeni-prihlasky
+pnpm dev                                   # migrace, seed a dev servery na portech slotu
+claude                                     # agent pracuje jen v tomhle worktree
+pnpm wt list                               # přehled slotů, větví a portů
+pnpm wt rm US-27-ulozeni-prihlasky         # smaže worktree i jeho databázi (větev zůstane)
+```
+
+Každý worktree dostane **slot N** (1–9): frontend `3050+10N`, backend `4050+10N`, databáze `togena_wtN` ve stejném Postgresu (`localhost:5433`). Hlavní checkout je slot 0 se standardními porty. Porty a URL se zapíšou do `.env` worktree, takže CORS sedí. Existující větev (lokální nebo z `origin`) se jen checkoutne.
+
+Pravidla:
+
+- **Jeden agent = jeden worktree = jedna větev = jedna story.** Agenti nesahají do cizích worktree.
+- Nepoužívej vestavěné worktrees Claude Code (`claude --worktree`) — nemají `.env` a srazí se na portech.
+- Drž se složek svého proudu ([PROJEKT.md, sekce 6](docs/PROJEKT.md#kdo-sahá-kam-aby-se-proudy-nepraly-o-soubory)). Dva paralelní PR, které mění tentýž sdílený soubor, jsou nejčastější zdroj konfliktů.
+- Migrace: pořád max. jedna na PR a rebase před merge (viz níže). Každý slot má vlastní DB, takže migrace z jedné větve nerozbije jinou.
+
+## Raspberry Pi runner (připraveno, zatím vypnuto)
+
+Workflow [`.github/workflows/ai-review.yml`](.github/workflows/ai-review.yml) jednou denně (pracovní dny 7:00) projde otevřené PR změněné za poslední den a výsledek review přidá jako komentář. Jde spustit i ručně (Actions → AI review → Run workflow, volitelně číslo PR). Běží na self-hostovaném runneru s labelem `pi`, se stejným agentem `reviewer`, ale levně:
+
+- model `haiku`, strop `AI_REVIEW_BUDGET` (výchozí 0,10 USD) na PR, max. `AI_REVIEW_MAX_PRS` (5) PR na běh, diff oříznutý na 60 kB,
+- skript a agent se berou z `main`, ne z PR, a projektová nastavení Claude (`.claude/` z PR) se nenačítají — PR si nemůže přepsat vlastního reviewera ani spustit kód přes hooky.
+
+Zprovoznění (až bude Pi):
+
+1. Na Pi (64bit Raspberry Pi OS) nainstaluj Node 24, pnpm, `gh` a Claude Code CLI.
+2. Repo → Settings → Actions → Runners → New self-hosted runner (Linux, ARM64), při registraci přidej label `pi`. Spusť ho jako službu (`./svc.sh install && ./svc.sh start`).
+3. Repo → Settings → Secrets: `ANTHROPIC_API_KEY` (klíč s měsíčním limitem v Anthropic Console).
+4. Repo → Settings → Variables: `AI_REVIEW_ENABLED=true`, volitelně `AI_REVIEW_BUDGET`, `AI_REVIEW_MAX_PRS`.
+
+Dokud `AI_REVIEW_ENABLED` není `true`, workflow se přeskočí.
 
 ## Pravidla `main`
 
