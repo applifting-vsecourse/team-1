@@ -1,6 +1,25 @@
 {
-  "description": "Togena hlídá kapacitu pokojů podle termínů, potvrzuje přihlášky a náhradníky a ukazuje, kdo kolik dluží.",
+  "description": "Togena pomáhá organizátorům vypsat termíny, hlídat místa a vidět přihlášky i platby na jednom místě. Účastníci se přihlásí z odkazu bez registrace.",
+  "features": {
+    "capacity": {
+      "body": "Pokoje a jejich počet míst určují dostupnou kapacitu. Akce může používat společné pokoje nebo dělení podle pohlaví.",
+      "title": "Kapacitu podle pokojů"
+    },
+    "multiTerm": {
+      "body": "U jedné akce vypíšete několik termínů s cenami. Zájemce si z odkazu vybere jeden nebo více z nich.",
+      "title": "Přihlášky na více termínů"
+    },
+    "payments": {
+      "body": "U potvrzených míst vidíte částku k úhradě. Organizátor má přehled, kdo už zaplatil a kdo ještě čeká.",
+      "title": "Přehled plateb"
+    },
+    "title": "Co v Togeně vyřídíte",
+    "waitlist": {
+      "body": "Po odeslání je vidět stav každého termínu. Když se místo zaplní, zájemce může čekat jako náhradník.",
+      "title": "Potvrzení a náhradníky"
+    }
+  },
+  "footer": "Togena · Správa vícetermínových akcí",
   "organizerCta": "Pro organizátory – přihlásit se",
-  "participantCta": "Mám přihlášku – přihlásit se",
-  "title": "Přihlášky na vícetermínové akce bez tabulek"
+  "title": "Přihlášky na akce s více termíny bez zmatku"
 }
