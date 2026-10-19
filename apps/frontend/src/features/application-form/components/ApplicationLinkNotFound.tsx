@@ -19,7 +19,7 @@ export function ApplicationLinkNotFound() {
       <Seo title={t("notFound.title")} />
       <PublicLayout>
         <div className="flex flex-col gap-6">
-          <p className="font-heading text-6xl font-extrabold text-primary">{t("notFound.code")}</p>
+          <p className="text-6xl font-extrabold text-primary">{t("notFound.code")}</p>
           <h1 className="text-2xl font-bold tracking-tight">{t("notFound.title")}</h1>
           <p className="text-base text-muted-foreground">{t("notFound.description")}</p>
           <Button
