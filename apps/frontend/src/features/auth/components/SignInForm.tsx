@@ -1,16 +1,17 @@
 import { useMemo } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import type { TFunction } from "i18next"
-import { Loader2 } from "lucide-react"
+import { CircleAlert, Loader2 } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
-import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -34,12 +35,21 @@ type FormValues = z.infer<ReturnType<typeof createSchema>>
 const defaultValues: FormValues = { email: "", password: "" }
 
 type SignInFormProps = {
+  /** Hints under the fields; they differ for organizers and participants. */
+  emailHint: string
+  passwordHint?: string
   isLoading: boolean
   errorMessage?: string | null
   onSubmit: (values: FormValues) => void | Promise<void>
 }
 
-export function SignInForm({ isLoading, errorMessage, onSubmit }: SignInFormProps) {
+export function SignInForm({
+  emailHint,
+  passwordHint,
+  isLoading,
+  errorMessage,
+  onSubmit,
+}: SignInFormProps) {
   const { t } = useTranslation("auth")
   const schema = useMemo(() => createSchema(t), [t])
   const form = useForm<FormValues>({
@@ -52,14 +62,8 @@ export function SignInForm({ isLoading, errorMessage, onSubmit }: SignInFormProp
       <form
         noValidate
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-4"
+        className="flex flex-col gap-4"
       >
-        {errorMessage ? (
-          <Alert variant="destructive">
-            <AlertDescription>{errorMessage}</AlertDescription>
-          </Alert>
-        ) : null}
-
         <FormField
           control={form.control}
           name="email"
@@ -75,6 +79,7 @@ export function SignInForm({ isLoading, errorMessage, onSubmit }: SignInFormProp
                 />
               </FormControl>
               <FormMessage />
+              <FormDescription className="text-xs">{emailHint}</FormDescription>
             </FormItem>
           )}
         />
@@ -93,6 +98,9 @@ export function SignInForm({ isLoading, errorMessage, onSubmit }: SignInFormProp
                 />
               </FormControl>
               <FormMessage />
+              {passwordHint ? (
+                <FormDescription className="text-xs">{passwordHint}</FormDescription>
+              ) : null}
             </FormItem>
           )}
         />
@@ -106,6 +114,17 @@ export function SignInForm({ isLoading, errorMessage, onSubmit }: SignInFormProp
           {isLoading ? <Loader2 className="size-4 animate-spin" /> : null}
           {t("form.submit")}
         </Button>
+
+        {errorMessage ? (
+          <Alert
+            variant="destructive"
+            className="border-destructive/30 bg-destructive/10"
+          >
+            <CircleAlert />
+            <AlertTitle>{t("form.errors.failedTitle")}</AlertTitle>
+            <AlertDescription className="text-destructive/90">{errorMessage}</AlertDescription>
+          </Alert>
+        ) : null}
       </form>
     </Form>
   )

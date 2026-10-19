@@ -11,9 +11,14 @@ export function useSignOut() {
   const navigate = useNavigate()
 
   return useMutation({
-    mutationFn: () => authClient.signOut().then(() => undefined),
+    mutationFn: async () => {
+      const { error } = await authClient.signOut()
+      if (error) throw new Error(error.message ?? "Sign out failed")
+    },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: authKeys.session() })
+      // Nothing of the previous account may linger in the cache.
+      queryClient.clear()
+      queryClient.setQueryData(authKeys.session(), null)
       await navigate({ to: ROUTES.home })
     },
   })

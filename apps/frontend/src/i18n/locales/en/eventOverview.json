@@ -3,6 +3,9 @@
     "title": "Applications"
   },
   "dashboard": {
+    "description": "You only see the events you have access to.",
+    "greeting": "Hello, {{name}}.",
+    "openEvents": "Open events",
     "title": "Overview"
   },
   "overview": {

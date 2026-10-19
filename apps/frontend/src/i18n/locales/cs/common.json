@@ -30,7 +30,9 @@
     },
     "forbidden": {
       "action": "Na úvodní stránku",
-      "description": "Tato stránka patří jinému účtu nebo jiné organizaci.",
+      "body": "Tato stránka patří jinému účtu nebo jiné organizaci.",
+      "cardTitle": "Zpět",
+      "description": "Tuto stránku nemůžete otevřít.",
       "title": "Sem nemáte přístup"
     },
     "notFound": {

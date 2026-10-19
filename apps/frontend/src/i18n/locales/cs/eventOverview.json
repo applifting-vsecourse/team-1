@@ -3,6 +3,9 @@
     "title": "Přihlášky"
   },
   "dashboard": {
+    "description": "Vidíte pouze akce, ke kterým máte přístup.",
+    "greeting": "Dobrý den, {{name}}.",
+    "openEvents": "Otevřít akce",
     "title": "Přehled"
   },
   "overview": {
