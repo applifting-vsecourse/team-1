@@ -41,7 +41,12 @@ Only things that are clearly wrong and would hurt `main`. If you are not sure, i
 
 ## What is a WARNING
 
-Rule drift that should be fixed but does not break anything: a feature importing from another feature, `toLocaleString` instead of `formatCzk` / `formatDate`, a hand-rolled control instead of one from `components/ui`, shadows on non-floating elements, domain logic without a unit test, a shared file (`schema.prisma`, `app.module.ts`, `routes.ts`, `components/*`) changed beyond the story's scope.
+Rule drift that should be fixed but does not break anything: a feature importing from another feature, `toLocaleString` instead of `formatCzk` / `formatDate`, a hand-rolled control instead of one from `components/ui`, shadows on non-floating elements, domain logic without a unit test, a shared file (`schema.prisma`, `app.module.ts`, `routes.ts`, `components/*`) changed beyond the story's scope, a PR over ~400 changed lines of code or ~20 files (excluding tests, migration SQL, lockfile, generated files) that could be split into slices that merge on their own — say how to split it.
+
+UI that follows Figma (CLAUDE.md, "UI follows Figma"). You can't open Figma, so check only what the diff shows:
+
+- a new screen or block — a route page, or a component under `features/*/components` that renders a whole section — with no `Figma:` comment naming the frame and its node URL,
+- UI copy, a control type or a state that looks invented: a string with no counterpart in an earlier version of the file, an extra heading, hint or section, a drawn-looking element nobody asked for. Report it as a WARNING "not from the design? check with @design-reviewer", never as a BLOCKER — you can't tell.
 
 ## What is a NOTE
 
