@@ -4,7 +4,6 @@ import { describe, expect, it, vi } from "vitest"
 
 import type { PublicEvent } from "@/features/application-form/api/publicEvent"
 import { ApplicationForm } from "@/features/application-form/components/ApplicationForm"
-import { TermsList } from "@/features/application-form/components/TermsList"
 import type { ApplicationFormValues } from "@/features/application-form/lib/application-form-schema"
 
 const event: PublicEvent = {
@@ -17,7 +16,7 @@ const event: PublicEvent = {
   ],
 }
 
-// Radix's radio group measures its items; jsdom has no ResizeObserver.
+// Radix's select and radio group measure and scroll things jsdom doesn't have.
 vi.stubGlobal(
   "ResizeObserver",
   class {
@@ -26,11 +25,13 @@ vi.stubGlobal(
     disconnect = vi.fn()
   },
 )
+Element.prototype.hasPointerCapture = () => false
+Element.prototype.scrollIntoView = vi.fn()
 
 const submitSpy = () => vi.fn<(values: ApplicationFormValues) => void | Promise<unknown>>()
 
 const participantCard = (number: number) => {
-  const heading = screen.getByRole("heading", { name: `Participant ${number}` })
+  const heading = screen.getByRole("heading", { name: new RegExp(`^Participant ${number}`) })
   const card = heading.closest<HTMLElement>("[data-slot=card]")
   if (!card) throw new Error(`No card around participant ${number}`)
   return card
@@ -38,29 +39,40 @@ const participantCard = (number: number) => {
 
 async function fillParticipant(
   number: number,
-  data: { first: string; last: string; birth: string; term: string },
+  data: { first: string; last: string; birth: string; gender: "Woman" | "Man"; term: RegExp },
 ) {
   const card = within(participantCard(number))
-  await userEvent.type(card.getByLabelText("First name"), data.first)
-  await userEvent.type(card.getByLabelText("Last name"), data.last)
-  await userEvent.type(card.getByLabelText("Date of birth"), data.birth)
-  await userEvent.click(card.getByRole("radio", { name: "Woman" }))
-  await userEvent.click(card.getByRole("checkbox", { name: new RegExp(data.term) }))
+  await userEvent.type(card.getByLabelText("First name *"), data.first)
+  await userEvent.type(card.getByLabelText("Last name *"), data.last)
+  await userEvent.type(card.getByLabelText("Date of birth *"), data.birth)
+  await userEvent.click(card.getByRole("combobox", { name: "Gender *" }))
+  await userEvent.click(await screen.findByRole("option", { name: data.gender }))
+  await userEvent.click(card.getByRole("checkbox", { name: data.term }))
 }
 
-describe("TermsList", () => {
-  it("shows every term with its dates and price", () => {
-    render(<TermsList terms={event.terms} />)
-
-    expect(screen.getByText("Week 1")).toBeInTheDocument()
-    expect(screen.getByText("Week 2")).toBeInTheDocument()
-    expect(screen.getByText(/4,500/)).toBeInTheDocument()
-    expect(screen.getByText(/4,900/)).toBeInTheDocument()
-  })
-})
+const anna = {
+  first: "Anna",
+  last: "Nováková",
+  birth: "2010-05-17",
+  gender: "Woman",
+  term: /11–17 Jul/,
+} as const
 
 describe("ApplicationForm", () => {
-  it("shows an error at every empty required field and does not submit", async () => {
+  it("offers the terms as dates and prices, as in the design", () => {
+    render(
+      <ApplicationForm
+        event={event}
+        onSubmit={submitSpy()}
+      />,
+    )
+
+    expect(screen.getByText("Choose terms (at least one) *")).toBeInTheDocument()
+    expect(screen.getByRole("checkbox", { name: /^4–10 Jul · CZK\s4,500$/ })).toBeInTheDocument()
+    expect(screen.getByRole("checkbox", { name: /^11–17 Jul · CZK\s4,900$/ })).toBeInTheDocument()
+  })
+
+  it("shows the designed message at every empty required field and does not submit", async () => {
     const onSubmit = submitSpy()
     render(
       <ApplicationForm
@@ -71,10 +83,15 @@ describe("ApplicationForm", () => {
 
     await userEvent.click(screen.getByRole("button", { name: "Submit application" }))
 
-    expect(await screen.findAllByText("This field is required.")).toHaveLength(4)
-    expect(screen.getByText("Choose one.")).toBeInTheDocument()
+    expect(await screen.findByText("Enter the first name.")).toBeInTheDocument()
+    expect(screen.getByText("Enter the last name.")).toBeInTheDocument()
+    expect(screen.getByText("Enter a valid date of birth.")).toBeInTheDocument()
+    expect(screen.getByText("Choose Woman or Man.")).toBeInTheDocument()
     expect(screen.getByText("Choose at least one term.")).toBeInTheDocument()
-    expect(screen.getByText("Consent is required to submit the application.")).toBeInTheDocument()
+    expect(screen.getByText("Enter a valid e-mail address.")).toBeInTheDocument()
+    expect(
+      screen.getByText("Consent to the processing of personal data is required to submit."),
+    ).toBeInTheDocument()
     expect(onSubmit).not.toHaveBeenCalled()
   })
 
@@ -87,17 +104,11 @@ describe("ApplicationForm", () => {
       />,
     )
 
-    await userEvent.type(screen.getByLabelText("E-mail"), "anna@example.com")
-    await fillParticipant(1, {
-      first: "Anna",
-      last: "Nováková",
-      birth: "2010-05-17",
-      term: "Week 2",
-    })
+    await fillParticipant(1, anna)
+    await userEvent.type(screen.getByLabelText("Contact e-mail *"), "anna@example.com")
     await userEvent.click(screen.getByRole("checkbox", { name: /agree to the processing/ }))
     await userEvent.click(screen.getByRole("button", { name: "Submit application" }))
 
-    expect(onSubmit).toHaveBeenCalledOnce()
     expect(onSubmit.mock.lastCall?.[0]).toEqual({
       email: "anna@example.com",
       consent: true,
@@ -113,7 +124,23 @@ describe("ApplicationForm", () => {
     })
   })
 
-  it("adds and removes participants, each with their own terms", async () => {
+  it("names the participant in the card title as soon as there is a name", async () => {
+    render(
+      <ApplicationForm
+        event={event}
+        onSubmit={submitSpy()}
+      />,
+    )
+
+    expect(screen.getByRole("heading", { name: "Participant 1" })).toBeInTheDocument()
+    await userEvent.type(screen.getByLabelText("First name *"), "Anna")
+    await userEvent.type(screen.getByLabelText("Last name *"), "Nováková")
+    expect(
+      screen.getByRole("heading", { name: "Participant 1 · Anna Nováková" }),
+    ).toBeInTheDocument()
+  })
+
+  it("adds participants with their own terms; only the later ones can be removed", async () => {
     const onSubmit = submitSpy()
     render(
       <ApplicationForm
@@ -122,25 +149,20 @@ describe("ApplicationForm", () => {
       />,
     )
 
-    // The only participant can't be removed.
     expect(screen.queryByRole("button", { name: /Remove participant/ })).not.toBeInTheDocument()
 
-    await userEvent.click(screen.getByRole("button", { name: "Add participant" }))
-    expect(participantCard(2)).toBeInTheDocument()
+    await userEvent.click(screen.getByRole("button", { name: "Add another participant" }))
+    expect(screen.queryByRole("button", { name: "Remove participant 1" })).not.toBeInTheDocument()
 
-    await userEvent.type(screen.getByLabelText("E-mail"), "anna@example.com")
-    await fillParticipant(1, {
-      first: "Anna",
-      last: "Nováková",
-      birth: "2010-05-17",
-      term: "Week 1",
-    })
+    await fillParticipant(1, { ...anna, term: /4–10 Jul/ })
     await fillParticipant(2, {
-      first: "Eva",
-      last: "Nováková",
+      first: "Matěj",
+      last: "Novák",
       birth: "2012-01-02",
-      term: "Week 2",
+      gender: "Man",
+      term: /11–17 Jul/,
     })
+    await userEvent.type(screen.getByLabelText("Contact e-mail *"), "anna@example.com")
     await userEvent.click(screen.getByRole("checkbox", { name: /agree to the processing/ }))
     await userEvent.click(screen.getByRole("button", { name: "Submit application" }))
 
@@ -150,8 +172,7 @@ describe("ApplicationForm", () => {
     expect(termsPerParticipant).toEqual([["t1"], ["t2"]])
 
     await userEvent.click(screen.getByRole("button", { name: "Remove participant 2" }))
-    expect(screen.queryByRole("heading", { name: "Participant 2" })).not.toBeInTheDocument()
-    expect(screen.queryByRole("button", { name: /Remove participant/ })).not.toBeInTheDocument()
+    expect(screen.queryByRole("heading", { name: /^Participant 2/ })).not.toBeInTheDocument()
   })
 
   it("rejects a date of birth in the future", async () => {
@@ -162,10 +183,10 @@ describe("ApplicationForm", () => {
       />,
     )
 
-    await userEvent.type(screen.getByLabelText("Date of birth"), "2999-01-01")
+    await userEvent.type(screen.getByLabelText("Date of birth *"), "2999-01-01")
     await userEvent.click(screen.getByRole("button", { name: "Submit application" }))
 
-    expect(await screen.findByText("The date of birth can't be in the future.")).toBeInTheDocument()
+    expect(await screen.findByText("Enter a valid date of birth.")).toBeInTheDocument()
   })
 
   it("disables the button while submitting, so a second click creates no second application", async () => {
@@ -178,18 +199,14 @@ describe("ApplicationForm", () => {
       />,
     )
 
-    await userEvent.type(screen.getByLabelText("E-mail"), "anna@example.com")
-    await fillParticipant(1, {
-      first: "Anna",
-      last: "Nováková",
-      birth: "2010-05-17",
-      term: "Week 1",
-    })
+    await fillParticipant(1, anna)
+    await userEvent.type(screen.getByLabelText("Contact e-mail *"), "anna@example.com")
     await userEvent.click(screen.getByRole("checkbox", { name: /agree to the processing/ }))
     await userEvent.click(screen.getByRole("button", { name: "Submit application" }))
 
     const button = await screen.findByRole("button", { name: "Submitting…" })
     expect(button).toBeDisabled()
+    expect(screen.getByRole("status")).toHaveTextContent("Please wait for the confirmation.")
     await userEvent.click(button)
     expect(onSubmit).toHaveBeenCalledOnce()
 

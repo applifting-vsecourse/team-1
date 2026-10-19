@@ -22,24 +22,23 @@ export const createApplicationFormSchema = (
   t: TFunction<"applicationForm">,
   today = new Date(),
 ) => {
-  const required = t("form.errors.required")
   const todayIso = format(today, "yyyy-MM-dd")
 
   const participant = z.object({
-    firstName: z.string().trim().min(1, required),
-    lastName: z.string().trim().min(1, required),
+    firstName: z.string().trim().min(1, t("form.errors.firstNameRequired")),
+    lastName: z.string().trim().min(1, t("form.errors.lastNameRequired")),
+    // Empty, impossible, before 1900 and in the future all read the same (Figma M03).
     birthDate: z
       .string()
-      .min(1, required)
       .refine(isRealDate, t("form.errors.birthDateInvalid"))
       .refine((value) => value >= EARLIEST_BIRTH_DATE, t("form.errors.birthDateInvalid"))
-      .refine((value) => value <= todayIso, t("form.errors.birthDateFuture")),
+      .refine((value) => value <= todayIso, t("form.errors.birthDateInvalid")),
     gender: z.enum(GENDERS, { error: t("form.errors.genderRequired") }),
     termIds: z.array(z.string()).min(1, t("form.errors.termsRequired")),
   })
 
   return z.object({
-    email: z.string().trim().min(1, required).email(t("form.errors.emailInvalid")),
+    email: z.string().trim().email(t("form.errors.emailInvalid")),
     consent: z.boolean().refine((isConsented) => isConsented, t("form.errors.consentRequired")),
     participants: z.array(participant).min(1),
   })

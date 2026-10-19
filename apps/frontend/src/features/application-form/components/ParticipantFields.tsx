@@ -1,28 +1,39 @@
-import { Trash2 } from "lucide-react"
-import { useFormContext } from "react-hook-form"
+import { X } from "lucide-react"
+import { useFormContext, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { MoneyAmount } from "@/components/atoms/MoneyAmount"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { formatDateRange } from "@/lib/date"
+import { formatCzk } from "@/lib/money"
 
 import type { PublicTerm } from "@/features/application-form/api/publicEvent"
-import { termDates } from "@/features/application-form/components/TermsList"
 import {
   GENDERS,
   type ApplicationFormDraft,
 } from "@/features/application-form/lib/application-form-schema"
 
+// Figma (Design system): "DS / Registration participant"
+// V07a https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12666-2708
+// M02a https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12666-18899
+// M03  https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12666-19517 (errors)
+
 type ParticipantFieldsProps = {
   /** Position in the form, 0-based. */
   index: number
   terms: PublicTerm[]
-  /** Undefined for the only participant — the last one can't be removed. */
+  /** Only the second and later participants can be removed. */
   onRemove?: () => void
   isDisabled?: boolean
   /** Latest date of birth the date picker offers (`yyyy-MM-dd`). */
@@ -39,63 +50,71 @@ export function ParticipantFields({
 }: ParticipantFieldsProps) {
   const { t } = useTranslation("applicationForm")
   const { control } = useFormContext<ApplicationFormDraft>()
+  const [firstName, lastName] = useWatch({
+    control,
+    name: [`participants.${index}.firstName`, `participants.${index}.lastName`],
+  })
   const number = index + 1
+  const name = [firstName, lastName].filter(Boolean).join(" ").trim()
 
   return (
-    <Card>
-      <CardContent className="flex flex-col gap-4">
-        <div className="flex items-center justify-between gap-3">
-          <h3 className="text-base font-semibold">{t("form.participantTitle", { number })}</h3>
-          {onRemove ? (
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              disabled={isDisabled}
-              aria-label={t("form.removeParticipantAria", { number })}
-              onClick={onRemove}
-            >
-              <Trash2 className="size-4" />
-              {t("form.removeParticipant")}
-            </Button>
-          ) : null}
-        </div>
+    <Card className="gap-4 p-4 sm:p-6">
+      <div className="flex items-center justify-between gap-2">
+        <h3 className="text-lg font-bold">
+          {name
+            ? t("form.participantTitleNamed", { number, name })
+            : t("form.participantTitle", { number })}
+        </h3>
+        {onRemove ? (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="size-11"
+            disabled={isDisabled}
+            aria-label={t("form.removeParticipantAria", { number })}
+            onClick={onRemove}
+          >
+            <X className="size-5" />
+          </Button>
+        ) : null}
+      </div>
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <FormField
-            control={control}
-            name={`participants.${index}.firstName`}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t("form.firstName")}</FormLabel>
-                <FormControl>
-                  <Input
-                    autoComplete="off"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={control}
-            name={`participants.${index}.lastName`}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t("form.lastName")}</FormLabel>
-                <FormControl>
-                  <Input
-                    autoComplete="off"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
+      <div className="grid gap-4 sm:grid-cols-2">
+        <FormField
+          control={control}
+          name={`participants.${index}.firstName`}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>{t("form.firstName")}</FormLabel>
+              <FormControl>
+                <Input
+                  className="h-11"
+                  autoComplete="off"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={control}
+          name={`participants.${index}.lastName`}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>{t("form.lastName")}</FormLabel>
+              <FormControl>
+                <Input
+                  className="h-11"
+                  autoComplete="off"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <FormField
           control={control}
           name={`participants.${index}.birthDate`}
@@ -105,6 +124,7 @@ export function ParticipantFields({
               <FormControl>
                 <Input
                   type="date"
+                  className="h-11"
                   max={maxBirthDate}
                   {...field}
                 />
@@ -113,99 +133,79 @@ export function ParticipantFields({
             </FormItem>
           )}
         />
-
         <FormField
           control={control}
           name={`participants.${index}.gender`}
-          render={({ field, fieldState }) => (
-            <FormItem>
-              <fieldset className="grid gap-2">
-                <legend className="mb-2 text-sm leading-none font-medium">
-                  {t("form.gender")}
-                </legend>
-                <RadioGroup
-                  value={field.value ?? ""}
-                  onValueChange={field.onChange}
-                  onBlur={field.onBlur}
-                  aria-invalid={fieldState.invalid}
-                  className="flex gap-6"
-                >
-                  {GENDERS.map((gender) => {
-                    const id = `participant-${index}-gender-${gender}`
-                    return (
-                      <div
-                        key={gender}
-                        className="flex items-center gap-2"
-                      >
-                        <RadioGroupItem
-                          id={id}
-                          value={gender}
-                        />
-                        <Label htmlFor={id}>
-                          {gender === "FEMALE" ? t("form.genderFemale") : t("form.genderMale")}
-                        </Label>
-                      </div>
-                    )
-                  })}
-                </RadioGroup>
-              </fieldset>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={control}
-          name={`participants.${index}.termIds`}
           render={({ field }) => (
             <FormItem>
-              <fieldset className="grid gap-3">
-                <legend className="mb-3 text-sm leading-none font-medium">{t("form.terms")}</legend>
-                {terms.map((term) => {
-                  const id = `participant-${index}-term-${term.id}`
-                  const selected = field.value ?? []
-                  return (
-                    <div
-                      key={term.id}
-                      className="flex items-start gap-3"
+              <FormLabel>{t("form.gender")}</FormLabel>
+              <Select
+                value={field.value ?? ""}
+                onValueChange={field.onChange}
+              >
+                <FormControl>
+                  <SelectTrigger
+                    className="w-full data-[size=default]:h-11"
+                    onBlur={field.onBlur}
+                  >
+                    <SelectValue placeholder={t("form.genderPlaceholder")} />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {GENDERS.map((gender) => (
+                    <SelectItem
+                      key={gender}
+                      value={gender}
                     >
-                      <Checkbox
-                        id={id}
-                        className="mt-0.5"
-                        checked={selected.includes(term.id)}
-                        onCheckedChange={(checked) =>
-                          field.onChange(
-                            checked
-                              ? [...selected, term.id]
-                              : selected.filter((v) => v !== term.id),
-                          )
-                        }
-                        onBlur={field.onBlur}
-                      />
-                      <Label
-                        htmlFor={id}
-                        className="flex-1 flex-wrap items-baseline justify-between gap-x-4 gap-y-1 leading-normal"
-                      >
-                        <span className="flex flex-col gap-1">
-                          <span>{term.name}</span>
-                          <span className="text-sm font-normal text-muted-foreground">
-                            {termDates(term)}
-                          </span>
-                        </span>
-                        <MoneyAmount
-                          amountCzk={term.priceCzk}
-                          className="font-normal"
-                        />
-                      </Label>
-                    </div>
-                  )
-                })}
-              </fieldset>
+                      {gender === "FEMALE" ? t("form.genderFemale") : t("form.genderMale")}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <FormMessage />
             </FormItem>
           )}
         />
-      </CardContent>
+      </div>
+
+      <FormField
+        control={control}
+        name={`participants.${index}.termIds`}
+        render={({ field }) => (
+          <FormItem>
+            <fieldset className="grid gap-1">
+              <legend className="mb-2 text-sm leading-5 font-medium">{t("form.terms")}</legend>
+              {terms.map((term) => {
+                const id = `participant-${index}-term-${term.id}`
+                const selected = field.value ?? []
+                return (
+                  <Label
+                    key={term.id}
+                    htmlFor={id}
+                    className="min-h-11 cursor-pointer gap-2 rounded-md p-2 leading-5 font-medium"
+                  >
+                    <Checkbox
+                      id={id}
+                      className="size-5"
+                      checked={selected.includes(term.id)}
+                      onCheckedChange={(isChecked) =>
+                        field.onChange(
+                          isChecked
+                            ? [...selected, term.id]
+                            : selected.filter((v) => v !== term.id),
+                        )
+                      }
+                      onBlur={field.onBlur}
+                    />
+                    {formatDateRange(term.startsOn, term.endsOn)} · {formatCzk(term.priceCzk)}
+                  </Label>
+                )
+              })}
+            </fieldset>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
     </Card>
   )
 }

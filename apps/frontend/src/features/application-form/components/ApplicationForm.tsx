@@ -1,16 +1,17 @@
 import { useMemo } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format } from "date-fns"
-import { Loader2, Plus } from "lucide-react"
 import { useFieldArray, useForm, type Resolver } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -26,6 +27,10 @@ import {
   type ApplicationFormValues,
   type ParticipantDraft,
 } from "@/features/application-form/lib/application-form-schema"
+
+// Figma (Design system): the form part of V07 / V07a (desktop) and M02 / M02a (360 px);
+// errors M03, sending M04.
+// https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12666-18899
 
 const emptyParticipant: ParticipantDraft = {
   firstName: "",
@@ -44,7 +49,7 @@ type ApplicationFormProps = {
   isDone?: boolean
 }
 
-/** The public application: one contact e-mail and consent, one or more participants. */
+/** The public application: participants first, then the contact, consent and the one primary action. */
 export function ApplicationForm({ event, onSubmit, errorMessage, isDone }: ApplicationFormProps) {
   const { t } = useTranslation("applicationForm")
   const schema = useMemo(() => createApplicationFormSchema(t), [t])
@@ -74,21 +79,31 @@ export function ApplicationForm({ event, onSubmit, errorMessage, isDone }: Appli
           if (isSubmitting) return
           await onSubmit(values)
         })}
-        className="flex flex-col gap-8"
+        className="flex flex-col gap-6"
       >
-        <section
-          aria-labelledby="contact-heading"
-          className="flex flex-col gap-4"
+        {fields.map((field, index) => (
+          <ParticipantFields
+            key={field.id}
+            index={index}
+            terms={event.terms}
+            maxBirthDate={maxBirthDate}
+            isDisabled={isSubmitting}
+            onRemove={index > 0 ? () => remove(index) : undefined}
+          />
+        ))}
+
+        <Button
+          type="button"
+          variant="outline"
+          className="h-11 w-full sm:w-auto sm:self-start"
+          disabled={isSubmitting}
+          onClick={() => append({ ...emptyParticipant })}
         >
-          <div className="flex flex-col gap-1">
-            <h2
-              id="contact-heading"
-              className="text-lg font-semibold tracking-tight"
-            >
-              {t("form.contactHeading")}
-            </h2>
-            <p className="text-sm text-muted-foreground">{t("form.contactHint")}</p>
-          </div>
+          {t("form.addParticipant")}
+        </Button>
+
+        <Card className="gap-4 p-4 sm:p-6">
+          <h2 className="text-lg font-bold">{t("form.contactHeading")}</h2>
           <FormField
             control={form.control}
             name="email"
@@ -98,85 +113,67 @@ export function ApplicationForm({ event, onSubmit, errorMessage, isDone }: Appli
                 <FormControl>
                   <Input
                     type="email"
+                    className="h-11"
                     autoComplete="email"
                     placeholder={t("form.emailPlaceholder")}
                     {...field}
                   />
                 </FormControl>
+                <FormDescription className="text-xs font-medium">
+                  {t("form.emailHint")}
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
           />
-        </section>
 
-        <section
-          aria-labelledby="participants-heading"
-          className="flex flex-col gap-4"
-        >
-          <h2
-            id="participants-heading"
-            className="text-lg font-semibold tracking-tight"
-          >
-            {t("form.participantsHeading")}
-          </h2>
-          {fields.map((field, index) => (
-            <ParticipantFields
-              key={field.id}
-              index={index}
-              terms={event.terms}
-              maxBirthDate={maxBirthDate}
-              isDisabled={isSubmitting}
-              onRemove={fields.length > 1 ? () => remove(index) : undefined}
-            />
-          ))}
+          <FormField
+            control={form.control}
+            name="consent"
+            render={({ field }) => (
+              <FormItem>
+                <div className="flex min-h-11 items-center gap-3">
+                  <FormControl>
+                    <Checkbox
+                      className="size-5"
+                      checked={field.value}
+                      onCheckedChange={(isChecked) => field.onChange(isChecked === true)}
+                      onBlur={field.onBlur}
+                    />
+                  </FormControl>
+                  <FormLabel className="flex-1 cursor-pointer self-stretch leading-5 font-normal">
+                    {t("form.consent")}
+                  </FormLabel>
+                </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {errorMessage ? (
+            <Alert variant="destructive">
+              <AlertDescription>{errorMessage}</AlertDescription>
+            </Alert>
+          ) : null}
+
           <Button
-            type="button"
-            variant="outline"
-            className="self-start"
+            type="submit"
+            className="h-11 w-full sm:w-auto sm:self-start"
             disabled={isSubmitting}
-            onClick={() => append({ ...emptyParticipant })}
           >
-            <Plus className="size-4" />
-            {t("form.addParticipant")}
+            {isSubmitting ? t("form.submitting") : t("form.submit")}
           </Button>
-        </section>
+          {isSubmitting ? (
+            <p
+              role="status"
+              className="text-xs font-medium text-muted-foreground"
+            >
+              {t("form.submittingHint")}
+            </p>
+          ) : null}
+        </Card>
 
-        <FormField
-          control={form.control}
-          name="consent"
-          render={({ field }) => (
-            <FormItem>
-              <div className="flex items-start gap-3">
-                <FormControl>
-                  <Checkbox
-                    className="mt-0.5"
-                    checked={field.value}
-                    onCheckedChange={(checked) => field.onChange(checked === true)}
-                    onBlur={field.onBlur}
-                  />
-                </FormControl>
-                <FormLabel className="leading-normal font-normal">{t("form.consent")}</FormLabel>
-              </div>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {errorMessage ? (
-          <Alert variant="destructive">
-            <AlertDescription>{errorMessage}</AlertDescription>
-          </Alert>
-        ) : null}
-
-        <Button
-          type="submit"
-          size="lg"
-          className="w-full"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? <Loader2 className="size-4 animate-spin" /> : null}
-          {isSubmitting ? t("form.submitting") : t("form.submit")}
-        </Button>
+        <p className="text-xs font-medium text-muted-foreground">{t("form.requiredNote")}</p>
       </form>
     </Form>
   )

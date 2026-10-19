@@ -40,13 +40,13 @@ describe("application form schema", () => {
   })
 
   it("requires the contact e-mail to look like one", () => {
-    expect(messagesFor({ ...valid, email: "" })).toContain("This field is required.")
+    expect(messagesFor({ ...valid, email: "" })).toContain("Enter a valid e-mail address.")
     expect(messagesFor({ ...valid, email: "anna@" })).toContain("Enter a valid e-mail address.")
   })
 
   it("requires consent", () => {
     expect(messagesFor({ ...valid, consent: false })).toContain(
-      "Consent is required to submit the application.",
+      "Consent to the processing of personal data is required to submit.",
     )
   })
 
@@ -59,8 +59,9 @@ describe("application form schema", () => {
     })
     expect(messages).toEqual(
       expect.arrayContaining([
-        "This field is required.",
-        "Choose one.",
+        "Enter the first name.",
+        "Enter the last name.",
+        "Choose Woman or Man.",
         "Choose at least one term.",
       ]),
     )
@@ -68,17 +69,17 @@ describe("application form schema", () => {
 
   it("checks the date of birth", () => {
     expect(messagesFor({ ...valid, participants: [{ ...participant, birthDate: "" }] })).toContain(
-      "This field is required.",
+      "Enter a valid date of birth.",
     )
     expect(
       messagesFor({ ...valid, participants: [{ ...participant, birthDate: "2010-02-31" }] }),
-    ).toContain("Enter a valid date.")
+    ).toContain("Enter a valid date of birth.")
     expect(
       messagesFor({ ...valid, participants: [{ ...participant, birthDate: "1850-01-01" }] }),
-    ).toContain("Enter a valid date.")
+    ).toContain("Enter a valid date of birth.")
     expect(
       messagesFor({ ...valid, participants: [{ ...participant, birthDate: "2027-06-16" }] }),
-    ).toContain("The date of birth can't be in the future.")
+    ).toContain("Enter a valid date of birth.")
     expect(
       schema.safeParse({ ...valid, participants: [{ ...participant, birthDate: "2027-06-15" }] })
         .success,
