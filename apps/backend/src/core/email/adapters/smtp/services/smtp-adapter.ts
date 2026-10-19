@@ -1,11 +1,11 @@
-import { SMTPConfig } from '@/core/email/adapters/smtp/interfaces/smtp-config.interface';
-import { EmailService } from '@/core/email/interfaces/email-service.interface';
-import { Injectable } from '@nestjs/common';
-import * as nodemailer from 'nodemailer';
+import { SMTPConfig } from "@/core/email/adapters/smtp/interfaces/smtp-config.interface"
+import { EmailService } from "@/core/email/interfaces/email-service.interface"
+import { Injectable } from "@nestjs/common"
+import * as nodemailer from "nodemailer"
 
 @Injectable()
 export class SMTPAdapter implements EmailService {
-  private readonly transporter: nodemailer.Transporter;
+  private readonly transporter: nodemailer.Transporter
 
   constructor(private readonly config: SMTPConfig) {
     this.transporter = nodemailer.createTransport({
@@ -16,7 +16,7 @@ export class SMTPAdapter implements EmailService {
         user: config.user,
         pass: config.pass,
       },
-    });
+    })
   }
 
   async sendEmail(to: string, subject: string, html: string): Promise<void> {
@@ -25,6 +25,6 @@ export class SMTPAdapter implements EmailService {
       to,
       subject,
       html,
-    });
+    })
   }
 }

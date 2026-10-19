@@ -1,4 +1,4 @@
 export interface ResendConfig {
-  apiKey: string;
-  from: string;
+  apiKey: string
+  from: string
 }

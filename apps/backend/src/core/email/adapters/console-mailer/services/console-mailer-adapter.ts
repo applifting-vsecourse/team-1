@@ -1,5 +1,5 @@
-import { EmailService } from '@/core/email/interfaces/email-service.interface';
-import { Injectable } from '@nestjs/common';
+import { EmailService } from "@/core/email/interfaces/email-service.interface"
+import { Injectable } from "@nestjs/common"
 
 @Injectable()
 export class ConsoleMailerAdapter implements EmailService {
@@ -11,6 +11,6 @@ export class ConsoleMailerAdapter implements EmailService {
       html:
       ${html}
       ========================
-    `);
+    `)
   }
 }

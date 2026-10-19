@@ -7,11 +7,11 @@
  * shows the generic message for codes it doesn't know.
  */
 export const ERROR_CODES = [
-  'UNAUTHORIZED',
-  'FORBIDDEN',
-  'NOT_FOUND',
-  'VALIDATION_FAILED',
-  'INTERNAL',
-] as const;
+  "UNAUTHORIZED",
+  "FORBIDDEN",
+  "NOT_FOUND",
+  "VALIDATION_FAILED",
+  "INTERNAL",
+] as const
 
-export type ErrorCode = (typeof ERROR_CODES)[number];
+export type ErrorCode = (typeof ERROR_CODES)[number]

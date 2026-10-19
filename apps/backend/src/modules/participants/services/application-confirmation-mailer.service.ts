@@ -1,5 +1,5 @@
-import { ApplicationConfirmation } from '@/modules/participants/domain/application-confirmation';
-import { Injectable } from '@nestjs/common';
+import { ApplicationConfirmation } from "@/modules/participants/domain/application-confirmation"
+import { Injectable } from "@nestjs/common"
 
 /**
  * Contract between stream B (application) and stream C (e-mail). B calls
