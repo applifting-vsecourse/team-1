@@ -1,0 +1,54 @@
+name: PR summary
+
+# Posts (and keeps updating) one short "what changed" comment on every PR,
+# so the tech lead can scan human and agent PRs at a glance. Pure git, no AI, no cost.
+# Script: scripts/pr-summary.mjs. Same-repo PRs only (fork PRs get a read-only token).
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: pr-summary-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  summary:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+
+      - name: Build summary
+        run: |
+          git fetch --no-tags origin "${{ github.base_ref }}"
+          # The script always comes from the base branch, so a PR can't change its own report.
+          git show "origin/${{ github.base_ref }}:scripts/pr-summary.mjs" > "$RUNNER_TEMP/pr-summary.mjs" ||
+            cp scripts/pr-summary.mjs "$RUNNER_TEMP/pr-summary.mjs"
+          {
+            echo '<!-- pr-summary -->'
+            node "$RUNNER_TEMP/pr-summary.mjs" "origin/${{ github.base_ref }}"
+          } > "$RUNNER_TEMP/summary.md"
+
+      - name: Post sticky comment
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          id="$(gh api "repos/$GITHUB_REPOSITORY/issues/$PR/comments" --paginate \
+            --jq '[.[] | select(.body | startswith("<!-- pr-summary -->"))][0].id // empty')"
+          if [ -n "$id" ]; then
+            gh api -X PATCH "repos/$GITHUB_REPOSITORY/issues/comments/$id" -F body=@"$RUNNER_TEMP/summary.md" >/dev/null
+          else
+            gh pr comment "$PR" --body-file "$RUNNER_TEMP/summary.md"
+          fi
