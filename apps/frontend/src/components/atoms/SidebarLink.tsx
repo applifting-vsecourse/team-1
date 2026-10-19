@@ -6,6 +6,7 @@ import { Link, type LinkProps } from "@tanstack/react-router"
  * the selected surface and the Togena corners (DS / Graphic / Navigation
  * corners); they keep their radius and stroke at any item width.
  */
+// Figma (Design system): DS / Navigation · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=11739-2903
 type SidebarLinkProps = LinkProps & {
   icon: ComponentType<{ className?: string; "aria-hidden"?: boolean }>
   children: ReactNode
