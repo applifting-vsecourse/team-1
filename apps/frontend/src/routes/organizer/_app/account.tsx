@@ -2,23 +2,21 @@ import { createFileRoute } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
 import { Seo } from "@/components/atoms/Seo"
-import { PageHeader } from "@/components/molecules/PageHeader"
+
+import { AccountPage } from "@/features/auth/components/AccountPage"
 
 export const Route = createFileRoute("/organizer/_app/account")({
   component: OrganizerAccountPage,
 })
 
-// Skeleton — US-02 (O30).
+// US-02 (O30): who is signed in, and sign out.
 function OrganizerAccountPage() {
-  const { t } = useTranslation(["auth", "common"])
+  const { t } = useTranslation("auth")
 
   return (
     <>
       <Seo title={t("account.title")} />
-      <PageHeader
-        title={t("account.title")}
-        description={t("common:comingSoon", { story: "US-02 (O30)" })}
-      />
+      <AccountPage />
     </>
   )
 }

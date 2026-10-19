@@ -1,4 +1,4 @@
-import { createFileRoute, redirect } from "@tanstack/react-router"
+import { createFileRoute, Link, redirect } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
@@ -35,10 +35,24 @@ function OrganizerLoginPage() {
       <AuthLayout
         title={t("organizerLogin.title")}
         description={t("organizerLogin.description")}
+        cardTitle={t("organizerLogin.cardTitle")}
+        footer={
+          <>
+            {t("organizerLogin.participantHint")}{" "}
+            <Link
+              to={ROUTES.participant.login}
+              className="underline underline-offset-4 hover:text-foreground"
+            >
+              {t("organizerLogin.participantLink")}
+            </Link>
+          </>
+        }
       >
         <SignInWithRedirect
           from={from}
+          accountType="ORGANIZER"
           fallback={ROUTES.organizer.dashboard}
+          emailHint={t("organizerLogin.emailHint")}
         />
       </AuthLayout>
     </>

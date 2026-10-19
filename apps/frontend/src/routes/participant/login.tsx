@@ -36,10 +36,14 @@ function ParticipantLoginPage() {
       <AuthLayout
         title={t("participantLogin.title")}
         description={t("participantLogin.description")}
+        cardTitle={t("participantLogin.cardTitle")}
       >
         <SignInWithRedirect
           from={from}
+          accountType="PARTICIPANT"
           fallback={ROUTES.participant.applications}
+          emailHint={t("participantLogin.emailHint")}
+          passwordHint={t("participantLogin.passwordHint")}
         />
       </AuthLayout>
     </>

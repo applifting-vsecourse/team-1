@@ -30,7 +30,9 @@
     },
     "forbidden": {
       "action": "Go to the home page",
-      "description": "This page belongs to another account or another organization.",
+      "body": "This page belongs to another account or another organization.",
+      "cardTitle": "Go back",
+      "description": "You can't open this page.",
       "title": "You don't have access here"
     },
     "notFound": {
