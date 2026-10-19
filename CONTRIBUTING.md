@@ -11,7 +11,7 @@ Pravidla a rozhodnutí projektu jsou v [docs/PROJEKT.md](docs/PROJEKT.md). Tady 
    git switch -c feat/US-23-prihlaska-pres-odkaz
    ```
    Prefixy: `feat/`, `fix/`, `chore/`, `docs/`.
-3. **Implementuj vertikálně** — backend, frontend i testy v jedné větvi. Drž se modulu a feature složky svého proudu (viz [PROJEKT.md, sekce 6](docs/PROJEKT.md#6-plán-práce-ve-sprintu-1)).
+3. **Implementuj vertikálně a po malých kouscích** — backend, frontend i testy v jedné větvi, ale PR drž do cca 400 řádků kódu a 20 souborů (bez testů, migrací, lockfilu a generovaných souborů). Větší featuru rozděl na víc PR, z nichž každý jde samostatně do `main` (např. 1. migrace + repository, 2. služba + endpoint, 3. UI) a v těle PR napiš „část 1/3“. Drž se modulu a feature složky svého proudu (viz [PROJEKT.md, sekce 6](docs/PROJEKT.md#6-plán-práce-ve-sprintu-1)).
 4. **Commity** piš anglicky, krátce a v rozkazovacím způsobu: `Add room capacity validation`.
 5. **Push** — pre-push hook sám pustí rychlé kontroly a AI review (viz [Hooky a AI review](#hooky-a-ai-review)). Před otevřením PR je dobré pustit i `pnpm check-all` (totéž, co CI, včetně integračních testů).
 6. **Otevři PR** do `main`:
@@ -44,6 +44,10 @@ Pravidla a rozhodnutí projektu jsou v [docs/PROJEKT.md](docs/PROJEKT.md). Tady 
 - Ručně kdykoli: `pnpm ai-review`, v Claude Code `@reviewer`.
 
 **Pravidla review se mění jen v `.claude/agents/reviewer.md`**, ne v hooku ani ve workflow — stejný agent běží lokálně i na Raspberry Pi. Hlásí-li nesmysly nebo něco přehlíží, oprav agenta v PR.
+
+## Souhrn změn v PR
+
+Každý PR (i od agentů) dostane automaticky jeden krátký komentář **Co se změnilo**: počet commitů a souborů, dotčené moduly a feature, nové endpointy a řádek **Pozor** (příliš velký PR, víc migrací, sdílené soubory, změna kódu bez testu, rozdílné překlady, nové závislosti). Aktualizuje se při každém pushi. Generuje ho `scripts/pr-summary.mjs` z gitu (bez AI, zdarma) ve workflow [`pr-summary.yml`](.github/workflows/pr-summary.yml); lokálně `node scripts/pr-summary.mjs`.
 
 ## Paralelní práce (worktrees)
 
