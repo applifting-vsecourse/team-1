@@ -93,3 +93,9 @@ if grep -q '^VERDICT: BLOCK' <<<"$output"; then
 fi
 
 echo "ai-review: pass"
+
+# The reviewer above can't open Figma. Nudge, don't run: it needs the Figma MCP and is slow.
+if git diff --name-only "$merge_base"...HEAD -- 'apps/frontend/src/routes/**' 'apps/frontend/src/features/**/components/**' \
+  | grep -q '\.tsx$'; then
+  echo "ai-review: UI changed — before the PR run @design-reviewer <US-xx> in Claude Code (compares with the Figma frames)."
+fi
