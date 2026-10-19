@@ -12,7 +12,7 @@ const schema = createApplicationFormSchema(
 const participant = {
   firstName: "Anna",
   lastName: "Nováková",
-  birthDate: "2010-05-17",
+  birthDate: "17. 5. 2010",
   gender: "FEMALE",
   termIds: ["t1"],
 }
@@ -54,7 +54,7 @@ describe("application form schema", () => {
     const messages = messagesFor({
       ...valid,
       participants: [
-        { firstName: " ", lastName: "", birthDate: "2010-05-17", gender: undefined, termIds: [] },
+        { firstName: " ", lastName: "", birthDate: "17. 5. 2010", gender: undefined, termIds: [] },
       ],
     })
     expect(messages).toEqual(
@@ -72,18 +72,23 @@ describe("application form schema", () => {
       "Enter a valid date of birth.",
     )
     expect(
-      messagesFor({ ...valid, participants: [{ ...participant, birthDate: "2010-02-31" }] }),
+      messagesFor({ ...valid, participants: [{ ...participant, birthDate: "31. 2. 2010" }] }),
     ).toContain("Enter a valid date of birth.")
     expect(
-      messagesFor({ ...valid, participants: [{ ...participant, birthDate: "1850-01-01" }] }),
+      messagesFor({ ...valid, participants: [{ ...participant, birthDate: "1. 1. 1850" }] }),
     ).toContain("Enter a valid date of birth.")
     expect(
-      messagesFor({ ...valid, participants: [{ ...participant, birthDate: "2027-06-16" }] }),
+      messagesFor({ ...valid, participants: [{ ...participant, birthDate: "16. 6. 2027" }] }),
     ).toContain("Enter a valid date of birth.")
     expect(
-      schema.safeParse({ ...valid, participants: [{ ...participant, birthDate: "2027-06-15" }] })
+      schema.safeParse({ ...valid, participants: [{ ...participant, birthDate: "15. 6. 2027" }] })
         .success,
     ).toBe(true)
+  })
+
+  it("sends the typed date of birth as an ISO date", () => {
+    const result = schema.parse(valid)
+    expect(result.participants[0]?.birthDate).toBe("2010-05-17")
   })
 
   it("needs at least one participant", () => {

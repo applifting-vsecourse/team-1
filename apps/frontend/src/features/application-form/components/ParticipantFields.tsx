@@ -36,18 +36,10 @@ type ParticipantFieldsProps = {
   /** Only the second and later participants can be removed. */
   onRemove?: () => void
   isDisabled?: boolean
-  /** Latest date of birth the date picker offers (`yyyy-MM-dd`). */
-  maxBirthDate: string
 }
 
 /** One participant: own personal data and own choice of terms. */
-export function ParticipantFields({
-  index,
-  terms,
-  onRemove,
-  isDisabled,
-  maxBirthDate,
-}: ParticipantFieldsProps) {
+export function ParticipantFields({ index, terms, onRemove, isDisabled }: ParticipantFieldsProps) {
   const { t } = useTranslation("applicationForm")
   const { control } = useFormContext<ApplicationFormDraft>()
   const [firstName, lastName] = useWatch({
@@ -120,8 +112,7 @@ export function ParticipantFields({
               <FormLabel>{t("form.birthDate")}</FormLabel>
               <FormControl>
                 <Input
-                  type="date"
-                  max={maxBirthDate}
+                  autoComplete="off"
                   {...field}
                 />
               </FormControl>

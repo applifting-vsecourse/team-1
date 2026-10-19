@@ -1,6 +1,5 @@
 import { useMemo } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { format } from "date-fns"
 import { useFieldArray, useForm, type Resolver } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -67,7 +66,6 @@ export function ApplicationForm({ event, onSubmit, errorMessage, isDone }: Appli
     name: "participants",
   })
 
-  const maxBirthDate = format(new Date(), "yyyy-MM-dd")
   const isSubmitting = form.formState.isSubmitting || Boolean(isDone)
 
   return (
@@ -86,7 +84,6 @@ export function ApplicationForm({ event, onSubmit, errorMessage, isDone }: Appli
             key={field.id}
             index={index}
             terms={event.terms}
-            maxBirthDate={maxBirthDate}
             isDisabled={isSubmitting}
             onRemove={index > 0 ? () => remove(index) : undefined}
           />

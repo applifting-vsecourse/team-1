@@ -53,7 +53,7 @@ async function fillParticipant(
 const anna = {
   first: "Anna",
   last: "Nováková",
-  birth: "2010-05-17",
+  birth: "17. 5. 2010",
   gender: "Woman",
   term: /11–17 Jul/,
 } as const
@@ -158,7 +158,7 @@ describe("ApplicationForm", () => {
     await fillParticipant(2, {
       first: "Matěj",
       last: "Novák",
-      birth: "2012-01-02",
+      birth: "2. 1. 2012",
       gender: "Man",
       term: /11–17 Jul/,
     })
@@ -183,7 +183,7 @@ describe("ApplicationForm", () => {
       />,
     )
 
-    await userEvent.type(screen.getByLabelText("Date of birth *"), "2999-01-01")
+    await userEvent.type(screen.getByLabelText("Date of birth *"), "1. 1. 2999")
     await userEvent.click(screen.getByRole("button", { name: "Submit application" }))
 
     expect(await screen.findByText("Enter a valid date of birth.")).toBeInTheDocument()

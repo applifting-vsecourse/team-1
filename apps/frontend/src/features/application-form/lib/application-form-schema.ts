@@ -2,14 +2,11 @@ import { format } from "date-fns"
 import type { TFunction } from "i18next"
 import { z } from "zod"
 
+import { parseBirthDate } from "@/features/application-form/lib/birth-date"
+
 export const GENDERS = ["FEMALE", "MALE"] as const
 
-const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/
 const EARLIEST_BIRTH_DATE = "1900-01-01"
-
-/** `2000-02-31` matches the pattern but is not a day. */
-const isRealDate = (value: string) =>
-  ISO_DATE.test(value) && new Date(`${value}T00:00:00Z`).toISOString().slice(0, 10) === value
 
 /**
  * One participant: personal data plus the terms they apply for. Contact
@@ -27,12 +24,16 @@ export const createApplicationFormSchema = (
   const participant = z.object({
     firstName: z.string().trim().min(1, t("form.errors.firstNameRequired")),
     lastName: z.string().trim().min(1, t("form.errors.lastNameRequired")),
-    // Empty, impossible, before 1900 and in the future all read the same (Figma M03).
-    birthDate: z
-      .string()
-      .refine(isRealDate, t("form.errors.birthDateInvalid"))
-      .refine((value) => value >= EARLIEST_BIRTH_DATE, t("form.errors.birthDateInvalid"))
-      .refine((value) => value <= todayIso, t("form.errors.birthDateInvalid")),
+    // Typed as `18. 5. 2014`, sent as ISO. Empty, impossible, before 1900 and
+    // in the future all read the same (Figma M03).
+    birthDate: z.string().transform((text, ctx) => {
+      const iso = parseBirthDate(text)
+      if (!iso || iso < EARLIEST_BIRTH_DATE || iso > todayIso) {
+        ctx.addIssue({ code: "custom", message: t("form.errors.birthDateInvalid") })
+        return z.NEVER
+      }
+      return iso
+    }),
     gender: z.enum(GENDERS, { error: t("form.errors.genderRequired") }),
     termIds: z.array(z.string()).min(1, t("form.errors.termsRequired")),
   })
