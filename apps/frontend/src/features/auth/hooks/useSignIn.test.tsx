@@ -38,7 +38,7 @@ describe("useSignIn", () => {
     const wrapper = ({ children }: { children: ReactNode }) => (
       <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
     )
-    const { result } = renderHook(() => useSignIn(), { wrapper })
+    const { result } = renderHook(() => useSignIn("ORGANIZER"), { wrapper })
 
     await result.current.mutateAsync({ email: sessionUser.email, password: "password1" })
 
