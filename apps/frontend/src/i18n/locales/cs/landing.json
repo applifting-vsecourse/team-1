@@ -20,6 +20,8 @@
     }
   },
   "footer": "Togena · Správa vícetermínových akcí",
-  "organizerCta": "Pro organizátory – přihlásit se",
-  "title": "Přihlášky na akce s více termíny bez zmatku"
+  "organizerCta": "Jsem organizátor",
+  "participantCta": "Jsem účastník",
+  "title": "Přihlášky na akce s více termíny",
+  "titleAccent": "bez zmatku"
 }

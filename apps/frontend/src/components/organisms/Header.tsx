@@ -12,13 +12,15 @@ type HeaderProps = {
   userMenu?: ReactNode
 }
 
+/** Public header: logo on the left, language and theme switchers on the right. */
+// Figma (Remake): Public header · https://www.figma.com/design/Oxlrm0tdW7aWH6C1rbP0fO/?node-id=2-36
 export function Header({ nav, userMenu }: HeaderProps) {
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-border bg-background/80 backdrop-blur">
-      <div className="mx-auto flex h-14 w-full max-w-4xl items-center gap-4 px-4">
+    <header className="sticky top-0 z-40 w-full border-b border-border bg-card">
+      <div className="mx-auto flex h-16 w-full max-w-5xl items-center gap-4 px-4">
         <Logo />
         {nav ? <nav className="flex items-center gap-1">{nav}</nav> : null}
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex items-center gap-1">
           <LanguageSwitcher />
           <ThemeSwitcher />
           {userMenu}

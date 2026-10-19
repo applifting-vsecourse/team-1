@@ -49,6 +49,10 @@
     "loading": "Načítání…",
     "retry": "Zkusit znovu"
   },
+  "support": {
+    "link": "Podpora Togeny",
+    "question": "Potřebujete pomoc?"
+  },
   "theme": {
     "dark": "Tmavý",
     "light": "Světlý",

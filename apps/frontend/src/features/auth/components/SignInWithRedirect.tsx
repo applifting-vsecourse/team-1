@@ -15,7 +15,6 @@ type SignInWithRedirectProps = {
   /** Area home used when there is no `from`. */
   fallback: string
   emailHint: string
-  passwordHint?: string
 }
 
 export function SignInWithRedirect({
@@ -23,7 +22,6 @@ export function SignInWithRedirect({
   accountType,
   fallback,
   emailHint,
-  passwordHint,
 }: SignInWithRedirectProps) {
   const { t } = useTranslation("auth")
   const navigate = useNavigate()
@@ -44,7 +42,6 @@ export function SignInWithRedirect({
   return (
     <SignInForm
       emailHint={emailHint}
-      passwordHint={passwordHint}
       isLoading={signIn.isPending}
       errorMessage={errorMessage}
       onSubmit={handleSubmit}

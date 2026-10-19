@@ -17,7 +17,7 @@ Stránky aplikace jsou routy v `src/routes/` — skládají template, organismy 
 
 - **Vrstva importuje jen z nižších vrstev** (`ui` < `atoms` < `molecules` < `organisms` < `templates` < `pages`). Hlídá to ESLint.
 - **`components/` neimportuje z `features/`.** Když komponenta potřebuje něco z feature (např. uživatelské menu), dostane to jako slot (`ReactNode` prop) — viz `Header` a `userMenu`.
-- Chybí ovládací prvek? `pnpm dlx shadcn@latest add <name>` (z `apps/frontend`) a odstranit `shadow-xs` / `shadow-sm`, viz [DESIGN.md](../../../../DESIGN.md).
+- Chybí ovládací prvek? `pnpm dlx shadcn@latest add <name>` (z `apps/frontend`) a odstranit `shadow-xs` / `shadow-sm` z polí a ovládacích prvků (stín patří jen kartám a plovoucím prvkům), viz [DESIGN.md](../../../../DESIGN.md).
 - Nová komponenta jde do nejnižší vrstvy, kam dává smysl. Když ji použije jen jedna feature, zůstává ve feature.
 - Každý seznam má tři stavy: `LoadingState`, `EmptyState`, `ErrorState`.
 - Žádné texty napevno: každý text jde přes `useTranslation()` a klíče v `src/i18n/locales/{en,cs}`. Sdílené komponenty používají namespace `common`.

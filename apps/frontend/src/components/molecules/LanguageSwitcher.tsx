@@ -1,4 +1,4 @@
-import { Languages } from "lucide-react"
+import { ChevronDown, Globe } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
@@ -18,11 +18,11 @@ export function LanguageSwitcher() {
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          size="sm"
           aria-label={t("language.toggle")}
         >
-          <Languages className="size-4" />
+          <Globe className="size-4" />
           <span className="uppercase">{i18n.resolvedLanguage}</span>
+          <ChevronDown className="size-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">

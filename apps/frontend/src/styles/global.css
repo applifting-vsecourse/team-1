@@ -1,6 +1,5 @@
 @import "@fontsource-variable/inter";
-@import "@fontsource-variable/manrope";
-@import "@fontsource-variable/geist-mono";
+@import "@fontsource-variable/jetbrains-mono";
 @import "tailwindcss";
 @plugin "tailwindcss-animate";
 
@@ -23,15 +22,25 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
-  --color-destructive-subtle: var(--destructive-subtle);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
 
   --font-sans: var(--font-sans);
-  --font-heading: var(--font-heading);
   --font-mono: var(--font-mono);
-  --font-serif: var(--font-serif);
 
   --shadow-2xs: var(--shadow-2xs);
   --shadow-xs: var(--shadow-xs);
@@ -42,76 +51,93 @@
   --shadow-xl: var(--shadow-xl);
   --shadow-2xl: var(--shadow-2xl);
 
-  /* Figma DS / Metrics radius/* */
+  /* Remake Metrics: radius/md 6, radius/lg 8, radius/xl 12 */
   --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 20px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
 }
 
 /*
- * Light values come from the Figma design system (DS / Semantic, DS / Metrics);
- * each comment names the source variable. The DS has no dark mode yet, so `.dark`
- * keeps the previous palette until the designer adds one.
+ * Theme "Future Teal" (tweakcn), values read from the Figma remake file
+ * (Theme collection, Light / Dark modes) -- see docs/FIGMA-REMAKE.md.
+ * Primary is oklch(0.704 0.14 182.5); white text on it is about 2.6:1 (known issue).
  */
 :root {
   --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
-  --font-heading: "Manrope Variable", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: Georgia, serif;
-  --font-mono: "Geist Mono Variable", ui-monospace, SFMono-Regular, Menlo, monospace;
-  --background: #f1fafa; /* color/bg/canvas */
-  --foreground: #14343b; /* color/text/primary */
-  --card: #ffffff; /* color/bg/surface */
-  --card-foreground: #14343b; /* color/text/primary */
-  --popover: #ffffff; /* color/bg/surface */
-  --popover-foreground: #14343b; /* color/text/primary */
-  --primary: #087f8c; /* color/bg/accent */
-  --primary-foreground: #ffffff; /* color/text/inverse */
-  --secondary: #e7f3f3; /* color/bg/subtle */
-  --secondary-foreground: #14343b; /* color/text/primary */
-  --muted: #e7f3f3; /* color/bg/subtle */
-  --muted-foreground: #547079; /* color/text/secondary */
-  --accent: #dcf2f2; /* color/bg/selected */
-  --accent-foreground: #14343b; /* color/text/primary */
-  --destructive: #b42336; /* color/status/error */
-  --destructive-foreground: #ffffff; /* color/text/inverse */
-  --destructive-subtle: #fff0f1; /* color/status/error-bg */
-  --border: #ccdfe1; /* color/border/default */
-  --input: #759398; /* color/border/control */
-  --ring: #087f8c; /* color/border/focus */
-  /* Sonner reads --radius directly; matches radius/md. */
+  --font-mono: "JetBrains Mono Variable", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --background: #f9fdff;
+  --foreground: #031a1e;
+  --card: #ffffff;
+  --card-foreground: #031a1e;
+  --popover: #ffffff;
+  --popover-foreground: #1c1c34;
+  --primary: #00bba7;
+  --primary-foreground: #fcfcfc;
+  --secondary: #e4f2f2;
+  --secondary-foreground: #2d4e54;
+  --muted: #ebf4f4;
+  --muted-foreground: #50686d;
+  --accent: #c3ecdf;
+  --accent-foreground: #006363;
+  --destructive: #ce514d;
+  --destructive-foreground: #ffffff;
+  --border: #dae3e4;
+  --input: #dae3e4;
+  --ring: #00bba7;
+  --chart-1: #00bba7;
+  --chart-2: #00a3d7;
+  --chart-3: #b18cfe;
+  --chart-4: #ffc677;
+  --chart-5: #cce8b5;
+  --sidebar: #f5f9fa;
+  --sidebar-foreground: #0e262a;
+  --sidebar-primary: #00bba7;
+  --sidebar-primary-foreground: #fafafd;
+  --sidebar-accent: #c3ecdf;
+  --sidebar-accent-foreground: #1c1c34;
+  --sidebar-border: #d6e9ea;
+  --sidebar-ring: #735fce;
+  /* Sonner reads --radius directly; matches radius/lg. */
   --radius: 0.5rem;
-  --shadow-2xs: 0px 2px 10px 0px hsl(0 0% 0% / 0.05);
-  --shadow-xs: 0px 2px 10px 0px hsl(0 0% 0% / 0.05);
-  --shadow-sm: 0px 2px 10px 0px hsl(0 0% 0% / 0.1), 0px 1px 2px -1px hsl(0 0% 0% / 0.1);
-  --shadow: 0px 2px 10px 0px hsl(0 0% 0% / 0.1), 0px 1px 2px -1px hsl(0 0% 0% / 0.1);
-  --shadow-md: 0px 2px 10px 0px hsl(0 0% 0% / 0.1), 0px 2px 4px -1px hsl(0 0% 0% / 0.1);
-  --shadow-lg: 0px 2px 10px 0px hsl(0 0% 0% / 0.1), 0px 4px 6px -1px hsl(0 0% 0% / 0.1);
-  --shadow-xl: 0px 2px 10px 0px hsl(0 0% 0% / 0.1), 0px 8px 10px -1px hsl(0 0% 0% / 0.1);
-  --shadow-2xl: 0px 2px 10px 0px hsl(0 0% 0% / 0.25);
+  --shadow-2xs: 0 1px 2px -1px rgb(45 45 83 / 0.12);
+  --shadow-xs: 0 1px 2px -1px rgb(45 45 83 / 0.12);
+  --shadow-sm: 0 4px 10px 0 rgb(45 45 83 / 0.12), 0 1px 2px -1px rgb(45 45 83 / 0.12);
+  --shadow: 0 4px 10px 0 rgb(45 45 83 / 0.12), 0 1px 2px -1px rgb(45 45 83 / 0.12);
+  --shadow-md: 0 6px 14px 0 rgb(45 45 83 / 0.14), 0 2px 4px -2px rgb(45 45 83 / 0.12);
+  --shadow-lg: 0 10px 24px 0 rgb(45 45 83 / 0.16), 0 4px 6px -4px rgb(45 45 83 / 0.12);
+  --shadow-xl: 0 16px 32px 0 rgb(45 45 83 / 0.18), 0 8px 10px -6px rgb(45 45 83 / 0.12);
+  --shadow-2xl: 0 24px 48px 0 rgb(45 45 83 / 0.25);
 }
 
 .dark {
-  --background: oklch(0.1854 0.0182 238.2143);
-  --foreground: oklch(0.9436 0.0051 228.8204);
-  --card: oklch(0.2848 0.023 235.6578);
-  --card-foreground: oklch(0.9436 0.0051 228.8204);
-  --popover: oklch(0.2848 0.023 235.6578);
-  --popover-foreground: oklch(0.9436 0.0051 228.8204);
-  --primary: oklch(0.6509 0.1283 170.4258);
-  --primary-foreground: oklch(0.2153 0.0187 235.1251);
-  --secondary: oklch(0.2933 0.0423 172.8195);
-  --secondary-foreground: oklch(0.6509 0.1283 170.4258);
-  --muted: oklch(0.2456 0.0195 239.1061);
-  --muted-foreground: oklch(0.6637 0.0236 235.1968);
-  --accent: oklch(0.2933 0.0423 172.8195);
-  --accent-foreground: oklch(0.6509 0.1283 170.4258);
-  --destructive: oklch(0.6257 0.2058 29.0773);
-  --destructive-foreground: oklch(0.9436 0.0051 228.8204);
-  --destructive-subtle: oklch(0.6257 0.2058 29.0773 / 0.15);
-  --border: oklch(0.3351 0.0253 234.8586);
-  --input: oklch(0.3351 0.0253 234.8586);
-  --ring: oklch(0.6509 0.1283 170.4258);
+  --background: #030b0b;
+  --foreground: #e4edee;
+  --card: #061415;
+  --card-foreground: #e4edee;
+  --popover: #161724;
+  --popover-foreground: #e6e6f5;
+  --primary: #00bba7;
+  --primary-foreground: #ffffff;
+  --secondary: #0b2425;
+  --secondary-foreground: #b8d4d5;
+  --muted: #0f1d1e;
+  --muted-foreground: #7a9596;
+  --accent: #005f5a;
+  --accent-foreground: #90caca;
+  --destructive: #f84b4b;
+  --destructive-foreground: #fafafd;
+  --border: #142223;
+  --input: #142223;
+  --ring: #00bba7;
+  --sidebar: #031011;
+  --sidebar-foreground: #e4edee;
+  --sidebar-primary: #00bba7;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #005f5a;
+  --sidebar-accent-foreground: #e6e6f5;
+  --sidebar-border: #2b2c3f;
+  --sidebar-ring: #a190ff;
 }
 
 @layer base {
@@ -124,6 +150,6 @@
   h1,
   h2,
   h3 {
-    @apply font-heading;
+    @apply tracking-tight;
   }
 }

@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router"
+import { ArrowRight } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
@@ -31,24 +32,27 @@ export function OrganizerAreaError({ error }: { error: Error }) {
         cardTitle: t("forbiddenForParticipant.cardTitle"),
         body: t("forbiddenForParticipant.body"),
         actions: (
-          <div className="flex flex-col items-start gap-6">
+          <>
             <Button
               asChild
-              className="w-44"
+              size="xl"
+              className="w-full"
             >
               <Link to={ROUTES.participant.applications}>
                 {t("forbiddenForParticipant.myApplication")}
+                <ArrowRight />
               </Link>
             </Button>
             <Button
               variant="outline"
-              className="w-78"
+              size="lg"
+              className="w-full"
               disabled={signOut.isPending}
               onClick={() => signOut.mutate()}
             >
               {t("forbiddenForParticipant.signOutAndSwitch")}
             </Button>
-          </div>
+          </>
         ),
       }}
     />

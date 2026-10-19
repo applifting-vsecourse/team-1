@@ -32,7 +32,7 @@ export function Logo() {
   return (
     <Link
       to={ROUTES.home}
-      className="flex items-center gap-2 font-heading text-xl font-semibold tracking-tight"
+      className="flex items-center gap-2 text-xl font-semibold tracking-tight"
     >
       <LogoSymbol className="size-8 text-primary" />
       togena

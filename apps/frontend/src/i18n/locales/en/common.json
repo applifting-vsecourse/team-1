@@ -49,6 +49,10 @@
     "loading": "Loading…",
     "retry": "Try again"
   },
+  "support": {
+    "link": "Togena support",
+    "question": "Need help?"
+  },
   "theme": {
     "dark": "Dark",
     "light": "Light",

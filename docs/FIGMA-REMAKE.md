@@ -2,7 +2,7 @@
 
 Tento soubor popisuje, jak se předělávají obrazovky Togeny do nového vizuálního stylu ve Figmě. Platí pro každého člověka i agenta, který na remaku pokračuje. Cílem je, aby každá další obrazovka vypadala, jako by ji udělal stejný autor.
 
-> **Rozsah.** Remake je zatím **jen ve Figmě**, kód se podle něj nemění. Pro implementaci v `apps/frontend` dál platí [`DESIGN.md`](../DESIGN.md) a hi-fi rámce v souboru Design system. Remake se od DESIGN.md v několika bodech vědomě liší (stín na kartách, karty jako sekce stránky, centrovaný hero, kontrast primární barvy). Než se podle něj začne stavět kód, musí to schválit tech lead. Do té doby tyto odchylky do kódu nepatří.
+> **Rozsah.** Remake je implementovaný i v kódu (`apps/frontend`) na větvi `docs/figma-remake` (PR #112) a **čeká na schválení product leadem**. Pravidla, která remake mění (stín na kartách, karty jako sekce stránky, centrovaný hero s kartami funkcí, velikosti tlačítek, `accent` jako tón), jsou propsaná do [`DESIGN.md`](../DESIGN.md), `CLAUDE.md` a `.claude/agents/reviewer.md`. Obrazovky, které v remaku ještě nejsou (přihláška V07 / M02, kostry stránek), jen dědí nové tokeny. Kontrast primární barvy zůstává otevřený (viz Známé odchylky).
 
 ## Soubory
 

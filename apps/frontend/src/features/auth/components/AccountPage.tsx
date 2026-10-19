@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next"
 
 import { PageHeader } from "@/components/molecules/PageHeader"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 
@@ -13,6 +14,8 @@ import { useSignOut } from "@/features/auth/hooks/useSignOut"
  */
 // Figma (Design system): O30 Nastavení účtu organizátora · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=11988-176
 // Figma (Design system): U13 Nastavení účtu účastníka · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=11988-11146
+// Figma (Remake): O30 Nastavení účtu organizátora · https://www.figma.com/design/Oxlrm0tdW7aWH6C1rbP0fO/?node-id=28-580
+// Figma (Remake): U13 Nastavení účtu účastníka · https://www.figma.com/design/Oxlrm0tdW7aWH6C1rbP0fO/?node-id=28-698
 export function AccountPage() {
   const { t } = useTranslation("auth")
   const { user } = useSession()
@@ -27,21 +30,21 @@ export function AccountPage() {
         description={t(`account.description.${user.accountType}`)}
       />
 
-      <Card className="max-w-196 gap-6 rounded-lg p-8">
-        <h2 className="text-2xl font-bold tracking-tight">{t("account.yourAccount")}</h2>
-        <div>
-          <p>{user.name}</p>
-          <p>{user.email}</p>
+      <Card className="gap-4 p-6">
+        <h2 className="text-lg font-semibold">{t("account.yourAccount")}</h2>
+        <div className="flex flex-col gap-0.5">
+          <p className="text-sm font-medium">{user.name}</p>
+          <p className="text-muted-foreground">{user.email}</p>
         </div>
-        <p className="text-sm text-muted-foreground">{t(`account.kind.${user.accountType}`)}</p>
+        <Badge variant="secondary">{t(`account.kind.${user.accountType}`)}</Badge>
       </Card>
 
-      <Card className="max-w-196 gap-6 rounded-lg p-8">
-        <h2 className="text-2xl font-bold tracking-tight">{t("account.session")}</h2>
-        <p>{t(`account.signOutHint.${user.accountType}`)}</p>
+      <Card className="gap-4 p-6">
+        <h2 className="text-lg font-semibold">{t("account.session")}</h2>
+        <p className="text-muted-foreground">{t(`account.signOutHint.${user.accountType}`)}</p>
         <Button
           variant="outline"
-          className="w-44"
+          className="self-start"
           disabled={signOut.isPending}
           onClick={() => signOut.mutate()}
         >

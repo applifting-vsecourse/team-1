@@ -24,7 +24,7 @@ export const Route = createFileRoute("/participant/login")({
   component: ParticipantLoginPage,
 })
 
-// US-02 (S10). Participant accounts come from a submitted application (US-01);
+// US-02 (S10, S14). Participant accounts come from a submitted application (US-01);
 // "send me a new link" (magic link) is added in stream C.
 function ParticipantLoginPage() {
   const { from } = Route.useSearch()
@@ -37,13 +37,13 @@ function ParticipantLoginPage() {
         title={t("participantLogin.title")}
         description={t("participantLogin.description")}
         cardTitle={t("participantLogin.cardTitle")}
+        footer={t("participantLogin.footer")}
       >
         <SignInWithRedirect
           from={from}
           accountType="PARTICIPANT"
           fallback={ROUTES.participant.applications}
           emailHint={t("participantLogin.emailHint")}
-          passwordHint={t("participantLogin.passwordHint")}
         />
       </AuthLayout>
     </>
