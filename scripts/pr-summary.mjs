@@ -124,15 +124,13 @@ if (endpoints.length)
 const files = stats.map((s) => s.file);
 const warn = [];
 // Size = lines a human has to read: no lockfile, generated files, tests or migration SQL.
-const reviewLines = stats
-  .filter(
-    (f) =>
-      !isLock(f.file) && !isTest(f.file) && !f.file.includes('/migrations/'),
-  )
-  .reduce((n, f) => n + f.add + f.del, 0);
-if (reviewLines > MAX_LINES || stats.length > MAX_FILES)
+const reviewed = stats.filter(
+  (f) => !isLock(f.file) && !isTest(f.file) && !f.file.includes('/migrations/'),
+);
+const reviewLines = reviewed.reduce((n, f) => n + f.add + f.del, 0);
+if (reviewLines > MAX_LINES || reviewed.length > MAX_FILES)
   warn.push(
-    `**PR je velký** (${reviewLines} řádků kódu, ${stats.length} souborů; limit ${MAX_LINES} / ${MAX_FILES}) — rozděl featuru na menší PR`,
+    `**PR je velký** (${reviewLines} řádků kódu, ${reviewed.length} souborů; limit ${MAX_LINES} / ${MAX_FILES}) — rozděl featuru na menší PR`,
   );
 const migrations = new Set(
   files
