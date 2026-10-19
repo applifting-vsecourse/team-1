@@ -1,7 +1,7 @@
-import { useMemo } from "react"
+import { useEffect, useMemo } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import type { TFunction } from "i18next"
-import { CircleAlert, Loader2 } from "lucide-react"
+import { Loader2 } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
@@ -57,12 +57,17 @@ export function SignInForm({
     defaultValues,
   })
 
+  // After a failed attempt the frames (S13, S14) keep the e-mail and empty the password.
+  useEffect(() => {
+    if (errorMessage) form.resetField("password")
+  }, [errorMessage, form])
+
   return (
     <Form {...form}>
       <form
         noValidate
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col gap-4"
+        className="flex flex-col gap-6"
       >
         <FormField
           control={form.control}
@@ -105,26 +110,26 @@ export function SignInForm({
           )}
         />
 
+        {errorMessage ? (
+          <Alert
+            variant="destructive"
+            className="gap-y-2 border-0 bg-destructive-subtle p-4"
+          >
+            <AlertTitle className="font-heading text-lg font-bold">
+              {t("form.errors.failedTitle")}
+            </AlertTitle>
+            <AlertDescription className="text-destructive">{errorMessage}</AlertDescription>
+          </Alert>
+        ) : null}
+
         <Button
           type="submit"
-          size="lg"
-          className="w-full"
+          className="w-44 self-start"
           disabled={isLoading}
         >
           {isLoading ? <Loader2 className="size-4 animate-spin" /> : null}
           {t("form.submit")}
         </Button>
-
-        {errorMessage ? (
-          <Alert
-            variant="destructive"
-            className="border-destructive/30 bg-destructive/10"
-          >
-            <CircleAlert />
-            <AlertTitle>{t("form.errors.failedTitle")}</AlertTitle>
-            <AlertDescription className="text-destructive/90">{errorMessage}</AlertDescription>
-          </Alert>
-        ) : null}
       </form>
     </Form>
   )

@@ -1,4 +1,9 @@
 {
+  "accountRole": {
+    "ADMIN": "Správce",
+    "ORGANIZER": "Organizátor",
+    "PARTICIPANT": "Účastník"
+  },
   "area": {
     "organizer": "Organizátor",
     "participant": "Moje přihláška"
@@ -16,11 +21,10 @@
     "toggle": "Změnit jazyk"
   },
   "nav": {
-    "account": "Účet",
+    "applications": "Přihlášky",
+    "dashboard": "Dashboard",
     "eventSections": "Části akce",
-    "events": "Akce",
-    "myApplication": "Moje přihláška",
-    "overview": "Přehled"
+    "events": "Akce"
   },
   "pages": {
     "error": {
@@ -33,7 +37,7 @@
       "body": "Tato stránka patří jinému účtu nebo jiné organizaci.",
       "cardTitle": "Zpět",
       "description": "Tuto stránku nemůžete otevřít.",
-      "title": "Sem nemáte přístup"
+      "title": "K této stránce nemáte přístup"
     },
     "notFound": {
       "action": "Na úvodní stránku",

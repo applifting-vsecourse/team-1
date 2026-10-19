@@ -15,6 +15,7 @@ export const Route = createFileRoute("/organizer/_app/")({
 // US-02 (O01): where an organizer lands after signing in. The list of events
 // opens from the navigation (US-12); attention panel and event cards come with
 // US-29 / US-52.
+// Figma (Design system): O01 Dashboard · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=11988-2
 function OrganizerDashboardPage() {
   const { t } = useTranslation("eventOverview")
   const { user } = useSession()
@@ -25,12 +26,13 @@ function OrganizerDashboardPage() {
       <PageHeader
         title={t("dashboard.greeting", { name: user?.name ?? "" })}
         description={t("dashboard.description")}
-        actions={
-          <Button asChild>
-            <Link to={ROUTES.organizer.events}>{t("dashboard.openEvents")}</Link>
-          </Button>
-        }
       />
+      <Button
+        asChild
+        className="w-44"
+      >
+        <Link to={ROUTES.organizer.newEvent}>{t("dashboard.createEvent")}</Link>
+      </Button>
     </>
   )
 }

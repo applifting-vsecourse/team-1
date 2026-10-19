@@ -1,9 +1,10 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router"
+import { ClipboardList } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
-import { NavLink } from "@/components/atoms/NavLink"
 import { Seo } from "@/components/atoms/Seo"
+import { SidebarLink } from "@/components/atoms/SidebarLink"
 import { AreaErrorPage } from "@/components/pages/AreaErrorPage"
 import { AreaLayout } from "@/components/templates/AreaLayout"
 
@@ -32,16 +33,15 @@ function ParticipantLayout() {
       <Seo title={t("area.participant")} />
       <AreaLayout
         width="reading"
+        roleLabel={t("accountRole.PARTICIPANT")}
         nav={
-          <>
-            <NavLink
-              to={ROUTES.participant.applications}
-              activeOptions={{ exact: true }}
-            >
-              {t("nav.myApplication")}
-            </NavLink>
-            <NavLink to={ROUTES.participant.account}>{t("nav.account")}</NavLink>
-          </>
+          <SidebarLink
+            to={ROUTES.participant.applications}
+            activeOptions={{ exact: true }}
+            icon={ClipboardList}
+          >
+            {t("nav.applications")}
+          </SidebarLink>
         }
         userMenu={<HeaderMenu />}
       >

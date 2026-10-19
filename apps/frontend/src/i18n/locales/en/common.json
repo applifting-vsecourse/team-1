@@ -1,4 +1,9 @@
 {
+  "accountRole": {
+    "ADMIN": "Admin",
+    "ORGANIZER": "Organizer",
+    "PARTICIPANT": "Participant"
+  },
   "area": {
     "organizer": "Organizer",
     "participant": "My application"
@@ -16,11 +21,10 @@
     "toggle": "Change language"
   },
   "nav": {
-    "account": "Account",
+    "applications": "Applications",
+    "dashboard": "Dashboard",
     "eventSections": "Event sections",
-    "events": "Events",
-    "myApplication": "My application",
-    "overview": "Overview"
+    "events": "Events"
   },
   "pages": {
     "error": {
@@ -33,7 +37,7 @@
       "body": "This page belongs to another account or another organization.",
       "cardTitle": "Go back",
       "description": "You can't open this page.",
-      "title": "You don't have access here"
+      "title": "You don't have access to this page"
     },
     "notFound": {
       "action": "Go to the home page",

@@ -3,9 +3,9 @@
     "title": "Přihlášky"
   },
   "dashboard": {
+    "createEvent": "Vytvořit akci",
     "description": "Vidíte pouze akce, ke kterým máte přístup.",
     "greeting": "Dobrý den, {{name}}.",
-    "openEvents": "Otevřít akce",
     "title": "Přehled"
   },
   "overview": {

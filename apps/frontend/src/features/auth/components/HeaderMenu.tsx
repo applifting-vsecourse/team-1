@@ -1,64 +1,60 @@
-import { LogOut } from "lucide-react"
+import { Link } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { ROUTES } from "@/app/routes"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
 import { useSession } from "@/features/auth/hooks/useSession"
 import { useSignOut } from "@/features/auth/hooks/useSignOut"
 
+// Figma (Design system): DS / Account dropdown · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12011-625
 export function HeaderMenu() {
-  const { t } = useTranslation("auth")
+  const { t } = useTranslation(["auth", "common"])
   const { user } = useSession()
   const signOut = useSignOut()
 
   if (!user) return null
 
-  const initials = user.name
-    .split(" ")
-    .map((word) => word[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase()
+  const accountRoute =
+    user.accountType === "PARTICIPANT" ? ROUTES.participant.account : ROUTES.organizer.account
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
-          variant="ghost"
-          size="icon"
-          aria-label={t("menu.label")}
-          className="rounded-full"
+          variant="outline"
+          className="border-border bg-card"
         >
-          <Avatar className="size-8">
-            <AvatarFallback>{initials}</AvatarFallback>
-          </Avatar>
+          {user.name}
+          <span aria-hidden="true">▾</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
-        className="w-48"
+        className="flex w-60 flex-col gap-4 rounded-lg p-4"
       >
-        <DropdownMenuLabel>
-          <div className="flex flex-col">
-            <span className="text-sm leading-none font-medium">{user.name}</span>
-            <span className="mt-1 text-xs text-muted-foreground">{user.email}</span>
-          </div>
+        <DropdownMenuLabel className="flex flex-col gap-4 p-0 font-normal">
+          <span className="font-medium">{t(`common:accountRole.${user.accountType}`)}</span>
+          <span className="text-muted-foreground">{user.email}</span>
         </DropdownMenuLabel>
-        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          asChild
+          className="h-11 font-medium"
+        >
+          <Link to={accountRoute}>{t("menu.accountSettings")}</Link>
+        </DropdownMenuItem>
         <DropdownMenuItem
           onSelect={() => signOut.mutate()}
           disabled={signOut.isPending}
+          className="h-11 font-medium text-destructive focus:text-destructive"
         >
-          <LogOut className="size-4" />
           {t("menu.signOut")}
         </DropdownMenuItem>
       </DropdownMenuContent>
