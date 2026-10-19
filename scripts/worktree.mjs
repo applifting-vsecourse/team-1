@@ -175,6 +175,9 @@ function cmdNew(args) {
     cwd: dir,
     stdio: 'inherit',
   });
+  // The Prisma client is generated into src/ (gitignored); without it every
+  // backend test fails to compile in a fresh worktree.
+  sh('pnpm', ['backend', 'prisma:generate'], { cwd: dir, stdio: 'inherit' });
 
   console.log(`
 ✔  Worktree ready (slot ${slot})
