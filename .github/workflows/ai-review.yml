@@ -55,11 +55,14 @@ jobs:
 
           if [ -n "$INPUT_PR" ]; then
             [[ "$INPUT_PR" =~ ^[0-9]+$ ]] || { echo "PR must be a number"; exit 1; }
+            [ "$(gh pr view "$INPUT_PR" --json isCrossRepository --jq .isCrossRepository)" = false ] ||
+              { echo "Fork PRs are not reviewed on the self-hosted runner"; exit 1; }
             prs="$INPUT_PR"
           else
             since="$(date -u -d '1 day ago' +%Y-%m-%dT%H:%M:%SZ)"
             prs="$(gh pr list --state open --draft=false --limit "$MAX_PRS" \
-              --json number,updatedAt --jq ".[] | select(.updatedAt > \"$since\") | .number")"
+              --json number,updatedAt,isCrossRepository \
+              --jq ".[] | select(.updatedAt > \"$since\" and (.isCrossRepository | not)) | .number")"
           fi
 
           for pr in $prs; do
