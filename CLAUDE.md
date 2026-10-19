@@ -83,6 +83,10 @@ Screens are designed before they are built, and the frames are linked in the sto
 
 The pre-push review (`@reviewer`) can't open Figma; it only checks that new UI carries the `Figma:` comment and reminds you to run `@design-reviewer`.
 
+### Pull request size
+
+Small PRs, because the tech lead reviews every one quickly. Target: up to ~400 changed lines of code (not counting tests, migration SQL, lockfile, generated files) and ~20 files. If a feature is bigger, split it into vertical slices that each merge on their own and keep `main` working (e.g. 1. migration + repository, 2. service + endpoint, 3. UI), and say in the PR body which part of the story this is (`Refs #23`, „část 1/3“). Agents: plan the split before coding; don't open one big PR. The PR comment „Co se změnilo“ flags oversized PRs.
+
 ### Migrations
 
 At most one Prisma migration per PR. Before merging, rebase on `main`; if another migration landed meanwhile, delete yours and regenerate it.
