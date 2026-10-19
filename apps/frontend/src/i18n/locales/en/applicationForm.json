@@ -3,6 +3,35 @@
     "title": "Application submitted"
   },
   "form": {
+    "addParticipant": "Add participant",
+    "birthDate": "Date of birth",
+    "consent": "I agree to the processing of personal data for the purpose of this application.",
+    "contactHeading": "Contact",
+    "contactHint": "We'll send the confirmation to this address. It is shared by all participants.",
+    "email": "E-mail",
+    "emailPlaceholder": "name@example.com",
+    "errors": {
+      "birthDateFuture": "The date of birth can't be in the future.",
+      "birthDateInvalid": "Enter a valid date.",
+      "consentRequired": "Consent is required to submit the application.",
+      "emailInvalid": "Enter a valid e-mail address.",
+      "genderRequired": "Choose one.",
+      "required": "This field is required.",
+      "termsRequired": "Choose at least one term."
+    },
+    "firstName": "First name",
+    "gender": "Gender",
+    "genderFemale": "Woman",
+    "genderMale": "Man",
+    "lastName": "Last name",
+    "participantTitle": "Participant {{number}}",
+    "participantsHeading": "Participants",
+    "removeParticipant": "Remove",
+    "removeParticipantAria": "Remove participant {{number}}",
+    "submit": "Submit application",
+    "submitting": "Submitting…",
+    "terms": "Terms",
+    "termsHeading": "Terms and prices",
     "title": "Application"
   }
 }

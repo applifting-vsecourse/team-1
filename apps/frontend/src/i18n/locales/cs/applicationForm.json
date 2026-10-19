@@ -3,6 +3,35 @@
     "title": "Přihláška odeslána"
   },
   "form": {
+    "addParticipant": "Přidat účastníka",
+    "birthDate": "Datum narození",
+    "consent": "Souhlasím se zpracováním osobních údajů pro účely této přihlášky.",
+    "contactHeading": "Kontakt",
+    "contactHint": "Na tuto adresu pošleme potvrzení. Je společná pro všechny účastníky.",
+    "email": "E-mail",
+    "emailPlaceholder": "jmeno@example.com",
+    "errors": {
+      "birthDateFuture": "Datum narození nemůže být v budoucnosti.",
+      "birthDateInvalid": "Zadej platné datum.",
+      "consentRequired": "Bez souhlasu nelze přihlášku odeslat.",
+      "emailInvalid": "Zadej platnou e-mailovou adresu.",
+      "genderRequired": "Vyber jednu možnost.",
+      "required": "Toto pole je povinné.",
+      "termsRequired": "Vyber aspoň jeden termín."
+    },
+    "firstName": "Jméno",
+    "gender": "Pohlaví",
+    "genderFemale": "Žena",
+    "genderMale": "Muž",
+    "lastName": "Příjmení",
+    "participantTitle": "Účastník {{number}}",
+    "participantsHeading": "Účastníci",
+    "removeParticipant": "Odebrat",
+    "removeParticipantAria": "Odebrat účastníka {{number}}",
+    "submit": "Odeslat přihlášku",
+    "submitting": "Odesílám…",
+    "terms": "Termíny",
+    "termsHeading": "Termíny a ceny",
     "title": "Přihláška"
   }
 }
