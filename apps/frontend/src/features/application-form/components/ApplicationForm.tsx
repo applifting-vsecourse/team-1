@@ -95,7 +95,7 @@ export function ApplicationForm({ event, onSubmit, errorMessage, isDone }: Appli
         <Button
           type="button"
           variant="outline"
-          className="h-11 w-full sm:w-auto sm:self-start"
+          className="w-full sm:w-auto sm:self-start"
           disabled={isSubmitting}
           onClick={() => append({ ...emptyParticipant })}
         >
@@ -113,7 +113,6 @@ export function ApplicationForm({ event, onSubmit, errorMessage, isDone }: Appli
                 <FormControl>
                   <Input
                     type="email"
-                    className="h-11"
                     autoComplete="email"
                     {...field}
                   />
@@ -157,7 +156,7 @@ export function ApplicationForm({ event, onSubmit, errorMessage, isDone }: Appli
 
           <Button
             type="submit"
-            className="h-11 w-full sm:w-auto sm:self-start"
+            className="w-full sm:w-auto sm:self-start"
             disabled={isSubmitting}
           >
             {isSubmitting ? t("form.submitting") : t("form.submit")}

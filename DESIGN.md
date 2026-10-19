@@ -10,7 +10,7 @@ These are rules, not suggestions. When a rule and a "nicer looking" idea disagre
 
 This file says how to build; **Figma says what to build.** Every UI story links its frames in the issue, and the screen is implemented as drawn — structure, copy, control types, sizes, states. The rules below fill in only what a frame doesn't spell out (spacing scale, accessibility floor, three list states); they never license redesigning a screen or adding what the design doesn't contain. Process and the `design-reviewer` agent: [`CLAUDE.md`, "UI follows Figma"](CLAUDE.md#ui-follows-figma--dont-invent).
 
-When a frame contradicts a rule below, build the frame and report the conflict in the PR; the tech lead decides which one changes. Known cases so far: Figma draws the event summary and the contact block as cards although cards are for list items, DS controls are 44 px while the kit's are 36 px, and the public pages are 800 px wide on desktop while `max-w-2xl` is 672 px.
+When a frame contradicts a rule below, build the frame and report the conflict in the PR; the tech lead decides which one changes. Decided so far (US-23): controls are 44 px, public pages are 800 px wide, the application form's contact block is a card (see Layout), and type stays on the Tailwind scale even where a frame is a few px off it (the "404" is `text-6xl`, not 64 px).
 
 **Tokens live in `apps/frontend/src/styles/global.css`.** That file is the only source of truth for colour, radius and shadows. This file says how to _use_ them.
 
@@ -24,9 +24,9 @@ When a frame contradicts a rule below, build the frame and report the conflict i
 
 ## Layout
 
-- **Cards are for separable items in a list** — an event in a list, a participant on a phone screen, a search result. They are not page sections and not layout tools.
+- **Cards are for separable items in a list** — an event in a list, a participant on a phone screen, a search result. They are not page sections and not layout tools. One exception: on the public application form the contact block that closes the list of participant cards is a card too, as Figma draws it.
 - **Never nest a card inside a card.** If content needs grouping inside a card, use spacing and a hairline divider.
-- **A page is not a card.** Page content sits on `background` in a centred column (`max-w-2xl` for reading, `max-w-4xl` for wide layouts), not inside a floating panel.
+- **A page is not a card.** Page content sits on `background` in a centred column (`max-w-2xl` for reading, `max-w-4xl` for wide layouts, `max-w-200` = 800 px for public pages in `PublicLayout`), not inside a floating panel.
 - **Every page keeps the app chrome.** The header is present on every route, including login and sign-up. Pages never render as standalone islands.
 - Forbidden by default: the centred-hero-plus-three-feature-cards layout, carousels, and any section whose only purpose is to look full.
 
@@ -48,6 +48,7 @@ Use the scale only: `1, 2, 3, 4, 6, 8, 12, 16` (Tailwind units — 4px…64px). 
 
 ## Forms
 
+- Controls are 44 px high (the DS size, also a comfortable touch target) — the kit's default for `Button`, `Input` and `Select`. Don't override heights per screen.
 - Every input has a visible `<label>`. Placeholders are examples, never labels.
 - Validation runs client-side _and_ server-side. The client message appears under the field.
 - The submit button shows a pending state and is disabled while submitting.

@@ -70,7 +70,6 @@ export function ParticipantFields({
             type="button"
             variant="ghost"
             size="icon"
-            className="size-11"
             disabled={isDisabled}
             aria-label={t("form.removeParticipantAria", { number })}
             onClick={onRemove}
@@ -89,7 +88,6 @@ export function ParticipantFields({
               <FormLabel>{t("form.firstName")}</FormLabel>
               <FormControl>
                 <Input
-                  className="h-11"
                   autoComplete="off"
                   {...field}
                 />
@@ -106,7 +104,6 @@ export function ParticipantFields({
               <FormLabel>{t("form.lastName")}</FormLabel>
               <FormControl>
                 <Input
-                  className="h-11"
                   autoComplete="off"
                   {...field}
                 />
@@ -124,7 +121,6 @@ export function ParticipantFields({
               <FormControl>
                 <Input
                   type="date"
-                  className="h-11"
                   max={maxBirthDate}
                   {...field}
                 />
@@ -145,7 +141,7 @@ export function ParticipantFields({
               >
                 <FormControl>
                   <SelectTrigger
-                    className="w-full data-[size=default]:h-11"
+                    className="w-full"
                     onBlur={field.onBlur}
                   >
                     <SelectValue placeholder={t("form.genderPlaceholder")} />

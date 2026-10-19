@@ -38,7 +38,7 @@ function ApplicationFormPage() {
       <PublicLayout>
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-4">
-            <h1 className="text-2xl font-bold tracking-tight sm:text-4xl">
+            <h1 className="text-2xl font-bold tracking-tight sm:text-4xl/11">
               {t("form.heading", { event: event.name })}
             </h1>
             <p className="text-base text-muted-foreground">{t("form.intro")}</p>
