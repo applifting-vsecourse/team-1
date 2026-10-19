@@ -1,0 +1,5 @@
+# Fast checks first (no Docker); integration tests and builds stay in CI.
+# Then the AI review — blocks only on a BLOCKER, skipped without the claude CLI.
+# Skip just the AI part: SKIP_AI_REVIEW=1 git push. Skip everything: git push --no-verify.
+pnpm check-fast
+scripts/ai-review.sh

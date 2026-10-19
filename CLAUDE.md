@@ -72,4 +72,18 @@ At most one Prisma migration per PR. Before merging, rebase on `main`; if anothe
 
 Assume the dev servers are up. If something is listening on the app's ports, that is this application: use it. Don't start a second instance, don't restart it, don't run `pnpm dev`.
 
+"The app's ports" are the ones in this checkout's `apps/backend/.env` (`PORT`, `FRONTEND_URL`), not always 3050/4050 — see parallel work below.
+
+### Parallel work (worktrees)
+
+Several stories — and agents — run side by side, each in its own git worktree created by `pnpm wt new <branch>` (`scripts/worktree.mjs`). A worktree lives in `../team-1-wt/<name>` and has its own slot: frontend `3050+10N`, backend `4050+10N`, database `togena_wt<N>` in the shared dev Postgres. The main checkout is slot 0.
+
+- One agent = one worktree = one branch = one story. Don't edit files in another worktree.
+- Don't use Claude Code's built-in worktrees (`--worktree`, `.claude/worktrees/`): they get no `.env` and would collide on ports. Create one with `pnpm wt new` and start `claude` inside it.
+- Stay inside your stream's folders ([PROJEKT.md, section 6](docs/PROJEKT.md#kdo-sahá-kam-aby-se-proudy-nepraly-o-soubory)); parallel branches touching the same shared file are where merges break.
+
+### Review
+
+The rules a review checks live in one place: the `reviewer` agent ([`.claude/agents/reviewer.md`](.claude/agents/reviewer.md)). The pre-push hook, the scheduled Raspberry Pi review and `@reviewer` all use it. When you add a rule here that a review should enforce, add it to the agent's BLOCKER or WARNING list too — never into a hook or workflow.
+
 Don't reach for the browser to check your own work. Tests and type-checks are the evidence; open the running app when asked to, not on your own initiative.
