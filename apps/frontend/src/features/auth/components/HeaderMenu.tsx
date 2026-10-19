@@ -16,14 +16,7 @@ import {
 
 import { useSession } from "@/features/auth/hooks/useSession"
 import { useSignOut } from "@/features/auth/hooks/useSignOut"
-
-const initials = (name: string) =>
-  name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase())
-    .join("")
+import { initials } from "@/features/auth/lib/initials"
 
 // Figma (Design system): DS / Account dropdown · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12011-625
 // Figma (Remake): Account dropdown · https://www.figma.com/design/Oxlrm0tdW7aWH6C1rbP0fO/?node-id=21-138
