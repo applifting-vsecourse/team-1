@@ -5,8 +5,10 @@ import { z } from "zod"
 import { ROUTES } from "@/app/routes"
 import { Seo } from "@/components/atoms/Seo"
 import { AuthLayout } from "@/components/templates/AuthLayout"
+import { Card } from "@/components/ui/card"
 
 import { authSessionQueryOptions } from "@/features/auth/api/authSessionQueryOptions"
+import { RequestMagicLinkForm } from "@/features/auth/components/RequestMagicLinkForm"
 import { SignInWithRedirect } from "@/features/auth/components/SignInWithRedirect"
 import { accountHome } from "@/features/auth/lib/account-home"
 
@@ -24,8 +26,8 @@ export const Route = createFileRoute("/participant/login")({
   component: ParticipantLoginPage,
 })
 
-// US-02 (S10, S14). Participant accounts come from a submitted application (US-01);
-// "send me a new link" (magic link) is added in stream C.
+// US-02 (S10). Participant accounts come from a submitted application (US-01);
+// whoever has no password yet (or lost the link) asks for a new link in the second card.
 function ParticipantLoginPage() {
   const { from } = Route.useSearch()
   const { t } = useTranslation("auth")
@@ -36,15 +38,22 @@ function ParticipantLoginPage() {
       <AuthLayout
         title={t("participantLogin.title")}
         description={t("participantLogin.description")}
-        cardTitle={t("participantLogin.cardTitle")}
-        footer={t("participantLogin.footer")}
       >
-        <SignInWithRedirect
-          from={from}
-          accountType="PARTICIPANT"
-          fallback={ROUTES.participant.applications}
-          emailHint={t("participantLogin.emailHint")}
-        />
+        <Card className="gap-5 p-6">
+          <h2 className="text-lg font-semibold">{t("participantLogin.cardTitle")}</h2>
+          <SignInWithRedirect
+            from={from}
+            accountType="PARTICIPANT"
+            fallback={ROUTES.participant.applications}
+            emailHint={t("participantLogin.emailHint")}
+            passwordHint={t("participantLogin.passwordHint")}
+          />
+        </Card>
+        <Card className="gap-5 p-6">
+          <h2 className="text-lg font-semibold">{t("requestLink.cardTitle")}</h2>
+          <p className="text-sm">{t("requestLink.body")}</p>
+          <RequestMagicLinkForm />
+        </Card>
       </AuthLayout>
     </>
   )

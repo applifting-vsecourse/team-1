@@ -1,5 +1,5 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
-import { ErrorCode } from './error-code';
+import { HttpException, HttpStatus } from "@nestjs/common"
+import { ErrorCode } from "./error-code"
 
 /**
  * An HTTP error with a code the frontend can translate.
@@ -13,6 +13,6 @@ export class AppException extends HttpException {
     public readonly code: ErrorCode,
     message: string = code,
   ) {
-    super({ statusCode: status, code, message }, status);
+    super({ statusCode: status, code, message }, status)
   }
 }

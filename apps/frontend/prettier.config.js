@@ -1,10 +1,8 @@
+import base from "../../prettier.config.mjs"
+
 /** @type {import('prettier').Config} */
 const config = {
-  printWidth: 100,
-  semi: false,
-  trailingComma: "all",
-  singleAttributePerLine: true,
-  endOfLine: "lf",
+  ...base,
   plugins: [
     "@ianvs/prettier-plugin-sort-imports",
     "prettier-plugin-sort-json",

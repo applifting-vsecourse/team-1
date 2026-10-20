@@ -1,7 +1,7 @@
-import { Account } from '@/modules/account/domain/account';
-import { AccountRepository } from '@/modules/account/repositories/account.repository';
-import { Identity } from '@/shared/auth/domain/identity';
-import { Injectable } from '@nestjs/common';
+import { Account } from "@/modules/account/domain/account"
+import { AccountRepository } from "@/modules/account/repositories/account.repository"
+import { Identity } from "@/shared/auth/domain/identity"
+import { Injectable } from "@nestjs/common"
 
 @Injectable()
 export class AccountService {
@@ -9,9 +9,9 @@ export class AccountService {
 
   async getAccount(user: Identity): Promise<Account> {
     const organizations =
-      user.accountType === 'ORGANIZER'
+      user.accountType === "ORGANIZER"
         ? await this.accountRepository.findOrganizationsOfMember(user.id)
-        : [];
+        : []
 
     return {
       id: user.id,
@@ -21,6 +21,6 @@ export class AccountService {
       mustSetPassword: user.mustSetPassword,
       locale: user.locale,
       organizations,
-    };
+    }
   }
 }

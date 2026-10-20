@@ -1,10 +1,7 @@
-import {
-  isOpenForApplications,
-  PublicEvent,
-} from '@/modules/applications/domain/public-event';
-import { PublicEventsRepository } from '@/modules/applications/repositories/public-events.repository';
-import { AppException } from '@/shared/errors/app.exception';
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { isOpenForApplications, PublicEvent } from "@/modules/applications/domain/public-event"
+import { PublicEventsRepository } from "@/modules/applications/repositories/public-events.repository"
+import { AppException } from "@/shared/errors/app.exception"
+import { HttpStatus, Injectable } from "@nestjs/common"
 
 @Injectable()
 export class PublicEventsService {
@@ -12,7 +9,7 @@ export class PublicEventsService {
 
   /** The event behind an application link; an unknown or not yet open link is a 404. */
   async getByPublicToken(publicToken: string): Promise<PublicEvent> {
-    const found = await this.repository.findByPublicToken(publicToken);
+    const found = await this.repository.findByPublicToken(publicToken)
     if (
       !found ||
       !isOpenForApplications({
@@ -20,8 +17,8 @@ export class PublicEventsService {
         roomCount: found.roomCount,
       })
     ) {
-      throw new AppException(HttpStatus.NOT_FOUND, 'NOT_FOUND');
+      throw new AppException(HttpStatus.NOT_FOUND, "NOT_FOUND")
     }
-    return found.event;
+    return found.event
   }
 }

@@ -1,7 +1,7 @@
 export interface SMTPConfig {
-  host: string;
-  port: number;
-  secure: boolean;
-  user: string;
-  pass: string;
+  host: string
+  port: number
+  secure: boolean
+  user: string
+  pass: string
 }

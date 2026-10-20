@@ -1,82 +1,73 @@
 // Example HTTP integration test — the pattern to copy: the built server and a
 // real database, requests over HTTP with a BetterAuth session cookie.
-import { PrismaService } from '@/core/prisma/prisma.service';
-import {
-  api,
-  connectTestPrisma,
-  resetAndSeed,
-  signIn,
-} from '@/test/integration/test-api';
+import { PrismaService } from "@/core/prisma/prisma.service"
+import { api, connectTestPrisma, resetAndSeed, signIn } from "@/test/integration/test-api"
 
-describe('accounts (integration)', () => {
-  let prisma: PrismaService;
+describe("accounts (integration)", () => {
+  let prisma: PrismaService
 
   beforeAll(async () => {
-    prisma = await connectTestPrisma();
-    await resetAndSeed(prisma);
-  });
+    prisma = await connectTestPrisma()
+    await resetAndSeed(prisma)
+  })
 
   afterAll(async () => {
-    await prisma.$disconnect();
-  });
+    await prisma.$disconnect()
+  })
 
-  it('refuses public sign-up — nobody registers in sprint 1', async () => {
-    const response = await fetch(api('/auth/sign-up/email'), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+  it("refuses public sign-up — nobody registers in sprint 1", async () => {
+    const response = await fetch(api("/auth/sign-up/email"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        email: 'new@example.com',
-        password: 'password123',
-        name: 'New',
+        email: "new@example.com",
+        password: "password123",
+        name: "New",
       }),
-    });
+    })
 
-    expect(response.status).toBe(400);
-    expect(
-      await prisma.user.count({ where: { email: 'new@example.com' } }),
-    ).toBe(0);
-  });
+    expect(response.status).toBe(400)
+    expect(await prisma.user.count({ where: { email: "new@example.com" } })).toBe(0)
+  })
 
-  it('answers /api/me without a session with 401 and a code to translate', async () => {
-    const response = await fetch(api('/me'));
+  it("answers /api/me without a session with 401 and a code to translate", async () => {
+    const response = await fetch(api("/me"))
 
-    expect(response.status).toBe(401);
+    expect(response.status).toBe(401)
     expect(await response.json()).toMatchObject({
       statusCode: 401,
-      code: 'UNAUTHORIZED',
-    });
-  });
+      code: "UNAUTHORIZED",
+    })
+  })
 
-  it('rejects a wrong password', async () => {
-    await expect(
-      signIn('organizator@example.com', 'wrong-password'),
-    ).rejects.toThrow();
-  });
+  it("rejects a wrong password", async () => {
+    await expect(signIn("organizator@example.com", "wrong-password")).rejects.toThrow()
+  })
 
-  it('returns an organizer with all their organizations', async () => {
-    const cookie = await signIn('organizator3@example.com', 'password3');
+  it("returns an organizer with all their organizations", async () => {
+    const cookie = await signIn("organizator3@example.com", "password3")
 
-    const response = await fetch(api('/me'), { headers: { Cookie: cookie } });
+    const response = await fetch(api("/me"), { headers: { Cookie: cookie } })
 
-    expect(response.status).toBe(200);
+    expect(response.status).toBe(200)
     const body = (await response.json()) as {
-      accountType: string;
-      organizations: unknown[];
-    };
-    expect(body.accountType).toBe('ORGANIZER');
-    expect(body.organizations).toHaveLength(2);
-  });
+      accountType: string
+      organizations: unknown[]
+    }
+    expect(body.accountType).toBe("ORGANIZER")
+    expect(body.organizations).toHaveLength(2)
+  })
 
-  it('returns a participant without organizations', async () => {
-    const cookie = await signIn('ucastnik@example.com', 'password4');
+  it("returns a participant without organizations", async () => {
+    const cookie = await signIn("ucastnik@example.com", "password4")
 
-    const response = await fetch(api('/me'), { headers: { Cookie: cookie } });
+    const response = await fetch(api("/me"), { headers: { Cookie: cookie } })
 
     expect(await response.json()).toMatchObject({
-      accountType: 'PARTICIPANT',
+      accountType: "PARTICIPANT",
       mustSetPassword: false,
-      locale: 'cs',
+      locale: "cs",
       organizations: [],
-    });
-  });
-});
+    })
+  })
+})

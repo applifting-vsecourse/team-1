@@ -1,8 +1,10 @@
 {
+  "EMAIL_NOT_ALLOWED": "Tento e-mail nelze použít pro přihlášku, zadejte jiný.",
   "FORBIDDEN": "K tomu nemáte přístup.",
   "INTERNAL": "Na serveru se něco pokazilo. Zkuste to prosím znovu.",
   "INVALID_EMAIL_OR_PASSWORD": "Nesprávný e-mail nebo heslo.",
   "NOT_FOUND": "Nenalezeno.",
+  "PASSWORD_REQUIRED": "Nejprve si nastavte heslo, poté budete moci pokračovat.",
   "UNAUTHORIZED": "Přihlaste se prosím.",
   "UNKNOWN": "Něco se pokazilo.",
   "VALIDATION_FAILED": "Některá pole nejsou vyplněná správně."

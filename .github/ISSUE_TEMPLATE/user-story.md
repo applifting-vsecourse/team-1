@@ -1,7 +1,7 @@
 ---
 name: User story
 about: Jedna user story pro backlog (jedna issue = jedna story)
-title: 'US-xx '
+title: "US-xx "
 labels: []
 ---
 

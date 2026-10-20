@@ -37,12 +37,19 @@ const defaultValues: FormValues = { email: "", password: "" }
 type SignInFormProps = {
   /** Hints under the fields; they differ for organizers and participants. */
   emailHint: string
+  passwordHint?: string
   isLoading: boolean
   errorMessage?: string | null
   onSubmit: (values: FormValues) => void | Promise<void>
 }
 
-export function SignInForm({ emailHint, isLoading, errorMessage, onSubmit }: SignInFormProps) {
+export function SignInForm({
+  emailHint,
+  passwordHint,
+  isLoading,
+  errorMessage,
+  onSubmit,
+}: SignInFormProps) {
   const { t } = useTranslation("auth")
   const schema = useMemo(() => createSchema(t), [t])
   const form = useForm<FormValues>({
@@ -96,6 +103,9 @@ export function SignInForm({ emailHint, isLoading, errorMessage, onSubmit }: Sig
                 />
               </FormControl>
               <FormMessage />
+              {passwordHint ? (
+                <FormDescription className="text-xs font-medium">{passwordHint}</FormDescription>
+              ) : null}
             </FormItem>
           )}
         />
