@@ -17,7 +17,7 @@ async function requestLink(email: string): Promise<Response> {
 async function verifyLink(token: string): Promise<Response> {
   const url = new URL(api("/auth/magic-link/verify"))
   url.searchParams.set("token", token)
-  url.searchParams.set("callbackURL", `${frontend}/participant`)
+  url.searchParams.set("callbackURL", `${frontend}/participant/set-password`)
   url.searchParams.set("errorCallbackURL", `${frontend}/participant/magic-link`)
   return fetch(url, { redirect: "manual", headers: { Origin: frontend } })
 }
@@ -79,7 +79,7 @@ describe("magic link (integration)", () => {
     const response = await verifyLink(await latestToken())
 
     expect(response.status).toBe(302)
-    expect(response.headers.get("location")).toBe(`${frontend}/participant`)
+    expect(response.headers.get("location")).toBe(`${frontend}/participant/set-password`)
     const cookie = response.headers
       .getSetCookie()
       .map((value) => value.split(";")[0])

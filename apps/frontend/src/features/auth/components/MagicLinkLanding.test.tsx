@@ -49,7 +49,9 @@ describe("MagicLinkLanding", () => {
     const url = new URL(target)
     expect(url.pathname).toBe("/api/auth/magic-link/verify")
     expect(url.searchParams.get("token")).toBe("abc")
-    expect(url.searchParams.get("callbackURL")).toBe("http://localhost:3050/participant")
+    expect(url.searchParams.get("callbackURL")).toBe(
+      "http://localhost:3050/participant/set-password",
+    )
     expect(url.searchParams.get("errorCallbackURL")).toBe(
       "http://localhost:3050/participant/magic-link",
     )

@@ -12,6 +12,7 @@ export const ERROR_CODES = [
   "NOT_FOUND",
   "VALIDATION_FAILED",
   "EMAIL_NOT_ALLOWED",
+  "PASSWORD_REQUIRED",
   "INTERNAL",
 ] as const
 

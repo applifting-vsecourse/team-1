@@ -4,6 +4,7 @@
   "INTERNAL": "Something went wrong on the server. Please try again.",
   "INVALID_EMAIL_OR_PASSWORD": "Wrong e-mail or password.",
   "NOT_FOUND": "Not found.",
+  "PASSWORD_REQUIRED": "Set your password first, then you can continue.",
   "UNAUTHORIZED": "Please sign in.",
   "UNKNOWN": "Something went wrong.",
   "VALIDATION_FAILED": "Some fields are not filled in correctly."
