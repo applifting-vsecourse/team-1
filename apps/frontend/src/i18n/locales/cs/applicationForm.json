@@ -41,5 +41,12 @@
     "code": "404",
     "description": "Zkontrolujte adresu odkazu nebo požádejte organizátora akce o nový odkaz.",
     "title": "Odkaz na přihlášku nefunguje"
+  },
+  "price": {
+    "heading": "Předběžná cena · {{total}}",
+    "note": "K úhradě budou až potvrzené termíny.",
+    "row_few": "{{name}}: {{count}} termíny · {{price}}",
+    "row_one": "{{name}}: {{count}} termín · {{price}}",
+    "row_other": "{{name}}: {{count}} termínů · {{price}}"
   }
 }

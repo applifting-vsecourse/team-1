@@ -72,6 +72,50 @@ describe("ApplicationForm", () => {
     expect(screen.getByRole("checkbox", { name: /^11–17 Jul · CZK\s4,900$/ })).toBeInTheDocument()
   })
 
+  it("shows the price of the ticked terms per participant and updates it with every change", async () => {
+    render(
+      <ApplicationForm
+        event={event}
+        onSubmit={submitSpy()}
+      />,
+    )
+    const normalise = (el: HTMLElement) => el.textContent?.replace(/\s/g, " ")
+
+    expect(normalise(screen.getByRole("heading", { name: /^Estimated price/ }))).toBe(
+      "Estimated price · CZK 0",
+    )
+
+    await userEvent.click(screen.getByRole("checkbox", { name: /4–10 Jul/ }))
+    await userEvent.click(screen.getByRole("checkbox", { name: /11–17 Jul/ }))
+    expect(normalise(screen.getByRole("heading", { name: /^Estimated price/ }))).toBe(
+      "Estimated price · CZK 9,400",
+    )
+    expect(screen.getByText(/Participant 1: 2 terms/)).toBeInTheDocument()
+
+    await userEvent.click(screen.getByRole("checkbox", { name: /11–17 Jul/ }))
+    expect(normalise(screen.getByRole("heading", { name: /^Estimated price/ }))).toBe(
+      "Estimated price · CZK 4,500",
+    )
+    expect(screen.getByText(/Participant 1: 1 term ·/)).toBeInTheDocument()
+  })
+
+  it("adds up several participants in the total", async () => {
+    render(
+      <ApplicationForm
+        event={event}
+        onSubmit={submitSpy()}
+      />,
+    )
+    await userEvent.click(screen.getByRole("button", { name: "Add another participant" }))
+    await userEvent.click(within(participantCard(1)).getByRole("checkbox", { name: /4–10 Jul/ }))
+    await userEvent.click(within(participantCard(2)).getByRole("checkbox", { name: /11–17 Jul/ }))
+
+    expect(
+      screen.getByRole("heading", { name: /^Estimated price/ }).textContent?.replace(/\s/g, " "),
+    ).toBe("Estimated price · CZK 9,400")
+    expect(screen.getByText(/Participant 2: 1 term ·/)).toBeInTheDocument()
+  })
+
   it("shows the designed message at every empty required field and does not submit", async () => {
     const onSubmit = submitSpy()
     render(

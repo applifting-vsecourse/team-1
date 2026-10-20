@@ -1,6 +1,6 @@
 import { useMemo } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useFieldArray, useForm, type Resolver } from "react-hook-form"
+import { useFieldArray, useForm, useWatch, type Resolver } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -20,12 +20,14 @@ import { Input } from "@/components/ui/input"
 
 import type { PublicEvent } from "@/features/application-form/api/publicEvent"
 import { ParticipantFields } from "@/features/application-form/components/ParticipantFields"
+import { PriceSummary } from "@/features/application-form/components/PriceSummary"
 import {
   createApplicationFormSchema,
   type ApplicationFormDraft,
   type ApplicationFormValues,
   type ParticipantDraft,
 } from "@/features/application-form/lib/application-form-schema"
+import { priceOfSelection, totalPrice } from "@/features/application-form/lib/selection-price"
 
 // Figma (Design system): the form part of V07 / V07a (desktop) and M02 / M02a (360 px);
 // errors M03, sending M04.
@@ -66,6 +68,19 @@ export function ApplicationForm({ event, onSubmit, errorMessage, isDone }: Appli
     name: "participants",
   })
 
+  const participants = useWatch({ control: form.control, name: "participants" })
+  const prices = participants.map((participant) =>
+    priceOfSelection(event.terms, participant?.termIds ?? []),
+  )
+  const priceRows = prices.map((price, index) => {
+    // The design names the row by first name only ("Jana: 2 termíny · 14 100 Kč").
+    const name = participants[index]?.firstName?.trim() ?? ""
+    return {
+      ...price,
+      label: name !== "" ? name : t("form.participantTitle", { number: index + 1 }),
+    }
+  })
+
   const isSubmitting = form.formState.isSubmitting || Boolean(isDone)
 
   return (
@@ -99,6 +114,11 @@ export function ApplicationForm({ event, onSubmit, errorMessage, isDone }: Appli
         >
           {t("form.addParticipant")}
         </Button>
+
+        <PriceSummary
+          rows={priceRows}
+          totalCzk={totalPrice(prices)}
+        />
 
         <Card className="gap-4 p-4 sm:p-6">
           <h2 className="text-lg font-bold">{t("form.contactHeading")}</h2>
