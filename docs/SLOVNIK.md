@@ -99,6 +99,208 @@ odeslání formuláře
 | Bankovní účet         | Organizace          | číslo účtu pro převody                                                                                                                                                             | `Organization.bankAccount`               | Nezaměňovat s uživatelským účtem.                                                                     |
 | Poplatek za účastníka | Organizace          | počet potvrzených × sazba platformy ([US-70](https://github.com/applifting-vsecourse/team-1/issues/70))                                                                            | zatím není                               | Ne poplatek platební brány ([US-50](https://github.com/applifting-vsecourse/team-1/issues/50)).       |
 
+## Class diagram
+
+Celá business doména. Atributy s `/` jsou odvozené, třídy `<<plan>>` zatím nejsou v kódu, `<<abstrakce>>` nemá vlastní tabulku.
+
+```mermaid
+classDiagram
+  direction TB
+
+  class Organizace["Organizace"]
+  Organizace : +název
+  Organizace : +bankovní účet
+  Organizace : /poplatek za účastníka
+
+  class UzivatelskyUcet["Uživatelský účet"]
+  <<abstract>> UzivatelskyUcet
+  UzivatelskyUcet : +e-mail
+  UzivatelskyUcet : +jméno
+  UzivatelskyUcet : +typ účtu
+  UzivatelskyUcet : +jazyk
+
+  class Organizator["Organizátor"]
+  class Prihlasovatel["Přihlašovatel"]
+  Prihlasovatel : +musí nastavit heslo
+  class SpravcePlatformy["Správce platformy"]
+
+  class Akce["Akce"]
+  Akce : +název
+  Akce : +popis
+  Akce : +místo konání
+  Akce : +veřejný token odkazu
+  Akce : +režim pokojů
+  Akce : +režim vyhodnocení
+
+  class Termin["Termín"]
+  Termin : +název
+  Termin : +od
+  Termin : +do
+  Termin : +cena Kč
+  Termin : /kapacita žen
+  Termin : /kapacita mužů
+  Termin : /volná lůžka
+  Termin : /obsazenost
+
+  class Pokoj["Pokoj"]
+  Pokoj : +název
+  Pokoj : +kapacita 1–20 lůžek
+  Pokoj : +pohlaví
+
+  class FormularPrihlasky["Formulář přihlášky"]
+  <<abstrakce>> FormularPrihlasky
+  FormularPrihlasky : /nabízené termíny s cenami
+  FormularPrihlasky : /cena přihlášky
+
+  class Prihlaska["Přihláška"]
+  Prihlaska : +číslo = variabilní symbol
+  Prihlaska : +e-mail přihlašovatele
+  Prihlaska : +souhlas
+  Prihlaska : +čas přijetí na serveru
+  Prihlaska : /částka k úhradě
+  Prihlaska : /dluh
+
+  class Ucastnik["Účastník"]
+  Ucastnik : +jméno
+  Ucastnik : +příjmení
+  Ucastnik : +datum narození
+  Ucastnik : +pohlaví
+
+  class PrihlaskaVTerminu["Přihláška v termínu"]
+  PrihlaskaVTerminu : +stav
+  PrihlaskaVTerminu : +zmrazená cena
+  PrihlaskaVTerminu : +čas vyhodnocení
+
+  class Platba["Platba"]
+  Platba : +částka Kč
+  Platba : +čas zápisu
+
+  class Areal["Areál"]
+  <<plan>> Areal
+
+  class ClenTymu["Člen organizačního týmu"]
+  <<plan>> ClenTymu
+  ClenTymu : +funkce
+
+  class StavVTerminu["Stav v termínu"]
+  <<enumeration>> StavVTerminu
+  StavVTerminu : Potvrzený – CONFIRMED
+  StavVTerminu : Náhradník – WAITLISTED
+  StavVTerminu : Odhlášený – plán
+
+  class Pohlavi["Pohlaví"]
+  <<enumeration>> Pohlavi
+  Pohlavi : žena – FEMALE
+  Pohlavi : muž – MALE
+
+  UzivatelskyUcet <|-- Organizator
+  UzivatelskyUcet <|-- Prihlasovatel
+  UzivatelskyUcet <|-- SpravcePlatformy
+
+  Organizace "1..*" -- "1..*" Organizator : členství
+  SpravcePlatformy "1" --> "0..*" Organizace : zakládá
+  Organizace "1" *-- "0..*" Akce : pořádá
+  Organizace "1" *-- "0..*" Areal : ukládá
+
+  Akce "1" *-- "0..*" Termin
+  Akce "1" *-- "0..*" Pokoj
+  Akce "1" -- "1" FormularPrihlasky : odkaz na přihlášku
+  Akce "1" *-- "0..*" ClenTymu
+  Areal "0..1" ..> "0..*" Pokoj : šablona pokojů
+
+  FormularPrihlasky ..> Prihlaska : odeslání vytvoří 1 za účastníka
+  Akce "1" -- "0..*" Prihlaska
+  Prihlasovatel "0..1" -- "0..*" Prihlaska : podává
+  Prihlaska "1" *-- "1" Ucastnik : údaje o
+  Prihlaska "1" *-- "1..*" PrihlaskaVTerminu
+  Termin "1" -- "0..*" PrihlaskaVTerminu
+  PrihlaskaVTerminu --> StavVTerminu
+  Prihlaska "1" *-- "0..*" Platba
+  Organizator "1" --> "0..*" Platba : zapisuje
+
+  Pokoj --> Pohlavi
+  Ucastnik --> Pohlavi
+```
+
+Přihláška v termínu je asociační třída mezi Přihláškou a Termínem: jedna instance na každý vybraný termín, vazba `Přihláška` × `Termín` je unikátní.
+
+## Stavové diagramy
+
+### Přihláška v termínu
+
+Jediný skutečný stav v doméně. Ve sprintu 1 existuje jen vyhodnocení; ostatní přechody přidají [US-28](https://github.com/applifting-vsecourse/team-1/issues/28), [US-31](https://github.com/applifting-vsecourse/team-1/issues/31), [US-32](https://github.com/applifting-vsecourse/team-1/issues/32) a [US-84](https://github.com/applifting-vsecourse/team-1/issues/84).
+
+```mermaid
+stateDiagram-v2
+  state "Vyhodnocení" as vyhodnoceni
+  state vyhodnoceni <<choice>>
+  state "Potvrzený · CONFIRMED" as potvrzeny
+  state "Náhradník · WAITLISTED" as nahradnik
+  state "Odhlášený · plán" as odhlaseny
+
+  [*] --> vyhodnoceni : odeslání přihlášky
+  vyhodnoceni --> potvrzeny : volné lůžko pro pohlaví účastníka
+  vyhodnoceni --> nahradnik : volné lůžko není
+  nahradnik --> potvrzeny : uvolnění lůžka US-31 / ruční změna US-28
+  potvrzeny --> nahradnik : ruční změna US-28
+  potvrzeny --> odhlaseny : odhlášení US-32, US-84
+  nahradnik --> odhlaseny : odhlášení US-32, US-84
+  odhlaseny --> [*]
+```
+
+### Uživatelský účet přihlašovatele
+
+Účet vzniká odesláním první přihlášky na nový e-mail. Session je stav přístupu, ne stav osoby na akci, proto se jmenuje jinak než Odhlášený.
+
+```mermaid
+stateDiagram-v2
+  state "Bez hesla · musí nastavit heslo" as bezHesla
+  state "Aktivní · heslo nastaveno" as aktivni
+
+  [*] --> bezHesla : odeslání první přihlášky na nový e-mail
+  bezHesla --> aktivni : vstup magic linkem a nastavení hesla min. 8 znaků
+  aktivni --> aktivni : další přihláška na stejný e-mail se přiřadí k účtu
+
+  state aktivni {
+    state "Session aktivní" as session
+    state "Bez session" as bezSession
+    [*] --> session
+    session --> bezSession : logout
+    bezSession --> session : login heslem nebo magic linkem
+  }
+```
+
+### Akce
+
+Odkaz na přihlášku funguje, až má akce aspoň jeden termín s cenou a aspoň jeden pokoj. Naplánované otevření a uzavření přihlášek ([US-18](https://github.com/applifting-vsecourse/team-1/issues/18)) sem později přidá další stavy.
+
+```mermaid
+stateDiagram-v2
+  state "Rozpracovaná" as rozpracovana
+  state "Přihlašování funkční" as funkcni
+
+  [*] --> rozpracovana : založení akce US-12
+  rozpracovana --> funkcni : ≥ 1 termín s cenou a ≥ 1 pokoj
+  funkcni --> rozpracovana : smazán poslední termín nebo pokoj
+```
+
+### Úhrada přihlášky
+
+Odvozený stav – neukládá se, počítá se z částky k úhradě a plateb. Slouží filtrům „zaplaceno“ a přehledu dlužníků.
+
+```mermaid
+stateDiagram-v2
+  state "Nic k úhradě · jen náhradník" as nic
+  state "S dluhem · dluh > 0" as dluh
+  state "Uhrazeno · dluh = 0" as uhrazeno
+
+  [*] --> nic : všechny termíny náhradník
+  [*] --> dluh : aspoň jeden termín potvrzený
+  nic --> dluh : náhradník potvrzen
+  dluh --> uhrazeno : zápis platby
+  uhrazeno --> dluh : zrušení platby
+```
+
 ## Kolize pojmů
 
 Všechny kolize ve slovníku jsou rozhodnuté. Vědomě ponecháno:
