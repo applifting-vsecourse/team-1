@@ -146,6 +146,8 @@ Sdílené soubory (`schema.prisma`, `app.module.ts`, `routes.ts`, `components/*`
 
 Kód, DB, API i URL anglicky; texty v UI a e-mailech lokalizované (EN / CZ); dokumentace česky.
 
+Podrobný výklad pojmů, které se pletou nebo mají víc významů (kategorie, kolize, rozpory zdrojů): [SLOVNIK.md](SLOVNIK.md).
+
 | Česky                    | V kódu                                               |
 | ------------------------ | ---------------------------------------------------- |
 | Pořadatel / organizace   | `Organization`                                       |

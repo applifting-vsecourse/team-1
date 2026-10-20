@@ -11,6 +11,7 @@ Organizátor založí akci s termíny, cenami a pokoji a rozešle odkaz. Zájemc
 - **Zkušební prostředí:** https://team-1.vsepractical.applifting.dev (nasazuje se automaticky z `main`)
 - **Board:** https://github.com/orgs/applifting-vsecourse/projects/12
 - **Projektový dokument** (rozsah, rozhodnutí, architektura): [docs/PROJEKT.md](docs/PROJEKT.md)
+- **Slovník pojmů** business domény: [docs/SLOVNIK.md](docs/SLOVNIK.md)
 - **Jak přispívat** (postup, příkazy, řešení problémů): [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## Stack
