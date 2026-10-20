@@ -146,24 +146,7 @@ Sdílené soubory (`schema.prisma`, `app.module.ts`, `routes.ts`, `components/*`
 
 Kód, DB, API i URL anglicky; texty v UI a e-mailech lokalizované (EN / CZ); dokumentace česky.
 
-Podrobný výklad pojmů, které se pletou nebo mají víc významů (kategorie, kolize, rozpory zdrojů): [SLOVNIK.md](SLOVNIK.md).
-
-| Česky                    | V kódu                                               |
-| ------------------------ | ---------------------------------------------------- |
-| Pořadatel / organizace   | `Organization`                                       |
-| Organizátor              | uživatel typu `ORGANIZER` + `OrganizationMember`     |
-| Účastník                 | uživatel typu `PARTICIPANT`                          |
-| Správce platformy        | uživatel typu `ADMIN`                                |
-| Akce                     | `Event`                                              |
-| Termín                   | `Term`                                               |
-| Pokoj                    | `Room`                                               |
-| Dámský / pánský          | `Gender.FEMALE` / `Gender.MALE`                      |
-| Přihláška                | `Application`                                        |
-| Stav přihlášky v termínu | `ApplicationTerm.status`: `CONFIRMED` / `WAITLISTED` |
-| Náhradník                | waitlisted                                           |
-| Platba                   | `Payment`                                            |
-| Variabilní symbol        | `Application.number`                                 |
-| Částka k úhradě / dluh   | `amountDue` / `amountOwed`                           |
+Slovník pojmů business domény včetně mapování na kód (sloupec „V kódu“), kolizí pojmů a rozpory mezi zdroji je v [SLOVNIK.md](SLOVNIK.md). Nové pojmy se přidávají tam.
 
 ## 8. Datový model (US-71)
 
