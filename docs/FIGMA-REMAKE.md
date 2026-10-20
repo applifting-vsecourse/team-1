@@ -61,7 +61,7 @@ Plugin API: `skillNames: "figma-use,figma-generate-design"`, jedna stránka na v
 
 ## Stav (2026-10-20)
 
-Hotové jsou všechny obrazovky na stránkách HF / 01–06 kromě e-mailů S17: komponenty, landing V08 / M07, systémové stránky S01–S16, přihláška V02–V07h a M02–M06, organizátor O01–O34, účastník U01 / U04 / U13 a dialogy X16–X23. Přibyly komponenty DS / Theme switcher, DS / Icon / menu a sun; přepínač jazyka a motivu je ve všech hlavičkách a horních lištách.
+Hotové jsou všechny obrazovky na stránkách HF / 01–06 kromě e-mailů S17: komponenty, landing V08 / M07, systémové stránky S01–S16, přihláška V02–V07h a M02–M06, organizátor O01–O34, účastník U01 / U04 / U13 a dialogy X16–X23. Účastnické přihlášení odpovídá magic linku: S10 (+ S10a odesláno, S10b chyba), S15 neplatný odkaz, nová S18 vstup odkazem, S09 bez jednorázového hesla, e-maily S17 a potvrzení V04 / M06 s odkazem. Logo je všude „togena“ malými písmeny. Přibyly komponenty DS / Theme switcher, DS / Icon / menu a sun; přepínač jazyka a motivu je ve všech hlavičkách a horních lištách.
 
 **Známé odchylky v kódu:**
 

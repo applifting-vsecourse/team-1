@@ -329,12 +329,12 @@ apps/frontend/src/
 
 Zapsáno jen tady — issues zatím **nejsou** upravené. Před implementací proudu C je potřeba potvrdit s PO.
 
-| Story          | Board říká                                                        | Platí                                                                           |
-| -------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| US-01          | E-mail obsahuje přihlašovací jméno a jednorázové heslo.           | E-mail obsahuje magic link (7 dní, jednorázový).                                |
-| US-04          | Účastník zadá e-mail + jednorázové heslo a nastaví vlastní heslo. | Po vstupu odkazem je nastavení hesla povinné; S09 bez pole „jednorázové heslo“. |
-| US-56          | E-mail obsahuje přihlašovací jméno a jednorázové heslo.           | E-mail obsahuje magic link a odkaz na stránku potvrzení.                        |
-| Figma V04, S09 | Obrazovky s jednorázovým heslem.                                  | Potřebují upravit.                                                              |
+| Story | Board říká                                                        | Platí                                                                           |
+| ----- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| US-01 | E-mail obsahuje přihlašovací jméno a jednorázové heslo.           | E-mail obsahuje magic link (7 dní, jednorázový).                                |
+| US-04 | Účastník zadá e-mail + jednorázové heslo a nastaví vlastní heslo. | Po vstupu odkazem je nastavení hesla povinné; S09 bez pole „jednorázové heslo“. |
+| US-56 | E-mail obsahuje přihlašovací jméno a jednorázové heslo.           | E-mail obsahuje magic link a odkaz na stránku potvrzení.                        |
+| Figma | Obrazovky s jednorázovým heslem.                                  | Upraveno 2026-10-20: S09, S10 (+ S10a, S10b), S15, S17, S18, V04, M06.          |
 
 ## 12. Pracovní postup
 

@@ -32,6 +32,9 @@ const createSchema = (t: TFunction<"auth">) =>
 type FormValues = z.infer<ReturnType<typeof createSchema>>
 
 /** "Send me a new link" (S10, link page): e-mail in, the same answer out, always. */
+// Figma (Design system): S10 Přihlášení účastníka · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=11968-273
+// Figma (Design system): S10a Přihlašovací odkaz odeslán · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=13183-333
+// Figma (Design system): S10b Odkaz se nepodařilo poslat · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=13183-399
 export function RequestMagicLinkForm() {
   const { t } = useTranslation("auth")
   const schema = useMemo(() => createSchema(t), [t])
@@ -76,6 +79,7 @@ export function RequestMagicLinkForm() {
         <Button
           type="submit"
           variant="outline"
+          size="lg"
           className="self-start"
           disabled={request.isPending}
         >

@@ -22,6 +22,8 @@ type MagicLinkLandingProps = {
  * "Continue" — never by merely opening the page. A link that no longer works
  * leads straight to asking for a new one.
  */
+// Figma (Design system): S18 Vstup odkazem z e-mailu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=13183-22903
+// Figma (Design system): S15 Neplatný přihlašovací odkaz · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=13183-22953
 export function MagicLinkLanding({ token, error }: MagicLinkLandingProps) {
   const { t } = useTranslation("auth")
   const canContinue = Boolean(token) && !error
@@ -40,9 +42,10 @@ export function MagicLinkLanding({ token, error }: MagicLinkLandingProps) {
             <CardHeader>
               <CardTitle className="text-lg tracking-tight">{t("magicLink.cardTitle")}</CardTitle>
             </CardHeader>
-            <CardContent className="flex flex-col items-start gap-4 text-sm">
+            <CardContent className="flex flex-col items-start gap-4">
               <p>{t("magicLink.body")}</p>
               <Button
+                size="lg"
                 onClick={() =>
                   window.location.assign(magicLinkVerifyUrl(token, window.location.origin))
                 }
@@ -71,7 +74,7 @@ export function MagicLinkLanding({ token, error }: MagicLinkLandingProps) {
                   {t("requestLink.cardTitle")}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="flex flex-col gap-4 text-sm">
+              <CardContent className="flex flex-col gap-4">
                 <p>{t("requestLink.body")}</p>
                 <RequestMagicLinkForm />
               </CardContent>
