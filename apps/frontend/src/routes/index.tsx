@@ -35,11 +35,11 @@ function LandingPage() {
         isFullWidth
         footer={t("footer")}
       >
-        <section className="mx-auto flex w-full max-w-224 flex-col items-center gap-6 px-4 py-12 text-center md:py-28">
+        <section className="mx-auto flex w-full max-w-224 flex-col items-center gap-5 px-4 py-12 text-center md:gap-6 md:py-28">
           <h1 className="text-4xl leading-11 font-bold md:text-6xl md:leading-16">
             {t("title")} <span className="text-link">{t("titleAccent")}</span>
           </h1>
-          <p className="max-w-180 text-lg text-muted-foreground">{t("description")}</p>
+          <p className="max-w-180 text-muted-foreground md:text-lg">{t("description")}</p>
           <div className="flex w-full flex-col gap-3 md:w-auto md:flex-row">
             <Button
               asChild
@@ -60,9 +60,9 @@ function LandingPage() {
         </section>
 
         <section className="border-t border-border bg-muted px-4 py-12 md:py-24">
-          <div className="mx-auto flex w-full max-w-224 flex-col gap-6 md:gap-10">
+          <div className="mx-auto flex w-full max-w-224 flex-col gap-4 md:gap-10">
             <h2 className="text-center text-2xl font-semibold">{t("features.title")}</h2>
-            <div className="grid gap-6 md:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-2 md:gap-6">
               {FEATURES.map(({ key, icon }) => (
                 <FeatureCard
                   key={key}

@@ -41,11 +41,11 @@ export function AreaLayout({ nav, roleLabel, userMenu, width, children }: AreaLa
 
   return (
     <div className="flex min-h-svh">
-      <aside className="sticky top-0 hidden h-svh w-60 shrink-0 flex-col gap-6 border-r border-sidebar-border bg-sidebar px-4 pt-4 pb-6 text-sidebar-foreground md:flex">
+      <aside className="sticky top-0 hidden h-svh w-60 shrink-0 flex-col gap-4 border-r border-sidebar-border bg-sidebar px-4 pt-4 pb-6 text-sidebar-foreground md:flex">
         <div className="flex h-10 items-center pl-1">
           <Logo />
         </div>
-        <nav className="flex flex-col gap-1">{nav}</nav>
+        <nav className="flex flex-col gap-2">{nav}</nav>
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
@@ -66,13 +66,13 @@ export function AreaLayout({ nav, roleLabel, userMenu, width, children }: AreaLa
             </SheetTrigger>
             <SheetContent
               side="left"
-              className="w-72 gap-6 border-sidebar-border bg-sidebar px-4 pt-4 pb-6 text-sidebar-foreground"
+              className="w-72 gap-4 border-r-0 bg-sidebar px-4 pt-4 pb-6 text-sidebar-foreground"
             >
               <SheetTitle className="sr-only">{roleLabel}</SheetTitle>
               <div className="flex h-10 items-center pl-1">
                 <Logo />
               </div>
-              <nav className="flex flex-col gap-1">{nav}</nav>
+              <nav className="flex flex-col gap-2">{nav}</nav>
             </SheetContent>
           </Sheet>
           <div className="md:hidden">

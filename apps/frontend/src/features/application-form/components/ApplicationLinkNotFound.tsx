@@ -20,7 +20,7 @@ export function ApplicationLinkNotFound() {
     <>
       <Seo title={t("notFound.title")} />
       <PublicLayout>
-        <div className="mx-auto flex w-full max-w-110 flex-col gap-6 pt-2 md:pt-12">
+        <div className="mx-auto flex w-full max-w-110 flex-col gap-6 pt-4 md:pt-12">
           <div className="flex flex-col items-center gap-4 text-center">
             <div className="flex size-14 items-center justify-center rounded-full bg-accent text-link">
               <TriangleAlert
@@ -29,9 +29,11 @@ export function ApplicationLinkNotFound() {
               />
             </div>
             <p className="text-sm font-medium text-link">{t("notFound.code")}</p>
-            <h1 className="text-3xl font-bold md:text-4xl">{t("notFound.title")}</h1>
+            <h1 className="text-2xl font-semibold md:text-4xl md:font-bold">
+              {t("notFound.title")}
+            </h1>
           </div>
-          <Card className="gap-5 p-6">
+          <Card className="gap-5 p-5 md:p-6">
             <p>{t("notFound.description")}</p>
             <Button
               asChild

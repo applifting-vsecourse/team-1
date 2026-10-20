@@ -19,7 +19,7 @@ export function ThemeSwitcher() {
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          size="icon"
+          size="icon-lg"
           aria-label={t("theme.toggle")}
         >
           <Sun className="size-4 dark:hidden" />

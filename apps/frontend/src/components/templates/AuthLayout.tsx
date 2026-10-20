@@ -33,7 +33,7 @@ export function AuthLayout({
     <>
       <Header />
       <main className="min-h-svh">
-        <div className="mx-auto flex w-full max-w-110 flex-col gap-8 px-4 pt-10 pb-12 md:pt-20 md:pb-28">
+        <div className="mx-auto flex w-full max-w-110 flex-col gap-6 px-4 pt-10 pb-12 md:pt-20 md:pb-28">
           <div className="flex flex-col items-center gap-4 text-center">
             {icon}
             <div className="flex flex-col gap-2">

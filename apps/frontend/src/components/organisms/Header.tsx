@@ -17,7 +17,7 @@ type HeaderProps = {
 export function Header({ nav, userMenu }: HeaderProps) {
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border bg-card">
-      <div className="mx-auto flex h-16 w-full max-w-5xl items-center gap-4 px-4">
+      <div className="mx-auto flex w-full max-w-224 items-center gap-4 px-4 py-4">
         <Logo />
         {nav ? <nav className="flex items-center gap-1">{nav}</nav> : null}
         <div className="ml-auto flex items-center gap-1">

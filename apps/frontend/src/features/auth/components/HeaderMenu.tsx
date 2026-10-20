@@ -35,10 +35,10 @@ export function HeaderMenu() {
         <Button
           variant="outline"
           size="lg"
-          className="gap-2 pr-2.5 pl-1.5 data-[state=open]:bg-muted"
+          className="gap-2 border-border pr-2.5 pl-1.5 data-[state=open]:bg-muted max-sm:border-transparent max-sm:bg-transparent"
         >
           <Avatar>
-            <AvatarFallback className="bg-accent text-xs font-medium text-link">
+            <AvatarFallback className="bg-accent text-xs font-semibold text-link">
               {initials(user.name)}
             </AvatarFallback>
           </Avatar>
