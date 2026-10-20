@@ -1,6 +1,5 @@
 @import "@fontsource-variable/inter";
-@import "@fontsource-variable/manrope";
-@import "@fontsource-variable/geist-mono";
+@import "@fontsource-variable/jetbrains-mono";
 @import "tailwindcss";
 @plugin "tailwindcss-animate";
 
@@ -23,15 +22,18 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
-  --color-destructive-subtle: var(--destructive-subtle);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-link: var(--link);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
 
   --font-sans: var(--font-sans);
-  --font-heading: var(--font-heading);
   --font-mono: var(--font-mono);
-  --font-serif: var(--font-serif);
 
   --shadow-2xs: var(--shadow-2xs);
   --shadow-xs: var(--shadow-xs);
@@ -50,15 +52,13 @@
 }
 
 /*
- * Light values come from the Figma design system (DS / Semantic, DS / Metrics);
- * each comment names the source variable. The DS has no dark mode yet, so `.dark`
- * keeps the previous palette until the designer adds one.
+ * Values come from the Figma design system (DS / Semantic Light and Dark,
+ * DS / Metrics, effect styles shadows/*); each comment names the source.
+ * The look follows the remake (docs/FIGMA-REMAKE.md), the colours stay the DS ones.
  */
 :root {
   --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
-  --font-heading: "Manrope Variable", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: Georgia, serif;
-  --font-mono: "Geist Mono Variable", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, SFMono-Regular, Menlo, monospace;
   --background: #f1fafa; /* color/bg/canvas */
   --foreground: #14343b; /* color/text/primary */
   --card: #ffffff; /* color/bg/surface */
@@ -75,43 +75,56 @@
   --accent-foreground: #14343b; /* color/text/primary */
   --destructive: #b42336; /* color/status/error */
   --destructive-foreground: #ffffff; /* color/text/inverse */
-  --destructive-subtle: #fff0f1; /* color/status/error-bg */
   --border: #ccdfe1; /* color/border/default */
   --input: #759398; /* color/border/control */
   --ring: #087f8c; /* color/border/focus */
+  --link: #087f8c; /* color/text/link */
+  --sidebar: #e7f3f3; /* color/bg/subtle */
+  --sidebar-foreground: #14343b; /* color/text/primary */
+  --sidebar-accent: #dcf2f2; /* color/bg/selected */
+  --sidebar-accent-foreground: #14343b; /* color/text/primary */
+  --sidebar-border: #ccdfe1; /* color/border/default */
   /* Sonner reads --radius directly; matches radius/md. */
   --radius: 0.5rem;
-  --shadow-2xs: 0px 2px 10px 0px hsl(0 0% 0% / 0.05);
-  --shadow-xs: 0px 2px 10px 0px hsl(0 0% 0% / 0.05);
-  --shadow-sm: 0px 2px 10px 0px hsl(0 0% 0% / 0.1), 0px 1px 2px -1px hsl(0 0% 0% / 0.1);
-  --shadow: 0px 2px 10px 0px hsl(0 0% 0% / 0.1), 0px 1px 2px -1px hsl(0 0% 0% / 0.1);
-  --shadow-md: 0px 2px 10px 0px hsl(0 0% 0% / 0.1), 0px 2px 4px -1px hsl(0 0% 0% / 0.1);
-  --shadow-lg: 0px 2px 10px 0px hsl(0 0% 0% / 0.1), 0px 4px 6px -1px hsl(0 0% 0% / 0.1);
-  --shadow-xl: 0px 2px 10px 0px hsl(0 0% 0% / 0.1), 0px 8px 10px -1px hsl(0 0% 0% / 0.1);
-  --shadow-2xl: 0px 2px 10px 0px hsl(0 0% 0% / 0.25);
+  /* shadows/surface: cards and the other things that sit on the canvas */
+  --shadow-2xs: 0 1px 2px -1px rgb(20 52 59 / 0.06);
+  --shadow-xs: 0 1px 3px 0 rgb(20 52 59 / 0.08), 0 1px 2px -1px rgb(20 52 59 / 0.06);
+  --shadow-sm: 0 1px 3px 0 rgb(20 52 59 / 0.08), 0 1px 2px -1px rgb(20 52 59 / 0.06);
+  --shadow: 0 1px 3px 0 rgb(20 52 59 / 0.08), 0 1px 2px -1px rgb(20 52 59 / 0.06);
+  /* shadows/popover: menus and dropdowns */
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  /* shadows/popover-nested, shadows/sheet: dialogs and sheets */
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
 }
 
 .dark {
-  --background: oklch(0.1854 0.0182 238.2143);
-  --foreground: oklch(0.9436 0.0051 228.8204);
-  --card: oklch(0.2848 0.023 235.6578);
-  --card-foreground: oklch(0.9436 0.0051 228.8204);
-  --popover: oklch(0.2848 0.023 235.6578);
-  --popover-foreground: oklch(0.9436 0.0051 228.8204);
-  --primary: oklch(0.6509 0.1283 170.4258);
-  --primary-foreground: oklch(0.2153 0.0187 235.1251);
-  --secondary: oklch(0.2933 0.0423 172.8195);
-  --secondary-foreground: oklch(0.6509 0.1283 170.4258);
-  --muted: oklch(0.2456 0.0195 239.1061);
-  --muted-foreground: oklch(0.6637 0.0236 235.1968);
-  --accent: oklch(0.2933 0.0423 172.8195);
-  --accent-foreground: oklch(0.6509 0.1283 170.4258);
-  --destructive: oklch(0.6257 0.2058 29.0773);
-  --destructive-foreground: oklch(0.9436 0.0051 228.8204);
-  --destructive-subtle: oklch(0.6257 0.2058 29.0773 / 0.15);
-  --border: oklch(0.3351 0.0253 234.8586);
-  --input: oklch(0.3351 0.0253 234.8586);
-  --ring: oklch(0.6509 0.1283 170.4258);
+  --background: #0d1d21; /* color/bg/canvas */
+  --foreground: #e6f3f4; /* color/text/primary */
+  --card: #14292f; /* color/bg/surface */
+  --card-foreground: #e6f3f4;
+  --popover: #14292f;
+  --popover-foreground: #e6f3f4;
+  --primary: #087f8c; /* color/bg/accent */
+  --primary-foreground: #ffffff;
+  --secondary: #10242a; /* color/bg/subtle */
+  --secondary-foreground: #e6f3f4;
+  --muted: #10242a;
+  --muted-foreground: #a0bbc0; /* color/text/secondary */
+  --accent: #173f43; /* color/bg/selected */
+  --accent-foreground: #e6f3f4;
+  --destructive: #ff9ba8; /* color/status/error */
+  --destructive-foreground: #14292f;
+  --border: #36545b; /* color/border/default */
+  --input: #6e959e; /* color/border/control */
+  --ring: #61d5db; /* color/border/focus */
+  --link: #61d5db; /* color/text/link */
+  --sidebar: #10242a;
+  --sidebar-foreground: #e6f3f4;
+  --sidebar-accent: #173f43;
+  --sidebar-accent-foreground: #e6f3f4;
+  --sidebar-border: #36545b;
 }
 
 @layer base {
@@ -124,6 +137,6 @@
   h1,
   h2,
   h3 {
-    @apply font-heading;
+    @apply tracking-tight;
   }
 }

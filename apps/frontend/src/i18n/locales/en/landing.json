@@ -20,6 +20,8 @@
     }
   },
   "footer": "Togena · Managing multi-term events",
-  "organizerCta": "For organizers – sign in",
-  "title": "Registrations for events with multiple terms, without the chaos"
+  "organizerCta": "I'm an organizer",
+  "participantCta": "I'm a participant",
+  "title": "Registrations for events with multiple terms",
+  "titleAccent": "without the chaos"
 }

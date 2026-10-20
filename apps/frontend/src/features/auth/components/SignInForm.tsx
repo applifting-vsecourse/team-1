@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import type { TFunction } from "i18next"
-import { Loader2 } from "lucide-react"
+import { CircleAlert, Loader2 } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
@@ -67,7 +67,7 @@ export function SignInForm({
       <form
         noValidate
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col gap-6"
+        className="flex flex-col gap-5"
       >
         <FormField
           control={form.control}
@@ -84,7 +84,7 @@ export function SignInForm({
                 />
               </FormControl>
               <FormMessage />
-              <FormDescription className="text-xs">{emailHint}</FormDescription>
+              <FormDescription className="text-xs font-medium">{emailHint}</FormDescription>
             </FormItem>
           )}
         />
@@ -104,30 +104,27 @@ export function SignInForm({
               </FormControl>
               <FormMessage />
               {passwordHint ? (
-                <FormDescription className="text-xs">{passwordHint}</FormDescription>
+                <FormDescription className="text-xs font-medium">{passwordHint}</FormDescription>
               ) : null}
             </FormItem>
           )}
         />
 
         {errorMessage ? (
-          <Alert
-            variant="destructive"
-            className="gap-y-2 border-0 bg-destructive-subtle p-4"
-          >
-            <AlertTitle className="font-heading text-lg font-bold">
-              {t("form.errors.failedTitle")}
-            </AlertTitle>
-            <AlertDescription className="text-destructive">{errorMessage}</AlertDescription>
+          <Alert variant="destructive">
+            <CircleAlert />
+            <AlertTitle>{t("form.errors.failedTitle")}</AlertTitle>
+            <AlertDescription>{errorMessage}</AlertDescription>
           </Alert>
         ) : null}
 
         <Button
           type="submit"
-          className="w-44 self-start"
+          size="lg"
+          className="w-full"
           disabled={isLoading}
         >
-          {isLoading ? <Loader2 className="size-4 animate-spin" /> : null}
+          {isLoading ? <Loader2 className="animate-spin" /> : null}
           {t("form.submit")}
         </Button>
       </form>

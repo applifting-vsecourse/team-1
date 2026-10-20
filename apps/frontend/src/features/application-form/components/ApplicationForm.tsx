@@ -92,6 +92,7 @@ export function ApplicationForm({ event, onSubmit, errorMessage, isDone }: Appli
         <Button
           type="button"
           variant="outline"
+          size="lg"
           className="w-full sm:w-auto sm:self-start"
           disabled={isSubmitting}
           onClick={() => append({ ...emptyParticipant })}
@@ -153,6 +154,7 @@ export function ApplicationForm({ event, onSubmit, errorMessage, isDone }: Appli
 
           <Button
             type="submit"
+            size="lg"
             className="w-full sm:w-auto sm:self-start"
             disabled={isSubmitting}
           >

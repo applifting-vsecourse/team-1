@@ -31,10 +31,11 @@ export function OrganizerAreaError({ error }: { error: Error }) {
         cardTitle: t("forbiddenForParticipant.cardTitle"),
         body: t("forbiddenForParticipant.body"),
         actions: (
-          <div className="flex flex-col items-start gap-6">
+          <>
             <Button
               asChild
-              className="w-44"
+              size="lg"
+              className="w-full"
             >
               <Link to={ROUTES.participant.applications}>
                 {t("forbiddenForParticipant.myApplication")}
@@ -42,13 +43,14 @@ export function OrganizerAreaError({ error }: { error: Error }) {
             </Button>
             <Button
               variant="outline"
-              className="w-78"
+              size="lg"
+              className="w-full"
               disabled={signOut.isPending}
               onClick={() => signOut.mutate()}
             >
               {t("forbiddenForParticipant.signOutAndSwitch")}
             </Button>
-          </div>
+          </>
         ),
       }}
     />

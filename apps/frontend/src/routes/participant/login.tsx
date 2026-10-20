@@ -5,7 +5,7 @@ import { z } from "zod"
 import { ROUTES } from "@/app/routes"
 import { Seo } from "@/components/atoms/Seo"
 import { AuthLayout } from "@/components/templates/AuthLayout"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card } from "@/components/ui/card"
 
 import { authSessionQueryOptions } from "@/features/auth/api/authSessionQueryOptions"
 import { RequestMagicLinkForm } from "@/features/auth/components/RequestMagicLinkForm"
@@ -39,13 +39,9 @@ function ParticipantLoginPage() {
         title={t("participantLogin.title")}
         description={t("participantLogin.description")}
       >
-        <Card className="gap-4">
-          <CardHeader>
-            <CardTitle className="text-lg tracking-tight">
-              {t("participantLogin.cardTitle")}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
+        <div className="flex flex-col gap-4">
+          <Card className="gap-5 p-6">
+            <h2 className="text-lg font-semibold">{t("participantLogin.cardTitle")}</h2>
             <SignInWithRedirect
               from={from}
               accountType="PARTICIPANT"
@@ -53,17 +49,13 @@ function ParticipantLoginPage() {
               emailHint={t("participantLogin.emailHint")}
               passwordHint={t("participantLogin.passwordHint")}
             />
-          </CardContent>
-        </Card>
-        <Card className="gap-4">
-          <CardHeader>
-            <CardTitle className="text-lg tracking-tight">{t("requestLink.cardTitle")}</CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-4 text-sm">
+          </Card>
+          <Card className="gap-5 p-6">
+            <h2 className="text-lg font-semibold">{t("requestLink.cardTitle")}</h2>
             <p>{t("requestLink.body")}</p>
             <RequestMagicLinkForm />
-          </CardContent>
-        </Card>
+          </Card>
+        </div>
       </AuthLayout>
     </>
   )

@@ -26,13 +26,15 @@ function OrganizerDashboardPage() {
       <PageHeader
         title={t("dashboard.greeting", { name: user?.name ?? "" })}
         description={t("dashboard.description")}
+        actions={
+          <Button
+            asChild
+            size="lg"
+          >
+            <Link to={ROUTES.organizer.newEvent}>{t("dashboard.createEvent")}</Link>
+          </Button>
+        }
       />
-      <Button
-        asChild
-        className="w-44"
-      >
-        <Link to={ROUTES.organizer.newEvent}>{t("dashboard.createEvent")}</Link>
-      </Button>
     </>
   )
 }

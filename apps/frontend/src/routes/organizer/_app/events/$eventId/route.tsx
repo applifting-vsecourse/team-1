@@ -19,7 +19,7 @@ function EventLayout() {
     <div className="flex flex-col gap-6">
       <nav
         aria-label={t("nav.eventSections")}
-        className="flex flex-wrap gap-1 border-b border-border pb-2"
+        className="-mx-4 flex gap-1 overflow-x-auto px-4 md:mx-0 md:px-0"
       >
         <NavLink
           to={ROUTES.organizer.event}

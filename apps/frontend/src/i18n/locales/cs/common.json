@@ -24,7 +24,8 @@
     "applications": "Přihlášky",
     "dashboard": "Dashboard",
     "eventSections": "Části akce",
-    "events": "Akce"
+    "events": "Akce",
+    "openMenu": "Otevřít navigaci"
   },
   "pages": {
     "error": {

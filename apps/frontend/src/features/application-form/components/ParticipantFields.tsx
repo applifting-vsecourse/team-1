@@ -61,7 +61,7 @@ export function ParticipantFields({ index, terms, onRemove, isDisabled }: Partic
           <Button
             type="button"
             variant="ghost"
-            size="icon"
+            size="icon-lg"
             disabled={isDisabled}
             aria-label={t("form.removeParticipantAria", { number })}
             onClick={onRemove}

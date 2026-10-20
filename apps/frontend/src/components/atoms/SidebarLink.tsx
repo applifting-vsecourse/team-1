@@ -1,10 +1,13 @@
 import type { ComponentType, ReactNode } from "react"
-import { Link, type LinkProps } from "@tanstack/react-router"
+import { Link, useMatchRoute, type LinkProps } from "@tanstack/react-router"
+
+import { ActiveCorners } from "@/components/atoms/ActiveCorners"
 
 /**
- * Figma: DS / Navigation — an item of the area sidebar. The active item gets
- * the selected surface and the Togena corners (DS / Graphic / Navigation
- * corners); they keep their radius and stroke at any item width.
+ * An item of the area sidebar. No border; the active item gets the selected
+ * surface, hover only a lighter tint. The Togena corners mark only the page
+ * the item leads to: on a page below it (an event with its own tabs) the
+ * item keeps the tint and the tab carries the one marker.
  */
 // Figma (Design system): DS / Navigation · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=11739-2903
 type SidebarLinkProps = LinkProps & {
@@ -13,54 +16,21 @@ type SidebarLinkProps = LinkProps & {
 }
 
 export function SidebarLink({ icon: Icon, children, ...props }: SidebarLinkProps) {
+  const matchRoute = useMatchRoute()
+  const isCurrentPage = Boolean(matchRoute({ to: props.to, params: props.params } as never))
+
   return (
     <Link
       {...props}
       // Active styling uses the router's data-status attribute (see NavLink).
-      className="group relative flex h-11 items-center gap-2 rounded-md border border-border px-3 text-sm font-medium transition-colors hover:bg-accent data-[status=active]:bg-accent"
+      className="group relative flex h-11 items-center gap-2 rounded-md px-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-sidebar-accent/60 hover:text-sidebar-foreground data-[status=active]:bg-sidebar-accent data-[status=active]:text-sidebar-accent-foreground"
     >
       <Icon
         aria-hidden
         className="size-5 shrink-0"
       />
       {children}
-      <ActiveCorners />
+      <ActiveCorners className={isCurrentPage ? undefined : "[&>svg]:opacity-0!"} />
     </Link>
-  )
-}
-
-function ActiveCorners() {
-  return (
-    <span
-      aria-hidden="true"
-      className="hidden text-primary group-data-[status=active]:block"
-    >
-      <svg
-        viewBox="0 0 18 18"
-        fill="none"
-        className="absolute -top-px -left-px size-4.5"
-      >
-        <path
-          d="M1.5 18V7.5C1.5 4.186 4.186 1.5 7.5 1.5H18"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-      <svg
-        viewBox="0 0 18 18"
-        fill="none"
-        className="absolute -right-px -bottom-px size-4.5"
-      >
-        <path
-          d="M0 16.5H10.5C13.814 16.5 16.5 13.814 16.5 10.5V0"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    </span>
   )
 }

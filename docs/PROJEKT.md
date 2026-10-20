@@ -300,6 +300,8 @@ apps/frontend/src/
 | 2026-10-16 | **Produkt se jmenuje Togena** (dříve pracovně kemp.io). Název platí v UI, e-mailech, dokumentaci i technických identifikátorech (compose projekt, DB `togena`).                                                                                                                     | tech lead |
 | 2026-10-16 | **Ve sprintu 1 se nikdo neregistruje.** Landing má dva vstupy: „Pro organizátory – přihlásit se“ a „Mám přihlášku – přihlásit se“. Účet účastníka vzniká odesláním přihlášky.                                                                                                       | tech lead |
 | 2026-10-19 | Landing má podle Figmy (V08, M07) jediný vstup „Pro organizátory – přihlásit se“; ruší se tím druhý vstup z rozhodnutí 16. 10. Účastník se na přihlášení (S10) dostane odkazem z přihlášení organizátora (S01) nebo z e-mailu.                                                      | tým       |
+| 2026-10-19 | Redesign (PR #112): landing má dva vstupy „Jsem organizátor“ a „Jsem účastník“. **Landing je jen pro nepřihlášené** — přihlášeného uživatele `/` (i klik na logo) přesměruje na jeho domovskou stránku (dashboard / moje přihlášky); na landing se dostane po odhlášení.            | tým       |
+| 2026-10-20 | Redesign se dělá v původním Figma souboru a v původních barvách (DS / Semantic), barvy „Future Teal“ se nepoužívají. Rohy loga značí jen jednu aktivní věc (položka sidebaru, záložka, krok, karta akce). Pravidla: `docs/FIGMA-REMAKE.md`.                                         | tech lead |
 | 2026-10-16 | **Jeden typ na účet** (`ORGANIZER` / `PARTICIPANT` / `ADMIN`). Jeden e-mail nemůže být organizátor i účastník.                                                                                                                                                                      | tech lead |
 | 2026-10-16 | **Účastník dostává magic link místo jednorázového hesla.** Odkaz platí 7 dní a jde použít jednou. První vstup odkazem vynutí nastavení vlastního hesla (min. 8 znaků); dál se přihlašuje heslem. Na S10 si může nechat poslat nový odkaz. Magic link funguje jen pro `PARTICIPANT`. | tech lead |
 | 2026-10-16 | Existuje-li účet účastníka k e-mailu, nová přihláška se k němu přiřadí a e-mail obsahuje odkaz na přihlášení (bez vynuceného nastavení hesla, pokud ho už má).                                                                                                                      | tech lead |
@@ -327,12 +329,12 @@ apps/frontend/src/
 
 Zapsáno jen tady — issues zatím **nejsou** upravené. Před implementací proudu C je potřeba potvrdit s PO.
 
-| Story          | Board říká                                                        | Platí                                                                           |
-| -------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| US-01          | E-mail obsahuje přihlašovací jméno a jednorázové heslo.           | E-mail obsahuje magic link (7 dní, jednorázový).                                |
-| US-04          | Účastník zadá e-mail + jednorázové heslo a nastaví vlastní heslo. | Po vstupu odkazem je nastavení hesla povinné; S09 bez pole „jednorázové heslo“. |
-| US-56          | E-mail obsahuje přihlašovací jméno a jednorázové heslo.           | E-mail obsahuje magic link a odkaz na stránku potvrzení.                        |
-| Figma V04, S09 | Obrazovky s jednorázovým heslem.                                  | Potřebují upravit.                                                              |
+| Story | Board říká                                                        | Platí                                                                           |
+| ----- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| US-01 | E-mail obsahuje přihlašovací jméno a jednorázové heslo.           | E-mail obsahuje magic link (7 dní, jednorázový).                                |
+| US-04 | Účastník zadá e-mail + jednorázové heslo a nastaví vlastní heslo. | Po vstupu odkazem je nastavení hesla povinné; S09 bez pole „jednorázové heslo“. |
+| US-56 | E-mail obsahuje přihlašovací jméno a jednorázové heslo.           | E-mail obsahuje magic link a odkaz na stránku potvrzení.                        |
+| Figma | Obrazovky s jednorázovým heslem.                                  | Upraveno 2026-10-20: S09, S10 (+ S10a, S10b), S15, S17, S18, V04, M06.          |
 
 ## 12. Pracovní postup
 

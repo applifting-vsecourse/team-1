@@ -1,9 +1,9 @@
 import type { ReactNode } from "react"
 import { Link } from "@tanstack/react-router"
+import { Lock } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
-import { BrandComposition } from "@/components/atoms/BrandComposition"
 import { AuthLayout } from "@/components/templates/AuthLayout"
 import { Button } from "@/components/ui/button"
 
@@ -24,17 +24,25 @@ export function ForbiddenPage({ variant }: ForbiddenPageProps) {
 
   return (
     <AuthLayout
+      icon={
+        <div className="flex size-14 items-center justify-center rounded-full bg-accent text-link">
+          <Lock
+            aria-hidden
+            className="size-6"
+          />
+        </div>
+      }
       title={t("pages.forbidden.title")}
       description={variant?.description ?? `403 · ${t("pages.forbidden.description")}`}
       cardTitle={variant?.cardTitle ?? t("pages.forbidden.cardTitle")}
     >
-      <BrandComposition className="w-80" />
-      <div className="flex flex-col items-start gap-6">
-        <p>{variant?.body ?? t("pages.forbidden.body")}</p>
+      <p className="text-muted-foreground">{variant?.body ?? t("pages.forbidden.body")}</p>
+      <div className="flex flex-col gap-3 pt-2">
         {variant?.actions ?? (
           <Button
             asChild
-            className="w-44"
+            size="lg"
+            className="w-full"
           >
             <Link to={ROUTES.home}>{t("pages.forbidden.action")}</Link>
           </Button>
