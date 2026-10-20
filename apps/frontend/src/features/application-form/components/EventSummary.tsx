@@ -25,15 +25,25 @@ export function EventSummary({ event }: { event: PublicEvent }) {
   return (
     <section
       aria-label={t("form.heading", { event: event.name })}
-      className="flex flex-col gap-4 rounded-lg border border-border bg-secondary p-4 sm:p-6"
+      className="flex flex-col gap-2 rounded-lg border border-border bg-secondary p-4 sm:p-6"
     >
       <h2 className="text-lg font-bold tracking-tight">{event.name}</h2>
       {where ? <p className="text-sm text-muted-foreground">{where}</p> : null}
-      <ul className="flex flex-col gap-4 text-sm">
+      {/* Rows: "DS / Event term row" https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=13196-777 */}
+      <ul className="flex flex-col">
         {event.terms.map((term) => (
-          <li key={term.id}>
-            {formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })} ·{" "}
-            <MoneyAmount amountCzk={term.priceCzk} />
+          <li
+            key={term.id}
+            className="flex items-center justify-between gap-4 border-t border-border py-3"
+          >
+            <span className="font-semibold">
+              {formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })}
+            </span>
+            <span className="sr-only"> · </span>
+            <MoneyAmount
+              className="font-bold"
+              amountCzk={term.priceCzk}
+            />
           </li>
         ))}
       </ul>

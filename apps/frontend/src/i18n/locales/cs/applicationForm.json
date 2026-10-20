@@ -43,10 +43,12 @@
     "title": "Odkaz na přihlášku nefunguje"
   },
   "price": {
-    "heading": "Předběžná cena · {{total}}",
-    "note": "K úhradě budou až potvrzené termíny.",
-    "row_few": "{{name}}: {{count}} termíny · {{price}}",
-    "row_one": "{{name}}: {{count}} termín · {{price}}",
-    "row_other": "{{name}}: {{count}} termínů · {{price}}"
+    "heading": "Cena vybraných termínů",
+    "noTerms": "Bez termínu",
+    "note": "Uvedena je celá cena za termíny. K úhradě budou až potvrzené termíny.",
+    "terms_few": "{{count}} termíny",
+    "terms_one": "{{count}} termín",
+    "terms_other": "{{count}} termínů",
+    "total": "Celkem"
   }
 }

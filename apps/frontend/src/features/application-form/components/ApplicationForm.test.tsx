@@ -37,6 +37,17 @@ const participantCard = (number: number) => {
   return card
 }
 
+const priceCard = () => {
+  const card = screen
+    .getByRole("heading", { name: "Price of selected terms" })
+    .closest<HTMLElement>("[data-slot=card]")
+  if (!card) throw new Error("No price card")
+  return card
+}
+
+const totalPrice = () =>
+  within(priceCard()).getByText("Total").nextElementSibling?.textContent?.replace(/\s/g, " ")
+
 async function fillParticipant(
   number: number,
   data: { first: string; last: string; birth: string; gender: "Woman" | "Man"; term: RegExp },
@@ -68,8 +79,12 @@ describe("ApplicationForm", () => {
     )
 
     expect(screen.getByText("Choose terms (at least one) *")).toBeInTheDocument()
-    expect(screen.getByRole("checkbox", { name: /^4–10 Jul · CZK\s4,500$/ })).toBeInTheDocument()
-    expect(screen.getByRole("checkbox", { name: /^11–17 Jul · CZK\s4,900$/ })).toBeInTheDocument()
+    expect(
+      screen.getByRole("checkbox", { name: /^4–10 Jul\s?·\s?CZK\s4,500$/ }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole("checkbox", { name: /^11–17 Jul\s?·\s?CZK\s4,900$/ }),
+    ).toBeInTheDocument()
   })
 
   it("shows the price of the ticked terms per participant and updates it with every change", async () => {
@@ -79,27 +94,21 @@ describe("ApplicationForm", () => {
         onSubmit={submitSpy()}
       />,
     )
-    const normalise = (el: HTMLElement) => el.textContent?.replace(/\s/g, " ")
 
-    expect(normalise(screen.getByRole("heading", { name: /^Estimated price/ }))).toBe(
-      "Estimated price · CZK 0",
-    )
+    expect(totalPrice()).toBe("CZK 0")
+    expect(within(priceCard()).getByText("No term")).toBeInTheDocument()
 
     await userEvent.click(screen.getByRole("checkbox", { name: /4–10 Jul/ }))
     await userEvent.click(screen.getByRole("checkbox", { name: /11–17 Jul/ }))
-    expect(normalise(screen.getByRole("heading", { name: /^Estimated price/ }))).toBe(
-      "Estimated price · CZK 9,400",
-    )
-    expect(screen.getByText(/Participant 1: 2 terms/)).toBeInTheDocument()
+    expect(totalPrice()).toBe("CZK 9,400")
+    expect(within(priceCard()).getByText("2 terms")).toBeInTheDocument()
 
     await userEvent.click(screen.getByRole("checkbox", { name: /11–17 Jul/ }))
-    expect(normalise(screen.getByRole("heading", { name: /^Estimated price/ }))).toBe(
-      "Estimated price · CZK 4,500",
-    )
-    expect(screen.getByText(/Participant 1: 1 term ·/)).toBeInTheDocument()
+    expect(totalPrice()).toBe("CZK 4,500")
+    expect(within(priceCard()).getByText("1 term")).toBeInTheDocument()
   })
 
-  it("adds up several participants in the total", async () => {
+  it("adds up several participants in the total, each under their name", async () => {
     render(
       <ApplicationForm
         event={event}
@@ -107,13 +116,15 @@ describe("ApplicationForm", () => {
       />,
     )
     await userEvent.click(screen.getByRole("button", { name: "Add another participant" }))
+    await userEvent.type(within(participantCard(1)).getByLabelText("First name *"), "Anna")
+    await userEvent.type(within(participantCard(1)).getByLabelText("Last name *"), "Nováková")
     await userEvent.click(within(participantCard(1)).getByRole("checkbox", { name: /4–10 Jul/ }))
     await userEvent.click(within(participantCard(2)).getByRole("checkbox", { name: /11–17 Jul/ }))
 
-    expect(
-      screen.getByRole("heading", { name: /^Estimated price/ }).textContent?.replace(/\s/g, " "),
-    ).toBe("Estimated price · CZK 9,400")
-    expect(screen.getByText(/Participant 2: 1 term ·/)).toBeInTheDocument()
+    expect(totalPrice()).toBe("CZK 9,400")
+    const rows = within(priceCard()).getAllByRole("listitem")
+    expect(rows[0]).toHaveTextContent(/^Anna Nováková1 termCZK\s4,500$/)
+    expect(rows[1]).toHaveTextContent(/^Participant 21 termCZK\s4,900$/)
   })
 
   it("shows the designed message at every empty required field and does not submit", async () => {

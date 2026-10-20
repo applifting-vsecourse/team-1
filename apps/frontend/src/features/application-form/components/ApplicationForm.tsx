@@ -73,8 +73,8 @@ export function ApplicationForm({ event, onSubmit, errorMessage, isDone }: Appli
     priceOfSelection(event.terms, participant?.termIds ?? []),
   )
   const priceRows = prices.map((price, index) => {
-    // The design names the row by first name only ("Jana: 2 termíny · 14 100 Kč").
-    const name = participants[index]?.firstName?.trim() ?? ""
+    const participant = participants[index]
+    const name = [participant?.firstName, participant?.lastName].filter(Boolean).join(" ").trim()
     return {
       ...price,
       label: name !== "" ? name : t("form.participantTitle", { number: index + 1 }),
