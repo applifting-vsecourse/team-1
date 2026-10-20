@@ -41,5 +41,14 @@
     "code": "404",
     "description": "Check the link address or ask the event organizer for a new link.",
     "title": "The application link doesn't work"
+  },
+  "price": {
+    "heading": "Price of selected terms",
+    "noTerms": "No term",
+    "note": "This is the full price of the terms. Only confirmed terms will be payable.",
+    "terms_few": "{{count}} terms",
+    "terms_one": "{{count}} term",
+    "terms_other": "{{count}} terms",
+    "total": "Total"
   }
 }

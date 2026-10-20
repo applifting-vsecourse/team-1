@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { formatDateRange } from "@/lib/date"
+import { cn } from "@/lib/utils"
 
 import type { PublicTerm } from "@/features/application-form/api/publicEvent"
 import {
@@ -158,9 +159,10 @@ export function ParticipantFields({ index, terms, onRemove, isDisabled }: Partic
       <FormField
         control={control}
         name={`participants.${index}.termIds`}
-        render={({ field }) => (
+        render={({ field, fieldState }) => (
           <FormItem>
-            <fieldset className="grid gap-1">
+            {/* Tiles: "DS / Term option" https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=13196-776 */}
+            <fieldset className="grid gap-2">
               <legend className="mb-2 text-sm leading-5 font-medium">{t("form.terms")}</legend>
               {terms.map((term) => {
                 const id = `participant-${index}-term-${term.id}`
@@ -169,7 +171,10 @@ export function ParticipantFields({ index, terms, onRemove, isDisabled }: Partic
                   <Label
                     key={term.id}
                     htmlFor={id}
-                    className="min-h-11 cursor-pointer gap-2 rounded-md p-2 leading-5 font-medium"
+                    className={cn(
+                      "min-h-14 cursor-pointer gap-3 rounded-md border border-input bg-card px-4 py-3 text-base leading-6 transition-colors hover:bg-accent has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-accent has-[[data-state=checked]]:ring-1 has-[[data-state=checked]]:ring-primary",
+                      fieldState.invalid && "border-destructive",
+                    )}
                   >
                     <Checkbox
                       id={id}
@@ -184,8 +189,14 @@ export function ParticipantFields({ index, terms, onRemove, isDisabled }: Partic
                       }
                       onBlur={field.onBlur}
                     />
-                    {formatDateRange(term.startsOn, term.endsOn)} ·{" "}
-                    <MoneyAmount amountCzk={term.priceCzk} />
+                    <span className="flex-1 font-semibold">
+                      {formatDateRange(term.startsOn, term.endsOn)}
+                    </span>
+                    <span className="sr-only"> · </span>
+                    <MoneyAmount
+                      className="font-bold"
+                      amountCzk={term.priceCzk}
+                    />
                   </Label>
                 )
               })}
