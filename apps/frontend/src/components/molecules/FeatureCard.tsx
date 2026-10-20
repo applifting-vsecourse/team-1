@@ -8,19 +8,19 @@ type FeatureCardProps = {
   description: string
 }
 
-/** Icon tile, title and a sentence — the landing's "what you can do" grid. */
-// Figma (Remake): Feature card · https://www.figma.com/design/Oxlrm0tdW7aWH6C1rbP0fO/?node-id=9-11
+/** Icon tile beside a title and a sentence — the landing's "what you can do" grid. */
+// Figma (Design system): DS / Landing / Feature · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12733-2003
 export function FeatureCard({ icon: Icon, title, description }: FeatureCardProps) {
   return (
-    <Card className="gap-4 p-6">
-      <div className="flex size-10 items-center justify-center rounded-lg bg-accent text-accent-foreground">
+    <Card className="flex-row items-start gap-4 p-6">
+      <div className="flex size-10 shrink-0 items-center justify-center rounded-md bg-accent text-link">
         <Icon
           aria-hidden
           className="size-5"
         />
       </div>
-      <div className="flex flex-col gap-1.5">
-        <h3 className="text-base font-semibold tracking-tight">{title}</h3>
+      <div className="flex min-w-0 flex-col gap-1">
+        <h3 className="text-lg leading-6.5 font-semibold">{title}</h3>
         <p className="text-sm text-muted-foreground">{description}</p>
       </div>
     </Card>

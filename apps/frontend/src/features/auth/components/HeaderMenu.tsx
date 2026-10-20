@@ -19,7 +19,6 @@ import { useSignOut } from "@/features/auth/hooks/useSignOut"
 import { initials } from "@/features/auth/lib/initials"
 
 // Figma (Design system): DS / Account dropdown · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12011-625
-// Figma (Remake): Account dropdown · https://www.figma.com/design/Oxlrm0tdW7aWH6C1rbP0fO/?node-id=21-138
 export function HeaderMenu() {
   const { t } = useTranslation(["auth", "common"])
   const { user } = useSession()
@@ -39,11 +38,11 @@ export function HeaderMenu() {
           className="gap-2 pr-2.5 pl-1.5 data-[state=open]:bg-muted"
         >
           <Avatar>
-            <AvatarFallback className="bg-accent text-xs font-medium text-accent-foreground">
+            <AvatarFallback className="bg-accent text-xs font-medium text-link">
               {initials(user.name)}
             </AvatarFallback>
           </Avatar>
-          {user.name}
+          <span className="hidden max-w-40 truncate sm:inline">{user.name}</span>
           <ChevronDown className="size-4" />
         </Button>
       </DropdownMenuTrigger>

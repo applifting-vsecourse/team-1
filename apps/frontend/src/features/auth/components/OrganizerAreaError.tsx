@@ -1,5 +1,4 @@
 import { Link } from "@tanstack/react-router"
-import { ArrowRight } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
@@ -35,12 +34,11 @@ export function OrganizerAreaError({ error }: { error: Error }) {
           <>
             <Button
               asChild
-              size="xl"
+              size="lg"
               className="w-full"
             >
               <Link to={ROUTES.participant.applications}>
                 {t("forbiddenForParticipant.myApplication")}
-                <ArrowRight />
               </Link>
             </Button>
             <Button

@@ -25,19 +25,12 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
+  --color-link: var(--link);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
   --color-sidebar-accent: var(--sidebar-accent);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
 
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
@@ -51,93 +44,87 @@
   --shadow-xl: var(--shadow-xl);
   --shadow-2xl: var(--shadow-2xl);
 
-  /* Remake Metrics: radius/md 6, radius/lg 8, radius/xl 12 */
+  /* Figma DS / Metrics radius/* */
   --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 8px;
-  --radius-xl: 12px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 20px;
 }
 
 /*
- * Theme "Future Teal" (tweakcn), values read from the Figma remake file
- * (Theme collection, Light / Dark modes) -- see docs/FIGMA-REMAKE.md.
- * Primary is oklch(0.704 0.14 182.5); white text on it is about 2.6:1 (known issue).
+ * Values come from the Figma design system (DS / Semantic Light and Dark,
+ * DS / Metrics, effect styles shadows/*); each comment names the source.
+ * The look follows the remake (docs/FIGMA-REMAKE.md), the colours stay the DS ones.
  */
 :root {
   --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono Variable", ui-monospace, SFMono-Regular, Menlo, monospace;
-  --background: #f9fdff;
-  --foreground: #031a1e;
-  --card: #ffffff;
-  --card-foreground: #031a1e;
-  --popover: #ffffff;
-  --popover-foreground: #1c1c34;
-  --primary: #00bba7;
-  --primary-foreground: #fcfcfc;
-  --secondary: #e4f2f2;
-  --secondary-foreground: #2d4e54;
-  --muted: #ebf4f4;
-  --muted-foreground: #50686d;
-  --accent: #c3ecdf;
-  --accent-foreground: #006363;
-  --destructive: #ce514d;
-  --destructive-foreground: #ffffff;
-  --border: #dae3e4;
-  --input: #dae3e4;
-  --ring: #00bba7;
-  --chart-1: #00bba7;
-  --chart-2: #00a3d7;
-  --chart-3: #b18cfe;
-  --chart-4: #ffc677;
-  --chart-5: #cce8b5;
-  --sidebar: #f5f9fa;
-  --sidebar-foreground: #0e262a;
-  --sidebar-primary: #00bba7;
-  --sidebar-primary-foreground: #fafafd;
-  --sidebar-accent: #c3ecdf;
-  --sidebar-accent-foreground: #1c1c34;
-  --sidebar-border: #d6e9ea;
-  --sidebar-ring: #735fce;
-  /* Sonner reads --radius directly; matches radius/lg. */
+  --background: #f1fafa; /* color/bg/canvas */
+  --foreground: #14343b; /* color/text/primary */
+  --card: #ffffff; /* color/bg/surface */
+  --card-foreground: #14343b; /* color/text/primary */
+  --popover: #ffffff; /* color/bg/surface */
+  --popover-foreground: #14343b; /* color/text/primary */
+  --primary: #087f8c; /* color/bg/accent */
+  --primary-foreground: #ffffff; /* color/text/inverse */
+  --secondary: #e7f3f3; /* color/bg/subtle */
+  --secondary-foreground: #14343b; /* color/text/primary */
+  --muted: #e7f3f3; /* color/bg/subtle */
+  --muted-foreground: #547079; /* color/text/secondary */
+  --accent: #dcf2f2; /* color/bg/selected */
+  --accent-foreground: #14343b; /* color/text/primary */
+  --destructive: #b42336; /* color/status/error */
+  --destructive-foreground: #ffffff; /* color/text/inverse */
+  --border: #ccdfe1; /* color/border/default */
+  --input: #759398; /* color/border/control */
+  --ring: #087f8c; /* color/border/focus */
+  --link: #087f8c; /* color/text/link */
+  --sidebar: #e7f3f3; /* color/bg/subtle */
+  --sidebar-foreground: #14343b; /* color/text/primary */
+  --sidebar-accent: #dcf2f2; /* color/bg/selected */
+  --sidebar-accent-foreground: #14343b; /* color/text/primary */
+  --sidebar-border: #ccdfe1; /* color/border/default */
+  /* Sonner reads --radius directly; matches radius/md. */
   --radius: 0.5rem;
-  --shadow-2xs: 0 1px 2px -1px rgb(45 45 83 / 0.12);
-  --shadow-xs: 0 1px 2px -1px rgb(45 45 83 / 0.12);
-  --shadow-sm: 0 4px 10px 0 rgb(45 45 83 / 0.12), 0 1px 2px -1px rgb(45 45 83 / 0.12);
-  --shadow: 0 4px 10px 0 rgb(45 45 83 / 0.12), 0 1px 2px -1px rgb(45 45 83 / 0.12);
-  --shadow-md: 0 6px 14px 0 rgb(45 45 83 / 0.14), 0 2px 4px -2px rgb(45 45 83 / 0.12);
-  --shadow-lg: 0 10px 24px 0 rgb(45 45 83 / 0.16), 0 4px 6px -4px rgb(45 45 83 / 0.12);
-  --shadow-xl: 0 16px 32px 0 rgb(45 45 83 / 0.18), 0 8px 10px -6px rgb(45 45 83 / 0.12);
-  --shadow-2xl: 0 24px 48px 0 rgb(45 45 83 / 0.25);
+  /* shadows/surface: cards and the other things that sit on the canvas */
+  --shadow-2xs: 0 1px 2px -1px rgb(20 52 59 / 0.06);
+  --shadow-xs: 0 1px 3px 0 rgb(20 52 59 / 0.08), 0 1px 2px -1px rgb(20 52 59 / 0.06);
+  --shadow-sm: 0 1px 3px 0 rgb(20 52 59 / 0.08), 0 1px 2px -1px rgb(20 52 59 / 0.06);
+  --shadow: 0 1px 3px 0 rgb(20 52 59 / 0.08), 0 1px 2px -1px rgb(20 52 59 / 0.06);
+  /* shadows/popover: menus and dropdowns */
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  /* shadows/popover-nested, shadows/sheet: dialogs and sheets */
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
 }
 
 .dark {
-  --background: #030b0b;
-  --foreground: #e4edee;
-  --card: #061415;
-  --card-foreground: #e4edee;
-  --popover: #161724;
-  --popover-foreground: #e6e6f5;
-  --primary: #00bba7;
+  --background: #0d1d21; /* color/bg/canvas */
+  --foreground: #e6f3f4; /* color/text/primary */
+  --card: #14292f; /* color/bg/surface */
+  --card-foreground: #e6f3f4;
+  --popover: #14292f;
+  --popover-foreground: #e6f3f4;
+  --primary: #087f8c; /* color/bg/accent */
   --primary-foreground: #ffffff;
-  --secondary: #0b2425;
-  --secondary-foreground: #b8d4d5;
-  --muted: #0f1d1e;
-  --muted-foreground: #7a9596;
-  --accent: #005f5a;
-  --accent-foreground: #90caca;
-  --destructive: #f84b4b;
-  --destructive-foreground: #fafafd;
-  --border: #142223;
-  --input: #142223;
-  --ring: #00bba7;
-  --sidebar: #031011;
-  --sidebar-foreground: #e4edee;
-  --sidebar-primary: #00bba7;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #005f5a;
-  --sidebar-accent-foreground: #e6e6f5;
-  --sidebar-border: #2b2c3f;
-  --sidebar-ring: #a190ff;
+  --secondary: #10242a; /* color/bg/subtle */
+  --secondary-foreground: #e6f3f4;
+  --muted: #10242a;
+  --muted-foreground: #a0bbc0; /* color/text/secondary */
+  --accent: #173f43; /* color/bg/selected */
+  --accent-foreground: #e6f3f4;
+  --destructive: #ff9ba8; /* color/status/error */
+  --destructive-foreground: #14292f;
+  --border: #36545b; /* color/border/default */
+  --input: #6e959e; /* color/border/control */
+  --ring: #61d5db; /* color/border/focus */
+  --link: #61d5db; /* color/text/link */
+  --sidebar: #10242a;
+  --sidebar-foreground: #e6f3f4;
+  --sidebar-accent: #173f43;
+  --sidebar-accent-foreground: #e6f3f4;
+  --sidebar-border: #36545b;
 }
 
 @layer base {

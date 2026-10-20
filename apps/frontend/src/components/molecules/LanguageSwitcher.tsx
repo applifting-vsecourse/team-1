@@ -22,7 +22,7 @@ export function LanguageSwitcher() {
         >
           <Globe className="size-4" />
           <span className="uppercase">{i18n.resolvedLanguage}</span>
-          <ChevronDown className="size-4" />
+          <ChevronDown className="hidden size-4 sm:block" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">

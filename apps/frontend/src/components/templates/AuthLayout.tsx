@@ -21,8 +21,6 @@ type AuthLayoutProps = {
  */
 // Figma (Design system): S01 Přihlášení organizátora · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=11987-51
 // Figma (Design system): S10 Přihlášení účastníka · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=11968-273
-// Figma (Remake): S01 Přihlášení organizátora · https://www.figma.com/design/Oxlrm0tdW7aWH6C1rbP0fO/?node-id=20-170
-// Figma (Remake): S10 Přihlášení účastníka · https://www.figma.com/design/Oxlrm0tdW7aWH6C1rbP0fO/?node-id=20-360
 export function AuthLayout({
   title,
   description,

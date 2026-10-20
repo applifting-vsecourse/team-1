@@ -24,7 +24,8 @@
     "applications": "Applications",
     "dashboard": "Dashboard",
     "eventSections": "Event sections",
-    "events": "Events"
+    "events": "Events",
+    "openMenu": "Open navigation"
   },
   "pages": {
     "error": {

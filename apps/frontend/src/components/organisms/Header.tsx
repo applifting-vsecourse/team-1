@@ -13,7 +13,7 @@ type HeaderProps = {
 }
 
 /** Public header: logo on the left, language and theme switchers on the right. */
-// Figma (Remake): Public header · https://www.figma.com/design/Oxlrm0tdW7aWH6C1rbP0fO/?node-id=2-36
+// Figma (Design system): V08 Veřejná hlavička · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12734-1365
 export function Header({ nav, userMenu }: HeaderProps) {
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border bg-card">

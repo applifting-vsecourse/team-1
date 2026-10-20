@@ -11,7 +11,7 @@ pnpm monorepo with two apps:
 
 **Before writing or changing any UI, read [`DESIGN.md`](DESIGN.md).** It is a contract, not a suggestion — it exists to stop generated screens drifting into generic nested cards.
 
-**Before redesigning screens in the Figma remake file (Future Teal), read [`docs/FIGMA-REMAKE.md`](docs/FIGMA-REMAKE.md)** and follow its kit, patterns and workflow. The remake is Figma-only for now: code keeps following `DESIGN.md` until the tech lead adopts it.
+**Before redesigning screens in Figma, read [`docs/FIGMA-REMAKE.md`](docs/FIGMA-REMAKE.md)** and follow its patterns, the logo-corner rule and the workflow.
 
 Workflow (branches, PRs, Definition of Done): [`CONTRIBUTING.md`](CONTRIBUTING.md).
 

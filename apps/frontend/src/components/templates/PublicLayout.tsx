@@ -23,7 +23,7 @@ export function PublicLayout({ children, footer, isFullWidth = false }: PublicLa
         )}
       </main>
       {footer ? (
-        <footer className="px-4 py-6">
+        <footer className="border-t border-border p-6">
           <p className="text-center text-sm text-muted-foreground">{footer}</p>
         </footer>
       ) : null}

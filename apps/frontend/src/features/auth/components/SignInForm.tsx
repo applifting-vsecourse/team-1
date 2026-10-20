@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import type { TFunction } from "i18next"
-import { ArrowRight, CircleAlert, Loader2 } from "lucide-react"
+import { CircleAlert, Loader2 } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
@@ -120,12 +120,12 @@ export function SignInForm({
 
         <Button
           type="submit"
-          size="xl"
+          size="lg"
           className="w-full"
           disabled={isLoading}
         >
+          {isLoading ? <Loader2 className="animate-spin" /> : null}
           {t("form.submit")}
-          {isLoading ? <Loader2 className="animate-spin" /> : <ArrowRight />}
         </Button>
       </form>
     </Form>

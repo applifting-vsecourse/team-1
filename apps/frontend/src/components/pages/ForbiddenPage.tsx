@@ -1,6 +1,6 @@
 import type { ReactNode } from "react"
 import { Link } from "@tanstack/react-router"
-import { ArrowRight, Lock } from "lucide-react"
+import { Lock } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
@@ -19,14 +19,13 @@ type ForbiddenPageProps = {
 
 /** 403 — shows nothing of the record that was asked for (US-02, US-10). */
 // Figma (Design system): S06 Zakázaný přístup · 403 · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=11987-141
-// Figma (Remake): S06 Zakázaný přístup · 403 · https://www.figma.com/design/Oxlrm0tdW7aWH6C1rbP0fO/?node-id=21-570
 export function ForbiddenPage({ variant }: ForbiddenPageProps) {
   const { t } = useTranslation()
 
   return (
     <AuthLayout
       icon={
-        <div className="flex size-14 items-center justify-center rounded-full bg-accent text-accent-foreground">
+        <div className="flex size-14 items-center justify-center rounded-full bg-accent text-link">
           <Lock
             aria-hidden
             className="size-6"
@@ -42,13 +41,10 @@ export function ForbiddenPage({ variant }: ForbiddenPageProps) {
         {variant?.actions ?? (
           <Button
             asChild
-            size="xl"
+            size="lg"
             className="w-full"
           >
-            <Link to={ROUTES.home}>
-              {t("pages.forbidden.action")}
-              <ArrowRight />
-            </Link>
+            <Link to={ROUTES.home}>{t("pages.forbidden.action")}</Link>
           </Button>
         )}
       </div>
