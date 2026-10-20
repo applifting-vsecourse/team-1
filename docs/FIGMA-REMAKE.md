@@ -46,7 +46,7 @@ V sidebaru je jen jeden marker: když je otevřená konkrétní akce, nadřazen�
 
 **Landing (V08 / M07):** centrovaný hero (Display, „bez zmatku“ v `color/text/link`), Lead, dvě tlačítka 44 px „Jsem organizátor“ (primary) a „Jsem účastník“ (secondary), na desktopu 200 px, na mobilu přes celou šířku. Pak pás `bg/subtle` „Co v Togeně vyřídíte“ s mřížkou 2×2 karet DS / Landing / Feature a zápatí s horní hairline.
 
-**Přihlášené části:** sidebar 240 px (`bg/subtle`, pravá hairline), horní lišta 64 px (role, přepínače, účtové menu), obsah s odsazením 32 / 32 / 48 a mezerami 24. Mobilní rámce aplikace ve Figmě nejsou; v kódu se pod 768 px sidebar schová do vysouvacího panelu (shadcn Sheet) otevíraného z horní lišty.
+**Přihlášené části:** sidebar 240 px (`bg/subtle`, pravá hairline), horní lišta 64 px (role, přepínače, účtové menu), obsah s odsazením 32 / 32 / 48 a mezerami 24. Pod 768 px se sidebar schová do vysouvacího panelu (shadcn Sheet, 288 px, překryv černá 50 %) otevíraného tlačítkem menu v horní liště: M08 (zavřeno) a M09 (otevřeno) na stránce 06 Mobil. Horní lišta na mobilu: menu, logo, jazyk bez šipky, motiv, avatar.
 
 **Dialogy:** karta se stínem `shadows/popover`, radius 12, nadpis H3.
 
@@ -61,10 +61,9 @@ Plugin API: `skillNames: "figma-use,figma-generate-design"`, jedna stránka na v
 
 ## Stav (2026-10-20)
 
-Hotové jsou všechny obrazovky na stránkách HF / 01–06 kromě e-mailů S17: komponenty, landing V08 / M07, systémové stránky S01–S16, přihláška V02–V07h a M02–M06, organizátor O01–O34, účastník U01 / U04 / U13 a dialogy X16–X23.
+Hotové jsou všechny obrazovky na stránkách HF / 01–06 kromě e-mailů S17: komponenty, landing V08 / M07, systémové stránky S01–S16, přihláška V02–V07h a M02–M06, organizátor O01–O34, účastník U01 / U04 / U13 a dialogy X16–X23. Přibyly komponenty DS / Theme switcher, DS / Icon / menu a sun; přepínač jazyka a motivu je ve všech hlavičkách a horních lištách.
 
 **Známé odchylky v kódu:**
 
 - Odkaz „Podpora Togeny“ v sidebaru chybí, dokud neexistuje kanál podpory.
-- Přepínač motivu (světlý / tmavý) v hlavičkách ve Figmě není; v kódu zůstává.
-- Mobilní navigace přihlášené části (vysouvací panel) není ve Figmě nakreslená.
+- Text „Otevřít navigaci“ u tlačítka menu je jen pro čtečky, ve Figmě je to název vrstvy.

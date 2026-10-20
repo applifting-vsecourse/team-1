@@ -31,6 +31,8 @@ type AreaLayoutProps = {
  */
 // Figma (Design system): O01 Dashboard · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=11988-2
 // Figma (Design system): U13 Nastavení účtu účastníka · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=11988-11146
+// Figma (Design system): M08 Přihlášená část · navigace zavřená · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=13177-1680
+// Figma (Design system): M09 Přihlášená část · navigace otevřená · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=13177-21759
 export function AreaLayout({ nav, roleLabel, userMenu, width, children }: AreaLayoutProps) {
   const { t } = useTranslation()
   // The sheet remembers the page it was opened on, so following a link in it closes it.
