@@ -21,6 +21,7 @@ export const ROUTES = {
 
   participant: {
     login: "/participant/login",
+    magicLink: "/participant/magic-link",
     setPassword: "/participant/set-password",
     applications: "/participant",
     account: "/participant/account",

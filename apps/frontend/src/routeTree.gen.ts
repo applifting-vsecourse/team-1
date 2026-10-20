@@ -15,6 +15,7 @@ import { Route as OrganizerAppRouteImport } from './routes/organizer/_app'
 import { Route as OrganizerLoginRouteImport } from './routes/organizer/login'
 import { Route as ParticipantAppRouteImport } from './routes/participant/_app'
 import { Route as ParticipantLoginRouteImport } from './routes/participant/login'
+import { Route as ParticipantMagicLinkRouteImport } from './routes/participant/magic-link'
 import { Route as ParticipantSetPasswordRouteImport } from './routes/participant/set-password'
 import { Route as ApplyConfirmationAccessTokenRouteImport } from './routes/apply/confirmation/$accessToken'
 import { Route as OrganizerAppIndexRouteImport } from './routes/organizer/_app/index'
@@ -57,6 +58,11 @@ const ParticipantAppRoute = ParticipantAppRouteImport.update({
 const ParticipantLoginRoute = ParticipantLoginRouteImport.update({
   id: '/participant/login',
   path: '/participant/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ParticipantMagicLinkRoute = ParticipantMagicLinkRouteImport.update({
+  id: '/participant/magic-link',
+  path: '/participant/magic-link',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ParticipantSetPasswordRoute = ParticipantSetPasswordRouteImport.update({
@@ -138,6 +144,7 @@ export interface FileRoutesByFullPath {
   '/organizer/login': typeof OrganizerLoginRoute
   '/participant': typeof ParticipantAppRouteWithChildren
   '/participant/login': typeof ParticipantLoginRoute
+  '/participant/magic-link': typeof ParticipantMagicLinkRoute
   '/participant/set-password': typeof ParticipantSetPasswordRoute
   '/apply/confirmation/$accessToken': typeof ApplyConfirmationAccessTokenRoute
   '/organizer/account': typeof OrganizerAppAccountRoute
@@ -157,6 +164,7 @@ export interface FileRoutesByTo {
   '/apply/$token': typeof ApplyTokenRoute
   '/organizer/login': typeof OrganizerLoginRoute
   '/participant/login': typeof ParticipantLoginRoute
+  '/participant/magic-link': typeof ParticipantMagicLinkRoute
   '/participant/set-password': typeof ParticipantSetPasswordRoute
   '/apply/confirmation/$accessToken': typeof ApplyConfirmationAccessTokenRoute
   '/organizer/account': typeof OrganizerAppAccountRoute
@@ -178,6 +186,7 @@ export interface FileRoutesById {
   '/organizer/login': typeof OrganizerLoginRoute
   '/participant/_app': typeof ParticipantAppRouteWithChildren
   '/participant/login': typeof ParticipantLoginRoute
+  '/participant/magic-link': typeof ParticipantMagicLinkRoute
   '/participant/set-password': typeof ParticipantSetPasswordRoute
   '/apply/confirmation/$accessToken': typeof ApplyConfirmationAccessTokenRoute
   '/organizer/_app/account': typeof OrganizerAppAccountRoute
@@ -201,6 +210,7 @@ export interface FileRouteTypes {
     | '/organizer/login'
     | '/participant'
     | '/participant/login'
+    | '/participant/magic-link'
     | '/participant/set-password'
     | '/apply/confirmation/$accessToken'
     | '/organizer/account'
@@ -220,6 +230,7 @@ export interface FileRouteTypes {
     | '/apply/$token'
     | '/organizer/login'
     | '/participant/login'
+    | '/participant/magic-link'
     | '/participant/set-password'
     | '/apply/confirmation/$accessToken'
     | '/organizer/account'
@@ -240,6 +251,7 @@ export interface FileRouteTypes {
     | '/organizer/login'
     | '/participant/_app'
     | '/participant/login'
+    | '/participant/magic-link'
     | '/participant/set-password'
     | '/apply/confirmation/$accessToken'
     | '/organizer/_app/account'
@@ -262,6 +274,7 @@ export interface RootRouteChildren {
   OrganizerLoginRoute: typeof OrganizerLoginRoute
   ParticipantAppRoute: typeof ParticipantAppRouteWithChildren
   ParticipantLoginRoute: typeof ParticipantLoginRoute
+  ParticipantMagicLinkRoute: typeof ParticipantMagicLinkRoute
   ParticipantSetPasswordRoute: typeof ParticipantSetPasswordRoute
   ApplyConfirmationAccessTokenRoute: typeof ApplyConfirmationAccessTokenRoute
 }
@@ -308,6 +321,13 @@ declare module '@tanstack/react-router' {
       path: '/participant/login'
       fullPath: '/participant/login'
       preLoaderRoute: typeof ParticipantLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/participant/magic-link': {
+      id: '/participant/magic-link'
+      path: '/participant/magic-link'
+      fullPath: '/participant/magic-link'
+      preLoaderRoute: typeof ParticipantMagicLinkRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/participant/set-password': {
@@ -467,6 +487,7 @@ const rootRouteChildren: RootRouteChildren = {
   OrganizerLoginRoute: OrganizerLoginRoute,
   ParticipantAppRoute: ParticipantAppRouteWithChildren,
   ParticipantLoginRoute: ParticipantLoginRoute,
+  ParticipantMagicLinkRoute: ParticipantMagicLinkRoute,
   ParticipantSetPasswordRoute: ParticipantSetPasswordRoute,
   ApplyConfirmationAccessTokenRoute: ApplyConfirmationAccessTokenRoute,
 }

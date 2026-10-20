@@ -5,8 +5,10 @@ import { z } from "zod"
 import { ROUTES } from "@/app/routes"
 import { Seo } from "@/components/atoms/Seo"
 import { AuthLayout } from "@/components/templates/AuthLayout"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 import { authSessionQueryOptions } from "@/features/auth/api/authSessionQueryOptions"
+import { RequestMagicLinkForm } from "@/features/auth/components/RequestMagicLinkForm"
 import { SignInWithRedirect } from "@/features/auth/components/SignInWithRedirect"
 import { accountHome } from "@/features/auth/lib/account-home"
 
@@ -25,7 +27,7 @@ export const Route = createFileRoute("/participant/login")({
 })
 
 // US-02 (S10). Participant accounts come from a submitted application (US-01);
-// "send me a new link" (magic link) is added in stream C.
+// whoever has no password yet (or lost the link) asks for a new link in the second card.
 function ParticipantLoginPage() {
   const { from } = Route.useSearch()
   const { t } = useTranslation("auth")
@@ -36,15 +38,32 @@ function ParticipantLoginPage() {
       <AuthLayout
         title={t("participantLogin.title")}
         description={t("participantLogin.description")}
-        cardTitle={t("participantLogin.cardTitle")}
       >
-        <SignInWithRedirect
-          from={from}
-          accountType="PARTICIPANT"
-          fallback={ROUTES.participant.applications}
-          emailHint={t("participantLogin.emailHint")}
-          passwordHint={t("participantLogin.passwordHint")}
-        />
+        <Card className="gap-4">
+          <CardHeader>
+            <CardTitle className="text-lg tracking-tight">
+              {t("participantLogin.cardTitle")}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <SignInWithRedirect
+              from={from}
+              accountType="PARTICIPANT"
+              fallback={ROUTES.participant.applications}
+              emailHint={t("participantLogin.emailHint")}
+              passwordHint={t("participantLogin.passwordHint")}
+            />
+          </CardContent>
+        </Card>
+        <Card className="gap-4">
+          <CardHeader>
+            <CardTitle className="text-lg tracking-tight">{t("requestLink.cardTitle")}</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-4 text-sm">
+            <p>{t("requestLink.body")}</p>
+            <RequestMagicLinkForm />
+          </CardContent>
+        </Card>
       </AuthLayout>
     </>
   )

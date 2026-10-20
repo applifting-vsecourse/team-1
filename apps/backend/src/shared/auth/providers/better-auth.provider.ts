@@ -5,6 +5,7 @@ import { ResetPassword, resetPasswordSubject } from "@/core/email/templates/rese
 import { VerifyEmail, verifyEmailSubject } from "@/core/email/templates/verify-email"
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { betterAuthCoreConfig } from "@/shared/auth/config/better-auth.config"
+import { createMagicLinkPlugin } from "@/shared/auth/magic-link/magic-link.plugin"
 import { Config } from "@/shared/config/config.service"
 import { Inject, Provider } from "@nestjs/common"
 import { betterAuth } from "better-auth"
@@ -55,7 +56,10 @@ const createAuth = (
       },
       sendOnSignUp: true,
     },
-    plugins: [...(betterAuthCoreConfig.plugins ?? [])],
+    plugins: [
+      ...(betterAuthCoreConfig.plugins ?? []),
+      createMagicLinkPlugin(config, emailProvider),
+    ],
   })
 
 export type BetterAuth = ReturnType<typeof createAuth>
