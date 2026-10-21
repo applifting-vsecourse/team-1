@@ -1,5 +1,42 @@
 {
   "applications": {
-    "title": "Moje přihláška"
+    "description": "Přihlášky vedené pod účtem {{name}}.",
+    "title": "Vaše přihlášky"
+  },
+  "detail": {
+    "back": "← Všechny přihlášky",
+    "errorTitle": "Přihlášku se nepodařilo načíst",
+    "position": "Pořadí:",
+    "status": "Stav:",
+    "termsTitle": "Stav podle termínů",
+    "title": "Moje přihláška",
+    "toPay": "K úhradě:",
+    "waitlistNote": "K úhradě se počítá potvrzený termín. Za termín v pořadníku zatím neplaťte."
+  },
+  "list": {
+    "empty": "Zatím tu nemáte žádnou přihlášku. Až se přihlásíte na akci, objeví se tady.",
+    "errorTitle": "Přihlášky se nepodařilo načíst"
+  },
+  "payment": {
+    "account": "Číslo účtu:",
+    "detailsTitle": "Údaje o platbě",
+    "due": "Částka k úhradě",
+    "note": "Platbu proveďte převodem.",
+    "overpaid": "Přeplatek",
+    "owed": "Zbývá zaplatit",
+    "paid": "Zaplaceno",
+    "title": "Platba za potvrzený termín",
+    "toPay": "K platbě:",
+    "transferTitle": "Údaje pro doplatek",
+    "variableSymbol": "Variabilní symbol:",
+    "waitlistedNote": "Náhradnický termín {{range}} zatím nemá částku k úhradě."
+  },
+  "status": {
+    "confirmed": "potvrzená",
+    "confirmedLong": "Potvrzená",
+    "position": "{{position}}. v pořadí",
+    "untilConfirmed": "do potvrzení",
+    "waitlisted": "náhradník · {{position}}. v pořadí",
+    "waitlistedLong": "Náhradník"
   }
 }

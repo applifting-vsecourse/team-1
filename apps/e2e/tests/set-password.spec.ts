@@ -24,11 +24,11 @@ test(
     await page.getByLabel("New password", { exact: true }).fill(password)
     await page.getByLabel("Repeat new password").fill(password)
     await page.getByRole("button", { name: "Set password and open application" }).click()
-    await expect(page.getByRole("heading", { level: 1, name: "My application" })).toBeVisible()
+    await expect(page.getByRole("heading", { level: 1, name: "Your applications" })).toBeVisible()
 
     await page.goto("/participant/account")
     await page.getByRole("main").getByRole("button", { name: "Sign out" }).click()
     await signIn(page, "participant", { email, password })
-    await expect(page.getByRole("heading", { level: 1, name: "My application" })).toBeVisible()
+    await expect(page.getByRole("heading", { level: 1, name: "Your applications" })).toBeVisible()
   },
 )

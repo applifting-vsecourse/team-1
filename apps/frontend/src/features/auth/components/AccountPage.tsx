@@ -22,7 +22,7 @@ export function AccountPage() {
   if (!user) return null
 
   return (
-    <>
+    <div className="flex max-w-196 flex-col gap-6">
       <PageHeader
         title={t("account.title")}
         description={t(`account.description.${user.accountType}`)}
@@ -50,6 +50,6 @@ export function AccountPage() {
           {t("menu.signOut")}
         </Button>
       </Card>
-    </>
+    </div>
   )
 }
