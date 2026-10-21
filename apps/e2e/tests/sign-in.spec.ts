@@ -23,7 +23,7 @@ test.describe("Sign-in", () => {
     { tag: "@mobile" },
     async ({ page }) => {
       await signIn(page, "participant", PARTICIPANT)
-      await expect(page.getByRole("heading", { level: 1, name: "My application" })).toBeVisible()
+      await expect(page.getByRole("heading", { level: 1, name: "Your applications" })).toBeVisible()
 
       await page.goto("/participant/account")
       await page.getByRole("main").getByRole("button", { name: "Sign out" }).click()
@@ -40,7 +40,7 @@ test.describe("Sign-in", () => {
 
   test("participant cannot open the organizer area", async ({ page }) => {
     await signIn(page, "participant", PARTICIPANT)
-    await expect(page.getByRole("heading", { level: 1, name: "My application" })).toBeVisible()
+    await expect(page.getByRole("heading", { level: 1, name: "Your applications" })).toBeVisible()
 
     await page.goto("/organizer")
     await expect(page.getByText("A participant account can't manage events.")).toBeVisible()
@@ -52,7 +52,7 @@ test.describe("Sign-in", () => {
     expect((await page.request.get(`${API_URL}/organizer/profile`)).status()).toBe(401)
 
     await signIn(page, "participant", PARTICIPANT)
-    await expect(page.getByRole("heading", { level: 1, name: "My application" })).toBeVisible()
+    await expect(page.getByRole("heading", { level: 1, name: "Your applications" })).toBeVisible()
     expect((await page.request.get(`${API_URL}/organizer/profile`)).status()).toBe(403)
   })
 })
