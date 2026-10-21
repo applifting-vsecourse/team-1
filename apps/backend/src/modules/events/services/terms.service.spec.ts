@@ -2,7 +2,6 @@ import { EventTerm } from "@/modules/events/domain/event-term"
 import { TermsRepository } from "@/modules/events/repositories/terms.repository"
 import { Identity } from "@/shared/auth/domain/identity"
 import { OrganizationAccessService } from "@/shared/organization-access/organization-access.service"
-import { ForbiddenException } from "@nestjs/common"
 import { mock, MockProxy } from "jest-mock-extended"
 import { TermsService } from "./terms.service"
 
@@ -60,9 +59,9 @@ describe("TermsService", () => {
 
   it("treats a term of another event as forbidden", async () => {
     repository.findById.mockResolvedValue(term({ eventId: "other" }))
-    await expect(service.update(organizer, "e1", "t1", input)).rejects.toBeInstanceOf(
-      ForbiddenException,
-    )
+    await expect(service.update(organizer, "e1", "t1", input)).rejects.toMatchObject({
+      response: { statusCode: 403, code: "FORBIDDEN" },
+    })
   })
 
   it("does not change a cancelled term", async () => {
