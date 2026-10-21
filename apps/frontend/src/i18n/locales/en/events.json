@@ -3,12 +3,6 @@
     "events": "Events"
   },
   "list": {
-    "columns": {
-      "capacity": "Capacity",
-      "event": "Event",
-      "status": "Status",
-      "terms": "Terms"
-    },
     "count_few": "{{count}} events",
     "count_one": "{{count}} event",
     "count_other": "{{count}} events",
@@ -17,18 +11,14 @@
     "description": "Events of your organizations and events you run on your own.",
     "empty": "There are no events yet.",
     "errorTitle": "Couldn't load the events",
-    "manyTerms_few": "{{count}} terms · {{months}} · {{organization}}",
-    "manyTerms_one": "{{count}} term · {{months}} · {{organization}}",
-    "manyTerms_other": "{{count}} terms · {{months}} · {{organization}}",
     "noCapacity": "—",
-    "noTerms": "No term yet · {{organization}}",
-    "oneTerm": "{{dates}} · {{organization}}",
+    "noTerms": "No term yet",
+    "occupancy_few": "{{confirmed}} / {{count}} places",
+    "occupancy_one": "{{confirmed}} / {{count}} place",
+    "occupancy_other": "{{confirmed}} / {{count}} places",
     "statusClosed": "Application inactive",
     "statusOpen": "Published",
-    "title": "Event list",
-    "total_few": "{{count}} records in total",
-    "total_one": "{{count}} record in total",
-    "total_other": "{{count}} records in total"
+    "title": "Event list"
   },
   "new": {
     "back": "Back to the list",

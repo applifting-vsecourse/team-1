@@ -8,6 +8,7 @@ import { EmptyState } from "@/components/molecules/EmptyState"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { PageHeader } from "@/components/molecules/PageHeader"
+import { TermLabel } from "@/components/molecules/TermLabel"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { formatDateRange } from "@/lib/date"
@@ -107,9 +108,13 @@ export function EventTerms({ eventId }: { eventId: string }) {
         {active.length === 0 ? (
           <EmptyState message={t("terms.empty")} />
         ) : (
-          <ul className="flex flex-col gap-4">
+          // Rows: "DS / Term row" https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12279-965
+          <ul className="pt-2">
             {active.map((term) => (
-              <li key={term.id}>
+              <li
+                key={term.id}
+                className="border-t py-3 last:pb-0"
+              >
                 <TermRow
                   term={term}
                   onEdit={() => {
@@ -180,12 +185,9 @@ function TermRow({
   const { t } = useTranslation("events")
 
   return (
-    <div className="flex flex-wrap items-center gap-4 rounded-md border p-4">
-      <div className="flex min-w-48 flex-1 flex-col gap-2">
-        <h3 className="text-lg font-semibold tracking-tight">{term.name}</h3>
-        <p className="text-sm text-muted-foreground">
-          {formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })}
-        </p>
+    <div className="flex flex-wrap items-center gap-4">
+      <div className="flex min-w-48 flex-1 flex-col gap-1">
+        <TermLabel term={term} />
         <p className="flex gap-4 text-sm text-muted-foreground">
           <span>{t("terms.capacity", { count: term.capacity })}</span>
           <span>{formatCzk(term.priceCzk)}</span>

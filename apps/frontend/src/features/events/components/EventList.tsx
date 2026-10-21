@@ -1,21 +1,26 @@
 import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
-import type { TFunction } from "i18next"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
+import { ActiveCorners } from "@/components/atoms/ActiveCorners"
 import { EmptyState } from "@/components/molecules/EmptyState"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { PageHeader } from "@/components/molecules/PageHeader"
+import { TermLabel } from "@/components/molecules/TermLabel"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { formatDateRange, formatMonthRange } from "@/lib/date"
-import { cn } from "@/lib/utils"
 
-import { eventsQueryOptions, type OrganizerEvent } from "@/features/events/api/events"
+import {
+  eventsQueryOptions,
+  type EventTermSummary,
+  type OrganizerEvent,
+} from "@/features/events/api/events"
 
-/** O02a: the organizer's events, with a confirmation right after one was created. */
+/** O02 / O02a: the organizer's events as cards, with a confirmation right after one was created. */
+// Figma (Design system): O02 Seznam akcí · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=11988-91
 // Figma (Design system): O02a Nová akce v seznamu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12264-1331
 export function EventList({ createdEventId }: { createdEventId?: string }) {
   const { t } = useTranslation("events")
@@ -39,7 +44,7 @@ export function EventList({ createdEventId }: { createdEventId?: string }) {
       {created ? (
         <p
           role="status"
-          className="rounded-lg border border-status-success bg-status-success-bg px-5 py-4 text-status-success"
+          className="rounded-lg border border-status-success/30 bg-status-success-bg px-5 py-4 text-status-success"
         >
           {t("list.created", { name: created.name })}
         </p>
@@ -54,86 +59,87 @@ export function EventList({ createdEventId }: { createdEventId?: string }) {
       ) : null}
       {data && data.length === 0 ? <EmptyState message={t("list.empty")} /> : null}
       {data && data.length > 0 ? (
-        <Card className="gap-4 p-6">
+        <section className="flex flex-col gap-4">
           <h2 className="text-lg font-semibold tracking-tight">
             {t("list.count", { count: data.length })}
           </h2>
-          <div
-            aria-hidden
-            className="hidden gap-4 text-sm font-medium text-muted-foreground md:grid md:grid-cols-[2fr_2fr_1fr_1fr_1.5rem]"
-          >
-            <span>{t("list.columns.event")}</span>
-            <span>{t("list.columns.terms")}</span>
-            <span>{t("list.columns.capacity")}</span>
-            <span>{t("list.columns.status")}</span>
-            <span />
-          </div>
-          <ul className="flex flex-col gap-3">
+          <ul className="flex flex-col gap-4">
             {data.map((event) => (
-              <li key={event.id}>
-                <EventRow
-                  event={event}
-                  isHighlighted={event.id === createdEventId}
-                />
+              // The just-created event is the one current card: it carries the Togena corners.
+              <li
+                key={event.id}
+                data-status={event.id === createdEventId ? "active" : undefined}
+                className="group relative"
+              >
+                <EventCard event={event} />
+                <ActiveCorners />
               </li>
             ))}
           </ul>
-          <p className="text-xs font-medium text-muted-foreground">
-            {t("list.total", { count: data.length })}
-          </p>
-        </Card>
+        </section>
       ) : null}
     </div>
   )
 }
 
-function EventRow({ event, isHighlighted }: { event: OrganizerEvent; isHighlighted: boolean }) {
+/** One event: name, organization, whether the application link works, every term with its occupancy. */
+function EventCard({ event }: { event: OrganizerEvent }) {
   const { t } = useTranslation("events")
-  const terms = termsSummary(event, t)
 
   return (
     <Link
       to={ROUTES.organizer.event}
       params={{ eventId: event.id }}
-      className={cn(
-        "grid gap-1 rounded-md border p-3 text-sm md:grid-cols-[2fr_2fr_1fr_1fr_1.5rem] md:items-center md:gap-4",
-        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
-        isHighlighted
-          ? "min-h-16 border-transparent bg-accent"
-          : "min-h-13 bg-card hover:bg-accent/40",
-      )}
+      className="block rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
     >
-      <span className="text-lg font-semibold tracking-tight text-link">{event.name}</span>
-      <span>{terms}</span>
-      <span>{t("list.noCapacity")}</span>
-      <span className="font-medium text-link">
-        {event.applicationsOpen ? t("list.statusOpen") : t("list.statusClosed")}
-      </span>
-      <span
-        aria-hidden
-        className="hidden text-lg font-semibold text-link md:block"
-      >
-        →
-      </span>
+      <Card className="gap-2 px-6 py-5 transition-colors hover:bg-accent/40">
+        <div className="flex items-center justify-between gap-6">
+          <h3 className="text-lg font-semibold">{event.name}</h3>
+          <span
+            aria-hidden
+            className="shrink-0 text-lg font-semibold text-link"
+          >
+            →
+          </span>
+        </div>
+        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+          <p className="text-sm text-muted-foreground">{event.organizationName}</p>
+          <Badge variant={event.applicationsOpen ? "success" : "warning"}>
+            {event.applicationsOpen ? t("list.statusOpen") : t("list.statusClosed")}
+          </Badge>
+        </div>
+        {/* Rows: "O / Event term row" https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=13895-8174 */}
+        <ul className="pt-2">
+          {event.terms.map((term) => (
+            <li
+              key={term.id}
+              className="flex items-center gap-4 border-t py-3 last:pb-0"
+            >
+              <TermLabel term={term} />
+              <Occupancy term={term} />
+            </li>
+          ))}
+          {event.terms.length === 0 ? (
+            <li className="flex items-center gap-4 border-t pt-3">
+              <span className="flex-1 font-medium">{t("list.noTerms")}</span>
+              <span className="font-medium">{t("list.noCapacity")}</span>
+            </li>
+          ) : null}
+        </ul>
+      </Card>
     </Link>
   )
 }
 
-/** Frame O02a: one term shows its dates, several show the count and the months they span. */
-function termsSummary(event: OrganizerEvent, t: TFunction<"events">): string {
-  const organization = event.organizationName
-  if (event.termCount === 0 || !event.startsOn || !event.endsOn) {
-    return t("list.noTerms", { organization })
-  }
-  if (event.termCount === 1) {
-    return t("list.oneTerm", {
-      dates: formatDateRange(event.startsOn, event.endsOn, { shouldShowYear: true }),
-      organization,
-    })
-  }
-  return t("list.manyTerms", {
-    count: event.termCount,
-    months: formatMonthRange(event.startsOn, event.endsOn),
-    organization,
-  })
+/** Confirmed places of all beds; a dash until the event has rooms. */
+function Occupancy({ term }: { term: EventTermSummary }) {
+  const { t } = useTranslation("events")
+
+  return (
+    <span className="shrink-0 font-medium tabular-nums">
+      {term.capacity > 0
+        ? t("list.occupancy", { confirmed: term.confirmedCount, count: term.capacity })
+        : t("list.noCapacity")}
+    </span>
+  )
 }

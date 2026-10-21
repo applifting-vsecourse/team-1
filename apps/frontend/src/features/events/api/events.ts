@@ -3,6 +3,17 @@ import { z } from "zod"
 
 import { api } from "@/lib/api-client"
 
+export const eventTermSummarySchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  startsOn: z.string(),
+  endsOn: z.string(),
+  /** Beds of the event's rooms, the same for every term. */
+  capacity: z.number().int(),
+  confirmedCount: z.number().int(),
+})
+export type EventTermSummary = z.infer<typeof eventTermSummarySchema>
+
 export const organizerEventSchema = z.object({
   id: z.string(),
   organizationId: z.string(),
@@ -21,6 +32,8 @@ export const organizerEventSchema = z.object({
   /** The application link works; otherwise the public page is a 404. */
   applicationsOpen: z.boolean(),
   missing: z.array(z.enum(["TERM", "ROOM"])),
+  /** Terms that are still offered, in chronological order. */
+  terms: z.array(eventTermSummarySchema),
 })
 export type OrganizerEvent = z.infer<typeof organizerEventSchema>
 

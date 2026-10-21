@@ -3,12 +3,6 @@
     "events": "Akce"
   },
   "list": {
-    "columns": {
-      "capacity": "Kapacita",
-      "event": "Akce",
-      "status": "Stav",
-      "terms": "Termíny"
-    },
     "count_few": "{{count}} akce",
     "count_one": "{{count}} akce",
     "count_other": "{{count}} akcí",
@@ -17,18 +11,14 @@
     "description": "Akce vašich organizací a akce pořádané samostatně.",
     "empty": "Zatím tu nejsou žádné akce.",
     "errorTitle": "Akce se nepodařilo načíst",
-    "manyTerms_few": "{{count}} termíny · {{months}} · {{organization}}",
-    "manyTerms_one": "{{count}} termín · {{months}} · {{organization}}",
-    "manyTerms_other": "{{count}} termínů · {{months}} · {{organization}}",
     "noCapacity": "—",
-    "noTerms": "Zatím bez termínu · {{organization}}",
-    "oneTerm": "{{dates}} · {{organization}}",
+    "noTerms": "Zatím bez termínu",
+    "occupancy_few": "{{confirmed}} / {{count}} místa",
+    "occupancy_one": "{{confirmed}} / {{count}} místo",
+    "occupancy_other": "{{confirmed}} / {{count}} míst",
     "statusClosed": "Přihláška neaktivní",
     "statusOpen": "Zveřejněno",
-    "title": "Seznam akcí",
-    "total_few": "Celkem {{count}} záznamy",
-    "total_one": "Celkem {{count}} záznam",
-    "total_other": "Celkem {{count}} záznamů"
+    "title": "Seznam akcí"
   },
   "new": {
     "back": "Zpět na seznam",

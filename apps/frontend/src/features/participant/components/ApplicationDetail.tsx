@@ -7,12 +7,13 @@ import { MoneyAmount } from "@/components/atoms/MoneyAmount"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { PageHeader } from "@/components/molecules/PageHeader"
+import { TermLabel } from "@/components/molecules/TermLabel"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 
 import { myApplicationQueryOptions } from "@/features/participant/api/applications"
 import { PaymentSummary } from "@/features/participant/components/PaymentSummary"
-import { TermLabel, TermStatusBadge } from "@/features/participant/components/TermSummary"
+import { TermStatusBadge } from "@/features/participant/components/TermSummary"
 
 type ApplicationDetailProps = { applicationId: string }
 

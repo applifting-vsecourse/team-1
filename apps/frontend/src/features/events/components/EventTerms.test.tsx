@@ -27,6 +27,7 @@ const event = {
   endsOn: "2027-08-08",
   applicationsOpen: true,
   missing: [],
+  terms: [],
 }
 const term = (overrides: object) => ({
   id: "t1",
