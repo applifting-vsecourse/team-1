@@ -2,23 +2,23 @@ import { createFileRoute } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
 import { Seo } from "@/components/atoms/Seo"
-import { PageHeader } from "@/components/molecules/PageHeader"
+
+import { EventSetup } from "@/features/events/components/EventSetup"
 
 export const Route = createFileRoute("/organizer/_app/events/$eventId/")({
   component: EventOverviewPage,
 })
 
-// Skeleton — US-29.
+// US-12 renders the head of the overview (link and what is missing); the
+// occupancy and attention panels follow with US-29.
 function EventOverviewPage() {
-  const { t } = useTranslation(["eventOverview", "common"])
+  const { eventId } = Route.useParams()
+  const { t } = useTranslation("eventOverview")
 
   return (
     <>
       <Seo title={t("overview.title")} />
-      <PageHeader
-        title={t("overview.title")}
-        description={t("common:comingSoon", { story: "US-29" })}
-      />
+      <EventSetup eventId={eventId} />
     </>
   )
 }

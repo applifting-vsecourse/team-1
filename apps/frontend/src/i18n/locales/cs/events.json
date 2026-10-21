@@ -1,9 +1,82 @@
 {
+  "breadcrumb": {
+    "events": "Akce"
+  },
   "list": {
-    "title": "Akce"
+    "columns": {
+      "capacity": "Kapacita",
+      "event": "Akce",
+      "status": "Stav",
+      "terms": "Termíny"
+    },
+    "count_few": "{{count}} akce",
+    "count_one": "{{count}} akce",
+    "count_other": "{{count}} akcí",
+    "create": "Vytvořit akci",
+    "created": "Akce {{name}} byla založena.",
+    "description": "Akce vašich organizací a akce pořádané samostatně.",
+    "empty": "Zatím tu nejsou žádné akce.",
+    "errorTitle": "Akce se nepodařilo načíst",
+    "manyTerms_few": "{{count}} termíny · {{months}} · {{organization}}",
+    "manyTerms_one": "{{count}} termín · {{months}} · {{organization}}",
+    "manyTerms_other": "{{count}} termínů · {{months}} · {{organization}}",
+    "noCapacity": "—",
+    "noTerms": "Zatím bez termínu · {{organization}}",
+    "oneTerm": "{{dates}} · {{organization}}",
+    "statusClosed": "Přihláška neaktivní",
+    "statusOpen": "Zveřejněno",
+    "title": "Seznam akcí",
+    "total_few": "Celkem {{count}} záznamy",
+    "total_one": "Celkem {{count}} záznam",
+    "total_other": "Celkem {{count}} záznamů"
   },
   "new": {
-    "title": "Nová akce"
+    "back": "Zpět na seznam",
+    "breadcrumb": "Vytvoření akce",
+    "description": "Založte akci. Termíny, ceny a pokoje doplníte následně.",
+    "form": {
+      "description": "Popis akce",
+      "heading": "Základní údaje",
+      "location": "Místo konání",
+      "name": "Název akce *",
+      "nameHelper": "Název uvidí také účastníci.",
+      "nameRequired": "Vyplňte název akce.",
+      "organization": "Organizace",
+      "organizationHelper": "Vyberte svou organizaci, nebo Samostatně.",
+      "required": "* Povinné pole",
+      "submit": "Založit akci"
+    },
+    "next": "Přihlášku zpřístupníte po doplnění termínu s cenou a alespoň jednoho pokoje.",
+    "title": "Vytvoření akce"
+  },
+  "overview": {
+    "backToList": "Zpět na seznam",
+    "breadcrumbOverview": "Přehled",
+    "copied": "Odkaz zkopírován do schránky",
+    "copy": "Kopírovat odkaz na přihlášku",
+    "copyAgain": "Kopírovat znovu",
+    "errorTitle": "Akci se nepodařilo načíst",
+    "inactiveBody": "Akce je uložená v seznamu. Přihláška se zpřístupní po doplnění termínu s cenou a pokoje.",
+    "inactiveTitle": "Odkaz na přihlášku zatím není aktivní",
+    "missing": {
+      "addRoom": "Přidat pokoj",
+      "addTerm": "Přidat termín a cenu",
+      "intro": "Doplňte tyto dva kroky. Potom bude možné přímý odkaz zkopírovat a rozeslat.",
+      "roomBody": "Pokoje určují dostupnou kapacitu pro přihlášené účastníky.",
+      "roomTitle": "2 / Přidejte alespoň jeden pokoj",
+      "termBody": "Účastníci potřebují vědět, kdy se akce koná a kolik stojí.",
+      "termTitle": "1 / Přidejte alespoň jeden termín s cenou",
+      "title": "Co chybí ke zpřístupnění přihlášky"
+    },
+    "ready": {
+      "body": "Akce má termíny s cenou i pokoje. Odkaz můžete rozeslat zájemcům.",
+      "title": "Přihláška je připravená ke sdílení"
+    },
+    "subtitleNoTerms": "{{name}} · {{organization}} · zatím bez termínu",
+    "subtitleTerms_few": "{{name}} · pořádá {{organization}} · {{count}} vypsané termíny",
+    "subtitleTerms_one": "{{name}} · pořádá {{organization}} · {{count}} vypsaný termín",
+    "subtitleTerms_other": "{{name}} · pořádá {{organization}} · {{count}} vypsaných termínů",
+    "title": "Přehled akce"
   },
   "rooms": {
     "title": "Ubytování"
