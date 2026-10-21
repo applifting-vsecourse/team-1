@@ -2,7 +2,7 @@
 
 Tento soubor popisuje, jak se obrazovky Togeny převádějí do nového vzhledu. Platí pro každého člověka i agenta, který na redesignu pokračuje, aby každá další obrazovka vypadala, jako by ji udělal stejný autor.
 
-> **Rozsah.** Redesign se dělá přímo v **původním** souboru Design system `P7CQo6rDSptsyLvCR55b8J`. Vzhled komponent a obrazovek je ve stylu shadcn/ui (v kódu PR #112). Od 21. 10. 2026 mají primitivy DS / Primitives hodnoty barev ze souboru „Togena – Remake (Future Teal)“ `Oxlrm0tdW7aWH6C1rbP0fO` (téma Light / Dark); aliasy v DS / Semantic se nemění. Výjimky: text odkazů a info stavů má tmavší `raw/teal-deep` `#006363` kvůli kontrastu a rámeček ovládacích prvků (`raw/control`) zůstal původní kvůli kontrastu 3 : 1.
+> **Rozsah.** Redesign se dělá přímo v **původním** souboru Design system `P7CQo6rDSptsyLvCR55b8J`. Vzhled komponent a obrazovek je ve stylu shadcn/ui (v kódu PR #112). Od 21. 10. 2026 mají primitivy DS / Primitives hodnoty barev ze souboru „Togena – Remake (Future Teal)“ `Oxlrm0tdW7aWH6C1rbP0fO` (téma Light / Dark); aliasy v DS / Semantic se nemění. Výjimky: primární barva je ztmavená z `#00bba7` na `#007f72` (hover `#006f63`, stisk `#005f55`), aby bílý text tlačítek měl kontrast aspoň 4,5 : 1; text odkazů a info stavů má tmavší `raw/teal-deep` `#006363` kvůli kontrastu a rámeček ovládacích prvků (`raw/control`) zůstal původní kvůli kontrastu 3 : 1.
 
 ## Co se mění a co zůstává
 
