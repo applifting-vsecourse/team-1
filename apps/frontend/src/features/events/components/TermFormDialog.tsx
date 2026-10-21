@@ -36,7 +36,7 @@ const createSchema = (t: TFunction<"events">) =>
       name: z.string().trim().min(1, t("terms.form.fieldRequired")),
       startsOn: z.string().min(1, t("terms.form.fieldRequired")),
       endsOn: z.string().min(1, t("terms.form.fieldRequired")),
-      priceCzk: z.string().regex(/^\d{1,7}$/, t("terms.form.fieldRequired")),
+      priceCzk: z.string().regex(/^\d{1,7}$/, t("terms.form.priceRequired")),
     })
     .refine((values) => !values.startsOn || !values.endsOn || values.endsOn >= values.startsOn, {
       path: ["endsOn"],
@@ -62,6 +62,7 @@ type TermFormDialogProps = {
  */
 // Figma (Design system): X16 Přidat termín · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12283-2
 // Figma (Design system): X16a Přidat termín · neplatná data · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12283-675
+// Figma (Design system): X16b Přidat termín · chybí cena · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12639-295
 // Figma (Design system): X17 Upravit termín · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12283-302
 export function TermFormDialog({
   eventId,

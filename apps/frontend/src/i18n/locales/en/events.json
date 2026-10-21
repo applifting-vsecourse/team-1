@@ -114,6 +114,7 @@
       "nameHelper": "Applicants see the name too.",
       "price": "Price per person (CZK) *",
       "priceHelper": "The whole price of the term; no deposit.",
+      "priceRequired": "Fill in the price per person in CZK.",
       "required": "* Required field",
       "save": "Save changes",
       "startsOn": "Start date *",

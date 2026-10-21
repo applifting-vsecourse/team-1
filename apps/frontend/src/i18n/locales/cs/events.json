@@ -114,6 +114,7 @@
       "nameHelper": "Název se zobrazí i účastníkům.",
       "price": "Cena za osobu (Kč) *",
       "priceHelper": "Celá cena za termín; bez zálohy.",
+      "priceRequired": "Vyplňte cenu za osobu v Kč.",
       "required": "* Povinná pole",
       "save": "Uložit změny",
       "startsOn": "Datum začátku *",
