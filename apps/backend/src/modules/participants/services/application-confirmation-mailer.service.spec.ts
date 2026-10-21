@@ -314,6 +314,16 @@ describe("ApplicationConfirmationMailer.sendApplicationChange", () => {
     expect(html).toContain("2900123456/2010")
   })
 
+  it("shows no payment details for a cancelled application even if a term is still marked confirmed", async () => {
+    const { mailer, sendEmail } = setup()
+
+    await mailer.sendApplicationChange(change({ kind: "CANCELLED", isAmountChanged: true }))
+
+    const { html } = sent(sendEmail)
+    expect(html).toContain("Přihláška byla odhlášena")
+    expect(html).not.toContain("Variabilní symbol")
+  })
+
   it("shows no payment details for a cancelled application without confirmed terms", async () => {
     const { mailer, sendEmail } = setup()
 

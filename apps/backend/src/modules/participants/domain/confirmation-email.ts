@@ -50,7 +50,10 @@ export function buildConfirmationApplications(
   }))
 }
 
-/** Props of the change e-mail; the payment details only when the amount due changed. */
+/**
+ * Props of the change e-mail; the payment details only when the amount due
+ * changed — and never for a cancelled application, which owes nothing.
+ */
 export function buildChangeProps(
   change: ApplicationChange,
   frontendUrl: string,
@@ -62,9 +65,10 @@ export function buildChangeProps(
     name: `${application.firstName} ${application.lastName}`,
     kind: change.kind,
     terms: termsOf(application),
-    payment: change.isAmountChanged
-      ? paymentOf(application, change.bankAccount, change.locale)
-      : null,
+    payment:
+      change.isAmountChanged && change.kind !== "CANCELLED"
+        ? paymentOf(application, change.bankAccount, change.locale)
+        : null,
     confirmationUrl: confirmationUrl(frontendUrl, application.accessToken),
   }
 }
