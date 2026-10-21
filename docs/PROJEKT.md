@@ -21,7 +21,7 @@ Jádro MVP:
 1. Organizátor založí akci s více termíny, cenou za termín a pokoji (dámský / pánský, kapacita).
 2. Rozešle neuhodnutelný odkaz; zájemce vyplní krátkou přihlášku na mobilu **bez registrace** a vybere termíny.
 3. Systém každý termín vyhodnotí zvlášť — potvrzený, nebo náhradník — podle volných lůžek pro jeho pohlaví, v pořadí přijetí na serveru.
-4. Účastník hned vidí stav a platební údaje (částka, účet, VS); e-mailem dostane odkaz do svého účtu.
+4. Přihlašovatel hned vidí stav a platební údaje (částka, účet, VS); e-mailem dostane odkaz do svého účtu.
 5. Organizátor vidí obsazenost po termínech, seznam přihlášek s filtry a ručně zapisuje platby.
 
 ## 2. Odkazy a přístupy
@@ -64,30 +64,30 @@ Jádro MVP:
 
 ## 5. Sprint 1 — rozsah
 
-| Story | Název                                       | Proud          |
-| ----- | ------------------------------------------- | -------------- |
-| US-71 | Datový model a ukázková data                | 0              |
-| US-72 | Zkušební prostředí a automatické nasazování | 0              |
-| US-73 | Automatické testy klíčových výpočtů         | 0 + B + D      |
-| US-12 | Založení akce a odkaz na přihlášku          | A              |
-| US-13 | Termíny akce                                | A              |
-| US-16 | Cena termínů                                | A              |
-| US-14 | Pokoje s kapacitou                          | A              |
-| US-26 | Kapacita termínu z pokojů podle pohlaví     | 0 (logika) + B |
-| US-23 | Přihláška přes odkaz                        | B              |
-| US-40 | Cena přihlášky                              | 0 (logika) + B |
-| US-27 | Automatické potvrzení podle kapacity        | B              |
-| US-25 | Stav a platební údaje po odeslání           | B              |
-| US-02 | Přihlášení a odhlášení                      | C              |
-| US-01 | Přístup účastníka z přihlášky               | C              |
-| US-56 | Potvrzovací e-mail                          | C              |
-| US-04 | Nastavení hesla účastníka                   | C              |
-| US-54 | Moje přihláška                              | C              |
-| US-10 | Oddělení dat mezi organizacemi              | 0 (guardy) + D |
-| US-52 | Seznam přihlášek s filtry                   | D              |
-| US-44 | Zápis platby                                | D              |
-| US-29 | Obsazenost po termínech                     | D              |
-| US-96 | Landing page produktu                       | kdokoliv       |
+| Story | Název                                        | Proud          |
+| ----- | -------------------------------------------- | -------------- |
+| US-71 | Datový model a ukázková data                 | 0              |
+| US-72 | Zkušební prostředí a automatické nasazování  | 0              |
+| US-73 | Automatické testy klíčových výpočtů          | 0 + B + D      |
+| US-12 | Založení akce a odkaz na přihlášku           | A              |
+| US-13 | Termíny akce                                 | A              |
+| US-16 | Cena termínů                                 | A              |
+| US-14 | Pokoje s kapacitou                           | A              |
+| US-26 | Kapacita termínu z pokojů podle pohlaví      | 0 (logika) + B |
+| US-23 | Přihláška přes odkaz                         | B              |
+| US-40 | Cena přihlášky                               | 0 (logika) + B |
+| US-27 | Automatické potvrzení podle kapacity         | B              |
+| US-25 | Stav a platební údaje po odeslání            | B              |
+| US-02 | Přihlášení a odhlášení                       | C              |
+| US-01 | Přístup přihlašovatele po odeslání přihlášky | C              |
+| US-56 | Potvrzovací e-mail                           | C              |
+| US-04 | Nastavení hesla přihlašovatele               | C              |
+| US-54 | Moje přihláška                               | C              |
+| US-10 | Oddělení dat mezi organizacemi               | 0 (guardy) + D |
+| US-52 | Seznam přihlášek s filtry                    | D              |
+| US-44 | Zápis platby                                 | D              |
+| US-29 | Obsazenost po termínech                      | D              |
+| US-96 | Landing page produktu                        | kdokoliv       |
 
 Klíčová čísla z akceptačních kritérií (musí sedět v testech):
 
@@ -99,7 +99,7 @@ Klíčová čísla z akceptačních kritérií (musí sedět v testech):
 - Odkaz na přihlášku funguje, až má akce aspoň jeden termín s cenou a aspoň jeden pokoj.
 - Formulář přihlášky funguje na 360 px bez vodorovného posunu. Tlačítko Odeslat je po stisku neaktivní.
 - Cizí záznam přes URL i API vrací **403** a nic z obsahu.
-- Vlastní heslo účastníka má aspoň 8 znaků.
+- Vlastní heslo přihlašovatele má aspoň 8 znaků.
 
 ## 6. Plán práce ve sprintu 1
 
@@ -157,7 +157,7 @@ OrganizationMember    userId, organizationId                       (M:N, organiz
 Event                 organizationId, name, description?, location?, publicToken (unikátní, neuhodnutelný)
 Term                  organizationId, eventId, name, startsOn, endsOn, priceCzk
 Room                  organizationId, eventId, name, capacity (1–20), gender
-Application           organizationId, eventId, userId (účet účastníka), number (VS, sekvence),
+Application           organizationId, eventId, userId (účet přihlašovatele), number (VS, sekvence),
                       accessToken (stránka potvrzení), firstName, lastName, birthDate, gender, email,
                       consentAt, submittedAt
 ApplicationTerm       applicationId, termId, status, priceCzk (zmrazená cena), evaluatedAt
@@ -168,7 +168,7 @@ Payment               organizationId, applicationId, amountCzk, recordedById, cr
 - Peníze jako celé číslo v Kč (`Int`).
 - `Application.number` je globální autoincrement → VS.
 - Cena se při vyhodnocení zkopíruje do `ApplicationTerm.priceCzk`; pozdější změna ceny termínu se týká jen nových přihlášek.
-- `Application.userId` je nullable: přihláška se uloží, i když účet účastníka ještě nevznikl (proud C).
+- `Application.userId` je nullable: přihláška se uloží, i když účet přihlašovatele ještě nevznikl (proud C).
 - Veřejná registrace (`/api/auth/sign-up`) je vypnutá. Účty vznikají jen na serveru (seed, přihláška).
 - Platby jsou řádky (`Payment`), ne příznak na přihlášce — připraveno na import z banky (US-42). Ve sprintu 1 UI zapíše nebo smaže jednu platbu; „zaplaceno bez částky“ uloží aktuální částku k úhradě.
 
@@ -197,7 +197,7 @@ Organizátor (jen ORGANIZER, jinak 403)
   /organizer/events/$eventId/applications
   /organizer/account
 
-Účastník (jen PARTICIPANT)
+Přihlašovatel (jen PARTICIPANT)
   /participant                         moje přihláška (US-54)
   /participant/account
 ```
@@ -264,7 +264,7 @@ apps/frontend/src/
     atoms/            nejmenší vlastní prvky bez byznys logiky (MoneyAmount, StatusBadge, GenderLabel)
     molecules/        složení atomů (FormField, StatTile, CopyLinkButton)
     organisms/        samostatné bloky (Header, EmptyState, ErrorState, DataTable)
-    templates/        layouty (PublicLayout, AuthLayout, AreaLayout pro organizátora i účastníka, ErrorLayout)
+    templates/        layouty (PublicLayout, AuthLayout, AreaLayout pro organizátora i přihlašovatele, ErrorLayout)
     pages/            systémové stránky bez routy (404, 403, chyba, načítání)
   features/<feature>/ api/ (zod schémata + queryOptions), hooks/, components/ (doménové bloky)
   config/ hooks/ lib/ styles/
@@ -272,7 +272,7 @@ apps/frontend/src/
 
 - `components/**` neví nic o doméně a neimportuje z `features/` (hlídá ESLint).
 - Feature komponenty skládají `components/**` a `ui/**`.
-- Veřejná a účastnická část je **mobile-first** (360 px), organizátorská **desktop-first**.
+- Veřejná část a část přihlašovatele jsou **mobile-first** (360 px), organizátorská **desktop-first**.
 - Tokeny (barvy, font, radius) se převezmou z Figma design systému do `global.css`; pravidla z `DESIGN.md` platí dál. Když se Figma s pravidlem pere, rozhoduje tech lead.
 
 ## 10. Rozhodnutí
@@ -313,7 +313,7 @@ apps/frontend/src/
 
 ## 11. Rozdíly vůči boardu
 
-Zapsáno jen tady — issues zatím **nejsou** upravené. Před implementací proudu C je potřeba potvrdit s PO.
+PO změnu potvrdil 2026-10-19, issues jsou upravené 2026-10-21. Tabulka zůstává pro dohledání původního zadání.
 
 | Story | Board říká                                                        | Platí                                                                           |
 | ----- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------- |
@@ -350,4 +350,3 @@ Zapsáno jen tady — issues zatím **nejsou** upravené. Před implementací pr
 | 1   | ~~Env proměnné stagingu: nemáme přístup do Coolify.~~ Uzavřeno 2026-10-21: klíč se zapéká do image přes GitHub secret `RESEND_API_KEY` (`deploy.yml`, `Dockerfile.deploy`). | tech lead      |
 | 2   | ~~Založit Brevo účet a ověřit odesílací adresu.~~ Uzavřeno 2026-10-21: místo Brevo se používá Resend.                                                                       | tech lead      |
 | 3   | Připojit Figma konektor a převzít tokeny do `global.css`.                                                                                                                   | tech lead      |
-| 4   | Potvrdit s PO změnu jednorázové heslo → magic link (sekce 11).                                                                                                              | tech lead / PO |
