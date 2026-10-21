@@ -1,14 +1,22 @@
 import { EmailService } from "@/core/email/interfaces/email-service.interface"
 import { renderEmail } from "@/core/email/render"
 import {
+  ApplicationChange as ApplicationChangeEmail,
+  applicationChangeSubject,
+} from "@/core/email/templates/application-change"
+import {
   ApplicationConfirmation as ApplicationConfirmationEmail,
   applicationConfirmationSubject,
 } from "@/core/email/templates/application-confirmation"
 import {
+  buildChangeProps,
   buildConfirmationApplications,
   loginUrl,
 } from "@/modules/participants/domain/confirmation-email"
-import { SubmissionConfirmation } from "@/modules/participants/domain/submission-confirmation"
+import {
+  ApplicationChange,
+  SubmissionConfirmation,
+} from "@/modules/participants/domain/submission-confirmation"
 import { MagicLinkService } from "@/shared/auth/services/magic-link.service"
 import { Config } from "@/shared/config/config.service"
 import { Inject, Injectable, Logger } from "@nestjs/common"
@@ -19,6 +27,8 @@ import { Inject, Injectable, Logger } from "@nestjs/common"
  * - `sendSubmissionConfirmation`: ONE summary e-mail per submission of the
  *   form, however many participants were signed up. B calls it once, after
  *   every application of the submission is stored.
+ * - `sendApplicationChange`: one e-mail about one changed application; the
+ *   callers (US-28, 32, 33, 34, 84) are added with those stories.
  *
  * A failed delivery never fails the caller: the error is logged (recipient
  * address only) and the method returns normally.
@@ -49,6 +59,22 @@ export class ApplicationConfirmationMailer {
       )
     } catch (error) {
       this.logFailure("confirmation", confirmation.email, error)
+    }
+  }
+
+  async sendApplicationChange(change: ApplicationChange): Promise<void> {
+    try {
+      const html = await renderEmail(
+        ApplicationChangeEmail,
+        buildChangeProps(change, this.config.frontendUrl),
+      )
+      await this.email.sendEmail(
+        change.email,
+        applicationChangeSubject(change.locale, change.eventName),
+        html,
+      )
+    } catch (error) {
+      this.logFailure("change", change.email, error)
     }
   }
 
