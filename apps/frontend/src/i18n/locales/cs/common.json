@@ -46,6 +46,9 @@
       "title": "Stránka nenalezena"
     }
   },
+  "price": {
+    "free": "Zdarma"
+  },
   "state": {
     "loading": "Načítání…",
     "retry": "Zkusit znovu"

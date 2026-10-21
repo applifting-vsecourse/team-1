@@ -87,6 +87,16 @@ describe("organizer terms (integration)", () => {
     expect(negative.status).toBe(400)
   })
 
+  it("accepts a price of 0 for a free term", async () => {
+    const [first] = await list()
+    const { id, priceCzk, name, startsOn, endsOn } = first
+    const path = `${termsPath()}/${id}`
+    const free = await send(cookieA, "PATCH", path, { name, startsOn, endsOn, priceCzk: 0 })
+    expect(free.status).toBe(200)
+    expect((await list()).find((term) => term.id === id)?.priceCzk).toBe(0)
+    await send(cookieA, "PATCH", path, { name, startsOn, endsOn, priceCzk })
+  })
+
   it("requires a whole-CZK price on create and on edit", async () => {
     const base = { name: "X", startsOn: "2027-08-01", endsOn: "2027-08-02" }
     expect((await send(cookieA, "POST", termsPath(), base)).status).toBe(400)

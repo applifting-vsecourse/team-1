@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { formatDateRange } from "@/lib/date"
-import { formatCzk } from "@/lib/money"
+import { formatTermPrice } from "@/lib/money"
 
 import { eventQueryOptions } from "@/features/events/api/events"
 import { termsQueryOptions, type EventTerm } from "@/features/events/api/terms"
@@ -192,7 +192,7 @@ function TermRow({
         </span>
         <span className="sr-only"> · </span>
         <span className="text-sm text-muted-foreground">
-          {term.name} · {formatCzk(term.priceCzk)}
+          {term.name} · {formatTermPrice(term.priceCzk)}
         </span>
       </div>
       <TermOccupancy term={term} />
