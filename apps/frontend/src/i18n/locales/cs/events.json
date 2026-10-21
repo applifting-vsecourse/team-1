@@ -100,9 +100,11 @@
       "waitlisted_one": "{{count}} náhradník",
       "waitlisted_other": "{{count}} náhradníků"
     },
-    "cancelledHelper": "Termín už se nenabízí v přihlášce. Ostatní termíny zůstávají dostupné; historie přihlášek je zachována.",
+    "cancelledHelper": "Termín se už nenabízí v přihlášce. Ostatní termíny zůstávají dostupné; historie přihlášek je zachována.",
     "cancelledRow": "{{name}} · {{dates}} · Zrušeno",
-    "cancelledTitle": "Zrušené termíny",
+    "cancelledTitle_few": "Zrušené termíny",
+    "cancelledTitle_one": "Zrušený termín",
+    "cancelledTitle_other": "Zrušené termíny",
     "capacity_few": "{{count}} místa",
     "capacity_one": "{{count}} místo",
     "capacity_other": "{{count}} míst",

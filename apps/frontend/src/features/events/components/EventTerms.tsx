@@ -128,8 +128,10 @@ export function EventTerms({ eventId }: { eventId: string }) {
       </Card>
       {cancelled.length > 0 ? (
         <section className="flex flex-col gap-3 rounded-lg border bg-muted p-6">
-          <h2 className="text-lg font-semibold tracking-tight">{t("terms.cancelledTitle")}</h2>
-          <ul className="flex flex-col gap-1">
+          <h2 className="text-lg font-semibold tracking-tight">
+            {t("terms.cancelledTitle", { count: cancelled.length })}
+          </h2>
+          <ul className="flex flex-col gap-1 text-base">
             {cancelled.map((term) => (
               <li key={term.id}>
                 {t("terms.cancelledRow", {

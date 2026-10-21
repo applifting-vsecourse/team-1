@@ -98,7 +98,7 @@ describe("EventTerms", () => {
     expect(await screen.findByRole("heading", { name: "Event terms · 2" })).toBeInTheDocument()
     expect(screen.getByText("12–18 Jul 2027")).toBeInTheDocument()
     expect(screen.getAllByText("60 beds")).toHaveLength(2)
-    expect(screen.getByText("Cancelled terms")).toBeInTheDocument()
+    expect(screen.getByText("Cancelled term")).toBeInTheDocument()
     expect(screen.getByText("Zrušený · 12–18 Jul 2027 · Cancelled")).toBeInTheDocument()
   })
 
