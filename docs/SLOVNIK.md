@@ -36,11 +36,22 @@ Každý pojem patří právě do jedné kategorie:
 
 Uživatelský účet se dělí podle `AccountType`. Specializace je disjunktní a úplná: jeden e-mail má právě jeden typ.
 
-```
-Uživatelský účet (User)
-├── Organizátor ........ ORGANIZER   + OrganizationMember (M:N k Organizaci)
-├── Přihlašovatel ...... PARTICIPANT
-└── Správce platformy .. ADMIN
+```mermaid
+classDiagram
+  direction TB
+
+  class UzivatelskyUcet["Uživatelský účet (User)"]
+  <<abstract>> UzivatelskyUcet
+
+  class Organizator["Organizátor · ORGANIZER"]
+  class Prihlasovatel["Přihlašovatel · PARTICIPANT"]
+  class SpravcePlatformy["Správce platformy · ADMIN"]
+  class Organizace["Organizace"]
+
+  UzivatelskyUcet <|-- Organizator
+  UzivatelskyUcet <|-- Prihlasovatel
+  UzivatelskyUcet <|-- SpravcePlatformy
+  Organizator "1..*" -- "1..*" Organizace : členství OrganizationMember
 ```
 
 | Specializace      | Význam                                                                                                                                                                                                                        | Pozor                                                                                                        |
@@ -62,18 +73,18 @@ Přihlašovatel a účastník můžou být jedna osoba (přihlašuje sám sebe),
 
 Stav nese Přihláška v termínu (`ApplicationTerm.status`), ne Přihláška.
 
-```
-odeslání formuláře
-        │ vyhodnocení podle volných lůžek, pořadí přijetí na serveru
-        ▼
- ┌─────────────┐   uvolní se lůžko (US-31)   ┌──────────────┐
- │  Náhradník  │ ──────────────────────────▶ │  Potvrzený   │
- │ WAITLISTED  │                             │  CONFIRMED   │
- └─────────────┘                             └──────────────┘
-        │                                           │
-        └────────── odhlášení (US-32, US-84) ───────┘
-                              ▼
-                     Odhlášený — zatím není
+```mermaid
+stateDiagram-v2
+  state "Náhradník · WAITLISTED" as nahradnik
+  state "Potvrzený · CONFIRMED" as potvrzeny
+  state "Odhlášený · zatím není" as odhlaseny
+
+  [*] --> nahradnik : odeslání formuláře, vyhodnocení podle volných lůžek a pořadí přijetí na serveru
+  [*] --> potvrzeny : odeslání formuláře, vyhodnocení podle volných lůžek a pořadí přijetí na serveru
+  nahradnik --> potvrzeny : uvolní se lůžko US-31
+  nahradnik --> odhlaseny : odhlášení US-32, US-84
+  potvrzeny --> odhlaseny : odhlášení US-32, US-84
+  odhlaseny --> [*]
 ```
 
 | Stav      | Význam                                                 | V kódu       | Pozor                                                                                                  |
