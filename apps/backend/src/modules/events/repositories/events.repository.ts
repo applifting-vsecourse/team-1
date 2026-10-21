@@ -5,7 +5,7 @@ import { Injectable } from "@nestjs/common"
 
 const include = {
   organization: { select: { name: true } },
-  terms: { select: { startsOn: true, endsOn: true } },
+  terms: { where: { cancelledAt: null }, select: { startsOn: true, endsOn: true } },
   _count: { select: { rooms: true } },
 } as const
 

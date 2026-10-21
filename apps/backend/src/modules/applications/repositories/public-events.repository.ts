@@ -14,7 +14,7 @@ export class PublicEventsRepository {
     const event = await this.prisma.event.findUnique({
       where: { publicToken },
       include: {
-        terms: { orderBy: [{ startsOn: "asc" }, { name: "asc" }] },
+        terms: { where: { cancelledAt: null }, orderBy: [{ startsOn: "asc" }, { name: "asc" }] },
         _count: { select: { rooms: true } },
       },
     })

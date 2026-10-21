@@ -82,6 +82,58 @@
     "title": "Ubytování"
   },
   "terms": {
+    "add": "Přidat termín",
+    "cancel": "Zrušit termín",
+    "cancelDialog": {
+      "confirm": "Potvrdit zrušení",
+      "confirmed_few": "{{count}} potvrzené přihlášky",
+      "confirmed_one": "{{count}} potvrzená přihláška",
+      "confirmed_other": "{{count}} potvrzených přihlášek",
+      "history": "Historie přihlášek zůstane zachována. Účastníky informujte samostatně; platby se automaticky nevracejí.",
+      "impact": "{{confirmed}} a {{waitlisted}}",
+      "keep": "Ponechat termín",
+      "notOffered": "Termín {{dates}} se přestane nabízet v přihlášce. Ostatní termíny akce zůstanou dostupné.",
+      "reason": "Důvod zrušení *",
+      "reasonHelper": "Důvod bude uložen pro organizátory.",
+      "title": "Zrušit {{name}}?",
+      "waitlisted_few": "{{count}} náhradníci",
+      "waitlisted_one": "{{count}} náhradník",
+      "waitlisted_other": "{{count}} náhradníků"
+    },
+    "cancelledHelper": "Termín už se nenabízí v přihlášce. Ostatní termíny zůstávají dostupné; historie přihlášek je zachována.",
+    "cancelledRow": "{{name}} · {{dates}} · Zrušeno",
+    "cancelledTitle": "Zrušené termíny",
+    "capacity_few": "{{count}} místa",
+    "capacity_one": "{{count}} místo",
+    "capacity_other": "{{count}} míst",
+    "description": "Přidejte termíny, nastavte jejich data a cenu. Každý termín se vyhodnocuje samostatně.",
+    "edit": "Upravit",
+    "empty": "Akce zatím nemá žádný termín.",
+    "errorTitle": "Termíny se nepodařilo načíst",
+    "form": {
+      "addTitle": "Přidat termín",
+      "close": "Zavřít",
+      "description": "Vyplňte název, období a cenu za osobu. Termíny se řadí podle data začátku.",
+      "editTitle": "Upravit termín",
+      "endBeforeStart": "Konec musí být po začátku.",
+      "endsOn": "Datum konce *",
+      "fieldRequired": "Vyplňte toto pole.",
+      "name": "Název termínu *",
+      "nameHelper": "Název se zobrazí i účastníkům.",
+      "price": "Cena za osobu (Kč) *",
+      "priceHelper": "Celá cena za termín; bez zálohy.",
+      "required": "* Povinná pole",
+      "save": "Uložit změny",
+      "startsOn": "Datum začátku *",
+      "submitAdd": "Přidat termín"
+    },
+    "listHelper": "Seřazeno podle data začátku. Každý termín se vyhodnocuje samostatně.",
+    "listTitle": "Termíny akce · {{count}}",
+    "notice": {
+      "added": "Termín {{name}} byl přidán.",
+      "cancelled": "Termín {{name}} byl zrušen.",
+      "edited": "Změny termínu {{name}} byly uloženy."
+    },
     "title": "Termíny"
   }
 }

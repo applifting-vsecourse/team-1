@@ -6,6 +6,8 @@
   "NOT_FOUND": "Not found.",
   "PASSWORD_ALREADY_SET": "Your password is already set.",
   "PASSWORD_REQUIRED": "Set your password first, then you can continue.",
+  "TERM_CANCELLED": "This term was cancelled and can't be changed.",
+  "TERM_END_BEFORE_START": "Enter an end date that is not before the start date.",
   "UNAUTHORIZED": "Please sign in.",
   "UNKNOWN": "Something went wrong.",
   "VALIDATION_FAILED": "Some fields are not filled in correctly."
