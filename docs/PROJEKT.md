@@ -345,8 +345,8 @@ PO změnu potvrdil 2026-10-19, issues jsou upravené 2026-10-21. Tabulka zůstá
 
 ## 14. Otevřené body
 
-| #   | Bod                                                                                                                                                                         | Kdo            |
-| --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- |
-| 1   | ~~Env proměnné stagingu: nemáme přístup do Coolify.~~ Uzavřeno 2026-10-21: klíč se zapéká do image přes GitHub secret `RESEND_API_KEY` (`deploy.yml`, `Dockerfile.deploy`). | tech lead      |
-| 2   | ~~Založit Brevo účet a ověřit odesílací adresu.~~ Uzavřeno 2026-10-21: místo Brevo se používá Resend.                                                                       | tech lead      |
-| 3   | Připojit Figma konektor a převzít tokeny do `global.css`.                                                                                                                   | tech lead      |
+| #   | Bod                                                                                                                                                                         | Kdo       |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- |
+| 1   | ~~Env proměnné stagingu: nemáme přístup do Coolify.~~ Uzavřeno 2026-10-21: klíč se zapéká do image přes GitHub secret `RESEND_API_KEY` (`deploy.yml`, `Dockerfile.deploy`). | tech lead |
+| 2   | ~~Založit Brevo účet a ověřit odesílací adresu.~~ Uzavřeno 2026-10-21: místo Brevo se používá Resend.                                                                       | tech lead |
+| 3   | Připojit Figma konektor a převzít tokeny do `global.css`.                                                                                                                   | tech lead |
