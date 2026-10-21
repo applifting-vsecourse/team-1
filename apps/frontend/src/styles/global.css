@@ -59,7 +59,8 @@
  * Values come from the Figma design system (DS / Semantic Light and Dark,
  * DS / Metrics, effect styles shadows/*); each comment names the source.
  * The look follows the remake (docs/FIGMA-REMAKE.md); since 2026-10-21 the DS primitives
- * carry the remake (Future Teal) theme colours.
+ * carry the remake (Future Teal) theme colours; primary is darkened to #007f72
+ * so white button text keeps 4.5:1.
  */
 :root {
   --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
@@ -70,7 +71,7 @@
   --card-foreground: #031a1e; /* color/text/primary */
   --popover: #ffffff; /* color/bg/surface */
   --popover-foreground: #031a1e; /* color/text/primary */
-  --primary: #00bba7; /* color/bg/accent */
+  --primary: #007f72; /* color/bg/accent */
   --primary-foreground: #ffffff; /* color/text/inverse */
   --secondary: #f5f9fa; /* color/bg/subtle */
   --secondary-foreground: #031a1e; /* color/text/primary */
@@ -82,7 +83,7 @@
   --destructive-foreground: #ffffff; /* color/text/inverse */
   --border: #dae3e4; /* color/border/default */
   --input: #759398; /* color/border/control */
-  --ring: #00bba7; /* color/border/focus */
+  --ring: #007f72; /* color/border/focus */
   --link: #006363; /* color/text/link */
   --status-success: #16634a; /* color/status/success */
   --status-success-bg: #eaf6f0; /* color/status/success-bg */
@@ -115,7 +116,7 @@
   --card-foreground: #e4edee;
   --popover: #061415;
   --popover-foreground: #e4edee;
-  --primary: #00bba7; /* color/bg/accent */
+  --primary: #007f72; /* color/bg/accent */
   --primary-foreground: #ffffff;
   --secondary: #031011; /* color/bg/subtle */
   --secondary-foreground: #e4edee;
