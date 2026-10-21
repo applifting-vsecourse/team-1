@@ -36,11 +36,22 @@ Každý pojem patří právě do jedné kategorie:
 
 Uživatelský účet se dělí podle `AccountType`. Specializace je disjunktní a úplná: jeden e-mail má právě jeden typ.
 
-```
-Uživatelský účet (User)
-├── Organizátor ........ ORGANIZER   + OrganizationMember (M:N k Organizaci)
-├── Přihlašovatel ...... PARTICIPANT
-└── Správce platformy .. ADMIN
+```mermaid
+classDiagram
+  direction TB
+
+  class UzivatelskyUcet["Uživatelský účet (User)"]
+  <<abstract>> UzivatelskyUcet
+
+  class Organizator["Organizátor · ORGANIZER"]
+  class Prihlasovatel["Přihlašovatel · PARTICIPANT"]
+  class SpravcePlatformy["Správce platformy · ADMIN"]
+  class Organizace["Organizace"]
+
+  UzivatelskyUcet <|-- Organizator
+  UzivatelskyUcet <|-- Prihlasovatel
+  UzivatelskyUcet <|-- SpravcePlatformy
+  Organizator "1..*" -- "1..*" Organizace : členství OrganizationMember
 ```
 
 | Specializace      | Význam                                                                                                                                                                                                                        | Pozor                                                                                                        |
@@ -62,18 +73,18 @@ Přihlašovatel a účastník můžou být jedna osoba (přihlašuje sám sebe),
 
 Stav nese Přihláška v termínu (`ApplicationTerm.status`), ne Přihláška.
 
-```
-odeslání formuláře
-        │ vyhodnocení podle volných lůžek, pořadí přijetí na serveru
-        ▼
- ┌─────────────┐   uvolní se lůžko (US-31)   ┌──────────────┐
- │  Náhradník  │ ──────────────────────────▶ │  Potvrzený   │
- │ WAITLISTED  │                             │  CONFIRMED   │
- └─────────────┘                             └──────────────┘
-        │                                           │
-        └────────── odhlášení (US-32, US-84) ───────┘
-                              ▼
-                     Odhlášený — zatím není
+```mermaid
+stateDiagram-v2
+  state "Náhradník · WAITLISTED" as nahradnik
+  state "Potvrzený · CONFIRMED" as potvrzeny
+  state "Odhlášený · zatím není" as odhlaseny
+
+  [*] --> nahradnik : odeslání formuláře, vyhodnocení podle volných lůžek a pořadí přijetí na serveru
+  [*] --> potvrzeny : odeslání formuláře, vyhodnocení podle volných lůžek a pořadí přijetí na serveru
+  nahradnik --> potvrzeny : uvolní se lůžko US-31
+  nahradnik --> odhlaseny : odhlášení US-32, US-84
+  potvrzeny --> odhlaseny : odhlášení US-32, US-84
+  odhlaseny --> [*]
 ```
 
 | Stav      | Význam                                                 | V kódu       | Pozor                                                                                                  |
@@ -312,15 +323,13 @@ Všechny kolize ve slovníku jsou rozhodnuté. Vědomě ponecháno:
 
 Tyto body nejsou jen jazykové – zdroje si odporují věcně:
 
-- VS: [US-41](https://github.com/applifting-vsecourse/team-1/issues/41) chce VS jedinečný v rámci organizace, [US-25](https://github.com/applifting-vsecourse/team-1/issues/25) uvádí formát `KLP-0048 → 0048`, PROJEKT.md a schéma mají globální sekvenci `Application.number`. Platí globální sekvence; issues opravit.
 - Pokoj bez pohlaví: [US-14](https://github.com/applifting-vsecourse/team-1/issues/14) a [US-27](https://github.com/applifting-vsecourse/team-1/issues/27) počítají s režimem společných pokojů, ale `Room.gender` je ve schématu povinné a PROJEKT.md říká „příznak povinný“. Rozhodnout s PO, zda je režim pokojů ve sprintu 1.
-- Jednorázové heslo × magic link: [US-01](https://github.com/applifting-vsecourse/team-1/issues/01), [US-04](https://github.com/applifting-vsecourse/team-1/issues/04), [US-56](https://github.com/applifting-vsecourse/team-1/issues/56) a Figma V04, S09 mají stále jednorázové heslo (PROJEKT.md §11, otevřený bod 4).
 - Název: Figma soubory a některé texty ještě nesou „kemp.io“, produkt je od 16. 10. Togena.
 - URL: komentáře ve schématu uvádějí `/prihlaska/<publicToken>` a `/prihlaska/potvrzeni/<accessToken>`, routy jsou `/apply/$token` a `/apply/confirmation/$accessToken`.
-- Přihlašovatel × `PARTICIPANT`: typ účtu se v byznysu jmenuje Přihlašovatel, v kódu a PROJEKT.md §7 „Účastník“ / `PARTICIPANT`. Rozhodnout s tech leadem: přejmenovat na `APPLICANT`, nebo ponechat a zapsat mapování do §7.
+- Přihlašovatel × `PARTICIPANT`: typ účtu se v byznysu i v PROJEKT.md jmenuje Přihlašovatel, v kódu `PARTICIPANT` (mapování v sekci Specializace). Rozhodnout s tech leadem, zda přejmenovat na `APPLICANT`.
 
 ## Pravidla psaní
 
 - Issues a dokumentace česky podle sloupce Pojem, kód podle sloupce V kódu – nic třetího.
-- Nové pojmy se přidávají sem a do PROJEKT.md §7 v jednom PR.
+- Nové pojmy se přidávají sem; PROJEKT.md §7 na slovník jen odkazuje.
 - Story, která zavádí nový pojem, ho definuje v sekci Kontext jednou větou.
