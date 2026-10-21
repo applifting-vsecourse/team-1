@@ -6,6 +6,7 @@ import type { MyApplicationTerm } from "@/features/participant/api/applications"
 import { termRange } from "@/features/participant/lib/format"
 
 /** The term's dates with the year and its name underneath. */
+// Figma (Design system): U / Term status row · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=13884-219
 export function TermLabel({ term }: { term: MyApplicationTerm }) {
   return (
     <span className="flex flex-1 flex-col">
