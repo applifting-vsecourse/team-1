@@ -44,7 +44,7 @@ export function EventList({ createdEventId }: { createdEventId?: string }) {
       {created ? (
         <p
           role="status"
-          className="rounded-lg border border-status-success/30 bg-status-success-bg px-5 py-4 text-status-success"
+          className="rounded-lg border border-status-success bg-status-success-bg px-5 py-4 text-status-success"
         >
           {t("list.created", { name: created.name })}
         </p>
@@ -113,16 +113,16 @@ function EventCard({ event }: { event: OrganizerEvent }) {
           {event.terms.map((term) => (
             <li
               key={term.id}
-              className="flex items-center gap-4 border-t py-3 last:pb-0"
+              className="flex items-center gap-4 border-t py-3"
             >
               <TermLabel term={term} />
               <Occupancy term={term} />
             </li>
           ))}
           {event.terms.length === 0 ? (
-            <li className="flex items-center gap-4 border-t pt-3">
-              <span className="flex-1 font-medium">{t("list.noTerms")}</span>
-              <span className="font-medium">{t("list.noCapacity")}</span>
+            <li className="flex items-center gap-4 border-t py-3 text-sm font-medium">
+              <span className="flex-1">{t("list.noTerms")}</span>
+              <span>{t("list.noCapacity")}</span>
             </li>
           ) : null}
         </ul>
@@ -136,7 +136,7 @@ function Occupancy({ term }: { term: EventTermSummary }) {
   const { t } = useTranslation("events")
 
   return (
-    <span className="shrink-0 font-medium tabular-nums">
+    <span className="shrink-0 text-sm font-medium tabular-nums">
       {term.capacity > 0
         ? t("list.occupancy", { confirmed: term.confirmedCount, count: term.capacity })
         : t("list.noCapacity")}

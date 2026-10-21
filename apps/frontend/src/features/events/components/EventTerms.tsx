@@ -113,7 +113,7 @@ export function EventTerms({ eventId }: { eventId: string }) {
             {active.map((term) => (
               <li
                 key={term.id}
-                className="border-t py-3 last:pb-0"
+                className="border-t py-3"
               >
                 <TermRow
                   term={term}

@@ -9,8 +9,8 @@ type TermLabelProps = {
 // Figma (Design system): O / Event term row · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=13895-8174
 export function TermLabel({ term }: TermLabelProps) {
   return (
-    <span className="flex flex-1 flex-col">
-      <span className="font-medium tabular-nums">
+    <span className="flex flex-1 flex-col gap-0.5">
+      <span className="text-sm font-medium tabular-nums">
         {formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })}
       </span>
       <span className="sr-only"> · </span>

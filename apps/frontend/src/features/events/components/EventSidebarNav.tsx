@@ -23,12 +23,12 @@ export function EventSidebarNav({ eventId }: { eventId: string }) {
       className="flex flex-col gap-2 pt-2"
     >
       {event ? (
-        <div className="flex flex-col gap-1 px-1 pb-1">
-          <p className="text-xs font-medium tracking-wider text-muted-foreground uppercase">
+        <>
+          <p className="text-xs font-medium text-muted-foreground uppercase">
             {event.organizationName}
           </p>
           <p className="text-sm font-medium">{event.name}</p>
-        </div>
+        </>
       ) : null}
       <SidebarLink
         to={ROUTES.organizer.event}
