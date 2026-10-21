@@ -2,7 +2,7 @@
 
 Registration platform for multi-term events (camps): organizers set up an event with terms, prices and gendered rooms; applicants apply from a public link without an account; each term is evaluated separately into confirmed / waitlisted by free beds per gender; organizers track occupancy, applications and manually recorded payments. School team project (4IT580).
 
-pnpm monorepo with two apps:
+pnpm monorepo with two apps (plus `apps/e2e` — Playwright E2E tests, rules in [`docs/E2E.md`](docs/E2E.md)):
 
 - `apps/backend` — NestJS + Prisma + Postgres. Auth: BetterAuth (mounted at `/api/auth/*`, treat as a black box). API docs: Swagger at `/api/docs`.
 - `apps/frontend` — React + Vite + TanStack Router/Query, Tailwind + shadcn/ui, `ky` + `zod` API client.
@@ -22,6 +22,7 @@ Workflow (branches, PRs, Definition of Done): [`CONTRIBUTING.md`](CONTRIBUTING.m
 - `pnpm backend test` / `pnpm frontend test:ci` — unit tests
 - `pnpm backend test:int` — backend integration tests (`*.int-spec.ts`): builds and starts the server against the `togena_test` database; helpers in `apps/backend/src/test/integration/test-api.ts`
 - `pnpm backend prisma:migrations:run` — create/apply migrations after schema changes
+- `pnpm e2e test` — Playwright E2E tests (`apps/e2e`): builds and starts its own backend + frontend against a freshly seeded `togena_e2e` database
 
 ## Conventions
 
@@ -88,6 +89,10 @@ The pre-push review (`@reviewer`) can't open Figma; it only checks that new UI c
 ### Pull request size
 
 Small PRs, because the tech lead reviews every one quickly. Target: up to ~400 changed lines of code (not counting tests, migration SQL, lockfile, generated files) and ~20 files. If a feature is bigger, split it into vertical slices that each merge on their own and keep `main` working (e.g. 1. migration + repository, 2. service + endpoint, 3. UI), and say in the PR body which part of the story this is (`Refs #23`, „část 1/3“). Agents: plan the split before coding; don't open one big PR. The PR comment „Co se změnilo“ flags oversized PRs.
+
+### E2E tests
+
+Only the core journeys listed in [`docs/E2E.md`](docs/E2E.md) get an E2E test (`apps/e2e`); everything else is a unit, API (`*.int-spec.ts`) or component test. When a story completes a journey from that list, add or enable its test in the same PR. Locators by role / label / text, English copy, no `waitForTimeout`, every test independent of the others.
 
 ### Migrations
 
