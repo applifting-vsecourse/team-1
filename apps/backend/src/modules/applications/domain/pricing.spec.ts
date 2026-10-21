@@ -2,6 +2,7 @@ import {
   computeAmountDue,
   computeAmountOwed,
   computeAmountPaid,
+  computePaymentStatus,
   computeSelectionPrice,
   resolvePaymentAmount,
 } from "./pricing"
@@ -45,5 +46,18 @@ describe("payments and debt", () => {
 
   it("cancelling the only payment brings the debt back", () => {
     expect(computeAmountOwed(4500, computeAmountPaid([]))).toBe(4500)
+  })
+})
+
+describe("computePaymentStatus", () => {
+  it.each([
+    ["nothing confirmed", 0, 0, "NOTHING_DUE"],
+    ["nothing paid", 9400, 0, "UNPAID"],
+    ["partly paid", 9400, 2000, "PARTIALLY_PAID"],
+    ["paid in full", 9400, 9400, "PAID"],
+    ["overpaid", 9400, 10000, "OVERPAID"],
+    ["paid while nothing is due", 0, 500, "OVERPAID"],
+  ])("%s", (_name, due, paid, status) => {
+    expect(computePaymentStatus(due, paid)).toBe(status)
   })
 })

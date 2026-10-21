@@ -4,7 +4,11 @@ import { ROUTES } from "@/app/routes"
 import { Card } from "@/components/ui/card"
 
 import type { MyApplication } from "@/features/participant/api/applications"
-import { TermLabel, TermStatusBadge } from "@/features/participant/components/TermSummary"
+import {
+  PaymentStatusBadge,
+  TermLabel,
+  TermStatusBadge,
+} from "@/features/participant/components/TermSummary"
 
 type ApplicationCardProps = { application: MyApplication }
 
@@ -27,9 +31,12 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
             →
           </span>
         </div>
-        <p className="text-sm text-muted-foreground">
-          {`${application.firstName} ${application.lastName} · ${application.code}`}
-        </p>
+        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+          <p className="text-sm text-muted-foreground">
+            {`${application.firstName} ${application.lastName} · ${application.code}`}
+          </p>
+          <PaymentStatusBadge status={application.paymentStatus} />
+        </div>
         {/* Rows: "U / Term status row" https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=13884-219 */}
         <ul className="pt-2">
           {application.terms.map((term) => (

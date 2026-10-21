@@ -30,7 +30,6 @@ const application = (overrides: Partial<MyApplication> = {}): MyApplication => (
       endsOn: "2027-07-10",
       status: "CONFIRMED",
       priceCzk: 4500,
-      waitlistPosition: null,
     },
     {
       termId: "t2",
@@ -39,12 +38,12 @@ const application = (overrides: Partial<MyApplication> = {}): MyApplication => (
       endsOn: "2027-07-17",
       status: "WAITLISTED",
       priceCzk: 4900,
-      waitlistPosition: 2,
     },
   ],
   amountDueCzk: 4500,
   amountPaidCzk: 0,
   amountOwedCzk: 4500,
+  paymentStatus: "UNPAID",
   paymentDetails: { bankAccount: "2900123456/2010", variableSymbol: "0048" },
   ...overrides,
 })
@@ -116,7 +115,9 @@ describe("ApplicationList", () => {
     expect(screen.getAllByText("4–10 Jul 2027")).toHaveLength(2)
     expect(screen.getAllByText("1. týden")).toHaveLength(2)
     expect(screen.getAllByText("Confirmed")).toHaveLength(2)
-    expect(screen.getAllByText("Waitlisted · 2. in line")).toHaveLength(2)
+    expect(screen.getAllByText("Waiting for confirmation")).toHaveLength(2)
+    expect(screen.getAllByText("Unpaid")).toHaveLength(2)
+    expect(screen.queryByText(/in line|waitlist/i)).not.toBeInTheDocument()
     expect(screen.getAllByRole("link")[0]).toHaveAttribute("href", "/participant/applications/a1")
   })
 })

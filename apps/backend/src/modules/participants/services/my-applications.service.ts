@@ -11,19 +11,13 @@ export class MyApplicationsService {
 
   async list(user: Identity): Promise<MyApplication[]> {
     const records = await this.applications.findAllOfUser(user.id)
-    const queues = await this.applications.findWaitlists(termIdsOf(records))
-    return records.map((record) => buildMyApplication(record, queues))
+    return records.map(buildMyApplication)
   }
 
   /** Someone else's application and a missing one look the same: 403 with no content. */
   async get(user: Identity, applicationId: string): Promise<MyApplication> {
     const record = await this.applications.findOneOfUser(user.id, applicationId)
     if (!record) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN", "Not your application")
-    const queues = await this.applications.findWaitlists(termIdsOf([record]))
-    return buildMyApplication(record, queues)
+    return buildMyApplication(record)
   }
 }
-
-const termIdsOf = (records: { terms: { termId: string }[] }[]): string[] => [
-  ...new Set(records.flatMap((record) => record.terms.map((term) => term.termId))),
-]

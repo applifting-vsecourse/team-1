@@ -1,3 +1,4 @@
+import { PaymentStatus } from "@/modules/applications/domain/pricing"
 import {
   MyApplication,
   MyApplicationTerm,
@@ -18,18 +19,14 @@ export class MyApplicationTermDto {
   @ApiProperty({ example: "2027-07-10", description: "ISO date." })
   endsOn!: string
 
-  @ApiProperty({ enum: ["CONFIRMED", "WAITLISTED"] })
+  @ApiProperty({
+    enum: ["CONFIRMED", "WAITLISTED"],
+    description: "WAITLISTED is shown to the participant as waiting for confirmation.",
+  })
   status!: "CONFIRMED" | "WAITLISTED"
 
   @ApiProperty({ example: 4500, description: "Price frozen at evaluation, whole CZK." })
   priceCzk!: number
-
-  @ApiProperty({
-    type: Number,
-    nullable: true,
-    description: "Place in the waiting list; null when confirmed.",
-  })
-  waitlistPosition!: number | null
 
   static fromDomain(term: MyApplicationTerm): MyApplicationTermDto {
     return Object.assign(new MyApplicationTermDto(), term)
@@ -91,6 +88,12 @@ export class MyApplicationResponseDto {
     description: "Null when every term is waitlisted: nothing to pay yet.",
   })
   paymentDetails!: PaymentDetailsDto | null
+
+  @ApiProperty({
+    enum: ["NOTHING_DUE", "UNPAID", "PARTIALLY_PAID", "PAID", "OVERPAID"],
+    description: "NOTHING_DUE while no term is confirmed.",
+  })
+  paymentStatus!: PaymentStatus
 
   static fromDomain(application: MyApplication): MyApplicationResponseDto {
     return Object.assign(new MyApplicationResponseDto(), {

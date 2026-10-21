@@ -3,6 +3,8 @@ import {
   computeAmountDue,
   computeAmountOwed,
   computeAmountPaid,
+  computePaymentStatus,
+  PaymentStatus,
 } from "@/modules/applications/domain/pricing"
 
 /** One application of the signed-in participant as stored — what the overview is built from (US-54). */
@@ -28,9 +30,6 @@ export type MyApplicationRecord = {
   payments: { amountCzk: number }[]
 }
 
-/** Who stands in a term's waiting list: the application's arrival decides the order. */
-export type WaitlistedArrival = { submittedAt: Date; number: number }
-
 export type MyApplicationTerm = {
   termId: string
   name: string
@@ -39,8 +38,6 @@ export type MyApplicationTerm = {
   endsOn: string
   status: ApplicationTermStatus
   priceCzk: number
-  /** 1-based place in the term's waiting list; `null` when confirmed. */
-  waitlistPosition: number | null
 }
 
 /** Where and how much to pay — only when at least one term is confirmed (US-25). */
@@ -63,6 +60,7 @@ export type MyApplication = {
   amountPaidCzk: number
   /** Due − paid; negative is an overpayment and is shown as such. */
   amountOwedCzk: number
+  paymentStatus: PaymentStatus
   paymentDetails: PaymentDetails | null
 }
 
@@ -86,32 +84,16 @@ export const toVariableSymbol = (number: number): string => String(number).padSt
 
 const toIsoDate = (date: Date): string => date.toISOString().slice(0, 10)
 
-/** Place in the waiting list: one more than the number of applications that arrived earlier. */
-export function waitlistPosition(
-  self: WaitlistedArrival,
-  waitlisted: readonly WaitlistedArrival[],
-): number {
-  const earlier = waitlisted.filter(
-    (other) =>
-      other.submittedAt < self.submittedAt ||
-      (other.submittedAt.getTime() === self.submittedAt.getTime() && other.number < self.number),
-  )
-  return earlier.length + 1
-}
-
 /**
  * Builds the overview of one application. Amounts come from the pricing
- * functions of the applications domain — nothing is recomputed here.
- * `queues` maps a term id to everyone waitlisted in it.
+ * functions of the applications domain — nothing is recomputed here. The
+ * participant sees a waitlisted term only as waiting for confirmation, never
+ * their place in line.
  */
-export function buildMyApplication(
-  record: MyApplicationRecord,
-  queues: ReadonlyMap<string, readonly WaitlistedArrival[]>,
-): MyApplication {
+export function buildMyApplication(record: MyApplicationRecord): MyApplication {
   const amountDueCzk = computeAmountDue(record.terms)
   const amountPaidCzk = computeAmountPaid(record.payments)
   const variableSymbol = toVariableSymbol(record.number)
-  const self = { submittedAt: record.submittedAt, number: record.number }
 
   return {
     id: record.id,
@@ -129,14 +111,11 @@ export function buildMyApplication(
         endsOn: toIsoDate(term.endsOn),
         status: term.status,
         priceCzk: term.priceCzk,
-        waitlistPosition:
-          term.status === "WAITLISTED"
-            ? waitlistPosition(self, queues.get(term.termId) ?? [])
-            : null,
       })),
     amountDueCzk,
     amountPaidCzk,
     amountOwedCzk: computeAmountOwed(amountDueCzk, amountPaidCzk),
+    paymentStatus: computePaymentStatus(amountDueCzk, amountPaidCzk),
     // All terms waitlisted: nothing to pay yet, so no payment details (US-25).
     paymentDetails: record.terms.some((term) => term.status === "CONFIRMED")
       ? { bankAccount: record.bankAccount, variableSymbol }

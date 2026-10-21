@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next"
 
 import { Badge } from "@/components/ui/badge"
 
-import type { MyApplicationTerm } from "@/features/participant/api/applications"
+import type { MyApplicationTerm, PaymentStatus } from "@/features/participant/api/applications"
 import { termRange } from "@/features/participant/lib/format"
 
 /** The term's dates with the year and its name underneath. */
@@ -17,16 +17,29 @@ export function TermLabel({ term }: { term: MyApplicationTerm }) {
   )
 }
 
-/** Confirmed or waitlisted with the place in line (Figma DS / Badge). */
+/** Confirmed, or waiting for confirmation — the participant never sees a place in line. */
 export function TermStatusBadge({ term }: { term: MyApplicationTerm }) {
   const { t } = useTranslation("participant")
   const isConfirmed = term.status === "CONFIRMED"
 
   return (
-    <Badge variant={isConfirmed ? "success" : "waitlist"}>
-      {isConfirmed
-        ? t("status.confirmedLong")
-        : `${t("status.waitlistedLong")} · ${t("status.position", { position: term.waitlistPosition })}`}
+    <Badge variant={isConfirmed ? "success" : "secondary"}>
+      {isConfirmed ? t("status.confirmed") : t("status.pending")}
     </Badge>
   )
+}
+
+const paymentTone = {
+  UNPAID: "warning",
+  PARTIALLY_PAID: "warning",
+  PAID: "success",
+  OVERPAID: "info",
+} as const
+
+/** Unpaid, partly paid, paid or overpaid; nothing while no term is confirmed. */
+export function PaymentStatusBadge({ status }: { status: PaymentStatus }) {
+  const { t } = useTranslation("participant")
+  if (status === "NOTHING_DUE") return null
+
+  return <Badge variant={paymentTone[status]}>{t(`paymentStatus.${status}`)}</Badge>
 }
