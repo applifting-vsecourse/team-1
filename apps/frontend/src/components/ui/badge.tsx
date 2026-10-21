@@ -11,6 +11,9 @@ const badgeVariants = cva(
       variant: {
         default: "bg-accent text-accent-foreground [a&]:hover:bg-accent/80",
         secondary: "bg-secondary text-secondary-foreground [a&]:hover:bg-secondary/90",
+        // Figma DS / Badge Tone=Success and Tone=Waitlist
+        success: "bg-status-success-bg text-status-success",
+        waitlist: "bg-status-waitlist-bg text-status-waitlist",
       },
     },
     defaultVariants: {

@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import { useTranslation } from "react-i18next"
 
 import { MoneyAmount } from "@/components/atoms/MoneyAmount"
@@ -11,7 +12,7 @@ type PaymentSummaryProps = {
 }
 
 /** What is due, what is paid and where to send the rest — only for applications with a confirmed term (US-25). */
-// Figma (Design system): U04 Moje přihláška, blok „Platba a údaje pro doplatek“ · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12926-110
+// Figma (Design system): U04 Moje přihláška, blok „Platba za potvrzený termín“ · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12926-110
 export function PaymentSummary({ application }: PaymentSummaryProps) {
   const { t } = useTranslation("participant")
   const { paymentDetails, amountDueCzk, amountPaidCzk, amountOwedCzk } = application
@@ -20,62 +21,68 @@ export function PaymentSummary({ application }: PaymentSummaryProps) {
   const isOverpaid = amountOwedCzk < 0
   const hasToPay = amountOwedCzk > 0
   const waitlisted = application.terms.filter((term) => term.status === "WAITLISTED")
+  const note = [
+    hasToPay ? t("payment.note") : null,
+    waitlisted.length > 0
+      ? t("payment.waitlistedNote", { range: waitlisted.map(termRangeShort).join(", ") })
+      : null,
+  ]
+    .filter(Boolean)
+    .join(" ")
 
   return (
-    <Card className="gap-4 p-6">
-      <h2 className="text-2xl font-semibold tracking-tight">{t("payment.title")}</h2>
-      <dl className="grid gap-4 sm:grid-cols-3">
-        <Tile
+    <section className="flex flex-col gap-4">
+      <h2 className="text-2xl font-semibold">{t("payment.title")}</h2>
+      <dl className="grid gap-6 sm:grid-cols-3">
+        <Metric
           label={t("payment.due")}
           amountCzk={amountDueCzk}
         />
-        <Tile
+        <Metric
           label={t("payment.paid")}
           amountCzk={amountPaidCzk}
         />
-        <Tile
+        <Metric
           label={isOverpaid ? t("payment.overpaid") : t("payment.owed")}
           amountCzk={Math.abs(amountOwedCzk)}
         />
       </dl>
-      <h3 className="mt-2 border-t pt-6 text-lg font-semibold tracking-tight">
-        {hasToPay ? t("payment.transferTitle") : t("payment.detailsTitle")}
-      </h3>
-      <dl className="grid grid-cols-1 sm:grid-cols-[10rem_1fr] sm:gap-x-4 sm:gap-y-2 [&>dd]:mb-3 sm:[&>dd]:mb-0">
-        <dt className="text-muted-foreground">{t("payment.account")}</dt>
-        <dd className="font-semibold">{paymentDetails.bankAccount}</dd>
-        <dt className="text-muted-foreground">{t("payment.variableSymbol")}</dt>
-        <dd className="font-semibold">{paymentDetails.variableSymbol}</dd>
-        {hasToPay ? (
-          <>
-            <dt className="text-muted-foreground">{t("payment.toPay")}</dt>
-            <dd className="font-semibold">
+      <Card className="gap-0 p-6">
+        <h3 className="pb-4 text-lg font-semibold">
+          {hasToPay ? t("payment.transferTitle") : t("payment.detailsTitle")}
+        </h3>
+        <dl>
+          <Detail label={t("payment.account")}>{paymentDetails.bankAccount}</Detail>
+          <Detail label={t("payment.variableSymbol")}>{paymentDetails.variableSymbol}</Detail>
+          {hasToPay ? (
+            <Detail label={t("payment.toPay")}>
               <MoneyAmount amountCzk={amountOwedCzk} />
-            </dd>
-          </>
-        ) : null}
-      </dl>
-      <p className="text-sm text-muted-foreground">
-        {[
-          hasToPay ? t("payment.note") : null,
-          waitlisted.length > 0
-            ? t("payment.waitlistedNote", { range: waitlisted.map(termRangeShort).join(", ") })
-            : null,
-        ]
-          .filter(Boolean)
-          .join(" ")}
-      </p>
+            </Detail>
+          ) : null}
+        </dl>
+        {note ? <p className="pt-2 text-sm text-muted-foreground">{note}</p> : null}
+      </Card>
+    </section>
+  )
+}
+
+// Figma DS / Metric Tone=Default, without the helper line.
+function Metric({ label, amountCzk }: { label: string; amountCzk: number }) {
+  return (
+    <Card className="gap-2 p-6">
+      <dt className="text-sm text-muted-foreground">{label}</dt>
+      <dd className="text-3xl font-bold">
+        <MoneyAmount amountCzk={amountCzk} />
+      </dd>
     </Card>
   )
 }
 
-function Tile({ label, amountCzk }: { label: string; amountCzk: number }) {
+function Detail({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <div className="flex flex-col gap-2 rounded-md bg-accent/40 p-4">
-      <dt className="text-sm text-muted-foreground">{label}</dt>
-      <dd className="text-2xl font-semibold">
-        <MoneyAmount amountCzk={amountCzk} />
-      </dd>
+    <div className="flex flex-col gap-1 border-t py-4 sm:flex-row sm:items-center sm:gap-4">
+      <dt className="text-muted-foreground sm:w-50 sm:shrink-0">{label}</dt>
+      <dd className="font-medium">{children}</dd>
     </div>
   )
 }

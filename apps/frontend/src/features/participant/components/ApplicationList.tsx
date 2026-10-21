@@ -27,7 +27,7 @@ export function ApplicationList() {
   if (data.length === 0) return <EmptyState message={t("list.empty")} />
 
   return (
-    <ul className="flex flex-col gap-8">
+    <ul className="flex flex-col gap-6">
       {data.map((application) => (
         <li key={application.id}>
           <ApplicationCard application={application} />

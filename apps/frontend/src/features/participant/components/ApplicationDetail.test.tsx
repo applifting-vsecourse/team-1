@@ -108,7 +108,7 @@ describe("ApplicationDetail", () => {
     expect(screen.getByRole("heading", { name: "Payment information" })).toBeInTheDocument()
     expect(screen.queryByRole("heading", { name: "Payment details" })).not.toBeInTheDocument()
     expect(screen.queryByText("Left to pay")).not.toBeInTheDocument()
-    expect(screen.queryByText("To pay:")).not.toBeInTheDocument()
+    expect(screen.queryByText("To pay")).not.toBeInTheDocument()
   })
 
   it("explains that a waitlisted term is not to be paid yet", async () => {
@@ -131,6 +131,6 @@ describe("ApplicationDetail", () => {
 
     expect(await screen.findByText(/1\. in line/)).toBeInTheDocument()
     expect(screen.queryByText("Payment for the confirmed term")).not.toBeInTheDocument()
-    expect(screen.queryByText("Account number:")).not.toBeInTheDocument()
+    expect(screen.queryByText("Account number")).not.toBeInTheDocument()
   })
 })

@@ -2,14 +2,14 @@
 
 Tento soubor popisuje, jak se obrazovky Togeny převádějí do nového vzhledu. Platí pro každého člověka i agenta, který na redesignu pokračuje, aby každá další obrazovka vypadala, jako by ji udělal stejný autor.
 
-> **Rozsah.** Redesign se dělá přímo v **původním** souboru Design system `P7CQo6rDSptsyLvCR55b8J`. Barvy zůstávají původní (DS / Semantic), mění se vzhled komponent a obrazovek ve stylu shadcn/ui. V kódu je to PR #112 (větev `docs/figma-remake`). Samostatný soubor „Togena – Remake (Future Teal)“ `Oxlrm0tdW7aWH6C1rbP0fO` už je jen inspirace, nic se z něj nepřebírá a jeho barvy se nepoužívají.
+> **Rozsah.** Redesign se dělá přímo v **původním** souboru Design system `P7CQo6rDSptsyLvCR55b8J`. Vzhled komponent a obrazovek je ve stylu shadcn/ui (v kódu PR #112). Od 21. 10. 2026 mají primitivy DS / Primitives hodnoty barev ze souboru „Togena – Remake (Future Teal)“ `Oxlrm0tdW7aWH6C1rbP0fO` (téma Light / Dark); aliasy v DS / Semantic se nemění. Výjimky: text odkazů a info stavů má tmavší `raw/teal-deep` `#006363` kvůli kontrastu a rámeček ovládacích prvků (`raw/control`) zůstal původní kvůli kontrastu 3 : 1.
 
 ## Co se mění a co zůstává
 
 **Zůstává** (z původních hi-fi rámců):
 
 - pořadí a hierarchie sekcí, veškerý český text doslova, všechny kreslené stavy,
-- barvy a tokeny z kolekcí DS / Semantic (Light / Dark) a DS / Metrics.
+- tokeny z kolekcí DS / Semantic (Light / Dark) a DS / Metrics (hodnoty barev viz Rozsah).
 
 **Mění se:**
 

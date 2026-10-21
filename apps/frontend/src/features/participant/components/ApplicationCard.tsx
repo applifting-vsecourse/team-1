@@ -2,8 +2,8 @@ import { Link } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
+import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
-import { cn } from "@/lib/utils"
 
 import type { MyApplication } from "@/features/participant/api/applications"
 import { termRangeShort, termsOverview } from "@/features/participant/lib/format"
@@ -21,35 +21,29 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
       params={{ applicationId: application.id }}
       className="block rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
     >
-      <Card className="gap-5 p-6 transition-colors hover:bg-accent/40">
+      <Card className="gap-2 px-6 py-5 transition-colors hover:bg-accent/40">
         <div className="flex items-center justify-between gap-6">
-          <h2 className="text-2xl font-semibold tracking-tight">{application.eventName}</h2>
+          <h2 className="text-lg font-semibold">{application.eventName}</h2>
           <span
             aria-hidden
-            className="shrink-0 text-2xl font-semibold text-link"
+            className="shrink-0 text-lg font-semibold text-link"
           >
             →
           </span>
         </div>
-        <div className="text-muted-foreground">
-          <p>
-            {application.firstName} {application.lastName} · {application.code}
-          </p>
-          <p>{termsOverview(application)}</p>
-        </div>
-        <ul className="flex flex-col gap-3">
+        <p className="text-sm text-muted-foreground">
+          {`${application.firstName} ${application.lastName} · ${application.code} · ${termsOverview(application)}`}
+        </p>
+        <ul className="flex flex-wrap gap-3 pt-2">
           {application.terms.map((term) => (
-            <li
-              key={term.termId}
-              className={cn(
-                "font-medium",
-                term.status === "CONFIRMED" ? "text-status-success" : "text-status-waitlist",
-              )}
-            >
-              {termRangeShort(term)} ·{" "}
-              {term.status === "CONFIRMED"
-                ? t("status.confirmed")
-                : t("status.waitlisted", { position: term.waitlistPosition })}
+            <li key={term.termId}>
+              <Badge variant={term.status === "CONFIRMED" ? "success" : "waitlist"}>
+                {`${termRangeShort(term)} · ${
+                  term.status === "CONFIRMED"
+                    ? t("status.confirmed")
+                    : t("status.waitlisted", { position: term.waitlistPosition })
+                }`}
+              </Badge>
             </li>
           ))}
         </ul>
