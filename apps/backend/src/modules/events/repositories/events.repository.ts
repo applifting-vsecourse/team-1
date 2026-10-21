@@ -1,6 +1,6 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { Prisma } from "@/generated/prisma/client"
-import { computeTermCapacity } from "@/modules/applications/domain/capacity"
+import { computeTotalBeds } from "@/modules/applications/domain/capacity"
 import { sortTerms } from "@/modules/events/domain/event-term"
 import { NewEvent, StoredEvent } from "@/modules/events/domain/organizer-event"
 import { Injectable } from "@nestjs/common"
@@ -27,14 +27,13 @@ const isoDate = (date: Date): string => date.toISOString().slice(0, 10)
 function toStored(row: EventRow): StoredEvent {
   const starts = row.terms.map((term) => isoDate(term.startsOn)).sort()
   const ends = row.terms.map((term) => isoDate(term.endsOn)).sort()
-  // Beds of the event's rooms, women's + men's, from the one capacity calculation (US-26).
-  const { FEMALE, MALE } = computeTermCapacity(row.rooms)
+  const capacity = computeTotalBeds(row.rooms)
   const terms = row.terms.map((term) => ({
     id: term.id,
     name: term.name,
     startsOn: isoDate(term.startsOn),
     endsOn: isoDate(term.endsOn),
-    capacity: FEMALE + MALE,
+    capacity,
     confirmedCount: term._count.applicationTerms,
   }))
   return {

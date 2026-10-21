@@ -1,6 +1,6 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { Prisma } from "@/generated/prisma/client"
-import { computeTermCapacity } from "@/modules/applications/domain/capacity"
+import { computeTotalBeds } from "@/modules/applications/domain/capacity"
 import { EventTerm, TermInput } from "@/modules/events/domain/event-term"
 import { Injectable } from "@nestjs/common"
 
@@ -86,7 +86,6 @@ export class TermsRepository {
       where: { eventId },
       select: { capacity: true, gender: true },
     })
-    const { FEMALE, MALE } = computeTermCapacity(rooms)
-    return FEMALE + MALE
+    return computeTotalBeds(rooms)
   }
 }
