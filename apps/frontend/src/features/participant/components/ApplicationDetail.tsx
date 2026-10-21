@@ -7,9 +7,9 @@ import { MoneyAmount } from "@/components/atoms/MoneyAmount"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { PageHeader } from "@/components/molecules/PageHeader"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { cn } from "@/lib/utils"
 
 import { myApplicationQueryOptions } from "@/features/participant/api/applications"
 import { PaymentSummary } from "@/features/participant/components/PaymentSummary"
@@ -23,12 +23,13 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
   const { t } = useTranslation("participant")
   const { data, isPending, error, refetch } = useQuery(myApplicationQueryOptions(applicationId))
 
+  // Figma DS / Button Style=Quiet, aligned with the page title (no left padding).
   const back = (
     <Button
       asChild
-      variant="outline"
+      variant="ghost"
       size="lg"
-      className="w-full md:w-60 md:self-start"
+      className="self-start px-0 hover:bg-transparent hover:underline dark:hover:bg-transparent"
     >
       <Link to={ROUTES.participant.applications}>{t("detail.back")}</Link>
     </Button>
@@ -57,56 +58,33 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
         title={data.eventName}
         description={`${data.firstName} ${data.lastName} · ${data.code}`}
       />
-      <Card className="gap-4 p-6">
-        <h2 className="text-lg font-semibold tracking-tight">{t("detail.termsTitle")}</h2>
-        <ul className="flex flex-col gap-4">
+      <Card className="gap-0 p-6">
+        <h2 className="pb-4 text-lg font-semibold">{t("detail.termsTitle")}</h2>
+        <ul>
           {data.terms.map((term) => {
             const isConfirmed = term.status === "CONFIRMED"
             return (
               <li
                 key={term.termId}
-                className={cn(
-                  "flex flex-col gap-4 rounded-lg border p-6",
-                  isConfirmed
-                    ? "border-status-success bg-status-success-bg"
-                    : "border-status-waitlist bg-status-waitlist-bg",
-                )}
+                className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t py-4 last:pb-0"
               >
-                <p className="text-lg font-semibold tracking-tight">{termRange(term)}</p>
-                <dl
-                  className={cn(
-                    "grid grid-cols-[6.5rem_1fr] gap-x-4 gap-y-2 border-t pt-4",
-                    isConfirmed ? "border-status-success/25" : "border-status-waitlist/25",
-                  )}
-                >
-                  <dt className="text-muted-foreground">{t("detail.status")}</dt>
-                  <dd
-                    className={cn(
-                      "font-semibold",
-                      isConfirmed ? "text-status-success" : "text-status-waitlist",
-                    )}
-                  >
-                    {isConfirmed ? t("status.confirmedLong") : t("status.waitlistedLong")}
-                  </dd>
-                  {isConfirmed ? null : (
-                    <>
-                      <dt className="text-muted-foreground">{t("detail.position")}</dt>
-                      <dd className="font-semibold">
-                        {t("status.position", { position: term.waitlistPosition })}
-                      </dd>
-                    </>
-                  )}
-                  <dt className="text-muted-foreground">{t("detail.toPay")}</dt>
-                  <dd className="font-semibold">
-                    <MoneyAmount amountCzk={isConfirmed ? term.priceCzk : 0} />
-                    {isConfirmed ? null : ` ${t("status.untilConfirmed")}`}
-                  </dd>
-                </dl>
+                <span className="flex-1 font-medium">{termRange(term)}</span>
+                <Badge variant={isConfirmed ? "success" : "waitlist"}>
+                  {isConfirmed
+                    ? t("status.confirmedLong")
+                    : `${t("status.waitlistedLong")} · ${t("status.position", { position: term.waitlistPosition })}`}
+                </Badge>
+                <span className="w-full sm:w-50 sm:text-right">
+                  <MoneyAmount amountCzk={isConfirmed ? term.priceCzk : 0} />
+                  {isConfirmed ? null : ` ${t("status.untilConfirmed")}`}
+                </span>
               </li>
             )
           })}
         </ul>
-        {hasWaitlisted ? <p className="text-muted-foreground">{t("detail.waitlistNote")}</p> : null}
+        {hasWaitlisted ? (
+          <p className="pt-4 text-sm text-muted-foreground">{t("detail.waitlistNote")}</p>
+        ) : null}
       </Card>
       <PaymentSummary application={data} />
     </div>

@@ -6,11 +6,8 @@
   "detail": {
     "back": "← Všechny přihlášky",
     "errorTitle": "Přihlášku se nepodařilo načíst",
-    "position": "Pořadí:",
-    "status": "Stav:",
     "termsTitle": "Stav podle termínů",
     "title": "Moje přihláška",
-    "toPay": "K úhradě:",
     "waitlistNote": "K úhradě se počítá potvrzený termín. Za termín v pořadníku zatím neplaťte."
   },
   "list": {
@@ -18,7 +15,7 @@
     "errorTitle": "Přihlášky se nepodařilo načíst"
   },
   "payment": {
-    "account": "Číslo účtu:",
+    "account": "Číslo účtu",
     "detailsTitle": "Údaje o platbě",
     "due": "Částka k úhradě",
     "note": "Platbu proveďte převodem.",
@@ -26,9 +23,9 @@
     "owed": "Zbývá zaplatit",
     "paid": "Zaplaceno",
     "title": "Platba za potvrzený termín",
-    "toPay": "K platbě:",
+    "toPay": "K platbě",
     "transferTitle": "Údaje pro doplatek",
-    "variableSymbol": "Variabilní symbol:",
+    "variableSymbol": "Variabilní symbol",
     "waitlistedNote": "Náhradnický termín {{range}} zatím nemá částku k úhradě."
   },
   "status": {

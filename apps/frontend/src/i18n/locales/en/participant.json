@@ -6,11 +6,8 @@
   "detail": {
     "back": "← All applications",
     "errorTitle": "Couldn't load the application",
-    "position": "Position:",
-    "status": "Status:",
     "termsTitle": "Status by term",
     "title": "My application",
-    "toPay": "Amount due:",
     "waitlistNote": "Only the confirmed term is payable. Don't pay for a term on the waiting list yet."
   },
   "list": {
@@ -18,7 +15,7 @@
     "errorTitle": "Couldn't load your applications"
   },
   "payment": {
-    "account": "Account number:",
+    "account": "Account number",
     "detailsTitle": "Payment information",
     "due": "Amount due",
     "note": "Please pay by bank transfer.",
@@ -26,9 +23,9 @@
     "owed": "Left to pay",
     "paid": "Paid",
     "title": "Payment for the confirmed term",
-    "toPay": "To pay:",
+    "toPay": "To pay",
     "transferTitle": "Payment details",
-    "variableSymbol": "Variable symbol:",
+    "variableSymbol": "Variable symbol",
     "waitlistedNote": "The waitlisted term {{range}} has no amount due yet."
   },
   "status": {

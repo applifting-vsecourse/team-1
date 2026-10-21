@@ -58,47 +58,48 @@
 /*
  * Values come from the Figma design system (DS / Semantic Light and Dark,
  * DS / Metrics, effect styles shadows/*); each comment names the source.
- * The look follows the remake (docs/FIGMA-REMAKE.md), the colours stay the DS ones.
+ * The look follows the remake (docs/FIGMA-REMAKE.md); since 2026-10-21 the DS primitives
+ * carry the remake (Future Teal) theme colours.
  */
 :root {
   --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono Variable", ui-monospace, SFMono-Regular, Menlo, monospace;
-  --background: #f1fafa; /* color/bg/canvas */
-  --foreground: #14343b; /* color/text/primary */
+  --background: #f9fdff; /* color/bg/canvas */
+  --foreground: #031a1e; /* color/text/primary */
   --card: #ffffff; /* color/bg/surface */
-  --card-foreground: #14343b; /* color/text/primary */
+  --card-foreground: #031a1e; /* color/text/primary */
   --popover: #ffffff; /* color/bg/surface */
-  --popover-foreground: #14343b; /* color/text/primary */
-  --primary: #087f8c; /* color/bg/accent */
+  --popover-foreground: #031a1e; /* color/text/primary */
+  --primary: #00bba7; /* color/bg/accent */
   --primary-foreground: #ffffff; /* color/text/inverse */
-  --secondary: #e7f3f3; /* color/bg/subtle */
-  --secondary-foreground: #14343b; /* color/text/primary */
-  --muted: #e7f3f3; /* color/bg/subtle */
-  --muted-foreground: #547079; /* color/text/secondary */
-  --accent: #dcf2f2; /* color/bg/selected */
-  --accent-foreground: #14343b; /* color/text/primary */
-  --destructive: #b42336; /* color/status/error */
+  --secondary: #f5f9fa; /* color/bg/subtle */
+  --secondary-foreground: #031a1e; /* color/text/primary */
+  --muted: #f5f9fa; /* color/bg/subtle */
+  --muted-foreground: #50686d; /* color/text/secondary */
+  --accent: #c3ecdf; /* color/bg/selected */
+  --accent-foreground: #031a1e; /* color/text/primary */
+  --destructive: #ce514d; /* color/status/error */
   --destructive-foreground: #ffffff; /* color/text/inverse */
-  --border: #ccdfe1; /* color/border/default */
+  --border: #dae3e4; /* color/border/default */
   --input: #759398; /* color/border/control */
-  --ring: #087f8c; /* color/border/focus */
-  --link: #087f8c; /* color/text/link */
+  --ring: #00bba7; /* color/border/focus */
+  --link: #006363; /* color/text/link */
   --status-success: #16634a; /* color/status/success */
   --status-success-bg: #eaf6f0; /* color/status/success-bg */
   --status-waitlist: #6941a5; /* color/status/waitlist */
   --status-waitlist-bg: #f4efff; /* color/status/waitlist-bg */
-  --sidebar: #e7f3f3; /* color/bg/subtle */
-  --sidebar-foreground: #14343b; /* color/text/primary */
-  --sidebar-accent: #dcf2f2; /* color/bg/selected */
-  --sidebar-accent-foreground: #14343b; /* color/text/primary */
-  --sidebar-border: #ccdfe1; /* color/border/default */
+  --sidebar: #f5f9fa; /* color/bg/subtle */
+  --sidebar-foreground: #031a1e; /* color/text/primary */
+  --sidebar-accent: #c3ecdf; /* color/bg/selected */
+  --sidebar-accent-foreground: #031a1e; /* color/text/primary */
+  --sidebar-border: #dae3e4; /* color/border/default */
   /* Sonner reads --radius directly; matches radius/md. */
   --radius: 0.5rem;
   /* shadows/surface: cards and the other things that sit on the canvas */
-  --shadow-2xs: 0 1px 2px -1px rgb(20 52 59 / 0.06);
-  --shadow-xs: 0 1px 3px 0 rgb(20 52 59 / 0.08), 0 1px 2px -1px rgb(20 52 59 / 0.06);
-  --shadow-sm: 0 1px 3px 0 rgb(20 52 59 / 0.08), 0 1px 2px -1px rgb(20 52 59 / 0.06);
-  --shadow: 0 1px 3px 0 rgb(20 52 59 / 0.08), 0 1px 2px -1px rgb(20 52 59 / 0.06);
+  --shadow-2xs: 0 1px 2px -1px rgb(3 26 30 / 0.06);
+  --shadow-xs: 0 1px 3px 0 rgb(3 26 30 / 0.08), 0 1px 2px -1px rgb(3 26 30 / 0.06);
+  --shadow-sm: 0 1px 3px 0 rgb(3 26 30 / 0.08), 0 1px 2px -1px rgb(3 26 30 / 0.06);
+  --shadow: 0 1px 3px 0 rgb(3 26 30 / 0.08), 0 1px 2px -1px rgb(3 26 30 / 0.06);
   /* shadows/popover: menus and dropdowns */
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   /* shadows/popover-nested, shadows/sheet: dialogs and sheets */
@@ -108,35 +109,35 @@
 }
 
 .dark {
-  --background: #0d1d21; /* color/bg/canvas */
-  --foreground: #e6f3f4; /* color/text/primary */
-  --card: #14292f; /* color/bg/surface */
-  --card-foreground: #e6f3f4;
-  --popover: #14292f;
-  --popover-foreground: #e6f3f4;
-  --primary: #087f8c; /* color/bg/accent */
+  --background: #030b0b; /* color/bg/canvas */
+  --foreground: #e4edee; /* color/text/primary */
+  --card: #061415; /* color/bg/surface */
+  --card-foreground: #e4edee;
+  --popover: #061415;
+  --popover-foreground: #e4edee;
+  --primary: #00bba7; /* color/bg/accent */
   --primary-foreground: #ffffff;
-  --secondary: #10242a; /* color/bg/subtle */
-  --secondary-foreground: #e6f3f4;
-  --muted: #10242a;
-  --muted-foreground: #a0bbc0; /* color/text/secondary */
-  --accent: #173f43; /* color/bg/selected */
-  --accent-foreground: #e6f3f4;
-  --destructive: #ff9ba8; /* color/status/error */
+  --secondary: #031011; /* color/bg/subtle */
+  --secondary-foreground: #e4edee;
+  --muted: #031011;
+  --muted-foreground: #7a9596; /* color/text/secondary */
+  --accent: #005f5a; /* color/bg/selected */
+  --accent-foreground: #e4edee;
+  --destructive: #f84b4b; /* color/status/error */
   --destructive-foreground: #14292f;
   --status-success: #75dbaf; /* color/status/success */
   --status-success-bg: #14382b; /* color/status/success-bg */
   --status-waitlist: #c9aeff; /* color/status/waitlist */
   --status-waitlist-bg: #302742; /* color/status/waitlist-bg */
-  --border: #36545b; /* color/border/default */
+  --border: #142223; /* color/border/default */
   --input: #6e959e; /* color/border/control */
-  --ring: #61d5db; /* color/border/focus */
-  --link: #61d5db; /* color/text/link */
-  --sidebar: #10242a;
-  --sidebar-foreground: #e6f3f4;
-  --sidebar-accent: #173f43;
-  --sidebar-accent-foreground: #e6f3f4;
-  --sidebar-border: #36545b;
+  --ring: #00bba7; /* color/border/focus */
+  --link: #00bba7; /* color/text/link */
+  --sidebar: #031011;
+  --sidebar-foreground: #e4edee;
+  --sidebar-accent: #005f5a;
+  --sidebar-accent-foreground: #e4edee;
+  --sidebar-border: #142223;
 }
 
 @layer base {
