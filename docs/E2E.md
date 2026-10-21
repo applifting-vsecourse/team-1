@@ -17,16 +17,17 @@ Když jde věc ověřit nižším testem, E2E pro ni nepiš.
 
 Jen cesty, bez kterých produkt nefunguje a které ukazujeme na demu. Jedna cesta = jeden `test(...)`.
 
-| Cesta                                                                     | Soubor                | Stav                 |
-| ------------------------------------------------------------------------- | --------------------- | -------------------- |
-| Landing → přihlášení organizátora → dashboard → odhlášení                 | `sign-in.spec.ts`     | ✅                   |
-| Účastník se nedostane do správy akcí (403)                                | `sign-in.spec.ts`     | ✅                   |
-| Účastník: přihlášení heslem a odhlášení (i na mobilu)                     | `sign-in.spec.ts`     | ✅                   |
-| Účastník: žádost o magic link → otevření odkazu → přihlášen (i na mobilu) | `magic-link.spec.ts`  | ✅                   |
-| Přihláška přes odkaz: termíny a cena podle výběru (i na mobilu)           | `application.spec.ts` | ✅                   |
-| Odeslání přihlášky → stav potvrzený / náhradník a kolik a kam zaplatit    | `application.spec.ts` | po US-27 a US-25     |
-| Organizátor založí akci s termíny a pokoji a zkopíruje odkaz na přihlášku | `event-setup.spec.ts` | po US-12, 13, 14, 16 |
-| Organizátor vidí přihlášku v seznamu a zapíše platbu                      | `payments.spec.ts`    | po US-52 a US-44     |
+| Cesta                                                                               | Soubor                 | Stav                 |
+| ----------------------------------------------------------------------------------- | ---------------------- | -------------------- |
+| Landing → přihlášení organizátora → dashboard → odhlášení                           | `sign-in.spec.ts`      | ✅                   |
+| Účastník se nedostane do správy akcí (403)                                          | `sign-in.spec.ts`      | ✅                   |
+| Účastník: přihlášení heslem a odhlášení (i na mobilu)                               | `sign-in.spec.ts`      | ✅                   |
+| Účastník: žádost o magic link → otevření odkazu → přihlášen (i na mobilu)           | `magic-link.spec.ts`   | ✅                   |
+| Nový účastník: magic link → nastavení hesla → přihlášení novým heslem (i na mobilu) | `set-password.spec.ts` | ✅                   |
+| Přihláška přes odkaz: termíny a cena podle výběru (i na mobilu)                     | `application.spec.ts`  | ✅                   |
+| Odeslání přihlášky → stav potvrzený / náhradník a kolik a kam zaplatit              | `application.spec.ts`  | po US-27 a US-25     |
+| Organizátor založí akci s termíny a pokoji a zkopíruje odkaz na přihlášku           | `event-setup.spec.ts`  | po US-12, 13, 14, 16 |
+| Organizátor vidí přihlášku v seznamu a zapíše platbu                                | `payments.spec.ts`     | po US-52 a US-44     |
 
 Novou cestu přidej do tabulky v tomtéž PR. Cesta mimo tabulku se domlouvá s tech leadem. Okrajové stavy (chybné heslo, prošlý odkaz…) do E2E nepatří, pokud nejsou součástí hlavní cesty.
 

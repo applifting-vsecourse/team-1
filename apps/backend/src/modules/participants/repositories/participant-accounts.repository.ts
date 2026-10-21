@@ -7,6 +7,9 @@ import {
 import type { BetterAuth } from "@/shared/auth/providers/better-auth.provider"
 import { Inject, Injectable } from "@nestjs/common"
 
+// What BetterAuth 1.7 stamps on e-mail + password accounts (same value as the seed, create-user.ts).
+const CREDENTIAL_ISSUER = "local:credential"
+
 /** The only place of the participants module that touches the database. */
 @Injectable()
 export class ParticipantAccountsRepository {
@@ -49,6 +52,30 @@ export class ParticipantAccountsRepository {
       if (this.isUniqueViolation(error)) return null
       throw error
     }
+  }
+
+  /**
+   * Gives the account its first password (a "credential" account, as the seed
+   * and BetterAuth's sign-up create it) and ends the "must set a password"
+   * state. The session is left alone. Safe to repeat after a failure between
+   * the two writes: an existing credential account is not created twice.
+   */
+  async setPassword(userId: string, password: string): Promise<void> {
+    const context = await this.auth.$context
+    const hasCredential = await this.prisma.account.findFirst({
+      where: { userId, providerId: "credential" },
+      select: { id: true },
+    })
+    if (!hasCredential) {
+      await context.internalAdapter.linkAccount({
+        userId,
+        providerId: "credential",
+        issuer: CREDENTIAL_ISSUER,
+        accountId: userId,
+        password: await context.password.hash(password),
+      })
+    }
+    await this.prisma.user.update({ where: { id: userId }, data: { mustSetPassword: false } })
   }
 
   private isUniqueViolation(error: unknown): boolean {

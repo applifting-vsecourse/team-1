@@ -6,6 +6,8 @@ import { Seo } from "@/components/atoms/Seo"
 import { AuthLayout } from "@/components/templates/AuthLayout"
 
 import { authSessionQueryOptions } from "@/features/auth/api/authSessionQueryOptions"
+import { SetPasswordForm } from "@/features/auth/components/SetPasswordForm"
+import { useSession } from "@/features/auth/hooks/useSession"
 import { encodeRedirectUri } from "@/features/auth/lib/redirect"
 
 export const Route = createFileRoute("/participant/set-password")({
@@ -25,18 +27,22 @@ export const Route = createFileRoute("/participant/set-password")({
   component: SetPasswordPage,
 })
 
-// Skeleton — US-04 (S09). Mandatory after the first sign-in via magic link.
+// US-04 (S09). Mandatory after the first sign-in via magic link.
+// Figma (Design system): S09 První přístup a nové heslo · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=11968-221
 function SetPasswordPage() {
-  const { t } = useTranslation(["auth", "common"])
+  const { t } = useTranslation("auth")
+  const { user } = useSession()
 
   return (
     <>
       <Seo title={t("setPassword.title")} />
       <AuthLayout
         title={t("setPassword.title")}
-        description={t("common:comingSoon", { story: "US-04" })}
+        description={t("setPassword.description")}
+        cardTitle={t("setPassword.cardTitle")}
+        footer={t("setPassword.footer")}
       >
-        {null}
+        <SetPasswordForm email={user?.email ?? ""} />
       </AuthLayout>
     </>
   )

@@ -219,6 +219,7 @@ Organizace v URL není. Přístup se ověřuje přes členství v organizaci, kt
 /organizer/events/:eventId/occupancy       obsazenost
 /organizer/applications/:id/payments[/:id] zápis a zrušení platby
 /participant/applications                  moje přihlášky
+/participant/password                      POST první heslo přihlašovatele (US-04)
 ```
 
 ### Lokalizace (EN / CZ)
