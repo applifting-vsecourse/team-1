@@ -99,7 +99,7 @@ export class ApplicationsService {
   /**
    * ONE summary e-mail for the whole submission, however many participants it
    * holds (PO decision 2026-10-21, docs/PROJEKT.md §10). The mailer logs a
-   * failed delivery itself; the catch keeps a stored application an success
+   * failed delivery itself; the catch keeps a stored application a success
    * whatever happens.
    */
   private async sendConfirmation(
