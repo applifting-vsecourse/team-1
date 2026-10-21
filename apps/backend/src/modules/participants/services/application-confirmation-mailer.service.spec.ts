@@ -151,11 +151,11 @@ describe("ApplicationConfirmationMailer.sendSubmissionConfirmation", () => {
 
     const { html } = sent(sendEmail)
     expect(html).toMatch(/1\. týden:\s*<strong>potvrzený/)
-    expect(html).toMatch(/2\. týden:\s*<strong>náhradník/)
+    expect(html).toMatch(/2\. týden:\s*<strong>čeká na potvrzení/)
     expect(html).toContain("4 500 Kč")
     expect(html).not.toContain("9 400 Kč")
     expect(html).toContain("2900123456/2010")
-    expect(html).toContain("Za termín, ve kterém jste náhradník, neplaťte")
+    expect(html).toContain("Za termín, který čeká na potvrzení, zatím neplaťte")
   })
 
   it("leaves out the payment details when everyone is waitlisted in every term, and says why", async () => {
@@ -170,7 +170,7 @@ describe("ApplicationConfirmationMailer.sendSubmissionConfirmation", () => {
     const { html } = sent(sendEmail)
     expect(html).not.toContain("Variabilní symbol")
     expect(html).not.toContain("2900123456/2010")
-    expect(html).toContain("Platíte až po potvrzení místa")
+    expect(html).toContain("Žádný termín zatím není potvrzený")
   })
 
   it("shows payment details only for the application that has a confirmed term", async () => {
