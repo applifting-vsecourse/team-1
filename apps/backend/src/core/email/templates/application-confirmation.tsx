@@ -7,7 +7,6 @@ import {
   Heading,
   Hr,
   Html,
-  Link,
   Preview,
   Section,
   Tailwind,
@@ -188,11 +187,12 @@ export const ApplicationConfirmation = ({
                     </Text>
                   </>
                 ) : null}
-                <Text className="text-sm m-0 mt-4">
-                  <Link href={application.confirmationUrl} className="text-blue-600">
-                    {text.statusLink}
-                  </Link>
-                </Text>
+                <Button
+                  href={application.confirmationUrl}
+                  className="bg-white text-gray-900 font-semibold rounded-md border border-solid border-gray-300 px-5 py-2 mt-4"
+                >
+                  {text.statusLink}
+                </Button>
               </Section>
             ))}
 
