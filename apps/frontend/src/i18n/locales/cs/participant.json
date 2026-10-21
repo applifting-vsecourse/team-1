@@ -29,11 +29,9 @@
     "waitlistedNote": "Náhradnický termín {{range}} zatím nemá částku k úhradě."
   },
   "status": {
-    "confirmed": "potvrzená",
     "confirmedLong": "Potvrzená",
     "position": "{{position}}. v pořadí",
     "untilConfirmed": "do potvrzení",
-    "waitlisted": "náhradník · {{position}}. v pořadí",
     "waitlistedLong": "Náhradník"
   }
 }

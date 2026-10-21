@@ -5,7 +5,7 @@ import { MoneyAmount } from "@/components/atoms/MoneyAmount"
 import { Card } from "@/components/ui/card"
 
 import type { MyApplication } from "@/features/participant/api/applications"
-import { termRangeShort } from "@/features/participant/lib/format"
+import { termRange } from "@/features/participant/lib/format"
 
 type PaymentSummaryProps = {
   application: MyApplication
@@ -24,7 +24,7 @@ export function PaymentSummary({ application }: PaymentSummaryProps) {
   const note = [
     hasToPay ? t("payment.note") : null,
     waitlisted.length > 0
-      ? t("payment.waitlistedNote", { range: waitlisted.map(termRangeShort).join(", ") })
+      ? t("payment.waitlistedNote", { range: waitlisted.map(termRange).join(", ") })
       : null,
   ]
     .filter(Boolean)

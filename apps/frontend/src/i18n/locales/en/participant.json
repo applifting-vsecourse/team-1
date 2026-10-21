@@ -29,11 +29,9 @@
     "waitlistedNote": "The waitlisted term {{range}} has no amount due yet."
   },
   "status": {
-    "confirmed": "confirmed",
     "confirmedLong": "Confirmed",
     "position": "{{position}}. in line",
     "untilConfirmed": "until confirmed",
-    "waitlisted": "waitlisted · {{position}}. in line",
     "waitlistedLong": "Waitlisted"
   }
 }
