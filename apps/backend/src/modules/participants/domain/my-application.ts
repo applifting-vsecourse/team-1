@@ -54,6 +54,8 @@ export type MyApplication = {
   eventName: string
   firstName: string
   lastName: string
+  /** Reference for people: initials of the event and the number, "LKL-0048". */
+  code: string
   /** The number as the variable symbol, four digits: 48 → "0048". */
   variableSymbol: string
   terms: MyApplicationTerm[]
@@ -62,6 +64,22 @@ export type MyApplication = {
   /** Due − paid; negative is an overpayment and is shown as such. */
   amountOwedCzk: number
   paymentDetails: PaymentDetails | null
+}
+
+/**
+ * The application's reference for people — initials of the event and the
+ * number, `LKL-0048`. Display only: a bank accepts digits alone as a variable
+ * symbol, so the payment uses `toVariableSymbol`.
+ */
+export function toApplicationCode(eventName: string, number: number): string {
+  const initials = eventName
+    .normalize("NFD")
+    .replace(/\p{M}/gu, "")
+    .split(/[^\p{L}]+/u)
+    .filter((word) => word.length > 0)
+    .map((word) => word[0].toUpperCase())
+    .join("")
+  return `${initials || "P"}-${toVariableSymbol(number)}`
 }
 
 export const toVariableSymbol = (number: number): string => String(number).padStart(4, "0")
@@ -100,6 +118,7 @@ export function buildMyApplication(
     eventName: record.eventName,
     firstName: record.firstName,
     lastName: record.lastName,
+    code: toApplicationCode(record.eventName, record.number),
     variableSymbol,
     terms: [...record.terms]
       .sort((a, b) => a.startsOn.getTime() - b.startsOn.getTime())

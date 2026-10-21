@@ -184,9 +184,20 @@ export const seedDatabase = async (
         email: "klara.prochazkova@example.com",
         termIndexes: [0],
       },
+      // Third application under the participant account (US-54): confirmed in
+      // both terms, only part of it paid — something is still left to pay.
+      {
+        firstName: "Petr",
+        lastName: "Novák",
+        birthDate: "2008-08-08",
+        gender: "MALE",
+        email: "ucastnik@example.com",
+        termIndexes: [0, 1],
+        userId: participant.id,
+      },
     ],
     // Payments by applicant index: full, partial, none…
-    payments: { 0: "full", 1: 2000 },
+    payments: { 0: "full", 1: 2000, 5: 3000 },
   })
 
   await createEvent(prisma, {

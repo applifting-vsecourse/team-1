@@ -61,7 +61,16 @@ export class MyApplicationResponseDto {
   @ApiProperty({ example: "Nováková" })
   lastName!: string
 
-  @ApiProperty({ example: "0048", description: "Application number, four digits." })
+  @ApiProperty({
+    example: "LKL-0048",
+    description: "Reference for people: initials of the event and the number.",
+  })
+  code!: string
+
+  @ApiProperty({
+    example: "0048",
+    description: "Application number, four digits: the variable symbol of the payment.",
+  })
   variableSymbol!: string
 
   @ApiProperty({ type: [MyApplicationTermDto] })

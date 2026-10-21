@@ -1,6 +1,7 @@
 import {
   buildMyApplication,
   MyApplicationRecord,
+  toApplicationCode,
   toVariableSymbol,
   WaitlistedArrival,
   waitlistPosition,
@@ -46,6 +47,18 @@ describe("toVariableSymbol", () => {
     expect(toVariableSymbol(48)).toBe("0048")
     expect(toVariableSymbol(1234)).toBe("1234")
     expect(toVariableSymbol(12345)).toBe("12345")
+  })
+})
+
+describe("toApplicationCode", () => {
+  it("joins the initials of the event words with the padded number", () => {
+    expect(toApplicationCode("Letní kemp Lipno 2027", 48)).toBe("LKL-0048")
+    expect(toApplicationCode("Horský víkend 2027", 5)).toBe("HV-0005")
+  })
+
+  it("drops diacritics and numbers, and falls back to P", () => {
+    expect(toApplicationCode("Škola žije", 1)).toBe("SZ-0001")
+    expect(toApplicationCode("2027", 7)).toBe("P-0007")
   })
 })
 

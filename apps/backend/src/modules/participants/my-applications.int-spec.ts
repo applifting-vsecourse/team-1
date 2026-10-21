@@ -7,6 +7,7 @@ type ApplicationDto = {
   id: string
   eventName: string
   firstName: string
+  code: string
   variableSymbol: string
   terms: TermDto[]
   amountDueCzk: number
@@ -86,25 +87,29 @@ describe("participant applications (integration)", () => {
     await prisma.$disconnect()
   })
 
-  it("lists both applications under one account, each with its own variable symbol", async () => {
+  it("lists all applications under one account, each with its own variable symbol", async () => {
     const cookie = await signIn("ucastnik@example.com", "password4")
 
     const applications = await listOf(cookie)
 
-    expect(applications).toHaveLength(2)
+    expect(applications).toHaveLength(3)
     expect(applications.map((a) => a.eventName).sort()).toEqual([
       "Horský víkend 2027",
       "Letní kemp 2027",
+      "Letní kemp 2027",
     ])
-    const [first, second] = applications
-    expect(first.variableSymbol).toMatch(/^\d{4}$/)
-    expect(second.variableSymbol).not.toBe(first.variableSymbol)
+    const symbols = applications.map((a) => a.variableSymbol)
+    expect(new Set(symbols).size).toBe(3)
+    expect(symbols.every((symbol) => /^\d{4}$/.test(symbol))).toBe(true)
+    expect(applications.every((a) => a.code.endsWith(`-${a.variableSymbol}`))).toBe(true)
   })
 
   it("shows payment details and the amount due of a fully paid application", async () => {
     const applications = await listOf(await signIn("ucastnik@example.com", "password4"))
 
-    const camp = applications.find((a) => a.eventName === "Letní kemp 2027")!
+    const camp = applications.find(
+      (a) => a.firstName === "Jana" && a.eventName === "Letní kemp 2027",
+    )!
 
     expect(camp.terms.map((t) => t.status)).toEqual(["CONFIRMED", "CONFIRMED"])
     expect(camp).toMatchObject({ amountDueCzk: 9400, amountPaidCzk: 9400, amountOwedCzk: 0 })
@@ -112,6 +117,15 @@ describe("participant applications (integration)", () => {
       bankAccount: "2900123456/2010",
       variableSymbol: camp.variableSymbol,
     })
+  })
+
+  it("shows what is left to pay of a partly paid application", async () => {
+    const applications = await listOf(await signIn("ucastnik@example.com", "password4"))
+
+    const partly = applications.find((a) => a.firstName === "Petr")!
+
+    expect(partly).toMatchObject({ amountDueCzk: 9400, amountPaidCzk: 3000, amountOwedCzk: 6400 })
+    expect(partly.paymentDetails).not.toBeNull()
   })
 
   it("shows no payment details when the application is waitlisted in every term", async () => {
@@ -172,7 +186,7 @@ describe("participant applications (integration)", () => {
     const detail = await get(`/participant/applications/${foreign.id}`, cookie)
 
     expect(list.some((a) => a.id === foreign.id)).toBe(false)
-    expect(list.every((a) => a.firstName === "Jana")).toBe(true)
+    expect(list.every((a) => a.firstName === "Jana" || a.firstName === "Petr")).toBe(true)
     expect(detail.status).toBe(403)
     expect(await detail.text()).not.toContain("Tomáš")
   })
