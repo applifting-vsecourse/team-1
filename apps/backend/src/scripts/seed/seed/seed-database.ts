@@ -245,6 +245,17 @@ export const seedDatabase = async (
         email: "jakub.novotny@example.com",
         termIndexes: [1],
       },
+      // Second application under the participant account (US-54): the only
+      // free women's beds are taken, so she is waitlisted in every term.
+      {
+        firstName: "Jana",
+        lastName: "Nováková",
+        birthDate: "2005-03-14",
+        gender: "FEMALE",
+        email: "ucastnik@example.com",
+        termIndexes: [0],
+        userId: participant.id,
+      },
     ],
     payments: { 0: "full" },
   })
