@@ -198,7 +198,8 @@ Organizátor (jen ORGANIZER, jinak 403)
   /organizer/account
 
 Přihlašovatel (jen PARTICIPANT)
-  /participant                         moje přihláška (US-54)
+  /participant                         moje přihlášky (US-54)
+  /participant/applications/$applicationId  jedna přihláška: stav, platba (US-54)
   /participant/account
 ```
 
@@ -218,7 +219,7 @@ Organizace v URL není. Přístup se ověřuje přes členství v organizaci, kt
 /organizer/events/:eventId/applications    seznam s filtry ?termId&status&paid
 /organizer/events/:eventId/occupancy       obsazenost
 /organizer/applications/:id/payments[/:id] zápis a zrušení platby
-/participant/applications                  moje přihlášky
+/participant/applications[/:id]            moje přihlášky a jedna přihláška (US-54)
 /participant/password                      POST první heslo přihlašovatele (US-04)
 ```
 

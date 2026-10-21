@@ -245,8 +245,44 @@ export const seedDatabase = async (
         email: "jakub.novotny@example.com",
         termIndexes: [1],
       },
+      // Second application under the participant account (US-54): the only
+      // free women's beds are taken, so she is waitlisted in every term.
+      {
+        firstName: "Jana",
+        lastName: "Nováková",
+        birthDate: "2005-03-14",
+        gender: "FEMALE",
+        email: "ucastnik@example.com",
+        termIndexes: [0],
+        userId: participant.id,
+      },
     ],
     payments: { 0: "full" },
+  })
+
+  // Third event for the participant account (US-54): confirmed, but only part
+  // of it paid — something is still left to pay.
+  await createEvent(prisma, {
+    organizationId: mountainClub.id,
+    recordedById: organizerB.id,
+    name: "Podzimní soustředění 2027",
+    description: "Víkendové soustředění na horské chatě.",
+    location: "Chata Sněžka, Pec pod Sněžkou",
+    publicToken: "demo-podzimni-soustredeni-2027",
+    terms: [{ name: "Listopad", startsOn: "2027-11-05", endsOn: "2027-11-07", priceCzk: 2400 }],
+    rooms: [...rooms("FEMALE", ["A", 4]), ...rooms("MALE", ["B", 4])],
+    applicants: [
+      {
+        firstName: "Petr",
+        lastName: "Novák",
+        birthDate: "2008-08-08",
+        gender: "MALE",
+        email: "ucastnik@example.com",
+        termIndexes: [0],
+        userId: participant.id,
+      },
+    ],
+    payments: { 0: 1000 },
   })
 }
 
