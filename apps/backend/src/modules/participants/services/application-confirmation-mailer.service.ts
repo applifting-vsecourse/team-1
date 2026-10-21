@@ -1,15 +1,79 @@
-import { ApplicationConfirmation } from "@/modules/participants/domain/application-confirmation"
-import { Injectable } from "@nestjs/common"
+import { EmailService } from "@/core/email/interfaces/email-service.interface"
+import { renderEmail } from "@/core/email/render"
+import {
+  ApplicationConfirmation as ApplicationConfirmationEmail,
+  applicationConfirmationSubject,
+} from "@/core/email/templates/application-confirmation"
+import {
+  buildConfirmationApplications,
+  loginUrl,
+} from "@/modules/participants/domain/confirmation-email"
+import { SubmissionConfirmation } from "@/modules/participants/domain/submission-confirmation"
+import { MagicLinkService } from "@/shared/auth/services/magic-link.service"
+import { Config } from "@/shared/config/config.service"
+import { Inject, Injectable, Logger } from "@nestjs/common"
 
 /**
- * Contract between stream B (application) and stream C (e-mail). B calls
- * `send` after the application is stored; C implements it in US-56 (template
- * in core/email/templates, magic link from US-01). No-op until then.
+ * Contract between stream B (application) and stream C (e-mail), US-56.
+ *
+ * - `sendSubmissionConfirmation`: ONE summary e-mail per submission of the
+ *   form, however many participants were signed up. B calls it once, after
+ *   every application of the submission is stored.
+ *
+ * A failed delivery never fails the caller: the error is logged (recipient
+ * address only) and the method returns normally.
  */
 @Injectable()
 export class ApplicationConfirmationMailer {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async send(confirmation: ApplicationConfirmation): Promise<void> {
-    // TODO(US-56): render and send the confirmation e-mail.
+  private readonly logger = new Logger(ApplicationConfirmationMailer.name)
+
+  constructor(
+    @Inject("EmailService") private readonly email: EmailService,
+    private readonly magicLinks: MagicLinkService,
+    private readonly config: Config,
+  ) {}
+
+  async sendSubmissionConfirmation(confirmation: SubmissionConfirmation): Promise<void> {
+    try {
+      const access = await this.accessLink(confirmation)
+      const html = await renderEmail(ApplicationConfirmationEmail, {
+        locale: confirmation.locale,
+        eventName: confirmation.eventName,
+        access,
+        applications: buildConfirmationApplications(confirmation, this.config.frontendUrl),
+      })
+      await this.email.sendEmail(
+        confirmation.email,
+        applicationConfirmationSubject(confirmation.locale, confirmation.eventName),
+        html,
+      )
+    } catch (error) {
+      this.logFailure("confirmation", confirmation.email, error)
+    }
+  }
+
+  /**
+   * An account without a password gets a magic link, one with a password the
+   * sign-in page. When no link can be issued the sign-in page stands in.
+   */
+  private async accessLink(
+    confirmation: SubmissionConfirmation,
+  ): Promise<{ kind: "MAGIC_LINK" | "LOGIN"; url: string }> {
+    const login = { kind: "LOGIN" as const, url: loginUrl(this.config.frontendUrl) }
+    if (!confirmation.mustSetPassword) return login
+
+    const url = await this.magicLinks.createLink(confirmation.email).catch(() => null)
+    if (!url) {
+      this.logger.warn(
+        `No magic link for ${confirmation.email}, the e-mail links to the sign-in page instead`,
+      )
+      return login
+    }
+    return { kind: "MAGIC_LINK", url }
+  }
+
+  private logFailure(kind: string, recipient: string, error: unknown): void {
+    const reason = error instanceof Error ? error.message : "unknown error"
+    this.logger.error(`Could not send the ${kind} e-mail to ${recipient}: ${reason}`)
   }
 }
