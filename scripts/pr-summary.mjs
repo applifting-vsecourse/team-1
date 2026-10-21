@@ -110,7 +110,7 @@ const reviewed = stats.filter(
 const reviewLines = reviewed.reduce((n, f) => n + f.add + f.del, 0)
 if (reviewLines > MAX_LINES || reviewed.length > MAX_FILES)
   warn.push(
-    `**PR je velký** (${reviewLines} řádků kódu, ${reviewed.length} souborů; limit ${MAX_LINES} / ${MAX_FILES}) — rozděl featuru na menší PR`,
+    `**PR je velký** (${reviewLines} řádků kódu, ${reviewed.length} souborů; limit ${MAX_LINES} / ${MAX_FILES}) — v popisu PR vysvětli proč`,
   )
 const migrations = new Set(
   files

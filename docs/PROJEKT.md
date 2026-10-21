@@ -311,6 +311,7 @@ apps/frontend/src/
 | 2026-10-16 | Práce po vertikálních řezech: kdo vezme story, dělá BE + FE + testy.                                                                                                                                                                                                                | tech lead |
 | 2026-10-16 | Vyvíjí celý tým. Proudy: A + landing Jakubkuba9000, B kudrle01, C PJjiry, D Aadikk. Story schvaluje product manager Aadikk.                                                                                                                                                         | tech lead |
 | 2026-10-16 | Git: viz sekce 12.                                                                                                                                                                                                                                                                  | tech lead |
+| 2026-10-21 | **Jeden PR na featuru:** story jde v jednom PR (BE + FE + testy), nedělí se na backend / frontend ani na „část 1/2“. Větší PR je v pořádku, popis vysvětlí proč.                                                                                                                    | tech lead |
 
 ## 11. Rozdíly vůči boardu
 
