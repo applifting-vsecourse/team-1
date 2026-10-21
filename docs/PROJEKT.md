@@ -290,6 +290,7 @@ apps/frontend/src/
 | 2026-10-20 | Redesign se dělá v původním Figma souboru a v původních barvách (DS / Semantic), barvy „Future Teal“ se nepoužívají. Rohy loga značí jen jednu aktivní věc (položka sidebaru, záložka, krok, karta akce). Pravidla: `docs/FIGMA-REMAKE.md`.                                         | tech lead |
 | 2026-10-16 | **Jeden typ na účet** (`ORGANIZER` / `PARTICIPANT` / `ADMIN`). Jeden e-mail nemůže být organizátor i účastník.                                                                                                                                                                      | tech lead |
 | 2026-10-16 | **Účastník dostává magic link místo jednorázového hesla.** Odkaz platí 7 dní a jde použít jednou. První vstup odkazem vynutí nastavení vlastního hesla (min. 8 znaků); dál se přihlašuje heslem. Na S10 si může nechat poslat nový odkaz. Magic link funguje jen pro `PARTICIPANT`. | tech lead |
+| 2026-10-19 | PO potvrdil změnu jednorázové heslo → magic link (rozhodnutí 2026-10-16, sekce 11).                                                                                                                                                                                                 | PO        |
 | 2026-10-16 | Existuje-li účet účastníka k e-mailu, nová přihláška se k němu přiřadí a e-mail obsahuje odkaz na přihlášení (bez vynuceného nastavení hesla, pokud ho už má).                                                                                                                      | tech lead |
 | 2026-10-16 | Odkaz na přihlášku = neuhodnutelný token `/apply/<token>`.                                                                                                                                                                                                                          | tech lead |
 | 2026-10-16 | Stránka po odeslání má tajnou URL `/apply/confirmation/<accessToken>`, takže přežije obnovení a může být v e-mailu.                                                                                                                                                                 | tech lead |
@@ -313,7 +314,7 @@ apps/frontend/src/
 
 ## 11. Rozdíly vůči boardu
 
-Zapsáno jen tady — issues zatím **nejsou** upravené. Před implementací proudu C je potřeba potvrdit s PO.
+PO změnu potvrdil 2026-10-19, issues jsou upravené 2026-10-21. Tabulka zůstává pro dohledání původního zadání.
 
 | Story | Board říká                                                        | Platí                                                                           |
 | ----- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------- |
@@ -345,9 +346,8 @@ Zapsáno jen tady — issues zatím **nejsou** upravené. Před implementací pr
 
 ## 14. Otevřené body
 
-| #   | Bod                                                                                                                                                                                  | Kdo            |
-| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------- |
-| 1   | Env proměnné stagingu: nemáme přístup do Coolify. Poslat kurzu seznam (`SMTP_*`, `EMAIL_FROM`, případně `SUPERADMIN_*`). Nouzově zapéct do image přes GitHub secrets v `deploy.yml`. | tech lead      |
-| 2   | Založit Brevo účet a ověřit odesílací adresu.                                                                                                                                        | tech lead      |
-| 3   | Připojit Figma konektor a převzít tokeny do `global.css`.                                                                                                                            | tech lead      |
-| 4   | Potvrdit s PO změnu jednorázové heslo → magic link (sekce 11).                                                                                                                       | tech lead / PO |
+| #   | Bod                                                                                                                                                                                  | Kdo       |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------- |
+| 1   | Env proměnné stagingu: nemáme přístup do Coolify. Poslat kurzu seznam (`SMTP_*`, `EMAIL_FROM`, případně `SUPERADMIN_*`). Nouzově zapéct do image přes GitHub secrets v `deploy.yml`. | tech lead |
+| 2   | Založit Brevo účet a ověřit odesílací adresu.                                                                                                                                        | tech lead |
+| 3   | Připojit Figma konektor a převzít tokeny do `global.css`.                                                                                                                            | tech lead |
