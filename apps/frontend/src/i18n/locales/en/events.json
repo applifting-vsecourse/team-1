@@ -11,11 +11,14 @@
     "description": "Events of your organizations and events you run on your own.",
     "empty": "There are no events yet.",
     "errorTitle": "Couldn't load the events",
+    "manyTerms_few": "{{count}} terms · {{months}} · {{organization}}",
+    "manyTerms_one": "{{count}} term · {{months}} · {{organization}}",
+    "manyTerms_other": "{{count}} terms · {{months}} · {{organization}}",
     "noCapacity": "—",
-    "noTerms": "No term yet",
-    "occupancy_few": "{{confirmed}} / {{count}} places",
-    "occupancy_one": "{{confirmed}} / {{count}} place",
-    "occupancy_other": "{{confirmed}} / {{count}} places",
+    "noTerms": "No term yet · {{organization}}",
+    "occupancyMany": "{{confirmed}} / {{capacity}} places in {{count}} terms",
+    "occupancyOne": "{{confirmed}} / {{capacity}} participants",
+    "oneTerm": "{{dates}} · {{organization}}",
     "statusClosed": "Application inactive",
     "statusOpen": "Published",
     "title": "Event list"
@@ -95,9 +98,6 @@
     "cancelledTitle_few": "Cancelled terms",
     "cancelledTitle_one": "Cancelled term",
     "cancelledTitle_other": "Cancelled terms",
-    "capacity_few": "{{count}} beds",
-    "capacity_one": "{{count}} bed",
-    "capacity_other": "{{count}} beds",
     "description": "Add terms, set their dates and price. Each term is evaluated on its own.",
     "edit": "Edit",
     "empty": "The event has no term yet.",
@@ -126,6 +126,9 @@
       "cancelled": "The term {{name}} was cancelled.",
       "edited": "Changes to the term {{name}} were saved."
     },
+    "occupancy_few": "{{confirmed}} / {{count}} places",
+    "occupancy_one": "{{confirmed}} / {{count}} place",
+    "occupancy_other": "{{confirmed}} / {{count}} places",
     "title": "Terms"
   }
 }

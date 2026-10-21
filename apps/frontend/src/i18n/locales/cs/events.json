@@ -11,11 +11,14 @@
     "description": "Akce vašich organizací a akce pořádané samostatně.",
     "empty": "Zatím tu nejsou žádné akce.",
     "errorTitle": "Akce se nepodařilo načíst",
+    "manyTerms_few": "{{count}} termíny · {{months}} · {{organization}}",
+    "manyTerms_one": "{{count}} termín · {{months}} · {{organization}}",
+    "manyTerms_other": "{{count}} termínů · {{months}} · {{organization}}",
     "noCapacity": "—",
-    "noTerms": "Zatím bez termínu",
-    "occupancy_few": "{{confirmed}} / {{count}} místa",
-    "occupancy_one": "{{confirmed}} / {{count}} místo",
-    "occupancy_other": "{{confirmed}} / {{count}} míst",
+    "noTerms": "Zatím bez termínu · {{organization}}",
+    "occupancyMany": "{{confirmed}} / {{capacity}} míst ve {{count}} termínech",
+    "occupancyOne": "{{confirmed}} / {{capacity}} účastníků",
+    "oneTerm": "{{dates}} · {{organization}}",
     "statusClosed": "Přihláška neaktivní",
     "statusOpen": "Zveřejněno",
     "title": "Seznam akcí"
@@ -95,9 +98,6 @@
     "cancelledTitle_few": "Zrušené termíny",
     "cancelledTitle_one": "Zrušený termín",
     "cancelledTitle_other": "Zrušené termíny",
-    "capacity_few": "{{count}} místa",
-    "capacity_one": "{{count}} místo",
-    "capacity_other": "{{count}} míst",
     "description": "Přidejte termíny, nastavte jejich data a cenu. Každý termín se vyhodnocuje samostatně.",
     "edit": "Upravit",
     "empty": "Akce zatím nemá žádný termín.",
@@ -126,6 +126,9 @@
       "cancelled": "Termín {{name}} byl zrušen.",
       "edited": "Změny termínu {{name}} byly uloženy."
     },
+    "occupancy_few": "{{confirmed}} / {{count}} místa",
+    "occupancy_one": "{{confirmed}} / {{count}} místo",
+    "occupancy_other": "{{confirmed}} / {{count}} míst",
     "title": "Termíny"
   }
 }

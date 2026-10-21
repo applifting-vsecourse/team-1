@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
+import type { TFunction } from "i18next"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
@@ -8,16 +9,13 @@ import { EmptyState } from "@/components/molecules/EmptyState"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { PageHeader } from "@/components/molecules/PageHeader"
-import { TermLabel } from "@/components/molecules/TermLabel"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { Progress } from "@/components/ui/progress"
+import { formatDateRange, formatMonthRange } from "@/lib/date"
 
-import {
-  eventsQueryOptions,
-  type EventTermSummary,
-  type OrganizerEvent,
-} from "@/features/events/api/events"
+import { eventsQueryOptions, type OrganizerEvent } from "@/features/events/api/events"
 
 /** O02 / O02a: the organizer's events as cards, with a confirmation right after one was created. */
 // Figma (Design system): O02 Seznam akcí · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=11988-91
@@ -82,7 +80,8 @@ export function EventList({ createdEventId }: { createdEventId?: string }) {
   )
 }
 
-/** One event: name, organization, whether the application link works, every term with its occupancy. */
+/** One event as on the dashboard: name, when and who, whether applications are open, how full it is. */
+// Figma (Design system): O01 Dashboard, karta akce · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=11988-73
 function EventCard({ event }: { event: OrganizerEvent }) {
   const { t } = useTranslation("events")
 
@@ -102,44 +101,59 @@ function EventCard({ event }: { event: OrganizerEvent }) {
             →
           </span>
         </div>
-        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-          <p className="text-sm text-muted-foreground">{event.organizationName}</p>
-          <Badge variant={event.applicationsOpen ? "success" : "warning"}>
+        <p className="text-sm text-muted-foreground">{termsSummary(event, t)}</p>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pt-2">
+          <Badge variant={event.applicationsOpen ? "info" : "warning"}>
             {event.applicationsOpen ? t("list.statusOpen") : t("list.statusClosed")}
           </Badge>
+          <Occupancy event={event} />
         </div>
-        {/* Rows: "O / Event term row" https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=13895-8174 */}
-        <ul className="pt-2">
-          {event.terms.map((term) => (
-            <li
-              key={term.id}
-              className="flex items-center gap-4 border-t py-3"
-            >
-              <TermLabel term={term} />
-              <Occupancy term={term} />
-            </li>
-          ))}
-          {event.terms.length === 0 ? (
-            <li className="flex items-center gap-4 border-t py-3 text-sm font-medium">
-              <span className="flex-1">{t("list.noTerms")}</span>
-              <span>{t("list.noCapacity")}</span>
-            </li>
-          ) : null}
-        </ul>
       </Card>
     </Link>
   )
 }
 
-/** Confirmed places of all beds; a dash until the event has rooms. */
-function Occupancy({ term }: { term: EventTermSummary }) {
+/** Confirmed of all beds across the terms, with a bar; a dash until there are terms and rooms. */
+function Occupancy({ event }: { event: OrganizerEvent }) {
   const { t } = useTranslation("events")
+  const confirmed = event.terms.reduce((sum, term) => sum + term.confirmedCount, 0)
+  const capacity = event.terms.reduce((sum, term) => sum + term.capacity, 0)
+
+  if (capacity === 0) {
+    return <span className="text-sm font-medium">{t("list.noCapacity")}</span>
+  }
+  const label =
+    event.terms.length === 1
+      ? t("list.occupancyOne", { confirmed, capacity })
+      : t("list.occupancyMany", { confirmed, capacity, count: event.terms.length })
 
   return (
-    <span className="shrink-0 text-sm font-medium tabular-nums">
-      {term.capacity > 0
-        ? t("list.occupancy", { confirmed: term.confirmedCount, count: term.capacity })
-        : t("list.noCapacity")}
-    </span>
+    <>
+      <span className="text-sm font-medium tabular-nums">{label}</span>
+      <Progress
+        value={(confirmed / capacity) * 100}
+        aria-label={label}
+        className="min-w-24 flex-1"
+      />
+    </>
   )
+}
+
+/** O01 / O02: one term shows its dates, several the count and the months they span. */
+function termsSummary(event: OrganizerEvent, t: TFunction<"events">): string {
+  const organization = event.organizationName
+  if (event.termCount === 0 || !event.startsOn || !event.endsOn) {
+    return t("list.noTerms", { organization })
+  }
+  if (event.termCount === 1) {
+    return t("list.oneTerm", {
+      dates: formatDateRange(event.startsOn, event.endsOn, { shouldShowYear: true }),
+      organization,
+    })
+  }
+  return t("list.manyTerms", {
+    count: event.termCount,
+    months: formatMonthRange(event.startsOn, event.endsOn),
+    organization,
+  })
 }

@@ -6,7 +6,6 @@ type TermLabelProps = {
 
 /** A term in a list row: its dates with the year and its name underneath. */
 // Figma (Design system): U / Term status row · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=13884-219
-// Figma (Design system): O / Event term row · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=13895-8174
 export function TermLabel({ term }: TermLabelProps) {
   return (
     <span className="flex flex-1 flex-col gap-0.5">

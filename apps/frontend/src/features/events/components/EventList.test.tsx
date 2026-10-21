@@ -83,17 +83,18 @@ function renderList(events: object[], createdEventId?: string) {
 afterEach(() => vi.restoreAllMocks())
 
 describe("EventList", () => {
-  it("shows each event as a card with its terms and their occupancy", async () => {
+  it("shows each event as a card with its terms, status and occupancy", async () => {
     renderList([event])
 
     const card = (await screen.findByRole("heading", { name: "Letní kemp Lipno 2027" })).closest(
       "a",
     ) as HTMLElement
     expect(within(card).getByText("Published")).toBeInTheDocument()
-    expect(within(card).getByText("12–18 Jul 2027")).toBeInTheDocument()
-    expect(within(card).getByText("Letní turnus 1")).toBeInTheDocument()
-    expect(within(card).getByText("48 / 60 places")).toBeInTheDocument()
-    expect(within(card).getByText("31 / 60 places")).toBeInTheDocument()
+    expect(within(card).getByText("2 terms · July 2027 · Kemp Lipno")).toBeInTheDocument()
+    expect(within(card).getByText("79 / 120 places in 2 terms")).toBeInTheDocument()
+    expect(
+      within(card).getByRole("progressbar", { name: "79 / 120 places in 2 terms" }),
+    ).toBeInTheDocument()
   })
 
   it("marks the event that was just created and says it has no term yet", async () => {
@@ -104,7 +105,8 @@ describe("EventList", () => {
     ).toHaveAttribute("role", "status")
     const item = screen.getByRole("heading", { name: "Jarní víkend Lipno 2027" }).closest("li")
     expect(item).toHaveAttribute("data-status", "active")
-    expect(within(item as HTMLElement).getByText("No term yet")).toBeInTheDocument()
+    expect(within(item as HTMLElement).getByText("No term yet · Kemp Lipno")).toBeInTheDocument()
+    expect(within(item as HTMLElement).queryByRole("progressbar")).not.toBeInTheDocument()
     expect(within(item as HTMLElement).getByText("Application inactive")).toBeInTheDocument()
   })
 })

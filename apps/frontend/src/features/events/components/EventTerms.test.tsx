@@ -93,12 +93,14 @@ const posts = (fetchMock: ReturnType<typeof renderTerms>) =>
 afterEach(() => vi.restoreAllMocks())
 
 describe("EventTerms", () => {
-  it("lists active terms with period, beds and price, and the cancelled ones apart", async () => {
+  it("lists active terms with period, price and occupancy, and the cancelled ones apart", async () => {
     renderTerms()
 
     expect(await screen.findByRole("heading", { name: "Event terms · 2" })).toBeInTheDocument()
     expect(screen.getByText("12–18 Jul 2027")).toBeInTheDocument()
-    expect(screen.getAllByText("60 beds")).toHaveLength(2)
+    expect(screen.getByText(/^Letní turnus 1 · /)).toBeInTheDocument()
+    expect(screen.getByText("0 / 60 places")).toBeInTheDocument()
+    expect(screen.getByRole("progressbar", { name: "18 / 60 places" })).toBeInTheDocument()
     expect(screen.getByText("Cancelled term")).toBeInTheDocument()
     expect(screen.getByText("Zrušený · 12–18 Jul 2027 · Cancelled")).toBeInTheDocument()
   })
@@ -142,8 +144,7 @@ describe("EventTerms", () => {
 
   it("asks for a reason and shows what the cancellation affects", async () => {
     const fetchMock = renderTerms()
-    await screen.findByText("Srpnový turnus")
-    const row = screen.getByText("Srpnový turnus").closest("li") as HTMLElement
+    const row = (await screen.findByText(/^Srpnový turnus · /)).closest("li") as HTMLElement
     await userEvent.click(within(row).getByRole("button", { name: "Cancel term" }))
     const dialog = await screen.findByRole("dialog")
 

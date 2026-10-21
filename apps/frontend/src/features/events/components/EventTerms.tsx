@@ -8,9 +8,9 @@ import { EmptyState } from "@/components/molecules/EmptyState"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { PageHeader } from "@/components/molecules/PageHeader"
-import { TermLabel } from "@/components/molecules/TermLabel"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { Progress } from "@/components/ui/progress"
 import { formatDateRange } from "@/lib/date"
 import { formatCzk } from "@/lib/money"
 
@@ -187,12 +187,15 @@ function TermRow({
   return (
     <div className="flex flex-wrap items-center gap-4">
       <div className="flex min-w-48 flex-1 flex-col gap-1">
-        <TermLabel term={term} />
-        <p className="flex gap-4 text-sm text-muted-foreground">
-          <span>{t("terms.capacity", { count: term.capacity })}</span>
-          <span>{formatCzk(term.priceCzk)}</span>
-        </p>
+        <span className="text-sm font-medium tabular-nums">
+          {formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })}
+        </span>
+        <span className="sr-only"> · </span>
+        <span className="text-sm text-muted-foreground">
+          {term.name} · {formatCzk(term.priceCzk)}
+        </span>
       </div>
+      <TermOccupancy term={term} />
       <Button
         variant="outline"
         size="lg"
@@ -207,6 +210,28 @@ function TermRow({
       >
         {t("terms.cancel")}
       </Button>
+    </div>
+  )
+}
+
+/** Confirmed of the event's beds, with a bar as on the event cards; a dash until there are rooms. */
+function TermOccupancy({ term }: { term: EventTerm }) {
+  const { t } = useTranslation("events")
+  const label =
+    term.capacity > 0
+      ? t("terms.occupancy", { confirmed: term.confirmedCount, count: term.capacity })
+      : t("list.noCapacity")
+
+  return (
+    <div className="flex w-full items-center gap-3 sm:w-70">
+      <span className="shrink-0 text-sm font-medium tabular-nums">{label}</span>
+      {term.capacity > 0 ? (
+        <Progress
+          value={(term.confirmedCount / term.capacity) * 100}
+          aria-label={label}
+          className="flex-1"
+        />
+      ) : null}
     </div>
   )
 }
