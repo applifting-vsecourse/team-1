@@ -101,6 +101,7 @@ pnpm check-all                      # lint + type-check + testy + build (totéž
 pnpm backend test                   # unit testy backendu (Jest, bez DB)
 pnpm backend test:int               # integrační testy: sestaví a spustí backend proti DB togena_test
 pnpm frontend test:ci               # testy frontendu (Vitest)
+pnpm e2e test                       # E2E testy hlavních cest (Playwright, pravidla v docs/E2E.md)
 pnpm backend prisma:migrations:run  # vytvoří a aplikuje migraci po změně schématu
 pnpm backend prisma:studio          # prohlížeč dat
 pnpm backend db:reset               # čistá DB + seed

@@ -1,0 +1,23 @@
+{
+  "name": "e2e",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "report": "playwright show-report",
+    "browsers": "playwright install chromium",
+    "type-check": "tsc --noEmit",
+    "format:check": "prettier --check \"**/*.{ts,mjs,json}\"",
+    "format:write": "prettier --write \"**/*.{ts,mjs,json}\""
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.55.0",
+    "@types/node": "catalog:",
+    "@types/pg": "^8.15.0",
+    "dotenv": "^17.4.2",
+    "pg": "^8.20.0",
+    "prettier": "catalog:",
+    "typescript": "catalog:"
+  }
+}

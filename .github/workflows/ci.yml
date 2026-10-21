@@ -70,3 +70,52 @@ jobs:
 
       - name: Build frontend
         run: pnpm frontend build
+
+  # E2E (Playwright, docs/E2E.md): the core journeys in a real browser against a
+  # built backend + frontend and a freshly seeded `togena_e2e` database.
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: togena
+          POSTGRES_PASSWORD: togena
+          POSTGRES_DB: togena
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U togena -d togena"
+          --health-interval 3s
+          --health-timeout 3s
+          --health-retries 20
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Create env files
+        run: pnpm env:check
+
+      - name: Install Chromium for Playwright
+        run: pnpm e2e exec playwright install --with-deps chromium
+
+      - name: E2E tests
+        run: pnpm e2e test
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: apps/e2e/playwright-report/
+          retention-days: 7
