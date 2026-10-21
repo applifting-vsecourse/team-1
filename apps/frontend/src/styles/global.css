@@ -26,6 +26,10 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-link: var(--link);
+  --color-status-success: var(--status-success);
+  --color-status-success-bg: var(--status-success-bg);
+  --color-status-waitlist: var(--status-waitlist);
+  --color-status-waitlist-bg: var(--status-waitlist-bg);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-accent: var(--sidebar-accent);
@@ -79,6 +83,10 @@
   --input: #759398; /* color/border/control */
   --ring: #087f8c; /* color/border/focus */
   --link: #087f8c; /* color/text/link */
+  --status-success: #16634a; /* color/status/success */
+  --status-success-bg: #eaf6f0; /* color/status/success-bg */
+  --status-waitlist: #6941a5; /* color/status/waitlist */
+  --status-waitlist-bg: #f4efff; /* color/status/waitlist-bg */
   --sidebar: #e7f3f3; /* color/bg/subtle */
   --sidebar-foreground: #14343b; /* color/text/primary */
   --sidebar-accent: #dcf2f2; /* color/bg/selected */
@@ -116,6 +124,10 @@
   --accent-foreground: #e6f3f4;
   --destructive: #ff9ba8; /* color/status/error */
   --destructive-foreground: #14292f;
+  --status-success: #75dbaf; /* color/status/success */
+  --status-success-bg: #14382b; /* color/status/success-bg */
+  --status-waitlist: #c9aeff; /* color/status/waitlist */
+  --status-waitlist-bg: #302742; /* color/status/waitlist-bg */
   --border: #36545b; /* color/border/default */
   --input: #6e959e; /* color/border/control */
   --ring: #61d5db; /* color/border/focus */

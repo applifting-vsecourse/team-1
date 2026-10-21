@@ -24,6 +24,7 @@ export const ROUTES = {
     magicLink: "/participant/magic-link",
     setPassword: "/participant/set-password",
     applications: "/participant",
+    application: "/participant/applications/$applicationId",
     account: "/participant/account",
   },
 } as const

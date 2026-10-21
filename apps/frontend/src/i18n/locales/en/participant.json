@@ -1,5 +1,42 @@
 {
   "applications": {
-    "title": "My application"
+    "description": "Applications under the account of {{name}}.",
+    "title": "Your applications"
+  },
+  "detail": {
+    "back": "← All applications",
+    "errorTitle": "Couldn't load the application",
+    "position": "Position:",
+    "status": "Status:",
+    "termsTitle": "Status by term",
+    "title": "My application",
+    "toPay": "Amount due:",
+    "waitlistNote": "Only the confirmed term is payable. Don't pay for a term on the waiting list yet."
+  },
+  "list": {
+    "empty": "You have no applications yet. Once you apply for an event, it will appear here.",
+    "errorTitle": "Couldn't load your applications"
+  },
+  "payment": {
+    "account": "Account number:",
+    "detailsTitle": "Payment information",
+    "due": "Amount due",
+    "note": "Please pay by bank transfer.",
+    "overpaid": "Overpayment",
+    "owed": "Left to pay",
+    "paid": "Paid",
+    "title": "Payment for the confirmed term",
+    "toPay": "To pay:",
+    "transferTitle": "Payment details",
+    "variableSymbol": "Variable symbol:",
+    "waitlistedNote": "The waitlisted term {{range}} has no amount due yet."
+  },
+  "status": {
+    "confirmed": "confirmed",
+    "confirmedLong": "Confirmed",
+    "position": "{{position}}. in line",
+    "untilConfirmed": "until confirmed",
+    "waitlisted": "waitlisted · {{position}}. in line",
+    "waitlistedLong": "Waitlisted"
   }
 }
