@@ -41,7 +41,7 @@ Only things that are clearly wrong and would hurt `main`. If you are not sure, i
 
 ## What is a WARNING
 
-Rule drift that should be fixed but does not break anything: a feature importing from another feature, `toLocaleString` instead of `formatCzk` / `formatDate`, a hand-rolled control instead of one from `components/ui`, shadows on anything but cards (`shadow-sm`) and floating elements (dropdowns, dialogs, toasts), domain logic without a unit test, a shared file (`schema.prisma`, `app.module.ts`, `routes.ts`, `components/*`) changed beyond the story's scope, a PR over ~400 changed lines of code or ~20 files (excluding tests, migration SQL, lockfile, generated files) that could be split into slices that merge on their own — say how to split it.
+Rule drift that should be fixed but does not break anything: a feature importing from another feature, `toLocaleString` instead of `formatCzk` / `formatDate`, a hand-rolled control instead of one from `components/ui`, shadows on anything but cards (`shadow-sm`) and floating elements (dropdowns, dialogs, toasts), domain logic without a unit test, a shared file (`schema.prisma`, `app.module.ts`, `routes.ts`, `components/*`) changed beyond the story's scope, one story split across several PRs (a backend PR and a frontend PR, „část 1/2“) — it belongs in one PR per feature, a PR over ~400 changed lines of code or ~20 files (excluding tests, migration SQL, lockfile, generated files) whose body doesn't say why it's that big — never suggest splitting it.
 
 UI that follows Figma (CLAUDE.md, "UI follows Figma"). You can't open Figma, so check only what the diff shows:
 

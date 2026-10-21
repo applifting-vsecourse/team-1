@@ -88,7 +88,7 @@ The pre-push review (`@reviewer`) can't open Figma; it only checks that new UI c
 
 ### Pull request size
 
-Small PRs, because the tech lead reviews every one quickly. Target: up to ~400 changed lines of code (not counting tests, migration SQL, lockfile, generated files) and ~20 files. If a feature is bigger, split it into vertical slices that each merge on their own and keep `main` working (e.g. 1. migration + repository, 2. service + endpoint, 3. UI), and say in the PR body which part of the story this is (`Refs #23`, „část 1/3“). Agents: plan the split before coding; don't open one big PR. The PR comment „Co se změnilo“ flags oversized PRs.
+One PR per feature (user story): backend, frontend and tests together on one branch, closing the story (`Closes #23`). Don't split a story by layer (a backend PR and a frontend PR) or into „část 1/2“ parts. Keep the PR reviewable — aim for ~400 changed lines of code (not counting tests, migration SQL, lockfile, generated files) and ~20 files; when a story needs more, keep it in one PR and say in the PR body why it's bigger. The PR comment „Co se změnilo“ flags large PRs.
 
 ### E2E tests
 
