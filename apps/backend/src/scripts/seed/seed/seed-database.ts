@@ -184,20 +184,9 @@ export const seedDatabase = async (
         email: "klara.prochazkova@example.com",
         termIndexes: [0],
       },
-      // Third application under the participant account (US-54): confirmed in
-      // both terms, only part of it paid — something is still left to pay.
-      {
-        firstName: "Petr",
-        lastName: "Novák",
-        birthDate: "2008-08-08",
-        gender: "MALE",
-        email: "ucastnik@example.com",
-        termIndexes: [0, 1],
-        userId: participant.id,
-      },
     ],
     // Payments by applicant index: full, partial, none…
-    payments: { 0: "full", 1: 2000, 5: 3000 },
+    payments: { 0: "full", 1: 2000 },
   })
 
   await createEvent(prisma, {
@@ -269,6 +258,31 @@ export const seedDatabase = async (
       },
     ],
     payments: { 0: "full" },
+  })
+
+  // Third event for the participant account (US-54): confirmed, but only part
+  // of it paid — something is still left to pay.
+  await createEvent(prisma, {
+    organizationId: mountainClub.id,
+    recordedById: organizerB.id,
+    name: "Podzimní soustředění 2027",
+    description: "Víkendové soustředění na horské chatě.",
+    location: "Chata Sněžka, Pec pod Sněžkou",
+    publicToken: "demo-podzimni-soustredeni-2027",
+    terms: [{ name: "Listopad", startsOn: "2027-11-05", endsOn: "2027-11-07", priceCzk: 2400 }],
+    rooms: [...rooms("FEMALE", ["A", 4]), ...rooms("MALE", ["B", 4])],
+    applicants: [
+      {
+        firstName: "Petr",
+        lastName: "Novák",
+        birthDate: "2008-08-08",
+        gender: "MALE",
+        email: "ucastnik@example.com",
+        termIndexes: [0],
+        userId: participant.id,
+      },
+    ],
+    payments: { 0: 1000 },
   })
 }
 

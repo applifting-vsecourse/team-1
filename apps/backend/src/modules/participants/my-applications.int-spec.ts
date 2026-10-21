@@ -81,6 +81,8 @@ describe("participant applications (integration)", () => {
   beforeAll(async () => {
     prisma = await connectTestPrisma()
     await resetAndSeed(prisma)
+    // The first request on a connection left over from the previous spec file can be reset.
+    await fetch(api("/health")).catch(() => fetch(api("/health")))
   })
 
   afterAll(async () => {
@@ -96,7 +98,7 @@ describe("participant applications (integration)", () => {
     expect(applications.map((a) => a.eventName).sort()).toEqual([
       "Horský víkend 2027",
       "Letní kemp 2027",
-      "Letní kemp 2027",
+      "Podzimní soustředění 2027",
     ])
     const symbols = applications.map((a) => a.variableSymbol)
     expect(new Set(symbols).size).toBe(3)
@@ -107,9 +109,7 @@ describe("participant applications (integration)", () => {
   it("shows payment details and the amount due of a fully paid application", async () => {
     const applications = await listOf(await signIn("ucastnik@example.com", "password4"))
 
-    const camp = applications.find(
-      (a) => a.firstName === "Jana" && a.eventName === "Letní kemp 2027",
-    )!
+    const camp = applications.find((a) => a.eventName === "Letní kemp 2027")!
 
     expect(camp.terms.map((t) => t.status)).toEqual(["CONFIRMED", "CONFIRMED"])
     expect(camp).toMatchObject({ amountDueCzk: 9400, amountPaidCzk: 9400, amountOwedCzk: 0 })
@@ -124,7 +124,7 @@ describe("participant applications (integration)", () => {
 
     const partly = applications.find((a) => a.firstName === "Petr")!
 
-    expect(partly).toMatchObject({ amountDueCzk: 9400, amountPaidCzk: 3000, amountOwedCzk: 6400 })
+    expect(partly).toMatchObject({ amountDueCzk: 2400, amountPaidCzk: 1000, amountOwedCzk: 1400 })
     expect(partly.paymentDetails).not.toBeNull()
   })
 
