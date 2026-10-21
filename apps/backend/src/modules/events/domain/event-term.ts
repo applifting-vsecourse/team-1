@@ -23,8 +23,12 @@ export type TermInput = {
 
 /** The end may be the start day (a one-day term), but never earlier. ISO dates compare as text. */
 export function isValidTermPeriod(startsOn: string, endsOn: string): boolean {
-  const isDate = (value: string): boolean =>
-    /^\d{4}-\d{2}-\d{2}$/.test(value) && new Date(value).toISOString().slice(0, 10) === value
+  // `2027-13-01` matches the pattern but is an Invalid Date, whose toISOString() throws.
+  const isDate = (value: string): boolean => {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false
+    const date = new Date(value)
+    return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value
+  }
   return isDate(startsOn) && isDate(endsOn) && endsOn >= startsOn
 }
 

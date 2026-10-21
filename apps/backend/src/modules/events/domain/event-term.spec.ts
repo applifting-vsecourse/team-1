@@ -13,6 +13,7 @@ describe("isValidTermPeriod", () => {
   it("rejects malformed and impossible dates", () => {
     expect(isValidTermPeriod("9. 8. 2027", "2027-08-10")).toBe(false)
     expect(isValidTermPeriod("2027-02-30", "2027-03-10")).toBe(false)
+    expect(isValidTermPeriod("2027-13-01", "2027-13-05")).toBe(false)
   })
 })
 
