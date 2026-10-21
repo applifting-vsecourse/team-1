@@ -2,7 +2,7 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { api, connectTestPrisma, resetAndSeed, signIn } from "@/test/integration/test-api"
 
-type TermDto = { status: string; waitlistPosition: number | null; priceCzk: number }
+type TermDto = { status: string; priceCzk: number }
 type ApplicationDto = {
   id: string
   eventName: string
@@ -14,6 +14,7 @@ type ApplicationDto = {
   amountPaidCzk: number
   amountOwedCzk: number
   paymentDetails: { bankAccount: string; variableSymbol: string } | null
+  paymentStatus: string
 }
 
 describe("participant applications (integration)", () => {
@@ -112,7 +113,12 @@ describe("participant applications (integration)", () => {
     const camp = applications.find((a) => a.eventName === "Letní kemp 2027")!
 
     expect(camp.terms.map((t) => t.status)).toEqual(["CONFIRMED", "CONFIRMED"])
-    expect(camp).toMatchObject({ amountDueCzk: 9400, amountPaidCzk: 9400, amountOwedCzk: 0 })
+    expect(camp).toMatchObject({
+      amountDueCzk: 9400,
+      amountPaidCzk: 9400,
+      amountOwedCzk: 0,
+      paymentStatus: "PAID",
+    })
     expect(camp.paymentDetails).toEqual({
       bankAccount: "2900123456/2010",
       variableSymbol: camp.variableSymbol,
@@ -124,7 +130,12 @@ describe("participant applications (integration)", () => {
 
     const partly = applications.find((a) => a.firstName === "Petr")!
 
-    expect(partly).toMatchObject({ amountDueCzk: 2400, amountPaidCzk: 1000, amountOwedCzk: 1400 })
+    expect(partly).toMatchObject({
+      amountDueCzk: 2400,
+      amountPaidCzk: 1000,
+      amountOwedCzk: 1400,
+      paymentStatus: "PARTIALLY_PAID",
+    })
     expect(partly.paymentDetails).not.toBeNull()
   })
 
@@ -134,7 +145,9 @@ describe("participant applications (integration)", () => {
     const weekend = applications.find((a) => a.eventName === "Horský víkend 2027")!
 
     expect(weekend.terms).toHaveLength(1)
-    expect(weekend.terms[0]).toMatchObject({ status: "WAITLISTED", waitlistPosition: 2 })
+    expect(weekend.terms[0]).toMatchObject({ status: "WAITLISTED" })
+    expect(weekend.terms[0]).not.toHaveProperty("waitlistPosition")
+    expect(weekend.paymentStatus).toBe("NOTHING_DUE")
     expect(weekend).toMatchObject({ amountDueCzk: 0, amountPaidCzk: 0, amountOwedCzk: 0 })
     expect(weekend.paymentDetails).toBeNull()
   })

@@ -80,10 +80,10 @@ describe("ApplicationForm", () => {
 
     expect(screen.getByText("Choose terms (at least one) *")).toBeInTheDocument()
     expect(
-      screen.getByRole("checkbox", { name: /^4–10 Jul\s?·\s?CZK\s4,500$/ }),
+      screen.getByRole("checkbox", { name: /^4–10 Jul 2027\s?·\s?Week 1\s?·\s?CZK\s4,500$/ }),
     ).toBeInTheDocument()
     expect(
-      screen.getByRole("checkbox", { name: /^11–17 Jul\s?·\s?CZK\s4,900$/ }),
+      screen.getByRole("checkbox", { name: /^11–17 Jul 2027\s?·\s?Week 2\s?·\s?CZK\s4,900$/ }),
     ).toBeInTheDocument()
   })
 

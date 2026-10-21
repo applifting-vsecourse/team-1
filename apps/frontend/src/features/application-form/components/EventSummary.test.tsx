@@ -21,10 +21,10 @@ describe("EventSummary", () => {
     expect(screen.getByRole("heading", { name: "Summer camp 2027" })).toBeInTheDocument()
     expect(screen.getByText("Lipno · July–August 2027")).toBeInTheDocument()
     expect(screen.getByText("12–18 Jul 2027").closest("li")).toHaveTextContent(
-      "12–18 Jul 2027 · CZK 6,900",
+      "12–18 Jul 2027 · Week 1 · CZK 6,900",
     )
     expect(screen.getByText("2–8 Aug 2027").closest("li")).toHaveTextContent(
-      "2–8 Aug 2027 · CZK 7,400",
+      "2–8 Aug 2027 · Week 2 · CZK 7,400",
     )
   })
 })

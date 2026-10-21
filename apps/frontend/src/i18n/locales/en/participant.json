@@ -8,7 +8,7 @@
     "errorTitle": "Couldn't load the application",
     "termsTitle": "Status by term",
     "title": "My application",
-    "waitlistNote": "Only the confirmed term is payable. Don't pay for a term on the waiting list yet."
+    "waitlistNote": "Only confirmed terms are payable. Don't pay for a term that is waiting for confirmation yet."
   },
   "list": {
     "empty": "You have no applications yet. Once you apply for an event, it will appear here.",
@@ -26,14 +26,17 @@
     "toPay": "To pay",
     "transferTitle": "Payment details",
     "variableSymbol": "Variable symbol",
-    "waitlistedNote": "The waitlisted term {{range}} has no amount due yet."
+    "waitlistedNote": "The term {{range}} is waiting for confirmation and has no amount due yet."
+  },
+  "paymentStatus": {
+    "OVERPAID": "Overpaid",
+    "PAID": "Paid",
+    "PARTIALLY_PAID": "Partly paid",
+    "UNPAID": "Unpaid"
   },
   "status": {
-    "confirmed": "confirmed",
-    "confirmedLong": "Confirmed",
-    "position": "{{position}}. in line",
-    "untilConfirmed": "until confirmed",
-    "waitlisted": "waitlisted · {{position}}. in line",
-    "waitlistedLong": "Waitlisted"
+    "confirmed": "Confirmed",
+    "pending": "Waiting for confirmation",
+    "untilConfirmed": "until confirmed"
   }
 }

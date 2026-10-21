@@ -189,8 +189,12 @@ export function ParticipantFields({ index, terms, onRemove, isDisabled }: Partic
                       }
                       onBlur={field.onBlur}
                     />
-                    <span className="flex-1 font-semibold">
-                      {formatDateRange(term.startsOn, term.endsOn)}
+                    <span className="flex flex-1 flex-col">
+                      <span className="font-semibold">
+                        {formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })}
+                      </span>
+                      <span className="sr-only"> · </span>
+                      <span className="text-sm text-muted-foreground">{term.name}</span>
                     </span>
                     <span className="sr-only"> · </span>
                     <MoneyAmount

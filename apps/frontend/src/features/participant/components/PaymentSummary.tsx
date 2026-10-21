@@ -5,7 +5,8 @@ import { MoneyAmount } from "@/components/atoms/MoneyAmount"
 import { Card } from "@/components/ui/card"
 
 import type { MyApplication } from "@/features/participant/api/applications"
-import { termRangeShort } from "@/features/participant/lib/format"
+import { PaymentStatusBadge } from "@/features/participant/components/TermSummary"
+import { termRange } from "@/features/participant/lib/format"
 
 type PaymentSummaryProps = {
   application: MyApplication
@@ -24,7 +25,7 @@ export function PaymentSummary({ application }: PaymentSummaryProps) {
   const note = [
     hasToPay ? t("payment.note") : null,
     waitlisted.length > 0
-      ? t("payment.waitlistedNote", { range: waitlisted.map(termRangeShort).join(", ") })
+      ? t("payment.waitlistedNote", { range: waitlisted.map(termRange).join(", ") })
       : null,
   ]
     .filter(Boolean)
@@ -32,7 +33,10 @@ export function PaymentSummary({ application }: PaymentSummaryProps) {
 
   return (
     <section className="flex flex-col gap-4">
-      <h2 className="text-2xl font-semibold">{t("payment.title")}</h2>
+      <div className="flex flex-wrap items-center gap-3">
+        <h2 className="text-2xl font-semibold">{t("payment.title")}</h2>
+        <PaymentStatusBadge status={application.paymentStatus} />
+      </div>
       <dl className="grid gap-6 sm:grid-cols-3">
         <Metric
           label={t("payment.due")}

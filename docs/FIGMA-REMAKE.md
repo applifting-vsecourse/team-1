@@ -67,6 +67,8 @@ Hotové jsou všechny obrazovky na stránkách HF / 01–06 kromě e-mailů S17:
 
 - Barvy: DS / Primitives mají hodnoty z tématu Togena Remake (Light / Dark) s výjimkami popsanými v Rozsahu; primární barva je `#007f72`. V kódu #130 a #131.
 - U01 Přihlášky: karty přihlášek podle karty akce z O01, stavy termínů jako DS / Badge (Success, Waitlist), bez rohů loga (seznam bez výběru).
+- Termíny všude s rokem a pod datem s názvem termínu (U01, U04, komponenty DS / Term option a DS / Event term row v přihlášce V02–V07h a M02–M06).
+- Účastník nevidí, že je náhradník: nepotvrzený termín má neutrální štítek „Čeká na potvrzení“, potvrzený „Potvrzeno“ (i v DS / Registration term status na V04 / V06 / M06). U přihlášky je štítek stavu platby: Nezaplaceno, Částečně zaplaceno (Warning), Zaplaceno (Success), Přeplatek (Info). Mobilní U01 a U04 (360 px, stavy částečně zaplaceno / zaplaceno / přeplatek) jsou ve stejném vzhledu jako desktop.
 - U04 Moje přihláška: odkaz „← Všechny přihlášky“ je DS / Button Quiet bez levého odsazení, zarovnaný pod nadpisem; termíny jsou řádky oddělené hairline se štítkem stavu a částkou; platba má nadpis H2, tři DS / Metric bez pomocného řádku a samostatnou kartu „Údaje pro doplatek“ s řádky popisek–hodnota (popisky bez dvojtečky).
 
 **Známé odchylky v kódu:**
@@ -74,5 +76,4 @@ Hotové jsou všechny obrazovky na stránkách HF / 01–06 kromě e-mailů S17:
 - Odkaz „Podpora Togeny“ v sidebaru chybí, dokud neexistuje kanál podpory.
 - Text „Otevřít navigaci“ u tlačítka menu je jen pro čtečky, ve Figmě je to název vrstvy.
 - U04: karta „Údaje přihlášky“ (jméno, narození, zákonný zástupce) chybí, API tyto údaje nevrací; poznámka o placení potvrzeného termínu je pod termíny.
-- U01: doplňkové texty u přihlášek („Místo zajištěno“, „Pořadí 2“) chybí, karta ukazuje jen štítky termínů z API.
 - Hover primárního tlačítka je v kódu `bg-primary/90`, ve Figmě `raw/teal-hover` `#006f63`.

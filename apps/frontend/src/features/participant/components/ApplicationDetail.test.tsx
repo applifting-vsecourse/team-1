@@ -22,7 +22,6 @@ const confirmed = {
   endsOn: "2027-07-10",
   status: "CONFIRMED" as const,
   priceCzk: 4500,
-  waitlistPosition: null,
 }
 const waitlisted = {
   termId: "t2",
@@ -31,7 +30,6 @@ const waitlisted = {
   endsOn: "2027-07-17",
   status: "WAITLISTED" as const,
   priceCzk: 4900,
-  waitlistPosition: 1,
 }
 
 const application = (overrides: Partial<MyApplication> = {}): MyApplication => ({
@@ -45,6 +43,7 @@ const application = (overrides: Partial<MyApplication> = {}): MyApplication => (
   amountDueCzk: 4500,
   amountPaidCzk: 2000,
   amountOwedCzk: 2500,
+  paymentStatus: "PARTIALLY_PAID",
   paymentDetails: { bankAccount: "2900123456/2010", variableSymbol: "0048" },
   ...overrides,
 })
@@ -78,6 +77,7 @@ describe("ApplicationDetail", () => {
       await screen.findByRole("heading", { level: 1, name: "Letní kemp 2027" }),
     ).toBeInTheDocument()
     expect(screen.getByText("Left to pay")).toBeInTheDocument()
+    expect(screen.getByText("Partly paid")).toBeInTheDocument()
     expect(screen.getByText("2900123456/2010")).toBeInTheDocument()
     expect(screen.getByText("0048")).toBeInTheDocument()
     expect(screen.getByRole("link", { name: "← All applications" })).toHaveAttribute(
@@ -102,7 +102,9 @@ describe("ApplicationDetail", () => {
   })
 
   it("shows an overpayment as an overpayment, not as zero", async () => {
-    renderDetail(application({ amountPaidCzk: 5100, amountOwedCzk: -600 }))
+    renderDetail(
+      application({ amountPaidCzk: 5100, amountOwedCzk: -600, paymentStatus: "OVERPAID" }),
+    )
 
     expect(await screen.findByText("Overpayment")).toBeInTheDocument()
     expect(screen.getByRole("heading", { name: "Payment information" })).toBeInTheDocument()
@@ -111,11 +113,14 @@ describe("ApplicationDetail", () => {
     expect(screen.queryByText("To pay")).not.toBeInTheDocument()
   })
 
-  it("explains that a waitlisted term is not to be paid yet", async () => {
+  it("shows a waitlisted term only as waiting for confirmation, not to be paid yet", async () => {
     renderDetail(application({ terms: [confirmed, waitlisted] }))
 
-    expect(await screen.findByText(/1\. in line/)).toBeInTheDocument()
-    expect(screen.getByText(/Don't pay for a term on the waiting list yet/)).toBeInTheDocument()
+    expect(await screen.findByText("Waiting for confirmation")).toBeInTheDocument()
+    expect(screen.queryByText(/in line|waitlist/i)).not.toBeInTheDocument()
+    expect(
+      screen.getByText(/Don't pay for a term that is waiting for confirmation yet/),
+    ).toBeInTheDocument()
   })
 
   it("shows no payment block when every term is waitlisted", async () => {
@@ -125,11 +130,12 @@ describe("ApplicationDetail", () => {
         amountDueCzk: 0,
         amountOwedCzk: 0,
         amountPaidCzk: 0,
+        paymentStatus: "NOTHING_DUE",
         paymentDetails: null,
       }),
     )
 
-    expect(await screen.findByText(/1\. in line/)).toBeInTheDocument()
+    expect(await screen.findByText("Waiting for confirmation")).toBeInTheDocument()
     expect(screen.queryByText("Payment for the confirmed term")).not.toBeInTheDocument()
     expect(screen.queryByText("Account number")).not.toBeInTheDocument()
   })

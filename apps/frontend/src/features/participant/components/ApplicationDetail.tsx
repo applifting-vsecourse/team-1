@@ -7,13 +7,12 @@ import { MoneyAmount } from "@/components/atoms/MoneyAmount"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { PageHeader } from "@/components/molecules/PageHeader"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 
 import { myApplicationQueryOptions } from "@/features/participant/api/applications"
 import { PaymentSummary } from "@/features/participant/components/PaymentSummary"
-import { termRange } from "@/features/participant/lib/format"
+import { TermLabel, TermStatusBadge } from "@/features/participant/components/TermSummary"
 
 type ApplicationDetailProps = { applicationId: string }
 
@@ -68,12 +67,8 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
                 key={term.termId}
                 className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t py-4 last:pb-0"
               >
-                <span className="flex-1 font-medium">{termRange(term)}</span>
-                <Badge variant={isConfirmed ? "success" : "waitlist"}>
-                  {isConfirmed
-                    ? t("status.confirmedLong")
-                    : `${t("status.waitlistedLong")} · ${t("status.position", { position: term.waitlistPosition })}`}
-                </Badge>
+                <TermLabel term={term} />
+                <TermStatusBadge term={term} />
                 <span className="w-full sm:w-50 sm:text-right">
                   <MoneyAmount amountCzk={isConfirmed ? term.priceCzk : 0} />
                   {isConfirmed ? null : ` ${t("status.untilConfirmed")}`}

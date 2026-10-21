@@ -36,8 +36,12 @@ export function EventSummary({ event }: { event: PublicEvent }) {
             key={term.id}
             className="flex items-center justify-between gap-4 border-t border-border py-3"
           >
-            <span className="font-semibold">
-              {formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })}
+            <span className="flex flex-col">
+              <span className="font-semibold">
+                {formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })}
+              </span>
+              <span className="sr-only"> · </span>
+              <span className="text-sm text-muted-foreground">{term.name}</span>
             </span>
             <span className="sr-only"> · </span>
             <MoneyAmount

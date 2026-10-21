@@ -28,6 +28,10 @@
   --color-link: var(--link);
   --color-status-success: var(--status-success);
   --color-status-success-bg: var(--status-success-bg);
+  --color-status-warning: var(--status-warning);
+  --color-status-warning-bg: var(--status-warning-bg);
+  --color-status-info: var(--status-info);
+  --color-status-info-bg: var(--status-info-bg);
   --color-status-waitlist: var(--status-waitlist);
   --color-status-waitlist-bg: var(--status-waitlist-bg);
   --color-sidebar: var(--sidebar);
@@ -87,6 +91,10 @@
   --link: #006363; /* color/text/link */
   --status-success: #16634a; /* color/status/success */
   --status-success-bg: #eaf6f0; /* color/status/success-bg */
+  --status-warning: #8a4b0e; /* color/status/warning */
+  --status-warning-bg: #fff5e6; /* color/status/warning-bg */
+  --status-info: #006363; /* color/status/info */
+  --status-info-bg: #c3ecdf; /* color/status/info-bg */
   --status-waitlist: #6941a5; /* color/status/waitlist */
   --status-waitlist-bg: #f4efff; /* color/status/waitlist-bg */
   --sidebar: #f5f9fa; /* color/bg/subtle */
@@ -128,6 +136,10 @@
   --destructive-foreground: #14292f;
   --status-success: #75dbaf; /* color/status/success */
   --status-success-bg: #14382b; /* color/status/success-bg */
+  --status-warning: #f6c779; /* color/status/warning */
+  --status-warning-bg: #3c2d18; /* color/status/warning-bg */
+  --status-info: #00bba7; /* color/status/info */
+  --status-info-bg: #173f43; /* color/status/info-bg */
   --status-waitlist: #c9aeff; /* color/status/waitlist */
   --status-waitlist-bg: #302742; /* color/status/waitlist-bg */
   --border: #142223; /* color/border/default */

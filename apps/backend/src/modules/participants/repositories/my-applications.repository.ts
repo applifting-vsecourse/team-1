@@ -1,9 +1,6 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { Prisma } from "@/generated/prisma/client"
-import {
-  MyApplicationRecord,
-  WaitlistedArrival,
-} from "@/modules/participants/domain/my-application"
+import { MyApplicationRecord } from "@/modules/participants/domain/my-application"
 import { Injectable } from "@nestjs/common"
 
 const include = {
@@ -34,19 +31,6 @@ export class MyApplicationsRepository {
   async findOneOfUser(userId: string, applicationId: string): Promise<MyApplicationRecord | null> {
     const row = await this.findRow(userId, applicationId)
     return row ? toRecord(row) : null
-  }
-
-  /** Everyone waitlisted in the given terms, by term — the waiting list order is derived from it. */
-  async findWaitlists(termIds: string[]): Promise<Map<string, WaitlistedArrival[]>> {
-    const rows = await this.prisma.applicationTerm.findMany({
-      where: { termId: { in: termIds }, status: "WAITLISTED" },
-      select: { termId: true, application: { select: { submittedAt: true, number: true } } },
-    })
-    const queues = new Map<string, WaitlistedArrival[]>()
-    for (const { termId, application } of rows) {
-      queues.set(termId, [...(queues.get(termId) ?? []), application])
-    }
-    return queues
   }
 
   private findRow(userId: string, applicationId: string): Promise<Row | null> {

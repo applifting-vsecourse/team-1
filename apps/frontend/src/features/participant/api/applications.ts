@@ -11,8 +11,6 @@ const termSchema = z.object({
   endsOn: z.string(),
   status: z.enum(["CONFIRMED", "WAITLISTED"]),
   priceCzk: z.number().int(),
-  /** 1-based place in the waiting list; `null` when confirmed. */
-  waitlistPosition: z.number().int().nullable(),
 })
 export type MyApplicationTerm = z.infer<typeof termSchema>
 
@@ -30,10 +28,13 @@ export const myApplicationSchema = z.object({
   amountPaidCzk: z.number().int(),
   /** Due − paid; negative is an overpayment. */
   amountOwedCzk: z.number().int(),
+  /** `NOTHING_DUE` while no term is confirmed. */
+  paymentStatus: z.enum(["NOTHING_DUE", "UNPAID", "PARTIALLY_PAID", "PAID", "OVERPAID"]),
   /** `null` when every term is waitlisted: nothing to pay yet. */
   paymentDetails: z.object({ bankAccount: z.string(), variableSymbol: z.string() }).nullable(),
 })
 export type MyApplication = z.infer<typeof myApplicationSchema>
+export type PaymentStatus = MyApplication["paymentStatus"]
 
 /** `GET /api/participant/applications` — every application of the signed-in account (US-54). */
 export const myApplicationsQueryOptions = () =>
