@@ -6,6 +6,7 @@
   "NOT_FOUND": "Nenalezeno.",
   "PASSWORD_ALREADY_SET": "Heslo už máte nastavené.",
   "PASSWORD_REQUIRED": "Nejprve si nastavte heslo, poté budete moci pokračovat.",
+  "PAYMENT_ALREADY_RECORDED": "Platba už je zapsaná. Před úpravou obnovte detail.",
   "UNAUTHORIZED": "Přihlaste se prosím.",
   "UNKNOWN": "Něco se pokazilo.",
   "VALIDATION_FAILED": "Některá pole nejsou vyplněná správně."
