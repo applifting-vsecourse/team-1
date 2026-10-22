@@ -1,0 +1,79 @@
+title: Zpracování přihlášky (detailní proces, verze z náčrtku)
+direction: TD
+
+# typy uzlů: event | timed | task | step | process | state | end | gateway | note
+# gateway: kind = x (XOR, exkluzivní) | + (AND, paralelní) | o (OR, inkluzivní)
+# unsure: true -> uzel se vykreslí výrazným čárkovaným okrajem (nejistá část náčrtku)
+
+nodes:
+  - { id: akce_zalozena, type: event, label: Akce založena }
+  - { id: nastavit_rezim, type: task, label: Nastavit režim vyhodnocování, role: organizátor }
+  - { id: spustit_prihlasky, type: task, label: Spustit přihlášky, role: organizátor }
+  - { id: prihlaska_zaregistrovana, type: event, label: Nová přihláška zaregistrována }
+  - { id: do_poradniku, type: task, label: Vložit přihlášku do pořadníku, role: systém }
+  - { id: chce_vyhodnotit, type: event, label: Organizátor chce vyhodnotit přihlášky }
+  - { id: s_vyhodnocovana, type: state, label: "Přihláška: vyhodnocovaná" }
+  - { id: vyhodnotit, type: task, label: Vyhodnotit přihlášku, role: organizátor }
+  - { id: g_vysledek, type: gateway, kind: x }
+
+  - { id: s_zrusena, type: end, label: "Přihláška: zrušená" }
+  - { id: s_nahradnik, type: state, label: "Přihláška: náhradník" }
+  - { id: s_potvrzena_dluh, type: state, label: "Přihláška: potvrzená s dluhem" }
+
+  - { id: uvolni_se_misto, type: event, label: Uvolní se místo }
+  - { id: g_misto, type: gateway, kind: "+" }
+  - { id: rucne_potvrdit, type: task, label: Ručně potvrdit přihlášku, role: organizátor }
+
+  - { id: g_platba, type: gateway, kind: x }
+  - {
+      id: zaucotovat,
+      type: task,
+      label: Zaúčtovat platbu,
+      role: systém / organizátor,
+      unsure: true,
+    }
+  - { id: vyzva, type: task, label: Odeslat výzvu k zaplacení, role: systém, unsure: true }
+  - { id: g_po_vyzve, type: gateway, kind: x }
+  - { id: s_potvrzena_zaplacena, type: state, label: "Přihláška: potvrzená a zaplacená" }
+
+  - { id: g_termin, type: gateway, kind: x }
+  - { id: s_archivovana, type: end, label: "Přihláška: archivovaná" }
+  - {
+      id: poznamka_vratky,
+      type: note,
+      label: "Vratky, dluhy po termínu: nejasné (F-30, 28, 42?)",
+      unsure: true,
+    }
+
+flows:
+  - { from: akce_zalozena, to: nastavit_rezim }
+  - { from: nastavit_rezim, to: spustit_prihlasky }
+  - { from: spustit_prihlasky, to: prihlaska_zaregistrovana }
+  - { from: prihlaska_zaregistrovana, to: do_poradniku }
+  - { from: do_poradniku, to: chce_vyhodnotit }
+  - { from: chce_vyhodnotit, to: s_vyhodnocovana }
+  - { from: s_vyhodnocovana, to: vyhodnotit }
+  - { from: vyhodnotit, to: g_vysledek }
+  - { from: g_vysledek, to: s_zrusena, label: zamítne }
+  - { from: g_vysledek, to: s_potvrzena_dluh, label: potvrdí }
+  - { from: g_vysledek, to: s_nahradnik, label: zařadí jako náhradníka }
+
+  - { from: uvolni_se_misto, to: g_misto }
+  - { from: s_nahradnik, to: g_misto }
+  - { from: g_misto, to: rucne_potvrdit }
+  - { from: rucne_potvrdit, to: s_potvrzena_dluh }
+
+  - { from: s_potvrzena_dluh, to: g_platba }
+  - { from: g_platba, to: zaucotovat, label: "Σ plateb = částka k úhradě" }
+  - { from: g_platba, to: vyzva, label: lhůta pro zaplacení dluhu uplynula }
+  - { from: vyzva, to: g_po_vyzve }
+  - { from: g_po_vyzve, to: zaucotovat, label: zaplaceno }
+  - { from: g_po_vyzve, to: s_zrusena, label: nezaplaceno }
+  - { from: zaucotovat, to: s_potvrzena_zaplacena }
+
+  - { from: s_potvrzena_zaplacena, to: g_termin }
+  - { from: g_termin, to: s_archivovana, label: termín proběhne }
+  - { from: g_termin, to: s_zrusena, label: účastník se odhlásí }
+  - { from: s_potvrzena_dluh, to: s_zrusena, label: účastník se odhlásí }
+  - { from: s_zrusena, to: poznamka_vratky, dashed: true }
+  - { from: poznamka_vratky, to: s_archivovana, dashed: true }
