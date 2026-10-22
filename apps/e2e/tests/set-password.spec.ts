@@ -28,6 +28,8 @@ test(
 
     await page.goto("/participant/account")
     await page.getByRole("main").getByRole("button", { name: "Sign out" }).click()
+    // Sign-out ends on the landing page; leaving earlier would abort the request and keep the session.
+    await expect(page).toHaveURL(/\/$/)
     await signIn(page, "participant", { email, password })
     await expect(page.getByRole("heading", { level: 1, name: "Your applications" })).toBeVisible()
   },

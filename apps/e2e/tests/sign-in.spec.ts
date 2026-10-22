@@ -14,6 +14,8 @@ test.describe("Sign-in", () => {
 
     await page.goto("/organizer/account")
     await page.getByRole("main").getByRole("button", { name: "Sign out" }).click()
+    // Sign-out ends on the landing page; leaving earlier would abort the request and keep the session.
+    await expect(page).toHaveURL(/\/$/)
     await page.goto("/organizer")
     await expect(page).toHaveURL(/\/organizer\/login/)
   })
@@ -27,6 +29,8 @@ test.describe("Sign-in", () => {
 
       await page.goto("/participant/account")
       await page.getByRole("main").getByRole("button", { name: "Sign out" }).click()
+      // Sign-out ends on the landing page; leaving earlier would abort the request and keep the session.
+      await expect(page).toHaveURL(/\/$/)
       await page.goto("/participant")
       await expect(page).toHaveURL(/\/participant\/login/)
     },
