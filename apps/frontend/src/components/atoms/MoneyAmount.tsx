@@ -1,4 +1,4 @@
-import { formatCzk } from "@/lib/money"
+import { formatCzk, formatTermPrice } from "@/lib/money"
 import { cn } from "@/lib/utils"
 
 type MoneyAmountProps = {
@@ -10,5 +10,14 @@ type MoneyAmountProps = {
 export function MoneyAmount({ amountCzk, className }: MoneyAmountProps) {
   return (
     <span className={cn("whitespace-nowrap tabular-nums", className)}>{formatCzk(amountCzk)}</span>
+  )
+}
+
+/** The price of a term on one line: `Zdarma` for 0, otherwise like `MoneyAmount`. */
+export function TermPrice({ amountCzk, className }: MoneyAmountProps) {
+  return (
+    <span className={cn("whitespace-nowrap tabular-nums", className)}>
+      {formatTermPrice(amountCzk)}
+    </span>
   )
 }

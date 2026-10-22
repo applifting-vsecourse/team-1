@@ -87,6 +87,29 @@ describe("organizer terms (integration)", () => {
     expect(negative.status).toBe(400)
   })
 
+  it("accepts a price of 0 for a free term", async () => {
+    const [first] = await list()
+    const { id, priceCzk, name, startsOn, endsOn } = first
+    const path = `${termsPath()}/${id}`
+    const free = await send(cookieA, "PATCH", path, { name, startsOn, endsOn, priceCzk: 0 })
+    expect(free.status).toBe(200)
+    expect((await list()).find((term) => term.id === id)?.priceCzk).toBe(0)
+    await send(cookieA, "PATCH", path, { name, startsOn, endsOn, priceCzk })
+  })
+
+  it("requires a whole-CZK price on create and on edit", async () => {
+    const base = { name: "X", startsOn: "2027-08-01", endsOn: "2027-08-02" }
+    expect((await send(cookieA, "POST", termsPath(), base)).status).toBe(400)
+    expect((await send(cookieA, "POST", termsPath(), { ...base, priceCzk: 99.5 })).status).toBe(400)
+    expect((await send(cookieA, "POST", termsPath(), { ...base, priceCzk: "100" })).status).toBe(
+      400,
+    )
+    const [first] = await list()
+    const edit = await send(cookieA, "PATCH", `${termsPath()}/${first.id}`, base)
+    expect(edit.status).toBe(400)
+    expect((await list()).find((term) => term.id === first.id)?.priceCzk).toBe(first.priceCzk)
+  })
+
   it("edits a term", async () => {
     const [first] = await list()
     const response = await send(cookieA, "PATCH", `${termsPath()}/${first.id}`, {

@@ -121,6 +121,26 @@ describe("EventTerms", () => {
     expect(posts(fetchMock)).toHaveLength(0)
   })
 
+  it("shows the missing-price error and sends nothing when the price is empty", async () => {
+    const fetchMock = renderTerms()
+    await userEvent.click(await screen.findByRole("button", { name: "Add term" }))
+    const dialog = await screen.findByRole("dialog")
+
+    await userEvent.type(within(dialog).getByLabelText("Term name *"), "Letní turnus 3")
+    await userEvent.type(within(dialog).getByLabelText("Start date *"), "2027-08-09")
+    await userEvent.type(within(dialog).getByLabelText("End date *"), "2027-08-15")
+    await userEvent.click(within(dialog).getByRole("button", { name: "Add term" }))
+
+    expect(
+      await within(dialog).findByText("Fill in the price per person in CZK."),
+    ).toBeInTheDocument()
+    expect(within(dialog).getByLabelText("Price per person (CZK) *")).toHaveAttribute(
+      "aria-invalid",
+      "true",
+    )
+    expect(posts(fetchMock)).toHaveLength(0)
+  })
+
   it("adds a term and confirms it", async () => {
     const fetchMock = renderTerms()
     await userEvent.click(await screen.findByRole("button", { name: "Add term" }))
@@ -140,6 +160,21 @@ describe("EventTerms", () => {
       endsOn: "2027-07-18",
       priceCzk: 6900,
     })
+  })
+
+  it("accepts a price of 0 for a free term", async () => {
+    renderTerms()
+    await userEvent.click(await screen.findByRole("button", { name: "Add term" }))
+    const dialog = await screen.findByRole("dialog")
+
+    await userEvent.type(within(dialog).getByLabelText("Term name *"), "Zdarma")
+    await userEvent.type(within(dialog).getByLabelText("Start date *"), "2027-07-12")
+    await userEvent.type(within(dialog).getByLabelText("End date *"), "2027-07-18")
+    await userEvent.type(within(dialog).getByLabelText("Price per person (CZK) *"), "0")
+    await userEvent.click(within(dialog).getByRole("button", { name: "Add term" }))
+
+    expect(await screen.findByText("The term Letní turnus 1 was added.")).toBeInTheDocument()
+    expect(sentBodies[0]).toMatchObject({ priceCzk: 0 })
   })
 
   it("asks for a reason and shows what the cancellation affects", async () => {
