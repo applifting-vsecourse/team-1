@@ -3,7 +3,7 @@
 ```
 pip install pyyaml
 python generate.py              # všechna *.yaml v této složce
-python generate.py prihlaska.yaml
+python generate.py zpracovani-prihlasky/zpracovani-prihlasky.yaml
 ```
 
 Pro každé `X.yaml` vznikne `X.mmd` (čistý Mermaid) a `X.md` (stejný kód v ` ```mermaid ` bloku). Generované soubory needituj, měň jen YAML.
@@ -53,6 +53,8 @@ diagram: lifecycle
 states: [{ id: placed, label: Placed }]
 transitions: [{ from: start, to: placed, reason: Order placed, op: register() }]
 ```
+
+Volitelný klíč `rank_spacing` (výchozí 90) určuje svislé odstupy mezi stavy: větší číslo = vyšší, řidší diagram. Dlouhé popisky přechodů se zalamují.
 
 `start` / `end` jsou rezervovaná id. Generátor u životního cyklu varuje (na stderr) před přechodem bez důvodu a nekoncovým stavem s méně než dvěma odchozími přechody.
 

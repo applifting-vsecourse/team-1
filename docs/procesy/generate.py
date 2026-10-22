@@ -152,7 +152,12 @@ def generate_lifecycle(model):
         if s["id"] in ids:
             die(f"duplicitni id stavu: {s['id']}")
         ids[s["id"]] = s
-    out = ["stateDiagram-v2"]
+    # vetsi svisle odstupy (rank_spacing) a nizsi sirka popisku = vyssi a citelnejsi diagram
+    spacing = int(model.get("rank_spacing", 90))
+    out = [
+        f'%%{{init: {{"state": {{"rankSpacing": {spacing}, "nodeSpacing": 40}}}}}}%%',
+        "stateDiagram-v2",
+    ]
     for s in states:
         out.append(f'  state "{esc(s.get("label", s["id"]))}" as {nid(s["id"])}')
     outgoing = {k: 0 for k in ids}
@@ -161,7 +166,7 @@ def generate_lifecycle(model):
         for x in (a, b):
             if x not in ids and x not in ("start", "end"):
                 die(f"prechod c.{i + 1}: neznamy stav '{x}'")
-        if "reason" not in t:
+        if "reason" not in t and b != "end":
             warn(f"prechod c.{i + 1} ({a} -> {b}) nema duvod (udalost nebo podminku)")
         if a in outgoing:
             outgoing[a] += 1
@@ -170,7 +175,9 @@ def generate_lifecycle(model):
         lab = str(t.get("reason", ""))
         if t.get("op"):
             lab += f" / {t['op']}"
-        out.append(f"  {src} --> {dst}" + (f" : {esc(lab)}" if lab else ""))
+        # dvojtecka a strednik v popisku prechodu rozbiji parser stateDiagram
+        lab = lab.replace(":", " -").replace(";", ",")
+        out.append(f"  {src} --> {dst}" + (f" : {esc(lab, 26)}" if lab else ""))
     finals = {t["from"] for t in trans if t.get("to") == "end"}
     for k, n in outgoing.items():
         if k in finals or ids[k].get("final"):

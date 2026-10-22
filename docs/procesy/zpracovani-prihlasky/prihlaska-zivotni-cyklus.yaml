@@ -1,0 +1,72 @@
+title: Přihláška (životní cyklus)
+diagram: lifecycle
+
+# odvozeno z procesu zpracování přihlášky (zpracovani-prihlasky.yaml)
+
+states:
+  - { id: k_vyhodnoceni, label: K vyhodnocení }
+  - { id: nahradnik, label: Náhradník }
+  - { id: potvrzena_dluh, label: Potvrzená s dluhem }
+  - { id: potvrzena_zaplacena, label: Potvrzená a zaplacená }
+  - { id: zrusena, label: Zrušená, final: true }
+  - { id: archivovana, label: Archivovaná, final: true }
+
+transitions:
+  - { from: start, to: k_vyhodnoceni, reason: Nová přihláška zaregistrována, op: register() }
+
+  - {
+      from: k_vyhodnoceni,
+      to: potvrzena_dluh,
+      reason: "Organizátor vyhodnotí přihlášku: potvrdí",
+      op: confirm(),
+    }
+  - {
+      from: k_vyhodnoceni,
+      to: nahradnik,
+      reason: "Organizátor vyhodnotí přihlášku: zařadí jako náhradníka",
+      op: putOnWaitlist(),
+    }
+  - {
+      from: k_vyhodnoceni,
+      to: zrusena,
+      reason: "Organizátor vyhodnotí přihlášku: zamítne",
+      op: cancel(),
+    }
+
+  - {
+      from: nahradnik,
+      to: potvrzena_dluh,
+      reason: Uvolní se místo a organizátor ručně potvrdí,
+      op: confirm(),
+    }
+
+  - {
+      from: potvrzena_dluh,
+      to: potvrzena_dluh,
+      reason: Lhůta pro zaplacení dluhu uplynula,
+      op: sendPaymentRequest(),
+    }
+  - {
+      from: potvrzena_dluh,
+      to: potvrzena_zaplacena,
+      reason: Σ plateb = částka k úhradě,
+      op: recordPayment(),
+    }
+  - {
+      from: potvrzena_dluh,
+      to: zrusena,
+      reason: Nastaly okolnosti pro zamítnutí přihlášky,
+      op: cancel(),
+    }
+
+  - {
+      from: potvrzena_zaplacena,
+      to: zrusena,
+      reason: Nastaly okolnosti pro zamítnutí přihlášky,
+      op: cancel(),
+    }
+  - { from: potvrzena_zaplacena, to: zrusena, reason: Účastník se odhlásí, op: cancel() }
+  - { from: potvrzena_zaplacena, to: archivovana, reason: Termín proběhne, op: archive() }
+
+  - { from: zrusena, to: end }
+  - { from: archivovana, to: end }
