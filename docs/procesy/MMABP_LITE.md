@@ -58,7 +58,7 @@
 
 - Vzor událost → procesní krok → stav procesu; výjimka je sloučení toků, kdy krok následuje hned za krokem.
 - Čekání na okolí je stav procesu mimo detail kroku, pojmenovaný jako stav (řídícího) objektu.
-- Čekání na událost uvnitř procesu je synchronizace: tok z úlohy, kroku nebo stavu a tok od události se sejdou v AND bráně, která proces zastaví, dokud nedorazí oba. Do YAML stačí zapsat tok úloha → událost, generátor AND bránu doplní (u události lze vypnout `sync: false`).
+- Čekání na událost uvnitř procesu je synchronizace: tok z úlohy, kroku nebo stavu a tok od události se sejdou v AND bráně, která proces zastaví, dokud nedorazí oba. Může-li nastat jedna z několika událostí, vede do AND brány XOR brána (sloučení událostí) a za AND bránou se tok XOR bránou rozdělí podle toho, která událost nastala. Do YAML stačí zapsat tok úloha (stav) → událost, u více událostí toky do každé z nich a z každé události tok na další krok; generátor brány doplní (u události lze vypnout `sync: false`).
 - Podpůrný proces není sub-proces: je samostatný a váže se událostí a stavem procesu v podporovaném procesu.
 - Každý proces patří celý do jedné business funkce; modeluj jen opakující se procesy.
 - Výsledkem úlohy je stav jednoho významného objektu; krok s jedinou úlohou se nekreslí, vlož rovnou úlohu.

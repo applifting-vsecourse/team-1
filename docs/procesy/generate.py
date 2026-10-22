@@ -185,39 +185,86 @@ SYNC_EVENTS = {"event", "timed"}
 
 
 def add_sync_gateways(nodes, flows, groups):
-    """Cekani na udalost: tok z ulohy/kroku/stavu do udalosti nahradi AND brana.
+    """Cekani na udalost(i) se kresli pres brany, aby bylo videt zastaveni procesu.
 
-    task -> udalost -> dalsi   se kresli jako   task -> AND <- udalost, AND -> dalsi,
-    aby bylo videt, ze se proces v AND brane zastavi, dokud nedorazi i udalost.
+    Jedna udalost:   task -> udalost -> dalsi
+        se kresli:   task -> AND <- udalost, AND -> dalsi
+    Vice udalosti (zdroj ma toky do aspon dvou udalosti, nastane jedna z nich):
+        zdroj -> AND <- XOR <- udalost 1..n, AND -> XOR -> dalsi (kazda vetev popsana udalosti)
+    Zdroj je task, step nebo state, udalost je event nebo timed.
     Vypnuti u udalosti: `sync: false`.
     """
     by_id = {n["id"]: n for n in nodes}
-    new_nodes, new_flows = list(nodes), []
-    gw_of = {}
+
+    def is_event(i):
+        n = by_id.get(i, {})
+        return n.get("type") in SYNC_EVENTS and n.get("sync") is not False
+
+    def is_source(i):
+        return by_id.get(i, {}).get("type", "task") in SYNC_SOURCES
+
+    targets = {}
+    for f in flows:
+        if is_source(f.get("from")) and is_event(f.get("to")):
+            targets.setdefault(f["from"], []).append(f["to"])
+    multi = {s: list(dict.fromkeys(es)) for s, es in targets.items() if len(set(es)) >= 2}
+    ev_src = {}
+    for src, es in multi.items():
+        for e in es:
+            ev_src.setdefault(e, src)
+    single = {}
     for n in nodes:
-        if n.get("type") not in SYNC_EVENTS or n.get("sync") is False:
+        e = n["id"]
+        if e in ev_src or not is_event(e):
             continue
-        incoming = [f for f in flows if f.get("to") == n["id"]]
-        if any(by_id.get(f.get("from"), {}).get("type", "task") in SYNC_SOURCES for f in incoming):
-            gw_of[n["id"]] = "sync_" + str(n["id"])
-    if not gw_of:
+        if any(is_source(f.get("from")) for f in flows if f.get("to") == e):
+            single[e] = "sync_" + str(e)
+    if not multi and not single:
         return nodes, flows, groups
-    for ev, gid in gw_of.items():
-        new_nodes.append({"id": gid, "type": "gateway", "kind": "+"})
+
+    new_nodes = list(nodes)
+    new_flows = []
+    added = {}  # id puvodniho uzlu -> id novych bran (pro skupiny)
+
+    def gateway(gid, kind, owner):
+        new_nodes.append({"id": gid, "type": "gateway", "kind": kind})
+        added.setdefault(owner, []).append(gid)
+
+    for e, gid in single.items():
+        gateway(gid, "+", e)
+    for src, es in multi.items():
+        for prefix, kind in (("sync_", "+"), ("alt_", "x"), ("split_", "x")):
+            gateway(prefix + str(src), kind, src)
+
     for f in flows:
         a, b = f.get("from"), f.get("to")
-        if b in gw_of:
-            new_flows.append({**f, "to": gw_of[b]})
-        elif a in gw_of:
-            new_flows.append({**f, "from": gw_of[a]})
+        if a in multi and b in multi[a]:
+            continue
+        if b in single:
+            new_flows.append({**f, "to": single[b]})
+        elif a in single:
+            new_flows.append({**f, "from": single[a]})
+        elif a in ev_src:
+            label = f.get("label") or by_id[a].get("label", a)
+            new_flows.append({**f, "from": "split_" + str(ev_src[a]), "label": label})
         else:
             new_flows.append(f)
-    for ev, gid in gw_of.items():
-        new_flows.append({"from": ev, "to": gid})
+    for e, gid in single.items():
+        new_flows.append({"from": e, "to": gid})
+    for src, es in multi.items():
+        new_flows.append({"from": src, "to": "sync_" + str(src)})
+        new_flows.append({"from": "alt_" + str(src), "to": "sync_" + str(src)})
+        for e in es:
+            new_flows.append({"from": e, "to": "alt_" + str(src)})
+        if any(f.get("from") in es for f in flows):
+            new_flows.append({"from": "sync_" + str(src), "to": "split_" + str(src)})
+        else:
+            new_nodes[:] = [n for n in new_nodes if n["id"] != "split_" + str(src)]
+
     new_groups = []
     for g in groups:
         members = list(g.get("members", []))
-        members += [gw_of[m] for m in members if m in gw_of]
+        members += [x for m in g.get("members", []) for x in added.get(m, [])]
         new_groups.append({**g, "members": members})
     return new_nodes, new_flows, new_groups
 

@@ -58,7 +58,14 @@ transitions: [{ from: start, to: placed, reason: Order placed, op: register() }]
 
 ## Synchronizace s událostí
 
-Tok z `task`, `step` nebo `state` do `event` / `timed` (proces čeká na událost) generátor nakreslí přes AND bránu: `úloha → AND ← událost`, `AND → další`. Proces se v bráně zastaví, dokud nedorazí tok od úlohy i od události. V YAML píšeš jen `úloha → událost`. Brána se nedoplní, když do události žádný takový tok nevede (spouštěcí událost) nebo když máš u události `sync: false`. Explicitní AND brána zůstává, jak ji zapíšeš.
+Proces, který čeká na událost, generátor kreslí přes AND bránu, aby bylo vidět, že se v ní zastaví, dokud nedorazí tok od úlohy i od události. Zdroj je `task`, `step` nebo `state`, událost `event` nebo `timed`. V YAML píšeš jen toky zdroj → událost → další krok.
+
+| V YAML                                                                                            | Co se nakreslí                                                                                                                              |
+| ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `úloha → událost → další`                                                                         | `úloha → AND ← událost`, `AND → další`                                                                                                      |
+| `zdroj → událost 1`, `zdroj → událost 2` (aspoň dvě, nastane jedna z nich), `událost n → další n` | `zdroj → AND ← XOR ← události`, `AND → XOR → další n` (každá výstupní větev je popsaná názvem své události, pokud tok nemá vlastní `label`) |
+
+Brány se nedoplní, když do události žádný takový tok nevede (spouštěcí událost) nebo když máš u události `sync: false`. Explicitní brány zůstávají, jak je zapíšeš.
 
 ## Poznámky
 
