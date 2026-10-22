@@ -31,13 +31,19 @@ test.describe("Application from a link", { tag: "@mobile" }, () => {
     await page.getByLabel("Date of birth").fill("12. 5. 2012")
     await page.getByLabel("Gender").click()
     await page.getByRole("option", { name: "Man", exact: true }).click()
-    await page.getByRole("group", { name: /Choose terms/ }).getByRole("checkbox").first().check()
+    await page
+      .getByRole("group", { name: /Choose terms/ })
+      .getByRole("checkbox")
+      .first()
+      .check()
     await page.getByLabel("Contact e-mail").fill(email)
     await page.getByLabel(/I agree to the processing/).check()
     await page.getByRole("button", { name: "Submit application" }).click()
 
     await expect(page).toHaveURL(/\/apply\/confirmation\//)
-    await expect(page.getByRole("heading", { level: 1, name: "Application submitted" })).toBeVisible()
+    await expect(
+      page.getByRole("heading", { level: 1, name: "Application submitted" }),
+    ).toBeVisible()
 
     // The applicant has no password yet: the e-mailed link leads to setting one, then to the application.
     await page.goto("/participant/magic-link")
