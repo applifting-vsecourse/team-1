@@ -45,19 +45,19 @@ flowchart LR
   class unsure task,unsure
 ```
 
-| Tvar a barva                      | Typ v YAML           | Význam                                                                                      |
-| --------------------------------- | -------------------- | ------------------------------------------------------------------------------------------- |
-| kruh                              | `event`              | ad-hoc událost: příchozí informace, která spouští proces (např. „Customer Order placed“)    |
-| kruh, tečkovaný okraj             | `timed`              | časovaná událost: časový okamžik nebo uplynutí lhůty                                        |
-| zaoblený obdélník                 | `task`, `step`       | úloha (mění stav jednoho objektu) nebo procesní krok; pod názvem `role:` kdo ji provádí     |
-| obdélník s dvojitými boky, zelený | `process`            | business proces v procesní mapě                                                             |
-| stadion, modrý                    | `state`              | stav objektu nebo procesu, kde se čeká na událost; název „Třída: stav“                      |
-| stadion, červený                  | `end`                | koncový, cílový stav                                                                        |
-| kosočtverec **XOR**, oranžový     | `gateway`, `kind: x` | exkluzivní brána: právě jedna větev (rozhodnutí)                                            |
-| kosočtverec **AND**, modrý        | `gateway`, `kind: +` | paralelní brána: všechny větve naráz (rozdělení nebo synchronizace); sama není stav procesu |
-| kosočtverec **OR**, zelený        | `gateway`, `kind: o` | inkluzivní brána: aspoň jedna větev; používej výjimečně                                     |
-| obdélník, žlutý, čárkovaný        | `note`               | poznámka                                                                                    |
-| silný žlutý čárkovaný okraj       | `unsure: true`       | nejistá část náčrtku, k ověření                                                             |
+| Tvar a barva                      | Typ v YAML           | Význam                                                                                                                                                                                                                             |
+| --------------------------------- | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| kruh                              | `event`              | ad-hoc událost: příchozí informace, která spouští proces (např. „Customer Order placed“)                                                                                                                                           |
+| kruh, tečkovaný okraj             | `timed`              | časovaná událost: časový okamžik nebo uplynutí lhůty                                                                                                                                                                               |
+| zaoblený obdélník                 | `task`, `step`       | úloha (mění stav jednoho objektu) nebo procesní krok; pod názvem `role:` kdo ji provádí                                                                                                                                            |
+| obdélník s dvojitými boky, zelený | `process`            | business proces v procesní mapě                                                                                                                                                                                                    |
+| stadion, modrý                    | `state`              | stav objektu nebo procesu, kde se čeká na událost; název „Třída: stav“                                                                                                                                                             |
+| stadion, červený                  | `end`                | koncový, cílový stav                                                                                                                                                                                                               |
+| kosočtverec **XOR**, oranžový     | `gateway`, `kind: x` | exkluzivní brána: právě jedna větev (rozhodnutí)                                                                                                                                                                                   |
+| kosočtverec **AND**, modrý        | `gateway`, `kind: +` | paralelní brána: všechny větve naráz (rozdělení nebo synchronizace); sama není stav procesu. Před událostí, na kterou proces čeká, ji generátor doplní sám: úloha → AND ← událost, proces dál nepokračuje, dokud nedorazí oba toky |
+| kosočtverec **OR**, zelený        | `gateway`, `kind: o` | inkluzivní brána: aspoň jedna větev; používej výjimečně                                                                                                                                                                            |
+| obdélník, žlutý, čárkovaný        | `note`               | poznámka                                                                                                                                                                                                                           |
+| silný žlutý čárkovaný okraj       | `unsure: true`       | nejistá část náčrtku, k ověření                                                                                                                                                                                                    |
 
 | Čára               | Význam                                                                        |
 | ------------------ | ----------------------------------------------------------------------------- |

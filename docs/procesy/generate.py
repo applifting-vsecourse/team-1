@@ -180,6 +180,48 @@ def generate_lifecycle(model):
     return "\n".join(out) + "\n"
 
 
+SYNC_SOURCES = {"task", "step", "state"}
+SYNC_EVENTS = {"event", "timed"}
+
+
+def add_sync_gateways(nodes, flows, groups):
+    """Cekani na udalost: tok z ulohy/kroku/stavu do udalosti nahradi AND brana.
+
+    task -> udalost -> dalsi   se kresli jako   task -> AND <- udalost, AND -> dalsi,
+    aby bylo videt, ze se proces v AND brane zastavi, dokud nedorazi i udalost.
+    Vypnuti u udalosti: `sync: false`.
+    """
+    by_id = {n["id"]: n for n in nodes}
+    new_nodes, new_flows = list(nodes), []
+    gw_of = {}
+    for n in nodes:
+        if n.get("type") not in SYNC_EVENTS or n.get("sync") is False:
+            continue
+        incoming = [f for f in flows if f.get("to") == n["id"]]
+        if any(by_id.get(f.get("from"), {}).get("type", "task") in SYNC_SOURCES for f in incoming):
+            gw_of[n["id"]] = "sync_" + str(n["id"])
+    if not gw_of:
+        return nodes, flows, groups
+    for ev, gid in gw_of.items():
+        new_nodes.append({"id": gid, "type": "gateway", "kind": "+"})
+    for f in flows:
+        a, b = f.get("from"), f.get("to")
+        if b in gw_of:
+            new_flows.append({**f, "to": gw_of[b]})
+        elif a in gw_of:
+            new_flows.append({**f, "from": gw_of[a]})
+        else:
+            new_flows.append(f)
+    for ev, gid in gw_of.items():
+        new_flows.append({"from": ev, "to": gid})
+    new_groups = []
+    for g in groups:
+        members = list(g.get("members", []))
+        members += [gw_of[m] for m in members if m in gw_of]
+        new_groups.append({**g, "members": members})
+    return new_nodes, new_flows, new_groups
+
+
 def generate(model):
     kind = model.get("diagram", "process")
     if kind == "class":
@@ -191,6 +233,12 @@ def generate(model):
     nodes = model.get("nodes") or []
     flows = model.get("flows") or []
     groups = model.get("groups") or []
+    known = {n.get("id") for n in nodes}
+    for i, f in enumerate(flows):
+        for x in (f.get("from"), f.get("to")):
+            if x not in known:
+                die(f"tok c.{i + 1}: neznamy uzel '{x}'")
+    nodes, flows, groups = add_sync_gateways(nodes, flows, groups)
     by_id = {}
     for n in nodes:
         if "id" not in n:

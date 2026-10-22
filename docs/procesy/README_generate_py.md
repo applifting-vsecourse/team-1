@@ -56,6 +56,10 @@ transitions: [{ from: start, to: placed, reason: Order placed, op: register() }]
 
 `start` / `end` jsou rezervovaná id. Generátor u životního cyklu varuje (na stderr) před přechodem bez důvodu a nekoncovým stavem s méně než dvěma odchozími přechody.
 
+## Synchronizace s událostí
+
+Tok z `task`, `step` nebo `state` do `event` / `timed` (proces čeká na událost) generátor nakreslí přes AND bránu: `úloha → AND ← událost`, `AND → další`. Proces se v bráně zastaví, dokud nedorazí tok od úlohy i od události. V YAML píšeš jen `úloha → událost`. Brána se nedoplní, když do události žádný takový tok nevede (spouštěcí událost) nebo když máš u události `sync: false`. Explicitní AND brána zůstává, jak ji zapíšeš.
+
 ## Poznámky
 
 - ID uzlů v YAML může být cokoli, generátor je převede na bezpečná ID.

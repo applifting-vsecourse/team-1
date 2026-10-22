@@ -37,13 +37,15 @@ flowchart TD
   n_g_termin{"XOR"}
   n_s_archivovana(["Přihláška: archivovaná"])
   n_poznamka_vratky["Vratky, dluhy po<br/>termínu: nejasné<br/>(F-30, 28, 42?)"]
+  n_sync_prihlaska_zaregistrovana{"AND"}
+  n_sync_chce_vyhodnotit{"AND"}
 
   n_akce_zalozena --> n_nastavit_rezim
   n_nastavit_rezim --> n_spustit_prihlasky
-  n_spustit_prihlasky --> n_prihlaska_zaregistrovana
-  n_prihlaska_zaregistrovana --> n_do_poradniku
-  n_do_poradniku --> n_chce_vyhodnotit
-  n_chce_vyhodnotit --> n_s_vyhodnocovana
+  n_spustit_prihlasky --> n_sync_prihlaska_zaregistrovana
+  n_sync_prihlaska_zaregistrovana --> n_do_poradniku
+  n_do_poradniku --> n_sync_chce_vyhodnotit
+  n_sync_chce_vyhodnotit --> n_s_vyhodnocovana
   n_s_vyhodnocovana --> n_vyhodnotit
   n_vyhodnotit --> n_g_vysledek
   n_g_vysledek -->|"zamítne"| n_s_zrusena
@@ -66,13 +68,15 @@ flowchart TD
   n_s_potvrzena_dluh -->|"účastník se odhlásí"| n_s_zrusena
   n_s_zrusena -.-> n_poznamka_vratky
   n_poznamka_vratky -.-> n_s_archivovana
+  n_prihlaska_zaregistrovana --> n_sync_prihlaska_zaregistrovana
+  n_chce_vyhodnotit --> n_sync_chce_vyhodnotit
 
   class n_akce_zalozena,n_prihlaska_zaregistrovana,n_chce_vyhodnotit,n_uvolni_se_misto ev
   class n_nastavit_rezim,n_spustit_prihlasky,n_do_poradniku,n_vyhodnotit,n_rucne_potvrdit,n_zaucotovat,n_vyzva task
   class n_s_vyhodnocovana,n_s_nahradnik,n_s_potvrzena_dluh,n_s_potvrzena_zaplacena st
   class n_g_vysledek,n_g_platba,n_g_po_vyzve,n_g_termin gw_xor
   class n_s_zrusena,n_s_archivovana endst
-  class n_g_misto gw_and
+  class n_g_misto,n_sync_prihlaska_zaregistrovana,n_sync_chce_vyhodnotit gw_and
   class n_zaucotovat,n_vyzva,n_poznamka_vratky unsure
   class n_poznamka_vratky note
 ```
