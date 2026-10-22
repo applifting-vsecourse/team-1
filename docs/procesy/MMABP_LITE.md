@@ -141,18 +141,31 @@ groups: # volitelné, subgraph např. pro business funkci
   - { id: f1, label: Název funkce, members: [a, b] }
 ```
 
-| type       | Význam                                                                                                                                                       | Mermaid                              |
-| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------ |
-| event      | ad-hoc událost                                                                                                                                               | `id(("t"))`                          |
-| timed      | časovaná událost                                                                                                                                             | `id((("t")))`                        |
-| task, step | úloha, procesní krok (volitelně `role`)                                                                                                                      | `id["t"]`, `id[["t"]]`               |
-| process    | business proces v mapě                                                                                                                                       | `id("t")`                            |
-| state      | stav objektu nebo procesu                                                                                                                                    | `id{{"t"}}`                          |
-| end        | koncový stav                                                                                                                                                 | `id(["t"])`                          |
-| gateway    | `kind`: `x` = XOR exkluzivní (právě jedna větev), `+` = AND paralelní (všechny větve), `o` = OR inkluzivní (aspoň jedna); každý druh má jiný popisek a barvu | `id{"XOR"}`, `id{"AND"}`, `id{"OR"}` |
-| note       | poznámka                                                                                                                                                     | `id>"t"]`                            |
+| type       | Význam                                                                                                                                                       |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| event      | ad-hoc událost                                                                                                                                               |
+| timed      | časovaná událost                                                                                                                                             |
+| task, step | úloha, procesní krok (volitelně `role`)                                                                                                                      |
+| process    | business proces v mapě                                                                                                                                       |
+| state      | stav objektu nebo procesu                                                                                                                                    |
+| end        | koncový stav                                                                                                                                                 |
+| gateway    | `kind`: `x` = XOR exkluzivní (právě jedna větev), `+` = AND paralelní (všechny větve), `o` = OR inkluzivní (aspoň jedna); každý druh má jiný popisek a barvu |
+| note       | poznámka                                                                                                                                                     |
 
-Stav objektu / procesu se pojmenovává „Třída: stav“ (např. „Přihláška: vyhodnocovaná“), čímž se uzel procesu váže na třídu v diagramu tříd. Jednotka zpracování a zdroj jsou třídy v diagramu tříd, ne uzly procesu.
+Tvary a barvy v Mermaidu jsou v [`LEGENDA.md`](LEGENDA.md). `unsure: true` zvýrazní nejistou část náčrtku.
+
+### Synchronizace s událostí (doplňování bran)
+
+Proces, který čeká na událost, generátor kreslí přes AND bránu, aby bylo vidět, že se v ní zastaví, dokud nedorazí tok od úlohy i od události. Zdroj je `task`, `step` nebo `state`, událost `event` nebo `timed`. V YAML se píšou jen toky zdroj → událost → další krok.
+
+| V YAML                                                                                            | Co se nakreslí                                                                                                                              |
+| ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `úloha → událost → další`                                                                         | `úloha → AND ← událost`, `AND → další`                                                                                                      |
+| `zdroj → událost 1`, `zdroj → událost 2` (aspoň dvě, nastane jedna z nich), `událost n → další n` | `zdroj → AND ← XOR ← události`, `AND → XOR → další n` (každá výstupní větev je popsaná názvem své události, pokud tok nemá vlastní `label`) |
+
+Brány se nedoplní, když do události žádný takový tok nevede (spouštěcí událost) nebo když má událost `sync: false`. Explicitně zapsané brány zůstávají.
+
+Stav objektu / procesu se pojmenovává „Třída: stav“ (např. „Přihláška: k vyhodnocení“), čímž se uzel procesu váže na třídu v diagramu tříd. Jednotka zpracování a zdroj jsou třídy v diagramu tříd, ne uzly procesu.
 
 ### Diagram tříd (`diagram: class`)
 
@@ -204,7 +217,7 @@ transitions:
   - { from: placed, to: end, reason: ..., op: ... }
 ```
 
-`start` a `end` jsou rezervovaná id (zrození a konec bez pojmenovaného stavu). `reason` je povinný (událost nebo podmínka), `op` je operace třídy. Generátor upozorní (jen varováním) na přechod bez důvodu a na nekoncový stav s méně než dvěma odchozími přechody. Cyklus vždy jen jedné třídy.
+`start` a `end` jsou rezervovaná id (zrození a konec bez pojmenovaného stavu). `reason` je povinný (událost nebo podmínka), `op` je operace třídy. Generátor upozorní (jen varováním) na přechod bez důvodu a na nekoncový stav s méně než dvěma odchozími přechody. Přechod do `end` důvod nepotřebuje. Stav s `final: true` je koncový (generátor u něj nehlásí méně než dva odchozí přechody). Volitelný klíč `rank_spacing` (výchozí 90) určuje svislé odstupy mezi stavy: větší číslo = vyšší, řidší diagram; dlouhé popisky přechodů se zalamují. Cyklus vždy jen jedné třídy.
 
 Konvence: události „X placed“, časované jako okamžik („Monday“), cílové stavy „X completed“, stavy objektů v rodě podle třídy.
 
