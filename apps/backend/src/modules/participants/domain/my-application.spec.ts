@@ -1,5 +1,6 @@
 import {
   buildMyApplication,
+  buildSubmissionStatus,
   MyApplicationRecord,
   toApplicationCode,
   toVariableSymbol,
@@ -106,5 +107,67 @@ describe("buildMyApplication", () => {
     expect(result.amountDueCzk).toBe(0)
     expect(result.paymentDetails).toBeNull()
     expect(result.paymentStatus).toBe("NOTHING_DUE")
+  })
+})
+
+describe("buildSubmissionStatus", () => {
+  const waitlisted = (r: MyApplicationRecord): MyApplicationRecord => ({
+    ...r,
+    terms: r.terms.map((term) => ({ ...term, status: "WAITLISTED" as const })),
+  })
+  const submission = (applications: MyApplicationRecord[], mustSetPassword = true) => ({
+    email: "jana@example.com",
+    mustSetPassword,
+    applications,
+  })
+
+  it("adds up what is due for confirmed terms of every participant, with one variable symbol", () => {
+    const jana = record({ id: "a1", number: 48, firstName: "Jana" })
+    const matej = record({ id: "a2", number: 49, firstName: "Matěj" })
+
+    const status = buildSubmissionStatus(submission([jana, matej]))
+
+    expect(status.code).toBe("LK-0048")
+    expect(status.isNewAccount).toBe(true)
+    expect(status.payment).toEqual({
+      amountCzk: 18800,
+      bankAccount: "2900123456/2010",
+      variableSymbol: "0048",
+      parts: [
+        { firstName: "Jana", amountCzk: 9400 },
+        { firstName: "Matěj", amountCzk: 9400 },
+      ],
+    })
+  })
+
+  it("leaves out a participant who is waitlisted everywhere and takes the symbol of the first payer", () => {
+    const jana = waitlisted(record({ id: "a1", number: 48, firstName: "Jana" }))
+    const matej = record({ id: "a2", number: 49, firstName: "Matěj" })
+
+    const { payment } = buildSubmissionStatus(submission([jana, matej], false))
+
+    expect(payment?.variableSymbol).toBe("0049")
+    expect(payment?.parts.map((part) => part.firstName)).toEqual(["Matěj"])
+  })
+
+  it("shows no payment when every term of every participant is waitlisted", () => {
+    const status = buildSubmissionStatus(
+      submission([
+        waitlisted(record({ number: 48 })),
+        waitlisted(record({ id: "a2", number: 49 })),
+      ]),
+    )
+
+    expect(status.payment).toBeNull()
+    expect(JSON.stringify(status)).not.toMatch(/position|queue/i)
+  })
+
+  it("asks for what is still unpaid, never a negative amount", () => {
+    const status = buildSubmissionStatus(
+      submission([record({ payments: [{ amountCzk: 10000 }] })], false),
+    )
+
+    expect(status.isNewAccount).toBe(false)
+    expect(status.payment?.amountCzk).toBe(0)
   })
 })

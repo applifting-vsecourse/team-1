@@ -25,7 +25,7 @@ Jen cesty, bez kterých produkt nefunguje a které ukazujeme na demu. Jedna cest
 | Účastník: žádost o magic link → otevření odkazu → přihlášen (i na mobilu)           | `magic-link.spec.ts`   | ✅                   |
 | Nový účastník: magic link → nastavení hesla → přihlášení novým heslem (i na mobilu) | `set-password.spec.ts` | ✅                   |
 | Přihláška přes odkaz: termíny a cena podle výběru (i na mobilu)                     | `application.spec.ts`  | ✅                   |
-| Odeslání přihlášky → stav potvrzený / náhradník a kolik a kam zaplatit              | `application.spec.ts`  | po US-27 a US-25     |
+| Odeslání přihlášky → stav potvrzený / náhradník a kolik a kam zaplatit              | `application.spec.ts`  | ✅                   |
 | Organizátor založí akci s termíny a pokoji a zkopíruje odkaz na přihlášku           | `event-setup.spec.ts`  | po US-12, 13, 14, 16 |
 | Organizátor vidí přihlášku v seznamu a zapíše platbu                                | `payments.spec.ts`     | po US-52 a US-44     |
 

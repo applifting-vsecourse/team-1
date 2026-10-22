@@ -1,6 +1,32 @@
 {
   "confirmation": {
-    "title": "Přihláška odeslána"
+    "account": {
+      "existingAccount": "Účet pro {{email}} už máte. Přihlášku jsme k němu přiřadili a v e-mailu poslali odkaz na přihlášení. Nové heslo neposíláme.",
+      "existingAccountAction": "Přihlásit se k přihlášce",
+      "newAccount": "K e-mailu {{email}} jsme vytvořili účastnický účet. V potvrzovacím e-mailu najdete přihlašovací odkaz. Po prvním otevření si nastavíte vlastní heslo. Odkaz platí 7 dní.",
+      "newAccountAction": "Přejít na přihlášení",
+      "title": "Potvrzení jsme poslali e-mailem"
+    },
+    "doNotPayYet": "Nyní neplaťte",
+    "intro": "Přihláška pro {{names}} byla odeslána. Stav každého vybraného termínu vidíte níže.",
+    "introOneTerm": "Přihláška pro {{names}} byla odeslána. Stav vybraného termínu vidíte níže.",
+    "payment": {
+      "account": "Účet organizace",
+      "onlyConfirmed": "Platíte pouze za potvrzené termíny. Za termín na čekací listině zatím neplaťte.",
+      "title": "K úhradě za potvrzené termíny",
+      "variableSymbol": "Variabilní symbol",
+      "variableSymbolNote": "Variabilní symbol je číselná část přihlášky {{code}}."
+    },
+    "status": {
+      "confirmed": "Potvrzeno",
+      "pending": "Čeká na potvrzení"
+    },
+    "termsHeading": "Stav vybraných termínů",
+    "title": "Přihlášku jsme přijali",
+    "waitlist": {
+      "description": "Ve všech vybraných termínech jste na čekací listině. Platební údaje dostanete až po potvrzení místa.",
+      "title": "Zatím nic neplaťte"
+    }
   },
   "form": {
     "addParticipant": "Přidat dalšího účastníka",

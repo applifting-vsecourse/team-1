@@ -22,6 +22,6 @@ import { ParticipantPasswordService } from "./services/participant-password.serv
     ParticipantAccountsRepository,
     ApplicationConfirmationMailer,
   ],
-  exports: [ParticipantAccountsService, ApplicationConfirmationMailer],
+  exports: [ParticipantAccountsService, ApplicationConfirmationMailer, MyApplicationsRepository],
 })
 export class ParticipantsModule {}

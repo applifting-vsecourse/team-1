@@ -1,6 +1,6 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { Prisma } from "@/generated/prisma/client"
-import { MyApplicationRecord } from "@/modules/participants/domain/my-application"
+import { MyApplicationRecord, SubmissionRecord } from "@/modules/participants/domain/my-application"
 import { Injectable } from "@nestjs/common"
 
 const include = {
@@ -31,6 +31,34 @@ export class MyApplicationsRepository {
   async findOneOfUser(userId: string, applicationId: string): Promise<MyApplicationRecord | null> {
     const row = await this.findRow(userId, applicationId)
     return row ? toRecord(row) : null
+  }
+
+  /**
+   * The whole submission an application belongs to (US-25): the applications
+   * that one form submit stored — same event, e-mail and consent moment — in
+   * form order. `null` for an unknown token. The token is the only credential.
+   */
+  async findSubmissionByAccessToken(accessToken: string): Promise<SubmissionRecord | null> {
+    const first = await this.prisma.application.findUnique({
+      where: { accessToken },
+      select: {
+        eventId: true,
+        email: true,
+        consentAt: true,
+        user: { select: { mustSetPassword: true } },
+      },
+    })
+    if (!first) return null
+    const rows = await this.prisma.application.findMany({
+      where: { eventId: first.eventId, email: first.email, consentAt: first.consentAt },
+      include,
+      orderBy: { number: "asc" },
+    })
+    return {
+      email: first.email,
+      mustSetPassword: first.user?.mustSetPassword ?? false,
+      applications: rows.map(toRecord),
+    }
   }
 
   private findRow(userId: string, applicationId: string): Promise<Row | null> {
