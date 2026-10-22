@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
@@ -23,11 +23,12 @@ import {
 import {
   roomModeSchema,
   roomsQueryOptions,
-  setRoomMode,
   type Room,
+  type RoomMode,
 } from "@/features/events/api/rooms"
 import { DeleteRoomDialog } from "@/features/events/components/DeleteRoomDialog"
 import { RoomDialog } from "@/features/events/components/RoomDialog"
+import { RoomModeDialog } from "@/features/events/components/RoomModeDialog"
 
 // Figma (Design system): O18a / O18b · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12358-1789
 // Shared-room variant · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12358-3883
@@ -37,13 +38,10 @@ export function RoomsPage({ eventId }: { eventId: string }) {
   const query = useQuery(roomsQueryOptions(eventId))
   const [editor, setEditor] = useState<Room | "new" | null>(null)
   const [deleting, setDeleting] = useState<Room | null>(null)
+  const [pendingMode, setPendingMode] = useState<RoomMode | null>(null)
   const refresh = async () => {
     await client.invalidateQueries({ queryKey: ["events", eventId] })
   }
-  const mode = useMutation({
-    mutationFn: (value: string) => setRoomMode(eventId, roomModeSchema.parse(value)),
-    onSuccess: refresh,
-  })
   const event = query.data
   if (!event) {
     return query.isError ? (
@@ -106,7 +104,6 @@ export function RoomsPage({ eventId }: { eventId: string }) {
         actions={
           <Button
             size="lg"
-            disabled={mode.isPending}
             onClick={() => setEditor("new")}
           >
             {t("rooms.add")}
@@ -127,8 +124,10 @@ export function RoomsPage({ eventId }: { eventId: string }) {
           <Label htmlFor="room-mode">{t("rooms.mode")}</Label>
           <Select
             value={event.roomMode}
-            disabled={mode.isPending}
-            onValueChange={(value) => mode.mutate(value)}
+            onValueChange={(value) => {
+              const targetMode = roomModeSchema.parse(value)
+              if (targetMode !== event.roomMode) setPendingMode(targetMode)
+            }}
           >
             <SelectTrigger
               id="room-mode"
@@ -142,12 +141,6 @@ export function RoomsPage({ eventId }: { eventId: string }) {
             </SelectContent>
           </Select>
           <p className="text-xs text-muted-foreground">{t("rooms.modeHint")}</p>
-          {mode.isError ? (
-            <ErrorState
-              title={t("rooms.saveFailed")}
-              error={mode.error}
-            />
-          ) : null}
         </CardContent>
       </Card>
       <div className="grid gap-6 md:grid-cols-3">
@@ -235,6 +228,14 @@ export function RoomsPage({ eventId }: { eventId: string }) {
           </Link>
         </Button>
       </div>
+      {pendingMode ? (
+        <RoomModeDialog
+          event={event}
+          targetMode={pendingMode}
+          onClose={() => setPendingMode(null)}
+          onSaved={refresh}
+        />
+      ) : null}
       {editor ? (
         <RoomDialog
           key={editor === "new" ? "new" : editor.id}
