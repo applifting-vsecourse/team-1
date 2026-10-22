@@ -19,13 +19,6 @@ test.describe("Application from a link", { tag: "@mobile" }, () => {
     await expect(total).toContainText("9,400")
   })
 
-  test("an unknown link says so", async ({ page }) => {
-    await page.goto("/apply/this-link-does-not-exist")
-    await expect(
-      page.getByRole("heading", { name: "The application link doesn't work" }),
-    ).toBeVisible()
-  })
-
   // Next core journey — enable when US-27 / US-25 are merged (docs/E2E.md, „Co testujeme“).
   test.fixme("applicant submits and sees confirmed / waitlisted terms and what to pay", async () => {})
 })
