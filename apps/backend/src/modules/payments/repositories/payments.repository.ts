@@ -2,6 +2,7 @@ import { PrismaService } from "@/core/prisma/prisma.service"
 import {
   computeAmountDue,
   computeAmountPaid,
+  computeRefundableAmount,
   resolvePaymentAmount,
 } from "@/modules/applications/domain/pricing"
 import { PaymentApplication } from "@/modules/payments/domain/payment"
@@ -52,6 +53,7 @@ export class PaymentsRepository {
     recordedById: string,
     requestId: string,
     amountCzk: number | undefined,
+    isRefund = false,
   ): Promise<void> {
     await this.prisma.$transaction(async (tx) => {
       const rows = await tx.$queryRaw<
@@ -62,7 +64,10 @@ export class PaymentsRepository {
       if (existing) {
         if (existing.organizationId !== organizationId || existing.applicationId !== applicationId)
           throw new ForbiddenException()
-        if (amountCzk !== undefined && existing.amountCzk !== amountCzk)
+        if (
+          existing.amountCzk < 0 !== isRefund ||
+          (amountCzk !== undefined && existing.amountCzk !== (isRefund ? -amountCzk : amountCzk))
+        )
           throw new AppException(HttpStatus.CONFLICT, "PAYMENT_ALREADY_RECORDED")
         return
       }
@@ -77,8 +82,23 @@ export class PaymentsRepository {
       )
       if (!Number.isInteger(amount) || amount < 1 || amount > 2147483647)
         throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
+      if (
+        isRefund &&
+        amount >
+          computeRefundableAmount(
+            computeAmountDue(application.terms),
+            computeAmountPaid(application.payments),
+          )
+      )
+        throw new AppException(HttpStatus.CONFLICT, "REFUND_EXCEEDS_OVERPAYMENT")
       await tx.payment.create({
-        data: { id: requestId, applicationId, organizationId, amountCzk: amount, recordedById },
+        data: {
+          id: requestId,
+          applicationId,
+          organizationId,
+          amountCzk: isRefund ? -amount : amount,
+          recordedById,
+        },
       })
     })
   }

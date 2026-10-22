@@ -24,6 +24,7 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
   const { t } = useTranslation("eventOverview")
   const { data, isPending, error, refetch } = useQuery(paymentQueryOptions(applicationId))
   const [isEditorOpen, setIsEditorOpen] = useState(false)
+  const [isRefundOpen, setIsRefundOpen] = useState(false)
   const [paymentToCancel, setPaymentToCancel] = useState<Payment | null>(null)
   if (isPending) return <LoadingState />
   if (error) {
@@ -36,7 +37,8 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
     )
   }
   const latest = data.payments.at(-1)
-  const isPaid = data.amountOwedCzk <= 0 && data.payments.length > 0
+  const isOverpaid = data.amountOwedCzk < 0
+  const isPaid = data.amountOwedCzk === 0 && data.payments.length > 0
   const metrics = [
     {
       label: t("payment.due"),
@@ -54,9 +56,12 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
         : t("payment.noPayment"),
     },
     {
-      label: t("payment.remaining"),
-      amount: data.amountOwedCzk,
-      helper: t(isPaid ? "payment.settled" : "payment.unpaid"),
+      label: t(isOverpaid ? "payment.overpaid" : "payment.remaining"),
+      amount: Math.abs(data.amountOwedCzk),
+      warning: isOverpaid,
+      helper: t(
+        isOverpaid ? "payment.overpaidHelper" : isPaid ? "payment.settled" : "payment.unpaid",
+      ),
     },
   ]
   return (
@@ -95,7 +100,9 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
         {metrics.map((metric) => (
           <Card
             key={metric.label}
-            className="gap-2 p-6"
+            className={
+              metric.warning ? "gap-2 border-status-warning bg-status-warning-bg p-6" : "gap-2 p-6"
+            }
           >
             <h3 className="text-xs font-medium text-muted-foreground">{metric.label}</h3>
             <MoneyAmount
@@ -108,27 +115,53 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
       </div>
       <Alert
         className={
-          isPaid
-            ? "border-status-success bg-status-success-bg"
-            : latest
-              ? "border-status-warning bg-status-warning-bg"
-              : "border-primary bg-accent"
+          isOverpaid
+            ? "border-status-warning bg-status-warning-bg"
+            : isPaid
+              ? "border-status-success bg-status-success-bg"
+              : latest
+                ? "border-status-warning bg-status-warning-bg"
+                : "border-primary bg-accent"
         }
       >
-        <AlertTitle>
-          {t(isPaid ? "payment.recorded" : latest ? "payment.partialTitle" : "payment.waiting", {
-            amount: formatCzk(data.amountOwedCzk),
-          })}
+        <AlertTitle className="line-clamp-none">
+          {t(
+            isOverpaid
+              ? "payment.overpaidTitle"
+              : isPaid
+                ? "payment.recorded"
+                : latest
+                  ? "payment.partialTitle"
+                  : "payment.waiting",
+            {
+              amount: formatCzk(Math.abs(data.amountOwedCzk)),
+            },
+          )}
         </AlertTitle>
         <AlertDescription>
           {latest
-            ? t(isPaid ? "payment.settledSummary" : "payment.summary", {
-                due: formatCzk(data.amountDueCzk),
-                paid: formatCzk(data.amountPaidCzk),
-                owed: formatCzk(data.amountOwedCzk),
-              })
+            ? t(
+                isOverpaid
+                  ? "payment.overpaidSummary"
+                  : isPaid
+                    ? "payment.settledSummary"
+                    : "payment.summary",
+                {
+                  due: formatCzk(data.amountDueCzk),
+                  paid: formatCzk(data.amountPaidCzk),
+                  owed: formatCzk(data.amountOwedCzk),
+                },
+              )
             : t("payment.waitingDescription", { amount: formatCzk(data.amountDueCzk) })}
         </AlertDescription>
+        {isOverpaid ? (
+          <Button
+            className="col-start-2 mt-4 w-fit"
+            onClick={() => setIsRefundOpen(true)}
+          >
+            {t("payment.refund")}
+          </Button>
+        ) : null}
       </Alert>
       <Card className="gap-4 p-6">
         <h2 className="text-lg font-semibold">{t("payment.history")}</h2>
@@ -159,7 +192,9 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
                     className="border-b"
                   >
                     <td className="p-4 whitespace-nowrap">{formatDate(payment.createdAt)}</td>
-                    <td className="p-4">{t("payment.manual")}</td>
+                    <td className="p-4">
+                      {t(payment.amountCzk < 0 ? "payment.refundMethod" : "payment.manual")}
+                    </td>
                     <td className="p-4">
                       <MoneyAmount amountCzk={payment.amountCzk} />
                     </td>
@@ -193,6 +228,13 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
           application={data}
           payment={paymentToCancel}
           onClose={() => setPaymentToCancel(null)}
+        />
+      ) : null}
+      {isRefundOpen ? (
+        <PaymentEditor
+          application={data}
+          isRefund
+          onClose={() => setIsRefundOpen(false)}
         />
       ) : null}
     </div>

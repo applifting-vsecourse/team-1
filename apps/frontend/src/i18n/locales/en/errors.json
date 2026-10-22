@@ -7,6 +7,7 @@
   "PASSWORD_ALREADY_SET": "Your password is already set.",
   "PASSWORD_REQUIRED": "Set your password first, then you can continue.",
   "PAYMENT_ALREADY_RECORDED": "This payment was already recorded with a different amount. Refresh the detail.",
+  "REFUND_EXCEEDS_OVERPAYMENT": "The amount exceeds the current overpayment. Refresh the detail and check the refunded amount.",
   "UNAUTHORIZED": "Please sign in.",
   "UNKNOWN": "Something went wrong.",
   "VALIDATION_FAILED": "Some fields are not filled in correctly."

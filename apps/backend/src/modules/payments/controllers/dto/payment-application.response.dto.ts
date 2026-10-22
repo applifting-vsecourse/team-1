@@ -4,7 +4,8 @@ import { ApiProperty } from "@nestjs/swagger"
 
 class PaymentResponseDto {
   @ApiProperty() id!: string
-  @ApiProperty() amountCzk!: number
+  @ApiProperty({ description: "Positive receipt or negative recorded refund, in whole CZK." })
+  amountCzk!: number
   @ApiProperty() recordedByName!: string
   @ApiProperty() createdAt!: string
 }

@@ -23,6 +23,7 @@ export function PaymentCancellation({
 }) {
   const { t } = useTranslation("eventOverview")
   const client = useQueryClient()
+  const balanceAfter = application.amountOwedCzk + payment.amountCzk
   const mutation = useMutation({
     mutationFn: () => cancelPayment(application.id, payment),
     onSuccess: async () => {
@@ -44,15 +45,22 @@ export function PaymentCancellation({
         showCloseButton={false}
         className="max-h-[calc(100dvh-2rem)] gap-6 overflow-y-auto rounded-lg p-8 sm:max-w-140"
       >
-        <DialogTitle className="text-2xl leading-8">{t("payment.cancelTitle")}</DialogTitle>
+        <DialogTitle className="text-2xl leading-8">
+          {t(payment.amountCzk < 0 ? "payment.cancelRefundTitle" : "payment.cancelTitle")}
+        </DialogTitle>
         <DialogDescription className="text-foreground">
           {application.firstName} {application.lastName} · {application.code} ·{" "}
           {application.eventName}
         </DialogDescription>
-        <p>{t("payment.cancelDescription", { amount: formatCzk(payment.amountCzk) })}</p>
+        <p>
+          {t(
+            payment.amountCzk < 0 ? "payment.cancelRefundDescription" : "payment.cancelDescription",
+            { amount: formatCzk(Math.abs(payment.amountCzk)) },
+          )}
+        </p>
         <p className="text-lg font-semibold">
-          {t("payment.cancelPreview", {
-            amount: formatCzk(application.amountOwedCzk + payment.amountCzk),
+          {t(balanceAfter < 0 ? "payment.cancelOverpaidPreview" : "payment.cancelPreview", {
+            amount: formatCzk(Math.abs(balanceAfter)),
           })}
         </p>
         {mutation.error ? (
@@ -70,7 +78,7 @@ export function PaymentCancellation({
             disabled={mutation.isPending}
             onClick={onClose}
           >
-            {t("payment.keep")}
+            {t(payment.amountCzk < 0 ? "payment.keepRefund" : "payment.keep")}
           </Button>
           <Button
             variant="destructive"

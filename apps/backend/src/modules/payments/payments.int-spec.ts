@@ -134,6 +134,51 @@ describe("organizer payments (US-44)", () => {
     expect((await summary()).payments).toHaveLength(1)
   })
 
+  it("records partial and full refunds independently and allows cancelling a mistaken refund", async () => {
+    await request("POST", "", { amountCzk: 7400 })
+    const requestId = randomUUID()
+    expect((await request("POST", "/refunds", { requestId, amountCzk: 200 })).status).toBe(204)
+    expect((await request("POST", "/refunds", { requestId, amountCzk: 200 })).status).toBe(204)
+    expect((await request("POST", "/refunds", { requestId, amountCzk: 300 })).status).toBe(409)
+    expect(await summary()).toMatchObject({ amountPaidCzk: 7200, amountOwedCzk: -300 })
+    expect((await request("POST", "/refunds", { amountCzk: 300 })).status).toBe(204)
+    const result = await summary()
+    expect(result).toMatchObject({ amountPaidCzk: 6900, amountOwedCzk: 0 })
+    expect(result.payments.map((p) => p.amountCzk)).toEqual([7400, -200, -300])
+    expect(
+      (await prisma.payment.findUniqueOrThrow({ where: { id: requestId } })).recordedById,
+    ).toBe(organizerId)
+    expect((await request("DELETE", `/${requestId}`)).status).toBe(204)
+    expect((await summary()).amountOwedCzk).toBe(-200)
+  })
+
+  it("serializes refunds so concurrent requests cannot exceed the overpayment", async () => {
+    await request("POST", "", { amountCzk: 7400 })
+    const responses = await Promise.all([
+      request("POST", "/refunds", { amountCzk: 300 }),
+      request("POST", "/refunds", { amountCzk: 300 }),
+    ])
+    expect(responses.map((r) => r.status).sort()).toEqual([204, 409])
+    expect((await summary()).amountOwedCzk).toBe(-200)
+  })
+
+  it.each([undefined, null, 0, -1, 0.5, 501, "200"])(
+    "rejects invalid or excessive refund %s",
+    async (amountCzk) => {
+      await request("POST", "", { amountCzk: 7400 })
+      const response = await request("POST", "/refunds", { amountCzk })
+      expect(response.status).toBe(amountCzk === 501 ? 409 : 400)
+      expect((await summary()).payments).toHaveLength(1)
+    },
+  )
+
+  it("rejects refunds without an overpayment and receipt UUID reuse as a refund", async () => {
+    expect((await request("POST", "/refunds", { amountCzk: 1 })).status).toBe(409)
+    const requestId = randomUUID()
+    await request("POST", "", { requestId, amountCzk: 7400 })
+    expect((await request("POST", "/refunds", { requestId, amountCzk: 7400 })).status).toBe(409)
+  })
+
   it("keeps independent concurrent payments even when their amounts match", async () => {
     const results = await Promise.all([
       request("POST", "", { amountCzk: 3000 }),
@@ -182,6 +227,7 @@ describe("organizer payments (US-44)", () => {
       for (const [method, suffix, body] of [
         ["GET", "", undefined],
         ["POST", "", {}],
+        ["POST", "/refunds", { amountCzk: 100 }],
         ["DELETE", `/${payment.id}`, undefined],
       ] as const) {
         const response = await request(method, suffix, body, auth)

@@ -1,5 +1,6 @@
 import { PaymentApplicationResponseDto } from "@/modules/payments/controllers/dto/payment-application.response.dto"
 import { RecordPaymentRequestDto } from "@/modules/payments/controllers/dto/record-payment.request.dto"
+import { RecordRefundRequestDto } from "@/modules/payments/controllers/dto/record-refund.request.dto"
 import { PaymentsService } from "@/modules/payments/services/payments.service"
 import { Auth } from "@/shared/auth/decorators/auth.decorator"
 import { User } from "@/shared/auth/decorators/user.decorator"
@@ -45,6 +46,18 @@ export class PaymentsController {
     @Body() body: RecordPaymentRequestDto,
   ): Promise<void> {
     await this.payments.record(user, id, body.requestId, body.amountCzk)
+  }
+
+  @Post("refunds")
+  @HttpCode(204)
+  @ApiOperation({ summary: "Record money already returned, up to the current overpayment" })
+  @ApiResponse({ status: 204 })
+  async refund(
+    @User() user: Identity,
+    @Param("applicationId") id: string,
+    @Body() body: RecordRefundRequestDto,
+  ): Promise<void> {
+    await this.payments.refund(user, id, body.requestId, body.amountCzk)
   }
 
   @Delete(":paymentId")

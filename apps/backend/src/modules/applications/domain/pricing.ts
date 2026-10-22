@@ -18,6 +18,11 @@ export function computeAmountPaid(payments: { amountCzk: number }[]): number {
   return payments.reduce((sum, payment) => sum + payment.amountCzk, 0)
 }
 
+/** Maximum money that can be returned without creating a new debt. */
+export function computeRefundableAmount(amountDue: number, amountPaid: number): number {
+  return Math.max(0, -computeAmountOwed(amountDue, amountPaid))
+}
+
 /**
  * Owed = due − paid (US-44). Negative means an overpayment and is shown as
  * such rather than hidden.

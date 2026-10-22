@@ -28,6 +28,16 @@ export class PaymentsService {
     await this.repository.record(applicationId, organizationId, user.id, requestId, amountCzk)
   }
 
+  async refund(
+    user: Identity,
+    applicationId: string,
+    requestId: string,
+    amountCzk: number,
+  ): Promise<void> {
+    const { organizationId } = await this.access.assertCanAccessApplication(user, applicationId)
+    await this.repository.record(applicationId, organizationId, user.id, requestId, amountCzk, true)
+  }
+
   async remove(user: Identity, applicationId: string, paymentId: string): Promise<void> {
     const { organizationId } = await this.access.assertCanAccessApplication(user, applicationId)
     await this.repository.remove(applicationId, organizationId, paymentId)

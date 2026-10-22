@@ -50,3 +50,7 @@ export async function recordPayment(id: string, requestId: string, amountCzk: nu
 export async function cancelPayment(id: string, payment: Payment) {
   await api.delete(`${path(id)}/${encodeURIComponent(payment.id)}`)
 }
+
+export async function recordRefund(id: string, requestId: string, amountCzk: number) {
+  await api.post(`${path(id)}/refunds`, { json: { requestId, amountCzk } })
+}

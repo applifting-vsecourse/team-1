@@ -2,6 +2,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
@@ -9,16 +10,21 @@ import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { formatCzk } from "@/lib/money"
 
-import { recordPayment, type PaymentApplication } from "@/features/event-overview/api/payments"
+import {
+  recordPayment,
+  recordRefund,
+  type PaymentApplication,
+} from "@/features/event-overview/api/payments"
 
-type Props = { application: PaymentApplication; onClose: () => void }
+type Props = { application: PaymentApplication; onClose: () => void; isRefund?: boolean }
 
 // Figma: O34g/h/j · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12796-20843
-export function PaymentEditor({ application, onClose }: Props) {
+export function PaymentEditor({ application, onClose, isRefund = false }: Props) {
   const { t } = useTranslation("eventOverview")
   const client = useQueryClient()
   const [requestId] = useState(() => crypto.randomUUID())
-  const [amount, setAmount] = useState("")
+  const overpayment = Math.max(0, -application.amountOwedCzk)
+  const [amount, setAmount] = useState(isRefund ? String(overpayment) : "")
   const [amountMode, setAmountMode] = useState(
     application.amountOwedCzk > 0 ? "remaining" : "custom",
   )
@@ -27,18 +33,30 @@ export function PaymentEditor({ application, onClose }: Props) {
   const normalized = /^\d{1,3}(,\d{3})+$/.test(unspaced) ? unspaced.replace(/,/g, "") : unspaced
   const parsed = normalized === "" ? undefined : Number(normalized)
   const remaining = Math.max(0, application.amountOwedCzk)
-  const isCustomAmount = amountMode === "custom" || remaining === 0
+  const isCustomAmount = isRefund || amountMode === "custom" || remaining === 0
   const receipt = isCustomAmount ? parsed : remaining
   const isValid =
     (!isCustomAmount || /^\d+$/.test(normalized)) &&
     receipt !== undefined &&
     Number.isInteger(receipt) &&
     receipt > 0 &&
-    receipt <= 2147483647
-  const preview =
-    isValid && receipt !== undefined ? formatCzk(application.amountOwedCzk - receipt) : "—"
+    receipt <= 2147483647 &&
+    (!isRefund || receipt <= overpayment)
+  const projectedBalance =
+    isValid && receipt !== undefined ? application.amountOwedCzk - receipt : undefined
+  const hasOverpayment = !isRefund && projectedBalance !== undefined && projectedBalance < 0
+  const preview = isRefund
+    ? isValid && receipt !== undefined
+      ? formatCzk(overpayment - receipt)
+      : "—"
+    : projectedBalance !== undefined
+      ? formatCzk(Math.abs(projectedBalance))
+      : "—"
   const mutation = useMutation({
-    mutationFn: () => recordPayment(application.id, requestId, receipt),
+    mutationFn: () =>
+      isRefund
+        ? recordRefund(application.id, requestId, receipt!)
+        : recordPayment(application.id, requestId, receipt),
     onSuccess: async () => {
       await Promise.all([
         client.invalidateQueries({ queryKey: ["eventOverview"] }),
@@ -59,7 +77,9 @@ export function PaymentEditor({ application, onClose }: Props) {
         showCloseButton={false}
         className="max-h-[calc(100dvh-2rem)] gap-6 overflow-y-auto rounded-lg p-8 sm:max-w-140"
       >
-        <DialogTitle className="text-2xl leading-8">{t("payment.record")}</DialogTitle>
+        <DialogTitle className="text-2xl leading-8">
+          {t(isRefund ? "payment.refund" : "payment.record")}
+        </DialogTitle>
         <DialogDescription className="text-foreground">
           {application.firstName} {application.lastName} · {application.code} ·{" "}
           {application.eventName}
@@ -76,47 +96,61 @@ export function PaymentEditor({ application, onClose }: Props) {
             mutation.mutate()
           }}
         >
-          <p>
-            {t("payment.editorDue")}: {formatCzk(application.amountDueCzk)}
-            <br />
-            {t("payment.paidSoFar")}: {formatCzk(application.amountPaidCzk)}
-            <br />
-            {t("payment.remainingToPay")}: {formatCzk(remaining)}
-          </p>
-          <RadioGroup
-            value={isCustomAmount ? "custom" : "remaining"}
-            disabled={mutation.isPending}
-            aria-label={t("payment.amountChoice")}
-            className="gap-2"
-            onValueChange={(value) => {
-              setAmountMode(value)
-              setIsInvalid(false)
-            }}
-          >
-            {remaining > 0 ? (
+          {isRefund ? (
+            <p>
+              {t("payment.refundSummary", { amount: formatCzk(overpayment) })}
+              <br />
+              {t("payment.refundHint")}
+            </p>
+          ) : (
+            <p>
+              {t("payment.editorDue")}: {formatCzk(application.amountDueCzk)}
+              <br />
+              {t("payment.paidSoFar")}: {formatCzk(application.amountPaidCzk)}
+              <br />
+              {t(
+                application.amountOwedCzk < 0 ? "payment.overpaid" : "payment.remainingToPay",
+              )}: {formatCzk(Math.abs(application.amountOwedCzk))}
+            </p>
+          )}
+          {!isRefund ? (
+            <RadioGroup
+              value={isCustomAmount ? "custom" : "remaining"}
+              disabled={mutation.isPending}
+              aria-label={t("payment.amountChoice")}
+              className="gap-2"
+              onValueChange={(value) => {
+                setAmountMode(value)
+                setIsInvalid(false)
+              }}
+            >
+              {remaining > 0 ? (
+                <div className="flex min-h-11 items-center gap-2 p-2">
+                  <RadioGroupItem
+                    value="remaining"
+                    id="payment-remaining"
+                    className="size-5"
+                  />
+                  <Label htmlFor="payment-remaining">
+                    {t("payment.payRemaining", { amount: formatCzk(remaining) })}
+                  </Label>
+                </div>
+              ) : null}
               <div className="flex min-h-11 items-center gap-2 p-2">
                 <RadioGroupItem
-                  value="remaining"
-                  id="payment-remaining"
+                  value="custom"
+                  id="payment-custom"
                   className="size-5"
                 />
-                <Label htmlFor="payment-remaining">
-                  {t("payment.payRemaining", { amount: formatCzk(remaining) })}
-                </Label>
+                <Label htmlFor="payment-custom">{t("payment.customAmount")}</Label>
               </div>
-            ) : null}
-            <div className="flex min-h-11 items-center gap-2 p-2">
-              <RadioGroupItem
-                value="custom"
-                id="payment-custom"
-                className="size-5"
-              />
-              <Label htmlFor="payment-custom">{t("payment.customAmount")}</Label>
-            </div>
-          </RadioGroup>
+            </RadioGroup>
+          ) : null}
           {isCustomAmount ? (
             <div className="flex flex-col gap-2">
-              <Label htmlFor="payment-amount">{t("payment.requiredAmount")}</Label>
+              <Label htmlFor="payment-amount">
+                {t(isRefund ? "payment.refundAmount" : "payment.requiredAmount")}
+              </Label>
               <Input
                 id="payment-amount"
                 type="text"
@@ -139,11 +173,15 @@ export function PaymentEditor({ application, onClose }: Props) {
                 id="payment-amount-hint"
                 className="text-xs text-muted-foreground"
               >
-                {remaining === 0
-                  ? t("payment.noDebtHint")
-                  : isValid
-                    ? t("payment.partialHint", { owed: preview })
-                    : null}
+                {isRefund
+                  ? t("payment.refundLimit", { amount: formatCzk(overpayment) })
+                  : hasOverpayment
+                    ? t("payment.receivedHint")
+                    : remaining === 0
+                      ? t("payment.noDebtHint")
+                      : isValid
+                        ? t("payment.partialHint", { owed: preview })
+                        : null}
               </p>
               {isInvalid && !isValid ? (
                 <p
@@ -151,16 +189,33 @@ export function PaymentEditor({ application, onClose }: Props) {
                   role="alert"
                   className="text-sm text-destructive"
                 >
-                  {t("payment.invalidAmount")}
+                  {t(isRefund ? "payment.invalidRefund" : "payment.invalidAmount", {
+                    amount: formatCzk(overpayment),
+                  })}
                 </p>
               ) : null}
             </div>
+          ) : null}
+          {hasOverpayment ? (
+            <Alert className="border-status-warning bg-status-warning-bg">
+              <AlertTitle className="line-clamp-none">{t("payment.overpaymentWarning")}</AlertTitle>
+              <AlertDescription className="text-base">
+                {t("payment.overpaymentWarningDescription", { amount: preview })}
+              </AlertDescription>
+            </Alert>
           ) : null}
           <p
             className="text-lg font-semibold"
             aria-live="polite"
           >
-            {t("payment.preview", { amount: preview })}
+            {t(
+              isRefund
+                ? "payment.refundPreview"
+                : hasOverpayment
+                  ? "payment.overpaidPreview"
+                  : "payment.preview",
+              { amount: preview },
+            )}
           </p>
           {mutation.error ? (
             <p
@@ -188,8 +243,10 @@ export function PaymentEditor({ application, onClose }: Props) {
               {mutation.isPending
                 ? t("payment.saving")
                 : isValid && receipt !== undefined
-                  ? t("payment.recordAmount", { amount: formatCzk(receipt) })
-                  : t("payment.record")}
+                  ? t(isRefund ? "payment.recordRefundAmount" : "payment.recordAmount", {
+                      amount: formatCzk(receipt),
+                    })
+                  : t(isRefund ? "payment.refund" : "payment.record")}
             </Button>
           </div>
         </form>
