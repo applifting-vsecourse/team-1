@@ -3,12 +3,6 @@
     "events": "Events"
   },
   "list": {
-    "columns": {
-      "capacity": "Capacity",
-      "event": "Event",
-      "status": "Status",
-      "terms": "Terms"
-    },
     "count_few": "{{count}} events",
     "count_one": "{{count}} event",
     "count_other": "{{count}} events",
@@ -22,13 +16,12 @@
     "manyTerms_other": "{{count}} terms · {{months}} · {{organization}}",
     "noCapacity": "—",
     "noTerms": "No term yet · {{organization}}",
+    "occupancyMany": "{{confirmed}} / {{capacity}} places in {{count}} terms",
+    "occupancyOne": "{{confirmed}} / {{capacity}} participants",
     "oneTerm": "{{dates}} · {{organization}}",
     "statusClosed": "Application inactive",
     "statusOpen": "Published",
-    "title": "Event list",
-    "total_few": "{{count}} records in total",
-    "total_one": "{{count}} record in total",
-    "total_other": "{{count}} records in total"
+    "title": "Event list"
   },
   "new": {
     "back": "Back to the list",
@@ -82,6 +75,61 @@
     "title": "Accommodation"
   },
   "terms": {
+    "add": "Add term",
+    "cancel": "Cancel term",
+    "cancelDialog": {
+      "confirm": "Confirm cancellation",
+      "confirmed_few": "{{count}} confirmed applications",
+      "confirmed_one": "{{count}} confirmed application",
+      "confirmed_other": "{{count}} confirmed applications",
+      "history": "Application history is kept. Inform the participants yourself; payments are not refunded automatically.",
+      "impact": "{{confirmed}} and {{waitlisted}}",
+      "keep": "Keep term",
+      "notOffered": "The term {{dates}} will no longer be offered in the application. Other terms of the event stay available.",
+      "reason": "Reason for cancelling *",
+      "reasonHelper": "The reason is saved for the organizers.",
+      "title": "Cancel {{name}}?",
+      "waitlisted_few": "{{count}} waitlisted",
+      "waitlisted_one": "{{count}} waitlisted",
+      "waitlisted_other": "{{count}} waitlisted"
+    },
+    "cancelledHelper": "The term is no longer offered in the application. Other terms stay available; application history is kept.",
+    "cancelledRow": "{{name}} · {{dates}} · Cancelled",
+    "cancelledTitle_few": "Cancelled terms",
+    "cancelledTitle_one": "Cancelled term",
+    "cancelledTitle_other": "Cancelled terms",
+    "description": "Add terms, set their dates and price. Each term is evaluated on its own.",
+    "edit": "Edit",
+    "empty": "The event has no term yet.",
+    "errorTitle": "Couldn't load the terms",
+    "form": {
+      "addTitle": "Add term",
+      "close": "Close",
+      "description": "Fill in the name, period and price per person. Terms are sorted by start date.",
+      "editTitle": "Edit term",
+      "endBeforeStart": "The end must be after the start.",
+      "endsOn": "End date *",
+      "fieldRequired": "Fill in this field.",
+      "name": "Term name *",
+      "nameHelper": "Applicants see the name too.",
+      "price": "Price per person (CZK) *",
+      "priceHelper": "The whole price of the term; no deposit.",
+      "priceRequired": "Fill in the price per person in CZK.",
+      "required": "* Required field",
+      "save": "Save changes",
+      "startsOn": "Start date *",
+      "submitAdd": "Add term"
+    },
+    "listHelper": "Sorted by start date. Each term is evaluated separately.",
+    "listTitle": "Event terms · {{count}}",
+    "notice": {
+      "added": "The term {{name}} was added.",
+      "cancelled": "The term {{name}} was cancelled.",
+      "edited": "Changes to the term {{name}} were saved."
+    },
+    "occupancy_few": "{{confirmed}} / {{count}} places",
+    "occupancy_one": "{{confirmed}} / {{count}} place",
+    "occupancy_other": "{{confirmed}} / {{count}} places",
     "title": "Terms"
   }
 }

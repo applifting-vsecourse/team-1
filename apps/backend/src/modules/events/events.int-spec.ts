@@ -94,6 +94,15 @@ describe("organizer events (integration)", () => {
       missing: [],
       startsOn: "2027-10-01",
       endsOn: "2027-10-07",
+      terms: [
+        {
+          name: "Týden",
+          startsOn: "2027-10-01",
+          endsOn: "2027-10-07",
+          capacity: 4,
+          confirmedCount: 0,
+        },
+      ],
     })
     expect((await fetch(api(`/public/events/${created.publicToken}`))).status).toBe(200)
   })

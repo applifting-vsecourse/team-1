@@ -21,7 +21,7 @@ export class ApplicationsRepository {
       where: { publicToken },
       include: {
         organization: { select: { bankAccount: true } },
-        terms: { orderBy: [{ startsOn: "asc" }, { name: "asc" }] },
+        terms: { where: { cancelledAt: null }, orderBy: [{ startsOn: "asc" }, { name: "asc" }] },
         _count: { select: { rooms: true } },
       },
     })

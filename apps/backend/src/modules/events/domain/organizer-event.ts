@@ -4,6 +4,18 @@ import {
   MissingForApplications,
 } from "@/modules/applications/domain/public-event"
 
+/** A term in the event list: its dates, name and how full it is. */
+export type EventTermSummary = {
+  id: string
+  name: string
+  /** ISO dates, `2027-07-04`. */
+  startsOn: string
+  endsOn: string
+  /** Beds of the event's rooms, the same for every term (US-26). */
+  capacity: number
+  confirmedCount: number
+}
+
 /** What the repository returns: the event plus the counts the readiness check needs. */
 export type StoredEvent = {
   id: string
@@ -19,6 +31,8 @@ export type StoredEvent = {
   /** ISO dates, `2027-07-04`: first term start and last term end; null without terms. */
   startsOn: string | null
   endsOn: string | null
+  /** Terms that are still offered, in chronological order. */
+  terms: EventTermSummary[]
 }
 
 export type OrganizerEvent = StoredEvent & {

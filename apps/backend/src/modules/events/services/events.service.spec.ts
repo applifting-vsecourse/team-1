@@ -19,6 +19,7 @@ const stored: StoredEvent = {
   roomCount: 0,
   startsOn: null,
   endsOn: null,
+  terms: [],
 }
 const organizer = new Identity("u1", "o@example.com", "Olga", "ORGANIZER", false)
 

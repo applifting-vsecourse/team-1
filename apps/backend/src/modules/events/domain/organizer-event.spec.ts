@@ -13,6 +13,7 @@ const stored: StoredEvent = {
   roomCount: 0,
   startsOn: null,
   endsOn: null,
+  terms: [],
 }
 
 describe("toOrganizerEvent", () => {

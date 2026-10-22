@@ -1,6 +1,30 @@
 import { MissingForApplications } from "@/modules/applications/domain/public-event"
-import { OrganizerEvent } from "@/modules/events/domain/organizer-event"
+import { EventTermSummary, OrganizerEvent } from "@/modules/events/domain/organizer-event"
 import { ApiProperty } from "@nestjs/swagger"
+
+export class EventTermSummaryDto {
+  @ApiProperty()
+  id!: string
+
+  @ApiProperty({ example: "Letní turnus 1" })
+  name!: string
+
+  @ApiProperty({ example: "2027-07-12" })
+  startsOn!: string
+
+  @ApiProperty({ example: "2027-07-18" })
+  endsOn!: string
+
+  @ApiProperty({ description: "Beds of the event's rooms, the same for every term." })
+  capacity!: number
+
+  @ApiProperty()
+  confirmedCount!: number
+
+  static fromDomain(term: EventTermSummary): EventTermSummaryDto {
+    return { ...term }
+  }
+}
 
 export class OrganizerEventResponseDto {
   @ApiProperty()
@@ -59,6 +83,12 @@ export class OrganizerEventResponseDto {
   })
   missing!: MissingForApplications[]
 
+  @ApiProperty({
+    type: [EventTermSummaryDto],
+    description: "Terms that are still offered, in chronological order.",
+  })
+  terms!: EventTermSummaryDto[]
+
   static fromDomain(event: OrganizerEvent): OrganizerEventResponseDto {
     return {
       id: event.id,
@@ -75,6 +105,7 @@ export class OrganizerEventResponseDto {
       endsOn: event.endsOn,
       applicationsOpen: event.applicationsOpen,
       missing: event.missing,
+      terms: event.terms.map((term) => EventTermSummaryDto.fromDomain(term)),
     }
   }
 }

@@ -27,6 +27,7 @@ const base = {
   endsOn: null,
   applicationsOpen: false,
   missing: ["TERM", "ROOM"],
+  terms: [],
 }
 
 function renderSetup(event: object) {
