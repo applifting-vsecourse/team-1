@@ -44,24 +44,63 @@ describe("ApplicationsService.submit", () => {
     ])
   })
 
-  it("stores, then e-mails the amount due of the confirmed terms", async () => {
+  it("stores, then sends one summary e-mail", async () => {
     await service.submit("link", { email: "A@Example.com", participants: [participant] }, "cs")
 
     expect(accounts.ensureAccount).toHaveBeenCalledWith(
       expect.objectContaining({ email: "A@Example.com", locale: "cs" }),
     )
-    expect(mailer.send).toHaveBeenCalledWith(
+    expect(mailer.sendSubmissionConfirmation).toHaveBeenCalledTimes(1)
+    expect(mailer.sendSubmissionConfirmation).toHaveBeenCalledWith(
       expect.objectContaining({
         email: "a@example.com",
-        applicationNumber: 7,
-        amountDueCzk: 4500,
-        terms: [{ name: "1. týden", status: "CONFIRMED" }],
+        locale: "cs",
+        eventName: "Letní kemp",
+        bankAccount: "2900123456/2010",
+        mustSetPassword: true,
+        applications: [
+          expect.objectContaining({
+            number: 7,
+            firstName: "Eva",
+            terms: [{ name: "1. týden", status: "CONFIRMED", priceCzk: 4500 }],
+          }),
+        ],
       }),
     )
   })
 
+  it("sends still one e-mail when the submission holds two participants", async () => {
+    repository.saveEvaluated.mockResolvedValue([
+      {
+        number: 7,
+        accessToken: "tok-1",
+        firstName: "Eva",
+        terms: [{ termId: "t1", status: "CONFIRMED", priceCzk: 4500 }],
+      },
+      {
+        number: 8,
+        accessToken: "tok-2",
+        firstName: "Adam",
+        terms: [{ termId: "t1", status: "WAITLISTED", priceCzk: 4500 }],
+      },
+    ])
+
+    await service.submit(
+      "link",
+      {
+        email: "a@example.com",
+        participants: [participant, { ...participant, firstName: "Adam" }],
+      },
+      "en",
+    )
+
+    expect(mailer.sendSubmissionConfirmation).toHaveBeenCalledTimes(1)
+    const [confirmation] = mailer.sendSubmissionConfirmation.mock.calls[0]
+    expect(confirmation.applications.map((a) => a.number)).toEqual([7, 8])
+  })
+
   it("still succeeds when the confirmation e-mail fails", async () => {
-    mailer.send.mockRejectedValue(new Error("smtp down"))
+    mailer.sendSubmissionConfirmation.mockRejectedValue(new Error("smtp down"))
     await expect(
       service.submit("link", { email: "a@example.com", participants: [participant] }, "en"),
     ).resolves.toHaveLength(1)
