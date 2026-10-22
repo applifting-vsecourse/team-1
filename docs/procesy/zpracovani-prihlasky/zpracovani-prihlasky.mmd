@@ -14,30 +14,30 @@ flowchart TD
   n_akce_zalozena(("Akce založena"))
   n_nastavit_rezim("Nastavit režim<br/>vyhodnocování<br/>role: organizátor")
   n_spustit_prihlasky("Spustit přihlášky<br/>role: organizátor")
-  n_prihlaska_zaregistrovana(("Nová přihláška<br/>zaregistrována"))
-  n_do_poradniku("Vložit přihlášku do<br/>pořadníku<br/>role: systém")
-  n_chce_vyhodnotit(("Organizátor chce<br/>vyhodnotit přihlášky"))
-  n_s_k_vyhodnoceni(["Přihláška: k<br/>vyhodnocení"])
-  n_vyhodnotit("Organizátor vyhodnotí<br/>přihlášky")
+  n_prihlaska_zaregistrovana(("Nová přihláška v<br/>termínu zaregistrována"))
+  n_do_poradniku("Vložit přihlášku v<br/>termínu do pořadníku<br/>role: systém")
+  n_chce_vyhodnotit(("Organizátor chce<br/>vyhodnotit přihlášky v<br/>termínu"))
+  n_s_k_vyhodnoceni(["Přihláška v termínu: k<br/>vyhodnocení"])
+  n_vyhodnotit("Organizátor vyhodnotí<br/>přihlášky v termínu")
   n_g_vysledek{"XOR"}
-  n_s_zrusena(["Přihláška: zrušená"])
-  n_s_nahradnik(["Přihláška: náhradník"])
-  n_s_potvrzena_dluh(["Přihláška: potvrzená s<br/>dluhem"])
+  n_s_zrusena(["Přihláška v termínu:<br/>zrušená"])
+  n_s_nahradnik(["Přihláška v termínu:<br/>náhradník"])
+  n_s_potvrzena_dluh(["Přihláška v termínu:<br/>potvrzená s dluhem"])
   n_uvolni_se_misto(("Uvolní se místo"))
   n_g_misto{"AND"}
-  n_rucne_potvrdit("Ručně potvrdit<br/>přihlášku<br/>role: organizátor")
+  n_rucne_potvrdit("Ručně potvrdit<br/>přihlášku v termínu<br/>role: organizátor")
   n_e_platby(("Σ plateb = částka k<br/>úhradě"))
   n_e_lhuta(("Lhůta pro zaplacení<br/>dluhu uplynula"))
-  n_e_zamitnuti(("Nastaly okolnosti pro<br/>zamítnutí přihlášky"))
+  n_e_zamitnuti(("Nastaly okolnosti pro<br/>zamítnutí přihlášky v<br/>termínu"))
   n_zaucotovat("Zaúčtovat platbu<br/>role: systém / organizátor")
   n_vyzva("Odeslat výzvu k<br/>zaplacení<br/>role: systém")
   n_e_platby_po_vyzve(("Σ plateb = částka k<br/>úhradě"))
-  n_e_zamitnuti_po_vyzve(("Nastaly okolnosti pro<br/>zamítnutí přihlášky"))
-  n_s_potvrzena_zaplacena(["Přihláška: potvrzená a<br/>zaplacená"])
-  n_e_zamitnuti_zaplacena(("Nastaly okolnosti pro<br/>zamítnutí přihlášky"))
+  n_e_zamitnuti_po_vyzve(("Nastaly okolnosti pro<br/>zamítnutí přihlášky v<br/>termínu"))
+  n_s_potvrzena_zaplacena(["Přihláška v termínu:<br/>potvrzená a zaplacená"])
+  n_e_zamitnuti_zaplacena(("Nastaly okolnosti pro<br/>zamítnutí přihlášky v<br/>termínu"))
   n_e_termin(("Termín proběhne (datum<br/>= první den po<br/>posledním termínu)"))
   n_e_odhlaska(("Účastník se odhlásí"))
-  n_s_archivovana(["Přihláška: archivovaná"])
+  n_s_archivovana(["Přihláška v termínu:<br/>archivovaná"])
   n_sync_prihlaska_zaregistrovana{"AND"}
   n_sync_chce_vyhodnotit{"AND"}
   n_sync_s_potvrzena_dluh{"AND"}
@@ -67,11 +67,11 @@ flowchart TD
   n_rucne_potvrdit --> n_s_potvrzena_dluh
   n_split_s_potvrzena_dluh -->|"Σ plateb = částka k<br/>úhradě"| n_zaucotovat
   n_split_s_potvrzena_dluh -->|"Lhůta pro zaplacení<br/>dluhu uplynula"| n_vyzva
-  n_split_s_potvrzena_dluh -->|"Nastaly okolnosti pro<br/>zamítnutí přihlášky"| n_s_zrusena
+  n_split_s_potvrzena_dluh -->|"Nastaly okolnosti pro<br/>zamítnutí přihlášky v<br/>termínu"| n_s_zrusena
   n_split_vyzva -->|"Σ plateb = částka k<br/>úhradě"| n_zaucotovat
-  n_split_vyzva -->|"Nastaly okolnosti pro<br/>zamítnutí přihlášky"| n_s_zrusena
+  n_split_vyzva -->|"Nastaly okolnosti pro<br/>zamítnutí přihlášky v<br/>termínu"| n_s_zrusena
   n_zaucotovat --> n_s_potvrzena_zaplacena
-  n_split_s_potvrzena_zaplacena -->|"Nastaly okolnosti pro<br/>zamítnutí přihlášky"| n_s_zrusena
+  n_split_s_potvrzena_zaplacena -->|"Nastaly okolnosti pro<br/>zamítnutí přihlášky v<br/>termínu"| n_s_zrusena
   n_split_s_potvrzena_zaplacena -->|"Účastník se odhlásí"| n_s_zrusena
   n_split_s_potvrzena_zaplacena -->|"Termín proběhne (datum =<br/>první den po posledním<br/>termínu)"| n_s_archivovana
   n_prihlaska_zaregistrovana --> n_sync_prihlaska_zaregistrovana

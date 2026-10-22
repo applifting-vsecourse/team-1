@@ -165,7 +165,7 @@ Proces, který čeká na událost, generátor kreslí přes AND bránu, aby bylo
 
 Brány se nedoplní, když do události žádný takový tok nevede (spouštěcí událost) nebo když má událost `sync: false`. Explicitně zapsané brány zůstávají.
 
-Stav objektu / procesu se pojmenovává „Třída: stav“ (např. „Přihláška: k vyhodnocení“), čímž se uzel procesu váže na třídu v diagramu tříd. Jednotka zpracování a zdroj jsou třídy v diagramu tříd, ne uzly procesu.
+Stav objektu / procesu se pojmenovává „Třída: stav“ (např. „Přihláška v termínu: k vyhodnocení“), čímž se uzel procesu váže na třídu v diagramu tříd. Jednotka zpracování a zdroj jsou třídy v diagramu tříd, ne uzly procesu.
 
 ### Diagram tříd (`diagram: class`)
 

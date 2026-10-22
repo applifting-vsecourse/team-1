@@ -20,8 +20,8 @@ Jádro MVP:
 
 1. Organizátor založí akci s více termíny, cenou za termín a pokoji (dámský / pánský, kapacita).
 2. Rozešle neuhodnutelný odkaz; zájemce vyplní krátkou přihlášku na mobilu **bez registrace** a vybere termíny.
-3. Systém každý termín vyhodnotí zvlášť — potvrzený, nebo náhradník — podle volných lůžek pro jeho pohlaví, v pořadí přijetí na serveru.
-4. Přihlašovatel hned vidí stav každého termínu (potvrzeno / čeká na potvrzení — pořadí náhradníků nevidí), stav platby a platební údaje (částka, účet, VS); e-mailem dostane odkaz do svého účtu.
+3. Každou přihlášku v termínu vyhodnotí zvlášť organizátor ručně, nebo systém automaticky (volí se v nastavení akce). Ruční vyhodnocení popisuje [procesní diagram](procesy/zpracovani-prihlasky/zpracovani-prihlasky.md), stavy a přechody [stavový diagram přihlášky v termínu](procesy/zpracovani-prihlasky/prihlaska-v-terminu-zivotni-cyklus.md). Automatické vyhodnocení jde podle volných lůžek pro pohlaví, v pořadí přijetí na serveru.
+4. Přihlašovatel hned vidí stav každé své přihlášky v termínu (viz [stavový diagram přihlášky v termínu](procesy/zpracovani-prihlasky/prihlaska-v-terminu-zivotni-cyklus.md); pořadí náhradníků nevidí) a platební údaje (účet, VS); e-mailem dostane odkaz do svého účtu.
 5. Organizátor vidí obsazenost po termínech, seznam přihlášek s filtry a ručně zapisuje platby.
 
 ## 2. Odkazy a přístupy
@@ -94,7 +94,6 @@ Klíčová čísla z akceptačních kritérií (musí sedět v testech):
 - Kapacita termínu pro ženy = součet kapacit dámských pokojů, pro muže = pánských. 10 + 10 pokojů po 5 místech pojme 50 + 50, **ne** 52 + 48.
 - Pokoj: kapacita 1–20, příznak dámský / pánský povinný, platí pro všechny termíny akce.
 - Přihláška se uloží vždy, i když je plno. Termíny se vyhodnocují zvlášť v pořadí přijetí na serveru. Dvě souběžné přihlášky nikdy nepřekročí kapacitu.
-- Částka k úhradě = součet cen **potvrzených** termínů. Dluží = k úhradě − zaplaceno. Zaplaceno bez částky = celá částka k úhradě.
 - Variabilní symbol = číslo přihlášky.
 - Odkaz na přihlášku funguje, až má akce aspoň jeden termín s cenou a aspoň jeden pokoj.
 - Formulář přihlášky funguje na 360 px bez vodorovného posunu. Tlačítko Odeslat je po stisku neaktivní.
@@ -140,7 +139,7 @@ Sdílené soubory (`schema.prisma`, `app.module.ts`, `routes.ts`, `components/*`
 ### Styčné body
 
 - **B → C:** po uložení všech přihlášek jednoho odeslání formuláře `ApplicationsService` zavolá `ParticipantAccountsService.ensureAccount(email)` a **jednou** `ApplicationConfirmationMailer.sendSubmissionConfirmation(...)` (US-56): jeden souhrnný e-mail za celé odeslání, i s více účastníky. E-mail o změně přihlášky (`sendApplicationChange`) volají až US-28, 32, 33, 34 a 84.
-- **B ↔ D:** stav termínů, částka k úhradě a dluh se počítají jen v doménových funkcích z fáze 0 (`modules/applications/domain`). Nikdo je nepočítá znovu po svém.
+- **B ↔ D:** stav přihlášky v termínu ([stavový diagram přihlášky v termínu](procesy/zpracovani-prihlasky/prihlaska-v-terminu-zivotni-cyklus.md)) se mění a počítá jen v doménových funkcích z fáze 0 (`modules/applications/domain`). Nikdo ho nepočítá znovu po svém.
 
 ## 7. Slovník (doména → kód)
 
@@ -160,7 +159,7 @@ Room                  organizationId, eventId, name, capacity (1–20), gender
 Application           organizationId, eventId, userId (účet přihlašovatele), number (VS, sekvence),
                       accessToken (stránka potvrzení), firstName, lastName, birthDate, gender, email,
                       consentAt, submittedAt
-ApplicationTerm       applicationId, termId, status, priceCzk (zmrazená cena), evaluatedAt
+ApplicationTerm       applicationId, termId, status (viz stavový diagram), priceCzk (zmrazená cena), evaluatedAt
 Payment               organizationId, applicationId, amountCzk, recordedById, createdAt
 ```
 
@@ -170,7 +169,7 @@ Payment               organizationId, applicationId, amountCzk, recordedById, cr
 - Cena se při vyhodnocení zkopíruje do `ApplicationTerm.priceCzk`; pozdější změna ceny termínu se týká jen nových přihlášek.
 - `Application.userId` je nullable: přihláška se uloží, i když účet přihlašovatele ještě nevznikl (proud C).
 - Veřejná registrace (`/api/auth/sign-up`) je vypnutá. Účty vznikají jen na serveru (seed, přihláška).
-- Platby jsou řádky (`Payment`), ne příznak na přihlášce — připraveno na import z banky (US-42). Ve sprintu 1 UI zapíše nebo smaže jednu platbu; „zaplaceno bez částky“ uloží aktuální částku k úhradě.
+- Platby jsou řádky (`Payment`), ne příznak na přihlášce — připraveno na import z banky (US-42). Ve sprintu 1 UI zapíše nebo smaže jednu platbu.
 
 ## 9. Architektura
 
@@ -313,9 +312,10 @@ apps/frontend/src/
 | 2026-10-16 | Vyvíjí celý tým. Proudy: A + landing Jakubkuba9000, B kudrle01, C PJjiry, D Aadikk. Story schvaluje product manager Aadikk.                                                                                                                                                                                                                                                                                                                    | tech lead |
 | 2026-10-16 | Git: viz sekce 12.                                                                                                                                                                                                                                                                                                                                                                                                                             | tech lead |
 | 2026-10-21 | **Jeden PR na featuru:** story jde v jednom PR (BE + FE + testy), nedělí se na backend / frontend ani na „část 1/2“. Větší PR je v pořádku, popis vysvětlí proč.                                                                                                                                                                                                                                                                               | tech lead |
-| 2026-10-21 | **Účastník nevidí, že je náhradník.** Nepotvrzený termín se mu ukazuje jako „Čeká na potvrzení“, potvrzený jako „Potvrzeno“; API pro účastníka neposílá pořadí. U přihlášky vidí stav platby: Nezaplaceno, Částečně zaplaceno, Zaplaceno, Přeplatek (`computePaymentStatus` v `applications/domain/pricing.ts`). Platí pro účet účastníka a pro stránku po odeslání, až vznikne (US-25; rámce V04 / V06 / M06 už to mají).                     |
+| 2026-10-21 | **Účastník nevidí pořadí náhradníků.** API pro účastníka pořadí neposílá. Stavy, které účastník vidí, vycházejí ze [stavového diagramu přihlášky v termínu](procesy/zpracovani-prihlasky/prihlaska-v-terminu-zivotni-cyklus.md) (US-25; rámce V04 / V06 / M06).                                                                                                                                                                                |
 | 2026-10-21 | Termín může být zdarma (cena 0). Cena termínu 0 se zobrazuje jako „Zdarma“, částky k úhradě jako „0 Kč“.                                                                                                                                                                                                                                                                                                                                       | tech lead |
 | 2026-10-21 | **Organizátor: akce jako karty, sekce akce v sidebaru.** Seznam akcí má kartu na akci s řádkem na termín (datum s rokem, název, obsazeno / lůžek); seznam termínů má řádky oddělené linkou místo karet v kartě. Sekce otevřené akce (Přehled, Přihlášky, Ubytování, Termíny) jsou v sidebaru pod „Akce“, ne záložky nad stránkou. Figma O02 / O02a / O24.                                                                                      | tech lead |
+| 2026-10-23 | **Vyhodnocování přihlášek:** organizátor si nastaví ruční, nebo automatické. Ruční vyhodnocení je v [procesním diagramu](procesy/zpracovani-prihlasky/zpracovani-prihlasky.md), stavy a přechody přihlášky v termínu ve [stavovém diagramu](procesy/zpracovani-prihlasky/prihlaska-v-terminu-zivotni-cyklus.md). Tyto diagramy mají přednost před dřívějšími popisy stavů v tomto dokumentu; stav přihlášky se tu už nepopisuje.               | tým       |
 
 ## 11. Rozdíly vůči boardu
 

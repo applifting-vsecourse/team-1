@@ -1,7 +1,7 @@
-title: Přihláška (životní cyklus)
+title: Přihláška v termínu (životní cyklus)
 diagram: lifecycle
 
-# odvozeno z procesu zpracování přihlášky (zpracovani-prihlasky.yaml)
+# odvozeno z procesu zpracování přihlášky v termínu (zpracovani-prihlasky.yaml)
 
 states:
   - { id: k_vyhodnoceni, label: K vyhodnocení }
@@ -12,24 +12,29 @@ states:
   - { id: archivovana, label: Archivovaná, final: true }
 
 transitions:
-  - { from: start, to: k_vyhodnoceni, reason: Nová přihláška zaregistrována, op: register() }
+  - {
+      from: start,
+      to: k_vyhodnoceni,
+      reason: Nová přihláška v termínu zaregistrována,
+      op: register(),
+    }
 
   - {
       from: k_vyhodnoceni,
       to: potvrzena_dluh,
-      reason: "Organizátor vyhodnotí přihlášku: potvrdí",
+      reason: "Organizátor vyhodnotí přihlášku v termínu: potvrdí",
       op: confirm(),
     }
   - {
       from: k_vyhodnoceni,
       to: nahradnik,
-      reason: "Organizátor vyhodnotí přihlášku: zařadí jako náhradníka",
+      reason: "Organizátor vyhodnotí přihlášku v termínu: zařadí jako náhradníka",
       op: putOnWaitlist(),
     }
   - {
       from: k_vyhodnoceni,
       to: zrusena,
-      reason: "Organizátor vyhodnotí přihlášku: zamítne",
+      reason: "Organizátor vyhodnotí přihlášku v termínu: zamítne",
       op: cancel(),
     }
 
@@ -55,14 +60,14 @@ transitions:
   - {
       from: potvrzena_dluh,
       to: zrusena,
-      reason: Nastaly okolnosti pro zamítnutí přihlášky,
+      reason: Nastaly okolnosti pro zamítnutí přihlášky v termínu,
       op: cancel(),
     }
 
   - {
       from: potvrzena_zaplacena,
       to: zrusena,
-      reason: Nastaly okolnosti pro zamítnutí přihlášky,
+      reason: Nastaly okolnosti pro zamítnutí přihlášky v termínu,
       op: cancel(),
     }
   - { from: potvrzena_zaplacena, to: zrusena, reason: Účastník se odhlásí, op: cancel() }

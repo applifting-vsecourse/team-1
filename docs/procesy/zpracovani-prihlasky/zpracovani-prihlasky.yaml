@@ -1,4 +1,4 @@
-title: Zpracování přihlášky (detailní proces, verze z náčrtku)
+title: Zpracování přihlášky v termínu (ruční vyhodnocování)
 direction: TD
 
 # typy uzlů: event | timed | task | step | process | state | end | gateway | note
@@ -9,34 +9,42 @@ nodes:
   - { id: akce_zalozena, type: event, label: Akce založena }
   - { id: nastavit_rezim, type: task, label: Nastavit režim vyhodnocování, role: organizátor }
   - { id: spustit_prihlasky, type: task, label: Spustit přihlášky, role: organizátor }
-  - { id: prihlaska_zaregistrovana, type: event, label: Nová přihláška zaregistrována }
-  - { id: do_poradniku, type: task, label: Vložit přihlášku do pořadníku, role: systém }
-  - { id: chce_vyhodnotit, type: event, label: Organizátor chce vyhodnotit přihlášky }
-  - { id: s_k_vyhodnoceni, type: state, label: "Přihláška: k vyhodnocení" }
-  - { id: vyhodnotit, type: task, label: Organizátor vyhodnotí přihlášky }
+  - { id: prihlaska_zaregistrovana, type: event, label: Nová přihláška v termínu zaregistrována }
+  - { id: do_poradniku, type: task, label: Vložit přihlášku v termínu do pořadníku, role: systém }
+  - { id: chce_vyhodnotit, type: event, label: Organizátor chce vyhodnotit přihlášky v termínu }
+  - { id: s_k_vyhodnoceni, type: state, label: "Přihláška v termínu: k vyhodnocení" }
+  - { id: vyhodnotit, type: task, label: Organizátor vyhodnotí přihlášky v termínu }
   - { id: g_vysledek, type: gateway, kind: x }
 
-  - { id: s_zrusena, type: end, label: "Přihláška: zrušená" }
-  - { id: s_nahradnik, type: state, label: "Přihláška: náhradník" }
-  - { id: s_potvrzena_dluh, type: state, label: "Přihláška: potvrzená s dluhem" }
+  - { id: s_zrusena, type: end, label: "Přihláška v termínu: zrušená" }
+  - { id: s_nahradnik, type: state, label: "Přihláška v termínu: náhradník" }
+  - { id: s_potvrzena_dluh, type: state, label: "Přihláška v termínu: potvrzená s dluhem" }
 
   - { id: uvolni_se_misto, type: event, label: Uvolní se místo }
   - { id: g_misto, type: gateway, kind: "+" }
-  - { id: rucne_potvrdit, type: task, label: Ručně potvrdit přihlášku, role: organizátor }
+  - { id: rucne_potvrdit, type: task, label: Ručně potvrdit přihlášku v termínu, role: organizátor }
 
   - { id: e_platby, type: event, label: Σ plateb = částka k úhradě }
   - { id: e_lhuta, type: timed, label: Lhůta pro zaplacení dluhu uplynula }
-  - { id: e_zamitnuti, type: event, label: Nastaly okolnosti pro zamítnutí přihlášky }
+  - { id: e_zamitnuti, type: event, label: Nastaly okolnosti pro zamítnutí přihlášky v termínu }
   - { id: zaucotovat, type: task, label: Zaúčtovat platbu, role: systém / organizátor }
   - { id: vyzva, type: task, label: Odeslat výzvu k zaplacení, role: systém }
   - { id: e_platby_po_vyzve, type: event, label: Σ plateb = částka k úhradě }
-  - { id: e_zamitnuti_po_vyzve, type: event, label: Nastaly okolnosti pro zamítnutí přihlášky }
-  - { id: s_potvrzena_zaplacena, type: state, label: "Přihláška: potvrzená a zaplacená" }
+  - {
+      id: e_zamitnuti_po_vyzve,
+      type: event,
+      label: Nastaly okolnosti pro zamítnutí přihlášky v termínu,
+    }
+  - { id: s_potvrzena_zaplacena, type: state, label: "Přihláška v termínu: potvrzená a zaplacená" }
 
-  - { id: e_zamitnuti_zaplacena, type: event, label: Nastaly okolnosti pro zamítnutí přihlášky }
+  - {
+      id: e_zamitnuti_zaplacena,
+      type: event,
+      label: Nastaly okolnosti pro zamítnutí přihlášky v termínu,
+    }
   - { id: e_termin, type: timed, label: Termín proběhne (datum = první den po posledním termínu) }
   - { id: e_odhlaska, type: event, label: Účastník se odhlásí }
-  - { id: s_archivovana, type: end, label: "Přihláška: archivovaná" }
+  - { id: s_archivovana, type: end, label: "Přihláška v termínu: archivovaná" }
 
 flows:
   - { from: akce_zalozena, to: nastavit_rezim }
