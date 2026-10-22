@@ -160,7 +160,7 @@ Application           organizationId, eventId, userId (účet přihlašovatele),
                       accessToken (stránka potvrzení), firstName, lastName, birthDate, gender, email,
                       consentAt, submittedAt
 ApplicationTerm       applicationId, termId, status (viz stavový diagram), priceCzk (zmrazená cena), evaluatedAt
-Payment               organizationId, applicationId, amountCzk, recordedById, createdAt
+Payment               organizationId, applicationTermId (přihláška v termínu), amountCzk, recordedById, createdAt
 ```
 
 - Každá tabulka s daty organizace má **přímý** `organizationId` — izolace (US-10) je pak jeden filtr.

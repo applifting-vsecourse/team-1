@@ -2,7 +2,7 @@
 
 Oct 20, 2026 · @Adam Hanuš
 
-Jen pojmy, které se v projektu pletou nebo mají víc významů. Zdroje: [docs/PROJEKT.md](https://github.com/applifting-vsecourse/team-1/blob/main/docs/PROJEKT.md) (§7 Slovník, §8 Datový model, §10 Rozhodnutí), [schema.prisma](https://github.com/applifting-vsecourse/team-1/blob/main/apps/backend/prisma/schema.prisma) a 97 issues na [boardu](https://github.com/orgs/applifting-vsecourse/projects/12). Pořadí platnosti: rozhodnutí v PROJEKT.md > schéma > text issue.
+Jen pojmy, které se v projektu pletou nebo mají víc významů. Zdroje: [docs/PROJEKT.md](https://github.com/applifting-vsecourse/team-1/blob/main/docs/PROJEKT.md) (§7 Slovník, §8 Datový model, §10 Rozhodnutí), [schema.prisma](https://github.com/applifting-vsecourse/team-1/blob/main/apps/backend/prisma/schema.prisma) a 97 issues na [boardu](https://github.com/orgs/applifting-vsecourse/projects/12). Pořadí platnosti: [procesní](procesy/zpracovani-prihlasky/zpracovani-prihlasky.md) a [stavový diagram přihlášky v termínu](procesy/zpracovani-prihlasky/prihlaska-v-terminu-zivotni-cyklus.md) > rozhodnutí v PROJEKT.md > schéma > text issue.
 
 ## Jak číst
 
@@ -28,7 +28,7 @@ Každý pojem patří právě do jedné kategorie:
 | Přihláška               | Vyplněný záznam jednoho účastníka na akci.                                                                                                                                            | `Application`                                        | Sama stav nemá, stav mají její termíny.                                                                                    |
 | Přihláška v termínu     | Vazba přihlášky na jeden vybraný termín, nese stav a zmrazenou cenu.                                                                                                                  | `ApplicationTerm`                                    | Asociační třída mezi Přihláškou a Termínem.                                                                                |
 | Účastník                | Osoba, která fyzicky jede na akci; údaje v přihlášce (jméno, datum narození, pohlaví).                                                                                                | údaje v `Application`                                | Nemusí mít uživatelský účet. Nezaměňovat s přihlašovatelem.                                                                |
-| Platba                  | Jeden ručně zapsaný příjem k přihlášce.                                                                                                                                               | `Payment`                                            | Řádek, ne příznak „zaplaceno“.                                                                                             |
+| Platba                  | Jeden ručně zapsaný příjem k přihlášce v termínu.                                                                                                                                     | `Payment`                                            | Řádek, ne příznak „zaplaceno“.                                                                                             |
 | Areál                   | Uložená sada pokojů k opakovanému použití ([US-81](https://github.com/applifting-vsecourse/team-1/issues/81)).                                                                        | zatím není                                           | V [US-59](https://github.com/applifting-vsecourse/team-1/issues/59) jde o výdajovou položku.                               |
 | Člen organizačního týmu | Personál akce: vedoucí, kuchař, zdravotník ([US-93](https://github.com/applifting-vsecourse/team-1/issues/93)).                                                                       | zatím není                                           | Nemá účet; nezaměňovat s dalším organizátorem ([US-11](https://github.com/applifting-vsecourse/team-1/issues/11)).         |
 
@@ -71,46 +71,35 @@ Přihlašovatel a účastník můžou být jedna osoba (přihlašuje sám sebe),
 
 ## Stavy
 
-Stav nese Přihláška v termínu (`ApplicationTerm.status`), ne Přihláška.
+Stav nese Přihláška v termínu (`ApplicationTerm.status`), ne Přihláška. Stavy a přechody jsou ve [stavovém diagramu přihlášky v termínu](procesy/zpracovani-prihlasky/prihlaska-v-terminu-zivotni-cyklus.md), vyhodnocení a navazující kroky v [procesním diagramu](procesy/zpracovani-prihlasky/zpracovani-prihlasky.md). Diagramy mají přednost, tady je jen přehled pojmů.
 
-```mermaid
-stateDiagram-v2
-  state "Náhradník · WAITLISTED" as nahradnik
-  state "Potvrzený · CONFIRMED" as potvrzeny
-  state "Odhlášený · zatím není" as odhlaseny
-
-  [*] --> nahradnik : odeslání formuláře, vyhodnocení podle volných lůžek a pořadí přijetí na serveru
-  [*] --> potvrzeny : odeslání formuláře, vyhodnocení podle volných lůžek a pořadí přijetí na serveru
-  nahradnik --> potvrzeny : uvolní se lůžko US-31
-  nahradnik --> odhlaseny : odhlášení US-32, US-84
-  potvrzeny --> odhlaseny : odhlášení US-32, US-84
-  odhlaseny --> [*]
-```
-
-| Stav      | Význam                                                 | V kódu       | Pozor                                                                                                  |
-| --------- | ------------------------------------------------------ | ------------ | ------------------------------------------------------------------------------------------------------ |
-| Potvrzený | V termínu se účastník vešel do kapacity svého pohlaví. | `CONFIRMED`  | Nezaměňovat s potvrzovacím e-mailem.                                                                   |
-| Náhradník | V termínu nedostal lůžko.                              | `WAITLISTED` | Stav v termínu, ne typ osoby. Jedna přihláška může být v jednom termínu potvrzená a v jiném náhradník. |
-| Odhlášený | Zrušená účast v termínu nebo celé přihlášce.           | zatím není   | Není to logout.                                                                                        |
+| Stav                  | Význam                                                                | V kódu           | Pozor                                                                                                  |
+| --------------------- | --------------------------------------------------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------ |
+| K vyhodnocení         | Přihláška v termínu je zaregistrovaná a čeká na vyhodnocení.          | zatím není       | Počáteční stav.                                                                                        |
+| Náhradník             | Organizátor ji při vyhodnocení zařadil jako náhradníka.               | `WAITLISTED`     | Stav v termínu, ne typ osoby. Jedna přihláška může být v jednom termínu potvrzená a v jiném náhradník. |
+| Potvrzená s dluhem    | Potvrzená, Σ plateb ještě nedosáhla částky k úhradě.                  | dnes `CONFIRMED` | Nezaměňovat s potvrzovacím e-mailem.                                                                   |
+| Potvrzená a zaplacená | Potvrzená, Σ plateb = částka k úhradě.                                | dnes `CONFIRMED` | Kód zatím platbu ve stavu nerozlišuje.                                                                 |
+| Zrušená               | Koncový: zamítnutí, okolnosti pro zamítnutí nebo odhlášení účastníka. | zatím není       | Není to logout.                                                                                        |
+| Archivovaná           | Koncový: termín proběhl.                                              | zatím není       | –                                                                                                      |
 
 ## Atributy a výpočty
 
-| Pojem                       | Patří k             | Vzorec / význam                                                                                                                                                                    | V kódu                                                 | Pozor                                                                                                 |
-| --------------------------- | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ | ----------------------------------------------------------------------------------------------------- |
-| Lůžko                       | Pokoj               | jednotka kapacity pokoje                                                                                                                                                           | `Room.capacity`                                        | Jako entita zatím neexistuje.                                                                         |
-| Volná lůžka                 | Termín              | kapacita pohlaví − potvrzení daného pohlaví                                                                                                                                        | doménová funkce                                        | Nepoužívat „volná místa“ – plete se s místem konání.                                                  |
-| Obsazenost                  | Termín              | kapacita, potvrzení, volná lůžka, náhradníci ([US-29](https://github.com/applifting-vsecourse/team-1/issues/29))                                                                   | `/occupancy`                                           | Obsazenost pokojů ([US-36](https://github.com/applifting-vsecourse/team-1/issues/36)) = kdo leží kde. |
-| Režim pokojů                | Akce                | pokoje podle pohlaví, nebo společné pokoje ([US-14](https://github.com/applifting-vsecourse/team-1/issues/14))                                                                     | zatím není, `Room.gender` je povinné                   | Vždy psát celý název, ne holé „režim“.                                                                |
-| Režim vyhodnocení           | Akce                | automatické potvrzení, nebo s organizátorem ([US-27](https://github.com/applifting-vsecourse/team-1/issues/27), [US-82](https://github.com/applifting-vsecourse/team-1/issues/82)) | zatím není, ve sprintu 1 jen automatický               | Vždy psát celý název, ne holé „režim“.                                                                |
-| Zmrazená cena               | Přihláška v termínu | cena termínu v okamžiku vyhodnocení                                                                                                                                                | `ApplicationTerm.priceCzk`                             | Pozdější změna ceny se týká jen nových přihlášek.                                                     |
-| Cena přihlášky              | Formulář            | Σ cen vybraných termínů ([US-40](https://github.com/applifting-vsecourse/team-1/issues/40))                                                                                        | FE výpočet                                             | Orientační; nerovná se částce k úhradě.                                                               |
-| Částka k úhradě             | Přihláška           | Σ zmrazených cen potvrzených termínů                                                                                                                                               | `amountDue`                                            | Náhradní termíny se nepočítají.                                                                       |
-| Dluh                        | Přihláška           | částka k úhradě − Σ plateb                                                                                                                                                         | `amountOwed`                                           | –                                                                                                     |
-| Variabilní symbol           | Přihláška           | = číslo přihlášky, globální sekvence                                                                                                                                               | `Application.number`                                   | Viz rozpory níže.                                                                                     |
-| Bankovní účet               | Organizace          | číslo účtu pro převody                                                                                                                                                             | `Organization.bankAccount`                             | Nezaměňovat s uživatelským účtem.                                                                     |
-| Souhrnný potvrzovací e-mail | Odeslání formuláře  | jeden e-mail přihlašovateli za celé odeslání, i s více účastníky; u každé přihlášky stavy termínů, částka k úhradě a její variabilní symbol                                        | `SubmissionConfirmation`, `sendSubmissionConfirmation` | Neposílá se zvlášť za každou přihlášku. Nezaměňovat se stavem Potvrzený.                              |
-| E-mail o změně přihlášky    | Přihláška           | změna stavu v termínu, odhláška nebo změna termínu; jedna přihláška = jeden e-mail                                                                                                 | `ApplicationChange`, `sendApplicationChange`           | Spouští ho až [US-28](https://github.com/applifting-vsecourse/team-1/issues/28), 32, 33, 34 a 84.     |
-| Poplatek za účastníka       | Organizace          | počet potvrzených × sazba platformy ([US-70](https://github.com/applifting-vsecourse/team-1/issues/70))                                                                            | zatím není                                             | Ne poplatek platební brány ([US-50](https://github.com/applifting-vsecourse/team-1/issues/50)).       |
+| Pojem                       | Patří k             | Vzorec / význam                                                                                                                                                                                            | V kódu                                                 | Pozor                                                                                                 |
+| --------------------------- | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ | ----------------------------------------------------------------------------------------------------- |
+| Lůžko                       | Pokoj               | jednotka kapacity pokoje                                                                                                                                                                                   | `Room.capacity`                                        | Jako entita zatím neexistuje.                                                                         |
+| Volná lůžka                 | Termín              | kapacita pohlaví − potvrzení daného pohlaví                                                                                                                                                                | doménová funkce                                        | Nepoužívat „volná místa“ – plete se s místem konání.                                                  |
+| Obsazenost                  | Termín              | kapacita, potvrzení, volná lůžka, náhradníci ([US-29](https://github.com/applifting-vsecourse/team-1/issues/29))                                                                                           | `/occupancy`                                           | Obsazenost pokojů ([US-36](https://github.com/applifting-vsecourse/team-1/issues/36)) = kdo leží kde. |
+| Režim pokojů                | Akce                | pokoje podle pohlaví, nebo společné pokoje ([US-14](https://github.com/applifting-vsecourse/team-1/issues/14))                                                                                             | zatím není, `Room.gender` je povinné                   | Vždy psát celý název, ne holé „režim“.                                                                |
+| Režim vyhodnocení           | Akce                | automatické, nebo ruční vyhodnocení (ruční je v procesním diagramu) ([US-27](https://github.com/applifting-vsecourse/team-1/issues/27), [US-82](https://github.com/applifting-vsecourse/team-1/issues/82)) | zatím není, v kódu jen automatický                     | Vždy psát celý název, ne holé „režim“.                                                                |
+| Zmrazená cena               | Přihláška v termínu | cena termínu v okamžiku vyhodnocení                                                                                                                                                                        | `ApplicationTerm.priceCzk`                             | Pozdější změna ceny se týká jen nových přihlášek.                                                     |
+| Cena přihlášky              | Formulář            | Σ cen vybraných termínů ([US-40](https://github.com/applifting-vsecourse/team-1/issues/40))                                                                                                                | FE výpočet                                             | Orientační.                                                                                           |
+| Částka k úhradě             | Přihláška v termínu | částka, kterou má potvrzená přihláška v termínu uhradit; zaplacená je při Σ plateb = částka k úhradě (stavový diagram)                                                                                     | `amountDue`                                            | Náhradník nic neplatí.                                                                                |
+| Dluh                        | Přihláška v termínu | částka k úhradě − Σ plateb; stav Potvrzená s dluhem                                                                                                                                                        | `amountOwed`                                           | –                                                                                                     |
+| Variabilní symbol           | Přihláška           | = číslo přihlášky, globální sekvence                                                                                                                                                                       | `Application.number`                                   | Viz rozpory níže.                                                                                     |
+| Bankovní účet               | Organizace          | číslo účtu pro převody                                                                                                                                                                                     | `Organization.bankAccount`                             | Nezaměňovat s uživatelským účtem.                                                                     |
+| Souhrnný potvrzovací e-mail | Odeslání formuláře  | jeden e-mail přihlašovateli za celé odeslání, i s více účastníky; u každé přihlášky stavy termínů, částka k úhradě a její variabilní symbol                                                                | `SubmissionConfirmation`, `sendSubmissionConfirmation` | Neposílá se zvlášť za každou přihlášku. Nezaměňovat se stavem Potvrzená.                              |
+| E-mail o změně přihlášky    | Přihláška           | změna stavu v termínu, odhláška nebo změna termínu; jedna přihláška = jeden e-mail                                                                                                                         | `ApplicationChange`, `sendApplicationChange`           | Spouští ho až [US-28](https://github.com/applifting-vsecourse/team-1/issues/28), 32, 33, 34 a 84.     |
+| Poplatek za účastníka       | Organizace          | počet potvrzených × sazba platformy ([US-70](https://github.com/applifting-vsecourse/team-1/issues/70))                                                                                                    | zatím není                                             | Ne poplatek platební brány ([US-50](https://github.com/applifting-vsecourse/team-1/issues/50)).       |
 
 ## Class diagram
 
@@ -170,8 +159,6 @@ classDiagram
   Prihlaska : +e-mail přihlašovatele
   Prihlaska : +souhlas
   Prihlaska : +čas přijetí na serveru
-  Prihlaska : /částka k úhradě
-  Prihlaska : /dluh
 
   class Ucastnik["Účastník"]
   Ucastnik : +jméno
@@ -183,6 +170,8 @@ classDiagram
   PrihlaskaVTerminu : +stav
   PrihlaskaVTerminu : +zmrazená cena
   PrihlaskaVTerminu : +čas vyhodnocení
+  PrihlaskaVTerminu : /částka k úhradě
+  PrihlaskaVTerminu : /dluh
 
   class Platba["Platba"]
   Platba : +částka Kč
@@ -197,9 +186,12 @@ classDiagram
 
   class StavVTerminu["Stav v termínu"]
   <<enumeration>> StavVTerminu
-  StavVTerminu : Potvrzený – CONFIRMED
+  StavVTerminu : K vyhodnocení
   StavVTerminu : Náhradník – WAITLISTED
-  StavVTerminu : Odhlášený – plán
+  StavVTerminu : Potvrzená s dluhem
+  StavVTerminu : Potvrzená a zaplacená
+  StavVTerminu : Zrušená
+  StavVTerminu : Archivovaná
 
   class Pohlavi["Pohlaví"]
   <<enumeration>> Pohlavi
@@ -228,7 +220,7 @@ classDiagram
   Prihlaska "1" *-- "1..*" PrihlaskaVTerminu
   Termin "1" -- "0..*" PrihlaskaVTerminu
   PrihlaskaVTerminu --> StavVTerminu
-  Prihlaska "1" *-- "0..*" Platba
+  PrihlaskaVTerminu "1" *-- "0..*" Platba
   Organizator "1" --> "0..*" Platba : zapisuje
 
   Pokoj --> Pohlavi
@@ -241,29 +233,11 @@ Přihláška v termínu je asociační třída mezi Přihláškou a Termínem: j
 
 ### Přihláška v termínu
 
-Jediný skutečný stav v doméně. Ve sprintu 1 existuje jen vyhodnocení; ostatní přechody přidají [US-28](https://github.com/applifting-vsecourse/team-1/issues/28), [US-31](https://github.com/applifting-vsecourse/team-1/issues/31), [US-32](https://github.com/applifting-vsecourse/team-1/issues/32) a [US-84](https://github.com/applifting-vsecourse/team-1/issues/84).
-
-```mermaid
-stateDiagram-v2
-  state "Vyhodnocení" as vyhodnoceni
-  state vyhodnoceni <<choice>>
-  state "Potvrzený · CONFIRMED" as potvrzeny
-  state "Náhradník · WAITLISTED" as nahradnik
-  state "Odhlášený · plán" as odhlaseny
-
-  [*] --> vyhodnoceni : odeslání přihlášky
-  vyhodnoceni --> potvrzeny : volné lůžko pro pohlaví účastníka
-  vyhodnoceni --> nahradnik : volné lůžko není
-  nahradnik --> potvrzeny : uvolnění lůžka US-31 / ruční změna US-28
-  potvrzeny --> nahradnik : ruční změna US-28
-  potvrzeny --> odhlaseny : odhlášení US-32, US-84
-  nahradnik --> odhlaseny : odhlášení US-32, US-84
-  odhlaseny --> [*]
-```
+Stavový diagram je v [docs/procesy](procesy/zpracovani-prihlasky/prihlaska-v-terminu-zivotni-cyklus.md), proces ruční vyhodnocení v [procesním diagramu](procesy/zpracovani-prihlasky/zpracovani-prihlasky.md). Ve slovníku se nekopíruje.
 
 ### Uživatelský účet přihlašovatele
 
-Účet vzniká odesláním první přihlášky na nový e-mail. Session je stav přístupu, ne stav osoby na akci, proto se jmenuje jinak než Odhlášený.
+Účet vzniká odesláním první přihlášky na nový e-mail. Session je stav přístupu, ne stav osoby na akci, proto se jmenuje jinak než Zrušená.
 
 ```mermaid
 stateDiagram-v2
@@ -297,29 +271,12 @@ stateDiagram-v2
   funkcni --> rozpracovana : smazán poslední termín nebo pokoj
 ```
 
-### Úhrada přihlášky
-
-Odvozený stav – neukládá se, počítá se z částky k úhradě a plateb. Slouží filtrům „zaplaceno“ a přehledu dlužníků.
-
-```mermaid
-stateDiagram-v2
-  state "Nic k úhradě · jen náhradník" as nic
-  state "S dluhem · dluh > 0" as dluh
-  state "Uhrazeno · dluh = 0" as uhrazeno
-
-  [*] --> nic : všechny termíny náhradník
-  [*] --> dluh : aspoň jeden termín potvrzený
-  nic --> dluh : náhradník potvrzen
-  dluh --> uhrazeno : zápis platby
-  uhrazeno --> dluh : zrušení platby
-```
-
 ## Kolize pojmů
 
 Všechny kolize ve slovníku jsou rozhodnuté. Vědomě ponecháno:
 
 - „Organiz…“ – Organizace × Organizátor × Člen organizačního týmu sdílejí kořen; rozlišují se celým názvem.
-- „Cena přihlášky“ – počítá se na formuláři; od Částky k úhradě ji odlišuje sloupec Pozor.
+- „Cena přihlášky“ – počítá se na formuláři.
 
 ## Rozpory mezi zdroji
 
