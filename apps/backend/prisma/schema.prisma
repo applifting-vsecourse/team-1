@@ -159,6 +159,13 @@ model OrganizationMember {
   @@map("organization_member")
 }
 
+enum RoomMode {
+  GENDERED
+  SHARED
+
+  @@map("room_mode")
+}
+
 model Event {
   id             String       @id @default(cuid())
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
@@ -166,6 +173,7 @@ model Event {
   name           String
   description    String?      @db.Text
   location       String?
+  roomMode       RoomMode     @default(GENDERED)
   // Unguessable token in the public application link /prihlaska/<publicToken>.
   publicToken    String       @unique
   createdAt      DateTime     @default(now())
@@ -209,7 +217,7 @@ model Room {
   name           String
   // 1–20 beds, validated in the DTO.
   capacity       Int
-  gender         Gender
+  gender         Gender?
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @default(now()) @updatedAt
 

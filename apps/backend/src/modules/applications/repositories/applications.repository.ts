@@ -41,7 +41,8 @@ export class ApplicationsRepository {
    * (docs/PROJEKT.md, "Souběh (US-27)"): lock the selected terms (ordered by
    * id, so two submissions cannot deadlock), read the occupancy, let `evaluate`
    * decide, write. A concurrent submission to the same term waits at the lock
-   * and then sees these confirmations, so capacity is never exceeded.
+   * and then sees these confirmations, so capacity is never exceeded. The event
+   * lock is acquired first and is also used by room writes (US-14).
    *
    * Receive time is taken after the lock is won, so `submittedAt` follows the
    * order of evaluation.
@@ -54,6 +55,7 @@ export class ApplicationsRepository {
     const termIds = [...new Set(applications.flatMap((application) => application.termIds))]
 
     return this.prisma.$transaction(async (tx) => {
+      await tx.$queryRaw`SELECT id FROM event WHERE id = ${event.id} FOR UPDATE`
       await tx.$queryRaw`
         SELECT id FROM term WHERE id IN (${Prisma.join(termIds)}) ORDER BY id FOR UPDATE`
 
