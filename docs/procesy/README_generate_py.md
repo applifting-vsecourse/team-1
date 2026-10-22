@@ -3,7 +3,7 @@
 ```
 pip install pyyaml
 python generate.py              # všechna *.yaml v této složce
-python generate.py zpracovani-prihlasky/zpracovani-prihlasky.yaml
+python generate.py zpracovani-prihlasky/rucni-vyhodnocovani/zpracovani-prihlasky.yaml
 ```
 
 Pro každé `X.yaml` vznikne `X.mmd` (čistý Mermaid) a `X.md` (stejný kód v ` ```mermaid ` bloku). Generované soubory needituj, měň jen YAML.

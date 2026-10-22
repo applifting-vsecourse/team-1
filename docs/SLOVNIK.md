@@ -2,7 +2,7 @@
 
 Oct 20, 2026 · @Adam Hanuš
 
-Jen pojmy, které se v projektu pletou nebo mají víc významů. Zdroje: [docs/PROJEKT.md](https://github.com/applifting-vsecourse/team-1/blob/main/docs/PROJEKT.md) (§7 Slovník, §8 Datový model, §10 Rozhodnutí), [schema.prisma](https://github.com/applifting-vsecourse/team-1/blob/main/apps/backend/prisma/schema.prisma) a 97 issues na [boardu](https://github.com/orgs/applifting-vsecourse/projects/12). Pořadí platnosti: [procesní](procesy/zpracovani-prihlasky/zpracovani-prihlasky.md) a [stavový diagram přihlášky v termínu](procesy/zpracovani-prihlasky/prihlaska-v-terminu-zivotni-cyklus.md) > rozhodnutí v PROJEKT.md > schéma > text issue.
+Jen pojmy, které se v projektu pletou nebo mají víc významů. Zdroje: [docs/PROJEKT.md](https://github.com/applifting-vsecourse/team-1/blob/main/docs/PROJEKT.md) (§7 Slovník, §8 Datový model, §10 Rozhodnutí), [schema.prisma](https://github.com/applifting-vsecourse/team-1/blob/main/apps/backend/prisma/schema.prisma) a 97 issues na [boardu](https://github.com/orgs/applifting-vsecourse/projects/12). Pořadí platnosti: [procesní](procesy/zpracovani-prihlasky/README.md) a [stavový diagram přihlášky v termínu](procesy/zpracovani-prihlasky/README.md) > rozhodnutí v PROJEKT.md > schéma > text issue.
 
 ## Jak číst
 
@@ -71,16 +71,16 @@ Přihlašovatel a účastník můžou být jedna osoba (přihlašuje sám sebe),
 
 ## Stavy
 
-Stav nese Přihláška v termínu (`ApplicationTerm.status`), ne Přihláška. Stavy a přechody jsou ve [stavovém diagramu přihlášky v termínu](procesy/zpracovani-prihlasky/prihlaska-v-terminu-zivotni-cyklus.md), vyhodnocení a navazující kroky v [procesním diagramu](procesy/zpracovani-prihlasky/zpracovani-prihlasky.md). Diagramy mají přednost, tady je jen přehled pojmů.
+Stav nese Přihláška v termínu (`ApplicationTerm.status`), ne Přihláška. Stavy a přechody jsou ve stavových diagramech, vyhodnocení a navazující kroky v procesních diagramech, vždy zvlášť pro ruční a automatické vyhodnocování ([přehled](procesy/zpracovani-prihlasky/README.md)). Diagramy mají přednost, tady je jen přehled pojmů.
 
-| Stav                  | Význam                                                                | V kódu           | Pozor                                                                                                  |
-| --------------------- | --------------------------------------------------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------ |
-| K vyhodnocení         | Přihláška v termínu je zaregistrovaná a čeká na vyhodnocení.          | zatím není       | Počáteční stav.                                                                                        |
-| Náhradník             | Organizátor ji při vyhodnocení zařadil jako náhradníka.               | `WAITLISTED`     | Stav v termínu, ne typ osoby. Jedna přihláška může být v jednom termínu potvrzená a v jiném náhradník. |
-| Potvrzená s dluhem    | Potvrzená, Σ plateb ještě nedosáhla částky k úhradě.                  | dnes `CONFIRMED` | Nezaměňovat s potvrzovacím e-mailem.                                                                   |
-| Potvrzená a zaplacená | Potvrzená, Σ plateb = částka k úhradě.                                | dnes `CONFIRMED` | Kód zatím platbu ve stavu nerozlišuje.                                                                 |
-| Zrušená               | Koncový: zamítnutí, okolnosti pro zamítnutí nebo odhlášení účastníka. | zatím není       | Není to logout.                                                                                        |
-| Archivovaná           | Koncový: termín proběhl.                                              | zatím není       | –                                                                                                      |
+| Stav                  | Význam                                                                                            | V kódu           | Pozor                                                                                                     |
+| --------------------- | ------------------------------------------------------------------------------------------------- | ---------------- | --------------------------------------------------------------------------------------------------------- |
+| K vyhodnocení         | Přihláška v termínu je zaregistrovaná a čeká na vyhodnocení.                                      | zatím není       | Jen ruční vyhodnocování; při automatickém vzniká přihláška rovnou jako Náhradník nebo Potvrzená s dluhem. |
+| Náhradník             | Organizátor ji při vyhodnocení zařadil jako náhradníka.                                           | `WAITLISTED`     | Stav v termínu, ne typ osoby. Jedna přihláška může být v jednom termínu potvrzená a v jiném náhradník.    |
+| Potvrzená s dluhem    | Potvrzená, Σ plateb ještě nedosáhla částky k úhradě.                                              | dnes `CONFIRMED` | Nezaměňovat s potvrzovacím e-mailem.                                                                      |
+| Potvrzená a zaplacená | Potvrzená, Σ plateb = částka k úhradě.                                                            | dnes `CONFIRMED` | Kód zatím platbu ve stavu nerozlišuje.                                                                    |
+| Zrušená               | Koncový: zamítnutí při vyhodnocení (jen ručně), okolnosti pro zamítnutí nebo odhlášení účastníka. | zatím není       | Není to logout.                                                                                           |
+| Archivovaná           | Koncový: termín proběhl.                                                                          | zatím není       | –                                                                                                         |
 
 ## Atributy a výpočty
 
@@ -233,7 +233,7 @@ Přihláška v termínu je asociační třída mezi Přihláškou a Termínem: j
 
 ### Přihláška v termínu
 
-Stavový diagram je v [docs/procesy](procesy/zpracovani-prihlasky/prihlaska-v-terminu-zivotni-cyklus.md), proces ruční vyhodnocení v [procesním diagramu](procesy/zpracovani-prihlasky/zpracovani-prihlasky.md). Ve slovníku se nekopíruje.
+Procesní a stavový diagram ručního i automatického vyhodnocování jsou v [docs/procesy](procesy/zpracovani-prihlasky/README.md). Ve slovníku se nekopírují.
 
 ### Uživatelský účet přihlašovatele
 
