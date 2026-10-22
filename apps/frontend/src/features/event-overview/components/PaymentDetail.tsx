@@ -16,13 +16,15 @@ import { formatDate, formatDateRange } from "@/lib/date"
 import { formatCzk } from "@/lib/money"
 
 import { paymentQueryOptions, type Payment } from "@/features/event-overview/api/payments"
+import { PaymentCancellation } from "@/features/event-overview/components/PaymentCancellation"
 import { PaymentEditor } from "@/features/event-overview/components/PaymentEditor"
 
 // Figma: O34a/b/c · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12796-4661
 export function PaymentDetail({ applicationId }: { applicationId: string }) {
   const { t } = useTranslation("eventOverview")
   const { data, isPending, error, refetch } = useQuery(paymentQueryOptions(applicationId))
-  const [editor, setEditor] = useState<{ payment?: Payment } | null>(null)
+  const [isEditorOpen, setIsEditorOpen] = useState(false)
+  const [paymentToCancel, setPaymentToCancel] = useState<Payment | null>(null)
   if (isPending) return <LoadingState />
   if (error) {
     return (
@@ -79,9 +81,9 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
             </Button>
             <Button
               size="lg"
-              onClick={() => setEditor({ payment: latest })}
+              onClick={() => setIsEditorOpen(true)}
             >
-              {t(latest ? "payment.edit" : "payment.record")}
+              {t("payment.record")}
             </Button>
           </>
         }
@@ -120,7 +122,7 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
         </AlertTitle>
         <AlertDescription>
           {latest
-            ? t("payment.summary", {
+            ? t(isPaid ? "payment.settledSummary" : "payment.summary", {
                 due: formatCzk(data.amountDueCzk),
                 paid: formatCzk(data.amountPaidCzk),
                 owed: formatCzk(data.amountOwedCzk),
@@ -145,6 +147,9 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
                       {t(`payment.${key}`)}
                     </th>
                   ))}
+                  <th className="p-4">
+                    <span className="sr-only">{t("payment.cancelRecord")}</span>
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -161,6 +166,15 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
                     <td className="p-4">
                       {t("payment.recordedBy", { name: payment.recordedByName })}
                     </td>
+                    <td className="p-4 text-right">
+                      <Button
+                        variant="ghost"
+                        className="text-destructive hover:text-destructive"
+                        onClick={() => setPaymentToCancel(payment)}
+                      >
+                        {t("payment.cancelRecord")}
+                      </Button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -168,11 +182,17 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
           </div>
         )}
       </Card>
-      {editor ? (
+      {isEditorOpen ? (
         <PaymentEditor
           application={data}
-          payment={editor.payment}
-          onClose={() => setEditor(null)}
+          onClose={() => setIsEditorOpen(false)}
+        />
+      ) : null}
+      {paymentToCancel ? (
+        <PaymentCancellation
+          application={data}
+          payment={paymentToCancel}
+          onClose={() => setPaymentToCancel(null)}
         />
       ) : null}
     </div>

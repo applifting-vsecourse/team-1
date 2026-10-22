@@ -11,7 +11,6 @@ import {
   Get,
   HttpCode,
   Param,
-  Patch,
   Post,
   UsePipes,
   ValidationPipe,
@@ -37,28 +36,15 @@ export class PaymentsController {
 
   @Post()
   @HttpCode(204)
-  @ApiOperation({ summary: "Record a payment; omitted amount means full amount due" })
+  @ApiOperation({ summary: "Add a receipt; omitted amount settles the remaining debt" })
   @ApiResponse({ status: 204 })
-  @ApiResponse({ status: 409, description: "A payment is already recorded" })
+  @ApiResponse({ status: 409, description: "Submission already recorded with a different amount" })
   async create(
     @User() user: Identity,
     @Param("applicationId") id: string,
     @Body() body: RecordPaymentRequestDto,
   ): Promise<void> {
-    await this.payments.save(user, id, body.amountCzk)
-  }
-
-  @Patch(":paymentId")
-  @HttpCode(204)
-  @ApiOperation({ summary: "Correct a recorded payment" })
-  @ApiResponse({ status: 204 })
-  async update(
-    @User() user: Identity,
-    @Param("applicationId") id: string,
-    @Param("paymentId") paymentId: string,
-    @Body() body: RecordPaymentRequestDto,
-  ): Promise<void> {
-    await this.payments.save(user, id, body.amountCzk, paymentId)
+    await this.payments.record(user, id, body.requestId, body.amountCzk)
   }
 
   @Delete(":paymentId")

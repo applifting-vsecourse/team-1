@@ -6,13 +6,14 @@ import {
   createRouter,
   RouterProvider,
 } from "@tanstack/react-router"
-import { render, screen } from "@testing-library/react"
+import { render, screen, waitFor, within } from "@testing-library/react"
+import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { PaymentDetail } from "@/features/event-overview/components/PaymentDetail"
 
-const { get } = vi.hoisted(() => ({ get: vi.fn() }))
-vi.mock("@/lib/api-client", () => ({ api: { get } }))
+const { get, remove } = vi.hoisted(() => ({ get: vi.fn(), remove: vi.fn() }))
+vi.mock("@/lib/api-client", () => ({ api: { get, delete: remove } }))
 const application = {
   id: "a1",
   eventId: "e1",
@@ -76,7 +77,42 @@ describe("PaymentDetail", () => {
     setup()
     expect(await screen.findByText(/Left to pay:.*3,900/)).toBeInTheDocument()
     expect(screen.getByText("Recorded by Eva")).toBeInTheDocument()
-    expect(screen.getByRole("button", { name: "Edit or cancel record" })).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "Record payment" })).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "Cancel record" })).toBeInTheDocument()
+  })
+
+  it("confirms cancellation of one receipt and preserves the other receipts", async () => {
+    const payments = [
+      { id: "p1", amountCzk: 3000, createdAt: "2027-03-10T12:00:00Z", recordedByName: "Eva" },
+      { id: "p2", amountCzk: 1000, createdAt: "2027-03-12T12:00:00Z", recordedByName: "Eva" },
+    ]
+    let data = { ...application, amountPaidCzk: 4000, amountOwedCzk: 2900, payments }
+    get.mockReturnValue({ json: () => Promise.resolve(data) })
+    remove.mockImplementation(() => {
+      data = { ...data, payments: [payments[0]!], amountPaidCzk: 3000, amountOwedCzk: 3900 }
+      return Promise.resolve()
+    })
+    setup()
+    const user = userEvent.setup()
+    await screen.findByRole("table")
+    const row = screen.getByRole("row", { name: /1,000/ })
+    await user.click(within(row).getByRole("button", { name: "Cancel record" }))
+    const dialog = screen.getByRole("dialog")
+    expect(within(dialog).getByText(/After cancellation, amount owed:.*3,900/)).toBeInTheDocument()
+    expect(remove).not.toHaveBeenCalled()
+    await user.click(within(dialog).getByRole("button", { name: "Keep payment" }))
+    expect(remove).not.toHaveBeenCalled()
+    await user.click(within(row).getByRole("button", { name: "Cancel record" }))
+    await user.click(
+      within(screen.getByRole("dialog")).getByRole("button", { name: "Cancel record" }),
+    )
+    await waitFor(() =>
+      expect(remove).toHaveBeenCalledWith("organizer/applications/a1/payments/p2"),
+    )
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument())
+    expect(screen.getAllByRole("row")).toHaveLength(2)
+    expect(screen.getByRole("row", { name: /3,000/ })).toBeInTheDocument()
+    expect(screen.getByText(/Left to pay:.*3,900/)).toBeInTheDocument()
   })
 
   it("shows a load error and retry without exposing a payment form", async () => {

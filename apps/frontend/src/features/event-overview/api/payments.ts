@@ -41,10 +41,10 @@ export const paymentQueryOptions = (id: string) =>
     queryFn: async () => paymentApplicationSchema.parse(await api.get(path(id)).json()),
   })
 
-export async function savePayment(id: string, amountCzk: number | undefined, payment?: Payment) {
-  const json = amountCzk === undefined ? {} : { amountCzk }
-  if (payment) await api.patch(`${path(id)}/${encodeURIComponent(payment.id)}`, { json })
-  else await api.post(path(id), { json })
+export async function recordPayment(id: string, requestId: string, amountCzk: number | undefined) {
+  await api.post(path(id), {
+    json: { requestId, ...(amountCzk === undefined ? {} : { amountCzk }) },
+  })
 }
 
 export async function cancelPayment(id: string, payment: Payment) {

@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+﻿import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
@@ -6,18 +6,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import type { PaymentApplication } from "@/features/event-overview/api/payments"
 import { PaymentEditor } from "@/features/event-overview/components/PaymentEditor"
 
-const { savePayment, cancelPayment } = vi.hoisted(() => ({
-  savePayment: vi.fn(),
-  cancelPayment: vi.fn(),
-}))
-vi.mock("@/features/event-overview/api/payments", () => ({ savePayment, cancelPayment }))
+const { recordPayment } = vi.hoisted(() => ({ recordPayment: vi.fn() }))
+vi.mock("@/features/event-overview/api/payments", () => ({ recordPayment }))
 
-const payment = {
-  id: "p1",
-  amountCzk: 3000,
-  createdAt: "2027-03-10T12:00:00Z",
-  recordedByName: "Eva",
-}
 const application: PaymentApplication = {
   id: "a1",
   eventId: "e1",
@@ -31,27 +22,21 @@ const application: PaymentApplication = {
   amountPaidCzk: 0,
   amountOwedCzk: 6900,
 }
-
-function setup(isEditing = false) {
+const label = "Amount of this payment (CZK)"
+function setup(paidCzk = 0) {
   const client = new QueryClient({ defaultOptions: { mutations: { retry: false } } })
   const invalidate = vi.spyOn(client, "invalidateQueries")
   const onClose = vi.fn()
   render(
     <QueryClientProvider client={client}>
       <PaymentEditor
-        application={
-          isEditing
-            ? { ...application, payments: [payment], amountPaidCzk: 3000, amountOwedCzk: 3900 }
-            : application
-        }
-        payment={isEditing ? payment : undefined}
+        application={{ ...application, amountPaidCzk: paidCzk, amountOwedCzk: 6900 - paidCzk }}
         onClose={onClose}
       />
     </QueryClientProvider>,
   )
   return { user: userEvent.setup(), onClose, invalidate }
 }
-
 beforeEach(() => {
   vi.stubGlobal(
     "ResizeObserver",
@@ -68,81 +53,104 @@ beforeEach(() => {
     },
   )
   vi.clearAllMocks()
-  savePayment.mockResolvedValue(undefined)
-  cancelPayment.mockResolvedValue(undefined)
+  recordPayment.mockResolvedValue(undefined)
 })
 
 describe("PaymentEditor", () => {
-  it("records the full amount by omitting the field and invalidates application queries", async () => {
+  it("defaults to settling the balance and sends the amount shown on the button", async () => {
     const { user, onClose, invalidate } = setup()
+    expect(screen.queryByRole("checkbox")).not.toBeInTheDocument()
     expect(screen.getByText(/After saving, amount owed:.*0/)).toBeInTheDocument()
-    await user.click(screen.getByRole("button", { name: "Save payment" }))
+    await user.click(screen.getByRole("button", { name: /^Record payment/ }))
     await waitFor(() => expect(onClose).toHaveBeenCalledOnce())
-    expect(savePayment).toHaveBeenCalledWith("a1", undefined, undefined)
+    expect(recordPayment).toHaveBeenCalledWith("a1", expect.any(String), 6900)
     expect(invalidate).toHaveBeenCalledWith({ queryKey: ["eventOverview"] })
     expect(invalidate).toHaveBeenCalledWith({ queryKey: ["participant", "applications"] })
   })
 
-  it("previews and records a partial amount", async () => {
-    const { user } = setup()
-    await user.type(screen.getByLabelText("Amount paid (optional)"), "3000")
-    expect(screen.getByText(/After saving, amount owed:.*3,900/)).toBeInTheDocument()
-    await user.click(screen.getByRole("button", { name: "Save payment" }))
-    await waitFor(() => expect(savePayment).toHaveBeenCalledWith("a1", 3000, undefined))
+  it("offers to settle only the outstanding balance without an amount field", async () => {
+    const { user } = setup(3000)
+    expect(screen.queryByLabelText(label)).not.toBeInTheDocument()
+    expect(screen.getByRole("radio", { name: /Settle the remaining.*3,900/ })).toBeChecked()
+    expect(screen.getByRole("button", { name: /Record payment.*3,900/ })).toBeInTheDocument()
+    await user.click(screen.getByRole("button", { name: /^Record payment/ }))
+    await waitFor(() => expect(recordPayment).toHaveBeenCalledWith("a1", expect.any(String), 3900))
   })
 
-  it("edits the existing amount without adding the previous payment again", async () => {
-    const { user } = setup(true)
-    const input = screen.getByLabelText("Amount paid (optional)")
-    expect(input).toHaveValue("3000")
-    await user.clear(input)
-    await user.type(input, "2000")
-    expect(screen.getByText(/After saving, amount owed:.*4,900/)).toBeInTheDocument()
-    await user.click(screen.getByRole("button", { name: "Save change" }))
-    await waitFor(() => expect(savePayment).toHaveBeenCalledWith("a1", 2000, payment))
-  })
-
-  it("cancels a payment by unchecking Paid", async () => {
-    const { user } = setup(true)
-    await user.click(screen.getByRole("checkbox", { name: "Paid" }))
-    expect(screen.getByLabelText("Amount paid (optional)")).toBeDisabled()
-    expect(screen.getByText(/After saving, amount owed:.*6,900/)).toBeInTheDocument()
-    await user.click(screen.getByRole("button", { name: "Save change" }))
-    await waitFor(() => expect(cancelPayment).toHaveBeenCalledWith("a1", payment))
-    expect(savePayment).not.toHaveBeenCalled()
-  })
-
-  it.each(["-1", "0.5", "abc", "2147483648"])(
-    "validates %s without making a request",
+  it.each(["1000", "1 000", "1,000"])(
+    "adds a new instalment %s on top of previous payments",
     async (value) => {
-      const { user } = setup()
-      await user.type(screen.getByLabelText("Amount paid (optional)"), value)
-      await user.click(screen.getByRole("button", { name: "Save payment" }))
-      expect(screen.getByRole("alert")).toHaveTextContent(
-        "Some fields are not filled in correctly.",
+      const { user } = setup(3000)
+      await user.click(screen.getByRole("radio", { name: "Record another amount" }))
+      await user.type(screen.getByLabelText(label), value)
+      expect(screen.getByText(/After saving, amount owed:.*2,900/)).toBeInTheDocument()
+      await user.click(screen.getByRole("button", { name: /^Record payment/ }))
+      await waitFor(() =>
+        expect(recordPayment).toHaveBeenCalledWith("a1", expect.any(String), 1000),
       )
-      expect(savePayment).not.toHaveBeenCalled()
     },
   )
 
-  it("keeps the form open on a server error so the user can retry", async () => {
-    savePayment.mockRejectedValueOnce(new Error("Payment could not be saved"))
-    const { user, onClose } = setup()
-    await user.click(screen.getByRole("button", { name: "Save payment" }))
-    expect(await screen.findByRole("alert")).toHaveTextContent("Payment could not be saved")
-    expect(onClose).not.toHaveBeenCalled()
-    await user.click(screen.getByRole("button", { name: "Save payment" }))
-    await waitFor(() => expect(onClose).toHaveBeenCalledOnce())
+  it("requires an explicit amount when the application is fully paid and previews an overpayment", async () => {
+    const { user } = setup(6900)
+    expect(
+      screen.getByText("The application is paid. Enter the amount of the additional payment."),
+    ).toBeInTheDocument()
+    await user.click(screen.getByRole("button", { name: /^Record payment/ }))
+    expect(recordPayment).not.toHaveBeenCalled()
+    await user.type(screen.getByLabelText("Amount of this payment (CZK)"), "500")
+    expect(screen.getByText(/After saving, amount owed:.*-.*500/)).toBeInTheDocument()
+    await user.click(screen.getByRole("button", { name: /^Record payment/ }))
+    await waitFor(() => expect(recordPayment).toHaveBeenCalledWith("a1", expect.any(String), 500))
   })
 
-  it("disables submit while a request is pending and Cancel makes no request", async () => {
+  it.each(["0", "-1", "0.5", "0,5", "abc", "2147483648"])(
+    "rejects %s without recording a receipt",
+    async (value) => {
+      const { user } = setup()
+      await user.click(screen.getByRole("radio", { name: "Record another amount" }))
+      await user.type(screen.getByLabelText(label), value)
+      await user.click(screen.getByRole("button", { name: /^Record payment/ }))
+      expect(screen.getByRole("alert")).toHaveTextContent("Enter a positive whole amount in CZK.")
+      expect(screen.getByText("After saving, amount owed: —")).toBeInTheDocument()
+      expect(recordPayment).not.toHaveBeenCalled()
+    },
+  )
+
+  it("keeps a stable submission id on retry so a lost response cannot duplicate a receipt", async () => {
+    recordPayment.mockRejectedValueOnce(new Error("Payment could not be saved"))
     const { user, onClose } = setup()
-    await user.click(screen.getByRole("button", { name: "Cancel" }))
+    await user.click(screen.getByRole("button", { name: /^Record payment/ }))
+    expect(await screen.findByRole("alert")).toHaveTextContent("Payment could not be saved")
+    const requestId: unknown = recordPayment.mock.calls[0]?.[1]
+    expect(onClose).not.toHaveBeenCalled()
+    await user.click(screen.getByRole("button", { name: /^Record payment/ }))
+    await waitFor(() => expect(onClose).toHaveBeenCalledOnce())
+    expect(recordPayment).toHaveBeenLastCalledWith("a1", requestId, 6900)
+  })
+
+  it("Back makes no request and submit is disabled while saving", async () => {
+    const { user, onClose } = setup()
+    await user.click(screen.getByRole("button", { name: "Back" }))
     expect(onClose).toHaveBeenCalledOnce()
-    expect(savePayment).not.toHaveBeenCalled()
-    savePayment.mockReturnValue(new Promise(vi.fn()))
-    await user.click(screen.getByRole("button", { name: "Save payment" }))
+    expect(recordPayment).not.toHaveBeenCalled()
+    recordPayment.mockReturnValue(new Promise(vi.fn()))
+    await user.click(screen.getByRole("button", { name: /^Record payment/ }))
     expect(screen.getByRole("button", { name: "Saving…" })).toBeDisabled()
-    expect(screen.getByRole("checkbox", { name: "Paid" })).toBeDisabled()
+    expect(screen.getByRole("radio", { name: "Record another amount" })).toBeDisabled()
+  })
+
+  it("requires a custom amount and can switch back to settling the balance", async () => {
+    const { user } = setup(3000)
+    await user.click(screen.getByRole("radio", { name: "Record another amount" }))
+    await user.click(screen.getByRole("button", { name: /^Record payment/ }))
+    expect(screen.getByRole("alert")).toHaveTextContent("Enter a positive whole amount in CZK.")
+    expect(recordPayment).not.toHaveBeenCalled()
+    await user.type(screen.getByLabelText(label), "1000")
+    expect(screen.getByRole("button", { name: /Record payment.*1,000/ })).toBeInTheDocument()
+    await user.click(screen.getByRole("radio", { name: /Settle the remaining/ }))
+    expect(screen.queryByLabelText(label)).not.toBeInTheDocument()
+    await user.click(screen.getByRole("button", { name: /Record payment.*3,900/ }))
+    await waitFor(() => expect(recordPayment).toHaveBeenCalledWith("a1", expect.any(String), 3900))
   })
 })

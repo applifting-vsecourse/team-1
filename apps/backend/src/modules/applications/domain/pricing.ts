@@ -38,7 +38,11 @@ export function computePaymentStatus(amountDue: number, amountPaid: number): Pay
   return amountPaid === 0 ? "UNPAID" : "PARTIALLY_PAID"
 }
 
-/** "Paid" without an amount means the whole amount due (US-44). */
-export function resolvePaymentAmount(amountCzk: number | undefined, amountDue: number): number {
-  return amountCzk ?? amountDue
+/** An omitted receipt amount settles the remaining debt, accounting for earlier receipts. */
+export function resolvePaymentAmount(
+  amountCzk: number | undefined,
+  amountDue: number,
+  amountPaid = 0,
+): number {
+  return amountCzk ?? Math.max(0, computeAmountOwed(amountDue, amountPaid))
 }

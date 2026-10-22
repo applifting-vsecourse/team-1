@@ -1,5 +1,9 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
-import { computeAmountDue, resolvePaymentAmount } from "@/modules/applications/domain/pricing"
+import {
+  computeAmountDue,
+  computeAmountPaid,
+  resolvePaymentAmount,
+} from "@/modules/applications/domain/pricing"
 import { PaymentApplication } from "@/modules/payments/domain/payment"
 import { AppException } from "@/shared/errors/app.exception"
 import { ForbiddenException, HttpStatus, Injectable } from "@nestjs/common"
@@ -9,7 +13,7 @@ const include = {
   terms: { include: { term: { select: { startsOn: true, endsOn: true } } } },
   payments: {
     include: { recordedBy: { select: { name: true } } },
-    orderBy: { createdAt: "asc" as const },
+    orderBy: [{ createdAt: "asc" as const }, { id: "asc" as const }],
   },
 }
 
@@ -41,38 +45,41 @@ export class PaymentsRepository {
       : null
   }
 
-  /** Serialize writes on the application, including amount resolution and duplicate checks. */
-  async save(
+  /** Each submission adds a receipt. Serialize balance resolution and make retries idempotent. */
+  async record(
     applicationId: string,
     organizationId: string,
     recordedById: string,
+    requestId: string,
     amountCzk: number | undefined,
-    paymentId?: string,
   ): Promise<void> {
     await this.prisma.$transaction(async (tx) => {
       const rows = await tx.$queryRaw<
         { id: string }[]
       >`SELECT id FROM application WHERE id = ${applicationId} AND "organizationId" = ${organizationId} FOR UPDATE`
       if (!rows.length) throw new ForbiddenException()
+      const existing = await tx.payment.findUnique({ where: { id: requestId } })
+      if (existing) {
+        if (existing.organizationId !== organizationId || existing.applicationId !== applicationId)
+          throw new ForbiddenException()
+        if (amountCzk !== undefined && existing.amountCzk !== amountCzk)
+          throw new AppException(HttpStatus.CONFLICT, "PAYMENT_ALREADY_RECORDED")
+        return
+      }
       const application = await tx.application.findFirstOrThrow({
         where: { id: applicationId, organizationId },
         include: { terms: true, payments: true },
       })
-      const amount = resolvePaymentAmount(amountCzk, computeAmountDue(application.terms))
-      if (amount > 2147483647) throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
-      if (paymentId) {
-        const result = await tx.payment.updateMany({
-          where: { id: paymentId, applicationId, organizationId },
-          data: { amountCzk: amount, recordedById },
-        })
-        if (!result.count) throw new ForbiddenException()
-      } else {
-        if (application.payments.length)
-          throw new AppException(HttpStatus.CONFLICT, "PAYMENT_ALREADY_RECORDED")
-        await tx.payment.create({
-          data: { applicationId, organizationId, amountCzk: amount, recordedById },
-        })
-      }
+      const amount = resolvePaymentAmount(
+        amountCzk,
+        computeAmountDue(application.terms),
+        computeAmountPaid(application.payments),
+      )
+      if (!Number.isInteger(amount) || amount < 1 || amount > 2147483647)
+        throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
+      await tx.payment.create({
+        data: { id: requestId, applicationId, organizationId, amountCzk: amount, recordedById },
+      })
     })
   }
 

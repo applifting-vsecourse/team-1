@@ -6,7 +6,7 @@
   "NOT_FOUND": "Not found.",
   "PASSWORD_ALREADY_SET": "Your password is already set.",
   "PASSWORD_REQUIRED": "Set your password first, then you can continue.",
-  "PAYMENT_ALREADY_RECORDED": "A payment is already recorded. Refresh the detail before editing it.",
+  "PAYMENT_ALREADY_RECORDED": "This payment was already recorded with a different amount. Refresh the detail.",
   "UNAUTHORIZED": "Please sign in.",
   "UNKNOWN": "Something went wrong.",
   "VALIDATION_FAILED": "Some fields are not filled in correctly."

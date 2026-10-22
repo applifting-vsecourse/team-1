@@ -18,14 +18,14 @@ export class PaymentsService {
     return paymentSummary(application)
   }
 
-  async save(
+  async record(
     user: Identity,
     applicationId: string,
+    requestId: string,
     amountCzk?: number,
-    paymentId?: string,
   ): Promise<void> {
     const { organizationId } = await this.access.assertCanAccessApplication(user, applicationId)
-    await this.repository.save(applicationId, organizationId, user.id, amountCzk, paymentId)
+    await this.repository.record(applicationId, organizationId, user.id, requestId, amountCzk)
   }
 
   async remove(user: Identity, applicationId: string, paymentId: string): Promise<void> {

@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto"
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { api, connectTestPrisma, resetAndSeed, signIn } from "@/test/integration/test-api"
 
@@ -19,7 +20,7 @@ describe("organizer payments (US-44)", () => {
   const request = (
     method: string,
     suffix = "",
-    body?: unknown,
+    body?: Record<string, unknown>,
     auth: string | undefined = cookie,
     id = applicationId,
   ): Promise<Response> =>
@@ -29,7 +30,10 @@ describe("organizer payments (US-44)", () => {
         ...(auth ? { Cookie: auth } : {}),
         ...(body !== undefined ? { "Content-Type": "application/json" } : {}),
       },
-      body: body === undefined ? undefined : JSON.stringify(body),
+      body:
+        body === undefined
+          ? undefined
+          : JSON.stringify(method === "POST" ? { requestId: randomUUID(), ...body } : body),
     })
   const summary = async (): Promise<Summary> => (await request("GET")).json()
 
@@ -87,35 +91,81 @@ describe("organizer payments (US-44)", () => {
     expect(payment.recordedById).toBe(organizerId)
   })
 
-  it("records partial payment, corrects it and restores the debt on cancellation", async () => {
+  it("keeps each instalment in history and cancels only the selected receipt", async () => {
     expect((await request("POST", "", { amountCzk: 3000 })).status).toBe(204)
     const partial = await summary()
     expect(partial).toMatchObject({ amountPaidCzk: 3000, amountOwedCzk: 3900 })
-    const suffix = `/${partial.payments[0].id}`
-    expect((await request("PATCH", suffix, { amountCzk: 2000 })).status).toBe(204)
-    expect(await summary()).toMatchObject({ amountPaidCzk: 2000, amountOwedCzk: 4900 })
-    expect((await request("DELETE", suffix)).status).toBe(204)
-    expect(await summary()).toMatchObject({ payments: [], amountPaidCzk: 0, amountOwedCzk: 6900 })
+    expect((await request("POST", "", { amountCzk: 1000 })).status).toBe(204)
+    const result = await summary()
+    expect(result).toMatchObject({ amountPaidCzk: 4000, amountOwedCzk: 2900 })
+    expect(result.payments.map((p) => p.amountCzk)).toEqual([3000, 1000])
+    expect((await request("DELETE", `/${result.payments[1].id}`)).status).toBe(204)
+    const cancelled = await summary()
+    expect(cancelled).toMatchObject({ amountPaidCzk: 3000, amountOwedCzk: 3900 })
+    expect(cancelled.payments).toEqual(partial.payments)
   })
 
-  it("keeps an overpayment visible as negative debt and accepts explicit zero", async () => {
+  it("settles only the remaining balance when the next receipt has no amount", async () => {
+    await request("POST", "", { amountCzk: 3000 })
+    expect((await request("POST", "", {})).status).toBe(204)
+    const result = await summary()
+    expect(result).toMatchObject({ amountPaidCzk: 6900, amountOwedCzk: 0 })
+    expect(result.payments.map((p) => p.amountCzk)).toEqual([3000, 3900])
+    expect((await request("POST", "", {})).status).toBe(400)
+    expect((await summary()).payments).toHaveLength(2)
+  })
+
+  it("keeps an overpayment visible as negative debt, including additional receipts", async () => {
     await request("POST", "", { amountCzk: 7000 })
     const result = await summary()
     expect(result.amountOwedCzk).toBe(-100)
-    await request("PATCH", `/${result.payments[0].id}`, { amountCzk: 0 })
-    expect(await summary()).toMatchObject({ amountPaidCzk: 0, amountOwedCzk: 6900 })
+    await request("POST", "", { amountCzk: 200 })
+    expect(await summary()).toMatchObject({ amountPaidCzk: 7200, amountOwedCzk: -300 })
+    expect((await summary()).payments).toHaveLength(2)
   })
 
   it("serializes simultaneous submissions so a double click cannot record two payments", async () => {
-    const results = await Promise.all([request("POST", "", {}), request("POST", "", {})])
-    expect(results.map((r) => r.status).sort()).toEqual([204, 409])
+    const requestId = randomUUID()
+    const results = await Promise.all([
+      request("POST", "", { requestId }),
+      request("POST", "", { requestId }),
+    ])
+    expect(results.map((r) => r.status)).toEqual([204, 204])
     expect((await summary()).payments).toHaveLength(1)
   })
 
-  it.each([-1, 0.5, 2147483648, "3000", null])("rejects invalid amount %s", async (amountCzk) => {
-    expect((await request("POST", "", { amountCzk })).status).toBe(400)
-    expect((await summary()).payments).toHaveLength(0)
+  it("keeps independent concurrent payments even when their amounts match", async () => {
+    const results = await Promise.all([
+      request("POST", "", { amountCzk: 3000 }),
+      request("POST", "", { amountCzk: 3000 }),
+    ])
+    expect(results.map((r) => r.status)).toEqual([204, 204])
+    expect((await summary()).payments).toHaveLength(2)
+    expect((await summary()).amountPaidCzk).toBe(6000)
   })
+
+  it("does not reuse a submission id to overwrite an earlier receipt", async () => {
+    const requestId = randomUUID()
+    await request("POST", "", { requestId, amountCzk: 3000 })
+    expect((await request("POST", "", { requestId, amountCzk: 1000 })).status).toBe(409)
+    expect((await summary()).amountPaidCzk).toBe(3000)
+    expect((await summary()).payments).toHaveLength(1)
+  })
+
+  it.each([0, -1, 0.5, 2147483648, "3000", null])(
+    "rejects invalid amount %s",
+    async (amountCzk) => {
+      expect((await request("POST", "", { amountCzk })).status).toBe(400)
+      expect((await summary()).payments).toHaveLength(0)
+    },
+  )
+
+  it.each([undefined, null, "not-a-uuid"])(
+    "rejects missing or invalid submission id %s",
+    async (requestId) => {
+      expect((await request("POST", "", { requestId, amountCzk: 3000 })).status).toBe(400)
+    },
+  )
 
   it("rejects supplied author fields", async () => {
     expect((await request("POST", "", { amountCzk: 3000, recordedById: "other" })).status).toBe(400)
@@ -132,7 +182,6 @@ describe("organizer payments (US-44)", () => {
       for (const [method, suffix, body] of [
         ["GET", "", undefined],
         ["POST", "", {}],
-        ["PATCH", `/${payment.id}`, {}],
         ["DELETE", `/${payment.id}`, undefined],
       ] as const) {
         const response = await request(method, suffix, body, auth)
@@ -157,9 +206,6 @@ describe("organizer payments (US-44)", () => {
         organization: { members: { some: { userId: organizerId } } },
       },
     })
-    expect(
-      (await request("PATCH", `/${payment.id}`, { amountCzk: 1 }, cookie, other.id)).status,
-    ).toBe(403)
     expect((await request("DELETE", `/${payment.id}`, undefined, cookie, other.id)).status).toBe(
       403,
     )
