@@ -6,6 +6,8 @@
   "NOT_FOUND": "Nenalezeno.",
   "PASSWORD_ALREADY_SET": "Heslo už máte nastavené.",
   "PASSWORD_REQUIRED": "Nejprve si nastavte heslo, poté budete moci pokračovat.",
+  "TERM_CANCELLED": "Tento termín je zrušený a nelze ho změnit.",
+  "TERM_END_BEFORE_START": "Konec musí být po začátku.",
   "UNAUTHORIZED": "Přihlaste se prosím.",
   "UNKNOWN": "Něco se pokazilo.",
   "VALIDATION_FAILED": "Některá pole nejsou vyplněná správně."

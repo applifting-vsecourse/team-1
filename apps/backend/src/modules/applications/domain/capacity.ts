@@ -16,6 +16,12 @@ export function computeTermCapacity(rooms: RoomCapacity[]): GenderCounts {
   return capacity
 }
 
+/** All beds of a term, women's + men's — the capacity the organizer sees in lists. */
+export function computeTotalBeds(rooms: RoomCapacity[]): number {
+  const { FEMALE, MALE } = computeTermCapacity(rooms)
+  return FEMALE + MALE
+}
+
 export function countByGender(items: { gender: Gender }[]): GenderCounts {
   const counts = emptyGenderCounts()
   for (const item of items) counts[item.gender] += 1

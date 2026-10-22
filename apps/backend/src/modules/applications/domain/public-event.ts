@@ -15,11 +15,28 @@ export type PublicEvent = {
   terms: PublicTerm[]
 }
 
+export type MissingForApplications = "TERM" | "ROOM"
+
+/**
+ * What an event still lacks before its application link works: at least one
+ * term (every term has a price, `Term.priceCzk`) and at least one room, which
+ * gives the terms their capacity (docs/PROJEKT.md, section 5).
+ */
+export function missingForApplications(counts: {
+  termCount: number
+  roomCount: number
+}): MissingForApplications[] {
+  const missing: MissingForApplications[] = []
+  if (counts.termCount === 0) missing.push("TERM")
+  if (counts.roomCount === 0) missing.push("ROOM")
+  return missing
+}
+
 /**
  * The application link works once the event has at least one term (every term
  * has a price) and at least one room (docs/PROJEKT.md, section 5). Until then
  * it answers like an unknown link.
  */
 export function isOpenForApplications(counts: { termCount: number; roomCount: number }): boolean {
-  return counts.termCount > 0 && counts.roomCount > 0
+  return missingForApplications(counts).length === 0
 }

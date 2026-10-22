@@ -1,5 +1,11 @@
 import { Gender } from "@/shared/domain/gender"
-import { computeFreePlaces, computeTermCapacity, countByGender, RoomCapacity } from "./capacity"
+import {
+  computeFreePlaces,
+  computeTermCapacity,
+  computeTotalBeds,
+  countByGender,
+  RoomCapacity,
+} from "./capacity"
 import { evaluateQueue } from "./evaluation"
 
 const rooms = (count: number, capacity: number, gender: Gender): RoomCapacity[] =>
@@ -22,6 +28,16 @@ describe("computeTermCapacity", () => {
       FEMALE: 0,
       MALE: 8,
     })
+  })
+})
+
+describe("computeTotalBeds", () => {
+  it("adds women’s and men’s beds", () => {
+    expect(computeTotalBeds(briefRooms)).toBe(100)
+  })
+
+  it("is zero without rooms", () => {
+    expect(computeTotalBeds([])).toBe(0)
   })
 })
 
