@@ -5,16 +5,16 @@ import { api, connectTestPrisma, resetAndSeed } from "@/test/integration/test-ap
 
 type Gender = "FEMALE" | "MALE"
 type StatusBody = {
-  code: string
   email: string
   isNewAccount: boolean
-  applications: { firstName: string; variableSymbol: string; terms: { status: string }[] }[]
-  payment: {
-    amountCzk: number
-    bankAccount: string
+  applications: {
+    firstName: string
+    code: string
     variableSymbol: string
-    parts: { firstName: string; amountCzk: number }[]
-  } | null
+    terms: { status: string }[]
+    paymentStatus: string
+    payment: { amountCzk: number; bankAccount: string; variableSymbol: string } | null
+  }[]
 }
 
 describe("submission status (integration)", () => {
@@ -84,7 +84,7 @@ describe("submission status (integration)", () => {
     await prisma.$disconnect()
   })
 
-  it("returns every participant of the submission and what to pay, without auth", async () => {
+  it("returns every participant of the submission and what each of them pays, without auth", async () => {
     const [t1, t2] = termIds
     const { accessToken } = await submit([
       participant("Jana", "FEMALE", [t1]),
@@ -97,16 +97,17 @@ describe("submission status (integration)", () => {
     expect(response.status).toBe(200)
     expect(body.isNewAccount).toBe(true)
     expect(body.applications.map((a) => a.firstName)).toEqual(["Jana", "Matěj"])
-    expect(body.payment).toMatchObject({
-      amountCzk: 4000,
-      bankAccount: "2900123456/2010",
-      variableSymbol: body.applications[0].variableSymbol,
-      parts: [
-        { firstName: "Jana", amountCzk: 1000 },
-        { firstName: "Matěj", amountCzk: 3000 },
-      ],
-    })
-    expect(body.code).toMatch(/^U-\d{4}$/)
+    expect(body.applications.map((a) => a.payment)).toEqual([
+      { amountCzk: 1000, bankAccount: "2900123456/2010", variableSymbol: expect.any(String) },
+      { amountCzk: 3000, bankAccount: "2900123456/2010", variableSymbol: expect.any(String) },
+    ])
+    // Every application pays under its own variable symbol; nothing is summed.
+    const [jana, matej] = body.applications
+    expect(jana.payment?.variableSymbol).toBe(jana.variableSymbol)
+    expect(matej.payment?.variableSymbol).toBe(matej.variableSymbol)
+    expect(jana.variableSymbol).not.toBe(matej.variableSymbol)
+    expect(jana.paymentStatus).toBe("UNPAID")
+    expect(jana.code).toMatch(/^U-\d{4}$/)
   })
 
   it("opens from the token of any participant and does not mix in other submissions", async () => {
@@ -126,7 +127,8 @@ describe("submission status (integration)", () => {
     const body = JSON.parse(raw) as StatusBody
 
     expect(body.applications[0].terms.map((t) => t.status)).toEqual(["WAITLISTED"])
-    expect(body.payment).toBeNull()
+    expect(body.applications[0].payment).toBeNull()
+    expect(body.applications[0].paymentStatus).toBe("NOTHING_DUE")
     expect(raw).not.toMatch(/position|queue|order/i)
   })
 

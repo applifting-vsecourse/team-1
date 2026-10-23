@@ -1,40 +1,85 @@
-import { MyApplicationResponseDto } from "@/modules/participants/controllers/dto/my-application.response.dto"
-import { SubmissionPayment, SubmissionStatus } from "@/modules/participants/domain/my-application"
+import { PaymentStatus } from "@/modules/applications/domain/pricing"
+import {
+  ApplicationPayment,
+  SubmissionStatus,
+  SubmittedApplicationStatus,
+} from "@/modules/applications/domain/submission-status"
 import { ApiProperty } from "@nestjs/swagger"
 
-export class SubmissionPartDto {
-  @ApiProperty({ example: "Jana" })
-  firstName!: string
+export class SubmissionTermDto {
+  @ApiProperty()
+  termId!: string
 
-  @ApiProperty({ example: 6900 })
-  amountCzk!: number
+  @ApiProperty({ example: "1. týden" })
+  name!: string
+
+  @ApiProperty({ example: "2027-07-04", description: "ISO date." })
+  startsOn!: string
+
+  @ApiProperty({ example: "2027-07-10", description: "ISO date." })
+  endsOn!: string
+
+  @ApiProperty({
+    enum: ["CONFIRMED", "WAITLISTED"],
+    description: "WAITLISTED is shown to the participant as waiting for confirmation.",
+  })
+  status!: "CONFIRMED" | "WAITLISTED"
+
+  @ApiProperty({ example: 4500, description: "Price frozen at evaluation, whole CZK." })
+  priceCzk!: number
 }
 
-export class SubmissionPaymentDto {
-  @ApiProperty({ example: 14300, description: "Whole CZK, for the whole submission." })
-  amountCzk!: number
-
+export class ApplicationPaymentDto {
   @ApiProperty({ example: "2900123456/2010" })
   bankAccount!: string
 
-  @ApiProperty({
-    example: "0048",
-    description: "Number of the first application with a confirmed term.",
-  })
+  @ApiProperty({ example: "0048", description: "Number of this application, four digits." })
   variableSymbol!: string
 
-  @ApiProperty({ type: [SubmissionPartDto] })
-  parts!: SubmissionPartDto[]
+  @ApiProperty({ example: 6900, description: "Still to pay for this application, whole CZK." })
+  amountCzk!: number
+}
 
-  static fromDomain(payment: SubmissionPayment): SubmissionPaymentDto {
-    return Object.assign(new SubmissionPaymentDto(), payment)
+export class SubmittedApplicationDto {
+  @ApiProperty({ example: "Jana" })
+  firstName!: string
+
+  @ApiProperty({ example: "Nováková" })
+  lastName!: string
+
+  @ApiProperty({ example: "LK-0048", description: "Reference for people." })
+  code!: string
+
+  @ApiProperty({ example: "0048" })
+  variableSymbol!: string
+
+  @ApiProperty({ type: [SubmissionTermDto] })
+  terms!: SubmissionTermDto[]
+
+  @ApiProperty({
+    enum: ["NOTHING_DUE", "UNPAID", "PARTIALLY_PAID", "PAID", "OVERPAID"],
+    description: "NOTHING_DUE while no term is confirmed.",
+  })
+  paymentStatus!: PaymentStatus
+
+  @ApiProperty({
+    type: ApplicationPaymentDto,
+    nullable: true,
+    description: "Null when every term of this application is waitlisted: nothing to pay yet.",
+  })
+  payment!: ApplicationPaymentDto | null
+
+  static fromDomain(application: SubmittedApplicationStatus): SubmittedApplicationDto {
+    return Object.assign(new SubmittedApplicationDto(), application, {
+      payment: application.payment ? toPaymentDto(application.payment) : null,
+    })
   }
 }
 
-export class SubmissionStatusResponseDto {
-  @ApiProperty({ example: "LKL-0048", description: "Reference of the first application." })
-  code!: string
+const toPaymentDto = (payment: ApplicationPayment): ApplicationPaymentDto =>
+  Object.assign(new ApplicationPaymentDto(), payment)
 
+export class SubmissionStatusResponseDto {
   @ApiProperty({ example: "Letní kemp 2027" })
   eventName!: string
 
@@ -45,23 +90,15 @@ export class SubmissionStatusResponseDto {
   isNewAccount!: boolean
 
   @ApiProperty({
-    type: [MyApplicationResponseDto],
-    description: "One per participant; WAITLISTED is shown as waiting for confirmation.",
+    type: [SubmittedApplicationDto],
+    description: "One per participant, in form order.",
   })
-  applications!: MyApplicationResponseDto[]
-
-  @ApiProperty({
-    type: SubmissionPaymentDto,
-    nullable: true,
-    description: "Null when every term is waitlisted: nothing to pay yet.",
-  })
-  payment!: SubmissionPaymentDto | null
+  applications!: SubmittedApplicationDto[]
 
   static fromDomain(status: SubmissionStatus): SubmissionStatusResponseDto {
     return Object.assign(new SubmissionStatusResponseDto(), {
       ...status,
-      applications: status.applications.map(MyApplicationResponseDto.fromDomain),
-      payment: status.payment ? SubmissionPaymentDto.fromDomain(status.payment) : null,
+      applications: status.applications.map(SubmittedApplicationDto.fromDomain),
     })
   }
 }

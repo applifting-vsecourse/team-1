@@ -22,6 +22,17 @@ const submittedApplicationSchema = z.object({
   /** The application number, four digits. */
   variableSymbol: z.string(),
   terms: z.array(termSchema),
+  /** `NOTHING_DUE` while no term is confirmed. */
+  paymentStatus: z.enum(["NOTHING_DUE", "UNPAID", "PARTIALLY_PAID", "PAID", "OVERPAID"]),
+  /** Own amount and variable symbol of this application; `null` when every term is waitlisted. */
+  payment: z
+    .object({
+      bankAccount: z.string(),
+      variableSymbol: z.string(),
+      /** Still to pay, whole CZK. */
+      amountCzk: z.number().int(),
+    })
+    .nullable(),
 })
 
 export const submissionStatusSchema = z.object({
@@ -31,15 +42,6 @@ export const submissionStatusSchema = z.object({
   isNewAccount: z.boolean(),
   /** One per participant, in form order. */
   applications: z.array(submittedApplicationSchema),
-  /** `null` when every term is waitlisted: nothing to pay yet. */
-  payment: z
-    .object({
-      amountCzk: z.number().int(),
-      bankAccount: z.string(),
-      variableSymbol: z.string(),
-      parts: z.array(z.object({ firstName: z.string(), amountCzk: z.number().int() })),
-    })
-    .nullable(),
 })
 export type SubmissionStatus = z.infer<typeof submissionStatusSchema>
 export type SubmittedApplication = SubmissionStatus["applications"][number]

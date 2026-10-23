@@ -24,25 +24,34 @@ const term = (id: string, status: "CONFIRMED" | "WAITLISTED", start: string, end
   status,
   priceCzk: 6900,
 })
-const jana = (status: "CONFIRMED" | "WAITLISTED" = "CONFIRMED") => ({
-  firstName: "Jana",
-  lastName: "Nováková",
-  code: "LK-0048",
-  variableSymbol: "0048",
-  terms: [term("t1", status, "2027-07-12", "2027-07-18")],
+const person = (
+  firstName: string,
+  lastName: string,
+  number: string,
+  status: "CONFIRMED" | "WAITLISTED",
+  start: string,
+  end: string,
+  amountCzk = 6900,
+) => ({
+  firstName,
+  lastName,
+  code: `LK-${number}`,
+  variableSymbol: number,
+  terms: [term(`t${number}`, status, start, end)],
+  paymentStatus: status === "CONFIRMED" ? ("UNPAID" as const) : ("NOTHING_DUE" as const),
+  payment:
+    status === "CONFIRMED"
+      ? { bankAccount: "123456789/0800", variableSymbol: number, amountCzk }
+      : null,
 })
+const jana = (status: "CONFIRMED" | "WAITLISTED" = "CONFIRMED") =>
+  person("Jana", "Nováková", "0048", status, "2027-07-12", "2027-07-18")
 
 const data = (overrides: Partial<Data> = {}): Data => ({
   eventName: "Letní kemp 2027",
   email: "jana@example.com",
   isNewAccount: true,
   applications: [jana()],
-  payment: {
-    amountCzk: 6900,
-    bankAccount: "123456789/0800",
-    variableSymbol: "0048",
-    parts: [{ firstName: "Jana", amountCzk: 6900 }],
-  },
   ...overrides,
 })
 
@@ -85,18 +94,31 @@ describe("SubmissionStatus", () => {
     )
   })
 
-  it("shows a waitlisted term only as waiting for confirmation, and the payment for the confirmed one", async () => {
+  it("gives every participant with a confirmed term an own payment with an own variable symbol", async () => {
     await renderStatus(
       data({
         applications: [
           jana(),
-          {
-            firstName: "Matěj",
-            lastName: "Novák",
-            code: "LK-0049",
-            variableSymbol: "0049",
-            terms: [term("t2", "WAITLISTED", "2027-07-19", "2027-07-25")],
-          },
+          person("Matěj", "Novák", "0049", "CONFIRMED", "2027-08-02", "2027-08-08", 7400),
+        ],
+      }),
+    )
+
+    expect(screen.getAllByRole("heading", { name: "To pay for the confirmed terms" })).toHaveLength(
+      2,
+    )
+    expect(screen.getByText("0048")).toBeInTheDocument()
+    expect(screen.getByText("0049")).toBeInTheDocument()
+    expect(screen.getByText(/^Matěj:/)).toHaveTextContent(/7.400/)
+    expect(screen.queryByText(/14,300/)).not.toBeInTheDocument()
+  })
+
+  it("shows a waitlisted term only as waiting for confirmation, with no payment for it", async () => {
+    await renderStatus(
+      data({
+        applications: [
+          jana(),
+          person("Matěj", "Novák", "0049", "WAITLISTED", "2027-07-19", "2027-07-25"),
         ],
       }),
     )
@@ -104,11 +126,14 @@ describe("SubmissionStatus", () => {
     expect(screen.getByText("Waiting for confirmation")).toBeInTheDocument()
     expect(screen.getByText("Do not pay yet")).toBeInTheDocument()
     expect(screen.queryByText(/waitlist|substitute|position/i)).not.toBeInTheDocument()
-    expect(screen.getByRole("heading", { name: "To pay for the confirmed terms" })).toBeVisible()
+    expect(screen.getAllByRole("heading", { name: "To pay for the confirmed terms" })).toHaveLength(
+      1,
+    )
+    expect(screen.queryByText("0049")).not.toBeInTheDocument()
   })
 
   it("shows no payment details when every term is waiting for confirmation", async () => {
-    await renderStatus(data({ applications: [jana("WAITLISTED")], payment: null }))
+    await renderStatus(data({ applications: [jana("WAITLISTED")] }))
 
     expect(screen.getByRole("heading", { name: "Do not pay anything yet" })).toBeVisible()
     expect(screen.queryByText("Organization account")).not.toBeInTheDocument()

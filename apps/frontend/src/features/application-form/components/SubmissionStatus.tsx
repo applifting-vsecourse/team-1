@@ -41,12 +41,9 @@ export function SubmissionStatus({ accessToken }: SubmissionStatusProps) {
   const { t } = useTranslation("applicationForm")
   const { data } = useSuspenseQuery(submissionStatusQueryOptions(accessToken))
   const termCount = data.applications.reduce((sum, a) => sum + a.terms.length, 0)
-  // The reference people know the application by: the one whose number is the payment's variable symbol.
   const [firstApplication] = data.applications
-  const referenceApplication =
-    data.applications.find((a) => a.variableSymbol === data.payment?.variableSymbol) ??
-    firstApplication
-  if (!referenceApplication) return null
+  if (!firstApplication) return null
+  const payers = data.applications.filter((application) => application.payment)
 
   return (
     <div className="flex flex-col gap-6">
@@ -56,7 +53,7 @@ export function SubmissionStatus({ accessToken }: SubmissionStatusProps) {
 
       <section className="flex flex-col gap-4 rounded-lg border bg-status-success-bg p-4 sm:p-6">
         <h2 className="text-lg font-semibold text-status-success">
-          {referenceApplication.code} · {data.eventName}
+          {firstApplication.code} · {data.eventName}
         </h2>
         <p>
           {t(termCount === 1 ? "confirmation.introOneTerm" : "confirmation.intro", {
@@ -80,11 +77,13 @@ export function SubmissionStatus({ accessToken }: SubmissionStatusProps) {
         </ul>
       </section>
 
-      {data.payment ? (
-        <PaymentCard
-          payment={data.payment}
-          code={referenceApplication.code}
-        />
+      {payers.length > 0 ? (
+        payers.map((application) => (
+          <PaymentCard
+            key={application.variableSymbol}
+            application={application}
+          />
+        ))
       ) : (
         <section className="flex flex-col gap-4 rounded-lg border bg-status-waitlist-bg p-4 sm:p-6">
           <h2 className="text-2xl font-semibold text-status-waitlist">
@@ -147,14 +146,11 @@ function TermStatusCard({
 }
 
 // Figma (Design system): V04 Platba za potvrzené termíny · node-id=12710-1633
-function PaymentCard({
-  payment,
-  code,
-}: {
-  payment: NonNullable<SubmissionStatusData["payment"]>
-  code: string
-}) {
+// One card per application with a confirmed term, each with its own amount and variable symbol.
+function PaymentCard({ application }: { application: SubmittedApplication }) {
   const { t } = useTranslation("applicationForm")
+  const { payment } = application
+  if (!payment) return null
 
   return (
     <Card className="gap-4 p-4 sm:p-6">
@@ -163,12 +159,7 @@ function PaymentCard({
         <MoneyAmount amountCzk={payment.amountCzk} />
       </p>
       <p className="text-sm text-muted-foreground">
-        {payment.parts.map((part, index) => (
-          <span key={part.firstName + index}>
-            {index > 0 ? " + " : null}
-            {part.firstName}: <MoneyAmount amountCzk={part.amountCzk} />
-          </span>
-        ))}
+        {application.firstName}: <MoneyAmount amountCzk={payment.amountCzk} />
       </p>
       <dl className="flex flex-col gap-4">
         <div className="flex flex-col gap-4">
@@ -185,7 +176,7 @@ function PaymentCard({
         </div>
       </dl>
       <p className="text-xs font-medium text-muted-foreground">
-        {t("confirmation.payment.variableSymbolNote", { code })}
+        {t("confirmation.payment.variableSymbolNote", { code: application.code })}
       </p>
       <p>{t("confirmation.payment.onlyConfirmed")}</p>
     </Card>
