@@ -13,6 +13,7 @@ const imports = [
   AuthModule,
   WelcomeModule,
   AccountModule,
+  EventsModule,
   ApplicationsModule,
   EventsModule,
   ParticipantsModule,

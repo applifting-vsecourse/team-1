@@ -92,7 +92,7 @@ Jádro MVP:
 Klíčová čísla z akceptačních kritérií (musí sedět v testech):
 
 - Kapacita termínu pro ženy = součet kapacit dámských pokojů, pro muže = pánských. 10 + 10 pokojů po 5 místech pojme 50 + 50, **ne** 52 + 48.
-- Pokoj: kapacita 1–20, příznak dámský / pánský povinný, platí pro všechny termíny akce.
+- Pokoj: kapacita od 1 bez horního limitu, platí pro všechny termíny akce. Akce volí režim pokojů podle pohlaví (dámský / pánský povinný) nebo společné pokoje bez pohlaví; ty sdílejí jednu kapacitu pro všechny účastníky.
 - Přihláška se uloží vždy, i když je plno. Termíny se vyhodnocují zvlášť v pořadí přijetí na serveru. Dvě souběžné přihlášky nikdy nepřekročí kapacitu.
 - Variabilní symbol = číslo přihlášky.
 - Odkaz na přihlášku funguje, až má akce aspoň jeden termín s cenou a aspoň jeden pokoj.
@@ -153,9 +153,9 @@ Slovník pojmů business domény včetně mapování na kód (sloupec „V kódu
 User (BetterAuth)     accountType: ORGANIZER | PARTICIPANT | ADMIN, mustSetPassword (obojí v session)
 Organization          name, bankAccount
 OrganizationMember    userId, organizationId                       (M:N, organizátor ↔ organizace)
-Event                 organizationId, name, description?, location?, publicToken (unikátní, neuhodnutelný)
+Event                 organizationId, name, description?, location?, publicToken (unikátní, neuhodnutelný), roomMode
 Term                  organizationId, eventId, name, startsOn, endsOn, priceCzk
-Room                  organizationId, eventId, name, capacity (1–20), gender
+Room                  organizationId, eventId, name (unikátní v akci), capacity (od 1 bez horního limitu), gender? (povinné jen v režimu GENDERED)
 Application           organizationId, eventId, userId (účet přihlašovatele), number (VS, sekvence),
                       accessToken (stránka potvrzení), firstName, lastName, birthDate, gender, email,
                       consentAt, submittedAt
@@ -215,6 +215,7 @@ Organizace v URL není. Přístup se ověřuje přes členství v organizaci, kt
 /organizer/events[/:eventId]               akce
 /organizer/events/:eventId/terms[/:id]     termíny
 /organizer/events/:eventId/rooms[/:id]     pokoje
+/organizer/events/:eventId/room-mode       PATCH režim pokojů
 /organizer/events/:eventId/applications    seznam s filtry ?termId&status&paid
 /organizer/events/:eventId/occupancy       obsazenost
 /organizer/applications/:id/payments[/:id] zápis a zrušení platby
@@ -248,7 +249,7 @@ apps/backend/src/
 
 - Autor záznamu se bere ze session, nikdy z body (vzor ze starteru).
 - Guardy: `AuthenticatedUserGuard` (401), `AccountTypeGuard` s dekorátorem `@AccountTypes(...)` (403), `OrganizationAccessService.assertCanAccessEvent(user, eventId)` (403 bez obsahu).
-- **Souběh (US-27):** odeslání přihlášky běží v jedné transakci; nejdřív zamkne řádky vybraných termínů (`SELECT … FOR UPDATE`, seřazené podle id kvůli deadlockům), pak spočítá volná místa a zapíše stavy. Čas přijetí určuje server.
+- **Souběh (US-27, US-14):** odeslání přihlášky běží v jedné transakci; nejdřív zamkne akci a potom řádky vybraných termínů (`SELECT … FOR UPDATE`, seřazené podle id kvůli deadlockům), pak spočítá volná místa a zapíše stavy. Změny pokojů a režimu zamykají stejnou akci, aby neměnily kapacitu během vyhodnocení. Čas přijetí určuje server.
 - Testy: `*.spec.ts` = unit (bez DB), `*.int-spec.ts` = integrační proti Postgresu (souběh, izolace, API).
 
 ### Frontend (React)
@@ -316,6 +317,10 @@ apps/frontend/src/
 | 2026-10-21 | Termín může být zdarma (cena 0). Cena termínu 0 se zobrazuje jako „Zdarma“, částky k úhradě jako „0 Kč“.                                                                                                                                                                                                                                                                                                                                       | tech lead |
 | 2026-10-21 | **Organizátor: akce jako karty, sekce akce v sidebaru.** Seznam akcí má kartu na akci s řádkem na termín (datum s rokem, název, obsazeno / lůžek); seznam termínů má řádky oddělené linkou místo karet v kartě. Sekce otevřené akce (Přehled, Přihlášky, Ubytování, Termíny) jsou v sidebaru pod „Akce“, ne záložky nad stránkou. Figma O02 / O02a / O24.                                                                                      | tech lead |
 | 2026-10-23 | **Vyhodnocování přihlášek:** organizátor si nastaví ruční, nebo automatické. V obou režimech nastaví pokoje (počet, lůžka na pokoj, dámský / pánský). Náhradníkovi se přihláška v termínu zruší, když nastane první den termínu akce. Procesní a stavové diagramy obou režimů jsou v [přehledu](procesy/zpracovani-prihlasky/README.md), mají přednost před dřívějšími popisy stavů v tomto dokumentu; stav přihlášky se tu už nepopisuje.     | tým       |
+
+Rozhodnutí 2026-10-22 (US-14, potvrzeno zadavatelem při implementaci): oba režimy pokojů jsou v rozsahu. Přechod na společné pokoje zachová lůžka a odstraní pohlaví pokojů; návrat na dělené pokoje vyžaduje nejprve odstranění společných pokojů. Detaily a odchylky od návrhů: [US-14.md](US-14.md).
+
+Rozhodnutí 2026-10-23 (US-14, změna zadání): kapacita pokoje je kladné celé číslo od 1 bez produktového horního limitu. Původní maximum 20 lůžek se ruší v obou režimech pokojů.
 
 ## 11. Rozdíly vůči boardu
 

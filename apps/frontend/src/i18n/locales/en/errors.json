@@ -6,6 +6,8 @@
   "NOT_FOUND": "Not found.",
   "PASSWORD_ALREADY_SET": "Your password is already set.",
   "PASSWORD_REQUIRED": "Set your password first, then you can continue.",
+  "ROOM_MODE_REQUIRES_EMPTY_ROOMS": "Remove shared rooms before switching to rooms by gender.",
+  "ROOM_NAME_TAKEN": "A room with this name already exists in the event.",
   "TERM_CANCELLED": "This term was cancelled and can't be changed.",
   "TERM_END_BEFORE_START": "Enter an end date that is not before the start date.",
   "UNAUTHORIZED": "Please sign in.",

@@ -1,4 +1,5 @@
 import ky, { HTTPError } from "ky"
+import { z } from "zod"
 
 import { env } from "@/config/env"
 import { queryClient } from "@/config/react-query"
@@ -19,6 +20,11 @@ type ErrorCode = keyof (typeof resources)["en"]["errors"]
 const isKnownErrorCode = (code: unknown): code is ErrorCode =>
   typeof code === "string" && code in resources.en.errors
 
+const errorBodySchema = z.object({
+  code: z.string().optional(),
+  message: z.union([z.string(), z.array(z.string())]).optional(),
+})
+
 export const api = ky.create({
   prefix: env.VITE_API_URL,
   credentials: "include",
@@ -37,13 +43,12 @@ export const api = ky.create({
     // Without this the user would see ky's generic "Request failed with status
     // code 400" and never learn what was actually wrong.
     beforeError: [
-      async ({ error }) => {
+      ({ error }) => {
         if (!(error instanceof HTTPError)) return error
-        try {
-          const body = (await error.response.clone().json()) as {
-            code?: string
-            message?: string | string[]
-          }
+        // Ky 2 consumes the response before this hook and exposes its parsed body as data.
+        const parsed = errorBodySchema.safeParse(error.data)
+        if (parsed.success) {
+          const body = parsed.data
           const message = Array.isArray(body.message) ? body.message.join(", ") : body.message
           if (isKnownErrorCode(body.code)) {
             error.message = i18n.t(`errors:${body.code}`)
@@ -51,8 +56,6 @@ export const api = ky.create({
             error.message = message
           }
           Object.assign(error, { code: body.code })
-        } catch {
-          // response had no JSON body — keep ky's default message
         }
         return error
       },
