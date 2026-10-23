@@ -45,6 +45,8 @@ transitions:
       op: confirm(),
     }
 
+  - { from: nahradnik, to: zrusena, reason: Nastal první den termínu akce, op: cancel() }
+
   - {
       from: potvrzena_dluh,
       to: potvrzena_dluh,

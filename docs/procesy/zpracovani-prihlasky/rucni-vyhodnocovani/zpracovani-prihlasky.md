@@ -16,6 +16,7 @@ flowchart TD
 
   n_akce_zalozena(("Akce založena"))
   n_nastavit_rezim("Nastavit režim<br/>vyhodnocování<br/>role: organizátor")
+  n_nastavit_pokoje("Nastavit pokoje (počet<br/>pokojů<br/>role: organizátor")
   n_spustit_prihlasky("Spustit přihlášky<br/>role: organizátor")
   n_prihlaska_zaregistrovana(("Nová přihláška v<br/>termínu zaregistrována"))
   n_do_poradniku("Vložit přihlášku v<br/>termínu do pořadníku<br/>role: systém")
@@ -27,7 +28,7 @@ flowchart TD
   n_s_nahradnik(["Přihláška v termínu:<br/>náhradník"])
   n_s_potvrzena_dluh(["Přihláška v termínu:<br/>potvrzená s dluhem"])
   n_uvolni_se_misto(("Uvolní se místo"))
-  n_g_misto{"AND"}
+  n_e_zacatek(("Nastal první den<br/>termínu akce"))
   n_rucne_potvrdit("Ručně potvrdit<br/>přihlášku v termínu<br/>role: organizátor")
   n_e_platby(("Σ plateb = částka k<br/>úhradě"))
   n_e_lhuta(("Lhůta pro zaplacení<br/>dluhu uplynula"))
@@ -43,6 +44,9 @@ flowchart TD
   n_s_archivovana(["Přihláška v termínu:<br/>archivovaná"])
   n_sync_prihlaska_zaregistrovana{"AND"}
   n_sync_chce_vyhodnotit{"AND"}
+  n_sync_s_nahradnik{"AND"}
+  n_alt_s_nahradnik{"XOR"}
+  n_split_s_nahradnik{"XOR"}
   n_sync_s_potvrzena_dluh{"AND"}
   n_alt_s_potvrzena_dluh{"XOR"}
   n_split_s_potvrzena_dluh{"XOR"}
@@ -54,7 +58,8 @@ flowchart TD
   n_split_s_potvrzena_zaplacena{"XOR"}
 
   n_akce_zalozena --> n_nastavit_rezim
-  n_nastavit_rezim --> n_spustit_prihlasky
+  n_nastavit_rezim --> n_nastavit_pokoje
+  n_nastavit_pokoje --> n_spustit_prihlasky
   n_spustit_prihlasky --> n_sync_prihlaska_zaregistrovana
   n_sync_prihlaska_zaregistrovana --> n_s_k_vyhodnoceni
   n_s_k_vyhodnoceni --> n_do_poradniku
@@ -64,9 +69,8 @@ flowchart TD
   n_g_vysledek -->|"zamítne"| n_s_zrusena
   n_g_vysledek -->|"potvrdí"| n_s_potvrzena_dluh
   n_g_vysledek -->|"zařadí jako náhradníka"| n_s_nahradnik
-  n_uvolni_se_misto --> n_g_misto
-  n_s_nahradnik --> n_g_misto
-  n_g_misto --> n_rucne_potvrdit
+  n_split_s_nahradnik -->|"Uvolní se místo"| n_rucne_potvrdit
+  n_split_s_nahradnik -->|"Nastal první den termínu<br/>akce"| n_s_zrusena
   n_rucne_potvrdit --> n_s_potvrzena_dluh
   n_split_s_potvrzena_dluh -->|"Σ plateb = částka k<br/>úhradě"| n_zaucotovat
   n_split_s_potvrzena_dluh -->|"Lhůta pro zaplacení<br/>dluhu uplynula"| n_vyzva
@@ -79,6 +83,11 @@ flowchart TD
   n_split_s_potvrzena_zaplacena -->|"Termín proběhne (datum =<br/>první den po posledním<br/>termínu)"| n_s_archivovana
   n_prihlaska_zaregistrovana --> n_sync_prihlaska_zaregistrovana
   n_chce_vyhodnotit --> n_sync_chce_vyhodnotit
+  n_s_nahradnik --> n_sync_s_nahradnik
+  n_alt_s_nahradnik --> n_sync_s_nahradnik
+  n_uvolni_se_misto --> n_alt_s_nahradnik
+  n_e_zacatek --> n_alt_s_nahradnik
+  n_sync_s_nahradnik --> n_split_s_nahradnik
   n_s_potvrzena_dluh --> n_sync_s_potvrzena_dluh
   n_alt_s_potvrzena_dluh --> n_sync_s_potvrzena_dluh
   n_e_platby --> n_alt_s_potvrzena_dluh
@@ -98,10 +107,10 @@ flowchart TD
   n_sync_s_potvrzena_zaplacena --> n_split_s_potvrzena_zaplacena
 
   class n_akce_zalozena,n_prihlaska_zaregistrovana,n_chce_vyhodnotit,n_uvolni_se_misto,n_e_platby,n_e_zamitnuti,n_e_platby_po_vyzve,n_e_zamitnuti_po_vyzve,n_e_zamitnuti_zaplacena,n_e_odhlaska ev
-  class n_nastavit_rezim,n_spustit_prihlasky,n_do_poradniku,n_vyhodnotit,n_rucne_potvrdit,n_zaucotovat,n_vyzva task
+  class n_nastavit_rezim,n_nastavit_pokoje,n_spustit_prihlasky,n_do_poradniku,n_vyhodnotit,n_rucne_potvrdit,n_zaucotovat,n_vyzva task
   class n_s_k_vyhodnoceni,n_s_nahradnik,n_s_potvrzena_dluh,n_s_potvrzena_zaplacena st
-  class n_g_vysledek,n_alt_s_potvrzena_dluh,n_split_s_potvrzena_dluh,n_alt_vyzva,n_split_vyzva,n_alt_s_potvrzena_zaplacena,n_split_s_potvrzena_zaplacena gw_xor
+  class n_g_vysledek,n_alt_s_nahradnik,n_split_s_nahradnik,n_alt_s_potvrzena_dluh,n_split_s_potvrzena_dluh,n_alt_vyzva,n_split_vyzva,n_alt_s_potvrzena_zaplacena,n_split_s_potvrzena_zaplacena gw_xor
   class n_s_zrusena,n_s_archivovana endst
-  class n_g_misto,n_sync_prihlaska_zaregistrovana,n_sync_chce_vyhodnotit,n_sync_s_potvrzena_dluh,n_sync_vyzva,n_sync_s_potvrzena_zaplacena gw_and
-  class n_e_lhuta,n_e_termin timed
+  class n_e_zacatek,n_e_lhuta,n_e_termin timed
+  class n_sync_prihlaska_zaregistrovana,n_sync_chce_vyhodnotit,n_sync_s_nahradnik,n_sync_s_potvrzena_dluh,n_sync_vyzva,n_sync_s_potvrzena_zaplacena gw_and
 ```

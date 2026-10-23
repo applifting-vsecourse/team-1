@@ -32,7 +32,7 @@ nodes:
   - { id: s_potvrzena_dluh, type: state, label: "Přihláška v termínu: potvrzená s dluhem" }
 
   - { id: uvolni_se_luzko, type: event, label: Uvolní se lůžko pro pohlaví účastníka }
-  - { id: g_luzko, type: gateway, kind: "+" }
+  - { id: e_zacatek, type: timed, label: Nastal první den termínu akce }
   - {
       id: potvrdit_nahradnika,
       type: task,
@@ -72,9 +72,11 @@ flows:
   - { from: g_vysledek, to: s_potvrzena_dluh, label: volné lůžko pro pohlaví účastníka je }
   - { from: g_vysledek, to: s_nahradnik, label: volné lůžko pro pohlaví účastníka není }
 
-  - { from: uvolni_se_luzko, to: g_luzko }
-  - { from: s_nahradnik, to: g_luzko }
-  - { from: g_luzko, to: potvrdit_nahradnika }
+  # náhradník čeká na jednu ze dvou událostí
+  - { from: s_nahradnik, to: uvolni_se_luzko }
+  - { from: s_nahradnik, to: e_zacatek }
+  - { from: uvolni_se_luzko, to: potvrdit_nahradnika }
+  - { from: e_zacatek, to: s_zrusena }
   - { from: potvrdit_nahradnika, to: s_potvrzena_dluh }
 
   # čekání na jednu ze tří událostí: generátor doplní AND, XOR (sloučení) a XOR (rozdělení)

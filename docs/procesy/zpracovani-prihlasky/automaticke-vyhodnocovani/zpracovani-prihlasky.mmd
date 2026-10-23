@@ -22,7 +22,7 @@ flowchart TD
   n_s_nahradnik(["Přihláška v termínu:<br/>náhradník"])
   n_s_potvrzena_dluh(["Přihláška v termínu:<br/>potvrzená s dluhem"])
   n_uvolni_se_luzko(("Uvolní se lůžko pro<br/>pohlaví účastníka"))
-  n_g_luzko{"AND"}
+  n_e_zacatek(("Nastal první den<br/>termínu akce"))
   n_potvrdit_nahradnika("Potvrdit náhradníka v<br/>pořadí přijetí<br/>role: systém")
   n_e_platby(("Σ plateb = částka k<br/>úhradě"))
   n_e_lhuta(("Lhůta pro zaplacení<br/>dluhu uplynula"))
@@ -37,6 +37,9 @@ flowchart TD
   n_e_odhlaska(("Účastník se odhlásí"))
   n_s_archivovana(["Přihláška v termínu:<br/>archivovaná"])
   n_sync_prihlaska_zaregistrovana{"AND"}
+  n_sync_s_nahradnik{"AND"}
+  n_alt_s_nahradnik{"XOR"}
+  n_split_s_nahradnik{"XOR"}
   n_sync_s_potvrzena_dluh{"AND"}
   n_alt_s_potvrzena_dluh{"XOR"}
   n_split_s_potvrzena_dluh{"XOR"}
@@ -55,9 +58,8 @@ flowchart TD
   n_vyhodnotit --> n_g_vysledek
   n_g_vysledek -->|"volné lůžko pro pohlaví<br/>účastníka je"| n_s_potvrzena_dluh
   n_g_vysledek -->|"volné lůžko pro pohlaví<br/>účastníka není"| n_s_nahradnik
-  n_uvolni_se_luzko --> n_g_luzko
-  n_s_nahradnik --> n_g_luzko
-  n_g_luzko --> n_potvrdit_nahradnika
+  n_split_s_nahradnik -->|"Uvolní se lůžko pro<br/>pohlaví účastníka"| n_potvrdit_nahradnika
+  n_split_s_nahradnik -->|"Nastal první den termínu<br/>akce"| n_s_zrusena
   n_potvrdit_nahradnika --> n_s_potvrzena_dluh
   n_split_s_potvrzena_dluh -->|"Σ plateb = částka k<br/>úhradě"| n_zaucotovat
   n_split_s_potvrzena_dluh -->|"Lhůta pro zaplacení<br/>dluhu uplynula"| n_vyzva
@@ -69,6 +71,11 @@ flowchart TD
   n_split_s_potvrzena_zaplacena -->|"Účastník se odhlásí"| n_s_zrusena
   n_split_s_potvrzena_zaplacena -->|"Termín proběhne (datum =<br/>první den po posledním<br/>termínu)"| n_s_archivovana
   n_prihlaska_zaregistrovana --> n_sync_prihlaska_zaregistrovana
+  n_s_nahradnik --> n_sync_s_nahradnik
+  n_alt_s_nahradnik --> n_sync_s_nahradnik
+  n_uvolni_se_luzko --> n_alt_s_nahradnik
+  n_e_zacatek --> n_alt_s_nahradnik
+  n_sync_s_nahradnik --> n_split_s_nahradnik
   n_s_potvrzena_dluh --> n_sync_s_potvrzena_dluh
   n_alt_s_potvrzena_dluh --> n_sync_s_potvrzena_dluh
   n_e_platby --> n_alt_s_potvrzena_dluh
@@ -89,8 +96,8 @@ flowchart TD
 
   class n_akce_zalozena,n_prihlaska_zaregistrovana,n_uvolni_se_luzko,n_e_platby,n_e_zamitnuti,n_e_platby_po_vyzve,n_e_zamitnuti_po_vyzve,n_e_zamitnuti_zaplacena,n_e_odhlaska ev
   class n_nastavit_rezim,n_nastavit_pokoje,n_spustit_prihlasky,n_vyhodnotit,n_potvrdit_nahradnika,n_zaucotovat,n_vyzva task
-  class n_g_vysledek,n_alt_s_potvrzena_dluh,n_split_s_potvrzena_dluh,n_alt_vyzva,n_split_vyzva,n_alt_s_potvrzena_zaplacena,n_split_s_potvrzena_zaplacena gw_xor
+  class n_g_vysledek,n_alt_s_nahradnik,n_split_s_nahradnik,n_alt_s_potvrzena_dluh,n_split_s_potvrzena_dluh,n_alt_vyzva,n_split_vyzva,n_alt_s_potvrzena_zaplacena,n_split_s_potvrzena_zaplacena gw_xor
   class n_s_zrusena,n_s_archivovana endst
   class n_s_nahradnik,n_s_potvrzena_dluh,n_s_potvrzena_zaplacena st
-  class n_g_luzko,n_sync_prihlaska_zaregistrovana,n_sync_s_potvrzena_dluh,n_sync_vyzva,n_sync_s_potvrzena_zaplacena gw_and
-  class n_e_lhuta,n_e_termin timed
+  class n_e_zacatek,n_e_lhuta,n_e_termin timed
+  class n_sync_prihlaska_zaregistrovana,n_sync_s_nahradnik,n_sync_s_potvrzena_dluh,n_sync_vyzva,n_sync_s_potvrzena_zaplacena gw_and

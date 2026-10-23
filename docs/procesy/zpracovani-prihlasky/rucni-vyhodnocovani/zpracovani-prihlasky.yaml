@@ -8,6 +8,14 @@ direction: TD
 nodes:
   - { id: akce_zalozena, type: event, label: Akce založena }
   - { id: nastavit_rezim, type: task, label: Nastavit režim vyhodnocování, role: organizátor }
+  - {
+      id: nastavit_pokoje,
+      type: task,
+      label: Nastavit pokoje (počet pokojů,
+      lůžka na pokoj,
+      dámský / pánský),
+      role: organizátor,
+    }
   - { id: spustit_prihlasky, type: task, label: Spustit přihlášky, role: organizátor }
   - { id: prihlaska_zaregistrovana, type: event, label: Nová přihláška v termínu zaregistrována }
   - { id: do_poradniku, type: task, label: Vložit přihlášku v termínu do pořadníku, role: systém }
@@ -21,7 +29,7 @@ nodes:
   - { id: s_potvrzena_dluh, type: state, label: "Přihláška v termínu: potvrzená s dluhem" }
 
   - { id: uvolni_se_misto, type: event, label: Uvolní se místo }
-  - { id: g_misto, type: gateway, kind: "+" }
+  - { id: e_zacatek, type: timed, label: Nastal první den termínu akce }
   - { id: rucne_potvrdit, type: task, label: Ručně potvrdit přihlášku v termínu, role: organizátor }
 
   - { id: e_platby, type: event, label: Σ plateb = částka k úhradě }
@@ -48,7 +56,8 @@ nodes:
 
 flows:
   - { from: akce_zalozena, to: nastavit_rezim }
-  - { from: nastavit_rezim, to: spustit_prihlasky }
+  - { from: nastavit_rezim, to: nastavit_pokoje }
+  - { from: nastavit_pokoje, to: spustit_prihlasky }
   - { from: spustit_prihlasky, to: prihlaska_zaregistrovana }
   - { from: prihlaska_zaregistrovana, to: s_k_vyhodnoceni }
   - { from: s_k_vyhodnoceni, to: do_poradniku }
@@ -59,9 +68,11 @@ flows:
   - { from: g_vysledek, to: s_potvrzena_dluh, label: potvrdí }
   - { from: g_vysledek, to: s_nahradnik, label: zařadí jako náhradníka }
 
-  - { from: uvolni_se_misto, to: g_misto }
-  - { from: s_nahradnik, to: g_misto }
-  - { from: g_misto, to: rucne_potvrdit }
+  # náhradník čeká na jednu ze dvou událostí
+  - { from: s_nahradnik, to: uvolni_se_misto }
+  - { from: s_nahradnik, to: e_zacatek }
+  - { from: uvolni_se_misto, to: rucne_potvrdit }
+  - { from: e_zacatek, to: s_zrusena }
   - { from: rucne_potvrdit, to: s_potvrzena_dluh }
 
   # čekání na jednu ze tří událostí: generátor doplní AND, XOR (sloučení) a XOR (rozdělení)
