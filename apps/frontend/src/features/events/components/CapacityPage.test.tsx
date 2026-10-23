@@ -6,7 +6,7 @@ import {
   createRouter,
   RouterProvider,
 } from "@tanstack/react-router"
-import { fireEvent, render, screen, within } from "@testing-library/react"
+import { fireEvent, render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
@@ -126,7 +126,8 @@ describe("read-only capacity overview", () => {
     renderPage()
     expect(await screen.findByText("12 / 14")).toBeInTheDocument()
     expect(screen.getByText("5 / 5")).toBeInTheDocument()
-    expect(within(screen.getByRole("table")).getByText("14 / 4 /")).toBeInTheDocument()
+    expect(screen.queryByRole("table")).not.toBeInTheDocument()
+    expect(screen.queryByRole("tab")).not.toBeInTheDocument()
     expect(screen.getByRole("link", { name: "Manage rooms" })).toHaveAttribute(
       "href",
       "/organizer/events/e1/rooms",
@@ -144,6 +145,9 @@ describe("read-only capacity overview", () => {
     fireEvent.click(await screen.findByRole("option", { name: "11–17 Jul 2027" }))
     expect(await screen.findByText("4 / 14")).toBeInTheDocument()
     expect(screen.getByText("1 / 5")).toBeInTheDocument()
+    expect(screen.queryByText("12 / 14")).not.toBeInTheDocument()
+    expect(screen.queryByText("5 / 5")).not.toBeInTheDocument()
+    expect(screen.queryByRole("table")).not.toBeInTheDocument()
     expect(screen.getByRole("link", { name: "Manage rooms" })).toHaveAttribute(
       "href",
       "/organizer/events/e1/rooms",

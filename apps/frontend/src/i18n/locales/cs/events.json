@@ -2,7 +2,6 @@
   "capacity": {
     "FEMALE": "Ženy",
     "MALE": "Muži",
-    "allTerms": "Kapacity všech termínů",
     "available": "Ženy: {{women}} volných. Muži: {{men}} volných.",
     "bedCapacity_few": "kapacita {{count}} lůžka",
     "bedCapacity_many": "kapacita {{count}} lůžka",
@@ -19,12 +18,7 @@
     "genderedOnly": "Tato akce má společné pokoje. Přehled jejich kapacit zatím není dostupný.",
     "genderedOnlyTitle": "Společné pokoje",
     "manage": "Spravovat pokoje",
-    "menColumns": "Muži · kapacita / potvrzeno / volno",
     "noTerms": "Zatím nejsou žádné termíny. Zde se zobrazí kapacita jednotlivých termínů.",
-    "places_few": "{{count}} místa",
-    "places_many": "{{count}} místa",
-    "places_one": "{{count}} místo",
-    "places_other": "{{count}} míst",
     "roomSummary_few": "{{count}} pokoje po {{beds}}",
     "roomSummary_many": "{{count}} pokoje po {{beds}}",
     "roomSummary_one": "{{count}} pokoj po {{beds}}",
@@ -32,9 +26,7 @@
     "separate": "Volná místa pro ženy nelze využít pro muže.",
     "tab": "Kapacity",
     "term": "Termín",
-    "title": "Přehled kapacit",
-    "totalFree": "Volno celkem",
-    "womenColumns": "Ženy · kapacita / potvrzeno / volno"
+    "title": "Přehled kapacit"
   },
   "list": {
     "title": "Akce"

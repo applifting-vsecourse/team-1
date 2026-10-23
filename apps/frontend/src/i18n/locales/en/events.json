@@ -2,7 +2,6 @@
   "capacity": {
     "FEMALE": "Women",
     "MALE": "Men",
-    "allTerms": "Capacity of all terms",
     "available": "Women: {{women}} free. Men: {{men}} free.",
     "bedCapacity_few": "capacity {{count}} beds",
     "bedCapacity_many": "capacity {{count}} beds",
@@ -19,12 +18,7 @@
     "genderedOnly": "This event has shared rooms. Their capacity overview is not available yet.",
     "genderedOnlyTitle": "Shared rooms",
     "manage": "Manage rooms",
-    "menColumns": "Men · capacity / confirmed / free",
     "noTerms": "No terms yet. Capacity for each term will appear here.",
-    "places_few": "{{count}} places",
-    "places_many": "{{count}} places",
-    "places_one": "{{count}} place",
-    "places_other": "{{count}} places",
     "roomSummary_few": "{{count}} rooms of {{beds}} beds",
     "roomSummary_many": "{{count}} rooms of {{beds}} beds",
     "roomSummary_one": "{{count}} room of {{beds}} beds",
@@ -32,9 +26,7 @@
     "separate": "Free places for women cannot be used for men.",
     "tab": "Capacity",
     "term": "Term",
-    "title": "Capacity overview",
-    "totalFree": "Total free",
-    "womenColumns": "Women · capacity / confirmed / free"
+    "title": "Capacity overview"
   },
   "list": {
     "title": "Events"
