@@ -16,4 +16,6 @@ Rozdíl je jen na začátku a u náhradníků. Platby, výzva k zaplacení, zru�
 | Výsledek vyhodnocení | potvrdí, náhradník, zamítne                                                          | potvrzená s dluhem, nebo náhradník (zamítnutí při vyhodnocení není)                        |
 | Uvolní se místo      | náhradníka potvrdí ručně organizátor; první den termínu akce se jeho přihláška zruší | náhradníka potvrdí systém v pořadí přijetí; první den termínu akce se jeho přihláška zruší |
 
+E-maily přihlašovateli v jednotlivých přechodech: [EMAILY.md](EMAILY.md).
+
 Soubory `.mmd` a `.md` jsou generované z `.yaml` ([návod](../README_generate_py.md)), needitují se.
