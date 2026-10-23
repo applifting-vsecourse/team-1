@@ -2,7 +2,7 @@ import { X } from "lucide-react"
 import { useFormContext, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { MoneyAmount } from "@/components/atoms/MoneyAmount"
+import { TermPrice } from "@/components/atoms/MoneyAmount"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -197,7 +197,7 @@ export function ParticipantFields({ index, terms, onRemove, isDisabled }: Partic
                       <span className="text-sm text-muted-foreground">{term.name}</span>
                     </span>
                     <span className="sr-only"> · </span>
-                    <MoneyAmount
+                    <TermPrice
                       className="font-bold"
                       amountCzk={term.priceCzk}
                     />

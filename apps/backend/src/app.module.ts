@@ -2,6 +2,7 @@ import { ConfigModule } from "@applifting-io/nestjs-decorated-config"
 import { Module } from "@nestjs/common"
 import { AccountModule } from "./modules/account/account.module"
 import { ApplicationsModule } from "./modules/applications/applications.module"
+import { EventsModule } from "./modules/events/events.module"
 import { ParticipantsModule } from "./modules/participants/participants.module"
 import { PaymentsModule } from "./modules/payments/payments.module"
 import { WelcomeModule } from "./modules/welcome/welcome.module"
@@ -13,7 +14,9 @@ const imports = [
   AuthModule,
   WelcomeModule,
   AccountModule,
+  EventsModule,
   ApplicationsModule,
+  EventsModule,
   ParticipantsModule,
   PaymentsModule,
 ]

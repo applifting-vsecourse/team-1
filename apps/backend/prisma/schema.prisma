@@ -159,6 +159,13 @@ model OrganizationMember {
   @@map("organization_member")
 }
 
+enum RoomMode {
+  GENDERED
+  SHARED
+
+  @@map("room_mode")
+}
+
 model Event {
   id             String       @id @default(cuid())
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
@@ -166,6 +173,7 @@ model Event {
   name           String
   description    String?      @db.Text
   location       String?
+  roomMode       RoomMode     @default(GENDERED)
   // Unguessable token in the public application link /prihlaska/<publicToken>.
   publicToken    String       @unique
   createdAt      DateTime     @default(now())
@@ -189,6 +197,9 @@ model Term {
   startsOn       DateTime     @db.Date
   endsOn         DateTime     @db.Date
   priceCzk       Int
+  // Cancelled terms stay for the history of applications but are no longer offered (US-13).
+  cancelledAt    DateTime?
+  cancelReason   String?      @db.Text
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @default(now()) @updatedAt
 
@@ -207,9 +218,9 @@ model Room {
   event          Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
   eventId        String
   name           String
-  // 1–20 beds, validated in the DTO.
+  // At least 1 bed, validated in the DTO.
   capacity       Int
-  gender         Gender
+  gender         Gender?
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @default(now()) @updatedAt
 

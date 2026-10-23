@@ -1,5 +1,5 @@
 import { Gender } from "@/shared/domain/gender"
-import { computeFreePlaces, computeTermCapacity, countByGender, RoomCapacity } from "./capacity"
+import { computeAvailablePlaces, RoomCapacity } from "./capacity"
 import { evaluateApplication, EvaluatedTerm } from "./evaluation"
 
 /** One participant of a submitted form, in the order of the form. */
@@ -27,7 +27,6 @@ export function evaluateSubmission(
   participants: SubmittedParticipant[],
   snapshot: OccupancySnapshot,
 ): EvaluatedTerm[][] {
-  const capacity = computeTermCapacity(snapshot.rooms)
   const confirmed = new Map<string, Gender[]>()
   const confirmedIn = (termId: string): Gender[] => {
     if (!confirmed.has(termId))
@@ -41,10 +40,7 @@ export function evaluateSubmission(
       participant.terms.map(({ termId, priceCzk }) => ({
         termId,
         priceCzk,
-        freePlaces: computeFreePlaces(
-          capacity,
-          countByGender(confirmedIn(termId).map((gender) => ({ gender }))),
-        ),
+        freePlaces: computeAvailablePlaces(snapshot.rooms, confirmedIn(termId)),
       })),
     )
     for (const term of evaluated) {
