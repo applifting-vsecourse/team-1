@@ -46,9 +46,13 @@ V sidebaru je jen jeden marker: když je otevřená konkrétní akce, nadřazen�
 
 **Landing (V08 / M07):** centrovaný hero (Display, „bez zmatku“ v `color/text/link`), Lead, dvě tlačítka 44 px „Jsem organizátor“ (primary) a „Jsem účastník“ (secondary), na desktopu 200 px, na mobilu přes celou šířku. Pak pás `bg/subtle` „Co v Togeně vyřídíte“ s mřížkou 2×2 karet DS / Landing / Feature a zápatí s horní hairline.
 
-**Přihlášené části:** sidebar 240 px (`bg/subtle`, pravá hairline), horní lišta 64 px (role, přepínače, účtové menu), obsah s odsazením 32 / 32 / 48 a mezerami 24. Pod 768 px se sidebar schová do vysouvacího panelu (shadcn Sheet, 288 px, překryv černá 50 %) otevíraného tlačítkem menu v horní liště: M08 (zavřeno) a M09 (otevřeno) na stránce 06 Mobil. Horní lišta na mobilu: menu, logo, jazyk bez šipky, motiv, avatar.
+**Přihlášené části:** sidebar 240 px (`bg/subtle`, pravá hairline) jen s položkami Dashboard / Akce / Organizace (DS / App sidebar), horní lišta 64 px (role, přepínače, účtové menu; DS / App top bar), obsah s odsazením 32 / 32 / 48 a mezerami 24. Pod 768 px se sidebar schová do vysouvacího panelu (shadcn Sheet, 288 px, překryv černá 50 %; DS / Mobile drawer) otevíraného tlačítkem menu v horní liště: M08 (zavřeno) a M09 (otevřeno) na stránce 06 Mobil. Horní lišta na mobilu (DS / Mobile top bar, 56 px) má jen menu, logo a avatar s účtovým menu; jazyk (ToggleGroup Čeština / English), vzhled (Select) a odkaz na podporu jsou v draweru.
 
-**Dialogy:** karta se stínem `shadows/popover`, radius 12, nadpis H3.
+**Detail akce (organizátor):** sekce akce (Přehled, Přihlášky, Kapacity, Platby, Ubytování, Nastavení) nejsou v sidebaru ani v draweru, ale v záložkách pod záhlavím akce (O / Event tabs) na všech šířkách. Záhlaví: „← Všechny akce“ (Button Quiet), H1 název + štítek stavu přihlášky, meta řádek, záložky. V sidebaru je „Akce“ jen tónovaná bez rohů (DS / App sidebar „Akce v detailu“), rohy loga má aktivní záložka. Na mobilu jsou záložky sticky pod horní lištou, vodorovně posuvné s přechodem na okraji a aktivní je odrolovaná do zorného pole (M10–M13); drawer v detailu akce položky akce nemá (M11). Drobečková navigace na stránkách akce není, podstránky mají „← Zpět na …“ a nadpis H2.
+
+**Obsah stránek:** jedna primární akce na pohled (vpravo v záhlaví sekce nebo karty), další akce Secondary / Quiet. Souhrny jako řada DS / Metric. Tabulky: záhlaví sloupců `bg/subtle` 40 px, řádky min. 56 px s hairline, částky vpravo, akce v řádku jako ikonová tlačítka (DS / Icon button: pencil, trash, ⋯ pro DropdownMenu, chevron pro detail). Filtry jsou toolbar nad tabulkou (hledání + Selecty). Potvrzení úspěchu je toast (Sonner, vpravo dole; na mobilu dole přes šířku), ne alert v obsahu; změněný řádek se zvýrazní `bg/selected`.
+
+**Dialogy:** karta se stínem, radius 12, nadpis H3 s popisem a zavíracím křížkem, souhrn v boxu `bg/subtle`, výsledek („Po uložení …“) oddělený hairline, patička vpravo: Secondary + Primary / Destructive; destruktivní akce uvnitř editačního dialogu (Zrušit termín, Smazat pokoj) je červený Quiet vlevo. Ve Figmě se kreslí nad ztmavenou stránkou, ze které se otevírají.
 
 ## Postup práce
 
@@ -77,3 +81,12 @@ Hotové jsou všechny obrazovky na stránkách HF / 01–06 kromě e-mailů S17:
 - Text „Otevřít navigaci“ u tlačítka menu je jen pro čtečky, ve Figmě je to název vrstvy.
 - U04: karta „Údaje přihlášky“ (jméno, narození, zákonný zástupce) chybí, API tyto údaje nevrací; poznámka o placení potvrzeného termínu je pod termíny.
 - Hover primárního tlačítka je v kódu `bg-primary/90`, ve Figmě `raw/teal-hover` `#006f63`.
+
+## Stav (2026-10-23)
+
+Oprava obrazovek z posledních US podle původních návrhů O01 / U01 / U04 a nová navigace (čeká na schválení, kód zatím beze změny). Původní podoba je na stránce **ARCHIV / Před úpravou 23. 10.** Rámce jsou přestavěné na místě, ID uzlů v `// Figma:` komentářích platí dál.
+
+- Nové komponenty v sekci „DS / Doplnění 23. 10.“ na DS / 02: ikony (more-horizontal, pencil, trash, copy, link, arrow-left, globe, moon, monitor, external-link, circle-check, circle, chevron-right, filter, eye, ban, banknote, gauge), DS / Icon button, DS / Toggle item, DS / App sidebar, DS / App top bar, DS / Mobile top bar, DS / Mobile drawer, O / Event tabs.
+- Organizátor desktop: O02 / O02a (seznam akcí jako tabulka s toolbarem, toast po založení), O03a (formulář 784 px, Název první, Organizace + Typ vedle sebe, patička Zrušit / Založit akci), O04 rodina, O05 rodina (25 rámců), O08 Kapacity, O09, O12 Platby, O18 / O18a / O18b Ubytování, O24 Nastavení (Termíny první, patička Zrušit akci | Náhled přihlášky | Uložit nastavení), O34a–O34o detail platby.
+- Dialogy X16–X24c nad ztmavenou stránkou O24 / O18a.
+- Mobil: M08 / M09 s novou horní lištou a drawerem, nové M10 Přehled akce, M11 drawer v detailu akce, M12 Přihlášky akce, M13 Detail platby; U01 / U04 360 px s DS / Mobile top bar.

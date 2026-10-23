@@ -1,6 +1,7 @@
 {
-  "breadcrumb": {
-    "events": "Akce"
+  "header": {
+    "allEvents": "← Všechny akce",
+    "applicationsOpen": "Přihláška otevřená"
   },
   "list": {
     "count_few": "{{count}} akce",
@@ -15,17 +16,23 @@
     "manyTerms_one": "{{count}} termín · {{months}} · {{organization}}",
     "manyTerms_other": "{{count}} termínů · {{months}} · {{organization}}",
     "noCapacity": "—",
+    "noMatch": "Hledání ani filtrům neodpovídá žádná akce.",
     "noTerms": "Zatím bez termínu · {{organization}}",
     "occupancyMany": "{{confirmed}} / {{capacity}} míst ve {{count}} termínech",
     "occupancyOne": "{{confirmed}} / {{capacity}} účastníků",
     "oneTerm": "{{dates}} · {{organization}}",
+    "organizationAll": "Všechny moje organizace",
+    "organizationFilter": "Organizace",
+    "search": "Hledat název akce",
+    "statusAll": "Všechny stavy",
     "statusClosed": "Přihláška neaktivní",
+    "statusFilter": "Stav",
     "statusOpen": "Zveřejněno",
     "title": "Seznam akcí"
   },
   "new": {
-    "back": "Zpět na seznam",
-    "breadcrumb": "Vytvoření akce",
+    "back": "← Zpět na seznam",
+    "cancel": "Zrušit",
     "description": "Založte akci. Termíny, ceny a pokoje doplníte následně.",
     "form": {
       "description": "Popis akce",
@@ -43,8 +50,6 @@
     "title": "Vytvoření akce"
   },
   "overview": {
-    "backToList": "Zpět na seznam",
-    "breadcrumbOverview": "Přehled",
     "copied": "Odkaz zkopírován do schránky",
     "copy": "Kopírovat odkaz na přihlášku",
     "copyAgain": "Kopírovat znovu",
@@ -78,23 +83,22 @@
     "beds_few": "{{count}} místa",
     "beds_one": "{{count}} místo",
     "beds_other": "{{count}} míst",
-    "breadcrumb": "Pokoje",
     "capacityColumn": "Kapacita",
     "capacityError": "Zadejte celé číslo alespoň 1.",
     "capacityHint": "Alespoň 1 místo. Kapacita se počítá z pokojů.",
     "capacityLabel": "Kapacita *",
     "close": "Zavřít",
     "delete": "Smazat pokoj",
-    "deleteAction": "Smazat",
     "deleteFemaleImpact": "Dámská kapacita klesne z {{before}} na {{after}} míst",
     "deleteHint": "Pokoj zmizí ze seznamu i z výpočtu kapacity. Existující potvrzení účastníků se nezmění.",
     "deleteImpact": "Kapacita klesne z {{before}} na {{after}} míst",
     "deleteImpactHint": "{{name}} má {{count}} míst. Smazání přepočítá kapacitu všech termínů akce.",
     "deleteMaleImpact": "Pánská kapacita klesne z {{before}} na {{after}} míst",
+    "deleteRoom": "Smazat pokoj {{name}}",
     "deleteTitle": "Smazat {{name}}?",
     "description": "Pokoje a jejich kapacity jsou společné pro všechny termíny akce.",
     "edit": "Upravit pokoj",
-    "editAction": "Upravit",
+    "editRoom": "Upravit pokoj {{name}}",
     "empty": "Zde se zobrazí pokoje celé akce.",
     "female": "Dámský",
     "femaleRooms": "Dámské pokoje",
@@ -153,6 +157,7 @@
     "totalRooms": "Celkem pokojů"
   },
   "terms": {
+    "actions": "Akce termínu {{name}}",
     "add": "Přidat termín",
     "cancel": "Zrušit termín",
     "cancelDialog": {

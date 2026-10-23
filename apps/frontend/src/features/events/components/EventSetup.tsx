@@ -3,11 +3,12 @@ import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
 import { CircleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
+import { toast } from "sonner"
 
 import { ROUTES } from "@/app/routes"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
-import { PageHeader } from "@/components/molecules/PageHeader"
+import { SectionHeader } from "@/components/molecules/SectionHeader"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -16,8 +17,9 @@ import { eventQueryOptions, type OrganizerEvent } from "@/features/events/api/ev
 import { applicationLink } from "@/features/events/lib/application-link"
 
 /**
- * O04 / O04a / O04b: the head of the event overview — what is missing before
- * the application link works, or the link itself with its copy button.
+ * O04 / O04a / O04b: the event overview under the event header — what is
+ * missing before the application link works, or the link itself with its
+ * copy button; a toast confirms the copy.
  */
 // Figma (Design system): O04a Co chybí ke zpřístupnění přihlášky · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12264-1440
 // Figma (Design system): O04 Připravená akce a odkaz · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12110-156
@@ -43,6 +45,7 @@ export function EventSetup({ eventId }: { eventId: string }) {
     try {
       await navigator.clipboard.writeText(link)
       setIsCopied(true)
+      toast.success(t("overview.copied"))
     } catch {
       setIsCopied(false)
     }
@@ -50,19 +53,7 @@ export function EventSetup({ eventId }: { eventId: string }) {
 
   return (
     <div className="flex flex-col gap-6">
-      <nav
-        aria-label={t("overview.title")}
-        className="text-xs font-medium text-muted-foreground"
-      >
-        <Link
-          to={ROUTES.organizer.events}
-          className="hover:underline"
-        >
-          {t("breadcrumb.events")}
-        </Link>{" "}
-        / {event.organizationName} / {event.name} / {t("overview.breadcrumbOverview")}
-      </nav>
-      <PageHeader
+      <SectionHeader
         title={t("overview.title")}
         description={subtitle(event, t)}
         actions={
@@ -75,24 +66,7 @@ export function EventSetup({ eventId }: { eventId: string }) {
           </Button>
         }
       />
-      {event.applicationsOpen ? (
-        <ShareLink
-          link={link}
-          isCopied={isCopied}
-        />
-      ) : (
-        <MissingSteps event={event} />
-      )}
-      {!event.applicationsOpen ? (
-        <Button
-          asChild
-          variant="outline"
-          size="lg"
-          className="self-start"
-        >
-          <Link to={ROUTES.organizer.events}>{t("overview.backToList")}</Link>
-        </Button>
-      ) : null}
+      {event.applicationsOpen ? <ShareLink link={link} /> : <MissingSteps event={event} />}
     </div>
   )
 }
@@ -110,11 +84,12 @@ function subtitle(event: OrganizerEvent, t: ReturnType<typeof useTranslation<"ev
       })
 }
 
-function ShareLink({ link, isCopied }: { link: string; isCopied: boolean }) {
+function ShareLink({ link }: { link: string }) {
   const { t } = useTranslation("events")
 
-  const content = (
-    <>
+  return (
+    <Card className="gap-3 p-6">
+      <h3 className="text-lg font-semibold tracking-tight">{t("overview.ready.title")}</h3>
       <p className="text-sm text-muted-foreground">{t("overview.ready.body")}</p>
       <a
         href={link}
@@ -122,24 +97,6 @@ function ShareLink({ link, isCopied }: { link: string; isCopied: boolean }) {
       >
         {link}
       </a>
-    </>
-  )
-
-  if (isCopied) {
-    return (
-      <div
-        role="status"
-        className="flex flex-col gap-1 rounded-lg border border-status-success bg-status-success-bg px-5 py-4"
-      >
-        <p className="text-sm font-semibold text-status-success">{t("overview.copied")}</p>
-        {content}
-      </div>
-    )
-  }
-  return (
-    <Card className="gap-4 p-6">
-      <h2 className="text-lg font-semibold tracking-tight">{t("overview.ready.title")}</h2>
-      {content}
     </Card>
   )
 }
@@ -150,13 +107,11 @@ function MissingSteps({ event }: { event: OrganizerEvent }) {
   return (
     <>
       <Card className="gap-4 p-6">
-        <h2 className="text-lg font-semibold tracking-tight">{t("overview.missing.title")}</h2>
+        <h3 className="text-lg font-semibold tracking-tight">{t("overview.missing.title")}</h3>
         <p className="text-muted-foreground">{t("overview.missing.intro")}</p>
         {event.missing.includes("TERM") ? (
           <>
-            <h3 className="text-lg font-semibold tracking-tight">
-              {t("overview.missing.termTitle")}
-            </h3>
+            <h4 className="font-semibold">{t("overview.missing.termTitle")}</h4>
             <p className="text-sm">{t("overview.missing.termBody")}</p>
             <Button
               asChild
@@ -175,9 +130,7 @@ function MissingSteps({ event }: { event: OrganizerEvent }) {
         ) : null}
         {event.missing.includes("ROOM") ? (
           <>
-            <h3 className="text-lg font-semibold tracking-tight">
-              {t("overview.missing.roomTitle")}
-            </h3>
+            <h4 className="font-semibold">{t("overview.missing.roomTitle")}</h4>
             <p className="text-sm">{t("overview.missing.roomBody")}</p>
             <Button
               asChild
