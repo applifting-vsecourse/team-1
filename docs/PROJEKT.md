@@ -92,7 +92,7 @@ Jádro MVP:
 Klíčová čísla z akceptačních kritérií (musí sedět v testech):
 
 - Kapacita termínu pro ženy = součet kapacit dámských pokojů, pro muže = pánských. 10 + 10 pokojů po 5 místech pojme 50 + 50, **ne** 52 + 48.
-- Pokoj: kapacita 1–20, platí pro všechny termíny akce. Akce volí režim pokojů podle pohlaví (dámský / pánský povinný) nebo společné pokoje bez pohlaví; ty sdílejí jednu kapacitu pro všechny účastníky.
+- Pokoj: kapacita od 1 bez horního limitu, platí pro všechny termíny akce. Akce volí režim pokojů podle pohlaví (dámský / pánský povinný) nebo společné pokoje bez pohlaví; ty sdílejí jednu kapacitu pro všechny účastníky.
 - Přihláška se uloží vždy, i když je plno. Termíny se vyhodnocují zvlášť v pořadí přijetí na serveru. Dvě souběžné přihlášky nikdy nepřekročí kapacitu.
 - Částka k úhradě = součet cen **potvrzených** termínů. Dluží = k úhradě − zaplaceno. Zaplaceno bez částky = celá částka k úhradě.
 - Variabilní symbol = číslo přihlášky.
@@ -156,7 +156,7 @@ Organization          name, bankAccount
 OrganizationMember    userId, organizationId                       (M:N, organizátor ↔ organizace)
 Event                 organizationId, name, description?, location?, publicToken (unikátní, neuhodnutelný), roomMode
 Term                  organizationId, eventId, name, startsOn, endsOn, priceCzk
-Room                  organizationId, eventId, name (unikátní v akci), capacity (1–20), gender? (povinné jen v režimu GENDERED)
+Room                  organizationId, eventId, name (unikátní v akci), capacity (od 1 bez horního limitu), gender? (povinné jen v režimu GENDERED)
 Application           organizationId, eventId, userId (účet přihlašovatele), number (VS, sekvence),
                       accessToken (stránka potvrzení), firstName, lastName, birthDate, gender, email,
                       consentAt, submittedAt
@@ -316,6 +316,8 @@ apps/frontend/src/
 | 2026-10-21 | **Účastník nevidí, že je náhradník.** Nepotvrzený termín se mu ukazuje jako „Čeká na potvrzení“, potvrzený jako „Potvrzeno“; API pro účastníka neposílá pořadí. U přihlášky vidí stav platby: Nezaplaceno, Částečně zaplaceno, Zaplaceno, Přeplatek (`computePaymentStatus` v `applications/domain/pricing.ts`). Platí pro účet účastníka a pro stránku po odeslání, až vznikne (US-25; rámce V04 / V06 / M06 už to mají). |
 
 Rozhodnutí 2026-10-22 (US-14, potvrzeno zadavatelem při implementaci): oba režimy pokojů jsou v rozsahu. Přechod na společné pokoje zachová lůžka a odstraní pohlaví pokojů; návrat na dělené pokoje vyžaduje nejprve odstranění společných pokojů. Detaily a odchylky od návrhů: [US-14.md](US-14.md).
+
+Rozhodnutí 2026-10-23 (US-14, změna zadání): kapacita pokoje je kladné celé číslo od 1 bez produktového horního limitu. Původní maximum 20 lůžek se ruší v obou režimech pokojů.
 
 ## 11. Rozdíly vůči boardu
 

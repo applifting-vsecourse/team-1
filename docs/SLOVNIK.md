@@ -155,7 +155,7 @@ classDiagram
 
   class Pokoj["Pokoj"]
   Pokoj : +název
-  Pokoj : +kapacita 1–20 lůžek
+  Pokoj : +kapacita alespoň 1 lůžko, bez horního limitu
   Pokoj : +pohlaví
 
   class FormularPrihlasky["Formulář přihlášky"]

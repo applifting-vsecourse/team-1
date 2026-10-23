@@ -43,10 +43,10 @@ describe("room form", () => {
   it("keeps invalid capacity in the form and focuses it without sending", async () => {
     const { user } = renderDialog()
     await user.type(screen.getByLabelText("Room name *"), "12")
-    await user.type(screen.getByLabelText("Capacity *"), "21")
+    await user.type(screen.getByLabelText("Capacity *"), "0")
     await user.click(screen.getByRole("button", { name: "Add room" }))
-    expect(await screen.findByText("Enter a whole number from 1 to 20.")).toBeInTheDocument()
-    expect(screen.getByLabelText("Capacity *")).toHaveValue(21)
+    expect(await screen.findByText("Enter a whole number of at least 1.")).toBeInTheDocument()
+    expect(screen.getByLabelText("Capacity *")).toHaveValue(0)
     expect(screen.getByLabelText("Capacity *")).toHaveFocus()
     expect(post).not.toHaveBeenCalled()
   })
@@ -56,11 +56,11 @@ describe("room form", () => {
     const { user, onClose } = renderDialog({ ...event, roomMode: "SHARED" })
     expect(screen.queryByRole("combobox")).not.toBeInTheDocument()
     await user.type(screen.getByLabelText("Room name *"), " 12 ")
-    await user.type(screen.getByLabelText("Capacity *"), "5")
+    await user.type(screen.getByLabelText("Capacity *"), "100")
     await user.click(screen.getByRole("button", { name: "Add room" }))
     await waitFor(() => expect(onClose).toHaveBeenCalled())
     expect(post).toHaveBeenCalledWith("organizer/events/e1/rooms", {
-      json: { name: "12", capacity: 5, gender: null },
+      json: { name: "12", capacity: 100, gender: null },
     })
   })
 
@@ -69,10 +69,10 @@ describe("room form", () => {
     const room = { id: "r1", name: "12", capacity: 5, gender: "FEMALE" as const }
     const { user, onClose } = renderDialog(event, room)
     await user.clear(screen.getByLabelText("Capacity *"))
-    await user.type(screen.getByLabelText("Capacity *"), "7")
+    await user.type(screen.getByLabelText("Capacity *"), "21")
     await user.click(screen.getByRole("button", { name: "Save changes" }))
     expect(await screen.findByText("Connection failed")).toBeInTheDocument()
-    expect(screen.getByLabelText("Capacity *")).toHaveValue(7)
+    expect(screen.getByLabelText("Capacity *")).toHaveValue(21)
     expect(onClose).not.toHaveBeenCalled()
     await user.click(screen.getByRole("button", { name: "Save changes" }))
     await waitFor(() => expect(onClose).toHaveBeenCalled())
@@ -87,7 +87,7 @@ describe("room form", () => {
     )
     const { user } = renderDialog()
     await user.type(screen.getByLabelText("Room name *"), "12")
-    await user.type(screen.getByLabelText("Capacity *"), "5")
+    await user.type(screen.getByLabelText("Capacity *"), "100")
     const button = screen.getByRole("button", { name: "Add room" })
     await user.click(button)
     expect(button).toBeDisabled()

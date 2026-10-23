@@ -7,7 +7,7 @@ export const roomModeSchema = z.enum(["GENDERED", "SHARED"])
 const roomSchema = z.object({
   id: z.string(),
   name: z.string(),
-  capacity: z.number().int().min(1).max(20),
+  capacity: z.number().int().min(1),
   gender: z.enum(["FEMALE", "MALE"]).nullable(),
 })
 const eventRoomsSchema = z.object({

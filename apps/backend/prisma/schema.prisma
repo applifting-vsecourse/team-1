@@ -215,7 +215,7 @@ model Room {
   event          Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
   eventId        String
   name           String
-  // 1–20 beds, validated in the DTO.
+  // At least 1 bed, validated in the DTO.
   capacity       Int
   gender         Gender?
   createdAt      DateTime     @default(now())

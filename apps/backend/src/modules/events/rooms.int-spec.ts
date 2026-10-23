@@ -70,7 +70,7 @@ describe("event rooms (integration)", () => {
     expect(await prisma.room.findUnique({ where: { id: foreignId } })).not.toBeNull()
   })
 
-  it.each([0, 21, 1.5, "5", null])("rejects invalid capacity %s", async (capacity) => {
+  it.each([0, -1, 1.5, "5", null])("rejects invalid capacity %s", async (capacity) => {
     expect(
       (await request("/rooms", "POST", { name: "Invalid", capacity, gender: "FEMALE" })).status,
     ).toBe(400)
@@ -92,20 +92,20 @@ describe("event rooms (integration)", () => {
       (await request("/rooms", "POST", { name: " 12 ", capacity: 1, gender: "FEMALE" })).status,
     ).toBe(204)
     expect(
-      (await request("/rooms", "POST", { name: "13", capacity: 20, gender: "MALE" })).status,
+      (await request("/rooms", "POST", { name: "13", capacity: 100, gender: "MALE" })).status,
     ).toBe(204)
     expect(
       (await request("/rooms", "POST", { name: "12", capacity: 5, gender: "FEMALE" })).status,
     ).toBe(409)
     let body = (await (await request("/rooms")).json()) as EventRooms
-    expect(body.capacity).toEqual({ FEMALE: 1, MALE: 20, total: 21 })
+    expect(body.capacity).toEqual({ FEMALE: 1, MALE: 100, total: 101 })
     roomId = body.rooms[0].id
     expect(
-      (await request(`/rooms/${roomId}`, "PUT", { name: "Updated", capacity: 7, gender: "MALE" }))
+      (await request(`/rooms/${roomId}`, "PUT", { name: "Updated", capacity: 21, gender: "MALE" }))
         .status,
     ).toBe(204)
     body = (await (await request("/rooms")).json()) as EventRooms
-    expect(body.capacity).toEqual({ FEMALE: 0, MALE: 27, total: 27 })
+    expect(body.capacity).toEqual({ FEMALE: 0, MALE: 121, total: 121 })
     expect((await request(`/rooms/${roomId}`, "DELETE")).status).toBe(204)
     expect((await request(`/rooms/${roomId}`, "DELETE")).status).toBe(403)
   })
@@ -114,7 +114,7 @@ describe("event rooms (integration)", () => {
     expect((await request("/room-mode", "PATCH", { roomMode: "SHARED" })).status).toBe(204)
     let body = (await (await request("/rooms")).json()) as EventRooms
     expect(body.roomMode).toBe("SHARED")
-    expect(body.capacity.total).toBe(20)
+    expect(body.capacity.total).toBe(100)
     expect(body.rooms[0].gender).toBeNull()
     expect((await request("/rooms", "POST", { name: "Shared", capacity: 2 })).status).toBe(204)
     expect(

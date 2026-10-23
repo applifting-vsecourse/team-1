@@ -56,10 +56,7 @@ export function RoomDialog({
     name: z.string().trim().min(1, t("rooms.nameRequired")).max(100, t("rooms.nameTooLong")),
     capacity: z
       .string()
-      .refine(
-        (value) => /^\d+$/.test(value) && Number(value) >= 1 && Number(value) <= 20,
-        t("rooms.capacityError"),
-      ),
+      .refine((value) => /^\d+$/.test(value) && Number(value) >= 1, t("rooms.capacityError")),
     gender: z.enum(["FEMALE", "MALE"]),
   })
   const form = useForm<z.infer<typeof schema>>({
@@ -167,7 +164,6 @@ export function RoomDialog({
                         type="number"
                         inputMode="numeric"
                         min={1}
-                        max={20}
                         step={1}
                       />
                     </FormControl>
