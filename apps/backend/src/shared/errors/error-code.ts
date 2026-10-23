@@ -7,6 +7,10 @@
  * shows the generic message for codes it doesn't know.
  */
 export const ERROR_CODES = [
+  "CAPACITY_MODE_NOT_SUPPORTED",
+  "CAPACITY_ROOM_GENDER_REQUIRED",
+  "ROOM_NAME_TAKEN",
+  "ROOM_MODE_REQUIRES_EMPTY_ROOMS",
   "UNAUTHORIZED",
   "FORBIDDEN",
   "NOT_FOUND",

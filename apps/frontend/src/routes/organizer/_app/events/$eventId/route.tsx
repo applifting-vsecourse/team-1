@@ -13,7 +13,7 @@ export const Route = createFileRoute("/organizer/_app/events/$eventId")({
 
 function EventLayout() {
   const { eventId } = Route.useParams()
-  const { t } = useTranslation()
+  const { t } = useTranslation(["common", "events"])
 
   return (
     <div className="flex flex-col gap-6">
@@ -45,6 +45,12 @@ function EventLayout() {
           params={{ eventId }}
         >
           {t("eventTabs.applications")}
+        </NavLink>
+        <NavLink
+          to={ROUTES.organizer.eventCapacity}
+          params={{ eventId }}
+        >
+          {t("events:capacity.tab")}
         </NavLink>
       </nav>
       <Outlet />

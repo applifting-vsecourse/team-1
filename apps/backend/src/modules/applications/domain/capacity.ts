@@ -2,7 +2,7 @@ import { emptyGenderCounts, Gender, GenderCounts, GENDERS } from "@/shared/domai
 
 export type RoomCapacity = {
   capacity: number
-  gender: Gender
+  gender: Gender | null
 }
 
 /**
@@ -12,8 +12,16 @@ export type RoomCapacity = {
  */
 export function computeTermCapacity(rooms: RoomCapacity[]): GenderCounts {
   const capacity = emptyGenderCounts()
-  for (const room of rooms) capacity[room.gender] += room.capacity
+  for (const room of rooms) {
+    if (room.gender !== null) capacity[room.gender] += room.capacity
+  }
   return capacity
+}
+
+/** All beds of a term, women's + men's — the capacity the organizer sees in lists. */
+export function computeTotalBeds(rooms: RoomCapacity[]): number {
+  const { FEMALE, MALE } = computeTermCapacity(rooms)
+  return FEMALE + MALE
 }
 
 export function countByGender(items: { gender: Gender }[]): GenderCounts {
@@ -31,4 +39,24 @@ export function computeFreePlaces(capacity: GenderCounts, confirmed: GenderCount
   const free = emptyGenderCounts()
   for (const gender of GENDERS) free[gender] = capacity[gender] - confirmed[gender]
   return free
+}
+
+/** A shared bed is counted once in total, never once per gender. */
+export function computeRoomCapacity(rooms: RoomCapacity[]): GenderCounts & { total: number } {
+  return {
+    ...computeTermCapacity(rooms),
+    total: rooms.reduce((sum, room) => sum + room.capacity, 0),
+  }
+}
+
+/** Shared rooms serve all genders from one pool. Existing confirmations keep their places. */
+export function computeAvailablePlaces(rooms: RoomCapacity[], confirmed: Gender[]): GenderCounts {
+  if (rooms.some((room) => room.gender === null)) {
+    const free = computeRoomCapacity(rooms).total - confirmed.length
+    return { FEMALE: free, MALE: free }
+  }
+  return computeFreePlaces(
+    computeTermCapacity(rooms),
+    countByGender(confirmed.map((gender) => ({ gender }))),
+  )
 }

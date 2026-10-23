@@ -92,7 +92,7 @@ Jádro MVP:
 Klíčová čísla z akceptačních kritérií (musí sedět v testech):
 
 - Kapacita termínu pro ženy = součet kapacit dámských pokojů, pro muže = pánských. 10 + 10 pokojů po 5 místech pojme 50 + 50, **ne** 52 + 48.
-- Pokoj: kapacita 1–20, příznak dámský / pánský povinný, platí pro všechny termíny akce.
+- Pokoj (návaznost na US-14): kapacita od 1 bez produktového horního limitu, platí pro všechny termíny akce. V režimu `GENDERED` má pohlaví dámský / pánský; v režimu `SHARED` může být bez pohlaví. US-26 zatím řeší pouze režim `GENDERED`.
 - Přihláška se uloží vždy, i když je plno. Termíny se vyhodnocují zvlášť v pořadí přijetí na serveru. Dvě souběžné přihlášky nikdy nepřekročí kapacitu.
 - Částka k úhradě = součet cen **potvrzených** termínů. Dluží = k úhradě − zaplaceno. Zaplaceno bez částky = celá částka k úhradě.
 - Variabilní symbol = číslo přihlášky.
@@ -156,7 +156,7 @@ Organization          name, bankAccount
 OrganizationMember    userId, organizationId                       (M:N, organizátor ↔ organizace)
 Event                 organizationId, name, description?, location?, publicToken (unikátní, neuhodnutelný)
 Term                  organizationId, eventId, name, startsOn, endsOn, priceCzk
-Room                  organizationId, eventId, name, capacity (1–20), gender
+Room                  organizationId, eventId, name, capacity (od 1 bez horního limitu), gender?
 Application           organizationId, eventId, userId (účet přihlašovatele), number (VS, sekvence),
                       accessToken (stránka potvrzení), firstName, lastName, birthDate, gender, email,
                       consentAt, submittedAt
@@ -218,6 +218,8 @@ Organizace v URL není. Přístup se ověřuje přes členství v organizaci, kt
 /organizer/events/:eventId/rooms[/:id]     pokoje
 /organizer/events/:eventId/applications    seznam s filtry ?termId&status&paid
 /organizer/events/:eventId/occupancy       obsazenost
+/organizer/events/:eventId/capacity        aktuální kapacita a volná lůžka podle pohlaví pro každý termín
+/organizer/events/:eventId/capacity/details  přehled včetně pokojů a dat termínů
 /organizer/applications/:id/payments[/:id] zápis a zrušení platby
 /participant/applications[/:id]            moje přihlášky a jedna přihláška (US-54)
 /participant/password                      POST první heslo přihlašovatele (US-04)
@@ -315,6 +317,14 @@ apps/frontend/src/
 | 2026-10-21 | **Účastník nevidí, že je náhradník.** Nepotvrzený termín se mu ukazuje jako „Čeká na potvrzení“, potvrzený jako „Potvrzeno“; API pro účastníka neposílá pořadí. U přihlášky vidí stav platby: Nezaplaceno, Částečně zaplaceno, Zaplaceno, Přeplatek (`computePaymentStatus` v `applications/domain/pricing.ts`). Platí pro účet účastníka a pro stránku po odeslání, až vznikne (US-25; rámce V04 / V06 / M06 už to mají). |
 
 ## 11. Rozdíly vůči boardu
+
+Upřesnění zadavatele 2026-10-23 pro US-26: navazuje na US-14, zachovává
+volitelné pohlaví v datovém modelu a ruší původní maximum 20 lůžek. Výpočet
+a správa kapacit v US-26 jsou však jen pro akce s dělením podle pohlaví;
+společná kapacita se implementuje později. Při otevření akce v režimu `SHARED`
+se v přehledu US-26 zobrazí informace o nepodporovaném režimu. US-26 je pouze
+čtecí přehled; veškeré úpravy pokojů patří výhradně do US-14. Samostatné ubytování US-14 na `/rooms` nadále podporuje
+oba režimy včetně úprav jednotlivých pokojů a přepínání režimu.
 
 PO změnu potvrdil 2026-10-19, issues jsou upravené 2026-10-21. Tabulka zůstává pro dohledání původního zadání.
 

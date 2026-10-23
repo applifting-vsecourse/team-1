@@ -33,6 +33,13 @@ enum Gender {
   @@map("gender")
 }
 
+enum RoomMode {
+  GENDERED
+  SHARED
+
+  @@map("room_mode")
+}
+
 // Language of the UI and e-mails (docs/PROJEKT.md, localization).
 enum Locale {
   en
@@ -164,6 +171,7 @@ model Event {
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   organizationId String
   name           String
+  roomMode       RoomMode     @default(GENDERED)
   description    String?      @db.Text
   location       String?
   // Unguessable token in the public application link /prihlaska/<publicToken>.
@@ -207,9 +215,9 @@ model Room {
   event          Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
   eventId        String
   name           String
-  // 1–20 beds, validated in the DTO.
+  // At least one bed; no product upper limit (US-14).
   capacity       Int
-  gender         Gender
+  gender         Gender?
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @default(now()) @updatedAt
 

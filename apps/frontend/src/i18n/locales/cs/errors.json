@@ -1,11 +1,16 @@
 {
+  "CAPACITY_MODE_NOT_SUPPORTED": "Tento přehled kapacit je zatím dostupný pouze pro akce s dělením pokojů podle pohlaví.",
+  "CAPACITY_ROOM_GENDER_REQUIRED": "Před výpočtem kapacity podle pohlaví přiřaďte pohlaví všem pokojům.",
   "EMAIL_NOT_ALLOWED": "Tento e-mail nelze použít pro přihlášku, zadejte jiný.",
   "FORBIDDEN": "K tomu nemáte přístup.",
   "INTERNAL": "Na serveru se něco pokazilo. Zkuste to prosím znovu.",
   "INVALID_EMAIL_OR_PASSWORD": "Nesprávný e-mail nebo heslo.",
+  "INVALID_RESPONSE": "Odpověď serveru se nepodařilo načíst. Zkuste to znovu.",
   "NOT_FOUND": "Nenalezeno.",
   "PASSWORD_ALREADY_SET": "Heslo už máte nastavené.",
   "PASSWORD_REQUIRED": "Nejprve si nastavte heslo, poté budete moci pokračovat.",
+  "ROOM_MODE_REQUIRES_EMPTY_ROOMS": "Před přepnutím na pokoje podle pohlaví nejprve odstraňte společné pokoje.",
+  "ROOM_NAME_TAKEN": "Pokoj s tímto názvem už v akci existuje.",
   "UNAUTHORIZED": "Přihlaste se prosím.",
   "UNKNOWN": "Něco se pokazilo.",
   "VALIDATION_FAILED": "Některá pole nejsou vyplněná správně."
