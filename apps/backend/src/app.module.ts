@@ -3,6 +3,7 @@ import { Module } from "@nestjs/common"
 import { AccountModule } from "./modules/account/account.module"
 import { ApplicationsModule } from "./modules/applications/applications.module"
 import { EventsModule } from "./modules/events/events.module"
+import { OverviewModule } from "./modules/overview/overview.module"
 import { ParticipantsModule } from "./modules/participants/participants.module"
 import { WelcomeModule } from "./modules/welcome/welcome.module"
 import { AuthModule } from "./shared/auth/auth.module"
@@ -17,6 +18,7 @@ const imports = [
   ApplicationsModule,
   EventsModule,
   ParticipantsModule,
+  OverviewModule,
 ]
 
 @Module({

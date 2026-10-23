@@ -84,6 +84,12 @@ function EventTabs({ eventId }: { eventId: string }) {
           {t("eventTabs.applications")}
         </NavLink>
         <NavLink
+          to={ROUTES.organizer.eventCapacity}
+          params={params}
+        >
+          {t("eventTabs.capacity")}
+        </NavLink>
+        <NavLink
           to={ROUTES.organizer.eventRooms}
           params={params}
         >

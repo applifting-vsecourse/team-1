@@ -11,6 +11,7 @@
   "comingSoon": "Coming soon — {{story}}.",
   "eventTabs": {
     "applications": "Applications",
+    "capacity": "Capacity",
     "overview": "Overview",
     "rooms": "Accommodation",
     "terms": "Terms"

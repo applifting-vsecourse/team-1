@@ -2,6 +2,31 @@
   "applications": {
     "title": "Přihlášky"
   },
+  "capacity": {
+    "confirmedColumn": "Potvrzeno / kapacita",
+    "confirmedOnly": "Volno se počítá pouze z potvrzených přihlášek.",
+    "description": "Lůžka, potvrzení účastníci, volná místa a náhradníci po termínech.",
+    "empty": "Akce zatím nemá žádný aktivní termín.",
+    "freeColumn": "Volná místa",
+    "freePlaces_few": "{{count}} volná místa",
+    "freePlaces_one": "{{count}} volné místo",
+    "freePlaces_other": "{{count}} volných míst",
+    "genderCapacity": "{{gender}} · kapacita {{count}} lůžek",
+    "loadFailed": "Kapacity se nepodařilo načíst",
+    "manageRooms": "Spravovat pokoje",
+    "men": "Muži",
+    "menOnlyTitle": "Volná místa pro muže nelze využít pro ženy.",
+    "sharedNote": "Kapacita vychází z lůžek v pokojích. Pokoje jsou společné pro všechny termíny; změna pokoje přepočítá kapacitu každého termínu, počty potvrzených účastníků zůstávají stejné.",
+    "tableHint": "Klikněte na počet potvrzených nebo náhradníků: otevře se seznam přihlášek s odpovídajícími filtry.",
+    "tableTitle": "Obsazenost všech termínů",
+    "termColumn": "Termín",
+    "termFilter": "Termín",
+    "title": "Kapacity",
+    "waitlisted": "Náhradníci",
+    "waitlistedColumn": "Náhradníci",
+    "women": "Ženy",
+    "womenOnlyTitle": "Volná místa pro ženy nelze využít pro muže."
+  },
   "dashboard": {
     "createEvent": "Vytvořit akci",
     "description": "Vidíte pouze akce, ke kterým máte přístup.",
