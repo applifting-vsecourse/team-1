@@ -13,7 +13,10 @@ test.describe("Capacity", () => {
 
     await page.goto("/organizer/events")
     await page.getByRole("link", { name: /Letní kemp 2027/ }).click()
-    await page.getByRole("navigation", { name: "Event sections" }).getByRole("link", { name: "Capacity" }).click()
+    await page
+      .getByRole("navigation", { name: "Event sections" })
+      .getByRole("link", { name: "Capacity" })
+      .click()
 
     const women = page.getByRole("heading", { name: /^Women · capacity \d+ beds$/ })
     await expect(women).toBeVisible()
