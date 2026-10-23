@@ -115,6 +115,65 @@ describe("organizer payments (US-44)", () => {
     expect((await summary()).payments).toHaveLength(2)
   })
 
+  it.each([undefined, 3000])(
+    "does not restore a cancelled payment on retry (%s)",
+    async (amountCzk) => {
+      const requestId = randomUUID()
+      expect((await request("POST", "", { requestId, amountCzk })).status).toBe(204)
+      expect((await request("DELETE", `/${requestId}`)).status).toBe(204)
+      // A lost response can be retried after another organizer has cancelled the entry.
+      expect((await request("POST", "", { requestId, amountCzk })).status).toBe(204)
+      expect(await summary()).toMatchObject({ amountPaidCzk: 0, amountOwedCzk: 6900, payments: [] })
+      expect((await request("POST", "", { requestId, amountCzk: 1000 })).status).toBe(409)
+      expect((await request("DELETE", `/${requestId}`)).status).toBe(403)
+      expect(
+        (await prisma.payment.findUniqueOrThrow({ where: { id: requestId } })).cancelledAt,
+      ).not.toBeNull()
+      // A genuinely new submission still settles the full remaining balance.
+      expect((await request("POST", "", {})).status).toBe(204)
+      expect((await summary()).amountPaidCzk).toBe(6900)
+    },
+  )
+
+  it("does not restore a cancelled refund on retry or count it against a new refund", async () => {
+    await request("POST", "", { amountCzk: 7400 })
+    const requestId = randomUUID()
+    expect((await request("POST", "/refunds", { requestId, amountCzk: 500 })).status).toBe(204)
+    expect((await request("DELETE", `/${requestId}`)).status).toBe(204)
+    expect((await request("POST", "/refunds", { requestId, amountCzk: 500 })).status).toBe(204)
+    expect(await summary()).toMatchObject({ amountPaidCzk: 7400, amountOwedCzk: -500 })
+    expect((await summary()).payments).toHaveLength(1)
+    expect((await request("POST", "/refunds", { requestId, amountCzk: 200 })).status).toBe(409)
+    expect((await request("POST", "", { requestId, amountCzk: 500 })).status).toBe(409)
+    expect((await request("POST", "/refunds", { amountCzk: 500 })).status).toBe(204)
+    expect((await summary()).amountOwedCzk).toBe(0)
+  })
+
+  it("excludes cancelled payments from the participant list and detail", async () => {
+    const participant = await prisma.user.findUniqueOrThrow({
+      where: { email: "ucastnik@example.com" },
+    })
+    await prisma.application.update({
+      where: { id: applicationId },
+      data: { userId: participant.id },
+    })
+    const requestId = randomUUID()
+    await request("POST", "", { requestId, amountCzk: 3000 })
+    await request("POST", "", { amountCzk: 1000 })
+    expect((await request("DELETE", `/${requestId}`)).status).toBe(204)
+    for (const suffix of ["", `/${applicationId}`]) {
+      const response = await fetch(api(`/participant/applications${suffix}`), {
+        headers: { Cookie: participantCookie },
+      })
+      expect(response.status).toBe(200)
+      const body = await response.json()
+      const application = suffix
+        ? body
+        : body.find((row: { id: string }) => row.id === applicationId)
+      expect(application).toMatchObject({ amountPaidCzk: 1000, amountOwedCzk: 5900 })
+    }
+  })
+
   it("keeps an overpayment visible as negative debt, including additional receipts", async () => {
     await request("POST", "", { amountCzk: 7000 })
     const result = await summary()

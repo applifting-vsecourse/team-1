@@ -13,6 +13,7 @@ const include = {
   event: { select: { name: true } },
   terms: { include: { term: { select: { startsOn: true, endsOn: true } } } },
   payments: {
+    where: { cancelledAt: null },
     include: { recordedBy: { select: { name: true } } },
     orderBy: [{ createdAt: "asc" as const }, { id: "asc" as const }],
   },
@@ -73,7 +74,7 @@ export class PaymentsRepository {
       }
       const application = await tx.application.findFirstOrThrow({
         where: { id: applicationId, organizationId },
-        include: { terms: true, payments: true },
+        include: { terms: true, payments: { where: { cancelledAt: null } } },
       })
       const amount = resolvePaymentAmount(
         amountCzk,
@@ -106,8 +107,10 @@ export class PaymentsRepository {
   async remove(applicationId: string, organizationId: string, paymentId: string): Promise<void> {
     await this.prisma.$transaction(async (tx) => {
       await tx.$queryRaw`SELECT id FROM application WHERE id = ${applicationId} AND "organizationId" = ${organizationId} FOR UPDATE`
-      const result = await tx.payment.deleteMany({
-        where: { id: paymentId, applicationId, organizationId },
+      // Retain the submission ID and original amount so retries cannot restore a cancelled entry.
+      const result = await tx.payment.updateMany({
+        where: { id: paymentId, applicationId, organizationId, cancelledAt: null },
+        data: { cancelledAt: new Date() },
       })
       if (!result.count) throw new ForbiddenException()
     })
