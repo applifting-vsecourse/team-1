@@ -1,7 +1,7 @@
 import {
   computeAvailablePlaces,
-  computeFreePlaces,
   computeRoomCapacity,
+  computeSharedFreePlaces,
   computeTermCapacity,
   countByGender,
   RoomCapacity,
@@ -67,10 +67,7 @@ export function computeEventOccupancy(source: EventOccupancySource): EventOccupa
     const base = { id: term.id, name: term.name, startsOn: term.startsOn, endsOn: term.endsOn }
 
     if (shared) {
-      const free = computeFreePlaces(
-        { FEMALE: sharedCapacity, MALE: 0 },
-        { FEMALE: term.confirmed.length, MALE: 0 },
-      ).FEMALE
+      const free = computeSharedFreePlaces(rooms, term.confirmed.length)
       return {
         ...base,
         capacity: sharedCapacity,
