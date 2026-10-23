@@ -2,7 +2,14 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { formatCzk } from "@/lib/money"
 
 import {
@@ -10,8 +17,12 @@ import {
   type Payment,
   type PaymentApplication,
 } from "@/features/event-overview/api/payments"
+import { SummaryBox } from "@/features/event-overview/components/PaymentEditor"
 
-// Figma: O34i · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12796-20995
+/** Cancel one payment or refund record: what it changes, the balance after, Back / Cancel record. */
+// Figma (Design system): O34f Zrušit zápis platby · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12796-20185
+// Figma (Design system): O34i Zrušit dílčí platbu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12796-20995
+// Figma (Design system): O34m Zrušit platbu při přeplatku · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=13980-10919
 export function PaymentCancellation({
   application,
   payment,
@@ -41,24 +52,30 @@ export function PaymentCancellation({
         if (!isOpen && !mutation.isPending) onClose()
       }}
     >
-      <DialogContent
-        showCloseButton={false}
-        className="max-h-[calc(100dvh-2rem)] gap-6 overflow-y-auto rounded-lg p-8 sm:max-w-140"
-      >
-        <DialogTitle className="text-2xl leading-8">
-          {t(payment.amountCzk < 0 ? "payment.cancelRefundTitle" : "payment.cancelTitle")}
-        </DialogTitle>
-        <DialogDescription className="text-foreground">
-          {application.firstName} {application.lastName} · {application.code} ·{" "}
-          {application.eventName}
-        </DialogDescription>
+      <DialogContent className="max-h-[calc(100dvh-2rem)] gap-4 overflow-y-auto p-6 sm:max-w-130">
+        <DialogHeader>
+          <DialogTitle className="text-lg tracking-tight">
+            {t(payment.amountCzk < 0 ? "payment.cancelRefundTitle" : "payment.cancelTitle")}
+          </DialogTitle>
+          <DialogDescription>
+            {application.firstName} {application.lastName} · {application.code} ·{" "}
+            {application.eventName}
+          </DialogDescription>
+        </DialogHeader>
+        <SummaryBox
+          rows={[
+            [t("payment.editorDue"), formatCzk(application.amountDueCzk)],
+            [t("payment.paidNow"), formatCzk(application.amountPaidCzk)],
+            [t("payment.cancelledRecord"), formatCzk(Math.abs(payment.amountCzk))],
+          ]}
+        />
         <p>
           {t(
             payment.amountCzk < 0 ? "payment.cancelRefundDescription" : "payment.cancelDescription",
             { amount: formatCzk(Math.abs(payment.amountCzk)) },
           )}
         </p>
-        <p className="text-lg font-semibold">
+        <p className="border-t pt-3 font-semibold">
           {t(balanceAfter < 0 ? "payment.cancelOverpaidPreview" : "payment.cancelPreview", {
             amount: formatCzk(Math.abs(balanceAfter)),
           })}
@@ -71,7 +88,7 @@ export function PaymentCancellation({
             {mutation.error.message}
           </p>
         ) : null}
-        <div className="grid grid-cols-2 gap-6">
+        <DialogFooter>
           <Button
             variant="outline"
             size="lg"
@@ -88,7 +105,7 @@ export function PaymentCancellation({
           >
             {t(mutation.isPending ? "payment.cancelling" : "payment.cancelRecord")}
           </Button>
-        </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   )

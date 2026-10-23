@@ -90,12 +90,10 @@ describe("PaymentDetail", () => {
   it("shows no payments and links back to the correct event's applications", async () => {
     get.mockReturnValue({ json: () => Promise.resolve(application) })
     setup()
-    expect(
-      await screen.findByRole("heading", { name: "Payment and application details" }),
-    ).toBeInTheDocument()
+    expect(await screen.findByRole("heading", { name: "Adam Test · C-0047" })).toBeInTheDocument()
     expect(screen.getByText("No payment recorded yet.")).toBeInTheDocument()
     expect(screen.getByRole("button", { name: "Record payment" })).toBeInTheDocument()
-    expect(screen.getByRole("link", { name: "Back to applications" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "← Back to applications" })).toHaveAttribute(
       "href",
       "/organizer/events/e1/applications",
     )
@@ -115,7 +113,8 @@ describe("PaymentDetail", () => {
     })
     setup()
     expect(await screen.findByText(/Left to pay:.*3,900/)).toBeInTheDocument()
-    expect(screen.getByText("Recorded by Eva")).toBeInTheDocument()
+    expect(screen.getByRole("cell", { name: "Eva" })).toBeInTheDocument()
+    expect(screen.getByText("Partially paid")).toBeInTheDocument()
     expect(screen.getByRole("button", { name: "Record payment" })).toBeInTheDocument()
     expect(screen.getByRole("button", { name: "Cancel record" })).toBeInTheDocument()
   })
@@ -139,7 +138,7 @@ describe("PaymentDetail", () => {
     const dialog = screen.getByRole("dialog")
     expect(within(dialog).getByText(/After cancellation, amount owed:.*3,900/)).toBeInTheDocument()
     expect(remove).not.toHaveBeenCalled()
-    await user.click(within(dialog).getByRole("button", { name: "Keep payment" }))
+    await user.click(within(dialog).getByRole("button", { name: "Back" }))
     expect(remove).not.toHaveBeenCalled()
     await user.click(within(row).getByRole("button", { name: "Cancel record" }))
     await user.click(
