@@ -1,0 +1,66 @@
+title: Přihláška v termínu (životní cyklus, automatické vyhodnocování)
+diagram: lifecycle
+
+# odvozeno z procesu zpracování přihlášky v termínu (zpracovani-prihlasky.yaml)
+# Od ručního vyhodnocování se liší začátkem a náhradníky; stav K vyhodnocení a zamítnutí při vyhodnocení tu nejsou.
+
+states:
+  - { id: nahradnik, label: Náhradník }
+  - { id: potvrzena_dluh, label: Potvrzená s dluhem }
+  - { id: potvrzena_zaplacena, label: Potvrzená a zaplacená }
+  - { id: zrusena, label: Zrušená, final: true }
+  - { id: archivovana, label: Archivovaná, final: true }
+
+transitions:
+  - {
+      from: start,
+      to: potvrzena_dluh,
+      reason: Nová přihláška v termínu zaregistrována a je volné lůžko pro pohlaví účastníka,
+      op: "register(), confirm()",
+    }
+  - {
+      from: start,
+      to: nahradnik,
+      reason: Nová přihláška v termínu zaregistrována a volné lůžko pro pohlaví účastníka není,
+      op: register(),
+    }
+
+  - {
+      from: nahradnik,
+      to: potvrzena_dluh,
+      reason: Uvolní se lůžko pro pohlaví účastníka a je první v pořadí přijetí,
+      op: confirm(),
+    }
+
+  - { from: nahradnik, to: zrusena, reason: Nastal první den termínu akce, op: cancel() }
+
+  - {
+      from: potvrzena_dluh,
+      to: potvrzena_dluh,
+      reason: Lhůta pro zaplacení dluhu uplynula,
+      op: sendPaymentRequest(),
+    }
+  - {
+      from: potvrzena_dluh,
+      to: potvrzena_zaplacena,
+      reason: Σ plateb = částka k úhradě,
+      op: recordPayment(),
+    }
+  - {
+      from: potvrzena_dluh,
+      to: zrusena,
+      reason: Nastaly okolnosti pro zamítnutí přihlášky v termínu,
+      op: cancel(),
+    }
+
+  - {
+      from: potvrzena_zaplacena,
+      to: zrusena,
+      reason: Nastaly okolnosti pro zamítnutí přihlášky v termínu,
+      op: cancel(),
+    }
+  - { from: potvrzena_zaplacena, to: zrusena, reason: Účastník se odhlásí, op: cancel() }
+  - { from: potvrzena_zaplacena, to: archivovana, reason: Termín proběhne, op: archive() }
+
+  - { from: zrusena, to: end }
+  - { from: archivovana, to: end }
