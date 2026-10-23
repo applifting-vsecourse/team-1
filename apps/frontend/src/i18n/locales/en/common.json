@@ -46,6 +46,9 @@
       "title": "Page not found"
     }
   },
+  "price": {
+    "free": "Free"
+  },
   "state": {
     "loading": "Loading…",
     "retry": "Try again"

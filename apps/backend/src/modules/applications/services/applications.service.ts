@@ -3,7 +3,6 @@ import {
   NewApplication,
   SavedApplication,
 } from "@/modules/applications/domain/application-submission"
-import { computeAmountDue } from "@/modules/applications/domain/pricing"
 import { isOpenForApplications } from "@/modules/applications/domain/public-event"
 import { evaluateSubmission, isValidBirthDate } from "@/modules/applications/domain/submission"
 import { ApplicationsRepository } from "@/modules/applications/repositories/applications.repository"
@@ -93,37 +92,48 @@ export class ApplicationsService {
       ),
     )
 
-    await this.sendConfirmations(event, email, locale, saved)
+    await this.sendConfirmation(event, email, locale, account.mustSetPassword, applications, saved)
     return saved
   }
 
-  private async sendConfirmations(
+  /**
+   * ONE summary e-mail for the whole submission, however many participants it
+   * holds (PO decision 2026-10-21, docs/PROJEKT.md §10). The mailer logs a
+   * failed delivery itself; the catch keeps a stored application a success
+   * whatever happens.
+   */
+  private async sendConfirmation(
     event: { name: string; bankAccount: string; terms: { id: string; name: string }[] },
     email: string,
     locale: Locale,
+    mustSetPassword: boolean,
+    submitted: NewApplication[],
     saved: SavedApplication[],
   ): Promise<void> {
     const termNames = new Map(event.terms.map((term) => [term.id, term.name]))
-    for (const application of saved) {
-      try {
-        await this.mailer.send({
-          email,
-          locale,
+    const lastNames = new Map(submitted.map((a) => [a.accessToken, a.lastName]))
+    try {
+      await this.mailer.sendSubmissionConfirmation({
+        email,
+        locale,
+        eventName: event.name,
+        bankAccount: event.bankAccount,
+        mustSetPassword,
+        applications: saved.map((application) => ({
+          number: application.number,
           firstName: application.firstName,
-          eventName: event.name,
-          applicationNumber: application.number,
+          lastName: lastNames.get(application.accessToken) ?? "",
           accessToken: application.accessToken,
-          bankAccount: event.bankAccount,
-          amountDueCzk: computeAmountDue(application.terms),
           terms: application.terms.map((term) => ({
             name: termNames.get(term.termId) ?? "",
             status: term.status,
+            priceCzk: term.priceCzk,
           })),
-        })
-      } catch (error) {
-        // The application is stored; a failed e-mail must not turn it into an error.
-        this.logger.error(`Confirmation e-mail for application ${application.number} failed`, error)
-      }
+        })),
+      })
+    } catch (error) {
+      // The application is stored; a failed e-mail must not turn it into an error.
+      this.logger.error("Confirmation e-mail of a submission failed", error)
     }
   }
 }

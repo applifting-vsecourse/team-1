@@ -15,6 +15,7 @@ const imports = [
   AccountModule,
   EventsModule,
   ApplicationsModule,
+  EventsModule,
   ParticipantsModule,
 ]
 

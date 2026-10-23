@@ -1,9 +1,75 @@
 {
+  "breadcrumb": {
+    "events": "Events"
+  },
   "list": {
-    "title": "Events"
+    "count_few": "{{count}} events",
+    "count_one": "{{count}} event",
+    "count_other": "{{count}} events",
+    "create": "Create event",
+    "created": "The event {{name}} was created.",
+    "description": "Events of your organizations and events you run on your own.",
+    "empty": "There are no events yet.",
+    "errorTitle": "Couldn't load the events",
+    "manyTerms_few": "{{count}} terms · {{months}} · {{organization}}",
+    "manyTerms_one": "{{count}} term · {{months}} · {{organization}}",
+    "manyTerms_other": "{{count}} terms · {{months}} · {{organization}}",
+    "noCapacity": "—",
+    "noTerms": "No term yet · {{organization}}",
+    "occupancyMany": "{{confirmed}} / {{capacity}} places in {{count}} terms",
+    "occupancyOne": "{{confirmed}} / {{capacity}} participants",
+    "oneTerm": "{{dates}} · {{organization}}",
+    "statusClosed": "Application inactive",
+    "statusOpen": "Published",
+    "title": "Event list"
   },
   "new": {
-    "title": "New event"
+    "back": "Back to the list",
+    "breadcrumb": "Create event",
+    "description": "Create the event. You add terms, prices and rooms afterwards.",
+    "form": {
+      "description": "Event description",
+      "heading": "Basic details",
+      "location": "Venue",
+      "name": "Event name *",
+      "nameHelper": "Applicants see the name too.",
+      "nameRequired": "Enter the event name.",
+      "organization": "Organization",
+      "organizationHelper": "Choose your organization, or On your own.",
+      "required": "* Required field",
+      "submit": "Create event"
+    },
+    "next": "You open applications once you add a term with a price and at least one room.",
+    "title": "Create event"
+  },
+  "overview": {
+    "backToList": "Back to the list",
+    "breadcrumbOverview": "Overview",
+    "copied": "Link copied to the clipboard",
+    "copy": "Copy application link",
+    "copyAgain": "Copy again",
+    "errorTitle": "Couldn't load the event",
+    "inactiveBody": "The event is saved in the list. Applications open once you add a term with a price and rooms.",
+    "inactiveTitle": "The application link is not active yet",
+    "missing": {
+      "addRoom": "Add a room",
+      "addTerm": "Add a term and price",
+      "intro": "Complete these two steps. Then you can copy the direct link and send it out.",
+      "roomBody": "Rooms set the capacity available to applicants.",
+      "roomTitle": "2 / Add at least one room",
+      "termBody": "Applicants need to know when the event takes place and what it costs.",
+      "termTitle": "1 / Add at least one term with a price",
+      "title": "What is missing to open applications"
+    },
+    "ready": {
+      "body": "The event has terms with a price and rooms. You can send the link to applicants.",
+      "title": "Applications are ready to share"
+    },
+    "subtitleNoTerms": "{{name}} · {{organization}} · no term yet",
+    "subtitleTerms_few": "{{name}} · run by {{organization}} · {{count}} terms listed",
+    "subtitleTerms_one": "{{name}} · run by {{organization}} · {{count}} term listed",
+    "subtitleTerms_other": "{{name}} · run by {{organization}} · {{count}} terms listed",
+    "title": "Event overview"
   },
   "rooms": {
     "actionsColumn": "Actions",
@@ -87,6 +153,61 @@
     "totalRooms": "Total rooms"
   },
   "terms": {
+    "add": "Add term",
+    "cancel": "Cancel term",
+    "cancelDialog": {
+      "confirm": "Confirm cancellation",
+      "confirmed_few": "{{count}} confirmed applications",
+      "confirmed_one": "{{count}} confirmed application",
+      "confirmed_other": "{{count}} confirmed applications",
+      "history": "Application history is kept. Inform the participants yourself; payments are not refunded automatically.",
+      "impact": "{{confirmed}} and {{waitlisted}}",
+      "keep": "Keep term",
+      "notOffered": "The term {{dates}} will no longer be offered in the application. Other terms of the event stay available.",
+      "reason": "Reason for cancelling *",
+      "reasonHelper": "The reason is saved for the organizers.",
+      "title": "Cancel {{name}}?",
+      "waitlisted_few": "{{count}} waitlisted",
+      "waitlisted_one": "{{count}} waitlisted",
+      "waitlisted_other": "{{count}} waitlisted"
+    },
+    "cancelledHelper": "The term is no longer offered in the application. Other terms stay available; application history is kept.",
+    "cancelledRow": "{{name}} · {{dates}} · Cancelled",
+    "cancelledTitle_few": "Cancelled terms",
+    "cancelledTitle_one": "Cancelled term",
+    "cancelledTitle_other": "Cancelled terms",
+    "description": "Add terms, set their dates and price. Each term is evaluated on its own.",
+    "edit": "Edit",
+    "empty": "The event has no term yet.",
+    "errorTitle": "Couldn't load the terms",
+    "form": {
+      "addTitle": "Add term",
+      "close": "Close",
+      "description": "Fill in the name, period and price per person. Terms are sorted by start date.",
+      "editTitle": "Edit term",
+      "endBeforeStart": "The end must be after the start.",
+      "endsOn": "End date *",
+      "fieldRequired": "Fill in this field.",
+      "name": "Term name *",
+      "nameHelper": "Applicants see the name too.",
+      "price": "Price per person (CZK) *",
+      "priceHelper": "The whole price of the term; no deposit.",
+      "priceRequired": "Fill in the price per person in CZK.",
+      "required": "* Required field",
+      "save": "Save changes",
+      "startsOn": "Start date *",
+      "submitAdd": "Add term"
+    },
+    "listHelper": "Sorted by start date. Each term is evaluated separately.",
+    "listTitle": "Event terms · {{count}}",
+    "notice": {
+      "added": "The term {{name}} was added.",
+      "cancelled": "The term {{name}} was cancelled.",
+      "edited": "Changes to the term {{name}} were saved."
+    },
+    "occupancy_few": "{{confirmed}} / {{count}} places",
+    "occupancy_one": "{{confirmed}} / {{count}} place",
+    "occupancy_other": "{{confirmed}} / {{count}} places",
     "title": "Terms"
   }
 }

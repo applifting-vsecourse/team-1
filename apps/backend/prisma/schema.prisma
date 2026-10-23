@@ -197,6 +197,9 @@ model Term {
   startsOn       DateTime     @db.Date
   endsOn         DateTime     @db.Date
   priceCzk       Int
+  // Cancelled terms stay for the history of applications but are no longer offered (US-13).
+  cancelledAt    DateTime?
+  cancelReason   String?      @db.Text
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @default(now()) @updatedAt
 

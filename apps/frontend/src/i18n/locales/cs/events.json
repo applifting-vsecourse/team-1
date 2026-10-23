@@ -1,9 +1,75 @@
 {
+  "breadcrumb": {
+    "events": "Akce"
+  },
   "list": {
-    "title": "Akce"
+    "count_few": "{{count}} akce",
+    "count_one": "{{count}} akce",
+    "count_other": "{{count}} akcí",
+    "create": "Vytvořit akci",
+    "created": "Akce {{name}} byla založena.",
+    "description": "Akce vašich organizací a akce pořádané samostatně.",
+    "empty": "Zatím tu nejsou žádné akce.",
+    "errorTitle": "Akce se nepodařilo načíst",
+    "manyTerms_few": "{{count}} termíny · {{months}} · {{organization}}",
+    "manyTerms_one": "{{count}} termín · {{months}} · {{organization}}",
+    "manyTerms_other": "{{count}} termínů · {{months}} · {{organization}}",
+    "noCapacity": "—",
+    "noTerms": "Zatím bez termínu · {{organization}}",
+    "occupancyMany": "{{confirmed}} / {{capacity}} míst ve {{count}} termínech",
+    "occupancyOne": "{{confirmed}} / {{capacity}} účastníků",
+    "oneTerm": "{{dates}} · {{organization}}",
+    "statusClosed": "Přihláška neaktivní",
+    "statusOpen": "Zveřejněno",
+    "title": "Seznam akcí"
   },
   "new": {
-    "title": "Nová akce"
+    "back": "Zpět na seznam",
+    "breadcrumb": "Vytvoření akce",
+    "description": "Založte akci. Termíny, ceny a pokoje doplníte následně.",
+    "form": {
+      "description": "Popis akce",
+      "heading": "Základní údaje",
+      "location": "Místo konání",
+      "name": "Název akce *",
+      "nameHelper": "Název uvidí také účastníci.",
+      "nameRequired": "Vyplňte název akce.",
+      "organization": "Organizace",
+      "organizationHelper": "Vyberte svou organizaci, nebo Samostatně.",
+      "required": "* Povinné pole",
+      "submit": "Založit akci"
+    },
+    "next": "Přihlášku zpřístupníte po doplnění termínu s cenou a alespoň jednoho pokoje.",
+    "title": "Vytvoření akce"
+  },
+  "overview": {
+    "backToList": "Zpět na seznam",
+    "breadcrumbOverview": "Přehled",
+    "copied": "Odkaz zkopírován do schránky",
+    "copy": "Kopírovat odkaz na přihlášku",
+    "copyAgain": "Kopírovat znovu",
+    "errorTitle": "Akci se nepodařilo načíst",
+    "inactiveBody": "Akce je uložená v seznamu. Přihláška se zpřístupní po doplnění termínu s cenou a pokoje.",
+    "inactiveTitle": "Odkaz na přihlášku zatím není aktivní",
+    "missing": {
+      "addRoom": "Přidat pokoj",
+      "addTerm": "Přidat termín a cenu",
+      "intro": "Doplňte tyto dva kroky. Potom bude možné přímý odkaz zkopírovat a rozeslat.",
+      "roomBody": "Pokoje určují dostupnou kapacitu pro přihlášené účastníky.",
+      "roomTitle": "2 / Přidejte alespoň jeden pokoj",
+      "termBody": "Účastníci potřebují vědět, kdy se akce koná a kolik stojí.",
+      "termTitle": "1 / Přidejte alespoň jeden termín s cenou",
+      "title": "Co chybí ke zpřístupnění přihlášky"
+    },
+    "ready": {
+      "body": "Akce má termíny s cenou i pokoje. Odkaz můžete rozeslat zájemcům.",
+      "title": "Přihláška je připravená ke sdílení"
+    },
+    "subtitleNoTerms": "{{name}} · {{organization}} · zatím bez termínu",
+    "subtitleTerms_few": "{{name}} · pořádá {{organization}} · {{count}} vypsané termíny",
+    "subtitleTerms_one": "{{name}} · pořádá {{organization}} · {{count}} vypsaný termín",
+    "subtitleTerms_other": "{{name}} · pořádá {{organization}} · {{count}} vypsaných termínů",
+    "title": "Přehled akce"
   },
   "rooms": {
     "actionsColumn": "Akce",
@@ -87,6 +153,61 @@
     "totalRooms": "Celkem pokojů"
   },
   "terms": {
+    "add": "Přidat termín",
+    "cancel": "Zrušit termín",
+    "cancelDialog": {
+      "confirm": "Potvrdit zrušení",
+      "confirmed_few": "{{count}} potvrzené přihlášky",
+      "confirmed_one": "{{count}} potvrzená přihláška",
+      "confirmed_other": "{{count}} potvrzených přihlášek",
+      "history": "Historie přihlášek zůstane zachována. Účastníky informujte samostatně; platby se automaticky nevracejí.",
+      "impact": "{{confirmed}} a {{waitlisted}}",
+      "keep": "Ponechat termín",
+      "notOffered": "Termín {{dates}} se přestane nabízet v přihlášce. Ostatní termíny akce zůstanou dostupné.",
+      "reason": "Důvod zrušení *",
+      "reasonHelper": "Důvod bude uložen pro organizátory.",
+      "title": "Zrušit {{name}}?",
+      "waitlisted_few": "{{count}} náhradníci",
+      "waitlisted_one": "{{count}} náhradník",
+      "waitlisted_other": "{{count}} náhradníků"
+    },
+    "cancelledHelper": "Termín se už nenabízí v přihlášce. Ostatní termíny zůstávají dostupné; historie přihlášek je zachována.",
+    "cancelledRow": "{{name}} · {{dates}} · Zrušeno",
+    "cancelledTitle_few": "Zrušené termíny",
+    "cancelledTitle_one": "Zrušený termín",
+    "cancelledTitle_other": "Zrušené termíny",
+    "description": "Přidejte termíny, nastavte jejich data a cenu. Každý termín se vyhodnocuje samostatně.",
+    "edit": "Upravit",
+    "empty": "Akce zatím nemá žádný termín.",
+    "errorTitle": "Termíny se nepodařilo načíst",
+    "form": {
+      "addTitle": "Přidat termín",
+      "close": "Zavřít",
+      "description": "Vyplňte název, období a cenu za osobu. Termíny se řadí podle data začátku.",
+      "editTitle": "Upravit termín",
+      "endBeforeStart": "Konec musí být po začátku.",
+      "endsOn": "Datum konce *",
+      "fieldRequired": "Vyplňte toto pole.",
+      "name": "Název termínu *",
+      "nameHelper": "Název se zobrazí i účastníkům.",
+      "price": "Cena za osobu (Kč) *",
+      "priceHelper": "Celá cena za termín; bez zálohy.",
+      "priceRequired": "Vyplňte cenu za osobu v Kč.",
+      "required": "* Povinná pole",
+      "save": "Uložit změny",
+      "startsOn": "Datum začátku *",
+      "submitAdd": "Přidat termín"
+    },
+    "listHelper": "Seřazeno podle data začátku. Každý termín se vyhodnocuje samostatně.",
+    "listTitle": "Termíny akce · {{count}}",
+    "notice": {
+      "added": "Termín {{name}} byl přidán.",
+      "cancelled": "Termín {{name}} byl zrušen.",
+      "edited": "Změny termínu {{name}} byly uloženy."
+    },
+    "occupancy_few": "{{confirmed}} / {{count}} místa",
+    "occupancy_one": "{{confirmed}} / {{count}} místo",
+    "occupancy_other": "{{confirmed}} / {{count}} míst",
     "title": "Termíny"
   }
 }
