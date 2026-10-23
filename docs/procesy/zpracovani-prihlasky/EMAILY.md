@@ -2,6 +2,8 @@
 
 Kdy se v procesu přihlášky v termínu odesílá e-mail a jakého typu. Vychází z procesních a stavových diagramů [ručního](rucni-vyhodnocovani/) a [automatického](automaticke-vyhodnocovani/) vyhodnocování.
 
+> **Pozor, konflikt s dosavadním stavem:** tento dokument počítá s tím, že se účastník dozví, že je náhradník („Jste náhradník“, pořadí se nesděluje). Dosud platí opak: `docs/FIGMA-REMAKE.md` (řádek 71) a šablona `application-confirmation-waitlisted` i rozhraní účastníka ukazují náhradníka jako „Čeká na potvrzení“. Platí tento dokument, ty tři místa je potřeba upravit.
+
 Sloupec **Typ** říká, jestli e-mail v kódu už existuje (šablona v `core/email/templates`), nebo je to návrh nového typu. Sloupce **Ruční** a **Auto** říkají, ve kterém režimu e-mail platí.
 
 | #   | Co se stane (přechod)                                                   | Ruční | Auto | E-mail                                                                                                                                                                                                                              | Typ                           |
