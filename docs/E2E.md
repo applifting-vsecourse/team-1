@@ -21,6 +21,7 @@ Jen cesty, bez kterých produkt nefunguje a které ukazujeme na demu. Jedna cest
 | ---------------------------------------------------------------------------------------- | ---------------------- | --------------------------------------- |
 | Landing → přihlášení organizátora → dashboard → odhlášení                                | `sign-in.spec.ts`      | ✅                                      |
 | Účastník se nedostane do správy akcí (403)                                               | `sign-in.spec.ts`      | ✅                                      |
+| Organizátor neotevře akci cizí organizace (403)                                          | `sign-in.spec.ts`      | ✅                                      |
 | Účastník: přihlášení heslem a odhlášení (i na mobilu)                                    | `sign-in.spec.ts`      | ✅                                      |
 | Účastník: žádost o magic link → otevření odkazu → přihlášen (i na mobilu)                | `magic-link.spec.ts`   | ✅                                      |
 | Nový účastník: magic link → nastavení hesla → přihlášení novým heslem (i na mobilu)      | `set-password.spec.ts` | ✅                                      |

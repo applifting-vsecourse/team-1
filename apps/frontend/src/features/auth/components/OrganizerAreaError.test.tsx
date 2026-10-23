@@ -34,7 +34,30 @@ const participant: SessionUser = {
   mustSetPassword: false,
 }
 
+const organizer: SessionUser = {
+  ...participant,
+  email: "organizator@example.com",
+  accountType: "ORGANIZER",
+}
+
 describe("OrganizerAreaError", () => {
+  it("shows an organizer opening another organization's record the 403 page with a way back", () => {
+    renderWith(organizer, new ForbiddenError())
+
+    expect(
+      screen.getByRole("heading", { name: "You don't have access to this page" }),
+    ).toBeInTheDocument()
+    expect(screen.getByText(/The requested record isn't available to you/)).toBeInTheDocument()
+    expect(screen.getByRole("link", { name: "My events" })).toHaveAttribute(
+      "href",
+      "/organizer/events",
+    )
+    expect(screen.getByRole("link", { name: "Back to dashboard" })).toHaveAttribute(
+      "href",
+      "/organizer",
+    )
+  })
+
   it("shows a participant the 403 page with a way back, and nothing of the area", () => {
     renderWith(participant, new ForbiddenError())
 
