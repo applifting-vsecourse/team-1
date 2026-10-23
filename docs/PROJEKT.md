@@ -53,7 +53,7 @@ Jádro MVP:
 ## 4. Board
 
 - **91 položek**, všechno issues v tomto repu ve formátu `US-xx Název` podle `.github/ISSUE_TEMPLATE/user-story.md`.
-- **Status:** Backlog → Ready → In progress → In review → Done. Pole Size (XS–XL), Estimate a Sprint (iterace) existují, zatím nevyplněná.
+- **Status:** Backlog → Ready → (Design) → In progress → Code review (otevřený PR) → In Test (tester před mergem) → In Business Review (po merge, PM na stagingu) → Done. Merguje se až po testu od testera; postup je v [CONTRIBUTING.md](../CONTRIBUTING.md). Pole Size (XS–XL), Estimate a Sprint (iterace) existují, zatím nevyplněná.
 - **Štítky:**
   - `epic: …` — 11 epiců (účty, nastavení akce, přihlašování na akce, platby, ubytování, přehledy, komunikace, ekonomika, logistika, platforma, technický základ)
   - `priority: MVP` / `priority: nice to have`
