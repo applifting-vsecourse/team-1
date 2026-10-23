@@ -6,9 +6,11 @@ import type { TFunction } from "i18next"
 import { CircleAlert, Loader2 } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
+import { toast } from "sonner"
 import { z } from "zod"
 
 import { ROUTES } from "@/app/routes"
+import { BackLink } from "@/components/atoms/BackLink"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { PageHeader } from "@/components/molecules/PageHeader"
@@ -50,7 +52,10 @@ const createSchema = (t: TFunction<"events">) =>
 
 type FormValues = z.infer<ReturnType<typeof createSchema>>
 
-/** O03a: the organizer's name, venue and description for a new event. Terms, prices and rooms come later. */
+/**
+ * O03a: name, organization, venue and description of a new event in a 784 px column, with
+ * Cancel / Create at the bottom. Terms, prices and rooms come later.
+ */
 // Figma (Design system): O03a Vytvoření akce · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12264-711
 // Figma (Design system): O03a Validace povinného názvu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12264-1129
 export function NewEventPage() {
@@ -58,32 +63,14 @@ export function NewEventPage() {
   const { data, error, isPending, refetch } = useQuery(myOrganizationsQueryOptions())
 
   return (
-    <div className="flex flex-col gap-6">
-      <nav
-        aria-label={t("new.breadcrumb")}
-        className="text-xs font-medium text-muted-foreground"
-      >
-        <Link
-          to={ROUTES.organizer.events}
-          className="hover:underline"
-        >
-          {t("breadcrumb.events")}
-        </Link>{" "}
-        / {t("new.breadcrumb")}
-      </nav>
-      <PageHeader
-        title={t("new.title")}
-        description={t("new.description")}
-        actions={
-          <Button
-            asChild
-            variant="outline"
-            size="lg"
-          >
-            <Link to={ROUTES.organizer.events}>{t("new.back")}</Link>
-          </Button>
-        }
-      />
+    <div className="flex w-full max-w-196 flex-col gap-6">
+      <div className="flex flex-col gap-2">
+        <BackLink to={ROUTES.organizer.events}>{t("new.back")}</BackLink>
+        <PageHeader
+          title={t("new.title")}
+          description={t("new.description")}
+        />
+      </div>
       {isPending ? <LoadingState /> : null}
       {error ? (
         <ErrorState
@@ -93,7 +80,6 @@ export function NewEventPage() {
         />
       ) : null}
       {data ? <NewEventCard organizations={data} /> : null}
-      <p className="rounded-lg border bg-muted p-6 text-sm">{t("new.next")}</p>
     </div>
   )
 }
@@ -122,8 +108,10 @@ function NewEventCard({ organizations }: { organizations: OrganizationSummary[] 
         description: values.description,
       },
       {
-        onSuccess: (event) =>
-          void navigate({ to: ROUTES.organizer.events, search: { created: event.id } }),
+        onSuccess: (event) => {
+          toast.success(t("list.created", { name: event.name }))
+          void navigate({ to: ROUTES.organizer.events, search: { created: event.id } })
+        },
       },
     )
 
@@ -139,6 +127,30 @@ function NewEventCard({ organizations }: { organizations: OrganizationSummary[] 
             onSubmit={form.handleSubmit(onSubmit)}
             className="flex flex-col gap-4"
           >
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="data-[error=true]:text-foreground">
+                    {t("new.form.name")}
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      autoComplete="off"
+                      {...field}
+                    />
+                  </FormControl>
+                  {form.formState.errors.name ? (
+                    <FormMessage className="text-xs font-medium" />
+                  ) : (
+                    <FormDescription className="text-xs font-medium">
+                      {t("new.form.nameHelper")}
+                    </FormDescription>
+                  )}
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="organizationId"
@@ -168,30 +180,6 @@ function NewEventCard({ organizations }: { organizations: OrganizationSummary[] 
                   <FormDescription className="text-xs font-medium">
                     {t("new.form.organizationHelper")}
                   </FormDescription>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="data-[error=true]:text-foreground">
-                    {t("new.form.name")}
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      autoComplete="off"
-                      {...field}
-                    />
-                  </FormControl>
-                  {form.formState.errors.name ? (
-                    <FormMessage className="text-xs font-medium" />
-                  ) : (
-                    <FormDescription className="text-xs font-medium">
-                      {t("new.form.nameHelper")}
-                    </FormDescription>
-                  )}
                 </FormItem>
               )}
             />
@@ -234,7 +222,15 @@ function NewEventCard({ organizations }: { organizations: OrganizationSummary[] 
               </Alert>
             ) : null}
 
-            <div className="flex justify-end">
+            <div className="flex flex-col gap-3 border-t pt-4 sm:flex-row sm:items-center">
+              <p className="text-sm text-muted-foreground sm:flex-1">{t("new.next")}</p>
+              <Button
+                asChild
+                variant="outline"
+                size="lg"
+              >
+                <Link to={ROUTES.organizer.events}>{t("new.cancel")}</Link>
+              </Button>
               <Button
                 type="submit"
                 size="lg"

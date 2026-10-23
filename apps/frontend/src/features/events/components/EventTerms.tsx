@@ -1,18 +1,25 @@
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { Link } from "@tanstack/react-router"
+import { Ban, MoreHorizontal, Pencil } from "lucide-react"
 import { useTranslation } from "react-i18next"
+import { toast } from "sonner"
 
-import { ROUTES } from "@/app/routes"
 import { EmptyState } from "@/components/molecules/EmptyState"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
-import { PageHeader } from "@/components/molecules/PageHeader"
+import { SectionHeader } from "@/components/molecules/SectionHeader"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { Progress } from "@/components/ui/progress"
 import { formatDateRange } from "@/lib/date"
 import { formatTermPrice } from "@/lib/money"
+import { cn } from "@/lib/utils"
 
 import { eventQueryOptions } from "@/features/events/api/events"
 import { termsQueryOptions, type EventTerm } from "@/features/events/api/terms"
@@ -22,11 +29,11 @@ import { TermFormDialog } from "@/features/events/components/TermFormDialog"
 type Dialog =
   { kind: "add" } | { kind: "edit"; term: EventTerm } | { kind: "cancel"; term: EventTerm }
 
-type Notice = { kind: "added" | "edited" | "cancelled"; name: string }
+type Change = { kind: "added" | "edited" | "cancelled"; term: EventTerm }
 
 /**
- * O24 / O24a / O24b / O24c: the terms of an event sorted by date, with add, edit and cancel,
- * and a confirmation of what just happened.
+ * O24 / O24a / O24b / O24c: the terms of an event sorted by date, with add, and edit or
+ * cancel in each row's menu; a toast confirms what just happened.
  */
 // Figma (Design system): O24 Nastavení akce a seznam termínů · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12282-1018
 // Figma (Design system): O24a Seznam po přidání · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12282-1888
@@ -37,7 +44,7 @@ export function EventTerms({ eventId }: { eventId: string }) {
   const event = useQuery(eventQueryOptions(eventId))
   const terms = useQuery(termsQueryOptions(eventId))
   const [dialog, setDialog] = useState<Dialog | null>(null)
-  const [notice, setNotice] = useState<Notice | null>(null)
+  const [changedId, setChangedId] = useState<string | null>(null)
 
   const error = event.error ?? terms.error
   if (error) {
@@ -58,52 +65,30 @@ export function EventTerms({ eventId }: { eventId: string }) {
   const cancelled = terms.data.filter((term) => term.cancelledAt)
   const eventName = event.data.name
   const close = () => setDialog(null)
-  const finish = (next: Notice) => {
-    setNotice(next)
+  const finish = ({ kind, term }: Change) => {
+    toast.success(t(`terms.notice.${kind}`, { name: term.name }))
+    setChangedId(kind === "cancelled" ? null : term.id)
     close()
   }
 
   return (
     <div className="flex flex-col gap-6">
-      <nav
-        aria-label={t("terms.title")}
-        className="text-xs font-medium text-muted-foreground"
-      >
-        <Link
-          to={ROUTES.organizer.events}
-          className="hover:underline"
-        >
-          {t("breadcrumb.events")}
-        </Link>{" "}
-        / {event.data.organizationName} / {eventName} / {t("terms.title")}
-      </nav>
-      <PageHeader
+      <SectionHeader
         title={t("terms.title")}
         description={t("terms.description")}
         actions={
           <Button
             size="lg"
-            onClick={() => {
-              setNotice(null)
-              setDialog({ kind: "add" })
-            }}
+            onClick={() => setDialog({ kind: "add" })}
           >
             {t("terms.add")}
           </Button>
         }
       />
-      {notice ? (
-        <p
-          role="status"
-          className="rounded-lg border border-status-success bg-status-success-bg px-5 py-4 text-status-success"
-        >
-          {t(`terms.notice.${notice.kind}`, { name: notice.name })}
-        </p>
-      ) : null}
       <Card className="gap-4 p-6">
-        <h2 className="text-lg font-semibold tracking-tight">
+        <h3 className="text-lg font-semibold tracking-tight">
           {t("terms.listTitle", { count: active.length })}
-        </h2>
+        </h3>
         <p className="text-sm text-muted-foreground">{t("terms.listHelper")}</p>
         {active.length === 0 ? (
           <EmptyState message={t("terms.empty")} />
@@ -111,20 +96,15 @@ export function EventTerms({ eventId }: { eventId: string }) {
           // Rows: "DS / Term row" https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12279-965
           <ul className="pt-2">
             {active.map((term) => (
+              // The term just added or edited keeps the selected surface, as in O24a / O24b.
               <li
                 key={term.id}
-                className="border-t py-3"
+                className={cn("border-t px-2 py-3", term.id === changedId && "bg-accent/60")}
               >
                 <TermRow
                   term={term}
-                  onEdit={() => {
-                    setNotice(null)
-                    setDialog({ kind: "edit", term })
-                  }}
-                  onCancel={() => {
-                    setNotice(null)
-                    setDialog({ kind: "cancel", term })
-                  }}
+                  onEdit={() => setDialog({ kind: "edit", term })}
+                  onCancel={() => setDialog({ kind: "cancel", term })}
                 />
               </li>
             ))}
@@ -133,9 +113,9 @@ export function EventTerms({ eventId }: { eventId: string }) {
       </Card>
       {cancelled.length > 0 ? (
         <section className="flex flex-col gap-3 rounded-lg border bg-muted p-6">
-          <h2 className="text-lg font-semibold tracking-tight">
+          <h3 className="text-lg font-semibold tracking-tight">
             {t("terms.cancelledTitle", { count: cancelled.length })}
-          </h2>
+          </h3>
           <ul className="flex flex-col gap-1 text-base">
             {cancelled.map((term) => (
               <li key={term.id}>
@@ -156,7 +136,7 @@ export function EventTerms({ eventId }: { eventId: string }) {
           eventName={eventName}
           term={dialog.kind === "edit" ? dialog.term : null}
           onClose={close}
-          onSaved={(kind, saved) => finish({ kind, name: saved.name })}
+          onSaved={(kind, saved) => finish({ kind, term: saved })}
           onCancelTerm={(term) => setDialog({ kind: "cancel", term })}
         />
       ) : null}
@@ -166,7 +146,7 @@ export function EventTerms({ eventId }: { eventId: string }) {
           eventName={eventName}
           term={dialog.term}
           onClose={close}
-          onCancelled={(term) => finish({ kind: "cancelled", name: term.name })}
+          onCancelled={(term) => finish({ kind: "cancelled", term })}
         />
       ) : null}
     </div>
@@ -196,20 +176,30 @@ function TermRow({
         </span>
       </div>
       <TermOccupancy term={term} />
-      <Button
-        variant="outline"
-        size="lg"
-        onClick={onEdit}
-      >
-        {t("terms.edit")}
-      </Button>
-      <Button
-        variant="ghost"
-        size="lg"
-        onClick={onCancel}
-      >
-        {t("terms.cancel")}
-      </Button>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon-lg"
+            aria-label={t("terms.actions", { name: term.name })}
+          >
+            <MoreHorizontal />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem onSelect={onEdit}>
+            <Pencil />
+            {t("terms.edit")}
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            variant="destructive"
+            onSelect={onCancel}
+          >
+            <Ban />
+            {t("terms.cancel")}
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   )
 }

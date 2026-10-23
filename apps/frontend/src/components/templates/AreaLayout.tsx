@@ -4,6 +4,7 @@ import { Menu } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { Logo } from "@/components/atoms/Logo"
+import { DisplaySettings } from "@/components/molecules/DisplaySettings"
 import { LanguageSwitcher } from "@/components/molecules/LanguageSwitcher"
 import { ThemeSwitcher } from "@/components/molecules/ThemeSwitcher"
 import { Button } from "@/components/ui/button"
@@ -24,7 +25,8 @@ type AreaLayoutProps = {
  * Chrome of the signed-in areas: a sidebar with the logo and the area
  * navigation, and a workspace with the top bar above the page. Below `md`
  * the sidebar moves into a sheet opened from the top bar, so the page starts
- * right under the bar. Organizer and participant layouts differ only in
+ * right under the bar; the bar keeps only the menu, logo and account menu,
+ * and language and theme move to the bottom of the sheet. Organizer and participant layouts differ only in
  * navigation and content width, so they share this template; the route
  * layouts (`routes/organizer/_app.tsx`, `routes/participant/_app.tsx`) fill
  * the slots.
@@ -33,6 +35,7 @@ type AreaLayoutProps = {
 // Figma (Design system): U13 Nastavení účtu účastníka · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=11988-11146
 // Figma (Design system): M08 Přihlášená část · navigace zavřená · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=13177-1680
 // Figma (Design system): M09 Přihlášená část · navigace otevřená · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=13177-21759
+// Figma (Design system): DS / Mobile top bar · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14057-1023
 export function AreaLayout({ nav, roleLabel, userMenu, width, children }: AreaLayoutProps) {
   const { t } = useTranslation()
   // The sheet remembers the page it was opened on, so following a link in it closes it.
@@ -49,7 +52,7 @@ export function AreaLayout({ nav, roleLabel, userMenu, width, children }: AreaLa
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <div className="sticky top-0 z-30 flex h-16 shrink-0 items-center gap-1 border-b border-border bg-card px-2 sm:gap-2 sm:px-4 md:static md:px-8">
+        <div className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-1 border-b border-border bg-card px-2 sm:gap-2 sm:px-4 md:static md:h-16 md:px-8">
           <Sheet
             open={menuOpenedOn === pathname}
             onOpenChange={(isOpen) => setMenuOpenedOn(isOpen ? pathname : null)}
@@ -73,6 +76,9 @@ export function AreaLayout({ nav, roleLabel, userMenu, width, children }: AreaLa
                 <Logo />
               </div>
               <nav className="flex flex-col gap-2">{nav}</nav>
+              <div className="mt-auto">
+                <DisplaySettings />
+              </div>
             </SheetContent>
           </Sheet>
           <div className="md:hidden">
@@ -82,8 +88,10 @@ export function AreaLayout({ nav, roleLabel, userMenu, width, children }: AreaLa
             {roleLabel}
           </p>
           <div className="ml-auto flex items-center gap-1 sm:gap-2 md:ml-0">
-            <LanguageSwitcher />
-            <ThemeSwitcher />
+            <div className="hidden items-center gap-2 md:flex">
+              <LanguageSwitcher />
+              <ThemeSwitcher />
+            </div>
             {userMenu}
           </div>
         </div>

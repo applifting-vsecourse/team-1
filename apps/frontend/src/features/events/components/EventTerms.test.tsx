@@ -6,8 +6,9 @@ import {
   createRouter,
   RouterProvider,
 } from "@tanstack/react-router"
-import { render, screen, within } from "@testing-library/react"
+import { render, screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
+import { toast } from "sonner"
 import { afterEach, describe, expect, it, vi } from "vitest"
 
 import { EventTerms } from "@/features/events/components/EventTerms"
@@ -142,6 +143,7 @@ describe("EventTerms", () => {
   })
 
   it("adds a term and confirms it", async () => {
+    const success = vi.spyOn(toast, "success")
     const fetchMock = renderTerms()
     await userEvent.click(await screen.findByRole("button", { name: "Add term" }))
     const dialog = await screen.findByRole("dialog")
@@ -152,7 +154,7 @@ describe("EventTerms", () => {
     await userEvent.type(within(dialog).getByLabelText("Price per person (CZK) *"), "6900")
     await userEvent.click(within(dialog).getByRole("button", { name: "Add term" }))
 
-    expect(await screen.findByText("The term Letní turnus 1 was added.")).toBeInTheDocument()
+    await waitFor(() => expect(success).toHaveBeenCalledWith("The term Letní turnus 1 was added."))
     expect(posts(fetchMock)).toHaveLength(1)
     expect(sentBodies[0]).toEqual({
       name: "Letní turnus 1",
@@ -163,6 +165,7 @@ describe("EventTerms", () => {
   })
 
   it("accepts a price of 0 for a free term", async () => {
+    const success = vi.spyOn(toast, "success")
     renderTerms()
     await userEvent.click(await screen.findByRole("button", { name: "Add term" }))
     const dialog = await screen.findByRole("dialog")
@@ -173,14 +176,15 @@ describe("EventTerms", () => {
     await userEvent.type(within(dialog).getByLabelText("Price per person (CZK) *"), "0")
     await userEvent.click(within(dialog).getByRole("button", { name: "Add term" }))
 
-    expect(await screen.findByText("The term Letní turnus 1 was added.")).toBeInTheDocument()
+    await waitFor(() => expect(success).toHaveBeenCalledWith("The term Letní turnus 1 was added."))
     expect(sentBodies[0]).toMatchObject({ priceCzk: 0 })
   })
 
   it("asks for a reason and shows what the cancellation affects", async () => {
     const fetchMock = renderTerms()
     const row = (await screen.findByText(/^Srpnový turnus · /)).closest("li") as HTMLElement
-    await userEvent.click(within(row).getByRole("button", { name: "Cancel term" }))
+    await userEvent.click(within(row).getByRole("button", { name: "Actions for Srpnový turnus" }))
+    await userEvent.click(await screen.findByRole("menuitem", { name: "Cancel term" }))
     const dialog = await screen.findByRole("dialog")
 
     expect(
