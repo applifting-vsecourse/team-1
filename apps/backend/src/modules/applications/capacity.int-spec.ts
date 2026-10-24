@@ -61,6 +61,40 @@ describe("read-only term capacity (integration)", () => {
       }
     }
   })
+  it("excludes cancelled terms from both capacity endpoints while retaining their confirmations", async () => {
+    const original = (await (await read()).json()) as TermCapacity[]
+    const cancelledId = original[0].termId
+    const confirmations = await prisma.applicationTerm.findMany({
+      where: { termId: cancelledId, status: "CONFIRMED" },
+      orderBy: { id: "asc" },
+    })
+    expect(confirmations.length).toBeGreaterThan(0)
+    await prisma.term.update({ where: { id: cancelledId }, data: { cancelledAt: new Date() } })
+
+    const response = await read()
+    expect(response.status).toBe(200)
+    expect(await response.json()).toEqual(original.slice(1))
+    const details = await fetch(api(`/organizer/events/${eventId}/capacity/details`), {
+      headers: { Cookie: cookie },
+    })
+    expect(details.status).toBe(200)
+    expect(
+      ((await details.json()) as EventCapacityDetails).terms.map((term) => term.termId),
+    ).toEqual(original.slice(1).map((term) => term.termId))
+    expect(
+      await prisma.applicationTerm.findMany({
+        where: { termId: cancelledId, status: "CONFIRMED" },
+        orderBy: { id: "asc" },
+      }),
+    ).toEqual(confirmations)
+
+    await prisma.term.updateMany({ where: { eventId }, data: { cancelledAt: new Date() } })
+    expect(await (await read()).json()).toEqual([])
+    const emptyDetails = await fetch(api(`/organizer/events/${eventId}/capacity/details`), {
+      headers: { Cookie: cookie },
+    })
+    expect(((await emptyDetails.json()) as EventCapacityDetails).terms).toEqual([])
+  })
   it("reflects changes through US-14 rooms API without changing confirmations", async () => {
     const original = (await (await read()).json()) as TermCapacity[]
     const statuses = await prisma.applicationTerm.findMany({

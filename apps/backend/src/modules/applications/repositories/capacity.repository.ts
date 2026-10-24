@@ -27,6 +27,7 @@ export class CapacityRepository {
               select: { id: true, name: true, capacity: true, gender: true },
             },
             terms: {
+              where: { cancelledAt: null },
               orderBy: [{ startsOn: "asc" }, { id: "asc" }],
               select: {
                 id: true,
