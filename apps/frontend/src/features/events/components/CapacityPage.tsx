@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
+import { TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
@@ -21,6 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { formatDateRange } from "@/lib/date"
+import { cn } from "@/lib/utils"
 
 import {
   capacityQueryOptions,
@@ -69,6 +71,7 @@ export function CapacityPage({
     )
   }
   const selected = data.terms.find((term) => term.termId === selectedId) ?? data.terms[0]
+  const overCapacity = selected ? genders.filter((gender) => selected.freePlaces[gender] < 0) : []
   const dateLabel = (term: EventCapacity["terms"][number]) =>
     formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })
 
@@ -142,18 +145,28 @@ export function CapacityPage({
             {genders.map((gender) => (
               <Card
                 key={gender}
-                className="gap-2 px-6"
+                className={cn(
+                  "gap-2 px-6",
+                  selected.freePlaces[gender] < 0 && "border-destructive bg-destructive/8",
+                )}
               >
                 <h2 className="text-xs font-medium text-muted-foreground">
                   {t(`capacity.${gender}`)} ·{" "}
                   {t("capacity.bedCapacity", { count: selected.capacity[gender] })}
                 </h2>
-                <p className="text-4xl font-bold tracking-tight">
+                <p
+                  className={cn(
+                    "text-4xl font-bold tracking-tight",
+                    selected.freePlaces[gender] < 0 && "text-destructive",
+                  )}
+                >
                   {selected.capacity[gender] - selected.freePlaces[gender]} /{" "}
                   {selected.capacity[gender]}
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  {t("capacity.freeBeds", { count: selected.freePlaces[gender] })}
+                  {selected.freePlaces[gender] < 0
+                    ? t("capacity.missingBeds", { count: -selected.freePlaces[gender] })
+                    : t("capacity.freeBeds", { count: selected.freePlaces[gender] })}
                   {roomGroups(data.rooms, gender)
                     .map(
                       (group) =>
@@ -164,6 +177,24 @@ export function CapacityPage({
               </Card>
             ))}
           </div>
+          {overCapacity.length > 0 && (
+            <Alert variant="destructive">
+              <TriangleAlert aria-hidden="true" />
+              <AlertTitle className="line-clamp-none">{t("capacity.overCapacityTitle")}</AlertTitle>
+              <AlertDescription>
+                {overCapacity.map((gender) => (
+                  <p key={gender}>
+                    {t("capacity.overCapacity", {
+                      gender: t(`capacity.${gender}`),
+                      excess: -selected.freePlaces[gender],
+                      confirmed: selected.capacity[gender] - selected.freePlaces[gender],
+                      capacity: selected.capacity[gender],
+                    })}
+                  </p>
+                ))}
+              </AlertDescription>
+            </Alert>
+          )}
           <Alert
             role="status"
             className="border-status-info bg-status-info-bg"
@@ -174,8 +205,8 @@ export function CapacityPage({
             <AlertDescription className="text-foreground">
               {t("capacity.confirmedOnly")}{" "}
               {t("capacity.available", {
-                women: selected.freePlaces.FEMALE,
-                men: selected.freePlaces.MALE,
+                women: Math.max(0, selected.freePlaces.FEMALE),
+                men: Math.max(0, selected.freePlaces.MALE),
               })}
             </AlertDescription>
           </Alert>

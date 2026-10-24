@@ -165,4 +165,25 @@ describe("read-only capacity overview", () => {
     renderPage()
     expect(await screen.findByText("12 / 5009")).toBeInTheDocument()
   })
+  it.each(["FEMALE", "MALE"] as const)(
+    "warns about %s overflow even with spare beds for the other gender",
+    async (gender) => {
+      const data = fixture()
+      const firstTerm = data.terms[0]
+      if (!firstTerm) throw new Error("Missing fixture term")
+      firstTerm.freePlaces = { FEMALE: 10, MALE: 4, [gender]: -2 }
+      get.mockReturnValue({ json: () => Promise.resolve(data) })
+      renderPage()
+      expect(await screen.findByRole("alert")).toHaveTextContent("Term capacity exceeded")
+      expect(screen.getByRole("alert")).toHaveTextContent("Capacity exceeded by 2.")
+      expect(screen.getByText(/2 beds missing/)).toBeInTheDocument()
+      expect(screen.queryByText(/-2 free/)).not.toBeInTheDocument()
+      const capacity = firstTerm.capacity[gender]
+      expect(screen.getByText(`${capacity + 2} / ${capacity}`)).toHaveClass("text-destructive")
+      HTMLElement.prototype.scrollIntoView = vi.fn()
+      fireEvent.keyDown(screen.getByRole("combobox", { name: "Term" }), { key: "ArrowDown" })
+      fireEvent.click(await screen.findByRole("option", { name: "11–17 Jul 2027" }))
+      expect(screen.queryByRole("alert")).not.toBeInTheDocument()
+    },
+  )
 })
