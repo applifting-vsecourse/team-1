@@ -7,7 +7,7 @@ const include = {
   event: { select: { name: true } },
   organization: { select: { bankAccount: true } },
   terms: { include: { term: true } },
-  payments: { select: { amountCzk: true } },
+  payments: { where: { cancelledAt: null }, select: { amountCzk: true } },
 } as const
 
 type Row = Prisma.ApplicationGetPayload<{ include: typeof include }>

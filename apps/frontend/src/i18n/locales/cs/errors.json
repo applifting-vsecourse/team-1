@@ -6,6 +6,8 @@
   "NOT_FOUND": "Nenalezeno.",
   "PASSWORD_ALREADY_SET": "Heslo už máte nastavené.",
   "PASSWORD_REQUIRED": "Nejprve si nastavte heslo, poté budete moci pokračovat.",
+  "PAYMENT_ALREADY_RECORDED": "Platba už byla zapsaná s jinou částkou. Obnovte detail.",
+  "REFUND_EXCEEDS_OVERPAYMENT": "Částka převyšuje aktuální přeplatek. Obnovte detail a zkontrolujte vrácenou částku.",
   "ROOM_MODE_REQUIRES_EMPTY_ROOMS": "Před přepnutím na pokoje podle pohlaví nejprve odstraňte společné pokoje.",
   "ROOM_NAME_TAKEN": "Pokoj s tímto názvem už v akci existuje.",
   "TERM_CANCELLED": "Tento termín je zrušený a nelze ho změnit.",

@@ -5,6 +5,7 @@ import { ApplicationsModule } from "./modules/applications/applications.module"
 import { EventsModule } from "./modules/events/events.module"
 import { OverviewModule } from "./modules/overview/overview.module"
 import { ParticipantsModule } from "./modules/participants/participants.module"
+import { PaymentsModule } from "./modules/payments/payments.module"
 import { WelcomeModule } from "./modules/welcome/welcome.module"
 import { AuthModule } from "./shared/auth/auth.module"
 import { Config } from "./shared/config/config.service"
@@ -18,6 +19,7 @@ const imports = [
   ApplicationsModule,
   EventsModule,
   ParticipantsModule,
+  PaymentsModule,
   OverviewModule,
 ]
 

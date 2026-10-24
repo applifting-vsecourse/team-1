@@ -297,6 +297,7 @@ model Payment {
   recordedBy     User         @relation(fields: [recordedById], references: [id])
   recordedById   String
   createdAt      DateTime     @default(now())
+  cancelledAt    DateTime?
 
   @@index([organizationId])
   @@index([applicationId])

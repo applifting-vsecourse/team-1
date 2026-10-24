@@ -6,6 +6,8 @@
   "NOT_FOUND": "Not found.",
   "PASSWORD_ALREADY_SET": "Your password is already set.",
   "PASSWORD_REQUIRED": "Set your password first, then you can continue.",
+  "PAYMENT_ALREADY_RECORDED": "This payment was already recorded with a different amount. Refresh the detail.",
+  "REFUND_EXCEEDS_OVERPAYMENT": "The amount exceeds the current overpayment. Refresh the detail and check the refunded amount.",
   "ROOM_MODE_REQUIRES_EMPTY_ROOMS": "Remove shared rooms before switching to rooms by gender.",
   "ROOM_NAME_TAKEN": "A room with this name already exists in the event.",
   "TERM_CANCELLED": "This term was cancelled and can't be changed.",

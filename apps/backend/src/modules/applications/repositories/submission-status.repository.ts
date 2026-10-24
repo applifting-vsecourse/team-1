@@ -30,7 +30,7 @@ export class SubmissionStatusRepository {
       where: { eventId: first.eventId, email: first.email, consentAt: first.consentAt },
       include: {
         terms: { include: { term: true } },
-        payments: { select: { amountCzk: true } },
+        payments: { where: { cancelledAt: null }, select: { amountCzk: true } },
       },
       orderBy: { number: "asc" },
     })
