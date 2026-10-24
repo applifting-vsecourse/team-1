@@ -55,6 +55,7 @@ export class ApplicationsRepository {
     const termIds = [...new Set(applications.flatMap((application) => application.termIds))]
 
     return this.prisma.$transaction(async (tx) => {
+      // Room mutations use this same lock (US-14).
       await tx.$queryRaw`SELECT id FROM event WHERE id = ${event.id} FOR UPDATE`
       await tx.$queryRaw`
         SELECT id FROM term WHERE id IN (${Prisma.join(termIds)}) ORDER BY id FOR UPDATE`

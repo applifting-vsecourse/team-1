@@ -15,9 +15,9 @@ export const ROUTES = {
     event: "/organizer/events/$eventId",
     eventTerms: "/organizer/events/$eventId/terms",
     eventRooms: "/organizer/events/$eventId/rooms",
+    eventCapacity: "/organizer/events/$eventId/capacity",
     eventApplications: "/organizer/events/$eventId/applications",
     application: "/organizer/events/$eventId/applications/$applicationId",
-    eventCapacity: "/organizer/events/$eventId/capacity",
     account: "/organizer/account",
   },
 

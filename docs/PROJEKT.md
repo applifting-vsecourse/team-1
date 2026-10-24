@@ -92,7 +92,7 @@ Jádro MVP:
 Klíčová čísla z akceptačních kritérií (musí sedět v testech):
 
 - Kapacita termínu pro ženy = součet kapacit dámských pokojů, pro muže = pánských. 10 + 10 pokojů po 5 místech pojme 50 + 50, **ne** 52 + 48.
-- Pokoj: kapacita od 1 bez horního limitu, platí pro všechny termíny akce. Akce volí režim pokojů podle pohlaví (dámský / pánský povinný) nebo společné pokoje bez pohlaví; ty sdílejí jednu kapacitu pro všechny účastníky.
+- Pokoj (návaznost na US-14): kapacita od 1 bez produktového horního limitu, platí pro všechny termíny akce. V režimu `GENDERED` má pohlaví dámský / pánský; v režimu `SHARED` může být bez pohlaví. US-26 zatím řeší pouze režim `GENDERED`.
 - Přihláška se uloží vždy, i když je plno. Termíny se vyhodnocují zvlášť v pořadí přijetí na serveru. Dvě souběžné přihlášky nikdy nepřekročí kapacitu.
 - Variabilní symbol = číslo přihlášky.
 - Odkaz na přihlášku funguje, až má akce aspoň jeden termín s cenou a aspoň jeden pokoj.
@@ -155,7 +155,7 @@ Organization          name, bankAccount
 OrganizationMember    userId, organizationId                       (M:N, organizátor ↔ organizace)
 Event                 organizationId, name, description?, location?, publicToken (unikátní, neuhodnutelný), roomMode
 Term                  organizationId, eventId, name, startsOn, endsOn, priceCzk
-Room                  organizationId, eventId, name (unikátní v akci), capacity (od 1 bez horního limitu), gender? (povinné jen v režimu GENDERED)
+Room                  organizationId, eventId, name, capacity (od 1 bez horního limitu), gender?
 Application           organizationId, eventId, userId (účet přihlašovatele), number (VS, sekvence),
                       accessToken (stránka potvrzení), firstName, lastName, birthDate, gender, email,
                       consentAt, submittedAt
@@ -218,6 +218,8 @@ Organizace v URL není. Přístup se ověřuje přes členství v organizaci, kt
 /organizer/events/:eventId/room-mode       PATCH režim pokojů
 /organizer/events/:eventId/applications    seznam s filtry ?termId&status&paid
 /organizer/events/:eventId/occupancy       obsazenost
+/organizer/events/:eventId/capacity        aktuální kapacita a volná lůžka podle pohlaví pro každý termín
+/organizer/events/:eventId/capacity/details  přehled včetně pokojů a dat termínů
 /organizer/applications/:id/payments[/:id] zápis a zrušení platby
 /participant/applications[/:id]            moje přihlášky a jedna přihláška (US-54)
 /participant/password                      POST první heslo přihlašovatele (US-04)
@@ -323,6 +325,14 @@ Rozhodnutí 2026-10-22 (US-14, potvrzeno zadavatelem při implementaci): oba re�
 Rozhodnutí 2026-10-23 (US-14, změna zadání): kapacita pokoje je kladné celé číslo od 1 bez produktového horního limitu. Původní maximum 20 lůžek se ruší v obou režimech pokojů.
 
 ## 11. Rozdíly vůči boardu
+
+Upřesnění zadavatele 2026-10-23 pro US-26: navazuje na US-14, zachovává
+volitelné pohlaví v datovém modelu a ruší původní maximum 20 lůžek. Výpočet
+a správa kapacit v US-26 jsou však jen pro akce s dělením podle pohlaví;
+společná kapacita se implementuje později. Při otevření akce v režimu `SHARED`
+se v přehledu US-26 zobrazí informace o nepodporovaném režimu. US-26 je pouze
+čtecí přehled; veškeré úpravy pokojů patří výhradně do US-14. Samostatné ubytování US-14 na `/rooms` nadále podporuje
+oba režimy včetně úprav jednotlivých pokojů a přepínání režimu.
 
 PO změnu potvrdil 2026-10-19, issues jsou upravené 2026-10-21. Tabulka zůstává pro dohledání původního zadání.
 
