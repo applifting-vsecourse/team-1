@@ -12,7 +12,7 @@ test.describe("Capacity", () => {
     await expect(page.getByRole("heading", { level: 1, name: /^Hello,/ })).toBeVisible()
 
     await page.goto("/organizer/events")
-    await page.getByRole("link", { name: /Letní kemp 2027/ }).click()
+    await page.getByRole("link", { name: /Letní kemp 2027(?! – demo)/ }).click()
     await page
       .getByRole("navigation", { name: "Event sections" })
       .getByRole("link", { name: "Capacity" })
