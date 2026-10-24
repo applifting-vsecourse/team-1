@@ -122,9 +122,23 @@ export function CapacityPage({
             </Select>
           </div>
           <div
-            className="grid gap-6 sm:grid-cols-2"
+            className="grid gap-6 lg:grid-cols-3"
             aria-live="polite"
           >
+            <Card className="gap-2 px-6">
+              <h2 className="text-xs font-medium text-muted-foreground">
+                {t("capacity.totalCapacity")}
+              </h2>
+              <p className="text-4xl font-bold tracking-tight">
+                {selected.capacity.FEMALE + selected.capacity.MALE}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                {t("capacity.totalCapacityBreakdown", {
+                  women: selected.capacity.FEMALE,
+                  men: selected.capacity.MALE,
+                })}
+              </p>
+            </Card>
             {genders.map((gender) => (
               <Card
                 key={gender}

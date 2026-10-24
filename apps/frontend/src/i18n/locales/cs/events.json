@@ -26,7 +26,9 @@
     "separate": "Volná místa pro ženy nelze využít pro muže.",
     "tab": "Kapacity",
     "term": "Termín",
-    "title": "Přehled kapacit"
+    "title": "Přehled kapacit",
+    "totalCapacity": "Celková kapacita termínu",
+    "totalCapacityBreakdown": "{{women}} lůžek pro ženy · {{men}} pro muže"
   },
   "list": {
     "title": "Akce"
