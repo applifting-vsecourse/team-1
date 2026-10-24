@@ -23,6 +23,7 @@
     "missingBeds_one": "Chybí {{count}} lůžko",
     "missingBeds_other": "Chybí {{count}} lůžek",
     "noTerms": "Zatím nejsou žádné termíny. Zde se zobrazí kapacita jednotlivých termínů.",
+    "occupancy": "Obsazeno {{percent}} %",
     "overCapacity": "{{gender}}: {{confirmed}} potvrzených na {{capacity}} lůžek. Kapacita je překročena o {{excess}}.",
     "overCapacityTitle": "Kapacita termínu je překročena",
     "roomSummary_few": "{{count}} pokoje po {{beds}}",

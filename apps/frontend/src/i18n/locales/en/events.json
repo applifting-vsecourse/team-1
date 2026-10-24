@@ -23,6 +23,7 @@
     "missingBeds_one": "{{count}} bed missing",
     "missingBeds_other": "{{count}} beds missing",
     "noTerms": "No terms yet. Capacity for each term will appear here.",
+    "occupancy": "{{percent}}% occupied",
     "overCapacity": "{{gender}}: {{confirmed}} confirmed for {{capacity}} beds. Capacity exceeded by {{excess}}.",
     "overCapacityTitle": "Term capacity exceeded",
     "roomSummary_few": "{{count}} rooms of {{beds}} beds",

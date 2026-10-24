@@ -71,6 +71,10 @@ export function CapacityPage({
     )
   }
   const selected = data.terms.find((term) => term.termId === selectedId) ?? data.terms[0]
+  const totalCapacity = selected ? selected.capacity.FEMALE + selected.capacity.MALE : 0
+  const totalConfirmed = selected
+    ? totalCapacity - selected.freePlaces.FEMALE - selected.freePlaces.MALE
+    : 0
   const overCapacity = selected ? genders.filter((gender) => selected.freePlaces[gender] < 0) : []
   const dateLabel = (term: EventCapacity["terms"][number]) =>
     formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })
@@ -128,13 +132,30 @@ export function CapacityPage({
             className="grid gap-6 lg:grid-cols-3"
             aria-live="polite"
           >
-            <Card className="gap-2 px-6">
+            <Card
+              className={cn(
+                "gap-2 px-6",
+                totalConfirmed > totalCapacity && "border-destructive bg-destructive/8",
+              )}
+            >
               <h2 className="text-xs font-medium text-muted-foreground">
                 {t("capacity.totalCapacity")}
               </h2>
-              <p className="text-4xl font-bold tracking-tight">
-                {selected.capacity.FEMALE + selected.capacity.MALE}
+              <p
+                className={cn(
+                  "text-4xl font-bold tracking-tight",
+                  totalConfirmed > totalCapacity && "text-destructive",
+                )}
+              >
+                {totalConfirmed} / {totalCapacity}
               </p>
+              {totalCapacity > 0 && (
+                <p className="text-sm font-medium">
+                  {t("capacity.occupancy", {
+                    percent: Math.round((totalConfirmed / totalCapacity) * 100),
+                  })}
+                </p>
+              )}
               <p className="text-sm text-muted-foreground">
                 {t("capacity.totalCapacityBreakdown", {
                   women: selected.capacity.FEMALE,
@@ -163,6 +184,17 @@ export function CapacityPage({
                   {selected.capacity[gender] - selected.freePlaces[gender]} /{" "}
                   {selected.capacity[gender]}
                 </p>
+                {selected.capacity[gender] > 0 && (
+                  <p className="text-sm font-medium">
+                    {t("capacity.occupancy", {
+                      percent: Math.round(
+                        ((selected.capacity[gender] - selected.freePlaces[gender]) /
+                          selected.capacity[gender]) *
+                          100,
+                      ),
+                    })}
+                  </p>
+                )}
                 <p className="text-sm text-muted-foreground">
                   {selected.freePlaces[gender] < 0
                     ? t("capacity.missingBeds", { count: -selected.freePlaces[gender] })
