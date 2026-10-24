@@ -1,0 +1,2 @@
+# Keep working-tree line endings consistent with Prettier on every platform.
+* text=auto eol=lf
