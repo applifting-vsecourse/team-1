@@ -171,9 +171,9 @@ model Event {
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   organizationId String
   name           String
+  roomMode       RoomMode     @default(GENDERED)
   description    String?      @db.Text
   location       String?
-  roomMode       RoomMode     @default(GENDERED)
   // Unguessable token in the public application link /prihlaska/<publicToken>.
   publicToken    String       @unique
   createdAt      DateTime     @default(now())
@@ -218,7 +218,7 @@ model Room {
   event          Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
   eventId        String
   name           String
-  // At least 1 bed, validated in the DTO.
+  // At least one bed; no product upper limit (US-14).
   capacity       Int
   gender         Gender?
   createdAt      DateTime     @default(now())
