@@ -7,6 +7,7 @@ import {
   RouterProvider,
 } from "@tanstack/react-router"
 import { render, screen, within } from "@testing-library/react"
+import userEvent from "@testing-library/user-event"
 import { afterEach, describe, expect, it, vi } from "vitest"
 
 import { EventList } from "@/features/events/components/EventList"
@@ -83,7 +84,7 @@ function renderList(events: object[], createdEventId?: string) {
 afterEach(() => vi.restoreAllMocks())
 
 describe("EventList", () => {
-  it("shows each event as a card with its terms, status and occupancy", async () => {
+  it("shows each event as a row with its terms, status and occupancy", async () => {
     renderList([event])
 
     const card = (await screen.findByRole("heading", { name: "Letní kemp Lipno 2027" })).closest(
@@ -97,16 +98,28 @@ describe("EventList", () => {
     ).toBeInTheDocument()
   })
 
-  it("marks the event that was just created and says it has no term yet", async () => {
+  it("highlights the event that was just created and says it has no term yet", async () => {
     renderList([event, draft], "e2")
 
-    expect(
-      await screen.findByText("The event Jarní víkend Lipno 2027 was created."),
-    ).toHaveAttribute("role", "status")
-    const item = screen.getByRole("heading", { name: "Jarní víkend Lipno 2027" }).closest("li")
-    expect(item).toHaveAttribute("data-status", "active")
+    const item = (await screen.findByRole("heading", { name: "Jarní víkend Lipno 2027" })).closest(
+      "li",
+    )
+    expect(item).toHaveAttribute("data-created", "true")
     expect(within(item as HTMLElement).getByText("No term yet · Kemp Lipno")).toBeInTheDocument()
     expect(within(item as HTMLElement).queryByRole("progressbar")).not.toBeInTheDocument()
     expect(within(item as HTMLElement).getByText("Application inactive")).toBeInTheDocument()
+  })
+
+  it("narrows the list by name", async () => {
+    renderList([event, draft])
+
+    await userEvent.type(
+      await screen.findByRole("searchbox", { name: "Search event name" }),
+      "jarní",
+    )
+
+    expect(screen.getByRole("heading", { name: "Jarní víkend Lipno 2027" })).toBeInTheDocument()
+    expect(screen.queryByRole("heading", { name: "Letní kemp Lipno 2027" })).not.toBeInTheDocument()
+    expect(screen.getByText("1 event")).toBeInTheDocument()
   })
 })

@@ -4,7 +4,11 @@ import { useTranslation } from "react-i18next"
 import { Seo } from "@/components/atoms/Seo"
 import { PageHeader } from "@/components/molecules/PageHeader"
 
+import { applicationsSearchSchema } from "@/features/event-overview/lib/applications-search"
+
 export const Route = createFileRoute("/organizer/_app/events/$eventId/applications")({
+  // Filters the occupancy counts link to (US-29); the list that applies them is US-52.
+  validateSearch: applicationsSearchSchema,
   component: EventApplicationsPage,
 })
 

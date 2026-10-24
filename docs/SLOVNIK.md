@@ -146,7 +146,7 @@ classDiagram
 
   class Pokoj["Pokoj"]
   Pokoj : +název
-  Pokoj : +kapacita 1–20 lůžek
+  Pokoj : +kapacita alespoň 1 lůžko, bez horního limitu
   Pokoj : +pohlaví
 
   class FormularPrihlasky["Formulář přihlášky"]
@@ -282,7 +282,7 @@ Všechny kolize ve slovníku jsou rozhodnuté. Vědomě ponecháno:
 
 Tyto body nejsou jen jazykové – zdroje si odporují věcně:
 
-- Pokoj bez pohlaví: [US-14](https://github.com/applifting-vsecourse/team-1/issues/14) a [US-27](https://github.com/applifting-vsecourse/team-1/issues/27) počítají s režimem společných pokojů, ale `Room.gender` je ve schématu povinné a PROJEKT.md říká „příznak povinný“. Rozhodnout s PO, zda je režim pokojů ve sprintu 1.
+- Pokoj bez pohlaví: pro US-14 potvrzeny oba režimy pokojů. `Event.roomMode` je `GENDERED` nebo `SHARED`; společné pokoje mají `Room.gender = null` a jednu společnou kapacitu. Před návratem ze společného na dělený režim je nutné společné pokoje odstranit.
 - Název: Figma soubory a některé texty ještě nesou „kemp.io“, produkt je od 16. 10. Togena.
 - URL: komentáře ve schématu uvádějí `/prihlaska/<publicToken>` a `/prihlaska/potvrzeni/<accessToken>`, routy jsou `/apply/$token` a `/apply/confirmation/$accessToken`.
 - Přihlašovatel × `PARTICIPANT`: typ účtu se v byznysu i v PROJEKT.md jmenuje Přihlašovatel, v kódu `PARTICIPANT` (mapování v sekci Specializace). Rozhodnout s tech leadem, zda přejmenovat na `APPLICANT`.

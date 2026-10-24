@@ -11,6 +11,7 @@
   "comingSoon": "Připravuje se — {{story}}.",
   "eventTabs": {
     "applications": "Přihlášky",
+    "capacity": "Kapacity",
     "overview": "Přehled",
     "rooms": "Ubytování",
     "terms": "Termíny"
@@ -18,6 +19,7 @@
   "language": {
     "cs": "Čeština",
     "en": "English",
+    "label": "Jazyk",
     "toggle": "Změnit jazyk"
   },
   "nav": {
@@ -55,6 +57,7 @@
   },
   "theme": {
     "dark": "Tmavý",
+    "label": "Vzhled",
     "light": "Světlý",
     "system": "Podle systému",
     "toggle": "Přepnout vzhled"

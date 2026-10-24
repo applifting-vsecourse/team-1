@@ -16,6 +16,29 @@ const statuses = (result: ReturnType<typeof evaluateSubmission>): string[][] =>
   result.map((terms) => terms.map((term) => term.status))
 
 describe("evaluateSubmission", () => {
+  it("uses one shared pool for all genders and evaluates terms independently", () => {
+    const result = evaluateSubmission([girl("t1", "t2"), boy("t1", "t2"), girl("t1", "t2")], {
+      rooms: [{ capacity: 2, gender: null }],
+      confirmedGenders: { t1: ["MALE"] },
+    })
+    expect(statuses(result)).toEqual([
+      ["CONFIRMED", "CONFIRMED"],
+      ["WAITLISTED", "CONFIRMED"],
+      ["WAITLISTED", "WAITLISTED"],
+    ])
+  })
+
+  it("keeps existing confirmations when shared capacity is reduced", () => {
+    expect(
+      statuses(
+        evaluateSubmission([girl("t1"), boy("t1")], {
+          rooms: [{ capacity: 1, gender: null }],
+          confirmedGenders: { t1: ["FEMALE", "MALE"] },
+        }),
+      ),
+    ).toEqual([["WAITLISTED"], ["WAITLISTED"]])
+  })
+
   it("confirms while a bed of the participant's gender is free, then waitlists", () => {
     const result = evaluateSubmission([girl("t1"), girl("t1"), boy("t1")], {
       rooms,

@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet, useParams } from "@tanstack/react-router"
+import { createFileRoute, Outlet } from "@tanstack/react-router"
 import { Calendar, LayoutGrid } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
@@ -10,7 +10,6 @@ import { AreaLayout } from "@/components/templates/AreaLayout"
 import { HeaderMenu } from "@/features/auth/components/HeaderMenu"
 import { OrganizerAreaError } from "@/features/auth/components/OrganizerAreaError"
 import { requireAccount } from "@/features/auth/lib/require-account"
-import { EventSidebarNav } from "@/features/events/components/EventSidebarNav"
 
 // Every /organizer/* page except the login sits under this layout.
 export const Route = createFileRoute("/organizer/_app")({
@@ -28,8 +27,6 @@ export const Route = createFileRoute("/organizer/_app")({
 
 function OrganizerLayout() {
   const { t } = useTranslation()
-  // On an event's pages the sidebar also lists that event's sections.
-  const { eventId } = useParams({ strict: false })
 
   return (
     <>
@@ -52,7 +49,6 @@ function OrganizerLayout() {
             >
               {t("nav.events")}
             </SidebarLink>
-            {eventId ? <EventSidebarNav eventId={eventId} /> : null}
           </>
         }
         userMenu={<HeaderMenu />}
