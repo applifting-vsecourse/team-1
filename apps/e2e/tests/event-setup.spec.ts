@@ -1,36 +1,45 @@
 import { expect, test } from "@playwright/test"
-import { ORGANIZER } from "./support/accounts"
-import { signIn } from "./support/auth"
+import { createEventWithTerm } from "./support/event-setup"
 
-// US-12 event, US-13 terms, US-16 term price. Rooms (US-14) are still a skeleton, so the
-// application link stays inactive; the last step of the journey waits in the fixme below.
+// US-12 event, US-13 terms, US-16 term price, US-14 rooms. The application link works only once
+// the event has a term with a price and a room.
 test.describe("Event setup", () => {
   test("organizer creates an event, adds a term with a price and sees that a room is missing", async ({
     page,
   }) => {
-    const name = `E2E akce ${Date.now()}`
-    await signIn(page, "organizer", ORGANIZER)
-    // Leaving before the sign-in answers would abort it and keep the session out.
-    await expect(page.getByRole("heading", { level: 1, name: /^Hello,/ })).toBeVisible()
+    await createEventWithTerm(page, `E2E akce ${Date.now()}`)
 
-    await page.goto("/organizer/events/new")
-    await page.getByLabel("Event name").fill(name)
-    await page.getByRole("button", { name: "Create event" }).click()
-    await expect(page.getByText(`The event ${name} was created.`)).toBeVisible()
-
-    await page.getByRole("link", { name: new RegExp(name) }).click()
-    await page.getByRole("link", { name: "Add a term and price" }).click()
-    await page.getByRole("button", { name: "Add term" }).first().click()
-
-    const dialog = page.getByRole("dialog", { name: "Add term" })
-    await dialog.getByLabel("Term name").fill("1. týden")
-    await dialog.getByLabel("Start date").fill("2027-07-04")
-    await dialog.getByLabel("End date").fill("2027-07-10")
-    await dialog.getByLabel("Price per person").fill("4500")
-    await dialog.getByRole("button", { name: "Add term" }).click()
-    await expect(page.getByText("The term 1. týden was added.")).toBeVisible()
+    await page
+      .getByRole("navigation", { name: "Event sections" })
+      .getByRole("link", { name: "Overview" })
+      .click()
+    await expect(page.getByText("The application link is not active yet")).toBeVisible()
+    await expect(page.getByRole("button", { name: "Copy application link" })).toBeDisabled()
   })
 
-  // Enable when US-14 (rooms) is merged: add a room, then the overview offers "Copy application link".
-  test.fixme("organizer adds a room and copies the application link", async () => {})
+  test("organizer adds a room and copies the application link", async ({ page, context }) => {
+    await context.grantPermissions(["clipboard-read", "clipboard-write"])
+    await createEventWithTerm(page, `E2E akce ${Date.now()}`)
+
+    await page
+      .getByRole("navigation", { name: "Event sections" })
+      .getByRole("link", { name: "Overview" })
+      .click()
+    await page.getByRole("link", { name: "Add a room" }).click()
+    await page.getByRole("button", { name: "Add room" }).first().click()
+    const dialog = page.getByRole("dialog")
+    await dialog.getByLabel("Room name").fill("12")
+    await dialog.getByLabel("Capacity").fill("5")
+    await dialog.getByRole("button", { name: "Add room" }).click()
+    await expect(page.getByText("12", { exact: true })).toBeVisible()
+
+    await page
+      .getByRole("navigation", { name: "Event sections" })
+      .getByRole("link", { name: "Overview" })
+      .click()
+    const link = await page.getByRole("link", { name: /\/apply\// }).innerText()
+    await page.getByRole("button", { name: "Copy application link" }).click()
+    await expect(page.getByText("Link copied to the clipboard")).toBeVisible()
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(link)
+  })
 })
