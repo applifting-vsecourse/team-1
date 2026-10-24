@@ -1,0 +1,329 @@
+import { useState } from "react"
+import { useQuery } from "@tanstack/react-query"
+import { Link } from "@tanstack/react-router"
+import { useTranslation } from "react-i18next"
+
+import { ROUTES } from "@/app/routes"
+import { MoneyAmount } from "@/components/atoms/MoneyAmount"
+import { Seo } from "@/components/atoms/Seo"
+import { ErrorState } from "@/components/molecules/ErrorState"
+import { LoadingState } from "@/components/molecules/LoadingState"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Label } from "@/components/ui/label"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { formatDate, formatDateRange, formatDateTime } from "@/lib/date"
+
+import {
+  applicationsQueryOptions,
+  type ListedApplication,
+} from "@/features/event-overview/api/applications"
+import { occupancyQueryOptions } from "@/features/event-overview/api/occupancy"
+import type { ApplicationsSearch } from "@/features/event-overview/lib/applications-search"
+
+// Figma (Design system): O05, O05g · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12110-326
+// Figma (Design system): M12 · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14070-41596
+export function ApplicationsPage({
+  eventId,
+  filters,
+  onFiltersChange,
+}: {
+  eventId: string
+  filters: ApplicationsSearch
+  onFiltersChange: (filters: ApplicationsSearch) => void
+}) {
+  const { t } = useTranslation("eventOverview")
+  const query = useQuery(applicationsQueryOptions(eventId, filters))
+  const occupancy = useQuery(occupancyQueryOptions(eventId))
+  const [page, setPage] = useState(0)
+  const pageCount = Math.max(1, Math.ceil((query.data?.length ?? 0) / 20))
+  const currentPage = Math.min(page, pageCount - 1)
+  const visibleRows = query.data?.slice(currentPage * 20, (currentPage + 1) * 20) ?? []
+  const options = [
+    {
+      key: "status" as const,
+      label: t("applications.status"),
+      all: t("applications.allStatuses"),
+      values: [
+        { id: "CONFIRMED", name: t("applications.confirmed") },
+        { id: "WAITLISTED", name: t("applications.waitlisted") },
+      ],
+    },
+    {
+      key: "paid" as const,
+      label: t("applications.payment"),
+      all: t("applications.allPayments"),
+      values: [
+        { id: "true", name: t("applications.paid") },
+        { id: "false", name: t("applications.unpaid") },
+      ],
+    },
+    {
+      key: "term" as const,
+      label: t("applications.term"),
+      all: t("applications.allTerms"),
+      values: (occupancy.data?.terms ?? []).map((term) => ({
+        id: term.id,
+        name: formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true }),
+      })),
+    },
+  ]
+  return (
+    <div className="flex flex-col gap-6">
+      <Seo title={t("applications.title")} />
+      <div className="flex flex-wrap items-end gap-2">
+        {options.map((option) => (
+          <div
+            key={option.key}
+            className="flex min-w-40 flex-col gap-2"
+          >
+            <Label htmlFor={`filter-${option.key}`}>{option.label}</Label>
+            <Select
+              value={filters[option.key] ?? "all"}
+              onValueChange={(value) => {
+                setPage(0)
+                onFiltersChange({ ...filters, [option.key]: value === "all" ? undefined : value })
+              }}
+            >
+              <SelectTrigger id={`filter-${option.key}`}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{option.all}</SelectItem>
+                {option.values.map((value) => (
+                  <SelectItem
+                    key={value.id}
+                    value={value.id}
+                  >
+                    {value.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        ))}
+        {filters.gender && (
+          <Badge variant="secondary">
+            {t(filters.gender === "FEMALE" ? "applications.female" : "applications.male")}
+          </Badge>
+        )}
+        {Object.values(filters).some(Boolean) && (
+          <Button
+            variant="ghost"
+            size="lg"
+            onClick={() => {
+              setPage(0)
+              onFiltersChange({})
+            }}
+          >
+            {t("applications.clear")}
+          </Button>
+        )}
+      </div>
+      {query.isPending ? (
+        <LoadingState />
+      ) : query.isError ? (
+        <ErrorState
+          title={t("applications.error")}
+          error={query.error}
+          onRetry={() => void query.refetch()}
+        />
+      ) : (
+        <section className="flex flex-col gap-4 rounded-lg border bg-card p-4 shadow-sm md:p-6">
+          <div className="flex flex-wrap justify-between gap-2">
+            <h2 className="text-lg font-semibold">
+              {t("applications.count", { count: query.data.length })}
+            </h2>
+            <p className="text-sm text-muted-foreground">{t("applications.sort")}</p>
+          </div>
+          {query.data.length === 0 ? (
+            <p className="text-sm text-muted-foreground">{t("applications.empty")}</p>
+          ) : (
+            <>
+              <div className="hidden md:block">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      {(
+                        [
+                          "participant",
+                          "terms",
+                          "payment",
+                          "due",
+                          "owed",
+                          "submitted",
+                          "actions",
+                        ] as const
+                      ).map((key) => (
+                        <TableHead key={key}>{t(`applications.${key}`)}</TableHead>
+                      ))}
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {visibleRows.map((row) => (
+                      <TableRow key={row.id}>
+                        <TableCell>
+                          <p className="font-medium">
+                            {row.firstName} {row.lastName}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {formatDate(row.birthDate)} ·{" "}
+                            {t(
+                              row.gender === "FEMALE" ? "applications.female" : "applications.male",
+                            )}{" "}
+                            · {row.email}
+                          </p>
+                        </TableCell>
+                        <TableCell>
+                          <Terms application={row} />
+                        </TableCell>
+                        <TableCell>
+                          <PaymentStatus application={row} />
+                        </TableCell>
+                        <TableCell>
+                          <MoneyAmount amountCzk={row.amountDueCzk} />
+                        </TableCell>
+                        <TableCell>
+                          <MoneyAmount amountCzk={row.amountOwedCzk} />
+                        </TableCell>
+                        <TableCell>{formatDateTime(row.submittedAt)}</TableCell>
+                        <TableCell>
+                          <Button
+                            asChild
+                            variant="ghost"
+                          >
+                            <Link
+                              to={ROUTES.organizer.application}
+                              params={{ eventId, applicationId: row.id }}
+                            >
+                              {t("payment.record")}
+                            </Link>
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+              <div className="divide-y md:hidden">
+                {visibleRows.map((row) => (
+                  <Link
+                    key={row.id}
+                    to={ROUTES.organizer.application}
+                    params={{ eventId, applicationId: row.id }}
+                    className="flex flex-col gap-2 py-3"
+                  >
+                    <span className="font-medium">
+                      {row.firstName} {row.lastName}
+                    </span>
+                    <span className="text-xs wrap-anywhere text-muted-foreground">
+                      {formatDate(row.birthDate)} ·{" "}
+                      {t(row.gender === "FEMALE" ? "applications.female" : "applications.male")}
+                      {" · "}
+                      {row.email}
+                    </span>
+                    <Terms application={row} />
+                    <PaymentStatus application={row} />
+                  </Link>
+                ))}
+              </div>
+              {pageCount > 1 && (
+                <nav
+                  aria-label={t("applications.pagination")}
+                  className="flex flex-wrap items-center justify-end gap-4"
+                >
+                  <span className="text-sm text-muted-foreground">
+                    {t("applications.range", {
+                      from: currentPage * 20 + 1,
+                      to: Math.min((currentPage + 1) * 20, query.data.length),
+                      count: query.data.length,
+                    })}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    disabled={currentPage === 0}
+                    onClick={() => setPage(currentPage - 1)}
+                  >
+                    {t("applications.previous")}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    disabled={currentPage + 1 === pageCount}
+                    onClick={() => setPage(currentPage + 1)}
+                  >
+                    {t("applications.next")}
+                  </Button>
+                </nav>
+              )}
+            </>
+          )}
+        </section>
+      )}
+      <p className="text-sm text-muted-foreground">{t("applications.hint")}</p>
+    </div>
+  )
+}
+
+function Terms({ application }: { application: ListedApplication }) {
+  const { t } = useTranslation("eventOverview")
+  return (
+    <div className="flex flex-col gap-2">
+      {application.terms.map((term) => (
+        <div
+          key={term.id}
+          className="flex flex-wrap items-center gap-2"
+        >
+          <span>{formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })}</span>
+          <Badge
+            variant={term.status === "CONFIRMED" ? "success" : "secondary"}
+            className={
+              term.status === "WAITLISTED"
+                ? "bg-status-waitlist-bg text-status-waitlist"
+                : undefined
+            }
+          >
+            {t(term.status === "CONFIRMED" ? "applications.confirmed" : "applications.waitlisted")}
+          </Badge>
+        </div>
+      ))}
+    </div>
+  )
+}
+function PaymentStatus({ application }: { application: ListedApplication }) {
+  const { t } = useTranslation("eventOverview")
+  const labels = {
+    NOTHING_DUE: "nothingDue",
+    UNPAID: "unpaid",
+    PARTIALLY_PAID: "partial",
+    PAID: "paid",
+    OVERPAID: "overpaid",
+  } as const
+  return (
+    <Badge
+      variant={
+        application.paymentStatus === "PAID"
+          ? "success"
+          : application.paymentStatus === "PARTIALLY_PAID" ||
+              application.paymentStatus === "OVERPAID"
+            ? "warning"
+            : "secondary"
+      }
+    >
+      {t(`applications.${labels[application.paymentStatus]}`)}
+    </Badge>
+  )
+}
