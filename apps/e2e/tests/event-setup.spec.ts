@@ -28,10 +28,10 @@ test.describe("Event setup", () => {
     await page.getByRole("link", { name: "Add a room" }).click()
     await page.getByRole("button", { name: "Add room" }).first().click()
     const dialog = page.getByRole("dialog")
-    await dialog.getByLabel("Room name").fill("12")
+    await dialog.getByLabel("Room name").fill("Pokoj E2E")
     await dialog.getByLabel("Capacity").fill("5")
     await dialog.getByRole("button", { name: "Add room" }).click()
-    await expect(page.getByText("12", { exact: true })).toBeVisible()
+    await expect(page.getByText("Pokoj E2E", { exact: true })).toBeVisible()
 
     await page
       .getByRole("navigation", { name: "Event sections" })
