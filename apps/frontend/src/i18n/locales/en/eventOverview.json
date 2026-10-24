@@ -2,6 +2,31 @@
   "applications": {
     "title": "Applications"
   },
+  "capacity": {
+    "confirmedColumn": "Confirmed / capacity",
+    "confirmedOnly": "Free places are counted from confirmed applications only.",
+    "description": "Beds, confirmed applicants, free places and waitlisted applicants per term.",
+    "empty": "The event has no active terms yet.",
+    "freeColumn": "Free places",
+    "freePlaces_few": "{{count}} free places",
+    "freePlaces_one": "{{count}} free place",
+    "freePlaces_other": "{{count}} free places",
+    "genderCapacity": "{{gender}} · capacity {{count}} beds",
+    "loadFailed": "Capacity could not be loaded",
+    "manageRooms": "Manage rooms",
+    "men": "Men",
+    "menOnlyTitle": "Free places for men cannot be used for women.",
+    "sharedNote": "Capacity comes from the beds in rooms. Rooms are shared by all terms; changing a room recalculates the capacity of every term, the numbers of confirmed participants stay the same.",
+    "tableHint": "Click the number of confirmed or waitlisted applicants to open the applications list with matching filters.",
+    "tableTitle": "Occupancy of all terms",
+    "termColumn": "Term",
+    "termFilter": "Term",
+    "title": "Capacity",
+    "waitlisted": "Waitlisted",
+    "waitlistedColumn": "Waitlisted",
+    "women": "Women",
+    "womenOnlyTitle": "Free places for women cannot be used for men."
+  },
   "dashboard": {
     "createEvent": "Create an event",
     "description": "You only see the events you have access to.",

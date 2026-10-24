@@ -60,3 +60,8 @@ export function computeAvailablePlaces(rooms: RoomCapacity[], confirmed: Gender[
     countByGender(confirmed.map((gender) => ({ gender }))),
   )
 }
+
+/** Free beds of a term in shared rooms: all beds minus all confirmed, whatever the gender. Not clamped. */
+export function computeSharedFreePlaces(rooms: RoomCapacity[], confirmedCount: number): number {
+  return computeRoomCapacity(rooms).total - confirmedCount
+}

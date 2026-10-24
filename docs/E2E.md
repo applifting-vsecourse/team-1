@@ -28,6 +28,7 @@ Jen cesty, bez kterých produkt nefunguje a které ukazujeme na demu. Jedna cest
 | Přihláška přes odkaz: termíny a cena podle výběru (i na mobilu)                          | `application.spec.ts`  | ✅                                      |
 | Odeslání přihlášky → stránka potvrzení → po přihlášení vidí přihlášku se stavem          | `application.spec.ts`  | ✅ (detail potvrzení a platba po US-25) |
 | Organizátor založí akci s termínem a cenou (pokoje a zkopírování odkazu čekají na US-14) | `event-setup.spec.ts`  | ✅ část, zbytek `fixme` po US-14        |
+| Organizátor otevře akci → Kapacity → obsazenost termínu a odkaz na filtrované přihlášky  | `capacity.spec.ts`     | ✅                                      |
 | Organizátor vidí přihlášku v seznamu a zapíše platbu                                     | `payments.spec.ts`     | `fixme` po US-52 a US-44                |
 
 Novou cestu přidej do tabulky v tomtéž PR. Cesta mimo tabulku se domlouvá s tech leadem. Okrajové stavy (chybné heslo, prošlý odkaz…) do E2E nepatří, pokud nejsou součástí hlavní cesty.
