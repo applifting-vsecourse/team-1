@@ -18,7 +18,12 @@ import { SubmissionStatusService } from "./services/submission-status.service"
 
 @Module({
   imports: [PrismaModule, ParticipantsModule, OrganizationAccessModule, AuthModule],
-  controllers: [PublicEventsController, ApplicationsController, CapacityController, SubmissionStatusController],
+  controllers: [
+    PublicEventsController,
+    ApplicationsController,
+    CapacityController,
+    SubmissionStatusController,
+  ],
   providers: [
     CapacityRepository,
     CapacityService,

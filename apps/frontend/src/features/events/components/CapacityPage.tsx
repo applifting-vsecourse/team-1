@@ -181,8 +181,15 @@ export function CapacityPage({
                     selected.freePlaces[gender] < 0 && "text-destructive",
                   )}
                 >
-                  {selected.capacity[gender] - selected.freePlaces[gender]} /{" "}
-                  {selected.capacity[gender]}
+                  <Link
+                    to={ROUTES.organizer.eventApplications}
+                    params={{ eventId }}
+                    search={{ term: selected.termId, status: "CONFIRMED", gender }}
+                    className="underline decoration-1 underline-offset-4"
+                  >
+                    {selected.capacity[gender] - selected.freePlaces[gender]}
+                  </Link>{" "}
+                  / {selected.capacity[gender]}
                 </p>
                 {selected.capacity[gender] > 0 && (
                   <p className="text-sm font-medium">

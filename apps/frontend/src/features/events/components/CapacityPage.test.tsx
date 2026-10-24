@@ -56,8 +56,12 @@ function renderPage() {
     getParentRoute: () => root,
     path: "/organizer/events/$eventId/rooms",
   })
+  const applications = createRoute({
+    getParentRoute: () => root,
+    path: "/organizer/events/$eventId/applications",
+  })
   const router = createRouter({
-    routeTree: root.addChildren([rooms]),
+    routeTree: root.addChildren([rooms, applications]),
     history: createMemoryHistory({ initialEntries: ["/"] }),
   })
   render(<RouterProvider router={router} />)
@@ -87,7 +91,9 @@ describe("read-only capacity overview", () => {
     expect(await screen.findByText("Offline")).toBeInTheDocument()
     get.mockReturnValue({ json: () => Promise.resolve(fixture()) })
     await userEvent.click(screen.getByRole("button", { name: /Try again/ }))
-    expect(await screen.findByText("12 / 14")).toBeInTheDocument()
+    expect(
+      await screen.findByText((_, node) => node?.tagName === "P" && node.textContent === "12 / 14"),
+    ).toBeInTheDocument()
   })
   it("explains shared mode without attempting gendered calculations", async () => {
     get.mockReturnValue({
@@ -124,10 +130,18 @@ describe("read-only capacity overview", () => {
   it("shows capacities and room-size summaries, with no room management controls", async () => {
     get.mockReturnValue({ json: () => Promise.resolve(fixture()) })
     renderPage()
-    expect(await screen.findByText("12 / 14")).toBeInTheDocument()
-    expect(screen.getByText("5 / 5")).toBeInTheDocument()
+    expect(
+      await screen.findByText((_, node) => node?.tagName === "P" && node.textContent === "12 / 14"),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText((_, node) => node?.tagName === "P" && node.textContent === "5 / 5"),
+    ).toBeInTheDocument()
     expect(screen.queryByRole("table")).not.toBeInTheDocument()
     expect(screen.queryByRole("tab")).not.toBeInTheDocument()
+    expect(screen.getByRole("link", { name: "12" })).toHaveAttribute(
+      "href",
+      "/organizer/events/e1/applications?term=t1&status=CONFIRMED&gender=FEMALE",
+    )
     expect(screen.getByRole("link", { name: "Manage rooms" })).toHaveAttribute(
       "href",
       "/organizer/events/e1/rooms",
@@ -143,10 +157,18 @@ describe("read-only capacity overview", () => {
     renderPage()
     fireEvent.keyDown(await screen.findByRole("combobox", { name: "Term" }), { key: "ArrowDown" })
     fireEvent.click(await screen.findByRole("option", { name: "11–17 Jul 2027" }))
-    expect(await screen.findByText("4 / 14")).toBeInTheDocument()
-    expect(screen.getByText("1 / 5")).toBeInTheDocument()
-    expect(screen.queryByText("12 / 14")).not.toBeInTheDocument()
-    expect(screen.queryByText("5 / 5")).not.toBeInTheDocument()
+    expect(
+      await screen.findByText((_, node) => node?.tagName === "P" && node.textContent === "4 / 14"),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText((_, node) => node?.tagName === "P" && node.textContent === "1 / 5"),
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByText((_, node) => node?.tagName === "P" && node.textContent === "12 / 14"),
+    ).not.toBeInTheDocument()
+    expect(
+      screen.queryByText((_, node) => node?.tagName === "P" && node.textContent === "5 / 5"),
+    ).not.toBeInTheDocument()
     expect(screen.queryByRole("table")).not.toBeInTheDocument()
     expect(screen.getByRole("link", { name: "Manage rooms" })).toHaveAttribute(
       "href",
@@ -163,7 +185,11 @@ describe("read-only capacity overview", () => {
     }))
     get.mockReturnValue({ json: () => Promise.resolve(data) })
     renderPage()
-    expect(await screen.findByText("12 / 5009")).toBeInTheDocument()
+    expect(
+      await screen.findByText(
+        (_, node) => node?.tagName === "P" && node.textContent === "12 / 5009",
+      ),
+    ).toBeInTheDocument()
   })
   it.each(["FEMALE", "MALE"] as const)(
     "warns about %s overflow even with spare beds for the other gender",
@@ -179,7 +205,12 @@ describe("read-only capacity overview", () => {
       expect(screen.getByText(/2 beds missing/)).toBeInTheDocument()
       expect(screen.queryByText(/-2 free/)).not.toBeInTheDocument()
       const capacity = firstTerm.capacity[gender]
-      expect(screen.getByText(`${capacity + 2} / ${capacity}`)).toHaveClass("text-destructive")
+      expect(
+        screen.getByText(
+          (_, node) =>
+            node?.tagName === "P" && node.textContent === `${capacity + 2} / ${capacity}`,
+        ),
+      ).toHaveClass("text-destructive")
       HTMLElement.prototype.scrollIntoView = vi.fn()
       fireEvent.keyDown(screen.getByRole("combobox", { name: "Term" }), { key: "ArrowDown" })
       fireEvent.click(await screen.findByRole("option", { name: "11–17 Jul 2027" }))
