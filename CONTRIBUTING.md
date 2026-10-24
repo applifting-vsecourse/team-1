@@ -124,15 +124,25 @@ pnpm format                         # Prettier na celý repozitář
 
 Registrace je vypnutá (ve sprintu 1 se nikdo neregistruje), takže se přihlašuj účty ze seedu:
 
-| E-mail                     | Heslo           | Typ         | Co vidí                                                         |
-| -------------------------- | --------------- | ----------- | --------------------------------------------------------------- |
-| `organizator@example.com`  | `password1`     | organizátor | Letní kemp z. s. — akce „Letní kemp 2027“                       |
-| `organizator2@example.com` | `password2`     | organizátor | Horský spolek Sněžka — akce „Horský víkend 2027“ (s náhradnicí) |
-| `organizator3@example.com` | `password3`     | organizátor | obě organizace (akce seskupené podle pořadatele)                |
-| `ucastnik@example.com`     | `password4`     | účastník    | přihláška na oba týdny Letního kempu, zaplaceno                 |
-| `admin@example.com`        | `adminpassword` | admin       | zatím nic (bez UI)                                              |
+| E-mail                     | Heslo           | Typ         | Co vidí                                                            |
+| -------------------------- | --------------- | ----------- | ------------------------------------------------------------------ |
+| `organizator@example.com`  | `password1`     | organizátor | Letní kemp z. s. — „Letní kemp 2027“ a akce pro Sprint Demo (níže) |
+| `organizator2@example.com` | `password2`     | organizátor | Horský spolek Sněžka — akce „Horský víkend 2027“ (s náhradnicí)    |
+| `organizator3@example.com` | `password3`     | organizátor | obě organizace (akce seskupené podle pořadatele)                   |
+| `ucastnik@example.com`     | `password4`     | účastník    | přihláška na oba týdny Letního kempu, zaplaceno                    |
+| `admin@example.com`        | `adminpassword` | admin       | zatím nic (bez UI)                                                 |
 
 Odkazy na přihlášku ze seedu: `/apply/demo-letni-kemp-2027` a `/apply/demo-horsky-vikend-2027`. Skutečné akce dostanou náhodný token.
+
+Akce pro Sprint Demo (organizace Letní kemp z. s., vidí je `organizator@example.com` a `organizator3@example.com`):
+
+| Akce                     | Odkaz na přihlášku                | Co v ní je                                                                                                                                                     |
+| ------------------------ | --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| „Letní kemp 2027 – demo“ | `/apply/demo-letni-kemp-plny`     | 10 dámských + 10 pánských pokojů po 5 lůžkách, 2 termíny, 145 přihlášek. 1. termín: 50 + 48 potvrzených, 2 náhradnice. 2. termín: plno, 3 ženy a 2 muži čekají |
+| „Rodinný víkend 2027“    | `/apply/demo-rodinny-vikend-2027` | společné pokoje bez pohlaví (7 lůžek), 8 přihlášek, poslední je náhradník                                                                                      |
+| „Zimní výjezd 2028“      | `/apply/demo-zimni-vyjezd-2028`   | rozpracovaná: termín s cenou, bez pokojů — přehled ukáže, co chybí, odkaz vrací 404                                                                            |
+
+V „Letním kempu 2027 – demo“ je jedno odeslání se dvěma účastníky pod `rodina.vesela@example.com`, každý čtvrtý zaplatil celé, každý čtvrtý polovinu a jedna přihláška má přeplatek 500 Kč.
 
 Porty jsou zafixované: API přijímá požadavky jen z přesného originu frontendu, takže posunutý port se projeví jako CORS chyba.
 

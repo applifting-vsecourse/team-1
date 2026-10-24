@@ -1,22 +1,22 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
-import { Gender, Term } from "@/generated/prisma/client"
-import { computeFreePlaces, computeTermCapacity } from "@/modules/applications/domain/capacity"
+import { Gender, RoomMode, Term } from "@/generated/prisma/client"
+import { computeAvailablePlaces } from "@/modules/applications/domain/capacity"
 import { evaluateApplication } from "@/modules/applications/domain/evaluation"
 import { computeAmountDue } from "@/modules/applications/domain/pricing"
 import { BetterAuth } from "@/shared/auth/providers/better-auth.provider"
 import { Config } from "@/shared/config/config.service"
-import { emptyGenderCounts, GenderCounts } from "@/shared/domain/gender"
 import { generateToken } from "@/shared/utils/token"
 import { createUser } from "./create-user"
+import { seedSprintDemo } from "./sprint-demo-data"
 
-type SeedRoom = { name: string; capacity: number; gender: Gender }
-type SeedTerm = {
+export type SeedRoom = { name: string; capacity: number; gender: Gender | null }
+export type SeedTerm = {
   name: string
   startsOn: string
   endsOn: string
   priceCzk: number
 }
-type SeedApplicant = {
+export type SeedApplicant = {
   firstName: string
   lastName: string
   birthDate: string
@@ -25,9 +25,14 @@ type SeedApplicant = {
   /** Indexes into the event's terms. */
   termIndexes: number[]
   userId?: string
+  /** Same submission as the previous applicant: same arrival time and consent (siblings under one e-mail). */
+  groupWithPrevious?: boolean
 }
 
-const date = (isoDate: string): Date => new Date(`${isoDate}T00:00:00.000Z`)
+/** Payment recorded for an applicant: the whole amount due, half of it, a CZK amount, or 500 CZK over. */
+export type SeedPayment = "full" | "half" | "over" | number
+
+export const date = (isoDate: string): Date => new Date(`${isoDate}T00:00:00.000Z`)
 
 const rooms = (gender: Gender, ...entries: [name: string, capacity: number][]): SeedRoom[] =>
   entries.map(([name, capacity]) => ({ name, capacity, gender }))
@@ -284,9 +289,15 @@ export const seedDatabase = async (
     ],
     payments: { 0: 1000 },
   })
+
+  await seedSprintDemo(prisma, {
+    organizationId: summerCamp.id,
+    recordedById: organizerA.id,
+    createEvent,
+  })
 }
 
-type CreateEventParams = {
+export type CreateEventParams = {
   organizationId: string
   recordedById: string
   name: string
@@ -295,11 +306,16 @@ type CreateEventParams = {
   publicToken: string
   terms: SeedTerm[]
   rooms: SeedRoom[]
+  /** Defaults to GENDERED; SHARED rooms have no gender (US-14). */
+  roomMode?: RoomMode
   applicants: SeedApplicant[]
-  payments: Record<number, "full" | number>
+  /** By applicant index. */
+  payments: Record<number, SeedPayment>
+  /** When the first application arrived and the gap between them; defaults to the last minutes before now. */
+  arrival?: { first: Date; intervalMs: number }
 }
 
-async function createEvent(prisma: PrismaService, params: CreateEventParams): Promise<void> {
+export async function createEvent(prisma: PrismaService, params: CreateEventParams): Promise<void> {
   const { organizationId } = params
 
   const event = await prisma.event.create({
@@ -309,6 +325,7 @@ async function createEvent(prisma: PrismaService, params: CreateEventParams): Pr
       description: params.description,
       location: params.location,
       publicToken: params.publicToken,
+      roomMode: params.roomMode,
     },
   })
 
@@ -338,11 +355,11 @@ async function createEvent(prisma: PrismaService, params: CreateEventParams): Pr
 
   // Evaluate the sample applications with the real domain rules, in arrival
   // order, so the seeded statuses are exactly what the app would produce.
-  const capacity = computeTermCapacity(params.rooms)
-  const confirmed = new Map<string, GenderCounts>(
-    terms.map((term) => [term.id, emptyGenderCounts()]),
-  )
-  const firstArrival = Date.now() - params.applicants.length * 60_000
+  const confirmed = new Map<string, Gender[]>(terms.map((term) => [term.id, []]))
+  const firstArrival =
+    params.arrival?.first.getTime() ?? Date.now() - params.applicants.length * 60_000
+  const intervalMs = params.arrival?.intervalMs ?? 60_000
+  let submittedAt = new Date(firstArrival)
 
   for (const [index, applicant] of params.applicants.entries()) {
     const selected = applicant.termIndexes.map((termIndex) => terms[termIndex])
@@ -351,14 +368,14 @@ async function createEvent(prisma: PrismaService, params: CreateEventParams): Pr
       selected.map((term) => ({
         termId: term.id,
         priceCzk: term.priceCzk,
-        freePlaces: computeFreePlaces(capacity, confirmed.get(term.id)!),
+        freePlaces: computeAvailablePlaces(params.rooms, confirmed.get(term.id)!),
       })),
     )
     for (const term of evaluated) {
-      if (term.status === "CONFIRMED") confirmed.get(term.termId)![applicant.gender] += 1
+      if (term.status === "CONFIRMED") confirmed.get(term.termId)!.push(applicant.gender)
     }
 
-    const submittedAt = new Date(firstArrival + index * 60_000)
+    if (!applicant.groupWithPrevious) submittedAt = new Date(firstArrival + index * intervalMs)
     const application = await prisma.application.create({
       data: {
         organizationId,
@@ -386,16 +403,24 @@ async function createEvent(prisma: PrismaService, params: CreateEventParams): Pr
     })
 
     const payment = params.payments[index]
-    if (payment !== undefined) {
-      const amountDue = computeAmountDue(evaluated)
+    const amountDue = computeAmountDue(evaluated)
+    // Nothing to pay when the applicant is waitlisted everywhere.
+    if (payment !== undefined && amountDue > 0) {
       await prisma.payment.create({
         data: {
           organizationId,
           applicationId: application.id,
-          amountCzk: payment === "full" ? amountDue : payment,
+          amountCzk: paymentAmount(payment, amountDue),
           recordedById: params.recordedById,
         },
       })
     }
   }
+}
+
+function paymentAmount(payment: SeedPayment, amountDue: number): number {
+  if (payment === "full") return amountDue
+  if (payment === "half") return Math.round(amountDue / 2 / 100) * 100
+  if (payment === "over") return amountDue + 500
+  return payment
 }

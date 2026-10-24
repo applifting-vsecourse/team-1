@@ -67,7 +67,12 @@ describe("OrganizationAccessService (integration)", () => {
     const visibleEvents = await prisma.event.findMany({
       where: { organizationId: { in: organizationIds } },
     })
-    expect(visibleEvents.map((event) => event.publicToken)).toEqual(["demo-letni-kemp-2027"])
+    const tokens = visibleEvents.map((event) => event.publicToken)
+    expect(tokens).toContain("demo-letni-kemp-2027")
+    // Nothing of the other organization — whatever else the seed adds to this one.
+    expect(
+      tokens.filter((token) => token.includes("horsky") || token.includes("podzimni")),
+    ).toEqual([])
   })
 
   it("lets an organizer of both organizations into both", async () => {
