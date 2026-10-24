@@ -10,6 +10,8 @@ import { render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
+import { formatDate } from "@/lib/date"
+
 import { ApplicationsPage } from "@/features/event-overview/components/ApplicationsPage"
 
 const { get } = vi.hoisted(() => ({ get: vi.fn() }))
@@ -82,7 +84,7 @@ beforeEach(() => vi.clearAllMocks())
 describe("ApplicationsPage", () => {
   it("passes combined filters, displays all terms and links to payment", async () => {
     setup()
-    expect(await screen.findByText("jana@example.com", { exact: false })).toBeInTheDocument()
+    expect(await screen.findAllByText("jana@example.com", { exact: false })).toHaveLength(2)
     expect(screen.getAllByText("Waitlisted").length).toBeGreaterThan(0)
     expect(screen.getByRole("link", { name: "Record payment" })).toHaveAttribute(
       "href",
@@ -92,6 +94,26 @@ describe("ApplicationsPage", () => {
     expect(String((request[1] as { searchParams: URLSearchParams }).searchParams)).toBe(
       "termId=t1&status=CONFIRMED&gender=FEMALE&paid=false",
     )
+  })
+  it("keeps identifying and contact details in mobile cards for same-name participants", async () => {
+    setup([
+      application,
+      {
+        ...application,
+        id: "a2",
+        birthDate: "2001-02-03",
+        gender: "MALE",
+        email: "other@example.com",
+      },
+    ])
+    const first = await screen.findByRole("link", { name: /Jana Test.*jana@example.com/ })
+    expect(first).toHaveTextContent(formatDate("2000-01-01"))
+    expect(first).toHaveTextContent("woman")
+    expect(first).toHaveAttribute("href", "/organizer/events/e1/applications/a1")
+    const second = screen.getByRole("link", { name: /Jana Test.*other@example.com/ })
+    expect(second).toHaveTextContent(formatDate("2001-02-03"))
+    expect(second).toHaveTextContent("man")
+    expect(second).toHaveAttribute("href", "/organizer/events/e1/applications/a2")
   })
   it("clears every filter including the gender from occupancy links", async () => {
     const change = setup([])

@@ -230,6 +230,12 @@ export function ApplicationsPage({
                     <span className="font-medium">
                       {row.firstName} {row.lastName}
                     </span>
+                    <span className="text-xs wrap-anywhere text-muted-foreground">
+                      {formatDate(row.birthDate)} ·{" "}
+                      {t(row.gender === "FEMALE" ? "applications.female" : "applications.male")}
+                      {" · "}
+                      {row.email}
+                    </span>
                     <Terms application={row} />
                     <PaymentStatus application={row} />
                   </Link>
