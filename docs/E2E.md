@@ -17,19 +17,19 @@ Když jde věc ověřit nižším testem, E2E pro ni nepiš.
 
 Jen cesty, bez kterých produkt nefunguje a které ukazujeme na demu. Jedna cesta = jeden `test(...)`.
 
-| Cesta                                                                                    | Soubor                 | Stav                                    |
-| ---------------------------------------------------------------------------------------- | ---------------------- | --------------------------------------- |
-| Landing → přihlášení organizátora → dashboard → odhlášení                                | `sign-in.spec.ts`      | ✅                                      |
-| Účastník se nedostane do správy akcí (403)                                               | `sign-in.spec.ts`      | ✅                                      |
-| Organizátor neotevře akci cizí organizace (403)                                          | `sign-in.spec.ts`      | ✅                                      |
-| Účastník: přihlášení heslem a odhlášení (i na mobilu)                                    | `sign-in.spec.ts`      | ✅                                      |
-| Účastník: žádost o magic link → otevření odkazu → přihlášen (i na mobilu)                | `magic-link.spec.ts`   | ✅                                      |
-| Nový účastník: magic link → nastavení hesla → přihlášení novým heslem (i na mobilu)      | `set-password.spec.ts` | ✅                                      |
-| Přihláška přes odkaz: termíny a cena podle výběru (i na mobilu)                          | `application.spec.ts`  | ✅                                      |
-| Odeslání přihlášky → stránka potvrzení → po přihlášení vidí přihlášku se stavem          | `application.spec.ts`  | ✅ (detail potvrzení a platba po US-25) |
-| Organizátor založí akci s termínem a cenou (pokoje a zkopírování odkazu čekají na US-14) | `event-setup.spec.ts`  | ✅ část, zbytek `fixme` po US-14        |
-| Organizátor otevře akci → Kapacity → obsazenost termínu a odkaz na filtrované přihlášky  | `capacity.spec.ts`     | ✅                                      |
-| Organizátor vidí přihlášku v seznamu a zapíše platbu                                     | `payments.spec.ts`     | `fixme` po US-52 a US-44                |
+| Cesta                                                                                    | Soubor                 | Stav                             |
+| ---------------------------------------------------------------------------------------- | ---------------------- | -------------------------------- |
+| Landing → přihlášení organizátora → dashboard → odhlášení                                | `sign-in.spec.ts`      | ✅                               |
+| Účastník se nedostane do správy akcí (403)                                               | `sign-in.spec.ts`      | ✅                               |
+| Organizátor neotevře akci cizí organizace (403)                                          | `sign-in.spec.ts`      | ✅                               |
+| Účastník: přihlášení heslem a odhlášení (i na mobilu)                                    | `sign-in.spec.ts`      | ✅                               |
+| Účastník: žádost o magic link → otevření odkazu → přihlášen (i na mobilu)                | `magic-link.spec.ts`   | ✅                               |
+| Nový účastník: magic link → nastavení hesla → přihlášení novým heslem (i na mobilu)      | `set-password.spec.ts` | ✅                               |
+| Přihláška přes odkaz: termíny a cena podle výběru (i na mobilu)                          | `application.spec.ts`  | ✅                               |
+| Odeslání přihlášky → stránka potvrzení → po přihlášení vidí přihlášku se stavem          | `application.spec.ts`  | ✅                               |
+| Organizátor založí akci s termínem a cenou (pokoje a zkopírování odkazu čekají na US-14) | `event-setup.spec.ts`  | ✅ část, zbytek `fixme` po US-14 |
+| Organizátor otevře akci → Kapacity → obsazenost termínu a odkaz na filtrované přihlášky  | `capacity.spec.ts`     | ✅                               |
+| Organizátor vidí přihlášku v seznamu a zapíše platbu                                     | `payments.spec.ts`     | `fixme` po US-52 a US-44         |
 
 Novou cestu přidej do tabulky v tomtéž PR. Cesta mimo tabulku se domlouvá s tech leadem. Okrajové stavy (chybné heslo, prošlý odkaz…) do E2E nepatří, pokud nejsou součástí hlavní cesty.
 

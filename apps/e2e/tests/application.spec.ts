@@ -42,8 +42,14 @@ test.describe("Application from a link", { tag: "@mobile" }, () => {
 
     await expect(page).toHaveURL(/\/apply\/confirmation\//)
     await expect(
-      page.getByRole("heading", { level: 1, name: "Application submitted" }),
+      page.getByRole("heading", { level: 1, name: "We've received your application" }),
     ).toBeVisible()
+    // US-25: the term status and where to pay.
+    await expect(page.getByText("Confirmed", { exact: true })).toBeVisible()
+    await expect(
+      page.getByRole("heading", { name: "To pay for the confirmed terms" }),
+    ).toBeVisible()
+    await expect(page.getByText("2900123456/2010")).toBeVisible()
 
     // The applicant has no password yet: the e-mailed link leads to setting one, then to the application.
     await page.goto("/participant/magic-link")
