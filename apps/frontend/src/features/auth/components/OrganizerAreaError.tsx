@@ -12,17 +12,52 @@ import { useSignOut } from "@/features/auth/hooks/useSignOut"
 
 /**
  * `errorComponent` of the organizer area. A signed-in participant gets the
- * tailored 403 (Figma S06, see ForbiddenPage) with a way back to their application; everything
+ * tailored 403 (Figma S06, see ForbiddenPage) with a way back to their application; an organizer
+ * opening another organization's record gets S16 with a way back to their events; everything
  * else falls back to the shared area error page.
  */
+// Figma (Design system): S16 Cizí záznam · 403 · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12117-180
 export function OrganizerAreaError({ error }: { error: Error }) {
   const { t } = useTranslation("auth")
   const { user } = useSession()
   const signOut = useSignOut()
 
-  if (!(error instanceof ForbiddenError) || user?.accountType !== "PARTICIPANT") {
+  if (!(error instanceof ForbiddenError) || !user) {
     return <AreaErrorPage error={error} />
   }
+
+  if (user.accountType === "ORGANIZER") {
+    return (
+      <ForbiddenPage
+        variant={{
+          description: t("forbiddenRecord.description"),
+          cardTitle: t("forbiddenRecord.cardTitle"),
+          body: t("forbiddenRecord.body"),
+          actions: (
+            <>
+              <Button
+                asChild
+                size="lg"
+                className="w-full"
+              >
+                <Link to={ROUTES.organizer.events}>{t("forbiddenRecord.myEvents")}</Link>
+              </Button>
+              <Button
+                asChild
+                variant="outline"
+                size="lg"
+                className="w-full"
+              >
+                <Link to={ROUTES.organizer.dashboard}>{t("forbiddenRecord.backToDashboard")}</Link>
+              </Button>
+            </>
+          ),
+        }}
+      />
+    )
+  }
+
+  if (user.accountType !== "PARTICIPANT") return <AreaErrorPage error={error} />
 
   return (
     <ForbiddenPage

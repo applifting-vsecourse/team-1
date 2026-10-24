@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next"
 
 import { BrandDivider } from "@/components/atoms/BrandDivider"
-import { MoneyAmount } from "@/components/atoms/MoneyAmount"
+import { TermPrice } from "@/components/atoms/MoneyAmount"
 import { formatDateRange, formatMonthRange } from "@/lib/date"
 
 import type { PublicEvent } from "@/features/application-form/api/publicEvent"
@@ -44,7 +44,7 @@ export function EventSummary({ event }: { event: PublicEvent }) {
               <span className="text-sm text-muted-foreground">{term.name}</span>
             </span>
             <span className="sr-only"> · </span>
-            <MoneyAmount
+            <TermPrice
               className="font-bold"
               amountCzk={term.priceCzk}
             />

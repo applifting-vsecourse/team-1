@@ -17,14 +17,17 @@ Pravidla a rozhodnutí projektu jsou v [docs/PROJEKT.md](docs/PROJEKT.md). Tady 
 6. **Otevři PR** do `main`:
    - název = název story: `US-23 Přihláška přes odkaz` (stane se z něj commit na `main`),
    - v těle `Refs #23` — **ne** `Closes`, issue zavírá product manager,
-   - vyplň šablonu PR.
+   - vyplň šablonu PR,
+   - issue přesuň na boardu do **Code review**.
 7. **Review** — požádej člena týmu. Povinné není, ale doporučené — zvlášť u schématu, auth a doménové logiky.
-8. **Merge** — squash, až je CI zelené. Větev se smaže sama. Issue přesuň do **In review**.
-9. **Product manager** ([Aadikk](https://github.com/Aadikk)) ověří story na stagingu a issue zavře → **Done**.
+8. **Test** — když je CI zelené, přesuň issue do **In Test**. Tester ([PJjiry](https://github.com/PJjiry)) story otestuje podle akceptačních kritérií ještě před mergem. Když něco nesedí, napíše to do PR a issue vrátí do **In progress**.
+9. **Merge** — až po testu od testera a se zeleným CI, squash. Větev se smaže sama. Issue přesuň do **In Business Review**.
+10. **Product manager** ([Aadikk](https://github.com/Aadikk)) ověří story na stagingu a issue zavře → **Done**.
 
 ### Definition of Done
 
 - [ ] všechna akceptační kritéria splněná, logika má testy, `pnpm check-all` je zelený,
+- [ ] tester ([PJjiry](https://github.com/PJjiry)) story otestoval před mergem,
 - [ ] PR je mergnutý do `main` (review doporučené),
 - [ ] product manager ([Aadikk](https://github.com/Aadikk)) story schválil na stagingu.
 

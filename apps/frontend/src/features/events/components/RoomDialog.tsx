@@ -223,7 +223,7 @@ export function RoomDialog({
                   type="button"
                   variant="ghost"
                   size="lg"
-                  className="sm:mr-auto"
+                  className="text-destructive hover:text-destructive sm:mr-auto"
                   disabled={isPending}
                   onClick={() => onDelete(room)}
                 >

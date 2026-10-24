@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
+import { Pencil, Trash2 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
@@ -9,6 +10,8 @@ import { EmptyState } from "@/components/molecules/EmptyState"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { PageHeader } from "@/components/molecules/PageHeader"
+import { SectionHeader } from "@/components/molecules/SectionHeader"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
@@ -19,6 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { cn } from "@/lib/utils"
 
 import {
   roomModeSchema,
@@ -30,6 +34,8 @@ import { DeleteRoomDialog } from "@/features/events/components/DeleteRoomDialog"
 import { RoomDialog } from "@/features/events/components/RoomDialog"
 import { RoomModeDialog } from "@/features/events/components/RoomModeDialog"
 
+// Rooms of an event under the event header: mode, capacity metrics and the room table with
+// edit / delete icon buttons in each row.
 // Figma (Design system): O18a / O18b · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12358-1789
 // Shared-room variant · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12358-3883
 export function RoomsPage({ eventId }: { eventId: string }) {
@@ -57,6 +63,9 @@ export function RoomsPage({ eventId }: { eventId: string }) {
     )
   }
   const isGendered = event.roomMode === "GENDERED"
+  const rowColumns = isGendered
+    ? "lg:grid-cols-[minmax(0,1fr)_8rem_10rem_6rem]"
+    : "lg:grid-cols-[minmax(0,1fr)_8rem_6rem]"
   const metrics = isGendered
     ? [
         {
@@ -95,10 +104,7 @@ export function RoomsPage({ eventId }: { eventId: string }) {
   return (
     <div className="flex flex-col gap-6">
       <Seo title={t("rooms.title")} />
-      <p className="text-xs text-muted-foreground">
-        {t("list.title")} / {event.organizationName} / {event.eventName} / {t("rooms.breadcrumb")}
-      </p>
-      <PageHeader
+      <SectionHeader
         title={t("rooms.title")}
         description={t("rooms.description")}
         actions={
@@ -119,87 +125,108 @@ export function RoomsPage({ eventId }: { eventId: string }) {
           }}
         />
       ) : null}
-      <Card>
-        <CardContent className="flex flex-col gap-2">
-          <Label htmlFor="room-mode">{t("rooms.mode")}</Label>
-          <Select
-            value={event.roomMode}
-            onValueChange={(value) => {
-              const targetMode = roomModeSchema.parse(value)
-              if (targetMode !== event.roomMode) setPendingMode(targetMode)
-            }}
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+        <Label htmlFor="room-mode">{t("rooms.mode")}</Label>
+        <Select
+          value={event.roomMode}
+          onValueChange={(value) => {
+            const targetMode = roomModeSchema.parse(value)
+            if (targetMode !== event.roomMode) setPendingMode(targetMode)
+          }}
+        >
+          <SelectTrigger
+            id="room-mode"
+            className="w-full bg-card sm:w-60"
           >
-            <SelectTrigger
-              id="room-mode"
-              className="w-full sm:max-w-130"
-            >
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="GENDERED">{t("rooms.genderedMode")}</SelectItem>
-              <SelectItem value="SHARED">{t("rooms.sharedMode")}</SelectItem>
-            </SelectContent>
-          </Select>
-          <p className="text-xs text-muted-foreground">{t("rooms.modeHint")}</p>
-        </CardContent>
-      </Card>
-      <div className="grid gap-6 md:grid-cols-3">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="GENDERED">{t("rooms.genderedMode")}</SelectItem>
+            <SelectItem value="SHARED">{t("rooms.sharedMode")}</SelectItem>
+          </SelectContent>
+        </Select>
+        <p className="text-xs text-muted-foreground">{t("rooms.modeHint")}</p>
+      </div>
+      <div className="grid gap-4 md:grid-cols-3 md:gap-6">
         {metrics.map((metric) => (
           <Card key={metric.label}>
             <CardContent className="flex flex-col gap-2">
-              <h2 className="text-xs font-medium text-muted-foreground">{metric.label}</h2>
-              <p className="text-4xl font-bold tracking-tight">{metric.value}</p>
+              <h3 className="text-xs font-medium text-muted-foreground">{metric.label}</h3>
+              <p className="text-3xl font-bold tracking-tight md:text-4xl">{metric.value}</p>
               <p className="text-sm text-muted-foreground">{metric.helper}</p>
             </CardContent>
           </Card>
         ))}
       </div>
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-wrap items-center justify-between gap-2">
           <CardTitle>
-            <h2>{t("rooms.listTitle")}</h2>
+            <h3>{t("rooms.listTitle")}</h3>
           </CardTitle>
+          <Button
+            asChild
+            variant="ghost"
+            size="lg"
+            className="text-link"
+          >
+            <Link
+              to={ROUTES.organizer.eventTerms}
+              params={{ eventId }}
+            >
+              {t("rooms.showTerms")}
+            </Link>
+          </Button>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           {event.rooms.length ? (
             <>
               <div
-                className={`hidden gap-4 px-4 text-xs text-muted-foreground lg:grid ${isGendered ? "grid-cols-[minmax(0,1fr)_10rem_10rem_16rem]" : "grid-cols-[minmax(0,1fr)_10rem_16rem]"}`}
+                className={cn(
+                  "hidden h-10 items-center gap-4 rounded-md bg-muted px-3 text-xs text-muted-foreground lg:grid",
+                  rowColumns,
+                )}
               >
                 <span>{t("rooms.nameColumn")}</span>
-                <span>{t("rooms.capacityColumn")}</span>
+                <span className="text-right">{t("rooms.capacityColumn")}</span>
                 {isGendered ? <span>{t("rooms.genderColumn")}</span> : null}
-                <span>{t("rooms.actionsColumn")}</span>
+                <span className="sr-only">{t("rooms.actionsColumn")}</span>
               </div>
-              <ul className="flex flex-col gap-4">
+              <ul className="flex flex-col">
                 {event.rooms.map((room) => (
                   <li
                     key={room.id}
-                    className={`flex flex-col items-stretch gap-4 rounded-md border p-4 text-sm sm:grid sm:grid-cols-2 sm:items-center ${isGendered ? "lg:grid-cols-[minmax(0,1fr)_10rem_10rem_16rem]" : "lg:grid-cols-[minmax(0,1fr)_10rem_16rem]"}`}
+                    className={cn(
+                      "grid min-h-14 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-1 border-b px-3 py-2 text-sm last:border-b-0",
+                      rowColumns,
+                    )}
                   >
-                    <span className="break-words">{room.name}</span>
-                    <span className="text-muted-foreground">
+                    <span className="font-medium break-words">{room.name}</span>
+                    <span className="text-muted-foreground lg:text-right lg:text-foreground">
                       {t("rooms.beds", { count: room.capacity })}
                     </span>
                     {isGendered && room.gender ? (
-                      <span className="text-muted-foreground">
-                        {t(room.gender === "FEMALE" ? "rooms.female" : "rooms.male")}
+                      <span>
+                        <Badge variant="secondary">
+                          {t(room.gender === "FEMALE" ? "rooms.female" : "rooms.male")}
+                        </Badge>
                       </span>
                     ) : null}
-                    <div className="flex flex-wrap gap-4">
+                    <div className="col-start-2 row-span-2 row-start-1 flex justify-end gap-1 lg:col-start-auto lg:row-span-1 lg:row-start-auto">
                       <Button
-                        variant="outline"
-                        size="lg"
+                        variant="ghost"
+                        size="icon-lg"
+                        aria-label={t("rooms.editRoom", { name: room.name })}
                         onClick={() => setEditor(room)}
                       >
-                        {t("rooms.editAction")}
+                        <Pencil />
                       </Button>
                       <Button
                         variant="ghost"
-                        size="lg"
+                        size="icon-lg"
+                        aria-label={t("rooms.deleteRoom", { name: room.name })}
                         onClick={() => setDeleting(room)}
                       >
-                        {t("rooms.deleteAction")}
+                        <Trash2 />
                       </Button>
                     </div>
                   </li>
@@ -214,20 +241,6 @@ export function RoomsPage({ eventId }: { eventId: string }) {
           )}
         </CardContent>
       </Card>
-      <div>
-        <Button
-          asChild
-          variant="outline"
-          size="lg"
-        >
-          <Link
-            to={ROUTES.organizer.eventTerms}
-            params={{ eventId }}
-          >
-            {t("rooms.showTerms")}
-          </Link>
-        </Button>
-      </div>
       {pendingMode ? (
         <RoomModeDialog
           event={event}

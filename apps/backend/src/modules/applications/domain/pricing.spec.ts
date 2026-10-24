@@ -47,6 +47,13 @@ describe("payments and debt", () => {
   it("cancelling the only payment brings the debt back", () => {
     expect(computeAmountOwed(4500, computeAmountPaid([]))).toBe(4500)
   })
+
+  it("an omitted amount settles only what remains after earlier receipts", () => {
+    expect(resolvePaymentAmount(undefined, 6900, 3000)).toBe(3900)
+    expect(resolvePaymentAmount(1000, 6900, 3000)).toBe(1000)
+    expect(resolvePaymentAmount(undefined, 6900, 6900)).toBe(0)
+    expect(resolvePaymentAmount(undefined, 6900, 7000)).toBe(0)
+  })
 })
 
 describe("computePaymentStatus", () => {

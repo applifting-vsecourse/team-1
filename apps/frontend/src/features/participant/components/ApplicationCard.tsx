@@ -1,14 +1,11 @@
 import { Link } from "@tanstack/react-router"
 
 import { ROUTES } from "@/app/routes"
+import { TermLabel } from "@/components/molecules/TermLabel"
 import { Card } from "@/components/ui/card"
 
 import type { MyApplication } from "@/features/participant/api/applications"
-import {
-  PaymentStatusBadge,
-  TermLabel,
-  TermStatusBadge,
-} from "@/features/participant/components/TermSummary"
+import { PaymentStatusBadge, TermStatusBadge } from "@/features/participant/components/TermSummary"
 
 type ApplicationCardProps = { application: MyApplication }
 

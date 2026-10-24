@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 
 import { formatDate } from "@/lib/date"
-import { formatCzk } from "@/lib/money"
+import { formatCzk, formatTermPrice } from "@/lib/money"
 
 // Intl separates thousands and the currency with (narrow) no-break spaces;
 // normalise them so the assertions read like the UI does.
@@ -15,6 +15,17 @@ describe("formatCzk", () => {
 
   it("formats whole crowns the English way", () => {
     expect(normalise(formatCzk(1500, "en"))).toBe("CZK 1,500")
+  })
+})
+
+describe("formatTermPrice", () => {
+  it("shows a free term as Zdarma / Free", () => {
+    expect(formatTermPrice(0, "cs")).toBe("Zdarma")
+    expect(formatTermPrice(0, "en")).toBe("Free")
+  })
+
+  it("formats a paid term like formatCzk", () => {
+    expect(normalise(formatTermPrice(6900, "cs"))).toBe("6 900 Kč")
   })
 })
 

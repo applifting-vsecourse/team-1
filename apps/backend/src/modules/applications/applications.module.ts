@@ -6,16 +6,19 @@ import { Module } from "@nestjs/common"
 import { ApplicationsController } from "./controllers/applications.controller"
 import { CapacityController } from "./controllers/capacity.controller"
 import { PublicEventsController } from "./controllers/public-events.controller"
+import { SubmissionStatusController } from "./controllers/submission-status.controller"
 import { ApplicationsRepository } from "./repositories/applications.repository"
 import { CapacityRepository } from "./repositories/capacity.repository"
 import { PublicEventsRepository } from "./repositories/public-events.repository"
+import { SubmissionStatusRepository } from "./repositories/submission-status.repository"
 import { ApplicationsService } from "./services/applications.service"
 import { CapacityService } from "./services/capacity.service"
 import { PublicEventsService } from "./services/public-events.service"
+import { SubmissionStatusService } from "./services/submission-status.service"
 
 @Module({
   imports: [PrismaModule, ParticipantsModule, OrganizationAccessModule, AuthModule],
-  controllers: [PublicEventsController, ApplicationsController, CapacityController],
+  controllers: [PublicEventsController, ApplicationsController, CapacityController, SubmissionStatusController],
   providers: [
     CapacityRepository,
     CapacityService,
@@ -23,6 +26,8 @@ import { PublicEventsService } from "./services/public-events.service"
     PublicEventsRepository,
     ApplicationsService,
     ApplicationsRepository,
+    SubmissionStatusService,
+    SubmissionStatusRepository,
   ],
 })
 export class ApplicationsModule {}
