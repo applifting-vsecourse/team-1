@@ -1,6 +1,32 @@
 {
   "confirmation": {
-    "title": "Application submitted"
+    "account": {
+      "existingAccount": "You already have an account for {{email}}. We attached the application to it and sent a sign-in link in the e-mail. We do not send a new password.",
+      "existingAccountAction": "Sign in to the application",
+      "newAccount": "We created a participant account for {{email}}. The confirmation e-mail contains a sign-in link. After opening it for the first time, you set your own password. The link is valid for 7 days.",
+      "newAccountAction": "Go to sign in",
+      "title": "We sent the confirmation by e-mail"
+    },
+    "doNotPayYet": "Do not pay yet",
+    "intro": "The application for {{names}} has been submitted. You can see the status of each selected term below.",
+    "introOneTerm": "The application for {{names}} has been submitted. You can see the status of the selected term below.",
+    "payment": {
+      "account": "Organization account",
+      "onlyConfirmed": "Pay only for the confirmed terms. Do not pay for a term that is waiting for confirmation yet.",
+      "title": "To pay for the confirmed terms",
+      "variableSymbol": "Variable symbol",
+      "variableSymbolNote": "The variable symbol is the numeric part of application {{code}}."
+    },
+    "status": {
+      "confirmed": "Confirmed",
+      "pending": "Waiting for confirmation"
+    },
+    "termsHeading": "Status of the selected terms",
+    "title": "We've received your application",
+    "waitlist": {
+      "description": "All the selected terms are waiting for confirmation. You will get the payment details once a term is confirmed.",
+      "title": "Do not pay anything yet"
+    }
   },
   "form": {
     "addParticipant": "Add another participant",

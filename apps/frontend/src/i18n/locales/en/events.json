@@ -1,6 +1,7 @@
 {
-  "breadcrumb": {
-    "events": "Events"
+  "header": {
+    "allEvents": "← All events",
+    "applicationsOpen": "Applications open"
   },
   "list": {
     "count_few": "{{count}} events",
@@ -15,17 +16,23 @@
     "manyTerms_one": "{{count}} term · {{months}} · {{organization}}",
     "manyTerms_other": "{{count}} terms · {{months}} · {{organization}}",
     "noCapacity": "—",
+    "noMatch": "No event matches the search and filters.",
     "noTerms": "No term yet · {{organization}}",
     "occupancyMany": "{{confirmed}} / {{capacity}} places in {{count}} terms",
     "occupancyOne": "{{confirmed}} / {{capacity}} participants",
     "oneTerm": "{{dates}} · {{organization}}",
+    "organizationAll": "All my organizations",
+    "organizationFilter": "Organization",
+    "search": "Search event name",
+    "statusAll": "All statuses",
     "statusClosed": "Application inactive",
+    "statusFilter": "Status",
     "statusOpen": "Published",
     "title": "Event list"
   },
   "new": {
-    "back": "Back to the list",
-    "breadcrumb": "Create event",
+    "back": "← Back to the list",
+    "cancel": "Cancel",
     "description": "Create the event. You add terms, prices and rooms afterwards.",
     "form": {
       "description": "Event description",
@@ -43,8 +50,6 @@
     "title": "Create event"
   },
   "overview": {
-    "backToList": "Back to the list",
-    "breadcrumbOverview": "Overview",
     "copied": "Link copied to the clipboard",
     "copy": "Copy application link",
     "copyAgain": "Copy again",
@@ -78,23 +83,22 @@
     "beds_few": "{{count}} beds",
     "beds_one": "{{count}} bed",
     "beds_other": "{{count}} beds",
-    "breadcrumb": "Rooms",
     "capacityColumn": "Capacity",
     "capacityError": "Enter a whole number of at least 1.",
     "capacityHint": "At least 1 bed. Capacity is calculated from rooms.",
     "capacityLabel": "Capacity *",
     "close": "Close",
     "delete": "Delete room",
-    "deleteAction": "Delete",
     "deleteFemaleImpact": "Women's capacity will decrease from {{before}} to {{after}} beds",
     "deleteHint": "The room will be removed from the list and capacity calculations. Existing participant confirmations remain unchanged.",
     "deleteImpact": "Capacity will decrease from {{before}} to {{after}} beds",
     "deleteImpactHint": "{{name}} has {{count}} beds. Deleting it recalculates capacity for all event terms.",
     "deleteMaleImpact": "Men's capacity will decrease from {{before}} to {{after}} beds",
+    "deleteRoom": "Delete room {{name}}",
     "deleteTitle": "Delete {{name}}?",
     "description": "Rooms and their capacities are shared across all event terms.",
     "edit": "Edit room",
-    "editAction": "Edit",
+    "editRoom": "Edit room {{name}}",
     "empty": "Rooms for the entire event will appear here.",
     "female": "Women's",
     "femaleRooms": "Women's rooms",
@@ -153,6 +157,7 @@
     "totalRooms": "Total rooms"
   },
   "terms": {
+    "actions": "Actions for {{name}}",
     "add": "Add term",
     "cancel": "Cancel term",
     "cancelDialog": {

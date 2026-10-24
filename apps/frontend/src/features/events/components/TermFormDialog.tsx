@@ -217,10 +217,12 @@ export function TermFormDialog({
 
             <DialogFooter>
               {term ? (
+                // X17: the destructive action sits apart on the left as a red quiet button.
                 <Button
                   type="button"
-                  variant="destructive"
+                  variant="ghost"
                   size="lg"
+                  className="text-destructive hover:text-destructive sm:mr-auto"
                   onClick={() => onCancelTerm(term)}
                 >
                   {t("terms.cancel")}

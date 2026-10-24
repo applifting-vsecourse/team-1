@@ -1,6 +1,7 @@
 import { Gender } from "@/shared/domain/gender"
 import {
   computeFreePlaces,
+  computeSharedFreePlaces,
   computeTermCapacity,
   computeTotalBeds,
   countByGender,
@@ -80,5 +81,16 @@ describe("computeFreePlaces", () => {
   it("goes negative when a removed room leaves the term overbooked", () => {
     const capacity = computeTermCapacity(rooms(1, 5, "FEMALE"))
     expect(computeFreePlaces(capacity, { FEMALE: 7, MALE: 0 }).FEMALE).toBe(-2)
+  })
+})
+
+describe("computeSharedFreePlaces", () => {
+  it("counts a shared bed once and does not clamp an overbooked term", () => {
+    const shared: RoomCapacity[] = [
+      { capacity: 6, gender: null },
+      { capacity: 4, gender: null },
+    ]
+    expect(computeSharedFreePlaces(shared, 3)).toBe(7)
+    expect(computeSharedFreePlaces(shared, 12)).toBe(-2)
   })
 })

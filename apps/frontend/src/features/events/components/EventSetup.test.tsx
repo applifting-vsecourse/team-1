@@ -8,6 +8,7 @@ import {
 } from "@tanstack/react-router"
 import { render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
+import { toast } from "sonner"
 import { afterEach, describe, expect, it, vi } from "vitest"
 
 import { EventSetup } from "@/features/events/components/EventSetup"
@@ -79,12 +80,13 @@ describe("EventSetup", () => {
   it("copies the link of a ready event and confirms it", async () => {
     const writeText = vi.fn().mockResolvedValue(undefined)
     Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true })
+    const success = vi.spyOn(toast, "success")
     renderSetup({ ...base, termCount: 2, roomCount: 3, applicationsOpen: true, missing: [] })
 
     await userEvent.click(await screen.findByRole("button", { name: "Copy application link" }))
 
     expect(writeText).toHaveBeenCalledWith(`${window.location.origin}/apply/tok123`)
-    expect(await screen.findByText("Link copied to the clipboard")).toBeInTheDocument()
-    expect(screen.getByRole("button", { name: "Copy again" })).toBeEnabled()
+    expect(await screen.findByRole("button", { name: "Copy again" })).toBeEnabled()
+    expect(success).toHaveBeenCalledWith("Link copied to the clipboard")
   })
 })
