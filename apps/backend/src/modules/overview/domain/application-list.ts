@@ -69,6 +69,8 @@ export function applicationList(
     .filter(
       (row) =>
         filters.paid === undefined ||
-        (filters.paid === "true" ? row.amountOwedCzk <= 0 : row.amountOwedCzk > 0),
+        (filters.paid === "true"
+          ? row.amountDueCzk > 0 && row.amountOwedCzk <= 0
+          : row.amountOwedCzk > 0),
     )
 }

@@ -56,9 +56,10 @@ describe("application list filters", () => {
         .amountOwedCzk,
     ).toBe(-500)
   })
-  it("does not show waitlisted-only applications as unpaid", () => {
+  it("does not label waitlisted-only applications as paid or unpaid", () => {
     const waiting = { ...row, terms: [row.terms[1]], payments: [] }
     expect(applicationList([waiting], { paid: "false" })).toEqual([])
+    expect(applicationList([waiting], { paid: "true" })).toEqual([])
     expect(applicationList([waiting], {})[0].paymentStatus).toBe("NOTHING_DUE")
   })
 })
