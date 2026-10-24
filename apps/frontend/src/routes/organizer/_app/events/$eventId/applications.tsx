@@ -1,28 +1,23 @@
 import { createFileRoute } from "@tanstack/react-router"
-import { useTranslation } from "react-i18next"
 
-import { Seo } from "@/components/atoms/Seo"
-import { PageHeader } from "@/components/molecules/PageHeader"
-
+import { ApplicationsPage } from "@/features/event-overview/components/ApplicationsPage"
 import { applicationsSearchSchema } from "@/features/event-overview/lib/applications-search"
 
 export const Route = createFileRoute("/organizer/_app/events/$eventId/applications")({
-  // Filters the occupancy counts link to (US-29); the list that applies them is US-52.
+  // Preserve the filters linked from occupancy counts (US-29).
   validateSearch: applicationsSearchSchema,
   component: EventApplicationsPage,
 })
 
-// Skeleton — US-52, US-44.
 function EventApplicationsPage() {
-  const { t } = useTranslation(["eventOverview", "common"])
-
+  const { eventId } = Route.useParams()
+  const filters = Route.useSearch()
+  const navigate = Route.useNavigate()
   return (
-    <>
-      <Seo title={t("applications.title")} />
-      <PageHeader
-        title={t("applications.title")}
-        description={t("common:comingSoon", { story: "US-52, US-44" })}
-      />
-    </>
+    <ApplicationsPage
+      eventId={eventId}
+      filters={filters}
+      onFiltersChange={(search) => void navigate({ search })}
+    />
   )
 }
