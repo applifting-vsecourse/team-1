@@ -36,6 +36,7 @@
     "title": "Capacity overview",
     "totalCapacity": "Total term capacity",
     "totalCapacityBreakdown": "{{women}} beds for women · {{men}} for men"
+  },
   "header": {
     "allEvents": "← All events",
     "applicationsOpen": "Applications open"

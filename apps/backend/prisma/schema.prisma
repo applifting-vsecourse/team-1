@@ -33,13 +33,6 @@ enum Gender {
   @@map("gender")
 }
 
-enum RoomMode {
-  GENDERED
-  SHARED
-
-  @@map("room_mode")
-}
-
 // Language of the UI and e-mails (docs/PROJEKT.md, localization).
 enum Locale {
   en
@@ -181,7 +174,6 @@ model Event {
   roomMode       RoomMode     @default(GENDERED)
   description    String?      @db.Text
   location       String?
-  roomMode       RoomMode     @default(GENDERED)
   // Unguessable token in the public application link /prihlaska/<publicToken>.
   publicToken    String       @unique
   createdAt      DateTime     @default(now())

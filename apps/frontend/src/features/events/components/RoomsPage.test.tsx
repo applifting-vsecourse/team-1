@@ -62,9 +62,9 @@ describe("US-14 accommodation remains independent of US-26", () => {
       renderRooms(mode)
       expect(await screen.findByText("Original room")).toBeInTheDocument()
       expect(screen.getByRole("button", { name: "Add room" })).toBeEnabled()
-      expect(screen.getByRole("button", { name: "Delete" })).toBeEnabled()
+      expect(screen.getByRole("button", { name: "Delete room Original room" })).toBeEnabled()
       expect(screen.getByRole("combobox", { name: "Room mode" })).toBeEnabled()
-      await userEvent.click(screen.getByRole("button", { name: "Edit" }))
+      await userEvent.click(screen.getByRole("button", { name: "Edit room Original room" }))
       expect(await screen.findByRole("spinbutton", { name: "Capacity *" })).toHaveValue(5000)
       expect(
         screen.queryByText(/Their capacity overview is not available yet/),

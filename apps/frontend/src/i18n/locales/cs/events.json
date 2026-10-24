@@ -36,6 +36,7 @@
     "title": "Přehled kapacit",
     "totalCapacity": "Celková kapacita termínu",
     "totalCapacityBreakdown": "{{women}} lůžek pro ženy · {{men}} pro muže"
+  },
   "header": {
     "allEvents": "← Všechny akce",
     "applicationsOpen": "Přihláška otevřená"
