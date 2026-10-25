@@ -30,9 +30,12 @@
   },
   "nav": {
     "applications": "Přihlášky",
+    "collapseMenu": "Sbalit menu",
     "dashboard": "Dashboard",
     "eventSections": "Části akce",
     "events": "Akce",
+    "expandMenu": "Rozbalit menu",
+    "main": "Hlavní navigace",
     "openMenu": "Otevřít navigaci"
   },
   "pages": {

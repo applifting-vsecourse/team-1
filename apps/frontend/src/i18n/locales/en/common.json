@@ -30,9 +30,12 @@
   },
   "nav": {
     "applications": "Applications",
+    "collapseMenu": "Collapse menu",
     "dashboard": "Dashboard",
     "eventSections": "Event sections",
     "events": "Events",
+    "expandMenu": "Expand menu",
+    "main": "Main navigation",
     "openMenu": "Open navigation"
   },
   "pages": {
