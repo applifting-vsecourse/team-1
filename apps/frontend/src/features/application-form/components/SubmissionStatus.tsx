@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
+import { CopyButton } from "@/components/atoms/CopyButton"
 import { MoneyAmount } from "@/components/atoms/MoneyAmount"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -148,7 +149,7 @@ function TermStatusCard({
 // Figma (Design system): V04 Platba za potvrzené termíny · node-id=12710-1633
 // One card per application with a confirmed term, each with its own amount and variable symbol.
 function PaymentCard({ application }: { application: SubmittedApplication }) {
-  const { t } = useTranslation("applicationForm")
+  const { t } = useTranslation(["applicationForm", "common"])
   const { payment } = application
   if (!payment) return null
 
@@ -166,13 +167,25 @@ function PaymentCard({ application }: { application: SubmittedApplication }) {
           <dt className="text-xs font-medium text-muted-foreground">
             {t("confirmation.payment.account")}
           </dt>
-          <dd className="text-lg font-semibold">{payment.bankAccount}</dd>
+          <dd className="flex min-w-0 items-center gap-2 text-lg font-semibold">
+            <span className="break-all">{payment.bankAccount}</span>
+            <CopyButton
+              value={payment.bankAccount}
+              label={t("common:clipboard.copyAccount")}
+            />
+          </dd>
         </div>
         <div className="flex flex-col gap-4">
           <dt className="text-xs font-medium text-muted-foreground">
             {t("confirmation.payment.variableSymbol")}
           </dt>
-          <dd className="text-lg font-semibold">{payment.variableSymbol}</dd>
+          <dd className="flex min-w-0 items-center gap-2 text-lg font-semibold">
+            <span className="break-all">{payment.variableSymbol}</span>
+            <CopyButton
+              value={payment.variableSymbol}
+              label={t("common:clipboard.copyVariableSymbol")}
+            />
+          </dd>
         </div>
       </dl>
       <p className="text-xs font-medium text-muted-foreground">

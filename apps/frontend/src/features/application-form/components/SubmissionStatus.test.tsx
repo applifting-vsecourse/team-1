@@ -8,6 +8,7 @@ import {
   RouterProvider,
 } from "@tanstack/react-router"
 import { render, screen } from "@testing-library/react"
+import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import type { SubmissionStatus as Data } from "@/features/application-form/api/submissionStatus"
@@ -77,6 +78,24 @@ const renderStatus = async (value: Data) => {
 }
 
 describe("SubmissionStatus", () => {
+  it("copies the variable symbol for the selected participant", async () => {
+    const user = userEvent.setup()
+    const write = vi.spyOn(navigator.clipboard, "writeText")
+    await renderStatus(
+      data({
+        applications: [
+          jana(),
+          person("Matěj", "Novák", "0049", "CONFIRMED", "2027-08-02", "2027-08-08", 7400),
+        ],
+      }),
+    )
+    const button = screen.getAllByRole("button", { name: "Copy variable symbol" }).at(1)
+    expect(button).toBeDefined()
+    if (!button) throw new Error("Missing second participant copy button")
+    await user.click(button)
+    expect(write).toHaveBeenLastCalledWith("0049")
+  })
+
   beforeEach(() => get.mockReset())
 
   it("shows a confirmed term with the amount and the payment details", async () => {

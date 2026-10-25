@@ -8,6 +8,12 @@
     "organizer": "Organizátor",
     "participant": "Moje přihláška"
   },
+  "clipboard": {
+    "copied": "Zkopírováno do schránky",
+    "copyAccount": "Zkopírovat číslo účtu",
+    "copyVariableSymbol": "Zkopírovat variabilní symbol",
+    "failed": "Kopírování se nepodařilo. Zkopírujte údaj ručně."
+  },
   "comingSoon": "Připravuje se — {{story}}.",
   "eventTabs": {
     "applications": "Přihlášky",
