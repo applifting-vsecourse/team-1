@@ -1,40 +1,10 @@
-import { createFileRoute, Link } from "@tanstack/react-router"
-import { useTranslation } from "react-i18next"
+import { createFileRoute, redirect } from "@tanstack/react-router"
 
 import { ROUTES } from "@/app/routes"
-import { Seo } from "@/components/atoms/Seo"
-import { PageHeader } from "@/components/molecules/PageHeader"
-import { Button } from "@/components/ui/button"
 
-import { useSession } from "@/features/auth/hooks/useSession"
-
+// The organizer has no dashboard (docs/PROJEKT.md, 2026-10-25): /organizer opens the events list.
 export const Route = createFileRoute("/organizer/_app/")({
-  component: OrganizerDashboardPage,
+  beforeLoad: () => {
+    throw redirect({ to: ROUTES.organizer.events, replace: true })
+  },
 })
-
-// US-02 (O01): where an organizer lands after signing in. The list of events
-// opens from the navigation (US-12); attention panel and event cards come with
-// US-29 / US-52.
-// Figma (Design system): O01 Dashboard · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=11988-2
-function OrganizerDashboardPage() {
-  const { t } = useTranslation("eventOverview")
-  const { user } = useSession()
-
-  return (
-    <>
-      <Seo title={t("dashboard.title")} />
-      <PageHeader
-        title={t("dashboard.greeting", { name: user?.name ?? "" })}
-        description={t("dashboard.description")}
-        actions={
-          <Button
-            asChild
-            size="lg"
-          >
-            <Link to={ROUTES.organizer.newEvent}>{t("dashboard.createEvent")}</Link>
-          </Button>
-        }
-      />
-    </>
-  )
-}

@@ -6,16 +6,22 @@ import { eventIdByPublicToken } from "./support/events"
 // US-96 landing → US-02 sign-in and sign-out, and the boundary between the two account types.
 // Edge cases (wrong password, 401/403 of the API) live in Vitest and *.int-spec.ts (docs/E2E.md).
 test.describe("Sign-in", () => {
-  test("organizer gets from the landing page to the dashboard and signs out", async ({ page }) => {
+  test("organizer gets from the landing page to the events list and signs out", async ({
+    page,
+  }) => {
     await page.goto("/")
     await page.getByRole("link", { name: "I'm an organizer" }).click()
     await expect(page).toHaveURL(/\/organizer\/login/)
 
     await fillSignInForm(page, ORGANIZER)
-    await expect(page.getByRole("heading", { level: 1, name: /^Hello,/ })).toBeVisible()
+    await expect(page.getByRole("heading", { level: 1, name: "Event list" })).toBeVisible()
 
-    await page.goto("/organizer/account")
-    await page.getByRole("main").getByRole("button", { name: "Sign out" }).click()
+    // The account menu sits at the bottom of the sidebar.
+    await page
+      .getByRole("complementary")
+      .getByRole("button", { name: /organizator@example\.com/ })
+      .click()
+    await page.getByRole("menuitem", { name: "Sign out" }).click()
     // Sign-out ends on the landing page; leaving earlier would abort the request and keep the session.
     await expect(page).toHaveURL(/\/$/)
     await page.goto("/organizer")
@@ -49,7 +55,7 @@ test.describe("Sign-in", () => {
   test("organizer cannot open another organization's event (US-10)", async ({ page }) => {
     const eventId = await eventIdByPublicToken(MOUNTAIN_WEEKEND_TOKEN)
     await signIn(page, "organizer", ORGANIZER)
-    await expect(page.getByRole("heading", { level: 1, name: /^Hello,/ })).toBeVisible()
+    await expect(page.getByRole("heading", { level: 1, name: "Event list" })).toBeVisible()
 
     await page.goto(`/organizer/events/${eventId}`)
     await expect(page.getByText("403 · The requested record isn't available to you.")).toBeVisible()

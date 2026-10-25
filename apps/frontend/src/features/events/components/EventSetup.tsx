@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
-import { CircleAlert } from "lucide-react"
+import { Circle, CircleAlert, CircleCheck } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 
@@ -101,52 +101,77 @@ function ShareLink({ link }: { link: string }) {
   )
 }
 
+const STEPS = ["TERM", "ROOM"] as const
+
 function MissingSteps({ event }: { event: OrganizerEvent }) {
   const { t } = useTranslation("events")
+  const steps = {
+    TERM: {
+      title: t("overview.missing.termTitle"),
+      body: t("overview.missing.termBody"),
+      action: t("overview.missing.addTerm"),
+      to: ROUTES.organizer.eventTerms,
+    },
+    ROOM: {
+      title: t("overview.missing.roomTitle"),
+      body: t("overview.missing.roomBody"),
+      action: t("overview.missing.addRoom"),
+      to: ROUTES.organizer.eventRooms,
+    },
+  } as const
+  const firstMissing = STEPS.find((step) => event.missing.includes(step))
 
   return (
     <>
       <Card className="gap-4 p-6">
-        <h3 className="text-lg font-semibold tracking-tight">{t("overview.missing.title")}</h3>
-        <p className="text-muted-foreground">{t("overview.missing.intro")}</p>
-        {event.missing.includes("TERM") ? (
-          <>
-            <h4 className="font-semibold">{t("overview.missing.termTitle")}</h4>
-            <p className="text-sm">{t("overview.missing.termBody")}</p>
-            <Button
-              asChild
-              variant="outline"
-              size="lg"
-              className="self-start"
-            >
-              <Link
-                to={ROUTES.organizer.eventTerms}
-                params={{ eventId: event.id }}
+        <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
+          <div className="flex flex-col gap-1">
+            <h3 className="text-lg font-semibold tracking-tight">{t("overview.missing.title")}</h3>
+            <p className="text-sm text-muted-foreground">{t("overview.missing.intro")}</p>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            {t("overview.missing.progress", {
+              done: STEPS.length - event.missing.length,
+              total: STEPS.length,
+            })}
+          </p>
+        </div>
+        <ul className="flex flex-col">
+          {STEPS.map((step) => {
+            const isMissing = event.missing.includes(step)
+            const Icon = isMissing ? Circle : CircleCheck
+            return (
+              <li
+                key={step}
+                className="flex items-center gap-3 border-t border-border py-4 last:pb-0"
               >
-                {t("overview.missing.addTerm")}
-              </Link>
-            </Button>
-          </>
-        ) : null}
-        {event.missing.includes("ROOM") ? (
-          <>
-            <h4 className="font-semibold">{t("overview.missing.roomTitle")}</h4>
-            <p className="text-sm">{t("overview.missing.roomBody")}</p>
-            <Button
-              asChild
-              variant="outline"
-              size="lg"
-              className="self-start"
-            >
-              <Link
-                to={ROUTES.organizer.eventRooms}
-                params={{ eventId: event.id }}
-              >
-                {t("overview.missing.addRoom")}
-              </Link>
-            </Button>
-          </>
-        ) : null}
+                <Icon
+                  aria-hidden
+                  className={isMissing ? "size-5 text-muted-foreground" : "size-5 text-primary"}
+                />
+                <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+                  <h4 className="text-sm font-medium">{steps[step].title}</h4>
+                  <p className="text-sm text-muted-foreground">{steps[step].body}</p>
+                </div>
+                {isMissing ? (
+                  <Button
+                    asChild
+                    // One primary action per view: the step to do first.
+                    variant={step === firstMissing ? "default" : "outline"}
+                    size="lg"
+                  >
+                    <Link
+                      to={steps[step].to}
+                      params={{ eventId: event.id }}
+                    >
+                      {steps[step].action}
+                    </Link>
+                  </Button>
+                ) : null}
+              </li>
+            )
+          })}
+        </ul>
       </Card>
       <Alert>
         <CircleAlert />

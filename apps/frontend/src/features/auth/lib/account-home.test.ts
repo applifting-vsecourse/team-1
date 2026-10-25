@@ -15,8 +15,8 @@ const user = (overrides: Partial<SessionUser>): SessionUser => ({
 })
 
 describe("accountHome", () => {
-  it("sends an organizer to the dashboard", () => {
-    expect(accountHome(user({ accountType: "ORGANIZER" }))).toBe(ROUTES.organizer.dashboard)
+  it("sends an organizer to the events list", () => {
+    expect(accountHome(user({ accountType: "ORGANIZER" }))).toBe(ROUTES.organizer.events)
   })
 
   it("sends a participant to their application", () => {

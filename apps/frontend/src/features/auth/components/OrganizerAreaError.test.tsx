@@ -52,10 +52,7 @@ describe("OrganizerAreaError", () => {
       "href",
       "/organizer/events",
     )
-    expect(screen.getByRole("link", { name: "Back to dashboard" })).toHaveAttribute(
-      "href",
-      "/organizer",
-    )
+    expect(screen.queryByRole("link", { name: "Back to dashboard" })).not.toBeInTheDocument()
   })
 
   it("shows a participant the 403 page with a way back, and nothing of the area", () => {

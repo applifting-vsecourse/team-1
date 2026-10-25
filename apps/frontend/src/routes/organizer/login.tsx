@@ -51,7 +51,7 @@ function OrganizerLoginPage() {
         <SignInWithRedirect
           from={from}
           accountType="ORGANIZER"
-          fallback={ROUTES.organizer.dashboard}
+          fallback={ROUTES.organizer.events}
           emailHint={t("organizerLogin.emailHint")}
         />
       </AuthLayout>
