@@ -25,7 +25,7 @@ export function ActiveCorners({ className }: { className?: string }) {
         className={cn(corner, "top-0 left-0 translate-1.5")}
       >
         <path
-          d="M1.5 18V7.5C1.5 4.186 4.186 1.5 7.5 1.5H18"
+          d="M1.5 16.5V7.5C1.5 4.186 4.186 1.5 7.5 1.5H16.5"
           stroke="currentColor"
           strokeWidth="2.5"
           strokeLinecap="round"
@@ -38,7 +38,7 @@ export function ActiveCorners({ className }: { className?: string }) {
         className={cn(corner, "right-0 bottom-0 -translate-1.5")}
       >
         <path
-          d="M0 16.5H10.5C13.814 16.5 16.5 13.814 16.5 10.5V0"
+          d="M1.5 16.5H10.5C13.814 16.5 16.5 13.814 16.5 10.5V1.5"
           stroke="currentColor"
           strokeWidth="2.5"
           strokeLinecap="round"
