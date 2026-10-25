@@ -5,6 +5,7 @@ import { z } from "zod"
  * a term, a status and, with gendered rooms, a gender.
  */
 export const applicationsSearchSchema = z.object({
+  q: z.string().trim().max(100).optional().catch(undefined),
   term: z.string().optional(),
   status: z.enum(["CONFIRMED", "WAITLISTED"]).optional(),
   gender: z.enum(["FEMALE", "MALE"]).optional(),

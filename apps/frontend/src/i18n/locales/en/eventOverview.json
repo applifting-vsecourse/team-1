@@ -26,6 +26,8 @@
     "payment": "Payment",
     "previous": "Previous",
     "range": "Showing {{from}}–{{to}} of {{count}} applications",
+    "search": "Search applications",
+    "searchPlaceholder": "Name, e-mail or variable symbol",
     "sort": "Sorted: newest received first",
     "status": "Status in term",
     "submitted": "Received",

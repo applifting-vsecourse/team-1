@@ -1,6 +1,7 @@
 import { applicationList, ListedApplication } from "./application-list"
 
 const row: ListedApplication = {
+  number: 48,
   id: "a1",
   firstName: "Jana",
   lastName: "Test",
@@ -30,6 +31,20 @@ const row: ListedApplication = {
 }
 
 describe("application list filters", () => {
+  it.each(["jana", "TEST JANA", "  jana   test  ", "TEST@EXAMPLE", "0048", "48", "  "])(
+    "finds names, e-mails and variable symbols: %s",
+    (q) => {
+      expect(applicationList([row], { q })).toHaveLength(1)
+    },
+  )
+  it("ignores accents, combines search with filters and does not expose internal numbers", () => {
+    const accented = { ...row, firstName: "Šárka", lastName: "Černá" }
+    expect(applicationList([accented], { q: "cerna SARKA", paid: "false" })).toHaveLength(1)
+    expect(applicationList([accented], { q: "cerna", gender: "MALE" })).toEqual([])
+    expect(applicationList([row], { q: "nobody" })).toEqual([])
+    expect(applicationList([row], { q: "0048", paid: "true" })).toEqual([])
+    expect(applicationList([row], { q: "0048" })[0]).not.toHaveProperty("number")
+  })
   it("matches term and status on the same term and preserves every term and total", () => {
     expect(applicationList([row], { termId: "t2", status: "CONFIRMED" })).toEqual([])
     expect(

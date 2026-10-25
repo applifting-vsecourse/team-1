@@ -26,6 +26,8 @@
     "payment": "Platba",
     "previous": "Předchozí",
     "range": "Zobrazeno {{from}}–{{to}} ze {{count}} přihlášek",
+    "search": "Hledat přihlášky",
+    "searchPlaceholder": "Jméno, e-mail nebo VS",
     "sort": "Řazení: nejnověji přijaté",
     "status": "Stav v termínu",
     "submitted": "Přijato",

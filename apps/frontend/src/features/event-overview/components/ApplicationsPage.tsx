@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
@@ -10,6 +10,7 @@ import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
   Select,
@@ -47,6 +48,10 @@ export function ApplicationsPage({
   onFiltersChange: (filters: ApplicationsSearch) => void
 }) {
   const { t } = useTranslation("eventOverview")
+  const searchInput = useRef<HTMLInputElement>(null)
+  useEffect(() => {
+    if (searchInput.current) searchInput.current.value = filters.q ?? ""
+  }, [filters.q])
   const query = useQuery(applicationsQueryOptions(eventId, filters))
   const occupancy = useQuery(occupancyQueryOptions(eventId))
   const [page, setPage] = useState(0)
@@ -86,6 +91,34 @@ export function ApplicationsPage({
     <div className="flex flex-col gap-6">
       <Seo title={t("applications.title")} />
       <div className="flex flex-wrap items-end gap-2">
+        <form
+          role="search"
+          aria-label={t("applications.search")}
+          className="w-full sm:w-auto"
+          onSubmit={(event) => event.preventDefault()}
+        >
+          <Label
+            className="sr-only"
+            htmlFor="applications-search"
+          >
+            {t("applications.search")}
+          </Label>
+          <Input
+            ref={searchInput}
+            id="applications-search"
+            name="q"
+            type="search"
+            maxLength={100}
+            defaultValue={filters.q ?? ""}
+            placeholder={t("applications.searchPlaceholder")}
+            className="w-full sm:w-80"
+            onChange={(event) => {
+              setPage(0)
+              const q = event.target.value.trim()
+              onFiltersChange({ ...filters, q: q === "" ? undefined : q })
+            }}
+          />
+        </form>
         {options.map((option) => (
           <div
             key={option.key}
@@ -143,7 +176,10 @@ export function ApplicationsPage({
           onRetry={() => void query.refetch()}
         />
       ) : (
-        <section className="flex flex-col gap-4 rounded-lg border bg-card p-4 shadow-sm md:p-6">
+        <section
+          aria-busy={query.isFetching}
+          className="flex flex-col gap-4 rounded-lg border bg-card p-4 shadow-sm md:p-6"
+        >
           <div className="flex flex-wrap justify-between gap-2">
             <h2 className="text-lg font-semibold">
               {t("applications.count", { count: query.data.length })}

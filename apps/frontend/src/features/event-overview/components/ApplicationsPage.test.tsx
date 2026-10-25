@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import {
   createMemoryHistory,
@@ -13,6 +14,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import { formatDate } from "@/lib/date"
 
 import { ApplicationsPage } from "@/features/event-overview/components/ApplicationsPage"
+import type { ApplicationsSearch } from "@/features/event-overview/lib/applications-search"
 
 const { get } = vi.hoisted(() => ({ get: vi.fn() }))
 vi.mock("@/lib/api-client", () => ({ api: { get } }))
@@ -47,7 +49,7 @@ const application = {
     },
   ],
 }
-function setup(rows: unknown = [application], isError = false) {
+function setup(rows: unknown = [application], isError = false, q?: string) {
   get.mockImplementation((path: string) => ({
     json: () =>
       path.endsWith("occupancy")
@@ -57,14 +59,27 @@ function setup(rows: unknown = [application], isError = false) {
           : Promise.resolve(rows),
   }))
   const onFiltersChange = vi.fn()
-  const root = createRootRoute({
-    component: () => (
+  function Page() {
+    const [filters, setFilters] = useState<ApplicationsSearch>({
+      term: "t1",
+      status: "CONFIRMED",
+      paid: "false",
+      gender: "FEMALE",
+      ...(q ? { q } : {}),
+    })
+    return (
       <ApplicationsPage
         eventId="e1"
-        filters={{ term: "t1", status: "CONFIRMED", paid: "false", gender: "FEMALE" }}
-        onFiltersChange={onFiltersChange}
+        filters={filters}
+        onFiltersChange={(next) => {
+          onFiltersChange(next)
+          setFilters(next)
+        }}
       />
-    ),
+    )
+  }
+  const root = createRootRoute({
+    component: Page,
   })
   const route = createRoute({ getParentRoute: () => root, path: "/" })
   const router = createRouter({
@@ -82,6 +97,53 @@ function setup(rows: unknown = [application], isError = false) {
 }
 beforeEach(() => vi.clearAllMocks())
 describe("ApplicationsPage", () => {
+  it("searches on every keystroke, preserves filters and clears the search with other filters", async () => {
+    const change = setup()
+    const input = await screen.findByRole("searchbox", { name: "Search applications" })
+    const user = userEvent.setup()
+    await user.type(input, "J")
+    expect(change).toHaveBeenLastCalledWith(expect.objectContaining({ q: "J" }))
+    await user.type(input, "ana Test")
+    expect(change).toHaveBeenLastCalledWith({
+      term: "t1",
+      status: "CONFIRMED",
+      paid: "false",
+      gender: "FEMALE",
+      q: "Jana Test",
+    })
+    expect(get).toHaveBeenCalledWith(
+      expect.stringContaining("applications"),
+      expect.objectContaining({
+        searchParams: new URLSearchParams(
+          "q=Jana+Test&termId=t1&status=CONFIRMED&gender=FEMALE&paid=false",
+        ),
+      }),
+    )
+    expect(input).toHaveFocus()
+    expect(screen.queryByRole("button", { name: "Search" })).not.toBeInTheDocument()
+    await user.click(screen.getByRole("button", { name: "Clear filters" }))
+    expect(change).toHaveBeenLastCalledWith({})
+    expect(input).toHaveValue("")
+  })
+  it("restores a URL search and searches variable symbols with leading zeros immediately", async () => {
+    const change = setup([application], false, "old query")
+    const input = await screen.findByRole("searchbox", { name: "Search applications" })
+    expect(input).toHaveValue("old query")
+    const user = userEvent.setup()
+    await user.clear(input)
+    await user.type(input, "0048")
+    expect(change).toHaveBeenLastCalledWith(expect.objectContaining({ q: "0048" }))
+    await user.clear(input)
+    expect(change).toHaveBeenLastCalledWith(expect.objectContaining({ q: undefined }))
+  })
+  it("starts at the first page of search results", async () => {
+    setup(Array.from({ length: 21 }, (_, index) => ({ ...application, id: `a${index}` })))
+    const user = userEvent.setup()
+    await user.click(await screen.findByRole("button", { name: "Next →" }))
+    expect(screen.getByText("Showing 21–21 of 21 applications")).toBeInTheDocument()
+    await user.type(screen.getByRole("searchbox"), "jana")
+    expect(await screen.findByText("Showing 1–20 of 21 applications")).toBeInTheDocument()
+  })
   it("passes combined filters, displays all terms and links to payment", async () => {
     setup()
     expect(await screen.findAllByText("jana@example.com", { exact: false })).toHaveLength(2)

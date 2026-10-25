@@ -1,4 +1,5 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
+import { toVariableSymbol } from "@/modules/applications/domain/submission-status"
 import { api, connectTestPrisma, resetAndSeed, signIn } from "@/test/integration/test-api"
 
 describe("application list API", () => {
@@ -60,7 +61,7 @@ describe("application list API", () => {
   })
 
   it("validates filters and protects organization data", async () => {
-    for (const query of ["?paid=maybe", "?status=OTHER", "?gender=OTHER"])
+    for (const query of ["?paid=maybe", "?status=OTHER", "?gender=OTHER", `?q=${"a".repeat(101)}`])
       expect((await get(query)).status).toBe(400)
     expect((await get("", "")).status).toBe(401)
     expect((await get("", await signIn("ucastnik@example.com", "password4"))).status).toBe(403)
@@ -71,5 +72,27 @@ describe("application list API", () => {
     expect(response.status).toBe(403)
     expect(await response.text()).not.toContain(foreign.name)
     expect((await get("", cookie, "missing")).status).toBe(403)
+  })
+
+  it("searches names, e-mails and variable symbols only within the authorized event", async () => {
+    const source = await prisma.application.findFirstOrThrow({ where: { eventId } })
+    for (const q of [
+      `${source.lastName} ${source.firstName}`,
+      source.email.toUpperCase(),
+      toVariableSymbol(source.number),
+    ]) {
+      const response = await get(`?q=${encodeURIComponent(q)}`)
+      expect(response.status).toBe(200)
+      expect(await response.json()).toEqual(
+        expect.arrayContaining([expect.objectContaining({ id: source.id })]),
+      )
+    }
+    expect(await (await get("?q=no-such-participant-xyz")).json()).toEqual([])
+    const foreign = await prisma.event.findUniqueOrThrow({
+      where: { publicToken: "demo-horsky-vikend-2027" },
+    })
+    expect((await get(`?q=${encodeURIComponent(source.email)}`, cookie, foreign.id)).status).toBe(
+      403,
+    )
   })
 })
