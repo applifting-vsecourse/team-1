@@ -69,17 +69,17 @@ describe("application form schema", () => {
 
   it("checks the date of birth", () => {
     expect(messagesFor({ ...valid, participants: [{ ...participant, birthDate: "" }] })).toContain(
-      "Enter a valid date from 1 January 1900 to today.",
+      "Enter a valid date of birth.",
     )
     expect(
       messagesFor({ ...valid, participants: [{ ...participant, birthDate: "31. 2. 2010" }] }),
-    ).toContain("Enter a valid date from 1 January 1900 to today.")
+    ).toContain("Enter a valid date of birth.")
     expect(
       messagesFor({ ...valid, participants: [{ ...participant, birthDate: "1. 1. 1850" }] }),
-    ).toContain("Enter a valid date from 1 January 1900 to today.")
+    ).toContain("Enter a valid date of birth.")
     expect(
       messagesFor({ ...valid, participants: [{ ...participant, birthDate: "16. 6. 2027" }] }),
-    ).toContain("Enter a valid date from 1 January 1900 to today.")
+    ).toContain("Enter a valid date of birth.")
     expect(
       schema.safeParse({ ...valid, participants: [{ ...participant, birthDate: "15. 6. 2027" }] })
         .success,
