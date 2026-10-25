@@ -5,7 +5,7 @@ import { signIn } from "./support/auth"
 // US-29: the seeded „Letní kemp 2027“ has rooms by gender. Other tests submit applications to it,
 // so the test checks the wiring (tab, real API, filtered links), not exact counts.
 test.describe("Capacity", () => {
-  test("organizer opens an event's capacity and the confirmed count links to filtered applications", async ({
+  test("organizer opens a term's capacity and the confirmed card links to filtered applications", async ({
     page,
   }) => {
     await signIn(page, "organizer", ORGANIZER)
@@ -18,13 +18,16 @@ test.describe("Capacity", () => {
       .getByRole("link", { name: "Capacity" })
       .click()
 
-    const women = page.getByRole("heading", { name: /^Women · capacity \d+ beds$/ })
-    await expect(women).toBeVisible()
+    await expect(page.getByRole("heading", { name: "Occupancy of all terms" })).toBeVisible()
+    await page.getByRole("main").getByRole("list").getByRole("link").first().click()
+    await expect(page).toHaveURL(/\/capacity\?termId=/)
     await expect(page.getByRole("heading", { name: /^Men · capacity \d+ beds$/ })).toBeVisible()
 
-    // The first count on the page is the confirmed women of the selected term.
-    const confirmed = page.getByRole("main").getByRole("link", { name: /^\d+$/ }).first()
+    const confirmed = page.getByRole("link", { name: /^Women · capacity \d+ beds/ })
+    await expect(confirmed).toBeVisible()
     await expect(confirmed).toHaveAttribute("href", /status=CONFIRMED/)
     await expect(confirmed).toHaveAttribute("href", /gender=FEMALE/)
+    await confirmed.click()
+    await expect(page).toHaveURL(/\/applications\?term=.*status=CONFIRMED.*gender=FEMALE/)
   })
 })
