@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next"
 import { CopyButton } from "@/components/atoms/CopyButton"
 import { MoneyAmount } from "@/components/atoms/MoneyAmount"
 import { Card } from "@/components/ui/card"
+import { cn } from "@/lib/utils"
 
 import type { MyApplication } from "@/features/participant/api/applications"
 import { PaymentStatusBadge } from "@/features/participant/components/TermSummary"
@@ -50,6 +51,7 @@ export function PaymentSummary({ application }: PaymentSummaryProps) {
         <Metric
           label={isOverpaid ? t("payment.overpaid") : t("payment.owed")}
           amountCzk={Math.abs(amountOwedCzk)}
+          isHighlighted={hasToPay}
         />
       </dl>
       <Card className="gap-0 p-6">
@@ -84,11 +86,28 @@ export function PaymentSummary({ application }: PaymentSummaryProps) {
 }
 
 // Figma DS / Metric Tone=Default, without the helper line.
-function Metric({ label, amountCzk }: { label: string; amountCzk: number }) {
+function Metric({
+  label,
+  amountCzk,
+  isHighlighted = false,
+}: {
+  label: string
+  amountCzk: number
+  isHighlighted?: boolean
+}) {
   return (
-    <Card className="gap-2 p-6">
-      <dt className="text-sm text-muted-foreground">{label}</dt>
-      <dd className="text-3xl font-bold">
+    <Card
+      className={cn("gap-2 p-6", isHighlighted && "border-status-warning/40 bg-status-warning-bg")}
+    >
+      <dt
+        className={cn(
+          "text-sm text-muted-foreground",
+          isHighlighted && "font-semibold text-status-warning",
+        )}
+      >
+        {label}
+      </dt>
+      <dd className={cn("text-3xl font-bold", isHighlighted && "text-4xl/11 text-status-warning")}>
         <MoneyAmount amountCzk={amountCzk} />
       </dd>
     </Card>
