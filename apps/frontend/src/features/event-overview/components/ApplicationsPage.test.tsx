@@ -7,7 +7,7 @@ import {
   createRouter,
   RouterProvider,
 } from "@tanstack/react-router"
-import { render, screen } from "@testing-library/react"
+import { render, screen, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
@@ -18,6 +18,9 @@ import type { ApplicationsSearch } from "@/features/event-overview/lib/applicati
 
 const { get } = vi.hoisted(() => ({ get: vi.fn() }))
 vi.mock("@/lib/api-client", () => ({ api: { get } }))
+// Radix Select scrolls and captures pointers using APIs absent from jsdom.
+Element.prototype.hasPointerCapture = () => false
+Element.prototype.scrollIntoView = vi.fn()
 const application = {
   id: "a1",
   firstName: "Jana",
@@ -53,7 +56,24 @@ function setup(rows: unknown = [application], isError = false, q?: string) {
   get.mockImplementation((path: string) => ({
     json: () =>
       path.endsWith("occupancy")
-        ? Promise.resolve({ eventId: "e1", roomMode: "GENDERED", roomCount: 1, terms: [] })
+        ? Promise.resolve({
+            eventId: "e1",
+            roomMode: "GENDERED",
+            roomCount: 1,
+            terms: [
+              {
+                id: "t1",
+                name: "First",
+                startsOn: "2027-07-12",
+                endsOn: "2027-07-18",
+                capacity: 10,
+                confirmed: 1,
+                free: 9,
+                waitlisted: 0,
+                byGender: null,
+              },
+            ],
+          })
         : isError
           ? Promise.reject(new Error("Failed"))
           : Promise.resolve(rows),
@@ -97,6 +117,77 @@ function setup(rows: unknown = [application], isError = false, q?: string) {
 }
 beforeEach(() => vi.clearAllMocks())
 describe("ApplicationsPage", () => {
+  it("applies a mobile selection immediately and keeps it after closing the panel", async () => {
+    const change = setup([application], false, "Jana")
+    const user = userEvent.setup()
+    await user.click(await screen.findByRole("button", { name: "Filters · 4" }))
+    const dialog = screen.getByRole("dialog", { name: "Filters" })
+    await user.click(within(dialog).getByRole("combobox", { name: "Status in term" }))
+    await user.click(screen.getByRole("option", { name: "Waitlisted" }))
+    expect(change).toHaveBeenLastCalledWith({
+      term: "t1",
+      status: "WAITLISTED",
+      paid: "false",
+      gender: "FEMALE",
+      q: "Jana",
+    })
+    expect(screen.getByRole("dialog")).toBeInTheDocument()
+    expect(get).toHaveBeenLastCalledWith(
+      expect.stringContaining("applications"),
+      expect.objectContaining({
+        searchParams: new URLSearchParams(
+          "q=Jana&termId=t1&status=WAITLISTED&gender=FEMALE&paid=false",
+        ),
+      }),
+    )
+    await user.keyboard("{Escape}")
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
+    expect(
+      within(screen.getByRole("group", { name: "Active filters" })).getByRole("button", {
+        name: "Remove filter: Waitlisted",
+      }),
+    ).toBeInTheDocument()
+  })
+
+  it("counts active filters and removes individual criteria while preserving the search", async () => {
+    const change = setup([application], false, "Jana")
+    const user = userEvent.setup()
+    expect(await screen.findByRole("button", { name: "Filters · 4" })).toBeInTheDocument()
+    const chips = screen.getByRole("group", { name: "Active filters" })
+    await user.click(within(chips).getByRole("button", { name: "Remove filter: Confirmed" }))
+    expect(change).toHaveBeenLastCalledWith({
+      term: "t1",
+      paid: "false",
+      gender: "FEMALE",
+      q: "Jana",
+    })
+    expect(screen.getByRole("button", { name: "Filters · 3" })).toBeInTheDocument()
+    await user.click(within(chips).getByRole("button", { name: "Remove filter: woman" }))
+    expect(change).toHaveBeenLastCalledWith({ term: "t1", paid: "false", q: "Jana" })
+    expect(screen.getByRole("searchbox")).toHaveValue("Jana")
+    expect(within(chips).getByRole("button", { name: /Remove filter:.*2027/ })).toBeInTheDocument()
+  })
+
+  it("opens the mobile panel, clears all criteria immediately and restores trigger focus on close", async () => {
+    const change = setup([application], false, "Jana")
+    const user = userEvent.setup()
+    const trigger = await screen.findByRole("button", { name: "Filters · 4" })
+    await user.click(trigger)
+    const dialog = screen.getByRole("dialog", { name: "Filters" })
+    expect(within(dialog).getAllByRole("combobox")).toHaveLength(3)
+    await user.click(within(dialog).getByRole("button", { name: "Clear filters" }))
+    expect(change).toHaveBeenLastCalledWith({})
+    expect(within(dialog).getByRole("combobox", { name: "Status in term" })).toHaveTextContent(
+      "All term statuses",
+    )
+    await user.click(within(dialog).getByRole("button", { name: "Show applications" }))
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
+    expect(trigger).toHaveTextContent(/^Filters$/)
+    expect(trigger).toHaveFocus()
+    expect(screen.queryByRole("group", { name: "Active filters" })).not.toBeInTheDocument()
+    expect(screen.getByRole("searchbox")).toHaveValue("")
+  })
+
   it("searches on every keystroke, preserves filters and clears the search with other filters", async () => {
     const change = setup()
     const input = await screen.findByRole("searchbox", { name: "Search applications" })
