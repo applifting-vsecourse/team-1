@@ -109,8 +109,8 @@ describe("ParticipantAccountsService.ensureAccount", () => {
     await expect(
       service.ensureAccount({ email: "organizator@example.com", name: "O" }),
     ).rejects.toMatchObject({
-      status: 409,
-      response: { code: "EMAIL_NOT_ALLOWED" },
+      status: 400,
+      response: { code: "VALIDATION_FAILED" },
     })
     expect(repository.createParticipant).not.toHaveBeenCalled()
   })

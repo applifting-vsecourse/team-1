@@ -1,7 +1,6 @@
 {
   "CAPACITY_MODE_NOT_SUPPORTED": "This capacity overview currently supports only events with rooms divided by gender.",
   "CAPACITY_ROOM_GENDER_REQUIRED": "Assign a gender to every room before using capacity by gender.",
-  "EMAIL_NOT_ALLOWED": "This e-mail can't be used for an application. Enter another one.",
   "FORBIDDEN": "You don't have access to this.",
   "INTERNAL": "Something went wrong on the server. Please try again.",
   "INVALID_EMAIL_OR_PASSWORD": "Wrong e-mail or password.",

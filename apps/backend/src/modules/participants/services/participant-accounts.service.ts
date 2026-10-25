@@ -61,12 +61,10 @@ export class ParticipantAccountsService {
     accountType: string
     mustSetPassword: boolean
   }): EnsureAccountResult {
+    // The same answer as any invalid input: the public form must not reveal that
+    // the e-mail belongs to an organizer (docs/PROJEKT.md, decision 2026-10-25).
     if (account.accountType !== "PARTICIPANT") {
-      throw new AppException(
-        HttpStatus.CONFLICT,
-        "EMAIL_NOT_ALLOWED",
-        "This e-mail cannot be used for an application",
-      )
+      throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
     }
     return {
       userId: account.id,
