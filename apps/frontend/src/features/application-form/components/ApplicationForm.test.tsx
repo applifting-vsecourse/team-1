@@ -64,12 +64,38 @@ async function fillParticipant(
 const anna = {
   first: "Anna",
   last: "Nováková",
-  birth: "17. 5. 2010",
+  birth: "2010-05-17",
   gender: "Woman",
   term: /11–17 Jul/,
 } as const
 
 describe("ApplicationForm", () => {
+  it("supports typing a date and keeps the hint accessible when the date is out of range", async () => {
+    render(
+      <ApplicationForm
+        event={event}
+        onSubmit={submitSpy()}
+      />,
+    )
+
+    const birthDate = screen.getByLabelText("Date of birth *")
+    const hint = "Type a date or choose from the calendar. E.g. 25.10.1990."
+    expect(birthDate).toHaveAttribute("type", "date")
+    expect(birthDate).toHaveAttribute("min", "1900-01-01")
+    expect(birthDate).toHaveAccessibleDescription(hint)
+
+    await userEvent.type(birthDate, "1899-12-31")
+    await userEvent.click(screen.getByRole("button", { name: "Submit application" }))
+
+    expect(
+      await screen.findByText("Enter a valid date from 1 January 1900 to today."),
+    ).toBeInTheDocument()
+    expect(birthDate).toHaveAccessibleDescription(
+      `${hint} Enter a valid date from 1 January 1900 to today.`,
+    )
+    expect(birthDate).toHaveValue("1899-12-31")
+  })
+
   it("offers the terms as dates and prices, as in the design", () => {
     render(
       <ApplicationForm
@@ -140,7 +166,7 @@ describe("ApplicationForm", () => {
 
     expect(await screen.findByText("Enter the first name.")).toBeInTheDocument()
     expect(screen.getByText("Enter the last name.")).toBeInTheDocument()
-    expect(screen.getByText("Enter a valid date of birth.")).toBeInTheDocument()
+    expect(screen.getByText("Enter a valid date from 1 January 1900 to today.")).toBeInTheDocument()
     expect(screen.getByText("Choose Woman or Man.")).toBeInTheDocument()
     expect(screen.getByText("Choose at least one term.")).toBeInTheDocument()
     expect(screen.getByText("Enter a valid e-mail address.")).toBeInTheDocument()
@@ -213,7 +239,7 @@ describe("ApplicationForm", () => {
     await fillParticipant(2, {
       first: "Matěj",
       last: "Novák",
-      birth: "2. 1. 2012",
+      birth: "2012-01-02",
       gender: "Man",
       term: /11–17 Jul/,
     })
@@ -238,10 +264,12 @@ describe("ApplicationForm", () => {
       />,
     )
 
-    await userEvent.type(screen.getByLabelText("Date of birth *"), "1. 1. 2999")
+    await userEvent.type(screen.getByLabelText("Date of birth *"), "2999-01-01")
     await userEvent.click(screen.getByRole("button", { name: "Submit application" }))
 
-    expect(await screen.findByText("Enter a valid date of birth.")).toBeInTheDocument()
+    expect(
+      await screen.findByText("Enter a valid date from 1 January 1900 to today."),
+    ).toBeInTheDocument()
   })
 
   it("disables the button while submitting, so a second click creates no second application", async () => {

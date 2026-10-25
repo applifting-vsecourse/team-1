@@ -31,6 +31,7 @@
   "form": {
     "addParticipant": "Přidat dalšího účastníka",
     "birthDate": "Datum narození *",
+    "birthDateHint": "Datum napište nebo vyberte z kalendáře. Např. 25.10.1990.",
     "consent": "Souhlasím se zpracováním osobních údajů pro účely přihlášky. *",
     "contactHeading": "Kontakt pro celou přihlášku",
     "email": "Kontaktní e-mail *",

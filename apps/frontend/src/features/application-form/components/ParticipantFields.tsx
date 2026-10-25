@@ -1,3 +1,4 @@
+import { format } from "date-fns"
 import { X } from "lucide-react"
 import { useFormContext, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
@@ -6,7 +7,14 @@ import { TermPrice } from "@/components/atoms/MoneyAmount"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import {
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
@@ -72,7 +80,7 @@ export function ParticipantFields({ index, terms, onRemove, isDisabled }: Partic
         ) : null}
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid items-start gap-4 sm:grid-cols-2">
         <FormField
           control={control}
           name={`participants.${index}.firstName`}
@@ -113,10 +121,15 @@ export function ParticipantFields({ index, terms, onRemove, isDisabled }: Partic
               <FormLabel>{t("form.birthDate")}</FormLabel>
               <FormControl>
                 <Input
+                  type="date"
+                  className="[color-scheme:light] dark:[color-scheme:dark]"
+                  min="1900-01-01"
+                  max={format(new Date(), "yyyy-MM-dd")}
                   autoComplete="off"
                   {...field}
                 />
               </FormControl>
+              <FormDescription>{t("form.birthDateHint")}</FormDescription>
               <FormMessage />
             </FormItem>
           )}
