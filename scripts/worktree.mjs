@@ -4,7 +4,7 @@
 //
 //   pnpm wt new <branch> [--from <ref>]   create ../<repo>-wt/<name> on a new or existing branch
 //   pnpm wt list                          worktrees with their slots and URLs
-//   pnpm wt rm <name>                     remove the worktree and drop its database
+//   pnpm wt rm <name>                     remove the worktree and drop its databases
 //
 // Slot N (1–9) gets frontend 3050+10N, backend 4050+10N and database
 // togena_wt<N> in the shared dev Postgres (localhost:5433). The main checkout
@@ -199,7 +199,8 @@ function cmdRm(args) {
   })
   if (w.slot) {
     const { db } = ports(w.slot)
-    for (const d of [db, `${db}_test`]) {
+    // The integration tests use <db>_test and Playwright <db>_e2e (apps/e2e/scripts/database-url.mjs).
+    for (const d of [db, `${db}_test`, `${db}_e2e`]) {
       psql(`DROP DATABASE IF EXISTS ${d} WITH (FORCE)`)
     }
   }
