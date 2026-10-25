@@ -38,6 +38,7 @@
     "waitlisted": "Waitlisted"
   },
   "capacity": {
+    "back": "← All terms",
     "confirmedColumn": "Confirmed / capacity",
     "confirmedOnly": "Free places are counted from confirmed applications only.",
     "description": "Beds, confirmed applicants, free places and waitlisted applicants per term.",
@@ -52,10 +53,11 @@
     "men": "Men",
     "menOnlyTitle": "Free places for men cannot be used for women.",
     "sharedNote": "Capacity comes from the beds in rooms. Rooms are shared by all terms; changing a room recalculates the capacity of every term, the numbers of confirmed participants stay the same.",
-    "tableHint": "Click the number of confirmed or waitlisted applicants to open the applications list with matching filters.",
+    "tableHint": "Click a row to open the capacity details for that term.",
     "tableTitle": "Occupancy of all terms",
     "termColumn": "Term",
     "termFilter": "Term",
+    "termNotFound": "This term is no longer available. Return to the term overview.",
     "title": "Capacity",
     "waitlisted": "Waitlisted",
     "waitlistedColumn": "Waitlisted",

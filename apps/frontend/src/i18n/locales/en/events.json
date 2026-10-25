@@ -3,6 +3,7 @@
     "FEMALE": "Women",
     "MALE": "Men",
     "available": "Women: {{women}} free. Men: {{men}} free.",
+    "back": "← All terms",
     "bedCapacity_few": "capacity {{count}} beds",
     "bedCapacity_many": "capacity {{count}} beds",
     "bedCapacity_one": "capacity {{count}} bed",
@@ -33,6 +34,7 @@
     "separate": "Free places for women cannot be used for men.",
     "tab": "Capacity",
     "term": "Term",
+    "termNotFound": "This term is no longer available. Return to the term overview.",
     "title": "Capacity overview",
     "totalCapacity": "Total term capacity",
     "totalCapacityBreakdown": "{{women}} beds for women · {{men}} for men"

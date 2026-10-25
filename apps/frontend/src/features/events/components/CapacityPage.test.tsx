@@ -6,7 +6,7 @@ import {
   createRouter,
   RouterProvider,
 } from "@tanstack/react-router"
-import { fireEvent, render, screen } from "@testing-library/react"
+import { render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
@@ -43,12 +43,15 @@ const fixture = (): EventCapacity => ({
     },
   ],
 })
-function renderPage() {
+function renderPage(initialTermId?: string) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   const root = createRootRoute({
     component: () => (
       <QueryClientProvider client={client}>
-        <CapacityPage eventId="e1" />
+        <CapacityPage
+          eventId="e1"
+          initialTermId={initialTermId}
+        />
       </QueryClientProvider>
     ),
   })
@@ -60,8 +63,12 @@ function renderPage() {
     getParentRoute: () => root,
     path: "/organizer/events/$eventId/applications",
   })
+  const capacity = createRoute({
+    getParentRoute: () => root,
+    path: "/organizer/events/$eventId/capacity",
+  })
   const router = createRouter({
-    routeTree: root.addChildren([rooms, applications]),
+    routeTree: root.addChildren([rooms, applications, capacity]),
     history: createMemoryHistory({ initialEntries: ["/"] }),
   })
   render(<RouterProvider router={router} />)
@@ -151,12 +158,9 @@ describe("read-only capacity overview", () => {
       screen.queryByRole("button", { name: /Add room|Edit|Delete|Save/ }),
     ).not.toBeInTheDocument()
   })
-  it("switches terms while management still links to US-14 accommodation", async () => {
-    HTMLElement.prototype.scrollIntoView = vi.fn()
+  it("opens the term from the URL without a select and shows progress bars instead of percentages", async () => {
     get.mockReturnValue({ json: () => Promise.resolve(fixture()) })
-    renderPage()
-    fireEvent.keyDown(await screen.findByRole("combobox", { name: "Term" }), { key: "ArrowDown" })
-    fireEvent.click(await screen.findByRole("option", { name: "11–17 Jul 2027" }))
+    renderPage("t2")
     expect(
       await screen.findByText((_, node) => node?.tagName === "P" && node.textContent === "4 / 14"),
     ).toBeInTheDocument()
@@ -170,6 +174,17 @@ describe("read-only capacity overview", () => {
       screen.queryByText((_, node) => node?.tagName === "P" && node.textContent === "5 / 5"),
     ).not.toBeInTheDocument()
     expect(screen.queryByRole("table")).not.toBeInTheDocument()
+    expect(screen.queryByRole("combobox")).not.toBeInTheDocument()
+    expect(screen.getAllByRole("progressbar")).toHaveLength(3)
+    expect(screen.getByRole("progressbar", { name: "Women" })).toHaveAttribute(
+      "aria-valuetext",
+      "4 / 14",
+    )
+    expect(screen.queryByText(/Occupied.*%/)).not.toBeInTheDocument()
+    expect(screen.getByRole("link", { name: "← All terms" })).toHaveAttribute(
+      "href",
+      "/organizer/events/e1/capacity",
+    )
     expect(screen.getByRole("link", { name: "Manage rooms" })).toHaveAttribute(
       "href",
       "/organizer/events/e1/rooms",
@@ -211,10 +226,9 @@ describe("read-only capacity overview", () => {
             node?.tagName === "P" && node.textContent === `${capacity + 2} / ${capacity}`,
         ),
       ).toHaveClass("text-destructive")
-      HTMLElement.prototype.scrollIntoView = vi.fn()
-      fireEvent.keyDown(screen.getByRole("combobox", { name: "Term" }), { key: "ArrowDown" })
-      fireEvent.click(await screen.findByRole("option", { name: "11–17 Jul 2027" }))
-      expect(screen.queryByRole("alert")).not.toBeInTheDocument()
+      expect(
+        screen.getByRole("progressbar", { name: gender === "FEMALE" ? "Women" : "Men" }),
+      ).toHaveAttribute("aria-valuenow", "100")
     },
   )
 })

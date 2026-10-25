@@ -3,6 +3,7 @@
     "FEMALE": "Ženy",
     "MALE": "Muži",
     "available": "Ženy: {{women}} volných. Muži: {{men}} volných.",
+    "back": "← Všechny termíny",
     "bedCapacity_few": "kapacita {{count}} lůžka",
     "bedCapacity_many": "kapacita {{count}} lůžka",
     "bedCapacity_one": "kapacita {{count}} lůžko",
@@ -33,6 +34,7 @@
     "separate": "Volná místa pro ženy nelze využít pro muže.",
     "tab": "Kapacity",
     "term": "Termín",
+    "termNotFound": "Tento termín již není dostupný. Vraťte se na přehled termínů.",
     "title": "Přehled kapacit",
     "totalCapacity": "Celková kapacita termínu",
     "totalCapacityBreakdown": "{{women}} lůžek pro ženy · {{men}} pro muže"

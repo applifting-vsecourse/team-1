@@ -38,6 +38,7 @@
     "waitlisted": "Náhradník"
   },
   "capacity": {
+    "back": "← Všechny termíny",
     "confirmedColumn": "Potvrzeno / kapacita",
     "confirmedOnly": "Volno se počítá pouze z potvrzených přihlášek.",
     "description": "Lůžka, potvrzení účastníci, volná místa a náhradníci po termínech.",
@@ -52,10 +53,11 @@
     "men": "Muži",
     "menOnlyTitle": "Volná místa pro muže nelze využít pro ženy.",
     "sharedNote": "Kapacita vychází z lůžek v pokojích. Pokoje jsou společné pro všechny termíny; změna pokoje přepočítá kapacitu každého termínu, počty potvrzených účastníků zůstávají stejné.",
-    "tableHint": "Klikněte na počet potvrzených nebo náhradníků: otevře se seznam přihlášek s odpovídajícími filtry.",
+    "tableHint": "Kliknutím na řádek otevřete detail kapacity daného termínu.",
     "tableTitle": "Obsazenost všech termínů",
     "termColumn": "Termín",
     "termFilter": "Termín",
+    "termNotFound": "Tento termín již není dostupný. Vraťte se na přehled termínů.",
     "title": "Kapacity",
     "waitlisted": "Náhradníci",
     "waitlistedColumn": "Náhradníci",

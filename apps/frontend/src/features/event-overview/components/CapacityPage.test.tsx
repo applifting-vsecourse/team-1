@@ -48,7 +48,7 @@ const shared = {
   ],
 }
 
-function renderPage(body: unknown, status = 200) {
+function renderPage(body: unknown, status = 200, termId?: string) {
   vi.spyOn(globalThis, "fetch").mockImplementation(() =>
     Promise.resolve(
       new Response(JSON.stringify(body), {
@@ -61,7 +61,12 @@ function renderPage(body: unknown, status = 200) {
   const page = createRoute({
     getParentRoute: () => rootRoute,
     path: "/",
-    component: () => <CapacityPage eventId="e1" />,
+    component: () => (
+      <CapacityPage
+        eventId="e1"
+        termId={termId}
+      />
+    ),
   })
   const router = createRouter({
     routeTree: rootRoute.addChildren([page]),
@@ -79,25 +84,55 @@ function renderPage(body: unknown, status = 200) {
 afterEach(() => vi.restoreAllMocks())
 
 describe("CapacityPage", () => {
-  it("shows women and men separately, linking counts by term, status and gender", async () => {
+  it("shows all gendered terms as whole-row links without a select or nested count links", async () => {
     renderPage(gendered)
-    const confirmedWomen = await screen.findByRole("link", { name: "2" })
-    expect(confirmedWomen.getAttribute("href")).toContain("term=t1")
-    expect(confirmedWomen.getAttribute("href")).toContain("status=CONFIRMED")
-    expect(confirmedWomen.getAttribute("href")).toContain("gender=FEMALE")
-    const waitlistedMen = screen.getByRole("link", { name: "4" })
-    expect(waitlistedMen.getAttribute("href")).toContain("status=WAITLISTED")
-    expect(waitlistedMen.getAttribute("href")).toContain("gender=MALE")
-    expect(screen.getByText("3 free places")).toBeTruthy()
+    const row = await screen.findByRole("link", { name: /Letní turnus 1/ })
+    expect(row).toHaveAttribute("href", "/organizer/events/e1/capacity?termId=t1")
+    expect(row).toHaveTextContent("7 / 10")
+    expect(row.querySelectorAll("a")).toHaveLength(0)
+    expect(screen.queryByRole("combobox")).not.toBeInTheDocument()
+    expect(screen.getByRole("progressbar")).toHaveAttribute("aria-valuenow", "70")
   })
 
   it("shows one summary per term with shared rooms", async () => {
     renderPage(shared)
-    const waitlisted = await screen.findByRole("link", { name: "3" })
-    expect(waitlisted.getAttribute("href")).toContain("status=WAITLISTED")
-    expect(waitlisted.getAttribute("href")).not.toContain("gender")
+    const row = await screen.findByRole("link", { name: /Letní turnus 1/ })
+    expect(row).toHaveAttribute("href", "/organizer/events/e1/capacity?termId=t1")
     expect(screen.getByText("22")).toBeTruthy()
   })
+
+  it("opens the selected shared term with a progress bar, application links and a way back", async () => {
+    renderPage(shared, 200, "t1")
+    expect(await screen.findByRole("heading", { name: "Letní turnus 1" })).toBeInTheDocument()
+    expect(screen.getByRole("progressbar")).toHaveAttribute("aria-valuenow", "78")
+    expect(screen.getByRole("link", { name: "78" })).toHaveAttribute(
+      "href",
+      "/organizer/events/e1/applications?term=t1&status=CONFIRMED",
+    )
+    expect(screen.getByRole("link", { name: "← All terms" })).toHaveAttribute(
+      "href",
+      "/organizer/events/e1/capacity",
+    )
+  })
+
+  it("does not silently open another term for a stale term URL", async () => {
+    renderPage(shared, 200, "missing")
+    expect(
+      await screen.findByText("This term is no longer available. Return to the term overview."),
+    ).toBeInTheDocument()
+    expect(screen.queryByRole("progressbar")).not.toBeInTheDocument()
+  })
+
+  it.each([
+    { capacity: 0, confirmed: 0, free: 0, expected: "0" },
+    { capacity: 5, confirmed: 7, free: -2, expected: "100" },
+  ])(
+    "keeps the occupancy bar valid for $confirmed / $capacity",
+    async ({ expected, ...counts }) => {
+      renderPage({ ...shared, terms: [{ ...shared.terms[0], ...counts }] })
+      expect(await screen.findByRole("progressbar")).toHaveAttribute("aria-valuenow", expected)
+    },
+  )
 
   it("shows an empty state without terms", async () => {
     renderPage({ ...shared, terms: [] })

@@ -1,26 +1,20 @@
-import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
 import { TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
+import { BackLink } from "@/components/atoms/BackLink"
+import { CapacityProgress } from "@/components/atoms/CapacityProgress"
 import { Seo } from "@/components/atoms/Seo"
 import { EmptyState } from "@/components/molecules/EmptyState"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { PageHeader } from "@/components/molecules/PageHeader"
+import { SectionHeader } from "@/components/molecules/SectionHeader"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { formatDateRange } from "@/lib/date"
 import { cn } from "@/lib/utils"
 
@@ -43,7 +37,6 @@ export function CapacityPage({
   const { t } = useTranslation(["events", "common"])
   const options = capacityQueryOptions(eventId)
   const { data, error, isPending, refetch } = useQuery(options)
-  const [selectedId, setSelectedId] = useState(initialTermId)
   const title = t("capacity.title")
   if (isPending) return <LoadingState />
   if (error) {
@@ -70,7 +63,9 @@ export function CapacityPage({
       </div>
     )
   }
-  const selected = data.terms.find((term) => term.termId === selectedId) ?? data.terms[0]
+  const selected = initialTermId
+    ? data.terms.find((term) => term.termId === initialTermId)
+    : data.terms[0]
   const totalCapacity = selected ? selected.capacity.FEMALE + selected.capacity.MALE : 0
   const totalConfirmed = selected
     ? totalCapacity - selected.freePlaces.FEMALE - selected.freePlaces.MALE
@@ -82,12 +77,16 @@ export function CapacityPage({
   return (
     <div className="flex min-w-0 flex-col gap-6">
       <Seo title={title} />
-      <p className="text-xs text-muted-foreground">
-        {t("list.title")} / {data.eventName} / {t("capacity.tab")}
-      </p>
-      <PageHeader
-        title={title}
-        description={t("capacity.description", { event: data.eventName })}
+      <BackLink
+        to={ROUTES.organizer.eventCapacity}
+        params={{ eventId }}
+        search={{}}
+      >
+        {t("capacity.back")}
+      </BackLink>
+      <SectionHeader
+        title={selected?.name ?? title}
+        description={selected ? dateLabel(selected) : data.eventName}
         actions={
           <Button
             asChild
@@ -104,30 +103,6 @@ export function CapacityPage({
       />
       {selected ? (
         <>
-          <div className="flex w-full max-w-100 flex-col gap-2">
-            <Label htmlFor="capacity-term">{t("capacity.term")}</Label>
-            <Select
-              value={selected.termId}
-              onValueChange={setSelectedId}
-            >
-              <SelectTrigger
-                id="capacity-term"
-                className="w-full"
-              >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {data.terms.map((term) => (
-                  <SelectItem
-                    key={term.termId}
-                    value={term.termId}
-                  >
-                    {dateLabel(term)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
           <div
             className="grid gap-6 lg:grid-cols-3"
             aria-live="polite"
@@ -149,13 +124,11 @@ export function CapacityPage({
               >
                 {totalConfirmed} / {totalCapacity}
               </p>
-              {totalCapacity > 0 && (
-                <p className="text-sm font-medium">
-                  {t("capacity.occupancy", {
-                    percent: Math.round((totalConfirmed / totalCapacity) * 100),
-                  })}
-                </p>
-              )}
+              <CapacityProgress
+                confirmed={totalConfirmed}
+                capacity={totalCapacity}
+                label={t("capacity.totalCapacity")}
+              />
               <p className="text-sm text-muted-foreground">
                 {t("capacity.totalCapacityBreakdown", {
                   women: selected.capacity.FEMALE,
@@ -191,17 +164,11 @@ export function CapacityPage({
                   </Link>{" "}
                   / {selected.capacity[gender]}
                 </p>
-                {selected.capacity[gender] > 0 && (
-                  <p className="text-sm font-medium">
-                    {t("capacity.occupancy", {
-                      percent: Math.round(
-                        ((selected.capacity[gender] - selected.freePlaces[gender]) /
-                          selected.capacity[gender]) *
-                          100,
-                      ),
-                    })}
-                  </p>
-                )}
+                <CapacityProgress
+                  confirmed={selected.capacity[gender] - selected.freePlaces[gender]}
+                  capacity={selected.capacity[gender]}
+                  label={t(`capacity.${gender}`)}
+                />
                 <p className="text-sm text-muted-foreground">
                   {selected.freePlaces[gender] < 0
                     ? t("capacity.missingBeds", { count: -selected.freePlaces[gender] })
@@ -251,7 +218,7 @@ export function CapacityPage({
           </Alert>
         </>
       ) : (
-        <EmptyState message={t("capacity.noTerms")} />
+        <EmptyState message={t(initialTermId ? "capacity.termNotFound" : "capacity.noTerms")} />
       )}
       <Card className="gap-4 px-6">
         <h2 className="text-lg font-semibold">{t("capacity.explanationTitle")}</h2>
