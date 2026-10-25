@@ -8,6 +8,12 @@
     "organizer": "Organizer",
     "participant": "My application"
   },
+  "clipboard": {
+    "copied": "Copied to the clipboard",
+    "copyAccount": "Copy account number",
+    "copyVariableSymbol": "Copy variable symbol",
+    "failed": "Could not copy. Copy the value manually."
+  },
   "comingSoon": "Coming soon — {{story}}.",
   "eventTabs": {
     "applications": "Applications",
@@ -24,8 +30,11 @@
   },
   "nav": {
     "applications": "Applications",
+    "collapseMenu": "Collapse menu",
     "eventSections": "Event sections",
     "events": "Events",
+    "expandMenu": "Expand menu",
+    "main": "Main navigation",
     "openMenu": "Open navigation"
   },
   "pages": {

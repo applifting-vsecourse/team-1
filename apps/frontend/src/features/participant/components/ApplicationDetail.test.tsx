@@ -7,6 +7,7 @@ import {
   RouterProvider,
 } from "@tanstack/react-router"
 import { render, screen } from "@testing-library/react"
+import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import type { MyApplication } from "@/features/participant/api/applications"
@@ -68,6 +69,16 @@ const renderDetail = (data: MyApplication) => {
 }
 
 describe("ApplicationDetail", () => {
+  it("copies the account and preserves leading zeros in the variable symbol", async () => {
+    const user = userEvent.setup()
+    const write = vi.spyOn(navigator.clipboard, "writeText")
+    renderDetail(application())
+    await user.click(await screen.findByRole("button", { name: "Copy account number" }))
+    expect(write).toHaveBeenLastCalledWith("2900123456/2010")
+    await user.click(screen.getByRole("button", { name: "Copy variable symbol" }))
+    expect(write).toHaveBeenLastCalledWith("0048")
+  })
+
   beforeEach(() => get.mockReset())
 
   it("shows what is due, what is paid, what is left and where to send it", async () => {

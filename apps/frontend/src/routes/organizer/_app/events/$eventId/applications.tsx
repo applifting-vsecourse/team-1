@@ -17,7 +17,7 @@ function EventApplicationsPage() {
     <ApplicationsPage
       eventId={eventId}
       filters={filters}
-      onFiltersChange={(search) => void navigate({ search })}
+      onFiltersChange={(search) => void navigate({ search, replace: true })}
     />
   )
 }

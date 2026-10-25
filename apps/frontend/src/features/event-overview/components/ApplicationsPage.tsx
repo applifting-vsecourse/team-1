@@ -1,6 +1,7 @@
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
+import { FilterX } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
@@ -10,14 +11,8 @@ import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import {
   Table,
   TableBody,
@@ -33,10 +28,12 @@ import {
   type ListedApplication,
 } from "@/features/event-overview/api/applications"
 import { occupancyQueryOptions } from "@/features/event-overview/api/occupancy"
+import { ApplicationFilters } from "@/features/event-overview/components/ApplicationFilters"
 import type { ApplicationsSearch } from "@/features/event-overview/lib/applications-search"
 
 // Figma (Design system): O05, O05g · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12110-326
 // Figma (Design system): M12 · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14070-41596
+// Figma (Design system): M12b / Empty results · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14189-43641
 export function ApplicationsPage({
   eventId,
   filters,
@@ -47,92 +44,60 @@ export function ApplicationsPage({
   onFiltersChange: (filters: ApplicationsSearch) => void
 }) {
   const { t } = useTranslation("eventOverview")
+  const searchInput = useRef<HTMLInputElement>(null)
+  useEffect(() => {
+    if (searchInput.current) searchInput.current.value = filters.q ?? ""
+  }, [filters.q])
   const query = useQuery(applicationsQueryOptions(eventId, filters))
   const occupancy = useQuery(occupancyQueryOptions(eventId))
   const [page, setPage] = useState(0)
   const pageCount = Math.max(1, Math.ceil((query.data?.length ?? 0) / 20))
   const currentPage = Math.min(page, pageCount - 1)
   const visibleRows = query.data?.slice(currentPage * 20, (currentPage + 1) * 20) ?? []
-  const options = [
-    {
-      key: "status" as const,
-      label: t("applications.status"),
-      all: t("applications.allStatuses"),
-      values: [
-        { id: "CONFIRMED", name: t("applications.confirmed") },
-        { id: "WAITLISTED", name: t("applications.waitlisted") },
-      ],
-    },
-    {
-      key: "paid" as const,
-      label: t("applications.payment"),
-      all: t("applications.allPayments"),
-      values: [
-        { id: "true", name: t("applications.paid") },
-        { id: "false", name: t("applications.unpaid") },
-      ],
-    },
-    {
-      key: "term" as const,
-      label: t("applications.term"),
-      all: t("applications.allTerms"),
-      values: (occupancy.data?.terms ?? []).map((term) => ({
-        id: term.id,
-        name: formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true }),
-      })),
-    },
-  ]
+  const hasFilters = Object.values(filters).some(Boolean)
   return (
     <div className="flex flex-col gap-6">
       <Seo title={t("applications.title")} />
       <div className="flex flex-wrap items-end gap-2">
-        {options.map((option) => (
-          <div
-            key={option.key}
-            className="flex min-w-40 flex-col gap-2"
+        <form
+          role="search"
+          aria-label={t("applications.search")}
+          className="w-full md:w-auto"
+          onSubmit={(event) => event.preventDefault()}
+        >
+          <Label
+            className="sr-only"
+            htmlFor="applications-search"
           >
-            <Label htmlFor={`filter-${option.key}`}>{option.label}</Label>
-            <Select
-              value={filters[option.key] ?? "all"}
-              onValueChange={(value) => {
-                setPage(0)
-                onFiltersChange({ ...filters, [option.key]: value === "all" ? undefined : value })
-              }}
-            >
-              <SelectTrigger id={`filter-${option.key}`}>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">{option.all}</SelectItem>
-                {option.values.map((value) => (
-                  <SelectItem
-                    key={value.id}
-                    value={value.id}
-                  >
-                    {value.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        ))}
-        {filters.gender && (
-          <Badge variant="secondary">
-            {t(filters.gender === "FEMALE" ? "applications.female" : "applications.male")}
-          </Badge>
-        )}
-        {Object.values(filters).some(Boolean) && (
-          <Button
-            variant="ghost"
-            size="lg"
-            onClick={() => {
+            {t("applications.search")}
+          </Label>
+          <Input
+            ref={searchInput}
+            id="applications-search"
+            name="q"
+            type="search"
+            maxLength={100}
+            defaultValue={filters.q ?? ""}
+            placeholder={t("applications.searchPlaceholder")}
+            className="w-full md:w-80"
+            onChange={(event) => {
               setPage(0)
-              onFiltersChange({})
+              const q = event.target.value.trim()
+              onFiltersChange({ ...filters, q: q === "" ? undefined : q })
             }}
-          >
-            {t("applications.clear")}
-          </Button>
-        )}
+          />
+        </form>
+        <ApplicationFilters
+          filters={filters}
+          terms={(occupancy.data?.terms ?? []).map((term) => ({
+            id: term.id,
+            name: formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true }),
+          }))}
+          onChange={(next) => {
+            setPage(0)
+            onFiltersChange(next)
+          }}
+        />
       </div>
       {query.isPending ? (
         <LoadingState />
@@ -143,7 +108,10 @@ export function ApplicationsPage({
           onRetry={() => void query.refetch()}
         />
       ) : (
-        <section className="flex flex-col gap-4 rounded-lg border bg-card p-4 shadow-sm md:p-6">
+        <section
+          aria-busy={query.isFetching}
+          className="flex flex-col gap-4 rounded-lg border bg-card p-4 shadow-sm md:p-6"
+        >
           <div className="flex flex-wrap justify-between gap-2">
             <h2 className="text-lg font-semibold">
               {t("applications.count", { count: query.data.length })}
@@ -151,7 +119,29 @@ export function ApplicationsPage({
             <p className="text-sm text-muted-foreground">{t("applications.sort")}</p>
           </div>
           {query.data.length === 0 ? (
-            <p className="text-sm text-muted-foreground">{t("applications.empty")}</p>
+            <div className="flex flex-col items-start gap-4 py-6">
+              <p className="text-sm text-muted-foreground">
+                {t(hasFilters ? "applications.empty" : "applications.noApplications")}
+              </p>
+              {hasFilters && (
+                <Button
+                  variant="secondary"
+                  size="lg"
+                  className="h-auto min-h-11 cursor-pointer border border-border whitespace-normal transition-colors hover:border-input hover:bg-accent hover:text-accent-foreground focus-visible:bg-accent active:border-primary active:bg-accent/80"
+                  onClick={() => {
+                    setPage(0)
+                    onFiltersChange({})
+                    searchInput.current?.focus()
+                  }}
+                >
+                  <FilterX
+                    className="size-4 shrink-0"
+                    aria-hidden="true"
+                  />
+                  {t("applications.clearSearchAndFilters")}
+                </Button>
+              )}
+            </div>
           ) : (
             <>
               <div className="hidden md:block">

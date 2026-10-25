@@ -22,14 +22,15 @@ export function SidebarLink({ icon: Icon, children, ...props }: SidebarLinkProps
   return (
     <Link
       {...props}
+      title={typeof children === "string" ? children : undefined}
       // Active styling uses the router's data-status attribute (see NavLink).
-      className="group relative flex h-11 items-center gap-2 rounded-md px-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-sidebar-accent/60 hover:text-sidebar-foreground data-[status=active]:bg-sidebar-accent data-[status=active]:text-sidebar-accent-foreground"
+      className="group relative flex h-11 items-center gap-2 rounded-md px-3 text-sm font-medium text-muted-foreground transition-colors group-data-[collapsed=true]/sidebar:justify-center group-data-[collapsed=true]/sidebar:px-0 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground data-[status=active]:bg-sidebar-accent data-[status=active]:text-sidebar-accent-foreground"
     >
       <Icon
         aria-hidden
         className="size-5 shrink-0"
       />
-      {children}
+      <span className="group-data-[collapsed=true]/sidebar:sr-only">{children}</span>
       <ActiveCorners className={isCurrentPage ? undefined : "[&>svg]:opacity-0!"} />
     </Link>
   )

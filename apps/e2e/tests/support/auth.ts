@@ -9,8 +9,8 @@ export async function signIn(page: Page, area: "organizer" | "participant", acco
 
 export async function fillSignInForm(page: Page, account: Account) {
   // The participant page has a second e-mail field (ask for a new link): stay in the sign-in form.
-  const form = page.locator("form").filter({ has: page.getByLabel("Password") })
+  const form = page.locator("form").filter({ has: page.getByLabel("Password", { exact: true }) })
   await form.getByLabel("E-mail").fill(account.email)
-  await form.getByLabel("Password").fill(account.password)
+  await form.getByLabel("Password", { exact: true }).fill(account.password)
   await form.getByRole("button", { name: "Sign in" }).click()
 }

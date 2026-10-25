@@ -53,6 +53,7 @@
     "copied": "Link copied to the clipboard",
     "copy": "Copy application link",
     "copyAgain": "Copy again",
+    "copyLink": "Copy link",
     "errorTitle": "Couldn't load the event",
     "inactiveBody": "The event is saved in the list. Applications open once you add a term with a price and rooms.",
     "inactiveTitle": "The application link is not active yet",

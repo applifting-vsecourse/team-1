@@ -8,6 +8,12 @@
     "organizer": "Organizátor",
     "participant": "Moje přihláška"
   },
+  "clipboard": {
+    "copied": "Zkopírováno do schránky",
+    "copyAccount": "Zkopírovat číslo účtu",
+    "copyVariableSymbol": "Zkopírovat variabilní symbol",
+    "failed": "Kopírování se nepodařilo. Zkopírujte údaj ručně."
+  },
   "comingSoon": "Připravuje se — {{story}}.",
   "eventTabs": {
     "applications": "Přihlášky",
@@ -24,8 +30,11 @@
   },
   "nav": {
     "applications": "Přihlášky",
+    "collapseMenu": "Sbalit menu",
     "eventSections": "Části akce",
     "events": "Akce",
+    "expandMenu": "Rozbalit menu",
+    "main": "Hlavní navigace",
     "openMenu": "Otevřít navigaci"
   },
   "pages": {

@@ -1,4 +1,4 @@
-import { queryOptions } from "@tanstack/react-query"
+import { keepPreviousData, queryOptions } from "@tanstack/react-query"
 import { z } from "zod"
 
 import { api } from "@/lib/api-client"
@@ -32,18 +32,21 @@ export type ListedApplication = z.infer<typeof applicationSchema>
 export const applicationsQueryOptions = (eventId: string, filters: ApplicationsSearch) =>
   queryOptions({
     queryKey: ["eventOverview", "applications", eventId, filters],
-    queryFn: async () => {
+    placeholderData: keepPreviousData,
+    queryFn: async ({ signal }) => {
       const searchParams = new URLSearchParams()
+      if (filters.q) searchParams.set("q", filters.q)
       if (filters.term) searchParams.set("termId", filters.term)
       if (filters.status) searchParams.set("status", filters.status)
       if (filters.gender) searchParams.set("gender", filters.gender)
       if (filters.paid) searchParams.set("paid", filters.paid)
-      return z
-        .array(applicationSchema)
-        .parse(
-          await api
-            .get(`organizer/events/${encodeURIComponent(eventId)}/applications`, { searchParams })
-            .json(),
-        )
+      return z.array(applicationSchema).parse(
+        await api
+          .get(`organizer/events/${encodeURIComponent(eventId)}/applications`, {
+            searchParams,
+            signal,
+          })
+          .json(),
+      )
     },
   })

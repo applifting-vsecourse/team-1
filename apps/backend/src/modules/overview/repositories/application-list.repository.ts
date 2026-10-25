@@ -10,6 +10,7 @@ export class ApplicationListRepository {
     const rows = await this.prisma.application.findMany({
       where: { eventId, organizationId },
       select: {
+        number: true,
         id: true,
         firstName: true,
         lastName: true,

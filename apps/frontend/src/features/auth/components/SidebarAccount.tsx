@@ -38,27 +38,28 @@ export function SidebarAccount() {
       <DropdownMenuTrigger asChild>
         <button
           type="button"
-          className="flex w-full items-center gap-2.5 rounded-md p-2 text-left transition-colors outline-none hover:bg-sidebar-accent/60 focus-visible:ring-2 focus-visible:ring-ring data-[state=open]:bg-sidebar-accent/60"
+          title={user.name}
+          className="flex w-full items-center gap-2.5 rounded-md p-2 text-left transition-colors outline-none group-data-[collapsed=true]/sidebar:justify-center hover:bg-sidebar-accent/60 focus-visible:ring-2 focus-visible:ring-ring data-[state=open]:bg-sidebar-accent/60"
         >
           <Avatar>
             <AvatarFallback className="bg-accent text-xs font-semibold text-link">
               {initials(user.name)}
             </AvatarFallback>
           </Avatar>
-          <span className="flex min-w-0 flex-1 flex-col">
+          <span className="flex min-w-0 flex-1 flex-col group-data-[collapsed=true]/sidebar:hidden">
             <span className="truncate text-sm font-medium">{user.name}</span>
             <span className="truncate text-xs text-muted-foreground">{user.email}</span>
           </span>
           <ChevronsUpDown
             aria-hidden
-            className="size-4 shrink-0 text-muted-foreground"
+            className="size-4 shrink-0 text-muted-foreground group-data-[collapsed=true]/sidebar:hidden"
           />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
         side="top"
         align="start"
-        className="w-(--radix-dropdown-menu-trigger-width)"
+        className="w-(--radix-dropdown-menu-trigger-width) min-w-56"
       >
         <DropdownMenuItem
           asChild

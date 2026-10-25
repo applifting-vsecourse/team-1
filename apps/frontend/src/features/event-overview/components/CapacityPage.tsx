@@ -6,7 +6,9 @@ import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
 import { BackLink } from "@/components/atoms/BackLink"
+import { CapacityProgress } from "@/components/atoms/CapacityProgress"
 import { Seo } from "@/components/atoms/Seo"
+import { CardLink } from "@/components/molecules/CardLink"
 import { EmptyState } from "@/components/molecules/EmptyState"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
@@ -14,7 +16,6 @@ import { TermLabel } from "@/components/molecules/TermLabel"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
 import { formatDateRange } from "@/lib/date"
 import { cn } from "@/lib/utils"
 
@@ -29,9 +30,6 @@ type Gender = "FEMALE" | "MALE"
 type Room = { gender: Gender | null; capacity: number }
 
 const GENDERS = ["FEMALE", "MALE"] as const
-
-const percent = (figures: { confirmed: number; capacity: number }) =>
-  figures.capacity > 0 ? Math.min(100, (figures.confirmed / figures.capacity) * 100) : 0
 
 /** Rooms of one gender grouped by their bed count, largest first: `[{ beds: 5, count: 10 }]`. */
 function roomGroups(rooms: readonly Room[], gender: Gender) {
@@ -131,9 +129,10 @@ function Filled({
 }) {
   return (
     <span className="flex items-center gap-2">
-      <Progress
-        value={percent({ confirmed, capacity })}
-        aria-label={label}
+      <CapacityProgress
+        confirmed={confirmed}
+        capacity={capacity}
+        label={label}
         className="w-30 shrink-0"
       />
       <span
@@ -420,33 +419,27 @@ function MetricCard({
   const isOver = figures.confirmed > figures.capacity
 
   return (
-    <Link
+    <CardLink
       to={ROUTES.organizer.eventApplications}
       params={{ eventId }}
       search={search}
-      className={cn(
-        "relative flex flex-col gap-2 rounded-lg border bg-card p-6 text-card-foreground shadow-sm outline-none hover:bg-muted/50 focus-visible:ring-2 focus-visible:ring-ring",
-        isOver && "border-destructive bg-destructive/8",
-      )}
+      className={cn("gap-2 px-6", isOver && "border-destructive bg-destructive/8")}
     >
-      <span className="pr-8 text-xs font-medium text-muted-foreground">{label}</span>
-      <span
+      <h3 className="text-xs font-medium text-muted-foreground">{label}</h3>
+      <p
         className={cn(
           "text-4xl font-bold tracking-tight tabular-nums",
           isOver && "text-destructive",
         )}
       >
         {figures.confirmed} / {figures.capacity}
-      </span>
-      <Progress
-        value={percent(figures)}
-        aria-label={label}
+      </p>
+      <CapacityProgress
+        confirmed={figures.confirmed}
+        capacity={figures.capacity}
+        label={label}
       />
-      <span className="text-sm text-muted-foreground">{helper}</span>
-      <ChevronRight
-        aria-hidden
-        className="absolute top-6 right-6 size-5 text-muted-foreground"
-      />
-    </Link>
+      <p className="text-sm text-muted-foreground">{helper}</p>
+    </CardLink>
   )
 }

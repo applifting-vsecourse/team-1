@@ -6,15 +6,18 @@ import {
   computePaymentStatus,
   PaymentStatus,
 } from "@/modules/applications/domain/pricing"
+import { toVariableSymbol } from "@/modules/applications/domain/submission-status"
 import { Gender } from "@/shared/domain/gender"
 
 export type ApplicationFilters = {
+  q?: string
   termId?: string
   status?: ApplicationTermStatus
   gender?: Gender
   paid?: "true" | "false"
 }
 export type ListedApplication = {
+  number: number
   id: string
   firstName: string
   lastName: string
@@ -33,7 +36,7 @@ export type ListedApplication = {
   payments: { amountCzk: number }[]
 }
 
-export type ApplicationListEntry = Omit<ListedApplication, "payments"> & {
+export type ApplicationListEntry = Omit<ListedApplication, "payments" | "number"> & {
   amountDueCzk: number
   amountPaidCzk: number
   amountOwedCzk: number
@@ -44,9 +47,20 @@ export function applicationList(
   rows: ListedApplication[],
   filters: ApplicationFilters,
 ): ApplicationListEntry[] {
+  const normalize = (value: string): string =>
+    value.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase()
+  const words = normalize(filters.q ?? "")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
   return rows
     .filter(
       (row) =>
+        words.every((word) =>
+          normalize(
+            `${row.firstName} ${row.lastName} ${row.email} ${toVariableSymbol(row.number)}`,
+          ).includes(word),
+        ) &&
         (!filters.gender || row.gender === filters.gender) &&
         (!(filters.termId || filters.status) ||
           row.terms.some(
@@ -55,11 +69,18 @@ export function applicationList(
               (!filters.status || term.status === filters.status),
           )),
     )
-    .map(({ payments, ...row }) => {
+    .map((row) => {
       const amountDueCzk = computeAmountDue(row.terms)
-      const amountPaidCzk = computeAmountPaid(payments)
+      const amountPaidCzk = computeAmountPaid(row.payments)
       return {
-        ...row,
+        id: row.id,
+        firstName: row.firstName,
+        lastName: row.lastName,
+        birthDate: row.birthDate,
+        gender: row.gender,
+        email: row.email,
+        submittedAt: row.submittedAt,
+        terms: row.terms,
         amountDueCzk,
         amountPaidCzk,
         amountOwedCzk: computeAmountOwed(amountDueCzk, amountPaidCzk),

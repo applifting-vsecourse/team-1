@@ -1,8 +1,10 @@
 import type { ReactNode } from "react"
 import { useTranslation } from "react-i18next"
 
+import { CopyButton } from "@/components/atoms/CopyButton"
 import { MoneyAmount } from "@/components/atoms/MoneyAmount"
 import { Card } from "@/components/ui/card"
+import { cn } from "@/lib/utils"
 
 import type { MyApplication } from "@/features/participant/api/applications"
 import { PaymentStatusBadge } from "@/features/participant/components/TermSummary"
@@ -15,7 +17,7 @@ type PaymentSummaryProps = {
 /** What is due, what is paid and where to send the rest — only for applications with a confirmed term (US-25). */
 // Figma (Design system): U04 Moje přihláška, blok „Platba za potvrzený termín“ · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12926-110
 export function PaymentSummary({ application }: PaymentSummaryProps) {
-  const { t } = useTranslation("participant")
+  const { t } = useTranslation(["participant", "common"])
   const { paymentDetails, amountDueCzk, amountPaidCzk, amountOwedCzk } = application
   if (!paymentDetails) return null
 
@@ -49,6 +51,7 @@ export function PaymentSummary({ application }: PaymentSummaryProps) {
         <Metric
           label={isOverpaid ? t("payment.overpaid") : t("payment.owed")}
           amountCzk={Math.abs(amountOwedCzk)}
+          isHighlighted={hasToPay}
         />
       </dl>
       <Card className="gap-0 p-6">
@@ -56,8 +59,20 @@ export function PaymentSummary({ application }: PaymentSummaryProps) {
           {hasToPay ? t("payment.transferTitle") : t("payment.detailsTitle")}
         </h3>
         <dl>
-          <Detail label={t("payment.account")}>{paymentDetails.bankAccount}</Detail>
-          <Detail label={t("payment.variableSymbol")}>{paymentDetails.variableSymbol}</Detail>
+          <Detail label={t("payment.account")}>
+            <span className="break-all">{paymentDetails.bankAccount}</span>
+            <CopyButton
+              value={paymentDetails.bankAccount}
+              label={t("common:clipboard.copyAccount")}
+            />
+          </Detail>
+          <Detail label={t("payment.variableSymbol")}>
+            <span className="break-all">{paymentDetails.variableSymbol}</span>
+            <CopyButton
+              value={paymentDetails.variableSymbol}
+              label={t("common:clipboard.copyVariableSymbol")}
+            />
+          </Detail>
           {hasToPay ? (
             <Detail label={t("payment.toPay")}>
               <MoneyAmount amountCzk={amountOwedCzk} />
@@ -71,11 +86,28 @@ export function PaymentSummary({ application }: PaymentSummaryProps) {
 }
 
 // Figma DS / Metric Tone=Default, without the helper line.
-function Metric({ label, amountCzk }: { label: string; amountCzk: number }) {
+function Metric({
+  label,
+  amountCzk,
+  isHighlighted = false,
+}: {
+  label: string
+  amountCzk: number
+  isHighlighted?: boolean
+}) {
   return (
-    <Card className="gap-2 p-6">
-      <dt className="text-sm text-muted-foreground">{label}</dt>
-      <dd className="text-3xl font-bold">
+    <Card
+      className={cn("gap-2 p-6", isHighlighted && "border-status-warning/40 bg-status-warning-bg")}
+    >
+      <dt
+        className={cn(
+          "text-sm text-muted-foreground",
+          isHighlighted && "font-semibold text-status-warning",
+        )}
+      >
+        {label}
+      </dt>
+      <dd className={cn("text-3xl font-bold", isHighlighted && "text-4xl/11 text-status-warning")}>
         <MoneyAmount amountCzk={amountCzk} />
       </dd>
     </Card>
@@ -86,7 +118,7 @@ function Detail({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="flex flex-col gap-1 border-t py-4 sm:flex-row sm:items-center sm:gap-4">
       <dt className="text-muted-foreground sm:w-50 sm:shrink-0">{label}</dt>
-      <dd className="font-medium">{children}</dd>
+      <dd className="flex min-w-0 items-center gap-2 font-medium">{children}</dd>
     </div>
   )
 }

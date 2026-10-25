@@ -1,7 +1,7 @@
-import { useEffect, useMemo } from "react"
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import type { TFunction } from "i18next"
-import { CircleAlert, Loader2 } from "lucide-react"
+import { CircleAlert, Eye, EyeOff, Loader2 } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
@@ -51,6 +51,13 @@ export function SignInForm({
   onSubmit,
 }: SignInFormProps) {
   const { t } = useTranslation("auth")
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false)
+  const passwordInput = useRef<HTMLInputElement>(null)
+  const passwordSelection = useRef<{
+    start: number | null
+    end: number | null
+    direction: "forward" | "backward" | "none" | null
+  } | null>(null)
   const schema = useMemo(() => createSchema(t), [t])
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -61,6 +68,18 @@ export function SignInForm({
   useEffect(() => {
     if (errorMessage) form.resetField("password")
   }, [errorMessage, form])
+
+  useLayoutEffect(() => {
+    const selection = passwordSelection.current
+    if (selection) {
+      passwordInput.current?.setSelectionRange(
+        selection.start,
+        selection.end,
+        selection.direction ?? undefined,
+      )
+      passwordSelection.current = null
+    }
+  }, [isPasswordVisible])
 
   return (
     <Form {...form}>
@@ -95,13 +114,52 @@ export function SignInForm({
           render={({ field }) => (
             <FormItem>
               <FormLabel>{t("form.password")}</FormLabel>
-              <FormControl>
-                <Input
-                  type="password"
-                  autoComplete="current-password"
-                  {...field}
-                />
-              </FormControl>
+              {/* Figma: S01 / S10 password field · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=11987-68 */}
+              <div className="relative">
+                <FormControl>
+                  <Input
+                    type={isPasswordVisible ? "text" : "password"}
+                    autoComplete="current-password"
+                    className="pr-12"
+                    {...field}
+                    ref={(input) => {
+                      field.ref(input)
+                      passwordInput.current = input
+                    }}
+                  />
+                </FormControl>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-lg"
+                  className="absolute top-0 right-0"
+                  aria-label={t(isPasswordVisible ? "form.hidePassword" : "form.showPassword")}
+                  onMouseDown={(event) => event.preventDefault()}
+                  onClick={() => {
+                    const input = passwordInput.current
+                    if (input) {
+                      passwordSelection.current = {
+                        start: input.selectionStart,
+                        end: input.selectionEnd,
+                        direction: input.selectionDirection,
+                      }
+                    }
+                    setIsPasswordVisible((isVisible) => !isVisible)
+                  }}
+                >
+                  {isPasswordVisible ? (
+                    <EyeOff
+                      className="size-5"
+                      aria-hidden="true"
+                    />
+                  ) : (
+                    <Eye
+                      className="size-5"
+                      aria-hidden="true"
+                    />
+                  )}
+                </Button>
+              </div>
               <FormMessage />
               {passwordHint ? (
                 <FormDescription className="text-xs font-medium">{passwordHint}</FormDescription>

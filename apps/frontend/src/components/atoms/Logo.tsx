@@ -28,14 +28,14 @@ function LogoSymbol({ className }: { className?: string }) {
 }
 
 /** Symbol and the lowercase name. Sits in every header, centred on the sign-in pages. */
-export function Logo() {
+export function Logo({ isCompact = false }: { isCompact?: boolean }) {
   return (
     <Link
       to={ROUTES.home}
       className="flex items-center gap-2 text-lg font-semibold tracking-tight md:gap-3 md:text-2xl"
     >
       <LogoSymbol className="size-8 text-primary" />
-      togena
+      <span className={isCompact ? "sr-only" : undefined}>togena</span>
     </Link>
   )
 }

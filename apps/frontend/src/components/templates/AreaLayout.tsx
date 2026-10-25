@@ -1,6 +1,6 @@
-import { useState, type ReactNode } from "react"
+import { useEffect, useState, type ReactNode } from "react"
 import { useRouterState } from "@tanstack/react-router"
-import { Menu } from "lucide-react"
+import { Menu, PanelLeftClose, PanelLeftOpen } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { Logo } from "@/components/atoms/Logo"
@@ -36,21 +36,80 @@ type AreaLayoutProps = {
 // Figma (Design system): N2 Účtové menu v sidebaru otevřené / Desktop · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14178-12778
 // Figma (Design system): N6 Mobil · Akce s přepínači v liště · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14178-43128
 // Figma (Design system): N7 Mobil · drawer s účtem · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14178-43178
-// Figma (Design system): N / Mobile top bar · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14179-968
+// Figma (Design system): N / Mobile top bar · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14179-968// Figma (Design system): Collapsed sidebar · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14198-44366
 export function AreaLayout({ nav, roleLabel, account, width, children }: AreaLayoutProps) {
   const { t } = useTranslation()
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
+    try {
+      return localStorage.getItem("togena.sidebar.collapsed") === "true"
+    } catch {
+      return false
+    }
+  })
+  useEffect(() => {
+    try {
+      localStorage.setItem("togena.sidebar.collapsed", String(isSidebarCollapsed))
+    } catch {
+      // Navigation remains usable when browser storage is unavailable.
+    }
+  }, [isSidebarCollapsed])
   // The sheet remembers the page it was opened on, so following a link in it closes it.
   const pathname = useRouterState({ select: (state) => state.location.pathname })
   const [menuOpenedOn, setMenuOpenedOn] = useState<string | null>(null)
 
   return (
     <div className="flex min-h-svh">
-      <aside className="sticky top-0 hidden h-svh w-60 shrink-0 flex-col gap-4 border-r border-sidebar-border bg-sidebar px-4 pt-4 pb-6 text-sidebar-foreground md:flex">
-        <div className="flex h-10 items-center pl-1">
-          <Logo />
+      <aside
+        aria-label={t("nav.main")}
+        data-collapsed={isSidebarCollapsed}
+        className={cn(
+          "group/sidebar sticky top-0 hidden h-svh shrink-0 flex-col gap-4 border-r border-sidebar-border bg-sidebar px-4 pt-4 pb-6 text-sidebar-foreground transition-[width] duration-200 ease-out motion-reduce:transition-none md:flex",
+          isSidebarCollapsed ? "w-20" : "w-60",
+        )}
+      >
+        <div
+          className={cn(
+            "flex h-10 shrink-0 items-center",
+            isSidebarCollapsed ? "justify-center" : "pl-1",
+          )}
+        >
+          <Logo isCompact={isSidebarCollapsed} />
         </div>
-        <nav className="flex flex-col gap-2">{nav}</nav>
-        <div className="mt-auto border-t border-sidebar-border pt-2">{account}</div>
+        <nav
+          id="desktop-navigation"
+          className="flex flex-col gap-2"
+        >
+          {nav}
+        </nav>
+        <div className="mt-auto flex flex-col gap-2">
+          <Button
+            variant="ghost"
+            size="lg"
+            className={cn(
+              "w-full shrink-0",
+              isSidebarCollapsed ? "px-0 has-[>svg]:px-0" : "justify-start px-3 has-[>svg]:px-3",
+            )}
+            aria-label={t(isSidebarCollapsed ? "nav.expandMenu" : "nav.collapseMenu")}
+            aria-expanded={!isSidebarCollapsed}
+            aria-controls="desktop-navigation"
+            title={t(isSidebarCollapsed ? "nav.expandMenu" : "nav.collapseMenu")}
+            onClick={() => setIsSidebarCollapsed((isCollapsed) => !isCollapsed)}
+          >
+            {isSidebarCollapsed ? (
+              <PanelLeftOpen
+                className="size-5"
+                aria-hidden="true"
+              />
+            ) : (
+              <PanelLeftClose
+                className="size-5"
+                aria-hidden="true"
+              />
+            )}
+            {!isSidebarCollapsed && <span>{t("nav.collapseMenu")}</span>}
+          </Button>
+          <div className="border-t border-sidebar-border pt-2">{account}</div>
+        </div>
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">

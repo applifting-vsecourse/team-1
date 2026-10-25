@@ -28,5 +28,7 @@ test.describe("Capacity", () => {
     await expect(page.getByRole("link", { name: /^Men · capacity \d+ beds/ })).toBeVisible()
     await expect(women).toHaveAttribute("href", /status=CONFIRMED/)
     await expect(women).toHaveAttribute("href", /gender=FEMALE/)
+    await women.click()
+    await expect(page).toHaveURL(/\/applications\?term=.*status=CONFIRMED.*gender=FEMALE/)
   })
 })
