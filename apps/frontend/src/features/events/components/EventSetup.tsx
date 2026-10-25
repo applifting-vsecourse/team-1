@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
-import { CircleAlert } from "lucide-react"
+import { CircleAlert, Copy } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 
@@ -66,7 +66,14 @@ export function EventSetup({ eventId }: { eventId: string }) {
           </Button>
         }
       />
-      {event.applicationsOpen ? <ShareLink link={link} /> : <MissingSteps event={event} />}
+      {event.applicationsOpen ? (
+        <ShareLink
+          link={link}
+          onCopy={() => void copy()}
+        />
+      ) : (
+        <MissingSteps event={event} />
+      )}
     </div>
   )
 }
@@ -84,19 +91,33 @@ function subtitle(event: OrganizerEvent, t: ReturnType<typeof useTranslation<"ev
       })
 }
 
-function ShareLink({ link }: { link: string }) {
+function ShareLink({ link, onCopy }: { link: string; onCopy: () => void }) {
   const { t } = useTranslation("events")
 
   return (
     <Card className="gap-3 p-6">
       <h3 className="text-lg font-semibold tracking-tight">{t("overview.ready.title")}</h3>
       <p className="text-sm text-muted-foreground">{t("overview.ready.body")}</p>
-      <a
-        href={link}
-        className="break-all text-link hover:underline"
-      >
-        {link}
-      </a>
+      <div className="flex items-center gap-2">
+        <a
+          href={link}
+          className="min-w-0 break-all text-link hover:underline"
+        >
+          {link}
+        </a>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-lg"
+          aria-label={t("overview.copyLink")}
+          onClick={onCopy}
+        >
+          <Copy
+            className="size-5"
+            aria-hidden="true"
+          />
+        </Button>
+      </div>
     </Card>
   )
 }
