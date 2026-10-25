@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
+import { FilterX } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
@@ -32,6 +33,7 @@ import type { ApplicationsSearch } from "@/features/event-overview/lib/applicati
 
 // Figma (Design system): O05, O05g · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12110-326
 // Figma (Design system): M12 · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14070-41596
+// Figma (Design system): M12b / Empty results · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14189-43641
 export function ApplicationsPage({
   eventId,
   filters,
@@ -52,6 +54,7 @@ export function ApplicationsPage({
   const pageCount = Math.max(1, Math.ceil((query.data?.length ?? 0) / 20))
   const currentPage = Math.min(page, pageCount - 1)
   const visibleRows = query.data?.slice(currentPage * 20, (currentPage + 1) * 20) ?? []
+  const hasFilters = Object.values(filters).some(Boolean)
   return (
     <div className="flex flex-col gap-6">
       <Seo title={t("applications.title")} />
@@ -116,7 +119,29 @@ export function ApplicationsPage({
             <p className="text-sm text-muted-foreground">{t("applications.sort")}</p>
           </div>
           {query.data.length === 0 ? (
-            <p className="text-sm text-muted-foreground">{t("applications.empty")}</p>
+            <div className="flex flex-col items-start gap-4 py-6">
+              <p className="text-sm text-muted-foreground">
+                {t(hasFilters ? "applications.empty" : "applications.noApplications")}
+              </p>
+              {hasFilters && (
+                <Button
+                  variant="secondary"
+                  size="lg"
+                  className="h-auto min-h-11 cursor-pointer border border-border whitespace-normal transition-colors hover:border-input hover:bg-accent hover:text-accent-foreground focus-visible:bg-accent active:border-primary active:bg-accent/80"
+                  onClick={() => {
+                    setPage(0)
+                    onFiltersChange({})
+                    searchInput.current?.focus()
+                  }}
+                >
+                  <FilterX
+                    className="size-4 shrink-0"
+                    aria-hidden="true"
+                  />
+                  {t("applications.clearSearchAndFilters")}
+                </Button>
+              )}
+            </div>
           ) : (
             <>
               <div className="hidden md:block">

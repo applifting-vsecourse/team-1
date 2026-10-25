@@ -268,13 +268,19 @@ describe("ApplicationsPage", () => {
     expect(second).toHaveTextContent("man")
     expect(second).toHaveAttribute("href", "/organizer/events/e1/applications/a2")
   })
-  it("clears every filter including the gender from occupancy links", async () => {
-    const change = setup([])
+  it("clears search and every filter from an empty result and distinguishes an event with no applications", async () => {
+    const change = setup([], false, "Nobody")
     expect(
-      await screen.findByText("No applications match the selected filters."),
+      await screen.findByText("We found no applications matching this selection."),
     ).toBeInTheDocument()
-    await userEvent.setup().click(screen.getByRole("button", { name: "Clear filters" }))
+    await userEvent.setup().click(screen.getByRole("button", { name: "Clear search and filters" }))
     expect(change).toHaveBeenCalledWith({})
+    expect(screen.getByRole("searchbox")).toHaveValue("")
+    expect(screen.getByRole("searchbox")).toHaveFocus()
+    expect(await screen.findByText("No applications have been received yet.")).toBeInTheDocument()
+    expect(
+      screen.queryByRole("button", { name: "Clear search and filters" }),
+    ).not.toBeInTheDocument()
   })
   it("offers retry after a failed request", async () => {
     setup([], true)
