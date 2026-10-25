@@ -1,5 +1,5 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router"
-import { Calendar, LayoutGrid } from "lucide-react"
+import { Calendar } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
@@ -7,8 +7,8 @@ import { Seo } from "@/components/atoms/Seo"
 import { SidebarLink } from "@/components/atoms/SidebarLink"
 import { AreaLayout } from "@/components/templates/AreaLayout"
 
-import { HeaderMenu } from "@/features/auth/components/HeaderMenu"
 import { OrganizerAreaError } from "@/features/auth/components/OrganizerAreaError"
+import { SidebarAccount } from "@/features/auth/components/SidebarAccount"
 import { requireAccount } from "@/features/auth/lib/require-account"
 
 // Every /organizer/* page except the login sits under this layout.
@@ -35,23 +35,14 @@ function OrganizerLayout() {
         width="wide"
         roleLabel={t("accountRole.ORGANIZER")}
         nav={
-          <>
-            <SidebarLink
-              to={ROUTES.organizer.dashboard}
-              activeOptions={{ exact: true }}
-              icon={LayoutGrid}
-            >
-              {t("nav.dashboard")}
-            </SidebarLink>
-            <SidebarLink
-              to={ROUTES.organizer.events}
-              icon={Calendar}
-            >
-              {t("nav.events")}
-            </SidebarLink>
-          </>
+          <SidebarLink
+            to={ROUTES.organizer.events}
+            icon={Calendar}
+          >
+            {t("nav.events")}
+          </SidebarLink>
         }
-        userMenu={<HeaderMenu />}
+        account={<SidebarAccount />}
       >
         <Outlet />
       </AreaLayout>

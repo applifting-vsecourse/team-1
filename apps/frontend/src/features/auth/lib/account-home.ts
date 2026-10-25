@@ -6,7 +6,7 @@ import type { SessionUser } from "@/features/auth/api/authSessionQueryOptions"
 export function accountHome(user: SessionUser) {
   switch (user.accountType) {
     case "ORGANIZER":
-      return ROUTES.organizer.dashboard
+      return ROUTES.organizer.events
     case "PARTICIPANT":
       return user.mustSetPassword ? ROUTES.participant.setPassword : ROUTES.participant.applications
     case "ADMIN":

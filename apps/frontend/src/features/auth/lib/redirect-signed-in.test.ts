@@ -37,12 +37,12 @@ describe("redirectSignedIn", () => {
     await expect(redirectSignedIn(withSession(null))).resolves.toBeUndefined()
   })
 
-  it("sends an organizer to the dashboard", async () => {
+  it("sends an organizer to the events list", async () => {
     const error = await rejection(
       redirectSignedIn(withSession({ user: user({ accountType: "ORGANIZER" }) })),
     )
     expect(isRedirect(error)).toBe(true)
-    expect(error).toMatchObject({ options: { to: ROUTES.organizer.dashboard } })
+    expect(error).toMatchObject({ options: { to: ROUTES.organizer.events } })
   })
 
   it("sends a participant to their applications", async () => {

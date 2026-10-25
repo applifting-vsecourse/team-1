@@ -34,23 +34,13 @@ export function OrganizerAreaError({ error }: { error: Error }) {
           cardTitle: t("forbiddenRecord.cardTitle"),
           body: t("forbiddenRecord.body"),
           actions: (
-            <>
-              <Button
-                asChild
-                size="lg"
-                className="w-full"
-              >
-                <Link to={ROUTES.organizer.events}>{t("forbiddenRecord.myEvents")}</Link>
-              </Button>
-              <Button
-                asChild
-                variant="outline"
-                size="lg"
-                className="w-full"
-              >
-                <Link to={ROUTES.organizer.dashboard}>{t("forbiddenRecord.backToDashboard")}</Link>
-              </Button>
-            </>
+            <Button
+              asChild
+              size="lg"
+              className="w-full"
+            >
+              <Link to={ROUTES.organizer.events}>{t("forbiddenRecord.myEvents")}</Link>
+            </Button>
           ),
         }}
       />

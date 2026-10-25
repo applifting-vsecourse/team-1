@@ -61,20 +61,28 @@ describe("EventSetup", () => {
     expect(
       await screen.findByRole("heading", { name: "What is missing to open applications" }),
     ).toBeInTheDocument()
+    expect(screen.getByText("0 of 2 done")).toBeInTheDocument()
     expect(
-      screen.getByRole("heading", { name: "1 / Add at least one term with a price" }),
+      screen.getByRole("heading", { name: "Add at least one term with a price" }),
     ).toBeInTheDocument()
-    expect(screen.getByRole("heading", { name: "2 / Add at least one room" })).toBeInTheDocument()
+    expect(screen.getByRole("heading", { name: "Add at least one room" })).toBeInTheDocument()
     expect(screen.getByRole("button", { name: "Copy application link" })).toBeDisabled()
   })
 
-  it("lists only the step that is still missing", async () => {
+  it("keeps a single primary button: the first step to do", async () => {
+    renderSetup(base)
+
+    const addTerm = await screen.findByRole("link", { name: "Add a term and price" })
+    expect(addTerm.className).toContain("bg-primary")
+    expect(screen.getByRole("link", { name: "Add a room" }).className).not.toContain("bg-primary")
+  })
+
+  it("counts the finished step and drops its button", async () => {
     renderSetup({ ...base, termCount: 1, missing: ["ROOM"] })
 
-    expect(
-      await screen.findByRole("heading", { name: "2 / Add at least one room" }),
-    ).toBeInTheDocument()
-    expect(screen.queryByRole("heading", { name: /1 \/ Add/ })).not.toBeInTheDocument()
+    expect(await screen.findByText("1 of 2 done")).toBeInTheDocument()
+    expect(screen.queryByRole("link", { name: "Add a term and price" })).not.toBeInTheDocument()
+    expect(screen.getByRole("link", { name: "Add a room" }).className).toContain("bg-primary")
   })
 
   it("copies the link of a ready event and confirms it", async () => {

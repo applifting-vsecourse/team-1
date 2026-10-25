@@ -1,9 +1,8 @@
 import { useQuery } from "@tanstack/react-query"
 import { createFileRoute } from "@tanstack/react-router"
 
-import { occupancyQueryOptions } from "@/features/event-overview/api/occupancy"
-import { CapacityPage as CapacityOverview } from "@/features/event-overview/components/CapacityPage"
-import { CapacityPage } from "@/features/events/components/CapacityPage"
+import { CapacityPage } from "@/features/event-overview/components/CapacityPage"
+import { capacityQueryOptions } from "@/features/events/api/capacity"
 
 export const Route = createFileRoute("/organizer/_app/events/$eventId/capacity")({
   validateSearch: (search: Record<string, unknown>): { termId?: string } => ({
@@ -15,19 +14,13 @@ export const Route = createFileRoute("/organizer/_app/events/$eventId/capacity")
 function EventCapacityPage() {
   const { eventId } = Route.useParams()
   const { termId } = Route.useSearch()
-  const { data } = useQuery(occupancyQueryOptions(eventId))
-  if (!termId || data?.roomMode !== "GENDERED") {
-    return (
-      <CapacityOverview
-        eventId={eventId}
-        termId={termId}
-      />
-    )
-  }
+  // The room list only feeds the room summary of a term's detail.
+  const { data } = useQuery(capacityQueryOptions(eventId))
   return (
     <CapacityPage
       eventId={eventId}
-      initialTermId={termId}
+      termId={termId}
+      rooms={data?.rooms}
     />
   )
 }

@@ -5,7 +5,7 @@ import { signIn } from "./support/auth"
 test.describe("Payments", () => {
   test("organizer sees an application in the list and records a payment", async ({ page }) => {
     await signIn(page, "organizer", ORGANIZER)
-    await expect(page.getByRole("heading", { level: 1, name: /^Hello,/ })).toBeVisible()
+    await expect(page.getByRole("heading", { level: 1, name: "Event list" })).toBeVisible()
     await page.goto("/organizer/events")
     await page.getByRole("link", { name: /Letní kemp 2027(?! – demo)/ }).click()
     await page

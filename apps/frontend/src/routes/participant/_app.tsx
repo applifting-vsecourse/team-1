@@ -8,7 +8,7 @@ import { SidebarLink } from "@/components/atoms/SidebarLink"
 import { AreaErrorPage } from "@/components/pages/AreaErrorPage"
 import { AreaLayout } from "@/components/templates/AreaLayout"
 
-import { HeaderMenu } from "@/features/auth/components/HeaderMenu"
+import { SidebarAccount } from "@/features/auth/components/SidebarAccount"
 import { requireAccount } from "@/features/auth/lib/require-account"
 
 // Every /participant/* page except login and set-password sits under this layout.
@@ -43,7 +43,7 @@ function ParticipantLayout() {
             {t("nav.applications")}
           </SidebarLink>
         }
-        userMenu={<HeaderMenu />}
+        account={<SidebarAccount />}
       >
         <Outlet />
       </AreaLayout>

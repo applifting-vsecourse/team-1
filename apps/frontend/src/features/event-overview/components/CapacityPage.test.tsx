@@ -48,7 +48,11 @@ const shared = {
   ],
 }
 
-function renderPage(body: unknown, status = 200, termId?: string) {
+function renderPage(
+  body: unknown,
+  status = 200,
+  props: { termId?: string; rooms?: { gender: "FEMALE" | "MALE" | null; capacity: number }[] } = {},
+) {
   vi.spyOn(globalThis, "fetch").mockImplementation(() =>
     Promise.resolve(
       new Response(JSON.stringify(body), {
@@ -64,7 +68,7 @@ function renderPage(body: unknown, status = 200, termId?: string) {
     component: () => (
       <CapacityPage
         eventId="e1"
-        termId={termId}
+        {...props}
       />
     ),
   })
@@ -84,55 +88,65 @@ function renderPage(body: unknown, status = 200, termId?: string) {
 afterEach(() => vi.restoreAllMocks())
 
 describe("CapacityPage", () => {
-  it("shows all gendered terms as whole-row links without a select or nested count links", async () => {
+  it("lists every term with bars for women and men and no percent text", async () => {
     renderPage(gendered)
-    const row = await screen.findByRole("link", { name: /Letní turnus 1/ })
-    expect(row).toHaveAttribute("href", "/organizer/events/e1/capacity?termId=t1")
-    expect(row).toHaveTextContent("7 / 10")
-    expect(row.querySelectorAll("a")).toHaveLength(0)
-    expect(screen.queryByRole("combobox")).not.toBeInTheDocument()
-    expect(screen.getByRole("progressbar")).toHaveAttribute("aria-valuenow", "70")
+
+    expect(await screen.findByRole("heading", { name: "Occupancy of all terms" })).toBeVisible()
+    expect(screen.getByText("2 / 5")).toBeVisible()
+    expect(screen.getByText("5 / 5")).toBeVisible()
+    expect(screen.getAllByRole("progressbar")).toHaveLength(2)
+    expect(screen.queryByText(/%/)).not.toBeInTheDocument()
   })
 
-  it("shows one summary per term with shared rooms", async () => {
+  it("makes the whole row a link to the term detail", async () => {
+    renderPage(gendered)
+
+    const row = await screen.findByRole("link", { name: /Letní turnus 1/ })
+    expect(row.getAttribute("href")).toContain("termId=t1")
+    // The numbers are not links of their own.
+    expect(screen.queryByRole("link", { name: "2" })).not.toBeInTheDocument()
+  })
+
+  it("shows one bar and the free places per term with shared rooms", async () => {
     renderPage(shared)
-    const row = await screen.findByRole("link", { name: /Letní turnus 1/ })
-    expect(row).toHaveAttribute("href", "/organizer/events/e1/capacity?termId=t1")
-    expect(screen.getByText("22")).toBeTruthy()
+
+    expect(await screen.findByText("78 / 100")).toBeVisible()
+    expect(screen.getByText("22")).toBeVisible()
+    expect(screen.getAllByRole("progressbar")).toHaveLength(1)
   })
 
-  it("opens the selected shared term with a progress bar, application links and a way back", async () => {
-    renderPage(shared, 200, "t1")
-    expect(await screen.findByRole("heading", { name: "Letní turnus 1" })).toBeInTheDocument()
-    expect(screen.getByRole("progressbar")).toHaveAttribute("aria-valuenow", "78")
-    expect(screen.getByRole("link", { name: /Confirmed \/ capacity.*78 \/ 100/ })).toHaveAttribute(
-      "href",
-      "/organizer/events/e1/applications?term=t1&status=CONFIRMED",
+  it("opens the detail of a term with cards linking to the confirmed applications", async () => {
+    renderPage(gendered, 200, {
+      termId: "t1",
+      rooms: [
+        { gender: "FEMALE", capacity: 5 },
+        { gender: "MALE", capacity: 5 },
+      ],
+    })
+
+    expect(await screen.findByRole("heading", { name: "Letní turnus 1" })).toBeVisible()
+    expect(screen.getByRole("link", { name: "← All terms" }).getAttribute("href")).not.toContain(
+      "termId",
     )
-    expect(screen.getByRole("link", { name: "← All terms" })).toHaveAttribute(
-      "href",
-      "/organizer/events/e1/capacity",
-    )
+    const women = screen.getByRole("link", { name: /Women · capacity 5 beds/ })
+    expect(women).toHaveTextContent("2 / 5")
+    expect(women).toHaveTextContent("3 free places · 1 women’s room of 5 beds")
+    for (const part of ["term=t1", "status=CONFIRMED", "gender=FEMALE"]) {
+      expect(women.getAttribute("href")).toContain(part)
+    }
+    expect(screen.getByRole("link", { name: /Total term capacity/ })).toHaveTextContent("7 / 10")
+    expect(screen.getByText("Free places for women cannot be used for men.")).toBeVisible()
+    expect(screen.getByText(/3 places left in total, all for women/)).toBeVisible()
   })
 
-  it("does not silently open another term for a stale term URL", async () => {
-    renderPage(shared, 200, "missing")
-    expect(
-      await screen.findByText("This term is no longer available. Return to the term overview."),
-    ).toBeInTheDocument()
-    expect(screen.queryByRole("progressbar")).not.toBeInTheDocument()
-  })
+  it("warns when more are confirmed than there are beds", async () => {
+    const over = structuredClone(gendered)
+    over.terms[0]!.byGender.MALE = figures({ capacity: 5, confirmed: 6, free: -1, waitlisted: 0 })
+    renderPage(over, 200, { termId: "t1" })
 
-  it.each([
-    { capacity: 0, confirmed: 0, free: 0, expected: "0" },
-    { capacity: 5, confirmed: 7, free: -2, expected: "100" },
-  ])(
-    "keeps the occupancy bar valid for $confirmed / $capacity",
-    async ({ expected, ...counts }) => {
-      renderPage({ ...shared, terms: [{ ...shared.terms[0], ...counts }] })
-      expect(await screen.findByRole("progressbar")).toHaveAttribute("aria-valuenow", expected)
-    },
-  )
+    expect(await screen.findByText("Term capacity exceeded")).toBeVisible()
+    expect(screen.getByText(/Men: 6 confirmed for 5 beds/)).toBeVisible()
+  })
 
   it("shows an empty state without terms", async () => {
     renderPage({ ...shared, terms: [] })

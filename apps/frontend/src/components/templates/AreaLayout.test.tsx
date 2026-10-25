@@ -21,7 +21,7 @@ function renderLayout() {
       <AreaLayout
         roleLabel="Organizer"
         width="wide"
-        userMenu={<button>Account</button>}
+        account={<button type="button">Eva Malá</button>}
         nav={
           <SidebarLink
             to="/"
@@ -95,5 +95,27 @@ describe("AreaLayout sidebar", () => {
       "aria-expanded",
       "false",
     )
+  })
+
+  it("puts the account at the bottom of the sidebar, not in the top bar", async () => {
+    renderLayout()
+
+    const sidebar = await screen.findByRole("complementary", { name: "Main navigation" })
+    expect(within(sidebar).getByRole("button", { name: "Eva Malá" })).toBeInTheDocument()
+    expect(screen.getAllByRole("button", { name: "Eva Malá" })).toHaveLength(1)
+  })
+
+  it("keeps language and theme in the top bar and out of the drawer", async () => {
+    const user = userEvent.setup()
+    renderLayout()
+
+    expect(await screen.findByRole("button", { name: "Change language" })).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "Toggle theme" })).toBeInTheDocument()
+
+    await user.click(screen.getByRole("button", { name: "Open navigation" }))
+    const drawer = await screen.findByRole("dialog")
+    expect(within(drawer).getByRole("button", { name: "Eva Malá" })).toBeInTheDocument()
+    expect(within(drawer).queryByText("Language")).not.toBeInTheDocument()
+    expect(within(drawer).queryByText("Appearance")).not.toBeInTheDocument()
   })
 })

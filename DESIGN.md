@@ -31,7 +31,7 @@ When a frame contradicts a rule below, build the frame and report the conflict i
 - **A page is not a card.** Page content sits on `background` in a column (`max-w-196` = 784 px for forms and settings, full width for overviews, `max-w-200` = 800 px for the application form in `PublicLayout`); the cards sit in that column.
 - **Every page keeps the app chrome.** The header is present on every route, including login and sign-up. Pages never render as standalone islands.
 - The landing is a centred hero (primary words, two XL buttons) followed by a `muted` band with a 2x2 grid of feature cards; its two buttons are `lg`. Elsewhere, carousels, decorative illustrations or gradients, and any section whose only purpose is to look full are forbidden.
-- Signed-in areas: sidebar 240 px (`sidebar` tokens, nav items 44 px without borders; the Figma support link waits until a support channel exists), top bar 64 px (role label, theme toggle, account dropdown), content padding 32. Below `md` the sidebar moves into a sheet opened from the top bar.
+- Signed-in areas: sidebar 240 px (`sidebar` tokens, nav items 44 px without borders; the Figma support link waits until a support channel exists), the account (avatar, name, e-mail; its menu opens upwards) at the bottom of the sidebar, top bar 64 px (role label, language and theme switchers), content padding 32. Below `md` the sidebar moves into a sheet opened from the top bar (56 px: menu, logo, language and theme), the account stays at the bottom of the sheet.
 
 ## Spacing
 
