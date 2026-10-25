@@ -13,18 +13,17 @@
     "applications": "Applications",
     "capacity": "Capacity",
     "overview": "Overview",
+    "position": "{{current}} of {{total}}",
     "rooms": "Accommodation",
     "terms": "Terms"
   },
   "language": {
     "cs": "Čeština",
     "en": "English",
-    "label": "Language",
     "toggle": "Change language"
   },
   "nav": {
     "applications": "Applications",
-    "dashboard": "Dashboard",
     "eventSections": "Event sections",
     "events": "Events",
     "openMenu": "Open navigation"
@@ -57,7 +56,6 @@
   },
   "theme": {
     "dark": "Dark",
-    "label": "Appearance",
     "light": "Light",
     "system": "System",
     "toggle": "Toggle theme"

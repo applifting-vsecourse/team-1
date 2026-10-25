@@ -9,7 +9,6 @@ export const ROUTES = {
 
   organizer: {
     login: "/organizer/login",
-    dashboard: "/organizer",
     events: "/organizer/events",
     newEvent: "/organizer/events/new",
     event: "/organizer/events/$eventId",

@@ -13,18 +13,17 @@
     "applications": "Přihlášky",
     "capacity": "Kapacity",
     "overview": "Přehled",
+    "position": "{{current}} z {{total}}",
     "rooms": "Ubytování",
     "terms": "Termíny"
   },
   "language": {
     "cs": "Čeština",
     "en": "English",
-    "label": "Jazyk",
     "toggle": "Změnit jazyk"
   },
   "nav": {
     "applications": "Přihlášky",
-    "dashboard": "Dashboard",
     "eventSections": "Části akce",
     "events": "Akce",
     "openMenu": "Otevřít navigaci"
@@ -57,7 +56,6 @@
   },
   "theme": {
     "dark": "Tmavý",
-    "label": "Vzhled",
     "light": "Světlý",
     "system": "Podle systému",
     "toggle": "Přepnout vzhled"

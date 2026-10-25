@@ -19,7 +19,7 @@ Jen cesty, bez kterých produkt nefunguje a které ukazujeme na demu. Jedna cest
 
 | Cesta                                                                                   | Soubor                 | Stav |
 | --------------------------------------------------------------------------------------- | ---------------------- | ---- |
-| Landing → přihlášení organizátora → dashboard → odhlášení                               | `sign-in.spec.ts`      | ✅   |
+| Landing → přihlášení organizátora → seznam akcí → odhlášení                             | `sign-in.spec.ts`      | ✅   |
 | Účastník se nedostane do správy akcí (403)                                              | `sign-in.spec.ts`      | ✅   |
 | Organizátor neotevře akci cizí organizace (403)                                         | `sign-in.spec.ts`      | ✅   |
 | Účastník: přihlášení heslem a odhlášení (i na mobilu)                                   | `sign-in.spec.ts`      | ✅   |

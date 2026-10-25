@@ -28,8 +28,6 @@ export const capacitySchema = z.object({
   ),
 })
 export type EventCapacity = z.infer<typeof capacitySchema>
-export type Gender = "FEMALE" | "MALE"
-export type RoomGroup = { gender: Gender; capacity: number; count: number }
 export const capacityQueryOptions = (eventId: string) =>
   queryOptions({
     queryKey: ["events", eventId, "capacity"],
@@ -41,13 +39,3 @@ export const capacityQueryOptions = (eventId: string) =>
       return result.data
     },
   })
-
-export function roomGroups(rooms: EventCapacity["rooms"], gender: Gender): RoomGroup[] {
-  const groups = new Map<number, number>()
-  for (const room of rooms) {
-    if (room.gender === gender) groups.set(room.capacity, (groups.get(room.capacity) ?? 0) + 1)
-  }
-  return [...groups]
-    .sort(([a], [b]) => b - a)
-    .map(([capacity, count]) => ({ gender, capacity, count }))
-}

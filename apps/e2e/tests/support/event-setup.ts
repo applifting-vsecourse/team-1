@@ -6,7 +6,7 @@ import { signIn } from "./auth"
 export async function createEventWithTerm(page: Page, name: string) {
   await signIn(page, "organizer", ORGANIZER)
   // Leaving before the sign-in answers would abort it and keep the session out.
-  await expect(page.getByRole("heading", { level: 1, name: /^Hello,/ })).toBeVisible()
+  await expect(page.getByRole("heading", { level: 1, name: "Event list" })).toBeVisible()
 
   await page.goto("/organizer/events/new")
   await page.getByLabel("Event name").fill(name)

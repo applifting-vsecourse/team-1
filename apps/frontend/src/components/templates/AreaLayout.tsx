@@ -4,7 +4,6 @@ import { Menu } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { Logo } from "@/components/atoms/Logo"
-import { DisplaySettings } from "@/components/molecules/DisplaySettings"
 import { LanguageSwitcher } from "@/components/molecules/LanguageSwitcher"
 import { ThemeSwitcher } from "@/components/molecules/ThemeSwitcher"
 import { Button } from "@/components/ui/button"
@@ -15,28 +14,30 @@ type AreaLayoutProps = {
   nav: ReactNode
   /** Account type shown at the top of the workspace ("Organizátor", "Účastník"). */
   roleLabel: string
-  userMenu: ReactNode
+  /** The signed-in account at the bottom of the sidebar and the drawer (a slot: `components/` never imports from `features/`). */
+  account: ReactNode
   /** `reading` for participant pages, `wide` (full width) for organizer tables. */
   width: "reading" | "wide"
   children: ReactNode
 }
 
 /**
- * Chrome of the signed-in areas: a sidebar with the logo and the area
- * navigation, and a workspace with the top bar above the page. Below `md`
- * the sidebar moves into a sheet opened from the top bar, so the page starts
- * right under the bar; the bar keeps only the menu, logo and account menu,
- * and language and theme move to the bottom of the sheet. Organizer and participant layouts differ only in
+ * Chrome of the signed-in areas: a sidebar with the logo, the area
+ * navigation and the account at the bottom, and a workspace with the top bar
+ * above the page. The bar carries the role label, language and theme. Below
+ * `md` the sidebar moves into a sheet opened from the bar (the account stays
+ * at its bottom), so the page starts right under the 56 px bar: menu, logo,
+ * language and theme. Organizer and participant layouts differ only in
  * navigation and content width, so they share this template; the route
  * layouts (`routes/organizer/_app.tsx`, `routes/participant/_app.tsx`) fill
  * the slots.
  */
-// Figma (Design system): O01 Dashboard · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=11988-2
-// Figma (Design system): U13 Nastavení účtu účastníka · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=11988-11146
-// Figma (Design system): M08 Přihlášená část · navigace zavřená · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=13177-1680
-// Figma (Design system): M09 Přihlášená část · navigace otevřená · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=13177-21759
-// Figma (Design system): DS / Mobile top bar · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14057-1023
-export function AreaLayout({ nav, roleLabel, userMenu, width, children }: AreaLayoutProps) {
+// Figma (Design system): N1 Akce · pozornost nahoře (bez dashboardu) / Desktop · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14178-12714
+// Figma (Design system): N2 Účtové menu v sidebaru otevřené / Desktop · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14178-12778
+// Figma (Design system): N6 Mobil · Akce s přepínači v liště · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14178-43128
+// Figma (Design system): N7 Mobil · drawer s účtem · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14178-43178
+// Figma (Design system): N / Mobile top bar · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14179-968
+export function AreaLayout({ nav, roleLabel, account, width, children }: AreaLayoutProps) {
   const { t } = useTranslation()
   // The sheet remembers the page it was opened on, so following a link in it closes it.
   const pathname = useRouterState({ select: (state) => state.location.pathname })
@@ -49,6 +50,7 @@ export function AreaLayout({ nav, roleLabel, userMenu, width, children }: AreaLa
           <Logo />
         </div>
         <nav className="flex flex-col gap-2">{nav}</nav>
+        <div className="mt-auto border-t border-sidebar-border pt-2">{account}</div>
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
@@ -76,9 +78,7 @@ export function AreaLayout({ nav, roleLabel, userMenu, width, children }: AreaLa
                 <Logo />
               </div>
               <nav className="flex flex-col gap-2">{nav}</nav>
-              <div className="mt-auto">
-                <DisplaySettings />
-              </div>
+              <div className="mt-auto border-t border-sidebar-border pt-2">{account}</div>
             </SheetContent>
           </Sheet>
           <div className="md:hidden">
@@ -87,12 +87,9 @@ export function AreaLayout({ nav, roleLabel, userMenu, width, children }: AreaLa
           <p className="hidden flex-1 text-xs font-medium tracking-wider text-muted-foreground uppercase md:block">
             {roleLabel}
           </p>
-          <div className="ml-auto flex items-center gap-1 sm:gap-2 md:ml-0">
-            <div className="hidden items-center gap-2 md:flex">
-              <LanguageSwitcher />
-              <ThemeSwitcher />
-            </div>
-            {userMenu}
+          <div className="ml-auto flex items-center gap-1 md:ml-0 md:gap-2">
+            <LanguageSwitcher />
+            <ThemeSwitcher />
           </div>
         </div>
         <main className="px-4 pt-6 pb-12 md:px-8 md:pt-8">

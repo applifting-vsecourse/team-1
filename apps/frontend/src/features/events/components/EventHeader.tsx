@@ -1,26 +1,45 @@
-import { useEffect, useRef } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { useRouterState } from "@tanstack/react-router"
+import { Link, useMatchRoute } from "@tanstack/react-router"
+import {
+  BedDouble,
+  CalendarDays,
+  Check,
+  ChevronDown,
+  ClipboardList,
+  Gauge,
+  LayoutGrid,
+} from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
 import { BackLink } from "@/components/atoms/BackLink"
 import { NavLink } from "@/components/atoms/NavLink"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { cn } from "@/lib/utils"
 
 import { eventQueryOptions } from "@/features/events/api/events"
 import { termsSummary } from "@/features/events/lib/terms-summary"
 
 /**
  * Head of every event page: back to the list, the event name with whether
- * the application is open, and the event's sections as tabs. The tabs
- * replace the event items the sidebar used to have, so on a phone the
- * sections are one tap away without opening the drawer: they stick under
- * the top bar and scroll sideways, keeping the active one in view.
+ * the application is open, and the event's sections. From `md` up they are
+ * tabs; on a phone one full-width button shows the current section and its
+ * position and opens a menu with all of them. It sticks under the top bar, so
+ * the sections are one tap away without opening the drawer.
  */
+// Figma (Design system): N8 Mobil · detail akce · výběr sekce · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14178-43230
+// Figma (Design system): N9 Mobil · detail akce · výběr sekce otevřený · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14178-43273
+// Figma (Design system): N / Event section switcher · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14179-986
+// Figma (Design system): N / Event section menu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14179-995
 // Figma (Design system): O / Event tabs · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14057-36915
 // Figma (Design system): O04 Přehled akce · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12110-156
-// Figma (Design system): M10 Přehled akce · záložky · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14070-41302
 export function EventHeader({ eventId }: { eventId: string }) {
   const { t } = useTranslation("events")
   const { data: event } = useQuery(eventQueryOptions(eventId))
@@ -47,60 +66,87 @@ export function EventHeader({ eventId }: { eventId: string }) {
   )
 }
 
+const SECTIONS = [
+  { key: "overview", to: ROUTES.organizer.event, icon: LayoutGrid, exact: true },
+  { key: "applications", to: ROUTES.organizer.eventApplications, icon: ClipboardList },
+  { key: "capacity", to: ROUTES.organizer.eventCapacity, icon: Gauge },
+  { key: "rooms", to: ROUTES.organizer.eventRooms, icon: BedDouble },
+  { key: "terms", to: ROUTES.organizer.eventTerms, icon: CalendarDays },
+] as const
+
 function EventTabs({ eventId }: { eventId: string }) {
   const { t } = useTranslation()
-  const listRef = useRef<HTMLDivElement>(null)
-  const pathname = useRouterState({ select: (state) => state.location.pathname })
-
-  useEffect(() => {
-    listRef.current
-      ?.querySelector('[data-status="active"]')
-      ?.scrollIntoView({ block: "nearest", inline: "nearest" })
-  }, [pathname])
-
+  const matchRoute = useMatchRoute()
   const params = { eventId }
+  const activeIndex = Math.max(
+    0,
+    SECTIONS.findIndex((section) =>
+      matchRoute({ to: section.to, params, fuzzy: !("exact" in section) }),
+    ),
+  )
+  const active = SECTIONS[activeIndex]!
+  const ActiveIcon = active.icon
 
   return (
-    // Sticks under the 56 px mobile top bar; on desktop the bar scrolls away, so the tabs do too.
-    <nav
-      aria-label={t("nav.eventSections")}
-      className="sticky top-14 z-20 -mx-4 bg-background px-4 py-2 md:static md:mx-0 md:px-0"
-    >
-      <div
-        ref={listRef}
-        className="flex [scrollbar-width:none] gap-1 overflow-x-auto [mask-image:linear-gradient(to_right,black_calc(100%-2rem),transparent)] md:[mask-image:none]"
-      >
-        <NavLink
-          to={ROUTES.organizer.event}
-          params={params}
-          activeOptions={{ exact: true }}
-        >
-          {t("eventTabs.overview")}
-        </NavLink>
-        <NavLink
-          to={ROUTES.organizer.eventApplications}
-          params={params}
-        >
-          {t("eventTabs.applications")}
-        </NavLink>
-        <NavLink
-          to={ROUTES.organizer.eventCapacity}
-          params={params}
-        >
-          {t("eventTabs.capacity")}
-        </NavLink>
-        <NavLink
-          to={ROUTES.organizer.eventRooms}
-          params={params}
-        >
-          {t("eventTabs.rooms")}
-        </NavLink>
-        <NavLink
-          to={ROUTES.organizer.eventTerms}
-          params={params}
-        >
-          {t("eventTabs.terms")}
-        </NavLink>
+    <nav aria-label={t("nav.eventSections")}>
+      {/* Phone: sticks under the 56 px top bar and replaces the tabs. */}
+      <div className="sticky top-14 z-20 -mx-4 bg-background px-4 py-2 md:hidden">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="outline"
+              size="lg"
+              className="w-full justify-start gap-2 px-3 data-[state=open]:bg-muted"
+            >
+              <ActiveIcon
+                aria-hidden
+                className="size-4"
+              />
+              {t(`eventTabs.${active.key}`)}
+              <span className="ml-auto text-muted-foreground">
+                {t("eventTabs.position", { current: activeIndex + 1, total: SECTIONS.length })}
+              </span>
+              <ChevronDown
+                aria-hidden
+                className="size-4"
+              />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            align="start"
+            className="w-(--radix-dropdown-menu-trigger-width)"
+          >
+            {SECTIONS.map(({ key, to, icon: Icon }, index) => (
+              <DropdownMenuItem
+                key={key}
+                asChild
+                className={cn("h-10 gap-3", index === activeIndex && "bg-accent font-medium")}
+              >
+                <Link
+                  to={to}
+                  params={params}
+                  aria-current={index === activeIndex ? "page" : undefined}
+                >
+                  <Icon aria-hidden />
+                  {t(`eventTabs.${key}`)}
+                  {index === activeIndex ? <Check className="ml-auto" /> : null}
+                </Link>
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+      <div className="hidden gap-1 md:flex">
+        {SECTIONS.map(({ key, to, ...section }) => (
+          <NavLink
+            key={key}
+            to={to}
+            params={params}
+            activeOptions={"exact" in section ? { exact: true } : undefined}
+          >
+            {t(`eventTabs.${key}`)}
+          </NavLink>
+        ))}
       </div>
     </nav>
   )
