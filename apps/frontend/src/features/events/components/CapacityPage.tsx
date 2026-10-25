@@ -7,6 +7,7 @@ import { ROUTES } from "@/app/routes"
 import { BackLink } from "@/components/atoms/BackLink"
 import { CapacityProgress } from "@/components/atoms/CapacityProgress"
 import { Seo } from "@/components/atoms/Seo"
+import { CardLink } from "@/components/molecules/CardLink"
 import { EmptyState } from "@/components/molecules/EmptyState"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
@@ -107,7 +108,10 @@ export function CapacityPage({
             className="grid gap-6 lg:grid-cols-3"
             aria-live="polite"
           >
-            <Card
+            <CardLink
+              to={ROUTES.organizer.eventApplications}
+              params={{ eventId }}
+              search={{ term: selected.termId, status: "CONFIRMED" }}
               className={cn(
                 "gap-2 px-6",
                 totalConfirmed > totalCapacity && "border-destructive bg-destructive/8",
@@ -135,10 +139,13 @@ export function CapacityPage({
                   men: selected.capacity.MALE,
                 })}
               </p>
-            </Card>
+            </CardLink>
             {genders.map((gender) => (
-              <Card
+              <CardLink
                 key={gender}
+                to={ROUTES.organizer.eventApplications}
+                params={{ eventId }}
+                search={{ term: selected.termId, status: "CONFIRMED", gender }}
                 className={cn(
                   "gap-2 px-6",
                   selected.freePlaces[gender] < 0 && "border-destructive bg-destructive/8",
@@ -154,15 +161,8 @@ export function CapacityPage({
                     selected.freePlaces[gender] < 0 && "text-destructive",
                   )}
                 >
-                  <Link
-                    to={ROUTES.organizer.eventApplications}
-                    params={{ eventId }}
-                    search={{ term: selected.termId, status: "CONFIRMED", gender }}
-                    className="underline decoration-1 underline-offset-4"
-                  >
-                    {selected.capacity[gender] - selected.freePlaces[gender]}
-                  </Link>{" "}
-                  / {selected.capacity[gender]}
+                  {selected.capacity[gender] - selected.freePlaces[gender]} /{" "}
+                  {selected.capacity[gender]}
                 </p>
                 <CapacityProgress
                   confirmed={selected.capacity[gender] - selected.freePlaces[gender]}
@@ -180,7 +180,7 @@ export function CapacityPage({
                     )
                     .join("")}
                 </p>
-              </Card>
+              </CardLink>
             ))}
           </div>
           {overCapacity.length > 0 && (

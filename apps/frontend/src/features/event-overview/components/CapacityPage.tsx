@@ -6,6 +6,7 @@ import { ROUTES } from "@/app/routes"
 import { BackLink } from "@/components/atoms/BackLink"
 import { CapacityProgress } from "@/components/atoms/CapacityProgress"
 import { Seo } from "@/components/atoms/Seo"
+import { CardLink } from "@/components/molecules/CardLink"
 import { EmptyState } from "@/components/molecules/EmptyState"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
@@ -161,19 +162,15 @@ function SharedTermCapacity({ eventId, term }: { eventId: string; term: TermOccu
   const { t } = useTranslation("eventOverview")
   return (
     <div className="grid gap-6 md:grid-cols-3">
-      <Card>
+      <CardLink
+        to={ROUTES.organizer.eventApplications}
+        params={{ eventId }}
+        search={{ term: term.id, status: "CONFIRMED" }}
+      >
         <CardContent className="flex flex-col gap-3">
           <h3 className="text-sm text-muted-foreground">{t("capacity.confirmedColumn")}</h3>
           <p className="text-3xl font-bold tabular-nums">
-            <Link
-              to={ROUTES.organizer.eventApplications}
-              params={{ eventId }}
-              search={{ term: term.id, status: "CONFIRMED" }}
-              className="text-link underline"
-            >
-              {term.confirmed}
-            </Link>{" "}
-            / {term.capacity}
+            {term.confirmed} / {term.capacity}
           </p>
           <CapacityProgress
             confirmed={term.confirmed}
@@ -181,7 +178,7 @@ function SharedTermCapacity({ eventId, term }: { eventId: string; term: TermOccu
             label={t("capacity.confirmedColumn")}
           />
         </CardContent>
-      </Card>
+      </CardLink>
       <Card>
         <CardContent className="flex flex-col gap-3">
           <h3 className="text-sm text-muted-foreground">{t("capacity.freeColumn")}</h3>
@@ -192,19 +189,16 @@ function SharedTermCapacity({ eventId, term }: { eventId: string; term: TermOccu
           </p>
         </CardContent>
       </Card>
-      <Card>
+      <CardLink
+        to={ROUTES.organizer.eventApplications}
+        params={{ eventId }}
+        search={{ term: term.id, status: "WAITLISTED" }}
+      >
         <CardContent className="flex flex-col gap-3">
           <h3 className="text-sm text-muted-foreground">{t("capacity.waitlistedColumn")}</h3>
-          <Link
-            to={ROUTES.organizer.eventApplications}
-            params={{ eventId }}
-            search={{ term: term.id, status: "WAITLISTED" }}
-            className="text-3xl font-bold text-link tabular-nums underline"
-          >
-            {term.waitlisted}
-          </Link>
+          <p className="text-3xl font-bold tabular-nums">{term.waitlisted}</p>
         </CardContent>
-      </Card>
+      </CardLink>
     </div>
   )
 }

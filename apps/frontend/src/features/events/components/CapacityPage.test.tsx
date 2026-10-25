@@ -145,10 +145,15 @@ describe("read-only capacity overview", () => {
     ).toBeInTheDocument()
     expect(screen.queryByRole("table")).not.toBeInTheDocument()
     expect(screen.queryByRole("tab")).not.toBeInTheDocument()
-    expect(screen.getByRole("link", { name: "12" })).toHaveAttribute(
+    const womenCard = screen.getByRole("link", { name: /Women.*12 \/ 14/ })
+    expect(womenCard).toHaveAttribute(
       "href",
       "/organizer/events/e1/applications?term=t1&status=CONFIRMED&gender=FEMALE",
     )
+    expect(womenCard.querySelector("a")).toBeNull()
+    expect(womenCard.querySelector("[data-slot=progress]")).toBeInTheDocument()
+    expect(womenCard.querySelector("svg")).toHaveAttribute("aria-hidden", "true")
+    expect(screen.queryByRole("link", { name: "12" })).not.toBeInTheDocument()
     expect(screen.getByRole("link", { name: "Manage rooms" })).toHaveAttribute(
       "href",
       "/organizer/events/e1/rooms",

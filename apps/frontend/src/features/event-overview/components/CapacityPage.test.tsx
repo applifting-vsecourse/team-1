@@ -105,7 +105,7 @@ describe("CapacityPage", () => {
     renderPage(shared, 200, "t1")
     expect(await screen.findByRole("heading", { name: "Letní turnus 1" })).toBeInTheDocument()
     expect(screen.getByRole("progressbar")).toHaveAttribute("aria-valuenow", "78")
-    expect(screen.getByRole("link", { name: "78" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: /Confirmed \/ capacity.*78 \/ 100/ })).toHaveAttribute(
       "href",
       "/organizer/events/e1/applications?term=t1&status=CONFIRMED",
     )
