@@ -23,11 +23,14 @@ test.describe("Application from a link", { tag: "@mobile" }, () => {
   test("applicant submits, lands on the confirmation and sees the application after signing in", async ({
     page,
   }) => {
-    const email = `prihlaska-${Date.now()}@example.com`
+    // Unique per run: the same name and birth date on the same term is a duplicate (US-23),
+    // and the desktop and mobile projects share one database.
+    const unique = `${Date.now()}`
+    const email = `prihlaska-${unique}@example.com`
     await page.goto(SUMMER_CAMP_LINK)
 
     await page.getByLabel("First name").fill("Karel")
-    await page.getByLabel("Last name").fill("Novotný")
+    await page.getByLabel("Last name").fill(`Novotný ${unique}`)
     await page.getByLabel("Date of birth").fill("2012-05-12")
     await page.getByLabel("Gender").click()
     await page.getByRole("option", { name: "Man", exact: true }).click()
