@@ -30,6 +30,7 @@ Jen cesty, bez kterých produkt nefunguje a které ukazujeme na demu. Jedna cest
 | Organizátor založí akci s termínem a cenou, přidá pokoj a zkopíruje odkaz na přihlášku  | `event-setup.spec.ts`  | ✅   |
 | Organizátor otevře akci → Kapacity → obsazenost termínu a odkaz na filtrované přihlášky | `capacity.spec.ts`     | ✅   |
 | Organizátor vidí přihlášku v seznamu a zapíše platbu                                    | `payments.spec.ts`     | ✅   |
+| Organizátor smaže akci bez přihlášek; akci s přihláškami smazat nejde                   | `delete-event.spec.ts` | ✅   |
 
 Novou cestu přidej do tabulky v tomtéž PR. Cesta mimo tabulku se domlouvá s tech leadem. Okrajové stavy (chybné heslo, prošlý odkaz…) do E2E nepatří, pokud nejsou součástí hlavní cesty.
 
