@@ -9,7 +9,6 @@ import { BackLink } from "@/components/atoms/BackLink"
 import { CapacityProgress } from "@/components/atoms/CapacityProgress"
 import { Seo } from "@/components/atoms/Seo"
 import { CardLink } from "@/components/molecules/CardLink"
-import { EmptyState } from "@/components/molecules/EmptyState"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { TermLabel } from "@/components/molecules/TermLabel"
@@ -24,6 +23,7 @@ import {
   type OccupancyFigures,
   type TermOccupancy,
 } from "@/features/event-overview/api/occupancy"
+import { UnfinishedEvent } from "@/features/event-overview/components/UnfinishedEvent"
 import type { ApplicationsSearch } from "@/features/event-overview/lib/applications-search"
 
 type Gender = "FEMALE" | "MALE"
@@ -76,8 +76,12 @@ export function CapacityPage({
         />
       ) : !occupancy ? (
         <LoadingState />
-      ) : occupancy.terms.length === 0 ? (
-        <EmptyState message={t("capacity.empty")} />
+      ) : occupancy.terms.length === 0 || occupancy.roomCount === 0 ? (
+        <UnfinishedEvent
+          eventId={eventId}
+          hasTerms={occupancy.terms.length > 0}
+          hasRooms={occupancy.roomCount > 0}
+        />
       ) : selected ? (
         <TermDetail
           eventId={eventId}
@@ -91,7 +95,7 @@ export function CapacityPage({
           isGendered={occupancy.roomMode === "GENDERED"}
         />
       )}
-      {occupancy && occupancy.terms.length > 0 ? (
+      {occupancy && occupancy.terms.length > 0 && occupancy.roomCount > 0 ? (
         <p className="text-sm text-muted-foreground">{t("capacity.footnote")}</p>
       ) : null}
     </div>

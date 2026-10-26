@@ -1,4 +1,14 @@
 {
+  "delete": {
+    "action": "Delete event",
+    "confirm": "Delete event",
+    "deleted": "Event {{name}} has been deleted",
+    "description": "The event is deleted together with its terms and rooms. Only an event nobody has applied to can be deleted. This cannot be undone.",
+    "failed": "Could not delete the event",
+    "hint": "You can delete an event nobody has applied to yet.",
+    "keep": "Keep",
+    "title": "Delete event {{name}}?"
+  },
   "header": {
     "allEvents": "← All events",
     "applicationsOpen": "Applications open"
@@ -85,7 +95,6 @@
     "beds_few": "{{count}} beds",
     "beds_one": "{{count}} bed",
     "beds_other": "{{count}} beds",
-    "breadcrumb": "Rooms",
     "capacityColumn": "Capacity",
     "capacityError": "Enter a whole number of at least 1.",
     "capacityHint": "At least 1 bed. Capacity is calculated from rooms.",

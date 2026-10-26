@@ -39,7 +39,7 @@ export const applicationsQueryOptions = (eventId: string, filters: ApplicationsS
       if (filters.term) searchParams.set("termId", filters.term)
       if (filters.status) searchParams.set("status", filters.status)
       if (filters.gender) searchParams.set("gender", filters.gender)
-      if (filters.paid) searchParams.set("paid", filters.paid)
+      if (filters.payment) searchParams.set("payment", filters.payment)
       return z.array(applicationSchema).parse(
         await api
           .get(`organizer/events/${encodeURIComponent(eventId)}/applications`, {

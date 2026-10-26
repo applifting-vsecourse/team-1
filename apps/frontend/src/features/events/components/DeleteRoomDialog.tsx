@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query"
-import { Loader2, X } from "lucide-react"
+import { Loader2 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ErrorState } from "@/components/molecules/ErrorState"
@@ -47,23 +47,10 @@ export function DeleteRoomDialog({
         if (!isOpen && !mutation.isPending) onClose()
       }}
     >
-      <DialogContent
-        showCloseButton={false}
-        className="bg-card shadow-md sm:max-w-170"
-      >
+      <DialogContent className="bg-card shadow-md sm:max-w-170">
         <p className="text-xs font-medium text-muted-foreground uppercase">{event.eventName}</p>
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center justify-between gap-4 pr-8">
           <DialogTitle>{t("rooms.deleteTitle", { name: room.name })}</DialogTitle>
-          <DialogClose asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              disabled={mutation.isPending}
-              aria-label={t("rooms.close")}
-            >
-              <X />
-            </Button>
-          </DialogClose>
         </div>
         <Alert className="border-status-warning bg-status-warning-bg p-6">
           <AlertTitle className="text-lg text-status-warning">

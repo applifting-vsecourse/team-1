@@ -71,3 +71,8 @@ export type NewEventInput = {
 export async function createEvent(input: NewEventInput): Promise<OrganizerEvent> {
   return organizerEventSchema.parse(await api.post("organizer/events", { json: input }).json())
 }
+
+/** `DELETE /api/organizer/events/:eventId` — only an event nobody has applied to (409 otherwise). */
+export async function deleteEvent(eventId: string): Promise<void> {
+  await api.delete(`organizer/events/${encodeURIComponent(eventId)}`)
+}

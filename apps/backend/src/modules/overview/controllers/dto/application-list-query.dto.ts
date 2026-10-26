@@ -1,3 +1,7 @@
+import {
+  FILTERABLE_PAYMENT_STATUSES,
+  type FilterablePaymentStatus,
+} from "@/modules/overview/domain/application-list"
 import { ApiPropertyOptional } from "@nestjs/swagger"
 import { IsIn, IsOptional, IsString, MaxLength } from "class-validator"
 
@@ -16,6 +20,8 @@ export class ApplicationListQueryDto {
   @IsOptional()
   @IsIn(["FEMALE", "MALE"])
   gender?: "FEMALE" | "MALE"
-  @ApiPropertyOptional({ enum: ["true", "false"] }) @IsOptional() @IsIn(["true", "false"]) paid?:
-    "true" | "false"
+  @ApiPropertyOptional({ enum: FILTERABLE_PAYMENT_STATUSES })
+  @IsOptional()
+  @IsIn(FILTERABLE_PAYMENT_STATUSES)
+  payment?: FilterablePaymentStatus
 }

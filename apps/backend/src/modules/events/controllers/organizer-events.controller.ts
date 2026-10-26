@@ -4,7 +4,17 @@ import { EventsService } from "@/modules/events/services/events.service"
 import { Auth } from "@/shared/auth/decorators/auth.decorator"
 import { User } from "@/shared/auth/decorators/user.decorator"
 import { Identity } from "@/shared/auth/domain/identity"
-import { Body, Controller, Get, Param, Post, UsePipes, ValidationPipe } from "@nestjs/common"
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  Param,
+  Post,
+  UsePipes,
+  ValidationPipe,
+} from "@nestjs/common"
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 
 @ApiTags("events")
@@ -43,5 +53,15 @@ export class OrganizerEventsController {
     @Param("eventId") eventId: string,
   ): Promise<OrganizerEventResponseDto> {
     return OrganizerEventResponseDto.fromDomain(await this.events.get(user, eventId))
+  }
+
+  @Delete(":eventId")
+  @HttpCode(204)
+  @ApiOperation({ summary: "Delete an event nobody has applied to, with its terms and rooms" })
+  @ApiResponse({ status: 204 })
+  @ApiResponse({ status: 403, description: "Unknown event or of another organization." })
+  @ApiResponse({ status: 409, description: "The event has applications (EVENT_HAS_APPLICATIONS)." })
+  async remove(@User() user: Identity, @Param("eventId") eventId: string): Promise<void> {
+    await this.events.delete(user, eventId)
   }
 }

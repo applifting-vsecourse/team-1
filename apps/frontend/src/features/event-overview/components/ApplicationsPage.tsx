@@ -29,6 +29,7 @@ import {
 } from "@/features/event-overview/api/applications"
 import { occupancyQueryOptions } from "@/features/event-overview/api/occupancy"
 import { ApplicationFilters } from "@/features/event-overview/components/ApplicationFilters"
+import { UnfinishedEvent } from "@/features/event-overview/components/UnfinishedEvent"
 import type { ApplicationsSearch } from "@/features/event-overview/lib/applications-search"
 
 // Figma (Design system): O05, O05g · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12110-326
@@ -55,6 +56,10 @@ export function ApplicationsPage({
   const currentPage = Math.min(page, pageCount - 1)
   const visibleRows = query.data?.slice(currentPage * 20, (currentPage + 1) * 20) ?? []
   const hasFilters = Object.values(filters).some(Boolean)
+  // Without a term or a room the event takes no applications yet; say what is missing instead.
+  const isUnfinished =
+    occupancy.data !== undefined &&
+    (occupancy.data.terms.length === 0 || occupancy.data.roomCount === 0)
   return (
     <div className="flex flex-col gap-6">
       <Seo title={t("applications.title")} />
@@ -118,7 +123,13 @@ export function ApplicationsPage({
             </h2>
             <p className="text-sm text-muted-foreground">{t("applications.sort")}</p>
           </div>
-          {query.data.length === 0 ? (
+          {query.data.length === 0 && !hasFilters && isUnfinished ? (
+            <UnfinishedEvent
+              eventId={eventId}
+              hasTerms={occupancy.data.terms.length > 0}
+              hasRooms={occupancy.data.roomCount > 0}
+            />
+          ) : query.data.length === 0 ? (
             <div className="flex flex-col items-start gap-4 py-6">
               <p className="text-sm text-muted-foreground">
                 {t(hasFilters ? "applications.empty" : "applications.noApplications")}
@@ -200,7 +211,7 @@ export function ApplicationsPage({
                               to={ROUTES.organizer.application}
                               params={{ eventId, applicationId: row.id }}
                             >
-                              {t("payment.record")}
+                              {t(row.amountOwedCzk > 0 ? "payment.record" : "applications.detail")}
                             </Link>
                           </Button>
                         </TableCell>

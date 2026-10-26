@@ -1,6 +1,7 @@
 {
   "CAPACITY_MODE_NOT_SUPPORTED": "Tento přehled kapacit je zatím dostupný pouze pro akce s dělením pokojů podle pohlaví.",
   "CAPACITY_ROOM_GENDER_REQUIRED": "Před výpočtem kapacity podle pohlaví přiřaďte pohlaví všem pokojům.",
+  "EVENT_HAS_APPLICATIONS": "Akci s přihláškami nejde smazat.",
   "FORBIDDEN": "K tomu nemáte přístup.",
   "INTERNAL": "Na serveru se něco pokazilo. Zkuste to prosím znovu.",
   "INVALID_EMAIL_OR_PASSWORD": "Nesprávný e-mail nebo heslo.",

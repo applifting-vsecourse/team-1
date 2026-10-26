@@ -54,6 +54,15 @@ export class EventsService {
     return toOrganizerEvent(event)
   }
 
+  /** Only an event nobody has applied to can be deleted (issue #153); otherwise 409. */
+  async delete(user: Identity, eventId: string): Promise<void> {
+    await this.organizationAccess.assertCanAccessEvent(user, eventId)
+    if (await this.repository.deleteWithoutApplications(eventId)) return
+    if (!(await this.repository.findById(eventId)))
+      throw new AppException(HttpStatus.NOT_FOUND, "NOT_FOUND")
+    throw new AppException(HttpStatus.CONFLICT, "EVENT_HAS_APPLICATIONS")
+  }
+
   private async resolveOrganizationId(user: Identity, requested?: string): Promise<string> {
     if (requested) {
       await this.organizationAccess.assertCanAccessOrganization(user, requested)

@@ -52,7 +52,13 @@ const application = {
     },
   ],
 }
-function setup(rows: unknown = [application], isError = false, q?: string) {
+function setup(
+  rows: unknown = [application],
+  isError = false,
+  q?: string,
+  occupancy: { roomCount: number; terms: unknown[] } | null = null,
+  initial?: ApplicationsSearch,
+) {
   get.mockImplementation((path: string) => ({
     json: () =>
       path.endsWith("occupancy")
@@ -60,7 +66,8 @@ function setup(rows: unknown = [application], isError = false, q?: string) {
             eventId: "e1",
             roomMode: "GENDERED",
             roomCount: 1,
-            terms: [
+            ...occupancy,
+            terms: occupancy?.terms ?? [
               {
                 id: "t1",
                 name: "First",
@@ -80,13 +87,15 @@ function setup(rows: unknown = [application], isError = false, q?: string) {
   }))
   const onFiltersChange = vi.fn()
   function Page() {
-    const [filters, setFilters] = useState<ApplicationsSearch>({
-      term: "t1",
-      status: "CONFIRMED",
-      paid: "false",
-      gender: "FEMALE",
-      ...(q ? { q } : {}),
-    })
+    const [filters, setFilters] = useState<ApplicationsSearch>(
+      initial ?? {
+        term: "t1",
+        status: "CONFIRMED",
+        payment: "UNPAID",
+        gender: "FEMALE",
+        ...(q ? { q } : {}),
+      },
+    )
     return (
       <ApplicationsPage
         eventId="e1"
@@ -127,7 +136,7 @@ describe("ApplicationsPage", () => {
     expect(change).toHaveBeenLastCalledWith({
       term: "t1",
       status: "WAITLISTED",
-      paid: "false",
+      payment: "UNPAID",
       gender: "FEMALE",
       q: "Jana",
     })
@@ -136,7 +145,7 @@ describe("ApplicationsPage", () => {
       expect.stringContaining("applications"),
       expect.objectContaining({
         searchParams: new URLSearchParams(
-          "q=Jana&termId=t1&status=WAITLISTED&gender=FEMALE&paid=false",
+          "q=Jana&termId=t1&status=WAITLISTED&gender=FEMALE&payment=UNPAID",
         ),
       }),
     )
@@ -157,13 +166,13 @@ describe("ApplicationsPage", () => {
     await user.click(within(chips).getByRole("button", { name: "Remove filter: Confirmed" }))
     expect(change).toHaveBeenLastCalledWith({
       term: "t1",
-      paid: "false",
+      payment: "UNPAID",
       gender: "FEMALE",
       q: "Jana",
     })
     expect(screen.getByRole("button", { name: "Filters · 3" })).toBeInTheDocument()
     await user.click(within(chips).getByRole("button", { name: "Remove filter: woman" }))
-    expect(change).toHaveBeenLastCalledWith({ term: "t1", paid: "false", q: "Jana" })
+    expect(change).toHaveBeenLastCalledWith({ term: "t1", payment: "UNPAID", q: "Jana" })
     expect(screen.getByRole("searchbox")).toHaveValue("Jana")
     expect(within(chips).getByRole("button", { name: /Remove filter:.*2027/ })).toBeInTheDocument()
   })
@@ -198,7 +207,7 @@ describe("ApplicationsPage", () => {
     expect(change).toHaveBeenLastCalledWith({
       term: "t1",
       status: "CONFIRMED",
-      paid: "false",
+      payment: "UNPAID",
       gender: "FEMALE",
       q: "Jana Test",
     })
@@ -206,7 +215,7 @@ describe("ApplicationsPage", () => {
       expect.stringContaining("applications"),
       expect.objectContaining({
         searchParams: new URLSearchParams(
-          "q=Jana+Test&termId=t1&status=CONFIRMED&gender=FEMALE&paid=false",
+          "q=Jana+Test&termId=t1&status=CONFIRMED&gender=FEMALE&payment=UNPAID",
         ),
       }),
     )
@@ -245,7 +254,7 @@ describe("ApplicationsPage", () => {
     )
     const request = get.mock.calls.find(([path]) => String(path).endsWith("applications"))!
     expect(String((request[1] as { searchParams: URLSearchParams }).searchParams)).toBe(
-      "termId=t1&status=CONFIRMED&gender=FEMALE&paid=false",
+      "termId=t1&status=CONFIRMED&gender=FEMALE&payment=UNPAID",
     )
   })
   it("keeps identifying and contact details in mobile cards for same-name participants", async () => {
@@ -286,5 +295,61 @@ describe("ApplicationsPage", () => {
     setup([], true)
     expect(await screen.findByText("Could not load applications")).toBeInTheDocument()
     expect(screen.getByRole("button", { name: /Try again/i })).toBeInTheDocument()
+  })
+  it("offers the four payment states and sends the chosen one to the API", async () => {
+    const change = setup([application], false, undefined, null, {})
+    const user = userEvent.setup()
+    await screen.findAllByText("jana@example.com", { exact: false })
+    await user.click(screen.getAllByRole("combobox", { name: "Payment" })[0]!)
+    expect(screen.getAllByRole("option").map((option) => option.textContent)).toEqual([
+      "All payments",
+      "Unpaid",
+      "Partially paid",
+      "Paid",
+      "Overpaid",
+    ])
+    await user.click(screen.getByRole("option", { name: "Partially paid" }))
+    expect(change).toHaveBeenLastCalledWith({ payment: "PARTIALLY_PAID" })
+    expect(get).toHaveBeenLastCalledWith(
+      expect.stringContaining("applications"),
+      expect.objectContaining({ searchParams: new URLSearchParams("payment=PARTIALLY_PAID") }),
+    )
+  })
+  it.each([
+    [600, "Record payment"],
+    [0, "Detail"],
+    [-100, "Detail"],
+  ])("labels the row action for an amount owed of %s as %s", async (amountOwedCzk, label) => {
+    setup([{ ...application, amountOwedCzk }])
+    expect(await screen.findByRole("link", { name: label })).toHaveAttribute(
+      "href",
+      "/organizer/events/e1/applications/a1",
+    )
+  })
+  it.each([
+    ["no terms", { roomCount: 1, terms: [] }],
+    [
+      "no rooms",
+      {
+        roomCount: 0,
+        terms: [
+          {
+            id: "t1",
+            name: "First",
+            startsOn: "2027-07-12",
+            endsOn: "2027-07-18",
+            capacity: 0,
+            confirmed: 0,
+            free: 0,
+            waitlisted: 0,
+            byGender: null,
+          },
+        ],
+      },
+    ],
+  ])("says the event is unfinished instead of empty with %s", async (_name, occupancy) => {
+    setup([], false, undefined, occupancy, {})
+    expect(await screen.findByText("The event is not finished yet")).toBeInTheDocument()
+    expect(screen.queryByText("No applications have been received yet.")).not.toBeInTheDocument()
   })
 })

@@ -6,7 +6,7 @@ import {
   createRouter,
   RouterProvider,
 } from "@tanstack/react-router"
-import { render, screen } from "@testing-library/react"
+import { render, screen, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { toast } from "sonner"
 import { afterEach, describe, expect, it, vi } from "vitest"
@@ -31,18 +31,26 @@ const base = {
   terms: [],
 }
 
-function renderSetup(event: object) {
-  vi.spyOn(globalThis, "fetch").mockResolvedValue(
-    new Response(JSON.stringify(event), { headers: { "Content-Type": "application/json" } }),
-  )
+function renderSetup(event: object, deleteResponse?: () => Response) {
+  const json = { headers: { "Content-Type": "application/json" } }
+  vi.spyOn(globalThis, "fetch").mockImplementation((input, init) => {
+    const method = input instanceof Request ? input.method : (init?.method ?? "GET")
+    if (method === "DELETE" && deleteResponse) return Promise.resolve(deleteResponse())
+    return Promise.resolve(new Response(JSON.stringify(event), json))
+  })
   const root = createRootRoute()
   const page = createRoute({
     getParentRoute: () => root,
     path: "/",
     component: () => <EventSetup eventId="e1" />,
   })
+  const events = createRoute({
+    getParentRoute: () => root,
+    path: "/organizer/events",
+    component: () => <p>Events list</p>,
+  })
   const router = createRouter({
-    routeTree: root.addChildren([page]),
+    routeTree: root.addChildren([page, events]),
     history: createMemoryHistory({ initialEntries: ["/"] }),
   })
   render(
@@ -111,5 +119,52 @@ describe("EventSetup", () => {
 
     expect(writeText).toHaveBeenCalledWith(link.getAttribute("href"))
     expect(success).toHaveBeenCalledWith("Link copied to the clipboard")
+  })
+  it("deletes the event after confirmation and returns to the event list", async () => {
+    const success = vi.spyOn(toast, "success")
+    renderSetup(base, () => new Response(null, { status: 204 }))
+    const user = userEvent.setup()
+
+    await user.click(await screen.findByRole("button", { name: "Delete event" }))
+    const dialog = screen.getByRole("dialog")
+    expect(dialog).toHaveTextContent("Delete event Jarní víkend Lipno 2027?")
+    await user.click(within(dialog).getByRole("button", { name: "Delete event" }))
+
+    expect(await screen.findByText("Events list")).toBeInTheDocument()
+    const call = vi
+      .mocked(globalThis.fetch)
+      .mock.calls.map(([input, init]) => ({
+        method: input instanceof Request ? input.method : init?.method,
+        url: input instanceof Request ? input.url : String(input),
+      }))
+      .find((request) => request.method === "DELETE")
+    expect(call?.url).toMatch(/organizer\/events\/e1$/)
+    expect(success).toHaveBeenCalledWith("Event Jarní víkend Lipno 2027 has been deleted")
+  })
+
+  it("keeps the dialog open and shows the error when the event has applications", async () => {
+    renderSetup(
+      base,
+      () =>
+        new Response(
+          JSON.stringify({
+            statusCode: 409,
+            code: "EVENT_HAS_APPLICATIONS",
+            message: "Event has applications",
+          }),
+          { status: 409, headers: { "Content-Type": "application/json" } },
+        ),
+    )
+    const user = userEvent.setup()
+
+    await user.click(await screen.findByRole("button", { name: "Delete event" }))
+    await user.click(
+      within(screen.getByRole("dialog")).getByRole("button", { name: "Delete event" }),
+    )
+
+    const dialog = screen.getByRole("dialog")
+    expect(await within(dialog).findByText("Could not delete the event")).toBeInTheDocument()
+    expect(dialog).toHaveTextContent("An event with applications cannot be deleted.")
+    expect(screen.queryByText("Events list")).not.toBeInTheDocument()
   })
 })
