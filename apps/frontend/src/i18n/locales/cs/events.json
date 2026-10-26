@@ -7,7 +7,7 @@
     "failed": "Akci se nepodařilo smazat",
     "hint": "Akci, na kterou ještě nikdo nepodal přihlášku, můžete smazat.",
     "keep": "Ponechat",
-    "title": "Smazat akci {{name}}?"
+    "title": "Smazat akci?"
   },
   "header": {
     "allEvents": "← Všechny akce",

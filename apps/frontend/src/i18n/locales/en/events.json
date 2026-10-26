@@ -7,7 +7,7 @@
     "failed": "Could not delete the event",
     "hint": "You can delete an event nobody has applied to yet.",
     "keep": "Keep",
-    "title": "Delete event {{name}}?"
+    "title": "Delete this event?"
   },
   "header": {
     "allEvents": "← All events",

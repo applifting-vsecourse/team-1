@@ -183,59 +183,98 @@ export function RoomsPage({ eventId }: { eventId: string }) {
         <CardContent className="flex flex-col gap-4">
           {event.rooms.length ? (
             <>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>{t("rooms.nameColumn")}</TableHead>
-                    <TableHead className="text-right">{t("rooms.capacityColumn")}</TableHead>
-                    {isGendered ? <TableHead>{t("rooms.genderColumn")}</TableHead> : null}
-                    <TableHead>
-                      <span className="sr-only">{t("rooms.actionsColumn")}</span>
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {event.rooms.map((room) => (
-                    <TableRow key={room.id}>
-                      <TableCell className="font-medium break-words whitespace-normal">
-                        {room.name}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {t("rooms.beds", { count: room.capacity })}
-                      </TableCell>
-                      {isGendered ? (
-                        <TableCell>
-                          {room.gender ? (
-                            <Badge variant="secondary">
-                              {t(room.gender === "FEMALE" ? "rooms.female" : "rooms.male")}
-                            </Badge>
-                          ) : null}
-                        </TableCell>
-                      ) : null}
-                      <TableCell>
-                        <div className="flex justify-end gap-1">
-                          <Button
-                            variant="ghost"
-                            size="icon-lg"
-                            aria-label={t("rooms.editRoom", { name: room.name })}
-                            onClick={() => setEditor(room)}
-                          >
-                            <Pencil />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon-lg"
-                            aria-label={t("rooms.deleteRoom", { name: room.name })}
-                            onClick={() => setDeleting(room)}
-                          >
-                            <Trash2 />
-                          </Button>
-                        </div>
-                      </TableCell>
+              {/* A table from md up, like the applications list; on a phone a list of rows. */}
+              <div className="hidden md:block">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>{t("rooms.nameColumn")}</TableHead>
+                      <TableHead className="text-right">{t("rooms.capacityColumn")}</TableHead>
+                      {isGendered ? <TableHead>{t("rooms.genderColumn")}</TableHead> : null}
+                      <TableHead>
+                        <span className="sr-only">{t("rooms.actionsColumn")}</span>
+                      </TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {event.rooms.map((room) => (
+                      <TableRow key={room.id}>
+                        <TableCell className="font-medium break-words whitespace-normal">
+                          {room.name}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {t("rooms.beds", { count: room.capacity })}
+                        </TableCell>
+                        {isGendered ? (
+                          <TableCell>
+                            {room.gender ? (
+                              <Badge variant="secondary">
+                                {t(room.gender === "FEMALE" ? "rooms.female" : "rooms.male")}
+                              </Badge>
+                            ) : null}
+                          </TableCell>
+                        ) : null}
+                        <TableCell>
+                          <div className="flex justify-end gap-1">
+                            <Button
+                              variant="ghost"
+                              size="icon-lg"
+                              aria-label={t("rooms.editRoom", { name: room.name })}
+                              onClick={() => setEditor(room)}
+                            >
+                              <Pencil />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon-lg"
+                              aria-label={t("rooms.deleteRoom", { name: room.name })}
+                              onClick={() => setDeleting(room)}
+                            >
+                              <Trash2 />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+              <ul className="divide-y md:hidden">
+                {event.rooms.map((room) => (
+                  <li
+                    key={room.id}
+                    className="flex items-center gap-4 py-3"
+                  >
+                    <div className="flex min-w-0 flex-1 flex-col gap-1">
+                      <span className="font-medium break-words">{room.name}</span>
+                      <span className="text-sm text-muted-foreground">
+                        {t("rooms.beds", { count: room.capacity })}
+                        {room.gender
+                          ? ` · ${t(room.gender === "FEMALE" ? "rooms.female" : "rooms.male")}`
+                          : ""}
+                      </span>
+                    </div>
+                    <div className="flex gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon-lg"
+                        aria-label={t("rooms.editRoom", { name: room.name })}
+                        onClick={() => setEditor(room)}
+                      >
+                        <Pencil />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon-lg"
+                        aria-label={t("rooms.deleteRoom", { name: room.name })}
+                        onClick={() => setDeleting(room)}
+                      >
+                        <Trash2 />
+                      </Button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
               <p className="text-xs text-muted-foreground">
                 {t("rooms.shown", { count: event.rooms.length })}
               </p>

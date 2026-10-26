@@ -81,7 +81,6 @@ export function EventSetup({ eventId }: { eventId: string }) {
         <Button
           variant="outline"
           size="lg"
-          className="text-destructive"
           onClick={() => setIsDeleteOpen(true)}
         >
           {t("delete.action")}

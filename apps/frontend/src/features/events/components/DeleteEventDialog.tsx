@@ -22,7 +22,7 @@ import { deleteEvent, eventKeys, type OrganizerEvent } from "@/features/events/a
 /**
  * Confirms deleting an event with its terms and rooms. The API refuses an event with
  * applications (issue #153); the dialog then shows that error and keeps the event.
- * No Figma frame yet — follows the room deletion dialog (X21).
+ * No Figma frame yet — follows the term cancel and room deletion dialogs (X21).
  */
 export function DeleteEventDialog({
   event,
@@ -50,9 +50,10 @@ export function DeleteEventDialog({
         if (!isOpen && !mutation.isPending) onClose()
       }}
     >
-      <DialogContent>
+      <DialogContent className="gap-4 p-6 sm:max-w-170">
         <DialogHeader>
-          <DialogTitle className="pr-8">{t("delete.title", { name: event.name })}</DialogTitle>
+          <p className="text-xs font-medium text-muted-foreground uppercase">{event.name}</p>
+          <DialogTitle className="pr-8 text-lg tracking-tight">{t("delete.title")}</DialogTitle>
           <DialogDescription>{t("delete.description")}</DialogDescription>
         </DialogHeader>
         {mutation.isError ? (

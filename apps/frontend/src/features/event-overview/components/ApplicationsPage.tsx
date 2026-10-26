@@ -60,6 +60,18 @@ export function ApplicationsPage({
   const isUnfinished =
     occupancy.data !== undefined &&
     (occupancy.data.terms.length === 0 || occupancy.data.roomCount === 0)
+  if (isUnfinished && !hasFilters && query.data?.length === 0) {
+    return (
+      <>
+        <Seo title={t("applications.title")} />
+        <UnfinishedEvent
+          eventId={eventId}
+          hasTerms={occupancy.data.terms.length > 0}
+          hasRooms={occupancy.data.roomCount > 0}
+        />
+      </>
+    )
+  }
   return (
     <div className="flex flex-col gap-6">
       <Seo title={t("applications.title")} />
@@ -123,13 +135,7 @@ export function ApplicationsPage({
             </h2>
             <p className="text-sm text-muted-foreground">{t("applications.sort")}</p>
           </div>
-          {query.data.length === 0 && !hasFilters && isUnfinished ? (
-            <UnfinishedEvent
-              eventId={eventId}
-              hasTerms={occupancy.data.terms.length > 0}
-              hasRooms={occupancy.data.roomCount > 0}
-            />
-          ) : query.data.length === 0 ? (
+          {query.data.length === 0 ? (
             <div className="flex flex-col items-start gap-4 py-6">
               <p className="text-sm text-muted-foreground">
                 {t(hasFilters ? "applications.empty" : "applications.noApplications")}

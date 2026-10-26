@@ -31,7 +31,7 @@ test.describe("Event setup", () => {
     await dialog.getByLabel("Room name").fill("Pokoj E2E")
     await dialog.getByLabel("Capacity").fill("5")
     await dialog.getByRole("button", { name: "Add room" }).click()
-    await expect(page.getByText("Pokoj E2E", { exact: true })).toBeVisible()
+    await expect(page.getByRole("cell", { name: "Pokoj E2E", exact: true })).toBeVisible()
 
     await page
       .getByRole("navigation", { name: "Event sections" })

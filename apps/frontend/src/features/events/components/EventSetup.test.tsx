@@ -127,7 +127,8 @@ describe("EventSetup", () => {
 
     await user.click(await screen.findByRole("button", { name: "Delete event" }))
     const dialog = screen.getByRole("dialog")
-    expect(dialog).toHaveTextContent("Delete event Jarní víkend Lipno 2027?")
+    expect(dialog).toHaveTextContent("Jarní víkend Lipno 2027")
+    expect(dialog).toHaveTextContent("Delete this event?")
     await user.click(within(dialog).getByRole("button", { name: "Delete event" }))
 
     expect(await screen.findByText("Events list")).toBeInTheDocument()
