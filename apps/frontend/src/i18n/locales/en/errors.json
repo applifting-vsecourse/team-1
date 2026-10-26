@@ -1,4 +1,5 @@
 {
+  "APPLICATION_DUPLICATE": "{{participant}} is already registered for the term “{{term}}” (same name and date of birth).",
   "CAPACITY_MODE_NOT_SUPPORTED": "This capacity overview currently supports only events with rooms divided by gender.",
   "CAPACITY_ROOM_GENDER_REQUIRED": "Assign a gender to every room before using capacity by gender.",
   "EVENT_HAS_APPLICATIONS": "An event with applications cannot be deleted.",

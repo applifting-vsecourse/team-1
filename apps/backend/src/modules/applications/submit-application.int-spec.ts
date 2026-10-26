@@ -15,10 +15,12 @@ describe("submit application (integration)", () => {
   let termIds: string[]
   let eventId: string
   let counter = 0
+  let participantCounter = 0
 
+  // Every call is a different person — the same name and birth date on the same term is a duplicate (US-23).
   const participant = (gender: Gender, terms: string[]): object => ({
     firstName: "Test",
-    lastName: "Participant",
+    lastName: `Participant${++participantCounter}`,
     birthDate: "2014-05-18",
     gender,
     termIds: terms,
@@ -205,6 +207,73 @@ describe("submit application (integration)", () => {
     ).rejects.toMatchObject({ status: 400 })
     expect(evaluate).not.toHaveBeenCalled()
     expect(await prisma.applicationTerm.count({ where: { termId: term.id } })).toBe(0)
+  })
+
+  describe("duplicate participant (US-23)", () => {
+    const person = (termIds: string[], overrides: object = {}): object => ({
+      firstName: "Jan",
+      lastName: "Novák",
+      birthDate: "2013-03-09",
+      gender: "MALE",
+      termIds,
+      ...overrides,
+    })
+    const countByName = (lastName: string): Promise<number> =>
+      prisma.application.count({ where: { eventId, lastName: { equals: lastName } } })
+
+    beforeAll(async () => {
+      await prisma.application.deleteMany({ where: { eventId } })
+    })
+
+    it("rejects the same participant on the same term, even with another e-mail", async () => {
+      const [t1] = termIds
+      expect((await submit([person([t1])], "first@example.com")).status).toBe(201)
+
+      const second = await submit([person([t1])], "second@example.com")
+      expect(second.status).toBe(409)
+      expect(await second.json()).toMatchObject({
+        code: "APPLICATION_DUPLICATE",
+        params: { participant: "Jan Novák", term: "T1" },
+      })
+      expect(await countByName("Novák")).toBe(1)
+    })
+
+    it("ignores case, diacritics and extra spaces in the name", async () => {
+      const [t1] = termIds
+      const response = await submit([person([t1], { firstName: " JAN ", lastName: "novak" })])
+      expect(response.status).toBe(409)
+    })
+
+    it("allows the same participant on another term and other people on the same term", async () => {
+      const [t1, t2] = termIds
+      expect((await submit([person([t2])])).status).toBe(201)
+      expect((await submit([person([t1], { firstName: "Petr" })])).status).toBe(201)
+      expect((await submit([person([t1], { birthDate: "2013-03-10" })])).status).toBe(201)
+    })
+
+    it("rejects a repeated participant inside one submission and stores nothing of it", async () => {
+      const [, t2] = termIds
+      const before = await prisma.application.count({ where: { eventId } })
+      const response = await submit([
+        person([t2], { firstName: "Eva", gender: "FEMALE" }),
+        person([t2], { firstName: "Eva", gender: "FEMALE" }),
+      ])
+      expect(response.status).toBe(409)
+      expect(await prisma.application.count({ where: { eventId } })).toBe(before)
+    })
+
+    it("lets only one of many concurrent identical submissions through", async () => {
+      const [t1, t2] = termIds
+      const responses = await Promise.all(
+        Array.from({ length: 6 }, () =>
+          submit([person([t1, t2], { firstName: "Karel", lastName: "Souběžný" })]),
+        ),
+      )
+      expect(responses.map((response) => response.status).sort()).toEqual([
+        201, 409, 409, 409, 409, 409,
+      ])
+      expect(await countByName("Souběžný")).toBe(1)
+    })
   })
 
   it("answers an unknown link with 404 and an organizer's e-mail with a generic 400", async () => {

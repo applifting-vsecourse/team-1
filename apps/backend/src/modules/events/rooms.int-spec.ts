@@ -164,7 +164,7 @@ describe("event rooms (integration)", () => {
             participants: [
               {
                 firstName: "Test",
-                lastName: "Shared",
+                lastName: `Shared${index}`,
                 birthDate: "2014-05-18",
                 gender,
                 termIds: [term.id],

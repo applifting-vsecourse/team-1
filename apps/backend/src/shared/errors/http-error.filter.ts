@@ -14,6 +14,7 @@ export type ErrorBody = {
   statusCode: number
   code: ErrorCode
   message: string | string[]
+  params?: Record<string, string>
 }
 
 const CODE_BY_STATUS: Partial<Record<number, ErrorCode>> = {

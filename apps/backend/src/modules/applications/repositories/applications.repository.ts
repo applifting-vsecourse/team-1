@@ -5,6 +5,7 @@ import {
   SavedApplication,
   SubmissionEvent,
 } from "@/modules/applications/domain/application-submission"
+import { findDuplicate } from "@/modules/applications/domain/duplicate-application"
 import { EvaluatedTerm } from "@/modules/applications/domain/evaluation"
 import { OccupancySnapshot } from "@/modules/applications/domain/submission"
 import { AppException } from "@/shared/errors/app.exception"
@@ -65,6 +66,48 @@ export class ApplicationsRepository {
         ORDER BY id FOR UPDATE`
       if (activeTerms.length !== termIds.length) {
         throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
+      }
+
+      // The event lock above serialises submissions, so two concurrent
+      // requests of the same participant cannot both pass this check.
+      const registered = await tx.applicationTerm.findMany({
+        where: {
+          termId: { in: termIds },
+          application: {
+            eventId: event.id,
+            birthDate: {
+              in: applications.map(({ birthDate }) => new Date(`${birthDate}T00:00:00Z`)),
+            },
+          },
+        },
+        select: {
+          termId: true,
+          application: { select: { firstName: true, lastName: true, birthDate: true } },
+        },
+      })
+      const duplicate = findDuplicate(
+        registered.map(({ termId, application }) => ({
+          termId,
+          firstName: application.firstName,
+          lastName: application.lastName,
+          birthDate: application.birthDate.toISOString().slice(0, 10),
+        })),
+        applications,
+      )
+      if (duplicate) {
+        const term = await tx.term.findUniqueOrThrow({
+          where: { id: duplicate.termId },
+          select: { name: true },
+        })
+        throw new AppException(
+          HttpStatus.CONFLICT,
+          "APPLICATION_DUPLICATE",
+          "Participant is already registered for this term",
+          {
+            participant: `${duplicate.participant.firstName} ${duplicate.participant.lastName}`,
+            term: term.name,
+          },
+        )
       }
 
       const [rooms, confirmed] = await Promise.all([
