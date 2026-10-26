@@ -60,6 +60,9 @@ export class ApplicationsService {
       }
     }
 
+    // Before the account is created: a rejected duplicate must leave nothing behind.
+    await this.repository.assertNoDuplicate(event.id, input.participants)
+
     // Own connection, so it runs before the evaluation transaction starts.
     const first = input.participants[0]
     const account = await this.accounts.ensureAccount({

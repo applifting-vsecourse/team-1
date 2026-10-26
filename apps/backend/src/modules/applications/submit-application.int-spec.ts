@@ -236,6 +236,8 @@ describe("submit application (integration)", () => {
         params: { participant: "Jan Novák", term: "T1" },
       })
       expect(await countByName("Novák")).toBe(1)
+      // A rejected submission must not leave a participant account behind.
+      expect(await prisma.user.count({ where: { email: "second@example.com" } })).toBe(0)
     })
 
     it("ignores case, diacritics and extra spaces in the name", async () => {

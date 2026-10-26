@@ -2,6 +2,8 @@ import { SubmissionEvent } from "@/modules/applications/domain/application-submi
 import { ApplicationsRepository } from "@/modules/applications/repositories/applications.repository"
 import { ApplicationConfirmationMailer } from "@/modules/participants/services/application-confirmation-mailer.service"
 import { ParticipantAccountsService } from "@/modules/participants/services/participant-accounts.service"
+import { AppException } from "@/shared/errors/app.exception"
+import { HttpStatus } from "@nestjs/common"
 import { mock, MockProxy } from "jest-mock-extended"
 import { ApplicationsService } from "./applications.service"
 
@@ -115,6 +117,17 @@ describe("ApplicationsService.submit", () => {
       ),
     ).rejects.toMatchObject({ status: 400 })
     expect(accounts.ensureAccount).not.toHaveBeenCalled()
+  })
+
+  it("creates no account and saves nothing for a duplicate participant", async () => {
+    repository.assertNoDuplicate.mockRejectedValue(
+      new AppException(HttpStatus.CONFLICT, "APPLICATION_DUPLICATE"),
+    )
+    await expect(
+      service.submit("link", { email: "new@example.com", participants: [participant] }, "en"),
+    ).rejects.toMatchObject({ status: 409 })
+    expect(accounts.ensureAccount).not.toHaveBeenCalled()
+    expect(repository.saveEvaluated).not.toHaveBeenCalled()
   })
 
   it("answers an unknown or not yet open link with 404", async () => {
