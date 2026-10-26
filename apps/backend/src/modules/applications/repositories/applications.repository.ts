@@ -7,7 +7,8 @@ import {
 } from "@/modules/applications/domain/application-submission"
 import { EvaluatedTerm } from "@/modules/applications/domain/evaluation"
 import { OccupancySnapshot } from "@/modules/applications/domain/submission"
-import { Injectable } from "@nestjs/common"
+import { AppException } from "@/shared/errors/app.exception"
+import { HttpStatus, Injectable } from "@nestjs/common"
 
 /** Decides the status of every term of every application from what the lock protects. */
 export type Evaluate = (snapshot: OccupancySnapshot) => EvaluatedTerm[][]
@@ -57,8 +58,14 @@ export class ApplicationsRepository {
     return this.prisma.$transaction(async (tx) => {
       // Room mutations use this same lock (US-14).
       await tx.$queryRaw`SELECT id FROM event WHERE id = ${event.id} FOR UPDATE`
-      await tx.$queryRaw`
-        SELECT id FROM term WHERE id IN (${Prisma.join(termIds)}) ORDER BY id FOR UPDATE`
+      // The terms were read before the lock; one cancelled meanwhile must not take a confirmation.
+      const activeTerms = await tx.$queryRaw<{ id: string }[]>`
+        SELECT id FROM term
+        WHERE id IN (${Prisma.join(termIds)}) AND "eventId" = ${event.id} AND "cancelledAt" IS NULL
+        ORDER BY id FOR UPDATE`
+      if (activeTerms.length !== termIds.length) {
+        throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
+      }
 
       const [rooms, confirmed] = await Promise.all([
         tx.room.findMany({

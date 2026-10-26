@@ -70,7 +70,7 @@ describe("event rooms (integration)", () => {
     expect(await prisma.room.findUnique({ where: { id: foreignId } })).not.toBeNull()
   })
 
-  it.each([0, -1, 1.5, "5", null])("rejects invalid capacity %s", async (capacity) => {
+  it.each([0, -1, 1.5, "5", null, 2147483648])("rejects invalid capacity %s", async (capacity) => {
     expect(
       (await request("/rooms", "POST", { name: "Invalid", capacity, gender: "FEMALE" })).status,
     ).toBe(400)

@@ -20,13 +20,10 @@ export class ApplicationsController {
   @ApiResponse({ status: 201, type: SubmitApplicationResponseDto })
   @ApiResponse({
     status: 400,
-    description: "VALIDATION_FAILED — invalid data or a term that is not in the event.",
+    description:
+      "VALIDATION_FAILED — invalid data, a term that is not (or no longer) in the event, or an e-mail that can't apply (deliberately not told apart).",
   })
   @ApiResponse({ status: 404, description: "Unknown or not yet open link (NOT_FOUND)." })
-  @ApiResponse({
-    status: 409,
-    description: "EMAIL_NOT_ALLOWED — the e-mail belongs to an organizer.",
-  })
   async submit(
     @Param("publicToken") publicToken: string,
     @Body() body: SubmitApplicationRequestDto,

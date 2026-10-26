@@ -1,5 +1,6 @@
 // US-27: submitting an application evaluates every term by free beds, also under concurrency.
 import { PrismaService } from "@/core/prisma/prisma.service"
+import { ApplicationsRepository } from "@/modules/applications/repositories/applications.repository"
 import { api, connectTestPrisma, resetAndSeed } from "@/test/integration/test-api"
 
 type Gender = "FEMALE" | "MALE"
@@ -156,7 +157,57 @@ describe("submit application (integration)", () => {
     expect((await submit([bad])).status).toBe(400)
   })
 
-  it("answers an unknown link with 404 and an organizer's e-mail with 409", async () => {
+  it("rejects more than 10 participants and names over 100 characters", async () => {
+    const before = await prisma.application.count({ where: { eventId } })
+    const eleven = Array.from({ length: 11 }, () => participant("FEMALE", [termIds[0]]))
+    expect((await submit(eleven)).status).toBe(400)
+    const longName = { ...participant("FEMALE", [termIds[0]]), lastName: "x".repeat(101) }
+    expect((await submit([longName])).status).toBe(400)
+    expect(await prisma.application.count({ where: { eventId } })).toBe(before)
+  })
+
+  it("confirms nothing in a term cancelled after the event was read", async () => {
+    const term = await prisma.term.create({
+      data: {
+        organizationId: (await prisma.event.findUniqueOrThrow({ where: { id: eventId } }))
+          .organizationId,
+        eventId,
+        name: "Cancelled meanwhile",
+        startsOn: new Date("2027-08-01"),
+        endsOn: new Date("2027-08-02"),
+        priceCzk: 1000,
+        cancelledAt: new Date(),
+      },
+    })
+    const user = await prisma.user.findUniqueOrThrow({ where: { email: "ucastnik@example.com" } })
+    const event = await prisma.event.findUniqueOrThrow({ where: { id: eventId } })
+    const evaluate = jest.fn()
+
+    await expect(
+      new ApplicationsRepository(prisma).saveEvaluated(
+        event,
+        [
+          {
+            firstName: "Late",
+            lastName: "Applicant",
+            birthDate: "2014-05-18",
+            gender: "FEMALE",
+            termIds: [term.id],
+            email: "late@example.com",
+            locale: "en",
+            userId: user.id,
+            consentAt: new Date(),
+            accessToken: "cancelled-meanwhile",
+          },
+        ],
+        evaluate,
+      ),
+    ).rejects.toMatchObject({ status: 400 })
+    expect(evaluate).not.toHaveBeenCalled()
+    expect(await prisma.applicationTerm.count({ where: { termId: term.id } })).toBe(0)
+  })
+
+  it("answers an unknown link with 404 and an organizer's e-mail with a generic 400", async () => {
     const unknown = await fetch(api("/public/events/does-not-exist/applications"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -169,7 +220,8 @@ describe("submit application (integration)", () => {
     expect(unknown.status).toBe(404)
 
     const organizer = await submit([participant("MALE", [termIds[0]])], "organizator@example.com")
-    expect(organizer.status).toBe(409)
-    expect(((await organizer.json()) as { code: string }).code).toBe("EMAIL_NOT_ALLOWED")
+    // Same answer as invalid input, so the form doesn't reveal organizer e-mails.
+    expect(organizer.status).toBe(400)
+    expect(((await organizer.json()) as { code: string }).code).toBe("VALIDATION_FAILED")
   })
 })
