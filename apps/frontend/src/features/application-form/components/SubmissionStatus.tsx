@@ -78,6 +78,7 @@ export function SubmissionStatus({ accessToken }: SubmissionStatusProps) {
         </ul>
       </section>
 
+      {payers.length > 1 ? <PaymentTotal payers={payers} /> : null}
       {payers.length > 0 ? (
         payers.map((application) => (
           <PaymentCard
@@ -143,6 +144,25 @@ function TermStatusCard({
         </div>
       </Card>
     </li>
+  )
+}
+
+/**
+ * Several paying participants: the total first, then a card per participant, because each
+ * application is paid separately under its own variable symbol (issue #153). No Figma frame yet.
+ */
+function PaymentTotal({ payers }: { payers: SubmittedApplication[] }) {
+  const { t } = useTranslation("applicationForm")
+  const total = payers.reduce((sum, application) => sum + (application.payment?.amountCzk ?? 0), 0)
+
+  return (
+    <Card className="gap-4 p-4 sm:p-6">
+      <h2 className="text-2xl font-semibold sm:text-lg">{t("confirmation.payment.totalTitle")}</h2>
+      <p className="text-4xl/11 font-bold text-link">
+        <MoneyAmount amountCzk={total} />
+      </p>
+      <p>{t("confirmation.payment.totalNote", { count: payers.length })}</p>
+    </Card>
   )
 }
 

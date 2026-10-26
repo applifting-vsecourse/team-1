@@ -1,6 +1,6 @@
 import { useRef } from "react"
 import { useMutation } from "@tanstack/react-query"
-import { Loader2, X } from "lucide-react"
+import { Loader2 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ErrorState } from "@/components/molecules/ErrorState"
@@ -53,7 +53,6 @@ export function RoomModeDialog({
       }}
     >
       <DialogContent
-        showCloseButton={false}
         className="max-h-[90dvh] overflow-y-auto bg-card shadow-md sm:max-w-170"
         onOpenAutoFocus={(e) => {
           e.preventDefault()
@@ -61,20 +60,10 @@ export function RoomModeDialog({
         }}
       >
         <p className="text-xs font-medium text-muted-foreground uppercase">{event.eventName}</p>
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center justify-between gap-4 pr-8">
           <DialogTitle>
             {t(isBlocked ? "rooms.modeChange.blockedTitle" : "rooms.modeChange.title")}
           </DialogTitle>
-          <DialogClose asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              disabled={mutation.isPending}
-              aria-label={t("rooms.close")}
-            >
-              <X className="size-5" />
-            </Button>
-          </DialogClose>
         </div>
         <Alert className="border-status-warning bg-status-warning-bg p-6">
           <AlertTitle className="text-lg text-status-warning">

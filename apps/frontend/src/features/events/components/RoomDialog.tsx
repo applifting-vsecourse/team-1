@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation } from "@tanstack/react-query"
-import { Loader2, X } from "lucide-react"
+import { Loader2 } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
@@ -100,23 +100,10 @@ export function RoomDialog({
         if (!isOpen && !isPending) onClose()
       }}
     >
-      <DialogContent
-        showCloseButton={false}
-        className="max-h-[90dvh] overflow-y-auto bg-card shadow-md sm:max-w-170"
-      >
+      <DialogContent className="max-h-[90dvh] overflow-y-auto bg-card shadow-md sm:max-w-170">
         <p className="text-xs font-medium text-muted-foreground uppercase">{event.eventName}</p>
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center justify-between gap-4 pr-8">
           <DialogTitle>{t(room ? "rooms.edit" : "rooms.add")}</DialogTitle>
-          <DialogClose asChild>
-            <Button
-              size="icon"
-              variant="ghost"
-              disabled={isPending}
-              aria-label={t("rooms.close")}
-            >
-              <X />
-            </Button>
-          </DialogClose>
         </div>
         <DialogDescription className="text-base">
           {t(
@@ -221,9 +208,9 @@ export function RoomDialog({
               {room ? (
                 <Button
                   type="button"
-                  variant="ghost"
+                  variant="destructive"
                   size="lg"
-                  className="text-destructive hover:text-destructive sm:mr-auto"
+                  className="sm:mr-auto"
                   disabled={isPending}
                   onClick={() => onDelete(room)}
                 >

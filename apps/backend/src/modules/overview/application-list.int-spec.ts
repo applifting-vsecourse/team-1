@@ -42,17 +42,17 @@ describe("application list API", () => {
 
   it("combines term, status, gender and payment without losing other terms", async () => {
     const source = await prisma.application.findFirstOrThrow({
-      where: { eventId, terms: { some: { status: "CONFIRMED" } } },
+      where: { eventId, terms: { some: { status: "CONFIRMED" } }, payments: { none: {} } },
       include: { terms: true },
     })
     const term = source.terms.find((term) => term.status === "CONFIRMED")!
     const rows = await (
-      await get(`?termId=${term.termId}&status=CONFIRMED&gender=${source.gender}&paid=false`)
+      await get(`?termId=${term.termId}&status=CONFIRMED&gender=${source.gender}&payment=UNPAID`)
     ).json()
     expect(rows.length).toBeGreaterThan(0)
     for (const row of rows) {
       expect(row.gender).toBe(source.gender)
-      expect(row.amountOwedCzk).toBeGreaterThan(0)
+      expect(row.paymentStatus).toBe("UNPAID")
       expect(row.terms).toEqual(
         expect.arrayContaining([expect.objectContaining({ id: term.termId, status: "CONFIRMED" })]),
       )
@@ -61,7 +61,12 @@ describe("application list API", () => {
   })
 
   it("validates filters and protects organization data", async () => {
-    for (const query of ["?paid=maybe", "?status=OTHER", "?gender=OTHER", `?q=${"a".repeat(101)}`])
+    for (const query of [
+      "?payment=NOTHING_DUE",
+      "?status=OTHER",
+      "?gender=OTHER",
+      `?q=${"a".repeat(101)}`,
+    ])
       expect((await get(query)).status).toBe(400)
     expect((await get("", "")).status).toBe(401)
     expect((await get("", await signIn("ucastnik@example.com", "password4"))).status).toBe(403)

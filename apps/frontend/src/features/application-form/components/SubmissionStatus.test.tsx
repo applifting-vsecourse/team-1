@@ -129,7 +129,26 @@ describe("SubmissionStatus", () => {
     expect(screen.getByText("0048")).toBeInTheDocument()
     expect(screen.getByText("0049")).toBeInTheDocument()
     expect(screen.getByText(/^Matěj:/)).toHaveTextContent(/7.400/)
-    expect(screen.queryByText(/14,300/)).not.toBeInTheDocument()
+    expect(screen.getByRole("heading", { name: "Total to pay" })).toBeVisible()
+  })
+
+  it("shows the total of all payers above their cards, and none for a single payer", async () => {
+    await renderStatus(
+      data({
+        applications: [
+          jana(),
+          person("Matěj", "Novák", "0049", "CONFIRMED", "2027-08-02", "2027-08-08", 7400),
+        ],
+      }),
+    )
+    const total = screen.getByRole("heading", { name: "Total to pay" }).parentElement!
+    expect(total).toHaveTextContent(/14.300/)
+    expect(total).toHaveTextContent("pay each application separately")
+  })
+
+  it("shows no total for a single payer", async () => {
+    await renderStatus(data())
+    expect(screen.queryByRole("heading", { name: "Total to pay" })).not.toBeInTheDocument()
   })
 
   it("shows a waitlisted term only as waiting for confirmation, with no payment for it", async () => {

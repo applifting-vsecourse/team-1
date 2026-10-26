@@ -133,4 +133,22 @@ describe("organizer events (integration)", () => {
     const foreign = await post(cookieB, { organizationId: organizationA.id, name: "Cizí" })
     expect(foreign.status).toBe(403)
   })
+
+  it("deletes only an event nobody has applied to", async () => {
+    const remove = (cookie: string, id: string): Promise<Response> =>
+      fetch(api(`/organizer/events/${id}`), { method: "DELETE", headers: { Cookie: cookie } })
+    const created = (await (await post(cookieA, { name: "Ke smazání" })).json()) as EventBody
+
+    expect((await remove(cookieB, created.id)).status).toBe(403)
+    expect((await remove(cookieA, created.id)).status).toBe(204)
+    expect(await prisma.event.findUnique({ where: { id: created.id } })).toBeNull()
+
+    const applied = await prisma.event.findFirstOrThrow({
+      where: { organization: { name: "Letní kemp z. s." }, applications: { some: {} } },
+    })
+    const conflict = await remove(cookieA, applied.id)
+    expect(conflict.status).toBe(409)
+    expect(await conflict.json()).toMatchObject({ code: "EVENT_HAS_APPLICATIONS" })
+    expect(await prisma.event.findUnique({ where: { id: applied.id } })).not.toBeNull()
+  })
 })

@@ -220,4 +220,36 @@ describe("PaymentDetail", () => {
       expect(remove).not.toHaveBeenCalled()
     },
   )
+  it("shows nothing due and no record button for an application without a confirmed term", async () => {
+    get.mockReturnValue({
+      json: () =>
+        Promise.resolve({
+          ...application,
+          terms: [{ ...application.terms[0], status: "WAITLISTED" }],
+          amountDueCzk: 0,
+          amountOwedCzk: 0,
+        }),
+    })
+    setup()
+    expect(await screen.findByText("Nothing to pay yet")).toBeInTheDocument()
+    expect(screen.getByText("Nothing due")).toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: "Record payment" })).not.toBeInTheDocument()
+  })
+
+  it("keeps the record button, as a secondary action, once the application is fully paid", async () => {
+    get.mockReturnValue({
+      json: () =>
+        Promise.resolve({
+          ...application,
+          amountPaidCzk: 6900,
+          amountOwedCzk: 0,
+          payments: [
+            { id: "p1", amountCzk: 6900, createdAt: "2027-03-10T12:00:00Z", recordedByName: "Eva" },
+          ],
+        }),
+    })
+    setup()
+    const button = await screen.findByRole("button", { name: "Record payment" })
+    expect(button.className).not.toContain("bg-primary")
+  })
 })

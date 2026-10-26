@@ -25,9 +25,10 @@ import {
 import { PaymentCancellation } from "@/features/event-overview/components/PaymentCancellation"
 import { PaymentEditor } from "@/features/event-overview/components/PaymentEditor"
 
-type PaymentState = "unpaid" | "partial" | "paid" | "overpaid"
+type PaymentState = "nothingDue" | "unpaid" | "partial" | "paid" | "overpaid"
 
 const STATE_BADGE = {
+  nothingDue: "secondary",
   unpaid: "secondary",
   partial: "warning",
   paid: "success",
@@ -35,6 +36,7 @@ const STATE_BADGE = {
 } as const
 
 const STATE_ALERT = {
+  nothingDue: "border-status-info bg-status-info-bg",
   unpaid: "border-status-info bg-status-info-bg",
   partial: "border-status-warning bg-status-warning-bg",
   paid: "border-status-success bg-status-success-bg",
@@ -43,6 +45,7 @@ const STATE_ALERT = {
 
 function paymentState(application: PaymentApplication): PaymentState {
   if (application.amountOwedCzk < 0) return "overpaid"
+  if (application.amountDueCzk === 0) return "nothingDue"
   if (application.payments.length === 0) return "unpaid"
   return application.amountOwedCzk === 0 ? "paid" : "partial"
 }
@@ -150,12 +153,17 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
                 {t("payment.refund")}
               </Button>
             ) : null}
-            <Button
-              size="lg"
-              onClick={() => setIsEditorOpen(true)}
-            >
-              {t("payment.record")}
-            </Button>
+            {/* Nothing to pay without a confirmed term (US-25); once paid, another payment
+                only creates an overpayment, so the action steps back. */}
+            {state === "nothingDue" ? null : (
+              <Button
+                variant={state === "paid" || isOverpaid ? "outline" : "default"}
+                size="lg"
+                onClick={() => setIsEditorOpen(true)}
+              >
+                {t("payment.record")}
+              </Button>
+            )}
           </div>
         </div>
       </div>
@@ -186,29 +194,33 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
           {t(
             isOverpaid
               ? "payment.overpaidTitle"
-              : state === "paid"
-                ? "payment.recorded"
-                : state === "partial"
-                  ? "payment.partialTitle"
-                  : "payment.waiting",
+              : state === "nothingDue"
+                ? "payment.nothingDueTitle"
+                : state === "paid"
+                  ? "payment.recorded"
+                  : state === "partial"
+                    ? "payment.partialTitle"
+                    : "payment.waiting",
             { amount: formatCzk(Math.abs(data.amountOwedCzk)) },
           )}
         </AlertTitle>
         <AlertDescription>
-          {state === "unpaid"
-            ? t("payment.waitingDescription", { amount: formatCzk(data.amountDueCzk) })
-            : t(
-                isOverpaid
-                  ? "payment.overpaidSummary"
-                  : state === "paid"
-                    ? "payment.settledSummary"
-                    : "payment.summary",
-                {
-                  due: formatCzk(data.amountDueCzk),
-                  paid: formatCzk(data.amountPaidCzk),
-                  owed: formatCzk(data.amountOwedCzk),
-                },
-              )}
+          {state === "nothingDue"
+            ? t("payment.nothingDueDescription")
+            : state === "unpaid"
+              ? t("payment.waitingDescription", { amount: formatCzk(data.amountDueCzk) })
+              : t(
+                  isOverpaid
+                    ? "payment.overpaidSummary"
+                    : state === "paid"
+                      ? "payment.settledSummary"
+                      : "payment.summary",
+                  {
+                    due: formatCzk(data.amountDueCzk),
+                    paid: formatCzk(data.amountPaidCzk),
+                    owed: formatCzk(data.amountOwedCzk),
+                  },
+                )}
         </AlertDescription>
       </Alert>
       <Card className="gap-4 p-4 md:p-6">

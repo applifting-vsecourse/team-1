@@ -39,10 +39,12 @@ describe("application list filters", () => {
   )
   it("ignores accents, combines search with filters and does not expose internal numbers", () => {
     const accented = { ...row, firstName: "Šárka", lastName: "Černá" }
-    expect(applicationList([accented], { q: "cerna SARKA", paid: "false" })).toHaveLength(1)
+    expect(
+      applicationList([accented], { q: "cerna SARKA", payment: "PARTIALLY_PAID" }),
+    ).toHaveLength(1)
     expect(applicationList([accented], { q: "cerna", gender: "MALE" })).toEqual([])
     expect(applicationList([row], { q: "nobody" })).toEqual([])
-    expect(applicationList([row], { q: "0048", paid: "true" })).toEqual([])
+    expect(applicationList([row], { q: "0048", payment: "PAID" })).toEqual([])
     expect(applicationList([row], { q: "0048" })[0]).not.toHaveProperty("number")
   })
   it("matches term and status on the same term and preserves every term and total", () => {
@@ -51,7 +53,7 @@ describe("application list filters", () => {
       applicationList([row], {
         termId: "t2",
         status: "WAITLISTED",
-        paid: "false",
+        payment: "PARTIALLY_PAID",
         gender: "FEMALE",
       })[0],
     ).toMatchObject({
@@ -62,19 +64,21 @@ describe("application list filters", () => {
     })
     expect(applicationList([row], { gender: "MALE" })).toEqual([])
   })
-  it("uses the whole balance including refunds and counts overpayments as settled", () => {
+  it("filters by each payment status using the whole balance including refunds", () => {
     const paid = { ...row, payments: [{ amountCzk: 1500 }, { amountCzk: -500 }] }
-    expect(applicationList([paid], { paid: "true" })[0].paymentStatus).toBe("PAID")
-    expect(applicationList([paid], { paid: "false" })).toEqual([])
-    expect(
-      applicationList([{ ...paid, payments: [{ amountCzk: 1500 }] }], { paid: "true" })[0]
-        .amountOwedCzk,
-    ).toBe(-500)
+    const overpaid = { ...paid, payments: [{ amountCzk: 1500 }] }
+    const unpaid = { ...paid, payments: [] }
+    expect(applicationList([paid], { payment: "PAID" })[0].paymentStatus).toBe("PAID")
+    expect(applicationList([paid], { payment: "PARTIALLY_PAID" })).toEqual([])
+    expect(applicationList([overpaid], { payment: "OVERPAID" })[0].amountOwedCzk).toBe(-500)
+    expect(applicationList([overpaid], { payment: "PAID" })).toEqual([])
+    expect(applicationList([unpaid], { payment: "UNPAID" })).toHaveLength(1)
+    expect(applicationList([row], { payment: "UNPAID" })).toEqual([])
   })
-  it("does not label waitlisted-only applications as paid or unpaid", () => {
+  it("does not label waitlisted-only applications with any payment status", () => {
     const waiting = { ...row, terms: [row.terms[1]], payments: [] }
-    expect(applicationList([waiting], { paid: "false" })).toEqual([])
-    expect(applicationList([waiting], { paid: "true" })).toEqual([])
+    for (const payment of ["UNPAID", "PARTIALLY_PAID", "PAID", "OVERPAID"] as const)
+      expect(applicationList([waiting], { payment })).toEqual([])
     expect(applicationList([waiting], {})[0].paymentStatus).toBe("NOTHING_DUE")
   })
 })

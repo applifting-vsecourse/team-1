@@ -148,9 +148,19 @@ describe("CapacityPage", () => {
     expect(screen.getByText(/Men: 6 confirmed for 5 beds/)).toBeVisible()
   })
 
-  it("shows an empty state without terms", async () => {
+  it("explains an unfinished event without terms and offers to add one", async () => {
     renderPage({ ...shared, terms: [] })
-    expect(await screen.findByText("The event has no active terms yet.")).toBeTruthy()
+    expect(await screen.findByText("The event is not finished yet")).toBeTruthy()
+    expect(screen.getByRole("link", { name: "Add term and price" })).toBeTruthy()
+    expect(screen.queryByText(/Capacity comes from the beds/)).toBeNull()
+  })
+
+  it("explains an unfinished event without rooms instead of showing empty bars", async () => {
+    renderPage({ ...gendered, roomCount: 0 })
+    expect(await screen.findByText("The event is not finished yet")).toBeTruthy()
+    expect(screen.getByText(/no rooms/)).toBeTruthy()
+    expect(screen.getByRole("link", { name: "Add room" })).toBeTruthy()
+    expect(screen.queryByRole("link", { name: "Add term and price" })).toBeNull()
   })
 
   it("shows an error state", async () => {

@@ -12,6 +12,7 @@
     "count_few": "{{count}} přihlášky",
     "count_one": "{{count}} přihláška",
     "count_other": "{{count}} přihlášek",
+    "detail": "Detail",
     "due": "Částka k úhradě",
     "empty": "Pro tento výběr jsme nenašli žádné přihlášky.",
     "error": "Přihlášky se nepodařilo načíst",
@@ -46,10 +47,11 @@
     "waitlisted": "Náhradník"
   },
   "capacity": {
+    "addRoom": "Přidat pokoj",
+    "addTerm": "Přidat termín a cenu",
     "backToTerms": "← Všechny termíny",
     "confirmedColumn": "Potvrzeno / kapacita",
     "confirmedOnly": "Volno se počítá pouze z potvrzených přihlášek.",
-    "empty": "Akce zatím nemá žádný aktivní termín.",
     "footnote": "Kapacita vychází z lůžek v pokojích. Pokoje jsou společné pro všechny termíny; volno se počítá jen z potvrzených přihlášek.",
     "freeColumn": "Volná místa",
     "freePlaces_few": "{{count}} volná místa",
@@ -88,6 +90,10 @@
     "title": "Kapacity",
     "totalCapacity": "Celková kapacita termínu",
     "totalCapacityBreakdown": "{{women}} lůžek pro ženy · {{men}} pro muže",
+    "unfinishedNoBoth": "Chybí termín s cenou a pokoje, takže zatím není co zobrazit.",
+    "unfinishedNoRoom": "Chybí pokoje, takže akce zatím nemá žádnou kapacitu.",
+    "unfinishedNoTerm": "Chybí termín s cenou, takže zatím není co zobrazit.",
+    "unfinishedTitle": "Akce ještě není dokončená",
     "waitlistedColumn": "Náhradníci",
     "women": "Ženy",
     "womenOnlyTitle": "Volná místa pro ženy nelze využít pro muže."
@@ -126,6 +132,8 @@
     "method": "Způsob",
     "noDebtHint": "Přihláška je uhrazená. Zadejte částku další platby.",
     "noPayment": "Žádná přijatá platba",
+    "nothingDueDescription": "Přihláška nemá potvrzený žádný termín, takže zatím nic neplatí. Platbu zapíšete, až se místo potvrdí.",
+    "nothingDueTitle": "Zatím nic k úhradě",
     "overpaid": "Přeplatek",
     "overpaidHelper": "K vrácení účastníkovi",
     "overpaidPreview": "Po uložení vznikne přeplatek: {{amount}}",
@@ -168,6 +176,7 @@
     "settled": "Přihláška je uhrazená",
     "settledSummary": "Zaplaceno {{paid}}; dluží {{owed}}. Každá přijatá platba je samostatně v historii.",
     "state": {
+      "nothingDue": "Bez částky k úhradě",
       "overpaid": "Přeplatek",
       "paid": "Zaplaceno",
       "partial": "Částečně zaplaceno",

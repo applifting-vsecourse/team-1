@@ -6,7 +6,7 @@ import {
   createRouter,
   RouterProvider,
 } from "@tanstack/react-router"
-import { render, screen } from "@testing-library/react"
+import { render, screen, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
@@ -60,11 +60,13 @@ describe("US-14 accommodation remains independent of US-26", () => {
     "keeps reading and editing rooms available in %s mode",
     async (mode) => {
       renderRooms(mode)
-      expect(await screen.findByText("Original room")).toBeInTheDocument()
+      // The table (md and up) and the phone list both render in jsdom; check the table.
+      const table = await screen.findByRole("table")
+      expect(within(table).getByText("Original room")).toBeInTheDocument()
       expect(screen.getByRole("button", { name: "Add room" })).toBeEnabled()
-      expect(screen.getByRole("button", { name: "Delete room Original room" })).toBeEnabled()
+      expect(within(table).getByRole("button", { name: "Delete room Original room" })).toBeEnabled()
       expect(screen.getByRole("combobox", { name: "Room mode" })).toBeEnabled()
-      await userEvent.click(screen.getByRole("button", { name: "Edit room Original room" }))
+      await userEvent.click(within(table).getByRole("button", { name: "Edit room Original room" }))
       expect(await screen.findByRole("spinbutton", { name: "Capacity *" })).toHaveValue(5000)
       expect(
         screen.queryByText(/Their capacity overview is not available yet/),

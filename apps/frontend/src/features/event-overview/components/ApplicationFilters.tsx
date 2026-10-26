@@ -22,7 +22,7 @@ import {
 
 import type { ApplicationsSearch } from "@/features/event-overview/lib/applications-search"
 
-type FilterKey = "status" | "paid" | "term"
+type FilterKey = "status" | "payment" | "term"
 type FilterOption = {
   key: FilterKey
   label: string
@@ -62,12 +62,14 @@ export function ApplicationFilters({
       ],
     },
     {
-      key: "paid",
+      key: "payment",
       label: t("applications.payment"),
       all: t("applications.allPayments"),
       values: [
-        { id: "true", name: t("applications.paid") },
-        { id: "false", name: t("applications.unpaid") },
+        { id: "UNPAID", name: t("applications.unpaid") },
+        { id: "PARTIALLY_PAID", name: t("applications.partial") },
+        { id: "PAID", name: t("applications.paid") },
+        { id: "OVERPAID", name: t("applications.overpaid") },
       ],
     },
     { key: "term", label: t("applications.term"), all: t("applications.allTerms"), values: terms },

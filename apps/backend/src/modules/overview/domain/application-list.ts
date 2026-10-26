@@ -14,8 +14,16 @@ export type ApplicationFilters = {
   termId?: string
   status?: ApplicationTermStatus
   gender?: Gender
-  paid?: "true" | "false"
+  payment?: FilterablePaymentStatus
 }
+/** Every payment status except "nothing due" can be filtered on (US-52). */
+export type FilterablePaymentStatus = Exclude<PaymentStatus, "NOTHING_DUE">
+export const FILTERABLE_PAYMENT_STATUSES: FilterablePaymentStatus[] = [
+  "UNPAID",
+  "PARTIALLY_PAID",
+  "PAID",
+  "OVERPAID",
+]
 export type ListedApplication = {
   number: number
   id: string
@@ -87,11 +95,5 @@ export function applicationList(
         paymentStatus: computePaymentStatus(amountDueCzk, amountPaidCzk),
       }
     })
-    .filter(
-      (row) =>
-        filters.paid === undefined ||
-        (filters.paid === "true"
-          ? row.amountDueCzk > 0 && row.amountOwedCzk <= 0
-          : row.amountOwedCzk > 0),
-    )
+    .filter((row) => filters.payment === undefined || row.paymentStatus === filters.payment)
 }

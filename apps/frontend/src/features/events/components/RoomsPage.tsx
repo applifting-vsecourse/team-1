@@ -21,7 +21,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { cn } from "@/lib/utils"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 
 import {
   roomModeSchema,
@@ -62,9 +69,6 @@ export function RoomsPage({ eventId }: { eventId: string }) {
     )
   }
   const isGendered = event.roomMode === "GENDERED"
-  const rowColumns = isGendered
-    ? "lg:grid-cols-[minmax(0,1fr)_8rem_10rem_6rem]"
-    : "lg:grid-cols-[minmax(0,1fr)_8rem_6rem]"
   const metrics = isGendered
     ? [
         {
@@ -106,14 +110,6 @@ export function RoomsPage({ eventId }: { eventId: string }) {
       <SectionHeader
         title={t("rooms.title")}
         description={t("rooms.description")}
-        actions={
-          <Button
-            size="lg"
-            onClick={() => setEditor("new")}
-          >
-            {t("rooms.add")}
-          </Button>
-        }
       />
       {query.isError ? (
         <ErrorState
@@ -162,55 +158,103 @@ export function RoomsPage({ eventId }: { eventId: string }) {
           <CardTitle>
             <h3>{t("rooms.listTitle")}</h3>
           </CardTitle>
-          <Button
-            asChild
-            variant="ghost"
-            size="lg"
-            className="text-link"
-          >
-            <Link
-              to={ROUTES.organizer.eventTerms}
-              params={{ eventId }}
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              asChild
+              variant="ghost"
+              size="lg"
+              className="text-link"
             >
-              {t("rooms.showTerms")}
-            </Link>
-          </Button>
+              <Link
+                to={ROUTES.organizer.eventTerms}
+                params={{ eventId }}
+              >
+                {t("rooms.showTerms")}
+              </Link>
+            </Button>
+            <Button
+              size="lg"
+              onClick={() => setEditor("new")}
+            >
+              {t("rooms.add")}
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           {event.rooms.length ? (
             <>
-              <div
-                className={cn(
-                  "hidden h-10 items-center gap-4 rounded-md bg-muted px-3 text-xs text-muted-foreground lg:grid",
-                  rowColumns,
-                )}
-              >
-                <span>{t("rooms.nameColumn")}</span>
-                <span className="text-right">{t("rooms.capacityColumn")}</span>
-                {isGendered ? <span>{t("rooms.genderColumn")}</span> : null}
-                <span className="sr-only">{t("rooms.actionsColumn")}</span>
+              {/* A table from md up, like the applications list; on a phone a list of rows. */}
+              <div className="hidden md:block">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>{t("rooms.nameColumn")}</TableHead>
+                      <TableHead className="text-right">{t("rooms.capacityColumn")}</TableHead>
+                      {isGendered ? <TableHead>{t("rooms.genderColumn")}</TableHead> : null}
+                      <TableHead>
+                        <span className="sr-only">{t("rooms.actionsColumn")}</span>
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {event.rooms.map((room) => (
+                      <TableRow key={room.id}>
+                        <TableCell className="font-medium break-words whitespace-normal">
+                          {room.name}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {t("rooms.beds", { count: room.capacity })}
+                        </TableCell>
+                        {isGendered ? (
+                          <TableCell>
+                            {room.gender ? (
+                              <Badge variant="secondary">
+                                {t(room.gender === "FEMALE" ? "rooms.female" : "rooms.male")}
+                              </Badge>
+                            ) : null}
+                          </TableCell>
+                        ) : null}
+                        <TableCell>
+                          <div className="flex justify-end gap-1">
+                            <Button
+                              variant="ghost"
+                              size="icon-lg"
+                              aria-label={t("rooms.editRoom", { name: room.name })}
+                              onClick={() => setEditor(room)}
+                            >
+                              <Pencil />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon-lg"
+                              aria-label={t("rooms.deleteRoom", { name: room.name })}
+                              onClick={() => setDeleting(room)}
+                            >
+                              <Trash2 />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
               </div>
-              <ul className="flex flex-col">
+              <ul className="divide-y md:hidden">
                 {event.rooms.map((room) => (
                   <li
                     key={room.id}
-                    className={cn(
-                      "grid min-h-14 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-1 border-b px-3 py-2 text-sm last:border-b-0",
-                      rowColumns,
-                    )}
+                    className="flex items-center gap-4 py-3"
                   >
-                    <span className="font-medium break-words">{room.name}</span>
-                    <span className="text-muted-foreground lg:text-right lg:text-foreground">
-                      {t("rooms.beds", { count: room.capacity })}
-                    </span>
-                    {isGendered && room.gender ? (
-                      <span>
-                        <Badge variant="secondary">
-                          {t(room.gender === "FEMALE" ? "rooms.female" : "rooms.male")}
-                        </Badge>
+                    <div className="flex min-w-0 flex-1 flex-col gap-1">
+                      <span className="font-medium break-words">{room.name}</span>
+                      <span className="text-sm text-muted-foreground">
+                        {t("rooms.beds", { count: room.capacity })}
+                        {room.gender
+                          ? ` · ${t(room.gender === "FEMALE" ? "rooms.female" : "rooms.male")}`
+                          : ""}
                       </span>
-                    ) : null}
-                    <div className="col-start-2 row-span-2 row-start-1 flex justify-end gap-1 lg:col-start-auto lg:row-span-1 lg:row-start-auto">
+                    </div>
+                    <div className="flex gap-1">
                       <Button
                         variant="ghost"
                         size="icon-lg"

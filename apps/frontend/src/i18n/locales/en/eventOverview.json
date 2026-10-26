@@ -12,6 +12,7 @@
     "count_few": "{{count}} applications",
     "count_one": "{{count}} application",
     "count_other": "{{count}} applications",
+    "detail": "Detail",
     "due": "Amount due",
     "empty": "We found no applications matching this selection.",
     "error": "Could not load applications",
@@ -46,10 +47,11 @@
     "waitlisted": "Waitlisted"
   },
   "capacity": {
+    "addRoom": "Add room",
+    "addTerm": "Add term and price",
     "backToTerms": "← All terms",
     "confirmedColumn": "Confirmed / capacity",
     "confirmedOnly": "Free places are counted from confirmed applications only.",
-    "empty": "The event has no active terms yet.",
     "footnote": "Capacity comes from the beds in rooms. Rooms are shared by all terms; free places are counted from confirmed applications only.",
     "freeColumn": "Free places",
     "freePlaces_few": "{{count}} free places",
@@ -88,6 +90,10 @@
     "title": "Capacity",
     "totalCapacity": "Total term capacity",
     "totalCapacityBreakdown": "{{women}} beds for women · {{men}} for men",
+    "unfinishedNoBoth": "It has no term with a price and no rooms, so there is nothing to show yet.",
+    "unfinishedNoRoom": "It has no rooms, so it has no capacity yet.",
+    "unfinishedNoTerm": "It has no term with a price, so there is nothing to show yet.",
+    "unfinishedTitle": "The event is not finished yet",
     "waitlistedColumn": "Waitlisted",
     "women": "Women",
     "womenOnlyTitle": "Free places for women cannot be used for men."
@@ -126,6 +132,8 @@
     "method": "Method",
     "noDebtHint": "The application is paid. Enter the amount of the additional payment.",
     "noPayment": "No payment received",
+    "nothingDueDescription": "The application has no confirmed term, so nothing is due yet. Record a payment once a place is confirmed.",
+    "nothingDueTitle": "Nothing to pay yet",
     "overpaid": "Overpayment",
     "overpaidHelper": "To be refunded to the participant",
     "overpaidPreview": "After saving, overpayment: {{amount}}",
@@ -168,6 +176,7 @@
     "settled": "The application is paid",
     "settledSummary": "Paid {{paid}}; owed {{owed}}. Each received payment is listed separately in the history.",
     "state": {
+      "nothingDue": "Nothing due",
       "overpaid": "Overpayment",
       "paid": "Paid",
       "partial": "Partially paid",

@@ -75,4 +75,15 @@ export class EventsRepository {
     const row = await this.prisma.event.create({ data: event, include })
     return toStored(row)
   }
+
+  /**
+   * Deletes the event with its terms and rooms, but only while it has no application;
+   * the condition is part of the delete, so an application arriving meanwhile wins.
+   */
+  async deleteWithoutApplications(id: string): Promise<boolean> {
+    const { count } = await this.prisma.event.deleteMany({
+      where: { id, applications: { none: {} } },
+    })
+    return count === 1
+  }
 }
