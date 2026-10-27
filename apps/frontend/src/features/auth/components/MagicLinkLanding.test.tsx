@@ -38,6 +38,22 @@ describe("MagicLinkLanding", () => {
     expect(assign).not.toHaveBeenCalled()
   })
 
+  it("does not promise a password to someone who may already have one", () => {
+    renderLanding({ token: "abc" })
+
+    expect(screen.getByText("Sign in with a link")).toBeInTheDocument()
+    expect(screen.getByText(/If you don't have a password yet/)).toBeInTheDocument()
+    expect(screen.queryByText("First access")).not.toBeInTheDocument()
+  })
+
+  it("does not promise a password to someone who may already have one", () => {
+    renderLanding({ token: "abc" })
+
+    expect(screen.getByText("Sign in with a link")).toBeInTheDocument()
+    expect(screen.getByText(/If you don't have a password yet/)).toBeInTheDocument()
+    expect(screen.queryByText("First access")).not.toBeInTheDocument()
+  })
+
   it("spends it on the click: goes to the verify endpoint with where to return", async () => {
     const assign = vi.fn()
     vi.stubGlobal("location", { origin: "http://localhost:3050", assign })
