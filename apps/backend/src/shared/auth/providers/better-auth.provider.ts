@@ -47,6 +47,13 @@ const createAuth = (
         await emailProvider.sendEmail(user.email, resetPasswordSubject(locale), html)
       },
     },
+    // Sliding session: it ends after 7 days without a visit and is extended at
+    // most once a day while in use. Sessions signed in without "remember me"
+    // last only 24 h and are never extended, so sign-in always remembers.
+    session: {
+      expiresIn: 60 * 60 * 24 * 7,
+      updateAge: 60 * 60 * 24,
+    },
     trustedOrigins: [config.frontendUrl],
     emailVerification: {
       sendVerificationEmail: async ({ user, url }) => {

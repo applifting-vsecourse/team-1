@@ -46,4 +46,19 @@ describe("useSignIn", () => {
     const session = await queryClient.ensureQueryData(authSessionQueryOptions())
     expect(session?.user.email).toBe(sessionUser.email)
   })
+
+  // Without it better-auth caps the session at 24 h and never extends it.
+  it("signs in with a remembered session", async () => {
+    const queryClient = new QueryClient()
+    const wrapper = ({ children }: { children: ReactNode }) => (
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    )
+    const { result } = renderHook(() => useSignIn("ORGANIZER"), { wrapper })
+
+    await result.current.mutateAsync({ email: sessionUser.email, password: "password1" })
+
+    expect(authClient.signIn.email).toHaveBeenCalledWith(
+      expect.objectContaining({ rememberMe: true }),
+    )
+  })
 })
