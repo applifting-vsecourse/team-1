@@ -41,7 +41,10 @@
   "pages": {
     "error": {
       "action": "Načíst znovu",
-      "description": "Došlo k neočekávané chybě.",
+      "body": "Zkuste stránku načíst znovu. Pokud se chyba opakuje, pokračujte na úvodní stránku a zkuste to později.",
+      "cardTitle": "Co můžete udělat",
+      "description": "Stránku se nepodařilo zobrazit.",
+      "homeAction": "Na úvodní stránku",
       "title": "Něco se pokazilo"
     },
     "forbidden": {
@@ -53,6 +56,8 @@
     },
     "notFound": {
       "action": "Na úvodní stránku",
+      "body": "Zkontrolujte adresu v prohlížeči, nebo pokračujte na úvodní stránku.",
+      "cardTitle": "Co dál",
       "description": "Stránka neexistuje, nebo byl odkaz zadán špatně.",
       "title": "Stránka nenalezena"
     }

@@ -36,8 +36,8 @@ export function ForbiddenPage({ variant }: ForbiddenPageProps) {
       description={variant?.description ?? `403 · ${t("pages.forbidden.description")}`}
       cardTitle={variant?.cardTitle ?? t("pages.forbidden.cardTitle")}
     >
-      <p className="text-muted-foreground">{variant?.body ?? t("pages.forbidden.body")}</p>
-      <div className="flex flex-col gap-3 pt-2">
+      <p>{variant?.body ?? t("pages.forbidden.body")}</p>
+      <div className="flex flex-col gap-5">
         {variant?.actions ?? (
           <Button
             asChild

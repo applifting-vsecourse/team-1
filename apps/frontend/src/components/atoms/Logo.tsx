@@ -3,7 +3,7 @@ import { Link } from "@tanstack/react-router"
 import { ROUTES } from "@/app/routes"
 
 /** Togena symbol (Figma DS / Brand / Togena symbol), drawn in the primary colour. */
-function LogoSymbol({ className }: { className?: string }) {
+export function LogoSymbol({ className }: { className?: string }) {
   return (
     <svg
       viewBox="0 0 32 32"
