@@ -109,7 +109,7 @@ function NewEventCard({ organizations }: { organizations: OrganizationSummary[] 
       },
       {
         onSuccess: (event) => {
-          notify.success(t("list.createdTitle"), t("list.created", { name: event.name }))
+          notify.success(t("list.created", { name: event.name }))
           void navigate({ to: ROUTES.organizer.events, search: { created: event.id } })
         },
       },
