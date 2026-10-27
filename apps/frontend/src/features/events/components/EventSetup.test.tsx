@@ -8,8 +8,9 @@ import {
 } from "@tanstack/react-router"
 import { render, screen, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import { toast } from "sonner"
 import { afterEach, describe, expect, it, vi } from "vitest"
+
+import { notify } from "@/lib/notify"
 
 import { EventSetup } from "@/features/events/components/EventSetup"
 
@@ -96,7 +97,7 @@ describe("EventSetup", () => {
   it("copies the link of a ready event and confirms it", async () => {
     const writeText = vi.fn().mockResolvedValue(undefined)
     Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true })
-    const success = vi.spyOn(toast, "success")
+    const success = vi.spyOn(notify, "success")
     renderSetup({ ...base, termCount: 2, roomCount: 3, applicationsOpen: true, missing: [] })
 
     await userEvent.click(await screen.findByRole("button", { name: "Copy application link" }))
@@ -109,7 +110,7 @@ describe("EventSetup", () => {
   it("copies the application URL using the icon next to the link", async () => {
     const writeText = vi.fn().mockResolvedValue(undefined)
     Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true })
-    const success = vi.spyOn(toast, "success")
+    const success = vi.spyOn(notify, "success")
     renderSetup({ ...base, termCount: 2, roomCount: 3, applicationsOpen: true, missing: [] })
 
     const icon = await screen.findByRole("button", { name: "Copy link" })
@@ -121,7 +122,7 @@ describe("EventSetup", () => {
     expect(success).toHaveBeenCalledWith("Link copied to the clipboard")
   })
   it("deletes the event after confirmation and returns to the event list", async () => {
-    const success = vi.spyOn(toast, "success")
+    const success = vi.spyOn(notify, "success")
     renderSetup(base, () => new Response(null, { status: 204 }))
     const user = userEvent.setup()
 

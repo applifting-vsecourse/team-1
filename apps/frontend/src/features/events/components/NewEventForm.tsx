@@ -6,7 +6,6 @@ import type { TFunction } from "i18next"
 import { CircleAlert, Loader2 } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
-import { toast } from "sonner"
 import { z } from "zod"
 
 import { ROUTES } from "@/app/routes"
@@ -35,6 +34,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
+import { notify } from "@/lib/notify"
 
 import {
   myOrganizationsQueryOptions,
@@ -109,7 +109,7 @@ function NewEventCard({ organizations }: { organizations: OrganizationSummary[] 
       },
       {
         onSuccess: (event) => {
-          toast.success(t("list.created", { name: event.name }))
+          notify.success(t("list.created", { name: event.name }))
           void navigate({ to: ROUTES.organizer.events, search: { created: event.id } })
         },
       },

@@ -8,8 +8,9 @@ import {
 } from "@tanstack/react-router"
 import { render, screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import { toast } from "sonner"
 import { afterEach, describe, expect, it, vi } from "vitest"
+
+import { notify } from "@/lib/notify"
 
 import { EventTerms } from "@/features/events/components/EventTerms"
 
@@ -143,7 +144,7 @@ describe("EventTerms", () => {
   })
 
   it("adds a term and confirms it", async () => {
-    const success = vi.spyOn(toast, "success")
+    const success = vi.spyOn(notify, "success")
     const fetchMock = renderTerms()
     await userEvent.click(await screen.findByRole("button", { name: "Add term" }))
     const dialog = await screen.findByRole("dialog")
@@ -165,7 +166,7 @@ describe("EventTerms", () => {
   })
 
   it("accepts a price of 0 for a free term", async () => {
-    const success = vi.spyOn(toast, "success")
+    const success = vi.spyOn(notify, "success")
     renderTerms()
     await userEvent.click(await screen.findByRole("button", { name: "Add term" }))
     const dialog = await screen.findByRole("dialog")

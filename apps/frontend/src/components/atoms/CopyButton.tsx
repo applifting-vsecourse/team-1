@@ -1,17 +1,17 @@
 import { Copy } from "lucide-react"
 import { useTranslation } from "react-i18next"
-import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
+import { notify } from "@/lib/notify"
 
 export function CopyButton({ value, label }: { value: string; label: string }) {
   const { t } = useTranslation()
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(value)
-      toast.success(t("clipboard.copied"))
+      notify.success(t("clipboard.copied"))
     } catch {
-      toast.error(t("clipboard.failed"))
+      notify.error(t("clipboard.failed"))
     }
   }
 

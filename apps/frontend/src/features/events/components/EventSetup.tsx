@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
 import { Circle, CircleAlert, CircleCheck, Copy } from "lucide-react"
 import { useTranslation } from "react-i18next"
-import { toast } from "sonner"
 
 import { ROUTES } from "@/app/routes"
 import { ErrorState } from "@/components/molecules/ErrorState"
@@ -12,6 +11,7 @@ import { SectionHeader } from "@/components/molecules/SectionHeader"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { notify } from "@/lib/notify"
 
 import { eventQueryOptions, type OrganizerEvent } from "@/features/events/api/events"
 import { DeleteEventDialog } from "@/features/events/components/DeleteEventDialog"
@@ -47,7 +47,7 @@ export function EventSetup({ eventId }: { eventId: string }) {
     try {
       await navigator.clipboard.writeText(link)
       setIsCopied(true)
-      toast.success(t("overview.copied"))
+      notify.success(t("overview.copied"))
     } catch {
       setIsCopied(false)
     }

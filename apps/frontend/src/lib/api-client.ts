@@ -17,7 +17,7 @@ import { authKeys } from "@/lib/auth-keys"
 // both `api.get("organizer/events")` and `api.get("/organizer/events")` hit the same endpoint.
 type ErrorCode = keyof (typeof resources)["en"]["errors"]
 
-const isKnownErrorCode = (code: unknown): code is ErrorCode =>
+export const isKnownErrorCode = (code: unknown): code is ErrorCode =>
   typeof code === "string" && code in resources.en.errors
 
 const errorBodySchema = z.object({
