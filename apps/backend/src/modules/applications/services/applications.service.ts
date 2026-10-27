@@ -10,6 +10,7 @@ import { ApplicationConfirmationMailer } from "@/modules/participants/services/a
 import { ParticipantAccountsService } from "@/modules/participants/services/participant-accounts.service"
 import { Gender } from "@/shared/domain/gender"
 import { AppException } from "@/shared/errors/app.exception"
+import { KeyedMutex } from "@/shared/utils/keyed-mutex"
 import { generateToken } from "@/shared/utils/token"
 import { HttpStatus, Injectable, Logger } from "@nestjs/common"
 
@@ -27,6 +28,7 @@ export type SubmitApplicationInput = {
 @Injectable()
 export class ApplicationsService {
   private readonly logger = new Logger(ApplicationsService.name)
+  private readonly eventLocks = new KeyedMutex()
 
   constructor(
     private readonly repository: ApplicationsRepository,
@@ -60,40 +62,48 @@ export class ApplicationsService {
       }
     }
 
-    // Before the account is created: a rejected duplicate must leave nothing behind.
-    await this.repository.assertNoDuplicate(event.id, input.participants)
-
-    // Own connection, so it runs before the evaluation transaction starts.
-    const first = input.participants[0]
-    const account = await this.accounts.ensureAccount({
-      email: input.email,
-      name: `${first.firstName} ${first.lastName}`,
-      locale,
-    })
-
-    const consentAt = new Date()
     const email = input.email.trim().toLowerCase()
-    const applications: NewApplication[] = input.participants.map((participant) => ({
-      ...participant,
-      email,
-      locale,
-      userId: account.userId,
-      consentAt,
-      accessToken: generateToken(),
-    }))
+    // One submission per event at a time: the duplicate check and the account
+    // creation below are outside the event lock of `saveEvaluated`, so without
+    // this two identical requests with new e-mails would both create an account
+    // before one of them is rejected (US-23). Single backend instance only —
+    // the check under the event lock stays as the guard for the data itself.
+    const { account, applications, saved } = await this.eventLocks.run(event.id, async () => {
+      // Before the account is created: a rejected duplicate must leave nothing behind.
+      await this.repository.assertNoDuplicate(event.id, input.participants)
 
-    const saved = await this.repository.saveEvaluated(event, applications, (snapshot) =>
-      evaluateSubmission(
-        applications.map((application) => ({
-          gender: application.gender,
-          terms: application.termIds.map((termId) => ({
-            termId,
-            priceCzk: priceByTerm.get(termId) as number,
+      // Own connection, so it runs before the evaluation transaction starts.
+      const first = input.participants[0]
+      const account = await this.accounts.ensureAccount({
+        email: input.email,
+        name: `${first.firstName} ${first.lastName}`,
+        locale,
+      })
+
+      const consentAt = new Date()
+      const applications: NewApplication[] = input.participants.map((participant) => ({
+        ...participant,
+        email,
+        locale,
+        userId: account.userId,
+        consentAt,
+        accessToken: generateToken(),
+      }))
+
+      const saved = await this.repository.saveEvaluated(event, applications, (snapshot) =>
+        evaluateSubmission(
+          applications.map((application) => ({
+            gender: application.gender,
+            terms: application.termIds.map((termId) => ({
+              termId,
+              priceCzk: priceByTerm.get(termId) as number,
+            })),
           })),
-        })),
-        snapshot,
-      ),
-    )
+          snapshot,
+        ),
+      )
+      return { account, applications, saved }
+    })
 
     await this.sendConfirmation(event, email, locale, account.mustSetPassword, applications, saved)
     return saved

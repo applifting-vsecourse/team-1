@@ -264,17 +264,22 @@ describe("submit application (integration)", () => {
       expect(await prisma.application.count({ where: { eventId } })).toBe(before)
     })
 
-    it("lets only one of many concurrent identical submissions through", async () => {
+    it("lets only one of many concurrent identical submissions through and leaves no account of the rest", async () => {
       const [t1, t2] = termIds
+      const emails = Array.from({ length: 6 }, (_, i) => `race-${i}@example.com`)
       const responses = await Promise.all(
-        Array.from({ length: 6 }, () =>
-          submit([person([t1, t2], { firstName: "Karel", lastName: "Souběžný" })]),
+        emails.map((email) =>
+          submit([person([t1, t2], { firstName: "Karel", lastName: "Souběžný" })], email),
         ),
       )
       expect(responses.map((response) => response.status).sort()).toEqual([
         201, 409, 409, 409, 409, 409,
       ])
       expect(await countByName("Souběžný")).toBe(1)
+      // Only the e-mail of the stored application has an account.
+      const accounts = await prisma.user.findMany({ where: { email: { in: emails } } })
+      expect(accounts).toHaveLength(1)
+      expect(await prisma.application.count({ where: { userId: accounts[0].id } })).toBe(1)
     })
   })
 
