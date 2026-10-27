@@ -37,8 +37,8 @@ export function ErrorPage({ error }: ErrorPageProps) {
       description={t("pages.error.description")}
       cardTitle={t("pages.error.cardTitle")}
     >
-      <p className="text-muted-foreground">{t("pages.error.body")}</p>
-      <div className="flex flex-col gap-3 pt-2">
+      <p>{t("pages.error.body")}</p>
+      <div className="flex flex-col gap-5">
         <Button
           size="lg"
           className="w-full"

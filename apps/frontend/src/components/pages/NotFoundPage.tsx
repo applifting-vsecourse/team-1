@@ -25,8 +25,8 @@ export function NotFoundPage() {
       description={`404 · ${t("pages.notFound.description")}`}
       cardTitle={t("pages.notFound.cardTitle")}
     >
-      <p className="text-muted-foreground">{t("pages.notFound.body")}</p>
-      <div className="flex flex-col gap-3 pt-2">
+      <p>{t("pages.notFound.body")}</p>
+      <div className="flex flex-col gap-5">
         <Button
           asChild
           size="lg"
