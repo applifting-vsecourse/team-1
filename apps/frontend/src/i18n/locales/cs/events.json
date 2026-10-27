@@ -2,7 +2,7 @@
   "delete": {
     "action": "Smazat akci",
     "confirm": "Smazat akci",
-    "deleted": "Akce {{name}} je smazaná",
+    "deleted": "Akce {{name}} byla smazána.",
     "description": "Smaže se akce i její termíny a pokoje. Smazat jde jen akci, na kterou ještě nikdo nepodal přihlášku. Tuto akci nejde vrátit.",
     "failed": "Akci se nepodařilo smazat",
     "hint": "Akci, na kterou ještě nikdo nepodal přihlášku, můžete smazat.",

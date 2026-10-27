@@ -2,7 +2,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useNavigate } from "@tanstack/react-router"
 import { Loader2 } from "lucide-react"
 import { useTranslation } from "react-i18next"
-import { toast } from "sonner"
 
 import { ROUTES } from "@/app/routes"
 import { ErrorState } from "@/components/molecules/ErrorState"
@@ -16,6 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { notify } from "@/lib/notify"
 
 import { deleteEvent, eventKeys, type OrganizerEvent } from "@/features/events/api/events"
 
@@ -39,7 +39,7 @@ export function DeleteEventDialog({
     onSuccess: async () => {
       client.removeQueries({ queryKey: eventKeys.detail(event.id) })
       await client.invalidateQueries({ queryKey: eventKeys.all() })
-      toast.success(t("delete.deleted", { name: event.name }))
+      notify.success(t("delete.deleted", { name: event.name }))
       await navigate({ to: ROUTES.organizer.events })
     },
   })
