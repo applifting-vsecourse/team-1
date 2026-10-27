@@ -3,6 +3,7 @@ import { useRouterState } from "@tanstack/react-router"
 import { Menu, PanelLeftClose, PanelLeftOpen } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { EmbeddedPageContext } from "@/components/atoms/EmbeddedPage"
 import { Logo } from "@/components/atoms/Logo"
 import { LanguageSwitcher } from "@/components/molecules/LanguageSwitcher"
 import { ThemeSwitcher } from "@/components/molecules/ThemeSwitcher"
@@ -153,7 +154,7 @@ export function AreaLayout({ nav, roleLabel, account, width, children }: AreaLay
         </div>
         <main className="px-4 pt-6 pb-12 md:px-8 md:pt-8">
           <div className={cn("flex w-full flex-col gap-6", width === "reading" && "max-w-196")}>
-            {children}
+            <EmbeddedPageContext.Provider value>{children}</EmbeddedPageContext.Provider>
           </div>
         </main>
       </div>

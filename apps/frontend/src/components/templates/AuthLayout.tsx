@@ -1,5 +1,6 @@
 import type { ReactNode } from "react"
 
+import { useIsEmbeddedPage } from "@/components/atoms/EmbeddedPage"
 import { Header } from "@/components/organisms/Header"
 import { Card } from "@/components/ui/card"
 
@@ -29,31 +30,43 @@ export function AuthLayout({
   children,
   footer,
 }: AuthLayoutProps) {
+  const isEmbedded = useIsEmbeddedPage()
+  const content = (
+    <div
+      className={
+        isEmbedded
+          ? "mx-auto flex w-full max-w-110 flex-col gap-6 pt-10 pb-12"
+          : "mx-auto flex w-full max-w-110 flex-col gap-6 px-4 pt-10 pb-12 md:pt-20 md:pb-28"
+      }
+    >
+      <div className="flex flex-col items-center gap-4 text-center">
+        {icon}
+        <div className="flex flex-col gap-2">
+          <h1 className="text-3xl font-bold md:text-4xl">{title}</h1>
+          <p className="text-muted-foreground">{description}</p>
+        </div>
+      </div>
+
+      {cardTitle ? (
+        <Card className="gap-5 p-6">
+          <h2 className="text-lg font-semibold">{cardTitle}</h2>
+          {children}
+        </Card>
+      ) : (
+        children
+      )}
+
+      {footer ? <p className="text-center text-sm text-muted-foreground">{footer}</p> : null}
+    </div>
+  )
+
+  // Embedded: the area layout already provides the header and `<main>`.
+  if (isEmbedded) return content
+
   return (
     <>
       <Header />
-      <main className="min-h-svh">
-        <div className="mx-auto flex w-full max-w-110 flex-col gap-6 px-4 pt-10 pb-12 md:pt-20 md:pb-28">
-          <div className="flex flex-col items-center gap-4 text-center">
-            {icon}
-            <div className="flex flex-col gap-2">
-              <h1 className="text-3xl font-bold md:text-4xl">{title}</h1>
-              <p className="text-muted-foreground">{description}</p>
-            </div>
-          </div>
-
-          {cardTitle ? (
-            <Card className="gap-5 p-6">
-              <h2 className="text-lg font-semibold">{cardTitle}</h2>
-              {children}
-            </Card>
-          ) : (
-            children
-          )}
-
-          {footer ? <p className="text-center text-sm text-muted-foreground">{footer}</p> : null}
-        </div>
-      </main>
+      <main className="min-h-svh">{content}</main>
     </>
   )
 }

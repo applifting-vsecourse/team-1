@@ -1,9 +1,9 @@
-import { Link, useRouter } from "@tanstack/react-router"
+import { Link } from "@tanstack/react-router"
 
 import { ROUTES } from "@/app/routes"
 
 /** Togena symbol (Figma DS / Brand / Togena symbol), drawn in the primary colour. */
-function LogoSymbol({ className }: { className?: string }) {
+export function LogoSymbol({ className }: { className?: string }) {
   return (
     <svg
       viewBox="0 0 32 32"
@@ -27,38 +27,15 @@ function LogoSymbol({ className }: { className?: string }) {
   )
 }
 
-/**
- * Symbol and the lowercase name. Sits in every header, centred on the sign-in pages.
- * Outside a router (the top-level error page) it falls back to a plain link.
- */
+/** Symbol and the lowercase name. Sits in every header, centred on the sign-in pages. */
 export function Logo({ isCompact = false }: { isCompact?: boolean }) {
-  const hasRouter = Boolean(useRouter({ warn: false }))
-  const className =
-    "flex items-center gap-2 text-lg font-semibold tracking-tight md:gap-3 md:text-2xl"
-  const content = (
-    <>
-      <LogoSymbol className="size-8 text-primary" />
-      <span className={isCompact ? "sr-only" : undefined}>togena</span>
-    </>
-  )
-
-  if (!hasRouter) {
-    return (
-      <a
-        href={ROUTES.home}
-        className={className}
-      >
-        {content}
-      </a>
-    )
-  }
-
   return (
     <Link
       to={ROUTES.home}
-      className={className}
+      className="flex items-center gap-2 text-lg font-semibold tracking-tight md:gap-3 md:text-2xl"
     >
-      {content}
+      <LogoSymbol className="size-8 text-primary" />
+      <span className={isCompact ? "sr-only" : undefined}>togena</span>
     </Link>
   )
 }
