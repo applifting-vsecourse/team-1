@@ -24,7 +24,9 @@ describe("RootErrorBoundary", () => {
     expect(screen.getByRole("heading", { name: "Something went wrong" })).toBeInTheDocument()
     expect(screen.queryByText(/provider exploded/)).not.toBeInTheDocument()
     expect(screen.getByRole("link", { name: /togena/ })).toHaveAttribute("href", "/")
-    expect(consoleError).toHaveBeenCalled()
+    expect(consoleError).toHaveBeenCalledWith(
+      expect.objectContaining({ message: "provider exploded" }),
+    )
   })
 
   it("renders its children when nothing fails", () => {
