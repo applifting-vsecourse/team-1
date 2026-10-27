@@ -1,6 +1,5 @@
 import fs from "node:fs"
 import path from "node:path"
-
 import { fixupConfigRules } from "@eslint/compat"
 import js from "@eslint/js"
 import pluginQuery from "@tanstack/eslint-plugin-query"
@@ -29,14 +28,8 @@ const featureZones = (() => {
 
 const typescriptRules = {
   "@typescript-eslint/consistent-type-definitions": ["error", "type"],
-  "@typescript-eslint/no-misused-promises": [
-    2,
-    { checksVoidReturn: { attributes: false } },
-  ],
-  "@typescript-eslint/consistent-type-imports": [
-    "warn",
-    { fixStyle: "inline-type-imports" },
-  ],
+  "@typescript-eslint/no-misused-promises": [2, { checksVoidReturn: { attributes: false } }],
+  "@typescript-eslint/consistent-type-imports": ["warn", { fixStyle: "inline-type-imports" }],
   "@typescript-eslint/no-unused-vars": [
     "error",
     {
@@ -64,6 +57,40 @@ const typescriptRules = {
   "@typescript-eslint/only-throw-error": "off",
 }
 
+// Toasts go through `notify` (src/lib/notify.ts); only that helper and the vendored
+// Toaster (src/components/ui, not linted) import `sonner`.
+function restrictedImports({ allowSonner }) {
+  return [
+    "error",
+    {
+      paths: [
+        {
+          name: "react",
+          importNames: ["default"],
+          message:
+            "Default React import is not necessary for JSX to work. Use named imports (e.g. `import { useEffect } from 'react'`).",
+        },
+        ...(allowSonner
+          ? []
+          : [
+              {
+                name: "sonner",
+                message:
+                  "Use notify from @/lib/notify instead of sonner (DESIGN.md: Toasts and alerts).",
+              },
+            ]),
+      ],
+      patterns: [
+        {
+          group: ["..*"],
+          message:
+            "Avoid using relative imports except sibling files. Use absolute imports instead.",
+        },
+      ],
+    },
+  ]
+}
+
 const commonRules = {
   "no-console": ["warn", { allow: ["warn", "error"] }],
   "no-restricted-syntax": [
@@ -75,26 +102,7 @@ const commonRules = {
     },
   ],
   curly: ["error", "multi-line"],
-  "no-restricted-imports": [
-    "error",
-    {
-      paths: [
-        {
-          name: "react",
-          importNames: ["default"],
-          message:
-            "Default React import is not necessary for JSX to work. Use named imports (e.g. `import { useEffect } from 'react'`).",
-        },
-      ],
-      patterns: [
-        {
-          group: ["..*"],
-          message:
-            "Avoid using relative imports except sibling files. Use absolute imports instead.",
-        },
-      ],
-    },
-  ],
+  "no-restricted-imports": restrictedImports({ allowSonner: false }),
 }
 
 // Atomic design: a layer may import only from layers below it
@@ -121,12 +129,7 @@ const importRules = {
           except: ["./routes.ts"],
         },
         {
-          target: [
-            "./src/components",
-            "./src/config",
-            "./src/hooks",
-            "./src/lib",
-          ],
+          target: ["./src/components", "./src/config", "./src/hooks", "./src/lib"],
           from: ["./src/features", "./src/app"],
           except: ["./routes.ts"],
         },
@@ -141,7 +144,7 @@ export default [
       "build/**",
       "dist/**",
       "src/routeTree.gen.ts",
-            // Vendored shadcn/ui primitives follow upstream conventions
+      // Vendored shadcn/ui primitives follow upstream conventions
       // (default React import, interface for props) that diverge from
       // the project's lint rules.
       "src/components/ui/**",
@@ -188,5 +191,9 @@ export default [
       ...commonRules,
       ...importRules,
     },
+  },
+  {
+    files: ["src/lib/notify.ts", "src/lib/notify.test.ts"],
+    rules: { "no-restricted-imports": restrictedImports({ allowSonner: true }) },
   },
 ]
