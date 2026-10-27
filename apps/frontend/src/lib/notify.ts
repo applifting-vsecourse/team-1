@@ -1,8 +1,5 @@
 import { toast } from "sonner"
 
-import { i18n } from "@/i18n"
-import { apiErrorCode, isKnownErrorCode } from "@/lib/api-client"
-
 /** Success and info toasts disappear after 4 s, warning and error after 8 s. */
 export const TOAST_DURATION = { success: 4000, info: 4000, warning: 8000, error: 8000 } as const
 
@@ -10,12 +7,6 @@ type Tone = keyof typeof TOAST_DURATION
 
 const show = (tone: Tone, title: string, description?: string) =>
   toast[tone](title, { description, duration: TOAST_DURATION[tone] })
-
-/** Description of a failed request: the translated message of its error code, never the raw one. */
-function serverErrorDescription(error: unknown): string | undefined {
-  const code = apiErrorCode(error)
-  return isKnownErrorCode(code) ? i18n.t(`errors:${code}`) : undefined
-}
 
 /**
  * The one way to show a toast. Title = result of the action, description only when it adds
@@ -28,7 +19,4 @@ export const notify = {
   info: (title: string, description?: string) => show("info", title, description),
   warning: (title: string, description?: string) => show("warning", title, description),
   error: (title: string, description?: string) => show("error", title, description),
-  /** An error toast for a failed request: the title says what failed, the description why. */
-  serverError: (title: string, error: unknown) =>
-    show("error", title, serverErrorDescription(error)),
 }
