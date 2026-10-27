@@ -7,7 +7,7 @@ pnpm monorepo with two apps (plus `apps/e2e` — Playwright E2E tests, rules in 
 - `apps/backend` — NestJS + Prisma + Postgres. Auth: BetterAuth (mounted at `/api/auth/*`, treat as a black box). API docs: Swagger at `/api/docs`.
 - `apps/frontend` — React + Vite + TanStack Router/Query, Tailwind + shadcn/ui, `ky` + `zod` API client.
 
-**Before deciding anything about product behaviour or architecture, read [`docs/PROJEKT.md`](docs/PROJEKT.md).** It records scope, decisions (several deliberately differ from the GitHub issues — section 11), the data model, routes, API paths and which stream owns which folder. When an issue and PROJEKT.md disagree, PROJEKT.md wins.
+**Before deciding anything about product behaviour or architecture, read [`docs/PROJEKT.md`](docs/PROJEKT.md).** It records scope, decisions (several deliberately differ from the GitHub issues — section 11), the data model, routes, API paths and which stream owns which folder. When an issue and PROJEKT.md disagree, PROJEKT.md wins; the process and state diagrams of an application in a term win over both ([Business rules and acceptance criteria](#business-rules-and-acceptance-criteria)).
 
 **Before writing or changing any UI, read [`DESIGN.md`](DESIGN.md).** It is a contract, not a suggestion — it exists to stop generated screens drifting into generic nested cards.
 
@@ -38,6 +38,18 @@ Everything a user reads — UI copy, e-mails, error messages — is localized En
 - Money and dates: `formatCzk` / `formatDate` from `@/lib`, never `toLocaleString` by hand.
 - Backend errors: throw `AppException(status, code)` with a code from `shared/errors/error-code.ts` and add the code to both `errors.json` files. Every error response is `{ statusCode, code, message }`.
 - E-mails: copy for both locales lives in the template; send in `User.locale` / `Application.locale`. Read the request language with `@RequestLocale()`.
+
+### Business rules and acceptance criteria
+
+A story is more than its title. Before writing code, read the story and the business documents it touches.
+
+- **Story:** `gh issue view <n>` — read the acceptance criteria („Akceptační kritéria“), „Kontext“, „Mimo rozsah“ and „Podklady“. What is under „Mimo rozsah“ is not done in this story.
+- **Names:** [`docs/SLOVNIK.md`](docs/SLOVNIK.md). Czech text uses the „Pojem“ column, code uses „V kódu“ — nothing third (not „pořadatel“, „turnus“, a bare „účet“).
+- **An application in a term** (status, evaluation, waitlist, payment, cancellation, archiving): the process and state diagram in [`docs/procesy/zpracovani-prihlasky/`](docs/procesy/zpracovani-prihlasky/README.md), in the folder of the evaluation mode the story is about (`rucni-vyhodnocovani/` or `automaticke-vyhodnocovani/`; the shared part is duplicated in both, so check both). E-mails to the applicant: [`EMAILY.md`](docs/procesy/zpracovani-prihlasky/EMAILY.md).
+- **When sources disagree, the higher one wins:** the process and state diagrams, then the decisions in PROJEKT.md (sections 10 and 11), then `schema.prisma`, then the issue text.
+- **Don't guess.** If the story, the documents and the code contradict each other, or a business rule the story needs is written nowhere, don't pick a side silently and don't invent a default. Build what the higher source says; where none decides, leave that part out. List every such case in the PR under „Nejasnosti k byznys pravidlům“: what each source says (file and section), what you did, and the question. An „Otevřená otázka na PO“ still in the issue counts as unresolved.
+- **Business questions go to Adam** (product manager, [Aadikk](https://github.com/Aadikk)), who takes them to the client. Start each with „Dotaz na Adama:“; don't ask the client yourself.
+- **Business documents change only when asked.** If the story needs a change in `docs/`, say so in the PR instead of editing it (exception: the journey table in `docs/E2E.md`, see „E2E tests“). Diagrams are edited in the `.yaml` and regenerated ([`docs/procesy/README_generate_py.md`](docs/procesy/README_generate_py.md)), never in the generated `.md` / `.mmd`.
 
 ### Backend structure
 
@@ -88,11 +100,28 @@ The pre-push review (`@reviewer`) can't open Figma; it only checks that new UI c
 
 ### Pull request size
 
-One PR per feature (user story): backend, frontend and tests together on one branch, closing the story (`Closes #23`). Don't split a story by layer (a backend PR and a frontend PR) or into „část 1/2“ parts. Keep the PR reviewable — aim for ~400 changed lines of code (not counting tests, migration SQL, lockfile, generated files) and ~20 files; when a story needs more, keep it in one PR and say in the PR body why it's bigger. The PR comment „Co se změnilo“ flags large PRs.
+One PR per feature (user story): backend, frontend and tests together on one branch, referencing the story (`Refs #23`; the product manager closes the issue). Don't split a story by layer (a backend PR and a frontend PR) or into „část 1/2“ parts. Keep the PR reviewable — aim for ~400 changed lines of code (not counting tests, migration SQL, lockfile, generated files) and ~20 files; when a story needs more, keep it in one PR and say in the PR body why it's bigger. The PR comment „Co se změnilo“ flags large PRs.
 
 ### E2E tests
 
 Only the core journeys listed in [`docs/E2E.md`](docs/E2E.md) get an E2E test (`apps/e2e`); everything else is a unit, API (`*.int-spec.ts`) or component test. When a story completes a journey from that list, add or enable its test in the same PR. Locators by role / label / text, English copy, no `waitForTimeout`, every test independent of the others.
+
+### Stay in the story's scope
+
+Build what the acceptance criteria ask and nothing else: no extra features, refactors, renames, dependency bumps, restyling or „když už jsem tady“ fixes, and nothing from „Mimo rozsah“. Something outside the scope that you notice goes into the PR as a one-line note under „Mimo rozsah story“ — suggest a follow-up issue, don't create it.
+
+When a demo is near (the user or the tech lead says so), the bar is higher: only changes that make an acceptance criterion pass. Don't touch the seed or the demo data (`apps/backend/src/scripts/seed/seed/sprint-demo-data.ts`, the demo accounts in [`CONTRIBUTING.md`](CONTRIBUTING.md)) — the demo and the E2E tests stand on them — and don't add migrations, dependencies or shared-file changes beyond what the story needs. A risky change the story doesn't need is a proposal in the PR, not a commit.
+
+### Before you open the PR
+
+Go through the acceptance criteria once more and compare them with what you built. In the PR body, under „Akceptační kritéria“, list each one as `✅ splněno — <test or file that shows it>`, `❌ nesplněno — <why>` or `❓ nelze ověřit — <what is missing>`. A criterion is met only when a test or a manual step you describe shows it. While any is ❌ or ❓, leave the matching PR-template checkbox unticked and write what is missing.
+
+Then tell the author what the PR still lacks — a short list in your last message, before the PR is opened and whenever it is updated:
+
+- **E2E test:** the story completes or changes a journey from the table in [`docs/E2E.md`](docs/E2E.md), but `apps/e2e` has no new or enabled test for it (rules in „E2E tests“; a changed UI text that a locator uses means a changed test; run `pnpm e2e test`). If no listed journey is touched, say „žádná cesta z docs/E2E.md se nemění“ and don't add an E2E test.
+- **Ticket link:** the branch is `feat/US-<n>-<slug>` (`fix/`, `chore/`, `docs/` for the rest), the PR title is the story title and the PR body starts with `Refs #<issue number>` — never `Closes`.
+- **Acceptance criteria:** the report above is in the PR body and the author has ticked the ✅ ones in the issue.
+- **Open items:** „Nejasnosti k byznys pravidlům“, „Odchylky od Figmy“ and „Mimo rozsah story“ are in the PR when they apply.
 
 ### Migrations
 

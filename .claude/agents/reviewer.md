@@ -19,7 +19,8 @@ The diff is given in the prompt. Before judging it, read the rules — don't rel
 1. `CLAUDE.md` — conventions (language, i18n, backend/frontend structure, migrations).
 2. `docs/PROJEKT.md` — scope and decisions. When an issue and PROJEKT.md disagree, PROJEKT.md wins.
 3. `DESIGN.md` — only when the diff touches `apps/frontend/src/**/*.tsx` or CSS.
-4. Open the changed files (and their neighbours) when the diff alone is not enough to be sure.
+4. `docs/SLOVNIK.md` and the process and state diagrams in `docs/procesy/zpracovani-prihlasky/` — only when the diff touches the status, evaluation, waitlist, payments or e-mails of an application.
+5. Open the changed files (and their neighbours) when the diff alone is not enough to be sure.
 
 Budget is small. Read what the diff needs, not the whole repository.
 
@@ -42,6 +43,8 @@ Only things that are clearly wrong and would hurt `main`. If you are not sure, i
 ## What is a WARNING
 
 Rule drift that should be fixed but does not break anything: a feature importing from another feature, `toLocaleString` instead of `formatCzk` / `formatDate`, a hand-rolled control instead of one from `components/ui`, shadows on anything but cards (`shadow-sm`) and floating elements (dropdowns, dialogs, toasts), domain logic without a unit test, a shared file (`schema.prisma`, `app.module.ts`, `routes.ts`, `components/*`) changed beyond the story's scope, one story split across several PRs (a backend PR and a frontend PR, „část 1/2“) — it belongs in one PR per feature, a PR over ~400 changed lines of code or ~20 files (excluding tests, migration SQL, lockfile, generated files) whose body doesn't say why it's that big — never suggest splitting it.
+
+Business rules (CLAUDE.md, "Business rules and acceptance criteria"): a term, status or entity name in code or UI copy that differs from `docs/SLOVNIK.md` („Pojem“ in text, „V kódu“ in code), or a status transition or e-mail that contradicts the process or state diagram. You can't see the story, so check only against the documents.
 
 UI that follows Figma (CLAUDE.md, "UI follows Figma"). You can't open Figma, so check only what the diff shows:
 
