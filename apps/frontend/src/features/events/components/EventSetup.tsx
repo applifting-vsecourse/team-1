@@ -27,6 +27,7 @@ import { applicationLink } from "@/features/events/lib/application-link"
 // Figma (Design system): O04b Potvrzení zkopírování odkazu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12265-1107
 export function EventSetup({ eventId }: { eventId: string }) {
   const { t } = useTranslation("events")
+  const { t: tCommon } = useTranslation()
   const { data: event, isPending, error, refetch } = useQuery(eventQueryOptions(eventId))
   const [isCopied, setIsCopied] = useState(false)
   const [isDeleteOpen, setIsDeleteOpen] = useState(false)
@@ -50,6 +51,7 @@ export function EventSetup({ eventId }: { eventId: string }) {
       notify.success(t("overview.copied"))
     } catch {
       setIsCopied(false)
+      notify.error(tCommon("clipboard.failed"))
     }
   }
 
