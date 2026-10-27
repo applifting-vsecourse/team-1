@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
 import { Circle, CircleAlert, CircleCheck, Copy } from "lucide-react"
 import { useTranslation } from "react-i18next"
-import { toast } from "sonner"
 
 import { ROUTES } from "@/app/routes"
 import { ErrorState } from "@/components/molecules/ErrorState"
@@ -12,6 +11,7 @@ import { SectionHeader } from "@/components/molecules/SectionHeader"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { notify } from "@/lib/notify"
 
 import { eventQueryOptions, type OrganizerEvent } from "@/features/events/api/events"
 import { DeleteEventDialog } from "@/features/events/components/DeleteEventDialog"
@@ -27,6 +27,7 @@ import { applicationLink } from "@/features/events/lib/application-link"
 // Figma (Design system): O04b Potvrzení zkopírování odkazu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12265-1107
 export function EventSetup({ eventId }: { eventId: string }) {
   const { t } = useTranslation("events")
+  const { t: tCommon } = useTranslation()
   const { data: event, isPending, error, refetch } = useQuery(eventQueryOptions(eventId))
   const [isCopied, setIsCopied] = useState(false)
   const [isDeleteOpen, setIsDeleteOpen] = useState(false)
@@ -47,9 +48,10 @@ export function EventSetup({ eventId }: { eventId: string }) {
     try {
       await navigator.clipboard.writeText(link)
       setIsCopied(true)
-      toast.success(t("overview.copied"))
+      notify.success(t("overview.copied"))
     } catch {
       setIsCopied(false)
+      notify.error(tCommon("clipboard.failedTitle"), tCommon("clipboard.failedDescription"))
     }
   }
 

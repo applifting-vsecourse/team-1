@@ -17,7 +17,7 @@ function RootComponent() {
       <Outlet />
       <Toaster
         richColors
-        position="top-right"
+        position="bottom-right"
       />
     </>
   )

@@ -12,7 +12,8 @@
     "copied": "Copied to the clipboard",
     "copyAccount": "Copy account number",
     "copyVariableSymbol": "Copy variable symbol",
-    "failed": "Could not copy. Copy the value manually."
+    "failedDescription": "Copy it manually.",
+    "failedTitle": "Copying failed"
   },
   "comingSoon": "Coming soon — {{story}}.",
   "eventTabs": {

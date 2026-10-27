@@ -2,7 +2,6 @@ import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Ban, MoreHorizontal, Pencil } from "lucide-react"
 import { useTranslation } from "react-i18next"
-import { toast } from "sonner"
 
 import { EmptyState } from "@/components/molecules/EmptyState"
 import { ErrorState } from "@/components/molecules/ErrorState"
@@ -19,6 +18,7 @@ import {
 import { Progress } from "@/components/ui/progress"
 import { formatDateRange } from "@/lib/date"
 import { formatTermPrice } from "@/lib/money"
+import { notify } from "@/lib/notify"
 import { cn } from "@/lib/utils"
 
 import { eventQueryOptions } from "@/features/events/api/events"
@@ -66,7 +66,7 @@ export function EventTerms({ eventId }: { eventId: string }) {
   const eventName = event.data.name
   const close = () => setDialog(null)
   const finish = ({ kind, term }: Change) => {
-    toast.success(t(`terms.notice.${kind}`, { name: term.name }))
+    notify.success(t(`terms.notice.${kind}`, { name: term.name }))
     setChangedId(kind === "cancelled" ? null : term.id)
     close()
   }

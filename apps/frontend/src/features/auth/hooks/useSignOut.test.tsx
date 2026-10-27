@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { ROUTES } from "@/app/routes"
 import { authKeys } from "@/lib/auth-keys"
+import { notify } from "@/lib/notify"
 
 import { useSignOut } from "@/features/auth/hooks/useSignOut"
 
@@ -53,5 +54,23 @@ describe("useSignOut", () => {
 
     await waitFor(() => expect(result.current.isError).toBe(true))
     expect(navigate).not.toHaveBeenCalled()
+  })
+
+  it("tells the user with an error toast when signing out fails", async () => {
+    signOut.mockResolvedValue({ error: { message: "boom" } })
+    const error = vi.spyOn(notify, "error").mockReturnValue("id")
+    const wrapper = ({ children }: { children: ReactNode }) => (
+      <QueryClientProvider client={new QueryClient()}>{children}</QueryClientProvider>
+    )
+    const { result } = renderHook(() => useSignOut(), { wrapper })
+
+    act(() => {
+      result.current.mutate()
+    })
+
+    await waitFor(() =>
+      expect(error).toHaveBeenCalledWith("Could not sign out", "Please try again."),
+    )
+    error.mockRestore()
   })
 })

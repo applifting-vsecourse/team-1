@@ -58,6 +58,14 @@ Use the scale only: `1, 2, 3, 4, 6, 8, 12, 16` (Tailwind units — 4px…64px). 
 - The submit button shows a pending state and is disabled while submitting.
 - Never disable a submit button just because the form is untouched — let the user try and show them what's wrong.
 
+## Toasts and alerts
+
+All toasts go through `notify` (`@/lib/notify`) — never `toast` from `sonner` directly (ESLint enforces it). Tones Success, Info, Warning, Error; bottom right (24 px inset on desktop; full width at the bottom with a 16 px inset on mobile); Success and Info disappear after 4 s, Warning and Error after 8 s. Component: DS / Toast in Figma.
+
+- **Toast**: confirmation of a finished action after which the dialog closes or the page changes (create, save, add, delete, copy link); an error of an action that has no form of its own (delete from a row menu, copy to clipboard failed). Short: the title is the result of the action, a description only when it adds information. No buttons or links. Never carries information the user needs for the next step.
+- **Alert in the page**: a form submission error (validation, server error) — it stays above the submit button until fixed; the state of the whole page (link sent, invalid link, what is missing to publish). A form that stays open shows its error with an Alert, not a toast.
+- Server errors are always shown as a translated message by error code (`errors.json`), never the raw message.
+
 ## Every list has three states
 
 Loading, empty, and error — all three, always. An empty list renders an empty state with one sentence saying what would appear here, not a blank area. An error renders the message and a way to retry.
