@@ -40,7 +40,10 @@
   "pages": {
     "error": {
       "action": "Reload",
-      "description": "An unexpected error occurred.",
+      "body": "Try reloading the page. If the error keeps coming back, continue to the home page and try again later.",
+      "cardTitle": "What you can do",
+      "description": "The page couldn't be displayed.",
+      "homeAction": "Go to home page",
       "title": "Something went wrong"
     },
     "forbidden": {
@@ -51,8 +54,10 @@
       "title": "You don't have access to this page"
     },
     "notFound": {
-      "action": "Go to the home page",
-      "description": "The page doesn't exist or the link is wrong.",
+      "action": "Go to home page",
+      "body": "Check the address in your browser or continue to the home page.",
+      "cardTitle": "What next",
+      "description": "The page doesn't exist or the link was mistyped.",
       "title": "Page not found"
     }
   },

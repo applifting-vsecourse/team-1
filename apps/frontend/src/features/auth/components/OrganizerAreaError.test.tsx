@@ -11,6 +11,7 @@ import { OrganizerAreaError } from "@/features/auth/components/OrganizerAreaErro
 vi.mock("@/features/auth/lib/auth-client", () => ({ authClient: {} }))
 vi.mock("@tanstack/react-router", () => ({
   useNavigate: () => vi.fn(),
+  useRouter: () => ({}),
   Link: ({ children, to }: { children: React.ReactNode; to: string }) => (
     <a href={to}>{children}</a>
   ),

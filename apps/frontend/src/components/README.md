@@ -8,7 +8,7 @@ Sdílené komponenty bez byznys logiky, podle atomic designu. Nevědí nic o akc
 | `atoms/`     | nejmenší vlastní prvky                               | Logo, NavLink, MoneyAmount, Seo                                 |
 | `molecules/` | složení několika atomů / ui prvků s jedním účelem    | PageHeader, EmptyState, ErrorState, LoadingState, ThemeSwitcher |
 | `organisms/` | samostatné části stránky                             | Header                                                          |
-| `templates/` | kostra stránky se sloty                              | PublicLayout, AuthLayout, AreaLayout, ErrorLayout               |
+| `templates/` | kostra stránky se sloty                              | PublicLayout, AuthLayout, AreaLayout                          |
 | `pages/`     | systémové stránky bez vlastní routy                  | NotFoundPage, ForbiddenPage, ErrorPage, LoadingPage             |
 
 Stránky aplikace jsou routy v `src/routes/` — skládají template, organismy a feature komponenty.
