@@ -23,7 +23,9 @@ export function useSignIn(accountType: AccountType) {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({ email, password, rememberMe = false }: SignInInput) => {
+    // `rememberMe: false` makes better-auth end the session after 24 h, or when
+    // the browser closes, and never extend it. There is no checkbox to opt out.
+    mutationFn: async ({ email, password, rememberMe = true }: SignInInput) => {
       const { error } = await authClient.signIn.email({ email, password, rememberMe })
       if (error) throw new Error(error.message ?? "Sign in failed")
 
