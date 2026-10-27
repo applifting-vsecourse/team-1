@@ -51,7 +51,7 @@ export function EventSetup({ eventId }: { eventId: string }) {
       notify.success(t("overview.copied"))
     } catch {
       setIsCopied(false)
-      notify.error(tCommon("clipboard.failed"))
+      notify.error(tCommon("clipboard.failedTitle"), tCommon("clipboard.failedDescription"))
     }
   }
 

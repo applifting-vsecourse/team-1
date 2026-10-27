@@ -22,6 +22,8 @@ describe("useSignOut", () => {
     )
     const { result } = renderHook(() => useSignOut(), { wrapper })
     result.current.mutate()
-    await waitFor(() => expect(error).toHaveBeenCalledWith("Could not sign out. Try again."))
+    await waitFor(() =>
+      expect(error).toHaveBeenCalledWith("Could not sign out", "Please try again."),
+    )
   })
 })

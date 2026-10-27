@@ -14,6 +14,7 @@ const show = (tone: Tone, title: string, description?: string) =>
  * next step; a form that stays open shows its error in an Alert instead (DESIGN.md, Toasts).
  */
 // Figma (Design system): DS / Toast · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14478-1651
+// Figma (Design system): Toast / Texty v aplikaci · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14491-1615
 export const notify = {
   success: (title: string, description?: string) => show("success", title, description),
   info: (title: string, description?: string) => show("info", title, description),

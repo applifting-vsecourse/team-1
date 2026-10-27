@@ -12,7 +12,8 @@
     "copied": "Zkopírováno do schránky",
     "copyAccount": "Zkopírovat číslo účtu",
     "copyVariableSymbol": "Zkopírovat variabilní symbol",
-    "failed": "Kopírování se nepodařilo. Zkopírujte údaj ručně."
+    "failedDescription": "Zkopírujte údaj ručně.",
+    "failedTitle": "Kopírování se nepodařilo"
   },
   "comingSoon": "Připravuje se — {{story}}.",
   "eventTabs": {

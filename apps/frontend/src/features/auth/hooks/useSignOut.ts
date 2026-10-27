@@ -25,6 +25,6 @@ export function useSignOut() {
       await navigate({ to: ROUTES.home })
     },
     // Sign-out is started from a menu, which has no form to show the error in.
-    onError: () => notify.error(t("menu.signOutFailed")),
+    onError: () => notify.error(t("menu.signOutFailedTitle"), t("menu.signOutFailedDescription")),
   })
 }

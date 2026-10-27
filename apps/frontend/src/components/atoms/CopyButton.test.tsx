@@ -33,6 +33,6 @@ describe("CopyButton", () => {
       />,
     )
     await user.click(screen.getByRole("button", { name: "Copy" }))
-    expect(error).toHaveBeenCalledWith("Could not copy. Copy the value manually.")
+    expect(error).toHaveBeenCalledWith("Copying failed", "Copy it manually.")
   })
 })

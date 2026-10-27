@@ -11,7 +11,7 @@ export function CopyButton({ value, label }: { value: string; label: string }) {
       await navigator.clipboard.writeText(value)
       notify.success(t("clipboard.copied"))
     } catch {
-      notify.error(t("clipboard.failed"))
+      notify.error(t("clipboard.failedTitle"), t("clipboard.failedDescription"))
     }
   }
 

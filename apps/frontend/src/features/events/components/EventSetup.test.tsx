@@ -141,7 +141,7 @@ describe("EventSetup", () => {
       }))
       .find((request) => request.method === "DELETE")
     expect(call?.url).toMatch(/organizer\/events\/e1$/)
-    expect(success).toHaveBeenCalledWith("Event Jarní víkend Lipno 2027 has been deleted")
+    expect(success).toHaveBeenCalledWith("Event Jarní víkend Lipno 2027 was deleted.")
   })
 
   it("keeps the dialog open and shows the error when the event has applications", async () => {

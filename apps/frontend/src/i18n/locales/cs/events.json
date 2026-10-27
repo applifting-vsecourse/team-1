@@ -2,7 +2,7 @@
   "delete": {
     "action": "Smazat akci",
     "confirm": "Smazat akci",
-    "deleted": "Akce {{name}} je smazaná",
+    "deleted": "Akce {{name}} byla smazána.",
     "description": "Smaže se akce i její termíny a pokoje. Smazat jde jen akci, na kterou ještě nikdo nepodal přihlášku. Tuto akci nejde vrátit.",
     "failed": "Akci se nepodařilo smazat",
     "hint": "Akci, na kterou ještě nikdo nepodal přihlášku, můžete smazat.",
@@ -18,7 +18,8 @@
     "count_one": "{{count}} akce",
     "count_other": "{{count}} akcí",
     "create": "Vytvořit akci",
-    "created": "Akce {{name}} byla založena.",
+    "created": "{{name}} byla založena.",
+    "createdTitle": "Akce založena",
     "description": "Akce vašich organizací a akce pořádané samostatně.",
     "empty": "Zatím tu nejsou žádné akce.",
     "errorTitle": "Akce se nepodařilo načíst",
