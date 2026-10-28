@@ -106,4 +106,4 @@ Návrh N1–N9 schválil tech lead; je na stránce **HF / 07 Návrh 25. 10.** (u
 
 - Přepínač sekcí zobrazuje pouze aktuální sekci a šipku; údaj o pořadí („1 z 5“) se odstraňuje. Nabídka dál obsahuje všechny sekce a označuje aktivní položku.
 - Kopírování odkazu je pouze v kartě pro sdílení; duplicitní tlačítko vedle nadpisu přehledu se odstraňuje na všech šířkách. Nadpis a popis mají dostupnou šířku. U nepřipravené akce zůstává checklist bez kopírování.
-- Návrh změny je odsouhlasený v #176. Ve Figmě zbývá sladit N / Event section switcher a jeho instance (N8 / N9); stávající návrh ještě obsahuje pořadí sekce. Tato úprava má pro implementaci přednost před starším zobrazením pořadí.
+- Návrh změny je odsouhlasený v #176. Ve Figmě je upravený N / Event section switcher (`14179:986`); změnu převzaly instance N8 / N9 a oba náhledy byly vizuálně zkontrolované. Tato úprava má pro implementaci přednost před starším zobrazením pořadí.
