@@ -5,8 +5,8 @@ name: AI review (Raspberry Pi)
 # with the `pi` label is online (setup in CONTRIBUTING.md, section "Raspberry Pi runner").
 #
 # Same agent and output format as the pre-push hook (.claude/agents/reviewer.md),
-# but on haiku with a hard per-run budget; the result is one sticky PR comment,
-# updated on every push.
+# with a hard per-run budget; the result is one sticky PR comment in Czech
+# (scripts/ai-review-comment.sh), updated on every push.
 
 on:
   pull_request:
@@ -79,7 +79,7 @@ jobs:
           # Script and agent come from main (checked out above), so a PR can't rewrite
           # its own reviewer. The agent goes to user scope because project settings
           # (.claude/ from the PR, which may define hooks) are not loaded here.
-          cp scripts/ai-review.sh "$RUNNER_TEMP/ai-review.sh"
+          cp scripts/ai-review.sh scripts/ai-review-comment.sh "$RUNNER_TEMP/"
           mkdir -p "$HOME/.claude/agents"
           cp .claude/agents/reviewer.md "$HOME/.claude/agents/reviewer.md"
 
@@ -91,12 +91,7 @@ jobs:
           # No log = nothing reviewed (empty diff, no merge base); don't comment.
           [ -s "$log" ] || exit 0
 
-          {
-            echo '<!-- ai-review -->'
-            printf '**AI review** (%s, %s)\n\n```\n' "$AI_REVIEW_MODEL" "$(git rev-parse --short HEAD)"
-            cat "$log"
-            printf '```\n'
-          } > "$RUNNER_TEMP/review.md"
+          bash "$RUNNER_TEMP/ai-review-comment.sh" "$log" "$AI_REVIEW_MODEL" "$(git rev-parse HEAD)" > "$RUNNER_TEMP/review.md"
 
           id="$(gh api "repos/$GITHUB_REPOSITORY/issues/$PR/comments" --paginate \
             --jq '.[] | select(.body | startswith("<!-- ai-review -->")) | .id' | head -n1)"

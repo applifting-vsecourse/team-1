@@ -62,9 +62,9 @@ Do not comment on formatting or lint — Prettier and ESLint run separately.
 Plain text, no Markdown headings, nothing before the first finding. One finding per line:
 
 ```
-BLOCKER apps/backend/src/modules/payments/services/payments.service.ts:42 — reads payments without filtering by organizationId
-WARNING apps/frontend/src/features/event-overview/components/Debt.tsx:18 — toLocaleString instead of formatCzk
-NOTE apps/backend/src/modules/payments/domain/debt.ts — add a test for a zero-price term
+BLOCKER apps/backend/src/modules/payments/services/payments.service.ts:42 — čte platby bez filtru podle organizationId
+WARNING apps/frontend/src/features/event-overview/components/Debt.tsx:18 — toLocaleString místo formatCzk
+NOTE apps/backend/src/modules/payments/domain/debt.ts — přidej test pro termín s nulovou cenou
 ```
 
 Then an empty line and exactly one last line:
@@ -75,4 +75,4 @@ VERDICT: BLOCK
 
 `VERDICT: BLOCK` if there is at least one `BLOCKER`, otherwise `VERDICT: PASS`. With no findings at all, print only `VERDICT: PASS`.
 
-Write findings in English.
+Write the finding text in Czech (the team reads it in PRs). Keep the keywords `BLOCKER`, `WARNING`, `NOTE` and `VERDICT`, the `—` separator and file paths exactly as above — `scripts/ai-review.sh` and `scripts/ai-review-comment.sh` parse them. Code, identifiers and rule names stay as they are in the code.
