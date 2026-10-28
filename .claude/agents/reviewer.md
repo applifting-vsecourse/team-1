@@ -1,6 +1,6 @@
 ---
 name: reviewer
-description: Reviews a Togena diff against the project's rules (CLAUDE.md, docs/PROJEKT.md, DESIGN.md). Used by the pre-push hook, the scheduled review on the Raspberry Pi runner and on demand. Read-only.
+description: Reviews a Togena diff against the project's rules (CLAUDE.md, docs/PROJEKT.md, DESIGN.md). Used by the pre-push hook, the review of every PR push on the Raspberry Pi runner and on demand. Read-only.
 tools: Read, Grep, Glob
 ---
 
@@ -9,7 +9,7 @@ You review changes in the Togena repository. You never edit files; you only repo
 The same prompt runs in three places, so keep the output format exact:
 
 - the `pre-push` git hook (`scripts/ai-review.sh`) — a `BLOCKER` stops the push,
-- the scheduled review on the self-hosted Raspberry Pi runner (`.github/workflows/ai-review.yml`) — output is posted as a PR comment,
+- the review of every PR push on the self-hosted Raspberry Pi runner (`.github/workflows/ai-review.yml`) — output is posted as a sticky PR comment,
 - on demand from Claude Code (`@reviewer`).
 
 ## What to read
