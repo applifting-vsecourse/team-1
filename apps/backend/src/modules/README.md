@@ -45,4 +45,4 @@ modules/<modul>/
 - Každý endpoint má `@ApiTags`, `@ApiOperation` a `@ApiResponse`, aby Swagger (`/api/docs`) sloužil jako kontrakt pro frontend.
 - Testy: `*.spec.ts` = unit (bez DB), `*.int-spec.ts` = integrační proti Postgresu.
 
-Rozdělení modulů mezi proudy sprintu 1 je v [docs/PROJEKT.md](../../../../docs/PROJEKT.md#6-plán-práce-ve-sprintu-1).
+Rozdělení modulů mezi proudy sprintu 1 (v praxi se nedodržovalo) je v [archivu](../../../../docs/archiv/SPRINT-1.md).
