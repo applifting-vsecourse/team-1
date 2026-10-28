@@ -14,7 +14,7 @@ test.describe("Event setup", () => {
       .getByRole("link", { name: "Overview" })
       .click()
     await expect(page.getByText("The application link is not active yet")).toBeVisible()
-    await expect(page.getByRole("button", { name: "Copy application link" })).toBeDisabled()
+    await expect(page.getByRole("button", { name: /Copy/ })).toHaveCount(0)
   })
 
   test("organizer adds a room and copies the application link", async ({ page, context }) => {
@@ -38,7 +38,8 @@ test.describe("Event setup", () => {
       .getByRole("link", { name: "Overview" })
       .click()
     const link = await page.getByRole("link", { name: /\/apply\// }).innerText()
-    await page.getByRole("button", { name: "Copy application link" }).click()
+    await expect(page.getByRole("button", { name: /Copy/ })).toHaveCount(1)
+    await page.getByRole("button", { name: "Copy link", exact: true }).click()
     await expect(page.getByText("Link copied to the clipboard")).toBeVisible()
     expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(link)
   })
