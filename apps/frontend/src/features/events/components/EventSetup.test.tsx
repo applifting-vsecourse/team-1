@@ -64,7 +64,7 @@ function renderSetup(event: object, deleteResponse?: () => Response) {
 afterEach(() => vi.restoreAllMocks())
 
 describe("EventSetup", () => {
-  it("shows what is missing and keeps the copy button off", async () => {
+  it("shows what is missing without offering a copy action", async () => {
     renderSetup(base)
 
     expect(
@@ -75,7 +75,7 @@ describe("EventSetup", () => {
       screen.getByRole("heading", { name: "Add at least one term with a price" }),
     ).toBeInTheDocument()
     expect(screen.getByRole("heading", { name: "Add at least one room" })).toBeInTheDocument()
-    expect(screen.getByRole("button", { name: "Copy application link" })).toBeDisabled()
+    expect(screen.queryByRole("button", { name: /Copy/ })).not.toBeInTheDocument()
   })
 
   it("keeps a single primary button: the first step to do", async () => {
@@ -94,19 +94,6 @@ describe("EventSetup", () => {
     expect(screen.getByRole("link", { name: "Add a room" }).className).toContain("bg-primary")
   })
 
-  it("copies the link of a ready event and confirms it", async () => {
-    const writeText = vi.fn().mockResolvedValue(undefined)
-    Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true })
-    const success = vi.spyOn(notify, "success")
-    renderSetup({ ...base, termCount: 2, roomCount: 3, applicationsOpen: true, missing: [] })
-
-    await userEvent.click(await screen.findByRole("button", { name: "Copy application link" }))
-
-    expect(writeText).toHaveBeenCalledWith(`${window.location.origin}/apply/tok123`)
-    expect(await screen.findByRole("button", { name: "Copy again" })).toBeEnabled()
-    expect(success).toHaveBeenCalledWith("Link copied to the clipboard")
-  })
-
   it("copies the application URL using the icon next to the link", async () => {
     const writeText = vi.fn().mockResolvedValue(undefined)
     Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true })
@@ -116,6 +103,7 @@ describe("EventSetup", () => {
     const icon = await screen.findByRole("button", { name: "Copy link" })
     const link = screen.getByRole("link", { name: `${window.location.origin}/apply/tok123` })
     expect(icon.parentElement).toBe(link.parentElement)
+    expect(screen.getAllByRole("button", { name: /Copy/ })).toHaveLength(1)
     await userEvent.click(icon)
 
     expect(writeText).toHaveBeenCalledWith(link.getAttribute("href"))

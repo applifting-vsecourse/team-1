@@ -53,11 +53,11 @@ function renderHeader(path: string) {
 afterEach(() => vi.restoreAllMocks())
 
 describe("EventHeader sections", () => {
-  it("shows the current section and its position on a phone", async () => {
+  it("shows only the current section on a phone", async () => {
     renderHeader("/organizer/events/e1/capacity")
 
     const trigger = await screen.findByRole("button", { name: /Capacity/ })
-    expect(trigger).toHaveTextContent("3 of 5")
+    expect(trigger).toHaveTextContent(/^Capacity$/)
   })
 
   it("opens a menu with every section and marks the current one", async () => {

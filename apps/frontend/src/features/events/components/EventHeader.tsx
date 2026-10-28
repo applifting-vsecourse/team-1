@@ -30,8 +30,8 @@ import { termsSummary } from "@/features/events/lib/terms-summary"
 /**
  * Head of every event page: back to the list, the event name with whether
  * the application is open, and the event's sections. From `md` up they are
- * tabs; on a phone one full-width button shows the current section and its
- * position and opens a menu with all of them. It sticks under the top bar, so
+ * tabs; on a phone one full-width button shows the current section and
+ * opens a menu with all of them. It sticks under the top bar, so
  * the sections are one tap away without opening the drawer.
  */
 // Figma (Design system): N8 Mobil · detail akce · výběr sekce · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14178-43230
@@ -103,12 +103,9 @@ function EventTabs({ eventId }: { eventId: string }) {
                 className="size-4"
               />
               {t(`eventTabs.${active.key}`)}
-              <span className="ml-auto text-muted-foreground">
-                {t("eventTabs.position", { current: activeIndex + 1, total: SECTIONS.length })}
-              </span>
               <ChevronDown
                 aria-hidden
-                className="size-4"
+                className="ml-auto size-4"
               />
             </Button>
           </DropdownMenuTrigger>

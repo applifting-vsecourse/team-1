@@ -29,7 +29,6 @@ export function EventSetup({ eventId }: { eventId: string }) {
   const { t } = useTranslation("events")
   const { t: tCommon } = useTranslation()
   const { data: event, isPending, error, refetch } = useQuery(eventQueryOptions(eventId))
-  const [isCopied, setIsCopied] = useState(false)
   const [isDeleteOpen, setIsDeleteOpen] = useState(false)
 
   if (isPending) return <LoadingState />
@@ -47,10 +46,8 @@ export function EventSetup({ eventId }: { eventId: string }) {
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(link)
-      setIsCopied(true)
       notify.success(t("overview.copied"))
     } catch {
-      setIsCopied(false)
       notify.error(tCommon("clipboard.failedTitle"), tCommon("clipboard.failedDescription"))
     }
   }
@@ -60,15 +57,6 @@ export function EventSetup({ eventId }: { eventId: string }) {
       <SectionHeader
         title={t("overview.title")}
         description={subtitle(event, t)}
-        actions={
-          <Button
-            size="lg"
-            disabled={!event.applicationsOpen}
-            onClick={() => void copy()}
-          >
-            {isCopied ? t("overview.copyAgain") : t("overview.copy")}
-          </Button>
-        }
       />
       {event.applicationsOpen ? (
         <ShareLink
