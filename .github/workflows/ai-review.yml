@@ -1,81 +1,107 @@
 name: AI review (Raspberry Pi)
 
-# Scheduled low-budget review on the team's self-hosted Raspberry Pi runner.
-# Prepared, not live yet: it only runs once the repository variable
-# AI_REVIEW_ENABLED is 'true' and a runner with the `pi` label is registered
-# (setup in CONTRIBUTING.md, section "AI review"). Until then every run is skipped.
+# Low-budget review of every push to a PR, on the team's self-hosted Raspberry Pi runner.
+# Runs only while the repository variable AI_REVIEW_ENABLED is 'true' and a runner
+# with the `pi` label is online (setup in CONTRIBUTING.md, section "Raspberry Pi runner").
 #
 # Same agent and output format as the pre-push hook (.claude/agents/reviewer.md),
-# but on haiku with a hard per-run budget; the result goes to the PR as a comment.
+# but on haiku with a hard per-run budget; the result is one sticky PR comment,
+# updated on every push.
 
 on:
-  schedule:
-    - cron: "0 5 * * 1-5" # weekdays 07:00 Prague (CEST)
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  # `/ai-review` in a PR comment re-runs the review, only for AI_REVIEW_ADMIN.
+  issue_comment:
+    types: [created]
   workflow_dispatch:
     inputs:
       pr:
-        description: PR number (empty = all open PRs updated in the last day)
-        required: false
+        description: PR number
+        required: true
 
 permissions:
   contents: read
   pull-requests: write
 
-concurrency:
-  group: ai-review
-  cancel-in-progress: false
-
 jobs:
   review:
-    if: vars.AI_REVIEW_ENABLED == 'true'
+    # Fork PRs never reach the self-hosted runner; drafts wait until they are ready.
+    # Any other comment skips the job before it takes the concurrency slot.
+    if: >-
+      vars.AI_REVIEW_ENABLED == 'true' && (
+        github.event_name == 'workflow_dispatch' || (
+          github.event_name == 'pull_request' &&
+          github.event.pull_request.head.repo.full_name == github.repository &&
+          !github.event.pull_request.draft) || (
+          github.event_name == 'issue_comment' &&
+          github.event.issue.pull_request &&
+          startsWith(github.event.comment.body, '/ai-review') &&
+          github.event.comment.user.login == (vars.AI_REVIEW_ADMIN || 'kudrle01')))
     runs-on: [self-hosted, pi]
-    timeout-minutes: 30
+    # A newer push to the same PR makes the running review pointless.
+    concurrency:
+      group: ai-review-${{ github.event.pull_request.number || github.event.issue.number || inputs.pr }}
+      cancel-in-progress: true
+    timeout-minutes: 15
     env:
-      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      # Subscription only (`claude setup-token`), never an API key: when the plan's
+      # limit runs out the review just stops, nothing is billed on top.
+      CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
       GH_TOKEN: ${{ github.token }}
-      AI_REVIEW_MODEL: haiku
+      AI_REVIEW_MODEL: ${{ vars.AI_REVIEW_MODEL || 'haiku' }}
       AI_REVIEW_BUDGET: ${{ vars.AI_REVIEW_BUDGET || '0.10' }}
       AI_REVIEW_MAX_BYTES: "60000"
       AI_REVIEW_SETTING_SOURCES: user
-      MAX_PRS: ${{ vars.AI_REVIEW_MAX_PRS || '5' }}
-      INPUT_PR: ${{ inputs.pr }}
+      PR: ${{ github.event.pull_request.number || github.event.issue.number || inputs.pr }}
+      COMMENT_ID: ${{ github.event.comment.id }}
     steps:
       - uses: actions/checkout@v5
         with:
+          ref: main
           fetch-depth: 0
 
-      - name: Review open PRs
+      - name: Review PR
         run: |
-          # Script and agent always come from main, so a PR can't rewrite its own
-          # reviewer. The agent goes to user scope because project settings
+          [ -n "$CLAUDE_CODE_OAUTH_TOKEN" ] || { echo "Set secret CLAUDE_CODE_OAUTH_TOKEN"; exit 1; }
+          # An API key on the Pi would take precedence over the token and bill per use.
+          unset ANTHROPIC_API_KEY ANTHROPIC_AUTH_TOKEN
+
+          # 👀 on the `/ai-review` comment: the request was picked up.
+          if [ -n "$COMMENT_ID" ]; then
+            gh api -X POST "repos/$GITHUB_REPOSITORY/issues/comments/$COMMENT_ID/reactions" -f content=eyes >/dev/null || true
+          fi
+
+          [[ "$PR" =~ ^[0-9]+$ ]] || { echo "PR must be a number"; exit 1; }
+          [ "$(gh pr view "$PR" --json isCrossRepository --jq .isCrossRepository)" = false ] ||
+            { echo "Fork PRs are not reviewed on the self-hosted runner"; exit 1; }
+
+          # Script and agent come from main (checked out above), so a PR can't rewrite
+          # its own reviewer. The agent goes to user scope because project settings
           # (.claude/ from the PR, which may define hooks) are not loaded here.
           cp scripts/ai-review.sh "$RUNNER_TEMP/ai-review.sh"
           mkdir -p "$HOME/.claude/agents"
           cp .claude/agents/reviewer.md "$HOME/.claude/agents/reviewer.md"
 
-          if [ -n "$INPUT_PR" ]; then
-            [[ "$INPUT_PR" =~ ^[0-9]+$ ]] || { echo "PR must be a number"; exit 1; }
-            [ "$(gh pr view "$INPUT_PR" --json isCrossRepository --jq .isCrossRepository)" = false ] ||
-              { echo "Fork PRs are not reviewed on the self-hosted runner"; exit 1; }
-            prs="$INPUT_PR"
-          else
-            since="$(date -u -d '1 day ago' +%Y-%m-%dT%H:%M:%SZ)"
-            prs="$(gh pr list --state open --draft=false --limit "$MAX_PRS" \
-              --json number,updatedAt,isCrossRepository \
-              --jq ".[] | select(.updatedAt > \"$since\" and (.isCrossRepository | not)) | .number")"
-          fi
+          gh pr checkout "$PR" --force
+          # The script skips itself when CI is set; the runner is the one place we want it.
+          log="$(git rev-parse --git-dir)/ai-review-last.txt"
+          rm -f "$log"
+          CI= bash "$RUNNER_TEMP/ai-review.sh" origin/main || true
+          # No log = nothing reviewed (empty diff, no merge base); don't comment.
+          [ -s "$log" ] || exit 0
 
-          for pr in $prs; do
-            echo "::group::PR #$pr"
-            gh pr checkout "$pr" --force
-            # The script skips itself when CI is set; the runner is the one place we want it.
-            log="$(git rev-parse --git-dir)/ai-review-last.txt"
-            rm -f "$log"
-            CI= bash "$RUNNER_TEMP/ai-review.sh" origin/main || true
-            # No log = nothing reviewed (empty diff, no merge base); don't comment.
-            if [ ! -s "$log" ]; then echo "::endgroup::"; continue; fi
-            body="$(cat "$log")"
-            gh pr comment "$pr" --body "$(printf '**AI review** (%s, %s)\n\n```\n%s\n```' \
-              "$AI_REVIEW_MODEL" "$(git rev-parse --short HEAD)" "$body")"
-            echo "::endgroup::"
-          done
+          {
+            echo '<!-- ai-review -->'
+            printf '**AI review** (%s, %s)\n\n```\n' "$AI_REVIEW_MODEL" "$(git rev-parse --short HEAD)"
+            cat "$log"
+            printf '```\n'
+          } > "$RUNNER_TEMP/review.md"
+
+          id="$(gh api "repos/$GITHUB_REPOSITORY/issues/$PR/comments" --paginate \
+            --jq '.[] | select(.body | startswith("<!-- ai-review -->")) | .id' | head -n1)"
+          if [ -n "$id" ]; then
+            gh api -X PATCH "repos/$GITHUB_REPOSITORY/issues/comments/$id" -F body=@"$RUNNER_TEMP/review.md" >/dev/null
+          else
+            gh pr comment "$PR" --body-file "$RUNNER_TEMP/review.md"
+          fi
