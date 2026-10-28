@@ -70,7 +70,7 @@ Sdílené soubory (`schema.prisma`, `app.module.ts`, `routes.ts`, `components/*`
 ### Styčné body
 
 - **B → C:** po uložení všech přihlášek jednoho odeslání formuláře `ApplicationsService` zavolá `ParticipantAccountsService.ensureAccount(email)` a **jednou** `ApplicationConfirmationMailer.sendSubmissionConfirmation(...)` (US-56): jeden souhrnný e-mail za celé odeslání, i s více účastníky. E-mail o změně přihlášky (`sendApplicationChange`) volají až US-28, 32, 33, 34 a 84.
-- **B ↔ D:** stav přihlášky v termínu ([stavový diagram přihlášky v termínu](procesy/zpracovani-prihlasky/README.md)) se mění a počítá jen v doménových funkcích z fáze 0 (`modules/applications/domain`). Nikdo ho nepočítá znovu po svém.
+- **B ↔ D:** stav přihlášky v termínu ([stavový diagram přihlášky v termínu](../procesy/zpracovani-prihlasky/README.md)) se mění a počítá jen v doménových funkcích z fáze 0 (`modules/applications/domain`). Nikdo ho nepočítá znovu po svém.
 
 ## Rozdíly vůči boardu: tabulka (původně sekce 11)
 
