@@ -11,6 +11,9 @@ name: AI review (Raspberry Pi)
 on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
+  # `/ai-review` in a PR comment re-runs the review, only for AI_REVIEW_ADMIN.
+  issue_comment:
+    types: [created]
   workflow_dispatch:
     inputs:
       pr:
@@ -21,20 +24,25 @@ permissions:
   contents: read
   pull-requests: write
 
-# A newer push to the same PR makes the running review pointless.
-concurrency:
-  group: ai-review-${{ github.event.pull_request.number || inputs.pr }}
-  cancel-in-progress: true
-
 jobs:
   review:
     # Fork PRs never reach the self-hosted runner; drafts wait until they are ready.
+    # Any other comment skips the job before it takes the concurrency slot.
     if: >-
       vars.AI_REVIEW_ENABLED == 'true' && (
         github.event_name == 'workflow_dispatch' || (
+          github.event_name == 'pull_request' &&
           github.event.pull_request.head.repo.full_name == github.repository &&
-          !github.event.pull_request.draft))
+          !github.event.pull_request.draft) || (
+          github.event_name == 'issue_comment' &&
+          github.event.issue.pull_request &&
+          startsWith(github.event.comment.body, '/ai-review') &&
+          github.event.comment.user.login == (vars.AI_REVIEW_ADMIN || 'kudrle01')))
     runs-on: [self-hosted, pi]
+    # A newer push to the same PR makes the running review pointless.
+    concurrency:
+      group: ai-review-${{ github.event.pull_request.number || github.event.issue.number || inputs.pr }}
+      cancel-in-progress: true
     timeout-minutes: 15
     env:
       # Subscription only (`claude setup-token`), never an API key: when the plan's
@@ -45,7 +53,8 @@ jobs:
       AI_REVIEW_BUDGET: ${{ vars.AI_REVIEW_BUDGET || '0.10' }}
       AI_REVIEW_MAX_BYTES: "60000"
       AI_REVIEW_SETTING_SOURCES: user
-      PR: ${{ github.event.pull_request.number || inputs.pr }}
+      PR: ${{ github.event.pull_request.number || github.event.issue.number || inputs.pr }}
+      COMMENT_ID: ${{ github.event.comment.id }}
     steps:
       - uses: actions/checkout@v5
         with:
@@ -57,6 +66,11 @@ jobs:
           [ -n "$CLAUDE_CODE_OAUTH_TOKEN" ] || { echo "Set secret CLAUDE_CODE_OAUTH_TOKEN"; exit 1; }
           # An API key on the Pi would take precedence over the token and bill per use.
           unset ANTHROPIC_API_KEY ANTHROPIC_AUTH_TOKEN
+
+          # 👀 on the `/ai-review` comment: the request was picked up.
+          if [ -n "$COMMENT_ID" ]; then
+            gh api -X POST "repos/$GITHUB_REPOSITORY/issues/comments/$COMMENT_ID/reactions" -f content=eyes >/dev/null || true
+          fi
 
           [[ "$PR" =~ ^[0-9]+$ ]] || { echo "PR must be a number"; exit 1; }
           [ "$(gh pr view "$PR" --json isCrossRepository --jq .isCrossRepository)" = false ] ||

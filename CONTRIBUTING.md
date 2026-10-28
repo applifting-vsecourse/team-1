@@ -76,7 +76,7 @@ Pravidla:
 
 ## Raspberry Pi runner
 
-Workflow [`.github/workflows/ai-review.yml`](.github/workflows/ai-review.yml) pustí review při každém pushi do PR (draft PR až po „Ready for review“) a výsledek drží v jednom komentáři, který se s každým pushem přepíše. Novější push zruší rozběhnuté review téhož PR. Jde spustit i ručně (Actions → AI review → Run workflow, číslo PR). Běží na self-hostovaném runneru s labelem `pi`, se stejným agentem `reviewer`, ale levně:
+Workflow [`.github/workflows/ai-review.yml`](.github/workflows/ai-review.yml) pustí review při každém pushi do PR (draft PR až po „Ready for review“) a výsledek drží v jednom komentáři, který se s každým pushem přepíše. Novější push zruší rozběhnuté review téhož PR. Znovu ho jde spustit komentářem `/ai-review` v PR (jen pro uživatele v proměnné `AI_REVIEW_ADMIN`, výchozí `kudrle01`; ostatním se komentář ignoruje) nebo ručně (Actions → AI review → Run workflow, číslo PR). Běží na self-hostovaném runneru s labelem `pi`, se stejným agentem `reviewer`, ale levně:
 
 - model `haiku` (proměnná `AI_REVIEW_MODEL`), strop `AI_REVIEW_BUDGET` (výchozí 0,10 USD) na jeden push, diff oříznutý na 60 kB,
 - skript a agent se berou z `main`, ne z PR, a projektová nastavení Claude (`.claude/` z PR) se nenačítají — PR si nemůže přepsat vlastního reviewera ani spustit kód přes hooky,
@@ -88,7 +88,7 @@ Runner `togena-pi` (Raspberry Pi 3B) je zaregistrovaný. Zprovoznění od nuly:
 2. Samostatný uživatel bez sudo (`sudo adduser --disabled-password runner`), pod ním Claude Code (`curl -fsSL https://claude.ai/install.sh | bash`, `~/.local/bin` do `PATH`). Na Pi se do Claude nepřihlašuje, účet dodá secret z kroku 3.
 3. Až potom runner: Repo → Settings → Actions → Runners → New self-hosted runner (Linux, ARM64), `./config.sh … --labels pi --unattended` jako `runner` (runner si při konfiguraci uloží `PATH`, takže `claude` už musí být nainstalovaný). Službu, která se spouští i po restartu, nainstaluje admin: `sudo ./svc.sh install runner && sudo ./svc.sh start`.
 4. Repo → Settings → Secrets: `CLAUDE_CODE_OAUTH_TOKEN` — na libovolném počítači `claude setup-token` (předplatné Claude Pro/Max), výstup vlož jako secret. Review čerpá limity předplatného; když dojdou, review do dalšího okna neproběhne. API klíč se záměrně nepoužívá, aby se nic neplatilo navíc. V claude.ai → Settings → Usage nech vypnuté „extra usage“.
-5. Repo → Settings → Variables: `AI_REVIEW_ENABLED=true`, volitelně `AI_REVIEW_BUDGET` a `AI_REVIEW_MODEL` (výchozí `haiku`; s předplatným dává smysl `sonnet`).
+5. Repo → Settings → Variables: `AI_REVIEW_ENABLED=true`, `AI_REVIEW_MODEL=sonnet`, `AI_REVIEW_BUDGET=0.50` (strop na jedno review; výchozí `haiku` a `0.10` jsou laděné na API klíč), volitelně `AI_REVIEW_ADMIN`.
 
 Dokud `AI_REVIEW_ENABLED` není `true`, workflow se přeskočí.
 
