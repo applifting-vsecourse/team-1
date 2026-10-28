@@ -38,7 +38,7 @@ modules/<modul>/
   const { organizationId } = await this.organizationAccess.assertCanAccessEvent(user, eventId);
   // seznamy: where: { organizationId: { in: await this.organizationAccess.getOrganizationIds(user) } }
   ```
-- **Chyby:** `throw new AppException(HttpStatus.CONFLICT, 'EMAIL_TAKEN_BY_ORGANIZER')` s kódem z `shared/errors/error-code.ts`. Odpověď je vždy `{ statusCode, code, message }` a frontend kód přeloží — nový kód přidej i do `apps/frontend/src/i18n/locales/{en,cs}/errors.json`.
+- **Chyby:** `throw new AppException(HttpStatus.CONFLICT, 'EMAIL_TAKEN_BY_ORGANIZER')` s kódem z `shared/errors/error-code.ts`. Odpověď je vždy `{ statusCode, code, message }` (volitelně `params` — hodnoty pro zástupné značky v překladu, 4. argument `AppException`) a frontend kód přeloží — nový kód přidej i do `apps/frontend/src/i18n/locales/{en,cs}/errors.json`.
 - **Jazyk:** `@RequestLocale() locale: Locale` vrátí jazyk UI z `Accept-Language`. Ulož ho k přihlášce, e-maily se pak posílají v něm.
 - **Výpočty kapacity, stavu a ceny** jsou jen v `modules/applications/domain` (`capacity.ts`, `evaluation.ts`, `pricing.ts`). Nepočítej je znovu jinde.
 - Validace: `ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true })`.

@@ -22,6 +22,7 @@ const isKnownErrorCode = (code: unknown): code is ErrorCode =>
 
 const errorBodySchema = z.object({
   code: z.string().optional(),
+  params: z.record(z.string(), z.string()).optional(),
   message: z.union([z.string(), z.array(z.string())]).optional(),
 })
 
@@ -51,7 +52,7 @@ export const api = ky.create({
           const body = parsed.data
           const message = Array.isArray(body.message) ? body.message.join(", ") : body.message
           if (isKnownErrorCode(body.code)) {
-            error.message = i18n.t(`errors:${body.code}`)
+            error.message = i18n.t(`errors:${body.code}`, body.params)
           } else if (message) {
             error.message = message
           }

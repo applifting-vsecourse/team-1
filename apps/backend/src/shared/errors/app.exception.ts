@@ -12,7 +12,9 @@ export class AppException extends HttpException {
     status: HttpStatus,
     public readonly code: ErrorCode,
     message: string = code,
+    /** Values the frontend interpolates into the translated message. */
+    params?: Record<string, string>,
   ) {
-    super({ statusCode: status, code, message }, status)
+    super({ statusCode: status, code, message, ...(params && { params }) }, status)
   }
 }

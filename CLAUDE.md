@@ -36,7 +36,7 @@ Everything a user reads — UI copy, e-mails, error messages — is localized En
 
 - Frontend: never hardcode copy. Add keys to both `apps/frontend/src/i18n/locales/en/<namespace>.json` and `cs/<namespace>.json` (namespace = your feature) and use `useTranslation("<namespace>")`. Keys are type-checked; a test fails when the two languages differ.
 - Money and dates: `formatCzk` / `formatDate` from `@/lib`, never `toLocaleString` by hand.
-- Backend errors: throw `AppException(status, code)` with a code from `shared/errors/error-code.ts` and add the code to both `errors.json` files. Every error response is `{ statusCode, code, message }`.
+- Backend errors: throw `AppException(status, code)` with a code from `shared/errors/error-code.ts` and add the code to both `errors.json` files. Every error response is `{ statusCode, code, message }`, optionally with `params` (values for `{{placeholders}}` in the translation, 4th argument of `AppException`).
 - E-mails: copy for both locales lives in the template; send in `User.locale` / `Application.locale`. Read the request language with `@RequestLocale()`.
 
 ### Backend structure
