@@ -76,7 +76,7 @@ Pravidla:
 
 ## Raspberry Pi runner
 
-Workflow [`.github/workflows/ai-review.yml`](.github/workflows/ai-review.yml) pustí review při každém pushi do PR (draft PR až po „Ready for review“) a výsledek drží v jednom komentáři, který se s každým pushem přepíše. Novější push zruší rozběhnuté review téhož PR. Znovu ho jde spustit komentářem `/ai-review` v PR (jen pro uživatele v proměnné `AI_REVIEW_ADMIN`, výchozí `kudrle01`; ostatním se komentář ignoruje) nebo ručně (Actions → AI review → Run workflow, číslo PR). Běží na self-hostovaném runneru s labelem `pi`, se stejným agentem `reviewer`, ale levně:
+Workflow [`.github/workflows/ai-review.yml`](.github/workflows/ai-review.yml) pustí review při každém pushi do PR (draft PR až po „Ready for review“) a výsledek drží v jednom českém komentáři (nálezy v tabulkách s odkazy na řádky, formát v `scripts/ai-review-comment.sh`), který se s každým pushem přepíše. Novější push zruší rozběhnuté review téhož PR. Znovu ho jde spustit komentářem `/ai-review` v PR (jen pro uživatele v proměnné `AI_REVIEW_ADMIN`, výchozí `kudrle01`; ostatním se komentář ignoruje) nebo ručně (Actions → AI review → Run workflow, číslo PR). Běží na self-hostovaném runneru s labelem `pi`, se stejným agentem `reviewer`, ale levně:
 
 - model `haiku` (proměnná `AI_REVIEW_MODEL`), strop `AI_REVIEW_BUDGET` (výchozí 0,10 USD) na jeden push, diff oříznutý na 60 kB,
 - skript a agent se berou z `main`, ne z PR, a projektová nastavení Claude (`.claude/` z PR) se nenačítají — PR si nemůže přepsat vlastního reviewera ani spustit kód přes hooky,
