@@ -24,7 +24,7 @@ Demo z aktuálního sprintu pro Tomáše: flow (landing, přihláška, magic lin
   - Chce to větší kontrast
   - Současný design - "unavující", "smutný"
 - [x] Opravit "k úhradě" v detailu Moje přihláška
-- [x] Zamyslet se nad textací login formu - aby účastník poznal, že má zadat mail z přihlášky
+- [x] Zamyslet se nad textací login formu - aby účastník poznal, že má zadat mail z přihlášky ([#187](https://github.com/applifting-vsecourse/team-1/issues/187))
 - [x] Uvažovat do prezentace, že lidi neznají appku a uvidí jí napoprvé.
 - Je potřeba vyřešit zakládání organizátorských účtů (více organizátorů, pozvánky), cenový model se fakturuje zpětně.
 - Doplnit rok k termínům ve výpisu a u magic linku jasně ukázat, že jde o návrat k existující přihlášce.
