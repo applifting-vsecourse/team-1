@@ -11,7 +11,7 @@ Pravidla a rozhodnutí projektu jsou v [docs/PROJEKT.md](docs/PROJEKT.md). Tady 
    git switch -c feat/US-23-prihlaska-pres-odkaz
    ```
    Prefixy: `feat/`, `fix/`, `chore/`, `docs/`.
-3. **Implementuj vertikálně, jeden PR na featuru** — backend, frontend i testy v jedné větvi a v jednom PR, který story uzavře (`Closes #23`). Story nedělíme na backend a frontend PR ani na „část 1/2“. Míř na cca 400 řádků kódu a 20 souborů (bez testů, migrací, lockfilu a generovaných souborů); když je featura větší, nech ji v jednom PR a v popisu napiš proč. Drž se modulu a feature složky svého proudu (viz [PROJEKT.md, sekce 6](docs/PROJEKT.md#6-plán-práce-ve-sprintu-1)).
+3. **Implementuj vertikálně, jeden PR na featuru** — backend, frontend i testy v jedné větvi a v jednom PR, který story pokryje celou a odkáže na ni (`Refs #23`). Issue zavírá product manager po ověření na stagingu. Story nedělíme na backend a frontend PR ani na „část 1/2“. Míř na cca 400 řádků kódu a 20 souborů (bez testů, migrací, lockfilu a generovaných souborů); když je featura větší, nech ji v jednom PR a v popisu napiš proč. Drž se modulu a feature složky svého proudu (viz [PROJEKT.md, sekce 6](docs/PROJEKT.md#6-plán-práce-ve-sprintu-1)).
 4. **Commity** piš anglicky, krátce a v rozkazovacím způsobu: `Add room capacity validation`.
 5. **Push** — pre-push hook sám pustí rychlé kontroly a AI review (viz [Hooky a AI review](#hooky-a-ai-review)). Před otevřením PR je dobré pustit i `pnpm check-all` (totéž, co CI, včetně integračních testů).
 6. **Otevři PR** do `main`:
