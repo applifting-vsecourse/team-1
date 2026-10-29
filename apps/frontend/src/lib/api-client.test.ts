@@ -50,6 +50,21 @@ describe("API error messages", () => {
     expect((error as Error).message).toBe(resources.en.errors.ROOM_NAME_TAKEN)
   })
 
+  it.each([
+    ["cs", "Přihláška už existuje. Účastník: Jan Novák, termín: „T1“."],
+    ["en", "Jan Novák is already registered for the term “T1”"],
+  ] as const)("fills the error params into the translation in %s", async (language, expected) => {
+    await i18n.changeLanguage(language)
+    const error = await requestError({
+      statusCode: 409,
+      code: "APPLICATION_DUPLICATE",
+      message: "Participant is already registered for this term",
+      params: { participant: "Jan Novák", term: "T1" },
+    })
+    expect((error as Error).message).toContain(expected)
+    expect(apiErrorCode(error)).toBe("APPLICATION_DUPLICATE")
+  })
+
   it("uses the server message for an unknown code", async () => {
     const error = await requestError(
       { code: "NEW_CODE", message: ["First problem", "Second problem"] },

@@ -5,10 +5,19 @@ import {
   SavedApplication,
   SubmissionEvent,
 } from "@/modules/applications/domain/application-submission"
+import { findDuplicate } from "@/modules/applications/domain/duplicate-application"
 import { EvaluatedTerm } from "@/modules/applications/domain/evaluation"
 import { OccupancySnapshot } from "@/modules/applications/domain/submission"
 import { AppException } from "@/shared/errors/app.exception"
 import { HttpStatus, Injectable } from "@nestjs/common"
+
+/** What the duplicate check needs of a participant. */
+type SubmittedPerson = {
+  firstName: string
+  lastName: string
+  birthDate: string
+  termIds: string[]
+}
 
 /** Decides the status of every term of every application from what the lock protects. */
 export type Evaluate = (snapshot: OccupancySnapshot) => EvaluatedTerm[][]
@@ -67,6 +76,10 @@ export class ApplicationsRepository {
         throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
       }
 
+      // The event lock above serialises submissions, so two concurrent
+      // requests of the same participant cannot both pass this check.
+      await this.assertNotRegistered(tx, event.id, applications)
+
       const [rooms, confirmed] = await Promise.all([
         tx.room.findMany({
           where: { eventId: event.id },
@@ -123,5 +136,61 @@ export class ApplicationsRepository {
       }
       return saved
     })
+  }
+
+  /**
+   * Cheap check before the participant account is created (US-23), so a
+   * rejected duplicate leaves no account behind. Not race-proof on its own:
+   * `saveEvaluated` repeats it under the event lock.
+   */
+  async assertNoDuplicate(eventId: string, participants: SubmittedPerson[]): Promise<void> {
+    await this.assertNotRegistered(this.prisma, eventId, participants)
+  }
+
+  /** Throws 409 `APPLICATION_DUPLICATE` for a participant already on one of their terms. */
+  private async assertNotRegistered(
+    db: Prisma.TransactionClient,
+    eventId: string,
+    participants: SubmittedPerson[],
+  ): Promise<void> {
+    const registered = await db.applicationTerm.findMany({
+      where: {
+        termId: { in: [...new Set(participants.flatMap(({ termIds }) => termIds))] },
+        application: {
+          eventId,
+          birthDate: {
+            in: participants.map(({ birthDate }) => new Date(`${birthDate}T00:00:00Z`)),
+          },
+        },
+      },
+      select: {
+        termId: true,
+        application: { select: { firstName: true, lastName: true, birthDate: true } },
+      },
+    })
+    const duplicate = findDuplicate(
+      registered.map(({ termId, application }) => ({
+        termId,
+        firstName: application.firstName,
+        lastName: application.lastName,
+        birthDate: application.birthDate.toISOString().slice(0, 10),
+      })),
+      participants,
+    )
+    if (!duplicate) return
+
+    const term = await db.term.findUniqueOrThrow({
+      where: { id: duplicate.termId },
+      select: { name: true },
+    })
+    throw new AppException(
+      HttpStatus.CONFLICT,
+      "APPLICATION_DUPLICATE",
+      "Participant is already registered for this term",
+      {
+        participant: `${duplicate.participant.firstName} ${duplicate.participant.lastName}`,
+        term: term.name,
+      },
+    )
   }
 }
