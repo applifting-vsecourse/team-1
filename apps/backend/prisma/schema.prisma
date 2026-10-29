@@ -15,7 +15,7 @@ datasource db {
   provider = "postgresql"
 }
 
-// One account type per user (docs/PROJEKT.md, section 10): an e-mail is either
+// One account type per user (docs/PROJEKT.md, section 9): an e-mail is either
 // an organizer, a participant or the platform admin — never two at once.
 enum AccountType {
   ORGANIZER

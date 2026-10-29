@@ -68,6 +68,7 @@ Původní rozsah sprintu 1 (tabulka stories) je v [archivu](archiv/SPRINT-1.md).
 
 - Kapacita termínu pro ženy = součet kapacit dámských pokojů, pro muže = pánských. 10 + 10 pokojů po 5 místech pojme 50 + 50, **ne** 52 + 48.
 - Pokoj (návaznost na US-14): kapacita od 1 bez produktového horního limitu, platí pro všechny termíny akce. V režimu `GENDERED` má pohlaví dámský / pánský; v režimu `SHARED` může být bez pohlaví. US-26 zatím řeší pouze režim `GENDERED`.
+- Od 28.10.2026 se ubytování, pokoje, jejich kapacity a dostupnost řeší po termínech (rozhodnutí v sekci 9). Předchozí bod, US-14 a US-26 (sekce 10) popisují starší model „pokoj platí pro všechny termíny akce“; jejich úprava je otevřená.
 - Přihláška se uloží vždy, i když je plno. Termíny se vyhodnocují zvlášť v pořadí přijetí na serveru. Dvě souběžné přihlášky nikdy nepřekročí kapacitu.
 - Variabilní symbol = číslo přihlášky.
 - Odkaz na přihlášku funguje, až má akce aspoň jeden termín s cenou a aspoň jeden pokoj.

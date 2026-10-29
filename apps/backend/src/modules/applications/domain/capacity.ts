@@ -33,7 +33,7 @@ export function countByGender(items: { gender: Gender }[]): GenderCounts {
 /**
  * Free places = capacity − confirmed, per gender. Deliberately not clamped at
  * zero: removing a room may leave a term overbooked, which the organizer must
- * see (docs/PROJEKT.md, section 10).
+ * see (docs/PROJEKT.md, section 9).
  */
 export function computeFreePlaces(capacity: GenderCounts, confirmed: GenderCounts): GenderCounts {
   const free = emptyGenderCounts()

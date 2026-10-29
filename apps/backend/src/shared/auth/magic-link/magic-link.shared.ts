@@ -1,6 +1,6 @@
 /* Pure parts of the magic link — kept apart from the plugin so unit tests don't load the e-mail templates. */
 
-/** Magic links are valid for 7 days (docs/PROJEKT.md, section 10). */
+/** Magic links are valid for 7 days (docs/PROJEKT.md, section 9). */
 export const MAGIC_LINK_TTL_SECONDS = 7 * 24 * 60 * 60
 
 /**
