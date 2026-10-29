@@ -10,7 +10,7 @@ import { MyApplicationsService } from "./services/my-applications.service"
 import { ParticipantAccountsService } from "./services/participant-accounts.service"
 import { ParticipantPasswordService } from "./services/participant-password.service"
 
-/** Owned by stream C. Imported by the applications module (stream B). */
+/** Imported by the applications module. */
 @Module({
   imports: [AuthModule, PrismaModule],
   controllers: [ParticipantPasswordController, MyApplicationsController],

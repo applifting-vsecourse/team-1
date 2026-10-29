@@ -7,7 +7,7 @@ pnpm monorepo with two apps (plus `apps/e2e` — Playwright E2E tests, rules in 
 - `apps/backend` — NestJS + Prisma + Postgres. Auth: BetterAuth (mounted at `/api/auth/*`, treat as a black box). API docs: Swagger at `/api/docs`.
 - `apps/frontend` — React + Vite + TanStack Router/Query, Tailwind + shadcn/ui, `ky` + `zod` API client.
 
-**Before deciding anything about product behaviour or architecture, read [`docs/PROJEKT.md`](docs/PROJEKT.md).** It records scope, decisions (several deliberately differ from the GitHub issues — section 11), the data model, routes, API paths and which stream owns which folder. When an issue and PROJEKT.md disagree, PROJEKT.md wins; the process and state diagrams of an application in a term win over both ([Business rules and acceptance criteria](#business-rules-and-acceptance-criteria)).
+**Before deciding anything about product behaviour or architecture, read [`docs/PROJEKT.md`](docs/PROJEKT.md).** It records scope, decisions (several deliberately differ from the GitHub issues — section 10), the data model, routes and API paths. When an issue and PROJEKT.md disagree, PROJEKT.md wins; the process and state diagrams of an application in a term win over both ([Business rules and acceptance criteria](#business-rules-and-acceptance-criteria)).
 
 **Before writing or changing any UI, read [`DESIGN.md`](DESIGN.md).** It is a contract, not a suggestion — it exists to stop generated screens drifting into generic nested cards.
 
@@ -46,7 +46,7 @@ A story is more than its title. Before writing code, read the story and the busi
 - **Story:** `gh issue view <n>` — read the acceptance criteria („Akceptační kritéria“), „Kontext“, „Mimo rozsah“ and „Podklady“. What is under „Mimo rozsah“ is not done in this story.
 - **Names:** [`docs/SLOVNIK.md`](docs/SLOVNIK.md). Czech text uses the „Pojem“ column, code uses „V kódu“ — nothing third (not „pořadatel“, „turnus“, a bare „účet“).
 - **An application in a term** (status, evaluation, waitlist, payment, cancellation, archiving): the process and state diagram in [`docs/procesy/zpracovani-prihlasky/`](docs/procesy/zpracovani-prihlasky/README.md), in the folder of the evaluation mode the story is about (`rucni-vyhodnocovani/` or `automaticke-vyhodnocovani/`; the shared part is duplicated in both, so check both). E-mails to the applicant: [`EMAILY.md`](docs/procesy/zpracovani-prihlasky/EMAILY.md).
-- **When sources disagree, the higher one wins:** the process and state diagrams, then the decisions in PROJEKT.md (sections 10 and 11), then `schema.prisma`, then the issue text.
+- **When sources disagree, the higher one wins:** the process and state diagrams, then the decisions in PROJEKT.md (sections 9 and 10), then `schema.prisma`, then the issue text.
 - **Don't guess.** If the story, the documents and the code contradict each other, or a business rule the story needs is written nowhere, don't pick a side silently and don't invent a default. Build what the higher source says; where none decides, leave that part out. List every such case in the PR under „Nejasnosti k byznys pravidlům“: what each source says (file and section), what you did, and the question. An „Otevřená otázka na PO“ still in the issue counts as unresolved.
 - **Business questions go to Adam** (product manager, [Aadikk](https://github.com/Aadikk)), who takes them to the client. Start each with „Dotaz na Adama:“; don't ask the client yourself.
 - **Business documents change only when asked.** If the story needs a change in `docs/`, say so in the PR instead of editing it (exception: the journey table in `docs/E2E.md`, see „E2E tests“). Diagrams are edited in the `.yaml` and regenerated ([`docs/procesy/README_generate_py.md`](docs/procesy/README_generate_py.md)), never in the generated `.md` / `.mmd`.
@@ -89,7 +89,7 @@ Screens are designed before they are built, and the frames are linked in the sto
 - **Don't invent.** No extra elements, copy, states or layout that the design doesn't show, and don't swap a drawn control for one you prefer (a select stays a select). If something is missing from the design — a state, an error text, where a field goes — stop and ask the designer / tech lead; leave it out meanwhile and say so in the PR.
 - **Copy:** the Czech text from Figma goes in verbatim; the English text is a translation of it. Texts the design doesn't contain are not made up — see above.
 - **Reuse before restyle:** colours, radii and fonts are already tokens in `global.css`; controls come from `components/ui`, shared pieces from `components/atoms|molecules`. Don't re-draw what the kit has, and don't hardcode what a token has.
-- **Figma vs. [`DESIGN.md`](DESIGN.md) / the kit:** when they disagree (a card that isn't a list item, a size or width off the scale) build the frame, and list every such case in the PR — the tech lead decides whether the rule or the design changes ([PROJEKT.md, section 9](docs/PROJEKT.md)). Never silently pick the rule.
+- **Figma vs. [`DESIGN.md`](DESIGN.md) / the kit:** when they disagree (a card that isn't a list item, a size or width off the scale) build the frame, and list every such case in the PR — the tech lead decides whether the rule or the design changes ([PROJEKT.md, section 8](docs/PROJEKT.md)). Never silently pick the rule.
 - **Mark the source.** The main component of each screen or block carries a comment with the frame name and node URL, so reviewers and the design agent find the spec in the code:
   ```tsx
   // Figma (Design system): V07a Dva účastníci · https://www.figma.com/design/<file>/<name>?node-id=12666-2708
@@ -139,7 +139,7 @@ Several stories — and agents — run side by side, each in its own git worktre
 
 - One agent = one worktree = one branch = one story. Don't edit files in another worktree.
 - Don't use Claude Code's built-in worktrees (`--worktree`, `.claude/worktrees/`): they get no `.env` and would collide on ports. Create one with `pnpm wt new` and start `claude` inside it.
-- Stay inside your stream's folders ([PROJEKT.md, section 6](docs/PROJEKT.md#kdo-sahá-kam-aby-se-proudy-nepraly-o-soubory)); parallel branches touching the same shared file are where merges break.
+- Parallel branches touching the same shared file (`schema.prisma`, `app.module.ts`, `routes.ts`, `components/*`) are where merges break. Change them only as far as your story needs, mention it in the PR and coordinate with the team ad hoc ([PROJEKT.md, section 11](docs/PROJEKT.md#11-pracovní-postup)).
 
 ### Review
 

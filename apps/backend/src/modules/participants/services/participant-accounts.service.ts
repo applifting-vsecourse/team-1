@@ -23,13 +23,14 @@ export type EnsureAccountResult = {
 }
 
 /**
- * Contract between stream B (application) and stream C (accounts). B calls
- * `ensureAccount` when an application is submitted: it finds or creates the
- * PARTICIPANT account of the e-mail (docs/PROJEKT.md, section 10) and refuses
- * an organizer's or admin's e-mail — one e-mail is one account type.
+ * Contract between the applications module and the participant accounts. The
+ * applications module calls `ensureAccount` when an application is submitted:
+ * it finds or creates the PARTICIPANT account of the e-mail (docs/PROJEKT.md,
+ * section 9) and refuses an organizer's or admin's e-mail — one e-mail is one
+ * account type.
  *
- * It runs on its own connection, outside B's evaluation transaction: call it
- * before that transaction starts.
+ * It runs on its own connection, outside the evaluation transaction of the
+ * applications module: call it before that transaction starts.
  */
 @Injectable()
 export class ParticipantAccountsService {

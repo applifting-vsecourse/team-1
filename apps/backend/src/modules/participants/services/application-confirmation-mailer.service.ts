@@ -22,11 +22,11 @@ import { Config } from "@/shared/config/config.service"
 import { Inject, Injectable, Logger } from "@nestjs/common"
 
 /**
- * Contract between stream B (application) and stream C (e-mail), US-56.
+ * Contract between the applications module and the e-mails, US-56.
  *
  * - `sendSubmissionConfirmation`: ONE summary e-mail per submission of the
- *   form, however many participants were signed up. B calls it once, after
- *   every application of the submission is stored.
+ *   form, however many participants were signed up. The applications module
+ *   calls it once, after every application of the submission is stored.
  * - `sendApplicationChange`: one e-mail about one changed application; the
  *   callers (US-28, 32, 33, 34, 84) are added with those stories.
  *

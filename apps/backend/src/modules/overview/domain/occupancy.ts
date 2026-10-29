@@ -29,7 +29,7 @@ export type EventOccupancySource = {
 export type OccupancyFigures = {
   capacity: number
   confirmed: number
-  /** Not clamped at zero: an overbooked term shows a negative number (docs/PROJEKT.md, section 10). */
+  /** Not clamped at zero: an overbooked term shows a negative number (docs/PROJEKT.md, section 9). */
   free: number
   waitlisted: number
 }

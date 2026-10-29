@@ -1,5 +1,5 @@
 // Every page of the app in one place. URLs are English and the same for every
-// UI language (docs/PROJEKT.md, section 9); pass params separately:
+// UI language (docs/PROJEKT.md, section 8); pass params separately:
 // <Link to={ROUTES.organizer.event} params={{ eventId }} />.
 export const ROUTES = {
   home: "/",

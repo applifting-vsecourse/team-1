@@ -15,8 +15,8 @@ import enEvents from "@/i18n/locales/en/events.json"
 import enLanding from "@/i18n/locales/en/landing.json"
 import enParticipant from "@/i18n/locales/en/participant.json"
 
-// One namespace per feature folder, so parallel streams edit different files
-// (docs/PROJEKT.md, section 6). English is the source of truth for the keys.
+// One namespace per feature folder, so parallel branches edit different files
+// (docs/PROJEKT.md, section 8). English is the source of truth for the keys.
 export const resources = {
   en: {
     common: enCommon,
