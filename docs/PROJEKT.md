@@ -68,10 +68,10 @@ Původní rozsah sprintu 1 (tabulka stories) je v [archivu](archiv/SPRINT-1.md).
 
 - Kapacita termínu pro ženy = součet kapacit dámských pokojů, pro muže = pánských. 10 + 10 pokojů po 5 místech pojme 50 + 50, **ne** 52 + 48.
 - Pokoj (návaznost na US-14): kapacita od 1 bez produktového horního limitu. Pokoje platily do 28.10.2026 pro všechny termíny akce, což je **překonáno** následujícím bodem. V režimu `GENDERED` má pohlaví dámský / pánský; v režimu `SHARED` může být bez pohlaví. US-26 zatím řeší pouze režim `GENDERED`.
-- Od 28.10.2026 se ubytování, pokoje, jejich kapacity a dostupnost řeší po termínech (rozhodnutí v sekci 9). Starší model „pokoj platí pro všechny termíny akce“ ještě popisují US-14, US-26 a odstavec o US-26 v sekci 10; jejich úprava je otevřená.
+- Od 28.10.2026 se ubytování, pokoje, jejich kapacity a dostupnost řeší po termínech (rozhodnutí v sekci 9). Každý termín musí mít ubytování: odkaz na přihlášku funguje, až má každý termín cenu i aspoň jeden pokoj. Režim pokojů zůstává na úrovni akce. Řeší to [US-99](https://github.com/applifting-vsecourse/team-1/issues/192) (pokoje po termínech) a [US-100](https://github.com/applifting-vsecourse/team-1/issues/193) (kopírování pokojů mezi termíny). Starší model „pokoj platí pro všechny termíny akce“ ještě popisují US-14, US-26 (mají poznámku „platí do 28.10.2026“) a odstavec o US-26 v sekci 10.
 - Přihláška se uloží vždy, i když je plno. Termíny se vyhodnocují zvlášť v pořadí přijetí na serveru. Dvě souběžné přihlášky nikdy nepřekročí kapacitu.
 - Variabilní symbol = číslo přihlášky.
-- Odkaz na přihlášku funguje, až má akce aspoň jeden termín s cenou a aspoň jeden pokoj.
+- Odkaz na přihlášku funguje, až má akce aspoň jeden termín s cenou a aspoň jeden pokoj (do 28.10.2026; od té doby musí mít ubytování **každý termín**).
 - Formulář přihlášky funguje na 360 px bez vodorovného posunu. Tlačítko Odeslat je po stisku neaktivní.
 - Cizí záznam přes URL i API vrací **403** a nic z obsahu.
 - Vlastní heslo přihlašovatele má aspoň 8 znaků.
