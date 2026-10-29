@@ -68,7 +68,7 @@ Původní rozsah sprintu 1 (tabulka stories) je v [archivu](archiv/SPRINT-1.md).
 
 - Kapacita termínu pro ženy = součet kapacit dámských pokojů, pro muže = pánských. 10 + 10 pokojů po 5 místech pojme 50 + 50, **ne** 52 + 48.
 - Pokoj (návaznost na US-14): kapacita od 1 bez produktového horního limitu. Pokoje platily do 28.10.2026 pro všechny termíny akce, což je **překonáno** následujícím bodem. V režimu `GENDERED` má pohlaví dámský / pánský; v režimu `SHARED` může být bez pohlaví. US-26 zatím řeší pouze režim `GENDERED`.
-- Od 28.10.2026 se ubytování, pokoje, jejich kapacity a dostupnost řeší po termínech (rozhodnutí v sekci 9). Každý termín musí mít ubytování: odkaz na přihlášku funguje, až má každý termín cenu i aspoň jeden pokoj. Režim pokojů zůstává na úrovni akce. Řeší to [US-99](https://github.com/applifting-vsecourse/team-1/issues/192) (pokoje po termínech) a [US-100](https://github.com/applifting-vsecourse/team-1/issues/193) (kopírování pokojů mezi termíny). Starší model „pokoj platí pro všechny termíny akce“ ještě popisují US-14, US-26 (mají poznámku „platí do 28.10.2026“) a odstavec o US-26 v sekci 10.
+- Od 28.10.2026 se ubytování, pokoje, jejich kapacity a dostupnost řeší po termínech (rozhodnutí v sekci 9). Každý termín musí mít ubytování: odkaz na přihlášku funguje, až má každý termín cenu i aspoň jeden pokoj. Režim pokojů zůstává na úrovni akce. Řeší to [US-99](https://github.com/applifting-vsecourse/team-1/issues/192) (pokoje po termínech) a [US-100](https://github.com/applifting-vsecourse/team-1/issues/193) (kopírování pokojů mezi termíny). Starší model „pokoj platí pro všechny termíny akce“ ještě popisují US-14, US-26 (mají poznámku „platí do 28.10.2026“) a odstavec o US-26 v sekci 10 („Rozdíly vůči boardu“).
 - Přihláška se uloží vždy, i když je plno. Termíny se vyhodnocují zvlášť v pořadí přijetí na serveru. Dvě souběžné přihlášky nikdy nepřekročí kapacitu.
 - Variabilní symbol = číslo přihlášky.
 - Odkaz na přihlášku funguje, až má akce aspoň jeden termín s cenou a aspoň jeden pokoj (do 28.10.2026; od té doby musí mít ubytování **každý termín**).
@@ -315,6 +315,6 @@ Co se týkalo jen dokončeného sprintu 1 (ve skutečnosti sprint 2), je přesun
 
 - **Rozsah sprintu 1** (tabulka 22 stories s proudy): sprint je hotový a rozsah další práce je na boardu. Čísla z akceptačních kritérií, která platí dál, zůstala v sekci 5.
 - **Plán práce ve sprintu 1** (fáze 0 a 1, proudy A–D, „Kdo sahá kam“, styčné body): proudy a vlastnictví modulů se v praxi nedodržovaly, tým se domlouvá ad hoc. Technická pravidla ze styčných bodů jsou v sekci 8 (Vazby mezi moduly), pravidlo o sdílených souborech v sekci 11.
-- **Tabulka rozdílů vůči boardu** (US-01, US-04, US-56, Figma: jednorázové heslo → magic link): issues jsou od 2026-10-21 upravené, tabulka slouží jen k dohledání původního zadání. Odstavec o US-26 zůstal v sekci 10.
+- **Tabulka rozdílů vůči boardu** (US-01, US-04, US-56, Figma: jednorázové heslo → magic link): issues jsou od 2026-10-21 upravené, tabulka slouží jen k dohledání původního zadání. Odstavec o US-26 (upřesnění zadavatele z 23.10.2026) zůstal v sekci 10 („Rozdíly vůči boardu“) a není v archivu.
 - **Zjištění ve starteru** (CI, BetterAuth, compose, seed): vyřešeno ve fázi 0.
 - **Uzavřené otevřené body** (Coolify, Brevo → Resend): uzavřeno 2026-10-21.
