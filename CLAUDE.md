@@ -88,7 +88,7 @@ The pre-push review (`@reviewer`) can't open Figma; it only checks that new UI c
 
 ### Pull request size
 
-One PR per feature (user story): backend, frontend and tests together on one branch, closing the story (`Closes #23`). Don't split a story by layer (a backend PR and a frontend PR) or into „část 1/2“ parts. Keep the PR reviewable — aim for ~400 changed lines of code (not counting tests, migration SQL, lockfile, generated files) and ~20 files; when a story needs more, keep it in one PR and say in the PR body why it's bigger. The PR comment „Co se změnilo“ flags large PRs.
+One PR per feature (user story): backend, frontend and tests together on one branch, referencing the story (`Refs #23`). The product manager closes the issue after verifying the story on staging. Don't split a story by layer (a backend PR and a frontend PR) or into „část 1/2“ parts. Keep the PR reviewable — aim for ~400 changed lines of code (not counting tests, migration SQL, lockfile, generated files) and ~20 files; when a story needs more, keep it in one PR and say in the PR body why it's bigger. The PR comment „Co se změnilo“ flags large PRs.
 
 ### E2E tests
 

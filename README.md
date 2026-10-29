@@ -14,6 +14,7 @@ Organizátor založí akci s termíny, cenami a pokoji a rozešle odkaz. Zájemc
 - **Slovník pojmů** business domény: [docs/SLOVNIK.md](docs/SLOVNIK.md)
 - **Pravidla UI a designu:** [DESIGN.md](DESIGN.md)
 - **Jak přispívat** (postup, příkazy, řešení problémů): [CONTRIBUTING.md](CONTRIBUTING.md)
+- **E2E testy** (pravidla a tabulka hlavních cest): [docs/E2E.md](docs/E2E.md)
 
 ## Stack
 
@@ -34,6 +35,7 @@ Frontend běží na http://localhost:3050, API na http://localhost:4050/api a Sw
 
 - **Board určuje rozsah práce**, [projektový dokument](docs/PROJEKT.md) rozhodnutí a pravidla. Rozpory řeš podle něj, dokud tým nebo PO rozhodnutí nezmění.
 - **Jedna story = jedna větev = jeden PR**, včetně backendu, frontendu a testů.
+- Když story dokončí hlavní cestu z [tabulky E2E testů](docs/E2E.md#co-testujeme), patří E2E test do stejného PR.
 - Do `main` mergujeme přes PR, **se zeleným CI a po otestování testerem**, pomocí squash merge. Issue zavírá product manager po ověření na stagingu; v PR používej `Refs #číslo`.
 - Issues a dokumentaci píšeme **česky**, kód a commity **anglicky**. Doménové názvy držíme podle [slovníku](docs/SLOVNIK.md).
 
