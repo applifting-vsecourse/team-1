@@ -1,5 +1,7 @@
 /* Pure parts of the magic link — kept apart from the plugin so unit tests don't load the e-mail templates. */
 
+import { Locale, toLocale } from "@/core/email/locale"
+
 /** Magic links are valid for 7 days (docs/PROJEKT.md, section 9). */
 export const MAGIC_LINK_TTL_SECONDS = 7 * 24 * 60 * 60
 
@@ -34,3 +36,11 @@ export const magicLinkLandingUrl = (frontendUrl: string, token: string): string 
   url.searchParams.set("token", token)
   return url.toString()
 }
+
+/**
+ * Language of the stand-alone magic-link e-mail: the UI language at the moment
+ * of the request, sent by the frontend as `metadata.locale`. Anything missing
+ * or unsupported falls back to English — never an error.
+ */
+export const magicLinkLocale = (metadata: Record<string, unknown> | undefined): Locale =>
+  toLocale(metadata?.locale)

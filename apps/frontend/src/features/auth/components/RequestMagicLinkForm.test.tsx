@@ -39,7 +39,10 @@ describe("RequestMagicLinkForm", () => {
 
     expect(await screen.findByText("Check your e-mail")).toBeInTheDocument()
     expect(screen.getByText(/If a participant account exists/)).toBeInTheDocument()
-    expect(magicLink).toHaveBeenCalledWith({ email: "petra@example.com" })
+    expect(magicLink).toHaveBeenCalledWith({
+      email: "petra@example.com",
+      metadata: { locale: "en" },
+    })
   })
 
   it("shows an error, and keeps the form, when the request fails", async () => {

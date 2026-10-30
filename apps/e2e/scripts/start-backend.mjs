@@ -4,8 +4,9 @@
 //   3. seed it (the same accounts and events as `pnpm dev`, see CONTRIBUTING.md),
 //   4. run the built server on the E2E port until Playwright stops it.
 import { execSync, spawn } from "node:child_process"
+import { createWriteStream } from "node:fs"
 import pg from "pg"
-import { backendRoot, e2eDatabaseUrl, fileEnv } from "./database-url.mjs"
+import { backendRoot, e2eDatabaseUrl, fileEnv, mailLogPath } from "./database-url.mjs"
 
 const port = process.env.E2E_BACKEND_PORT ?? "4190"
 const frontendUrl = process.env.E2E_FRONTEND_URL ?? "http://localhost:3190"
@@ -28,7 +29,23 @@ await recreateDatabase(databaseUrl)
 run("npx prisma migrate deploy")
 run("node dist/scripts/seed/seed.script.js")
 
-const server = spawn("node", ["dist/main.js"], { cwd: backendRoot, env, stdio: "inherit" })
+// E-mails go to the backend console (console mailer); a copy of the output is
+// kept in `mailLogPath` so tests can read subjects (tests/support/mail.ts).
+const server = spawn("node", ["dist/main.js"], {
+  cwd: backendRoot,
+  env,
+  stdio: ["inherit", "pipe", "pipe"],
+})
+const mailLog = createWriteStream(mailLogPath)
+for (const [stream, target] of [
+  [server.stdout, process.stdout],
+  [server.stderr, process.stderr],
+]) {
+  stream.on("data", (chunk) => {
+    target.write(chunk)
+    mailLog.write(chunk)
+  })
+}
 for (const signal of ["SIGINT", "SIGTERM"]) process.on(signal, () => server.kill(signal))
 server.on("exit", (code) => process.exit(code ?? 0))
 
