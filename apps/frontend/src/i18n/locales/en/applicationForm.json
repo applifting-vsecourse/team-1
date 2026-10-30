@@ -12,7 +12,7 @@
     "introOneTerm": "The application for {{names}} has been submitted. You can see the status of the selected term below.",
     "payment": {
       "account": "Organization account",
-      "onlyConfirmed": "Pay only for the confirmed terms. Do not pay for a term where you are waitlisted.",
+      "onlyConfirmed": "Pay only for the confirmed terms. Do not pay for a term where you are waitlisted yet.",
       "title": "To pay for the confirmed terms",
       "totalNote_few": "Please pay each application separately ({{count}} payments below), each with its own variable symbol, so we can match the payments to the participants.",
       "totalNote_one": "Please pay each application separately ({{count}} payments below), each with its own variable symbol, so we can match the payments to the participants.",
