@@ -74,7 +74,7 @@ export function TermStatuses({ applicationId }: { applicationId: string }) {
             {term.history.length > 0 ? (
               <ul className="flex flex-col gap-1 text-sm text-muted-foreground">
                 {term.history.map((entry) => (
-                  <li key={`${entry.changedAt}-${entry.toStatus}`}>
+                  <li key={entry.id}>
                     {t("termStatus.logEntry", {
                       date: formatDateTime(entry.changedAt),
                       who: entry.changedByName ?? t("termStatus.system"),

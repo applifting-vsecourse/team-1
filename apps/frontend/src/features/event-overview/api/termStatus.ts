@@ -17,6 +17,7 @@ const termStatusSchema = z.object({
   allowedStatuses: z.array(statusSchema),
   history: z.array(
     z.object({
+      id: z.string(),
       fromStatus: statusSchema,
       toStatus: statusSchema,
       /** Null: the system changed the status. */

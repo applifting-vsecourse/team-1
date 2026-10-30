@@ -36,6 +36,7 @@ export class TermStatusRepository {
       status: row.status,
       priceCzk: row.priceCzk,
       history: row.statusChanges.map((change) => ({
+        id: change.id,
         fromStatus: change.fromStatus,
         toStatus: change.toStatus,
         changedByName: change.changedBy?.name ?? null,

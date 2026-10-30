@@ -19,6 +19,7 @@ export class ChangeTermStatusRequestDto {
 }
 
 class StatusChangeEntryDto {
+  @ApiProperty() id!: string
   @ApiProperty({ enum: STATUSES }) fromStatus!: string
   @ApiProperty({ enum: STATUSES }) toStatus!: string
   @ApiProperty({ nullable: true, type: String, description: "Null: changed by the system" })

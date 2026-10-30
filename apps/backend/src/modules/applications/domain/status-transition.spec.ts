@@ -20,6 +20,14 @@ describe("manual status transitions (US-28)", () => {
     expect(canChangeManually("CANCELLED", "CONFIRMED")).toBe(false)
   })
 
+  it("lists exactly the targets that canChangeManually accepts", () => {
+    for (const from of ["WAITLISTED", "CONFIRMED", "CANCELLED"] as const) {
+      for (const to of ["WAITLISTED", "CONFIRMED", "CANCELLED"] as const) {
+        expect(canChangeManually(from, to)).toBe(manualTargets(from).includes(to))
+      }
+    }
+  })
+
   it("does not allow a change to the same status", () => {
     expect(canChangeManually("CONFIRMED", "CONFIRMED")).toBe(false)
     expect(canChangeManually("WAITLISTED", "WAITLISTED")).toBe(false)

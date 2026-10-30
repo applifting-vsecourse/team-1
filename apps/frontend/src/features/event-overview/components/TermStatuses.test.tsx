@@ -44,6 +44,7 @@ describe("TermStatuses", () => {
             allowedStatuses: [],
             history: [
               {
+                id: "c1",
                 fromStatus: "CONFIRMED",
                 toStatus: "CANCELLED",
                 changedByName: "Eva",
