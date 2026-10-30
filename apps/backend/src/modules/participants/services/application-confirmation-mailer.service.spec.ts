@@ -366,7 +366,7 @@ describe("ApplicationConfirmationMailer.sendApplicationChange", () => {
 
     const { html } = sent(sendEmail)
     expect(html).toContain("byla zamítnuta")
-    expect(html).toMatch(/1\. týden:\s*<strong>zrušený/)
+    expect(html).toMatch(/1\. týden:\s*<strong>zrušená/)
     expect(html).not.toContain("Variabilní symbol")
   })
 

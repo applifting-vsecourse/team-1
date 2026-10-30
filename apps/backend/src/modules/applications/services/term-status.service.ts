@@ -1,4 +1,7 @@
-import { changeEmailKind } from "@/modules/applications/domain/status-transition"
+import {
+  changeEmailKind,
+  rejectStatusChange,
+} from "@/modules/applications/domain/status-transition"
 import {
   StatusChangeCommand,
   StatusChangeResult,
@@ -7,8 +10,9 @@ import {
 import { TermStatusRepository } from "@/modules/applications/repositories/term-status.repository"
 import { ApplicationConfirmationMailer } from "@/modules/participants/services/application-confirmation-mailer.service"
 import { Identity } from "@/shared/auth/domain/identity"
+import { AppException } from "@/shared/errors/app.exception"
 import { OrganizationAccessService } from "@/shared/organization-access/organization-access.service"
-import { Injectable } from "@nestjs/common"
+import { HttpStatus, Injectable } from "@nestjs/common"
 
 /**
  * The one service that changes the status of an application in a term (US-28).
@@ -50,7 +54,11 @@ export class TermStatusService {
 
   /** Stores the change with its log entry and tells the applicant. */
   async applyChange(command: StatusChangeCommand): Promise<StatusChangeResult> {
-    const result = await this.repository.changeStatus(command)
+    const result = await this.repository.changeStatus(command, (snapshot) => {
+      const rejection = rejectStatusChange(snapshot, command.to, command.isOverCapacityConfirmed)
+      if (rejection) throw new AppException(HttpStatus.CONFLICT, rejection)
+    })
+    if (!result) throw new AppException(HttpStatus.NOT_FOUND, "NOT_FOUND")
     // The mailer logs a failed delivery itself and never throws.
     await this.mailer.sendApplicationChange({
       email: result.email,
