@@ -11,17 +11,17 @@ Pravidla a rozhodnutí projektu jsou v [docs/PROJEKT.md](docs/PROJEKT.md). Tady 
    git switch -c feat/US-23-prihlaska-pres-odkaz
    ```
    Prefixy: `feat/`, `fix/`, `chore/`, `docs/`.
-3. **Implementuj vertikálně, jeden PR na featuru** — backend, frontend i testy v jedné větvi a v jednom PR, který story pokryje celou a odkáže na ni (`Refs #23`). Issue zavírá product manager po ověření na stagingu. Story nedělíme na backend a frontend PR ani na „část 1/2“. Míř na cca 400 řádků kódu a 20 souborů (bez testů, migrací, lockfilu a generovaných souborů); když je featura větší, nech ji v jednom PR a v popisu napiš proč. S ostatními se domlouvej ad hoc (viz [PROJEKT.md, sekce 11](docs/PROJEKT.md#11-pracovní-postup)).
+3. **Implementuj vertikálně, jeden PR na featuru** — backend, frontend i testy v jedné větvi a v jednom PR, který story pokryje celou a je s ní propojený (`Closes #23`). Issue definitivně zavírá product manager po ověření na stagingu. Story nedělíme na backend a frontend PR ani na „část 1/2“. Míř na cca 400 řádků kódu a 20 souborů (bez testů, migrací, lockfilu a generovaných souborů); když je featura větší, nech ji v jednom PR a v popisu napiš proč. S ostatními se domlouvej ad hoc (viz [PROJEKT.md, sekce 11](docs/PROJEKT.md#11-pracovní-postup)).
 4. **Commity** piš anglicky, krátce a v rozkazovacím způsobu: `Add room capacity validation`.
 5. **Push** — pre-push hook sám pustí rychlé kontroly a AI review (viz [Hooky a AI review](#hooky-a-ai-review)). Před otevřením PR je dobré pustit i `pnpm check-all` (totéž, co CI, včetně integračních testů).
 6. **Otevři PR** do `main`:
    - název = název story: `US-23 Přihláška přes odkaz` (stane se z něj commit na `main`),
-   - v těle `Refs #23` — **ne** `Closes`, issue zavírá product manager,
+   - PR k ticketu začíná řádkem `Closes #23`, jinak se s ním v GitHubu nepropojí (`Refs` nestačí); víc ticketů = víc řádků,
    - vyplň šablonu PR,
    - issue přesuň na boardu do **Code review**.
 7. **Review** — požádej člena týmu. Povinné není, ale doporučené — zvlášť u schématu, auth a doménové logiky.
 8. **Test** — když je CI zelené, přesuň issue do **In Test**. Tester ([PJjiry](https://github.com/PJjiry)) story otestuje podle akceptačních kritérií ještě před mergem. Když něco nesedí, napíše to do PR a issue vrátí do **In progress**.
-9. **Merge** — až po testu od testera a se zeleným CI, squash. Větev se smaže sama. Issue přesuň do **In Business Review**.
+9. **Merge** — až po testu od testera a se zeleným CI, squash. Větev se smaže sama. Workflow [`pr-merged-business-review.yml`](.github/workflows/pr-merged-business-review.yml) propojené issue znovu otevře a přesune do **In Business Review**.
 10. **Product manager** ([Aadikk](https://github.com/Aadikk)) ověří story na stagingu a issue zavře → **Done**.
 
 ### Definition of Done

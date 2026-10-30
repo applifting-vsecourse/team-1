@@ -1,4 +1,4 @@
-Refs #
+Closes #
 
 ## Co se mění
 

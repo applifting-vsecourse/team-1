@@ -296,7 +296,7 @@ Tabulka rozdílů vůči boardu pro US-01, US-04, US-56 a Figmu (jednorázové h
 - **`main` je chráněná:** jen přes PR, CI (`verify`) musí být zelené, force-push zakázaný, platí i pro adminy.
 - **Review:** 0 povinných schválení — autor může PR mergnout sám (GitHub nedovoluje schválit vlastní PR, proto 0). **Review a schválení od člena týmu je doporučené**, zvlášť u změn schématu, auth a doménové logiky.
 - **Merge:** jen squash, větev se po merge smaže. Název PR = název commitu: `US-23 Přihláška přes odkaz`.
-- **Propojení s boardem:** v těle PR `Refs #23` (ne `Closes`), aby se issue nezavřelo samo. Issue přesune autor do In review; product manager ([Aadikk](https://github.com/Aadikk)) ověří story na stagingu a issue zavře → Done.
+- **Propojení s boardem:** PR k ticketu začíná řádkem `Closes #23`, jinak se s ním v GitHubu nepropojí. Po merge workflow `pr-merged-business-review.yml` issue znovu otevře a přesune do In Business Review; product manager ([Aadikk](https://github.com/Aadikk)) ověří story na stagingu a issue zavře → Done.
 - **Definition of Done:**
   1. Všechna akceptační kritéria odškrtnutá, logika má testy, `pnpm check-all` je zelený.
   2. PR je mergnutý do `main` (review doporučené).
