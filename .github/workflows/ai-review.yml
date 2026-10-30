@@ -55,6 +55,7 @@ jobs:
       AI_REVIEW_MAX_BYTES: "60000"
       AI_REVIEW_SETTING_SOURCES: user
       PR: ${{ github.event.pull_request.number || github.event.issue.number || inputs.pr }}
+      AI_REVIEW_PR: ${{ github.event.pull_request.number || github.event.issue.number || inputs.pr }}
       COMMENT_ID: ${{ github.event.comment.id }}
     steps:
       - uses: actions/checkout@v5

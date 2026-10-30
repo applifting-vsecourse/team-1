@@ -8,15 +8,15 @@
 #   scripts/ai-review.sh [base]       base defaults to origin/main
 #
 # Env:
-#   SKIP_AI_REVIEW=1     skip the review
 #   AI_REVIEW_MODEL      model alias (default: sonnet; the Pi runner uses haiku)
 #   AI_REVIEW_BUDGET     max USD per run for API-key users (default: 0.50)
 #   AI_REVIEW_MAX_BYTES  diff size cap (default: 150000); bigger diffs are cut
+#   AI_REVIEW_PR         PR number (default: the PR of the current branch)
 #   AI_REVIEW_SETTING_SOURCES  e.g. `user` on the Pi, so a PR's .claude/ settings
 #                        (hooks, MCP) are not loaded on the shared runner
 set -uo pipefail
 
-if [ "${SKIP_AI_REVIEW:-}" = "1" ] || [ -n "${CI:-}" ]; then
+if [ -n "${CI:-}" ]; then
   exit 0
 fi
 
@@ -60,7 +60,7 @@ fi
 # The issues the PR closes, so the agent can check the acceptance criteria.
 story=""
 if command -v gh >/dev/null 2>&1; then
-  issues="$(gh pr view --json closingIssuesReferences --jq '.closingIssuesReferences[].number' 2>/dev/null)" || issues=""
+  issues="$(gh pr view ${AI_REVIEW_PR:-} --json closingIssuesReferences --jq '.closingIssuesReferences[].number' 2>/dev/null)" || issues=""
   for n in $issues; do
     story+="$(gh issue view "$n" --json number,title,body \
       --template '# #{{.number}} {{.title}}{{"\n\n"}}{{.body}}{{"\n\n"}}' 2>/dev/null)"$'\n\n'
@@ -76,7 +76,7 @@ fi
 branch="$(git rev-parse --abbrev-ref HEAD)"
 log="$(git rev-parse --git-dir)/ai-review-last.txt"
 
-echo "ai-review: reviewing $branch against $base with $model (SKIP_AI_REVIEW=1 to skip)…"
+echo "ai-review: reviewing $branch against $base with $model…"
 
 output="$(
   printf 'Review branch %s against %s.\n%s\n\n<story>\n%s\n</story>\n\n```diff\n%s\n```\n' \
