@@ -120,7 +120,7 @@ Then tell the author what the PR still lacks — a short list in your last messa
 
 - **E2E test:** the story completes or changes a journey from the table in [`docs/E2E.md`](docs/E2E.md), but `apps/e2e` has no new or enabled test for it (rules in „E2E tests“; a changed UI text that a locator uses means a changed test; run `pnpm e2e test`). If no listed journey is touched, say „žádná cesta z docs/E2E.md se nemění“ and don't add an E2E test.
 - **Ticket link:** the branch is `feat/US-<n>-<slug>` (`fix/`, `chore/`, `docs/` for the rest), the PR title is the story title and every PR that belongs to an issue starts its body with `Closes #<issue number>`. `Refs` doesn't link the PR and the issue in GitHub. On merge, the issue closes and the board's „Item closed“ workflow moves it to In Business Review; the product manager moves it to Done after checking it on staging.
-- **Acceptance criteria:** the report above is in the PR body and the author has ticked the ✅ ones in the issue.
+- **Acceptance criteria:** the report above is in the PR body and every ✅ one is ticked in the issue on the board. Tick them yourself with `gh issue edit <n> --body-file` when you open or update the PR, and change nothing else in the issue. Leave ❌ and ❓ unticked.
 - **Open items:** „Nejasnosti k byznys pravidlům“, „Odchylky od Figmy“ and „Mimo rozsah story“ are in the PR when they apply.
 
 ### Migrations

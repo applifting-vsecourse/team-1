@@ -16,6 +16,7 @@ Pravidla a rozhodnutí projektu jsou v [docs/PROJEKT.md](docs/PROJEKT.md). Tady 
 5. **Push** — pre-push hook sám pustí rychlé kontroly a AI review (viz [Hooky a AI review](#hooky-a-ai-review)). Před otevřením PR je dobré pustit i `pnpm check-all` (totéž, co CI, včetně integračních testů).
 6. **Otevři PR** do `main`:
    - název = název story: `US-23 Přihláška přes odkaz` (stane se z něj commit na `main`),
+   - Splněná akceptační kritéria (✅ v PR) odškrtni v issue na boardu při otevření PR i při každé jeho úpravě; ❌ a ❓ nech neodškrtnuté,
    - PR k ticketu začíná řádkem `Closes #23`, jinak se s ním v GitHubu nepropojí (`Refs` nestačí); víc ticketů = víc řádků,
    - vyplň šablonu PR,
    - issue přesuň na boardu do **Code review**.
