@@ -60,6 +60,41 @@ describe("application list API", () => {
     expect(await (await get("?termId=missing")).json()).toEqual([])
   })
 
+  it("numbers the waitlist of a term per gender in the order applications were received", async () => {
+    // The full demo camp has waitlisted applicants of both genders.
+    const fullCamp = await prisma.event.findUniqueOrThrow({
+      where: { publicToken: "demo-letni-kemp-plny" },
+    })
+    const waiting = await prisma.applicationTerm.findFirstOrThrow({
+      where: { status: "WAITLISTED", application: { eventId: fullCamp.id } },
+    })
+    const rows = (await (
+      await get(`?termId=${waiting.termId}&status=WAITLISTED`, cookie, fullCamp.id)
+    ).json()) as {
+      id: string
+      gender: string
+      submittedAt: string
+      terms: { id: string; status: string; waitlistPosition: number | null }[]
+    }[]
+    expect(rows.length).toBeGreaterThan(0)
+    for (const gender of ["FEMALE", "MALE"]) {
+      const group = rows.filter((row) => row.gender === gender)
+      const positions = group.map(
+        (row) => row.terms.find((term) => term.id === waiting.termId)!.waitlistPosition,
+      )
+      expect(positions).toEqual(group.map((_, index) => index + 1))
+      const times = group.map((row) => Date.parse(row.submittedAt))
+      expect(times).toEqual([...times].sort((a, b) => a - b))
+    }
+    // Filtering by gender never renumbers the queue.
+    const women = await (
+      await get(`?termId=${waiting.termId}&status=WAITLISTED&gender=FEMALE`, cookie, fullCamp.id)
+    ).json()
+    expect(women.map((row: { id: string }) => row.id)).toEqual(
+      rows.filter((row) => row.gender === "FEMALE").map((row) => row.id),
+    )
+  })
+
   it("validates filters and protects organization data", async () => {
     for (const query of [
       "?payment=NOTHING_DUE",

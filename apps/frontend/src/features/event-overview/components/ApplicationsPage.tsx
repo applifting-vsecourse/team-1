@@ -9,6 +9,7 @@ import { MoneyAmount } from "@/components/atoms/MoneyAmount"
 import { Seo } from "@/components/atoms/Seo"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -33,6 +34,7 @@ import { UnfinishedEvent } from "@/features/event-overview/components/Unfinished
 import type { ApplicationsSearch } from "@/features/event-overview/lib/applications-search"
 
 // Figma (Design system): O05, O05g · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12110-326
+// Figma (Design system): O05 / Náhradníci (waitlist of a term and gender) · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12769-3721
 // Figma (Design system): M12 · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14070-41596
 // Figma (Design system): M12b / Empty results · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14189-43641
 export function ApplicationsPage({
@@ -56,6 +58,7 @@ export function ApplicationsPage({
   const currentPage = Math.min(page, pageCount - 1)
   const visibleRows = query.data?.slice(currentPage * 20, (currentPage + 1) * 20) ?? []
   const hasFilters = Object.values(filters).some(Boolean)
+  const isWaitlist = filters.status === "WAITLISTED"
   // Without a term or a room the event takes no applications yet; say what is missing instead.
   const isUnfinished =
     occupancy.data !== undefined &&
@@ -133,7 +136,9 @@ export function ApplicationsPage({
             <h2 className="text-lg font-semibold">
               {t("applications.count", { count: query.data.length })}
             </h2>
-            <p className="text-sm text-muted-foreground">{t("applications.sort")}</p>
+            <p className="text-sm text-muted-foreground">
+              {t(isWaitlist && filters.term ? "applications.sortWaitlist" : "applications.sort")}
+            </p>
           </div>
           {query.data.length === 0 ? (
             <div className="flex flex-col items-start gap-4 py-6">
@@ -280,6 +285,12 @@ export function ApplicationsPage({
           )}
         </section>
       )}
+      {isWaitlist && (
+        <Alert role="status">
+          <AlertTitle className="line-clamp-none">{t("applications.waitlistNoteTitle")}</AlertTitle>
+          <AlertDescription>{t("applications.waitlistNote")}</AlertDescription>
+        </Alert>
+      )}
       <p className="text-sm text-muted-foreground">{t("applications.hint")}</p>
     </div>
   )
@@ -309,7 +320,14 @@ function Terms({ application }: { application: ListedApplication }) {
                 : undefined
             }
           >
-            {t(`applications.${STATUS_LABEL[term.status]}`)}
+            {term.status === "WAITLISTED" && term.waitlistPosition !== null
+              ? t(
+                  application.gender === "FEMALE"
+                    ? "applications.waitlistedPositionFemale"
+                    : "applications.waitlistedPositionMale",
+                  { position: term.waitlistPosition },
+                )
+              : t(`applications.${STATUS_LABEL[term.status]}`)}
           </Badge>
         </div>
       ))}

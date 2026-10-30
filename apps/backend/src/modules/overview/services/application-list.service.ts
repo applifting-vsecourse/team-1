@@ -20,6 +20,10 @@ export class ApplicationListService {
     filters: ApplicationFilters,
   ): Promise<ApplicationListEntry[]> {
     const { organizationId } = await this.access.assertCanAccessEvent(user, eventId)
-    return applicationList(await this.repository.find(eventId, organizationId), filters)
+    const [rows, roomMode] = await Promise.all([
+      this.repository.find(eventId, organizationId),
+      this.repository.findRoomMode(eventId, organizationId),
+    ])
+    return applicationList(rows, filters, roomMode)
   }
 }

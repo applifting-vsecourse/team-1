@@ -257,6 +257,22 @@ describe("ApplicationsPage", () => {
       "termId=t1&status=CONFIRMED&gender=FEMALE&payment=UNPAID",
     )
   })
+  it("shows the place in the waitlist, by gender, and explains the waitlist view", async () => {
+    const waiting = (id: string, gender: string, position: number) => ({
+      ...application,
+      id,
+      gender,
+      terms: [{ ...application.terms[1], waitlistPosition: position }],
+    })
+    setup([waiting("a1", "FEMALE", 1), waiting("a2", "MALE", 2)], false, undefined, null, {
+      term: "t2",
+      status: "WAITLISTED",
+    })
+    expect((await screen.findAllByText("Waitlisted · 1")).length).toBeGreaterThan(0)
+    expect(screen.getAllByText("Waitlisted · 2").length).toBeGreaterThan(0)
+    expect(screen.getByText("Sorted: waitlist order")).toBeInTheDocument()
+    expect(screen.getByRole("status")).toHaveTextContent(/not a confirmed place/)
+  })
   it("keeps identifying and contact details in mobile cards for same-name participants", async () => {
     setup([
       application,

@@ -39,13 +39,18 @@
     "searchPlaceholder": "Jméno, e-mail nebo VS",
     "showApplications": "Zobrazit přihlášky",
     "sort": "Řazení: nejnověji přijaté",
+    "sortWaitlist": "Řazení: pořadí náhradníků",
     "status": "Stav v termínu",
     "submitted": "Přijato",
     "term": "Termín",
     "terms": "Termíny a stav",
     "title": "Přihlášky",
     "unpaid": "Nezaplaceno",
-    "waitlisted": "Náhradník"
+    "waitlistNote": "Přijetí náhradníka řešte v jeho detailu. Nejprve ověřte volné lůžko; platební údaje pošlete až po potvrzení.",
+    "waitlistNoteTitle": "Náhradníci mají pořadí, místo zatím nemají potvrzené.",
+    "waitlisted": "Náhradník",
+    "waitlistedPositionFemale": "Náhradnice · {{position}}",
+    "waitlistedPositionMale": "Náhradník · {{position}}"
   },
   "capacity": {
     "addRoom": "Přidat pokoj",

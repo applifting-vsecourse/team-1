@@ -31,6 +31,7 @@ Jen cesty, bez kterých produkt nefunguje a které ukazujeme na demu. Jedna cest
 | Organizátor otevře akci → Kapacity → obsazenost termínu a odkaz na filtrované přihlášky | `capacity.spec.ts`     | ✅   |
 | Organizátor vidí přihlášku v seznamu a zapíše platbu                                    | `payments.spec.ts`     | ✅   |
 | Organizátor ručně zruší přihlášku v termínu a změna se zapíše do záznamu                | `term-status.spec.ts`  | ✅   |
+| Organizátor otevře pořadník termínu a vidí náhradníky v pořadí přijetí                  | `waitlist.spec.ts`     | ✅   |
 | Organizátor smaže akci bez přihlášek; akci s přihláškami smazat nejde                   | `delete-event.spec.ts` | ✅   |
 
 Novou cestu přidej do tabulky v tomtéž PR. Cesta mimo tabulku se domlouvá s tech leadem. Okrajové stavy (chybné heslo, prošlý odkaz…) do E2E nepatří, pokud nejsou součástí hlavní cesty.
