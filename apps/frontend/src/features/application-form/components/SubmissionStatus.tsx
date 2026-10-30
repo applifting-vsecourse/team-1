@@ -126,7 +126,7 @@ function TermStatusCard({
             variant={isConfirmed ? "success" : "secondary"}
             className="h-7"
           >
-            {isConfirmed ? t("confirmation.status.confirmed") : t("confirmation.status.pending")}
+            {isConfirmed ? t("confirmation.status.confirmed") : t("confirmation.status.waitlisted")}
           </Badge>
           <span
             className={

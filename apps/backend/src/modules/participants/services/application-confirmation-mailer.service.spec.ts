@@ -151,11 +151,11 @@ describe("ApplicationConfirmationMailer.sendSubmissionConfirmation", () => {
 
     const { html } = sent(sendEmail)
     expect(html).toMatch(/1\. týden:\s*<strong>potvrzený/)
-    expect(html).toMatch(/2\. týden:\s*<strong>čeká na potvrzení/)
+    expect(html).toMatch(/2\. týden:\s*<strong>jste náhradník/)
     expect(html).toContain("4 500 Kč")
     expect(html).not.toContain("9 400 Kč")
     expect(html).toContain("2900123456/2010")
-    expect(html).toContain("Za termín, který čeká na potvrzení, zatím neplaťte")
+    expect(html).toContain("Za termín, kde jste náhradník, zatím neplaťte")
   })
 
   it("leaves out the payment details when everyone is waitlisted in every term, and says why", async () => {

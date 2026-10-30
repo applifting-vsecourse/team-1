@@ -124,13 +124,13 @@ describe("ApplicationDetail", () => {
     expect(screen.queryByText("To pay")).not.toBeInTheDocument()
   })
 
-  it("shows a waitlisted term only as waiting for confirmation, not to be paid yet", async () => {
+  it("shows a waitlisted term as waitlisted without a place in line, not to be paid yet", async () => {
     renderDetail(application({ terms: [confirmed, waitlisted] }))
 
-    expect(await screen.findByText("Waiting for confirmation")).toBeInTheDocument()
-    expect(screen.queryByText(/in line|waitlist/i)).not.toBeInTheDocument()
+    expect(await screen.findByText("Waitlisted")).toBeInTheDocument()
+    expect(screen.queryByText(/in line|position/i)).not.toBeInTheDocument()
     expect(
-      screen.getByText(/Don't pay for a term that is waiting for confirmation yet/),
+      screen.getByText(/Don't pay for a term where you are waitlisted yet/),
     ).toBeInTheDocument()
   })
 
@@ -146,7 +146,7 @@ describe("ApplicationDetail", () => {
       }),
     )
 
-    expect(await screen.findByText("Waiting for confirmation")).toBeInTheDocument()
+    expect(await screen.findByText("Waitlisted")).toBeInTheDocument()
     expect(screen.queryByText("Payment for the confirmed term")).not.toBeInTheDocument()
     expect(screen.queryByText("Account number")).not.toBeInTheDocument()
   })

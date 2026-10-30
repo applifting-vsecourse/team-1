@@ -36,9 +36,8 @@ describe("application e-mail previews", () => {
   it("renders no confirmed term without payment details", async () => {
     const html = await render(React.createElement(Waitlisted))
 
-    expect(html).toContain("čeká na potvrzení")
+    expect(html).toContain("jste náhradník")
     expect(html).toContain("Žádný termín zatím není potvrzený")
-    expect(html).not.toContain("náhradník")
     expect(html).not.toContain("Variabilní symbol")
   })
 

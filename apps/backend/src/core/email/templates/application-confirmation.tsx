@@ -48,7 +48,7 @@ const copy: Record<
     intro: (event) => `Hi, we received your application for ${event}.`,
     termsHeading: 'Status by term',
     confirmed: 'confirmed',
-    waitlisted: 'waiting for confirmation',
+    waitlisted: 'you are waitlisted',
     paymentHeading: 'Payment',
     amountDue: 'Amount due',
     account: 'Account number',
@@ -56,9 +56,9 @@ const copy: Record<
     severalPayments:
       'Every application has its own variable symbol — please pay each one separately.',
     waitlistNote:
-      "Don't pay for a term that is still waiting for confirmation. You pay once the place is confirmed.",
+      "Don't pay for a term where you are waitlisted. You pay once the place is confirmed.",
     allWaitlisted:
-      "None of your terms is confirmed yet, so there is nothing to pay. You pay only after a place is confirmed — we'll send you the payment details then.",
+      "None of your terms is confirmed yet and you are waitlisted, so there is nothing to pay. You pay only after a place is confirmed — we'll send you the payment details then.",
     statusLink: 'View the status of this application',
     magicLinkText:
       'You can come back to your applications any time. The button signs you in and lets you choose a password. The link works once and is valid for 7 days.',
@@ -75,7 +75,7 @@ const copy: Record<
     intro: (event) => `Dobrý den, přijali jsme vaši přihlášku na akci ${event}.`,
     termsHeading: 'Stav podle termínů',
     confirmed: 'potvrzený',
-    waitlisted: 'čeká na potvrzení',
+    waitlisted: 'jste náhradník',
     paymentHeading: 'Platba',
     amountDue: 'K úhradě',
     account: 'Číslo účtu',
@@ -83,9 +83,9 @@ const copy: Record<
     severalPayments:
       'Každá přihláška má vlastní variabilní symbol, platby posílejte zvlášť.',
     waitlistNote:
-      'Za termín, který čeká na potvrzení, zatím neplaťte. Platíte až po potvrzení místa.',
+      'Za termín, kde jste náhradník, zatím neplaťte. Platíte až po potvrzení místa.',
     allWaitlisted:
-      'Žádný termín zatím není potvrzený, takže zatím nic neplaťte. Platíte až po potvrzení místa, platební údaje vám pak pošleme.',
+      'Žádný termín zatím není potvrzený, jste náhradník, takže zatím nic neplaťte. Platíte až po potvrzení místa, platební údaje vám pak pošleme.',
     statusLink: 'Zobrazit stav této přihlášky',
     magicLinkText:
       'K přihláškám se můžete kdykoliv vrátit. Tlačítkem se přihlásíte a nastavíte si heslo. Odkaz jde použít jednou a platí 7 dní.',
