@@ -28,6 +28,8 @@ const event = {
   startsOn: "2027-07-12",
   endsOn: "2027-08-08",
   applicationsOpen: true,
+  evaluationMode: "AUTOMATIC",
+  evaluationModeLocked: true,
   missing: [],
   terms: [],
 }

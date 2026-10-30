@@ -1,4 +1,8 @@
 import {
+  EvaluationMode,
+  isEvaluationModeLocked,
+} from "@/modules/applications/domain/evaluation-mode"
+import {
   isOpenForApplications,
   missingForApplications,
   MissingForApplications,
@@ -28,6 +32,8 @@ export type StoredEvent = {
   createdAt: Date
   termCount: number
   roomCount: number
+  applicationCount: number
+  evaluationMode: EvaluationMode
   /** ISO dates, `2027-07-04`: first term start and last term end; null without terms. */
   startsOn: string | null
   endsOn: string | null
@@ -40,6 +46,8 @@ export type OrganizerEvent = StoredEvent & {
   applicationsOpen: boolean
   /** What the organizer still has to add before it does. */
   missing: MissingForApplications[]
+  /** The evaluation mode can no longer be changed (applications are open, US-101). */
+  evaluationModeLocked: boolean
 }
 
 export type NewEvent = {
@@ -57,5 +65,9 @@ export function toOrganizerEvent(event: StoredEvent): OrganizerEvent {
     ...event,
     applicationsOpen: isOpenForApplications(setup),
     missing: missingForApplications(setup),
+    evaluationModeLocked: isEvaluationModeLocked({
+      ...setup,
+      applicationCount: event.applicationCount,
+    }),
   }
 }

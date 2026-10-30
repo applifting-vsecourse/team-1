@@ -1,4 +1,5 @@
 import { CreateEventDto } from "@/modules/events/controllers/dto/create-event.dto"
+import { EvaluationModeRequestDto } from "@/modules/events/controllers/dto/evaluation-mode.request.dto"
 import { OrganizerEventResponseDto } from "@/modules/events/controllers/dto/organizer-event.response.dto"
 import { EventsService } from "@/modules/events/services/events.service"
 import { Auth } from "@/shared/auth/decorators/auth.decorator"
@@ -11,6 +12,7 @@ import {
   Get,
   HttpCode,
   Param,
+  Patch,
   Post,
   UsePipes,
   ValidationPipe,
@@ -53,6 +55,24 @@ export class OrganizerEventsController {
     @Param("eventId") eventId: string,
   ): Promise<OrganizerEventResponseDto> {
     return OrganizerEventResponseDto.fromDomain(await this.events.get(user, eventId))
+  }
+
+  @Patch(":eventId/evaluation-mode")
+  @ApiOperation({
+    summary: "Choose automatic or manual evaluation; only before applications open (US-101)",
+  })
+  @ApiResponse({ status: 200, type: OrganizerEventResponseDto })
+  @ApiResponse({ status: 400, description: "Invalid evaluation mode." })
+  @ApiResponse({ status: 403, description: "Unknown event or of another organization." })
+  @ApiResponse({ status: 409, description: "Applications are open (EVALUATION_MODE_LOCKED)." })
+  async setEvaluationMode(
+    @User() user: Identity,
+    @Param("eventId") eventId: string,
+    @Body() body: EvaluationModeRequestDto,
+  ): Promise<OrganizerEventResponseDto> {
+    return OrganizerEventResponseDto.fromDomain(
+      await this.events.setEvaluationMode(user, eventId, body.evaluationMode),
+    )
   }
 
   @Delete(":eventId")

@@ -1,3 +1,4 @@
+import { EvaluationMode } from "@/modules/applications/domain/evaluation-mode"
 import { OrganizerEvent, toOrganizerEvent } from "@/modules/events/domain/organizer-event"
 import { EventsRepository } from "@/modules/events/repositories/events.repository"
 import { Identity } from "@/shared/auth/domain/identity"
@@ -52,6 +53,17 @@ export class EventsService {
     const event = await this.repository.findById(eventId)
     if (!event) throw new AppException(HttpStatus.NOT_FOUND, "NOT_FOUND")
     return toOrganizerEvent(event)
+  }
+
+  /** Before the application link opens only; afterwards 409 (US-101). */
+  async setEvaluationMode(
+    user: Identity,
+    eventId: string,
+    mode: EvaluationMode,
+  ): Promise<OrganizerEvent> {
+    const { organizationId } = await this.organizationAccess.assertCanAccessEvent(user, eventId)
+    await this.repository.setEvaluationMode(eventId, organizationId, mode)
+    return this.get(user, eventId)
   }
 
   /** Only an event nobody has applied to can be deleted (issue #153); otherwise 409. */

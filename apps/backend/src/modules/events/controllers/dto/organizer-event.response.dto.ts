@@ -1,3 +1,4 @@
+import { EvaluationMode } from "@/modules/applications/domain/evaluation-mode"
 import { MissingForApplications } from "@/modules/applications/domain/public-event"
 import { EventTermSummary, OrganizerEvent } from "@/modules/events/domain/organizer-event"
 import { ApiProperty } from "@nestjs/swagger"
@@ -73,6 +74,14 @@ export class OrganizerEventResponseDto {
   })
   endsOn!: string | null
 
+  @ApiProperty({ enum: ["AUTOMATIC", "MANUAL"], description: "How applications are evaluated." })
+  evaluationMode!: EvaluationMode
+
+  @ApiProperty({
+    description: "Applications are open, so the evaluation mode can no longer change.",
+  })
+  evaluationModeLocked!: boolean
+
   @ApiProperty({ description: "The application link works; otherwise the public page is a 404." })
   applicationsOpen!: boolean
 
@@ -105,6 +114,8 @@ export class OrganizerEventResponseDto {
       endsOn: event.endsOn,
       applicationsOpen: event.applicationsOpen,
       missing: event.missing,
+      evaluationMode: event.evaluationMode,
+      evaluationModeLocked: event.evaluationModeLocked,
       terms: event.terms.map((term) => EventTermSummaryDto.fromDomain(term)),
     }
   }

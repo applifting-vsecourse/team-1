@@ -17,6 +17,8 @@ const stored: StoredEvent = {
   createdAt: new Date("2027-01-01T10:00:00Z"),
   termCount: 0,
   roomCount: 0,
+  applicationCount: 0,
+  evaluationMode: "AUTOMATIC",
   startsOn: null,
   endsOn: null,
   terms: [],
