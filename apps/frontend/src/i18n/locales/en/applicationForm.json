@@ -43,6 +43,7 @@
     "errors": {
       "birthDateInvalid": "Enter a valid date of birth.",
       "consentRequired": "Consent to the processing of personal data is required to submit.",
+      "dateFormat": "Enter the date as DD/MM/YYYY.",
       "emailInvalid": "Enter a valid e-mail address.",
       "firstNameRequired": "Enter the first name.",
       "genderRequired": "Choose Woman or Man.",

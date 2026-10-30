@@ -64,7 +64,7 @@ async function fillParticipant(
 const anna = {
   first: "Anna",
   last: "Nováková",
-  birth: "2010-05-17",
+  birth: "17/05/2010",
   gender: "Woman",
   term: /11–17 Jul/,
 } as const
@@ -80,16 +80,33 @@ describe("ApplicationForm", () => {
 
     const birthDate = screen.getByLabelText("Date of birth *")
     const hint = "Type a date or choose from the calendar. E.g. 25.10.1990."
-    expect(birthDate).toHaveAttribute("type", "date")
-    expect(birthDate).toHaveAttribute("min", "1900-01-01")
+    expect(birthDate).toHaveAttribute("type", "text")
+    expect(birthDate).toHaveAttribute("placeholder", "DD/MM/YYYY")
     expect(birthDate).toHaveAccessibleDescription(hint)
 
-    await userEvent.type(birthDate, "1899-12-31")
+    await userEvent.type(birthDate, "31/12/1899")
     await userEvent.click(screen.getByRole("button", { name: "Submit application" }))
 
     expect(await screen.findByText("Enter a valid date of birth.")).toBeInTheDocument()
     expect(birthDate).toHaveAccessibleDescription(`${hint} Enter a valid date of birth.`)
-    expect(birthDate).toHaveValue("1899-12-31")
+    expect(birthDate).toHaveValue("31/12/1899")
+  })
+
+  it("keeps a date that is not a day in the field and asks for the format", async () => {
+    render(
+      <ApplicationForm
+        event={event}
+        onSubmit={submitSpy()}
+      />,
+    )
+
+    const birthDate = screen.getByLabelText("Date of birth *")
+    await userEvent.type(birthDate, "31/02/2010")
+    await userEvent.click(screen.getByRole("button", { name: "Submit application" }))
+
+    expect(await screen.findByText("Enter the date as DD/MM/YYYY.")).toBeInTheDocument()
+    expect(birthDate).toHaveValue("31/02/2010")
+    expect(birthDate).toBeInvalid()
   })
 
   it("offers the terms as dates and prices, as in the design", () => {
