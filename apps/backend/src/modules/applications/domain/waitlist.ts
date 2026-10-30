@@ -1,4 +1,5 @@
 import { Gender } from "@/shared/domain/gender"
+import { ApplicationTermStatus } from "./evaluation"
 
 export type RoomMode = "GENDERED" | "SHARED"
 
@@ -16,7 +17,7 @@ export type WaitlistCandidate = {
   applicationId: string
   termId: string
   gender: Gender
-  status: "CONFIRMED" | "WAITLISTED" | "CANCELLED"
+  status: ApplicationTermStatus
   submittedAt: Date
   /** Tie-breaker for applications received at the same moment. */
   number: number

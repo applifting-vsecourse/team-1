@@ -19,8 +19,8 @@ export class WaitlistExpiryScheduler implements OnApplicationBootstrap, OnApplic
   ) {}
 
   onApplicationBootstrap(): void {
-    const interval = Number(this.config.waitlistExpiryIntervalMs)
-    if (!Number.isFinite(interval) || interval <= 0) return
+    const interval = this.config.waitlistExpiryIntervalMs
+    if (interval <= 0) return
     this.timer = setInterval(() => void this.run(), interval)
     this.timer.unref()
     setTimeout(() => void this.run(), 5_000).unref()
