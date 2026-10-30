@@ -13,7 +13,7 @@ Closes #
 - [ ] Jeden PR na story (BE + FE + testy); je-li větší než cca 400 řádků kódu / 20 souborů, je níže napsáno proč
 - [ ] Akceptační kritéria story jsou splněná a odškrtnutá v issue (nebo je níže napsané, co chybí a proč)
 - [ ] Story dokončuje cestu z [docs/E2E.md](../docs/E2E.md)? Pak je v PR E2E test, jinak je napsáno „žádná cesta z E2E.md se nemění“
-- [ ] Nejasnosti k byznys pravidlům jsou napsané níže jako „Dotaz na Adama“ (nebo žádné nejsou)
+- [ ] Nejasnosti k byznys pravidlům jsou napsané níže a Adam je označený v komentáři k PR (nebo žádné nejsou)
 - [ ] Logika má testy, `pnpm check-all` je zelený
 - [ ] UI odpovídá [DESIGN.md](../DESIGN.md) — žádné vnořené karty, tři stavy seznamu
 - [ ] Žádné texty napevno — nové klíče v `en` i `cs` (i18n), chyby API mají `code`
