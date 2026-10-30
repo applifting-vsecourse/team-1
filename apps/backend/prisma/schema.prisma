@@ -44,6 +44,8 @@ enum Locale {
 enum ApplicationTermStatus {
   CONFIRMED
   WAITLISTED
+  // Terminal (US-28): rejected, cancelled or not obtained a bed. Does not block a new application.
+  CANCELLED
 
   @@map("application_term_status")
 }
@@ -116,6 +118,7 @@ model User {
   memberships      OrganizationMember[]
   applications     Application[]
   recordedPayments Payment[]
+  statusChanges    ApplicationTermStatusChange[]
 
   @@unique([email])
   @@map("user")
@@ -141,6 +144,7 @@ model Organization {
   applications     Application[]
   applicationTerms ApplicationTerm[]
   payments         Payment[]
+  statusChanges    ApplicationTermStatusChange[]
 
   @@map("organization")
 }
@@ -279,10 +283,32 @@ model ApplicationTerm {
   priceCzk       Int
   evaluatedAt    DateTime              @default(now())
 
+  statusChanges ApplicationTermStatusChange[]
+
   @@unique([applicationId, termId])
   @@index([termId, status])
   @@index([organizationId])
   @@map("application_term")
+}
+
+// System log of every status change of an application in a term (US-28): who, when, from which
+// status to which. Written by the one status service, so later stories (waitlist, cancellation,
+// manual add) reuse it. `changedBy` is null when the system itself changed the status.
+model ApplicationTermStatusChange {
+  id                String                @id @default(cuid())
+  organization      Organization          @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId    String
+  applicationTerm   ApplicationTerm       @relation(fields: [applicationTermId], references: [id], onDelete: Cascade)
+  applicationTermId String
+  fromStatus        ApplicationTermStatus
+  toStatus          ApplicationTermStatus
+  changedBy         User?                 @relation(fields: [changedById], references: [id], onDelete: SetNull)
+  changedById       String?
+  createdAt         DateTime              @default(now())
+
+  @@index([applicationTermId, createdAt])
+  @@index([organizationId])
+  @@map("application_term_status_change")
 }
 
 // Manually recorded payment (US-44). Rows rather than a flag so a bank

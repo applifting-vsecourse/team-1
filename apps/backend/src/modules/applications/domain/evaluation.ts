@@ -1,9 +1,13 @@
 import { Gender, GenderCounts } from "@/shared/domain/gender"
 
-export type ApplicationTermStatus = "CONFIRMED" | "WAITLISTED"
+/** Status of an application in a term; CANCELLED is terminal (US-28). */
+export type ApplicationTermStatus = "CONFIRMED" | "WAITLISTED" | "CANCELLED"
+
+/** What the evaluation of a new application can decide. */
+export type EvaluationStatus = Exclude<ApplicationTermStatus, "CANCELLED">
 
 /** Confirmed only if a bed for the applicant's gender is free (US-27). */
-export function evaluateTerm(gender: Gender, freePlaces: GenderCounts): ApplicationTermStatus {
+export function evaluateTerm(gender: Gender, freePlaces: GenderCounts): EvaluationStatus {
   return freePlaces[gender] > 0 ? "CONFIRMED" : "WAITLISTED"
 }
 
@@ -16,7 +20,7 @@ export type TermToEvaluate = {
 
 export type EvaluatedTerm = {
   termId: string
-  status: ApplicationTermStatus
+  status: EvaluationStatus
   /** Price frozen at evaluation. */
   priceCzk: number
 }
@@ -38,10 +42,7 @@ export function evaluateApplication(gender: Gender, terms: TermToEvaluate[]): Ev
  * a bed from the next one. This is what the server does one transaction at a
  * time; the function exists so the rule can be tested on whole scenarios.
  */
-export function evaluateQueue(
-  capacity: GenderCounts,
-  applicants: Gender[],
-): ApplicationTermStatus[] {
+export function evaluateQueue(capacity: GenderCounts, applicants: Gender[]): EvaluationStatus[] {
   const free: GenderCounts = { ...capacity }
   return applicants.map((gender) => {
     const status = evaluateTerm(gender, free)

@@ -14,7 +14,12 @@ import {
 } from 'react-email';
 import * as React from 'react';
 
-type ChangeKind = 'STATUS_CHANGED' | 'CANCELLED' | 'TERMS_CHANGED';
+type ChangeKind =
+  | 'STATUS_CHANGED'
+  | 'WAITLISTED'
+  | 'REJECTED'
+  | 'CANCELLED'
+  | 'TERMS_CHANGED';
 
 // Copy for all locales side by side — a missing translation is a type error.
 const copy: Record<
@@ -28,6 +33,7 @@ const copy: Record<
     termsHeading: string;
     confirmed: string;
     waitlisted: string;
+    cancelled: string;
     paymentHeading: string;
     amountChanged: string;
     amountDue: string;
@@ -45,12 +51,15 @@ const copy: Record<
       `Hi, there is a change in the application of ${name} for ${event}.`,
     change: {
       STATUS_CHANGED: 'The status of one of the terms changed.',
+      WAITLISTED: 'You are a substitute in one of the terms.',
+      REJECTED: 'Your application in one of the terms was rejected.',
       CANCELLED: 'The application was cancelled.',
       TERMS_CHANGED: 'The terms of the application changed.',
     },
     termsHeading: 'Status by term now',
     confirmed: 'confirmed',
     waitlisted: 'waiting for confirmation',
+    cancelled: 'cancelled',
     paymentHeading: 'Payment',
     amountChanged: 'The amount due changed. Please pay the new amount.',
     amountDue: 'Amount due',
@@ -67,12 +76,15 @@ const copy: Record<
       `Dobrý den, v přihlášce na akci ${event} (${name}) došlo ke změně.`,
     change: {
       STATUS_CHANGED: 'Změnil se stav v jednom z termínů.',
+      WAITLISTED: 'V jednom z termínů jste náhradník.',
+      REJECTED: 'Vaše přihláška v jednom z termínů byla zamítnuta.',
       CANCELLED: 'Přihláška byla odhlášena.',
       TERMS_CHANGED: 'Změnily se termíny přihlášky.',
     },
     termsHeading: 'Stav podle termínů nyní',
     confirmed: 'potvrzený',
     waitlisted: 'čeká na potvrzení',
+    cancelled: 'zrušený',
     paymentHeading: 'Platba',
     amountChanged: 'Změnila se částka k úhradě. Zaplaťte prosím novou částku.',
     amountDue: 'K úhradě',
@@ -94,7 +106,7 @@ export interface ApplicationChangeProps {
   /** First and last name of the participant. */
   name: string;
   kind: ChangeKind;
-  terms: { name: string; status: 'CONFIRMED' | 'WAITLISTED' }[];
+  terms: { name: string; status: 'CONFIRMED' | 'WAITLISTED' | 'CANCELLED' }[];
   /** Only when the amount due changed; amounts are already formatted. */
   payment: {
     amount: string;
@@ -145,7 +157,9 @@ export const ApplicationChange = ({
                     <strong>
                       {term.status === 'CONFIRMED'
                         ? text.confirmed
-                        : text.waitlisted}
+                        : term.status === 'WAITLISTED'
+                          ? text.waitlisted
+                          : text.cancelled}
                     </strong>
                   </Text>
                 ))}

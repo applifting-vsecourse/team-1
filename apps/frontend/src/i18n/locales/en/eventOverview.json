@@ -5,6 +5,7 @@
     "allPayments": "All payments",
     "allStatuses": "All term statuses",
     "allTerms": "All terms",
+    "cancelled": "Cancelled",
     "clear": "Clear filters",
     "clearSearchAndFilters": "Clear search and filters",
     "closeFilters": "Close filters",
@@ -187,5 +188,37 @@
     "unpaid": "Not yet paid",
     "waiting": "Awaiting payment",
     "waitingDescription": "Amount due {{amount}}. No received payment has been marked yet."
+  },
+  "termStatus": {
+    "action": {
+      "cancel": "Cancel in term",
+      "confirm": "Confirm",
+      "waitlist": "Move to waitlist"
+    },
+    "confirmAnyway": "Confirm anyway",
+    "dialog": {
+      "back": "Back",
+      "cancelDescription": "The cancellation cannot be undone. The applicant gets an e-mail and may apply for this term again.",
+      "cancelSubmit": "Cancel in term",
+      "cancelTitle": "Cancel the application in this term",
+      "confirmDescription": "The application becomes confirmed with a debt and the applicant gets an e-mail with the payment details.",
+      "confirmSubmit": "Confirm",
+      "confirmTitle": "Confirm the application in this term",
+      "waitlistDescription": "The application becomes a waitlist substitute in this term and the applicant gets an e-mail.",
+      "waitlistSubmit": "Move to waitlist",
+      "waitlistTitle": "Move to waitlist"
+    },
+    "errorTitle": "The statuses could not be loaded",
+    "helper": "Each term is decided separately. The applicant gets an e-mail about every change.",
+    "logEntry": "{{date}} · {{who}}: {{from}} → {{to}}",
+    "overCapacityDescription": "Confirming exceeds the capacity of the term. Confirm only if you knowingly accept it.",
+    "overCapacityTitle": "No free bed for this gender",
+    "state": {
+      "CANCELLED": "Cancelled",
+      "CONFIRMED": "Confirmed",
+      "WAITLISTED": "Waitlisted"
+    },
+    "system": "System",
+    "title": "Status in terms"
   }
 }

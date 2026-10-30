@@ -22,6 +22,7 @@
       "variableSymbolNote": "Variabilní symbol je číselná část přihlášky {{code}}."
     },
     "status": {
+      "cancelled": "Zrušená",
       "confirmed": "Potvrzeno",
       "pending": "Čeká na potvrzení"
     },

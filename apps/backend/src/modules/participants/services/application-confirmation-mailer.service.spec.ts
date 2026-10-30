@@ -336,6 +336,40 @@ describe("ApplicationConfirmationMailer.sendApplicationChange", () => {
     expect(html).not.toContain("Variabilní symbol")
   })
 
+  it("tells the applicant they are a substitute, without payment details", async () => {
+    const { mailer, sendEmail } = setup()
+
+    await mailer.sendApplicationChange(
+      change({
+        kind: "WAITLISTED",
+        isAmountChanged: false,
+        application: waitlisted({ number: 49 }),
+      }),
+    )
+
+    const { html } = sent(sendEmail)
+    expect(html).toContain("V jednom z termínů jste náhradník")
+    expect(html).not.toContain("Variabilní symbol")
+  })
+
+  it("tells the applicant a term was rejected and lists it as cancelled", async () => {
+    const { mailer, sendEmail } = setup()
+
+    await mailer.sendApplicationChange(
+      change({
+        kind: "REJECTED",
+        application: application({
+          terms: [{ name: "1. týden", status: "CANCELLED", priceCzk: 4500 }],
+        }),
+      }),
+    )
+
+    const { html } = sent(sendEmail)
+    expect(html).toContain("byla zamítnuta")
+    expect(html).toMatch(/1\. týden:\s*<strong>zrušený/)
+    expect(html).not.toContain("Variabilní symbol")
+  })
+
   it("writes the change e-mail in English when the application is English", async () => {
     const { mailer, sendEmail } = setup()
 

@@ -35,6 +35,7 @@
     "UNPAID": "Nezaplaceno"
   },
   "status": {
+    "cancelled": "Zrušená",
     "confirmed": "Potvrzeno",
     "pending": "Čeká na potvrzení",
     "untilConfirmed": "do potvrzení"

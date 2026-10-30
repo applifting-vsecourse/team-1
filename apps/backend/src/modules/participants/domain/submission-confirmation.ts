@@ -36,8 +36,9 @@ export type SubmissionConfirmation = {
   applications: SubmittedApplication[]
 }
 
-/** What changed in an application after it was submitted (US-28, 32, 33, 34, 84). */
-export type ApplicationChangeKind = "STATUS_CHANGED" | "CANCELLED" | "TERMS_CHANGED"
+/** What changed in an application after it was submitted (US-28, 32, 33, 34, 84). WAITLISTED / REJECTED: the organizer moved a term to the waitlist / cancelled it (US-28). */
+export type ApplicationChangeKind =
+  "STATUS_CHANGED" | "WAITLISTED" | "REJECTED" | "CANCELLED" | "TERMS_CHANGED"
 
 /** One changed application → one e-mail to the applicant. */
 export type ApplicationChange = {

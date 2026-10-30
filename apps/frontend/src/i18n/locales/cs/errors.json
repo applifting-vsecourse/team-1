@@ -1,5 +1,6 @@
 {
   "APPLICATION_DUPLICATE": "Přihláška už existuje. Účastník: {{participant}}, termín: „{{term}}“. Zkontrolujte potvrzovací e-mail.",
+  "CAPACITY_EXCEEDED": "Potvrzením by se překročila kapacita termínu. Potvrďte vědomě.",
   "CAPACITY_MODE_NOT_SUPPORTED": "Tento přehled kapacit je zatím dostupný pouze pro akce s dělením pokojů podle pohlaví.",
   "CAPACITY_ROOM_GENDER_REQUIRED": "Před výpočtem kapacity podle pohlaví přiřaďte pohlaví všem pokojům.",
   "EVENT_HAS_APPLICATIONS": "Akci s přihláškami nejde smazat.",
@@ -7,6 +8,7 @@
   "INTERNAL": "Na serveru se něco pokazilo. Zkuste to prosím znovu.",
   "INVALID_EMAIL_OR_PASSWORD": "Nesprávný e-mail nebo heslo.",
   "INVALID_RESPONSE": "Odpověď serveru se nepodařilo načíst. Zkuste to znovu.",
+  "INVALID_STATUS_TRANSITION": "Z aktuálního stavu přihlášky v termínu tuto změnu provést nejde.",
   "NOT_FOUND": "Nenalezeno.",
   "PASSWORD_ALREADY_SET": "Heslo už máte nastavené.",
   "PASSWORD_REQUIRED": "Nejprve si nastavte heslo, poté budete moci pokračovat.",
