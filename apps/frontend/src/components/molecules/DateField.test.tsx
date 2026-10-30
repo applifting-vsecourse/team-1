@@ -138,8 +138,11 @@ describe("DateField", () => {
     expect(value()).toBe("2014-05-08")
 
     await userEvent.click(screen.getByRole("button", { name: "Vybrat datum v kalendáři" }))
-    expect(screen.getAllByRole("columnheader", { hidden: true })[0]).toHaveTextContent(/^po/i)
+    expect(screen.getAllByRole("columnheader", { hidden: true })[0]).toHaveTextContent(/^Po$/)
     expect(screen.getByRole("combobox", { name: "Měsíc" })).toHaveTextContent("květen")
+    expect(
+      screen.getAllByRole("columnheader", { hidden: true }).map((header) => header.textContent),
+    ).toEqual(["Po", "Út", "St", "Čt", "Pá", "So", "Ne"])
   })
 
   it("reads Czech input with and without spaces and zeros", async () => {

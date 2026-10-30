@@ -119,7 +119,9 @@ export function ParticipantFields({ index, terms, onRemove, isDisabled }: Partic
           name={`participants.${index}.birthDate`}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{t("form.birthDate")}</FormLabel>
+              <FormLabel className="data-[error=true]:text-foreground">
+                {t("form.birthDate")}
+              </FormLabel>
               <FormControl>
                 <DateField
                   min="1900-01-01"
@@ -127,8 +129,10 @@ export function ParticipantFields({ index, terms, onRemove, isDisabled }: Partic
                   {...field}
                 />
               </FormControl>
-              <FormDescription>{t("form.birthDateHint")}</FormDescription>
-              <FormMessage />
+              <FormDescription className="text-xs font-medium">
+                {t("form.birthDateHint")}
+              </FormDescription>
+              <FormMessage className="text-xs font-medium" />
             </FormItem>
           )}
         />

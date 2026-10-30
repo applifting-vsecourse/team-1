@@ -42,13 +42,33 @@ type DateFieldProps = Omit<
   max?: string
 }
 
+const MonthsDropdown = (props: DropdownProps) => (
+  <CalendarDropdown
+    {...props}
+    kind="month"
+  />
+)
+const YearsDropdown = (props: DropdownProps) => (
+  <CalendarDropdown
+    {...props}
+    kind="year"
+  />
+)
+
+const capitalize = (text: string) => text.charAt(0).toLocaleUpperCase() + text.slice(1)
+
 const toDisplay = (value: string, language: "cs" | "en") =>
   isIsoDate(value) ? formatDateInput(value, language) : value
 
 /** Month / year picker in the calendar header: the kit Select behind DayPicker's dropdown slot. */
-function CalendarDropdown({ options, value, onChange, "aria-label": label }: DropdownProps) {
-  // Month values are 0–11, year values are the years.
-  const isMonth = Number(value) <= 11
+// Figma (Design system): DS / Date picker · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14790-1710
+function CalendarDropdown({
+  options,
+  value,
+  onChange,
+  "aria-label": label,
+  kind,
+}: DropdownProps & { kind: "month" | "year" }) {
   return (
     <Select
       value={String(value)}
@@ -58,7 +78,7 @@ function CalendarDropdown({ options, value, onChange, "aria-label": label }: Dro
     >
       <SelectTrigger
         aria-label={label}
-        className={cn("data-[size=default]:h-9", isMonth ? "min-w-0 flex-1" : "w-24")}
+        className={cn(kind === "month" ? "min-w-0 flex-1" : "w-26")}
       >
         <SelectValue />
       </SelectTrigger>
@@ -112,7 +132,8 @@ export function DateField({
   const selected = isoToLocalDate(value)
   const minDate = min ? isoToLocalDate(min) : undefined
   const maxDate = max ? isoToLocalDate(max) : undefined
-  const thisYear = new Date().getFullYear()
+  const today = new Date()
+  const thisYear = today.getFullYear()
   const firstYear = Math.min(
     minDate?.getFullYear() ?? thisYear - DEFAULT_YEAR_SPAN,
     selected?.getFullYear() ?? thisYear,
@@ -121,7 +142,6 @@ export function DateField({
     maxDate?.getFullYear() ?? thisYear + DEFAULT_YEAR_SPAN,
     selected?.getFullYear() ?? thisYear,
   )
-  const today = new Date()
   const opensOn =
     selected ??
     (maxDate && today > maxDate ? maxDate : minDate && today < minDate ? minDate : today)
@@ -168,7 +188,8 @@ export function DateField({
         </div>
       </PopoverAnchor>
       <PopoverContent
-        align="end"
+        align="start"
+        collisionPadding={8}
         className="w-auto rounded-lg p-0"
       >
         {/* key: the calendar starts on the selected month each time it opens */}
@@ -201,10 +222,13 @@ export function DateField({
           formatters={{
             formatMonthDropdown: (date) =>
               format(date, "LLLL", { locale: DATE_FNS_LOCALES[language] }),
+            // Po Út St … in Czech (date-fns gives them lowercase)
+            formatWeekdayName: (date) =>
+              capitalize(format(date, "EEEEEE", { locale: DATE_FNS_LOCALES[language] })),
           }}
           className="[--cell-size:--spacing(10)]"
           classNames={{ month: "flex w-full flex-col gap-2" }}
-          components={{ Dropdown: CalendarDropdown }}
+          components={{ MonthsDropdown, YearsDropdown }}
         />
       </PopoverContent>
     </Popover>
