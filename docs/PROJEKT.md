@@ -53,12 +53,12 @@ Jádro MVP:
 ## 4. Board
 
 - **91 položek**, všechno issues v tomto repu ve formátu `US-xx Název` podle `.github/ISSUE_TEMPLATE/user-story.md`.
-- **Status:** Backlog → Ready → (Design) → In progress → Code review (otevřený PR) → In Test (tester před mergem) → In Business Review (po merge, PM na stagingu) → Done. Merguje se až po testu od testera; postup je v [CONTRIBUTING.md](../CONTRIBUTING.md). Pole Size (XS–XL), Estimate a Sprint (iterace) existují, zatím nevyplněná.
+- **Status:** Backlog → Ready (definovaná akceptační kritéria) → (Design) → In progress → Code review (otevřený PR) → In Test (tester před mergem) → In Business Review (po merge, PM na stagingu) → Done. Merguje se až po testu od testera; postup je v [CONTRIBUTING.md](../CONTRIBUTING.md). Jestli se story může začít vyvíjet, určuje štítek `design: …`, ne sloupec. Pole Size (XS–XL), Estimate a Sprint (iterace) existují, zatím nevyplněná.
 - **Štítky:**
   - `epic: …` — 11 epiců (účty, nastavení akce, přihlašování na akce, platby, ubytování, přehledy, komunikace, ekonomika, logistika, platforma, technický základ)
   - `priority: MVP` / `priority: nice to have`
   - `sprint 1` — osekané MVP pro první sprint
-  - designový tok: `ready to design` → `design done`
+  - designový tok: `design: needed` → `design: done`, bez UI `design: not needed`; vyvíjet se může story s `design: done` nebo `design: not needed` bez otevřené otázky na PO
 - Uzavřené (vypuštěné podle finálního feature breakdownu): US-17 zálohy, US-48 doúčtování, US-50 platba kartou, US-63 nahrání dokumentu, US-67 oddíly.
 - Každá story má sekci **Mimo rozsah** — co tam je, se v dané story nedělá (ani agentem).
 

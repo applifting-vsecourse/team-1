@@ -4,7 +4,7 @@ Pravidla a rozhodnutí projektu jsou v [docs/PROJEKT.md](docs/PROJEKT.md). Tady 
 
 ## Postup u jedné story
 
-1. **Vyber story** na [boardu](https://github.com/orgs/applifting-vsecourse/projects/12) ze sloupce Ready, přiřaď si ji a přesuň do **In progress**. Přečti si akceptační kritéria i sekci _Mimo rozsah_ — co tam je, se nedělá.
+1. **Vyber story** na [boardu](https://github.com/orgs/applifting-vsecourse/projects/12) se štítkem `design: done` nebo `design: not needed` a bez otevřené otázky na PO (ze sloupce Ready nebo Design, filtr `label:"design: done","design: not needed" status:Ready,Design`). Story se štítkem `design: needed` nebo bez štítku `design:` se ještě nevyvíjí. Přiřaď si ji a přesuň do **In progress**. Přečti si akceptační kritéria i sekci _Mimo rozsah_ — co tam je, se nedělá.
 2. **Založ větev** z aktuálního `main`:
    ```shell
    git switch main && git pull
