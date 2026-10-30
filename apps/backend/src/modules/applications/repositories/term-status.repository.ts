@@ -73,7 +73,11 @@ export class TermStatusRepository {
           select: { capacity: true, gender: true },
         }),
         tx.applicationTerm.findMany({
-          where: { termId: command.termId, status: "CONFIRMED" },
+          where: {
+            organizationId: command.organizationId,
+            termId: command.termId,
+            status: "CONFIRMED",
+          },
           select: { application: { select: { gender: true } } },
         }),
       ])
