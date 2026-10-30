@@ -19,4 +19,4 @@ Closes #
 - [ ] Žádné texty napevno — nové klíče v `en` i `cs` (i18n), chyby API mají `code`
 - [ ] Nejvýš jedna migrace, rebasnutá na aktuální `main`
 - [ ] Mění se sdílené soubory (`schema.prisma`, `app.module.ts`, `routes.ts`, `components/**`)? Pak je to napsané tady:
-- [ ] Review od člena týmu (doporučené, u schématu, auth a doménové logiky zvlášť)
+- [ ] Schválení od člena týmu (povinné, u schématu, auth a doménové logiky zvlášť pečlivě)

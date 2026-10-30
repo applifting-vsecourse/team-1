@@ -13,37 +13,36 @@ Pravidla a rozhodnutí projektu jsou v [docs/PROJEKT.md](docs/PROJEKT.md). Tady 
    Prefixy: `feat/`, `fix/`, `chore/`, `docs/`.
 3. **Implementuj vertikálně, jeden PR na featuru** — backend, frontend i testy v jedné větvi a v jednom PR, který story pokryje celou a je s ní propojený (`Closes #23`). Merge issue zavře a board ho přesune do In Business Review; do Done ho přesouvá product manager po ověření na stagingu. Story nedělíme na backend a frontend PR ani na „část 1/2“. Míř na cca 400 řádků kódu a 20 souborů (bez testů, migrací, lockfilu a generovaných souborů); když je featura větší, nech ji v jednom PR a v popisu napiš proč. S ostatními se domlouvej ad hoc (viz [PROJEKT.md, sekce 11](docs/PROJEKT.md#11-pracovní-postup)).
 4. **Commity** piš anglicky, krátce a v rozkazovacím způsobu: `Add room capacity validation`.
-5. **Push** — pre-push hook sám pustí rychlé kontroly a AI review (viz [Hooky a AI review](#hooky-a-ai-review)). Před otevřením PR je dobré pustit i `pnpm check-all` (totéž, co CI, včetně integračních testů).
-6. **Otevři PR** do `main`:
+5. **Push** — pre-push hook sám pustí rychlé kontroly (viz [Hooky a AI review](#hooky-a-ai-review)). Před otevřením PR je dobré pustit i `pnpm check-all` (totéž, co CI, včetně integračních testů).
+6. **Otevři PR** do `main` jako draft (`gh pr create --draft`). Až je hotový, přepni ho na Ready for review (`gh pr ready`); AI review běží až potom, takže proběhne nad hotovou prací:
    - název = název story: `US-23 Přihláška přes odkaz` (stane se z něj commit na `main`),
    - Splněná akceptační kritéria (✅ v PR) odškrtni v issue na boardu při otevření PR i při každé jeho úpravě; ❌ a ❓ nech neodškrtnuté,
    - PR k ticketu začíná řádkem `Closes #23`, jinak se s ním v GitHubu nepropojí (`Refs` nestačí); víc ticketů = víc řádků,
    - vyplň šablonu PR,
    - issue přesuň na boardu do **Code review**.
-7. **Review** — požádej člena týmu. Povinné není, ale doporučené — zvlášť u schématu, auth a doménové logiky.
+7. **Review** — požádej člena týmu. PR do `main` potřebuje 1 schválení, obejít ho může maintainer nebo admin.
 8. **Test** — když je CI zelené, přesuň issue do **In Test**. Tester ([PJjiry](https://github.com/PJjiry)) story otestuje podle akceptačních kritérií ještě před mergem. Když něco nesedí, napíše to do PR a issue vrátí do **In progress**.
 9. **Merge** — až po testu od testera a se zeleným CI, squash. Větev se smaže sama. Propojené issue se zavře a board ho přesune do **In Business Review** (workflow boardu „Item closed“).
-10. **Product manager** ([Aadikk](https://github.com/Aadikk)) ověří story na stagingu a issue zavře → **Done**.
+10. **Product manager** ([Aadikk](https://github.com/Aadikk)) ověří story na stagingu a přesune ji do **Done**.
 
 ### Definition of Done
 
 - [ ] všechna akceptační kritéria splněná, logika má testy, `pnpm check-all` je zelený,
 - [ ] tester ([PJjiry](https://github.com/PJjiry)) story otestoval před mergem,
-- [ ] PR je mergnutý do `main` (review doporučené),
+- [ ] PR je schválený a mergnutý do `main`,
 - [ ] product manager ([Aadikk](https://github.com/Aadikk)) story schválil na stagingu.
 
 ## Hooky a AI review
 
-| Hook         | Co dělá                                                                                                                                                                       |
-| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `pre-commit` | Prettier + ESLint na změněné soubory (lint-staged).                                                                                                                           |
-| `pre-push`   | `pnpm check-fast` (lint, type-check, unit testy BE i FE — bez Dockeru), pak AI review (`scripts/ai-review.sh`, totéž co `pnpm ai-review`). Integrační testy a build hlídá CI. |
+| Hook         | Co dělá                                                                                                                          |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| `pre-commit` | Prettier + ESLint na změněné soubory (lint-staged).                                                                              |
+| `pre-push`   | `pnpm check-fast` (lint, type-check, unit testy BE i FE — bez Dockeru). AI review běží na PR, integrační testy a build hlídá CI. |
 
-**AI review** (`scripts/ai-review.sh`) pošle diff větve proti `origin/main` agentovi `reviewer` ([`.claude/agents/reviewer.md`](.claude/agents/reviewer.md)), který ho porovná s CLAUDE.md, PROJEKT.md a DESIGN.md. Nálezy jsou `BLOCKER`, `WARNING` a `NOTE`; **push zastaví jen `BLOCKER`**. Celý výstup posledního běhu je v `.git/ai-review-last.txt`.
+**AI review** (`scripts/ai-review.sh`) běží na Raspberry Pi nad PR, který není draft (viz [Raspberry Pi runner](#raspberry-pi-runner)). Pošle diff větve proti `origin/main` a text issue z `Closes` agentovi `reviewer` ([`.claude/agents/reviewer.md`](.claude/agents/reviewer.md)), který ho porovná s pravidly projektu a s akceptačními kritérii. Nálezy jsou `BLOCKER`, `WARNING` a `NOTE`; **`BLOCKER` shodí job `review`**, merge ale sám nezastaví, povinné jsou `verify` a `e2e`. Lokální běh ukládá celý výstup do `.git/ai-review-last.txt`.
 
-- Kdo nemá [Claude Code](https://claude.com/claude-code), tomu se AI review přeskočí — rychlé kontroly běží dál.
-- Když review nedoběhne (síť, limit), push projde s varováním. Tvrdá brána je CI.
-- Přeskočit jen AI review: `SKIP_AI_REVIEW=1 git push`. Přeskočit všechno: `git push --no-verify` (jen výjimečně).
+- Když review nedoběhne (síť, limit), napíše to do komentáře v PR. Tvrdá brána je CI.
+- Přeskočit pre-push kontroly: `git push --no-verify` (jen výjimečně).
 - Model a strop: `AI_REVIEW_MODEL` (výchozí `sonnet`), `AI_REVIEW_BUDGET` (výchozí 0,50 USD na běh, platí pro API klíč).
 - Ručně kdykoli: `pnpm ai-review`, v Claude Code `@reviewer`.
 
@@ -79,7 +78,7 @@ Pravidla:
 
 Workflow [`.github/workflows/ai-review.yml`](.github/workflows/ai-review.yml) pustí review při každém pushi do PR (draft PR až po „Ready for review“) a výsledek drží v jednom českém komentáři (nálezy v tabulkách s odkazy na řádky, formát v `scripts/ai-review-comment.sh`), který se s každým pushem přepíše. Novější push zruší rozběhnuté review téhož PR. Znovu ho jde spustit komentářem `/ai-review` v PR (jen pro uživatele v proměnné `AI_REVIEW_ADMIN`, výchozí `kudrle01`; ostatním se komentář ignoruje) nebo ručně (Actions → AI review → Run workflow, číslo PR). Běží na self-hostovaném runneru s labelem `pi`, se stejným agentem `reviewer`, ale levně:
 
-- model `haiku` (proměnná `AI_REVIEW_MODEL`), strop `AI_REVIEW_BUDGET` (výchozí 0,10 USD) na jeden push, diff oříznutý na 60 kB,
+- model `haiku` (proměnná `AI_REVIEW_MODEL`), strop `AI_REVIEW_BUDGET` (výchozí 0,10 USD) na jeden push, diff oříznutý na 60 kB (komentář na to upozorní),
 - skript a agent se berou z `main`, ne z PR, a projektová nastavení Claude (`.claude/` z PR) se nenačítají — PR si nemůže přepsat vlastního reviewera ani spustit kód přes hooky,
 - PR z forků na Pi nikdy nedojdou. Samotný soubor workflow se ale u `pull_request` bere z větve PR — kdo má do repa zápis, může na Pi spustit vlastní kód. Pi proto drž na samostatném uživateli bez dalších přístupů.
 
@@ -95,8 +94,8 @@ Dokud `AI_REVIEW_ENABLED` není `true`, workflow se přeskočí.
 
 ## Pravidla `main`
 
-- Jen přes PR, CI (`verify`) musí projít, force-push je zakázaný. Platí i pro adminy.
-- 0 povinných schválení — autor může mergnout sám.
+- Jen přes PR, CI (`verify` a `e2e`) musí projít, force-push je zakázaný. Platí i pro adminy.
+- 1 povinné schválení, obejít ho může maintainer nebo admin.
 - Jen squash merge.
 
 ## Příkazy

@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # AI review of the current branch against origin/main, using the shared
-# `reviewer` agent (.claude/agents/reviewer.md). Exits 1 only when the agent
-# reports a BLOCKER; every other failure (no CLI, no network, timeout) warns
-# and lets the push through — CI is the hard gate, this is an early signal.
+# `reviewer` agent (.claude/agents/reviewer.md) and the issues the PR closes.
+# Runs on the Pi runner (.github/workflows/ai-review.yml) or by hand (`pnpm ai-review`).
+# Exits 1 only when the agent reports a BLOCKER; every other failure (no CLI,
+# no network, timeout) warns and exits 0 — CI is the hard gate.
 #
 #   scripts/ai-review.sh [base]       base defaults to origin/main
 #
@@ -28,6 +29,7 @@ base="${1:-origin/main}"
 model="${AI_REVIEW_MODEL:-sonnet}"
 budget="${AI_REVIEW_BUDGET:-0.50}"
 max_bytes="${AI_REVIEW_MAX_BYTES:-150000}"
+story_max_bytes=20000
 
 root="$(git rev-parse --show-toplevel)"
 cd "$root" || exit 0
@@ -48,9 +50,22 @@ if [ -z "$diff" ]; then
 fi
 
 note=""
+truncated=""
 if [ "${#diff}" -gt "$max_bytes" ]; then
+  truncated="TRUNCATED: ${#diff} $max_bytes"
   diff="${diff:0:$max_bytes}"
   note="The diff was cut at $max_bytes bytes; review what is shown and open files for the rest if needed."
+fi
+
+# The issues the PR closes, so the agent can check the acceptance criteria.
+story=""
+if command -v gh >/dev/null 2>&1; then
+  issues="$(gh pr view --json closingIssuesReferences --jq '.closingIssuesReferences[].number' 2>/dev/null)" || issues=""
+  for n in $issues; do
+    story+="$(gh issue view "$n" --json number,title,body \
+      --template '# #{{.number}} {{.title}}{{"\n\n"}}{{.body}}{{"\n\n"}}' 2>/dev/null)"$'\n\n'
+  done
+  story="${story:0:$story_max_bytes}"
 fi
 
 extra=()
@@ -64,8 +79,8 @@ log="$(git rev-parse --git-dir)/ai-review-last.txt"
 echo "ai-review: reviewing $branch against $base with $model (SKIP_AI_REVIEW=1 to skip)…"
 
 output="$(
-  printf 'Review branch %s against %s.\n%s\n\n```diff\n%s\n```\n' \
-    "$branch" "$base" "$note" "$diff" |
+  printf 'Review branch %s against %s.\n%s\n\n<story>\n%s\n</story>\n\n```diff\n%s\n```\n' \
+    "$branch" "$base" "$note" "$story" "$diff" |
     claude -p \
       --agent reviewer \
       --model "$model" \
@@ -76,10 +91,13 @@ output="$(
 )"
 status=$?
 
-printf '%s\n' "$output" >"$log"
+{
+  [ -z "$truncated" ] || printf '%s\n' "$truncated"
+  printf '%s\n' "$output"
+} >"$log"
 
 if [ $status -ne 0 ] || ! grep -q '^VERDICT: ' <<<"$output"; then
-  echo "ai-review: review did not finish, letting the push through. Output: $log"
+  echo "ai-review: review did not finish. Output: $log"
   exit 0
 fi
 
@@ -87,8 +105,7 @@ grep -E '^(BLOCKER|WARNING|NOTE) ' <<<"$output" || true
 
 if grep -q '^VERDICT: BLOCK' <<<"$output"; then
   echo
-  echo "ai-review: push stopped by a BLOCKER (full output: $log)."
-  echo "Fix it, or push anyway with: SKIP_AI_REVIEW=1 git push"
+  echo "ai-review: BLOCKER found (full output: $log)."
   exit 1
 fi
 

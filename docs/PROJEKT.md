@@ -52,8 +52,8 @@ Jádro MVP:
 
 ## 4. Board
 
-- **91 položek**, všechno issues v tomto repu ve formátu `US-xx Název` podle `.github/ISSUE_TEMPLATE/user-story.md`.
-- **Status:** Backlog → Ready (definovaná akceptační kritéria) → (Design) → In progress → Code review (otevřený PR) → In Test (tester před mergem) → In Business Review (po merge, PM na stagingu) → Done. Merguje se až po testu od testera; postup je v [CONTRIBUTING.md](../CONTRIBUTING.md). Jestli se story může začít vyvíjet, určuje štítek `design: …`, ne sloupec. Pole Size (XS–XL), Estimate a Sprint (iterace) existují, zatím nevyplněná.
+- Všechny položky jsou issues v tomto repu, story ve formátu `US-xx Název` podle `.github/ISSUE_TEMPLATE/user-story.md`.
+- **Status:** Backlog → Ready (definovaná akceptační kritéria) → (Design) → In progress → Code review (otevřený PR) → In Test (tester před mergem) → In Business Review (po merge, PM na stagingu) → Done. Merguje se až po testu od testera; postup je v [CONTRIBUTING.md](../CONTRIBUTING.md). Jestli se story může začít vyvíjet, určuje štítek `design: …`, ne sloupec. Pole Sprint (iterace) se vyplňuje, Size (XS–XL) a Estimate zatím ne.
 - **Štítky:**
   - `epic: …` — 11 epiců (účty, nastavení akce, přihlašování na akce, platby, ubytování, přehledy, komunikace, ekonomika, logistika, platforma, technický základ)
   - `priority: MVP` / `priority: nice to have`
@@ -293,14 +293,15 @@ Tabulka rozdílů vůči boardu pro US-01, US-04, US-56 a Figmu (jednorázové h
 ## 11. Pracovní postup
 
 - **Větve:** `feat/US-23-prihlaska-pres-odkaz`, `fix/…`, `chore/…`, `docs/…`.
-- **`main` je chráněná:** jen přes PR, CI (`verify`) musí být zelené, force-push zakázaný, platí i pro adminy.
-- **Review:** 0 povinných schválení — autor může PR mergnout sám (GitHub nedovoluje schválit vlastní PR, proto 0). **Review a schválení od člena týmu je doporučené**, zvlášť u změn schématu, auth a doménové logiky.
+- **`main` je chráněná:** jen přes PR, CI (`verify` a `e2e`) musí být zelené, force-push zakázaný, platí i pro adminy.
+- **Review:** PR do `main` potřebuje 1 schválení od člena týmu (GitHub nedovoluje schválit vlastní PR), obejít ho může maintainer nebo admin.
 - **Merge:** jen squash, větev se po merge smaže. Název PR = název commitu: `US-23 Přihláška přes odkaz`.
 - **Propojení s boardem:** PR k ticketu začíná řádkem `Closes #23`, jinak se s ním v GitHubu nepropojí. Merge issue zavře a workflow boardu „Item closed“ ho přesune do In Business Review; product manager ([Aadikk](https://github.com/Aadikk)) ověří story na stagingu a přesune ji ručně do Done.
 - **Definition of Done:**
   1. Všechna akceptační kritéria odškrtnutá, logika má testy, `pnpm check-all` je zelený.
-  2. PR je mergnutý do `main` (review doporučené).
-  3. Product manager ([Aadikk](https://github.com/Aadikk)) story schválil na stagingu.
+  2. Tester ([PJjiry](https://github.com/PJjiry)) story otestoval před mergem.
+  3. PR je schválený a mergnutý do `main`.
+  4. Product manager ([Aadikk](https://github.com/Aadikk)) story schválil na stagingu.
 - **Sdílené soubory** (`schema.prisma`, `app.module.ts`, `routes.ts`, `components/*`): měň je jen v rozsahu své story a v PR na to upozorni. Práci si nerozdělujeme do proudů ani modulů, domlouváme se ad hoc a do práce si nezasahujeme.
 
 ## 12. Otevřené body

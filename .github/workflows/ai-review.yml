@@ -4,9 +4,9 @@ name: AI review (Raspberry Pi)
 # Runs only while the repository variable AI_REVIEW_ENABLED is 'true' and a runner
 # with the `pi` label is online (setup in CONTRIBUTING.md, section "Raspberry Pi runner").
 #
-# Same agent and output format as the pre-push hook (.claude/agents/reviewer.md),
-# with a hard per-run budget; the result is one sticky PR comment in Czech
-# (scripts/ai-review-comment.sh), updated on every push.
+# Same agent as `pnpm ai-review` (.claude/agents/reviewer.md), with a hard per-run
+# budget; the result is one sticky PR comment in Czech (scripts/ai-review-comment.sh),
+# updated on every push. A BLOCKER fails the job, which is not a required check.
 
 on:
   pull_request:
@@ -22,6 +22,7 @@ on:
 
 permissions:
   contents: read
+  issues: read
   pull-requests: write
 
 jobs:
@@ -99,4 +100,9 @@ jobs:
             gh api -X PATCH "repos/$GITHUB_REPOSITORY/issues/comments/$id" -F body=@"$RUNNER_TEMP/review.md" >/dev/null
           else
             gh pr comment "$PR" --body-file "$RUNNER_TEMP/review.md"
+          fi
+
+          if grep -q '^VERDICT: BLOCK' "$log"; then
+            echo "AI review found a BLOCKER, see the PR comment"
+            exit 1
           fi
