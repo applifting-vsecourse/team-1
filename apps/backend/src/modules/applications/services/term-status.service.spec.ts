@@ -136,4 +136,27 @@ describe("TermStatusService", () => {
       expect.any(Function),
     )
   })
+
+  it("sends e-mail no. 6 without payment details when the system cancels a waitlisted application", async () => {
+    repository.changeStatus.mockResolvedValue(result("CANCELLED"))
+    const command = {
+      organizationId: "org",
+      applicationId: "a1",
+      termId: "t1",
+      to: "CANCELLED" as const,
+      isOverCapacityConfirmed: false,
+    }
+
+    await service.applyChange({ ...command, actorId: null })
+    await service.applyChange({ ...command, actorId: "u1" })
+
+    expect(mailer.sendApplicationChange).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({ kind: "NO_BED_FREED", isAmountChanged: false, locale: "cs" }),
+    )
+    expect(mailer.sendApplicationChange).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({ kind: "REJECTED" }),
+    )
+  })
 })

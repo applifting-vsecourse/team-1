@@ -1,4 +1,5 @@
 import {
+  canChange,
   canChangeManually,
   changeEmailKind,
   exceedsCapacityWhenConfirmed,
@@ -33,6 +34,34 @@ describe("manual status transitions (US-28)", () => {
   it("does not allow a change to the same status", () => {
     expect(canChangeManually("CONFIRMED", "CONFIRMED")).toBe(false)
     expect(canChangeManually("WAITLISTED", "WAITLISTED")).toBe(false)
+  })
+})
+
+describe("system transitions (US-106)", () => {
+  it("lets the system cancel a waitlisted application and nothing else", () => {
+    expect(canChange("SYSTEM", "WAITLISTED", "CANCELLED")).toBe(true)
+    expect(canChange("SYSTEM", "WAITLISTED", "CONFIRMED")).toBe(false)
+    expect(canChange("SYSTEM", "CONFIRMED", "CANCELLED")).toBe(false)
+    expect(canChange("SYSTEM", "CANCELLED", "CANCELLED")).toBe(false)
+  })
+
+  it("rejects a system cancellation of an application confirmed meanwhile", () => {
+    const snapshot: StatusChangeSnapshot = {
+      status: "CONFIRMED",
+      gender: "FEMALE",
+      rooms: [],
+      confirmedGenders: [],
+    }
+    expect(rejectStatusChange(snapshot, "CANCELLED", false, "SYSTEM")).toBe(
+      "INVALID_STATUS_TRANSITION",
+    )
+    expect(rejectStatusChange(snapshot, "CANCELLED", false, "ORGANIZER")).toBeNull()
+  })
+
+  it("picks e-mail no. 6 only for the system cancelling a waitlisted application", () => {
+    expect(changeEmailKind("CANCELLED", "WAITLISTED", "SYSTEM")).toBe("NO_BED_FREED")
+    expect(changeEmailKind("CANCELLED", "WAITLISTED", "ORGANIZER")).toBe("REJECTED")
+    expect(changeEmailKind("CANCELLED", "CONFIRMED", "SYSTEM")).toBe("REJECTED")
   })
 })
 

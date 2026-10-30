@@ -19,13 +19,37 @@ const MANUAL_TRANSITIONS: Record<ApplicationTermStatus, ApplicationTermStatus[]>
   CANCELLED: [],
 }
 
+/**
+ * Changes the system makes by itself (actor null), the same table for both evaluation modes:
+ * Náhradník → Zrušená on the first day of the term (US-106). Anything else is not the system's
+ * to do, so a job that read a waitlisted application a moment ago cannot cancel one an
+ * organizer has confirmed meanwhile.
+ */
+const SYSTEM_TRANSITIONS: Record<ApplicationTermStatus, ApplicationTermStatus[]> = {
+  WAITLISTED: ["CANCELLED"],
+  CONFIRMED: [],
+  CANCELLED: [],
+}
+
+/** Who asks for a change: an organizer by hand, or the system on its own. */
+export type StatusChangeActor = "ORGANIZER" | "SYSTEM"
+
+export function canChange(
+  actor: StatusChangeActor,
+  from: ApplicationTermStatus,
+  to: ApplicationTermStatus,
+): boolean {
+  const table = actor === "SYSTEM" ? SYSTEM_TRANSITIONS : MANUAL_TRANSITIONS
+  return table[from].includes(to)
+}
+
 /** Statuses an organizer may move an application in a term to, from `from`. */
 export function manualTargets(from: ApplicationTermStatus): ApplicationTermStatus[] {
   return MANUAL_TRANSITIONS[from]
 }
 
 export function canChangeManually(from: ApplicationTermStatus, to: ApplicationTermStatus): boolean {
-  return MANUAL_TRANSITIONS[from].includes(to)
+  return canChange("ORGANIZER", from, to)
 }
 
 /**
@@ -40,9 +64,13 @@ export function exceedsCapacityWhenConfirmed(gender: Gender, freePlaces: GenderC
 /** Kind of the e-mail to the applicant after a change to `to` (docs/procesy/.../EMAILY.md). */
 export function changeEmailKind(
   to: ApplicationTermStatus,
-): "STATUS_CHANGED" | "WAITLISTED" | "REJECTED" {
+  from?: ApplicationTermStatus,
+  actor: StatusChangeActor = "ORGANIZER",
+): "STATUS_CHANGED" | "WAITLISTED" | "REJECTED" | "NO_BED_FREED" {
   if (to === "CONFIRMED") return "STATUS_CHANGED"
-  return to === "WAITLISTED" ? "WAITLISTED" : "REJECTED"
+  if (to === "WAITLISTED") return "WAITLISTED"
+  // E-mail no. 6: the waitlisted application was cancelled by the system, no bed freed up.
+  return actor === "SYSTEM" && from === "WAITLISTED" ? "NO_BED_FREED" : "REJECTED"
 }
 
 /** What a status change needs to know, read under the event lock. */
@@ -65,8 +93,9 @@ export function rejectStatusChange(
   snapshot: StatusChangeSnapshot,
   to: ApplicationTermStatus,
   isOverCapacityConfirmed: boolean,
+  actor: StatusChangeActor = "ORGANIZER",
 ): StatusChangeRejection | null {
-  if (!canChangeManually(snapshot.status, to)) return "INVALID_STATUS_TRANSITION"
+  if (!canChange(actor, snapshot.status, to)) return "INVALID_STATUS_TRANSITION"
   if (to === "CONFIRMED" && !isOverCapacityConfirmed) {
     const free = computeAvailablePlaces(snapshot.rooms, snapshot.confirmedGenders)
     if (exceedsCapacityWhenConfirmed(snapshot.gender, free)) return "CAPACITY_EXCEEDED"

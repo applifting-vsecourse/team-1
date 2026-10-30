@@ -55,7 +55,13 @@ export class TermStatusService {
   /** Stores the change with its log entry and tells the applicant. */
   async applyChange(command: StatusChangeCommand): Promise<StatusChangeResult> {
     const result = await this.repository.changeStatus(command, (snapshot) => {
-      const rejection = rejectStatusChange(snapshot, command.to, command.isOverCapacityConfirmed)
+      const actor = command.actorId === null ? "SYSTEM" : "ORGANIZER"
+      const rejection = rejectStatusChange(
+        snapshot,
+        command.to,
+        command.isOverCapacityConfirmed,
+        actor,
+      )
       if (rejection) throw new AppException(HttpStatus.CONFLICT, rejection)
     })
     if (!result) throw new AppException(HttpStatus.NOT_FOUND, "NOT_FOUND")
@@ -65,7 +71,11 @@ export class TermStatusService {
       locale: result.locale,
       eventName: result.eventName,
       bankAccount: result.bankAccount,
-      kind: changeEmailKind(result.to),
+      kind: changeEmailKind(
+        result.to,
+        result.from,
+        command.actorId === null ? "SYSTEM" : "ORGANIZER",
+      ),
       application: result.application,
       // Payment details only where the application became confirmed (EMAILY.md, rows 2 and 5).
       isAmountChanged: result.to === "CONFIRMED",

@@ -49,3 +49,10 @@ export type StatusChangeResult = {
     terms: { name: string; status: ApplicationTermStatus; priceCzk: number }[]
   }
 }
+
+/** An application on the waitlist whose term has started (US-106). */
+export type ExpiredWaitlistEntry = {
+  organizationId: string
+  applicationId: string
+  termId: string
+}

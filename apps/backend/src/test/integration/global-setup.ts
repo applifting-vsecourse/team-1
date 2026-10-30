@@ -38,6 +38,8 @@ export default async function globalSetup(): Promise<void> {
       PORT: String(port),
       BACKEND_URL: baseUrl,
       NODE_ENV: "test",
+      // US-106: the waitlist expiry job runs every second so a test does not have to wait.
+      WAITLIST_EXPIRY_INTERVAL_MS: "1000",
     },
     stdio: ["ignore", "pipe", "pipe"],
   })

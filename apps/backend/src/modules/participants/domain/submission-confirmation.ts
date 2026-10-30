@@ -38,7 +38,13 @@ export type SubmissionConfirmation = {
 
 /** What changed in an application after it was submitted (US-28, 32, 33, 34, 84). */
 export type ApplicationChangeKind =
-  "STATUS_CHANGED" | "WAITLISTED" | "REJECTED" | "CANCELLED" | "TERMS_CHANGED"
+  | "STATUS_CHANGED"
+  | "WAITLISTED"
+  | "REJECTED"
+  | "CANCELLED"
+  | "TERMS_CHANGED"
+  /** US-106: the waitlisted application was cancelled on the first day of the term. */
+  | "NO_BED_FREED"
 
 /** One changed application → one e-mail to the applicant. */
 export type ApplicationChange = {
