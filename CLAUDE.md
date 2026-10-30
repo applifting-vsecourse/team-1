@@ -100,7 +100,7 @@ The pre-push review (`@reviewer`) can't open Figma; it only checks that new UI c
 
 ### Pull request size
 
-One PR per feature (user story): backend, frontend and tests together on one branch, referencing the story (`Refs #23`; the product manager closes the issue). Don't split a story by layer (a backend PR and a frontend PR) or into „část 1/2“ parts. Keep the PR reviewable — aim for ~400 changed lines of code (not counting tests, migration SQL, lockfile, generated files) and ~20 files; when a story needs more, keep it in one PR and say in the PR body why it's bigger. The PR comment „Co se změnilo“ flags large PRs.
+One PR per feature (user story): backend, frontend and tests together on one branch, linked to the story (`Closes #23`, see „Before you open the PR“). Don't split a story by layer (a backend PR and a frontend PR) or into „část 1/2“ parts. Keep the PR reviewable — aim for ~400 changed lines of code (not counting tests, migration SQL, lockfile, generated files) and ~20 files; when a story needs more, keep it in one PR and say in the PR body why it's bigger. The PR comment „Co se změnilo“ flags large PRs.
 
 ### E2E tests
 
@@ -119,7 +119,7 @@ Go through the acceptance criteria once more and compare them with what you buil
 Then tell the author what the PR still lacks — a short list in your last message, before the PR is opened and whenever it is updated:
 
 - **E2E test:** the story completes or changes a journey from the table in [`docs/E2E.md`](docs/E2E.md), but `apps/e2e` has no new or enabled test for it (rules in „E2E tests“; a changed UI text that a locator uses means a changed test; run `pnpm e2e test`). If no listed journey is touched, say „žádná cesta z docs/E2E.md se nemění“ and don't add an E2E test.
-- **Ticket link:** the branch is `feat/US-<n>-<slug>` (`fix/`, `chore/`, `docs/` for the rest), the PR title is the story title and the PR body starts with `Refs #<issue number>` — never `Closes`.
+- **Ticket link:** the branch is `feat/US-<n>-<slug>` (`fix/`, `chore/`, `docs/` for the rest), the PR title is the story title and every PR that belongs to an issue starts its body with `Closes #<issue number>`. `Refs` doesn't link the PR and the issue in GitHub. On merge, `pr-merged-business-review.yml` reopens the issue and moves it to In Business Review; the product manager closes it after checking it on staging.
 - **Acceptance criteria:** the report above is in the PR body and the author has ticked the ✅ ones in the issue.
 - **Open items:** „Nejasnosti k byznys pravidlům“, „Odchylky od Figmy“ and „Mimo rozsah story“ are in the PR when they apply.
 

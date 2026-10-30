@@ -1,0 +1,61 @@
+name: PR merged → Business Review
+
+# A merged PR closes its linked issues, and the board would move them to Done.
+# The story isn't done until the product manager checks it on staging, so this
+# reopens each linked issue and moves it to In Business Review.
+# GITHUB_TOKEN can't write to an organization project, so this needs the
+# PROJECT_TOKEN secret: a classic PAT with the `repo` and `project` scopes.
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  business-review:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.PROJECT_TOKEN }}
+      PR: ${{ github.event.pull_request.number }}
+      PROJECT_ID: PVT_kwDOE11UWM4BmUMg
+      STATUS_FIELD_ID: PVTSSF_lADOE11UWM4BmUMgzhk9udk
+      BUSINESS_REVIEW_OPTION_ID: df73e18b
+    steps:
+      - name: Move linked issues to In Business Review
+        run: |
+          # Let the board's "Item closed" workflow finish first, or it would overwrite the status.
+          sleep 30
+
+          issues="$(gh pr view "$PR" --repo "$GITHUB_REPOSITORY" --json closingIssuesReferences \
+            --jq '.closingIssuesReferences[].number')"
+          if [ -z "$issues" ]; then
+            echo "PR #$PR has no linked issue."
+            exit 0
+          fi
+
+          for issue in $issues; do
+            gh issue reopen "$issue" --repo "$GITHUB_REPOSITORY"
+
+            item="$(gh api graphql \
+              -f query='query($owner: String!, $repo: String!, $issue: Int!) {
+                repository(owner: $owner, name: $repo) {
+                  issue(number: $issue) { projectItems(first: 20) { nodes { id project { id } } } }
+                }
+              }' \
+              -f owner="$GITHUB_REPOSITORY_OWNER" \
+              -f repo="${GITHUB_REPOSITORY#*/}" \
+              -F issue="$issue" \
+              --jq ".data.repository.issue.projectItems.nodes[] | select(.project.id == \"$PROJECT_ID\") | .id")"
+            if [ -z "$item" ]; then
+              echo "Issue #$issue is not on the board."
+              continue
+            fi
+
+            gh project item-edit --id "$item" --project-id "$PROJECT_ID" \
+              --field-id "$STATUS_FIELD_ID" --single-select-option-id "$BUSINESS_REVIEW_OPTION_ID"
+            echo "Issue #$issue moved to In Business Review."
+          done
