@@ -63,7 +63,7 @@ function LockedMode({ mode }: { mode: EvaluationMode }) {
           mode: t(`evaluationMode.${mode === "AUTOMATIC" ? "automatic" : "manual"}`),
         })}
       </p>
-      <p className="text-sm text-muted-foreground">{t("evaluationMode.lockedReason")}</p>
+      <p>{t("evaluationMode.lockedReason")}</p>
     </Card>
   )
 }
