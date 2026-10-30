@@ -76,7 +76,7 @@ fi
 branch="$(git rev-parse --abbrev-ref HEAD)"
 log="$(git rev-parse --git-dir)/ai-review-last.txt"
 
-echo "ai-review: reviewing $branch against $base with $model…"
+echo "ai-review: reviewing $branch against $base with ${model}…"
 
 output="$(
   printf 'Review branch %s against %s.\n%s\n\n<story>\n%s\n</story>\n\n```diff\n%s\n```\n' \
