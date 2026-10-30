@@ -48,7 +48,7 @@ A story is more than its title. Before writing code, read the story and the busi
 - **An application in a term** (status, evaluation, waitlist, payment, cancellation, archiving): the process and state diagram in [`docs/procesy/zpracovani-prihlasky/`](docs/procesy/zpracovani-prihlasky/README.md), in the folder of the evaluation mode the story is about (`rucni-vyhodnocovani/` or `automaticke-vyhodnocovani/`; the shared part is duplicated in both, so check both). E-mails to the applicant: [`EMAILY.md`](docs/procesy/zpracovani-prihlasky/EMAILY.md).
 - **When sources disagree, the higher one wins:** the process and state diagrams, then the decisions in PROJEKT.md (sections 9 and 10), then `schema.prisma`, then the issue text.
 - **Don't guess.** If the story, the documents and the code contradict each other, or a business rule the story needs is written nowhere, don't pick a side silently and don't invent a default. Build what the higher source says; where none decides, leave that part out. List every such case in the PR under „Nejasnosti k byznys pravidlům“: what each source says (file and section), what you did, and the question. An „Otevřená otázka na PO“ still in the issue counts as unresolved.
-- **Business questions go to Adam** (product manager, [Aadikk](https://github.com/Aadikk)), who takes them to the client. Start each with „Dotaz na Adama:“; don't ask the client yourself.
+- **Business questions go to Adam** (product manager, [Aadikk](https://github.com/Aadikk)), who takes them to the client. When a story lacks something or needs asking, don't leave a note to ask him: post one PR comment that tags `@Aadikk` and asks everything open, and link it from „Nejasnosti k byznys pravidlům“. Don't ask the client yourself.
 - **Business documents change only when asked.** If the story needs a change in `docs/`, say so in the PR instead of editing it (exception: the journey table in `docs/E2E.md`, see „E2E tests“). Diagrams are edited in the `.yaml` and regenerated ([`docs/procesy/README_generate_py.md`](docs/procesy/README_generate_py.md)), never in the generated `.md` / `.mmd`.
 
 ### Backend structure
@@ -146,5 +146,7 @@ Several stories — and agents — run side by side, each in its own git worktre
 ### Review
 
 The rules a review checks live in one place: the `reviewer` agent ([`.claude/agents/reviewer.md`](.claude/agents/reviewer.md)). The Raspberry Pi review of every PR push and `@reviewer` both use it. When you add a rule here that a review should enforce, add it to the agent's BLOCKER or WARNING list too — never into a hook or workflow.
+
+An agent working on a PR doesn't stop at green CI. After every push, once the checks finish, read the `github-actions` comments on the PR (`gh pr view <n> --comments`): the AI review from the runner (Claude Sonnet) and „Co se změnilo“. The `review` check passes even with warnings, so a green check doesn't mean a clean review. Fix what the review rightly finds and push again; say in the PR why you left anything unfixed.
 
 Don't reach for the browser to check your own work. Tests and type-checks are the evidence; open the running app when asked to, not on your own initiative.
