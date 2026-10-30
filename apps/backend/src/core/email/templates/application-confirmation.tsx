@@ -58,7 +58,7 @@ const copy: Record<
     waitlistNote:
       "Don't pay for a term where you are waitlisted. You pay once the place is confirmed.",
     allWaitlisted:
-      "None of your terms is confirmed yet and you are waitlisted, so there is nothing to pay. You pay only after a place is confirmed — we'll send you the payment details then.",
+      "None of your terms is confirmed yet, so there is nothing to pay. You pay only after a place is confirmed — we'll send you the payment details then.",
     statusLink: 'View the status of this application',
     magicLinkText:
       'You can come back to your applications any time. The button signs you in and lets you choose a password. The link works once and is valid for 7 days.',
@@ -85,7 +85,7 @@ const copy: Record<
     waitlistNote:
       'Za termín, kde jste náhradník, zatím neplaťte. Platíte až po potvrzení místa.',
     allWaitlisted:
-      'Žádný termín zatím není potvrzený, jste náhradník, takže zatím nic neplaťte. Platíte až po potvrzení místa, platební údaje vám pak pošleme.',
+      'Žádný termín zatím není potvrzený, takže zatím nic neplaťte. Platíte až po potvrzení místa, platební údaje vám pak pošleme.',
     statusLink: 'Zobrazit stav této přihlášky',
     magicLinkText:
       'K přihláškám se můžete kdykoliv vrátit. Tlačítkem se přihlásíte a nastavíte si heslo. Odkaz jde použít jednou a platí 7 dní.',
