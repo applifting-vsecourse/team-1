@@ -45,14 +45,17 @@ describe("TermStatusService", () => {
 
     await service.changeByOrganizer(user, "a1", "t1", "CONFIRMED", true)
 
-    expect(repository.changeStatus).toHaveBeenCalledWith({
-      organizationId: "org",
-      applicationId: "a1",
-      termId: "t1",
-      to: "CONFIRMED",
-      actorId: "u1",
-      isOverCapacityConfirmed: true,
-    })
+    expect(repository.changeStatus).toHaveBeenCalledWith(
+      {
+        organizationId: "org",
+        applicationId: "a1",
+        termId: "t1",
+        to: "CONFIRMED",
+        actorId: "u1",
+        isOverCapacityConfirmed: true,
+      },
+      expect.any(Function),
+    )
   })
 
   it("e-mails the applicant with payment details after a confirmation", async () => {
@@ -89,6 +92,33 @@ describe("TermStatusService", () => {
     expect(mailer.sendApplicationChange).not.toHaveBeenCalled()
   })
 
+  it("rejects with a 409 code the domain decides, and sends no e-mail", async () => {
+    repository.changeStatus.mockImplementation(
+      (_command: unknown, decide: (snapshot: unknown) => void) => {
+        decide({ status: "CONFIRMED", gender: "FEMALE", rooms: [], confirmedGenders: [] })
+        return Promise.resolve(result("WAITLISTED"))
+      },
+    )
+
+    await expect(
+      service.changeByOrganizer(user, "a1", "t1", "WAITLISTED", false),
+    ).rejects.toMatchObject({
+      status: 409,
+      code: "INVALID_STATUS_TRANSITION",
+    })
+    expect(mailer.sendApplicationChange).not.toHaveBeenCalled()
+  })
+
+  it("answers 404 when the term of the application is not found", async () => {
+    repository.changeStatus.mockResolvedValue(null)
+
+    await expect(
+      service.changeByOrganizer(user, "a1", "t1", "CANCELLED", false),
+    ).rejects.toMatchObject({
+      status: 404,
+    })
+  })
+
   it("lets the system change a status with no actor", async () => {
     repository.changeStatus.mockResolvedValue(result("CANCELLED"))
 
@@ -101,6 +131,9 @@ describe("TermStatusService", () => {
       isOverCapacityConfirmed: false,
     })
 
-    expect(repository.changeStatus).toHaveBeenCalledWith(expect.objectContaining({ actorId: null }))
+    expect(repository.changeStatus).toHaveBeenCalledWith(
+      expect.objectContaining({ actorId: null }),
+      expect.any(Function),
+    )
   })
 })

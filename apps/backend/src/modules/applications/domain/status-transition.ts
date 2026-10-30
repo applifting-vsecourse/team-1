@@ -1,3 +1,4 @@
+import { computeAvailablePlaces, RoomCapacity } from "@/modules/applications/domain/capacity"
 import { ApplicationTermStatus } from "@/modules/applications/domain/evaluation"
 import { Gender, GenderCounts } from "@/shared/domain/gender"
 
@@ -42,4 +43,33 @@ export function changeEmailKind(
 ): "STATUS_CHANGED" | "WAITLISTED" | "REJECTED" {
   if (to === "CONFIRMED") return "STATUS_CHANGED"
   return to === "WAITLISTED" ? "WAITLISTED" : "REJECTED"
+}
+
+/** What a status change needs to know, read under the event lock. */
+export type StatusChangeSnapshot = {
+  status: ApplicationTermStatus
+  gender: Gender
+  /** Rooms of the event. */
+  rooms: RoomCapacity[]
+  /** Genders of everyone confirmed in the term now. */
+  confirmedGenders: Gender[]
+}
+
+export type StatusChangeRejection = "INVALID_STATUS_TRANSITION" | "CAPACITY_EXCEEDED"
+
+/**
+ * Decides a manual change: null when allowed, else why not. Confirming beyond
+ * the free beds is allowed only with the organizer's conscious confirmation.
+ */
+export function rejectStatusChange(
+  snapshot: StatusChangeSnapshot,
+  to: ApplicationTermStatus,
+  isOverCapacityConfirmed: boolean,
+): StatusChangeRejection | null {
+  if (!canChangeManually(snapshot.status, to)) return "INVALID_STATUS_TRANSITION"
+  if (to === "CONFIRMED" && !isOverCapacityConfirmed) {
+    const free = computeAvailablePlaces(snapshot.rooms, snapshot.confirmedGenders)
+    if (exceedsCapacityWhenConfirmed(snapshot.gender, free)) return "CAPACITY_EXCEEDED"
+  }
+  return null
 }

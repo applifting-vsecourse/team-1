@@ -3,6 +3,8 @@ import {
   changeEmailKind,
   exceedsCapacityWhenConfirmed,
   manualTargets,
+  rejectStatusChange,
+  StatusChangeSnapshot,
 } from "./status-transition"
 
 describe("manual status transitions (US-28)", () => {
@@ -50,5 +52,47 @@ describe("changeEmailKind", () => {
     expect(changeEmailKind("CONFIRMED")).toBe("STATUS_CHANGED")
     expect(changeEmailKind("WAITLISTED")).toBe("WAITLISTED")
     expect(changeEmailKind("CANCELLED")).toBe("REJECTED")
+  })
+})
+
+describe("rejectStatusChange", () => {
+  const snapshot = (overrides: Partial<StatusChangeSnapshot> = {}): StatusChangeSnapshot => ({
+    status: "WAITLISTED",
+    gender: "FEMALE",
+    rooms: [{ capacity: 1, gender: "FEMALE" }],
+    confirmedGenders: [],
+    ...overrides,
+  })
+
+  it("allows a confirmation into a free bed", () => {
+    expect(rejectStatusChange(snapshot(), "CONFIRMED", false)).toBeNull()
+  })
+
+  it("rejects a confirmation beyond the free beds unless the organizer confirms knowingly", () => {
+    const full = snapshot({ confirmedGenders: ["FEMALE"] })
+    expect(rejectStatusChange(full, "CONFIRMED", false)).toBe("CAPACITY_EXCEEDED")
+    expect(rejectStatusChange(full, "CONFIRMED", true)).toBeNull()
+  })
+
+  it("counts shared rooms as one pool for all genders", () => {
+    const shared = snapshot({
+      rooms: [{ capacity: 1, gender: null }],
+      confirmedGenders: ["MALE"],
+    })
+    expect(rejectStatusChange(shared, "CONFIRMED", false)).toBe("CAPACITY_EXCEEDED")
+  })
+
+  it("rejects a change the diagram does not have before looking at capacity", () => {
+    expect(rejectStatusChange(snapshot({ status: "CONFIRMED" }), "WAITLISTED", true)).toBe(
+      "INVALID_STATUS_TRANSITION",
+    )
+    expect(rejectStatusChange(snapshot({ status: "CANCELLED" }), "CONFIRMED", true)).toBe(
+      "INVALID_STATUS_TRANSITION",
+    )
+  })
+
+  it("does not check capacity for a cancellation", () => {
+    const full = snapshot({ status: "CONFIRMED", confirmedGenders: ["FEMALE", "FEMALE"] })
+    expect(rejectStatusChange(full, "CANCELLED", false)).toBeNull()
   })
 })

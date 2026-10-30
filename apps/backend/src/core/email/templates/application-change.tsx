@@ -84,7 +84,7 @@ const copy: Record<
     termsHeading: 'Stav podle termínů nyní',
     confirmed: 'potvrzený',
     waitlisted: 'čeká na potvrzení',
-    cancelled: 'zrušený',
+    cancelled: 'zrušená',
     paymentHeading: 'Platba',
     amountChanged: 'Změnila se částka k úhradě. Zaplaťte prosím novou částku.',
     amountDue: 'K úhradě',
