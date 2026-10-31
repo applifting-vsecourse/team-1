@@ -1,6 +1,6 @@
 # Jak přispívat
 
-Pravidla a rozhodnutí projektu jsou v [docs/PROJEKT.md](docs/PROJEKT.md). Tady je praktický postup.
+Pravidla projektu jsou v [docs/PROJEKT.md](docs/PROJEKT.md), rozhodnutí v [registru rozhodnutí](docs/rozhodnuti/README.md) a otevřené otázky v [registru otázek](docs/otevrene-otazky/README.md). Tady je praktický postup.
 
 ## Postup u jedné story
 

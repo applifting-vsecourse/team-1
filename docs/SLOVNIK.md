@@ -2,7 +2,7 @@
 
 Oct 20, 2026 · @Adam Hanuš
 
-Jen pojmy, které se v projektu pletou nebo mají víc významů. Zdroje: [docs/PROJEKT.md](https://github.com/applifting-vsecourse/team-1/blob/main/docs/PROJEKT.md) (§7 Slovník, §8 Datový model, §10 Rozhodnutí), [schema.prisma](https://github.com/applifting-vsecourse/team-1/blob/main/apps/backend/prisma/schema.prisma) a 97 issues na [boardu](https://github.com/orgs/applifting-vsecourse/projects/12). Pořadí platnosti: [procesní](procesy/zpracovani-prihlasky/README.md) a [stavový diagram přihlášky v termínu](procesy/zpracovani-prihlasky/README.md) > rozhodnutí v PROJEKT.md > schéma > text issue.
+Jen pojmy, které se v projektu pletou nebo mají víc významů. Zdroje: [docs/PROJEKT.md](https://github.com/applifting-vsecourse/team-1/blob/main/docs/PROJEKT.md) (§7 Slovník, §8 Datový model), [registr rozhodnutí](https://github.com/applifting-vsecourse/team-1/blob/main/docs/rozhodnuti/README.md), [schema.prisma](https://github.com/applifting-vsecourse/team-1/blob/main/apps/backend/prisma/schema.prisma) a 97 issues na [boardu](https://github.com/orgs/applifting-vsecourse/projects/12). Pořadí platnosti: [procesní](procesy/zpracovani-prihlasky/README.md) a [stavový diagram přihlášky v termínu](procesy/zpracovani-prihlasky/README.md) > rozhodnutí v registru `docs/rozhodnuti/` > schéma > text issue.
 
 ## Jak číst
 

@@ -16,7 +16,7 @@ The same prompt runs in two places, so keep the output format exact:
 The diff is given in the prompt, usually with the story the PR closes. The rules you check are the lists below, so don't read `CLAUDE.md` or `docs/PROJEKT.md` as a whole. Read only what the diff needs:
 
 1. `DESIGN.md` — only when the diff touches `apps/frontend/src/**/*.tsx` or CSS.
-2. `docs/PROJEKT.md` — only for a behaviour or data decision you can't judge from the lists: Grep the term, then read that section. When an issue and PROJEKT.md disagree, PROJEKT.md wins.
+2. `docs/PROJEKT.md` and the decision register `docs/rozhodnuti/rozhodnuti.yaml` — only for a behaviour or data decision you can't judge from the lists: Grep the term (in the register it is in `nazev` and `text`), then read that section or entry. When an issue and PROJEKT.md or the register disagree, the register and PROJEKT.md win.
 3. `docs/SLOVNIK.md` and the process and state diagrams in `docs/procesy/zpracovani-prihlasky/` — only when the diff touches the status, evaluation, waitlist, payments or e-mails of an application. Grep the term in SLOVNIK.md instead of reading all of it.
 4. Open the changed files (and their neighbours) when the diff alone is not enough to be sure.
 
