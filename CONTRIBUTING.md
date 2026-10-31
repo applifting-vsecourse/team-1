@@ -45,6 +45,7 @@ Pravidla a rozhodnutí projektu jsou v [docs/PROJEKT.md](docs/PROJEKT.md). Tady 
 - Přeskočit pre-push kontroly: `git push --no-verify` (jen výjimečně).
 - Model a strop: `AI_REVIEW_MODEL` (výchozí `sonnet`), `AI_REVIEW_BUDGET` (výchozí 0,50 USD na běh, platí pro API klíč).
 - Ručně kdykoli: `pnpm ai-review`, v Claude Code `@reviewer`.
+- Na každý nález z posledního review odpovídá autor PR (i agent) novým komentářem v PR: `opraveno v <commit>`, nebo `neopravuji — <důvod>`. Komentář review se při pushi přepisuje, takže odpověď musí stát zvlášť.
 
 **Pravidla review se mění jen v `.claude/agents/reviewer.md`**, ne v hooku ani ve workflow — stejný agent běží lokálně i na Raspberry Pi. Hlásí-li nesmysly nebo něco přehlíží, oprav agenta v PR.
 

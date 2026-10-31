@@ -147,6 +147,8 @@ Several stories — and agents — run side by side, each in its own git worktre
 
 The rules a review checks live in one place: the `reviewer` agent ([`.claude/agents/reviewer.md`](.claude/agents/reviewer.md)). The Raspberry Pi review of every PR push and `@reviewer` both use it. When you add a rule here that a review should enforce, add it to the agent's BLOCKER or WARNING list too — never into a hook or workflow.
 
-An agent working on a PR doesn't stop at green CI. After every push, once the checks finish, read the `github-actions` comments on the PR (`gh pr view <n> --comments`): the AI review from the runner (Claude Sonnet) and „Co se změnilo“. The `review` check passes even with warnings, so a green check doesn't mean a clean review. Fix what the review rightly finds and push again; say in the PR why you left anything unfixed.
+An agent working on a PR doesn't stop at green CI. After every push, once the checks finish, read the `github-actions` comments on the PR (`gh pr view <n> --comments`): the AI review from the runner (Claude Sonnet) and „Co se změnilo“. The `review` check passes even with warnings, so a green check doesn't mean a clean review. Fix what the review rightly finds and push again, then read the new review too.
+
+Then answer it, so everyone can see that nothing was ignored. The review comment is rewritten on every push, so post a new PR comment in Czech (`gh pr comment`) that goes through every `BLOCKER`, `WARNING` and `NOTE` of the latest review and every „Pozor“ from „Co se změnilo“, each as `opraveno v <commit>` or `neopravuji — <důvod>`. A later review with new findings gets its own answer. With no findings, no answer is needed. Don't push just to silence a `NOTE`: a reason is enough.
 
 Don't reach for the browser to check your own work. Tests and type-checks are the evidence; open the running app when asked to, not on your own initiative.

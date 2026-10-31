@@ -15,6 +15,7 @@ Closes #
 - [ ] Story dokončuje cestu z [docs/E2E.md](../docs/E2E.md)? Pak je v PR E2E test, jinak je napsáno „žádná cesta z E2E.md se nemění“
 - [ ] Nejasnosti k byznys pravidlům jsou napsané níže a Adam je označený v komentáři k PR (nebo žádné nejsou)
 - [ ] Logika má testy, `pnpm check-all` je zelený
+- [ ] Na nálezy z posledního AI review je v PR odpověď (`opraveno v <commit>`, nebo `neopravuji — <důvod>`)
 - [ ] UI odpovídá [DESIGN.md](../DESIGN.md) — žádné vnořené karty, tři stavy seznamu
 - [ ] Žádné texty napevno — nové klíče v `en` i `cs` (i18n), chyby API mají `code`
 - [ ] Nejvýš jedna migrace, rebasnutá na aktuální `main`
