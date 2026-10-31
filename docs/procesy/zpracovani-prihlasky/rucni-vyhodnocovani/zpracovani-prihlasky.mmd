@@ -11,12 +11,7 @@ flowchart TD
   classDef note fill:#fffbe6,stroke:#d69e2e,stroke-dasharray:3 3
   classDef unsure stroke-dasharray:4 3,stroke-width:2px,stroke:#d69e2e
 
-  n_akce_zalozena(("Akce založena"))
-  n_nastavit_rezim("Nastavit režim<br/>vyhodnocování<br/>role: organizátor")
-  n_nastavit_pokoje("Nastavit pokoje (počet<br/>pokojů<br/>role: organizátor")
-  n_akce_pripravena(("Akce splní všechny<br/>požadavky (každý<br/>termín má cenu a<br/>ubytování)"))
-  n_vygenerovat_odkaz("Vygenerovat odkaz na<br/>přihlášku<br/>role: systém")
-  n_prihlaska_zaregistrovana(("Nová přihláška v<br/>termínu zaregistrována"))
+  n_prihlaska_zaregistrovana(("Nová přihláška v<br/>termínu přijata"))
   n_do_poradniku("Vložit přihlášku v<br/>termínu do pořadníku<br/>role: systém")
   n_chce_vyhodnotit(("Organizátor chce<br/>vyhodnotit přihlášky v<br/>termínu"))
   n_s_k_vyhodnoceni(["Přihláška v termínu: k<br/>vyhodnocení"])
@@ -47,8 +42,6 @@ flowchart TD
   n_e_termin(("Termín proběhne (datum<br/>= první den po<br/>posledním termínu)"))
   n_e_odhlaska(("Účastník se odhlásí"))
   n_s_archivovana(["Přihláška v termínu:<br/>archivovaná"])
-  n_sync_akce_pripravena{"AND"}
-  n_sync_prihlaska_zaregistrovana{"AND"}
   n_sync_do_poradniku{"AND"}
   n_alt_do_poradniku{"XOR"}
   n_split_do_poradniku{"XOR"}
@@ -65,12 +58,7 @@ flowchart TD
   n_alt_s_potvrzena_zaplacena{"XOR"}
   n_split_s_potvrzena_zaplacena{"XOR"}
 
-  n_akce_zalozena --> n_nastavit_rezim
-  n_nastavit_rezim --> n_nastavit_pokoje
-  n_nastavit_pokoje --> n_sync_akce_pripravena
-  n_sync_akce_pripravena --> n_vygenerovat_odkaz
-  n_vygenerovat_odkaz --> n_sync_prihlaska_zaregistrovana
-  n_sync_prihlaska_zaregistrovana --> n_s_k_vyhodnoceni
+  n_prihlaska_zaregistrovana --> n_s_k_vyhodnoceni
   n_s_k_vyhodnoceni --> n_do_poradniku
   n_split_do_poradniku -->|"Organizátor zruší termín<br/>akce"| n_s_zrusena
   n_split_do_poradniku -->|"Organizátor chce<br/>vyhodnotit přihlášky v<br/>termínu"| n_vyhodnotit
@@ -96,8 +84,6 @@ flowchart TD
   n_split_s_potvrzena_zaplacena -->|"Nastaly okolnosti pro<br/>zamítnutí přihlášky v<br/>termínu"| n_s_zrusena
   n_split_s_potvrzena_zaplacena -->|"Účastník se odhlásí"| n_s_zrusena
   n_split_s_potvrzena_zaplacena -->|"Termín proběhne (datum =<br/>první den po posledním<br/>termínu)"| n_s_archivovana
-  n_akce_pripravena --> n_sync_akce_pripravena
-  n_prihlaska_zaregistrovana --> n_sync_prihlaska_zaregistrovana
   n_do_poradniku --> n_sync_do_poradniku
   n_alt_do_poradniku --> n_sync_do_poradniku
   n_chce_vyhodnotit --> n_alt_do_poradniku
@@ -132,10 +118,10 @@ flowchart TD
   n_e_zruseni_terminu_zaplacena --> n_alt_s_potvrzena_zaplacena
   n_sync_s_potvrzena_zaplacena --> n_split_s_potvrzena_zaplacena
 
-  class n_akce_zalozena,n_akce_pripravena,n_prihlaska_zaregistrovana,n_chce_vyhodnotit,n_uvolni_se_misto,n_e_zruseni_terminu_nahradnik,n_e_zruseni_terminu_dluh,n_e_zruseni_terminu_po_vyzve,n_e_zruseni_terminu_zaplacena,n_e_zruseni_terminu_kv,n_e_zruseni_nahradnika,n_e_presun,n_e_platby,n_e_zamitnuti,n_e_platby_po_vyzve,n_e_zamitnuti_po_vyzve,n_e_zamitnuti_zaplacena,n_e_odhlaska ev
-  class n_nastavit_rezim,n_nastavit_pokoje,n_vygenerovat_odkaz,n_do_poradniku,n_vyhodnotit,n_rucne_potvrdit,n_zaucotovat,n_vyzva task
+  class n_prihlaska_zaregistrovana,n_chce_vyhodnotit,n_uvolni_se_misto,n_e_zruseni_terminu_nahradnik,n_e_zruseni_terminu_dluh,n_e_zruseni_terminu_po_vyzve,n_e_zruseni_terminu_zaplacena,n_e_zruseni_terminu_kv,n_e_zruseni_nahradnika,n_e_presun,n_e_platby,n_e_zamitnuti,n_e_platby_po_vyzve,n_e_zamitnuti_po_vyzve,n_e_zamitnuti_zaplacena,n_e_odhlaska ev
+  class n_do_poradniku,n_vyhodnotit,n_rucne_potvrdit,n_zaucotovat,n_vyzva task
   class n_s_k_vyhodnoceni,n_s_nahradnik,n_s_potvrzena_dluh,n_s_potvrzena_zaplacena st
   class n_g_vysledek,n_alt_do_poradniku,n_split_do_poradniku,n_alt_s_nahradnik,n_split_s_nahradnik,n_alt_s_potvrzena_dluh,n_split_s_potvrzena_dluh,n_alt_vyzva,n_split_vyzva,n_alt_s_potvrzena_zaplacena,n_split_s_potvrzena_zaplacena gw_xor
   class n_s_zrusena,n_s_archivovana endst
   class n_e_zacatek,n_e_lhuta,n_e_termin timed
-  class n_sync_akce_pripravena,n_sync_prihlaska_zaregistrovana,n_sync_do_poradniku,n_sync_s_nahradnik,n_sync_s_potvrzena_dluh,n_sync_vyzva,n_sync_s_potvrzena_zaplacena gw_and
+  class n_sync_do_poradniku,n_sync_s_nahradnik,n_sync_s_potvrzena_dluh,n_sync_vyzva,n_sync_s_potvrzena_zaplacena gw_and

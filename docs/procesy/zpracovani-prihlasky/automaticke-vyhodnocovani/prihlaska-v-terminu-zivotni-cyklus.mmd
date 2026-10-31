@@ -5,8 +5,8 @@ stateDiagram-v2
   state "Potvrzená a zaplacená" as n_potvrzena_zaplacena
   state "Zrušená" as n_zrusena
   state "Archivovaná" as n_archivovana
-  [*] --> n_potvrzena_dluh : Nová přihláška v termínu<br/>zaregistrována a je volné<br/>lůžko ve skupině lůžek<br/>účastníka / register(),<br/>confirm()
-  [*] --> n_nahradnik : Nová přihláška v termínu<br/>zaregistrována a volné<br/>lůžko ve skupině lůžek<br/>účastníka není /<br/>register()
+  [*] --> n_potvrzena_dluh : Nová přihláška v termínu<br/>přijata a je volné lůžko<br/>ve skupině lůžek účastníka<br/>/ register(), confirm()
+  [*] --> n_nahradnik : Nová přihláška v termínu<br/>přijata a volné lůžko ve<br/>skupině lůžek účastníka<br/>není / register()
   n_nahradnik --> n_potvrzena_dluh : Uvolní se lůžko ve skupině<br/>lůžek účastníka a je první<br/>v pořadí přijetí /<br/>confirm()
   n_nahradnik --> n_zrusena : Nastala půlnoc<br/>(Europe/Prague) prvního<br/>dne termínu akce /<br/>cancel()
   n_nahradnik --> n_zrusena : Organizátor zruší<br/>náhradníka / cancel()
