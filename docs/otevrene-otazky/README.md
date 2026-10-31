@@ -2,7 +2,7 @@
 
 > Generováno z [`otazky.yaml`](otazky.yaml) (`python generate.py`). Needituj, měň YAML.
 
-**98 neuzavřených** otázek, **16 uzavřených**.
+**97 neuzavřených** otázek, **17 uzavřených**.
 
 ## Role
 
@@ -16,7 +16,7 @@
 
 ## Kdo má tah
 
-### `pm` (Adam): 31
+### `pm` (Adam): 30
 
 | ID | Otázka | Dotčené US | Priorita | Proč |
 | --- | --- | --- | --- | --- |
@@ -40,7 +40,6 @@
 | [Q-UCT-07](#q-uct-07) | Má nový magic link zneplatnit jen dříve vydané nepoužité odkazy, nebo i aktivní session? | [#127](https://github.com/applifting-vsecourse/team-1/issues/127) | P2 | Rozpracovaná oprava nebo úprava v běžícím flow přihlášek a účtů; nic neblokuje, ale brzy se na to narazí. |
 | [Q-UCT-08](#q-uct-08) | Je pro klienta v pořádku, že obecná chybová hláška loginu zůstává bez nápovědy, jen s radou zkontrolovat e-mail z přihlášky? | [#187](https://github.com/applifting-vsecourse/team-1/issues/187) | P2 | Rozpracovaná oprava nebo úprava v běžícím flow přihlášek a účtů; nic neblokuje, ale brzy se na to narazí. |
 | [Q-UCT-09](#q-uct-09) | Mají se v textech důsledně používat slova „přihlašovatel“ a „účastník“ podle slovníku, i když rodič rozdíl nepozná? | [#187](https://github.com/applifting-vsecourse/team-1/issues/187) | P2 | Rozpracovaná oprava nebo úprava v běžícím flow přihlášek a účtů; nic neblokuje, ale brzy se na to narazí. |
-| [Q-UCT-10](#q-uct-10) | Kolik vstupů má mít landing: dva („Jsem organizátor“ / „Jsem účastník“), nebo jediný („Pro organizátory – přihlásit se“)? | – | P2 | Dvě rozhodnutí z 19. 10. se rozcházejí a pořadí ze zdrojů nelze určit. |
 | [Q-BEZ-01](#q-bez-01) | Jaké doklady zaměstnavatelé skutečně vyžadují a kdy a kým se mají vystavovat? | [#162](https://github.com/applifting-vsecourse/team-1/issues/162) | P3 | Nápad (label idea), není ve storkách ani v rozsahu sprintu. |
 | [Q-BEZ-02](#q-bez-02) | Jaké doklady vyžadují zdravotní pojišťovny a liší se od dokladů pro zaměstnavatele (#162)? | [#163](https://github.com/applifting-vsecourse/team-1/issues/163) | P3 | Nápad (label idea), není ve storkách ani v rozsahu sprintu. |
 | [Q-BEZ-03](#q-bez-03) | Kdo smí které zdravotní údaje vidět a zapisovat, jaké zákonné požadavky platí a má se to řešit jako jeden modul? | [#166](https://github.com/applifting-vsecourse/team-1/issues/166) | P3 | Nápad (label idea), není ve storkách ani v rozsahu sprintu. |
@@ -153,6 +152,7 @@ _Nic._
 | [Q-NAS-11](#q-nas-11) | ruční nebo plánované spuštění přihlášek |
 | [Q-NAS-11](#q-nas-11) | ruční pozastavení přihlášek |
 | [Q-NAS-12](#q-nas-12) | změna režimu vyhodnocování do první přihlášky (nebo kombinace) |
+| [Q-UCT-10](#q-uct-10) | design: sladit Figmu V08 a M07 se dvěma vstupy na landingu |
 
 ## Podle epiců
 
@@ -310,7 +310,6 @@ _Nic._
 | [Q-UCT-07](#q-uct-07) | Má nový magic link zneplatnit jen dříve vydané nepoužité odkazy, nebo i aktivní session? | [#127](https://github.com/applifting-vsecourse/team-1/issues/127) | otevřeno | P2 | `pm` |
 | [Q-UCT-08](#q-uct-08) | Je pro klienta v pořádku, že obecná chybová hláška loginu zůstává bez nápovědy, jen s radou zkontrolovat e-mail z přihlášky? | [#187](https://github.com/applifting-vsecourse/team-1/issues/187) | otevřeno | P2 | `pm` |
 | [Q-UCT-09](#q-uct-09) | Mají se v textech důsledně používat slova „přihlašovatel“ a „účastník“ podle slovníku, i když rodič rozdíl nepozná? | [#187](https://github.com/applifting-vsecourse/team-1/issues/187) | otevřeno | P2 | `pm` |
-| [Q-UCT-10](#q-uct-10) | Kolik vstupů má mít landing: dva („Jsem organizátor“ / „Jsem účastník“), nebo jediný („Pro organizátory – přihlásit se“)? | – | otevřeno | P2 | `pm` |
 | [Q-UCT-05](#q-uct-05) | Potřebují lidé v administraci rozdílná oprávnění (např. pokladník jen platby), nebo pro začátek stačí, že všichni vidí všechno? | [US-11](https://github.com/applifting-vsecourse/team-1/issues/11) | otevřeno | P3 | `po` |
 | [Q-UCT-06](#q-uct-06) | Zabírají členové organizačního týmu lůžka v kapacitě akce? Platí za účast? | [US-93](https://github.com/applifting-vsecourse/team-1/issues/93) | otevřeno | P3 | `po` |
 
@@ -334,6 +333,7 @@ _Nic._
 | [Q-PRI-19](#q-pri-19) | Sbírá se telefon ve formuláři přihlášky a v jaké story? (US-30 ho chce u náhradníka i s vytočením jedním klepnutím) | [US-30](https://github.com/applifting-vsecourse/team-1/issues/30) | Neřešit v tomto PR; mergnout, telefon sbírat novým ticketem (někdy by tam určitě měl být). |
 | [Q-KOM-11](#q-kom-11) | Stačí řešit sdružení e-mailů při změně více termínů téže přihlášky až v US-116? | [US-106 (#199)](https://github.com/applifting-vsecourse/team-1/issues/199) | Stačí vyřešit později (US-116). |
 | [Q-NAS-12](#q-nas-12) | Je záměr, že zpřístupněná akce bez jediné přihlášky má zamčený režim vyhodnocování? | [US-101 (#194)](https://github.com/applifting-vsecourse/team-1/issues/194) | As-is stav je v pořádku; v budoucnu by měla jít změna do první přihlášky nebo nějaká kombinace. |
+| [Q-UCT-10](#q-uct-10) | Kolik vstupů má mít landing: dva („Jsem organizátor“ / „Jsem účastník“), nebo jediný („Pro organizátory – přihlásit se“)? | – | Rozhodnuto PM: dva vstupy. |
 
 ## Detail
 
@@ -1451,8 +1451,11 @@ _Nic._
 
 ### Q-UCT-10 – Kolik vstupů má mít landing: dva („Jsem organizátor“ / „Jsem účastník“), nebo jediný („Pro organizátory – přihlásit se“)?
 
-- **Epic:** účty · **Dotčené US:** – · **Stav:** otevřeno · **Čeká na:** `pm`
+- **Epic:** účty · **Dotčené US:** – · **Stav:** uzavřeno · **Čeká na:** `pm`
 - **Poznámka:** Kolize rozhodnutí D-027 a D-028.
 - **Zdroje:**
   - registr rozhodnutí
 - **Priorita:** P2 – Dvě rozhodnutí z 19. 10. se rozcházejí a pořadí ze zdrojů nelze určit.
+- **Rozhodnutí:** [D-072](../rozhodnuti/README.md#d-072): Landing pro nepřihlášené má dva vstupy: „Jsem organizátor“ a „Jsem účastník“ (jak je v aplikaci). Rozhodnutí z 19. 10. o jediném vstupu „Pro organizátory – přihlásit se“ (podle Figmy V08, M07) neplatí; Figma se s kódem sladí.
+- **Navazující ticket:** design: sladit Figmu V08 a M07 se dvěma vstupy na landingu (k založení)
+- **Uzavřeno, protože:** Rozhodnuto PM: dva vstupy.

@@ -1867,7 +1867,7 @@ otazky:
     organizátory – přihlásit se“)?'
   epic: účty
   us: []
-  stav: otevreno
+  stav: uzavreno
   priorita: P2
   priorita_duvod: Dvě rozhodnutí z 19. 10. se rozcházejí a pořadí ze zdrojů nelze určit.
   ceka_na: pm
@@ -1875,6 +1875,11 @@ otazky:
   - popis: registr rozhodnutí
     soubor: docs/rozhodnuti/README.md
   poznamka: Kolize rozhodnutí D-027 a D-028.
+  rozhodnuti_ref: D-072
+  uzavreno_duvod: 'Rozhodnuto PM: dva vstupy.'
+  navazne_tickety:
+  - label: 'design: sladit Figmu V08 a M07 se dvěma vstupy na landingu'
+    url: null
 - id: Q-TEC-08
   otazka: Platí rozdělení práce do proudů (A–D) z 16. 10., nebo se práce proudům nedělí, jak říká sekce
     11 PROJEKT.md?

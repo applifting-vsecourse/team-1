@@ -2,7 +2,7 @@
 
 > Generováno z [`rozhodnuti.yaml`](rozhodnuti.yaml) (`python generate.py`). Needituj, měň YAML.
 
-**69 platných**, 0 návrhů, 2 nahrazených nebo zrušených.
+**69 platných**, 0 návrhů, 3 nahrazených nebo zrušených.
 
 ## Návrhy čekající na PM
 
@@ -36,6 +36,7 @@ _Nic._
 | [D-043](#d-043) | E-mail organizátora v přihlášce: obecná chyba VALIDATION_FAILED | 2026-10-25 | nahrazuje [D-013](#d-013) |
 | [D-050](#d-050) | Dashboard organizátora se vrací | 2026-10-28 | mění [D-042](#d-042) |
 | [D-071](#d-071) | Práce se nedělí do proudů | 2026-10-31 | mění [D-026](#d-026) |
+| [D-072](#d-072) | Landing má dva vstupy „Jsem organizátor“ a „Jsem účastník“ | 2026-10-31 | nahrazuje [D-027](#d-027)mění [D-006](#d-006) |
 
 ## Platná rozhodnutí podle oblasti
 
@@ -154,8 +155,8 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-072](#d-072) | Landing má dva vstupy „Jsem organizátor“ a „Jsem účastník“ | 2026-10-31 | `pm` | produkt |
 | [D-028](#d-028) | Landing má dva vstupy a je jen pro nepřihlášené | 2026-10-19 | `tym` | produkt |
-| [D-027](#d-027) | Landing má jediný vstup „Pro organizátory“ | 2026-10-19 | `tym` | produkt |
 | [D-020](#d-020) | Organizace není v URL | 2026-10-16 | `tech-lead` | produkt |
 | [D-009](#d-009) | Nová přihláška se přiřadí k existujícímu účtu | 2026-10-16 | `tech-lead` | produkt |
 | [D-008](#d-008) | Účastník dostává magic link místo jednorázového hesla | 2026-10-16 | `tech-lead` | produkt |
@@ -169,6 +170,7 @@ _Nic._
 | --- | --- | --- | --- | --- |
 | [D-003](#d-003) | Potvrzování je automatické | board | `tym` | [D-040](#d-040) |
 | [D-013](#d-013) | E-mail organizátora v přihlášce: chyba u pole (původní) | 2026-10-16 | `tech-lead` | [D-043](#d-043) |
+| [D-027](#d-027) | Landing má jediný vstup „Pro organizátory“ | 2026-10-19 | `tym` | [D-072](#d-072) |
 
 ## Detail
 
@@ -227,7 +229,7 @@ _Nic._
 - **Datum:** 2026-10-16 · **Rozhodl:** `tech-lead`
 - **Text:** **Ve sprintu 1 se nikdo neregistruje.** Landing má dva vstupy: „Pro organizátory – přihlásit se“ a „Mám přihlášku – přihlásit se“. Účet účastníka vzniká odesláním přihlášky.
 - **Zdroj:** [PROJEKT.md, sekce 9 (původní zápis)](../../docs/PROJEKT.md)
-- **Změněno v:** [D-027](#d-027)
+- **Změněno v:** [D-027](#d-027), [D-072](#d-072)
 
 <a id="d-007"></a>
 
@@ -416,10 +418,11 @@ _Nic._
 
 ### D-027 – Landing má jediný vstup „Pro organizátory“
 
-- **Stav:** platné · **Typ:** produkt · **Oblast:** účty
+- **Stav:** nahrazené · **Typ:** produkt · **Oblast:** účty
 - **Datum:** 2026-10-19 · **Rozhodl:** `tym`
 - **Text:** Landing má podle Figmy (V08, M07) jediný vstup „Pro organizátory – přihlásit se“; ruší se tím druhý vstup z rozhodnutí 16. 10. Účastník se na přihlášení (S10) dostane odkazem z přihlášení organizátora (S01) nebo z e-mailu.
 - **Zdroj:** [PROJEKT.md, sekce 9 (původní zápis)](../../docs/PROJEKT.md)
+- **Nahrazeno v:** [D-072](#d-072)
 - **Mění:** [D-006](#d-006)
 - **Poznámka:** Kolize se záznamem D-028, viz Q-UCT-10.
 
@@ -432,7 +435,7 @@ _Nic._
 - **Text:** Redesign (PR #112): landing má dva vstupy „Jsem organizátor“ a „Jsem účastník“. **Landing je jen pro nepřihlášené** — přihlášeného uživatele `/` (i klik na logo) přesměruje na jeho domovskou stránku (dashboard / moje přihlášky); na landing se dostane po odhlášení.
 - **Dotčené US:** [#112](https://github.com/applifting-vsecourse/team-1/issues/112)
 - **Zdroj:** [PROJEKT.md, sekce 9 (původní zápis)](../../docs/PROJEKT.md)
-- **Poznámka:** Kolize se záznamem D-027: oba z 19. 10. říkají o vstupech na landing opak (dva vstupy × jediný vstup); pořadí ze zdrojů nelze určit. Viz Q-UCT-10.
+- **Poznámka:** Potvrzeno rozhodnutím D-072: dva vstupy platí. Kolizi s D-027 řešilo D-072.
 
 <a id="d-029"></a>
 
@@ -881,3 +884,16 @@ _Nic._
 - **Mění:** [D-026](#d-026)
 - **Z otázek:** `Q-TEC-08`
 - **Dokumentace:** `docs/PROJEKT.md`: hotovo (065fbdc), řádek 105 odkazuje na „proud C“; odstranit zmínku o proudu
+
+<a id="d-072"></a>
+
+### D-072 – Landing má dva vstupy „Jsem organizátor“ a „Jsem účastník“
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** účty
+- **Datum:** 2026-10-31 · **Rozhodl:** `pm`
+- **Text:** Landing pro nepřihlášené má dva vstupy: „Jsem organizátor“ a „Jsem účastník“ (jak je v aplikaci). Rozhodnutí z 19. 10. o jediném vstupu „Pro organizátory – přihlásit se“ (podle Figmy V08, M07) neplatí; Figma se s kódem sladí.
+- **Zdroj:** [PR #242, odpověď PM na Q-UCT-10](https://github.com/applifting-vsecourse/team-1/pull/242)
+- **Nahrazuje:** [D-027](#d-027)
+- **Mění:** [D-006](#d-006)
+- **Z otázek:** `Q-UCT-10`
+- **Poznámka:** Rámce V08 a M07 ve Figmě kreslí jediný vstup; sladit s designem (návazný úkol u Q-UCT-10).

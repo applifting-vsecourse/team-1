@@ -89,6 +89,7 @@ rozhodnuti:
   stav: platne
   zmeneno_v:
   - D-027
+  - D-072
   z_otazek: []
   dokumentace: []
 - id: D-007
@@ -423,12 +424,13 @@ rozhodnuti:
   - popis: PROJEKT.md, sekce 9 (původní zápis)
     soubor: docs/PROJEKT.md
   us: []
-  stav: platne
+  stav: nahrazene
   meni:
   - D-006
   poznamka: Kolize se záznamem D-028, viz Q-UCT-10.
   z_otazek: []
   dokumentace: []
+  nahrazeno_v: D-072
 - id: D-028
   nazev: Landing má dva vstupy a je jen pro nepřihlášené
   text: 'Redesign (PR #112): landing má dva vstupy „Jsem organizátor“ a „Jsem účastník“. **Landing je
@@ -446,8 +448,7 @@ rozhodnuti:
   - label: '#112'
     url: https://github.com/applifting-vsecourse/team-1/issues/112
   stav: platne
-  poznamka: 'Kolize se záznamem D-027: oba z 19. 10. říkají o vstupech na landing opak (dva vstupy × jediný
-    vstup); pořadí ze zdrojů nelze určit. Viz Q-UCT-10.'
+  poznamka: 'Potvrzeno rozhodnutím D-072: dva vstupy platí. Kolizi s D-027 řešilo D-072.'
   z_otazek: []
   dokumentace: []
 - id: D-029
@@ -1299,3 +1300,26 @@ rozhodnuti:
     popis: řádek 105 odkazuje na „proud C“; odstranit zmínku o proudu
     stav: hotovo
     commit: 065fbdc
+- id: D-072
+  nazev: Landing má dva vstupy „Jsem organizátor“ a „Jsem účastník“
+  text: 'Landing pro nepřihlášené má dva vstupy: „Jsem organizátor“ a „Jsem účastník“ (jak je v aplikaci).
+    Rozhodnutí z 19. 10. o jediném vstupu „Pro organizátory – přihlásit se“ (podle Figmy V08, M07) neplatí;
+    Figma se s kódem sladí.'
+  typ: produkt
+  oblast: účty
+  datum: '2026-10-31'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: 'PR #242, odpověď PM na Q-UCT-10'
+    url: https://github.com/applifting-vsecourse/team-1/pull/242
+  us: []
+  stav: platne
+  nahrazuje:
+  - D-027
+  meni:
+  - D-006
+  z_otazek:
+  - Q-UCT-10
+  dokumentace: []
+  poznamka: Rámce V08 a M07 ve Figmě kreslí jediný vstup; sladit s designem (návazný úkol u Q-UCT-10).
