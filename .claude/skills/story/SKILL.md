@@ -9,7 +9,7 @@ Arguments: `$ARGUMENTS`. `<issue>` is the GitHub issue number, not the US number
 ## Start: `/story <issue>`
 
 1. Run `node scripts/story.mjs check <issue>`. On `VERDICT: NOT READY`, report the reasons and stop. Go on only if the user says so.
-2. Read the story with `gh issue view <issue> --comments`, comments included: decisions often live there.
+2. Read the story with `gh issue view <issue>`, then its comments with `gh issue view <issue> --comments`: decisions often live there, and `--comments` alone leaves out the body.
 3. Claim it: `gh issue edit <issue> --add-assignee @me`, then `node scripts/story.mjs move <issue> "In progress"`.
 4. Unless you are already in its worktree, run `pnpm wt new <branch>` with the branch from step 1. Work there, with absolute paths.
 5. Read only what the story needs:
