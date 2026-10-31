@@ -982,6 +982,8 @@ rozhodnuti:
     stav: ceka
   poznamka: 'Tech lead: přechod je povolený v backendu i UI („Move to waitlist“), zapracováno v b68f73e
     a propsané do navazujících PR. Diagram a EMAILY.md zůstávají na PM.'
+  zmeneno_v:
+  - D-074
 - id: D-057
   nazev: Organizátor smí zrušit náhradníka kdykoli
   text: Je v pořádku, organizátor může zrušit náhradníka kdykoli.
@@ -1323,3 +1325,76 @@ rozhodnuti:
   - Q-UCT-10
   dokumentace: []
   poznamka: Rámce V08 a M07 ve Figmě kreslí jediný vstup; sladit s designem (návazný úkol u Q-UCT-10).
+- id: D-073
+  nazev: Přihláška přesunutá z Potvrzené mezi náhradníky se řadí podle data přijetí
+  text: Přihláška přesunutá z Potvrzené mezi náhradníky se v pořadníku řadí podle data přijetí, tedy stejně
+    jako ostatní náhradníci. Může tak skočit před dřívější náhradníky.
+  typ: produkt
+  oblast: přihlašování na akce
+  datum: '2026-10-31'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: 'odpověď PM v chatu na Q-PRI-22 (dotaz tech leada v PR #232)'
+    url: https://github.com/applifting-vsecourse/team-1/pull/232#issuecomment-6545014573
+  us:
+  - label: US-28
+    url: https://github.com/applifting-vsecourse/team-1/issues/28
+  stav: platne
+  z_otazek:
+  - Q-PRI-22
+  dokumentace:
+  - soubor: docs/procesy/zpracovani-prihlasky/
+    popis: pravidlo pořadí náhradníků (podle data přijetí i po přesunu z Potvrzené), místo určí model-update
+    stav: ceka
+  poznamka: 'Odpovídá chování v main (PR #232), kód se nemění.'
+- id: D-074
+  nazev: Přechod Potvrzená → Náhradník má vlastní e-mail jako samostatný stav v EMAILY.md
+  text: 'Přechod Potvrzená → Náhradník se v EMAILY.md zapíše jako nový, samostatný řádek (vlastní e-mail
+    s vlastním textem) s dalším volným číslem 13; stávající čísla e-mailů se nepřečíslovávají. E-mail č. 3
+    zůstává jen pro K vyhodnocení → Náhradník. Text „Jste náhradník“
+    platí pro č. 3 i pro č. 1 v automatickém režimu.'
+  typ: produkt
+  oblast: komunikace
+  datum: '2026-10-31'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: 'odpověď PM v chatu na Q-KOM-09 (PR #232, odpověď tech leada)'
+    url: https://github.com/applifting-vsecourse/team-1/pull/232#issuecomment-6545014573
+  us:
+  - label: US-28
+    url: https://github.com/applifting-vsecourse/team-1/issues/28
+  stav: platne
+  z_otazek:
+  - Q-KOM-09
+  meni:
+  - D-056
+  dokumentace:
+  - soubor: docs/procesy/zpracovani-prihlasky/EMAILY.md
+    popis: nový řádek č. 13 e-mailu pro Potvrzená → Náhradník (odvolané potvrzení); stávající čísla 1 až 12
+      se nemění; č. 3 jen K vyhodnocení → Náhradník; č. 1 auto ponechat „Jste náhradník“
+    stav: ceka
+  poznamka: 'Výklad „zapsat jako nový stav“: nový řádek (e-mail) v EMAILY.md, ne nový stav přihlášky. Znění
+    textu se doladí v model-update. Původní čísla e-mailů zůstávají. Kód používá pro tento přechod e-mail č. 3, po zápisu bude potřeba
+    ticket na samostatnou šablonu.'
+- id: D-075
+  nazev: V angličtině je datum narození DD/MM/YYYY (en-GB)
+  text: V angličtině se datum narození zobrazuje a zadává jako DD/MM/YYYY (en-GB), například 25/10/1990.
+  typ: produkt
+  oblast: přihlašování na akce
+  datum: '2026-10-31'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: 'odpověď PM v chatu na Q-PRI-12 (PR #226, nejasnosti k byznys pravidlům)'
+    url: https://github.com/applifting-vsecourse/team-1/pull/226
+  us:
+  - label: '#177'
+    url: https://github.com/applifting-vsecourse/team-1/issues/177
+  stav: platne
+  z_otazek:
+  - Q-PRI-12
+  dokumentace: []
+  poznamka: 'Potvrzuje stav zapracovaný v PR #226 (sloučeno). Q-PRI-11 (formát podle jazyka aplikace, nebo
+    systému) zůstává otevřená.'
