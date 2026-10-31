@@ -156,6 +156,8 @@ export class ApplicationsRepository {
     const registered = await db.applicationTerm.findMany({
       where: {
         termId: { in: [...new Set(participants.flatMap(({ termIds }) => termIds))] },
+        // A cancelled term does not block a new application of the same participant (US-28).
+        status: { not: "CANCELLED" },
         application: {
           eventId,
           birthDate: {

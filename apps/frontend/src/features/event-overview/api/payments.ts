@@ -15,7 +15,7 @@ export const paymentApplicationSchema = z.object({
   amountOwedCzk: z.number().int(),
   terms: z.array(
     z.object({
-      status: z.enum(["CONFIRMED", "WAITLISTED"]),
+      status: z.enum(["CONFIRMED", "WAITLISTED", "CANCELLED"]),
       priceCzk: z.number().int(),
       startsOn: z.string(),
       endsOn: z.string(),

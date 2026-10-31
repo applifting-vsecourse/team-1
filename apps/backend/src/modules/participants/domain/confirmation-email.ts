@@ -35,7 +35,14 @@ function paymentOf(
   }
 }
 
+/** A submission only knows evaluated terms; a cancelled one never appears in the summary. */
 const termsOf = (application: SubmittedApplication): ConfirmationApplicationProps["terms"] =>
+  application.terms.flatMap(({ name, status }) =>
+    status === "CANCELLED" ? [] : [{ name, status }],
+  )
+
+/** The change e-mail lists every term, a cancelled one too. */
+const changedTermsOf = (application: SubmittedApplication): ApplicationChangeProps["terms"] =>
   application.terms.map(({ name, status }) => ({ name, status }))
 
 export function buildConfirmationApplications(
@@ -64,7 +71,7 @@ export function buildChangeProps(
     eventName: change.eventName,
     name: `${application.firstName} ${application.lastName}`,
     kind: change.kind,
-    terms: termsOf(application),
+    terms: changedTermsOf(application),
     payment:
       change.isAmountChanged && change.kind !== "CANCELLED"
         ? paymentOf(application, change.bankAccount, change.locale)

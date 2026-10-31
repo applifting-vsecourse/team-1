@@ -285,6 +285,12 @@ export function ApplicationsPage({
   )
 }
 
+const STATUS_LABEL = {
+  CONFIRMED: "confirmed",
+  WAITLISTED: "waitlisted",
+  CANCELLED: "cancelled",
+} as const
+
 function Terms({ application }: { application: ListedApplication }) {
   const { t } = useTranslation("eventOverview")
   return (
@@ -303,7 +309,7 @@ function Terms({ application }: { application: ListedApplication }) {
                 : undefined
             }
           >
-            {t(term.status === "CONFIRMED" ? "applications.confirmed" : "applications.waitlisted")}
+            {t(`applications.${STATUS_LABEL[term.status]}`)}
           </Badge>
         </div>
       ))}

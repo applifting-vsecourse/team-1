@@ -59,6 +59,7 @@ export function ApplicationFilters({
       values: [
         { id: "CONFIRMED", name: t("applications.confirmed") },
         { id: "WAITLISTED", name: t("applications.waitlisted") },
+        { id: "CANCELLED", name: t("applications.cancelled") },
       ],
     },
     {

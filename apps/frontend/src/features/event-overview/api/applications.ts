@@ -23,7 +23,7 @@ const applicationSchema = z.object({
       name: z.string(),
       startsOn: z.string(),
       endsOn: z.string(),
-      status: z.enum(["CONFIRMED", "WAITLISTED"]),
+      status: z.enum(["CONFIRMED", "WAITLISTED", "CANCELLED"]),
       priceCzk: z.number().int(),
     }),
   ),

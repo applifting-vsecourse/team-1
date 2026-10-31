@@ -72,7 +72,9 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
                 <TermStatusBadge term={term} />
                 <span className="w-full sm:w-50 sm:text-right">
                   <MoneyAmount amountCzk={isConfirmed ? term.priceCzk : 0} />
-                  {isConfirmed ? null : ` ${t("status.untilConfirmed")}`}
+                  {isConfirmed || term.status === "CANCELLED"
+                    ? null
+                    : ` ${t("status.untilConfirmed")}`}
                 </span>
               </li>
             )

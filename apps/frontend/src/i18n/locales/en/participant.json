@@ -35,6 +35,7 @@
     "UNPAID": "Unpaid"
   },
   "status": {
+    "cancelled": "Cancelled",
     "confirmed": "Confirmed",
     "pending": "Waiting for confirmation",
     "untilConfirmed": "until confirmed"

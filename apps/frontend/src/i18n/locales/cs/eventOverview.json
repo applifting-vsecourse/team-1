@@ -5,6 +5,7 @@
     "allPayments": "Všechny platby",
     "allStatuses": "Všechny stavy v termínu",
     "allTerms": "Všechny termíny",
+    "cancelled": "Zrušená",
     "clear": "Vymazat filtry",
     "clearSearchAndFilters": "Vymazat hledání a filtry",
     "closeFilters": "Zavřít filtry",
@@ -187,5 +188,37 @@
     "unpaid": "Dosud nezaplaceno",
     "waiting": "Čeká na platbu",
     "waitingDescription": "K úhradě {{amount}}. Zatím nebyla označena žádná přijatá platba."
+  },
+  "termStatus": {
+    "action": {
+      "cancel": "Zrušit v termínu",
+      "confirm": "Potvrdit",
+      "waitlist": "Zařadit mezi náhradníky"
+    },
+    "confirmAnyway": "Přesto potvrdit",
+    "dialog": {
+      "back": "Zpět",
+      "cancelDescription": "Zrušení nejde vrátit. Přihlašovatel dostane e-mail a může se na tento termín přihlásit znovu.",
+      "cancelSubmit": "Zrušit v termínu",
+      "cancelTitle": "Zrušit přihlášku v tomto termínu",
+      "confirmDescription": "Přihláška bude Potvrzená s dluhem a přihlašovatel dostane e-mail s platebními údaji.",
+      "confirmSubmit": "Potvrdit",
+      "confirmTitle": "Potvrdit přihlášku v tomto termínu",
+      "waitlistDescription": "Přihláška bude v tomto termínu Náhradník a přihlašovatel dostane e-mail.",
+      "waitlistSubmit": "Zařadit mezi náhradníky",
+      "waitlistTitle": "Zařadit mezi náhradníky"
+    },
+    "errorTitle": "Stavy se nepodařilo načíst",
+    "helper": "Každý termín se rozhoduje zvlášť. Přihlašovatel dostane e-mail o každé změně.",
+    "logEntry": "{{date}} · {{who}}: {{from}} → {{to}}",
+    "overCapacityDescription": "Potvrzením se překročí kapacita termínu. Potvrďte, jen pokud to vědomě přijímáte.",
+    "overCapacityTitle": "Pro toto pohlaví není volné lůžko",
+    "state": {
+      "CANCELLED": "Zrušená",
+      "CONFIRMED": "Potvrzená",
+      "WAITLISTED": "Náhradník"
+    },
+    "system": "Systém",
+    "title": "Stav v termínech"
   }
 }

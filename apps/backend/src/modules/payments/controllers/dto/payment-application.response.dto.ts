@@ -11,7 +11,7 @@ class PaymentResponseDto {
 }
 
 class PaymentTermResponseDto {
-  @ApiProperty({ enum: ["CONFIRMED", "WAITLISTED"] }) status!: string
+  @ApiProperty({ enum: ["CONFIRMED", "WAITLISTED", "CANCELLED"] }) status!: string
   @ApiProperty() priceCzk!: number
   @ApiProperty() startsOn!: string
   @ApiProperty() endsOn!: string

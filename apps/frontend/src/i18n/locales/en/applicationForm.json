@@ -22,6 +22,7 @@
       "variableSymbolNote": "The variable symbol is the numeric part of application {{code}}."
     },
     "status": {
+      "cancelled": "Cancelled",
       "confirmed": "Confirmed",
       "pending": "Waiting for confirmation"
     },
