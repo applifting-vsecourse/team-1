@@ -1,0 +1,1522 @@
+role:
+  pm:
+    popis: product manager
+    jmeno: Adam
+    github: Aadikk
+  tech-lead:
+    popis: tech lead
+    jmeno: Honza
+    github: null
+  design:
+    popis: design
+    jmeno: Kuba
+    github: null
+  qa:
+    popis: QA
+    jmeno: Petr
+    github: null
+  po:
+    popis: product owner, za klienta
+    jmeno: Tomáš
+    github: null
+otazky:
+- id: Q-PRI-01
+  otazka: Jaké výjimky dnes děláš (stálí účastníci, tým, sourozenci)?
+  epic: přihlašování na akce
+  us:
+  - label: US-28
+    url: https://github.com/applifting-vsecourse/team-1/issues/28
+  stav: otevreno
+  priorita: P1
+  priorita_duvod: Ruční režim vyhodnocování je v rozsahu sprintu 3; otázka se týká výjimek při ruční změně
+    stavu.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/28
+    citace: „**Otevřená otázka na PO:** F-16 – jaké výjimky dnes děláš (stálí účastníci, tým, sourozenci)?“
+- id: Q-PRI-02
+  otazka: Jaká lhůta na zaplacení platí pro náhradníka potvrzeného na poslední chvíli, např. týden před
+    akcí?
+  epic: přihlašování na akce
+  us:
+  - label: US-31
+    url: https://github.com/applifting-vsecourse/team-1/issues/31
+  stav: otevreno
+  priorita: P1
+  priorita_duvod: Vyhodnocování a náhradníci jsou hlavní priorita PO; lhůta pro náhradníka na poslední
+    chvíli není určena.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/31
+    citace: „**Otevřená otázka na PO:** F-18 – jaká lhůta na zaplacení platí pro náhradníka potvrzeného
+      na poslední chvíli, např. týden před akcí?“
+- id: Q-PRI-03
+  otazka: Platí pro změnu termínu stejné storno podmínky jako pro odhlášku (US-47)?
+  epic: přihlašování na akce
+  us:
+  - label: US-32
+    url: https://github.com/applifting-vsecourse/team-1/issues/32
+  stav: otevreno
+  priorita: P1
+  priorita_duvod: Odhláška a změna termínu jsou v návrhu PO; pravidla stornování nejsou určena.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/32
+    citace: „F-19 – platí pro změnu termínu stejné storno podmínky jako pro odhlášku (US-47)?“
+- id: Q-PRI-04
+  otazka: Platí pravidlo „odhlášená přihláška se nepočítá do kontroly duplicity“ i pro termín zrušený
+    organizátorem při vyhodnocení (stav „Zrušená“)?
+  epic: přihlašování na akce
+  us:
+  - label: US-32
+    url: https://github.com/applifting-vsecourse/team-1/issues/32
+  - label: '#160'
+    url: https://github.com/applifting-vsecourse/team-1/issues/160
+  stav: otevreno
+  priorita: P2
+  priorita_duvod: Drobné pravidlo kontroly duplicity; autor navrhuje odpověď „ano“.
+  ceka_na: pm
+  zdroje:
+  - popis: komentář k issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/32
+    citace: „platí totéž pro termín zrušený organizátorem při vyhodnocení (stav „Zrušená“ ve `SLOVNIK.md`)?
+      Podle mě ano.“
+  - popis: PROJEKT.md §9, 26. 10.
+    url: https://github.com/applifting-vsecourse/team-1/blob/31b4fc25e25afa265d1812a9f8538d081af84265/docs/PROJEKT.md#9-rozhodnutí
+    citace: „Duplicitní přihláška (#160, US-23). Odeslání odmítne (409 APPLICATION_DUPLICATE) …“
+  poznamka: Autor komentáře navrhuje „ano“.
+- id: Q-PRI-05
+  otazka: Vyhodnocuje se každý týden zvlášť? Navrhujeme ano.
+  epic: přihlašování na akce
+  us:
+  - label: US-82
+    url: https://github.com/applifting-vsecourse/team-1/issues/82
+  stav: uzavreno
+  priorita: null
+  priorita_duvod: null
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/82
+    citace: „**Otevřená otázka na PO:** F-15 – vyhodnocuje se každý týden zvlášť? Navrhujeme ano.“
+  - popis: PROJEKT.md §9, board
+    url: https://github.com/applifting-vsecourse/team-1/blob/31b4fc25e25afa265d1812a9f8538d081af84265/docs/PROJEKT.md#9-rozhodnutí
+    citace: „Akce = jeden celek s více termíny, každý termín se vyhodnocuje zvlášť.“
+  poznamka: 'Board: „Akce = jeden celek s více termíny, každý termín se vyhodnocuje zvlášť.“ (PROJEKT.md
+    §9).'
+  uzavreno_duvod: 'Board: „Akce = jeden celek s více termíny, každý termín se vyhodnocuje zvlášť.“ (PROJEKT.md
+    §9).'
+- id: Q-PRI-06
+  otazka: Ruční, nebo automatické schvalování přihlášek a e-mailů?
+  epic: přihlašování na akce
+  us:
+  - label: US-82
+    url: https://github.com/applifting-vsecourse/team-1/issues/82
+  stav: uzavreno
+  priorita: null
+  priorita_duvod: null
+  ceka_na: pm
+  zdroje:
+  - popis: zápis 22. 10.
+    url: https://github.com/applifting-vsecourse/team-1/blob/31b4fc25e25afa265d1812a9f8538d081af84265/docs/zapisy/2026-10-22-status.md
+    citace: „Produkt má mít automatické schvalování dle kapacity i ruční vyhodnocení organizátorem; v
+      dokumentaci to není jasné.“
+  - popis: PROJEKT.md §9, 23. 10.
+    url: https://github.com/applifting-vsecourse/team-1/blob/31b4fc25e25afa265d1812a9f8538d081af84265/docs/PROJEKT.md#9-rozhodnutí
+    citace: '„Vyhodnocování přihlášek: organizátor si nastaví ruční, nebo automatické.“'
+  poznamka: 'PROJEKT.md §9, 23. 10.: organizátor si nastaví ruční, nebo automatické vyhodnocování. Zařazeno
+    k US-82 jen kvůli epicu.'
+  uzavreno_duvod: 'PROJEKT.md §9, 23. 10.: organizátor si nastaví ruční, nebo automatické vyhodnocování.
+    Zařazeno k US-82 jen kvůli epicu.'
+- id: Q-PRI-07
+  otazka: Má změna termínu nebo odhláška proběhnout hned, nebo ji organizátor nejdřív schválí (kvůli kapacitě
+    a storno podmínkám)?
+  epic: přihlašování na akce
+  us:
+  - label: US-84
+    url: https://github.com/applifting-vsecourse/team-1/issues/84
+  stav: otevreno
+  priorita: P1
+  priorita_duvod: Účastník si sám mění termín a odhlašuje se (návrh PO); chybí pravidlo hned / po schválení.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/84
+    citace: „**Otevřená otázka na PO:** F-20 – má změna termínu nebo odhláška proběhnout hned, nebo ji
+      organizátor nejdřív schválí (kvůli kapacitě a storno podmínkám)?“
+  poznamka: 'Návrh PO z 28. 10. říká: účastník si sám opraví údaje, změní termín nebo se odhlásí; když
+    už běží storno podmínky, schvaluje organizátor. Nerozhoduje, co je „hned“ a co „po schválení“ před
+    začátkem storno podmínek.'
+- id: Q-PRI-08
+  otazka: 'Jak se účastník vrací do aplikace? (odpověď: nápady nechává PO na týmu)'
+  epic: přihlašování na akce
+  us:
+  - label: US-84
+    url: https://github.com/applifting-vsecourse/team-1/issues/84
+  stav: uzavreno
+  priorita: null
+  priorita_duvod: null
+  ceka_na: pm
+  zdroje:
+  - popis: zápis 14. 10.
+    url: https://github.com/applifting-vsecourse/team-1/blob/31b4fc25e25afa265d1812a9f8538d081af84265/docs/zapisy/2026-10-14-status-s-po.md
+    citace: '„Otevřená otázka: jak ho motivovat k návratu do platformy?“'
+  - popis: zápis 28. 10., Priority dalšího sprintu
+    url: https://github.com/applifting-vsecourse/team-1/blob/31b4fc25e25afa265d1812a9f8538d081af84265/docs/zapisy/2026-10-28-status-s-po.md
+    citace: „Účastník potřebuje důvod se do aplikace vracet (úprava přihlášky, platba, kontakt na organizátora);
+      nápady nechává na týmu.“
+  poznamka: 'Status s PO 28. 10.: důvod k návratu účastníka (úprava přihlášky, platba, kontakt na organizátora),
+    nápady nechává PO na týmu. Zařazeno k US-84 jen kvůli epicu.'
+  uzavreno_duvod: 'Status s PO 28. 10.: důvod k návratu účastníka (úprava přihlášky, platba, kontakt na
+    organizátora), nápady nechává PO na týmu. Zařazeno k US-84 jen kvůli epicu.'
+- id: Q-PRI-09
+  otazka: Používáš okna pro podání přihlášek podle věku či jiných údajů?
+  epic: přihlašování na akce
+  us:
+  - label: US-87
+    url: https://github.com/applifting-vsecourse/team-1/issues/87
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/87
+    citace: „**Otevřená otázka na PO:** F-59 – používáš okna pro podání přihlášek podle věku či jiných
+      údajů?“
+- id: Q-PRI-10
+  otazka: Kdo je smí vidět, jak dlouho se uchovávají a má o záznamu účastník vědět? Potřebuješ to na kempu?
+  epic: přihlašování na akce
+  us:
+  - label: US-88
+    url: https://github.com/applifting-vsecourse/team-1/issues/88
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: GDPR má podle PO 28. 10. nízkou prioritu.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/88
+    citace: „**Otevřená otázka na PO:** F-60 – kdo je smí vidět, jak dlouho se uchovávají a má o záznamu
+      účastník vědět? Potřebuješ to na kempu?“
+- id: Q-PRI-11
+  otazka: Má se formát data narození řídit jazykem aplikace, nebo jazykem systému (a co na jiných zařízeních)?
+  epic: přihlašování na akce
+  us:
+  - label: '#177'
+    url: https://github.com/applifting-vsecourse/team-1/issues/177
+  stav: otevreno
+  priorita: P2
+  priorita_duvod: Rozpracovaná oprava nebo úprava v běžícím flow přihlášek a účtů; nic neblokuje, ale
+    brzy se na to narazí.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/177
+    citace: „Má se formát řídit jazykem aplikace (cs / en), nebo jazykem systému? V angličtině je MM/DD/YYYY
+      pro část uživatelů správně. / Platí totéž pro pole data v dialogu termínu? / Jak se to chová na
+      dalších zařízeních a prohlížečích?“
+- id: Q-NAS-01
+  otazka: Vyhovuje to tak pro všechny akce, nebo má mít organizátor možnost přihlášky po naplnění úplně
+    zavřít?
+  epic: nastavení akce
+  us:
+  - label: US-18
+    url: https://github.com/applifting-vsecourse/team-1/issues/18
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/18
+    citace: „**Otevřená otázka na PO:** F-09 – vyhovuje to tak pro všechny akce, nebo má mít organizátor
+      možnost přihlášky po naplnění úplně zavřít?“
+- id: Q-NAS-02
+  otazka: Jaké typy otázek potřebuješ? Má jít podrobný formulář přihlášky uložit jako šablonu pro další
+    akce? Je to spíš MVP, nebo Nice to have?
+  epic: nastavení akce
+  us:
+  - label: US-19
+    url: https://github.com/applifting-vsecourse/team-1/issues/19
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/19
+    citace: „**Otevřená otázka na PO:** F-11 – jaké typy otázek potřebuješ? Má jít podrobný formulář přihlášky
+      uložit jako šablonu pro další akce? Je to spíš MVP, nebo Nice to have?“
+- id: Q-NAS-03
+  otazka: Stačí kopie celé akce, nebo chceš areál a formulář spravovat zvlášť (US-81)? Je to spíš MVP,
+    nebo Nice to have?
+  epic: nastavení akce
+  us:
+  - label: US-21
+    url: https://github.com/applifting-vsecourse/team-1/issues/21
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/21
+    citace: „**Otevřená otázka na PO:** F-12 – stačí kopie celé akce, nebo chceš areál a formulář spravovat
+      zvlášť ([US-81](https://github.com/applifting-vsecourse/team-1/issues/81))? Je to spíš MVP, nebo
+      Nice to have?“
+- id: Q-NAS-04
+  otazka: Co všechno má přihlašovatel o akci vidět, než podá přihlášku? Má být stránka dostupná komukoliv,
+    nebo jen přes odkaz od organizátora?
+  epic: nastavení akce
+  us:
+  - label: US-22
+    url: https://github.com/applifting-vsecourse/team-1/issues/22
+  stav: otevreno
+  priorita: P1
+  priorita_duvod: Veřejná stránka akce je v návrhu PO pro sprint 3 (návštěvník webu) a seznam polí není
+    určen.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/22
+    citace: „**Otevřená otázka na PO:** F-10 – co všechno má přihlašovatel o akci vidět, než podá přihlášku?
+      Má být stránka dostupná komukoliv, nebo jen přes odkaz od organizátora?“
+  poznamka: 'Status s PO 28. 10.: veřejné údaje se mohou převzít ze založení akce a doplnit o fotografii,
+    „přesný seznam polí nebyl určen“, musí ale existovat jedno místo, odkud je web čerpá.'
+- id: Q-NAS-05
+  otazka: Jaká pole veřejných údajů o akci (fotografie atd.) se mají zobrazovat na veřejné stránce?
+  epic: nastavení akce
+  us:
+  - label: US-22
+    url: https://github.com/applifting-vsecourse/team-1/issues/22
+  stav: otevreno
+  priorita: P1
+  priorita_duvod: Veřejná stránka akce je v návrhu PO pro sprint 3 (návštěvník webu) a seznam polí není
+    určen.
+  ceka_na: pm
+  zdroje:
+  - popis: zápis 28. 10., Upřesnění požadavků
+    url: https://github.com/applifting-vsecourse/team-1/blob/31b4fc25e25afa265d1812a9f8538d081af84265/docs/zapisy/2026-10-28-status-s-po.md
+    citace: „Veřejné údaje o akci se mohou převzít ze založení akce a doplnit například o fotografii.
+      Přesný seznam polí nebyl určen; musí ale existovat jedno místo, odkud veřejný web informace čerpá.“
+  poznamka: Doplňuje otázku F-10 z US-22 výše.
+- id: Q-NAS-06
+  otazka: Stačí kopie celé akce, nebo chceš areál a formulář spravovat zvlášť a vybírat je při zakládání
+    akce?
+  epic: nastavení akce
+  us:
+  - label: US-81
+    url: https://github.com/applifting-vsecourse/team-1/issues/81
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/81
+    citace: „**Otevřená otázka na PO:** F-12 – stačí kopie celé akce, nebo chceš areál a formulář spravovat
+      zvlášť a vybírat je při zakládání akce?“
+  duplikat_z: Q-NAS-03
+- id: Q-NAS-07
+  otazka: Přidají se zkopírované pokoje k existujícím pokojům cílového termínu, nebo je nahradí?
+  epic: nastavení akce
+  us:
+  - label: US-100
+    url: https://github.com/applifting-vsecourse/team-1/issues/193
+  - label: US-99
+    url: https://github.com/applifting-vsecourse/team-1/issues/192
+  stav: otevreno
+  priorita: P1
+  priorita_duvod: US-100 je ve sprintu 3 a bez odpovědi nejde implementovat kopírování pokojů.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/193
+    citace: „přidají se zkopírované pokoje k existujícím pokojům cílového termínu, nebo je nahradí?“
+- id: Q-UCT-01
+  otazka: Mají e-maily chodit i samotnému účastníkovi, nebo jen přihlašovateli? Navrhujeme oběma.
+  epic: účty
+  us:
+  - label: US-05
+    url: https://github.com/applifting-vsecourse/team-1/issues/5
+  stav: otevreno
+  priorita: P2
+  priorita_duvod: Zbývající flow přihlášky; otázka, komu chodí e-maily.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/5
+    citace: „**Otevřená otázka na PO:** F-02 – mají e-maily chodit i samotnému účastníkovi, nebo jen přihlašovateli?
+      Navrhujeme oběma.“
+- id: Q-UCT-02
+  otazka: Od kolika let může účastník podat přihlášku sám? Platí to pro všechny akce stejně, nebo si to
+    nastaví organizátor?
+  epic: účty
+  us:
+  - label: US-07
+    url: https://github.com/applifting-vsecourse/team-1/issues/7
+  stav: otevreno
+  priorita: P2
+  priorita_duvod: Zbývající flow přihlášky; hranice věku pro samostatnou přihlášku.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/7
+    citace: „**Otevřená otázka na PO:** F-02 – od kolika let může účastník podat přihlášku sám? Platí
+      to pro všechny akce stejně, nebo si to nastaví organizátor?“
+- id: Q-UCT-03
+  otazka: Má si nová organizace založit svůj profil v systému sám, nebo mu ho připravíme my?
+  epic: účty
+  us:
+  - label: US-08
+    url: https://github.com/applifting-vsecourse/team-1/issues/8
+  stav: uzavreno
+  priorita: null
+  priorita_duvod: null
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/8
+    citace: „**Otevřená otázka na PO:** F-03 – má si nová organizace založit svůj profil v systému sám,
+      nebo mu ho připravíme my?“
+  - popis: zápis 28. 10., Priority dalšího sprintu
+    url: https://github.com/applifting-vsecourse/team-1/blob/31b4fc25e25afa265d1812a9f8538d081af84265/docs/zapisy/2026-10-28-status-s-po.md
+    citace: „Do odsouhlaseného rozsahu patří také … založení organizace formou self-onboardingu“
+  poznamka: 'Nepřímá odpověď: status s PO 28. 10. řadí „založení organizace formou self-onboardingu“ do
+    odsouhlaseného rozsahu sprintu.'
+  uzavreno_duvod: 'Nepřímá odpověď: status s PO 28. 10. řadí „založení organizace formou self-onboardingu“
+    do odsouhlaseného rozsahu sprintu.'
+- id: Q-UCT-04
+  otazka: 'Organizace: musí ji mít každý organizátor, nebo může pořádat akce sám?'
+  epic: účty
+  us:
+  - label: US-08
+    url: https://github.com/applifting-vsecourse/team-1/issues/8
+  stav: otevreno
+  priorita: P1
+  priorita_duvod: Self-onboarding organizace je v rozsahu sprintu 3; otázka určuje dopad na model a UX.
+  ceka_na: pm
+  zdroje:
+  - popis: zápis 27. 10., Ke schválení PO
+    url: https://github.com/applifting-vsecourse/team-1/blob/31b4fc25e25afa265d1812a9f8538d081af84265/docs/zapisy/2026-10-27-status.md#L80-L86
+    citace: '„Organizace: musí ji mít každý organizátor, nebo může pořádat sám? Dopady na class model
+      a UX (podklad od Kuby).“'
+  poznamka: 'Zařazeno k US-08 kvůli epicu; souvisí s #69 a #186.'
+- id: Q-UCT-05
+  otazka: Potřebují lidé v administraci rozdílná oprávnění (např. pokladník jen platby), nebo pro začátek
+    stačí, že všichni vidí všechno?
+  epic: účty
+  us:
+  - label: US-11
+    url: https://github.com/applifting-vsecourse/team-1/issues/11
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/11
+    citace: „**Otevřená otázka na PO:** F-05 – potřebují lidé v administraci rozdílná oprávnění (např.
+      pokladník jen platby), nebo pro začátek stačí, že všichni vidí všechno?“
+- id: Q-UCT-06
+  otazka: Zabírají členové organizačního týmu lůžka v kapacitě akce? Platí za účast?
+  epic: účty
+  us:
+  - label: US-93
+    url: https://github.com/applifting-vsecourse/team-1/issues/93
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/93
+    citace: „**Otevřená otázka na PO:** F-67 – zabírají členové organizačního týmu lůžka v kapacitě akce?
+      Platí za účast?“
+- id: Q-UCT-07
+  otazka: Má nový magic link zneplatnit jen dříve vydané nepoužité odkazy, nebo i aktivní session?
+  epic: účty
+  us:
+  - label: '#127'
+    url: https://github.com/applifting-vsecourse/team-1/issues/127
+  stav: otevreno
+  priorita: P2
+  priorita_duvod: Rozpracovaná oprava nebo úprava v běžícím flow přihlášek a účtů; nic neblokuje, ale
+    brzy se na to narazí.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/127
+    citace: „Zneplatňovat jen nepoužité odkazy, nebo i aktivní session? (navrhuji jen odkazy)“
+  poznamka: Autor navrhuje jen odkazy.
+- id: Q-UCT-08
+  otazka: Je pro klienta v pořádku, že obecná chybová hláška loginu zůstává bez nápovědy, jen s radou
+    zkontrolovat e-mail z přihlášky?
+  epic: účty
+  us:
+  - label: '#187'
+    url: https://github.com/applifting-vsecourse/team-1/issues/187
+  stav: otevreno
+  priorita: P2
+  priorita_duvod: Rozpracovaná oprava nebo úprava v běžícím flow přihlášek a účtů; nic neblokuje, ale
+    brzy se na to narazí.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/187
+    citace: '„Dotaz na Adama: Je pro klienta v pořádku, že obecná hláška zůstává bez nápovědy, jen s radou
+      zkontrolovat e-mail z přihlášky?“'
+- id: Q-UCT-09
+  otazka: Mají se v textech důsledně používat slova „přihlašovatel“ a „účastník“ podle slovníku, i když
+    rodič rozdíl nepozná?
+  epic: účty
+  us:
+  - label: '#187'
+    url: https://github.com/applifting-vsecourse/team-1/issues/187
+  stav: otevreno
+  priorita: P2
+  priorita_duvod: Rozpracovaná oprava nebo úprava v běžícím flow přihlášek a účtů; nic neblokuje, ale
+    brzy se na to narazí.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/187
+    citace: '„Dotaz na Adama: Mají se v textech důsledně používat slova „přihlašovatel“ a „účastník“ podle
+      slovníku, i když rodič rozdíl nepozná?“'
+- id: Q-PLA-01
+  otazka: Vadí, že když přihlašovatel odešle formulář přihlášky za více účastníků, dostane každá přihláška
+    v termínu vlastní variabilní symbol (účastník se dvěma termíny tedy platí dvě platby)?
+  epic: platby
+  us:
+  - label: US-41
+    url: https://github.com/applifting-vsecourse/team-1/issues/41
+  stav: uzavreno
+  priorita: null
+  priorita_duvod: null
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/41
+    citace: „**Otevřená otázka na PO:** F-26 – vadí, že když přihlašovatel odešle formulář přihlášky za
+      více účastníků, dostane každá přihláška v termínu vlastní variabilní symbol (účastník se dvěma termíny
+      tedy platí dvě platby)?“
+  - popis: PROJEKT.md §9, 21. 10.
+    url: https://github.com/applifting-vsecourse/team-1/blob/31b4fc25e25afa265d1812a9f8538d081af84265/docs/PROJEKT.md#9-rozhodnutí
+    citace: „Souhrnný potvrzovací e-mail. Přihlašovatel dostane JEDEN e-mail za celé odeslání formuláře
+      … vlastní variabilní symbol“
+  - popis: PROJEKT.md §9, 28. 10.
+    url: https://github.com/applifting-vsecourse/team-1/blob/31b4fc25e25afa265d1812a9f8538d081af84265/docs/PROJEKT.md#9-rozhodnutí
+    citace: „Platba se váže ke konkrétnímu termínu.“
+  poznamka: 'Rozhodnuto 21. 10.: jeden souhrnný e-mail, u každé přihlášky v termínu vlastní částka a variabilní
+    symbol. Potvrzeno 28. 10. (platba se váže k termínu).'
+  uzavreno_duvod: 'Rozhodnuto 21. 10.: jeden souhrnný e-mail, u každé přihlášky v termínu vlastní částka
+    a variabilní symbol. Potvrzeno 28. 10. (platba se váže k termínu).'
+- id: Q-PLA-02
+  otazka: Stačí nahrání výpisu, nebo čekáte, že si systém platby načte z bankovního účtu sám? U které
+    banky máte bankovní účet a můžete nám k němu zřídit přístup pro čtení? Blokuje ready.
+  epic: platby
+  us:
+  - label: US-43
+    url: https://github.com/applifting-vsecourse/team-1/issues/43
+  stav: otevreno
+  priorita: P2
+  priorita_duvod: Označeno jako klíčové a blokující, ale board říká „platby bez banky“ a US je „Později“.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/43
+    citace: „**Otevřená otázka na PO:** F-27 KLÍČOVÉ – stačí nahrání výpisu, nebo čekáte, že si systém
+      platby načte z bankovního účtu sám? U které banky máte bankovní účet a můžete nám k němu zřídit
+      přístup pro čtení? Blokuje ready.“
+  poznamka: 'Pozor: board uvádí „Platby bez brány a bez banky — ruční zápis“; otázka v issue to nechává
+    jako blokující pro „ready“.'
+- id: Q-PLA-03
+  otazka: 'Co po poslední výzvě k zaplacení bez reakce: jen označit pro telefonát (US-45), nebo má systém
+    přihlášku po nějaké době sám zrušit?'
+  epic: platby
+  us:
+  - label: US-46
+    url: https://github.com/applifting-vsecourse/team-1/issues/46
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/46
+    citace: '„**Otevřená otázka na PO:** F-29 – co po poslední výzvě k zaplacení bez reakce: jen označit
+      pro telefonát (US-45), nebo má systém přihlášku po nějaké době sám zrušit?“'
+- id: Q-PLA-04
+  otazka: 'Jak se počítá storno při odhlášce méně než 30 dní před akcí: procento z ceny, pevná částka,
+    nebo podle toho, jestli se za účastníka najde náhradník?'
+  epic: platby
+  us:
+  - label: US-47
+    url: https://github.com/applifting-vsecourse/team-1/issues/47
+  stav: otevreno
+  priorita: P2
+  priorita_duvod: Storno podmínky jsou v návrhu PO („odkdy běží“), výpočet storna ale není určen.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/47
+    citace: '„**Otevřená otázka na PO:** F-30 – jak se počítá storno při odhlášce méně než 30 dní před
+      akcí: procento z ceny, pevná částka, nebo podle toho, jestli se za účastníka najde náhradník?“'
+- id: Q-PLA-05
+  otazka: Doúčtovává pořadatel po akci? Rozpočítání výdaje mezi účastníky je samostatná otázka.
+  epic: platby
+  us:
+  - label: US-48
+    url: https://github.com/applifting-vsecourse/team-1/issues/48
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/48
+    citace: „**Otevřená otázka na PO:** F-28 – doúčtovává pořadatel po akci? Rozpočítání výdaje mezi účastníky
+      je samostatná otázka.“
+  poznamka: Issue je zavřené, otázka v něm zůstala bez odpovědi.
+- id: Q-PLA-06
+  otazka: Kdo ověří nárok na slevu (např. členství ve spolku)?
+  epic: platby
+  us:
+  - label: US-49
+    url: https://github.com/applifting-vsecourse/team-1/issues/49
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/49
+    citace: „**Otevřená otázka na PO:** F-31 – kdo ověří nárok na slevu (např. členství ve spolku)?“
+- id: Q-PLA-07
+  otazka: Má pořadatel účastníky ze zahraničí?
+  epic: platby
+  us:
+  - label: US-50
+    url: https://github.com/applifting-vsecourse/team-1/issues/50
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/50
+    citace: „**Otevřená otázka na PO:** F-30 – má pořadatel účastníky ze zahraničí?“
+  poznamka: Issue je zavřené, otázka v něm zůstala bez odpovědi.
+- id: Q-PLA-08
+  otazka: Má systém organizátora upozornit hned po první zmeškané splátce?
+  epic: platby
+  us:
+  - label: US-89
+    url: https://github.com/applifting-vsecourse/team-1/issues/89
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/89
+    citace: „**Otevřená otázka na PO:** F-62 – má systém organizátora upozornit hned po první zmeškané
+      splátce?“
+- id: Q-PLA-09
+  otazka: Jaké příplatky nabízíš? Vybírají se v přihlášce, nebo až po potvrzení?
+  epic: platby
+  us:
+  - label: US-90
+    url: https://github.com/applifting-vsecourse/team-1/issues/90
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/90
+    citace: „**Otevřená otázka na PO:** F-64 – jaké příplatky nabízíš? Vybírají se v přihlášce, nebo až
+      po potvrzení?“
+- id: Q-PLA-10
+  otazka: Co s už zapsanými platbami a už vydanými variabilními symboly (migrace, nebo přepsání seedu)?
+  epic: platby
+  us:
+  - label: '#174'
+    url: https://github.com/applifting-vsecourse/team-1/issues/174
+  stav: otevreno
+  priorita: P1
+  priorita_duvod: Rozpracovaný ticket o platbě v termínu; kód se bez odpovědí nedomýšlí a PO 28. 10. platbu
+    v termínu výslovně chtěl.
+  ceka_na: pm
+  zdroje:
+  - popis: issue, Otevřené otázky 1
+    url: https://github.com/applifting-vsecourse/team-1/issues/174
+    citace: '„Dotaz na Adama: Co s už zapsanými platbami a už vydanými VS? Návrh: pokud existují jen demo
+      a seed data, přepsat seed a data nemigrovat. …“'
+  poznamka: Dokud není zodpovězeno, nedomýšlí se to do kódu.
+- id: Q-PLA-11
+  otazka: K jaké přihlášce v termínu patří přeplatek a co se stane s platbou zrušeného termínu nebo náhradníka?
+  epic: platby
+  us:
+  - label: '#174'
+    url: https://github.com/applifting-vsecourse/team-1/issues/174
+  stav: otevreno
+  priorita: P1
+  priorita_duvod: Rozpracovaný ticket o platbě v termínu; kód se bez odpovědí nedomýšlí a PO 28. 10. platbu
+    v termínu výslovně chtěl.
+  ceka_na: pm
+  zdroje:
+  - popis: issue, Otevřené otázky 2
+    url: https://github.com/applifting-vsecourse/team-1/issues/174
+    citace: „Nikde není psáno, zda přeplatek PVT, která se zruší, zůstává k převodu na jinou PVT, nebo
+      se vrací.“
+  - popis: PROJEKT.md §9, 28. 10.
+    url: https://github.com/applifting-vsecourse/team-1/blob/31b4fc25e25afa265d1812a9f8538d081af84265/docs/PROJEKT.md#9-rozhodnutí
+    citace: „vratka se eviduje zápornou platbou“
+- id: Q-PLA-12
+  otazka: Patří editace a doplnění platby do tohoto ticketu (dnes US-44 umí zápis a zrušení, ne úpravu)?
+  epic: platby
+  us:
+  - label: '#174'
+    url: https://github.com/applifting-vsecourse/team-1/issues/174
+  - label: US-44
+    url: https://github.com/applifting-vsecourse/team-1/issues/44
+  stav: otevreno
+  priorita: P1
+  priorita_duvod: Rozpracovaný ticket o platbě v termínu; kód se bez odpovědí nedomýšlí a PO 28. 10. platbu
+    v termínu výslovně chtěl.
+  ceka_na: pm
+  zdroje:
+  - popis: issue, Otevřené otázky 3
+    url: https://github.com/applifting-vsecourse/team-1/issues/174
+    citace: „Zápis z 28. 10. mezi upřesněními uvádí „možnost editace, doplnění“ plateb. US-44 dnes umí
+      zápis a zrušení, ne úpravu.“
+  - popis: zápis 28. 10., Upřesnění požadavků
+    url: https://github.com/applifting-vsecourse/team-1/blob/31b4fc25e25afa265d1812a9f8538d081af84265/docs/zapisy/2026-10-28-status-s-po.md
+    citace: '„Platby: možnost editace, doplnění a záporné platby jako vratky“'
+- id: Q-PLA-13
+  otazka: Je ticket o platbě v termínu zařazen do dalšího sprintu?
+  epic: platby
+  us:
+  - label: '#174'
+    url: https://github.com/applifting-vsecourse/team-1/issues/174
+  stav: otevreno
+  priorita: P1
+  priorita_duvod: Rozpracovaný ticket o platbě v termínu; kód se bez odpovědí nedomýšlí a PO 28. 10. platbu
+    v termínu výslovně chtěl.
+  ceka_na: pm
+  zdroje:
+  - popis: issue, Otevřené otázky 4
+    url: https://github.com/applifting-vsecourse/team-1/issues/174
+    citace: „Zápis z 27. 10. ho vedl jako „mimo Sprint 3“ a k odsouhlasení měl „projít proces před implementací“.“
+  - popis: zápis 27. 10., Ke schválení PO
+    url: https://github.com/applifting-vsecourse/team-1/blob/31b4fc25e25afa265d1812a9f8538d081af84265/docs/zapisy/2026-10-27-status.md#L76-L84
+    citace: '„Platby per přihláška v termínu: projít proces před implementací a odsouhlasit zařazení do
+      dalšího sprintu.“'
+- id: Q-UBY-01
+  otazka: Brief uvádí rozdělení do pokojů mezi nutnostmi pro 7. 2., v rozhovoru ale pokoje řešíte na místě.
+    Platí tedy Nice to have?
+  epic: ubytování
+  us:
+  - label: US-35
+    url: https://github.com/applifting-vsecourse/team-1/issues/35
+  stav: otevreno
+  priorita: P2
+  priorita_duvod: PO chce interaktivní prvek u kapacit ubytování; samotné přiřazování na lůžka je ale
+    označeno jako nice to have.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/35
+    citace: „**Otevřená otázka na PO:** F-21 – brief uvádí rozdělení do pokojů mezi nutnostmi pro 7. 2.,
+      v rozhovoru ale pokoje řešíte na místě. Platí tedy Nice to have?“
+- id: Q-UBY-02
+  otazka: Je ještě jiné pravidlo, které má systém hlídat?
+  epic: ubytování
+  us:
+  - label: US-37
+    url: https://github.com/applifting-vsecourse/team-1/issues/37
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/37
+    citace: „**Otevřená otázka na PO:** F-22 – je ještě jiné pravidlo, které má systém hlídat?“
+- id: Q-UBY-03
+  otazka: Mají být zájmena v přihlášce jako nepovinné pole? Organizátor LARP tábora je plánuje do přihlášek
+    přidat.
+  epic: ubytování
+  us:
+  - label: US-38
+    url: https://github.com/applifting-vsecourse/team-1/issues/38
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/38
+    citace: „**Otevřená otázka na PO:** F-23 – mají být zájmena v přihlášce jako nepovinné pole? Organizátor
+      LARP tábora je plánuje do přihlášek přidat.“
+- id: Q-UBY-04
+  otazka: Necháme to až po rozdělení do pokojů (US-35)?
+  epic: ubytování
+  us:
+  - label: US-39
+    url: https://github.com/applifting-vsecourse/team-1/issues/39
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/39
+    citace: „**Otevřená otázka na PO:** F-24 – necháme to až po rozdělení do pokojů (US-35)?“
+- id: Q-LOG-01
+  otazka: Které další dokumenty kromě bezinfekčnosti od účastníků potřebuješ?
+  epic: logistika
+  us:
+  - label: US-62
+    url: https://github.com/applifting-vsecourse/team-1/issues/62
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/62
+    citace: „**Otevřená otázka na PO:** F-42 – které další dokumenty kromě bezinfekčnosti od účastníků
+      potřebuješ?“
+- id: Q-LOG-02
+  otazka: Jaké varianty nabízíš a kdy potřebuje kuchyně počty?
+  epic: logistika
+  us:
+  - label: US-64
+    url: https://github.com/applifting-vsecourse/team-1/issues/64
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/64
+    citace: „**Otevřená otázka na PO:** F-43 – jaké varianty nabízíš a kdy potřebuje kuchyně počty?“
+- id: Q-LOG-03
+  otazka: Hlídá se kapacita autobusu? Je doprava v ceně, nebo je vlastní doprava sleva (US-49)?
+  epic: logistika
+  us:
+  - label: US-65
+    url: https://github.com/applifting-vsecourse/team-1/issues/65
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/65
+    citace: „**Otevřená otázka na PO:** F-44 – hlídá se kapacita autobusu? Je doprava v ceně, nebo je
+      vlastní doprava sleva (US-49)?“
+- id: Q-LOG-04
+  otazka: Stačí pro začátek jen harmonogram pro všechny? Mají mít volitelné bloky omezenou kapacitu?
+  epic: logistika
+  us:
+  - label: US-66
+    url: https://github.com/applifting-vsecourse/team-1/issues/66
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/66
+    citace: „**Otevřená otázka na PO:** F-45 – stačí pro začátek jen harmonogram pro všechny? Mají mít
+      volitelné bloky omezenou kapacitu?“
+- id: Q-LOG-05
+  otazka: Kdo z týmu je smí vidět (jen zdravotník?) a jak dlouho se po akci uchovávají?
+  epic: logistika
+  us:
+  - label: US-68
+    url: https://github.com/applifting-vsecourse/team-1/issues/68
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/68
+    citace: „**Otevřená otázka na PO:** F-46 – kdo z týmu je smí vidět (jen zdravotník?) a jak dlouho
+      se po akci uchovávají?“
+- id: Q-LOG-06
+  otazka: Má být checklist součástí programových bloků (US-66), nebo samostatný pro celou akci? Sdílí
+    ho celý organizační tým?
+  epic: logistika
+  us:
+  - label: US-94
+    url: https://github.com/applifting-vsecourse/team-1/issues/94
+  stav: uzavreno
+  priorita: null
+  priorita_duvod: null
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/94
+    citace: '„F-68 – má být checklist součástí programových bloků (US-66), nebo samostatný pro celou akci?
+      Sdílí ho celý organizační tým? Rozhodnuto: ano.“'
+  poznamka: 'Issue samo uvádí „Rozhodnuto: ano“ (jen k části o sdílení týmem); k první části odpověď nenajdu.'
+  uzavreno_duvod: 'Issue samo uvádí „Rozhodnuto: ano“ (jen k části o sdílení týmem); k první části odpověď
+    nenajdu.'
+- id: Q-LOG-07
+  otazka: Souhlasíš, že je řešíme až nakonec, případně napojením na externí služby?
+  epic: logistika
+  us:
+  - label: US-95
+    url: https://github.com/applifting-vsecourse/team-1/issues/95
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/95
+    citace: „**Otevřená otázka na PO:** F-47 – souhlasíš, že je řešíme až nakonec, případně napojením
+      na externí služby?“
+- id: Q-KOM-01
+  otazka: Potřebuješ to už pro první ročník (MVP), nebo zatím stačí Mailchimp?
+  epic: komunikace
+  us:
+  - label: US-57
+    url: https://github.com/applifting-vsecourse/team-1/issues/57
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/57
+    citace: „**Otevřená otázka na PO:** F-38 – potřebuješ to už pro první ročník (MVP), nebo zatím stačí
+      Mailchimp?“
+- id: Q-KOM-02
+  otazka: Má být už v MVP, nebo stačí po spuštění přihlášek?
+  epic: komunikace
+  us:
+  - label: US-58
+    url: https://github.com/applifting-vsecourse/team-1/issues/58
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/58
+    citace: „**Otevřená otázka na PO:** F-39 – má být už v MVP, nebo stačí po spuštění přihlášek?“
+- id: Q-KOM-03
+  otazka: Stačí zvoneček v aplikaci a e-mail jako volba?
+  epic: komunikace
+  us:
+  - label: US-86
+    url: https://github.com/applifting-vsecourse/team-1/issues/86
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/86
+    citace: „**Otevřená otázka na PO:** F-58 – stačí zvoneček v aplikaci a e-mail jako volba?“
+- id: Q-KOM-04
+  otazka: Mají účastníci dostat upozornění, když se na nástěnce objeví něco nového? Je to MVP, nebo Nice
+    to have?
+  epic: komunikace
+  us:
+  - label: US-91
+    url: https://github.com/applifting-vsecourse/team-1/issues/91
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/91
+    citace: „**Otevřená otázka na PO:** F-65 – mají účastníci dostat upozornění, když se na nástěnce objeví
+      něco nového? Je to MVP, nebo Nice to have?“
+- id: Q-KOM-05
+  otazka: Pro které typy akcí to dává smysl?
+  epic: komunikace
+  us:
+  - label: US-92
+    url: https://github.com/applifting-vsecourse/team-1/issues/92
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/92
+    citace: „**Otevřená otázka na PO:** F-66 – pro které typy akcí to dává smysl?“
+- id: Q-KOM-06
+  otazka: Který e-mail dorazil anglicky a v jakém jazyce byl UI při odeslání přihlášky a při žádosti o
+    odkaz?
+  epic: komunikace
+  us:
+  - label: '#183'
+    url: https://github.com/applifting-vsecourse/team-1/issues/183
+  stav: otevreno
+  priorita: P1
+  priorita_duvod: Potvrzená chyba (jazyk e-mailu), zápis 27. 10. ji vede jako otevřený bod k ověření.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/183
+    citace: „Který e-mail dorazil anglicky (předmět)? Byl uživatelský účet nový, nebo existující? V jakém
+      jazyce byl UI při odeslání přihlášky a při žádosti o odkaz?“
+  - popis: zápis 27. 10., Otevřené body
+    url: https://github.com/applifting-vsecourse/team-1/blob/31b4fc25e25afa265d1812a9f8538d081af84265/docs/zapisy/2026-10-27-status.md#L76-L78
+    citace: '„E-mail jen v angličtině: jde o magic link, nebo o jiný e-mail?“'
+- id: Q-KOM-07
+  otazka: 'Podle čeho se má volit jazyk samostatného magic link e-mailu: UI v okamžiku žádosti, User.locale,
+    nebo jazyk poslední přihlášky?'
+  epic: komunikace
+  us:
+  - label: '#183'
+    url: https://github.com/applifting-vsecourse/team-1/issues/183
+  stav: otevreno
+  priorita: P1
+  priorita_duvod: Potvrzená chyba (jazyk e-mailu), zápis 27. 10. ji vede jako otevřený bod k ověření.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/183
+    citace: „Podle čeho se má jazyk samostatného magic link e-mailu volit? (a) podle jazyka UI v okamžiku
+      žádosti (navrhuji …), (b) podle User.locale …, (c) podle jazyka po…“
+  poznamka: Otázka je adresovaná PO nebo tech leadovi; autor navrhuje (a).
+- id: Q-PRE-01
+  otazka: Má administrace otevírat poslední akci, se kterou organizátor pracoval?
+  epic: přehledy
+  us:
+  - label: US-51
+    url: https://github.com/applifting-vsecourse/team-1/issues/51
+  stav: otevreno
+  priorita: P1
+  priorita_duvod: Dashboard se vrací a je v návrhu PO; obsah karet není určen.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/51
+    citace: „**Otevřená otázka na PO:** F-33 – má administrace otevírat poslední akci, se kterou organizátor
+      pracoval?“
+- id: Q-PRE-02
+  otazka: 'Dashboard organizátora: jaký přesně obsah mají karty „co vyžaduje pozornost“?'
+  epic: přehledy
+  us:
+  - label: US-51
+    url: https://github.com/applifting-vsecourse/team-1/issues/51
+  stav: otevreno
+  priorita: P1
+  priorita_duvod: Dashboard se vrací a je v návrhu PO; obsah karet není určen.
+  ceka_na: pm
+  zdroje:
+  - popis: zápis 27. 10., Ke schválení PO
+    url: https://github.com/applifting-vsecourse/team-1/blob/31b4fc25e25afa265d1812a9f8538d081af84265/docs/zapisy/2026-10-27-status.md#L80-L86
+    citace: '„Dashboard: přesný obsah karet „co vyžaduje pozornost“.“'
+  - popis: PROJEKT.md §9, 28. 10.
+    url: https://github.com/applifting-vsecourse/team-1/blob/31b4fc25e25afa265d1812a9f8538d081af84265/docs/PROJEKT.md#9-rozhodnutí
+    citace: „Dashboard organizátora se vrací … zaměřený na actionability“
+  poznamka: 'Dashboard se vrací (28. 10.), obsah karet zůstává nespecifikovaný. Zdroj není vázán na konkrétní
+    issue; zařazeno k #51 (přehledy) jen kvůli epicu.'
+- id: Q-PRE-03
+  otazka: Které sestavy tiskneš nejčastěji kromě seznamu do autobusu?
+  epic: přehledy
+  us:
+  - label: US-55
+    url: https://github.com/applifting-vsecourse/team-1/issues/55
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/55
+    citace: „**Otevřená otázka na PO:** F-36 – které sestavy tiskneš nejčastěji kromě seznamu do autobusu?“
+- id: Q-PRE-04
+  otazka: Stačí pamatovat filtry seznamu přihlášek jen v rámci session, nebo mají přežít zavření prohlížeče?
+  epic: přehledy
+  us:
+  - label: '#175'
+    url: https://github.com/applifting-vsecourse/team-1/issues/175
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: 'Zápis 27. 10.: do backlogu.'
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/175
+    citace: „Stačí pamatovat filtry jen v rámci session, nebo mají přežít zavření prohlížeče?“
+  poznamka: Zápis 27. 10. dal ticket do backlogu.
+- id: Q-EKO-01
+  otazka: Stačí ti přehled za celou akci, nebo ho potřebuješ i po termínech?
+  epic: ekonomika
+  us:
+  - label: US-59
+    url: https://github.com/applifting-vsecourse/team-1/issues/59
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/59
+    citace: „**Otevřená otázka na PO:** F-40 – stačí ti přehled za celou akci, nebo ho potřebuješ i po
+      termínech?“
+- id: Q-EKO-02
+  otazka: Které proměnné chceš měnit (počet lidí, cena, náklady)? Kdy v roce se takhle rozhodujete?
+  epic: ekonomika
+  us:
+  - label: US-61
+    url: https://github.com/applifting-vsecourse/team-1/issues/61
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/61
+    citace: „**Otevřená otázka na PO:** F-41 – které proměnné chceš měnit (počet lidí, cena, náklady)?
+      Kdy v roce se takhle rozhodujete?“
+- id: Q-PLT-01
+  otazka: Které části má mít každá akce vždy (přihláška, platby) a které si má organizátor zapínat podle
+    potřeby?
+  epic: platforma
+  us:
+  - label: US-20
+    url: https://github.com/applifting-vsecourse/team-1/issues/20
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/20
+    citace: „**Otevřená otázka na PO:** F-51 – které části má mít každá akce vždy (přihláška, platby)
+      a které si má organizátor zapínat podle potřeby?“
+- id: Q-PLT-02
+  otazka: Kdy reálně přijde druhá organizace? Chcete nové organizace schvalovat?
+  epic: platforma
+  us:
+  - label: US-69
+    url: https://github.com/applifting-vsecourse/team-1/issues/69
+  stav: otevreno
+  priorita: P2
+  priorita_duvod: Souvisí s self-onboardingem organizace (sprint 3) a otevřeným bodem o povinné organizaci.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/69
+    citace: „**Otevřená otázka na PO:** F-48 – kdy reálně přijde druhá organizace? Chcete nové organizace
+      schvalovat?“
+  poznamka: 'Souvisí s otevřeným bodem ze statusu 27. 10. (Organizace: musí ji mít každý organizátor?)
+    a s #186.'
+- id: Q-PLT-03
+  otazka: Je v pořádku, že první ročník běží bez účtování, nebo je to nutnost?
+  epic: platforma
+  us:
+  - label: US-70
+    url: https://github.com/applifting-vsecourse/team-1/issues/70
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/70
+    citace: „**Otevřená otázka na PO:** F-50 – je v pořádku, že první ročník běží bez účtování, nebo je
+      to nutnost?“
+- id: Q-PLT-04
+  otazka: 'Kdo je správcem údajů: organizace, nebo provozovatel Togeny?'
+  epic: platforma
+  us:
+  - label: US-77
+    url: https://github.com/applifting-vsecourse/team-1/issues/77
+  stav: uzavreno
+  priorita: null
+  priorita_duvod: null
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/77
+    citace: '„**Otevřená otázka na PO:** F-56 – kdo je správcem údajů: organizace, nebo provozovatel Togeny?“'
+  - popis: zápis 28. 10., Přijatá rozhodnutí
+    url: https://github.com/applifting-vsecourse/team-1/blob/31b4fc25e25afa265d1812a9f8538d081af84265/docs/zapisy/2026-10-28-status-s-po.md
+    citace: „GDPR má nízkou prioritu, jen základní smysluplné zásady (organizátor je správcem údajů účastníků,
+      Togena jejich zpracovatelem; Togena je správcem údajů organizátorů).“
+  poznamka: 'Rozhodnuto 28. 10.: organizátor je správcem údajů účastníků, Togena zpracovatelem; Togena
+    je správcem údajů organizátorů.'
+  uzavreno_duvod: 'Rozhodnuto 28. 10.: organizátor je správcem údajů účastníků, Togena zpracovatelem;
+    Togena je správcem údajů organizátorů.'
+- id: Q-PLT-05
+  otazka: 'Kdo je správcem osobních údajů: organizace, nebo provozovatel Togeny? (Odpověď tohoto issue
+    uzavírá otázky z US-77 a US-78.)'
+  epic: platforma
+  us:
+  - label: US-97
+    url: https://github.com/applifting-vsecourse/team-1/issues/164
+  stav: uzavreno
+  priorita: null
+  priorita_duvod: null
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/164
+    citace: '„**Otevřená otázka na PO:** F-56 – kdo je správcem osobních údajů: organizace, nebo provozovatel
+      Togeny? (Odpověď tohoto issue uzavírá otázky z US-77 a US-78.)“'
+  - popis: zápis 28. 10., Přijatá rozhodnutí
+    url: https://github.com/applifting-vsecourse/team-1/blob/31b4fc25e25afa265d1812a9f8538d081af84265/docs/zapisy/2026-10-28-status-s-po.md
+    citace: „GDPR má nízkou prioritu … organizátor je správcem údajů účastníků, Togena jejich zpracovatelem;
+      Togena je správcem údajů organizátorů.“
+  poznamka: 'Správce údajů: rozhodnuto 28. 10. (viz US-77). Zůstává otevřená doba uchování (US-78) a smluvní
+    strana (#167).'
+  uzavreno_duvod: 'Správce údajů: rozhodnuto 28. 10. (viz US-77). Zůstává otevřená doba uchování (US-78)
+    a smluvní strana (#167).'
+  duplikat_z: Q-PLT-04
+- id: Q-PLT-06
+  otazka: 'Kdo je smluvní stranou vůči přihlašovateli: organizace, nebo provozovatel Togeny? (Souvisí
+    s otázkou správce údajů v #164.)'
+  epic: platforma
+  us:
+  - label: US-98
+    url: https://github.com/applifting-vsecourse/team-1/issues/167
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: GDPR má podle PO 28. 10. nízkou prioritu.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/167
+    citace: '„**Otevřená otázka na PO:** Kdo je smluvní stranou vůči přihlašovateli: organizace, nebo
+      provozovatel Togeny? (Souvisí s otázkou správce údajů v #164.)“'
+  poznamka: 'Souvisí s #164; odpověď o správci údajů (28. 10.) nerozhoduje, kdo je smluvní stranou.'
+- id: Q-PLT-07
+  otazka: Co patří do admin portálu platformy kromě náhledu organizací a fakturace (deaktivace, audit
+    log, statistiky, podpora)?
+  epic: platforma
+  us:
+  - label: '#186'
+    url: https://github.com/applifting-vsecourse/team-1/issues/186
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: Platformový admin se do sprintu 3 nezařazuje, byznysová potřeba nepotvrzena (zápis 28.
+    10.).
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/186
+    citace: „Co patří do admin portálu kromě náhledu a fakturace (deaktivace organizace, audit log, statistiky,
+      podpora)?“
+  - popis: zápis 28. 10., Interní debata
+    url: https://github.com/applifting-vsecourse/team-1/blob/31b4fc25e25afa265d1812a9f8538d081af84265/docs/zapisy/2026-10-28-status-s-po.md
+    citace: „Platformový admin s přístupem ke všem organizacím zatím neexistuje; Adam Hanuš nevidí byznysovou
+      potřebu v tomto sprintu.“
+  poznamka: Platformový admin se podle 28. 10. do tohoto sprintu nezařazuje.
+- id: Q-PLT-08
+  otazka: Má se organizacím jen vyúčtovat (přehled k ruční fakturaci, jak říká US-70), nebo má platforma
+    faktury vystavovat a evidovat jejich úhradu?
+  epic: platforma
+  us:
+  - label: '#186'
+    url: https://github.com/applifting-vsecourse/team-1/issues/186
+  - label: US-70
+    url: https://github.com/applifting-vsecourse/team-1/issues/70
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: Platformový admin se do sprintu 3 nezařazuje, byznysová potřeba nepotvrzena (zápis 28.
+    10.).
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/186
+    citace: '„Dotaz na Adama: Má se organizacím jen vyúčtovat (přehled k ruční fakturaci, jak říká US-70),
+      nebo má platforma faktury vystavovat a evidovat jejich úhradu?“'
+- id: Q-PLT-09
+  otazka: 'Jaký je obchodní model: poplatek za účastníka, předplatné, nebo obojí?'
+  epic: platforma
+  us:
+  - label: '#186'
+    url: https://github.com/applifting-vsecourse/team-1/issues/186
+  - label: US-70
+    url: https://github.com/applifting-vsecourse/team-1/issues/70
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: Platformový admin se do sprintu 3 nezařazuje, byznysová potřeba nepotvrzena (zápis 28.
+    10.).
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/186
+    citace: '„Dotaz na Adama: Jaký je obchodní model: poplatek za účastníka, předplatné, nebo obojí? US-70
+      předpokládá jen poplatek za účastníka a cenový model se teprve ověřuje v Lean Canvasu.“'
+- id: Q-PLT-10
+  otazka: Jak se řeší odběratel a plátce, tedy fakturační údaje organizace (IČO, adresa, DPH)?
+  epic: platforma
+  us:
+  - label: '#186'
+    url: https://github.com/applifting-vsecourse/team-1/issues/186
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: Platformový admin se do sprintu 3 nezařazuje, byznysová potřeba nepotvrzena (zápis 28.
+    10.).
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/186
+    citace: '„Dotaz na Adama: Jak se řeší odběratel a plátce, tedy fakturační údaje organizace (IČO, adresa,
+      DPH)? V modelu Organization zatím nejsou.“'
+- id: Q-PLT-11
+  otazka: Kdy reálně přijde druhá organizace (určuje, zda je portál potřeba pro první ročník)?
+  epic: platforma
+  us:
+  - label: '#186'
+    url: https://github.com/applifting-vsecourse/team-1/issues/186
+  - label: US-69
+    url: https://github.com/applifting-vsecourse/team-1/issues/69
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: Platformový admin se do sprintu 3 nezařazuje, byznysová potřeba nepotvrzena (zápis 28.
+    10.).
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/186
+    citace: '„Dotaz na Adama: Kdy reálně přijde druhá organizace? Určí to, jestli je portál potřeba pro
+      první ročník, nebo až později (stejná otázka jako u US-69).“'
+  duplikat_z: Q-PLT-02
+- id: Q-PLT-12
+  otazka: Smí správce platformy vidět osobní údaje účastníků, nebo jen agregáty?
+  epic: platforma
+  us:
+  - label: '#186'
+    url: https://github.com/applifting-vsecourse/team-1/issues/186
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: Platformový admin se do sprintu 3 nezařazuje, byznysová potřeba nepotvrzena (zápis 28.
+    10.).
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/186
+    citace: „Smí správce vidět osobní údaje účastníků, nebo jen agregáty?“
+- id: Q-TEC-01
+  otazka: Kolik lidí loni podalo přihlášku v první hodině? Jak předejít selhání systému ten večer?
+  epic: technický základ
+  us:
+  - label: US-74
+    url: https://github.com/applifting-vsecourse/team-1/issues/74
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/74
+    citace: „**Otevřená otázka na PO:** F-54 – kolik lidí loni podalo přihlášku v první hodině? Jak předejít
+      selhání systému ten večer?“
+- id: Q-TEC-02
+  otazka: Jakou ztrátu dat je PO ochoten unést (hodina, den)?
+  epic: technický základ
+  us:
+  - label: US-76
+    url: https://github.com/applifting-vsecourse/team-1/issues/76
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/76
+    citace: „**Otevřená otázka na PO:** F-55 – jakou ztrátu dat je PO ochoten unést (hodina, den)?“
+- id: Q-TEC-03
+  otazka: 'Jak dlouho se údaje po akci uchovávají? Viz #164.'
+  epic: technický základ
+  us:
+  - label: US-78
+    url: https://github.com/applifting-vsecourse/team-1/issues/78
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: GDPR má podle PO 28. 10. nízkou prioritu.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/78
+    citace: „**Otevřená otázka na PO:** F-56 – jak dlouho se údaje po akci uchovávají? Viz [#164](https://github.com/applifting-vsecourse/team-1/issues/164).“
+- id: Q-TEC-04
+  otazka: Potřebuješ do systému stará data, nebo ročník 2027 začne načisto?
+  epic: technický základ
+  us:
+  - label: US-85
+    url: https://github.com/applifting-vsecourse/team-1/issues/85
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/85
+    citace: „**Otevřená otázka na PO:** F-57 – potřebuješ do systému stará data, nebo ročník 2027 začne
+      načisto?“
+- id: Q-BEZ-01
+  otazka: Jaké doklady zaměstnavatelé skutečně vyžadují a kdy a kým se mají vystavovat?
+  epic: bez epicu
+  us:
+  - label: '#162'
+    url: https://github.com/applifting-vsecourse/team-1/issues/162
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: Nápad (label idea), není ve storkách ani v rozsahu sprintu.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/162
+    citace: '„Jaké doklady zaměstnavatelé skutečně vyžadují (potvrzení, faktura, daňový doklad) a co musí
+      obsahovat? / Má se doklad vystavovat až po zaplacení? / Kdo doklad zakládá: organizátor ručně, nebo
+      ho systém generuje sám? / Mají na doklad vliv údaje o organizátorovi (IČO, adresa, číslo účtu)?“'
+  poznamka: Nápad (label `idea`), bez epicu.
+- id: Q-BEZ-02
+  otazka: Jaké doklady vyžadují zdravotní pojišťovny a liší se od dokladů pro zaměstnavatele (#162)?
+  epic: bez epicu
+  us:
+  - label: '#163'
+    url: https://github.com/applifting-vsecourse/team-1/issues/163
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: Nápad (label idea), není ve storkách ani v rozsahu sprintu.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/163
+    citace: „Jaké doklady pojišťovny skutečně vyžadují a liší se to mezi pojišťovnami? / Liší se požadavky
+      od příspěvku zaměstnavatele (#162), nebo stačí jeden společný doklad? / Musí být pořadatel nebo
+      akce na něco akreditovaný, aby se příspěvek dal čerpat? / Má se doklad vystavovat až po zaplacení?“
+  poznamka: 'Nápad (label `idea`), bez epicu. Souvisí s #162.'
+- id: Q-BEZ-03
+  otazka: Kdo smí které zdravotní údaje vidět a zapisovat, jaké zákonné požadavky platí a má se to řešit
+    jako jeden modul?
+  epic: bez epicu
+  us:
+  - label: '#166'
+    url: https://github.com/applifting-vsecourse/team-1/issues/166
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: Nápad (label idea), není ve storkách ani v rozsahu sprintu.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/166
+    citace: '„Kdo smí které údaje vidět a zapisovat (zdravotník, vedoucí, ostatní personál)? … Jaké zákonné
+      požadavky platí pro posudky, knihu úrazů a hlášení úrazů a jak dlouho se mají uchovávat? … Jak to
+      zapadá do mazání a záznamu přístupů z #68 (US-79)? … Má se to řešit jako jeden modul, nebo jako
+      samostatné funkce?“'
+  poznamka: 'Nápad (label `idea`), bez epicu. Souvisí s #93 a #68.'
+- id: Q-BEZ-04
+  otazka: Má být magic link i v e-mailu o změně přihlášky a v jakých případech e-mail magic link neobsahoval?
+  epic: bez epicu
+  us:
+  - label: '#178'
+    url: https://github.com/applifting-vsecourse/team-1/issues/178
+  stav: otevreno
+  priorita: P1
+  priorita_duvod: 'Potvrzená chyba: potvrzovací e-mail nesplňuje akceptační kritérium (zápis 27. 10.).'
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/178
+    citace: „V jakém konkrétním případě e-mail magic link neobsahoval …? Má být magic link i v e-mailu
+      o změně přihlášky? Má se selhání vytvoření odkazu jen logovat, nebo to má být vidět víc?“
+  poznamka: Zápis 27. 10. označil nedostatek za chybu (nesplňuje akceptační kritérium).
+- id: Q-BEZ-05
+  otazka: Kde a jak dlouho smí formulář přihlášky držet osobní údaje (i dětí) v prohlížeči a jak se uloží
+    formulář s více účastníky?
+  epic: bez epicu
+  us:
+  - label: '#179'
+    url: https://github.com/applifting-vsecourse/team-1/issues/179
+  stav: otevreno
+  priorita: P2
+  priorita_duvod: Rozpracovaná oprava nebo úprava v běžícím flow přihlášek a účtů; nic neblokuje, ale
+    brzy se na to narazí.
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/179
+    citace: '„Osobní údaje: ve formuláři jsou jméno, datum narození a e-mail, často dětí. Kde a jak dlouho
+      je smíme v prohlížeči držet? … Víc účastníků: jak se uloží formulář, kde je víc účastníků nebo vybraných
+      termínů?“'
+  - popis: zápis 28. 10., Přijatá rozhodnutí
+    url: https://github.com/applifting-vsecourse/team-1/blob/31b4fc25e25afa265d1812a9f8538d081af84265/docs/zapisy/2026-10-28-status-s-po.md
+    citace: „Formulář přihlášky bude zachovávat vyplněné údaje při refreshi.“
+  poznamka: Samotné zachování údajů je rozhodnuto 28. 10. (zápis 27. 10. mělo „nice to have“). Otevřená
+    zůstává otázka rozsahu a doby uložení.
+- id: Q-BEZ-06
+  otazka: 'Název termínu: zůstává volitelný — co se starými názvy, má se překládat a kde se má zobrazovat?'
+  epic: bez epicu
+  us:
+  - label: '#180'
+    url: https://github.com/applifting-vsecourse/team-1/issues/180
+  stav: uzavreno
+  priorita: null
+  priorita_duvod: null
+  ceka_na: pm
+  zdroje:
+  - popis: issue
+    url: https://github.com/applifting-vsecourse/team-1/issues/180
+    citace: „Co s názvy u existujících termínů (migrace dat)? / Kdyby název zůstal, má se překládat (pole
+      pro cs a en)? / Kde všude se název dnes zobrazuje … a co by ho nahradilo?“
+  - popis: PROJEKT.md §9, 28. 10.
+    url: https://github.com/applifting-vsecourse/team-1/blob/31b4fc25e25afa265d1812a9f8538d081af84265/docs/PROJEKT.md#9-rozhodnutí
+    citace: „Název termínu je volitelný, termín se primárně definuje datem.“
+  poznamka: Hlavní otázku (zrušit, nebo ponechat) rozhodl status 28. 10. Vedlejší otázky (migrace, překlad,
+    zobrazení) jsou spíš pro tým; při potřebě je převést na samostatný bod.
+  uzavreno_duvod: Hlavní otázku (zrušit, nebo ponechat) rozhodl status 28. 10. Vedlejší otázky (migrace,
+    překlad, zobrazení) jsou spíš pro tým; při potřebě je převést na samostatný bod.
+- id: Q-TEC-05
+  otazka: Přejmenovat typ účtu `PARTICIPANT` na `APPLICANT`?
+  epic: technický základ
+  us: []
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: Rozpor mezi zdroji ve SLOVNIK.md; rozhodnout s tech leadem.
+  ceka_na: tech-lead
+  zdroje:
+  - popis: SLOVNIK.md, Rozpory mezi zdroji
+    url: https://github.com/applifting-vsecourse/team-1/blob/main/docs/SLOVNIK.md#rozpory-mezi-zdroji
+  poznamka: Převzato ze sekce „Mimo product manažera“ původního dokumentu.
+- id: Q-TEC-06
+  otazka: Připojit Figma konektor a převzít tokeny do `global.css`.
+  epic: technický základ
+  us: []
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: Otevřený bod v PROJEKT.md §12; vlastník je tech lead.
+  ceka_na: tech-lead
+  zdroje:
+  - popis: PROJEKT.md §12
+    url: https://github.com/applifting-vsecourse/team-1/blob/main/docs/PROJEKT.md#12-otevřené-body
+  poznamka: Převzato ze sekce „Mimo product manažera“ původního dokumentu.
+- id: Q-TEC-07
+  otazka: Dopad zneplatnění magic linků na E2E (`magic-link.spec.ts`, `set-password.spec.ts`) a zápis
+    pravidla do PROJEKT.md.
+  epic: technický základ
+  us:
+  - label: '#127'
+    url: https://github.com/applifting-vsecourse/team-1/issues/127
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: 'Navazuje na #127; technická část, nejde o rozhodnutí PM.'
+  ceka_na: tech-lead
+  zdroje:
+  - popis: 'issue #127'
+    url: https://github.com/applifting-vsecourse/team-1/issues/127
+  poznamka: Převzato ze sekce „Mimo product manažera“ původního dokumentu.
