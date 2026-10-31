@@ -41,14 +41,14 @@ Co skript nezjistí (autor otázky, kontext, zda komentář je poděkování, ne
 
 Z dat vytvoř seznam položek. Jedna položka = jedna věc, ke které se dá říct „vyřešeno / nevyřešeno“. Vícebodový komentář nebo dotaz rozděl na body.
 
-| Typ | Co to je | Odkud |
-| --- | --- | --- |
-| **Dotaz** | Vývojář nebo jiný člen týmu čeká na rozhodnutí PM | označení `@Aadikk`, „Dotaz na Adama“ v těle PR, komentář s otázkou |
-| **Slib** | PM něco slíbil (dodat text, aktualizovat dokumentaci, založit ticket, ověřit) | `promises` a PM komentáře |
-| **Rozhodnutí** | PM na dotaz odpověděl | PM komentáře |
-| **Otázka v registru** | `Q-` záznam, který čeká na někoho | `registry`, `docs/otevrene-otazky/` |
-| **Rozpor** | ❌ nebo ❓ v kritériích, zdroje se rozcházejí, konflikt v dokumentaci | `unmet_criteria`, `body_sections` |
-| **Hygiena** | zavřený ticket s neodškrtnutým krokem, issue s „Otevřená otázka na PO“ bez záznamu v registru | `issues` |
+| Typ                   | Co to je                                                                                      | Odkud                                                              |
+| --------------------- | --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| **Dotaz**             | Vývojář nebo jiný člen týmu čeká na rozhodnutí PM                                             | označení `@Aadikk`, „Dotaz na Adama“ v těle PR, komentář s otázkou |
+| **Slib**              | PM něco slíbil (dodat text, aktualizovat dokumentaci, založit ticket, ověřit)                 | `promises` a PM komentáře                                          |
+| **Rozhodnutí**        | PM na dotaz odpověděl                                                                         | PM komentáře                                                       |
+| **Otázka v registru** | `Q-` záznam, který čeká na někoho                                                             | `registry`, `docs/otevrene-otazky/`                                |
+| **Rozpor**            | ❌ nebo ❓ v kritériích, zdroje se rozcházejí, konflikt v dokumentaci                         | `unmet_criteria`, `body_sections`                                  |
+| **Hygiena**           | zavřený ticket s neodškrtnutým krokem, issue s „Otevřená otázka na PO“ bez záznamu v registru | `issues`                                                           |
 
 ### 3. Stav vlákna
 
@@ -72,12 +72,12 @@ Ke každé položce najdi záznam v `docs/otevrene-otazky/otazky.yaml` (ID `Q-�
 
 ### 5. Priorita
 
-| Úroveň | Podmínka |
-| --- | --- |
+| Úroveň | Podmínka                                                                                                  |
+| ------ | --------------------------------------------------------------------------------------------------------- |
 | **P0** | blokuje merge PR nebo celý řetěz PR (`stacked_on`), nebo se týká blížícího se dema (řekne-li to uživatel) |
-| **P1** | čeká na PM déle než 2 dny, nebo vývojář staví na předpokladu a zpětná změna bude drahá |
-| **P2** | rozhodnutí padlo, ale není zapsané v dokumentaci; nebo drobný dotaz, který nic neblokuje |
-| **P3** | nápad, „později lépe“, ticket k založení |
+| **P1** | čeká na PM déle než 2 dny, nebo vývojář staví na předpokladu a zpětná změna bude drahá                    |
+| **P2** | rozhodnutí padlo, ale není zapsané v dokumentaci; nebo drobný dotaz, který nic neblokuje                  |
+| **P3** | nápad, „později lépe“, ticket k založení                                                                  |
 
 Uvnitř úrovně řaď podle stáří (nejstarší první). Položky, na které čeká PM od někoho jiného (`tech-lead`, `design`, `qa`, `po`), nepočítej do „Visí na mně“, ale vypiš zvlášť s rolí, na kterou čekáš.
 

@@ -12,6 +12,7 @@ Pracuje se v repu Togena (kořen repozitáře). Uživatel je autor business doku
 Spouští se i bez změny modelů. Když se rozhodnutí modelů netýká, kontrola proběhne stejně.
 
 ## A. Otevřené otázky a pozůstatky starého stavu
+
 Zjisti, jestli se rozhodnutím nějaká otevřená otázka neuzavřela, a najdi všude, kde zůstal starý stav.
 
 1. Vypiš otevřené otázky ze všech míst z tabulky níže. Ke každé: je uzavřená tímto rozhodnutím? Ano → navrhni zápis o uzavření a odstranění otázky tam, kde je. Ne → nech.
@@ -26,36 +27,40 @@ Zjisti, jestli se rozhodnutím nějaká otevřená otázka neuzavřela, a najdi 
 6. Navíc hledej otevřené body v `docs/PROJEKT.md` (sekce Otevřené body), v `EMAILY.md` (konflikty) a v PR a ticketech.
 
 ## B. Rozhodnutí
+
 1. Z nálezů a konverzace vyber každé **nové rozhodnutí** uživatele (zdroj, datum, doslovně). Pro každé: je zapsané v registru rozhodnutí (`docs/rozhodnuti/rozhodnuti.yaml`)? Navrhni zápis: nový záznam s dalším ID `D-<nnn>`, `typ`, `oblast`, `rozhodl` (role), `zdroj`, `z_otazek` a `dokumentace` (co se má zapsat, stav `ceka`); u zodpovězené otázky nastav `rozhodnuti_ref` a stav `rozhodnuto`. Rozhodnutí navržené někým jiným a nepotvrzené uživatelem dostane stav `navrh`. Po zápisu do dokumentace přepni příslušnou `dokumentace` na `hotovo` s commitem a otázku na `zapsano`.
 2. Ke každému novému rozhodnutí najdi dřívější rozhodnutí, která se jím **mění nebo ruší** (v `docs/rozhodnuti/rozhodnuti.yaml`, `SLOVNIK.md`, `EMAILY.md`, README režimů, popisech PR a ticketech). Ukaž dvojice „dřív × teď“. Staré rozhodnutí nemaž: přidej nové s datem a propoj je (`nahrazuje` / `nahrazeno_v` při úplné výměně, `meni` / `zmeneno_v` při částečné změně; staré pak dostane stav `nahrazene`, historie zůstane).
 3. Rozpor mezi dvěma rozhodnutími, který neumíš rozřešit, nech jako otázku pro uživatele. Neodhaduj.
 
 ## Kde hledat a co zapsat
+
 Kontroluj všechna místa, vynech jen ta, kterých se změna zjevně netýká.
 
-| Místo | Co zkontrolovat nebo zapsat |
-| --- | --- |
-| `docs/procesy/**/*.yaml` a generované `.md` | Model samotný; sdílená část v obou režimech |
-| `docs/procesy/zpracovani-prihlasky/README.md` | Tabulka rozdílů režimů, přehled |
-| `docs/procesy/zpracovani-prihlasky/EMAILY.md` | Řádky e-mailů, konflikty na začátku (uzavřené odstranit) |
-| `docs/rozhodnuti/rozhodnuti.yaml` (generovaný `README.md`) | Nové rozhodnutí, řetězce změn, `dokumentace` (co zapsat, `hotovo` s commitem); po úpravě `generate.py` |
-| `docs/PROJEKT.md` | Klíčová pravidla (sekce 5), sekce 12 Otevřené body, datový model, trasy, API; rozhodnutí tu už nejsou, jen odkaz na registr |
-| `docs/SLOVNIK.md` | Pojmy, tabulka stavů, class diagram |
-| `docs/FIGMA-REMAKE.md`, Figma | Jen nahlásit rozpor (texty, stavy, obrazovky) |
-| `docs/E2E.md` | Hlavní cesty, kterých se změna týká |
-| `CLAUDE.md`, `CONTRIBUTING.md` | Pravidla a definice hotového, pokud se změnily |
-| `docs/otevrene-otazky/otazky.yaml` | Uzavřené otázky (`rozhodnuti_ref`, stav), změna priority a `ceka_na`, nové otázky s dalším ID, `navazne_tickety` (url `null` = ticket k založení); vždy ověř proti ticketům a PR |
-| GitHub tickety / user stories (`.github/ISSUE_TEMPLATE/user-story.md`) | Otevřené otázky v ticketu a komentářích (uzavřené rozhodnutím); popis a akceptační kritéria se starým stavem; návrh přepsání (bez zápisu) |
-| Otevřené PR (popis, komentáře) | Dotazy vývojářů na uživatele (zodpovězené i dosud nezodpovězené); sekce Nejasnosti a Odchylky; kód nebo popis ze starého stavu; návrh odpovědi česky (bez zápisu) |
-| Backend `apps/backend/src/modules/applications/domain`, šablony e-mailů (např. `application-confirmation-waitlisted`), `apps/frontend/src/i18n/locales`, seed | Jen nahlásit, kde kód nebo texty neodpovídají rozhodnutí |
+| Místo                                                                                                                                                         | Co zkontrolovat nebo zapsat                                                                                                                                                      |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `docs/procesy/**/*.yaml` a generované `.md`                                                                                                                   | Model samotný; sdílená část v obou režimech                                                                                                                                      |
+| `docs/procesy/zpracovani-prihlasky/README.md`                                                                                                                 | Tabulka rozdílů režimů, přehled                                                                                                                                                  |
+| `docs/procesy/zpracovani-prihlasky/EMAILY.md`                                                                                                                 | Řádky e-mailů, konflikty na začátku (uzavřené odstranit)                                                                                                                         |
+| `docs/rozhodnuti/rozhodnuti.yaml` (generovaný `README.md`)                                                                                                    | Nové rozhodnutí, řetězce změn, `dokumentace` (co zapsat, `hotovo` s commitem); po úpravě `generate.py`                                                                           |
+| `docs/PROJEKT.md`                                                                                                                                             | Klíčová pravidla (sekce 5), sekce 12 Otevřené body, datový model, trasy, API; rozhodnutí tu už nejsou, jen odkaz na registr                                                      |
+| `docs/SLOVNIK.md`                                                                                                                                             | Pojmy, tabulka stavů, class diagram                                                                                                                                              |
+| `docs/FIGMA-REMAKE.md`, Figma                                                                                                                                 | Jen nahlásit rozpor (texty, stavy, obrazovky)                                                                                                                                    |
+| `docs/E2E.md`                                                                                                                                                 | Hlavní cesty, kterých se změna týká                                                                                                                                              |
+| `CLAUDE.md`, `CONTRIBUTING.md`                                                                                                                                | Pravidla a definice hotového, pokud se změnily                                                                                                                                   |
+| `docs/otevrene-otazky/otazky.yaml`                                                                                                                            | Uzavřené otázky (`rozhodnuti_ref`, stav), změna priority a `ceka_na`, nové otázky s dalším ID, `navazne_tickety` (url `null` = ticket k založení); vždy ověř proti ticketům a PR |
+| GitHub tickety / user stories (`.github/ISSUE_TEMPLATE/user-story.md`)                                                                                        | Otevřené otázky v ticketu a komentářích (uzavřené rozhodnutím); popis a akceptační kritéria se starým stavem; návrh přepsání (bez zápisu)                                        |
+| Otevřené PR (popis, komentáře)                                                                                                                                | Dotazy vývojářů na uživatele (zodpovězené i dosud nezodpovězené); sekce Nejasnosti a Odchylky; kód nebo popis ze starého stavu; návrh odpovědi česky (bez zápisu)                |
+| Backend `apps/backend/src/modules/applications/domain`, šablony e-mailů (např. `application-confirmation-waitlisted`), `apps/frontend/src/i18n/locales`, seed | Jen nahlásit, kde kód nebo texty neodpovídají rozhodnutí                                                                                                                         |
 
 ## Výstup
+
 - Tabulky: uzavřené otázky, zbylé pozůstatky starého stavu, nezodpovězené dotazy v PR a ticketech, rozhodnutí k zapsání, změněná dřívější rozhodnutí.
 - Návrhy zápisů do `docs/` s konkrétním textem a místem. Po potvrzení je zapiš. Prettier při commitu přeformátuje `.md`, hledej text podle aktuálního souboru.
 - Návrhy komentářů do PR a úprav ticketů jen jako text k schválení.
 - Zeptej se, jestli commitnout a pushnout (commit anglicky, dokumenty česky, `Co-Authored-By` podle připomenutí; PR ani push bez výslovného pokynu, memory `team1-no-pr-without-ask`).
 
 ## Co nedělat
+
 - Nerozhodovat byznys pravidla ani nepřebírat výklad z komentářů jiných lidí.
 - Nepsat do ticketů a PR, neměnit kód aplikace ani Figmu.
 - Nemazat historická rozhodnutí.

@@ -24,7 +24,7 @@ If the thought lacks something essential (who it is for, what problem it solves)
 2. **Popis nápadu** — what it is, for whom (SLOVNIK terms), which problem it solves.
 3. **Základní rozpracování** — where it would show up: application flow, data model, API, UI. Rough map only, not a solution design.
 4. **Konflikty a souvislosti** — against the decisions in `docs/rozhodnuti/`, the process/state diagrams, „Mimo rozsah“ of existing stories, and open issues that overlap or duplicate. Every item cites its source (file and section, or issue number). If there is none, say „žádný konflikt nenalezen“ and what you checked.
-5. **Navazující otázky** — split into: *rozhodne zadavatel nápadu* and *byznys otázky* (each starts „Dotaz na Adama:“; business questions go to Adam, who takes them to the client). Do not answer them for the user, and don't invent defaults for unwritten business rules.
+5. **Navazující otázky** — split into: _rozhodne zadavatel nápadu_ and _byznys otázky_ (each starts „Dotaz na Adama:“; business questions go to Adam, who takes them to the client). Do not answer them for the user, and don't invent defaults for unwritten business rules.
 6. **Velikost a závislosti** — one sentence: small tweak, standalone story, or epic; what it depends on.
 
 ## Rules
