@@ -139,6 +139,7 @@ _Nic._
 | [Q-PRI-19](#q-pri-19) | nový ticket: sběr telefonů od účastníků (+ tel: odkaz v pořadníku) |
 | [Q-PRI-20](#q-pri-20) | zjistit od PO detaily rušení náhradníků; případně enhancement |
 | [Q-PRI-21](#q-pri-21) | story: zrušení termínu zruší všechny přihlášky ve všech stavech + varování v UX |
+| [Q-PRI-21](#q-pri-21) | story: vrácení plateb při zrušení termínu (D-076, D-080) |
 | [Q-NAS-11](#q-nas-11) | ruční nebo plánované spuštění přihlášek |
 | [Q-NAS-11](#q-nas-11) | ruční pozastavení přihlášek |
 | [Q-NAS-12](#q-nas-12) | změna režimu vyhodnocování do první přihlášky (nebo kombinace) |
@@ -496,6 +497,7 @@ _Nic._
   - [PR #232, odpověď tech leada](https://github.com/applifting-vsecourse/team-1/pull/232#issuecomment-6545014573)
 - **Priorita:** P2 – Rozhodnuto, zbývá zapsat do dokumentace.
 - **Rozhodnutí:** [D-074](../rozhodnuti/README.md#d-074): Přechod Potvrzená → Náhradník se v EMAILY.md zapíše jako nový, samostatný řádek (vlastní e-mail s vlastním textem) s dalším volným číslem 13; stávající čísla e-mailů se nepřečíslovávají. E-mail č. 3 zůstává jen pro K vyhodnocení → Náhradník. Text „Jste náhradník“ platí pro č. 3 i pro č. 1 v automatickém režimu.
+- **Navazující ticket:** [rozšířit US-116 o e-maily č. 13 až 15 (D-074)](https://github.com/applifting-vsecourse/team-1/issues/209)
 
 <a id="q-kom-10"></a>
 
@@ -1222,6 +1224,7 @@ _Nic._
 - **Priorita:** P1 – Dokumenty to neříkají; úloha je nechává beze změny. Kritická a nevratná akce.
 - **Rozhodnutí:** [D-065](../rozhodnuti/README.md#d-065): Při zrušení termínu se ruší všichni účastníci ve všech stavech. UX má organizátora dostatečně upozornit na kritickou a nevratnou akci.
 - **Navazující ticket:** story: zrušení termínu zruší všechny přihlášky ve všech stavech + varování v UX (k založení)
+- **Navazující ticket:** story: vrácení plateb při zrušení termínu (D-076, D-080) (k založení)
 
 <a id="q-pri-22"></a>
 

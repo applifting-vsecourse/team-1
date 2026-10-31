@@ -1252,6 +1252,8 @@ rozhodnuti:
   z_otazek:
   - Q-NAS-12
   dokumentace: []
+  zmeneno_v:
+  - D-083
 - id: D-069
   nazev: Uživatel si nastaví preferovaný jazyk (aplikace i e-maily)
   text: 'Uživatel by měl mít možnost nastavit si preferovaný jazyk. V něm se bude defaultně spouštět aplikace
@@ -1274,6 +1276,8 @@ rozhodnuti:
   - soubor: docs/PROJEKT.md
     popis: 'pravidlo jazyka aplikace a e-mailů: preferovaný jazyk uživatele (zapsat při zadání ticketu)'
     stav: ceka
+  zmeneno_v:
+  - D-078
 - id: D-070
   nazev: Detail přihlášky náhradníka říká „Zatím nic neplaťte“
   text: 'U náhradníka na detailu přihlášky se místo „0 Kč do potvrzení“ zobrazuje „Zatím nic neplaťte“
@@ -1470,3 +1474,162 @@ rozhodnuti:
     popis: obě prihlaska-v-terminu-zivotni-cyklus.yaml a zpracovani-prihlasky.yaml, EMAILY.md řádky 13 a 14
     stav: hotovo
     commit: 57332cc
+- id: D-078
+  nazev: Preferovaný jazyk uživatele přebíjí jazyk přihlášky u e-mailů o změně přihlášky
+  text: Preferovaný jazyk uživatele přebíjí jazyk přihlášky u e-mailů o změně přihlášky. Když ho uživatel nenastavil, platí jazyk jeho první přihlášky.
+  typ: produkt
+  oblast: komunikace
+  datum: '2026-10-31'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: odpověď PM v chatu k návrhům ticketů (PM rutina, krok 3)
+    url: https://github.com/applifting-vsecourse/team-1/pull/242
+  us: []
+  stav: platne
+  meni:
+  - D-069
+  z_otazek:
+  - Q-KOM-08
+  dokumentace:
+  - soubor: docs/procesy/zpracovani-prihlasky/EMAILY.md
+    popis: 'pravidlo „E-maily jdou v jazyce přihlášky (Application.locale)“ doplnit: u e-mailů o změně
+      přihlášky vítězí preferovaný jazyk uživatele'
+    stav: ceka
+  - soubor: docs/PROJEKT.md
+    popis: 'lokalizace: pořadí jazyka (preferovaný jazyk uživatele, jinak jazyk přihlášky)'
+    stav: ceka
+  poznamka: Fallback („jazyk první přihlášky“) potvrdil PM v chatu. E-mail č. 1 zůstává v jazyce přihlášky.
+- id: D-079
+  nazev: Telefon účastníka je ve formuláři přihlášky povinný, u nezletilých se neřeší
+  text: Telefon je ve formuláři přihlášky povinný. Telefon u nezletilých (zákonného zástupce) se zatím
+    neřeší. Právní základ (GDPR) PM nezodpověděl.
+  typ: produkt
+  oblast: přihlašování na akce
+  datum: '2026-10-31'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: odpověď PM v chatu k návrhům ticketů (PM rutina, krok 3)
+    url: https://github.com/applifting-vsecourse/team-1/pull/242
+  us: []
+  stav: platne
+  z_otazek:
+  - Q-PRI-19
+  dokumentace:
+  - soubor: docs/PROJEKT.md
+    popis: 'formulář přihlášky a datový model: povinný telefon účastníka'
+    stav: ceka
+  poznamka: 'Otevřené: právní základ sběru telefonu (GDPR) a telefon zástupce u nezletilých (US-07).'
+- id: D-080
+  nazev: Platby při zrušení termínu vrací organizátor bez lhůty a bez potvrzení
+  text: Platby při zrušení termínu vrací organizátor. Systém na to nemá limit, je to na organizátorovi.
+    Potvrzení o vrácení se zatím neposílá.
+  typ: produkt
+  oblast: platby
+  datum: '2026-10-31'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: odpověď PM v chatu k návrhům ticketů (PM rutina, krok 3)
+    url: https://github.com/applifting-vsecourse/team-1/pull/242
+  us:
+  - label: '#13'
+    url: https://github.com/applifting-vsecourse/team-1/issues/13
+  stav: platne
+  z_otazek:
+  - Q-PRI-21
+  dokumentace: []
+  poznamka: 'Upřesňuje D-076. Model zruseni-terminu.yaml už má úlohu „Vrátit zaplacené platby“ (role organizátor).
+    Nezodpovězeno: vrácení nepotvrzených převodů.'
+- id: D-081
+  nazev: Plánované spuštění přihlášek platí pro akci, v čase Europe/Prague, lze zrušit do spuštění
+  text: Plánované spuštění přihlášek se týká akce, čas se zadává v zóně Europe/Prague a organizátor ho
+    může zrušit, dokud spuštění nenastalo.
+  typ: produkt
+  oblast: nastavení akce
+  datum: '2026-10-31'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: odpověď PM v chatu k návrhům ticketů (PM rutina, krok 3)
+    url: https://github.com/applifting-vsecourse/team-1/pull/242
+  us: []
+  stav: platne
+  z_otazek:
+  - Q-NAS-11
+  dokumentace:
+  - soubor: docs/PROJEKT.md
+    popis: 'sekce 5, výhled plánovaného spuštění: pro akci, Europe/Prague, zrušitelné do spuštění'
+    stav: ceka
+  poznamka: Upřesňuje výhled z D-067.
+- id: D-082
+  nazev: Pozastavení přihlášek platí pro akci, důvod účastník nevidí, nová přihláška skončí chybou
+  text: Pozastavení přihlášek platí pro celou akci. Účastník nevidí důvod. Při pozastavení dostane chybu,
+    že bylo přihlašování pozastaveno (týká se i rozpracované přihlášky).
+  typ: produkt
+  oblast: nastavení akce
+  datum: '2026-10-31'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: odpověď PM v chatu k návrhům ticketů (PM rutina, krok 3)
+    url: https://github.com/applifting-vsecourse/team-1/pull/242
+  us: []
+  stav: platne
+  z_otazek:
+  - Q-NAS-11
+  dokumentace:
+  - soubor: docs/PROJEKT.md
+    popis: 'sekce 5, výhled pozastavení: pro akci, bez důvodu, chyba při odeslání'
+    stav: ceka
+  poznamka: 'Upřesňuje výhled z D-067. Výklad: třetí odpověď („hlásí chybu“) se týkala rozpracované přihlášky.'
+- id: D-083
+  nazev: Režim vyhodnocování lze měnit, dokud je počet přijatých přihlášek 0
+  text: Režim vyhodnocování lze měnit, dokud je počet přijatých přihlášek 0. Po první přijaté přihlášce
+    už ne.
+  typ: produkt
+  oblast: nastavení akce
+  datum: '2026-10-31'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: odpověď PM v chatu k návrhům ticketů (PM rutina, krok 3)
+    url: https://github.com/applifting-vsecourse/team-1/pull/242
+  us: []
+  stav: platne
+  meni:
+  - D-068
+  z_otazek:
+  - Q-NAS-12
+  dokumentace:
+  - soubor: docs/PROJEKT.md
+    popis: 'pravidlo zamčení režimu vyhodnocování: od první přijaté přihlášky'
+    stav: ceka
+  - soubor: docs/procesy/zpracovani-prihlasky/README.md
+    popis: 'řádek „Nastavení akce“: režim lze změnit do první přihlášky'
+    stav: ceka
+  poznamka: Konkretizuje D-068 (jde o změnu do první přihlášky, ne o kombinaci).
+- id: D-084
+  nazev: Datový model režimu pokojů po termínech se přepíše na nový systém bez migrace
+  text: 'U #192 (US-99) se režim pokojů po termínech zavede jako nový systém, celé se resetuje. Na stagingu
+    nejsou reálná data, dopad na business je nulový, migrace nebude.'
+  typ: technicke
+  oblast: ubytování
+  datum: '2026-10-31'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: odpověď PM v chatu k návrhům ticketů (PM rutina, krok 3)
+    url: https://github.com/applifting-vsecourse/team-1/pull/242
+  us:
+  - label: '#192'
+    url: https://github.com/applifting-vsecourse/team-1/issues/192
+  stav: platne
+  z_otazek:
+  - Q-NAS-08
+  dokumentace:
+  - soubor: docs/PROJEKT.md
+    popis: 'sekce 8: Event.roomMode (ř. 91) po US-99 odstranit, režim je po termínech'
+    stav: ceka
+  poznamka: Navazuje na D-062.

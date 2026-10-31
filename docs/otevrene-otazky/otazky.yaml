@@ -1648,6 +1648,9 @@ otazky:
   poznamka: 'Tech lead (PR #232): jde o e-mail č. 3 (K vyhodnocení → Náhradník), používá se i pro Potvrzená
     → Náhradník; stejný rozpor má č. 1 v auto režimu. Přechod Potvrzená → Náhradník v EMAILY.md chybí.
     Texty „jste náhradník“ zavedl PR #227.'
+  navazne_tickety:
+  - label: 'rozšířit US-116 o e-maily č. 13 až 15 (D-074)'
+    url: https://github.com/applifting-vsecourse/team-1/issues/209
   rozhodnuti_ref: D-074
 - id: Q-PRI-18
   otazka: 'Má se blok „Stav v termínech“ (detail přihlášky, dialog změny stavu, varování o kapacitě) dokreslit
@@ -1766,6 +1769,8 @@ otazky:
     url: https://github.com/applifting-vsecourse/team-1/pull/236
   navazne_tickety:
   - label: 'story: zrušení termínu zruší všechny přihlášky ve všech stavech + varování v UX'
+    url: null
+  - label: 'story: vrácení plateb při zrušení termínu (D-076, D-080)'
     url: null
   rozhodnuti_ref: D-065
   poznamka: 'Tech lead (PR #236): zrušení termínu dnes jen nastaví Term.cancelledAt a přihlášky nemění;
