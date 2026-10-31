@@ -1297,4 +1297,5 @@ rozhodnuti:
   dokumentace:
   - soubor: docs/PROJEKT.md
     popis: řádek 105 odkazuje na „proud C“; odstranit zmínku o proudu
-    stav: ceka
+    stav: hotovo
+    commit: 065fbdc

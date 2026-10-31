@@ -1880,9 +1880,9 @@ otazky:
     11 PROJEKT.md?
   epic: technický základ
   us: []
-  stav: rozhodnuto
+  stav: zapsano
   priorita: P3
-  priorita_duvod: Rozhodnuto PM, zbývá odstranit zmínku o proudech v PROJEKT.md.
+  priorita_duvod: Rozhodnuto PM a zapsáno v dokumentaci.
   ceka_na: pm
   zdroje:
   - popis: registr rozhodnutí

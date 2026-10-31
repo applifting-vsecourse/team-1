@@ -26,7 +26,6 @@ _Nic._
 | [D-065](#d-065) | Zrušení termínu zruší všechny přihlášky ve všech stavech | `docs/procesy/zpracovani-prihlasky/EMAILY.md` | chybí e-mail při zrušení termínu |
 | [D-067](#d-067) | „Otevření přihlášek“ = akce splní všechny požadavky a vznikne link | `docs/PROJEKT.md` | sekce 5: definice „otevření přihlášek“ a výhled (plánované spuštění, pozastavení) |
 | [D-069](#d-069) | Uživatel si nastaví preferovaný jazyk (aplikace i e-maily) | `docs/PROJEKT.md` | pravidlo jazyka aplikace a e-mailů: preferovaný jazyk uživatele (zapsat při zadání ticketu) |
-| [D-071](#d-071) | Práce se nedělí do proudů | `docs/PROJEKT.md` | řádek 105 odkazuje na „proud C“; odstranit zmínku o proudu |
 
 ## Změny dřívějších rozhodnutí
 
@@ -881,4 +880,4 @@ _Nic._
 - **Zdroj:** [PR #242, odpověď PM na Q-TEC-08](https://github.com/applifting-vsecourse/team-1/pull/242)
 - **Mění:** [D-026](#d-026)
 - **Z otázek:** `Q-TEC-08`
-- **Dokumentace:** `docs/PROJEKT.md`: ceka, řádek 105 odkazuje na „proud C“; odstranit zmínku o proudu
+- **Dokumentace:** `docs/PROJEKT.md`: hotovo (065fbdc), řádek 105 odkazuje na „proud C“; odstranit zmínku o proudu
