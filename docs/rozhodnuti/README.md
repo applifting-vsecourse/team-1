@@ -13,14 +13,6 @@ _Nic._
 | ID | Rozhodnutí | Soubor | Co zapsat |
 | --- | --- | --- | --- |
 | [D-069](#d-069) | Uživatel si nastaví preferovaný jazyk (aplikace i e-maily) | `docs/PROJEKT.md` | pravidlo jazyka aplikace a e-mailů: preferovaný jazyk uživatele (zapsat při zadání ticketu) |
-| [D-078](#d-078) | Preferovaný jazyk uživatele přebíjí jazyk přihlášky u e-mailů o změně přihlášky | `docs/procesy/zpracovani-prihlasky/EMAILY.md` | pravidlo „E-maily jdou v jazyce přihlášky (Application.locale)“ doplnit: u e-mailů o změně přihlášky vítězí preferovaný jazyk uživatele |
-| [D-078](#d-078) | Preferovaný jazyk uživatele přebíjí jazyk přihlášky u e-mailů o změně přihlášky | `docs/PROJEKT.md` | lokalizace: pořadí jazyka (preferovaný jazyk uživatele, jinak jazyk přihlášky) |
-| [D-079](#d-079) | Telefon účastníka je ve formuláři přihlášky povinný, u nezletilých se neřeší | `docs/PROJEKT.md` | formulář přihlášky a datový model: povinný telefon účastníka |
-| [D-081](#d-081) | Plánované spuštění přihlášek platí pro akci, v čase Europe/Prague, lze zrušit do spuštění | `docs/PROJEKT.md` | sekce 5, výhled plánovaného spuštění: pro akci, Europe/Prague, zrušitelné do spuštění |
-| [D-082](#d-082) | Pozastavení přihlášek platí pro akci, důvod účastník nevidí, nová přihláška skončí chybou | `docs/PROJEKT.md` | sekce 5, výhled pozastavení: pro akci, bez důvodu, chyba při odeslání |
-| [D-083](#d-083) | Režim vyhodnocování lze měnit, dokud je počet přijatých přihlášek 0 | `docs/PROJEKT.md` | pravidlo zamčení režimu vyhodnocování: od první přijaté přihlášky |
-| [D-083](#d-083) | Režim vyhodnocování lze měnit, dokud je počet přijatých přihlášek 0 | `docs/procesy/zpracovani-prihlasky/README.md` | řádek „Nastavení akce“: režim lze změnit do první přihlášky |
-| [D-084](#d-084) | Datový model režimu pokojů po termínech se přepíše na nový systém bez migrace | `docs/PROJEKT.md` | sekce 8: Event.roomMode (ř. 91) po US-99 odstranit, režim je po termínech |
 
 ## Změny dřívějších rozhodnutí
 
@@ -987,8 +979,8 @@ _Nic._
 - **Zdroj:** [odpověď PM v chatu k návrhům ticketů (PM rutina, krok 3)](https://github.com/applifting-vsecourse/team-1/pull/242)
 - **Mění:** [D-069](#d-069)
 - **Z otázek:** `Q-KOM-08`
-- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/EMAILY.md`: ceka, pravidlo „E-maily jdou v jazyce přihlášky (Application.locale)“ doplnit: u e-mailů o změně přihlášky vítězí preferovaný jazyk uživatele
-- **Dokumentace:** `docs/PROJEKT.md`: ceka, lokalizace: pořadí jazyka (preferovaný jazyk uživatele, jinak jazyk přihlášky)
+- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/EMAILY.md`: hotovo (fb7a5fa), pravidlo „E-maily jdou v jazyce přihlášky (Application.locale)“ doplnit: u e-mailů o změně přihlášky vítězí preferovaný jazyk uživatele
+- **Dokumentace:** `docs/PROJEKT.md`: hotovo (fb7a5fa), lokalizace: pořadí jazyka (preferovaný jazyk uživatele, jinak jazyk přihlášky)
 - **Poznámka:** Fallback („jazyk první přihlášky“) potvrdil PM v chatu. E-mail č. 1 zůstává v jazyce přihlášky.
 
 <a id="d-079"></a>
@@ -1000,7 +992,7 @@ _Nic._
 - **Text:** Telefon je ve formuláři přihlášky povinný. Telefon u nezletilých (zákonného zástupce) se zatím neřeší. Právní základ (GDPR) PM nezodpověděl.
 - **Zdroj:** [odpověď PM v chatu k návrhům ticketů (PM rutina, krok 3)](https://github.com/applifting-vsecourse/team-1/pull/242)
 - **Z otázek:** `Q-PRI-19`
-- **Dokumentace:** `docs/PROJEKT.md`: ceka, formulář přihlášky a datový model: povinný telefon účastníka
+- **Dokumentace:** `docs/PROJEKT.md`: hotovo (fb7a5fa), formulář přihlášky a datový model: povinný telefon účastníka
 - **Poznámka:** Otevřené: právní základ sběru telefonu (GDPR) a telefon zástupce u nezletilých (US-07).
 
 <a id="d-080"></a>
@@ -1024,7 +1016,7 @@ _Nic._
 - **Text:** Plánované spuštění přihlášek se týká akce, čas se zadává v zóně Europe/Prague a organizátor ho může zrušit, dokud spuštění nenastalo.
 - **Zdroj:** [odpověď PM v chatu k návrhům ticketů (PM rutina, krok 3)](https://github.com/applifting-vsecourse/team-1/pull/242)
 - **Z otázek:** `Q-NAS-11`
-- **Dokumentace:** `docs/PROJEKT.md`: ceka, sekce 5, výhled plánovaného spuštění: pro akci, Europe/Prague, zrušitelné do spuštění
+- **Dokumentace:** `docs/PROJEKT.md`: hotovo (fb7a5fa), sekce 5, výhled plánovaného spuštění: pro akci, Europe/Prague, zrušitelné do spuštění
 - **Poznámka:** Upřesňuje výhled z D-067.
 
 <a id="d-082"></a>
@@ -1036,7 +1028,7 @@ _Nic._
 - **Text:** Pozastavení přihlášek platí pro celou akci. Účastník nevidí důvod. Při pozastavení dostane chybu, že bylo přihlašování pozastaveno (týká se i rozpracované přihlášky).
 - **Zdroj:** [odpověď PM v chatu k návrhům ticketů (PM rutina, krok 3)](https://github.com/applifting-vsecourse/team-1/pull/242)
 - **Z otázek:** `Q-NAS-11`
-- **Dokumentace:** `docs/PROJEKT.md`: ceka, sekce 5, výhled pozastavení: pro akci, bez důvodu, chyba při odeslání
+- **Dokumentace:** `docs/PROJEKT.md`: hotovo (fb7a5fa), sekce 5, výhled pozastavení: pro akci, bez důvodu, chyba při odeslání
 - **Poznámka:** Upřesňuje výhled z D-067. Výklad: třetí odpověď („hlásí chybu“) se týkala rozpracované přihlášky.
 
 <a id="d-083"></a>
@@ -1049,8 +1041,8 @@ _Nic._
 - **Zdroj:** [odpověď PM v chatu k návrhům ticketů (PM rutina, krok 3)](https://github.com/applifting-vsecourse/team-1/pull/242)
 - **Mění:** [D-068](#d-068)
 - **Z otázek:** `Q-NAS-12`
-- **Dokumentace:** `docs/PROJEKT.md`: ceka, pravidlo zamčení režimu vyhodnocování: od první přijaté přihlášky
-- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/README.md`: ceka, řádek „Nastavení akce“: režim lze změnit do první přihlášky
+- **Dokumentace:** `docs/PROJEKT.md`: hotovo (fb7a5fa), pravidlo zamčení režimu vyhodnocování: od první přijaté přihlášky
+- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/README.md`: hotovo (fb7a5fa), řádek „Nastavení akce“: režim lze změnit do první přihlášky
 - **Poznámka:** Konkretizuje D-068 (jde o změnu do první přihlášky, ne o kombinaci).
 
 <a id="d-084"></a>
@@ -1063,5 +1055,5 @@ _Nic._
 - **Dotčené US:** [#192](https://github.com/applifting-vsecourse/team-1/issues/192)
 - **Zdroj:** [odpověď PM v chatu k návrhům ticketů (PM rutina, krok 3)](https://github.com/applifting-vsecourse/team-1/pull/242)
 - **Z otázek:** `Q-NAS-08`
-- **Dokumentace:** `docs/PROJEKT.md`: ceka, sekce 8: Event.roomMode (ř. 91) po US-99 odstranit, režim je po termínech
+- **Dokumentace:** `docs/PROJEKT.md`: hotovo (fb7a5fa), sekce 8: Event.roomMode (ř. 91) po US-99 odstranit, režim je po termínech
 - **Poznámka:** Navazuje na D-062.

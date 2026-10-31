@@ -1495,10 +1495,12 @@ rozhodnuti:
   - soubor: docs/procesy/zpracovani-prihlasky/EMAILY.md
     popis: 'pravidlo „E-maily jdou v jazyce přihlášky (Application.locale)“ doplnit: u e-mailů o změně
       přihlášky vítězí preferovaný jazyk uživatele'
-    stav: ceka
+    stav: hotovo
+    commit: fb7a5fa
   - soubor: docs/PROJEKT.md
     popis: 'lokalizace: pořadí jazyka (preferovaný jazyk uživatele, jinak jazyk přihlášky)'
-    stav: ceka
+    stav: hotovo
+    commit: fb7a5fa
   poznamka: Fallback („jazyk první přihlášky“) potvrdil PM v chatu. E-mail č. 1 zůstává v jazyce přihlášky.
 - id: D-079
   nazev: Telefon účastníka je ve formuláři přihlášky povinný, u nezletilých se neřeší
@@ -1519,7 +1521,8 @@ rozhodnuti:
   dokumentace:
   - soubor: docs/PROJEKT.md
     popis: 'formulář přihlášky a datový model: povinný telefon účastníka'
-    stav: ceka
+    stav: hotovo
+    commit: fb7a5fa
   poznamka: 'Otevřené: právní základ sběru telefonu (GDPR) a telefon zástupce u nezletilých (US-07).'
 - id: D-080
   nazev: Platby při zrušení termínu vrací organizátor bez lhůty a bez potvrzení
@@ -1561,7 +1564,8 @@ rozhodnuti:
   dokumentace:
   - soubor: docs/PROJEKT.md
     popis: 'sekce 5, výhled plánovaného spuštění: pro akci, Europe/Prague, zrušitelné do spuštění'
-    stav: ceka
+    stav: hotovo
+    commit: fb7a5fa
   poznamka: Upřesňuje výhled z D-067.
 - id: D-082
   nazev: Pozastavení přihlášek platí pro akci, důvod účastník nevidí, nová přihláška skončí chybou
@@ -1582,7 +1586,8 @@ rozhodnuti:
   dokumentace:
   - soubor: docs/PROJEKT.md
     popis: 'sekce 5, výhled pozastavení: pro akci, bez důvodu, chyba při odeslání'
-    stav: ceka
+    stav: hotovo
+    commit: fb7a5fa
   poznamka: 'Upřesňuje výhled z D-067. Výklad: třetí odpověď („hlásí chybu“) se týkala rozpracované přihlášky.'
 - id: D-083
   nazev: Režim vyhodnocování lze měnit, dokud je počet přijatých přihlášek 0
@@ -1605,10 +1610,12 @@ rozhodnuti:
   dokumentace:
   - soubor: docs/PROJEKT.md
     popis: 'pravidlo zamčení režimu vyhodnocování: od první přijaté přihlášky'
-    stav: ceka
+    stav: hotovo
+    commit: fb7a5fa
   - soubor: docs/procesy/zpracovani-prihlasky/README.md
     popis: 'řádek „Nastavení akce“: režim lze změnit do první přihlášky'
-    stav: ceka
+    stav: hotovo
+    commit: fb7a5fa
   poznamka: Konkretizuje D-068 (jde o změnu do první přihlášky, ne o kombinaci).
 - id: D-084
   nazev: Datový model režimu pokojů po termínech se přepíše na nový systém bez migrace
@@ -1631,5 +1638,6 @@ rozhodnuti:
   dokumentace:
   - soubor: docs/PROJEKT.md
     popis: 'sekce 8: Event.roomMode (ř. 91) po US-99 odstranit, režim je po termínech'
-    stav: ceka
+    stav: hotovo
+    commit: fb7a5fa
   poznamka: Navazuje na D-062.
