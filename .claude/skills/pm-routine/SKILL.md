@@ -28,7 +28,7 @@ python3 -I .claude/skills/pm-routine/collect.py --since <ISO čas posledního b�
 python3 -I .claude/skills/pm-routine/collect.py --full                                 # týdenní
 ```
 
-Vyžaduje přihlášené `gh` s přístupem do repa. Výstup (JSON) má:
+Vyžaduje přihlášené `gh` s přístupem do repa a PyYAML (`pip install pyyaml`, stejný předpoklad mají `generate.py` obou registrů). Výstup (JSON) má:
 
 - `prs`: otevřená PR s tělem, komentáři (včetně recenzí a inline), `thread` (poslední označení PM, odpověď PM, `last_mention_has_question`), `body_questions` (dotazy „Dotaz na Adama“ přímo v těle), `body_sections` (Nejasnosti, Odchylky od Figmy, Mimo rozsah), `unmet_criteria` (❌ a ❓), `stacked_on` (řetěz „Stojí na #N“), `closes`;
 - `issues`: tickety změněné od posledního běhu, jejich vlákna, komentáře PM, `open_questions_for_po`, počet neodškrtnutých kritérií;

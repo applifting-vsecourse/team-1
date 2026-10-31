@@ -194,4 +194,5 @@ def main():
     print(f"OK, {len(data['otazky'])} otázek")
 
 
-main()
+if __name__ == "__main__":
+    main()

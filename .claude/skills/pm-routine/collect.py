@@ -6,7 +6,7 @@
 
 Výstup: JSON na stdout. `--since` omezí tickety na ty změněné od daného času
 (PR se berou vždy všechna otevřená). `--full` bere všechny tickety.
-Vyžaduje přihlášené `gh` a spuštění v repozitáři Togena.
+Vyžaduje přihlášené `gh`, PyYAML (`pip install pyyaml`) a spuštění v repozitáři Togena.
 """
 import argparse
 import json
@@ -176,4 +176,5 @@ def main():
                "registry": registry()}, sys.stdout, ensure_ascii=False, indent=1)
 
 
-main()
+if __name__ == "__main__":
+    main()

@@ -226,4 +226,5 @@ def main():
     print(f"OK, {len(dec)} rozhodnutí")
 
 
-main()
+if __name__ == "__main__":
+    main()
