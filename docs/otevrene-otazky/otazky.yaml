@@ -24,7 +24,7 @@ otazky:
   stav: otevreno
   priorita: P3
   priorita_duvod: 'PM 31. 10.: otázka není prioritní a nebrání mergi #232.'
-  ceka_na: pm
+  ceka_na: po
   zdroje:
   - popis: issue
     url: https://github.com/applifting-vsecourse/team-1/issues/28
@@ -43,7 +43,7 @@ otazky:
   priorita: P1
   priorita_duvod: Vyhodnocování a náhradníci jsou hlavní priorita PO; lhůta pro náhradníka na poslední
     chvíli není určena.
-  ceka_na: pm
+  ceka_na: po
   zdroje:
   - popis: issue
     url: https://github.com/applifting-vsecourse/team-1/issues/31
@@ -58,7 +58,7 @@ otazky:
   stav: otevreno
   priorita: P1
   priorita_duvod: Odhláška a změna termínu jsou v návrhu PO; pravidla stornování nejsou určena.
-  ceka_na: pm
+  ceka_na: po
   zdroje:
   - popis: issue
     url: https://github.com/applifting-vsecourse/team-1/issues/32
@@ -138,7 +138,7 @@ otazky:
   stav: otevreno
   priorita: P1
   priorita_duvod: Účastník si sám mění termín a odhlašuje se (návrh PO); chybí pravidlo hned / po schválení.
-  ceka_na: pm
+  ceka_na: po
   zdroje:
   - popis: issue
     url: https://github.com/applifting-vsecourse/team-1/issues/84
@@ -178,7 +178,7 @@ otazky:
   stav: otevreno
   priorita: P3
   priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
-  ceka_na: pm
+  ceka_na: po
   zdroje:
   - popis: issue
     url: https://github.com/applifting-vsecourse/team-1/issues/87
@@ -193,7 +193,7 @@ otazky:
   stav: otevreno
   priorita: P3
   priorita_duvod: GDPR má podle PO 28. 10. nízkou prioritu.
-  ceka_na: pm
+  ceka_na: po
   zdroje:
   - popis: issue
     url: https://github.com/applifting-vsecourse/team-1/issues/88
@@ -226,7 +226,7 @@ otazky:
   stav: otevreno
   priorita: P3
   priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
-  ceka_na: pm
+  ceka_na: po
   zdroje:
   - popis: issue
     url: https://github.com/applifting-vsecourse/team-1/issues/18
@@ -242,7 +242,7 @@ otazky:
   stav: otevreno
   priorita: P3
   priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
-  ceka_na: pm
+  ceka_na: po
   zdroje:
   - popis: issue
     url: https://github.com/applifting-vsecourse/team-1/issues/19
@@ -258,7 +258,7 @@ otazky:
   stav: otevreno
   priorita: P3
   priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
-  ceka_na: pm
+  ceka_na: po
   zdroje:
   - popis: issue
     url: https://github.com/applifting-vsecourse/team-1/issues/21
@@ -276,7 +276,7 @@ otazky:
   priorita: P1
   priorita_duvod: Veřejná stránka akce je v návrhu PO pro sprint 3 (návštěvník webu) a seznam polí není
     určen.
-  ceka_na: pm
+  ceka_na: po
   zdroje:
   - popis: issue
     url: https://github.com/applifting-vsecourse/team-1/issues/22
@@ -311,7 +311,7 @@ otazky:
   stav: otevreno
   priorita: P3
   priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
-  ceka_na: pm
+  ceka_na: po
   zdroje:
   - popis: issue
     url: https://github.com/applifting-vsecourse/team-1/issues/81
@@ -343,7 +343,7 @@ otazky:
   stav: otevreno
   priorita: P2
   priorita_duvod: Zbývající flow přihlášky; otázka, komu chodí e-maily.
-  ceka_na: pm
+  ceka_na: po
   zdroje:
   - popis: issue
     url: https://github.com/applifting-vsecourse/team-1/issues/5
@@ -359,7 +359,7 @@ otazky:
   stav: otevreno
   priorita: P2
   priorita_duvod: Zbývající flow přihlášky; hranice věku pro samostatnou přihlášku.
-  ceka_na: pm
+  ceka_na: po
   zdroje:
   - popis: issue
     url: https://github.com/applifting-vsecourse/team-1/issues/7
@@ -413,7 +413,7 @@ otazky:
   stav: otevreno
   priorita: P3
   priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
-  ceka_na: pm
+  ceka_na: po
   zdroje:
   - popis: issue
     url: https://github.com/applifting-vsecourse/team-1/issues/11
@@ -428,7 +428,7 @@ otazky:
   stav: otevreno
   priorita: P3
   priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
-  ceka_na: pm
+  ceka_na: po
   zdroje:
   - popis: issue
     url: https://github.com/applifting-vsecourse/team-1/issues/93
@@ -522,7 +522,7 @@ otazky:
   stav: otevreno
   priorita: P2
   priorita_duvod: Označeno jako klíčové a blokující, ale board říká „platby bez banky“ a US je „Později“.
-  ceka_na: pm
+  ceka_na: po
   zdroje:
   - popis: issue
     url: https://github.com/applifting-vsecourse/team-1/issues/43
@@ -541,7 +541,7 @@ otazky:
   stav: otevreno
   priorita: P3
   priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
-  ceka_na: pm
+  ceka_na: po
   zdroje:
   - popis: issue
     url: https://github.com/applifting-vsecourse/team-1/issues/46
@@ -557,7 +557,7 @@ otazky:
   stav: otevreno
   priorita: P2
   priorita_duvod: Storno podmínky jsou v návrhu PO („odkdy běží“), výpočet storna ale není určen.
-  ceka_na: pm
+  ceka_na: po
   zdroje:
   - popis: issue
     url: https://github.com/applifting-vsecourse/team-1/issues/47
@@ -572,7 +572,7 @@ otazky:
   stav: otevreno
   priorita: P3
   priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
-  ceka_na: pm
+  ceka_na: po
   zdroje:
   - popis: issue
     url: https://github.com/applifting-vsecourse/team-1/issues/48
@@ -588,7 +588,7 @@ otazky:
   stav: otevreno
   priorita: P3
   priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
-  ceka_na: pm
+  ceka_na: po
   zdroje:
   - popis: issue
     url: https://github.com/applifting-vsecourse/team-1/issues/49
@@ -602,7 +602,7 @@ otazky:
   stav: otevreno
   priorita: P3
   priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
-  ceka_na: pm
+  ceka_na: po
   zdroje:
   - popis: issue
     url: https://github.com/applifting-vsecourse/team-1/issues/50
@@ -617,7 +617,7 @@ otazky:
   stav: otevreno
   priorita: P3
   priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
-  ceka_na: pm
+  ceka_na: po
   zdroje:
   - popis: issue
     url: https://github.com/applifting-vsecourse/team-1/issues/89
@@ -632,7 +632,7 @@ otazky:
   stav: otevreno
   priorita: P3
   priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
-  ceka_na: pm
+  ceka_na: po
   zdroje:
   - popis: issue
     url: https://github.com/applifting-vsecourse/team-1/issues/90
@@ -725,7 +725,7 @@ otazky:
   priorita: P2
   priorita_duvod: PO chce interaktivní prvek u kapacit ubytování; samotné přiřazování na lůžka je ale
     označeno jako nice to have.
-  ceka_na: pm
+  ceka_na: po
   zdroje:
   - popis: issue
     url: https://github.com/applifting-vsecourse/team-1/issues/35
@@ -740,7 +740,7 @@ otazky:
   stav: otevreno
   priorita: P3
   priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
-  ceka_na: pm
+  ceka_na: po
   zdroje:
   - popis: issue
     url: https://github.com/applifting-vsecourse/team-1/issues/37
@@ -755,7 +755,7 @@ otazky:
   stav: otevreno
   priorita: P3
   priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
-  ceka_na: pm
+  ceka_na: po
   zdroje:
   - popis: issue
     url: https://github.com/applifting-vsecourse/team-1/issues/38
@@ -770,7 +770,7 @@ otazky:
   stav: otevreno
   priorita: P3
   priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
-  ceka_na: pm
+  ceka_na: po
   zdroje:
   - popis: issue
     url: https://github.com/applifting-vsecourse/team-1/issues/39
@@ -784,7 +784,7 @@ otazky:
   stav: otevreno
   priorita: P3
   priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
-  ceka_na: pm
+  ceka_na: po
   zdroje:
   - popis: issue
     url: https://github.com/applifting-vsecourse/team-1/issues/62
@@ -799,7 +799,7 @@ otazky:
   stav: otevreno
   priorita: P3
   priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
-  ceka_na: pm
+  ceka_na: po
   zdroje:
   - popis: issue
     url: https://github.com/applifting-vsecourse/team-1/issues/64
@@ -813,7 +813,7 @@ otazky:
   stav: otevreno
   priorita: P3
   priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
-  ceka_na: pm
+  ceka_na: po
   zdroje:
   - popis: issue
     url: https://github.com/applifting-vsecourse/team-1/issues/65
@@ -828,7 +828,7 @@ otazky:
   stav: otevreno
   priorita: P3
   priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
-  ceka_na: pm
+  ceka_na: po
   zdroje:
   - popis: issue
     url: https://github.com/applifting-vsecourse/team-1/issues/66
@@ -843,7 +843,7 @@ otazky:
   stav: otevreno
   priorita: P3
   priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
-  ceka_na: pm
+  ceka_na: po
   zdroje:
   - popis: issue
     url: https://github.com/applifting-vsecourse/team-1/issues/68
@@ -877,7 +877,7 @@ otazky:
   stav: otevreno
   priorita: P3
   priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
-  ceka_na: pm
+  ceka_na: po
   zdroje:
   - popis: issue
     url: https://github.com/applifting-vsecourse/team-1/issues/95
@@ -892,7 +892,7 @@ otazky:
   stav: otevreno
   priorita: P3
   priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
-  ceka_na: pm
+  ceka_na: po
   zdroje:
   - popis: issue
     url: https://github.com/applifting-vsecourse/team-1/issues/57
@@ -907,7 +907,7 @@ otazky:
   stav: otevreno
   priorita: P3
   priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
-  ceka_na: pm
+  ceka_na: po
   zdroje:
   - popis: issue
     url: https://github.com/applifting-vsecourse/team-1/issues/58
@@ -921,7 +921,7 @@ otazky:
   stav: otevreno
   priorita: P3
   priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
-  ceka_na: pm
+  ceka_na: po
   zdroje:
   - popis: issue
     url: https://github.com/applifting-vsecourse/team-1/issues/86
@@ -936,7 +936,7 @@ otazky:
   stav: otevreno
   priorita: P3
   priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
-  ceka_na: pm
+  ceka_na: po
   zdroje:
   - popis: issue
     url: https://github.com/applifting-vsecourse/team-1/issues/91
@@ -951,7 +951,7 @@ otazky:
   stav: otevreno
   priorita: P3
   priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
-  ceka_na: pm
+  ceka_na: po
   zdroje:
   - popis: issue
     url: https://github.com/applifting-vsecourse/team-1/issues/92
@@ -1016,7 +1016,7 @@ otazky:
   stav: otevreno
   priorita: P1
   priorita_duvod: Dashboard se vrací a je v návrhu PO; obsah karet není určen.
-  ceka_na: pm
+  ceka_na: po
   zdroje:
   - popis: issue
     url: https://github.com/applifting-vsecourse/team-1/issues/51
@@ -1050,7 +1050,7 @@ otazky:
   stav: otevreno
   priorita: P3
   priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
-  ceka_na: pm
+  ceka_na: po
   zdroje:
   - popis: issue
     url: https://github.com/applifting-vsecourse/team-1/issues/55
@@ -1079,7 +1079,7 @@ otazky:
   stav: otevreno
   priorita: P3
   priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
-  ceka_na: pm
+  ceka_na: po
   zdroje:
   - popis: issue
     url: https://github.com/applifting-vsecourse/team-1/issues/59
@@ -1094,7 +1094,7 @@ otazky:
   stav: otevreno
   priorita: P3
   priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
-  ceka_na: pm
+  ceka_na: po
   zdroje:
   - popis: issue
     url: https://github.com/applifting-vsecourse/team-1/issues/61
@@ -1110,7 +1110,7 @@ otazky:
   stav: otevreno
   priorita: P3
   priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
-  ceka_na: pm
+  ceka_na: po
   zdroje:
   - popis: issue
     url: https://github.com/applifting-vsecourse/team-1/issues/20
@@ -1125,7 +1125,7 @@ otazky:
   stav: otevreno
   priorita: P2
   priorita_duvod: Souvisí s self-onboardingem organizace (sprint 3) a otevřeným bodem o povinné organizaci.
-  ceka_na: pm
+  ceka_na: po
   zdroje:
   - popis: issue
     url: https://github.com/applifting-vsecourse/team-1/issues/69
@@ -1142,7 +1142,7 @@ otazky:
   stav: otevreno
   priorita: P3
   priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
-  ceka_na: pm
+  ceka_na: po
   zdroje:
   - popis: issue
     url: https://github.com/applifting-vsecourse/team-1/issues/70
@@ -1205,7 +1205,7 @@ otazky:
   stav: otevreno
   priorita: P3
   priorita_duvod: GDPR má podle PO 28. 10. nízkou prioritu.
-  ceka_na: pm
+  ceka_na: po
   zdroje:
   - popis: issue
     url: https://github.com/applifting-vsecourse/team-1/issues/167
@@ -1330,7 +1330,7 @@ otazky:
   stav: otevreno
   priorita: P3
   priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
-  ceka_na: pm
+  ceka_na: po
   zdroje:
   - popis: issue
     url: https://github.com/applifting-vsecourse/team-1/issues/74
@@ -1345,7 +1345,7 @@ otazky:
   stav: otevreno
   priorita: P3
   priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
-  ceka_na: pm
+  ceka_na: po
   zdroje:
   - popis: issue
     url: https://github.com/applifting-vsecourse/team-1/issues/76
@@ -1359,7 +1359,7 @@ otazky:
   stav: otevreno
   priorita: P3
   priorita_duvod: GDPR má podle PO 28. 10. nízkou prioritu.
-  ceka_na: pm
+  ceka_na: po
   zdroje:
   - popis: issue
     url: https://github.com/applifting-vsecourse/team-1/issues/78
@@ -1373,7 +1373,7 @@ otazky:
   stav: otevreno
   priorita: P3
   priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
-  ceka_na: pm
+  ceka_na: po
   zdroje:
   - popis: issue
     url: https://github.com/applifting-vsecourse/team-1/issues/85
