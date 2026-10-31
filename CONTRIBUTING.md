@@ -157,6 +157,8 @@ E-maily se lokálně vypisují do terminálu backendu.
 
 **Jedna migrace na PR.** Než PR mergneš, rebasni na `main`. Pokud mezitím přibyla jiná migrace, smaž tu svoji a vygeneruj ji znovu (`pnpm backend prisma:migrations:run`). Dvě migrace ze dvou větví, které na sobě nestojí, rozbijí `migrate deploy` na stagingu.
 
+**Jedna změna schématu naráz.** Rozpracovaná smí být nejvýš jedna story, která mění `schema.prisma`. Než ji začneš, ověř, že schéma nemění žádný otevřený PR ani jiný worktree. Když ano, vezmi jinou story nebo počkej.
+
 ## Konflikty v generovaných souborech
 
 - `apps/frontend/src/routeTree.gen.ts` — nespojuj ručně. Vezmi libovolnou stranu a pusť `pnpm frontend build`; soubor se přegeneruje z rout.

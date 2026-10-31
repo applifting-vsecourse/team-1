@@ -2,7 +2,7 @@ import { format } from "date-fns"
 import type { TFunction } from "i18next"
 import { z } from "zod"
 
-import { parseBirthDate } from "@/features/application-form/lib/birth-date"
+import { parseDateInput } from "@/lib/date-input"
 
 export const GENDERS = ["FEMALE", "MALE"] as const
 
@@ -24,10 +24,14 @@ export const createApplicationFormSchema = (
   const participant = z.object({
     firstName: z.string().trim().min(1, t("form.errors.firstNameRequired")),
     lastName: z.string().trim().min(1, t("form.errors.lastNameRequired")),
-    // Typed as `18. 5. 2014`, sent as ISO. Empty, impossible, before 1900 and
-    // in the future all read the same (Figma M03).
+    // Typed as `18. 5. 2014`, sent as ISO. Empty, before 1900 and in the future
+    // read the same (Figma M03); text that is not a day gets the format hint.
     birthDate: z.string().transform((text, ctx) => {
-      const iso = parseBirthDate(text)
+      const iso = parseDateInput(text)
+      if (text.trim() && !iso) {
+        ctx.addIssue({ code: "custom", message: t("form.errors.dateFormat") })
+        return z.NEVER
+      }
       if (!iso || iso < EARLIEST_BIRTH_DATE || iso > todayIso) {
         ctx.addIssue({ code: "custom", message: t("form.errors.birthDateInvalid") })
         return z.NEVER

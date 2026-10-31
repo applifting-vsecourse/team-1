@@ -16,6 +16,12 @@
     "failedTitle": "Kopírování se nepodařilo"
   },
   "comingSoon": "Připravuje se — {{story}}.",
+  "dateField": {
+    "month": "Měsíc",
+    "openCalendar": "Vybrat datum v kalendáři",
+    "placeholder": "D. M. RRRR",
+    "year": "Rok"
+  },
   "eventTabs": {
     "applications": "Přihlášky",
     "capacity": "Kapacity",

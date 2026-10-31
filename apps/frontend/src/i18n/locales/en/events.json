@@ -201,6 +201,7 @@
     "form": {
       "addTitle": "Add term",
       "close": "Close",
+      "dateFormat": "Enter the date as DD/MM/YYYY.",
       "description": "Fill in the name, period and price per person. Terms are sorted by start date.",
       "editTitle": "Edit term",
       "endBeforeStart": "The end must be after the start.",
