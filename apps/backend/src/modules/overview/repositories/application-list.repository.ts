@@ -1,10 +1,19 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
+import { RoomMode } from "@/modules/applications/domain/waitlist"
 import { ListedApplication } from "@/modules/overview/domain/application-list"
 import { Injectable } from "@nestjs/common"
 
 @Injectable()
 export class ApplicationListRepository {
   constructor(private readonly prisma: PrismaService) {}
+
+  async findRoomMode(eventId: string, organizationId: string): Promise<RoomMode> {
+    const event = await this.prisma.event.findFirstOrThrow({
+      where: { id: eventId, organizationId },
+      select: { roomMode: true },
+    })
+    return event.roomMode
+  }
 
   async find(eventId: string, organizationId: string): Promise<ListedApplication[]> {
     const rows = await this.prisma.application.findMany({

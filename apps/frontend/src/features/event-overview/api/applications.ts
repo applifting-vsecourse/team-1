@@ -25,6 +25,7 @@ const applicationSchema = z.object({
       endsOn: z.string(),
       status: z.enum(["CONFIRMED", "WAITLISTED", "CANCELLED"]),
       priceCzk: z.number().int(),
+      waitlistPosition: z.number().int().nullable().default(null),
     }),
   ),
 })

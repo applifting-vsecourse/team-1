@@ -39,13 +39,18 @@
     "searchPlaceholder": "Name, e-mail or variable symbol",
     "showApplications": "Show applications",
     "sort": "Sorted: newest received first",
+    "sortWaitlist": "Sorted: waitlist order",
     "status": "Status in term",
     "submitted": "Received",
     "term": "Term",
     "terms": "Terms and status",
     "title": "Applications",
     "unpaid": "Unpaid",
-    "waitlisted": "Waitlisted"
+    "waitlistNote": "A waitlist is kept per term and bed group (women, men, or shared rooms), in order of receipt. Confirm a waitlisted applicant in their detail; first check for a free bed and send payment details only after confirmation.",
+    "waitlistNoteTitle": "Waitlisted applicants have a place in the queue, not a confirmed place.",
+    "waitlisted": "Waitlisted",
+    "waitlistedPositionFemale": "Waitlisted · {{position}}",
+    "waitlistedPositionMale": "Waitlisted · {{position}}"
   },
   "capacity": {
     "addRoom": "Add room",

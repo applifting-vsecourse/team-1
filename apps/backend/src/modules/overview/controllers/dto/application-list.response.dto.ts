@@ -8,6 +8,12 @@ class ApplicationListTermDto {
   @ApiProperty() endsOn!: string
   @ApiProperty({ enum: ["CONFIRMED", "WAITLISTED", "CANCELLED"] }) status!: string
   @ApiProperty() priceCzk!: number
+  @ApiProperty({
+    nullable: true,
+    type: Number,
+    description: "Place in the waitlist of the term and bed group; null unless waitlisted",
+  })
+  waitlistPosition!: number | null
 }
 
 export class ApplicationListResponseDto {
