@@ -103,6 +103,7 @@ const move = (number, status) => {
   }`)
   const { id: projectId, field } = organization.projectV2
   const option = field.options.find((o) => o.name === status)
+  if (!option) throw new Error(`the board has no status "${status}"`)
   gh(
     "project",
     "item-edit",
