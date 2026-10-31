@@ -17,6 +17,7 @@ blockers=()
 warnings=()
 notes=()
 verdict=""
+truncated=""
 
 # `path:42 — text` → one table row: file name linked to the line, full path on hover.
 row() {
@@ -39,6 +40,7 @@ while IFS= read -r l || [ -n "$l" ]; do
     "WARNING "*) warnings+=("$(row "${l#WARNING }")") ;;
     "NOTE "*) notes+=("$(row "${l#NOTE }")") ;;
     "VERDICT: "*) verdict="${l#VERDICT: }" ;;
+    "TRUNCATED: "*) truncated="${l#TRUNCATED: }" ;;
   esac
 done <"$log"
 
@@ -70,7 +72,7 @@ for s in ${summary[@]+"${summary[@]}"}; do joined="${joined:+$joined · }$s"; do
 echo '<!-- ai-review -->'
 case "$verdict" in
   BLOCK)
-    printf '> [!CAUTION]\n> **AI review: blokuje merge** — %s\n' "$joined"
+    printf '> [!CAUTION]\n> **AI review: našlo blockery** — %s\n' "$joined"
     ;;
   PASS)
     if [ -z "$joined" ]; then
@@ -84,6 +86,11 @@ case "$verdict" in
     printf '\n<details><summary>Výstup agenta</summary>\n\n```\n%s\n```\n\n</details>\n' "$(cat "$log")"
     ;;
 esac
+
+if [ -n "$truncated" ]; then
+  read -r total limit <<<"$truncated"
+  printf '\n> [!WARNING]\n> **Diff byl oříznutý:** review vidělo jen prvních %s kB z %s kB. Zbytek zkontroluj ručně.\n' "$((limit / 1000))" "$((total / 1000))"
+fi
 
 section '⛔ Blockery — opravit před mergem' ${blockers[@]+"${blockers[@]}"}
 section '⚠️ Varování — porušená pravidla, nic nerozbíjí' ${warnings[@]+"${warnings[@]}"}

@@ -13,9 +13,8 @@ describe("manual status transitions (US-28)", () => {
     expect(manualTargets("WAITLISTED")).toEqual(["CONFIRMED", "CANCELLED"])
   })
 
-  it("lets the organizer cancel a confirmed application, but not move it back to the waitlist", () => {
-    expect(canChangeManually("CONFIRMED", "CANCELLED")).toBe(true)
-    expect(canChangeManually("CONFIRMED", "WAITLISTED")).toBe(false)
+  it("lets the organizer move a confirmed application to the waitlist or cancel it", () => {
+    expect(manualTargets("CONFIRMED")).toEqual(["WAITLISTED", "CANCELLED"])
   })
 
   it("treats a cancelled application as terminal", () => {
@@ -112,16 +111,14 @@ describe("rejectStatusChange", () => {
   })
 
   it("rejects a change the diagram does not have before looking at capacity", () => {
-    expect(rejectStatusChange(snapshot({ status: "CONFIRMED" }), "WAITLISTED", true)).toBe(
-      "INVALID_STATUS_TRANSITION",
-    )
     expect(rejectStatusChange(snapshot({ status: "CANCELLED" }), "CONFIRMED", true)).toBe(
       "INVALID_STATUS_TRANSITION",
     )
   })
 
-  it("does not check capacity for a cancellation", () => {
+  it("does not check capacity for a cancellation or a move to the waitlist", () => {
     const full = snapshot({ status: "CONFIRMED", confirmedGenders: ["FEMALE", "FEMALE"] })
     expect(rejectStatusChange(full, "CANCELLED", false)).toBeNull()
+    expect(rejectStatusChange(full, "WAITLISTED", false)).toBeNull()
   })
 })
