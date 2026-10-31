@@ -17,3 +17,6 @@ export function e2eDatabaseUrl() {
   url.pathname = `${url.pathname}_e2e`
   return url.toString()
 }
+
+/** Copy of the E2E backend's console output; the console mailer prints each e-mail there. */
+export const mailLogPath = resolve(import.meta.dirname, "../test-results-mail.log")

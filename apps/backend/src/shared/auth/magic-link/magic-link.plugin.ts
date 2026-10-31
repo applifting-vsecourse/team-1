@@ -1,11 +1,11 @@
 import { EmailService } from "@/core/email/interfaces/email-service.interface"
-import { toLocale } from "@/core/email/locale"
 import { renderEmail } from "@/core/email/render"
 import { MagicLink, magicLinkSubject } from "@/core/email/templates/magic-link"
 import {
   MAGIC_LINK_TTL_SECONDS,
   magicLinkCapture,
   magicLinkLandingUrl,
+  magicLinkLocale,
 } from "@/shared/auth/magic-link/magic-link.shared"
 import { Config } from "@/shared/config/config.service"
 import type { BetterAuthPlugin } from "better-auth"
@@ -25,7 +25,7 @@ export const createMagicLinkPlugin = (
       const requestId = typeof metadata?.requestId === "string" ? metadata.requestId : null
       const adapter = ctx?.context.internalAdapter
       const found = await adapter?.findUserByEmail(email)
-      const user = found?.user as { accountType?: string; locale?: unknown } | undefined
+      const user = found?.user as { accountType?: string } | undefined
 
       // The endpoint is public, so the type check happens here: only a
       // participant ever receives a link. Everything else gets the same
@@ -40,7 +40,8 @@ export const createMagicLinkPlugin = (
       const url = magicLinkLandingUrl(config.frontendUrl, token)
       if (magicLinkCapture.publish(requestId, url)) return
 
-      const locale = toLocale(user.locale)
+      // The language of the UI the link was asked from, not User.locale.
+      const locale = magicLinkLocale(metadata)
       const html = await renderEmail(MagicLink, {
         url,
         locale,

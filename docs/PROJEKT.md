@@ -168,7 +168,7 @@ Organizace v URL není. Přístup se ověřuje přes členství v organizaci, kt
 - **Formáty:** peníze a data přes `formatCzk` / `formatDate` v `lib/`, podle aktuálního jazyka (`1 500 Kč` / `CZK 1,500`).
 - **Chyby z API:** backend vrací `{ statusCode, code, message }` (volitelně i `params`); frontend přeloží `code` přes `errors.json`; volitelné `params` (klíč → hodnota) se dosadí do zástupných značek `{{…}}` v překladu. Nový kód = `shared/errors/error-code.ts` + oba `errors.json`.
 - **Jazyk požadavku:** frontend posílá `Accept-Language`, backend ho čte dekorátorem `@RequestLocale()`.
-- **E-maily:** v jazyce účtu (`User.locale`) nebo přihlášky (`Application.locale`, uloží se při odeslání z `@RequestLocale()`). Šablony mají texty obou jazyků vedle sebe (`core/email/templates`).
+- **E-maily:** potvrzení a změna přihlášky jdou v jazyce přihlášky (`Application.locale`, uloží se při odeslání z `@RequestLocale()`), reset hesla a ověření e-mailu v jazyce účtu (`User.locale`). Samostatný e-mail s magic linkem jde v jazyce UI v okamžiku žádosti (frontend ho pošle jako `metadata.locale`), `User.locale` se pro něj nepoužije; když jazyk chybí, platí `en`. Šablony mají texty obou jazyků vedle sebe (`core/email/templates`).
 
 ### Backend (NestJS)
 

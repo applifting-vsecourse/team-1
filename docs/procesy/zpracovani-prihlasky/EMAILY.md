@@ -41,3 +41,4 @@ Pořadí náhradníků se účastníkovi nesděluje.
 - E-mail č. 1 je jeden za celé odeslání formuláře, i když je v něm víc účastníků. E-maily č. 2 až 11 jdou za jednu přihlášku, ne za každý termín: když se najednou změní víc termínů téže přihlášky, odejde jeden e-mail.
 - Platební údaje (částka, účet, VS) jsou jen v e-mailech, kde přihláška vznikla nebo se stala potvrzenou (č. 1 v auto režimu, č. 2, č. 5) a ve výzvě (č. 7). Ve zrušených přihláškách nejsou.
 - E-maily jdou v jazyce přihlášky (`Application.locale`).
+- Samostatný e-mail s magic linkem (formulář „pošlete mi odkaz“, mimo tabulku výše) jde v jazyce UI v okamžiku žádosti, ne v jazyce přihlášky ani účtu. Když jazyk chybí, platí `en`. Magic link vložený do e-mailu č. 1 jde v jazyce přihlášky s tím e-mailem.
