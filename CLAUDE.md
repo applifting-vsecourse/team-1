@@ -130,6 +130,8 @@ Then tell the author what the PR still lacks — a short list in your last messa
 
 At most one Prisma migration per PR. Before merging, rebase on `main`; if another migration landed meanwhile, delete yours and regenerate it.
 
+At most one story changing `schema.prisma` in progress at a time. Before starting one, check that no open PR or other worktree changes the schema; if one does, take another story or wait.
+
 ### The app is already running
 
 Assume the dev servers are up. If something is listening on the app's ports, that is this application: use it. Don't start a second instance, don't restart it, don't run `pnpm dev`.
