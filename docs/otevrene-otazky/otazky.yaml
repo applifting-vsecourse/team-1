@@ -1526,7 +1526,7 @@ otazky:
   us:
   - label: '#177'
     url: https://github.com/applifting-vsecourse/team-1/issues/177
-  stav: rozhodnuto
+  stav: uzavreno
   priorita: P2
   priorita_duvod: Rozhodnuto (shodné s PR #226).
   ceka_na: pm
@@ -1576,7 +1576,7 @@ otazky:
   us:
   - label: US-28
     url: https://github.com/applifting-vsecourse/team-1/issues/28
-  stav: rozhodnuto
+  stav: zapsano
   priorita: P1
   priorita_duvod: Blokovalo kritérium US-28; rozhodnuto, zbývá zapsat do modelů.
   ceka_na: pm
@@ -1590,7 +1590,7 @@ otazky:
   us:
   - label: US-28
     url: https://github.com/applifting-vsecourse/team-1/issues/28
-  stav: rozhodnuto
+  stav: zapsano
   priorita: P1
   priorita_duvod: Rozpor ticket × diagram; rozhodnuto, zbývá zapsat.
   ceka_na: pm
@@ -1636,7 +1636,7 @@ otazky:
   us:
   - label: US-28
     url: https://github.com/applifting-vsecourse/team-1/issues/28
-  stav: rozhodnuto
+  stav: zapsano
   priorita: P2
   priorita_duvod: Rozhodnuto, zbývá zapsat do dokumentace.
   ceka_na: pm
@@ -1694,7 +1694,7 @@ otazky:
   us:
   - label: US-30
     url: https://github.com/applifting-vsecourse/team-1/issues/30
-  stav: rozhodnuto
+  stav: zapsano
   priorita: P1
   priorita_duvod: Pokoje po termínech má řešit US-99 (#192); kód má režim na akci.
   ceka_na: pm
@@ -1713,7 +1713,7 @@ otazky:
   us:
   - label: US-30
     url: https://github.com/applifting-vsecourse/team-1/issues/30
-  stav: rozhodnuto
+  stav: zapsano
   priorita: P2
   priorita_duvod: Pravidlo pořadníku není v dokumentaci.
   ceka_na: pm
@@ -1740,7 +1740,7 @@ otazky:
   us:
   - label: US-106 (#199)
     url: https://github.com/applifting-vsecourse/team-1/issues/199
-  stav: rozhodnuto
+  stav: zapsano
   priorita: P2
   priorita_duvod: Dokumenty časové pásmo neuvádějí; implementace používá půlnoc Europe/Prague.
   ceka_na: pm
@@ -1757,7 +1757,7 @@ otazky:
   us:
   - label: US-106 (#199)
     url: https://github.com/applifting-vsecourse/team-1/issues/199
-  stav: rozhodnuto
+  stav: zapsano
   priorita: P1
   priorita_duvod: Dokumenty to neříkají; úloha je nechává beze změny. Kritická a nevratná akce.
   ceka_na: pm
@@ -1807,7 +1807,7 @@ otazky:
   us:
   - label: US-101 (#194)
     url: https://github.com/applifting-vsecourse/team-1/issues/194
-  stav: rozhodnuto
+  stav: zapsano
   priorita: P1
   priorita_duvod: V kódu ani PROJEKT.md §5 stav „otevřeno“ není.
   ceka_na: pm
@@ -1903,7 +1903,7 @@ otazky:
   us: &id001
   - label: US-28
     url: https://github.com/applifting-vsecourse/team-1/issues/28
-  stav: rozhodnuto
+  stav: zapsano
   priorita: P1
   priorita_duvod: Rozhodnuto, zbývá zapsat do dokumentace.
   ceka_na: pm
