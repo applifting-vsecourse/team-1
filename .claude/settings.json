@@ -55,6 +55,7 @@
       "Bash(gh project field-list:*)",
       "Bash(gh project item-list:*)",
       "Bash(gh project item-edit:*)",
+      "Bash(node scripts/story.mjs:*)",
       "Bash(docker compose ps:*)",
       "Bash(docker compose logs:*)",
       "Bash(ls:*)",
