@@ -994,19 +994,7 @@ otazky:
   - popis: 'PR #231'
     url: https://github.com/applifting-vsecourse/team-1/pull/231
   poznamka: Otázka je adresovaná PO nebo tech leadovi; autor navrhuje (a).
-  rozhodnuti:
-    text: 'Jazyk magic link e-mailu je jazyk UI v okamžiku žádosti (varianta a z #183); chybí-li, použije
-      se en.'
-    rozhodl: tech-lead
-    datum: '2026-10-30'
-    zdroj: https://github.com/applifting-vsecourse/team-1/pull/231
-  dokumentace:
-  - soubor: docs/PROJEKT.md
-    popis: 'které jazyky platí pro který e-mail (zapsáno v PR #231, čeká na merge)'
-    stav: ceka
-  - soubor: docs/procesy/zpracovani-prihlasky/EMAILY.md
-    popis: 'totéž (PR #231)'
-    stav: ceka
+  rozhodnuti_ref: D-055
 - id: Q-PRE-01
   otazka: Má administrace otevírat poslední akci, se kterou organizátor pracoval?
   epic: přehledy
@@ -1587,21 +1575,7 @@ otazky:
   zdroje:
   - popis: 'PR #232'
     url: https://github.com/applifting-vsecourse/team-1/pull/232#issuecomment-6535280632
-  rozhodnuti:
-    text: Ano, systém to má umožnit.
-    rozhodl: pm
-    datum: '2026-10-31'
-    zdroj: https://github.com/applifting-vsecourse/team-1/pull/232#issuecomment-6535280632
-  dokumentace:
-  - soubor: docs/procesy/zpracovani-prihlasky/rucni-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml
-    popis: přechod Potvrzená s dluhem → Náhradník
-    stav: ceka
-  - soubor: docs/procesy/zpracovani-prihlasky/automaticke-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml
-    popis: zkontrolovat, zda přechod platí i v auto režimu
-    stav: ceka
-  - soubor: docs/procesy/zpracovani-prihlasky/EMAILY.md
-    popis: řádek e-mailu o tomto přechodu
-    stav: ceka
+  rozhodnuti_ref: D-056
 - id: Q-PRI-15
   otazka: Smí organizátor zrušit náhradníka kdykoli, nebo jen automaticky první den termínu?
   epic: přihlašování na akce
@@ -1615,21 +1589,7 @@ otazky:
   zdroje:
   - popis: 'PR #232'
     url: https://github.com/applifting-vsecourse/team-1/pull/232#issuecomment-6535280632
-  rozhodnuti:
-    text: Je v pořádku, organizátor může zrušit náhradníka kdykoli.
-    rozhodl: pm
-    datum: '2026-10-31'
-    zdroj: https://github.com/applifting-vsecourse/team-1/pull/232#issuecomment-6535280632
-  dokumentace:
-  - soubor: docs/procesy/zpracovani-prihlasky/rucni-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml
-    popis: Náhradník → Zrušená i organizátorem
-    stav: ceka
-  - soubor: docs/procesy/zpracovani-prihlasky/automaticke-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml
-    popis: zkontrolovat v auto režimu
-    stav: ceka
-  - soubor: docs/procesy/zpracovani-prihlasky/EMAILY.md
-    popis: řádek 6 platí jen pro první den, doplnit řádek pro zrušení organizátorem
-    stav: ceka
+  rozhodnuti_ref: D-057
 - id: Q-PRI-16
   otazka: Stačí, že přechody ze stavu K vyhodnocení doplní US-102, aby se kritérium US-28 uzavřelo?
   epic: přihlašování na akce
@@ -1643,14 +1603,10 @@ otazky:
   zdroje:
   - popis: 'PR #232'
     url: https://github.com/applifting-vsecourse/team-1/pull/232#issuecomment-6535280632
-  rozhodnuti:
-    text: Souhlas, přechody doplní US-102 (#195).
-    rozhodl: pm
-    datum: '2026-10-31'
-    zdroj: https://github.com/applifting-vsecourse/team-1/pull/232#issuecomment-6535280632
   navazne_tickety:
   - label: 'US-102 (#195): ověřit, že kritéria obsahují přechody z K vyhodnocení'
     url: https://github.com/applifting-vsecourse/team-1/issues/195
+  rozhodnuti_ref: D-058
 - id: Q-PRI-17
   otazka: Stačí v US-28 vědomé potvrzení nad kapacitu, když přistýlka (US-80) ještě neexistuje?
   epic: přihlašování na akce
@@ -1664,11 +1620,7 @@ otazky:
   zdroje:
   - popis: 'PR #232'
     url: https://github.com/applifting-vsecourse/team-1/pull/232#issuecomment-6535280632
-  rozhodnuti:
-    text: Souhlas, stačí vědomé potvrzení; přistýlka přijde s US-80.
-    rozhodl: pm
-    datum: '2026-10-31'
-    zdroj: https://github.com/applifting-vsecourse/team-1/pull/232#issuecomment-6535280632
+  rozhodnuti_ref: D-059
 - id: Q-KOM-09
   otazka: 'Který text e-mailu platí: „Jste náhradník“ (EMAILY.md), nebo „čeká na potvrzení“ (stávající
     šablona)?'
@@ -1699,14 +1651,10 @@ otazky:
   zdroje:
   - popis: 'PR #232'
     url: https://github.com/applifting-vsecourse/team-1/pull/232#issuecomment-6535280632
-  rozhodnuti:
-    text: Merge neblokuje; mergnout a UI/UX dolaďovat zpětně ticketem enhancement.
-    rozhodl: pm
-    datum: '2026-10-31'
-    zdroj: https://github.com/applifting-vsecourse/team-1/pull/232#issuecomment-6535280632
   navazne_tickety:
   - label: 'enhancement: UI/UX bloku „Stav v termínech“ + rámce ve Figmě'
     url: null
+  rozhodnuti_ref: D-060
 - id: Q-PRI-19
   otazka: Sbírá se telefon ve formuláři přihlášky a v jaké story? (US-30 ho chce u náhradníka i s vytočením
     jedním klepnutím)
@@ -1721,16 +1669,12 @@ otazky:
   zdroje:
   - popis: 'PR #234'
     url: https://github.com/applifting-vsecourse/team-1/pull/234
-  rozhodnuti:
-    text: Neřešit v tomto PR; mergnout, telefon sbírat novým ticketem (někdy by tam určitě měl být).
-    rozhodl: pm
-    datum: '2026-10-31'
-    zdroj: https://github.com/applifting-vsecourse/team-1/pull/234
   navazne_tickety:
   - label: 'nový ticket: sběr telefonů od účastníků (+ tel: odkaz v pořadníku)'
     url: null
   - label: upravit kritéria US-30 v issue
     url: https://github.com/applifting-vsecourse/team-1/issues/30
+  rozhodnuti_ref: D-061
 - id: Q-NAS-08
   otazka: Sedí, že pořadník vychází z termínu a režimu pokojů celé akce, nebo se má režim pokojů lišit
     po termínech?
@@ -1745,22 +1689,12 @@ otazky:
   zdroje:
   - popis: 'PR #234'
     url: https://github.com/applifting-vsecourse/team-1/pull/234
-  rozhodnuti:
-    text: 'Systém má umožnit odlišný režim pokojů v odlišných termínech. „Implementováno“ v #80 znamená,
-      že to řeší odkazovaný ticket, ne že je hotovo; pravdu říká stav #192 (US-99).'
-    rozhodl: pm
-    datum: '2026-10-31'
-    zdroj: https://github.com/applifting-vsecourse/team-1/pull/234
-  dokumentace:
-  - soubor: docs/PROJEKT.md
-    popis: 'řádek 71 říká „Režim pokojů zůstává na úrovni akce“ a datový model má Event.roomMode: rozpor
-      s rozhodnutím'
-    stav: ceka
   navazne_tickety:
   - label: 'US-99 (#192): režim pokojů po termínech'
     url: https://github.com/applifting-vsecourse/team-1/issues/192
   - label: '#80: opravit formulaci „implementováno“'
     url: https://github.com/applifting-vsecourse/team-1/issues/80
+  rozhodnuti_ref: D-062
 - id: Q-NAS-09
   otazka: Je ve společných pokojích pořadí náhradníků jedno pro obě pohlaví v rámci termínu?
   epic: nastavení akce
@@ -1774,15 +1708,7 @@ otazky:
   zdroje:
   - popis: 'PR #234'
     url: https://github.com/applifting-vsecourse/team-1/pull/234
-  rozhodnuti:
-    text: Ano; pokud pokoj nemá dané pohlaví, je fronta přihlášek jedna pro obě pohlaví.
-    rozhodl: pm
-    datum: '2026-10-31'
-    zdroj: https://github.com/applifting-vsecourse/team-1/pull/234
-  dokumentace:
-  - soubor: docs/procesy/zpracovani-prihlasky/
-    popis: pravidlo pořadníku (skupina lůžek), místo určí model-update
-    stav: ceka
+  rozhodnuti_ref: D-063
 - id: Q-NAS-10
   otazka: Chybí mobilní rámec (360 px) pořadníku ve Figmě. Kdo ho dodá?
   epic: nastavení akce
@@ -1809,22 +1735,10 @@ otazky:
   zdroje:
   - popis: 'PR #236'
     url: https://github.com/applifting-vsecourse/team-1/pull/236
-  rozhodnuti:
-    text: Zatím půlnoc českého času; platforma zatím není mezinárodní. Detaily procesu zjistí PM od PO,
-      případně vznikne ticket enhancement.
-    rozhodl: pm
-    datum: '2026-10-31'
-    zdroj: https://github.com/applifting-vsecourse/team-1/pull/236
-  dokumentace:
-  - soubor: docs/procesy/zpracovani-prihlasky/rucni-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml
-    popis: 'Náhradník → Zrušená: půlnoc Europe/Prague prvního dne termínu'
-    stav: ceka
-  - soubor: docs/procesy/zpracovani-prihlasky/automaticke-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml
-    popis: totéž
-    stav: ceka
   navazne_tickety:
   - label: zjistit od PO detaily rušení náhradníků; případně enhancement
     url: null
+  rozhodnuti_ref: D-064
 - id: Q-PRI-21
   otazka: Co se stane s náhradníky (a ostatními přihláškami) ve zrušeném termínu akce?
   epic: přihlašování na akce
@@ -1838,22 +1752,10 @@ otazky:
   zdroje:
   - popis: 'PR #236'
     url: https://github.com/applifting-vsecourse/team-1/pull/236
-  rozhodnuti:
-    text: Při zrušení termínu se ruší všichni účastníci ve všech stavech. UX má organizátora dostatečně
-      upozornit na kritickou a nevratnou akci.
-    rozhodl: pm
-    datum: '2026-10-31'
-    zdroj: https://github.com/applifting-vsecourse/team-1/pull/236
-  dokumentace:
-  - soubor: docs/procesy/zpracovani-prihlasky/
-    popis: chybí proces zrušení termínu akce (US-13)
-    stav: ceka
-  - soubor: docs/procesy/zpracovani-prihlasky/EMAILY.md
-    popis: chybí e-mail při zrušení termínu
-    stav: ceka
   navazne_tickety:
   - label: 'story: zrušení termínu zruší všechny přihlášky ve všech stavech + varování v UX'
     url: null
+  rozhodnuti_ref: D-065
 - id: Q-KOM-10
   otazka: Kdo dodá text a vzhled e-mailu č. 6 („zrušeno, protože se neuvolnilo lůžko“)?
   epic: komunikace
@@ -1881,14 +1783,10 @@ otazky:
   zdroje:
   - popis: 'PR #236'
     url: https://github.com/applifting-vsecourse/team-1/pull/236
-  rozhodnuti:
-    text: Stačí vyřešit později (US-116).
-    rozhodl: pm
-    datum: '2026-10-31'
-    zdroj: https://github.com/applifting-vsecourse/team-1/pull/236
   navazne_tickety:
   - label: 'US-116 (#209): ověřit, že kritéria obsahují sdružení e-mailů'
     url: https://github.com/applifting-vsecourse/team-1/issues/209
+  rozhodnuti_ref: D-066
 - id: Q-NAS-11
   otazka: Co přesně je „otevření přihlášek“, od kterého se zamyká režim vyhodnocování?
   epic: nastavení akce
@@ -1902,22 +1800,12 @@ otazky:
   zdroje:
   - popis: 'PR #238'
     url: https://github.com/applifting-vsecourse/team-1/pull/238
-  rozhodnuti:
-    text: Aktuálně moment, kdy akce splní všechny požadavky (termín, ubytování atd.); pak se vygeneruje
-      link a přihlašování se spustí. V budoucnu ruční nebo plánované spuštění a ruční pozastavení přihlášek
-      (např. při výpadku ubytování).
-    rozhodl: pm
-    datum: '2026-10-31'
-    zdroj: https://github.com/applifting-vsecourse/team-1/pull/238
-  dokumentace:
-  - soubor: docs/PROJEKT.md
-    popis: 'sekce 5: definice „otevření přihlášek“ a výhled (plánované spuštění, pozastavení)'
-    stav: ceka
   navazne_tickety:
   - label: ruční nebo plánované spuštění přihlášek
     url: null
   - label: ruční pozastavení přihlášek
     url: null
+  rozhodnuti_ref: D-067
 - id: Q-NAS-12
   otazka: Je záměr, že zpřístupněná akce bez jediné přihlášky má zamčený režim vyhodnocování?
   epic: nastavení akce
@@ -1931,14 +1819,10 @@ otazky:
   zdroje:
   - popis: 'PR #238'
     url: https://github.com/applifting-vsecourse/team-1/pull/238
-  rozhodnuti:
-    text: As-is stav je v pořádku; v budoucnu by měla jít změna do první přihlášky nebo nějaká kombinace.
-    rozhodl: pm
-    datum: '2026-10-31'
-    zdroj: https://github.com/applifting-vsecourse/team-1/pull/238
   navazne_tickety:
   - label: změna režimu vyhodnocování do první přihlášky (nebo kombinace)
     url: null
+  rozhodnuti_ref: D-068
 - id: Q-NAS-13
   otazka: Slovník říká „Režim vyhodnocení“, Figma „Režim vyhodnocování“. Která varianta platí?
   epic: nastavení akce
@@ -1966,3 +1850,29 @@ otazky:
   zdroje:
   - popis: 'PR #238'
     url: https://github.com/applifting-vsecourse/team-1/pull/238
+- id: Q-UCT-10
+  otazka: 'Kolik vstupů má mít landing: dva („Jsem organizátor“ / „Jsem účastník“), nebo jediný („Pro
+    organizátory – přihlásit se“)?'
+  epic: účty
+  us: []
+  stav: otevreno
+  priorita: P2
+  priorita_duvod: Dvě rozhodnutí z 19. 10. se rozcházejí a pořadí ze zdrojů nelze určit.
+  ceka_na: pm
+  zdroje:
+  - popis: registr rozhodnutí
+    soubor: docs/rozhodnuti/README.md
+  poznamka: Kolize rozhodnutí D-027 a D-028.
+- id: Q-TEC-08
+  otazka: Platí rozdělení práce do proudů (A–D) z 16. 10., nebo se práce proudům nedělí, jak říká sekce
+    11 PROJEKT.md?
+  epic: technický základ
+  us: []
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: Rozhodnutí z 16. 10. a sekce 11 si odporují.
+  ceka_na: tech-lead
+  zdroje:
+  - popis: registr rozhodnutí
+    soubor: docs/rozhodnuti/README.md
+  poznamka: Týká se rozhodnutí „Tým a vedení storek“.

@@ -12,7 +12,7 @@ from pathlib import Path
 
 import yaml
 
-HERE = Path(__file__).parent
+HERE = Path(__file__).resolve().parent
 STAVY = ["otevreno", "rozhodnuto", "zapsano", "uzavreno"]
 PRIORITY = ["P0", "P1", "P2", "P3"]
 STAV_POPIS = {
@@ -23,8 +23,20 @@ STAV_POPIS = {
 }
 
 
+DEC = {}
+
+
 def load():
-    return yaml.safe_load((HERE / "otazky.yaml").read_text(encoding="utf-8"))
+    data = yaml.safe_load((HERE / "otazky.yaml").read_text(encoding="utf-8"))
+    path = HERE.parent / "rozhodnuti" / "rozhodnuti.yaml"
+    DEC.clear()
+    if path.exists():
+        DEC.update({d["id"]: d for d in yaml.safe_load(path.read_text(encoding="utf-8"))["rozhodnuti"]})
+    return data
+
+
+def dec_of(o):
+    return DEC.get(o.get("rozhodnuti_ref"))
 
 
 def validate(data):
@@ -49,18 +61,17 @@ def validate(data):
             errors.append(f"{i}: duplikat_z ukazuje na neexistující {o['duplikat_z']}")
         if not o.get("zdroje") and o.get("stav") != "uzavreno":
             errors.append(f"{i}: chybí zdroj")
-        r = o.get("rozhodnuti")
-        if o.get("stav") in ("rozhodnuto", "zapsano"):
-            if not r or not all(r.get(k) for k in ("text", "rozhodl", "datum")):
-                errors.append(f"{i}: stav {o['stav']} vyžaduje rozhodnuti.text, rozhodl a datum")
-            elif r["rozhodl"] not in roles:
-                errors.append(f"{i}: rozhodnuti.rozhodl {r['rozhodl']!r} není role")
-        if o.get("stav") == "zapsano":
-            dok = o.get("dokumentace") or []
+        ref = o.get("rozhodnuti_ref")
+        if ref and ref not in DEC:
+            errors.append(f"{i}: rozhodnuti_ref ukazuje na neexistující {ref}")
+        if o.get("stav") in ("rozhodnuto", "zapsano") and not ref:
+            errors.append(f"{i}: stav {o['stav']} vyžaduje rozhodnuti_ref")
+        if o.get("stav") == "zapsano" and ref in DEC:
+            dok = DEC[ref].get("dokumentace") or []
             if not dok or any(x.get("stav") != "hotovo" or not x.get("commit") for x in dok):
-                errors.append(f"{i}: zapsano vyžaduje dokumentaci, vše ve stavu hotovo s commitem")
-        if o.get("stav") == "uzavreno" and not (o.get("uzavreno_duvod") or o.get("rozhodnuti")):
-            errors.append(f"{i}: uzavřená otázka potřebuje uzavreno_duvod nebo rozhodnuti")
+                errors.append(f"{i}: zapsano vyžaduje, aby {ref} měl dokumentaci ve stavu hotovo s commitem")
+        if o.get("stav") == "uzavreno" and not (o.get("uzavreno_duvod") or ref):
+            errors.append(f"{i}: uzavřená otázka potřebuje uzavreno_duvod nebo rozhodnuti_ref")
     return errors
 
 
@@ -115,8 +126,9 @@ def render(data):
 
     nezapsano = [o for o in otazky if o["stav"] == "rozhodnuto"]
     out += ["## Rozhodnuto, ale nezapsáno v dokumentaci", "",
-            table([row(o, [esc(o["rozhodnuti"]["text"]), ", ".join(
-                f"`{x['soubor']}`" for x in o.get("dokumentace") or [] if x.get("stav") != "hotovo") or "–"])
+            table([row(o, [f"[{o['rozhodnuti_ref']}](../rozhodnuti/README.md#{o['rozhodnuti_ref'].lower()}): "
+                           + esc(dec_of(o)["nazev"]), ", ".join(
+                f"`{x['soubor']}`" for x in dec_of(o).get("dokumentace") or [] if x.get("stav") != "hotovo") or "–"])
                 for o in nezapsano], ["ID", "Otázka", "Dotčené US", "Rozhodnutí", "Zapsat do"])]
 
     todo = [(o, t) for o in otazky for t in o.get("navazne_tickety") or [] if not t.get("url")]
@@ -135,7 +147,7 @@ def render(data):
 
     zav = [o for o in otazky if o["stav"] == "uzavreno"]
     out += ["## Uzavřeno", "",
-            table([row(o, [esc(o.get("uzavreno_duvod") or o["rozhodnuti"]["text"])]) for o in zav],
+            table([row(o, [esc(o.get("uzavreno_duvod") or dec_of(o)["text"])]) for o in zav],
                   ["ID", "Otázka", "Dotčené US", "Důvod"])]
 
     out += ["## Detail", ""]
@@ -154,13 +166,9 @@ def render(data):
                 out.append(f"  - {link}" + (f": {z['citace']}" if z.get("citace") else ""))
         if o.get("priorita"):
             out.append(f"- **Priorita:** {o['priorita']} – {o.get('priorita_duvod', '')}")
-        r = o.get("rozhodnuti")
-        if r:
-            out.append(f"- **Rozhodnutí:** {r['text']} ({r['rozhodl']}, {r['datum']}"
-                       + (f", [zdroj]({r['zdroj']})" if r.get("zdroj") else "") + ")")
-        for x in o.get("dokumentace") or []:
-            out.append(f"- **Dokumentace:** `{x['soubor']}`: {x['stav']}" + (f" ({x['commit']})" if x.get("commit") else "")
-                       + (f", {x['popis']}" if x.get("popis") else ""))
+        if o.get("rozhodnuti_ref"):
+            d = dec_of(o)
+            out.append(f"- **Rozhodnutí:** [{d['id']}](../rozhodnuti/README.md#{d['id'].lower()}): {d['text']}")
         for t in o.get("navazne_tickety") or []:
             out.append("- **Navazující ticket:** " + (f"[{t['label']}]({t['url']})" if t.get("url") else f"{t['label']} (k založení)"))
         if o.get("uzavreno_duvod"):
