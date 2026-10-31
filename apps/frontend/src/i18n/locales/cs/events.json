@@ -220,6 +220,7 @@
     "form": {
       "addTitle": "Přidat termín",
       "close": "Zavřít",
+      "dateFormat": "Zadejte datum ve tvaru D. M. RRRR.",
       "description": "Vyplňte název, období a cenu za osobu. Termíny se řadí podle data začátku.",
       "editTitle": "Upravit termín",
       "endBeforeStart": "Konec musí být po začátku.",

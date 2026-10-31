@@ -36,7 +36,7 @@
   "form": {
     "addParticipant": "Add another participant",
     "birthDate": "Date of birth *",
-    "birthDateHint": "Type a date or choose from the calendar. E.g. 25.10.1990.",
+    "birthDateHint": "Type a date or choose from the calendar. E.g. 25/10/1990.",
     "consent": "I agree to the processing of personal data for the purpose of the application. *",
     "contactHeading": "Contact for the whole application",
     "email": "Contact e-mail *",
@@ -44,6 +44,7 @@
     "errors": {
       "birthDateInvalid": "Enter a valid date of birth.",
       "consentRequired": "Consent to the processing of personal data is required to submit.",
+      "dateFormat": "Enter the date as DD/MM/YYYY.",
       "emailInvalid": "Enter a valid e-mail address.",
       "firstNameRequired": "Enter the first name.",
       "genderRequired": "Choose Woman or Man.",

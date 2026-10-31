@@ -115,13 +115,30 @@ describe("EventTerms", () => {
     const dialog = await screen.findByRole("dialog")
 
     await userEvent.type(within(dialog).getByLabelText("Term name *"), "Letní turnus 3")
-    await userEvent.type(within(dialog).getByLabelText("Start date *"), "2027-08-09")
-    await userEvent.type(within(dialog).getByLabelText("End date *"), "2027-08-08")
+    await userEvent.type(within(dialog).getByLabelText("Start date *"), "09/08/2027")
+    await userEvent.type(within(dialog).getByLabelText("End date *"), "08/08/2027")
     await userEvent.type(within(dialog).getByLabelText("Price per person (CZK) *"), "7600")
     await userEvent.click(within(dialog).getByRole("button", { name: "Add term" }))
 
     expect(await within(dialog).findByText("The end must be after the start.")).toBeInTheDocument()
     expect(within(dialog).getByLabelText("End date *")).toHaveAttribute("aria-invalid", "true")
+    expect(posts(fetchMock)).toHaveLength(0)
+  })
+
+  it("keeps a date that is not a day in the field, asks for the format and sends nothing", async () => {
+    const fetchMock = renderTerms()
+    await userEvent.click(await screen.findByRole("button", { name: "Add term" }))
+    const dialog = await screen.findByRole("dialog")
+
+    await userEvent.type(within(dialog).getByLabelText("Term name *"), "Letní turnus 3")
+    await userEvent.type(within(dialog).getByLabelText("Start date *"), "31/02/2027")
+    await userEvent.type(within(dialog).getByLabelText("End date *"), "15/08/2027")
+    await userEvent.type(within(dialog).getByLabelText("Price per person (CZK) *"), "7600")
+    await userEvent.click(within(dialog).getByRole("button", { name: "Add term" }))
+
+    expect(await within(dialog).findByText("Enter the date as DD/MM/YYYY.")).toBeInTheDocument()
+    expect(within(dialog).getByLabelText("Start date *")).toHaveValue("31/02/2027")
+    expect(within(dialog).getByLabelText("Start date *")).toHaveAttribute("aria-invalid", "true")
     expect(posts(fetchMock)).toHaveLength(0)
   })
 
@@ -131,8 +148,8 @@ describe("EventTerms", () => {
     const dialog = await screen.findByRole("dialog")
 
     await userEvent.type(within(dialog).getByLabelText("Term name *"), "Letní turnus 3")
-    await userEvent.type(within(dialog).getByLabelText("Start date *"), "2027-08-09")
-    await userEvent.type(within(dialog).getByLabelText("End date *"), "2027-08-15")
+    await userEvent.type(within(dialog).getByLabelText("Start date *"), "09/08/2027")
+    await userEvent.type(within(dialog).getByLabelText("End date *"), "15/08/2027")
     await userEvent.click(within(dialog).getByRole("button", { name: "Add term" }))
 
     expect(
@@ -152,8 +169,8 @@ describe("EventTerms", () => {
     const dialog = await screen.findByRole("dialog")
 
     await userEvent.type(within(dialog).getByLabelText("Term name *"), "Letní turnus 1")
-    await userEvent.type(within(dialog).getByLabelText("Start date *"), "2027-07-12")
-    await userEvent.type(within(dialog).getByLabelText("End date *"), "2027-07-18")
+    await userEvent.type(within(dialog).getByLabelText("Start date *"), "12/07/2027")
+    await userEvent.type(within(dialog).getByLabelText("End date *"), "18/07/2027")
     await userEvent.type(within(dialog).getByLabelText("Price per person (CZK) *"), "6900")
     await userEvent.click(within(dialog).getByRole("button", { name: "Add term" }))
 
@@ -174,8 +191,8 @@ describe("EventTerms", () => {
     const dialog = await screen.findByRole("dialog")
 
     await userEvent.type(within(dialog).getByLabelText("Term name *"), "Zdarma")
-    await userEvent.type(within(dialog).getByLabelText("Start date *"), "2027-07-12")
-    await userEvent.type(within(dialog).getByLabelText("End date *"), "2027-07-18")
+    await userEvent.type(within(dialog).getByLabelText("Start date *"), "12/07/2027")
+    await userEvent.type(within(dialog).getByLabelText("End date *"), "18/07/2027")
     await userEvent.type(within(dialog).getByLabelText("Price per person (CZK) *"), "0")
     await userEvent.click(within(dialog).getByRole("button", { name: "Add term" }))
 

@@ -73,7 +73,10 @@ describe("application form schema", () => {
     )
     expect(
       messagesFor({ ...valid, participants: [{ ...participant, birthDate: "31. 2. 2010" }] }),
-    ).toContain("Enter a valid date of birth.")
+    ).toContain("Enter the date as DD/MM/YYYY.")
+    expect(
+      messagesFor({ ...valid, participants: [{ ...participant, birthDate: "17. 5." }] }),
+    ).toContain("Enter the date as DD/MM/YYYY.")
     expect(
       messagesFor({ ...valid, participants: [{ ...participant, birthDate: "1. 1. 1850" }] }),
     ).toContain("Enter a valid date of birth.")

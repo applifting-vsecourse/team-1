@@ -16,6 +16,12 @@
     "failedTitle": "Copying failed"
   },
   "comingSoon": "Coming soon — {{story}}.",
+  "dateField": {
+    "month": "Month",
+    "openCalendar": "Choose a date in the calendar",
+    "placeholder": "DD/MM/YYYY",
+    "year": "Year"
+  },
   "eventTabs": {
     "applications": "Applications",
     "capacity": "Capacity",
