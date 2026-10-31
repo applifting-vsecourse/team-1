@@ -3,6 +3,7 @@
   "CAPACITY_EXCEEDED": "Confirming would exceed the capacity of the term. Confirm knowingly.",
   "CAPACITY_MODE_NOT_SUPPORTED": "This capacity overview currently supports only events with rooms divided by gender.",
   "CAPACITY_ROOM_GENDER_REQUIRED": "Assign a gender to every room before using capacity by gender.",
+  "EVALUATION_MODE_LOCKED": "This event already accepts applications, so the evaluation mode can no longer be changed.",
   "EVENT_HAS_APPLICATIONS": "An event with applications cannot be deleted.",
   "FORBIDDEN": "You don't have access to this.",
   "INTERNAL": "Something went wrong on the server. Please try again.",

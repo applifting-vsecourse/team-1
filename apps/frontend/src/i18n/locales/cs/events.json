@@ -9,6 +9,25 @@
     "keep": "Ponechat",
     "title": "Smazat akci?"
   },
+  "evaluationMode": {
+    "afterOpenLocked": "Režim se uzamkne a nebude možné jej změnit.",
+    "afterOpenTitle": "Po otevření přihlášek",
+    "afterOpenVisible": "Zvolený režim bude vidět v přehledu akce.",
+    "automatic": "Automaticky",
+    "change": "Změnit",
+    "chooseTitle": "Zvolte režim",
+    "legend": "Režim vyhodnocování",
+    "lockedReason": "Přihlášky jsou otevřené, proto už režim nelze změnit.",
+    "lockedTitle": "Režim vyhodnocování",
+    "lockedValue": "{{mode}} · uzamčeno",
+    "manual": "Ručně",
+    "manualHint": "V ručním režimu organizátor vyhodnotí přihlášky i náhradníky.",
+    "overviewLabel": "Režim vyhodnocování",
+    "save": "Uložit režim",
+    "saveFailed": "Změnu se nepodařilo uložit",
+    "subtitle": "Zvolte pravidlo před otevřením přihlášek.",
+    "title": "Režim vyhodnocování přihlášek"
+  },
   "header": {
     "allEvents": "← Všechny akce",
     "applicationsOpen": "Přihláška otevřená"

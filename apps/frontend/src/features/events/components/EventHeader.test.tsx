@@ -26,6 +26,8 @@ const event = {
   startsOn: null,
   endsOn: null,
   applicationsOpen: true,
+  evaluationMode: "AUTOMATIC",
+  evaluationModeLocked: true,
   missing: [],
   terms: [],
 }
@@ -72,6 +74,7 @@ describe("EventHeader sections", () => {
       "Capacity",
       "Accommodation",
       "Terms",
+      "Settings",
     ])
     expect(items[0]).toHaveAttribute("aria-current", "page")
     expect(items[2]).toHaveAttribute("href", "/organizer/events/e1/capacity")

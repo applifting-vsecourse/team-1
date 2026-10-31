@@ -9,6 +9,25 @@
     "keep": "Keep",
     "title": "Delete this event?"
   },
+  "evaluationMode": {
+    "afterOpenLocked": "The mode will be locked and can no longer be changed.",
+    "afterOpenTitle": "After applications open",
+    "afterOpenVisible": "The chosen mode will be shown in the event overview.",
+    "automatic": "Automatic",
+    "change": "Change",
+    "chooseTitle": "Choose a mode",
+    "legend": "Evaluation mode",
+    "lockedReason": "Applications are open, so the mode can no longer be changed.",
+    "lockedTitle": "Evaluation mode",
+    "lockedValue": "{{mode}} · locked",
+    "manual": "Manual",
+    "manualHint": "In manual mode the organizer evaluates applications and substitutes.",
+    "overviewLabel": "Evaluation mode",
+    "save": "Save mode",
+    "saveFailed": "Could not save the change",
+    "subtitle": "Choose the rule before applications open.",
+    "title": "Application evaluation mode"
+  },
   "header": {
     "allEvents": "← All events",
     "applicationsOpen": "Applications open"

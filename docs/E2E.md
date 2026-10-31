@@ -17,22 +17,23 @@ Když jde věc ověřit nižším testem, E2E pro ni nepiš.
 
 Jen cesty, bez kterých produkt nefunguje a které ukazujeme na demu. Jedna cesta = jeden `test(...)`.
 
-| Cesta                                                                                   | Soubor                 | Stav |
-| --------------------------------------------------------------------------------------- | ---------------------- | ---- |
-| Landing → přihlášení organizátora → seznam akcí → odhlášení                             | `sign-in.spec.ts`      | ✅   |
-| Účastník se nedostane do správy akcí (403)                                              | `sign-in.spec.ts`      | ✅   |
-| Organizátor neotevře akci cizí organizace (403)                                         | `sign-in.spec.ts`      | ✅   |
-| Účastník: přihlášení heslem a odhlášení (i na mobilu)                                   | `sign-in.spec.ts`      | ✅   |
-| Účastník: žádost o magic link → otevření odkazu → přihlášen (i na mobilu)               | `magic-link.spec.ts`   | ✅   |
-| Nový účastník: magic link → nastavení hesla → přihlášení novým heslem (i na mobilu)     | `set-password.spec.ts` | ✅   |
-| Přihláška přes odkaz: termíny a cena podle výběru (i na mobilu)                         | `application.spec.ts`  | ✅   |
-| Odeslání přihlášky → stránka potvrzení → po přihlášení vidí přihlášku se stavem         | `application.spec.ts`  | ✅   |
-| Organizátor založí akci s termínem a cenou, přidá pokoj a zkopíruje odkaz na přihlášku  | `event-setup.spec.ts`  | ✅   |
-| Organizátor otevře akci → Kapacity → obsazenost termínu a odkaz na filtrované přihlášky | `capacity.spec.ts`     | ✅   |
-| Organizátor vidí přihlášku v seznamu a zapíše platbu                                    | `payments.spec.ts`     | ✅   |
-| Organizátor ručně zruší přihlášku v termínu a změna se zapíše do záznamu                | `term-status.spec.ts`  | ✅   |
-| Organizátor otevře pořadník termínu a vidí náhradníky v pořadí přijetí                  | `waitlist.spec.ts`     | ✅   |
-| Organizátor smaže akci bez přihlášek; akci s přihláškami smazat nejde                   | `delete-event.spec.ts` | ✅   |
+| Cesta                                                                                   | Soubor                    | Stav |
+| --------------------------------------------------------------------------------------- | ------------------------- | ---- |
+| Landing → přihlášení organizátora → seznam akcí → odhlášení                             | `sign-in.spec.ts`         | ✅   |
+| Účastník se nedostane do správy akcí (403)                                              | `sign-in.spec.ts`         | ✅   |
+| Organizátor neotevře akci cizí organizace (403)                                         | `sign-in.spec.ts`         | ✅   |
+| Účastník: přihlášení heslem a odhlášení (i na mobilu)                                   | `sign-in.spec.ts`         | ✅   |
+| Účastník: žádost o magic link → otevření odkazu → přihlášen (i na mobilu)               | `magic-link.spec.ts`      | ✅   |
+| Nový účastník: magic link → nastavení hesla → přihlášení novým heslem (i na mobilu)     | `set-password.spec.ts`    | ✅   |
+| Přihláška přes odkaz: termíny a cena podle výběru (i na mobilu)                         | `application.spec.ts`     | ✅   |
+| Odeslání přihlášky → stránka potvrzení → po přihlášení vidí přihlášku se stavem         | `application.spec.ts`     | ✅   |
+| Organizátor založí akci s termínem a cenou, přidá pokoj a zkopíruje odkaz na přihlášku  | `event-setup.spec.ts`     | ✅   |
+| Organizátor otevře akci → Kapacity → obsazenost termínu a odkaz na filtrované přihlášky | `capacity.spec.ts`        | ✅   |
+| Organizátor vidí přihlášku v seznamu a zapíše platbu                                    | `payments.spec.ts`        | ✅   |
+| Organizátor ručně zruší přihlášku v termínu a změna se zapíše do záznamu                | `term-status.spec.ts`     | ✅   |
+| Organizátor otevře pořadník termínu a vidí náhradníky v pořadí přijetí                  | `waitlist.spec.ts`        | ✅   |
+| Organizátor smaže akci bez přihlášek; akci s přihláškami smazat nejde                   | `delete-event.spec.ts`    | ✅   |
+| Organizátor zvolí režim vyhodnocování před otevřením přihlášek; u otevřené je zamčený   | `evaluation-mode.spec.ts` | ✅   |
 
 Novou cestu přidej do tabulky v tomtéž PR. Cesta mimo tabulku se domlouvá s tech leadem. Okrajové stavy (chybné heslo, prošlý odkaz…) do E2E nepatří, pokud nejsou součástí hlavní cesty.
 

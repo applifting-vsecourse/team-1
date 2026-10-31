@@ -58,6 +58,24 @@ export function EventSetup({ eventId }: { eventId: string }) {
         title={t("overview.title")}
         description={subtitle(event, t)}
       />
+      <p className="text-sm">
+        <span className="text-muted-foreground">{t("evaluationMode.overviewLabel")}: </span>
+        <span className="font-medium">
+          {t(`evaluationMode.${event.evaluationMode === "AUTOMATIC" ? "automatic" : "manual"}`)}
+        </span>
+        {event.evaluationModeLocked ? null : (
+          <>
+            {" · "}
+            <Link
+              to={ROUTES.organizer.eventSettings}
+              params={{ eventId }}
+              className="text-link hover:underline"
+            >
+              {t("evaluationMode.change")}
+            </Link>
+          </>
+        )}
+      </p>
       {event.applicationsOpen ? (
         <ShareLink
           link={link}

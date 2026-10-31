@@ -14,6 +14,9 @@ export const eventTermSummarySchema = z.object({
 })
 export type EventTermSummary = z.infer<typeof eventTermSummarySchema>
 
+export const evaluationModeSchema = z.enum(["AUTOMATIC", "MANUAL"])
+export type EvaluationMode = z.infer<typeof evaluationModeSchema>
+
 export const organizerEventSchema = z.object({
   id: z.string(),
   organizationId: z.string(),
@@ -31,6 +34,9 @@ export const organizerEventSchema = z.object({
   endsOn: z.string().nullable(),
   /** The application link works; otherwise the public page is a 404. */
   applicationsOpen: z.boolean(),
+  evaluationMode: evaluationModeSchema,
+  /** Applications are open, so the mode can no longer change. */
+  evaluationModeLocked: z.boolean(),
   missing: z.array(z.enum(["TERM", "ROOM"])),
   /** Terms that are still offered, in chronological order. */
   terms: z.array(eventTermSummarySchema),
@@ -75,4 +81,18 @@ export async function createEvent(input: NewEventInput): Promise<OrganizerEvent>
 /** `DELETE /api/organizer/events/:eventId` — only an event nobody has applied to (409 otherwise). */
 export async function deleteEvent(eventId: string): Promise<void> {
   await api.delete(`organizer/events/${encodeURIComponent(eventId)}`)
+}
+
+/** `PATCH /api/organizer/events/:eventId/evaluation-mode` — 409 once applications are open. */
+export async function setEvaluationMode(
+  eventId: string,
+  evaluationMode: EvaluationMode,
+): Promise<OrganizerEvent> {
+  return organizerEventSchema.parse(
+    await api
+      .patch(`organizer/events/${encodeURIComponent(eventId)}/evaluation-mode`, {
+        json: { evaluationMode },
+      })
+      .json(),
+  )
 }

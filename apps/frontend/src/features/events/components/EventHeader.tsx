@@ -8,6 +8,7 @@ import {
   ClipboardList,
   Gauge,
   LayoutGrid,
+  Settings,
 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
@@ -72,6 +73,7 @@ const SECTIONS = [
   { key: "capacity", to: ROUTES.organizer.eventCapacity, icon: Gauge },
   { key: "rooms", to: ROUTES.organizer.eventRooms, icon: BedDouble },
   { key: "terms", to: ROUTES.organizer.eventTerms, icon: CalendarDays },
+  { key: "settings", to: ROUTES.organizer.eventSettings, icon: Settings },
 ] as const
 
 function EventTabs({ eventId }: { eventId: string }) {

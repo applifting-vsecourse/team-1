@@ -11,6 +11,8 @@ const stored: StoredEvent = {
   createdAt: new Date("2027-01-01T10:00:00Z"),
   termCount: 0,
   roomCount: 0,
+  applicationCount: 0,
+  evaluationMode: "AUTOMATIC",
   startsOn: null,
   endsOn: null,
   terms: [],
@@ -29,5 +31,12 @@ describe("toOrganizerEvent", () => {
       applicationsOpen: true,
       missing: [],
     })
+  })
+
+  it("locks the evaluation mode once the application link works", () => {
+    expect(toOrganizerEvent(stored).evaluationModeLocked).toBe(false)
+    expect(toOrganizerEvent({ ...stored, termCount: 1, roomCount: 1 }).evaluationModeLocked).toBe(
+      true,
+    )
   })
 })

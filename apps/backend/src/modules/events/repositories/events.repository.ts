@@ -1,9 +1,14 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { Prisma } from "@/generated/prisma/client"
 import { computeTotalBeds } from "@/modules/applications/domain/capacity"
+import {
+  EvaluationMode,
+  isEvaluationModeLocked,
+} from "@/modules/applications/domain/evaluation-mode"
 import { sortTerms } from "@/modules/events/domain/event-term"
 import { NewEvent, StoredEvent } from "@/modules/events/domain/organizer-event"
-import { Injectable } from "@nestjs/common"
+import { AppException } from "@/shared/errors/app.exception"
+import { HttpStatus, Injectable } from "@nestjs/common"
 
 const include = {
   organization: { select: { name: true } },
@@ -18,6 +23,7 @@ const include = {
     },
   },
   rooms: { select: { capacity: true, gender: true } },
+  _count: { select: { applications: true } },
 } as const
 
 type EventRow = Prisma.EventGetPayload<{ include: typeof include }>
@@ -47,6 +53,8 @@ function toStored(row: EventRow): StoredEvent {
     createdAt: row.createdAt,
     termCount: row.terms.length,
     roomCount: row.rooms.length,
+    applicationCount: row._count.applications,
+    evaluationMode: row.evaluationMode,
     startsOn: starts[0] ?? null,
     endsOn: ends[ends.length - 1] ?? null,
     terms: sortTerms(terms),
@@ -85,5 +93,35 @@ export class EventsRepository {
       where: { id, applications: { none: {} } },
     })
     return count === 1
+  }
+
+  /**
+   * Changes the evaluation mode unless the event is locked (US-101). The check runs under the
+   * event lock that applications and room writes take too, so it cannot race an opening write.
+   */
+  async setEvaluationMode(
+    id: string,
+    organizationId: string,
+    evaluationMode: EvaluationMode,
+  ): Promise<void> {
+    await this.prisma.$transaction(async (tx) => {
+      await tx.$queryRaw`SELECT id FROM event WHERE id = ${id} AND "organizationId" = ${organizationId} FOR UPDATE`
+      const row = await tx.event.findFirst({
+        where: { id, organizationId },
+        include: {
+          terms: { where: { cancelledAt: null }, select: { id: true } },
+          _count: { select: { rooms: true, applications: true } },
+        },
+      })
+      if (!row) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
+      if (row.evaluationMode === evaluationMode) return
+      const locked = isEvaluationModeLocked({
+        termCount: row.terms.length,
+        roomCount: row._count.rooms,
+        applicationCount: row._count.applications,
+      })
+      if (locked) throw new AppException(HttpStatus.CONFLICT, "EVALUATION_MODE_LOCKED")
+      await tx.event.update({ where: { id }, data: { evaluationMode } })
+    })
   }
 }

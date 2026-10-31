@@ -28,6 +28,7 @@
     "overview": "Overview",
     "position": "{{current}} of {{total}}",
     "rooms": "Accommodation",
+    "settings": "Settings",
     "terms": "Terms"
   },
   "language": {

@@ -163,6 +163,13 @@ model OrganizationMember {
   @@map("organization_member")
 }
 
+enum EvaluationMode {
+  AUTOMATIC
+  MANUAL
+
+  @@map("evaluation_mode")
+}
+
 enum RoomMode {
   GENDERED
   SHARED
@@ -171,17 +178,19 @@ enum RoomMode {
 }
 
 model Event {
-  id             String       @id @default(cuid())
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  id             String         @id @default(cuid())
+  organization   Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   organizationId String
   name           String
-  roomMode       RoomMode     @default(GENDERED)
-  description    String?      @db.Text
+  roomMode       RoomMode       @default(GENDERED)
+  // How applications in a term are evaluated (US-101); fixed once applications open.
+  evaluationMode EvaluationMode @default(AUTOMATIC)
+  description    String?        @db.Text
   location       String?
   // Unguessable token in the public application link /prihlaska/<publicToken>.
-  publicToken    String       @unique
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @default(now()) @updatedAt
+  publicToken    String         @unique
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @default(now()) @updatedAt
 
   terms        Term[]
   rooms        Room[]

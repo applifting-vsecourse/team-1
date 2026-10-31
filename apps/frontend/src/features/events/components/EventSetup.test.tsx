@@ -28,6 +28,8 @@ const base = {
   startsOn: null,
   endsOn: null,
   applicationsOpen: false,
+  evaluationMode: "AUTOMATIC",
+  evaluationModeLocked: false,
   missing: ["TERM", "ROOM"],
   terms: [],
 }
@@ -109,6 +111,18 @@ describe("EventSetup", () => {
     expect(writeText).toHaveBeenCalledWith(link.getAttribute("href"))
     expect(success).toHaveBeenCalledWith("Link copied to the clipboard")
   })
+  it("shows the evaluation mode with a link to change it while it is open", async () => {
+    renderSetup(base)
+    expect(await screen.findByText("Automatic")).toBeInTheDocument()
+    expect(screen.getByRole("link", { name: "Change" })).toBeInTheDocument()
+  })
+
+  it("shows a locked evaluation mode without the change link", async () => {
+    renderSetup({ ...base, evaluationMode: "MANUAL", evaluationModeLocked: true })
+    expect(await screen.findByText("Manual")).toBeInTheDocument()
+    expect(screen.queryByRole("link", { name: "Change" })).not.toBeInTheDocument()
+  })
+
   it("deletes the event after confirmation and returns to the event list", async () => {
     const success = vi.spyOn(notify, "success")
     renderSetup(base, () => new Response(null, { status: 204 }))
