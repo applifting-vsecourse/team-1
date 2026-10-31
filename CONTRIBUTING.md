@@ -4,6 +4,8 @@ Pravidla a rozhodnutí projektu jsou v [docs/PROJEKT.md](docs/PROJEKT.md). Tady 
 
 ## Postup u jedné story
 
+S agentem stačí `/story <číslo issue>` na začátku a `/story <číslo issue> finish` na konci: skill ověří připravenost story a provede kroky níže včetně přesunů na boardu. Bere číslo issue, ne US (US-99 je #192).
+
 1. **Vyber story** na [boardu](https://github.com/orgs/applifting-vsecourse/projects/12) se štítkem `design: done` nebo `design: not needed` a bez otevřené otázky na PO (ze sloupce Ready nebo Design, filtr `label:"design: done","design: not needed" status:Ready,Design`). Story se štítkem `design: needed` nebo bez štítku `design:` se ještě nevyvíjí. Přiřaď si ji a přesuň do **In progress**. Přečti si akceptační kritéria i sekci _Mimo rozsah_ — co tam je, se nedělá.
 2. **Založ větev** z aktuálního `main`:
    ```shell

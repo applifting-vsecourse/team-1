@@ -22,6 +22,7 @@ Workflow (branches, PRs, Definition of Done): [`CONTRIBUTING.md`](CONTRIBUTING.m
 - `pnpm backend test` / `pnpm frontend test:ci` — unit tests
 - `pnpm backend test:int` — backend integration tests (`*.int-spec.ts`): builds and starts the server against the `togena_test` database; helpers in `apps/backend/src/test/integration/test-api.ts`
 - `pnpm backend prisma:migrations:run` — create/apply migrations after schema changes
+- `/story <issue>` / `/story <issue> finish` — start a story from the board / take it through the PR (`.claude/skills/story/SKILL.md`)
 - `pnpm e2e test` — Playwright E2E tests (`apps/e2e`): builds and starts its own backend + frontend against a freshly seeded `togena_e2e` database
 
 ## Conventions
@@ -43,7 +44,7 @@ Everything a user reads — UI copy, e-mails, error messages — is localized En
 
 A story is more than its title. Before writing code, read the story and the business documents it touches.
 
-- **Story:** `gh issue view <n>` — read the acceptance criteria („Akceptační kritéria“), „Kontext“, „Mimo rozsah“ and „Podklady“. What is under „Mimo rozsah“ is not done in this story.
+- **Story:** `gh issue view <n>` — read the acceptance criteria („Akceptační kritéria“), „Kontext“, „Mimo rozsah“, „Podklady“, „Dokumenty“ and „Závislosti“. What is under „Mimo rozsah“ is not done in this story.
 - **Names:** [`docs/SLOVNIK.md`](docs/SLOVNIK.md). Czech text uses the „Pojem“ column, code uses „V kódu“ — nothing third (not „pořadatel“, „turnus“, a bare „účet“).
 - **An application in a term** (status, evaluation, waitlist, payment, cancellation, archiving): the process and state diagram in [`docs/procesy/zpracovani-prihlasky/`](docs/procesy/zpracovani-prihlasky/README.md), in the folder of the evaluation mode the story is about (`rucni-vyhodnocovani/` or `automaticke-vyhodnocovani/`; the shared part is duplicated in both, so check both). E-mails to the applicant: [`EMAILY.md`](docs/procesy/zpracovani-prihlasky/EMAILY.md).
 - **When sources disagree, the higher one wins:** the process and state diagrams, then the decisions in PROJEKT.md (sections 9 and 10), then `schema.prisma`, then the issue text.
@@ -83,7 +84,7 @@ The CLI also has two habits to undo after every `add`: it imports `cn` from the 
 
 ### UI follows Figma — don't invent
 
-Screens are designed before they are built, and the frames are linked in the story's issue ("High-fidelity wireframy" first, "Low-fidelity" only when there is no hi-fi). Build what is drawn:
+Screens are designed before they are built, and the frames are linked in the story's issue ("HF wireframy" first, "LF wireframy" only when there is no hi-fi). Build what is drawn:
 
 - **Open the frames before writing UI.** Use the Figma MCP — load the `figma:figma-design-to-code` skill, then `get_design_context` for each linked node (mobile 360 px _and_ desktop). Take structure, order of sections, control types, sizes, copy and every drawn state (default, error, sending, empty, invalid link…) from the frames. The returned code is a reference to adapt to our components and tokens, never to paste.
 - **Don't invent.** No extra elements, copy, states or layout that the design doesn't show, and don't swap a drawn control for one you prefer (a select stays a select). If something is missing from the design — a state, an error text, where a field goes — stop and ask the designer / tech lead; leave it out meanwhile and say so in the PR.

@@ -13,7 +13,7 @@ You check that the UI in this repository **matches the design**. You never edit 
 Collect Figma node URLs from, in this order:
 
 1. The prompt (a story like `US-23`, an issue number, or URLs).
-2. The story's issue: `gh issue list --search "US-23 in:title"` then `gh issue view <n> --json body`. Use the **"High-fidelity wireframy"** links; fall back to "Low-fidelity" only for a screen that has no hi-fi frame. A URL `...?node-id=12666-2708` means `fileKey` = the id after `/design/`, `nodeId` = `12666:2708`.
+2. The story's issue: `gh issue list --search "US-23 in:title"` then `gh issue view <n> --json body`. Use the **"HF wireframy"** links; fall back to "LF wireframy" only for a screen that has no hi-fi frame. A URL `...?node-id=12666-2708` means `fileKey` = the id after `/design/`, `nodeId` = `12666:2708`.
 3. `// Figma:` comments in the code (`grep -rn "Figma" apps/frontend/src`). A screen with no such comment is itself a finding.
 
 No Figma access (the tools are missing or fail)? Say so and stop. Do not review from memory or guess the design.
