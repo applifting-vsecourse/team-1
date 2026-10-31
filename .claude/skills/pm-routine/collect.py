@@ -51,7 +51,7 @@ def body_questions(body):
 def summarize_comment(c, author_key="author"):
     a = c.get(author_key)
     login = a.get("login") if isinstance(a, dict) else (c.get("user") or {}).get("login")
-    return {"id": c.get("id"), "author": login, "at": c.get("createdAt") or c.get("created_at"),
+    return {"id": c.get("id"), "author": login, "at": c.get("createdAt") or c.get("submittedAt") or c.get("created_at"),
             "url": c.get("url") or c.get("html_url"), "body": c.get("body", "")}
 
 

@@ -2,7 +2,7 @@
 
 > Generováno z [`rozhodnuti.yaml`](rozhodnuti.yaml) (`python generate.py`). Needituj, měň YAML.
 
-**66 platných**, 0 návrhů, 2 nahrazených nebo zrušených.
+**68 platných**, 0 návrhů, 2 nahrazených nebo zrušených.
 
 ## Návrhy čekající na PM
 
@@ -12,11 +12,9 @@ _Nic._
 
 | ID | Rozhodnutí | Soubor | Co zapsat |
 | --- | --- | --- | --- |
-| [D-055](#d-055) | Jazyk magic link e-mailu je jazyk UI při žádosti | `docs/PROJEKT.md` | které jazyky platí pro který e-mail (zapsáno v PR #231, čeká na merge) |
-| [D-055](#d-055) | Jazyk magic link e-mailu je jazyk UI při žádosti | `docs/procesy/zpracovani-prihlasky/EMAILY.md` | totéž (PR #231) |
 | [D-056](#d-056) | Potvrzená → Náhradník ručně organizátorem | `docs/procesy/zpracovani-prihlasky/rucni-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml` | přechod Potvrzená s dluhem → Náhradník |
 | [D-056](#d-056) | Potvrzená → Náhradník ručně organizátorem | `docs/procesy/zpracovani-prihlasky/automaticke-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml` | zkontrolovat, zda přechod platí i v auto režimu |
-| [D-056](#d-056) | Potvrzená → Náhradník ručně organizátorem | `docs/procesy/zpracovani-prihlasky/EMAILY.md` | řádek e-mailu o tomto přechodu |
+| [D-056](#d-056) | Potvrzená → Náhradník ručně organizátorem | `docs/procesy/zpracovani-prihlasky/EMAILY.md` | řádek e-mailu č. 3 platí i pro tento přechod; č. 1 v auto režimu má stejný rozpor |
 | [D-057](#d-057) | Organizátor smí zrušit náhradníka kdykoli | `docs/procesy/zpracovani-prihlasky/rucni-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml` | Náhradník → Zrušená i organizátorem |
 | [D-057](#d-057) | Organizátor smí zrušit náhradníka kdykoli | `docs/procesy/zpracovani-prihlasky/automaticke-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml` | zkontrolovat v auto režimu |
 | [D-057](#d-057) | Organizátor smí zrušit náhradníka kdykoli | `docs/procesy/zpracovani-prihlasky/EMAILY.md` | řádek 6 platí jen pro první den, doplnit řádek pro zrušení organizátorem |
@@ -27,6 +25,7 @@ _Nic._
 | [D-065](#d-065) | Zrušení termínu zruší všechny přihlášky ve všech stavech | `docs/procesy/zpracovani-prihlasky/` | chybí proces zrušení termínu akce (US-13) |
 | [D-065](#d-065) | Zrušení termínu zruší všechny přihlášky ve všech stavech | `docs/procesy/zpracovani-prihlasky/EMAILY.md` | chybí e-mail při zrušení termínu |
 | [D-067](#d-067) | „Otevření přihlášek“ = akce splní všechny požadavky a vznikne link | `docs/PROJEKT.md` | sekce 5: definice „otevření přihlášek“ a výhled (plánované spuštění, pozastavení) |
+| [D-069](#d-069) | Uživatel si nastaví preferovaný jazyk (aplikace i e-maily) | `docs/PROJEKT.md` | pravidlo jazyka aplikace a e-mailů: preferovaný jazyk uživatele (zapsat při zadání ticketu) |
 
 ## Změny dřívějších rozhodnutí
 
@@ -52,6 +51,7 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-069](#d-069) | Uživatel si nastaví preferovaný jazyk (aplikace i e-maily) | 2026-10-31 | `pm` | produkt |
 | [D-066](#d-066) | Sdružení e-mailů za více termínů až v US-116 | 2026-10-31 | `pm` | produkt |
 | [D-055](#d-055) | Jazyk magic link e-mailu je jazyk UI při žádosti | 2026-10-30 | `tech-lead` | produkt |
 | [D-034](#d-034) | Souhrnný potvrzovací e-mail | 2026-10-21 | `po` | produkt |
@@ -94,6 +94,7 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-070](#d-070) | Detail přihlášky náhradníka říká „Zatím nic neplaťte“ | 2026-10-31 | `pm` | produkt |
 | [D-065](#d-065) | Zrušení termínu zruší všechny přihlášky ve všech stavech | 2026-10-31 | `pm` | produkt |
 | [D-064](#d-064) | Náhradník se ruší od půlnoci českého času prvního dne termínu | 2026-10-31 | `pm` | produkt |
 | [D-061](#d-061) | Telefon se sbírá novým ticketem, ne v US-30 | 2026-10-31 | `pm` | produkt |
@@ -682,8 +683,8 @@ _Nic._
 - **Dotčené US:** [#183](https://github.com/applifting-vsecourse/team-1/issues/183)
 - **Zdroj:** [PR, komentář PM](https://github.com/applifting-vsecourse/team-1/pull/231)
 - **Z otázek:** `Q-KOM-07`
-- **Dokumentace:** `docs/PROJEKT.md`: ceka, které jazyky platí pro který e-mail (zapsáno v PR #231, čeká na merge)
-- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/EMAILY.md`: ceka, totéž (PR #231)
+- **Dokumentace:** `docs/PROJEKT.md`: hotovo (6cdb931), které jazyky platí pro který e-mail
+- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/EMAILY.md`: hotovo (6cdb931), totéž
 
 <a id="d-056"></a>
 
@@ -697,7 +698,8 @@ _Nic._
 - **Z otázek:** `Q-PRI-14`
 - **Dokumentace:** `docs/procesy/zpracovani-prihlasky/rucni-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml`: ceka, přechod Potvrzená s dluhem → Náhradník
 - **Dokumentace:** `docs/procesy/zpracovani-prihlasky/automaticke-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml`: ceka, zkontrolovat, zda přechod platí i v auto režimu
-- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/EMAILY.md`: ceka, řádek e-mailu o tomto přechodu
+- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/EMAILY.md`: ceka, řádek e-mailu č. 3 platí i pro tento přechod; č. 1 v auto režimu má stejný rozpor
+- **Poznámka:** Tech lead: přechod je povolený v backendu i UI („Move to waitlist“), zapracováno v b68f73e a propsané do navazujících PR. Diagram a EMAILY.md zůstávají na PM.
 
 <a id="d-057"></a>
 
@@ -840,3 +842,27 @@ _Nic._
 - **Dotčené US:** [US-101 (#194)](https://github.com/applifting-vsecourse/team-1/issues/194)
 - **Zdroj:** [PR, komentář PM](https://github.com/applifting-vsecourse/team-1/pull/238)
 - **Z otázek:** `Q-NAS-12`
+
+<a id="d-069"></a>
+
+### D-069 – Uživatel si nastaví preferovaný jazyk (aplikace i e-maily)
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** komunikace
+- **Datum:** 2026-10-31 · **Rozhodl:** `pm`
+- **Text:** Uživatel by měl mít možnost nastavit si preferovaný jazyk. V něm se bude defaultně spouštět aplikace a odesílat e-maily. Pro PR #231 se nic nemění, vše zůstává jak je; PM založí ticket enhancement.
+- **Dotčené US:** [#183](https://github.com/applifting-vsecourse/team-1/issues/183)
+- **Zdroj:** [PR #231, komentář PM](https://github.com/applifting-vsecourse/team-1/pull/231#issuecomment-6545470005)
+- **Z otázek:** `Q-KOM-08`
+- **Dokumentace:** `docs/PROJEKT.md`: ceka, pravidlo jazyka aplikace a e-mailů: preferovaný jazyk uživatele (zapsat při zadání ticketu)
+
+<a id="d-070"></a>
+
+### D-070 – Detail přihlášky náhradníka říká „Zatím nic neplaťte“
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** přihlašování na akce
+- **Datum:** 2026-10-31 · **Rozhodl:** `pm`
+- **Text:** U náhradníka na detailu přihlášky se místo „0 Kč do potvrzení“ zobrazuje „Zatím nic neplaťte“ (je to UX přívětivější). Zapracováno v PR #227 (ce349ed).
+- **Dotčené US:** [#225](https://github.com/applifting-vsecourse/team-1/issues/225)
+- **Zdroj:** [PR #227, komentář PM](https://github.com/applifting-vsecourse/team-1/pull/227#issuecomment-6545434093)
+- **Z otázek:** `Q-PRI-13`
+- **Poznámka:** Ověřit, zda stejný text mají rámce ve Figmě (V04, V06).

@@ -982,7 +982,7 @@ otazky:
   us:
   - label: '#183'
     url: https://github.com/applifting-vsecourse/team-1/issues/183
-  stav: rozhodnuto
+  stav: zapsano
   priorita: P1
   priorita_duvod: Potvrzená chyba (jazyk e-mailu), zápis 27. 10. ji vede jako otevřený bod k ověření.
   ceka_na: pm
@@ -1533,7 +1533,8 @@ otazky:
   zdroje:
   - popis: 'PR #226, nejasnosti k byznys pravidlům'
     url: https://github.com/applifting-vsecourse/team-1/pull/226
-  poznamka: Souvisí s Q-PRI-11 (formát podle jazyka aplikace).
+  poznamka: 'Souvisí s Q-PRI-11 (formát podle jazyka aplikace). Zapracováno v PR #226 jako 25/10/1990
+    (en-GB); PM zatím neodpověděl.'
 - id: Q-PRI-13
   otazka: Má u náhradníka na detailu přihlášky zůstat text „0 Kč do potvrzení“, nebo se změnit (např.
     „zatím nic k úhradě“)?
@@ -1541,20 +1542,22 @@ otazky:
   us:
   - label: '#225'
     url: https://github.com/applifting-vsecourse/team-1/issues/225
-  stav: otevreno
+  stav: uzavreno
   priorita: P3
   priorita_duvod: 'Drobný text; PR #227 ho nechal beze změny.'
   ceka_na: pm
   zdroje:
   - popis: 'PR #227, nejasnosti k byznys pravidlům'
     url: https://github.com/applifting-vsecourse/team-1/pull/227
+  rozhodnuti_ref: D-070
+  uzavreno_duvod: 'Rozhodnuto PM, zapracováno v PR #227.'
 - id: Q-KOM-08
   otazka: Má se User.locale aktualizovat s každou přihláškou nebo přepnutím jazyka?
   epic: komunikace
   us:
   - label: '#183'
     url: https://github.com/applifting-vsecourse/team-1/issues/183
-  stav: otevreno
+  stav: rozhodnuto
   priorita: P2
   priorita_duvod: Žádný zdroj to neurčuje; reset hesla a ověření e-mailu u účtu založeného anglicky zůstávají
     anglicky.
@@ -1562,6 +1565,10 @@ otazky:
   zdroje:
   - popis: 'PR #231, nejasnosti k byznys pravidlům'
     url: https://github.com/applifting-vsecourse/team-1/pull/231
+  rozhodnuti_ref: D-069
+  navazne_tickety:
+  - label: 'enhancement: preferovaný jazyk uživatele (výchozí jazyk aplikace a e-mailů)'
+    url: null
 - id: Q-PRI-14
   otazka: Má se do diagramu doplnit přechod Potvrzená → Náhradník (organizátor), jak říká ticket US-28?
   epic: přihlašování na akce
@@ -1630,13 +1637,16 @@ otazky:
     url: https://github.com/applifting-vsecourse/team-1/issues/28
   stav: otevreno
   priorita: P2
-  priorita_duvod: 'PM: platí EMAILY.md, ale potřebuje vědět, o jaký e-mail (#) jde; po upřesnění rozhodne.'
-  ceka_na: tech-lead
+  priorita_duvod: Tech lead upřesnil číslo e-mailu, PM může rozhodnout.
+  ceka_na: pm
   zdroje:
   - popis: 'PR #232'
     url: https://github.com/applifting-vsecourse/team-1/pull/232#issuecomment-6535280632
-  poznamka: 'Vodítko: „Jste náhradník“ je e-mail č. 3 (a č. 1 v auto režimu). PR #227 mění šablonu na
-    „Náhradník“.'
+  - popis: 'PR #232, odpověď tech leada'
+    url: https://github.com/applifting-vsecourse/team-1/pull/232#issuecomment-6545014573
+  poznamka: 'Tech lead (PR #232): jde o e-mail č. 3 (K vyhodnocení → Náhradník), používá se i pro Potvrzená
+    → Náhradník; stejný rozpor má č. 1 v auto režimu. Přechod Potvrzená → Náhradník v EMAILY.md chybí.
+    Texty „jste náhradník“ zavedl PR #227.'
 - id: Q-PRI-18
   otazka: 'Má se blok „Stav v termínech“ (detail přihlášky, dialog změny stavu, varování o kapacitě) dokreslit
     ve Figmě před mergem #232?'
@@ -1756,6 +1766,8 @@ otazky:
   - label: 'story: zrušení termínu zruší všechny přihlášky ve všech stavech + varování v UX'
     url: null
   rozhodnuti_ref: D-065
+  poznamka: 'Tech lead (PR #236): zrušení termínu dnes jen nastaví Term.cancelledAt a přihlášky nemění;
+    žádá, aby PM založil ticket.'
 - id: Q-KOM-10
   otazka: Kdo dodá text a vzhled e-mailu č. 6 („zrušeno, protože se neuvolnilo lůžko“)?
   epic: komunikace
@@ -1876,3 +1888,28 @@ otazky:
   - popis: registr rozhodnutí
     soubor: docs/rozhodnuti/README.md
   poznamka: Týká se rozhodnutí „Tým a vedení storek“.
+- id: Q-PRI-22
+  otazka: 'Kam se v pořadníku zařadí přihláška přesunutá z Potvrzené mezi náhradníky: podle data přijetí
+    (může skočit před dřívější náhradníky), nebo na konec?'
+  epic: přihlašování na akce
+  us: &id001
+  - label: US-28
+    url: https://github.com/applifting-vsecourse/team-1/issues/28
+  stav: otevreno
+  priorita: P1
+  priorita_duvod: 'Chování je už v main (PR #232) a řadí podle data přijetí; zpětná změna pořadí je dražší.'
+  ceka_na: pm
+  zdroje:
+  - popis: 'PR #232, dotaz tech leada'
+    url: https://github.com/applifting-vsecourse/team-1/pull/232#issuecomment-6545014573
+- id: Q-PRI-23
+  otazka: Má systém zvýraznit náhradníka potvrzeného nad rámec kapacity v seznamu přihlášek?
+  epic: přihlašování na akce
+  us: *id001
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: Nápad PM, zeptal se tech leada, odpověď zatím není.
+  ceka_na: tech-lead
+  zdroje:
+  - popis: 'PR #232, komentář PM'
+    url: https://github.com/applifting-vsecourse/team-1/pull/232#issuecomment-6544986096

@@ -943,11 +943,13 @@ rozhodnuti:
   - Q-KOM-07
   dokumentace:
   - soubor: docs/PROJEKT.md
-    popis: 'které jazyky platí pro který e-mail (zapsáno v PR #231, čeká na merge)'
-    stav: ceka
+    popis: které jazyky platí pro který e-mail
+    stav: hotovo
+    commit: 6cdb931
   - soubor: docs/procesy/zpracovani-prihlasky/EMAILY.md
-    popis: 'totéž (PR #231)'
-    stav: ceka
+    popis: totéž
+    stav: hotovo
+    commit: 6cdb931
 - id: D-056
   nazev: Potvrzená → Náhradník ručně organizátorem
   text: Ano, systém to má umožnit.
@@ -973,8 +975,10 @@ rozhodnuti:
     popis: zkontrolovat, zda přechod platí i v auto režimu
     stav: ceka
   - soubor: docs/procesy/zpracovani-prihlasky/EMAILY.md
-    popis: řádek e-mailu o tomto přechodu
+    popis: řádek e-mailu č. 3 platí i pro tento přechod; č. 1 v auto režimu má stejný rozpor
     stav: ceka
+  poznamka: 'Tech lead: přechod je povolený v backendu i UI („Move to waitlist“), zapracováno v b68f73e
+    a propsané do navazujících PR. Diagram a EMAILY.md zůstávají na PM.'
 - id: D-057
   nazev: Organizátor smí zrušit náhradníka kdykoli
   text: Je v pořádku, organizátor může zrušit náhradníka kdykoli.
@@ -1227,3 +1231,45 @@ rozhodnuti:
   z_otazek:
   - Q-NAS-12
   dokumentace: []
+- id: D-069
+  nazev: Uživatel si nastaví preferovaný jazyk (aplikace i e-maily)
+  text: 'Uživatel by měl mít možnost nastavit si preferovaný jazyk. V něm se bude defaultně spouštět aplikace
+    a odesílat e-maily. Pro PR #231 se nic nemění, vše zůstává jak je; PM založí ticket enhancement.'
+  typ: produkt
+  oblast: komunikace
+  datum: '2026-10-31'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: 'PR #231, komentář PM'
+    url: https://github.com/applifting-vsecourse/team-1/pull/231#issuecomment-6545470005
+  us:
+  - label: '#183'
+    url: https://github.com/applifting-vsecourse/team-1/issues/183
+  stav: platne
+  z_otazek:
+  - Q-KOM-08
+  dokumentace:
+  - soubor: docs/PROJEKT.md
+    popis: 'pravidlo jazyka aplikace a e-mailů: preferovaný jazyk uživatele (zapsat při zadání ticketu)'
+    stav: ceka
+- id: D-070
+  nazev: Detail přihlášky náhradníka říká „Zatím nic neplaťte“
+  text: 'U náhradníka na detailu přihlášky se místo „0 Kč do potvrzení“ zobrazuje „Zatím nic neplaťte“
+    (je to UX přívětivější). Zapracováno v PR #227 (ce349ed).'
+  typ: produkt
+  oblast: přihlašování na akce
+  datum: '2026-10-31'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: 'PR #227, komentář PM'
+    url: https://github.com/applifting-vsecourse/team-1/pull/227#issuecomment-6545434093
+  us:
+  - label: '#225'
+    url: https://github.com/applifting-vsecourse/team-1/issues/225
+  stav: platne
+  z_otazek:
+  - Q-PRI-13
+  dokumentace: []
+  poznamka: Ověřit, zda stejný text mají rámce ve Figmě (V04, V06).
