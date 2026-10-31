@@ -50,10 +50,19 @@ const slugify = (text) =>
     .join("-")
 
 const branchName = ({ number, title, labels }) => {
-  const us = title.match(/^US-(\d+)\s+(.*)$/)
-  if (us) return `feat/US-${us[1]}-${slugify(us[2])}`
   const prefix = labels.includes("bug") ? "fix" : "feat"
+  const us = title.match(/^US-(\d+)\s+(.*)$/)
+  if (us) return `${prefix}/US-${us[1]}-${slugify(us[2])}`
   return `${prefix}/${number}-${slugify(title)}`
+}
+
+const openBlockers = (number) => {
+  try {
+    const path = `repos/${OWNER}/${REPO}/issues/${number}/dependencies/blocked_by`
+    return JSON.parse(gh("api", path)).filter((i) => i.state === "open")
+  } catch {
+    return null
+  }
 }
 
 const check = (number) => {
@@ -63,18 +72,17 @@ const check = (number) => {
   const labels = issue.labels.map((l) => l.name)
   const me = gh("api", "user", "--jq", ".login")
   const others = issue.assignees.map((a) => a.login).filter((login) => login !== me)
-  const blockers = JSON.parse(
-    gh("api", `repos/${OWNER}/${REPO}/issues/${number}/dependencies/blocked_by`),
-  ).filter((i) => i.state === "open")
+  const blockers = openBlockers(number)
   const status = projectItem(number)?.fieldValueByName?.name ?? "not on the board"
 
   const problems = [
     issue.state !== "OPEN" && "the issue is closed",
     !labels.some((l) => BUILDABLE.includes(l)) && `no label ${BUILDABLE.join(" / ")}`,
     !issue.body.includes("Akceptační kritéria") && "no acceptance criteria",
-    /Otevřen(á otázka|é otázky)/.test(issue.body) && "an open question is still in the issue",
+    /otevřen\S* otáz/i.test(issue.body) && "an open question is still in the issue",
     others.length > 0 && `assigned to ${others.join(", ")}`,
-    ...blockers.map((b) => `blocked by #${b.number} ${b.title}`),
+    !blockers && "couldn't read its blockers",
+    ...(blockers ?? []).map((b) => `blocked by #${b.number} ${b.title}`),
   ].filter(Boolean)
 
   console.log(`#${issue.number} ${issue.title}`)
