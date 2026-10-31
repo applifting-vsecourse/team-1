@@ -22,6 +22,7 @@ Workflow (branches, PRs, Definition of Done): [`CONTRIBUTING.md`](CONTRIBUTING.m
 - `pnpm backend test` / `pnpm frontend test:ci` — unit tests
 - `pnpm backend test:int` — backend integration tests (`*.int-spec.ts`): builds and starts the server against the `togena_test` database; helpers in `apps/backend/src/test/integration/test-api.ts`
 - `pnpm backend prisma:migrations:run` — create/apply migrations after schema changes
+- `/story <issue>` / `/story <issue> finish` — start a story from the board / take it through the PR (`.claude/skills/story/SKILL.md`)
 - `pnpm e2e test` — Playwright E2E tests (`apps/e2e`): builds and starts its own backend + frontend against a freshly seeded `togena_e2e` database
 
 ## Conventions
@@ -43,12 +44,12 @@ Everything a user reads — UI copy, e-mails, error messages — is localized En
 
 A story is more than its title. Before writing code, read the story and the business documents it touches.
 
-- **Story:** `gh issue view <n>` — read the acceptance criteria („Akceptační kritéria“), „Kontext“, „Mimo rozsah“ and „Podklady“. What is under „Mimo rozsah“ is not done in this story.
+- **Story:** `gh issue view <n>` — read the acceptance criteria („Akceptační kritéria“), „Kontext“, „Mimo rozsah“, „Podklady“, „Dokumenty“ and „Závislosti“. What is under „Mimo rozsah“ is not done in this story.
 - **Names:** [`docs/SLOVNIK.md`](docs/SLOVNIK.md). Czech text uses the „Pojem“ column, code uses „V kódu“ — nothing third (not „pořadatel“, „turnus“, a bare „účet“).
 - **An application in a term** (status, evaluation, waitlist, payment, cancellation, archiving): the process and state diagram in [`docs/procesy/zpracovani-prihlasky/`](docs/procesy/zpracovani-prihlasky/README.md), in the folder of the evaluation mode the story is about (`rucni-vyhodnocovani/` or `automaticke-vyhodnocovani/`; the shared part is duplicated in both, so check both). E-mails to the applicant: [`EMAILY.md`](docs/procesy/zpracovani-prihlasky/EMAILY.md).
 - **When sources disagree, the higher one wins:** the process and state diagrams, then the decisions in PROJEKT.md (sections 9 and 10), then `schema.prisma`, then the issue text.
 - **Don't guess.** If the story, the documents and the code contradict each other, or a business rule the story needs is written nowhere, don't pick a side silently and don't invent a default. Build what the higher source says; where none decides, leave that part out. List every such case in the PR under „Nejasnosti k byznys pravidlům“: what each source says (file and section), what you did, and the question. An „Otevřená otázka na PO“ still in the issue counts as unresolved.
-- **Business questions go to Adam** (product manager, [Aadikk](https://github.com/Aadikk)), who takes them to the client. Start each with „Dotaz na Adama:“; don't ask the client yourself.
+- **Business questions go to Adam** (product manager, [Aadikk](https://github.com/Aadikk)), who takes them to the client. When a story lacks something or needs asking, don't leave a note to ask him: post one PR comment that tags `@Aadikk` and asks everything open, and link it from „Nejasnosti k byznys pravidlům“. Don't ask the client yourself.
 - **Business documents change only when asked.** If the story needs a change in `docs/`, say so in the PR instead of editing it (exception: the journey table in `docs/E2E.md`, see „E2E tests“). Diagrams are edited in the `.yaml` and regenerated ([`docs/procesy/README_generate_py.md`](docs/procesy/README_generate_py.md)), never in the generated `.md` / `.mmd`.
 
 ### Backend structure
@@ -83,7 +84,7 @@ The CLI also has two habits to undo after every `add`: it imports `cn` from the 
 
 ### UI follows Figma — don't invent
 
-Screens are designed before they are built, and the frames are linked in the story's issue ("High-fidelity wireframy" first, "Low-fidelity" only when there is no hi-fi). Build what is drawn:
+Screens are designed before they are built, and the frames are linked in the story's issue ("HF wireframy" first, "LF wireframy" only when there is no hi-fi). Build what is drawn:
 
 - **Open the frames before writing UI.** Use the Figma MCP — load the `figma:figma-design-to-code` skill, then `get_design_context` for each linked node (mobile 360 px _and_ desktop). Take structure, order of sections, control types, sizes, copy and every drawn state (default, error, sending, empty, invalid link…) from the frames. The returned code is a reference to adapt to our components and tokens, never to paste.
 - **Don't invent.** No extra elements, copy, states or layout that the design doesn't show, and don't swap a drawn control for one you prefer (a select stays a select). If something is missing from the design — a state, an error text, where a field goes — stop and ask the designer / tech lead; leave it out meanwhile and say so in the PR.
@@ -96,11 +97,11 @@ Screens are designed before they are built, and the frames are linked in the sto
   ```
 - **Check before the PR.** Run `@design-reviewer US-<n>` (Claude Code, needs the Figma MCP) on the branch, fix every `MISMATCH`, `EXTRA` and `MISSING`, and paste what remains — plus every `CONFLICT` — into the PR under "Odchylky od Figmy". No Figma access? Say so in the PR instead of guessing the design.
 
-The pre-push review (`@reviewer`) can't open Figma; it only checks that new UI carries the `Figma:` comment and reminds you to run `@design-reviewer`.
+The AI review (`@reviewer`) can't open Figma; it only checks that new UI carries the `Figma:` comment and reminds you to run `@design-reviewer`.
 
 ### Pull request size
 
-One PR per feature (user story): backend, frontend and tests together on one branch, referencing the story (`Refs #23`; the product manager closes the issue). Don't split a story by layer (a backend PR and a frontend PR) or into „část 1/2“ parts. Keep the PR reviewable — aim for ~400 changed lines of code (not counting tests, migration SQL, lockfile, generated files) and ~20 files; when a story needs more, keep it in one PR and say in the PR body why it's bigger. The PR comment „Co se změnilo“ flags large PRs.
+One PR per feature (user story): backend, frontend and tests together on one branch, linked to the story (`Closes #23`, see „Before you open the PR“). Don't split a story by layer (a backend PR and a frontend PR) or into „část 1/2“ parts. Keep the PR reviewable — aim for ~400 changed lines of code (not counting tests, migration SQL, lockfile, generated files) and ~20 files; when a story needs more, keep it in one PR and say in the PR body why it's bigger. The PR comment „Co se změnilo“ flags large PRs.
 
 ### E2E tests
 
@@ -114,13 +115,15 @@ When a demo is near (the user or the tech lead says so), the bar is higher: only
 
 ### Before you open the PR
 
+Open the PR as a draft (`gh pr create --draft`) and run `gh pr ready` when the work is finished: the AI review skips drafts, so it runs on finished work instead of every push.
+
 Go through the acceptance criteria once more and compare them with what you built. In the PR body, under „Akceptační kritéria“, list each one as `✅ splněno — <test or file that shows it>`, `❌ nesplněno — <why>` or `❓ nelze ověřit — <what is missing>`. A criterion is met only when a test or a manual step you describe shows it. While any is ❌ or ❓, leave the matching PR-template checkbox unticked and write what is missing.
 
 Then tell the author what the PR still lacks — a short list in your last message, before the PR is opened and whenever it is updated:
 
 - **E2E test:** the story completes or changes a journey from the table in [`docs/E2E.md`](docs/E2E.md), but `apps/e2e` has no new or enabled test for it (rules in „E2E tests“; a changed UI text that a locator uses means a changed test; run `pnpm e2e test`). If no listed journey is touched, say „žádná cesta z docs/E2E.md se nemění“ and don't add an E2E test.
-- **Ticket link:** the branch is `feat/US-<n>-<slug>` (`fix/`, `chore/`, `docs/` for the rest), the PR title is the story title and the PR body starts with `Refs #<issue number>` — never `Closes`.
-- **Acceptance criteria:** the report above is in the PR body and the author has ticked the ✅ ones in the issue.
+- **Ticket link:** the branch is `feat/US-<n>-<slug>` (`fix/`, `chore/`, `docs/` for the rest), the PR title is the story title and every PR that belongs to an issue starts its body with `Closes #<issue number>`. `Refs` doesn't link the PR and the issue in GitHub. On merge, the issue closes and the board's „Item closed“ workflow moves it to In Business Review; the product manager moves it to Done after checking it on staging.
+- **Acceptance criteria:** the report above is in the PR body and every ✅ one is ticked in the issue on the board. Tick them yourself with `gh issue edit <n> --body-file` when you open or update the PR, and change nothing else in the issue. Leave ❌ and ❓ unticked.
 - **Open items:** „Nejasnosti k byznys pravidlům“, „Odchylky od Figmy“ and „Mimo rozsah story“ are in the PR when they apply.
 
 ### Migrations
@@ -143,6 +146,10 @@ Several stories — and agents — run side by side, each in its own git worktre
 
 ### Review
 
-The rules a review checks live in one place: the `reviewer` agent ([`.claude/agents/reviewer.md`](.claude/agents/reviewer.md)). The pre-push hook, the Raspberry Pi review of every PR push and `@reviewer` all use it. When you add a rule here that a review should enforce, add it to the agent's BLOCKER or WARNING list too — never into a hook or workflow.
+The rules a review checks live in one place: the `reviewer` agent ([`.claude/agents/reviewer.md`](.claude/agents/reviewer.md)). The Raspberry Pi review of every PR push and `@reviewer` both use it. When you add a rule here that a review should enforce, add it to the agent's BLOCKER or WARNING list too — never into a hook or workflow.
+
+An agent working on a PR doesn't stop at green CI. After every push, once the checks finish, read the `github-actions` comments on the PR (`gh pr view <n> --comments`): the AI review from the runner (Claude Sonnet) and „Co se změnilo“. The `review` check passes even with warnings, so a green check doesn't mean a clean review. Fix what the review rightly finds and push again, then read the new review too.
+
+Then answer it, so everyone can see that nothing was ignored. The review comment is rewritten on every push, so post a new PR comment in Czech (`gh pr comment`) that goes through every `BLOCKER`, `WARNING` and `NOTE` of the latest review and every „Pozor“ from „Co se změnilo“, each as `opraveno v <commit>` or `neopravuji — <důvod>`. A later review with new findings gets its own answer. With no findings, no answer is needed. Don't push just to silence a `NOTE`: a reason is enough.
 
 Don't reach for the browser to check your own work. Tests and type-checks are the evidence; open the running app when asked to, not on your own initiative.
