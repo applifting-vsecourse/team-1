@@ -19,7 +19,8 @@ type ChangeKind =
   | 'WAITLISTED'
   | 'REJECTED'
   | 'CANCELLED'
-  | 'TERMS_CHANGED';
+  | 'TERMS_CHANGED'
+  | 'NO_BED_FREED';
 
 // Copy for all locales side by side — a missing translation is a type error.
 const copy: Record<
@@ -55,6 +56,8 @@ const copy: Record<
       REJECTED: 'Your application in one of the terms was rejected.',
       CANCELLED: 'The application was cancelled.',
       TERMS_CHANGED: 'The terms of the application changed.',
+      NO_BED_FREED:
+        'Your application in one of the terms was cancelled because no bed became free.',
     },
     termsHeading: 'Status by term now',
     confirmed: 'confirmed',
@@ -80,6 +83,8 @@ const copy: Record<
       REJECTED: 'Vaše přihláška v jednom z termínů byla zamítnuta.',
       CANCELLED: 'Přihláška byla odhlášena.',
       TERMS_CHANGED: 'Změnily se termíny přihlášky.',
+      NO_BED_FREED:
+        'Vaše přihláška v jednom z termínů byla zrušena, protože se neuvolnilo lůžko.',
     },
     termsHeading: 'Stav podle termínů nyní',
     confirmed: 'potvrzený',

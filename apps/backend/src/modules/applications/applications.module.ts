@@ -18,6 +18,8 @@ import { CapacityService } from "./services/capacity.service"
 import { PublicEventsService } from "./services/public-events.service"
 import { SubmissionStatusService } from "./services/submission-status.service"
 import { TermStatusService } from "./services/term-status.service"
+import { WaitlistExpiryScheduler } from "./services/waitlist-expiry.scheduler"
+import { WaitlistExpiryService } from "./services/waitlist-expiry.service"
 
 @Module({
   imports: [PrismaModule, ParticipantsModule, OrganizationAccessModule, AuthModule],
@@ -39,6 +41,8 @@ import { TermStatusService } from "./services/term-status.service"
     SubmissionStatusRepository,
     TermStatusRepository,
     TermStatusService,
+    WaitlistExpiryService,
+    WaitlistExpiryScheduler,
   ],
   exports: [TermStatusService],
 })

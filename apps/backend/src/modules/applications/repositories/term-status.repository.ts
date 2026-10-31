@@ -1,6 +1,7 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { StatusChangeSnapshot } from "@/modules/applications/domain/status-transition"
 import {
+  ExpiredWaitlistEntry,
   StatusChangeCommand,
   StatusChangeResult,
   TermStatusDetail,
@@ -38,6 +39,20 @@ export class TermStatusRepository {
         changedAt: change.createdAt,
       })),
     }))
+  }
+
+  /**
+   * Applications on the waitlist in terms that start on `today` or earlier (a date in Prague,
+   * see `todayInPrague`). Terms cancelled by the organizer are left alone (US-13). Across
+   * organizations on purpose: the system acts, each row carries its own organizationId.
+   */
+  async findWaitlistedStartedBy(today: Date): Promise<ExpiredWaitlistEntry[]> {
+    const rows = await this.prisma.applicationTerm.findMany({
+      where: { status: "WAITLISTED", term: { startsOn: { lte: today }, cancelledAt: null } },
+      select: { organizationId: true, applicationId: true, termId: true },
+      orderBy: { id: "asc" },
+    })
+    return rows
   }
 
   /**
