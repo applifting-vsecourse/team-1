@@ -102,7 +102,7 @@ Payment               organizationId, applicationTermId (přihláška v termínu
 - Peníze jako celé číslo v Kč (`Int`).
 - `Application.number` je globální autoincrement → VS.
 - Cena se při vyhodnocení zkopíruje do `ApplicationTerm.priceCzk`; pozdější změna ceny termínu se týká jen nových přihlášek.
-- `Application.userId` je nullable: přihláška se uloží, i když účet přihlašovatele ještě nevznikl (proud C).
+- `Application.userId` je nullable: přihláška se uloží, i když účet přihlašovatele ještě nevznikl.
 - Veřejná registrace (`/api/auth/sign-up`) je vypnutá. Účty vznikají jen na serveru (seed, přihláška).
 - Platby jsou řádky (`Payment`), ne příznak na přihlášce — připraveno na import z banky (US-42). Ve sprintu 1 UI zapíše nebo smaže jednu platbu.
 
