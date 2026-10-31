@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
+import { DateField } from "@/components/molecules/DateField"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import {
@@ -26,6 +27,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { isIsoDate } from "@/lib/date-input"
 
 import type { EventTerm } from "@/features/events/api/terms"
 import { useCreateTerm, useUpdateTerm } from "@/features/events/hooks/useTermMutations"
@@ -34,14 +36,26 @@ const createSchema = (t: TFunction<"events">) =>
   z
     .object({
       name: z.string().trim().min(1, t("terms.form.fieldRequired")),
-      startsOn: z.string().min(1, t("terms.form.fieldRequired")),
-      endsOn: z.string().min(1, t("terms.form.fieldRequired")),
+      startsOn: z
+        .string()
+        .min(1, t("terms.form.fieldRequired"))
+        .refine(isIsoDate, t("terms.form.dateFormat")),
+      endsOn: z
+        .string()
+        .min(1, t("terms.form.fieldRequired"))
+        .refine(isIsoDate, t("terms.form.dateFormat")),
       priceCzk: z.string().regex(/^\d{1,7}$/, t("terms.form.priceRequired")),
     })
-    .refine((values) => !values.startsOn || !values.endsOn || values.endsOn >= values.startsOn, {
-      path: ["endsOn"],
-      message: t("terms.form.endBeforeStart"),
-    })
+    .refine(
+      (values) =>
+        !isIsoDate(values.startsOn) ||
+        !isIsoDate(values.endsOn) ||
+        values.endsOn >= values.startsOn,
+      {
+        path: ["endsOn"],
+        message: t("terms.form.endBeforeStart"),
+      },
+    )
 
 type FormValues = z.infer<ReturnType<typeof createSchema>>
 
@@ -132,9 +146,9 @@ export function TermFormDialog({
                     />
                   </FormControl>
                   {form.formState.errors.name ? (
-                    <FormMessage className="text-xs font-medium" />
+                    <FormMessage className="text-xs leading-[18px] font-medium" />
                   ) : (
-                    <FormDescription className="text-xs font-medium">
+                    <FormDescription className="text-xs leading-[18px] font-medium">
                       {t("terms.form.nameHelper")}
                     </FormDescription>
                   )}
@@ -151,12 +165,9 @@ export function TermFormDialog({
                       {t("terms.form.startsOn")}
                     </FormLabel>
                     <FormControl>
-                      <Input
-                        type="date"
-                        {...field}
-                      />
+                      <DateField {...field} />
                     </FormControl>
-                    <FormMessage className="text-xs font-medium" />
+                    <FormMessage className="text-xs leading-[18px] font-medium" />
                   </FormItem>
                 )}
               />
@@ -169,12 +180,9 @@ export function TermFormDialog({
                       {t("terms.form.endsOn")}
                     </FormLabel>
                     <FormControl>
-                      <Input
-                        type="date"
-                        {...field}
-                      />
+                      <DateField {...field} />
                     </FormControl>
-                    <FormMessage className="text-xs font-medium" />
+                    <FormMessage className="text-xs leading-[18px] font-medium" />
                   </FormItem>
                 )}
               />
@@ -197,9 +205,9 @@ export function TermFormDialog({
                     />
                   </FormControl>
                   {form.formState.errors.priceCzk ? (
-                    <FormMessage className="text-xs font-medium" />
+                    <FormMessage className="text-xs leading-[18px] font-medium" />
                   ) : (
-                    <FormDescription className="text-xs font-medium">
+                    <FormDescription className="text-xs leading-[18px] font-medium">
                       {t("terms.form.priceHelper")}
                     </FormDescription>
                   )}

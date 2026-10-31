@@ -22,6 +22,7 @@
       "variableSymbolNote": "Variabilní symbol je číselná část přihlášky {{code}}."
     },
     "status": {
+      "cancelled": "Zrušená",
       "confirmed": "Potvrzeno",
       "waitlisted": "Náhradník"
     },
@@ -43,6 +44,7 @@
     "errors": {
       "birthDateInvalid": "Zadejte platné datum narození.",
       "consentRequired": "Pro odeslání je nutný souhlas se zpracováním údajů.",
+      "dateFormat": "Zadejte datum ve tvaru D. M. RRRR.",
       "emailInvalid": "Zadejte platnou e-mailovou adresu.",
       "firstNameRequired": "Vyplňte jméno.",
       "genderRequired": "Vyberte Žena nebo Muž.",

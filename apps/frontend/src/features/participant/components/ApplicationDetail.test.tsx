@@ -128,6 +128,7 @@ describe("ApplicationDetail", () => {
     renderDetail(application({ terms: [confirmed, waitlisted] }))
 
     expect(await screen.findByText("Waitlisted")).toBeInTheDocument()
+    expect(screen.getByText("Do not pay anything yet")).toBeInTheDocument()
     expect(screen.queryByText(/in line|position/i)).not.toBeInTheDocument()
     expect(
       screen.getByText(/Don't pay for a term where you are waitlisted yet/),

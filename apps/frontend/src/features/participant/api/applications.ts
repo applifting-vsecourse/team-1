@@ -9,7 +9,7 @@ const termSchema = z.object({
   /** ISO date, `2027-07-04`. */
   startsOn: z.string(),
   endsOn: z.string(),
-  status: z.enum(["CONFIRMED", "WAITLISTED"]),
+  status: z.enum(["CONFIRMED", "WAITLISTED", "CANCELLED"]),
   priceCzk: z.number().int(),
 })
 export type MyApplicationTerm = z.infer<typeof termSchema>

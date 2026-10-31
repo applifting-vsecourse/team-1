@@ -9,12 +9,9 @@ import type { MyApplicationTerm, PaymentStatus } from "@/features/participant/ap
 export function TermStatusBadge({ term }: { term: MyApplicationTerm }) {
   const { t } = useTranslation("participant")
   const isConfirmed = term.status === "CONFIRMED"
+  const label = isConfirmed ? "confirmed" : term.status === "CANCELLED" ? "cancelled" : "waitlisted"
 
-  return (
-    <Badge variant={isConfirmed ? "success" : "secondary"}>
-      {isConfirmed ? t("status.confirmed") : t("status.waitlisted")}
-    </Badge>
-  )
+  return <Badge variant={isConfirmed ? "success" : "secondary"}>{t(`status.${label}`)}</Badge>
 }
 
 const paymentTone = {

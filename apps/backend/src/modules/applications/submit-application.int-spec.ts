@@ -246,6 +246,20 @@ describe("submit application (integration)", () => {
       expect(response.status).toBe(409)
     })
 
+    it("does not count a cancelled term as a duplicate (US-28)", async () => {
+      const [, t2] = termIds
+      const cancelled = person([t2], { firstName: "Zdena", lastName: "Zrušená", gender: "FEMALE" })
+      expect((await submit([cancelled])).status).toBe(201)
+      expect((await submit([cancelled])).status).toBe(409)
+
+      await prisma.applicationTerm.updateMany({
+        where: { termId: t2, application: { eventId, firstName: "Zdena" } },
+        data: { status: "CANCELLED" },
+      })
+
+      expect((await submit([cancelled])).status).toBe(201)
+    })
+
     it("allows the same participant on another term and other people on the same term", async () => {
       const [t1, t2] = termIds
       expect((await submit([person([t2])])).status).toBe(201)

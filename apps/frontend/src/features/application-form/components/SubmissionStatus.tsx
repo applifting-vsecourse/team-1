@@ -126,7 +126,13 @@ function TermStatusCard({
             variant={isConfirmed ? "success" : "secondary"}
             className="h-7"
           >
-            {isConfirmed ? t("confirmation.status.confirmed") : t("confirmation.status.waitlisted")}
+            {t(
+              isConfirmed
+                ? "confirmation.status.confirmed"
+                : term.status === "CANCELLED"
+                  ? "confirmation.status.cancelled"
+                  : "confirmation.status.waitlisted",
+            )}
           </Badge>
           <span
             className={
@@ -137,7 +143,7 @@ function TermStatusCard({
           >
             {isConfirmed ? (
               <MoneyAmount amountCzk={term.priceCzk} />
-            ) : (
+            ) : term.status === "CANCELLED" ? null : (
               t("confirmation.doNotPayYet")
             )}
           </span>

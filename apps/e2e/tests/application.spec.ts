@@ -31,7 +31,7 @@ test.describe("Application from a link", { tag: "@mobile" }, () => {
 
     await page.getByLabel("First name").fill("Karel")
     await page.getByLabel("Last name").fill(`Novotný ${unique}`)
-    await page.getByLabel("Date of birth").fill("2012-05-12")
+    await page.getByLabel("Date of birth").fill("12/05/2012")
     await page.getByLabel("Gender").click()
     await page.getByRole("option", { name: "Man", exact: true }).click()
     await page

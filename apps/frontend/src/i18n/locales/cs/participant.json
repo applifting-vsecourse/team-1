@@ -35,8 +35,9 @@
     "UNPAID": "Nezaplaceno"
   },
   "status": {
+    "cancelled": "Zrušená",
     "confirmed": "Potvrzeno",
-    "untilConfirmed": "do potvrzení",
+    "doNotPayYet": "Zatím nic neplaťte",
     "waitlisted": "Náhradník"
   }
 }

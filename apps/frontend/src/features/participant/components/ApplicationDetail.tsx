@@ -71,8 +71,11 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
                 <TermLabel term={term} />
                 <TermStatusBadge term={term} />
                 <span className="w-full sm:w-50 sm:text-right">
-                  <MoneyAmount amountCzk={isConfirmed ? term.priceCzk : 0} />
-                  {isConfirmed ? null : ` ${t("status.untilConfirmed")}`}
+                  {term.status === "WAITLISTED" ? (
+                    t("status.doNotPayYet")
+                  ) : (
+                    <MoneyAmount amountCzk={isConfirmed ? term.priceCzk : 0} />
+                  )}
                 </span>
               </li>
             )

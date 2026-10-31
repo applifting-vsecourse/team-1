@@ -4,6 +4,7 @@ import { useFormContext, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { TermPrice } from "@/components/atoms/MoneyAmount"
+import { DateField } from "@/components/molecules/DateField"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -118,19 +119,22 @@ export function ParticipantFields({ index, terms, onRemove, isDisabled }: Partic
           name={`participants.${index}.birthDate`}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{t("form.birthDate")}</FormLabel>
+              <FormLabel className="data-[error=true]:text-foreground">
+                {t("form.birthDate")}
+              </FormLabel>
               <FormControl>
-                <Input
-                  type="date"
-                  className="[color-scheme:light] dark:[color-scheme:dark]"
+                <DateField
                   min="1900-01-01"
                   max={format(new Date(), "yyyy-MM-dd")}
-                  autoComplete="off"
                   {...field}
                 />
               </FormControl>
-              <FormDescription>{t("form.birthDateHint")}</FormDescription>
-              <FormMessage />
+              <div className="flex flex-col">
+                <FormDescription className="text-xs leading-[18px] font-medium">
+                  {t("form.birthDateHint")}
+                </FormDescription>
+                <FormMessage className="text-xs leading-[18px] font-medium" />
+              </div>
             </FormItem>
           )}
         />
