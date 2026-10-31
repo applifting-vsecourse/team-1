@@ -146,9 +146,9 @@ export function TermFormDialog({
                     />
                   </FormControl>
                   {form.formState.errors.name ? (
-                    <FormMessage className="text-xs font-medium" />
+                    <FormMessage className="text-xs leading-[18px] font-medium" />
                   ) : (
-                    <FormDescription className="text-xs font-medium">
+                    <FormDescription className="text-xs leading-[18px] font-medium">
                       {t("terms.form.nameHelper")}
                     </FormDescription>
                   )}
@@ -167,7 +167,7 @@ export function TermFormDialog({
                     <FormControl>
                       <DateField {...field} />
                     </FormControl>
-                    <FormMessage className="text-xs font-medium" />
+                    <FormMessage className="text-xs leading-[18px] font-medium" />
                   </FormItem>
                 )}
               />
@@ -182,7 +182,7 @@ export function TermFormDialog({
                     <FormControl>
                       <DateField {...field} />
                     </FormControl>
-                    <FormMessage className="text-xs font-medium" />
+                    <FormMessage className="text-xs leading-[18px] font-medium" />
                   </FormItem>
                 )}
               />
@@ -205,9 +205,9 @@ export function TermFormDialog({
                     />
                   </FormControl>
                   {form.formState.errors.priceCzk ? (
-                    <FormMessage className="text-xs font-medium" />
+                    <FormMessage className="text-xs leading-[18px] font-medium" />
                   ) : (
-                    <FormDescription className="text-xs font-medium">
+                    <FormDescription className="text-xs leading-[18px] font-medium">
                       {t("terms.form.priceHelper")}
                     </FormDescription>
                   )}
