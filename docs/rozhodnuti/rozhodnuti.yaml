@@ -407,6 +407,8 @@ rozhodnuti:
   poznamka: Sekce 11 PROJEKT.md říká, že se práce nedělí do proudů. Platnost ověřit, viz Q-TEC-08.
   z_otazek: []
   dokumentace: []
+  zmeneno_v:
+  - D-071
 - id: D-027
   nazev: Landing má jediný vstup „Pro organizátory“
   text: Landing má podle Figmy (V08, M07) jediný vstup „Pro organizátory – přihlásit se“; ruší se tím
@@ -1273,3 +1275,26 @@ rozhodnuti:
   - Q-PRI-13
   dokumentace: []
   poznamka: Ověřit, zda stejný text mají rámce ve Figmě (V04, V06).
+- id: D-071
+  nazev: Práce se nedělí do proudů
+  text: 'Práce se nedělí do proudů A–D, rozhodnutí z 16. 10. o proudech neplatí. Platí sekce 11 PROJEKT.md:
+    tým se domlouvá ad hoc a sdílené soubory se mění jen v rozsahu své story. Zbytek rozhodnutí „Tým a
+    vedení storek“ (vyvíjí celý tým, story schvaluje product manager) platí dál.'
+  typ: proces
+  oblast: tým a proces
+  datum: '2026-10-31'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: 'PR #242, odpověď PM na Q-TEC-08'
+    url: https://github.com/applifting-vsecourse/team-1/pull/242
+  us: []
+  stav: platne
+  meni:
+  - D-026
+  z_otazek:
+  - Q-TEC-08
+  dokumentace:
+  - soubor: docs/PROJEKT.md
+    popis: řádek 105 odkazuje na „proud C“; odstranit zmínku o proudu
+    stav: ceka

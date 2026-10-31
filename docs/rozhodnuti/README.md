@@ -2,7 +2,7 @@
 
 > Generováno z [`rozhodnuti.yaml`](rozhodnuti.yaml) (`python generate.py`). Needituj, měň YAML.
 
-**68 platných**, 0 návrhů, 2 nahrazených nebo zrušených.
+**69 platných**, 0 návrhů, 2 nahrazených nebo zrušených.
 
 ## Návrhy čekající na PM
 
@@ -26,6 +26,7 @@ _Nic._
 | [D-065](#d-065) | Zrušení termínu zruší všechny přihlášky ve všech stavech | `docs/procesy/zpracovani-prihlasky/EMAILY.md` | chybí e-mail při zrušení termínu |
 | [D-067](#d-067) | „Otevření přihlášek“ = akce splní všechny požadavky a vznikne link | `docs/PROJEKT.md` | sekce 5: definice „otevření přihlášek“ a výhled (plánované spuštění, pozastavení) |
 | [D-069](#d-069) | Uživatel si nastaví preferovaný jazyk (aplikace i e-maily) | `docs/PROJEKT.md` | pravidlo jazyka aplikace a e-mailů: preferovaný jazyk uživatele (zapsat při zadání ticketu) |
+| [D-071](#d-071) | Práce se nedělí do proudů | `docs/PROJEKT.md` | řádek 105 odkazuje na „proud C“; odstranit zmínku o proudu |
 
 ## Změny dřívějších rozhodnutí
 
@@ -35,6 +36,7 @@ _Nic._
 | [D-040](#d-040) | Vyhodnocování přihlášek: ruční nebo automatické | 2026-10-23 | nahrazuje [D-003](#d-003) |
 | [D-043](#d-043) | E-mail organizátora v přihlášce: obecná chyba VALIDATION_FAILED | 2026-10-25 | nahrazuje [D-013](#d-013) |
 | [D-050](#d-050) | Dashboard organizátora se vrací | 2026-10-28 | mění [D-042](#d-042) |
+| [D-071](#d-071) | Práce se nedělí do proudů | 2026-10-31 | mění [D-026](#d-026) |
 
 ## Platná rozhodnutí podle oblasti
 
@@ -127,6 +129,7 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-071](#d-071) | Práce se nedělí do proudů | 2026-10-31 | `pm` | proces |
 | [D-060](#d-060) | Blok „Stav v termínech“: merge neblokuje, UI/UX dolaďovat zpětně | 2026-10-31 | `pm` | proces |
 | [D-048](#d-048) | MVP / nice to have se vede milestonem | 2026-10-27 | `pm` | proces |
 | [D-047](#d-047) | Sprint se vede jako pole Sprint v GitHub Projects | 2026-10-27 | `pm` | proces |
@@ -407,6 +410,7 @@ _Nic._
 - **Datum:** 2026-10-16 · **Rozhodl:** `tech-lead`
 - **Text:** Vyvíjí celý tým. Proudy: A + landing Jakubkuba9000, B kudrle01, C PJjiry, D Aadikk. Story schvaluje product manager Aadikk.
 - **Zdroj:** [PROJEKT.md, sekce 9 (původní zápis)](../../docs/PROJEKT.md)
+- **Změněno v:** [D-071](#d-071)
 - **Poznámka:** Sekce 11 PROJEKT.md říká, že se práce nedělí do proudů. Platnost ověřit, viz Q-TEC-08.
 
 <a id="d-027"></a>
@@ -866,3 +870,15 @@ _Nic._
 - **Zdroj:** [PR #227, komentář PM](https://github.com/applifting-vsecourse/team-1/pull/227#issuecomment-6545434093)
 - **Z otázek:** `Q-PRI-13`
 - **Poznámka:** Ověřit, zda stejný text mají rámce ve Figmě (V04, V06).
+
+<a id="d-071"></a>
+
+### D-071 – Práce se nedělí do proudů
+
+- **Stav:** platné · **Typ:** proces · **Oblast:** tým a proces
+- **Datum:** 2026-10-31 · **Rozhodl:** `pm`
+- **Text:** Práce se nedělí do proudů A–D, rozhodnutí z 16. 10. o proudech neplatí. Platí sekce 11 PROJEKT.md: tým se domlouvá ad hoc a sdílené soubory se mění jen v rozsahu své story. Zbytek rozhodnutí „Tým a vedení storek“ (vyvíjí celý tým, story schvaluje product manager) platí dál.
+- **Zdroj:** [PR #242, odpověď PM na Q-TEC-08](https://github.com/applifting-vsecourse/team-1/pull/242)
+- **Mění:** [D-026](#d-026)
+- **Z otázek:** `Q-TEC-08`
+- **Dokumentace:** `docs/PROJEKT.md`: ceka, řádek 105 odkazuje na „proud C“; odstranit zmínku o proudu

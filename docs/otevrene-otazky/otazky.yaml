@@ -1880,14 +1880,15 @@ otazky:
     11 PROJEKT.md?
   epic: technický základ
   us: []
-  stav: otevreno
+  stav: rozhodnuto
   priorita: P3
-  priorita_duvod: Rozhodnutí z 16. 10. a sekce 11 si odporují.
-  ceka_na: tech-lead
+  priorita_duvod: Rozhodnuto PM, zbývá odstranit zmínku o proudech v PROJEKT.md.
+  ceka_na: pm
   zdroje:
   - popis: registr rozhodnutí
     soubor: docs/rozhodnuti/README.md
   poznamka: Týká se rozhodnutí „Tým a vedení storek“.
+  rozhodnuti_ref: D-071
 - id: Q-PRI-22
   otazka: 'Kam se v pořadníku zařadí přihláška přesunutá z Potvrzené mezi náhradníky: podle data přijetí
     (může skočit před dřívější náhradníky), nebo na konec?'

@@ -52,7 +52,7 @@
 | [Q-PLT-12](#q-plt-12) | Smí správce platformy vidět osobní údaje účastníků, nebo jen agregáty? | [#186](https://github.com/applifting-vsecourse/team-1/issues/186) | P3 | Platformový admin se do sprintu 3 nezařazuje, byznysová potřeba nepotvrzena (zápis 28. 10.). |
 | [Q-PRE-04](#q-pre-04) | Stačí pamatovat filtry seznamu přihlášek jen v rámci session, nebo mají přežít zavření prohlížeče? | [#175](https://github.com/applifting-vsecourse/team-1/issues/175) | P3 | Zápis 27. 10.: do backlogu. |
 
-### `tech-lead` (Honza): 6
+### `tech-lead` (Honza): 5
 
 | ID | Otázka | Dotčené US | Priorita | Proč |
 | --- | --- | --- | --- | --- |
@@ -61,7 +61,6 @@
 | [Q-TEC-05](#q-tec-05) | Přejmenovat typ účtu `PARTICIPANT` na `APPLICANT`? | – | P3 | Rozpor mezi zdroji ve SLOVNIK.md; rozhodnout s tech leadem. |
 | [Q-TEC-06](#q-tec-06) | Připojit Figma konektor a převzít tokeny do `global.css`. | – | P3 | Otevřený bod v PROJEKT.md §12; vlastník je tech lead. |
 | [Q-TEC-07](#q-tec-07) | Dopad zneplatnění magic linků na E2E (`magic-link.spec.ts`, `set-password.spec.ts`) a zápis pravidla do PROJEKT.md. | [#127](https://github.com/applifting-vsecourse/team-1/issues/127) | P3 | Navazuje na #127; technická část, nejde o rozhodnutí PM. |
-| [Q-TEC-08](#q-tec-08) | Platí rozdělení práce do proudů (A–D) z 16. 10., nebo se práce proudům nedělí, jak říká sekce 11 PROJEKT.md? | – | P3 | Rozhodnutí z 16. 10. a sekce 11 si odporují. |
 
 ### `design` (Kuba): 2
 
@@ -141,6 +140,7 @@ _Nic._
 | [Q-PRI-20](#q-pri-20) | Od jaké hodiny se ruší náhradník první den termínu? | [US-106 (#199)](https://github.com/applifting-vsecourse/team-1/issues/199) | [D-064](../rozhodnuti/README.md#d-064): Náhradník se ruší od půlnoci českého času prvního dne termínu | `docs/procesy/zpracovani-prihlasky/rucni-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml`, `docs/procesy/zpracovani-prihlasky/automaticke-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml` |
 | [Q-PRI-21](#q-pri-21) | Co se stane s náhradníky (a ostatními přihláškami) ve zrušeném termínu akce? | [US-106 (#199)](https://github.com/applifting-vsecourse/team-1/issues/199) | [D-065](../rozhodnuti/README.md#d-065): Zrušení termínu zruší všechny přihlášky ve všech stavech | `docs/procesy/zpracovani-prihlasky/`, `docs/procesy/zpracovani-prihlasky/EMAILY.md` |
 | [Q-NAS-11](#q-nas-11) | Co přesně je „otevření přihlášek“, od kterého se zamyká režim vyhodnocování? | [US-101 (#194)](https://github.com/applifting-vsecourse/team-1/issues/194) | [D-067](../rozhodnuti/README.md#d-067): „Otevření přihlášek“ = akce splní všechny požadavky a vznikne link | `docs/PROJEKT.md` |
+| [Q-TEC-08](#q-tec-08) | Platí rozdělení práce do proudů (A–D) z 16. 10., nebo se práce proudům nedělí, jak říká sekce 11 PROJEKT.md? | – | [D-071](../rozhodnuti/README.md#d-071): Práce se nedělí do proudů | `docs/PROJEKT.md` |
 
 ## Tickety k založení
 
@@ -290,7 +290,7 @@ _Nic._
 | [Q-TEC-05](#q-tec-05) | Přejmenovat typ účtu `PARTICIPANT` na `APPLICANT`? | – | otevřeno | P3 | `tech-lead` |
 | [Q-TEC-06](#q-tec-06) | Připojit Figma konektor a převzít tokeny do `global.css`. | – | otevřeno | P3 | `tech-lead` |
 | [Q-TEC-07](#q-tec-07) | Dopad zneplatnění magic linků na E2E (`magic-link.spec.ts`, `set-password.spec.ts`) a zápis pravidla do PROJEKT.md. | [#127](https://github.com/applifting-vsecourse/team-1/issues/127) | otevřeno | P3 | `tech-lead` |
-| [Q-TEC-08](#q-tec-08) | Platí rozdělení práce do proudů (A–D) z 16. 10., nebo se práce proudům nedělí, jak říká sekce 11 PROJEKT.md? | – | otevřeno | P3 | `tech-lead` |
+| [Q-TEC-08](#q-tec-08) | Platí rozdělení práce do proudů (A–D) z 16. 10., nebo se práce proudům nedělí, jak říká sekce 11 PROJEKT.md? | – | rozhodnuto, nezapsáno | P3 | `pm` |
 
 ### Epic: ubytování
 
@@ -1320,11 +1320,12 @@ _Nic._
 
 ### Q-TEC-08 – Platí rozdělení práce do proudů (A–D) z 16. 10., nebo se práce proudům nedělí, jak říká sekce 11 PROJEKT.md?
 
-- **Epic:** technický základ · **Dotčené US:** – · **Stav:** otevřeno · **Čeká na:** `tech-lead`
+- **Epic:** technický základ · **Dotčené US:** – · **Stav:** rozhodnuto, nezapsáno · **Čeká na:** `pm`
 - **Poznámka:** Týká se rozhodnutí „Tým a vedení storek“.
 - **Zdroje:**
   - registr rozhodnutí
-- **Priorita:** P3 – Rozhodnutí z 16. 10. a sekce 11 si odporují.
+- **Priorita:** P3 – Rozhodnuto PM, zbývá odstranit zmínku o proudech v PROJEKT.md.
+- **Rozhodnutí:** [D-071](../rozhodnuti/README.md#d-071): Práce se nedělí do proudů A–D, rozhodnutí z 16. 10. o proudech neplatí. Platí sekce 11 PROJEKT.md: tým se domlouvá ad hoc a sdílené soubory se mění jen v rozsahu své story. Zbytek rozhodnutí „Tým a vedení storek“ (vyvíjí celý tým, story schvaluje product manager) platí dál.
 
 <a id="q-uby-01"></a>
 
