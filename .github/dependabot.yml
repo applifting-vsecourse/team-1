@@ -1,0 +1,21 @@
+# Security updates only: `open-pull-requests-limit: 0` turns off routine version
+# bumps. Needs "Dependabot security updates" on in the repository settings.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 0
+  - package-ecosystem: docker
+    directories:
+      - /apps/backend
+      - /apps/frontend
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 0
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 0

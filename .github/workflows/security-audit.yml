@@ -1,0 +1,27 @@
+name: Security audit
+
+# Weekly check of the production dependencies (docs/SECURITY-REPORT.md). Fails on
+# a critical advisory; it runs outside PRs, so it never blocks a merge.
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+
+      - name: Audit production dependencies
+        run: pnpm audit --prod --audit-level=critical
