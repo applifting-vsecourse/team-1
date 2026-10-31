@@ -1,0 +1,36 @@
+title: Zrušení termínu akce
+direction: TD
+
+# Společné pro obě vyhodnocování (D-065, D-076). Zruší se přihlášky v termínu ve všech stavech kromě archivované.
+
+nodes:
+  - { id: chce_zrusit, type: event, label: Organizátor chce zrušit termín akce }
+  - {
+      id: upozornit,
+      type: task,
+      label: Upozornit na nevratnou akci a vyžádat potvrzení,
+      role: systém,
+    }
+  - { id: zrusit_termin, type: task, label: Zrušit termín akce, role: organizátor }
+  - {
+      id: zrusit_prihlasky,
+      type: task,
+      label: Zrušit přihlášky v termínu ve všech stavech (kromě archivovaných),
+      role: systém,
+    }
+  - { id: odeslat_email, type: task, label: Odeslat e-mail o zrušení termínu, role: systém }
+  - { id: vratit_platby, type: task, label: Vrátit zaplacené platby účastníkům, role: organizátor }
+  - { id: g_rozdel, type: gateway, kind: "+" }
+  - { id: g_spoj, type: gateway, kind: "+" }
+  - { id: s_zrusena, type: end, label: "Přihláška v termínu: zrušená" }
+
+flows:
+  - { from: chce_zrusit, to: upozornit }
+  - { from: upozornit, to: zrusit_termin }
+  - { from: zrusit_termin, to: zrusit_prihlasky }
+  - { from: zrusit_prihlasky, to: g_rozdel }
+  - { from: g_rozdel, to: odeslat_email }
+  - { from: g_rozdel, to: vratit_platby }
+  - { from: odeslat_email, to: g_spoj }
+  - { from: vratit_platby, to: g_spoj }
+  - { from: g_spoj, to: s_zrusena }

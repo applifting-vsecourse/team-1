@@ -15,25 +15,37 @@ transitions:
   - {
       from: start,
       to: potvrzena_dluh,
-      reason: Nová přihláška v termínu zaregistrována a je volné lůžko pro pohlaví účastníka,
+      reason: Nová přihláška v termínu zaregistrována a je volné lůžko ve skupině lůžek účastníka,
       op: "register(), confirm()",
     }
   - {
       from: start,
       to: nahradnik,
-      reason: Nová přihláška v termínu zaregistrována a volné lůžko pro pohlaví účastníka není,
+      reason: Nová přihláška v termínu zaregistrována a volné lůžko ve skupině lůžek účastníka není,
       op: register(),
     }
 
   - {
       from: nahradnik,
       to: potvrzena_dluh,
-      reason: Uvolní se lůžko pro pohlaví účastníka a je první v pořadí přijetí,
+      reason: Uvolní se lůžko ve skupině lůžek účastníka a je první v pořadí přijetí,
       op: confirm(),
     }
 
-  - { from: nahradnik, to: zrusena, reason: Nastal první den termínu akce, op: cancel() }
+  - {
+      from: nahradnik,
+      to: zrusena,
+      reason: Nastala půlnoc (Europe/Prague) prvního dne termínu akce,
+      op: cancel(),
+    }
+  - { from: nahradnik, to: zrusena, reason: Organizátor zruší náhradníka, op: cancel() }
 
+  - {
+      from: potvrzena_dluh,
+      to: nahradnik,
+      reason: Organizátor přesune přihlášku mezi náhradníky,
+      op: putOnWaitlist(),
+    }
   - {
       from: potvrzena_dluh,
       to: potvrzena_dluh,
@@ -61,6 +73,11 @@ transitions:
     }
   - { from: potvrzena_zaplacena, to: zrusena, reason: Účastník se odhlásí, op: cancel() }
   - { from: potvrzena_zaplacena, to: archivovana, reason: Termín proběhne, op: archive() }
+
+  # zrušení termínu akce (proces zruseni-terminu.yaml, D-065): zruší přihlášky ve všech stavech kromě archivované
+  - { from: nahradnik, to: zrusena, reason: Organizátor zruší termín akce, op: cancel() }
+  - { from: potvrzena_dluh, to: zrusena, reason: Organizátor zruší termín akce, op: cancel() }
+  - { from: potvrzena_zaplacena, to: zrusena, reason: Organizátor zruší termín akce, op: cancel() }
 
   - { from: zrusena, to: end }
   - { from: archivovana, to: end }
