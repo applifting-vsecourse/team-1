@@ -22,7 +22,7 @@ Pravidla společná oběma režimům:
 - Pořadí v pořadníku je podle data přijetí přihlášky. Platí i pro přihlášku přesunutou z Potvrzené mezi náhradníky, která tak může skočit před dřívější náhradníky ([D-073](../../rozhodnuti/README.md#d-073)).
 - Organizátor může přesunout Potvrzenou s dluhem mezi náhradníky a zrušit náhradníka kdykoli, i v automatickém režimu ([D-056](../../rozhodnuti/README.md#d-056), [D-057](../../rozhodnuti/README.md#d-057)). Potvrzenou a zaplacenou přihlášku mezi náhradníky přesunout nelze.
 - Náhradník se sám zruší půlnoc českého času (Europe/Prague) prvního dne termínu ([D-064](../../rozhodnuti/README.md#d-064)).
-- Zrušení termínu zruší přihlášky ve všech stavech kromě archivované, účastníci dostanou e-mail a zaplacené platby se vrací ([D-065](../../rozhodnuti/README.md#d-065), [D-076](../../rozhodnuti/README.md#d-076)); proces je v [zruseni-terminu.md](zruseni-terminu.md), přechody do Zrušené jsou i ve stavových diagramech.
+- Zrušení termínu zruší přihlášky ve všech stavech kromě archivované, účastníci dostanou e-mail a zaplacené platby se vrací ([D-065](../../rozhodnuti/README.md#d-065), [D-076](../../rozhodnuti/README.md#d-076)); proces je v [zruseni-terminu.md](zruseni-terminu.md), zrušení termínu je i událostí v obou procesních diagramech a přechodem do Zrušené v obou stavových.
 
 E-maily přihlašovateli v jednotlivých přechodech: [EMAILY.md](EMAILY.md).
 

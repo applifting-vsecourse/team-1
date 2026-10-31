@@ -35,6 +35,11 @@ nodes:
 
   - { id: uvolni_se_misto, type: event, label: Uvolní se místo }
   - { id: e_zacatek, type: timed, label: Nastala půlnoc (Europe/Prague) prvního dne termínu akce }
+  - { id: e_zruseni_terminu_nahradnik, type: event, label: Organizátor zruší termín akce }
+  - { id: e_zruseni_terminu_dluh, type: event, label: Organizátor zruší termín akce }
+  - { id: e_zruseni_terminu_po_vyzve, type: event, label: Organizátor zruší termín akce }
+  - { id: e_zruseni_terminu_zaplacena, type: event, label: Organizátor zruší termín akce }
+  - { id: e_zruseni_terminu_kv, type: event, label: Organizátor zruší termín akce }
   - { id: e_zruseni_nahradnika, type: event, label: Organizátor zruší náhradníka }
   - { id: e_presun, type: event, label: Organizátor přesune přihlášku mezi náhradníky }
   - { id: rucne_potvrdit, type: task, label: Ručně potvrdit přihlášku v termínu, role: organizátor }
@@ -69,42 +74,53 @@ flows:
   - { from: vygenerovat_odkaz, to: prihlaska_zaregistrovana }
   - { from: prihlaska_zaregistrovana, to: s_k_vyhodnoceni }
   - { from: s_k_vyhodnoceni, to: do_poradniku }
+  - { from: e_zruseni_terminu_kv, to: s_zrusena }
+  # čekání na vyhodnocení nebo na zrušení termínu
   - { from: do_poradniku, to: chce_vyhodnotit }
+  - { from: do_poradniku, to: e_zruseni_terminu_kv }
   - { from: chce_vyhodnotit, to: vyhodnotit }
   - { from: vyhodnotit, to: g_vysledek }
   - { from: g_vysledek, to: s_zrusena, label: zamítne }
   - { from: g_vysledek, to: s_potvrzena_dluh, label: potvrdí }
   - { from: g_vysledek, to: s_nahradnik, label: zařadí jako náhradníka }
 
-  # náhradník čeká na jednu ze tří událostí
+  # náhradník čeká na jednu ze čtyř událostí
   - { from: s_nahradnik, to: uvolni_se_misto }
   - { from: s_nahradnik, to: e_zacatek }
   - { from: s_nahradnik, to: e_zruseni_nahradnika }
+  - { from: s_nahradnik, to: e_zruseni_terminu_nahradnik }
+  - { from: e_zruseni_terminu_nahradnik, to: s_zrusena }
   - { from: uvolni_se_misto, to: rucne_potvrdit }
   - { from: e_zacatek, to: s_zrusena }
   - { from: e_zruseni_nahradnika, to: s_zrusena }
   - { from: rucne_potvrdit, to: s_potvrzena_dluh }
 
-  # čekání na jednu ze čtyř událostí: generátor doplní AND, XOR (sloučení) a XOR (rozdělení)
+  # čekání na jednu z pěti událostí: generátor doplní AND, XOR (sloučení) a XOR (rozdělení)
   - { from: s_potvrzena_dluh, to: e_platby }
   - { from: s_potvrzena_dluh, to: e_lhuta }
   - { from: s_potvrzena_dluh, to: e_zamitnuti }
   - { from: s_potvrzena_dluh, to: e_presun }
+  - { from: s_potvrzena_dluh, to: e_zruseni_terminu_dluh }
+  - { from: e_zruseni_terminu_dluh, to: s_zrusena }
   - { from: e_platby, to: zaucotovat }
   - { from: e_lhuta, to: vyzva }
   - { from: e_zamitnuti, to: s_zrusena }
   - { from: e_presun, to: s_nahradnik }
-  # po výzvě: čekání na jednu ze dvou událostí
+  # po výzvě: čekání na jednu ze tří událostí
   - { from: vyzva, to: e_platby_po_vyzve }
   - { from: vyzva, to: e_zamitnuti_po_vyzve }
+  - { from: vyzva, to: e_zruseni_terminu_po_vyzve }
+  - { from: e_zruseni_terminu_po_vyzve, to: s_zrusena }
   - { from: e_platby_po_vyzve, to: zaucotovat }
   - { from: e_zamitnuti_po_vyzve, to: s_zrusena }
   - { from: zaucotovat, to: s_potvrzena_zaplacena }
 
-  # po zaplacení: čekání na jednu ze tří událostí
+  # po zaplacení: čekání na jednu ze čtyř událostí
   - { from: s_potvrzena_zaplacena, to: e_zamitnuti_zaplacena }
   - { from: s_potvrzena_zaplacena, to: e_termin }
   - { from: s_potvrzena_zaplacena, to: e_odhlaska }
+  - { from: s_potvrzena_zaplacena, to: e_zruseni_terminu_zaplacena }
+  - { from: e_zruseni_terminu_zaplacena, to: s_zrusena }
   - { from: e_zamitnuti_zaplacena, to: s_zrusena }
   - { from: e_odhlaska, to: s_zrusena }
   - { from: e_termin, to: s_archivovana }
