@@ -5,7 +5,7 @@
 - Kontext metodiky MMABP (A4 metoda) pro asistenty, kteří s uživatelem refinují procesní modely.
 - Metodika je inspirace, ne validátor: ptej se, nabízej varianty.
 - Model se píše v YAML (sekce 7), Mermaid se z něj generuje (`generate.py`): procesní diagramy, diagram tříd i životní cykly.
-- Zdroje: A4 cheatsheet a slidy přednášek (procesní mapa, 3 – diagram tříd, 4 – životní cykly).
+- Zdroje: A4 cheatsheet a slidy přednášek (procesní mapa, 3 – diagram tříd, 4 – životní cykly, 5 – detailní procesy, 7 – konzistence).
 
 ## 2. Čtyři pohledy
 
@@ -127,6 +127,38 @@ Nový business (po detailních procesech):
 3. Vznik objektu a výchozí stav; chybí-li v procesu, doplň ho s úlohou, pokud k tomu není věcný důvod.
 4. Důsledky událostí a změn podmínek, iterativně, i koncové stavy; pořadí stavů v cyklu nesmí být v rozporu s pořadím ve všech detailních procesech.
 5. Doplň strukturu (viz výše) a revize při změně.
+
+### Postup tvorby detailního procesního diagramu (8 kroků)
+
+Detailní proces se tvoří na úrovni procesních kroků; na krok se dívej jako na sérii úloh, které jdou provést hned po sobě bez čekání na externí vstup. Použitá podmnožina BPMN: úloha, procesní krok, start, konec, časovač, brány XOR / OR / AND, tok, datový objekt (stav objektu) a poznámka. Nic jiného.
+
+Existující business (životní cykly už máme):
+
+1. Hranice procesu: spouštěcí událost a cílový stav z procesní mapy.
+2. Všechny možné konečné stavy procesu, každý pojmenovaný jako stav objektu („Třída: stav“).
+3. Interní stavy procesu: začni spouštěcí událostí a po cestách k těm konečným urči místa, kde vše proběhlo a proces čeká na vstup zvenčí. Vyjdi ze synchronizací v procesní mapě. Stav pojmenuj jako stav objektu, ve kterém čekáš na danou událost (zpravidla řídící objekt). Brány použij pro větvení a zacyklení a u rozhodovacích urči podmínky. Akce zatím nepiš.
+4. Události u stavů procesu zkompletuj: co když informace nedorazí (časová lhůta), co když je odpověď záporná, co když přijde zrušení. S alternativami doplň i alternativní toky.
+5. Činnosti vedoucí ke stavům procesu: návazné činnosti sluč do procesního kroku, jednotlivé činnosti jsou úlohy. Krok s jedinou úlohou zruš a nakresli rovnou úlohu s výstupním stavem objektu.
+6. U každého procesního kroku zadej začátek a konečné stavy kroku (stavy objektu, ve kterých se provádění kroku zastaví).
+7. Detail kroku: od začátku po konečné stavy urči cesty se všemi stavy objektů, brány s podmínkami.
+8. Ke každému stavu objektu v detailu kroku zakresli úlohu, která k němu vede.
+
+Nový business (detailní procesy před životními cykly): kroky 1 a 2 jako výše, pak procesní kroky mapuj postupně jeden za druhým, včetně úloh a jejich výstupních stavů, až po místo, kde se čeká na externí vstup (stav procesu) nebo se slučují toky, z nichž aspoň jeden pochází mimo krok. Čekání se zachytí vždy a jen mimo detail kroku. Potom pokračuj dalšími kroky stejně až ke konečným stavům a doplň alternativy z kroku 4.
+
+Při identifikaci nových tříd nebo stavů objektů je zanes do diagramu tříd a životních cyklů. Detailní proces se v YAML zapisuje jako procesní diagram (sekce 7): stav procesu jako `state`, čekání jako tok přes událost.
+
+### Provázanost modelů (konzistence)
+
+Pravidla konzistence odladí chyby a rozpory mezi diagramy (překlepy, posuny významu, opomenutí). Správnost: model odpovídá realitě a platí pro všechny myslitelné instance. Kompletnost: nic nechybí. Při změně jednoho modelu projdi tuto matici.
+
+| Změnil jsem     | Zkontroluj                                                                                                                                                                                                                                                                                                                                            |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Procesní mapu   | Spouštěcí události a cílový stav procesu jsou identické v detailním procesu. Událost spouštějící podpůrný proces odpovídá stavu v podporovaném procesu a událost, na kterou podporovaný proces čeká, cílovému stavu podpůrného. Každá událost je u aspoň jedné činnosti.                                                                              |
+| Detailní proces | Podmínky rozhodnutí po kroku odpovídají konečným stavům kroku. Každý stav procesu a každý výstupní stav úlohy je stavem objektu v životním cyklu. Každá úloha odpovídá aspoň jednomu přechodu. Události přechodu iniciují odpovídající úlohu. Alternativy v procesu jsou alternativami i v cyklu. Pořadí stavů v cyklu neodporuje pořadí v procesech. |
+| Životní cyklus  | Každý stav a přechod je v procesu (někdo ho musí nastavit). Operace v přechodu existuje ve třídě. Atributy a vazby v podmínkách přechodu jsou ve třídách. Stav jiného objektu jako důvod existuje v jeho cyklu. Cyklus pokrývá život od vzniku po zánik. Z nekoncového stavu vedou aspoň dva přechody.                                                |
+| Diagram tříd    | Objekty z událostí, stavů procesu, výstupních stavů úloh a podmínek jsou třídami. Atributy a vazby jsou promítnuty do přechodů, které je mění. Vazba 1:N má cyklus (iteraci) v životním cyklu. Více rolí třídy znamená více cyklů, fáze nadřazené třídy jsou specializace. Každá dvojice tříd je spojena aspoň jednou cestou.                         |
+
+Zbylé zásady úplnosti: pro každý výstupní produkt businessu existuje proces; každá třída odpovídá reálnému objektu a každá vazba reálné vazbě. Diagram tříd a životní cykly dalších tříd ve `SLOVNIK.md` jsou psané ručně, generátor ani `check_mermaid.sh` konzistenci mezi modely nekontrolují, takže se ověřuje čtením.
 
 ## 7. Formát YAML
 

@@ -10,6 +10,8 @@ Pro každé `X.yaml` vznikne `X.mmd` (čistý Mermaid) a `X.md` (stejný kód v 
 
 Schéma YAML (procesní diagram, diagram tříd, životní cyklus), pravidla doplňování bran a nastavení jsou na jednom místě: [`MMABP_LITE.md`, kapitola 7](MMABP_LITE.md). Co znamenají tvary v diagramu, je v [`LEGENDA.md`](LEGENDA.md).
 
+Syntaxi vygenerovaných `.mmd` ověří parser Mermaid 10.3.0: `./check_mermaid.sh zpracovani-prihlasky/*/*.mmd` (potřebuje Node a npm, závislosti si při prvním spuštění nainstaluje do `~/.cache`, repo se nemění). Generátor sám syntaxi nekontroluje.
+
 ## Poznámky
 
 - ID uzlů v YAML může být cokoli, generátor je převede na bezpečná ID.
