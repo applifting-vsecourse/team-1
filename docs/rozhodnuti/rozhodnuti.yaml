@@ -1,0 +1,1325 @@
+rozhodnuti:
+- id: D-001
+  nazev: Organizátorské účty ve sprintu 1 vznikají v seedu, ne registrací
+  text: Organizátorské účty ve sprintu 1 vznikají v seedu, ne registrací.
+  typ: produkt
+  oblast: účty
+  datum: null
+  rozhodl:
+  - tym
+  zdroj:
+  - popis: board (zadání)
+  us: []
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-002
+  nazev: Platby bez brány a bez banky — ruční zápis
+  text: Platby bez brány a bez banky — ruční zápis. Platí se celá částka, bez záloh.
+  typ: produkt
+  oblast: platby
+  datum: null
+  rozhodl:
+  - po
+  zdroj:
+  - popis: board (zadání)
+  us: []
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-003
+  nazev: Potvrzování je automatické
+  text: Potvrzování je automatické.
+  typ: produkt
+  oblast: přihlašování na akce
+  datum: null
+  rozhodl:
+  - tym
+  zdroj:
+  - popis: board (zadání)
+  us: []
+  stav: nahrazene
+  nahrazeno_v: D-040
+  poznamka: Nahrazeno rozhodnutím o ručním nebo automatickém vyhodnocování (23. 10.).
+  z_otazek: []
+  dokumentace: []
+- id: D-004
+  nazev: Akce = jeden celek s více termíny, každý termín se vyhodnocuje zvlášť
+  text: Akce = jeden celek s více termíny, každý termín se vyhodnocuje zvlášť.
+  typ: produkt
+  oblast: přihlašování na akce
+  datum: null
+  rozhodl:
+  - po
+  zdroj:
+  - popis: board (zadání)
+  us: []
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-005
+  nazev: Produkt se jmenuje Togena
+  text: '**Produkt se jmenuje Togena** (dříve pracovně kemp.io). Název platí v UI, e-mailech, dokumentaci
+    i technických identifikátorech (compose projekt, DB `togena`).'
+  typ: produkt
+  oblast: platforma
+  datum: '2026-10-16'
+  rozhodl:
+  - tech-lead
+  zdroj:
+  - popis: PROJEKT.md, sekce 9 (původní zápis)
+    soubor: docs/PROJEKT.md
+  us: []
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-006
+  nazev: Ve sprintu 1 se nikdo neregistruje
+  text: '**Ve sprintu 1 se nikdo neregistruje.** Landing má dva vstupy: „Pro organizátory – přihlásit
+    se“ a „Mám přihlášku – přihlásit se“. Účet účastníka vzniká odesláním přihlášky.'
+  typ: produkt
+  oblast: účty
+  datum: '2026-10-16'
+  rozhodl:
+  - tech-lead
+  zdroj:
+  - popis: PROJEKT.md, sekce 9 (původní zápis)
+    soubor: docs/PROJEKT.md
+  us: []
+  stav: platne
+  zmeneno_v:
+  - D-027
+  - D-072
+  z_otazek: []
+  dokumentace: []
+- id: D-007
+  nazev: Jeden typ na účet
+  text: '**Jeden typ na účet** (`ORGANIZER` / `PARTICIPANT` / `ADMIN`). Jeden e-mail nemůže být organizátor
+    i účastník.'
+  typ: produkt
+  oblast: účty
+  datum: '2026-10-16'
+  rozhodl:
+  - tech-lead
+  zdroj:
+  - popis: PROJEKT.md, sekce 9 (původní zápis)
+    soubor: docs/PROJEKT.md
+  us: []
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-008
+  nazev: Účastník dostává magic link místo jednorázového hesla
+  text: '**Účastník dostává magic link místo jednorázového hesla.** Odkaz platí 7 dní a jde použít jednou.
+    První vstup odkazem vynutí nastavení vlastního hesla (min. 8 znaků); dál se přihlašuje heslem. Na
+    S10 si může nechat poslat nový odkaz. Magic link funguje jen pro `PARTICIPANT`.'
+  typ: produkt
+  oblast: účty
+  datum: '2026-10-16'
+  rozhodl:
+  - tech-lead
+  zdroj:
+  - popis: PROJEKT.md, sekce 9 (původní zápis)
+    soubor: docs/PROJEKT.md
+  us: []
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-009
+  nazev: Nová přihláška se přiřadí k existujícímu účtu
+  text: Existuje-li účet účastníka k e-mailu, nová přihláška se k němu přiřadí a e-mail obsahuje odkaz
+    na přihlášení (bez vynuceného nastavení hesla, pokud ho už má).
+  typ: produkt
+  oblast: účty
+  datum: '2026-10-16'
+  rozhodl:
+  - tech-lead
+  zdroj:
+  - popis: PROJEKT.md, sekce 9 (původní zápis)
+    soubor: docs/PROJEKT.md
+  us: []
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-010
+  nazev: Odkaz na přihlášku = neuhodnutelný token /apply/<token>
+  text: Odkaz na přihlášku = neuhodnutelný token `/apply/<token>`.
+  typ: technicke
+  oblast: přihlašování na akce
+  datum: '2026-10-16'
+  rozhodl:
+  - tech-lead
+  zdroj:
+  - popis: PROJEKT.md, sekce 9 (původní zápis)
+    soubor: docs/PROJEKT.md
+  us: []
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-011
+  nazev: Stránka po odeslání má tajnou URL
+  text: Stránka po odeslání má tajnou URL `/apply/confirmation/<accessToken>`, takže přežije obnovení
+    a může být v e-mailu.
+  typ: technicke
+  oblast: přihlašování na akce
+  datum: '2026-10-16'
+  rozhodl:
+  - tech-lead
+  zdroj:
+  - popis: PROJEKT.md, sekce 9 (původní zápis)
+    soubor: docs/PROJEKT.md
+  us: []
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-012
+  nazev: Další přihláška se stejným e-mailem je povolená
+  text: Další přihláška se stejným e-mailem na stejnou akci je povolená (přiřadí se k účtu).
+  typ: produkt
+  oblast: přihlašování na akce
+  datum: '2026-10-16'
+  rozhodl:
+  - tech-lead
+  zdroj:
+  - popis: PROJEKT.md, sekce 9 (původní zápis)
+    soubor: docs/PROJEKT.md
+  us: []
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-013
+  nazev: 'E-mail organizátora v přihlášce: chyba u pole (původní)'
+  text: ~~E-mail organizátora v přihlášce → chyba u pole „Tento e-mail nelze použít pro přihlášku, zadej
+    jiný.“~~ Nahrazeno 2026-10-25.
+  typ: produkt
+  oblast: přihlašování na akce
+  datum: '2026-10-16'
+  rozhodl:
+  - tech-lead
+  zdroj:
+  - popis: PROJEKT.md, sekce 9 (původní zápis)
+    soubor: docs/PROJEKT.md
+  us: []
+  stav: nahrazene
+  nahrazeno_v: D-043
+  z_otazek: []
+  dokumentace: []
+- id: D-014
+  nazev: Pokles kapacity pod počet potvrzených je povolený
+  text: Pokles kapacity pod počet potvrzených je povolený; zobrazí se přebookování. Nikdo se automaticky
+    nepřesouvá — ani dolů, ani nahoru (US-28, US-31 později). Nové přihlášky jdou mezi náhradníky.
+  typ: produkt
+  oblast: ubytování
+  datum: '2026-10-16'
+  rozhodl:
+  - tech-lead
+  zdroj:
+  - popis: PROJEKT.md, sekce 9 (původní zápis)
+    soubor: docs/PROJEKT.md
+  us: []
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-015
+  nazev: Cena termínu se při vyhodnocení zmrazí do ApplicationTerm.priceCzk
+  text: Cena termínu se při vyhodnocení zmrazí do `ApplicationTerm.priceCzk`.
+  typ: produkt
+  oblast: platby
+  datum: '2026-10-16'
+  rozhodl:
+  - tech-lead
+  zdroj:
+  - popis: PROJEKT.md, sekce 9 (původní zápis)
+    soubor: docs/PROJEKT.md
+  us: []
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-016
+  nazev: Peníze jako celé Kč (Int)
+  text: Peníze jako celé Kč (`Int`). VS = globální sekvence `Application.number`. Platby jako řádky `Payment`.
+  typ: technicke
+  oblast: technický základ
+  datum: '2026-10-16'
+  rozhodl:
+  - tech-lead
+  zdroj:
+  - popis: PROJEKT.md, sekce 9 (původní zápis)
+    soubor: docs/PROJEKT.md
+  us: []
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-017
+  nazev: 'Staging: seed běží při každém startu a je idempotentní'
+  text: 'Staging: seed běží při každém startu backendu a je idempotentní (přeskočí se, když v DB je organizace).
+    Selhání seedu start nezastaví. Reset stagingu: v Admineru `TRUNCATE organization CASCADE` a ručně
+    spustit workflow Build & Deploy.'
+  typ: technicke
+  oblast: technický základ
+  datum: '2026-10-16'
+  rozhodl:
+  - tech-lead
+  zdroj:
+  - popis: PROJEKT.md, sekce 9 (původní zápis)
+    soubor: docs/PROJEKT.md
+  us: []
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-018
+  nazev: Celé schéma pro sprint 1 vzniká ve fázi 0
+  text: 'Celé schéma pro sprint 1 vzniká ve fázi 0. Kdo přesto potřebuje migraci: max. jedna na PR, před
+    mergem rebase na `main` a migraci vygenerovat znovu.'
+  typ: technicke
+  oblast: technický základ
+  datum: '2026-10-16'
+  rozhodl:
+  - tech-lead
+  zdroj:
+  - popis: PROJEKT.md, sekce 9 (původní zápis)
+    soubor: docs/PROJEKT.md
+  us: []
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-019
+  nazev: 'Testy: unit a integrační proti sestavenému serveru'
+  text: 'Testy: unit (`*.spec.ts`, bez DB) + integrační (`*.int-spec.ts`) proti sestavenému serveru a
+    Postgresu; v CI jako service container, lokálně v DB `togena_test`.'
+  typ: technicke
+  oblast: technický základ
+  datum: '2026-10-16'
+  rozhodl:
+  - tech-lead
+  zdroj:
+  - popis: PROJEKT.md, sekce 9 (původní zápis)
+    soubor: docs/PROJEKT.md
+  us: []
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-020
+  nazev: Organizace není v URL
+  text: Organizace není v URL; akce jsou seskupené podle pořadatele.
+  typ: produkt
+  oblast: účty
+  datum: '2026-10-16'
+  rozhodl:
+  - tech-lead
+  zdroj:
+  - popis: PROJEKT.md, sekce 9 (původní zápis)
+    soubor: docs/PROJEKT.md
+  us: []
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-021
+  nazev: Stack zůstává ze starteru
+  text: Stack zůstává ze starteru. FE podle atomic designu (globální `components/{atoms,molecules,organisms,templates}`
+    + `features/`), shadcn zůstává v `components/ui`.
+  typ: technicke
+  oblast: technický základ
+  datum: '2026-10-16'
+  rozhodl:
+  - tech-lead
+  zdroj:
+  - popis: PROJEKT.md, sekce 9 (původní zápis)
+    soubor: docs/PROJEKT.md
+  us: []
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-022
+  nazev: Tokeny z Figmy, pravidla z DESIGN.md
+  text: Tokeny z Figmy, pravidla z DESIGN.md.
+  typ: design
+  oblast: design
+  datum: '2026-10-16'
+  rozhodl:
+  - tech-lead
+  zdroj:
+  - popis: PROJEKT.md, sekce 9 (původní zápis)
+    soubor: docs/PROJEKT.md
+  us: []
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-023
+  nazev: Licence MIT
+  text: 'Licence MIT: zachovat copyright autorů starteru + přidat tým.'
+  typ: proces
+  oblast: tým a proces
+  datum: '2026-10-16'
+  rozhodl:
+  - tech-lead
+  zdroj:
+  - popis: PROJEKT.md, sekce 9 (původní zápis)
+    soubor: docs/PROJEKT.md
+  us: []
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-024
+  nazev: 'Jazyk: kód anglicky, dokumentace česky, UI lokalizované EN / CZ'
+  text: 'Jazyk: kód, DB, API, **URL**, commity a komentáře anglicky; dokumentace, issues a PR česky. Texty
+    v UI a e-mailech jsou **lokalizované EN / CZ** (viz sekce 8, Lokalizace).'
+  typ: technicke
+  oblast: technický základ
+  datum: '2026-10-16'
+  rozhodl:
+  - tech-lead
+  zdroj:
+  - popis: PROJEKT.md, sekce 9 (původní zápis)
+    soubor: docs/PROJEKT.md
+  us: []
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-025
+  nazev: Práce po vertikálních řezech
+  text: 'Práce po vertikálních řezech: kdo vezme story, dělá BE + FE + testy.'
+  typ: proces
+  oblast: tým a proces
+  datum: '2026-10-16'
+  rozhodl:
+  - tech-lead
+  zdroj:
+  - popis: PROJEKT.md, sekce 9 (původní zápis)
+    soubor: docs/PROJEKT.md
+  us: []
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-026
+  nazev: Tým a vedení storek
+  text: 'Vyvíjí celý tým. Proudy: A + landing Jakubkuba9000, B kudrle01, C PJjiry, D Aadikk. Story schvaluje
+    product manager Aadikk.'
+  typ: proces
+  oblast: tým a proces
+  datum: '2026-10-16'
+  rozhodl:
+  - tech-lead
+  zdroj:
+  - popis: PROJEKT.md, sekce 9 (původní zápis)
+    soubor: docs/PROJEKT.md
+  us: []
+  stav: platne
+  poznamka: Sekce 11 PROJEKT.md říká, že se práce nedělí do proudů. Platnost ověřit, viz Q-TEC-08.
+  z_otazek: []
+  dokumentace: []
+  zmeneno_v:
+  - D-071
+- id: D-027
+  nazev: Landing má jediný vstup „Pro organizátory“
+  text: Landing má podle Figmy (V08, M07) jediný vstup „Pro organizátory – přihlásit se“; ruší se tím
+    druhý vstup z rozhodnutí 16. 10. Účastník se na přihlášení (S10) dostane odkazem z přihlášení organizátora
+    (S01) nebo z e-mailu.
+  typ: produkt
+  oblast: účty
+  datum: '2026-10-19'
+  rozhodl:
+  - tym
+  zdroj:
+  - popis: PROJEKT.md, sekce 9 (původní zápis)
+    soubor: docs/PROJEKT.md
+  us: []
+  stav: nahrazene
+  meni:
+  - D-006
+  poznamka: Kolize se záznamem D-028, viz Q-UCT-10.
+  z_otazek: []
+  dokumentace: []
+  nahrazeno_v: D-072
+- id: D-028
+  nazev: Landing má dva vstupy a je jen pro nepřihlášené
+  text: 'Redesign (PR #112): landing má dva vstupy „Jsem organizátor“ a „Jsem účastník“. **Landing je
+    jen pro nepřihlášené** — přihlášeného uživatele `/` (i klik na logo) přesměruje na jeho domovskou
+    stránku (dashboard / moje přihlášky); na landing se dostane po odhlášení.'
+  typ: produkt
+  oblast: účty
+  datum: '2026-10-19'
+  rozhodl:
+  - tym
+  zdroj:
+  - popis: PROJEKT.md, sekce 9 (původní zápis)
+    soubor: docs/PROJEKT.md
+  us:
+  - label: '#112'
+    url: https://github.com/applifting-vsecourse/team-1/issues/112
+  stav: platne
+  poznamka: 'Potvrzeno rozhodnutím D-072: dva vstupy platí. Kolizi s D-027 řešilo D-072.'
+  z_otazek: []
+  dokumentace: []
+- id: D-029
+  nazev: Redesign v původním Figma souboru a barvách
+  text: 'Redesign se dělá v původním Figma souboru a v původních barvách (DS / Semantic), barvy „Future
+    Teal“ se nepoužívají. Rohy loga značí jen jednu aktivní věc (položka sidebaru, záložka, krok, karta
+    akce). Pravidla: `docs/FIGMA-REMAKE.md`.'
+  typ: design
+  oblast: design
+  datum: '2026-10-20'
+  rozhodl:
+  - tech-lead
+  zdroj:
+  - popis: PROJEKT.md, sekce 9 (původní zápis)
+    soubor: docs/PROJEKT.md
+  us: []
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-030
+  nazev: Vývoj poběží po jednotlivých featurách
+  text: '**Vývoj poběží po jednotlivých featurách.** Součástí implementace jsou rovnou odpovídající testy,
+    zejména u zásadních funkcí. Rozhodnuto na [statusu 20. 10.](zapisy/2026-10-20-status.md).'
+  typ: proces
+  oblast: tým a proces
+  datum: '2026-10-20'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: statusu 20. 10.
+    soubor: docs/zapisy/2026-10-20-status.md
+  us: []
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-031
+  nazev: Board rozlišuje design, vývoj, test a business review
+  text: '**Board rozlišuje design, vývoj, test a business review.** Business review je poslední krok před
+    schválením PO a stavem Done. Čistě technické tikety, ke kterým se business nemůže věcně vyjádřit,
+    lze po dokončení přesunout rovnou do Done. Rozhodnuto na [statusu 20. 10.](zapisy/2026-10-20-status.md).'
+  typ: proces
+  oblast: tým a proces
+  datum: '2026-10-20'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: statusu 20. 10.
+    soubor: docs/zapisy/2026-10-20-status.md
+  us: []
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-032
+  nazev: Byznysový slovník v repozitáři je závazný
+  text: '**Byznysový slovník v repozitáři je závazný** pro názvy v kódu, commitech a issues. Rozhodnuto
+    na [statusu 20. 10.](zapisy/2026-10-20-status.md).'
+  typ: proces
+  oblast: tým a proces
+  datum: '2026-10-20'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: statusu 20. 10.
+    soubor: docs/zapisy/2026-10-20-status.md
+  us: []
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-033
+  nazev: E-maily na stagingu přes Resend
+  text: 'E-maily: na stagingu jdou přes **Resend** (klíč z GitHub secretu `RESEND_API_KEY` jako build-arg
+    do image, odesílatel `onboarding@resend.dev`, doručuje jen na adresu Resend účtu `togena.team1@gmail.com`),
+    lokálně do konzole.'
+  typ: technicke
+  oblast: technický základ
+  datum: '2026-10-21'
+  rozhodl:
+  - tech-lead
+  zdroj:
+  - popis: PROJEKT.md, sekce 9 (původní zápis)
+    soubor: docs/PROJEKT.md
+  us: []
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-034
+  nazev: Souhrnný potvrzovací e-mail
+  text: '**Souhrnný potvrzovací e-mail.** Přihlašovatel dostane JEDEN e-mail za celé odeslání formuláře,
+    i když přihlásil víc účastníků (minimum e-mailů). V něm je u každého účastníka stav termínů a u každé
+    přihlášky s potvrzeným termínem její částka k úhradě, bankovní účet organizace a vlastní variabilní
+    symbol (platby se nesčítají). E-mail o změně přihlášky jde za jednu přihlášku. Selhání odeslání neshodí
+    volajícího, jen se zaloguje.'
+  typ: produkt
+  oblast: komunikace
+  datum: '2026-10-21'
+  rozhodl:
+  - po
+  zdroj:
+  - popis: PROJEKT.md, sekce 9 (původní zápis)
+    soubor: docs/PROJEKT.md
+  us: []
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-035
+  nazev: Jeden PR na featuru
+  text: '**Jeden PR na featuru:** story jde v jednom PR (BE + FE + testy), nedělí se na backend / frontend
+    ani na „část 1/2“. Větší PR je v pořádku, popis vysvětlí proč.'
+  typ: proces
+  oblast: tým a proces
+  datum: '2026-10-21'
+  rozhodl:
+  - tech-lead
+  zdroj:
+  - popis: PROJEKT.md, sekce 9 (původní zápis)
+    soubor: docs/PROJEKT.md
+  us: []
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-036
+  nazev: Účastník nevidí pořadí náhradníků
+  text: '**Účastník nevidí pořadí náhradníků.** API pro účastníka pořadí neposílá. Stavy, které účastník
+    vidí, vycházejí ze [stavového diagramu přihlášky v termínu](procesy/zpracovani-prihlasky/README.md)
+    (US-25; rámce V04 / V06 / M06).'
+  typ: produkt
+  oblast: přihlašování na akce
+  datum: '2026-10-21'
+  rozhodl:
+  - tym
+  zdroj:
+  - popis: stavového diagramu přihlášky v termínu
+    soubor: docs/procesy/zpracovani-prihlasky/README.md
+  us: []
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-037
+  nazev: Termín může být zdarma (cena 0)
+  text: Termín může být zdarma (cena 0). Cena termínu 0 se zobrazuje jako „Zdarma“, částky k úhradě jako
+    „0 Kč“.
+  typ: produkt
+  oblast: nastavení akce
+  datum: '2026-10-21'
+  rozhodl:
+  - tech-lead
+  zdroj:
+  - popis: PROJEKT.md, sekce 9 (původní zápis)
+    soubor: docs/PROJEKT.md
+  us: []
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-038
+  nazev: 'Organizátor: akce jako karty, sekce akce v sidebaru'
+  text: '**Organizátor: akce jako karty, sekce akce v sidebaru.** Seznam akcí má kartu na akci s řádkem
+    na termín (datum s rokem, název, obsazeno / lůžek); seznam termínů má řádky oddělené linkou místo
+    karet v kartě. Sekce otevřené akce (Přehled, Přihlášky, Ubytování, Termíny) jsou v sidebaru pod „Akce“,
+    ne záložky nad stránkou. Figma O02 / O02a / O24.'
+  typ: design
+  oblast: design
+  datum: '2026-10-21'
+  rozhodl:
+  - tech-lead
+  zdroj:
+  - popis: PROJEKT.md, sekce 9 (původní zápis)
+    soubor: docs/PROJEKT.md
+  us: []
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-039
+  nazev: 'US-14: oba režimy pokojů jsou v rozsahu'
+  text: '**US-14: oba režimy pokojů jsou v rozsahu** (potvrzeno zadavatelem při implementaci). Přechod
+    na společné pokoje zachová lůžka a odstraní pohlaví pokojů; návrat na dělené pokoje vyžaduje nejprve
+    odstranění společných pokojů. Detaily a odchylky od návrhů: [US-14.md](US-14.md).'
+  typ: produkt
+  oblast: ubytování
+  datum: '2026-10-22'
+  rozhodl:
+  - po
+  zdroj:
+  - popis: PROJEKT.md, sekce 9 (původní zápis)
+    soubor: docs/PROJEKT.md
+  us: []
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+  poznamka: Původní zápis odkazoval na soubor US-14.md, který v repu neexistuje.
+- id: D-040
+  nazev: 'Vyhodnocování přihlášek: ruční nebo automatické'
+  text: '**Vyhodnocování přihlášek:** organizátor si nastaví ruční, nebo automatické. V obou režimech
+    nastaví pokoje (počet, lůžka na pokoj, dámský / pánský). Náhradníkovi se přihláška v termínu zruší,
+    když nastane první den termínu akce. Procesní a stavové diagramy obou režimů jsou v [přehledu](procesy/zpracovani-prihlasky/README.md),
+    mají přednost před dřívějšími popisy stavů v tomto dokumentu; stav přihlášky se tu už nepopisuje.'
+  typ: produkt
+  oblast: přihlašování na akce
+  datum: '2026-10-23'
+  rozhodl:
+  - tym
+  zdroj:
+  - popis: přehledu
+    soubor: docs/procesy/zpracovani-prihlasky/README.md
+  us: []
+  stav: platne
+  nahrazuje:
+  - D-003
+  z_otazek: []
+  dokumentace: []
+- id: D-041
+  nazev: 'US-14: kapacita pokoje bez horního limitu'
+  text: '**US-14: kapacita pokoje** je kladné celé číslo od 1 bez produktového horního limitu. Původní
+    maximum 20 lůžek se ruší v obou režimech pokojů (změna zadání).'
+  typ: produkt
+  oblast: ubytování
+  datum: '2026-10-23'
+  rozhodl:
+  - po
+  zdroj:
+  - popis: PROJEKT.md, sekce 9 (původní zápis)
+    soubor: docs/PROJEKT.md
+  us: []
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-042
+  nazev: Dashboard organizátora se ruší
+  text: '**Dashboard organizátora se ruší.** Po přihlášení organizátor přistane na seznamu akcí (`/organizer`
+    přesměruje na `/organizer/events`), sidebar má jen „Akce“ a „Organizace“. Panel „Co vyžaduje pozornost“
+    přijde nad seznam akcí, až budou data z US-29 / US-52. Účet (avatar, jméno, e-mail) je dole v sidebaru
+    a v mobilním draweru, menu se otevírá nahoru (Nastavení účtu, Odhlásit se). Horní lišta má roli, jazyk
+    a vzhled; na mobilu menu, logo, jazyk a vzhled. Sekce akce jsou na mobilu rozbalovací menu s aktuální
+    sekcí („Přehled · 1 z 5“) místo posuvných záložek. Návrh N1–N9, Figma stránka „HF / 07 Návrh 25. 10.“.
+    **Zrušení dashboardu bylo změněno rozhodnutím 2026-10-28** (dashboard se vrací).'
+  typ: produkt
+  oblast: přehledy
+  datum: '2026-10-25'
+  rozhodl:
+  - tech-lead
+  zdroj:
+  - popis: PROJEKT.md, sekce 9 (původní zápis)
+    soubor: docs/PROJEKT.md
+  us: []
+  stav: platne
+  zmeneno_v:
+  - D-050
+  z_otazek: []
+  dokumentace: []
+- id: D-043
+  nazev: 'E-mail organizátora v přihlášce: obecná chyba VALIDATION_FAILED'
+  text: E-mail organizátora nebo admina v přihlášce → obecná chyba `VALIDATION_FAILED` („Některá pole
+    nejsou vyplněná správně.“), ne vlastní kód. Veřejný formulář tak neprozradí, že e-mail patří organizátorovi
+    (audit 2026-10-25). Přihláška má nejvýš 10 účastníků, jméno i příjmení nejvýš 100 znaků.
+  typ: produkt
+  oblast: přihlašování na akce
+  datum: '2026-10-25'
+  rozhodl:
+  - tech-lead
+  zdroj:
+  - popis: PROJEKT.md, sekce 9 (původní zápis)
+    soubor: docs/PROJEKT.md
+  us: []
+  stav: platne
+  nahrazuje:
+  - D-013
+  z_otazek: []
+  dokumentace: []
+- id: D-044
+  nazev: Nálezy z testování (#153)
+  text: '**Nálezy z testování (#153).** Smazat jde jen akci bez přihlášek (`DELETE /api/organizer/events/:eventId`,
+    jinak 409 `EVENT_HAS_APPLICATIONS`); smaže i termíny a pokoje. Archivace akce s přihláškami je mimo
+    rozsah. Filtr úhrady v seznamu přihlášek má stavy Nezaplaceno / Částečně zaplaceno / Zaplaceno / Přeplatek
+    (`?payment=`). U přihlášky bez částky k úhradě (jen náhradník) se platba nezapisuje; u zaplacené je
+    „Zapsat platbu“ jen vedlejší akce. Po odeslání za více účastníků je nahoře součet k úhradě, platby
+    zůstávají po účastnících (vlastní VS).'
+  typ: produkt
+  oblast: nastavení akce
+  datum: '2026-10-26'
+  rozhodl:
+  - tech-lead
+  zdroj:
+  - popis: PROJEKT.md, sekce 9 (původní zápis)
+    soubor: docs/PROJEKT.md
+  us:
+  - label: '#153'
+    url: https://github.com/applifting-vsecourse/team-1/issues/153
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-045
+  nazev: Duplicitní přihláška (#160, US-23)
+  text: '**Duplicitní přihláška (#160, US-23).** Odeslání odmítne (409 `APPLICATION_DUPLICATE`, nic se
+    neuloží), když stejný účastník už je přihlášený na některý z vybraných termínů téže akce, i v téže
+    přihlášce nebo s jiným e-mailem. Účastník je stejný při shodném jménu a příjmení bez ohledu na velikost
+    písmen, diakritiku a nadbytečné mezery („Jan Novák“ = „jan NOVAK“) a při shodném datu narození. Jiný
+    termín stejné akce duplicita není. Kontrola běží v transakci pod zámkem akce, takže drží i při souběhu.
+    Aby odmítnuté odeslání nezanechalo ani účet přihlašovatele, zpracovávají se odeslání jedné akce po
+    jednom v procesu backendu (`KeyedMutex` v `ApplicationsService.submit`); **omezení:** to platí jen
+    pro jednu instanci backendu (staging i produkce zatím běží v jedné). Při více instancích by bylo potřeba
+    zámek v databázi, jinak může při souběhu zůstat účet bez přihlášky. Chyba nese `params` (`participant`,
+    `term`) pro přeloženou hlášku.'
+  typ: produkt
+  oblast: přihlašování na akce
+  datum: '2026-10-26'
+  rozhodl:
+  - tym
+  zdroj:
+  - popis: PROJEKT.md, sekce 9 (původní zápis)
+    soubor: docs/PROJEKT.md
+  us:
+  - label: '#160'
+    url: https://github.com/applifting-vsecourse/team-1/issues/160
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-046
+  nazev: Oprava číslování sprintů
+  text: '**Oprava číslování sprintů.** Sprinty se dosud číslovaly chybně: poslední dokončený sprint, vedený
+    jako „sprint 1“, byl ve skutečnosti **sprint 2**. Další sprint se čísluje správně jako **sprint 3**;
+    číslo 2 se nepoužije, protože odpovídá už dokončenému sprintu. Existující označení (label `sprint
+    1`, odkazy na „sprint 1“) se zpětně nemění. Rozhodnuto na [statusu 27. 10.](zapisy/2026-10-27-status.md).'
+  typ: proces
+  oblast: tým a proces
+  datum: '2026-10-27'
+  rozhodl:
+  - tym
+  zdroj:
+  - popis: statusu 27. 10.
+    soubor: docs/zapisy/2026-10-27-status.md
+  us: []
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-047
+  nazev: Sprint se vede jako pole Sprint v GitHub Projects
+  text: '**Sprint se vede jako pole Sprint v GitHub Projects**, ne štítkem ani milestonem. Rozhodnuto
+    na [statusu 27. 10.](zapisy/2026-10-27-status.md).'
+  typ: proces
+  oblast: tým a proces
+  datum: '2026-10-27'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: statusu 27. 10.
+    soubor: docs/zapisy/2026-10-27-status.md
+  us: []
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-048
+  nazev: MVP / nice to have se vede milestonem
+  text: '**MVP / nice to have se vede milestonem**, pole Priority se odstraní. Rozhodnuto na [statusu
+    27. 10.](zapisy/2026-10-27-status.md).'
+  typ: proces
+  oblast: tým a proces
+  datum: '2026-10-27'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: statusu 27. 10.
+    soubor: docs/zapisy/2026-10-27-status.md
+  us: []
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-049
+  nazev: Zdroj designové pravdy je Design systém ve Figmě
+  text: '**Zdroj designové pravdy je Design systém ve Figmě** (sekce Organizátor). Figma je hlavní zdroj,
+    možné jsou odůvodněné implementační odchylky a každá změna designu se promítne zpět do Figmy ([status
+    20. 10.](zapisy/2026-10-20-status.md)). Rozhodnuto na [statusu 27. 10.](zapisy/2026-10-27-status.md).'
+  typ: design
+  oblast: design
+  datum: '2026-10-27'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: status 20. 10.
+    soubor: docs/zapisy/2026-10-20-status.md
+  - popis: statusu 27. 10.
+    soubor: docs/zapisy/2026-10-27-status.md
+  us: []
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-050
+  nazev: Dashboard organizátora se vrací
+  text: '**Dashboard organizátora se vrací** a mění tím rozhodnutí z 2026-10-25 („Dashboard organizátora
+    se ruší“); dashboard požaduje PO. Dashboard je zaměřený na **actionability**: ukazuje, co organizátor
+    má řešit teď (například přihlášky čekající na vyhodnocení, nezaplacené přihlášky), a vede ho přímo
+    k akci. Panel „Co vyžaduje pozornost“ z rozhodnutí 2026-10-25 se tím stává jádrem dashboardu, ne pruhem
+    nad seznamem akcí. Zbytek rozhodnutí 2026-10-25 (účet dole v sidebaru, horní lišta, sekce akce jako
+    rozbalovací menu na mobilu) platí dál. Obsah, route a umístění v navigaci doplní návrh a story; do
+    té doby platí `/organizer` → `/organizer/events`.'
+  typ: produkt
+  oblast: přehledy
+  datum: '2026-10-28'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: PROJEKT.md, sekce 9 (původní zápis)
+    soubor: docs/PROJEKT.md
+  us: []
+  stav: platne
+  meni:
+  - D-042
+  z_otazek: []
+  dokumentace: []
+- id: D-051
+  nazev: Platba se váže ke konkrétnímu termínu
+  text: '**Platba se váže ke konkrétnímu termínu.** Systém průběžně ukazuje zbývající dluh podle potvrzených
+    termínů a evidovaných plateb. Vratky ani storno poplatky se nevytvářejí automaticky při odhlášení;
+    vratka se eviduje zápornou platbou. Rozhodnuto na [statusu s PO 28. 10.](zapisy/2026-10-28-status-s-po.md).'
+  typ: produkt
+  oblast: platby
+  datum: '2026-10-28'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: statusu s PO 28. 10.
+    soubor: docs/zapisy/2026-10-28-status-s-po.md
+  us: []
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-052
+  nazev: Ubytování, pokoje, jejich kapacity a dostupnost se řeší po jednotlivých termínech
+  text: '**Ubytování, pokoje, jejich kapacity a dostupnost se řeší po jednotlivých termínech**, ne za
+    celou akci. Mění tím dosavadní pravidlo, že pokoj platí pro všechny termíny akce (sekce 5, US-14).
+    Rozhodnuto na [statusu s PO 28. 10.](zapisy/2026-10-28-status-s-po.md).'
+  typ: produkt
+  oblast: nastavení akce
+  datum: '2026-10-28'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: statusu s PO 28. 10.
+    soubor: docs/zapisy/2026-10-28-status-s-po.md
+  us: []
+  stav: platne
+  poznamka: Mění pravidlo ze sekce 5 PROJEKT.md, že pokoj platí pro všechny termíny akce (US-14).
+  z_otazek: []
+  dokumentace: []
+- id: D-053
+  nazev: Název termínu je volitelný
+  text: '**Název termínu je volitelný**, termín se primárně definuje datem. Rozhodnuto na [statusu s PO
+    28. 10.](zapisy/2026-10-28-status-s-po.md).'
+  typ: produkt
+  oblast: nastavení akce
+  datum: '2026-10-28'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: statusu s PO 28. 10.
+    soubor: docs/zapisy/2026-10-28-status-s-po.md
+  us: []
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-054
+  nazev: 'US-26: čtecí přehled kapacit jen pro akce s dělením podle pohlaví'
+  text: 'Upřesnění zadavatele 2026-10-23 pro US-26: navazuje na US-14, zachovává volitelné pohlaví v datovém
+    modelu a ruší původní maximum 20 lůžek. Výpočet a správa kapacit v US-26 jsou jen pro akce s dělením
+    podle pohlaví; společná kapacita se implementuje později. Při otevření akce v režimu SHARED se v přehledu
+    US-26 zobrazí informace o nepodporovaném režimu. US-26 je pouze čtecí přehled; veškeré úpravy pokojů
+    patří do US-14.'
+  typ: produkt
+  oblast: ubytování
+  datum: '2026-10-23'
+  rozhodl:
+  - po
+  zdroj:
+  - popis: PROJEKT.md, sekce 10 (původní zápis)
+    soubor: docs/PROJEKT.md
+  us: []
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-055
+  nazev: Jazyk magic link e-mailu je jazyk UI při žádosti
+  text: 'Jazyk magic link e-mailu je jazyk UI v okamžiku žádosti (varianta a z #183); chybí-li, použije
+    se en.'
+  typ: produkt
+  oblast: komunikace
+  datum: '2026-10-30'
+  rozhodl:
+  - tech-lead
+  zdroj:
+  - popis: PR, komentář PM
+    url: https://github.com/applifting-vsecourse/team-1/pull/231
+  us:
+  - label: '#183'
+    url: https://github.com/applifting-vsecourse/team-1/issues/183
+  stav: platne
+  z_otazek:
+  - Q-KOM-07
+  dokumentace:
+  - soubor: docs/PROJEKT.md
+    popis: které jazyky platí pro který e-mail
+    stav: hotovo
+    commit: 6cdb931
+  - soubor: docs/procesy/zpracovani-prihlasky/EMAILY.md
+    popis: totéž
+    stav: hotovo
+    commit: 6cdb931
+- id: D-056
+  nazev: Potvrzená → Náhradník ručně organizátorem
+  text: Ano, systém to má umožnit.
+  typ: produkt
+  oblast: přihlašování na akce
+  datum: '2026-10-31'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: PR, komentář PM
+    url: https://github.com/applifting-vsecourse/team-1/pull/232#issuecomment-6535280632
+  us:
+  - label: US-28
+    url: https://github.com/applifting-vsecourse/team-1/issues/28
+  stav: platne
+  z_otazek:
+  - Q-PRI-14
+  dokumentace:
+  - soubor: docs/procesy/zpracovani-prihlasky/rucni-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml
+    popis: přechod Potvrzená s dluhem → Náhradník
+    stav: ceka
+  - soubor: docs/procesy/zpracovani-prihlasky/automaticke-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml
+    popis: zkontrolovat, zda přechod platí i v auto režimu
+    stav: ceka
+  - soubor: docs/procesy/zpracovani-prihlasky/EMAILY.md
+    popis: řádek e-mailu č. 3 platí i pro tento přechod; č. 1 v auto režimu má stejný rozpor
+    stav: ceka
+  poznamka: 'Tech lead: přechod je povolený v backendu i UI („Move to waitlist“), zapracováno v b68f73e
+    a propsané do navazujících PR. Diagram a EMAILY.md zůstávají na PM.'
+- id: D-057
+  nazev: Organizátor smí zrušit náhradníka kdykoli
+  text: Je v pořádku, organizátor může zrušit náhradníka kdykoli.
+  typ: produkt
+  oblast: přihlašování na akce
+  datum: '2026-10-31'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: PR, komentář PM
+    url: https://github.com/applifting-vsecourse/team-1/pull/232#issuecomment-6535280632
+  us:
+  - label: US-28
+    url: https://github.com/applifting-vsecourse/team-1/issues/28
+  stav: platne
+  z_otazek:
+  - Q-PRI-15
+  dokumentace:
+  - soubor: docs/procesy/zpracovani-prihlasky/rucni-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml
+    popis: Náhradník → Zrušená i organizátorem
+    stav: ceka
+  - soubor: docs/procesy/zpracovani-prihlasky/automaticke-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml
+    popis: zkontrolovat v auto režimu
+    stav: ceka
+  - soubor: docs/procesy/zpracovani-prihlasky/EMAILY.md
+    popis: řádek 6 platí jen pro první den, doplnit řádek pro zrušení organizátorem
+    stav: ceka
+- id: D-058
+  nazev: Přechody z K vyhodnocení doplní US-102
+  text: Souhlas, přechody doplní US-102 (#195).
+  typ: produkt
+  oblast: přihlašování na akce
+  datum: '2026-10-31'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: PR, komentář PM
+    url: https://github.com/applifting-vsecourse/team-1/pull/232#issuecomment-6535280632
+  us:
+  - label: US-28
+    url: https://github.com/applifting-vsecourse/team-1/issues/28
+  stav: platne
+  z_otazek:
+  - Q-PRI-16
+  dokumentace: []
+- id: D-059
+  nazev: US-28 stačí vědomé potvrzení nad kapacitu, přistýlka přijde s US-80
+  text: Souhlas, stačí vědomé potvrzení; přistýlka přijde s US-80.
+  typ: produkt
+  oblast: přihlašování na akce
+  datum: '2026-10-31'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: PR, komentář PM
+    url: https://github.com/applifting-vsecourse/team-1/pull/232#issuecomment-6535280632
+  us:
+  - label: US-28
+    url: https://github.com/applifting-vsecourse/team-1/issues/28
+  stav: platne
+  z_otazek:
+  - Q-PRI-17
+  dokumentace: []
+- id: D-060
+  nazev: 'Blok „Stav v termínech“: merge neblokuje, UI/UX dolaďovat zpětně'
+  text: Merge neblokuje; mergnout a UI/UX dolaďovat zpětně ticketem enhancement.
+  typ: proces
+  oblast: tým a proces
+  datum: '2026-10-31'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: PR, komentář PM
+    url: https://github.com/applifting-vsecourse/team-1/pull/232#issuecomment-6535280632
+  us:
+  - label: US-28
+    url: https://github.com/applifting-vsecourse/team-1/issues/28
+  stav: platne
+  z_otazek:
+  - Q-PRI-18
+  dokumentace: []
+- id: D-061
+  nazev: Telefon se sbírá novým ticketem, ne v US-30
+  text: Neřešit v tomto PR; mergnout, telefon sbírat novým ticketem (někdy by tam určitě měl být).
+  typ: produkt
+  oblast: přihlašování na akce
+  datum: '2026-10-31'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: PR, komentář PM
+    url: https://github.com/applifting-vsecourse/team-1/pull/234
+  us:
+  - label: US-30
+    url: https://github.com/applifting-vsecourse/team-1/issues/30
+  stav: platne
+  z_otazek:
+  - Q-PRI-19
+  dokumentace: []
+- id: D-062
+  nazev: Režim pokojů se může lišit po termínech
+  text: 'Systém má umožnit odlišný režim pokojů v odlišných termínech. „Implementováno“ v #80 znamená,
+    že to řeší odkazovaný ticket, ne že je hotovo; pravdu říká stav #192 (US-99).'
+  typ: produkt
+  oblast: nastavení akce
+  datum: '2026-10-31'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: PR, komentář PM
+    url: https://github.com/applifting-vsecourse/team-1/pull/234
+  us:
+  - label: US-30
+    url: https://github.com/applifting-vsecourse/team-1/issues/30
+  stav: platne
+  z_otazek:
+  - Q-NAS-08
+  dokumentace:
+  - soubor: docs/PROJEKT.md
+    popis: 'řádek 71 říká „Režim pokojů zůstává na úrovni akce“ a datový model má Event.roomMode: rozpor
+      s rozhodnutím'
+    stav: ceka
+- id: D-063
+  nazev: Společná fronta náhradníků, když pokoj nemá pohlaví
+  text: Ano; pokud pokoj nemá dané pohlaví, je fronta přihlášek jedna pro obě pohlaví.
+  typ: produkt
+  oblast: nastavení akce
+  datum: '2026-10-31'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: PR, komentář PM
+    url: https://github.com/applifting-vsecourse/team-1/pull/234
+  us:
+  - label: US-30
+    url: https://github.com/applifting-vsecourse/team-1/issues/30
+  stav: platne
+  z_otazek:
+  - Q-NAS-09
+  dokumentace:
+  - soubor: docs/procesy/zpracovani-prihlasky/
+    popis: pravidlo pořadníku (skupina lůžek), místo určí model-update
+    stav: ceka
+- id: D-064
+  nazev: Náhradník se ruší od půlnoci českého času prvního dne termínu
+  text: Zatím půlnoc českého času; platforma zatím není mezinárodní. Detaily procesu zjistí PM od PO,
+    případně vznikne ticket enhancement.
+  typ: produkt
+  oblast: přihlašování na akce
+  datum: '2026-10-31'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: PR, komentář PM
+    url: https://github.com/applifting-vsecourse/team-1/pull/236
+  us:
+  - label: US-106 (#199)
+    url: https://github.com/applifting-vsecourse/team-1/issues/199
+  stav: platne
+  z_otazek:
+  - Q-PRI-20
+  dokumentace:
+  - soubor: docs/procesy/zpracovani-prihlasky/rucni-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml
+    popis: 'Náhradník → Zrušená: půlnoc Europe/Prague prvního dne termínu'
+    stav: ceka
+  - soubor: docs/procesy/zpracovani-prihlasky/automaticke-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml
+    popis: totéž
+    stav: ceka
+- id: D-065
+  nazev: Zrušení termínu zruší všechny přihlášky ve všech stavech
+  text: Při zrušení termínu se ruší všichni účastníci ve všech stavech. UX má organizátora dostatečně
+    upozornit na kritickou a nevratnou akci.
+  typ: produkt
+  oblast: přihlašování na akce
+  datum: '2026-10-31'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: PR, komentář PM
+    url: https://github.com/applifting-vsecourse/team-1/pull/236
+  us:
+  - label: US-106 (#199)
+    url: https://github.com/applifting-vsecourse/team-1/issues/199
+  stav: platne
+  z_otazek:
+  - Q-PRI-21
+  dokumentace:
+  - soubor: docs/procesy/zpracovani-prihlasky/
+    popis: chybí proces zrušení termínu akce (US-13)
+    stav: ceka
+  - soubor: docs/procesy/zpracovani-prihlasky/EMAILY.md
+    popis: chybí e-mail při zrušení termínu
+    stav: ceka
+- id: D-066
+  nazev: Sdružení e-mailů za více termínů až v US-116
+  text: Stačí vyřešit později (US-116).
+  typ: produkt
+  oblast: komunikace
+  datum: '2026-10-31'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: PR, komentář PM
+    url: https://github.com/applifting-vsecourse/team-1/pull/236
+  us:
+  - label: US-106 (#199)
+    url: https://github.com/applifting-vsecourse/team-1/issues/199
+  stav: platne
+  z_otazek:
+  - Q-KOM-11
+  dokumentace: []
+- id: D-067
+  nazev: „Otevření přihlášek“ = akce splní všechny požadavky a vznikne link
+  text: Aktuálně moment, kdy akce splní všechny požadavky (termín, ubytování atd.); pak se vygeneruje
+    link a přihlašování se spustí. V budoucnu ruční nebo plánované spuštění a ruční pozastavení přihlášek
+    (např. při výpadku ubytování).
+  typ: produkt
+  oblast: nastavení akce
+  datum: '2026-10-31'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: PR, komentář PM
+    url: https://github.com/applifting-vsecourse/team-1/pull/238
+  us:
+  - label: US-101 (#194)
+    url: https://github.com/applifting-vsecourse/team-1/issues/194
+  stav: platne
+  z_otazek:
+  - Q-NAS-11
+  dokumentace:
+  - soubor: docs/PROJEKT.md
+    popis: 'sekce 5: definice „otevření přihlášek“ a výhled (plánované spuštění, pozastavení)'
+    stav: ceka
+- id: D-068
+  nazev: Zamčení režimu vyhodnocování bez přihlášky je v pořádku
+  text: As-is stav je v pořádku; v budoucnu by měla jít změna do první přihlášky nebo nějaká kombinace.
+  typ: produkt
+  oblast: nastavení akce
+  datum: '2026-10-31'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: PR, komentář PM
+    url: https://github.com/applifting-vsecourse/team-1/pull/238
+  us:
+  - label: US-101 (#194)
+    url: https://github.com/applifting-vsecourse/team-1/issues/194
+  stav: platne
+  z_otazek:
+  - Q-NAS-12
+  dokumentace: []
+- id: D-069
+  nazev: Uživatel si nastaví preferovaný jazyk (aplikace i e-maily)
+  text: 'Uživatel by měl mít možnost nastavit si preferovaný jazyk. V něm se bude defaultně spouštět aplikace
+    a odesílat e-maily. Pro PR #231 se nic nemění, vše zůstává jak je; PM založí ticket enhancement.'
+  typ: produkt
+  oblast: komunikace
+  datum: '2026-10-31'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: 'PR #231, komentář PM'
+    url: https://github.com/applifting-vsecourse/team-1/pull/231#issuecomment-6545470005
+  us:
+  - label: '#183'
+    url: https://github.com/applifting-vsecourse/team-1/issues/183
+  stav: platne
+  z_otazek:
+  - Q-KOM-08
+  dokumentace:
+  - soubor: docs/PROJEKT.md
+    popis: 'pravidlo jazyka aplikace a e-mailů: preferovaný jazyk uživatele (zapsat při zadání ticketu)'
+    stav: ceka
+- id: D-070
+  nazev: Detail přihlášky náhradníka říká „Zatím nic neplaťte“
+  text: 'U náhradníka na detailu přihlášky se místo „0 Kč do potvrzení“ zobrazuje „Zatím nic neplaťte“
+    (je to UX přívětivější). Zapracováno v PR #227 (ce349ed).'
+  typ: produkt
+  oblast: přihlašování na akce
+  datum: '2026-10-31'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: 'PR #227, komentář PM'
+    url: https://github.com/applifting-vsecourse/team-1/pull/227#issuecomment-6545434093
+  us:
+  - label: '#225'
+    url: https://github.com/applifting-vsecourse/team-1/issues/225
+  stav: platne
+  z_otazek:
+  - Q-PRI-13
+  dokumentace: []
+  poznamka: Ověřit, zda stejný text mají rámce ve Figmě (V04, V06).
+- id: D-071
+  nazev: Práce se nedělí do proudů
+  text: 'Práce se nedělí do proudů A–D, rozhodnutí z 16. 10. o proudech neplatí. Platí sekce 11 PROJEKT.md:
+    tým se domlouvá ad hoc a sdílené soubory se mění jen v rozsahu své story. Zbytek rozhodnutí „Tým a
+    vedení storek“ (vyvíjí celý tým, story schvaluje product manager) platí dál.'
+  typ: proces
+  oblast: tým a proces
+  datum: '2026-10-31'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: 'PR #242, odpověď PM na Q-TEC-08'
+    url: https://github.com/applifting-vsecourse/team-1/pull/242
+  us: []
+  stav: platne
+  meni:
+  - D-026
+  z_otazek:
+  - Q-TEC-08
+  dokumentace:
+  - soubor: docs/PROJEKT.md
+    popis: řádek 105 odkazuje na „proud C“; odstranit zmínku o proudu
+    stav: hotovo
+    commit: 065fbdc
+- id: D-072
+  nazev: Landing má dva vstupy „Jsem organizátor“ a „Jsem účastník“
+  text: 'Landing pro nepřihlášené má dva vstupy: „Jsem organizátor“ a „Jsem účastník“ (jak je v aplikaci).
+    Rozhodnutí z 19. 10. o jediném vstupu „Pro organizátory – přihlásit se“ (podle Figmy V08, M07) neplatí;
+    Figma se s kódem sladí.'
+  typ: produkt
+  oblast: účty
+  datum: '2026-10-31'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: 'PR #242, odpověď PM na Q-UCT-10'
+    url: https://github.com/applifting-vsecourse/team-1/pull/242
+  us: []
+  stav: platne
+  nahrazuje:
+  - D-027
+  meni:
+  - D-006
+  z_otazek:
+  - Q-UCT-10
+  dokumentace: []
+  poznamka: Rámce V08 a M07 ve Figmě kreslí jediný vstup; sladit s designem (návazný úkol u Q-UCT-10).

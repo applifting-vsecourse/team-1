@@ -33,7 +33,7 @@ Feature **F-xx Název** (epic …). Proč to řešíme.
 
 ## Dokumenty
 
-- Co musí agent přečíst, například `docs/procesy/zpracovani-prihlasky/rucni-vyhodnocovani/`, `docs/SLOVNIK.md` (pojem) nebo `docs/PROJEKT.md` (sekce). Nic navíc.
+- Co musí agent přečíst, například `docs/procesy/zpracovani-prihlasky/rucni-vyhodnocovani/`, `docs/SLOVNIK.md` (pojem), `docs/PROJEKT.md` (sekce) nebo `docs/rozhodnuti/` (rozhodnutí). Nic navíc.
 
 ## Závislosti
 
