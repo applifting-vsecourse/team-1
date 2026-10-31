@@ -17,12 +17,17 @@ nodes:
       dámský / pánský),
       role: organizátor,
     }
-  - { id: spustit_prihlasky, type: task, label: Spustit přihlášky, role: organizátor }
+  - {
+      id: akce_pripravena,
+      type: event,
+      label: "Akce splní všechny požadavky (každý termín má cenu a ubytování)",
+    }
+  - { id: vygenerovat_odkaz, type: task, label: Vygenerovat odkaz na přihlášku, role: systém }
   - { id: prihlaska_zaregistrovana, type: event, label: Nová přihláška v termínu zaregistrována }
   - {
       id: vyhodnotit,
       type: task,
-      label: Vyhodnotit přihlášku v termínu podle pohlaví a volných lůžek,
+      label: Vyhodnotit přihlášku v termínu podle skupiny lůžek a volných lůžek,
       role: systém,
     }
   - { id: g_vysledek, type: gateway, kind: x }
@@ -31,8 +36,10 @@ nodes:
   - { id: s_nahradnik, type: state, label: "Přihláška v termínu: náhradník" }
   - { id: s_potvrzena_dluh, type: state, label: "Přihláška v termínu: potvrzená s dluhem" }
 
-  - { id: uvolni_se_luzko, type: event, label: Uvolní se lůžko pro pohlaví účastníka }
-  - { id: e_zacatek, type: timed, label: Nastal první den termínu akce }
+  - { id: uvolni_se_luzko, type: event, label: Uvolní se lůžko ve skupině lůžek účastníka }
+  - { id: e_zacatek, type: timed, label: Nastala půlnoc (Europe/Prague) prvního dne termínu akce }
+  - { id: e_zruseni_nahradnika, type: event, label: Organizátor zruší náhradníka }
+  - { id: e_presun, type: event, label: Organizátor přesune přihlášku mezi náhradníky }
   - {
       id: potvrdit_nahradnika,
       type: task,
@@ -65,27 +72,32 @@ nodes:
 flows:
   - { from: akce_zalozena, to: nastavit_rezim }
   - { from: nastavit_rezim, to: nastavit_pokoje }
-  - { from: nastavit_pokoje, to: spustit_prihlasky }
-  - { from: spustit_prihlasky, to: prihlaska_zaregistrovana }
+  - { from: nastavit_pokoje, to: akce_pripravena }
+  - { from: akce_pripravena, to: vygenerovat_odkaz }
+  - { from: vygenerovat_odkaz, to: prihlaska_zaregistrovana }
   - { from: prihlaska_zaregistrovana, to: vyhodnotit }
   - { from: vyhodnotit, to: g_vysledek }
-  - { from: g_vysledek, to: s_potvrzena_dluh, label: volné lůžko pro pohlaví účastníka je }
-  - { from: g_vysledek, to: s_nahradnik, label: volné lůžko pro pohlaví účastníka není }
+  - { from: g_vysledek, to: s_potvrzena_dluh, label: volné lůžko ve skupině lůžek účastníka je }
+  - { from: g_vysledek, to: s_nahradnik, label: volné lůžko ve skupině lůžek účastníka není }
 
-  # náhradník čeká na jednu ze dvou událostí
+  # náhradník čeká na jednu ze tří událostí
   - { from: s_nahradnik, to: uvolni_se_luzko }
   - { from: s_nahradnik, to: e_zacatek }
+  - { from: s_nahradnik, to: e_zruseni_nahradnika }
   - { from: uvolni_se_luzko, to: potvrdit_nahradnika }
   - { from: e_zacatek, to: s_zrusena }
+  - { from: e_zruseni_nahradnika, to: s_zrusena }
   - { from: potvrdit_nahradnika, to: s_potvrzena_dluh }
 
-  # čekání na jednu ze tří událostí: generátor doplní AND, XOR (sloučení) a XOR (rozdělení)
+  # čekání na jednu ze čtyř událostí: generátor doplní AND, XOR (sloučení) a XOR (rozdělení)
   - { from: s_potvrzena_dluh, to: e_platby }
   - { from: s_potvrzena_dluh, to: e_lhuta }
   - { from: s_potvrzena_dluh, to: e_zamitnuti }
+  - { from: s_potvrzena_dluh, to: e_presun }
   - { from: e_platby, to: zaucotovat }
   - { from: e_lhuta, to: vyzva }
   - { from: e_zamitnuti, to: s_zrusena }
+  - { from: e_presun, to: s_nahradnik }
   # po výzvě: čekání na jednu ze dvou událostí
   - { from: vyzva, to: e_platby_po_vyzve }
   - { from: vyzva, to: e_zamitnuti_po_vyzve }

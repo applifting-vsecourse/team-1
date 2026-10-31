@@ -45,8 +45,20 @@ transitions:
       op: confirm(),
     }
 
-  - { from: nahradnik, to: zrusena, reason: Nastal první den termínu akce, op: cancel() }
+  - {
+      from: nahradnik,
+      to: zrusena,
+      reason: Nastala půlnoc (Europe/Prague) prvního dne termínu akce,
+      op: cancel(),
+    }
+  - { from: nahradnik, to: zrusena, reason: Organizátor zruší náhradníka, op: cancel() }
 
+  - {
+      from: potvrzena_dluh,
+      to: nahradnik,
+      reason: Organizátor přesune přihlášku mezi náhradníky,
+      op: putOnWaitlist(),
+    }
   - {
       from: potvrzena_dluh,
       to: potvrzena_dluh,
@@ -74,6 +86,12 @@ transitions:
     }
   - { from: potvrzena_zaplacena, to: zrusena, reason: Účastník se odhlásí, op: cancel() }
   - { from: potvrzena_zaplacena, to: archivovana, reason: Termín proběhne, op: archive() }
+
+  # zrušení termínu akce (proces zruseni-terminu.yaml, D-065): zruší přihlášky ve všech stavech kromě archivované
+  - { from: nahradnik, to: zrusena, reason: Organizátor zruší termín akce, op: cancel() }
+  - { from: potvrzena_dluh, to: zrusena, reason: Organizátor zruší termín akce, op: cancel() }
+  - { from: potvrzena_zaplacena, to: zrusena, reason: Organizátor zruší termín akce, op: cancel() }
+  - { from: k_vyhodnoceni, to: zrusena, reason: Organizátor zruší termín akce, op: cancel() }
 
   - { from: zrusena, to: end }
   - { from: archivovana, to: end }

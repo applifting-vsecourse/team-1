@@ -984,6 +984,7 @@ rozhodnuti:
     a propsané do navazujících PR. Diagram a EMAILY.md zůstávají na PM.'
   zmeneno_v:
   - D-074
+  - D-077
 - id: D-057
   nazev: Organizátor smí zrušit náhradníka kdykoli
   text: Je v pořádku, organizátor může zrušit náhradníka kdykoli.
@@ -1011,6 +1012,8 @@ rozhodnuti:
   - soubor: docs/procesy/zpracovani-prihlasky/EMAILY.md
     popis: řádek 6 platí jen pro první den, doplnit řádek pro zrušení organizátorem
     stav: ceka
+  zmeneno_v:
+  - D-077
 - id: D-058
   nazev: Přechody z K vyhodnocení doplní US-102
   text: Souhlas, přechody doplní US-102 (#195).
@@ -1398,3 +1401,54 @@ rozhodnuti:
   dokumentace: []
   poznamka: 'Potvrzuje stav zapracovaný v PR #226 (sloučeno). Q-PRI-11 (formát podle jazyka aplikace, nebo
     systému) zůstává otevřená.'
+- id: D-076
+  nazev: Při zrušení termínu se zaplacené platby vracejí, archivované přihlášky se nerulí
+  text: Při zrušení termínu akce se zaplacené platby vracejí účastníkům. Zrušení termínu se netýká archivovaných
+    přihlášek (termín už proběhl).
+  typ: produkt
+  oblast: přihlašování na akce
+  datum: '2026-10-31'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: 'odpověď PM v chatu při úpravě modelů k D-065'
+    url: https://github.com/applifting-vsecourse/team-1/pull/242
+  us:
+  - label: US-13
+    url: https://github.com/applifting-vsecourse/team-1/issues/13
+  stav: platne
+  z_otazek: []
+  dokumentace:
+  - soubor: docs/procesy/zpracovani-prihlasky/zruseni-terminu.yaml
+    popis: proces zrušení termínu včetně vrácení plateb
+    stav: ceka
+  - soubor: docs/procesy/zpracovani-prihlasky/EMAILY.md
+    popis: řádek 15, e-mail o zrušení termínu s informací o vrácení plateb
+    stav: ceka
+  poznamka: 'Kdo platby vrací a kdy (organizátor, lhůta), PM nerozhodl; v modelu je úloha organizátora. Zvážit
+    ticket a otázku na PO.'
+- id: D-077
+  nazev: Přesun mezi náhradníky jen u Potvrzené s dluhem, ruční zásahy platí v obou režimech
+  text: Přesun mezi náhradníky platí jen pro Potvrzenou s dluhem, ne pro Potvrzenou a zaplacenou. Přesun mezi
+    náhradníky i zrušení náhradníka organizátorem platí v ručním i v automatickém režimu. Zrušení náhradníka
+    organizátorem má vlastní e-mail (č. 14).
+  typ: produkt
+  oblast: přihlašování na akce
+  datum: '2026-10-31'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: 'odpověď PM v chatu při úpravě modelů k D-056 a D-057'
+    url: https://github.com/applifting-vsecourse/team-1/pull/242
+  us:
+  - label: US-28
+    url: https://github.com/applifting-vsecourse/team-1/issues/28
+  stav: platne
+  meni:
+  - D-056
+  - D-057
+  z_otazek: []
+  dokumentace:
+  - soubor: docs/procesy/zpracovani-prihlasky/
+    popis: obě prihlaska-v-terminu-zivotni-cyklus.yaml a zpracovani-prihlasky.yaml, EMAILY.md řádky 13 a 14
+    stav: ceka

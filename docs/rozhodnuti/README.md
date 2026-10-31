@@ -2,7 +2,7 @@
 
 > Generováno z [`rozhodnuti.yaml`](rozhodnuti.yaml) (`python generate.py`). Needituj, měň YAML.
 
-**72 platných**, 0 návrhů, 3 nahrazených nebo zrušených.
+**74 platných**, 0 návrhů, 3 nahrazených nebo zrušených.
 
 ## Návrhy čekající na PM
 
@@ -28,6 +28,9 @@ _Nic._
 | [D-069](#d-069) | Uživatel si nastaví preferovaný jazyk (aplikace i e-maily) | `docs/PROJEKT.md` | pravidlo jazyka aplikace a e-mailů: preferovaný jazyk uživatele (zapsat při zadání ticketu) |
 | [D-073](#d-073) | Přihláška přesunutá z Potvrzené mezi náhradníky se řadí podle data přijetí | `docs/procesy/zpracovani-prihlasky/` | pravidlo pořadí náhradníků (podle data přijetí i po přesunu z Potvrzené), místo určí model-update |
 | [D-074](#d-074) | Přechod Potvrzená → Náhradník má vlastní e-mail jako samostatný stav v EMAILY.md | `docs/procesy/zpracovani-prihlasky/EMAILY.md` | nový řádek č. 13 e-mailu pro Potvrzená → Náhradník (odvolané potvrzení); stávající čísla 1 až 12 se nemění; č. 3 jen K vyhodnocení → Náhradník; č. 1 auto ponechat „Jste náhradník“ |
+| [D-076](#d-076) | Při zrušení termínu se zaplacené platby vracejí, archivované přihlášky se nerulí | `docs/procesy/zpracovani-prihlasky/zruseni-terminu.yaml` | proces zrušení termínu včetně vrácení plateb |
+| [D-076](#d-076) | Při zrušení termínu se zaplacené platby vracejí, archivované přihlášky se nerulí | `docs/procesy/zpracovani-prihlasky/EMAILY.md` | řádek 15, e-mail o zrušení termínu s informací o vrácení plateb |
+| [D-077](#d-077) | Přesun mezi náhradníky jen u Potvrzené s dluhem, ruční zásahy platí v obou režimech | `docs/procesy/zpracovani-prihlasky/` | obě prihlaska-v-terminu-zivotni-cyklus.yaml a zpracovani-prihlasky.yaml, EMAILY.md řádky 13 a 14 |
 
 ## Změny dřívějších rozhodnutí
 
@@ -40,6 +43,7 @@ _Nic._
 | [D-071](#d-071) | Práce se nedělí do proudů | 2026-10-31 | mění [D-026](#d-026) |
 | [D-072](#d-072) | Landing má dva vstupy „Jsem organizátor“ a „Jsem účastník“ | 2026-10-31 | nahrazuje [D-027](#d-027)mění [D-006](#d-006) |
 | [D-074](#d-074) | Přechod Potvrzená → Náhradník má vlastní e-mail jako samostatný stav v EMAILY.md | 2026-10-31 | mění [D-056](#d-056) |
+| [D-077](#d-077) | Přesun mezi náhradníky jen u Potvrzené s dluhem, ruční zásahy platí v obou režimech | 2026-10-31 | mění [D-056](#d-056), mění [D-057](#d-057) |
 
 ## Platná rozhodnutí podle oblasti
 
@@ -100,6 +104,8 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-077](#d-077) | Přesun mezi náhradníky jen u Potvrzené s dluhem, ruční zásahy platí v obou režimech | 2026-10-31 | `pm` | produkt |
+| [D-076](#d-076) | Při zrušení termínu se zaplacené platby vracejí, archivované přihlášky se nerulí | 2026-10-31 | `pm` | produkt |
 | [D-075](#d-075) | V angličtině je datum narození DD/MM/YYYY (en-GB) | 2026-10-31 | `pm` | produkt |
 | [D-073](#d-073) | Přihláška přesunutá z Potvrzené mezi náhradníky se řadí podle data přijetí | 2026-10-31 | `pm` | produkt |
 | [D-070](#d-070) | Detail přihlášky náhradníka říká „Zatím nic neplaťte“ | 2026-10-31 | `pm` | produkt |
@@ -707,7 +713,7 @@ _Nic._
 - **Text:** Ano, systém to má umožnit.
 - **Dotčené US:** [US-28](https://github.com/applifting-vsecourse/team-1/issues/28)
 - **Zdroj:** [PR, komentář PM](https://github.com/applifting-vsecourse/team-1/pull/232#issuecomment-6535280632)
-- **Změněno v:** [D-074](#d-074)
+- **Změněno v:** [D-074](#d-074), [D-077](#d-077)
 - **Z otázek:** `Q-PRI-14`
 - **Dokumentace:** `docs/procesy/zpracovani-prihlasky/rucni-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml`: ceka, přechod Potvrzená s dluhem → Náhradník
 - **Dokumentace:** `docs/procesy/zpracovani-prihlasky/automaticke-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml`: ceka, zkontrolovat, zda přechod platí i v auto režimu
@@ -723,6 +729,7 @@ _Nic._
 - **Text:** Je v pořádku, organizátor může zrušit náhradníka kdykoli.
 - **Dotčené US:** [US-28](https://github.com/applifting-vsecourse/team-1/issues/28)
 - **Zdroj:** [PR, komentář PM](https://github.com/applifting-vsecourse/team-1/pull/232#issuecomment-6535280632)
+- **Změněno v:** [D-077](#d-077)
 - **Z otázek:** `Q-PRI-15`
 - **Dokumentace:** `docs/procesy/zpracovani-prihlasky/rucni-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml`: ceka, Náhradník → Zrušená i organizátorem
 - **Dokumentace:** `docs/procesy/zpracovani-prihlasky/automaticke-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml`: ceka, zkontrolovat v auto režimu
@@ -943,3 +950,28 @@ _Nic._
 - **Zdroj:** [odpověď PM v chatu na Q-PRI-12 (PR #226, nejasnosti k byznys pravidlům)](https://github.com/applifting-vsecourse/team-1/pull/226)
 - **Z otázek:** `Q-PRI-12`
 - **Poznámka:** Potvrzuje stav zapracovaný v PR #226 (sloučeno). Q-PRI-11 (formát podle jazyka aplikace, nebo systému) zůstává otevřená.
+
+<a id="d-076"></a>
+
+### D-076 – Při zrušení termínu se zaplacené platby vracejí, archivované přihlášky se nerulí
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** přihlašování na akce
+- **Datum:** 2026-10-31 · **Rozhodl:** `pm`
+- **Text:** Při zrušení termínu akce se zaplacené platby vracejí účastníkům. Zrušení termínu se netýká archivovaných přihlášek (termín už proběhl).
+- **Dotčené US:** [US-13](https://github.com/applifting-vsecourse/team-1/issues/13)
+- **Zdroj:** [odpověď PM v chatu při úpravě modelů k D-065](https://github.com/applifting-vsecourse/team-1/pull/242)
+- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/zruseni-terminu.yaml`: ceka, proces zrušení termínu včetně vrácení plateb
+- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/EMAILY.md`: ceka, řádek 15, e-mail o zrušení termínu s informací o vrácení plateb
+- **Poznámka:** Kdo platby vrací a kdy (organizátor, lhůta), PM nerozhodl; v modelu je úloha organizátora. Zvážit ticket a otázku na PO.
+
+<a id="d-077"></a>
+
+### D-077 – Přesun mezi náhradníky jen u Potvrzené s dluhem, ruční zásahy platí v obou režimech
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** přihlašování na akce
+- **Datum:** 2026-10-31 · **Rozhodl:** `pm`
+- **Text:** Přesun mezi náhradníky platí jen pro Potvrzenou s dluhem, ne pro Potvrzenou a zaplacenou. Přesun mezi náhradníky i zrušení náhradníka organizátorem platí v ručním i v automatickém režimu. Zrušení náhradníka organizátorem má vlastní e-mail (č. 14).
+- **Dotčené US:** [US-28](https://github.com/applifting-vsecourse/team-1/issues/28)
+- **Zdroj:** [odpověď PM v chatu při úpravě modelů k D-056 a D-057](https://github.com/applifting-vsecourse/team-1/pull/242)
+- **Mění:** [D-056](#d-056), [D-057](#d-057)
+- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/`: ceka, obě prihlaska-v-terminu-zivotni-cyklus.yaml a zpracovani-prihlasky.yaml, EMAILY.md řádky 13 a 14
