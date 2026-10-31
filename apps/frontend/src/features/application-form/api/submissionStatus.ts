@@ -9,7 +9,7 @@ const termSchema = z.object({
   /** ISO date, `2027-07-04`. */
   startsOn: z.string(),
   endsOn: z.string(),
-  /** `WAITLISTED` is shown as waiting for confirmation — never as a place in line. */
+  /** `WAITLISTED` is shown as waitlisted — never as a place in line. */
   status: z.enum(["CONFIRMED", "WAITLISTED", "CANCELLED"]),
   priceCzk: z.number().int(),
 })

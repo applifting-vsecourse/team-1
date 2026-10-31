@@ -8,7 +8,7 @@
     "errorTitle": "Přihlášku se nepodařilo načíst",
     "termsTitle": "Stav podle termínů",
     "title": "Moje přihláška",
-    "waitlistNote": "K úhradě se počítá jen potvrzený termín. Za termín, který čeká na potvrzení, zatím neplaťte."
+    "waitlistNote": "K úhradě se počítá jen potvrzený termín. Za termín, kde jste náhradník, zatím neplaťte."
   },
   "list": {
     "empty": "Zatím tu nemáte žádnou přihlášku. Až se přihlásíte na akci, objeví se tady.",
@@ -26,7 +26,7 @@
     "toPay": "K platbě",
     "transferTitle": "Údaje pro doplatek",
     "variableSymbol": "Variabilní symbol",
-    "waitlistedNote": "Termín {{range}} čeká na potvrzení a zatím nemá částku k úhradě."
+    "waitlistedNote": "V termínu {{range}} jste náhradník a zatím nemáte částku k úhradě."
   },
   "paymentStatus": {
     "OVERPAID": "Přeplatek",
@@ -37,7 +37,7 @@
   "status": {
     "cancelled": "Zrušená",
     "confirmed": "Potvrzeno",
-    "pending": "Čeká na potvrzení",
-    "untilConfirmed": "do potvrzení"
+    "doNotPayYet": "Zatím nic neplaťte",
+    "waitlisted": "Náhradník"
   }
 }

@@ -67,6 +67,6 @@ test.describe("Application from a link", { tag: "@mobile" }, () => {
 
     await expect(page.getByRole("heading", { level: 1, name: "Your applications" })).toBeVisible()
     await expect(page.getByText("Letní kemp 2027")).toBeVisible()
-    await expect(page.getByText(/Confirmed|Waiting for confirmation/).first()).toBeVisible()
+    await expect(page.getByText(/Confirmed|Waitlisted/).first()).toBeVisible()
   })
 })

@@ -131,7 +131,7 @@ function TermStatusCard({
                 ? "confirmation.status.confirmed"
                 : term.status === "CANCELLED"
                   ? "confirmation.status.cancelled"
-                  : "confirmation.status.pending",
+                  : "confirmation.status.waitlisted",
             )}
           </Badge>
           <span

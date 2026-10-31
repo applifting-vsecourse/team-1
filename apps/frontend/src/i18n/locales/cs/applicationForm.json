@@ -12,7 +12,7 @@
     "introOneTerm": "Přihláška pro {{names}} byla odeslána. Stav vybraného termínu vidíte níže.",
     "payment": {
       "account": "Účet organizace",
-      "onlyConfirmed": "Platíte pouze za potvrzené termíny. Za termín na čekací listině zatím neplaťte.",
+      "onlyConfirmed": "Platíte pouze za potvrzené termíny. Za termín, kde jste náhradník, zatím neplaťte.",
       "title": "K úhradě za potvrzené termíny",
       "totalNote_few": "Zaplaťte prosím každou přihlášku zvlášť ({{count}} platby níže), každou s jejím variabilním symbolem. Jen tak platby spárujeme s účastníky.",
       "totalNote_one": "Zaplaťte prosím každou přihlášku zvlášť ({{count}} platby níže), každou s jejím variabilním symbolem. Jen tak platby spárujeme s účastníky.",
@@ -24,12 +24,12 @@
     "status": {
       "cancelled": "Zrušená",
       "confirmed": "Potvrzeno",
-      "pending": "Čeká na potvrzení"
+      "waitlisted": "Náhradník"
     },
     "termsHeading": "Stav vybraných termínů",
     "title": "Přihlášku jsme přijali",
     "waitlist": {
-      "description": "Ve všech vybraných termínech jste na čekací listině. Platební údaje dostanete až po potvrzení místa.",
+      "description": "Ve všech vybraných termínech jste náhradník. Platební údaje dostanete až po potvrzení místa.",
       "title": "Zatím nic neplaťte"
     }
   },

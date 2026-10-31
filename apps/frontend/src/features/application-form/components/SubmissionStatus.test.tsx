@@ -151,7 +151,7 @@ describe("SubmissionStatus", () => {
     expect(screen.queryByRole("heading", { name: "Total to pay" })).not.toBeInTheDocument()
   })
 
-  it("shows a waitlisted term only as waiting for confirmation, with no payment for it", async () => {
+  it("shows a waitlisted term as waitlisted without a place in line, with no payment for it", async () => {
     await renderStatus(
       data({
         applications: [
@@ -161,16 +161,16 @@ describe("SubmissionStatus", () => {
       }),
     )
 
-    expect(screen.getByText("Waiting for confirmation")).toBeInTheDocument()
+    expect(screen.getByText("Waitlisted")).toBeInTheDocument()
     expect(screen.getByText("Do not pay yet")).toBeInTheDocument()
-    expect(screen.queryByText(/waitlist|substitute|position/i)).not.toBeInTheDocument()
+    expect(screen.queryByText(/in line|position/i)).not.toBeInTheDocument()
     expect(screen.getAllByRole("heading", { name: "To pay for the confirmed terms" })).toHaveLength(
       1,
     )
     expect(screen.queryByText("0049")).not.toBeInTheDocument()
   })
 
-  it("shows no payment details when every term is waiting for confirmation", async () => {
+  it("shows no payment details when every term is waitlisted", async () => {
     await renderStatus(data({ applications: [jana("WAITLISTED")] }))
 
     expect(screen.getByRole("heading", { name: "Do not pay anything yet" })).toBeVisible()

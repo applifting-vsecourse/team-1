@@ -21,7 +21,7 @@ export class SubmissionTermDto {
 
   @ApiProperty({
     enum: ["CONFIRMED", "WAITLISTED", "CANCELLED"],
-    description: "WAITLISTED is shown to the participant as waiting for confirmation.",
+    description: "WAITLISTED is shown to the participant as waitlisted, without a place in line.",
   })
   status!: "CONFIRMED" | "WAITLISTED" | "CANCELLED"
 

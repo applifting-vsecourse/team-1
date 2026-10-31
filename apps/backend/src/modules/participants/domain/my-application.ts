@@ -87,7 +87,7 @@ const toIsoDate = (date: Date): string => date.toISOString().slice(0, 10)
 /**
  * Builds the overview of one application. Amounts come from the pricing
  * functions of the applications domain — nothing is recomputed here. The
- * participant sees a waitlisted term only as waiting for confirmation, never
+ * participant sees a waitlisted term only as waitlisted, never
  * their place in line.
  */
 export function buildMyApplication(record: MyApplicationRecord): MyApplication {

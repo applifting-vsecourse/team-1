@@ -72,7 +72,7 @@ Hotové jsou všechny obrazovky na stránkách HF / 01–06 kromě e-mailů S17:
 - Barvy: DS / Primitives mají hodnoty z tématu Togena Remake (Light / Dark) s výjimkami popsanými v Rozsahu; primární barva je `#007f72`. V kódu #130 a #131.
 - U01 Přihlášky: karty přihlášek podle karty akce z O01, stavy termínů jako DS / Badge (Success, Waitlist), bez rohů loga (seznam bez výběru).
 - Termíny všude s rokem a pod datem s názvem termínu (U01, U04, komponenty DS / Term option a DS / Event term row v přihlášce V02–V07h a M02–M06).
-- Účastník nevidí, že je náhradník: nepotvrzený termín má neutrální štítek „Čeká na potvrzení“, potvrzený „Potvrzeno“ (i v DS / Registration term status na V04 / V06 / M06). U přihlášky je štítek stavu platby: Nezaplaceno, Částečně zaplaceno (Warning), Zaplaceno (Success), Přeplatek (Info). Mobilní U01 a U04 (360 px, stavy částečně zaplaceno / zaplaceno / přeplatek) jsou ve stejném vzhledu jako desktop.
+- Účastník se dozví, že je náhradník (pořadí se nesděluje): termín ve stavu náhradník má neutrální štítek „Náhradník“, potvrzený „Potvrzeno“ (i v DS / Registration term status na V04 / V06 / M06). U přihlášky je štítek stavu platby: Nezaplaceno, Částečně zaplaceno (Warning), Zaplaceno (Success), Přeplatek (Info). Mobilní U01 a U04 (360 px, stavy částečně zaplaceno / zaplaceno / přeplatek) jsou ve stejném vzhledu jako desktop.
 - U04 Moje přihláška: odkaz „← Všechny přihlášky“ je DS / Button Quiet bez levého odsazení, zarovnaný pod nadpisem; termíny jsou řádky oddělené hairline se štítkem stavu a částkou; platba má nadpis H2, tři DS / Metric bez pomocného řádku a samostatnou kartu „Údaje pro doplatek“ s řádky popisek–hodnota (popisky bez dvojtečky).
 
 **Známé odchylky v kódu:**
