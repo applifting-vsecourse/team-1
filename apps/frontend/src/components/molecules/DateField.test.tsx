@@ -70,6 +70,14 @@ describe("DateField", () => {
     expect(field()).toHaveValue("18/05/2014")
   })
 
+  it("accepts eight digits and shows them as a date on leaving the field", async () => {
+    render(<Harness />)
+    await userEvent.type(field(), "18052014")
+    expect(value()).toBe("2014-05-18")
+    await userEvent.tab()
+    expect(field()).toHaveValue("18/05/2014")
+  })
+
   it("passes on text that is not a day, and keeps it in the field", async () => {
     render(<Harness />)
     await userEvent.type(field(), "31/02/2014")

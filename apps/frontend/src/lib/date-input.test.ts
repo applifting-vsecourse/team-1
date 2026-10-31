@@ -22,6 +22,17 @@ describe("parseDateInput", () => {
     expect(parseDateInput("18-05-2014")).toBe("2014-05-18")
   })
 
+  it("reads exactly eight digits as DDMMYYYY", () => {
+    expect(parseDateInput("18052014")).toBe("2014-05-18")
+    expect(parseDateInput("29022016")).toBe("2016-02-29")
+  })
+
+  it("does not guess shorter digits or fix a day that does not exist", () => {
+    expect(parseDateInput("1852014")).toBeNull()
+    expect(parseDateInput("180514")).toBeNull()
+    expect(parseDateInput("31022014")).toBeNull()
+  })
+
   it("accepts a pasted ISO day", () => {
     expect(parseDateInput("2014-05-18")).toBe("2014-05-18")
   })

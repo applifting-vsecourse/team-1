@@ -79,7 +79,7 @@ describe("ApplicationForm", () => {
     )
 
     const birthDate = screen.getByLabelText("Date of birth *")
-    const hint = "Type a date or choose from the calendar. E.g. 25.10.1990."
+    const hint = "Type a date or choose from the calendar. E.g. 25/10/1990."
     expect(birthDate).toHaveAttribute("type", "text")
     expect(birthDate).toHaveAttribute("placeholder", "DD/MM/YYYY")
     expect(birthDate).toHaveAccessibleDescription(hint)

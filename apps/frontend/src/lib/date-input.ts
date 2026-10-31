@@ -9,6 +9,7 @@ import type { Language } from "@/i18n"
 
 const ISO_DATE = /^(\d{4})-(\d{2})-(\d{2})$/
 const DAY_FIRST = /^(\d{1,2})\s*[./-]\s*(\d{1,2})\s*[./-]\s*(\d{4})$/
+const EIGHT_DIGITS = /^(\d{2})(\d{2})(\d{4})$/
 
 const isLeapYear = (year: number) => (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0
 
@@ -35,12 +36,13 @@ export function isIsoDate(text: string): boolean {
  * What a user typed → ISO `2014-05-18`, or `null` when it is not a real day
  * (empty, incomplete, `31. 2. 2014`). Day first, separated by dots, slashes or
  * dashes, with or without spaces and leading zeros — `18. 5. 2014`,
- * `18.5.2014`, `18/05/2014`; a pasted ISO day is accepted too.
+ * `18.5.2014`, `18/05/2014`; exactly eight digits `DDMMYYYY` (`18052014`, a
+ * phone's numeric keyboard has no separators) and a pasted ISO day are accepted too.
  */
 export function parseDateInput(text: string): string | null {
   const value = text.trim()
   if (isIsoDate(value)) return value
-  const match = DAY_FIRST.exec(value)
+  const match = DAY_FIRST.exec(value) ?? EIGHT_DIGITS.exec(value)
   return match ? build(Number(match[3]), Number(match[2]), Number(match[1])) : null
 }
 
