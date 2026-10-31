@@ -108,7 +108,7 @@ describe("manual status change of an application in a term (integration)", () =>
 
     const term = await view(id)
     expect(term.status).toBe("CONFIRMED")
-    expect(term.allowedStatuses).toEqual(["CANCELLED"])
+    expect(term.allowedStatuses).toEqual(["WAITLISTED", "CANCELLED"])
     expect(term.history).toEqual([
       {
         id: expect.any(String),
@@ -152,12 +152,18 @@ describe("manual status change of an application in a term (integration)", () =>
     expect((await change(waitlisted, { status: "CONFIRMED" })).status).toBe(204)
   })
 
+  it("moves a confirmed application to the waitlist", async () => {
+    const id = await addApplication("MALE", "CONFIRMED")
+
+    expect((await change(id, { status: "WAITLISTED" })).status).toBe(204)
+    expect((await view(id)).status).toBe("WAITLISTED")
+  })
+
   it("rejects changes the state diagram does not have", async () => {
     const confirmed = await addApplication("MALE", "CONFIRMED")
     const cancelled = await addApplication("MALE", "CANCELLED")
 
     for (const [id, status] of [
-      [confirmed, "WAITLISTED"],
       [confirmed, "CONFIRMED"],
       [cancelled, "CONFIRMED"],
       [cancelled, "CANCELLED"],

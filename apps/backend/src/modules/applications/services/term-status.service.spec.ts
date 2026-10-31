@@ -95,7 +95,7 @@ describe("TermStatusService", () => {
   it("rejects with a 409 code the domain decides, and sends no e-mail", async () => {
     repository.changeStatus.mockImplementation(
       (_command: unknown, decide: (snapshot: unknown) => void) => {
-        decide({ status: "CONFIRMED", gender: "FEMALE", rooms: [], confirmedGenders: [] })
+        decide({ status: "CANCELLED", gender: "FEMALE", rooms: [], confirmedGenders: [] })
         return Promise.resolve(result("WAITLISTED"))
       },
     )
