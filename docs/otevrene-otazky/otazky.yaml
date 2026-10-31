@@ -1569,7 +1569,7 @@ otazky:
   rozhodnuti_ref: D-069
   navazne_tickety:
   - label: 'enhancement: preferovaný jazyk uživatele (výchozí jazyk aplikace a e-mailů)'
-    url: null
+    url: https://github.com/applifting-vsecourse/team-1/issues/243
 - id: Q-PRI-14
   otazka: Má se do diagramu doplnit přechod Potvrzená → Náhradník (organizátor), jak říká ticket US-28?
   epic: přihlašování na akce
@@ -1668,7 +1668,7 @@ otazky:
     url: https://github.com/applifting-vsecourse/team-1/pull/232#issuecomment-6535280632
   navazne_tickety:
   - label: 'enhancement: UI/UX bloku „Stav v termínech“ + rámce ve Figmě'
-    url: null
+    url: https://github.com/applifting-vsecourse/team-1/issues/244
   rozhodnuti_ref: D-060
 - id: Q-PRI-19
   otazka: Sbírá se telefon ve formuláři přihlášky a v jaké story? (US-30 ho chce u náhradníka i s vytočením
@@ -1686,7 +1686,7 @@ otazky:
     url: https://github.com/applifting-vsecourse/team-1/pull/234
   navazne_tickety:
   - label: 'nový ticket: sběr telefonů od účastníků (+ tel: odkaz v pořadníku)'
-    url: null
+    url: https://github.com/applifting-vsecourse/team-1/issues/245
   - label: upravit kritéria US-30 v issue
     url: https://github.com/applifting-vsecourse/team-1/issues/30
   rozhodnuti_ref: D-061
@@ -1769,9 +1769,9 @@ otazky:
     url: https://github.com/applifting-vsecourse/team-1/pull/236
   navazne_tickety:
   - label: 'story: zrušení termínu zruší všechny přihlášky ve všech stavech + varování v UX'
-    url: null
+    url: https://github.com/applifting-vsecourse/team-1/issues/246
   - label: 'story: vrácení plateb při zrušení termínu (D-076, D-080)'
-    url: null
+    url: https://github.com/applifting-vsecourse/team-1/issues/247
   rozhodnuti_ref: D-065
   poznamka: 'Tech lead (PR #236): zrušení termínu dnes jen nastaví Term.cancelledAt a přihlášky nemění;
     žádá, aby PM založil ticket.'
@@ -1821,9 +1821,9 @@ otazky:
     url: https://github.com/applifting-vsecourse/team-1/pull/238
   navazne_tickety:
   - label: ruční nebo plánované spuštění přihlášek
-    url: null
+    url: https://github.com/applifting-vsecourse/team-1/issues/248
   - label: ruční pozastavení přihlášek
-    url: null
+    url: https://github.com/applifting-vsecourse/team-1/issues/249
   rozhodnuti_ref: D-067
 - id: Q-NAS-12
   otazka: Je záměr, že zpřístupněná akce bez jediné přihlášky má zamčený režim vyhodnocování?
@@ -1840,7 +1840,7 @@ otazky:
     url: https://github.com/applifting-vsecourse/team-1/pull/238
   navazne_tickety:
   - label: změna režimu vyhodnocování do první přihlášky (nebo kombinace)
-    url: null
+    url: https://github.com/applifting-vsecourse/team-1/issues/250
   rozhodnuti_ref: D-068
 - id: Q-NAS-13
   otazka: Slovník říká „Režim vyhodnocení“, Figma „Režim vyhodnocování“. Která varianta platí?
@@ -1886,7 +1886,7 @@ otazky:
   uzavreno_duvod: 'Rozhodnuto PM: dva vstupy.'
   navazne_tickety:
   - label: 'design: sladit Figmu V08 a M07 se dvěma vstupy na landingu'
-    url: null
+    url: https://github.com/applifting-vsecourse/team-1/issues/251
 - id: Q-TEC-08
   otazka: Platí rozdělení práce do proudů (A–D) z 16. 10., nebo se práce proudům nedělí, jak říká sekce
     11 PROJEKT.md?

@@ -134,16 +134,7 @@ _Nic._
 
 | Z otázky | Ticket |
 | --- | --- |
-| [Q-KOM-08](#q-kom-08) | enhancement: preferovaný jazyk uživatele (výchozí jazyk aplikace a e-mailů) |
-| [Q-PRI-18](#q-pri-18) | enhancement: UI/UX bloku „Stav v termínech“ + rámce ve Figmě |
-| [Q-PRI-19](#q-pri-19) | nový ticket: sběr telefonů od účastníků (+ tel: odkaz v pořadníku) |
 | [Q-PRI-20](#q-pri-20) | zjistit od PO detaily rušení náhradníků; případně enhancement |
-| [Q-PRI-21](#q-pri-21) | story: zrušení termínu zruší všechny přihlášky ve všech stavech + varování v UX |
-| [Q-PRI-21](#q-pri-21) | story: vrácení plateb při zrušení termínu (D-076, D-080) |
-| [Q-NAS-11](#q-nas-11) | ruční nebo plánované spuštění přihlášek |
-| [Q-NAS-11](#q-nas-11) | ruční pozastavení přihlášek |
-| [Q-NAS-12](#q-nas-12) | změna režimu vyhodnocování do první přihlášky (nebo kombinace) |
-| [Q-UCT-10](#q-uct-10) | design: sladit Figmu V08 a M07 se dvěma vstupy na landingu |
 
 ## Podle epiců
 
@@ -484,7 +475,7 @@ _Nic._
   - [PR #231, nejasnosti k byznys pravidlům](https://github.com/applifting-vsecourse/team-1/pull/231)
 - **Priorita:** P2 – Žádný zdroj to neurčuje; reset hesla a ověření e-mailu u účtu založeného anglicky zůstávají anglicky.
 - **Rozhodnutí:** [D-069](../rozhodnuti/README.md#d-069): Uživatel by měl mít možnost nastavit si preferovaný jazyk. V něm se bude defaultně spouštět aplikace a odesílat e-maily. Pro PR #231 se nic nemění, vše zůstává jak je; PM založí ticket enhancement.
-- **Navazující ticket:** enhancement: preferovaný jazyk uživatele (výchozí jazyk aplikace a e-mailů) (k založení)
+- **Navazující ticket:** [enhancement: preferovaný jazyk uživatele (výchozí jazyk aplikace a e-mailů)](https://github.com/applifting-vsecourse/team-1/issues/243)
 
 <a id="q-kom-09"></a>
 
@@ -690,8 +681,8 @@ _Nic._
   - [PR #238](https://github.com/applifting-vsecourse/team-1/pull/238)
 - **Priorita:** P1 – V kódu ani PROJEKT.md §5 stav „otevřeno“ není.
 - **Rozhodnutí:** [D-067](../rozhodnuti/README.md#d-067): Aktuálně moment, kdy akce splní všechny požadavky (termín, ubytování atd.); pak se vygeneruje link a přihlašování se spustí. V budoucnu ruční nebo plánované spuštění a ruční pozastavení přihlášek (např. při výpadku ubytování).
-- **Navazující ticket:** ruční nebo plánované spuštění přihlášek (k založení)
-- **Navazující ticket:** ruční pozastavení přihlášek (k založení)
+- **Navazující ticket:** [ruční nebo plánované spuštění přihlášek](https://github.com/applifting-vsecourse/team-1/issues/248)
+- **Navazující ticket:** [ruční pozastavení přihlášek](https://github.com/applifting-vsecourse/team-1/issues/249)
 
 <a id="q-nas-12"></a>
 
@@ -702,7 +693,7 @@ _Nic._
   - [PR #238](https://github.com/applifting-vsecourse/team-1/pull/238)
 - **Priorita:** P2 – Zamčeno jakmile akce splní podmínky nebo má přihlášku.
 - **Rozhodnutí:** [D-068](../rozhodnuti/README.md#d-068): As-is stav je v pořádku; v budoucnu by měla jít změna do první přihlášky nebo nějaká kombinace.
-- **Navazující ticket:** změna režimu vyhodnocování do první přihlášky (nebo kombinace) (k založení)
+- **Navazující ticket:** [změna režimu vyhodnocování do první přihlášky (nebo kombinace)](https://github.com/applifting-vsecourse/team-1/issues/250)
 
 <a id="q-nas-13"></a>
 
@@ -1188,7 +1179,7 @@ _Nic._
   - [PR #232](https://github.com/applifting-vsecourse/team-1/pull/232#issuecomment-6535280632)
 - **Priorita:** P2 – Rámec ve Figmě neexistuje; nebrání mergi.
 - **Rozhodnutí:** [D-060](../rozhodnuti/README.md#d-060): Merge neblokuje; mergnout a UI/UX dolaďovat zpětně ticketem enhancement.
-- **Navazující ticket:** enhancement: UI/UX bloku „Stav v termínech“ + rámce ve Figmě (k založení)
+- **Navazující ticket:** [enhancement: UI/UX bloku „Stav v termínech“ + rámce ve Figmě](https://github.com/applifting-vsecourse/team-1/issues/244)
 
 <a id="q-pri-19"></a>
 
@@ -1199,7 +1190,7 @@ _Nic._
   - [PR #234](https://github.com/applifting-vsecourse/team-1/pull/234)
 - **Priorita:** P2 – Přihláška telefon neukládá; kritéria US-30 s telefonem zůstávají nesplněná.
 - **Rozhodnutí:** [D-061](../rozhodnuti/README.md#d-061): Neřešit v tomto PR; mergnout, telefon sbírat novým ticketem (někdy by tam určitě měl být).
-- **Navazující ticket:** nový ticket: sběr telefonů od účastníků (+ tel: odkaz v pořadníku) (k založení)
+- **Navazující ticket:** [nový ticket: sběr telefonů od účastníků (+ tel: odkaz v pořadníku)](https://github.com/applifting-vsecourse/team-1/issues/245)
 - **Navazující ticket:** [upravit kritéria US-30 v issue](https://github.com/applifting-vsecourse/team-1/issues/30)
 
 <a id="q-pri-20"></a>
@@ -1223,8 +1214,8 @@ _Nic._
   - [PR #236](https://github.com/applifting-vsecourse/team-1/pull/236)
 - **Priorita:** P1 – Dokumenty to neříkají; úloha je nechává beze změny. Kritická a nevratná akce.
 - **Rozhodnutí:** [D-065](../rozhodnuti/README.md#d-065): Při zrušení termínu se ruší všichni účastníci ve všech stavech. UX má organizátora dostatečně upozornit na kritickou a nevratnou akci.
-- **Navazující ticket:** story: zrušení termínu zruší všechny přihlášky ve všech stavech + varování v UX (k založení)
-- **Navazující ticket:** story: vrácení plateb při zrušení termínu (D-076, D-080) (k založení)
+- **Navazující ticket:** [story: zrušení termínu zruší všechny přihlášky ve všech stavech + varování v UX](https://github.com/applifting-vsecourse/team-1/issues/246)
+- **Navazující ticket:** [story: vrácení plateb při zrušení termínu (D-076, D-080)](https://github.com/applifting-vsecourse/team-1/issues/247)
 
 <a id="q-pri-22"></a>
 
@@ -1453,5 +1444,5 @@ _Nic._
   - registr rozhodnutí
 - **Priorita:** P2 – Dvě rozhodnutí z 19. 10. se rozcházejí a pořadí ze zdrojů nelze určit.
 - **Rozhodnutí:** [D-072](../rozhodnuti/README.md#d-072): Landing pro nepřihlášené má dva vstupy: „Jsem organizátor“ a „Jsem účastník“ (jak je v aplikaci). Rozhodnutí z 19. 10. o jediném vstupu „Pro organizátory – přihlásit se“ (podle Figmy V08, M07) neplatí; Figma se s kódem sladí.
-- **Navazující ticket:** design: sladit Figmu V08 a M07 se dvěma vstupy na landingu (k založení)
+- **Navazující ticket:** [design: sladit Figmu V08 a M07 se dvěma vstupy na landingu](https://github.com/applifting-vsecourse/team-1/issues/251)
 - **Uzavřeno, protože:** Rozhodnuto PM: dva vstupy.
