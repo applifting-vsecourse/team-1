@@ -7,23 +7,7 @@ direction: TD
 # Od ručního vyhodnocování se liší začátkem a náhradníky; platby, výzva a archivace jsou stejné.
 
 nodes:
-  - { id: akce_zalozena, type: event, label: Akce založena }
-  - { id: nastavit_rezim, type: task, label: Nastavit automatické vyhodnocování, role: organizátor }
-  - {
-      id: nastavit_pokoje,
-      type: task,
-      label: Nastavit pokoje (počet pokojů,
-      lůžka na pokoj,
-      dámský / pánský),
-      role: organizátor,
-    }
-  - {
-      id: akce_pripravena,
-      type: event,
-      label: "Akce splní všechny požadavky (každý termín má cenu a ubytování)",
-    }
-  - { id: vygenerovat_odkaz, type: task, label: Vygenerovat odkaz na přihlášku, role: systém }
-  - { id: prihlaska_zaregistrovana, type: event, label: Nová přihláška v termínu zaregistrována }
+  - { id: prihlaska_zaregistrovana, type: event, label: Nová přihláška v termínu přijata }
   - {
       id: vyhodnotit,
       type: task,
@@ -74,11 +58,6 @@ nodes:
   - { id: s_archivovana, type: end, label: "Přihláška v termínu: archivovaná" }
 
 flows:
-  - { from: akce_zalozena, to: nastavit_rezim }
-  - { from: nastavit_rezim, to: nastavit_pokoje }
-  - { from: nastavit_pokoje, to: akce_pripravena }
-  - { from: akce_pripravena, to: vygenerovat_odkaz }
-  - { from: vygenerovat_odkaz, to: prihlaska_zaregistrovana }
   - { from: prihlaska_zaregistrovana, to: vyhodnotit }
   - { from: vyhodnotit, to: g_vysledek }
   - { from: g_vysledek, to: s_potvrzena_dluh, label: volné lůžko ve skupině lůžek účastníka je }

@@ -6,23 +6,7 @@ direction: TD
 # unsure: true -> uzel se vykreslí výrazným čárkovaným okrajem (nejistá část náčrtku)
 
 nodes:
-  - { id: akce_zalozena, type: event, label: Akce založena }
-  - { id: nastavit_rezim, type: task, label: Nastavit režim vyhodnocování, role: organizátor }
-  - {
-      id: nastavit_pokoje,
-      type: task,
-      label: Nastavit pokoje (počet pokojů,
-      lůžka na pokoj,
-      dámský / pánský),
-      role: organizátor,
-    }
-  - {
-      id: akce_pripravena,
-      type: event,
-      label: "Akce splní všechny požadavky (každý termín má cenu a ubytování)",
-    }
-  - { id: vygenerovat_odkaz, type: task, label: Vygenerovat odkaz na přihlášku, role: systém }
-  - { id: prihlaska_zaregistrovana, type: event, label: Nová přihláška v termínu zaregistrována }
+  - { id: prihlaska_zaregistrovana, type: event, label: Nová přihláška v termínu přijata }
   - { id: do_poradniku, type: task, label: Vložit přihlášku v termínu do pořadníku, role: systém }
   - { id: chce_vyhodnotit, type: event, label: Organizátor chce vyhodnotit přihlášky v termínu }
   - { id: s_k_vyhodnoceni, type: state, label: "Přihláška v termínu: k vyhodnocení" }
@@ -67,11 +51,6 @@ nodes:
   - { id: s_archivovana, type: end, label: "Přihláška v termínu: archivovaná" }
 
 flows:
-  - { from: akce_zalozena, to: nastavit_rezim }
-  - { from: nastavit_rezim, to: nastavit_pokoje }
-  - { from: nastavit_pokoje, to: akce_pripravena }
-  - { from: akce_pripravena, to: vygenerovat_odkaz }
-  - { from: vygenerovat_odkaz, to: prihlaska_zaregistrovana }
   - { from: prihlaska_zaregistrovana, to: s_k_vyhodnoceni }
   - { from: s_k_vyhodnoceni, to: do_poradniku }
   - { from: e_zruseni_terminu_kv, to: s_zrusena }

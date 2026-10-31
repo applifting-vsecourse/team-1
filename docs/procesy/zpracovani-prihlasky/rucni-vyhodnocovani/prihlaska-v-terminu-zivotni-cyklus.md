@@ -9,7 +9,7 @@ stateDiagram-v2
   state "Potvrzená a zaplacená" as n_potvrzena_zaplacena
   state "Zrušená" as n_zrusena
   state "Archivovaná" as n_archivovana
-  [*] --> n_k_vyhodnoceni : Nová přihláška v termínu<br/>zaregistrována /<br/>register()
+  [*] --> n_k_vyhodnoceni : Nová přihláška v termínu<br/>přijata / register()
   n_k_vyhodnoceni --> n_potvrzena_dluh : Organizátor vyhodnotí<br/>přihlášku v termínu -<br/>potvrdí / confirm()
   n_k_vyhodnoceni --> n_nahradnik : Organizátor vyhodnotí<br/>přihlášku v termínu -<br/>zařadí jako náhradníka /<br/>putOnWaitlist()
   n_k_vyhodnoceni --> n_zrusena : Organizátor vyhodnotí<br/>přihlášku v termínu -<br/>zamítne / cancel()

@@ -12,12 +12,7 @@ states:
   - { id: archivovana, label: Archivovaná, final: true }
 
 transitions:
-  - {
-      from: start,
-      to: k_vyhodnoceni,
-      reason: Nová přihláška v termínu zaregistrována,
-      op: register(),
-    }
+  - { from: start, to: k_vyhodnoceni, reason: Nová přihláška v termínu přijata, op: register() }
 
   - {
       from: k_vyhodnoceni,

@@ -15,13 +15,13 @@ transitions:
   - {
       from: start,
       to: potvrzena_dluh,
-      reason: Nová přihláška v termínu zaregistrována a je volné lůžko ve skupině lůžek účastníka,
+      reason: Nová přihláška v termínu přijata a je volné lůžko ve skupině lůžek účastníka,
       op: "register(), confirm()",
     }
   - {
       from: start,
       to: nahradnik,
-      reason: Nová přihláška v termínu zaregistrována a volné lůžko ve skupině lůžek účastníka není,
+      reason: Nová přihláška v termínu přijata a volné lůžko ve skupině lůžek účastníka není,
       op: register(),
     }
 
