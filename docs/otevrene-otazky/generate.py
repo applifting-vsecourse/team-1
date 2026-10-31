@@ -103,8 +103,8 @@ def render(data):
     out += [f"**{len(live)} neuzavřených** otázek, **{len(otazky) - len(live)} uzavřených**.", ""]
 
     out += ["## Role", "",
-            table([f"| `{k}` | {esc(v['popis'])} | {esc(v['jmeno'])} | {v.get('github') or '–'} |" for k, v in roles.items()],
-                  ["Role", "Popis", "Kdo", "GitHub"])]
+            table([f"| `{k}` | {esc(v['popis'])} | {esc(v['jmeno'])} |" for k, v in roles.items()],
+                  ["Role", "Popis", "Kdo"])]
 
     out += ["## Kdo má tah", ""]
     for k, v in roles.items():
@@ -118,6 +118,10 @@ def render(data):
             table([row(o, [esc(o["rozhodnuti"]["text"]), ", ".join(
                 f"`{x['soubor']}`" for x in o.get("dokumentace") or [] if x.get("stav") != "hotovo") or "–"])
                 for o in nezapsano], ["ID", "Otázka", "Dotčené US", "Rozhodnutí", "Zapsat do"])]
+
+    todo = [(o, t) for o in otazky for t in o.get("navazne_tickety") or [] if not t.get("url")]
+    out += ["## Tickety k založení", "",
+            table([f"| [{o['id']}](#{anchor(o['id'])}) | {esc(t['label'])} |" for o, t in todo], ["Z otázky", "Ticket"])]
 
     out += ["## Podle epiců", ""]
     epics = defaultdict(list)
@@ -155,7 +159,10 @@ def render(data):
             out.append(f"- **Rozhodnutí:** {r['text']} ({r['rozhodl']}, {r['datum']}"
                        + (f", [zdroj]({r['zdroj']})" if r.get("zdroj") else "") + ")")
         for x in o.get("dokumentace") or []:
-            out.append(f"- **Dokumentace:** `{x['soubor']}`: {x['stav']}" + (f" ({x['commit']})" if x.get("commit") else ""))
+            out.append(f"- **Dokumentace:** `{x['soubor']}`: {x['stav']}" + (f" ({x['commit']})" if x.get("commit") else "")
+                       + (f", {x['popis']}" if x.get("popis") else ""))
+        for t in o.get("navazne_tickety") or []:
+            out.append("- **Navazující ticket:** " + (f"[{t['label']}]({t['url']})" if t.get("url") else f"{t['label']} (k založení)"))
         if o.get("uzavreno_duvod"):
             out.append(f"- **Uzavřeno, protože:** {o['uzavreno_duvod']}")
         out.append("")
