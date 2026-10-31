@@ -1526,15 +1526,16 @@ otazky:
   us:
   - label: '#177'
     url: https://github.com/applifting-vsecourse/team-1/issues/177
-  stav: otevreno
+  stav: rozhodnuto
   priorita: P2
-  priorita_duvod: 'Otevřené PR #226 staví en-GB; čeká na potvrzení.'
+  priorita_duvod: Rozhodnuto (shodné s PR #226).
   ceka_na: pm
   zdroje:
   - popis: 'PR #226, nejasnosti k byznys pravidlům'
     url: https://github.com/applifting-vsecourse/team-1/pull/226
   poznamka: 'Souvisí s Q-PRI-11 (formát podle jazyka aplikace). Zapracováno v PR #226 jako 25/10/1990
-    (en-GB); PM zatím neodpověděl.'
+    (en-GB); PM potvrdil (D-075).'
+  rozhodnuti_ref: D-075
 - id: Q-PRI-13
   otazka: Má u náhradníka na detailu přihlášky zůstat text „0 Kč do potvrzení“, nebo se změnit (např.
     „zatím nic k úhradě“)?
@@ -1635,9 +1636,9 @@ otazky:
   us:
   - label: US-28
     url: https://github.com/applifting-vsecourse/team-1/issues/28
-  stav: otevreno
+  stav: rozhodnuto
   priorita: P2
-  priorita_duvod: Tech lead upřesnil číslo e-mailu, PM může rozhodnout.
+  priorita_duvod: Rozhodnuto, zbývá zapsat do dokumentace.
   ceka_na: pm
   zdroje:
   - popis: 'PR #232'
@@ -1647,6 +1648,7 @@ otazky:
   poznamka: 'Tech lead (PR #232): jde o e-mail č. 3 (K vyhodnocení → Náhradník), používá se i pro Potvrzená
     → Náhradník; stejný rozpor má č. 1 v auto režimu. Přechod Potvrzená → Náhradník v EMAILY.md chybí.
     Texty „jste náhradník“ zavedl PR #227.'
+  rozhodnuti_ref: D-074
 - id: Q-PRI-18
   otazka: 'Má se blok „Stav v termínech“ (detail přihlášky, dialog změny stavu, varování o kapacitě) dokreslit
     ve Figmě před mergem #232?'
@@ -1901,13 +1903,14 @@ otazky:
   us: &id001
   - label: US-28
     url: https://github.com/applifting-vsecourse/team-1/issues/28
-  stav: otevreno
+  stav: rozhodnuto
   priorita: P1
-  priorita_duvod: 'Chování je už v main (PR #232) a řadí podle data přijetí; zpětná změna pořadí je dražší.'
+  priorita_duvod: Rozhodnuto, zbývá zapsat do dokumentace.
   ceka_na: pm
   zdroje:
   - popis: 'PR #232, dotaz tech leada'
     url: https://github.com/applifting-vsecourse/team-1/pull/232#issuecomment-6545014573
+  rozhodnuti_ref: D-073
 - id: Q-PRI-23
   otazka: Má systém zvýraznit náhradníka potvrzeného nad rámec kapacity v seznamu přihlášek?
   epic: přihlašování na akce
