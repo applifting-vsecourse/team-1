@@ -2,7 +2,7 @@
 
 > Generováno z [`rozhodnuti.yaml`](rozhodnuti.yaml) (`python generate.py`). Needituj, měň YAML.
 
-**81 platných**, 0 návrhů, 3 nahrazených nebo zrušených.
+**88 platných**, 0 návrhů, 3 nahrazených nebo zrušených.
 
 ## Návrhy čekající na PM
 
@@ -13,6 +13,13 @@ _Nic._
 | ID | Rozhodnutí | Soubor | Co zapsat |
 | --- | --- | --- | --- |
 | [D-069](#d-069) | Uživatel si nastaví preferovaný jazyk (aplikace i e-maily) | `docs/PROJEKT.md` | pravidlo jazyka aplikace a e-mailů: preferovaný jazyk uživatele (zapsat při zadání ticketu) |
+| [D-085](#d-085) | Dvouúrovňový variabilní symbol | `docs/PROJEKT.md` | řádek „Variabilní symbol = číslo přihlášky“ (sekce 5) přepsat na dvouúrovňový VS |
+| [D-085](#d-085) | Dvouúrovňový variabilní symbol | `docs/SLOVNIK.md` | Variabilní symbol: dvouúrovňový, patří přihlášce a přihlášce v termínu; class diagram |
+| [D-085](#d-085) | Dvouúrovňový variabilní symbol | `docs/procesy/zpracovani-prihlasky/EMAILY.md` | platební údaje u e-mailů č. 2, 5, 7: souhrnný VS a VS každé potvrzené přihlášky v termínu |
+| [D-086](#d-086) | `Term.number` je neměnné číslo termínu v akci | `docs/PROJEKT.md` | datový model: Term.number |
+| [D-087](#d-087) | Souhrnná platba se rozděluje od nejstaršího termínu | `docs/SLOVNIK.md` | pojmy Souhrn přihlášky a Příjem; pravidlo rozdělení |
+| [D-088](#d-088) | Platba na VS bez dluhu je přeplatek přihlášky v termínu | `docs/SLOVNIK.md` | Přeplatek patří přihlášce v termínu |
+| [D-089](#d-089) | Příjem = řádky `Payment` po přihlášce v termínu se společným `receiptId` | `docs/PROJEKT.md` | datový model: Payment.applicationTermId, Payment.receiptId; API plateb s volitelným termId |
 
 ## Změny dřívějších rozhodnutí
 
@@ -28,6 +35,7 @@ _Nic._
 | [D-077](#d-077) | Přesun mezi náhradníky jen u Potvrzené s dluhem, ruční zásahy platí v obou režimech | 2026-10-31 | mění [D-056](#d-056), mění [D-057](#d-057) |
 | [D-078](#d-078) | Preferovaný jazyk uživatele přebíjí jazyk přihlášky u e-mailů o změně přihlášky | 2026-10-31 | mění [D-069](#d-069) |
 | [D-083](#d-083) | Režim vyhodnocování lze měnit, dokud je počet přijatých přihlášek 0 | 2026-10-31 | mění [D-068](#d-068) |
+| [D-085](#d-085) | Dvouúrovňový variabilní symbol | 2026-11-01 | mění [D-016](#d-016), mění [D-034](#d-034) |
 
 ## Platná rozhodnutí podle oblasti
 
@@ -71,6 +79,13 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-091](#d-091) | Jedna platba za celé odeslání formuláře je záměr, mimo US-137 | 2026-11-01 | `pm` | produkt |
+| [D-090](#d-090) | Stará platební data se smažou, seed se přepíše | 2026-11-01 | `pm` | technicke |
+| [D-089](#d-089) | Příjem = řádky `Payment` po přihlášce v termínu se společným `receiptId` | 2026-11-01 | `pm` | technicke |
+| [D-088](#d-088) | Platba na VS bez dluhu je přeplatek přihlášky v termínu | 2026-11-01 | `pm` | produkt |
+| [D-087](#d-087) | Souhrnná platba se rozděluje od nejstaršího termínu | 2026-11-01 | `pm` | produkt |
+| [D-086](#d-086) | `Term.number` je neměnné číslo termínu v akci | 2026-11-01 | `pm` | technicke |
+| [D-085](#d-085) | Dvouúrovňový variabilní symbol | 2026-11-01 | `pm` | produkt |
 | [D-080](#d-080) | Platby při zrušení termínu vrací organizátor bez lhůty a bez potvrzení | 2026-10-31 | `pm` | produkt |
 | [D-051](#d-051) | Platba se váže ke konkrétnímu termínu | 2026-10-28 | `pm` | produkt |
 | [D-015](#d-015) | Cena termínu se při vyhodnocení zmrazí do ApplicationTerm.priceCzk | 2026-10-16 | `tech-lead` | produkt |
@@ -324,6 +339,7 @@ _Nic._
 - **Datum:** 2026-10-16 · **Rozhodl:** `tech-lead`
 - **Text:** Peníze jako celé Kč (`Int`). VS = globální sekvence `Application.number`. Platby jako řádky `Payment`.
 - **Zdroj:** [PROJEKT.md, sekce 9 (původní zápis)](../../docs/PROJEKT.md)
+- **Změněno v:** [D-085](#d-085)
 
 <a id="d-017"></a>
 
@@ -493,6 +509,7 @@ _Nic._
 - **Datum:** 2026-10-21 · **Rozhodl:** `po`
 - **Text:** **Souhrnný potvrzovací e-mail.** Přihlašovatel dostane JEDEN e-mail za celé odeslání formuláře, i když přihlásil víc účastníků (minimum e-mailů). V něm je u každého účastníka stav termínů a u každé přihlášky s potvrzeným termínem její částka k úhradě, bankovní účet organizace a vlastní variabilní symbol (platby se nesčítají). E-mail o změně přihlášky jde za jednu přihlášku. Selhání odeslání neshodí volajícího, jen se zaloguje.
 - **Zdroj:** [PROJEKT.md, sekce 9 (původní zápis)](../../docs/PROJEKT.md)
+- **Změněno v:** [D-085](#d-085)
 
 <a id="d-035"></a>
 
@@ -1057,3 +1074,88 @@ _Nic._
 - **Z otázek:** `Q-NAS-08`
 - **Dokumentace:** `docs/PROJEKT.md`: hotovo (c8c2f0a), sekce 8: Event.roomMode (ř. 91) po US-99 odstranit, režim je po termínech
 - **Poznámka:** Navazuje na D-062.
+
+<a id="d-085"></a>
+
+### D-085 – Dvouúrovňový variabilní symbol
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** platby
+- **Datum:** 2026-11-01 · **Rozhodl:** `pm`
+- **Text:** VS = `Application.number × 1000 + Term.number`. `…000` je souhrn přihlášky (zaplatí aktuální dluh), `…nnn` je platba za jeden termín. VS se neukládá, počítá se a čte celočíselně (`vs / 1000`, `vs % 1000`). Souhrnný VS platí vždy, částka se bere z aktuálního dluhu v okamžiku zápisu. Hodnoty od 9 000 000 000 jsou vyhrazeny pro souhrn odeslání formuláře (proto `Application.number` < 9 000 000). Věta „platby se nesčítají“ z D-034 platí jen pro platby různých přihlášek.
+- **Dotčené US:** [US-137](https://github.com/applifting-vsecourse/team-1/issues/174)
+- **Zdroj:** [ticket US-137 (#174), rozhodnutí PM v konverzaci 2026-11-01](https://github.com/applifting-vsecourse/team-1/issues/174)
+- **Mění:** [D-016](#d-016), [D-034](#d-034)
+- **Dokumentace:** `docs/PROJEKT.md`: ceka, řádek „Variabilní symbol = číslo přihlášky“ (sekce 5) přepsat na dvouúrovňový VS
+- **Dokumentace:** `docs/SLOVNIK.md`: ceka, Variabilní symbol: dvouúrovňový, patří přihlášce a přihlášce v termínu; class diagram
+- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/EMAILY.md`: ceka, platební údaje u e-mailů č. 2, 5, 7: souhrnný VS a VS každé potvrzené přihlášky v termínu
+
+<a id="d-086"></a>
+
+### D-086 – `Term.number` je neměnné číslo termínu v akci
+
+- **Stav:** platné · **Typ:** technicke · **Oblast:** platby
+- **Datum:** 2026-11-01 · **Rozhodl:** `pm`
+- **Text:** Pořadové číslo 1 až 999 v rámci akce, přidělené při vzniku termínu (nejvyšší + 1). Nikdy se nemění ani nepoužije znovu, ani po zrušení termínu (zrušený termín číslo drží).
+- **Dotčené US:** [US-137](https://github.com/applifting-vsecourse/team-1/issues/174)
+- **Zdroj:** [ticket US-137 (#174), rozhodnutí PM v konverzaci 2026-11-01](https://github.com/applifting-vsecourse/team-1/issues/174)
+- **Dokumentace:** `docs/PROJEKT.md`: ceka, datový model: Term.number
+
+<a id="d-087"></a>
+
+### D-087 – Souhrnná platba se rozděluje od nejstaršího termínu
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** platby
+- **Datum:** 2026-11-01 · **Rozhodl:** `pm`
+- **Text:** Platba na souhrnný VS se rozdělí na potvrzené přihlášky v termínu s dluhem, od nejstaršího data konání (shoda: podle `Term.number`), každou nejvýše do výše jejího dluhu. Nedoplatek zůstane na nejpozdějším termínu. Přeplatek se zapíše na poslední potvrzenou přihlášku v termínu v tomto pořadí (bez potvrzené na poslední přihlášku v termínu).
+- **Dotčené US:** [US-137](https://github.com/applifting-vsecourse/team-1/issues/174)
+- **Zdroj:** [ticket US-137 (#174), rozhodnutí PM v konverzaci 2026-11-01](https://github.com/applifting-vsecourse/team-1/issues/174)
+- **Z otázek:** `Q-PLA-11`
+- **Dokumentace:** `docs/SLOVNIK.md`: ceka, pojmy Souhrn přihlášky a Příjem; pravidlo rozdělení
+- **Poznámka:** Rozhodl PM; PO ověří (Q-PLA-14).
+
+<a id="d-088"></a>
+
+### D-088 – Platba na VS bez dluhu je přeplatek přihlášky v termínu
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** platby
+- **Datum:** 2026-11-01 · **Rozhodl:** `pm`
+- **Text:** Platba na VS přihlášky v termínu bez dluhu (náhradník, zrušená, již zaplacená) se zapíše jako přeplatek té přihlášky v termínu. Nic se neodmítá. Přeplatek se nepřevádí na jinou přihlášku v termínu a vrací se vratkou. Platba zrušeného termínu nebo náhradníka zůstává u své přihlášky v termínu.
+- **Dotčené US:** [US-137](https://github.com/applifting-vsecourse/team-1/issues/174)
+- **Zdroj:** [ticket US-137 (#174), rozhodnutí PM v konverzaci 2026-11-01](https://github.com/applifting-vsecourse/team-1/issues/174)
+- **Z otázek:** `Q-PLA-11`
+- **Dokumentace:** `docs/SLOVNIK.md`: ceka, Přeplatek patří přihlášce v termínu
+- **Poznámka:** Upřesňuje D-051.
+
+<a id="d-089"></a>
+
+### D-089 – Příjem = řádky `Payment` po přihlášce v termínu se společným `receiptId`
+
+- **Stav:** platné · **Typ:** technicke · **Oblast:** platby
+- **Datum:** 2026-11-01 · **Rozhodl:** `pm`
+- **Text:** Platba na souhrnný VS vytvoří víc řádků se stejným `receiptId`. Zrušení jednoho řádku zruší celou skupinu. Vratka se zadává přes `termId` (bez něj chyba) a je jeden záporný řádek na jedné přihlášce v termínu, omezený jejím přeplatkem. Zápis: cesta plateb přihlášky + volitelný `termId` (bez něj souhrn).
+- **Dotčené US:** [US-137](https://github.com/applifting-vsecourse/team-1/issues/174)
+- **Zdroj:** [ticket US-137 (#174), rozhodnutí PM v konverzaci 2026-11-01](https://github.com/applifting-vsecourse/team-1/issues/174)
+- **Dokumentace:** `docs/PROJEKT.md`: ceka, datový model: Payment.applicationTermId, Payment.receiptId; API plateb s volitelným termId
+- **Poznámka:** Upřesňuje D-016 a D-051.
+
+<a id="d-090"></a>
+
+### D-090 – Stará platební data se smažou, seed se přepíše
+
+- **Stav:** platné · **Typ:** technicke · **Oblast:** platby
+- **Datum:** 2026-11-01 · **Rozhodl:** `pm`
+- **Text:** Existují jen demo a seed data. Migrace stávající platby smaže, nová seed data dodá US-137, dosavadní VS přihlášky (4 číslice) přestává platit. Na stagingu se seed přeskočí (organizace už existuje), nová data se tam dostanou jednorázovým re-seedem.
+- **Dotčené US:** [US-137](https://github.com/applifting-vsecourse/team-1/issues/174)
+- **Zdroj:** [ticket US-137 (#174), rozhodnutí PM v konverzaci 2026-11-01](https://github.com/applifting-vsecourse/team-1/issues/174)
+- **Z otázek:** `Q-PLA-10`
+
+<a id="d-091"></a>
+
+### D-091 – Jedna platba za celé odeslání formuláře je záměr, mimo US-137
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** platby
+- **Datum:** 2026-11-01 · **Rozhodl:** `pm`
+- **Text:** Přihlašovatel, který přihlásí víc účastníků na víc termínů, má mít možnost zaplatit jednou platbou a jedním QR kódem. Řeší navazující ticket; US-137 ho nesmí blokovat: rozdělení platby je obecná funkce nad seznamem přihlášek v termínu, příjem může vést přes víc přihlášek a rozsah VS od 9 000 000 000 je vyhrazen.
+- **Dotčené US:** [US-137](https://github.com/applifting-vsecourse/team-1/issues/174)
+- **Zdroj:** [ticket US-137 (#174), rozhodnutí PM v konverzaci 2026-11-01](https://github.com/applifting-vsecourse/team-1/issues/174)
+- **Poznámka:** Zpřesňuje zápis z 26. 10. (po odeslání za více účastníků je nahoře součet k úhradě). Ticket k založení.

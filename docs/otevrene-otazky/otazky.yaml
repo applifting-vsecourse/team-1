@@ -644,7 +644,7 @@ otazky:
   us:
   - label: '#174'
     url: https://github.com/applifting-vsecourse/team-1/issues/174
-  stav: otevreno
+  stav: rozhodnuto
   priorita: P1
   priorita_duvod: Rozpracovaný ticket o platbě v termínu; kód se bez odpovědí nedomýšlí a PO 28. 10. platbu
     v termínu výslovně chtěl.
@@ -655,13 +655,14 @@ otazky:
     citace: '„Dotaz na Adama: Co s už zapsanými platbami a už vydanými VS? Návrh: pokud existují jen demo
       a seed data, přepsat seed a data nemigrovat. …“'
   poznamka: Dokud není zodpovězeno, nedomýšlí se to do kódu.
+  rozhodnuti_ref: D-090
 - id: Q-PLA-11
   otazka: K jaké přihlášce v termínu patří přeplatek a co se stane s platbou zrušeného termínu nebo náhradníka?
   epic: platby
   us:
   - label: '#174'
     url: https://github.com/applifting-vsecourse/team-1/issues/174
-  stav: otevreno
+  stav: rozhodnuto
   priorita: P1
   priorita_duvod: Rozpracovaný ticket o platbě v termínu; kód se bez odpovědí nedomýšlí a PO 28. 10. platbu
     v termínu výslovně chtěl.
@@ -674,6 +675,7 @@ otazky:
   - popis: PROJEKT.md §9, 28. 10.
     url: https://github.com/applifting-vsecourse/team-1/blob/31b4fc25e25afa265d1812a9f8538d081af84265/docs/PROJEKT.md#9-rozhodnutí
     citace: „vratka se eviduje zápornou platbou“
+  rozhodnuti_ref: D-088
 - id: Q-PLA-12
   otazka: Patří editace a doplnění platby do tohoto ticketu (dnes US-44 umí zápis a zrušení, ne úpravu)?
   epic: platby
@@ -682,10 +684,9 @@ otazky:
     url: https://github.com/applifting-vsecourse/team-1/issues/174
   - label: US-44
     url: https://github.com/applifting-vsecourse/team-1/issues/44
-  stav: otevreno
-  priorita: P1
-  priorita_duvod: Rozpracovaný ticket o platbě v termínu; kód se bez odpovědí nedomýšlí a PO 28. 10. platbu
-    v termínu výslovně chtěl.
+  stav: uzavreno
+  priorita: null
+  priorita_duvod: null
   ceka_na: pm
   zdroje:
   - popis: issue, Otevřené otázky 3
@@ -695,16 +696,16 @@ otazky:
   - popis: zápis 28. 10., Upřesnění požadavků
     url: https://github.com/applifting-vsecourse/team-1/blob/31b4fc25e25afa265d1812a9f8538d081af84265/docs/zapisy/2026-10-28-status-s-po.md
     citace: '„Platby: možnost editace, doplnění a záporné platby jako vratky“'
+  uzavreno_duvod: 'Editace a oprava zapsané platby nepatří do US-137, řeší ji US-112 (#205). PM 2026-11-01.'
 - id: Q-PLA-13
   otazka: Je ticket o platbě v termínu zařazen do dalšího sprintu?
   epic: platby
   us:
   - label: '#174'
     url: https://github.com/applifting-vsecourse/team-1/issues/174
-  stav: otevreno
-  priorita: P1
-  priorita_duvod: Rozpracovaný ticket o platbě v termínu; kód se bez odpovědí nedomýšlí a PO 28. 10. platbu
-    v termínu výslovně chtěl.
+  stav: uzavreno
+  priorita: null
+  priorita_duvod: null
   ceka_na: pm
   zdroje:
   - popis: issue, Otevřené otázky 4
@@ -714,6 +715,83 @@ otazky:
     url: https://github.com/applifting-vsecourse/team-1/blob/31b4fc25e25afa265d1812a9f8538d081af84265/docs/zapisy/2026-10-27-status.md#L76-L84
     citace: '„Platby per přihláška v termínu: projít proces před implementací a odsouhlasit zařazení do
       dalšího sprintu.“'
+  uzavreno_duvod: 'US-137 (#174) je zařazena do aktuálního sprintu (PM 2026-11-01).'
+- id: Q-PLA-14
+  otazka: 'Ověřit u PO pravidlo D-087: souhrnná platba se rozdělí od nejstaršího termínu, nedoplatek zůstane na nejpozdějším, přeplatek na poslední potvrzené přihlášce v termínu. Platí, nebo má být jinak? (Rozhodl PM, jde o ověření.)'
+  epic: platby
+  us:
+  - label: US-127
+    url: https://github.com/applifting-vsecourse/team-1/issues/220
+  - label: US-137
+    url: https://github.com/applifting-vsecourse/team-1/issues/174
+  stav: otevreno
+  priorita: P2
+  priorita_duvod: 'PM rozhodl, nebrání vývoji US-137; ověření u PO nejpozději před spuštěním US-127.'
+  ceka_na: po
+  zdroje:
+  - popis: 'US-127, otevřená otázka na PO'
+    url: https://github.com/applifting-vsecourse/team-1/issues/220
+    citace: '„Jak se rozpočítá platba, jejíž částka neodpovídá přesně dluhu jednoho ani součtu termínů?“'
+  navazne_tickety:
+  - label: US-127
+    url: https://github.com/applifting-vsecourse/team-1/issues/220
+- id: Q-PLA-15
+  otazka: 'Jak se opraví souhrnná platba rozdělená do víc řádků se společným `receiptId` (oprava částky nebo termínu v US-112)?'
+  epic: platby
+  us:
+  - label: US-112
+    url: https://github.com/applifting-vsecourse/team-1/issues/205
+  - label: US-137
+    url: https://github.com/applifting-vsecourse/team-1/issues/174
+  stav: otevreno
+  priorita: P2
+  priorita_duvod: 'US-112 navazuje na model příjmu z US-137.'
+  ceka_na: pm
+  zdroje:
+  - popis: 'US-112, akceptační kritérium'
+    url: https://github.com/applifting-vsecourse/team-1/issues/205
+    citace: '„Organizátor změní částku nebo termín u už zapsané platby či vratky.“'
+  navazne_tickety:
+  - label: US-112
+    url: https://github.com/applifting-vsecourse/team-1/issues/205
+- id: Q-PLA-16
+  otazka: 'Vytvoří „označení vrácení“ v US-132 zápornou platbu na přihlášku v termínu (vratka z US-137), nebo je to samostatný příznak?'
+  epic: platby
+  us:
+  - label: US-132
+    url: https://github.com/applifting-vsecourse/team-1/issues/247
+  - label: US-137
+    url: https://github.com/applifting-vsecourse/team-1/issues/174
+  stav: otevreno
+  priorita: P2
+  priorita_duvod: 'US-132 navazuje na vratku jako zápornou platbu.'
+  ceka_na: pm
+  zdroje:
+  - popis: 'US-132, akceptační kritérium'
+    url: https://github.com/applifting-vsecourse/team-1/issues/247
+    citace: '„Organizátor u platby označí vrácení; označení se uloží s datem a jménem.“'
+  navazne_tickety:
+  - label: US-132
+    url: https://github.com/applifting-vsecourse/team-1/issues/247
+- id: Q-PLA-17
+  otazka: 'Lhůta na zaplacení (10 dní od potvrzení, US-41) je u přihlášky v termínu. Co platí, když souhrnná platba přijde po lhůtě jedné z nich?'
+  epic: platby
+  us:
+  - label: US-41
+    url: https://github.com/applifting-vsecourse/team-1/issues/41
+  - label: US-137
+    url: https://github.com/applifting-vsecourse/team-1/issues/174
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: 'Okrajový případ souhrnné platby.'
+  ceka_na: pm
+  zdroje:
+  - popis: 'US-41, akceptační kritérium'
+    url: https://github.com/applifting-vsecourse/team-1/issues/41
+    citace: '„Lhůta na zaplacení se počítá od potvrzení (výchozí 10 dní, organizátor ji může změnit).“'
+  navazne_tickety:
+  - label: US-41
+    url: https://github.com/applifting-vsecourse/team-1/issues/41
 - id: Q-UBY-01
   otazka: Brief uvádí rozdělení do pokojů mezi nutnostmi pro 7. 2., v rozhovoru ale pokoje řešíte na místě.
     Platí tedy Nice to have?
