@@ -13,7 +13,7 @@ _Nic._
 | ID | Rozhodnutí | Soubor | Co zapsat |
 | --- | --- | --- | --- |
 | [D-069](#d-069) | Uživatel si nastaví preferovaný jazyk (aplikace i e-maily) | `docs/PROJEKT.md` | pravidlo jazyka aplikace a e-mailů: preferovaný jazyk uživatele (zapsat při zadání ticketu) |
-| [D-085](#d-085) | Dvouúrovňový variabilní symbol | `docs/PROJEKT.md` | řádek „Variabilní symbol = číslo přihlášky“ (sekce 5) přepsat na dvouúrovňový VS |
+| [D-085](#d-085) | Dvouúrovňový variabilní symbol | `docs/PROJEKT.md` | řádek „Variabilní symbol = číslo přihlášky“ (sekce 5) přepsat na dvouúrovňový VS; uvést vyhrazený rozsah VS od 9 000 000 000 a omezení Application.number < 9 000 000 |
 | [D-085](#d-085) | Dvouúrovňový variabilní symbol | `docs/SLOVNIK.md` | Variabilní symbol: dvouúrovňový, patří přihlášce a přihlášce v termínu; class diagram |
 | [D-085](#d-085) | Dvouúrovňový variabilní symbol | `docs/procesy/zpracovani-prihlasky/EMAILY.md` | platební údaje u e-mailů č. 2, 5, 7: souhrnný VS a VS každé potvrzené přihlášky v termínu |
 | [D-086](#d-086) | `Term.number` je neměnné číslo termínu v akci | `docs/PROJEKT.md` | datový model: Term.number |
@@ -1085,7 +1085,7 @@ _Nic._
 - **Dotčené US:** [US-137](https://github.com/applifting-vsecourse/team-1/issues/174)
 - **Zdroj:** [ticket US-137 (#174), rozhodnutí PM v konverzaci 2026-11-01](https://github.com/applifting-vsecourse/team-1/issues/174)
 - **Mění:** [D-016](#d-016), [D-034](#d-034)
-- **Dokumentace:** `docs/PROJEKT.md`: ceka, řádek „Variabilní symbol = číslo přihlášky“ (sekce 5) přepsat na dvouúrovňový VS
+- **Dokumentace:** `docs/PROJEKT.md`: ceka, řádek „Variabilní symbol = číslo přihlášky“ (sekce 5) přepsat na dvouúrovňový VS; uvést vyhrazený rozsah VS od 9 000 000 000 a omezení Application.number < 9 000 000
 - **Dokumentace:** `docs/SLOVNIK.md`: ceka, Variabilní symbol: dvouúrovňový, patří přihlášce a přihlášce v termínu; class diagram
 - **Dokumentace:** `docs/procesy/zpracovani-prihlasky/EMAILY.md`: ceka, platební údaje u e-mailů č. 2, 5, 7: souhrnný VS a VS každé potvrzené přihlášky v termínu
 
@@ -1109,7 +1109,7 @@ _Nic._
 - **Text:** Platba na souhrnný VS se rozdělí na potvrzené přihlášky v termínu s dluhem, od nejstaršího data konání (shoda: podle `Term.number`), každou nejvýše do výše jejího dluhu. Nedoplatek zůstane na nejpozdějším termínu. Přeplatek se zapíše na poslední potvrzenou přihlášku v termínu v tomto pořadí (bez potvrzené na poslední přihlášku v termínu).
 - **Dotčené US:** [US-137](https://github.com/applifting-vsecourse/team-1/issues/174)
 - **Zdroj:** [ticket US-137 (#174), rozhodnutí PM v konverzaci 2026-11-01](https://github.com/applifting-vsecourse/team-1/issues/174)
-- **Z otázek:** `Q-PLA-11`
+- **Z otázek:** `Q-PLA-11`, `Q-PLA-14`
 - **Dokumentace:** `docs/SLOVNIK.md`: ceka, pojmy Souhrn přihlášky a Příjem; pravidlo rozdělení
 - **Poznámka:** Rozhodl PM; PO ověří (Q-PLA-14).
 

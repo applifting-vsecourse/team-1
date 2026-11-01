@@ -1666,7 +1666,7 @@ rozhodnuti:
   z_otazek: []
   dokumentace:
   - soubor: docs/PROJEKT.md
-    popis: 'řádek „Variabilní symbol = číslo přihlášky“ (sekce 5) přepsat na dvouúrovňový VS'
+    popis: 'řádek „Variabilní symbol = číslo přihlášky“ (sekce 5) přepsat na dvouúrovňový VS; uvést vyhrazený rozsah VS od 9 000 000 000 a omezení Application.number < 9 000 000'
     stav: ceka
   - soubor: docs/SLOVNIK.md
     popis: 'Variabilní symbol: dvouúrovňový, patří přihlášce a přihlášce v termínu; class diagram'
@@ -1711,6 +1711,7 @@ rozhodnuti:
   stav: platne
   z_otazek:
   - Q-PLA-11
+  - Q-PLA-14
   dokumentace:
   - soubor: docs/SLOVNIK.md
     popis: 'pojmy Souhrn přihlášky a Příjem; pravidlo rozdělení'
