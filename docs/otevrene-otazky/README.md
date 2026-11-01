@@ -2,7 +2,7 @@
 
 > Generováno z [`otazky.yaml`](otazky.yaml) (`python generate.py`). Needituj, měň YAML.
 
-**96 neuzavřených** otázek, **18 uzavřených**.
+**98 neuzavřených** otázek, **20 uzavřených**.
 
 ## Role
 
@@ -16,7 +16,7 @@
 
 ## Kdo má tah
 
-### `pm` (Adam): 27
+### `pm` (Adam): 26
 
 | ID | Otázka | Dotčené US | Priorita | Proč |
 | --- | --- | --- | --- | --- |
@@ -24,14 +24,12 @@
 | [Q-KOM-06](#q-kom-06) | Který e-mail dorazil anglicky a v jakém jazyce byl UI při odeslání přihlášky a při žádosti o odkaz? | [#183](https://github.com/applifting-vsecourse/team-1/issues/183) | P1 | Potvrzená chyba (jazyk e-mailu), zápis 27. 10. ji vede jako otevřený bod k ověření. |
 | [Q-NAS-05](#q-nas-05) | Jaká pole veřejných údajů o akci (fotografie atd.) se mají zobrazovat na veřejné stránce? | [US-22](https://github.com/applifting-vsecourse/team-1/issues/22) | P1 | Veřejná stránka akce je v návrhu PO pro sprint 3 (návštěvník webu) a seznam polí není určen. |
 | [Q-NAS-07](#q-nas-07) | Přidají se zkopírované pokoje k existujícím pokojům cílového termínu, nebo je nahradí? | [US-100](https://github.com/applifting-vsecourse/team-1/issues/193), [US-99](https://github.com/applifting-vsecourse/team-1/issues/192) | P1 | US-100 je ve sprintu 3 a bez odpovědi nejde implementovat kopírování pokojů. |
-| [Q-PLA-10](#q-pla-10) | Co s už zapsanými platbami a už vydanými variabilními symboly (migrace, nebo přepsání seedu)? | [#174](https://github.com/applifting-vsecourse/team-1/issues/174) | P1 | Rozpracovaný ticket o platbě v termínu; kód se bez odpovědí nedomýšlí a PO 28. 10. platbu v termínu výslovně chtěl. |
-| [Q-PLA-11](#q-pla-11) | K jaké přihlášce v termínu patří přeplatek a co se stane s platbou zrušeného termínu nebo náhradníka? | [#174](https://github.com/applifting-vsecourse/team-1/issues/174) | P1 | Rozpracovaný ticket o platbě v termínu; kód se bez odpovědí nedomýšlí a PO 28. 10. platbu v termínu výslovně chtěl. |
-| [Q-PLA-12](#q-pla-12) | Patří editace a doplnění platby do tohoto ticketu (dnes US-44 umí zápis a zrušení, ne úpravu)? | [#174](https://github.com/applifting-vsecourse/team-1/issues/174), [US-44](https://github.com/applifting-vsecourse/team-1/issues/44) | P1 | Rozpracovaný ticket o platbě v termínu; kód se bez odpovědí nedomýšlí a PO 28. 10. platbu v termínu výslovně chtěl. |
-| [Q-PLA-13](#q-pla-13) | Je ticket o platbě v termínu zařazen do dalšího sprintu? | [#174](https://github.com/applifting-vsecourse/team-1/issues/174) | P1 | Rozpracovaný ticket o platbě v termínu; kód se bez odpovědí nedomýšlí a PO 28. 10. platbu v termínu výslovně chtěl. |
 | [Q-PRE-02](#q-pre-02) | Dashboard organizátora: jaký přesně obsah mají karty „co vyžaduje pozornost“? | [US-51](https://github.com/applifting-vsecourse/team-1/issues/51) | P1 | Dashboard se vrací a je v návrhu PO; obsah karet není určen. |
 | [Q-UCT-04](#q-uct-04) | Organizace: musí ji mít každý organizátor, nebo může pořádat akce sám? | [US-08](https://github.com/applifting-vsecourse/team-1/issues/8) | P1 | Self-onboarding organizace je v rozsahu sprintu 3; otázka určuje dopad na model a UX. |
 | [Q-BEZ-05](#q-bez-05) | Kde a jak dlouho smí formulář přihlášky držet osobní údaje (i dětí) v prohlížeči a jak se uloží formulář s více účastníky? | [#179](https://github.com/applifting-vsecourse/team-1/issues/179) | P2 | Rozpracovaná oprava nebo úprava v běžícím flow přihlášek a účtů; nic neblokuje, ale brzy se na to narazí. |
 | [Q-KOM-10](#q-kom-10) | Kdo dodá text a vzhled e-mailu č. 6 („zrušeno, protože se neuvolnilo lůžko“)? | [US-106 (#199)](https://github.com/applifting-vsecourse/team-1/issues/199) | P2 | Ve Figmě rámec není; text je zatím věta z kritérií. |
+| [Q-PLA-15](#q-pla-15) | Jak se opraví souhrnná platba rozdělená do víc řádků se společným `receiptId` (oprava částky nebo termínu v US-112)? | [US-112](https://github.com/applifting-vsecourse/team-1/issues/205), [US-137](https://github.com/applifting-vsecourse/team-1/issues/174) | P2 | US-112 navazuje na model příjmu z US-137. |
+| [Q-PLA-16](#q-pla-16) | Vytvoří „označení vrácení“ v US-132 zápornou platbu na přihlášku v termínu (vratka z US-137), nebo je to samostatný příznak? | [US-132](https://github.com/applifting-vsecourse/team-1/issues/247), [US-137](https://github.com/applifting-vsecourse/team-1/issues/174) | P2 | US-132 navazuje na vratku jako zápornou platbu. |
 | [Q-PRI-04](#q-pri-04) | Platí pravidlo „odhlášená přihláška se nepočítá do kontroly duplicity“ i pro termín zrušený organizátorem při vyhodnocení (stav „Zrušená“)? | [US-32](https://github.com/applifting-vsecourse/team-1/issues/32), [#160](https://github.com/applifting-vsecourse/team-1/issues/160) | P2 | Drobné pravidlo kontroly duplicity; autor navrhuje odpověď „ano“. |
 | [Q-PRI-11](#q-pri-11) | Má se formát data narození řídit jazykem aplikace, nebo jazykem systému (a co na jiných zařízeních)? | [#177](https://github.com/applifting-vsecourse/team-1/issues/177) | P2 | Rozpracovaná oprava nebo úprava v běžícím flow přihlášek a účtů; nic neblokuje, ale brzy se na to narazí. |
 | [Q-UCT-07](#q-uct-07) | Má nový magic link zneplatnit jen dříve vydané nepoužité odkazy, nebo i aktivní session? | [#127](https://github.com/applifting-vsecourse/team-1/issues/127) | P2 | Rozpracovaná oprava nebo úprava v běžícím flow přihlášek a účtů; nic neblokuje, ale brzy se na to narazí. |
@@ -40,6 +38,7 @@
 | [Q-BEZ-01](#q-bez-01) | Jaké doklady zaměstnavatelé skutečně vyžadují a kdy a kým se mají vystavovat? | [#162](https://github.com/applifting-vsecourse/team-1/issues/162) | P3 | Nápad (label idea), není ve storkách ani v rozsahu sprintu. |
 | [Q-BEZ-02](#q-bez-02) | Jaké doklady vyžadují zdravotní pojišťovny a liší se od dokladů pro zaměstnavatele (#162)? | [#163](https://github.com/applifting-vsecourse/team-1/issues/163) | P3 | Nápad (label idea), není ve storkách ani v rozsahu sprintu. |
 | [Q-BEZ-03](#q-bez-03) | Kdo smí které zdravotní údaje vidět a zapisovat, jaké zákonné požadavky platí a má se to řešit jako jeden modul? | [#166](https://github.com/applifting-vsecourse/team-1/issues/166) | P3 | Nápad (label idea), není ve storkách ani v rozsahu sprintu. |
+| [Q-PLA-17](#q-pla-17) | Lhůta na zaplacení (10 dní od potvrzení, US-41) je u přihlášky v termínu. Co platí, když souhrnná platba přijde po lhůtě jedné z nich? | [US-41](https://github.com/applifting-vsecourse/team-1/issues/41), [US-137](https://github.com/applifting-vsecourse/team-1/issues/174) | P3 | Okrajový případ souhrnné platby. |
 | [Q-PLT-07](#q-plt-07) | Co patří do admin portálu platformy kromě náhledu organizací a fakturace (deaktivace, audit log, statistiky, podpora)? | [#186](https://github.com/applifting-vsecourse/team-1/issues/186) | P3 | Platformový admin se do sprintu 3 nezařazuje, byznysová potřeba nepotvrzena (zápis 28. 10.). |
 | [Q-PLT-08](#q-plt-08) | Má se organizacím jen vyúčtovat (přehled k ruční fakturaci, jak říká US-70), nebo má platforma faktury vystavovat a evidovat jejich úhradu? | [#186](https://github.com/applifting-vsecourse/team-1/issues/186), [US-70](https://github.com/applifting-vsecourse/team-1/issues/70) | P3 | Platformový admin se do sprintu 3 nezařazuje, byznysová potřeba nepotvrzena (zápis 28. 10.). |
 | [Q-PLT-09](#q-plt-09) | Jaký je obchodní model: poplatek za účastníka, předplatné, nebo obojí? | [#186](https://github.com/applifting-vsecourse/team-1/issues/186), [US-70](https://github.com/applifting-vsecourse/team-1/issues/70) | P3 | Platformový admin se do sprintu 3 nezařazuje, byznysová potřeba nepotvrzena (zápis 28. 10.). |
@@ -69,7 +68,7 @@
 
 _Nic._
 
-### `po` (Tomáš): 50
+### `po` (Tomáš): 51
 
 | ID | Otázka | Dotčené US | Priorita | Proč |
 | --- | --- | --- | --- | --- |
@@ -80,6 +79,7 @@ _Nic._
 | [Q-PRI-07](#q-pri-07) | Má změna termínu nebo odhláška proběhnout hned, nebo ji organizátor nejdřív schválí (kvůli kapacitě a storno podmínkám)? | [US-84](https://github.com/applifting-vsecourse/team-1/issues/84) | P1 | Účastník si sám mění termín a odhlašuje se (návrh PO); chybí pravidlo hned / po schválení. |
 | [Q-PLA-02](#q-pla-02) | Stačí nahrání výpisu, nebo čekáte, že si systém platby načte z bankovního účtu sám? U které banky máte bankovní účet a můžete nám k němu zřídit přístup pro čtení? Blokuje ready. | [US-43](https://github.com/applifting-vsecourse/team-1/issues/43) | P2 | Označeno jako klíčové a blokující, ale board říká „platby bez banky“ a US je „Později“. |
 | [Q-PLA-04](#q-pla-04) | Jak se počítá storno při odhlášce méně než 30 dní před akcí: procento z ceny, pevná částka, nebo podle toho, jestli se za účastníka najde náhradník? | [US-47](https://github.com/applifting-vsecourse/team-1/issues/47) | P2 | Storno podmínky jsou v návrhu PO („odkdy běží“), výpočet storna ale není určen. |
+| [Q-PLA-14](#q-pla-14) | Ověřit u PO pravidlo D-087: souhrnná platba se rozdělí od nejstaršího termínu, nedoplatek zůstane na nejpozdějším, přeplatek na poslední potvrzené přihlášce v termínu. Platí, nebo má být jinak? (Rozhodl PM, jde o ověření.) | [US-127](https://github.com/applifting-vsecourse/team-1/issues/220), [US-137](https://github.com/applifting-vsecourse/team-1/issues/174) | P2 | PM rozhodl, nebrání vývoji US-137; ověření u PO nejpozději před spuštěním US-127. |
 | [Q-PLT-02](#q-plt-02) | Kdy reálně přijde druhá organizace? Chcete nové organizace schvalovat? | [US-69](https://github.com/applifting-vsecourse/team-1/issues/69) | P2 | Souvisí s self-onboardingem organizace (sprint 3) a otevřeným bodem o povinné organizaci. |
 | [Q-UBY-01](#q-uby-01) | Brief uvádí rozdělení do pokojů mezi nutnostmi pro 7. 2., v rozhovoru ale pokoje řešíte na místě. Platí tedy Nice to have? | [US-35](https://github.com/applifting-vsecourse/team-1/issues/35) | P2 | PO chce interaktivní prvek u kapacit ubytování; samotné přiřazování na lůžka je ale označeno jako nice to have. |
 | [Q-UCT-01](#q-uct-01) | Mají e-maily chodit i samotnému účastníkovi, nebo jen přihlašovateli? Navrhujeme oběma. | [US-05](https://github.com/applifting-vsecourse/team-1/issues/5) | P2 | Zbývající flow přihlášky; otázka, komu chodí e-maily. |
@@ -128,6 +128,8 @@ _Nic._
 
 | ID | Otázka | Dotčené US | Rozhodnutí | Zapsat do |
 | --- | --- | --- | --- | --- |
+| [Q-PLA-10](#q-pla-10) | Co s už zapsanými platbami a už vydanými variabilními symboly (migrace, nebo přepsání seedu)? | [#174](https://github.com/applifting-vsecourse/team-1/issues/174) | [D-090](../rozhodnuti/README.md#d-090): Stará platební data se smažou, seed se přepíše | – |
+| [Q-PLA-11](#q-pla-11) | K jaké přihlášce v termínu patří přeplatek a co se stane s platbou zrušeného termínu nebo náhradníka? | [#174](https://github.com/applifting-vsecourse/team-1/issues/174) | [D-088](../rozhodnuti/README.md#d-088): Platba na VS bez dluhu je přeplatek přihlášky v termínu | `docs/SLOVNIK.md` |
 | [Q-KOM-08](#q-kom-08) | Má se User.locale aktualizovat s každou přihláškou nebo přepnutím jazyka? | [#183](https://github.com/applifting-vsecourse/team-1/issues/183) | [D-069](../rozhodnuti/README.md#d-069): Uživatel si nastaví preferovaný jazyk (aplikace i e-maily) | `docs/PROJEKT.md` |
 
 ## Tickety k založení
@@ -203,18 +205,20 @@ _Nic._
 
 | ID | Otázka | Dotčené US | Stav | Priorita | Čeká na |
 | --- | --- | --- | --- | --- | --- |
-| [Q-PLA-10](#q-pla-10) | Co s už zapsanými platbami a už vydanými variabilními symboly (migrace, nebo přepsání seedu)? | [#174](https://github.com/applifting-vsecourse/team-1/issues/174) | otevřeno | P1 | `pm` |
-| [Q-PLA-11](#q-pla-11) | K jaké přihlášce v termínu patří přeplatek a co se stane s platbou zrušeného termínu nebo náhradníka? | [#174](https://github.com/applifting-vsecourse/team-1/issues/174) | otevřeno | P1 | `pm` |
-| [Q-PLA-12](#q-pla-12) | Patří editace a doplnění platby do tohoto ticketu (dnes US-44 umí zápis a zrušení, ne úpravu)? | [#174](https://github.com/applifting-vsecourse/team-1/issues/174), [US-44](https://github.com/applifting-vsecourse/team-1/issues/44) | otevřeno | P1 | `pm` |
-| [Q-PLA-13](#q-pla-13) | Je ticket o platbě v termínu zařazen do dalšího sprintu? | [#174](https://github.com/applifting-vsecourse/team-1/issues/174) | otevřeno | P1 | `pm` |
+| [Q-PLA-10](#q-pla-10) | Co s už zapsanými platbami a už vydanými variabilními symboly (migrace, nebo přepsání seedu)? | [#174](https://github.com/applifting-vsecourse/team-1/issues/174) | rozhodnuto, nezapsáno | P1 | `pm` |
+| [Q-PLA-11](#q-pla-11) | K jaké přihlášce v termínu patří přeplatek a co se stane s platbou zrušeného termínu nebo náhradníka? | [#174](https://github.com/applifting-vsecourse/team-1/issues/174) | rozhodnuto, nezapsáno | P1 | `pm` |
 | [Q-PLA-02](#q-pla-02) | Stačí nahrání výpisu, nebo čekáte, že si systém platby načte z bankovního účtu sám? U které banky máte bankovní účet a můžete nám k němu zřídit přístup pro čtení? Blokuje ready. | [US-43](https://github.com/applifting-vsecourse/team-1/issues/43) | otevřeno | P2 | `po` |
 | [Q-PLA-04](#q-pla-04) | Jak se počítá storno při odhlášce méně než 30 dní před akcí: procento z ceny, pevná částka, nebo podle toho, jestli se za účastníka najde náhradník? | [US-47](https://github.com/applifting-vsecourse/team-1/issues/47) | otevřeno | P2 | `po` |
+| [Q-PLA-14](#q-pla-14) | Ověřit u PO pravidlo D-087: souhrnná platba se rozdělí od nejstaršího termínu, nedoplatek zůstane na nejpozdějším, přeplatek na poslední potvrzené přihlášce v termínu. Platí, nebo má být jinak? (Rozhodl PM, jde o ověření.) | [US-127](https://github.com/applifting-vsecourse/team-1/issues/220), [US-137](https://github.com/applifting-vsecourse/team-1/issues/174) | otevřeno | P2 | `po` |
+| [Q-PLA-15](#q-pla-15) | Jak se opraví souhrnná platba rozdělená do víc řádků se společným `receiptId` (oprava částky nebo termínu v US-112)? | [US-112](https://github.com/applifting-vsecourse/team-1/issues/205), [US-137](https://github.com/applifting-vsecourse/team-1/issues/174) | otevřeno | P2 | `pm` |
+| [Q-PLA-16](#q-pla-16) | Vytvoří „označení vrácení“ v US-132 zápornou platbu na přihlášku v termínu (vratka z US-137), nebo je to samostatný příznak? | [US-132](https://github.com/applifting-vsecourse/team-1/issues/247), [US-137](https://github.com/applifting-vsecourse/team-1/issues/174) | otevřeno | P2 | `pm` |
 | [Q-PLA-03](#q-pla-03) | Co po poslední výzvě k zaplacení bez reakce: jen označit pro telefonát (US-45), nebo má systém přihlášku po nějaké době sám zrušit? | [US-46](https://github.com/applifting-vsecourse/team-1/issues/46) | otevřeno | P3 | `po` |
 | [Q-PLA-05](#q-pla-05) | Doúčtovává pořadatel po akci? Rozpočítání výdaje mezi účastníky je samostatná otázka. | [US-48](https://github.com/applifting-vsecourse/team-1/issues/48) | otevřeno | P3 | `po` |
 | [Q-PLA-06](#q-pla-06) | Kdo ověří nárok na slevu (např. členství ve spolku)? | [US-49](https://github.com/applifting-vsecourse/team-1/issues/49) | otevřeno | P3 | `po` |
 | [Q-PLA-07](#q-pla-07) | Má pořadatel účastníky ze zahraničí? | [US-50](https://github.com/applifting-vsecourse/team-1/issues/50) | otevřeno | P3 | `po` |
 | [Q-PLA-08](#q-pla-08) | Má systém organizátora upozornit hned po první zmeškané splátce? | [US-89](https://github.com/applifting-vsecourse/team-1/issues/89) | otevřeno | P3 | `po` |
 | [Q-PLA-09](#q-pla-09) | Jaké příplatky nabízíš? Vybírají se v přihlášce, nebo až po potvrzení? | [US-90](https://github.com/applifting-vsecourse/team-1/issues/90) | otevřeno | P3 | `po` |
+| [Q-PLA-17](#q-pla-17) | Lhůta na zaplacení (10 dní od potvrzení, US-41) je u přihlášky v termínu. Co platí, když souhrnná platba přijde po lhůtě jedné z nich? | [US-41](https://github.com/applifting-vsecourse/team-1/issues/41), [US-137](https://github.com/applifting-vsecourse/team-1/issues/174) | otevřeno | P3 | `pm` |
 
 ### Epic: platforma
 
@@ -303,6 +307,8 @@ _Nic._
 | [Q-PRI-08](#q-pri-08) | Jak se účastník vrací do aplikace? (odpověď: nápady nechává PO na týmu) | [US-84](https://github.com/applifting-vsecourse/team-1/issues/84) | Status s PO 28. 10.: důvod k návratu účastníka (úprava přihlášky, platba, kontakt na organizátora), nápady nechává PO na týmu. Zařazeno k US-84 jen kvůli epicu. |
 | [Q-UCT-03](#q-uct-03) | Má si nová organizace založit svůj profil v systému sám, nebo mu ho připravíme my? | [US-08](https://github.com/applifting-vsecourse/team-1/issues/8) | Nepřímá odpověď: status s PO 28. 10. řadí „založení organizace formou self-onboardingu“ do odsouhlaseného rozsahu sprintu. |
 | [Q-PLA-01](#q-pla-01) | Vadí, že když přihlašovatel odešle formulář přihlášky za více účastníků, dostane každá přihláška v termínu vlastní variabilní symbol (účastník se dvěma termíny tedy platí dvě platby)? | [US-41](https://github.com/applifting-vsecourse/team-1/issues/41) | Rozhodnuto 21. 10.: jeden souhrnný e-mail, u každé přihlášky v termínu vlastní částka a variabilní symbol. Potvrzeno 28. 10. (platba se váže k termínu). |
+| [Q-PLA-12](#q-pla-12) | Patří editace a doplnění platby do tohoto ticketu (dnes US-44 umí zápis a zrušení, ne úpravu)? | [#174](https://github.com/applifting-vsecourse/team-1/issues/174), [US-44](https://github.com/applifting-vsecourse/team-1/issues/44) | Editace a oprava zapsané platby nepatří do US-137, řeší ji US-112 (#205). PM 2026-11-01. |
+| [Q-PLA-13](#q-pla-13) | Je ticket o platbě v termínu zařazen do dalšího sprintu? | [#174](https://github.com/applifting-vsecourse/team-1/issues/174) | US-137 (#174) je zařazena do aktuálního sprintu (PM 2026-11-01). |
 | [Q-LOG-06](#q-log-06) | Má být checklist součástí programových bloků (US-66), nebo samostatný pro celou akci? Sdílí ho celý organizační tým? | [US-94](https://github.com/applifting-vsecourse/team-1/issues/94) | Issue samo uvádí „Rozhodnuto: ano“ (jen k části o sdílení týmem); k první části odpověď nenajdu. |
 | [Q-PLT-04](#q-plt-04) | Kdo je správcem údajů: organizace, nebo provozovatel Togeny? | [US-77](https://github.com/applifting-vsecourse/team-1/issues/77) | Rozhodnuto 28. 10.: organizátor je správcem údajů účastníků, Togena zpracovatelem; Togena je správcem údajů organizátorů. |
 | [Q-PLT-05](#q-plt-05) | Kdo je správcem osobních údajů: organizace, nebo provozovatel Togeny? (Odpověď tohoto issue uzavírá otázky z US-77 a US-78.) **Duplicita s [Q-PLT-04](#q-plt-04).** | [US-97](https://github.com/applifting-vsecourse/team-1/issues/164) | Správce údajů: rozhodnuto 28. 10. (viz US-77). Zůstává otevřená doba uchování (US-78) a smluvní strana (#167). |
@@ -804,41 +810,83 @@ _Nic._
 
 ### Q-PLA-10 – Co s už zapsanými platbami a už vydanými variabilními symboly (migrace, nebo přepsání seedu)?
 
-- **Epic:** platby · **Dotčené US:** [#174](https://github.com/applifting-vsecourse/team-1/issues/174) · **Stav:** otevřeno · **Čeká na:** `pm`
+- **Epic:** platby · **Dotčené US:** [#174](https://github.com/applifting-vsecourse/team-1/issues/174) · **Stav:** rozhodnuto, nezapsáno · **Čeká na:** `pm`
 - **Poznámka:** Dokud není zodpovězeno, nedomýšlí se to do kódu.
 - **Zdroje:**
   - [issue, Otevřené otázky 1](https://github.com/applifting-vsecourse/team-1/issues/174): „Dotaz na Adama: Co s už zapsanými platbami a už vydanými VS? Návrh: pokud existují jen demo a seed data, přepsat seed a data nemigrovat. …“
 - **Priorita:** P1 – Rozpracovaný ticket o platbě v termínu; kód se bez odpovědí nedomýšlí a PO 28. 10. platbu v termínu výslovně chtěl.
+- **Rozhodnutí:** [D-090](../rozhodnuti/README.md#d-090): Existují jen demo a seed data. Migrace stávající platby smaže, nová seed data dodá US-137, dosavadní VS přihlášky (4 číslice) přestává platit. Na stagingu se seed přeskočí (organizace už existuje), nová data se tam dostanou jednorázovým re-seedem.
 
 <a id="q-pla-11"></a>
 
 ### Q-PLA-11 – K jaké přihlášce v termínu patří přeplatek a co se stane s platbou zrušeného termínu nebo náhradníka?
 
-- **Epic:** platby · **Dotčené US:** [#174](https://github.com/applifting-vsecourse/team-1/issues/174) · **Stav:** otevřeno · **Čeká na:** `pm`
+- **Epic:** platby · **Dotčené US:** [#174](https://github.com/applifting-vsecourse/team-1/issues/174) · **Stav:** rozhodnuto, nezapsáno · **Čeká na:** `pm`
 - **Zdroje:**
   - [issue, Otevřené otázky 2](https://github.com/applifting-vsecourse/team-1/issues/174): „Nikde není psáno, zda přeplatek PVT, která se zruší, zůstává k převodu na jinou PVT, nebo se vrací.“
   - [PROJEKT.md §9, 28. 10.](https://github.com/applifting-vsecourse/team-1/blob/31b4fc25e25afa265d1812a9f8538d081af84265/docs/PROJEKT.md#9-rozhodnutí): „vratka se eviduje zápornou platbou“
 - **Priorita:** P1 – Rozpracovaný ticket o platbě v termínu; kód se bez odpovědí nedomýšlí a PO 28. 10. platbu v termínu výslovně chtěl.
+- **Rozhodnutí:** [D-088](../rozhodnuti/README.md#d-088): Platba na VS přihlášky v termínu bez dluhu (náhradník, zrušená, již zaplacená) se zapíše jako přeplatek té přihlášky v termínu. Nic se neodmítá. Přeplatek se nepřevádí na jinou přihlášku v termínu a vrací se vratkou. Platba zrušeného termínu nebo náhradníka zůstává u své přihlášky v termínu.
 
 <a id="q-pla-12"></a>
 
 ### Q-PLA-12 – Patří editace a doplnění platby do tohoto ticketu (dnes US-44 umí zápis a zrušení, ne úpravu)?
 
-- **Epic:** platby · **Dotčené US:** [#174](https://github.com/applifting-vsecourse/team-1/issues/174), [US-44](https://github.com/applifting-vsecourse/team-1/issues/44) · **Stav:** otevřeno · **Čeká na:** `pm`
+- **Epic:** platby · **Dotčené US:** [#174](https://github.com/applifting-vsecourse/team-1/issues/174), [US-44](https://github.com/applifting-vsecourse/team-1/issues/44) · **Stav:** uzavřeno · **Čeká na:** `pm`
 - **Zdroje:**
   - [issue, Otevřené otázky 3](https://github.com/applifting-vsecourse/team-1/issues/174): „Zápis z 28. 10. mezi upřesněními uvádí „možnost editace, doplnění“ plateb. US-44 dnes umí zápis a zrušení, ne úpravu.“
   - [zápis 28. 10., Upřesnění požadavků](https://github.com/applifting-vsecourse/team-1/blob/31b4fc25e25afa265d1812a9f8538d081af84265/docs/zapisy/2026-10-28-status-s-po.md): „Platby: možnost editace, doplnění a záporné platby jako vratky“
-- **Priorita:** P1 – Rozpracovaný ticket o platbě v termínu; kód se bez odpovědí nedomýšlí a PO 28. 10. platbu v termínu výslovně chtěl.
+- **Uzavřeno, protože:** Editace a oprava zapsané platby nepatří do US-137, řeší ji US-112 (#205). PM 2026-11-01.
 
 <a id="q-pla-13"></a>
 
 ### Q-PLA-13 – Je ticket o platbě v termínu zařazen do dalšího sprintu?
 
-- **Epic:** platby · **Dotčené US:** [#174](https://github.com/applifting-vsecourse/team-1/issues/174) · **Stav:** otevřeno · **Čeká na:** `pm`
+- **Epic:** platby · **Dotčené US:** [#174](https://github.com/applifting-vsecourse/team-1/issues/174) · **Stav:** uzavřeno · **Čeká na:** `pm`
 - **Zdroje:**
   - [issue, Otevřené otázky 4](https://github.com/applifting-vsecourse/team-1/issues/174): „Zápis z 27. 10. ho vedl jako „mimo Sprint 3“ a k odsouhlasení měl „projít proces před implementací“.“
   - [zápis 27. 10., Ke schválení PO](https://github.com/applifting-vsecourse/team-1/blob/31b4fc25e25afa265d1812a9f8538d081af84265/docs/zapisy/2026-10-27-status.md#L76-L84): „Platby per přihláška v termínu: projít proces před implementací a odsouhlasit zařazení do dalšího sprintu.“
-- **Priorita:** P1 – Rozpracovaný ticket o platbě v termínu; kód se bez odpovědí nedomýšlí a PO 28. 10. platbu v termínu výslovně chtěl.
+- **Uzavřeno, protože:** US-137 (#174) je zařazena do aktuálního sprintu (PM 2026-11-01).
+
+<a id="q-pla-14"></a>
+
+### Q-PLA-14 – Ověřit u PO pravidlo D-087: souhrnná platba se rozdělí od nejstaršího termínu, nedoplatek zůstane na nejpozdějším, přeplatek na poslední potvrzené přihlášce v termínu. Platí, nebo má být jinak? (Rozhodl PM, jde o ověření.)
+
+- **Epic:** platby · **Dotčené US:** [US-127](https://github.com/applifting-vsecourse/team-1/issues/220), [US-137](https://github.com/applifting-vsecourse/team-1/issues/174) · **Stav:** otevřeno · **Čeká na:** `po`
+- **Zdroje:**
+  - [US-127, otevřená otázka na PO](https://github.com/applifting-vsecourse/team-1/issues/220): „Jak se rozpočítá platba, jejíž částka neodpovídá přesně dluhu jednoho ani součtu termínů?“
+- **Priorita:** P2 – PM rozhodl, nebrání vývoji US-137; ověření u PO nejpozději před spuštěním US-127.
+- **Navazující ticket:** [US-127](https://github.com/applifting-vsecourse/team-1/issues/220)
+
+<a id="q-pla-15"></a>
+
+### Q-PLA-15 – Jak se opraví souhrnná platba rozdělená do víc řádků se společným `receiptId` (oprava částky nebo termínu v US-112)?
+
+- **Epic:** platby · **Dotčené US:** [US-112](https://github.com/applifting-vsecourse/team-1/issues/205), [US-137](https://github.com/applifting-vsecourse/team-1/issues/174) · **Stav:** otevřeno · **Čeká na:** `pm`
+- **Zdroje:**
+  - [US-112, akceptační kritérium](https://github.com/applifting-vsecourse/team-1/issues/205): „Organizátor změní částku nebo termín u už zapsané platby či vratky.“
+- **Priorita:** P2 – US-112 navazuje na model příjmu z US-137.
+- **Navazující ticket:** [US-112](https://github.com/applifting-vsecourse/team-1/issues/205)
+
+<a id="q-pla-16"></a>
+
+### Q-PLA-16 – Vytvoří „označení vrácení“ v US-132 zápornou platbu na přihlášku v termínu (vratka z US-137), nebo je to samostatný příznak?
+
+- **Epic:** platby · **Dotčené US:** [US-132](https://github.com/applifting-vsecourse/team-1/issues/247), [US-137](https://github.com/applifting-vsecourse/team-1/issues/174) · **Stav:** otevřeno · **Čeká na:** `pm`
+- **Zdroje:**
+  - [US-132, akceptační kritérium](https://github.com/applifting-vsecourse/team-1/issues/247): „Organizátor u platby označí vrácení; označení se uloží s datem a jménem.“
+- **Priorita:** P2 – US-132 navazuje na vratku jako zápornou platbu.
+- **Navazující ticket:** [US-132](https://github.com/applifting-vsecourse/team-1/issues/247)
+
+<a id="q-pla-17"></a>
+
+### Q-PLA-17 – Lhůta na zaplacení (10 dní od potvrzení, US-41) je u přihlášky v termínu. Co platí, když souhrnná platba přijde po lhůtě jedné z nich?
+
+- **Epic:** platby · **Dotčené US:** [US-41](https://github.com/applifting-vsecourse/team-1/issues/41), [US-137](https://github.com/applifting-vsecourse/team-1/issues/174) · **Stav:** otevřeno · **Čeká na:** `pm`
+- **Zdroje:**
+  - [US-41, akceptační kritérium](https://github.com/applifting-vsecourse/team-1/issues/41): „Lhůta na zaplacení se počítá od potvrzení (výchozí 10 dní, organizátor ji může změnit).“
+- **Priorita:** P3 – Okrajový případ souhrnné platby.
+- **Navazující ticket:** [US-41](https://github.com/applifting-vsecourse/team-1/issues/41)
 
 <a id="q-plt-01"></a>
 
