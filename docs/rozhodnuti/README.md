@@ -2,7 +2,7 @@
 
 > Generováno z [`rozhodnuti.yaml`](rozhodnuti.yaml) (`python generate.py`). Needituj, měň YAML.
 
-**69 platných**, 0 návrhů, 3 nahrazených nebo zrušených.
+**81 platných**, 0 návrhů, 3 nahrazených nebo zrušených.
 
 ## Návrhy čekající na PM
 
@@ -12,19 +12,6 @@ _Nic._
 
 | ID | Rozhodnutí | Soubor | Co zapsat |
 | --- | --- | --- | --- |
-| [D-056](#d-056) | Potvrzená → Náhradník ručně organizátorem | `docs/procesy/zpracovani-prihlasky/rucni-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml` | přechod Potvrzená s dluhem → Náhradník |
-| [D-056](#d-056) | Potvrzená → Náhradník ručně organizátorem | `docs/procesy/zpracovani-prihlasky/automaticke-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml` | zkontrolovat, zda přechod platí i v auto režimu |
-| [D-056](#d-056) | Potvrzená → Náhradník ručně organizátorem | `docs/procesy/zpracovani-prihlasky/EMAILY.md` | řádek e-mailu č. 3 platí i pro tento přechod; č. 1 v auto režimu má stejný rozpor |
-| [D-057](#d-057) | Organizátor smí zrušit náhradníka kdykoli | `docs/procesy/zpracovani-prihlasky/rucni-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml` | Náhradník → Zrušená i organizátorem |
-| [D-057](#d-057) | Organizátor smí zrušit náhradníka kdykoli | `docs/procesy/zpracovani-prihlasky/automaticke-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml` | zkontrolovat v auto režimu |
-| [D-057](#d-057) | Organizátor smí zrušit náhradníka kdykoli | `docs/procesy/zpracovani-prihlasky/EMAILY.md` | řádek 6 platí jen pro první den, doplnit řádek pro zrušení organizátorem |
-| [D-062](#d-062) | Režim pokojů se může lišit po termínech | `docs/PROJEKT.md` | řádek 71 říká „Režim pokojů zůstává na úrovni akce“ a datový model má Event.roomMode: rozpor s rozhodnutím |
-| [D-063](#d-063) | Společná fronta náhradníků, když pokoj nemá pohlaví | `docs/procesy/zpracovani-prihlasky/` | pravidlo pořadníku (skupina lůžek), místo určí model-update |
-| [D-064](#d-064) | Náhradník se ruší od půlnoci českého času prvního dne termínu | `docs/procesy/zpracovani-prihlasky/rucni-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml` | Náhradník → Zrušená: půlnoc Europe/Prague prvního dne termínu |
-| [D-064](#d-064) | Náhradník se ruší od půlnoci českého času prvního dne termínu | `docs/procesy/zpracovani-prihlasky/automaticke-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml` | totéž |
-| [D-065](#d-065) | Zrušení termínu zruší všechny přihlášky ve všech stavech | `docs/procesy/zpracovani-prihlasky/` | chybí proces zrušení termínu akce (US-13) |
-| [D-065](#d-065) | Zrušení termínu zruší všechny přihlášky ve všech stavech | `docs/procesy/zpracovani-prihlasky/EMAILY.md` | chybí e-mail při zrušení termínu |
-| [D-067](#d-067) | „Otevření přihlášek“ = akce splní všechny požadavky a vznikne link | `docs/PROJEKT.md` | sekce 5: definice „otevření přihlášek“ a výhled (plánované spuštění, pozastavení) |
 | [D-069](#d-069) | Uživatel si nastaví preferovaný jazyk (aplikace i e-maily) | `docs/PROJEKT.md` | pravidlo jazyka aplikace a e-mailů: preferovaný jazyk uživatele (zapsat při zadání ticketu) |
 
 ## Změny dřívějších rozhodnutí
@@ -37,6 +24,10 @@ _Nic._
 | [D-050](#d-050) | Dashboard organizátora se vrací | 2026-10-28 | mění [D-042](#d-042) |
 | [D-071](#d-071) | Práce se nedělí do proudů | 2026-10-31 | mění [D-026](#d-026) |
 | [D-072](#d-072) | Landing má dva vstupy „Jsem organizátor“ a „Jsem účastník“ | 2026-10-31 | nahrazuje [D-027](#d-027)mění [D-006](#d-006) |
+| [D-074](#d-074) | Přechod Potvrzená → Náhradník má vlastní e-mail jako samostatný stav v EMAILY.md | 2026-10-31 | mění [D-056](#d-056) |
+| [D-077](#d-077) | Přesun mezi náhradníky jen u Potvrzené s dluhem, ruční zásahy platí v obou režimech | 2026-10-31 | mění [D-056](#d-056), mění [D-057](#d-057) |
+| [D-078](#d-078) | Preferovaný jazyk uživatele přebíjí jazyk přihlášky u e-mailů o změně přihlášky | 2026-10-31 | mění [D-069](#d-069) |
+| [D-083](#d-083) | Režim vyhodnocování lze měnit, dokud je počet přijatých přihlášek 0 | 2026-10-31 | mění [D-068](#d-068) |
 
 ## Platná rozhodnutí podle oblasti
 
@@ -53,6 +44,8 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-078](#d-078) | Preferovaný jazyk uživatele přebíjí jazyk přihlášky u e-mailů o změně přihlášky | 2026-10-31 | `pm` | produkt |
+| [D-074](#d-074) | Přechod Potvrzená → Náhradník má vlastní e-mail jako samostatný stav v EMAILY.md | 2026-10-31 | `pm` | produkt |
 | [D-069](#d-069) | Uživatel si nastaví preferovaný jazyk (aplikace i e-maily) | 2026-10-31 | `pm` | produkt |
 | [D-066](#d-066) | Sdružení e-mailů za více termínů až v US-116 | 2026-10-31 | `pm` | produkt |
 | [D-055](#d-055) | Jazyk magic link e-mailu je jazyk UI při žádosti | 2026-10-30 | `tech-lead` | produkt |
@@ -62,6 +55,9 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-083](#d-083) | Režim vyhodnocování lze měnit, dokud je počet přijatých přihlášek 0 | 2026-10-31 | `pm` | produkt |
+| [D-082](#d-082) | Pozastavení přihlášek platí pro akci, důvod účastník nevidí, nová přihláška skončí chybou | 2026-10-31 | `pm` | produkt |
+| [D-081](#d-081) | Plánované spuštění přihlášek platí pro akci, v čase Europe/Prague, lze zrušit do spuštění | 2026-10-31 | `pm` | produkt |
 | [D-068](#d-068) | Zamčení režimu vyhodnocování bez přihlášky je v pořádku | 2026-10-31 | `pm` | produkt |
 | [D-067](#d-067) | „Otevření přihlášek“ = akce splní všechny požadavky a vznikne link | 2026-10-31 | `pm` | produkt |
 | [D-063](#d-063) | Společná fronta náhradníků, když pokoj nemá pohlaví | 2026-10-31 | `pm` | produkt |
@@ -75,6 +71,7 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-080](#d-080) | Platby při zrušení termínu vrací organizátor bez lhůty a bez potvrzení | 2026-10-31 | `pm` | produkt |
 | [D-051](#d-051) | Platba se váže ke konkrétnímu termínu | 2026-10-28 | `pm` | produkt |
 | [D-015](#d-015) | Cena termínu se při vyhodnocení zmrazí do ApplicationTerm.priceCzk | 2026-10-16 | `tech-lead` | produkt |
 | [D-002](#d-002) | Platby bez brány a bez banky — ruční zápis | board | `po` | produkt |
@@ -96,6 +93,11 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-079](#d-079) | Telefon účastníka je ve formuláři přihlášky povinný, u nezletilých se neřeší | 2026-10-31 | `pm` | produkt |
+| [D-077](#d-077) | Přesun mezi náhradníky jen u Potvrzené s dluhem, ruční zásahy platí v obou režimech | 2026-10-31 | `pm` | produkt |
+| [D-076](#d-076) | Při zrušení termínu se zaplacené platby vracejí, archivované přihlášky se nerulí | 2026-10-31 | `pm` | produkt |
+| [D-075](#d-075) | V angličtině je datum narození DD/MM/YYYY (en-GB) | 2026-10-31 | `pm` | produkt |
+| [D-073](#d-073) | Přihláška přesunutá z Potvrzené mezi náhradníky se řadí podle data přijetí | 2026-10-31 | `pm` | produkt |
 | [D-070](#d-070) | Detail přihlášky náhradníka říká „Zatím nic neplaťte“ | 2026-10-31 | `pm` | produkt |
 | [D-065](#d-065) | Zrušení termínu zruší všechny přihlášky ve všech stavech | 2026-10-31 | `pm` | produkt |
 | [D-064](#d-064) | Náhradník se ruší od půlnoci českého času prvního dne termínu | 2026-10-31 | `pm` | produkt |
@@ -146,6 +148,7 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-084](#d-084) | Datový model režimu pokojů po termínech se přepíše na nový systém bez migrace | 2026-10-31 | `pm` | technicke |
 | [D-054](#d-054) | US-26: čtecí přehled kapacit jen pro akce s dělením podle pohlaví | 2026-10-23 | `po` | produkt |
 | [D-041](#d-041) | US-14: kapacita pokoje bez horního limitu | 2026-10-23 | `po` | produkt |
 | [D-039](#d-039) | US-14: oba režimy pokojů jsou v rozsahu | 2026-10-22 | `po` | produkt |
@@ -701,10 +704,11 @@ _Nic._
 - **Text:** Ano, systém to má umožnit.
 - **Dotčené US:** [US-28](https://github.com/applifting-vsecourse/team-1/issues/28)
 - **Zdroj:** [PR, komentář PM](https://github.com/applifting-vsecourse/team-1/pull/232#issuecomment-6535280632)
+- **Změněno v:** [D-074](#d-074), [D-077](#d-077)
 - **Z otázek:** `Q-PRI-14`
-- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/rucni-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml`: ceka, přechod Potvrzená s dluhem → Náhradník
-- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/automaticke-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml`: ceka, zkontrolovat, zda přechod platí i v auto režimu
-- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/EMAILY.md`: ceka, řádek e-mailu č. 3 platí i pro tento přechod; č. 1 v auto režimu má stejný rozpor
+- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/rucni-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml`: hotovo (d4964be), přechod Potvrzená s dluhem → Náhradník
+- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/automaticke-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml`: hotovo (d4964be), zkontrolovat, zda přechod platí i v auto režimu
+- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/EMAILY.md`: hotovo (d4964be), řádek e-mailu č. 3 platí i pro tento přechod; č. 1 v auto režimu má stejný rozpor
 - **Poznámka:** Tech lead: přechod je povolený v backendu i UI („Move to waitlist“), zapracováno v b68f73e a propsané do navazujících PR. Diagram a EMAILY.md zůstávají na PM.
 
 <a id="d-057"></a>
@@ -716,10 +720,11 @@ _Nic._
 - **Text:** Je v pořádku, organizátor může zrušit náhradníka kdykoli.
 - **Dotčené US:** [US-28](https://github.com/applifting-vsecourse/team-1/issues/28)
 - **Zdroj:** [PR, komentář PM](https://github.com/applifting-vsecourse/team-1/pull/232#issuecomment-6535280632)
+- **Změněno v:** [D-077](#d-077)
 - **Z otázek:** `Q-PRI-15`
-- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/rucni-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml`: ceka, Náhradník → Zrušená i organizátorem
-- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/automaticke-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml`: ceka, zkontrolovat v auto režimu
-- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/EMAILY.md`: ceka, řádek 6 platí jen pro první den, doplnit řádek pro zrušení organizátorem
+- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/rucni-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml`: hotovo (d4964be), Náhradník → Zrušená i organizátorem
+- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/automaticke-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml`: hotovo (d4964be), zkontrolovat v auto režimu
+- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/EMAILY.md`: hotovo (d4964be), řádek 6 platí jen pro první den, doplnit řádek pro zrušení organizátorem
 
 <a id="d-058"></a>
 
@@ -775,7 +780,7 @@ _Nic._
 - **Dotčené US:** [US-30](https://github.com/applifting-vsecourse/team-1/issues/30)
 - **Zdroj:** [PR, komentář PM](https://github.com/applifting-vsecourse/team-1/pull/234)
 - **Z otázek:** `Q-NAS-08`
-- **Dokumentace:** `docs/PROJEKT.md`: ceka, řádek 71 říká „Režim pokojů zůstává na úrovni akce“ a datový model má Event.roomMode: rozpor s rozhodnutím
+- **Dokumentace:** `docs/PROJEKT.md`: hotovo (d4964be), řádek 71 říká „Režim pokojů zůstává na úrovni akce“ a datový model má Event.roomMode: rozpor s rozhodnutím
 
 <a id="d-063"></a>
 
@@ -787,7 +792,7 @@ _Nic._
 - **Dotčené US:** [US-30](https://github.com/applifting-vsecourse/team-1/issues/30)
 - **Zdroj:** [PR, komentář PM](https://github.com/applifting-vsecourse/team-1/pull/234)
 - **Z otázek:** `Q-NAS-09`
-- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/`: ceka, pravidlo pořadníku (skupina lůžek), místo určí model-update
+- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/`: hotovo (d4964be), pravidlo pořadníku (skupina lůžek), místo určí model-update
 
 <a id="d-064"></a>
 
@@ -799,8 +804,8 @@ _Nic._
 - **Dotčené US:** [US-106 (#199)](https://github.com/applifting-vsecourse/team-1/issues/199)
 - **Zdroj:** [PR, komentář PM](https://github.com/applifting-vsecourse/team-1/pull/236)
 - **Z otázek:** `Q-PRI-20`
-- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/rucni-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml`: ceka, Náhradník → Zrušená: půlnoc Europe/Prague prvního dne termínu
-- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/automaticke-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml`: ceka, totéž
+- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/rucni-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml`: hotovo (d4964be), Náhradník → Zrušená: půlnoc Europe/Prague prvního dne termínu
+- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/automaticke-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml`: hotovo (d4964be), totéž
 
 <a id="d-065"></a>
 
@@ -812,8 +817,8 @@ _Nic._
 - **Dotčené US:** [US-106 (#199)](https://github.com/applifting-vsecourse/team-1/issues/199)
 - **Zdroj:** [PR, komentář PM](https://github.com/applifting-vsecourse/team-1/pull/236)
 - **Z otázek:** `Q-PRI-21`
-- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/`: ceka, chybí proces zrušení termínu akce (US-13)
-- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/EMAILY.md`: ceka, chybí e-mail při zrušení termínu
+- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/`: hotovo (d4964be), chybí proces zrušení termínu akce (US-13)
+- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/EMAILY.md`: hotovo (d4964be), chybí e-mail při zrušení termínu
 
 <a id="d-066"></a>
 
@@ -836,7 +841,7 @@ _Nic._
 - **Dotčené US:** [US-101 (#194)](https://github.com/applifting-vsecourse/team-1/issues/194)
 - **Zdroj:** [PR, komentář PM](https://github.com/applifting-vsecourse/team-1/pull/238)
 - **Z otázek:** `Q-NAS-11`
-- **Dokumentace:** `docs/PROJEKT.md`: ceka, sekce 5: definice „otevření přihlášek“ a výhled (plánované spuštění, pozastavení)
+- **Dokumentace:** `docs/PROJEKT.md`: hotovo (d4964be), sekce 5: definice „otevření přihlášek“ a výhled (plánované spuštění, pozastavení)
 
 <a id="d-068"></a>
 
@@ -847,6 +852,7 @@ _Nic._
 - **Text:** As-is stav je v pořádku; v budoucnu by měla jít změna do první přihlášky nebo nějaká kombinace.
 - **Dotčené US:** [US-101 (#194)](https://github.com/applifting-vsecourse/team-1/issues/194)
 - **Zdroj:** [PR, komentář PM](https://github.com/applifting-vsecourse/team-1/pull/238)
+- **Změněno v:** [D-083](#d-083)
 - **Z otázek:** `Q-NAS-12`
 
 <a id="d-069"></a>
@@ -858,6 +864,7 @@ _Nic._
 - **Text:** Uživatel by měl mít možnost nastavit si preferovaný jazyk. V něm se bude defaultně spouštět aplikace a odesílat e-maily. Pro PR #231 se nic nemění, vše zůstává jak je; PM založí ticket enhancement.
 - **Dotčené US:** [#183](https://github.com/applifting-vsecourse/team-1/issues/183)
 - **Zdroj:** [PR #231, komentář PM](https://github.com/applifting-vsecourse/team-1/pull/231#issuecomment-6545470005)
+- **Změněno v:** [D-078](#d-078)
 - **Z otázek:** `Q-KOM-08`
 - **Dokumentace:** `docs/PROJEKT.md`: ceka, pravidlo jazyka aplikace a e-mailů: preferovaný jazyk uživatele (zapsat při zadání ticketu)
 
@@ -897,3 +904,156 @@ _Nic._
 - **Mění:** [D-006](#d-006)
 - **Z otázek:** `Q-UCT-10`
 - **Poznámka:** Rámce V08 a M07 ve Figmě kreslí jediný vstup; sladit s designem (návazný úkol u Q-UCT-10).
+
+<a id="d-073"></a>
+
+### D-073 – Přihláška přesunutá z Potvrzené mezi náhradníky se řadí podle data přijetí
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** přihlašování na akce
+- **Datum:** 2026-10-31 · **Rozhodl:** `pm`
+- **Text:** Přihláška přesunutá z Potvrzené mezi náhradníky se v pořadníku řadí podle data přijetí, tedy stejně jako ostatní náhradníci. Může tak skočit před dřívější náhradníky.
+- **Dotčené US:** [US-28](https://github.com/applifting-vsecourse/team-1/issues/28)
+- **Zdroj:** [odpověď PM v chatu na Q-PRI-22 (dotaz tech leada v PR #232)](https://github.com/applifting-vsecourse/team-1/pull/232#issuecomment-6545014573)
+- **Z otázek:** `Q-PRI-22`
+- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/`: hotovo (d4964be), pravidlo pořadí náhradníků (podle data přijetí i po přesunu z Potvrzené), místo určí model-update
+- **Poznámka:** Odpovídá chování v main (PR #232), kód se nemění.
+
+<a id="d-074"></a>
+
+### D-074 – Přechod Potvrzená → Náhradník má vlastní e-mail jako samostatný stav v EMAILY.md
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** komunikace
+- **Datum:** 2026-10-31 · **Rozhodl:** `pm`
+- **Text:** Přechod Potvrzená → Náhradník se v EMAILY.md zapíše jako nový, samostatný řádek (vlastní e-mail s vlastním textem) s dalším volným číslem 13; stávající čísla e-mailů se nepřečíslovávají. E-mail č. 3 zůstává jen pro K vyhodnocení → Náhradník. Text „Jste náhradník“ platí pro č. 3 i pro č. 1 v automatickém režimu.
+- **Dotčené US:** [US-28](https://github.com/applifting-vsecourse/team-1/issues/28)
+- **Zdroj:** [odpověď PM v chatu na Q-KOM-09 (PR #232, odpověď tech leada)](https://github.com/applifting-vsecourse/team-1/pull/232#issuecomment-6545014573)
+- **Mění:** [D-056](#d-056)
+- **Z otázek:** `Q-KOM-09`
+- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/EMAILY.md`: hotovo (d4964be), nový řádek č. 13 e-mailu pro Potvrzená → Náhradník (odvolané potvrzení); stávající čísla 1 až 12 se nemění; č. 3 jen K vyhodnocení → Náhradník; č. 1 auto ponechat „Jste náhradník“
+- **Poznámka:** Výklad „zapsat jako nový stav“: nový řádek (e-mail) v EMAILY.md, ne nový stav přihlášky. Znění textu se doladí v model-update. Původní čísla e-mailů zůstávají. Kód používá pro tento přechod e-mail č. 3, po zápisu bude potřeba ticket na samostatnou šablonu.
+
+<a id="d-075"></a>
+
+### D-075 – V angličtině je datum narození DD/MM/YYYY (en-GB)
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** přihlašování na akce
+- **Datum:** 2026-10-31 · **Rozhodl:** `pm`
+- **Text:** V angličtině se datum narození zobrazuje a zadává jako DD/MM/YYYY (en-GB), například 25/10/1990.
+- **Dotčené US:** [#177](https://github.com/applifting-vsecourse/team-1/issues/177)
+- **Zdroj:** [odpověď PM v chatu na Q-PRI-12 (PR #226, nejasnosti k byznys pravidlům)](https://github.com/applifting-vsecourse/team-1/pull/226)
+- **Z otázek:** `Q-PRI-12`
+- **Poznámka:** Potvrzuje stav zapracovaný v PR #226 (sloučeno). Q-PRI-11 (formát podle jazyka aplikace, nebo systému) zůstává otevřená.
+
+<a id="d-076"></a>
+
+### D-076 – Při zrušení termínu se zaplacené platby vracejí, archivované přihlášky se nerulí
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** přihlašování na akce
+- **Datum:** 2026-10-31 · **Rozhodl:** `pm`
+- **Text:** Při zrušení termínu akce se zaplacené platby vracejí účastníkům. Zrušení termínu se netýká archivovaných přihlášek (termín už proběhl).
+- **Dotčené US:** [US-13](https://github.com/applifting-vsecourse/team-1/issues/13)
+- **Zdroj:** [odpověď PM v chatu při úpravě modelů k D-065](https://github.com/applifting-vsecourse/team-1/pull/242)
+- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/zruseni-terminu.yaml`: hotovo (d4964be), proces zrušení termínu včetně vrácení plateb
+- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/EMAILY.md`: hotovo (d4964be), řádek 15, e-mail o zrušení termínu s informací o vrácení plateb
+- **Poznámka:** Kdo platby vrací a kdy (organizátor, lhůta), PM nerozhodl; v modelu je úloha organizátora. Zvážit ticket a otázku na PO.
+
+<a id="d-077"></a>
+
+### D-077 – Přesun mezi náhradníky jen u Potvrzené s dluhem, ruční zásahy platí v obou režimech
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** přihlašování na akce
+- **Datum:** 2026-10-31 · **Rozhodl:** `pm`
+- **Text:** Přesun mezi náhradníky platí jen pro Potvrzenou s dluhem, ne pro Potvrzenou a zaplacenou. Přesun mezi náhradníky i zrušení náhradníka organizátorem platí v ručním i v automatickém režimu. Zrušení náhradníka organizátorem má vlastní e-mail (č. 14).
+- **Dotčené US:** [US-28](https://github.com/applifting-vsecourse/team-1/issues/28)
+- **Zdroj:** [odpověď PM v chatu při úpravě modelů k D-056 a D-057](https://github.com/applifting-vsecourse/team-1/pull/242)
+- **Mění:** [D-056](#d-056), [D-057](#d-057)
+- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/`: hotovo (d4964be), obě prihlaska-v-terminu-zivotni-cyklus.yaml a zpracovani-prihlasky.yaml, EMAILY.md řádky 13 a 14
+
+<a id="d-078"></a>
+
+### D-078 – Preferovaný jazyk uživatele přebíjí jazyk přihlášky u e-mailů o změně přihlášky
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** komunikace
+- **Datum:** 2026-10-31 · **Rozhodl:** `pm`
+- **Text:** Preferovaný jazyk uživatele přebíjí jazyk přihlášky u e-mailů o změně přihlášky. Když ho uživatel nenastavil, platí jazyk jeho první přihlášky.
+- **Zdroj:** [odpověď PM v chatu k návrhům ticketů (PM rutina, krok 3)](https://github.com/applifting-vsecourse/team-1/pull/242)
+- **Mění:** [D-069](#d-069)
+- **Z otázek:** `Q-KOM-08`
+- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/EMAILY.md`: hotovo (c8c2f0a), pravidlo „E-maily jdou v jazyce přihlášky (Application.locale)“ doplnit: u e-mailů o změně přihlášky vítězí preferovaný jazyk uživatele
+- **Dokumentace:** `docs/PROJEKT.md`: hotovo (c8c2f0a), lokalizace: pořadí jazyka (preferovaný jazyk uživatele, jinak jazyk přihlášky)
+- **Poznámka:** Fallback („jazyk první přihlášky“) potvrdil PM v chatu. E-mail č. 1 zůstává v jazyce přihlášky.
+
+<a id="d-079"></a>
+
+### D-079 – Telefon účastníka je ve formuláři přihlášky povinný, u nezletilých se neřeší
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** přihlašování na akce
+- **Datum:** 2026-10-31 · **Rozhodl:** `pm`
+- **Text:** Telefon je ve formuláři přihlášky povinný. Telefon u nezletilých (zákonného zástupce) se zatím neřeší. Právní základ (GDPR) PM nezodpověděl.
+- **Zdroj:** [odpověď PM v chatu k návrhům ticketů (PM rutina, krok 3)](https://github.com/applifting-vsecourse/team-1/pull/242)
+- **Z otázek:** `Q-PRI-19`
+- **Dokumentace:** `docs/PROJEKT.md`: hotovo (c8c2f0a), formulář přihlášky a datový model: povinný telefon účastníka
+- **Poznámka:** Otevřené: právní základ sběru telefonu (GDPR) a telefon zástupce u nezletilých (US-07).
+
+<a id="d-080"></a>
+
+### D-080 – Platby při zrušení termínu vrací organizátor bez lhůty a bez potvrzení
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** platby
+- **Datum:** 2026-10-31 · **Rozhodl:** `pm`
+- **Text:** Platby při zrušení termínu vrací organizátor. Systém na to nemá limit, je to na organizátorovi. Potvrzení o vrácení se zatím neposílá.
+- **Dotčené US:** [#13](https://github.com/applifting-vsecourse/team-1/issues/13)
+- **Zdroj:** [odpověď PM v chatu k návrhům ticketů (PM rutina, krok 3)](https://github.com/applifting-vsecourse/team-1/pull/242)
+- **Z otázek:** `Q-PRI-21`
+- **Poznámka:** Upřesňuje D-076. Model zruseni-terminu.yaml už má úlohu „Vrátit zaplacené platby“ (role organizátor). Nezodpovězeno: vrácení nepotvrzených převodů.
+
+<a id="d-081"></a>
+
+### D-081 – Plánované spuštění přihlášek platí pro akci, v čase Europe/Prague, lze zrušit do spuštění
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** nastavení akce
+- **Datum:** 2026-10-31 · **Rozhodl:** `pm`
+- **Text:** Plánované spuštění přihlášek se týká akce, čas se zadává v zóně Europe/Prague a organizátor ho může zrušit, dokud spuštění nenastalo.
+- **Zdroj:** [odpověď PM v chatu k návrhům ticketů (PM rutina, krok 3)](https://github.com/applifting-vsecourse/team-1/pull/242)
+- **Z otázek:** `Q-NAS-11`
+- **Dokumentace:** `docs/PROJEKT.md`: hotovo (c8c2f0a), sekce 5, výhled plánovaného spuštění: pro akci, Europe/Prague, zrušitelné do spuštění
+- **Poznámka:** Upřesňuje výhled z D-067.
+
+<a id="d-082"></a>
+
+### D-082 – Pozastavení přihlášek platí pro akci, důvod účastník nevidí, nová přihláška skončí chybou
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** nastavení akce
+- **Datum:** 2026-10-31 · **Rozhodl:** `pm`
+- **Text:** Pozastavení přihlášek platí pro celou akci. Účastník nevidí důvod. Při pozastavení dostane chybu, že bylo přihlašování pozastaveno (týká se i rozpracované přihlášky).
+- **Zdroj:** [odpověď PM v chatu k návrhům ticketů (PM rutina, krok 3)](https://github.com/applifting-vsecourse/team-1/pull/242)
+- **Z otázek:** `Q-NAS-11`
+- **Dokumentace:** `docs/PROJEKT.md`: hotovo (c8c2f0a), sekce 5, výhled pozastavení: pro akci, bez důvodu, chyba při odeslání
+- **Poznámka:** Upřesňuje výhled z D-067. Výklad: třetí odpověď („hlásí chybu“) se týkala rozpracované přihlášky.
+
+<a id="d-083"></a>
+
+### D-083 – Režim vyhodnocování lze měnit, dokud je počet přijatých přihlášek 0
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** nastavení akce
+- **Datum:** 2026-10-31 · **Rozhodl:** `pm`
+- **Text:** Režim vyhodnocování lze měnit, dokud je počet přijatých přihlášek 0. Po první přijaté přihlášce už ne.
+- **Zdroj:** [odpověď PM v chatu k návrhům ticketů (PM rutina, krok 3)](https://github.com/applifting-vsecourse/team-1/pull/242)
+- **Mění:** [D-068](#d-068)
+- **Z otázek:** `Q-NAS-12`
+- **Dokumentace:** `docs/PROJEKT.md`: hotovo (c8c2f0a), pravidlo zamčení režimu vyhodnocování: od první přijaté přihlášky
+- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/README.md`: hotovo (c8c2f0a), řádek „Nastavení akce“: režim lze změnit do první přihlášky
+- **Poznámka:** Konkretizuje D-068 (jde o změnu do první přihlášky, ne o kombinaci).
+
+<a id="d-084"></a>
+
+### D-084 – Datový model režimu pokojů po termínech se přepíše na nový systém bez migrace
+
+- **Stav:** platné · **Typ:** technicke · **Oblast:** ubytování
+- **Datum:** 2026-10-31 · **Rozhodl:** `pm`
+- **Text:** U #192 (US-99) se režim pokojů po termínech zavede jako nový systém, celé se resetuje. Na stagingu nejsou reálná data, dopad na business je nulový, migrace nebude.
+- **Dotčené US:** [#192](https://github.com/applifting-vsecourse/team-1/issues/192)
+- **Zdroj:** [odpověď PM v chatu k návrhům ticketů (PM rutina, krok 3)](https://github.com/applifting-vsecourse/team-1/pull/242)
+- **Z otázek:** `Q-NAS-08`
+- **Dokumentace:** `docs/PROJEKT.md`: hotovo (c8c2f0a), sekce 8: Event.roomMode (ř. 91) po US-99 odstranit, režim je po termínech
+- **Poznámka:** Navazuje na D-062.

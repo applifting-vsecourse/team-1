@@ -68,10 +68,15 @@ Původní rozsah sprintu 1 (tabulka stories) je v [archivu](archiv/SPRINT-1.md).
 
 - Kapacita termínu pro ženy = součet kapacit dámských pokojů, pro muže = pánských. 10 + 10 pokojů po 5 místech pojme 50 + 50, **ne** 52 + 48.
 - Pokoj (návaznost na US-14): kapacita od 1 bez produktového horního limitu. Pokoje platily do 28.10.2026 pro všechny termíny akce, což je **překonáno** následujícím bodem. V režimu `GENDERED` má pohlaví dámský / pánský; v režimu `SHARED` může být bez pohlaví. US-26 zatím řeší pouze režim `GENDERED`.
-- Od 28.10.2026 se ubytování, pokoje, jejich kapacity a dostupnost řeší po termínech (rozhodnutí [D-052](rozhodnuti/README.md#d-052)). Každý termín musí mít ubytování: odkaz na přihlášku funguje, až má každý termín cenu i aspoň jeden pokoj. Režim pokojů zůstává na úrovni akce. Řeší to [US-99](https://github.com/applifting-vsecourse/team-1/issues/192) (pokoje po termínech) a [US-100](https://github.com/applifting-vsecourse/team-1/issues/193) (kopírování pokojů mezi termíny). Starší model „pokoj platí pro všechny termíny akce“ ještě popisují US-14, US-26 (mají poznámku „platí do 28.10.2026“) a odstavec o US-26 v sekci 10 („Rozdíly vůči boardu“).
+- Od 28.10.2026 se ubytování, pokoje, jejich kapacity a dostupnost řeší po termínech (rozhodnutí [D-052](rozhodnuti/README.md#d-052)). Každý termín musí mít ubytování: odkaz na přihlášku funguje, až má každý termín cenu i aspoň jeden pokoj. Režim pokojů (dělený podle pohlaví, nebo společný) se může lišit po termínech ([D-062](rozhodnuti/README.md#d-062)); datový model zatím drží `Event.roomMode` na úrovni akce, viz sekce 8. Řeší to [US-99](https://github.com/applifting-vsecourse/team-1/issues/192) (pokoje po termínech) a [US-100](https://github.com/applifting-vsecourse/team-1/issues/193) (kopírování pokojů mezi termíny). Starší model „pokoj platí pro všechny termíny akce“ ještě popisují US-14, US-26 (mají poznámku „platí do 28.10.2026“) a odstavec o US-26 v sekci 10 („Rozdíly vůči boardu“).
+- Telefon účastníka je ve formuláři povinný; telefon zákonného zástupce u nezletilých se zatím neřeší ([D-079](rozhodnuti/README.md#d-079)).
 - Přihláška se uloží vždy, i když je plno. Termíny se vyhodnocují zvlášť v pořadí přijetí na serveru. Dvě souběžné přihlášky nikdy nepřekročí kapacitu.
 - Variabilní symbol = číslo přihlášky.
 - Odkaz na přihlášku funguje, až má akce aspoň jeden termín s cenou a aspoň jeden pokoj (do 28.10.2026; od té doby musí mít ubytování **každý termín**).
+- Otevření přihlášek ([D-067](rozhodnuti/README.md#d-067)): moment, kdy akce splní všechny požadavky (termín s cenou, ubytování u každého termínu). Tehdy se vygeneruje odkaz a přihlašování se spustí samo. Výhled, zatím nezavedený:
+  - plánované nebo ruční spuštění přihlášek pro akci; čas se zadává v zóně Europe/Prague a organizátor ho může zrušit, dokud spuštění nenastalo ([D-081](rozhodnuti/README.md#d-081));
+  - ruční pozastavení přihlášek pro celou akci (např. při výpadku ubytování); účastník důvod nevidí a odeslání přihlášky skončí chybou, že bylo přihlašování pozastaveno ([D-082](rozhodnuti/README.md#d-082)).
+- Režim vyhodnocování jde měnit, dokud je počet přijatých přihlášek 0; po první přijaté přihlášce je zamčený ([D-083](rozhodnuti/README.md#d-083)).
 - Formulář přihlášky funguje na 360 px bez vodorovného posunu. Tlačítko Odeslat je po stisku neaktivní.
 - Cizí záznam přes URL i API vrací **403** a nic z obsahu.
 - Vlastní heslo přihlašovatele má aspoň 8 znaků.
@@ -88,11 +93,12 @@ Slovník pojmů business domény včetně mapování na kód (sloupec „V kódu
 User (BetterAuth)     accountType: ORGANIZER | PARTICIPANT | ADMIN, mustSetPassword (obojí v session)
 Organization          name, bankAccount
 OrganizationMember    userId, organizationId                       (M:N, organizátor ↔ organizace)
-Event                 organizationId, name, description?, location?, publicToken (unikátní, neuhodnutelný), roomMode
+Event                 organizationId, name, description?, location?, publicToken (unikátní, neuhodnutelný), roomMode (po US-99 se ruší, režim pokojů bude po termínech, D-084)
 Term                  organizationId, eventId, name, startsOn, endsOn, priceCzk
 Room                  organizationId, eventId, name, capacity (od 1 bez horního limitu), gender?
 Application           organizationId, eventId, userId (účet přihlašovatele), number (VS, sekvence),
                       accessToken (stránka potvrzení), firstName, lastName, birthDate, gender, email,
+                      phone (povinný, D-079),
                       consentAt, submittedAt
 ApplicationTerm       applicationId, termId, status (viz stavový diagram), priceCzk (zmrazená cena), evaluatedAt
 Payment               organizationId, applicationTermId (přihláška v termínu), amountCzk, recordedById, createdAt
@@ -168,7 +174,7 @@ Organizace v URL není. Přístup se ověřuje přes členství v organizaci, kt
 - **Formáty:** peníze a data přes `formatCzk` / `formatDate` v `lib/`, podle aktuálního jazyka (`1 500 Kč` / `CZK 1,500`).
 - **Chyby z API:** backend vrací `{ statusCode, code, message }` (volitelně i `params`); frontend přeloží `code` přes `errors.json`; volitelné `params` (klíč → hodnota) se dosadí do zástupných značek `{{…}}` v překladu. Nový kód = `shared/errors/error-code.ts` + oba `errors.json`.
 - **Jazyk požadavku:** frontend posílá `Accept-Language`, backend ho čte dekorátorem `@RequestLocale()`.
-- **E-maily:** potvrzení a změna přihlášky jdou v jazyce přihlášky (`Application.locale`, uloží se při odeslání z `@RequestLocale()`), reset hesla a ověření e-mailu v jazyce účtu (`User.locale`). Samostatný e-mail s magic linkem jde v jazyce UI v okamžiku žádosti (frontend ho pošle jako `metadata.locale`), `User.locale` se pro něj nepoužije; když jazyk chybí, platí `en`. Šablony mají texty obou jazyků vedle sebe (`core/email/templates`).
+- **E-maily:** potvrzení přihlášky (e-mail č. 1) jde v jazyce přihlášky (`Application.locale`, uloží se při odeslání z `@RequestLocale()`), e-maily o změně přihlášky v preferovaném jazyce uživatele, a když ho nenastavil, v jazyce jeho první přihlášky ([D-078](rozhodnuti/README.md#d-078); preferovaný jazyk zatím v kódu není, viz [D-069](rozhodnuti/README.md#d-069)), reset hesla a ověření e-mailu v jazyce účtu (`User.locale`). Samostatný e-mail s magic linkem jde v jazyce UI v okamžiku žádosti (frontend ho pošle jako `metadata.locale`), `User.locale` se pro něj nepoužije; když jazyk chybí, platí `en`. Šablony mají texty obou jazyků vedle sebe (`core/email/templates`).
 
 ### Backend (NestJS)
 

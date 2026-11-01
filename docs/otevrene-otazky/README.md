@@ -2,7 +2,7 @@
 
 > Generováno z [`otazky.yaml`](otazky.yaml) (`python generate.py`). Needituj, měň YAML.
 
-**97 neuzavřených** otázek, **17 uzavřených**.
+**96 neuzavřených** otázek, **18 uzavřených**.
 
 ## Role
 
@@ -16,7 +16,7 @@
 
 ## Kdo má tah
 
-### `pm` (Adam): 30
+### `pm` (Adam): 27
 
 | ID | Otázka | Dotčené US | Priorita | Proč |
 | --- | --- | --- | --- | --- |
@@ -29,14 +29,11 @@
 | [Q-PLA-12](#q-pla-12) | Patří editace a doplnění platby do tohoto ticketu (dnes US-44 umí zápis a zrušení, ne úpravu)? | [#174](https://github.com/applifting-vsecourse/team-1/issues/174), [US-44](https://github.com/applifting-vsecourse/team-1/issues/44) | P1 | Rozpracovaný ticket o platbě v termínu; kód se bez odpovědí nedomýšlí a PO 28. 10. platbu v termínu výslovně chtěl. |
 | [Q-PLA-13](#q-pla-13) | Je ticket o platbě v termínu zařazen do dalšího sprintu? | [#174](https://github.com/applifting-vsecourse/team-1/issues/174) | P1 | Rozpracovaný ticket o platbě v termínu; kód se bez odpovědí nedomýšlí a PO 28. 10. platbu v termínu výslovně chtěl. |
 | [Q-PRE-02](#q-pre-02) | Dashboard organizátora: jaký přesně obsah mají karty „co vyžaduje pozornost“? | [US-51](https://github.com/applifting-vsecourse/team-1/issues/51) | P1 | Dashboard se vrací a je v návrhu PO; obsah karet není určen. |
-| [Q-PRI-22](#q-pri-22) | Kam se v pořadníku zařadí přihláška přesunutá z Potvrzené mezi náhradníky: podle data přijetí (může skočit před dřívější náhradníky), nebo na konec? | [US-28](https://github.com/applifting-vsecourse/team-1/issues/28) | P1 | Chování je už v main (PR #232) a řadí podle data přijetí; zpětná změna pořadí je dražší. |
 | [Q-UCT-04](#q-uct-04) | Organizace: musí ji mít každý organizátor, nebo může pořádat akce sám? | [US-08](https://github.com/applifting-vsecourse/team-1/issues/8) | P1 | Self-onboarding organizace je v rozsahu sprintu 3; otázka určuje dopad na model a UX. |
 | [Q-BEZ-05](#q-bez-05) | Kde a jak dlouho smí formulář přihlášky držet osobní údaje (i dětí) v prohlížeči a jak se uloží formulář s více účastníky? | [#179](https://github.com/applifting-vsecourse/team-1/issues/179) | P2 | Rozpracovaná oprava nebo úprava v běžícím flow přihlášek a účtů; nic neblokuje, ale brzy se na to narazí. |
-| [Q-KOM-09](#q-kom-09) | Který text e-mailu platí: „Jste náhradník“ (EMAILY.md), nebo „čeká na potvrzení“ (stávající šablona)? | [US-28](https://github.com/applifting-vsecourse/team-1/issues/28) | P2 | Tech lead upřesnil číslo e-mailu, PM může rozhodnout. |
 | [Q-KOM-10](#q-kom-10) | Kdo dodá text a vzhled e-mailu č. 6 („zrušeno, protože se neuvolnilo lůžko“)? | [US-106 (#199)](https://github.com/applifting-vsecourse/team-1/issues/199) | P2 | Ve Figmě rámec není; text je zatím věta z kritérií. |
 | [Q-PRI-04](#q-pri-04) | Platí pravidlo „odhlášená přihláška se nepočítá do kontroly duplicity“ i pro termín zrušený organizátorem při vyhodnocení (stav „Zrušená“)? | [US-32](https://github.com/applifting-vsecourse/team-1/issues/32), [#160](https://github.com/applifting-vsecourse/team-1/issues/160) | P2 | Drobné pravidlo kontroly duplicity; autor navrhuje odpověď „ano“. |
 | [Q-PRI-11](#q-pri-11) | Má se formát data narození řídit jazykem aplikace, nebo jazykem systému (a co na jiných zařízeních)? | [#177](https://github.com/applifting-vsecourse/team-1/issues/177) | P2 | Rozpracovaná oprava nebo úprava v běžícím flow přihlášek a účtů; nic neblokuje, ale brzy se na to narazí. |
-| [Q-PRI-12](#q-pri-12) | Je v angličtině správný formát data narození DD/MM/YYYY (en-GB), nebo MM/DD/YYYY? | [#177](https://github.com/applifting-vsecourse/team-1/issues/177) | P2 | Otevřené PR #226 staví en-GB; čeká na potvrzení. |
 | [Q-UCT-07](#q-uct-07) | Má nový magic link zneplatnit jen dříve vydané nepoužité odkazy, nebo i aktivní session? | [#127](https://github.com/applifting-vsecourse/team-1/issues/127) | P2 | Rozpracovaná oprava nebo úprava v běžícím flow přihlášek a účtů; nic neblokuje, ale brzy se na to narazí. |
 | [Q-UCT-08](#q-uct-08) | Je pro klienta v pořádku, že obecná chybová hláška loginu zůstává bez nápovědy, jen s radou zkontrolovat e-mail z přihlášky? | [#187](https://github.com/applifting-vsecourse/team-1/issues/187) | P2 | Rozpracovaná oprava nebo úprava v běžícím flow přihlášek a účtů; nic neblokuje, ale brzy se na to narazí. |
 | [Q-UCT-09](#q-uct-09) | Mají se v textech důsledně používat slova „přihlašovatel“ a „účastník“ podle slovníku, i když rodič rozdíl nepozná? | [#187](https://github.com/applifting-vsecourse/team-1/issues/187) | P2 | Rozpracovaná oprava nebo úprava v běžícím flow přihlášek a účtů; nic neblokuje, ale brzy se na to narazí. |
@@ -132,27 +129,12 @@ _Nic._
 | ID | Otázka | Dotčené US | Rozhodnutí | Zapsat do |
 | --- | --- | --- | --- | --- |
 | [Q-KOM-08](#q-kom-08) | Má se User.locale aktualizovat s každou přihláškou nebo přepnutím jazyka? | [#183](https://github.com/applifting-vsecourse/team-1/issues/183) | [D-069](../rozhodnuti/README.md#d-069): Uživatel si nastaví preferovaný jazyk (aplikace i e-maily) | `docs/PROJEKT.md` |
-| [Q-PRI-14](#q-pri-14) | Má se do diagramu doplnit přechod Potvrzená → Náhradník (organizátor), jak říká ticket US-28? | [US-28](https://github.com/applifting-vsecourse/team-1/issues/28) | [D-056](../rozhodnuti/README.md#d-056): Potvrzená → Náhradník ručně organizátorem | `docs/procesy/zpracovani-prihlasky/rucni-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml`, `docs/procesy/zpracovani-prihlasky/automaticke-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml`, `docs/procesy/zpracovani-prihlasky/EMAILY.md` |
-| [Q-PRI-15](#q-pri-15) | Smí organizátor zrušit náhradníka kdykoli, nebo jen automaticky první den termínu? | [US-28](https://github.com/applifting-vsecourse/team-1/issues/28) | [D-057](../rozhodnuti/README.md#d-057): Organizátor smí zrušit náhradníka kdykoli | `docs/procesy/zpracovani-prihlasky/rucni-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml`, `docs/procesy/zpracovani-prihlasky/automaticke-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml`, `docs/procesy/zpracovani-prihlasky/EMAILY.md` |
-| [Q-NAS-08](#q-nas-08) | Sedí, že pořadník vychází z termínu a režimu pokojů celé akce, nebo se má režim pokojů lišit po termínech? | [US-30](https://github.com/applifting-vsecourse/team-1/issues/30) | [D-062](../rozhodnuti/README.md#d-062): Režim pokojů se může lišit po termínech | `docs/PROJEKT.md` |
-| [Q-NAS-09](#q-nas-09) | Je ve společných pokojích pořadí náhradníků jedno pro obě pohlaví v rámci termínu? | [US-30](https://github.com/applifting-vsecourse/team-1/issues/30) | [D-063](../rozhodnuti/README.md#d-063): Společná fronta náhradníků, když pokoj nemá pohlaví | `docs/procesy/zpracovani-prihlasky/` |
-| [Q-PRI-20](#q-pri-20) | Od jaké hodiny se ruší náhradník první den termínu? | [US-106 (#199)](https://github.com/applifting-vsecourse/team-1/issues/199) | [D-064](../rozhodnuti/README.md#d-064): Náhradník se ruší od půlnoci českého času prvního dne termínu | `docs/procesy/zpracovani-prihlasky/rucni-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml`, `docs/procesy/zpracovani-prihlasky/automaticke-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml` |
-| [Q-PRI-21](#q-pri-21) | Co se stane s náhradníky (a ostatními přihláškami) ve zrušeném termínu akce? | [US-106 (#199)](https://github.com/applifting-vsecourse/team-1/issues/199) | [D-065](../rozhodnuti/README.md#d-065): Zrušení termínu zruší všechny přihlášky ve všech stavech | `docs/procesy/zpracovani-prihlasky/`, `docs/procesy/zpracovani-prihlasky/EMAILY.md` |
-| [Q-NAS-11](#q-nas-11) | Co přesně je „otevření přihlášek“, od kterého se zamyká režim vyhodnocování? | [US-101 (#194)](https://github.com/applifting-vsecourse/team-1/issues/194) | [D-067](../rozhodnuti/README.md#d-067): „Otevření přihlášek“ = akce splní všechny požadavky a vznikne link | `docs/PROJEKT.md` |
 
 ## Tickety k založení
 
 | Z otázky | Ticket |
 | --- | --- |
-| [Q-KOM-08](#q-kom-08) | enhancement: preferovaný jazyk uživatele (výchozí jazyk aplikace a e-mailů) |
-| [Q-PRI-18](#q-pri-18) | enhancement: UI/UX bloku „Stav v termínech“ + rámce ve Figmě |
-| [Q-PRI-19](#q-pri-19) | nový ticket: sběr telefonů od účastníků (+ tel: odkaz v pořadníku) |
 | [Q-PRI-20](#q-pri-20) | zjistit od PO detaily rušení náhradníků; případně enhancement |
-| [Q-PRI-21](#q-pri-21) | story: zrušení termínu zruší všechny přihlášky ve všech stavech + varování v UX |
-| [Q-NAS-11](#q-nas-11) | ruční nebo plánované spuštění přihlášek |
-| [Q-NAS-11](#q-nas-11) | ruční pozastavení přihlášek |
-| [Q-NAS-12](#q-nas-12) | změna režimu vyhodnocování do první přihlášky (nebo kombinace) |
-| [Q-UCT-10](#q-uct-10) | design: sladit Figmu V08 a M07 se dvěma vstupy na landingu |
 
 ## Podle epiců
 
@@ -180,7 +162,7 @@ _Nic._
 | [Q-KOM-06](#q-kom-06) | Který e-mail dorazil anglicky a v jakém jazyce byl UI při odeslání přihlášky a při žádosti o odkaz? | [#183](https://github.com/applifting-vsecourse/team-1/issues/183) | otevřeno | P1 | `pm` |
 | [Q-KOM-07](#q-kom-07) | Podle čeho se má volit jazyk samostatného magic link e-mailu: UI v okamžiku žádosti, User.locale, nebo jazyk poslední přihlášky? | [#183](https://github.com/applifting-vsecourse/team-1/issues/183) | zapsáno v dokumentaci | P1 | `pm` |
 | [Q-KOM-08](#q-kom-08) | Má se User.locale aktualizovat s každou přihláškou nebo přepnutím jazyka? | [#183](https://github.com/applifting-vsecourse/team-1/issues/183) | rozhodnuto, nezapsáno | P2 | `pm` |
-| [Q-KOM-09](#q-kom-09) | Který text e-mailu platí: „Jste náhradník“ (EMAILY.md), nebo „čeká na potvrzení“ (stávající šablona)? | [US-28](https://github.com/applifting-vsecourse/team-1/issues/28) | otevřeno | P2 | `pm` |
+| [Q-KOM-09](#q-kom-09) | Který text e-mailu platí: „Jste náhradník“ (EMAILY.md), nebo „čeká na potvrzení“ (stávající šablona)? | [US-28](https://github.com/applifting-vsecourse/team-1/issues/28) | zapsáno v dokumentaci | P2 | `pm` |
 | [Q-KOM-10](#q-kom-10) | Kdo dodá text a vzhled e-mailu č. 6 („zrušeno, protože se neuvolnilo lůžko“)? | [US-106 (#199)](https://github.com/applifting-vsecourse/team-1/issues/199) | otevřeno | P2 | `pm` |
 | [Q-KOM-01](#q-kom-01) | Potřebuješ to už pro první ročník (MVP), nebo zatím stačí Mailchimp? | [US-57](https://github.com/applifting-vsecourse/team-1/issues/57) | otevřeno | P3 | `po` |
 | [Q-KOM-02](#q-kom-02) | Má být už v MVP, nebo stačí po spuštění přihlášek? | [US-58](https://github.com/applifting-vsecourse/team-1/issues/58) | otevřeno | P3 | `po` |
@@ -206,9 +188,9 @@ _Nic._
 | [Q-NAS-04](#q-nas-04) | Co všechno má přihlašovatel o akci vidět, než podá přihlášku? Má být stránka dostupná komukoliv, nebo jen přes odkaz od organizátora? | [US-22](https://github.com/applifting-vsecourse/team-1/issues/22) | otevřeno | P1 | `po` |
 | [Q-NAS-05](#q-nas-05) | Jaká pole veřejných údajů o akci (fotografie atd.) se mají zobrazovat na veřejné stránce? | [US-22](https://github.com/applifting-vsecourse/team-1/issues/22) | otevřeno | P1 | `pm` |
 | [Q-NAS-07](#q-nas-07) | Přidají se zkopírované pokoje k existujícím pokojům cílového termínu, nebo je nahradí? | [US-100](https://github.com/applifting-vsecourse/team-1/issues/193), [US-99](https://github.com/applifting-vsecourse/team-1/issues/192) | otevřeno | P1 | `pm` |
-| [Q-NAS-08](#q-nas-08) | Sedí, že pořadník vychází z termínu a režimu pokojů celé akce, nebo se má režim pokojů lišit po termínech? | [US-30](https://github.com/applifting-vsecourse/team-1/issues/30) | rozhodnuto, nezapsáno | P1 | `pm` |
-| [Q-NAS-11](#q-nas-11) | Co přesně je „otevření přihlášek“, od kterého se zamyká režim vyhodnocování? | [US-101 (#194)](https://github.com/applifting-vsecourse/team-1/issues/194) | rozhodnuto, nezapsáno | P1 | `pm` |
-| [Q-NAS-09](#q-nas-09) | Je ve společných pokojích pořadí náhradníků jedno pro obě pohlaví v rámci termínu? | [US-30](https://github.com/applifting-vsecourse/team-1/issues/30) | rozhodnuto, nezapsáno | P2 | `pm` |
+| [Q-NAS-08](#q-nas-08) | Sedí, že pořadník vychází z termínu a režimu pokojů celé akce, nebo se má režim pokojů lišit po termínech? | [US-30](https://github.com/applifting-vsecourse/team-1/issues/30) | zapsáno v dokumentaci | P1 | `pm` |
+| [Q-NAS-11](#q-nas-11) | Co přesně je „otevření přihlášek“, od kterého se zamyká režim vyhodnocování? | [US-101 (#194)](https://github.com/applifting-vsecourse/team-1/issues/194) | zapsáno v dokumentaci | P1 | `pm` |
+| [Q-NAS-09](#q-nas-09) | Je ve společných pokojích pořadí náhradníků jedno pro obě pohlaví v rámci termínu? | [US-30](https://github.com/applifting-vsecourse/team-1/issues/30) | zapsáno v dokumentaci | P2 | `pm` |
 | [Q-NAS-10](#q-nas-10) | Chybí mobilní rámec (360 px) pořadníku ve Figmě. Kdo ho dodá? | [US-30](https://github.com/applifting-vsecourse/team-1/issues/30) | otevřeno | P2 | `design` |
 | [Q-NAS-01](#q-nas-01) | Vyhovuje to tak pro všechny akce, nebo má mít organizátor možnost přihlášky po naplnění úplně zavřít? | [US-18](https://github.com/applifting-vsecourse/team-1/issues/18) | otevřeno | P3 | `po` |
 | [Q-NAS-02](#q-nas-02) | Jaké typy otázek potřebuješ? Má jít podrobný formulář přihlášky uložit jako šablonu pro další akce? Je to spíš MVP, nebo Nice to have? | [US-19](https://github.com/applifting-vsecourse/team-1/issues/19) | otevřeno | P3 | `po` |
@@ -265,14 +247,13 @@ _Nic._
 | [Q-PRI-02](#q-pri-02) | Jaká lhůta na zaplacení platí pro náhradníka potvrzeného na poslední chvíli, např. týden před akcí? | [US-31](https://github.com/applifting-vsecourse/team-1/issues/31) | otevřeno | P1 | `po` |
 | [Q-PRI-03](#q-pri-03) | Platí pro změnu termínu stejné storno podmínky jako pro odhlášku (US-47)? | [US-32](https://github.com/applifting-vsecourse/team-1/issues/32) | otevřeno | P1 | `po` |
 | [Q-PRI-07](#q-pri-07) | Má změna termínu nebo odhláška proběhnout hned, nebo ji organizátor nejdřív schválí (kvůli kapacitě a storno podmínkám)? | [US-84](https://github.com/applifting-vsecourse/team-1/issues/84) | otevřeno | P1 | `po` |
-| [Q-PRI-14](#q-pri-14) | Má se do diagramu doplnit přechod Potvrzená → Náhradník (organizátor), jak říká ticket US-28? | [US-28](https://github.com/applifting-vsecourse/team-1/issues/28) | rozhodnuto, nezapsáno | P1 | `pm` |
-| [Q-PRI-15](#q-pri-15) | Smí organizátor zrušit náhradníka kdykoli, nebo jen automaticky první den termínu? | [US-28](https://github.com/applifting-vsecourse/team-1/issues/28) | rozhodnuto, nezapsáno | P1 | `pm` |
-| [Q-PRI-21](#q-pri-21) | Co se stane s náhradníky (a ostatními přihláškami) ve zrušeném termínu akce? | [US-106 (#199)](https://github.com/applifting-vsecourse/team-1/issues/199) | rozhodnuto, nezapsáno | P1 | `pm` |
-| [Q-PRI-22](#q-pri-22) | Kam se v pořadníku zařadí přihláška přesunutá z Potvrzené mezi náhradníky: podle data přijetí (může skočit před dřívější náhradníky), nebo na konec? | [US-28](https://github.com/applifting-vsecourse/team-1/issues/28) | otevřeno | P1 | `pm` |
+| [Q-PRI-14](#q-pri-14) | Má se do diagramu doplnit přechod Potvrzená → Náhradník (organizátor), jak říká ticket US-28? | [US-28](https://github.com/applifting-vsecourse/team-1/issues/28) | zapsáno v dokumentaci | P1 | `pm` |
+| [Q-PRI-15](#q-pri-15) | Smí organizátor zrušit náhradníka kdykoli, nebo jen automaticky první den termínu? | [US-28](https://github.com/applifting-vsecourse/team-1/issues/28) | zapsáno v dokumentaci | P1 | `pm` |
+| [Q-PRI-21](#q-pri-21) | Co se stane s náhradníky (a ostatními přihláškami) ve zrušeném termínu akce? | [US-106 (#199)](https://github.com/applifting-vsecourse/team-1/issues/199) | zapsáno v dokumentaci | P1 | `pm` |
+| [Q-PRI-22](#q-pri-22) | Kam se v pořadníku zařadí přihláška přesunutá z Potvrzené mezi náhradníky: podle data přijetí (může skočit před dřívější náhradníky), nebo na konec? | [US-28](https://github.com/applifting-vsecourse/team-1/issues/28) | zapsáno v dokumentaci | P1 | `pm` |
 | [Q-PRI-04](#q-pri-04) | Platí pravidlo „odhlášená přihláška se nepočítá do kontroly duplicity“ i pro termín zrušený organizátorem při vyhodnocení (stav „Zrušená“)? | [US-32](https://github.com/applifting-vsecourse/team-1/issues/32), [#160](https://github.com/applifting-vsecourse/team-1/issues/160) | otevřeno | P2 | `pm` |
 | [Q-PRI-11](#q-pri-11) | Má se formát data narození řídit jazykem aplikace, nebo jazykem systému (a co na jiných zařízeních)? | [#177](https://github.com/applifting-vsecourse/team-1/issues/177) | otevřeno | P2 | `pm` |
-| [Q-PRI-12](#q-pri-12) | Je v angličtině správný formát data narození DD/MM/YYYY (en-GB), nebo MM/DD/YYYY? | [#177](https://github.com/applifting-vsecourse/team-1/issues/177) | otevřeno | P2 | `pm` |
-| [Q-PRI-20](#q-pri-20) | Od jaké hodiny se ruší náhradník první den termínu? | [US-106 (#199)](https://github.com/applifting-vsecourse/team-1/issues/199) | rozhodnuto, nezapsáno | P2 | `pm` |
+| [Q-PRI-20](#q-pri-20) | Od jaké hodiny se ruší náhradník první den termínu? | [US-106 (#199)](https://github.com/applifting-vsecourse/team-1/issues/199) | zapsáno v dokumentaci | P2 | `pm` |
 | [Q-PRI-01](#q-pri-01) | Jaké výjimky dnes děláš (stálí účastníci, tým, sourozenci)? | [US-28](https://github.com/applifting-vsecourse/team-1/issues/28) | otevřeno | P3 | `po` |
 | [Q-PRI-09](#q-pri-09) | Používáš okna pro podání přihlášek podle věku či jiných údajů? | [US-87](https://github.com/applifting-vsecourse/team-1/issues/87) | otevřeno | P3 | `po` |
 | [Q-PRI-10](#q-pri-10) | Kdo je smí vidět, jak dlouho se uchovávají a má o záznamu účastník vědět? Potřebuješ to na kempu? | [US-88](https://github.com/applifting-vsecourse/team-1/issues/88) | otevřeno | P3 | `po` |
@@ -326,6 +307,7 @@ _Nic._
 | [Q-PLT-04](#q-plt-04) | Kdo je správcem údajů: organizace, nebo provozovatel Togeny? | [US-77](https://github.com/applifting-vsecourse/team-1/issues/77) | Rozhodnuto 28. 10.: organizátor je správcem údajů účastníků, Togena zpracovatelem; Togena je správcem údajů organizátorů. |
 | [Q-PLT-05](#q-plt-05) | Kdo je správcem osobních údajů: organizace, nebo provozovatel Togeny? (Odpověď tohoto issue uzavírá otázky z US-77 a US-78.) **Duplicita s [Q-PLT-04](#q-plt-04).** | [US-97](https://github.com/applifting-vsecourse/team-1/issues/164) | Správce údajů: rozhodnuto 28. 10. (viz US-77). Zůstává otevřená doba uchování (US-78) a smluvní strana (#167). |
 | [Q-BEZ-06](#q-bez-06) | Název termínu: zůstává volitelný — co se starými názvy, má se překládat a kde se má zobrazovat? | [#180](https://github.com/applifting-vsecourse/team-1/issues/180) | Hlavní otázku (zrušit, nebo ponechat) rozhodl status 28. 10. Vedlejší otázky (migrace, překlad, zobrazení) jsou spíš pro tým; při potřebě je převést na samostatný bod. |
+| [Q-PRI-12](#q-pri-12) | Je v angličtině správný formát data narození DD/MM/YYYY (en-GB), nebo MM/DD/YYYY? | [#177](https://github.com/applifting-vsecourse/team-1/issues/177) | V angličtině se datum narození zobrazuje a zadává jako DD/MM/YYYY (en-GB), například 25/10/1990. |
 | [Q-PRI-13](#q-pri-13) | Má u náhradníka na detailu přihlášky zůstat text „0 Kč do potvrzení“, nebo se změnit (např. „zatím nic k úhradě“)? | [#225](https://github.com/applifting-vsecourse/team-1/issues/225) | Rozhodnuto PM, zapracováno v PR #227. |
 | [Q-PRI-16](#q-pri-16) | Stačí, že přechody ze stavu K vyhodnocení doplní US-102, aby se kritérium US-28 uzavřelo? | [US-28](https://github.com/applifting-vsecourse/team-1/issues/28) | Souhlas, přechody doplní US-102 (#195). |
 | [Q-PRI-17](#q-pri-17) | Stačí v US-28 vědomé potvrzení nad kapacitu, když přistýlka (US-80) ještě neexistuje? | [US-28](https://github.com/applifting-vsecourse/team-1/issues/28) | Souhlas, stačí vědomé potvrzení; přistýlka přijde s US-80. |
@@ -493,18 +475,20 @@ _Nic._
   - [PR #231, nejasnosti k byznys pravidlům](https://github.com/applifting-vsecourse/team-1/pull/231)
 - **Priorita:** P2 – Žádný zdroj to neurčuje; reset hesla a ověření e-mailu u účtu založeného anglicky zůstávají anglicky.
 - **Rozhodnutí:** [D-069](../rozhodnuti/README.md#d-069): Uživatel by měl mít možnost nastavit si preferovaný jazyk. V něm se bude defaultně spouštět aplikace a odesílat e-maily. Pro PR #231 se nic nemění, vše zůstává jak je; PM založí ticket enhancement.
-- **Navazující ticket:** enhancement: preferovaný jazyk uživatele (výchozí jazyk aplikace a e-mailů) (k založení)
+- **Navazující ticket:** [enhancement: preferovaný jazyk uživatele (výchozí jazyk aplikace a e-mailů)](https://github.com/applifting-vsecourse/team-1/issues/243)
 
 <a id="q-kom-09"></a>
 
 ### Q-KOM-09 – Který text e-mailu platí: „Jste náhradník“ (EMAILY.md), nebo „čeká na potvrzení“ (stávající šablona)?
 
-- **Epic:** komunikace · **Dotčené US:** [US-28](https://github.com/applifting-vsecourse/team-1/issues/28) · **Stav:** otevřeno · **Čeká na:** `pm`
+- **Epic:** komunikace · **Dotčené US:** [US-28](https://github.com/applifting-vsecourse/team-1/issues/28) · **Stav:** zapsáno v dokumentaci · **Čeká na:** `pm`
 - **Poznámka:** Tech lead (PR #232): jde o e-mail č. 3 (K vyhodnocení → Náhradník), používá se i pro Potvrzená → Náhradník; stejný rozpor má č. 1 v auto režimu. Přechod Potvrzená → Náhradník v EMAILY.md chybí. Texty „jste náhradník“ zavedl PR #227.
 - **Zdroje:**
   - [PR #232](https://github.com/applifting-vsecourse/team-1/pull/232#issuecomment-6535280632)
   - [PR #232, odpověď tech leada](https://github.com/applifting-vsecourse/team-1/pull/232#issuecomment-6545014573)
-- **Priorita:** P2 – Tech lead upřesnil číslo e-mailu, PM může rozhodnout.
+- **Priorita:** P2 – Rozhodnuto, zbývá zapsat do dokumentace.
+- **Rozhodnutí:** [D-074](../rozhodnuti/README.md#d-074): Přechod Potvrzená → Náhradník se v EMAILY.md zapíše jako nový, samostatný řádek (vlastní e-mail s vlastním textem) s dalším volným číslem 13; stávající čísla e-mailů se nepřečíslovávají. E-mail č. 3 zůstává jen pro K vyhodnocení → Náhradník. Text „Jste náhradník“ platí pro č. 3 i pro č. 1 v automatickém režimu.
+- **Navazující ticket:** [rozšířit US-116 o e-maily č. 13 až 15 (D-074)](https://github.com/applifting-vsecourse/team-1/issues/209)
 
 <a id="q-kom-10"></a>
 
@@ -661,7 +645,7 @@ _Nic._
 
 ### Q-NAS-08 – Sedí, že pořadník vychází z termínu a režimu pokojů celé akce, nebo se má režim pokojů lišit po termínech?
 
-- **Epic:** nastavení akce · **Dotčené US:** [US-30](https://github.com/applifting-vsecourse/team-1/issues/30) · **Stav:** rozhodnuto, nezapsáno · **Čeká na:** `pm`
+- **Epic:** nastavení akce · **Dotčené US:** [US-30](https://github.com/applifting-vsecourse/team-1/issues/30) · **Stav:** zapsáno v dokumentaci · **Čeká na:** `pm`
 - **Zdroje:**
   - [PR #234](https://github.com/applifting-vsecourse/team-1/pull/234)
 - **Priorita:** P1 – Pokoje po termínech má řešit US-99 (#192); kód má režim na akci.
@@ -673,7 +657,7 @@ _Nic._
 
 ### Q-NAS-09 – Je ve společných pokojích pořadí náhradníků jedno pro obě pohlaví v rámci termínu?
 
-- **Epic:** nastavení akce · **Dotčené US:** [US-30](https://github.com/applifting-vsecourse/team-1/issues/30) · **Stav:** rozhodnuto, nezapsáno · **Čeká na:** `pm`
+- **Epic:** nastavení akce · **Dotčené US:** [US-30](https://github.com/applifting-vsecourse/team-1/issues/30) · **Stav:** zapsáno v dokumentaci · **Čeká na:** `pm`
 - **Zdroje:**
   - [PR #234](https://github.com/applifting-vsecourse/team-1/pull/234)
 - **Priorita:** P2 – Pravidlo pořadníku není v dokumentaci.
@@ -692,13 +676,13 @@ _Nic._
 
 ### Q-NAS-11 – Co přesně je „otevření přihlášek“, od kterého se zamyká režim vyhodnocování?
 
-- **Epic:** nastavení akce · **Dotčené US:** [US-101 (#194)](https://github.com/applifting-vsecourse/team-1/issues/194) · **Stav:** rozhodnuto, nezapsáno · **Čeká na:** `pm`
+- **Epic:** nastavení akce · **Dotčené US:** [US-101 (#194)](https://github.com/applifting-vsecourse/team-1/issues/194) · **Stav:** zapsáno v dokumentaci · **Čeká na:** `pm`
 - **Zdroje:**
   - [PR #238](https://github.com/applifting-vsecourse/team-1/pull/238)
 - **Priorita:** P1 – V kódu ani PROJEKT.md §5 stav „otevřeno“ není.
 - **Rozhodnutí:** [D-067](../rozhodnuti/README.md#d-067): Aktuálně moment, kdy akce splní všechny požadavky (termín, ubytování atd.); pak se vygeneruje link a přihlašování se spustí. V budoucnu ruční nebo plánované spuštění a ruční pozastavení přihlášek (např. při výpadku ubytování).
-- **Navazující ticket:** ruční nebo plánované spuštění přihlášek (k založení)
-- **Navazující ticket:** ruční pozastavení přihlášek (k založení)
+- **Navazující ticket:** [ruční nebo plánované spuštění přihlášek](https://github.com/applifting-vsecourse/team-1/issues/248)
+- **Navazující ticket:** [ruční pozastavení přihlášek](https://github.com/applifting-vsecourse/team-1/issues/249)
 
 <a id="q-nas-12"></a>
 
@@ -709,7 +693,7 @@ _Nic._
   - [PR #238](https://github.com/applifting-vsecourse/team-1/pull/238)
 - **Priorita:** P2 – Zamčeno jakmile akce splní podmínky nebo má přihlášku.
 - **Rozhodnutí:** [D-068](../rozhodnuti/README.md#d-068): As-is stav je v pořádku; v budoucnu by měla jít změna do první přihlášky nebo nějaká kombinace.
-- **Navazující ticket:** změna režimu vyhodnocování do první přihlášky (nebo kombinace) (k založení)
+- **Navazující ticket:** [změna režimu vyhodnocování do první přihlášky (nebo kombinace)](https://github.com/applifting-vsecourse/team-1/issues/250)
 
 <a id="q-nas-13"></a>
 
@@ -1127,11 +1111,12 @@ _Nic._
 
 ### Q-PRI-12 – Je v angličtině správný formát data narození DD/MM/YYYY (en-GB), nebo MM/DD/YYYY?
 
-- **Epic:** přihlašování na akce · **Dotčené US:** [#177](https://github.com/applifting-vsecourse/team-1/issues/177) · **Stav:** otevřeno · **Čeká na:** `pm`
-- **Poznámka:** Souvisí s Q-PRI-11 (formát podle jazyka aplikace). Zapracováno v PR #226 jako 25/10/1990 (en-GB); PM zatím neodpověděl.
+- **Epic:** přihlašování na akce · **Dotčené US:** [#177](https://github.com/applifting-vsecourse/team-1/issues/177) · **Stav:** uzavřeno · **Čeká na:** `pm`
+- **Poznámka:** Souvisí s Q-PRI-11 (formát podle jazyka aplikace). Zapracováno v PR #226 jako 25/10/1990 (en-GB); PM potvrdil (D-075).
 - **Zdroje:**
   - [PR #226, nejasnosti k byznys pravidlům](https://github.com/applifting-vsecourse/team-1/pull/226)
-- **Priorita:** P2 – Otevřené PR #226 staví en-GB; čeká na potvrzení.
+- **Priorita:** P2 – Rozhodnuto (shodné s PR
+- **Rozhodnutí:** [D-075](../rozhodnuti/README.md#d-075): V angličtině se datum narození zobrazuje a zadává jako DD/MM/YYYY (en-GB), například 25/10/1990.
 
 <a id="q-pri-13"></a>
 
@@ -1148,7 +1133,7 @@ _Nic._
 
 ### Q-PRI-14 – Má se do diagramu doplnit přechod Potvrzená → Náhradník (organizátor), jak říká ticket US-28?
 
-- **Epic:** přihlašování na akce · **Dotčené US:** [US-28](https://github.com/applifting-vsecourse/team-1/issues/28) · **Stav:** rozhodnuto, nezapsáno · **Čeká na:** `pm`
+- **Epic:** přihlašování na akce · **Dotčené US:** [US-28](https://github.com/applifting-vsecourse/team-1/issues/28) · **Stav:** zapsáno v dokumentaci · **Čeká na:** `pm`
 - **Zdroje:**
   - [PR #232](https://github.com/applifting-vsecourse/team-1/pull/232#issuecomment-6535280632)
 - **Priorita:** P1 – Blokovalo kritérium US-28; rozhodnuto, zbývá zapsat do modelů.
@@ -1158,7 +1143,7 @@ _Nic._
 
 ### Q-PRI-15 – Smí organizátor zrušit náhradníka kdykoli, nebo jen automaticky první den termínu?
 
-- **Epic:** přihlašování na akce · **Dotčené US:** [US-28](https://github.com/applifting-vsecourse/team-1/issues/28) · **Stav:** rozhodnuto, nezapsáno · **Čeká na:** `pm`
+- **Epic:** přihlašování na akce · **Dotčené US:** [US-28](https://github.com/applifting-vsecourse/team-1/issues/28) · **Stav:** zapsáno v dokumentaci · **Čeká na:** `pm`
 - **Zdroje:**
   - [PR #232](https://github.com/applifting-vsecourse/team-1/pull/232#issuecomment-6535280632)
 - **Priorita:** P1 – Rozpor ticket × diagram; rozhodnuto, zbývá zapsat.
@@ -1194,7 +1179,7 @@ _Nic._
   - [PR #232](https://github.com/applifting-vsecourse/team-1/pull/232#issuecomment-6535280632)
 - **Priorita:** P2 – Rámec ve Figmě neexistuje; nebrání mergi.
 - **Rozhodnutí:** [D-060](../rozhodnuti/README.md#d-060): Merge neblokuje; mergnout a UI/UX dolaďovat zpětně ticketem enhancement.
-- **Navazující ticket:** enhancement: UI/UX bloku „Stav v termínech“ + rámce ve Figmě (k založení)
+- **Navazující ticket:** [enhancement: UI/UX bloku „Stav v termínech“ + rámce ve Figmě](https://github.com/applifting-vsecourse/team-1/issues/244)
 
 <a id="q-pri-19"></a>
 
@@ -1205,14 +1190,14 @@ _Nic._
   - [PR #234](https://github.com/applifting-vsecourse/team-1/pull/234)
 - **Priorita:** P2 – Přihláška telefon neukládá; kritéria US-30 s telefonem zůstávají nesplněná.
 - **Rozhodnutí:** [D-061](../rozhodnuti/README.md#d-061): Neřešit v tomto PR; mergnout, telefon sbírat novým ticketem (někdy by tam určitě měl být).
-- **Navazující ticket:** nový ticket: sběr telefonů od účastníků (+ tel: odkaz v pořadníku) (k založení)
+- **Navazující ticket:** [nový ticket: sběr telefonů od účastníků (+ tel: odkaz v pořadníku)](https://github.com/applifting-vsecourse/team-1/issues/245)
 - **Navazující ticket:** [upravit kritéria US-30 v issue](https://github.com/applifting-vsecourse/team-1/issues/30)
 
 <a id="q-pri-20"></a>
 
 ### Q-PRI-20 – Od jaké hodiny se ruší náhradník první den termínu?
 
-- **Epic:** přihlašování na akce · **Dotčené US:** [US-106 (#199)](https://github.com/applifting-vsecourse/team-1/issues/199) · **Stav:** rozhodnuto, nezapsáno · **Čeká na:** `pm`
+- **Epic:** přihlašování na akce · **Dotčené US:** [US-106 (#199)](https://github.com/applifting-vsecourse/team-1/issues/199) · **Stav:** zapsáno v dokumentaci · **Čeká na:** `pm`
 - **Zdroje:**
   - [PR #236](https://github.com/applifting-vsecourse/team-1/pull/236)
 - **Priorita:** P2 – Dokumenty časové pásmo neuvádějí; implementace používá půlnoc Europe/Prague.
@@ -1223,22 +1208,24 @@ _Nic._
 
 ### Q-PRI-21 – Co se stane s náhradníky (a ostatními přihláškami) ve zrušeném termínu akce?
 
-- **Epic:** přihlašování na akce · **Dotčené US:** [US-106 (#199)](https://github.com/applifting-vsecourse/team-1/issues/199) · **Stav:** rozhodnuto, nezapsáno · **Čeká na:** `pm`
+- **Epic:** přihlašování na akce · **Dotčené US:** [US-106 (#199)](https://github.com/applifting-vsecourse/team-1/issues/199) · **Stav:** zapsáno v dokumentaci · **Čeká na:** `pm`
 - **Poznámka:** Tech lead (PR #236): zrušení termínu dnes jen nastaví Term.cancelledAt a přihlášky nemění; žádá, aby PM založil ticket.
 - **Zdroje:**
   - [PR #236](https://github.com/applifting-vsecourse/team-1/pull/236)
 - **Priorita:** P1 – Dokumenty to neříkají; úloha je nechává beze změny. Kritická a nevratná akce.
 - **Rozhodnutí:** [D-065](../rozhodnuti/README.md#d-065): Při zrušení termínu se ruší všichni účastníci ve všech stavech. UX má organizátora dostatečně upozornit na kritickou a nevratnou akci.
-- **Navazující ticket:** story: zrušení termínu zruší všechny přihlášky ve všech stavech + varování v UX (k založení)
+- **Navazující ticket:** [story: zrušení termínu zruší všechny přihlášky ve všech stavech + varování v UX](https://github.com/applifting-vsecourse/team-1/issues/246)
+- **Navazující ticket:** [story: vrácení plateb při zrušení termínu (D-076, D-080)](https://github.com/applifting-vsecourse/team-1/issues/247)
 
 <a id="q-pri-22"></a>
 
 ### Q-PRI-22 – Kam se v pořadníku zařadí přihláška přesunutá z Potvrzené mezi náhradníky: podle data přijetí (může skočit před dřívější náhradníky), nebo na konec?
 
-- **Epic:** přihlašování na akce · **Dotčené US:** [US-28](https://github.com/applifting-vsecourse/team-1/issues/28) · **Stav:** otevřeno · **Čeká na:** `pm`
+- **Epic:** přihlašování na akce · **Dotčené US:** [US-28](https://github.com/applifting-vsecourse/team-1/issues/28) · **Stav:** zapsáno v dokumentaci · **Čeká na:** `pm`
 - **Zdroje:**
   - [PR #232, dotaz tech leada](https://github.com/applifting-vsecourse/team-1/pull/232#issuecomment-6545014573)
-- **Priorita:** P1 – Chování je už v main (PR #232) a řadí podle data přijetí; zpětná změna pořadí je dražší.
+- **Priorita:** P1 – Rozhodnuto, zbývá zapsat do dokumentace.
+- **Rozhodnutí:** [D-073](../rozhodnuti/README.md#d-073): Přihláška přesunutá z Potvrzené mezi náhradníky se v pořadníku řadí podle data přijetí, tedy stejně jako ostatní náhradníci. Může tak skočit před dřívější náhradníky.
 
 <a id="q-pri-23"></a>
 
@@ -1457,5 +1444,5 @@ _Nic._
   - registr rozhodnutí
 - **Priorita:** P2 – Dvě rozhodnutí z 19. 10. se rozcházejí a pořadí ze zdrojů nelze určit.
 - **Rozhodnutí:** [D-072](../rozhodnuti/README.md#d-072): Landing pro nepřihlášené má dva vstupy: „Jsem organizátor“ a „Jsem účastník“ (jak je v aplikaci). Rozhodnutí z 19. 10. o jediném vstupu „Pro organizátory – přihlásit se“ (podle Figmy V08, M07) neplatí; Figma se s kódem sladí.
-- **Navazující ticket:** design: sladit Figmu V08 a M07 se dvěma vstupy na landingu (k založení)
+- **Navazující ticket:** [design: sladit Figmu V08 a M07 se dvěma vstupy na landingu](https://github.com/applifting-vsecourse/team-1/issues/251)
 - **Uzavřeno, protože:** Rozhodnuto PM: dva vstupy.

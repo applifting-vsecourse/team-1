@@ -1526,15 +1526,16 @@ otazky:
   us:
   - label: '#177'
     url: https://github.com/applifting-vsecourse/team-1/issues/177
-  stav: otevreno
+  stav: uzavreno
   priorita: P2
-  priorita_duvod: 'Otevřené PR #226 staví en-GB; čeká na potvrzení.'
+  priorita_duvod: Rozhodnuto (shodné s PR #226).
   ceka_na: pm
   zdroje:
   - popis: 'PR #226, nejasnosti k byznys pravidlům'
     url: https://github.com/applifting-vsecourse/team-1/pull/226
   poznamka: 'Souvisí s Q-PRI-11 (formát podle jazyka aplikace). Zapracováno v PR #226 jako 25/10/1990
-    (en-GB); PM zatím neodpověděl.'
+    (en-GB); PM potvrdil (D-075).'
+  rozhodnuti_ref: D-075
 - id: Q-PRI-13
   otazka: Má u náhradníka na detailu přihlášky zůstat text „0 Kč do potvrzení“, nebo se změnit (např.
     „zatím nic k úhradě“)?
@@ -1568,14 +1569,14 @@ otazky:
   rozhodnuti_ref: D-069
   navazne_tickety:
   - label: 'enhancement: preferovaný jazyk uživatele (výchozí jazyk aplikace a e-mailů)'
-    url: null
+    url: https://github.com/applifting-vsecourse/team-1/issues/243
 - id: Q-PRI-14
   otazka: Má se do diagramu doplnit přechod Potvrzená → Náhradník (organizátor), jak říká ticket US-28?
   epic: přihlašování na akce
   us:
   - label: US-28
     url: https://github.com/applifting-vsecourse/team-1/issues/28
-  stav: rozhodnuto
+  stav: zapsano
   priorita: P1
   priorita_duvod: Blokovalo kritérium US-28; rozhodnuto, zbývá zapsat do modelů.
   ceka_na: pm
@@ -1589,7 +1590,7 @@ otazky:
   us:
   - label: US-28
     url: https://github.com/applifting-vsecourse/team-1/issues/28
-  stav: rozhodnuto
+  stav: zapsano
   priorita: P1
   priorita_duvod: Rozpor ticket × diagram; rozhodnuto, zbývá zapsat.
   ceka_na: pm
@@ -1635,9 +1636,9 @@ otazky:
   us:
   - label: US-28
     url: https://github.com/applifting-vsecourse/team-1/issues/28
-  stav: otevreno
+  stav: zapsano
   priorita: P2
-  priorita_duvod: Tech lead upřesnil číslo e-mailu, PM může rozhodnout.
+  priorita_duvod: Rozhodnuto, zbývá zapsat do dokumentace.
   ceka_na: pm
   zdroje:
   - popis: 'PR #232'
@@ -1647,6 +1648,10 @@ otazky:
   poznamka: 'Tech lead (PR #232): jde o e-mail č. 3 (K vyhodnocení → Náhradník), používá se i pro Potvrzená
     → Náhradník; stejný rozpor má č. 1 v auto režimu. Přechod Potvrzená → Náhradník v EMAILY.md chybí.
     Texty „jste náhradník“ zavedl PR #227.'
+  navazne_tickety:
+  - label: 'rozšířit US-116 o e-maily č. 13 až 15 (D-074)'
+    url: https://github.com/applifting-vsecourse/team-1/issues/209
+  rozhodnuti_ref: D-074
 - id: Q-PRI-18
   otazka: 'Má se blok „Stav v termínech“ (detail přihlášky, dialog změny stavu, varování o kapacitě) dokreslit
     ve Figmě před mergem #232?'
@@ -1663,7 +1668,7 @@ otazky:
     url: https://github.com/applifting-vsecourse/team-1/pull/232#issuecomment-6535280632
   navazne_tickety:
   - label: 'enhancement: UI/UX bloku „Stav v termínech“ + rámce ve Figmě'
-    url: null
+    url: https://github.com/applifting-vsecourse/team-1/issues/244
   rozhodnuti_ref: D-060
 - id: Q-PRI-19
   otazka: Sbírá se telefon ve formuláři přihlášky a v jaké story? (US-30 ho chce u náhradníka i s vytočením
@@ -1681,7 +1686,7 @@ otazky:
     url: https://github.com/applifting-vsecourse/team-1/pull/234
   navazne_tickety:
   - label: 'nový ticket: sběr telefonů od účastníků (+ tel: odkaz v pořadníku)'
-    url: null
+    url: https://github.com/applifting-vsecourse/team-1/issues/245
   - label: upravit kritéria US-30 v issue
     url: https://github.com/applifting-vsecourse/team-1/issues/30
   rozhodnuti_ref: D-061
@@ -1692,7 +1697,7 @@ otazky:
   us:
   - label: US-30
     url: https://github.com/applifting-vsecourse/team-1/issues/30
-  stav: rozhodnuto
+  stav: zapsano
   priorita: P1
   priorita_duvod: Pokoje po termínech má řešit US-99 (#192); kód má režim na akci.
   ceka_na: pm
@@ -1711,7 +1716,7 @@ otazky:
   us:
   - label: US-30
     url: https://github.com/applifting-vsecourse/team-1/issues/30
-  stav: rozhodnuto
+  stav: zapsano
   priorita: P2
   priorita_duvod: Pravidlo pořadníku není v dokumentaci.
   ceka_na: pm
@@ -1738,7 +1743,7 @@ otazky:
   us:
   - label: US-106 (#199)
     url: https://github.com/applifting-vsecourse/team-1/issues/199
-  stav: rozhodnuto
+  stav: zapsano
   priorita: P2
   priorita_duvod: Dokumenty časové pásmo neuvádějí; implementace používá půlnoc Europe/Prague.
   ceka_na: pm
@@ -1755,7 +1760,7 @@ otazky:
   us:
   - label: US-106 (#199)
     url: https://github.com/applifting-vsecourse/team-1/issues/199
-  stav: rozhodnuto
+  stav: zapsano
   priorita: P1
   priorita_duvod: Dokumenty to neříkají; úloha je nechává beze změny. Kritická a nevratná akce.
   ceka_na: pm
@@ -1764,7 +1769,9 @@ otazky:
     url: https://github.com/applifting-vsecourse/team-1/pull/236
   navazne_tickety:
   - label: 'story: zrušení termínu zruší všechny přihlášky ve všech stavech + varování v UX'
-    url: null
+    url: https://github.com/applifting-vsecourse/team-1/issues/246
+  - label: 'story: vrácení plateb při zrušení termínu (D-076, D-080)'
+    url: https://github.com/applifting-vsecourse/team-1/issues/247
   rozhodnuti_ref: D-065
   poznamka: 'Tech lead (PR #236): zrušení termínu dnes jen nastaví Term.cancelledAt a přihlášky nemění;
     žádá, aby PM založil ticket.'
@@ -1805,7 +1812,7 @@ otazky:
   us:
   - label: US-101 (#194)
     url: https://github.com/applifting-vsecourse/team-1/issues/194
-  stav: rozhodnuto
+  stav: zapsano
   priorita: P1
   priorita_duvod: V kódu ani PROJEKT.md §5 stav „otevřeno“ není.
   ceka_na: pm
@@ -1814,9 +1821,9 @@ otazky:
     url: https://github.com/applifting-vsecourse/team-1/pull/238
   navazne_tickety:
   - label: ruční nebo plánované spuštění přihlášek
-    url: null
+    url: https://github.com/applifting-vsecourse/team-1/issues/248
   - label: ruční pozastavení přihlášek
-    url: null
+    url: https://github.com/applifting-vsecourse/team-1/issues/249
   rozhodnuti_ref: D-067
 - id: Q-NAS-12
   otazka: Je záměr, že zpřístupněná akce bez jediné přihlášky má zamčený režim vyhodnocování?
@@ -1833,7 +1840,7 @@ otazky:
     url: https://github.com/applifting-vsecourse/team-1/pull/238
   navazne_tickety:
   - label: změna režimu vyhodnocování do první přihlášky (nebo kombinace)
-    url: null
+    url: https://github.com/applifting-vsecourse/team-1/issues/250
   rozhodnuti_ref: D-068
 - id: Q-NAS-13
   otazka: Slovník říká „Režim vyhodnocení“, Figma „Režim vyhodnocování“. Která varianta platí?
@@ -1879,7 +1886,7 @@ otazky:
   uzavreno_duvod: 'Rozhodnuto PM: dva vstupy.'
   navazne_tickety:
   - label: 'design: sladit Figmu V08 a M07 se dvěma vstupy na landingu'
-    url: null
+    url: https://github.com/applifting-vsecourse/team-1/issues/251
 - id: Q-TEC-08
   otazka: Platí rozdělení práce do proudů (A–D) z 16. 10., nebo se práce proudům nedělí, jak říká sekce
     11 PROJEKT.md?
@@ -1901,13 +1908,14 @@ otazky:
   us: &id001
   - label: US-28
     url: https://github.com/applifting-vsecourse/team-1/issues/28
-  stav: otevreno
+  stav: zapsano
   priorita: P1
-  priorita_duvod: 'Chování je už v main (PR #232) a řadí podle data přijetí; zpětná změna pořadí je dražší.'
+  priorita_duvod: Rozhodnuto, zbývá zapsat do dokumentace.
   ceka_na: pm
   zdroje:
   - popis: 'PR #232, dotaz tech leada'
     url: https://github.com/applifting-vsecourse/team-1/pull/232#issuecomment-6545014573
+  rozhodnuti_ref: D-073
 - id: Q-PRI-23
   otazka: Má systém zvýraznit náhradníka potvrzeného nad rámec kapacity v seznamu přihlášek?
   epic: přihlašování na akce
