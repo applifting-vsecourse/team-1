@@ -5,3 +5,9 @@ apps
 
 # Prisma client (generated)
 apps/backend/src/generated/
+
+# Registry data and generated overviews (docs/*/generate.py, PyYAML output)
+docs/otevrene-otazky/otazky.yaml
+docs/otevrene-otazky/README.md
+docs/rozhodnuti/rozhodnuti.yaml
+docs/rozhodnuti/README.md

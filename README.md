@@ -10,7 +10,8 @@ Organizátor založí akci s termíny, cenami a pokoji a rozešle odkaz. Zájemc
 
 - **Zkušební prostředí:** https://team-1.vsepractical.applifting.dev (nasazuje se automaticky z `main`)
 - **Board:** https://github.com/orgs/applifting-vsecourse/projects/12
-- **Projektový dokument** (rozsah, rozhodnutí, architektura): [docs/PROJEKT.md](docs/PROJEKT.md)
+- **Projektový dokument** (rozsah, architektura): [docs/PROJEKT.md](docs/PROJEKT.md)
+- **Registr rozhodnutí**: [docs/rozhodnuti/](docs/rozhodnuti/README.md); **otevřené otázky**: [docs/otevrene-otazky/](docs/otevrene-otazky/README.md)
 - **Slovník pojmů** business domény: [docs/SLOVNIK.md](docs/SLOVNIK.md)
 - **Pravidla UI a designu:** [DESIGN.md](DESIGN.md)
 - **Jak přispívat** (postup, příkazy, řešení problémů): [CONTRIBUTING.md](CONTRIBUTING.md)
@@ -33,7 +34,7 @@ Frontend běží na http://localhost:3050, API na http://localhost:4050/api a Sw
 
 ## Pravidla spolupráce
 
-- **Board určuje rozsah práce**, [projektový dokument](docs/PROJEKT.md) rozhodnutí a pravidla. Rozpory řeš podle něj, dokud tým nebo PO rozhodnutí nezmění.
+- **Board určuje rozsah práce**, [projektový dokument](docs/PROJEKT.md) pravidla a [registr rozhodnutí](docs/rozhodnuti/README.md) rozhodnutí. Rozpory řeš podle nich, dokud tým nebo PO rozhodnutí nezmění.
 - **Jedna story = jedna větev = jeden PR**, včetně backendu, frontendu a testů.
 - Když story dokončí hlavní cestu z [tabulky E2E testů](docs/E2E.md#co-testujeme), patří E2E test do stejného PR.
 - Do `main` mergujeme přes PR, **se zeleným CI a po otestování testerem**, pomocí squash merge. Issue zavírá product manager po ověření na stagingu; v PR používej `Refs #číslo`.
