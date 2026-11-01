@@ -974,15 +974,15 @@ rozhodnuti:
   - soubor: docs/procesy/zpracovani-prihlasky/rucni-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml
     popis: přechod Potvrzená s dluhem → Náhradník
     stav: hotovo
-    commit: 57332cc
+    commit: d4964be
   - soubor: docs/procesy/zpracovani-prihlasky/automaticke-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml
     popis: zkontrolovat, zda přechod platí i v auto režimu
     stav: hotovo
-    commit: 57332cc
+    commit: d4964be
   - soubor: docs/procesy/zpracovani-prihlasky/EMAILY.md
     popis: řádek e-mailu č. 3 platí i pro tento přechod; č. 1 v auto režimu má stejný rozpor
     stav: hotovo
-    commit: 57332cc
+    commit: d4964be
   poznamka: 'Tech lead: přechod je povolený v backendu i UI („Move to waitlist“), zapracováno v b68f73e
     a propsané do navazujících PR. Diagram a EMAILY.md zůstávají na PM.'
   zmeneno_v:
@@ -1009,15 +1009,15 @@ rozhodnuti:
   - soubor: docs/procesy/zpracovani-prihlasky/rucni-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml
     popis: Náhradník → Zrušená i organizátorem
     stav: hotovo
-    commit: 57332cc
+    commit: d4964be
   - soubor: docs/procesy/zpracovani-prihlasky/automaticke-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml
     popis: zkontrolovat v auto režimu
     stav: hotovo
-    commit: 57332cc
+    commit: d4964be
   - soubor: docs/procesy/zpracovani-prihlasky/EMAILY.md
     popis: řádek 6 platí jen pro první den, doplnit řádek pro zrušení organizátorem
     stav: hotovo
-    commit: 57332cc
+    commit: d4964be
   zmeneno_v:
   - D-077
 - id: D-058
@@ -1115,7 +1115,7 @@ rozhodnuti:
     popis: 'řádek 71 říká „Režim pokojů zůstává na úrovni akce“ a datový model má Event.roomMode: rozpor
       s rozhodnutím'
     stav: hotovo
-    commit: 57332cc
+    commit: d4964be
 - id: D-063
   nazev: Společná fronta náhradníků, když pokoj nemá pohlaví
   text: Ano; pokud pokoj nemá dané pohlaví, je fronta přihlášek jedna pro obě pohlaví.
@@ -1137,7 +1137,7 @@ rozhodnuti:
   - soubor: docs/procesy/zpracovani-prihlasky/
     popis: pravidlo pořadníku (skupina lůžek), místo určí model-update
     stav: hotovo
-    commit: 57332cc
+    commit: d4964be
 - id: D-064
   nazev: Náhradník se ruší od půlnoci českého času prvního dne termínu
   text: Zatím půlnoc českého času; platforma zatím není mezinárodní. Detaily procesu zjistí PM od PO,
@@ -1160,11 +1160,11 @@ rozhodnuti:
   - soubor: docs/procesy/zpracovani-prihlasky/rucni-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml
     popis: 'Náhradník → Zrušená: půlnoc Europe/Prague prvního dne termínu'
     stav: hotovo
-    commit: 57332cc
+    commit: d4964be
   - soubor: docs/procesy/zpracovani-prihlasky/automaticke-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml
     popis: totéž
     stav: hotovo
-    commit: 57332cc
+    commit: d4964be
 - id: D-065
   nazev: Zrušení termínu zruší všechny přihlášky ve všech stavech
   text: Při zrušení termínu se ruší všichni účastníci ve všech stavech. UX má organizátora dostatečně
@@ -1187,11 +1187,11 @@ rozhodnuti:
   - soubor: docs/procesy/zpracovani-prihlasky/
     popis: chybí proces zrušení termínu akce (US-13)
     stav: hotovo
-    commit: 57332cc
+    commit: d4964be
   - soubor: docs/procesy/zpracovani-prihlasky/EMAILY.md
     popis: chybí e-mail při zrušení termínu
     stav: hotovo
-    commit: 57332cc
+    commit: d4964be
 - id: D-066
   nazev: Sdružení e-mailů za více termínů až v US-116
   text: Stačí vyřešit později (US-116).
@@ -1233,7 +1233,7 @@ rozhodnuti:
   - soubor: docs/PROJEKT.md
     popis: 'sekce 5: definice „otevření přihlášek“ a výhled (plánované spuštění, pozastavení)'
     stav: hotovo
-    commit: 57332cc
+    commit: d4964be
 - id: D-068
   nazev: Zamčení režimu vyhodnocování bez přihlášky je v pořádku
   text: As-is stav je v pořádku; v budoucnu by měla jít změna do první přihlášky nebo nějaká kombinace.
@@ -1367,7 +1367,7 @@ rozhodnuti:
   - soubor: docs/procesy/zpracovani-prihlasky/
     popis: pravidlo pořadí náhradníků (podle data přijetí i po přesunu z Potvrzené), místo určí model-update
     stav: hotovo
-    commit: 57332cc
+    commit: d4964be
   poznamka: 'Odpovídá chování v main (PR #232), kód se nemění.'
 - id: D-074
   nazev: Přechod Potvrzená → Náhradník má vlastní e-mail jako samostatný stav v EMAILY.md
@@ -1396,7 +1396,7 @@ rozhodnuti:
     popis: nový řádek č. 13 e-mailu pro Potvrzená → Náhradník (odvolané potvrzení); stávající čísla 1 až 12
       se nemění; č. 3 jen K vyhodnocení → Náhradník; č. 1 auto ponechat „Jste náhradník“
     stav: hotovo
-    commit: 57332cc
+    commit: d4964be
   poznamka: 'Výklad „zapsat jako nový stav“: nový řádek (e-mail) v EMAILY.md, ne nový stav přihlášky. Znění
     textu se doladí v model-update. Původní čísla e-mailů zůstávají. Kód používá pro tento přechod e-mail č. 3, po zápisu bude potřeba
     ticket na samostatnou šablonu.'
@@ -1441,11 +1441,11 @@ rozhodnuti:
   - soubor: docs/procesy/zpracovani-prihlasky/zruseni-terminu.yaml
     popis: proces zrušení termínu včetně vrácení plateb
     stav: hotovo
-    commit: 57332cc
+    commit: d4964be
   - soubor: docs/procesy/zpracovani-prihlasky/EMAILY.md
     popis: řádek 15, e-mail o zrušení termínu s informací o vrácení plateb
     stav: hotovo
-    commit: 57332cc
+    commit: d4964be
   poznamka: 'Kdo platby vrací a kdy (organizátor, lhůta), PM nerozhodl; v modelu je úloha organizátora. Zvážit
     ticket a otázku na PO.'
 - id: D-077
@@ -1473,7 +1473,7 @@ rozhodnuti:
   - soubor: docs/procesy/zpracovani-prihlasky/
     popis: obě prihlaska-v-terminu-zivotni-cyklus.yaml a zpracovani-prihlasky.yaml, EMAILY.md řádky 13 a 14
     stav: hotovo
-    commit: 57332cc
+    commit: d4964be
 - id: D-078
   nazev: Preferovaný jazyk uživatele přebíjí jazyk přihlášky u e-mailů o změně přihlášky
   text: Preferovaný jazyk uživatele přebíjí jazyk přihlášky u e-mailů o změně přihlášky. Když ho uživatel nenastavil, platí jazyk jeho první přihlášky.
@@ -1496,11 +1496,11 @@ rozhodnuti:
     popis: 'pravidlo „E-maily jdou v jazyce přihlášky (Application.locale)“ doplnit: u e-mailů o změně
       přihlášky vítězí preferovaný jazyk uživatele'
     stav: hotovo
-    commit: fb7a5fa
+    commit: c8c2f0a
   - soubor: docs/PROJEKT.md
     popis: 'lokalizace: pořadí jazyka (preferovaný jazyk uživatele, jinak jazyk přihlášky)'
     stav: hotovo
-    commit: fb7a5fa
+    commit: c8c2f0a
   poznamka: Fallback („jazyk první přihlášky“) potvrdil PM v chatu. E-mail č. 1 zůstává v jazyce přihlášky.
 - id: D-079
   nazev: Telefon účastníka je ve formuláři přihlášky povinný, u nezletilých se neřeší
@@ -1522,7 +1522,7 @@ rozhodnuti:
   - soubor: docs/PROJEKT.md
     popis: 'formulář přihlášky a datový model: povinný telefon účastníka'
     stav: hotovo
-    commit: fb7a5fa
+    commit: c8c2f0a
   poznamka: 'Otevřené: právní základ sběru telefonu (GDPR) a telefon zástupce u nezletilých (US-07).'
 - id: D-080
   nazev: Platby při zrušení termínu vrací organizátor bez lhůty a bez potvrzení
@@ -1565,7 +1565,7 @@ rozhodnuti:
   - soubor: docs/PROJEKT.md
     popis: 'sekce 5, výhled plánovaného spuštění: pro akci, Europe/Prague, zrušitelné do spuštění'
     stav: hotovo
-    commit: fb7a5fa
+    commit: c8c2f0a
   poznamka: Upřesňuje výhled z D-067.
 - id: D-082
   nazev: Pozastavení přihlášek platí pro akci, důvod účastník nevidí, nová přihláška skončí chybou
@@ -1587,7 +1587,7 @@ rozhodnuti:
   - soubor: docs/PROJEKT.md
     popis: 'sekce 5, výhled pozastavení: pro akci, bez důvodu, chyba při odeslání'
     stav: hotovo
-    commit: fb7a5fa
+    commit: c8c2f0a
   poznamka: 'Upřesňuje výhled z D-067. Výklad: třetí odpověď („hlásí chybu“) se týkala rozpracované přihlášky.'
 - id: D-083
   nazev: Režim vyhodnocování lze měnit, dokud je počet přijatých přihlášek 0
@@ -1611,11 +1611,11 @@ rozhodnuti:
   - soubor: docs/PROJEKT.md
     popis: 'pravidlo zamčení režimu vyhodnocování: od první přijaté přihlášky'
     stav: hotovo
-    commit: fb7a5fa
+    commit: c8c2f0a
   - soubor: docs/procesy/zpracovani-prihlasky/README.md
     popis: 'řádek „Nastavení akce“: režim lze změnit do první přihlášky'
     stav: hotovo
-    commit: fb7a5fa
+    commit: c8c2f0a
   poznamka: Konkretizuje D-068 (jde o změnu do první přihlášky, ne o kombinaci).
 - id: D-084
   nazev: Datový model režimu pokojů po termínech se přepíše na nový systém bez migrace
@@ -1639,5 +1639,5 @@ rozhodnuti:
   - soubor: docs/PROJEKT.md
     popis: 'sekce 8: Event.roomMode (ř. 91) po US-99 odstranit, režim je po termínech'
     stav: hotovo
-    commit: fb7a5fa
+    commit: c8c2f0a
   poznamka: Navazuje na D-062.
