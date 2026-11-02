@@ -3,7 +3,6 @@ import { ArrowLeft, MapPin } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
-import { BackLink } from "@/components/atoms/BackLink"
 import { TermPrice } from "@/components/atoms/MoneyAmount"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -23,13 +22,19 @@ export function EventPage({ event }: { event: CatalogEventDetail }) {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
-        <BackLink to={ROUTES.catalog}>
-          <ArrowLeft
-            aria-hidden
-            className="size-4"
-          />
-          {t("event.back")}
-        </BackLink>
+        <Button
+          asChild
+          variant="outline"
+          className="self-start"
+        >
+          <Link to={ROUTES.catalog}>
+            <ArrowLeft
+              aria-hidden
+              className="size-4"
+            />
+            {t("event.back")}
+          </Link>
+        </Button>
         <h1 className="text-2xl/8 font-bold tracking-tight md:text-3xl/10">{event.name}</h1>
       </div>
       {event.hasPhoto ? (
