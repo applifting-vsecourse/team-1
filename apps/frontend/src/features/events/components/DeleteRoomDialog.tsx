@@ -13,11 +13,11 @@ import {
   DialogFooter,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { formatDateRange } from "@/lib/date"
 
 import { deleteRoom, type Room, type TermRooms } from "@/features/events/api/rooms"
 
-// Delete a room of one term; the frame shows no deletion dialog, so the previous X21 one stays.
-// Figma (Design system): Přidání, úprava a smazání pokoje · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15434-1452
+// Figma (Design system): X21 / X21b · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12370-662
 export function DeleteRoomDialog({
   term,
   room,
@@ -47,6 +47,9 @@ export function DeleteRoomDialog({
       }}
     >
       <DialogContent className="bg-card shadow-md sm:max-w-170">
+        <p className="text-xs font-medium text-muted-foreground uppercase">
+          {term.eventName} · {formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })}
+        </p>
         <div className="flex items-center justify-between gap-4 pr-8">
           <DialogTitle>{t("rooms.deleteTitle", { name: room.name })}</DialogTitle>
         </div>
@@ -69,7 +72,7 @@ export function DeleteRoomDialog({
           {room.name}
           {room.gender
             ? ` · ${t(room.gender === "FEMALE" ? "rooms.female" : "rooms.male")}`
-            : ""} · {t("rooms.bedCount", { count: room.capacity })}
+            : ""} · {t("rooms.beds", { count: room.capacity })}
         </DialogDescription>
         <p className="text-sm text-muted-foreground">{t("rooms.deleteHint")}</p>
         {mutation.isError ? (

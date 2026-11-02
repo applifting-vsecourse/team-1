@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation } from "@tanstack/react-query"
-import { Loader2, Minus, Plus } from "lucide-react"
+import { Loader2 } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
@@ -25,16 +25,21 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { apiErrorCode } from "@/lib/api-client"
 import { formatDateRange } from "@/lib/date"
 
 import { saveRoom, type Room, type TermRooms } from "@/features/events/api/rooms"
 
-// Add and edit a room of one term.
-// Figma (Design system): Přidání, úprava a smazání pokoje · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15434-1452
-// Mobile · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15434-1560
+// Room of one term; the form is the one of the earlier iteration, only the term is new.
+// Figma (Design system): X19 / X20 / X22 / X23, X19a / X22a · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12370-121
+// Shared-room variant · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12370-767
 export function RoomDialog({
   term,
   room,
@@ -98,17 +103,17 @@ export function RoomDialog({
         if (!isOpen && !isPending) onClose()
       }}
     >
-      <DialogContent className="max-h-[90dvh] overflow-y-auto bg-card shadow-md sm:max-w-160">
+      <DialogContent className="max-h-[90dvh] overflow-y-auto bg-card shadow-md sm:max-w-170">
+        <p className="text-xs font-medium text-muted-foreground uppercase">
+          {term.eventName} · {formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })}
+        </p>
         <div className="flex items-center justify-between gap-4 pr-8">
           <DialogTitle>{t(room ? "rooms.edit" : "rooms.add")}</DialogTitle>
         </div>
-        <DialogDescription asChild>
-          <div className="flex flex-col gap-1">
-            <span className="text-sm text-muted-foreground">{t("rooms.inTerm")}</span>
-            <span className="text-base text-foreground">
-              {formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })}
-            </span>
-          </div>
+        <DialogDescription className="text-base">
+          {t(
+            term.roomMode === "GENDERED" ? "rooms.genderedDescription" : "rooms.sharedDescription",
+          )}
         </DialogDescription>
         <Form {...form}>
           <form
@@ -134,6 +139,7 @@ export function RoomDialog({
                         maxLength={100}
                       />
                     </FormControl>
+                    <FormDescription className="text-xs">{t("rooms.nameHint")}</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -143,40 +149,16 @@ export function RoomDialog({
                 name="capacity"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t("rooms.capacityField")}</FormLabel>
-                    <div className="flex items-center gap-2">
-                      <FormControl>
-                        <Input
-                          {...field}
-                          type="number"
-                          inputMode="numeric"
-                          min={1}
-                          step={1}
-                        />
-                      </FormControl>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="icon-lg"
-                        aria-label={t("rooms.capacityDecrease")}
-                        disabled={isPending}
-                        onClick={() =>
-                          field.onChange(String(Math.max(1, Number(field.value || 1) - 1)))
-                        }
-                      >
-                        <Minus />
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="icon-lg"
-                        aria-label={t("rooms.capacityIncrease")}
-                        disabled={isPending}
-                        onClick={() => field.onChange(String(Number(field.value || 0) + 1))}
-                      >
-                        <Plus />
-                      </Button>
-                    </div>
+                    <FormLabel>{t("rooms.capacityLabel")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type="number"
+                        inputMode="numeric"
+                        min={1}
+                        step={1}
+                      />
+                    </FormControl>
                     {form.formState.errors.capacity ? (
                       <FormMessage />
                     ) : (
@@ -194,35 +176,33 @@ export function RoomDialog({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>{t("rooms.genderLabel")}</FormLabel>
-                      <FormControl>
-                        <RadioGroup
-                          value={field.value}
-                          onValueChange={field.onChange}
-                          disabled={isPending}
-                          ref={field.ref}
-                        >
-                          {(["FEMALE", "MALE"] as const).map((gender) => (
-                            <div
-                              key={gender}
-                              className="flex items-center gap-3"
-                            >
-                              <RadioGroupItem
-                                id={`room-gender-${gender}`}
-                                value={gender}
-                              />
-                              <Label htmlFor={`room-gender-${gender}`}>
-                                {t(gender === "FEMALE" ? "rooms.female" : "rooms.male")}
-                              </Label>
-                            </div>
-                          ))}
-                        </RadioGroup>
-                      </FormControl>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        disabled={isPending}
+                      >
+                        <FormControl>
+                          <SelectTrigger
+                            className="w-full"
+                            ref={field.ref}
+                            onBlur={field.onBlur}
+                          >
+                            <SelectValue />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="FEMALE">{t("rooms.female")}</SelectItem>
+                          <SelectItem value="MALE">{t("rooms.male")}</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormDescription className="text-xs">{t("rooms.genderHint")}</FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
               ) : null}
             </fieldset>
+            <p className="text-xs text-muted-foreground">{t("rooms.required")}</p>
             {mutation.isError && apiErrorCode(mutation.error) !== "ROOM_NAME_TAKEN" ? (
               <ErrorState
                 title={t("rooms.saveFailed")}
@@ -245,12 +225,12 @@ export function RoomDialog({
               <DialogClose asChild>
                 <Button
                   type="button"
-                  variant="ghost"
+                  variant="outline"
                   size="lg"
                   className="sm:w-38"
                   disabled={isPending}
                 >
-                  {t("rooms.cancel")}
+                  {t("rooms.close")}
                 </Button>
               </DialogClose>
               <Button

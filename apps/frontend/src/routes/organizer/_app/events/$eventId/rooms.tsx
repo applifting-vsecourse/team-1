@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
-import { createFileRoute, useNavigate } from "@tanstack/react-router"
+import { createFileRoute } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
 import { ErrorState } from "@/components/molecules/ErrorState"
@@ -19,7 +19,7 @@ function EventRoomsPage() {
   const { t } = useTranslation("events")
   const { eventId } = Route.useParams()
   const { termId } = Route.useSearch()
-  const navigate = useNavigate({ from: Route.fullPath })
+  const navigate = Route.useNavigate()
   // The occupancy lists every active term with its own room mode, room count and capacity.
   const occupancy = useQuery(occupancyQueryOptions(eventId))
   if (!occupancy.data) {

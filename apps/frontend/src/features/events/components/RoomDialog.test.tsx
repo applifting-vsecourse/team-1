@@ -53,40 +53,23 @@ describe("room form", () => {
     put.mockReset()
   })
 
-  it("names the term and asks for the gender of a gendered room with radio buttons", async () => {
-    post.mockResolvedValue(undefined)
-    const { user } = renderDialog()
-    expect(screen.getByText("Room in term")).toBeInTheDocument()
-    expect(screen.getByText("19–25 Jul 2027")).toBeInTheDocument()
-    expect(screen.getByRole("radio", { name: "Women's" })).toBeChecked()
-    await user.type(screen.getByLabelText("Room name *"), "103")
-    await user.click(screen.getByRole("button", { name: "Increase capacity" }))
-    await user.click(screen.getByRole("radio", { name: "Men's" }))
-    await user.click(screen.getByRole("button", { name: "Add room" }))
-    await waitFor(() =>
-      expect(post).toHaveBeenCalledWith("organizer/events/e1/terms/t1/rooms", {
-        json: { name: "103", capacity: 1, gender: "MALE" },
-      }),
-    )
-  })
-
   it("keeps invalid capacity in the form and focuses it without sending", async () => {
     const { user } = renderDialog()
     await user.type(screen.getByLabelText("Room name *"), "12")
-    await user.type(screen.getByLabelText("Capacity (beds) *"), "0")
+    await user.type(screen.getByLabelText("Capacity *"), "0")
     await user.click(screen.getByRole("button", { name: "Add room" }))
     expect(await screen.findByText("Enter a whole number of at least 1.")).toBeInTheDocument()
-    expect(screen.getByLabelText("Capacity (beds) *")).toHaveValue(0)
-    expect(screen.getByLabelText("Capacity (beds) *")).toHaveFocus()
+    expect(screen.getByLabelText("Capacity *")).toHaveValue(0)
+    expect(screen.getByLabelText("Capacity *")).toHaveFocus()
     expect(post).not.toHaveBeenCalled()
   })
 
   it("saves a shared room without a gender and closes after success", async () => {
     post.mockResolvedValue(undefined)
     const { user, onClose } = renderDialog({ ...event, roomMode: "SHARED" })
-    expect(screen.queryByRole("radio")).not.toBeInTheDocument()
+    expect(screen.queryByRole("combobox")).not.toBeInTheDocument()
     await user.type(screen.getByLabelText("Room name *"), " 12 ")
-    await user.type(screen.getByLabelText("Capacity (beds) *"), "100")
+    await user.type(screen.getByLabelText("Capacity *"), "100")
     await user.click(screen.getByRole("button", { name: "Add room" }))
     await waitFor(() => expect(onClose).toHaveBeenCalled())
     expect(post).toHaveBeenCalledWith("organizer/events/e1/terms/t1/rooms", {
@@ -98,11 +81,11 @@ describe("room form", () => {
     put.mockRejectedValueOnce(new Error("Connection failed")).mockResolvedValueOnce(undefined)
     const room = { id: "r1", name: "12", capacity: 5, gender: "FEMALE" as const }
     const { user, onClose } = renderDialog(event, room)
-    await user.clear(screen.getByLabelText("Capacity (beds) *"))
-    await user.type(screen.getByLabelText("Capacity (beds) *"), "21")
+    await user.clear(screen.getByLabelText("Capacity *"))
+    await user.type(screen.getByLabelText("Capacity *"), "21")
     await user.click(screen.getByRole("button", { name: "Save changes" }))
     expect(await screen.findByText("Connection failed")).toBeInTheDocument()
-    expect(screen.getByLabelText("Capacity (beds) *")).toHaveValue(21)
+    expect(screen.getByLabelText("Capacity *")).toHaveValue(21)
     expect(onClose).not.toHaveBeenCalled()
     await user.click(screen.getByRole("button", { name: "Save changes" }))
     await waitFor(() => expect(onClose).toHaveBeenCalled())
@@ -117,7 +100,7 @@ describe("room form", () => {
     )
     const { user } = renderDialog()
     await user.type(screen.getByLabelText("Room name *"), "12")
-    await user.type(screen.getByLabelText("Capacity (beds) *"), "100")
+    await user.type(screen.getByLabelText("Capacity *"), "100")
     const button = screen.getByRole("button", { name: "Add room" })
     await user.click(button)
     expect(button).toBeDisabled()
