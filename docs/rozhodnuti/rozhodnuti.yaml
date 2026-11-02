@@ -1676,7 +1676,7 @@ rozhodnuti:
     stav: ceka
 - id: D-086
   nazev: '`Term.number` je neměnné číslo termínu v akci'
-  text: 'Pořadové číslo 1 až 999 v rámci akce, přidělené při vzniku termínu (nejvyšší + 1). Nikdy se nemění ani nepoužije znovu, ani po zrušení termínu (zrušený termín číslo drží).'
+  text: 'Pořadové číslo 1 až 999 v rámci akce, přidělené při vzniku termínu (nejvyšší + 1). Nikdy se nemění ani nepoužije znovu, ani po zrušení termínu (zrušený termín číslo drží). Limit tedy platí včetně zrušených termínů; 1000. termín se odmítne chybou `TERM_LIMIT_REACHED`.'
   typ: technicke
   oblast: platby
   datum: '2026-11-01'
@@ -1828,6 +1828,8 @@ rozhodnuti:
   zdroj:
   - popis: ticket US-122 (#215), odpověď PM bod 2
     url: https://github.com/applifting-vsecourse/team-1/issues/215#issuecomment-6581262940
+  - popis: PR #258 (US-122), potvrzení PM bod 1
+    url: https://github.com/applifting-vsecourse/team-1/pull/258#issuecomment-6582044173
   us:
   - label: US-122
     url: https://github.com/applifting-vsecourse/team-1/issues/215
@@ -1877,3 +1879,59 @@ rozhodnuti:
   z_otazek: []
   dokumentace: []
   poznamka: 'Navazuje ticket #264.'
+- id: D-96
+  nazev: 'Fotka veřejné stránky akce: jen JPG/JPEG a PNG'
+  text: 'Fotografie na veřejné stránce akce smí být JPG/JPEG nebo PNG, WebP ne (podle Figmy).'
+  typ: produkt
+  oblast: nastavení akce
+  datum: '2026-11-02'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: PR #258 (US-122), odpověď PM bod 3
+    url: https://github.com/applifting-vsecourse/team-1/pull/258#issuecomment-6582044173
+  us:
+  - label: US-122
+    url: https://github.com/applifting-vsecourse/team-1/issues/215
+  stav: platne
+  z_otazek: []
+  dokumentace:
+  - soubor: docs/PROJEKT.md
+    popis: 'veřejná stránka akce: formát fotky JPG/JPEG a PNG'
+    stav: ceka
+  poznamka: 'Mění návrh v #215, který počítal i s WebP.'
+- id: D-97
+  nazev: 'VS termínů na stránce po odeslání se nedoplňuje'
+  text: 'Stránka po odeslání přihlášky zobrazuje jen souhrnný variabilní symbol (a VS jednotlivých přihlášek), ne VS každého termínu. Doplnění vede enhancement #259.'
+  typ: produkt
+  oblast: platby
+  datum: '2026-11-02'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: PR #257 (US-137), odpověď PM bod 1
+    url: https://github.com/applifting-vsecourse/team-1/pull/257#issuecomment-6582343282
+  us:
+  - label: US-137
+    url: https://github.com/applifting-vsecourse/team-1/issues/174
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+  poznamka: 'Navazuje ticket #259.'
+- id: D-98
+  nazev: 'Jména v rámci se neskloňují'
+  text: 'Nemáme feature na skloňování jmen; nominativ („Přihláška pro Janu Novákovou“ zůstává bez skloňování) je správný stav a kód přihlášky zůstává ve tvaru LK-0048.'
+  typ: produkt
+  oblast: komunikace
+  datum: '2026-11-02'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: PR #257 (US-137), odpověď PM bod 3
+    url: https://github.com/applifting-vsecourse/team-1/pull/257#issuecomment-6582343282
+  us:
+  - label: US-137
+    url: https://github.com/applifting-vsecourse/team-1/issues/174
+  stav: platne
+  z_otazek: []
+  dokumentace: []

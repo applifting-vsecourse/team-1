@@ -2,7 +2,7 @@
 
 > Generováno z [`rozhodnuti.yaml`](rozhodnuti.yaml) (`python generate.py`). Needituj, měň YAML.
 
-**92 platných**, 0 návrhů, 3 nahrazených nebo zrušených.
+**95 platných**, 0 návrhů, 3 nahrazených nebo zrušených.
 
 ## Návrhy čekající na PM
 
@@ -23,6 +23,7 @@ _Nic._
 | [D-092](#d-092) | Popis, místo a kontakt jsou povinné jen pro zveřejnění v katalogu | `docs/PROJEKT.md` | veřejná stránka akce: povinnost polí jen pro zveřejnění v katalogu |
 | [D-093](#d-093) | Termíny a ceny jsou na veřejné stránce akce zatím vždy vidět | `docs/PROJEKT.md` | veřejná stránka akce: termíny a ceny vždy viditelné (dočasně) |
 | [D-094](#d-094) | Obsazenost a kapacita se veřejně nezveřejňují | `docs/PROJEKT.md` | katalog akcí: obsazenost a kapacita nejsou veřejné |
+| [D-96](#d-96) | Fotka veřejné stránky akce: jen JPG/JPEG a PNG | `docs/PROJEKT.md` | veřejná stránka akce: formát fotky JPG/JPEG a PNG |
 
 ## Změny dřívějších rozhodnutí
 
@@ -55,6 +56,7 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-98](#d-98) | Jména v rámci se neskloňují | 2026-11-02 | `pm` | produkt |
 | [D-078](#d-078) | Preferovaný jazyk uživatele přebíjí jazyk přihlášky u e-mailů o změně přihlášky | 2026-10-31 | `pm` | produkt |
 | [D-074](#d-074) | Přechod Potvrzená → Náhradník má vlastní e-mail jako samostatný stav v EMAILY.md | 2026-10-31 | `pm` | produkt |
 | [D-069](#d-069) | Uživatel si nastaví preferovaný jazyk (aplikace i e-maily) | 2026-10-31 | `pm` | produkt |
@@ -66,6 +68,7 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-96](#d-96) | Fotka veřejné stránky akce: jen JPG/JPEG a PNG | 2026-11-02 | `pm` | produkt |
 | [D-093](#d-093) | Termíny a ceny jsou na veřejné stránce akce zatím vždy vidět | 2026-11-02 | `pm` | produkt |
 | [D-092](#d-092) | Popis, místo a kontakt jsou povinné jen pro zveřejnění v katalogu | 2026-11-02 | `pm` | produkt |
 | [D-083](#d-083) | Režim vyhodnocování lze měnit, dokud je počet přijatých přihlášek 0 | 2026-10-31 | `pm` | produkt |
@@ -84,6 +87,7 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-97](#d-97) | VS termínů na stránce po odeslání se nedoplňuje | 2026-11-02 | `pm` | produkt |
 | [D-091](#d-091) | Jedna platba za celé odeslání formuláře je záměr, mimo US-137 | 2026-11-01 | `pm` | produkt |
 | [D-090](#d-090) | Stará platební data se smažou, seed se přepíše | 2026-11-01 | `pm` | technicke |
 | [D-089](#d-089) | Příjem = řádky `Payment` po přihlášce v termínu se společným `receiptId` | 2026-11-01 | `pm` | technicke |
@@ -1102,7 +1106,7 @@ _Nic._
 
 - **Stav:** platné · **Typ:** technicke · **Oblast:** platby
 - **Datum:** 2026-11-01 · **Rozhodl:** `pm`
-- **Text:** Pořadové číslo 1 až 999 v rámci akce, přidělené při vzniku termínu (nejvyšší + 1). Nikdy se nemění ani nepoužije znovu, ani po zrušení termínu (zrušený termín číslo drží).
+- **Text:** Pořadové číslo 1 až 999 v rámci akce, přidělené při vzniku termínu (nejvyšší + 1). Nikdy se nemění ani nepoužije znovu, ani po zrušení termínu (zrušený termín číslo drží). Limit tedy platí včetně zrušených termínů; 1000. termín se odmítne chybou `TERM_LIMIT_REACHED`.
 - **Dotčené US:** [US-137](https://github.com/applifting-vsecourse/team-1/issues/174)
 - **Zdroj:** [ticket US-137 (#174), rozhodnutí PM v konverzaci 2026-11-01](https://github.com/applifting-vsecourse/team-1/issues/174)
 - **Dokumentace:** `docs/PROJEKT.md`: ceka, datový model: Term.number
@@ -1187,7 +1191,7 @@ _Nic._
 - **Datum:** 2026-11-02 · **Rozhodl:** `pm`
 - **Text:** Termíny a ceny na veřejné stránce akce se zatím zobrazují vždy, organizátor je nemůže skrýt. Další upřesnění se zeptáme PO (Q-NAS-15).
 - **Dotčené US:** [US-122](https://github.com/applifting-vsecourse/team-1/issues/215)
-- **Zdroj:** [ticket US-122 (#215), odpověď PM bod 2](https://github.com/applifting-vsecourse/team-1/issues/215#issuecomment-6581262940)
+- **Zdroj:** [ticket US-122 (#215), odpověď PM bod 2](https://github.com/applifting-vsecourse/team-1/issues/215#issuecomment-6581262940); [PR](https://github.com/applifting-vsecourse/team-1/pull/258#issuecomment-6582044173)
 - **Dokumentace:** `docs/PROJEKT.md`: ceka, veřejná stránka akce: termíny a ceny vždy viditelné (dočasně)
 - **Poznámka:** Dočasné, do odpovědi PO na Q-NAS-15.
 
@@ -1213,3 +1217,36 @@ _Nic._
 - **Dotčené US:** [US-123](https://github.com/applifting-vsecourse/team-1/issues/216)
 - **Zdroj:** [ticket US-123 (#216), odpověď PM bod 2](https://github.com/applifting-vsecourse/team-1/issues/216#issuecomment-6585291926)
 - **Poznámka:** Navazuje ticket #264.
+
+<a id="d-96"></a>
+
+### D-96 – Fotka veřejné stránky akce: jen JPG/JPEG a PNG
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** nastavení akce
+- **Datum:** 2026-11-02 · **Rozhodl:** `pm`
+- **Text:** Fotografie na veřejné stránce akce smí být JPG/JPEG nebo PNG, WebP ne (podle Figmy).
+- **Dotčené US:** [US-122](https://github.com/applifting-vsecourse/team-1/issues/215)
+- **Zdroj:** [PR](https://github.com/applifting-vsecourse/team-1/pull/258#issuecomment-6582044173)
+- **Dokumentace:** `docs/PROJEKT.md`: ceka, veřejná stránka akce: formát fotky JPG/JPEG a PNG
+- **Poznámka:** Mění návrh v #215, který počítal i s WebP.
+
+<a id="d-97"></a>
+
+### D-97 – VS termínů na stránce po odeslání se nedoplňuje
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** platby
+- **Datum:** 2026-11-02 · **Rozhodl:** `pm`
+- **Text:** Stránka po odeslání přihlášky zobrazuje jen souhrnný variabilní symbol (a VS jednotlivých přihlášek), ne VS každého termínu. Doplnění vede enhancement #259.
+- **Dotčené US:** [US-137](https://github.com/applifting-vsecourse/team-1/issues/174)
+- **Zdroj:** [PR](https://github.com/applifting-vsecourse/team-1/pull/257#issuecomment-6582343282)
+- **Poznámka:** Navazuje ticket #259.
+
+<a id="d-98"></a>
+
+### D-98 – Jména v rámci se neskloňují
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** komunikace
+- **Datum:** 2026-11-02 · **Rozhodl:** `pm`
+- **Text:** Nemáme feature na skloňování jmen; nominativ („Přihláška pro Janu Novákovou“ zůstává bez skloňování) je správný stav a kód přihlášky zůstává ve tvaru LK-0048.
+- **Dotčené US:** [US-137](https://github.com/applifting-vsecourse/team-1/issues/174)
+- **Zdroj:** [PR](https://github.com/applifting-vsecourse/team-1/pull/257#issuecomment-6582343282)

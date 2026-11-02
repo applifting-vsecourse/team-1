@@ -292,10 +292,11 @@ otazky:
     url: https://github.com/applifting-vsecourse/team-1/issues/22
   stav: otevreno
   priorita: P1
-  priorita_duvod: Veřejná stránka akce je v návrhu PO pro sprint 3 (návštěvník webu) a seznam polí není
-    určen.
-  ceka_na: pm
+  priorita_duvod: Seznam polí je v kódu (US-122, #258) podle Figmy, PO ho ale neurčil ani neodsouhlasil.
+  ceka_na: po
   zdroje:
+  - popis: PR #258 (US-122), seznam polí implementovaný podle Figmy
+    url: https://github.com/applifting-vsecourse/team-1/pull/258
   - popis: zápis 28. 10., Upřesnění požadavků
     url: https://github.com/applifting-vsecourse/team-1/blob/31b4fc25e25afa265d1812a9f8538d081af84265/docs/zapisy/2026-10-28-status-s-po.md
     citace: „Veřejné údaje o akci se mohou převzít ze založení akce a doplnit například o fotografii.
@@ -2019,3 +2020,16 @@ otazky:
   - popis: 'komentář PM v #215'
     url: https://github.com/applifting-vsecourse/team-1/issues/215#issuecomment-6581262940
     citace: „Zatím vždy vidět. Víc se zeptáme PO.“
+- id: Q-NAS-16
+  otazka: Má být pole „Název akce“ upravitelné ve formuláři „Veřejné údaje“ (jeden zdroj s názvem akce), nebo se z formuláře vyndá?
+  epic: nastavení akce
+  us:
+  - label: US-122 (#215)
+    url: https://github.com/applifting-vsecourse/team-1/issues/215
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: Figma pole kreslí a kód ho má; nic neblokuje.
+  ceka_na: pm
+  zdroje:
+  - popis: 'PR #258, dotaz vývojáře bod 4 a odpověď PM „nerozumím“'
+    url: https://github.com/applifting-vsecourse/team-1/pull/258#issuecomment-6582822854
