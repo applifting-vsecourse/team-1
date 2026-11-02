@@ -229,16 +229,16 @@ export function RoomsPage({
         ))}
       </div>
       <Card>
-        <CardHeader className="flex flex-wrap items-center justify-between gap-2">
+        <CardHeader className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
           <CardTitle>
             <h3>{t("rooms.listTitle")}</h3>
           </CardTitle>
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-col-reverse gap-2 sm:flex-row sm:flex-wrap sm:items-center">
             <Button
               asChild
               variant="ghost"
               size="lg"
-              className="text-link"
+              className="text-link max-sm:w-full"
             >
               <Link
                 to={ROUTES.organizer.eventTerms}
@@ -249,6 +249,7 @@ export function RoomsPage({
             </Button>
             <Button
               size="lg"
+              className="max-sm:w-full"
               onClick={() => setEditor("new")}
             >
               {t("rooms.add")}
