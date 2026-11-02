@@ -39,13 +39,27 @@ const application = (overrides: Partial<MyApplication> = {}): MyApplication => (
   firstName: "Jana",
   lastName: "Nováková",
   code: "LKL-0048",
-  variableSymbol: "0048",
+  variableSymbol: "48000",
   terms: [confirmed],
   amountDueCzk: 4500,
   amountPaidCzk: 2000,
   amountOwedCzk: 2500,
   paymentStatus: "PARTIALLY_PAID",
-  paymentDetails: { bankAccount: "2900123456/2010", variableSymbol: "0048" },
+  paymentDetails: {
+    bankAccount: "2900123456/2010",
+    summary: { variableSymbol: "48000", payableCzk: 2500 },
+    terms: [
+      {
+        termId: "t1",
+        termNumber: 1,
+        variableSymbol: "48001",
+        dueCzk: 4500,
+        paidCzk: 2000,
+        owedCzk: 2500,
+        paymentStatus: "PARTIALLY_PAID" as const,
+      },
+    ],
+  },
   ...overrides,
 })
 
@@ -69,14 +83,14 @@ const renderDetail = (data: MyApplication) => {
 }
 
 describe("ApplicationDetail", () => {
-  it("copies the account and preserves leading zeros in the variable symbol", async () => {
+  it("copies the account and the summary variable symbol", async () => {
     const user = userEvent.setup()
     const write = vi.spyOn(navigator.clipboard, "writeText")
     renderDetail(application())
     await user.click(await screen.findByRole("button", { name: "Copy account number" }))
     expect(write).toHaveBeenLastCalledWith("2900123456/2010")
     await user.click(screen.getByRole("button", { name: "Copy variable symbol" }))
-    expect(write).toHaveBeenLastCalledWith("0048")
+    expect(write).toHaveBeenLastCalledWith("48000")
   })
 
   beforeEach(() => get.mockReset())
@@ -90,7 +104,7 @@ describe("ApplicationDetail", () => {
     expect(screen.getByText("Left to pay")).toBeInTheDocument()
     expect(screen.getByText("Partly paid")).toBeInTheDocument()
     expect(screen.getByText("2900123456/2010")).toBeInTheDocument()
-    expect(screen.getByText("0048")).toBeInTheDocument()
+    expect(screen.getByText("48000")).toBeInTheDocument()
     expect(screen.getByRole("link", { name: "← All applications" })).toHaveAttribute(
       "href",
       "/participant",
@@ -150,5 +164,64 @@ describe("ApplicationDetail", () => {
     expect(await screen.findByText("Waitlisted")).toBeInTheDocument()
     expect(screen.queryByText("Payment for the confirmed term")).not.toBeInTheDocument()
     expect(screen.queryByText("Account number")).not.toBeInTheDocument()
+  })
+
+  it("shows only the summary symbol while one term is confirmed (U04q)", async () => {
+    renderDetail(application({ terms: [confirmed, waitlisted] }))
+
+    expect(await screen.findByText("48000")).toBeInTheDocument()
+    expect(screen.queryByText("48001")).not.toBeInTheDocument()
+    expect(screen.queryByRole("heading", { name: "Whole application" })).not.toBeInTheDocument()
+  })
+
+  it("shows the whole application and every confirmed term with its own symbol (U04p)", async () => {
+    const second = { ...waitlisted, status: "CONFIRMED" as const }
+    renderDetail(
+      application({
+        terms: [confirmed, second],
+        amountDueCzk: 9400,
+        amountPaidCzk: 4500,
+        amountOwedCzk: 4900,
+        paymentDetails: {
+          bankAccount: "2900123456/2010",
+          summary: { variableSymbol: "48000", payableCzk: 4900 },
+          terms: [
+            {
+              termId: "t1",
+              termNumber: 1,
+              variableSymbol: "48001",
+              dueCzk: 4500,
+              paidCzk: 4500,
+              owedCzk: 0,
+              paymentStatus: "PAID",
+            },
+            {
+              termId: "t2",
+              termNumber: 2,
+              variableSymbol: "48002",
+              dueCzk: 4900,
+              paidCzk: 0,
+              owedCzk: 4900,
+              paymentStatus: "UNPAID",
+            },
+          ],
+        },
+      }),
+    )
+
+    expect(await screen.findByRole("heading", { name: "Whole application" })).toBeVisible()
+    expect(screen.getByRole("heading", { name: /^1\. týden · / })).toBeVisible()
+    expect(screen.getByRole("heading", { name: /^2\. týden · / })).toBeVisible()
+    expect(screen.getByText("48000")).toBeInTheDocument()
+    expect(screen.getByText("48001")).toBeInTheDocument()
+    expect(screen.getByText("48002")).toBeInTheDocument()
+    expect(screen.getByText(/or only of the term you are paying/)).toBeVisible()
+    // The paid term asks for nothing, the unpaid one for its debt.
+    const rows = screen.getAllByText("To pay").map((label) => label.nextElementSibling)
+    expect(rows.map((row) => row?.textContent?.replace(/\s/g, " "))).toEqual([
+      expect.stringMatching(/4.900/),
+      expect.stringMatching(/ 0$/),
+      expect.stringMatching(/4.900/),
+    ])
   })
 })

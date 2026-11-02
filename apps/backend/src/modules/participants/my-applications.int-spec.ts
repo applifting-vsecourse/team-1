@@ -14,7 +14,7 @@ type ApplicationDto = {
   amountDueCzk: number
   amountPaidCzk: number
   amountOwedCzk: number
-  paymentDetails: { bankAccount: string; variableSymbol: string } | null
+  paymentDetails: { bankAccount: string; summary: { variableSymbol: string } } | null
   paymentStatus: string
 }
 
@@ -132,7 +132,6 @@ describe("participant applications (integration)", () => {
     })
     expect(camp.paymentDetails).toMatchObject({
       bankAccount: "2900123456/2010",
-      variableSymbol: camp.variableSymbol,
       summary: { variableSymbol: camp.variableSymbol, payableCzk: 0 },
     })
   })

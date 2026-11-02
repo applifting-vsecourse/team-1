@@ -37,12 +37,6 @@ export class ApplicationPaymentDto {
   @ApiProperty({ example: "2900123456/2010" })
   bankAccount!: string
 
-  @ApiProperty({ example: "48000", description: "Summary symbol of this application." })
-  variableSymbol!: string
-
-  @ApiProperty({ example: 6900, description: "Still to pay for this application, whole CZK." })
-  amountCzk!: number
-
   @ApiProperty({ type: PaymentSummaryDto })
   summary!: PaymentSummaryDto
 

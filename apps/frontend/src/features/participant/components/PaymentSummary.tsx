@@ -16,6 +16,8 @@ type PaymentSummaryProps = {
 
 /** What is due, what is paid and where to send the rest — only for applications with a confirmed term (US-25). */
 // Figma (Design system): U04 Moje přihláška, blok „Platba za potvrzený termín“ · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12926-110
+// Figma (Design system): U04p Moje přihláška, dva potvrzené termíny · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16116-2 (360 px: node-id=16186-299)
+// Figma (Design system): U04q Moje přihláška, jeden potvrzený termín · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16186-2
 export function PaymentSummary({ application }: PaymentSummaryProps) {
   const { t } = useTranslation(["participant", "common"])
   const { paymentDetails, amountDueCzk, amountPaidCzk, amountOwedCzk } = application
@@ -24,8 +26,11 @@ export function PaymentSummary({ application }: PaymentSummaryProps) {
   const isOverpaid = amountOwedCzk < 0
   const hasToPay = amountOwedCzk > 0
   const waitlisted = application.terms.filter((term) => term.status === "WAITLISTED")
+  // With several confirmed terms the application can be paid as a whole or one term at a time.
+  const termPayments = paymentDetails.terms.length > 1 ? paymentDetails.terms : []
   const note = [
     hasToPay ? t("payment.note") : null,
+    termPayments.length > 0 ? t("payment.chooseSymbol") : null,
     waitlisted.length > 0
       ? t("payment.waitlistedNote", { range: waitlisted.map(termRange).join(", ") })
       : null,
@@ -66,19 +71,34 @@ export function PaymentSummary({ application }: PaymentSummaryProps) {
               label={t("common:clipboard.copyAccount")}
             />
           </Detail>
-          <Detail label={t("payment.variableSymbol")}>
-            <span className="break-all">{paymentDetails.variableSymbol}</span>
-            <CopyButton
-              value={paymentDetails.variableSymbol}
-              label={t("common:clipboard.copyVariableSymbol")}
-            />
-          </Detail>
-          {hasToPay ? (
-            <Detail label={t("payment.toPay")}>
-              <MoneyAmount amountCzk={amountOwedCzk} />
-            </Detail>
-          ) : null}
         </dl>
+        {termPayments.length > 0 ? (
+          <h4 className="pt-4 font-semibold">{t("payment.wholeApplication")}</h4>
+        ) : null}
+        <dl>
+          <VariableSymbolRows
+            variableSymbol={paymentDetails.summary.variableSymbol}
+            toPayCzk={paymentDetails.summary.payableCzk}
+            isToPayShown={termPayments.length > 0 || hasToPay}
+          />
+        </dl>
+        {termPayments.map((payment) => {
+          const term = application.terms.find(({ termId }) => termId === payment.termId)
+          return (
+            <section key={payment.termId}>
+              <h4 className="pt-4 font-semibold">
+                {term ? `${term.name} · ${termRange(term)}` : payment.variableSymbol}
+              </h4>
+              <dl>
+                <VariableSymbolRows
+                  variableSymbol={payment.variableSymbol}
+                  toPayCzk={Math.max(0, payment.owedCzk)}
+                  isToPayShown
+                />
+              </dl>
+            </section>
+          )
+        })}
         {note ? <p className="pt-2 text-sm text-muted-foreground">{note}</p> : null}
       </Card>
     </section>
@@ -111,6 +131,34 @@ function Metric({
         <MoneyAmount amountCzk={amountCzk} />
       </dd>
     </Card>
+  )
+}
+
+function VariableSymbolRows({
+  variableSymbol,
+  toPayCzk,
+  isToPayShown,
+}: {
+  variableSymbol: string
+  toPayCzk: number
+  isToPayShown: boolean
+}) {
+  const { t } = useTranslation(["participant", "common"])
+  return (
+    <>
+      <Detail label={t("payment.variableSymbol")}>
+        <span className="break-all">{variableSymbol}</span>
+        <CopyButton
+          value={variableSymbol}
+          label={t("common:clipboard.copyVariableSymbol")}
+        />
+      </Detail>
+      {isToPayShown ? (
+        <Detail label={t("payment.toPay")}>
+          <MoneyAmount amountCzk={toPayCzk} />
+        </Detail>
+      ) : null}
+    </>
   )
 }
 

@@ -49,13 +49,7 @@ export type MyApplicationTerm = {
 }
 
 /** Where and how much to pay — only when at least one term is confirmed (US-25). */
-export type PaymentDetails = {
-  bankAccount: string
-  /** Summary symbol `…000` of the application. */
-  variableSymbol: string
-  summary: TermPaymentDetails["summary"]
-  terms: TermPaymentDetails["terms"]
-}
+export type PaymentDetails = TermPaymentDetails
 
 export type MyApplication = {
   id: string
@@ -127,13 +121,6 @@ export function buildMyApplication(record: MyApplicationRecord): MyApplication {
     amountOwedCzk: computeAmountOwed(amountDueCzk, amountPaidCzk),
     paymentStatus: computePaymentStatus(amountDueCzk, amountPaidCzk),
     // All terms waitlisted: nothing to pay yet, so no payment details (US-25).
-    paymentDetails: details
-      ? {
-          bankAccount: details.bankAccount,
-          variableSymbol,
-          summary: details.summary,
-          terms: details.terms,
-        }
-      : null,
+    paymentDetails: details,
   }
 }

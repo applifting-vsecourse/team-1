@@ -57,7 +57,6 @@ describe("buildMyApplication", () => {
     expect(result.variableSymbol).toBe("48000")
     expect(result.paymentDetails).toMatchObject({
       bankAccount: "2900123456/2010",
-      variableSymbol: "48000",
       summary: { variableSymbol: "48000", payableCzk: 9400 },
     })
     expect(result.paymentDetails?.terms.map((t) => [t.termId, t.variableSymbol, t.dueCzk])).toEqual(

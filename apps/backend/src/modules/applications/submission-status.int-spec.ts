@@ -14,9 +14,8 @@ type StatusBody = {
     terms: { status: string }[]
     paymentStatus: string
     payment: {
-      amountCzk: number
+      summary: { variableSymbol: string; payableCzk: number }
       bankAccount: string
-      variableSymbol: string
       terms: { termNumber: number; variableSymbol: string }[]
     } | null
   }[]
@@ -104,8 +103,8 @@ describe("submission status (integration)", () => {
     expect(body.isNewAccount).toBe(true)
     expect(body.applications.map((a) => a.firstName)).toEqual(["Jana", "Matěj"])
     expect(body.applications.map((a) => a.payment)).toMatchObject([
-      { amountCzk: 1000, bankAccount: "2900123456/2010", variableSymbol: expect.any(String) },
-      { amountCzk: 3000, bankAccount: "2900123456/2010", variableSymbol: expect.any(String) },
+      { bankAccount: "2900123456/2010", summary: { payableCzk: 1000 } },
+      { bankAccount: "2900123456/2010", summary: { payableCzk: 3000 } },
     ])
     // A symbol per confirmed term next to the summary one (US-137).
     const [first] = body.applications
@@ -115,8 +114,8 @@ describe("submission status (integration)", () => {
     )
     // Every application pays under its own variable symbol; nothing is summed.
     const [jana, matej] = body.applications
-    expect(jana.payment?.variableSymbol).toBe(jana.variableSymbol)
-    expect(matej.payment?.variableSymbol).toBe(matej.variableSymbol)
+    expect(jana.payment?.summary.variableSymbol).toBe(jana.variableSymbol)
+    expect(matej.payment?.summary.variableSymbol).toBe(matej.variableSymbol)
     expect(jana.variableSymbol).not.toBe(matej.variableSymbol)
     expect(jana.paymentStatus).toBe("UNPAID")
     expect(jana.code).toMatch(/^U-\d{4}$/)

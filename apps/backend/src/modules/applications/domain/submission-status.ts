@@ -5,7 +5,7 @@ import {
   computeApplicationPaid,
   PaymentDetails,
 } from "./payment-details"
-import { computeAmountOwed, computePaymentStatus, PaymentStatus } from "./pricing"
+import { computePaymentStatus, PaymentStatus } from "./pricing"
 import { variableSymbol as toVariableSymbol } from "./variable-symbol"
 
 /** One application of a submission as stored — what the confirmation page is built from (US-25). */
@@ -41,16 +41,8 @@ export type SubmissionRecord = {
   applications: SubmittedApplicationRecord[]
 }
 
-/** Where and how much to pay — only for an application with a confirmed term. */
-export type ApplicationPayment = {
-  bankAccount: string
-  /** Summary symbol `…000` of the application. */
-  variableSymbol: string
-  /** Still to pay (due − paid), never negative. */
-  amountCzk: number
-  summary: PaymentDetails["summary"]
-  terms: PaymentDetails["terms"]
-}
+/** Where and how much to pay (summary and per confirmed term) — only for an application with a confirmed term. */
+export type ApplicationPayment = PaymentDetails
 
 export type SubmittedApplicationStatus = {
   firstName: string
@@ -107,14 +99,13 @@ export function buildSubmissionStatus(record: SubmissionRecord): SubmissionStatu
     applications: record.applications.map((application) => {
       const amountDue = computeApplicationDue(application.terms)
       const amountPaid = computeApplicationPaid(application.terms)
-      const variableSymbol = toVariableSymbol(application.number)
       const details = buildPaymentDetails(application.number, record.bankAccount, application.terms)
 
       return {
         firstName: application.firstName,
         lastName: application.lastName,
         code: toApplicationCode(record.eventName, application.number),
-        variableSymbol,
+        variableSymbol: toVariableSymbol(application.number),
         terms: [...application.terms]
           .sort((a, b) => a.startsOn.getTime() - b.startsOn.getTime())
           .map((term) => ({
@@ -126,15 +117,7 @@ export function buildSubmissionStatus(record: SubmissionRecord): SubmissionStatu
             priceCzk: term.priceCzk,
           })),
         paymentStatus: computePaymentStatus(amountDue, amountPaid),
-        payment: details
-          ? {
-              bankAccount: details.bankAccount,
-              variableSymbol,
-              amountCzk: Math.max(computeAmountOwed(amountDue, amountPaid), 0),
-              summary: details.summary,
-              terms: details.terms,
-            }
-          : null,
+        payment: details,
       }
     }),
   }

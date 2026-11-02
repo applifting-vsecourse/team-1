@@ -19,18 +19,21 @@ const submittedApplicationSchema = z.object({
   lastName: z.string(),
   /** Reference for people, `LKL-0048`. */
   code: z.string(),
-  /** The application number, four digits. */
+  /** The summary variable symbol of the application (number × 1000), `48000`. */
   variableSymbol: z.string(),
   terms: z.array(termSchema),
   /** `NOTHING_DUE` while no term is confirmed. */
   paymentStatus: z.enum(["NOTHING_DUE", "UNPAID", "PARTIALLY_PAID", "PAID", "OVERPAID"]),
-  /** Own amount and variable symbol of this application; `null` when every term is waitlisted. */
+  /** What to pay and where; `null` when every term of this application is waitlisted. */
   payment: z
     .object({
       bankAccount: z.string(),
-      variableSymbol: z.string(),
-      /** Still to pay, whole CZK. */
-      amountCzk: z.number().int(),
+      summary: z.object({
+        /** `…000`: pays everything of this application that is due now. */
+        variableSymbol: z.string(),
+        /** Still to pay, whole CZK. */
+        payableCzk: z.number().int(),
+      }),
     })
     .nullable(),
 })

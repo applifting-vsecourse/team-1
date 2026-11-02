@@ -37,12 +37,15 @@ const person = (
   firstName,
   lastName,
   code: `LK-${number}`,
-  variableSymbol: number,
+  variableSymbol: `${Number(number)}000`,
   terms: [term(`t${number}`, status, start, end)],
   paymentStatus: status === "CONFIRMED" ? ("UNPAID" as const) : ("NOTHING_DUE" as const),
   payment:
     status === "CONFIRMED"
-      ? { bankAccount: "123456789/0800", variableSymbol: number, amountCzk }
+      ? {
+          bankAccount: "123456789/0800",
+          summary: { variableSymbol: `${Number(number)}000`, payableCzk: amountCzk },
+        }
       : null,
 })
 const jana = (status: "CONFIRMED" | "WAITLISTED" = "CONFIRMED") =>
@@ -93,7 +96,7 @@ describe("SubmissionStatus", () => {
     expect(button).toBeDefined()
     if (!button) throw new Error("Missing second participant copy button")
     await user.click(button)
-    expect(write).toHaveBeenLastCalledWith("0049")
+    expect(write).toHaveBeenLastCalledWith("49000")
   })
 
   beforeEach(() => get.mockReset())
@@ -105,7 +108,7 @@ describe("SubmissionStatus", () => {
     expect(screen.getByText("Confirmed")).toBeInTheDocument()
     expect(screen.getByRole("heading", { name: "To pay for the confirmed terms" })).toBeVisible()
     expect(screen.getByText("123456789/0800")).toBeInTheDocument()
-    expect(screen.getByText("0048")).toBeInTheDocument()
+    expect(screen.getByText("48000")).toBeInTheDocument()
     expect(screen.getByText(/created a participant account for jana@example.com/)).toBeVisible()
     expect(screen.getByRole("link", { name: "Go to sign in" })).toHaveAttribute(
       "href",
@@ -113,7 +116,7 @@ describe("SubmissionStatus", () => {
     )
   })
 
-  it("gives every participant with a confirmed term an own payment with an own variable symbol", async () => {
+  it("shows one payment card with the total, the account once and a symbol per participant", async () => {
     await renderStatus(
       data({
         applications: [
@@ -124,31 +127,25 @@ describe("SubmissionStatus", () => {
     )
 
     expect(screen.getAllByRole("heading", { name: "To pay for the confirmed terms" })).toHaveLength(
-      2,
+      1,
     )
-    expect(screen.getByText("0048")).toBeInTheDocument()
-    expect(screen.getByText("0049")).toBeInTheDocument()
-    expect(screen.getByText(/^Matěj:/)).toHaveTextContent(/7.400/)
-    expect(screen.getByRole("heading", { name: "Total to pay" })).toBeVisible()
+    const card = screen.getByRole("heading", {
+      name: "To pay for the confirmed terms",
+    }).parentElement!
+    expect(card).toHaveTextContent(/14.300/)
+    expect(card).toHaveTextContent(/Jana: .*6.900.* \+ Matěj: .*7.400/)
+    expect(screen.getAllByText("123456789/0800")).toHaveLength(1)
+    expect(screen.getByText("48000")).toBeInTheDocument()
+    expect(screen.getByText("49000")).toBeInTheDocument()
+    expect(screen.getByText(/^Matěj · .*7.400.* · variable symbol$/)).toBeInTheDocument()
+    expect(card).toHaveTextContent(/Pay each application separately: .*VS 48000; Matěj .*VS 49000/)
   })
 
-  it("shows the total of all payers above their cards, and none for a single payer", async () => {
-    await renderStatus(
-      data({
-        applications: [
-          jana(),
-          person("Matěj", "Novák", "0049", "CONFIRMED", "2027-08-02", "2027-08-08", 7400),
-        ],
-      }),
-    )
-    const total = screen.getByRole("heading", { name: "Total to pay" }).parentElement!
-    expect(total).toHaveTextContent(/14.300/)
-    expect(total).toHaveTextContent("pay each application separately")
-  })
-
-  it("shows no total for a single payer", async () => {
+  it("names the symbol only plainly for a single payer", async () => {
     await renderStatus(data())
-    expect(screen.queryByRole("heading", { name: "Total to pay" })).not.toBeInTheDocument()
+
+    expect(screen.getByText("Variable symbol")).toBeInTheDocument()
+    expect(screen.queryByText(/Pay each application separately/)).not.toBeInTheDocument()
   })
 
   it("shows a waitlisted term as waitlisted without a place in line, with no payment for it", async () => {
@@ -167,14 +164,14 @@ describe("SubmissionStatus", () => {
     expect(screen.getAllByRole("heading", { name: "To pay for the confirmed terms" })).toHaveLength(
       1,
     )
-    expect(screen.queryByText("0049")).not.toBeInTheDocument()
+    expect(screen.queryByText("49000")).not.toBeInTheDocument()
   })
 
   it("shows no payment details when every term is waitlisted", async () => {
     await renderStatus(data({ applications: [jana("WAITLISTED")] }))
 
     expect(screen.getByRole("heading", { name: "Do not pay anything yet" })).toBeVisible()
-    expect(screen.queryByText("Organization account")).not.toBeInTheDocument()
+    expect(screen.queryByText("Organization bank account")).not.toBeInTheDocument()
     expect(screen.queryByText("123456789/0800")).not.toBeInTheDocument()
   })
 

@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { currentLanguage } from "@/i18n"
 import { formatDateRange } from "@/lib/date"
+import { formatCzk } from "@/lib/money"
 
 import {
   submissionStatusQueryOptions,
@@ -78,14 +79,8 @@ export function SubmissionStatus({ accessToken }: SubmissionStatusProps) {
         </ul>
       </section>
 
-      {payers.length > 1 ? <PaymentTotal payers={payers} /> : null}
       {payers.length > 0 ? (
-        payers.map((application) => (
-          <PaymentCard
-            key={application.variableSymbol}
-            application={application}
-          />
-        ))
+        <PaymentCard payers={payers} />
       ) : (
         <section className="flex flex-col gap-4 rounded-lg border bg-status-waitlist-bg p-4 sm:p-6">
           <h2 className="text-2xl font-semibold text-status-waitlist">
@@ -153,40 +148,34 @@ function TermStatusCard({
   )
 }
 
-/**
- * Several paying participants: the total first, then a card per participant, because each
- * application is paid separately under its own variable symbol (issue #153). No Figma frame yet.
- */
-function PaymentTotal({ payers }: { payers: SubmittedApplication[] }) {
-  const { t } = useTranslation("applicationForm")
-  const total = payers.reduce((sum, application) => sum + (application.payment?.amountCzk ?? 0), 0)
-
-  return (
-    <Card className="gap-4 p-4 sm:p-6">
-      <h2 className="text-2xl font-semibold sm:text-lg">{t("confirmation.payment.totalTitle")}</h2>
-      <p className="text-4xl/11 font-bold text-link">
-        <MoneyAmount amountCzk={total} />
-      </p>
-      <p>{t("confirmation.payment.totalNote", { count: payers.length })}</p>
-    </Card>
-  )
-}
-
-// Figma (Design system): V04 Platba za potvrzené termíny · node-id=12710-1633
-// One card per application with a confirmed term, each with its own amount and variable symbol.
-function PaymentCard({ application }: { application: SubmittedApplication }) {
+// Figma (Design system): V04p Stav a platba · jeden účastník, VS souhrnu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16186-4264
+// Figma (Design system): V04p Stav a platba · dva účastníci, VS souhrnu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16186-4335
+// Figma (Design system): M06p Stav a platba po odeslání · 360 px · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16186-4434
+// One card for the whole submission: the total, the account once, and the summary variable
+// symbol of every paying application. Applications are paid separately (issue #153).
+function PaymentCard({ payers }: { payers: SubmittedApplication[] }) {
   const { t } = useTranslation(["applicationForm", "common"])
-  const { payment } = application
-  if (!payment) return null
+  const [first] = payers
+  const payments = payers.flatMap((application) =>
+    application.payment ? [{ application, payment: application.payment }] : [],
+  )
+  if (!first?.payment) return null
+  const hasSeveralPayers = payments.length > 1
+  const total = payments.reduce((sum, { payment }) => sum + payment.summary.payableCzk, 0)
 
   return (
     <Card className="gap-4 p-4 sm:p-6">
       <h2 className="text-2xl font-semibold sm:text-lg">{t("confirmation.payment.title")}</h2>
       <p className="text-4xl/11 font-bold text-link">
-        <MoneyAmount amountCzk={payment.amountCzk} />
+        <MoneyAmount amountCzk={total} />
       </p>
       <p className="text-sm text-muted-foreground">
-        {application.firstName}: <MoneyAmount amountCzk={payment.amountCzk} />
+        {payments.map(({ application, payment }, index) => (
+          <span key={application.variableSymbol}>
+            {index > 0 ? " + " : null}
+            {application.firstName}: <MoneyAmount amountCzk={payment.summary.payableCzk} />
+          </span>
+        ))}
       </p>
       <dl className="flex flex-col gap-4">
         <div className="flex flex-col gap-4">
@@ -194,29 +183,51 @@ function PaymentCard({ application }: { application: SubmittedApplication }) {
             {t("confirmation.payment.account")}
           </dt>
           <dd className="flex min-w-0 items-center gap-2 text-lg font-semibold">
-            <span className="break-all">{payment.bankAccount}</span>
+            <span className="break-all">{first.payment.bankAccount}</span>
             <CopyButton
-              value={payment.bankAccount}
+              value={first.payment.bankAccount}
               label={t("common:clipboard.copyAccount")}
             />
           </dd>
         </div>
-        <div className="flex flex-col gap-4">
-          <dt className="text-xs font-medium text-muted-foreground">
-            {t("confirmation.payment.variableSymbol")}
-          </dt>
-          <dd className="flex min-w-0 items-center gap-2 text-lg font-semibold">
-            <span className="break-all">{payment.variableSymbol}</span>
-            <CopyButton
-              value={payment.variableSymbol}
-              label={t("common:clipboard.copyVariableSymbol")}
-            />
-          </dd>
-        </div>
+        {payments.map(({ application, payment }) => (
+          <div
+            key={application.variableSymbol}
+            className="flex flex-col gap-4"
+          >
+            <dt className="text-xs font-medium text-muted-foreground">
+              {hasSeveralPayers
+                ? t("confirmation.payment.variableSymbolOf", {
+                    name: application.firstName,
+                    amount: formatCzk(payment.summary.payableCzk),
+                  })
+                : t("confirmation.payment.variableSymbol")}
+            </dt>
+            <dd className="flex min-w-0 items-center gap-2 text-lg font-semibold">
+              <span className="break-all">{payment.summary.variableSymbol}</span>
+              <CopyButton
+                value={payment.summary.variableSymbol}
+                label={t("common:clipboard.copyVariableSymbol")}
+              />
+            </dd>
+          </div>
+        ))}
       </dl>
-      <p className="text-xs font-medium text-muted-foreground">
-        {t("confirmation.payment.variableSymbolNote", { code: application.code })}
-      </p>
+      {hasSeveralPayers ? (
+        <p className="text-xs font-medium text-muted-foreground">
+          {t("confirmation.payment.payEachSeparately", {
+            list: payments
+              .map(({ application, payment }) =>
+                t("confirmation.payment.payEachItem", {
+                  name: application.firstName,
+                  amount: formatCzk(payment.summary.payableCzk),
+                  variableSymbol: payment.summary.variableSymbol,
+                }),
+              )
+              .join("; "),
+          })}
+        </p>
+      ) : null}
       <p>{t("confirmation.payment.onlyConfirmed")}</p>
     </Card>
   )

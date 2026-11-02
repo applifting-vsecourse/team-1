@@ -50,8 +50,8 @@ describe("buildSubmissionStatus", () => {
 
     expect(status.isNewAccount).toBe(true)
     expect(status.applications.map((a) => a.payment)).toMatchObject([
-      { bankAccount: "2900123456/2010", variableSymbol: "48000", amountCzk: 6900 },
-      { bankAccount: "2900123456/2010", variableSymbol: "49000", amountCzk: 7400 },
+      { bankAccount: "2900123456/2010", summary: { variableSymbol: "48000", payableCzk: 6900 } },
+      { bankAccount: "2900123456/2010", summary: { variableSymbol: "49000", payableCzk: 7400 } },
     ])
     expect(status.applications.map((a) => a.code)).toEqual(["LK-0048", "LK-0049"])
   })
@@ -92,9 +92,9 @@ describe("buildSubmissionStatus", () => {
       ],
     }).applications
 
-    expect(partly.payment?.amountCzk).toBe(5900)
+    expect(partly.payment?.summary.payableCzk).toBe(5900)
     expect(partly.paymentStatus).toBe("PARTIALLY_PAID")
-    expect(overpaid.payment?.amountCzk).toBe(0)
+    expect(overpaid.payment?.summary.payableCzk).toBe(0)
     expect(overpaid.paymentStatus).toBe("OVERPAID")
   })
 
@@ -121,6 +121,6 @@ describe("buildSubmissionStatus", () => {
 
     expect(result.payment?.summary.payableCzk).toBe(700)
     // The application summary is still due − paid = 1700 − 1500.
-    expect(result.payment?.amountCzk).toBe(200)
+    expect(result.paymentStatus).toBe("PARTIALLY_PAID")
   })
 })
