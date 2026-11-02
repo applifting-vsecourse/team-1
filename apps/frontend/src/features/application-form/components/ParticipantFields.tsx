@@ -26,6 +26,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { formatDateRange } from "@/lib/date"
+import { termName } from "@/lib/term-label"
 import { cn } from "@/lib/utils"
 
 import type { PublicTerm } from "@/features/application-form/api/publicEvent"
@@ -210,8 +211,12 @@ export function ParticipantFields({ index, terms, onRemove, isDisabled }: Partic
                       <span className="font-semibold">
                         {formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })}
                       </span>
-                      <span className="sr-only"> · </span>
-                      <span className="text-sm text-muted-foreground">{term.name}</span>
+                      {termName(term) ? (
+                        <>
+                          <span className="sr-only"> · </span>
+                          <span className="text-sm text-muted-foreground">{termName(term)}</span>
+                        </>
+                      ) : null}
                     </span>
                     <span className="sr-only"> · </span>
                     <TermPrice

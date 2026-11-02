@@ -7,6 +7,7 @@ import { TermPrice } from "@/components/atoms/MoneyAmount"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { formatDateRange } from "@/lib/date"
+import { termName } from "@/lib/term-label"
 
 import { catalogEventPhotoUrl, type CatalogEventDetail } from "@/features/catalog/api/catalog"
 
@@ -69,6 +70,9 @@ export function EventPage({ event }: { event: CatalogEventDetail }) {
               <span className="text-lg font-semibold">
                 {formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })}
               </span>
+              {termName(term) ? (
+                <span className="text-sm text-muted-foreground">{termName(term)}</span>
+              ) : null}
               <TermPrice amountCzk={term.priceCzk} />
             </li>
           ))}

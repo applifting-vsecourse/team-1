@@ -11,6 +11,7 @@ import { Card } from "@/components/ui/card"
 import { currentLanguage } from "@/i18n"
 import { formatDateRange } from "@/lib/date"
 import { formatCzk } from "@/lib/money"
+import { termName } from "@/lib/term-label"
 
 import {
   submissionStatusQueryOptions,
@@ -114,7 +115,7 @@ function TermStatusCard({
         </h3>
         <p className="text-sm text-muted-foreground">
           {formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })}
-          <span className="sr-only"> · {term.name}</span>
+          {termName(term) ? <span className="sr-only"> · {termName(term)}</span> : null}
         </p>
         <div className="flex items-center gap-4">
           <Badge

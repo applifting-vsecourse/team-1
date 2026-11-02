@@ -19,7 +19,7 @@ export const capacitySchema = z.object({
           capacity: z.number().int().min(1),
         }),
       ),
-      name: z.string(),
+      name: z.string().nullable(),
       startsOn: z.string(),
       endsOn: z.string(),
       capacity: counts,

@@ -18,6 +18,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { formatDateRange } from "@/lib/date"
 import { formatCzk } from "@/lib/money"
 import { notify } from "@/lib/notify"
+import { termName } from "@/lib/term-label"
 
 import {
   deleteEventPhoto,
@@ -237,10 +238,15 @@ export function PublicPageForm({ event }: { event: OrganizerEvent }) {
               {offeredTerms.map((term) => (
                 <li
                   key={term.id}
-                  className="py-2 tabular-nums"
+                  className="flex flex-col py-2 tabular-nums"
                 >
-                  {formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })} ·{" "}
-                  {formatCzk(term.priceCzk)}
+                  <span>
+                    {formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })} ·{" "}
+                    {formatCzk(term.priceCzk)}
+                  </span>
+                  {termName(term) ? (
+                    <span className="text-sm text-muted-foreground">{termName(term)}</span>
+                  ) : null}
                 </li>
               ))}
             </ul>

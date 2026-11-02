@@ -31,8 +31,8 @@ class CapacityTermDetailsDto {
   capacity!: GenderCapacityDto
   @ApiProperty({ type: GenderCapacityDto })
   freePlaces!: GenderCapacityDto
-  @ApiProperty()
-  name!: string
+  @ApiProperty({ nullable: true, type: String })
+  name!: string | null
   @ApiProperty({ example: "2027-07-04" })
   startsOn!: string
   @ApiProperty({ example: "2027-07-10" })

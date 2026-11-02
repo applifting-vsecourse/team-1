@@ -41,6 +41,22 @@ describe("application e-mail previews", () => {
     expect(html).not.toContain("Variabilní symbol")
   })
 
+  it("lists a term without a name by its dates", async () => {
+    const html = await render(
+      React.createElement(ApplicationConfirmation, {
+        ...ApplicationConfirmation.PreviewProps,
+        applications: [
+          {
+            ...ApplicationConfirmation.PreviewProps.applications[0],
+            terms: [{ name: "12.–18. 7. 2027", status: "CONFIRMED" }],
+          },
+        ],
+      }),
+    )
+
+    expect(html).toContain("12.–18. 7. 2027")
+  })
+
   it("renders the change e-mail with payment details", async () => {
     const html = await render(
       React.createElement(ApplicationChange, ApplicationChange.PreviewProps),

@@ -16,7 +16,7 @@ import { seedSprintDemo } from "./sprint-demo-data"
 
 export type SeedRoom = { name: string; capacity: number; gender: Gender | null }
 export type SeedTerm = {
-  name: string
+  name: string | null
   startsOn: string
   endsOn: string
   priceCzk: number
@@ -298,6 +298,20 @@ export const seedDatabase = async (
       },
     ],
     payments: { 0: 1000 },
+  })
+
+  // A term known by its dates only (US-119, D-053): the unnamed state is visible on staging.
+  await createEvent(prisma, {
+    organizationId: mountainClub.id,
+    recordedById: organizerB.id,
+    name: "Jarní brigáda 2028",
+    description: "Pracovní víkend na chatě.",
+    location: "Chata Sněžka, Pec pod Sněžkou",
+    publicToken: "demo-jarni-brigada-2028",
+    terms: [{ name: null, startsOn: "2028-04-14", endsOn: "2028-04-16", priceCzk: 600 }],
+    rooms: [...rooms("FEMALE", ["A", 4]), ...rooms("MALE", ["B", 4])],
+    applicants: [],
+    payments: {},
   })
 
   await seedSprintDemo(prisma, {

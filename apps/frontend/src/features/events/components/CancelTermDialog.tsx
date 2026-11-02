@@ -15,6 +15,7 @@ import {
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { formatDateRange } from "@/lib/date"
+import { termTitle } from "@/lib/term-label"
 
 import type { EventTerm } from "@/features/events/api/terms"
 import { useCancelTerm } from "@/features/events/hooks/useTermMutations"
@@ -58,7 +59,7 @@ export function CancelTermDialog({
         <DialogHeader>
           <p className="text-xs font-medium text-muted-foreground uppercase">{eventName}</p>
           <DialogTitle className="text-lg tracking-tight">
-            {t("terms.cancelDialog.title", { name: term.name })}
+            {t("terms.cancelDialog.title", { name: termTitle(term) })}
           </DialogTitle>
           <DialogDescription className="sr-only">
             {t("terms.cancelDialog.history")}

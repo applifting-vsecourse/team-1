@@ -1,3 +1,4 @@
+import { Locale } from "@/core/email/locale"
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { Prisma } from "@/generated/prisma/client"
 import {
@@ -8,7 +9,9 @@ import {
 import { findDuplicate } from "@/modules/applications/domain/duplicate-application"
 import { EvaluatedTerm } from "@/modules/applications/domain/evaluation"
 import { OccupancySnapshot } from "@/modules/applications/domain/submission"
+import { termLabel } from "@/modules/applications/domain/term-label"
 import { AppException } from "@/shared/errors/app.exception"
+import { isoDate } from "@/shared/utils/iso-date"
 import { HttpStatus, Injectable } from "@nestjs/common"
 
 /** What the duplicate check needs of a participant. */
@@ -33,7 +36,7 @@ export class ApplicationsRepository {
         organization: { select: { bankAccount: true } },
         terms: {
           where: { cancelledAt: null },
-          orderBy: [{ startsOn: "asc" }, { name: "asc" }],
+          orderBy: [{ startsOn: "asc" }, { endsOn: "asc" }, { id: "asc" }],
           include: { _count: { select: { rooms: true } } },
         },
       },
@@ -45,7 +48,14 @@ export class ApplicationsRepository {
       name: event.name,
       bankAccount: event.organization.bankAccount,
       termsWithoutRooms: event.terms.filter((term) => term._count.rooms === 0).length,
-      terms: event.terms.map(({ id, name, number, priceCzk }) => ({ id, name, number, priceCzk })),
+      terms: event.terms.map(({ id, name, startsOn, endsOn, number, priceCzk }) => ({
+        id,
+        name,
+        startsOn: isoDate(startsOn),
+        endsOn: isoDate(endsOn),
+        number,
+        priceCzk,
+      })),
     }
   }
 
@@ -81,7 +91,7 @@ export class ApplicationsRepository {
 
       // The event lock above serialises submissions, so two concurrent
       // requests of the same participant cannot both pass this check.
-      await this.assertNotRegistered(tx, event.id, applications)
+      await this.assertNotRegistered(tx, event.id, applications, applications[0].locale)
 
       const [rooms, confirmed] = await Promise.all([
         tx.room.findMany({
@@ -151,8 +161,12 @@ export class ApplicationsRepository {
    * rejected duplicate leaves no account behind. Not race-proof on its own:
    * `saveEvaluated` repeats it under the event lock.
    */
-  async assertNoDuplicate(eventId: string, participants: SubmittedPerson[]): Promise<void> {
-    await this.assertNotRegistered(this.prisma, eventId, participants)
+  async assertNoDuplicate(
+    eventId: string,
+    participants: SubmittedPerson[],
+    locale: Locale,
+  ): Promise<void> {
+    await this.assertNotRegistered(this.prisma, eventId, participants, locale)
   }
 
   /** Throws 409 `APPLICATION_DUPLICATE` for a participant already on one of their terms. */
@@ -160,6 +174,7 @@ export class ApplicationsRepository {
     db: Prisma.TransactionClient,
     eventId: string,
     participants: SubmittedPerson[],
+    locale: Locale,
   ): Promise<void> {
     const registered = await db.applicationTerm.findMany({
       where: {
@@ -191,7 +206,7 @@ export class ApplicationsRepository {
 
     const term = await db.term.findUniqueOrThrow({
       where: { id: duplicate.termId },
-      select: { name: true },
+      select: { name: true, startsOn: true, endsOn: true },
     })
     throw new AppException(
       HttpStatus.CONFLICT,
@@ -199,7 +214,7 @@ export class ApplicationsRepository {
       "Participant is already registered for this term",
       {
         participant: `${duplicate.participant.firstName} ${duplicate.participant.lastName}`,
-        term: term.name,
+        term: termLabel(term, locale),
       },
     )
   }

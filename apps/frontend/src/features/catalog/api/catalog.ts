@@ -12,7 +12,9 @@ export const catalogEventSchema = z.object({
   organizationName: z.string(),
   location: z.string().nullable(),
   /** ISO dates of every term, by start date. */
-  terms: z.array(z.object({ startsOn: z.string(), endsOn: z.string() })),
+  terms: z.array(
+    z.object({ name: z.string().nullable(), startsOn: z.string(), endsOn: z.string() }),
+  ),
   termCount: z.number().int(),
   /** Lowest term price, whole CZK. */
   fromPriceCzk: z.number().int().nullable(),
@@ -37,7 +39,7 @@ export const catalogEventDetailSchema = z.object({
   terms: z.array(
     z.object({
       id: z.string(),
-      name: z.string(),
+      name: z.string().nullable(),
       startsOn: z.string(),
       endsOn: z.string(),
       priceCzk: z.number().int(),

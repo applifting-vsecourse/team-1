@@ -15,6 +15,9 @@ export class CatalogOrganizationDto {
 }
 
 export class CatalogEventTermDto {
+  @ApiProperty({ type: String, nullable: true, example: "1. týden" })
+  name!: string | null
+
   @ApiProperty({ example: "2027-07-04", description: "ISO date." })
   startsOn!: string
 
@@ -57,7 +60,7 @@ export class CatalogEventDto {
       organizationId: event.organizationId,
       organizationName: event.organizationName,
       location: event.location,
-      terms: event.terms.map(({ startsOn, endsOn }) => ({ startsOn, endsOn })),
+      terms: event.terms.map(({ name, startsOn, endsOn }) => ({ name, startsOn, endsOn })),
       termCount: event.termCount,
       fromPriceCzk: event.fromPriceCzk,
       isOpenForApplications: event.isOpenForApplications,

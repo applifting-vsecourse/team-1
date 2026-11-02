@@ -1,5 +1,6 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { StatusChangeSnapshot } from "@/modules/applications/domain/status-transition"
+import { termLabel } from "@/modules/applications/domain/term-label"
 import {
   ExpiredWaitlistEntry,
   StatusChangeCommand,
@@ -120,7 +121,7 @@ export class TermStatusRepository {
       const terms = await tx.applicationTerm.findMany({
         where: { applicationId: application.id },
         orderBy: { term: { startsOn: "asc" } },
-        include: { term: { select: { name: true, number: true } } },
+        include: { term: { select: { name: true, number: true, startsOn: true, endsOn: true } } },
       })
       return {
         from: current.status,
@@ -135,7 +136,7 @@ export class TermStatusRepository {
           lastName: application.lastName,
           accessToken: application.accessToken,
           terms: terms.map((row) => ({
-            name: row.term.name,
+            name: termLabel(row.term, application.locale),
             termNumber: row.term.number,
             status: row.status,
             priceCzk: row.priceCzk,

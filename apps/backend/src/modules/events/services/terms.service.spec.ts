@@ -52,6 +52,23 @@ describe("TermsService", () => {
     expect(repository.create).toHaveBeenCalledWith("org-a", "e1", { ...input, name: "Turnus" })
   })
 
+  it("stores a blank name as no name", async () => {
+    repository.create.mockResolvedValue(term({ name: null }))
+    await service.create(organizer, "e1", { ...input, name: "   " })
+    expect(repository.create).toHaveBeenCalledWith("org-a", "e1", { ...input, name: null })
+    await service.create(organizer, "e1", {
+      startsOn: input.startsOn,
+      endsOn: input.endsOn,
+      priceCzk: 1,
+    })
+    expect(repository.create).toHaveBeenLastCalledWith("org-a", "e1", {
+      startsOn: input.startsOn,
+      endsOn: input.endsOn,
+      priceCzk: 1,
+      name: null,
+    })
+  })
+
   it("rejects an end before the start without touching the database", async () => {
     await expect(
       service.create(organizer, "e1", { ...input, endsOn: "2027-07-01" }),

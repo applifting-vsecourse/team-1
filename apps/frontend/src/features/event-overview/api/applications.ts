@@ -20,7 +20,7 @@ const applicationSchema = z.object({
   terms: z.array(
     z.object({
       id: z.string(),
-      name: z.string(),
+      name: z.string().nullable(),
       startsOn: z.string(),
       endsOn: z.string(),
       status: z.enum(["CONFIRMED", "WAITLISTED", "CANCELLED"]),

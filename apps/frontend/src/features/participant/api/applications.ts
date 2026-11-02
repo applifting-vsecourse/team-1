@@ -5,7 +5,7 @@ import { api } from "@/lib/api-client"
 
 const termSchema = z.object({
   termId: z.string(),
-  name: z.string(),
+  name: z.string().nullable(),
   /** ISO date, `2027-07-04`. */
   startsOn: z.string(),
   endsOn: z.string(),

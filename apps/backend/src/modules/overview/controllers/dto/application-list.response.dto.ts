@@ -3,7 +3,7 @@ import { ApiProperty } from "@nestjs/swagger"
 
 class ApplicationListTermDto {
   @ApiProperty() id!: string
-  @ApiProperty() name!: string
+  @ApiProperty({ nullable: true, type: String }) name!: string | null
   @ApiProperty() startsOn!: string
   @ApiProperty() endsOn!: string
   @ApiProperty({ enum: ["CONFIRMED", "WAITLISTED", "CANCELLED"] }) status!: string

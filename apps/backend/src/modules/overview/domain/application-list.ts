@@ -43,7 +43,7 @@ export type ListedApplication = {
   submittedAt: Date
   terms: {
     id: string
-    name: string
+    name: string | null
     startsOn: Date
     endsOn: Date
     /** Room mode of the term decides its waitlist queues (US-99, D-063). */

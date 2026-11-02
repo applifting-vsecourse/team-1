@@ -5,16 +5,15 @@ import {
   summarizeTerms,
 } from "@/modules/applications/domain/public-catalog"
 import { isOpenForTerms } from "@/modules/applications/domain/public-event"
+import { isoDate } from "@/shared/utils/iso-date"
 import { Injectable } from "@nestjs/common"
-
-const isoDate = (date: Date): string => date.toISOString().slice(0, 10)
 
 /** Only events the organizer published in the catalog (US-122) are ever read here. */
 const published = { publishedInCatalog: true }
 
 const termsInclude = {
   where: { cancelledAt: null },
-  orderBy: [{ startsOn: "asc" as const }, { name: "asc" as const }],
+  orderBy: [{ startsOn: "asc" as const }, { endsOn: "asc" as const }, { id: "asc" as const }],
   select: {
     id: true,
     name: true,
@@ -50,6 +49,7 @@ export class PublicCatalogRepository {
           organizationName: event.organization.name,
           location: event.location,
           terms: event.terms.map((term) => ({
+            name: term.name,
             startsOn: isoDate(term.startsOn),
             endsOn: isoDate(term.endsOn),
           })),

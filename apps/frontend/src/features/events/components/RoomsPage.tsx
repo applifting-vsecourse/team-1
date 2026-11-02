@@ -29,7 +29,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { formatDateRange } from "@/lib/date"
+import { termDatesLine } from "@/lib/term-label"
 import { cn } from "@/lib/utils"
 
 import { eventKeys } from "@/features/events/api/events"
@@ -46,7 +46,7 @@ import { RoomModeDialog } from "@/features/events/components/RoomModeDialog"
 /** What the page needs to know about every active term; the route reads it from the occupancy. */
 export type AccommodationTerm = {
   id: string
-  name: string
+  name: string | null
   startsOn: string
   endsOn: string
   roomMode: RoomMode
@@ -179,7 +179,7 @@ export function RoomsPage({
                 key={item.id}
                 value={item.id}
               >
-                {formatDateRange(item.startsOn, item.endsOn, { shouldShowYear: true })}
+                {termDatesLine(item)}
               </SelectItem>
             ))}
           </SelectContent>

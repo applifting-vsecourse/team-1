@@ -16,6 +16,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { formatDateRange } from "@/lib/date"
+import { termName, termTitle } from "@/lib/term-label"
 import { cn } from "@/lib/utils"
 
 import {
@@ -327,10 +328,12 @@ function TermDetail({
         </div>
       </div>
       <div className="flex flex-col gap-1">
-        <h2 className="text-2xl font-semibold tracking-tight">{term.name}</h2>
-        <p className="text-sm">
-          {formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })}
-        </p>
+        <h2 className="text-2xl font-semibold tracking-tight">{termTitle(term)}</h2>
+        {termName(term) ? (
+          <p className="text-sm">
+            {formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })}
+          </p>
+        ) : null}
       </div>
       <div className="grid gap-4 md:grid-cols-3 md:gap-6">
         <MetricCard

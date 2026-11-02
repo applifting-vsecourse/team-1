@@ -3,7 +3,7 @@ import { api, connectTestPrisma, resetAndSeed, signIn } from "@/test/integration
 
 type TermBody = {
   id: string
-  name: string
+  name: string | null
   startsOn: string
   endsOn: string
   priceCzk: number
@@ -80,9 +80,8 @@ describe("organizer terms (integration)", () => {
     expect(await response.json()).toMatchObject({ code: "TERM_END_BEFORE_START" })
   })
 
-  it("rejects a missing name and a negative price", async () => {
+  it("rejects a negative price", async () => {
     const base = { startsOn: "2027-08-01", endsOn: "2027-08-02" }
-    expect((await send(cookieA, "POST", termsPath(), { ...base, priceCzk: 1 })).status).toBe(400)
     const negative = await send(cookieA, "POST", termsPath(), { ...base, name: "X", priceCzk: -1 })
     expect(negative.status).toBe(400)
   })
@@ -300,6 +299,83 @@ describe("organizer terms (integration)", () => {
       expect(response.status).toBe(409)
       expect(await response.json()).toMatchObject({ code: "TERM_LIMIT_REACHED" })
       expect(await prisma.term.count({ where: { eventId: numberedEventId } })).toBe(999)
+    })
+  })
+  describe("optional name (D-053)", () => {
+    let optionalEventId: string
+    const dates = { startsOn: "2027-09-01", endsOn: "2027-09-07", priceCzk: 3000 }
+    const termsOf = async () =>
+      (await (await send(cookieA, "GET", termsPath(optionalEventId))).json()) as TermBody[]
+
+    beforeAll(async () => {
+      const created = await send(cookieA, "POST", "/organizer/events", { name: "Bez názvů" })
+      optionalEventId = ((await created.json()) as { id: string }).id
+    })
+
+    it("creates a term without a name", async () => {
+      const response = await send(cookieA, "POST", termsPath(optionalEventId), dates)
+      expect(response.status).toBe(201)
+      expect(await response.json()).toMatchObject({ name: null, startsOn: "2027-09-01" })
+    })
+
+    it("stores a blank name as no name, not as an empty string", async () => {
+      const response = await send(cookieA, "POST", termsPath(optionalEventId), {
+        ...dates,
+        startsOn: "2027-09-10",
+        endsOn: "2027-09-12",
+        name: "   ",
+      })
+      expect(response.status).toBe(201)
+      const { id } = (await response.json()) as TermBody
+      const row = await prisma.term.findUniqueOrThrow({ where: { id } })
+      expect(row.name).toBeNull()
+    })
+
+    it("edits a term without a name and adds a name to it", async () => {
+      const [first] = await termsOf()
+      const path = `${termsPath(optionalEventId)}/${first.id}`
+      const edited = await send(cookieA, "PATCH", path, { ...dates, priceCzk: 3500 })
+      expect(edited.status).toBe(200)
+      expect(await edited.json()).toMatchObject({ name: null, priceCzk: 3500 })
+
+      const named = await send(cookieA, "PATCH", path, { ...dates, name: " První " })
+      expect(await named.json()).toMatchObject({ name: "První" })
+    })
+
+    it("removes the name of an existing term, the rest stays", async () => {
+      const [first] = await termsOf()
+      expect(first.name).toBe("První")
+      const response = await send(cookieA, "PATCH", `${termsPath(optionalEventId)}/${first.id}`, {
+        ...dates,
+        name: "",
+      })
+      expect(response.status).toBe(200)
+      expect(await response.json()).toMatchObject({
+        id: first.id,
+        name: null,
+        startsOn: dates.startsOn,
+        priceCzk: dates.priceCzk,
+      })
+    })
+
+    it("keeps a named term as it is when another term is edited", async () => {
+      const named = await send(cookieA, "POST", termsPath(optionalEventId), {
+        ...dates,
+        startsOn: "2027-10-01",
+        endsOn: "2027-10-03",
+        name: "Podzim",
+      })
+      const { id } = (await named.json()) as TermBody
+      const [first] = await termsOf()
+      await send(cookieA, "PATCH", `${termsPath(optionalEventId)}/${first.id}`, { ...dates })
+      expect((await termsOf()).find((term) => term.id === id)?.name).toBe("Podzim")
+    })
+
+    it("sorts by date whatever the names are", async () => {
+      const terms = await termsOf()
+      expect(terms.map((term) => term.startsOn)).toEqual(
+        [...terms.map((term) => term.startsOn)].sort(),
+      )
     })
   })
 })

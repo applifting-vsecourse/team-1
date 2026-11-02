@@ -29,7 +29,7 @@ class StatusChangeEntryDto {
 
 export class TermStatusResponseDto {
   @ApiProperty() termId!: string
-  @ApiProperty() name!: string
+  @ApiProperty({ nullable: true, type: String }) name!: string | null
   @ApiProperty() startsOn!: string
   @ApiProperty() endsOn!: string
   @ApiProperty({ enum: STATUSES }) status!: string

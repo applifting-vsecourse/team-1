@@ -5,6 +5,7 @@ import {
 } from "@/modules/applications/domain/application-submission"
 import { isOpenForApplications } from "@/modules/applications/domain/public-event"
 import { evaluateSubmission, isValidBirthDate } from "@/modules/applications/domain/submission"
+import { termLabel } from "@/modules/applications/domain/term-label"
 import { ApplicationsRepository } from "@/modules/applications/repositories/applications.repository"
 import { ApplicationConfirmationMailer } from "@/modules/participants/services/application-confirmation-mailer.service"
 import { ParticipantAccountsService } from "@/modules/participants/services/participant-accounts.service"
@@ -73,7 +74,7 @@ export class ApplicationsService {
     // the check under the event lock stays as the guard for the data itself.
     const { account, applications, saved } = await this.eventLocks.run(event.id, async () => {
       // Before the account is created: a rejected duplicate must leave nothing behind.
-      await this.repository.assertNoDuplicate(event.id, input.participants)
+      await this.repository.assertNoDuplicate(event.id, input.participants, locale)
 
       // Own connection, so it runs before the evaluation transaction starts.
       const first = input.participants[0]
@@ -122,7 +123,7 @@ export class ApplicationsService {
     event: {
       name: string
       bankAccount: string
-      terms: { id: string; name: string; number: number }[]
+      terms: { id: string; name: string | null; startsOn: string; endsOn: string; number: number }[]
     },
     email: string,
     locale: Locale,
@@ -149,7 +150,7 @@ export class ApplicationsService {
             // A missing term must not fall back to number 0 (= the summary variable symbol).
             if (!eventTerm) throw new Error(`Term ${term.termId} is missing in the event`)
             return {
-              name: eventTerm.name,
+              name: termLabel(eventTerm, locale),
               termNumber: eventTerm.number,
               status: term.status,
               priceCzk: term.priceCzk,

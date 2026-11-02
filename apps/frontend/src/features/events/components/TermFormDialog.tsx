@@ -35,7 +35,7 @@ import { useCreateTerm, useUpdateTerm } from "@/features/events/hooks/useTermMut
 const createSchema = (t: TFunction<"events">) =>
   z
     .object({
-      name: z.string().trim().min(1, t("terms.form.fieldRequired")),
+      name: z.string().trim(),
       startsOn: z
         .string()
         .min(1, t("terms.form.fieldRequired"))
@@ -74,6 +74,10 @@ type TermFormDialogProps = {
  * X16 / X16a / X17: add or edit a term — name, period and price per person.
  * The dialog is mounted only while open, so its form always starts fresh.
  */
+// Figma (Design system): US-13 Přidat termín · desktop · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15409-10617
+// Figma (Design system): US-13 Přidat termín · mobil · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15409-10704
+// Figma (Design system): US-13 Upravit termín · desktop · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15409-10933
+// Figma (Design system): US-13 Upravit termín · mobil · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15409-11020
 // Figma (Design system): X16 Přidat termín · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12283-2
 // Figma (Design system): X16a Přidat termín · neplatná data · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12283-675
 // Figma (Design system): X16b Přidat termín · chybí cena · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12639-295
@@ -142,16 +146,10 @@ export function TermFormDialog({
                   <FormControl>
                     <Input
                       autoComplete="off"
+                      placeholder={t("terms.form.namePlaceholder")}
                       {...field}
                     />
                   </FormControl>
-                  {form.formState.errors.name ? (
-                    <FormMessage className="text-xs leading-[18px] font-medium" />
-                  ) : (
-                    <FormDescription className="text-xs leading-[18px] font-medium">
-                      {t("terms.form.nameHelper")}
-                    </FormDescription>
-                  )}
                 </FormItem>
               )}
             />

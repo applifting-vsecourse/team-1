@@ -9,7 +9,7 @@ export type CatalogEvent = {
   organizationName: string
   location: string | null
   /** ISO dates of every term, by start date (a card lists each term's dates). */
-  terms: { startsOn: string; endsOn: string }[]
+  terms: { name: string | null; startsOn: string; endsOn: string }[]
   termCount: number
   /** Lowest term price, whole CZK; null while the event has no term. */
   fromPriceCzk: number | null

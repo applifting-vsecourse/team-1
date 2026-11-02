@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next"
 import { BrandDivider } from "@/components/atoms/BrandDivider"
 import { TermPrice } from "@/components/atoms/MoneyAmount"
 import { formatDateRange, formatMonthRange } from "@/lib/date"
+import { termName } from "@/lib/term-label"
 
 import type { PublicEvent } from "@/features/application-form/api/publicEvent"
 
@@ -40,8 +41,12 @@ export function EventSummary({ event }: { event: PublicEvent }) {
               <span className="font-semibold">
                 {formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })}
               </span>
-              <span className="sr-only"> · </span>
-              <span className="text-sm text-muted-foreground">{term.name}</span>
+              {termName(term) ? (
+                <>
+                  <span className="sr-only"> · </span>
+                  <span className="text-sm text-muted-foreground">{termName(term)}</span>
+                </>
+              ) : null}
             </span>
             <span className="sr-only"> · </span>
             <TermPrice

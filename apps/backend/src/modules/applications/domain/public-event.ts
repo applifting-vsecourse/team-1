@@ -1,6 +1,6 @@
 export type PublicTerm = {
   id: string
-  name: string
+  name: string | null
   /** ISO date, `2027-07-04`. */
   startsOn: string
   endsOn: string

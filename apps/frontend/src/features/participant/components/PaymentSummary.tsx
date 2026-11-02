@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next"
 import { CopyButton } from "@/components/atoms/CopyButton"
 import { MoneyAmount } from "@/components/atoms/MoneyAmount"
 import { Card } from "@/components/ui/card"
+import { termLine } from "@/lib/term-label"
 import { cn } from "@/lib/utils"
 
 import type { MyApplication } from "@/features/participant/api/applications"
@@ -89,7 +90,7 @@ export function PaymentSummary({ application }: PaymentSummaryProps) {
           return (
             <section key={payment.termId}>
               <h4 className="pt-4 font-semibold">
-                {term ? `${term.name} · ${termRange(term)}` : payment.variableSymbol}
+                {term ? termLine(term) : payment.variableSymbol}
               </h4>
               <dl>
                 <VariableSymbolRows

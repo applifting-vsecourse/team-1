@@ -61,8 +61,8 @@ describe("public catalog (integration)", () => {
       termCount: 2,
       fromPriceCzk: 4500,
       terms: [
-        { startsOn: "2027-07-04", endsOn: "2027-07-10" },
-        { startsOn: "2027-07-11", endsOn: "2027-07-17" },
+        { name: "1. týden", startsOn: "2027-07-04", endsOn: "2027-07-10" },
+        { name: "2. týden", startsOn: "2027-07-11", endsOn: "2027-07-17" },
       ],
       isOpenForApplications: true,
     })

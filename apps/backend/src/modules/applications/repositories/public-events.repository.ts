@@ -16,7 +16,7 @@ export class PublicEventsRepository {
       include: {
         terms: {
           where: { cancelledAt: null },
-          orderBy: [{ startsOn: "asc" }, { name: "asc" }],
+          orderBy: [{ startsOn: "asc" }, { endsOn: "asc" }, { id: "asc" }],
           include: { _count: { select: { rooms: true } } },
         },
       },

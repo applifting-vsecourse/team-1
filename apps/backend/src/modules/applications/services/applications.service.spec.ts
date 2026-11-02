@@ -13,7 +13,16 @@ const event: SubmissionEvent = {
   name: "Letní kemp",
   bankAccount: "2900123456/2010",
   termsWithoutRooms: 0,
-  terms: [{ id: "t1", name: "1. týden", number: 1, priceCzk: 4500 }],
+  terms: [
+    {
+      id: "t1",
+      name: "1. týden",
+      startsOn: "2027-07-04",
+      endsOn: "2027-07-10",
+      number: 1,
+      priceCzk: 4500,
+    },
+  ],
 }
 const participant = {
   firstName: "Eva",
@@ -69,6 +78,20 @@ describe("ApplicationsService.submit", () => {
         ],
       }),
     )
+  })
+
+  it("names a term without a name by its dates in the e-mail", async () => {
+    repository.findEventForSubmission.mockResolvedValue({
+      ...event,
+      terms: [{ ...event.terms[0], name: null }],
+    })
+
+    await service.submit("link", { email: "a@example.com", participants: [participant] }, "cs")
+
+    const [confirmation] = mailer.sendSubmissionConfirmation.mock.calls[0]
+    expect(confirmation.applications[0].terms).toEqual([
+      { name: "4.–10. 7. 2027", termNumber: 1, status: "CONFIRMED", priceCzk: 4500 },
+    ])
   })
 
   it("sends still one e-mail when the submission holds two participants", async () => {

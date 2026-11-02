@@ -12,7 +12,7 @@ const figuresSchema = z.object({
 })
 const termOccupancySchema = figuresSchema.extend({
   id: z.string(),
-  name: z.string(),
+  name: z.string().nullable(),
   startsOn: z.string(),
   endsOn: z.string(),
   roomMode: z.enum(["GENDERED", "SHARED"]),

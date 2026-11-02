@@ -11,7 +11,7 @@ import {
 /** A term in the event list: its dates, name and how full it is. */
 export type EventTermSummary = {
   id: string
-  name: string
+  name: string | null
   /** ISO dates, `2027-07-04`. */
   startsOn: string
   endsOn: string

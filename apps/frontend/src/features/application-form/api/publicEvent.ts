@@ -5,7 +5,7 @@ import { api } from "@/lib/api-client"
 
 export const publicTermSchema = z.object({
   id: z.string(),
-  name: z.string(),
+  name: z.string().nullable(),
   /** ISO date, `2027-07-04`. */
   startsOn: z.string(),
   endsOn: z.string(),

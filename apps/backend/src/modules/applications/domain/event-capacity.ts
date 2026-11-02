@@ -34,7 +34,7 @@ export type NamedRoom = RoomCapacity & { id: string; name: string }
 export type CapacityDetailsSnapshot = {
   eventName: string
   terms: (Omit<TermCapacitySource, "rooms"> & {
-    name: string
+    name: string | null
     startsOn: Date
     endsOn: Date
     rooms: NamedRoom[]
@@ -44,7 +44,7 @@ export type CapacityDetailsSnapshot = {
 export type EventCapacityDetails = {
   eventName: string
   terms: (TermCapacity & {
-    name: string
+    name: string | null
     startsOn: string
     endsOn: string
     rooms: NamedRoom[]

@@ -8,8 +8,8 @@ export class TermResponseDto {
   @ApiProperty()
   eventId!: string
 
-  @ApiProperty({ example: "Letní turnus 1" })
-  name!: string
+  @ApiProperty({ example: "Letní turnus 1", nullable: true, type: String })
+  name!: string | null
 
   @ApiProperty({ example: "2027-07-12" })
   startsOn!: string
