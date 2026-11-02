@@ -13,8 +13,13 @@ export const paymentApplicationSchema = z.object({
   amountDueCzk: z.number().int(),
   amountPaidCzk: z.number().int(),
   amountOwedCzk: z.number().int(),
+  /** What a summary payment settles now; an overpaid term is not set off against another one. */
+  payableCzk: z.number().int(),
   terms: z.array(
     z.object({
+      termId: z.string(),
+      /** Due minus paid; negative = an overpayment of this term. */
+      owedCzk: z.number().int(),
       status: z.enum(["CONFIRMED", "WAITLISTED", "CANCELLED"]),
       priceCzk: z.number().int(),
       startsOn: z.string(),
@@ -51,6 +56,12 @@ export async function cancelPayment(id: string, payment: Payment) {
   await api.delete(`${path(id)}/${encodeURIComponent(payment.id)}`)
 }
 
-export async function recordRefund(id: string, requestId: string, amountCzk: number) {
-  await api.post(`${path(id)}/refunds`, { json: { requestId, amountCzk } })
+/** A refund is always taken from one term, so `termId` is required. */
+export async function recordRefund(
+  id: string,
+  requestId: string,
+  amountCzk: number,
+  termId: string,
+) {
+  await api.post(`${path(id)}/refunds`, { json: { requestId, amountCzk, termId } })
 }

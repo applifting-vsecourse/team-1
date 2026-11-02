@@ -13,7 +13,30 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import { PaymentDetail } from "@/features/event-overview/components/PaymentDetail"
 
 const { get, remove, post } = vi.hoisted(() => ({ get: vi.fn(), remove: vi.fn(), post: vi.fn() }))
-vi.mock("@/lib/api-client", () => ({ api: { get, delete: remove, post } }))
+// The API also sends `payableCzk` and per-term `termId` / `owedCzk`; the fixtures below are one-term
+// applications, so both follow from the application's own balance.
+const withTermFields = (data: Record<string, unknown>): unknown => {
+  const owed = data.amountOwedCzk as number
+  return {
+    ...data,
+    payableCzk: Math.max(0, owed),
+    terms: (data.terms as object[]).map((term, index) => ({
+      termId: `t${index + 1}`,
+      owedCzk: owed,
+      ...term,
+    })),
+  }
+}
+vi.mock("@/lib/api-client", () => ({
+  api: {
+    get: (...args: unknown[]) => {
+      const response = get(...args) as { json: () => Promise<Record<string, unknown>> }
+      return { json: () => response.json().then(withTermFields) }
+    },
+    delete: remove,
+    post,
+  },
+}))
 const application = {
   id: "a1",
   eventId: "e1",
@@ -73,7 +96,7 @@ describe("PaymentDetail", () => {
     await user.click(screen.getByRole("button", { name: /Record refund.*500/ }))
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument())
     expect(post).toHaveBeenCalledWith("organizer/applications/a1/payments/refunds", {
-      json: { requestId: expect.any(String) as unknown, amountCzk: 500 },
+      json: { requestId: expect.any(String) as unknown, amountCzk: 500, termId: "t1" },
     })
     expect(
       screen.queryByRole("button", { name: "Record overpayment refund" }),
