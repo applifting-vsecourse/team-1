@@ -15,13 +15,13 @@ const termOccupancySchema = figuresSchema.extend({
   name: z.string(),
   startsOn: z.string(),
   endsOn: z.string(),
+  roomMode: z.enum(["GENDERED", "SHARED"]),
+  roomCount: z.number().int(),
   /** Per gender in gendered rooms, `null` with shared rooms. */
   byGender: z.object({ FEMALE: figuresSchema, MALE: figuresSchema }).nullable(),
 })
 const occupancySchema = z.object({
   eventId: z.string(),
-  roomMode: z.enum(["GENDERED", "SHARED"]),
-  roomCount: z.number().int(),
   terms: z.array(termOccupancySchema),
 })
 export type OccupancyFigures = z.infer<typeof figuresSchema>

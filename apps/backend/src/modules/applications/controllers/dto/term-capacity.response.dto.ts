@@ -23,6 +23,10 @@ class CapacityRoomDto {
 class CapacityTermDetailsDto {
   @ApiProperty()
   termId!: string
+  @ApiProperty({ enum: ["GENDERED", "SHARED"] })
+  roomMode!: "GENDERED" | "SHARED"
+  @ApiProperty({ type: [CapacityRoomDto] })
+  rooms!: CapacityRoomDto[]
   @ApiProperty({ type: GenderCapacityDto })
   capacity!: GenderCapacityDto
   @ApiProperty({ type: GenderCapacityDto })
@@ -36,21 +40,18 @@ class CapacityTermDetailsDto {
 }
 
 export class EventCapacityResponseDto {
-  @ApiProperty({ enum: ["GENDERED", "SHARED"] })
-  roomMode!: "GENDERED" | "SHARED"
   @ApiProperty()
   eventName!: string
-  @ApiProperty({ type: [CapacityRoomDto] })
-  rooms!: CapacityRoomDto[]
   @ApiProperty({ type: [CapacityTermDetailsDto] })
   terms!: CapacityTermDetailsDto[]
 
   static fromDomain(event: EventCapacityDetails): EventCapacityResponseDto {
     return {
       eventName: event.eventName,
-      roomMode: event.roomMode,
-      rooms: event.rooms.map((room) => ({ ...room })),
-      terms: event.terms.map((term) => ({ ...term })),
+      terms: event.terms.map((term) => ({
+        ...term,
+        rooms: term.rooms.map((room) => ({ ...room })),
+      })),
     }
   }
 }
@@ -58,6 +59,9 @@ export class EventCapacityResponseDto {
 export class TermCapacityResponseDto {
   @ApiProperty()
   termId!: string
+
+  @ApiProperty({ enum: ["GENDERED", "SHARED"] })
+  roomMode!: "GENDERED" | "SHARED"
 
   @ApiProperty({ type: GenderCapacityDto })
   capacity!: GenderCapacityDto
@@ -68,6 +72,7 @@ export class TermCapacityResponseDto {
   static fromDomain(term: TermCapacity): TermCapacityResponseDto {
     return {
       termId: term.termId,
+      roomMode: term.roomMode,
       capacity: { ...term.capacity },
       freePlaces: { ...term.freePlaces },
     }

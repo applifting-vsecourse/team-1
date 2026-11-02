@@ -1,5 +1,5 @@
 import { computeRoomCapacity } from "@/modules/applications/domain/capacity"
-import { EventRooms, RoomInput, RoomMode } from "@/modules/events/domain/rooms"
+import { RoomGenderAssignment, RoomInput, RoomMode, TermRooms } from "@/modules/events/domain/rooms"
 import { RoomsRepository } from "@/modules/events/repositories/rooms.repository"
 import { Identity } from "@/shared/auth/domain/identity"
 import { OrganizationAccessService } from "@/shared/organization-access/organization-access.service"
@@ -12,24 +12,37 @@ export class RoomsService {
     private readonly access: OrganizationAccessService,
   ) {}
 
-  async list(user: Identity, eventId: string): Promise<EventRooms> {
+  private async scope(user: Identity, eventId: string, termId: string) {
     const { organizationId } = await this.access.assertCanAccessEvent(user, eventId)
-    const event = await this.repository.find(eventId, organizationId)
-    return { ...event, capacity: computeRoomCapacity(event.rooms) }
+    return { eventId, termId, organizationId }
   }
 
-  async setMode(user: Identity, eventId: string, mode: RoomMode): Promise<void> {
-    const { organizationId } = await this.access.assertCanAccessEvent(user, eventId)
-    await this.repository.setMode(eventId, organizationId, mode)
+  async list(user: Identity, eventId: string, termId: string): Promise<TermRooms> {
+    const term = await this.repository.find(await this.scope(user, eventId, termId))
+    return { ...term, capacity: computeRoomCapacity(term.rooms) }
   }
 
-  async save(user: Identity, eventId: string, input: RoomInput, id?: string): Promise<void> {
-    const { organizationId } = await this.access.assertCanAccessEvent(user, eventId)
-    await this.repository.save(eventId, organizationId, input, id)
+  async setMode(
+    user: Identity,
+    eventId: string,
+    termId: string,
+    mode: RoomMode,
+    assignments: RoomGenderAssignment[],
+  ): Promise<void> {
+    await this.repository.setMode(await this.scope(user, eventId, termId), mode, assignments)
   }
 
-  async remove(user: Identity, eventId: string, id: string): Promise<void> {
-    const { organizationId } = await this.access.assertCanAccessEvent(user, eventId)
-    await this.repository.remove(eventId, organizationId, id)
+  async save(
+    user: Identity,
+    eventId: string,
+    termId: string,
+    input: RoomInput,
+    id?: string,
+  ): Promise<void> {
+    await this.repository.save(await this.scope(user, eventId, termId), input, id)
+  }
+
+  async remove(user: Identity, eventId: string, termId: string, id: string): Promise<void> {
+    await this.repository.remove(await this.scope(user, eventId, termId), id)
   }
 }

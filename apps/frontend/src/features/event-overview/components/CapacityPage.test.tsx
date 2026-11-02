@@ -22,11 +22,11 @@ const base = { id: "t1", name: "Letní turnus 1", startsOn: "2027-07-12", endsOn
 
 const gendered = {
   eventId: "e1",
-  roomMode: "GENDERED",
-  roomCount: 2,
   terms: [
     {
       ...base,
+      roomMode: "GENDERED",
+      roomCount: 2,
       ...figures({ capacity: 10, confirmed: 7, free: 3, waitlisted: 2 }),
       byGender: {
         FEMALE: figures({ capacity: 5, confirmed: 2, free: 3, waitlisted: 0 }),
@@ -37,11 +37,11 @@ const gendered = {
 }
 const shared = {
   eventId: "e1",
-  roomMode: "SHARED",
-  roomCount: 2,
   terms: [
     {
       ...base,
+      roomMode: "SHARED",
+      roomCount: 2,
       ...figures({ capacity: 100, confirmed: 78, free: 22, waitlisted: 3 }),
       byGender: null,
     },
@@ -156,7 +156,10 @@ describe("CapacityPage", () => {
   })
 
   it("explains an unfinished event without rooms instead of showing empty bars", async () => {
-    renderPage({ ...gendered, roomCount: 0 })
+    renderPage({
+      ...gendered,
+      terms: gendered.terms.map((term) => ({ ...term, roomCount: 0 })),
+    })
     expect(await screen.findByText("The event is not finished yet")).toBeTruthy()
     expect(screen.getByText(/no rooms/)).toBeTruthy()
     expect(screen.getByRole("link", { name: "Add room" })).toBeTruthy()

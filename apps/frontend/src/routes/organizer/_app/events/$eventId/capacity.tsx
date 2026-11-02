@@ -14,13 +14,13 @@ export const Route = createFileRoute("/organizer/_app/events/$eventId/capacity")
 function EventCapacityPage() {
   const { eventId } = Route.useParams()
   const { termId } = Route.useSearch()
-  // The room list only feeds the room summary of a term's detail.
+  // The rooms of the selected term only feed the room summary of its detail.
   const { data } = useQuery(capacityQueryOptions(eventId))
   return (
     <CapacityPage
       eventId={eventId}
       termId={termId}
-      rooms={data?.rooms}
+      rooms={data?.terms.find((term) => term.termId === termId)?.rooms}
     />
   )
 }

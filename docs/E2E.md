@@ -27,7 +27,7 @@ Jen cesty, bez kterých produkt nefunguje a které ukazujeme na demu. Jedna cest
 | Nový účastník: magic link → nastavení hesla → přihlášení novým heslem (i na mobilu)     | `set-password.spec.ts`    | ✅   |
 | Přihláška přes odkaz: termíny a cena podle výběru (i na mobilu)                         | `application.spec.ts`     | ✅   |
 | Odeslání přihlášky → stránka potvrzení → po přihlášení vidí přihlášku se stavem         | `application.spec.ts`     | ✅   |
-| Organizátor založí akci s termínem a cenou, přidá pokoj a zkopíruje odkaz na přihlášku  | `event-setup.spec.ts`     | ✅   |
+| Organizátor založí akci s termínem a cenou, přidá pokoj termínu a zkopíruje odkaz       | `event-setup.spec.ts`     | ✅   |
 | Organizátor otevře akci → Kapacity → obsazenost termínu a odkaz na filtrované přihlášky | `capacity.spec.ts`        | ✅   |
 | Organizátor vidí přihlášku v seznamu a zapíše platbu                                    | `payments.spec.ts`        | ✅   |
 | Organizátor ručně zruší přihlášku v termínu a změna se zapíše do záznamu                | `term-status.spec.ts`     | ✅   |

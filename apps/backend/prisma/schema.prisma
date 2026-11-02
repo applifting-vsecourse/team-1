@@ -182,7 +182,6 @@ model Event {
   organization   Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   organizationId String
   name           String
-  roomMode       RoomMode       @default(GENDERED)
   // How applications in a term are evaluated (US-101); fixed once applications open.
   evaluationMode EvaluationMode @default(AUTOMATIC)
   description    String?        @db.Text
@@ -193,7 +192,6 @@ model Event {
   updatedAt      DateTime       @default(now()) @updatedAt
 
   terms        Term[]
-  rooms        Room[]
   applications Application[]
 
   @@index([organizationId])
@@ -210,6 +208,8 @@ model Term {
   startsOn       DateTime     @db.Date
   endsOn         DateTime     @db.Date
   priceCzk       Int
+  // Rooms are divided by gender or shared; each term has its own mode (US-99, D-062).
+  roomMode       RoomMode     @default(GENDERED)
   // Cancelled terms stay for the history of applications but are no longer offered (US-13).
   cancelledAt    DateTime?
   cancelReason   String?      @db.Text
@@ -217,19 +217,20 @@ model Term {
   updatedAt      DateTime     @default(now()) @updatedAt
 
   applicationTerms ApplicationTerm[]
+  rooms            Room[]
 
   @@index([organizationId])
   @@index([eventId])
   @@map("term")
 }
 
-// Rooms belong to the event and apply to all of its terms (US-14).
+// A room belongs to exactly one term (US-99, D-052).
 model Room {
   id             String       @id @default(cuid())
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   organizationId String
-  event          Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  eventId        String
+  term           Term         @relation(fields: [termId], references: [id], onDelete: Cascade)
+  termId         String
   name           String
   // At least one bed; no product upper limit (US-14).
   capacity       Int
@@ -238,7 +239,7 @@ model Room {
   updatedAt      DateTime     @default(now()) @updatedAt
 
   @@index([organizationId])
-  @@index([eventId])
+  @@index([termId])
   @@map("room")
 }
 

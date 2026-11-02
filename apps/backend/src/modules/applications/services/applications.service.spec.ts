@@ -12,7 +12,7 @@ const event: SubmissionEvent = {
   organizationId: "o1",
   name: "Letní kemp",
   bankAccount: "2900123456/2010",
-  roomCount: 1,
+  termsWithoutRooms: 0,
   terms: [{ id: "t1", name: "1. týden", priceCzk: 4500 }],
 }
 const participant = {
@@ -131,7 +131,7 @@ describe("ApplicationsService.submit", () => {
   })
 
   it("answers an unknown or not yet open link with 404", async () => {
-    repository.findEventForSubmission.mockResolvedValue({ ...event, roomCount: 0 })
+    repository.findEventForSubmission.mockResolvedValue({ ...event, termsWithoutRooms: 1 })
     await expect(
       service.submit("link", { email: "a@example.com", participants: [participant] }, "en"),
     ).rejects.toMatchObject({ status: 404 })

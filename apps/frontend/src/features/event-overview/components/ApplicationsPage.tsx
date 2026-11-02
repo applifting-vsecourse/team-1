@@ -62,7 +62,8 @@ export function ApplicationsPage({
   // Without a term or a room the event takes no applications yet; say what is missing instead.
   const isUnfinished =
     occupancy.data !== undefined &&
-    (occupancy.data.terms.length === 0 || occupancy.data.roomCount === 0)
+    (occupancy.data.terms.length === 0 ||
+      occupancy.data.terms.every((term) => term.roomCount === 0))
   if (isUnfinished && !hasFilters && query.data?.length === 0) {
     return (
       <>
@@ -70,7 +71,7 @@ export function ApplicationsPage({
         <UnfinishedEvent
           eventId={eventId}
           hasTerms={occupancy.data.terms.length > 0}
-          hasRooms={occupancy.data.roomCount > 0}
+          hasRooms={occupancy.data.terms.some((term) => term.roomCount > 0)}
         />
       </>
     )

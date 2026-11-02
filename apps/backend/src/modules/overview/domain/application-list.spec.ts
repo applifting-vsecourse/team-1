@@ -15,6 +15,7 @@ const row: ListedApplication = {
       name: "First",
       startsOn: new Date(),
       endsOn: new Date(),
+      roomMode: "GENDERED" as const,
       status: "CONFIRMED",
       priceCzk: 1000,
     },
@@ -23,6 +24,7 @@ const row: ListedApplication = {
       name: "Second",
       startsOn: new Date(),
       endsOn: new Date(),
+      roomMode: "GENDERED" as const,
       status: "WAITLISTED",
       priceCzk: 2000,
     },
@@ -112,7 +114,11 @@ describe("waitlist in the application list (US-30)", () => {
     expect(afterSearch).toEqual([])
   })
   it("counts both genders in one queue in shared rooms", () => {
-    const entries = applicationList(queue, filters, "SHARED")
+    const sharedQueue = queue.map((entry) => ({
+      ...entry,
+      terms: [{ ...entry.terms[0], roomMode: "SHARED" as const }],
+    }))
+    const entries = applicationList(sharedQueue, filters)
     expect(entries.map((entry) => entry.id)).toEqual(["early-woman", "man", "late-woman"])
     expect(entries.map((entry) => entry.terms[0].waitlistPosition)).toEqual([1, 2, 3])
   })

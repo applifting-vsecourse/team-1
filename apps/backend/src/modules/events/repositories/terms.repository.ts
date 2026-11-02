@@ -6,13 +6,14 @@ import { Injectable } from "@nestjs/common"
 
 const include = {
   applicationTerms: { select: { status: true } },
+  rooms: { select: { capacity: true, gender: true } },
 } as const
 
 type TermRow = Prisma.TermGetPayload<{ include: typeof include }>
 
 const isoDate = (date: Date): string => date.toISOString().slice(0, 10)
 
-function toTerm(row: TermRow, capacity: number): EventTerm {
+function toTerm(row: TermRow): EventTerm {
   return {
     id: row.id,
     eventId: row.eventId,
@@ -20,7 +21,9 @@ function toTerm(row: TermRow, capacity: number): EventTerm {
     startsOn: isoDate(row.startsOn),
     endsOn: isoDate(row.endsOn),
     priceCzk: row.priceCzk,
-    capacity,
+    roomMode: row.roomMode,
+    roomCount: row.rooms.length,
+    capacity: computeTotalBeds(row.rooms),
     confirmedCount: row.applicationTerms.filter(({ status }) => status === "CONFIRMED").length,
     waitlistedCount: row.applicationTerms.filter(({ status }) => status === "WAITLISTED").length,
     cancelledAt: row.cancelledAt,
@@ -33,16 +36,13 @@ export class TermsRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async findByEvent(eventId: string): Promise<EventTerm[]> {
-    const [rows, capacity] = await Promise.all([
-      this.prisma.term.findMany({ where: { eventId }, include }),
-      this.bedCount(eventId),
-    ])
-    return rows.map((row) => toTerm(row, capacity))
+    const rows = await this.prisma.term.findMany({ where: { eventId }, include })
+    return rows.map(toTerm)
   }
 
   async findById(termId: string): Promise<EventTerm | null> {
     const row = await this.prisma.term.findUnique({ where: { id: termId }, include })
-    return row ? toTerm(row, await this.bedCount(row.eventId)) : null
+    return row ? toTerm(row) : null
   }
 
   async create(organizationId: string, eventId: string, input: TermInput): Promise<EventTerm> {
@@ -50,7 +50,7 @@ export class TermsRepository {
       data: { organizationId, eventId, ...this.toData(input) },
       include,
     })
-    return toTerm(row, await this.bedCount(eventId))
+    return toTerm(row)
   }
 
   async update(termId: string, input: TermInput): Promise<EventTerm> {
@@ -59,7 +59,7 @@ export class TermsRepository {
       data: this.toData(input),
       include,
     })
-    return toTerm(row, await this.bedCount(row.eventId))
+    return toTerm(row)
   }
 
   async cancel(termId: string, reason: string): Promise<EventTerm> {
@@ -68,7 +68,7 @@ export class TermsRepository {
       data: { cancelledAt: new Date(), cancelReason: reason },
       include,
     })
-    return toTerm(row, await this.bedCount(row.eventId))
+    return toTerm(row)
   }
 
   private toData(input: TermInput) {
@@ -78,14 +78,5 @@ export class TermsRepository {
       endsOn: new Date(input.endsOn),
       priceCzk: input.priceCzk,
     }
-  }
-
-  /** Beds of the event's rooms, women's + men's, from the one capacity calculation (US-26). */
-  private async bedCount(eventId: string): Promise<number> {
-    const rooms = await this.prisma.room.findMany({
-      where: { eventId },
-      select: { capacity: true, gender: true },
-    })
-    return computeTotalBeds(rooms)
   }
 }

@@ -24,7 +24,6 @@ const base = {
   publicToken: "tok123",
   createdAt: "2027-01-01T10:00:00.000Z",
   termCount: 0,
-  roomCount: 0,
   startsOn: null,
   endsOn: null,
   applicationsOpen: false,
@@ -76,7 +75,9 @@ describe("EventSetup", () => {
     expect(
       screen.getByRole("heading", { name: "Add at least one term with a price" }),
     ).toBeInTheDocument()
-    expect(screen.getByRole("heading", { name: "Add at least one room" })).toBeInTheDocument()
+    expect(
+      screen.getByRole("heading", { name: "Add at least one room to every term" }),
+    ).toBeInTheDocument()
     expect(screen.queryByRole("button", { name: /Copy/ })).not.toBeInTheDocument()
   })
 
@@ -100,7 +101,7 @@ describe("EventSetup", () => {
     const writeText = vi.fn().mockResolvedValue(undefined)
     Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true })
     const success = vi.spyOn(notify, "success")
-    renderSetup({ ...base, termCount: 2, roomCount: 3, applicationsOpen: true, missing: [] })
+    renderSetup({ ...base, termCount: 2, applicationsOpen: true, missing: [] })
 
     const icon = await screen.findByRole("button", { name: "Copy link" })
     const link = screen.getByRole("link", { name: `${window.location.origin}/apply/tok123` })

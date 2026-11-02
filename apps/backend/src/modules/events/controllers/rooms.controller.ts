@@ -24,7 +24,7 @@ import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 
 @ApiTags("rooms")
 @Auth("ORGANIZER")
-@Controller("organizer/events/:eventId")
+@Controller("organizer/events/:eventId/terms/:termId")
 @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }))
 @ApiResponse({ status: 401, description: "Session required" })
 @ApiResponse({ status: 403, description: "Wrong account type, foreign or missing record" })
@@ -32,53 +32,62 @@ export class RoomsController {
   constructor(private readonly rooms: RoomsService) {}
 
   @Get("rooms")
-  @ApiOperation({ summary: "Rooms and capacity shared by all event terms" })
+  @ApiOperation({ summary: "Rooms, room mode and capacity of one term" })
   @ApiResponse({ status: 200, type: RoomsResponseDto })
-  async list(@User() user: Identity, @Param("eventId") eventId: string): Promise<RoomsResponseDto> {
-    return RoomsResponseDto.fromDomain(await this.rooms.list(user, eventId))
+  async list(
+    @User() user: Identity,
+    @Param("eventId") eventId: string,
+    @Param("termId") termId: string,
+  ): Promise<RoomsResponseDto> {
+    return RoomsResponseDto.fromDomain(await this.rooms.list(user, eventId, termId))
   }
 
   @Patch("room-mode")
   @HttpCode(204)
-  @ApiOperation({ summary: "Choose shared or gendered rooms for the event" })
+  @ApiOperation({ summary: "Choose shared or gendered rooms for the term" })
   @ApiResponse({ status: 204 })
-  @ApiResponse({ status: 400, description: "Invalid room mode" })
-  @ApiResponse({ status: 409, description: "Remove shared rooms before choosing gendered rooms" })
+  @ApiResponse({
+    status: 400,
+    description: "Invalid room mode, or a room without a gender for gendered rooms",
+  })
   async mode(
     @User() user: Identity,
     @Param("eventId") eventId: string,
+    @Param("termId") termId: string,
     @Body() body: RoomModeRequestDto,
   ): Promise<void> {
-    await this.rooms.setMode(user, eventId, body.roomMode)
+    await this.rooms.setMode(user, eventId, termId, body.roomMode, body.rooms ?? [])
   }
 
   @Post("rooms")
   @HttpCode(204)
-  @ApiOperation({ summary: "Add a room to every term" })
+  @ApiOperation({ summary: "Add a room to the term" })
   @ApiResponse({ status: 204 })
   @ApiResponse({ status: 400, description: "Invalid name, capacity or gender for room mode" })
-  @ApiResponse({ status: 409, description: "Room name already used in this event" })
+  @ApiResponse({ status: 409, description: "Room name already used in this term" })
   async create(
     @User() user: Identity,
     @Param("eventId") eventId: string,
+    @Param("termId") termId: string,
     @Body() body: RoomRequestDto,
   ): Promise<void> {
-    await this.rooms.save(user, eventId, { ...body, gender: body.gender ?? null })
+    await this.rooms.save(user, eventId, termId, { ...body, gender: body.gender ?? null })
   }
 
   @Put("rooms/:id")
   @HttpCode(204)
-  @ApiOperation({ summary: "Edit a room for every term" })
+  @ApiOperation({ summary: "Edit a room of the term" })
   @ApiResponse({ status: 204 })
   @ApiResponse({ status: 400, description: "Invalid name, capacity or gender for room mode" })
-  @ApiResponse({ status: 409, description: "Room name already used in this event" })
+  @ApiResponse({ status: 409, description: "Room name already used in this term" })
   async update(
     @User() user: Identity,
     @Param("eventId") eventId: string,
+    @Param("termId") termId: string,
     @Param("id") id: string,
     @Body() body: RoomRequestDto,
   ): Promise<void> {
-    await this.rooms.save(user, eventId, { ...body, gender: body.gender ?? null }, id)
+    await this.rooms.save(user, eventId, termId, { ...body, gender: body.gender ?? null }, id)
   }
 
   @Delete("rooms/:id")
@@ -88,8 +97,9 @@ export class RoomsController {
   async remove(
     @User() user: Identity,
     @Param("eventId") eventId: string,
+    @Param("termId") termId: string,
     @Param("id") id: string,
   ): Promise<void> {
-    await this.rooms.remove(user, eventId, id)
+    await this.rooms.remove(user, eventId, termId, id)
   }
 }

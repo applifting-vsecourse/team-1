@@ -5,11 +5,18 @@ import { api, connectTestPrisma, resetAndSeed, signIn } from "@/test/integration
 describe("read-only term capacity (integration)", () => {
   let prisma: PrismaService
   let eventId: string
+  let termIds: string[]
   let cookie: string
   const read = (session = cookie, id = eventId): Promise<Response> =>
     fetch(api(`/organizer/events/${id}/capacity`), { headers: { Cookie: session } })
-  const roomsRequest = (path: string, method: string, body?: unknown): Promise<Response> =>
-    fetch(api(`/organizer/events/${eventId}/${path}`), {
+  // Rooms of the first term unless another one is given.
+  const roomsRequest = (
+    path: string,
+    method: string,
+    body?: unknown,
+    termId = termIds[0],
+  ): Promise<Response> =>
+    fetch(api(`/organizer/events/${eventId}/terms/${termId}/${path}`), {
       method,
       headers: { Cookie: cookie, "Content-Type": "application/json" },
       ...(body ? { body: JSON.stringify(body) } : {}),
@@ -23,16 +30,21 @@ describe("read-only term capacity (integration)", () => {
       where: { publicToken: "demo-letni-kemp-2027" },
     })
     eventId = event.id
-    await prisma.room.deleteMany({ where: { eventId } })
+    termIds = (
+      await prisma.term.findMany({ where: { eventId }, orderBy: { startsOn: "asc" } })
+    ).map((term) => term.id)
+    await prisma.room.deleteMany({ where: { term: { eventId } } })
     await prisma.room.createMany({
-      data: (["FEMALE", "MALE"] as const).flatMap((gender) =>
-        Array.from({ length: 10 }, (_, index) => ({
-          eventId,
-          organizationId: event.organizationId,
-          name: `${gender}-${index}`,
-          gender,
-          capacity: 5,
-        })),
+      data: termIds.flatMap((termId) =>
+        (["FEMALE", "MALE"] as const).flatMap((gender) =>
+          Array.from({ length: 10 }, (_, index) => ({
+            termId,
+            organizationId: event.organizationId,
+            name: `${gender}-${index}`,
+            gender,
+            capacity: 5,
+          })),
+        ),
       ),
     })
     cookie = await signIn("organizator@example.com", "password1")
@@ -95,13 +107,15 @@ describe("read-only term capacity (integration)", () => {
     })
     expect(((await emptyDetails.json()) as EventCapacityDetails).terms).toEqual([])
   })
-  it("reflects changes through US-14 rooms API without changing confirmations", async () => {
+  it("reflects a room change in its own term only, without changing confirmations", async () => {
     const original = (await (await read()).json()) as TermCapacity[]
     const statuses = await prisma.applicationTerm.findMany({
       where: { term: { eventId } },
       orderBy: { id: "asc" },
     })
-    const room = await prisma.room.findFirstOrThrow({ where: { eventId, gender: "FEMALE" } })
+    const room = await prisma.room.findFirstOrThrow({
+      where: { termId: termIds[0], gender: "FEMALE" },
+    })
     expect(
       (
         await roomsRequest(`rooms/${room.id}`, "PUT", {
@@ -112,20 +126,17 @@ describe("read-only term capacity (integration)", () => {
       ).status,
     ).toBe(204)
     const changed = (await (await read()).json()) as TermCapacity[]
-    for (const [index, term] of changed.entries()) {
-      expect(term.capacity).toEqual({ FEMALE: 5045, MALE: 50 })
-      expect(term.freePlaces.FEMALE).toBe(original[index].freePlaces.FEMALE + 4995)
-    }
+    expect(changed[0].capacity).toEqual({ FEMALE: 5045, MALE: 50 })
+    expect(changed[0].freePlaces.FEMALE).toBe(original[0].freePlaces.FEMALE + 4995)
+    expect(changed[1]).toEqual(original[1])
     expect((await roomsRequest(`rooms/${room.id}`, "DELETE")).status).toBe(204)
     expect(
       (await roomsRequest("rooms", "POST", { name: "Additional", gender: "FEMALE", capacity: 4 }))
         .status,
     ).toBe(204)
     expect(
-      ((await (await read()).json()) as TermCapacity[]).every(
-        (term) => term.capacity.FEMALE === 49,
-      ),
-    ).toBe(true)
+      ((await (await read()).json()) as TermCapacity[]).map((term) => term.capacity.FEMALE),
+    ).toEqual([49, 50])
     expect(
       await prisma.applicationTerm.findMany({
         where: { term: { eventId } },
@@ -143,31 +154,35 @@ describe("read-only term capacity (integration)", () => {
       endsOn: "2027-07-10",
     })
   })
-  it("shows overbooking after room deletion in US-14 without moving participants", async () => {
-    const rooms = await prisma.room.findMany({ where: { eventId, gender: "FEMALE" } })
+  it("shows overbooking after room deletion in a term without moving participants", async () => {
+    const rooms = await prisma.room.findMany({ where: { termId: termIds[0], gender: "FEMALE" } })
     for (const room of rooms)
       expect((await roomsRequest(`rooms/${room.id}`, "DELETE")).status).toBe(204)
     const terms = (await (await read()).json()) as TermCapacity[]
-    expect(terms.every((term) => term.capacity.FEMALE === 0 && term.capacity.MALE === 50)).toBe(
-      true,
-    )
-    expect(terms.some((term) => term.freePlaces.FEMALE < 0)).toBe(true)
+    expect(terms[0].capacity).toEqual({ FEMALE: 0, MALE: 50 })
+    expect(terms[0].freePlaces.FEMALE).toBeLessThan(0)
+    expect(terms[1].capacity).toEqual({ FEMALE: 50, MALE: 50 })
   })
-  it("identifies shared events without replacing their US-14 management", async () => {
+  it("gives each term its own room mode and capacity", async () => {
     expect((await roomsRequest("room-mode", "PATCH", { roomMode: "SHARED" })).status).toBe(204)
     const response = await fetch(api(`/organizer/events/${eventId}/capacity/details`), {
       headers: { Cookie: cookie },
     })
     expect(response.status).toBe(200)
     const details = (await response.json()) as EventCapacityDetails
-    expect(details.roomMode).toBe("SHARED")
-    expect(details.terms).toEqual([])
-    expect(details.rooms.every((room) => room.gender === null)).toBe(true)
-    expect((await read()).status).toBe(409)
-    expect((await roomsRequest("rooms", "GET")).status).toBe(200)
+    expect(details.terms[0].roomMode).toBe("SHARED")
+    expect(details.terms[0].rooms.every((room) => room.gender === null)).toBe(true)
+    expect(details.terms[0].capacity).toEqual({ FEMALE: 100, MALE: 100 })
+    expect(details.terms[1].roomMode).toBe("GENDERED")
+    expect(details.terms[1].capacity).toEqual({ FEMALE: 50, MALE: 50 })
+    const terms = (await (await read()).json()) as TermCapacity[]
+    expect(terms.map((term) => term.roomMode)).toEqual(["SHARED", "GENDERED"])
   })
   it("does not expose a room mutation endpoint in US-26", async () => {
-    const before = await prisma.room.findMany({ where: { eventId }, orderBy: { id: "asc" } })
+    const before = await prisma.room.findMany({
+      where: { term: { eventId } },
+      orderBy: { id: "asc" },
+    })
     const response = await fetch(api(`/organizer/events/${eventId}/capacity/rooms`), {
       method: "PATCH",
       headers: { Cookie: cookie, "Content-Type": "application/json" },
@@ -180,8 +195,8 @@ describe("read-only term capacity (integration)", () => {
       }),
     })
     expect(response.status).toBe(404)
-    expect(await prisma.room.findMany({ where: { eventId }, orderBy: { id: "asc" } })).toEqual(
-      before,
-    )
+    expect(
+      await prisma.room.findMany({ where: { term: { eventId } }, orderBy: { id: "asc" } }),
+    ).toEqual(before)
   })
 })

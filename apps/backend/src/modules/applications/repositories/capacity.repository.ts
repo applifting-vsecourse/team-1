@@ -21,11 +21,6 @@ export class CapacityRepository {
           where: { id: eventId, organizationId },
           select: {
             name: true,
-            roomMode: true,
-            rooms: {
-              orderBy: { id: "asc" },
-              select: { id: true, name: true, capacity: true, gender: true },
-            },
             terms: {
               where: { cancelledAt: null },
               orderBy: [{ startsOn: "asc" }, { id: "asc" }],
@@ -34,6 +29,11 @@ export class CapacityRepository {
                 name: true,
                 startsOn: true,
                 endsOn: true,
+                roomMode: true,
+                rooms: {
+                  orderBy: { id: "asc" },
+                  select: { id: true, name: true, capacity: true, gender: true },
+                },
                 applicationTerms: {
                   where: { status: "CONFIRMED", organizationId },
                   select: { application: { select: { gender: true } } },
@@ -47,13 +47,13 @@ export class CapacityRepository {
     )
     return {
       eventName: event.name,
-      roomMode: event.roomMode,
-      rooms: event.rooms,
       terms: event.terms.map((term) => ({
         id: term.id,
         name: term.name,
         startsOn: term.startsOn,
         endsOn: term.endsOn,
+        roomMode: term.roomMode,
+        rooms: term.rooms,
         confirmed: term.applicationTerms.map(({ application }) => ({ gender: application.gender })),
       })),
     }

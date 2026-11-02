@@ -305,8 +305,9 @@ export type CreateEventParams = {
   location: string
   publicToken: string
   terms: SeedTerm[]
+  /** The same rooms are created in every term of the event (rooms belong to a term, US-99). */
   rooms: SeedRoom[]
-  /** Defaults to GENDERED; SHARED rooms have no gender (US-14). */
+  /** Room mode of every term; defaults to GENDERED, SHARED rooms have no gender. */
   roomMode?: RoomMode
   applicants: SeedApplicant[]
   /** By applicant index. */
@@ -325,7 +326,6 @@ export async function createEvent(prisma: PrismaService, params: CreateEventPara
       description: params.description,
       location: params.location,
       publicToken: params.publicToken,
-      roomMode: params.roomMode,
     },
   })
 
@@ -340,18 +340,17 @@ export async function createEvent(prisma: PrismaService, params: CreateEventPara
           startsOn: date(term.startsOn),
           endsOn: date(term.endsOn),
           priceCzk: term.priceCzk,
+          roomMode: params.roomMode,
         },
       }),
     )
   }
 
-  await prisma.room.createMany({
-    data: params.rooms.map((room) => ({
-      ...room,
-      organizationId,
-      eventId: event.id,
-    })),
-  })
+  for (const term of terms) {
+    await prisma.room.createMany({
+      data: params.rooms.map((room) => ({ ...room, organizationId, termId: term.id })),
+    })
+  }
 
   // Evaluate the sample applications with the real domain rules, in arrival
   // order, so the seeded statuses are exactly what the app would produce.

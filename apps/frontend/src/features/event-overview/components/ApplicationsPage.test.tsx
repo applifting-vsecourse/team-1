@@ -56,7 +56,7 @@ function setup(
   rows: unknown = [application],
   isError = false,
   q?: string,
-  occupancy: { roomCount: number; terms: unknown[] } | null = null,
+  occupancy: { terms: unknown[] } | null = null,
   initial?: ApplicationsSearch,
 ) {
   get.mockImplementation((path: string) => ({
@@ -64,13 +64,13 @@ function setup(
       path.endsWith("occupancy")
         ? Promise.resolve({
             eventId: "e1",
-            roomMode: "GENDERED",
-            roomCount: 1,
             ...occupancy,
             terms: occupancy?.terms ?? [
               {
                 id: "t1",
                 name: "First",
+                roomMode: "GENDERED",
+                roomCount: 1,
                 startsOn: "2027-07-12",
                 endsOn: "2027-07-18",
                 capacity: 10,
@@ -343,15 +343,16 @@ describe("ApplicationsPage", () => {
     )
   })
   it.each([
-    ["no terms", { roomCount: 1, terms: [] }],
+    ["no terms", { terms: [] }],
     [
       "no rooms",
       {
-        roomCount: 0,
         terms: [
           {
             id: "t1",
             name: "First",
+            roomMode: "GENDERED",
+            roomCount: 0,
             startsOn: "2027-07-12",
             endsOn: "2027-07-18",
             capacity: 0,

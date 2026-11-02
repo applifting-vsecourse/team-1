@@ -44,6 +44,8 @@ export type ListedApplication = {
     name: string
     startsOn: Date
     endsOn: Date
+    /** Room mode of the term decides its waitlist queues (US-99, D-063). */
+    roomMode: RoomMode
     status: ApplicationTermStatus
     priceCzk: number
   }[]
@@ -64,7 +66,6 @@ export type ApplicationListEntry = Omit<ListedApplication, "payments" | "number"
 export function applicationList(
   rows: ListedApplication[],
   filters: ApplicationFilters,
-  roomMode: RoomMode = "GENDERED",
 ): ApplicationListEntry[] {
   // The place in the waitlist is counted before filtering, so a filter never renumbers the queue.
   const positions = waitlistPositions(
@@ -72,13 +73,13 @@ export function applicationList(
       row.terms.map((term) => ({
         applicationId: row.id,
         termId: term.id,
+        roomMode: term.roomMode,
         gender: row.gender,
         status: term.status,
         submittedAt: row.submittedAt,
         number: row.number,
       })),
     ),
-    roomMode,
   )
   const positionOf = (row: ListedApplication, termId: string): number | null =>
     positions.get(waitlistKey(row.id, termId)) ?? null
@@ -126,11 +127,10 @@ export function applicationList(
     .filter((row) => filters.payment === undefined || row.paymentStatus === filters.payment)
   if (!isWaitlistView) return entries
   // One term's waitlist: each bed group in the order of receipt (US-30).
-  const place = (entry: ApplicationListEntry): number =>
-    entry.terms.find((term) => term.id === filters.termId)?.waitlistPosition ?? 0
-  return entries.sort(
-    (a, b) =>
-      bedGroup(roomMode, a.gender).localeCompare(bedGroup(roomMode, b.gender)) ||
-      place(a) - place(b),
-  )
+  const termOf = (entry: ApplicationListEntry) =>
+    entry.terms.find((term) => term.id === filters.termId)
+  const place = (entry: ApplicationListEntry): number => termOf(entry)?.waitlistPosition ?? 0
+  const group = (entry: ApplicationListEntry): string =>
+    bedGroup(termOf(entry)?.roomMode ?? "GENDERED", entry.gender)
+  return entries.sort((a, b) => group(a).localeCompare(group(b)) || place(a) - place(b))
 }

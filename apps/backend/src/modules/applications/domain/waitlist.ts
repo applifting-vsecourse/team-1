@@ -16,6 +16,8 @@ export function bedGroup(roomMode: RoomMode, gender: Gender): BedGroup {
 export type WaitlistCandidate = {
   applicationId: string
   termId: string
+  /** Room mode of the candidate's term: a shared term has one queue (D-063). */
+  roomMode: RoomMode
   gender: Gender
   status: ApplicationTermStatus
   submittedAt: Date
@@ -32,17 +34,14 @@ export const waitlistKey = (applicationId: string, termId: string): string =>
  * applications were received. Confirmed and cancelled applications are not in the queue, so
  * confirming or cancelling someone moves the rest up; nothing else does.
  */
-export function waitlistPositions(
-  candidates: WaitlistCandidate[],
-  roomMode: RoomMode,
-): Map<string, number> {
+export function waitlistPositions(candidates: WaitlistCandidate[]): Map<string, number> {
   const counters = new Map<string, number>()
   const positions = new Map<string, number>()
   const queue = candidates
     .filter((candidate) => candidate.status === "WAITLISTED")
     .sort((a, b) => a.submittedAt.getTime() - b.submittedAt.getTime() || a.number - b.number)
   for (const candidate of queue) {
-    const group = `${candidate.termId}:${bedGroup(roomMode, candidate.gender)}`
+    const group = `${candidate.termId}:${bedGroup(candidate.roomMode, candidate.gender)}`
     const position = (counters.get(group) ?? 0) + 1
     counters.set(group, position)
     positions.set(waitlistKey(candidate.applicationId, candidate.termId), position)

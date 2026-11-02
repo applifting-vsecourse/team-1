@@ -73,11 +73,11 @@ export function changeEmailKind(
   return actor === "SYSTEM" && from === "WAITLISTED" ? "NO_BED_FREED" : "REJECTED"
 }
 
-/** What a status change needs to know, read under the event lock. */
+/** What a status change needs to know, read under the lock. */
 export type StatusChangeSnapshot = {
   status: ApplicationTermStatus
   gender: Gender
-  /** Rooms of the event. */
+  /** Rooms of the term the status changes in. */
   rooms: RoomCapacity[]
   /** Genders of everyone confirmed in the term now. */
   confirmedGenders: Gender[]

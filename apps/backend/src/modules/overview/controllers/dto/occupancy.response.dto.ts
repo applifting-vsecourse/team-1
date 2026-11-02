@@ -23,6 +23,8 @@ class TermOccupancyDto extends OccupancyFiguresDto {
   @ApiProperty() name!: string
   @ApiProperty({ example: "2027-07-12" }) startsOn!: string
   @ApiProperty({ example: "2027-07-18" }) endsOn!: string
+  @ApiProperty({ enum: ["GENDERED", "SHARED"] }) roomMode!: "GENDERED" | "SHARED"
+  @ApiProperty() roomCount!: number
   @ApiProperty({
     type: GenderOccupancyDto,
     nullable: true,
@@ -37,8 +39,6 @@ class TermOccupancyDto extends OccupancyFiguresDto {
 
 export class OccupancyResponseDto {
   @ApiProperty() eventId!: string
-  @ApiProperty({ enum: ["GENDERED", "SHARED"] }) roomMode!: "GENDERED" | "SHARED"
-  @ApiProperty() roomCount!: number
   @ApiProperty({ type: [TermOccupancyDto], description: "Active terms sorted by date." })
   terms!: TermOccupancyDto[]
 

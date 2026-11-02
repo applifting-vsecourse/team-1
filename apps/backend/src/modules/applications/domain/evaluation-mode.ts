@@ -13,7 +13,7 @@ export const DEFAULT_EVALUATION_MODE: EvaluationMode = "AUTOMATIC"
  */
 export function isEvaluationModeLocked(counts: {
   termCount: number
-  roomCount: number
+  termsWithoutRooms: number
   applicationCount: number
 }): boolean {
   return isOpenForApplications(counts) || counts.applicationCount > 0

@@ -14,11 +14,11 @@ export class OccupancyRepository {
     const event = await this.prisma.event.findFirst({
       where: { id: eventId, organizationId },
       include: {
-        rooms: { select: { capacity: true, gender: true } },
         terms: {
           where: { cancelledAt: null },
           orderBy: [{ startsOn: "asc" }, { endsOn: "asc" }, { name: "asc" }],
           include: {
+            rooms: { select: { capacity: true, gender: true } },
             applicationTerms: {
               select: { status: true, application: { select: { gender: true } } },
             },
@@ -29,13 +29,13 @@ export class OccupancyRepository {
     if (!event) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
     return {
       eventId: event.id,
-      roomMode: event.roomMode,
-      rooms: event.rooms,
       terms: event.terms.map((term) => ({
         id: term.id,
         name: term.name,
         startsOn: isoDate(term.startsOn),
         endsOn: isoDate(term.endsOn),
+        roomMode: term.roomMode,
+        rooms: term.rooms,
         confirmed: term.applicationTerms
           .filter(({ status }) => status === "CONFIRMED")
           .map(({ application }) => application.gender),

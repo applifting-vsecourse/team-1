@@ -76,11 +76,11 @@ export function CapacityPage({
         />
       ) : !occupancy ? (
         <LoadingState />
-      ) : occupancy.terms.length === 0 || occupancy.roomCount === 0 ? (
+      ) : occupancy.terms.length === 0 || occupancy.terms.every((term) => term.roomCount === 0) ? (
         <UnfinishedEvent
           eventId={eventId}
           hasTerms={occupancy.terms.length > 0}
-          hasRooms={occupancy.roomCount > 0}
+          hasRooms={occupancy.terms.some((term) => term.roomCount > 0)}
         />
       ) : selected ? (
         <TermDetail
@@ -92,17 +92,18 @@ export function CapacityPage({
         <TermList
           eventId={eventId}
           terms={occupancy.terms}
-          isGendered={occupancy.roomMode === "GENDERED"}
         />
       )}
-      {occupancy && occupancy.terms.length > 0 && occupancy.roomCount > 0 ? (
+      {occupancy &&
+      occupancy.terms.length > 0 &&
+      occupancy.terms.some((term) => term.roomCount > 0) ? (
         <p className="text-sm text-muted-foreground">{t("capacity.footnote")}</p>
       ) : null}
     </div>
   )
 }
 
-function ManageRoomsButton({ eventId }: { eventId: string }) {
+function ManageRoomsButton({ eventId, termId }: { eventId: string; termId?: string }) {
   const { t } = useTranslation("eventOverview")
 
   return (
@@ -114,6 +115,7 @@ function ManageRoomsButton({ eventId }: { eventId: string }) {
       <Link
         to={ROUTES.organizer.eventRooms}
         params={{ eventId }}
+        search={{ termId }}
       >
         {t("capacity.manageRooms")}
       </Link>
@@ -151,16 +153,10 @@ function Filled({
   )
 }
 
-function TermList({
-  eventId,
-  terms,
-  isGendered,
-}: {
-  eventId: string
-  terms: TermOccupancy[]
-  isGendered: boolean
-}) {
+function TermList({ eventId, terms }: { eventId: string; terms: TermOccupancy[] }) {
   const { t } = useTranslation("eventOverview")
+  // The room mode belongs to the term; the women / men columns are there when any term is gendered.
+  const isGendered = terms.some((term) => term.byGender !== null)
   const columns = isGendered
     ? "lg:grid-cols-[minmax(0,1fr)_15rem_15rem_7.5rem_3.5rem]"
     : "lg:grid-cols-[minmax(0,1fr)_15rem_7.5rem_7.5rem_3.5rem]"
@@ -212,7 +208,7 @@ function TermList({
                 )}
               >
                 <TermLabel term={term} />
-                {isGendered && term.byGender ? (
+                {term.byGender ? (
                   GENDERS.map((gender) => (
                     <Cell
                       key={gender}
@@ -225,6 +221,17 @@ function TermList({
                       />
                     </Cell>
                   ))
+                ) : isGendered ? (
+                  <Cell
+                    label={t("capacity.confirmedColumn")}
+                    className="lg:col-span-2"
+                  >
+                    <Filled
+                      label={t("capacity.confirmedColumn")}
+                      confirmed={term.confirmed}
+                      capacity={term.capacity}
+                    />
+                  </Cell>
                 ) : (
                   <>
                     <Cell label={t("capacity.confirmedColumn")}>
@@ -313,7 +320,10 @@ function TermDetail({
           {t("capacity.backToTerms")}
         </BackLink>
         <div className="ml-auto">
-          <ManageRoomsButton eventId={eventId} />
+          <ManageRoomsButton
+            eventId={eventId}
+            termId={term.id}
+          />
         </div>
       </div>
       <div className="flex flex-col gap-1">

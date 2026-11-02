@@ -20,7 +20,6 @@ describe("event occupancy (integration)", () => {
         organizationId,
         name: `Occupancy ${roomMode}`,
         publicToken: `occupancy-${roomMode}`,
-        roomMode,
       },
     })
     const term = (
@@ -37,6 +36,7 @@ describe("event occupancy (integration)", () => {
           endsOn: new Date(Date.UTC(2027, 6, day + 6)),
           priceCzk: 1000,
           cancelledAt,
+          roomMode,
         },
       })
     return { event, term }
@@ -80,16 +80,18 @@ describe("event occupancy (integration)", () => {
 
   it("splits women and men in gendered rooms and ignores cancelled terms", async () => {
     const { event, term } = await createEvent("GENDERED")
-    await prisma.room.createMany({
-      data: [
-        { organizationId, eventId: event.id, name: "W1", capacity: 3, gender: "FEMALE" },
-        { organizationId, eventId: event.id, name: "W2", capacity: 2, gender: "FEMALE" },
-        { organizationId, eventId: event.id, name: "M1", capacity: 2, gender: "MALE" },
-      ],
-    })
     const second = await term("Second", 19)
     const first = await term("First", 12)
     await term("Cancelled", 26, new Date())
+    for (const { id: termId } of [first, second]) {
+      await prisma.room.createMany({
+        data: [
+          { organizationId, termId, name: "W1", capacity: 3, gender: "FEMALE" },
+          { organizationId, termId, name: "W2", capacity: 2, gender: "FEMALE" },
+          { organizationId, termId, name: "M1", capacity: 2, gender: "MALE" },
+        ],
+      })
+    }
     await apply(event.id, first.id, "FEMALE", "CONFIRMED")
     await apply(event.id, first.id, "MALE", "CONFIRMED")
     await apply(event.id, first.id, "MALE", "CONFIRMED")
@@ -99,10 +101,10 @@ describe("event occupancy (integration)", () => {
     const response = await get(event.id)
     expect(response.status).toBe(200)
     const body = await response.json()
-    expect(body.roomMode).toBe("GENDERED")
-    expect(body.roomCount).toBe(3)
     expect(body.terms.map((item: { name: string }) => item.name)).toEqual(["First", "Second"])
     expect(body.terms[0]).toMatchObject({
+      roomMode: "GENDERED",
+      roomCount: 3,
       startsOn: "2027-07-12",
       endsOn: "2027-07-18",
       capacity: 7,
@@ -124,20 +126,20 @@ describe("event occupancy (integration)", () => {
 
   it("gives one summary per term in shared rooms", async () => {
     const { event, term } = await createEvent("SHARED")
+    const only = await term("Only", 12)
     await prisma.room.createMany({
       data: [
-        { organizationId, eventId: event.id, name: "S1", capacity: 4 },
-        { organizationId, eventId: event.id, name: "S2", capacity: 4 },
+        { organizationId, termId: only.id, name: "S1", capacity: 4 },
+        { organizationId, termId: only.id, name: "S2", capacity: 4 },
       ],
     })
-    const only = await term("Only", 12)
     await apply(event.id, only.id, "FEMALE", "CONFIRMED")
     await apply(event.id, only.id, "MALE", "CONFIRMED")
     await apply(event.id, only.id, "MALE", "WAITLISTED")
 
     const body = await (await get(event.id)).json()
-    expect(body.roomMode).toBe("SHARED")
     expect(body.terms[0]).toMatchObject({
+      roomMode: "SHARED",
       capacity: 8,
       confirmed: 2,
       free: 6,

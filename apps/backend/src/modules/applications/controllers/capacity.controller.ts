@@ -18,12 +18,11 @@ export class CapacityController {
 
   @Get("details")
   @ApiOperation({
-    summary: "Gendered capacity overview; shared events return metadata without calculated terms",
+    summary: "Capacity overview of every term, from the term's own rooms and room mode",
   })
   @ApiResponse({ status: 200, type: EventCapacityResponseDto })
   @ApiResponse({ status: 401, description: "Authentication required" })
   @ApiResponse({ status: 403, description: "No access to the event" })
-  @ApiResponse({ status: 409, description: "A gendered event contains a room without gender" })
   async details(
     @User() user: Identity,
     @Param("eventId") eventId: string,
@@ -32,12 +31,10 @@ export class CapacityController {
   }
 
   @Get()
-  @ApiOperation({ summary: "Current capacity and free beds per gender for every event term" })
-  @ApiResponse({ status: 200, type: [TermCapacityResponseDto] })
-  @ApiResponse({
-    status: 409,
-    description: "Capacity by gender is not supported for this room configuration",
+  @ApiOperation({
+    summary: "Current capacity and free beds of every event term, each from its own rooms",
   })
+  @ApiResponse({ status: 200, type: [TermCapacityResponseDto] })
   @ApiResponse({ status: 401, description: "Authentication required" })
   @ApiResponse({ status: 403, description: "No access to the event" })
   async getCapacity(

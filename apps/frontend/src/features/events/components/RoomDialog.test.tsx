@@ -3,27 +3,40 @@ import { render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import type { EventRooms } from "@/features/events/api/rooms"
+import type { TermRooms } from "@/features/events/api/rooms"
 import { RoomDialog } from "@/features/events/components/RoomDialog"
+
+// Radix's radio group measures things jsdom doesn't have.
+vi.stubGlobal(
+  "ResizeObserver",
+  class {
+    observe = vi.fn()
+    unobserve = vi.fn()
+    disconnect = vi.fn()
+  },
+)
 
 const { post, put } = vi.hoisted(() => ({ post: vi.fn(), put: vi.fn() }))
 vi.mock("@/lib/api-client", () => ({ api: { post, put }, apiErrorCode: () => undefined }))
 
-const event: EventRooms = {
+const event: TermRooms = {
   eventId: "e1",
   eventName: "Summer camp",
   organizationName: "Camp",
+  termId: "t1",
+  termName: "Week 1",
+  startsOn: "2027-07-19",
+  endsOn: "2027-07-25",
   roomMode: "GENDERED",
-  termCount: 2,
   rooms: [],
   capacity: { FEMALE: 0, MALE: 0, total: 0 },
 }
-const renderDialog = (data = event, room?: EventRooms["rooms"][number]) => {
+const renderDialog = (data = event, room?: TermRooms["rooms"][number]) => {
   const onClose = vi.fn()
   render(
     <QueryClientProvider client={new QueryClient()}>
       <RoomDialog
-        event={data}
+        term={data}
         room={room}
         onClose={onClose}
         onSaved={() => Promise.resolve()}
@@ -40,26 +53,43 @@ describe("room form", () => {
     put.mockReset()
   })
 
+  it("names the term and asks for the gender of a gendered room with radio buttons", async () => {
+    post.mockResolvedValue(undefined)
+    const { user } = renderDialog()
+    expect(screen.getByText("Room in term")).toBeInTheDocument()
+    expect(screen.getByText("19–25 Jul 2027")).toBeInTheDocument()
+    expect(screen.getByRole("radio", { name: "Women's" })).toBeChecked()
+    await user.type(screen.getByLabelText("Room name *"), "103")
+    await user.click(screen.getByRole("button", { name: "Increase capacity" }))
+    await user.click(screen.getByRole("radio", { name: "Men's" }))
+    await user.click(screen.getByRole("button", { name: "Add room" }))
+    await waitFor(() =>
+      expect(post).toHaveBeenCalledWith("organizer/events/e1/terms/t1/rooms", {
+        json: { name: "103", capacity: 1, gender: "MALE" },
+      }),
+    )
+  })
+
   it("keeps invalid capacity in the form and focuses it without sending", async () => {
     const { user } = renderDialog()
     await user.type(screen.getByLabelText("Room name *"), "12")
-    await user.type(screen.getByLabelText("Capacity *"), "0")
+    await user.type(screen.getByLabelText("Capacity (beds) *"), "0")
     await user.click(screen.getByRole("button", { name: "Add room" }))
     expect(await screen.findByText("Enter a whole number of at least 1.")).toBeInTheDocument()
-    expect(screen.getByLabelText("Capacity *")).toHaveValue(0)
-    expect(screen.getByLabelText("Capacity *")).toHaveFocus()
+    expect(screen.getByLabelText("Capacity (beds) *")).toHaveValue(0)
+    expect(screen.getByLabelText("Capacity (beds) *")).toHaveFocus()
     expect(post).not.toHaveBeenCalled()
   })
 
   it("saves a shared room without a gender and closes after success", async () => {
     post.mockResolvedValue(undefined)
     const { user, onClose } = renderDialog({ ...event, roomMode: "SHARED" })
-    expect(screen.queryByRole("combobox")).not.toBeInTheDocument()
+    expect(screen.queryByRole("radio")).not.toBeInTheDocument()
     await user.type(screen.getByLabelText("Room name *"), " 12 ")
-    await user.type(screen.getByLabelText("Capacity *"), "100")
+    await user.type(screen.getByLabelText("Capacity (beds) *"), "100")
     await user.click(screen.getByRole("button", { name: "Add room" }))
     await waitFor(() => expect(onClose).toHaveBeenCalled())
-    expect(post).toHaveBeenCalledWith("organizer/events/e1/rooms", {
+    expect(post).toHaveBeenCalledWith("organizer/events/e1/terms/t1/rooms", {
       json: { name: "12", capacity: 100, gender: null },
     })
   })
@@ -68,11 +98,11 @@ describe("room form", () => {
     put.mockRejectedValueOnce(new Error("Connection failed")).mockResolvedValueOnce(undefined)
     const room = { id: "r1", name: "12", capacity: 5, gender: "FEMALE" as const }
     const { user, onClose } = renderDialog(event, room)
-    await user.clear(screen.getByLabelText("Capacity *"))
-    await user.type(screen.getByLabelText("Capacity *"), "21")
+    await user.clear(screen.getByLabelText("Capacity (beds) *"))
+    await user.type(screen.getByLabelText("Capacity (beds) *"), "21")
     await user.click(screen.getByRole("button", { name: "Save changes" }))
     expect(await screen.findByText("Connection failed")).toBeInTheDocument()
-    expect(screen.getByLabelText("Capacity *")).toHaveValue(21)
+    expect(screen.getByLabelText("Capacity (beds) *")).toHaveValue(21)
     expect(onClose).not.toHaveBeenCalled()
     await user.click(screen.getByRole("button", { name: "Save changes" }))
     await waitFor(() => expect(onClose).toHaveBeenCalled())
@@ -87,7 +117,7 @@ describe("room form", () => {
     )
     const { user } = renderDialog()
     await user.type(screen.getByLabelText("Room name *"), "12")
-    await user.type(screen.getByLabelText("Capacity *"), "100")
+    await user.type(screen.getByLabelText("Capacity (beds) *"), "100")
     const button = screen.getByRole("button", { name: "Add room" })
     await user.click(button)
     expect(button).toBeDisabled()

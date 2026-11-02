@@ -19,24 +19,29 @@ export type MissingForApplications = "TERM" | "ROOM"
 
 /**
  * What an event still lacks before its application link works: at least one
- * term (every term has a price, `Term.priceCzk`) and at least one room, which
- * gives the terms their capacity (docs/PROJEKT.md, section 5).
+ * term (every term has a price, `Term.priceCzk`) and at least one room in
+ * every term, which gives the term its capacity (docs/PROJEKT.md, section 5,
+ * D-052). "ROOM" means some term has no room yet.
  */
 export function missingForApplications(counts: {
   termCount: number
-  roomCount: number
+  termsWithoutRooms: number
 }): MissingForApplications[] {
   const missing: MissingForApplications[] = []
   if (counts.termCount === 0) missing.push("TERM")
-  if (counts.roomCount === 0) missing.push("ROOM")
+  if (counts.termsWithoutRooms > 0) missing.push("ROOM")
   return missing
 }
 
 /**
- * The application link works once the event has at least one term (every term
- * has a price) and at least one room (docs/PROJEKT.md, section 5). Until then
- * it answers like an unknown link.
+ * The application link works once the event has at least one term and every
+ * term has a price and at least one room (docs/PROJEKT.md, section 5). Until
+ * then it answers like an unknown link; adding a term without rooms closes it
+ * again.
  */
-export function isOpenForApplications(counts: { termCount: number; roomCount: number }): boolean {
+export function isOpenForApplications(counts: {
+  termCount: number
+  termsWithoutRooms: number
+}): boolean {
   return missingForApplications(counts).length === 0
 }
