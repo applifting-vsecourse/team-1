@@ -4,11 +4,13 @@ import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger"
 import { IsBoolean, IsIn, IsOptional } from "class-validator"
 
 const STATUSES = ["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED"] as const
+/** What an organizer can set: nothing leads back to "to evaluate" (US-102). */
+const TARGET_STATUSES = ["CONFIRMED", "WAITLISTED", "CANCELLED"] as const
 
 export class ChangeTermStatusRequestDto {
-  @ApiProperty({ enum: STATUSES })
-  @IsIn(STATUSES)
-  status!: (typeof STATUSES)[number]
+  @ApiProperty({ enum: TARGET_STATUSES })
+  @IsIn(TARGET_STATUSES)
+  status!: (typeof TARGET_STATUSES)[number]
 
   @ApiPropertyOptional({
     description: "Confirm knowingly even though no bed of the applicant's gender is free.",

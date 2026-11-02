@@ -18,6 +18,7 @@ import { TermStatusBadge } from "@/features/participant/components/TermSummary"
 type ApplicationDetailProps = { applicationId: string }
 
 /** One application: the event, the status of every term and, with a confirmed term, the payment details. */
+// Figma (Design system): Detail přihlášky · Moje přihlášky (K vyhodnocení) · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15751-1721 (360 px: node-id=15751-1784)
 // Figma (Design system): U04 Moje přihláška · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=11988-11066
 export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
   const { t } = useTranslation("participant")
