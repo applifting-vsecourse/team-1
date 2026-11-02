@@ -47,6 +47,9 @@ jobs:
       - name: Format check
         run: pnpm format:check
 
+      - name: Test scripts
+        run: pnpm test:scripts
+
       - name: Lint backend
         run: pnpm backend lint:check
 
