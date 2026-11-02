@@ -10,7 +10,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
@@ -239,12 +238,15 @@ export function PublicPageForm({ event }: { event: OrganizerEvent }) {
               {offeredTerms.map((term) => (
                 <li
                   key={term.id}
-                  className="flex flex-wrap items-center gap-x-2 gap-y-1 py-2 tabular-nums"
+                  className="flex flex-col py-2 tabular-nums"
                 >
-                  {formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })}
-                  {termName(term) ? <Badge variant="secondary">{termName(term)}</Badge> : null}
-                  <span aria-hidden="true">·</span>
-                  {formatCzk(term.priceCzk)}
+                  <span>
+                    {formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })} ·{" "}
+                    {formatCzk(term.priceCzk)}
+                  </span>
+                  {termName(term) ? (
+                    <span className="text-sm text-muted-foreground">{termName(term)}</span>
+                  ) : null}
                 </li>
               ))}
             </ul>

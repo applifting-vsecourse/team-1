@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
 import { TermPrice } from "@/components/atoms/MoneyAmount"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { formatDateRange } from "@/lib/date"
@@ -71,7 +70,9 @@ export function EventPage({ event }: { event: CatalogEventDetail }) {
               <span className="text-lg font-semibold">
                 {formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })}
               </span>
-              {termName(term) ? <Badge variant="secondary">{termName(term)}</Badge> : null}
+              {termName(term) ? (
+                <span className="text-sm text-muted-foreground">{termName(term)}</span>
+              ) : null}
               <TermPrice amountCzk={term.priceCzk} />
             </li>
           ))}

@@ -9,8 +9,9 @@ import {
 import { findDuplicate } from "@/modules/applications/domain/duplicate-application"
 import { EvaluatedTerm } from "@/modules/applications/domain/evaluation"
 import { OccupancySnapshot } from "@/modules/applications/domain/submission"
-import { termLabel } from "@/shared/domain/term-label"
+import { termLabel } from "@/modules/applications/domain/term-label"
 import { AppException } from "@/shared/errors/app.exception"
+import { isoDate } from "@/shared/utils/iso-date"
 import { HttpStatus, Injectable } from "@nestjs/common"
 
 /** What the duplicate check needs of a participant. */
@@ -50,8 +51,8 @@ export class ApplicationsRepository {
       terms: event.terms.map(({ id, name, startsOn, endsOn, number, priceCzk }) => ({
         id,
         name,
-        startsOn: startsOn.toISOString().slice(0, 10),
-        endsOn: endsOn.toISOString().slice(0, 10),
+        startsOn: isoDate(startsOn),
+        endsOn: isoDate(endsOn),
         number,
         priceCzk,
       })),

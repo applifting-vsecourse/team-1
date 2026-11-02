@@ -5,9 +5,8 @@ import {
   summarizeTerms,
 } from "@/modules/applications/domain/public-catalog"
 import { isOpenForTerms } from "@/modules/applications/domain/public-event"
+import { isoDate } from "@/shared/utils/iso-date"
 import { Injectable } from "@nestjs/common"
-
-const isoDate = (date: Date): string => date.toISOString().slice(0, 10)
 
 /** Only events the organizer published in the catalog (US-122) are ever read here. */
 const published = { publishedInCatalog: true }

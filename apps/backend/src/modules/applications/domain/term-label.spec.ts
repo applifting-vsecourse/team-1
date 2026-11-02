@@ -1,4 +1,4 @@
-import { formatTermDates, termLabel } from "@/shared/domain/term-label"
+import { formatTermDates, termLabel } from "@/modules/applications/domain/term-label"
 
 describe("termLabel", () => {
   const dates = { startsOn: "2027-07-12", endsOn: "2027-07-18" }

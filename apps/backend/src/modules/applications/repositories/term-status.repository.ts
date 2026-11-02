@@ -1,12 +1,12 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { StatusChangeSnapshot } from "@/modules/applications/domain/status-transition"
+import { termLabel } from "@/modules/applications/domain/term-label"
 import {
   ExpiredWaitlistEntry,
   StatusChangeCommand,
   StatusChangeResult,
   TermStatusDetail,
 } from "@/modules/applications/domain/term-status"
-import { termLabel } from "@/shared/domain/term-label"
 import { Injectable } from "@nestjs/common"
 
 @Injectable()

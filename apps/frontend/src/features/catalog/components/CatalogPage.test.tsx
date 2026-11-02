@@ -113,7 +113,6 @@ describe("CatalogPage", () => {
     expect(card).toHaveTextContent("12–18 Jul 2027")
     expect(card).toHaveTextContent("První turnus")
     expect(card).toHaveTextContent("20–25 Jul 2027")
-    expect(card).toHaveTextContent("20–25 Jul 2027")
     expect(card).toHaveTextContent("2 terms · from")
     expect(
       screen.getByRole("heading", { name: "Víkend na Šumavě" }).closest("a"),

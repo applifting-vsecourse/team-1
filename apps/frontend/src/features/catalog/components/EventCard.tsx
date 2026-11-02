@@ -31,10 +31,12 @@ export function EventCard({ event }: { event: CatalogEvent }) {
             {event.terms.map((term) => (
               <li
                 key={term.startsOn}
-                className="flex flex-wrap items-center gap-x-2 gap-y-1"
+                className="flex flex-col"
               >
                 {formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })}
-                {termName(term) ? <Badge variant="secondary">{termName(term)}</Badge> : null}
+                {termName(term) ? (
+                  <span className="text-sm text-muted-foreground">{termName(term)}</span>
+                ) : null}
               </li>
             ))}
           </ul>

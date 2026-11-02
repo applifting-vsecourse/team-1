@@ -166,7 +166,7 @@ describe("PublicPageForm", () => {
     await open(userEvent.setup())
 
     const items = await screen.findAllByRole("listitem")
-    expect(items[0]?.textContent).toMatch(/12.*18\sJul\s2027.*CZK\s4,900/)
+    expect(items[0]?.textContent).toMatch(/12.*18\sJul\s2027\s·\sCZK\s4,900/)
     expect(items[1]?.textContent).toMatch(/19.*25\sJul\s2027.*CZK\s5,600/)
     expect(screen.queryByText(/CZK 1$/)).not.toBeInTheDocument()
   })
