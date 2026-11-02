@@ -7,8 +7,8 @@ export type RoomCapacity = {
 
 /**
  * Capacity of a term (US-26): women = beds in women's rooms, men = beds in
- * men's rooms. Rooms belong to the event, so every term of it has the same
- * capacity in sprint 1.
+ * men's rooms. Rooms belong to one term (US-99), so every term has its own
+ * capacity; the shared mode has one common pool instead (`computeRoomCapacity`).
  */
 export function computeTermCapacity(rooms: RoomCapacity[]): GenderCounts {
   const capacity = emptyGenderCounts()
@@ -18,10 +18,9 @@ export function computeTermCapacity(rooms: RoomCapacity[]): GenderCounts {
   return capacity
 }
 
-/** All beds of a term, women's + men's — the capacity the organizer sees in lists. */
+/** All beds of a term, whatever the gender — the capacity the organizer sees in lists. */
 export function computeTotalBeds(rooms: RoomCapacity[]): number {
-  const { FEMALE, MALE } = computeTermCapacity(rooms)
-  return FEMALE + MALE
+  return computeRoomCapacity(rooms).total
 }
 
 export function countByGender(items: { gender: Gender }[]): GenderCounts {

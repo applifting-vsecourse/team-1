@@ -8,7 +8,8 @@ export type SubmissionEvent = {
   organizationId: string
   name: string
   bankAccount: string
-  roomCount: number
+  /** Active terms that have no room; the link is closed while any does (US-99). */
+  termsWithoutRooms: number
   terms: { id: string; name: string; priceCzk: number }[]
 }
 

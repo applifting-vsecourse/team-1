@@ -84,7 +84,7 @@ export class TermStatusRepository {
 
       const [rooms, confirmed] = await Promise.all([
         tx.room.findMany({
-          where: { eventId: application.eventId },
+          where: { termId: command.termId },
           select: { capacity: true, gender: true },
         }),
         tx.applicationTerm.findMany({

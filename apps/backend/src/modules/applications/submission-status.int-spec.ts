@@ -58,17 +58,17 @@ describe("submission status (integration)", () => {
         organizationId: organization.id,
         name: "US-25",
         publicToken,
-        // One women's bed and one men's bed in every term.
-        rooms: {
-          create: [
-            { organizationId: organization.id, name: "A", capacity: 1, gender: "FEMALE" },
-            { organizationId: organization.id, name: "B", capacity: 1, gender: "MALE" },
-          ],
-        },
         terms: {
           create: ["T1", "T2"].map((name, index) => ({
             organizationId: organization.id,
             name,
+            // One women's bed and one men's bed in every term.
+            rooms: {
+              create: [
+                { organizationId: organization.id, name: "A", capacity: 1, gender: "FEMALE" },
+                { organizationId: organization.id, name: "B", capacity: 1, gender: "MALE" },
+              ],
+            },
             startsOn: new Date(`2027-07-0${index + 1}`),
             endsOn: new Date(`2027-07-0${index + 2}`),
             priceCzk: 1000 * (index + 1),

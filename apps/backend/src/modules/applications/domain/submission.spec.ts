@@ -4,6 +4,10 @@ const rooms = [
   { capacity: 1, gender: "FEMALE" as const },
   { capacity: 2, gender: "MALE" as const },
 ]
+const sharedRooms = (capacity: number) => ({
+  t1: [{ capacity, gender: null }],
+  t2: [{ capacity, gender: null }],
+})
 const girl = (...termIds: string[]): SubmittedParticipant => ({
   gender: "FEMALE",
   terms: termIds.map((termId) => ({ termId, priceCzk: 1000 })),
@@ -18,7 +22,7 @@ const statuses = (result: ReturnType<typeof evaluateSubmission>): string[][] =>
 describe("evaluateSubmission", () => {
   it("uses one shared pool for all genders and evaluates terms independently", () => {
     const result = evaluateSubmission([girl("t1", "t2"), boy("t1", "t2"), girl("t1", "t2")], {
-      rooms: [{ capacity: 2, gender: null }],
+      roomsByTerm: sharedRooms(2),
       confirmedGenders: { t1: ["MALE"] },
     })
     expect(statuses(result)).toEqual([
@@ -32,7 +36,7 @@ describe("evaluateSubmission", () => {
     expect(
       statuses(
         evaluateSubmission([girl("t1"), boy("t1")], {
-          rooms: [{ capacity: 1, gender: null }],
+          roomsByTerm: sharedRooms(1),
           confirmedGenders: { t1: ["FEMALE", "MALE"] },
         }),
       ),
@@ -41,7 +45,7 @@ describe("evaluateSubmission", () => {
 
   it("confirms while a bed of the participant's gender is free, then waitlists", () => {
     const result = evaluateSubmission([girl("t1"), girl("t1"), boy("t1")], {
-      rooms,
+      roomsByTerm: { t1: rooms, t2: rooms },
       confirmedGenders: {},
     })
     expect(statuses(result)).toEqual([["CONFIRMED"], ["WAITLISTED"], ["CONFIRMED"]])
@@ -49,7 +53,7 @@ describe("evaluateSubmission", () => {
 
   it("evaluates each term separately", () => {
     const result = evaluateSubmission([girl("t1", "t2"), girl("t1", "t2")], {
-      rooms,
+      roomsByTerm: { t1: rooms, t2: rooms },
       confirmedGenders: { t1: ["FEMALE"] },
     })
     expect(statuses(result)).toEqual([
@@ -60,14 +64,36 @@ describe("evaluateSubmission", () => {
 
   it("counts beds already taken by earlier applications", () => {
     const result = evaluateSubmission([boy("t1")], {
-      rooms,
+      roomsByTerm: { t1: rooms, t2: rooms },
       confirmedGenders: { t1: ["MALE", "MALE"] },
     })
     expect(statuses(result)).toEqual([["WAITLISTED"]])
   })
 
+  it("takes the beds of each term from that term's own rooms", () => {
+    const result = evaluateSubmission([girl("t1", "t2"), boy("t1", "t2")], {
+      roomsByTerm: {
+        t1: [{ capacity: 1, gender: "FEMALE" }],
+        t2: [{ capacity: 1, gender: "MALE" }],
+      },
+      confirmedGenders: {},
+    })
+    expect(statuses(result)).toEqual([
+      ["CONFIRMED", "WAITLISTED"],
+      ["WAITLISTED", "CONFIRMED"],
+    ])
+  })
+
+  it("waitlists a term without rooms", () => {
+    const result = evaluateSubmission([girl("t1")], { roomsByTerm: {}, confirmedGenders: {} })
+    expect(statuses(result)).toEqual([["WAITLISTED"]])
+  })
+
   it("keeps the frozen price", () => {
-    const [[term]] = evaluateSubmission([girl("t1")], { rooms, confirmedGenders: {} })
+    const [[term]] = evaluateSubmission([girl("t1")], {
+      roomsByTerm: { t1: rooms },
+      confirmedGenders: {},
+    })
     expect(term).toEqual({ termId: "t1", status: "CONFIRMED", priceCzk: 1000 })
   })
 })

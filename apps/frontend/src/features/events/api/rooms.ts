@@ -10,35 +10,55 @@ const roomSchema = z.object({
   capacity: z.number().int().min(1),
   gender: z.enum(["FEMALE", "MALE"]).nullable(),
 })
-const eventRoomsSchema = z.object({
+const termRoomsSchema = z.object({
   eventId: z.string(),
   eventName: z.string(),
   organizationName: z.string(),
+  termId: z.string(),
+  termName: z.string(),
+  /** ISO dates, `2027-07-12`. */
+  startsOn: z.string(),
+  endsOn: z.string(),
   roomMode: roomModeSchema,
-  termCount: z.number().int(),
   rooms: z.array(roomSchema),
   capacity: z.object({ FEMALE: z.number().int(), MALE: z.number().int(), total: z.number().int() }),
 })
 export type Room = z.infer<typeof roomSchema>
 export type RoomMode = z.infer<typeof roomModeSchema>
-export type EventRooms = z.infer<typeof eventRoomsSchema>
+export type TermRooms = z.infer<typeof termRoomsSchema>
 export type RoomInput = Omit<Room, "id">
-const base = (eventId: string) => `organizer/events/${encodeURIComponent(eventId)}`
+/** Gender chosen for an existing room when a term switches to gendered rooms. */
+export type RoomGender = { id: string; gender: "FEMALE" | "MALE" }
 
-export const roomsQueryOptions = (eventId: string) =>
+const base = (eventId: string, termId: string) =>
+  `organizer/events/${encodeURIComponent(eventId)}/terms/${encodeURIComponent(termId)}`
+
+export const roomsQueryOptions = (eventId: string, termId: string) =>
   queryOptions({
-    queryKey: ["events", eventId, "rooms"],
-    queryFn: async () => eventRoomsSchema.parse(await api.get(`${base(eventId)}/rooms`).json()),
+    queryKey: ["events", eventId, "rooms", termId],
+    queryFn: async () =>
+      termRoomsSchema.parse(await api.get(`${base(eventId, termId)}/rooms`).json()),
   })
 
-export async function saveRoom(eventId: string, input: RoomInput, id?: string): Promise<void> {
-  const path = `${base(eventId)}/rooms${id ? `/${encodeURIComponent(id)}` : ""}`
+export async function saveRoom(
+  eventId: string,
+  termId: string,
+  input: RoomInput,
+  id?: string,
+): Promise<void> {
+  const path = `${base(eventId, termId)}/rooms${id ? `/${encodeURIComponent(id)}` : ""}`
   if (id) await api.put(path, { json: input })
   else await api.post(path, { json: input })
 }
-export async function deleteRoom(eventId: string, id: string): Promise<void> {
-  await api.delete(`${base(eventId)}/rooms/${encodeURIComponent(id)}`)
+export async function deleteRoom(eventId: string, termId: string, id: string): Promise<void> {
+  await api.delete(`${base(eventId, termId)}/rooms/${encodeURIComponent(id)}`)
 }
-export async function setRoomMode(eventId: string, roomMode: RoomMode): Promise<void> {
-  await api.patch(`${base(eventId)}/room-mode`, { json: { roomMode } })
+/** `rooms` carries a gender for every existing room when switching to gendered rooms. */
+export async function setRoomMode(
+  eventId: string,
+  termId: string,
+  roomMode: RoomMode,
+  rooms: RoomGender[] = [],
+): Promise<void> {
+  await api.patch(`${base(eventId, termId)}/room-mode`, { json: { roomMode, rooms } })
 }

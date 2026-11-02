@@ -20,7 +20,13 @@ export class TermResponseDto {
   @ApiProperty()
   priceCzk!: number
 
-  @ApiProperty({ description: "Beds of the event's rooms." })
+  @ApiProperty({ enum: ["GENDERED", "SHARED"] })
+  roomMode!: "GENDERED" | "SHARED"
+
+  @ApiProperty()
+  roomCount!: number
+
+  @ApiProperty({ description: "All beds of the term's own rooms." })
   capacity!: number
 
   @ApiProperty()
@@ -43,6 +49,8 @@ export class TermResponseDto {
       startsOn: term.startsOn,
       endsOn: term.endsOn,
       priceCzk: term.priceCzk,
+      roomMode: term.roomMode,
+      roomCount: term.roomCount,
       capacity: term.capacity,
       confirmedCount: term.confirmedCount,
       waitlistedCount: term.waitlistedCount,

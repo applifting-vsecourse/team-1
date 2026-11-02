@@ -3,27 +3,40 @@ import { render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import type { EventRooms } from "@/features/events/api/rooms"
+import type { TermRooms } from "@/features/events/api/rooms"
 import { RoomDialog } from "@/features/events/components/RoomDialog"
+
+// Radix's radio group measures things jsdom doesn't have.
+vi.stubGlobal(
+  "ResizeObserver",
+  class {
+    observe = vi.fn()
+    unobserve = vi.fn()
+    disconnect = vi.fn()
+  },
+)
 
 const { post, put } = vi.hoisted(() => ({ post: vi.fn(), put: vi.fn() }))
 vi.mock("@/lib/api-client", () => ({ api: { post, put }, apiErrorCode: () => undefined }))
 
-const event: EventRooms = {
+const event: TermRooms = {
   eventId: "e1",
   eventName: "Summer camp",
   organizationName: "Camp",
+  termId: "t1",
+  termName: "Week 1",
+  startsOn: "2027-07-19",
+  endsOn: "2027-07-25",
   roomMode: "GENDERED",
-  termCount: 2,
   rooms: [],
   capacity: { FEMALE: 0, MALE: 0, total: 0 },
 }
-const renderDialog = (data = event, room?: EventRooms["rooms"][number]) => {
+const renderDialog = (data = event, room?: TermRooms["rooms"][number]) => {
   const onClose = vi.fn()
   render(
     <QueryClientProvider client={new QueryClient()}>
       <RoomDialog
-        event={data}
+        term={data}
         room={room}
         onClose={onClose}
         onSaved={() => Promise.resolve()}
@@ -59,7 +72,7 @@ describe("room form", () => {
     await user.type(screen.getByLabelText("Capacity *"), "100")
     await user.click(screen.getByRole("button", { name: "Add room" }))
     await waitFor(() => expect(onClose).toHaveBeenCalled())
-    expect(post).toHaveBeenCalledWith("organizer/events/e1/rooms", {
+    expect(post).toHaveBeenCalledWith("organizer/events/e1/terms/t1/rooms", {
       json: { name: "12", capacity: 100, gender: null },
     })
   })

@@ -75,17 +75,17 @@ describe("manual status change of an application in a term (integration)", () =>
         organizationId,
         name: "US-28",
         publicToken: "us-28-event",
-        rooms: {
-          create: [
-            { organizationId, name: "A", capacity: 1, gender: "FEMALE" },
-            { organizationId, name: "B", capacity: 1, gender: "MALE" },
-          ],
-        },
         terms: {
           create: [
             {
               organizationId,
               name: "T1",
+              rooms: {
+                create: [
+                  { organizationId, name: "A", capacity: 1, gender: "FEMALE" },
+                  { organizationId, name: "B", capacity: 1, gender: "MALE" },
+                ],
+              },
               startsOn: new Date("2027-07-01"),
               endsOn: new Date("2027-07-08"),
               priceCzk: 1000,

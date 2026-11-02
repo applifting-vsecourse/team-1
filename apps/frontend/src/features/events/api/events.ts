@@ -8,7 +8,9 @@ export const eventTermSummarySchema = z.object({
   name: z.string(),
   startsOn: z.string(),
   endsOn: z.string(),
-  /** Beds of the event's rooms, the same for every term. */
+  roomMode: z.enum(["GENDERED", "SHARED"]),
+  roomCount: z.number().int(),
+  /** All beds of the term's own rooms. */
   capacity: z.number().int(),
   confirmedCount: z.number().int(),
 })
@@ -28,7 +30,6 @@ export const organizerEventSchema = z.object({
   publicToken: z.string(),
   createdAt: z.string(),
   termCount: z.number().int(),
-  roomCount: z.number().int(),
   /** ISO dates of the first term start and the last term end; `null` without terms. */
   startsOn: z.string().nullable(),
   endsOn: z.string().nullable(),

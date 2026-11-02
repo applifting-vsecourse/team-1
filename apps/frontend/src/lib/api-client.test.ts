@@ -27,20 +27,18 @@ afterEach(async () => {
 
 describe("API error messages", () => {
   it.each(["cs", "en"] as const)(
-    "translates the consumed room-mode error body in %s",
+    "translates the consumed room-name error body in %s",
     async (language) => {
       await i18n.changeLanguage(language)
       const error = await requestError({
         statusCode: 409,
-        code: "ROOM_MODE_REQUIRES_EMPTY_ROOMS",
-        message: "ROOM_MODE_REQUIRES_EMPTY_ROOMS",
+        code: "ROOM_NAME_TAKEN",
+        message: "ROOM_NAME_TAKEN",
       })
       expect(error).toBeInstanceOf(HTTPError)
       expect((error as HTTPError).response.bodyUsed).toBe(true)
-      expect((error as Error).message).toBe(
-        resources[language].errors.ROOM_MODE_REQUIRES_EMPTY_ROOMS,
-      )
-      expect(apiErrorCode(error)).toBe("ROOM_MODE_REQUIRES_EMPTY_ROOMS")
+      expect((error as Error).message).toBe(resources[language].errors.ROOM_NAME_TAKEN)
+      expect(apiErrorCode(error)).toBe("ROOM_NAME_TAKEN")
     },
   )
 

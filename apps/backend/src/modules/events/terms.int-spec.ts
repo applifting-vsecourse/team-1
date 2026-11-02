@@ -126,12 +126,13 @@ describe("organizer terms (integration)", () => {
     })
   })
 
-  it("counts beds of the rooms as capacity", async () => {
+  it("counts beds of the term's own rooms as its capacity", async () => {
     const event = await prisma.event.findUniqueOrThrow({ where: { id: eventId } })
+    const [first, second] = await list()
     await prisma.room.create({
       data: {
         organizationId: event.organizationId,
-        eventId,
+        termId: first.id,
         name: "A",
         capacity: 6,
         gender: "FEMALE",
@@ -140,17 +141,31 @@ describe("organizer terms (integration)", () => {
     await prisma.room.create({
       data: {
         organizationId: event.organizationId,
-        eventId,
+        termId: first.id,
         name: "B",
         capacity: 4,
         gender: "MALE",
       },
     })
-    expect((await list())[0].capacity).toBe(10)
+    const terms = await list()
+    expect(terms.find((term) => term.id === first.id)?.capacity).toBe(10)
+    // Rooms belong to one term: the other term has no capacity.
+    expect(terms.find((term) => term.id === second.id)?.capacity).toBe(0)
   })
 
   it("cancels a term, keeps it listed last and out of the public form", async () => {
     const [first, second] = await list()
+    // The public form is open only while every offered term has a room.
+    await prisma.room.create({
+      data: {
+        organizationId: (await prisma.event.findUniqueOrThrow({ where: { id: eventId } }))
+          .organizationId,
+        termId: second.id,
+        name: "S",
+        capacity: 2,
+        gender: "FEMALE",
+      },
+    })
     const response = await send(cookieA, "POST", `${termsPath()}/${first.id}/cancel`, {
       reason: "Areál není k dispozici",
     })

@@ -56,11 +56,11 @@ describe("public event for the application form (integration)", () => {
     })
   })
 
-  it("answers an event without rooms like an unknown link", async () => {
+  it("answers an event with a term without rooms like an unknown link", async () => {
     const event = await prisma.event.findUniqueOrThrow({
       where: { publicToken: "demo-horsky-vikend-2027" },
     })
-    await prisma.room.deleteMany({ where: { eventId: event.id } })
+    await prisma.room.deleteMany({ where: { term: { eventId: event.id } } })
 
     const response = await fetch(api("/public/events/demo-horsky-vikend-2027"))
 

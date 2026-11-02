@@ -31,8 +31,11 @@ export class ApplicationsRepository {
       where: { publicToken },
       include: {
         organization: { select: { bankAccount: true } },
-        terms: { where: { cancelledAt: null }, orderBy: [{ startsOn: "asc" }, { name: "asc" }] },
-        _count: { select: { rooms: true } },
+        terms: {
+          where: { cancelledAt: null },
+          orderBy: [{ startsOn: "asc" }, { name: "asc" }],
+          include: { _count: { select: { rooms: true } } },
+        },
       },
     })
     if (!event) return null
@@ -41,7 +44,7 @@ export class ApplicationsRepository {
       organizationId: event.organizationId,
       name: event.name,
       bankAccount: event.organization.bankAccount,
-      roomCount: event._count.rooms,
+      termsWithoutRooms: event.terms.filter((term) => term._count.rooms === 0).length,
       terms: event.terms.map(({ id, name, priceCzk }) => ({ id, name, priceCzk })),
     }
   }
@@ -52,7 +55,7 @@ export class ApplicationsRepository {
    * id, so two submissions cannot deadlock), read the occupancy, let `evaluate`
    * decide, write. A concurrent submission to the same term waits at the lock
    * and then sees these confirmations, so capacity is never exceeded. The event
-   * lock is acquired first and is also used by room writes (US-14).
+   * lock is acquired first and is also used by room writes (US-99).
    *
    * Receive time is taken after the lock is won, so `submittedAt` follows the
    * order of evaluation.
@@ -65,7 +68,7 @@ export class ApplicationsRepository {
     const termIds = [...new Set(applications.flatMap((application) => application.termIds))]
 
     return this.prisma.$transaction(async (tx) => {
-      // Room mutations use this same lock (US-14).
+      // Room mutations use this same lock (US-99).
       await tx.$queryRaw`SELECT id FROM event WHERE id = ${event.id} FOR UPDATE`
       // The terms were read before the lock; one cancelled meanwhile must not take a confirmation.
       const activeTerms = await tx.$queryRaw<{ id: string }[]>`
@@ -82,8 +85,8 @@ export class ApplicationsRepository {
 
       const [rooms, confirmed] = await Promise.all([
         tx.room.findMany({
-          where: { eventId: event.id },
-          select: { capacity: true, gender: true },
+          where: { termId: { in: termIds } },
+          select: { termId: true, capacity: true, gender: true },
         }),
         tx.applicationTerm.findMany({
           where: { termId: { in: termIds }, status: "CONFIRMED" },
@@ -95,7 +98,12 @@ export class ApplicationsRepository {
         confirmedGenders[termId] = [...(confirmedGenders[termId] ?? []), application.gender]
       }
 
-      const evaluated = evaluate({ rooms, confirmedGenders })
+      const roomsByTerm: OccupancySnapshot["roomsByTerm"] = {}
+      for (const { termId, capacity, gender } of rooms) {
+        roomsByTerm[termId] = [...(roomsByTerm[termId] ?? []), { capacity, gender }]
+      }
+
+      const evaluated = evaluate({ roomsByTerm, confirmedGenders })
 
       const saved: SavedApplication[] = []
       for (const [index, application] of applications.entries()) {

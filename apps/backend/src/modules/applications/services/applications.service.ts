@@ -49,7 +49,10 @@ export class ApplicationsService {
     const event = await this.repository.findEventForSubmission(publicToken)
     if (
       !event ||
-      !isOpenForApplications({ termCount: event.terms.length, roomCount: event.roomCount })
+      !isOpenForApplications({
+        termCount: event.terms.length,
+        termsWithoutRooms: event.termsWithoutRooms,
+      })
     ) {
       throw new AppException(HttpStatus.NOT_FOUND, "NOT_FOUND")
     }

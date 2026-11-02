@@ -13,6 +13,8 @@ const term = (overrides: Partial<EventTerm>): EventTerm => ({
   startsOn: "2027-07-12",
   endsOn: "2027-07-18",
   priceCzk: 6900,
+  roomMode: "GENDERED",
+  roomCount: 0,
   capacity: 0,
   confirmedCount: 0,
   waitlistedCount: 0,

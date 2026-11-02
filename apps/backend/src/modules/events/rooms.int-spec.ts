@@ -1,12 +1,14 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
-import { EventRooms } from "@/modules/events/domain/rooms"
+import { TermRooms } from "@/modules/events/domain/rooms"
 import { api, connectTestPrisma, resetAndSeed, signIn } from "@/test/integration/test-api"
 
-describe("event rooms (integration)", () => {
+describe("term rooms (integration)", () => {
   let prisma: PrismaService
   let cookie: string
   let participantCookie: string
   let eventId: string
+  let termId: string
+  let otherTermId: string
   let foreignId: string
   let roomId: string
   const request = (
@@ -15,7 +17,7 @@ describe("event rooms (integration)", () => {
     body?: unknown,
     session = cookie,
   ): Promise<Response> =>
-    fetch(api(`/organizer/events/${eventId}${path}`), {
+    fetch(api(`/organizer/events/${eventId}/terms/${termId}${path}`), {
       method,
       headers: { Cookie: session, "Content-Type": "application/json" },
       ...(body === undefined ? {} : { body: JSON.stringify(body) }),
@@ -37,11 +39,23 @@ describe("event rooms (integration)", () => {
       },
     })
     eventId = event.id
-    const foreign = await prisma.event.findFirstOrThrow({
+    const makeTerm = (name: string, startsOn: string, endsOn: string) =>
+      prisma.term.create({
+        data: {
+          organizationId: member.organizationId,
+          eventId,
+          name,
+          startsOn: new Date(startsOn),
+          endsOn: new Date(endsOn),
+          priceCzk: 1000,
+        },
+      })
+    termId = (await makeTerm("Room term", "2027-06-01", "2027-06-07")).id
+    otherTermId = (await makeTerm("Other term", "2027-06-08", "2027-06-14")).id
+    const foreign = await prisma.room.findFirstOrThrow({
       where: { organizationId: { not: member.organizationId } },
-      include: { rooms: true },
     })
-    foreignId = foreign.rooms[0].id
+    foreignId = foreign.id
   })
   afterAll(async () => {
     await prisma.$disconnect()
@@ -97,22 +111,22 @@ describe("event rooms (integration)", () => {
     expect(
       (await request("/rooms", "POST", { name: "12", capacity: 5, gender: "FEMALE" })).status,
     ).toBe(409)
-    let body = (await (await request("/rooms")).json()) as EventRooms
+    let body = (await (await request("/rooms")).json()) as TermRooms
     expect(body.capacity).toEqual({ FEMALE: 1, MALE: 100, total: 101 })
     roomId = body.rooms[0].id
     expect(
       (await request(`/rooms/${roomId}`, "PUT", { name: "Updated", capacity: 21, gender: "MALE" }))
         .status,
     ).toBe(204)
-    body = (await (await request("/rooms")).json()) as EventRooms
+    body = (await (await request("/rooms")).json()) as TermRooms
     expect(body.capacity).toEqual({ FEMALE: 0, MALE: 121, total: 121 })
     expect((await request(`/rooms/${roomId}`, "DELETE")).status).toBe(204)
     expect((await request(`/rooms/${roomId}`, "DELETE")).status).toBe(403)
   })
 
-  it("converts to shared rooms and requires removing them before returning to gendered mode", async () => {
+  it("converts to shared rooms and back with a gender for every room", async () => {
     expect((await request("/room-mode", "PATCH", { roomMode: "SHARED" })).status).toBe(204)
-    let body = (await (await request("/rooms")).json()) as EventRooms
+    let body = (await (await request("/rooms")).json()) as TermRooms
     expect(body.roomMode).toBe("SHARED")
     expect(body.capacity.total).toBe(100)
     expect(body.rooms[0].gender).toBeNull()
@@ -121,11 +135,58 @@ describe("event rooms (integration)", () => {
       (await request("/rooms", "POST", { name: "Wrong gender", capacity: 2, gender: "MALE" }))
         .status,
     ).toBe(400)
-    expect((await request("/room-mode", "PATCH", { roomMode: "GENDERED" })).status).toBe(409)
-    body = (await (await request("/rooms")).json()) as EventRooms
-    for (const room of body.rooms)
-      expect((await request(`/rooms/${room.id}`, "DELETE")).status).toBe(204)
-    expect((await request("/room-mode", "PATCH", { roomMode: "GENDERED" })).status).toBe(204)
+    body = (await (await request("/rooms")).json()) as TermRooms
+    const [first, ...rest] = body.rooms
+    // Every existing room needs a gender before the term can go back to gendered rooms.
+    expect(
+      (
+        await request("/room-mode", "PATCH", {
+          roomMode: "GENDERED",
+          rooms: [{ id: first.id, gender: "FEMALE" }],
+        })
+      ).status,
+    ).toBe(400)
+    expect((await request("/room-mode", "PATCH", { roomMode: "GENDERED" })).status).toBe(400)
+    expect(
+      (
+        await request("/room-mode", "PATCH", {
+          roomMode: "GENDERED",
+          rooms: [first, ...rest].map((room, index) => ({
+            id: room.id,
+            gender: index === 0 ? "FEMALE" : "MALE",
+          })),
+        })
+      ).status,
+    ).toBe(204)
+    body = (await (await request("/rooms")).json()) as TermRooms
+    expect(body.roomMode).toBe("GENDERED")
+    expect(body.rooms.every((room) => room.gender !== null)).toBe(true)
+    expect(body.capacity.FEMALE + body.capacity.MALE).toBe(102)
+  })
+
+  it("keeps rooms and room mode of one term apart from another term of the event", async () => {
+    const other = (path = "", method = "GET", body?: unknown) =>
+      fetch(api(`/organizer/events/${eventId}/terms/${otherTermId}${path}`), {
+        method,
+        headers: { Cookie: cookie, "Content-Type": "application/json" },
+        ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+      })
+    expect((await other("/room-mode", "PATCH", { roomMode: "SHARED" })).status).toBe(204)
+    expect((await other("/rooms", "POST", { name: "Common", capacity: 7 })).status).toBe(204)
+    // The same name is free in another term.
+    expect(
+      (await request("/rooms", "POST", { name: "Common", capacity: 3, gender: "FEMALE" })).status,
+    ).toBe(204)
+    const mine = (await (await request("/rooms")).json()) as TermRooms
+    const theirs = (await (await other("/rooms")).json()) as TermRooms
+    expect(mine.roomMode).toBe("GENDERED")
+    expect(theirs.roomMode).toBe("SHARED")
+    expect(theirs.rooms.map((room) => room.name)).toEqual(["Common"])
+    expect(theirs.capacity.total).toBe(7)
+    // A room id of one term is a foreign record in another.
+    const [mineRoom] = mine.rooms
+    expect((await other(`/rooms/${mineRoom.id}`, "DELETE")).status).toBe(403)
+    await request(`/rooms/${mine.rooms[mine.rooms.length - 1].id}`, "DELETE")
   })
 
   it("serializes duplicate-name creation", async () => {
@@ -139,17 +200,8 @@ describe("event rooms (integration)", () => {
 
   it("shares beds across genders under concurrent public submissions", async () => {
     const event = await prisma.event.findUniqueOrThrow({ where: { id: eventId } })
-    const term = await prisma.term.create({
-      data: {
-        organizationId: event.organizationId,
-        eventId,
-        name: "Shared term",
-        startsOn: new Date("2027-07-01"),
-        endsOn: new Date("2027-07-07"),
-        priceCzk: 1000,
-      },
-    })
-    const rooms = await prisma.room.findMany({ where: { eventId } })
+    const term = await prisma.term.findUniqueOrThrow({ where: { id: termId } })
+    const rooms = await prisma.room.findMany({ where: { termId } })
     for (const room of rooms) await request(`/rooms/${room.id}`, "DELETE")
     await request("/room-mode", "PATCH", { roomMode: "SHARED" })
     await request("/rooms", "POST", { name: "Shared", capacity: 2 })
@@ -181,7 +233,7 @@ describe("event rooms (integration)", () => {
     expect(
       await prisma.applicationTerm.count({ where: { termId: term.id, status: "WAITLISTED" } }),
     ).toBe(2)
-    const sharedRoom = await prisma.room.findFirstOrThrow({ where: { eventId } })
+    const sharedRoom = await prisma.room.findFirstOrThrow({ where: { termId } })
     await request(`/rooms/${sharedRoom.id}`, "PUT", { name: "Shared", capacity: 1 })
     expect(
       await prisma.applicationTerm.count({ where: { termId: term.id, status: "CONFIRMED" } }),

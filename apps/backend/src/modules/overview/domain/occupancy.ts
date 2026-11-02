@@ -15,14 +15,15 @@ export type TermApplicants = {
   name: string
   startsOn: string
   endsOn: string
+  /** Room mode and rooms belong to the term (US-99). */
+  roomMode: RoomMode
+  rooms: RoomCapacity[]
   confirmed: Gender[]
   waitlisted: Gender[]
 }
 
 export type EventOccupancySource = {
   eventId: string
-  roomMode: RoomMode
-  rooms: RoomCapacity[]
   terms: TermApplicants[]
 }
 
@@ -39,15 +40,15 @@ export type TermOccupancy = OccupancyFigures & {
   name: string
   startsOn: string
   endsOn: string
+  roomMode: RoomMode
+  /** Number of rooms of the term. */
+  roomCount: number
   /** Per gender in gendered rooms, `null` with shared rooms (one summary per term). */
   byGender: Record<Gender, OccupancyFigures> | null
 }
 
 export type EventOccupancy = {
   eventId: string
-  roomMode: RoomMode
-  /** Number of rooms of the event (the same in every term). */
-  roomCount: number
   terms: TermOccupancy[]
 }
 
@@ -56,15 +57,21 @@ export type EventOccupancy = {
  * from `capacity.ts`, so the numbers always match the applications list.
  */
 export function computeEventOccupancy(source: EventOccupancySource): EventOccupancy {
-  const { rooms, roomMode } = source
-  const shared = roomMode === "SHARED"
-  const sharedCapacity = computeRoomCapacity(rooms).total
-  const genderedCapacity = computeTermCapacity(rooms)
-
   const terms = source.terms.map((term): TermOccupancy => {
+    const { rooms, roomMode } = term
+    const shared = roomMode === "SHARED"
+    const sharedCapacity = computeRoomCapacity(rooms).total
+    const genderedCapacity = computeTermCapacity(rooms)
     const confirmed = countByGender(term.confirmed.map((gender) => ({ gender })))
     const waitlisted = countByGender(term.waitlisted.map((gender) => ({ gender })))
-    const base = { id: term.id, name: term.name, startsOn: term.startsOn, endsOn: term.endsOn }
+    const base = {
+      id: term.id,
+      name: term.name,
+      startsOn: term.startsOn,
+      endsOn: term.endsOn,
+      roomMode,
+      roomCount: rooms.length,
+    }
 
     if (shared) {
       const free = computeSharedFreePlaces(rooms, term.confirmed.length)
@@ -98,5 +105,5 @@ export function computeEventOccupancy(source: EventOccupancySource): EventOccupa
     }
   })
 
-  return { eventId: source.eventId, roomMode, roomCount: rooms.length, terms }
+  return { eventId: source.eventId, terms }
 }

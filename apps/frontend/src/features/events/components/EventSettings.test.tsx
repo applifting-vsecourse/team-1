@@ -25,7 +25,6 @@ const event = {
   publicToken: "tok123",
   createdAt: "2027-01-01T10:00:00.000Z",
   termCount: 0,
-  roomCount: 0,
   startsOn: null,
   endsOn: null,
   applicationsOpen: false,

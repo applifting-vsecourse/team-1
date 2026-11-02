@@ -10,18 +10,21 @@ export class PublicEventsRepository {
 
   async findByPublicToken(
     publicToken: string,
-  ): Promise<{ event: PublicEvent; roomCount: number } | null> {
+  ): Promise<{ event: PublicEvent; termsWithoutRooms: number } | null> {
     const event = await this.prisma.event.findUnique({
       where: { publicToken },
       include: {
-        terms: { where: { cancelledAt: null }, orderBy: [{ startsOn: "asc" }, { name: "asc" }] },
-        _count: { select: { rooms: true } },
+        terms: {
+          where: { cancelledAt: null },
+          orderBy: [{ startsOn: "asc" }, { name: "asc" }],
+          include: { _count: { select: { rooms: true } } },
+        },
       },
     })
     if (!event) return null
 
     return {
-      roomCount: event._count.rooms,
+      termsWithoutRooms: event.terms.filter((term) => term._count.rooms === 0).length,
       event: {
         name: event.name,
         description: event.description,

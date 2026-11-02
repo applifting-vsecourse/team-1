@@ -1,4 +1,4 @@
-import { EventRooms, RoomMode } from "@/modules/events/domain/rooms"
+import { RoomMode, TermRooms } from "@/modules/events/domain/rooms"
 import { Gender } from "@/shared/domain/gender"
 import { ApiProperty } from "@nestjs/swagger"
 
@@ -17,12 +17,15 @@ export class RoomsResponseDto {
   @ApiProperty() eventId!: string
   @ApiProperty() eventName!: string
   @ApiProperty() organizationName!: string
+  @ApiProperty() termId!: string
+  @ApiProperty() termName!: string
+  @ApiProperty({ example: "2027-07-04" }) startsOn!: string
+  @ApiProperty({ example: "2027-07-10" }) endsOn!: string
   @ApiProperty({ enum: ["GENDERED", "SHARED"] }) roomMode!: RoomMode
-  @ApiProperty() termCount!: number
   @ApiProperty({ type: [RoomResponseDto] }) rooms!: RoomResponseDto[]
   @ApiProperty({ type: RoomCapacityDto }) capacity!: RoomCapacityDto
 
-  static fromDomain(event: EventRooms): RoomsResponseDto {
-    return Object.assign(new RoomsResponseDto(), event)
+  static fromDomain(term: TermRooms): RoomsResponseDto {
+    return Object.assign(new RoomsResponseDto(), term)
   }
 }

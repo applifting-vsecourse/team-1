@@ -1,8 +1,20 @@
 import { RoomMode } from "@/modules/events/domain/rooms"
 import { Gender } from "@/shared/domain/gender"
 import { ApiProperty } from "@nestjs/swagger"
-import { Transform } from "class-transformer"
-import { IsIn, IsInt, IsString, Max, MaxLength, Min, MinLength, ValidateIf } from "class-validator"
+import { Transform, Type } from "class-transformer"
+import {
+  IsArray,
+  IsIn,
+  IsInt,
+  IsOptional,
+  IsString,
+  Max,
+  MaxLength,
+  Min,
+  MinLength,
+  ValidateIf,
+  ValidateNested,
+} from "class-validator"
 
 export class RoomRequestDto {
   @ApiProperty({ example: "12", maxLength: 100 })
@@ -25,8 +37,29 @@ export class RoomRequestDto {
   gender?: Gender | null
 }
 
+export class RoomGenderDto {
+  @ApiProperty()
+  @IsString()
+  id!: string
+
+  @ApiProperty({ enum: ["FEMALE", "MALE"] })
+  @IsIn(["FEMALE", "MALE"])
+  gender!: Gender
+}
+
 export class RoomModeRequestDto {
   @ApiProperty({ enum: ["GENDERED", "SHARED"] })
   @IsIn(["GENDERED", "SHARED"])
   roomMode!: RoomMode
+
+  @ApiProperty({
+    type: [RoomGenderDto],
+    required: false,
+    description: "Gender of every existing room when switching to gendered rooms",
+  })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => RoomGenderDto)
+  rooms?: RoomGenderDto[]
 }

@@ -1,53 +1,85 @@
 import { Gender, GenderCounts } from "@/shared/domain/gender"
-import { computeFreePlaces, computeTermCapacity, countByGender, RoomCapacity } from "./capacity"
+import {
+  computeAvailablePlaces,
+  computeTermCapacity,
+  computeTotalBeds,
+  RoomCapacity,
+} from "./capacity"
+import { RoomMode } from "./waitlist"
 
-export type CapacitySnapshot = {
-  roomMode?: "GENDERED" | "SHARED"
+export type TermCapacitySource = {
+  id: string
+  roomMode: RoomMode
   rooms: RoomCapacity[]
-  terms: { id: string; confirmed: { gender: Gender }[] }[]
+  confirmed: { gender: Gender }[]
 }
 
+export type CapacitySnapshot = {
+  terms: TermCapacitySource[]
+}
+
+/**
+ * `capacity` and `freePlaces` per gender. A shared term has one common pool, which is reported on
+ * both genders (D-063): never add FEMALE + MALE together, use `computeTotalBeds` for the beds.
+ */
 export type TermCapacity = {
   termId: string
+  roomMode: RoomMode
   capacity: GenderCounts
   freePlaces: GenderCounts
 }
 
+export type NamedRoom = RoomCapacity & { id: string; name: string }
+
 export type CapacityDetailsSnapshot = {
   eventName: string
-  roomMode?: "GENDERED" | "SHARED"
-  rooms: (RoomCapacity & { id: string; name: string })[]
-  terms: (CapacitySnapshot["terms"][number] & { name: string; startsOn: Date; endsOn: Date })[]
+  terms: (Omit<TermCapacitySource, "rooms"> & {
+    name: string
+    startsOn: Date
+    endsOn: Date
+    rooms: NamedRoom[]
+  })[]
 }
 
 export type EventCapacityDetails = {
   eventName: string
-  roomMode: "GENDERED" | "SHARED"
-  rooms: CapacityDetailsSnapshot["rooms"]
-  terms: (TermCapacity & { name: string; startsOn: string; endsOn: string })[]
+  terms: (TermCapacity & {
+    name: string
+    startsOn: string
+    endsOn: string
+    rooms: NamedRoom[]
+  })[]
 }
 
-export function computeCapacityDetails(snapshot: CapacityDetailsSnapshot): EventCapacityDetails {
-  const terms = snapshot.roomMode === "SHARED" ? [] : computeEventCapacity(snapshot)
-  return {
-    eventName: snapshot.eventName,
-    roomMode: snapshot.roomMode ?? "GENDERED",
-    rooms: snapshot.rooms,
-    terms: terms.map((term, index) => ({
-      ...term,
-      name: snapshot.terms[index].name,
-      startsOn: snapshot.terms[index].startsOn.toISOString().slice(0, 10),
-      endsOn: snapshot.terms[index].endsOn.toISOString().slice(0, 10),
-    })),
-  }
+/**
+ * Capacity of one term from its own rooms and mode (US-99). Gendered: beds per
+ * gender. Shared: the one common pool, reported on both genders (D-063).
+ */
+export function computeTermCapacityOf(term: TermCapacitySource): TermCapacity {
+  const freePlaces = computeAvailablePlaces(
+    term.rooms,
+    term.confirmed.map((person) => person.gender),
+  )
+  const capacity =
+    term.roomMode === "SHARED"
+      ? { FEMALE: computeTotalBeds(term.rooms), MALE: computeTotalBeds(term.rooms) }
+      : computeTermCapacity(term.rooms)
+  return { termId: term.id, roomMode: term.roomMode, capacity, freePlaces }
 }
 
 export function computeEventCapacity(snapshot: CapacitySnapshot): TermCapacity[] {
-  if (snapshot.roomMode === "SHARED") return []
-  const capacity = computeTermCapacity(snapshot.rooms)
-  return snapshot.terms.map((term) => ({
-    termId: term.id,
-    capacity: { ...capacity },
-    freePlaces: computeFreePlaces(capacity, countByGender(term.confirmed)),
-  }))
+  return snapshot.terms.map(computeTermCapacityOf)
+}
+
+export function computeCapacityDetails(snapshot: CapacityDetailsSnapshot): EventCapacityDetails {
+  return {
+    eventName: snapshot.eventName,
+    terms: snapshot.terms.map((term) => ({
+      ...computeTermCapacityOf(term),
+      name: term.name,
+      startsOn: term.startsOn.toISOString().slice(0, 10),
+      endsOn: term.endsOn.toISOString().slice(0, 10),
+      rooms: term.rooms,
+    })),
+  }
 }

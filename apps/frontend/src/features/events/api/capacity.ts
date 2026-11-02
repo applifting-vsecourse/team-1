@@ -7,18 +7,18 @@ import { api } from "@/lib/api-client"
 const counts = z.object({ FEMALE: z.number().int(), MALE: z.number().int() })
 export const capacitySchema = z.object({
   eventName: z.string(),
-  roomMode: z.enum(["GENDERED", "SHARED"]),
-  rooms: z.array(
-    z.object({
-      id: z.string(),
-      name: z.string(),
-      gender: z.enum(["FEMALE", "MALE"]).nullable(),
-      capacity: z.number().int().min(1),
-    }),
-  ),
   terms: z.array(
     z.object({
       termId: z.string(),
+      roomMode: z.enum(["GENDERED", "SHARED"]),
+      rooms: z.array(
+        z.object({
+          id: z.string(),
+          name: z.string(),
+          gender: z.enum(["FEMALE", "MALE"]).nullable(),
+          capacity: z.number().int().min(1),
+        }),
+      ),
       name: z.string(),
       startsOn: z.string(),
       endsOn: z.string(),

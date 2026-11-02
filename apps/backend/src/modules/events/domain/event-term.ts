@@ -6,7 +6,9 @@ export type EventTerm = {
   startsOn: string
   endsOn: string
   priceCzk: number
-  /** Beds of the event's rooms, the same for every term (US-26). */
+  roomMode: "GENDERED" | "SHARED"
+  roomCount: number
+  /** All beds of the term's own rooms (US-99). */
   capacity: number
   confirmedCount: number
   waitlistedCount: number

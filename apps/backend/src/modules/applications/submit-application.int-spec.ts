@@ -53,17 +53,17 @@ describe("submit application (integration)", () => {
         organizationId: organization.id,
         name: "US-27",
         publicToken,
-        // 2 women's beds, 1 men's bed in every term.
-        rooms: {
-          create: [
-            { organizationId: organization.id, name: "A", capacity: 2, gender: "FEMALE" },
-            { organizationId: organization.id, name: "B", capacity: 1, gender: "MALE" },
-          ],
-        },
         terms: {
           create: ["T1", "T2"].map((name, index) => ({
             organizationId: organization.id,
             name,
+            // 2 women's beds, 1 men's bed in every term.
+            rooms: {
+              create: [
+                { organizationId: organization.id, name: "A", capacity: 2, gender: "FEMALE" },
+                { organizationId: organization.id, name: "B", capacity: 1, gender: "MALE" },
+              ],
+            },
             startsOn: new Date(`2027-07-0${index + 1}`),
             endsOn: new Date(`2027-07-0${index + 2}`),
             priceCzk: 1000,

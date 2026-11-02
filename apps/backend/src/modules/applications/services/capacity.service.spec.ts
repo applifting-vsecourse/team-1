@@ -12,7 +12,9 @@ describe("CapacityService", () => {
     const repository = mock<CapacityRepository>()
     const access = mock<OrganizationAccessService>()
     access.assertCanAccessEvent.mockResolvedValue({ organizationId: "org" })
-    repository.findSnapshot.mockResolvedValue({ rooms: [], terms: [{ id: "term", confirmed: [] }] })
+    repository.findSnapshot.mockResolvedValue({
+      terms: [{ id: "term", roomMode: "GENDERED", rooms: [], confirmed: [] }],
+    })
     const result = await new CapacityService(repository, access).getCapacity(user, "event")
     expect(access.assertCanAccessEvent).toHaveBeenCalledWith(user, "event")
     expect(repository.findSnapshot).toHaveBeenCalledWith("event", "org")
@@ -29,42 +31,50 @@ describe("CapacityService", () => {
     expect(repository.findSnapshot).not.toHaveBeenCalled()
   })
 
-  it("does not calculate gendered capacity for a shared-room event", async () => {
+  it("calculates a shared-room term from its own pool", async () => {
     const repository = mock<CapacityRepository>()
     const access = mock<OrganizationAccessService>()
     access.assertCanAccessEvent.mockResolvedValue({ organizationId: "org" })
     repository.findSnapshot.mockResolvedValue({
-      roomMode: "SHARED",
-      rooms: [{ gender: null, capacity: 5000 }],
-      terms: [],
+      terms: [
+        {
+          id: "term",
+          roomMode: "SHARED",
+          rooms: [{ gender: null, capacity: 5000 }],
+          confirmed: [{ gender: "FEMALE" }],
+        },
+      ],
     })
-    await expect(
-      new CapacityService(repository, access).getCapacity(user, "event"),
-    ).rejects.toMatchObject({ code: "CAPACITY_MODE_NOT_SUPPORTED" })
+    expect(await new CapacityService(repository, access).getCapacity(user, "event")).toEqual([
+      {
+        termId: "term",
+        roomMode: "SHARED",
+        capacity: { FEMALE: 5000, MALE: 5000 },
+        freePlaces: { FEMALE: 4999, MALE: 4999 },
+      },
+    ])
   })
 
-  it("returns metadata, not invented numbers, for a shared-room event", async () => {
+  it("returns every term with its own mode and rooms in the details", async () => {
     const repository = mock<CapacityRepository>()
     const access = mock<OrganizationAccessService>()
     access.assertCanAccessEvent.mockResolvedValue({ organizationId: "org" })
     repository.findDetails.mockResolvedValue({
-      roomMode: "SHARED",
       eventName: "Shared",
-      rooms: [{ id: "room", name: "1", gender: null, capacity: 5000 }],
       terms: [
         {
           id: "term",
           name: "Week",
           startsOn: new Date("2027-07-04"),
           endsOn: new Date("2027-07-10"),
+          roomMode: "SHARED",
+          rooms: [{ id: "room", name: "1", gender: null, capacity: 5000 }],
           confirmed: [],
         },
       ],
     })
     expect(await new CapacityService(repository, access).getDetails(user, "event")).toMatchObject({
-      roomMode: "SHARED",
-      terms: [],
-      rooms: [{ gender: null, capacity: 5000 }],
+      terms: [{ roomMode: "SHARED", rooms: [{ gender: null, capacity: 5000 }] }],
     })
   })
 })

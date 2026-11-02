@@ -13,7 +13,9 @@ export const termSchema = z.object({
   startsOn: z.string(),
   endsOn: z.string(),
   priceCzk: z.number().int(),
-  /** Beds of the event's rooms. */
+  roomMode: z.enum(["GENDERED", "SHARED"]),
+  roomCount: z.number().int(),
+  /** All beds of the term's own rooms. */
   capacity: z.number().int(),
   confirmedCount: z.number().int(),
   waitlistedCount: z.number().int(),

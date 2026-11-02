@@ -11,8 +11,8 @@ export type SubmittedParticipant = {
 
 /** What the evaluation reads under the row lock (US-27). */
 export type OccupancySnapshot = {
-  /** Rooms of the event — they apply to every term of it (US-14). */
-  rooms: RoomCapacity[]
+  /** Rooms of each selected term (US-99); a term without rooms has none. */
+  roomsByTerm: Record<string, RoomCapacity[]>
   /** Gender of everyone already CONFIRMED, by term. */
   confirmedGenders: Record<string, Gender[]>
 }
@@ -40,7 +40,7 @@ export function evaluateSubmission(
       participant.terms.map(({ termId, priceCzk }) => ({
         termId,
         priceCzk,
-        freePlaces: computeAvailablePlaces(snapshot.rooms, confirmedIn(termId)),
+        freePlaces: computeAvailablePlaces(snapshot.roomsByTerm[termId] ?? [], confirmedIn(termId)),
       })),
     )
     for (const term of evaluated) {

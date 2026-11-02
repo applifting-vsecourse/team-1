@@ -16,7 +16,13 @@ export class EventTermSummaryDto {
   @ApiProperty({ example: "2027-07-18" })
   endsOn!: string
 
-  @ApiProperty({ description: "Beds of the event's rooms, the same for every term." })
+  @ApiProperty({ enum: ["GENDERED", "SHARED"] })
+  roomMode!: "GENDERED" | "SHARED"
+
+  @ApiProperty()
+  roomCount!: number
+
+  @ApiProperty({ description: "All beds of the term's own rooms." })
   capacity!: number
 
   @ApiProperty()
@@ -54,9 +60,6 @@ export class OrganizerEventResponseDto {
 
   @ApiProperty()
   termCount!: number
-
-  @ApiProperty()
-  roomCount!: number
 
   @ApiProperty({
     type: String,
@@ -109,7 +112,6 @@ export class OrganizerEventResponseDto {
       publicToken: event.publicToken,
       createdAt: event.createdAt.toISOString(),
       termCount: event.termCount,
-      roomCount: event.roomCount,
       startsOn: event.startsOn,
       endsOn: event.endsOn,
       applicationsOpen: event.applicationsOpen,

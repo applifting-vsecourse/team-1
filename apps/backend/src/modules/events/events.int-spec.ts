@@ -52,7 +52,7 @@ describe("organizer events (integration)", () => {
       name: "Jarní víkend Lipno 2027",
       organizationName: "Letní kemp z. s.",
       applicationsOpen: false,
-      missing: ["TERM", "ROOM"],
+      missing: ["TERM"],
     })
 
     const list = await fetch(api("/organizer/events"), { headers: { Cookie: cookieA } })
@@ -63,10 +63,55 @@ describe("organizer events (integration)", () => {
     expect(publicPage.status).toBe(404)
   })
 
-  it("opens the public page once a term and a room exist", async () => {
+  it("closes the public page again when a term without rooms is added (US-99)", async () => {
+    const created = (await (await post(cookieA, { name: "Zima" })).json()) as EventBody
+    const event = await prisma.event.findUniqueOrThrow({ where: { id: created.id } })
+    const makeTerm = (name: string, day: number) =>
+      prisma.term.create({
+        data: {
+          organizationId: event.organizationId,
+          eventId: event.id,
+          name,
+          startsOn: new Date(`2027-12-0${day}`),
+          endsOn: new Date(`2027-12-0${day + 1}`),
+          priceCzk: 1000,
+        },
+      })
+    const first = await makeTerm("První", 1)
+    await prisma.room.create({
+      data: {
+        organizationId: event.organizationId,
+        termId: first.id,
+        name: "A",
+        capacity: 4,
+        gender: "FEMALE",
+      },
+    })
+    expect((await fetch(api(`/public/events/${created.publicToken}`))).status).toBe(200)
+
+    const second = await makeTerm("Druhý", 3)
+    expect((await fetch(api(`/public/events/${created.publicToken}`))).status).toBe(404)
+    const detail = await fetch(api(`/organizer/events/${created.id}`), {
+      headers: { Cookie: cookieA },
+    })
+    expect(await detail.json()).toMatchObject({ applicationsOpen: false, missing: ["ROOM"] })
+
+    await prisma.room.create({
+      data: {
+        organizationId: event.organizationId,
+        termId: second.id,
+        name: "B",
+        capacity: 4,
+        gender: "MALE",
+      },
+    })
+    expect((await fetch(api(`/public/events/${created.publicToken}`))).status).toBe(200)
+  })
+
+  it("opens the public page once every term has a room", async () => {
     const created = (await (await post(cookieA, { name: "Podzim" })).json()) as EventBody
     const event = await prisma.event.findUniqueOrThrow({ where: { id: created.id } })
-    await prisma.term.create({
+    const term = await prisma.term.create({
       data: {
         organizationId: event.organizationId,
         eventId: event.id,
@@ -79,7 +124,7 @@ describe("organizer events (integration)", () => {
     await prisma.room.create({
       data: {
         organizationId: event.organizationId,
-        eventId: event.id,
+        termId: term.id,
         name: "A",
         capacity: 4,
         gender: "FEMALE",
@@ -178,7 +223,7 @@ describe("organizer events (integration)", () => {
       expect((await patch(cookieA, created.id, { evaluationMode: "nope" })).status).toBe(400)
 
       const event = await prisma.event.findUniqueOrThrow({ where: { id: created.id } })
-      await prisma.term.create({
+      const term = await prisma.term.create({
         data: {
           organizationId: event.organizationId,
           eventId: event.id,
@@ -191,7 +236,7 @@ describe("organizer events (integration)", () => {
       await prisma.room.create({
         data: {
           organizationId: event.organizationId,
-          eventId: event.id,
+          termId: term.id,
           name: "A",
           capacity: 4,
           gender: "FEMALE",

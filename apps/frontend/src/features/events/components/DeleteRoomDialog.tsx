@@ -13,33 +13,32 @@ import {
   DialogFooter,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { formatDateRange } from "@/lib/date"
 
-import { deleteRoom, type EventRooms, type Room } from "@/features/events/api/rooms"
+import { deleteRoom, type Room, type TermRooms } from "@/features/events/api/rooms"
 
 // Figma (Design system): X21 / X21b · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12370-662
 export function DeleteRoomDialog({
-  event,
+  term,
   room,
   onClose,
   onSaved,
 }: {
-  event: EventRooms
+  term: TermRooms
   room: Room
   onClose: () => void
   onSaved: () => Promise<void>
 }) {
   const { t } = useTranslation("events")
   const mutation = useMutation({
-    mutationFn: () => deleteRoom(event.eventId, room.id),
+    mutationFn: () => deleteRoom(term.eventId, term.termId, room.id),
     onSuccess: async () => {
       await onSaved()
       onClose()
     },
   })
   const before =
-    event.roomMode === "GENDERED" && room.gender
-      ? event.capacity[room.gender]
-      : event.capacity.total
+    term.roomMode === "GENDERED" && room.gender ? term.capacity[room.gender] : term.capacity.total
   return (
     <Dialog
       open
@@ -48,14 +47,16 @@ export function DeleteRoomDialog({
       }}
     >
       <DialogContent className="bg-card shadow-md sm:max-w-170">
-        <p className="text-xs font-medium text-muted-foreground uppercase">{event.eventName}</p>
+        <p className="text-xs font-medium text-muted-foreground uppercase">
+          {term.eventName} · {formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })}
+        </p>
         <div className="flex items-center justify-between gap-4 pr-8">
           <DialogTitle>{t("rooms.deleteTitle", { name: room.name })}</DialogTitle>
         </div>
         <Alert className="border-status-warning bg-status-warning-bg p-6">
           <AlertTitle className="text-lg text-status-warning">
             {t(
-              event.roomMode === "SHARED"
+              term.roomMode === "SHARED"
                 ? "rooms.deleteImpact"
                 : room.gender === "FEMALE"
                   ? "rooms.deleteFemaleImpact"

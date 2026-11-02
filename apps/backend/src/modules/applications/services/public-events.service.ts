@@ -14,7 +14,7 @@ export class PublicEventsService {
       !found ||
       !isOpenForApplications({
         termCount: found.event.terms.length,
-        roomCount: found.roomCount,
+        termsWithoutRooms: found.termsWithoutRooms,
       })
     ) {
       throw new AppException(HttpStatus.NOT_FOUND, "NOT_FOUND")

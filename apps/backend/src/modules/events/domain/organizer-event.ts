@@ -15,7 +15,9 @@ export type EventTermSummary = {
   /** ISO dates, `2027-07-04`. */
   startsOn: string
   endsOn: string
-  /** Beds of the event's rooms, the same for every term (US-26). */
+  roomMode: "GENDERED" | "SHARED"
+  roomCount: number
+  /** All beds of the term's own rooms (US-99). */
   capacity: number
   confirmedCount: number
 }
@@ -31,7 +33,8 @@ export type StoredEvent = {
   publicToken: string
   createdAt: Date
   termCount: number
-  roomCount: number
+  /** Terms still offered that have no room; the application link stays closed while any does. */
+  termsWithoutRooms: number
   applicationCount: number
   evaluationMode: EvaluationMode
   /** ISO dates, `2027-07-04`: first term start and last term end; null without terms. */
@@ -60,7 +63,7 @@ export type NewEvent = {
 
 /** Readiness comes only from `applications/domain/public-event` — never recomputed here. */
 export function toOrganizerEvent(event: StoredEvent): OrganizerEvent {
-  const setup = { termCount: event.termCount, roomCount: event.roomCount }
+  const setup = { termCount: event.termCount, termsWithoutRooms: event.termsWithoutRooms }
   return {
     ...event,
     applicationsOpen: isOpenForApplications(setup),

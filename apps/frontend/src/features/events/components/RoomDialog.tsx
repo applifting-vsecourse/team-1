@@ -33,19 +33,21 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { apiErrorCode } from "@/lib/api-client"
+import { formatDateRange } from "@/lib/date"
 
-import { saveRoom, type EventRooms, type Room } from "@/features/events/api/rooms"
+import { saveRoom, type Room, type TermRooms } from "@/features/events/api/rooms"
 
+// Room of one term; the form is the one of the earlier iteration, only the term is new.
 // Figma (Design system): X19 / X20 / X22 / X23, X19a / X22a · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12370-121
 // Shared-room variant · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12370-767
 export function RoomDialog({
-  event,
+  term,
   room,
   onClose,
   onSaved,
   onDelete,
 }: {
-  event: EventRooms
+  term: TermRooms
   room?: Room
   onClose: () => void
   onSaved: () => Promise<void>
@@ -70,11 +72,12 @@ export function RoomDialog({
   const mutation = useMutation({
     mutationFn: async (values: z.infer<typeof schema>) => {
       await saveRoom(
-        event.eventId,
+        term.eventId,
+        term.termId,
         {
           name: values.name,
           capacity: Number(values.capacity),
-          gender: event.roomMode === "GENDERED" ? values.gender : null,
+          gender: term.roomMode === "GENDERED" ? values.gender : null,
         },
         room?.id,
       )
@@ -101,13 +104,15 @@ export function RoomDialog({
       }}
     >
       <DialogContent className="max-h-[90dvh] overflow-y-auto bg-card shadow-md sm:max-w-170">
-        <p className="text-xs font-medium text-muted-foreground uppercase">{event.eventName}</p>
+        <p className="text-xs font-medium text-muted-foreground uppercase">
+          {term.eventName} · {formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })}
+        </p>
         <div className="flex items-center justify-between gap-4 pr-8">
           <DialogTitle>{t(room ? "rooms.edit" : "rooms.add")}</DialogTitle>
         </div>
         <DialogDescription className="text-base">
           {t(
-            event.roomMode === "GENDERED" ? "rooms.genderedDescription" : "rooms.sharedDescription",
+            term.roomMode === "GENDERED" ? "rooms.genderedDescription" : "rooms.sharedDescription",
           )}
         </DialogDescription>
         <Form {...form}>
@@ -164,7 +169,7 @@ export function RoomDialog({
                   </FormItem>
                 )}
               />
-              {event.roomMode === "GENDERED" ? (
+              {term.roomMode === "GENDERED" ? (
                 <FormField
                   control={form.control}
                   name="gender"
