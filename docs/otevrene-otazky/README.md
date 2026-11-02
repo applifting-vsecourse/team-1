@@ -2,7 +2,7 @@
 
 > Generováno z [`otazky.yaml`](otazky.yaml) (`python generate.py`). Needituj, měň YAML.
 
-**100 neuzavřených** otázek, **20 uzavřených**.
+**101 neuzavřených** otázek, **20 uzavřených**.
 
 ## Role
 
@@ -68,7 +68,7 @@
 
 _Nic._
 
-### `po` (Tomáš): 53
+### `po` (Tomáš): 54
 
 | ID | Otázka | Dotčené US | Priorita | Proč |
 | --- | --- | --- | --- | --- |
@@ -103,6 +103,7 @@ _Nic._
 | [Q-NAS-03](#q-nas-03) | Stačí kopie celé akce, nebo chceš areál a formulář spravovat zvlášť (US-81)? Je to spíš MVP, nebo Nice to have? | [US-21](https://github.com/applifting-vsecourse/team-1/issues/21) | P3 | Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí. |
 | [Q-NAS-06](#q-nas-06) | Stačí kopie celé akce, nebo chceš areál a formulář spravovat zvlášť a vybírat je při zakládání akce? **Duplicita s [Q-NAS-03](#q-nas-03).** | [US-81](https://github.com/applifting-vsecourse/team-1/issues/81) | P3 | Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí. |
 | [Q-NAS-15](#q-nas-15) | Smí organizátor termíny a ceny na veřejné stránce akce skrýt, nebo mají být vždy vidět? | [US-122 (#215)](https://github.com/applifting-vsecourse/team-1/issues/215) | P3 | Zatím platí „vždy vidět“ (D-093); nic neblokuje. |
+| [Q-NAS-17](#q-nas-17) | Má mít organizátor možnost veřejně zobrazovat kapacitu a obsazenost akce (například v katalogu)? | [US-123 (#216)](https://github.com/applifting-vsecourse/team-1/issues/216), [US-22](https://github.com/applifting-vsecourse/team-1/issues/22) | P3 | Zatím platí D-094 (kapacita se nezveřejňuje); nic neblokuje. |
 | [Q-PLA-03](#q-pla-03) | Co po poslední výzvě k zaplacení bez reakce: jen označit pro telefonát (US-45), nebo má systém přihlášku po nějaké době sám zrušit? | [US-46](https://github.com/applifting-vsecourse/team-1/issues/46) | P3 | Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí. |
 | [Q-PLA-05](#q-pla-05) | Doúčtovává pořadatel po akci? Rozpočítání výdaje mezi účastníky je samostatná otázka. | [US-48](https://github.com/applifting-vsecourse/team-1/issues/48) | P3 | Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí. |
 | [Q-PLA-06](#q-pla-06) | Kdo ověří nárok na slevu (např. členství ve spolku)? | [US-49](https://github.com/applifting-vsecourse/team-1/issues/49) | P3 | Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí. |
@@ -204,6 +205,7 @@ _Nic._
 | [Q-NAS-14](#q-nas-14) | Která sada textů nastavení režimu platí: desktopový, nebo mobilní rámec (jiné podnadpisy, nápověda, tlačítko)? | [US-101 (#194)](https://github.com/applifting-vsecourse/team-1/issues/194) | otevřeno | P3 | `design` |
 | [Q-NAS-15](#q-nas-15) | Smí organizátor termíny a ceny na veřejné stránce akce skrýt, nebo mají být vždy vidět? | [US-122 (#215)](https://github.com/applifting-vsecourse/team-1/issues/215) | otevřeno | P3 | `po` |
 | [Q-NAS-16](#q-nas-16) | Má být pole „Název akce“ upravitelné ve formuláři „Veřejné údaje“ (jeden zdroj s názvem akce), nebo se z formuláře vyndá? | [US-122 (#215)](https://github.com/applifting-vsecourse/team-1/issues/215) | otevřeno | P3 | `pm` |
+| [Q-NAS-17](#q-nas-17) | Má mít organizátor možnost veřejně zobrazovat kapacitu a obsazenost akce (například v katalogu)? | [US-123 (#216)](https://github.com/applifting-vsecourse/team-1/issues/216), [US-22](https://github.com/applifting-vsecourse/team-1/issues/22) | otevřeno | P3 | `po` |
 
 ### Epic: platby
 
@@ -741,6 +743,16 @@ _Nic._
 - **Zdroje:**
   - [PR #258, dotaz vývojáře bod 4 a odpověď PM „nerozumím“](https://github.com/applifting-vsecourse/team-1/pull/258#issuecomment-6582822854)
 - **Priorita:** P3 – Figma pole kreslí a kód ho má; nic neblokuje.
+
+<a id="q-nas-17"></a>
+
+### Q-NAS-17 – Má mít organizátor možnost veřejně zobrazovat kapacitu a obsazenost akce (například v katalogu)?
+
+- **Epic:** nastavení akce · **Dotčené US:** [US-123 (#216)](https://github.com/applifting-vsecourse/team-1/issues/216), [US-22](https://github.com/applifting-vsecourse/team-1/issues/22) · **Stav:** otevřeno · **Čeká na:** `po`
+- **Poznámka:** Souvisí s kritériem US-22 „Při plné kapacitě termínu je u něj uvedeno, že přihláška bude na seznam náhradníků“ a se stavem „Přihlašování otevřené“ u plné akce v katalogu.
+- **Zdroje:**
+  - [komentář PM v #216](https://github.com/applifting-vsecourse/team-1/issues/216#issuecomment-6585291926): „veřejně kapacitu nikde zatím nezveřejňujeme“
+- **Priorita:** P3 – Zatím platí D-094 (kapacita se nezveřejňuje); nic neblokuje.
 
 <a id="q-pla-01"></a>
 
