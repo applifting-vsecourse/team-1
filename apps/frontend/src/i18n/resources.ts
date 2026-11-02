@@ -1,5 +1,6 @@
 import csApplicationForm from "@/i18n/locales/cs/applicationForm.json"
 import csAuth from "@/i18n/locales/cs/auth.json"
+import csCatalog from "@/i18n/locales/cs/catalog.json"
 import csCommon from "@/i18n/locales/cs/common.json"
 import csErrors from "@/i18n/locales/cs/errors.json"
 import csEventOverview from "@/i18n/locales/cs/eventOverview.json"
@@ -8,6 +9,7 @@ import csLanding from "@/i18n/locales/cs/landing.json"
 import csParticipant from "@/i18n/locales/cs/participant.json"
 import enApplicationForm from "@/i18n/locales/en/applicationForm.json"
 import enAuth from "@/i18n/locales/en/auth.json"
+import enCatalog from "@/i18n/locales/en/catalog.json"
 import enCommon from "@/i18n/locales/en/common.json"
 import enErrors from "@/i18n/locales/en/errors.json"
 import enEventOverview from "@/i18n/locales/en/eventOverview.json"
@@ -20,6 +22,7 @@ import enParticipant from "@/i18n/locales/en/participant.json"
 export const resources = {
   en: {
     common: enCommon,
+    catalog: enCatalog,
     errors: enErrors,
     auth: enAuth,
     landing: enLanding,
@@ -30,6 +33,7 @@ export const resources = {
   },
   cs: {
     common: csCommon,
+    catalog: csCatalog,
     errors: csErrors,
     auth: csAuth,
     landing: csLanding,

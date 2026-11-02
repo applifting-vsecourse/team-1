@@ -1,0 +1,29 @@
+{
+  "event": {
+    "apply": "Přihlásit účastníky",
+    "back": "Zpět na katalog",
+    "contact": "Kontakt organizace",
+    "intro": "Na akci se můžeš přihlásit bez registrace. V přihlášce vybereš termíny a uvidíš celkovou cenu.",
+    "terms": "Termíny a ceny"
+  },
+  "list": {
+    "allOrganizations": "Všechny organizace",
+    "badgeOpen": "Přihlašování otevřené",
+    "badgePublished": "Publikováno",
+    "description": "Najdi organizaci a její zveřejněné akce na jednom místě.",
+    "emptyDescription": "Jakmile organizace zveřejní akce, najdeš je v katalogu.",
+    "emptyTitle": "Zatím žádné zveřejněné akce",
+    "errorDescription": "Zkus to prosím znovu.",
+    "errorTitle": "Katalog se nepodařilo načíst.",
+    "loading": "Načítám…",
+    "organization": "Organizace",
+    "retry": "Zkusit znovu",
+    "summaryFrom_few": "{{count}} termíny · od {{price}}",
+    "summaryFrom_one": "{{count}} termín · od {{price}}",
+    "summaryFrom_other": "{{count}} termínů · od {{price}}",
+    "summary_few": "{{count}} termíny · {{price}}",
+    "summary_one": "{{count}} termín · {{price}}",
+    "summary_other": "{{count}} termínů · {{price}}",
+    "title": "Katalog akcí"
+  }
+}

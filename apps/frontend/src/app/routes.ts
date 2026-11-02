@@ -4,6 +4,9 @@
 export const ROUTES = {
   home: "/",
 
+  catalog: "/catalog",
+  catalogEvent: "/catalog/$publicToken",
+
   applicationForm: "/apply/$token",
   applicationConfirmation: "/apply/confirmation/$accessToken",
 

@@ -5,16 +5,19 @@ import { OrganizationAccessModule } from "@/shared/organization-access/organizat
 import { Module } from "@nestjs/common"
 import { ApplicationsController } from "./controllers/applications.controller"
 import { CapacityController } from "./controllers/capacity.controller"
+import { PublicCatalogController } from "./controllers/public-catalog.controller"
 import { PublicEventsController } from "./controllers/public-events.controller"
 import { SubmissionStatusController } from "./controllers/submission-status.controller"
 import { TermStatusController } from "./controllers/term-status.controller"
 import { ApplicationsRepository } from "./repositories/applications.repository"
 import { CapacityRepository } from "./repositories/capacity.repository"
+import { PublicCatalogRepository } from "./repositories/public-catalog.repository"
 import { PublicEventsRepository } from "./repositories/public-events.repository"
 import { SubmissionStatusRepository } from "./repositories/submission-status.repository"
 import { TermStatusRepository } from "./repositories/term-status.repository"
 import { ApplicationsService } from "./services/applications.service"
 import { CapacityService } from "./services/capacity.service"
+import { PublicCatalogService } from "./services/public-catalog.service"
 import { PublicEventsService } from "./services/public-events.service"
 import { SubmissionStatusService } from "./services/submission-status.service"
 import { TermStatusService } from "./services/term-status.service"
@@ -25,6 +28,7 @@ import { WaitlistExpiryService } from "./services/waitlist-expiry.service"
   imports: [PrismaModule, ParticipantsModule, OrganizationAccessModule, AuthModule],
   controllers: [
     PublicEventsController,
+    PublicCatalogController,
     ApplicationsController,
     CapacityController,
     SubmissionStatusController,
@@ -35,6 +39,8 @@ import { WaitlistExpiryService } from "./services/waitlist-expiry.service"
     CapacityService,
     PublicEventsService,
     PublicEventsRepository,
+    PublicCatalogService,
+    PublicCatalogRepository,
     ApplicationsService,
     ApplicationsRepository,
     SubmissionStatusService,

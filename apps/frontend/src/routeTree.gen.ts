@@ -11,6 +11,8 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApplyTokenRouteImport } from './routes/apply/$token'
+import { Route as CatalogIndexRouteImport } from './routes/catalog/index'
+import { Route as CatalogPublicTokenRouteImport } from './routes/catalog/$publicToken'
 import { Route as OrganizerAppRouteImport } from './routes/organizer/_app'
 import { Route as OrganizerLoginRouteImport } from './routes/organizer/login'
 import { Route as ParticipantAppRouteImport } from './routes/participant/_app'
@@ -42,6 +44,16 @@ const IndexRoute = IndexRouteImport.update({
 const ApplyTokenRoute = ApplyTokenRouteImport.update({
   id: '/apply/$token',
   path: '/apply/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CatalogIndexRoute = CatalogIndexRouteImport.update({
+  id: '/catalog/',
+  path: '/catalog/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CatalogPublicTokenRoute = CatalogPublicTokenRouteImport.update({
+  id: '/catalog/$publicToken',
+  path: '/catalog/$publicToken',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OrganizerAppRoute = OrganizerAppRouteImport.update({
@@ -168,12 +180,14 @@ const OrganizerAppEventsEventIdApplicationsApplicationIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/apply/$token': typeof ApplyTokenRoute
+  '/catalog/$publicToken': typeof CatalogPublicTokenRoute
   '/organizer': typeof OrganizerAppRouteWithChildren
   '/organizer/login': typeof OrganizerLoginRoute
   '/participant': typeof ParticipantAppRouteWithChildren
   '/participant/login': typeof ParticipantLoginRoute
   '/participant/magic-link': typeof ParticipantMagicLinkRoute
   '/participant/set-password': typeof ParticipantSetPasswordRoute
+  '/catalog/': typeof CatalogIndexRoute
   '/apply/confirmation/$accessToken': typeof ApplyConfirmationAccessTokenRoute
   '/organizer/account': typeof OrganizerAppAccountRoute
   '/participant/account': typeof ParticipantAppAccountRoute
@@ -194,10 +208,12 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/apply/$token': typeof ApplyTokenRoute
+  '/catalog/$publicToken': typeof CatalogPublicTokenRoute
   '/organizer/login': typeof OrganizerLoginRoute
   '/participant/login': typeof ParticipantLoginRoute
   '/participant/magic-link': typeof ParticipantMagicLinkRoute
   '/participant/set-password': typeof ParticipantSetPasswordRoute
+  '/catalog': typeof CatalogIndexRoute
   '/apply/confirmation/$accessToken': typeof ApplyConfirmationAccessTokenRoute
   '/organizer/account': typeof OrganizerAppAccountRoute
   '/participant/account': typeof ParticipantAppAccountRoute
@@ -218,12 +234,14 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/apply/$token': typeof ApplyTokenRoute
+  '/catalog/$publicToken': typeof CatalogPublicTokenRoute
   '/organizer/_app': typeof OrganizerAppRouteWithChildren
   '/organizer/login': typeof OrganizerLoginRoute
   '/participant/_app': typeof ParticipantAppRouteWithChildren
   '/participant/login': typeof ParticipantLoginRoute
   '/participant/magic-link': typeof ParticipantMagicLinkRoute
   '/participant/set-password': typeof ParticipantSetPasswordRoute
+  '/catalog/': typeof CatalogIndexRoute
   '/apply/confirmation/$accessToken': typeof ApplyConfirmationAccessTokenRoute
   '/organizer/_app/account': typeof OrganizerAppAccountRoute
   '/participant/_app/account': typeof ParticipantAppAccountRoute
@@ -246,12 +264,14 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/apply/$token'
+    | '/catalog/$publicToken'
     | '/organizer'
     | '/organizer/login'
     | '/participant'
     | '/participant/login'
     | '/participant/magic-link'
     | '/participant/set-password'
+    | '/catalog/'
     | '/apply/confirmation/$accessToken'
     | '/organizer/account'
     | '/participant/account'
@@ -272,10 +292,12 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/apply/$token'
+    | '/catalog/$publicToken'
     | '/organizer/login'
     | '/participant/login'
     | '/participant/magic-link'
     | '/participant/set-password'
+    | '/catalog'
     | '/apply/confirmation/$accessToken'
     | '/organizer/account'
     | '/participant/account'
@@ -295,12 +317,14 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/apply/$token'
+    | '/catalog/$publicToken'
     | '/organizer/_app'
     | '/organizer/login'
     | '/participant/_app'
     | '/participant/login'
     | '/participant/magic-link'
     | '/participant/set-password'
+    | '/catalog/'
     | '/apply/confirmation/$accessToken'
     | '/organizer/_app/account'
     | '/participant/_app/account'
@@ -322,12 +346,14 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ApplyTokenRoute: typeof ApplyTokenRoute
+  CatalogPublicTokenRoute: typeof CatalogPublicTokenRoute
   OrganizerAppRoute: typeof OrganizerAppRouteWithChildren
   OrganizerLoginRoute: typeof OrganizerLoginRoute
   ParticipantAppRoute: typeof ParticipantAppRouteWithChildren
   ParticipantLoginRoute: typeof ParticipantLoginRoute
   ParticipantMagicLinkRoute: typeof ParticipantMagicLinkRoute
   ParticipantSetPasswordRoute: typeof ParticipantSetPasswordRoute
+  CatalogIndexRoute: typeof CatalogIndexRoute
   ApplyConfirmationAccessTokenRoute: typeof ApplyConfirmationAccessTokenRoute
 }
 
@@ -345,6 +371,20 @@ declare module '@tanstack/react-router' {
       path: '/apply/$token'
       fullPath: '/apply/$token'
       preLoaderRoute: typeof ApplyTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/catalog/': {
+      id: '/catalog/'
+      path: '/catalog'
+      fullPath: '/catalog/'
+      preLoaderRoute: typeof CatalogIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/catalog/$publicToken': {
+      id: '/catalog/$publicToken'
+      path: '/catalog/$publicToken'
+      fullPath: '/catalog/$publicToken'
+      preLoaderRoute: typeof CatalogPublicTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/organizer/_app': {
@@ -575,12 +615,14 @@ const ParticipantAppRouteWithChildren = ParticipantAppRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ApplyTokenRoute: ApplyTokenRoute,
+  CatalogPublicTokenRoute: CatalogPublicTokenRoute,
   OrganizerAppRoute: OrganizerAppRouteWithChildren,
   OrganizerLoginRoute: OrganizerLoginRoute,
   ParticipantAppRoute: ParticipantAppRouteWithChildren,
   ParticipantLoginRoute: ParticipantLoginRoute,
   ParticipantMagicLinkRoute: ParticipantMagicLinkRoute,
   ParticipantSetPasswordRoute: ParticipantSetPasswordRoute,
+  CatalogIndexRoute: CatalogIndexRoute,
   ApplyConfirmationAccessTokenRoute: ApplyConfirmationAccessTokenRoute,
 }
 export const routeTree = rootRouteImport

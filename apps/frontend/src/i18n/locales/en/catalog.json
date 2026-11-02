@@ -1,0 +1,29 @@
+{
+  "event": {
+    "apply": "Apply participants",
+    "back": "Back to the catalog",
+    "contact": "Organization contact",
+    "intro": "You can apply without registering. In the application you choose the terms and see the total price.",
+    "terms": "Terms and prices"
+  },
+  "list": {
+    "allOrganizations": "All organizations",
+    "badgeOpen": "Applications open",
+    "badgePublished": "Published",
+    "description": "Find an organization and its published events in one place.",
+    "emptyDescription": "As soon as an organization publishes events, you will find them in the catalog.",
+    "emptyTitle": "No published events yet",
+    "errorDescription": "Please try again.",
+    "errorTitle": "The catalog couldn't be loaded.",
+    "loading": "Loading…",
+    "organization": "Organization",
+    "retry": "Try again",
+    "summaryFrom_few": "{{count}} terms · from {{price}}",
+    "summaryFrom_one": "{{count}} term · from {{price}}",
+    "summaryFrom_other": "{{count}} terms · from {{price}}",
+    "summary_few": "{{count}} terms · {{price}}",
+    "summary_one": "{{count}} term · {{price}}",
+    "summary_other": "{{count}} terms · {{price}}",
+    "title": "Event catalog"
+  }
+}
