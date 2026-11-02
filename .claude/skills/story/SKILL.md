@@ -25,7 +25,7 @@ Arguments: `$ARGUMENTS`. `<issue>` is the GitHub issue number, not the US number
 3. Go through `CLAUDE.md`, „Before you open the PR“: report each acceptance criterion, and add the E2E test if the story needs one.
 4. Commit, push, and open the PR with `gh pr create --draft`, body starting with `Closes #<issue>`.
 5. Tick the ✅ criteria in the issue, then run `gh pr ready <pr>` and `node scripts/story.mjs move <issue> "Code review"`.
-6. Wait with `gh pr checks <pr> --watch`, read the `github-actions` comments and answer them as `CLAUDE.md`, „Review“ says.
+6. Wait with `gh pr checks <pr> --watch` and `node scripts/pr-review.mjs wait <pr>`, read the `github-actions` comments and answer them as `CLAUDE.md`, „Review“ says. Repeat after every push.
 7. When CI is green and the review answered, run `node scripts/story.mjs move <issue> "In Test"`.
 
 End with what the PR still lacks, as „Before you open the PR“ asks. Don't merge.
