@@ -22,19 +22,16 @@ export function EventPage({ event }: { event: CatalogEventDetail }) {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
-        <Button
-          asChild
-          variant="outline"
-          className="self-start"
+        <Link
+          to={ROUTES.catalog}
+          className="inline-flex w-fit items-center gap-2 rounded-full bg-accent px-4 py-2 text-sm font-medium text-link transition-colors outline-none hover:bg-accent/70 focus-visible:ring-2 focus-visible:ring-ring"
         >
-          <Link to={ROUTES.catalog}>
-            <ArrowLeft
-              aria-hidden
-              className="size-4"
-            />
-            {t("event.back")}
-          </Link>
-        </Button>
+          <ArrowLeft
+            aria-hidden
+            className="size-4"
+          />
+          {t("event.back")}
+        </Link>
         <h1 className="text-2xl/8 font-bold tracking-tight md:text-3xl/10">{event.name}</h1>
       </div>
       {event.hasPhoto ? (

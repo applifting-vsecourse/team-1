@@ -4,7 +4,7 @@ import {
   CatalogEventDetail,
   summarizeTerms,
 } from "@/modules/applications/domain/public-catalog"
-import { isOpenForApplications } from "@/modules/applications/domain/public-event"
+import { isOpenForTerms } from "@/modules/applications/domain/public-event"
 import { Injectable } from "@nestjs/common"
 
 const isoDate = (date: Date): string => date.toISOString().slice(0, 10)
@@ -54,10 +54,9 @@ export class PublicCatalogRepository {
             endsOn: isoDate(term.endsOn),
           })),
           ...summarizeTerms(event.terms),
-          isOpenForApplications: isOpenForApplications({
-            termCount: event.terms.length,
-            termsWithoutRooms: event.terms.filter((term) => term._count.rooms === 0).length,
-          }),
+          isOpenForApplications: isOpenForTerms(
+            event.terms.map((term) => ({ roomCount: term._count.rooms })),
+          ),
         }
       })
       .sort(
@@ -100,10 +99,9 @@ export class PublicCatalogRepository {
         priceCzk: term.priceCzk,
       })),
       hasPhoto: event.photo !== null,
-      isOpenForApplications: isOpenForApplications({
-        termCount: event.terms.length,
-        termsWithoutRooms: event.terms.filter((term) => term._count.rooms === 0).length,
-      }),
+      isOpenForApplications: isOpenForTerms(
+        event.terms.map((term) => ({ roomCount: term._count.rooms })),
+      ),
     }
   }
 

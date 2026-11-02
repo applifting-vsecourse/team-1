@@ -45,3 +45,11 @@ export function isOpenForApplications(counts: {
 }): boolean {
   return missingForApplications(counts).length === 0
 }
+
+/** The same check over loaded terms: how many there are and how many have no room. */
+export function isOpenForTerms(terms: { roomCount: number }[]): boolean {
+  return isOpenForApplications({
+    termCount: terms.length,
+    termsWithoutRooms: terms.filter((term) => term.roomCount === 0).length,
+  })
+}

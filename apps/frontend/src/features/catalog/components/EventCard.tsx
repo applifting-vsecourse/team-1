@@ -9,8 +9,9 @@ import { formatCzk } from "@/lib/money"
 
 import type { CatalogEvent } from "@/features/catalog/api/catalog"
 
-// Figma (Design system): Togena / Event card · Katalog akcí · Katalog organizací · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16146-10083
-// Mobil · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16146-10109
+// Figma (Design system): Togena / Event card v katalogu
+// desktop · Katalog organizací · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16146-10083
+// mobil · Katalog organizací · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16146-10109
 /** One published event; the whole card opens the event page. */
 export function EventCard({ event }: { event: CatalogEvent }) {
   const { t } = useTranslation("catalog")
