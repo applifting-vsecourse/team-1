@@ -23,7 +23,11 @@ const props = {
       payment: {
         amount: 'CZK 9,400',
         bankAccount: '2900123456/2010',
-        variableSymbol: '0048',
+        variableSymbol: '48000',
+        terms: [
+          { name: 'Week 1', amount: 'CZK 4,500', variableSymbol: '48001' },
+          { name: 'Week 2', amount: 'CZK 4,900', variableSymbol: '48002' },
+        ],
       },
       confirmationUrl:
         'https://team-1.vsepractical.applifting.dev/apply/confirmation/preview-1',
@@ -37,7 +41,8 @@ const props = {
       payment: {
         amount: 'CZK 4,900',
         bankAccount: '2900123456/2010',
-        variableSymbol: '0049',
+        variableSymbol: '49000',
+        terms: [],
       },
       confirmationUrl:
         'https://team-1.vsepractical.applifting.dev/apply/confirmation/preview-2',

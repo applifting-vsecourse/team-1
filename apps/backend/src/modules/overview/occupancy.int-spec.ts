@@ -22,6 +22,7 @@ describe("event occupancy (integration)", () => {
         publicToken: `occupancy-${roomMode}`,
       },
     })
+    let number = 0
     const term = (
       name: string,
       day: number,
@@ -31,6 +32,7 @@ describe("event occupancy (integration)", () => {
         data: {
           organizationId,
           eventId: event.id,
+          number: ++number,
           name,
           startsOn: new Date(Date.UTC(2027, 6, day)),
           endsOn: new Date(Date.UTC(2027, 6, day + 6)),

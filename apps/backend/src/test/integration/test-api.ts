@@ -34,6 +34,12 @@ export async function resetAndSeed(prisma: PrismaService): Promise<void> {
   })
 }
 
+/** Next free `Term.number` of an event — for tests that create terms straight through Prisma. */
+export async function nextTermNumber(prisma: PrismaService, eventId: string): Promise<number> {
+  const { _max } = await prisma.term.aggregate({ where: { eventId }, _max: { number: true } })
+  return (_max.number ?? 0) + 1
+}
+
 /** Signs in via BetterAuth and returns the Cookie header for further requests. */
 export async function signIn(email: string, password: string): Promise<string> {
   const response = await fetch(api("/auth/sign-in/email"), {

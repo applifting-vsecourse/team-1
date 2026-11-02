@@ -18,28 +18,47 @@ export class PaymentsService {
     return paymentSummary(application)
   }
 
+  /** Without `termId` a summary payment (split over the terms), with it a payment of one term. */
   async record(
     user: Identity,
     applicationId: string,
     requestId: string,
     amountCzk?: number,
+    termId?: string,
   ): Promise<void> {
     const { organizationId } = await this.access.assertCanAccessApplication(user, applicationId)
-    await this.repository.record(applicationId, organizationId, user.id, requestId, amountCzk)
+    await this.repository.record({
+      applicationId,
+      organizationId,
+      recordedById: user.id,
+      requestId,
+      amountCzk,
+      termId,
+    })
   }
 
+  /** A refund is always one negative row of one term, so `termId` is required. */
   async refund(
     user: Identity,
     applicationId: string,
     requestId: string,
     amountCzk: number,
+    termId?: string,
   ): Promise<void> {
     const { organizationId } = await this.access.assertCanAccessApplication(user, applicationId)
-    await this.repository.record(applicationId, organizationId, user.id, requestId, amountCzk, true)
+    await this.repository.record({
+      applicationId,
+      organizationId,
+      recordedById: user.id,
+      requestId,
+      amountCzk,
+      termId,
+      isRefund: true,
+    })
   }
 
-  async remove(user: Identity, applicationId: string, paymentId: string): Promise<void> {
+  async remove(user: Identity, applicationId: string, receiptId: string): Promise<void> {
     const { organizationId } = await this.access.assertCanAccessApplication(user, applicationId)
-    await this.repository.remove(applicationId, organizationId, paymentId)
+    await this.repository.remove(applicationId, organizationId, receiptId)
   }
 }

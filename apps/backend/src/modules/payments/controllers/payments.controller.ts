@@ -37,7 +37,10 @@ export class PaymentsController {
 
   @Post()
   @HttpCode(204)
-  @ApiOperation({ summary: "Add a receipt; omitted amount settles the remaining debt" })
+  @ApiOperation({
+    summary:
+      "Add a receipt. Without termId it settles the summary (split over the confirmed terms), with it one term; omitted amount settles the remaining debt",
+  })
   @ApiResponse({ status: 204 })
   @ApiResponse({ status: 409, description: "Submission already recorded with a different amount" })
   async create(
@@ -45,30 +48,32 @@ export class PaymentsController {
     @Param("applicationId") id: string,
     @Body() body: RecordPaymentRequestDto,
   ): Promise<void> {
-    await this.payments.record(user, id, body.requestId, body.amountCzk)
+    await this.payments.record(user, id, body.requestId, body.amountCzk, body.termId ?? undefined)
   }
 
   @Post("refunds")
   @HttpCode(204)
-  @ApiOperation({ summary: "Record money already returned, up to the current overpayment" })
+  @ApiOperation({
+    summary: "Record money already returned for one term (termId), up to its overpayment",
+  })
   @ApiResponse({ status: 204 })
   async refund(
     @User() user: Identity,
     @Param("applicationId") id: string,
     @Body() body: RecordRefundRequestDto,
   ): Promise<void> {
-    await this.payments.refund(user, id, body.requestId, body.amountCzk)
+    await this.payments.refund(user, id, body.requestId, body.amountCzk, body.termId ?? undefined)
   }
 
-  @Delete(":paymentId")
+  @Delete(":receiptId")
   @HttpCode(204)
-  @ApiOperation({ summary: "Cancel a mistakenly recorded payment" })
+  @ApiOperation({ summary: "Cancel a mistakenly recorded receipt, all its rows" })
   @ApiResponse({ status: 204 })
   async remove(
     @User() user: Identity,
     @Param("applicationId") id: string,
-    @Param("paymentId") paymentId: string,
+    @Param("receiptId") receiptId: string,
   ): Promise<void> {
-    await this.payments.remove(user, id, paymentId)
+    await this.payments.remove(user, id, receiptId)
   }
 }

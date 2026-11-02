@@ -15,7 +15,8 @@
     "errorTitle": "Couldn't load your applications"
   },
   "payment": {
-    "account": "Account number",
+    "account": "Bank account",
+    "chooseSymbol": "Use the variable symbol of the whole application, or only of the term you are paying.",
     "detailsTitle": "Payment information",
     "due": "Amount due",
     "note": "Please pay by bank transfer.",
@@ -26,7 +27,8 @@
     "toPay": "To pay",
     "transferTitle": "Payment details",
     "variableSymbol": "Variable symbol",
-    "waitlistedNote": "In the term {{range}} you are waitlisted and have no amount due yet."
+    "waitlistedNote": "In the term {{range}} you are waitlisted and have no amount due yet.",
+    "wholeApplication": "Whole application"
   },
   "paymentStatus": {
     "OVERPAID": "Overpaid",
@@ -37,7 +39,7 @@
   "status": {
     "cancelled": "Cancelled",
     "confirmed": "Confirmed",
-    "doNotPayYet": "Do not pay anything yet",
-    "waitlisted": "Waitlisted"
+    "waitlisted": "Waitlisted",
+    "zeroUntilConfirmed": "0 CZK until confirmed"
   }
 }

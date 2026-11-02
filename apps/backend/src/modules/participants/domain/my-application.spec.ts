@@ -1,9 +1,4 @@
-import {
-  buildMyApplication,
-  MyApplicationRecord,
-  toApplicationCode,
-  toVariableSymbol,
-} from "./my-application"
+import { buildMyApplication, MyApplicationRecord, toApplicationCode } from "./my-application"
 
 const at = (minute: number): Date => new Date(Date.UTC(2027, 0, 1, 10, minute))
 const day = (iso: string): Date => new Date(`${iso}T00:00:00.000Z`)
@@ -24,6 +19,8 @@ const record = (overrides: Partial<MyApplicationRecord> = {}): MyApplicationReco
       endsOn: day("2027-07-17"),
       status: "CONFIRMED",
       priceCzk: 4900,
+      termNumber: 2,
+      payments: [],
     },
     {
       termId: "t1",
@@ -32,18 +29,11 @@ const record = (overrides: Partial<MyApplicationRecord> = {}): MyApplicationReco
       endsOn: day("2027-07-10"),
       status: "CONFIRMED",
       priceCzk: 4500,
+      termNumber: 1,
+      payments: [],
     },
   ],
-  payments: [],
   ...overrides,
-})
-
-describe("toVariableSymbol", () => {
-  it("pads the application number to four digits", () => {
-    expect(toVariableSymbol(48)).toBe("0048")
-    expect(toVariableSymbol(1234)).toBe("1234")
-    expect(toVariableSymbol(12345)).toBe("12345")
-  })
 })
 
 describe("toApplicationCode", () => {
@@ -64,11 +54,17 @@ describe("buildMyApplication", () => {
 
     expect(result.terms.map((term) => term.termId)).toEqual(["t1", "t2"])
     expect(result.amountDueCzk).toBe(9400)
-    expect(result.variableSymbol).toBe("0048")
-    expect(result.paymentDetails).toEqual({
+    expect(result.variableSymbol).toBe("48000")
+    expect(result.paymentDetails).toMatchObject({
       bankAccount: "2900123456/2010",
-      variableSymbol: "0048",
+      summary: { variableSymbol: "48000", payableCzk: 9400 },
     })
+    expect(result.paymentDetails?.terms.map((t) => [t.termId, t.variableSymbol, t.dueCzk])).toEqual(
+      [
+        ["t1", "48001", 4500],
+        ["t2", "48002", 4900],
+      ],
+    )
   })
 
   it.each([
@@ -78,7 +74,10 @@ describe("buildMyApplication", () => {
     ["paid in two parts", [{ amountCzk: 4000 }, { amountCzk: 5400 }], 9400, 0, "PAID"],
     ["overpaid", [{ amountCzk: 10000 }], 10000, -600, "OVERPAID"],
   ])("%s", (_name, payments, paid, owed, status) => {
-    const result = buildMyApplication(record({ payments }))
+    const base = record()
+    const result = buildMyApplication(
+      record({ terms: base.terms.map((term, i) => (i === 0 ? { ...term, payments } : term)) }),
+    )
 
     expect(result.amountPaidCzk).toBe(paid)
     expect(result.amountOwedCzk).toBe(owed)

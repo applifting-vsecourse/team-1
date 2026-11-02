@@ -3,14 +3,20 @@ import { ApplicationTermStatus } from "@/modules/applications/domain/evaluation"
 
 /** One application of a submission — one per participant (the person going to the event). */
 export type SubmittedApplication = {
-  /** Application.number — the variable symbol of this application's payment. */
+  /** Application.number — with the term number it makes the variable symbols (× 1000). */
   number: number
   firstName: string
   lastName: string
   /** Secret of this application's confirmation page `/apply/confirmation/<accessToken>`. */
   accessToken: string
   /** Terms as evaluated; the price is the one frozen at evaluation. */
-  terms: { name: string; status: ApplicationTermStatus; priceCzk: number }[]
+  terms: {
+    name: string
+    /** `Term.number`, the last three digits of the term's variable symbol. */
+    termNumber: number
+    status: ApplicationTermStatus
+    priceCzk: number
+  }[]
 }
 
 /**

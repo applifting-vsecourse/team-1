@@ -225,4 +225,81 @@ describe("organizer terms (integration)", () => {
     const response = await send(cookieA, "PATCH", `${termsPath(other.id)}/${term.id}`, body)
     expect(response.status).toBe(403)
   })
+
+  describe("term number (US-137)", () => {
+    let numberedEventId: string
+    const body = (name: string) => ({
+      name,
+      startsOn: "2027-09-01",
+      endsOn: "2027-09-02",
+      priceCzk: 100,
+    })
+    const numbers = async (): Promise<Record<string, number>> =>
+      Object.fromEntries(
+        (await prisma.term.findMany({ where: { eventId: numberedEventId } })).map((term) => [
+          term.name,
+          term.number,
+        ]),
+      )
+
+    beforeAll(async () => {
+      const created = await send(cookieA, "POST", "/organizer/events", { name: "Čísla" })
+      numberedEventId = ((await created.json()) as { id: string }).id
+    })
+
+    it("numbers terms 1, 2, 3 within the event, also when created concurrently", async () => {
+      await send(cookieA, "POST", termsPath(numberedEventId), body("první"))
+      const responses = await Promise.all(
+        ["b", "c", "d", "e"].map((name) =>
+          send(cookieA, "POST", termsPath(numberedEventId), body(name)),
+        ),
+      )
+      expect(responses.map((r) => r.status)).toEqual([201, 201, 201, 201])
+      const values = Object.values(await numbers()).sort()
+      expect(values).toEqual([1, 2, 3, 4, 5])
+    })
+
+    it("keeps the number after an edit and a cancellation, and never reuses it", async () => {
+      const before = await numbers()
+      const term = await prisma.term.findFirstOrThrow({
+        where: { eventId: numberedEventId, number: 5 },
+      })
+      const path = `${termsPath(numberedEventId)}/${term.id}`
+      expect((await send(cookieA, "PATCH", path, body("přejmenovaný"))).status).toBe(200)
+      expect(
+        (await send(cookieA, "POST", `${path}/cancel`, { reason: "Zrušeno" })).status,
+      ).toBeLessThan(300)
+      const after = await prisma.term.findUniqueOrThrow({ where: { id: term.id } })
+      expect(after.number).toBe(5)
+      expect(before).not.toHaveProperty("přejmenovaný")
+
+      await send(cookieA, "POST", termsPath(numberedEventId), body("šestý"))
+      expect((await numbers())["šestý"]).toBe(6)
+    })
+
+    it("numbers every event on its own", async () => {
+      const other = await prisma.term.findMany({ where: { eventId } })
+      expect(other.map((term) => term.number).sort()).toEqual(other.map((_, index) => index + 1))
+    })
+
+    it("refuses the 1000th term with TERM_LIMIT_REACHED", async () => {
+      const event = await prisma.event.findUniqueOrThrow({ where: { id: numberedEventId } })
+      const existing = await prisma.term.count({ where: { eventId: numberedEventId } })
+      await prisma.term.createMany({
+        data: Array.from({ length: 999 - existing }, (_, index) => ({
+          organizationId: event.organizationId,
+          eventId: numberedEventId,
+          number: existing + index + 1,
+          name: `fill ${index}`,
+          startsOn: new Date("2027-10-01"),
+          endsOn: new Date("2027-10-02"),
+          priceCzk: 1,
+        })),
+      })
+      const response = await send(cookieA, "POST", termsPath(numberedEventId), body("1000."))
+      expect(response.status).toBe(409)
+      expect(await response.json()).toMatchObject({ code: "TERM_LIMIT_REACHED" })
+      expect(await prisma.term.count({ where: { eventId: numberedEventId } })).toBe(999)
+    })
+  })
 })

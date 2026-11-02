@@ -1,12 +1,14 @@
 import { ApplicationTermStatus } from "@/modules/applications/domain/evaluation"
 import {
-  computeAmountDue,
+  computeApplicationDue,
+  computeApplicationPaid,
+} from "@/modules/applications/domain/payment-details"
+import {
   computeAmountOwed,
-  computeAmountPaid,
   computePaymentStatus,
   PaymentStatus,
 } from "@/modules/applications/domain/pricing"
-import { toVariableSymbol } from "@/modules/applications/domain/submission-status"
+import { variableSymbol } from "@/modules/applications/domain/variable-symbol"
 import {
   bedGroup,
   RoomMode,
@@ -48,12 +50,15 @@ export type ListedApplication = {
     roomMode: RoomMode
     status: ApplicationTermStatus
     priceCzk: number
+    /** `Term.number`. */
+    termNumber: number
+    /** Non-cancelled payment rows of this application in this term. */
+    payments: { amountCzk: number }[]
   }[]
-  payments: { amountCzk: number }[]
 }
 
-export type ApplicationListEntry = Omit<ListedApplication, "payments" | "number" | "terms"> & {
-  terms: (ListedApplication["terms"][number] & {
+export type ApplicationListEntry = Omit<ListedApplication, "number" | "terms"> & {
+  terms: (Omit<ListedApplication["terms"][number], "payments" | "termNumber"> & {
     /** 1-based place in the waitlist of the term and bed group; null unless waitlisted (US-30). */
     waitlistPosition: number | null
   })[]
@@ -95,7 +100,7 @@ export function applicationList(
       (row) =>
         words.every((word) =>
           normalize(
-            `${row.firstName} ${row.lastName} ${row.email} ${toVariableSymbol(row.number)}`,
+            `${row.firstName} ${row.lastName} ${row.email} ${variableSymbol(row.number)}`,
           ).includes(word),
         ) &&
         (!filters.gender || row.gender === filters.gender) &&
@@ -107,8 +112,8 @@ export function applicationList(
           )),
     )
     .map((row) => {
-      const amountDueCzk = computeAmountDue(row.terms)
-      const amountPaidCzk = computeAmountPaid(row.payments)
+      const amountDueCzk = computeApplicationDue(row.terms)
+      const amountPaidCzk = computeApplicationPaid(row.terms)
       return {
         id: row.id,
         firstName: row.firstName,
@@ -117,7 +122,16 @@ export function applicationList(
         gender: row.gender,
         email: row.email,
         submittedAt: row.submittedAt,
-        terms: row.terms.map((term) => ({ ...term, waitlistPosition: positionOf(row, term.id) })),
+        terms: row.terms.map((term) => ({
+          id: term.id,
+          name: term.name,
+          startsOn: term.startsOn,
+          endsOn: term.endsOn,
+          roomMode: term.roomMode,
+          status: term.status,
+          priceCzk: term.priceCzk,
+          waitlistPosition: positionOf(row, term.id),
+        })),
         amountDueCzk,
         amountPaidCzk,
         amountOwedCzk: computeAmountOwed(amountDueCzk, amountPaidCzk),

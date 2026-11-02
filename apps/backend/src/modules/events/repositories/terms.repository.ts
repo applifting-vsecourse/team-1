@@ -1,8 +1,10 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { Prisma } from "@/generated/prisma/client"
 import { computeTotalBeds } from "@/modules/applications/domain/capacity"
+import { MAX_TERM_NUMBER } from "@/modules/applications/domain/variable-symbol"
 import { EventTerm, TermInput } from "@/modules/events/domain/event-term"
-import { Injectable } from "@nestjs/common"
+import { AppException } from "@/shared/errors/app.exception"
+import { HttpStatus, Injectable } from "@nestjs/common"
 
 const include = {
   applicationTerms: { select: { status: true } },
@@ -46,9 +48,17 @@ export class TermsRepository {
   }
 
   async create(organizationId: string, eventId: string, input: TermInput): Promise<EventTerm> {
-    const row = await this.prisma.term.create({
-      data: { organizationId, eventId, ...this.toData(input) },
-      include,
+    // The event row is locked so two concurrent creates cannot take the same number.
+    const row = await this.prisma.$transaction(async (tx) => {
+      await tx.$queryRaw`SELECT id FROM event WHERE id = ${eventId} FOR UPDATE`
+      const { _max } = await tx.term.aggregate({ where: { eventId }, _max: { number: true } })
+      const number = (_max.number ?? 0) + 1
+      if (number > MAX_TERM_NUMBER)
+        throw new AppException(HttpStatus.CONFLICT, "TERM_LIMIT_REACHED")
+      return tx.term.create({
+        data: { organizationId, eventId, number, ...this.toData(input) },
+        include,
+      })
     })
     return toTerm(row)
   }

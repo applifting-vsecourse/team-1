@@ -13,7 +13,7 @@ const event: SubmissionEvent = {
   name: "Letní kemp",
   bankAccount: "2900123456/2010",
   termsWithoutRooms: 0,
-  terms: [{ id: "t1", name: "1. týden", priceCzk: 4500 }],
+  terms: [{ id: "t1", name: "1. týden", number: 1, priceCzk: 4500 }],
 }
 const participant = {
   firstName: "Eva",
@@ -64,7 +64,7 @@ describe("ApplicationsService.submit", () => {
           expect.objectContaining({
             number: 7,
             firstName: "Eva",
-            terms: [{ name: "1. týden", status: "CONFIRMED", priceCzk: 4500 }],
+            terms: [{ name: "1. týden", termNumber: 1, status: "CONFIRMED", priceCzk: 4500 }],
           }),
         ],
       }),

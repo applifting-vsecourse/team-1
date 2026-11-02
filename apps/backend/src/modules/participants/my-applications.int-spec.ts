@@ -1,4 +1,5 @@
 // US-54: the participant sees only the applications of their own account.
+import { randomUUID } from "node:crypto"
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { api, connectTestPrisma, resetAndSeed, signIn } from "@/test/integration/test-api"
 
@@ -13,7 +14,7 @@ type ApplicationDto = {
   amountDueCzk: number
   amountPaidCzk: number
   amountOwedCzk: number
-  paymentDetails: { bankAccount: string; variableSymbol: string } | null
+  paymentDetails: { bankAccount: string; summary: { variableSymbol: string } } | null
   paymentStatus: string
 }
 
@@ -48,7 +49,7 @@ describe("participant applications (integration)", () => {
           updatedAt: new Date(),
         },
       }))
-    return prisma.application.create({
+    const application = await prisma.application.create({
       data: {
         organizationId: event.organizationId,
         eventId: event.id,
@@ -68,15 +69,20 @@ describe("participant applications (integration)", () => {
             priceCzk: term.priceCzk,
           })),
         },
-        payments: {
-          create: payments.map((amountCzk) => ({
-            organizationId: event.organizationId,
-            amountCzk,
-            recordedById: organizer.id,
-          })),
-        },
       },
+      include: { terms: true },
     })
+    // Each amount is a receipt on the first term; the application summary adds them up.
+    await prisma.payment.createMany({
+      data: payments.map((amountCzk) => ({
+        organizationId: event.organizationId,
+        applicationTermId: application.terms[0].id,
+        receiptId: randomUUID(),
+        amountCzk,
+        recordedById: organizer.id,
+      })),
+    })
+    return application
   }
 
   beforeAll(async () => {
@@ -103,8 +109,13 @@ describe("participant applications (integration)", () => {
     ])
     const symbols = applications.map((a) => a.variableSymbol)
     expect(new Set(symbols).size).toBe(3)
-    expect(symbols.every((symbol) => /^\d{4}$/.test(symbol))).toBe(true)
-    expect(applications.every((a) => a.code.endsWith(`-${a.variableSymbol}`))).toBe(true)
+    // Summary symbol = application number × 1000; the display code carries the padded number.
+    expect(symbols.every((symbol) => /^\d+000$/.test(symbol))).toBe(true)
+    expect(
+      applications.every((a) =>
+        a.code.endsWith(`-${String(Number(a.variableSymbol) / 1000).padStart(4, "0")}`),
+      ),
+    ).toBe(true)
   })
 
   it("shows payment details and the amount due of a fully paid application", async () => {
@@ -119,9 +130,9 @@ describe("participant applications (integration)", () => {
       amountOwedCzk: 0,
       paymentStatus: "PAID",
     })
-    expect(camp.paymentDetails).toEqual({
+    expect(camp.paymentDetails).toMatchObject({
       bankAccount: "2900123456/2010",
-      variableSymbol: camp.variableSymbol,
+      summary: { variableSymbol: camp.variableSymbol, payableCzk: 0 },
     })
   })
 
