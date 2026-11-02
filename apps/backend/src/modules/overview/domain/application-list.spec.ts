@@ -36,6 +36,14 @@ const row: ListedApplication = {
 }
 
 describe("application list filters", () => {
+  it.each(["48001", "48002"])("finds an application by the variable symbol of a term: %s", (q) => {
+    expect(applicationList([row], { q })).toHaveLength(1)
+  })
+
+  it("does not find an application by a term symbol it does not have", () => {
+    expect(applicationList([row], { q: "48003" })).toEqual([])
+  })
+
   it.each(["jana", "TEST JANA", "  jana   test  ", "TEST@EXAMPLE", "48000", "48", "  "])(
     "finds names, e-mails and variable symbols: %s",
     (q) => {

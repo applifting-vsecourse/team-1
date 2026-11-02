@@ -41,16 +41,21 @@ export function PaymentEditor({ application, onClose, isRefund = false }: Props)
   const { t } = useTranslation("eventOverview")
   const client = useQueryClient()
   const [requestId] = useState(() => crypto.randomUUID())
-  const overpayment = Math.max(0, -application.amountOwedCzk)
+  // A refund is taken from one term: the most overpaid one (repeat for the next).
+  const refundTerm = application.terms
+    .filter((term) => term.owedCzk < 0)
+    .sort((a, b) => a.owedCzk - b.owedCzk)[0]
+  const overpayment = isRefund
+    ? Math.max(0, -(refundTerm?.owedCzk ?? 0))
+    : Math.max(0, -application.amountOwedCzk)
   const [amount, setAmount] = useState(isRefund ? String(overpayment) : "")
-  const [amountMode, setAmountMode] = useState(
-    application.amountOwedCzk > 0 ? "remaining" : "custom",
-  )
+  const [amountMode, setAmountMode] = useState(application.payableCzk > 0 ? "remaining" : "custom")
   const [isInvalid, setIsInvalid] = useState(false)
   const unspaced = amount.replace(/\s/g, "")
   const normalized = /^\d{1,3}(,\d{3})+$/.test(unspaced) ? unspaced.replace(/,/g, "") : unspaced
   const parsed = normalized === "" ? undefined : Number(normalized)
-  const remaining = Math.max(0, application.amountOwedCzk)
+  // What a summary payment settles: an overpayment of another term does not reduce it.
+  const remaining = Math.max(0, application.payableCzk)
   const isCustomAmount = isRefund || amountMode === "custom" || remaining === 0
   const receipt = isCustomAmount ? parsed : remaining
   const isValid =
@@ -73,7 +78,7 @@ export function PaymentEditor({ application, onClose, isRefund = false }: Props)
   const mutation = useMutation({
     mutationFn: () =>
       isRefund
-        ? recordRefund(application.id, requestId, receipt!)
+        ? recordRefund(application.id, requestId, receipt!, refundTerm!.termId)
         : recordPayment(application.id, requestId, receipt),
     onSuccess: async () => {
       await Promise.all([

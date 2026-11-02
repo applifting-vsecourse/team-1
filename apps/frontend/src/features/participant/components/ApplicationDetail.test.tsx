@@ -127,8 +127,17 @@ describe("ApplicationDetail", () => {
   })
 
   it("shows an overpayment as an overpayment, not as zero", async () => {
+    const base = application()
     renderDetail(
-      application({ amountPaidCzk: 5100, amountOwedCzk: -600, paymentStatus: "OVERPAID" }),
+      application({
+        amountPaidCzk: 5100,
+        amountOwedCzk: -600,
+        paymentStatus: "OVERPAID",
+        paymentDetails: {
+          ...base.paymentDetails!,
+          summary: { variableSymbol: "48000", payableCzk: 0 },
+        },
+      }),
     )
 
     expect(await screen.findByText("Overpayment")).toBeInTheDocument()
@@ -136,6 +145,24 @@ describe("ApplicationDetail", () => {
     expect(screen.queryByRole("heading", { name: "Payment details" })).not.toBeInTheDocument()
     expect(screen.queryByText("Left to pay")).not.toBeInTheDocument()
     expect(screen.queryByText("To pay")).not.toBeInTheDocument()
+  })
+
+  it("still shows what to pay when an overpaid term makes the whole balance negative", async () => {
+    const base = application()
+    renderDetail(
+      application({
+        amountPaidCzk: 5100,
+        amountOwedCzk: -600,
+        paymentStatus: "OVERPAID",
+        paymentDetails: {
+          ...base.paymentDetails!,
+          summary: { variableSymbol: "48000", payableCzk: 1500 },
+        },
+      }),
+    )
+
+    expect(await screen.findByRole("heading", { name: "Payment details" })).toBeInTheDocument()
+    expect(screen.getByText("To pay")).toBeInTheDocument()
   })
 
   it("shows a waitlisted term as waitlisted without a place in line, not to be paid yet", async () => {

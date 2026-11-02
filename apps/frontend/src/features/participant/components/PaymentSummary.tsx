@@ -25,11 +25,13 @@ export function PaymentSummary({ application }: PaymentSummaryProps) {
 
   const isOverpaid = amountOwedCzk < 0
   const hasToPay = amountOwedCzk > 0
+  // Something is still to be sent even when an overpaid term makes the whole balance negative.
+  const isPayable = paymentDetails.summary.payableCzk > 0
   const waitlisted = application.terms.filter((term) => term.status === "WAITLISTED")
   // With several confirmed terms the application can be paid as a whole or one term at a time.
   const termPayments = paymentDetails.terms.length > 1 ? paymentDetails.terms : []
   const note = [
-    hasToPay ? t("payment.note") : null,
+    isPayable ? t("payment.note") : null,
     termPayments.length > 0 ? t("payment.chooseSymbol") : null,
     waitlisted.length > 0
       ? t("payment.waitlistedNote", { range: waitlisted.map(termRange).join(", ") })
@@ -61,7 +63,7 @@ export function PaymentSummary({ application }: PaymentSummaryProps) {
       </dl>
       <Card className="gap-0 p-6">
         <h3 className="pb-4 text-lg font-semibold">
-          {hasToPay ? t("payment.transferTitle") : t("payment.detailsTitle")}
+          {isPayable ? t("payment.transferTitle") : t("payment.detailsTitle")}
         </h3>
         <dl>
           <Detail label={t("payment.account")}>
@@ -79,7 +81,7 @@ export function PaymentSummary({ application }: PaymentSummaryProps) {
           <VariableSymbolRows
             variableSymbol={paymentDetails.summary.variableSymbol}
             toPayCzk={paymentDetails.summary.payableCzk}
-            isToPayShown={termPayments.length > 0 || hasToPay}
+            isToPayShown={termPayments.length > 0 || isPayable}
           />
         </dl>
         {termPayments.map((payment) => {
