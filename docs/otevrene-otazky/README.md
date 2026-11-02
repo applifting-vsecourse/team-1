@@ -2,7 +2,7 @@
 
 > Generováno z [`otazky.yaml`](otazky.yaml) (`python generate.py`). Needituj, měň YAML.
 
-**98 neuzavřených** otázek, **20 uzavřených**.
+**102 neuzavřených** otázek, **20 uzavřených**.
 
 ## Role
 
@@ -22,7 +22,6 @@
 | --- | --- | --- | --- | --- |
 | [Q-BEZ-04](#q-bez-04) | Má být magic link i v e-mailu o změně přihlášky a v jakých případech e-mail magic link neobsahoval? | [#178](https://github.com/applifting-vsecourse/team-1/issues/178) | P1 | Potvrzená chyba: potvrzovací e-mail nesplňuje akceptační kritérium (zápis 27. 10.). |
 | [Q-KOM-06](#q-kom-06) | Který e-mail dorazil anglicky a v jakém jazyce byl UI při odeslání přihlášky a při žádosti o odkaz? | [#183](https://github.com/applifting-vsecourse/team-1/issues/183) | P1 | Potvrzená chyba (jazyk e-mailu), zápis 27. 10. ji vede jako otevřený bod k ověření. |
-| [Q-NAS-05](#q-nas-05) | Jaká pole veřejných údajů o akci (fotografie atd.) se mají zobrazovat na veřejné stránce? | [US-22](https://github.com/applifting-vsecourse/team-1/issues/22) | P1 | Veřejná stránka akce je v návrhu PO pro sprint 3 (návštěvník webu) a seznam polí není určen. |
 | [Q-NAS-07](#q-nas-07) | Přidají se zkopírované pokoje k existujícím pokojům cílového termínu, nebo je nahradí? | [US-100](https://github.com/applifting-vsecourse/team-1/issues/193), [US-99](https://github.com/applifting-vsecourse/team-1/issues/192) | P1 | US-100 je ve sprintu 3 a bez odpovědi nejde implementovat kopírování pokojů. |
 | [Q-PRE-02](#q-pre-02) | Dashboard organizátora: jaký přesně obsah mají karty „co vyžaduje pozornost“? | [US-51](https://github.com/applifting-vsecourse/team-1/issues/51) | P1 | Dashboard se vrací a je v návrhu PO; obsah karet není určen. |
 | [Q-UCT-04](#q-uct-04) | Organizace: musí ji mít každý organizátor, nebo může pořádat akce sám? | [US-08](https://github.com/applifting-vsecourse/team-1/issues/8) | P1 | Self-onboarding organizace je v rozsahu sprintu 3; otázka určuje dopad na model a UX. |
@@ -38,6 +37,7 @@
 | [Q-BEZ-01](#q-bez-01) | Jaké doklady zaměstnavatelé skutečně vyžadují a kdy a kým se mají vystavovat? | [#162](https://github.com/applifting-vsecourse/team-1/issues/162) | P3 | Nápad (label idea), není ve storkách ani v rozsahu sprintu. |
 | [Q-BEZ-02](#q-bez-02) | Jaké doklady vyžadují zdravotní pojišťovny a liší se od dokladů pro zaměstnavatele (#162)? | [#163](https://github.com/applifting-vsecourse/team-1/issues/163) | P3 | Nápad (label idea), není ve storkách ani v rozsahu sprintu. |
 | [Q-BEZ-03](#q-bez-03) | Kdo smí které zdravotní údaje vidět a zapisovat, jaké zákonné požadavky platí a má se to řešit jako jeden modul? | [#166](https://github.com/applifting-vsecourse/team-1/issues/166) | P3 | Nápad (label idea), není ve storkách ani v rozsahu sprintu. |
+| [Q-NAS-16](#q-nas-16) | Má být pole „Název akce“ upravitelné ve formuláři „Veřejné údaje“ (jeden zdroj s názvem akce), nebo se z formuláře vyndá? | [US-122 (#215)](https://github.com/applifting-vsecourse/team-1/issues/215) | P3 | Figma pole kreslí a kód ho má; nic neblokuje. |
 | [Q-PLA-17](#q-pla-17) | Lhůta na zaplacení (10 dní od potvrzení, US-41) je u přihlášky v termínu. Co platí, když souhrnná platba přijde po lhůtě jedné z nich? | [US-41](https://github.com/applifting-vsecourse/team-1/issues/41), [US-137](https://github.com/applifting-vsecourse/team-1/issues/174) | P3 | Okrajový případ souhrnné platby. |
 | [Q-PLT-07](#q-plt-07) | Co patří do admin portálu platformy kromě náhledu organizací a fakturace (deaktivace, audit log, statistiky, podpora)? | [#186](https://github.com/applifting-vsecourse/team-1/issues/186) | P3 | Platformový admin se do sprintu 3 nezařazuje, byznysová potřeba nepotvrzena (zápis 28. 10.). |
 | [Q-PLT-08](#q-plt-08) | Má se organizacím jen vyúčtovat (přehled k ruční fakturaci, jak říká US-70), nebo má platforma faktury vystavovat a evidovat jejich úhradu? | [#186](https://github.com/applifting-vsecourse/team-1/issues/186), [US-70](https://github.com/applifting-vsecourse/team-1/issues/70) | P3 | Platformový admin se do sprintu 3 nezařazuje, byznysová potřeba nepotvrzena (zápis 28. 10.). |
@@ -57,22 +57,24 @@
 | [Q-TEC-06](#q-tec-06) | Připojit Figma konektor a převzít tokeny do `global.css`. | – | P3 | Otevřený bod v PROJEKT.md §12; vlastník je tech lead. |
 | [Q-TEC-07](#q-tec-07) | Dopad zneplatnění magic linků na E2E (`magic-link.spec.ts`, `set-password.spec.ts`) a zápis pravidla do PROJEKT.md. | [#127](https://github.com/applifting-vsecourse/team-1/issues/127) | P3 | Navazuje na #127; technická část, nejde o rozhodnutí PM. |
 
-### `design` (Kuba): 2
+### `design` (Kuba): 3
 
 | ID | Otázka | Dotčené US | Priorita | Proč |
 | --- | --- | --- | --- | --- |
 | [Q-NAS-10](#q-nas-10) | Chybí mobilní rámec (360 px) pořadníku ve Figmě. Kdo ho dodá? | [US-30](https://github.com/applifting-vsecourse/team-1/issues/30) | P2 | Mobil staví na existující kartě seznamu přihlášek bez vlastního rámce. |
 | [Q-NAS-14](#q-nas-14) | Která sada textů nastavení režimu platí: desktopový, nebo mobilní rámec (jiné podnadpisy, nápověda, tlačítko)? | [US-101 (#194)](https://github.com/applifting-vsecourse/team-1/issues/194) | P3 | Rámce se v textech liší; PR #238 použilo desktopové pro obě šířky. |
+| [Q-NAS-18](#q-nas-18) | Má sdílená veřejná hlavička dostat tlačítko „Přihlásit se“, jak ho kreslí rámce katalogu? Netýká se jen katalogu, ale i landingu a formuláře přihlášky. | [US-138 (#264)](https://github.com/applifting-vsecourse/team-1/issues/264) | P3 | Rámce katalogu hlavičku s tlačítkem kreslí, kód ne; nic neblokuje. |
 
 ### `qa` (Petr): 0
 
 _Nic._
 
-### `po` (Tomáš): 51
+### `po` (Tomáš): 54
 
 | ID | Otázka | Dotčené US | Priorita | Proč |
 | --- | --- | --- | --- | --- |
 | [Q-NAS-04](#q-nas-04) | Co všechno má přihlašovatel o akci vidět, než podá přihlášku? Má být stránka dostupná komukoliv, nebo jen přes odkaz od organizátora? | [US-22](https://github.com/applifting-vsecourse/team-1/issues/22) | P1 | Veřejná stránka akce je v návrhu PO pro sprint 3 (návštěvník webu) a seznam polí není určen. |
+| [Q-NAS-05](#q-nas-05) | Jaká pole veřejných údajů o akci (fotografie atd.) se mají zobrazovat na veřejné stránce? | [US-22](https://github.com/applifting-vsecourse/team-1/issues/22) | P1 | Seznam polí je v kódu podle Figmy, PO ho ale neurčil ani neodsouhlasil. |
 | [Q-PRE-01](#q-pre-01) | Má administrace otevírat poslední akci, se kterou organizátor pracoval? | [US-51](https://github.com/applifting-vsecourse/team-1/issues/51) | P1 | Dashboard se vrací a je v návrhu PO; obsah karet není určen. |
 | [Q-PRI-02](#q-pri-02) | Jaká lhůta na zaplacení platí pro náhradníka potvrzeného na poslední chvíli, např. týden před akcí? | [US-31](https://github.com/applifting-vsecourse/team-1/issues/31) | P1 | Vyhodnocování a náhradníci jsou hlavní priorita PO; lhůta pro náhradníka na poslední chvíli není určena. |
 | [Q-PRI-03](#q-pri-03) | Platí pro změnu termínu stejné storno podmínky jako pro odhlášku (US-47)? | [US-32](https://github.com/applifting-vsecourse/team-1/issues/32) | P1 | Odhláška a změna termínu jsou v návrhu PO; pravidla stornování nejsou určena. |
@@ -101,6 +103,8 @@ _Nic._
 | [Q-NAS-02](#q-nas-02) | Jaké typy otázek potřebuješ? Má jít podrobný formulář přihlášky uložit jako šablonu pro další akce? Je to spíš MVP, nebo Nice to have? | [US-19](https://github.com/applifting-vsecourse/team-1/issues/19) | P3 | Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí. |
 | [Q-NAS-03](#q-nas-03) | Stačí kopie celé akce, nebo chceš areál a formulář spravovat zvlášť (US-81)? Je to spíš MVP, nebo Nice to have? | [US-21](https://github.com/applifting-vsecourse/team-1/issues/21) | P3 | Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí. |
 | [Q-NAS-06](#q-nas-06) | Stačí kopie celé akce, nebo chceš areál a formulář spravovat zvlášť a vybírat je při zakládání akce? **Duplicita s [Q-NAS-03](#q-nas-03).** | [US-81](https://github.com/applifting-vsecourse/team-1/issues/81) | P3 | Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí. |
+| [Q-NAS-15](#q-nas-15) | Smí organizátor termíny a ceny na veřejné stránce akce skrýt, nebo mají být vždy vidět? | [US-122 (#215)](https://github.com/applifting-vsecourse/team-1/issues/215) | P3 | Zatím platí „vždy vidět“ (D-093); nic neblokuje. |
+| [Q-NAS-17](#q-nas-17) | Má mít organizátor možnost veřejně zobrazovat kapacitu a obsazenost akce (například v katalogu)? | [US-123 (#216)](https://github.com/applifting-vsecourse/team-1/issues/216), [US-22](https://github.com/applifting-vsecourse/team-1/issues/22) | P3 | Zatím platí D-094 (kapacita se nezveřejňuje); nic neblokuje. |
 | [Q-PLA-03](#q-pla-03) | Co po poslední výzvě k zaplacení bez reakce: jen označit pro telefonát (US-45), nebo má systém přihlášku po nějaké době sám zrušit? | [US-46](https://github.com/applifting-vsecourse/team-1/issues/46) | P3 | Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí. |
 | [Q-PLA-05](#q-pla-05) | Doúčtovává pořadatel po akci? Rozpočítání výdaje mezi účastníky je samostatná otázka. | [US-48](https://github.com/applifting-vsecourse/team-1/issues/48) | P3 | Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí. |
 | [Q-PLA-06](#q-pla-06) | Kdo ověří nárok na slevu (např. členství ve spolku)? | [US-49](https://github.com/applifting-vsecourse/team-1/issues/49) | P3 | Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí. |
@@ -134,9 +138,7 @@ _Nic._
 
 ## Tickety k založení
 
-| Z otázky | Ticket |
-| --- | --- |
-| [Q-PRI-20](#q-pri-20) | zjistit od PO detaily rušení náhradníků; případně enhancement |
+_Nic._
 
 ## Podle epiců
 
@@ -188,7 +190,7 @@ _Nic._
 | ID | Otázka | Dotčené US | Stav | Priorita | Čeká na |
 | --- | --- | --- | --- | --- | --- |
 | [Q-NAS-04](#q-nas-04) | Co všechno má přihlašovatel o akci vidět, než podá přihlášku? Má být stránka dostupná komukoliv, nebo jen přes odkaz od organizátora? | [US-22](https://github.com/applifting-vsecourse/team-1/issues/22) | otevřeno | P1 | `po` |
-| [Q-NAS-05](#q-nas-05) | Jaká pole veřejných údajů o akci (fotografie atd.) se mají zobrazovat na veřejné stránce? | [US-22](https://github.com/applifting-vsecourse/team-1/issues/22) | otevřeno | P1 | `pm` |
+| [Q-NAS-05](#q-nas-05) | Jaká pole veřejných údajů o akci (fotografie atd.) se mají zobrazovat na veřejné stránce? | [US-22](https://github.com/applifting-vsecourse/team-1/issues/22) | otevřeno | P1 | `po` |
 | [Q-NAS-07](#q-nas-07) | Přidají se zkopírované pokoje k existujícím pokojům cílového termínu, nebo je nahradí? | [US-100](https://github.com/applifting-vsecourse/team-1/issues/193), [US-99](https://github.com/applifting-vsecourse/team-1/issues/192) | otevřeno | P1 | `pm` |
 | [Q-NAS-08](#q-nas-08) | Sedí, že pořadník vychází z termínu a režimu pokojů celé akce, nebo se má režim pokojů lišit po termínech? | [US-30](https://github.com/applifting-vsecourse/team-1/issues/30) | zapsáno v dokumentaci | P1 | `pm` |
 | [Q-NAS-11](#q-nas-11) | Co přesně je „otevření přihlášek“, od kterého se zamyká režim vyhodnocování? | [US-101 (#194)](https://github.com/applifting-vsecourse/team-1/issues/194) | zapsáno v dokumentaci | P1 | `pm` |
@@ -200,6 +202,9 @@ _Nic._
 | [Q-NAS-06](#q-nas-06) | Stačí kopie celé akce, nebo chceš areál a formulář spravovat zvlášť a vybírat je při zakládání akce? **Duplicita s [Q-NAS-03](#q-nas-03).** | [US-81](https://github.com/applifting-vsecourse/team-1/issues/81) | otevřeno | P3 | `po` |
 | [Q-NAS-13](#q-nas-13) | Slovník říká „Režim vyhodnocení“, Figma „Režim vyhodnocování“. Která varianta platí? | [US-101 (#194)](https://github.com/applifting-vsecourse/team-1/issues/194) | otevřeno | P3 | `tech-lead` |
 | [Q-NAS-14](#q-nas-14) | Která sada textů nastavení režimu platí: desktopový, nebo mobilní rámec (jiné podnadpisy, nápověda, tlačítko)? | [US-101 (#194)](https://github.com/applifting-vsecourse/team-1/issues/194) | otevřeno | P3 | `design` |
+| [Q-NAS-15](#q-nas-15) | Smí organizátor termíny a ceny na veřejné stránce akce skrýt, nebo mají být vždy vidět? | [US-122 (#215)](https://github.com/applifting-vsecourse/team-1/issues/215) | otevřeno | P3 | `po` |
+| [Q-NAS-16](#q-nas-16) | Má být pole „Název akce“ upravitelné ve formuláři „Veřejné údaje“ (jeden zdroj s názvem akce), nebo se z formuláře vyndá? | [US-122 (#215)](https://github.com/applifting-vsecourse/team-1/issues/215) | otevřeno | P3 | `pm` |
+| [Q-NAS-17](#q-nas-17) | Má mít organizátor možnost veřejně zobrazovat kapacitu a obsazenost akce (například v katalogu)? | [US-123 (#216)](https://github.com/applifting-vsecourse/team-1/issues/216), [US-22](https://github.com/applifting-vsecourse/team-1/issues/22) | otevřeno | P3 | `po` |
 
 ### Epic: platby
 
@@ -225,6 +230,7 @@ _Nic._
 | ID | Otázka | Dotčené US | Stav | Priorita | Čeká na |
 | --- | --- | --- | --- | --- | --- |
 | [Q-PLT-02](#q-plt-02) | Kdy reálně přijde druhá organizace? Chcete nové organizace schvalovat? | [US-69](https://github.com/applifting-vsecourse/team-1/issues/69) | otevřeno | P2 | `po` |
+| [Q-NAS-18](#q-nas-18) | Má sdílená veřejná hlavička dostat tlačítko „Přihlásit se“, jak ho kreslí rámce katalogu? Netýká se jen katalogu, ale i landingu a formuláře přihlášky. | [US-138 (#264)](https://github.com/applifting-vsecourse/team-1/issues/264) | otevřeno | P3 | `design` |
 | [Q-PLT-01](#q-plt-01) | Které části má mít každá akce vždy (přihláška, platby) a které si má organizátor zapínat podle potřeby? | [US-20](https://github.com/applifting-vsecourse/team-1/issues/20) | otevřeno | P3 | `po` |
 | [Q-PLT-03](#q-plt-03) | Je v pořádku, že první ročník běží bez účtování, nebo je to nutnost? | [US-70](https://github.com/applifting-vsecourse/team-1/issues/70) | otevřeno | P3 | `po` |
 | [Q-PLT-06](#q-plt-06) | Kdo je smluvní stranou vůči přihlašovateli: organizace, nebo provozovatel Togeny? (Souvisí s otázkou správce údajů v #164.) | [US-98](https://github.com/applifting-vsecourse/team-1/issues/167) | otevřeno | P3 | `po` |
@@ -622,11 +628,12 @@ _Nic._
 
 ### Q-NAS-05 – Jaká pole veřejných údajů o akci (fotografie atd.) se mají zobrazovat na veřejné stránce?
 
-- **Epic:** nastavení akce · **Dotčené US:** [US-22](https://github.com/applifting-vsecourse/team-1/issues/22) · **Stav:** otevřeno · **Čeká na:** `pm`
+- **Epic:** nastavení akce · **Dotčené US:** [US-22](https://github.com/applifting-vsecourse/team-1/issues/22) · **Stav:** otevřeno · **Čeká na:** `po`
 - **Poznámka:** Doplňuje otázku F-10 z US-22 výše.
 - **Zdroje:**
+  - [PR](https://github.com/applifting-vsecourse/team-1/pull/258)
   - [zápis 28. 10., Upřesnění požadavků](https://github.com/applifting-vsecourse/team-1/blob/31b4fc25e25afa265d1812a9f8538d081af84265/docs/zapisy/2026-10-28-status-s-po.md): „Veřejné údaje o akci se mohou převzít ze založení akce a doplnit například o fotografii. Přesný seznam polí nebyl určen; musí ale existovat jedno místo, odkud veřejný web informace čerpá.“
-- **Priorita:** P1 – Veřejná stránka akce je v návrhu PO pro sprint 3 (návštěvník webu) a seznam polí není určen.
+- **Priorita:** P1 – Seznam polí je v kódu podle Figmy, PO ho ale neurčil ani neodsouhlasil.
 
 <a id="q-nas-06"></a>
 
@@ -718,6 +725,45 @@ _Nic._
 - **Zdroje:**
   - [PR #238](https://github.com/applifting-vsecourse/team-1/pull/238)
 - **Priorita:** P3 – Rámce se v textech liší; PR #238 použilo desktopové pro obě šířky.
+
+<a id="q-nas-15"></a>
+
+### Q-NAS-15 – Smí organizátor termíny a ceny na veřejné stránce akce skrýt, nebo mají být vždy vidět?
+
+- **Epic:** nastavení akce · **Dotčené US:** [US-122 (#215)](https://github.com/applifting-vsecourse/team-1/issues/215) · **Stav:** otevřeno · **Čeká na:** `po`
+- **Zdroje:**
+  - [komentář PM v #215](https://github.com/applifting-vsecourse/team-1/issues/215#issuecomment-6581262940): „Zatím vždy vidět. Víc se zeptáme PO.“
+- **Priorita:** P3 – Zatím platí „vždy vidět“ (D-093); nic neblokuje.
+- **Navazující ticket:** [volitelnost zobrazení polí při zveřejnění akce](https://github.com/applifting-vsecourse/team-1/issues/267)
+
+<a id="q-nas-16"></a>
+
+### Q-NAS-16 – Má být pole „Název akce“ upravitelné ve formuláři „Veřejné údaje“ (jeden zdroj s názvem akce), nebo se z formuláře vyndá?
+
+- **Epic:** nastavení akce · **Dotčené US:** [US-122 (#215)](https://github.com/applifting-vsecourse/team-1/issues/215) · **Stav:** otevřeno · **Čeká na:** `pm`
+- **Zdroje:**
+  - [PR #258, dotaz vývojáře bod 4 a odpověď PM „nerozumím“](https://github.com/applifting-vsecourse/team-1/pull/258#issuecomment-6582822854)
+- **Priorita:** P3 – Figma pole kreslí a kód ho má; nic neblokuje.
+
+<a id="q-nas-17"></a>
+
+### Q-NAS-17 – Má mít organizátor možnost veřejně zobrazovat kapacitu a obsazenost akce (například v katalogu)?
+
+- **Epic:** nastavení akce · **Dotčené US:** [US-123 (#216)](https://github.com/applifting-vsecourse/team-1/issues/216), [US-22](https://github.com/applifting-vsecourse/team-1/issues/22) · **Stav:** otevřeno · **Čeká na:** `po`
+- **Poznámka:** Souvisí s kritériem US-22 „Při plné kapacitě termínu je u něj uvedeno, že přihláška bude na seznam náhradníků“ a se stavem „Přihlašování otevřené“ u plné akce v katalogu.
+- **Zdroje:**
+  - [komentář PM v #216](https://github.com/applifting-vsecourse/team-1/issues/216#issuecomment-6585291926): „veřejně kapacitu nikde zatím nezveřejňujeme“
+- **Priorita:** P3 – Zatím platí D-094 (kapacita se nezveřejňuje); nic neblokuje.
+- **Navazující ticket:** [volitelnost zobrazení polí při zveřejnění akce](https://github.com/applifting-vsecourse/team-1/issues/267)
+
+<a id="q-nas-18"></a>
+
+### Q-NAS-18 – Má sdílená veřejná hlavička dostat tlačítko „Přihlásit se“, jak ho kreslí rámce katalogu? Netýká se jen katalogu, ale i landingu a formuláře přihlášky.
+
+- **Epic:** platforma · **Dotčené US:** [US-138 (#264)](https://github.com/applifting-vsecourse/team-1/issues/264) · **Stav:** otevřeno · **Čeká na:** `design`
+- **Zdroje:**
+  - [ticket #264, otevřená otázka](https://github.com/applifting-vsecourse/team-1/issues/264)
+- **Priorita:** P3 – Rámce katalogu hlavičku s tlačítkem kreslí, kód ne; nic neblokuje.
 
 <a id="q-pla-01"></a>
 
@@ -1250,7 +1296,6 @@ _Nic._
   - [PR #236](https://github.com/applifting-vsecourse/team-1/pull/236)
 - **Priorita:** P2 – Dokumenty časové pásmo neuvádějí; implementace používá půlnoc Europe/Prague.
 - **Rozhodnutí:** [D-064](../rozhodnuti/README.md#d-064): Zatím půlnoc českého času; platforma zatím není mezinárodní. Detaily procesu zjistí PM od PO, případně vznikne ticket enhancement.
-- **Navazující ticket:** zjistit od PO detaily rušení náhradníků; případně enhancement (k založení)
 
 <a id="q-pri-21"></a>
 

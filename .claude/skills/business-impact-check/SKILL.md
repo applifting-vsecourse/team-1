@@ -59,6 +59,12 @@ Kontroluj všechna místa, vynech jen ta, kterých se změna zjevně netýká.
 - Návrhy komentářů do PR a úprav ticketů jen jako text k schválení.
 - Zeptej se, jestli commitnout a pushnout (commit anglicky, dokumenty česky, `Co-Authored-By` podle připomenutí; PR ani push bez výslovného pokynu, memory `team1-no-pr-without-ask`).
 
+## Stručnost
+
+- Výstup je krátký: jen nálezy, které jsou nové a čekají na PM. Co je zapsané v registrech, co PM zamítl nebo řekl, že se neřeší, a co je vyřešené, se neopakuje a nevrací se k tomu (ani v dalších kontrolách).
+- Tabulky jsou v pořádku, ale každá má sloupce **Stav** (`hotovo` / `potřebuje akci`) a **Co udělat** (jedna konkrétní věta: kdo, kde, co; u `hotovo` pomlčka). Řádky `hotovo` jen vyjmenuj počtem nebo je vynech; podrobně rozepiš jen `potřebuje akci`. Bez vysvětlování postupu.
+- Zeptej se jednou, zapracuj odpověď, po zápisu oznam jen výsledek.
+
 ## Co nedělat
 
 - Nerozhodovat byznys pravidla ani nepřebírat výklad z komentářů jiných lidí.
