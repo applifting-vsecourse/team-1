@@ -22,10 +22,15 @@
     "status": {
       "cancelled": "Cancelled",
       "confirmed": "Confirmed",
+      "toEvaluate": "Awaiting evaluation",
       "waitlisted": "Waitlisted"
     },
     "termsHeading": "Status of the selected terms",
     "title": "We've received your application",
+    "toEvaluate": {
+      "description": "The organizer will evaluate your application. You will get the payment details once it is confirmed.",
+      "title": "Do not pay yet"
+    },
     "waitlist": {
       "description": "You are waitlisted in all the selected terms. You will get the payment details once a place is confirmed.",
       "title": "Do not pay anything yet"

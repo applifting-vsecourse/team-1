@@ -39,6 +39,7 @@
   "status": {
     "cancelled": "Zrušená",
     "confirmed": "Potvrzeno",
+    "toEvaluate": "Čeká na vyhodnocení",
     "waitlisted": "Náhradník",
     "zeroUntilConfirmed": "0 Kč do potvrzení"
   }

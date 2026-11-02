@@ -9,11 +9,12 @@ import { Gender, GenderCounts } from "@/shared/domain/gender"
  * - Náhradník → Potvrzená s dluhem (confirm, the organizer when a bed frees up)
  * - Náhradník → Zrušená, Potvrzená → Zrušená (cancel)
  * - Potvrzená → Náhradník (decided in PR #232, the diagram will follow)
+ * - K vyhodnocení → Potvrzená / Náhradník / Zrušená (the organizer's decision, manual evaluation
+ *   mode only, nothing leads back into the state; D-058)
  * - Zrušená is terminal.
- *
- * The state "K vyhodnocení" (US-102) does not exist in the code yet.
  */
 const MANUAL_TRANSITIONS: Record<ApplicationTermStatus, ApplicationTermStatus[]> = {
+  TO_EVALUATE: ["CONFIRMED", "WAITLISTED", "CANCELLED"],
   WAITLISTED: ["CONFIRMED", "CANCELLED"],
   CONFIRMED: ["WAITLISTED", "CANCELLED"],
   CANCELLED: [],
@@ -26,6 +27,7 @@ const MANUAL_TRANSITIONS: Record<ApplicationTermStatus, ApplicationTermStatus[]>
  * organizer has confirmed meanwhile.
  */
 const SYSTEM_TRANSITIONS: Record<ApplicationTermStatus, ApplicationTermStatus[]> = {
+  TO_EVALUATE: [],
   WAITLISTED: ["CANCELLED"],
   CONFIRMED: [],
   CANCELLED: [],

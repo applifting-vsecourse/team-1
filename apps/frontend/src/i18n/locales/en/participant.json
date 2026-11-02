@@ -39,6 +39,7 @@
   "status": {
     "cancelled": "Cancelled",
     "confirmed": "Confirmed",
+    "toEvaluate": "Awaiting evaluation",
     "waitlisted": "Waitlisted",
     "zeroUntilConfirmed": "0 CZK until confirmed"
   }

@@ -45,6 +45,7 @@
     "term": "Termín",
     "terms": "Termíny a stav",
     "title": "Přihlášky",
+    "toEvaluate": "Čeká na vyhodnocení",
     "unpaid": "Nezaplaceno",
     "waitlistNote": "Přijetí náhradníka řešte v jeho detailu. Nejprve ověřte volné lůžko; platební údaje pošlete až po potvrzení.",
     "waitlistNoteTitle": "Náhradníci mají pořadí, místo zatím nemají potvrzené.",
@@ -221,6 +222,7 @@
     "state": {
       "CANCELLED": "Zrušená",
       "CONFIRMED": "Potvrzená",
+      "TO_EVALUATE": "Čeká na vyhodnocení",
       "WAITLISTED": "Náhradník"
     },
     "system": "Systém",

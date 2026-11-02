@@ -174,6 +174,23 @@ describe("ApplicationDetail", () => {
     expect(screen.getByText(/you are waitlisted and have no amount due yet/)).toBeInTheDocument()
   })
 
+  it("shows a term to evaluate as awaiting evaluation, never as waitlisted (US-102)", async () => {
+    renderDetail(
+      application({
+        terms: [{ ...waitlisted, status: "TO_EVALUATE" as const }],
+        amountDueCzk: 0,
+        amountOwedCzk: 0,
+        amountPaidCzk: 0,
+        paymentStatus: "NOTHING_DUE",
+        paymentDetails: null,
+      }),
+    )
+
+    expect(await screen.findByText("Awaiting evaluation")).toBeInTheDocument()
+    expect(screen.queryByText(/waitlisted/i)).not.toBeInTheDocument()
+    expect(screen.queryByText("Account number")).not.toBeInTheDocument()
+  })
+
   it("shows no payment block when every term is waitlisted", async () => {
     renderDetail(
       application({

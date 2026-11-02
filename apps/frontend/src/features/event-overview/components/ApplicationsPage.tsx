@@ -298,6 +298,7 @@ export function ApplicationsPage({
 }
 
 const STATUS_LABEL = {
+  TO_EVALUATE: "toEvaluate",
   CONFIRMED: "confirmed",
   WAITLISTED: "waitlisted",
   CANCELLED: "cancelled",

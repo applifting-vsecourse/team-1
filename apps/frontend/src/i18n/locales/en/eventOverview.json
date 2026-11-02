@@ -45,6 +45,7 @@
     "term": "Term",
     "terms": "Terms and status",
     "title": "Applications",
+    "toEvaluate": "Awaiting evaluation",
     "unpaid": "Unpaid",
     "waitlistNote": "A waitlist is kept per term and bed group (women, men, or shared rooms), in order of receipt. Confirm a waitlisted applicant in their detail; first check for a free bed and send payment details only after confirmation.",
     "waitlistNoteTitle": "Waitlisted applicants have a place in the queue, not a confirmed place.",
@@ -221,6 +222,7 @@
     "state": {
       "CANCELLED": "Cancelled",
       "CONFIRMED": "Confirmed",
+      "TO_EVALUATE": "Awaiting evaluation",
       "WAITLISTED": "Waitlisted"
     },
     "system": "System",

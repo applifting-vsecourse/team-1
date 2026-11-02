@@ -14,6 +14,34 @@ const application: SubmittedApplication = {
 }
 
 describe("buildConfirmationApplications", () => {
+  it("lists terms to evaluate without payment details (US-102)", () => {
+    const [built] = buildConfirmationApplications(
+      {
+        email: "a@example.com",
+        locale: "cs",
+        eventName: "Kemp",
+        bankAccount: "2900123456/2010",
+        mustSetPassword: false,
+        applications: [
+          {
+            ...application,
+            terms: [
+              { name: "1. týden", termNumber: 1, status: "TO_EVALUATE", priceCzk: 4500 },
+              { name: "2. týden", termNumber: 2, status: "TO_EVALUATE", priceCzk: 4900 },
+            ],
+          },
+        ],
+      },
+      "https://app",
+    )
+
+    expect(built.terms).toEqual([
+      { name: "1. týden", status: "TO_EVALUATE" },
+      { name: "2. týden", status: "TO_EVALUATE" },
+    ])
+    expect(built.payment).toBeNull()
+  })
+
   it("leaves a cancelled term out of the submission summary", () => {
     const [built] = buildConfirmationApplications(
       {

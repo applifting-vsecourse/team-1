@@ -3,7 +3,7 @@ import { TermStatusDetail } from "@/modules/applications/domain/term-status"
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger"
 import { IsBoolean, IsIn, IsOptional } from "class-validator"
 
-const STATUSES = ["CONFIRMED", "WAITLISTED", "CANCELLED"] as const
+const STATUSES = ["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED"] as const
 
 export class ChangeTermStatusRequestDto {
   @ApiProperty({ enum: STATUSES })

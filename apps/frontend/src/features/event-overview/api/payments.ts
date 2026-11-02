@@ -20,7 +20,7 @@ export const paymentApplicationSchema = z.object({
       termId: z.string(),
       /** Due minus paid; negative = an overpayment of this term. */
       owedCzk: z.number().int(),
-      status: z.enum(["CONFIRMED", "WAITLISTED", "CANCELLED"]),
+      status: z.enum(["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED"]),
       priceCzk: z.number().int(),
       startsOn: z.string(),
       endsOn: z.string(),

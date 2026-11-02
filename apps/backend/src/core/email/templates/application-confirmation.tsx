@@ -24,6 +24,7 @@ const copy: Record<
     intro: (event: string) => string;
     termsHeading: string;
     confirmed: string;
+    toEvaluate: string;
     waitlisted: string;
     paymentHeading: string;
     amountDue: string;
@@ -49,6 +50,7 @@ const copy: Record<
     intro: (event) => `Hi, we received your application for ${event}.`,
     termsHeading: 'Status by term',
     confirmed: 'confirmed',
+    toEvaluate: 'awaiting evaluation',
     waitlisted: 'you are waitlisted',
     paymentHeading: 'Payment',
     amountDue: 'Amount due',
@@ -77,6 +79,7 @@ const copy: Record<
     intro: (event) => `Dobrý den, přijali jsme vaši přihlášku na akci ${event}.`,
     termsHeading: 'Stav podle termínů',
     confirmed: 'potvrzený',
+    toEvaluate: 'čeká na vyhodnocení',
     waitlisted: 'jste náhradník',
     paymentHeading: 'Platba',
     amountDue: 'K úhradě',
@@ -108,7 +111,7 @@ export const applicationConfirmationSubject = (
 export interface ConfirmationApplicationProps {
   /** First and last name of the participant. */
   name: string;
-  terms: { name: string; status: 'CONFIRMED' | 'WAITLISTED' }[];
+  terms: { name: string; status: 'TO_EVALUATE' | 'CONFIRMED' | 'WAITLISTED' }[];
   /** Only for an application with a confirmed term; amounts are already formatted. */
   payment: {
     /** Everything due now, paid under the summary variable symbol (`…000`). */
@@ -172,7 +175,9 @@ export const ApplicationConfirmation = ({
                     <strong>
                       {term.status === 'CONFIRMED'
                         ? text.confirmed
-                        : text.waitlisted}
+                        : term.status === 'TO_EVALUATE'
+                          ? text.toEvaluate
+                          : text.waitlisted}
                     </strong>
                   </Text>
                 ))}

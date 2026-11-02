@@ -26,4 +26,20 @@ describe("evaluateApplication", () => {
       { termId: "week-2", status: "WAITLISTED", priceCzk: 4900 },
     ])
   })
+
+  it("starts every term as to-evaluate in the manual mode, whatever the free beds (US-102)", () => {
+    const result = evaluateApplication(
+      "MALE",
+      [
+        { termId: "week-1", priceCzk: 4500, freePlaces: { FEMALE: 3, MALE: 1 } },
+        { termId: "week-2", priceCzk: 4900, freePlaces: { FEMALE: 3, MALE: 0 } },
+      ],
+      "MANUAL",
+    )
+
+    expect(result).toEqual([
+      { termId: "week-1", status: "TO_EVALUATE", priceCzk: 4500 },
+      { termId: "week-2", status: "TO_EVALUATE", priceCzk: 4900 },
+    ])
+  })
 })

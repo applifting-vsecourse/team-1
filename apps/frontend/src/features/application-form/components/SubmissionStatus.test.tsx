@@ -17,7 +17,12 @@ import { SubmissionStatus } from "@/features/application-form/components/Submiss
 const { get } = vi.hoisted(() => ({ get: vi.fn() }))
 vi.mock("@/lib/api-client", () => ({ api: { get } }))
 
-const term = (id: string, status: "CONFIRMED" | "WAITLISTED", start: string, end: string) => ({
+const term = (
+  id: string,
+  status: "CONFIRMED" | "WAITLISTED" | "TO_EVALUATE",
+  start: string,
+  end: string,
+) => ({
   termId: id,
   name: id,
   startsOn: start,
@@ -29,7 +34,7 @@ const person = (
   firstName: string,
   lastName: string,
   number: string,
-  status: "CONFIRMED" | "WAITLISTED",
+  status: "CONFIRMED" | "WAITLISTED" | "TO_EVALUATE",
   start: string,
   end: string,
   amountCzk = 6900,
@@ -48,7 +53,7 @@ const person = (
         }
       : null,
 })
-const jana = (status: "CONFIRMED" | "WAITLISTED" = "CONFIRMED") =>
+const jana = (status: "CONFIRMED" | "WAITLISTED" | "TO_EVALUATE" = "CONFIRMED") =>
   person("Jana", "Nováková", "0048", status, "2027-07-12", "2027-07-18")
 
 const data = (overrides: Partial<Data> = {}): Data => ({
@@ -100,6 +105,16 @@ describe("SubmissionStatus", () => {
   })
 
   beforeEach(() => get.mockReset())
+
+  it("shows terms to evaluate as awaiting evaluation, not as a waitlist, without payment (US-102)", async () => {
+    await renderStatus(data({ applications: [jana("TO_EVALUATE")] }))
+
+    expect(screen.getByText("Awaiting evaluation")).toBeInTheDocument()
+    expect(screen.queryByText(/waitlisted/i)).not.toBeInTheDocument()
+    expect(screen.queryByText("Waitlisted")).not.toBeInTheDocument()
+    expect(screen.queryByText("123456789/0800")).not.toBeInTheDocument()
+    expect(screen.queryByRole("heading", { name: "To pay for the confirmed terms" })).toBeNull()
+  })
 
   it("shows a confirmed term with the amount and the payment details", async () => {
     await renderStatus(data())

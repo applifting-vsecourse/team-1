@@ -24,10 +24,10 @@ export class MyApplicationTermDto {
   endsOn!: string
 
   @ApiProperty({
-    enum: ["CONFIRMED", "WAITLISTED", "CANCELLED"],
+    enum: ["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED"],
     description: "WAITLISTED is shown to the participant as waitlisted, without a place in line.",
   })
-  status!: "CONFIRMED" | "WAITLISTED" | "CANCELLED"
+  status!: "TO_EVALUATE" | "CONFIRMED" | "WAITLISTED" | "CANCELLED"
 
   @ApiProperty({ example: 4500, description: "Price frozen at evaluation, whole CZK." })
   priceCzk!: number

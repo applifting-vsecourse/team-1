@@ -6,7 +6,7 @@ class ApplicationListTermDto {
   @ApiProperty({ nullable: true, type: String }) name!: string | null
   @ApiProperty() startsOn!: string
   @ApiProperty() endsOn!: string
-  @ApiProperty({ enum: ["CONFIRMED", "WAITLISTED", "CANCELLED"] }) status!: string
+  @ApiProperty({ enum: ["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED"] }) status!: string
   @ApiProperty() priceCzk!: number
   @ApiProperty({
     nullable: true,

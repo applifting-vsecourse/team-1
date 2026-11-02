@@ -20,6 +20,19 @@ const statuses = (result: ReturnType<typeof evaluateSubmission>): string[][] =>
   result.map((terms) => terms.map((term) => term.status))
 
 describe("evaluateSubmission", () => {
+  it("leaves every term to the organizer in the manual mode and takes no bed (US-102)", () => {
+    const result = evaluateSubmission(
+      [girl("t1", "t2"), girl("t1", "t2")],
+      { roomsByTerm: sharedRooms(1), confirmedGenders: {} },
+      "MANUAL",
+    )
+    expect(statuses(result)).toEqual([
+      ["TO_EVALUATE", "TO_EVALUATE"],
+      ["TO_EVALUATE", "TO_EVALUATE"],
+    ])
+    expect(result[0][0]).toMatchObject({ priceCzk: 1000 })
+  })
+
   it("uses one shared pool for all genders and evaluates terms independently", () => {
     const result = evaluateSubmission([girl("t1", "t2"), boy("t1", "t2"), girl("t1", "t2")], {
       roomsByTerm: sharedRooms(2),

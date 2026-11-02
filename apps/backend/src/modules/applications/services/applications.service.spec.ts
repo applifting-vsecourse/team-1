@@ -12,6 +12,7 @@ const event: SubmissionEvent = {
   organizationId: "o1",
   name: "Letní kemp",
   bankAccount: "2900123456/2010",
+  evaluationMode: "AUTOMATIC",
   termsWithoutRooms: 0,
   terms: [
     {

@@ -47,6 +47,10 @@ export function SubmissionStatus({ accessToken }: SubmissionStatusProps) {
   const [firstApplication] = data.applications
   if (!firstApplication) return null
   const payers = data.applications.filter((application) => application.payment)
+  // Manual evaluation mode: nothing is decided yet, so it is not a waitlist (US-102).
+  const isAwaitingEvaluation = data.applications.some((application) =>
+    application.terms.some((term) => term.status === "TO_EVALUATE"),
+  )
 
   return (
     <div className="flex flex-col gap-6">
@@ -82,6 +86,11 @@ export function SubmissionStatus({ accessToken }: SubmissionStatusProps) {
 
       {payers.length > 0 ? (
         <PaymentCard payers={payers} />
+      ) : isAwaitingEvaluation ? (
+        <section className="flex flex-col gap-4 rounded-lg border p-4 sm:p-6">
+          <h2 className="text-2xl font-semibold">{t("confirmation.toEvaluate.title")}</h2>
+          <p>{t("confirmation.toEvaluate.description")}</p>
+        </section>
       ) : (
         <section className="flex flex-col gap-4 rounded-lg border bg-status-waitlist-bg p-4 sm:p-6">
           <h2 className="text-2xl font-semibold text-status-waitlist">
@@ -127,7 +136,9 @@ function TermStatusCard({
                 ? "confirmation.status.confirmed"
                 : term.status === "CANCELLED"
                   ? "confirmation.status.cancelled"
-                  : "confirmation.status.waitlisted",
+                  : term.status === "TO_EVALUATE"
+                    ? "confirmation.status.toEvaluate"
+                    : "confirmation.status.waitlisted",
             )}
           </Badge>
           <span
