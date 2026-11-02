@@ -18,6 +18,10 @@ export type CapacitySnapshot = {
   terms: TermCapacitySource[]
 }
 
+/**
+ * `capacity` and `freePlaces` per gender. A shared term has one common pool, which is reported on
+ * both genders (D-063): never add FEMALE + MALE together, use `computeTotalBeds` for the beds.
+ */
 export type TermCapacity = {
   termId: string
   roomMode: RoomMode
