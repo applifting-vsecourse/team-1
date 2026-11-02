@@ -292,7 +292,7 @@ otazky:
     url: https://github.com/applifting-vsecourse/team-1/issues/22
   stav: otevreno
   priorita: P1
-  priorita_duvod: Seznam polí je v kódu (US-122, #258) podle Figmy, PO ho ale neurčil ani neodsouhlasil.
+  priorita_duvod: Seznam polí je v kódu podle Figmy, PO ho ale neurčil ani neodsouhlasil.
   ceka_na: po
   zdroje:
   - popis: PR #258 (US-122), seznam polí implementovaný podle Figmy

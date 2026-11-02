@@ -23,7 +23,7 @@ _Nic._
 | [D-092](#d-092) | Popis, místo a kontakt jsou povinné jen pro zveřejnění v katalogu | `docs/PROJEKT.md` | veřejná stránka akce: povinnost polí jen pro zveřejnění v katalogu |
 | [D-093](#d-093) | Termíny a ceny jsou na veřejné stránce akce zatím vždy vidět | `docs/PROJEKT.md` | veřejná stránka akce: termíny a ceny vždy viditelné (dočasně) |
 | [D-094](#d-094) | Obsazenost a kapacita se veřejně nezveřejňují | `docs/PROJEKT.md` | katalog akcí: obsazenost a kapacita nejsou veřejné |
-| [D-96](#d-96) | Fotka veřejné stránky akce: jen JPG/JPEG a PNG | `docs/PROJEKT.md` | veřejná stránka akce: formát fotky JPG/JPEG a PNG |
+| [D-096](#d-096) | Fotka veřejné stránky akce: jen JPG/JPEG a PNG | `docs/PROJEKT.md` | veřejná stránka akce: formát fotky JPG/JPEG a PNG |
 
 ## Změny dřívějších rozhodnutí
 
@@ -56,7 +56,7 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
-| [D-98](#d-98) | Jména v rámci se neskloňují | 2026-11-02 | `pm` | produkt |
+| [D-098](#d-098) | Jména v rámci se neskloňují | 2026-11-02 | `pm` | produkt |
 | [D-078](#d-078) | Preferovaný jazyk uživatele přebíjí jazyk přihlášky u e-mailů o změně přihlášky | 2026-10-31 | `pm` | produkt |
 | [D-074](#d-074) | Přechod Potvrzená → Náhradník má vlastní e-mail jako samostatný stav v EMAILY.md | 2026-10-31 | `pm` | produkt |
 | [D-069](#d-069) | Uživatel si nastaví preferovaný jazyk (aplikace i e-maily) | 2026-10-31 | `pm` | produkt |
@@ -68,7 +68,7 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
-| [D-96](#d-96) | Fotka veřejné stránky akce: jen JPG/JPEG a PNG | 2026-11-02 | `pm` | produkt |
+| [D-096](#d-096) | Fotka veřejné stránky akce: jen JPG/JPEG a PNG | 2026-11-02 | `pm` | produkt |
 | [D-093](#d-093) | Termíny a ceny jsou na veřejné stránce akce zatím vždy vidět | 2026-11-02 | `pm` | produkt |
 | [D-092](#d-092) | Popis, místo a kontakt jsou povinné jen pro zveřejnění v katalogu | 2026-11-02 | `pm` | produkt |
 | [D-083](#d-083) | Režim vyhodnocování lze měnit, dokud je počet přijatých přihlášek 0 | 2026-10-31 | `pm` | produkt |
@@ -87,7 +87,7 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
-| [D-97](#d-97) | VS termínů na stránce po odeslání se nedoplňuje | 2026-11-02 | `pm` | produkt |
+| [D-097](#d-097) | VS termínů na stránce po odeslání se nedoplňuje | 2026-11-02 | `pm` | produkt |
 | [D-091](#d-091) | Jedna platba za celé odeslání formuláře je záměr, mimo US-137 | 2026-11-01 | `pm` | produkt |
 | [D-090](#d-090) | Stará platební data se smažou, seed se přepíše | 2026-11-01 | `pm` | technicke |
 | [D-089](#d-089) | Příjem = řádky `Payment` po přihlášce v termínu se společným `receiptId` | 2026-11-01 | `pm` | technicke |
@@ -1218,9 +1218,9 @@ _Nic._
 - **Zdroj:** [ticket US-123 (#216), odpověď PM bod 2](https://github.com/applifting-vsecourse/team-1/issues/216#issuecomment-6585291926)
 - **Poznámka:** Navazuje ticket #264.
 
-<a id="d-96"></a>
+<a id="d-096"></a>
 
-### D-96 – Fotka veřejné stránky akce: jen JPG/JPEG a PNG
+### D-096 – Fotka veřejné stránky akce: jen JPG/JPEG a PNG
 
 - **Stav:** platné · **Typ:** produkt · **Oblast:** nastavení akce
 - **Datum:** 2026-11-02 · **Rozhodl:** `pm`
@@ -1230,9 +1230,9 @@ _Nic._
 - **Dokumentace:** `docs/PROJEKT.md`: ceka, veřejná stránka akce: formát fotky JPG/JPEG a PNG
 - **Poznámka:** Mění návrh v #215, který počítal i s WebP.
 
-<a id="d-97"></a>
+<a id="d-097"></a>
 
-### D-97 – VS termínů na stránce po odeslání se nedoplňuje
+### D-097 – VS termínů na stránce po odeslání se nedoplňuje
 
 - **Stav:** platné · **Typ:** produkt · **Oblast:** platby
 - **Datum:** 2026-11-02 · **Rozhodl:** `pm`
@@ -1241,9 +1241,9 @@ _Nic._
 - **Zdroj:** [PR](https://github.com/applifting-vsecourse/team-1/pull/257#issuecomment-6582343282)
 - **Poznámka:** Navazuje ticket #259.
 
-<a id="d-98"></a>
+<a id="d-098"></a>
 
-### D-98 – Jména v rámci se neskloňují
+### D-098 – Jména v rámci se neskloňují
 
 - **Stav:** platné · **Typ:** produkt · **Oblast:** komunikace
 - **Datum:** 2026-11-02 · **Rozhodl:** `pm`

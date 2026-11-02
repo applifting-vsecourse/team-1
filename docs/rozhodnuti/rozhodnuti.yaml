@@ -1879,7 +1879,7 @@ rozhodnuti:
   z_otazek: []
   dokumentace: []
   poznamka: 'Navazuje ticket #264.'
-- id: D-96
+- id: D-096
   nazev: 'Fotka veřejné stránky akce: jen JPG/JPEG a PNG'
   text: 'Fotografie na veřejné stránce akce smí být JPG/JPEG nebo PNG, WebP ne (podle Figmy).'
   typ: produkt
@@ -1900,7 +1900,7 @@ rozhodnuti:
     popis: 'veřejná stránka akce: formát fotky JPG/JPEG a PNG'
     stav: ceka
   poznamka: 'Mění návrh v #215, který počítal i s WebP.'
-- id: D-97
+- id: D-097
   nazev: 'VS termínů na stránce po odeslání se nedoplňuje'
   text: 'Stránka po odeslání přihlášky zobrazuje jen souhrnný variabilní symbol (a VS jednotlivých přihlášek), ne VS každého termínu. Doplnění vede enhancement #259.'
   typ: produkt
@@ -1918,7 +1918,7 @@ rozhodnuti:
   z_otazek: []
   dokumentace: []
   poznamka: 'Navazuje ticket #259.'
-- id: D-98
+- id: D-098
   nazev: 'Jména v rámci se neskloňují'
   text: 'Nemáme feature na skloňování jmen; nominativ („Přihláška pro Janu Novákovou“ zůstává bez skloňování) je správný stav a kód přihlášky zůstává ve tvaru LK-0048.'
   typ: produkt
