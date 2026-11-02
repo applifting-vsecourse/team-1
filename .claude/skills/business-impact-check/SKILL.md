@@ -62,7 +62,8 @@ Kontroluj všechna místa, vynech jen ta, kterých se změna zjevně netýká.
 ## Stručnost
 
 - Výstup je krátký: jen nálezy, které jsou nové a čekají na PM. Co je zapsané v registrech, co PM zamítl nebo řekl, že se neřeší, a co je vyřešené, se neopakuje a nevrací se k tomu (ani v dalších kontrolách).
-- Žádné tabulky tam, kde stačí řádka, žádné vysvětlování postupu. Zeptej se jednou, zapracuj odpověď, po zápisu oznam jen výsledek.
+- Tabulky jsou v pořádku, ale každá má sloupce **Stav** (`hotovo` / `potřebuje akci`) a **Co udělat** (jedna konkrétní věta: kdo, kde, co; u `hotovo` pomlčka). Řádky `hotovo` jen vyjmenuj počtem nebo je vynech; podrobně rozepiš jen `potřebuje akci`. Bez vysvětlování postupu.
+- Zeptej se jednou, zapracuj odpověď, po zápisu oznam jen výsledek.
 
 ## Co nedělat
 

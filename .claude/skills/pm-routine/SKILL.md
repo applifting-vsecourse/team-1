@@ -114,7 +114,7 @@ Přehled je **krátký**: jen položky, které jsou nové a čekají na PM. Co u
 ## PM rutina <datum> (<denní|týdenní>)
 
 ### Visí na mně (seřazeno P0 → P3)
-| Priorita | Kde | Co | Stáří | Stav |
+| Priorita | Kde | Co | Stáří | Stav (`hotovo` / `potřebuje akci`) | Co udělat (jedna věta) |
 
 ### Slíbil jsem
 - <odkaz>: <co>, <do kdy / na koho se čeká>
