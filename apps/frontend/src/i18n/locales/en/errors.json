@@ -17,6 +17,7 @@
   "ROOM_NAME_TAKEN": "A room with this name already exists in the event.",
   "TERM_CANCELLED": "This term was cancelled and can't be changed.",
   "TERM_END_BEFORE_START": "Enter an end date that is not before the start date.",
+  "TERM_LIMIT_REACHED": "The event already has the maximum number of terms (999).",
   "UNAUTHORIZED": "Please sign in.",
   "UNKNOWN": "Something went wrong.",
   "VALIDATION_FAILED": "Some fields are not filled in correctly."

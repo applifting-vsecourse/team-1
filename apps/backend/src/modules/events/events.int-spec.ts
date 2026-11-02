@@ -1,5 +1,11 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
-import { api, connectTestPrisma, resetAndSeed, signIn } from "@/test/integration/test-api"
+import {
+  api,
+  connectTestPrisma,
+  nextTermNumber,
+  resetAndSeed,
+  signIn,
+} from "@/test/integration/test-api"
 
 type EventBody = {
   id: string
@@ -115,6 +121,7 @@ describe("organizer events (integration)", () => {
       data: {
         organizationId: event.organizationId,
         eventId: event.id,
+        number: await nextTermNumber(prisma, event.id),
         name: "Týden",
         startsOn: new Date("2027-10-01"),
         endsOn: new Date("2027-10-07"),
@@ -227,6 +234,7 @@ describe("organizer events (integration)", () => {
         data: {
           organizationId: event.organizationId,
           eventId: event.id,
+          number: await nextTermNumber(prisma, event.id),
           name: "Týden",
           startsOn: new Date("2027-10-01"),
           endsOn: new Date("2027-10-07"),

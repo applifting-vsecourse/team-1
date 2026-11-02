@@ -330,12 +330,13 @@ export async function createEvent(prisma: PrismaService, params: CreateEventPara
   })
 
   const terms: Term[] = []
-  for (const term of params.terms) {
+  for (const [index, term] of params.terms.entries()) {
     terms.push(
       await prisma.term.create({
         data: {
           organizationId,
           eventId: event.id,
+          number: index + 1,
           name: term.name,
           startsOn: date(term.startsOn),
           endsOn: date(term.endsOn),

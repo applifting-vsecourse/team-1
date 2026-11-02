@@ -1,7 +1,7 @@
 // US-106: the system cancels waitlisted applications on the first day of their term. The test
 // server runs the job every second (global-setup.ts), so the test only waits for the result.
 import { PrismaService } from "@/core/prisma/prisma.service"
-import { connectTestPrisma, resetAndSeed } from "@/test/integration/test-api"
+import { connectTestPrisma, nextTermNumber, resetAndSeed } from "@/test/integration/test-api"
 
 type Status = "CONFIRMED" | "WAITLISTED" | "CANCELLED"
 
@@ -25,6 +25,7 @@ describe("cancelling waitlisted applications on the first day of the term (integ
       data: {
         organizationId,
         eventId,
+        number: await nextTermNumber(prisma, eventId),
         name,
         startsOn,
         endsOn: new Date(startsOn.getTime() + 6 * 86_400_000),

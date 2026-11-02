@@ -1,7 +1,7 @@
 // US-27: submitting an application evaluates every term by free beds, also under concurrency.
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { ApplicationsRepository } from "@/modules/applications/repositories/applications.repository"
-import { api, connectTestPrisma, resetAndSeed } from "@/test/integration/test-api"
+import { api, connectTestPrisma, nextTermNumber, resetAndSeed } from "@/test/integration/test-api"
 
 type Gender = "FEMALE" | "MALE"
 type SubmitBody = {
@@ -56,6 +56,7 @@ describe("submit application (integration)", () => {
         terms: {
           create: ["T1", "T2"].map((name, index) => ({
             organizationId: organization.id,
+            number: index + 1,
             name,
             // 2 women's beds, 1 men's bed in every term.
             rooms: {
@@ -174,6 +175,7 @@ describe("submit application (integration)", () => {
         organizationId: (await prisma.event.findUniqueOrThrow({ where: { id: eventId } }))
           .organizationId,
         eventId,
+        number: await nextTermNumber(prisma, eventId),
         name: "Cancelled meanwhile",
         startsOn: new Date("2027-08-01"),
         endsOn: new Date("2027-08-02"),

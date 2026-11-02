@@ -61,6 +61,7 @@ describe("submission status (integration)", () => {
         terms: {
           create: ["T1", "T2"].map((name, index) => ({
             organizationId: organization.id,
+            number: index + 1,
             name,
             // One women's bed and one men's bed in every term.
             rooms: {

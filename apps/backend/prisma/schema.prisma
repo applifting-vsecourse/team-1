@@ -204,6 +204,9 @@ model Term {
   organizationId String
   event          Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
   eventId        String
+  // Ordinal of the term within the event, 1–999 (US-137). Part of the variable symbol:
+  // assigned once as highest + 1, never changed, renumbered or reused — a cancelled term keeps it.
+  number         Int
   name           String
   startsOn       DateTime     @db.Date
   endsOn         DateTime     @db.Date
@@ -219,6 +222,7 @@ model Term {
   applicationTerms ApplicationTerm[]
   rooms            Room[]
 
+  @@unique([eventId, number])
   @@index([organizationId])
   @@index([eventId])
   @@map("term")
