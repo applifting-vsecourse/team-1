@@ -146,7 +146,7 @@ describe("EventTerms", () => {
     })
   })
 
-  it("has the optional name between the dates and the price on a 360 px screen", async () => {
+  it("has the optional name first, then the dates and the price", async () => {
     window.innerWidth = 360
     renderTerms()
     await userEvent.click(await screen.findByRole("button", { name: "Add term" }))
@@ -155,10 +155,10 @@ describe("EventTerms", () => {
     const dates = within(dialog).getByLabelText("Start date *")
     const name = within(dialog).getByLabelText("Term name (optional)")
     const price = within(dialog).getByLabelText("Term price (CZK) *")
-    expect(name).toHaveAttribute("placeholder", "Term name (optional)")
+    expect(name).toHaveAttribute("placeholder", "e.g. 1st turn, class 5, ages 8–10")
     expect(name).not.toBeRequired()
-    expect(dates.compareDocumentPosition(name) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
-    expect(name.compareDocumentPosition(price) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(name.compareDocumentPosition(dates) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(dates.compareDocumentPosition(price) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   })
 
   it("shows a cancelled term without a name by its dates", async () => {

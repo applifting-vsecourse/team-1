@@ -153,7 +153,7 @@ describe("accommodation by term", () => {
     const { user, onSelectTerm } = renderRooms("t1")
     await screen.findByRole("table")
     await user.click(screen.getByRole("combobox", { name: "Term" }))
-    await user.click(await screen.findByRole("option", { name: "19–25 Jul 2027" }))
+    await user.click(await screen.findByRole("option", { name: "19–25 Jul 2027 · Week 2" }))
     expect(onSelectTerm).toHaveBeenCalledWith("t2")
   })
 })

@@ -12,6 +12,12 @@ export const termName = (term: { name: string | null }): string | null => {
 export const termDates = (term: TermDates): string =>
   formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })
 
+/** Dates first, then the name when there is one — `12.–18. 7. 2027 · První turnus`. */
+export const termDatesLine = (term: TermDates & { name: string | null }): string => {
+  const name = termName(term)
+  return name ? `${termDates(term)} · ${name}` : termDates(term)
+}
+
 /** A term with both — `První turnus · 12.–18. 7. 2027` — or just the dates without a name. */
 export const termLine = (term: TermDates & { name: string | null }): string => {
   const name = termName(term)

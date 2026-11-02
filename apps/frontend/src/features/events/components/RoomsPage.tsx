@@ -29,7 +29,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { formatDateRange } from "@/lib/date"
+import { termDatesLine } from "@/lib/term-label"
 import { cn } from "@/lib/utils"
 
 import { eventKeys } from "@/features/events/api/events"
@@ -179,7 +179,7 @@ export function RoomsPage({
                 key={item.id}
                 value={item.id}
               >
-                {formatDateRange(item.startsOn, item.endsOn, { shouldShowYear: true })}
+                {termDatesLine(item)}
               </SelectItem>
             ))}
           </SelectContent>

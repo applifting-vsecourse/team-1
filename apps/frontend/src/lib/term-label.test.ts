@@ -1,4 +1,4 @@
-import { termDates, termLine, termName, termTitle } from "@/lib/term-label"
+import { termDates, termDatesLine, termLine, termName, termTitle } from "@/lib/term-label"
 
 const dates = { startsOn: "2027-07-12", endsOn: "2027-07-18" }
 
@@ -22,5 +22,12 @@ describe("term label", () => {
     expect(termLine({ name: "První turnus", ...dates })).toBe(`První turnus · ${termDates(dates)}`)
     expect(termLine({ name: null, ...dates })).toBe(termDates(dates))
     expect(termLine({ name: " ", ...dates })).toBe(termDates(dates))
+  })
+
+  it("puts the dates before the name in a dates line", () => {
+    expect(termDatesLine({ name: "První turnus", ...dates })).toBe(
+      `${termDates(dates)} · První turnus`,
+    )
+    expect(termDatesLine({ name: null, ...dates })).toBe(termDates(dates))
   })
 })

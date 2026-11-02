@@ -135,53 +135,35 @@ export function TermFormDialog({
             onSubmit={form.handleSubmit(onSubmit)}
             className="flex flex-col gap-4"
           >
-            <div className="flex flex-col gap-4 sm:grid sm:grid-cols-2 sm:gap-x-6">
-              <div className="grid gap-4 sm:col-start-2 sm:row-span-2 sm:row-start-1 sm:content-start">
-                <FormField
-                  control={form.control}
-                  name="startsOn"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="data-[error=true]:text-foreground">
-                        {t("terms.form.startsOn")}
-                      </FormLabel>
-                      <FormControl>
-                        <DateField {...field} />
-                      </FormControl>
-                      <FormMessage className="text-xs leading-[18px] font-medium" />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="endsOn"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="data-[error=true]:text-foreground">
-                        {t("terms.form.endsOn")}
-                      </FormLabel>
-                      <FormControl>
-                        <DateField {...field} />
-                      </FormControl>
-                      <FormMessage className="text-xs leading-[18px] font-medium" />
-                    </FormItem>
-                  )}
-                />
-              </div>
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="data-[error=true]:text-foreground">
+                    {t("terms.form.name")}
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      autoComplete="off"
+                      placeholder={t("terms.form.namePlaceholder")}
+                      {...field}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <div className="grid gap-4 sm:grid-cols-2">
               <FormField
                 control={form.control}
-                name="name"
+                name="startsOn"
                 render={({ field }) => (
-                  <FormItem className="sm:col-start-1 sm:row-start-1">
+                  <FormItem>
                     <FormLabel className="data-[error=true]:text-foreground">
-                      {t("terms.form.name")}
+                      {t("terms.form.startsOn")}
                     </FormLabel>
                     <FormControl>
-                      <Input
-                        autoComplete="off"
-                        placeholder={t("terms.form.name")}
-                        {...field}
-                      />
+                      <DateField {...field} />
                     </FormControl>
                     <FormMessage className="text-xs leading-[18px] font-medium" />
                   </FormItem>
@@ -189,32 +171,47 @@ export function TermFormDialog({
               />
               <FormField
                 control={form.control}
-                name="priceCzk"
+                name="endsOn"
                 render={({ field }) => (
-                  <FormItem className="sm:col-start-1 sm:row-start-2">
+                  <FormItem>
                     <FormLabel className="data-[error=true]:text-foreground">
-                      {t("terms.form.price")}
+                      {t("terms.form.endsOn")}
                     </FormLabel>
                     <FormControl>
-                      <Input
-                        type="number"
-                        inputMode="numeric"
-                        min={0}
-                        step={1}
-                        {...field}
-                      />
+                      <DateField {...field} />
                     </FormControl>
-                    {form.formState.errors.priceCzk ? (
-                      <FormMessage className="text-xs leading-[18px] font-medium" />
-                    ) : (
-                      <FormDescription className="text-xs leading-[18px] font-medium">
-                        {t("terms.form.priceHelper")}
-                      </FormDescription>
-                    )}
+                    <FormMessage className="text-xs leading-[18px] font-medium" />
                   </FormItem>
                 )}
               />
             </div>
+            <FormField
+              control={form.control}
+              name="priceCzk"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="data-[error=true]:text-foreground">
+                    {t("terms.form.price")}
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      inputMode="numeric"
+                      min={0}
+                      step={1}
+                      {...field}
+                    />
+                  </FormControl>
+                  {form.formState.errors.priceCzk ? (
+                    <FormMessage className="text-xs leading-[18px] font-medium" />
+                  ) : (
+                    <FormDescription className="text-xs leading-[18px] font-medium">
+                      {t("terms.form.priceHelper")}
+                    </FormDescription>
+                  )}
+                </FormItem>
+              )}
+            />
             <p className="text-xs font-medium text-muted-foreground">{t("terms.form.required")}</p>
 
             {mutation.isError ? (

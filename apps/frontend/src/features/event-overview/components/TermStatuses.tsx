@@ -7,7 +7,8 @@ import { LoadingState } from "@/components/molecules/LoadingState"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { formatDateRange, formatDateTime } from "@/lib/date"
+import { formatDateTime } from "@/lib/date"
+import { termDatesLine } from "@/lib/term-label"
 
 import {
   termStatusesQueryOptions,
@@ -55,9 +56,7 @@ export function TermStatuses({ applicationId }: { applicationId: string }) {
             className="flex flex-col gap-3 border-t py-4 first:border-t-0 first:pt-0"
           >
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-              <span className="font-medium">
-                {formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })}
-              </span>
+              <span className="font-medium">{termDatesLine(term)}</span>
               <Badge variant={BADGE[term.status]}>{t(`termStatus.state.${term.status}`)}</Badge>
               <div className="flex flex-wrap gap-2 sm:ml-auto">
                 {term.allowedStatuses.map((status) => (

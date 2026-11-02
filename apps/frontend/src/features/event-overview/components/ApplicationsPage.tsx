@@ -22,7 +22,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { formatDate, formatDateRange, formatDateTime } from "@/lib/date"
+import { formatDate, formatDateTime } from "@/lib/date"
+import { termDatesLine } from "@/lib/term-label"
 
 import {
   applicationsQueryOptions,
@@ -112,7 +113,7 @@ export function ApplicationsPage({
           filters={filters}
           terms={(occupancy.data?.terms ?? []).map((term) => ({
             id: term.id,
-            name: formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true }),
+            name: termDatesLine(term),
           }))}
           onChange={(next) => {
             setPage(0)
@@ -312,7 +313,7 @@ function Terms({ application }: { application: ListedApplication }) {
           key={term.id}
           className="flex flex-wrap items-center gap-2"
         >
-          <span>{formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })}</span>
+          <span>{termDatesLine(term)}</span>
           <Badge
             variant={term.status === "CONFIRMED" ? "success" : "secondary"}
             className={

@@ -257,6 +257,7 @@
       "endsOn": "End date *",
       "fieldRequired": "Fill in this field.",
       "name": "Term name (optional)",
+      "namePlaceholder": "e.g. 1st turn, class 5, ages 8–10",
       "price": "Term price (CZK) *",
       "priceHelper": "The whole price of the term; no deposit.",
       "priceRequired": "Fill in the price per person in CZK.",
