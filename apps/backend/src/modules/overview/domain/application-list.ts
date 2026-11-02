@@ -6,7 +6,7 @@ import {
   computePaymentStatus,
   PaymentStatus,
 } from "@/modules/applications/domain/pricing"
-import { toVariableSymbol } from "@/modules/applications/domain/submission-status"
+import { variableSymbol } from "@/modules/applications/domain/variable-symbol"
 import {
   bedGroup,
   RoomMode,
@@ -95,7 +95,7 @@ export function applicationList(
       (row) =>
         words.every((word) =>
           normalize(
-            `${row.firstName} ${row.lastName} ${row.email} ${toVariableSymbol(row.number)}`,
+            `${row.firstName} ${row.lastName} ${row.email} ${variableSymbol(row.number)}`,
           ).includes(word),
         ) &&
         (!filters.gender || row.gender === filters.gender) &&

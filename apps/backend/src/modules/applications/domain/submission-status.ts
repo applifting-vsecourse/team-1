@@ -6,6 +6,7 @@ import {
   computePaymentStatus,
   PaymentStatus,
 } from "./pricing"
+import { variableSymbol as toVariableSymbol } from "./variable-symbol"
 
 /** One application of a submission as stored — what the confirmation page is built from (US-25). */
 export type SubmittedApplicationRecord = {
@@ -73,8 +74,6 @@ export type SubmissionStatus = {
   applications: SubmittedApplicationStatus[]
 }
 
-export const toVariableSymbol = (number: number): string => String(number).padStart(4, "0")
-
 /** Reference for people — initials of the event and the number. Display only. */
 export function toApplicationCode(eventName: string, number: number): string {
   const initials = eventName
@@ -84,7 +83,7 @@ export function toApplicationCode(eventName: string, number: number): string {
     .filter((word) => word.length > 0)
     .map((word) => word[0].toUpperCase())
     .join("")
-  return `${initials || "P"}-${toVariableSymbol(number)}`
+  return `${initials || "P"}-${String(number).padStart(4, "0")}`
 }
 
 const toIsoDate = (date: Date): string => date.toISOString().slice(0, 10)

@@ -1,9 +1,4 @@
-import {
-  buildMyApplication,
-  MyApplicationRecord,
-  toApplicationCode,
-  toVariableSymbol,
-} from "./my-application"
+import { buildMyApplication, MyApplicationRecord, toApplicationCode } from "./my-application"
 
 const at = (minute: number): Date => new Date(Date.UTC(2027, 0, 1, 10, minute))
 const day = (iso: string): Date => new Date(`${iso}T00:00:00.000Z`)
@@ -38,14 +33,6 @@ const record = (overrides: Partial<MyApplicationRecord> = {}): MyApplicationReco
   ...overrides,
 })
 
-describe("toVariableSymbol", () => {
-  it("pads the application number to four digits", () => {
-    expect(toVariableSymbol(48)).toBe("0048")
-    expect(toVariableSymbol(1234)).toBe("1234")
-    expect(toVariableSymbol(12345)).toBe("12345")
-  })
-})
-
 describe("toApplicationCode", () => {
   it("joins the initials of the event words with the padded number", () => {
     expect(toApplicationCode("Letní kemp Lipno 2027", 48)).toBe("LKL-0048")
@@ -64,10 +51,10 @@ describe("buildMyApplication", () => {
 
     expect(result.terms.map((term) => term.termId)).toEqual(["t1", "t2"])
     expect(result.amountDueCzk).toBe(9400)
-    expect(result.variableSymbol).toBe("0048")
+    expect(result.variableSymbol).toBe("48000")
     expect(result.paymentDetails).toEqual({
       bankAccount: "2900123456/2010",
-      variableSymbol: "0048",
+      variableSymbol: "48000",
     })
   })
 

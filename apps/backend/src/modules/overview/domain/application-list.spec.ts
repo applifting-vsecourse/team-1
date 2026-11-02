@@ -33,7 +33,7 @@ const row: ListedApplication = {
 }
 
 describe("application list filters", () => {
-  it.each(["jana", "TEST JANA", "  jana   test  ", "TEST@EXAMPLE", "0048", "48", "  "])(
+  it.each(["jana", "TEST JANA", "  jana   test  ", "TEST@EXAMPLE", "48000", "48", "  "])(
     "finds names, e-mails and variable symbols: %s",
     (q) => {
       expect(applicationList([row], { q })).toHaveLength(1)
@@ -46,8 +46,8 @@ describe("application list filters", () => {
     ).toHaveLength(1)
     expect(applicationList([accented], { q: "cerna", gender: "MALE" })).toEqual([])
     expect(applicationList([row], { q: "nobody" })).toEqual([])
-    expect(applicationList([row], { q: "0048", payment: "PAID" })).toEqual([])
-    expect(applicationList([row], { q: "0048" })[0]).not.toHaveProperty("number")
+    expect(applicationList([row], { q: "48000", payment: "PAID" })).toEqual([])
+    expect(applicationList([row], { q: "48000" })[0]).not.toHaveProperty("number")
   })
   it("matches term and status on the same term and preserves every term and total", () => {
     expect(applicationList([row], { termId: "t2", status: "CONFIRMED" })).toEqual([])

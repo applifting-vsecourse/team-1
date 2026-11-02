@@ -103,8 +103,13 @@ describe("participant applications (integration)", () => {
     ])
     const symbols = applications.map((a) => a.variableSymbol)
     expect(new Set(symbols).size).toBe(3)
-    expect(symbols.every((symbol) => /^\d{4}$/.test(symbol))).toBe(true)
-    expect(applications.every((a) => a.code.endsWith(`-${a.variableSymbol}`))).toBe(true)
+    // Summary symbol = application number × 1000; the display code carries the padded number.
+    expect(symbols.every((symbol) => /^\d+000$/.test(symbol))).toBe(true)
+    expect(
+      applications.every((a) =>
+        a.code.endsWith(`-${String(Number(a.variableSymbol) / 1000).padStart(4, "0")}`),
+      ),
+    ).toBe(true)
   })
 
   it("shows payment details and the amount due of a fully paid application", async () => {

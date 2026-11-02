@@ -40,8 +40,8 @@ describe("buildSubmissionStatus", () => {
 
     expect(status.isNewAccount).toBe(true)
     expect(status.applications.map((a) => a.payment)).toEqual([
-      { bankAccount: "2900123456/2010", variableSymbol: "0048", amountCzk: 6900 },
-      { bankAccount: "2900123456/2010", variableSymbol: "0049", amountCzk: 7400 },
+      { bankAccount: "2900123456/2010", variableSymbol: "48000", amountCzk: 6900 },
+      { bankAccount: "2900123456/2010", variableSymbol: "49000", amountCzk: 7400 },
     ])
     expect(status.applications.map((a) => a.code)).toEqual(["LK-0048", "LK-0049"])
   })

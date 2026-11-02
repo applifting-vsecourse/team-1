@@ -59,7 +59,7 @@ describe("buildChangeProps", () => {
     expect(
       buildChangeProps(change({ isAmountChanged: true, kind: "STATUS_CHANGED" }), "https://app")
         .payment,
-    ).toMatchObject({ bankAccount: "2900123456/2010", variableSymbol: "0049" })
+    ).toMatchObject({ bankAccount: "2900123456/2010", variableSymbol: "49000" })
     expect(
       buildChangeProps(change({ isAmountChanged: true, kind: "CANCELLED" }), "https://app").payment,
     ).toBeNull()

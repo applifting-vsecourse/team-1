@@ -126,8 +126,8 @@ describe("ApplicationConfirmationMailer.sendSubmissionConfirmation", () => {
     const { html } = sent(sendEmail)
     expect(html).toContain("Jana Nováková")
     expect(html).toContain("Petr Novák")
-    expect(html).toContain("0048")
-    expect(html).toContain("0049")
+    expect(html).toContain("48000")
+    expect(html).toContain("49000")
     expect(html).toContain("9 400 Kč")
     expect(html).toContain("4 900 Kč")
     expect(html).toContain("platby posílejte zvlášť")
@@ -183,8 +183,8 @@ describe("ApplicationConfirmationMailer.sendSubmissionConfirmation", () => {
     )
 
     const { html } = sent(sendEmail)
-    expect(html).toContain("0048")
-    expect(html).not.toContain("0050")
+    expect(html).toContain("48000")
+    expect(html).not.toContain("50000")
   })
 
   it("links the magic link to an account without a password", async () => {
@@ -310,7 +310,7 @@ describe("ApplicationConfirmationMailer.sendApplicationChange", () => {
     const { html } = sent(sendEmail)
     expect(html).toContain("Změnily se termíny přihlášky")
     expect(html).toContain("9 400 Kč")
-    expect(html).toContain("0049")
+    expect(html).toContain("49000")
     expect(html).toContain("2900123456/2010")
   })
 

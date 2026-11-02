@@ -6,6 +6,7 @@ import {
   computePaymentStatus,
   PaymentStatus,
 } from "@/modules/applications/domain/pricing"
+import { variableSymbol as toVariableSymbol } from "@/modules/applications/domain/variable-symbol"
 
 /** One application of the signed-in participant as stored — what the overview is built from (US-54). */
 export type MyApplicationRecord = {
@@ -67,7 +68,7 @@ export type MyApplication = {
 /**
  * The application's reference for people — initials of the event and the
  * number, `LKL-0048`. Display only: a bank accepts digits alone as a variable
- * symbol, so the payment uses `toVariableSymbol`.
+ * symbol, so the payment uses `variableSymbol`.
  */
 export function toApplicationCode(eventName: string, number: number): string {
   const initials = eventName
@@ -77,10 +78,8 @@ export function toApplicationCode(eventName: string, number: number): string {
     .filter((word) => word.length > 0)
     .map((word) => word[0].toUpperCase())
     .join("")
-  return `${initials || "P"}-${toVariableSymbol(number)}`
+  return `${initials || "P"}-${String(number).padStart(4, "0")}`
 }
-
-export const toVariableSymbol = (number: number): string => String(number).padStart(4, "0")
 
 const toIsoDate = (date: Date): string => date.toISOString().slice(0, 10)
 

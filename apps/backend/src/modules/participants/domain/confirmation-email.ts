@@ -2,7 +2,7 @@ import { formatCzk } from "@/core/email/format-czk"
 import type { ApplicationChangeProps } from "@/core/email/templates/application-change"
 import type { ConfirmationApplicationProps } from "@/core/email/templates/application-confirmation"
 import { computeAmountDue } from "@/modules/applications/domain/pricing"
-import { toVariableSymbol } from "@/modules/participants/domain/my-application"
+import { variableSymbol } from "@/modules/applications/domain/variable-symbol"
 import {
   ApplicationChange,
   SubmissionConfirmation,
@@ -31,7 +31,7 @@ function paymentOf(
   return {
     amount: formatCzk(computeAmountDue(application.terms), locale),
     bankAccount,
-    variableSymbol: toVariableSymbol(application.number),
+    variableSymbol: variableSymbol(application.number),
   }
 }
 
