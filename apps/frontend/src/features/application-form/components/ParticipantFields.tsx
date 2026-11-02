@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next"
 
 import { TermPrice } from "@/components/atoms/MoneyAmount"
 import { DateField } from "@/components/molecules/DateField"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -214,7 +215,12 @@ export function ParticipantFields({ index, terms, onRemove, isDisabled }: Partic
                       {termName(term) ? (
                         <>
                           <span className="sr-only"> · </span>
-                          <span className="text-sm text-muted-foreground">{termName(term)}</span>
+                          <Badge
+                            variant="secondary"
+                            className="self-start"
+                          >
+                            {termName(term)}
+                          </Badge>
                         </>
                       ) : null}
                     </span>

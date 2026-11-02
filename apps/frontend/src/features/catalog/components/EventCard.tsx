@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
 import { formatDateRange } from "@/lib/date"
 import { formatCzk } from "@/lib/money"
+import { termName } from "@/lib/term-label"
 
 import type { CatalogEvent } from "@/features/catalog/api/catalog"
 
@@ -28,8 +29,12 @@ export function EventCard({ event }: { event: CatalogEvent }) {
         {event.terms.length > 0 ? (
           <ul>
             {event.terms.map((term) => (
-              <li key={term.startsOn}>
+              <li
+                key={term.startsOn}
+                className="flex flex-wrap items-center gap-x-2 gap-y-1"
+              >
                 {formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })}
+                {termName(term) ? <Badge variant="secondary">{termName(term)}</Badge> : null}
               </li>
             ))}
           </ul>

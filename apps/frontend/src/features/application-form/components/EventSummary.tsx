@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next"
 
 import { BrandDivider } from "@/components/atoms/BrandDivider"
 import { TermPrice } from "@/components/atoms/MoneyAmount"
+import { Badge } from "@/components/ui/badge"
 import { formatDateRange, formatMonthRange } from "@/lib/date"
 import { termName } from "@/lib/term-label"
 
@@ -44,7 +45,12 @@ export function EventSummary({ event }: { event: PublicEvent }) {
               {termName(term) ? (
                 <>
                   <span className="sr-only"> · </span>
-                  <span className="text-sm text-muted-foreground">{termName(term)}</span>
+                  <Badge
+                    variant="secondary"
+                    className="self-start"
+                  >
+                    {termName(term)}
+                  </Badge>
                 </>
               ) : null}
             </span>

@@ -50,6 +50,7 @@ export class PublicCatalogRepository {
           organizationName: event.organization.name,
           location: event.location,
           terms: event.terms.map((term) => ({
+            name: term.name,
             startsOn: isoDate(term.startsOn),
             endsOn: isoDate(term.endsOn),
           })),

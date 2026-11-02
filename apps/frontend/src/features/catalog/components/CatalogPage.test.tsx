@@ -20,8 +20,8 @@ const event = (overrides: object) => ({
   organizationName: "Alpine Collective",
   location: "Lipno nad Vltavou",
   terms: [
-    { startsOn: "2027-07-12", endsOn: "2027-07-18" },
-    { startsOn: "2027-07-20", endsOn: "2027-07-25" },
+    { name: "První turnus", startsOn: "2027-07-12", endsOn: "2027-07-18" },
+    { name: null, startsOn: "2027-07-20", endsOn: "2027-07-25" },
   ],
   termCount: 2,
   fromPriceCzk: 4900,
@@ -111,6 +111,8 @@ describe("CatalogPage", () => {
     expect(card).toHaveTextContent("Lipno nad Vltavou")
     expect(card).toHaveTextContent("Applications open")
     expect(card).toHaveTextContent("12–18 Jul 2027")
+    expect(card).toHaveTextContent("První turnus")
+    expect(card).toHaveTextContent("20–25 Jul 2027")
     expect(card).toHaveTextContent("20–25 Jul 2027")
     expect(card).toHaveTextContent("2 terms · from")
     expect(
