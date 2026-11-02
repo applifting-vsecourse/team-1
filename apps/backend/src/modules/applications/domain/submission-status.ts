@@ -18,7 +18,7 @@ export type SubmittedApplicationRecord = {
     termId: string
     /** `Term.number`, part of the term's variable symbol. */
     termNumber: number
-    name: string
+    name: string | null
     startsOn: Date
     endsOn: Date
     status: ApplicationTermStatus
@@ -52,7 +52,7 @@ export type SubmittedApplicationStatus = {
   variableSymbol: string
   terms: {
     termId: string
-    name: string
+    name: string | null
     /** ISO dates, e.g. "2027-07-04". */
     startsOn: string
     endsOn: string

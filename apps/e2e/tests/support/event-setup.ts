@@ -21,7 +21,7 @@ export async function createEventWithTerm(page: Page, name: string) {
   await dialog.getByLabel("Term name").fill("1. týden")
   await dialog.getByLabel("Start date").fill("04/07/2027")
   await dialog.getByLabel("End date").fill("10/07/2027")
-  await dialog.getByLabel("Price per person").fill("4500")
+  await dialog.getByLabel("Term price").fill("4500")
   await dialog.getByRole("button", { name: "Add term" }).click()
   await expect(page.getByText("The term 1. týden was added.")).toBeVisible()
 }

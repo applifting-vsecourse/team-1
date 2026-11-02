@@ -15,7 +15,7 @@ const termRoomsSchema = z.object({
   eventName: z.string(),
   organizationName: z.string(),
   termId: z.string(),
-  termName: z.string(),
+  termName: z.string().nullable(),
   /** ISO dates, `2027-07-12`. */
   startsOn: z.string(),
   endsOn: z.string(),

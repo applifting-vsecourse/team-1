@@ -67,13 +67,13 @@ const terms = [
 
 const sentBodies: unknown[] = []
 
-function renderTerms() {
+function renderTerms(list: unknown[] = terms, created: unknown = terms[0]) {
   sentBodies.length = 0
   const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation(async (input) => {
     const request = input as Request
     if (request.method === "POST") sentBodies.push(await request.clone().json())
     const isTerms = request.url.endsWith("/terms")
-    const body = request.method === "POST" ? terms[0] : isTerms ? terms : event
+    const body = request.method === "POST" ? created : isTerms ? list : event
     return Promise.resolve(
       new Response(JSON.stringify(body), { headers: { "Content-Type": "application/json" } }),
     )
@@ -114,15 +114,71 @@ describe("EventTerms", () => {
     expect(screen.getByText("Zrušený · 12–18 Jul 2027 · Cancelled")).toBeInTheDocument()
   })
 
+  it("lists a term without a name by its dates only", async () => {
+    renderTerms([term({ name: null }), terms[1]])
+
+    expect(await screen.findByText("12–18 Jul 2027")).toBeInTheDocument()
+    const row = screen.getByText("12–18 Jul 2027").closest("li") as HTMLElement
+    expect(within(row).getByText("CZK 6,900")).toBeInTheDocument()
+    expect(within(row).queryByText(/null| · /)).not.toBeInTheDocument()
+    expect(
+      within(row).getByRole("button", { name: "Actions for 12–18 Jul 2027" }),
+    ).toBeInTheDocument()
+  })
+
+  it("adds a term without a name and confirms it by its dates", async () => {
+    const success = vi.spyOn(notify, "success")
+    renderTerms(terms, term({ id: "t9", name: null }))
+    await userEvent.click(await screen.findByRole("button", { name: "Add term" }))
+    const dialog = await screen.findByRole("dialog")
+
+    await userEvent.type(within(dialog).getByLabelText("Start date *"), "12/07/2027")
+    await userEvent.type(within(dialog).getByLabelText("End date *"), "18/07/2027")
+    await userEvent.type(within(dialog).getByLabelText("Term price (CZK) *"), "6900")
+    await userEvent.click(within(dialog).getByRole("button", { name: "Add term" }))
+
+    await waitFor(() => expect(success).toHaveBeenCalledWith("The term 12–18 Jul 2027 was added."))
+    expect(sentBodies[0]).toEqual({
+      name: "",
+      startsOn: "2027-07-12",
+      endsOn: "2027-07-18",
+      priceCzk: 6900,
+    })
+  })
+
+  it("has the optional name between the dates and the price on a 360 px screen", async () => {
+    window.innerWidth = 360
+    renderTerms()
+    await userEvent.click(await screen.findByRole("button", { name: "Add term" }))
+    const dialog = await screen.findByRole("dialog")
+
+    const dates = within(dialog).getByLabelText("Start date *")
+    const name = within(dialog).getByLabelText("Term name (optional)")
+    const price = within(dialog).getByLabelText("Term price (CZK) *")
+    expect(name).toHaveAttribute("placeholder", "Term name (optional)")
+    expect(name).not.toBeRequired()
+    expect(dates.compareDocumentPosition(name) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(name.compareDocumentPosition(price) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  })
+
+  it("shows a cancelled term without a name by its dates", async () => {
+    renderTerms([
+      terms[0],
+      term({ id: "t3", name: null, cancelledAt: "2027-02-01T10:00:00.000Z", cancelReason: "x" }),
+    ])
+
+    expect(await screen.findByText("12–18 Jul 2027 · Cancelled")).toBeInTheDocument()
+  })
+
   it("shows the error and sends nothing when the end is before the start", async () => {
     const fetchMock = renderTerms()
     await userEvent.click(await screen.findByRole("button", { name: "Add term" }))
     const dialog = await screen.findByRole("dialog")
 
-    await userEvent.type(within(dialog).getByLabelText("Term name *"), "Letní turnus 3")
+    await userEvent.type(within(dialog).getByLabelText("Term name (optional)"), "Letní turnus 3")
     await userEvent.type(within(dialog).getByLabelText("Start date *"), "09/08/2027")
     await userEvent.type(within(dialog).getByLabelText("End date *"), "08/08/2027")
-    await userEvent.type(within(dialog).getByLabelText("Price per person (CZK) *"), "7600")
+    await userEvent.type(within(dialog).getByLabelText("Term price (CZK) *"), "7600")
     await userEvent.click(within(dialog).getByRole("button", { name: "Add term" }))
 
     expect(await within(dialog).findByText("The end must be after the start.")).toBeInTheDocument()
@@ -135,10 +191,10 @@ describe("EventTerms", () => {
     await userEvent.click(await screen.findByRole("button", { name: "Add term" }))
     const dialog = await screen.findByRole("dialog")
 
-    await userEvent.type(within(dialog).getByLabelText("Term name *"), "Letní turnus 3")
+    await userEvent.type(within(dialog).getByLabelText("Term name (optional)"), "Letní turnus 3")
     await userEvent.type(within(dialog).getByLabelText("Start date *"), "31/02/2027")
     await userEvent.type(within(dialog).getByLabelText("End date *"), "15/08/2027")
-    await userEvent.type(within(dialog).getByLabelText("Price per person (CZK) *"), "7600")
+    await userEvent.type(within(dialog).getByLabelText("Term price (CZK) *"), "7600")
     await userEvent.click(within(dialog).getByRole("button", { name: "Add term" }))
 
     expect(await within(dialog).findByText("Enter the date as DD/MM/YYYY.")).toBeInTheDocument()
@@ -152,7 +208,7 @@ describe("EventTerms", () => {
     await userEvent.click(await screen.findByRole("button", { name: "Add term" }))
     const dialog = await screen.findByRole("dialog")
 
-    await userEvent.type(within(dialog).getByLabelText("Term name *"), "Letní turnus 3")
+    await userEvent.type(within(dialog).getByLabelText("Term name (optional)"), "Letní turnus 3")
     await userEvent.type(within(dialog).getByLabelText("Start date *"), "09/08/2027")
     await userEvent.type(within(dialog).getByLabelText("End date *"), "15/08/2027")
     await userEvent.click(within(dialog).getByRole("button", { name: "Add term" }))
@@ -160,7 +216,7 @@ describe("EventTerms", () => {
     expect(
       await within(dialog).findByText("Fill in the price per person in CZK."),
     ).toBeInTheDocument()
-    expect(within(dialog).getByLabelText("Price per person (CZK) *")).toHaveAttribute(
+    expect(within(dialog).getByLabelText("Term price (CZK) *")).toHaveAttribute(
       "aria-invalid",
       "true",
     )
@@ -173,10 +229,10 @@ describe("EventTerms", () => {
     await userEvent.click(await screen.findByRole("button", { name: "Add term" }))
     const dialog = await screen.findByRole("dialog")
 
-    await userEvent.type(within(dialog).getByLabelText("Term name *"), "Letní turnus 1")
+    await userEvent.type(within(dialog).getByLabelText("Term name (optional)"), "Letní turnus 1")
     await userEvent.type(within(dialog).getByLabelText("Start date *"), "12/07/2027")
     await userEvent.type(within(dialog).getByLabelText("End date *"), "18/07/2027")
-    await userEvent.type(within(dialog).getByLabelText("Price per person (CZK) *"), "6900")
+    await userEvent.type(within(dialog).getByLabelText("Term price (CZK) *"), "6900")
     await userEvent.click(within(dialog).getByRole("button", { name: "Add term" }))
 
     await waitFor(() => expect(success).toHaveBeenCalledWith("The term Letní turnus 1 was added."))
@@ -195,10 +251,10 @@ describe("EventTerms", () => {
     await userEvent.click(await screen.findByRole("button", { name: "Add term" }))
     const dialog = await screen.findByRole("dialog")
 
-    await userEvent.type(within(dialog).getByLabelText("Term name *"), "Zdarma")
+    await userEvent.type(within(dialog).getByLabelText("Term name (optional)"), "Zdarma")
     await userEvent.type(within(dialog).getByLabelText("Start date *"), "12/07/2027")
     await userEvent.type(within(dialog).getByLabelText("End date *"), "18/07/2027")
-    await userEvent.type(within(dialog).getByLabelText("Price per person (CZK) *"), "0")
+    await userEvent.type(within(dialog).getByLabelText("Term price (CZK) *"), "0")
     await userEvent.click(within(dialog).getByRole("button", { name: "Add term" }))
 
     await waitFor(() => expect(success).toHaveBeenCalledWith("The term Letní turnus 1 was added."))

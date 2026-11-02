@@ -14,7 +14,7 @@ const published = { publishedInCatalog: true }
 
 const termsInclude = {
   where: { cancelledAt: null },
-  orderBy: [{ startsOn: "asc" as const }, { name: "asc" as const }],
+  orderBy: [{ startsOn: "asc" as const }, { endsOn: "asc" as const }, { id: "asc" as const }],
   select: {
     id: true,
     name: true,

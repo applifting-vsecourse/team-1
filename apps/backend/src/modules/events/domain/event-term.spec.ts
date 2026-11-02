@@ -18,13 +18,14 @@ describe("isValidTermPeriod", () => {
 })
 
 describe("sortTerms", () => {
-  it("orders by start date, then end date, then name", () => {
+  it("orders by start date, then end date, then id — whatever the names are", () => {
     const terms = [
-      { name: "C", startsOn: "2027-08-02", endsOn: "2027-08-08" },
-      { name: "B", startsOn: "2027-07-12", endsOn: "2027-07-18" },
-      { name: "A", startsOn: "2027-07-12", endsOn: "2027-07-14" },
+      { id: "c", name: null, startsOn: "2027-08-02", endsOn: "2027-08-08" },
+      { id: "b", name: "A", startsOn: "2027-07-12", endsOn: "2027-07-18" },
+      { id: "a", name: "Z", startsOn: "2027-07-12", endsOn: "2027-07-14" },
+      { id: "d", name: null, startsOn: "2027-07-12", endsOn: "2027-07-18" },
     ]
-    expect(sortTerms(terms).map((term) => term.name)).toEqual(["A", "B", "C"])
-    expect(terms[0].name).toBe("C")
+    expect(sortTerms(terms).map((term) => term.id)).toEqual(["a", "b", "d", "c"])
+    expect(terms[0].id).toBe("c")
   })
 })

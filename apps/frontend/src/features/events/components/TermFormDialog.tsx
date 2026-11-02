@@ -35,7 +35,7 @@ import { useCreateTerm, useUpdateTerm } from "@/features/events/hooks/useTermMut
 const createSchema = (t: TFunction<"events">) =>
   z
     .object({
-      name: z.string().trim().min(1, t("terms.form.fieldRequired")),
+      name: z.string().trim(),
       startsOn: z
         .string()
         .min(1, t("terms.form.fieldRequired"))
@@ -74,6 +74,10 @@ type TermFormDialogProps = {
  * X16 / X16a / X17: add or edit a term — name, period and price per person.
  * The dialog is mounted only while open, so its form always starts fresh.
  */
+// Figma (Design system): US-13 Přidat termín · desktop · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15409-10617
+// Figma (Design system): US-13 Přidat termín · mobil · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15409-10704
+// Figma (Design system): US-13 Upravit termín · desktop · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15409-10933
+// Figma (Design system): US-13 Upravit termín · mobil · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15409-11020
 // Figma (Design system): X16 Přidat termín · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12283-2
 // Figma (Design system): X16a Přidat termín · neplatná data · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12283-675
 // Figma (Design system): X16b Přidat termín · chybí cena · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12639-295
@@ -131,41 +135,53 @@ export function TermFormDialog({
             onSubmit={form.handleSubmit(onSubmit)}
             className="flex flex-col gap-4"
           >
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="data-[error=true]:text-foreground">
-                    {t("terms.form.name")}
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      autoComplete="off"
-                      {...field}
-                    />
-                  </FormControl>
-                  {form.formState.errors.name ? (
-                    <FormMessage className="text-xs leading-[18px] font-medium" />
-                  ) : (
-                    <FormDescription className="text-xs leading-[18px] font-medium">
-                      {t("terms.form.nameHelper")}
-                    </FormDescription>
+            <div className="flex flex-col gap-4 sm:grid sm:grid-cols-2 sm:gap-x-6">
+              <div className="grid gap-4 sm:col-start-2 sm:row-span-2 sm:row-start-1 sm:content-start">
+                <FormField
+                  control={form.control}
+                  name="startsOn"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="data-[error=true]:text-foreground">
+                        {t("terms.form.startsOn")}
+                      </FormLabel>
+                      <FormControl>
+                        <DateField {...field} />
+                      </FormControl>
+                      <FormMessage className="text-xs leading-[18px] font-medium" />
+                    </FormItem>
                   )}
-                </FormItem>
-              )}
-            />
-            <div className="grid gap-4 sm:grid-cols-2">
+                />
+                <FormField
+                  control={form.control}
+                  name="endsOn"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="data-[error=true]:text-foreground">
+                        {t("terms.form.endsOn")}
+                      </FormLabel>
+                      <FormControl>
+                        <DateField {...field} />
+                      </FormControl>
+                      <FormMessage className="text-xs leading-[18px] font-medium" />
+                    </FormItem>
+                  )}
+                />
+              </div>
               <FormField
                 control={form.control}
-                name="startsOn"
+                name="name"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="sm:col-start-1 sm:row-start-1">
                     <FormLabel className="data-[error=true]:text-foreground">
-                      {t("terms.form.startsOn")}
+                      {t("terms.form.name")}
                     </FormLabel>
                     <FormControl>
-                      <DateField {...field} />
+                      <Input
+                        autoComplete="off"
+                        placeholder={t("terms.form.name")}
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage className="text-xs leading-[18px] font-medium" />
                   </FormItem>
@@ -173,47 +189,32 @@ export function TermFormDialog({
               />
               <FormField
                 control={form.control}
-                name="endsOn"
+                name="priceCzk"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="sm:col-start-1 sm:row-start-2">
                     <FormLabel className="data-[error=true]:text-foreground">
-                      {t("terms.form.endsOn")}
+                      {t("terms.form.price")}
                     </FormLabel>
                     <FormControl>
-                      <DateField {...field} />
+                      <Input
+                        type="number"
+                        inputMode="numeric"
+                        min={0}
+                        step={1}
+                        {...field}
+                      />
                     </FormControl>
-                    <FormMessage className="text-xs leading-[18px] font-medium" />
+                    {form.formState.errors.priceCzk ? (
+                      <FormMessage className="text-xs leading-[18px] font-medium" />
+                    ) : (
+                      <FormDescription className="text-xs leading-[18px] font-medium">
+                        {t("terms.form.priceHelper")}
+                      </FormDescription>
+                    )}
                   </FormItem>
                 )}
               />
             </div>
-            <FormField
-              control={form.control}
-              name="priceCzk"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="data-[error=true]:text-foreground">
-                    {t("terms.form.price")}
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      inputMode="numeric"
-                      min={0}
-                      step={1}
-                      {...field}
-                    />
-                  </FormControl>
-                  {form.formState.errors.priceCzk ? (
-                    <FormMessage className="text-xs leading-[18px] font-medium" />
-                  ) : (
-                    <FormDescription className="text-xs leading-[18px] font-medium">
-                      {t("terms.form.priceHelper")}
-                    </FormDescription>
-                  )}
-                </FormItem>
-              )}
-            />
             <p className="text-xs font-medium text-muted-foreground">{t("terms.form.required")}</p>
 
             {mutation.isError ? (

@@ -227,7 +227,8 @@ model Term {
   // Ordinal of the term within the event, 1–999 (US-137). Part of the variable symbol:
   // assigned once as highest + 1, never changed, renumbered or reused — a cancelled term keeps it.
   number         Int
-  name           String
+  // Optional (D-053): a term is defined by its dates; an unnamed term shows just the dates.
+  name           String?
   startsOn       DateTime     @db.Date
   endsOn         DateTime     @db.Date
   priceCzk       Int

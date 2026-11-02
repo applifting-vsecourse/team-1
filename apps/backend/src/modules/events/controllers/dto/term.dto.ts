@@ -1,12 +1,26 @@
 import { ApiProperty } from "@nestjs/swagger"
-import { IsInt, IsString, Matches, Max, MaxLength, Min, MinLength } from "class-validator"
+import {
+  IsInt,
+  IsOptional,
+  IsString,
+  Matches,
+  Max,
+  MaxLength,
+  Min,
+  MinLength,
+} from "class-validator"
 
 export class TermDto {
-  @ApiProperty({ example: "Letní turnus 1" })
+  @ApiProperty({
+    example: "Letní turnus 1",
+    required: false,
+    nullable: true,
+    description: "Optional; blank or missing means a term known by its dates only.",
+  })
+  @IsOptional()
   @IsString()
-  @MinLength(1)
   @MaxLength(200)
-  name!: string
+  name?: string | null
 
   @ApiProperty({ example: "2027-07-12", description: "ISO date." })
   @Matches(/^\d{4}-\d{2}-\d{2}$/)

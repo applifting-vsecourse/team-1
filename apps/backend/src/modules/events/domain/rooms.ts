@@ -12,7 +12,7 @@ export type TermRooms = {
   eventName: string
   organizationName: string
   termId: string
-  termName: string
+  termName: string | null
   /** ISO date, `2027-07-04`. */
   startsOn: string
   endsOn: string

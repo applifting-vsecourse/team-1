@@ -5,8 +5,8 @@ export class PublicTermDto {
   @ApiProperty()
   id!: string
 
-  @ApiProperty({ example: "1. týden" })
-  name!: string
+  @ApiProperty({ example: "1. týden", nullable: true, type: String })
+  name!: string | null
 
   @ApiProperty({ example: "2027-07-04", description: "ISO date." })
   startsOn!: string

@@ -8,7 +8,7 @@ import { eventKeys } from "@/features/events/api/events"
 export const termSchema = z.object({
   id: z.string(),
   eventId: z.string(),
-  name: z.string(),
+  name: z.string().nullable(),
   /** ISO dates, `2027-07-12`. */
   startsOn: z.string(),
   endsOn: z.string(),
@@ -25,6 +25,7 @@ export const termSchema = z.object({
 export type EventTerm = z.infer<typeof termSchema>
 
 export type TermInput = {
+  /** Blank means no name (D-053). */
   name: string
   startsOn: string
   endsOn: string

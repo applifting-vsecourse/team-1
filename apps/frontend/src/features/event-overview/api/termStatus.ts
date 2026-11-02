@@ -8,7 +8,7 @@ export type TermStatus = z.infer<typeof statusSchema>
 
 const termStatusSchema = z.object({
   termId: z.string(),
-  name: z.string(),
+  name: z.string().nullable(),
   startsOn: z.string(),
   endsOn: z.string(),
   status: statusSchema,

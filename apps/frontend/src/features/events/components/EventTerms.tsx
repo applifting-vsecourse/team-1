@@ -19,6 +19,7 @@ import { Progress } from "@/components/ui/progress"
 import { formatDateRange } from "@/lib/date"
 import { formatTermPrice } from "@/lib/money"
 import { notify } from "@/lib/notify"
+import { termLine, termName, termTitle } from "@/lib/term-label"
 import { cn } from "@/lib/utils"
 
 import { eventQueryOptions } from "@/features/events/api/events"
@@ -66,7 +67,7 @@ export function EventTerms({ eventId }: { eventId: string }) {
   const eventName = event.data.name
   const close = () => setDialog(null)
   const finish = ({ kind, term }: Change) => {
-    notify.success(t(`terms.notice.${kind}`, { name: term.name }))
+    notify.success(t(`terms.notice.${kind}`, { name: termTitle(term) }))
     setChangedId(kind === "cancelled" ? null : term.id)
     close()
   }
@@ -120,8 +121,7 @@ export function EventTerms({ eventId }: { eventId: string }) {
             {cancelled.map((term) => (
               <li key={term.id}>
                 {t("terms.cancelledRow", {
-                  name: term.name,
-                  dates: formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true }),
+                  term: termLine(term),
                 })}
               </li>
             ))}
@@ -172,7 +172,8 @@ function TermRow({
         </span>
         <span className="sr-only"> · </span>
         <span className="text-sm text-muted-foreground">
-          {term.name} · {formatTermPrice(term.priceCzk)}
+          {termName(term) ? `${termName(term)} · ` : ""}
+          {formatTermPrice(term.priceCzk)}
         </span>
       </div>
       <TermOccupancy term={term} />
@@ -181,7 +182,7 @@ function TermRow({
           <Button
             variant="ghost"
             size="icon-lg"
-            aria-label={t("terms.actions", { name: term.name })}
+            aria-label={t("terms.actions", { name: termTitle(term) })}
           >
             <MoreHorizontal />
           </Button>

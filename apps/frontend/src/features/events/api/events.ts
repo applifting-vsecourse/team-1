@@ -5,7 +5,7 @@ import { api } from "@/lib/api-client"
 
 export const eventTermSummarySchema = z.object({
   id: z.string(),
-  name: z.string(),
+  name: z.string().nullable(),
   startsOn: z.string(),
   endsOn: z.string(),
   roomMode: z.enum(["GENDERED", "SHARED"]),

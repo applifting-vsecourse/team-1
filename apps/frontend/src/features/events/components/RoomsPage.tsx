@@ -46,7 +46,7 @@ import { RoomModeDialog } from "@/features/events/components/RoomModeDialog"
 /** What the page needs to know about every active term; the route reads it from the occupancy. */
 export type AccommodationTerm = {
   id: string
-  name: string
+  name: string | null
   startsOn: string
   endsOn: string
   roomMode: RoomMode

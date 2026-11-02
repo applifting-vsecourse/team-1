@@ -55,8 +55,8 @@ export class TermsService {
   }
 
   private validated(input: TermInput): TermInput {
-    const name = input.name.trim()
-    if (!name) throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
+    // Blank is no name: stored as null, never as an empty string (D-053).
+    const name = input.name?.trim() || null
     if (!isValidTermPeriod(input.startsOn, input.endsOn)) {
       throw new AppException(HttpStatus.BAD_REQUEST, "TERM_END_BEFORE_START")
     }

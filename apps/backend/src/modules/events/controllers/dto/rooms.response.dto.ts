@@ -18,7 +18,7 @@ export class RoomsResponseDto {
   @ApiProperty() eventName!: string
   @ApiProperty() organizationName!: string
   @ApiProperty() termId!: string
-  @ApiProperty() termName!: string
+  @ApiProperty({ nullable: true, type: String }) termName!: string | null
   @ApiProperty({ example: "2027-07-04" }) startsOn!: string
   @ApiProperty({ example: "2027-07-10" }) endsOn!: string
   @ApiProperty({ enum: ["GENDERED", "SHARED"] }) roomMode!: RoomMode

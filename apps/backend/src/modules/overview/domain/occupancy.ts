@@ -12,7 +12,7 @@ import { Gender, GENDERS } from "@/shared/domain/gender"
 /** What the repository reads for one term: the genders of its applicants per status. */
 export type TermApplicants = {
   id: string
-  name: string
+  name: string | null
   startsOn: string
   endsOn: string
   /** Room mode and rooms belong to the term (US-99). */
@@ -37,7 +37,7 @@ export type OccupancyFigures = {
 
 export type TermOccupancy = OccupancyFigures & {
   id: string
-  name: string
+  name: string | null
   startsOn: string
   endsOn: string
   roomMode: RoomMode

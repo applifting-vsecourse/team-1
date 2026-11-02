@@ -2,7 +2,8 @@
 export type EventTerm = {
   id: string
   eventId: string
-  name: string
+  /** Optional (D-053): null for a term known by its dates only. */
+  name: string | null
   startsOn: string
   endsOn: string
   priceCzk: number
@@ -17,7 +18,7 @@ export type EventTerm = {
 }
 
 export type TermInput = {
-  name: string
+  name?: string | null
   startsOn: string
   endsOn: string
   priceCzk: number
@@ -34,14 +35,14 @@ export function isValidTermPeriod(startsOn: string, endsOn: string): boolean {
   return isDate(startsOn) && isDate(endsOn) && endsOn >= startsOn
 }
 
-/** Chronological order: by start, then end, then name. */
-export function sortTerms<T extends Pick<EventTerm, "startsOn" | "endsOn" | "name">>(
+/** Chronological order: by start, then end, then id — never by name, which a term may not have. */
+export function sortTerms<T extends Pick<EventTerm, "id" | "startsOn" | "endsOn">>(
   terms: T[],
 ): T[] {
   return [...terms].sort(
     (a, b) =>
       a.startsOn.localeCompare(b.startsOn) ||
       a.endsOn.localeCompare(b.endsOn) ||
-      a.name.localeCompare(b.name),
+      a.id.localeCompare(b.id),
   )
 }

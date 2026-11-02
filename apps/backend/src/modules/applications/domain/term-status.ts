@@ -14,7 +14,7 @@ export type StatusChangeEntry = {
 /** An application in a term as the organizer sees it in the detail. */
 export type TermStatusDetail = {
   termId: string
-  name: string
+  name: string | null
   startsOn: Date
   endsOn: Date
   status: ApplicationTermStatus
@@ -46,6 +46,7 @@ export type StatusChangeResult = {
     firstName: string
     lastName: string
     accessToken: string
+    /** `name` is the term's label for the e-mail: its name, else its dates. */
     terms: { name: string; termNumber: number; status: ApplicationTermStatus; priceCzk: number }[]
   }
 }
