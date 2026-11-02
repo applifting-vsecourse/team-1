@@ -27,6 +27,12 @@ export function configureApp(app: INestApplication): void {
   // Express 5 (via NestJS 11) requires named wildcards — a bare `*` throws.
   appInstance.all("/api/auth/*splat", toNodeHandler(betterAuth))
   appInstance.use(express.json())
+  // The photo of an event's public page is sent as the raw image (US-122). The limit is a bit above
+  // the 2 MB the domain allows, so a slightly larger file gets the translated PHOTO_TOO_LARGE.
+  appInstance.use(
+    "/api/organizer/events/:eventId/photo",
+    express.raw({ type: ["image/jpeg", "image/png"], limit: "4mb" }),
+  )
 
   // Configure API prefix for all routes
   app.setGlobalPrefix("api")

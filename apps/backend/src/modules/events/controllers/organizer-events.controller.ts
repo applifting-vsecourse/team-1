@@ -1,6 +1,7 @@
 import { CreateEventDto } from "@/modules/events/controllers/dto/create-event.dto"
 import { EvaluationModeRequestDto } from "@/modules/events/controllers/dto/evaluation-mode.request.dto"
 import { OrganizerEventResponseDto } from "@/modules/events/controllers/dto/organizer-event.response.dto"
+import { PublicPageRequestDto } from "@/modules/events/controllers/dto/public-page.request.dto"
 import { EventsService } from "@/modules/events/services/events.service"
 import { Auth } from "@/shared/auth/decorators/auth.decorator"
 import { User } from "@/shared/auth/decorators/user.decorator"
@@ -10,14 +11,26 @@ import {
   Controller,
   Delete,
   Get,
+  Headers,
   HttpCode,
   Param,
   Patch,
   Post,
+  Put,
+  Res,
   UsePipes,
   ValidationPipe,
 } from "@nestjs/common"
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
+import { Response } from "express"
+
+const decodeFileName = (value: string | undefined): string | undefined => {
+  try {
+    return value === undefined ? undefined : decodeURIComponent(value)
+  } catch {
+    return undefined
+  }
+}
 
 @ApiTags("events")
 @Controller("organizer/events")
@@ -55,6 +68,73 @@ export class OrganizerEventsController {
     @Param("eventId") eventId: string,
   ): Promise<OrganizerEventResponseDto> {
     return OrganizerEventResponseDto.fromDomain(await this.events.get(user, eventId))
+  }
+
+  @Put(":eventId/public-page")
+  @ApiOperation({ summary: "Content of the event's public page and catalog listing (US-122)" })
+  @ApiResponse({ status: 200, type: OrganizerEventResponseDto })
+  @ApiResponse({ status: 400, description: "PUBLIC_PAGE_INCOMPLETE or invalid input." })
+  @ApiResponse({ status: 403, description: "Unknown event or of another organization." })
+  async updatePublicPage(
+    @User() user: Identity,
+    @Param("eventId") eventId: string,
+    @Body() dto: PublicPageRequestDto,
+  ): Promise<OrganizerEventResponseDto> {
+    return OrganizerEventResponseDto.fromDomain(
+      await this.events.updatePublicPage(user, eventId, {
+        ...dto,
+        description: dto.description ?? null,
+        location: dto.location ?? null,
+        contactEmail: dto.contactEmail ?? null,
+        contactPhone: dto.contactPhone ?? null,
+      }),
+    )
+  }
+
+  @Put(":eventId/photo")
+  @ApiOperation({
+    summary: "Photo of the public page: the image bytes as the body, JPEG or PNG up to 2 MB",
+  })
+  @ApiResponse({ status: 200, type: OrganizerEventResponseDto })
+  @ApiResponse({ status: 413, description: "PHOTO_TOO_LARGE." })
+  @ApiResponse({ status: 415, description: "PHOTO_INVALID_TYPE." })
+  @ApiResponse({ status: 403, description: "Unknown event or of another organization." })
+  async savePhoto(
+    @User() user: Identity,
+    @Param("eventId") eventId: string,
+    @Body() body: unknown,
+    @Headers("x-file-name") encodedFileName?: string,
+  ): Promise<OrganizerEventResponseDto> {
+    return OrganizerEventResponseDto.fromDomain(
+      await this.events.savePhoto(user, eventId, body, decodeFileName(encodedFileName)),
+    )
+  }
+
+  @Delete(":eventId/photo")
+  @ApiOperation({ summary: "Remove the photo of the public page" })
+  @ApiResponse({ status: 200, type: OrganizerEventResponseDto })
+  @ApiResponse({ status: 403, description: "Unknown event or of another organization." })
+  async deletePhoto(
+    @User() user: Identity,
+    @Param("eventId") eventId: string,
+  ): Promise<OrganizerEventResponseDto> {
+    return OrganizerEventResponseDto.fromDomain(await this.events.deletePhoto(user, eventId))
+  }
+
+  @Get(":eventId/photo")
+  @ApiOperation({
+    summary: "The photo of the public page, for the preview in the organizer's form",
+  })
+  @ApiResponse({ status: 200, description: "The image." })
+  @ApiResponse({ status: 404, description: "No photo yet." })
+  @ApiResponse({ status: 403, description: "Unknown event or of another organization." })
+  async getPhoto(
+    @User() user: Identity,
+    @Param("eventId") eventId: string,
+    @Res() res: Response,
+  ): Promise<void> {
+    const photo = await this.events.getPhoto(user, eventId)
+    res.type(photo.contentType).send(Buffer.from(photo.data))
   }
 
   @Patch(":eventId/evaluation-mode")

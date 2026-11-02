@@ -1,5 +1,12 @@
 import { EvaluationMode } from "@/modules/applications/domain/evaluation-mode"
 import { OrganizerEvent, toOrganizerEvent } from "@/modules/events/domain/organizer-event"
+import {
+  cleanFileName,
+  detectPhotoType,
+  missingForCatalog,
+  photoProblem,
+  PublicPageInput,
+} from "@/modules/events/domain/public-page"
 import { EventsRepository } from "@/modules/events/repositories/events.repository"
 import { Identity } from "@/shared/auth/domain/identity"
 import { AppException } from "@/shared/errors/app.exception"
@@ -64,6 +71,71 @@ export class EventsService {
     const { organizationId } = await this.organizationAccess.assertCanAccessEvent(user, eventId)
     await this.repository.setEvaluationMode(eventId, organizationId, mode)
     return this.get(user, eventId)
+  }
+
+  /**
+   * Saves the content of the public page (US-122). The event may go to the catalog only with a
+   * description, a place and a contact e-mail; turning it off needs nothing.
+   */
+  async updatePublicPage(
+    user: Identity,
+    eventId: string,
+    input: Omit<PublicPageInput, "name"> & { name: string },
+  ): Promise<OrganizerEvent> {
+    const { organizationId } = await this.organizationAccess.assertCanAccessEvent(user, eventId)
+    const page: PublicPageInput = {
+      name: input.name.trim(),
+      description: blankToNull(input.description ?? undefined),
+      location: blankToNull(input.location ?? undefined),
+      contactEmail: blankToNull(input.contactEmail ?? undefined),
+      contactPhone: blankToNull(input.contactPhone ?? undefined),
+      publishedInCatalog: input.publishedInCatalog,
+    }
+    if (!page.name) throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
+    if (page.publishedInCatalog && missingForCatalog(page).length > 0)
+      throw new AppException(HttpStatus.BAD_REQUEST, "PUBLIC_PAGE_INCOMPLETE")
+    await this.repository.updatePublicPage(eventId, organizationId, page)
+    return this.get(user, eventId)
+  }
+
+  /** Stores the one photo of the public page; the bytes decide the type, not the client. */
+  async savePhoto(
+    user: Identity,
+    eventId: string,
+    data: unknown,
+    fileName: string | undefined,
+  ): Promise<OrganizerEvent> {
+    await this.organizationAccess.assertCanAccessEvent(user, eventId)
+    const bytes = Buffer.isBuffer(data) ? data : Buffer.alloc(0)
+    const problem = photoProblem(bytes)
+    if (problem === "TOO_LARGE")
+      throw new AppException(HttpStatus.PAYLOAD_TOO_LARGE, "PHOTO_TOO_LARGE")
+    const contentType = detectPhotoType(bytes)
+    if (problem || !contentType)
+      throw new AppException(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "PHOTO_INVALID_TYPE")
+    await this.repository.savePhoto(eventId, {
+      fileName: cleanFileName(fileName, contentType),
+      contentType,
+      data: bytes,
+    })
+    return this.get(user, eventId)
+  }
+
+  /** Removes the photo of the public page; an event without one stays as it is. */
+  async deletePhoto(user: Identity, eventId: string): Promise<OrganizerEvent> {
+    await this.organizationAccess.assertCanAccessEvent(user, eventId)
+    await this.repository.deletePhoto(eventId)
+    return this.get(user, eventId)
+  }
+
+  async getPhoto(
+    user: Identity,
+    eventId: string,
+  ): Promise<{ contentType: string; data: Uint8Array }> {
+    await this.organizationAccess.assertCanAccessEvent(user, eventId)
+    const photo = await this.repository.findPhoto(eventId)
+    if (!photo) throw new AppException(HttpStatus.NOT_FOUND, "NOT_FOUND")
+    return photo
   }
 
   /** Only an event nobody has applied to can be deleted (issue #153); otherwise 409. */

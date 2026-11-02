@@ -107,6 +107,41 @@
     "subtitleTerms_other": "{{name}} · pořádá {{organization}} · {{count}} vypsaných termínů",
     "title": "Přehled akce"
   },
+  "publicPage": {
+    "cancel": "Zrušit",
+    "contactEmail": "Kontaktní e-mail",
+    "contactPhone": "Kontaktní telefon",
+    "description": "Popis",
+    "errors": {
+      "emailInvalid": "Zadej platný e-mail.",
+      "nameRequired": "Zadej název akce.",
+      "phoneInvalid": "Zadej platné telefonní číslo, např. +420 777 000 001.",
+      "requiredForCatalog": "Před zveřejněním v katalogu toto pole vyplň."
+    },
+    "location": "Místo konání",
+    "name": "Název akce",
+    "photoTitle": "Fotografie akce",
+    "publish": "Zveřejnit akci v katalogu",
+    "publishHint": "Bez zaškrtnutí není akce v katalogu uvedená.",
+    "save": "Uložit veřejné údaje",
+    "saveFailed": "Veřejné údaje se nepodařilo uložit",
+    "saved": "Veřejné údaje jsou uložené.",
+    "savedPublished": "Akce je zveřejněná v katalogu.",
+    "termsHint": "Ceny upravíš v přehledu akce v části Termíny a ceny.",
+    "termsTitle": "Zobrazené termíny a ceny",
+    "title": "Veřejné údaje",
+    "upload": {
+      "button": "Vybrat fotografii",
+      "doneTitle": "Fotografie je nahraná",
+      "hint": "Vyber fotografii ve formátu JPG, JPEG nebo PNG.",
+      "idleTitle": "Přidej fotografii akce",
+      "invalidType": "Fotografie musí být ve formátu JPG, JPEG nebo PNG.",
+      "limit": "JPG, JPEG nebo PNG, maximálně 2 MB.",
+      "remove": "Odstranit fotografii",
+      "removed": "Fotografie je odstraněná",
+      "tooLarge": "Fotografie je příliš velká. Vyber fotografii do 2 MB."
+    }
+  },
   "rooms": {
     "actionsColumn": "Akce",
     "add": "Přidat pokoj",

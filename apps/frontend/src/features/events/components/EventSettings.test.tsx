@@ -22,6 +22,10 @@ const event = {
   name: "Jarní víkend Lipno 2027",
   description: null,
   location: null,
+  contactEmail: null,
+  contactPhone: null,
+  publishedInCatalog: false,
+  photoFileName: null,
   publicToken: "tok123",
   createdAt: "2027-01-01T10:00:00.000Z",
   termCount: 0,
@@ -44,7 +48,8 @@ function renderSettings(current: object, patchResponse?: () => Response) {
       patches.push({ url: request.url, body: await request.clone().json() })
       return patchResponse()
     }
-    return new Response(JSON.stringify(current), json)
+    const url = input instanceof Request ? input.url : String(input)
+    return new Response(JSON.stringify(url.endsWith("/terms") ? [] : current), json)
   })
   render(
     <QueryClientProvider

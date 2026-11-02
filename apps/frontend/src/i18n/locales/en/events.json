@@ -107,6 +107,41 @@
     "subtitleTerms_other": "{{name}} · run by {{organization}} · {{count}} terms listed",
     "title": "Event overview"
   },
+  "publicPage": {
+    "cancel": "Cancel",
+    "contactEmail": "Contact e-mail",
+    "contactPhone": "Contact phone",
+    "description": "Description",
+    "errors": {
+      "emailInvalid": "Enter a valid e-mail address.",
+      "nameRequired": "Enter the event name.",
+      "phoneInvalid": "Enter a valid phone number, e.g. +420 777 000 001.",
+      "requiredForCatalog": "Fill this in before listing the event in the catalog."
+    },
+    "location": "Venue",
+    "name": "Event name",
+    "photoTitle": "Event photo",
+    "publish": "List the event in the catalog",
+    "publishHint": "Without the tick the event is not listed in the catalog.",
+    "save": "Save public details",
+    "saveFailed": "The public details could not be saved",
+    "saved": "Public details are saved.",
+    "savedPublished": "The event is listed in the catalog.",
+    "termsHint": "You can change the prices in the event overview, under Terms and prices.",
+    "termsTitle": "Terms and prices shown",
+    "title": "Public details",
+    "upload": {
+      "button": "Choose photo",
+      "doneTitle": "Photo uploaded",
+      "hint": "Choose a photo in JPG, JPEG or PNG format.",
+      "idleTitle": "Add an event photo",
+      "invalidType": "The photo has to be a JPG, JPEG or PNG image.",
+      "limit": "JPG, JPEG or PNG, up to 2 MB.",
+      "remove": "Remove photo",
+      "removed": "Photo removed",
+      "tooLarge": "The photo is too large. Choose a photo up to 2 MB."
+    }
+  },
   "rooms": {
     "actionsColumn": "Actions",
     "add": "Add room",

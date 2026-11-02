@@ -206,6 +206,11 @@ export const seedDatabase = async (
     description: "Prodloužený víkend na horách.",
     location: "Chata Sněžka, Pec pod Sněžkou",
     publicToken: "demo-horsky-vikend-2027",
+    publicPage: {
+      contactEmail: "horsky-klub@example.com",
+      contactPhone: "+420 777 000 002",
+      photoFileName: "horsky-vikend-2027.png",
+    },
     terms: [
       {
         name: "Září",
@@ -319,7 +324,21 @@ export type CreateEventParams = {
   payments: Record<number, SeedPayment>
   /** When the first application arrived and the gap between them; defaults to the last minutes before now. */
   arrival?: { first: Date; intervalMs: number }
+  /** Public page content and catalog listing (US-122); without it the event stays unpublished. */
+  publicPage?: SeedPublicPage
 }
+
+export type SeedPublicPage = {
+  contactEmail: string
+  contactPhone: string
+  photoFileName: string
+}
+
+// A 1×1 PNG: the seed needs a valid photo, not a pretty one.
+const SEED_PHOTO = Buffer.from(
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==",
+  "base64",
+)
 
 export async function createEvent(prisma: PrismaService, params: CreateEventParams): Promise<void> {
   const { organizationId } = params
@@ -331,6 +350,18 @@ export async function createEvent(prisma: PrismaService, params: CreateEventPara
       description: params.description,
       location: params.location,
       publicToken: params.publicToken,
+      ...(params.publicPage && {
+        contactEmail: params.publicPage.contactEmail,
+        contactPhone: params.publicPage.contactPhone,
+        publishedInCatalog: true,
+        photo: {
+          create: {
+            fileName: params.publicPage.photoFileName,
+            contentType: "image/png",
+            data: new Uint8Array(SEED_PHOTO),
+          },
+        },
+      }),
     },
   })
 

@@ -7,6 +7,7 @@ import {
 } from "@/modules/applications/domain/evaluation-mode"
 import { sortTerms } from "@/modules/events/domain/event-term"
 import { NewEvent, StoredEvent } from "@/modules/events/domain/organizer-event"
+import { PhotoContentType, PublicPageInput } from "@/modules/events/domain/public-page"
 import { AppException } from "@/shared/errors/app.exception"
 import { HttpStatus, Injectable } from "@nestjs/common"
 
@@ -24,6 +25,7 @@ const include = {
       _count: { select: { applicationTerms: { where: { status: "CONFIRMED" } } } },
     },
   },
+  photo: { select: { fileName: true } },
   _count: { select: { applications: true } },
 } as const
 
@@ -51,6 +53,10 @@ function toStored(row: EventRow): StoredEvent {
     name: row.name,
     description: row.description,
     location: row.location,
+    contactEmail: row.contactEmail,
+    contactPhone: row.contactPhone,
+    publishedInCatalog: row.publishedInCatalog,
+    photoFileName: row.photo?.fileName ?? null,
     publicToken: row.publicToken,
     createdAt: row.createdAt,
     termCount: row.terms.length,
@@ -84,6 +90,38 @@ export class EventsRepository {
   async create(event: NewEvent): Promise<StoredEvent> {
     const row = await this.prisma.event.create({ data: event, include })
     return toStored(row)
+  }
+
+  /** Saves the public page content of an event of the organization (US-122). */
+  async updatePublicPage(id: string, organizationId: string, page: PublicPageInput): Promise<void> {
+    const { count } = await this.prisma.event.updateMany({
+      where: { id, organizationId },
+      data: page,
+    })
+    if (count !== 1) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
+  }
+
+  async savePhoto(
+    eventId: string,
+    photo: { fileName: string; contentType: PhotoContentType; data: Buffer },
+  ): Promise<void> {
+    const data = new Uint8Array(photo.data)
+    await this.prisma.eventPhoto.upsert({
+      where: { eventId },
+      create: { eventId, ...photo, data },
+      update: { ...photo, data },
+    })
+  }
+
+  async deletePhoto(eventId: string): Promise<void> {
+    await this.prisma.eventPhoto.deleteMany({ where: { eventId } })
+  }
+
+  async findPhoto(eventId: string): Promise<{ contentType: string; data: Uint8Array } | null> {
+    return this.prisma.eventPhoto.findUnique({
+      where: { eventId },
+      select: { contentType: true, data: true },
+    })
   }
 
   /**
