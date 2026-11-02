@@ -79,6 +79,7 @@ describe("manual status change of an application in a term (integration)", () =>
           create: [
             {
               organizationId,
+              number: 1,
               name: "T1",
               rooms: {
                 create: [

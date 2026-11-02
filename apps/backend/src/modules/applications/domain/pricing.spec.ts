@@ -1,9 +1,15 @@
 import {
+  allocatePayment,
   computeAmountDue,
   computeAmountOwed,
   computeAmountPaid,
+  computePayableAmount,
   computePaymentStatus,
   computeSelectionPrice,
+  computeTermDue,
+  computeTermOwed,
+  computeTermPaid,
+  computeTermPaymentStatus,
   resolvePaymentAmount,
 } from "./pricing"
 
@@ -66,5 +72,119 @@ describe("computePaymentStatus", () => {
     ["paid while nothing is due", 0, 500, "OVERPAID"],
   ])("%s", (_name, due, paid, status) => {
     expect(computePaymentStatus(due, paid)).toBe(status)
+  })
+})
+
+describe("per term (PVT)", () => {
+  const confirmed = { status: "CONFIRMED" as const, priceCzk: 700 }
+  const waitlisted = { status: "WAITLISTED" as const, priceCzk: 700 }
+
+  it("a waitlisted term owes nothing", () => {
+    expect(computeTermDue(waitlisted)).toBe(0)
+    expect(computeTermOwed(waitlisted, [])).toBe(0)
+    expect(computeTermPaymentStatus(waitlisted, [])).toBe("NOTHING_DUE")
+  })
+
+  it("a confirmed term without a payment is unpaid", () => {
+    expect(computeTermOwed(confirmed, [])).toBe(700)
+    expect(computeTermPaymentStatus(confirmed, [])).toBe("UNPAID")
+  })
+
+  it("tracks partial, full and over payment", () => {
+    expect(computeTermPaymentStatus(confirmed, [{ amountCzk: 200 }])).toBe("PARTIALLY_PAID")
+    expect(computeTermPaymentStatus(confirmed, [{ amountCzk: 700 }])).toBe("PAID")
+    expect(computeTermOwed(confirmed, [{ amountCzk: 900 }])).toBe(-200)
+    expect(computeTermPaymentStatus(confirmed, [{ amountCzk: 900 }])).toBe("OVERPAID")
+  })
+
+  it("a refund lowers paid", () => {
+    expect(computeTermPaid([{ amountCzk: 900 }, { amountCzk: -200 }])).toBe(700)
+  })
+
+  it("the application summary equals the sum over its terms", () => {
+    const terms = [
+      { term: { status: "CONFIRMED" as const, priceCzk: 500 }, payments: [{ amountCzk: 500 }] },
+      { term: waitlisted, payments: [] },
+    ]
+    const owed = terms.reduce((sum, t) => sum + computeTermOwed(t.term, t.payments), 0)
+    expect(owed).toBe(
+      computeAmountOwed(
+        computeAmountDue(terms.map((t) => t.term)),
+        computeAmountPaid(terms.flatMap((t) => t.payments)),
+      ),
+    )
+  })
+})
+
+describe("computePayableAmount", () => {
+  it("ignores an overpayment of one term when another has a debt", () => {
+    expect(computePayableAmount([-300, 700])).toBe(700)
+  })
+  it("is zero when nothing is owed", () => {
+    expect(computePayableAmount([0, -100])).toBe(0)
+  })
+})
+
+describe("allocatePayment", () => {
+  const term = (id: string, day: number, number: number, owedCzk: number, confirmed = true) => ({
+    applicationTermId: id,
+    status: confirmed ? ("CONFIRMED" as const) : ("WAITLISTED" as const),
+    startsOn: new Date(Date.UTC(2027, 6, day)),
+    termNumber: number,
+    owedCzk,
+  })
+
+  it("pays the earliest term first, exactly", () => {
+    expect(allocatePayment(1200, [term("b", 20, 2, 700), term("a", 5, 1, 500)])).toEqual([
+      { applicationTermId: "a", amountCzk: 500 },
+      { applicationTermId: "b", amountCzk: 700 },
+    ])
+  })
+
+  it("leaves a shortfall on the latest term", () => {
+    expect(allocatePayment(600, [term("a", 5, 1, 500), term("b", 20, 2, 700)])).toEqual([
+      { applicationTermId: "a", amountCzk: 500 },
+      { applicationTermId: "b", amountCzk: 100 },
+    ])
+  })
+
+  it("puts an overpayment on the last confirmed term", () => {
+    expect(allocatePayment(1500, [term("a", 5, 1, 500), term("b", 20, 2, 700)])).toEqual([
+      { applicationTermId: "a", amountCzk: 500 },
+      { applicationTermId: "b", amountCzk: 1000 },
+    ])
+  })
+
+  it("breaks a date tie by term number", () => {
+    expect(allocatePayment(100, [term("b", 5, 2, 500), term("a", 5, 1, 500)])).toEqual([
+      { applicationTermId: "a", amountCzk: 100 },
+    ])
+  })
+
+  it("skips waitlisted terms and terms without a debt", () => {
+    expect(
+      allocatePayment(300, [
+        term("a", 5, 1, 0),
+        term("w", 6, 2, 700, false),
+        term("b", 20, 3, 700),
+      ]),
+    ).toEqual([{ applicationTermId: "b", amountCzk: 300 }])
+  })
+
+  it("with no confirmed term the overpayment goes on the last term", () => {
+    expect(allocatePayment(400, [term("w1", 5, 1, 0, false), term("w2", 20, 2, 0, false)])).toEqual(
+      [{ applicationTermId: "w2", amountCzk: 400 }],
+    )
+  })
+
+  it("an overpayment on a fully paid confirmed term lands on the last confirmed one", () => {
+    expect(allocatePayment(100, [term("a", 5, 1, 0), term("b", 20, 2, 0)])).toEqual([
+      { applicationTermId: "b", amountCzk: 100 },
+    ])
+  })
+
+  it("returns nothing without terms or amount", () => {
+    expect(allocatePayment(100, [])).toEqual([])
+    expect(allocatePayment(0, [term("a", 5, 1, 500)])).toEqual([])
   })
 })

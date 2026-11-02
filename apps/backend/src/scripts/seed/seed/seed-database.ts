@@ -1,8 +1,13 @@
+import { randomUUID } from "node:crypto"
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { Gender, RoomMode, Term } from "@/generated/prisma/client"
 import { computeAvailablePlaces } from "@/modules/applications/domain/capacity"
 import { evaluateApplication } from "@/modules/applications/domain/evaluation"
-import { computeAmountDue } from "@/modules/applications/domain/pricing"
+import {
+  allocatePayment,
+  computeAmountDue,
+  computeTermDue,
+} from "@/modules/applications/domain/pricing"
 import { BetterAuth } from "@/shared/auth/providers/better-auth.provider"
 import { Config } from "@/shared/config/config.service"
 import { generateToken } from "@/shared/utils/token"
@@ -361,12 +366,13 @@ export async function createEvent(prisma: PrismaService, params: CreateEventPara
   })
 
   const terms: Term[] = []
-  for (const term of params.terms) {
+  for (const [index, term] of params.terms.entries()) {
     terms.push(
       await prisma.term.create({
         data: {
           organizationId,
           eventId: event.id,
+          number: index + 1,
           name: term.name,
           startsOn: date(term.startsOn),
           endsOn: date(term.endsOn),
@@ -430,19 +436,33 @@ export async function createEvent(prisma: PrismaService, params: CreateEventPara
           })),
         },
       },
+      include: { terms: { include: { term: true } } },
     })
 
     const payment = params.payments[index]
     const amountDue = computeAmountDue(evaluated)
     // Nothing to pay when the applicant is waitlisted everywhere.
     if (payment !== undefined && amountDue > 0) {
-      await prisma.payment.create({
-        data: {
+      // One receipt, split over the terms the way a summary payment is (US-137).
+      const receiptId = randomUUID()
+      const rows = allocatePayment(
+        paymentAmount(payment, amountDue),
+        application.terms.map((applicationTerm) => ({
+          applicationTermId: applicationTerm.id,
+          status: applicationTerm.status,
+          startsOn: applicationTerm.term.startsOn,
+          termNumber: applicationTerm.term.number,
+          owedCzk: computeTermDue(applicationTerm),
+        })),
+      )
+      await prisma.payment.createMany({
+        data: rows.map((row) => ({
           organizationId,
-          applicationId: application.id,
-          amountCzk: paymentAmount(payment, amountDue),
+          applicationTermId: row.applicationTermId,
+          receiptId,
+          amountCzk: row.amountCzk,
           recordedById: params.recordedById,
-        },
+        })),
       })
     }
   }

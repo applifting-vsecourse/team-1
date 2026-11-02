@@ -11,15 +11,13 @@
     "intro": "Přihláška pro {{names}} byla odeslána. Stav každého vybraného termínu vidíte níže.",
     "introOneTerm": "Přihláška pro {{names}} byla odeslána. Stav vybraného termínu vidíte níže.",
     "payment": {
-      "account": "Účet organizace",
+      "account": "Bankovní účet organizace",
       "onlyConfirmed": "Platíte pouze za potvrzené termíny. Za termín, kde jste náhradník, zatím neplaťte.",
+      "payEachItem": "{{name}} {{amount}} / VS {{variableSymbol}}",
+      "payEachSeparately": "Každou přihlášku uhraďte zvlášť: {{list}}.",
       "title": "K úhradě za potvrzené termíny",
-      "totalNote_few": "Zaplaťte prosím každou přihlášku zvlášť ({{count}} platby níže), každou s jejím variabilním symbolem. Jen tak platby spárujeme s účastníky.",
-      "totalNote_one": "Zaplaťte prosím každou přihlášku zvlášť ({{count}} platby níže), každou s jejím variabilním symbolem. Jen tak platby spárujeme s účastníky.",
-      "totalNote_other": "Zaplaťte prosím každou přihlášku zvlášť ({{count}} plateb níže), každou s jejím variabilním symbolem. Jen tak platby spárujeme s účastníky.",
-      "totalTitle": "Celkem k úhradě",
       "variableSymbol": "Variabilní symbol",
-      "variableSymbolNote": "Variabilní symbol je číselná část přihlášky {{code}}."
+      "variableSymbolOf": "{{name}} · {{amount}} · variabilní symbol"
     },
     "status": {
       "cancelled": "Zrušená",

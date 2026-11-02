@@ -10,7 +10,7 @@ export type SubmissionEvent = {
   bankAccount: string
   /** Active terms that have no room; the link is closed while any does (US-99). */
   termsWithoutRooms: number
-  terms: { id: string; name: string; priceCzk: number }[]
+  terms: { id: string; name: string; number: number; priceCzk: number }[]
 }
 
 /** An application to store: one per participant. */

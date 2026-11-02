@@ -18,6 +18,8 @@ const row: ListedApplication = {
       roomMode: "GENDERED" as const,
       status: "CONFIRMED",
       priceCzk: 1000,
+      termNumber: 1,
+      payments: [{ amountCzk: 400 }],
     },
     {
       id: "t2",
@@ -27,13 +29,14 @@ const row: ListedApplication = {
       roomMode: "GENDERED" as const,
       status: "WAITLISTED",
       priceCzk: 2000,
+      termNumber: 2,
+      payments: [],
     },
   ],
-  payments: [{ amountCzk: 400 }],
 }
 
 describe("application list filters", () => {
-  it.each(["jana", "TEST JANA", "  jana   test  ", "TEST@EXAMPLE", "0048", "48", "  "])(
+  it.each(["jana", "TEST JANA", "  jana   test  ", "TEST@EXAMPLE", "48000", "48", "  "])(
     "finds names, e-mails and variable symbols: %s",
     (q) => {
       expect(applicationList([row], { q })).toHaveLength(1)
@@ -46,8 +49,8 @@ describe("application list filters", () => {
     ).toHaveLength(1)
     expect(applicationList([accented], { q: "cerna", gender: "MALE" })).toEqual([])
     expect(applicationList([row], { q: "nobody" })).toEqual([])
-    expect(applicationList([row], { q: "0048", payment: "PAID" })).toEqual([])
-    expect(applicationList([row], { q: "0048" })[0]).not.toHaveProperty("number")
+    expect(applicationList([row], { q: "48000", payment: "PAID" })).toEqual([])
+    expect(applicationList([row], { q: "48000" })[0]).not.toHaveProperty("number")
   })
   it("matches term and status on the same term and preserves every term and total", () => {
     expect(applicationList([row], { termId: "t2", status: "CONFIRMED" })).toEqual([])
@@ -62,14 +65,21 @@ describe("application list filters", () => {
       amountDueCzk: 1000,
       amountPaidCzk: 400,
       amountOwedCzk: 600,
-      terms: row.terms,
+      terms: [
+        expect.objectContaining({ id: "t1", priceCzk: 1000, waitlistPosition: null }),
+        expect.objectContaining({ id: "t2", priceCzk: 2000, waitlistPosition: 1 }),
+      ],
     })
     expect(applicationList([row], { gender: "MALE" })).toEqual([])
   })
   it("filters by each payment status using the whole balance including refunds", () => {
-    const paid = { ...row, payments: [{ amountCzk: 1500 }, { amountCzk: -500 }] }
-    const overpaid = { ...paid, payments: [{ amountCzk: 1500 }] }
-    const unpaid = { ...paid, payments: [] }
+    const paidWith = (payments: { amountCzk: number }[]): ListedApplication => ({
+      ...row,
+      terms: row.terms.map((term, i) => (i === 0 ? { ...term, payments } : term)),
+    })
+    const paid = paidWith([{ amountCzk: 1500 }, { amountCzk: -500 }])
+    const overpaid = paidWith([{ amountCzk: 1500 }])
+    const unpaid = paidWith([])
     expect(applicationList([paid], { payment: "PAID" })[0].paymentStatus).toBe("PAID")
     expect(applicationList([paid], { payment: "PARTIALLY_PAID" })).toEqual([])
     expect(applicationList([overpaid], { payment: "OVERPAID" })[0].amountOwedCzk).toBe(-500)
@@ -78,7 +88,7 @@ describe("application list filters", () => {
     expect(applicationList([row], { payment: "UNPAID" })).toEqual([])
   })
   it("does not label waitlisted-only applications with any payment status", () => {
-    const waiting = { ...row, terms: [row.terms[1]], payments: [] }
+    const waiting = { ...row, terms: [row.terms[1]] }
     for (const payment of ["UNPAID", "PARTIALLY_PAID", "PAID", "OVERPAID"] as const)
       expect(applicationList([waiting], { payment })).toEqual([])
     expect(applicationList([waiting], {})[0].paymentStatus).toBe("NOTHING_DUE")
@@ -93,7 +103,6 @@ describe("waitlist in the application list (US-30)", () => {
     gender,
     submittedAt: new Date(2027, 1, 7, 20, minute),
     terms: [{ ...row.terms[1] }],
-    payments: [],
   })
   const queue = [
     waiting("late-woman", "FEMALE", 9, 5),

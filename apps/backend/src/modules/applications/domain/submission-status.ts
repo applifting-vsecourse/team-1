@@ -1,11 +1,12 @@
 import { ApplicationTermStatus } from "./evaluation"
 import {
-  computeAmountDue,
-  computeAmountOwed,
-  computeAmountPaid,
-  computePaymentStatus,
-  PaymentStatus,
-} from "./pricing"
+  buildPaymentDetails,
+  computeApplicationDue,
+  computeApplicationPaid,
+  PaymentDetails,
+} from "./payment-details"
+import { computePaymentStatus, PaymentStatus } from "./pricing"
+import { variableSymbol as toVariableSymbol } from "./variable-symbol"
 
 /** One application of a submission as stored — what the confirmation page is built from (US-25). */
 export type SubmittedApplicationRecord = {
@@ -15,14 +16,17 @@ export type SubmittedApplicationRecord = {
   lastName: string
   terms: {
     termId: string
+    /** `Term.number`, part of the term's variable symbol. */
+    termNumber: number
     name: string
     startsOn: Date
     endsOn: Date
     status: ApplicationTermStatus
     /** Price frozen at evaluation. */
     priceCzk: number
+    /** Non-cancelled payment rows of this application in this term. */
+    payments: { amountCzk: number }[]
   }[]
-  payments: { amountCzk: number }[]
 }
 
 export type SubmissionRecord = {
@@ -37,14 +41,8 @@ export type SubmissionRecord = {
   applications: SubmittedApplicationRecord[]
 }
 
-/** Where and how much to pay — only for an application with a confirmed term. */
-export type ApplicationPayment = {
-  bankAccount: string
-  /** The application number, four digits. */
-  variableSymbol: string
-  /** Still to pay (due − paid), never negative. */
-  amountCzk: number
-}
+/** Where and how much to pay (summary and per confirmed term) — only for an application with a confirmed term. */
+export type ApplicationPayment = PaymentDetails
 
 export type SubmittedApplicationStatus = {
   firstName: string
@@ -73,8 +71,6 @@ export type SubmissionStatus = {
   applications: SubmittedApplicationStatus[]
 }
 
-export const toVariableSymbol = (number: number): string => String(number).padStart(4, "0")
-
 /** Reference for people — initials of the event and the number. Display only. */
 export function toApplicationCode(eventName: string, number: number): string {
   const initials = eventName
@@ -84,7 +80,8 @@ export function toApplicationCode(eventName: string, number: number): string {
     .filter((word) => word.length > 0)
     .map((word) => word[0].toUpperCase())
     .join("")
-  return `${initials || "P"}-${toVariableSymbol(number)}`
+  // Intentionally its own 4-digit format (LK-0048), not the variable symbol (variable-symbol.ts).
+  return `${initials || "P"}-${String(number).padStart(4, "0")}`
 }
 
 const toIsoDate = (date: Date): string => date.toISOString().slice(0, 10)
@@ -101,15 +98,15 @@ export function buildSubmissionStatus(record: SubmissionRecord): SubmissionStatu
     email: record.email,
     isNewAccount: record.mustSetPassword,
     applications: record.applications.map((application) => {
-      const amountDue = computeAmountDue(application.terms)
-      const amountPaid = computeAmountPaid(application.payments)
-      const variableSymbol = toVariableSymbol(application.number)
+      const amountDue = computeApplicationDue(application.terms)
+      const amountPaid = computeApplicationPaid(application.terms)
+      const details = buildPaymentDetails(application.number, record.bankAccount, application.terms)
 
       return {
         firstName: application.firstName,
         lastName: application.lastName,
         code: toApplicationCode(record.eventName, application.number),
-        variableSymbol,
+        variableSymbol: toVariableSymbol(application.number),
         terms: [...application.terms]
           .sort((a, b) => a.startsOn.getTime() - b.startsOn.getTime())
           .map((term) => ({
@@ -121,13 +118,7 @@ export function buildSubmissionStatus(record: SubmissionRecord): SubmissionStatu
             priceCzk: term.priceCzk,
           })),
         paymentStatus: computePaymentStatus(amountDue, amountPaid),
-        payment: application.terms.some((term) => term.status === "CONFIRMED")
-          ? {
-              bankAccount: record.bankAccount,
-              variableSymbol,
-              amountCzk: Math.max(computeAmountOwed(amountDue, amountPaid), 0),
-            }
-          : null,
+        payment: details,
       }
     }),
   }

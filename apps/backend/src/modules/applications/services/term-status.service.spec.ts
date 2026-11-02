@@ -18,7 +18,7 @@ const result = (to: StatusChangeResult["to"]): StatusChangeResult => ({
     firstName: "Jana",
     lastName: "Nováková",
     accessToken: "token",
-    terms: [{ name: "T1", status: to, priceCzk: 1000 }],
+    terms: [{ name: "T1", termNumber: 1, status: to, priceCzk: 1000 }],
   },
 })
 

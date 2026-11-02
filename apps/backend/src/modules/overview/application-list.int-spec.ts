@@ -1,5 +1,5 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
-import { toVariableSymbol } from "@/modules/applications/domain/submission-status"
+import { variableSymbol } from "@/modules/applications/domain/variable-symbol"
 import { api, connectTestPrisma, resetAndSeed, signIn } from "@/test/integration/test-api"
 
 describe("application list API", () => {
@@ -42,7 +42,13 @@ describe("application list API", () => {
 
   it("combines term, status, gender and payment without losing other terms", async () => {
     const source = await prisma.application.findFirstOrThrow({
-      where: { eventId, terms: { some: { status: "CONFIRMED" } }, payments: { none: {} } },
+      where: {
+        eventId,
+        AND: [
+          { terms: { some: { status: "CONFIRMED" } } },
+          { terms: { none: { payments: { some: {} } } } },
+        ],
+      },
       include: { terms: true },
     })
     const term = source.terms.find((term) => term.status === "CONFIRMED")!
@@ -119,7 +125,7 @@ describe("application list API", () => {
     for (const q of [
       `${source.lastName} ${source.firstName}`,
       source.email.toUpperCase(),
-      toVariableSymbol(source.number),
+      variableSymbol(source.number),
     ]) {
       const response = await get(`?q=${encodeURIComponent(q)}`)
       expect(response.status).toBe(200)

@@ -3,10 +3,26 @@ import { PrismaService } from "@/core/prisma/prisma.service"
 import { api, connectTestPrisma, resetAndSeed, signIn } from "@/test/integration/test-api"
 
 type Summary = {
+  variableSymbol: string
   amountDueCzk: number
   amountPaidCzk: number
   amountOwedCzk: number
-  payments: { id: string; amountCzk: number; recordedByName: string }[]
+  payableCzk: number
+  terms: {
+    termId: string
+    termNumber: number
+    variableSymbol: string
+    dueCzk: number
+    paidCzk: number
+    owedCzk: number
+    paymentStatus: string
+  }[]
+  payments: {
+    id: string
+    amountCzk: number
+    recordedByName: string
+    rows: { termId: string; amountCzk: number }[]
+  }[]
 }
 
 describe("organizer payments (US-44)", () => {
@@ -15,6 +31,10 @@ describe("organizer payments (US-44)", () => {
   let participantCookie: string
   let foreignCookie: string
   let applicationId: string
+  let applicationNumber: number
+  /** Terms of the test application: the first is confirmed (6900), the second waitlisted (9900). */
+  let termIds: string[]
+  const firstTermId = (): string => termIds[0]
   let organizerId: string
 
   const request = (
@@ -78,6 +98,8 @@ describe("organizer payments (US-44)", () => {
       },
     })
     applicationId = application.id
+    applicationNumber = application.number
+    termIds = event.terms.slice(0, 2).map((term) => term.id)
   })
 
   it("records the full frozen confirmed price when amount is omitted, with the session's author", async () => {
@@ -87,7 +109,9 @@ describe("organizer payments (US-44)", () => {
       amountPaidCzk: 6900,
       amountOwedCzk: 0,
     })
-    const payment = await prisma.payment.findFirstOrThrow({ where: { applicationId } })
+    const payment = await prisma.payment.findFirstOrThrow({
+      where: { applicationTerm: { applicationId } },
+    })
     expect(payment.recordedById).toBe(organizerId)
   })
 
@@ -127,7 +151,7 @@ describe("organizer payments (US-44)", () => {
       expect((await request("POST", "", { requestId, amountCzk: 1000 })).status).toBe(409)
       expect((await request("DELETE", `/${requestId}`)).status).toBe(403)
       expect(
-        (await prisma.payment.findUniqueOrThrow({ where: { id: requestId } })).cancelledAt,
+        (await prisma.payment.findFirstOrThrow({ where: { receiptId: requestId } })).cancelledAt,
       ).not.toBeNull()
       // A genuinely new submission still settles the full remaining balance.
       expect((await request("POST", "", {})).status).toBe(204)
@@ -138,14 +162,25 @@ describe("organizer payments (US-44)", () => {
   it("does not restore a cancelled refund on retry or count it against a new refund", async () => {
     await request("POST", "", { amountCzk: 7400 })
     const requestId = randomUUID()
-    expect((await request("POST", "/refunds", { requestId, amountCzk: 500 })).status).toBe(204)
+    expect(
+      (await request("POST", "/refunds", { termId: firstTermId(), requestId, amountCzk: 500 }))
+        .status,
+    ).toBe(204)
     expect((await request("DELETE", `/${requestId}`)).status).toBe(204)
-    expect((await request("POST", "/refunds", { requestId, amountCzk: 500 })).status).toBe(204)
+    expect(
+      (await request("POST", "/refunds", { termId: firstTermId(), requestId, amountCzk: 500 }))
+        .status,
+    ).toBe(204)
     expect(await summary()).toMatchObject({ amountPaidCzk: 7400, amountOwedCzk: -500 })
     expect((await summary()).payments).toHaveLength(1)
-    expect((await request("POST", "/refunds", { requestId, amountCzk: 200 })).status).toBe(409)
+    expect(
+      (await request("POST", "/refunds", { termId: firstTermId(), requestId, amountCzk: 200 }))
+        .status,
+    ).toBe(409)
     expect((await request("POST", "", { requestId, amountCzk: 500 })).status).toBe(409)
-    expect((await request("POST", "/refunds", { amountCzk: 500 })).status).toBe(204)
+    expect(
+      (await request("POST", "/refunds", { termId: firstTermId(), amountCzk: 500 })).status,
+    ).toBe(204)
     expect((await summary()).amountOwedCzk).toBe(0)
   })
 
@@ -196,16 +231,27 @@ describe("organizer payments (US-44)", () => {
   it("records partial and full refunds independently and allows cancelling a mistaken refund", async () => {
     await request("POST", "", { amountCzk: 7400 })
     const requestId = randomUUID()
-    expect((await request("POST", "/refunds", { requestId, amountCzk: 200 })).status).toBe(204)
-    expect((await request("POST", "/refunds", { requestId, amountCzk: 200 })).status).toBe(204)
-    expect((await request("POST", "/refunds", { requestId, amountCzk: 300 })).status).toBe(409)
+    expect(
+      (await request("POST", "/refunds", { termId: firstTermId(), requestId, amountCzk: 200 }))
+        .status,
+    ).toBe(204)
+    expect(
+      (await request("POST", "/refunds", { termId: firstTermId(), requestId, amountCzk: 200 }))
+        .status,
+    ).toBe(204)
+    expect(
+      (await request("POST", "/refunds", { termId: firstTermId(), requestId, amountCzk: 300 }))
+        .status,
+    ).toBe(409)
     expect(await summary()).toMatchObject({ amountPaidCzk: 7200, amountOwedCzk: -300 })
-    expect((await request("POST", "/refunds", { amountCzk: 300 })).status).toBe(204)
+    expect(
+      (await request("POST", "/refunds", { termId: firstTermId(), amountCzk: 300 })).status,
+    ).toBe(204)
     const result = await summary()
     expect(result).toMatchObject({ amountPaidCzk: 6900, amountOwedCzk: 0 })
     expect(result.payments.map((p) => p.amountCzk)).toEqual([7400, -200, -300])
     expect(
-      (await prisma.payment.findUniqueOrThrow({ where: { id: requestId } })).recordedById,
+      (await prisma.payment.findFirstOrThrow({ where: { receiptId: requestId } })).recordedById,
     ).toBe(organizerId)
     expect((await request("DELETE", `/${requestId}`)).status).toBe(204)
     expect((await summary()).amountOwedCzk).toBe(-200)
@@ -214,8 +260,8 @@ describe("organizer payments (US-44)", () => {
   it("serializes refunds so concurrent requests cannot exceed the overpayment", async () => {
     await request("POST", "", { amountCzk: 7400 })
     const responses = await Promise.all([
-      request("POST", "/refunds", { amountCzk: 300 }),
-      request("POST", "/refunds", { amountCzk: 300 }),
+      request("POST", "/refunds", { termId: firstTermId(), amountCzk: 300 }),
+      request("POST", "/refunds", { termId: firstTermId(), amountCzk: 300 }),
     ])
     expect(responses.map((r) => r.status).sort()).toEqual([204, 409])
     expect((await summary()).amountOwedCzk).toBe(-200)
@@ -225,17 +271,22 @@ describe("organizer payments (US-44)", () => {
     "rejects invalid or excessive refund %s",
     async (amountCzk) => {
       await request("POST", "", { amountCzk: 7400 })
-      const response = await request("POST", "/refunds", { amountCzk })
+      const response = await request("POST", "/refunds", { termId: firstTermId(), amountCzk })
       expect(response.status).toBe(amountCzk === 501 ? 409 : 400)
       expect((await summary()).payments).toHaveLength(1)
     },
   )
 
   it("rejects refunds without an overpayment and receipt UUID reuse as a refund", async () => {
-    expect((await request("POST", "/refunds", { amountCzk: 1 })).status).toBe(409)
+    expect(
+      (await request("POST", "/refunds", { termId: firstTermId(), amountCzk: 1 })).status,
+    ).toBe(409)
     const requestId = randomUUID()
     await request("POST", "", { requestId, amountCzk: 7400 })
-    expect((await request("POST", "/refunds", { requestId, amountCzk: 7400 })).status).toBe(409)
+    expect(
+      (await request("POST", "/refunds", { termId: firstTermId(), requestId, amountCzk: 7400 }))
+        .status,
+    ).toBe(409)
   })
 
   it("keeps independent concurrent payments even when their amounts match", async () => {
@@ -316,5 +367,149 @@ describe("organizer payments (US-44)", () => {
     )
     expect((await request("GET", "", undefined, cookie, "missing")).status).toBe(403)
     expect((await summary()).amountPaidCzk).toBe(6900)
+  })
+
+  describe("payments per application in a term (US-137)", () => {
+    /** The waitlisted second term gets confirmed, e.g. after a place was freed. */
+    const confirmSecondTerm = (): Promise<unknown> =>
+      prisma.applicationTerm.updateMany({
+        where: { applicationId, termId: termIds[1] },
+        data: { status: "CONFIRMED" },
+      })
+    const pay = (body: Record<string, unknown>): Promise<Response> => request("POST", "", body)
+
+    it("derives the variable symbols from the application and term numbers", async () => {
+      await confirmSecondTerm()
+      const result = await summary()
+      expect(result.variableSymbol).toBe(String(applicationNumber * 1000))
+      expect(result.terms.map((term) => term.variableSymbol)).toEqual(
+        result.terms.map((term) => String(applicationNumber * 1000 + term.termNumber)),
+      )
+    })
+
+    it("keeps the first term paid and puts the debt only on the later confirmed one", async () => {
+      expect((await pay({ termId: firstTermId() })).status).toBe(204)
+      // The second term is a substitute: nothing is due on it yet.
+      expect(await summary()).toMatchObject({ amountDueCzk: 6900, amountOwedCzk: 0, payableCzk: 0 })
+
+      await confirmSecondTerm()
+      const result = await summary()
+      expect(result.terms.map((term) => [term.paymentStatus, term.owedCzk])).toEqual([
+        ["PAID", 0],
+        ["UNPAID", 9900],
+      ])
+      expect(result.payableCzk).toBe(9900)
+
+      expect((await pay({ termId: termIds[1] })).status).toBe(204)
+      expect(await summary()).toMatchObject({ amountOwedCzk: 0, payableCzk: 0 })
+    })
+
+    it("splits a summary payment from the earliest term, one receipt with several rows", async () => {
+      await confirmSecondTerm()
+      expect((await pay({ amountCzk: 10000 })).status).toBe(204)
+      const result = await summary()
+      expect(result.payments).toHaveLength(1)
+      expect(result.payments[0].amountCzk).toBe(10000)
+      expect(result.payments[0].rows.map((row) => [row.termId, row.amountCzk])).toEqual([
+        [termIds[0], 6900],
+        [termIds[1], 3100],
+      ])
+      expect(result.terms.map((term) => term.owedCzk)).toEqual([0, 6800])
+      const rows = await prisma.payment.findMany({ where: { applicationTerm: { applicationId } } })
+      expect(new Set(rows.map((row) => row.receiptId)).size).toBe(1)
+    })
+
+    it("leaves a shortfall on the later term and an overpayment on the last confirmed one", async () => {
+      await confirmSecondTerm()
+      await pay({ amountCzk: 7000 })
+      expect((await summary()).terms.map((term) => term.owedCzk)).toEqual([0, 9800])
+      await pay({}) // omitted amount settles the whole current debt
+      const settled = await summary()
+      expect(settled).toMatchObject({ amountOwedCzk: 0, payableCzk: 0 })
+
+      await pay({ amountCzk: 500 })
+      expect((await summary()).terms.map((term) => term.owedCzk)).toEqual([0, -500])
+    })
+
+    it("cancels the whole receipt of a summary payment and gives the debt back to both terms", async () => {
+      await confirmSecondTerm()
+      await pay({ amountCzk: 10000 })
+      const [receipt] = (await summary()).payments
+      expect((await request("DELETE", `/${receipt.id}`)).status).toBe(204)
+      const result = await summary()
+      expect(result.payments).toEqual([])
+      expect(result.terms.map((term) => term.owedCzk)).toEqual([6900, 9900])
+      // The rows stay, cancelled, for idempotent retries.
+      const rows = await prisma.payment.findMany({ where: { receiptId: receipt.id } })
+      expect(rows).toHaveLength(2)
+      expect(rows.every((row) => row.cancelledAt !== null)).toBe(true)
+    })
+
+    it("records a payment of a term without debt as that term's overpayment", async () => {
+      expect((await pay({ termId: termIds[1], amountCzk: 300 })).status).toBe(204)
+      const result = await summary()
+      expect(result.terms[1]).toMatchObject({ owedCzk: -300, paymentStatus: "OVERPAID" })
+      expect(result.payableCzk).toBe(6900)
+      // Owed over the application is due − paid, the payable amount does not set it off (D-088).
+      expect(result.amountOwedCzk).toBe(6600)
+    })
+
+    it("settles only the remaining debt of one term when the amount is omitted", async () => {
+      await confirmSecondTerm()
+      await pay({ termId: firstTermId(), amountCzk: 1000 })
+      expect((await pay({ termId: firstTermId() })).status).toBe(204)
+      expect((await summary()).terms.map((term) => term.owedCzk)).toEqual([0, 9900])
+      expect((await pay({ termId: firstTermId() })).status).toBe(400)
+    })
+
+    it("retries a summary payment without adding rows and rejects another amount", async () => {
+      await confirmSecondTerm()
+      const requestId = randomUUID()
+      expect((await pay({ requestId, amountCzk: 10000 })).status).toBe(204)
+      expect((await pay({ requestId, amountCzk: 10000 })).status).toBe(204)
+      expect((await pay({ requestId, amountCzk: 9000 })).status).toBe(409)
+      expect((await pay({ requestId, amountCzk: 10000, termId: firstTermId() })).status).toBe(409)
+      const rows = await prisma.payment.findMany({ where: { receiptId: requestId } })
+      expect(rows).toHaveLength(2)
+    })
+
+    it("serializes simultaneous summary payments", async () => {
+      await confirmSecondTerm()
+      const results = await Promise.all([pay({ amountCzk: 9000 }), pay({ amountCzk: 9000 })])
+      expect(results.map((r) => r.status)).toEqual([204, 204])
+      expect((await summary()).amountPaidCzk).toBe(18000)
+      expect((await summary()).payments).toHaveLength(2)
+    })
+
+    it("needs a term for a refund and a term of this application", async () => {
+      await pay({ amountCzk: 7400 })
+      const noTerm = await request("POST", "/refunds", { amountCzk: 100 })
+      expect(noTerm.status).toBe(400)
+      expect(await noTerm.json()).toMatchObject({ code: "REFUND_TERM_REQUIRED" })
+
+      const foreign = await prisma.term.findFirstOrThrow({
+        where: { id: { notIn: termIds } },
+      })
+      for (const termId of [foreign.id, "missing"]) {
+        const response = await request("POST", "/refunds", { termId, amountCzk: 100 })
+        expect(response.status).toBe(400)
+        expect(await response.json()).toMatchObject({ code: "PAYMENT_TERM_NOT_IN_APPLICATION" })
+        expect((await pay({ termId, amountCzk: 100 })).status).toBe(400)
+      }
+      expect((await summary()).payments).toHaveLength(1)
+    })
+
+    it("limits a refund to the overpayment of its own term", async () => {
+      await confirmSecondTerm()
+      // 10000 → term 1 paid 6900, term 2 gets 3100 (not an overpayment).
+      await pay({ amountCzk: 10000 })
+      const response = await request("POST", "/refunds", { termId: termIds[1], amountCzk: 100 })
+      expect(response.status).toBe(409)
+      expect(await response.json()).toMatchObject({ code: "REFUND_EXCEEDS_OVERPAYMENT" })
+      await pay({ termId: firstTermId(), amountCzk: 400 })
+      expect(
+        (await request("POST", "/refunds", { termId: firstTermId(), amountCzk: 400 })).status,
+      ).toBe(204)
+    })
   })
 })

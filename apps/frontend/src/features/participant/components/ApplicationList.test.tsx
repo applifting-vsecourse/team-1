@@ -21,7 +21,7 @@ const application = (overrides: Partial<MyApplication> = {}): MyApplication => (
   firstName: "Jana",
   lastName: "Nováková",
   code: "LKL-0048",
-  variableSymbol: "0048",
+  variableSymbol: "48000",
   terms: [
     {
       termId: "t1",
@@ -44,7 +44,11 @@ const application = (overrides: Partial<MyApplication> = {}): MyApplication => (
   amountPaidCzk: 0,
   amountOwedCzk: 4500,
   paymentStatus: "UNPAID",
-  paymentDetails: { bankAccount: "2900123456/2010", variableSymbol: "0048" },
+  paymentDetails: {
+    bankAccount: "2900123456/2010",
+    summary: { variableSymbol: "48000", payableCzk: 2500 },
+    terms: [],
+  },
   ...overrides,
 })
 

@@ -40,8 +40,8 @@ const application = (overrides: Partial<SubmittedApplication> = {}): SubmittedAp
   lastName: "Nováková",
   accessToken: "token-48",
   terms: [
-    { name: "1. týden", status: "CONFIRMED", priceCzk: 4500 },
-    { name: "2. týden", status: "CONFIRMED", priceCzk: 4900 },
+    { name: "1. týden", termNumber: 1, status: "CONFIRMED", priceCzk: 4500 },
+    { name: "2. týden", termNumber: 2, status: "CONFIRMED", priceCzk: 4900 },
   ],
   ...overrides,
 })
@@ -58,7 +58,7 @@ const confirmation = (overrides: Partial<SubmissionConfirmation> = {}): Submissi
 
 const waitlisted = (overrides: Partial<SubmittedApplication> = {}): SubmittedApplication =>
   application({
-    terms: [{ name: "Září", status: "WAITLISTED", priceCzk: 1800 }],
+    terms: [{ name: "Září", termNumber: 1, status: "WAITLISTED", priceCzk: 1800 }],
     ...overrides,
   })
 
@@ -117,7 +117,7 @@ describe("ApplicationConfirmationMailer.sendSubmissionConfirmation", () => {
             firstName: "Petr",
             lastName: "Novák",
             accessToken: "token-49",
-            terms: [{ name: "2. týden", status: "CONFIRMED", priceCzk: 4900 }],
+            terms: [{ name: "2. týden", termNumber: 2, status: "CONFIRMED", priceCzk: 4900 }],
           }),
         ],
       }),
@@ -126,8 +126,13 @@ describe("ApplicationConfirmationMailer.sendSubmissionConfirmation", () => {
     const { html } = sent(sendEmail)
     expect(html).toContain("Jana Nováková")
     expect(html).toContain("Petr Novák")
-    expect(html).toContain("0048")
-    expect(html).toContain("0049")
+    expect(html).toContain("48000")
+    expect(html).toContain("49000")
+    // Jana has two confirmed terms: each one is listed with its own symbol (US-137).
+    expect(html).toContain("48001")
+    expect(html).toContain("48002")
+    // Petr has one confirmed term, so only the summary symbol is shown for him.
+    expect(html).not.toContain("49002")
     expect(html).toContain("9 400 Kč")
     expect(html).toContain("4 900 Kč")
     expect(html).toContain("platby posílejte zvlášť")
@@ -141,8 +146,8 @@ describe("ApplicationConfirmationMailer.sendSubmissionConfirmation", () => {
         applications: [
           application({
             terms: [
-              { name: "1. týden", status: "CONFIRMED", priceCzk: 4500 },
-              { name: "2. týden", status: "WAITLISTED", priceCzk: 4900 },
+              { name: "1. týden", termNumber: 1, status: "CONFIRMED", priceCzk: 4500 },
+              { name: "2. týden", termNumber: 2, status: "WAITLISTED", priceCzk: 4900 },
             ],
           }),
         ],
@@ -183,8 +188,8 @@ describe("ApplicationConfirmationMailer.sendSubmissionConfirmation", () => {
     )
 
     const { html } = sent(sendEmail)
-    expect(html).toContain("0048")
-    expect(html).not.toContain("0050")
+    expect(html).toContain("48000")
+    expect(html).not.toContain("50000")
   })
 
   it("links the magic link to an account without a password", async () => {
@@ -310,7 +315,7 @@ describe("ApplicationConfirmationMailer.sendApplicationChange", () => {
     const { html } = sent(sendEmail)
     expect(html).toContain("Změnily se termíny přihlášky")
     expect(html).toContain("9 400 Kč")
-    expect(html).toContain("0049")
+    expect(html).toContain("49000")
     expect(html).toContain("2900123456/2010")
   })
 
@@ -359,7 +364,7 @@ describe("ApplicationConfirmationMailer.sendApplicationChange", () => {
       change({
         kind: "REJECTED",
         application: application({
-          terms: [{ name: "1. týden", status: "CANCELLED", priceCzk: 4500 }],
+          terms: [{ name: "1. týden", termNumber: 1, status: "CANCELLED", priceCzk: 4500 }],
         }),
       }),
     )

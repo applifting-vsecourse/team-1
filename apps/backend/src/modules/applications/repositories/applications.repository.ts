@@ -45,7 +45,7 @@ export class ApplicationsRepository {
       name: event.name,
       bankAccount: event.organization.bankAccount,
       termsWithoutRooms: event.terms.filter((term) => term._count.rooms === 0).length,
-      terms: event.terms.map(({ id, name, priceCzk }) => ({ id, name, priceCzk })),
+      terms: event.terms.map(({ id, name, number, priceCzk }) => ({ id, name, number, priceCzk })),
     }
   }
 

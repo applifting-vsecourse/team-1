@@ -1,5 +1,5 @@
-import { ApiProperty } from "@nestjs/swagger"
-import { IsInt, IsUUID, Max, Min } from "class-validator"
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger"
+import { IsInt, IsOptional, IsString, IsUUID, Max, Min } from "class-validator"
 
 export class RecordRefundRequestDto {
   @ApiProperty()
@@ -15,4 +15,11 @@ export class RecordRefundRequestDto {
   @Min(1)
   @Max(2147483647)
   amountCzk!: number
+
+  @ApiPropertyOptional({
+    description: "Term the money is returned for. Required — a missing one is an error.",
+  })
+  @IsOptional()
+  @IsString()
+  termId?: string
 }

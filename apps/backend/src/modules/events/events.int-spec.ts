@@ -1,5 +1,11 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
-import { api, connectTestPrisma, resetAndSeed, signIn } from "@/test/integration/test-api"
+import {
+  api,
+  connectTestPrisma,
+  nextTermNumber,
+  resetAndSeed,
+  signIn,
+} from "@/test/integration/test-api"
 
 type EventBody = {
   id: string
@@ -66,11 +72,12 @@ describe("organizer events (integration)", () => {
   it("closes the public page again when a term without rooms is added (US-99)", async () => {
     const created = (await (await post(cookieA, { name: "Zima" })).json()) as EventBody
     const event = await prisma.event.findUniqueOrThrow({ where: { id: created.id } })
-    const makeTerm = (name: string, day: number) =>
+    const makeTerm = async (name: string, day: number) =>
       prisma.term.create({
         data: {
           organizationId: event.organizationId,
           eventId: event.id,
+          number: await nextTermNumber(prisma, event.id),
           name,
           startsOn: new Date(`2027-12-0${day}`),
           endsOn: new Date(`2027-12-0${day + 1}`),
@@ -115,6 +122,7 @@ describe("organizer events (integration)", () => {
       data: {
         organizationId: event.organizationId,
         eventId: event.id,
+        number: await nextTermNumber(prisma, event.id),
         name: "Týden",
         startsOn: new Date("2027-10-01"),
         endsOn: new Date("2027-10-07"),
@@ -227,6 +235,7 @@ describe("organizer events (integration)", () => {
         data: {
           organizationId: event.organizationId,
           eventId: event.id,
+          number: await nextTermNumber(prisma, event.id),
           name: "Týden",
           startsOn: new Date("2027-10-01"),
           endsOn: new Date("2027-10-07"),

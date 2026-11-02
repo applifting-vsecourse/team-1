@@ -11,15 +11,13 @@
     "intro": "The application for {{names}} has been submitted. You can see the status of each selected term below.",
     "introOneTerm": "The application for {{names}} has been submitted. You can see the status of the selected term below.",
     "payment": {
-      "account": "Organization account",
+      "account": "Organization bank account",
       "onlyConfirmed": "Pay only for the confirmed terms. Do not pay for a term where you are waitlisted yet.",
+      "payEachItem": "{{name}} {{amount}} / VS {{variableSymbol}}",
+      "payEachSeparately": "Pay each application separately: {{list}}.",
       "title": "To pay for the confirmed terms",
-      "totalNote_few": "Please pay each application separately ({{count}} payments below), each with its own variable symbol, so we can match the payments to the participants.",
-      "totalNote_one": "Please pay each application separately ({{count}} payments below), each with its own variable symbol, so we can match the payments to the participants.",
-      "totalNote_other": "Please pay each application separately ({{count}} payments below), each with its own variable symbol, so we can match the payments to the participants.",
-      "totalTitle": "Total to pay",
       "variableSymbol": "Variable symbol",
-      "variableSymbolNote": "The variable symbol is the numeric part of application {{code}}."
+      "variableSymbolOf": "{{name}} · {{amount}} · variable symbol"
     },
     "status": {
       "cancelled": "Cancelled",

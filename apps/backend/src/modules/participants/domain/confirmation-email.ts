@@ -1,8 +1,8 @@
 import { formatCzk } from "@/core/email/format-czk"
 import type { ApplicationChangeProps } from "@/core/email/templates/application-change"
 import type { ConfirmationApplicationProps } from "@/core/email/templates/application-confirmation"
-import { computeAmountDue } from "@/modules/applications/domain/pricing"
-import { toVariableSymbol } from "@/modules/participants/domain/my-application"
+import { computeAmountDue, computeTermDue } from "@/modules/applications/domain/pricing"
+import { variableSymbol } from "@/modules/applications/domain/variable-symbol"
 import {
   ApplicationChange,
   SubmissionConfirmation,
@@ -18,9 +18,10 @@ export const loginUrl = (frontendUrl: string): string => `${frontendUrl}/partici
 type Payment = NonNullable<ConfirmationApplicationProps["payment"]>
 
 /**
- * Payment details of one application: only when a term is confirmed. The
- * amount is the pricing domain's amount due, the variable symbol the
- * application's own number — payments of several applications never add up.
+ * Payment details of one application: only when a term is confirmed. The amount is the
+ * pricing domain's amount due under the summary symbol `…000`; with several confirmed
+ * terms each one is listed with its own symbol too (US-137). Payments of several
+ * applications never add up.
  */
 function paymentOf(
   application: SubmittedApplication,
@@ -28,10 +29,19 @@ function paymentOf(
   locale: SubmissionConfirmation["locale"],
 ): Payment | null {
   if (!application.terms.some((term) => term.status === "CONFIRMED")) return null
+  const confirmed = application.terms.filter((term) => term.status === "CONFIRMED")
   return {
     amount: formatCzk(computeAmountDue(application.terms), locale),
     bankAccount,
-    variableSymbol: toVariableSymbol(application.number),
+    variableSymbol: variableSymbol(application.number),
+    terms:
+      confirmed.length > 1
+        ? confirmed.map((term) => ({
+            name: term.name,
+            amount: formatCzk(computeTermDue(term), locale),
+            variableSymbol: variableSymbol(application.number, term.termNumber),
+          }))
+        : [],
   }
 }
 

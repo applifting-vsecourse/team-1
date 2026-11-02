@@ -119,14 +119,18 @@ export class ApplicationsService {
    * whatever happens.
    */
   private async sendConfirmation(
-    event: { name: string; bankAccount: string; terms: { id: string; name: string }[] },
+    event: {
+      name: string
+      bankAccount: string
+      terms: { id: string; name: string; number: number }[]
+    },
     email: string,
     locale: Locale,
     mustSetPassword: boolean,
     submitted: NewApplication[],
     saved: SavedApplication[],
   ): Promise<void> {
-    const termNames = new Map(event.terms.map((term) => [term.id, term.name]))
+    const termsById = new Map(event.terms.map((term) => [term.id, term]))
     const lastNames = new Map(submitted.map((a) => [a.accessToken, a.lastName]))
     try {
       await this.mailer.sendSubmissionConfirmation({
@@ -140,11 +144,17 @@ export class ApplicationsService {
           firstName: application.firstName,
           lastName: lastNames.get(application.accessToken) ?? "",
           accessToken: application.accessToken,
-          terms: application.terms.map((term) => ({
-            name: termNames.get(term.termId) ?? "",
-            status: term.status,
-            priceCzk: term.priceCzk,
-          })),
+          terms: application.terms.map((term) => {
+            const eventTerm = termsById.get(term.termId)
+            // A missing term must not fall back to number 0 (= the summary variable symbol).
+            if (!eventTerm) throw new Error(`Term ${term.termId} is missing in the event`)
+            return {
+              name: eventTerm.name,
+              termNumber: eventTerm.number,
+              status: term.status,
+              priceCzk: term.priceCzk,
+            }
+          }),
         })),
       })
     } catch (error) {
