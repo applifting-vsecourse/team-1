@@ -127,6 +127,7 @@ export function applicationList(
           name: term.name,
           startsOn: term.startsOn,
           endsOn: term.endsOn,
+          roomMode: term.roomMode,
           status: term.status,
           priceCzk: term.priceCzk,
           waitlistPosition: positionOf(row, term.id),

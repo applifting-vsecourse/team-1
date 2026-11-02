@@ -1,6 +1,12 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { TermRooms } from "@/modules/events/domain/rooms"
-import { api, connectTestPrisma, resetAndSeed, signIn } from "@/test/integration/test-api"
+import {
+  api,
+  connectTestPrisma,
+  nextTermNumber,
+  resetAndSeed,
+  signIn,
+} from "@/test/integration/test-api"
 
 describe("term rooms (integration)", () => {
   let prisma: PrismaService
@@ -39,11 +45,12 @@ describe("term rooms (integration)", () => {
       },
     })
     eventId = event.id
-    const makeTerm = (name: string, startsOn: string, endsOn: string) =>
+    const makeTerm = async (name: string, startsOn: string, endsOn: string) =>
       prisma.term.create({
         data: {
           organizationId: member.organizationId,
           eventId,
+          number: await nextTermNumber(prisma, eventId),
           name,
           startsOn: new Date(startsOn),
           endsOn: new Date(endsOn),
