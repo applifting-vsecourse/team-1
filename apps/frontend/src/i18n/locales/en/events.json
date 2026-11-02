@@ -107,6 +107,33 @@
     "subtitleTerms_other": "{{name}} · run by {{organization}} · {{count}} terms listed",
     "title": "Event overview"
   },
+  "publicPage": {
+    "cancel": "Cancel",
+    "contactEmail": "Contact e-mail",
+    "contactPhone": "Contact phone",
+    "description": "Description",
+    "location": "Venue",
+    "name": "Event name",
+    "photoTitle": "Event photo",
+    "publish": "List the event in the catalog",
+    "publishHint": "Without the tick the event is not listed in the catalog.",
+    "save": "Save public details",
+    "saveFailed": "The public details could not be saved",
+    "saved": "Public details are saved.",
+    "savedPublished": "The event is listed in the catalog.",
+    "termsHint": "You can change the prices in the event overview, under Terms and prices.",
+    "termsTitle": "Terms and prices shown",
+    "title": "Public details",
+    "upload": {
+      "button": "Choose photo",
+      "doneTitle": "Photo uploaded",
+      "errorTitle": "The photo could not be uploaded",
+      "hint": "Choose a photo in JPG or PNG format.",
+      "idleTitle": "Add an event photo",
+      "ringLabel": "Done",
+      "ringValue": "100 %"
+    }
+  },
   "rooms": {
     "actionsColumn": "Actions",
     "add": "Add room",

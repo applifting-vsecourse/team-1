@@ -26,6 +26,12 @@ export const organizerEventSchema = z.object({
   name: z.string(),
   description: z.string().nullable(),
   location: z.string().nullable(),
+  contactEmail: z.string().nullable(),
+  contactPhone: z.string().nullable(),
+  /** Listed in the public catalog (US-122); off until the organizer turns it on. */
+  publishedInCatalog: z.boolean(),
+  /** File name of the page photo; `null` without one. */
+  photoFileName: z.string().nullable(),
   /** Token of the application link `/apply/<publicToken>`. */
   publicToken: z.string(),
   createdAt: z.string(),
@@ -97,3 +103,42 @@ export async function setEvaluationMode(
       .json(),
   )
 }
+
+export type PublicPageInput = {
+  name: string
+  description: string
+  location: string
+  contactEmail: string
+  contactPhone: string
+  publishedInCatalog: boolean
+}
+
+/** `PUT /api/organizer/events/:eventId/public-page` — 400 `PUBLIC_PAGE_INCOMPLETE` for the catalog. */
+export async function savePublicPage(
+  eventId: string,
+  input: PublicPageInput,
+): Promise<OrganizerEvent> {
+  return organizerEventSchema.parse(
+    await api
+      .put(`organizer/events/${encodeURIComponent(eventId)}/public-page`, { json: input })
+      .json(),
+  )
+}
+
+/** `PUT /api/organizer/events/:eventId/photo` — the image itself is the body (JPEG / PNG, up to 2 MB). */
+export async function uploadEventPhoto(eventId: string, file: File): Promise<OrganizerEvent> {
+  return organizerEventSchema.parse(
+    await api
+      .put(`organizer/events/${encodeURIComponent(eventId)}/photo`, {
+        body: file,
+        headers: { "Content-Type": file.type, "X-File-Name": encodeURIComponent(file.name) },
+      })
+      .json(),
+  )
+}
+
+/** The photo limits the server enforces, checked here too so a bad file fails at once. */
+export const EVENT_PHOTO = {
+  maxBytes: 2 * 1024 * 1024,
+  types: ["image/jpeg", "image/png"],
+} as const

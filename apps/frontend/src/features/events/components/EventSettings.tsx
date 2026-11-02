@@ -18,12 +18,14 @@ import {
   setEvaluationMode,
   type EvaluationMode,
 } from "@/features/events/api/events"
+import { PublicPageForm } from "@/features/events/components/PublicPageForm"
 
 const MODES = ["AUTOMATIC", "MANUAL"] as const
 
 /**
  * Settings of an event under the event header (US-101): the evaluation mode,
- * chosen before applications open and shown locked with the reason afterwards.
+ * chosen before applications open and shown locked with the reason afterwards,
+ * and the public page content (US-122).
  */
 // Figma (Design system): US-101 Volba režimu před otevřením přihlášek · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14825-13299
 // Figma (Design system): O24 Nastavení akce · uzamčený režim · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12282-1018
@@ -43,13 +45,18 @@ export function EventSettings({ eventId }: { eventId: string }) {
     )
   }
 
-  return event.evaluationModeLocked ? (
-    <LockedMode mode={event.evaluationMode} />
-  ) : (
-    <ChooseMode
-      eventId={eventId}
-      saved={event.evaluationMode}
-    />
+  return (
+    <div className="flex flex-col gap-6">
+      {event.evaluationModeLocked ? (
+        <LockedMode mode={event.evaluationMode} />
+      ) : (
+        <ChooseMode
+          eventId={eventId}
+          saved={event.evaluationMode}
+        />
+      )}
+      <PublicPageForm event={event} />
+    </div>
   )
 }
 

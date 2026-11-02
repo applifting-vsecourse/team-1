@@ -238,6 +238,11 @@ export async function seedSprintDemo(
     description: "Plně obsazený kemp: dva týdny, 10 dámských a 10 pánských pokojů po 5 lůžkách.",
     location: "Tábořiště Pod Lesem, Sázava",
     publicToken: "demo-letni-kemp-plny",
+    publicPage: {
+      contactEmail: "kemp@example.com",
+      contactPhone: "+420 777 000 001",
+      photoFileName: "letni-kemp-2027.png",
+    },
     terms: [
       { name: "1. týden", startsOn: "2027-07-04", endsOn: "2027-07-10", priceCzk: 4500 },
       { name: "2. týden", startsOn: "2027-07-11", endsOn: "2027-07-17", priceCzk: 4900 },

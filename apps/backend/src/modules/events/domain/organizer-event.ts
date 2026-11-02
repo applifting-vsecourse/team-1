@@ -30,6 +30,12 @@ export type StoredEvent = {
   name: string
   description: string | null
   location: string | null
+  contactEmail: string | null
+  contactPhone: string | null
+  /** Listed in the public catalog (US-122); off until the organizer turns it on. */
+  publishedInCatalog: boolean
+  /** File name of the page photo; `null` without one. */
+  photoFileName: string | null
   publicToken: string
   createdAt: Date
   termCount: number

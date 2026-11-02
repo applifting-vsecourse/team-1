@@ -52,6 +52,22 @@ export class OrganizerEventResponseDto {
   @ApiProperty({ type: String, nullable: true })
   location!: string | null
 
+  @ApiProperty({ type: String, nullable: true })
+  contactEmail!: string | null
+
+  @ApiProperty({ type: String, nullable: true })
+  contactPhone!: string | null
+
+  @ApiProperty({ description: "Listed in the public catalog; off by default (US-122)." })
+  publishedInCatalog!: boolean
+
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    description: "File name of the page photo; `null` without one.",
+  })
+  photoFileName!: string | null
+
   @ApiProperty({ description: "Token of the application link `/apply/<publicToken>`." })
   publicToken!: string
 
@@ -109,6 +125,10 @@ export class OrganizerEventResponseDto {
       name: event.name,
       description: event.description,
       location: event.location,
+      contactEmail: event.contactEmail,
+      contactPhone: event.contactPhone,
+      publishedInCatalog: event.publishedInCatalog,
+      photoFileName: event.photoFileName,
       publicToken: event.publicToken,
       createdAt: event.createdAt.toISOString(),
       termCount: event.termCount,

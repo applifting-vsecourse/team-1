@@ -107,6 +107,33 @@
     "subtitleTerms_other": "{{name}} · pořádá {{organization}} · {{count}} vypsaných termínů",
     "title": "Přehled akce"
   },
+  "publicPage": {
+    "cancel": "Zrušit",
+    "contactEmail": "Kontaktní e-mail",
+    "contactPhone": "Kontaktní telefon",
+    "description": "Popis",
+    "location": "Místo konání",
+    "name": "Název akce",
+    "photoTitle": "Fotografie akce",
+    "publish": "Zveřejnit akci v katalogu",
+    "publishHint": "Bez zaškrtnutí není akce v katalogu uvedená.",
+    "save": "Uložit veřejné údaje",
+    "saveFailed": "Veřejné údaje se nepodařilo uložit",
+    "saved": "Veřejné údaje jsou uložené.",
+    "savedPublished": "Akce je zveřejněná v katalogu.",
+    "termsHint": "Ceny upravíš v přehledu akce v části Termíny a ceny.",
+    "termsTitle": "Zobrazené termíny a ceny",
+    "title": "Veřejné údaje",
+    "upload": {
+      "button": "Vybrat fotografii",
+      "doneTitle": "Fotografie je nahraná",
+      "errorTitle": "Fotografii se nepodařilo nahrát",
+      "hint": "Vyber fotografii ve formátu JPG nebo PNG.",
+      "idleTitle": "Přidej fotografii akce",
+      "ringLabel": "Hotovo",
+      "ringValue": "100 %"
+    }
+  },
   "rooms": {
     "actionsColumn": "Akce",
     "add": "Přidat pokoj",
