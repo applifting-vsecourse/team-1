@@ -7,6 +7,11 @@ type UploadFieldProps = {
   title: string
   description: string
   buttonLabel: string
+  /** A line under the buttons that is always there, e.g. the size limit. */
+  note?: string
+  /** With these a chosen file can be taken away again. */
+  removeLabel?: string
+  onRemove?: () => void
   /** The chosen image; shown above the title once there is one. */
   previewUrl?: string | null
   /** What went wrong with the last file, under the frame. */
@@ -27,6 +32,9 @@ export function UploadField({
   title,
   description,
   buttonLabel,
+  note,
+  removeLabel,
+  onRemove,
   previewUrl,
   error,
   accept,
@@ -73,6 +81,19 @@ export function UploadField({
         >
           {buttonLabel}
         </Button>
+        {onRemove && removeLabel ? (
+          <Button
+            type="button"
+            variant="ghost"
+            size="lg"
+            className="w-full text-destructive hover:text-destructive"
+            disabled={isDisabled}
+            onClick={onRemove}
+          >
+            {removeLabel}
+          </Button>
+        ) : null}
+        {note ? <p className="text-sm text-muted-foreground">{note}</p> : null}
       </div>
       {error ? (
         <p

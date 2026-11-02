@@ -20,6 +20,7 @@ import { formatCzk } from "@/lib/money"
 import { notify } from "@/lib/notify"
 
 import {
+  deleteEventPhoto,
   EVENT_PHOTO,
   eventKeys,
   eventPhotoQueryOptions,
@@ -99,6 +100,16 @@ export function PublicPageForm({ event }: { event: OrganizerEvent }) {
     onError: (error) => setPhotoError(error.message),
   })
 
+  const remove = useMutation({
+    mutationFn: () => deleteEventPhoto(event.id),
+    onSuccess: async () => {
+      setPhotoError(null)
+      notify.success(t("publicPage.upload.removed"))
+      await refresh()
+    },
+    onError: (error) => setPhotoError(error.message),
+  })
+
   const change = (patch: Partial<PublicPageInput>) =>
     setValues((current) => ({ ...current, ...patch }))
 
@@ -125,12 +136,13 @@ export function PublicPageForm({ event }: { event: OrganizerEvent }) {
     >
       <AccordionItem
         value={SECTION}
-        className="rounded-lg border bg-card px-4 shadow-sm last:border-b"
+        className="rounded-lg border bg-card px-3 shadow-sm last:border-b"
       >
-        <AccordionTrigger className="items-center text-sm hover:no-underline">
+        <AccordionTrigger className="my-1 items-center rounded-md px-1 text-lg font-semibold tracking-tight hover:bg-accent hover:no-underline [&>svg]:size-5 [&>svg]:translate-y-0 [&>svg]:text-foreground">
           {t("publicPage.title")}
         </AccordionTrigger>
-        <AccordionContent>
+        {/* The padding keeps the focus ring of the fields from being cut off by the collapsing box. */}
+        <AccordionContent className="px-1 pt-1">
           <form
             noValidate
             className="flex flex-col gap-4"
@@ -178,10 +190,13 @@ export function PublicPageForm({ event }: { event: OrganizerEvent }) {
               )}
               description={event.photoFileName ?? t("publicPage.upload.hint")}
               buttonLabel={t("publicPage.upload.button")}
+              note={t("publicPage.upload.limit")}
+              removeLabel={event.photoFileName ? t("publicPage.upload.remove") : undefined}
+              onRemove={event.photoFileName ? () => remove.mutate() : undefined}
               previewUrl={photoUrl}
               error={photoError}
               accept={EVENT_PHOTO.types.join(",")}
-              isDisabled={upload.isPending}
+              isDisabled={upload.isPending || remove.isPending}
               onSelect={(file) => {
                 if (!isAcceptedType(file)) {
                   setPhotoError(t("publicPage.upload.invalidType"))
@@ -259,7 +274,7 @@ export function PublicPageForm({ event }: { event: OrganizerEvent }) {
               </Button>
               <Button
                 type="button"
-                variant="ghost"
+                variant="outline"
                 size="lg"
                 className="md:flex-1"
                 onClick={() => {

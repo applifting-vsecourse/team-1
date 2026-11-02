@@ -113,6 +113,10 @@ export class EventsRepository {
     })
   }
 
+  async deletePhoto(eventId: string): Promise<void> {
+    await this.prisma.eventPhoto.deleteMany({ where: { eventId } })
+  }
+
   async findPhoto(eventId: string): Promise<{ contentType: string; data: Uint8Array } | null> {
     return this.prisma.eventPhoto.findUnique({
       where: { eventId },

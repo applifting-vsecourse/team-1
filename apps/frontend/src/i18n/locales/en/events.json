@@ -136,6 +136,9 @@
       "hint": "Choose a photo in JPG, JPEG or PNG format.",
       "idleTitle": "Add an event photo",
       "invalidType": "The photo has to be a JPG, JPEG or PNG image.",
+      "limit": "Maximum size 2 MB.",
+      "remove": "Remove photo",
+      "removed": "Photo removed",
       "tooLarge": "The photo is too large. Choose a photo up to 2 MB."
     }
   },

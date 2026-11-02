@@ -121,6 +121,13 @@ export class EventsService {
     return this.get(user, eventId)
   }
 
+  /** Removes the photo of the public page; an event without one stays as it is. */
+  async deletePhoto(user: Identity, eventId: string): Promise<OrganizerEvent> {
+    await this.organizationAccess.assertCanAccessEvent(user, eventId)
+    await this.repository.deletePhoto(eventId)
+    return this.get(user, eventId)
+  }
+
   async getPhoto(
     user: Identity,
     eventId: string,

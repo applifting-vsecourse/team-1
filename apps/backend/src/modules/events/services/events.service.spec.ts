@@ -166,6 +166,19 @@ describe("EventsService", () => {
       })
     })
 
+    it("removes the photo of an event of the organizer", async () => {
+      await service.deletePhoto(organizer, "e1")
+
+      expect(repository.deletePhoto).toHaveBeenCalledWith("e1")
+    })
+
+    it("does not remove the photo of a foreign event", async () => {
+      access.assertCanAccessEvent.mockRejectedValue(new ForbiddenException())
+
+      await expect(service.deletePhoto(organizer, "e9")).rejects.toBeInstanceOf(ForbiddenException)
+      expect(repository.deletePhoto).not.toHaveBeenCalled()
+    })
+
     it("rejects a photo of another type or over the limit", async () => {
       await expect(
         service.savePhoto(organizer, "e1", Buffer.from("GIF89a"), "a.gif"),

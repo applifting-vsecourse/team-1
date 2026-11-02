@@ -136,6 +136,9 @@
       "hint": "Vyber fotografii ve formátu JPG, JPEG nebo PNG.",
       "idleTitle": "Přidej fotografii akce",
       "invalidType": "Fotografie musí být ve formátu JPG, JPEG nebo PNG.",
+      "limit": "Maximální velikost 2 MB.",
+      "remove": "Odstranit fotografii",
+      "removed": "Fotografie je odstraněná",
       "tooLarge": "Fotografie je příliš velká. Vyber fotografii do 2 MB."
     }
   },

@@ -170,6 +170,22 @@ describe("public page of an event (integration)", () => {
     expect(Buffer.from(await image.arrayBuffer())).toEqual(PNG)
   })
 
+  it("removes the photo, and refuses a foreign event", async () => {
+    await putPhoto(cookieA, eventId, PNG)
+    const remove = (cookie: string) =>
+      fetch(api(`/organizer/events/${eventId}/photo`), {
+        method: "DELETE",
+        headers: { Cookie: cookie },
+      })
+
+    expect((await remove(cookieB)).status).toBe(403)
+    expect((await getEvent(cookieA, eventId)).photoFileName).toBe("lipno-2027.png")
+
+    expect((await remove(cookieA)).status).toBe(200)
+    expect((await getEvent(cookieA, eventId)).photoFileName).toBeNull()
+    expect(await prisma.eventPhoto.count({ where: { eventId } })).toBe(0)
+  })
+
   it("rejects a photo of the wrong type, even one sent as an image", async () => {
     const gif = Buffer.from("GIF89a-not-allowed")
     const response = await putPhoto(cookieA, eventId, gif)

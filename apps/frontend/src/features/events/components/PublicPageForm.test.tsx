@@ -67,6 +67,11 @@ const term = (
   cancelReason: null,
 })
 
+const readJson = async (request: Request): Promise<unknown> => {
+  const text = await request.clone().text()
+  return text ? (JSON.parse(text) as unknown) : null
+}
+
 type Sent = { method: string; url: string; body: unknown; headers: Headers }
 
 const json = { headers: { "Content-Type": "application/json" } }
@@ -99,7 +104,7 @@ function renderForm(
     const item = {
       method: request.method,
       url: request.url,
-      body: isImage ? await request.clone().blob() : ((await request.clone().json()) as unknown),
+      body: isImage ? await request.clone().blob() : await readJson(request),
       headers: request.headers,
     }
     sent.push(item)
@@ -328,5 +333,28 @@ describe("PublicPageForm", () => {
     await vi.waitFor(() =>
       expect(screen.queryByText(/The photo is too large/)).not.toBeInTheDocument(),
     )
+  })
+
+  it("says in the upload that a photo can be at most 2 MB, and offers no removal without one", async () => {
+    renderForm()
+    await open(userEvent.setup())
+
+    expect(screen.getByText("Maximum size 2 MB.")).toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: "Remove photo" })).not.toBeInTheDocument()
+  })
+
+  it("removes an uploaded photo", async () => {
+    const sent = renderForm({ ...event, photoFileName: "lipno-2027.jpg" }, () => {
+      return new Response(JSON.stringify(event))
+    })
+    const user = userEvent.setup()
+    await open(user)
+
+    await user.click(screen.getByRole("button", { name: "Remove photo" }))
+
+    await vi.waitFor(() => expect(sent).toHaveLength(1))
+    expect(sent[0]!.method).toBe("DELETE")
+    expect(sent[0]!.url).toContain("/organizer/events/e1/photo")
+    await vi.waitFor(() => expect(notify.success).toHaveBeenCalledWith("Photo removed"))
   })
 })

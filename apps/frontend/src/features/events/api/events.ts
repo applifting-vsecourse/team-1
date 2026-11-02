@@ -137,6 +137,13 @@ export async function uploadEventPhoto(eventId: string, file: File): Promise<Org
   )
 }
 
+/** `DELETE /api/organizer/events/:eventId/photo`. */
+export async function deleteEventPhoto(eventId: string): Promise<OrganizerEvent> {
+  return organizerEventSchema.parse(
+    await api.delete(`organizer/events/${encodeURIComponent(eventId)}/photo`).json(),
+  )
+}
+
 export const eventPhotoKey = (eventId: string) => [...eventKeys.detail(eventId), "photo"] as const
 
 /** `GET /api/organizer/events/:eventId/photo` — the image for the preview in the form. */

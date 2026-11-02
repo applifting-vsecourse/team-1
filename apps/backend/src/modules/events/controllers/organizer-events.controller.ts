@@ -110,6 +110,17 @@ export class OrganizerEventsController {
     )
   }
 
+  @Delete(":eventId/photo")
+  @ApiOperation({ summary: "Remove the photo of the public page" })
+  @ApiResponse({ status: 200, type: OrganizerEventResponseDto })
+  @ApiResponse({ status: 403, description: "Unknown event or of another organization." })
+  async deletePhoto(
+    @User() user: Identity,
+    @Param("eventId") eventId: string,
+  ): Promise<OrganizerEventResponseDto> {
+    return OrganizerEventResponseDto.fromDomain(await this.events.deletePhoto(user, eventId))
+  }
+
   @Get(":eventId/photo")
   @ApiOperation({
     summary: "The photo of the public page, for the preview in the organizer's form",
