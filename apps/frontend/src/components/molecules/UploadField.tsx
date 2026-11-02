@@ -86,7 +86,8 @@ export function UploadField({
           <Button
             type="button"
             variant="outline"
-            className="border-destructive/30 text-destructive hover:border-destructive/50 hover:bg-destructive/10 hover:text-destructive"
+            size="lg"
+            className="w-full border-destructive/30 text-destructive hover:border-destructive/50 hover:bg-destructive/10 hover:text-destructive"
             disabled={isDisabled}
             onClick={onRemove}
           >

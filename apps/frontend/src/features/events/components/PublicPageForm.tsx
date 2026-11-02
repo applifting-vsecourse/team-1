@@ -138,7 +138,7 @@ export function PublicPageForm({ event }: { event: OrganizerEvent }) {
         value={SECTION}
         className="rounded-lg border bg-card px-3 shadow-sm last:border-b"
       >
-        <AccordionTrigger className="my-1 items-center rounded-md px-1 text-lg font-semibold tracking-tight hover:bg-muted/50 hover:no-underline [&>svg]:size-5 [&>svg]:translate-y-0 [&>svg]:text-foreground">
+        <AccordionTrigger className="my-1 items-center rounded-md px-1 text-lg font-semibold tracking-tight hover:bg-muted hover:no-underline [&>svg]:size-5 [&>svg]:translate-y-0 [&>svg]:text-foreground">
           {t("publicPage.title")}
         </AccordionTrigger>
         {/* The padding keeps the focus ring of the fields from being cut off by the collapsing box. */}
