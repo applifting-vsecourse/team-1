@@ -80,6 +80,7 @@ export function toApplicationCode(eventName: string, number: number): string {
     .filter((word) => word.length > 0)
     .map((word) => word[0].toUpperCase())
     .join("")
+  // Intentionally its own 4-digit format (LK-0048), not the variable symbol (variable-symbol.ts).
   return `${initials || "P"}-${String(number).padStart(4, "0")}`
 }
 

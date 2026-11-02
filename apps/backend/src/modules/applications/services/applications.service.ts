@@ -144,12 +144,17 @@ export class ApplicationsService {
           firstName: application.firstName,
           lastName: lastNames.get(application.accessToken) ?? "",
           accessToken: application.accessToken,
-          terms: application.terms.map((term) => ({
-            name: termsById.get(term.termId)?.name ?? "",
-            termNumber: termsById.get(term.termId)?.number ?? 0,
-            status: term.status,
-            priceCzk: term.priceCzk,
-          })),
+          terms: application.terms.map((term) => {
+            const eventTerm = termsById.get(term.termId)
+            // A missing term must not fall back to number 0 (= the summary variable symbol).
+            if (!eventTerm) throw new Error(`Term ${term.termId} is missing in the event`)
+            return {
+              name: eventTerm.name,
+              termNumber: eventTerm.number,
+              status: term.status,
+              priceCzk: term.priceCzk,
+            }
+          }),
         })),
       })
     } catch (error) {
