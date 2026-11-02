@@ -72,7 +72,7 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
                 <TermStatusBadge term={term} />
                 <span className="w-full sm:w-50 sm:text-right">
                   {term.status === "WAITLISTED" ? (
-                    t("status.doNotPayYet")
+                    t("status.zeroUntilConfirmed")
                   ) : (
                     <MoneyAmount amountCzk={isConfirmed ? term.priceCzk : 0} />
                   )}
@@ -81,7 +81,7 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
             )
           })}
         </ul>
-        {hasWaitlisted ? (
+        {hasWaitlisted && !data.paymentDetails ? (
           <p className="pt-4 text-sm text-muted-foreground">{t("detail.waitlistNote")}</p>
         ) : null}
       </Card>

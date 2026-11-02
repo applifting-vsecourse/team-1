@@ -142,11 +142,9 @@ describe("ApplicationDetail", () => {
     renderDetail(application({ terms: [confirmed, waitlisted] }))
 
     expect(await screen.findByText("Waitlisted")).toBeInTheDocument()
-    expect(screen.getByText("Do not pay anything yet")).toBeInTheDocument()
+    expect(screen.getByText("0 CZK until confirmed")).toBeInTheDocument()
     expect(screen.queryByText(/in line|position/i)).not.toBeInTheDocument()
-    expect(
-      screen.getByText(/Don't pay for a term where you are waitlisted yet/),
-    ).toBeInTheDocument()
+    expect(screen.getByText(/you are waitlisted and have no amount due yet/)).toBeInTheDocument()
   })
 
   it("shows no payment block when every term is waitlisted", async () => {

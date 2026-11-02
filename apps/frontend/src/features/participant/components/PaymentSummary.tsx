@@ -40,11 +40,11 @@ export function PaymentSummary({ application }: PaymentSummaryProps) {
 
   return (
     <section className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <h2 className="text-2xl font-semibold">{t("payment.title")}</h2>
         <PaymentStatusBadge status={application.paymentStatus} />
       </div>
-      <dl className="grid gap-6 sm:grid-cols-3">
+      <dl className="grid gap-4 sm:grid-cols-3 sm:gap-6">
         <Metric
           label={t("payment.due")}
           amountCzk={amountDueCzk}
@@ -99,7 +99,7 @@ export function PaymentSummary({ application }: PaymentSummaryProps) {
             </section>
           )
         })}
-        {note ? <p className="pt-2 text-sm text-muted-foreground">{note}</p> : null}
+        {note ? <p className="pt-4 text-sm text-muted-foreground">{note}</p> : null}
       </Card>
     </section>
   )
@@ -117,17 +117,17 @@ function Metric({
 }) {
   return (
     <Card
-      className={cn("gap-2 p-6", isHighlighted && "border-status-warning/40 bg-status-warning-bg")}
+      className={cn("gap-2 p-6", isHighlighted && "border-status-warning bg-status-warning-bg")}
     >
       <dt
         className={cn(
-          "text-sm text-muted-foreground",
-          isHighlighted && "font-semibold text-status-warning",
+          "text-xs font-medium text-muted-foreground",
+          isHighlighted && "text-status-warning",
         )}
       >
         {label}
       </dt>
-      <dd className={cn("text-3xl font-bold", isHighlighted && "text-4xl/11 text-status-warning")}>
+      <dd className={cn("text-4xl/11 font-bold", isHighlighted && "text-status-warning")}>
         <MoneyAmount amountCzk={amountCzk} />
       </dd>
     </Card>
@@ -166,7 +166,7 @@ function Detail({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="flex flex-col gap-1 border-t py-4 sm:flex-row sm:items-center sm:gap-4">
       <dt className="text-muted-foreground sm:w-50 sm:shrink-0">{label}</dt>
-      <dd className="flex min-w-0 items-center gap-2 font-medium">{children}</dd>
+      <dd className="flex min-w-0 items-center gap-2 text-sm font-medium">{children}</dd>
     </div>
   )
 }
