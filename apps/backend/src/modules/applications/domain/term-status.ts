@@ -46,7 +46,7 @@ export type StatusChangeResult = {
     firstName: string
     lastName: string
     accessToken: string
-    terms: { name: string; status: ApplicationTermStatus; priceCzk: number }[]
+    terms: { name: string; termNumber: number; status: ApplicationTermStatus; priceCzk: number }[]
   }
 }
 

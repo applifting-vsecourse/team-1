@@ -119,14 +119,18 @@ export class ApplicationsService {
    * whatever happens.
    */
   private async sendConfirmation(
-    event: { name: string; bankAccount: string; terms: { id: string; name: string }[] },
+    event: {
+      name: string
+      bankAccount: string
+      terms: { id: string; name: string; number: number }[]
+    },
     email: string,
     locale: Locale,
     mustSetPassword: boolean,
     submitted: NewApplication[],
     saved: SavedApplication[],
   ): Promise<void> {
-    const termNames = new Map(event.terms.map((term) => [term.id, term.name]))
+    const termsById = new Map(event.terms.map((term) => [term.id, term]))
     const lastNames = new Map(submitted.map((a) => [a.accessToken, a.lastName]))
     try {
       await this.mailer.sendSubmissionConfirmation({
@@ -141,7 +145,8 @@ export class ApplicationsService {
           lastName: lastNames.get(application.accessToken) ?? "",
           accessToken: application.accessToken,
           terms: application.terms.map((term) => ({
-            name: termNames.get(term.termId) ?? "",
+            name: termsById.get(term.termId)?.name ?? "",
+            termNumber: termsById.get(term.termId)?.number ?? 0,
             status: term.status,
             priceCzk: term.priceCzk,
           })),

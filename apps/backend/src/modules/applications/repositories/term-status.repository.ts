@@ -120,7 +120,7 @@ export class TermStatusRepository {
       const terms = await tx.applicationTerm.findMany({
         where: { applicationId: application.id },
         orderBy: { term: { startsOn: "asc" } },
-        include: { term: { select: { name: true } } },
+        include: { term: { select: { name: true, number: true } } },
       })
       return {
         from: current.status,
@@ -136,6 +136,7 @@ export class TermStatusRepository {
           accessToken: application.accessToken,
           terms: terms.map((row) => ({
             name: row.term.name,
+            termNumber: row.term.number,
             status: row.status,
             priceCzk: row.priceCzk,
           })),

@@ -40,6 +40,7 @@ const copy: Record<
     amountDue: string;
     account: string;
     variableSymbol: string;
+    payTermsHeading: string;
     button: string;
     footer: string;
   }
@@ -68,6 +69,7 @@ const copy: Record<
     amountDue: 'Amount due',
     account: 'Account number',
     variableSymbol: 'Variable symbol',
+    payTermsHeading: 'Or pay one term only (its own variable symbol)',
     button: 'View the application',
     footer: 'You got this e-mail because it is your application.',
   },
@@ -95,6 +97,7 @@ const copy: Record<
     amountDue: 'K úhradě',
     account: 'Číslo účtu',
     variableSymbol: 'Variabilní symbol',
+    payTermsHeading: 'Nebo zaplaťte jen jeden termín (vlastní variabilní symbol)',
     button: 'Zobrazit přihlášku',
     footer: 'Tento e-mail jste dostali, protože jde o vaši přihlášku.',
   },
@@ -114,9 +117,12 @@ export interface ApplicationChangeProps {
   terms: { name: string; status: 'CONFIRMED' | 'WAITLISTED' | 'CANCELLED' }[];
   /** Only when the amount due changed; amounts are already formatted. */
   payment: {
+    /** Everything due now, paid under the summary variable symbol (`…000`). */
     amount: string;
     bankAccount: string;
     variableSymbol: string;
+    /** One line per confirmed term with its own symbol; empty with a single confirmed term. */
+    terms: { name: string; amount: string; variableSymbol: string }[];
   } | null;
   confirmationUrl: string;
 }
@@ -188,6 +194,22 @@ export const ApplicationChange = ({
                 <Text className="text-gray-900 text-base leading-6 m-0">
                   {text.variableSymbol}: <strong>{payment.variableSymbol}</strong>
                 </Text>
+                {payment.terms.length > 0 ? (
+                  <>
+                    <Text className="text-gray-500 text-sm m-0 mt-3">
+                      {text.payTermsHeading}
+                    </Text>
+                    {payment.terms.map((term) => (
+                      <Text
+                        key={term.variableSymbol}
+                        className="text-gray-900 text-base leading-6 m-0"
+                      >
+                        {term.name}: <strong>{term.amount}</strong>,{' '}
+                        {text.variableSymbol}: <strong>{term.variableSymbol}</strong>
+                      </Text>
+                    ))}
+                  </>
+                ) : null}
               </Section>
             ) : null}
 
@@ -221,7 +243,11 @@ ApplicationChange.PreviewProps = {
   payment: {
     amount: '9 400 Kč',
     bankAccount: '2900123456/2010',
-    variableSymbol: '0049',
+    variableSymbol: '49000',
+    terms: [
+      { name: '1. týden', amount: '4 500 Kč', variableSymbol: '49001' },
+      { name: '2. týden', amount: '4 900 Kč', variableSymbol: '49002' },
+    ],
   },
   confirmationUrl:
     'https://team-1.vsepractical.applifting.dev/apply/confirmation/preview-2',
