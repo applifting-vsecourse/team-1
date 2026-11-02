@@ -68,6 +68,13 @@ export type ApplicationListEntry = Omit<ListedApplication, "number" | "terms"> &
   paymentStatus: PaymentStatus
 }
 
+/** The summary variable symbol and the symbol of every term, so any of them finds the application. */
+const searchableSymbols = (row: ListedApplication): string =>
+  [
+    variableSymbol(row.number),
+    ...row.terms.map((term) => variableSymbol(row.number, term.termNumber)),
+  ].join(" ")
+
 export function applicationList(
   rows: ListedApplication[],
   filters: ApplicationFilters,
@@ -100,7 +107,7 @@ export function applicationList(
       (row) =>
         words.every((word) =>
           normalize(
-            `${row.firstName} ${row.lastName} ${row.email} ${variableSymbol(row.number)}`,
+            `${row.firstName} ${row.lastName} ${row.email} ${searchableSymbols(row)}`,
           ).includes(word),
         ) &&
         (!filters.gender || row.gender === filters.gender) &&

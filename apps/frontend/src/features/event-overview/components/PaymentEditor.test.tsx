@@ -19,11 +19,21 @@ const application: PaymentApplication = {
   firstName: "Adam",
   lastName: "Test",
   code: "C-0047",
-  terms: [],
+  terms: [
+    {
+      termId: "t1",
+      owedCzk: 6900,
+      status: "CONFIRMED",
+      priceCzk: 6900,
+      startsOn: "2027-07-12",
+      endsOn: "2027-07-18",
+    },
+  ],
   payments: [],
   amountDueCzk: 6900,
   amountPaidCzk: 0,
   amountOwedCzk: 6900,
+  payableCzk: 6900,
 }
 const label = "Amount of this payment (CZK)"
 function setup(paidCzk = 0, isRefund = false) {
@@ -34,7 +44,13 @@ function setup(paidCzk = 0, isRefund = false) {
     <QueryClientProvider client={client}>
       <PaymentEditor
         isRefund={isRefund}
-        application={{ ...application, amountPaidCzk: paidCzk, amountOwedCzk: 6900 - paidCzk }}
+        application={{
+          ...application,
+          terms: [{ ...application.terms[0]!, owedCzk: 6900 - paidCzk }],
+          amountPaidCzk: paidCzk,
+          amountOwedCzk: 6900 - paidCzk,
+          payableCzk: Math.max(0, 6900 - paidCzk),
+        }}
         onClose={onClose}
       />
     </QueryClientProvider>,
@@ -71,7 +87,7 @@ describe("PaymentEditor", () => {
     expect(screen.getByText(/After saving, left to refund:.*300/)).toBeInTheDocument()
     await user.click(screen.getByRole("button", { name: /Record refund.*200/ }))
     await waitFor(() => expect(onClose).toHaveBeenCalledOnce())
-    expect(recordRefund).toHaveBeenCalledWith("a1", expect.any(String), 200)
+    expect(recordRefund).toHaveBeenCalledWith("a1", expect.any(String), 200, "t1")
     expect(recordPayment).not.toHaveBeenCalled()
   })
 
