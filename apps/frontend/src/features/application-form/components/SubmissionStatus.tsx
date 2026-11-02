@@ -87,12 +87,7 @@ export function SubmissionStatus({ accessToken }: SubmissionStatusProps) {
 
       {payers.length > 0 ? (
         <PaymentCard payers={payers} />
-      ) : isAwaitingEvaluation ? (
-        <section className="flex flex-col gap-4 rounded-lg border p-4 sm:p-6">
-          <h2 className="text-2xl font-semibold">{t("confirmation.toEvaluate.title")}</h2>
-          <p>{t("confirmation.toEvaluate.description")}</p>
-        </section>
-      ) : (
+      ) : isAwaitingEvaluation ? null : (
         <section className="flex flex-col gap-4 rounded-lg border bg-status-waitlist-bg p-4 sm:p-6">
           <h2 className="text-2xl font-semibold text-status-waitlist">
             {t("confirmation.waitlist.title")}
