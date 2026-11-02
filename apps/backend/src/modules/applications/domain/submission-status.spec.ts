@@ -8,6 +8,8 @@ const term = (id: string, status: "CONFIRMED" | "WAITLISTED", start: string, pri
   endsOn: day(start),
   status,
   priceCzk,
+  termNumber: Number(id.slice(1)),
+  payments: [] as { amountCzk: number }[],
 })
 
 const record = (overrides: Partial<SubmissionRecord> = {}): SubmissionRecord => ({
@@ -21,17 +23,25 @@ const record = (overrides: Partial<SubmissionRecord> = {}): SubmissionRecord => 
       firstName: "Jana",
       lastName: "Nováková",
       terms: [term("t1", "CONFIRMED", "2027-07-04", 6900)],
-      payments: [],
     },
     {
       number: 49,
       firstName: "Matěj",
       lastName: "Novák",
       terms: [term("t3", "CONFIRMED", "2027-08-02", 7400), term("t2", "WAITLISTED", "2027-07-19")],
-      payments: [],
     },
   ],
   ...overrides,
+})
+
+const paidApplication = (
+  application: SubmissionRecord["applications"][number],
+  number: number,
+  amountCzk: number,
+): SubmissionRecord["applications"][number] => ({
+  ...application,
+  number,
+  terms: application.terms.map((t) => ({ ...t, payments: [{ amountCzk }] })),
 })
 
 describe("buildSubmissionStatus", () => {
@@ -39,7 +49,7 @@ describe("buildSubmissionStatus", () => {
     const status = buildSubmissionStatus(record())
 
     expect(status.isNewAccount).toBe(true)
-    expect(status.applications.map((a) => a.payment)).toEqual([
+    expect(status.applications.map((a) => a.payment)).toMatchObject([
       { bankAccount: "2900123456/2010", variableSymbol: "48000", amountCzk: 6900 },
       { bankAccount: "2900123456/2010", variableSymbol: "49000", amountCzk: 7400 },
     ])
@@ -77,8 +87,8 @@ describe("buildSubmissionStatus", () => {
       ...base,
       mustSetPassword: false,
       applications: [
-        { ...base.applications[0], payments: [{ amountCzk: 1000 }] },
-        { ...base.applications[0], number: 50, payments: [{ amountCzk: 10000 }] },
+        paidApplication(base.applications[0], 48, 1000),
+        paidApplication(base.applications[0], 50, 10000),
       ],
     }).applications
 
@@ -86,5 +96,31 @@ describe("buildSubmissionStatus", () => {
     expect(partly.paymentStatus).toBe("PARTIALLY_PAID")
     expect(overpaid.payment?.amountCzk).toBe(0)
     expect(overpaid.paymentStatus).toBe("OVERPAID")
+  })
+
+  it("gives the summary and a variable symbol per confirmed term (US-137)", () => {
+    const [, matej] = buildSubmissionStatus(record()).applications
+
+    // t2 is waitlisted, so only the confirmed t3 gets a symbol.
+    expect(matej.payment?.summary).toEqual({ variableSymbol: "49000", payableCzk: 7400 })
+    expect(matej.payment?.terms).toMatchObject([
+      { termId: "t3", variableSymbol: "49003", dueCzk: 7400, owedCzk: 7400 },
+    ])
+  })
+
+  it("asks for the debt of a term although another one is overpaid (D-088)", () => {
+    const base = record()
+    const application = {
+      ...base.applications[0],
+      terms: [
+        { ...term("t1", "CONFIRMED", "2027-07-04", 1000), payments: [{ amountCzk: 1500 }] },
+        term("t2", "CONFIRMED", "2027-08-01", 700),
+      ],
+    }
+    const [result] = buildSubmissionStatus({ ...base, applications: [application] }).applications
+
+    expect(result.payment?.summary.payableCzk).toBe(700)
+    // The application summary is still due − paid = 1700 − 1500.
+    expect(result.payment?.amountCzk).toBe(200)
   })
 })

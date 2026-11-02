@@ -29,8 +29,12 @@ export class SubmissionStatusRepository {
     const rows = await this.prisma.application.findMany({
       where: { eventId: first.eventId, email: first.email, consentAt: first.consentAt },
       include: {
-        terms: { include: { term: true } },
-        payments: { where: { cancelledAt: null }, select: { amountCzk: true } },
+        terms: {
+          include: {
+            term: true,
+            payments: { where: { cancelledAt: null }, select: { amountCzk: true } },
+          },
+        },
       },
       orderBy: { number: "asc" },
     })
@@ -44,15 +48,16 @@ export class SubmissionStatusRepository {
         number: row.number,
         firstName: row.firstName,
         lastName: row.lastName,
-        terms: row.terms.map(({ term, status, priceCzk }) => ({
+        terms: row.terms.map(({ term, status, priceCzk, payments }) => ({
           termId: term.id,
+          termNumber: term.number,
           name: term.name,
           startsOn: term.startsOn,
           endsOn: term.endsOn,
           status,
           priceCzk,
+          payments,
         })),
-        payments: row.payments,
       })),
     }
   }

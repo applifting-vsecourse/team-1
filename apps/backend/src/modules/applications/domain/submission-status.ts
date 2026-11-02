@@ -1,11 +1,11 @@
 import { ApplicationTermStatus } from "./evaluation"
 import {
-  computeAmountDue,
-  computeAmountOwed,
-  computeAmountPaid,
-  computePaymentStatus,
-  PaymentStatus,
-} from "./pricing"
+  buildPaymentDetails,
+  computeApplicationDue,
+  computeApplicationPaid,
+  PaymentDetails,
+} from "./payment-details"
+import { computeAmountOwed, computePaymentStatus, PaymentStatus } from "./pricing"
 import { variableSymbol as toVariableSymbol } from "./variable-symbol"
 
 /** One application of a submission as stored — what the confirmation page is built from (US-25). */
@@ -16,14 +16,17 @@ export type SubmittedApplicationRecord = {
   lastName: string
   terms: {
     termId: string
+    /** `Term.number`, part of the term's variable symbol. */
+    termNumber: number
     name: string
     startsOn: Date
     endsOn: Date
     status: ApplicationTermStatus
     /** Price frozen at evaluation. */
     priceCzk: number
+    /** Non-cancelled payment rows of this application in this term. */
+    payments: { amountCzk: number }[]
   }[]
-  payments: { amountCzk: number }[]
 }
 
 export type SubmissionRecord = {
@@ -41,10 +44,12 @@ export type SubmissionRecord = {
 /** Where and how much to pay — only for an application with a confirmed term. */
 export type ApplicationPayment = {
   bankAccount: string
-  /** The application number, four digits. */
+  /** Summary symbol `…000` of the application. */
   variableSymbol: string
   /** Still to pay (due − paid), never negative. */
   amountCzk: number
+  summary: PaymentDetails["summary"]
+  terms: PaymentDetails["terms"]
 }
 
 export type SubmittedApplicationStatus = {
@@ -100,9 +105,10 @@ export function buildSubmissionStatus(record: SubmissionRecord): SubmissionStatu
     email: record.email,
     isNewAccount: record.mustSetPassword,
     applications: record.applications.map((application) => {
-      const amountDue = computeAmountDue(application.terms)
-      const amountPaid = computeAmountPaid(application.payments)
+      const amountDue = computeApplicationDue(application.terms)
+      const amountPaid = computeApplicationPaid(application.terms)
       const variableSymbol = toVariableSymbol(application.number)
+      const details = buildPaymentDetails(application.number, record.bankAccount, application.terms)
 
       return {
         firstName: application.firstName,
@@ -120,11 +126,13 @@ export function buildSubmissionStatus(record: SubmissionRecord): SubmissionStatu
             priceCzk: term.priceCzk,
           })),
         paymentStatus: computePaymentStatus(amountDue, amountPaid),
-        payment: application.terms.some((term) => term.status === "CONFIRMED")
+        payment: details
           ? {
-              bankAccount: record.bankAccount,
+              bankAccount: details.bankAccount,
               variableSymbol,
               amountCzk: Math.max(computeAmountOwed(amountDue, amountPaid), 0),
+              summary: details.summary,
+              terms: details.terms,
             }
           : null,
       }

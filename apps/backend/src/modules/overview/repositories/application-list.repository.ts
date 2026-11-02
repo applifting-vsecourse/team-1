@@ -18,21 +18,28 @@ export class ApplicationListRepository {
         gender: true,
         email: true,
         submittedAt: true,
-        terms: { include: { term: true }, orderBy: { term: { startsOn: "asc" } } },
-        payments: { where: { cancelledAt: null }, select: { amountCzk: true } },
+        terms: {
+          include: {
+            term: true,
+            payments: { where: { cancelledAt: null }, select: { amountCzk: true } },
+          },
+          orderBy: { term: { startsOn: "asc" } },
+        },
       },
       orderBy: [{ submittedAt: "desc" }, { number: "desc" }],
     })
     return rows.map((row) => ({
       ...row,
-      terms: row.terms.map(({ status, priceCzk, term }) => ({
+      terms: row.terms.map(({ status, priceCzk, term, payments }) => ({
         id: term.id,
+        termNumber: term.number,
         name: term.name,
         startsOn: term.startsOn,
         endsOn: term.endsOn,
         roomMode: term.roomMode,
         status,
         priceCzk,
+        payments,
       })),
     }))
   }

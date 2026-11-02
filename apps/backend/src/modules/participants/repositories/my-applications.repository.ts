@@ -6,8 +6,12 @@ import { Injectable } from "@nestjs/common"
 const include = {
   event: { select: { name: true } },
   organization: { select: { bankAccount: true } },
-  terms: { include: { term: true } },
-  payments: { where: { cancelledAt: null }, select: { amountCzk: true } },
+  terms: {
+    include: {
+      term: true,
+      payments: { where: { cancelledAt: null }, select: { amountCzk: true } },
+    },
+  },
 } as const
 
 type Row = Prisma.ApplicationGetPayload<{ include: typeof include }>
@@ -47,14 +51,15 @@ function toRecord(row: Row): MyApplicationRecord {
     lastName: row.lastName,
     eventName: row.event.name,
     bankAccount: row.organization.bankAccount,
-    terms: row.terms.map(({ term, status, priceCzk }) => ({
+    terms: row.terms.map(({ term, status, priceCzk, payments }) => ({
       termId: term.id,
+      termNumber: term.number,
       name: term.name,
       startsOn: term.startsOn,
       endsOn: term.endsOn,
       status,
       priceCzk,
+      payments,
     })),
-    payments: row.payments,
   }
 }

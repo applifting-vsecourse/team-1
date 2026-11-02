@@ -13,7 +13,12 @@ type StatusBody = {
     variableSymbol: string
     terms: { status: string }[]
     paymentStatus: string
-    payment: { amountCzk: number; bankAccount: string; variableSymbol: string } | null
+    payment: {
+      amountCzk: number
+      bankAccount: string
+      variableSymbol: string
+      terms: { termNumber: number; variableSymbol: string }[]
+    } | null
   }[]
 }
 
@@ -98,10 +103,16 @@ describe("submission status (integration)", () => {
     expect(response.status).toBe(200)
     expect(body.isNewAccount).toBe(true)
     expect(body.applications.map((a) => a.firstName)).toEqual(["Jana", "Matěj"])
-    expect(body.applications.map((a) => a.payment)).toEqual([
+    expect(body.applications.map((a) => a.payment)).toMatchObject([
       { amountCzk: 1000, bankAccount: "2900123456/2010", variableSymbol: expect.any(String) },
       { amountCzk: 3000, bankAccount: "2900123456/2010", variableSymbol: expect.any(String) },
     ])
+    // A symbol per confirmed term next to the summary one (US-137).
+    const [first] = body.applications
+    expect(first.payment?.terms).toHaveLength(1)
+    expect(first.payment?.terms[0].variableSymbol).toBe(
+      String(Number(first.variableSymbol) + first.payment!.terms[0].termNumber),
+    )
     // Every application pays under its own variable symbol; nothing is summed.
     const [jana, matej] = body.applications
     expect(jana.payment?.variableSymbol).toBe(jana.variableSymbol)

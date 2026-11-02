@@ -42,7 +42,13 @@ describe("application list API", () => {
 
   it("combines term, status, gender and payment without losing other terms", async () => {
     const source = await prisma.application.findFirstOrThrow({
-      where: { eventId, terms: { some: { status: "CONFIRMED" } }, payments: { none: {} } },
+      where: {
+        eventId,
+        AND: [
+          { terms: { some: { status: "CONFIRMED" } } },
+          { terms: { none: { payments: { some: {} } } } },
+        ],
+      },
       include: { terms: true },
     })
     const term = source.terms.find((term) => term.status === "CONFIRMED")!

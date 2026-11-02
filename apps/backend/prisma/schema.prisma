@@ -274,8 +274,7 @@ model Application {
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @default(now()) @updatedAt
 
-  terms    ApplicationTerm[]
-  payments Payment[]
+  terms ApplicationTerm[]
 
   @@index([organizationId])
   @@index([eventId, submittedAt])
@@ -298,6 +297,7 @@ model ApplicationTerm {
   evaluatedAt    DateTime              @default(now())
 
   statusChanges ApplicationTermStatusChange[]
+  payments      Payment[]
 
   @@unique([applicationId, termId])
   @@index([termId, status])
@@ -325,21 +325,24 @@ model ApplicationTermStatusChange {
   @@map("application_term_status_change")
 }
 
-// Manually recorded payment (US-44). Rows rather than a flag so a bank
-// statement import (US-42) can add more later.
+// Manually recorded payment (US-44) of one application in a term (US-137, D-051). Rows rather
+// than a flag so a bank statement import (US-42) can add more later. One receipt (money that
+// arrived at once) is one or more rows sharing `receiptId`; a refund is a negative row.
 model Payment {
-  id             String       @id @default(cuid())
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  organizationId String
-  application    Application  @relation(fields: [applicationId], references: [id], onDelete: Cascade)
-  applicationId  String
-  amountCzk      Int
-  recordedBy     User         @relation(fields: [recordedById], references: [id])
-  recordedById   String
-  createdAt      DateTime     @default(now())
-  cancelledAt    DateTime?
+  id                String           @id @default(cuid())
+  organization      Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId    String
+  applicationTerm   ApplicationTerm  @relation(fields: [applicationTermId], references: [id], onDelete: Cascade)
+  applicationTermId String
+  receiptId         String
+  amountCzk         Int
+  recordedBy        User             @relation(fields: [recordedById], references: [id])
+  recordedById      String
+  createdAt         DateTime         @default(now())
+  cancelledAt       DateTime?
 
   @@index([organizationId])
-  @@index([applicationId])
+  @@index([applicationTermId])
+  @@index([receiptId])
   @@map("payment")
 }

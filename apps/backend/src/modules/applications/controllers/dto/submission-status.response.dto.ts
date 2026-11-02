@@ -1,3 +1,7 @@
+import {
+  PaymentSummaryDto,
+  TermPaymentDetailDto,
+} from "@/modules/applications/controllers/dto/payment-details.dto"
 import { PaymentStatus } from "@/modules/applications/domain/pricing"
 import {
   ApplicationPayment,
@@ -33,11 +37,17 @@ export class ApplicationPaymentDto {
   @ApiProperty({ example: "2900123456/2010" })
   bankAccount!: string
 
-  @ApiProperty({ example: "0048", description: "Number of this application, four digits." })
+  @ApiProperty({ example: "48000", description: "Summary symbol of this application." })
   variableSymbol!: string
 
   @ApiProperty({ example: 6900, description: "Still to pay for this application, whole CZK." })
   amountCzk!: number
+
+  @ApiProperty({ type: PaymentSummaryDto })
+  summary!: PaymentSummaryDto
+
+  @ApiProperty({ type: [TermPaymentDetailDto], description: "Confirmed terms only." })
+  terms!: TermPaymentDetailDto[]
 }
 
 export class SubmittedApplicationDto {
@@ -50,7 +60,7 @@ export class SubmittedApplicationDto {
   @ApiProperty({ example: "LK-0048", description: "Reference for people." })
   code!: string
 
-  @ApiProperty({ example: "0048" })
+  @ApiProperty({ example: "48000", description: "Summary symbol of this application." })
   variableSymbol!: string
 
   @ApiProperty({ type: [SubmissionTermDto] })

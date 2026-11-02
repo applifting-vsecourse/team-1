@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger"
-import { IsInt, IsUUID, Max, Min, ValidateIf } from "class-validator"
+import { IsInt, IsOptional, IsString, IsUUID, Max, Min, ValidateIf } from "class-validator"
 
 export class RecordPaymentRequestDto {
   @ApiProperty({
@@ -18,4 +18,11 @@ export class RecordPaymentRequestDto {
   @Min(1)
   @Max(2147483647)
   amountCzk?: number
+
+  @ApiPropertyOptional({
+    description: "Term the payment is for. Omit to pay the summary of the application.",
+  })
+  @IsOptional()
+  @IsString()
+  termId?: string
 }

@@ -1,4 +1,5 @@
 // US-54: the participant sees only the applications of their own account.
+import { randomUUID } from "node:crypto"
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { api, connectTestPrisma, resetAndSeed, signIn } from "@/test/integration/test-api"
 
@@ -48,7 +49,7 @@ describe("participant applications (integration)", () => {
           updatedAt: new Date(),
         },
       }))
-    return prisma.application.create({
+    const application = await prisma.application.create({
       data: {
         organizationId: event.organizationId,
         eventId: event.id,
@@ -68,15 +69,20 @@ describe("participant applications (integration)", () => {
             priceCzk: term.priceCzk,
           })),
         },
-        payments: {
-          create: payments.map((amountCzk) => ({
-            organizationId: event.organizationId,
-            amountCzk,
-            recordedById: organizer.id,
-          })),
-        },
       },
+      include: { terms: true },
     })
+    // Each amount is a receipt on the first term; the application summary adds them up.
+    await prisma.payment.createMany({
+      data: payments.map((amountCzk) => ({
+        organizationId: event.organizationId,
+        applicationTermId: application.terms[0].id,
+        receiptId: randomUUID(),
+        amountCzk,
+        recordedById: organizer.id,
+      })),
+    })
+    return application
   }
 
   beforeAll(async () => {
@@ -124,9 +130,10 @@ describe("participant applications (integration)", () => {
       amountOwedCzk: 0,
       paymentStatus: "PAID",
     })
-    expect(camp.paymentDetails).toEqual({
+    expect(camp.paymentDetails).toMatchObject({
       bankAccount: "2900123456/2010",
       variableSymbol: camp.variableSymbol,
+      summary: { variableSymbol: camp.variableSymbol, payableCzk: 0 },
     })
   })
 

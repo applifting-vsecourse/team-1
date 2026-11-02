@@ -1,8 +1,12 @@
 import { ApplicationTermStatus } from "@/modules/applications/domain/evaluation"
 import {
-  computeAmountDue,
+  buildPaymentDetails,
+  computeApplicationDue,
+  computeApplicationPaid,
+  PaymentDetails as TermPaymentDetails,
+} from "@/modules/applications/domain/payment-details"
+import {
   computeAmountOwed,
-  computeAmountPaid,
   computePaymentStatus,
   PaymentStatus,
 } from "@/modules/applications/domain/pricing"
@@ -21,14 +25,17 @@ export type MyApplicationRecord = {
   bankAccount: string
   terms: {
     termId: string
+    /** `Term.number`, part of the term's variable symbol. */
+    termNumber: number
     name: string
     startsOn: Date
     endsOn: Date
     status: ApplicationTermStatus
     /** Price frozen at evaluation. */
     priceCzk: number
+    /** Non-cancelled payment rows of this application in this term. */
+    payments: { amountCzk: number }[]
   }[]
-  payments: { amountCzk: number }[]
 }
 
 export type MyApplicationTerm = {
@@ -44,7 +51,10 @@ export type MyApplicationTerm = {
 /** Where and how much to pay — only when at least one term is confirmed (US-25). */
 export type PaymentDetails = {
   bankAccount: string
+  /** Summary symbol `…000` of the application. */
   variableSymbol: string
+  summary: TermPaymentDetails["summary"]
+  terms: TermPaymentDetails["terms"]
 }
 
 export type MyApplication = {
@@ -54,7 +64,7 @@ export type MyApplication = {
   lastName: string
   /** Reference for people: initials of the event and the number, "LKL-0048". */
   code: string
-  /** The number as the variable symbol, four digits: 48 → "0048". */
+  /** The summary variable symbol: application number × 1000, 48 → "48000". */
   variableSymbol: string
   terms: MyApplicationTerm[]
   amountDueCzk: number
@@ -90,9 +100,10 @@ const toIsoDate = (date: Date): string => date.toISOString().slice(0, 10)
  * their place in line.
  */
 export function buildMyApplication(record: MyApplicationRecord): MyApplication {
-  const amountDueCzk = computeAmountDue(record.terms)
-  const amountPaidCzk = computeAmountPaid(record.payments)
+  const amountDueCzk = computeApplicationDue(record.terms)
+  const amountPaidCzk = computeApplicationPaid(record.terms)
   const variableSymbol = toVariableSymbol(record.number)
+  const details = buildPaymentDetails(record.number, record.bankAccount, record.terms)
 
   return {
     id: record.id,
@@ -116,8 +127,13 @@ export function buildMyApplication(record: MyApplicationRecord): MyApplication {
     amountOwedCzk: computeAmountOwed(amountDueCzk, amountPaidCzk),
     paymentStatus: computePaymentStatus(amountDueCzk, amountPaidCzk),
     // All terms waitlisted: nothing to pay yet, so no payment details (US-25).
-    paymentDetails: record.terms.some((term) => term.status === "CONFIRMED")
-      ? { bankAccount: record.bankAccount, variableSymbol }
+    paymentDetails: details
+      ? {
+          bankAccount: details.bankAccount,
+          variableSymbol,
+          summary: details.summary,
+          terms: details.terms,
+        }
       : null,
   }
 }
