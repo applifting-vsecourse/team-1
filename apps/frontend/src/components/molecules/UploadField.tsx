@@ -1,4 +1,5 @@
 import { useRef } from "react"
+import { Trash2 } from "lucide-react"
 
 import { LogoSymbol } from "@/components/atoms/Logo"
 import { Button } from "@/components/ui/button"
@@ -84,12 +85,12 @@ export function UploadField({
         {onRemove && removeLabel ? (
           <Button
             type="button"
-            variant="ghost"
-            size="lg"
-            className="w-full text-destructive hover:text-destructive"
+            variant="outline"
+            className="border-destructive/30 text-destructive hover:border-destructive/50 hover:bg-destructive/10 hover:text-destructive"
             disabled={isDisabled}
             onClick={onRemove}
           >
+            <Trash2 aria-hidden="true" />
             {removeLabel}
           </Button>
         ) : null}

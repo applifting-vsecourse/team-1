@@ -339,7 +339,7 @@ describe("PublicPageForm", () => {
     renderForm()
     await open(userEvent.setup())
 
-    expect(screen.getByText("Maximum size 2 MB.")).toBeInTheDocument()
+    expect(screen.getByText("JPG, JPEG or PNG, up to 2 MB.")).toBeInTheDocument()
     expect(screen.queryByRole("button", { name: "Remove photo" })).not.toBeInTheDocument()
   })
 
