@@ -17,10 +17,12 @@ import {
   Patch,
   Post,
   Put,
+  Res,
   UsePipes,
   ValidationPipe,
 } from "@nestjs/common"
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
+import { Response } from "express"
 
 const decodeFileName = (value: string | undefined): string | undefined => {
   try {
@@ -106,6 +108,22 @@ export class OrganizerEventsController {
     return OrganizerEventResponseDto.fromDomain(
       await this.events.savePhoto(user, eventId, body, decodeFileName(encodedFileName)),
     )
+  }
+
+  @Get(":eventId/photo")
+  @ApiOperation({
+    summary: "The photo of the public page, for the preview in the organizer's form",
+  })
+  @ApiResponse({ status: 200, description: "The image." })
+  @ApiResponse({ status: 404, description: "No photo yet." })
+  @ApiResponse({ status: 403, description: "Unknown event or of another organization." })
+  async getPhoto(
+    @User() user: Identity,
+    @Param("eventId") eventId: string,
+    @Res() res: Response,
+  ): Promise<void> {
+    const photo = await this.events.getPhoto(user, eventId)
+    res.type(photo.contentType).send(Buffer.from(photo.data))
   }
 
   @Patch(":eventId/evaluation-mode")

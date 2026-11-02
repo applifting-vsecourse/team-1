@@ -3,6 +3,7 @@ import {
   detectPhotoType,
   MAX_PHOTO_BYTES,
   missingForCatalog,
+  PHONE_PATTERN,
   photoProblem,
 } from "@/modules/events/domain/public-page"
 
@@ -57,5 +58,15 @@ describe("cleanFileName", () => {
   it("falls back to a name by the type", () => {
     expect(cleanFileName(undefined, "image/png")).toBe("photo.png")
     expect(cleanFileName("", "image/jpeg")).toBe("photo.jpg")
+  })
+})
+
+describe("PHONE_PATTERN", () => {
+  it.each(["+420 777 000 001", "777000001", "02 1234-5678"])("accepts %s", (phone) => {
+    expect(PHONE_PATTERN.test(phone)).toBe(true)
+  })
+
+  it.each(["abc", "12", "+420 777 000 00x", "++420777000001"])("rejects %s", (phone) => {
+    expect(PHONE_PATTERN.test(phone)).toBe(false)
   })
 })

@@ -121,6 +121,16 @@ export class EventsService {
     return this.get(user, eventId)
   }
 
+  async getPhoto(
+    user: Identity,
+    eventId: string,
+  ): Promise<{ contentType: string; data: Uint8Array }> {
+    await this.organizationAccess.assertCanAccessEvent(user, eventId)
+    const photo = await this.repository.findPhoto(eventId)
+    if (!photo) throw new AppException(HttpStatus.NOT_FOUND, "NOT_FOUND")
+    return photo
+  }
+
   /** Only an event nobody has applied to can be deleted (issue #153); otherwise 409. */
   async delete(user: Identity, eventId: string): Promise<void> {
     await this.organizationAccess.assertCanAccessEvent(user, eventId)

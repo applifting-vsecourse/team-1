@@ -113,6 +113,13 @@ export class EventsRepository {
     })
   }
 
+  async findPhoto(eventId: string): Promise<{ contentType: string; data: Uint8Array } | null> {
+    return this.prisma.eventPhoto.findUnique({
+      where: { eventId },
+      select: { contentType: true, data: true },
+    })
+  }
+
   /**
    * Deletes the event with its terms and rooms, but only while it has no application;
    * the condition is part of the delete, so an application arriving meanwhile wins.

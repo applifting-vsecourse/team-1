@@ -1,19 +1,16 @@
 import { useRef } from "react"
-import { TriangleAlert } from "lucide-react"
 
 import { LogoSymbol } from "@/components/atoms/Logo"
 import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
 
 type UploadFieldProps = {
-  /** `done` shows the finished ring, `error` the red frame and alert icon. */
-  state: "idle" | "done" | "error"
   title: string
   description: string
   buttonLabel: string
-  /** Text inside the ring of the `done` state, e.g. `100 %` and `Hotovo`. */
-  ringValue?: string
-  ringLabel?: string
+  /** The chosen image; shown above the title once there is one. */
+  previewUrl?: string | null
+  /** What went wrong with the last file, under the frame. */
+  error?: string | null
   /** `accept` of the file input, e.g. `image/jpeg,image/png`. */
   accept: string
   /** The picker stays closed while a file is being sent. */
@@ -22,17 +19,16 @@ type UploadFieldProps = {
 }
 
 /**
- * One action, „choose a file“: a dashed frame with the state above the button. No progress bar —
- * the finished state shows the ring with the corners of the logo.
+ * One action, „choose a file“: a dashed frame with the logo or the chosen image, a title, a hint
+ * and the button. No progress bar; an error is a line of text under the frame.
  */
 // Figma (Design system): Togena / Upload · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15207-1978
 export function UploadField({
-  state,
   title,
   description,
   buttonLabel,
-  ringValue,
-  ringLabel,
+  previewUrl,
+  error,
   accept,
   isDisabled = false,
   onSelect,
@@ -40,82 +36,52 @@ export function UploadField({
   const input = useRef<HTMLInputElement>(null)
 
   return (
-    <div
-      className={cn(
-        "flex flex-col items-center gap-3 rounded-lg border border-dashed p-6 text-center",
-        state === "error" ? "border-solid border-destructive" : "border-border",
-      )}
-    >
-      {state === "done" ? (
-        <CornerRing
-          value={ringValue}
-          label={ringLabel}
+    <div className="flex flex-col gap-2">
+      <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed border-border p-6 text-center">
+        {previewUrl ? (
+          <img
+            src={previewUrl}
+            alt=""
+            className="max-h-48 w-full rounded-md object-cover"
+          />
+        ) : (
+          <LogoSymbol className="size-13 text-primary" />
+        )}
+        <p className="text-lg font-semibold">{title}</p>
+        <p className="text-muted-foreground">{description}</p>
+        <input
+          ref={input}
+          type="file"
+          accept={accept}
+          className="hidden"
+          data-testid="upload-input"
+          tabIndex={-1}
+          onChange={(event) => {
+            const file = event.target.files?.[0]
+            // The same file may be chosen again after an error.
+            event.target.value = ""
+            if (file) onSelect(file)
+          }}
         />
-      ) : state === "error" ? (
-        <TriangleAlert
-          aria-hidden="true"
-          className="size-13 text-destructive"
-          strokeWidth={1.8}
-        />
-      ) : (
-        <LogoSymbol className="size-13 text-primary" />
-      )}
-      <p className={cn("text-xl font-semibold", state === "error" && "text-destructive")}>
-        {title}
-      </p>
-      <p className="text-muted-foreground">{description}</p>
-      <input
-        ref={input}
-        type="file"
-        accept={accept}
-        className="hidden"
-        data-testid="upload-input"
-        tabIndex={-1}
-        onChange={(event) => {
-          const file = event.target.files?.[0]
-          // The same file may be chosen again after an error.
-          event.target.value = ""
-          if (file) onSelect(file)
-        }}
-      />
-      <Button
-        type="button"
-        variant="outline"
-        size="lg"
-        className="w-full"
-        disabled={isDisabled}
-        onClick={() => input.current?.click()}
-      >
-        {buttonLabel}
-      </Button>
-    </div>
-  )
-}
-
-function CornerRing({ value, label }: { value?: string; label?: string }) {
-  return (
-    <div className="relative flex size-41 flex-col items-center justify-center text-sm text-primary">
-      <svg
-        aria-hidden="true"
-        viewBox="0 0 165 165"
-        fill="none"
-        className="absolute inset-0 size-full"
-      >
-        <path
-          d="M30 100V60c0-17 13-30 30-30h50"
-          stroke="currentColor"
-          strokeWidth="6"
-          strokeLinecap="round"
-        />
-        <path
-          d="M135 65v40c0 17-13 30-30 30H55"
-          stroke="currentColor"
-          strokeWidth="6"
-          strokeLinecap="round"
-        />
-      </svg>
-      <span>{value}</span>
-      <span className="text-base text-muted-foreground">{label}</span>
+        <Button
+          type="button"
+          variant="outline"
+          size="lg"
+          className="w-full"
+          disabled={isDisabled}
+          onClick={() => input.current?.click()}
+        >
+          {buttonLabel}
+        </Button>
+      </div>
+      {error ? (
+        <p
+          role="alert"
+          className="text-sm text-destructive"
+        >
+          {error}
+        </p>
+      ) : null}
     </div>
   )
 }

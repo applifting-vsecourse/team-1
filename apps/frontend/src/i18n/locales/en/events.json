@@ -112,6 +112,12 @@
     "contactEmail": "Contact e-mail",
     "contactPhone": "Contact phone",
     "description": "Description",
+    "errors": {
+      "emailInvalid": "Enter a valid e-mail address.",
+      "nameRequired": "Enter the event name.",
+      "phoneInvalid": "Enter a valid phone number, e.g. +420 777 000 001.",
+      "requiredForCatalog": "Fill this in before listing the event in the catalog."
+    },
     "location": "Venue",
     "name": "Event name",
     "photoTitle": "Event photo",
@@ -127,11 +133,10 @@
     "upload": {
       "button": "Choose photo",
       "doneTitle": "Photo uploaded",
-      "errorTitle": "The photo could not be uploaded",
-      "hint": "Choose a photo in JPG or PNG format.",
+      "hint": "Choose a photo in JPG, JPEG or PNG format.",
       "idleTitle": "Add an event photo",
-      "ringLabel": "Done",
-      "ringValue": "100 %"
+      "invalidType": "The photo has to be a JPG, JPEG or PNG image.",
+      "tooLarge": "The photo is too large. Choose a photo up to 2 MB."
     }
   },
   "rooms": {

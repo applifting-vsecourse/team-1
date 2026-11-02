@@ -137,6 +137,25 @@ export async function uploadEventPhoto(eventId: string, file: File): Promise<Org
   )
 }
 
+export const eventPhotoKey = (eventId: string) => [...eventKeys.detail(eventId), "photo"] as const
+
+/** `GET /api/organizer/events/:eventId/photo` — the image for the preview in the form. */
+export const eventPhotoQueryOptions = (eventId: string, isEnabled: boolean) =>
+  queryOptions({
+    queryKey: eventPhotoKey(eventId),
+    // A data URL, so the preview needs no object URL to release.
+    queryFn: async (): Promise<string> => {
+      const blob = await api.get(`organizer/events/${encodeURIComponent(eventId)}/photo`).blob()
+      const bytes = new Uint8Array(await blob.arrayBuffer())
+      let binary = ""
+      for (let i = 0; i < bytes.length; i += 0x8000) {
+        binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000))
+      }
+      return `data:${blob.type};base64,${btoa(binary)}`
+    },
+    enabled: isEnabled,
+  })
+
 /** The photo limits the server enforces, checked here too so a bad file fails at once. */
 export const EVENT_PHOTO = {
   maxBytes: 2 * 1024 * 1024,

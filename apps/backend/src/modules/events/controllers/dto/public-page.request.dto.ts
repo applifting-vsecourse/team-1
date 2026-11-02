@@ -1,9 +1,11 @@
+import { PHONE_PATTERN } from "@/modules/events/domain/public-page"
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger"
 import {
   IsBoolean,
   IsEmail,
   IsOptional,
   IsString,
+  Matches,
   MaxLength,
   MinLength,
   ValidateIf,
@@ -35,9 +37,8 @@ export class PublicPageRequestDto {
   contactEmail?: string | null
 
   @ApiPropertyOptional({ nullable: true, example: "+420 000 000 000" })
-  @IsOptional()
-  @IsString()
-  @MaxLength(50)
+  @ValidateIf((_, value) => value !== undefined && value !== null && value !== "")
+  @Matches(PHONE_PATTERN)
   contactPhone?: string | null
 
   @ApiProperty({ description: "List the event in the public catalog (US-123)." })

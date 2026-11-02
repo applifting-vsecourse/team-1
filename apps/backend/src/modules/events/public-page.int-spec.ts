@@ -117,6 +117,23 @@ describe("public page of an event (integration)", () => {
     expect((await getEvent(cookieA, eventId)).publishedInCatalog).toBe(false)
   })
 
+  it("has no photo to serve before one is uploaded", async () => {
+    const response = await fetch(api(`/organizer/events/${eventId}/photo`), {
+      headers: { Cookie: cookieA },
+    })
+
+    expect(response.status).toBe(404)
+  })
+
+  it("refuses an invalid phone number", async () => {
+    expect((await putPage(cookieA, eventId, { ...FULL_PAGE, contactPhone: "abc" })).status).toBe(
+      400,
+    )
+    expect(
+      (await putPage(cookieA, eventId, { ...FULL_PAGE, contactPhone: "+420 777 000 001" })).status,
+    ).toBe(200)
+  })
+
   it("refuses an invalid e-mail and a missing name", async () => {
     expect((await putPage(cookieA, eventId, { ...FULL_PAGE, contactEmail: "nope" })).status).toBe(
       400,
@@ -131,6 +148,10 @@ describe("public page of an event (integration)", () => {
 
     expect((await putPage(cookieB, eventId, FULL_PAGE)).status).toBe(403)
     expect((await putPhoto(cookieB, eventId, PNG)).status).toBe(403)
+    const photo = await fetch(api(`/organizer/events/${eventId}/photo`), {
+      headers: { Cookie: cookieB },
+    })
+    expect(photo.status).toBe(403)
     expect((await getEvent(cookieA, eventId)).publishedInCatalog).toBe(false)
   })
 
@@ -142,6 +163,11 @@ describe("public page of an event (integration)", () => {
     const stored = await prisma.eventPhoto.findUniqueOrThrow({ where: { eventId } })
     expect(stored.contentType).toBe("image/png")
     expect(Buffer.from(stored.data)).toEqual(PNG)
+    const image = await fetch(api(`/organizer/events/${eventId}/photo`), {
+      headers: { Cookie: cookieA },
+    })
+    expect(image.headers.get("content-type")).toContain("image/png")
+    expect(Buffer.from(await image.arrayBuffer())).toEqual(PNG)
   })
 
   it("rejects a photo of the wrong type, even one sent as an image", async () => {

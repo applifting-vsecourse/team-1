@@ -112,6 +112,12 @@
     "contactEmail": "Kontaktní e-mail",
     "contactPhone": "Kontaktní telefon",
     "description": "Popis",
+    "errors": {
+      "emailInvalid": "Zadej platný e-mail.",
+      "nameRequired": "Zadej název akce.",
+      "phoneInvalid": "Zadej platné telefonní číslo, např. +420 777 000 001.",
+      "requiredForCatalog": "Před zveřejněním v katalogu toto pole vyplň."
+    },
     "location": "Místo konání",
     "name": "Název akce",
     "photoTitle": "Fotografie akce",
@@ -127,11 +133,10 @@
     "upload": {
       "button": "Vybrat fotografii",
       "doneTitle": "Fotografie je nahraná",
-      "errorTitle": "Fotografii se nepodařilo nahrát",
-      "hint": "Vyber fotografii ve formátu JPG nebo PNG.",
+      "hint": "Vyber fotografii ve formátu JPG, JPEG nebo PNG.",
       "idleTitle": "Přidej fotografii akce",
-      "ringLabel": "Hotovo",
-      "ringValue": "100 %"
+      "invalidType": "Fotografie musí být ve formátu JPG, JPEG nebo PNG.",
+      "tooLarge": "Fotografie je příliš velká. Vyber fotografii do 2 MB."
     }
   },
   "rooms": {

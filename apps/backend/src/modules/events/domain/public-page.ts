@@ -8,6 +8,9 @@ export type PublicPageInput = {
   publishedInCatalog: boolean
 }
 
+/** A phone number: optional `+`, digits with spaces, dashes or brackets, 9–20 characters. */
+export const PHONE_PATTERN = /^\+?[0-9][0-9 ()-]{7,18}[0-9]$/
+
 /** Fields the catalog needs before an event may be listed there (decision on #215). */
 export type MissingForCatalog = "DESCRIPTION" | "LOCATION" | "CONTACT_EMAIL"
 
