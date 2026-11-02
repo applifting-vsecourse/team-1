@@ -2020,6 +2020,9 @@ otazky:
   - popis: 'komentář PM v #215'
     url: https://github.com/applifting-vsecourse/team-1/issues/215#issuecomment-6581262940
     citace: „Zatím vždy vidět. Víc se zeptáme PO.“
+  navazne_tickety:
+  - label: volitelnost zobrazení polí při zveřejnění akce
+    url: https://github.com/applifting-vsecourse/team-1/issues/267
 - id: Q-NAS-16
   otazka: Má být pole „Název akce“ upravitelné ve formuláři „Veřejné údaje“ (jeden zdroj s názvem akce), nebo se z formuláře vyndá?
   epic: nastavení akce
@@ -2049,4 +2052,7 @@ otazky:
   - popis: 'komentář PM v #216'
     url: https://github.com/applifting-vsecourse/team-1/issues/216#issuecomment-6585291926
     citace: „veřejně kapacitu nikde zatím nezveřejňujeme“
+  navazne_tickety:
+  - label: volitelnost zobrazení polí při zveřejnění akce
+    url: https://github.com/applifting-vsecourse/team-1/issues/267
   poznamka: 'Souvisí s kritériem US-22 „Při plné kapacitě termínu je u něj uvedeno, že přihláška bude na seznam náhradníků“ a se stavem „Přihlašování otevřené“ u plné akce v katalogu.'

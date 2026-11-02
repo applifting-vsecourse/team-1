@@ -734,6 +734,7 @@ _Nic._
 - **Zdroje:**
   - [komentář PM v #215](https://github.com/applifting-vsecourse/team-1/issues/215#issuecomment-6581262940): „Zatím vždy vidět. Víc se zeptáme PO.“
 - **Priorita:** P3 – Zatím platí „vždy vidět“ (D-093); nic neblokuje.
+- **Navazující ticket:** [volitelnost zobrazení polí při zveřejnění akce](https://github.com/applifting-vsecourse/team-1/issues/267)
 
 <a id="q-nas-16"></a>
 
@@ -753,6 +754,7 @@ _Nic._
 - **Zdroje:**
   - [komentář PM v #216](https://github.com/applifting-vsecourse/team-1/issues/216#issuecomment-6585291926): „veřejně kapacitu nikde zatím nezveřejňujeme“
 - **Priorita:** P3 – Zatím platí D-094 (kapacita se nezveřejňuje); nic neblokuje.
+- **Navazující ticket:** [volitelnost zobrazení polí při zveřejnění akce](https://github.com/applifting-vsecourse/team-1/issues/267)
 
 <a id="q-pla-01"></a>
 
