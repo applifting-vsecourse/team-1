@@ -1829,9 +1829,6 @@ otazky:
   zdroje:
   - popis: 'PR #236'
     url: https://github.com/applifting-vsecourse/team-1/pull/236
-  navazne_tickety:
-  - label: zjistit od PO detaily rušení náhradníků; případně enhancement
-    url: null
   rozhodnuti_ref: D-064
 - id: Q-PRI-21
   otazka: Co se stane s náhradníky (a ostatními přihláškami) ve zrušeném termínu akce?
@@ -2056,3 +2053,16 @@ otazky:
   - label: volitelnost zobrazení polí při zveřejnění akce
     url: https://github.com/applifting-vsecourse/team-1/issues/267
   poznamka: 'Souvisí s kritériem US-22 „Při plné kapacitě termínu je u něj uvedeno, že přihláška bude na seznam náhradníků“ a se stavem „Přihlašování otevřené“ u plné akce v katalogu.'
+- id: Q-NAS-18
+  otazka: Má sdílená veřejná hlavička dostat tlačítko „Přihlásit se“, jak ho kreslí rámce katalogu? Netýká se jen katalogu, ale i landingu a formuláře přihlášky.
+  epic: platforma
+  us:
+  - label: US-138 (#264)
+    url: https://github.com/applifting-vsecourse/team-1/issues/264
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: Rámce katalogu hlavičku s tlačítkem kreslí, kód ne; nic neblokuje.
+  ceka_na: design
+  zdroje:
+  - popis: 'ticket #264, otevřená otázka'
+    url: https://github.com/applifting-vsecourse/team-1/issues/264

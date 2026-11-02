@@ -2,7 +2,7 @@
 
 > Generováno z [`otazky.yaml`](otazky.yaml) (`python generate.py`). Needituj, měň YAML.
 
-**101 neuzavřených** otázek, **20 uzavřených**.
+**102 neuzavřených** otázek, **20 uzavřených**.
 
 ## Role
 
@@ -57,12 +57,13 @@
 | [Q-TEC-06](#q-tec-06) | Připojit Figma konektor a převzít tokeny do `global.css`. | – | P3 | Otevřený bod v PROJEKT.md §12; vlastník je tech lead. |
 | [Q-TEC-07](#q-tec-07) | Dopad zneplatnění magic linků na E2E (`magic-link.spec.ts`, `set-password.spec.ts`) a zápis pravidla do PROJEKT.md. | [#127](https://github.com/applifting-vsecourse/team-1/issues/127) | P3 | Navazuje na #127; technická část, nejde o rozhodnutí PM. |
 
-### `design` (Kuba): 2
+### `design` (Kuba): 3
 
 | ID | Otázka | Dotčené US | Priorita | Proč |
 | --- | --- | --- | --- | --- |
 | [Q-NAS-10](#q-nas-10) | Chybí mobilní rámec (360 px) pořadníku ve Figmě. Kdo ho dodá? | [US-30](https://github.com/applifting-vsecourse/team-1/issues/30) | P2 | Mobil staví na existující kartě seznamu přihlášek bez vlastního rámce. |
 | [Q-NAS-14](#q-nas-14) | Která sada textů nastavení režimu platí: desktopový, nebo mobilní rámec (jiné podnadpisy, nápověda, tlačítko)? | [US-101 (#194)](https://github.com/applifting-vsecourse/team-1/issues/194) | P3 | Rámce se v textech liší; PR #238 použilo desktopové pro obě šířky. |
+| [Q-NAS-18](#q-nas-18) | Má sdílená veřejná hlavička dostat tlačítko „Přihlásit se“, jak ho kreslí rámce katalogu? Netýká se jen katalogu, ale i landingu a formuláře přihlášky. | [US-138 (#264)](https://github.com/applifting-vsecourse/team-1/issues/264) | P3 | Rámce katalogu hlavičku s tlačítkem kreslí, kód ne; nic neblokuje. |
 
 ### `qa` (Petr): 0
 
@@ -137,9 +138,7 @@ _Nic._
 
 ## Tickety k založení
 
-| Z otázky | Ticket |
-| --- | --- |
-| [Q-PRI-20](#q-pri-20) | zjistit od PO detaily rušení náhradníků; případně enhancement |
+_Nic._
 
 ## Podle epiců
 
@@ -231,6 +230,7 @@ _Nic._
 | ID | Otázka | Dotčené US | Stav | Priorita | Čeká na |
 | --- | --- | --- | --- | --- | --- |
 | [Q-PLT-02](#q-plt-02) | Kdy reálně přijde druhá organizace? Chcete nové organizace schvalovat? | [US-69](https://github.com/applifting-vsecourse/team-1/issues/69) | otevřeno | P2 | `po` |
+| [Q-NAS-18](#q-nas-18) | Má sdílená veřejná hlavička dostat tlačítko „Přihlásit se“, jak ho kreslí rámce katalogu? Netýká se jen katalogu, ale i landingu a formuláře přihlášky. | [US-138 (#264)](https://github.com/applifting-vsecourse/team-1/issues/264) | otevřeno | P3 | `design` |
 | [Q-PLT-01](#q-plt-01) | Které části má mít každá akce vždy (přihláška, platby) a které si má organizátor zapínat podle potřeby? | [US-20](https://github.com/applifting-vsecourse/team-1/issues/20) | otevřeno | P3 | `po` |
 | [Q-PLT-03](#q-plt-03) | Je v pořádku, že první ročník běží bez účtování, nebo je to nutnost? | [US-70](https://github.com/applifting-vsecourse/team-1/issues/70) | otevřeno | P3 | `po` |
 | [Q-PLT-06](#q-plt-06) | Kdo je smluvní stranou vůči přihlašovateli: organizace, nebo provozovatel Togeny? (Souvisí s otázkou správce údajů v #164.) | [US-98](https://github.com/applifting-vsecourse/team-1/issues/167) | otevřeno | P3 | `po` |
@@ -755,6 +755,15 @@ _Nic._
   - [komentář PM v #216](https://github.com/applifting-vsecourse/team-1/issues/216#issuecomment-6585291926): „veřejně kapacitu nikde zatím nezveřejňujeme“
 - **Priorita:** P3 – Zatím platí D-094 (kapacita se nezveřejňuje); nic neblokuje.
 - **Navazující ticket:** [volitelnost zobrazení polí při zveřejnění akce](https://github.com/applifting-vsecourse/team-1/issues/267)
+
+<a id="q-nas-18"></a>
+
+### Q-NAS-18 – Má sdílená veřejná hlavička dostat tlačítko „Přihlásit se“, jak ho kreslí rámce katalogu? Netýká se jen katalogu, ale i landingu a formuláře přihlášky.
+
+- **Epic:** platforma · **Dotčené US:** [US-138 (#264)](https://github.com/applifting-vsecourse/team-1/issues/264) · **Stav:** otevřeno · **Čeká na:** `design`
+- **Zdroje:**
+  - [ticket #264, otevřená otázka](https://github.com/applifting-vsecourse/team-1/issues/264)
+- **Priorita:** P3 – Rámce katalogu hlavičku s tlačítkem kreslí, kód ne; nic neblokuje.
 
 <a id="q-pla-01"></a>
 
@@ -1287,7 +1296,6 @@ _Nic._
   - [PR #236](https://github.com/applifting-vsecourse/team-1/pull/236)
 - **Priorita:** P2 – Dokumenty časové pásmo neuvádějí; implementace používá půlnoc Europe/Prague.
 - **Rozhodnutí:** [D-064](../rozhodnuti/README.md#d-064): Zatím půlnoc českého času; platforma zatím není mezinárodní. Detaily procesu zjistí PM od PO, případně vznikne ticket enhancement.
-- **Navazující ticket:** zjistit od PO detaily rušení náhradníků; případně enhancement (k založení)
 
 <a id="q-pri-21"></a>
 
