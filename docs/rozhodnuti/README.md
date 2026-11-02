@@ -2,7 +2,7 @@
 
 > Generováno z [`rozhodnuti.yaml`](rozhodnuti.yaml) (`python generate.py`). Needituj, měň YAML.
 
-**88 platných**, 0 návrhů, 3 nahrazených nebo zrušených.
+**92 platných**, 0 návrhů, 3 nahrazených nebo zrušených.
 
 ## Návrhy čekající na PM
 
@@ -20,6 +20,9 @@ _Nic._
 | [D-087](#d-087) | Souhrnná platba se rozděluje od nejstaršího termínu | `docs/SLOVNIK.md` | pojmy Souhrn přihlášky a Příjem; pravidlo rozdělení |
 | [D-088](#d-088) | Platba na VS bez dluhu je přeplatek přihlášky v termínu | `docs/SLOVNIK.md` | Přeplatek patří přihlášce v termínu |
 | [D-089](#d-089) | Příjem = řádky `Payment` po přihlášce v termínu se společným `receiptId` | `docs/PROJEKT.md` | datový model: Payment.applicationTermId, Payment.receiptId; API plateb s volitelným termId |
+| [D-092](#d-092) | Popis, místo a kontakt jsou povinné jen pro zveřejnění v katalogu | `docs/PROJEKT.md` | veřejná stránka akce: povinnost polí jen pro zveřejnění v katalogu |
+| [D-093](#d-093) | Termíny a ceny jsou na veřejné stránce akce zatím vždy vidět | `docs/PROJEKT.md` | veřejná stránka akce: termíny a ceny vždy viditelné (dočasně) |
+| [D-094](#d-094) | Obsazenost a kapacita se veřejně nezveřejňují | `docs/PROJEKT.md` | katalog akcí: obsazenost a kapacita nejsou veřejné |
 
 ## Změny dřívějších rozhodnutí
 
@@ -63,6 +66,8 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-093](#d-093) | Termíny a ceny jsou na veřejné stránce akce zatím vždy vidět | 2026-11-02 | `pm` | produkt |
+| [D-092](#d-092) | Popis, místo a kontakt jsou povinné jen pro zveřejnění v katalogu | 2026-11-02 | `pm` | produkt |
 | [D-083](#d-083) | Režim vyhodnocování lze měnit, dokud je počet přijatých přihlášek 0 | 2026-10-31 | `pm` | produkt |
 | [D-082](#d-082) | Pozastavení přihlášek platí pro akci, důvod účastník nevidí, nová přihláška skončí chybou | 2026-10-31 | `pm` | produkt |
 | [D-081](#d-081) | Plánované spuštění přihlášek platí pro akci, v čase Europe/Prague, lze zrušit do spuštění | 2026-10-31 | `pm` | produkt |
@@ -95,6 +100,8 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-095](#d-095) | Odkaz na katalog z landingu je samostatná story | 2026-11-02 | `pm` | produkt |
+| [D-094](#d-094) | Obsazenost a kapacita se veřejně nezveřejňují | 2026-11-02 | `pm` | produkt |
 | [D-005](#d-005) | Produkt se jmenuje Togena | 2026-10-16 | `tech-lead` | produkt |
 
 ### přehledy
@@ -1159,3 +1166,50 @@ _Nic._
 - **Dotčené US:** [US-137](https://github.com/applifting-vsecourse/team-1/issues/174)
 - **Zdroj:** [ticket US-137 (#174), rozhodnutí PM v konverzaci 2026-11-01](https://github.com/applifting-vsecourse/team-1/issues/174)
 - **Poznámka:** Zpřesňuje zápis z 26. 10. (po odeslání za více účastníků je nahoře součet k úhradě). Ticket k založení.
+
+<a id="d-092"></a>
+
+### D-092 – Popis, místo a kontakt jsou povinné jen pro zveřejnění v katalogu
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** nastavení akce
+- **Datum:** 2026-11-02 · **Rozhodl:** `pm`
+- **Text:** Veřejná stránka akce: popis, místo a kontakt (e-mail) jsou povinné jen v okamžiku, kdy organizátor akci zveřejňuje v katalogu. Bez zveřejnění je lze nechat prázdné.
+- **Dotčené US:** [US-122](https://github.com/applifting-vsecourse/team-1/issues/215)
+- **Zdroj:** [ticket US-122 (#215), odpověď PM bod 1](https://github.com/applifting-vsecourse/team-1/issues/215#issuecomment-6581262940)
+- **Dokumentace:** `docs/PROJEKT.md`: ceka, veřejná stránka akce: povinnost polí jen pro zveřejnění v katalogu
+- **Poznámka:** Souvisí s Q-NAS-05 (seznam polí veřejné stránky); ta zůstává otevřená do odsouhlasení celého seznamu polí.
+
+<a id="d-093"></a>
+
+### D-093 – Termíny a ceny jsou na veřejné stránce akce zatím vždy vidět
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** nastavení akce
+- **Datum:** 2026-11-02 · **Rozhodl:** `pm`
+- **Text:** Termíny a ceny na veřejné stránce akce se zatím zobrazují vždy, organizátor je nemůže skrýt. Další upřesnění se zeptáme PO (Q-NAS-15).
+- **Dotčené US:** [US-122](https://github.com/applifting-vsecourse/team-1/issues/215)
+- **Zdroj:** [ticket US-122 (#215), odpověď PM bod 2](https://github.com/applifting-vsecourse/team-1/issues/215#issuecomment-6581262940)
+- **Dokumentace:** `docs/PROJEKT.md`: ceka, veřejná stránka akce: termíny a ceny vždy viditelné (dočasně)
+- **Poznámka:** Dočasné, do odpovědi PO na Q-NAS-15.
+
+<a id="d-094"></a>
+
+### D-094 – Obsazenost a kapacita se veřejně nezveřejňují
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** platforma
+- **Datum:** 2026-11-02 · **Rozhodl:** `pm`
+- **Text:** V katalogu akcí ani jinde veřejně se zatím nezobrazuje obsazenost ani kapacita (žádný pruh obsazenosti ani text „80 / 120 potvrzených“). Rámce ve Figmě, které je kreslí, se v tomto bodě neimplementují.
+- **Dotčené US:** [US-123](https://github.com/applifting-vsecourse/team-1/issues/216)
+- **Zdroj:** [ticket US-123 (#216), odpověď PM bod 1](https://github.com/applifting-vsecourse/team-1/issues/216#issuecomment-6585291926)
+- **Dokumentace:** `docs/PROJEKT.md`: ceka, katalog akcí: obsazenost a kapacita nejsou veřejné
+- **Poznámka:** Rozpor s Figmou katalogu (pruh obsazenosti); nahlásit designu.
+
+<a id="d-095"></a>
+
+### D-095 – Odkaz na katalog z landingu je samostatná story
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** platforma
+- **Datum:** 2026-11-02 · **Rozhodl:** `pm`
+- **Text:** Z úvodní stránky musí vést odkaz na katalog akcí, ale nedělá se v US-123. Řeší samostatný ticket (#264); umístění a text určí design.
+- **Dotčené US:** [US-123](https://github.com/applifting-vsecourse/team-1/issues/216)
+- **Zdroj:** [ticket US-123 (#216), odpověď PM bod 2](https://github.com/applifting-vsecourse/team-1/issues/216#issuecomment-6585291926)
+- **Poznámka:** Navazuje ticket #264.

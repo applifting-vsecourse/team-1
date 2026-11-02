@@ -1796,3 +1796,84 @@ rozhodnuti:
   z_otazek: []
   dokumentace: []
   poznamka: 'Zpřesňuje zápis z 26. 10. (po odeslání za více účastníků je nahoře součet k úhradě). Ticket k založení.'
+- id: D-092
+  nazev: 'Popis, místo a kontakt jsou povinné jen pro zveřejnění v katalogu'
+  text: 'Veřejná stránka akce: popis, místo a kontakt (e-mail) jsou povinné jen v okamžiku, kdy organizátor akci zveřejňuje v katalogu. Bez zveřejnění je lze nechat prázdné.'
+  typ: produkt
+  oblast: nastavení akce
+  datum: '2026-11-02'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: ticket US-122 (#215), odpověď PM bod 1
+    url: https://github.com/applifting-vsecourse/team-1/issues/215#issuecomment-6581262940
+  us:
+  - label: US-122
+    url: https://github.com/applifting-vsecourse/team-1/issues/215
+  stav: platne
+  z_otazek: []
+  dokumentace:
+  - soubor: docs/PROJEKT.md
+    popis: 'veřejná stránka akce: povinnost polí jen pro zveřejnění v katalogu'
+    stav: ceka
+  poznamka: 'Souvisí s Q-NAS-05 (seznam polí veřejné stránky); ta zůstává otevřená do odsouhlasení celého seznamu polí.'
+- id: D-093
+  nazev: 'Termíny a ceny jsou na veřejné stránce akce zatím vždy vidět'
+  text: 'Termíny a ceny na veřejné stránce akce se zatím zobrazují vždy, organizátor je nemůže skrýt. Další upřesnění se zeptáme PO (Q-NAS-15).'
+  typ: produkt
+  oblast: nastavení akce
+  datum: '2026-11-02'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: ticket US-122 (#215), odpověď PM bod 2
+    url: https://github.com/applifting-vsecourse/team-1/issues/215#issuecomment-6581262940
+  us:
+  - label: US-122
+    url: https://github.com/applifting-vsecourse/team-1/issues/215
+  stav: platne
+  z_otazek: []
+  dokumentace:
+  - soubor: docs/PROJEKT.md
+    popis: 'veřejná stránka akce: termíny a ceny vždy viditelné (dočasně)'
+    stav: ceka
+  poznamka: 'Dočasné, do odpovědi PO na Q-NAS-15.'
+- id: D-094
+  nazev: 'Obsazenost a kapacita se veřejně nezveřejňují'
+  text: 'V katalogu akcí ani jinde veřejně se zatím nezobrazuje obsazenost ani kapacita (žádný pruh obsazenosti ani text „80 / 120 potvrzených“). Rámce ve Figmě, které je kreslí, se v tomto bodě neimplementují.'
+  typ: produkt
+  oblast: platforma
+  datum: '2026-11-02'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: ticket US-123 (#216), odpověď PM bod 1
+    url: https://github.com/applifting-vsecourse/team-1/issues/216#issuecomment-6585291926
+  us:
+  - label: US-123
+    url: https://github.com/applifting-vsecourse/team-1/issues/216
+  stav: platne
+  z_otazek: []
+  dokumentace:
+  - soubor: docs/PROJEKT.md
+    popis: 'katalog akcí: obsazenost a kapacita nejsou veřejné'
+    stav: ceka
+  poznamka: 'Rozpor s Figmou katalogu (pruh obsazenosti); nahlásit designu.'
+- id: D-095
+  nazev: 'Odkaz na katalog z landingu je samostatná story'
+  text: 'Z úvodní stránky musí vést odkaz na katalog akcí, ale nedělá se v US-123. Řeší samostatný ticket (#264); umístění a text určí design.'
+  typ: produkt
+  oblast: platforma
+  datum: '2026-11-02'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: ticket US-123 (#216), odpověď PM bod 2
+    url: https://github.com/applifting-vsecourse/team-1/issues/216#issuecomment-6585291926
+  us:
+  - label: US-123
+    url: https://github.com/applifting-vsecourse/team-1/issues/216
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+  poznamka: 'Navazuje ticket #264.'

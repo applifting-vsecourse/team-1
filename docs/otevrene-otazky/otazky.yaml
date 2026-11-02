@@ -2005,3 +2005,17 @@ otazky:
   zdroje:
   - popis: 'PR #232, komentář PM'
     url: https://github.com/applifting-vsecourse/team-1/pull/232#issuecomment-6544986096
+- id: Q-NAS-15
+  otazka: Smí organizátor termíny a ceny na veřejné stránce akce skrýt, nebo mají být vždy vidět?
+  epic: nastavení akce
+  us:
+  - label: US-122 (#215)
+    url: https://github.com/applifting-vsecourse/team-1/issues/215
+  stav: otevreno
+  priorita: P3
+  priorita_duvod: Zatím platí „vždy vidět“ (D-093); nic neblokuje.
+  ceka_na: po
+  zdroje:
+  - popis: 'komentář PM v #215'
+    url: https://github.com/applifting-vsecourse/team-1/issues/215#issuecomment-6581262940
+    citace: „Zatím vždy vidět. Víc se zeptáme PO.“

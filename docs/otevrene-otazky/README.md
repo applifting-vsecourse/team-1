@@ -2,7 +2,7 @@
 
 > Generováno z [`otazky.yaml`](otazky.yaml) (`python generate.py`). Needituj, měň YAML.
 
-**98 neuzavřených** otázek, **20 uzavřených**.
+**99 neuzavřených** otázek, **20 uzavřených**.
 
 ## Role
 
@@ -68,7 +68,7 @@
 
 _Nic._
 
-### `po` (Tomáš): 51
+### `po` (Tomáš): 52
 
 | ID | Otázka | Dotčené US | Priorita | Proč |
 | --- | --- | --- | --- | --- |
@@ -101,6 +101,7 @@ _Nic._
 | [Q-NAS-02](#q-nas-02) | Jaké typy otázek potřebuješ? Má jít podrobný formulář přihlášky uložit jako šablonu pro další akce? Je to spíš MVP, nebo Nice to have? | [US-19](https://github.com/applifting-vsecourse/team-1/issues/19) | P3 | Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí. |
 | [Q-NAS-03](#q-nas-03) | Stačí kopie celé akce, nebo chceš areál a formulář spravovat zvlášť (US-81)? Je to spíš MVP, nebo Nice to have? | [US-21](https://github.com/applifting-vsecourse/team-1/issues/21) | P3 | Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí. |
 | [Q-NAS-06](#q-nas-06) | Stačí kopie celé akce, nebo chceš areál a formulář spravovat zvlášť a vybírat je při zakládání akce? **Duplicita s [Q-NAS-03](#q-nas-03).** | [US-81](https://github.com/applifting-vsecourse/team-1/issues/81) | P3 | Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí. |
+| [Q-NAS-15](#q-nas-15) | Smí organizátor termíny a ceny na veřejné stránce akce skrýt, nebo mají být vždy vidět? | [US-122 (#215)](https://github.com/applifting-vsecourse/team-1/issues/215) | P3 | Zatím platí „vždy vidět“ (D-093); nic neblokuje. |
 | [Q-PLA-03](#q-pla-03) | Co po poslední výzvě k zaplacení bez reakce: jen označit pro telefonát (US-45), nebo má systém přihlášku po nějaké době sám zrušit? | [US-46](https://github.com/applifting-vsecourse/team-1/issues/46) | P3 | Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí. |
 | [Q-PLA-05](#q-pla-05) | Doúčtovává pořadatel po akci? Rozpočítání výdaje mezi účastníky je samostatná otázka. | [US-48](https://github.com/applifting-vsecourse/team-1/issues/48) | P3 | Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí. |
 | [Q-PLA-06](#q-pla-06) | Kdo ověří nárok na slevu (např. členství ve spolku)? | [US-49](https://github.com/applifting-vsecourse/team-1/issues/49) | P3 | Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí. |
@@ -200,6 +201,7 @@ _Nic._
 | [Q-NAS-06](#q-nas-06) | Stačí kopie celé akce, nebo chceš areál a formulář spravovat zvlášť a vybírat je při zakládání akce? **Duplicita s [Q-NAS-03](#q-nas-03).** | [US-81](https://github.com/applifting-vsecourse/team-1/issues/81) | otevřeno | P3 | `po` |
 | [Q-NAS-13](#q-nas-13) | Slovník říká „Režim vyhodnocení“, Figma „Režim vyhodnocování“. Která varianta platí? | [US-101 (#194)](https://github.com/applifting-vsecourse/team-1/issues/194) | otevřeno | P3 | `tech-lead` |
 | [Q-NAS-14](#q-nas-14) | Která sada textů nastavení režimu platí: desktopový, nebo mobilní rámec (jiné podnadpisy, nápověda, tlačítko)? | [US-101 (#194)](https://github.com/applifting-vsecourse/team-1/issues/194) | otevřeno | P3 | `design` |
+| [Q-NAS-15](#q-nas-15) | Smí organizátor termíny a ceny na veřejné stránce akce skrýt, nebo mají být vždy vidět? | [US-122 (#215)](https://github.com/applifting-vsecourse/team-1/issues/215) | otevřeno | P3 | `po` |
 
 ### Epic: platby
 
@@ -718,6 +720,15 @@ _Nic._
 - **Zdroje:**
   - [PR #238](https://github.com/applifting-vsecourse/team-1/pull/238)
 - **Priorita:** P3 – Rámce se v textech liší; PR #238 použilo desktopové pro obě šířky.
+
+<a id="q-nas-15"></a>
+
+### Q-NAS-15 – Smí organizátor termíny a ceny na veřejné stránce akce skrýt, nebo mají být vždy vidět?
+
+- **Epic:** nastavení akce · **Dotčené US:** [US-122 (#215)](https://github.com/applifting-vsecourse/team-1/issues/215) · **Stav:** otevřeno · **Čeká na:** `po`
+- **Zdroje:**
+  - [komentář PM v #215](https://github.com/applifting-vsecourse/team-1/issues/215#issuecomment-6581262940): „Zatím vždy vidět. Víc se zeptáme PO.“
+- **Priorita:** P3 – Zatím platí „vždy vidět“ (D-093); nic neblokuje.
 
 <a id="q-pla-01"></a>
 
