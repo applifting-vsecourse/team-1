@@ -15,7 +15,7 @@ Orchestrátor nad skilly `problem-framing`, `model-update` a `business-impact-ch
 
 ## Stav mezi běhy
 
-Čas posledního běhu se drží v Craftu (stránka „PM rutina – stav“ v pracovním prostoru, řádek `poslední běh: <ISO čas>`), čte se přes `craft` CLI nebo Craft MCP. Když Craft není dostupný nebo stav chybí, zeptej se uživatele na datum, od kdy kontrolovat, nebo jeď týdenní režim. Stav přepiš až po dokončení běhu (krok 8) a po potvrzení uživatele.
+Čas posledního běhu se drží v repu v souboru [`docs/pm-rutina-stav.md`](../../../docs/pm-rutina-stav.md), řádek `poslední běh: <ISO čas>` (a `režim:`). Když soubor nebo řádek chybí, zeptej se uživatele na datum, od kterého kontrolovat, nebo jeď týdenní režim. Soubor přepiš až po dokončení běhu (krok 8) a po potvrzení uživatele; mění se s ostatními zápisy téhož běhu a commituje se spolu s nimi.
 
 ## Postup
 
@@ -134,7 +134,7 @@ Napiš přehled na **jednu stránku**, česky, bez omáčky:
 
 Pod přehledem napiš **návrhy odpovědí do PR** (každý jako samostatný blok) a **seznam zápisů do registrů**, které čekají na potvrzení. Když je přehled prázdný, napiš to jednou větou.
 
-Po schválení přehledu ulož přehled do denní poznámky v Craftu (např. `craft blocks append --date today --markdown …`; je-li dostupný) a přepiš `poslední běh` na čas, kdy `collect.py` data sebral (`generated_at`).
+Po schválení přehledu přepiš v `docs/pm-rutina-stav.md` řádek `poslední běh` na čas, kdy `collect.py` data sebral (`generated_at`), a `režim` na `denní` nebo `týdenní`. Přehled se nikam jinam neukládá; trvalé jsou zápisy v registrech.
 
 ## Pravidla
 
