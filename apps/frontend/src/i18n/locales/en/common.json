@@ -69,6 +69,10 @@
       "title": "Page not found"
     }
   },
+  "password": {
+    "hide": "Hide password",
+    "show": "Show password"
+  },
   "price": {
     "free": "Free"
   },

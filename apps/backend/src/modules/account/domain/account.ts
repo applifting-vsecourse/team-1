@@ -17,3 +17,9 @@ export type Account = {
   /** Organizations an organizer acts for; empty for other account types. */
   organizations: OrganizationSummary[]
 }
+
+/** What the user edits in their profile (US-124). */
+export type ProfileChange = {
+  name: string
+  locale: Locale
+}

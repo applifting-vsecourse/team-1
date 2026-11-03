@@ -33,6 +33,7 @@ const user: SessionUser = {
   name: "Eva Malá",
   accountType: "ORGANIZER",
   mustSetPassword: false,
+  locale: "en",
 }
 
 function renderAccount(sessionUser: SessionUser = user) {

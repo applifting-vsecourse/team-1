@@ -9,7 +9,7 @@ export const Route = createFileRoute("/participant/_app/account")({
   component: ParticipantAccountPage,
 })
 
-// US-02 (U13): who is signed in, and sign out.
+// US-124 (U13): name, language and password of the signed-in account.
 function ParticipantAccountPage() {
   const { t } = useTranslation("auth")
 

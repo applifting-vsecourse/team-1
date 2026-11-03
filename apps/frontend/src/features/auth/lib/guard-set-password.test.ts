@@ -14,6 +14,7 @@ const user = (overrides: Partial<SessionUser>): SessionUser => ({
   name: "Jana",
   accountType: "PARTICIPANT",
   mustSetPassword: true,
+  locale: "en",
   ...overrides,
 })
 
