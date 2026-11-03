@@ -7,6 +7,9 @@ export const ROUTES = {
   catalog: "/catalog",
   catalogEvent: "/catalog/$publicToken",
 
+  // Where the verification link of an e-mail change ends (US-125); the backend adds `?error=` when it fails.
+  emailChange: "/email-change",
+
   applicationForm: "/apply/$token",
   applicationConfirmation: "/apply/confirmation/$accessToken",
 

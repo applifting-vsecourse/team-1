@@ -50,12 +50,12 @@ describe("ProfileForm", () => {
     await i18n.changeLanguage("en")
   })
 
-  it("shows the name, the saved language and the e-mail (read-only)", () => {
+  it("shows the name and the saved language (the e-mail has its own card)", () => {
     renderForm()
 
     expect(screen.getByLabelText("Full name")).toHaveValue("Eva Malá")
     expect(screen.getByRole("combobox", { name: "Language" })).toHaveTextContent("Čeština")
-    expect(screen.getByText("eva.mala@example.cz")).toBeInTheDocument()
+    expect(screen.queryByText("eva.mala@example.cz")).not.toBeInTheDocument()
   })
 
   it("saves the language, confirms it and switches the UI to it", async () => {

@@ -30,4 +30,13 @@ export class AccountRepository {
     })
     return { name: user.name, locale: user.locale }
   }
+
+  /** Whether any account (of any type) already signs in with this e-mail. */
+  async isEmailTaken(email: string): Promise<boolean> {
+    const user = await this.prisma.user.findFirst({
+      where: { email: { equals: email, mode: "insensitive" } },
+      select: { id: true },
+    })
+    return user !== null
+  }
 }

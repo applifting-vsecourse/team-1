@@ -1,0 +1,165 @@
+import type { ReactNode } from "react"
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import { render, screen } from "@testing-library/react"
+import userEvent from "@testing-library/user-event"
+import { beforeEach, describe, expect, it, vi } from "vitest"
+
+import { i18n } from "@/i18n"
+
+import type { SessionUser } from "@/features/auth/api/authSessionQueryOptions"
+import { ChangeEmailSection } from "@/features/auth/components/ChangeEmailSection"
+
+const { requestEmailChange } = vi.hoisted(() => ({ requestEmailChange: vi.fn() }))
+
+vi.mock("@/features/auth/api/emailChange", () => ({ requestEmailChange }))
+// The API client reads the `code` that its error hook put on an HTTP error.
+vi.mock("@/lib/api-client", async (importOriginal) => ({
+  ...(await importOriginal<object>()),
+  apiErrorCode: (error: unknown) => (error as { code?: string }).code,
+}))
+vi.mock("@tanstack/react-router", () => ({
+  Link: ({ to, children }: { to: string; children: ReactNode }) => <a href={to}>{children}</a>,
+}))
+
+const user: SessionUser = {
+  id: "u1",
+  email: "eva.mala@example.cz",
+  name: "Eva Malá",
+  accountType: "PARTICIPANT",
+  mustSetPassword: false,
+  locale: "en",
+}
+
+const renderSection = (isConfirmed = false, current: SessionUser = user) =>
+  render(
+    <QueryClientProvider client={new QueryClient()}>
+      <div className="grid grid-cols-1 md:grid-cols-2">
+        <ChangeEmailSection
+          user={current}
+          isConfirmed={isConfirmed}
+        />
+      </div>
+    </QueryClientProvider>,
+  )
+
+const send = async (address: string) => {
+  await userEvent.type(screen.getByLabelText("New e-mail *"), address)
+  await userEvent.click(screen.getByRole("button", { name: "Send verification link" }))
+}
+
+describe("ChangeEmailSection", () => {
+  beforeEach(async () => {
+    requestEmailChange.mockReset()
+    await i18n.changeLanguage("en")
+  })
+
+  it("shows the current e-mail, the field and what the change does and does not touch", () => {
+    renderSection()
+
+    expect(screen.getByRole("heading", { name: "Sign-in e-mail" })).toBeInTheDocument()
+    expect(screen.getByText("eva.mala@example.cz")).toBeInTheDocument()
+    expect(screen.getByLabelText("New e-mail *")).toHaveValue("")
+    expect(
+      screen.getByText(
+        "The change takes effect only after you confirm the link sent to the new address.",
+      ),
+    ).toBeInTheDocument()
+    expect(screen.getByText(/The contact e-mail in applications already sent/)).toBeInTheDocument()
+    expect(screen.getByText(/Until the new address is verified/)).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "Cancel" })).toBeInTheDocument()
+  })
+
+  it("refuses an address that is not an e-mail and sends nothing", async () => {
+    renderSection()
+
+    await send("eva.nova@")
+
+    expect(await screen.findByText("Enter a valid e-mail address.")).toBeInTheDocument()
+    expect(requestEmailChange).not.toHaveBeenCalled()
+  })
+
+  it("sends the new address and then waits for the link: old e-mail stays, the change is shown", async () => {
+    requestEmailChange.mockResolvedValue(undefined)
+    renderSection()
+
+    await send("eva.nova@example.cz")
+
+    expect(requestEmailChange).toHaveBeenCalledWith("eva.nova@example.cz")
+    expect(await screen.findByText("Confirm the new address.")).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        "We sent a verification link to eva.nova@example.cz. Until you confirm, your original e-mail stays in use.",
+      ),
+    ).toBeInTheDocument()
+    expect(screen.getByText("Pending change")).toBeInTheDocument()
+    expect(screen.getByText("eva.mala@example.cz → eva.nova@example.cz")).toBeInTheDocument()
+    expect(screen.getByText("Current e-mail").nextSibling).toHaveTextContent("eva.mala@example.cz")
+    expect(screen.queryByLabelText("New e-mail *")).not.toBeInTheDocument()
+  })
+
+  it("goes back to the empty form from the waiting state", async () => {
+    requestEmailChange.mockResolvedValue(undefined)
+    renderSection()
+    await send("eva.nova@example.cz")
+
+    await userEvent.click(await screen.findByRole("button", { name: "Back to account settings" }))
+
+    expect(screen.getByLabelText("New e-mail *")).toHaveValue("")
+  })
+
+  it("shows the same invalid-address message when the server refuses the address", async () => {
+    requestEmailChange.mockRejectedValue(
+      Object.assign(new Error("x"), { code: "VALIDATION_FAILED" }),
+    )
+    renderSection()
+
+    await send("taken@example.cz")
+
+    expect(await screen.findByText("Enter a valid e-mail address.")).toBeInTheDocument()
+    expect(screen.queryByText("Confirm the new address.")).not.toBeInTheDocument()
+  })
+
+  it("shows the generic error when sending fails for another reason", async () => {
+    requestEmailChange.mockRejectedValue(new Error("down"))
+    renderSection()
+
+    await send("eva.nova@example.cz")
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(i18n.t("errors:UNKNOWN"))
+    expect(screen.getByLabelText("New e-mail *")).toHaveValue("eva.nova@example.cz")
+  })
+
+  it("clears the field with Cancel", async () => {
+    renderSection()
+    await userEvent.type(screen.getByLabelText("New e-mail *"), "eva.nova@example.cz")
+
+    await userEvent.click(screen.getByRole("button", { name: "Cancel" }))
+
+    expect(screen.getByLabelText("New e-mail *")).toHaveValue("")
+  })
+
+  it("shows the changed e-mail with the way on once the link has been clicked", () => {
+    renderSection(true, { ...user, email: "eva.nova@example.cz" })
+
+    expect(screen.getByText("Your e-mail has been changed.")).toBeInTheDocument()
+    expect(
+      screen.getByText("Use eva.nova@example.cz the next time you sign in."),
+    ).toBeInTheDocument()
+    expect(screen.getByRole("link", { name: "Continue to your account" })).toHaveAttribute(
+      "href",
+      "/participant",
+    )
+    expect(screen.getByText(/Sign in with the new address/)).toBeInTheDocument()
+    expect(screen.queryByLabelText("New e-mail *")).not.toBeInTheDocument()
+  })
+
+  it("is written in Czech with the texts of the design", async () => {
+    await i18n.changeLanguage("cs")
+    renderSection()
+
+    expect(screen.getByRole("heading", { name: "Přihlašovací e-mail" })).toBeInTheDocument()
+    expect(screen.getByLabelText("Nový e-mail *")).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "Odeslat ověřovací odkaz" })).toBeInTheDocument()
+    expect(screen.getByText("Tvoje přihlášky zůstávají v účtu")).toBeInTheDocument()
+  })
+})

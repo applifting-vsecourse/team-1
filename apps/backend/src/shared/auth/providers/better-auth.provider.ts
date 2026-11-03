@@ -1,6 +1,7 @@
 import { EmailService } from "@/core/email/interfaces/email-service.interface"
 import { toLocale } from "@/core/email/locale"
 import { renderEmail } from "@/core/email/render"
+import { ChangeEmail, changeEmailSubject } from "@/core/email/templates/change-email"
 import { ResetPassword, resetPasswordSubject } from "@/core/email/templates/reset-password"
 import { VerifyEmail, verifyEmailSubject } from "@/core/email/templates/verify-email"
 import { PrismaService } from "@/core/prisma/prisma.service"
@@ -10,6 +11,9 @@ import { Config } from "@/shared/config/config.service"
 import { Inject, Provider } from "@nestjs/common"
 import { betterAuth } from "better-auth"
 import { prismaAdapter } from "better-auth/adapters/prisma"
+
+/** How long the link that confirms a new e-mail address works. */
+export const EMAIL_VERIFICATION_TTL_SECONDS = 60 * 60
 
 const createAuth = (
   prismaService: PrismaService,
@@ -55,9 +59,32 @@ const createAuth = (
       updateAge: 60 * 60 * 24,
     },
     trustedOrigins: [config.frontendUrl],
+    // A new address is applied only after the link sent to it is clicked (US-125); the
+    // old one keeps working until then. The link is a signed token valid for one hour.
+    user: {
+      ...betterAuthCoreConfig.user,
+      changeEmail: { enabled: true },
+    },
     emailVerification: {
+      expiresIn: EMAIL_VERIFICATION_TTL_SECONDS,
       sendVerificationEmail: async ({ user, url }) => {
         const locale = toLocale((user as { locale?: unknown }).locale)
+        // For an e-mail change BetterAuth hands over the user with the NEW address,
+        // while the stored one is still the current address.
+        const stored = await prismaService.user.findUnique({
+          where: { id: user.id },
+          select: { email: true },
+        })
+        if (stored && stored.email !== user.email) {
+          const changeHtml = await renderEmail(ChangeEmail, {
+            url,
+            locale,
+            currentEmail: stored.email,
+            newEmail: user.email,
+          })
+          await emailProvider.sendEmail(user.email, changeEmailSubject(locale), changeHtml)
+          return
+        }
         const html = await renderEmail(VerifyEmail, { url, locale })
         await emailProvider.sendEmail(user.email, verifyEmailSubject(locale), html)
       },
