@@ -1,6 +1,6 @@
 # Business katalog e-mailů
 
-Pracovní verze k 3. 11. 2026, doplněná o šest rozhodnutí PM z dotazníku v této konverzaci. Rozhodnutí jsou potvrzená; konkrétní texty a design zatím schválené nejsou. Popisuje požadovanou komunikaci Togeny z pohledu přihlašovatele a uživatele účtu. Katalog není technický návrh. Texty, otevřené otázky a schválení jsou vedeny odděleně; existence zprávy v kódu neznamená její business schválení.
+Pracovní verze k 3. 11. 2026, doplněná o šest rozhodnutí PM z dotazníku v této konverzaci. Rozhodnutí jsou potvrzená; texty v [TEXTY.md](TEXTY.md) schválil Adam 3. 11. 2026, design zatím schválený není. Popisuje požadovanou komunikaci Togeny z pohledu přihlašovatele a uživatele účtu. Katalog není technický návrh. Texty, otevřené otázky a schválení jsou vedeny odděleně; existence zprávy v kódu neznamená její business schválení.
 
 ## Rozsah a zdroje
 
@@ -67,7 +67,7 @@ U všech těchto zpráv je rozsah jedna zpráva k dané žádosti. Žádost o zm
 
 ## Potvrzená rozhodnutí z dotazníku
 
-Zdroj: odpovědi PM v této konverzaci. Dotazník byl dokončen; finální kontrola celého katalogu a schválení konkrétní textace jsou samostatné kroky.
+Zdroj: odpovědi PM v této konverzaci. Dotazník byl dokončen; finální kontrola celého katalogu je samostatný krok; textace je schválena v TEXTY.md.
 
 | Otázka | Potvrzené pravidlo |
 | --- | --- |
@@ -80,7 +80,7 @@ Zdroj: odpovědi PM v této konverzaci. Dotazník byl dokončen; finální kontr
 
 ## Kontakty a další upřesnění
 
-- Kontaktní pravidlo se vztahuje na uvedený kontakt i na příjemce odpovědi na zprávu. Konkrétní adresy organizátorů a podpory zatím tímto dotazníkem určeny nejsou; před uvedením do provozu musí být dostupné.
+- Kontaktní pravidlo se vztahuje na uvedený kontakt i na příjemce odpovědi na zprávu. Dotazník adresy neurčil; drafty používají schválené fiktivní `organizator@togena.com` a `support@togena.com` ([TEXTY.md](TEXTY.md)). Jde o školní projekt, skutečné kontakty se nedoplňují.
 - Nová rozhodnutí je potřeba promítnout do původního EMAILY.md, souvisejících modelů a registru rozhodnutí. V tomto kroku se aktualizuje pouze business katalog a jeho navazující podklady; registry, modely, GitHub a aplikace se nemění.
 - Původní EMAILY.md ještě uvádí „první heslo“ u přijetí přihlášky. Katalog podle odpovědi PM počítá s magic linkem; ten odpovídá také existujícímu rozhodnutí D-008.
 - Platná lhůta pro zaplacení se přebírá z platebních pravidel. Její konkrétní délku dotazník neurčil. Také případné další kroky po nezaplacení výzvy zůstávají mimo tato rozhodnutí; odpověď na četnost e-mailů sama neřeší automatické rušení přihlášek.

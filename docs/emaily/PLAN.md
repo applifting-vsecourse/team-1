@@ -6,7 +6,7 @@ Plán zahájen 3. 11. 2026. Výstupem inventury je business katalog transakční
 
 1. **Business inventura:** pro každou zprávu určit účel, business událost, příjemce, rozsah zprávy, povinné informace, očekávanou reakci a jazyk. Zachytit i situace, kdy e-mail neodchází. Výstup: [KATALOG.md](KATALOG.md).
 2. **Vyjasnění a schválení katalogu:** potvrdit úplnost komunikace a uzavřít otázky, které mění její význam. Existující kód slouží jen jako orientační informace o pokrytí, ne jako zdroj nových business pravidel.
-3. **Obsah:** schválit předmět, krátký náhled zprávy, nadpis, tělo, proměnné údaje, hlavní akci a patičku v CS/EN. Výstup: [TEXTY.md](TEXTY.md). Současné návrhy nejsou schválené.
+3. **Obsah:** schválit předmět, krátký náhled zprávy, nadpis, tělo, proměnné údaje, hlavní akci a patičku v CS/EN. Výstup: [TEXTY.md](TEXTY.md). Texty schválil Adam 3. 11. 2026 včetně UX revize. Další jazyková revize se u školního projektu neprovádí.
 4. **Design:** sjednotit vizuální podobu a připravit ukázky jednoduché zprávy, souhrnu více přihlášek, změny termínů a bezpečnostního upozornění. Ověřit srozumitelnost na mobilu i desktopu.
 5. **Předání vývoji:** schválený katalog, texty a design převést na vývojové úkoly. Technický návrh a realizace nejsou předmětem inventury.
 6. **Business akceptace:** na reprezentativních situacích ověřit, že správný příjemce dostává správné sdělení ve správném jazyce a počtu zpráv. Potvrdit obsah, vzhled a doručení.
@@ -31,9 +31,19 @@ Plán zahájen 3. 11. 2026. Výstupem inventury je business katalog transakční
 - Je rozlišeno platné pravidlo, návrh a otevřená otázka.
 - PM potvrdí úplnost a význam katalogu. Neuzavřené otázky jsou označené a nesmí být zaměněny za schválený požadavek.
 
-## Stav
+## Stav (3. 11. 2026)
 
-- Business inventura připravena v [KATALOG.md](KATALOG.md); šest otázek z dotazníku je rozhodnuto PM a zapracováno. Celý katalog je připravený k finální kontrole, nejde ještě o schválení všech textů a designu.
-- Návrhy CS/EN textů jsou samostatný navazující podklad v [TEXTY.md](TEXTY.md), nikoli podmínka dokončení samotné inventury.
-- Následuje finální kontrola katalogu a schválení konkrétních textů, potom design; vývoj zatím nezahájen.
-- Před předáním vývoji promítnout nová rozhodnutí do původních procesních podkladů a registru rozhodnutí; tento krok ještě neproběhl.
+| Krok | Stav |
+| --- | --- |
+| 1. Business inventura | Hotovo, [KATALOG.md](KATALOG.md); šest rozhodnutí PM zapracováno. |
+| 2. Schválení katalogu | Čeká na finální potvrzení PM (úplnost a význam). |
+| 3. Obsah | Hotovo. Texty CS/EN schváleny Adamem; další revize ani skutečné kontakty se neřeší (školní projekt, `organizator@togena.com` a `support@togena.com` zůstávají fiktivní). |
+| 4. Design | Nezahájeno. Další krok: náhledy jednoduché zprávy, souhrnu přihlášek, změny více termínů a bezpečnostního upozornění; srovnání s Figmou. |
+| 5. Předání vývoji | Nezahájeno, závisí na krocích 2 a 4. |
+| 6. Business akceptace | Nezahájeno. |
+
+Před předáním vývoji zbývá:
+
+- Promítnout nová rozhodnutí (magic link místo „prvního hesla“, výzva po splatnosti jen na požadavek organizátora, nový PAYMENT_CORRECTED, platební údaje v opravě platby, vrácení plateb) do [EMAILY.md](../procesy/zpracovani-prihlasky/EMAILY.md), procesních modelů a registru rozhodnutí. Dosud neproběhlo; dělá se přes skill `model-update` a `business-impact-check`, jen na pokyn PM.
+- Před zapojením EVENT_TERM_CANCELLED potvrdit soulad věty o vrácení plateb s pravidly rušení termínů.
+- Vyjasnit chybějící automatické potvrzení náhradníka po uvolnění lůžka (APP_CONFIRMED, varianta z náhradníka) – podle orientačního pokrytí v kódu nenalezeno.
