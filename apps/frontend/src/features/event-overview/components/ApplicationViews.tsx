@@ -14,9 +14,12 @@ const VIEWS = [
 // The chips and the status filter read and write the same `status` param, so they cannot disagree.
 export function ApplicationViews({
   filters,
+  isResult = false,
   onChange,
 }: {
   filters: ApplicationsSearch
+  /** The result of a bulk confirmation (US-107) is shown under "All applications". */
+  isResult?: boolean
   onChange: (filters: ApplicationsSearch) => void
 }) {
   const { t } = useTranslation("eventOverview")
@@ -28,13 +31,15 @@ export function ApplicationViews({
       aria-label={t("queue.views")}
       className="flex-wrap"
       // "All" is on only while no status is chosen; a status picked in the filter lights no chip.
-      value={filters.status ?? "all"}
+      value={isResult ? "all" : (filters.status ?? "all")}
       onValueChange={(value) => {
         // Pressing the active chip again must not leave the group empty.
-        if (!value) return
+        // After a bulk confirmation "All applications" is lit, so pressing it again leaves the result.
+        const chosen = value || (isResult ? "all" : "")
+        if (!chosen) return
         const next = { ...filters }
-        if (value === "all") delete next.status
-        else next.status = value as "TO_EVALUATE" | "WAITLISTED"
+        if (chosen === "all") delete next.status
+        else next.status = chosen as "TO_EVALUATE" | "WAITLISTED"
         onChange(next)
       }}
     >

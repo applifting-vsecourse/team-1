@@ -32,8 +32,10 @@ import { occupancyQueryOptions } from "@/features/event-overview/api/occupancy"
 import { ApplicationFilters } from "@/features/event-overview/components/ApplicationFilters"
 import { ApplicationQueue } from "@/features/event-overview/components/ApplicationQueue"
 import { ApplicationViews } from "@/features/event-overview/components/ApplicationViews"
+import { BulkResult } from "@/features/event-overview/components/BulkResult"
 import { UnfinishedEvent } from "@/features/event-overview/components/UnfinishedEvent"
 import type { ApplicationsSearch } from "@/features/event-overview/lib/applications-search"
+import type { BulkResultView } from "@/features/event-overview/lib/bulk-result"
 
 // Figma (Design system): O05, O05g · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12110-326
 // Figma (Design system): O05 / Náhradníci (waitlist of a term and gender) · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12769-3721
@@ -59,6 +61,8 @@ export function ApplicationsPage({
   const query = useQuery({ ...applicationsQueryOptions(eventId, filters), enabled: !isQueue })
   const occupancy = useQuery(occupancyQueryOptions(eventId))
   const [page, setPage] = useState(0)
+  // After a bulk confirmation (US-107) the result replaces the queue until the filter changes.
+  const [bulkResult, setBulkResult] = useState<BulkResultView | null>(null)
   const pageCount = Math.max(1, Math.ceil((query.data?.length ?? 0) / 20))
   const currentPage = Math.min(page, pageCount - 1)
   const visibleRows = query.data?.slice(currentPage * 20, (currentPage + 1) * 20) ?? []
@@ -89,17 +93,25 @@ export function ApplicationsPage({
       )}
       <ApplicationViews
         filters={filters}
+        isResult={isQueue && bulkResult !== null}
         onChange={(next) => {
           setPage(0)
+          setBulkResult(null)
           onFiltersChange(next)
         }}
       />
-      {isQueue ? (
+      {isQueue && bulkResult ? (
+        <BulkResult
+          eventId={eventId}
+          result={bulkResult}
+        />
+      ) : isQueue ? (
         <ApplicationQueue
           eventId={eventId}
           filters={filters}
           terms={occupancy.data?.terms ?? []}
           onFiltersChange={onFiltersChange}
+          onBulkDone={setBulkResult}
         />
       ) : (
         <>
