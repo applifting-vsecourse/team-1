@@ -23,13 +23,14 @@ Goal: tell the tester (usually the product manager) what **actually works** vers
    - `gh issue view N --json comments` for blockers ("blocked by"), spec changes and who said what.
    - Board column is not always readable via `gh`; say so instead of guessing.
 5. **Decide what can be tested and how.** Separate: (a) end-to-end through the UI - possible only if the whole chain exists; (b) isolated - integration/e2e specs and seed data that create the state directly. Name the spec files.
-6. **Report.**
-   - Verdict first: exists / partly / missing.
-   - Evidence: file paths and what is (not) there.
-   - Owner and state: assignee, PR/branch, last activity, blockers.
-   - What is hotfixed around it (merged neighbours) and what it blocks downstream.
-   - What can be tested now and what not.
-   - End with one concrete follow-up offer.
+6. **Report.** Short and scannable; the tester must not wade through text.
+   - First line: one-sentence verdict (exists / partly / missing) with PR number and state.
+   - Things in ideal state: one line each with ✅ and a few words (e.g. "design sedí ✅"). No evidence paragraphs, no file lists.
+   - Then **only what is missing, broken or unverified**, each one line: ❓ not verified, ⚠️ inconsistency or open item (registers, Figma deviations, unticked criteria/checklist), ❌ missing. Say what exactly and why it matters.
+   - **Test now:** 3-5 short steps for what can be tried today; name what cannot be tested.
+   - One line of uncertainty (e.g. board column not visible via `gh`).
+   - End with one short follow-up offer.
+   - Aim for roughly 15-20 lines. Put file paths and long evidence only when asked.
 
 ## Rules
 
