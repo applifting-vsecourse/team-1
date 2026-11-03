@@ -41,7 +41,7 @@ describe("bulk confirmation of applications in a term (integration)", () => {
     })
     return application.id
   }
-  const post = (path: string, body: unknown, auth: string | undefined = cookie, term = termId) =>
+  const post = (path: string, body: unknown, auth: string | null = cookie, term = termId) =>
     fetch(api(`/organizer/events/${eventId}/terms/${term}/bulk-confirmation${path}`), {
       method: "POST",
       headers: { "Content-Type": "application/json", ...(auth ? { Cookie: auth } : {}) },
@@ -97,7 +97,7 @@ describe("bulk confirmation of applications in a term (integration)", () => {
 
   it("is for organizers of the event only", async () => {
     const body = { applicationIds: ["x"] }
-    expect((await post("", body, undefined)).status).toBe(401)
+    expect((await post("", body, null)).status).toBe(401)
     expect((await post("", body, participantCookie)).status).toBe(403)
     expect((await post("/preview", body, foreignCookie)).status).toBe(403)
     expect((await post("", body, foreignCookie)).status).toBe(403)
