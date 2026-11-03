@@ -183,7 +183,7 @@
     "mode": "Režim pokojů",
     "modeChange": {
       "assignBody": "Před potvrzením změny vyberte u každého existujícího pokoje Dámský nebo Pánský.",
-      "assignHeading": "Přiřaď každý pokoj",
+      "assignHeading": "Přiřaďte každý pokoj",
       "cancel": "Zachovat režim",
       "confirm": "Změnit režim",
       "genderedBody": "U každého nového pokoje vyberete Dámský nebo Pánský. Kapacita se bude počítat pro ženy a muže odděleně.",
