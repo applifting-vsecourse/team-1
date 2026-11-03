@@ -1952,7 +1952,8 @@ rozhodnuti:
   dokumentace:
   - soubor: docs/procesy/zpracovani-prihlasky/EMAILY.md
     popis: 'e-mail č. 16, přechod Potvrzená a zaplacená → Potvrzená s dluhem'
-    stav: ceka
+    stav: hotovo
+    commit: 667c8d3
 - id: D-100
   nazev: 'Výzva po splatnosti: jednou, automaticky nebo ručně podle organizátora'
   text: 'Výzva k zaplacení po uplynutí lhůty se posílá jednou a bez automatického opakování. Organizátor si v nastavení akce určí, zda se posílá automaticky, nebo ji posílá ručně.'
@@ -1970,7 +1971,8 @@ rozhodnuti:
   dokumentace:
   - soubor: docs/procesy/zpracovani-prihlasky/EMAILY.md
     popis: 'e-mail č. 7'
-    stav: ceka
+    stav: hotovo
+    commit: 667c8d3
 - id: D-101
   nazev: 'Při zamítnutí nebo odhlášení zaplacené účasti e-mail refund neslibuje'
   text: 'E-mail o zamítnutí nebo odhlášení již zaplacené účasti automatické vrácení peněz neslibuje; informace o případném vrácení platby sdělí organizátor. Při zrušení celého termínu zůstává informace, že se zaplacené platby vracejí (D-080).'
@@ -1988,7 +1990,8 @@ rozhodnuti:
   dokumentace:
   - soubor: docs/procesy/zpracovani-prihlasky/EMAILY.md
     popis: 'e-maily č. 9 až 11, 15'
-    stav: ceka
+    stav: hotovo
+    commit: 667c8d3
 - id: D-102
   nazev: 'Změnové e-maily se týkají jen přihlášených a změněných termínů'
   text: 'Změnový e-mail zahrnuje jen termíny, na které je účastník přihlášený a kterých se změna týká. Potvrzení odhlášení se posílá i pro termín, který účastník odhlášením odebral. Z toho neplyne další univerzální e-mail o libovolné úpravě přihlášky.'
@@ -2006,7 +2009,8 @@ rozhodnuti:
   dokumentace:
   - soubor: docs/procesy/zpracovani-prihlasky/EMAILY.md
     popis: 'pravidla e-mailů'
-    stav: ceka
+    stav: hotovo
+    commit: 667c8d3
 - id: D-103
   nazev: 'Obecné ověření e-mailové adresy se nepožaduje'
   text: 'Účet vzniká odesláním přihlášky a potvrzovací e-mail obsahuje magic link (D-008); samostatné obecné ověření e-mailové adresy se neposílá. Netýká se potvrzení změny přihlašovací adresy.'
@@ -2024,7 +2028,8 @@ rozhodnuti:
   dokumentace:
   - soubor: docs/procesy/zpracovani-prihlasky/EMAILY.md
     popis: 'e-mail č. 1, odkaz na přihlášení'
-    stav: ceka
+    stav: hotovo
+    commit: 667c8d3
 - id: D-104
   nazev: 'Kontakty v patičce e-mailů podle druhu zprávy'
   text: 'Přihlášky, účast a platby řeší organizátor akce, přihlášení, heslo a zabezpečení účtu podpora Togeny. E-mail uvede příslušný kontakt a odpovědi na něj jdou stejnému příjemci. Školní projekt: skutečné kontakty se nedoplňují, používají se fiktivní adresy z docs/emaily/TEXTY.md.'
@@ -2042,4 +2047,5 @@ rozhodnuti:
   dokumentace:
   - soubor: docs/emaily/TEXTY.md
     popis: 'společné části, patička'
-    stav: ceka
+    stav: hotovo
+    commit: 667c8d3
