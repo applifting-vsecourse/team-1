@@ -43,6 +43,7 @@ const renderSection = (isConfirmed = false, current: SessionUser = user) =>
   )
 
 const send = async (address: string) => {
+  await userEvent.click(screen.getByRole("button", { name: "Change e-mail" }))
   await userEvent.type(screen.getByLabelText("New e-mail *"), address)
   await userEvent.click(screen.getByRole("button", { name: "Send verification link" }))
 }
@@ -53,20 +54,31 @@ describe("ChangeEmailSection", () => {
     await i18n.changeLanguage("en")
   })
 
-  it("shows the current e-mail, the field and what the change does and does not touch", () => {
+  it("starts closed: the current e-mail, the note under the cards and a button, no field", () => {
     renderSection()
 
     expect(screen.getByRole("heading", { name: "Sign-in e-mail" })).toBeInTheDocument()
     expect(screen.getByText("eva.mala@example.cz")).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "Change e-mail" })).toBeInTheDocument()
+    expect(screen.queryByLabelText("New e-mail *")).not.toBeInTheDocument()
+    // The remark that applications stay on the account appears once, under the cards.
+    expect(
+      screen.getAllByText(/contact (address|e-mail) in applications already sent/),
+    ).toHaveLength(1)
+  })
+
+  it("opens the form with the field and what the change does", async () => {
+    renderSection()
+
+    await userEvent.click(screen.getByRole("button", { name: "Change e-mail" }))
+
     expect(screen.getByLabelText("New e-mail *")).toHaveValue("")
     expect(
       screen.getByText(
         "The change takes effect only after you confirm the link sent to the new address.",
       ),
     ).toBeInTheDocument()
-    expect(screen.getByText(/The contact e-mail in applications already sent/)).toBeInTheDocument()
-    expect(screen.getByText(/Until the new address is verified/)).toBeInTheDocument()
-    expect(screen.getByRole("button", { name: "Cancel" })).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "Send verification link" })).toBeInTheDocument()
   })
 
   it("refuses an address that is not an e-mail and sends nothing", async () => {
@@ -97,14 +109,14 @@ describe("ChangeEmailSection", () => {
     expect(screen.queryByLabelText("New e-mail *")).not.toBeInTheDocument()
   })
 
-  it("goes back to the empty form from the waiting state", async () => {
+  it("goes back to the closed card from the waiting state", async () => {
     requestEmailChange.mockResolvedValue(undefined)
     renderSection()
     await send("eva.nova@example.cz")
 
     await userEvent.click(await screen.findByRole("button", { name: "Back to account settings" }))
 
-    expect(screen.getByLabelText("New e-mail *")).toHaveValue("")
+    expect(screen.getByRole("button", { name: "Change e-mail" })).toBeInTheDocument()
   })
 
   it("shows the same invalid-address message when the server refuses the address", async () => {
@@ -129,12 +141,28 @@ describe("ChangeEmailSection", () => {
     expect(screen.getByLabelText("New e-mail *")).toHaveValue("eva.nova@example.cz")
   })
 
-  it("clears the field with Cancel", async () => {
+  it("says the e-mail could not be sent when delivery fails", async () => {
+    requestEmailChange.mockRejectedValue(
+      Object.assign(new Error("x"), { code: "EMAIL_DELIVERY_FAILED" }),
+    )
     renderSection()
+
+    await send("eva.nova@example.cz")
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "The verification e-mail could not be sent",
+    )
+  })
+
+  it("closes the form with Cancel and starts empty the next time", async () => {
+    renderSection()
+    await userEvent.click(screen.getByRole("button", { name: "Change e-mail" }))
     await userEvent.type(screen.getByLabelText("New e-mail *"), "eva.nova@example.cz")
 
     await userEvent.click(screen.getByRole("button", { name: "Cancel" }))
 
+    expect(screen.queryByLabelText("New e-mail *")).not.toBeInTheDocument()
+    await userEvent.click(screen.getByRole("button", { name: "Change e-mail" }))
     expect(screen.getByLabelText("New e-mail *")).toHaveValue("")
   })
 
@@ -158,6 +186,7 @@ describe("ChangeEmailSection", () => {
     renderSection()
 
     expect(screen.getByRole("heading", { name: "Přihlašovací e-mail" })).toBeInTheDocument()
+    await userEvent.click(screen.getByRole("button", { name: "Změnit e-mail" }))
     expect(screen.getByLabelText("Nový e-mail *")).toBeInTheDocument()
     expect(screen.getByRole("button", { name: "Odeslat ověřovací odkaz" })).toBeInTheDocument()
     expect(screen.getByText("Tvoje přihlášky zůstávají v účtu")).toBeInTheDocument()

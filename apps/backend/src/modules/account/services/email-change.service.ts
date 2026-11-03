@@ -41,12 +41,13 @@ export class EmailChangeService {
         headers,
       })
     } catch (error) {
-      // A refusal by BetterAuth (4xx) is the caller's input; anything else is ours.
+      // A refusal by BetterAuth (4xx) is the caller's input; anything else is a failed delivery.
       const status = (error as { statusCode?: unknown }).statusCode
       if (typeof status === "number" && status >= 400 && status < 500) {
         throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
       }
-      throw error
+      // The e-mail could not be sent (e.g. the mail service refuses the address): say so, not „internal error“.
+      throw new AppException(HttpStatus.BAD_GATEWAY, "EMAIL_DELIVERY_FAILED")
     }
   }
 }

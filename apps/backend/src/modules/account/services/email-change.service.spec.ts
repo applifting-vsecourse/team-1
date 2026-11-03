@@ -62,11 +62,11 @@ describe("EmailChangeService", () => {
     )
   })
 
-  it("lets a failure of ours (not a refusal) through", async () => {
+  it("reports a failed delivery as its own error, not an internal one", async () => {
     changeEmail.mockRejectedValue(new Error("mail server down"))
 
-    await expect(service.requestChange(user, "eva.nova@example.cz", headers)).rejects.toThrow(
-      "mail server down",
+    await expect(service.requestChange(user, "eva.nova@example.cz", headers)).rejects.toMatchObject(
+      { response: { statusCode: 502, code: "EMAIL_DELIVERY_FAILED" } },
     )
   })
 })

@@ -56,6 +56,8 @@ export function ChangeEmailSection({ user, isConfirmed = false }: ChangeEmailSec
   })
   // Only the browser knows a change is waiting: the link is a signed token, nothing is stored.
   const [pendingEmail, setPendingEmail] = useState<string | null>(null)
+  // The form opens on „Změnit e-mail“; „Zrušit“ closes it again.
+  const [isEditing, setIsEditing] = useState(false)
   const { errors } = form.formState
 
   const onSubmit = async ({ newEmail }: FormValues) => {
@@ -70,7 +72,8 @@ export function ChangeEmailSection({ user, isConfirmed = false }: ChangeEmailSec
     }
   }
 
-  const backToForm = () => {
+  const closeForm = () => {
+    setIsEditing(false)
     setPendingEmail(null)
     form.reset()
     request.reset()
@@ -122,11 +125,21 @@ export function ChangeEmailSection({ user, isConfirmed = false }: ChangeEmailSec
               variant="ghost"
               size="lg"
               className="h-12 w-full rounded-lg"
-              onClick={backToForm}
+              onClick={closeForm}
             >
               {t("changeEmail.pending.back")}
             </Button>
           </>
+        ) : !isEditing ? (
+          <Button
+            type="button"
+            variant="outline"
+            size="lg"
+            className="h-12 w-full rounded-lg"
+            onClick={() => setIsEditing(true)}
+          >
+            {t("changeEmail.start")}
+          </Button>
         ) : (
           <Form {...form}>
             <form
@@ -154,12 +167,17 @@ export function ChangeEmailSection({ user, isConfirmed = false }: ChangeEmailSec
               />
 
               <p>{t("changeEmail.hint")}</p>
-              <p className="text-sm text-muted-foreground">{t("changeEmail.note")}</p>
 
               {request.isError && !errors.newEmail ? (
                 <Alert variant="destructive">
                   <CircleAlert />
-                  <AlertDescription>{tErrors("UNKNOWN")}</AlertDescription>
+                  <AlertDescription>
+                    {tErrors(
+                      apiErrorCode(request.error) === "EMAIL_DELIVERY_FAILED"
+                        ? "EMAIL_DELIVERY_FAILED"
+                        : "UNKNOWN",
+                    )}
+                  </AlertDescription>
                 </Alert>
               ) : null}
 
@@ -170,7 +188,7 @@ export function ChangeEmailSection({ user, isConfirmed = false }: ChangeEmailSec
                   variant="ghost"
                   size="lg"
                   className="h-12 flex-1 rounded-lg"
-                  onClick={backToForm}
+                  onClick={closeForm}
                 >
                   {t("changeEmail.cancel")}
                 </Button>

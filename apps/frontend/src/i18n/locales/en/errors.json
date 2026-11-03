@@ -1,6 +1,7 @@
 {
   "APPLICATION_DUPLICATE": "{{participant}} is already registered for the term “{{term}}” (same name and date of birth).",
   "CAPACITY_EXCEEDED": "Confirming would exceed the capacity of the term. Confirm knowingly.",
+  "EMAIL_DELIVERY_FAILED": "The verification e-mail could not be sent. Try again later.",
   "EVALUATION_MODE_LOCKED": "This event already accepts applications, so the evaluation mode can no longer be changed.",
   "EVENT_HAS_APPLICATIONS": "An event with applications cannot be deleted.",
   "FORBIDDEN": "You don't have access to this.",
