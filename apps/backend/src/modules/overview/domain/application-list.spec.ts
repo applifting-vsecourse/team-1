@@ -171,6 +171,15 @@ describe("queue of applications to evaluate (US-103)", () => {
     ])
   })
 
+  it("combines the queue with the gender filter and keeps the order", () => {
+    const male = { ...toEvaluate("male", 4, "2027-03-08T09:00:00Z"), gender: "MALE" as const }
+    expect(
+      applicationList([...rows, male], { status: "TO_EVALUATE", gender: "FEMALE" }).map(
+        (entry) => entry.id,
+      ),
+    ).toEqual(["oldest", "same-second-first", "same-second-later", "newest"])
+  })
+
   it("keeps the other views as they came", () => {
     expect(applicationList(rows, {}).map((entry) => entry.id)).toEqual(rows.map((r) => r.id))
   })
