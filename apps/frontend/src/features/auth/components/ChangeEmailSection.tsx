@@ -189,12 +189,15 @@ export function ChangeEmailSection({ user, isConfirmed = false }: ChangeEmailSec
         )}
       </Card>
 
-      <DetailItem
-        label={t("changeEmail.footer.label")}
-        className="md:col-span-2"
-      >
-        {t(isConfirmed ? "changeEmail.footer.confirmed" : "changeEmail.footer.default")}
-      </DetailItem>
+      {/* The „Neplatná nová adresa“ frame draws no note. */}
+      {errors.newEmail ? null : (
+        <DetailItem
+          label={t("changeEmail.footer.label")}
+          className="md:col-span-2"
+        >
+          {t(isConfirmed ? "changeEmail.footer.confirmed" : "changeEmail.footer.default")}
+        </DetailItem>
+      )}
     </>
   )
 }
