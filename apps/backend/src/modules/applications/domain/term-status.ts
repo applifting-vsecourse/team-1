@@ -1,5 +1,6 @@
 import { Locale } from "@/core/email/locale"
 import { ApplicationTermStatus } from "@/modules/applications/domain/evaluation"
+import { Gender } from "@/shared/domain/gender"
 
 /** One entry of the system log of status changes (US-28): who, when, from which status to which. */
 export type StatusChangeEntry = {
@@ -45,6 +46,8 @@ export type StatusChangeResult = {
   bankAccount: string
   /** The changed term: its name, else its dates. */
   termName: string
+  /** Of the participant: the Czech copy of the e-mail is gendered. */
+  gender: Gender
   application: {
     number: number
     firstName: string

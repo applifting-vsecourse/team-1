@@ -25,7 +25,8 @@ export interface ChangeLayoutProps {
   eventName: string;
   /** The sentence about the change. */
   text: string;
-  badge: { label: string; tone: 'positive' | 'neutral' };
+  /** The status of the application in the term; null where no frame draws one. */
+  badge: { label: string; tone: 'positive' | 'neutral' } | null;
   /** Label–value pairs under the badge (payment details); empty when there are none. */
   details: { label: string; value: string }[];
   buttonLabel: string;
@@ -47,56 +48,52 @@ export const ChangeLayout = ({
   footer,
 }: ChangeLayoutProps): React.JSX.Element => (
   <Html lang={locale}>
-    <Head />
-    <Preview>{preview}</Preview>
     <Tailwind>
-      <Body className="bg-[#f6f9f8] font-sans py-8">
-        <Container className="bg-white mx-auto px-8 py-6 max-w-[640px]">
+      <Head>
+        {/* 360 px (Figma mobile frames): 16 px grey around the card and 16 px card side padding.
+            The paddings sit on the table cells, so they are reached by selector. */}
+        <style>{`@media (max-width:480px){.tg-body>table>tbody>tr>td{padding:16px !important}.tg-card>tbody>tr>td{padding-left:16px !important;padding-right:16px !important}}`}</style>
+      </Head>
+      <Preview>{preview}</Preview>
+      <Body className="tg-body bg-[#f6f9f8] font-sans py-8">
+        <Container className="tg-card bg-white mx-auto px-8 py-6 max-w-[640px]">
           <Text className="text-[#102e31] text-lg font-bold m-0">togena</Text>
-          <Heading className="text-[#102e31] text-[32px] leading-10 font-bold mt-6 mb-0">
+          <Heading className="text-[#102e31] text-[32px] leading-10 font-bold mt-6 mb-0 max-[480px]:text-2xl max-[480px]:leading-8">
             {heading}
           </Heading>
-          <Text className="text-[#102e31] text-base leading-6 mt-6 mb-0">
-            {eventName}
-          </Text>
-          <Text className="text-[#102e31] text-base leading-6 mt-6 mb-0">
-            {text}
-          </Text>
-          <Section className="mt-6">
-            <span
-              className={
-                badge.tone === 'positive'
-                  ? 'bg-[#dbefe7] text-[#006c60] text-sm font-medium rounded-full px-2 py-1'
-                  : 'bg-[#eef6f2] text-[#4d6565] text-sm font-medium rounded-full px-2 py-1'
-              }
-            >
-              {badge.label}
-            </span>
-          </Section>
+          <Text className="text-[#102e31] text-base leading-6 mt-6 mb-0">{eventName}</Text>
+          <Text className="text-[#102e31] text-base leading-6 mt-6 mb-0">{text}</Text>
+          {badge ? (
+            <Section className="mt-6">
+              <span
+                className={
+                  badge.tone === 'positive'
+                    ? 'bg-[#dbefe7] text-[#006c60] text-sm font-medium rounded-full px-2 py-1'
+                    : 'bg-[#eef6f2] text-[#4d6565] text-sm font-medium rounded-full px-2 py-1'
+                }
+              >
+                {badge.label}
+              </span>
+            </Section>
+          ) : null}
           {details.map((detail) => (
             <Section
               key={`${detail.label}-${detail.value}`}
               className="mt-6"
             >
-              <Text className="text-[#4d6565] text-sm leading-5 m-0">
-                {detail.label}
-              </Text>
-              <Text className="text-[#102e31] text-base leading-6 mt-2 mb-0">
-                {detail.value}
-              </Text>
+              <Text className="text-[#4d6565] text-sm leading-5 m-0">{detail.label}</Text>
+              <Text className="text-[#102e31] text-base leading-6 mt-2 mb-0">{detail.value}</Text>
             </Section>
           ))}
           <Section className="mt-6">
             <Button
               href={buttonUrl}
-              className="bg-[#006c60] text-white text-sm font-medium rounded-[10px] px-4 py-2 box-border w-full text-center"
+              className="bg-[#006c60] text-white text-sm font-medium rounded-[10px] px-4 py-2 box-border w-full text-center max-[480px]:py-3"
             >
               {buttonLabel}
             </Button>
           </Section>
-          <Text className="text-[#4d6565] text-sm leading-5 mt-6 mb-0">
-            {footer}
-          </Text>
+          <Text className="text-[#4d6565] text-sm leading-5 mt-6 mb-0">{footer}</Text>
         </Container>
       </Body>
     </Tailwind>

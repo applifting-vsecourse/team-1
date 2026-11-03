@@ -285,6 +285,7 @@ describe("ApplicationConfirmationMailer.sendApplicationChange", () => {
     bankAccount: "2900123456/2010",
     kind: "CONFIRMED",
     termName: "12.–18. 7. 2027",
+    gender: "MALE",
     application: application({
       number: 49,
       firstName: "Petr",
@@ -296,69 +297,69 @@ describe("ApplicationConfirmationMailer.sendApplicationChange", () => {
     ...overrides,
   })
 
-  // EMAILY.md row → what the applicant reads. Czech is Figma verbatim except that the
-  // participant is named in brackets (a Czech name cannot be declined by code).
-  it.each([
-    [
-      "no. 2",
-      "CONFIRMED",
-      "Účast je potvrzená",
-      "Organizátor potvrdil účast v termínu 12.–18. 7. 2027 (Petr Novák).",
-    ],
-    [
-      "no. 3",
-      "WAITLISTED",
-      "Jste náhradník",
-      "jste zařazeni mezi náhradníky (Petr Novák). Zatím nic neplaťte.",
-    ],
-    [
-      "no. 4, 9, 10",
-      "REJECTED",
-      "Přihláška byla zamítnuta",
-      "Stav přihlášky v tomto termínu je Zrušená.",
-    ],
-    [
-      "no. 5",
-      "CONFIRMED_FROM_WAITLIST",
-      "Uvolnilo se lůžko. Účast je potvrzená",
-      "už nejste náhradník (Petr Novák). Vaše účast byla potvrzená.",
-    ],
-    [
-      "no. 6",
-      "NO_BED_FREED",
-      "Termín začal, lůžko se neuvolnilo",
-      "neuvolnilo lůžko. Přihláška v tomto termínu je proto zrušená.",
-    ],
-    [
-      "no. 11",
-      "CANCELLED",
-      "Odhlášení je potvrzené",
-      "Ostatní termíny přihlášky zůstávají beze změny.",
-    ],
-    [
-      "no. 14",
-      "CANCELLED_BY_ORGANIZER",
-      "Přihláška zrušená organizátorem",
-      "který byl náhradníkem v termínu 12.–18. 7. 2027.",
-    ],
-    [
-      "no. 13",
-      "WAITLISTED_AFTER_CONFIRMED",
-      "Potvrzení bylo odvoláno. Jste náhradník",
-      "Nejde o čekání na první vyhodnocení.",
-    ],
-  ] as const)(
-    "EMAILY.md %s (%s): Czech heading, text, link into the app and organization footer",
-    async (_row, kind, heading, sentence) => {
+  // EMAILY.md row → what the applicant reads, the Czech sentences of the Figma frames. Where a
+  // frame declines the name ("účast Adama Dvořáka") the name stands in brackets in its place.
+  const T = "12.–18. 7. 2027"
+  const sentences = {
+    MALE: {
+      CONFIRMED: `Organizátor potvrdil účast (Petr Novák) v termínu ${T}.`,
+      WAITLISTED: `Petr Novák je v termínu ${T} zařazený mezi náhradníky. Zatím nic neplaťte.`,
+      REJECTED: `Organizátor zamítl účast (Petr Novák) v termínu ${T}. Stav přihlášky v tomto termínu je Zrušená.`,
+      CONFIRMED_FROM_WAITLIST: `Petr Novák už není náhradník. Jeho účast v termínu ${T} byla potvrzená.`,
+      NO_BED_FREED: `Do začátku termínu ${T} se pro (Petr Novák) neuvolnilo lůžko. Přihláška v tomto termínu je proto zrušená.`,
+      CANCELLED: `Petr Novák je odhlášený z termínu ${T}. Ostatní termíny přihlášky zůstávají beze změny.`,
+      CANCELLED_BY_ORGANIZER: `Organizátor zrušil přihlášku (Petr Novák), který byl náhradníkem v termínu ${T}.`,
+      WAITLISTED_AFTER_CONFIRMED: `Organizátor odvolal potvrzení účasti (Petr Novák) v termínu ${T} a zařadil ho mezi náhradníky. Nejde o čekání na první vyhodnocení.`,
+    },
+    FEMALE: {
+      CONFIRMED: `Organizátor potvrdil účast (Petr Novák) v termínu ${T}.`,
+      WAITLISTED: `Petr Novák je v termínu ${T} zařazená mezi náhradníky. Zatím nic neplaťte.`,
+      REJECTED: `Organizátor zamítl účast (Petr Novák) v termínu ${T}. Stav přihlášky v tomto termínu je Zrušená.`,
+      CONFIRMED_FROM_WAITLIST: `Petr Novák už není náhradnice. Její účast v termínu ${T} byla potvrzená.`,
+      NO_BED_FREED: `Do začátku termínu ${T} se pro (Petr Novák) neuvolnilo lůžko. Přihláška v tomto termínu je proto zrušená.`,
+      CANCELLED: `Petr Novák je odhlášená z termínu ${T}. Ostatní termíny přihlášky zůstávají beze změny.`,
+      CANCELLED_BY_ORGANIZER: `Organizátor zrušil přihlášku (Petr Novák), která byla náhradnicí v termínu ${T}.`,
+      WAITLISTED_AFTER_CONFIRMED: `Organizátor odvolal potvrzení účasti (Petr Novák) v termínu ${T} a zařadil ji mezi náhradníky. Nejde o čekání na první vyhodnocení.`,
+    },
+  } as const
+  const headings = {
+    CONFIRMED: "Účast je potvrzená",
+    WAITLISTED: "Jste náhradník",
+    REJECTED: "Přihláška byla zamítnuta",
+    CONFIRMED_FROM_WAITLIST: "Uvolnilo se lůžko. Účast je potvrzená",
+    NO_BED_FREED: "Termín začal, lůžko se neuvolnilo",
+    CANCELLED: "Odhlášení je potvrzené",
+    CANCELLED_BY_ORGANIZER: "Přihláška zrušená organizátorem",
+    WAITLISTED_AFTER_CONFIRMED: "Potvrzení bylo odvoláno. Jste náhradník",
+  } as const
+  const rows = {
+    CONFIRMED: "no. 2",
+    WAITLISTED: "no. 3",
+    REJECTED: "no. 4, 9, 10",
+    CONFIRMED_FROM_WAITLIST: "no. 5",
+    NO_BED_FREED: "no. 6",
+    CANCELLED: "no. 11",
+    CANCELLED_BY_ORGANIZER: "no. 14",
+    WAITLISTED_AFTER_CONFIRMED: "no. 13",
+  } as const
+  const cases = (["MALE", "FEMALE"] as const).flatMap((gender) =>
+    (Object.keys(headings) as (keyof typeof headings)[]).map(
+      (kind) => [rows[kind], kind, gender] as const,
+    ),
+  )
+
+  it.each(cases)(
+    "EMAILY.md %s (%s, %s): Czech heading, sentence, link into the app and organization footer",
+    async (_row, kind, gender) => {
       const { mailer, sendEmail } = setup()
 
-      await mailer.sendApplicationChange(change({ kind }))
+      await mailer.sendApplicationChange(change({ kind, gender }))
 
       const { to, subject, html } = sent(sendEmail)
       expect(to).toBe("petra@example.com")
       expect(subject).toBe("Změna ve vaší přihlášce: Letní kemp 2027")
-      expect(html).toContain(heading)
-      expect(html).toContain(sentence)
+      expect(html).toContain(headings[kind])
+      expect(html).toContain(sentences[gender][kind])
       expect(html).toContain("Letní kemp 2027")
       expect(html).toContain(`href="${FRONTEND}/apply/confirmation/token-49"`)
       expect(html).toContain("Otevřít moje přihlášky")
@@ -366,6 +367,37 @@ describe("ApplicationConfirmationMailer.sendApplicationChange", () => {
       expect(html).toContain('lang="cs"')
     },
   )
+
+  it("is responsive: 16 px gutters, 24/32 px heading and a 44 px button at 360 px", async () => {
+    const { mailer, sendEmail } = setup()
+
+    await mailer.sendApplicationChange(change())
+
+    const { html } = sent(sendEmail)
+    expect(html).toMatch(/@media[^{]*max-width:\s*480px/)
+    expect(html).toContain(".tg-card>tbody>tr>td{padding-left:16px !important")
+    expect(html).toContain(".tg-body>table>tbody>tr>td{padding:16px !important}")
+    expect(html).toContain("max-480px_text-2xl")
+    expect(html).toContain("max-480px_py-3")
+  })
+
+  it("keeps TERMS_CHANGED for the term-change stories: the old sentence, payment details when the amount changed", async () => {
+    const { mailer, sendEmail } = setup()
+
+    await mailer.sendApplicationChange(
+      change({
+        isAmountChanged: true,
+        kind: "TERMS_CHANGED",
+        application: application({ number: 49 }),
+      }),
+    )
+
+    const { html } = sent(sendEmail)
+    expect(html).toContain("Změnily se termíny přihlášky")
+    expect(html).toContain("9 400 Kč")
+    expect(html).toContain("49000")
+    expect(html).toContain("2900123456/2010")
+  })
 
   it("sends the English e-mail of Figma frame 02 EN for a confirmation, with payment details", async () => {
     const { mailer, sendEmail } = setup()

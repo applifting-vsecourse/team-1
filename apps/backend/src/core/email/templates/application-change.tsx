@@ -1,8 +1,6 @@
 import { Locale } from '@/core/email/locale';
-import {
-  ChangeLayout,
-  ChangeLayoutProps,
-} from '@/core/email/templates/application-change-layout';
+import { ChangeLayout, ChangeLayoutProps } from '@/core/email/templates/application-change-layout';
+import { Gender } from '@/shared/domain/gender';
 import * as React from 'react';
 
 /**
@@ -16,6 +14,8 @@ import * as React from 'react';
  * - `CANCELLED`: the applicant cancelled (no. 11)
  * - `CANCELLED_BY_ORGANIZER`: Náhradník → Zrušená by the organizer (no. 14)
  *
+ * `TERMS_CHANGED` is prepared for the term-change stories; nothing sends it yet.
+ *
  * No. 13 (Potvrzená s dluhem → Náhradník) and no. 15 (term cancelled) have their own templates.
  */
 export type ChangeKind =
@@ -25,18 +25,21 @@ export type ChangeKind =
   | 'REJECTED'
   | 'CANCELLED'
   | 'NO_BED_FREED'
-  | 'CANCELLED_BY_ORGANIZER';
+  | 'CANCELLED_BY_ORGANIZER'
+  /** US-33 / US-84: no trigger yet, no frame. */
+  | 'TERMS_CHANGED';
 
 type KindCopy = {
   heading: string;
   /** `name` is the participant (nominative), `term` the term's name or dates. */
-  text: (name: string, term: string) => string;
-  badge: string;
-  tone: ChangeLayoutProps['badge']['tone'];
+  text: (name: string, term: string, gender: Gender) => string;
+  badge: { label: string; tone: 'positive' | 'neutral' } | null;
 };
 
 // Copy for all locales side by side — a missing translation is a type error.
-// Czech sentences name the participant in brackets: a Czech name cannot be declined by code.
+// Czech: where a frame names the participant in the nominative the sentence is verbatim, with the
+// gendered forms picked by `gender`. Where a frame declines the name ("účast Adama Dvořáka") code
+// cannot do that, so the name stands in its place in brackets, the rest verbatim.
 const copy: Record<
   Locale,
   {
@@ -55,52 +58,49 @@ const copy: Record<
       // Figma: E-mail 02 EN
       CONFIRMED: {
         heading: 'Your place is confirmed',
-        text: (name, term) =>
-          `The organiser has confirmed ${name}’s place for ${term}.`,
-        badge: 'Confirmed · payment due',
-        tone: 'positive',
+        text: (name, term) => `The organiser has confirmed ${name}’s place for ${term}.`,
+        badge: { label: 'Confirmed · payment due', tone: 'positive' },
       },
       CONFIRMED_FROM_WAITLIST: {
         heading: 'A bed has become free. Your place is confirmed',
         text: (name, term) =>
           `${name} is no longer a substitute. Their place for ${term} has been confirmed.`,
-        badge: 'Confirmed · payment due',
-        tone: 'positive',
+        badge: { label: 'Confirmed · payment due', tone: 'positive' },
       },
       WAITLISTED: {
         heading: 'You are a substitute',
         text: (name, term) =>
           `${name} has been placed among the substitutes for ${term}. Please do not pay anything yet.`,
-        badge: 'Substitute',
-        tone: 'neutral',
+        badge: { label: 'Substitute', tone: 'neutral' },
       },
       REJECTED: {
         heading: 'Your application was rejected',
         text: (name, term) =>
           `The organiser rejected ${name}’s place for ${term}. The status of the application in this term is Cancelled.`,
-        badge: 'Cancelled',
-        tone: 'neutral',
+        badge: { label: 'Cancelled', tone: 'neutral' },
       },
       CANCELLED: {
         heading: 'Your cancellation is confirmed',
         text: (name, term) =>
           `${name} has been cancelled from ${term}. The other terms of the application stay unchanged.`,
-        badge: 'Cancelled',
-        tone: 'neutral',
+        badge: { label: 'Cancelled', tone: 'neutral' },
       },
       NO_BED_FREED: {
         heading: 'The term has started, no bed became free',
         text: (name, term) =>
           `No bed became free for ${name} before ${term} started. The application in this term is therefore cancelled.`,
-        badge: 'Cancelled',
-        tone: 'neutral',
+        badge: { label: 'Cancelled', tone: 'neutral' },
       },
       CANCELLED_BY_ORGANIZER: {
         heading: 'Application cancelled by the organiser',
         text: (name, term) =>
           `The organiser cancelled the application of ${name}, who was a substitute for ${term}.`,
-        badge: 'Cancelled',
-        tone: 'neutral',
+        badge: { label: 'Cancelled', tone: 'neutral' },
+      },
+      TERMS_CHANGED: {
+        heading: 'Your application changed',
+        text: () => 'The terms of the application changed.',
+        badge: null,
       },
     },
     amountDue: 'Amount due',
@@ -114,52 +114,49 @@ const copy: Record<
     kinds: {
       CONFIRMED: {
         heading: 'Účast je potvrzená',
-        text: (name, term) =>
-          `Organizátor potvrdil účast v termínu ${term} (${name}).`,
-        badge: 'Účast potvrzena',
-        tone: 'positive',
+        text: (name, term) => `Organizátor potvrdil účast (${name}) v termínu ${term}.`,
+        badge: { label: 'Účast potvrzena', tone: 'positive' },
       },
       CONFIRMED_FROM_WAITLIST: {
         heading: 'Uvolnilo se lůžko. Účast je potvrzená',
-        text: (name, term) =>
-          `V termínu ${term} už nejste náhradník (${name}). Vaše účast byla potvrzená.`,
-        badge: 'Účast potvrzena',
-        tone: 'positive',
+        text: (name, term, gender) =>
+          `${name} už není ${gender === 'FEMALE' ? 'náhradnice' : 'náhradník'}. ${gender === 'FEMALE' ? 'Její' : 'Jeho'} účast v termínu ${term} byla potvrzená.`,
+        badge: { label: 'Účast potvrzena', tone: 'positive' },
       },
       WAITLISTED: {
         heading: 'Jste náhradník',
-        text: (name, term) =>
-          `V termínu ${term} jste zařazeni mezi náhradníky (${name}). Zatím nic neplaťte.`,
-        badge: 'Náhradník',
-        tone: 'neutral',
+        text: (name, term, gender) =>
+          `${name} je v termínu ${term} zařazen${gender === 'FEMALE' ? 'á' : 'ý'} mezi náhradníky. Zatím nic neplaťte.`,
+        badge: { label: 'Náhradník', tone: 'neutral' },
       },
       REJECTED: {
         heading: 'Přihláška byla zamítnuta',
         text: (name, term) =>
-          `Organizátor zamítl účast v termínu ${term} (${name}). Stav přihlášky v tomto termínu je Zrušená.`,
-        badge: 'Zrušená',
-        tone: 'neutral',
+          `Organizátor zamítl účast (${name}) v termínu ${term}. Stav přihlášky v tomto termínu je Zrušená.`,
+        badge: { label: 'Zrušená', tone: 'neutral' },
       },
       CANCELLED: {
         heading: 'Odhlášení je potvrzené',
-        text: (name, term) =>
-          `Z termínu ${term} je odhlášený účastník ${name}. Ostatní termíny přihlášky zůstávají beze změny.`,
-        badge: 'Zrušená',
-        tone: 'neutral',
+        text: (name, term, gender) =>
+          `${name} je odhlášen${gender === 'FEMALE' ? 'á' : 'ý'} z termínu ${term}. Ostatní termíny přihlášky zůstávají beze změny.`,
+        badge: { label: 'Zrušená', tone: 'neutral' },
       },
       NO_BED_FREED: {
         heading: 'Termín začal, lůžko se neuvolnilo',
         text: (name, term) =>
-          `Do začátku termínu ${term} se pro účastníka ${name} neuvolnilo lůžko. Přihláška v tomto termínu je proto zrušená.`,
-        badge: 'Zrušená',
-        tone: 'neutral',
+          `Do začátku termínu ${term} se pro (${name}) neuvolnilo lůžko. Přihláška v tomto termínu je proto zrušená.`,
+        badge: { label: 'Zrušená', tone: 'neutral' },
       },
       CANCELLED_BY_ORGANIZER: {
         heading: 'Přihláška zrušená organizátorem',
-        text: (name, term) =>
-          `Organizátor zrušil přihlášku účastníka ${name}, který byl náhradníkem v termínu ${term}.`,
-        badge: 'Zrušená',
-        tone: 'neutral',
+        text: (name, term, gender) =>
+          `Organizátor zrušil přihlášku (${name}), ${gender === 'FEMALE' ? 'která byla náhradnicí' : 'který byl náhradníkem'} v termínu ${term}.`,
+        badge: { label: 'Zrušená', tone: 'neutral' },
+      },
+      TERMS_CHANGED: {
+        heading: 'Změna přihlášky',
+        text: () => 'Změnily se termíny přihlášky.',
+        badge: null,
       },
     },
     amountDue: 'K úhradě',
@@ -170,10 +167,8 @@ const copy: Record<
   },
 };
 
-export const applicationChangeSubject = (
-  locale: Locale,
-  eventName: string,
-): string => copy[locale].subject(eventName);
+export const applicationChangeSubject = (locale: Locale, eventName: string): string =>
+  copy[locale].subject(eventName);
 
 export interface ApplicationChangeProps {
   locale: Locale;
@@ -182,6 +177,8 @@ export interface ApplicationChangeProps {
   organizationName: string;
   /** First and last name of the participant. */
   name: string;
+  /** Of the participant: the Czech copy is gendered. */
+  gender: Gender;
   /** The changed term: its name, or its dates. */
   term: string;
   kind: ChangeKind;
@@ -202,6 +199,7 @@ export const ApplicationChange = ({
   eventName,
   organizationName,
   name,
+  gender,
   term,
   kind,
   payment,
@@ -227,8 +225,8 @@ export const ApplicationChange = ({
       preview={kindCopy.heading}
       heading={kindCopy.heading}
       eventName={eventName}
-      text={kindCopy.text(name, term)}
-      badge={{ label: kindCopy.badge, tone: kindCopy.tone }}
+      text={kindCopy.text(name, term, gender)}
+      badge={kindCopy.badge}
       details={details}
       buttonLabel={text.button}
       buttonUrl={confirmationUrl}
@@ -252,6 +250,7 @@ ApplicationChange.PreviewProps = {
   eventName: 'Letní kemp Lipno 2027',
   organizationName: 'Alpine Collective',
   name: 'Adam Dvořák',
+  gender: 'MALE',
   term: '12.–18. 7. 2027',
   kind: 'CONFIRMED',
   payment: {
@@ -260,8 +259,7 @@ ApplicationChange.PreviewProps = {
     variableSymbol: '2027001000',
     terms: [],
   },
-  confirmationUrl:
-    'https://team-1.vsepractical.applifting.dev/apply/confirmation/preview-2',
+  confirmationUrl: 'https://team-1.vsepractical.applifting.dev/apply/confirmation/preview-2',
 } satisfies ApplicationChangeProps;
 
 export default ApplicationChange;

@@ -151,6 +151,7 @@ export class TermStatusRepository {
         eventName: application.event.name,
         organizationName: application.event.organization.name,
         bankAccount: application.event.organization.bankAccount,
+        gender: application.gender,
         termName: termLabel(terms.find((row) => row.termId === command.termId)!.term, locale),
         application: {
           number: application.number,

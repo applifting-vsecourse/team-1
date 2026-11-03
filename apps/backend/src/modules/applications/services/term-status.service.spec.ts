@@ -18,6 +18,7 @@ const result = (
   organizationName: "Alpine Collective",
   bankAccount: "2900123456/2010",
   termName: "T1",
+  gender: "FEMALE",
   application: {
     number: 1,
     firstName: "Jana",
@@ -99,6 +100,7 @@ describe("TermStatusService", () => {
           isAmountChanged,
           organizationName: "Alpine Collective",
           termName: "T1",
+          gender: "FEMALE",
         }),
       )
     },

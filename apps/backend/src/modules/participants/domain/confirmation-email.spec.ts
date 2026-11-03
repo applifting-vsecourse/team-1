@@ -74,6 +74,7 @@ describe("buildChangeProps", () => {
     bankAccount: "2900123456/2010",
     kind: "REJECTED",
     termName: "1. týden",
+    gender: "MALE",
     application,
     isAmountChanged: false,
     ...overrides,
@@ -82,6 +83,7 @@ describe("buildChangeProps", () => {
   it("names the participant, the changed term, the organization and the link into the app", () => {
     expect(buildChangeProps(change(), "https://app")).toMatchObject({
       name: "Petr Novák",
+      gender: "MALE",
       term: "1. týden",
       organizationName: "Alpine Collective",
       confirmationUrl: "https://app/apply/confirmation/token-49",
@@ -164,6 +166,7 @@ describe("payment details of the e-mails (US-137)", () => {
         kind: "CONFIRMED",
         organizationName: "Alpine Collective",
         termName: "1. týden",
+        gender: "MALE",
         application: { ...application, number: 12345 },
         isAmountChanged: true,
       },

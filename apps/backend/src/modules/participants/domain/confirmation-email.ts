@@ -65,7 +65,11 @@ export function buildConfirmationApplications(
 }
 
 /** The kinds that payment details can belong to: where the application became confirmed. */
-const PAYING_KINDS: ApplicationChange["kind"][] = ["CONFIRMED", "CONFIRMED_FROM_WAITLIST"]
+const PAYING_KINDS: ApplicationChange["kind"][] = [
+  "CONFIRMED",
+  "CONFIRMED_FROM_WAITLIST",
+  "TERMS_CHANGED",
+]
 
 /**
  * Props of the change e-mail; the payment details only when the amount due changed because
@@ -82,6 +86,7 @@ export function buildChangeProps(
     eventName: change.eventName,
     organizationName: change.organizationName,
     name: `${application.firstName} ${application.lastName}`,
+    gender: change.gender,
     term: change.termName,
     kind: change.kind,
     payment:
@@ -103,6 +108,7 @@ export function buildTermNoticeProps(
     eventName: change.eventName,
     organizationName: change.organizationName,
     name: `${application.firstName} ${application.lastName}`,
+    gender: change.gender,
     term: change.termName,
     confirmationUrl: confirmationUrl(frontendUrl, application.accessToken),
   }

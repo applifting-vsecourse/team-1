@@ -1,5 +1,6 @@
 import { Locale } from "@/core/email/locale"
 import { ApplicationTermStatus } from "@/modules/applications/domain/evaluation"
+import { Gender } from "@/shared/domain/gender"
 
 /** One application of a submission — one per participant (the person going to the event). */
 export type SubmittedApplication = {
@@ -63,6 +64,8 @@ export type ApplicationChangeKind =
   | "NO_BED_FREED"
   /** 14: Náhradník → Zrušená by the organizer. */
   | "CANCELLED_BY_ORGANIZER"
+  /** US-33 / US-84: the terms of the application changed; no trigger yet. */
+  | "TERMS_CHANGED"
 
 /** One changed application → one e-mail to the applicant. */
 export type ApplicationChange = {
@@ -76,6 +79,8 @@ export type ApplicationChange = {
   kind: ApplicationChangeKind
   /** The term that changed: its name, else its dates. */
   termName: string
+  /** Of the participant: the Czech copy is gendered. */
+  gender: Gender
   /** The application as it stands now. */
   application: SubmittedApplication
   /** The amount due changed: the e-mail repeats the payment details. */
