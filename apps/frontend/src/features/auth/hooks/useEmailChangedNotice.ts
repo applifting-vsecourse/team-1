@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 import { useNavigate } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
@@ -12,9 +12,12 @@ import { notify } from "@/lib/notify"
 export function useEmailChangedNotice(isEmailChanged: boolean, email: string | undefined) {
   const { t } = useTranslation("auth")
   const navigate = useNavigate()
+  // Effects run twice in development and the session refetches: the toast must show once.
+  const isShown = useRef(false)
 
   useEffect(() => {
-    if (!isEmailChanged || !email) return
+    if (!isEmailChanged || !email || isShown.current) return
+    isShown.current = true
     notify.success(
       t("changeEmail.confirmed.title"),
       t("changeEmail.confirmed.description", { email }),

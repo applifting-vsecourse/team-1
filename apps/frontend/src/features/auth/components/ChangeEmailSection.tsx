@@ -10,6 +10,13 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import {
   Form,
   FormControl,
   FormField,
@@ -33,9 +40,10 @@ type ChangeEmailSectionProps = {
 }
 
 /**
- * The „Přihlašovací e-mail“ card of the account settings and the note under it: the
- * signed-in user enters a new e-mail, the link goes to it, and the old e-mail keeps
- * working until the link is clicked. Sits in the two-column grid of the page.
+ * The „Přihlašovací e-mail“ card of the account settings and the note under it. The card
+ * only shows the current e-mail, so it never changes size; the new address is entered in
+ * a dialog, which then tells that the link is on its way. The old e-mail keeps working
+ * until the link is clicked. Sits in the two-column grid of the page.
  */
 // Figma (Design system): US-125 / Nastavení účtu · Profil · změna e-mailu · Zadat nový e-mail · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16244-2632 (desktop), https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16244-2699 (mobil)
 // Figma (Design system): US-125 / Nastavení účtu · Profil · změna e-mailu · Čeká na ověření · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16244-2736 (desktop), https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16244-2799 (mobil)
@@ -51,8 +59,7 @@ export function ChangeEmailSection({ user }: ChangeEmailSectionProps) {
   })
   // Only the browser knows a change is waiting: the link is a signed token, nothing is stored.
   const [pendingEmail, setPendingEmail] = useState<string | null>(null)
-  // The form opens on „Změnit e-mail“; „Zrušit“ closes it again.
-  const [isEditing, setIsEditing] = useState(false)
+  const [isOpen, setIsOpen] = useState(false)
   const { errors } = form.formState
 
   const onSubmit = async ({ newEmail }: FormValues) => {
@@ -69,8 +76,9 @@ export function ChangeEmailSection({ user }: ChangeEmailSectionProps) {
     }
   }
 
-  const closeForm = () => {
-    setIsEditing(false)
+  const setOpen = (isNowOpen: boolean) => {
+    setIsOpen(isNowOpen)
+    if (isNowOpen) return
     setPendingEmail(null)
     form.reset()
     request.reset()
@@ -78,122 +86,126 @@ export function ChangeEmailSection({ user }: ChangeEmailSectionProps) {
 
   return (
     <>
-      <Card className="gap-4 p-4 md:self-start">
+      <Card className="gap-4 p-4">
         <h2 className="text-2xl font-bold">{t("changeEmail.title")}</h2>
-        {pendingEmail ? null : (
-          <DetailItem label={t("changeEmail.current")}>{user.email}</DetailItem>
-        )}
-
-        {pendingEmail ? (
-          <>
-            <Alert
-              role="status"
-              className="rounded-lg border-border bg-accent/30 p-4"
-            >
-              <TriangleAlert />
-              <AlertTitle>{t("changeEmail.pending.title")}</AlertTitle>
-              <AlertDescription>
-                {t("changeEmail.pending.description", { email: pendingEmail })}
-              </AlertDescription>
-            </Alert>
-            <DetailItem label={t("changeEmail.pending.original")}>{user.email}</DetailItem>
-            <DetailItem label={t("changeEmail.pending.new")}>{pendingEmail}</DetailItem>
-            <Button
-              type="button"
-              variant="outline"
-              size="lg"
-              className="h-12 w-full rounded-lg md:w-fit md:self-start"
-              onClick={closeForm}
-            >
-              {t("changeEmail.pending.back")}
-            </Button>
-          </>
-        ) : !isEditing ? (
-          <Button
-            type="button"
-            size="lg"
-            // Looks like „Uložit údaje“ of the neighbouring card.
-            className="h-12 w-full rounded-lg md:w-45 md:self-start"
-            onClick={() => setIsEditing(true)}
-          >
-            {t("changeEmail.start")}
-          </Button>
-        ) : (
-          <Form {...form}>
-            <form
-              noValidate
-              onSubmit={form.handleSubmit(onSubmit)}
-              className="flex flex-col gap-4"
-            >
-              <FormField
-                control={form.control}
-                name="newEmail"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t("changeEmail.new")}</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="email"
-                        autoComplete="email"
-                        className="h-12 rounded-lg text-base md:text-base"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <p>{t("changeEmail.hint")}</p>
-
-              {request.isError && !errors.newEmail ? (
-                <Alert variant="destructive">
-                  <CircleAlert />
-                  <AlertDescription>
-                    {tErrors(
-                      apiErrorCode(request.error) === "EMAIL_DELIVERY_FAILED"
-                        ? "EMAIL_DELIVERY_FAILED"
-                        : "UNKNOWN",
-                    )}
-                  </AlertDescription>
-                </Alert>
-              ) : null}
-
-              {/* Desktop: secondary left, primary right; phone: primary on top (Togena / Dialog actions). */}
-              <div className="flex flex-col-reverse gap-3 md:flex-row">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="lg"
-                  className="h-12 flex-1 rounded-lg"
-                  onClick={closeForm}
-                >
-                  {t("changeEmail.cancel")}
-                </Button>
-                <Button
-                  type="submit"
-                  size="lg"
-                  className="h-12 flex-1 rounded-lg"
-                  disabled={request.isPending}
-                >
-                  {request.isPending ? <Loader2 className="animate-spin" /> : null}
-                  {t("changeEmail.submit")}
-                </Button>
-              </div>
-            </form>
-          </Form>
-        )}
+        <DetailItem label={t("changeEmail.current")}>{user.email}</DetailItem>
+        <Button
+          type="button"
+          size="lg"
+          // Looks like „Uložit údaje“ of the neighbouring card, and sits at the same height.
+          className="mt-auto h-12 w-full rounded-lg md:w-45 md:self-start"
+          onClick={() => setOpen(true)}
+        >
+          {t("changeEmail.start")}
+        </Button>
       </Card>
 
-      {/* The „Neplatná nová adresa“ frame draws no note. */}
-      {errors.newEmail ? null : (
-        <DetailItem
-          label={t("changeEmail.footer.label")}
-          className="md:col-span-2"
-        >
-          {t("changeEmail.footer.default")}
-        </DetailItem>
-      )}
+      <Dialog
+        open={isOpen}
+        onOpenChange={setOpen}
+      >
+        <DialogContent className="max-h-[calc(100dvh-2rem)] gap-4 overflow-y-auto p-6 sm:max-w-130">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold">{t("changeEmail.title")}</DialogTitle>
+            <DialogDescription>{t("changeEmail.hint")}</DialogDescription>
+          </DialogHeader>
+
+          {pendingEmail ? (
+            <>
+              <Alert
+                role="status"
+                className="rounded-lg border-border bg-accent/30 p-4"
+              >
+                <TriangleAlert />
+                <AlertTitle>{t("changeEmail.pending.title")}</AlertTitle>
+                <AlertDescription>
+                  {t("changeEmail.pending.description", { email: pendingEmail })}
+                </AlertDescription>
+              </Alert>
+              <DetailItem label={t("changeEmail.pending.original")}>{user.email}</DetailItem>
+              <DetailItem label={t("changeEmail.pending.new")}>{pendingEmail}</DetailItem>
+              <Button
+                type="button"
+                size="lg"
+                className="h-12 w-full rounded-lg"
+                onClick={() => setOpen(false)}
+              >
+                {t("changeEmail.pending.close")}
+              </Button>
+            </>
+          ) : (
+            <Form {...form}>
+              <form
+                noValidate
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="flex flex-col gap-4"
+              >
+                <DetailItem label={t("changeEmail.current")}>{user.email}</DetailItem>
+                <FormField
+                  control={form.control}
+                  name="newEmail"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t("changeEmail.new")}</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="email"
+                          autoComplete="email"
+                          className="h-12 rounded-lg text-base md:text-base"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {request.isError && !errors.newEmail ? (
+                  <Alert variant="destructive">
+                    <CircleAlert />
+                    <AlertDescription>
+                      {tErrors(
+                        apiErrorCode(request.error) === "EMAIL_DELIVERY_FAILED"
+                          ? "EMAIL_DELIVERY_FAILED"
+                          : "UNKNOWN",
+                      )}
+                    </AlertDescription>
+                  </Alert>
+                ) : null}
+
+                {/* Desktop: secondary left, primary right; phone: primary on top (Togena / Dialog actions). */}
+                <div className="flex flex-col-reverse gap-3 md:flex-row">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="lg"
+                    className="h-12 w-full rounded-lg md:flex-1"
+                    onClick={() => setOpen(false)}
+                  >
+                    {t("changeEmail.cancel")}
+                  </Button>
+                  <Button
+                    type="submit"
+                    size="lg"
+                    className="h-12 w-full rounded-lg md:flex-1"
+                    disabled={request.isPending}
+                  >
+                    {request.isPending ? <Loader2 className="animate-spin" /> : null}
+                    {t("changeEmail.submit")}
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <DetailItem
+        label={t("changeEmail.footer.label")}
+        className="md:col-span-2"
+      >
+        {t("changeEmail.footer.default")}
+      </DetailItem>
     </>
   )
 }

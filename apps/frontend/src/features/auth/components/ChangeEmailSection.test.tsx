@@ -105,13 +105,16 @@ describe("ChangeEmailSection", () => {
     expect(screen.queryByLabelText("New e-mail *")).not.toBeInTheDocument()
   })
 
-  it("goes back to the closed card from the waiting state", async () => {
+  it("closes the dialog from the waiting state", async () => {
     requestEmailChange.mockResolvedValue(undefined)
     renderSection()
     await send("eva.nova@example.cz")
 
-    await userEvent.click(await screen.findByRole("button", { name: "Enter a different address" }))
+    // The dialog's own cross is named „Close“ too.
+    const [closeButton] = await screen.findAllByRole("button", { name: "Close" })
+    await userEvent.click(closeButton!)
 
+    expect(screen.queryByText("Confirm the new address.")).not.toBeInTheDocument()
     expect(screen.getByRole("button", { name: "Change e-mail" })).toBeInTheDocument()
   })
 
