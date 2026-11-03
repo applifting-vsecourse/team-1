@@ -1,6 +1,7 @@
 import type { EmailService } from "@/core/email/interfaces/email-service.interface"
 import { AccountRepository } from "@/modules/account/repositories/account.repository"
 import { Identity } from "@/shared/auth/domain/identity"
+import { verificationDelivery } from "@/shared/auth/email-change/verification-delivery"
 import type { BetterAuth } from "@/shared/auth/providers/better-auth.provider"
 import type { Config } from "@/shared/config/config.service"
 import { mock, MockProxy } from "jest-mock-extended"
@@ -74,6 +75,19 @@ describe("EmailChangeService", () => {
     await expect(
       service.requestChange(user, "eva.nova@example.cz", headers),
     ).resolves.toBeUndefined()
+  })
+
+  it("reports a failed delivery that BetterAuth swallowed, and sends no notice", async () => {
+    changeEmail.mockImplementation(async () => {
+      const delivery = verificationDelivery.getStore()
+      if (delivery) delivery.isFailed = true
+      return { status: true }
+    })
+
+    const attempt = service.requestChange(user, "eva.nova@example.cz", headers)
+
+    await expect(attempt).rejects.toMatchObject({ response: { code: "EMAIL_DELIVERY_FAILED" } })
+    expect(email.sendEmail).not.toHaveBeenCalled()
   })
 
   it("sends no notice when the link could not be sent", async () => {

@@ -6,6 +6,7 @@ import {
 } from "@/core/email/templates/change-email-notice"
 import { AccountRepository } from "@/modules/account/repositories/account.repository"
 import { Identity } from "@/shared/auth/domain/identity"
+import { verificationDelivery } from "@/shared/auth/email-change/verification-delivery"
 import type { BetterAuth } from "@/shared/auth/providers/better-auth.provider"
 import { Config } from "@/shared/config/config.service"
 import { AppException } from "@/shared/errors/app.exception"
@@ -42,14 +43,17 @@ export class EmailChangeService {
       throw new AppException(HttpStatus.BAD_REQUEST, "EMAIL_TAKEN")
     }
 
+    const delivery = { isFailed: false }
     try {
-      await this.auth.api.changeEmail({
-        body: {
-          newEmail: email,
-          callbackURL: `${this.config.frontendUrl}${EMAIL_CHANGE_LANDING_PATH}`,
-        },
-        headers,
-      })
+      await verificationDelivery.run(delivery, () =>
+        this.auth.api.changeEmail({
+          body: {
+            newEmail: email,
+            callbackURL: `${this.config.frontendUrl}${EMAIL_CHANGE_LANDING_PATH}`,
+          },
+          headers,
+        }),
+      )
     } catch (error) {
       // A refusal by BetterAuth (4xx) is the caller's input; anything else is a failed delivery.
       const status = (error as { statusCode?: unknown }).statusCode
@@ -59,6 +63,9 @@ export class EmailChangeService {
       // The e-mail could not be sent (e.g. the mail service refuses the address): say so, not „internal error“.
       throw new AppException(HttpStatus.BAD_GATEWAY, "EMAIL_DELIVERY_FAILED")
     }
+
+    // BetterAuth answers „ok“ even when the mail service refused the link e-mail.
+    if (delivery.isFailed) throw new AppException(HttpStatus.BAD_GATEWAY, "EMAIL_DELIVERY_FAILED")
 
     await this.notifyOldAddress(user, email)
   }
