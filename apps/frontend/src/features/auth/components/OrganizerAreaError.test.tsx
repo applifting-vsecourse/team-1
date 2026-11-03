@@ -32,6 +32,7 @@ const participant: SessionUser = {
   name: "Petra",
   accountType: "PARTICIPANT",
   mustSetPassword: false,
+  locale: "en",
 }
 
 const organizer: SessionUser = {

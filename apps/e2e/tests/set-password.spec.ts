@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test"
-import { signIn } from "./support/auth"
+import { signIn, signOut } from "./support/auth"
 import { latestMagicLinkToken } from "./support/magic-link"
 import { createParticipantWithoutPassword } from "./support/participants"
 
@@ -26,8 +26,7 @@ test(
     await page.getByRole("button", { name: "Set password and open application" }).click()
     await expect(page.getByRole("heading", { level: 1, name: "Your applications" })).toBeVisible()
 
-    await page.goto("/participant/account")
-    await page.getByRole("main").getByRole("button", { name: "Sign out" }).click()
+    await signOut(page, { email, password })
     // Sign-out ends on the landing page; leaving earlier would abort the request and keep the session.
     await expect(page).toHaveURL(/\/$/)
     await signIn(page, "participant", { email, password })
