@@ -1,10 +1,15 @@
+import type { EmailService } from "@/core/email/interfaces/email-service.interface"
 import { AccountRepository } from "@/modules/account/repositories/account.repository"
 import { Identity } from "@/shared/auth/domain/identity"
 import type { BetterAuth } from "@/shared/auth/providers/better-auth.provider"
 import type { Config } from "@/shared/config/config.service"
-import { AppException } from "@/shared/errors/app.exception"
 import { mock, MockProxy } from "jest-mock-extended"
 import { EmailChangeService } from "./email-change.service"
+
+// react-email's renderer needs ESM support that Jest lacks; the real rendering is covered by the integration test.
+jest.mock("@/core/email/render", () => ({
+  renderEmail: jest.fn().mockResolvedValue("<html>eva.nova@example.cz</html>"),
+}))
 
 describe("EmailChangeService", () => {
   const changeEmail = jest.fn()
@@ -13,13 +18,15 @@ describe("EmailChangeService", () => {
   const user = new Identity("u1", "eva.mala@example.cz", "Eva", "PARTICIPANT", false, "cs")
   const headers = new Headers({ cookie: "session=1" })
   let repository: MockProxy<AccountRepository>
+  let email: MockProxy<EmailService>
   let service: EmailChangeService
 
   beforeEach(() => {
     changeEmail.mockReset()
     repository = mock<AccountRepository>()
+    email = mock<EmailService>()
     repository.isEmailTaken.mockResolvedValue(false)
-    service = new EmailChangeService(repository, auth, config)
+    service = new EmailChangeService(repository, auth, config, email)
   })
 
   it("asks BetterAuth to send the link, with the lower-cased address and the landing page", async () => {
@@ -39,15 +46,41 @@ describe("EmailChangeService", () => {
 
     const attempt = service.requestChange(user, "organizator@example.com", headers)
 
-    await expect(attempt).rejects.toMatchObject({ response: { code: "VALIDATION_FAILED" } })
+    await expect(attempt).rejects.toMatchObject({ response: { code: "EMAIL_TAKEN" } })
     expect(changeEmail).not.toHaveBeenCalled()
+    expect(email.sendEmail).not.toHaveBeenCalled()
   })
 
   it("refuses the current address, whatever its case", async () => {
-    await expect(
-      service.requestChange(user, "EVA.MALA@example.cz", headers),
-    ).rejects.toBeInstanceOf(AppException)
+    await expect(service.requestChange(user, "EVA.MALA@example.cz", headers)).rejects.toMatchObject(
+      { response: { code: "EMAIL_TAKEN" } },
+    )
     expect(changeEmail).not.toHaveBeenCalled()
+  })
+
+  it("warns the old address (in the language of the account) that a change was requested", async () => {
+    await service.requestChange(user, "eva.nova@example.cz", headers)
+
+    expect(email.sendEmail).toHaveBeenCalledTimes(1)
+    const [to, subject, html] = email.sendEmail.mock.calls[0]
+    expect(to).toBe("eva.mala@example.cz")
+    expect(subject).toBe("Byla požádána změna přihlašovacího e-mailu")
+    expect(html).toContain("eva.nova@example.cz")
+  })
+
+  it("does not fail the change when the notice to the old address cannot be sent", async () => {
+    email.sendEmail.mockRejectedValue(new Error("mail server down"))
+
+    await expect(
+      service.requestChange(user, "eva.nova@example.cz", headers),
+    ).resolves.toBeUndefined()
+  })
+
+  it("sends no notice when the link could not be sent", async () => {
+    changeEmail.mockRejectedValue(new Error("mail server down"))
+
+    await expect(service.requestChange(user, "eva.nova@example.cz", headers)).rejects.toBeDefined()
+    expect(email.sendEmail).not.toHaveBeenCalled()
   })
 
   it("turns a refusal by BetterAuth into the same generic error", async () => {

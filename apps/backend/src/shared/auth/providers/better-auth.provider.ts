@@ -67,6 +67,14 @@ const createAuth = (
     },
     emailVerification: {
       expiresIn: EMAIL_VERIFICATION_TTL_SECONDS,
+      // After an e-mail change everything goes to the new address, so the contact e-mail of
+      // the applications of the account follows it (PO, #218). Harmless after a plain verification.
+      afterEmailVerification: async (user) => {
+        await prismaService.application.updateMany({
+          where: { userId: user.id },
+          data: { email: user.email },
+        })
+      },
       sendVerificationEmail: async ({ user, url }) => {
         const locale = toLocale((user as { locale?: unknown }).locale)
         // For an e-mail change BetterAuth hands over the user with the NEW address,

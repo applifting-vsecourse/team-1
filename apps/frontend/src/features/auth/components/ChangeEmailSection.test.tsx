@@ -119,15 +119,13 @@ describe("ChangeEmailSection", () => {
     expect(screen.getByRole("button", { name: "Change e-mail" })).toBeInTheDocument()
   })
 
-  it("shows the same invalid-address message when the server refuses the address", async () => {
-    requestEmailChange.mockRejectedValue(
-      Object.assign(new Error("x"), { code: "VALIDATION_FAILED" }),
-    )
+  it("says the address is taken when the server refuses it for belonging to an account", async () => {
+    requestEmailChange.mockRejectedValue(Object.assign(new Error("x"), { code: "EMAIL_TAKEN" }))
     renderSection()
 
     await send("taken@example.cz")
 
-    expect(await screen.findByText("Enter a valid e-mail address.")).toBeInTheDocument()
+    expect(await screen.findByText("This e-mail is already taken.")).toBeInTheDocument()
     expect(screen.queryByText("Confirm the new address.")).not.toBeInTheDocument()
   })
 

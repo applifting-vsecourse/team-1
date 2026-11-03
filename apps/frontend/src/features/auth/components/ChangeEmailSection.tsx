@@ -65,8 +65,10 @@ export function ChangeEmailSection({ user, isConfirmed = false }: ChangeEmailSec
       await request.mutateAsync(newEmail)
       setPendingEmail(newEmail)
     } catch (error) {
-      // The address is the current one or belongs to another account; the answer is the same for both.
-      if (apiErrorCode(error) === "VALIDATION_FAILED") {
+      const code = apiErrorCode(error)
+      // The address is the current one or already belongs to an account (PO, #218).
+      if (code === "EMAIL_TAKEN") form.setError("newEmail", { message: tErrors("EMAIL_TAKEN") })
+      else if (code === "VALIDATION_FAILED") {
         form.setError("newEmail", { message: t("changeEmail.errors.invalid") })
       }
     }

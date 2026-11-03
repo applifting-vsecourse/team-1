@@ -101,6 +101,43 @@ describe("changing the sign-in e-mail (integration)", () => {
   const verifyUrl = (token: string): string =>
     `${api("/auth/verify-email")}?token=${token}&callbackURL=${encodeURIComponent(`${frontend}/email-change`)}`
 
+  it("leaves the contact e-mail of the applications alone until the link is clicked", async () => {
+    const account = await participant()
+    const seeded = await prisma.application.findFirstOrThrow()
+    const application = await prisma.application.create({
+      data: {
+        organizationId: seeded.organizationId,
+        eventId: seeded.eventId,
+        firstName: seeded.firstName,
+        lastName: seeded.lastName,
+        birthDate: seeded.birthDate,
+        gender: seeded.gender,
+        consentAt: seeded.consentAt,
+        locale: seeded.locale,
+        userId: account.id,
+        email: account.email,
+        accessToken: randomUUID(),
+      },
+    })
+    const cookie = await signIn(account.email, account.password)
+
+    await requestChange(cookie, { newEmail: `later-${account.email}` })
+
+    expect(
+      (await prisma.application.findUniqueOrThrow({ where: { id: application.id } })).email,
+    ).toBe(account.email)
+  })
+
+  it("warns the old address that a change was requested", async () => {
+    const account = await participant()
+    const cookie = await signIn(account.email, account.password)
+
+    await requestChange(cookie, { newEmail: `warned-${account.email}` })
+
+    const notice = await latestEmailTo(account.email)
+    expect(notice?.subject).toBe("Byla požádána změna přihlašovacího e-mailu")
+  })
+
   it("refuses a request without a session", async () => {
     const response = await requestChange(undefined, { newEmail: "someone@example.com" })
 
@@ -108,7 +145,7 @@ describe("changing the sign-in e-mail (integration)", () => {
     expect(await hasSentNothingTo("someone@example.com")).toBe(true)
   })
 
-  it("sends the link to the new address only; the account keeps the old e-mail meanwhile", async () => {
+  it("sends the link to the new address (the old one only gets a notice); the account keeps the old e-mail meanwhile", async () => {
     const account = await participant()
     const cookie = await signIn(account.email, account.password)
     const newEmail = `new-${account.email}`
@@ -119,7 +156,8 @@ describe("changing the sign-in e-mail (integration)", () => {
     const mail = await latestEmailTo(newEmail)
     expect(mail?.subject).toBe("Potvrď změnu e-mailu")
     expect(mail?.links.some((link) => link.includes("/auth/verify-email?token="))).toBe(true)
-    expect(await hasSentNothingTo(account.email)).toBe(true)
+    // The old address gets only the notice, never a link.
+    expect((await latestEmailTo(account.email))?.links).toEqual([])
     expect((await prisma.user.findUniqueOrThrow({ where: { id: account.id } })).email).toBe(
       account.email,
     )
@@ -162,7 +200,7 @@ describe("changing the sign-in e-mail (integration)", () => {
     expect(await me.json()).toMatchObject({ id: account.id, email: newEmail })
   })
 
-  it("keeps the applications on the account and leaves the e-mail inside them unchanged", async () => {
+  it("keeps the applications on the account and moves their contact e-mail to the new address", async () => {
     const account = await participant()
     const seeded = await prisma.application.findFirstOrThrow()
     const application = await prisma.application.create({
@@ -191,7 +229,7 @@ describe("changing the sign-in e-mail (integration)", () => {
 
     const after = await prisma.application.findUniqueOrThrow({ where: { id: application.id } })
     expect(after.userId).toBe(account.id)
-    expect(after.email).toBe(account.email)
+    expect(after.email).toBe(newEmail)
     expect(after.accessToken).toBe(application.accessToken)
   })
 
@@ -237,14 +275,14 @@ describe("changing the sign-in e-mail (integration)", () => {
   it.each([
     ["another participant", "ucastnik@example.com"],
     ["an organizer", "organizator@example.com"],
-  ])("refuses the e-mail of %s with a generic error and sends nothing", async (_who, taken) => {
+  ])("refuses the e-mail of %s with EMAIL_TAKEN and sends nothing", async (_who, taken) => {
     const account = await participant()
     const cookie = await signIn(account.email, account.password)
 
     const response = await requestChange(cookie, { newEmail: taken })
 
     expect(response.status).toBe(400)
-    expect(await response.json()).toMatchObject({ statusCode: 400, code: "VALIDATION_FAILED" })
+    expect(await response.json()).toMatchObject({ statusCode: 400, code: "EMAIL_TAKEN" })
     expect(await hasSentNothingTo(taken)).toBe(true)
     expect((await prisma.user.findUniqueOrThrow({ where: { id: account.id } })).email).toBe(
       account.email,
@@ -258,7 +296,7 @@ describe("changing the sign-in e-mail (integration)", () => {
     const response = await requestChange(cookie, { newEmail: account.email.toUpperCase() })
 
     expect(response.status).toBe(400)
-    expect(await response.json()).toMatchObject({ code: "VALIDATION_FAILED" })
+    expect(await response.json()).toMatchObject({ code: "EMAIL_TAKEN" })
   })
 
   it.each([

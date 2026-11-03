@@ -6,6 +6,7 @@ import ApplicationConfirmation, {
   applicationConfirmationSubject,
 } from "./templates/application-confirmation"
 import ChangeEmail, { changeEmailSubject } from "./templates/change-email"
+import ChangeEmailNotice, { changeEmailNoticeSubject } from "./templates/change-email-notice"
 import MagicLink, { magicLinkSubject } from "./templates/magic-link"
 import ResetPassword, { resetPasswordSubject } from "./templates/reset-password"
 import VerifyEmail, { verifyEmailSubject } from "./templates/verify-email"
@@ -46,6 +47,10 @@ const templates: Record<
   "change-email": (locale) => ({
     subject: changeEmailSubject(locale),
     element: React.createElement(ChangeEmail, { ...ChangeEmail.PreviewProps, locale }),
+  }),
+  "change-email-notice": (locale) => ({
+    subject: changeEmailNoticeSubject(locale),
+    element: React.createElement(ChangeEmailNotice, { ...ChangeEmailNotice.PreviewProps, locale }),
   }),
   "verify-email": (locale) => ({
     subject: verifyEmailSubject(locale),
