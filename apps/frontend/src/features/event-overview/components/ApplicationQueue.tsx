@@ -1,14 +1,12 @@
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { Link } from "@tanstack/react-router"
-import { ChevronRight, Search, TriangleAlert } from "lucide-react"
+import { Search, TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
-import { ROUTES } from "@/app/routes"
 import { LogoSymbol } from "@/components/atoms/Logo"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
@@ -19,29 +17,32 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Skeleton } from "@/components/ui/skeleton"
-import { formatDate, formatDateRange, formatTime } from "@/lib/date"
+import { formatDateRange } from "@/lib/date"
 
-import {
-  applicationsQueryOptions,
-  type ListedApplication,
-} from "@/features/event-overview/api/applications"
+import { applicationsQueryOptions } from "@/features/event-overview/api/applications"
+import { BulkConfirmDialog } from "@/features/event-overview/components/BulkConfirmDialog"
+import { QueueRow } from "@/features/event-overview/components/QueueRow"
 import type { ApplicationsSearch } from "@/features/event-overview/lib/applications-search"
+import type { BulkResultView } from "@/features/event-overview/lib/bulk-result"
 
 // Figma (Design system): US-103 Přihlášky · Fronta od nejstarších · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15765-4897 (mobile 15765-5018)
 // Figma (Design system): US-103 Přihlášky · Chyba fronty · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15765-5561 (mobile 15765-5636)
 // Figma (Design system): US-103 Přihlášky · Filtr termínu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15765-5112 (mobile 15765-5231)
 // Figma (Design system): US-103 Přihlášky · Fronta prázdná · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15765-5323 (mobile 15765-5391)
+// Figma (Design system): US-107 Přihlášky · Vybrané přihlášky · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15803-15850 (mobile 15803-16041)
 // Figma (Design system): US-103 Přihlášky · Načítání fronty · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15765-5432 (mobile 15765-5510)
 export function ApplicationQueue({
   eventId,
   filters,
   terms,
   onFiltersChange,
+  onBulkDone,
 }: {
   eventId: string
   filters: ApplicationsSearch
   terms: { id: string; startsOn: string; endsOn: string }[]
   onFiltersChange: (filters: ApplicationsSearch) => void
+  onBulkDone: (result: BulkResultView) => void
 }) {
   const { t } = useTranslation("eventOverview")
   const searchInput = useRef<HTMLInputElement>(null)
@@ -49,6 +50,14 @@ export function ApplicationQueue({
     if (searchInput.current) searchInput.current.value = filters.q ?? ""
   }, [filters.q])
   const query = useQuery(applicationsQueryOptions(eventId, filters))
+  // Selecting is per term (US-107): the free beds that decide a confirmation belong to one term.
+  const term = terms.find((candidate) => candidate.id === filters.term)
+  const [selectedIds, setSelectedIds] = useState<ReadonlySet<string>>(new Set())
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const rows = query.data ?? []
+  // Only what the filter shows counts, so narrowing the filter never confirms a hidden row.
+  const selected = term ? rows.filter((row) => selectedIds.has(row.id)) : []
+  const isAllSelected = rows.length > 0 && selected.length === rows.length
   return (
     <>
       <p>{t("queue.sortHint")}</p>
@@ -164,78 +173,101 @@ export function ApplicationQueue({
           )}
         </div>
       ) : (
-        <ul
-          aria-busy={query.isFetching}
-          className="flex flex-col gap-4"
-        >
-          {query.data.map((row) => (
-            <li key={row.id}>
-              <QueueRow
-                eventId={eventId}
-                application={row}
-                termId={filters.term}
-              />
-            </li>
-          ))}
-        </ul>
+        <>
+          {term && (
+            <>
+              <p>
+                {t("bulk.termStatus", {
+                  term: formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true }),
+                })}
+              </p>
+              <div className="flex items-center gap-3 py-2">
+                <Checkbox
+                  id="queue-select-all"
+                  className="size-6 rounded-md"
+                  checked={isAllSelected}
+                  onCheckedChange={(checked) =>
+                    setSelectedIds(
+                      checked === true ? new Set(rows.map((row) => row.id)) : new Set(),
+                    )
+                  }
+                />
+                <Label
+                  htmlFor="queue-select-all"
+                  className="text-base font-normal"
+                >
+                  {t("bulk.selectAll", { count: rows.length })}
+                </Label>
+              </div>
+            </>
+          )}
+          {term && selected.length > 0 && (
+            <div className="sticky bottom-0 z-20 order-last bg-background pt-3 pb-4 md:static md:order-none md:bg-transparent md:p-0">
+              <div className="flex flex-col gap-3 rounded-xl bg-accent p-4">
+                <div className="flex items-start gap-3">
+                  <p className="w-8 text-sm font-medium text-primary">{selected.length}</p>
+                  <p>{t("bulk.selection")}</p>
+                </div>
+                <div className="flex flex-col gap-3 md:flex-row">
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="md:w-55"
+                    onClick={() => setIsDialogOpen(true)}
+                  >
+                    {t("bulk.confirm")}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="md:w-55"
+                    onClick={() => setSelectedIds(new Set())}
+                  >
+                    {t("bulk.clear")}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+          <ul
+            aria-busy={query.isFetching}
+            className="flex flex-col gap-4"
+          >
+            {rows.map((row) => (
+              <li key={row.id}>
+                <QueueRow
+                  eventId={eventId}
+                  application={row}
+                  termId={filters.term}
+                  selection={
+                    term
+                      ? {
+                          isSelected: selectedIds.has(row.id),
+                          onChange: (isSelected) =>
+                            setSelectedIds((current) => {
+                              const next = new Set(current)
+                              if (isSelected) next.add(row.id)
+                              else next.delete(row.id)
+                              return next
+                            }),
+                        }
+                      : undefined
+                  }
+                />
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+      {term && isDialogOpen && (
+        <BulkConfirmDialog
+          eventId={eventId}
+          term={term}
+          applications={selected}
+          onClose={() => setIsDialogOpen(false)}
+          onDone={onBulkDone}
+        />
       )}
     </>
-  )
-}
-
-function QueueRow({
-  eventId,
-  application,
-  termId,
-}: {
-  eventId: string
-  application: ListedApplication
-  termId: string | undefined
-}) {
-  const { t } = useTranslation("eventOverview")
-  const waiting = application.terms.filter(
-    (term) => term.status === "TO_EVALUATE" && (!termId || term.id === termId),
-  )
-  return (
-    <Link
-      to={ROUTES.organizer.application}
-      params={{ eventId, applicationId: application.id }}
-      aria-label={`${t("queue.detail")}: ${application.firstName} ${application.lastName}`}
-      className="group relative flex flex-col gap-4 rounded-lg border bg-card p-4 pr-14 shadow-sm transition-colors outline-none hover:border-primary focus-visible:ring-2 focus-visible:ring-ring md:grid md:grid-cols-[13rem_1fr] md:gap-4"
-    >
-      <div className="flex flex-col gap-2">
-        <p>
-          {application.firstName} {application.lastName}
-        </p>
-        <div className="hidden flex-col gap-2 text-sm md:flex">
-          <p>
-            {formatDate(application.birthDate)} ·{" "}
-            {t(application.gender === "FEMALE" ? "applications.female" : "applications.male")}
-          </p>
-          <p className="wrap-anywhere">{application.email}</p>
-          <p>
-            {t("queue.received", {
-              date: formatDate(application.submittedAt),
-              time: formatTime(application.submittedAt),
-            })}
-          </p>
-        </div>
-      </div>
-      <div className="flex flex-col gap-2 md:gap-4">
-        {waiting.map((term) => (
-          <div
-            key={term.id}
-            className="flex flex-wrap items-center gap-x-3 gap-y-2 md:flex-col md:items-start md:gap-2"
-          >
-            <span>{formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })}</span>
-            <Badge variant="secondary">{t("queue.status")}</Badge>
-          </div>
-        ))}
-      </div>
-      <ChevronRight
-        aria-hidden="true"
-        className="absolute top-4 right-4 size-5 text-muted-foreground transition-colors group-hover:text-foreground"
-      />
-    </Link>
   )
 }
