@@ -146,3 +146,45 @@ describe("waitlist in the application list (US-30)", () => {
     expect(applicationList([cancelled], {})[0].terms[0].waitlistPosition).toBeNull()
   })
 })
+
+describe("queue of applications to evaluate (US-103)", () => {
+  const toEvaluate = (id: string, number: number, submittedAt: string): ListedApplication => ({
+    ...row,
+    id,
+    number,
+    submittedAt: new Date(submittedAt),
+    terms: row.terms.map((term) => ({ ...term, status: "TO_EVALUATE" as const })),
+  })
+  const rows = [
+    toEvaluate("newest", 3, "2027-03-10T09:30:00Z"),
+    toEvaluate("same-second-later", 2, "2027-03-10T09:00:00Z"),
+    toEvaluate("oldest", 1, "2027-03-09T09:00:00Z"),
+    toEvaluate("same-second-first", 1, "2027-03-10T09:00:00Z"),
+  ]
+
+  it("lists the oldest application first, ties by the order of numbers", () => {
+    expect(applicationList(rows, { status: "TO_EVALUATE" }).map((entry) => entry.id)).toEqual([
+      "oldest",
+      "same-second-first",
+      "same-second-later",
+      "newest",
+    ])
+  })
+
+  it("keeps the other views as they came", () => {
+    expect(applicationList(rows, {}).map((entry) => entry.id)).toEqual(rows.map((r) => r.id))
+  })
+
+  it("lists only applications waiting in the chosen term", () => {
+    const mixed = [
+      toEvaluate("both", 1, "2027-03-09T09:00:00Z"),
+      {
+        ...toEvaluate("decided", 2, "2027-03-09T10:00:00Z"),
+        terms: row.terms.map((term) => ({ ...term, status: "CONFIRMED" as const })),
+      },
+    ]
+    expect(
+      applicationList(mixed, { status: "TO_EVALUATE", termId: "t2" }).map((entry) => entry.id),
+    ).toEqual(["both"])
+  })
+})

@@ -195,6 +195,23 @@
     "waiting": "Awaiting payment",
     "waitingDescription": "Amount due {{amount}}. No received payment has been marked yet."
   },
+  "queue": {
+    "detail": "Application detail",
+    "empty": "All applications are evaluated.",
+    "emptyHint": "New applications in manual mode will appear in this queue.",
+    "error": "The queue could not be loaded.",
+    "errorHint": "The selected term was kept.",
+    "loading": "Loading…",
+    "received": "Received {{date}} · {{time}}",
+    "retry": "Try again",
+    "search": "Search by name…",
+    "sortHint": "The oldest applications are at the top.",
+    "status": "To evaluate",
+    "title": "Applications",
+    "viewAll": "All applications",
+    "viewWaitlist": "Waitlisted",
+    "views": "Application views"
+  },
   "termStatus": {
     "action": {
       "cancel": "Cancel in term",
