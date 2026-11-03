@@ -2,6 +2,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { TriangleAlert, X } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { ErrorState } from "@/components/molecules/ErrorState"
+import { LoadingState } from "@/components/molecules/LoadingState"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -66,7 +68,7 @@ export function BulkConfirmDialog({
   const count = data?.confirmable.length ?? 0
   const free = data
     ? data.isShared
-      ? t("bulk.shared", { count: data.freePlaces.MALE })
+      ? String(data.freePlaces.MALE)
       : `${t("bulk.men", { count: data.freePlaces.MALE })} + ${t("bulk.women", { count: data.freePlaces.FEMALE })}`
     : ""
   return (
@@ -78,7 +80,7 @@ export function BulkConfirmDialog({
     >
       <DialogContent
         showCloseButton={false}
-        className="max-h-[calc(100dvh-2rem)] gap-6 overflow-y-auto p-6 sm:max-w-160"
+        className="max-h-[calc(100dvh-2rem)] gap-6 overflow-y-auto p-6 max-sm:top-0 max-sm:left-0 max-sm:h-dvh max-sm:max-h-none max-sm:w-full max-sm:max-w-none max-sm:translate-x-0 max-sm:translate-y-0 max-sm:rounded-none max-sm:p-4 max-sm:shadow-none sm:max-w-160"
       >
         <DialogHeader className="flex-row items-start gap-4 text-left">
           <DialogTitle className="flex-1 text-2xl tracking-tight">
@@ -96,19 +98,12 @@ export function BulkConfirmDialog({
           </Button>
         </DialogHeader>
         {preview.isPending ? (
-          <p
-            role="status"
-            className="text-sm text-muted-foreground"
-          >
-            {t("queue.loading")}
-          </p>
+          <LoadingState label={t("queue.loading")} />
         ) : preview.isError ? (
-          <p
-            role="alert"
-            className="text-sm text-destructive"
-          >
-            {preview.error.message}
-          </p>
+          <ErrorState
+            title={t("bulk.dialogTitle")}
+            error={preview.error}
+          />
         ) : (
           <div className="flex flex-col gap-4">
             <Detail
@@ -140,18 +135,16 @@ export function BulkConfirmDialog({
           </div>
         )}
         {confirm.error && (
-          <p
-            role="alert"
-            className="text-sm text-destructive"
-          >
-            {confirm.error.message}
-          </p>
+          <ErrorState
+            title={t("bulk.dialogTitle")}
+            error={confirm.error}
+          />
         )}
         <div className="flex flex-col-reverse gap-3 md:flex-row md:justify-end">
           <Button
             variant="ghost"
             size="lg"
-            className="md:flex-1"
+            className="h-12 md:flex-1"
             disabled={confirm.isPending}
             onClick={onClose}
           >
@@ -159,7 +152,7 @@ export function BulkConfirmDialog({
           </Button>
           <Button
             size="lg"
-            className="md:flex-1"
+            className="h-12 md:flex-1"
             disabled={!data || count === 0 || confirm.isPending}
             onClick={() => confirm.mutate()}
           >
