@@ -1,5 +1,6 @@
 import { formatCzk } from "@/core/email/format-czk"
 import type { ApplicationChangeProps } from "@/core/email/templates/application-change"
+import type { ConfirmationWithdrawnProps } from "@/core/email/templates/application-change-confirmation-withdrawn"
 import type { ConfirmationApplicationProps } from "@/core/email/templates/application-confirmation"
 import { computeAmountDue, computeTermDue } from "@/modules/applications/domain/pricing"
 import { variableSymbol } from "@/modules/applications/domain/variable-symbol"
@@ -51,10 +52,6 @@ const termsOf = (application: SubmittedApplication): ConfirmationApplicationProp
     status === "CANCELLED" ? [] : [{ name, status }],
   )
 
-/** The change e-mail lists every term, a cancelled one too. */
-const changedTermsOf = (application: SubmittedApplication): ApplicationChangeProps["terms"] =>
-  application.terms.map(({ name, status }) => ({ name, status }))
-
 export function buildConfirmationApplications(
   confirmation: SubmissionConfirmation,
   frontendUrl: string,
@@ -67,25 +64,46 @@ export function buildConfirmationApplications(
   }))
 }
 
+/** The kinds that payment details can belong to: where the application became confirmed. */
+const PAYING_KINDS: ApplicationChange["kind"][] = ["CONFIRMED", "CONFIRMED_FROM_WAITLIST"]
+
 /**
- * Props of the change e-mail; the payment details only when the amount due
- * changed — and never for a cancelled application, which owes nothing.
+ * Props of the change e-mail; the payment details only when the amount due changed because
+ * the application became confirmed (EMAILY.md, rows 2 and 5) — never in a cancelled or
+ * waitlisted one, which owes nothing.
  */
 export function buildChangeProps(
-  change: ApplicationChange,
+  change: ApplicationChange & { kind: ApplicationChangeProps["kind"] },
   frontendUrl: string,
 ): ApplicationChangeProps {
   const { application } = change
   return {
     locale: change.locale,
     eventName: change.eventName,
+    organizationName: change.organizationName,
     name: `${application.firstName} ${application.lastName}`,
+    term: change.termName,
     kind: change.kind,
-    terms: changedTermsOf(application),
     payment:
-      change.isAmountChanged && change.kind !== "CANCELLED"
+      change.isAmountChanged && PAYING_KINDS.includes(change.kind)
         ? paymentOf(application, change.bankAccount, change.locale)
         : null,
+    confirmationUrl: confirmationUrl(frontendUrl, application.accessToken),
+  }
+}
+
+/** Props of the e-mails without payment details: no. 13 (and no. 15 once a term can be cancelled). */
+export function buildTermNoticeProps(
+  change: ApplicationChange,
+  frontendUrl: string,
+): ConfirmationWithdrawnProps {
+  const { application } = change
+  return {
+    locale: change.locale,
+    eventName: change.eventName,
+    organizationName: change.organizationName,
+    name: `${application.firstName} ${application.lastName}`,
+    term: change.termName,
     confirmationUrl: confirmationUrl(frontendUrl, application.accessToken),
   }
 }

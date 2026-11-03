@@ -38,9 +38,13 @@ export type StatusChangeResult = {
   from: ApplicationTermStatus
   to: ApplicationTermStatus
   email: string
+  /** Language of the e-mail about the change, not necessarily of the application (D-078). */
   locale: Locale
   eventName: string
+  organizationName: string
   bankAccount: string
+  /** The changed term: its name, else its dates. */
+  termName: string
   application: {
     number: number
     firstName: string

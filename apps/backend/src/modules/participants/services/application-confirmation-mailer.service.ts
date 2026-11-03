@@ -5,12 +5,17 @@ import {
   applicationChangeSubject,
 } from "@/core/email/templates/application-change"
 import {
+  ConfirmationWithdrawn,
+  confirmationWithdrawnSubject,
+} from "@/core/email/templates/application-change-confirmation-withdrawn"
+import {
   ApplicationConfirmation as ApplicationConfirmationEmail,
   applicationConfirmationSubject,
 } from "@/core/email/templates/application-confirmation"
 import {
   buildChangeProps,
   buildConfirmationApplications,
+  buildTermNoticeProps,
   loginUrl,
 } from "@/modules/participants/domain/confirmation-email"
 import {
@@ -28,7 +33,8 @@ import { Inject, Injectable, Logger } from "@nestjs/common"
  *   form, however many participants were signed up. The applications module
  *   calls it once, after every application of the submission is stored.
  * - `sendApplicationChange`: one e-mail about one changed application; the
- *   callers (US-28, 32, 33, 34, 84) are added with those stories.
+ *   callers are the status changes of an organizer (US-28, US-102) and the system (US-106);
+ *   the applicant's cancellation (no. 11, US-84) is added with its story.
  *
  * A failed delivery never fails the caller: the error is logged (recipient
  * address only) and the method returns normally.
@@ -64,15 +70,25 @@ export class ApplicationConfirmationMailer {
 
   async sendApplicationChange(change: ApplicationChange): Promise<void> {
     try {
-      const html = await renderEmail(
-        ApplicationChangeEmail,
-        buildChangeProps(change, this.config.frontendUrl),
-      )
-      await this.email.sendEmail(
-        change.email,
-        applicationChangeSubject(change.locale, change.eventName),
-        html,
-      )
+      // No. 13 has a template of its own (D-074), the others share one.
+      const { kind } = change
+      const [html, subject] =
+        kind === "WAITLISTED_AFTER_CONFIRMED"
+          ? [
+              await renderEmail(
+                ConfirmationWithdrawn,
+                buildTermNoticeProps(change, this.config.frontendUrl),
+              ),
+              confirmationWithdrawnSubject(change.locale, change.eventName),
+            ]
+          : [
+              await renderEmail(
+                ApplicationChangeEmail,
+                buildChangeProps({ ...change, kind }, this.config.frontendUrl),
+              ),
+              applicationChangeSubject(change.locale, change.eventName),
+            ]
+      await this.email.sendEmail(change.email, subject, html)
     } catch (error) {
       this.logFailure("change", change.email, error)
     }

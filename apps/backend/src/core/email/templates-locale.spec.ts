@@ -2,9 +2,13 @@ import * as React from "react"
 import { prerender } from "react-dom/static"
 import { Locale, LOCALES } from "./locale"
 import ApplicationChange, { applicationChangeSubject } from "./templates/application-change"
+import ConfirmationWithdrawn, {
+  confirmationWithdrawnSubject,
+} from "./templates/application-change-confirmation-withdrawn"
 import ApplicationConfirmation, {
   applicationConfirmationSubject,
 } from "./templates/application-confirmation"
+import TermCancelled, { termCancelledSubject } from "./templates/application-term-cancelled"
 import MagicLink, { magicLinkSubject } from "./templates/magic-link"
 import ResetPassword, { resetPasswordSubject } from "./templates/reset-password"
 import VerifyEmail, { verifyEmailSubject } from "./templates/verify-email"
@@ -29,6 +33,17 @@ const templates: Record<
   "application-change": (locale) => ({
     subject: applicationChangeSubject(locale, "Camp"),
     element: React.createElement(ApplicationChange, { ...ApplicationChange.PreviewProps, locale }),
+  }),
+  "application-change-confirmation-withdrawn": (locale) => ({
+    subject: confirmationWithdrawnSubject(locale, "Camp"),
+    element: React.createElement(ConfirmationWithdrawn, {
+      ...ConfirmationWithdrawn.PreviewProps,
+      locale,
+    }),
+  }),
+  "application-term-cancelled": (locale) => ({
+    subject: termCancelledSubject(locale, "Camp"),
+    element: React.createElement(TermCancelled, { ...TermCancelled.PreviewProps, locale }),
   }),
   "magic-link": (locale) => ({
     subject: magicLinkSubject(locale),

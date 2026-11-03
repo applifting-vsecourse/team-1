@@ -7,6 +7,7 @@ import {
   StatusChangeResult,
   TermStatusDetail,
 } from "@/modules/applications/domain/term-status"
+import { resolveChangeEmailLocale } from "@/modules/participants/domain/change-email-locale"
 import { Injectable } from "@nestjs/common"
 
 @Injectable()
@@ -71,7 +72,9 @@ export class TermStatusRepository {
     return this.prisma.$transaction(async (tx) => {
       const application = await tx.application.findFirst({
         where: { id: command.applicationId, organizationId: command.organizationId },
-        include: { event: { include: { organization: { select: { bankAccount: true } } } } },
+        include: {
+          event: { include: { organization: { select: { name: true, bankAccount: true } } } },
+        },
       })
       if (!application) return null
       await tx.$queryRaw`SELECT id FROM event WHERE id = ${application.eventId} FOR UPDATE`
@@ -118,6 +121,23 @@ export class TermStatusRepository {
         },
       })
 
+      // D-078: the e-mail goes in the user's preferred language, else in the language of the
+      // user's first application; the term labels follow it.
+      const [user, first] = application.userId
+        ? await Promise.all([
+            tx.user.findUnique({ where: { id: application.userId }, select: { locale: true } }),
+            tx.application.findFirst({
+              where: { userId: application.userId },
+              orderBy: [{ submittedAt: "asc" }, { id: "asc" }],
+              select: { locale: true },
+            }),
+          ])
+        : [null, null]
+      const locale = resolveChangeEmailLocale({
+        userLocale: user?.locale ?? null,
+        firstApplicationLocale: first?.locale ?? application.locale,
+      })
+
       const terms = await tx.applicationTerm.findMany({
         where: { applicationId: application.id },
         orderBy: { term: { startsOn: "asc" } },
@@ -127,16 +147,18 @@ export class TermStatusRepository {
         from: current.status,
         to: command.to,
         email: application.email,
-        locale: application.locale,
+        locale,
         eventName: application.event.name,
+        organizationName: application.event.organization.name,
         bankAccount: application.event.organization.bankAccount,
+        termName: termLabel(terms.find((row) => row.termId === command.termId)!.term, locale),
         application: {
           number: application.number,
           firstName: application.firstName,
           lastName: application.lastName,
           accessToken: application.accessToken,
           terms: terms.map((row) => ({
-            name: termLabel(row.term, application.locale),
+            name: termLabel(row.term, locale),
             termNumber: row.term.number,
             status: row.status,
             priceCzk: row.priceCzk,

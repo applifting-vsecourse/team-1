@@ -6,13 +6,18 @@ import { Identity } from "@/shared/auth/domain/identity"
 import { OrganizationAccessService } from "@/shared/organization-access/organization-access.service"
 import { ForbiddenException } from "@nestjs/common"
 
-const result = (to: StatusChangeResult["to"]): StatusChangeResult => ({
-  from: "WAITLISTED",
+const result = (
+  to: StatusChangeResult["to"],
+  from: StatusChangeResult["from"] = "WAITLISTED",
+): StatusChangeResult => ({
+  from,
   to,
   email: "petra@example.com",
   locale: "cs",
   eventName: "Kemp",
+  organizationName: "Alpine Collective",
   bankAccount: "2900123456/2010",
+  termName: "T1",
   application: {
     number: 1,
     firstName: "Jana",
@@ -65,22 +70,39 @@ describe("TermStatusService", () => {
 
     expect(mailer.sendApplicationChange).toHaveBeenCalledWith(
       expect.objectContaining({
-        kind: "STATUS_CHANGED",
+        kind: "CONFIRMED_FROM_WAITLIST",
         isAmountChanged: true,
         email: "petra@example.com",
       }),
     )
   })
 
-  it("e-mails a rejection without payment details after a cancellation", async () => {
-    repository.changeStatus.mockResolvedValue(result("CANCELLED"))
+  it.each([
+    ["no. 2", "TO_EVALUATE", "CONFIRMED", "CONFIRMED", true],
+    ["no. 3", "TO_EVALUATE", "WAITLISTED", "WAITLISTED", false],
+    ["no. 4", "TO_EVALUATE", "CANCELLED", "REJECTED", false],
+    ["no. 5", "WAITLISTED", "CONFIRMED", "CONFIRMED_FROM_WAITLIST", true],
+    ["no. 10", "CONFIRMED", "CANCELLED", "REJECTED", false],
+    ["no. 13", "CONFIRMED", "WAITLISTED", "WAITLISTED_AFTER_CONFIRMED", false],
+    ["no. 14", "WAITLISTED", "CANCELLED", "CANCELLED_BY_ORGANIZER", false],
+  ] as const)(
+    "EMAILY.md %s: an organizer's change %s → %s e-mails kind %s",
+    async (_row, from, to, kind, isAmountChanged) => {
+      repository.changeStatus.mockResolvedValue(result(to, from))
 
-    await service.changeByOrganizer(user, "a1", "t1", "CANCELLED", false)
+      await service.changeByOrganizer(user, "a1", "t1", to, false)
 
-    expect(mailer.sendApplicationChange).toHaveBeenCalledWith(
-      expect.objectContaining({ kind: "REJECTED", isAmountChanged: false }),
-    )
-  })
+      expect(mailer.sendApplicationChange).toHaveBeenCalledTimes(1)
+      expect(mailer.sendApplicationChange).toHaveBeenCalledWith(
+        expect.objectContaining({
+          kind,
+          isAmountChanged,
+          organizationName: "Alpine Collective",
+          termName: "T1",
+        }),
+      )
+    },
+  )
 
   it("sends no e-mail and changes nothing for a foreign application", async () => {
     access.assertCanAccessApplication.mockRejectedValue(new ForbiddenException())
@@ -156,7 +178,7 @@ describe("TermStatusService", () => {
     )
     expect(mailer.sendApplicationChange).toHaveBeenNthCalledWith(
       2,
-      expect.objectContaining({ kind: "REJECTED" }),
+      expect.objectContaining({ kind: "CANCELLED_BY_ORGANIZER" }),
     )
   })
 })

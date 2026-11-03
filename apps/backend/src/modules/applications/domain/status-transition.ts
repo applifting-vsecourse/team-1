@@ -63,16 +63,26 @@ export function exceedsCapacityWhenConfirmed(gender: Gender, freePlaces: GenderC
   return freePlaces[gender] < 1
 }
 
-/** Kind of the e-mail to the applicant after a change to `to` (docs/procesy/.../EMAILY.md). */
+/**
+ * Kind of the e-mail to the applicant after a change from `from` to `to`; the number is the row
+ * of docs/procesy/zpracovani-prihlasky/EMAILY.md.
+ */
 export function changeEmailKind(
   to: ApplicationTermStatus,
   from?: ApplicationTermStatus,
   actor: StatusChangeActor = "ORGANIZER",
-): "STATUS_CHANGED" | "WAITLISTED" | "REJECTED" | "NO_BED_FREED" {
-  if (to === "CONFIRMED") return "STATUS_CHANGED"
-  if (to === "WAITLISTED") return "WAITLISTED"
-  // E-mail no. 6: the waitlisted application was cancelled by the system, no bed freed up.
-  return actor === "SYSTEM" && from === "WAITLISTED" ? "NO_BED_FREED" : "REJECTED"
+):
+  | "CONFIRMED"
+  | "CONFIRMED_FROM_WAITLIST"
+  | "WAITLISTED"
+  | "WAITLISTED_AFTER_CONFIRMED"
+  | "REJECTED"
+  | "NO_BED_FREED"
+  | "CANCELLED_BY_ORGANIZER" {
+  if (to === "CONFIRMED") return from === "WAITLISTED" ? "CONFIRMED_FROM_WAITLIST" : "CONFIRMED"
+  if (to === "WAITLISTED") return from === "CONFIRMED" ? "WAITLISTED_AFTER_CONFIRMED" : "WAITLISTED"
+  if (from === "WAITLISTED") return actor === "SYSTEM" ? "NO_BED_FREED" : "CANCELLED_BY_ORGANIZER"
+  return "REJECTED"
 }
 
 /** What a status change needs to know, read under the lock. */
