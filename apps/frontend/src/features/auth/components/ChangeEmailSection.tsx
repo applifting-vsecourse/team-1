@@ -60,7 +60,9 @@ export function ChangeEmailSection({ user }: ChangeEmailSectionProps) {
   // Only the browser knows a change is waiting: the link is a signed token, nothing is stored.
   const [pendingEmail, setPendingEmail] = useState<string | null>(null)
   const [isOpen, setIsOpen] = useState(false)
-  const { errors } = form.formState
+  // Errors shown under the field; the rest (delivery, unknown) is an alert above the buttons.
+  const errorCode = request.isError ? apiErrorCode(request.error) : undefined
+  const isFieldError = errorCode === "EMAIL_TAKEN" || errorCode === "VALIDATION_FAILED"
 
   const onSubmit = async ({ newEmail }: FormValues) => {
     try {
@@ -164,14 +166,12 @@ export function ChangeEmailSection({ user }: ChangeEmailSectionProps) {
                   )}
                 />
 
-                {request.isError && !errors.newEmail ? (
+                {request.isError && !isFieldError ? (
                   <Alert variant="destructive">
                     <CircleAlert />
                     <AlertDescription>
                       {tErrors(
-                        apiErrorCode(request.error) === "EMAIL_DELIVERY_FAILED"
-                          ? "EMAIL_DELIVERY_FAILED"
-                          : "UNKNOWN",
+                        errorCode === "EMAIL_DELIVERY_FAILED" ? "EMAIL_DELIVERY_FAILED" : "UNKNOWN",
                       )}
                     </AlertDescription>
                   </Alert>

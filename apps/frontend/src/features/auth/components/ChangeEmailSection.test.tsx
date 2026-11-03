@@ -128,6 +128,17 @@ describe("ChangeEmailSection", () => {
     expect(screen.queryByText("Confirm the new address.")).not.toBeInTheDocument()
   })
 
+  it("does not show the generic error when the user edits the address after a taken one", async () => {
+    requestEmailChange.mockRejectedValue(Object.assign(new Error("x"), { code: "EMAIL_TAKEN" }))
+    renderSection()
+    await send("taken@example.cz")
+    await screen.findByText("This e-mail is already taken.")
+
+    await userEvent.type(screen.getByLabelText("New e-mail *"), "x")
+
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument()
+  })
+
   it("shows the generic error when sending fails for another reason", async () => {
     requestEmailChange.mockRejectedValue(new Error("down"))
     renderSection()
