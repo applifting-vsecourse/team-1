@@ -133,9 +133,9 @@ export function ChangeEmailSection({ user, isConfirmed = false }: ChangeEmailSec
         ) : !isEditing ? (
           <Button
             type="button"
-            variant="outline"
             size="lg"
-            className="h-12 w-full rounded-lg"
+            // Looks like „Uložit údaje“ of the neighbouring card.
+            className="h-12 w-full rounded-lg md:w-45 md:self-start"
             onClick={() => setIsEditing(true)}
           >
             {t("changeEmail.start")}
