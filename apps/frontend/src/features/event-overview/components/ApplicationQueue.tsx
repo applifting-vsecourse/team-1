@@ -115,7 +115,7 @@ export function ApplicationQueue({
       {query.isPending ? (
         <div
           role="status"
-          className="flex flex-col gap-4 rounded-lg border bg-card p-4 shadow-sm"
+          className="flex flex-col gap-4 rounded-2xl border bg-card p-6"
         >
           {[0, 1, 2].map((row) => (
             <div
@@ -123,24 +123,29 @@ export function ApplicationQueue({
               className="flex items-center gap-3"
               aria-hidden="true"
             >
-              <Skeleton className="size-7 shrink-0 rounded-full" />
+              <Skeleton className="size-10 shrink-0 rounded-full bg-border" />
               <div className="flex flex-1 flex-col gap-2">
-                <Skeleton className="h-2 w-full" />
-                <Skeleton className="h-2 w-full" />
+                <Skeleton className="h-4 w-full bg-border" />
+                <Skeleton className="h-3 w-full bg-border" />
               </div>
             </div>
           ))}
-          <p className="text-xs text-muted-foreground">{t("queue.loading")}</p>
+          <p className="text-sm text-muted-foreground">{t("queue.loading")}</p>
         </div>
       ) : query.isError ? (
-        <div className="flex flex-col gap-4">
-          <Alert variant="destructive">
+        <div className="flex flex-col gap-6">
+          <Alert
+            variant="destructive"
+            className="items-center rounded-2xl border-destructive bg-card px-4 py-4 has-[>svg]:grid-cols-[calc(var(--spacing)*5)_1fr] *:data-[slot=alert-description]:text-muted-foreground [&>svg]:size-5 [&>svg]:translate-y-0 [&>svg]:self-center"
+          >
             <TriangleAlert aria-hidden="true" />
-            <AlertTitle className="line-clamp-none">{t("queue.error")}</AlertTitle>
+            <AlertTitle className="line-clamp-none font-medium tracking-normal">
+              {t("queue.error")}
+            </AlertTitle>
             <AlertDescription>{t("queue.errorHint")}</AlertDescription>
           </Alert>
           <Button
-            size="lg"
+            className="h-12 w-full rounded-xl"
             onClick={() => void query.refetch()}
           >
             {t("queue.retry")}
@@ -152,9 +157,9 @@ export function ApplicationQueue({
             <p className="text-sm text-muted-foreground">{t("applications.empty")}</p>
           ) : (
             <>
-              <LogoSymbol className="size-8 text-primary" />
+              <LogoSymbol className="size-14 text-primary" />
               <h2 className="text-2xl font-semibold tracking-tight">{t("queue.empty")}</h2>
-              <p className="text-sm text-muted-foreground">{t("queue.emptyHint")}</p>
+              <p className="text-base text-muted-foreground">{t("queue.emptyHint")}</p>
             </>
           )}
         </div>

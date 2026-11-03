@@ -31,7 +31,7 @@ test.describe("Queue to evaluate", () => {
       .getByRole("navigation", { name: "Event sections" })
       .getByRole("link", { name: "Applications" })
       .click()
-    await page.getByRole("button", { name: "To evaluate" }).click()
+    await page.getByRole("radio", { name: "To evaluate" }).click()
 
     const row = page.getByRole("link", { name: new RegExp(`Lenka Fronta ${unique}`) })
     await expect(row).toBeVisible()

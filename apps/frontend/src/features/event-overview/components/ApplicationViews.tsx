@@ -1,17 +1,17 @@
 import { useTranslation } from "react-i18next"
 
-import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 
 import type { ApplicationsSearch } from "@/features/event-overview/lib/applications-search"
 
 const VIEWS = [
-  { key: "viewAll", status: undefined },
-  { key: "status", status: "TO_EVALUATE" },
-  { key: "viewWaitlist", status: "WAITLISTED" },
+  { key: "viewAll", value: "all" },
+  { key: "status", value: "TO_EVALUATE" },
+  { key: "viewWaitlist", value: "WAITLISTED" },
 ] as const
 
-// Figma (Design system): US-103 Přihlášky · Fronta od nejstarších, chips "Pohledy přihlášek podle dema" · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15765-4897
+// Figma (Design system): US-103 Přihlášky · Fronta od nejstarších, chips "Pohledy přihlášek podle dema" · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16852-31378
+// The chips and the status filter read and write the same `status` param, so they cannot disagree.
 export function ApplicationViews({
   filters,
   onChange,
@@ -21,35 +21,32 @@ export function ApplicationViews({
 }) {
   const { t } = useTranslation("eventOverview")
   return (
-    <nav
+    <ToggleGroup
+      type="single"
+      variant="outline"
+      spacing={2}
       aria-label={t("queue.views")}
-      className="flex flex-wrap gap-2"
+      className="flex-wrap"
+      // "All" is on only while no status is chosen; a status picked in the filter lights no chip.
+      value={filters.status ?? "all"}
+      onValueChange={(value) => {
+        // Pressing the active chip again must not leave the group empty.
+        if (!value) return
+        const next = { ...filters }
+        if (value === "all") delete next.status
+        else next.status = value as "TO_EVALUATE" | "WAITLISTED"
+        onChange(next)
+      }}
     >
-      {VIEWS.map((view) => {
-        const isActive =
-          view.status === undefined
-            ? filters.status !== "TO_EVALUATE" && filters.status !== "WAITLISTED"
-            : filters.status === view.status
-        return (
-          <Button
-            key={view.key}
-            variant="outline"
-            size="lg"
-            aria-pressed={isActive}
-            className={cn(
-              "rounded-full",
-              isActive && "border-border bg-accent text-accent-foreground",
-            )}
-            onClick={() => {
-              const next = { ...filters, status: view.status }
-              if (view.status === undefined) delete next.status
-              onChange(next)
-            }}
-          >
-            {t(`queue.${view.key}`)}
-          </Button>
-        )
-      })}
-    </nav>
+      {VIEWS.map((view) => (
+        <ToggleGroupItem
+          key={view.key}
+          value={view.value}
+          className="h-9 rounded-full px-3 data-[state=on]:border-border data-[state=on]:bg-accent data-[state=on]:text-accent-foreground"
+        >
+          {t(`queue.${view.key}`)}
+        </ToggleGroupItem>
+      ))}
+    </ToggleGroup>
   )
 }

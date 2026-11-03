@@ -417,7 +417,7 @@ describe("ApplicationsPage", () => {
     it("opens the queue from the view chips", async () => {
       const change = setup([application], false, undefined, null, {})
       const user = userEvent.setup()
-      await user.click(await screen.findByRole("button", { name: "To evaluate" }))
+      await user.click(await screen.findByRole("radio", { name: "To evaluate" }))
       expect(change).toHaveBeenLastCalledWith({ status: "TO_EVALUATE" })
     })
   })

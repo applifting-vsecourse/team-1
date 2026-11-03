@@ -84,7 +84,9 @@ export function ApplicationsPage({
   return (
     <div className="flex flex-col gap-6">
       <Seo title={t("applications.title")} />
-      <h2 className="text-2xl font-semibold tracking-tight">{t("applications.title")}</h2>
+      {isQueue && (
+        <h2 className="text-2xl font-semibold tracking-tight">{t("applications.title")}</h2>
+      )}
       <ApplicationViews
         filters={filters}
         onChange={(next) => {
