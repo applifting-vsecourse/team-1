@@ -39,12 +39,12 @@ const copy: Record<
   },
   cs: {
     subject: 'Ověření e-mailové adresy',
-    preview: 'Ověř svůj e-mail pro Togenu',
-    heading: 'Vítej v Togeně',
-    body: 'Kliknutím na tlačítko níže ověříš svou e-mailovou adresu a dokončíš založení účtu.',
+    preview: 'Ověřte svůj e-mail pro Togenu',
+    heading: 'Vítejte v Togeně',
+    body: 'Kliknutím na tlačítko níže ověříte svou e-mailovou adresu a dokončíte založení účtu.',
     button: 'Ověřit e-mail',
-    fallback: 'Pokud tlačítko nefunguje, zkopíruj tento odkaz do prohlížeče:',
-    ignore: 'Pokud sis účet v Togeně nezakládal(a), tento e-mail ignoruj.',
+    fallback: 'Pokud tlačítko nefunguje, zkopírujte tento odkaz do prohlížeče:',
+    ignore: 'Pokud jste si účet v Togeně nezakládali, tento e-mail ignorujte.',
   },
 };
 
