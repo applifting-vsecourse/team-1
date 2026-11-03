@@ -91,8 +91,8 @@ const copy: Record<
     toEvaluate: 'Čeká na vyhodnocení',
     toEvaluateNote:
       'Organizátor přihlášku posoudí v každém termínu zvlášť. Zatím nejde o potvrzenou účast ani o zařazení mezi náhradníky.',
-    toEvaluateAlertTitle: 'Zatím nic neplať.',
-    toEvaluateAlertText: 'Platební údaje dostaneš po potvrzení účasti.',
+    toEvaluateAlertTitle: 'Zatím nic neplaťte.',
+    toEvaluateAlertText: 'Platební údaje dostanete po potvrzení účasti.',
     waitlisted: 'jste náhradník',
     paymentHeading: 'Platba',
     amountDue: 'K úhradě',
