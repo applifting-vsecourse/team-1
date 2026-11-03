@@ -16,10 +16,14 @@ describe("evaluateTerm", () => {
 
 describe("evaluateApplication", () => {
   it("evaluates each selected term separately and freezes its price", () => {
-    const result = evaluateApplication("MALE", [
-      { termId: "week-1", priceCzk: 4500, freePlaces: { FEMALE: 3, MALE: 1 } },
-      { termId: "week-2", priceCzk: 4900, freePlaces: { FEMALE: 3, MALE: 0 } },
-    ])
+    const result = evaluateApplication(
+      "MALE",
+      [
+        { termId: "week-1", priceCzk: 4500, freePlaces: { FEMALE: 3, MALE: 1 } },
+        { termId: "week-2", priceCzk: 4900, freePlaces: { FEMALE: 3, MALE: 0 } },
+      ],
+      "AUTOMATIC",
+    )
 
     expect(result).toEqual([
       { termId: "week-1", status: "CONFIRMED", priceCzk: 4500 },

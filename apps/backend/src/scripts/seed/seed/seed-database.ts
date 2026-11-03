@@ -420,6 +420,7 @@ export async function createEvent(prisma: PrismaService, params: CreateEventPara
         priceCzk: term.priceCzk,
         freePlaces: computeAvailablePlaces(params.rooms, confirmed.get(term.id)!),
       })),
+      "AUTOMATIC",
     )
     for (const term of evaluated) {
       if (term.status === "CONFIRMED") confirmed.get(term.termId)!.push(applicant.gender)
