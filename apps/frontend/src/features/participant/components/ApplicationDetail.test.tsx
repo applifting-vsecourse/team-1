@@ -45,6 +45,11 @@ const application = (overrides: Partial<MyApplication> = {}): MyApplication => (
   amountPaidCzk: 2000,
   amountOwedCzk: 2500,
   paymentStatus: "PARTIALLY_PAID",
+  organizationContact: {
+    name: "Letní kemp z. s.",
+    email: "info@letni-kemp.example",
+    phone: "+420 777 000 003",
+  },
   paymentDetails: {
     bankAccount: "2900123456/2010",
     summary: { variableSymbol: "48000", payableCzk: 2500 },
@@ -108,6 +113,17 @@ describe("ApplicationDetail", () => {
     expect(screen.getByRole("link", { name: "← All applications" })).toHaveAttribute(
       "href",
       "/participant",
+    )
+  })
+
+  it("shows the organization contact at the end of the detail", async () => {
+    renderDetail(application())
+
+    expect(await screen.findByRole("heading", { name: "Organization contact" })).toBeInTheDocument()
+    expect(screen.getByText("Letní kemp z. s.")).toBeInTheDocument()
+    expect(screen.getByRole("link", { name: "+420 777 000 003" })).toHaveAttribute(
+      "href",
+      "tel:+420777000003",
     )
   })
 

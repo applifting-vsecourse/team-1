@@ -44,6 +44,11 @@ const application = (overrides: Partial<MyApplication> = {}): MyApplication => (
   amountPaidCzk: 0,
   amountOwedCzk: 4500,
   paymentStatus: "UNPAID",
+  organizationContact: {
+    name: "Letní kemp z. s.",
+    email: "info@letni-kemp.example",
+    phone: "+420 777 000 003",
+  },
   paymentDetails: {
     bankAccount: "2900123456/2010",
     summary: { variableSymbol: "48000", payableCzk: 2500 },

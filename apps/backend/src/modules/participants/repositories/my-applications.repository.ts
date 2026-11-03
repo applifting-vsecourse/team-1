@@ -4,8 +4,8 @@ import { MyApplicationRecord } from "@/modules/participants/domain/my-applicatio
 import { Injectable } from "@nestjs/common"
 
 const include = {
-  event: { select: { name: true } },
-  organization: { select: { bankAccount: true } },
+  event: { select: { name: true, contactEmail: true, contactPhone: true } },
+  organization: { select: { name: true, bankAccount: true } },
   terms: {
     include: {
       term: true,
@@ -51,6 +51,9 @@ function toRecord(row: Row): MyApplicationRecord {
     lastName: row.lastName,
     eventName: row.event.name,
     bankAccount: row.organization.bankAccount,
+    organizationName: row.organization.name,
+    contactEmail: row.event.contactEmail,
+    contactPhone: row.event.contactPhone,
     terms: row.terms.map(({ term, status, priceCzk, payments }) => ({
       termId: term.id,
       termNumber: term.number,

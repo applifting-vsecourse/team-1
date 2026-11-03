@@ -16,6 +16,7 @@ type ApplicationDto = {
   amountOwedCzk: number
   paymentDetails: { bankAccount: string; summary: { variableSymbol: string } } | null
   paymentStatus: string
+  organizationContact: { name: string; email: string | null; phone: string | null }
 }
 
 describe("participant applications (integration)", () => {
@@ -198,6 +199,50 @@ describe("participant applications (integration)", () => {
       amountPaidCzk: paid,
       amountOwedCzk: owed,
     })
+  })
+
+  it("shows the organization contact of the event in the list and in the detail (US-121)", async () => {
+    const cookie = await signIn("ucastnik@example.com", "password4")
+    const camp = (await listOf(cookie)).find((a) => a.eventName === "Letní kemp 2027")!
+
+    const detail: ApplicationDto = await (
+      await get(`/participant/applications/${camp.id}`, cookie)
+    ).json()
+
+    const contact = {
+      name: "Letní kemp z. s.",
+      email: "info@letni-kemp.example",
+      phone: "+420 777 000 003",
+    }
+    expect(camp.organizationContact).toEqual(contact)
+    expect(detail.organizationContact).toEqual(contact)
+  })
+
+  it("returns just the organization name when the event has no contact (D-092)", async () => {
+    const cookie = await signIn("ucastnik@example.com", "password4")
+    const where = { publicToken: "demo-podzimni-soustredeni-2027" }
+    const event = await prisma.event.findFirstOrThrow({ where })
+    await prisma.event.update({
+      where: { id: event.id },
+      data: { contactEmail: null, contactPhone: null },
+    })
+
+    try {
+      const autumn = (await listOf(cookie)).find(
+        (a) => a.eventName === "Podzimní soustředění 2027",
+      )!
+
+      expect(autumn.organizationContact).toEqual({
+        name: "Horský spolek Sněžka",
+        email: null,
+        phone: null,
+      })
+    } finally {
+      await prisma.event.update({
+        where: { id: event.id },
+        data: { contactEmail: event.contactEmail, contactPhone: event.contactPhone },
+      })
+    }
   })
 
   it("never returns an application of someone else", async () => {

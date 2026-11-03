@@ -3,6 +3,11 @@
     "description": "Přihlášky vedené pod účtem {{name}}.",
     "title": "Vaše přihlášky"
   },
+  "contact": {
+    "email": "E-mail",
+    "phone": "Telefon",
+    "title": "Kontakt organizace"
+  },
   "detail": {
     "back": "← Všechny přihlášky",
     "errorTitle": "Přihlášku se nepodařilo načíst",

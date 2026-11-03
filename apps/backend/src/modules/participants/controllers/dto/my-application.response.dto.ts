@@ -6,6 +6,7 @@ import { PaymentStatus } from "@/modules/applications/domain/pricing"
 import {
   MyApplication,
   MyApplicationTerm,
+  OrganizationContact,
   PaymentDetails,
 } from "@/modules/participants/domain/my-application"
 import { ApiProperty } from "@nestjs/swagger"
@@ -49,6 +50,21 @@ export class PaymentDetailsDto {
 
   static fromDomain(details: PaymentDetails): PaymentDetailsDto {
     return Object.assign(new PaymentDetailsDto(), details)
+  }
+}
+
+export class OrganizationContactDto {
+  @ApiProperty({ example: "Horský klub" })
+  name!: string
+
+  @ApiProperty({ example: "info@horsky-klub.example", nullable: true, type: String })
+  email!: string | null
+
+  @ApiProperty({ example: "+420 777 000 002", nullable: true, type: String })
+  phone!: string | null
+
+  static fromDomain(contact: OrganizationContact): OrganizationContactDto {
+    return Object.assign(new OrganizationContactDto(), contact)
   }
 }
 
@@ -102,6 +118,13 @@ export class MyApplicationResponseDto {
   })
   paymentStatus!: PaymentStatus
 
+  @ApiProperty({
+    type: OrganizationContactDto,
+    description:
+      "Organization that runs the event; e-mail and phone come from the event's public page.",
+  })
+  organizationContact!: OrganizationContactDto
+
   static fromDomain(application: MyApplication): MyApplicationResponseDto {
     return Object.assign(new MyApplicationResponseDto(), {
       ...application,
@@ -109,6 +132,7 @@ export class MyApplicationResponseDto {
       paymentDetails: application.paymentDetails
         ? PaymentDetailsDto.fromDomain(application.paymentDetails)
         : null,
+      organizationContact: OrganizationContactDto.fromDomain(application.organizationContact),
     })
   }
 }

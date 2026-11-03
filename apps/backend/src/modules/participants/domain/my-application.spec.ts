@@ -11,6 +11,9 @@ const record = (overrides: Partial<MyApplicationRecord> = {}): MyApplicationReco
   lastName: "Nováková",
   eventName: "Letní kemp 2027",
   bankAccount: "2900123456/2010",
+  organizationName: "Letní kemp z. s.",
+  contactEmail: "info@letni-kemp.example",
+  contactPhone: "+420 777 000 003",
   terms: [
     {
       termId: "t2",
@@ -65,6 +68,24 @@ describe("buildMyApplication", () => {
         ["t2", "48002", 4900],
       ],
     )
+  })
+
+  it("carries the organization name with the contact of the event, as typed", () => {
+    expect(buildMyApplication(record()).organizationContact).toEqual({
+      name: "Letní kemp z. s.",
+      email: "info@letni-kemp.example",
+      phone: "+420 777 000 003",
+    })
+  })
+
+  it("keeps a missing e-mail or phone empty instead of inventing one", () => {
+    const result = buildMyApplication(record({ contactEmail: null, contactPhone: null }))
+
+    expect(result.organizationContact).toEqual({
+      name: "Letní kemp z. s.",
+      email: null,
+      phone: null,
+    })
   })
 
   it.each([

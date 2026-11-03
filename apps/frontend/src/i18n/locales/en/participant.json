@@ -3,6 +3,11 @@
     "description": "Applications under the account of {{name}}.",
     "title": "Your applications"
   },
+  "contact": {
+    "email": "E-mail",
+    "phone": "Phone",
+    "title": "Organization contact"
+  },
   "detail": {
     "back": "← All applications",
     "errorTitle": "Couldn't load the application",
