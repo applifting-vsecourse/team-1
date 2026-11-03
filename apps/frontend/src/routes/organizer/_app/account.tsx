@@ -9,7 +9,7 @@ export const Route = createFileRoute("/organizer/_app/account")({
   component: OrganizerAccountPage,
 })
 
-// US-02 (O30): who is signed in, and sign out.
+// US-124 (O30): name, language and password of the signed-in account.
 function OrganizerAccountPage() {
   const { t } = useTranslation("auth")
 

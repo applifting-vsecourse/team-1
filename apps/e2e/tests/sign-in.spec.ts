@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test"
 import { MOUNTAIN_WEEKEND_TOKEN, ORGANIZER, PARTICIPANT } from "./support/accounts"
-import { fillSignInForm, signIn } from "./support/auth"
+import { fillSignInForm, signIn, signOut } from "./support/auth"
 import { eventIdByPublicToken } from "./support/events"
 
 // US-96 landing → US-02 sign-in and sign-out, and the boundary between the two account types.
@@ -35,8 +35,7 @@ test.describe("Sign-in", () => {
       await signIn(page, "participant", PARTICIPANT)
       await expect(page.getByRole("heading", { level: 1, name: "Your applications" })).toBeVisible()
 
-      await page.goto("/participant/account")
-      await page.getByRole("main").getByRole("button", { name: "Sign out" }).click()
+      await signOut(page, PARTICIPANT)
       // Sign-out ends on the landing page; leaving earlier would abort the request and keep the session.
       await expect(page).toHaveURL(/\/$/)
       await page.goto("/participant")

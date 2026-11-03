@@ -44,11 +44,11 @@ const copy: Record<
     preview: 'Obnova hesla do Togeny',
     heading: 'Obnova hesla',
     body: (name) =>
-      `Ahoj ${name}, dostali jsme žádost o obnovu hesla do Togeny. Nové heslo si nastavíš kliknutím na tlačítko níže.`,
+      `Dobrý den, ${name}, dostali jsme žádost o obnovu hesla do Togeny. Nové heslo si nastavíte kliknutím na tlačítko níže.`,
     button: 'Nastavit nové heslo',
-    fallback: 'Pokud tlačítko nefunguje, zkopíruj tento odkaz do prohlížeče:',
+    fallback: 'Pokud tlačítko nefunguje, zkopírujte tento odkaz do prohlížeče:',
     ignore:
-      'Pokud jsi o obnovu hesla nežádal(a), tento e-mail ignoruj — heslo zůstane stejné.',
+      'Pokud jste o obnovu hesla nežádali, tento e-mail ignorujte — heslo zůstane stejné.',
   },
 };
 

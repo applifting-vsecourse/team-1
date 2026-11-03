@@ -1,5 +1,5 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
-import { OrganizationSummary } from "@/modules/account/domain/account"
+import { OrganizationSummary, ProfileChange } from "@/modules/account/domain/account"
 import { Injectable } from "@nestjs/common"
 
 /**
@@ -20,5 +20,14 @@ export class AccountRepository {
       id: organization.id,
       name: organization.name,
     }))
+  }
+
+  async updateProfile(userId: string, change: ProfileChange): Promise<ProfileChange> {
+    const user = await this.prisma.user.update({
+      where: { id: userId },
+      data: { name: change.name, locale: change.locale },
+      select: { name: true, locale: true },
+    })
+    return { name: user.name, locale: user.locale }
   }
 }
