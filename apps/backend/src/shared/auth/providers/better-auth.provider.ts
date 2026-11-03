@@ -6,7 +6,9 @@ import { ResetPassword, resetPasswordSubject } from "@/core/email/templates/rese
 import { VerifyEmail, verifyEmailSubject } from "@/core/email/templates/verify-email"
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { betterAuthCoreConfig } from "@/shared/auth/config/better-auth.config"
+import { emailChangeHooks } from "@/shared/auth/email-change/email-change-hooks"
 import { createMagicLinkPlugin } from "@/shared/auth/magic-link/magic-link.plugin"
+import { AuthUserRepository } from "@/shared/auth/repositories/auth-user.repository"
 import { Config } from "@/shared/config/config.service"
 import { Inject, Provider } from "@nestjs/common"
 import { betterAuth } from "better-auth"
@@ -19,6 +21,7 @@ const createAuth = (
   prismaService: PrismaService,
   config: Config,
   emailProvider: EmailService,
+  authUsers: AuthUserRepository,
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 ) =>
   betterAuth({
@@ -67,27 +70,20 @@ const createAuth = (
     },
     emailVerification: {
       expiresIn: EMAIL_VERIFICATION_TTL_SECONDS,
-      // After an e-mail change everything goes to the new address, so the contact e-mail of
-      // the applications of the account follows it (PO, #218). Harmless after a plain verification.
+      // The applications module moves the contact e-mail of the account's applications (PO, #218).
       afterEmailVerification: async (user) => {
-        await prismaService.application.updateMany({
-          where: { userId: user.id },
-          data: { email: user.email },
-        })
+        await emailChangeHooks.publish({ id: user.id, email: user.email })
       },
       sendVerificationEmail: async ({ user, url }) => {
         const locale = toLocale((user as { locale?: unknown }).locale)
         // For an e-mail change BetterAuth hands over the user with the NEW address,
         // while the stored one is still the current address.
-        const stored = await prismaService.user.findUnique({
-          where: { id: user.id },
-          select: { email: true },
-        })
-        if (stored && stored.email !== user.email) {
+        const storedEmail = await authUsers.findEmail(user.id)
+        if (storedEmail && storedEmail !== user.email) {
           const changeHtml = await renderEmail(ChangeEmail, {
             url,
             locale,
-            currentEmail: stored.email,
+            currentEmail: storedEmail,
             newEmail: user.email,
           })
           await emailProvider.sendEmail(user.email, changeEmailSubject(locale), changeHtml)
@@ -108,9 +104,13 @@ export type BetterAuth = ReturnType<typeof createAuth>
 
 export const betterAuthProvider: Provider = {
   provide: "BetterAuth",
-  useFactory: (prismaService: PrismaService, config: Config, emailProvider: EmailService) =>
-    createAuth(prismaService, config, emailProvider),
-  inject: [PrismaService, Config, "EmailService"],
+  useFactory: (
+    prismaService: PrismaService,
+    config: Config,
+    emailProvider: EmailService,
+    authUsers: AuthUserRepository,
+  ) => createAuth(prismaService, config, emailProvider, authUsers),
+  inject: [PrismaService, Config, "EmailService", AuthUserRepository],
 }
 
 export const InjectBetterAuth = Inject("BetterAuth")

@@ -17,6 +17,7 @@ import { SubmissionStatusRepository } from "./repositories/submission-status.rep
 import { TermStatusRepository } from "./repositories/term-status.repository"
 import { ApplicationsService } from "./services/applications.service"
 import { CapacityService } from "./services/capacity.service"
+import { ContactEmailSyncService } from "./services/contact-email-sync.service"
 import { PublicCatalogService } from "./services/public-catalog.service"
 import { PublicEventsService } from "./services/public-events.service"
 import { SubmissionStatusService } from "./services/submission-status.service"
@@ -43,6 +44,7 @@ import { WaitlistExpiryService } from "./services/waitlist-expiry.service"
     PublicCatalogRepository,
     ApplicationsService,
     ApplicationsRepository,
+    ContactEmailSyncService,
     SubmissionStatusService,
     SubmissionStatusRepository,
     TermStatusRepository,

@@ -218,4 +218,12 @@ export class ApplicationsRepository {
       },
     )
   }
+
+  /** Moves the contact e-mail of the account's applications to `email`; those already there stay as they are. */
+  async updateContactEmail(userId: string, email: string): Promise<void> {
+    await this.prisma.application.updateMany({
+      where: { userId, email: { not: email } },
+      data: { email },
+    })
+  }
 }
