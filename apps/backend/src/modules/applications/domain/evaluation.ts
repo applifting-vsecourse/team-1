@@ -41,7 +41,7 @@ export type EvaluatedTerm = {
 export function evaluateApplication(
   gender: Gender,
   terms: TermToEvaluate[],
-  mode: EvaluationMode = "AUTOMATIC",
+  mode: EvaluationMode,
 ): EvaluatedTerm[] {
   return terms.map((term) => ({
     termId: term.termId,

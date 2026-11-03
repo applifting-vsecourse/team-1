@@ -27,7 +27,7 @@ export type OccupancySnapshot = {
 export function evaluateSubmission(
   participants: SubmittedParticipant[],
   snapshot: OccupancySnapshot,
-  mode: EvaluationMode = "AUTOMATIC",
+  mode: EvaluationMode,
 ): EvaluatedTerm[][] {
   const confirmed = new Map<string, Gender[]>()
   const confirmedIn = (termId: string): Gender[] => {
