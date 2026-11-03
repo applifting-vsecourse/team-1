@@ -7,6 +7,7 @@ import { VerifyEmail, verifyEmailSubject } from "@/core/email/templates/verify-e
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { betterAuthCoreConfig } from "@/shared/auth/config/better-auth.config"
 import { emailChangeHooks } from "@/shared/auth/email-change/email-change-hooks"
+import { verificationDelivery } from "@/shared/auth/email-change/verification-delivery"
 import { createMagicLinkPlugin } from "@/shared/auth/magic-link/magic-link.plugin"
 import { AuthUserRepository } from "@/shared/auth/repositories/auth-user.repository"
 import { Config } from "@/shared/config/config.service"
@@ -75,22 +76,29 @@ const createAuth = (
         await emailChangeHooks.publish({ id: user.id, email: user.email })
       },
       sendVerificationEmail: async ({ user, url }) => {
-        const locale = toLocale((user as { locale?: unknown }).locale)
-        // For an e-mail change BetterAuth hands over the user with the NEW address,
-        // while the stored one is still the current address.
-        const storedEmail = await authUsers.findEmail(user.id)
-        if (storedEmail && storedEmail !== user.email) {
-          const changeHtml = await renderEmail(ChangeEmail, {
-            url,
-            locale,
-            currentEmail: storedEmail,
-            newEmail: user.email,
-          })
-          await emailProvider.sendEmail(user.email, changeEmailSubject(locale), changeHtml)
-          return
+        try {
+          const locale = toLocale((user as { locale?: unknown }).locale)
+          // For an e-mail change BetterAuth hands over the user with the NEW address,
+          // while the stored one is still the current address.
+          const storedEmail = await authUsers.findEmail(user.id)
+          if (storedEmail && storedEmail !== user.email) {
+            const changeHtml = await renderEmail(ChangeEmail, {
+              url,
+              locale,
+              currentEmail: storedEmail,
+              newEmail: user.email,
+            })
+            await emailProvider.sendEmail(user.email, changeEmailSubject(locale), changeHtml)
+            return
+          }
+          const html = await renderEmail(VerifyEmail, { url, locale })
+          await emailProvider.sendEmail(user.email, verifyEmailSubject(locale), html)
+        } catch (error) {
+          // BetterAuth swallows this error; the e-mail change request reads the flag.
+          const delivery = verificationDelivery.getStore()
+          if (delivery) delivery.isFailed = true
+          throw error
         }
-        const html = await renderEmail(VerifyEmail, { url, locale })
-        await emailProvider.sendEmail(user.email, verifyEmailSubject(locale), html)
       },
       sendOnSignUp: true,
     },
