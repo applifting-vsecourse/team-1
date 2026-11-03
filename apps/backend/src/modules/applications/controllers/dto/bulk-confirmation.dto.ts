@@ -44,7 +44,11 @@ export class BulkConfirmationPreviewResponseDto {
 
 export class BulkConfirmationResponseDto {
   @ApiProperty({ type: [String] }) confirmed!: string[]
-  @ApiProperty({ type: [String], description: "Left as they were: no free bed, or not waiting" })
+  @ApiProperty({
+    type: [String],
+    description:
+      "Left as they were: no free bed, not waiting in the term, or not an application of the event",
+  })
   unchanged!: string[]
 
   static fromDomain(result: BulkConfirmationResult): BulkConfirmationResponseDto {
