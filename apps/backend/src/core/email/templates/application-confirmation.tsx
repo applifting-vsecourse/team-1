@@ -158,6 +158,7 @@ export const ApplicationConfirmation = ({
   );
   const isAwaiting = (a: ConfirmationApplicationProps): boolean =>
     a.terms.some((t) => t.status === 'TO_EVALUATE');
+  const hasAwaiting = applications.some(isAwaiting);
   return (
     <Html lang={locale}>
       <Head />
@@ -262,7 +263,7 @@ export const ApplicationConfirmation = ({
                 {text.severalPayments}
               </Text>
             ) : null}
-            {payable.length === 0 && applications.some(isAwaiting) ? null : payable.length === 0 ? (
+            {payable.length === 0 && !hasAwaiting ? (
               <Text className="text-gray-700 text-sm leading-5 mt-6">
                 {text.allWaitlisted}
               </Text>
