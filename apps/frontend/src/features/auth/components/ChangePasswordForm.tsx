@@ -122,7 +122,7 @@ export function ChangePasswordForm() {
         {isFailureShown ? (
           <Alert variant="destructive">
             <CircleAlert />
-            <AlertDescription>{changePassword.error.message}</AlertDescription>
+            <AlertDescription>{tErrors("UNKNOWN")}</AlertDescription>
           </Alert>
         ) : null}
 

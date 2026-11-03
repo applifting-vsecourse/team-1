@@ -25,8 +25,11 @@ import {
 } from "@/components/ui/select"
 import { LANGUAGES } from "@/i18n"
 
-import type { SessionUser } from "@/features/auth/api/authSessionQueryOptions"
-import { profileLocaleSchema, type ProfileLocale } from "@/features/auth/api/profile"
+import {
+  localeSchema,
+  type Locale,
+  type SessionUser,
+} from "@/features/auth/api/authSessionQueryOptions"
 import { useUpdateProfile } from "@/features/auth/hooks/useUpdateProfile"
 
 const MAX_NAME_LENGTH = 200
@@ -34,7 +37,7 @@ const MAX_NAME_LENGTH = 200
 const schema = (message: string) =>
   z.object({
     name: z.string().trim().min(1, message).max(MAX_NAME_LENGTH, message),
-    locale: profileLocaleSchema,
+    locale: localeSchema,
   })
 
 type FormValues = z.infer<ReturnType<typeof schema>>
@@ -51,7 +54,7 @@ export function ProfileForm({ user }: { user: SessionUser }) {
   const { t: tErrors } = useTranslation("errors")
   const update = useUpdateProfile()
   const validation = useMemo(() => schema(tErrors("VALIDATION_FAILED")), [tErrors])
-  const [savedLocale, setSavedLocale] = useState<ProfileLocale | null>(null)
+  const [savedLocale, setSavedLocale] = useState<Locale | null>(null)
   const form = useForm<FormValues>({
     resolver: zodResolver(validation),
     defaultValues: { name: user.name, locale: user.locale },
