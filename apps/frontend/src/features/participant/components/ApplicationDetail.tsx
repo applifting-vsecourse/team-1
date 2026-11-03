@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 
 import { myApplicationQueryOptions } from "@/features/participant/api/applications"
+import { OrganizationContact } from "@/features/participant/components/OrganizationContact"
 import { PaymentSummary } from "@/features/participant/components/PaymentSummary"
 import { TermStatusBadge } from "@/features/participant/components/TermSummary"
 
@@ -99,6 +100,7 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
         </Alert>
       ) : null}
       <PaymentSummary application={data} />
+      <OrganizationContact contact={data.organizationContact} />
     </div>
   )
 }

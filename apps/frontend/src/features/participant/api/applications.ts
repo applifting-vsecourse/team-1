@@ -28,6 +28,15 @@ const termPaymentSchema = z.object({
 })
 export type TermPayment = z.infer<typeof termPaymentSchema>
 
+/** Who runs the event; e-mail and phone come from the event's public page and may be missing (D-092). */
+const organizationContactSchema = z.object({
+  name: z.string(),
+  email: z.string().nullable(),
+  /** As the organizer typed it. */
+  phone: z.string().nullable(),
+})
+export type OrganizationContact = z.infer<typeof organizationContactSchema>
+
 export const myApplicationSchema = z.object({
   id: z.string(),
   eventName: z.string(),
@@ -58,6 +67,7 @@ export const myApplicationSchema = z.object({
       terms: z.array(termPaymentSchema),
     })
     .nullable(),
+  organizationContact: organizationContactSchema,
 })
 export type MyApplication = z.infer<typeof myApplicationSchema>
 export type PaymentStatus = MyApplication["paymentStatus"]

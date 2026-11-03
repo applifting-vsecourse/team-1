@@ -134,6 +134,7 @@ export const seedDatabase = async (
     // Fixed so the demo link stays the same after `db:reset`. Real events get
     // a random token (generateToken).
     publicToken: "demo-letni-kemp-2027",
+    contact: { email: "info@letni-kemp.example", phone: "+420 777 000 003" },
     terms: [
       {
         name: "1. týden",
@@ -284,6 +285,7 @@ export const seedDatabase = async (
     description: "Víkendové soustředění na horské chatě.",
     location: "Chata Sněžka, Pec pod Sněžkou",
     publicToken: "demo-podzimni-soustredeni-2027",
+    contact: { email: "horsky-klub@example.com", phone: "+420 777 000 002" },
     terms: [{ name: "Listopad", startsOn: "2027-11-05", endsOn: "2027-11-07", priceCzk: 2400 }],
     rooms: [...rooms("FEMALE", ["A", 4]), ...rooms("MALE", ["B", 4])],
     applicants: [
@@ -356,6 +358,8 @@ export type CreateEventParams = {
   payments: Record<number, SeedPayment>
   /** When the first application arrived and the gap between them; defaults to the last minutes before now. */
   arrival?: { first: Date; intervalMs: number }
+  /** Contact shown to participants (US-121) without publishing the event; `publicPage` carries its own. */
+  contact?: { email: string; phone: string }
   /** Public page content and catalog listing (US-122); without it the event stays unpublished. */
   publicPage?: SeedPublicPage
 }
@@ -383,6 +387,10 @@ export async function createEvent(prisma: PrismaService, params: CreateEventPara
       location: params.location,
       publicToken: params.publicToken,
       evaluationMode: params.evaluationMode,
+      ...(params.contact && {
+        contactEmail: params.contact.email,
+        contactPhone: params.contact.phone,
+      }),
       ...(params.publicPage && {
         contactEmail: params.publicPage.contactEmail,
         contactPhone: params.publicPage.contactPhone,
