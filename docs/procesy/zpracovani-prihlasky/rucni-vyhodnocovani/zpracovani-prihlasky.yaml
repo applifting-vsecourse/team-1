@@ -32,7 +32,12 @@ nodes:
   - { id: e_lhuta, type: timed, label: Lhůta pro zaplacení dluhu uplynula }
   - { id: e_zamitnuti, type: event, label: Nastaly okolnosti pro zamítnutí přihlášky v termínu }
   - { id: zaucotovat, type: task, label: Zaúčtovat platbu, role: systém / organizátor }
-  - { id: vyzva, type: task, label: Odeslat výzvu k zaplacení, role: systém }
+  - {
+      id: vyzva,
+      type: task,
+      label: Odeslat výzvu k zaplacení jednou (automaticky, nebo ručně podle nastavení organizátora),
+      role: systém / organizátor,
+    }
   - { id: e_platby_po_vyzve, type: event, label: Σ plateb = částka k úhradě }
   - {
       id: e_zamitnuti_po_vyzve,
@@ -48,6 +53,11 @@ nodes:
     }
   - { id: e_termin, type: timed, label: Termín proběhne (datum = první den po posledním termínu) }
   - { id: e_odhlaska, type: event, label: Účastník se odhlásí }
+  - {
+      id: e_oprava_platby,
+      type: event,
+      label: Organizátor opraví nebo odstraní platbu a vznikne dluh,
+    }
   - { id: s_archivovana, type: end, label: "Přihláška v termínu: archivovaná" }
 
 flows:
@@ -94,11 +104,13 @@ flows:
   - { from: e_zamitnuti_po_vyzve, to: s_zrusena }
   - { from: zaucotovat, to: s_potvrzena_zaplacena }
 
-  # po zaplacení: čekání na jednu ze čtyř událostí
+  # po zaplacení: čekání na jednu z pěti událostí
   - { from: s_potvrzena_zaplacena, to: e_zamitnuti_zaplacena }
   - { from: s_potvrzena_zaplacena, to: e_termin }
   - { from: s_potvrzena_zaplacena, to: e_odhlaska }
   - { from: s_potvrzena_zaplacena, to: e_zruseni_terminu_zaplacena }
+  - { from: s_potvrzena_zaplacena, to: e_oprava_platby }
+  - { from: e_oprava_platby, to: s_potvrzena_dluh }
   - { from: e_zruseni_terminu_zaplacena, to: s_zrusena }
   - { from: e_zamitnuti_zaplacena, to: s_zrusena }
   - { from: e_odhlaska, to: s_zrusena }
