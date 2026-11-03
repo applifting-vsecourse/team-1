@@ -1,3 +1,4 @@
+import { QueryClient } from "@tanstack/react-query"
 import {
   createMemoryHistory,
   createRootRouteWithContext,
@@ -5,7 +6,6 @@ import {
   createRouter,
   RouterProvider,
 } from "@tanstack/react-router"
-import { QueryClient } from "@tanstack/react-query"
 import { act, cleanup, render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
@@ -92,7 +92,9 @@ describe("applications filter navigation", () => {
     await expectFilters({ q: "Jana", term: "t1", payment: "UNPAID" })
     await act(() => router.navigate({ to: ROUTES.organizer.event, params: { eventId: "e1" } }))
     expect(await screen.findByRole("heading", { name: "Overview" })).toBeInTheDocument()
-    await act(() => router.navigate({ to: ROUTES.organizer.eventApplications, params: { eventId: "e1" } }))
+    await act(() =>
+      router.navigate({ to: ROUTES.organizer.eventApplications, params: { eventId: "e1" } }),
+    )
     await expectFilters({ q: "Jana", term: "t1", payment: "UNPAID" })
     expect(router.state.location.search).toEqual({ q: "Jana", term: "t1", payment: "UNPAID" })
   })
@@ -110,7 +112,9 @@ describe("applications filter navigation", () => {
     saveApplicationsSearch("e1", { payment: "UNPAID" })
     const router = setup()
     await expectFilters({ payment: "UNPAID" })
-    await act(() => router.navigate({ to: ROUTES.organizer.eventApplications, params: { eventId: "e2" } }))
+    await act(() =>
+      router.navigate({ to: ROUTES.organizer.eventApplications, params: { eventId: "e2" } }),
+    )
     await expectFilters({})
     expect(readApplicationsSearch("e1")).toEqual({ payment: "UNPAID" })
   })
@@ -129,7 +133,9 @@ describe("applications filter navigation", () => {
     await userEvent.click(screen.getByRole("button", { name: "Clear filters" }))
     await expectFilters({})
     await act(() => router.navigate({ to: ROUTES.organizer.event, params: { eventId: "e1" } }))
-    await act(() => router.navigate({ to: ROUTES.organizer.eventApplications, params: { eventId: "e1" } }))
+    await act(() =>
+      router.navigate({ to: ROUTES.organizer.eventApplications, params: { eventId: "e1" } }),
+    )
     await expectFilters({})
     cleanup()
     setup()
@@ -140,17 +146,21 @@ describe("applications filter navigation", () => {
     const router = setup("/organizer/events/e1/")
     await screen.findByRole("heading", { name: "Overview" })
     saveApplicationsSearch("e1", { payment: "UNPAID" })
-    await act(() => router.preloadRoute({
-      to: ROUTES.organizer.eventApplications,
-      params: { eventId: "e1" },
-      search: { payment: "PAID" },
-    }))
+    await act(() =>
+      router.preloadRoute({
+        to: ROUTES.organizer.eventApplications,
+        params: { eventId: "e1" },
+        search: { payment: "PAID" },
+      }),
+    )
     expect(readApplicationsSearch("e1")).toEqual({ payment: "UNPAID" })
-    await act(() => router.navigate({
-      to: ROUTES.organizer.eventApplications,
-      params: { eventId: "e1" },
-      search: { payment: "PAID" },
-    }))
+    await act(() =>
+      router.navigate({
+        to: ROUTES.organizer.eventApplications,
+        params: { eventId: "e1" },
+        search: { payment: "PAID" },
+      }),
+    )
     await expectFilters({ payment: "PAID" })
     expect(readApplicationsSearch("e1")).toEqual({ payment: "PAID" })
   })
