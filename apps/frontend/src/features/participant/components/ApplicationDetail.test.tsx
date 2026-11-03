@@ -188,6 +188,9 @@ describe("ApplicationDetail", () => {
 
     expect(await screen.findByText("Awaiting evaluation")).toBeInTheDocument()
     expect(screen.queryByText(/waitlisted/i)).not.toBeInTheDocument()
+    expect(screen.getByText("Don't pay yet.")).toBeInTheDocument()
+    expect(screen.getByText(/not a confirmed place or a waitlist spot yet/)).toBeInTheDocument()
+    expect(screen.queryByText("0 CZK until confirmed")).not.toBeInTheDocument()
     expect(screen.queryByText("Account number")).not.toBeInTheDocument()
   })
 

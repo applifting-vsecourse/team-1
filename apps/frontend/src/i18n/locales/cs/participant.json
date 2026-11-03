@@ -8,6 +8,11 @@
     "errorTitle": "Přihlášku se nepodařilo načíst",
     "termsTitle": "Stav podle termínů",
     "title": "Moje přihláška",
+    "toEvaluate": {
+      "alertText": "Platební údaje dostaneš po potvrzení účasti.",
+      "alertTitle": "Zatím nic neplať.",
+      "note": "Organizátor přihlášku posoudí v každém termínu zvlášť. Zatím nejde o potvrzenou účast ani o zařazení mezi náhradníky."
+    },
     "waitlistNote": "K úhradě se počítá jen potvrzený termín. Za termín, kde jste náhradník, zatím neplaťte."
   },
   "list": {

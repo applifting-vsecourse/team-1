@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
+import { TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
@@ -8,6 +9,7 @@ import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { PageHeader } from "@/components/molecules/PageHeader"
 import { TermLabel } from "@/components/molecules/TermLabel"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 
@@ -50,6 +52,7 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
     )
   }
 
+  const hasToEvaluate = data.terms.some((term) => term.status === "TO_EVALUATE")
   const hasWaitlisted = data.terms.some((term) => term.status === "WAITLISTED")
 
   return (
@@ -72,7 +75,7 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
                 <TermLabel term={term} />
                 <TermStatusBadge term={term} />
                 <span className="w-full sm:w-50 sm:text-right">
-                  {term.status === "WAITLISTED" || term.status === "TO_EVALUATE" ? (
+                  {term.status === "TO_EVALUATE" ? null : term.status === "WAITLISTED" ? (
                     t("status.zeroUntilConfirmed")
                   ) : (
                     <MoneyAmount amountCzk={isConfirmed ? term.priceCzk : 0} />
@@ -82,10 +85,19 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
             )
           })}
         </ul>
+        {hasToEvaluate ? <p className="pt-4">{t("detail.toEvaluate.note")}</p> : null}
         {hasWaitlisted && !data.paymentDetails ? (
           <p className="pt-4 text-sm text-muted-foreground">{t("detail.waitlistNote")}</p>
         ) : null}
       </Card>
+      {hasToEvaluate ? (
+        // Figma (Design system): Togena / Alert · node-id=15751-1777 (360 px: 15751-1810)
+        <Alert>
+          <TriangleAlert aria-hidden />
+          <AlertTitle>{t("detail.toEvaluate.alertTitle")}</AlertTitle>
+          <AlertDescription>{t("detail.toEvaluate.alertText")}</AlertDescription>
+        </Alert>
+      ) : null}
       <PaymentSummary application={data} />
     </div>
   )

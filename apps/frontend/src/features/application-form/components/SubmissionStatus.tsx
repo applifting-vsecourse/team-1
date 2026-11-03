@@ -1,10 +1,12 @@
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
+import { TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
 import { CopyButton } from "@/components/atoms/CopyButton"
 import { MoneyAmount } from "@/components/atoms/MoneyAmount"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -87,7 +89,14 @@ export function SubmissionStatus({ accessToken }: SubmissionStatusProps) {
 
       {payers.length > 0 ? (
         <PaymentCard payers={payers} />
-      ) : isAwaitingEvaluation ? null : (
+      ) : isAwaitingEvaluation ? (
+        // Figma (Design system): Togena / Alert · node-id=15751-1290 (360 px: 15751-1320)
+        <Alert>
+          <TriangleAlert aria-hidden />
+          <AlertTitle>{t("confirmation.toEvaluate.alertTitle")}</AlertTitle>
+          <AlertDescription>{t("confirmation.toEvaluate.alertText")}</AlertDescription>
+        </Alert>
+      ) : (
         <section className="flex flex-col gap-4 rounded-lg border bg-status-waitlist-bg p-4 sm:p-6">
           <h2 className="text-2xl font-semibold text-status-waitlist">
             {t("confirmation.waitlist.title")}
@@ -146,11 +155,12 @@ function TermStatusCard({
           >
             {isConfirmed ? (
               <MoneyAmount amountCzk={term.priceCzk} />
-            ) : term.status === "CANCELLED" ? null : (
+            ) : term.status === "CANCELLED" || term.status === "TO_EVALUATE" ? null : (
               t("confirmation.doNotPayYet")
             )}
           </span>
         </div>
+        {term.status === "TO_EVALUATE" ? <p>{t("confirmation.toEvaluate.note")}</p> : null}
       </Card>
     </li>
   )
