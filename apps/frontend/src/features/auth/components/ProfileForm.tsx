@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Check, CircleAlert, Loader2 } from "lucide-react"
+import { CircleAlert, Loader2 } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { LANGUAGES } from "@/i18n"
+import { cn } from "@/lib/utils"
 
 import {
   localeSchema,
@@ -31,6 +32,11 @@ import {
   type SessionUser,
 } from "@/features/auth/api/authSessionQueryOptions"
 import { useUpdateProfile } from "@/features/auth/hooks/useUpdateProfile"
+
+// The frames draw the controls of this screen at 48 px / 12 px radius / 16 px text,
+// above the kit's 44 px (DESIGN.md, Forms); built as drawn, listed in the PR.
+const CONTROL = "h-12 rounded-lg text-base md:text-base"
+const BUTTON = "h-12 rounded-lg"
 
 const MAX_NAME_LENGTH = 200
 
@@ -91,6 +97,7 @@ export function ProfileForm({ user }: { user: SessionUser }) {
                 <FormControl>
                   <Input
                     autoComplete="name"
+                    className={CONTROL}
                     {...field}
                   />
                 </FormControl>
@@ -113,7 +120,7 @@ export function ProfileForm({ user }: { user: SessionUser }) {
                   }}
                 >
                   <FormControl>
-                    <SelectTrigger className="w-full">
+                    <SelectTrigger className={cn("w-full", CONTROL)}>
                       <SelectValue />
                     </SelectTrigger>
                   </FormControl>
@@ -152,7 +159,7 @@ export function ProfileForm({ user }: { user: SessionUser }) {
         <Button
           type="submit"
           size="lg"
-          className="w-full md:w-45 md:self-start"
+          className={cn("w-full md:w-45 md:self-start", BUTTON)}
           disabled={update.isPending}
         >
           {update.isPending ? <Loader2 className="animate-spin" /> : null}
@@ -160,12 +167,15 @@ export function ProfileForm({ user }: { user: SessionUser }) {
         </Button>
 
         {savedLocale ? (
+          // Togena / Alert: wash fill, 1 px line border; the check mark is a text glyph.
           <Alert
             role="status"
-            className="border-transparent bg-accent"
+            className="rounded-lg border-border bg-accent/30 p-4"
           >
-            <Check aria-hidden="true" />
-            <AlertTitle>{t("profile.saved.title")}</AlertTitle>
+            <AlertTitle>
+              <span aria-hidden="true">✓ </span>
+              {t("profile.saved.title")}
+            </AlertTitle>
             <AlertDescription>{t(`profile.saved.description.${savedLocale}`)}</AlertDescription>
           </Alert>
         ) : null}

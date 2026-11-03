@@ -28,7 +28,7 @@ export const PasswordInput = forwardRef<HTMLInputElement, Omit<ComponentProps<"i
           type="button"
           variant="ghost"
           size="icon-lg"
-          className="absolute top-0 right-0"
+          className="absolute top-0 right-0 size-12"
           aria-label={t(isVisible ? "password.hide" : "password.show")}
           aria-pressed={isVisible}
           // Keeps the focus (and the caret) in the field.

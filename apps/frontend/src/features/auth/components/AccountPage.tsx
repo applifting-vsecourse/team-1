@@ -48,9 +48,15 @@ export function AccountPage() {
               key={key}
               value={key}
               data-status={section === key ? "active" : undefined}
-              className="group h-11 flex-1 rounded-md px-4 text-muted-foreground after:hidden hover:bg-accent/60 hover:text-foreground data-[state=active]:bg-accent data-[state=active]:text-foreground md:w-45 md:flex-none"
+              // Togena / Tab: 60 px, no fill; the active label is the accent text colour
+              // with the dot under it (and the logo corners), the inactive one is muted.
+              className="group h-15 flex-1 rounded-sm px-2 text-muted-foreground after:hidden hover:text-foreground data-[state=active]:bg-transparent data-[state=active]:text-link md:w-45 md:flex-none"
             >
               {t(`account.tabs.${key}`)}
+              <span
+                aria-hidden="true"
+                className="absolute bottom-1 left-1/2 size-1.75 -translate-x-1/2 rounded-full bg-primary opacity-0 group-data-[state=active]:opacity-100"
+              />
               <ActiveCorners />
             </TabsTrigger>
           ))}

@@ -89,6 +89,7 @@ export function ChangePasswordForm() {
               <FormControl>
                 <PasswordInput
                   autoComplete="current-password"
+                  className="h-12 rounded-lg text-base md:text-base"
                   {...field}
                 />
               </FormControl>
@@ -106,6 +107,7 @@ export function ChangePasswordForm() {
               <FormControl>
                 <PasswordInput
                   autoComplete="new-password"
+                  className="h-12 rounded-lg text-base md:text-base"
                   placeholder={t("changePassword.new")}
                   {...field}
                 />
@@ -132,7 +134,7 @@ export function ChangePasswordForm() {
             type="button"
             variant="ghost"
             size="lg"
-            className="flex-1"
+            className="h-12 flex-1 rounded-lg"
             onClick={() => {
               form.reset(emptyValues)
               changePassword.reset()
@@ -143,7 +145,7 @@ export function ChangePasswordForm() {
           <Button
             type="submit"
             size="lg"
-            className="flex-1"
+            className="h-12 flex-1 rounded-lg"
             disabled={changePassword.isPending}
           >
             {changePassword.isPending ? <Loader2 className="animate-spin" /> : null}
