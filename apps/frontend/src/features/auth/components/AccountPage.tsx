@@ -9,6 +9,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ChangeEmailSection } from "@/features/auth/components/ChangeEmailSection"
 import { ChangePasswordForm } from "@/features/auth/components/ChangePasswordForm"
 import { ProfileForm } from "@/features/auth/components/ProfileForm"
+import { useEmailChangedNotice } from "@/features/auth/hooks/useEmailChangedNotice"
 import { useSession } from "@/features/auth/hooks/useSession"
 
 const SECTIONS = ["profile", "security"] as const
@@ -24,6 +25,7 @@ type Section = (typeof SECTIONS)[number]
 export function AccountPage({ isEmailChanged = false }: { isEmailChanged?: boolean }) {
   const { t } = useTranslation("auth")
   const { user } = useSession()
+  useEmailChangedNotice(isEmailChanged, user?.email)
   const [section, setSection] = useState<Section>("profile")
 
   if (!user) return null
@@ -70,10 +72,7 @@ export function AccountPage({ isEmailChanged = false }: { isEmailChanged?: boole
             <h2 className="text-2xl font-bold">{t("profile.title")}</h2>
             <ProfileForm user={user} />
           </Card>
-          <ChangeEmailSection
-            user={user}
-            isConfirmed={isEmailChanged}
-          />
+          <ChangeEmailSection user={user} />
         </div>
       ) : (
         <Card className="gap-4 p-4">

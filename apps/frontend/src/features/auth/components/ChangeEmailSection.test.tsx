@@ -30,14 +30,11 @@ const user: SessionUser = {
   locale: "en",
 }
 
-const renderSection = (isConfirmed = false, current: SessionUser = user) =>
+const renderSection = () =>
   render(
     <QueryClientProvider client={new QueryClient()}>
       <div className="grid grid-cols-1 md:grid-cols-2">
-        <ChangeEmailSection
-          user={current}
-          isConfirmed={isConfirmed}
-        />
+        <ChangeEmailSection user={user} />
       </div>
     </QueryClientProvider>,
   )
@@ -103,9 +100,8 @@ describe("ChangeEmailSection", () => {
         "We sent a verification link to eva.nova@example.cz. Until you confirm, your original e-mail stays in use.",
       ),
     ).toBeInTheDocument()
-    expect(screen.getByText("Pending change")).toBeInTheDocument()
-    expect(screen.getByText("eva.mala@example.cz → eva.nova@example.cz")).toBeInTheDocument()
-    expect(screen.getByText("Current e-mail").nextSibling).toHaveTextContent("eva.mala@example.cz")
+    expect(screen.getByText("Original e-mail").nextSibling).toHaveTextContent("eva.mala@example.cz")
+    expect(screen.getByText("New e-mail").nextSibling).toHaveTextContent("eva.nova@example.cz")
     expect(screen.queryByLabelText("New e-mail *")).not.toBeInTheDocument()
   })
 
@@ -114,7 +110,7 @@ describe("ChangeEmailSection", () => {
     renderSection()
     await send("eva.nova@example.cz")
 
-    await userEvent.click(await screen.findByRole("button", { name: "Back to account settings" }))
+    await userEvent.click(await screen.findByRole("button", { name: "Enter a different address" }))
 
     expect(screen.getByRole("button", { name: "Change e-mail" })).toBeInTheDocument()
   })
@@ -162,21 +158,6 @@ describe("ChangeEmailSection", () => {
     expect(screen.queryByLabelText("New e-mail *")).not.toBeInTheDocument()
     await userEvent.click(screen.getByRole("button", { name: "Change e-mail" }))
     expect(screen.getByLabelText("New e-mail *")).toHaveValue("")
-  })
-
-  it("shows the changed e-mail with the way on once the link has been clicked", () => {
-    renderSection(true, { ...user, email: "eva.nova@example.cz" })
-
-    expect(screen.getByText("Your e-mail has been changed.")).toBeInTheDocument()
-    expect(
-      screen.getByText("Use eva.nova@example.cz the next time you sign in."),
-    ).toBeInTheDocument()
-    expect(screen.getByRole("link", { name: "Continue to your account" })).toHaveAttribute(
-      "href",
-      "/participant",
-    )
-    expect(screen.getByText(/Sign in with the new address/)).toBeInTheDocument()
-    expect(screen.queryByLabelText("New e-mail *")).not.toBeInTheDocument()
   })
 
   it("is written in Czech with the texts of the design", async () => {

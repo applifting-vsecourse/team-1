@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Link } from "@tanstack/react-router"
 import { CircleAlert, Loader2, TriangleAlert } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
@@ -23,7 +22,6 @@ import { apiErrorCode } from "@/lib/api-client"
 
 import type { SessionUser } from "@/features/auth/api/authSessionQueryOptions"
 import { useRequestEmailChange } from "@/features/auth/hooks/useRequestEmailChange"
-import { accountHome } from "@/features/auth/lib/account-home"
 
 const createSchema = (invalid: string) =>
   z.object({ newEmail: z.string().trim().pipe(z.email(invalid)) })
@@ -32,8 +30,6 @@ type FormValues = z.infer<ReturnType<typeof createSchema>>
 
 type ChangeEmailSectionProps = {
   user: SessionUser
-  /** The link of the e-mail was clicked and the change applied (the page was reopened with `?emailChanged`). */
-  isConfirmed?: boolean
 }
 
 /**
@@ -43,9 +39,8 @@ type ChangeEmailSectionProps = {
  */
 // Figma (Design system): US-125 / Nastavení účtu · Profil · změna e-mailu · Zadat nový e-mail · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16244-2632 (desktop), https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16244-2699 (mobil)
 // Figma (Design system): US-125 / Nastavení účtu · Profil · změna e-mailu · Čeká na ověření · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16244-2736 (desktop), https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16244-2799 (mobil)
-// Figma (Design system): US-125 / Nastavení účtu · Profil · změna e-mailu · Změna potvrzená · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16244-2833 (desktop), https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16244-2896 (mobil)
 // Figma (Design system): US-125 / Nastavení účtu · Profil · změna e-mailu · Neplatná nová adresa · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16244-2930 (desktop), https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16244-3000 (mobil)
-export function ChangeEmailSection({ user, isConfirmed = false }: ChangeEmailSectionProps) {
+export function ChangeEmailSection({ user }: ChangeEmailSectionProps) {
   const { t } = useTranslation("auth")
   const { t: tErrors } = useTranslation("errors")
   const request = useRequestEmailChange()
@@ -83,31 +78,13 @@ export function ChangeEmailSection({ user, isConfirmed = false }: ChangeEmailSec
 
   return (
     <>
-      <Card className="gap-4 p-4">
+      <Card className="gap-4 p-4 md:self-start">
         <h2 className="text-2xl font-bold">{t("changeEmail.title")}</h2>
-        <DetailItem label={t("changeEmail.current")}>{user.email}</DetailItem>
+        {pendingEmail ? null : (
+          <DetailItem label={t("changeEmail.current")}>{user.email}</DetailItem>
+        )}
 
-        {isConfirmed ? (
-          <>
-            <Alert
-              role="status"
-              className="rounded-lg border-border bg-accent/30 p-4"
-            >
-              <TriangleAlert />
-              <AlertTitle>{t("changeEmail.confirmed.title")}</AlertTitle>
-              <AlertDescription>
-                {t("changeEmail.confirmed.description", { email: user.email })}
-              </AlertDescription>
-            </Alert>
-            <Button
-              asChild
-              size="lg"
-              className="h-12 w-full rounded-lg"
-            >
-              <Link to={accountHome(user)}>{t("changeEmail.confirmed.continue")}</Link>
-            </Button>
-          </>
-        ) : pendingEmail ? (
+        {pendingEmail ? (
           <>
             <Alert
               role="status"
@@ -119,14 +96,13 @@ export function ChangeEmailSection({ user, isConfirmed = false }: ChangeEmailSec
                 {t("changeEmail.pending.description", { email: pendingEmail })}
               </AlertDescription>
             </Alert>
-            <DetailItem label={t("changeEmail.pending.change")}>
-              {user.email} → {pendingEmail}
-            </DetailItem>
+            <DetailItem label={t("changeEmail.pending.original")}>{user.email}</DetailItem>
+            <DetailItem label={t("changeEmail.pending.new")}>{pendingEmail}</DetailItem>
             <Button
               type="button"
-              variant="ghost"
+              variant="outline"
               size="lg"
-              className="h-12 w-full rounded-lg"
+              className="h-12 w-full rounded-lg md:w-fit md:self-start"
               onClick={closeForm}
             >
               {t("changeEmail.pending.back")}
@@ -215,7 +191,7 @@ export function ChangeEmailSection({ user, isConfirmed = false }: ChangeEmailSec
           label={t("changeEmail.footer.label")}
           className="md:col-span-2"
         >
-          {t(isConfirmed ? "changeEmail.footer.confirmed" : "changeEmail.footer.default")}
+          {t("changeEmail.footer.default")}
         </DetailItem>
       )}
     </>
