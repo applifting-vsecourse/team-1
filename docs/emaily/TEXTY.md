@@ -224,7 +224,7 @@ Příjemce je dosavadní adresa. Jde pouze o upozornění, ne o druhou možnost 
 
 ## Schválení a předání
 
-- Adam 3. 11. 2026 schválil textace včetně UX oprav, českých a anglických variant a konečného předmětu „Přihláška byla zrušena“ u APP_WAITLIST_EXPIRED. Nezávislá jazyková revize tím není doložena.
-- Schválené fiktivní kontakty pro drafty a náhledy jsou `organizator@togena.com` a `support@togena.com`; před nasazením je potřeba ověřit provozní kontakty.
+- Adam 3. 11. 2026 schválil textace včetně UX oprav, českých a anglických variant a konečného předmětu „Přihláška byla zrušena“ u APP_WAITLIST_EXPIRED. Další jazyková revize se u školního projektu neprovádí.
+- Schválené fiktivní kontakty pro drafty a náhledy jsou `organizator@togena.com` a `support@togena.com`; jde o školní projekt, skutečné kontakty se nedoplňují.
 - Šest business rozhodnutí z dotazníku je zapracováno v [KATALOG.md](KATALOG.md). Splatnost se zatím neřeší. U obnovy hesla se neslibuje neověřený postup po vypršení odkazu. U zrušení celého termínu Adam potvrdil ponechání příslibu, že další postup vrácení plateb sdělí organizace.
 - Design: následně použít schválené texty v reprezentativních náhledech a porovnat s existujícími Figma návrhy.
