@@ -171,6 +171,6 @@ describe("ChangeEmailSection", () => {
     await userEvent.click(screen.getByRole("button", { name: "Změnit e-mail" }))
     expect(screen.getByLabelText("Nový e-mail *")).toBeInTheDocument()
     expect(screen.getByRole("button", { name: "Odeslat ověřovací odkaz" })).toBeInTheDocument()
-    expect(screen.getByText("Tvoje přihlášky zůstávají v účtu")).toBeInTheDocument()
+    expect(screen.getByText("Vaše přihlášky zůstávají v účtu")).toBeInTheDocument()
   })
 })

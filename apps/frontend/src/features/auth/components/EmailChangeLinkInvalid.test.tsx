@@ -9,9 +9,7 @@ import { EmailChangeLinkInvalid } from "@/features/auth/components/EmailChangeLi
 vi.mock("@tanstack/react-router", () => ({
   Link: ({ to, children }: { to: string; children: ReactNode }) => <a href={to}>{children}</a>,
 }))
-vi.mock("@/components/organisms/Header", () => ({
-  Header: ({ userMenu }: { userMenu: ReactNode }) => <header>{userMenu}</header>,
-}))
+vi.mock("@/components/organisms/Header", () => ({ Header: () => <header /> }))
 
 describe("EmailChangeLinkInvalid", () => {
   beforeEach(async () => {
@@ -28,15 +26,15 @@ describe("EmailChangeLinkInvalid", () => {
       "href",
       "/",
     )
-    expect(screen.getByRole("link", { name: "Sign in" })).toHaveAttribute("href", "/")
   })
 
-  it("is written in Czech with the texts of the design", async () => {
+  it("is written in formal Czech", async () => {
     await i18n.changeLanguage("cs")
     render(<EmailChangeLinkInvalid />)
 
     expect(screen.getByRole("heading", { name: "Odkaz už není platný" })).toBeInTheDocument()
     expect(screen.getByRole("alert")).toHaveTextContent("Změnu e-mailu se nepodařilo ověřit.")
+    expect(screen.getByRole("alert")).toHaveTextContent("Změnu můžete znovu zahájit")
     expect(screen.getByRole("link", { name: "Přihlásit se a změnit e-mail" })).toBeInTheDocument()
   })
 })

@@ -85,6 +85,11 @@ describe("per term (PVT)", () => {
     expect(computeTermPaymentStatus(waitlisted, [])).toBe("NOTHING_DUE")
   })
 
+  it("a term to evaluate owes nothing (US-102)", () => {
+    expect(computeTermDue({ status: "TO_EVALUATE", priceCzk: 4500 })).toBe(0)
+    expect(computeAmountDue([{ status: "TO_EVALUATE", priceCzk: 4500 }])).toBe(0)
+  })
+
   it("a confirmed term without a payment is unpaid", () => {
     expect(computeTermOwed(confirmed, [])).toBe(700)
     expect(computeTermPaymentStatus(confirmed, [])).toBe("UNPAID")

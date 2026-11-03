@@ -25,8 +25,8 @@ const copy: Record<
     subject: "Byla požádána změna přihlašovacího e-mailu",
     heading: "Byla požádána změna přihlašovacího e-mailu",
     body: (newEmail) =>
-      `Někdo požádal o změnu přihlašovacího e-mailu tvého účtu v Togeně na ${newEmail}. Změna začne platit až po potvrzení odkazu zaslaného na tuto adresu; do té doby se přihlašuješ tímto e-mailem.`,
-    ignore: "Pokud jsi to nebyl ty, změň si heslo a nic nepotvrzuj.",
+      `Někdo požádal o změnu přihlašovacího e-mailu vašeho účtu v Togeně na ${newEmail}. Změna začne platit až po potvrzení odkazu zaslaného na tuto adresu; do té doby se přihlašujete tímto e-mailem.`,
+    ignore: "Pokud jste to nebyli vy, změňte si heslo a nic nepotvrzujte.",
   },
 }
 

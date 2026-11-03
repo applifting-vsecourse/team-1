@@ -6,7 +6,7 @@ export class SubmittedTermDto {
   @ApiProperty()
   termId!: string
 
-  @ApiProperty({ enum: ["CONFIRMED", "WAITLISTED"] })
+  @ApiProperty({ enum: ["TO_EVALUATE", "CONFIRMED", "WAITLISTED"] })
   status!: ApplicationTermStatus
 }
 

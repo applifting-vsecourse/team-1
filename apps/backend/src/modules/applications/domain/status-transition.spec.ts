@@ -17,14 +17,25 @@ describe("manual status transitions (US-28)", () => {
     expect(manualTargets("CONFIRMED")).toEqual(["WAITLISTED", "CANCELLED"])
   })
 
+  it("lets the organizer decide an application to evaluate and never leads back to it (US-102)", () => {
+    expect(manualTargets("TO_EVALUATE")).toEqual(["CONFIRMED", "WAITLISTED", "CANCELLED"])
+    for (const from of ["WAITLISTED", "CONFIRMED", "CANCELLED"] as const) {
+      expect(canChangeManually(from, "TO_EVALUATE")).toBe(false)
+    }
+  })
+
+  it("leaves an application to evaluate alone for the system", () => {
+    expect(canChange("SYSTEM", "TO_EVALUATE", "CANCELLED")).toBe(false)
+  })
+
   it("treats a cancelled application as terminal", () => {
     expect(manualTargets("CANCELLED")).toEqual([])
     expect(canChangeManually("CANCELLED", "CONFIRMED")).toBe(false)
   })
 
   it("lists exactly the targets that canChangeManually accepts", () => {
-    for (const from of ["WAITLISTED", "CONFIRMED", "CANCELLED"] as const) {
-      for (const to of ["WAITLISTED", "CONFIRMED", "CANCELLED"] as const) {
+    for (const from of ["TO_EVALUATE", "WAITLISTED", "CONFIRMED", "CANCELLED"] as const) {
+      for (const to of ["TO_EVALUATE", "WAITLISTED", "CONFIRMED", "CANCELLED"] as const) {
         expect(canChangeManually(from, to)).toBe(manualTargets(from).includes(to))
       }
     }
@@ -59,7 +70,7 @@ describe("system transitions (US-106)", () => {
 
   it("picks e-mail no. 6 only for the system cancelling a waitlisted application", () => {
     expect(changeEmailKind("CANCELLED", "WAITLISTED", "SYSTEM")).toBe("NO_BED_FREED")
-    expect(changeEmailKind("CANCELLED", "WAITLISTED", "ORGANIZER")).toBe("REJECTED")
+    expect(changeEmailKind("CANCELLED", "WAITLISTED", "ORGANIZER")).toBe("CANCELLED_BY_ORGANIZER")
     expect(changeEmailKind("CANCELLED", "CONFIRMED", "SYSTEM")).toBe("REJECTED")
   })
 })
@@ -76,8 +87,21 @@ describe("exceedsCapacityWhenConfirmed", () => {
 })
 
 describe("changeEmailKind", () => {
-  it("maps the new status to the kind of e-mail", () => {
-    expect(changeEmailKind("CONFIRMED")).toBe("STATUS_CHANGED")
+  it.each([
+    ["no. 2", "CONFIRMED", "TO_EVALUATE", "ORGANIZER", "CONFIRMED"],
+    ["no. 3", "WAITLISTED", "TO_EVALUATE", "ORGANIZER", "WAITLISTED"],
+    ["no. 4", "CANCELLED", "TO_EVALUATE", "ORGANIZER", "REJECTED"],
+    ["no. 5", "CONFIRMED", "WAITLISTED", "ORGANIZER", "CONFIRMED_FROM_WAITLIST"],
+    ["no. 6", "CANCELLED", "WAITLISTED", "SYSTEM", "NO_BED_FREED"],
+    ["no. 9, 10", "CANCELLED", "CONFIRMED", "ORGANIZER", "REJECTED"],
+    ["no. 13", "WAITLISTED", "CONFIRMED", "ORGANIZER", "WAITLISTED_AFTER_CONFIRMED"],
+    ["no. 14", "CANCELLED", "WAITLISTED", "ORGANIZER", "CANCELLED_BY_ORGANIZER"],
+  ] as const)("EMAILY.md %s maps to its own kind", (_row, to, from, actor, kind) => {
+    expect(changeEmailKind(to, from, actor)).toBe(kind)
+  })
+
+  it("falls back to the plain kinds without a previous status", () => {
+    expect(changeEmailKind("CONFIRMED")).toBe("CONFIRMED")
     expect(changeEmailKind("WAITLISTED")).toBe("WAITLISTED")
     expect(changeEmailKind("CANCELLED")).toBe("REJECTED")
   })

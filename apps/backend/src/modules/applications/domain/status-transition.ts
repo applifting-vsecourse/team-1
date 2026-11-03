@@ -9,11 +9,12 @@ import { Gender, GenderCounts } from "@/shared/domain/gender"
  * - Náhradník → Potvrzená s dluhem (confirm, the organizer when a bed frees up)
  * - Náhradník → Zrušená, Potvrzená → Zrušená (cancel)
  * - Potvrzená → Náhradník (decided in PR #232, the diagram will follow)
+ * - K vyhodnocení → Potvrzená / Náhradník / Zrušená (the organizer's decision, manual evaluation
+ *   mode only, nothing leads back into the state; D-058)
  * - Zrušená is terminal.
- *
- * The state "K vyhodnocení" (US-102) does not exist in the code yet.
  */
 const MANUAL_TRANSITIONS: Record<ApplicationTermStatus, ApplicationTermStatus[]> = {
+  TO_EVALUATE: ["CONFIRMED", "WAITLISTED", "CANCELLED"],
   WAITLISTED: ["CONFIRMED", "CANCELLED"],
   CONFIRMED: ["WAITLISTED", "CANCELLED"],
   CANCELLED: [],
@@ -26,6 +27,7 @@ const MANUAL_TRANSITIONS: Record<ApplicationTermStatus, ApplicationTermStatus[]>
  * organizer has confirmed meanwhile.
  */
 const SYSTEM_TRANSITIONS: Record<ApplicationTermStatus, ApplicationTermStatus[]> = {
+  TO_EVALUATE: [],
   WAITLISTED: ["CANCELLED"],
   CONFIRMED: [],
   CANCELLED: [],
@@ -61,16 +63,26 @@ export function exceedsCapacityWhenConfirmed(gender: Gender, freePlaces: GenderC
   return freePlaces[gender] < 1
 }
 
-/** Kind of the e-mail to the applicant after a change to `to` (docs/procesy/.../EMAILY.md). */
+/**
+ * Kind of the e-mail to the applicant after a change from `from` to `to`; the number is the row
+ * of docs/procesy/zpracovani-prihlasky/EMAILY.md.
+ */
 export function changeEmailKind(
   to: ApplicationTermStatus,
   from?: ApplicationTermStatus,
   actor: StatusChangeActor = "ORGANIZER",
-): "STATUS_CHANGED" | "WAITLISTED" | "REJECTED" | "NO_BED_FREED" {
-  if (to === "CONFIRMED") return "STATUS_CHANGED"
-  if (to === "WAITLISTED") return "WAITLISTED"
-  // E-mail no. 6: the waitlisted application was cancelled by the system, no bed freed up.
-  return actor === "SYSTEM" && from === "WAITLISTED" ? "NO_BED_FREED" : "REJECTED"
+):
+  | "CONFIRMED"
+  | "CONFIRMED_FROM_WAITLIST"
+  | "WAITLISTED"
+  | "WAITLISTED_AFTER_CONFIRMED"
+  | "REJECTED"
+  | "NO_BED_FREED"
+  | "CANCELLED_BY_ORGANIZER" {
+  if (to === "CONFIRMED") return from === "WAITLISTED" ? "CONFIRMED_FROM_WAITLIST" : "CONFIRMED"
+  if (to === "WAITLISTED") return from === "CONFIRMED" ? "WAITLISTED_AFTER_CONFIRMED" : "WAITLISTED"
+  if (from === "WAITLISTED") return actor === "SYSTEM" ? "NO_BED_FREED" : "CANCELLED_BY_ORGANIZER"
+  return "REJECTED"
 }
 
 /** What a status change needs to know, read under the lock. */

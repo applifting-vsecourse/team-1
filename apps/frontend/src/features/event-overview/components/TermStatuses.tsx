@@ -17,7 +17,12 @@ import {
 } from "@/features/event-overview/api/termStatus"
 import { TermStatusChange } from "@/features/event-overview/components/TermStatusChange"
 
-const BADGE = { CONFIRMED: "success", WAITLISTED: "secondary", CANCELLED: "secondary" } as const
+const BADGE = {
+  TO_EVALUATE: "secondary",
+  CONFIRMED: "success",
+  WAITLISTED: "secondary",
+  CANCELLED: "secondary",
+} as const
 const ACTION_KEY = {
   CONFIRMED: "confirm",
   WAITLISTED: "waitlist",

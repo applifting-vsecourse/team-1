@@ -68,5 +68,17 @@ test.describe("Application from a link", { tag: "@mobile" }, () => {
     await expect(page.getByRole("heading", { level: 1, name: "Your applications" })).toBeVisible()
     await expect(page.getByText("Letní kemp 2027")).toBeVisible()
     await expect(page.getByText(/Confirmed|Waitlisted/).first()).toBeVisible()
+
+    // US-121: the detail ends with who to call or write to; one tap dials or opens the mail.
+    await page.getByRole("link", { name: /Letní kemp 2027/ }).click()
+    await expect(page.getByRole("heading", { name: "Organization contact" })).toBeVisible()
+    await expect(page.getByRole("link", { name: "info@letni-kemp.example" })).toHaveAttribute(
+      "href",
+      "mailto:info@letni-kemp.example",
+    )
+    await expect(page.getByRole("link", { name: "+420 777 000 003" })).toHaveAttribute(
+      "href",
+      "tel:+420777000003",
+    )
   })
 })

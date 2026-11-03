@@ -3,8 +3,10 @@ import { z } from "zod"
 
 import { api } from "@/lib/api-client"
 
-const statusSchema = z.enum(["CONFIRMED", "WAITLISTED", "CANCELLED"])
-export type TermStatus = z.infer<typeof statusSchema>
+const statusSchema = z.enum(["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED"])
+/** A status the organizer can set; nothing leads back to "to evaluate". */
+const targetSchema = z.enum(["CONFIRMED", "WAITLISTED", "CANCELLED"])
+export type TermStatus = z.infer<typeof targetSchema>
 
 const termStatusSchema = z.object({
   termId: z.string(),
@@ -14,7 +16,7 @@ const termStatusSchema = z.object({
   status: statusSchema,
   priceCzk: z.number().int(),
   /** Statuses the organizer may set now, decided by the server. */
-  allowedStatuses: z.array(statusSchema),
+  allowedStatuses: z.array(targetSchema),
   history: z.array(
     z.object({
       id: z.string(),

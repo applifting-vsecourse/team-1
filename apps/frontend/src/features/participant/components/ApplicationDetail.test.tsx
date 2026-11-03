@@ -45,6 +45,11 @@ const application = (overrides: Partial<MyApplication> = {}): MyApplication => (
   amountPaidCzk: 2000,
   amountOwedCzk: 2500,
   paymentStatus: "PARTIALLY_PAID",
+  organizationContact: {
+    name: "Letní kemp z. s.",
+    email: "info@letni-kemp.example",
+    phone: "+420 777 000 003",
+  },
   paymentDetails: {
     bankAccount: "2900123456/2010",
     summary: { variableSymbol: "48000", payableCzk: 2500 },
@@ -111,6 +116,17 @@ describe("ApplicationDetail", () => {
     )
   })
 
+  it("shows the organization contact at the end of the detail", async () => {
+    renderDetail(application())
+
+    expect(await screen.findByRole("heading", { name: "Organization contact" })).toBeInTheDocument()
+    expect(screen.getByText("Letní kemp z. s.")).toBeInTheDocument()
+    expect(screen.getByRole("link", { name: "+420 777 000 003" })).toHaveAttribute(
+      "href",
+      "tel:+420777000003",
+    )
+  })
+
   it("names the event prominently with the application code", async () => {
     renderDetail(application())
 
@@ -172,6 +188,26 @@ describe("ApplicationDetail", () => {
     expect(screen.getByText("0 CZK until confirmed")).toBeInTheDocument()
     expect(screen.queryByText(/in line|position/i)).not.toBeInTheDocument()
     expect(screen.getByText(/you are waitlisted and have no amount due yet/)).toBeInTheDocument()
+  })
+
+  it("shows a term to evaluate as awaiting evaluation, never as waitlisted (US-102)", async () => {
+    renderDetail(
+      application({
+        terms: [{ ...waitlisted, status: "TO_EVALUATE" as const }],
+        amountDueCzk: 0,
+        amountOwedCzk: 0,
+        amountPaidCzk: 0,
+        paymentStatus: "NOTHING_DUE",
+        paymentDetails: null,
+      }),
+    )
+
+    expect(await screen.findByText("Awaiting evaluation")).toBeInTheDocument()
+    expect(screen.queryByText(/waitlisted/i)).not.toBeInTheDocument()
+    expect(screen.getByText("Don't pay yet.")).toBeInTheDocument()
+    expect(screen.getByText(/not a confirmed place or a waitlist spot yet/)).toBeInTheDocument()
+    expect(screen.queryByText("0 CZK until confirmed")).not.toBeInTheDocument()
+    expect(screen.queryByText("Account number")).not.toBeInTheDocument()
   })
 
   it("shows no payment block when every term is waitlisted", async () => {

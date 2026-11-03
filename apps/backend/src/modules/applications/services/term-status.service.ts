@@ -70,6 +70,9 @@ export class TermStatusService {
       email: result.email,
       locale: result.locale,
       eventName: result.eventName,
+      organizationName: result.organizationName,
+      termName: result.termName,
+      gender: result.gender,
       bankAccount: result.bankAccount,
       kind: changeEmailKind(
         result.to,

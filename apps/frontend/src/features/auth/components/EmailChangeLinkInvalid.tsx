@@ -1,13 +1,12 @@
 import { Link } from "@tanstack/react-router"
-import { TriangleAlert } from "lucide-react"
+import { CircleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
 import { Seo } from "@/components/atoms/Seo"
-import { Header } from "@/components/organisms/Header"
+import { AuthLayout } from "@/components/templates/AuthLayout"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
 
 /**
  * Where a verification link that no longer works (used, expired, unknown) ends.
@@ -20,38 +19,28 @@ export function EmailChangeLinkInvalid() {
   return (
     <>
       <Seo title={t("emailChangeInvalid.title")} />
-      <Header
-        userMenu={
-          <Button
-            asChild
-            variant="ghost"
-          >
-            <Link to={ROUTES.home}>{t("emailChangeInvalid.signIn")}</Link>
-          </Button>
-        }
-      />
-      <main className="min-h-svh">
-        <div className="w-full max-w-160 px-4 py-8 md:p-12">
-          <Card className="gap-4 rounded-xl border-0 p-4 shadow-none">
-            <h1 className="text-2xl font-bold">{t("emailChangeInvalid.title")}</h1>
-            <Alert
-              variant="destructive"
-              className="rounded-lg border-destructive bg-card p-4 *:data-[slot=alert-description]:text-muted-foreground"
-            >
-              <TriangleAlert />
-              <AlertTitle>{t("emailChangeInvalid.alertTitle")}</AlertTitle>
-              <AlertDescription>{t("emailChangeInvalid.alertBody")}</AlertDescription>
-            </Alert>
-            <Button
-              asChild
-              size="lg"
-              className="h-12 w-full rounded-lg"
-            >
-              <Link to={ROUTES.home}>{t("emailChangeInvalid.action")}</Link>
-            </Button>
-          </Card>
-        </div>
-      </main>
+      <AuthLayout
+        title={t("emailChangeInvalid.title")}
+        description={t("emailChangeInvalid.description")}
+      >
+        <Alert
+          variant="destructive"
+          className="border-destructive/30 bg-destructive/10"
+        >
+          <CircleAlert />
+          <AlertTitle>{t("emailChangeInvalid.alertTitle")}</AlertTitle>
+          <AlertDescription className="text-destructive/90">
+            {t("emailChangeInvalid.alertBody")}
+          </AlertDescription>
+        </Alert>
+        <Button
+          asChild
+          size="lg"
+          className="w-full"
+        >
+          <Link to={ROUTES.home}>{t("emailChangeInvalid.action")}</Link>
+        </Button>
+      </AuthLayout>
     </>
   )
 }

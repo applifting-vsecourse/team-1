@@ -89,6 +89,10 @@ export function ChangeEmailSection({ user }: ChangeEmailSectionProps) {
       <Card className="gap-4 p-4">
         <h2 className="text-2xl font-bold">{t("changeEmail.title")}</h2>
         <DetailItem label={t("changeEmail.current")}>{user.email}</DetailItem>
+        {/* Fills the space between the e-mail and the button, so the card is as tall as its neighbour. */}
+        <DetailItem label={t("changeEmail.footer.label")}>
+          {t("changeEmail.footer.default")}
+        </DetailItem>
         <Button
           type="button"
           size="lg"
@@ -199,13 +203,6 @@ export function ChangeEmailSection({ user }: ChangeEmailSectionProps) {
           )}
         </DialogContent>
       </Dialog>
-
-      <DetailItem
-        label={t("changeEmail.footer.label")}
-        className="md:col-span-2"
-      >
-        {t("changeEmail.footer.default")}
-      </DetailItem>
     </>
   )
 }

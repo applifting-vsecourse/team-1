@@ -316,4 +316,59 @@ describe("submit application (integration)", () => {
     expect(organizer.status).toBe(400)
     expect(((await organizer.json()) as { code: string }).code).toBe("VALIDATION_FAILED")
   })
+
+  it("in the manual mode leaves every term to evaluate, takes no bed and owes nothing (US-102)", async () => {
+    const organization = await prisma.organization.findFirstOrThrow()
+    const manualToken = "us-102-event"
+    const manual = await prisma.event.create({
+      data: {
+        organizationId: organization.id,
+        name: "US-102",
+        publicToken: manualToken,
+        evaluationMode: "MANUAL",
+        terms: {
+          create: [
+            {
+              organizationId: organization.id,
+              number: 1,
+              name: "M1",
+              // One bed only: the automatic mode would waitlist the second participant.
+              rooms: {
+                create: [
+                  { organizationId: organization.id, name: "A", capacity: 1, gender: "FEMALE" },
+                ],
+              },
+              startsOn: new Date("2027-08-01"),
+              endsOn: new Date("2027-08-02"),
+              priceCzk: 1000,
+            },
+          ],
+        },
+      },
+      include: { terms: true },
+    })
+    const [term] = manual.terms
+    const bodies: SubmitBody[] = []
+    for (let i = 0; i < 2; i++) {
+      const response = await fetch(api(`/public/events/${manualToken}/applications`), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: `manual-${i}-${Date.now()}@example.com`,
+          consent: true,
+          participants: [participant("FEMALE", [term.id])],
+        }),
+      })
+      expect(response.status).toBe(201)
+      bodies.push((await response.json()) as SubmitBody)
+    }
+
+    expect(bodies.map((body) => body.applications[0].terms[0].status)).toEqual([
+      "TO_EVALUATE",
+      "TO_EVALUATE",
+    ])
+    const stored = await prisma.applicationTerm.findMany({ where: { termId: term.id } })
+    expect(stored.map((row) => row.status)).toEqual(["TO_EVALUATE", "TO_EVALUATE"])
+    expect(stored.every((row) => row.priceCzk === 1000)).toBe(true)
+  })
 })

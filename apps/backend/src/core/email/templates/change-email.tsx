@@ -37,13 +37,13 @@ const copy: Record<
     ignore: "If you didn't ask for this change, don't use the link.",
   },
   cs: {
-    subject: "Potvrď změnu e-mailu",
-    heading: "Potvrď změnu e-mailu",
+    subject: "Potvrďte změnu e-mailu",
+    heading: "Potvrďte změnu e-mailu",
     to: "Komu",
     body: (currentEmail, newEmail) =>
       `Po potvrzení se přihlašovací e-mail změní z ${currentEmail} na ${newEmail}.`,
     button: "Potvrdit změnu e-mailu",
-    ignore: "Pokud jsi o změnu nežádal, odkaz nepoužívej.",
+    ignore: "Pokud jste o změnu nežádali, odkaz nepoužívejte.",
   },
 }
 

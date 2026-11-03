@@ -39,6 +39,7 @@ Everything a user reads — UI copy, e-mails, error messages — is localized En
 - Money and dates: `formatCzk` / `formatDate` from `@/lib`, never `toLocaleString` by hand.
 - Backend errors: throw `AppException(status, code)` with a code from `shared/errors/error-code.ts` and add the code to both `errors.json` files. Every error response is `{ statusCode, code, message }`, optionally with `params` (values for `{{placeholders}}` in the translation, 4th argument of `AppException`).
 - E-mails: copy for both locales lives in the template; send in `User.locale` / `Application.locale`. Read the request language with `@RequestLocale()`.
+- Czech copy always addresses the user formally (vykání), even where a Figma frame uses tykání — tech-lead decision.
 
 ### Business rules and acceptance criteria
 

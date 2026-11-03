@@ -46,6 +46,9 @@ enum ApplicationTermStatus {
   WAITLISTED
   // Terminal (US-28): rejected, cancelled or not obtained a bed. Does not block a new application.
   CANCELLED
+  // "K vyhodnocení" (US-102): manual evaluation mode only, waits for the organizer's decision.
+  // Takes no bed and owes nothing until confirmed.
+  TO_EVALUATE
 
   @@map("application_term_status")
 }

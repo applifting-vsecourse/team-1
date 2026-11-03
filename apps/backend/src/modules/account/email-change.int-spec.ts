@@ -154,7 +154,7 @@ describe("changing the sign-in e-mail (integration)", () => {
 
     expect(response.status).toBe(204)
     const mail = await latestEmailTo(newEmail)
-    expect(mail?.subject).toBe("Potvrď změnu e-mailu")
+    expect(mail?.subject).toBe("Potvrďte změnu e-mailu")
     expect(mail?.links.some((link) => link.includes("/auth/verify-email?token="))).toBe(true)
     // The old address gets only the notice, never a link.
     expect((await latestEmailTo(account.email))?.links).toEqual([])

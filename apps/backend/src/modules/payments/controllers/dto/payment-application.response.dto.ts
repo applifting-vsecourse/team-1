@@ -26,7 +26,7 @@ class PaymentTermResponseDto {
   @ApiProperty() termNumber!: number
   @ApiProperty({ example: "12345001", description: "Pays this term only." })
   variableSymbol!: string
-  @ApiProperty({ enum: ["CONFIRMED", "WAITLISTED", "CANCELLED"] }) status!: string
+  @ApiProperty({ enum: ["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED"] }) status!: string
   @ApiProperty() priceCzk!: number
   @ApiProperty() startsOn!: string
   @ApiProperty() endsOn!: string

@@ -9,7 +9,7 @@ const termSchema = z.object({
   /** ISO date, `2027-07-04`. */
   startsOn: z.string(),
   endsOn: z.string(),
-  status: z.enum(["CONFIRMED", "WAITLISTED", "CANCELLED"]),
+  status: z.enum(["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED"]),
   priceCzk: z.number().int(),
 })
 export type MyApplicationTerm = z.infer<typeof termSchema>
@@ -27,6 +27,15 @@ const termPaymentSchema = z.object({
   paymentStatus: z.enum(["NOTHING_DUE", "UNPAID", "PARTIALLY_PAID", "PAID", "OVERPAID"]),
 })
 export type TermPayment = z.infer<typeof termPaymentSchema>
+
+/** Who runs the event; e-mail and phone come from the event's public page and may be missing (D-092). */
+const organizationContactSchema = z.object({
+  name: z.string(),
+  email: z.string().nullable(),
+  /** As the organizer typed it. */
+  phone: z.string().nullable(),
+})
+export type OrganizationContact = z.infer<typeof organizationContactSchema>
 
 export const myApplicationSchema = z.object({
   id: z.string(),
@@ -58,6 +67,7 @@ export const myApplicationSchema = z.object({
       terms: z.array(termPaymentSchema),
     })
     .nullable(),
+  organizationContact: organizationContactSchema,
 })
 export type MyApplication = z.infer<typeof myApplicationSchema>
 export type PaymentStatus = MyApplication["paymentStatus"]

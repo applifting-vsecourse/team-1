@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto"
 import { PrismaService } from "@/core/prisma/prisma.service"
-import { Gender, RoomMode, Term } from "@/generated/prisma/client"
+import { EvaluationMode, Gender, RoomMode, Term } from "@/generated/prisma/client"
 import { computeAvailablePlaces } from "@/modules/applications/domain/capacity"
 import { evaluateApplication } from "@/modules/applications/domain/evaluation"
 import {
@@ -134,6 +134,7 @@ export const seedDatabase = async (
     // Fixed so the demo link stays the same after `db:reset`. Real events get
     // a random token (generateToken).
     publicToken: "demo-letni-kemp-2027",
+    contact: { email: "info@letni-kemp.example", phone: "+420 777 000 003" },
     terms: [
       {
         name: "1. týden",
@@ -284,6 +285,7 @@ export const seedDatabase = async (
     description: "Víkendové soustředění na horské chatě.",
     location: "Chata Sněžka, Pec pod Sněžkou",
     publicToken: "demo-podzimni-soustredeni-2027",
+    contact: { email: "horsky-klub@example.com", phone: "+420 777 000 002" },
     terms: [{ name: "Listopad", startsOn: "2027-11-05", endsOn: "2027-11-07", priceCzk: 2400 }],
     rooms: [...rooms("FEMALE", ["A", 4]), ...rooms("MALE", ["B", 4])],
     applicants: [
@@ -319,6 +321,22 @@ export const seedDatabase = async (
     recordedById: organizerA.id,
     createEvent,
   })
+
+  // The only event in the manual evaluation mode (US-103): no applicants, so every application
+  // that the E2E journey submits lands in the queue "To evaluate".
+  await createEvent(prisma, {
+    organizationId: summerCamp.id,
+    recordedById: organizerA.id,
+    name: "Ruční vyhodnocení 2028",
+    description: "Víkend, kde organizátor rozhoduje o každé přihlášce sám.",
+    location: "Chata U Lesa, Rokytnice",
+    publicToken: "demo-rucni-vyhodnoceni-2028",
+    evaluationMode: "MANUAL",
+    terms: [{ name: "Víkend", startsOn: "2028-05-12", endsOn: "2028-05-14", priceCzk: 1800 }],
+    rooms: [...rooms("FEMALE", ["A", 4]), ...rooms("MALE", ["B", 4])],
+    applicants: [],
+    payments: {},
+  })
 }
 
 export type CreateEventParams = {
@@ -333,11 +351,15 @@ export type CreateEventParams = {
   rooms: SeedRoom[]
   /** Room mode of every term; defaults to GENDERED, SHARED rooms have no gender. */
   roomMode?: RoomMode
+  /** Defaults to AUTOMATIC. */
+  evaluationMode?: EvaluationMode
   applicants: SeedApplicant[]
   /** By applicant index. */
   payments: Record<number, SeedPayment>
   /** When the first application arrived and the gap between them; defaults to the last minutes before now. */
   arrival?: { first: Date; intervalMs: number }
+  /** Contact shown to participants (US-121) without publishing the event; `publicPage` carries its own. */
+  contact?: { email: string; phone: string }
   /** Public page content and catalog listing (US-122); without it the event stays unpublished. */
   publicPage?: SeedPublicPage
 }
@@ -364,6 +386,11 @@ export async function createEvent(prisma: PrismaService, params: CreateEventPara
       description: params.description,
       location: params.location,
       publicToken: params.publicToken,
+      evaluationMode: params.evaluationMode,
+      ...(params.contact && {
+        contactEmail: params.contact.email,
+        contactPhone: params.contact.phone,
+      }),
       ...(params.publicPage && {
         contactEmail: params.publicPage.contactEmail,
         contactPhone: params.publicPage.contactPhone,
@@ -420,6 +447,7 @@ export async function createEvent(prisma: PrismaService, params: CreateEventPara
         priceCzk: term.priceCzk,
         freePlaces: computeAvailablePlaces(params.rooms, confirmed.get(term.id)!),
       })),
+      params.evaluationMode ?? "AUTOMATIC",
     )
     for (const term of evaluated) {
       if (term.status === "CONFIRMED") confirmed.get(term.termId)!.push(applicant.gender)

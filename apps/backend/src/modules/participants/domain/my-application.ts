@@ -23,6 +23,10 @@ export type MyApplicationRecord = {
   eventName: string
   /** Account number of the organization that runs the event. */
   bankAccount: string
+  organizationName: string
+  /** Public contact of the event (US-122); optional unless the event is in the catalog. */
+  contactEmail: string | null
+  contactPhone: string | null
   terms: {
     termId: string
     /** `Term.number`, part of the term's variable symbol. */
@@ -51,6 +55,13 @@ export type MyApplicationTerm = {
 /** Where and how much to pay — only when at least one term is confirmed (US-25). */
 export type PaymentDetails = TermPaymentDetails
 
+/** Who the participant can call or write to about the event; the phone is shown as the organizer typed it. */
+export type OrganizationContact = {
+  name: string
+  email: string | null
+  phone: string | null
+}
+
 export type MyApplication = {
   id: string
   eventName: string
@@ -67,6 +78,7 @@ export type MyApplication = {
   amountOwedCzk: number
   paymentStatus: PaymentStatus
   paymentDetails: PaymentDetails | null
+  organizationContact: OrganizationContact
 }
 
 /**
@@ -122,5 +134,10 @@ export function buildMyApplication(record: MyApplicationRecord): MyApplication {
     paymentStatus: computePaymentStatus(amountDueCzk, amountPaidCzk),
     // All terms waitlisted: nothing to pay yet, so no payment details (US-25).
     paymentDetails: details,
+    organizationContact: {
+      name: record.organizationName,
+      email: record.contactEmail,
+      phone: record.contactPhone,
+    },
   }
 }

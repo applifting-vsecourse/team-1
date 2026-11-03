@@ -1,6 +1,7 @@
 import { Gender } from "@/shared/domain/gender"
 import { computeAvailablePlaces, RoomCapacity } from "./capacity"
 import { evaluateApplication, EvaluatedTerm } from "./evaluation"
+import { EvaluationMode } from "./evaluation-mode"
 
 /** One participant of a submitted form, in the order of the form. */
 export type SubmittedParticipant = {
@@ -26,6 +27,7 @@ export type OccupancySnapshot = {
 export function evaluateSubmission(
   participants: SubmittedParticipant[],
   snapshot: OccupancySnapshot,
+  mode: EvaluationMode,
 ): EvaluatedTerm[][] {
   const confirmed = new Map<string, Gender[]>()
   const confirmedIn = (termId: string): Gender[] => {
@@ -42,6 +44,7 @@ export function evaluateSubmission(
         priceCzk,
         freePlaces: computeAvailablePlaces(snapshot.roomsByTerm[termId] ?? [], confirmedIn(termId)),
       })),
+      mode,
     )
     for (const term of evaluated) {
       if (term.status === "CONFIRMED") confirmedIn(term.termId).push(participant.gender)
