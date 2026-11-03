@@ -5,6 +5,7 @@
   },
   "contact": {
     "email": "E-mail",
+    "none": "Organizace zatím nezveřejnila kontakt.",
     "phone": "Telefon",
     "title": "Kontakt organizace"
   },

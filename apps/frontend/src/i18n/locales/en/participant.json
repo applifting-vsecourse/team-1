@@ -5,6 +5,7 @@
   },
   "contact": {
     "email": "E-mail",
+    "none": "The organization hasn't published a contact yet.",
     "phone": "Phone",
     "title": "Organization contact"
   },

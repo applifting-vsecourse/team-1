@@ -43,13 +43,20 @@ describe("OrganizationContact", () => {
     expect(screen.queryByRole("link", { name: /alpine/ })).not.toBeInTheDocument()
   })
 
-  it("shows just the organization name without any contact", () => {
+  it("says no contact is published when there is neither e-mail nor phone", () => {
     render(<OrganizationContact contact={contact({ email: null, phone: null })} />)
 
     expect(screen.getByText("Alpine Collective")).toBeInTheDocument()
+    expect(screen.getByText("The organization hasn't published a contact yet.")).toBeInTheDocument()
     expect(screen.queryByRole("link")).not.toBeInTheDocument()
     expect(screen.queryByText("E-mail")).not.toBeInTheDocument()
     expect(screen.queryByText("Phone")).not.toBeInTheDocument()
+  })
+
+  it("does not show the note while there is a contact", () => {
+    render(<OrganizationContact contact={contact({ phone: null })} />)
+
+    expect(screen.queryByText(/hasn't published a contact/)).not.toBeInTheDocument()
   })
 
   it("stacks the lines in one column below the md breakpoint (360 px)", () => {
