@@ -10,3 +10,6 @@ export const SUMMER_CAMP_LINK = "/apply/demo-letni-kemp-2027"
 
 /** Application link token of „Horský víkend 2027“ of „Horský spolek Sněžka“, which ORGANIZER isn't a member of. */
 export const MOUNTAIN_WEEKEND_TOKEN = "demo-horsky-vikend-2027"
+
+/** Application link of „Ruční vyhodnocení 2028“, the only seeded event in the manual evaluation mode (US-103). */
+export const MANUAL_EVENT_LINK = "/apply/demo-rucni-vyhodnoceni-2028"

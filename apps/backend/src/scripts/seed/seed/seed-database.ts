@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto"
 import { PrismaService } from "@/core/prisma/prisma.service"
-import { Gender, RoomMode, Term } from "@/generated/prisma/client"
+import { EvaluationMode, Gender, RoomMode, Term } from "@/generated/prisma/client"
 import { computeAvailablePlaces } from "@/modules/applications/domain/capacity"
 import { evaluateApplication } from "@/modules/applications/domain/evaluation"
 import {
@@ -319,6 +319,22 @@ export const seedDatabase = async (
     recordedById: organizerA.id,
     createEvent,
   })
+
+  // The only event in the manual evaluation mode (US-103): no applicants, so every application
+  // that the E2E journey submits lands in the queue "To evaluate".
+  await createEvent(prisma, {
+    organizationId: summerCamp.id,
+    recordedById: organizerA.id,
+    name: "Ruční vyhodnocení 2028",
+    description: "Víkend, kde organizátor rozhoduje o každé přihlášce sám.",
+    location: "Chata U Lesa, Rokytnice",
+    publicToken: "demo-rucni-vyhodnoceni-2028",
+    evaluationMode: "MANUAL",
+    terms: [{ name: "Víkend", startsOn: "2028-05-12", endsOn: "2028-05-14", priceCzk: 1800 }],
+    rooms: [...rooms("FEMALE", ["A", 4]), ...rooms("MALE", ["B", 4])],
+    applicants: [],
+    payments: {},
+  })
 }
 
 export type CreateEventParams = {
@@ -333,6 +349,8 @@ export type CreateEventParams = {
   rooms: SeedRoom[]
   /** Room mode of every term; defaults to GENDERED, SHARED rooms have no gender. */
   roomMode?: RoomMode
+  /** Defaults to AUTOMATIC. */
+  evaluationMode?: EvaluationMode
   applicants: SeedApplicant[]
   /** By applicant index. */
   payments: Record<number, SeedPayment>
@@ -364,6 +382,7 @@ export async function createEvent(prisma: PrismaService, params: CreateEventPara
       description: params.description,
       location: params.location,
       publicToken: params.publicToken,
+      evaluationMode: params.evaluationMode,
       ...(params.publicPage && {
         contactEmail: params.publicPage.contactEmail,
         contactPhone: params.publicPage.contactPhone,
@@ -420,7 +439,7 @@ export async function createEvent(prisma: PrismaService, params: CreateEventPara
         priceCzk: term.priceCzk,
         freePlaces: computeAvailablePlaces(params.rooms, confirmed.get(term.id)!),
       })),
-      "AUTOMATIC",
+      params.evaluationMode ?? "AUTOMATIC",
     )
     for (const term of evaluated) {
       if (term.status === "CONFIRMED") confirmed.get(term.termId)!.push(applicant.gender)

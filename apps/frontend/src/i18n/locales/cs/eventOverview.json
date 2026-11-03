@@ -195,6 +195,23 @@
     "waiting": "Čeká na platbu",
     "waitingDescription": "K úhradě {{amount}}. Zatím nebyla označena žádná přijatá platba."
   },
+  "queue": {
+    "detail": "Detail přihlášky",
+    "empty": "Všechny přihlášky jsou vyhodnocené.",
+    "emptyHint": "Nové přihlášky v ručním režimu se objeví v této frontě.",
+    "error": "Frontu se nepodařilo načíst.",
+    "errorHint": "Vybraný termín zůstal zachovaný.",
+    "loading": "Načítám…",
+    "received": "Přijato {{date}} · {{time}}",
+    "retry": "Zkusit znovu",
+    "search": "Hledat podle jména…",
+    "sortHint": "Nejstarší přihlášky jsou nahoře.",
+    "status": "K vyhodnocení",
+    "title": "Přihlášky",
+    "viewAll": "Všechny přihlášky",
+    "viewWaitlist": "Náhradníci",
+    "views": "Pohledy přihlášek"
+  },
   "termStatus": {
     "action": {
       "cancel": "Zrušit v termínu",
