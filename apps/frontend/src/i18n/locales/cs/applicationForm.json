@@ -28,8 +28,8 @@
     "termsHeading": "Stav vybraných termínů",
     "title": "Přihlášku jsme přijali",
     "toEvaluate": {
-      "alertText": "Platební údaje dostaneš po potvrzení účasti.",
-      "alertTitle": "Zatím nic neplať.",
+      "alertText": "Platební údaje dostanete po potvrzení účasti.",
+      "alertTitle": "Zatím nic neplaťte.",
       "note": "Organizátor přihlášku posoudí v každém termínu zvlášť. Zatím nejde o potvrzenou účast ani o zařazení mezi náhradníky."
     },
     "waitlist": {

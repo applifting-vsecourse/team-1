@@ -216,7 +216,10 @@ describe("organizer events (integration)", () => {
     it("defaults to automatic, also for events from the seed", async () => {
       const created = (await (await post(cookieA, { name: "Výchozí režim" })).json()) as EventBody
       expect(created).toMatchObject({ evaluationMode: "AUTOMATIC", evaluationModeLocked: false })
-      const seeded = await prisma.event.findMany()
+      // The seed has one manual event (US-103) for the queue to evaluate.
+      const seeded = await prisma.event.findMany({
+        where: { publicToken: { not: "demo-rucni-vyhodnoceni-2028" } },
+      })
       expect(seeded.every((event) => event.evaluationMode === "AUTOMATIC")).toBe(true)
     })
 
