@@ -9,9 +9,11 @@ type OrganizationContactProps = { contact: OrganizationContactData }
 
 const linkClass = "w-fit p-1 text-link underline underline-offset-4"
 
-/** Who to call or write to about the event: the organization, its e-mail and phone. A missing line is left out, with neither a note says so (D-092). */
+/** Who to call or write to about the event: the organization, its e-mail and phone. A missing line is left out; with neither e-mail nor phone a note says the contact isn't published (D-092). */
 // Figma (Design system): Detail přihlášky · Kontakt organizace u přihlášky, desktop · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15649-211
 // Figma (Design system): Detail přihlášky · Kontakt organizace u přihlášky, mobil 360 px · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15649-293
+// Figma (Design system): Detail přihlášky · Kontakt organizace bez zveřejněného kontaktu, desktop · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=18783-627
+// Figma (Design system): Detail přihlášky · Kontakt organizace bez zveřejněného kontaktu, mobil 360 px · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=18783-775
 export function OrganizationContact({ contact }: OrganizationContactProps) {
   const { t } = useTranslation("participant")
 
