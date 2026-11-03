@@ -2,6 +2,7 @@ import { ConsoleMailerAdapterFactory } from "@/core/email/adapters/console-maile
 import { EmailModule } from "@/core/email/email.module"
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { betterAuthProvider } from "@/shared/auth/providers/better-auth.provider"
+import { AuthUserRepository } from "@/shared/auth/repositories/auth-user.repository"
 import { Config } from "@/shared/config/config.service"
 import { ConfigModule } from "@applifting-io/nestjs-decorated-config"
 import { Module } from "@nestjs/common"
@@ -17,6 +18,6 @@ import { SeedService } from "./seed.service"
       inject: [Config],
     }),
   ],
-  providers: [Config, PrismaService, betterAuthProvider, SeedService],
+  providers: [Config, PrismaService, AuthUserRepository, betterAuthProvider, SeedService],
 })
 export class SeedModule {}

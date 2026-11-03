@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as EmailChangeRouteImport } from './routes/email-change'
 import { Route as ApplyTokenRouteImport } from './routes/apply/$token'
 import { Route as CatalogIndexRouteImport } from './routes/catalog/index'
 import { Route as CatalogPublicTokenRouteImport } from './routes/catalog/$publicToken'
@@ -39,6 +40,11 @@ import { Route as OrganizerAppEventsEventIdApplicationsApplicationIdRouteImport 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmailChangeRoute = EmailChangeRouteImport.update({
+  id: '/email-change',
+  path: '/email-change',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApplyTokenRoute = ApplyTokenRouteImport.update({
@@ -179,6 +185,7 @@ const OrganizerAppEventsEventIdApplicationsApplicationIdRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/email-change': typeof EmailChangeRoute
   '/apply/$token': typeof ApplyTokenRoute
   '/catalog/$publicToken': typeof CatalogPublicTokenRoute
   '/organizer': typeof OrganizerAppRouteWithChildren
@@ -207,6 +214,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/email-change': typeof EmailChangeRoute
   '/apply/$token': typeof ApplyTokenRoute
   '/catalog/$publicToken': typeof CatalogPublicTokenRoute
   '/organizer/login': typeof OrganizerLoginRoute
@@ -233,6 +241,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/email-change': typeof EmailChangeRoute
   '/apply/$token': typeof ApplyTokenRoute
   '/catalog/$publicToken': typeof CatalogPublicTokenRoute
   '/organizer/_app': typeof OrganizerAppRouteWithChildren
@@ -263,6 +272,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/email-change'
     | '/apply/$token'
     | '/catalog/$publicToken'
     | '/organizer'
@@ -291,6 +301,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/email-change'
     | '/apply/$token'
     | '/catalog/$publicToken'
     | '/organizer/login'
@@ -316,6 +327,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/email-change'
     | '/apply/$token'
     | '/catalog/$publicToken'
     | '/organizer/_app'
@@ -345,6 +357,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  EmailChangeRoute: typeof EmailChangeRoute
   ApplyTokenRoute: typeof ApplyTokenRoute
   CatalogPublicTokenRoute: typeof CatalogPublicTokenRoute
   OrganizerAppRoute: typeof OrganizerAppRouteWithChildren
@@ -364,6 +377,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/email-change': {
+      id: '/email-change'
+      path: '/email-change'
+      fullPath: '/email-change'
+      preLoaderRoute: typeof EmailChangeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/apply/$token': {
@@ -614,6 +634,7 @@ const ParticipantAppRouteWithChildren = ParticipantAppRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  EmailChangeRoute: EmailChangeRoute,
   ApplyTokenRoute: ApplyTokenRoute,
   CatalogPublicTokenRoute: CatalogPublicTokenRoute,
   OrganizerAppRoute: OrganizerAppRouteWithChildren,

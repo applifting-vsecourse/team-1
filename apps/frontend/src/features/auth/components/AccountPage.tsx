@@ -6,8 +6,10 @@ import { PageHeader } from "@/components/molecules/PageHeader"
 import { Card } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
+import { ChangeEmailSection } from "@/features/auth/components/ChangeEmailSection"
 import { ChangePasswordForm } from "@/features/auth/components/ChangePasswordForm"
 import { ProfileForm } from "@/features/auth/components/ProfileForm"
+import { useEmailChangedNotice } from "@/features/auth/hooks/useEmailChangedNotice"
 import { useSession } from "@/features/auth/hooks/useSession"
 
 const SECTIONS = ["profile", "security"] as const
@@ -15,14 +17,15 @@ type Section = (typeof SECTIONS)[number]
 
 /**
  * Account settings of every signed-in account: „Profil“ (name, language) and
- * „Zabezpečení“ (password). Changing the e-mail is US-125. Signing out stays
+ * „Zabezpečení“ (password). Signing out stays
  * in the account menu of the sidebar.
  */
 // Figma (Design system): US-124 / Nastavení účtu · Profil a jazyk · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16199-2145
 // Figma (Design system): US-124 / Nastavení účtu · Změnit heslo · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16199-2424
-export function AccountPage() {
+export function AccountPage({ isEmailChanged = false }: { isEmailChanged?: boolean }) {
   const { t } = useTranslation("auth")
   const { user } = useSession()
+  useEmailChangedNotice(isEmailChanged, user?.email)
   const [section, setSection] = useState<Section>("profile")
 
   if (!user) return null
@@ -64,10 +67,13 @@ export function AccountPage() {
       </Tabs>
 
       {section === "profile" ? (
-        <Card className="gap-4 p-4">
-          <h2 className="text-2xl font-bold">{t("profile.title")}</h2>
-          <ProfileForm user={user} />
-        </Card>
+        <div className="grid gap-6 md:grid-cols-2">
+          <Card className="gap-4 p-4">
+            <h2 className="text-2xl font-bold">{t("profile.title")}</h2>
+            <ProfileForm user={user} />
+          </Card>
+          <ChangeEmailSection user={user} />
+        </div>
       ) : (
         <Card className="gap-4 p-4">
           <h2 className="text-2xl font-bold">{t("changePassword.title")}</h2>

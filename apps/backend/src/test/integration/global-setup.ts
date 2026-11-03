@@ -6,8 +6,10 @@
 // better-auth ships ESM only and Jest runs CommonJS.)
 // No `@/` imports here: globalSetup runs outside moduleNameMapper.
 import { ChildProcess, execSync, spawn } from "node:child_process"
+import { appendFileSync, writeFileSync } from "node:fs"
 import { createServer } from "node:net"
-import { resolve } from "node:path"
+import { tmpdir } from "node:os"
+import { join, resolve } from "node:path"
 import { PrismaPg } from "@prisma/adapter-pg"
 import * as dotenv from "dotenv"
 // eslint-disable-next-line no-restricted-imports -- globalSetup is not resolved through the `@/` alias
@@ -38,19 +40,30 @@ export default async function globalSetup(): Promise<void> {
       PORT: String(port),
       BACKEND_URL: baseUrl,
       NODE_ENV: "test",
+      // E-mails always go to the console (never to Resend or SMTP), whatever .env holds.
+      RESEND_API_KEY: "",
+      SMTP_HOST: "",
       // US-106: the waitlist expiry job runs every second so a test does not have to wait.
       WAITLIST_EXPIRY_INTERVAL_MS: "1000",
     },
     stdio: ["ignore", "pipe", "pipe"],
   })
+  // The console mailer prints every e-mail; tests read it from this copy (`latestEmailLink`).
+  const mailLog = join(tmpdir(), `togena-int-mail-${port}.log`)
+  writeFileSync(mailLog, "")
   let output = ""
-  server.stdout?.on("data", (chunk: Buffer) => (output += chunk.toString()))
-  server.stderr?.on("data", (chunk: Buffer) => (output += chunk.toString()))
+  const collect = (chunk: Buffer): void => {
+    output += chunk.toString()
+    appendFileSync(mailLog, chunk)
+  }
+  server.stdout?.on("data", collect)
+  server.stderr?.on("data", collect)
   globalThis.__TOGENA_TEST_SERVER__ = server
 
   await waitForHealth(baseUrl, () => output)
   // Inherited by the test workers.
   process.env.TEST_API_URL = baseUrl
+  process.env.TEST_MAIL_LOG = mailLog
 }
 
 async function ensureDatabase(testUrl: string): Promise<void> {

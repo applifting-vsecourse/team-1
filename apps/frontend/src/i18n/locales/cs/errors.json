@@ -1,6 +1,8 @@
 {
   "APPLICATION_DUPLICATE": "Přihláška už existuje. Účastník: {{participant}}, termín: „{{term}}“. Zkontrolujte potvrzovací e-mail.",
   "CAPACITY_EXCEEDED": "Potvrzením by se překročila kapacita termínu. Potvrďte vědomě.",
+  "EMAIL_DELIVERY_FAILED": "Ověřovací e-mail se nepodařilo odeslat. Zkuste to prosím později.",
+  "EMAIL_TAKEN": "Tento e-mail už je obsazený.",
   "EVALUATION_MODE_LOCKED": "Akce už přijímá přihlášky, proto už režim vyhodnocování nelze změnit.",
   "EVENT_HAS_APPLICATIONS": "Akci s přihláškami nejde smazat.",
   "FORBIDDEN": "K tomu nemáte přístup.",

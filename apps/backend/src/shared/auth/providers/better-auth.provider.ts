@@ -1,20 +1,27 @@
 import { EmailService } from "@/core/email/interfaces/email-service.interface"
 import { toLocale } from "@/core/email/locale"
 import { renderEmail } from "@/core/email/render"
+import { ChangeEmail, changeEmailSubject } from "@/core/email/templates/change-email"
 import { ResetPassword, resetPasswordSubject } from "@/core/email/templates/reset-password"
 import { VerifyEmail, verifyEmailSubject } from "@/core/email/templates/verify-email"
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { betterAuthCoreConfig } from "@/shared/auth/config/better-auth.config"
+import { emailChangeHooks } from "@/shared/auth/email-change/email-change-hooks"
 import { createMagicLinkPlugin } from "@/shared/auth/magic-link/magic-link.plugin"
+import { AuthUserRepository } from "@/shared/auth/repositories/auth-user.repository"
 import { Config } from "@/shared/config/config.service"
 import { Inject, Provider } from "@nestjs/common"
 import { betterAuth } from "better-auth"
 import { prismaAdapter } from "better-auth/adapters/prisma"
 
+/** How long the link that confirms a new e-mail address works. */
+export const EMAIL_VERIFICATION_TTL_SECONDS = 60 * 60
+
 const createAuth = (
   prismaService: PrismaService,
   config: Config,
   emailProvider: EmailService,
+  authUsers: AuthUserRepository,
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 ) =>
   betterAuth({
@@ -55,9 +62,33 @@ const createAuth = (
       updateAge: 60 * 60 * 24,
     },
     trustedOrigins: [config.frontendUrl],
+    // A new address is applied only after the link sent to it is clicked (US-125); the
+    // old one keeps working until then. The link is a signed token valid for one hour.
+    user: {
+      ...betterAuthCoreConfig.user,
+      changeEmail: { enabled: true },
+    },
     emailVerification: {
+      expiresIn: EMAIL_VERIFICATION_TTL_SECONDS,
+      // The applications module moves the contact e-mail of the account's applications (PO, #218).
+      afterEmailVerification: async (user) => {
+        await emailChangeHooks.publish({ id: user.id, email: user.email })
+      },
       sendVerificationEmail: async ({ user, url }) => {
         const locale = toLocale((user as { locale?: unknown }).locale)
+        // For an e-mail change BetterAuth hands over the user with the NEW address,
+        // while the stored one is still the current address.
+        const storedEmail = await authUsers.findEmail(user.id)
+        if (storedEmail && storedEmail !== user.email) {
+          const changeHtml = await renderEmail(ChangeEmail, {
+            url,
+            locale,
+            currentEmail: storedEmail,
+            newEmail: user.email,
+          })
+          await emailProvider.sendEmail(user.email, changeEmailSubject(locale), changeHtml)
+          return
+        }
         const html = await renderEmail(VerifyEmail, { url, locale })
         await emailProvider.sendEmail(user.email, verifyEmailSubject(locale), html)
       },
@@ -73,9 +104,13 @@ export type BetterAuth = ReturnType<typeof createAuth>
 
 export const betterAuthProvider: Provider = {
   provide: "BetterAuth",
-  useFactory: (prismaService: PrismaService, config: Config, emailProvider: EmailService) =>
-    createAuth(prismaService, config, emailProvider),
-  inject: [PrismaService, Config, "EmailService"],
+  useFactory: (
+    prismaService: PrismaService,
+    config: Config,
+    emailProvider: EmailService,
+    authUsers: AuthUserRepository,
+  ) => createAuth(prismaService, config, emailProvider, authUsers),
+  inject: [PrismaService, Config, "EmailService", AuthUserRepository],
 }
 
 export const InjectBetterAuth = Inject("BetterAuth")

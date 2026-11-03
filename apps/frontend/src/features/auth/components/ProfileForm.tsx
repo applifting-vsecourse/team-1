@@ -50,8 +50,7 @@ type FormValues = z.infer<ReturnType<typeof schema>>
 
 /**
  * The „Profil“ tab of the account settings: name and preferred language
- * (the language of the UI and of e-mails, D-069). The e-mail is shown, not
- * edited here (changing it is US-125).
+ * (the language of the UI and of e-mails, D-069).
  */
 // Figma (Design system): US-124 / Nastavení účtu · Profil a jazyk · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16199-2145 (desktop), https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16199-2228 (mobil)
 // Figma (Design system): US-124 / Nastavení účtu · Uložený jazyk English · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16199-2279 (desktop), https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16199-2366 (mobil)
@@ -143,11 +142,6 @@ export function ProfileForm({ user }: { user: SessionUser }) {
         </div>
 
         <p className="text-sm text-muted-foreground">{t("profile.languageHint")}</p>
-
-        <div className="flex flex-col gap-2">
-          <p className="text-sm text-muted-foreground">{t("profile.email")}</p>
-          <p>{user.email}</p>
-        </div>
 
         {update.isError ? (
           <Alert variant="destructive">
