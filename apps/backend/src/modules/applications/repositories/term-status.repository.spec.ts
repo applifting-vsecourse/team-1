@@ -38,7 +38,11 @@ const setup = (options: {
     user: { findUnique: jest.fn().mockResolvedValue(options.user) },
     room: { findMany: jest.fn().mockResolvedValue([]) },
     applicationTerm: {
-      findUnique: jest.fn().mockResolvedValue({ id: "at1", status: "CONFIRMED" }),
+      findUnique: jest.fn().mockResolvedValue({
+        id: "at1",
+        status: "CONFIRMED",
+        term: { name: null, startsOn: "2027-07-12", endsOn: "2027-07-18" },
+      }),
       findMany: jest
         .fn()
         // the confirmed ones for the capacity check, then the terms of the application

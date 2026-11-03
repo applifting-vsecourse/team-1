@@ -83,6 +83,7 @@ export class TermStatusRepository {
         where: {
           applicationId_termId: { applicationId: application.id, termId: command.termId },
         },
+        include: { term: { select: { name: true, startsOn: true, endsOn: true } } },
       })
       if (!current) return null
 
@@ -152,7 +153,7 @@ export class TermStatusRepository {
         organizationName: application.event.organization.name,
         bankAccount: application.event.organization.bankAccount,
         gender: application.gender,
-        termName: termLabel(terms.find((row) => row.termId === command.termId)!.term, locale),
+        termName: termLabel(current.term, locale),
         application: {
           number: application.number,
           firstName: application.firstName,
