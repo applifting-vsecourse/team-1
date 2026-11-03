@@ -145,7 +145,7 @@ export function ProfileForm({ user }: { user: SessionUser }) {
         {update.isError ? (
           <Alert variant="destructive">
             <CircleAlert />
-            <AlertDescription>{update.error.message}</AlertDescription>
+            <AlertDescription>{tErrors("UNKNOWN")}</AlertDescription>
           </Alert>
         ) : null}
 
