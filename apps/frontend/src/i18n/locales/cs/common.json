@@ -69,6 +69,10 @@
       "title": "Stránka nenalezena"
     }
   },
+  "password": {
+    "hide": "Skrýt heslo",
+    "show": "Zobrazit heslo"
+  },
   "price": {
     "free": "Zdarma"
   },

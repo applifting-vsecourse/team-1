@@ -36,4 +36,19 @@ describe("AccountService", () => {
     expect(account).toMatchObject({ mustSetPassword: true, organizations: [] })
     expect(repository.findOrganizationsOfMember).not.toHaveBeenCalled()
   })
+
+  it("saves name and language of the signed-in user and returns the new account", async () => {
+    repository.updateProfile.mockResolvedValue({ name: "Eva Malá", locale: "cs" })
+    const participant = new Identity("u2", "p@example.com", "Petr", "PARTICIPANT", false, "en")
+
+    const account = await service.updateProfile(participant, { name: "Eva Malá", locale: "cs" })
+
+    expect(repository.updateProfile).toHaveBeenCalledWith("u2", { name: "Eva Malá", locale: "cs" })
+    expect(account).toMatchObject({
+      id: "u2",
+      email: "p@example.com",
+      name: "Eva Malá",
+      locale: "cs",
+    })
+  })
 })

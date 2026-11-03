@@ -1,55 +1,79 @@
+import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import { ActiveCorners } from "@/components/atoms/ActiveCorners"
 import { PageHeader } from "@/components/molecules/PageHeader"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
+import { ChangePasswordForm } from "@/features/auth/components/ChangePasswordForm"
+import { ProfileForm } from "@/features/auth/components/ProfileForm"
 import { useSession } from "@/features/auth/hooks/useSession"
-import { useSignOut } from "@/features/auth/hooks/useSignOut"
+
+const SECTIONS = ["profile", "security"] as const
+type Section = (typeof SECTIONS)[number]
 
 /**
- * Account settings: who is signed in, and sign out. The security and
- * notification sections of the frames come with their own stories.
+ * Account settings of every signed-in account: „Profil“ (name, language) and
+ * „Zabezpečení“ (password). Changing the e-mail is US-125. Signing out stays
+ * in the account menu of the sidebar.
  */
-// Figma (Design system): O30 Nastavení účtu organizátora · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=11988-176
-// Figma (Design system): U13 Nastavení účtu účastníka · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=11988-11146
+// Figma (Design system): US-124 / Nastavení účtu · Profil a jazyk · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16199-2145
+// Figma (Design system): US-124 / Nastavení účtu · Změnit heslo · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16199-2424
 export function AccountPage() {
   const { t } = useTranslation("auth")
   const { user } = useSession()
-  const signOut = useSignOut()
+  const [section, setSection] = useState<Section>("profile")
 
   if (!user) return null
 
   return (
-    <div className="flex max-w-196 flex-col gap-6">
+    <div className="flex flex-col gap-6">
       <PageHeader
         title={t("account.title")}
-        description={t(`account.description.${user.accountType}`)}
+        description={t("account.description")}
       />
 
-      <Card className="gap-4 p-6">
-        <h2 className="text-lg font-semibold">{t("account.yourAccount")}</h2>
-        <div className="flex flex-col gap-0.5">
-          <p className="font-semibold">{user.name}</p>
-          <p className="text-muted-foreground">{user.email}</p>
-        </div>
-        <Badge variant="secondary">{t(`account.kind.${user.accountType}`)}</Badge>
-      </Card>
-
-      <Card className="gap-4 p-6">
-        <h2 className="text-lg font-semibold">{t("account.session")}</h2>
-        <p className="text-muted-foreground">{t(`account.signOutHint.${user.accountType}`)}</p>
-        <Button
-          variant="outline"
-          size="lg"
-          className="self-start"
-          disabled={signOut.isPending}
-          onClick={() => signOut.mutate()}
+      <Tabs
+        value={section}
+        onValueChange={(value) => setSection(value as Section)}
+        className="gap-6"
+      >
+        <TabsList
+          variant="line"
+          className="h-auto w-full gap-2 p-0 md:w-fit"
         >
-          {t("menu.signOut")}
-        </Button>
-      </Card>
+          {SECTIONS.map((key) => (
+            <TabsTrigger
+              key={key}
+              value={key}
+              data-status={section === key ? "active" : undefined}
+              // Togena / Tab: 60 px, no fill; the active label is the accent text colour
+              // with the dot under it (and the logo corners), the inactive one is muted.
+              className="group h-15 flex-1 rounded-sm px-2 text-muted-foreground after:hidden hover:text-foreground data-[state=active]:bg-transparent data-[state=active]:text-link md:w-45 md:flex-none"
+            >
+              {t(`account.tabs.${key}`)}
+              <span
+                aria-hidden="true"
+                className="absolute bottom-1 left-1/2 size-1.75 -translate-x-1/2 rounded-full bg-primary opacity-0 group-data-[state=active]:opacity-100"
+              />
+              <ActiveCorners />
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
+
+      {section === "profile" ? (
+        <Card className="gap-4 p-4">
+          <h2 className="text-2xl font-bold">{t("profile.title")}</h2>
+          <ProfileForm user={user} />
+        </Card>
+      ) : (
+        <Card className="gap-4 p-4">
+          <h2 className="text-2xl font-bold">{t("changePassword.title")}</h2>
+          <ChangePasswordForm />
+        </Card>
+      )}
     </div>
   )
 }

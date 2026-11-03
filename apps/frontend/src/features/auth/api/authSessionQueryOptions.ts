@@ -5,10 +5,13 @@ import { authKeys } from "@/lib/auth-keys"
 
 import { authClient } from "@/features/auth/lib/auth-client"
 
-// `accountType` and `mustSetPassword` are BetterAuth additional fields set by
+// `accountType`, `mustSetPassword` and `locale` are BetterAuth additional fields set by
 // the server (apps/backend/src/shared/auth/config/better-auth.config.ts).
 export const accountTypeSchema = z.enum(["ORGANIZER", "PARTICIPANT", "ADMIN"])
 export type AccountType = z.infer<typeof accountTypeSchema>
+
+export const localeSchema = z.enum(["en", "cs"])
+export type Locale = z.infer<typeof localeSchema>
 
 export const sessionUserSchema = z.object({
   id: z.string(),
@@ -16,6 +19,8 @@ export const sessionUserSchema = z.object({
   name: z.string(),
   accountType: accountTypeSchema,
   mustSetPassword: z.boolean(),
+  // Preferred language of the account (UI and e-mails); BetterAuth additional field.
+  locale: localeSchema.catch("en"),
 })
 export type SessionUser = z.infer<typeof sessionUserSchema>
 
