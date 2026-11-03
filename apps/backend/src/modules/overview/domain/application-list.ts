@@ -102,7 +102,14 @@ export function applicationList(
     .trim()
     .split(/\s+/)
     .filter(Boolean)
-  const entries = rows
+  // The queue of applications to evaluate goes from the oldest, so they are decided fairly (US-103).
+  const isQueue = filters.status === "TO_EVALUATE"
+  const ordered = isQueue
+    ? [...rows].sort(
+        (a, b) => a.submittedAt.getTime() - b.submittedAt.getTime() || a.number - b.number,
+      )
+    : rows
+  const entries = ordered
     .filter(
       (row) =>
         words.every((word) =>

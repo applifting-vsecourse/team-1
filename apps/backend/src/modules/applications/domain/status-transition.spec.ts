@@ -17,14 +17,25 @@ describe("manual status transitions (US-28)", () => {
     expect(manualTargets("CONFIRMED")).toEqual(["WAITLISTED", "CANCELLED"])
   })
 
+  it("lets the organizer decide an application to evaluate and never leads back to it (US-102)", () => {
+    expect(manualTargets("TO_EVALUATE")).toEqual(["CONFIRMED", "WAITLISTED", "CANCELLED"])
+    for (const from of ["WAITLISTED", "CONFIRMED", "CANCELLED"] as const) {
+      expect(canChangeManually(from, "TO_EVALUATE")).toBe(false)
+    }
+  })
+
+  it("leaves an application to evaluate alone for the system", () => {
+    expect(canChange("SYSTEM", "TO_EVALUATE", "CANCELLED")).toBe(false)
+  })
+
   it("treats a cancelled application as terminal", () => {
     expect(manualTargets("CANCELLED")).toEqual([])
     expect(canChangeManually("CANCELLED", "CONFIRMED")).toBe(false)
   })
 
   it("lists exactly the targets that canChangeManually accepts", () => {
-    for (const from of ["WAITLISTED", "CONFIRMED", "CANCELLED"] as const) {
-      for (const to of ["WAITLISTED", "CONFIRMED", "CANCELLED"] as const) {
+    for (const from of ["TO_EVALUATE", "WAITLISTED", "CONFIRMED", "CANCELLED"] as const) {
+      for (const to of ["TO_EVALUATE", "WAITLISTED", "CONFIRMED", "CANCELLED"] as const) {
         expect(canChangeManually(from, to)).toBe(manualTargets(from).includes(to))
       }
     }

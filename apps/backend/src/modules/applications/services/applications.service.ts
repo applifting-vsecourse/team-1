@@ -104,6 +104,7 @@ export class ApplicationsService {
             })),
           })),
           snapshot,
+          event.evaluationMode,
         ),
       )
       return { account, applications, saved }

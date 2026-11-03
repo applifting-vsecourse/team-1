@@ -369,4 +369,56 @@ describe("ApplicationsPage", () => {
     expect(await screen.findByText("The event is not finished yet")).toBeInTheDocument()
     expect(screen.queryByText("No applications have been received yet.")).not.toBeInTheDocument()
   })
+
+  describe("queue to evaluate (US-103)", () => {
+    const waiting = {
+      ...application,
+      terms: [
+        { ...application.terms[0], status: "TO_EVALUATE" },
+        { ...application.terms[1], status: "CONFIRMED" },
+      ],
+    }
+
+    it("shows who is waiting in which term with a link to the detail", async () => {
+      setup([waiting], false, undefined, null, { status: "TO_EVALUATE" })
+      const link = await screen.findByRole("link", { name: /Application detail: Jana Test/ })
+      expect(link).toHaveAttribute("href", "/organizer/events/e1/applications/a1")
+      expect(within(link).getByText("jana@example.com")).toBeInTheDocument()
+      expect(within(link).getByText("To evaluate")).toBeInTheDocument()
+      // Only terms that wait for a decision belong to the queue.
+      expect(within(link).getAllByText("To evaluate")).toHaveLength(1)
+      expect(screen.getByText("The oldest applications are at the top.")).toBeInTheDocument()
+      const calls = get.mock.calls as [string, { searchParams: URLSearchParams }][]
+      const search = calls.find(([path]) => path.endsWith("applications"))![1].searchParams
+      expect(search.get("status")).toBe("TO_EVALUATE")
+    })
+
+    it("filters by term", async () => {
+      const change = setup([waiting], false, undefined, null, { status: "TO_EVALUATE" })
+      const user = userEvent.setup()
+      await screen.findByRole("link", { name: /Application detail/ })
+      await user.click(screen.getByRole("combobox", { name: "Term" }))
+      await user.click(await screen.findByRole("option", { name: "12–18 Jul 2027" }))
+      expect(change).toHaveBeenLastCalledWith({ status: "TO_EVALUATE", term: "t1" })
+    })
+
+    it("says so when nothing waits", async () => {
+      setup([], false, undefined, null, { status: "TO_EVALUATE" })
+      expect(await screen.findByText("All applications are evaluated.")).toBeInTheDocument()
+    })
+
+    it("offers a retry that keeps the chosen term", async () => {
+      setup([], true, undefined, null, { status: "TO_EVALUATE", term: "t1" })
+      expect(await screen.findByText("The queue could not be loaded.")).toBeInTheDocument()
+      expect(screen.getByText("The selected term was kept.")).toBeInTheDocument()
+      expect(screen.getByRole("button", { name: "Try again" })).toBeInTheDocument()
+    })
+
+    it("opens the queue from the view chips", async () => {
+      const change = setup([application], false, undefined, null, {})
+      const user = userEvent.setup()
+      await user.click(await screen.findByRole("radio", { name: "To evaluate" }))
+      expect(change).toHaveBeenLastCalledWith({ status: "TO_EVALUATE" })
+    })
+  })
 })

@@ -141,4 +141,48 @@ describe("application list API", () => {
       403,
     )
   })
+
+  it("lists the applications to evaluate from the oldest (US-103)", async () => {
+    const manual = await prisma.event.findUniqueOrThrow({
+      where: { publicToken: "demo-rucni-vyhodnoceni-2028" },
+      include: { terms: true },
+    })
+    const [term] = manual.terms
+    const submit = (firstName: string, submittedAt: string) =>
+      prisma.application.create({
+        data: {
+          organizationId: manual.organizationId,
+          eventId: manual.id,
+          accessToken: `us-103-${firstName}`,
+          firstName,
+          lastName: "Fronta",
+          birthDate: new Date("2012-05-12"),
+          gender: "FEMALE",
+          email: `${firstName}@example.com`,
+          consentAt: new Date(submittedAt),
+          locale: "cs",
+          submittedAt: new Date(submittedAt),
+          terms: {
+            create: [
+              {
+                organizationId: manual.organizationId,
+                termId: term.id,
+                status: "TO_EVALUATE",
+                priceCzk: 1800,
+              },
+            ],
+          },
+        },
+      })
+    await submit("Druha", "2027-03-10T09:13:00Z")
+    await submit("Prvni", "2027-03-10T09:12:00Z")
+
+    const rows = await (await get("?status=TO_EVALUATE", cookie, manual.id)).json()
+    expect(rows.map((row: { firstName: string }) => row.firstName)).toEqual(["Prvni", "Druha"])
+    const filtered = await (
+      await get(`?status=TO_EVALUATE&termId=${term.id}&q=druha`, cookie, manual.id)
+    ).json()
+    expect(filtered.map((row: { firstName: string }) => row.firstName)).toEqual(["Druha"])
+    expect(await (await get("?status=TO_EVALUATE")).json()).toEqual([])
+  })
 })

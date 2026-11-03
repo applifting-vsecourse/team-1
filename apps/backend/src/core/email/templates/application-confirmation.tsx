@@ -14,6 +14,7 @@ import {
 } from 'react-email';
 import * as React from 'react';
 
+// Figma (Design system): US-102 E-mailová šablona · Souhrnný e-mail (K vyhodnocení) · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15751-2063 (360 px: node-id=15751-2100)
 // Copy for all locales side by side — a missing translation is a type error.
 const copy: Record<
   Locale,
@@ -24,6 +25,10 @@ const copy: Record<
     intro: (event: string) => string;
     termsHeading: string;
     confirmed: string;
+    toEvaluate: string;
+    toEvaluateNote: string;
+    toEvaluateAlertTitle: string;
+    toEvaluateAlertText: string;
     waitlisted: string;
     paymentHeading: string;
     amountDue: string;
@@ -49,6 +54,12 @@ const copy: Record<
     intro: (event) => `Hi, we received your application for ${event}.`,
     termsHeading: 'Status by term',
     confirmed: 'confirmed',
+    toEvaluate: 'Awaiting evaluation',
+    toEvaluateNote:
+      'The organizer will review the application in each term separately. It is not a confirmed place or a waitlist spot yet.',
+    toEvaluateAlertTitle: "Don't pay yet.",
+    toEvaluateAlertText:
+      'You will get the payment details once your participation is confirmed.',
     waitlisted: 'you are waitlisted',
     paymentHeading: 'Payment',
     amountDue: 'Amount due',
@@ -77,6 +88,11 @@ const copy: Record<
     intro: (event) => `Dobrý den, přijali jsme vaši přihlášku na akci ${event}.`,
     termsHeading: 'Stav podle termínů',
     confirmed: 'potvrzený',
+    toEvaluate: 'Čeká na vyhodnocení',
+    toEvaluateNote:
+      'Organizátor přihlášku posoudí v každém termínu zvlášť. Zatím nejde o potvrzenou účast ani o zařazení mezi náhradníky.',
+    toEvaluateAlertTitle: 'Zatím nic neplaťte.',
+    toEvaluateAlertText: 'Platební údaje dostanete po potvrzení účasti.',
     waitlisted: 'jste náhradník',
     paymentHeading: 'Platba',
     amountDue: 'K úhradě',
@@ -108,7 +124,7 @@ export const applicationConfirmationSubject = (
 export interface ConfirmationApplicationProps {
   /** First and last name of the participant. */
   name: string;
-  terms: { name: string; status: 'CONFIRMED' | 'WAITLISTED' }[];
+  terms: { name: string; status: 'TO_EVALUATE' | 'CONFIRMED' | 'WAITLISTED' }[];
   /** Only for an application with a confirmed term; amounts are already formatted. */
   payment: {
     /** Everything due now, paid under the summary variable symbol (`…000`). */
@@ -140,6 +156,9 @@ export const ApplicationConfirmation = ({
   const hasWaitlisted = applications.some((a) =>
     a.terms.some((t) => t.status === 'WAITLISTED'),
   );
+  const isAwaiting = (a: ConfirmationApplicationProps): boolean =>
+    a.terms.some((t) => t.status === 'TO_EVALUATE');
+  const hasAwaiting = applications.some(isAwaiting);
   return (
     <Html lang={locale}>
       <Head />
@@ -169,13 +188,34 @@ export const ApplicationConfirmation = ({
                     className="text-gray-900 text-base leading-6 m-0"
                   >
                     {term.name}:{' '}
-                    <strong>
-                      {term.status === 'CONFIRMED'
-                        ? text.confirmed
-                        : text.waitlisted}
-                    </strong>
+                    {term.status === 'TO_EVALUATE' ? (
+                      <span className="bg-gray-100 text-gray-600 text-sm font-medium rounded-full px-2 py-1">
+                        {text.toEvaluate}
+                      </span>
+                    ) : (
+                      <strong>
+                        {term.status === 'CONFIRMED'
+                          ? text.confirmed
+                          : text.waitlisted}
+                      </strong>
+                    )}
                   </Text>
                 ))}
+                {isAwaiting(application) ? (
+                  <>
+                    <Text className="text-gray-900 text-base leading-6 mt-3 mb-0">
+                      {text.toEvaluateNote}
+                    </Text>
+                    <Section className="bg-gray-50 border border-solid border-gray-200 rounded-lg px-4 py-3 mt-3">
+                      <Text className="text-gray-900 text-sm font-medium leading-5 m-0">
+                        {text.toEvaluateAlertTitle}
+                      </Text>
+                      <Text className="text-gray-600 text-sm leading-5 m-0 mt-1">
+                        {text.toEvaluateAlertText}
+                      </Text>
+                    </Section>
+                  </>
+                ) : null}
                 {application.payment ? (
                   <>
                     <Text className="text-gray-500 text-sm m-0 mt-4">
@@ -223,7 +263,7 @@ export const ApplicationConfirmation = ({
                 {text.severalPayments}
               </Text>
             ) : null}
-            {payable.length === 0 ? (
+            {payable.length === 0 && !hasAwaiting ? (
               <Text className="text-gray-700 text-sm leading-5 mt-6">
                 {text.allWaitlisted}
               </Text>

@@ -1,10 +1,12 @@
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
+import { TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
 import { CopyButton } from "@/components/atoms/CopyButton"
 import { MoneyAmount } from "@/components/atoms/MoneyAmount"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -39,6 +41,7 @@ function listNames(applications: SubmittedApplication[]): string {
 // Figma (Design system): V04 Stav a platba · nový účet · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=11968-120
 // Figma (Design system): V06 Stav a platba · existující účet · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=11968-171
 // Figma (Design system): V04a Všechny termíny na čekací listině · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12710-2345
+// Figma (Design system): Potvrzení odeslání · Po odeslání (K vyhodnocení) · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15751-1267 (360 px: node-id=15751-1297)
 // Figma (Design system): M06 Stav a platba po odeslání · 360 px · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12666-20366
 export function SubmissionStatus({ accessToken }: SubmissionStatusProps) {
   const { t } = useTranslation("applicationForm")
@@ -47,6 +50,10 @@ export function SubmissionStatus({ accessToken }: SubmissionStatusProps) {
   const [firstApplication] = data.applications
   if (!firstApplication) return null
   const payers = data.applications.filter((application) => application.payment)
+  // Manual evaluation mode: nothing is decided yet, so it is not a waitlist (US-102).
+  const isAwaitingEvaluation = data.applications.some((application) =>
+    application.terms.some((term) => term.status === "TO_EVALUATE"),
+  )
 
   return (
     <div className="flex flex-col gap-6">
@@ -82,6 +89,13 @@ export function SubmissionStatus({ accessToken }: SubmissionStatusProps) {
 
       {payers.length > 0 ? (
         <PaymentCard payers={payers} />
+      ) : isAwaitingEvaluation ? (
+        // Figma (Design system): Togena / Alert · node-id=15751-1290 (360 px: 15751-1320)
+        <Alert>
+          <TriangleAlert aria-hidden />
+          <AlertTitle>{t("confirmation.toEvaluate.alertTitle")}</AlertTitle>
+          <AlertDescription>{t("confirmation.toEvaluate.alertText")}</AlertDescription>
+        </Alert>
       ) : (
         <section className="flex flex-col gap-4 rounded-lg border bg-status-waitlist-bg p-4 sm:p-6">
           <h2 className="text-2xl font-semibold text-status-waitlist">
@@ -127,7 +141,9 @@ function TermStatusCard({
                 ? "confirmation.status.confirmed"
                 : term.status === "CANCELLED"
                   ? "confirmation.status.cancelled"
-                  : "confirmation.status.waitlisted",
+                  : term.status === "TO_EVALUATE"
+                    ? "confirmation.status.toEvaluate"
+                    : "confirmation.status.waitlisted",
             )}
           </Badge>
           <span
@@ -139,11 +155,12 @@ function TermStatusCard({
           >
             {isConfirmed ? (
               <MoneyAmount amountCzk={term.priceCzk} />
-            ) : term.status === "CANCELLED" ? null : (
+            ) : term.status === "CANCELLED" || term.status === "TO_EVALUATE" ? null : (
               t("confirmation.doNotPayYet")
             )}
           </span>
         </div>
+        {term.status === "TO_EVALUATE" ? <p>{t("confirmation.toEvaluate.note")}</p> : null}
       </Card>
     </li>
   )

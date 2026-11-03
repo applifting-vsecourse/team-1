@@ -45,6 +45,7 @@
     "term": "Termín",
     "terms": "Termíny a stav",
     "title": "Přihlášky",
+    "toEvaluate": "Čeká na vyhodnocení",
     "unpaid": "Nezaplaceno",
     "waitlistNote": "Přijetí náhradníka řešte v jeho detailu. Nejprve ověřte volné lůžko; platební údaje pošlete až po potvrzení.",
     "waitlistNoteTitle": "Náhradníci mají pořadí, místo zatím nemají potvrzené.",
@@ -194,6 +195,23 @@
     "waiting": "Čeká na platbu",
     "waitingDescription": "K úhradě {{amount}}. Zatím nebyla označena žádná přijatá platba."
   },
+  "queue": {
+    "detail": "Detail přihlášky",
+    "empty": "Všechny přihlášky jsou vyhodnocené.",
+    "emptyHint": "Nové přihlášky v ručním režimu se objeví v této frontě.",
+    "error": "Frontu se nepodařilo načíst.",
+    "errorHint": "Vybraný termín zůstal zachovaný.",
+    "loading": "Načítám…",
+    "received": "Přijato {{date}} · {{time}}",
+    "retry": "Zkusit znovu",
+    "search": "Hledat podle jména…",
+    "sortHint": "Nejstarší přihlášky jsou nahoře.",
+    "status": "K vyhodnocení",
+    "title": "Přihlášky",
+    "viewAll": "Všechny přihlášky",
+    "viewWaitlist": "Náhradníci",
+    "views": "Pohledy přihlášek"
+  },
   "termStatus": {
     "action": {
       "cancel": "Zrušit v termínu",
@@ -221,6 +239,7 @@
     "state": {
       "CANCELLED": "Zrušená",
       "CONFIRMED": "Potvrzená",
+      "TO_EVALUATE": "Čeká na vyhodnocení",
       "WAITLISTED": "Náhradník"
     },
     "system": "Systém",

@@ -4,12 +4,19 @@ import { Badge } from "@/components/ui/badge"
 
 import type { MyApplicationTerm, PaymentStatus } from "@/features/participant/api/applications"
 
-/** Confirmed or waitlisted — the participant never sees a place in line. */
+/** Awaiting evaluation, confirmed, waitlisted or cancelled — the participant never sees a place in line. */
 // Figma (Design system): DS / Badge Success / Neutral in U / Term status row · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=13884-219
 export function TermStatusBadge({ term }: { term: MyApplicationTerm }) {
   const { t } = useTranslation("participant")
   const isConfirmed = term.status === "CONFIRMED"
-  const label = isConfirmed ? "confirmed" : term.status === "CANCELLED" ? "cancelled" : "waitlisted"
+  const label = (
+    {
+      TO_EVALUATE: "toEvaluate",
+      CONFIRMED: "confirmed",
+      WAITLISTED: "waitlisted",
+      CANCELLED: "cancelled",
+    } as const
+  )[term.status]
 
   return <Badge variant={isConfirmed ? "success" : "secondary"}>{t(`status.${label}`)}</Badge>
 }

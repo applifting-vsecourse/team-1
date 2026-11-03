@@ -45,6 +45,7 @@
     "term": "Term",
     "terms": "Terms and status",
     "title": "Applications",
+    "toEvaluate": "Awaiting evaluation",
     "unpaid": "Unpaid",
     "waitlistNote": "A waitlist is kept per term and bed group (women, men, or shared rooms), in order of receipt. Confirm a waitlisted applicant in their detail; first check for a free bed and send payment details only after confirmation.",
     "waitlistNoteTitle": "Waitlisted applicants have a place in the queue, not a confirmed place.",
@@ -194,6 +195,23 @@
     "waiting": "Awaiting payment",
     "waitingDescription": "Amount due {{amount}}. No received payment has been marked yet."
   },
+  "queue": {
+    "detail": "Application detail",
+    "empty": "All applications are evaluated.",
+    "emptyHint": "New applications in manual mode will appear in this queue.",
+    "error": "The queue could not be loaded.",
+    "errorHint": "The selected term was kept.",
+    "loading": "Loading…",
+    "received": "Received {{date}} · {{time}}",
+    "retry": "Try again",
+    "search": "Search by name…",
+    "sortHint": "The oldest applications are at the top.",
+    "status": "To evaluate",
+    "title": "Applications",
+    "viewAll": "All applications",
+    "viewWaitlist": "Waitlisted",
+    "views": "Application views"
+  },
   "termStatus": {
     "action": {
       "cancel": "Cancel in term",
@@ -221,6 +239,7 @@
     "state": {
       "CANCELLED": "Cancelled",
       "CONFIRMED": "Confirmed",
+      "TO_EVALUATE": "Awaiting evaluation",
       "WAITLISTED": "Waitlisted"
     },
     "system": "System",

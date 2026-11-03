@@ -8,6 +8,11 @@
     "errorTitle": "Couldn't load the application",
     "termsTitle": "Status by term",
     "title": "My application",
+    "toEvaluate": {
+      "alertText": "You will get the payment details once your participation is confirmed.",
+      "alertTitle": "Don't pay yet.",
+      "note": "The organizer will review the application in each term separately. It is not a confirmed place or a waitlist spot yet."
+    },
     "waitlistNote": "Only confirmed terms are payable. Don't pay for a term where you are waitlisted yet."
   },
   "list": {
@@ -39,6 +44,7 @@
   "status": {
     "cancelled": "Cancelled",
     "confirmed": "Confirmed",
+    "toEvaluate": "Awaiting evaluation",
     "waitlisted": "Waitlisted",
     "zeroUntilConfirmed": "0 CZK until confirmed"
   }

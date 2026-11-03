@@ -21,6 +21,14 @@ export function formatDateTime(date: DateInput, language: Language = currentLang
   }).format(toDate(date))
 }
 
+/** The time of day, always two digits: `09:12` */
+export function formatTime(date: DateInput, language: Language = currentLanguage()) {
+  return new Intl.DateTimeFormat(INTL_LOCALES[language], {
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(toDate(date))
+}
+
 type RangeOptions = {
   /** Append the year (of the end date). */
   shouldShowYear?: boolean

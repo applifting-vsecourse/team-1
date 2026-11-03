@@ -33,6 +33,7 @@ const copy: Record<
     change: Record<ChangeKind, string>;
     termsHeading: string;
     confirmed: string;
+    toEvaluate: string;
     waitlisted: string;
     cancelled: string;
     paymentHeading: string;
@@ -62,6 +63,7 @@ const copy: Record<
     },
     termsHeading: 'Status by term now',
     confirmed: 'confirmed',
+    toEvaluate: 'Awaiting evaluation',
     waitlisted: 'you are waitlisted',
     cancelled: 'cancelled',
     paymentHeading: 'Payment',
@@ -90,6 +92,7 @@ const copy: Record<
     },
     termsHeading: 'Stav podle termínů nyní',
     confirmed: 'potvrzený',
+    toEvaluate: 'Čeká na vyhodnocení',
     waitlisted: 'jste náhradník',
     cancelled: 'zrušená',
     paymentHeading: 'Platba',
@@ -114,7 +117,7 @@ export interface ApplicationChangeProps {
   /** First and last name of the participant. */
   name: string;
   kind: ChangeKind;
-  terms: { name: string; status: 'CONFIRMED' | 'WAITLISTED' | 'CANCELLED' }[];
+  terms: { name: string; status: 'TO_EVALUATE' | 'CONFIRMED' | 'WAITLISTED' | 'CANCELLED' }[];
   /** Only when the amount due changed; amounts are already formatted. */
   payment: {
     /** Everything due now, paid under the summary variable symbol (`…000`). */
@@ -168,9 +171,11 @@ export const ApplicationChange = ({
                     <strong>
                       {term.status === 'CONFIRMED'
                         ? text.confirmed
-                        : term.status === 'WAITLISTED'
-                          ? text.waitlisted
-                          : text.cancelled}
+                        : term.status === 'TO_EVALUATE'
+                          ? text.toEvaluate
+                          : term.status === 'WAITLISTED'
+                            ? text.waitlisted
+                            : text.cancelled}
                     </strong>
                   </Text>
                 ))}
