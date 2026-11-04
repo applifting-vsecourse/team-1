@@ -29,7 +29,7 @@ PR od Dependabota nedostávají AI review ani komentář „Co se změnilo“, p
 
 ## Nastavení repozitáře
 
-Bez tohoto nastavení Dependabot nic nehlásí ani neotevírá (Settings → Code security):
+Bez tohoto nastavení Dependabot nic nehlásí ani neotevírá ([Settings → Advanced Security](https://github.com/applifting-vsecourse/team-1/settings/security_analysis)):
 
 - Dependency graph
 - Dependabot alerts

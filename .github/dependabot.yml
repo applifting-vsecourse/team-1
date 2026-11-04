@@ -3,7 +3,7 @@
 # Two kinds of PR:
 # - Security updates: opened as soon as an advisory hits a dependency, no schedule,
 #   no cooldown. Needs "Dependabot alerts" and "Dependabot security updates" on in
-#   the repository settings (Settings → Code security).
+#   the repository settings (Settings → Advanced Security).
 # - Version updates: on the schedule below, grouped so one run means a few PRs, not
 #   dozens. `cooldown` skips releases younger than a few days (supply-chain attacks
 #   are usually caught and yanked by then); security updates ignore it.
