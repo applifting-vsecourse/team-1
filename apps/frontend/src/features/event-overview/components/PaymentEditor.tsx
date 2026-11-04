@@ -16,14 +16,22 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { formatCzk } from "@/lib/money"
+import { termDates } from "@/lib/term-label"
 
 import {
   recordPayment,
   recordRefund,
   type PaymentApplication,
+  type PaymentTerm,
 } from "@/features/event-overview/api/payments"
 
-type Props = { application: PaymentApplication; onClose: () => void; isRefund?: boolean }
+type Props = {
+  application: PaymentApplication
+  onClose: () => void
+  isRefund?: boolean
+  /** Pay this term only (US-110); without it the payment is a summary payment over the terms. */
+  term?: PaymentTerm
+}
 
 /**
  * Record a payment (or, with `isRefund`, a refund of the overpayment): summary box, amount
@@ -37,7 +45,7 @@ type Props = { application: PaymentApplication; onClose: () => void; isRefund?: 
 // Figma (Design system): O34j Další platba po úhradě · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=13968-8761
 // Figma (Design system): O34l Varování před přeplatkem · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=13980-10529
 // Figma (Design system): O34n Vrácení přeplatku · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=13982-8860
-export function PaymentEditor({ application, onClose, isRefund = false }: Props) {
+export function PaymentEditor({ application, onClose, isRefund = false, term }: Props) {
   const { t } = useTranslation("eventOverview")
   const client = useQueryClient()
   const [requestId] = useState(() => crypto.randomUUID())
@@ -45,17 +53,29 @@ export function PaymentEditor({ application, onClose, isRefund = false }: Props)
   const refundTerm = application.terms
     .filter((term) => term.owedCzk < 0)
     .sort((a, b) => a.owedCzk - b.owedCzk)[0]
-  const overpayment = isRefund
-    ? Math.max(0, -(refundTerm?.owedCzk ?? 0))
-    : Math.max(0, -application.amountOwedCzk)
+  // What the dialog settles: one term, or — for a summary payment — the whole application.
+  const scope = term
+    ? {
+        due: term.dueCzk,
+        paid: term.paidCzk,
+        owed: term.owedCzk,
+        payable: Math.max(0, term.owedCzk),
+      }
+    : {
+        due: application.amountDueCzk,
+        paid: application.amountPaidCzk,
+        owed: application.amountOwedCzk,
+        payable: application.payableCzk,
+      }
+  const overpayment = isRefund ? Math.max(0, -(refundTerm?.owedCzk ?? 0)) : Math.max(0, -scope.owed)
   const [amount, setAmount] = useState(isRefund ? String(overpayment) : "")
-  const [amountMode, setAmountMode] = useState(application.payableCzk > 0 ? "remaining" : "custom")
+  const [amountMode, setAmountMode] = useState(scope.payable > 0 ? "remaining" : "custom")
   const [isInvalid, setIsInvalid] = useState(false)
   const unspaced = amount.replace(/\s/g, "")
   const normalized = /^\d{1,3}(,\d{3})+$/.test(unspaced) ? unspaced.replace(/,/g, "") : unspaced
   const parsed = normalized === "" ? undefined : Number(normalized)
   // What a summary payment settles: an overpayment of another term does not reduce it.
-  const remaining = Math.max(0, application.payableCzk)
+  const remaining = Math.max(0, scope.payable)
   const isCustomAmount = isRefund || amountMode === "custom" || remaining === 0
   const receipt = isCustomAmount ? parsed : remaining
   const isValid =
@@ -65,8 +85,7 @@ export function PaymentEditor({ application, onClose, isRefund = false }: Props)
     receipt > 0 &&
     receipt <= 2147483647 &&
     (!isRefund || receipt <= overpayment)
-  const projectedBalance =
-    isValid && receipt !== undefined ? application.amountOwedCzk - receipt : undefined
+  const projectedBalance = isValid && receipt !== undefined ? scope.owed - receipt : undefined
   const hasOverpayment = !isRefund && projectedBalance !== undefined && projectedBalance < 0
   const preview = isRefund
     ? isValid && receipt !== undefined
@@ -79,7 +98,9 @@ export function PaymentEditor({ application, onClose, isRefund = false }: Props)
     mutationFn: () =>
       isRefund
         ? recordRefund(application.id, requestId, receipt!, refundTerm!.termId)
-        : recordPayment(application.id, requestId, receipt),
+        : term
+          ? recordPayment(application.id, requestId, receipt, term.termId)
+          : recordPayment(application.id, requestId, receipt),
     onSuccess: async () => {
       await Promise.all([
         client.invalidateQueries({ queryKey: ["eventOverview"] }),
@@ -104,6 +125,7 @@ export function PaymentEditor({ application, onClose, isRefund = false }: Props)
           <DialogDescription>
             {application.firstName} {application.lastName} · {application.code} ·{" "}
             {application.eventName}
+            {term ? ` · ${termDates(term)}` : null}
           </DialogDescription>
         </DialogHeader>
         <form
@@ -126,11 +148,11 @@ export function PaymentEditor({ application, onClose, isRefund = false }: Props)
           ) : (
             <SummaryBox
               rows={[
-                [t("payment.editorDue"), formatCzk(application.amountDueCzk)],
-                [t("payment.paidSoFar"), formatCzk(application.amountPaidCzk)],
+                [t("payment.editorDue"), formatCzk(scope.due)],
+                [t("payment.paidSoFar"), formatCzk(scope.paid)],
                 [
-                  t(application.amountOwedCzk < 0 ? "payment.overpaid" : "payment.remainingToPay"),
-                  formatCzk(Math.abs(application.amountOwedCzk)),
+                  t(scope.owed < 0 ? "payment.overpaid" : "payment.remainingToPay"),
+                  formatCzk(Math.abs(scope.owed)),
                 ],
               ]}
             />

@@ -16,13 +16,19 @@ const application: PaymentApplication = {
   id: "a1",
   eventId: "e1",
   eventName: "Camp",
+  bankAccount: "123456789/0000",
   firstName: "Adam",
   lastName: "Test",
   code: "C-0047",
   terms: [
     {
       termId: "t1",
+      termNumber: 1,
+      variableSymbol: "12001",
       owedCzk: 6900,
+      dueCzk: 6900,
+      paidCzk: 0,
+      paymentStatus: "UNPAID",
       status: "CONFIRMED",
       priceCzk: 6900,
       startsOn: "2027-07-12",
@@ -34,6 +40,19 @@ const application: PaymentApplication = {
   amountPaidCzk: 0,
   amountOwedCzk: 6900,
   payableCzk: 6900,
+}
+const secondTerm: PaymentApplication["terms"][number] = {
+  termId: "t2",
+  termNumber: 2,
+  variableSymbol: "12002",
+  owedCzk: 700,
+  dueCzk: 5600,
+  paidCzk: 4900,
+  paymentStatus: "PARTIALLY_PAID",
+  status: "CONFIRMED",
+  priceCzk: 5600,
+  startsOn: "2027-07-19",
+  endsOn: "2027-07-25",
 }
 const label = "Amount of this payment (CZK)"
 function setup(paidCzk = 0, isRefund = false) {
@@ -226,5 +245,36 @@ describe("PaymentEditor", () => {
     expect(screen.getByText(/After saving, overpayment:.*700/)).toBeInTheDocument()
     await user.click(screen.getByRole("button", { name: /Record payment.*200/ }))
     await waitFor(() => expect(recordPayment).toHaveBeenCalledWith("a1", expect.any(String), 200))
+  })
+  it("pays one term only: its own amounts, the term in the title and its id in the request", async () => {
+    const client = new QueryClient({ defaultOptions: { mutations: { retry: false } } })
+    const onClose = vi.fn()
+    render(
+      <QueryClientProvider client={client}>
+        <PaymentEditor
+          application={{
+            ...application,
+            terms: [application.terms[0]!, secondTerm],
+            amountDueCzk: 12500,
+            amountPaidCzk: 4900,
+            amountOwedCzk: 7600,
+            payableCzk: 7600,
+          }}
+          term={secondTerm}
+          onClose={onClose}
+        />
+      </QueryClientProvider>,
+    )
+    const user = userEvent.setup()
+
+    expect(screen.getByRole("dialog")).toHaveTextContent("19–25 Jul 2027")
+    expect(screen.getByText("Amount due").nextSibling).toHaveTextContent("5,600")
+    expect(screen.getByText("Paid so far").nextSibling).toHaveTextContent("4,900")
+    expect(screen.getByText("Left to pay").nextSibling).toHaveTextContent("700")
+    expect(screen.getByRole("radio", { name: /Settle the remaining.*700/ })).toBeChecked()
+
+    await user.click(screen.getByRole("button", { name: /Record payment.*700/ }))
+    await waitFor(() => expect(onClose).toHaveBeenCalledOnce())
+    expect(recordPayment).toHaveBeenCalledWith("a1", expect.any(String), 700, "t2")
   })
 })
