@@ -84,6 +84,19 @@ describe("suitable substitutes (US-104)", () => {
     ).toBeInTheDocument()
   })
 
+  it("lists men and women in separate tables and says how they are sorted", async () => {
+    setup(
+      list({
+        freeBeds: { FEMALE: 1, MALE: 1 },
+        items: [item("a1", "Adam", 1), { ...item("a3", "Jana", 1), gender: "FEMALE" }],
+      }),
+    )
+    expect(await screen.findByRole("heading", { name: "Men" })).toBeInTheDocument()
+    expect(screen.getByRole("heading", { name: "Women" })).toBeInTheDocument()
+    expect(screen.getAllByRole("table")).toHaveLength(2)
+    expect(screen.getByText("Sorted: in order of receipt, oldest first")).toBeInTheDocument()
+  })
+
   it("shows the chip of a woman with her position", async () => {
     setup(list({ items: [{ ...item("a3", "Jana", 1), gender: "FEMALE" }] }))
     expect(await screen.findAllByText("Waitlisted · 1")).not.toHaveLength(0)

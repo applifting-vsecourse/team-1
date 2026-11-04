@@ -288,6 +288,8 @@
     "freeShared_many": "{{count}} volného lůžka",
     "freeShared_one": "{{count}} volné lůžko",
     "freeShared_other": "{{count}} volných lůžek",
+    "groupFemale": "Ženy",
+    "groupMale": "Muži",
     "hint": "Zobrazení náhradníci odpovídají skupině volného lůžka.",
     "list": "Vhodní náhradníci",
     "refresh": "Zobrazit aktuální náhradníky",

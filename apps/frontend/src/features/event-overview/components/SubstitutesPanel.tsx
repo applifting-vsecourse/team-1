@@ -65,7 +65,17 @@ export function SubstitutesPanel({
   const list = query.data
   if (!list || list.evaluationMode !== "MANUAL" || list.items.length === 0) return null
   const range = formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })
-  const label = (item: Substitute) => `${item.firstName} ${item.lastName}`
+  // Men and women wait for different beds, so they are listed apart; shared rooms have one queue.
+  const groups =
+    list.roomMode === "SHARED"
+      ? [{ key: "shared", title: null, items: list.items }]
+      : (["MALE", "FEMALE"] as const)
+          .map((gender) => ({
+            key: gender,
+            title: t(gender === "MALE" ? "substitutes.groupMale" : "substitutes.groupFemale"),
+            items: list.items.filter((item) => item.gender === gender),
+          }))
+          .filter((group) => group.items.length > 0)
   return (
     <section
       aria-label={t("substitutes.list")}
@@ -75,65 +85,16 @@ export function SubstitutesPanel({
         {range} · {freeBedsLabel(list, t)}
       </p>
       <p className="text-sm text-muted-foreground">{t("substitutes.hint")}</p>
-      <div className="hidden md:block">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              {(["participant", "terms", "submitted", "actions"] as const).map((key) => (
-                <TableHead key={key}>{t(`applications.${key}`)}</TableHead>
-              ))}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {list.items.map((item) => (
-              <TableRow key={item.applicationId}>
-                <TableCell>
-                  <p className="font-medium">{label(item)}</p>
-                  <Person item={item} />
-                </TableCell>
-                <TableCell>
-                  <TermStatus
-                    item={item}
-                    range={range}
-                  />
-                </TableCell>
-                <TableCell>{formatDateTime(item.submittedAt)}</TableCell>
-                <TableCell>
-                  <Button
-                    size="sm"
-                    aria-label={`${t("substitutes.confirm")}: ${label(item)}`}
-                    onClick={() => setChosen(item)}
-                  >
-                    {t("substitutes.confirm")}
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
-      <ul className="divide-y md:hidden">
-        {list.items.map((item) => (
-          <li
-            key={item.applicationId}
-            className="flex flex-col gap-2 py-3"
-          >
-            <span className="font-medium">{label(item)}</span>
-            <Person item={item} />
-            <TermStatus
-              item={item}
-              range={range}
-            />
-            <Button
-              className="h-11"
-              aria-label={`${t("substitutes.confirm")}: ${label(item)}`}
-              onClick={() => setChosen(item)}
-            >
-              {t("substitutes.confirm")}
-            </Button>
-          </li>
-        ))}
-      </ul>
+      <p className="text-sm text-muted-foreground">{t("applications.sortQueue")}</p>
+      {groups.map((group) => (
+        <SubstituteGroup
+          key={group.key}
+          title={group.title}
+          items={group.items}
+          range={range}
+          onChoose={setChosen}
+        />
+      ))}
       {chosen && (
         <ConfirmSubstituteDialog
           eventId={eventId}
@@ -152,6 +113,101 @@ export function SubstitutesPanel({
         />
       )}
     </section>
+  )
+}
+
+const label = (item: Substitute) => `${item.firstName} ${item.lastName}`
+
+/** One queue of substitutes: a table on desktop, a list on mobile, in order of receipt. */
+function SubstituteGroup({
+  title,
+  items,
+  range,
+  onChoose,
+}: {
+  title: string | null
+  items: Substitute[]
+  range: string
+  onChoose: (item: Substitute) => void
+}) {
+  const { t } = useTranslation("eventOverview")
+  return (
+    <div className="flex flex-col gap-2">
+      {title && <h3 className="text-base font-semibold">{title}</h3>}
+      <div className="hidden md:block">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              {(["participant", "terms", "submitted", "actions"] as const).map((key) => (
+                <TableHead key={key}>{t(`applications.${key}`)}</TableHead>
+              ))}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {items.map((item) => (
+              <TableRow key={item.applicationId}>
+                <TableCell>
+                  <p className="font-medium">{label(item)}</p>
+                  <Person item={item} />
+                </TableCell>
+                <TableCell>
+                  <TermStatus
+                    item={item}
+                    range={range}
+                  />
+                </TableCell>
+                <TableCell>{formatDateTime(item.submittedAt)}</TableCell>
+                <TableCell>
+                  <ConfirmButton
+                    item={item}
+                    onChoose={onChoose}
+                  />
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+      <ul className="divide-y md:hidden">
+        {items.map((item) => (
+          <li
+            key={item.applicationId}
+            className="flex flex-col items-start gap-2 py-3"
+          >
+            <span className="font-medium">{label(item)}</span>
+            <Person item={item} />
+            <TermStatus
+              item={item}
+              range={range}
+            />
+            <ConfirmButton
+              item={item}
+              onChoose={onChoose}
+            />
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+/** A row action: `outline`, since the one primary button of the view is the dialog's. */
+function ConfirmButton({
+  item,
+  onChoose,
+}: {
+  item: Substitute
+  onChoose: (item: Substitute) => void
+}) {
+  const { t } = useTranslation("eventOverview")
+  return (
+    <Button
+      variant="outline"
+      aria-label={`${t("substitutes.confirm")}: ${label(item)}`}
+      onClick={() => onChoose(item)}
+    >
+      {t("substitutes.confirm")}
+    </Button>
   )
 }
 

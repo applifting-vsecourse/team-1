@@ -288,6 +288,8 @@
     "freeShared_many": "{{count}} free beds",
     "freeShared_one": "{{count}} free bed",
     "freeShared_other": "{{count}} free beds",
+    "groupFemale": "Women",
+    "groupMale": "Men",
     "hint": "The substitutes shown match the group of the free bed.",
     "list": "Suitable substitutes",
     "refresh": "Show current substitutes",
