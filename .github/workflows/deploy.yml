@@ -3,6 +3,9 @@ on:
   push:
     branches: [main]
   workflow_dispatch: {}
+# Pushes to the course registry and Coolify with their own secrets; the GitHub token only reads.
+permissions:
+  contents: read
 env:
   COURSE_DOMAIN: vsepractical.applifting.dev
   REGISTRY: registry.vsepractical.applifting.dev
