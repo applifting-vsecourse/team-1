@@ -14,7 +14,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { formatDate } from "@/lib/date"
-import { termDates } from "@/lib/term-label"
+import { termDates, termLine } from "@/lib/term-label"
 import { cn } from "@/lib/utils"
 
 import {
@@ -41,6 +41,7 @@ const isShown = (term: PaymentTerm): boolean =>
  */
 // Figma (Design system): Detail přihlášky · Platby · Organizátor · dluh po termínech · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15845-7697 (360 px: node-id=15845-7814)
 // Figma (Design system): O34 Detail platby, bez potvrzeného termínu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16487-6805
+// Figma (Design system): O34aa Po zápisu vratky · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16845-3106 (360 px: M13w 16845-3385)
 export function PaymentDetail({ applicationId }: { applicationId: string }) {
   const { t } = useTranslation("eventOverview")
   const { data, isPending, error, refetch } = useQuery(paymentQueryOptions(applicationId))
@@ -209,7 +210,7 @@ function PaymentHistory({
               {formatDate(payment.createdAt)}
             </td>
             <td className={cn("col-start-1 row-start-3 md:px-3 md:py-4", detail)}>
-              {term ? termDates(term) : null}
+              {term ? termLine(term) : null}
             </td>
             <td className={cn("col-start-1 row-start-4 md:px-3 md:py-4", detail)}>
               {t(amountCzk < 0 ? "payment.refundMethod" : "payment.manual")}

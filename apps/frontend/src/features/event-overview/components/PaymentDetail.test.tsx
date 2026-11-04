@@ -61,6 +61,7 @@ const term = (input: TermInput): PaymentApplication["terms"][number] => {
   return {
     termId: input.id,
     termNumber: input.number,
+    name: null,
     variableSymbol: String(12000 + input.number),
     status: input.status,
     priceCzk: input.priceCzk,

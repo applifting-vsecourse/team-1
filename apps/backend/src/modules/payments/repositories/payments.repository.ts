@@ -17,7 +17,7 @@ const include = {
   organization: { select: { bankAccount: true } },
   terms: {
     include: {
-      term: { select: { id: true, number: true, startsOn: true, endsOn: true } },
+      term: { select: { id: true, number: true, name: true, startsOn: true, endsOn: true } },
       payments: {
         where: { cancelledAt: null },
         include: { recordedBy: { select: { name: true } } },
@@ -40,6 +40,7 @@ const toDomain = (row: Row): PaymentApplication => ({
     applicationTermId: applicationTerm.id,
     termId: applicationTerm.term.id,
     termNumber: applicationTerm.term.number,
+    termName: applicationTerm.term.name,
     status: applicationTerm.status,
     priceCzk: applicationTerm.priceCzk,
     startsOn: applicationTerm.term.startsOn,

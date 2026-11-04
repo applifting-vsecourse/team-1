@@ -28,6 +28,8 @@ export type PaymentTerm = {
   applicationTermId: string
   termId: string
   termNumber: number
+  /** Optional name of the term (D-053); null = the term is known by its dates. */
+  termName: string | null
   status: ApplicationTermStatus
   priceCzk: number
   startsOn: Date

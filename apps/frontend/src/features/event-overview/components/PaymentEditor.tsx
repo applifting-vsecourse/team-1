@@ -23,7 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { formatCzk } from "@/lib/money"
-import { termDates } from "@/lib/term-label"
+import { termLine } from "@/lib/term-label"
 
 import {
   recordPayment,
@@ -47,9 +47,16 @@ const WHOLE_APPLICATION = "all"
  * result after saving and Back / Record on the right. A refund is offered only for terms the
  * backend reports an overpayment for (`refundableTermId`, `refundableCzk`) and is limited by it.
  */
-// Figma (Design system): US-111 Zápis platby · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15857-6961
-// Figma (Design system): US-111 Zápis vratky · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15857-7108
-// Figma (Design system): O34z Vratka zakázaná, žádný přeplatek · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16661-2818
+// Figma (Design system): O34q Zápis platby na souhrn · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16050-235 (360 px: M13q 16487-7776)
+// Figma (Design system): O34r Zápis platby na termín · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16050-467
+// Figma (Design system): O34t Zápis vratky · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16050-676 (360 px: M13r 16487-7929)
+// Figma (Design system): O34z Vratka zakázaná, žádný přeplatek · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16661-2818 (360 px: M13v 16661-3150)
+// Figma (Design system): O34ab Neplatná částka · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16851-3347 (360 px: M13x 16851-3840)
+// Figma (Design system): O34v Chyba vratky · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16487-5497
+// Figma (Design system): O34w Odesílání vratky · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16487-5799
+// Figma (Design system): O34x Chyba serveru u vratky · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16487-6244
+// Dialog follows the O34* set. The compact variant 15857-* (Termín and Částka side by side, "CZK", "Zrušit") is knowingly not taken over: the two sets disagree and the tech lead decides.
+// Older frames below are not linked in issue #204 and were not re-checked in Figma:
 // Figma (Design system): O34d Doplatit celou částku · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12796-19811
 // Figma (Design system): O34e Jiná částka · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12796-20038
 // Figma (Design system): O34d1 Neplatná částka · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12796-20339
@@ -101,6 +108,17 @@ export function PaymentEditor({ application, onClose, term: initialTerm }: Props
     receipt > 0 &&
     receipt <= 2147483647 &&
     (!isRefund || receipt <= overpayment)
+  // The text under an invalid amount: over the limit of a refund, or not a positive whole number.
+  const isOverLimit =
+    isRefund && receipt !== undefined && Number.isInteger(receipt) && receipt > overpayment
+  const invalidMessage = t(
+    isOverLimit
+      ? "payment.refundOverLimit"
+      : isRefund
+        ? "payment.invalidRefund"
+        : "payment.invalidAmount",
+    { amount: formatCzk(overpayment) },
+  )
   const projectedBalance = isValid && receipt !== undefined ? scope.owed - receipt : undefined
   const hasOverpayment = !isRefund && projectedBalance !== undefined && projectedBalance < 0
   const preview = isRefund
@@ -233,12 +251,7 @@ export function PaymentEditor({ application, onClose, term: initialTerm }: Props
                     key={candidate.termId}
                     value={candidate.termId}
                   >
-                    {isRefund
-                      ? t("payment.refundTermOption", {
-                          term: termDates(candidate),
-                          amount: formatCzk(candidate.refundableCzk),
-                        })
-                      : termDates(candidate)}
+                    {termLine(candidate)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -247,7 +260,7 @@ export function PaymentEditor({ application, onClose, term: initialTerm }: Props
           {isRefund ? (
             <>
               <SummaryBox rows={[[t("payment.refundSummaryLabel"), formatCzk(overpayment)]]} />
-              <p>{t("payment.refundHint")}</p>
+              <p className="text-sm text-muted-foreground">{t("payment.refundHint")}</p>
             </>
           ) : (
             <SummaryBox
@@ -337,9 +350,7 @@ export function PaymentEditor({ application, onClose, term: initialTerm }: Props
                   role="alert"
                   className="text-sm text-destructive"
                 >
-                  {t(isRefund ? "payment.invalidRefund" : "payment.invalidAmount", {
-                    amount: formatCzk(overpayment),
-                  })}
+                  {invalidMessage}
                 </p>
               ) : null}
             </div>
@@ -352,20 +363,31 @@ export function PaymentEditor({ application, onClose, term: initialTerm }: Props
               </AlertDescription>
             </Alert>
           ) : null}
-          <p
-            className="border-t pt-3 font-semibold"
-            aria-live="polite"
-          >
-            {t(
-              isRefund
-                ? "payment.refundPreview"
-                : hasOverpayment
-                  ? "payment.overpaidPreview"
-                  : "payment.preview",
-              { amount: preview },
-            )}
-          </p>
-          {mutation.error ? (
+          <div aria-live="polite">
+            {isValid ? (
+              <div className="flex items-baseline justify-between gap-4 border-t pt-3">
+                <span className="text-sm text-muted-foreground">
+                  {t(
+                    isRefund
+                      ? "payment.refundPreview"
+                      : hasOverpayment
+                        ? "payment.overpaidPreview"
+                        : "payment.preview",
+                  )}
+                </span>
+                <span className="text-lg font-semibold tabular-nums">{preview}</span>
+              </div>
+            ) : null}
+          </div>
+          {mutation.error && isRefund ? (
+            <Alert
+              variant="destructive"
+              role="alert"
+            >
+              <AlertTitle className="line-clamp-none">{t("payment.refundFailed")}</AlertTitle>
+              <AlertDescription>{mutation.error.message}</AlertDescription>
+            </Alert>
+          ) : mutation.error ? (
             <p
               role="alert"
               className="text-sm text-destructive"

@@ -24,6 +24,8 @@ class PaymentResponseDto {
 class PaymentTermResponseDto {
   @ApiProperty() termId!: string
   @ApiProperty() termNumber!: number
+  @ApiProperty({ nullable: true, type: String, description: "Optional name of the term." })
+  name!: string | null
   @ApiProperty({ example: "12345001", description: "Pays this term only." })
   variableSymbol!: string
   @ApiProperty({ enum: ["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED"] }) status!: string
@@ -86,6 +88,7 @@ export class PaymentApplicationResponseDto {
       terms: application.terms.map((term) => ({
         termId: term.termId,
         termNumber: term.termNumber,
+        name: term.termName,
         variableSymbol: term.variableSymbol,
         status: term.status,
         priceCzk: term.priceCzk,
