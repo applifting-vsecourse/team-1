@@ -1,5 +1,6 @@
 {
   "APPLICATION_DUPLICATE": "{{participant}} is already registered for the term “{{term}}” (same name and date of birth).",
+  "BED_ALREADY_TAKEN": "The bed has meanwhile been taken by someone else.",
   "CAPACITY_EXCEEDED": "Confirming would exceed the capacity of the term. Confirm knowingly.",
   "EMAIL_DELIVERY_FAILED": "The verification e-mail could not be sent. Try again later.",
   "EMAIL_TAKEN": "This e-mail is already taken.",
@@ -10,6 +11,7 @@
   "INVALID_EMAIL_OR_PASSWORD": "Wrong e-mail or password.",
   "INVALID_RESPONSE": "The server response could not be read. Please try again.",
   "INVALID_STATUS_TRANSITION": "This change is not possible from the current status of the application in the term.",
+  "MANUAL_FILL_NOT_AVAILABLE": "Filling a freed bed by hand is available only when applications are evaluated manually.",
   "NOT_FOUND": "Not found.",
   "PASSWORD_ALREADY_SET": "Your password is already set.",
   "PASSWORD_REQUIRED": "Set your password first, then you can continue.",
