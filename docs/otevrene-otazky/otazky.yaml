@@ -533,8 +533,8 @@ otazky:
   poznamka: 'Pozor: board uvádí „Platby bez brány a bez banky — ruční zápis“; otázka v issue to nechává
     jako blokující pro „ready“.'
 - id: Q-PLA-03
-  otazka: 'Co po poslední výzvě k zaplacení bez reakce: jen označit pro telefonát (US-45), nebo má systém
-    přihlášku po nějaké době sám zrušit?'
+  otazka: 'Co po jediné výzvě k zaplacení bez reakce (výzva se neopakuje, D-100): jen označit pro telefonát
+    (US-45), nebo má systém přihlášku po nějaké době sám zrušit?'
   epic: platby
   us:
   - label: US-46
