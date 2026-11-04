@@ -3,6 +3,7 @@ import { PrismaService } from "@/core/prisma/prisma.service"
 import { api, connectTestPrisma, resetAndSeed, signIn } from "@/test/integration/test-api"
 
 type Summary = {
+  bankAccount: string
   variableSymbol: string
   amountDueCzk: number
   amountPaidCzk: number
@@ -385,6 +386,20 @@ describe("organizer payments (US-44)", () => {
       expect(result.terms.map((term) => term.variableSymbol)).toEqual(
         result.terms.map((term) => String(applicationNumber * 1000 + term.termNumber)),
       )
+    })
+
+    it("returns the account of the organization next to the per-term amounts (US-110)", async () => {
+      await confirmSecondTerm()
+      const application = await prisma.application.findUniqueOrThrow({
+        where: { id: applicationId },
+        include: { organization: { select: { bankAccount: true } } },
+      })
+      const result = await summary()
+      expect(result.bankAccount).toBe(application.organization.bankAccount)
+      expect(result.terms.map((term) => [term.dueCzk, term.paidCzk, term.owedCzk])).toEqual([
+        [6900, 0, 6900],
+        [9900, 0, 9900],
+      ])
     })
 
     it("keeps the first term paid and puts the debt only on the later confirmed one", async () => {
