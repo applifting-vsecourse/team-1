@@ -36,10 +36,10 @@ Plán zahájen 3. 11. 2026. Výstupem inventury je business katalog transakční
 | Krok | Stav |
 | --- | --- |
 | 1. Business inventura | Hotovo, [KATALOG.md](KATALOG.md); šest rozhodnutí PM zapracováno. |
-| 2. Schválení katalogu | Rozhodnutí PM zapracována do modelů a registru. Čeká už jen na finální potvrzení úplnosti. |
+| 2. Schválení katalogu | Hotovo, katalog schválil Adam 5. 11. 2026. Rozhodnutí PM jsou zapracována do modelů a registru. |
 | 3. Obsah | Hotovo. Texty CS/EN schváleny Adamem; další revize ani skutečné kontakty se neřeší (školní projekt, `organizator@togena.com` a `support@togena.com` zůstávají fiktivní). |
 | 4. Design | Hotovo, schválil Adam 5. 11. 2026. Ve Figmě (Design system, stránka „HF / 09 E-maily · nový design“) je 24 e-mailů v aktuálním designu podle [FIGMA-REMAKE.md](../FIGMA-REMAKE.md) (primární `#007f72`, Inter, DS komponenty), každý v desktopu a na mobilu: přijetí přihlášky (E01–E04), změny stavu a zrušení (E05–E13), platby včetně nového e-mailu č. 16 (E14–E16), účet a bezpečnostní upozornění (E17–E20) a anglické varianty E02, E05, E13 a E20. Texty vychází z [TEXTY.md](TEXTY.md). Rozhodnuto: stačí čtyři anglické varianty a e-mail č. 5 nemá samostatnou variantu „Uvolnilo se lůžko“. Původní e-maily jsou archivované na stránce „ARCHIV / E-maily před úpravou 4. 11.“. Všechny sekce jsem prošel vizuálně a v rámcích není oříznutý text ani překryv. Kód šablon se zatím nemění. |
-| 5. Předání vývoji | Nezahájeno, závisí na krocích 2 a 4. Šablony v `apps/backend/src/core/email/templates/` stále používají starý vzhled (`#006c60`, Manrope) a odkazy na archivované Figma rámce. |
+| 5. Předání vývoji | Připraveno k zahájení (kroky 2 až 4 jsou hotové), zatím nezahájeno. Šablony v `apps/backend/src/core/email/templates/` stále používají starý vzhled (`#006c60`, Manrope) a odkazy na archivované Figma rámce. |
 | 6. Business akceptace | Nezahájeno. |
 
 Hotovo od posledního stavu:
@@ -51,7 +51,7 @@ Zbývá před předáním vývoji:
 
 - Rozhodnout, kam patří text a design e-mailu č. 16: navrženo přidat do [#260](https://github.com/applifting-vsecourse/team-1/issues/260); do ticketu zatím nezapsáno. Návrh e-mailu je ve Figmě jako E16 (`PAYMENT_CORRECTED`).
 - Design e-mailů je schválený. Ticket #260 zatím mluví o starých rámcích S17; odkázat ho na stránku „HF / 09 E-maily · nový design“.
-- Před zapojením EVENT_TERM_CANCELLED potvrdit soulad věty o vrácení plateb s pravidly rušení termínů (D-080).
+- Věta o vrácení plateb v e-mailu č. 15 (EVENT_TERM_CANCELLED) je v souladu s D-080 a D-101; nic k potvrzení.
 - Potvrzení náhradníka po uvolnění lůžka (APP_CONFIRMED, č. 5) není business otázka: procesní modely ho mají v obou režimech (ruční: organizátor potvrdí; automatické: systém potvrdí v pořadí přijetí). Podle orientačního pokrytí v kódu odesílání nenalezeno, jde tedy o mezeru ve vývoji. Rozhodnuto: e-mail nemá samostatnou variantu textu „Uvolnilo se lůžko“, sděluje jen potvrzení účasti a platební údaje jako č. 2.
 - Vývoj vyřadí šablonu obecného ověření e-mailu (`verify-email`), D-102.
-- Otevřená otázka na PO: co po jediné výzvě bez reakce (Q-PLA-03).
+- Otevřená otázka na PO: co po jediné výzvě bez reakce, jen označit pro telefonát (US-45), nebo přihlášku po čase zrušit (Q-PLA-03, priorita P3). Předání vývoji neblokuje; vývoj automatické rušení přihlášek nedělá, dokud PM nerozhodne. Text e-mailu č. 7 na ní nezávisí.
