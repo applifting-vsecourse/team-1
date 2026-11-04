@@ -20,7 +20,7 @@ permissions:
   pull-requests: write
 
 jobs:
-  review:
+  dependency-review:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
