@@ -60,7 +60,12 @@ describe("manual filling of a freed bed (integration)", () => {
   const statusOf = async (applicationId: string) =>
     (await prisma.applicationTerm.findFirstOrThrow({ where: { applicationId } })).status
 
-  const createEvent = async (name: string, token: string, mode: "MANUAL" | "AUTOMATIC") => {
+  const createEvent = async (
+    name: string,
+    token: string,
+    mode: "MANUAL" | "AUTOMATIC",
+    gender: "FEMALE" | "MALE" = "MALE",
+  ) => {
     const event = await prisma.event.create({
       data: {
         organizationId,
@@ -73,7 +78,7 @@ describe("manual filling of a freed bed (integration)", () => {
               organizationId,
               number: 1,
               name: "T1",
-              rooms: { create: [{ organizationId, name: "A", capacity: 1, gender: "MALE" }] },
+              rooms: { create: [{ organizationId, name: "A", capacity: 1, gender }] },
               startsOn: new Date("2027-07-01"),
               endsOn: new Date("2027-07-08"),
               priceCzk: 4900,
@@ -156,6 +161,20 @@ describe("manual filling of a freed bed (integration)", () => {
       where: { applicationId: winner },
     })
     expect(confirmed.priceCzk).toBe(4900)
+  })
+
+  it("offers and confirms nobody whose gender has no free bed", async () => {
+    const women = await createEvent("US-104 women", "us-104-women", "MANUAL", "FEMALE")
+    const man = await addApplication("MALE", 30, "WAITLISTED", women)
+    const woman = await addApplication("FEMALE", 31, "WAITLISTED", women)
+    const listed = (await (
+      await fetch(url("", women.eventId, women.termId), { headers: { Cookie: cookie } })
+    ).json()) as List
+    expect(listed.items.map((row) => row.applicationId)).toEqual([woman])
+    const response = await confirm(man, cookie, women.eventId, women.termId)
+    expect(response.status).toBe(409)
+    expect(((await response.json()) as { code: string }).code).toBe("BED_ALREADY_TAKEN")
+    expect(await statusOf(man)).toBe("WAITLISTED")
   })
 
   it("is not available in the automatic evaluation mode", async () => {

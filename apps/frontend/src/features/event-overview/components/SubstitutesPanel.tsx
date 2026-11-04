@@ -136,7 +136,7 @@ function SubstituteGroup({
   return (
     <section
       aria-label={title}
-      className="flex flex-col gap-4"
+      className="flex flex-col gap-4 rounded-lg bg-muted/50 p-4"
     >
       <div className="flex flex-wrap justify-between gap-2">
         <div>
