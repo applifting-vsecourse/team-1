@@ -3,10 +3,6 @@ import { User } from "@/generated/prisma/client"
 import { AccountType } from "@/shared/auth/domain/identity"
 import { BetterAuth } from "@/shared/auth/providers/better-auth.provider"
 
-// What BetterAuth 1.7 stamps on e-mail + password accounts and matches on when
-// signing in (`createLocalAccountIssuer('credential')` in @better-auth/core).
-const CREDENTIAL_ISSUER = "local:credential"
-
 type CreateUserParams = {
   email: string
   /** Omit for an account that can only sign in once a password is set. */
@@ -44,7 +40,6 @@ export async function createUser(auth: BetterAuth, params: CreateUserParams): Pr
     await context.internalAdapter.linkAccount({
       userId: user.id,
       providerId: "credential",
-      issuer: CREDENTIAL_ISSUER,
       accountId: user.id,
       password: await context.password.hash(password),
     })
