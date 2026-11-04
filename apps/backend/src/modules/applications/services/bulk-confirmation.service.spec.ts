@@ -54,6 +54,7 @@ describe("BulkConfirmationService", () => {
     const preview = await service.preview(user, "e1", "t1", ["adam", "petr", "jana"])
 
     expect(preview.freePlaces).toEqual({ FEMALE: 1, MALE: 1 })
+    expect(preview.freePlacesAfter).toEqual({ FEMALE: 0, MALE: 0 })
     expect(preview.confirmable.map((id) => preview.names[id])).toEqual(["adam X", "jana X"])
     expect(preview.skipped).toEqual(["petr"])
     expect(preview.selectedCount).toBe(3)

@@ -7,7 +7,7 @@ import {
   createRouter,
   RouterProvider,
 } from "@tanstack/react-router"
-import { render, screen, within } from "@testing-library/react"
+import { configure, render, screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
@@ -16,6 +16,8 @@ import type { ApplicationsSearch } from "@/features/event-overview/lib/applicati
 
 const { get, post } = vi.hoisted(() => ({ get: vi.fn(), post: vi.fn() }))
 vi.mock("@/lib/api-client", () => ({ api: { get, post } }))
+// The page loads several queries and renders a table and a card list; a pre-push run is slower.
+configure({ asyncUtilTimeout: 5000 })
 Element.prototype.hasPointerCapture = () => false
 Element.prototype.scrollIntoView = vi.fn()
 
@@ -50,28 +52,28 @@ const rows = [
 ]
 const named = (id: string, name: string) => ({ applicationId: id, name })
 
-function setup(filters: ApplicationsSearch = { status: "TO_EVALUATE", term: "t1" }) {
+const onFiltersChange = vi.fn()
+
+function setup(filters: ApplicationsSearch = { status: "TO_EVALUATE", term: "t1" }, termCount = 1) {
   get.mockImplementation((path: string) => ({
     json: () =>
       Promise.resolve(
         path.endsWith("occupancy")
           ? {
               eventId: "e1",
-              terms: [
-                {
-                  id: "t1",
-                  name: null,
-                  roomMode: "GENDERED",
-                  roomCount: 2,
-                  startsOn: "2027-07-12",
-                  endsOn: "2027-07-18",
-                  capacity: 4,
-                  confirmed: 2,
-                  free: 2,
-                  waitlisted: 0,
-                  byGender: null,
-                },
-              ],
+              terms: Array.from({ length: termCount }, (_, index) => ({
+                id: `t${index + 1}`,
+                name: null,
+                roomMode: "GENDERED",
+                roomCount: 2,
+                startsOn: "2027-07-12",
+                endsOn: "2027-07-18",
+                capacity: 4,
+                confirmed: 2,
+                free: 2,
+                waitlisted: 0,
+                byGender: null,
+              })),
             }
           : rows,
       ),
@@ -79,15 +81,18 @@ function setup(filters: ApplicationsSearch = { status: "TO_EVALUATE", term: "t1"
   post.mockImplementation((path: string) => ({
     json: () =>
       Promise.resolve(
-        path.endsWith("preview")
-          ? {
-              selectedCount: 3,
-              freePlaces: { FEMALE: 1, MALE: 1 },
-              isShared: false,
-              confirmable: [named("a1", "Adam Test"), named("a3", "Jana Test")],
-              skipped: [named("a2", "Petr Test")],
-            }
-          : { confirmed: ["a1", "a3"], unchanged: ["a2"] },
+        path.endsWith("bulk-decision")
+          ? { changed: ["a1", "a3"], unchanged: ["a2"] }
+          : path.endsWith("preview")
+            ? {
+                selectedCount: 3,
+                freePlaces: { FEMALE: 1, MALE: 1 },
+                freePlacesAfter: { FEMALE: 0, MALE: 0 },
+                isShared: false,
+                confirmable: [named("a1", "Adam Test"), named("a3", "Jana Test")],
+                skipped: [named("a2", "Petr Test")],
+              }
+            : { confirmed: ["a1", "a3"], unchanged: ["a2"] },
       ),
   }))
   function Page() {
@@ -96,7 +101,10 @@ function setup(filters: ApplicationsSearch = { status: "TO_EVALUATE", term: "t1"
       <ApplicationsPage
         eventId="e1"
         filters={current}
-        onFiltersChange={setCurrent}
+        onFiltersChange={(next) => {
+          onFiltersChange(next)
+          setCurrent(next)
+        }}
       />
     )
   }
@@ -116,49 +124,114 @@ function setup(filters: ApplicationsSearch = { status: "TO_EVALUATE", term: "t1"
 }
 
 beforeEach(() => vi.clearAllMocks())
-describe("bulk confirmation (US-107)", () => {
-  it("has no selection until a term is chosen", async () => {
-    setup({ status: "TO_EVALUATE" })
-    await screen.findByText("Adam Test")
+const selectAll = async (user: ReturnType<typeof userEvent.setup>) =>
+  user.click(await screen.findByRole("checkbox", { name: /Select all in the filter/ }))
+
+describe("bulk decisions on the queue (US-107, US-108)", () => {
+  it("has no selection with several terms until one is chosen, and asks to choose it", async () => {
+    setup({ status: "TO_EVALUATE" }, 2)
+    await screen.findAllByText(/Adam Test/)
     expect(screen.queryByRole("checkbox")).toBeNull()
+    expect(
+      screen.getByText("To evaluate applications in bulk, choose a term in the filter first."),
+    ).toBeInTheDocument()
   })
 
-  it("selects every application in the filter, checks the capacity and confirms those that fit", async () => {
+  it("lets the only term be decided on without choosing it", async () => {
+    setup({ status: "TO_EVALUATE" })
+    expect(
+      await screen.findByRole("checkbox", { name: /Select all in the filter/ }),
+    ).toBeInTheDocument()
+    expect(screen.queryByText(/choose a term/)).toBeNull()
+  })
+
+  it("offers three differently coloured actions, and no way to clear the selection", async () => {
     setup()
     const user = userEvent.setup()
-    await user.click(await screen.findByRole("checkbox", { name: /Select all in the filter/ }))
-    expect(screen.getByText("Selected applications")).toBeInTheDocument()
-    expect(screen.getAllByRole("checkbox", { checked: true })).toHaveLength(4)
-
-    await user.click(screen.getByRole("button", { name: "Confirm selected" }))
-    const dialog = await screen.findByRole("dialog", { name: "Confirm selected applications" })
-    expect(await within(dialog).findByText("1 men's + 1 women's")).toBeInTheDocument()
-    expect(within(dialog).getByText("Adam Test and Jana Test")).toBeInTheDocument()
-    expect(within(dialog).getByText("2 of 3 applications will be confirmed.")).toBeInTheDocument()
-    expect(
-      within(dialog).getByText("Petr Test does not fit into the capacity and stays To evaluate."),
-    ).toBeInTheDocument()
-    expect(post).toHaveBeenCalledWith(
-      "organizer/events/e1/terms/t1/bulk-confirmation/preview",
-      expect.objectContaining({ json: { applicationIds: ["a1", "a2", "a3"] } }),
+    await user.click(
+      (await screen.findAllByRole("checkbox", { name: "Select application: Jana Test" }))[0]!,
     )
+    expect(screen.getByText("1 application")).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "Confirm" })).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "Move to waitlist" })).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "Reject" })).toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: /Clear selection/ })).toBeNull()
+  })
 
-    await user.click(within(dialog).getByRole("button", { name: "Confirm 2 applications" }))
-    expect(await screen.findByText("2 applications confirmed, 1 unchanged.")).toBeInTheDocument()
-    expect(screen.getByText(/Adam and Jana will receive an e-mail/)).toBeInTheDocument()
-    expect(screen.getByText(/Petr stays To evaluate\./)).toBeInTheDocument()
-    expect(screen.getAllByText("Participation confirmed")).toHaveLength(2)
+  it("confirms those that fit after a dialog that shows the free beds before and after", async () => {
+    setup()
+    const user = userEvent.setup()
+    await selectAll(user)
+    await user.click(screen.getByRole("button", { name: "Confirm" }))
+    const dialog = await screen.findByRole("dialog", { name: "Confirm selected applications" })
+    expect(await within(dialog).findByText("Will be confirmed")).toBeInTheDocument()
+    expect(
+      within(within(dialog).getByRole("list"))
+        .getAllByRole("listitem")
+        .map((li) => li.textContent),
+    ).toEqual(["Adam Test", "Jana Test"])
+    expect(within(dialog).getByText("Free beds after the confirmation")).toBeInTheDocument()
+    expect(
+      within(dialog).getByText("1 men's + 1 women's → 0 men's + 0 women's"),
+    ).toBeInTheDocument()
+    expect(within(dialog).getByText("2 of 3 applications will be confirmed.")).toBeInTheDocument()
+
+    await user.click(within(dialog).getByRole("button", { name: "Confirm applications" }))
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull())
     expect(post).toHaveBeenCalledWith("organizer/events/e1/terms/t1/bulk-confirmation", {
       json: { applicationIds: ["a1", "a2", "a3"] },
     })
+    // Back on the list of all applications.
+    expect(onFiltersChange).toHaveBeenLastCalledWith({ term: "t1" })
   })
 
-  it("selects single applications and clears the selection", async () => {
+  it.each([
+    [
+      "Move to waitlist",
+      "Move selected to the waitlist",
+      "Will be moved to the waitlist",
+      "Move to the waitlist",
+      "WAITLIST",
+    ],
+    ["Reject", "Reject selected applications", "Will be rejected", "Reject applications", "REJECT"],
+  ])(
+    "asks before %s, with the same labelled details, then goes back to all applications",
+    async (action, title, namesLabel, submit, decision) => {
+      setup()
+      const user = userEvent.setup()
+      await selectAll(user)
+      await user.click(screen.getByRole("button", { name: action }))
+      const dialog = await screen.findByRole("dialog", { name: title })
+      expect(within(dialog).getByText("Selected")).toBeInTheDocument()
+      expect(within(dialog).getByText("3 applications")).toBeInTheDocument()
+      expect(within(dialog).getByText(namesLabel)).toBeInTheDocument()
+      expect(
+        within(within(dialog).getByRole("list"))
+          .getAllByRole("listitem")
+          .map((li) => li.textContent),
+      ).toEqual(["Adam Test", "Petr Test", "Jana Test"])
+      expect(within(dialog).getByText(/Applies to this term only/)).toBeInTheDocument()
+      expect(post).not.toHaveBeenCalled()
+
+      await user.click(within(dialog).getByRole("button", { name: submit }))
+      await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull())
+      expect(post).toHaveBeenCalledWith("organizer/events/e1/terms/t1/bulk-decision", {
+        json: { decision, applicationIds: ["a1", "a2", "a3"] },
+      })
+      expect(onFiltersChange).toHaveBeenLastCalledWith({ term: "t1" })
+    },
+  )
+
+  it("changes nothing when the dialog is cancelled", async () => {
     setup()
     const user = userEvent.setup()
-    await user.click(await screen.findByRole("checkbox", { name: "Select application: Jana Test" }))
-    expect(screen.queryByText("Selected applications")).toBeInTheDocument()
-    await user.click(screen.getByRole("button", { name: "Clear selection" }))
-    expect(screen.queryByText("Selected applications")).toBeNull()
+    await user.click(
+      (await screen.findAllByRole("checkbox", { name: "Select application: Jana Test" }))[0]!,
+    )
+    await user.click(screen.getByRole("button", { name: "Reject" }))
+    const dialog = await screen.findByRole("dialog", { name: "Reject selected applications" })
+    await user.click(within(dialog).getByRole("button", { name: "Cancel" }))
+    expect(screen.queryByRole("dialog")).toBeNull()
+    expect(post).not.toHaveBeenCalled()
   })
 })

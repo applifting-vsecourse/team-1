@@ -101,9 +101,21 @@ describe("application list API", () => {
     )
   })
 
+  it("filters on applications with no amount due, which the full camp has as waitlisted ones", async () => {
+    // Only waitlisted terms: nothing is due until a place is confirmed.
+    const fullCamp = await prisma.event.findUniqueOrThrow({
+      where: { publicToken: "demo-letni-kemp-plny" },
+    })
+    const rows = (await (await get("?payment=NOTHING_DUE", cookie, fullCamp.id)).json()) as {
+      paymentStatus: string
+    }[]
+    expect(rows.length).toBeGreaterThan(0)
+    expect(rows.every((row) => row.paymentStatus === "NOTHING_DUE")).toBe(true)
+  })
+
   it("validates filters and protects organization data", async () => {
     for (const query of [
-      "?payment=NOTHING_DUE",
+      "?payment=OTHER",
       "?status=OTHER",
       "?gender=OTHER",
       `?q=${"a".repeat(101)}`,

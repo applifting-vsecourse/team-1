@@ -7,6 +7,7 @@ const namedSchema = z.object({ applicationId: z.string(), name: z.string() })
 const previewSchema = z.object({
   selectedCount: z.number().int(),
   freePlaces: z.object({ FEMALE: z.number().int(), MALE: z.number().int() }),
+  freePlacesAfter: z.object({ FEMALE: z.number().int(), MALE: z.number().int() }),
   isShared: z.boolean(),
   /** In order of receipt. */
   confirmable: z.array(namedSchema),
