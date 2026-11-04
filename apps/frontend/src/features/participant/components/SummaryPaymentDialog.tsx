@@ -20,6 +20,12 @@ export function SummaryPaymentDialog({ application, onClose }: Props) {
   const { t } = useTranslation(["participant", "common"])
   const details = application.paymentDetails!
   const amountCzk = details.summary.payableCzk
+  const owedTerms = details.terms
+    .filter((term) => term.owedCzk > 0)
+    .map((payment) => ({
+      ...payment,
+      term: application.terms.find(({ termId }) => termId === payment.termId),
+    }))
   const spayd = summaryPaymentSpayd(details.bankAccount, amountCzk, details.summary.variableSymbol)
   const [qr, setQr] = useState<{ payload: string; image: string } | null>(null)
   const qrImage = qr?.payload === spayd ? qr.image : null
@@ -111,26 +117,31 @@ export function SummaryPaymentDialog({ application, onClose }: Props) {
             />
           </QrDetail>
           <div className="sm:col-start-1">
-            <p className="hidden pb-2 text-sm text-muted-foreground sm:block">
-              {t("payment.summaryBreakdown")}
-            </p>
-            {details.terms
-              .filter((term) => term.owedCzk > 0)
-              .map((payment) => {
-                const term = application.terms.find(({ termId }) => termId === payment.termId)
-                return (
-                  <p
-                    key={payment.termId}
-                    className="text-sm sm:pb-2"
-                  >
-                    {term
-                      ? formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })
-                      : ""}
-                    {" · "}
-                    <MoneyAmount amountCzk={payment.owedCzk} />
+            <p className="hidden pb-2 text-base sm:block">{t("payment.summaryBreakdown")}</p>
+            {owedTerms.map((payment, index) => (
+              <div key={payment.termId}>
+                <p className="text-base sm:hidden">
+                  {index === 0 ? `${t("payment.summaryBreakdownMobile")} ` : null}
+                  {payment.term
+                    ? formatDateRange(payment.term.startsOn, payment.term.endsOn)
+                    : null}
+                  {" · "}
+                  <MoneyAmount amountCzk={payment.owedCzk} />
+                </p>
+                <div className="hidden pb-2 sm:block">
+                  <p className="text-sm text-muted-foreground">
+                    {payment.term
+                      ? formatDateRange(payment.term.startsOn, payment.term.endsOn, {
+                          shouldShowYear: true,
+                        })
+                      : null}
                   </p>
-                )
-              })}
+                  <p className="text-base">
+                    {t("payment.summaryDebt")} <MoneyAmount amountCzk={payment.owedCzk} />
+                  </p>
+                </div>
+              </div>
+            ))}
           </div>
           <p className="text-sm sm:col-span-2">{t("payment.summaryQrExplanation")}</p>
         </div>
@@ -143,7 +154,7 @@ function QrDetail({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="flex flex-col gap-1 sm:col-start-1">
       <span className="text-sm text-muted-foreground">{label}</span>
-      <div className="flex min-w-0 items-center justify-between gap-2 text-sm">{children}</div>
+      <div className="flex min-w-0 items-center justify-between gap-2 text-base">{children}</div>
     </div>
   )
 }

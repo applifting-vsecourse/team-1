@@ -42,6 +42,8 @@
     "showSummaryQrMany": "One payment for all confirmed terms · show QR",
     "showSummaryQrTwo": "One payment for both terms · show QR",
     "summaryBreakdown": "Combined payment breakdown",
+    "summaryBreakdownMobile": "Breakdown:",
+    "summaryDebt": "Debt",
     "summaryQrExplanation": "Use the summary variable symbol for all confirmed terms. It differs from the symbols for individual terms; waitlisted terms are not included in the payment.",
     "summaryQrTitle": "Pay for confirmed terms",
     "summaryVariableSymbol": "Summary variable symbol",

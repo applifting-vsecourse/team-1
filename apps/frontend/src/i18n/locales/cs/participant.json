@@ -42,6 +42,8 @@
     "showSummaryQrMany": "Jedna platba za všechny potvrzené termíny · zobrazit QR",
     "showSummaryQrTwo": "Jedna platba za oba termíny · zobrazit QR",
     "summaryBreakdown": "Rozpis souhrnné platby",
+    "summaryBreakdownMobile": "Rozpis:",
+    "summaryDebt": "Dluh",
     "summaryQrExplanation": "Použijte souhrnný variabilní symbol pro všechny potvrzené termíny. Liší se od VS jednotlivých termínů; náhradnické termíny se do platby nepočítají.",
     "summaryQrTitle": "Zaplatit potvrzené termíny",
     "summaryVariableSymbol": "Souhrnný variabilní symbol",

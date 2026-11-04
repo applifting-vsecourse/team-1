@@ -332,16 +332,17 @@ describe("ApplicationDetail", () => {
     const dialog = screen.getByRole("dialog")
     expect(within(dialog).getByText("Summary variable symbol")).toBeInTheDocument()
     expect(within(dialog).getByText("48000")).toBeInTheDocument()
+    expect(within(dialog).getByText("Combined payment breakdown")).toBeInTheDocument()
     expect(
       within(dialog).getByText(
         (_, element) =>
-          element?.tagName === "P" && /4–10 Jul 2027.*500/.test(element.textContent ?? ""),
+          element?.tagName === "P" && /Breakdown: 4–10 Jul.*500/.test(element.textContent ?? ""),
       ),
     ).toBeInTheDocument()
     expect(
       within(dialog).getByText(
         (_, element) =>
-          element?.tagName === "P" && /11–17 Jul 2027.*700/.test(element.textContent ?? ""),
+          element?.tagName === "P" && /11–17 Jul.*700/.test(element.textContent ?? ""),
       ),
     ).toBeInTheDocument()
     expect(toDataURL).toHaveBeenCalledWith(
