@@ -43,7 +43,6 @@ K přihlašovacímu odkazu doplnit: „Odkaz platí 7 dní a lze jej použít po
 | Preheader | Potvrzení účasti a údaje k platbě. | Your place is confirmed. Payment details are included. |
 | Nadpis | Účast je potvrzená | The place is confirmed |
 | Tělo | Účast v uvedeném termínu byla potvrzena. Platební údaje najdete níže. | The place in the term shown below has been confirmed. Payment details are included below. |
-| Varianta z náhradníka | Uvolnilo se lůžko a účast v uvedeném termínu byla potvrzena. Platební údaje najdete níže. | A bed has become available and the place in the term shown below has been confirmed. Payment details are included below. |
 
 Identifikační a platební blok, CTA přihlášky. Pokud se několik termínů mění různě, subject ani úvod nesmí tvrdit potvrzení všech; použije se společný souhrn změn popsaný na konci.
 
