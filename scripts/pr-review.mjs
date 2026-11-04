@@ -41,11 +41,8 @@ const isBot = (login = "") => login.replace(/\[bot\]$/, "") === BOT
 const finding = (c) => {
   const first = c.body.split("\n").find((l) => l.trim()) ?? ""
   const priority = c.body.match(/\bP([0-3])\b/)?.[0] ?? "P?"
-  const title = first
-    .replace(/!\[[^\]]*\]\([^)]*\)/g, "")
-    .replace(/<[^>]+>/g, "")
-    .replace(/\*\*/g, "")
-    .trim()
+  // The title follows the badge; cut it out instead of stripping markup (output is plain text).
+  const title = first.split("</sub>").at(-1).replaceAll("**", "").trim()
   const where = c.line ?? c.original_line
   return `${priority} ${c.path}${where ? `:${where}` : ""} — ${title}`
 }
