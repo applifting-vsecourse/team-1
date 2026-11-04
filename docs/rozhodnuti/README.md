@@ -2,7 +2,7 @@
 
 > Generováno z [`rozhodnuti.yaml`](rozhodnuti.yaml) (`python generate.py`). Needituj, měň YAML.
 
-**95 platných**, 0 návrhů, 3 nahrazených nebo zrušených.
+**97 platných**, 0 návrhů, 3 nahrazených nebo zrušených.
 
 ## Návrhy čekající na PM
 
@@ -24,6 +24,7 @@ _Nic._
 | [D-093](#d-093) | Termíny a ceny jsou na veřejné stránce akce zatím vždy vidět | `docs/PROJEKT.md` | veřejná stránka akce: termíny a ceny vždy viditelné (dočasně) |
 | [D-094](#d-094) | Obsazenost a kapacita se veřejně nezveřejňují | `docs/PROJEKT.md` | katalog akcí: obsazenost a kapacita nejsou veřejné |
 | [D-096](#d-096) | Fotka veřejné stránky akce: jen JPG/JPEG a PNG | `docs/PROJEKT.md` | veřejná stránka akce: formát fotky JPG/JPEG a PNG |
+| [D-099](#d-099) | Lhůta na zaplacení se nastavuje u akce; pozdní potvrzení je rovnou po splatnosti | `docs/PROJEKT.md` | lhůta na zaplacení jako nastavení akce; potvrzení v okně lhůty = po splatnosti |
 
 ## Změny dřívějších rozhodnutí
 
@@ -119,6 +120,8 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-100](#d-100) | Před začátkem storno podmínek si účastník mění přihlášku a termíny bez schválení | 2026-11-05 | `pm` | produkt |
+| [D-099](#d-099) | Lhůta na zaplacení se nastavuje u akce; pozdní potvrzení je rovnou po splatnosti | 2026-11-05 | `pm` | produkt |
 | [D-079](#d-079) | Telefon účastníka je ve formuláři přihlášky povinný, u nezletilých se neřeší | 2026-10-31 | `pm` | produkt |
 | [D-077](#d-077) | Přesun mezi náhradníky jen u Potvrzené s dluhem, ruční zásahy platí v obou režimech | 2026-10-31 | `pm` | produkt |
 | [D-076](#d-076) | Při zrušení termínu se zaplacené platby vracejí, archivované přihlášky se nerulí | 2026-10-31 | `pm` | produkt |
@@ -1250,3 +1253,28 @@ _Nic._
 - **Text:** Nemáme feature na skloňování jmen; nominativ („Přihláška pro Janu Novákovou“ zůstává bez skloňování) je správný stav a kód přihlášky zůstává ve tvaru LK-0048.
 - **Dotčené US:** [US-137](https://github.com/applifting-vsecourse/team-1/issues/174)
 - **Zdroj:** [PR](https://github.com/applifting-vsecourse/team-1/pull/257#issuecomment-6582343282)
+
+<a id="d-099"></a>
+
+### D-099 – Lhůta na zaplacení se nastavuje u akce; pozdní potvrzení je rovnou po splatnosti
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** přihlašování na akce
+- **Datum:** 2026-11-05 · **Rozhodl:** `pm`
+- **Text:** Organizátor si u akce nastaví lhůtu na zaplacení; výchozí je 10 dní od potvrzení. Když se místo uvolní v okně „začátek termínu minus lhůta“ (např. týden před akcí při lhůtě 10 dní), potvrzená přihláška se rovnou označí jako po splatnosti, aby se urgovala platba. PO ověří (Q-PRI-02).
+- **Dotčené US:** [US-31](https://github.com/applifting-vsecourse/team-1/issues/31)
+- **Zdroj:** [rozhodnutí PM při přípravě statusu s PO 2026-11-05](https://github.com/applifting-vsecourse/team-1/issues/31)
+- **Z otázek:** `Q-PRI-02`
+- **Dokumentace:** `docs/PROJEKT.md`: ceka, lhůta na zaplacení jako nastavení akce; potvrzení v okně lhůty = po splatnosti
+- **Poznámka:** Rozhodl PM; PO ověří (Q-PRI-02).
+
+<a id="d-100"></a>
+
+### D-100 – Před začátkem storno podmínek si účastník mění přihlášku a termíny bez schválení
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** přihlašování na akce
+- **Datum:** 2026-11-05 · **Rozhodl:** `pm`
+- **Text:** Dokud neběží storno podmínky, účastník si sám a bez schválení organizátora mění přihlášku, termíny i odhlašuje. Schvalování organizátorem začíná až od data, odkdy běží storno podmínky (US-113, US-114). PO ověří (Q-PRI-07).
+- **Dotčené US:** [US-84](https://github.com/applifting-vsecourse/team-1/issues/84), [US-114](https://github.com/applifting-vsecourse/team-1/issues/207)
+- **Zdroj:** [rozhodnutí PM při přípravě statusu s PO 2026-11-05](https://github.com/applifting-vsecourse/team-1/issues/84)
+- **Z otázek:** `Q-PRI-07`
+- **Poznámka:** Rozhodl PM; PO ověří (Q-PRI-07). Storno podmínky samotné (Q-PRI-03, Q-PLA-04) zůstávají otevřené.

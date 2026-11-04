@@ -1935,3 +1935,46 @@ rozhodnuti:
   stav: platne
   z_otazek: []
   dokumentace: []
+- id: D-099
+  nazev: 'Lhůta na zaplacení se nastavuje u akce; pozdní potvrzení je rovnou po splatnosti'
+  text: 'Organizátor si u akce nastaví lhůtu na zaplacení; výchozí je 10 dní od potvrzení. Když se místo uvolní v okně „začátek termínu minus lhůta“ (např. týden před akcí při lhůtě 10 dní), potvrzená přihláška se rovnou označí jako po splatnosti, aby se urgovala platba. PO ověří (Q-PRI-02).'
+  typ: produkt
+  oblast: přihlašování na akce
+  datum: '2026-11-05'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: rozhodnutí PM při přípravě statusu s PO 2026-11-05
+    url: https://github.com/applifting-vsecourse/team-1/issues/31
+  us:
+  - label: US-31
+    url: https://github.com/applifting-vsecourse/team-1/issues/31
+  stav: platne
+  z_otazek:
+  - Q-PRI-02
+  dokumentace:
+  - soubor: docs/PROJEKT.md
+    popis: 'lhůta na zaplacení jako nastavení akce; potvrzení v okně lhůty = po splatnosti'
+    stav: ceka
+  poznamka: 'Rozhodl PM; PO ověří (Q-PRI-02).'
+- id: D-100
+  nazev: 'Před začátkem storno podmínek si účastník mění přihlášku a termíny bez schválení'
+  text: 'Dokud neběží storno podmínky, účastník si sám a bez schválení organizátora mění přihlášku, termíny i odhlašuje. Schvalování organizátorem začíná až od data, odkdy běží storno podmínky (US-113, US-114). PO ověří (Q-PRI-07).'
+  typ: produkt
+  oblast: přihlašování na akce
+  datum: '2026-11-05'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: rozhodnutí PM při přípravě statusu s PO 2026-11-05
+    url: https://github.com/applifting-vsecourse/team-1/issues/84
+  us:
+  - label: US-84
+    url: https://github.com/applifting-vsecourse/team-1/issues/84
+  - label: US-114
+    url: https://github.com/applifting-vsecourse/team-1/issues/207
+  stav: platne
+  z_otazek:
+  - Q-PRI-07
+  dokumentace: []
+  poznamka: 'Rozhodl PM; PO ověří (Q-PRI-07). Storno podmínky samotné (Q-PRI-03, Q-PLA-04) zůstávají otevřené.'
