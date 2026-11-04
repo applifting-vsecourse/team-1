@@ -54,7 +54,7 @@ export function BulkActionDialog({
     >
       <DialogContent
         showCloseButton={false}
-        className="max-h-[calc(100dvh-2rem)] gap-6 overflow-y-auto p-6 max-sm:top-0 max-sm:left-0 max-sm:flex max-sm:h-dvh max-sm:max-h-none max-sm:w-full max-sm:max-w-none max-sm:translate-x-0 max-sm:translate-y-0 max-sm:flex-col max-sm:gap-4 max-sm:rounded-none max-sm:p-4 max-sm:shadow-none sm:max-w-160"
+        className="flex max-h-[calc(100dvh-2rem)] flex-col gap-4 p-4 sm:max-w-160 sm:gap-6 sm:p-6"
       >
         <DialogHeader className="flex-row items-start gap-4 text-left">
           <DialogTitle className="flex-1 text-2xl tracking-tight">{title}</DialogTitle>
@@ -69,10 +69,8 @@ export function BulkActionDialog({
             <X aria-hidden="true" />
           </Button>
         </DialogHeader>
-        <div className="flex min-h-0 flex-col gap-4 max-sm:flex-1 max-sm:overflow-y-auto">
-          {children}
-        </div>
-        <div className="flex flex-col-reverse gap-3 max-sm:pt-2 md:flex-row md:justify-end">
+        <div className="flex min-h-0 flex-col gap-4 overflow-y-auto">{children}</div>
+        <div className="flex flex-col-reverse gap-3 md:flex-row md:justify-end">
           <Button
             variant="outline"
             size="lg"
