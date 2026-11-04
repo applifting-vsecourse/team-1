@@ -256,6 +256,23 @@ describe("PaymentDetail", () => {
     expect(screen.queryByRole("button", { name: /Record payment/ })).not.toBeInTheDocument()
   })
 
+  it("records one summary payment for an unpaid application without choosing a term", async () => {
+    respondWith(() => application([first, second]))
+    post.mockResolvedValue(undefined)
+    setup()
+    const user = userEvent.setup()
+    await user.click(await screen.findByRole("button", { name: "Record payment or refund" }))
+    expect(screen.getByRole("combobox", { name: "Term" })).toHaveTextContent(
+      "Whole application (summary)",
+    )
+    expect(screen.getByRole("radio", { name: "Refund" })).toBeDisabled()
+    await user.click(screen.getByRole("button", { name: /Record payment.*10,500/ }))
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument())
+    expect(post).toHaveBeenCalledWith("organizer/applications/a1/payments", {
+      json: { requestId: expect.any(String) as unknown, amountCzk: 10500 },
+    })
+  })
+
   it("shows no payments and links back to the correct event's applications", async () => {
     respondWith(() => application([first]))
     setup()
@@ -347,9 +364,6 @@ describe("PaymentDetail", () => {
     expect(post).toHaveBeenCalledWith("organizer/applications/a1/payments/refunds", {
       json: { requestId: expect.any(String) as unknown, amountCzk: 500, termId: "t1" },
     })
-    expect(
-      screen.queryByRole("button", { name: "Record payment or refund" }),
-    ).not.toBeInTheDocument()
     const row = screen.getByRole("row", { name: /Overpayment refund/ })
     expect(row).toHaveTextContent(/-.*500/)
     await user.click(within(row).getByRole("button", { name: "Cancel record" }))

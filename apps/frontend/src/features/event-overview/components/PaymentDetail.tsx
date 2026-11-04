@@ -88,9 +88,11 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
             </h2>
             <p className="text-sm text-muted-foreground">{t("payment.description")}</p>
           </div>
-          {hasOverpayment ? (
+          {/* The summary dialog is always open to the organizer once there is a confirmed term
+              (or an overpayment to return): one payment split over the terms, or a refund. */}
+          {hasConfirmedTerm || hasOverpayment ? (
             <Button
-              variant="outline"
+              variant={data.amountOwedCzk > 0 ? "default" : "outline"}
               size="lg"
               onClick={() => setIsRecordOpen(true)}
             >
