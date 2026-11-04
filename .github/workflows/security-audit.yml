@@ -1,11 +1,13 @@
 name: Security audit
 
-# Weekly check of the production dependencies (docs/SECURITY-REPORT.md). Fails on
-# a critical advisory; it runs outside PRs, so it never blocks a merge.
+# Daily check of the dependencies (docs/SECURITY-REPORT.md, SECURITY.md). Writes the
+# counts by severity into the run summary and fails on a critical advisory in the
+# production tree. It runs outside PRs, so it never blocks a merge; new
+# vulnerabilities in a PR are caught by dependency-review.yml.
 
 on:
   schedule:
-    - cron: "0 6 * * 1"
+    - cron: "0 5 * * *"
   workflow_dispatch:
 
 permissions:
@@ -22,6 +24,19 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version-file: .nvmrc
+
+      - name: Summary by severity
+        run: |
+          count() {
+            pnpm audit "$@" --json 2>/dev/null |
+              node -e 'let d="";process.stdin.on("data",c=>d+=c).on("end",()=>{const v=JSON.parse(d).metadata.vulnerabilities;console.log([v.critical,v.high,v.moderate,v.low].join(" | "))})'
+          }
+          {
+            echo "| Strom | Kritická | Vysoká | Střední | Nízká |"
+            echo "| ----- | -------- | ------ | ------- | ----- |"
+            echo "| vše | $(count) |"
+            echo "| \`--prod\` | $(count --prod) |"
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Audit production dependencies
         run: pnpm audit --prod --audit-level=critical
