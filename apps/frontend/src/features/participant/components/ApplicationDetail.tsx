@@ -55,7 +55,10 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
   }
 
   const hasToEvaluate = data.terms.some((term) => term.status === "TO_EVALUATE")
-  const hasWaitlisted = data.terms.some((term) => term.status === "WAITLISTED")
+  // Confirmed and waitlisted terms are shown with their payment below (US-110).
+  const otherTerms = data.terms.filter(
+    (term) => term.status === "TO_EVALUATE" || term.status === "CANCELLED",
+  )
 
   return (
     <div className="flex flex-col gap-6">
@@ -64,12 +67,11 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
         title={data.eventName}
         description={`${data.firstName} ${data.lastName} · ${data.code}`}
       />
-      <Card className="gap-0 p-6">
-        <h2 className="pb-4 text-lg font-semibold">{t("detail.termsTitle")}</h2>
-        <ul>
-          {data.terms.map((term) => {
-            const isConfirmed = term.status === "CONFIRMED"
-            return (
+      {otherTerms.length > 0 ? (
+        <Card className="gap-0 p-6">
+          <h2 className="pb-4 text-lg font-semibold">{t("detail.termsTitle")}</h2>
+          <ul>
+            {otherTerms.map((term) => (
               <li
                 key={term.termId}
                 className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t py-4 last:pb-0"
@@ -77,22 +79,14 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
                 <TermLabel term={term} />
                 <TermStatusBadge term={term} />
                 <span className="w-full sm:w-50 sm:text-right">
-                  {term.status === "TO_EVALUATE" ? null : term.status === "WAITLISTED" ? (
-                    t("status.zeroUntilConfirmed")
-                  ) : (
-                    <MoneyAmount amountCzk={isConfirmed ? term.priceCzk : 0} />
-                  )}
+                  {term.status === "TO_EVALUATE" ? null : <MoneyAmount amountCzk={0} />}
                 </span>
               </li>
-            )
-          })}
-        </ul>
-        {hasToEvaluate ? <p className="pt-4">{t("detail.toEvaluate.note")}</p> : null}
-        {hasWaitlisted && !data.paymentDetails ? (
-          <p className="pt-4 text-sm text-muted-foreground">{t("detail.waitlistNote")}</p>
-        ) : null}
-        <ParticipantTermChange applicationId={applicationId} />
-      </Card>
+            ))}
+          </ul>
+          {hasToEvaluate ? <p className="pt-4">{t("detail.toEvaluate.note")}</p> : null}
+        </Card>
+      ) : null}
       {hasToEvaluate ? (
         // Figma (Design system): Togena / Alert · node-id=15751-1777 (360 px: 15751-1810)
         <Alert>
@@ -102,6 +96,7 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
         </Alert>
       ) : null}
       <PaymentSummary application={data} />
+      <ParticipantTermChange applicationId={applicationId} />
       <OrganizationContact contact={data.organizationContact} />
     </div>
   )
