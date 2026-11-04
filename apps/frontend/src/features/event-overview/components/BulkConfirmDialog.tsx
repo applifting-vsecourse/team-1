@@ -13,7 +13,11 @@ import {
   confirmSelected,
   type BulkConfirmationPreview,
 } from "@/features/event-overview/api/bulkConfirmation"
-import { BulkActionDialog, BulkDetail } from "@/features/event-overview/components/BulkActionDialog"
+import {
+  BulkActionDialog,
+  BulkDetail,
+  BulkNames,
+} from "@/features/event-overview/components/BulkActionDialog"
 
 // Figma (Design system): US-107 Přihlášky · Dialog: Kontrola kapacity · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15803-16201 (mobile 15803-16280)
 export function BulkConfirmDialog({
@@ -71,14 +75,14 @@ export function BulkConfirmDialog({
           error={preview.error}
         />
       ) : (
-        <div className="flex flex-col gap-4">
+        <>
           <BulkDetail
             label={t("bulk.selected")}
             value={t("bulk.selectedApplications", { count: data?.selectedCount })}
           />
           <BulkDetail
             label={t("bulk.willConfirm")}
-            value={list.format(data?.confirmable.map((row) => row.name) ?? [])}
+            value={<BulkNames names={data?.confirmable.map((row) => row.name) ?? []} />}
           />
           {data && (
             <BulkDetail
@@ -103,7 +107,7 @@ export function BulkConfirmDialog({
               </AlertDescription>
             </Alert>
           )}
-        </div>
+        </>
       )}
       {confirm.error && (
         <ErrorState

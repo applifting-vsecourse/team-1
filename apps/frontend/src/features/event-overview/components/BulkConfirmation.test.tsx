@@ -165,7 +165,11 @@ describe("bulk decisions on the queue (US-107, US-108)", () => {
     await user.click(screen.getByRole("button", { name: "Confirm" }))
     const dialog = await screen.findByRole("dialog", { name: "Confirm selected applications" })
     expect(await within(dialog).findByText("Will be confirmed")).toBeInTheDocument()
-    expect(within(dialog).getByText("Adam Test and Jana Test")).toBeInTheDocument()
+    expect(
+      within(within(dialog).getByRole("list"))
+        .getAllByRole("listitem")
+        .map((li) => li.textContent),
+    ).toEqual(["Adam Test", "Jana Test"])
     expect(within(dialog).getByText("Free beds after the confirmation")).toBeInTheDocument()
     expect(
       within(dialog).getByText("1 men's + 1 women's → 0 men's + 0 women's"),
@@ -201,7 +205,11 @@ describe("bulk decisions on the queue (US-107, US-108)", () => {
       expect(within(dialog).getByText("Selected")).toBeInTheDocument()
       expect(within(dialog).getByText("3 applications")).toBeInTheDocument()
       expect(within(dialog).getByText(namesLabel)).toBeInTheDocument()
-      expect(within(dialog).getByText("Adam Test, Petr Test, and Jana Test")).toBeInTheDocument()
+      expect(
+        within(within(dialog).getByRole("list"))
+          .getAllByRole("listitem")
+          .map((li) => li.textContent),
+      ).toEqual(["Adam Test", "Petr Test", "Jana Test"])
       expect(within(dialog).getByText(/Applies to this term only/)).toBeInTheDocument()
       expect(post).not.toHaveBeenCalled()
 

@@ -19,9 +19,10 @@ export function BulkSelectionBar({
   return (
     <div className="sticky bottom-0 z-20 -mx-4 flex flex-col gap-3 border-t bg-card px-4 py-4 md:static md:mx-0 md:flex-row md:items-center md:justify-between md:rounded-lg md:border md:px-4">
       <p className="font-medium">{t("bulk.selectedApplications", { count })}</p>
-      <div className="flex flex-col gap-3 md:flex-row">
+      <div className="grid grid-cols-2 gap-2 md:flex md:gap-3">
         <Button
           size="lg"
+          className="col-span-2"
           onClick={onConfirm}
         >
           {t("bulk.confirm")}
@@ -29,7 +30,7 @@ export function BulkSelectionBar({
         <Button
           size="lg"
           variant="secondary"
-          className="border border-border"
+          className="h-auto min-h-11 border border-border whitespace-normal"
           onClick={() => onDecide("WAITLIST")}
         >
           {t("bulkDecision.waitlist")}
@@ -37,6 +38,7 @@ export function BulkSelectionBar({
         <Button
           size="lg"
           variant="destructive"
+          className="h-auto min-h-11 whitespace-normal"
           onClick={() => onDecide("REJECT")}
         >
           {t("bulkDecision.reject")}
