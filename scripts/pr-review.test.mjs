@@ -8,37 +8,64 @@ import { afterEach, beforeEach, describe, it } from "node:test"
 
 const SCRIPT = path.join(import.meta.dirname, "pr-review.mjs")
 const SHA = "abc1234def0000000000000000000000000000ff"
+const OLD_SHA = "0000000000000000000000000000000000000000"
 
 // Serves the prepared JSON; a missing pr.json behaves like a branch without a PR.
+// `gh pr comment` is recorded in comments.log.
 const FAKE_GH = `#!/usr/bin/env bash
-case "$1" in
-  pr) [ -f "$FAKE_GH_DIR/pr.json" ] || { echo "no pull requests found" >&2; exit 1; }
-      cat "$FAKE_GH_DIR/pr.json" ;;
-  run) cat "$FAKE_GH_DIR/runs.json" ;;
+case "$1 $2" in
+  "pr view") [ -f "$FAKE_GH_DIR/pr.json" ] || { echo "no pull requests found" >&2; exit 1; }
+             cat "$FAKE_GH_DIR/pr.json" ;;
+  "pr comment") echo "$@" >> "$FAKE_GH_DIR/comments.log" ;;
+  api*) case "$2" in
+          */reviews/*/comments*) cat "$FAKE_GH_DIR/review-comments.json" ;;
+          */reviews*) cat "$FAKE_GH_DIR/reviews.json" ;;
+        esac ;;
 esac
 `
 
-const review = (commit, content = "") => ({
-  body: `<!-- ai-review -->\n> **AI review**\n${content}\n<sub>Model \`s\` · commit \`${commit}\`</sub>`,
-})
-const FINDINGS = review("abc1234", "\n### ⚠️ Varování\n\n| Kde | Co |")
-const CLEAN = review("abc1234")
-const NOT_FINISHED = review("abc1234", "> **AI review nedoběhlo.**")
-const ANSWER = { body: "<!-- ai-review-answer: abc1234 -->\nopraveno v abc1234" }
+const BOT = { login: "chatgpt-codex-connector" }
 
-const pr = (overrides = {}) => ({
+// Codex's summary comment, as it looks on a real PR.
+const codex = (state, author = BOT) => ({
+  author,
+  createdAt: new Date().toISOString(),
+  body:
+    "<!-- codex-pull-request-review-summary -->\n" +
+    `<!-- codex-review-state:v1 ${JSON.stringify({ code_review: state, security_review: {} })} -->\n\n` +
+    "## Codex Review Summary",
+})
+const done = (has_any_findings, commit_sha = SHA) =>
+  codex({ commit_sha, status: "completed", has_any_findings, has_unresolved_findings: null })
+const FINDINGS = done(true)
+const CLEAN = done(false)
+const RUNNING = codex({ commit_sha: SHA, status: "running", has_any_findings: null })
+const FAILED = codex({ commit_sha: SHA, status: "failed", has_any_findings: null })
+const OLDER = done(false, OLD_SHA)
+const ANSWER = { author: { login: "dev" }, body: "<!-- ai-review-answer: abc1234 -->\nopraveno" }
+
+const REVIEWS = [
+  { id: 1, user: { login: "chatgpt-codex-connector[bot]" }, commit_id: SHA },
+  { id: 2, user: { login: "chatgpt-codex-connector[bot]" }, commit_id: OLD_SHA },
+]
+const REVIEW_COMMENTS = [
+  {
+    path: "apps/x.ts",
+    line: 42,
+    body: "**<sub><sub>![P1 Badge](https://img.shields.io/badge/P1-orange?style=flat)</sub></sub>  Čte platby bez organizationId**\n\nDetail",
+  },
+]
+
+const HOUR = 3_600_000
+const pr = (overrides = {}, commitAge = 0) => ({
+  number: 7,
   state: "OPEN",
   isDraft: false,
   headRefOid: SHA,
+  commits: [{ committedDate: new Date(Date.now() - commitAge).toISOString() }],
   comments: [],
   ...overrides,
 })
-const run = (status, age = 0) => ({
-  status,
-  createdAt: new Date(Date.now() - age).toISOString(),
-})
-const HOUR = 3_600_000
-const DONE = [run("completed", HOUR)]
 
 describe("pr-review", () => {
   let dir
@@ -46,12 +73,17 @@ describe("pr-review", () => {
   beforeEach(() => {
     dir = fs.mkdtempSync(path.join(os.tmpdir(), "pr-review-"))
     fs.writeFileSync(path.join(dir, "gh"), FAKE_GH, { mode: 0o755 })
+    fs.writeFileSync(path.join(dir, "reviews.json"), JSON.stringify(REVIEWS))
+    fs.writeFileSync(path.join(dir, "review-comments.json"), JSON.stringify(REVIEW_COMMENTS))
   })
   afterEach(() => fs.rmSync(dir, { recursive: true, force: true }))
 
-  const givenGithub = (prData, runs = []) => {
+  const givenGithub = (prData) => {
     if (prData) fs.writeFileSync(path.join(dir, "pr.json"), JSON.stringify(prData))
-    fs.writeFileSync(path.join(dir, "runs.json"), JSON.stringify(runs))
+  }
+  const posted = () => {
+    const log = path.join(dir, "comments.log")
+    return fs.existsSync(log) ? fs.readFileSync(log, "utf8").trim().split("\n") : []
   }
 
   const env = (extra = {}) => ({
@@ -67,16 +99,20 @@ describe("pr-review", () => {
       PR_REVIEW_GRACE_MS: "50",
       PR_REVIEW_TIMEOUT_MS: "200",
     }
-    return spawnSync("node", [SCRIPT, "wait", "7"], { env: env(timing), encoding: "utf8" })
+    return spawnSync(process.execPath, [SCRIPT, "wait", "7"], {
+      env: env(timing),
+      encoding: "utf8",
+    })
   }
 
   const stopHook = (input = "{}", processEnv = env()) =>
-    spawnSync("node", [SCRIPT, "stop-hook"], { env: processEnv, input, encoding: "utf8" })
+    spawnSync(process.execPath, [SCRIPT, "stop-hook"], { env: processEnv, input, encoding: "utf8" })
 
   const assertVerdict = (verdict) => {
     const { stdout, status } = wait()
     assert.equal(status, 0)
     assert.match(stdout, new RegExp(`^VERDICT: ${verdict}$`, "m"))
+    return stdout
   }
 
   const assertBlocked = (expected, input) => {
@@ -88,80 +124,116 @@ describe("pr-review", () => {
 
   describe("wait", () => {
     const verdicts = [
-      ["findings without an answer", pr({ comments: [FINDINGS] }), DONE, "REVIEWED"],
-      ["findings with an answer", pr({ comments: [FINDINGS, ANSWER] }), DONE, "ANSWERED"],
-      ["no findings", pr({ comments: [CLEAN] }), DONE, "CLEAN"],
-      ["a review that did not finish", pr({ comments: [NOT_FINISHED] }), DONE, "FAILED"],
-      ["a review of an older commit", pr({ comments: [review("0000000")] }), DONE, "SKIPPED"],
-      ["a draft", pr({ isDraft: true }), [], "SKIPPED"],
-      ["a merged PR", pr({ state: "MERGED" }), [], "SKIPPED"],
-      ["a queued run", pr(), [run("queued")], "TIMEOUT"],
-      [
-        "a run replacing an older review",
-        pr({ comments: [FINDINGS] }),
-        [run("in_progress")],
-        "TIMEOUT",
-      ],
-      ["gh failing on every call", null, [], "TIMEOUT"],
+      ["findings without an answer", pr({ comments: [FINDINGS] }), "REVIEWED"],
+      ["findings with an answer", pr({ comments: [FINDINGS, ANSWER] }), "ANSWERED"],
+      ["no findings", pr({ comments: [CLEAN] }), "CLEAN"],
+      ["a review that failed", pr({ comments: [FAILED] }), "FAILED"],
+      ["a review still running", pr({ comments: [RUNNING] }), "TIMEOUT"],
+      ["only a review of an older commit", pr({ comments: [OLDER] }), "TIMEOUT"],
+      ["no review at all", pr(), "TIMEOUT"],
+      ["a draft", pr({ isDraft: true }), "SKIPPED"],
+      ["a merged PR", pr({ state: "MERGED" }), "SKIPPED"],
+      ["gh failing on every call", null, "TIMEOUT"],
     ]
 
-    for (const [name, prData, runs, verdict] of verdicts) {
+    for (const [name, prData, verdict] of verdicts) {
       it(`reports ${verdict} for ${name}`, () => {
-        givenGithub(prData, runs)
+        givenGithub(prData)
         assertVerdict(verdict)
       })
     }
 
+    it("lists the findings of the head commit's review", () => {
+      givenGithub(pr({ comments: [FINDINGS] }))
+      const stdout = assertVerdict("REVIEWED")
+      assert.ok(stdout.includes("P1 apps/x.ts:42 — Čte platby bez organizationId"))
+      assert.equal(stdout.match(/^P1 /gm).length, 1)
+    })
+
+    it("uses the latest Codex state when there are several", () => {
+      givenGithub(pr({ comments: [FINDINGS, done(false, OLD_SHA)] }))
+      assertVerdict("TIMEOUT")
+    })
+
+    it("ignores a state comment that isn't from Codex", () => {
+      givenGithub(
+        pr({
+          comments: [
+            codex(
+              { commit_sha: SHA, status: "completed", has_any_findings: false },
+              { login: "dev" },
+            ),
+          ],
+        }),
+      )
+      assertVerdict("TIMEOUT")
+    })
+
+    it("asks for a review once when the head commit has none", () => {
+      givenGithub(pr({ comments: [OLDER] }))
+      assertVerdict("TIMEOUT")
+      assert.deepEqual(posted(), ["pr comment 7 --body @codex review"])
+    })
+
+    it("doesn't ask while Codex reviews the head commit", () => {
+      givenGithub(pr({ comments: [RUNNING] }))
+      assertVerdict("TIMEOUT")
+      assert.deepEqual(posted(), [])
+    })
+
     it("doesn't count an answer to an older commit", () => {
-      const oldAnswer = { body: "<!-- ai-review-answer: 0000000 -->" }
-      givenGithub(pr({ comments: [FINDINGS, oldAnswer] }), DONE)
+      const oldAnswer = { author: { login: "dev" }, body: "<!-- ai-review-answer: 0000000 -->" }
+      givenGithub(pr({ comments: [FINDINGS, oldAnswer] }))
       assertVerdict("REVIEWED")
     })
 
     it("tells the agent which marker to answer with", () => {
-      givenGithub(pr({ comments: [FINDINGS] }), DONE)
+      givenGithub(pr({ comments: [FINDINGS] }))
       assert.ok(wait().stdout.includes("<!-- ai-review-answer: abc1234 -->"))
     })
 
     it("fails on a missing PR number", () => {
-      const { status } = spawnSync("node", [SCRIPT, "wait"], { env: env(), encoding: "utf8" })
+      const { status } = spawnSync(process.execPath, [SCRIPT, "wait"], {
+        env: env(),
+        encoding: "utf8",
+      })
       assert.equal(status, 2)
     })
   })
 
   describe("stop-hook", () => {
     const cases = [
-      ["findings without an answer", pr({ comments: [FINDINGS] }), DONE, true],
-      ["a run in progress", pr(), [run("in_progress")], true],
-      ["a head commit with no run yet", pr(), [], true],
-      ["findings with an answer", pr({ comments: [FINDINGS, ANSWER] }), DONE, false],
-      ["no findings", pr({ comments: [CLEAN] }), DONE, false],
-      ["a review that did not finish", pr({ comments: [NOT_FINISHED] }), DONE, false],
-      ["a finished run without a comment", pr(), DONE, false],
-      ["a run stuck in the queue", pr(), [run("queued", HOUR)], false],
-      ["a draft", pr({ isDraft: true }), [], false],
-      ["a branch without a PR", null, [], false],
+      ["findings without an answer", pr({ comments: [FINDINGS] }), true],
+      ["a review running", pr({ comments: [RUNNING] }, HOUR), true],
+      ["a recent head commit with no review yet", pr({ comments: [OLDER] }), true],
+      ["findings with an answer", pr({ comments: [FINDINGS, ANSWER] }), false],
+      ["no findings", pr({ comments: [CLEAN] }), false],
+      ["a review that failed", pr({ comments: [FAILED] }), false],
+      ["an old head commit with no review", pr({}, HOUR), false],
+      ["a draft", pr({ isDraft: true }), false],
+      ["a branch without a PR", null, false],
     ]
 
-    for (const [name, prData, runs, blocked] of cases) {
+    for (const [name, prData, blocked] of cases) {
       it(`${blocked ? "blocks on" : "lets through"} ${name}`, () => {
-        givenGithub(prData, runs)
+        givenGithub(prData)
         assertBlocked(blocked)
       })
     }
 
     it("blocks only once", () => {
-      givenGithub(pr({ comments: [FINDINGS] }), DONE)
+      givenGithub(pr({ comments: [FINDINGS] }))
       assertBlocked(false, '{"stop_hook_active":true}')
     })
 
     it("lets through invalid input", () => {
-      givenGithub(pr({ comments: [FINDINGS] }), DONE)
+      givenGithub(pr({ comments: [FINDINGS] }))
       assertBlocked(false, "garbage")
     })
 
     it("lets through without gh", () => {
-      const noGh = { ...process.env, PATH: path.dirname(process.execPath) }
+      // An empty PATH: the directory of node may hold the real gh (/usr/bin).
+      const noGh = { ...process.env, PATH: fs.mkdtempSync(path.join(dir, "empty-")) }
       const { stdout, status } = stopHook("{}", noGh)
       assert.equal(status, 0)
       assert.equal(stdout, "")

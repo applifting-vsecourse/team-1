@@ -47,7 +47,7 @@ S agentem stačí `/story <číslo issue>` na začátku a `/story <číslo issue
 - Přeskočit pre-push kontroly: `git push --no-verify` (jen výjimečně).
 - Lokálně kdykoli přes Claude Code: `pnpm ai-review` (`scripts/ai-review.sh`, výstup v `.git/ai-review-last.txt`; `AI_REVIEW_MODEL`, výchozí `sonnet`) nebo `@reviewer`.
 - Na každý nález z posledního review odpovídá autor PR (i agent) novým komentářem v PR: `opraveno v <commit>`, nebo `neopravuji — <důvod>`.
-- Agent po pushi počká na review daného commitu přes `node scripts/pr-review.mjs wait <pr>` (když Codex do 3 minut nezačne sám, skript o review požádá komentářem `@codex review`) a odpověď začne řádkem `<!-- ai-review-answer: <sha> -->` (7 znaků reviewovaného commitu). Stop hook v `.claude/settings.json` ho jednou zastaví, když review ještě běží nebo nálezy nemají odpověď. Bez `gh` nebo bez PR na větvi hook nic nedělá.
+- Agent po pushi počká na review daného commitu přes `node scripts/pr-review.mjs wait <pr>` (Codex sám reviewuje jen při otevření PR a při „Ready for review“, ne po pushi; když u aktuálního commitu do minuty nezačne, skript o review požádá komentářem `@codex review`) a odpověď začne řádkem `<!-- ai-review-answer: <sha> -->` (7 znaků reviewovaného commitu). Stop hook v `.claude/settings.json` ho jednou zastaví, když review ještě běží nebo nálezy nemají odpověď. Bez `gh` nebo bez PR na větvi hook nic nedělá.
 
 **Pravidla review se mění jen v `.claude/agents/reviewer.md`**, ne v `AGENTS.md`, hooku ani workflow — Codex i lokální `@reviewer` čtou tentýž seznam. Hlásí-li nesmysly nebo něco přehlíží, oprav agenta v PR.
 
@@ -84,9 +84,9 @@ Review běží v cloudu OpenAI a čerpá limity předplatného ChatGPT toho, kdo
 1. Vlastník organizace `applifting-vsecourse` schválí GitHub aplikaci ChatGPT (Codex) pro repozitář `team-1` (GitHub → organizace → Settings → GitHub Apps / žádost o instalaci).
 2. Na [chatgpt.com/codex](https://chatgpt.com/codex) propoj GitHub a vyber repozitář `team-1`.
 3. V nastavení Codexu u repozitáře zapni **Code review → Automatic review** (potřebuje práva push/admin k repu).
-4. Ověření: v libovolném PR, který není draft, napiš `@codex review`. Codex dá 👀 a pak pošle review s nálezy u řádků.
+4. Ověření: v libovolném PR, který není draft, napiš `@codex review`. Codex dá 👀, založí v PR komentář „Codex Review Summary“ se stavem a pošle review s nálezy u řádků (bez nálezů dá 👍). Stav review (commit, běží/hotovo, nálezy) čte `pr-review.mjs` ze skrytého řádku `codex-review-state` v tom komentáři.
 
-Když dojdou limity předplatného, review do dalšího okna neproběhne; `pr-review.mjs` pak skončí `FAILED` nebo `TIMEOUT`.
+Když dojdou limity předplatného, review do dalšího okna neproběhne; `pr-review.mjs` pak skončí `FAILED` nebo `TIMEOUT`. Nastavení Codexu pro repo: [chatgpt.com/codex/cloud/settings/general](https://chatgpt.com/codex/cloud/settings/general).
 
 ## Pravidla `main`
 
