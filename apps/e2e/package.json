@@ -15,7 +15,7 @@
     "@playwright/test": "^1.55.0",
     "@types/node": "catalog:",
     "@types/pg": "^8.15.0",
-    "dotenv": "^17.4.2",
+    "dotenv": "^18.0.8",
     "pg": "^8.20.0",
     "prettier": "catalog:",
     "typescript": "catalog:"
