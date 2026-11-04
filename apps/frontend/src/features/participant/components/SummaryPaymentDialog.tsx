@@ -60,7 +60,7 @@ export function SummaryPaymentDialog({ application, onClose }: Props) {
     >
       <DialogContent
         showCloseButton={false}
-        className="top-0 left-0 h-dvh max-h-dvh w-full max-w-full translate-x-0 translate-y-0 overflow-y-auto rounded-none border-0 p-4 sm:top-16 sm:left-1/2 sm:h-auto sm:max-h-[calc(100dvh-8rem)] sm:max-w-160 sm:-translate-x-1/2 sm:rounded-lg sm:border sm:p-6"
+        className="top-0 left-0 h-dvh max-h-dvh w-full max-w-full translate-x-0 translate-y-0 content-start gap-6 overflow-y-auto rounded-none border-0 p-4 sm:top-16 sm:left-1/2 sm:h-auto sm:max-h-[calc(100dvh-8rem)] sm:max-w-160 sm:-translate-x-1/2 sm:rounded-lg sm:border sm:p-6"
       >
         <Button
           type="button"
@@ -83,12 +83,13 @@ export function SummaryPaymentDialog({ application, onClose }: Props) {
               label={t("payment.copyAmount")}
             />
           </QrDetail>
-          <div className="flex flex-col items-center gap-2 sm:col-start-2 sm:row-span-4 sm:row-start-1">
+          <div className="flex flex-col items-start gap-2 sm:col-start-2 sm:row-span-4 sm:row-start-1 sm:w-50">
             {qrImage ? (
               <img
                 src={qrImage}
                 width={200}
                 height={200}
+                className="size-40 sm:size-50"
                 alt={t("payment.qrAlt")}
               />
             ) : null}
@@ -96,6 +97,7 @@ export function SummaryPaymentDialog({ application, onClose }: Props) {
               type="button"
               variant="ghost"
               size="lg"
+              className="w-full"
               disabled={!qrImage}
               onClick={saveQr}
             >
@@ -143,7 +145,7 @@ export function SummaryPaymentDialog({ application, onClose }: Props) {
               </div>
             ))}
           </div>
-          <p className="text-sm sm:col-span-2">{t("payment.summaryQrExplanation")}</p>
+          <p className="text-base sm:col-span-2">{t("payment.summaryQrExplanation")}</p>
         </div>
       </DialogContent>
     </Dialog>
