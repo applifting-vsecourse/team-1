@@ -29,6 +29,9 @@ const gh = (...args) =>
 
 const ghJson = (...args) => JSON.parse(gh(...args) || "null")
 
+// Every page of a REST list: `--slurp` wraps the pages in one outer array.
+const ghList = (endpoint) => ghJson("api", endpoint, "--paginate", "--slurp").flat()
+
 const answerMarker = (sha) => `<!-- ai-review-answer: ${sha} -->`
 
 // REST says `chatgpt-codex-connector[bot]`, GraphQL (`gh pr view`) drops the suffix.
@@ -88,11 +91,11 @@ const inspect = (pr) => {
   if (review.has_any_findings === false) return { ...base, state: "CLEAN" }
   if (review.has_any_findings !== true) return { ...base, state: "FAILED", summary: review.status }
 
-  const reviews = ghJson("api", `repos/{owner}/{repo}/pulls/${number}/reviews?per_page=100`)
+  const reviews = ghList(`repos/{owner}/{repo}/pulls/${number}/reviews?per_page=100`)
   const findings = reviews
     .filter((r) => isBot(r.user?.login) && r.commit_id === head)
     .flatMap((r) =>
-      ghJson("api", `repos/{owner}/{repo}/pulls/${number}/reviews/${r.id}/comments?per_page=100`),
+      ghList(`repos/{owner}/{repo}/pulls/${number}/reviews/${r.id}/comments?per_page=100`),
     )
     .map(finding)
   return { ...base, state: answered ? "ANSWERED" : "REVIEWED", findings }
@@ -125,8 +128,13 @@ const wait = async (pr) => {
 
     if (result.state !== "PENDING" && result.state !== "MISSING") return report(result)
     if (result.state === "MISSING" && !asked && elapsed >= GRACE_MS) {
-      gh("pr", "comment", pr, "--body", TRIGGER)
-      asked = true
+      try {
+        gh("pr", "comment", pr, "--body", TRIGGER)
+        asked = true
+      } catch (error) {
+        // Try again on the next poll; the timeout still ends the loop with a verdict.
+        result.error = error
+      }
     }
     if (elapsed >= TIMEOUT_MS) {
       if (result.error) console.error(result.error.message)

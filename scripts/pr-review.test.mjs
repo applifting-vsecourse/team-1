@@ -16,7 +16,8 @@ const FAKE_GH = `#!/usr/bin/env bash
 case "$1 $2" in
   "pr view") [ -f "$FAKE_GH_DIR/pr.json" ] || { echo "no pull requests found" >&2; exit 1; }
              cat "$FAKE_GH_DIR/pr.json" ;;
-  "pr comment") echo "$@" >> "$FAKE_GH_DIR/comments.log" ;;
+  "pr comment") [ -z "$FAKE_GH_COMMENT_FAILS" ] || { echo "network down" >&2; exit 1; }
+                echo "$@" >> "$FAKE_GH_DIR/comments.log" ;;
   api*) case "$2" in
           */reviews/*/comments*) cat "$FAKE_GH_DIR/review-comments.json" ;;
           */reviews*) cat "$FAKE_GH_DIR/reviews.json" ;;
@@ -73,8 +74,9 @@ describe("pr-review", () => {
   beforeEach(() => {
     dir = fs.mkdtempSync(path.join(os.tmpdir(), "pr-review-"))
     fs.writeFileSync(path.join(dir, "gh"), FAKE_GH, { mode: 0o755 })
-    fs.writeFileSync(path.join(dir, "reviews.json"), JSON.stringify(REVIEWS))
-    fs.writeFileSync(path.join(dir, "review-comments.json"), JSON.stringify(REVIEW_COMMENTS))
+    // `--paginate --slurp`: one outer array of pages; the head's review is on page 2.
+    fs.writeFileSync(path.join(dir, "reviews.json"), JSON.stringify([[REVIEWS[1]], [REVIEWS[0]]]))
+    fs.writeFileSync(path.join(dir, "review-comments.json"), JSON.stringify([REVIEW_COMMENTS]))
   })
   afterEach(() => fs.rmSync(dir, { recursive: true, force: true }))
 
@@ -93,11 +95,12 @@ describe("pr-review", () => {
     ...extra,
   })
 
-  const wait = () => {
+  const wait = (extra = {}) => {
     const timing = {
       PR_REVIEW_POLL_MS: "10",
       PR_REVIEW_GRACE_MS: "50",
       PR_REVIEW_TIMEOUT_MS: "200",
+      ...extra,
     }
     return spawnSync(process.execPath, [SCRIPT, "wait", "7"], {
       env: env(timing),
@@ -173,6 +176,13 @@ describe("pr-review", () => {
       givenGithub(pr({ comments: [OLDER] }))
       assertVerdict("TIMEOUT")
       assert.deepEqual(posted(), ["pr comment 7 --body @codex review"])
+    })
+
+    it("still ends with a verdict when asking for a review fails", () => {
+      givenGithub(pr({ comments: [OLDER] }))
+      const { stdout, status } = wait({ FAKE_GH_COMMENT_FAILS: "1" })
+      assert.equal(status, 0)
+      assert.match(stdout, /^VERDICT: TIMEOUT$/m)
     })
 
     it("doesn't ask while Codex reviews the head commit", () => {
