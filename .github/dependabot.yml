@@ -1,21 +1,109 @@
-# Security updates only: `open-pull-requests-limit: 0` turns off routine version
-# bumps. Needs "Dependabot security updates" on in the repository settings.
+# Dependabot (docs/SECURITY-REPORT.md, SECURITY.md).
+#
+# Two kinds of PR:
+# - Security updates: opened as soon as an advisory hits a dependency, no schedule,
+#   no cooldown. Needs "Dependabot alerts" and "Dependabot security updates" on in
+#   the repository settings (Settings → Code security).
+# - Version updates: on the schedule below, grouped so one run means a few PRs, not
+#   dozens. `cooldown` skips releases younger than a few days (supply-chain attacks
+#   are usually caught and yanked by then); security updates ignore it.
+#
+# Dependabot PRs skip the AI review and the PR summary (they get no secrets and a
+# read-only token); CI and dependency review still run.
 version: 2
 updates:
-  - package-ecosystem: npm
+  - package-ecosystem: npm # pnpm workspace, catalogs in pnpm-workspace.yaml
     directory: /
     schedule:
       interval: weekly
-    open-pull-requests-limit: 0
+      day: monday
+      time: "06:00"
+      timezone: Europe/Prague
+    open-pull-requests-limit: 10
+    versioning-strategy: increase
+    cooldown:
+      default-days: 3
+      semver-major-days: 14
+      semver-minor-days: 7
+      semver-patch-days: 3
+    commit-message:
+      prefix: chore
+      include: scope
+    groups:
+      # All security fixes found in one run land in one PR.
+      security:
+        applies-to: security-updates
+        patterns: ["*"]
+      production:
+        applies-to: version-updates
+        dependency-type: production
+        update-types: [minor, patch]
+      development:
+        applies-to: version-updates
+        dependency-type: development
+        update-types: [minor, patch]
+      # Majors stay one PR per package, except families that must move together.
+      nestjs:
+        applies-to: version-updates
+        patterns: ["@nestjs/*"]
+        update-types: [major]
+      prisma:
+        applies-to: version-updates
+        patterns: ["prisma", "@prisma/*"]
+        update-types: [major]
+      tanstack:
+        applies-to: version-updates
+        patterns: ["@tanstack/*"]
+        update-types: [major]
+
   - package-ecosystem: docker
     directories:
       - /apps/backend
       - /apps/frontend
     schedule:
       interval: weekly
-    open-pull-requests-limit: 0
+      day: monday
+      time: "06:00"
+      timezone: Europe/Prague
+    cooldown:
+      default-days: 3
+    commit-message:
+      prefix: chore
+      include: scope
+    groups:
+      docker:
+        patterns: ["*"]
+
+  - package-ecosystem: docker-compose
+    directories:
+      - /
+      - /apps/backend
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Europe/Prague
+    cooldown:
+      default-days: 3
+    commit-message:
+      prefix: chore
+      include: scope
+    groups:
+      docker-compose:
+        patterns: ["*"]
+
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
-    open-pull-requests-limit: 0
+      day: monday
+      time: "06:00"
+      timezone: Europe/Prague
+    cooldown:
+      default-days: 3
+    commit-message:
+      prefix: chore
+      include: scope
+    groups:
+      github-actions:
+        patterns: ["*"]
