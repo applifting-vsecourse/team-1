@@ -94,10 +94,8 @@ export function SubstituteOutcome({
         </AlertDescription>
       </Alert>
       <p className="text-sm">{t("substitutes.resultCaption")}</p>
-      <section className="flex max-w-xl flex-col gap-4 rounded-lg border bg-card p-4 shadow-sm">
-        <h2 className="text-xl font-semibold">
-          {t("substitutes.resultTitle", { name, term: range })}
-        </h2>
+      <section className="flex max-w-140 flex-col gap-4 rounded-xl border bg-card p-4">
+        <h2 className="text-xl font-bold">{t("substitutes.resultTitle", { name, term: range })}</h2>
         <Badge
           variant="secondary"
           className="self-start"
@@ -121,20 +119,20 @@ export function SubstituteOutcome({
           />
           <div className="flex justify-between gap-3">
             <dt className="text-muted-foreground">{t("substitutes.remaining")}</dt>
-            <dd>{formatCzk(confirmation.priceCzk)}</dd>
+            <dd className="text-base">{formatCzk(confirmation.priceCzk)}</dd>
           </div>
         </dl>
         <div className="flex flex-col gap-2 text-sm">
-          <p className="font-medium">{t("substitutes.paymentDetails")}</p>
+          <div className="flex items-center justify-between gap-3">
+            <p className="font-medium">{t("substitutes.paymentDetails")}</p>
+            <CopyButton
+              value={confirmation.bankAccount}
+              label={t("substitutes.account")}
+            />
+          </div>
           <div className="flex items-center justify-between gap-3">
             <span className="text-muted-foreground">{t("substitutes.account")}</span>
-            <span className="flex items-center gap-1">
-              {confirmation.bankAccount}
-              <CopyButton
-                value={confirmation.bankAccount}
-                label={t("substitutes.account")}
-              />
-            </span>
+            <span>{confirmation.bankAccount}</span>
           </div>
           <div className="flex items-center justify-between gap-3">
             <span className="text-muted-foreground">{t("substitutes.variableSymbol")}</span>

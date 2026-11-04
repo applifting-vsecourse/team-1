@@ -70,7 +70,7 @@ export function SubstitutesPanel({
             className="flex flex-col gap-4 rounded-lg border bg-card p-4 shadow-sm md:flex-row md:items-start"
           >
             <div className="flex flex-col gap-2 md:w-64">
-              <p className="font-medium">
+              <p>
                 {item.firstName} {item.lastName}
               </p>
               <p className="text-sm">
@@ -86,7 +86,7 @@ export function SubstitutesPanel({
               <p>{range}</p>
               <Badge
                 variant="secondary"
-                className="bg-status-waitlist-bg text-status-waitlist"
+                className="bg-accent text-muted-foreground"
               >
                 {t("applications.waitlisted")}
               </Badge>
