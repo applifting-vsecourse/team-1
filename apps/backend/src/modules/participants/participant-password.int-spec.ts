@@ -1,5 +1,6 @@
 // US-04: a participant who entered by magic link chooses their own password.
 import { PrismaService } from "@/core/prisma/prisma.service"
+import { magicLinkIdentifier } from "@/shared/auth/magic-link/magic-link.shared"
 import { api, connectTestPrisma, resetAndSeed, signIn } from "@/test/integration/test-api"
 
 const frontend = process.env.FRONTEND_URL ?? "http://localhost:3050"
@@ -32,7 +33,7 @@ describe("participant password (integration)", () => {
       orderBy: { createdAt: "desc" },
     })
     const url = new URL(api("/auth/magic-link/verify"))
-    url.searchParams.set("token", identifier)
+    url.searchParams.set("token", identifier.replace(magicLinkIdentifier(""), ""))
     url.searchParams.set("callbackURL", `${frontend}/participant/set-password`)
     const response = await fetch(url, { redirect: "manual", headers: { Origin: frontend } })
     return response.headers

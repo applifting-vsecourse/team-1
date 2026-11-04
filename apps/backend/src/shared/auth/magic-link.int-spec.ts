@@ -1,6 +1,7 @@
 // US-01: the participant's one-time sign-in link — issued only to participant
 // accounts, valid 7 days, usable once, never creating an account.
 import { PrismaService } from "@/core/prisma/prisma.service"
+import { magicLinkIdentifier } from "@/shared/auth/magic-link/magic-link.shared"
 import { api, connectTestPrisma, resetAndSeed } from "@/test/integration/test-api"
 
 const frontend = process.env.FRONTEND_URL ?? "http://localhost:3050"
@@ -40,12 +41,12 @@ describe("magic link (integration)", () => {
       },
     })
 
-  /** The newest token in the database (stored plain). */
+  /** The newest token in the database (stored plain, after a `magic-link:` prefix). */
   const latestToken = async (): Promise<string> => {
     const row = await prisma.verification.findFirstOrThrow({
       orderBy: { createdAt: "desc" },
     })
-    return row.identifier
+    return row.identifier.replace(magicLinkIdentifier(""), "")
   }
 
   beforeAll(async () => {
@@ -110,7 +111,7 @@ describe("magic link (integration)", () => {
     await requestLink("petra@example.com")
     const token = await latestToken()
     await prisma.verification.updateMany({
-      where: { identifier: token },
+      where: { identifier: magicLinkIdentifier(token) },
       data: { expiresAt: new Date(Date.now() - 1000) },
     })
 

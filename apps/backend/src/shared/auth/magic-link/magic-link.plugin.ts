@@ -4,6 +4,7 @@ import { MagicLink, magicLinkSubject } from "@/core/email/templates/magic-link"
 import {
   MAGIC_LINK_TTL_SECONDS,
   magicLinkCapture,
+  magicLinkIdentifier,
   magicLinkLandingUrl,
   magicLinkLocale,
 } from "@/shared/auth/magic-link/magic-link.shared"
@@ -32,7 +33,7 @@ export const createMagicLinkPlugin = (
       // answer as a participant (no way to probe which e-mails exist), the
       // token is dropped and nothing is sent.
       if (user?.accountType !== "PARTICIPANT") {
-        await adapter?.deleteVerificationByIdentifier(token)
+        await adapter?.deleteVerificationByIdentifier(magicLinkIdentifier(token))
         magicLinkCapture.publish(requestId, null)
         return
       }

@@ -5,6 +5,9 @@ import { Locale, toLocale } from "@/core/email/locale"
 /** Magic links are valid for 7 days (docs/PROJEKT.md, section 9). */
 export const MAGIC_LINK_TTL_SECONDS = 7 * 24 * 60 * 60
 
+/** `verification.identifier` of a magic-link token (better-auth ≥ 1.7.7 prefixes the plain token). */
+export const magicLinkIdentifier = (token: string): string => `magic-link:${token}`
+
 /**
  * Hands the link to whoever asked for it instead of e-mailing it: the
  * confirmation e-mail (US-56) embeds the link itself. `null` means "no link
