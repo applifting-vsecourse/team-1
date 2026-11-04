@@ -8,8 +8,8 @@
 #   dozens. `cooldown` skips releases younger than a few days (supply-chain attacks
 #   are usually caught and yanked by then); security updates ignore it.
 #
-# Dependabot PRs skip the AI review and the PR summary (they get no secrets and a
-# read-only token); CI and dependency review still run.
+# Dependabot PRs skip the PR summary (they get a read-only token); CI and
+# dependency review still run.
 version: 2
 updates:
   - package-ecosystem: npm # pnpm workspace, catalogs in pnpm-workspace.yaml
