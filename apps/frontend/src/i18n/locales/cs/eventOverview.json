@@ -290,7 +290,7 @@
     "freeShared_other": "{{count}} volných lůžek",
     "groupFemale": "Ženy",
     "groupMale": "Muži",
-    "hint": "Zobrazení náhradníci odpovídají skupině volného lůžka.",
+    "groupShared": "Společné pokoje",
     "list": "Vhodní náhradníci",
     "refresh": "Zobrazit aktuální náhradníky",
     "taken": "Lůžko mezitím obsadil jiný organizátor.",

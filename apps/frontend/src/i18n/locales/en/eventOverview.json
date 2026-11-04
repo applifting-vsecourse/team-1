@@ -290,7 +290,7 @@
     "freeShared_other": "{{count}} free beds",
     "groupFemale": "Women",
     "groupMale": "Men",
-    "hint": "The substitutes shown match the group of the free bed.",
+    "groupShared": "Shared rooms",
     "list": "Suitable substitutes",
     "refresh": "Show current substitutes",
     "taken": "The bed has meanwhile been taken by another organizer.",

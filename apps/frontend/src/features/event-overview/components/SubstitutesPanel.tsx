@@ -1,6 +1,5 @@
 import { useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import type { TFunction } from "i18next"
 import { useTranslation } from "react-i18next"
 
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -34,17 +33,6 @@ type BedKind = "Male" | "Female" | "Shared"
 const bedKind = (list: SubstituteList, gender: Substitute["gender"]): BedKind =>
   list.roomMode === "SHARED" ? "Shared" : gender === "MALE" ? "Male" : "Female"
 
-/** Free beds of the term as the Figma context line says it: per gender, or the one common pool. */
-function freeBedsLabel(list: SubstituteList, t: TFunction<"eventOverview">): string {
-  if (list.roomMode === "SHARED") return t("substitutes.freeShared", { count: list.freeBeds.MALE })
-  return [
-    list.freeBeds.MALE > 0 && t("substitutes.freeMale", { count: list.freeBeds.MALE }),
-    list.freeBeds.FEMALE > 0 && t("substitutes.freeFemale", { count: list.freeBeds.FEMALE }),
-  ]
-    .filter(Boolean)
-    .join(" · ")
-}
-
 // Figma (Design system): US-104 Přihlášky · Vhodní náhradníci · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15780-5459 (mobile 15780-5571)
 // Shown above the waitlist of one term when a bed is free and the event is evaluated by hand.
 // The list looks like the applications list (table, cards on mobile), without its filters.
@@ -65,31 +53,40 @@ export function SubstitutesPanel({
   const list = query.data
   if (!list || list.evaluationMode !== "MANUAL" || list.items.length === 0) return null
   const range = formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })
-  // Men and women wait for different beds, so they are listed apart; shared rooms have one queue.
+  // Men and women wait for different beds, so each queue is a card of its own; shared rooms have
+  // one queue.
   const groups =
     list.roomMode === "SHARED"
-      ? [{ key: "shared", title: null, items: list.items }]
+      ? [
+          {
+            key: "shared",
+            title: t("substitutes.groupShared"),
+            freeBeds: t("substitutes.freeShared", { count: list.freeBeds.MALE }),
+            items: list.items,
+          },
+        ]
       : (["MALE", "FEMALE"] as const)
           .map((gender) => ({
             key: gender,
             title: t(gender === "MALE" ? "substitutes.groupMale" : "substitutes.groupFemale"),
+            freeBeds:
+              gender === "MALE"
+                ? t("substitutes.freeMale", { count: list.freeBeds.MALE })
+                : t("substitutes.freeFemale", { count: list.freeBeds.FEMALE }),
             items: list.items.filter((item) => item.gender === gender),
           }))
           .filter((group) => group.items.length > 0)
   return (
-    <section
+    <div
+      role="region"
       aria-label={t("substitutes.list")}
-      className="flex flex-col gap-4 rounded-lg border bg-card p-4 shadow-sm md:p-6"
+      className="flex flex-col gap-4"
     >
-      <p>
-        {range} · {freeBedsLabel(list, t)}
-      </p>
-      <p className="text-sm text-muted-foreground">{t("substitutes.hint")}</p>
-      <p className="text-sm text-muted-foreground">{t("applications.sortQueue")}</p>
       {groups.map((group) => (
         <SubstituteGroup
           key={group.key}
           title={group.title}
+          freeBeds={group.freeBeds}
           items={group.items}
           range={range}
           onChoose={setChosen}
@@ -112,7 +109,7 @@ export function SubstitutesPanel({
           }}
         />
       )}
-    </section>
+    </div>
   )
 }
 
@@ -121,19 +118,32 @@ const label = (item: Substitute) => `${item.firstName} ${item.lastName}`
 /** One queue of substitutes: a table on desktop, a list on mobile, in order of receipt. */
 function SubstituteGroup({
   title,
+  freeBeds,
   items,
   range,
   onChoose,
 }: {
-  title: string | null
+  title: string
+  freeBeds: string
   items: Substitute[]
   range: string
   onChoose: (item: Substitute) => void
 }) {
   const { t } = useTranslation("eventOverview")
   return (
-    <div className="flex flex-col gap-2">
-      {title && <h3 className="text-base font-semibold">{title}</h3>}
+    <section
+      aria-label={title}
+      className="flex flex-col gap-4 rounded-lg border bg-card p-4 shadow-sm md:p-6"
+    >
+      <div className="flex flex-wrap justify-between gap-2">
+        <div>
+          <h2 className="text-lg font-semibold">{title}</h2>
+          <p className="text-sm text-muted-foreground">
+            {range} · {freeBeds}
+          </p>
+        </div>
+        <p className="text-sm text-muted-foreground">{t("applications.sortQueue")}</p>
+      </div>
       <div className="hidden md:block">
         <Table>
           <TableHeader>
@@ -187,11 +197,11 @@ function SubstituteGroup({
           </li>
         ))}
       </ul>
-    </div>
+    </section>
   )
 }
 
-/** A row action: `outline`, since the one primary button of the view is the dialog's. */
+/** The row action in the brand green (the kit's primary), as asked for in the review. */
 function ConfirmButton({
   item,
   onChoose,
@@ -202,7 +212,6 @@ function ConfirmButton({
   const { t } = useTranslation("eventOverview")
   return (
     <Button
-      variant="outline"
       aria-label={`${t("substitutes.confirm")}: ${label(item)}`}
       onClick={() => onChoose(item)}
     >
