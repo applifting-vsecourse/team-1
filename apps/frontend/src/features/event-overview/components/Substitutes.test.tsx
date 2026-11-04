@@ -88,6 +88,8 @@ describe("suitable substitutes (US-104)", () => {
         items: [item("a1", "Adam", 1), { ...item("a3", "Jana", 1), gender: "FEMALE" }],
       }),
     )
+    expect(await screen.findByText("A bed has been freed")).toBeInTheDocument()
+    expect(screen.getAllByRole("heading", { level: 2 })).toHaveLength(1)
     const men = await screen.findByRole("region", { name: "Men" })
     const women = screen.getByRole("region", { name: "Women" })
     expect(within(men).getByText(/1 free men's bed/)).toBeInTheDocument()

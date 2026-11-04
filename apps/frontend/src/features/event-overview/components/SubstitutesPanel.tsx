@@ -77,11 +77,14 @@ export function SubstitutesPanel({
           }))
           .filter((group) => group.items.length > 0)
   return (
-    <div
-      role="region"
+    <section
       aria-label={t("substitutes.list")}
-      className="flex flex-col gap-4"
+      className="flex flex-col gap-6 rounded-lg border bg-card p-4 shadow-sm md:p-6"
     >
+      <div className="flex flex-col gap-1">
+        <h2 className="text-lg font-semibold">{t("substitutes.title")}</h2>
+        <p className="text-sm text-muted-foreground">{t("substitutes.intro")}</p>
+      </div>
       {groups.map((group) => (
         <SubstituteGroup
           key={group.key}
@@ -109,7 +112,7 @@ export function SubstitutesPanel({
           }}
         />
       )}
-    </div>
+    </section>
   )
 }
 
@@ -133,11 +136,11 @@ function SubstituteGroup({
   return (
     <section
       aria-label={title}
-      className="flex flex-col gap-4 rounded-lg border bg-card p-4 shadow-sm md:p-6"
+      className="flex flex-col gap-4"
     >
       <div className="flex flex-wrap justify-between gap-2">
         <div>
-          <h2 className="text-lg font-semibold">{title}</h2>
+          <h3 className="text-base font-semibold">{title}</h3>
           <p className="text-sm text-muted-foreground">
             {range} · {freeBeds}
           </p>

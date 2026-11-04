@@ -291,10 +291,12 @@
     "groupFemale": "Women",
     "groupMale": "Men",
     "groupShared": "Shared rooms",
+    "intro": "These substitutes are waiting for the free bed, in the order their applications came in. You can confirm one of them.",
     "list": "Suitable substitutes",
     "refresh": "Show current substitutes",
     "taken": "The bed has meanwhile been taken by another organizer.",
-    "takenHint": "{{name}} stays a substitute. The capacity is not exceeded."
+    "takenHint": "{{name}} stays a substitute. The capacity is not exceeded.",
+    "title": "A bed has been freed"
   },
   "termStatus": {
     "action": {

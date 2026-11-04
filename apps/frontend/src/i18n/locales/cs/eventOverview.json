@@ -291,10 +291,12 @@
     "groupFemale": "Ženy",
     "groupMale": "Muži",
     "groupShared": "Společné pokoje",
+    "intro": "Tito náhradníci čekají na uvolněné lůžko, jsou v pořadí, v jakém přišly jejich přihlášky. Jednoho z nich můžete potvrdit.",
     "list": "Vhodní náhradníci",
     "refresh": "Zobrazit aktuální náhradníky",
     "taken": "Lůžko mezitím obsadil jiný organizátor.",
-    "takenHint": "{{name}} zůstává náhradníkem. Kapacita se nepřekročí."
+    "takenHint": "{{name}} zůstává náhradníkem. Kapacita se nepřekročí.",
+    "title": "Uvolnilo se místo"
   },
   "termStatus": {
     "action": {
