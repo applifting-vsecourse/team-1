@@ -6,15 +6,16 @@ import {
   createRouter,
   RouterProvider,
 } from "@tanstack/react-router"
-import { render, screen } from "@testing-library/react"
+import { render, screen, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import type { MyApplication } from "@/features/participant/api/applications"
 import { ApplicationDetail } from "@/features/participant/components/ApplicationDetail"
 
-const { get } = vi.hoisted(() => ({ get: vi.fn() }))
+const { get, toDataURL } = vi.hoisted(() => ({ get: vi.fn(), toDataURL: vi.fn() }))
 vi.mock("@/lib/api-client", () => ({ api: { get } }))
+vi.mock("qrcode", () => ({ default: { toDataURL } }))
 
 const confirmed = {
   termId: "t1",
@@ -98,7 +99,11 @@ describe("ApplicationDetail", () => {
     expect(write).toHaveBeenLastCalledWith("48000")
   })
 
-  beforeEach(() => get.mockReset())
+  beforeEach(() => {
+    get.mockReset()
+    toDataURL.mockReset()
+    toDataURL.mockResolvedValue("data:image/png;base64,AAAA")
+  })
 
   it("shows what is due, what is paid, what is left and where to send it", async () => {
     renderDetail(application())
@@ -284,5 +289,67 @@ describe("ApplicationDetail", () => {
       expect.stringMatching(/ 0$/),
       expect.stringMatching(/4.900/),
     ])
+  })
+
+  it("offers one QR with the current total debt and summary symbol for both confirmed terms", async () => {
+    const second = { ...waitlisted, status: "CONFIRMED" as const }
+    renderDetail(
+      application({
+        terms: [confirmed, second],
+        amountDueCzk: 9400,
+        amountPaidCzk: 8200,
+        amountOwedCzk: 1200,
+        paymentDetails: {
+          bankAccount: "2900123456/2010",
+          summary: { variableSymbol: "48000", payableCzk: 1200 },
+          terms: [
+            {
+              termId: "t1",
+              termNumber: 1,
+              variableSymbol: "48001",
+              dueCzk: 4500,
+              paidCzk: 4000,
+              owedCzk: 500,
+              paymentStatus: "PARTIALLY_PAID",
+            },
+            {
+              termId: "t2",
+              termNumber: 2,
+              variableSymbol: "48002",
+              dueCzk: 4900,
+              paidCzk: 4200,
+              owedCzk: 700,
+              paymentStatus: "PARTIALLY_PAID",
+            },
+          ],
+        },
+      }),
+    )
+    const user = userEvent.setup()
+    await user.click(
+      await screen.findByRole("button", { name: "One payment for both terms · show QR" }),
+    )
+    const dialog = screen.getByRole("dialog")
+    expect(within(dialog).getByText("Summary variable symbol")).toBeInTheDocument()
+    expect(within(dialog).getByText("48000")).toBeInTheDocument()
+    expect(
+      within(dialog).getByText(
+        (_, element) =>
+          element?.tagName === "P" && /4–10 Jul 2027.*500/.test(element.textContent ?? ""),
+      ),
+    ).toBeInTheDocument()
+    expect(
+      within(dialog).getByText(
+        (_, element) =>
+          element?.tagName === "P" && /11–17 Jul 2027.*700/.test(element.textContent ?? ""),
+      ),
+    ).toBeInTheDocument()
+    expect(toDataURL).toHaveBeenCalledWith(
+      expect.stringMatching(/^SPD\*1\.0\*ACC:CZ\d{22}\*AM:1200\.00\*CC:CZK\*X-VS:48000$/),
+      { width: 200, margin: 2 },
+    )
+    expect(
+      await within(dialog).findByRole("img", { name: "QR code for the combined payment" }),
+    ).toHaveAttribute("src", "data:image/png;base64,AAAA")
   })
 })

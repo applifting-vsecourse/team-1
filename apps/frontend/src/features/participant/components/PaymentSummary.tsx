@@ -1,15 +1,18 @@
-import type { ReactNode } from "react"
+import { useState, type ReactNode } from "react"
 import { useTranslation } from "react-i18next"
 
 import { CopyButton } from "@/components/atoms/CopyButton"
 import { MoneyAmount } from "@/components/atoms/MoneyAmount"
+import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { termLine } from "@/lib/term-label"
 import { cn } from "@/lib/utils"
 
 import type { MyApplication } from "@/features/participant/api/applications"
+import { SummaryPaymentDialog } from "@/features/participant/components/SummaryPaymentDialog"
 import { PaymentStatusBadge } from "@/features/participant/components/TermSummary"
 import { termRange } from "@/features/participant/lib/format"
+import { summaryPaymentSpayd } from "@/features/participant/lib/payment-qr"
 
 type PaymentSummaryProps = {
   application: MyApplication
@@ -21,6 +24,7 @@ type PaymentSummaryProps = {
 // Figma (Design system): U04q Moje přihláška, jeden potvrzený termín · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16186-2
 export function PaymentSummary({ application }: PaymentSummaryProps) {
   const { t } = useTranslation(["participant", "common"])
+  const [isSummaryOpen, setIsSummaryOpen] = useState(false)
   const { paymentDetails, amountDueCzk, amountPaidCzk, amountOwedCzk } = application
   if (!paymentDetails) return null
 
@@ -31,6 +35,13 @@ export function PaymentSummary({ application }: PaymentSummaryProps) {
   const waitlisted = application.terms.filter((term) => term.status === "WAITLISTED")
   // With several confirmed terms the application can be paid as a whole or one term at a time.
   const termPayments = paymentDetails.terms.length > 1 ? paymentDetails.terms : []
+  const canShowSummaryQr =
+    termPayments.length > 0 &&
+    summaryPaymentSpayd(
+      paymentDetails.bankAccount,
+      paymentDetails.summary.payableCzk,
+      paymentDetails.summary.variableSymbol,
+    ) !== null
   const note = [
     isPayable ? t("payment.note") : null,
     termPayments.length > 0 ? t("payment.chooseSymbol") : null,
@@ -83,8 +94,21 @@ export function PaymentSummary({ application }: PaymentSummaryProps) {
             variableSymbol={paymentDetails.summary.variableSymbol}
             toPayCzk={paymentDetails.summary.payableCzk}
             isToPayShown={termPayments.length > 0 || isPayable}
+            isSummary
           />
         </dl>
+        {canShowSummaryQr ? (
+          <Button
+            type="button"
+            size="lg"
+            className="mt-4 w-full sm:w-auto"
+            onClick={() => setIsSummaryOpen(true)}
+          >
+            {t(
+              termPayments.length === 2 ? "payment.showSummaryQrTwo" : "payment.showSummaryQrMany",
+            )}
+          </Button>
+        ) : null}
         {termPayments.map((payment) => {
           const term = application.terms.find(({ termId }) => termId === payment.termId)
           return (
@@ -104,6 +128,12 @@ export function PaymentSummary({ application }: PaymentSummaryProps) {
         })}
         {note ? <p className="pt-4 text-sm text-muted-foreground">{note}</p> : null}
       </Card>
+      {isSummaryOpen ? (
+        <SummaryPaymentDialog
+          application={application}
+          onClose={() => setIsSummaryOpen(false)}
+        />
+      ) : null}
     </section>
   )
 }
@@ -141,15 +171,17 @@ function VariableSymbolRows({
   variableSymbol,
   toPayCzk,
   isToPayShown,
+  isSummary = false,
 }: {
   variableSymbol: string
   toPayCzk: number
   isToPayShown: boolean
+  isSummary?: boolean
 }) {
   const { t } = useTranslation(["participant", "common"])
   return (
     <>
-      <Detail label={t("payment.variableSymbol")}>
+      <Detail label={t(isSummary ? "payment.summaryVariableSymbol" : "payment.variableSymbol")}>
         <span className="break-all">{variableSymbol}</span>
         <CopyButton
           value={variableSymbol}

@@ -419,6 +419,22 @@ describe("organizer payments (US-44)", () => {
       expect(new Set(rows.map((row) => row.receiptId)).size).toBe(1)
     })
 
+    it("marks both confirmed terms paid after one exact summary payment", async () => {
+      await confirmSecondTerm()
+      expect((await pay({ amountCzk: 16800 })).status).toBe(204)
+      const result = await summary()
+      expect(result.payments).toHaveLength(1)
+      expect(result.payments[0].rows.map((row) => [row.termId, row.amountCzk])).toEqual([
+        [termIds[0], 6900],
+        [termIds[1], 9900],
+      ])
+      expect(result.terms.map((term) => [term.paymentStatus, term.owedCzk])).toEqual([
+        ["PAID", 0],
+        ["PAID", 0],
+      ])
+      expect(result.payableCzk).toBe(0)
+    })
+
     it("leaves a shortfall on the later term and an overpayment on the last confirmed one", async () => {
       await confirmSecondTerm()
       await pay({ amountCzk: 7000 })
