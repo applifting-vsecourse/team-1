@@ -1,19 +1,19 @@
 #!/usr/bin/env bash
 # AI review of the current branch against origin/main, using the shared
 # `reviewer` agent (.claude/agents/reviewer.md) and the issues the PR closes.
-# Runs on the Pi runner (.github/workflows/ai-review.yml) or by hand (`pnpm ai-review`).
+# Runs by hand (`pnpm ai-review`); the review of every PR is Codex (AGENTS.md).
 # Exits 1 only when the agent reports a BLOCKER; every other failure (no CLI,
 # no network, timeout) warns and exits 0 — CI is the hard gate.
 #
 #   scripts/ai-review.sh [base]       base defaults to origin/main
 #
 # Env:
-#   AI_REVIEW_MODEL      model alias (default: sonnet; the Pi runner uses haiku)
+#   AI_REVIEW_MODEL      model alias (default: sonnet)
 #   AI_REVIEW_BUDGET     max USD per run for API-key users (default: 0.50)
 #   AI_REVIEW_MAX_BYTES  diff size cap (default: 150000); bigger diffs are cut
 #   AI_REVIEW_PR         PR number (default: the PR of the current branch)
-#   AI_REVIEW_SETTING_SOURCES  e.g. `user` on the Pi, so a PR's .claude/ settings
-#                        (hooks, MCP) are not loaded on the shared runner
+#   AI_REVIEW_SETTING_SOURCES  e.g. `user`, so the branch's .claude/ settings
+#                        (hooks, MCP) are not loaded
 set -uo pipefail
 
 if [ -n "${CI:-}" ]; then

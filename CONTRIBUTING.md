@@ -16,7 +16,7 @@ S agentem stačí `/story <číslo issue>` na začátku a `/story <číslo issue
 3. **Implementuj vertikálně, jeden PR na featuru** — backend, frontend i testy v jedné větvi a v jednom PR, který story pokryje celou a je s ní propojený (`Closes #23`). Merge issue zavře a board ho přesune do In Business Review; do Done ho přesouvá product manager po ověření na stagingu. Story nedělíme na backend a frontend PR ani na „část 1/2“. Míř na cca 400 řádků kódu a 20 souborů (bez testů, migrací, lockfilu a generovaných souborů); když je featura větší, nech ji v jednom PR a v popisu napiš proč. S ostatními se domlouvej ad hoc (viz [PROJEKT.md, sekce 11](docs/PROJEKT.md#11-pracovní-postup)).
 4. **Commity** piš anglicky, krátce a v rozkazovacím způsobu: `Add room capacity validation`.
 5. **Push** — pre-push hook sám pustí rychlé kontroly (viz [Hooky a AI review](#hooky-a-ai-review)). Před otevřením PR je dobré pustit i `pnpm check-all` (totéž, co CI, včetně integračních testů).
-6. **Otevři PR** do `main` jako draft (`gh pr create --draft`). Až je hotový, přepni ho na Ready for review (`gh pr ready`); AI review běží až potom, takže proběhne nad hotovou prací:
+6. **Otevři PR** do `main` jako draft (`gh pr create --draft`). Až je hotový, přepni ho na Ready for review (`gh pr ready`); Codex review běží až potom, takže proběhne nad hotovou prací:
    - název = název story: `US-23 Přihláška přes odkaz` (stane se z něj commit na `main`),
    - Splněná akceptační kritéria (✅ v PR) odškrtni v issue na boardu při otevření PR i při každé jeho úpravě; ❌ a ❓ nech neodškrtnuté,
    - PR k ticketu začíná řádkem `Closes #23`, jinak se s ním v GitHubu nepropojí (`Refs` nestačí); víc ticketů = víc řádků,
@@ -36,21 +36,20 @@ S agentem stačí `/story <číslo issue>` na začátku a `/story <číslo issue
 
 ## Hooky a AI review
 
-| Hook         | Co dělá                                                                                                                          |
-| ------------ | -------------------------------------------------------------------------------------------------------------------------------- |
-| `pre-commit` | Prettier + ESLint na změněné soubory (lint-staged).                                                                              |
-| `pre-push`   | `pnpm check-fast` (lint, type-check, unit testy BE i FE — bez Dockeru). AI review běží na PR, integrační testy a build hlídá CI. |
+| Hook         | Co dělá                                                                                                                                |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `pre-commit` | Prettier + ESLint na změněné soubory (lint-staged).                                                                                    |
+| `pre-push`   | `pnpm check-fast` (lint, type-check, unit testy BE i FE — bez Dockeru). AI review dělá Codex na PR, integrační testy a build hlídá CI. |
 
-**AI review** (`scripts/ai-review.sh`) běží na Raspberry Pi nad PR, který není draft (viz [Raspberry Pi runner](#raspberry-pi-runner)). Pošle diff větve proti `origin/main` a text issue z `Closes` agentovi `reviewer` ([`.claude/agents/reviewer.md`](.claude/agents/reviewer.md)), který ho porovná s pravidly projektu a s akceptačními kritérii. Nálezy jsou `BLOCKER`, `WARNING` a `NOTE`; **`BLOCKER` shodí job `review`**, merge ale sám nezastaví, povinné jsou `verify` a `e2e`. Lokální běh ukládá celý výstup do `.git/ai-review-last.txt`.
+**AI review** dělá u každého PR, který není draft, **Codex** z ChatGPT (GitHub aplikace `chatgpt-codex-connector`, viz [Codex code review](#codex-code-review)). Pravidla bere přes [`AGENTS.md`](AGENTS.md) z agenta `reviewer` ([`.claude/agents/reviewer.md`](.claude/agents/reviewer.md)): co je tam `BLOCKER`, hlásí jako **P0**, `WARNING` jako **P1**, a píše česky jako review komentáře přímo u řádků. Review není povinný check, tvrdá brána je CI (`verify` a `e2e`).
 
-- Když review nedoběhne (síť, limit), napíše to do komentáře v PR. Tvrdá brána je CI.
+- Znovu spustíš komentářem `@codex review` v PR (i se zaměřením: `@codex review migrace`).
 - Přeskočit pre-push kontroly: `git push --no-verify` (jen výjimečně).
-- Model a strop: `AI_REVIEW_MODEL` (výchozí `sonnet`), `AI_REVIEW_BUDGET` (výchozí 0,50 USD na běh, platí pro API klíč).
-- Ručně kdykoli: `pnpm ai-review`, v Claude Code `@reviewer`.
-- Na každý nález z posledního review odpovídá autor PR (i agent) novým komentářem v PR: `opraveno v <commit>`, nebo `neopravuji — <důvod>`. Komentář review se při pushi přepisuje, takže odpověď musí stát zvlášť.
-- Agent po pushi počká na review daného commitu přes `node scripts/pr-review.mjs wait <pr>` a odpověď začne řádkem `<!-- ai-review-answer: <sha> -->` (7 znaků commitu z review). Stop hook v `.claude/settings.json` ho jednou zastaví, když review ještě běží nebo nálezy nemají odpověď. Bez `gh` nebo bez PR na větvi hook nic nedělá.
+- Lokálně kdykoli přes Claude Code: `pnpm ai-review` (`scripts/ai-review.sh`, výstup v `.git/ai-review-last.txt`; `AI_REVIEW_MODEL`, výchozí `sonnet`) nebo `@reviewer`.
+- Na každý nález z posledního review odpovídá autor PR (i agent) novým komentářem v PR: `opraveno v <commit>`, nebo `neopravuji — <důvod>`.
+- Agent po pushi počká na review daného commitu přes `node scripts/pr-review.mjs wait <pr>` (Codex sám reviewuje jen při otevření PR a při „Ready for review“, ne po pushi; když u aktuálního commitu do minuty nezačne, skript o review požádá komentářem `@codex review`) a odpověď začne řádkem `<!-- ai-review-answer: <sha> -->` (7 znaků reviewovaného commitu). Stop hook v `.claude/settings.json` ho jednou zastaví, když review ještě běží nebo nálezy nemají odpověď. Bez `gh` nebo bez PR na větvi hook nic nedělá.
 
-**Pravidla review se mění jen v `.claude/agents/reviewer.md`**, ne v hooku ani ve workflow — stejný agent běží lokálně i na Raspberry Pi. Hlásí-li nesmysly nebo něco přehlíží, oprav agenta v PR.
+**Pravidla review se mění jen v `.claude/agents/reviewer.md`**, ne v `AGENTS.md`, hooku ani workflow — Codex i lokální `@reviewer` čtou tentýž seznam. Hlásí-li nesmysly nebo něco přehlíží, oprav agenta v PR.
 
 ## Souhrn změn v PR
 
@@ -78,23 +77,16 @@ Pravidla:
 - Sdílené soubory měň jen v rozsahu své story a v PR na to upozorni ([PROJEKT.md, sekce 11](docs/PROJEKT.md#11-pracovní-postup)). Dva paralelní PR, které mění tentýž sdílený soubor, jsou nejčastější zdroj konfliktů.
 - Migrace: pořád max. jedna na PR a rebase před merge (viz níže). Každý slot má vlastní DB, takže migrace z jedné větve nerozbije jinou.
 
-## Raspberry Pi runner
+## Codex code review
 
-Workflow [`.github/workflows/ai-review.yml`](.github/workflows/ai-review.yml) pustí review při každém pushi do PR (draft PR až po „Ready for review“) a výsledek drží v jednom českém komentáři (nálezy v tabulkách s odkazy na řádky, formát v `scripts/ai-review-comment.sh`), který se s každým pushem přepíše. Novější push zruší rozběhnuté review téhož PR. Znovu ho jde spustit komentářem `/ai-review` v PR (jen pro uživatele v proměnné `AI_REVIEW_ADMIN`, výchozí `kudrle01`; ostatním se komentář ignoruje) nebo ručně (Actions → AI review → Run workflow, číslo PR). Běží na self-hostovaném runneru s labelem `pi`, se stejným agentem `reviewer`, ale levně:
+Review běží v cloudu OpenAI a čerpá limity předplatného ChatGPT toho, kdo ho v Codexu zapnul. Žádný runner, secret ani API klíč v repu není. Zprovoznění:
 
-- model `haiku` (proměnná `AI_REVIEW_MODEL`), strop `AI_REVIEW_BUDGET` (výchozí 0,10 USD) na jeden push, diff oříznutý na 60 kB (komentář na to upozorní),
-- skript a agent se berou z `main`, ne z PR, a projektová nastavení Claude (`.claude/` z PR) se nenačítají — PR si nemůže přepsat vlastního reviewera ani spustit kód přes hooky,
-- PR z forků na Pi nikdy nedojdou. Samotný soubor workflow se ale u `pull_request` bere z větve PR — kdo má do repa zápis, může na Pi spustit vlastní kód. Pi proto drž na samostatném uživateli bez dalších přístupů.
+1. Vlastník organizace `applifting-vsecourse` schválí GitHub aplikaci ChatGPT (Codex) pro repozitář `team-1` (GitHub → organizace → Settings → GitHub Apps / žádost o instalaci).
+2. Na [chatgpt.com/codex](https://chatgpt.com/codex) propoj GitHub a vyber repozitář `team-1`.
+3. V nastavení Codexu u repozitáře zapni **Code review → Automatic review** (potřebuje práva push/admin k repu).
+4. Ověření: v libovolném PR, který není draft, napiš `@codex review`. Codex dá 👀, založí v PR komentář „Codex Review Summary“ se stavem a pošle review s nálezy u řádků (bez nálezů dá 👍). Stav review (commit, běží/hotovo, nálezy) čte `pr-review.mjs` ze skrytého řádku `codex-review-state` v tom komentáři.
 
-Runner `togena-pi` (Raspberry Pi 3B) je zaregistrovaný. Zprovoznění od nuly:
-
-1. Raspberry Pi OS Lite (64-bit) přes Raspberry Pi Imager se zapnutým SSH. Swap aspoň 1 GB (`free -h`). Nainstaluj `git`, `curl` a `gh` (apt repozitář z cli.github.com). Node ani pnpm nejsou potřeba.
-2. Samostatný uživatel bez sudo (`sudo adduser --disabled-password runner`), pod ním Claude Code (`curl -fsSL https://claude.ai/install.sh | bash`, `~/.local/bin` do `PATH`). Na Pi se do Claude nepřihlašuje, účet dodá secret z kroku 3.
-3. Až potom runner: Repo → Settings → Actions → Runners → New self-hosted runner (Linux, ARM64), `./config.sh … --labels pi --unattended` jako `runner` (runner si při konfiguraci uloží `PATH`, takže `claude` už musí být nainstalovaný). Službu, která se spouští i po restartu, nainstaluje admin: `sudo ./svc.sh install runner && sudo ./svc.sh start`.
-4. Repo → Settings → Secrets: `CLAUDE_CODE_OAUTH_TOKEN` — na libovolném počítači `claude setup-token` (předplatné Claude Pro/Max), výstup vlož jako secret. Review čerpá limity předplatného; když dojdou, review do dalšího okna neproběhne. API klíč se záměrně nepoužívá, aby se nic neplatilo navíc. V claude.ai → Settings → Usage nech vypnuté „extra usage“.
-5. Repo → Settings → Variables: `AI_REVIEW_ENABLED=true`, `AI_REVIEW_MODEL=sonnet`, `AI_REVIEW_BUDGET=0.50` (strop na jedno review; výchozí `haiku` a `0.10` jsou laděné na API klíč), volitelně `AI_REVIEW_ADMIN`.
-
-Dokud `AI_REVIEW_ENABLED` není `true`, workflow se přeskočí.
+Když dojdou limity předplatného, review do dalšího okna neproběhne; `pr-review.mjs` pak skončí `FAILED` nebo `TIMEOUT`. Nastavení Codexu pro repo: [chatgpt.com/codex/cloud/settings/general](https://chatgpt.com/codex/cloud/settings/general).
 
 ## Pravidla `main`
 
