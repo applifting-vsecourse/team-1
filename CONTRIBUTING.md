@@ -45,7 +45,7 @@ S agentem stačí `/story <číslo issue>` na začátku a `/story <číslo issue
 
 - Když review nedoběhne (síť, limit), napíše to do komentáře v PR. Tvrdá brána je CI.
 - Přeskočit pre-push kontroly: `git push --no-verify` (jen výjimečně).
-- Model a strop: `AI_REVIEW_MODEL` (výchozí `sonnet`), `AI_REVIEW_BUDGET` (výchozí 0,50 USD na běh, platí pro API klíč).
+- Lokálně běží přes Claude Code: `AI_REVIEW_MODEL` (výchozí `sonnet`), `AI_REVIEW_BUDGET` (výchozí 0,50 USD na běh, platí pro API klíč). `AI_REVIEW_ENGINE=codex` pustí review přes Codex CLI jako na Pi.
 - Ručně kdykoli: `pnpm ai-review`, v Claude Code `@reviewer`.
 - Na každý nález z posledního review odpovídá autor PR (i agent) novým komentářem v PR: `opraveno v <commit>`, nebo `neopravuji — <důvod>`. Komentář review se při pushi přepisuje, takže odpověď musí stát zvlášť.
 - Agent po pushi počká na review daného commitu přes `node scripts/pr-review.mjs wait <pr>` a odpověď začne řádkem `<!-- ai-review-answer: <sha> -->` (7 znaků commitu z review). Stop hook v `.claude/settings.json` ho jednou zastaví, když review ještě běží nebo nálezy nemají odpověď. Bez `gh` nebo bez PR na větvi hook nic nedělá.
@@ -80,19 +80,22 @@ Pravidla:
 
 ## Raspberry Pi runner
 
-Workflow [`.github/workflows/ai-review.yml`](.github/workflows/ai-review.yml) pustí review při každém pushi do PR (draft PR až po „Ready for review“) a výsledek drží v jednom českém komentáři (nálezy v tabulkách s odkazy na řádky, formát v `scripts/ai-review-comment.sh`), který se s každým pushem přepíše. Novější push zruší rozběhnuté review téhož PR. Znovu ho jde spustit komentářem `/ai-review` v PR (jen pro uživatele v proměnné `AI_REVIEW_ADMIN`, výchozí `kudrle01`; ostatním se komentář ignoruje) nebo ručně (Actions → AI review → Run workflow, číslo PR). Běží na self-hostovaném runneru s labelem `pi`, se stejným agentem `reviewer`, ale levně:
+Workflow [`.github/workflows/ai-review.yml`](.github/workflows/ai-review.yml) pustí review při každém pushi do PR (draft PR až po „Ready for review“) a výsledek drží v jednom českém komentáři (nálezy v tabulkách s odkazy na řádky, formát v `scripts/ai-review-comment.sh`), který se s každým pushem přepíše. Novější push zruší rozběhnuté review téhož PR. Znovu ho jde spustit komentářem `/ai-review` v PR (jen pro uživatele v proměnné `AI_REVIEW_ADMIN`, výchozí `kudrle01`; ostatním se komentář ignoruje) nebo ručně (Actions → AI review → Run workflow, číslo PR). Běží na self-hostovaném runneru s labelem `pi`, se stejným promptem agenta `reviewer`, ale přes **ChatGPT (OpenAI Codex CLI)** místo Claude, aby nečerpalo Claude předplatné:
 
-- model `haiku` (proměnná `AI_REVIEW_MODEL`), strop `AI_REVIEW_BUDGET` (výchozí 0,10 USD) na jeden push, diff oříznutý na 60 kB (komentář na to upozorní),
-- skript a agent se berou z `main`, ne z PR, a projektová nastavení Claude (`.claude/` z PR) se nenačítají — PR si nemůže přepsat vlastního reviewera ani spustit kód přes hooky,
-- PR z forků na Pi nikdy nedojdou. Samotný soubor workflow se ale u `pull_request` bere z větve PR — kdo má do repa zápis, může na Pi spustit vlastní kód. Pi proto drž na samostatném uživateli bez dalších přístupů.
+- `codex exec` v read-only sandboxu (čte repo, nezapisuje, bez sítě), model výchozí pro předplatné (přepíše ho proměnná `AI_REVIEW_MODEL`), diff oříznutý na 60 kB (komentář na to upozorní),
+- skript a prompt agenta se berou z `main`, ne z PR, a `AGENTS.md` z PR se nenačítá — PR si nemůže přepsat vlastního reviewera,
+- repo je veřejné a na Pi leží přihlášení k ChatGPT, takže z PR se na Pi nic nespouští: workflow běží na `pull_request_target` (soubor workflow se bere z `main`, PR ho nepřepíše), ruční spuštění jen z `main`, kód PR se jen čte. PR z forků a PR autorů bez práva zápisu (boti, cizí lidé) se nereviewují,
+- výstup agenta se před zveřejněním čistí od tokenů (`scripts/ai-review.sh`) a do komentáře se nikdy nedává celý — obrana proti prompt injection v diffu, která by chtěla vypsat přihlášení z runneru,
+- fork PR potřebují ke spuštění jakéhokoli workflow schválení (Settings → Actions → „Require approval for all external contributors“),
+- Pi drž na samostatném uživateli bez dalších přístupů. Kdyby přihlášení přece uniklo: na Pi `codex logout` a v ChatGPT odhlásit všechna zařízení.
 
 Runner `togena-pi` (Raspberry Pi 3B) je zaregistrovaný. Zprovoznění od nuly:
 
 1. Raspberry Pi OS Lite (64-bit) přes Raspberry Pi Imager se zapnutým SSH. Swap aspoň 1 GB (`free -h`). Nainstaluj `git`, `curl` a `gh` (apt repozitář z cli.github.com). Node ani pnpm nejsou potřeba.
-2. Samostatný uživatel bez sudo (`sudo adduser --disabled-password runner`), pod ním Claude Code (`curl -fsSL https://claude.ai/install.sh | bash`, `~/.local/bin` do `PATH`). Na Pi se do Claude nepřihlašuje, účet dodá secret z kroku 3.
-3. Až potom runner: Repo → Settings → Actions → Runners → New self-hosted runner (Linux, ARM64), `./config.sh … --labels pi --unattended` jako `runner` (runner si při konfiguraci uloží `PATH`, takže `claude` už musí být nainstalovaný). Službu, která se spouští i po restartu, nainstaluje admin: `sudo ./svc.sh install runner && sudo ./svc.sh start`.
-4. Repo → Settings → Secrets: `CLAUDE_CODE_OAUTH_TOKEN` — na libovolném počítači `claude setup-token` (předplatné Claude Pro/Max), výstup vlož jako secret. Review čerpá limity předplatného; když dojdou, review do dalšího okna neproběhne. API klíč se záměrně nepoužívá, aby se nic neplatilo navíc. V claude.ai → Settings → Usage nech vypnuté „extra usage“.
-5. Repo → Settings → Variables: `AI_REVIEW_ENABLED=true`, `AI_REVIEW_MODEL=sonnet`, `AI_REVIEW_BUDGET=0.50` (strop na jedno review; výchozí `haiku` a `0.10` jsou laděné na API klíč), volitelně `AI_REVIEW_ADMIN`.
+2. Samostatný uživatel bez sudo (`sudo adduser --disabled-password runner`), pod ním Codex CLI: binárka `codex-aarch64-unknown-linux-musl` z [github.com/openai/codex/releases](https://github.com/openai/codex/releases) přejmenovaná na `~/.local/bin/codex`, `~/.local/bin` do `PATH`. Přihlášení předplatným ChatGPT: `codex login --device-auth` (kód potvrdíš v prohlížeči na libovolném počítači), kontrola `codex login status`. Token se ukládá do `~/.codex/auth.json` a obnovuje sám.
+3. Až potom runner: Repo → Settings → Actions → Runners → New self-hosted runner (Linux, ARM64), `./config.sh … --labels pi --unattended` jako `runner` (runner si při konfiguraci uloží `PATH`, takže `codex` už musí být nainstalovaný; jinak doplň `PATH` do `.path` runneru a restartuj službu). Službu, která se spouští i po restartu, nainstaluje admin: `sudo ./svc.sh install runner && sudo ./svc.sh start`.
+4. Review čerpá limity předplatného ChatGPT; když dojdou, review do dalšího okna neproběhne. API klíč (`OPENAI_API_KEY`) se záměrně nepoužívá, aby se nic neplatilo navíc — workflow ho před spuštěním maže.
+5. Repo → Settings → Variables: `AI_REVIEW_ENABLED=true`, volitelně `AI_REVIEW_MODEL` (prázdné = výchozí model Codexu) a `AI_REVIEW_ADMIN`.
 
 Dokud `AI_REVIEW_ENABLED` není `true`, workflow se přeskočí.
 

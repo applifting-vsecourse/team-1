@@ -82,8 +82,9 @@ case "$verdict" in
     fi
     ;;
   *)
-    printf '> [!WARNING]\n> **AI review nedoběhlo.** Nejčastěji jde o vyčerpaný limit předplatného nebo strop `AI_REVIEW_BUDGET`.\n'
-    printf '\n<details><summary>Výstup agenta</summary>\n\n```\n%s\n```\n\n</details>\n' "$(cat "$log")"
+    printf '> [!WARNING]\n> **AI review nedoběhlo.** Nejčastěji jde o vyčerpaný limit předplatného nebo vypršelé přihlášení na runneru.\n'
+    # Not the raw output: a prompt injection could have made the agent print a secret.
+    printf '\nVýstup agenta je v logu jobu (Actions → AI review).\n'
     ;;
 esac
 

@@ -4,12 +4,20 @@ name: AI review (Raspberry Pi)
 # Runs only while the repository variable AI_REVIEW_ENABLED is 'true' and a runner
 # with the `pi` label is online (setup in CONTRIBUTING.md, section "Raspberry Pi runner").
 #
-# Same agent as `pnpm ai-review` (.claude/agents/reviewer.md), with a hard per-run
-# budget; the result is one sticky PR comment in Czech (scripts/ai-review-comment.sh),
-# updated on every push. A BLOCKER fails the job, which is not a required check.
+# Same agent prompt as `pnpm ai-review` (.claude/agents/reviewer.md), run by the OpenAI
+# # Codex CLI signed in on the Pi with a ChatGPT plan (no Claude tokens); the result is
+# one sticky PR comment in Czech (scripts/ai-review-comment.sh), updated on every push.
+# A BLOCKER fails the job, which is not a required check.
+#
+# The repo is public and the runner holds a login, so nothing a PR contains may run
+# on the Pi: `pull_request_target` takes this file from main (a PR can't edit it),
+# the PR's code is only read, never executed, and only PRs by people with write
+# access are reviewed. The output is scrubbed of tokens before it is posted.
 
 on:
-  pull_request:
+  # Not `pull_request`: there the workflow file comes from the PR branch, so a PR
+  # (even from a fork) could rewrite this job and run its own code on the Pi.
+  pull_request_target:
     types: [opened, synchronize, reopened, ready_for_review]
   # `/ai-review` in a PR comment re-runs the review, only for AI_REVIEW_ADMIN.
   issue_comment:
@@ -28,11 +36,12 @@ permissions:
 jobs:
   review:
     # Fork PRs never reach the self-hosted runner; drafts wait until they are ready.
+    # A manual run only from main, so a branch can't bring its own version of the job.
     # Any other comment skips the job before it takes the concurrency slot.
     if: >-
       vars.AI_REVIEW_ENABLED == 'true' && (
-        github.event_name == 'workflow_dispatch' || (
-          github.event_name == 'pull_request' &&
+        (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') || (
+          github.event_name == 'pull_request_target' &&
           github.event.pull_request.head.repo.full_name == github.repository &&
           !github.event.pull_request.draft) || (
           github.event_name == 'issue_comment' &&
@@ -46,14 +55,14 @@ jobs:
       cancel-in-progress: true
     timeout-minutes: 15
     env:
-      # Subscription only (`claude setup-token`), never an API key: when the plan's
-      # limit runs out the review just stops, nothing is billed on top.
-      CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+      # Subscription only: `codex login --device-auth` as the runner user on the Pi
+      # (ChatGPT plan, ~/.codex/auth.json), never an API key — when the plan's limit
+      # runs out the review just stops, nothing is billed on top.
       GH_TOKEN: ${{ github.token }}
-      AI_REVIEW_MODEL: ${{ vars.AI_REVIEW_MODEL || 'haiku' }}
-      AI_REVIEW_BUDGET: ${{ vars.AI_REVIEW_BUDGET || '0.10' }}
+      AI_REVIEW_ENGINE: codex
+      # Empty = the Codex CLI's default model for the plan.
+      AI_REVIEW_MODEL: ${{ vars.AI_REVIEW_MODEL }}
       AI_REVIEW_MAX_BYTES: "60000"
-      AI_REVIEW_SETTING_SOURCES: user
       PR: ${{ github.event.pull_request.number || github.event.issue.number || inputs.pr }}
       AI_REVIEW_PR: ${{ github.event.pull_request.number || github.event.issue.number || inputs.pr }}
       COMMENT_ID: ${{ github.event.comment.id }}
@@ -65,9 +74,10 @@ jobs:
 
       - name: Review PR
         run: |
-          [ -n "$CLAUDE_CODE_OAUTH_TOKEN" ] || { echo "Set secret CLAUDE_CODE_OAUTH_TOKEN"; exit 1; }
-          # An API key on the Pi would take precedence over the token and bill per use.
-          unset ANTHROPIC_API_KEY ANTHROPIC_AUTH_TOKEN
+          command -v codex >/dev/null || { echo "Install the Codex CLI on the runner (CONTRIBUTING.md)"; exit 1; }
+          codex login status >/dev/null 2>&1 || { echo "Run 'codex login --device-auth' as the runner user"; exit 1; }
+          # An API key on the Pi would take precedence over the ChatGPT login and bill per use.
+          unset OPENAI_API_KEY CODEX_API_KEY
 
           # 👀 on the `/ai-review` comment: the request was picked up.
           if [ -n "$COMMENT_ID" ]; then
@@ -77,14 +87,21 @@ jobs:
           [[ "$PR" =~ ^[0-9]+$ ]] || { echo "PR must be a number"; exit 1; }
           [ "$(gh pr view "$PR" --json isCrossRepository --jq .isCrossRepository)" = false ] ||
             { echo "Fork PRs are not reviewed on the self-hosted runner"; exit 1; }
+          # Only PRs by people with write access (the team); bots and outsiders get no review,
+          # so a prompt injection in the diff can only come from someone already trusted.
+          author="$(gh pr view "$PR" --json author --jq .author.login)"
+          perm="$(gh api "repos/$GITHUB_REPOSITORY/collaborators/$author/permission" --jq .permission 2>/dev/null || true)"
+          case "$perm" in
+            admin|maintain|write) ;;
+            *) echo "PR author $author has no write access ($perm), skipping the review"; exit 0 ;;
+          esac
 
-          # Script and agent come from main (checked out above), so a PR can't rewrite
-          # its own reviewer. The agent goes to user scope because project settings
-          # (.claude/ from the PR, which may define hooks) are not loaded here.
-          cp scripts/ai-review.sh scripts/ai-review-comment.sh "$RUNNER_TEMP/"
-          mkdir -p "$HOME/.claude/agents"
-          cp .claude/agents/reviewer.md "$HOME/.claude/agents/reviewer.md"
+          # Script and agent prompt come from main (checked out above), so a PR can't
+          # rewrite its own reviewer.
+          cp scripts/ai-review.sh scripts/ai-review-comment.sh .claude/agents/reviewer.md "$RUNNER_TEMP/"
+          export AI_REVIEW_AGENT="$RUNNER_TEMP/reviewer.md"
 
+          # The PR's files are data for the reviewer: nothing from the checkout is run.
           gh pr checkout "$PR" --force
           # The script skips itself when CI is set; the runner is the one place we want it.
           log="$(git rev-parse --git-dir)/ai-review-last.txt"
@@ -92,8 +109,10 @@ jobs:
           CI= bash "$RUNNER_TEMP/ai-review.sh" origin/main || true
           # No log = nothing reviewed (empty diff, no merge base); don't comment.
           [ -s "$log" ] || exit 0
+          # The log is already scrubbed of tokens (ai-review.sh); job logs are public too.
+          grep -q '^VERDICT: ' "$log" || { echo "Review did not finish, agent output:"; tail -n 40 "$log"; }
 
-          bash "$RUNNER_TEMP/ai-review-comment.sh" "$log" "$AI_REVIEW_MODEL" "$(git rev-parse HEAD)" > "$RUNNER_TEMP/review.md"
+          bash "$RUNNER_TEMP/ai-review-comment.sh" "$log" "codex${AI_REVIEW_MODEL:+ $AI_REVIEW_MODEL}" "$(git rev-parse HEAD)" > "$RUNNER_TEMP/review.md"
 
           id="$(gh api "repos/$GITHUB_REPOSITORY/issues/$PR/comments" --paginate \
             --jq '.[] | select(.body | startswith("<!-- ai-review -->")) | .id' | head -n1)"

@@ -8,8 +8,10 @@
 #   scripts/ai-review.sh [base]       base defaults to origin/main
 #
 # Env:
-#   AI_REVIEW_MODEL      model alias (default: sonnet; the Pi runner uses haiku)
-#   AI_REVIEW_BUDGET     max USD per run for API-key users (default: 0.50)
+#   AI_REVIEW_ENGINE     `claude` (default) or `codex` (OpenAI Codex CLI signed in with
+#                        a ChatGPT plan; the Pi runner uses it)
+#   AI_REVIEW_MODEL      model (claude: alias, default sonnet; codex: default of the CLI)
+#   AI_REVIEW_BUDGET     max USD per run for API-key users (default: 0.50; claude only)
 #   AI_REVIEW_MAX_BYTES  diff size cap (default: 150000); bigger diffs are cut
 #   AI_REVIEW_PR         PR number (default: the PR of the current branch)
 #   AI_REVIEW_SETTING_SOURCES  e.g. `user` on the Pi, so a PR's .claude/ settings
@@ -20,13 +22,26 @@ if [ -n "${CI:-}" ]; then
   exit 0
 fi
 
-if ! command -v claude >/dev/null 2>&1; then
-  echo "ai-review: claude CLI not found, skipping (https://claude.com/claude-code)"
+engine="${AI_REVIEW_ENGINE:-claude}"
+case "$engine" in
+  claude) url="https://claude.com/claude-code" ;;
+  codex) url="https://github.com/openai/codex" ;;
+  *)
+    echo "ai-review: unknown AI_REVIEW_ENGINE '$engine', skipping"
+    exit 0
+    ;;
+esac
+if ! command -v "$engine" >/dev/null 2>&1; then
+  echo "ai-review: $engine CLI not found, skipping ($url)"
   exit 0
 fi
 
 base="${1:-origin/main}"
-model="${AI_REVIEW_MODEL:-sonnet}"
+if [ "$engine" = claude ]; then
+  model="${AI_REVIEW_MODEL:-sonnet}"
+else
+  model="${AI_REVIEW_MODEL:-}"
+fi
 budget="${AI_REVIEW_BUDGET:-0.50}"
 max_bytes="${AI_REVIEW_MAX_BYTES:-150000}"
 story_max_bytes=20000
@@ -68,28 +83,63 @@ if command -v gh >/dev/null 2>&1; then
   story="${story:0:$story_max_bytes}"
 fi
 
-extra=()
-if [ -n "${AI_REVIEW_SETTING_SOURCES:-}" ]; then
-  extra+=(--setting-sources "$AI_REVIEW_SETTING_SOURCES" --strict-mcp-config)
-fi
-
 branch="$(git rev-parse --abbrev-ref HEAD)"
 log="$(git rev-parse --git-dir)/ai-review-last.txt"
 
-echo "ai-review: reviewing $branch against $base with ${model}…"
+echo "ai-review: reviewing $branch against $base with $engine${model:+ ($model)}…"
 
-output="$(
-  printf 'Review branch %s against %s.\n%s\n\n<story>\n%s\n</story>\n\n```diff\n%s\n```\n' \
-    "$branch" "$base" "$note" "$story" "$diff" |
-    claude -p \
-      --agent reviewer \
-      --model "$model" \
-      --tools Read,Grep,Glob \
-      --max-budget-usd "$budget" \
-      ${extra[@]+"${extra[@]}"} \
-      2>&1
-)"
-status=$?
+prompt="$(printf 'Review branch %s against %s.\n%s\n\n<story>\n%s\n</story>\n\n```diff\n%s\n```\n' \
+  "$branch" "$base" "$note" "$story" "$diff")"
+
+if [ "$engine" = claude ]; then
+  extra=()
+  if [ -n "${AI_REVIEW_SETTING_SOURCES:-}" ]; then
+    extra+=(--setting-sources "$AI_REVIEW_SETTING_SOURCES" --strict-mcp-config)
+  fi
+  output="$(
+    printf '%s' "$prompt" |
+      claude -p \
+        --agent reviewer \
+        --model "$model" \
+        --tools Read,Grep,Glob \
+        --max-budget-usd "$budget" \
+        ${extra[@]+"${extra[@]}"} \
+        2>&1
+  )"
+  status=$?
+else
+  # Codex has no agents: the reviewer's prompt (without its front matter) goes first.
+  # `AI_REVIEW_AGENT` lets the runner pass the copy taken from main.
+  agent="${AI_REVIEW_AGENT:-$root/.claude/agents/reviewer.md}"
+  instructions="$(awk 'NR==1 && /^---$/ {fm=1; next} fm && /^---$/ {fm=0; next} !fm' "$agent")"
+  last="$(mktemp)"
+  # Read-only sandbox: it can read and grep the checkout, not write or reach the network.
+  # project_doc_max_bytes=0: an AGENTS.md from the PR doesn't get to rewrite the rules.
+  codex_out="$(
+    printf '%s\n\nYour tools are read-only shell commands (cat, grep, ls) instead of Read, Grep and Glob.\n\n%s' \
+      "$instructions" "$prompt" |
+      codex exec \
+        --sandbox read-only \
+        --skip-git-repo-check \
+        --color never \
+        -c project_doc_max_bytes=0 \
+        ${model:+--model "$model"} \
+        --output-last-message "$last" \
+        - 2>&1
+  )"
+  status=$?
+  if [ -s "$last" ]; then output="$(cat "$last")"; else output="$codex_out"; fi
+  rm -f "$last"
+fi
+
+# Scrub anything that looks like a credential before it reaches a log or a PR comment:
+# a diff can carry a prompt injection asking the agent to print the runner's login.
+output="$(sed -E \
+  -e 's/eyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}(\.[A-Za-z0-9_-]+)?/[REDACTED]/g' \
+  -e 's/(sk|rt|sess)[-_][A-Za-z0-9_-]{16,}/[REDACTED]/g' \
+  -e 's/(gh[pousr]_|github_pat_)[A-Za-z0-9_]{20,}/[REDACTED]/g' \
+  -e 's/("?(access|refresh|id)_token"?|api_key|API_KEY)([":= ]+)[^",[:space:]]+/\1\3[REDACTED]/g' \
+  -e 's/[A-Za-z0-9+\/_-]{60,}={0,2}/[REDACTED]/g' <<<"$output")"
 
 {
   [ -z "$truncated" ] || printf '%s\n' "$truncated"
