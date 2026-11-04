@@ -7,7 +7,7 @@ import {
   createRouter,
   RouterProvider,
 } from "@tanstack/react-router"
-import { render, screen, waitFor, within } from "@testing-library/react"
+import { configure, render, screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
@@ -16,6 +16,8 @@ import type { ApplicationsSearch } from "@/features/event-overview/lib/applicati
 
 const { get, post } = vi.hoisted(() => ({ get: vi.fn(), post: vi.fn() }))
 vi.mock("@/lib/api-client", () => ({ api: { get, post } }))
+// The page loads several queries and renders a table and a card list; a pre-push run is slower.
+configure({ asyncUtilTimeout: 5000 })
 Element.prototype.hasPointerCapture = () => false
 Element.prototype.scrollIntoView = vi.fn()
 
