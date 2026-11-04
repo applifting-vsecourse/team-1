@@ -267,21 +267,15 @@
     "views": "Application views"
   },
   "substitutes": {
-    "account": "Account",
-    "back": "Back to substitutes",
     "bedFemale": "women's bed",
     "bedMale": "men's bed",
     "bedShared": "bed",
     "confirm": "Confirm substitute",
-    "confirmedFemale": "{{name}} is confirmed.",
-    "confirmedMale": "{{name}} is confirmed.",
+    "confirmed": "The substitute is confirmed. The applicant has been e-mailed.",
     "dialogBodyLast": "This takes the last free {{bed}} in the term {{term}}. The amount due will be {{price}}. The applicant gets an e-mail and a notification with the payment details.",
     "dialogBodyMore": "This takes one free {{bed}} in the term {{term}}. The amount due will be {{price}}. The applicant gets an e-mail and a notification with the payment details.",
     "dialogSubmit": "Confirm attendance",
     "dialogTitle": "Confirm {{name}}?",
-    "freeBedsLeftFemale": "Free women's beds: {{count}}. The applicant gets an e-mail and a notification.",
-    "freeBedsLeftMale": "Free men's beds: {{count}}. The applicant gets an e-mail and a notification.",
-    "freeBedsLeftShared": "Free beds: {{count}}. The applicant gets an e-mail and a notification.",
     "freeFemale_few": "{{count}} free women's beds",
     "freeFemale_many": "{{count}} free women's beds",
     "freeFemale_one": "{{count}} free women's bed",
@@ -296,18 +290,9 @@
     "freeShared_other": "{{count}} free beds",
     "hint": "The substitutes shown match the group of the free bed.",
     "list": "Suitable substitutes",
-    "paid": "Paid",
-    "paymentDetails": "Payment details",
-    "paymentPending": "Awaiting payment",
-    "received": "Received {{date}}",
     "refresh": "Show current substitutes",
-    "remaining": "Remaining",
-    "resultCaption": "Confirmation result · the participant is no longer a substitute",
-    "resultTitle": "{{name}} · {{term}}",
     "taken": "The bed has meanwhile been taken by another organizer.",
-    "takenHint": "{{name}} stays a substitute. The capacity is not exceeded.",
-    "total": "Total",
-    "variableSymbol": "Variable symbol"
+    "takenHint": "{{name}} stays a substitute. The capacity is not exceeded."
   },
   "termStatus": {
     "action": {

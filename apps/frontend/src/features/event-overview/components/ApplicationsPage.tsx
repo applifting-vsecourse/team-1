@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { Link } from "@tanstack/react-router"
+import { Link, useNavigate } from "@tanstack/react-router"
 import { FilterX } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
@@ -38,10 +38,10 @@ import { BulkConfirmDialog } from "@/features/event-overview/components/BulkConf
 import { BulkDecisionDialog } from "@/features/event-overview/components/BulkDecisionDialog"
 import { BulkSelectionBar } from "@/features/event-overview/components/BulkSelectionBar"
 import {
-  SubstituteOutcome,
-  type SubstituteOutcomeData,
-} from "@/features/event-overview/components/SubstituteOutcome"
-import { SubstitutesPanel } from "@/features/event-overview/components/SubstitutesPanel"
+  SubstitutesPanel,
+  type SubstituteTaken as SubstituteTakenData,
+} from "@/features/event-overview/components/SubstitutesPanel"
+import { SubstituteTaken } from "@/features/event-overview/components/SubstituteTaken"
 import { UnfinishedEvent } from "@/features/event-overview/components/UnfinishedEvent"
 import type { ApplicationsSearch } from "@/features/event-overview/lib/applications-search"
 
@@ -61,6 +61,7 @@ export function ApplicationsPage({
 }) {
   const { t } = useTranslation("eventOverview")
   const searchInput = useRef<HTMLInputElement>(null)
+  const navigate = useNavigate()
   useEffect(() => {
     if (searchInput.current) searchInput.current.value = filters.q ?? ""
   }, [filters.q])
@@ -82,7 +83,7 @@ export function ApplicationsPage({
   const [selectedIds, setSelectedIds] = useState<ReadonlySet<string>>(new Set())
   const [dialog, setDialog] = useState<"CONFIRM" | BulkDecision | null>(null)
   // Filling a freed bed (US-104) works on one term of the waitlist, like deciding in bulk.
-  const [outcome, setOutcome] = useState<SubstituteOutcomeData | null>(null)
+  const [taken, setTaken] = useState<SubstituteTakenData | null>(null)
   const pageCount = Math.max(1, Math.ceil((query.data?.length ?? 0) / 20))
   const currentPage = Math.min(page, pageCount - 1)
   const visibleRows = query.data?.slice(currentPage * 20, (currentPage + 1) * 20) ?? []
@@ -138,19 +139,19 @@ export function ApplicationsPage({
       onChange={(next) => {
         setPage(0)
         setSelectedIds(new Set())
-        setOutcome(null)
+        setTaken(null)
         onFiltersChange(next)
       }}
     />
   )
-  if (outcome && isWaitlist) {
+  if (taken && isWaitlist) {
     return (
       <div className="flex flex-col gap-6">
         <Seo title={t("applications.title")} />
         {views}
-        <SubstituteOutcome
-          outcome={outcome}
-          onBack={() => setOutcome(null)}
+        <SubstituteTaken
+          {...taken}
+          onRefresh={() => setTaken(null)}
         />
       </div>
     )
@@ -163,7 +164,12 @@ export function ApplicationsPage({
         <SubstitutesPanel
           eventId={eventId}
           term={substituteTerm}
-          onOutcome={setOutcome}
+          onTaken={setTaken}
+          onConfirmed={(applicationId) => {
+            notify.success(t("substitutes.confirmed"))
+            // The application of the confirmed participant, where the payment details are.
+            void navigate({ to: ROUTES.organizer.application, params: { eventId, applicationId } })
+          }}
         />
       )}
       <>

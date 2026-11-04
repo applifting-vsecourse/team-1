@@ -1,5 +1,4 @@
 import { eligibleSubstitutes, freeBedsOf } from "@/modules/applications/domain/substitutes"
-import { variableSymbol } from "@/modules/applications/domain/variable-symbol"
 import {
   SubstituteApplication,
   SubstitutesRepository,
@@ -11,14 +10,6 @@ import { GenderCounts } from "@/shared/domain/gender"
 import { AppException } from "@/shared/errors/app.exception"
 import { OrganizationAccessService } from "@/shared/organization-access/organization-access.service"
 import { HttpStatus, Injectable } from "@nestjs/common"
-
-/** What the organizer sees after a confirmation: the payment data the applicant got by e-mail. */
-export type SubstituteConfirmation = {
-  applicationId: string
-  priceCzk: number
-  bankAccount: string
-  variableSymbol: string
-}
 
 export type SubstituteList = {
   termId: string
@@ -61,14 +52,14 @@ export class SubstitutesService {
     eventId: string,
     termId: string,
     applicationId: string,
-  ): Promise<SubstituteConfirmation> {
+  ): Promise<void> {
     const { organizationId, state } = await this.load(user, eventId, termId)
     if (state.evaluationMode !== "MANUAL")
       throw new AppException(HttpStatus.CONFLICT, "MANUAL_FILL_NOT_AVAILABLE")
-    const candidate = state.waitlisted.find((row) => row.applicationId === applicationId)
-    if (!candidate) throw new AppException(HttpStatus.CONFLICT, "INVALID_STATUS_TRANSITION")
+    if (!state.waitlisted.some((row) => row.applicationId === applicationId))
+      throw new AppException(HttpStatus.CONFLICT, "INVALID_STATUS_TRANSITION")
     try {
-      const result = await this.statuses.applyChange({
+      await this.statuses.applyChange({
         organizationId,
         applicationId,
         termId,
@@ -76,12 +67,6 @@ export class SubstitutesService {
         actorId: user.id,
         isOverCapacityConfirmed: false,
       })
-      return {
-        applicationId,
-        priceCzk: candidate.priceCzk,
-        bankAccount: result.bankAccount,
-        variableSymbol: variableSymbol(result.application.number, state.termNumber),
-      }
     } catch (error) {
       // Checked under the event lock: someone took the bed since the list was shown.
       if (error instanceof AppException && error.code === "CAPACITY_EXCEEDED")

@@ -1,8 +1,5 @@
 import { GenderCapacityDto } from "@/modules/applications/controllers/dto/term-capacity.response.dto"
-import {
-  SubstituteConfirmation,
-  SubstituteList,
-} from "@/modules/applications/services/substitutes.service"
+import { SubstituteList } from "@/modules/applications/services/substitutes.service"
 import { ApiProperty } from "@nestjs/swagger"
 
 class SubstituteDto {
@@ -50,17 +47,5 @@ export class SubstituteListResponseDto {
         priceCzk: item.priceCzk,
       })),
     }
-  }
-}
-
-export class SubstituteConfirmationResponseDto {
-  @ApiProperty() applicationId!: string
-  @ApiProperty({ description: "Price of the term, whole CZK; the debt that arises" })
-  priceCzk!: number
-  @ApiProperty() bankAccount!: string
-  @ApiProperty({ example: "2027001" }) variableSymbol!: string
-
-  static fromDomain(result: SubstituteConfirmation): SubstituteConfirmationResponseDto {
-    return { ...result }
   }
 }

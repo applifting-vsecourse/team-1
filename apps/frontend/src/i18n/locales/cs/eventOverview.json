@@ -267,21 +267,15 @@
     "views": "Pohledy přihlášek"
   },
   "substitutes": {
-    "account": "Účet",
-    "back": "Zpět na náhradníky",
     "bedFemale": "dámské lůžko",
     "bedMale": "pánské lůžko",
     "bedShared": "lůžko",
     "confirm": "Potvrdit náhradníka",
-    "confirmedFemale": "{{name}} je potvrzená.",
-    "confirmedMale": "{{name}} je potvrzený.",
+    "confirmed": "Náhradník je potvrzen. Přihlašovateli odešel e-mail.",
     "dialogBodyLast": "Obsadí poslední volné {{bed}} v termínu {{term}}. K úhradě bude {{price}}. Přihlašovatel dostane e-mail a upozornění s platebními údaji.",
     "dialogBodyMore": "Obsadí jedno volné {{bed}} v termínu {{term}}. K úhradě bude {{price}}. Přihlašovatel dostane e-mail a upozornění s platebními údaji.",
     "dialogSubmit": "Potvrdit účast",
     "dialogTitle": "Potvrdit {{name}}?",
-    "freeBedsLeftFemale": "Volná dámská lůžka: {{count}}. Přihlašovateli odejde e-mail a upozornění.",
-    "freeBedsLeftMale": "Volná pánská lůžka: {{count}}. Přihlašovateli odejde e-mail a upozornění.",
-    "freeBedsLeftShared": "Volná lůžka: {{count}}. Přihlašovateli odejde e-mail a upozornění.",
     "freeFemale_few": "{{count}} volná dámská lůžka",
     "freeFemale_many": "{{count}} volného dámského lůžka",
     "freeFemale_one": "{{count}} volné dámské lůžko",
@@ -296,18 +290,9 @@
     "freeShared_other": "{{count}} volných lůžek",
     "hint": "Zobrazení náhradníci odpovídají skupině volného lůžka.",
     "list": "Vhodní náhradníci",
-    "paid": "Zaplaceno",
-    "paymentDetails": "Platební údaje",
-    "paymentPending": "Čeká na platbu",
-    "received": "Přijato {{date}}",
     "refresh": "Zobrazit aktuální náhradníky",
-    "remaining": "Zbývá",
-    "resultCaption": "Výsledek potvrzení · účastník již není náhradníkem",
-    "resultTitle": "{{name}} · {{term}}",
     "taken": "Lůžko mezitím obsadil jiný organizátor.",
-    "takenHint": "{{name}} zůstává náhradníkem. Kapacita se nepřekročí.",
-    "total": "Celkem",
-    "variableSymbol": "Variabilní symbol"
+    "takenHint": "{{name}} zůstává náhradníkem. Kapacita se nepřekročí."
   },
   "termStatus": {
     "action": {

@@ -13,7 +13,6 @@ export type SubstituteApplication = WaitlistCandidate & {
 }
 
 export type SubstituteTermState = {
-  termNumber: number
   evaluationMode: "AUTOMATIC" | "MANUAL"
   roomMode: "GENDERED" | "SHARED"
   rooms: RoomCapacity[]
@@ -34,7 +33,7 @@ export class SubstitutesRepository {
   ): Promise<SubstituteTermState | null> {
     const term = await this.prisma.term.findFirst({
       where: { id: termId, eventId, organizationId },
-      select: { number: true, roomMode: true, event: { select: { evaluationMode: true } } },
+      select: { roomMode: true, event: { select: { evaluationMode: true } } },
     })
     if (!term) return null
     const [rooms, confirmed, waiting] = await Promise.all([
@@ -63,7 +62,6 @@ export class SubstitutesRepository {
       }),
     ])
     return {
-      termNumber: term.number,
       evaluationMode: term.event.evaluationMode,
       roomMode: term.roomMode,
       rooms,

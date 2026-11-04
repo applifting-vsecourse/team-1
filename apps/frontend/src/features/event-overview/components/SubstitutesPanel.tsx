@@ -1,12 +1,19 @@
 import { useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import type { TFunction } from "i18next"
-import { ChevronRight } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 import { apiErrorCode } from "@/lib/api-client"
 import { formatDate, formatDateRange, formatDateTime } from "@/lib/date"
 import { formatCzk } from "@/lib/money"
@@ -18,16 +25,17 @@ import {
   type SubstituteList,
 } from "@/features/event-overview/api/substitutes"
 import { BulkActionDialog } from "@/features/event-overview/components/BulkActionDialog"
-import type { SubstituteOutcomeData } from "@/features/event-overview/components/SubstituteOutcome"
 
 export type SubstituteTerm = { id: string; startsOn: string; endsOn: string }
+/** The bed is taken meanwhile: what the "bed already taken" screen needs to say. */
+export type SubstituteTaken = { name: string; range: string; beds: string }
 
 type BedKind = "Male" | "Female" | "Shared"
 const bedKind = (list: SubstituteList, gender: Substitute["gender"]): BedKind =>
   list.roomMode === "SHARED" ? "Shared" : gender === "MALE" ? "Male" : "Female"
 
 /** Free beds of the term as the Figma context line says it: per gender, or the one common pool. */
-export function freeBedsLabel(list: SubstituteList, t: TFunction<"eventOverview">): string {
+function freeBedsLabel(list: SubstituteList, t: TFunction<"eventOverview">): string {
   if (list.roomMode === "SHARED") return t("substitutes.freeShared", { count: list.freeBeds.MALE })
   return [
     list.freeBeds.MALE > 0 && t("substitutes.freeMale", { count: list.freeBeds.MALE }),
@@ -39,14 +47,17 @@ export function freeBedsLabel(list: SubstituteList, t: TFunction<"eventOverview"
 
 // Figma (Design system): US-104 Přihlášky · Vhodní náhradníci · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15780-5459 (mobile 15780-5571)
 // Shown above the waitlist of one term when a bed is free and the event is evaluated by hand.
+// The list looks like the applications list (table, cards on mobile), without its filters.
 export function SubstitutesPanel({
   eventId,
   term,
-  onOutcome,
+  onConfirmed,
+  onTaken,
 }: {
   eventId: string
   term: SubstituteTerm
-  onOutcome: (outcome: SubstituteOutcomeData) => void
+  onConfirmed: (applicationId: string) => void
+  onTaken: (taken: SubstituteTaken) => void
 }) {
   const { t } = useTranslation("eventOverview")
   const query = useQuery(substitutesQueryOptions(eventId, term.id))
@@ -54,51 +65,71 @@ export function SubstitutesPanel({
   const list = query.data
   if (!list || list.evaluationMode !== "MANUAL" || list.items.length === 0) return null
   const range = formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })
+  const label = (item: Substitute) => `${item.firstName} ${item.lastName}`
   return (
     <section
       aria-label={t("substitutes.list")}
-      className="flex flex-col gap-4"
+      className="flex flex-col gap-4 rounded-lg border bg-card p-4 shadow-sm md:p-6"
     >
       <p>
         {range} · {freeBedsLabel(list, t)}
       </p>
-      <p className="text-muted-foreground">{t("substitutes.hint")}</p>
-      <ul className="flex flex-col gap-3">
+      <p className="text-sm text-muted-foreground">{t("substitutes.hint")}</p>
+      <div className="hidden md:block">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              {(["participant", "terms", "submitted", "actions"] as const).map((key) => (
+                <TableHead key={key}>{t(`applications.${key}`)}</TableHead>
+              ))}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {list.items.map((item) => (
+              <TableRow key={item.applicationId}>
+                <TableCell>
+                  <p className="font-medium">{label(item)}</p>
+                  <Person item={item} />
+                </TableCell>
+                <TableCell>
+                  <TermStatus
+                    item={item}
+                    range={range}
+                  />
+                </TableCell>
+                <TableCell>{formatDateTime(item.submittedAt)}</TableCell>
+                <TableCell>
+                  <Button
+                    size="sm"
+                    aria-label={`${t("substitutes.confirm")}: ${label(item)}`}
+                    onClick={() => setChosen(item)}
+                  >
+                    {t("substitutes.confirm")}
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+      <ul className="divide-y md:hidden">
         {list.items.map((item) => (
           <li
             key={item.applicationId}
-            className="flex flex-col gap-4 rounded-lg border bg-card p-4 shadow-sm md:flex-row md:items-start"
+            className="flex flex-col gap-2 py-3"
           >
-            <div className="flex flex-col gap-2 md:w-64">
-              <p>
-                {item.firstName} {item.lastName}
-              </p>
-              <p className="text-sm">
-                {formatDate(item.birthDate)} ·{" "}
-                {t(item.gender === "FEMALE" ? "applications.female" : "applications.male")}
-              </p>
-              <p className="text-sm break-all">{item.email}</p>
-              <p className="text-sm">
-                {t("substitutes.received", { date: formatDateTime(item.submittedAt) })}
-              </p>
-            </div>
-            <div className="flex flex-1 flex-col items-start gap-2">
-              <p>{range}</p>
-              <Badge
-                variant="secondary"
-                className="bg-accent text-muted-foreground"
-              >
-                {t("applications.waitlisted")}
-              </Badge>
-            </div>
+            <span className="font-medium">{label(item)}</span>
+            <Person item={item} />
+            <TermStatus
+              item={item}
+              range={range}
+            />
             <Button
-              size="lg"
-              className="h-12 md:min-w-48"
-              aria-label={`${t("substitutes.confirm")}: ${item.firstName} ${item.lastName}`}
+              className="h-11"
+              aria-label={`${t("substitutes.confirm")}: ${label(item)}`}
               onClick={() => setChosen(item)}
             >
               {t("substitutes.confirm")}
-              <ChevronRight aria-hidden="true" />
             </Button>
           </li>
         ))}
@@ -110,9 +141,13 @@ export function SubstitutesPanel({
           list={list}
           substitute={chosen}
           onClose={() => setChosen(null)}
-          onOutcome={(outcome) => {
+          onConfirmed={(applicationId) => {
             setChosen(null)
-            onOutcome(outcome)
+            onConfirmed(applicationId)
+          }}
+          onTaken={(taken) => {
+            setChosen(null)
+            onTaken(taken)
           }}
         />
       )}
@@ -120,45 +155,72 @@ export function SubstitutesPanel({
   )
 }
 
+function Person({ item }: { item: Substitute }) {
+  const { t } = useTranslation("eventOverview")
+  return (
+    <p className="text-xs wrap-anywhere text-muted-foreground">
+      {formatDate(item.birthDate)} ·{" "}
+      {t(item.gender === "FEMALE" ? "applications.female" : "applications.male")} · {item.email}
+    </p>
+  )
+}
+
+/** The term and the purple waitlist chip, "Náhradník" or "Náhradnice" with the position. */
+function TermStatus({ item, range }: { item: Substitute; range: string }) {
+  const { t } = useTranslation("eventOverview")
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <span>{range}</span>
+      <Badge
+        variant="secondary"
+        className="bg-status-waitlist-bg text-status-waitlist"
+      >
+        {t(
+          item.gender === "FEMALE"
+            ? "applications.waitlistedPositionFemale"
+            : "applications.waitlistedPositionMale",
+          { position: item.position },
+        )}
+      </Badge>
+    </div>
+  )
+}
+
 // Figma (Design system): US-104 Přihlášky · Dialog: Potvrdit náhradníka · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15780-5656 (mobile 15780-5751)
-export function ConfirmSubstituteDialog({
+function ConfirmSubstituteDialog({
   eventId,
   term,
   list,
   substitute,
   onClose,
-  onOutcome,
+  onConfirmed,
+  onTaken,
 }: {
   eventId: string
   term: SubstituteTerm
   list: SubstituteList
   substitute: Substitute
   onClose: () => void
-  onOutcome: (outcome: SubstituteOutcomeData) => void
+  onConfirmed: (applicationId: string) => void
+  onTaken: (taken: SubstituteTaken) => void
 }) {
   const { t } = useTranslation("eventOverview")
   const client = useQueryClient()
   const kind = bedKind(list, substitute.gender)
   const free = kind === "Female" ? list.freeBeds.FEMALE : list.freeBeds.MALE
   const name = `${substitute.firstName} ${substitute.lastName}`
+  const range = formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })
   const confirm = useMutation({
     mutationFn: () => confirmSubstitute(eventId, term.id, substitute.applicationId),
-    onSuccess: (confirmation) => {
+    onSuccess: () => {
       void client.invalidateQueries({ queryKey: ["eventOverview"] })
-      onOutcome({
-        kind: "done",
-        substitute,
-        confirmation,
-        term,
-        bed: kind,
-        freeLeft: Math.max(0, free - 1),
-      })
+      onConfirmed(substitute.applicationId)
     },
     onError: (error) => {
       // Someone took the bed since the list was shown: the list is stale, show it as such.
       if (apiErrorCode(error) === "BED_ALREADY_TAKEN") {
         void client.invalidateQueries({ queryKey: ["eventOverview"] })
-        onOutcome({ kind: "taken", substitute, term, bed: kind })
+        onTaken({ name, range, beds: t(`substitutes.free${kind}`, { count: 0 }) })
       }
     },
   })
@@ -181,7 +243,7 @@ export function ConfirmSubstituteDialog({
       <p>
         {t(free <= 1 ? "substitutes.dialogBodyLast" : "substitutes.dialogBodyMore", {
           bed: t(`substitutes.bed${kind}`),
-          term: formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true }),
+          term: range,
           price: formatCzk(substitute.priceCzk),
         })}
       </p>

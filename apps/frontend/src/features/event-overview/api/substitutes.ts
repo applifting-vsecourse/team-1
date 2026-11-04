@@ -29,14 +29,6 @@ const listSchema = z.object({
 })
 export type SubstituteList = z.infer<typeof listSchema>
 
-const confirmationSchema = z.object({
-  applicationId: z.string(),
-  priceCzk: z.number().int(),
-  bankAccount: z.string(),
-  variableSymbol: z.string(),
-})
-export type SubstituteConfirmation = z.infer<typeof confirmationSchema>
-
 const path = (eventId: string, termId: string) =>
   `organizer/events/${encodeURIComponent(eventId)}/terms/${encodeURIComponent(termId)}/substitutes`
 
@@ -50,8 +42,6 @@ export async function confirmSubstitute(
   eventId: string,
   termId: string,
   applicationId: string,
-): Promise<SubstituteConfirmation> {
-  return confirmationSchema.parse(
-    await api.post(`${path(eventId, termId)}/${encodeURIComponent(applicationId)}/confirm`).json(),
-  )
+): Promise<void> {
+  await api.post(`${path(eventId, termId)}/${encodeURIComponent(applicationId)}/confirm`)
 }

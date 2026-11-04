@@ -142,15 +142,9 @@ describe("manual filling of a freed bed (integration)", () => {
 
     // Two organizers confirm different people for the last bed at the same moment.
     const results = await Promise.all([confirm(second), confirm(first)])
-    expect(results.map((r) => r.status).sort()).toEqual([200, 409])
-    const winner = results[0].status === 200 ? second : first
+    expect(results.map((r) => r.status).sort()).toEqual([204, 409])
+    const winner = results[0].status === 204 ? second : first
     const loser = winner === first ? second : first
-    const won = (await results[winner === second ? 0 : 1].json()) as {
-      priceCzk: number
-      variableSymbol: string
-    }
-    expect(won.priceCzk).toBe(4900)
-    expect(won.variableSymbol).toMatch(/^\d+001$/)
     expect(await statusOf(winner)).toBe("CONFIRMED")
     expect(await statusOf(loser)).toBe("WAITLISTED")
     const log = await prisma.applicationTermStatusChange.findFirstOrThrow({

@@ -1,7 +1,4 @@
-import {
-  SubstituteConfirmationResponseDto,
-  SubstituteListResponseDto,
-} from "@/modules/applications/controllers/dto/substitutes.dto"
+import { SubstituteListResponseDto } from "@/modules/applications/controllers/dto/substitutes.dto"
 import { SubstitutesService } from "@/modules/applications/services/substitutes.service"
 import { Auth } from "@/shared/auth/decorators/auth.decorator"
 import { User } from "@/shared/auth/decorators/user.decorator"
@@ -31,9 +28,9 @@ export class SubstitutesController {
   }
 
   @Post(":applicationId/confirm")
-  @HttpCode(200)
+  @HttpCode(204)
   @ApiOperation({ summary: "Confirm one waitlisted application into a free bed (US-104)" })
-  @ApiResponse({ status: 200, type: SubstituteConfirmationResponseDto })
+  @ApiResponse({ status: 204 })
   @ApiResponse({ status: 403, description: "Wrong account type or foreign event" })
   @ApiResponse({
     status: 409,
@@ -45,9 +42,7 @@ export class SubstitutesController {
     @Param("eventId") eventId: string,
     @Param("termId") termId: string,
     @Param("applicationId") applicationId: string,
-  ): Promise<SubstituteConfirmationResponseDto> {
-    return SubstituteConfirmationResponseDto.fromDomain(
-      await this.substitutes.confirm(user, eventId, termId, applicationId),
-    )
+  ): Promise<void> {
+    await this.substitutes.confirm(user, eventId, termId, applicationId)
   }
 }
