@@ -9,6 +9,7 @@ type Summary = {
   amountPaidCzk: number
   amountOwedCzk: number
   payableCzk: number
+  refundableTermId: string | null
   terms: {
     termId: string
     termNumber: number
@@ -17,6 +18,7 @@ type Summary = {
     paidCzk: number
     owedCzk: number
     paymentStatus: string
+    refundableCzk: number
   }[]
   payments: {
     id: string
@@ -216,6 +218,9 @@ describe("organizer payments (US-44)", () => {
     expect(result.amountOwedCzk).toBe(-100)
     await request("POST", "", { amountCzk: 200 })
     expect(await summary()).toMatchObject({ amountPaidCzk: 7200, amountOwedCzk: -300 })
+    const overpaid = await summary()
+    expect(overpaid.refundableTermId).toBe(firstTermId())
+    expect(overpaid.terms.find((term) => term.termId === firstTermId())?.refundableCzk).toBe(300)
     expect((await summary()).payments).toHaveLength(2)
   })
 
@@ -251,6 +256,7 @@ describe("organizer payments (US-44)", () => {
     const result = await summary()
     expect(result).toMatchObject({ amountPaidCzk: 6900, amountOwedCzk: 0 })
     expect(result.payments.map((p) => p.amountCzk)).toEqual([7400, -200, -300])
+    expect(result.refundableTermId).toBeNull()
     expect(
       (await prisma.payment.findFirstOrThrow({ where: { receiptId: requestId } })).recordedById,
     ).toBe(organizerId)

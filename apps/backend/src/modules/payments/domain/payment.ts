@@ -6,6 +6,7 @@ import {
 import {
   computeAmountOwed,
   computePayableAmount,
+  computeRefundableAmount,
   computeTermDue,
   computeTermOwed,
   computeTermPaid,
@@ -54,6 +55,8 @@ export type PaymentTermSummary = PaymentTerm & {
   /** Negative is an overpayment of this term. */
   owedCzk: number
   paymentStatus: PaymentStatus
+  /** Most that can be returned for this term: its overpayment, 0 without one. */
+  refundableCzk: number
 }
 
 /** One receipt: money that arrived at once, split into rows per term. */
@@ -75,6 +78,8 @@ export type PaymentSummary = Omit<PaymentApplication, "terms"> & {
   amountOwedCzk: number
   /** What a summary payment settles right now (overpaid terms not set off). */
   payableCzk: number
+  /** The term a refund is offered for first (the most overpaid one); null without an overpayment. */
+  refundableTermId: string | null
 }
 
 /** Groups the rows of an application by receipt, in the order the receipts arrived. */
@@ -117,6 +122,7 @@ export function paymentSummary(application: PaymentApplication): PaymentSummary 
       paidCzk: computeTermPaid(term.payments),
       owedCzk: computeTermOwed(term, term.payments),
       paymentStatus: computeTermPaymentStatus(term, term.payments),
+      refundableCzk: computeRefundableAmount(computeTermDue(term), computeTermPaid(term.payments)),
     }))
   const amountDueCzk = computeApplicationDue(terms)
   const amountPaidCzk = computeApplicationPaid(terms)
@@ -129,5 +135,10 @@ export function paymentSummary(application: PaymentApplication): PaymentSummary 
     amountPaidCzk,
     amountOwedCzk: computeAmountOwed(amountDueCzk, amountPaidCzk),
     payableCzk: computePayableAmount(terms.map((term) => term.owedCzk)),
+    refundableTermId:
+      terms.reduce<PaymentTermSummary | null>(
+        (best, term) => (term.refundableCzk > (best?.refundableCzk ?? 0) ? term : best),
+        null,
+      )?.termId ?? null,
   }
 }

@@ -37,6 +37,8 @@ class PaymentTermResponseDto {
   owedCzk!: number
   @ApiProperty({ enum: ["NOTHING_DUE", "UNPAID", "PARTIALLY_PAID", "PAID", "OVERPAID"] })
   paymentStatus!: string
+  @ApiProperty({ description: "Limit of a refund for this term: its overpayment, 0 without one." })
+  refundableCzk!: number
 }
 
 export class PaymentApplicationResponseDto {
@@ -56,6 +58,12 @@ export class PaymentApplicationResponseDto {
   amountOwedCzk!: number
   @ApiProperty({ description: "What a summary payment settles now; overpaid terms not set off." })
   payableCzk!: number
+  @ApiProperty({
+    nullable: true,
+    type: String,
+    description: "Term a refund is offered for first (the most overpaid); null = refund disabled.",
+  })
+  refundableTermId!: string | null
   @ApiProperty({ type: [PaymentTermResponseDto] }) terms!: PaymentTermResponseDto[]
   @ApiProperty({ type: [PaymentResponseDto], description: "Receipts, oldest first." })
   payments!: PaymentResponseDto[]
@@ -74,6 +82,7 @@ export class PaymentApplicationResponseDto {
       amountPaidCzk: application.amountPaidCzk,
       amountOwedCzk: application.amountOwedCzk,
       payableCzk: application.payableCzk,
+      refundableTermId: application.refundableTermId,
       terms: application.terms.map((term) => ({
         termId: term.termId,
         termNumber: term.termNumber,
@@ -86,6 +95,7 @@ export class PaymentApplicationResponseDto {
         paidCzk: term.paidCzk,
         owedCzk: term.owedCzk,
         paymentStatus: term.paymentStatus,
+        refundableCzk: term.refundableCzk,
       })),
       payments: application.receipts.map((receipt) => ({
         id: receipt.id,

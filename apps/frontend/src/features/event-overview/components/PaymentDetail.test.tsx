@@ -69,6 +69,7 @@ const term = (input: TermInput): PaymentApplication["terms"][number] => {
     dueCzk,
     paidCzk: input.paidCzk,
     owedCzk,
+    refundableCzk: Math.max(0, -owedCzk),
     paymentStatus,
   }
 }
@@ -99,6 +100,7 @@ const application = (
     amountDueCzk,
     amountPaidCzk,
     amountOwedCzk: amountDueCzk - amountPaidCzk,
+    refundableTermId: terms.find((item) => item.refundableCzk > 0)?.termId ?? null,
     payableCzk: terms.reduce((sum, item) => sum + Math.max(0, item.owedCzk), 0),
     terms,
     payments,
@@ -337,14 +339,15 @@ describe("PaymentDetail", () => {
     })
     setup()
     const user = userEvent.setup()
-    await user.click(await screen.findByRole("button", { name: "Record overpayment refund" }))
+    await user.click(await screen.findByRole("button", { name: "Record payment or refund" }))
+    await user.click(screen.getByRole("radio", { name: "Refund" }))
     await user.click(screen.getByRole("button", { name: /Record refund.*500/ }))
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument())
     expect(post).toHaveBeenCalledWith("organizer/applications/a1/payments/refunds", {
       json: { requestId: expect.any(String) as unknown, amountCzk: 500, termId: "t1" },
     })
     expect(
-      screen.queryByRole("button", { name: "Record overpayment refund" }),
+      screen.queryByRole("button", { name: "Record payment or refund" }),
     ).not.toBeInTheDocument()
     const row = screen.getByRole("row", { name: /Overpayment refund/ })
     expect(row).toHaveTextContent(/-.*500/)

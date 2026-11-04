@@ -15,6 +15,13 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { formatCzk } from "@/lib/money"
 import { termDates } from "@/lib/term-label"
 
@@ -28,15 +35,21 @@ import {
 type Props = {
   application: PaymentApplication
   onClose: () => void
-  isRefund?: boolean
-  /** Pay this term only (US-110); without it the payment is a summary payment over the terms. */
+  /** Term preselected in the dialog (US-110); without it the summary of the application. */
   term?: PaymentTerm
 }
 
+type RecordType = "payment" | "refund"
+const WHOLE_APPLICATION = "all"
+
 /**
- * Record a payment (or, with `isRefund`, a refund of the overpayment): summary box, amount
- * choice, the result after saving and Back / Record on the right.
+ * Record a payment or a refund (US-111): a Payment / Refund switch, the term, the amount, the
+ * result after saving and Back / Record on the right. A refund is offered only for terms the
+ * backend reports an overpayment for (`refundableTermId`, `refundableCzk`) and is limited by it.
  */
+// Figma (Design system): US-111 Zápis platby · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15857-6961
+// Figma (Design system): US-111 Zápis vratky · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15857-7108
+// Figma (Design system): O34z Vratka zakázaná, žádný přeplatek · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16661-2818
 // Figma (Design system): O34d Doplatit celou částku · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12796-19811
 // Figma (Design system): O34e Jiná částka · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12796-20038
 // Figma (Design system): O34d1 Neplatná částka · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12796-20339
@@ -45,14 +58,18 @@ type Props = {
 // Figma (Design system): O34j Další platba po úhradě · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=13968-8761
 // Figma (Design system): O34l Varování před přeplatkem · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=13980-10529
 // Figma (Design system): O34n Vrácení přeplatku · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=13982-8860
-export function PaymentEditor({ application, onClose, isRefund = false, term }: Props) {
+export function PaymentEditor({ application, onClose, term: initialTerm }: Props) {
   const { t } = useTranslation("eventOverview")
   const client = useQueryClient()
   const [requestId] = useState(() => crypto.randomUUID())
-  // A refund is taken from one term: the most overpaid one (repeat for the next).
-  const refundTerm = application.terms
-    .filter((term) => term.owedCzk < 0)
-    .sort((a, b) => a.owedCzk - b.owedCzk)[0]
+  const [type, setType] = useState<RecordType>("payment")
+  const isRefund = type === "refund"
+  const [termChoice, setTermChoice] = useState(initialTerm?.termId ?? WHOLE_APPLICATION)
+  // The chosen term; without one the dialog works with the whole application.
+  const term = application.terms.find((candidate) => candidate.termId === termChoice)
+  const refundTerms = application.terms.filter((candidate) => candidate.refundableCzk > 0)
+  // The limit of a refund is the overpayment of the chosen term, computed by the backend.
+  const overpayment = isRefund ? (term?.refundableCzk ?? 0) : 0
   // What the dialog settles: one term, or — for a summary payment — the whole application.
   const scope = term
     ? {
@@ -67,8 +84,7 @@ export function PaymentEditor({ application, onClose, isRefund = false, term }: 
         owed: application.amountOwedCzk,
         payable: application.payableCzk,
       }
-  const overpayment = isRefund ? Math.max(0, -(refundTerm?.owedCzk ?? 0)) : Math.max(0, -scope.owed)
-  const [amount, setAmount] = useState(isRefund ? String(overpayment) : "")
+  const [amount, setAmount] = useState("")
   const [amountMode, setAmountMode] = useState(scope.payable > 0 ? "remaining" : "custom")
   const [isInvalid, setIsInvalid] = useState(false)
   const unspaced = amount.replace(/\s/g, "")
@@ -97,7 +113,7 @@ export function PaymentEditor({ application, onClose, isRefund = false, term }: 
   const mutation = useMutation({
     mutationFn: () =>
       isRefund
-        ? recordRefund(application.id, requestId, receipt!, refundTerm!.termId)
+        ? recordRefund(application.id, requestId, receipt!, term!.termId)
         : term
           ? recordPayment(application.id, requestId, receipt, term.termId)
           : recordPayment(application.id, requestId, receipt),
@@ -119,13 +135,10 @@ export function PaymentEditor({ application, onClose, isRefund = false, term }: 
     >
       <DialogContent className="max-h-[calc(100dvh-2rem)] gap-4 overflow-y-auto p-6 sm:max-w-130">
         <DialogHeader>
-          <DialogTitle className="text-lg tracking-tight">
-            {t(isRefund ? "payment.refund" : "payment.record")}
-          </DialogTitle>
+          <DialogTitle className="text-lg tracking-tight">{t("payment.dialogTitle")}</DialogTitle>
           <DialogDescription>
             {application.firstName} {application.lastName} · {application.code} ·{" "}
             {application.eventName}
-            {term ? ` · ${termDates(term)}` : null}
           </DialogDescription>
         </DialogHeader>
         <form
@@ -140,6 +153,97 @@ export function PaymentEditor({ application, onClose, isRefund = false, term }: 
             mutation.mutate()
           }}
         >
+          <RadioGroup
+            value={type}
+            disabled={mutation.isPending}
+            aria-label={t("payment.typeChoice")}
+            className="grid grid-cols-2 gap-4"
+            onValueChange={(value) => {
+              const next = value as RecordType
+              setType(next)
+              setIsInvalid(false)
+              if (next === "refund") {
+                const first = application.terms.find(
+                  (candidate) => candidate.termId === application.refundableTermId,
+                )
+                setTermChoice(first?.termId ?? WHOLE_APPLICATION)
+                setAmount(String(first?.refundableCzk ?? ""))
+              } else {
+                setTermChoice(initialTerm?.termId ?? WHOLE_APPLICATION)
+                setAmount("")
+                setAmountMode(scope.payable > 0 ? "remaining" : "custom")
+              }
+            }}
+          >
+            <div className="flex min-h-11 items-center gap-2 p-2">
+              <RadioGroupItem
+                value="payment"
+                id="payment-type-payment"
+                className="size-5"
+              />
+              <Label htmlFor="payment-type-payment">{t("payment.typePayment")}</Label>
+            </div>
+            <div className="flex min-h-11 items-center gap-2 p-2">
+              <RadioGroupItem
+                value="refund"
+                id="payment-type-refund"
+                className="size-5"
+                disabled={application.refundableTermId === null}
+              />
+              <Label
+                htmlFor="payment-type-refund"
+                className={application.refundableTermId === null ? "opacity-55" : undefined}
+              >
+                {t("payment.typeRefund")}
+              </Label>
+            </div>
+          </RadioGroup>
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="payment-term">{t("payment.termLabel")}</Label>
+            <Select
+              value={termChoice}
+              disabled={mutation.isPending}
+              onValueChange={(value) => {
+                setTermChoice(value)
+                setIsInvalid(false)
+                const chosen = application.terms.find((candidate) => candidate.termId === value)
+                if (isRefund) {
+                  setAmount(String(chosen?.refundableCzk ?? ""))
+                } else {
+                  setAmountMode(
+                    (chosen ? Math.max(0, chosen.owedCzk) : application.payableCzk) > 0
+                      ? "remaining"
+                      : "custom",
+                  )
+                }
+              }}
+            >
+              <SelectTrigger
+                id="payment-term"
+                className="w-full"
+              >
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {isRefund ? null : (
+                  <SelectItem value={WHOLE_APPLICATION}>{t("payment.wholeApplication")}</SelectItem>
+                )}
+                {(isRefund ? refundTerms : application.terms).map((candidate) => (
+                  <SelectItem
+                    key={candidate.termId}
+                    value={candidate.termId}
+                  >
+                    {isRefund
+                      ? t("payment.refundTermOption", {
+                          term: termDates(candidate),
+                          amount: formatCzk(candidate.refundableCzk),
+                        })
+                      : termDates(candidate)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           {isRefund ? (
             <>
               <SummaryBox rows={[[t("payment.refundSummaryLabel"), formatCzk(overpayment)]]} />

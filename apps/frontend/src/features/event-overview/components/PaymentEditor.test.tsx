@@ -28,6 +28,7 @@ const application: PaymentApplication = {
       owedCzk: 6900,
       dueCzk: 6900,
       paidCzk: 0,
+      refundableCzk: 0,
       paymentStatus: "UNPAID",
       status: "CONFIRMED",
       priceCzk: 6900,
@@ -40,6 +41,7 @@ const application: PaymentApplication = {
   amountPaidCzk: 0,
   amountOwedCzk: 6900,
   payableCzk: 6900,
+  refundableTermId: null,
 }
 const secondTerm: PaymentApplication["terms"][number] = {
   termId: "t2",
@@ -48,6 +50,7 @@ const secondTerm: PaymentApplication["terms"][number] = {
   owedCzk: 700,
   dueCzk: 5600,
   paidCzk: 4900,
+  refundableCzk: 0,
   paymentStatus: "PARTIALLY_PAID",
   status: "CONFIRMED",
   priceCzk: 5600,
@@ -55,17 +58,25 @@ const secondTerm: PaymentApplication["terms"][number] = {
   endsOn: "2027-07-25",
 }
 const label = "Amount of this payment (CZK)"
-function setup(paidCzk = 0, isRefund = false) {
+function setup(paidCzk = 0) {
   const client = new QueryClient({ defaultOptions: { mutations: { retry: false } } })
   const invalidate = vi.spyOn(client, "invalidateQueries")
   const onClose = vi.fn()
   render(
     <QueryClientProvider client={client}>
       <PaymentEditor
-        isRefund={isRefund}
         application={{
           ...application,
-          terms: [{ ...application.terms[0]!, owedCzk: 6900 - paidCzk }],
+          terms: [
+            {
+              ...application.terms[0]!,
+              owedCzk: 6900 - paidCzk,
+              dueCzk: 6900,
+              paidCzk,
+              refundableCzk: Math.max(0, paidCzk - 6900),
+            },
+          ],
+          refundableTermId: paidCzk > 6900 ? "t1" : null,
           amountPaidCzk: paidCzk,
           amountOwedCzk: 6900 - paidCzk,
           payableCzk: Math.max(0, 6900 - paidCzk),
@@ -97,7 +108,8 @@ beforeEach(() => {
 
 describe("PaymentEditor", () => {
   it("defaults to refunding the whole overpayment and supports partial refunds", async () => {
-    const { user, onClose } = setup(7400, true)
+    const { user, onClose } = setup(7400)
+    await user.click(screen.getByRole("radio", { name: "Refund" }))
     const input = screen.getByLabelText("Refunded amount (CZK)")
     expect(input).toHaveValue("500")
     expect(screen.getByText(/After saving, left to refund:.*0/)).toBeInTheDocument()
@@ -111,13 +123,36 @@ describe("PaymentEditor", () => {
   })
 
   it.each(["501", "0", "-1", "0.5", ""])("blocks invalid refund %s", async (value) => {
-    const { user } = setup(7400, true)
+    const { user } = setup(7400)
+    await user.click(screen.getByRole("radio", { name: "Refund" }))
     const input = screen.getByLabelText("Refunded amount (CZK)")
     await user.clear(input)
     if (value) await user.type(input, value)
-    await user.click(screen.getByRole("button", { name: "Record overpayment refund" }))
+    await user.click(screen.getByRole("button", { name: "Record refund" }))
     expect(screen.getByRole("alert")).toHaveTextContent(/Enter a positive whole amount.*500/)
     expect(recordRefund).not.toHaveBeenCalled()
+  })
+
+  it("disables the refund while no term has an overpayment", () => {
+    setup(3000)
+    expect(screen.getByRole("radio", { name: "Refund" })).toBeDisabled()
+    expect(screen.getByRole("radio", { name: "Payment" })).toBeChecked()
+  })
+
+  it("offers the refund for the term the backend names, with its overpayment as the limit", async () => {
+    const { user } = setup(7400)
+    await user.click(screen.getByRole("radio", { name: "Refund" }))
+    expect(screen.getByRole("combobox", { name: "Term" })).toHaveTextContent(/overpayment.*500/)
+  })
+
+  it("records a payment for the term chosen in the dialog", async () => {
+    const { user } = setup(3000)
+    await user.click(screen.getByRole("combobox", { name: "Term" }))
+    await user.click(screen.getByRole("option", { name: /Jul 2027/ }))
+    await user.click(screen.getByRole("button", { name: /Record payment.*3,900/ }))
+    await waitFor(() =>
+      expect(recordPayment).toHaveBeenCalledWith("a1", expect.any(String), 3900, "t1"),
+    )
   })
 
   it("defaults to settling the balance and sends the amount shown on the button", async () => {

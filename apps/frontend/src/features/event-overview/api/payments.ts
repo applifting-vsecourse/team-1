@@ -17,6 +17,8 @@ export const paymentApplicationSchema = z.object({
   amountOwedCzk: z.number().int(),
   /** What a summary payment settles now; an overpaid term is not set off against another one. */
   payableCzk: z.number().int(),
+  /** The term a refund is offered for first; null = no term has an overpayment (refund disabled). */
+  refundableTermId: z.string().nullable(),
   terms: z.array(
     z.object({
       termId: z.string(),
@@ -32,6 +34,8 @@ export const paymentApplicationSchema = z.object({
       paidCzk: z.number().int(),
       /** Due minus paid; negative = an overpayment of this term. */
       owedCzk: z.number().int(),
+      /** Limit of a refund for this term, from the backend. */
+      refundableCzk: z.number().int(),
       paymentStatus: z.enum(["NOTHING_DUE", "UNPAID", "PARTIALLY_PAID", "PAID", "OVERPAID"]),
     }),
   ),

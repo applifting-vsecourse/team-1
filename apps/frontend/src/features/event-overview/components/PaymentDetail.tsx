@@ -45,7 +45,7 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
   const { t } = useTranslation("eventOverview")
   const { data, isPending, error, refetch } = useQuery(paymentQueryOptions(applicationId))
   const [termToPay, setTermToPay] = useState<PaymentTerm | null>(null)
-  const [isRefundOpen, setIsRefundOpen] = useState(false)
+  const [isRecordOpen, setIsRecordOpen] = useState(false)
   const [paymentToCancel, setPaymentToCancel] = useState<Payment | null>(null)
   if (isPending) return <LoadingState />
   if (error) {
@@ -58,8 +58,8 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
     )
   }
   const terms = data.terms.filter(isShown).sort((a, b) => cardRank(a) - cardRank(b))
-  // A refund is taken from one term, so any overpaid term opens it.
-  const hasOverpayment = data.terms.some((term) => term.owedCzk < 0)
+  // The refund is a switch in the dialog, enabled by the backend when a term is overpaid.
+  const hasOverpayment = data.refundableTermId !== null
   const hasConfirmedTerm = data.terms.some((term) => term.status === "CONFIRMED")
 
   return (
@@ -91,9 +91,9 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
             <Button
               variant="outline"
               size="lg"
-              onClick={() => setIsRefundOpen(true)}
+              onClick={() => setIsRecordOpen(true)}
             >
-              {t("payment.refund")}
+              {t("payment.recordOrRefund")}
             </Button>
           ) : null}
         </div>
@@ -155,11 +155,10 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
           onClose={() => setPaymentToCancel(null)}
         />
       ) : null}
-      {isRefundOpen ? (
+      {isRecordOpen ? (
         <PaymentEditor
           application={data}
-          isRefund
-          onClose={() => setIsRefundOpen(false)}
+          onClose={() => setIsRecordOpen(false)}
         />
       ) : null}
     </div>
