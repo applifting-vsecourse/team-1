@@ -24,6 +24,8 @@ class BulkApplicationDto {
 export class BulkConfirmationPreviewResponseDto {
   @ApiProperty() selectedCount!: number
   @ApiProperty({ type: GenderCapacityDto }) freePlaces!: GenderCapacityDto
+  @ApiProperty({ type: GenderCapacityDto, description: "Free beds after the confirmation" })
+  freePlacesAfter!: GenderCapacityDto
   @ApiProperty({ description: "Shared rooms: one pool for both genders" }) isShared!: boolean
   @ApiProperty({ type: [BulkApplicationDto], description: "In order of receipt" })
   confirmable!: BulkApplicationDto[]
@@ -35,6 +37,7 @@ export class BulkConfirmationPreviewResponseDto {
     return {
       selectedCount: preview.selectedCount,
       freePlaces: preview.freePlaces,
+      freePlacesAfter: preview.freePlacesAfter,
       isShared: preview.isShared,
       confirmable: named(preview.confirmable),
       skipped: named(preview.skipped),

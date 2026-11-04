@@ -21,6 +21,12 @@ vi.mock("@/lib/api-client", () => ({ api: { get } }))
 // Radix Select scrolls and captures pointers using APIs absent from jsdom.
 Element.prototype.hasPointerCapture = () => false
 Element.prototype.scrollIntoView = vi.fn()
+// Radix tooltips measure their trigger.
+globalThis.ResizeObserver = class {
+  observe = vi.fn()
+  unobserve = vi.fn()
+  disconnect = vi.fn()
+}
 const application = {
   id: "a1",
   firstName: "Jana",
@@ -153,7 +159,7 @@ describe("ApplicationsPage", () => {
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
     expect(
       within(screen.getByRole("group", { name: "Active filters" })).getByRole("button", {
-        name: "Remove filter: Waitlisted",
+        name: "Remove filter: Unpaid",
       }),
     ).toBeInTheDocument()
   })
@@ -312,13 +318,14 @@ describe("ApplicationsPage", () => {
     expect(await screen.findByText("Could not load applications")).toBeInTheDocument()
     expect(screen.getByRole("button", { name: /Try again/i })).toBeInTheDocument()
   })
-  it("offers the four payment states and sends the chosen one to the API", async () => {
+  it("offers the five payment states and sends the chosen one to the API", async () => {
     const change = setup([application], false, undefined, null, {})
     const user = userEvent.setup()
     await screen.findAllByText("jana@example.com", { exact: false })
     await user.click(screen.getAllByRole("combobox", { name: "Payment" })[0]!)
     expect(screen.getAllByRole("option").map((option) => option.textContent)).toEqual([
       "All payments",
+      "No amount due",
       "Unpaid",
       "Partially paid",
       "Paid",
@@ -379,27 +386,30 @@ describe("ApplicationsPage", () => {
       ],
     }
 
-    it("shows who is waiting in which term with a link to the detail", async () => {
+    it("lists who is waiting in the common table, oldest first", async () => {
       setup([waiting], false, undefined, null, { status: "TO_EVALUATE" })
-      const link = await screen.findByRole("link", { name: /Application detail: Jana Test/ })
-      expect(link).toHaveAttribute("href", "/organizer/events/e1/applications/a1")
-      expect(within(link).getByText("jana@example.com")).toBeInTheDocument()
-      expect(within(link).getByText("To evaluate")).toBeInTheDocument()
-      // Only terms that wait for a decision belong to the queue.
-      expect(within(link).getAllByText("To evaluate")).toHaveLength(1)
-      expect(screen.getByText("The oldest applications are at the top.")).toBeInTheDocument()
+      const row = await screen.findByRole("row", { name: /Jana Test/ })
+      expect(within(row).getByText(/jana@example.com/)).toBeInTheDocument()
+      expect(within(row).getByText("Awaiting evaluation")).toBeInTheDocument()
+      expect(screen.getByText("Sorted: in order of receipt, oldest first")).toBeInTheDocument()
+      expect(screen.queryByRole("heading", { name: "Applications" })).toBeNull()
       const calls = get.mock.calls as [string, { searchParams: URLSearchParams }][]
       const search = calls.find(([path]) => path.endsWith("applications"))![1].searchParams
       expect(search.get("status")).toBe("TO_EVALUATE")
     })
 
-    it("filters by term", async () => {
-      const change = setup([waiting], false, undefined, null, { status: "TO_EVALUATE" })
-      const user = userEvent.setup()
-      await screen.findByRole("link", { name: /Application detail/ })
-      await user.click(screen.getByRole("combobox", { name: "Term" }))
-      await user.click(await screen.findByRole("option", { name: "12–18 Jul 2027" }))
-      expect(change).toHaveBeenLastCalledWith({ status: "TO_EVALUATE", term: "t1" })
+    it.each([
+      ["TO_EVALUATE", "Awaiting evaluation"],
+      ["WAITLISTED", "Waitlisted"],
+    ] as const)("fixes the status filter to the %s view", async (status, label) => {
+      setup([waiting], false, undefined, null, { status })
+      const select = (await screen.findAllByRole("combobox", { name: "Status in term" }))[0]!
+      expect(select).toBeDisabled()
+      expect(select).toHaveTextContent(label)
+      await userEvent.setup().hover(select.parentElement!)
+      expect(await screen.findByRole("tooltip")).toHaveTextContent(
+        /The status is set by the chosen view/,
+      )
     })
 
     it("says so when nothing waits", async () => {
@@ -407,11 +417,13 @@ describe("ApplicationsPage", () => {
       expect(await screen.findByText("All applications are evaluated.")).toBeInTheDocument()
     })
 
-    it("offers a retry that keeps the chosen term", async () => {
-      setup([], true, undefined, null, { status: "TO_EVALUATE", term: "t1" })
-      expect(await screen.findByText("The queue could not be loaded.")).toBeInTheDocument()
-      expect(screen.getByText("The selected term was kept.")).toBeInTheDocument()
-      expect(screen.getByRole("button", { name: "Try again" })).toBeInTheDocument()
+    it("keeps All applications lit for a status picked in the filter, and clears it on a press", async () => {
+      const change = setup([application], false, undefined, null, { status: "CONFIRMED" })
+      const user = userEvent.setup()
+      const all = await screen.findByRole("radio", { name: "All applications" })
+      expect(all).toBeChecked()
+      await user.click(all)
+      expect(change).toHaveBeenLastCalledWith({})
     })
 
     it("opens the queue from the view chips", async () => {

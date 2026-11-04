@@ -5,6 +5,7 @@ import { api, connectTestPrisma, resetAndSeed, signIn } from "@/test/integration
 type Preview = {
   selectedCount: number
   freePlaces: { FEMALE: number; MALE: number }
+  freePlacesAfter: { FEMALE: number; MALE: number }
   confirmable: { applicationId: string; name: string }[]
   skipped: { applicationId: string; name: string }[]
 }
@@ -112,6 +113,7 @@ describe("bulk confirmation of applications in a term (integration)", () => {
 
     const preview = (await (await post("/preview", { applicationIds: ids })).json()) as Preview
     expect(preview.freePlaces).toEqual({ FEMALE: 1, MALE: 1 })
+    expect(preview.freePlacesAfter).toEqual({ FEMALE: 0, MALE: 0 })
     expect(preview.confirmable.map((row) => row.applicationId)).toEqual([adam, jana])
     expect(preview.skipped.map((row) => row.applicationId)).toEqual([petr])
     expect(await statusOf(adam)).toBe("TO_EVALUATE")
