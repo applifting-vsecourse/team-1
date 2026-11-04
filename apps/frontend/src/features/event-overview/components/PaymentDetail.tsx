@@ -110,7 +110,10 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
           <TermPaymentCard
             key={term.termId}
             title={termDates(term)}
-            status={term.status === "WAITLISTED" ? "WAITLISTED" : term.paymentStatus}
+            // A waitlisted term that still holds money keeps its payment status (D-088).
+            status={
+              term.status === "WAITLISTED" && term.paidCzk === 0 ? "WAITLISTED" : term.paymentStatus
+            }
             dueCzk={term.dueCzk}
             paidCzk={term.paidCzk}
             owedCzk={term.owedCzk}
