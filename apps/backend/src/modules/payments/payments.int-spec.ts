@@ -452,6 +452,32 @@ describe("organizer payments (US-44)", () => {
       expect((await summary()).terms.map((term) => term.owedCzk)).toEqual([0, -500])
     })
 
+    it("offers the debt less an overpayment of another term and settles both in one receipt (US-111)", async () => {
+      await confirmSecondTerm()
+      expect((await pay({ termId: firstTermId(), amountCzk: 7600 })).status).toBe(204)
+      const before = await summary()
+      expect(before.terms.map((term) => term.owedCzk)).toEqual([-700, 9900])
+      expect(before.payableCzk).toBe(9200)
+
+      expect((await pay({ amountCzk: 9200 })).status).toBe(204)
+      const after = await summary()
+      expect(after.terms.map((term) => term.owedCzk)).toEqual([0, 0])
+      expect(after).toMatchObject({ amountOwedCzk: 0, payableCzk: 0, refundableTermId: null })
+      const receipt = after.payments[1]
+      expect(receipt.amountCzk).toBe(9200)
+      expect(
+        receipt.rows
+          .map((row) => [row.termId, row.amountCzk])
+          .sort((a, b) => Number(a[1]) - Number(b[1])),
+      ).toEqual([
+        [firstTermId(), -700],
+        [termIds[1], 9900],
+      ])
+      // The whole receipt, including the set-off row, can be cancelled again.
+      expect((await request("DELETE", `/${receipt.id}`)).status).toBe(204)
+      expect((await summary()).terms.map((term) => term.owedCzk)).toEqual([-700, 9900])
+    })
+
     it("cancels the whole receipt of a summary payment and gives the debt back to both terms", async () => {
       await confirmSecondTerm()
       await pay({ amountCzk: 10000 })

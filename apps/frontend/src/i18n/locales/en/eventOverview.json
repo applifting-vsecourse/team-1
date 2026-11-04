@@ -193,6 +193,7 @@
     "noDebtHint": "The application is paid. Enter the amount of the additional payment.",
     "nothingDueDescription": "The application has no confirmed term, so nothing is due yet. Record a payment once a place is confirmed.",
     "nothingDueTitle": "Nothing to pay yet",
+    "offsetMethod": "Overpayment set-off",
     "overpaid": "Overpayment",
     "overpaidPreview": "After saving, overpayment",
     "overpaymentWarning": "Payment exceeds the remaining balance",

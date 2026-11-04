@@ -5,8 +5,8 @@ import {
 } from "@/modules/applications/domain/payment-details"
 import {
   computeAmountOwed,
-  computePayableAmount,
   computeRefundableAmount,
+  computeSummaryPayable,
   computeTermDue,
   computeTermOwed,
   computeTermPaid,
@@ -78,7 +78,7 @@ export type PaymentSummary = Omit<PaymentApplication, "terms"> & {
   amountDueCzk: number
   amountPaidCzk: number
   amountOwedCzk: number
-  /** What a summary payment settles right now (overpaid terms not set off). */
+  /** What a summary payment settles right now: debts less overpayments of the confirmed terms. */
   payableCzk: number
   /** The term a refund is offered for first (the most overpaid one); null without an overpayment. */
   refundableTermId: string | null
@@ -136,7 +136,7 @@ export function paymentSummary(application: PaymentApplication): PaymentSummary 
     amountDueCzk,
     amountPaidCzk,
     amountOwedCzk: computeAmountOwed(amountDueCzk, amountPaidCzk),
-    payableCzk: computePayableAmount(terms.map((term) => term.owedCzk)),
+    payableCzk: computeSummaryPayable(terms),
     refundableTermId:
       terms.reduce<PaymentTermSummary | null>(
         (best, term) => (term.refundableCzk > (best?.refundableCzk ?? 0) ? term : best),

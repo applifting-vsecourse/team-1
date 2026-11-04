@@ -193,6 +193,7 @@
     "noDebtHint": "Přihláška je uhrazená. Zadejte částku další platby.",
     "nothingDueDescription": "Přihláška nemá potvrzený žádný termín, takže zatím nic neplatí. Platbu zapíšete, až se místo potvrdí.",
     "nothingDueTitle": "Zatím nic k úhradě",
+    "offsetMethod": "Zápočet přeplatku",
     "overpaid": "Přeplatek",
     "overpaidPreview": "Po uložení vznikne přeplatek",
     "overpaymentWarning": "Platba přesahuje zbývající dluh",

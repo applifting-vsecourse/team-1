@@ -189,6 +189,34 @@ describe("PaymentEditor", () => {
     expect(screen.getByRole("option", { name: /Jul 2027/ })).toBeInTheDocument()
   })
 
+  it("offers the debt less the overpayment of another term and ends at 0 (LK-0004)", async () => {
+    const client = new QueryClient({ defaultOptions: { mutations: { retry: false } } })
+    render(
+      <QueryClientProvider client={client}>
+        <PaymentEditor
+          application={{
+            ...application,
+            terms: [
+              { ...application.terms[0]!, owedCzk: -700, paidCzk: 5200, refundableCzk: 700 },
+              { ...secondTerm, owedCzk: 4900, dueCzk: 4900, paidCzk: 0 },
+            ],
+            amountDueCzk: 9800,
+            amountPaidCzk: 5200,
+            amountOwedCzk: 4200,
+            payableCzk: 4200,
+            refundableTermId: "t1",
+          }}
+          onClose={vi.fn()}
+        />
+      </QueryClientProvider>,
+    )
+    const user = userEvent.setup()
+    expect(screen.getByRole("radio", { name: /Settle the remaining.*4,200/ })).toBeChecked()
+    expect(screen.getByText("After saving, amount owed").nextSibling).toHaveTextContent(/0/)
+    await user.click(screen.getByRole("button", { name: /Record payment.*4,200/ }))
+    await waitFor(() => expect(recordPayment).toHaveBeenCalledWith("a1", expect.any(String), 4200))
+  })
+
   it("defaults to settling the balance and sends the amount shown on the button", async () => {
     const { user, onClose, invalidate } = setup()
     expect(screen.queryByRole("checkbox")).not.toBeInTheDocument()

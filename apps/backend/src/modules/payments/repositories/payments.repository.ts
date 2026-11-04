@@ -1,8 +1,9 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { Prisma } from "@/generated/prisma/client"
 import {
-  allocatePayment,
+  allocateSummaryPayment,
   computeRefundableAmount,
+  computeSummaryPayable,
   computeTermDue,
   computeTermOwed,
   computeTermPaid,
@@ -118,7 +119,7 @@ export class PaymentsRepository {
         const sameTerm =
           termId === undefined || existing.every((row) => row.applicationTerm.termId === termId)
         if (
-          existing.some((row) => row.amountCzk < 0) !== isRefund ||
+          total < 0 !== isRefund ||
           !sameTerm ||
           (input.amountCzk !== undefined &&
             total !== (isRefund ? -input.amountCzk : input.amountCzk))
@@ -164,10 +165,9 @@ export class PaymentsRepository {
           { applicationTermId: term.applicationTermId, amountCzk: isRefund ? -amount : amount },
         ]
       } else {
-        const payable = terms.reduce((sum, term) => sum + Math.max(0, term.owedCzk), 0)
-        const amount = resolvePaymentAmount(input.amountCzk, payable)
+        const amount = resolvePaymentAmount(input.amountCzk, computeSummaryPayable(terms))
         assertAmount(amount)
-        rows = allocatePayment(amount, terms)
+        rows = allocateSummaryPayment(amount, terms)
       }
 
       await tx.payment.createMany({
