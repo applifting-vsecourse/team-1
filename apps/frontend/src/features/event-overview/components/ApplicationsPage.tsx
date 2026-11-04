@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { Link } from "@tanstack/react-router"
+import { Link, useNavigate } from "@tanstack/react-router"
 import { FilterX } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
@@ -37,6 +37,11 @@ import { ApplicationViews } from "@/features/event-overview/components/Applicati
 import { BulkConfirmDialog } from "@/features/event-overview/components/BulkConfirmDialog"
 import { BulkDecisionDialog } from "@/features/event-overview/components/BulkDecisionDialog"
 import { BulkSelectionBar } from "@/features/event-overview/components/BulkSelectionBar"
+import {
+  SubstitutesPanel,
+  type SubstituteTaken as SubstituteTakenData,
+} from "@/features/event-overview/components/SubstitutesPanel"
+import { SubstituteTaken } from "@/features/event-overview/components/SubstituteTaken"
 import { UnfinishedEvent } from "@/features/event-overview/components/UnfinishedEvent"
 import type { ApplicationsSearch } from "@/features/event-overview/lib/applications-search"
 
@@ -56,6 +61,7 @@ export function ApplicationsPage({
 }) {
   const { t } = useTranslation("eventOverview")
   const searchInput = useRef<HTMLInputElement>(null)
+  const navigate = useNavigate()
   useEffect(() => {
     if (searchInput.current) searchInput.current.value = filters.q ?? ""
   }, [filters.q])
@@ -76,6 +82,8 @@ export function ApplicationsPage({
     : undefined
   const [selectedIds, setSelectedIds] = useState<ReadonlySet<string>>(new Set())
   const [dialog, setDialog] = useState<"CONFIRM" | BulkDecision | null>(null)
+  // Filling a freed bed (US-104) works on one term of the waitlist, like deciding in bulk.
+  const [taken, setTaken] = useState<SubstituteTakenData | null>(null)
   const pageCount = Math.max(1, Math.ceil((query.data?.length ?? 0) / 20))
   const currentPage = Math.min(page, pageCount - 1)
   const visibleRows = query.data?.slice(currentPage * 20, (currentPage + 1) * 20) ?? []
@@ -101,6 +109,13 @@ export function ApplicationsPage({
   }
   const hasFilters = Object.values(filters).some(Boolean)
   const isWaitlist = filters.status === "WAITLISTED"
+  const substituteTerm = isWaitlist
+    ? filters.term
+      ? terms.find((term) => term.id === filters.term)
+      : terms.length === 1
+        ? terms[0]
+        : undefined
+    : undefined
   // Without a term or a room the event takes no applications yet; say what is missing instead.
   const isUnfinished =
     occupancy.data !== undefined &&
@@ -118,17 +133,45 @@ export function ApplicationsPage({
       </>
     )
   }
+  const views = (
+    <ApplicationViews
+      filters={filters}
+      onChange={(next) => {
+        setPage(0)
+        setSelectedIds(new Set())
+        setTaken(null)
+        onFiltersChange(next)
+      }}
+    />
+  )
+  if (taken && isWaitlist) {
+    return (
+      <div className="flex flex-col gap-6">
+        <Seo title={t("applications.title")} />
+        {views}
+        <SubstituteTaken
+          {...taken}
+          onRefresh={() => setTaken(null)}
+        />
+      </div>
+    )
+  }
   return (
     <div className="flex flex-col gap-6">
       <Seo title={t("applications.title")} />
-      <ApplicationViews
-        filters={filters}
-        onChange={(next) => {
-          setPage(0)
-          setSelectedIds(new Set())
-          onFiltersChange(next)
-        }}
-      />
+      {views}
+      {substituteTerm && (
+        <SubstitutesPanel
+          eventId={eventId}
+          term={substituteTerm}
+          onTaken={setTaken}
+          onConfirmed={(applicationId) => {
+            notify.success(t("substitutes.confirmed"))
+            // The application of the confirmed participant, where the payment details are.
+            void navigate({ to: ROUTES.organizer.application, params: { eventId, applicationId } })
+          }}
+        />
+      )}
       <>
         <div className="flex flex-wrap items-end gap-2">
           <form
