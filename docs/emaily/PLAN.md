@@ -36,14 +36,21 @@ Plán zahájen 3. 11. 2026. Výstupem inventury je business katalog transakční
 | Krok | Stav |
 | --- | --- |
 | 1. Business inventura | Hotovo, [KATALOG.md](KATALOG.md); šest rozhodnutí PM zapracováno. |
-| 2. Schválení katalogu | Čeká na finální potvrzení PM (úplnost a význam). |
+| 2. Schválení katalogu | Rozhodnutí PM zapracována do modelů a registru. Čeká už jen na finální potvrzení úplnosti. |
 | 3. Obsah | Hotovo. Texty CS/EN schváleny Adamem; další revize ani skutečné kontakty se neřeší (školní projekt, `organizator@togena.com` a `support@togena.com` zůstávají fiktivní). |
 | 4. Design | Nezahájeno. Další krok: náhledy jednoduché zprávy, souhrnu přihlášek, změny více termínů a bezpečnostního upozornění; srovnání s Figmou. |
 | 5. Předání vývoji | Nezahájeno, závisí na krocích 2 a 4. |
 | 6. Business akceptace | Nezahájeno. |
 
-Před předáním vývoji zbývá:
+Hotovo od posledního stavu:
 
-- Promítnout nová rozhodnutí (magic link místo „prvního hesla“, výzva po splatnosti jen na požadavek organizátora, nový PAYMENT_CORRECTED, platební údaje v opravě platby, vrácení plateb) do [EMAILY.md](../procesy/zpracovani-prihlasky/EMAILY.md), procesních modelů a registru rozhodnutí. Dosud neproběhlo; dělá se přes skill `model-update` a `business-impact-check`, jen na pokyn PM.
-- Před zapojením EVENT_TERM_CANCELLED potvrdit soulad věty o vrácení plateb s pravidly rušení termínů.
+- Rozhodnutí z katalogu jsou promítnutá do [EMAILY.md](../procesy/zpracovani-prihlasky/EMAILY.md) (nový e-mail č. 16, výzva jednou, refund, magic link, kontakty), do stavových a procesních modelů obou režimů (přechod zaplacená → s dluhem po opravě platby) a do registru jako D-099 až D-104.
+- Tickety upraveny: #46 (jedna výzva, ručně nebo automaticky), #205 (návrat k dluhu a e-mail č. 16), komentář v #178 (magic link). Q-PLA-03 přeformulována.
+
+Zbývá před předáním vývoji:
+
+- Rozhodnout, kam patří text a design e-mailu č. 16: navrženo přidat do [#260](https://github.com/applifting-vsecourse/team-1/issues/260); do ticketu zatím nezapsáno.
+- Před zapojením EVENT_TERM_CANCELLED potvrdit soulad věty o vrácení plateb s pravidly rušení termínů (D-080).
 - Vyjasnit chybějící automatické potvrzení náhradníka po uvolnění lůžka (APP_CONFIRMED, varianta z náhradníka) – podle orientačního pokrytí v kódu nenalezeno.
+- Vývoj vyřadí šablonu obecného ověření e-mailu (`verify-email`), D-102.
+- Otevřená otázka na PO: co po jediné výzvě bez reakce (Q-PLA-03).
