@@ -14,6 +14,7 @@ import { ForbiddenException, HttpStatus, Injectable } from "@nestjs/common"
 
 const include = {
   event: { select: { name: true } },
+  organization: { select: { bankAccount: true } },
   terms: {
     include: {
       term: { select: { id: true, number: true, startsOn: true, endsOn: true } },
@@ -31,6 +32,7 @@ const toDomain = (row: Row): PaymentApplication => ({
   id: row.id,
   eventId: row.eventId,
   eventName: row.event.name,
+  bankAccount: row.organization.bankAccount,
   number: row.number,
   firstName: row.firstName,
   lastName: row.lastName,
