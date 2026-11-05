@@ -19,6 +19,8 @@ Podporovaná je jen aktuální verze z větve `main`, která běží na stagingu
 
 Nová verze se v PR objeví až po několika dnech od vydání (`cooldown` v `dependabot.yml`). Kompromitované balíčky bývají do té doby stažené. Bezpečnostní opravy čekání nemají.
 
+Akce v GitHub Actions jsou připnuté na celé SHA commitu s verzí v komentáři (`actions/checkout@<sha> # v7.0.1`), aby přesunutý tag nespustil cizí kód. Novou akci přidávejte stejně, Dependabot pak aktualizuje SHA i komentář.
+
 ## Co s PR od Dependabota
 
 - **Bezpečnostní PR** má přednost před prací na story. Když je CI zelené, sloučí ho kdokoli z týmu. Když CI padá, opraví ho ten, kdo PR převezme, ve stejné větvi.
