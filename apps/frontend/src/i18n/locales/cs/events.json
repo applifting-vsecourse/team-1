@@ -1,4 +1,17 @@
 {
+  "cancellationStart": {
+    "afterDate": "Od tohoto data se změny termínů a odhlášky předávají organizátorovi ke schválení.",
+    "cancel": "Zrušit",
+    "dateLabel": "Storno podmínky platí od",
+    "enable": "Nastavit datum začátku storna",
+    "invalidDate": "Zadejte platné kalendářní datum.",
+    "noDate": "Bez nastaveného data se změny termínů a odhlášky provádějí ihned.",
+    "save": "Uložit nastavení",
+    "saveFailed": "Datum začátku storna se nepodařilo uložit",
+    "savedDate": "Začátek storno podmínek: {{date}}.",
+    "savedTitle": "Datum je uložené.",
+    "title": "Schvalování změn účastníků"
+  },
   "delete": {
     "action": "Smazat akci",
     "confirm": "Smazat akci",

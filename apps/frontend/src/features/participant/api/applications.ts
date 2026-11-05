@@ -89,3 +89,31 @@ export const myApplicationQueryOptions = (id: string) =>
         await api.get(`participant/applications/${encodeURIComponent(id)}`).json(),
       ),
   })
+
+const changeOptionsSchema = z.object({
+  canChangeImmediately: z.boolean(),
+  terms: z.array(
+    z.object({
+      id: z.string(),
+      name: z.string().nullable(),
+      startsOn: z.string(),
+      endsOn: z.string(),
+      selected: z.boolean(),
+    }),
+  ),
+})
+
+export const participantChangeOptionsQueryOptions = (id: string) =>
+  queryOptions({
+    queryKey: ["participant", "applications", id, "change-options"],
+    queryFn: async () =>
+      changeOptionsSchema.parse(
+        await api.get(`participant/applications/${encodeURIComponent(id)}/change-options`).json(),
+      ),
+  })
+
+export async function changeParticipantTerms(id: string, termIds: string[]): Promise<void> {
+  await api.put(`participant/applications/${encodeURIComponent(id)}/terms`, {
+    json: { termIds },
+  })
+}

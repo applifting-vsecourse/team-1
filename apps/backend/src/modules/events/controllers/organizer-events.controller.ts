@@ -1,3 +1,4 @@
+import { CancellationStartRequestDto } from "@/modules/events/controllers/dto/cancellation-start.request.dto"
 import { CreateEventDto } from "@/modules/events/controllers/dto/create-event.dto"
 import { EvaluationModeRequestDto } from "@/modules/events/controllers/dto/evaluation-mode.request.dto"
 import { OrganizerEventResponseDto } from "@/modules/events/controllers/dto/organizer-event.response.dto"
@@ -152,6 +153,21 @@ export class OrganizerEventsController {
   ): Promise<OrganizerEventResponseDto> {
     return OrganizerEventResponseDto.fromDomain(
       await this.events.setEvaluationMode(user, eventId, body.evaluationMode),
+    )
+  }
+
+  @Put(":eventId/cancellation-start")
+  @ApiOperation({ summary: "Set or clear the first day cancellation rules apply (US-113)" })
+  @ApiResponse({ status: 200, type: OrganizerEventResponseDto })
+  @ApiResponse({ status: 400, description: "Invalid calendar day." })
+  @ApiResponse({ status: 403, description: "Unknown event or of another organization." })
+  async setCancellationStart(
+    @User() user: Identity,
+    @Param("eventId") eventId: string,
+    @Body() dto: CancellationStartRequestDto,
+  ): Promise<OrganizerEventResponseDto> {
+    return OrganizerEventResponseDto.fromDomain(
+      await this.events.setCancellationStart(user, eventId, dto.cancellationStartsOn),
     )
   }
 

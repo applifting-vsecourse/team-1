@@ -182,23 +182,26 @@ enum RoomMode {
 }
 
 model Event {
-  id                 String         @id @default(cuid())
-  organization       Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  organizationId     String
-  name               String
+  id                   String         @id @default(cuid())
+  organization         Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId       String
+  name                 String
   // How applications in a term are evaluated (US-101); fixed once applications open.
-  evaluationMode     EvaluationMode @default(AUTOMATIC)
-  description        String?        @db.Text
-  location           String?
+  evaluationMode       EvaluationMode @default(AUTOMATIC)
+  // First calendar day when participant changes require organizer approval (US-113/114).
+  // Null leaves changes immediate.
+  cancellationStartsOn DateTime?      @db.Date
+  description          String?        @db.Text
+  location             String?
   // Public page content (US-122): the one source of the event web and the catalog (US-123).
-  contactEmail       String?
-  contactPhone       String?
+  contactEmail         String?
+  contactPhone         String?
   // Listed in the catalog only when the organizer turns it on explicitly.
-  publishedInCatalog Boolean        @default(false)
+  publishedInCatalog   Boolean        @default(false)
   // Unguessable token in the public application link /prihlaska/<publicToken>.
-  publicToken        String         @unique
-  createdAt          DateTime       @default(now())
-  updatedAt          DateTime       @default(now()) @updatedAt
+  publicToken          String         @unique
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @default(now()) @updatedAt
 
   terms        Term[]
   applications Application[]

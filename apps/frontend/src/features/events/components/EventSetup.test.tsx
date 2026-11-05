@@ -32,6 +32,7 @@ const base = {
   endsOn: null,
   applicationsOpen: false,
   evaluationMode: "AUTOMATIC",
+  cancellationStartsOn: null,
   evaluationModeLocked: false,
   missing: ["TERM", "ROOM"],
   terms: [],

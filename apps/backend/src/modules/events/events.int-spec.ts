@@ -14,6 +14,7 @@ type EventBody = {
   publicToken: string
   applicationsOpen: boolean
   missing: string[]
+  cancellationStartsOn: string | null
 }
 
 describe("organizer events (integration)", () => {
@@ -185,6 +186,40 @@ describe("organizer events (integration)", () => {
     })
     const foreign = await post(cookieB, { organizationId: organizationA.id, name: "Cizí" })
     expect(foreign.status).toBe(403)
+  })
+
+  it("sets and clears the cancellation start day, with authorization and calendar validation", async () => {
+    const created = (await (await post(cookieA, { name: "Storno test" })).json()) as EventBody
+    const url = api(`/organizer/events/${created.id}/cancellation-start`)
+    const save = (cookie: string | null, value: unknown): Promise<Response> =>
+      fetch(url, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", ...(cookie ? { Cookie: cookie } : {}) },
+        body: JSON.stringify({ cancellationStartsOn: value }),
+      })
+
+    expect(created.cancellationStartsOn).toBeNull()
+    expect((await save(null, "2027-07-01")).status).toBe(401)
+    expect((await save(cookieB, "2027-07-01")).status).toBe(403)
+    expect((await save(cookieA, "2027-02-30")).status).toBe(400)
+    expect((await save(cookieA, undefined)).status).toBe(400)
+    expect((await save(cookieA, "2027-07-01T00:00:00Z")).status).toBe(400)
+
+    const saved = await save(cookieA, "2027-07-01")
+    expect(saved.status).toBe(200)
+    expect(await saved.json()).toMatchObject({ cancellationStartsOn: "2027-07-01" })
+    expect(
+      (await prisma.event.findUniqueOrThrow({ where: { id: created.id } })).cancellationStartsOn,
+    ).toEqual(new Date("2027-07-01T00:00:00.000Z"))
+
+    const detail = await fetch(api(`/organizer/events/${created.id}`), {
+      headers: { Cookie: cookieA },
+    })
+    expect(await detail.json()).toMatchObject({ cancellationStartsOn: "2027-07-01" })
+    expect((await save(cookieA, null)).status).toBe(200)
+    expect(
+      (await prisma.event.findUniqueOrThrow({ where: { id: created.id } })).cancellationStartsOn,
+    ).toBeNull()
   })
 
   it("deletes only an event nobody has applied to", async () => {

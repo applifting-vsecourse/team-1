@@ -32,6 +32,7 @@ const event = {
   endsOn: "2027-08-08",
   applicationsOpen: true,
   evaluationMode: "AUTOMATIC",
+  cancellationStartsOn: null,
   evaluationModeLocked: true,
   missing: [],
   terms: [],

@@ -1,5 +1,12 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { Prisma } from "@/generated/prisma/client"
+import { computeAvailablePlaces } from "@/modules/applications/domain/capacity"
+import { findDuplicate } from "@/modules/applications/domain/duplicate-application"
+import { evaluateApplication } from "@/modules/applications/domain/evaluation"
+import {
+  participantChangeAllowed,
+  ParticipantChangeOptions,
+} from "@/modules/applications/domain/participant-term-change"
 import { StatusChangeSnapshot } from "@/modules/applications/domain/status-transition"
 import { skippedSubstitutes } from "@/modules/applications/domain/substitute-skips"
 import { termLabel } from "@/modules/applications/domain/term-label"
@@ -12,7 +19,9 @@ import {
 } from "@/modules/applications/domain/term-status"
 import { bedGroup, WaitlistCandidate } from "@/modules/applications/domain/waitlist"
 import { resolveChangeEmailLocale } from "@/modules/participants/domain/change-email-locale"
-import { Injectable } from "@nestjs/common"
+import { ApplicationChange } from "@/modules/participants/domain/submission-confirmation"
+import { AppException } from "@/shared/errors/app.exception"
+import { HttpStatus, Injectable } from "@nestjs/common"
 
 const recordInclude = {
   changedBy: { select: { name: true } },
@@ -64,6 +73,255 @@ function toRecord(row: RecordRow): SubstituteRecord {
 @Injectable()
 export class TermStatusRepository {
   constructor(private readonly prisma: PrismaService) {}
+
+  /** The terms the owner can choose, and the current approval boundary (US-113). */
+  async participantChangeOptions(
+    userId: string,
+    applicationId: string,
+  ): Promise<ParticipantChangeOptions | null> {
+    const application = await this.prisma.application.findFirst({
+      where: { id: applicationId, userId },
+      select: {
+        event: {
+          select: {
+            cancellationStartsOn: true,
+            terms: {
+              where: { cancelledAt: null },
+              orderBy: [{ startsOn: "asc" }, { id: "asc" }],
+              select: {
+                id: true,
+                name: true,
+                startsOn: true,
+                endsOn: true,
+                _count: { select: { rooms: true } },
+              },
+            },
+          },
+        },
+        terms: { select: { termId: true, status: true } },
+      },
+    })
+    if (!application) return null
+    const active = new Set(
+      application.terms.filter((row) => row.status !== "CANCELLED").map((row) => row.termId),
+    )
+    const cancelled = new Set(
+      application.terms.filter((row) => row.status === "CANCELLED").map((row) => row.termId),
+    )
+    return {
+      canChangeImmediately: participantChangeAllowed(
+        application.event.cancellationStartsOn,
+        new Date(),
+      ),
+      terms: application.event.terms
+        .filter((term) => !cancelled.has(term.id) && (active.has(term.id) || term._count.rooms > 0))
+        .map((term) => ({
+          id: term.id,
+          name: term.name,
+          startsOn: term.startsOn.toISOString().slice(0, 10),
+          endsOn: term.endsOn.toISOString().slice(0, 10),
+          selected: active.has(term.id),
+        })),
+    }
+  }
+
+  /** Replaces the owner's active term selection under the event lock. Cancelled rows and payments stay for audit. */
+  async changeParticipantTerms(
+    userId: string,
+    applicationId: string,
+    selectedIds: string[],
+  ): Promise<ApplicationChange | null | undefined> {
+    return this.prisma.$transaction(async (tx) => {
+      const application = await tx.application.findFirst({
+        where: { id: applicationId, userId },
+        include: {
+          event: { include: { organization: { select: { name: true, bankAccount: true } } } },
+        },
+      })
+      if (!application) return undefined
+      await tx.$queryRaw`SELECT id FROM event WHERE id = ${application.eventId} FOR UPDATE`
+      const event = await tx.event.findUniqueOrThrow({
+        where: { id: application.eventId },
+        select: { cancellationStartsOn: true, evaluationMode: true },
+      })
+      if (!participantChangeAllowed(event.cancellationStartsOn, new Date())) {
+        throw new AppException(HttpStatus.CONFLICT, "CANCELLATION_APPROVAL_REQUIRED")
+      }
+
+      const current = await tx.applicationTerm.findMany({
+        where: { applicationId, organizationId: application.organizationId },
+      })
+      const active = current.filter((row) => row.status !== "CANCELLED")
+      const activeIds = new Set(active.map((row) => row.termId))
+      const desired = new Set(selectedIds)
+      const removed = active.filter((row) => !desired.has(row.termId))
+      const addedIds = selectedIds.filter((id) => !activeIds.has(id))
+      if (removed.length === 0 && addedIds.length === 0) return null
+
+      const offered = await tx.term.findMany({
+        where: {
+          id: { in: addedIds },
+          eventId: application.eventId,
+          organizationId: application.organizationId,
+          cancelledAt: null,
+        },
+        select: {
+          id: true,
+          name: true,
+          startsOn: true,
+          endsOn: true,
+          number: true,
+          priceCzk: true,
+          _count: { select: { rooms: true } },
+        },
+      })
+      if (
+        offered.length !== addedIds.length ||
+        offered.some((term) => term._count.rooms === 0) ||
+        addedIds.some((id) => current.some((row) => row.termId === id))
+      ) {
+        throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
+      }
+
+      if (addedIds.length > 0) {
+        const registered = await tx.applicationTerm.findMany({
+          where: {
+            organizationId: application.organizationId,
+            termId: { in: addedIds },
+            status: { not: "CANCELLED" },
+            application: { eventId: application.eventId, birthDate: application.birthDate },
+          },
+          select: {
+            termId: true,
+            application: { select: { firstName: true, lastName: true, birthDate: true } },
+          },
+        })
+        const duplicate = findDuplicate(
+          registered.map(({ termId, application: person }) => ({
+            termId,
+            firstName: person.firstName,
+            lastName: person.lastName,
+            birthDate: person.birthDate.toISOString().slice(0, 10),
+          })),
+          [
+            {
+              firstName: application.firstName,
+              lastName: application.lastName,
+              birthDate: application.birthDate.toISOString().slice(0, 10),
+              termIds: addedIds,
+            },
+          ],
+        )
+        if (duplicate) {
+          const term = offered.find((row) => row.id === duplicate.termId)!
+          throw new AppException(HttpStatus.CONFLICT, "APPLICATION_DUPLICATE", undefined, {
+            participant: `${application.firstName} ${application.lastName}`,
+            term: termLabel(term, application.locale),
+          })
+        }
+      }
+
+      for (const row of removed) {
+        await tx.applicationTerm.update({ where: { id: row.id }, data: { status: "CANCELLED" } })
+        await tx.applicationTermStatusChange.create({
+          data: {
+            organizationId: application.organizationId,
+            applicationTermId: row.id,
+            fromStatus: row.status,
+            toStatus: "CANCELLED",
+            changedById: userId,
+          },
+        })
+      }
+
+      if (addedIds.length > 0) {
+        const [rooms, confirmed] = await Promise.all([
+          tx.room.findMany({
+            where: { organizationId: application.organizationId, termId: { in: addedIds } },
+            select: { termId: true, capacity: true, gender: true },
+          }),
+          tx.applicationTerm.findMany({
+            where: {
+              organizationId: application.organizationId,
+              termId: { in: addedIds },
+              status: "CONFIRMED",
+            },
+            select: { termId: true, application: { select: { gender: true } } },
+          }),
+        ])
+        const evaluated = evaluateApplication(
+          application.gender,
+          offered.map((term) => ({
+            termId: term.id,
+            priceCzk: term.priceCzk,
+            freePlaces: computeAvailablePlaces(
+              rooms.filter((room) => room.termId === term.id),
+              confirmed
+                .filter((row) => row.termId === term.id)
+                .map((row) => row.application.gender),
+            ),
+          })),
+          event.evaluationMode,
+        )
+        for (const term of evaluated) {
+          await tx.applicationTerm.create({
+            data: {
+              organizationId: application.organizationId,
+              applicationId,
+              termId: term.termId,
+              status: term.status,
+              priceCzk: term.priceCzk,
+            },
+          })
+        }
+      }
+
+      const [user, first, terms] = await Promise.all([
+        tx.user.findUnique({ where: { id: userId }, select: { locale: true } }),
+        tx.application.findFirst({
+          where: { userId },
+          orderBy: [{ submittedAt: "asc" }, { id: "asc" }],
+          select: { locale: true },
+        }),
+        tx.applicationTerm.findMany({
+          where: { applicationId, organizationId: application.organizationId },
+          orderBy: { term: { startsOn: "asc" } },
+          include: { term: { select: { name: true, number: true, startsOn: true, endsOn: true } } },
+        }),
+      ])
+      const locale = resolveChangeEmailLocale({
+        userLocale: user?.locale ?? null,
+        firstApplicationLocale: first?.locale ?? application.locale,
+      })
+      const oneCancelled = removed.length === 1 && addedIds.length === 0
+      const changedTerm = oneCancelled
+        ? terms.find((row) => row.termId === removed[0].termId)
+        : null
+      return {
+        email: application.email,
+        locale,
+        eventName: application.event.name,
+        organizationName: application.event.organization.name,
+        bankAccount: application.event.organization.bankAccount,
+        gender: application.gender,
+        termName: changedTerm ? termLabel(changedTerm.term, locale) : "",
+        kind: oneCancelled ? "CANCELLED" : "TERMS_CHANGED",
+        isAmountChanged: addedIds.length > 0,
+        application: {
+          number: application.number,
+          firstName: application.firstName,
+          lastName: application.lastName,
+          accessToken: application.accessToken,
+          terms: terms.map((row) => ({
+            name: termLabel(row.term, locale),
+            termNumber: row.term.number,
+            status: row.status,
+            priceCzk: row.priceCzk,
+          })),
+        },
+      }
+    })
+  }
 
   /**
    * Records of confirmations from the waitlist in a term (US-105), newest first. Null when the

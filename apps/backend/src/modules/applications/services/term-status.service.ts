@@ -1,3 +1,4 @@
+import { ParticipantChangeOptions } from "@/modules/applications/domain/participant-term-change"
 import {
   changeEmailKind,
   rejectStatusChange,
@@ -28,6 +29,26 @@ export class TermStatusService {
     private readonly access: OrganizationAccessService,
     private readonly mailer: ApplicationConfirmationMailer,
   ) {}
+
+  async participantChangeOptions(
+    user: Identity,
+    applicationId: string,
+  ): Promise<ParticipantChangeOptions> {
+    const options = await this.repository.participantChangeOptions(user.id, applicationId)
+    if (!options) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
+    return options
+  }
+
+  /** Before the cancellation start, the participant's selection takes effect in the same request. */
+  async changeByParticipant(
+    user: Identity,
+    applicationId: string,
+    termIds: string[],
+  ): Promise<void> {
+    const change = await this.repository.changeParticipantTerms(user.id, applicationId, termIds)
+    if (change === undefined) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
+    if (change) await this.mailer.sendApplicationChange(change)
+  }
 
   async getTerms(user: Identity, applicationId: string): Promise<TermStatusDetail[]> {
     const { organizationId } = await this.access.assertCanAccessApplication(user, applicationId)
