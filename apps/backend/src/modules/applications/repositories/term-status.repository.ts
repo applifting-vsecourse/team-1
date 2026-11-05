@@ -321,6 +321,8 @@ export class TermStatusRepository {
               participantName: `${application.firstName} ${application.lastName}`,
               termStartsOn: isoDay(changedTerm.term.startsOn),
               termEndsOn: isoDay(changedTerm.term.endsOn),
+              fromStatus: removed[0].status,
+              toStatus: "CANCELLED",
             },
           }),
         )
@@ -532,6 +534,8 @@ export class TermStatusRepository {
             participantName: `${application.firstName} ${application.lastName}`,
             termStartsOn: isoDay(current.term.startsOn),
             termEndsOn: isoDay(current.term.endsOn),
+            fromStatus: current.status,
+            toStatus: command.to,
           },
         }),
       )

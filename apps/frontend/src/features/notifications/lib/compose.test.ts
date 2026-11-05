@@ -24,6 +24,8 @@ const base = (kind: AppNotification["kind"]): AppNotification => ({
     termEndsOn: "2027-07-18",
     amountCzk: 500,
     owedCzk: 4400,
+    fromStatus: "WAITLISTED",
+    toStatus: "CONFIRMED",
   },
   createdAt: "2027-03-11T09:32:00.000Z",
   readAt: null,
@@ -33,39 +35,49 @@ const compose = (kind: AppNotification["kind"], language: "en" | "cs") =>
   composeNotification(base(kind), i18n.getFixedT(language, "notifications"), language)
 
 describe("composeNotification", () => {
-  it("composes the Czech copy drawn in Figma", () => {
+  it("separates who, where and what changed", () => {
     expect(compose("CONFIRMED", "cs")).toMatchObject({
-      title: "Účast je potvrzená",
-      detail: "Adam Dvořák · 12.–18. 7. 2027 · Letní kemp Lipno 2027",
+      title: "Přihláška byla potvrzena",
+      participant: "Adam Dvořák",
+      context: "12.–18. 7. 2027 · Letní kemp Lipno 2027",
+      change: { from: "Náhradník", to: "Potvrzeno" },
     })
-    expect(compose("PAYMENT_RECORDED", "cs")).toMatchObject({
-      title: expect.stringMatching(/^Přijatá platba 500\s+Kč$/) as string,
-      detail: expect.stringMatching(
-        /^Adam Dvořák · dluh v termínu 12\.–18\. 7\. se snížil na 4\s400\s+Kč$/,
-      ) as string,
+  })
+
+  it("tells a substitute who got a place from one who was confirmed straight away", () => {
+    const fromWaitlist = compose("CONFIRMED_FROM_WAITLIST", "cs")
+    const confirmed = compose("CONFIRMED", "cs")
+
+    expect(fromWaitlist.title).toBe("Uvolnilo se místo, účast je potvrzená")
+    expect(fromWaitlist.title).not.toBe(confirmed.title)
+    expect(compose("WAITLISTED", "cs").title).toBe("Jste náhradník")
+  })
+
+  it("names the status before and after in English too", () => {
+    expect(compose("WAITLISTED", "en")).toMatchObject({
+      title: "You are a substitute",
+      change: { from: "Waitlisted", to: "Confirmed" },
     })
-    expect(compose("REQUEST_APPROVED", "cs")).toMatchObject({
-      title: "Žádost o změnu byla schválená",
-      detail: "Adam Dvořák · nový termín 12.–18. 7. 2027",
-    })
+  })
+
+  it("shows a payment with the amount and what is still owed", () => {
+    const text = compose("PAYMENT_RECORDED", "cs")
+
+    expect(text.title).toMatch(/^Přijatá platba 500\s+Kč$/)
+    expect(text.note).toMatch(/^Zbývá zaplatit: 4\s400\s+Kč$/)
   })
 
   it("formats the time of the notification", () => {
     expect(compose("CONFIRMED", "cs").time).toMatch(/^\d{1,2}\. \d{1,2}\. 2027 · \d{2}:\d{2}$/)
   })
 
-  it.each(NOTIFICATION_KINDS)("has a title and a detail for %s in both languages", (kind) => {
+  it.each(NOTIFICATION_KINDS)("has a title and a context for %s in both languages", (kind) => {
     for (const language of ["en", "cs"] as const) {
-      const { title, detail } = compose(kind, language)
+      const { title, participant, context } = compose(kind, language)
       expect(title).not.toMatch(/^title\.|\{\{/)
-      expect(detail).not.toMatch(/^detail\.|\{\{/)
       expect(title.length).toBeGreaterThan(0)
-      expect(detail).toContain("Adam Dvořák")
+      expect(participant).toBe("Adam Dvořák")
+      expect(context).toContain("Letní kemp Lipno 2027")
     }
-  })
-
-  it("follows the language", () => {
-    expect(compose("WAITLISTED", "en").title).toBe("You are on the waitlist")
-    expect(compose("WAITLISTED", "cs").title).toBe("Jste náhradník")
   })
 })

@@ -71,7 +71,7 @@ export function NotificationCenter() {
       >
         <DialogContent
           showCloseButton={false}
-          className="top-0 left-0 h-svh max-h-svh max-w-none translate-x-0 translate-y-0 content-start gap-6 overflow-y-auto rounded-none border-0 p-4 sm:max-w-none md:top-16 md:right-6 md:left-auto md:h-auto md:max-h-[calc(100svh-5rem)] md:w-110 md:rounded-2xl md:p-6"
+          className="max-h-[calc(100svh-2rem)] content-start gap-5 overflow-y-auto rounded-2xl p-4 sm:max-w-110 md:top-16 md:right-6 md:left-auto md:translate-x-0 md:translate-y-0 md:p-6"
         >
           <div className="flex items-center gap-4">
             <DialogTitle className="flex-1 text-2xl font-bold">{t("panel.title")}</DialogTitle>

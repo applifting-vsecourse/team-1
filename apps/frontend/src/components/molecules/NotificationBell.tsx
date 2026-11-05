@@ -19,28 +19,27 @@ export function NotificationBell({ unreadCount, onClick }: NotificationBellProps
   const label = unreadCount > 0 ? t("bell.labelUnread", { count: unreadCount }) : t("bell.label")
 
   return (
-    <div className="flex items-center gap-1">
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon-lg"
-        aria-label={label}
-        title={label}
-        onClick={onClick}
-      >
-        <Bell
-          className="size-5"
-          aria-hidden="true"
-        />
-      </Button>
+    <Button
+      type="button"
+      variant="ghost"
+      size="icon-lg"
+      className={unreadCount > 0 ? "w-auto gap-1.5 px-2.5" : undefined}
+      aria-label={label}
+      title={label}
+      onClick={onClick}
+    >
+      <Bell
+        className="size-5"
+        aria-hidden="true"
+      />
       {unreadCount > 0 ? (
         <span
           aria-hidden="true"
-          className="flex min-h-6 w-6 items-center justify-center rounded-full bg-accent text-sm text-accent-foreground"
+          className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-xs font-semibold text-primary-foreground"
         >
           {unreadCount}
         </span>
       ) : null}
-    </div>
+    </Button>
   )
 }

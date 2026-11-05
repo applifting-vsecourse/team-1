@@ -23,6 +23,8 @@ export const NOTIFICATION_KINDS = [
 ] as const
 export type NotificationKind = (typeof NOTIFICATION_KINDS)[number]
 
+const termStatusSchema = z.enum(["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED"])
+
 const notificationSchema = z.object({
   id: z.string(),
   type: z.enum(["STATUS_CHANGED", "PAYMENT", "REQUEST"]),
@@ -35,6 +37,9 @@ const notificationSchema = z.object({
     /** ISO dates of the term the notification is about. */
     termStartsOn: z.string(),
     termEndsOn: z.string(),
+    /** STATUS_CHANGED: the status in the term before and after the change. */
+    fromStatus: termStatusSchema.optional(),
+    toStatus: termStatusSchema.optional(),
     /** PAYMENT: the amount of the payment, whole CZK; a refund is negative. */
     amountCzk: z.number().int().optional(),
     /** PAYMENT: what is still owed in the term after the payment. */

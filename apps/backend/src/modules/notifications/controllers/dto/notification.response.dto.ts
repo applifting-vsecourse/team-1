@@ -7,6 +7,10 @@ export class NotificationParamsDto {
   @ApiProperty({ description: "ISO day of the term the notification is about" })
   termStartsOn!: string
   @ApiProperty() termEndsOn!: string
+  @ApiProperty({ required: false, description: "STATUS_CHANGED: status before the change" })
+  fromStatus?: string
+  @ApiProperty({ required: false, description: "STATUS_CHANGED: status after the change" })
+  toStatus?: string
   @ApiProperty({ required: false, description: "PAYMENT: amount of the receipt in the term" })
   amountCzk?: number
   @ApiProperty({ required: false, description: "PAYMENT: what is owed in the term afterwards" })

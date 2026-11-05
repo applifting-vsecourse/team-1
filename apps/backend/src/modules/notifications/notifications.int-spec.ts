@@ -14,6 +14,8 @@ type NotificationDto = {
     participantName: string
     termStartsOn: string
     termEndsOn: string
+    fromStatus?: string
+    toStatus?: string
     amountCzk?: number
     owedCzk?: number
   }
@@ -172,6 +174,8 @@ describe("participant notifications (integration)", () => {
           participantName: "Adam Dvořák" + counter,
           termStartsOn: "2027-07-12",
           termEndsOn: "2027-07-18",
+          fromStatus: "WAITLISTED",
+          toStatus: "CONFIRMED",
         },
       })
       expect(await unread()).toBe(1)
@@ -313,7 +317,13 @@ describe("participant notifications (integration)", () => {
       )
 
       expect(response.status).toBe(204)
-      expect(await list()).toMatchObject([{ kind: "CANCELLED", applicationId: id }])
+      expect(await list()).toMatchObject([
+        {
+          kind: "CANCELLED",
+          applicationId: id,
+          params: { fromStatus: "CONFIRMED", toStatus: "CANCELLED" },
+        },
+      ])
     })
   })
 

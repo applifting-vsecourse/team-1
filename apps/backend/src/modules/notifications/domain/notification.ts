@@ -1,3 +1,4 @@
+import { ApplicationTermStatus } from "@/modules/applications/domain/evaluation"
 import { ApplicationChangeKind } from "@/modules/participants/domain/submission-confirmation"
 
 /** What the notification is about; the organizer's bell (US-86) reuses the same types. */
@@ -32,6 +33,9 @@ export type NotificationParams = {
   participantName: string
   termStartsOn: string
   termEndsOn: string
+  /** STATUS_CHANGED: the status of the application in the term before and after the change. */
+  fromStatus?: ApplicationTermStatus
+  toStatus?: ApplicationTermStatus
   /** PAYMENT: the amount of the receipt in this term; a refund is positive, the kind says so. */
   amountCzk?: number
   /** PAYMENT: what is still owed in the term after the change. */

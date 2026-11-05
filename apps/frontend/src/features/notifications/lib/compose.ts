@@ -7,9 +7,16 @@ import { formatCzk } from "@/lib/money"
 import type { AppNotification } from "@/features/notifications/api/notifications"
 
 export type NotificationText = {
+  /** What happened, in one line. */
   title: string
-  /** The second line: who, which term, what changed. */
-  detail: string
+  /** Whose application. */
+  participant: string
+  /** Where: `12.–18. 7. 2027 · Letní kemp Lipno 2027`. */
+  context: string
+  /** STATUS_CHANGED: the status before and after, as labels. */
+  change?: { from: string; to: string }
+  /** PAYMENT: what is still owed in the term, `Zbývá zaplatit: 4 400 Kč`. */
+  note?: string
   /** `11. 3. 2027 · 10:32` */
   time: string
 }
@@ -24,45 +31,26 @@ export function composeNotification(
   language: Language,
 ): NotificationText {
   const { kind, params, createdAt } = notification
-  const { participantName: participant, eventName: event } = params
-  const range = (shouldShowYear: boolean) =>
-    formatDateRange(params.termStartsOn, params.termEndsOn, { shouldShowYear, language })
   const amount = formatCzk(Math.abs(params.amountCzk ?? 0), language)
-  const owed = formatCzk(params.owedCzk ?? 0, language)
-
-  const time = `${formatDate(createdAt, language)} · ${formatTime(createdAt, language)}`
-  const title = t(`title.${kind}`, { amount })
-
-  switch (kind) {
-    case "PAYMENT_RECORDED":
-      return {
-        title,
-        detail: t("detail.paymentRecorded", { participant, term: range(false), owed }),
-        time,
-      }
-    case "PAYMENT_CANCELLED":
-      return {
-        title,
-        detail: t("detail.paymentCancelled", { participant, term: range(false), owed }),
-        time,
-      }
-    case "PAYMENT_REFUNDED":
-      return {
-        title,
-        detail: t("detail.paymentRefunded", { participant, term: range(false) }),
-        time,
-      }
-    case "REQUEST_APPROVED":
-      return {
-        title,
-        detail: t("detail.requestApproved", { participant, term: range(true) }),
-        time,
-      }
-    default:
-      return {
-        title,
-        detail: t("detail.statusChanged", { participant, term: range(true), event }),
-        time,
-      }
+  const range = formatDateRange(params.termStartsOn, params.termEndsOn, {
+    shouldShowYear: true,
+    language,
+  })
+  const text: NotificationText = {
+    title: t(`title.${kind}`, { amount }),
+    participant: params.participantName,
+    context: `${range} · ${params.eventName}`,
+    time: `${formatDate(createdAt, language)} · ${formatTime(createdAt, language)}`,
   }
+
+  if (params.fromStatus && params.toStatus) {
+    text.change = {
+      from: t(`status.${params.fromStatus}`),
+      to: t(`status.${params.toStatus}`),
+    }
+  }
+  if (kind.startsWith("PAYMENT_") && params.owedCzk !== undefined) {
+    text.note = t("note.owed", { owed: formatCzk(params.owedCzk, language) })
+  }
+  return text
 }

@@ -89,7 +89,7 @@ describe("NotificationCenter", () => {
     renderCenter()
     const panel = within(await open())
 
-    expect(await panel.findAllByText("Participation confirmed")).toHaveLength(2)
+    expect(await panel.findAllByText("Application confirmed")).toHaveLength(2)
     expect(panel.getAllByRole("article")).toHaveLength(2)
     expect(panel.getByText("New")).toBeVisible()
     expect(panel.getByText("Read")).toBeVisible()
@@ -166,7 +166,7 @@ describe("NotificationCenter", () => {
     renderCenter()
     const panel = within(await open())
 
-    await userEvent.click(await panel.findByRole("button", { name: "Application detail" }))
+    await userEvent.click(await panel.findByRole("button", { name: /Application detail/ }))
 
     expect(post).toHaveBeenCalledWith("notifications/n1/read")
     expect(navigate).toHaveBeenCalledWith({
@@ -175,14 +175,15 @@ describe("NotificationCenter", () => {
     })
   })
 
-  it("fills the whole screen at 360 px", async () => {
+  it("is a modal that fits the screen at 360 px", async () => {
     window.innerWidth = 360
     serve([notification("1")])
     renderCenter()
     const dialog = await open()
 
-    // Below `md` the panel is a full-screen sheet, from `md` up a floating card (Figma).
-    expect(dialog).toHaveClass("h-svh", "w-full", "md:w-110")
-    expect(await within(dialog).findByRole("button", { name: "Application detail" })).toBeVisible()
+    // At 360 px the panel stays a modal that fits the screen and scrolls; from `md` up it is a card
+    // under the bell.
+    expect(dialog).toHaveClass("max-h-[calc(100svh-2rem)]", "overflow-y-auto", "sm:max-w-110")
+    expect(await within(dialog).findByRole("button", { name: /Application detail/ })).toBeVisible()
   })
 })

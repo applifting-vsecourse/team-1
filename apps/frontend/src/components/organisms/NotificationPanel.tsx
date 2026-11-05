@@ -109,7 +109,7 @@ export function NotificationPanel({
           {t("panel.markAllRead")}
         </Button>
       ) : null}
-      <ul className="flex flex-col gap-4">
+      <ul className="flex flex-col gap-3">
         {items.map(({ id, ...item }) => (
           <li key={id}>
             <NotificationItem

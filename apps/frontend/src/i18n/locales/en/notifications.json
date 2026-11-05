@@ -3,18 +3,17 @@
     "label": "Notifications",
     "labelUnread": "Notifications, {{count}} unread"
   },
-  "detail": {
-    "paymentCancelled": "{{participant}} · the debt in the term {{term}} is now {{owed}}",
-    "paymentRecorded": "{{participant}} · the debt in the term {{term}} dropped to {{owed}}",
-    "paymentRefunded": "{{participant}} · term {{term}}",
-    "requestApproved": "{{participant}} · new term {{term}}",
-    "statusChanged": "{{participant}} · {{term}} · {{event}}"
+  "change": {
+    "label": "Status"
   },
   "item": {
     "markRead": "Mark as read",
     "new": "New",
     "open": "Application detail",
     "read": "Read"
+  },
+  "note": {
+    "owed": "Still to pay: {{owed}}"
   },
   "panel": {
     "close": "Close",
@@ -27,18 +26,24 @@
     "retry": "Try again",
     "title": "Notifications"
   },
+  "status": {
+    "CANCELLED": "Cancelled",
+    "CONFIRMED": "Confirmed",
+    "TO_EVALUATE": "Awaiting evaluation",
+    "WAITLISTED": "Waitlisted"
+  },
   "title": {
     "CANCELLED": "Your cancellation is confirmed",
     "CANCELLED_BY_ORGANIZER": "The organizer cancelled the application",
-    "CONFIRMED": "Participation confirmed",
-    "CONFIRMED_FROM_WAITLIST": "Participation confirmed",
+    "CONFIRMED": "Application confirmed",
+    "CONFIRMED_FROM_WAITLIST": "A place was freed, you are confirmed",
     "NO_BED_FREED": "Application cancelled, no bed was freed",
     "PAYMENT_CANCELLED": "Payment of {{amount}} cancelled",
     "PAYMENT_RECORDED": "Payment received: {{amount}}",
     "PAYMENT_REFUNDED": "Refund of {{amount}}",
     "REJECTED": "Application rejected",
     "REQUEST_APPROVED": "Change request approved",
-    "WAITLISTED": "You are on the waitlist",
-    "WAITLISTED_AFTER_CONFIRMED": "Confirmation withdrawn, you are on the waitlist"
+    "WAITLISTED": "You are a substitute",
+    "WAITLISTED_AFTER_CONFIRMED": "Confirmation withdrawn, you are a substitute"
   }
 }

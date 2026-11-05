@@ -3,18 +3,17 @@
     "label": "Upozornění",
     "labelUnread": "Upozornění, nepřečtených: {{count}}"
   },
-  "detail": {
-    "paymentCancelled": "{{participant}} · dluh v termínu {{term}} je nyní {{owed}}",
-    "paymentRecorded": "{{participant}} · dluh v termínu {{term}} se snížil na {{owed}}",
-    "paymentRefunded": "{{participant}} · termín {{term}}",
-    "requestApproved": "{{participant}} · nový termín {{term}}",
-    "statusChanged": "{{participant}} · {{term}} · {{event}}"
+  "change": {
+    "label": "Stav"
   },
   "item": {
     "markRead": "Označit jako přečtené",
     "new": "Nové",
     "open": "Detail přihlášky",
     "read": "Přečtené"
+  },
+  "note": {
+    "owed": "Zbývá zaplatit: {{owed}}"
   },
   "panel": {
     "close": "Zavřít",
@@ -27,11 +26,17 @@
     "retry": "Zkusit znovu",
     "title": "Upozornění"
   },
+  "status": {
+    "CANCELLED": "Zrušeno",
+    "CONFIRMED": "Potvrzeno",
+    "TO_EVALUATE": "Čeká na vyhodnocení",
+    "WAITLISTED": "Náhradník"
+  },
   "title": {
     "CANCELLED": "Odhlášení bylo potvrzeno",
     "CANCELLED_BY_ORGANIZER": "Přihlášku zrušil organizátor",
-    "CONFIRMED": "Účast je potvrzená",
-    "CONFIRMED_FROM_WAITLIST": "Účast je potvrzená",
+    "CONFIRMED": "Přihláška byla potvrzena",
+    "CONFIRMED_FROM_WAITLIST": "Uvolnilo se místo, účast je potvrzená",
     "NO_BED_FREED": "Přihláška byla zrušena, protože se neuvolnilo lůžko",
     "PAYMENT_CANCELLED": "Platba {{amount}} byla zrušena",
     "PAYMENT_RECORDED": "Přijatá platba {{amount}}",

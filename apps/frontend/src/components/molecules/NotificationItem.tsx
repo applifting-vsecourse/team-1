@@ -1,4 +1,4 @@
-import { ChevronRight, MailCheck } from "lucide-react"
+import { ArrowRight, ChevronRight, MailCheck } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { Badge } from "@/components/ui/badge"
@@ -6,8 +6,16 @@ import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
 export type NotificationItemProps = {
+  /** What happened. */
   title: string
-  detail: string
+  /** Whose application. */
+  participant: string
+  /** The term and the event. */
+  context: string
+  /** A status change: the status before and after. */
+  change?: { from: string; to: string }
+  /** An extra line, e.g. what is still owed after a payment. */
+  note?: string
   /** Already formatted, `11. 3. 2027 · 10:32`. */
   time: string
   isUnread: boolean
@@ -17,11 +25,17 @@ export type NotificationItemProps = {
   onMarkRead: () => void
 }
 
-/** One notification: unread and read differ in the badge text and the background (Figma). */
+/**
+ * One notification. The whole item opens the application; marking as read is the one separate
+ * action. Unread ones carry a coloured "New" chip and a tinted background, read ones a quiet chip.
+ */
 // Figma (Design system): Togena / Notification item · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16047-1617
 export function NotificationItem({
   title,
-  detail,
+  participant,
+  context,
+  change,
+  note,
   time,
   isUnread,
   onOpen,
@@ -32,49 +46,74 @@ export function NotificationItem({
   return (
     <article
       data-unread={isUnread}
-      className={cn("flex flex-col gap-2 rounded-lg p-4", isUnread && "bg-secondary")}
+      className={cn(
+        "flex items-start gap-1 rounded-lg border border-border transition-colors",
+        isUnread ? "border-transparent bg-secondary" : "bg-card",
+      )}
     >
-      <div className="flex items-center justify-between">
-        <Badge
-          variant={isUnread ? "secondary" : "default"}
-          className="px-2 py-1 text-sm"
-        >
-          {isUnread ? t("item.new") : t("item.read")}
-        </Badge>
-        <div className="flex gap-2">
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-lg"
-            aria-label={t("item.open")}
-            title={t("item.open")}
-            onClick={onOpen}
+      <button
+        type="button"
+        aria-label={`${title}, ${participant}, ${t("item.open")}`}
+        onClick={onOpen}
+        className="flex min-w-0 flex-1 flex-col gap-2 rounded-lg p-4 text-left outline-none hover:bg-accent/40 focus-visible:ring-[3px] focus-visible:ring-ring/50"
+      >
+        <span className="flex items-center gap-2">
+          <Badge
+            variant={isUnread ? "default" : "secondary"}
+            className="px-2 py-1 text-sm"
           >
-            <ChevronRight
-              className="size-5"
+            {isUnread ? t("item.new") : t("item.read")}
+          </Badge>
+          <span className="text-sm text-muted-foreground">{time}</span>
+          <ChevronRight
+            className="ml-auto size-5 shrink-0 text-muted-foreground"
+            aria-hidden="true"
+          />
+        </span>
+        <span className="text-base font-medium">{title}</span>
+        <span className="flex flex-col gap-0.5">
+          <span className="text-base">{participant}</span>
+          <span className="text-sm text-muted-foreground">{context}</span>
+        </span>
+        {change ? (
+          <span className="flex flex-wrap items-center gap-2 text-sm">
+            <span className="text-muted-foreground">{t("change.label")}</span>
+            <Badge
+              variant="secondary"
+              className="px-2 py-0.5 text-sm"
+            >
+              {change.from}
+            </Badge>
+            <ArrowRight
+              className="size-4 text-muted-foreground"
               aria-hidden="true"
             />
-          </Button>
-          {isUnread ? (
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-lg"
-              aria-label={t("item.markRead")}
-              title={t("item.markRead")}
-              onClick={onMarkRead}
+            <Badge
+              variant="default"
+              className="px-2 py-0.5 text-sm"
             >
-              <MailCheck
-                className="size-5"
-                aria-hidden="true"
-              />
-            </Button>
-          ) : null}
-        </div>
-      </div>
-      <p className="text-base">{title}</p>
-      <p className="text-base">{detail}</p>
-      <p className="text-sm">{time}</p>
+              {change.to}
+            </Badge>
+          </span>
+        ) : null}
+        {note ? <span className="text-sm">{note}</span> : null}
+      </button>
+      {isUnread ? (
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-lg"
+          className="mt-2 mr-2 shrink-0"
+          aria-label={t("item.markRead")}
+          title={t("item.markRead")}
+          onClick={onMarkRead}
+        >
+          <MailCheck
+            className="size-5"
+            aria-hidden="true"
+          />
+        </Button>
+      ) : null}
     </article>
   )
 }
