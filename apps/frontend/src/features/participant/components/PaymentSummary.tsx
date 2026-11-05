@@ -8,7 +8,6 @@ import { Card } from "@/components/ui/card"
 import { termDatesLine } from "@/lib/term-label"
 
 import type { MyApplication } from "@/features/participant/api/applications"
-
 import { SummaryPaymentDialog } from "@/features/participant/components/SummaryPaymentDialog"
 import { summaryPaymentSpayd } from "@/features/participant/lib/payment-qr"
 
