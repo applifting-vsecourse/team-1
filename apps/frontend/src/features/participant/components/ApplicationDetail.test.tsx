@@ -13,8 +13,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import type { MyApplication } from "@/features/participant/api/applications"
 import { ApplicationDetail } from "@/features/participant/components/ApplicationDetail"
 
-const { get, put } = vi.hoisted(() => ({ get: vi.fn(), put: vi.fn() }))
-vi.mock("@/lib/api-client", () => ({ api: { get, put } }))
+const { get, put, post } = vi.hoisted(() => ({ get: vi.fn(), put: vi.fn(), post: vi.fn() }))
+vi.mock("@/lib/api-client", () => ({ api: { get, put, post } }))
 
 const confirmed = {
   termId: "t1",
@@ -72,27 +72,29 @@ const renderDetail = (data: MyApplication, canChangeImmediately = true) => {
   get.mockImplementation((path: string) => ({
     json: () =>
       Promise.resolve(
-        path.endsWith("change-options")
-          ? {
-              canChangeImmediately,
-              terms: [
-                {
-                  id: "t1",
-                  name: "1. týden",
-                  startsOn: "2027-07-04",
-                  endsOn: "2027-07-10",
-                  selected: true,
-                },
-                {
-                  id: "t2",
-                  name: "2. týden",
-                  startsOn: "2027-07-11",
-                  endsOn: "2027-07-17",
-                  selected: false,
-                },
-              ],
-            }
-          : data,
+        path.endsWith("change-requests")
+          ? []
+          : path.endsWith("change-options")
+            ? {
+                canChangeImmediately,
+                terms: [
+                  {
+                    id: "t1",
+                    name: "1. týden",
+                    startsOn: "2027-07-04",
+                    endsOn: "2027-07-10",
+                    selected: true,
+                  },
+                  {
+                    id: "t2",
+                    name: "2. týden",
+                    startsOn: "2027-07-11",
+                    endsOn: "2027-07-17",
+                    selected: false,
+                  },
+                ],
+              }
+            : data,
       ),
   }))
   const root = createRootRoute({
@@ -126,6 +128,7 @@ describe("ApplicationDetail", () => {
   beforeEach(() => {
     get.mockReset()
     put.mockReset()
+    post.mockReset()
   })
 
   it("lets the participant immediately change the selected terms", async () => {
@@ -143,12 +146,19 @@ describe("ApplicationDetail", () => {
     })
   })
 
-  it("does not offer an immediate change after cancellation starts", async () => {
+  it("submits an approval request after cancellation starts", async () => {
+    const user = userEvent.setup()
+    post.mockResolvedValue(undefined)
     renderDetail(application(), false)
     expect(
       await screen.findByText(/Changes now require the organiser's approval/),
     ).toBeInTheDocument()
-    expect(screen.queryByRole("button", { name: "Change terms or cancel" })).not.toBeInTheDocument()
+    await user.click(screen.getByRole("button", { name: "Change terms or cancel" }))
+    await user.click(screen.getByRole("checkbox", { name: "Select term 2. týden" }))
+    await user.click(screen.getByRole("button", { name: "Send request" }))
+    expect(post).toHaveBeenCalledWith("participant/applications/a1/change-requests", {
+      json: { termIds: ["t1", "t2"] },
+    })
   })
 
   it("shows what is due, what is paid, what is left and where to send it", async () => {

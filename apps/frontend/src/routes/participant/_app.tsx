@@ -10,6 +10,7 @@ import { AreaLayout } from "@/components/templates/AreaLayout"
 
 import { SidebarAccount } from "@/features/auth/components/SidebarAccount"
 import { requireAccount } from "@/features/auth/lib/require-account"
+import { ChangeRequestNotifications } from "@/features/participant/components/ChangeRequestNotifications"
 
 // Every /participant/* page except login and set-password sits under this layout.
 export const Route = createFileRoute("/participant/_app")({
@@ -44,6 +45,7 @@ function ParticipantLayout() {
           </SidebarLink>
         }
         account={<SidebarAccount />}
+        notifications={<ChangeRequestNotifications />}
       >
         <Outlet />
       </AreaLayout>

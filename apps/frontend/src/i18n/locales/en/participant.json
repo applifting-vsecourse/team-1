@@ -4,7 +4,7 @@
     "title": "Your applications"
   },
   "change": {
-    "approvalRequired": "Changes now require the organiser's approval. Please contact the organiser.",
+    "approvalRequired": "Changes now require the organiser's approval. Your application stays unchanged until a decision is made.",
     "back": "Back",
     "cancelAll": "Cancel application",
     "cancelAllDescription": "All selected terms will be cancelled immediately. Payments remain attached to their original terms; contact the organiser about any refund.",
@@ -14,6 +14,10 @@
     "loadError": "Couldn't load available terms",
     "open": "Change terms or cancel",
     "paymentNote": "Payments stay with their original terms. If you already paid for a term you remove, its payment does not cover a new term; contact the organiser about a refund.",
+    "requestCancelDescription": "A cancellation request will be sent to the organiser. Your participation stays valid until it is approved.",
+    "requestDescription": "Choose the terms you want. The organiser will review the request before your application changes.",
+    "requestSubmit": "Send request",
+    "requested": "Request sent",
     "retry": "Try again",
     "save": "Save changes",
     "saved": "Application updated",
@@ -43,6 +47,19 @@
     "empty": "You have no applications yet. Once you apply for an event, it will appear here.",
     "errorTitle": "Couldn't load your applications"
   },
+  "notifications": {
+    "empty": "No notifications yet.",
+    "error": "Couldn't load notifications.",
+    "label": "Notifications, {{count}} unread",
+    "loading": "Loading notifications…",
+    "retry": "Try again",
+    "status": {
+      "APPROVED": "Your change request was approved",
+      "PENDING": "Your change request is awaiting approval",
+      "REJECTED": "Your change request was declined"
+    },
+    "title": "Notifications"
+  },
   "payment": {
     "account": "Bank account",
     "chooseSymbol": "Use the variable symbol of the whole application, or only of the term you are paying.",
@@ -64,6 +81,25 @@
     "PAID": "Paid",
     "PARTIALLY_PAID": "Partly paid",
     "UNPAID": "Unpaid"
+  },
+  "request": {
+    "cancelAll": "Cancel all terms",
+    "cancelTitle": "Cancellation request",
+    "changeTitle": "Term change",
+    "current": "Current participation",
+    "loadError": "Couldn't load change requests",
+    "message": {
+      "APPROVED": "The organiser approved the change. You will also find the result in your e-mail.",
+      "PENDING": "Your request is awaiting the organiser's decision. Your original participation remains valid.",
+      "REJECTED": "The organiser declined the request. Your original participation remains valid."
+    },
+    "reason": "Reason: {{reason}}",
+    "requested": "Requested terms",
+    "status": {
+      "APPROVED": "Approved",
+      "PENDING": "Awaiting approval",
+      "REJECTED": "Declined"
+    }
   },
   "status": {
     "cancelled": "Cancelled",
