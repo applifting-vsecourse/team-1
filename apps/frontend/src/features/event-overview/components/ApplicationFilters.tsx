@@ -19,6 +19,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 import type { ApplicationsSearch } from "@/features/event-overview/lib/applications-search"
 
@@ -28,6 +29,8 @@ type FilterOption = {
   label: string
   all: string
   values: { id: string; name: string }[]
+  /** Fixed by the chosen view (waitlist, queue): another value would find nothing. */
+  isLocked?: boolean
 }
 
 // Figma (Design system): M12 / M12a · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14182-3993
@@ -56,7 +59,9 @@ export function ApplicationFilters({
       key: "status",
       label: t("applications.status"),
       all: t("applications.allStatuses"),
+      isLocked: filters.status === "TO_EVALUATE" || filters.status === "WAITLISTED",
       values: [
+        { id: "TO_EVALUATE", name: t("applications.toEvaluate") },
         { id: "CONFIRMED", name: t("applications.confirmed") },
         { id: "WAITLISTED", name: t("applications.waitlisted") },
         { id: "CANCELLED", name: t("applications.cancelled") },
@@ -67,6 +72,7 @@ export function ApplicationFilters({
       label: t("applications.payment"),
       all: t("applications.allPayments"),
       values: [
+        { id: "NOTHING_DUE", name: t("applications.nothingDue") },
         { id: "UNPAID", name: t("applications.unpaid") },
         { id: "PARTIALLY_PAID", name: t("applications.partial") },
         { id: "PAID", name: t("applications.paid") },
@@ -77,7 +83,8 @@ export function ApplicationFilters({
   ]
   const active = options.flatMap((option) => {
     const value = filters[option.key]
-    return value
+    // A locked filter is part of the view, not something to remove.
+    return value && !option.isLocked
       ? [
           {
             key: option.key,
@@ -212,12 +219,9 @@ function FilterFields({
   onChange: (filters: ApplicationsSearch) => void
   idPrefix: string
 }) {
-  return options.map((option) => (
-    <div
-      key={option.key}
-      className="flex min-w-0 flex-col gap-2 md:min-w-40"
-    >
-      <Label htmlFor={`${idPrefix}-filter-${option.key}`}>{option.label}</Label>
+  const { t } = useTranslation("eventOverview")
+  return options.map((option) => {
+    const select = (
       <Select
         value={filters[option.key] ?? "all"}
         onValueChange={(value) =>
@@ -226,6 +230,8 @@ function FilterFields({
       >
         <SelectTrigger
           id={`${idPrefix}-filter-${option.key}`}
+          disabled={option.isLocked}
+          aria-describedby={option.isLocked ? `${idPrefix}-filter-${option.key}-locked` : undefined}
           className="w-full"
         >
           <SelectValue />
@@ -242,6 +248,33 @@ function FilterFields({
           ))}
         </SelectContent>
       </Select>
-    </div>
-  ))
+    )
+    return (
+      <div
+        key={option.key}
+        className="flex min-w-0 flex-col gap-2 md:min-w-40"
+      >
+        <Label htmlFor={`${idPrefix}-filter-${option.key}`}>{option.label}</Label>
+        {option.isLocked ? (
+          // A disabled control gets no pointer events, so the tooltip hangs on a wrapper.
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="block">{select}</span>
+              </TooltipTrigger>
+              <TooltipContent>{t("applications.statusLocked")}</TooltipContent>
+            </Tooltip>
+            <span
+              id={`${idPrefix}-filter-${option.key}-locked`}
+              className="sr-only"
+            >
+              {t("applications.statusLocked")}
+            </span>
+          </TooltipProvider>
+        ) : (
+          select
+        )}
+      </div>
+    )
+  })
 }

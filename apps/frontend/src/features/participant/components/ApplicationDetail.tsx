@@ -15,6 +15,7 @@ import { Card } from "@/components/ui/card"
 
 import { myApplicationQueryOptions } from "@/features/participant/api/applications"
 import { OrganizationContact } from "@/features/participant/components/OrganizationContact"
+import { ParticipantTermChange } from "@/features/participant/components/ParticipantTermChange"
 import { PaymentSummary } from "@/features/participant/components/PaymentSummary"
 import { TermStatusBadge } from "@/features/participant/components/TermSummary"
 
@@ -95,6 +96,7 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
         </Alert>
       ) : null}
       <PaymentSummary application={data} />
+      <ParticipantTermChange applicationId={applicationId} />
       <OrganizationContact contact={data.organizationContact} />
     </div>
   )

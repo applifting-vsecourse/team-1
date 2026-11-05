@@ -7,9 +7,6 @@ import {
 import type { BetterAuth } from "@/shared/auth/providers/better-auth.provider"
 import { Inject, Injectable } from "@nestjs/common"
 
-// What BetterAuth 1.7 stamps on e-mail + password accounts (same value as the seed, create-user.ts).
-const CREDENTIAL_ISSUER = "local:credential"
-
 /** The only place of the participants module that touches the database. */
 @Injectable()
 export class ParticipantAccountsRepository {
@@ -70,7 +67,6 @@ export class ParticipantAccountsRepository {
       await context.internalAdapter.linkAccount({
         userId,
         providerId: "credential",
-        issuer: CREDENTIAL_ISSUER,
         accountId: userId,
         password: await context.password.hash(password),
       })

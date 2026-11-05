@@ -1936,6 +1936,48 @@ rozhodnuti:
   z_otazek: []
   dokumentace: []
 - id: D-099
+  nazev: 'Lhůta na zaplacení se nastavuje u akce; pozdní potvrzení je rovnou po splatnosti'
+  text: 'Organizátor si u akce nastaví lhůtu na zaplacení; výchozí je 10 dní od potvrzení. Když se místo uvolní v okně „začátek termínu minus lhůta“ (např. týden před akcí při lhůtě 10 dní), potvrzená přihláška se rovnou označí jako po splatnosti, aby se urgovala platba. PO ověří (Q-PRI-02).'
+  typ: produkt
+  oblast: přihlašování na akce
+  datum: '2026-11-05'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: rozhodnutí PM při přípravě statusu s PO 2026-11-05
+    url: https://github.com/applifting-vsecourse/team-1/issues/31
+  us:
+  - label: US-31
+    url: https://github.com/applifting-vsecourse/team-1/issues/31
+  stav: platne
+  z_otazek:
+  - Q-PRI-02
+  dokumentace:
+  - soubor: docs/PROJEKT.md
+    popis: 'lhůta na zaplacení jako nastavení akce; potvrzení v okně lhůty = po splatnosti'
+    stav: ceka
+  poznamka: 'Rozhodl PM; PO ověří (Q-PRI-02).'
+- id: D-100
+  nazev: 'Před začátkem storno podmínek si účastník mění přihlášku a termíny bez schválení'
+  text: 'Dokud neběží storno podmínky, účastník si sám a bez schválení organizátora mění přihlášku, termíny i odhlašuje. Schvalování organizátorem začíná až od data, odkdy běží storno podmínky (US-113, US-114). PO ověří (Q-PRI-07).'
+  typ: produkt
+  oblast: přihlašování na akce
+  datum: '2026-11-05'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: rozhodnutí PM při přípravě statusu s PO 2026-11-05
+    url: https://github.com/applifting-vsecourse/team-1/issues/84
+  us:
+  - label: US-84
+    url: https://github.com/applifting-vsecourse/team-1/issues/84
+  - label: US-114
+    url: https://github.com/applifting-vsecourse/team-1/issues/207
+  stav: platne
+  z_otazek:
+  - Q-PRI-07
+  dokumentace: []
+  poznamka: 'Rozhodl PM; PO ověří (Q-PRI-07). Storno podmínky samotné (Q-PRI-03, Q-PLA-04) zůstávají otevřené.'
   nazev: 'Oprava platby vrací zaplacenou přihlášku k dluhu'
   text: 'Když organizátor opraví nebo odstraní platbu u potvrzené a zaplacené přihlášky v termínu a tím znovu vznikne dluh, přihláška se vrátí do stavu Potvrzená s dluhem (lhůta pro zaplacení běží znovu) a přihlašovatel automaticky dostane upozornění na opravu s aktuálním nedoplatkem a platebními údaji. Není to výzva po splatnosti. Když dluh nevznikne, e-mail neodchází.'
   typ: produkt
@@ -1954,7 +1996,7 @@ rozhodnuti:
     popis: 'e-mail č. 16, přechod Potvrzená a zaplacená → Potvrzená s dluhem'
     stav: hotovo
     commit: 667c8d3
-- id: D-100
+- id: D-102
   nazev: 'Výzva po splatnosti: jednou, automaticky nebo ručně podle organizátora'
   text: 'Výzva k zaplacení po uplynutí lhůty se posílá jednou a bez automatického opakování. Organizátor si v nastavení akce určí, zda se posílá automaticky, nebo ji posílá ručně.'
   typ: produkt
@@ -1973,7 +2015,7 @@ rozhodnuti:
     popis: 'e-mail č. 7'
     stav: hotovo
     commit: 667c8d3
-- id: D-101
+- id: D-103
   nazev: 'Při zamítnutí nebo odhlášení zaplacené účasti e-mail refund neslibuje'
   text: 'E-mail o zamítnutí nebo odhlášení již zaplacené účasti automatické vrácení peněz neslibuje; informace o případném vrácení platby sdělí organizátor. Při zrušení celého termínu zůstává informace, že se zaplacené platby vracejí (D-080).'
   typ: produkt
@@ -1992,7 +2034,7 @@ rozhodnuti:
     popis: 'e-maily č. 9 až 11, 15'
     stav: hotovo
     commit: 667c8d3
-- id: D-102
+- id: D-104
   nazev: 'Změnové e-maily se týkají jen přihlášených a změněných termínů'
   text: 'Změnový e-mail zahrnuje jen termíny, na které je účastník přihlášený a kterých se změna týká. Potvrzení odhlášení se posílá i pro termín, který účastník odhlášením odebral. Z toho neplyne další univerzální e-mail o libovolné úpravě přihlášky.'
   typ: produkt
@@ -2011,7 +2053,7 @@ rozhodnuti:
     popis: 'pravidla e-mailů'
     stav: hotovo
     commit: 667c8d3
-- id: D-103
+- id: D-105
   nazev: 'Obecné ověření e-mailové adresy se nepožaduje'
   text: 'Účet vzniká odesláním přihlášky a potvrzovací e-mail obsahuje magic link (D-008); samostatné obecné ověření e-mailové adresy se neposílá. Netýká se potvrzení změny přihlašovací adresy.'
   typ: produkt
@@ -2030,7 +2072,7 @@ rozhodnuti:
     popis: 'e-mail č. 1, odkaz na přihlášení'
     stav: hotovo
     commit: 667c8d3
-- id: D-104
+- id: D-106
   nazev: 'Kontakty v patičce e-mailů podle druhu zprávy'
   text: 'Přihlášky, účast a platby řeší organizátor akce, přihlášení, heslo a zabezpečení účtu podpora Togeny. E-mail uvede příslušný kontakt a odpovědi na něj jdou stejnému příjemci. Školní projekt: skutečné kontakty se nedoplňují, používají se fiktivní adresy z docs/emaily/TEXTY.md.'
   typ: produkt

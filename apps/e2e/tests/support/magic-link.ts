@@ -3,18 +3,18 @@ import { e2eDatabaseUrl } from "../../scripts/database-url.mjs"
 
 /**
  * The newest unspent magic-link token. E-mails go to the backend console, so the
- * test reads the token BetterAuth stored (`verification.identifier` = the token,
- * see the magic-link plugin) instead of the e-mail.
+ * test reads the token BetterAuth stored (`verification.identifier` = `magic-link:`
+ * + the token, see magicLinkIdentifier in the backend) instead of the e-mail.
  */
 export async function latestMagicLinkToken(): Promise<string> {
   const client = new pg.Client({ connectionString: e2eDatabaseUrl() })
   await client.connect()
   try {
     const { rows } = await client.query<{ identifier: string }>(
-      `SELECT identifier FROM verification ORDER BY "createdAt" DESC NULLS LAST LIMIT 1`,
+      `SELECT identifier FROM verification WHERE identifier LIKE 'magic-link:%' ORDER BY "createdAt" DESC NULLS LAST LIMIT 1`,
     )
     if (!rows[0]) throw new Error("No magic-link token in the E2E database.")
-    return rows[0].identifier
+    return rows[0].identifier.slice("magic-link:".length)
   } finally {
     await client.end()
   }

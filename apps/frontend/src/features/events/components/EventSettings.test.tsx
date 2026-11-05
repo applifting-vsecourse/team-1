@@ -33,6 +33,7 @@ const event = {
   endsOn: null,
   applicationsOpen: false,
   evaluationMode: "AUTOMATIC",
+  cancellationStartsOn: null,
   evaluationModeLocked: false,
   missing: ["TERM", "ROOM"],
   terms: [],
@@ -59,6 +60,30 @@ function renderSettings(current: object, patchResponse?: () => Response) {
     </QueryClientProvider>,
   )
   return patches
+}
+
+function renderCancellation(start: string | null = null) {
+  const json = { headers: { "Content-Type": "application/json" } }
+  const writes: unknown[] = []
+  let current = { ...event, cancellationStartsOn: start }
+  vi.spyOn(globalThis, "fetch").mockImplementation(async (input) => {
+    const request = input as Request
+    if (request.method === "PUT" && request.url.endsWith("/cancellation-start")) {
+      const body = (await request.clone().json()) as { cancellationStartsOn: string | null }
+      writes.push(body)
+      current = { ...current, cancellationStartsOn: body.cancellationStartsOn }
+      return new Response(JSON.stringify(current), json)
+    }
+    return new Response(JSON.stringify(request.url.endsWith("/terms") ? [] : current), json)
+  })
+  render(
+    <QueryClientProvider
+      client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
+    >
+      <EventSettings eventId="e1" />
+    </QueryClientProvider>,
+  )
+  return writes
 }
 
 afterEach(() => vi.restoreAllMocks())
@@ -109,5 +134,60 @@ describe("EventSettings", () => {
     ).toBeInTheDocument()
     expect(screen.queryByRole("radio")).not.toBeInTheDocument()
     expect(screen.queryByRole("button", { name: "Save mode" })).not.toBeInTheDocument()
+  })
+
+  it("saves a real cancellation day and shows the saved state", async () => {
+    const writes = renderCancellation()
+    const user = userEvent.setup()
+
+    await user.click(await screen.findByRole("checkbox", { name: "Set a cancellation start date" }))
+    await user.type(
+      screen.getByRole("textbox", { name: "Cancellation rules apply from" }),
+      "01/07/2027",
+    )
+    await user.click(screen.getByRole("button", { name: "Save settings" }))
+
+    await vi.waitFor(() => expect(writes).toEqual([{ cancellationStartsOn: "2027-07-01" }]))
+    expect(await screen.findByText("Date saved.")).toBeInTheDocument()
+  })
+
+  it("clears a saved date and leaves the immediate-change explanation", async () => {
+    const writes = renderCancellation("2027-07-01")
+    const user = userEvent.setup()
+
+    await user.click(await screen.findByRole("checkbox", { name: "Set a cancellation start date" }))
+    await user.click(screen.getByRole("button", { name: "Save settings" }))
+
+    await vi.waitFor(() => expect(writes).toEqual([{ cancellationStartsOn: null }]))
+    expect(screen.getByText(/Without a date, term changes/)).toBeInTheDocument()
+  })
+
+  it("rejects an impossible day before calling the API", async () => {
+    const writes = renderCancellation()
+    const user = userEvent.setup()
+
+    await user.click(await screen.findByRole("checkbox", { name: "Set a cancellation start date" }))
+    await user.type(
+      screen.getByRole("textbox", { name: "Cancellation rules apply from" }),
+      "31/02/2027",
+    )
+    await user.click(screen.getByRole("button", { name: "Save settings" }))
+
+    expect(screen.getByText("Enter a valid calendar date.")).toBeInTheDocument()
+    expect(writes).toEqual([])
+  })
+
+  it("cancels an unsaved change and restores the saved date", async () => {
+    const writes = renderCancellation("2027-07-01")
+    const user = userEvent.setup()
+
+    await user.click(await screen.findByRole("checkbox", { name: "Set a cancellation start date" }))
+    await user.click(screen.getByRole("button", { name: "Cancel" }))
+
+    expect(screen.getByRole("checkbox", { name: "Set a cancellation start date" })).toBeChecked()
+    expect(screen.getByRole("textbox", { name: "Cancellation rules apply from" })).toHaveValue(
+      "01/07/2027",
+    )
+    expect(writes).toEqual([])
   })
 })

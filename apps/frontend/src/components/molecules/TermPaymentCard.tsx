@@ -146,7 +146,10 @@ export function TermPaymentCard({
             <AccordionTrigger className="min-h-11 items-center px-6 hover:no-underline">
               {heading}
             </AccordionTrigger>
-            <AccordionContent className="flex flex-col gap-4 px-6">{detail}</AccordionContent>
+            <AccordionContent className="flex flex-col gap-4 px-6">
+              {detail}
+              {action}
+            </AccordionContent>
           </AccordionItem>
         </Accordion>
       </Card>

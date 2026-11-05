@@ -13,8 +13,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import type { MyApplication } from "@/features/participant/api/applications"
 import { ApplicationDetail } from "@/features/participant/components/ApplicationDetail"
 
-const { get } = vi.hoisted(() => ({ get: vi.fn() }))
-vi.mock("@/lib/api-client", () => ({ api: { get } }))
+const { get, put } = vi.hoisted(() => ({ get: vi.fn(), put: vi.fn() }))
+vi.mock("@/lib/api-client", () => ({ api: { get, put } }))
 
 const confirmed = {
   termId: "t1",
@@ -101,8 +101,33 @@ const withTerms = (
 const cardOf = (heading: RegExp): HTMLElement =>
   screen.getByRole("heading", { name: heading }).closest<HTMLElement>("[data-slot='card']")!
 
-const renderDetail = (data: MyApplication) => {
-  get.mockReturnValue({ json: () => Promise.resolve(data) })
+const renderDetail = (data: MyApplication, canChangeImmediately = true) => {
+  get.mockImplementation((path: string) => ({
+    json: () =>
+      Promise.resolve(
+        path.endsWith("change-options")
+          ? {
+              canChangeImmediately,
+              terms: [
+                {
+                  id: "t1",
+                  name: "1. týden",
+                  startsOn: "2027-07-04",
+                  endsOn: "2027-07-10",
+                  selected: true,
+                },
+                {
+                  id: "t2",
+                  name: "2. týden",
+                  startsOn: "2027-07-11",
+                  endsOn: "2027-07-17",
+                  selected: false,
+                },
+              ],
+            }
+          : data,
+      ),
+  }))
   const root = createRootRoute({
     component: () => (
       <QueryClientProvider
@@ -133,6 +158,34 @@ describe("ApplicationDetail", () => {
     expect(write).toHaveBeenLastCalledWith("48001")
     await user.click(screen.getByRole("button", { name: "Copy amount" }))
     expect(write).toHaveBeenLastCalledWith("2500")
+  })
+
+  beforeEach(() => {
+    get.mockReset()
+    put.mockReset()
+  })
+
+  it("lets the participant immediately change the selected terms", async () => {
+    const user = userEvent.setup()
+    put.mockResolvedValue(undefined)
+    renderDetail(application())
+
+    await user.click(await screen.findByRole("button", { name: "Change terms or cancel" }))
+    expect(screen.getByText(/Payments stay with their original terms/)).toBeInTheDocument()
+    await user.click(screen.getByRole("checkbox", { name: "Select term 2. týden" }))
+    await user.click(screen.getByRole("button", { name: "Save changes" }))
+
+    expect(put).toHaveBeenCalledWith("participant/applications/a1/terms", {
+      json: { termIds: ["t1", "t2"] },
+    })
+  })
+
+  it("does not offer an immediate change after cancellation starts", async () => {
+    renderDetail(application(), false)
+    expect(
+      await screen.findByText(/Changes now require the organiser's approval/),
+    ).toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: "Change terms or cancel" })).not.toBeInTheDocument()
   })
 
   it("shows what is due, what is paid, what is left and where to send it for the term", async () => {

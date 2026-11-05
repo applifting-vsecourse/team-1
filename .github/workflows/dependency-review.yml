@@ -1,0 +1,31 @@
+name: Dependency review
+
+# Fails a PR that adds or upgrades to a dependency with a known high or critical
+# advisory (SECURITY.md). It checks only what the PR changes, so the vulnerabilities
+# already on main (docs/SECURITY-REPORT.md) don't block unrelated PRs.
+# Needs the dependency graph on in the repository settings.
+
+on:
+  pull_request:
+    paths:
+      - "**/package.json"
+      - pnpm-lock.yaml
+      - pnpm-workspace.yaml
+      - "**/Dockerfile*"
+      - "**/docker-compose.yml"
+      - .github/workflows/**
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  dependency-review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
+        with:
+          fail-on-severity: high
+          comment-summary-in-pr: on-failure

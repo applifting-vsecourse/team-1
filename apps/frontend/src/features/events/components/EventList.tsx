@@ -58,7 +58,7 @@ export function EventList({ createdEventId }: { createdEventId?: string }) {
           onRetry={() => void refetch()}
         />
       ) : null}
-      {data && data.length === 0 ? <EmptyState message={t("list.empty")} /> : null}
+      {data?.length === 0 ? <EmptyState message={t("list.empty")} /> : null}
       {data && data.length > 0 ? (
         <FilteredEvents
           events={data}

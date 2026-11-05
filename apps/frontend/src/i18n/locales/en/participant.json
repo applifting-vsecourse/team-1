@@ -3,6 +3,24 @@
     "description": "Applications under the account of {{name}}.",
     "title": "Your applications"
   },
+  "change": {
+    "approvalRequired": "Changes now require the organiser's approval. Please contact the organiser.",
+    "back": "Back",
+    "cancelAll": "Cancel application",
+    "cancelAllDescription": "All selected terms will be cancelled immediately. Payments remain attached to their original terms; contact the organiser about any refund.",
+    "cancelAllTitle": "Cancel all terms?",
+    "description": "Select the terms you want to keep or add. Clearing all terms cancels the application.",
+    "immediateNote": "Changes take effect immediately.",
+    "loadError": "Couldn't load available terms",
+    "open": "Change terms or cancel",
+    "paymentNote": "Payments stay with their original terms. If you already paid for a term you remove, its payment does not cover a new term; contact the organiser about a refund.",
+    "retry": "Try again",
+    "save": "Save changes",
+    "saved": "Application updated",
+    "saving": "Saving…",
+    "selectTerm": "Select term {{term}}",
+    "title": "Change terms"
+  },
   "contact": {
     "email": "E-mail",
     "none": "The organization hasn't published a contact yet.",

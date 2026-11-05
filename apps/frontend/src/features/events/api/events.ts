@@ -42,6 +42,8 @@ export const organizerEventSchema = z.object({
   /** The application link works; otherwise the public page is a 404. */
   applicationsOpen: z.boolean(),
   evaluationMode: evaluationModeSchema,
+  /** ISO day; null means participant changes do not wait for approval. */
+  cancellationStartsOn: z.string().nullable(),
   /** Applications are open, so the mode can no longer change. */
   evaluationModeLocked: z.boolean(),
   missing: z.array(z.enum(["TERM", "ROOM"])),
@@ -99,6 +101,20 @@ export async function setEvaluationMode(
     await api
       .patch(`organizer/events/${encodeURIComponent(eventId)}/evaluation-mode`, {
         json: { evaluationMode },
+      })
+      .json(),
+  )
+}
+
+/** `PUT /api/organizer/events/:eventId/cancellation-start` — null clears the date. */
+export async function setCancellationStart(
+  eventId: string,
+  cancellationStartsOn: string | null,
+): Promise<OrganizerEvent> {
+  return organizerEventSchema.parse(
+    await api
+      .put(`organizer/events/${encodeURIComponent(eventId)}/cancellation-start`, {
+        json: { cancellationStartsOn },
       })
       .json(),
   )

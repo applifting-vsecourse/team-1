@@ -483,7 +483,8 @@ describe("PaymentDetail", () => {
     expect(await screen.findByText("Overpaid")).toBeInTheDocument()
     expect(screen.getByText("Overpayment").nextSibling).toHaveTextContent("500")
     expect(screen.queryByText("Variable symbol")).not.toBeInTheDocument()
-    expect(screen.queryByRole("button", { name: "Record payment for the term" })).toBeNull()
+    // A further payment can still be recorded as an overpayment.
+    expect(screen.getByRole("button", { name: "Record payment for the term" })).toBeInTheDocument()
     expect(screen.queryByText(/-CZK/)).not.toBeInTheDocument()
   })
 

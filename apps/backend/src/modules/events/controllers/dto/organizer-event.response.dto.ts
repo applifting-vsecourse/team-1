@@ -96,6 +96,9 @@ export class OrganizerEventResponseDto {
   @ApiProperty({ enum: ["AUTOMATIC", "MANUAL"], description: "How applications are evaluated." })
   evaluationMode!: EvaluationMode
 
+  @ApiProperty({ type: String, nullable: true, example: "2027-07-01" })
+  cancellationStartsOn!: string | null
+
   @ApiProperty({
     description: "Applications are open, so the evaluation mode can no longer change.",
   })
@@ -137,6 +140,7 @@ export class OrganizerEventResponseDto {
       applicationsOpen: event.applicationsOpen,
       missing: event.missing,
       evaluationMode: event.evaluationMode,
+      cancellationStartsOn: event.cancellationStartsOn,
       evaluationModeLocked: event.evaluationModeLocked,
       terms: event.terms.map((term) => EventTermSummaryDto.fromDomain(term)),
     }

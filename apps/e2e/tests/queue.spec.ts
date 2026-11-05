@@ -33,9 +33,9 @@ test.describe("Queue to evaluate", () => {
       .click()
     await page.getByRole("radio", { name: "To evaluate" }).click()
 
-    const row = page.getByRole("link", { name: new RegExp(`Lenka Fronta ${unique}`) })
+    const row = page.getByRole("row", { name: new RegExp(`Lenka Fronta ${unique}`) })
     await expect(row).toBeVisible()
-    await expect(row).toContainText("To evaluate")
+    await expect(row).toContainText("Awaiting evaluation")
     await expect(row).toContainText(`fronta-${unique}@example.com`)
   })
 })

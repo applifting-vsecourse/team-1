@@ -10,16 +10,16 @@ const VIEWS = [
   { key: "viewWaitlist", value: "WAITLISTED" },
 ] as const
 
+const isView = (status: ApplicationsSearch["status"]): status is "TO_EVALUATE" | "WAITLISTED" =>
+  status === "TO_EVALUATE" || status === "WAITLISTED"
+
 // Figma (Design system): US-103 Přihlášky · Fronta od nejstarších, chips "Pohledy přihlášek podle dema" · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16852-31378
 // The chips and the status filter read and write the same `status` param, so they cannot disagree.
 export function ApplicationViews({
   filters,
-  isResult = false,
   onChange,
 }: {
   filters: ApplicationsSearch
-  /** The result of a bulk confirmation (US-107) is shown under "All applications". */
-  isResult?: boolean
   onChange: (filters: ApplicationsSearch) => void
 }) {
   const { t } = useTranslation("eventOverview")
@@ -30,16 +30,18 @@ export function ApplicationViews({
       spacing={2}
       aria-label={t("queue.views")}
       className="flex-wrap"
-      // "All" is on only while no status is chosen; a status picked in the filter lights no chip.
-      value={isResult ? "all" : (filters.status ?? "all")}
+      // The queue and the waitlist are views of their own; any other status is still "All".
+      value={isView(filters.status) ? filters.status : "all"}
       onValueChange={(value) => {
         // Pressing the active chip again must not leave the group empty.
-        // After a bulk confirmation "All applications" is lit, so pressing it again leaves the result.
-        const chosen = value || (isResult ? "all" : "")
-        if (!chosen) return
+        // Pressing the active chip again must not leave the group empty; on "All" it clears a
+        // status picked in the filter (confirmed, cancelled).
+        const chosen = value || "all"
         const next = { ...filters }
-        if (chosen === "all") delete next.status
-        else next.status = chosen as "TO_EVALUATE" | "WAITLISTED"
+        if (chosen === "all") {
+          if (!filters.status) return
+          delete next.status
+        } else next.status = chosen as "TO_EVALUATE" | "WAITLISTED"
         onChange(next)
       }}
     >

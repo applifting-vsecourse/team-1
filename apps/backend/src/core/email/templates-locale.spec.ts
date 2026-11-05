@@ -126,3 +126,35 @@ it("includes the corrected debt and transfer details in e-mail 16", async () => 
   expect(html).toContain("Zaplaťte do")
   expect(html).toContain("20. června 2027")
 })
+
+it("tells the participant the confirmed, substitute and awaiting-evaluation results of changed terms", async () => {
+  const terms = [
+    { name: "First", status: "CONFIRMED" as const },
+    { name: "Second", status: "WAITLISTED" as const },
+    { name: "Third", status: "TO_EVALUATE" as const },
+  ]
+  const [en, cs] = await Promise.all(
+    LOCALES.map((locale) =>
+      render(
+        React.createElement(ApplicationChange, {
+          ...ApplicationChange.PreviewProps,
+          locale,
+          kind: "TERMS_CHANGED",
+          terms,
+          payment: null,
+        }),
+      ),
+    ),
+  )
+  for (const html of [en, cs]) {
+    for (const term of terms) expect(html).toContain(term.name)
+  }
+  expect(en).toContain("Substitute · do not pay yet")
+  expect(en).toContain("Confirmed")
+  expect(en).not.toContain("payment due")
+  expect(en).toContain("Awaiting evaluation · do not pay yet")
+  expect(cs).toContain("Účast potvrzena")
+  expect(cs).not.toContain("k úhradě")
+  expect(cs).toContain("Náhradník · zatím neplaťte")
+  expect(cs).toContain("Čeká na vyhodnocení · zatím neplaťte")
+})
