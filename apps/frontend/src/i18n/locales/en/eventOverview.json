@@ -232,7 +232,8 @@
     "saving": "Saving…",
     "summary": "Amount due {{due}} − paid {{paid}} = owed {{owed}}. Each payment is a separate record.",
     "term": "Term",
-    "title": "Payment and application details"
+    "title": "Payment and application details",
+    "totalOwed": "Left to pay in total"
   },
   "queue": {
     "empty": "All applications are evaluated.",

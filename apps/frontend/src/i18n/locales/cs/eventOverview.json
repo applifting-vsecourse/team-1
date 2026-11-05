@@ -232,7 +232,8 @@
     "saving": "Ukládání…",
     "summary": "K úhradě {{due}} − zaplaceno {{paid}} = dluží {{owed}}. Každá platba je samostatný záznam.",
     "term": "Termín",
-    "title": "Detail platby a přihlášky"
+    "title": "Detail platby a přihlášky",
+    "totalOwed": "Zbývá zaplatit celkem"
   },
   "queue": {
     "empty": "Všechny přihlášky jsou vyhodnocené.",

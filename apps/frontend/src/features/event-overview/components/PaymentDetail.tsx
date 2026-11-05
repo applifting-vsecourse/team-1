@@ -105,6 +105,15 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
           <AlertDescription>{t("payment.nothingDueDescription")}</AlertDescription>
         </Alert>
       )}
+      {terms.filter((term) => term.owedCzk > 0).length > 1 && data.payableCzk > 0 ? (
+        <Card className="gap-2 p-6">
+          <h2 className="text-lg font-semibold">{t("payment.totalOwed")}</h2>
+          <MoneyAmount
+            amountCzk={data.payableCzk}
+            className="text-2xl font-semibold"
+          />
+        </Card>
+      ) : null}
       <TermPaymentCards>
         {terms.map((term) => (
           <TermPaymentCard
@@ -120,14 +129,15 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
             bankAccount={data.bankAccount}
             variableSymbol={term.variableSymbol}
             action={
-              term.owedCzk > 0 ? (
+              // Also after the term is paid: a payment sent by mistake is recorded as an overpayment.
+              term.status === "WAITLISTED" && term.paidCzk === 0 ? null : (
                 <Button
                   size="lg"
                   onClick={() => setTermToPay(term)}
                 >
                   {t("payment.recordForTerm")}
                 </Button>
-              ) : null
+              )
             }
           />
         ))}

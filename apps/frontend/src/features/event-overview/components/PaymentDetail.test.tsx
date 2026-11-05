@@ -162,7 +162,11 @@ describe("PaymentDetail", () => {
     expect(within(cardTwo).getByText("Left to pay").nextSibling).toHaveTextContent("700")
     expect(within(cardTwo).getByText("12002")).toBeInTheDocument()
     expect(within(cardTwo).getByText("123456789/0000")).toBeInTheDocument()
-    // One button per term with a debt, none for the whole application.
+    // The total comes from the backend, next to the debt of each term.
+    expect(
+      screen.getByRole("heading", { name: "Left to pay in total" }).closest("[data-slot='card']"),
+    ).toHaveTextContent("1,200")
+    // One button per term, none for the whole application.
     expect(screen.getAllByRole("button", { name: "Record payment for the term" })).toHaveLength(2)
     expect(screen.queryByRole("button", { name: "Record payment" })).not.toBeInTheDocument()
   })
@@ -204,7 +208,7 @@ describe("PaymentDetail", () => {
     expect(unpaid.compareDocumentPosition(paid) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   })
 
-  it("collapses both terms when each is paid and records nothing more", async () => {
+  it("collapses both terms when each is paid and still allows recording a payment", async () => {
     respondWith(() =>
       application([
         { ...first, paidCzk: 4900 },
@@ -215,7 +219,9 @@ describe("PaymentDetail", () => {
     const toggles = await screen.findAllByRole("button", { name: /Paid/ })
     expect(toggles).toHaveLength(2)
     toggles.forEach((toggle) => expect(toggle).toHaveAttribute("aria-expanded", "false"))
-    expect(screen.queryByRole("button", { name: "Record payment for the term" })).toBeNull()
+    expect(screen.queryByRole("heading", { name: "Left to pay in total" })).toBeNull()
+    await userEvent.setup().click(toggles[0]!)
+    expect(screen.getAllByRole("button", { name: "Record payment for the term" })).toHaveLength(1)
   })
 
   it("records a payment for the chosen term only", async () => {
@@ -366,7 +372,8 @@ describe("PaymentDetail", () => {
     expect(await screen.findByText("Overpaid")).toBeInTheDocument()
     expect(screen.getByText("Overpayment").nextSibling).toHaveTextContent("500")
     expect(screen.queryByText("Variable symbol")).not.toBeInTheDocument()
-    expect(screen.queryByRole("button", { name: "Record payment for the term" })).toBeNull()
+    // A further payment can still be recorded as an overpayment.
+    expect(screen.getByRole("button", { name: "Record payment for the term" })).toBeInTheDocument()
     expect(screen.queryByText(/-CZK/)).not.toBeInTheDocument()
   })
 
