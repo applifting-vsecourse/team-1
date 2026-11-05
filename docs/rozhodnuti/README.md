@@ -15,7 +15,7 @@ _Nic._
 | [D-069](#d-069) | Uživatel si nastaví preferovaný jazyk (aplikace i e-maily) | `docs/PROJEKT.md` | pravidlo jazyka aplikace a e-mailů: preferovaný jazyk uživatele (zapsat při zadání ticketu) |
 | [D-085](#d-085) | Dvouúrovňový variabilní symbol | `docs/PROJEKT.md` | řádek „Variabilní symbol = číslo přihlášky“ (sekce 5) přepsat na dvouúrovňový VS; uvést vyhrazený rozsah VS od 9 000 000 000 a omezení Application.number < 9 000 000 |
 | [D-085](#d-085) | Dvouúrovňový variabilní symbol | `docs/SLOVNIK.md` | Variabilní symbol: dvouúrovňový, patří přihlášce a přihlášce v termínu; class diagram |
-| [D-085](#d-085) | Dvouúrovňový variabilní symbol | `docs/procesy/zpracovani-prihlasky/EMAILY.md` | platební údaje u e-mailů č. 2, 5, 7: souhrnný VS a VS každé potvrzené přihlášky v termínu |
+| [D-085](#d-085) | Dvouúrovňový variabilní symbol | `docs/emaily/KATALOG.md` | platební údaje u e-mailů č. 2, 5, 7: souhrnný VS a VS každé potvrzené přihlášky v termínu |
 | [D-086](#d-086) | `Term.number` je neměnné číslo termínu v akci | `docs/PROJEKT.md` | datový model: Term.number |
 | [D-087](#d-087) | Souhrnná platba se rozděluje od nejstaršího termínu | `docs/SLOVNIK.md` | pojmy Souhrn přihlášky a Příjem; pravidlo rozdělení |
 | [D-088](#d-088) | Platba na VS bez dluhu je přeplatek přihlášky v termínu | `docs/SLOVNIK.md` | Přeplatek patří přihlášce v termínu |
@@ -729,7 +729,7 @@ _Nic._
 - **Zdroj:** [PR, komentář PM](https://github.com/applifting-vsecourse/team-1/pull/231)
 - **Z otázek:** `Q-KOM-07`
 - **Dokumentace:** `docs/PROJEKT.md`: hotovo (6cdb931), které jazyky platí pro který e-mail
-- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/EMAILY.md`: hotovo (6cdb931), totéž
+- **Dokumentace:** `docs/emaily/KATALOG.md`: hotovo (6cdb931), totéž
 
 <a id="d-056"></a>
 
@@ -744,7 +744,7 @@ _Nic._
 - **Z otázek:** `Q-PRI-14`
 - **Dokumentace:** `docs/procesy/zpracovani-prihlasky/rucni-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml`: hotovo (d4964be), přechod Potvrzená s dluhem → Náhradník
 - **Dokumentace:** `docs/procesy/zpracovani-prihlasky/automaticke-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml`: hotovo (d4964be), zkontrolovat, zda přechod platí i v auto režimu
-- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/EMAILY.md`: hotovo (d4964be), řádek e-mailu č. 3 platí i pro tento přechod; č. 1 v auto režimu má stejný rozpor
+- **Dokumentace:** `docs/emaily/KATALOG.md`: hotovo (d4964be), řádek e-mailu č. 3 platí i pro tento přechod; č. 1 v auto režimu má stejný rozpor
 - **Poznámka:** Tech lead: přechod je povolený v backendu i UI („Move to waitlist“), zapracováno v b68f73e a propsané do navazujících PR. Diagram a EMAILY.md zůstávají na PM.
 
 <a id="d-057"></a>
@@ -760,7 +760,7 @@ _Nic._
 - **Z otázek:** `Q-PRI-15`
 - **Dokumentace:** `docs/procesy/zpracovani-prihlasky/rucni-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml`: hotovo (d4964be), Náhradník → Zrušená i organizátorem
 - **Dokumentace:** `docs/procesy/zpracovani-prihlasky/automaticke-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml`: hotovo (d4964be), zkontrolovat v auto režimu
-- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/EMAILY.md`: hotovo (d4964be), řádek 6 platí jen pro první den, doplnit řádek pro zrušení organizátorem
+- **Dokumentace:** `docs/emaily/KATALOG.md`: hotovo (d4964be), řádek 6 platí jen pro první den, doplnit řádek pro zrušení organizátorem
 
 <a id="d-058"></a>
 
@@ -854,7 +854,7 @@ _Nic._
 - **Zdroj:** [PR, komentář PM](https://github.com/applifting-vsecourse/team-1/pull/236)
 - **Z otázek:** `Q-PRI-21`
 - **Dokumentace:** `docs/procesy/zpracovani-prihlasky/`: hotovo (d4964be), chybí proces zrušení termínu akce (US-13)
-- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/EMAILY.md`: hotovo (d4964be), chybí e-mail při zrušení termínu
+- **Dokumentace:** `docs/emaily/KATALOG.md`: hotovo (d4964be), chybí e-mail při zrušení termínu
 
 <a id="d-066"></a>
 
@@ -965,7 +965,7 @@ _Nic._
 - **Zdroj:** [odpověď PM v chatu na Q-KOM-09 (PR #232, odpověď tech leada)](https://github.com/applifting-vsecourse/team-1/pull/232#issuecomment-6545014573)
 - **Mění:** [D-056](#d-056)
 - **Z otázek:** `Q-KOM-09`
-- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/EMAILY.md`: hotovo (d4964be), nový řádek č. 13 e-mailu pro Potvrzená → Náhradník (odvolané potvrzení); stávající čísla 1 až 12 se nemění; č. 3 jen K vyhodnocení → Náhradník; č. 1 auto ponechat „Jste náhradník“
+- **Dokumentace:** `docs/emaily/KATALOG.md`: hotovo (d4964be), nový řádek č. 13 e-mailu pro Potvrzená → Náhradník (odvolané potvrzení); stávající čísla 1 až 12 se nemění; č. 3 jen K vyhodnocení → Náhradník; č. 1 auto ponechat „Jste náhradník“
 - **Poznámka:** Výklad „zapsat jako nový stav“: nový řádek (e-mail) v EMAILY.md, ne nový stav přihlášky. Znění textu se doladí v model-update. Původní čísla e-mailů zůstávají. Kód používá pro tento přechod e-mail č. 3, po zápisu bude potřeba ticket na samostatnou šablonu.
 
 <a id="d-075"></a>
@@ -990,7 +990,7 @@ _Nic._
 - **Dotčené US:** [US-13](https://github.com/applifting-vsecourse/team-1/issues/13)
 - **Zdroj:** [odpověď PM v chatu při úpravě modelů k D-065](https://github.com/applifting-vsecourse/team-1/pull/242)
 - **Dokumentace:** `docs/procesy/zpracovani-prihlasky/zruseni-terminu.yaml`: hotovo (d4964be), proces zrušení termínu včetně vrácení plateb
-- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/EMAILY.md`: hotovo (d4964be), řádek 15, e-mail o zrušení termínu s informací o vrácení plateb
+- **Dokumentace:** `docs/emaily/KATALOG.md`: hotovo (d4964be), řádek 15, e-mail o zrušení termínu s informací o vrácení plateb
 - **Poznámka:** Kdo platby vrací a kdy (organizátor, lhůta), PM nerozhodl; v modelu je úloha organizátora. Zvážit ticket a otázku na PO.
 
 <a id="d-077"></a>
@@ -1015,7 +1015,7 @@ _Nic._
 - **Zdroj:** [odpověď PM v chatu k návrhům ticketů (PM rutina, krok 3)](https://github.com/applifting-vsecourse/team-1/pull/242)
 - **Mění:** [D-069](#d-069)
 - **Z otázek:** `Q-KOM-08`
-- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/EMAILY.md`: hotovo (c8c2f0a), pravidlo „E-maily jdou v jazyce přihlášky (Application.locale)“ doplnit: u e-mailů o změně přihlášky vítězí preferovaný jazyk uživatele
+- **Dokumentace:** `docs/emaily/KATALOG.md`: hotovo (c8c2f0a), pravidlo „E-maily jdou v jazyce přihlášky (Application.locale)“ doplnit: u e-mailů o změně přihlášky vítězí preferovaný jazyk uživatele
 - **Dokumentace:** `docs/PROJEKT.md`: hotovo (c8c2f0a), lokalizace: pořadí jazyka (preferovaný jazyk uživatele, jinak jazyk přihlášky)
 - **Poznámka:** Fallback („jazyk první přihlášky“) potvrdil PM v chatu. E-mail č. 1 zůstává v jazyce přihlášky.
 
@@ -1106,7 +1106,7 @@ _Nic._
 - **Mění:** [D-016](#d-016), [D-034](#d-034)
 - **Dokumentace:** `docs/PROJEKT.md`: ceka, řádek „Variabilní symbol = číslo přihlášky“ (sekce 5) přepsat na dvouúrovňový VS; uvést vyhrazený rozsah VS od 9 000 000 000 a omezení Application.number < 9 000 000
 - **Dokumentace:** `docs/SLOVNIK.md`: ceka, Variabilní symbol: dvouúrovňový, patří přihlášce a přihlášce v termínu; class diagram
-- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/EMAILY.md`: ceka, platební údaje u e-mailů č. 2, 5, 7: souhrnný VS a VS každé potvrzené přihlášky v termínu
+- **Dokumentace:** `docs/emaily/KATALOG.md`: ceka, platební údaje u e-mailů č. 2, 5, 7: souhrnný VS a VS každé potvrzené přihlášky v termínu
 
 <a id="d-086"></a>
 
@@ -1280,7 +1280,7 @@ _Nic._
 - **Datum:** 2026-11-03 · **Rozhodl:** `pm`
 - **Text:** Když organizátor opraví nebo odstraní platbu u potvrzené a zaplacené přihlášky v termínu a tím znovu vznikne dluh, přihláška se vrátí do stavu Potvrzená s dluhem (lhůta pro zaplacení běží znovu) a přihlašovatel automaticky dostane upozornění na opravu s aktuálním nedoplatkem a platebními údaji. Není to výzva po splatnosti. Když dluh nevznikne, e-mail neodchází.
 - **Zdroj:** [Business katalog e-mailů, potvrzená rozhodnutí z dotazníku](../../docs/emaily/KATALOG.md)
-- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/EMAILY.md`: hotovo (667c8d3), e-mail č. 16, přechod Potvrzená a zaplacená → Potvrzená s dluhem
+- **Dokumentace:** `docs/emaily/KATALOG.md`: hotovo (667c8d3), e-mail č. 16, přechod Potvrzená a zaplacená → Potvrzená s dluhem
 - **Poznámka:** Rozhodl PM; PO ověří (Q-PRI-07). Storno podmínky samotné (Q-PRI-03, Q-PLA-04) zůstávají otevřené.
 
 <a id="d-102"></a>
@@ -1291,7 +1291,7 @@ _Nic._
 - **Datum:** 2026-11-03 · **Rozhodl:** `pm`
 - **Text:** Výzva k zaplacení po uplynutí lhůty se posílá jednou a bez automatického opakování. Organizátor si v nastavení akce určí, zda se posílá automaticky, nebo ji posílá ručně.
 - **Zdroj:** [Business katalog e-mailů, potvrzená rozhodnutí z dotazníku](../../docs/emaily/KATALOG.md)
-- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/EMAILY.md`: hotovo (667c8d3), e-mail č. 7
+- **Dokumentace:** `docs/emaily/KATALOG.md`: hotovo (667c8d3), e-mail č. 7
 
 <a id="d-103"></a>
 
@@ -1301,7 +1301,7 @@ _Nic._
 - **Datum:** 2026-11-03 · **Rozhodl:** `pm`
 - **Text:** E-mail o zamítnutí nebo odhlášení již zaplacené účasti automatické vrácení peněz neslibuje; informace o případném vrácení platby sdělí organizátor. Při zrušení celého termínu zůstává informace, že se zaplacené platby vracejí (D-080).
 - **Zdroj:** [Business katalog e-mailů, potvrzená rozhodnutí z dotazníku](../../docs/emaily/KATALOG.md)
-- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/EMAILY.md`: hotovo (667c8d3), e-maily č. 9 až 11, 15
+- **Dokumentace:** `docs/emaily/KATALOG.md`: hotovo (667c8d3), e-maily č. 9 až 11, 15
 
 <a id="d-104"></a>
 
@@ -1311,7 +1311,7 @@ _Nic._
 - **Datum:** 2026-11-03 · **Rozhodl:** `pm`
 - **Text:** Změnový e-mail zahrnuje jen termíny, na které je účastník přihlášený a kterých se změna týká. Potvrzení odhlášení se posílá i pro termín, který účastník odhlášením odebral. Z toho neplyne další univerzální e-mail o libovolné úpravě přihlášky.
 - **Zdroj:** [Business katalog e-mailů, potvrzená rozhodnutí z dotazníku](../../docs/emaily/KATALOG.md)
-- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/EMAILY.md`: hotovo (667c8d3), pravidla e-mailů
+- **Dokumentace:** `docs/emaily/KATALOG.md`: hotovo (667c8d3), pravidla e-mailů
 
 <a id="d-105"></a>
 
@@ -1321,7 +1321,7 @@ _Nic._
 - **Datum:** 2026-11-03 · **Rozhodl:** `pm`
 - **Text:** Účet vzniká odesláním přihlášky a potvrzovací e-mail obsahuje magic link (D-008); samostatné obecné ověření e-mailové adresy se neposílá. Netýká se potvrzení změny přihlašovací adresy.
 - **Zdroj:** [Business katalog e-mailů, potvrzená rozhodnutí z dotazníku](../../docs/emaily/KATALOG.md)
-- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/EMAILY.md`: hotovo (667c8d3), e-mail č. 1, odkaz na přihlášení
+- **Dokumentace:** `docs/emaily/KATALOG.md`: hotovo (667c8d3), e-mail č. 1, odkaz na přihlášení
 
 <a id="d-106"></a>
 
