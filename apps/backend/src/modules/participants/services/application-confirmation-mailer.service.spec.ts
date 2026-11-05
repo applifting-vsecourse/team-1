@@ -40,8 +40,22 @@ const application = (overrides: Partial<SubmittedApplication> = {}): SubmittedAp
   lastName: "Nováková",
   accessToken: "token-48",
   terms: [
-    { name: "1. týden", termNumber: 1, status: "CONFIRMED", priceCzk: 4500 },
-    { name: "2. týden", termNumber: 2, status: "CONFIRMED", priceCzk: 4900 },
+    {
+      name: "1. týden",
+      dates: "12.–18. 7. 2027",
+      customName: null,
+      termNumber: 1,
+      status: "CONFIRMED",
+      priceCzk: 4500,
+    },
+    {
+      name: "2. týden",
+      dates: "12.–18. 7. 2027",
+      customName: null,
+      termNumber: 2,
+      status: "CONFIRMED",
+      priceCzk: 4900,
+    },
   ],
   ...overrides,
 })
@@ -50,6 +64,7 @@ const confirmation = (overrides: Partial<SubmissionConfirmation> = {}): Submissi
   email: "petra@example.com",
   locale: "cs",
   eventName: "Letní kemp 2027",
+  organizationName: "Alpine Collective",
   bankAccount: "2900123456/2010",
   mustSetPassword: true,
   applications: [application()],
@@ -58,7 +73,16 @@ const confirmation = (overrides: Partial<SubmissionConfirmation> = {}): Submissi
 
 const waitlisted = (overrides: Partial<SubmittedApplication> = {}): SubmittedApplication =>
   application({
-    terms: [{ name: "Září", termNumber: 1, status: "WAITLISTED", priceCzk: 1800 }],
+    terms: [
+      {
+        name: "Září",
+        dates: "12.–18. 7. 2027",
+        customName: null,
+        termNumber: 1,
+        status: "WAITLISTED",
+        priceCzk: 1800,
+      },
+    ],
     ...overrides,
   })
 
@@ -117,7 +141,16 @@ describe("ApplicationConfirmationMailer.sendSubmissionConfirmation", () => {
             firstName: "Petr",
             lastName: "Novák",
             accessToken: "token-49",
-            terms: [{ name: "2. týden", termNumber: 2, status: "CONFIRMED", priceCzk: 4900 }],
+            terms: [
+              {
+                name: "2. týden",
+                dates: "12.–18. 7. 2027",
+                customName: null,
+                termNumber: 2,
+                status: "CONFIRMED",
+                priceCzk: 4900,
+              },
+            ],
           }),
         ],
       }),
@@ -146,8 +179,22 @@ describe("ApplicationConfirmationMailer.sendSubmissionConfirmation", () => {
         applications: [
           application({
             terms: [
-              { name: "1. týden", termNumber: 1, status: "CONFIRMED", priceCzk: 4500 },
-              { name: "2. týden", termNumber: 2, status: "WAITLISTED", priceCzk: 4900 },
+              {
+                name: "1. týden",
+                dates: "12.–18. 7. 2027",
+                customName: null,
+                termNumber: 1,
+                status: "CONFIRMED",
+                priceCzk: 4500,
+              },
+              {
+                name: "2. týden",
+                dates: "12.–18. 7. 2027",
+                customName: null,
+                termNumber: 2,
+                status: "WAITLISTED",
+                priceCzk: 4900,
+              },
             ],
           }),
         ],
@@ -291,7 +338,16 @@ describe("ApplicationConfirmationMailer.sendApplicationChange", () => {
       firstName: "Petr",
       lastName: "Novák",
       accessToken: "token-49",
-      terms: [{ name: "12.–18. 7. 2027", termNumber: 1, status: "CONFIRMED", priceCzk: 4900 }],
+      terms: [
+        {
+          name: "12.–18. 7. 2027",
+          dates: "12.–18. 7. 2027",
+          customName: null,
+          termNumber: 1,
+          status: "CONFIRMED",
+          priceCzk: 4900,
+        },
+      ],
     }),
     isAmountChanged: false,
     ...overrides,

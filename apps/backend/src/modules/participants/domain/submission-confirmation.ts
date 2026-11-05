@@ -13,6 +13,10 @@ export type SubmittedApplication = {
   /** Terms as evaluated; the price is the one frozen at evaluation. */
   terms: {
     name: string
+    /** The dates of the term in the e-mail's language (`formatTermDates`). */
+    dates: string
+    /** The name the organizer gave the term, if any (a term needs none, D-053). */
+    customName: string | null
     /** `Term.number`, the last three digits of the term's variable symbol. */
     termNumber: number
     status: ApplicationTermStatus
@@ -32,6 +36,8 @@ export type SubmissionConfirmation = {
   /** Application.locale — language of the e-mail. */
   locale: Locale
   eventName: string
+  /** The organization that runs the event; the footer of the e-mail. */
+  organizationName: string
   /** Account number of the organization that runs the event. */
   bankAccount: string
   /**

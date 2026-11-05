@@ -5,7 +5,7 @@ import {
 } from "@/modules/applications/domain/application-submission"
 import { isOpenForApplications } from "@/modules/applications/domain/public-event"
 import { evaluateSubmission, isValidBirthDate } from "@/modules/applications/domain/submission"
-import { termLabel } from "@/modules/applications/domain/term-label"
+import { formatTermDates, termLabel } from "@/modules/applications/domain/term-label"
 import { ApplicationsRepository } from "@/modules/applications/repositories/applications.repository"
 import { ApplicationConfirmationMailer } from "@/modules/participants/services/application-confirmation-mailer.service"
 import { ParticipantAccountsService } from "@/modules/participants/services/participant-accounts.service"
@@ -123,6 +123,7 @@ export class ApplicationsService {
   private async sendConfirmation(
     event: {
       name: string
+      organizationName: string
       bankAccount: string
       terms: { id: string; name: string | null; startsOn: string; endsOn: string; number: number }[]
     },
@@ -139,6 +140,7 @@ export class ApplicationsService {
         email,
         locale,
         eventName: event.name,
+        organizationName: event.organizationName,
         bankAccount: event.bankAccount,
         mustSetPassword,
         applications: saved.map((application) => ({
@@ -152,6 +154,8 @@ export class ApplicationsService {
             if (!eventTerm) throw new Error(`Term ${term.termId} is missing in the event`)
             return {
               name: termLabel(eventTerm, locale),
+              dates: formatTermDates(eventTerm.startsOn, eventTerm.endsOn, locale),
+              customName: eventTerm.name?.trim() || null,
               termNumber: eventTerm.number,
               status: term.status,
               priceCzk: term.priceCzk,

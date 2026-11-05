@@ -24,7 +24,16 @@ const result = (
     firstName: "Jana",
     lastName: "Nováková",
     accessToken: "token",
-    terms: [{ name: "T1", termNumber: 1, status: to, priceCzk: 1000 }],
+    terms: [
+      {
+        name: "T1",
+        dates: "1.–7. 7. 2027",
+        customName: null,
+        termNumber: 1,
+        status: to,
+        priceCzk: 1000,
+      },
+    ],
   },
 })
 

@@ -11,6 +11,7 @@ const event: SubmissionEvent = {
   id: "e1",
   organizationId: "o1",
   name: "Letní kemp",
+  organizationName: "Alpine Collective",
   bankAccount: "2900123456/2010",
   evaluationMode: "AUTOMATIC",
   termsWithoutRooms: 0,
@@ -68,13 +69,22 @@ describe("ApplicationsService.submit", () => {
         email: "a@example.com",
         locale: "cs",
         eventName: "Letní kemp",
+        organizationName: "Alpine Collective",
         bankAccount: "2900123456/2010",
         mustSetPassword: true,
         applications: [
           expect.objectContaining({
             number: 7,
             firstName: "Eva",
-            terms: [{ name: "1. týden", termNumber: 1, status: "CONFIRMED", priceCzk: 4500 }],
+            terms: [
+              expect.objectContaining({
+                name: "1. týden",
+                customName: "1. týden",
+                termNumber: 1,
+                status: "CONFIRMED",
+                priceCzk: 4500,
+              }),
+            ],
           }),
         ],
       }),
@@ -91,7 +101,14 @@ describe("ApplicationsService.submit", () => {
 
     const [confirmation] = mailer.sendSubmissionConfirmation.mock.calls[0]
     expect(confirmation.applications[0].terms).toEqual([
-      { name: "4.–10. 7. 2027", termNumber: 1, status: "CONFIRMED", priceCzk: 4500 },
+      {
+        name: "4.–10. 7. 2027",
+        dates: "4.–10. 7. 2027",
+        customName: null,
+        termNumber: 1,
+        status: "CONFIRMED",
+        priceCzk: 4500,
+      },
     ])
   })
 

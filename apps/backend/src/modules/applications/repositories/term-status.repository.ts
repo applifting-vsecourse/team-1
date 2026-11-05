@@ -1,6 +1,6 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { StatusChangeSnapshot } from "@/modules/applications/domain/status-transition"
-import { termLabel } from "@/modules/applications/domain/term-label"
+import { formatTermDates, termLabel } from "@/modules/applications/domain/term-label"
 import {
   ExpiredWaitlistEntry,
   StatusChangeCommand,
@@ -161,6 +161,8 @@ export class TermStatusRepository {
           accessToken: application.accessToken,
           terms: terms.map((row) => ({
             name: termLabel(row.term, locale),
+            dates: formatTermDates(row.term.startsOn, row.term.endsOn, locale),
+            customName: row.term.name?.trim() || null,
             termNumber: row.term.number,
             status: row.status,
             priceCzk: row.priceCzk,

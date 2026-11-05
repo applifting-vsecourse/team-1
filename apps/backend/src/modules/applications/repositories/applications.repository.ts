@@ -33,7 +33,7 @@ export class ApplicationsRepository {
     const event = await this.prisma.event.findUnique({
       where: { publicToken },
       include: {
-        organization: { select: { bankAccount: true } },
+        organization: { select: { name: true, bankAccount: true } },
         terms: {
           where: { cancelledAt: null },
           orderBy: [{ startsOn: "asc" }, { endsOn: "asc" }, { id: "asc" }],
@@ -46,6 +46,7 @@ export class ApplicationsRepository {
       id: event.id,
       organizationId: event.organizationId,
       name: event.name,
+      organizationName: event.organization.name,
       bankAccount: event.organization.bankAccount,
       evaluationMode: event.evaluationMode,
       termsWithoutRooms: event.terms.filter((term) => term._count.rooms === 0).length,
