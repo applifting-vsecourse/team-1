@@ -1,6 +1,7 @@
 {
   "APPLICATION_DUPLICATE": "{{participant}} is already registered for the term “{{term}}” (same name and date of birth).",
   "BED_ALREADY_TAKEN": "The bed has meanwhile been taken by someone else.",
+  "CANCELLATION_APPROVAL_REQUIRED": "Changes now require the organiser's approval. Contact the organiser.",
   "CAPACITY_EXCEEDED": "Confirming would exceed the capacity of the term. Confirm knowingly.",
   "EMAIL_DELIVERY_FAILED": "The verification e-mail could not be sent. Try again later.",
   "EMAIL_TAKEN": "This e-mail is already taken.",

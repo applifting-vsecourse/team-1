@@ -1,4 +1,17 @@
 {
+  "cancellationStart": {
+    "afterDate": "From this date, term changes and cancellations are sent to the organizer for approval.",
+    "cancel": "Cancel",
+    "dateLabel": "Cancellation rules apply from",
+    "enable": "Set a cancellation start date",
+    "invalidDate": "Enter a valid calendar date.",
+    "noDate": "Without a date, term changes and cancellations take effect immediately.",
+    "save": "Save settings",
+    "saveFailed": "Could not save the cancellation date",
+    "savedDate": "Cancellation rules start: {{date}}.",
+    "savedTitle": "Date saved.",
+    "title": "Approval of participant changes"
+  },
   "delete": {
     "action": "Delete event",
     "confirm": "Delete event",

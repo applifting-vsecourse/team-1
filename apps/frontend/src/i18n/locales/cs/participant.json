@@ -3,6 +3,23 @@
     "description": "Přihlášky vedené pod účtem {{name}}.",
     "title": "Vaše přihlášky"
   },
+  "change": {
+    "approvalRequired": "Změny nyní vyžadují schválení organizátora. Obraťte se prosím na organizátora.",
+    "back": "Zpět",
+    "cancelAll": "Zrušit přihlášku",
+    "cancelAllDescription": "Všechny vybrané termíny se okamžitě zruší. Platby zůstávají u původních termínů; případnou vratku domluvte s organizátorem.",
+    "cancelAllTitle": "Zrušit všechny termíny?",
+    "description": "Vyberte termíny, které chcete ponechat nebo přidat. Odškrtnutím všech termínů zrušíte přihlášku.",
+    "immediateNote": "Změny se provedou okamžitě.",
+    "loadError": "Dostupné termíny se nepodařilo načíst",
+    "open": "Změnit termíny nebo se odhlásit",
+    "retry": "Zkusit znovu",
+    "save": "Uložit změny",
+    "saved": "Přihláška byla aktualizována",
+    "saving": "Ukládání…",
+    "selectTerm": "Vybrat termín {{term}}",
+    "title": "Změna termínů"
+  },
   "contact": {
     "email": "E-mail",
     "none": "Organizace zatím nezveřejnila kontakt.",

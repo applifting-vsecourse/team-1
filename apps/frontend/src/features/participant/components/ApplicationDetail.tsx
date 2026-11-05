@@ -15,6 +15,7 @@ import { Card } from "@/components/ui/card"
 
 import { myApplicationQueryOptions } from "@/features/participant/api/applications"
 import { OrganizationContact } from "@/features/participant/components/OrganizationContact"
+import { ParticipantTermChange } from "@/features/participant/components/ParticipantTermChange"
 import { PaymentSummary } from "@/features/participant/components/PaymentSummary"
 import { TermStatusBadge } from "@/features/participant/components/TermSummary"
 
@@ -90,6 +91,7 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
         {hasWaitlisted && !data.paymentDetails ? (
           <p className="pt-4 text-sm text-muted-foreground">{t("detail.waitlistNote")}</p>
         ) : null}
+        <ParticipantTermChange applicationId={applicationId} />
       </Card>
       {hasToEvaluate ? (
         // Figma (Design system): Togena / Alert · node-id=15751-1777 (360 px: 15751-1810)
