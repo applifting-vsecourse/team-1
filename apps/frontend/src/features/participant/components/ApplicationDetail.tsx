@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 
 import { myApplicationQueryOptions } from "@/features/participant/api/applications"
+import { ChangeRequestNotice } from "@/features/participant/components/ChangeRequestNotice"
 import { OrganizationContact } from "@/features/participant/components/OrganizationContact"
 import { ParticipantTermChange } from "@/features/participant/components/ParticipantTermChange"
 import { PaymentSummary } from "@/features/participant/components/PaymentSummary"
@@ -87,6 +88,7 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
           {hasToEvaluate ? <p className="pt-4">{t("detail.toEvaluate.note")}</p> : null}
         </Card>
       ) : null}
+      <ChangeRequestNotice applicationId={applicationId} />
       {hasToEvaluate ? (
         // Figma (Design system): Togena / Alert · node-id=15751-1777 (360 px: 15751-1810)
         <Alert>

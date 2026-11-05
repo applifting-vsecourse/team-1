@@ -3,6 +3,8 @@ import { render, screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
+import type { NotificationFeed } from "@/components/organisms/NotificationPanel"
+
 import type { AppNotification } from "@/features/notifications/api/notifications"
 import { NotificationCenter } from "@/features/notifications/components/NotificationCenter"
 
@@ -43,12 +45,12 @@ function serve(list: AppNotification[] | Error) {
   }))
 }
 
-function renderCenter() {
+function renderCenter(additionalFeed?: NotificationFeed) {
   render(
     <QueryClientProvider
       client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
     >
-      <NotificationCenter />
+      <NotificationCenter additionalFeed={additionalFeed} />
     </QueryClientProvider>,
   )
 }
@@ -74,6 +76,67 @@ describe("NotificationCenter", () => {
     renderCenter()
 
     expect(await screen.findByRole("button", { name: "Notifications, 2 unread" })).toBeVisible()
+  })
+
+  const requestFeed = (): NotificationFeed => ({
+    items: [
+      {
+        id: "n1",
+        applicationId: "request-app",
+        createdAt: "2027-03-12T09:32:00.000Z",
+        isUnread: true,
+        title: "Change request approved",
+        participant: "Summer camp",
+        context: "",
+        time: "12. 3. 2027",
+      },
+    ],
+    unreadCount: 1,
+    state: "ready",
+    onRetry: vi.fn(),
+    onMarkRead: vi.fn(),
+    onMarkAllRead: vi.fn(),
+  })
+
+  it("combines both sources under one bell and opens a change request with a colliding id", async () => {
+    serve([notification("n1")])
+    const feed = requestFeed()
+    renderCenter(feed)
+    expect(await screen.findByRole("button", { name: "Notifications, 2 unread" })).toBeVisible()
+    expect(screen.getAllByRole("button", { name: /^Notifications/ })).toHaveLength(1)
+    const panel = within(await open())
+    const articles = await panel.findAllByRole("article")
+    expect(articles).toHaveLength(2)
+    expect(articles[0]).toHaveTextContent("Change request approved")
+    await userEvent.click(
+      panel.getByRole("button", { name: /Change request approved.*Application detail/ }),
+    )
+    expect(feed.onMarkRead).toHaveBeenCalledWith("n1")
+    expect(post).not.toHaveBeenCalled()
+    expect(navigate).toHaveBeenCalledWith({
+      to: "/participant/applications/$applicationId",
+      params: { applicationId: "request-app" },
+    })
+  })
+
+  it("marks both sources as read", async () => {
+    serve([notification("n1")])
+    const feed = requestFeed()
+    renderCenter(feed)
+    const panel = within(await open())
+    await userEvent.click(await panel.findByRole("button", { name: "Mark all as read" }))
+    expect(post).toHaveBeenCalledWith("notifications/read-all")
+    expect(feed.onMarkAllRead).toHaveBeenCalled()
+  })
+
+  it("retries both sources when the change request source fails", async () => {
+    serve([])
+    const feed = { ...requestFeed(), state: "error" as const }
+    renderCenter(feed)
+    const panel = within(await open())
+    await userEvent.click(await panel.findByRole("button", { name: "Try again" }))
+    expect(feed.onRetry).toHaveBeenCalled()
+    expect(get).toHaveBeenCalledWith("notifications")
   })
 
   it("hides the number when everything is read", async () => {
