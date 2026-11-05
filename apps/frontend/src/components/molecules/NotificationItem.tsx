@@ -26,8 +26,8 @@ export type NotificationItemProps = {
 }
 
 /**
- * One notification. The whole item opens the application; marking as read is the one separate
- * action. Unread ones carry a coloured "New" chip and a tinted background, read ones a quiet chip.
+ * One notification. The whole item opens the application (the button stretches over it); the
+ * envelope, which marks it as read, sits above it as the one separate action. Unread ones carry a coloured "New" chip and a tinted background, read ones a quiet chip.
  */
 // Figma (Design system): Togena / Notification item · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16047-1617
 export function NotificationItem({
@@ -47,7 +47,7 @@ export function NotificationItem({
     <article
       data-unread={isUnread}
       className={cn(
-        "flex items-start gap-1 rounded-lg border border-border transition-colors",
+        "relative flex items-start gap-1 rounded-lg border border-border transition-colors hover:bg-accent/40",
         isUnread ? "border-transparent bg-secondary" : "bg-card",
       )}
     >
@@ -55,7 +55,7 @@ export function NotificationItem({
         type="button"
         aria-label={`${title}, ${participant}, ${t("item.open")}`}
         onClick={onOpen}
-        className="flex min-w-0 flex-1 flex-col gap-2 rounded-lg p-4 text-left outline-none hover:bg-accent/40 focus-visible:ring-[3px] focus-visible:ring-ring/50"
+        className="flex min-w-0 flex-1 flex-col gap-2 rounded-lg p-4 text-left outline-none after:absolute after:inset-0 after:rounded-lg after:content-[''] focus-visible:after:ring-[3px] focus-visible:after:ring-ring/50"
       >
         <span className="flex items-center gap-2">
           <Badge
@@ -103,7 +103,7 @@ export function NotificationItem({
           type="button"
           variant="ghost"
           size="icon-lg"
-          className="mt-2 mr-2 shrink-0"
+          className="relative z-10 mt-2 mr-2 shrink-0"
           aria-label={t("item.markRead")}
           title={t("item.markRead")}
           onClick={onMarkRead}

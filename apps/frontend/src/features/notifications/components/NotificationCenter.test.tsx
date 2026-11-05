@@ -183,7 +183,7 @@ describe("NotificationCenter", () => {
 
     // At 360 px the panel stays a modal that fits the screen and scrolls; from `md` up it is a card
     // under the bell.
-    expect(dialog).toHaveClass("max-h-[calc(100svh-2rem)]", "overflow-y-auto", "sm:max-w-110")
+    expect(dialog).toHaveClass("max-h-[calc(100svh-2rem)]", "overflow-hidden", "sm:max-w-110")
     expect(await within(dialog).findByRole("button", { name: /Application detail/ })).toBeVisible()
   })
 })

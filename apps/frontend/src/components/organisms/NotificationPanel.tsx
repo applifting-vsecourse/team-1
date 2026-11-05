@@ -1,4 +1,4 @@
-import { TriangleAlert } from "lucide-react"
+import { MailCheck, TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -101,11 +101,12 @@ export function NotificationPanel({
       {hasUnread ? (
         <Button
           type="button"
-          variant="ghost"
+          variant="outline"
           size="lg"
-          className="w-full"
+          className="w-full border-primary font-semibold text-primary hover:bg-accent"
           onClick={onMarkAllRead}
         >
+          <MailCheck aria-hidden="true" />
           {t("panel.markAllRead")}
         </Button>
       ) : null}

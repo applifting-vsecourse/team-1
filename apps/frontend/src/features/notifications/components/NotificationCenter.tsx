@@ -71,9 +71,9 @@ export function NotificationCenter() {
       >
         <DialogContent
           showCloseButton={false}
-          className="max-h-[calc(100svh-2rem)] content-start gap-5 overflow-y-auto rounded-2xl p-4 sm:max-w-110 md:top-16 md:right-6 md:left-auto md:translate-x-0 md:translate-y-0 md:p-6"
+          className="flex max-h-[calc(100svh-2rem)] flex-col content-start gap-5 overflow-hidden rounded-2xl p-4 sm:max-w-110 md:top-0 md:right-0 md:left-auto md:h-svh md:max-h-svh md:translate-x-0 md:translate-y-0 md:rounded-l-2xl md:rounded-r-none md:p-6"
         >
-          <div className="flex items-center gap-4">
+          <div className="flex shrink-0 items-center gap-4">
             <DialogTitle className="flex-1 text-2xl font-bold">{t("panel.title")}</DialogTitle>
             <DialogClose asChild>
               <Button
@@ -91,15 +91,18 @@ export function NotificationCenter() {
             </DialogClose>
           </div>
           <DialogDescription className="sr-only">{t("panel.title")}</DialogDescription>
-          <NotificationPanel
-            state={list.isPending ? "loading" : list.isError ? "error" : "ready"}
-            items={rows}
-            hasUnread={rows.some((row) => row.isUnread)}
-            onRetry={() => void list.refetch()}
-            onOpen={open}
-            onMarkRead={(id) => markRead.mutate(id)}
-            onMarkAllRead={() => markAllRead.mutate()}
-          />
+          {/* Only the list scrolls, so the rounded corners and the bottom padding stay put. */}
+          <div className="min-h-0 flex-1 overflow-y-auto pb-2">
+            <NotificationPanel
+              state={list.isPending ? "loading" : list.isError ? "error" : "ready"}
+              items={rows}
+              hasUnread={rows.some((row) => row.isUnread)}
+              onRetry={() => void list.refetch()}
+              onOpen={open}
+              onMarkRead={(id) => markRead.mutate(id)}
+              onMarkAllRead={() => markAllRead.mutate()}
+            />
+          </div>
         </DialogContent>
       </Dialog>
     </>
