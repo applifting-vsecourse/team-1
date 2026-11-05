@@ -19,6 +19,8 @@ type AreaLayoutProps = {
   account: ReactNode
   /** `reading` for participant pages, `wide` (full width) for organizer tables. */
   width: "reading" | "wide"
+  /** The notification bell, shown before the language switcher; omitted where the area has none (the organizer until US-86). */
+  notifications?: ReactNode
   children: ReactNode
 }
 
@@ -38,7 +40,14 @@ type AreaLayoutProps = {
 // Figma (Design system): N6 Mobil · Akce s přepínači v liště · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14178-43128
 // Figma (Design system): N7 Mobil · drawer s účtem · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14178-43178
 // Figma (Design system): N / Mobile top bar · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14179-968// Figma (Design system): Collapsed sidebar · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14198-44366
-export function AreaLayout({ nav, roleLabel, account, width, children }: AreaLayoutProps) {
+export function AreaLayout({
+  nav,
+  roleLabel,
+  account,
+  width,
+  notifications,
+  children,
+}: AreaLayoutProps) {
   const { t } = useTranslation()
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
     try {
@@ -148,6 +157,7 @@ export function AreaLayout({ nav, roleLabel, account, width, children }: AreaLay
             {roleLabel}
           </p>
           <div className="ml-auto flex items-center gap-1 md:ml-0 md:gap-2">
+            {notifications}
             <LanguageSwitcher />
             <ThemeSwitcher />
           </div>
