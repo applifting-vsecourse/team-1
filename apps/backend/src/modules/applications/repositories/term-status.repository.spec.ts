@@ -1,4 +1,5 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
+import { NotificationsRepository } from "@/modules/notifications/repositories/notifications.repository"
 import { TermStatusRepository } from "./term-status.repository"
 
 type Locale = "en" | "cs"
@@ -41,7 +42,7 @@ const setup = (options: {
       findUnique: jest.fn().mockResolvedValue({
         id: "at1",
         status: "CONFIRMED",
-        term: { name: null, startsOn: "2027-07-12", endsOn: "2027-07-18" },
+        term: { name: null, startsOn: new Date("2027-07-12"), endsOn: new Date("2027-07-18") },
       }),
       findMany: jest
         .fn()
@@ -52,7 +53,12 @@ const setup = (options: {
             termId: "t1",
             status: "WAITLISTED",
             priceCzk: 1000,
-            term: { name: null, number: 1, startsOn: "2027-07-12", endsOn: "2027-07-18" },
+            term: {
+              name: null,
+              number: 1,
+              startsOn: new Date("2027-07-12"),
+              endsOn: new Date("2027-07-18"),
+            },
           },
         ]),
       update: jest.fn().mockResolvedValue({}),
@@ -61,7 +67,10 @@ const setup = (options: {
   }
   const prisma = { $transaction: (fn: (t: typeof tx) => unknown): unknown => fn(tx) }
   return {
-    repository: new TermStatusRepository(prisma as unknown as PrismaService),
+    repository: new TermStatusRepository(
+      prisma as unknown as PrismaService,
+      { create: jest.fn().mockResolvedValue(undefined) } as unknown as NotificationsRepository,
+    ),
     findFirstApplication,
   }
 }

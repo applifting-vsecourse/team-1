@@ -1,4 +1,5 @@
 import { PrismaModule } from "@/core/prisma/prisma.module"
+import { NotificationsModule } from "@/modules/notifications/notifications.module"
 import { ParticipantsModule } from "@/modules/participants/participants.module"
 import { AuthModule } from "@/shared/auth/auth.module"
 import { OrganizationAccessModule } from "@/shared/organization-access/organization-access.module"
@@ -36,7 +37,13 @@ import { WaitlistExpiryScheduler } from "./services/waitlist-expiry.scheduler"
 import { WaitlistExpiryService } from "./services/waitlist-expiry.service"
 
 @Module({
-  imports: [PrismaModule, ParticipantsModule, OrganizationAccessModule, AuthModule],
+  imports: [
+    PrismaModule,
+    NotificationsModule,
+    ParticipantsModule,
+    OrganizationAccessModule,
+    AuthModule,
+  ],
   controllers: [
     PublicEventsController,
     PublicCatalogController,

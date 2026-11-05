@@ -122,6 +122,7 @@ model User {
   applications     Application[]
   recordedPayments Payment[]
   statusChanges    ApplicationTermStatusChange[]
+  notifications    Notification[]
 
   @@unique([email])
   @@map("user")
@@ -304,7 +305,8 @@ model Application {
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @default(now()) @updatedAt
 
-  terms ApplicationTerm[]
+  terms         ApplicationTerm[]
+  notifications Notification[]
 
   @@index([organizationId])
   @@index([eventId, submittedAt])
@@ -405,4 +407,34 @@ model Payment {
   @@index([receiptId])
   @@index([correctsReceiptId])
   @@map("payment")
+}
+
+// In-app notification of a user (US-118); the organizer's bell (US-86) builds on it. The copy is
+// not stored: the frontend composes it from `type`, `kind` and `params` in the reader's language.
+// Written in the transaction of the change it describes. `readAt` null = unread.
+model Notification {
+  id            String           @id @default(cuid())
+  user          User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        String
+  type          NotificationType
+  // The event within the type, e.g. CONFIRMED, PAYMENT_RECORDED.
+  kind          String
+  // The application the notification leads to; null for notifications that belong to none.
+  application   Application?     @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  applicationId String?
+  // Data the copy is composed from (event, participant, term dates, amounts).
+  params        Json
+  createdAt     DateTime         @default(now())
+  readAt        DateTime?
+
+  @@index([userId, createdAt])
+  @@index([userId, readAt])
+  @@index([applicationId])
+  @@map("notification")
+}
+
+enum NotificationType {
+  STATUS_CHANGED
+  PAYMENT
+  REQUEST
 }

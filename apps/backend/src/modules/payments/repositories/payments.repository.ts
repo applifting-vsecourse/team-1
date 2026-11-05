@@ -12,6 +12,7 @@ import {
   computeTermPaid,
   resolvePaymentAmount,
 } from "@/modules/applications/domain/pricing"
+import { NotificationsRepository } from "@/modules/notifications/repositories/notifications.repository"
 import { resolveChangeEmailLocale } from "@/modules/participants/domain/change-email-locale"
 import { PaymentApplication } from "@/modules/payments/domain/payment"
 import { AppException } from "@/shared/errors/app.exception"
@@ -96,7 +97,10 @@ export type PaymentDebtNotice = {
 
 @Injectable()
 export class PaymentsRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notifications: NotificationsRepository,
+  ) {}
 
   async find(applicationId: string, organizationId: string): Promise<PaymentApplication | null> {
     const row = await this.prisma.application.findFirst({
@@ -376,6 +380,13 @@ export class PaymentsRepository {
         recordedById,
       })),
     })
+    // US-118: the participant is told in the same transaction (a correction counts as a new receipt).
+    await this.notifications.notifyPayment(tx, {
+      applicationId,
+      organizationId,
+      kind: isRefund ? "PAYMENT_REFUNDED" : "PAYMENT_RECORDED",
+      rows,
+    })
   }
 
   /** Cancels the whole receipt the row belongs to; the rows stay so a retry cannot restore it. */
@@ -390,16 +401,24 @@ export class PaymentsRepository {
       >`SELECT id FROM application WHERE id = ${applicationId} AND "organizationId" = ${organizationId} FOR UPDATE`
       if (!locked.length) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
       const paidBefore = await this.confirmedTermBalances(tx, applicationId)
-      const result = await tx.payment.updateMany({
-        where: {
-          receiptId,
-          organizationId,
-          cancelledAt: null,
-          applicationTerm: { applicationId },
-        },
-        data: { cancelledAt: new Date() },
+      const where = {
+        receiptId,
+        organizationId,
+        cancelledAt: null,
+        applicationTerm: { applicationId },
+      }
+      const cancelled = await tx.payment.findMany({
+        where,
+        select: { applicationTermId: true, amountCzk: true },
       })
+      const result = await tx.payment.updateMany({ where, data: { cancelledAt: new Date() } })
       if (!result.count) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
+      await this.notifications.notifyPayment(tx, {
+        applicationId,
+        organizationId,
+        kind: "PAYMENT_CANCELLED",
+        rows: cancelled,
+      })
       return this.createdDebt(tx, applicationId, paidBefore)
     })
   }
