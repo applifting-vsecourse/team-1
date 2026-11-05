@@ -174,6 +174,22 @@ describe("organizer changes the terms of an application (integration)", () => {
     expect(log.changedBy?.email).toBe("organizator@example.com")
   })
 
+  it("puts the application back into the term it was cancelled in, with its payment", async () => {
+    const options = await (
+      await fetch(url("/change-options"), { headers: { Cookie: cookie } })
+    ).json()
+    expect(options).toContainEqual(expect.objectContaining({ id: firstId, selected: false }))
+    expect((await (await preview([firstId])).json()).added[0]).toMatchObject({ paidCzk: 1000 })
+    expect((await change([firstId])).status).toBe(200)
+    expect(
+      await prisma.applicationTerm.findFirstOrThrow({
+        where: { applicationId, termId: firstId },
+        include: { payments: true },
+      }),
+    ).toMatchObject({ status: "CONFIRMED", payments: [{ amountCzk: 1000 }] })
+    expect((await change([secondId])).status).toBe(200)
+  })
+
   it("is a no-op when the selection does not change", async () => {
     expect(await (await change([secondId])).json()).toMatchObject({ changed: false })
   })

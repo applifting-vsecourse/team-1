@@ -40,6 +40,17 @@ describe("previewTermChange", () => {
     })
   })
 
+  it("takes the payments of a term put back into the selection into account", () => {
+    const impact = previewTermChange({
+      gender: "MALE",
+      current: [{ termId: "b", status: "CONFIRMED", priceCzk: 5600, paidCzk: 0 }],
+      selectedIds: ["a"],
+      added: [{ termId: "a", priceCzk: 4900, paidCzk: 4900, freePlaces: free, genderCapacity: 50 }],
+    })
+    expect(impact).toMatchObject({ amountToPayCzk: 0, overpaymentCzk: 0 })
+    expect(impact.added[0].paidCzk).toBe(4900)
+  })
+
   it("does not count a removed term without payments as an overpayment", () => {
     const impact = previewTermChange({
       gender: "MALE",

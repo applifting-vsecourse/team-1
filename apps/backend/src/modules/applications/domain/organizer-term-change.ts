@@ -24,6 +24,8 @@ export type CurrentTermState = {
 export type AddedTermState = {
   termId: string
   priceCzk: number
+  /** Money already paid in the term: only a term reactivated from a cancelled one has some. */
+  paidCzk?: number
   freePlaces: GenderCounts
   /** Beds the applicant's gender can use in the term (a shared pool counts all beds). */
   genderCapacity: number
@@ -39,6 +41,7 @@ export type TermChangeImpact = {
   added: {
     termId: string
     priceCzk: number
+    paidCzk: number
     fits: boolean
     genderCapacity: number
     genderFree: number
@@ -74,7 +77,7 @@ export function previewTermChange(input: {
     ])
     return { termId: term.termId, paidCzk, overpaymentCzk: Math.max(0, -owed) }
   })
-  const addedOwed = input.added.map((term) => term.priceCzk)
+  const addedOwed = input.added.map((term) => term.priceCzk - (term.paidCzk ?? 0))
 
   const owedAll = [...keptOwed, ...addedOwed]
   return {
@@ -85,11 +88,12 @@ export function previewTermChange(input: {
     ].reduce((sum, price) => sum + price, 0),
     amountToPayCzk: owedAll.reduce((sum, owed) => sum + Math.max(0, owed), 0),
     overpaymentCzk:
-      keptOwed.reduce((sum, owed) => sum + Math.max(0, -owed), 0) +
+      [...keptOwed, ...addedOwed].reduce((sum, owed) => sum + Math.max(0, -owed), 0) +
       removedRows.reduce((sum, row) => sum + row.overpaymentCzk, 0),
     added: input.added.map((term) => ({
       termId: term.termId,
       priceCzk: term.priceCzk,
+      paidCzk: term.paidCzk ?? 0,
       fits: addedTermFits(input.gender, term.freePlaces),
       genderCapacity: term.genderCapacity,
       genderFree: term.freePlaces[input.gender],

@@ -56,13 +56,18 @@ function setup() {
     <QueryClientProvider
       client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
     >
-      <OrganizerTermChange applicationId="a1" />
+      <OrganizerTermChange
+        applicationId="a1"
+        term={
+          { termId: "t1", name: "First", startsOn: "2027-07-12", endsOn: "2027-07-18" } as never
+        }
+      />
     </QueryClientProvider>,
   )
 }
 
 async function pickNewTerm(user: ReturnType<typeof userEvent.setup>) {
-  await user.click(await screen.findByRole("button", { name: "Change terms" }))
+  await user.click(await screen.findByRole("button", { name: "Change term" }))
   const dialog = screen.getByRole("dialog")
   await user.click(within(dialog).getByRole("combobox"))
   await user.click(await screen.findByRole("option", { name: /Second/ }))
@@ -84,7 +89,7 @@ describe("OrganizerTermChange", () => {
     const user = userEvent.setup()
 
     const dialog = await pickNewTerm(user)
-    expect(await within(dialog).findByText(/Free places for men/)).toBeInTheDocument()
+    expect(await within(dialog).findByText(/Capacity for men/)).toBeInTheDocument()
     await user.click(within(dialog).getByRole("button", { name: "Confirm the term change" }))
 
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument())

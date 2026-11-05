@@ -41,6 +41,8 @@ export class OrganizerTermChangePreviewQueryDto {
 class AddedTermImpactDto {
   @ApiProperty() termId!: string
   @ApiProperty() priceCzk!: number
+  @ApiProperty({ description: "Already paid in the term (a reactivated one keeps its payments)" })
+  paidCzk!: number
   @ApiProperty({ description: "A bed of the applicant's gender is free" }) fits!: boolean
   @ApiProperty({ description: "Beds the applicant's gender can use in the term" })
   genderCapacity!: number

@@ -377,10 +377,10 @@
       "overpayment": "Overpayment",
       "paid": "Paid",
       "places": {
-        "FEMALE": "Free places for women",
-        "MALE": "Free places for men"
+        "FEMALE": "Capacity for women",
+        "MALE": "Capacity for men"
       },
-      "placesValue": "{{free}} of {{capacity}}",
+      "placesValue": "{{free}} of {{capacity}} free",
       "price": "Price",
       "title": "Impact of the change",
       "toPay": "To pay"
@@ -390,8 +390,8 @@
     "participant": "Participant",
     "pick": "Choose a term",
     "submit": "Confirm the term change",
-    "title": "Change terms",
-    "trigger": "Change terms"
+    "title": "Change term",
+    "trigger": "Change term"
   },
   "termStatus": {
     "action": {

@@ -377,10 +377,10 @@
       "overpayment": "Přeplatek",
       "paid": "Zaplaceno",
       "places": {
-        "FEMALE": "Volná místa pro ženy",
-        "MALE": "Volná místa pro muže"
+        "FEMALE": "Kapacita pro ženy",
+        "MALE": "Kapacita pro muže"
       },
-      "placesValue": "{{free}} z {{capacity}}",
+      "placesValue": "{{free}} z {{capacity}} volných",
       "price": "Cena",
       "title": "Dopad změny",
       "toPay": "K doplacení"
@@ -390,8 +390,8 @@
     "participant": "Účastník",
     "pick": "Vyberte termín",
     "submit": "Potvrdit změnu termínu",
-    "title": "Změnit termíny",
-    "trigger": "Změnit termíny"
+    "title": "Změnit termín",
+    "trigger": "Změnit termín"
   },
   "termStatus": {
     "action": {

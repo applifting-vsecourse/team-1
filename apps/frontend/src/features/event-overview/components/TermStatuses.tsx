@@ -51,12 +51,9 @@ export function TermStatuses({ applicationId }: { applicationId: string }) {
   }
   return (
     <Card className="gap-4 p-4 md:p-6">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="flex flex-col gap-1">
-          <h2 className="text-lg font-semibold">{t("termStatus.title")}</h2>
-          <p className="text-sm text-muted-foreground">{t("termStatus.helper")}</p>
-        </div>
-        <OrganizerTermChange applicationId={applicationId} />
+      <div className="flex flex-col gap-1">
+        <h2 className="text-lg font-semibold">{t("termStatus.title")}</h2>
+        <p className="text-sm text-muted-foreground">{t("termStatus.helper")}</p>
       </div>
       <ul className="flex flex-col">
         {data.map((term) => (
@@ -68,6 +65,12 @@ export function TermStatuses({ applicationId }: { applicationId: string }) {
               <span className="font-medium">{termDatesLine(term)}</span>
               <Badge variant={BADGE[term.status]}>{t(`termStatus.state.${term.status}`)}</Badge>
               <div className="flex flex-wrap gap-2 sm:ml-auto">
+                {term.status === "CANCELLED" ? null : (
+                  <OrganizerTermChange
+                    applicationId={applicationId}
+                    term={term}
+                  />
+                )}
                 {term.allowedStatuses.map((status) => (
                   <Button
                     key={status}

@@ -104,7 +104,7 @@ export class TermStatusRepository {
     userId: string,
     applicationId: string,
   ): Promise<ParticipantChangeOptions | null> {
-    return this.changeOptions({ id: applicationId, userId })
+    return this.changeOptions({ id: applicationId, userId }, false)
   }
 
   /** The same options for an organizer's change (US-33); `canChangeImmediately` is not theirs to ask. */
@@ -112,11 +112,13 @@ export class TermStatusRepository {
     organizationId: string,
     applicationId: string,
   ): Promise<ParticipantChangeOptions | null> {
-    return this.changeOptions({ id: applicationId, organizationId })
+    return this.changeOptions({ id: applicationId, organizationId }, true)
   }
 
   private async changeOptions(
     where: Prisma.ApplicationWhereInput,
+    /** An organizer may put the application back into a term it was cancelled in (US-33). */
+    includeCancelled: boolean,
   ): Promise<ParticipantChangeOptions | null> {
     const application = await this.prisma.application.findFirst({
       where,
@@ -153,7 +155,11 @@ export class TermStatusRepository {
         new Date(),
       ),
       terms: application.event.terms
-        .filter((term) => !cancelled.has(term.id) && (active.has(term.id) || term._count.rooms > 0))
+        .filter(
+          (term) =>
+            (includeCancelled || !cancelled.has(term.id)) &&
+            (active.has(term.id) || term._count.rooms > 0),
+        )
         .map((term) => ({
           id: term.id,
           name: term.name,
@@ -210,11 +216,7 @@ export class TermStatusRepository {
       },
       select: { id: true, priceCzk: true, rooms: { select: { capacity: true, gender: true } } },
     })
-    if (
-      offered.length !== addedIds.length ||
-      offered.some((term) => term.rooms.length === 0) ||
-      addedIds.some((id) => current.some((row) => row.termId === id))
-    ) {
+    if (offered.length !== addedIds.length || offered.some((term) => term.rooms.length === 0)) {
       throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
     }
     const confirmed = await this.prisma.applicationTerm.findMany({
@@ -228,6 +230,11 @@ export class TermStatusRepository {
       return {
         termId: term.id,
         priceCzk: term.priceCzk,
+        // Payments of a cancelled row come back with it when the organizer reactivates it.
+        paidCzk: (current.find((row) => row.termId === term.id)?.payments ?? []).reduce(
+          (sum, payment) => sum + payment.amountCzk,
+          0,
+        ),
         freePlaces: computeAvailablePlaces(term.rooms, genders),
         genderCapacity: term.rooms.some((room) => room.gender === null)
           ? computeTotalBeds(term.rooms)
@@ -345,10 +352,11 @@ export class TermStatusRepository {
           _count: { select: { rooms: true } },
         },
       })
+      // The organizer may reactivate a term the application was cancelled in; nobody else may.
       if (
         offered.length !== addedIds.length ||
         offered.some((term) => term._count.rooms === 0) ||
-        addedIds.some((id) => current.some((row) => row.termId === id))
+        (!organizer && addedIds.some((id) => current.some((row) => row.termId === id)))
       ) {
         throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
       }
@@ -455,6 +463,23 @@ export class TermStatusRepository {
         }
         hasNewConfirmation = evaluated.some((term) => term.status === "CONFIRMED")
         for (const term of evaluated) {
+          const cancelledRow = current.find((row) => row.termId === term.termId)
+          if (cancelledRow) {
+            await tx.applicationTerm.update({
+              where: { id: cancelledRow.id },
+              data: { status: term.status, priceCzk: term.priceCzk },
+            })
+            await tx.applicationTermStatusChange.create({
+              data: {
+                organizationId: application.organizationId,
+                applicationTermId: cancelledRow.id,
+                fromStatus: cancelledRow.status,
+                toStatus: term.status,
+                changedById: organizer?.actorId ?? application.userId,
+              },
+            })
+            continue
+          }
           await tx.applicationTerm.create({
             data: {
               organizationId: application.organizationId,
