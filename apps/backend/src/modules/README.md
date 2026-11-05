@@ -35,7 +35,7 @@ modules/<modul>/
 - **Ochrana endpointu:** `@Auth('ORGANIZER')` na controlleru (bez session 401, jiný typ účtu 403). `@Auth()` pustí kohokoliv přihlášeného. Veřejné endpointy (přihláška) dekorátor nemají.
 - **Data organizace** se vždy filtrují podle `organizationId` a cizí záznam vrací 403 bez obsahu (US-10). Nepiš kontrolu sám, použij `OrganizationAccessService` z `shared/organization-access`:
   ```ts
-  const { organizationId } = await this.organizationAccess.assertCanAccessEvent(user, eventId);
+  const { organizationId } = await this.organizationAccess.assertCanAccessEvent(user, eventId)
   // seznamy: where: { organizationId: { in: await this.organizationAccess.getOrganizationIds(user) } }
   ```
 - **Chyby:** `throw new AppException(HttpStatus.CONFLICT, 'EMAIL_TAKEN_BY_ORGANIZER')` s kódem z `shared/errors/error-code.ts`. Odpověď je vždy `{ statusCode, code, message }` (volitelně `params` — hodnoty pro zástupné značky v překladu, 4. argument `AppException`) a frontend kód přeloží — nový kód přidej i do `apps/frontend/src/i18n/locales/{en,cs}/errors.json`.

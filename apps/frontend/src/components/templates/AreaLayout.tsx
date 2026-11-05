@@ -17,9 +17,10 @@ type AreaLayoutProps = {
   roleLabel: string
   /** The signed-in account at the bottom of the sidebar and the drawer (a slot: `components/` never imports from `features/`). */
   account: ReactNode
-  notifications?: ReactNode
   /** `reading` for participant pages, `wide` (full width) for organizer tables. */
   width: "reading" | "wide"
+  /** The notification bell, shown before the language switcher; omitted where the area has none (the organizer until US-86). */
+  notifications?: ReactNode
   children: ReactNode
 }
 
@@ -43,8 +44,8 @@ export function AreaLayout({
   nav,
   roleLabel,
   account,
-  notifications,
   width,
+  notifications,
   children,
 }: AreaLayoutProps) {
   const { t } = useTranslation()

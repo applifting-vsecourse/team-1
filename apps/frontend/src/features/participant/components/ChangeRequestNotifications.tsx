@@ -1,9 +1,11 @@
+import type { ReactNode } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
 import { Bell } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
+import type { NotificationFeed } from "@/components/organisms/NotificationPanel"
 import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { formatDate } from "@/lib/date"
@@ -14,7 +16,11 @@ import {
 } from "@/features/participant/api/notifications"
 
 // Figma (Design system): US-114 Detail přihlášky · Žádost čeká / Změna schválená / Žádost zamítnutá, notification trigger · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15928-9331
-export function ChangeRequestNotifications() {
+export function ChangeRequestNotifications({
+  children,
+}: {
+  children?: (feed: NotificationFeed) => ReactNode
+}) {
   const { t } = useTranslation("participant")
   const query = useQuery(participantNotificationsQueryOptions())
   const client = useQueryClient()
@@ -24,6 +30,29 @@ export function ChangeRequestNotifications() {
       void client.invalidateQueries({ queryKey: ["participant", "change-request-notifications"] }),
   })
   const unread = query.data?.filter((item) => !item.readAt).length ?? 0
+  if (children) {
+    return children({
+      items: (query.data ?? []).map((item) => ({
+        id: item.id,
+        applicationId: item.applicationId,
+        createdAt: item.reviewedAt ?? item.createdAt,
+        isUnread: !item.readAt,
+        title: t(`notifications.status.${item.status}`),
+        participant: item.eventName,
+        context: "",
+        time: formatDate(item.reviewedAt ?? item.createdAt),
+      })),
+      unreadCount: unread,
+      state: query.isPending ? "loading" : query.isError ? "error" : "ready",
+      onRetry: () => void query.refetch(),
+      onMarkRead: (id) => mutation.mutate(id),
+      onMarkAllRead: () => {
+        for (const item of query.data ?? []) {
+          if (!item.readAt) mutation.mutate(item.id)
+        }
+      },
+    })
+  }
   return (
     <Popover>
       <PopoverTrigger asChild>

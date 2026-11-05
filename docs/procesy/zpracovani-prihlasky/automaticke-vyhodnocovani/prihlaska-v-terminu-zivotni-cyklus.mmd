@@ -17,6 +17,7 @@ stateDiagram-v2
   n_potvrzena_zaplacena --> n_zrusena : Nastaly okolnosti pro<br/>zamítnutí přihlášky v<br/>termínu / cancel()
   n_potvrzena_zaplacena --> n_zrusena : Účastník se odhlásí /<br/>cancel()
   n_potvrzena_zaplacena --> n_archivovana : Termín proběhne /<br/>archive()
+  n_potvrzena_zaplacena --> n_potvrzena_dluh : Organizátor opraví nebo<br/>odstraní platbu a vznikne<br/>dluh / correctPayment()
   n_nahradnik --> n_zrusena : Organizátor zruší termín<br/>akce / cancel()
   n_potvrzena_dluh --> n_zrusena : Organizátor zruší termín<br/>akce / cancel()
   n_potvrzena_zaplacena --> n_zrusena : Organizátor zruší termín<br/>akce / cancel()

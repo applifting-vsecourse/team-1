@@ -132,6 +132,7 @@ model User {
   statusChanges    ApplicationTermStatusChange[]
   submittedChangeRequests ChangeRequest[] @relation("ChangeRequestApplicant")
   reviewedChangeRequests  ChangeRequest[] @relation("ChangeRequestReviewer")
+  notifications    Notification[]
 
   @@unique([email])
   @@map("user")
@@ -199,6 +200,8 @@ model Event {
   name                 String
   // How applications in a term are evaluated (US-101); fixed once applications open.
   evaluationMode       EvaluationMode @default(AUTOMATIC)
+  // D-099: payment period from confirmation; D-101: restarted when a correction creates a debt.
+  paymentPeriodDays    Int            @default(10)
   // First calendar day when participant changes require organizer approval (US-113/114).
   // Null leaves changes immediate.
   cancellationStartsOn DateTime?      @db.Date
@@ -314,7 +317,8 @@ model Application {
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @default(now()) @updatedAt
 
-  terms ApplicationTerm[]
+  terms         ApplicationTerm[]
+  notifications Notification[]
   changeRequests ChangeRequest[]
 
   @@index([organizationId])
@@ -352,17 +356,19 @@ model ChangeRequest {
 
 // Result of evaluating one selected term of an application (US-27).
 model ApplicationTerm {
-  id             String                @id @default(cuid())
-  organization   Organization          @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  organizationId String
-  application    Application           @relation(fields: [applicationId], references: [id], onDelete: Cascade)
-  applicationId  String
-  term           Term                  @relation(fields: [termId], references: [id], onDelete: Cascade)
-  termId         String
-  status         ApplicationTermStatus
+  id                     String                @id @default(cuid())
+  organization           Organization          @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId         String
+  application            Application           @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  applicationId          String
+  term                   Term                  @relation(fields: [termId], references: [id], onDelete: Cascade)
+  termId                 String
+  status                 ApplicationTermStatus
   // Term price frozen at evaluation; later price changes affect only new applications.
-  priceCzk       Int
-  evaluatedAt    DateTime              @default(now())
+  priceCzk               Int
+  evaluatedAt            DateTime              @default(now())
+  // Restart of the payment period after a correction/removal; null = original confirmation period.
+  paymentPeriodStartedAt DateTime?
 
   statusChanges ApplicationTermStatusChange[]
   payments      Payment[]
@@ -420,20 +426,55 @@ model ApplicationTermSkip {
 // than a flag so a bank statement import (US-42) can add more later. One receipt (money that
 // arrived at once) is one or more rows sharing `receiptId`; a refund is a negative row.
 model Payment {
-  id                String           @id @default(cuid())
-  organization      Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  id                String          @id @default(cuid())
+  organization      Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   organizationId    String
-  applicationTerm   ApplicationTerm  @relation(fields: [applicationTermId], references: [id], onDelete: Cascade)
+  applicationTerm   ApplicationTerm @relation(fields: [applicationTermId], references: [id], onDelete: Cascade)
   applicationTermId String
   receiptId         String
+  // Set on a replacement receipt; all its rows point to the original receipt.
+  correctsReceiptId String?
+  // New receipts remember whether the organizer used the summary symbol; null is legacy data.
+  isSummary         Boolean?
   amountCzk         Int
-  recordedBy        User             @relation(fields: [recordedById], references: [id])
+  recordedBy        User            @relation(fields: [recordedById], references: [id])
   recordedById      String
-  createdAt         DateTime         @default(now())
+  createdAt         DateTime        @default(now())
   cancelledAt       DateTime?
 
   @@index([organizationId])
   @@index([applicationTermId])
   @@index([receiptId])
+  @@index([correctsReceiptId])
   @@map("payment")
+}
+
+// In-app notification of a user (US-118); the organizer's bell (US-86) builds on it. The copy is
+// not stored: the frontend composes it from `type`, `kind` and `params` in the reader's language.
+// Written in the transaction of the change it describes. `readAt` null = unread.
+model Notification {
+  id            String           @id @default(cuid())
+  user          User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        String
+  type          NotificationType
+  // The event within the type, e.g. CONFIRMED, PAYMENT_RECORDED.
+  kind          String
+  // The application the notification leads to; null for notifications that belong to none.
+  application   Application?     @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  applicationId String?
+  // Data the copy is composed from (event, participant, term dates, amounts).
+  params        Json
+  createdAt     DateTime         @default(now())
+  readAt        DateTime?
+
+  @@index([userId, createdAt])
+  @@index([userId, readAt])
+  @@index([applicationId])
+  @@map("notification")
+}
+
+enum NotificationType {
+  STATUS_CHANGED
+  PAYMENT
+  REQUEST
 }

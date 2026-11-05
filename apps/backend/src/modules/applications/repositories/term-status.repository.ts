@@ -11,7 +11,10 @@ import {
   participantChangeAllowed,
   ParticipantChangeOptions,
 } from "@/modules/applications/domain/participant-term-change"
-import { StatusChangeSnapshot } from "@/modules/applications/domain/status-transition"
+import {
+  changeEmailKind,
+  StatusChangeSnapshot,
+} from "@/modules/applications/domain/status-transition"
 import { skippedSubstitutes } from "@/modules/applications/domain/substitute-skips"
 import { termLabel } from "@/modules/applications/domain/term-label"
 import {
@@ -22,6 +25,8 @@ import {
   TermStatusDetail,
 } from "@/modules/applications/domain/term-status"
 import { bedGroup, WaitlistCandidate } from "@/modules/applications/domain/waitlist"
+import { buildNotification, isoDay } from "@/modules/notifications/domain/notification"
+import { NotificationsRepository } from "@/modules/notifications/repositories/notifications.repository"
 import { resolveChangeEmailLocale } from "@/modules/participants/domain/change-email-locale"
 import { ApplicationChange } from "@/modules/participants/domain/submission-confirmation"
 import { AppException } from "@/shared/errors/app.exception"
@@ -76,7 +81,10 @@ function toRecord(row: RecordRow): SubstituteRecord {
 
 @Injectable()
 export class TermStatusRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notifications: NotificationsRepository,
+  ) {}
 
   /** The terms the owner can choose, and the current approval boundary (US-113). */
   async participantChangeOptions(
@@ -341,6 +349,26 @@ export class TermStatusRepository {
       const changedTerm = oneCancelled
         ? terms.find((row) => row.termId === removed[0].termId)
         : null
+      // US-118: only the cancellation of a term is told in the app (EMAILY.md, row 11); a change
+      // of terms is not, the participant has just made it themselves.
+      if (changedTerm) {
+        await this.notifications.create(
+          tx,
+          buildNotification({
+            userId,
+            applicationId,
+            kind: "CANCELLED",
+            params: {
+              eventName: application.event.name,
+              participantName: `${application.firstName} ${application.lastName}`,
+              termStartsOn: isoDay(changedTerm.term.startsOn),
+              termEndsOn: isoDay(changedTerm.term.endsOn),
+              fromStatus: removed[0].status,
+              toStatus: "CANCELLED",
+            },
+          }),
+        )
+      }
       return {
         email: application.email,
         locale,
@@ -531,6 +559,28 @@ export class TermStatusRepository {
           })),
         })
       }
+
+      // US-118: the same transition that gets an e-mail gets a notification, in this transaction.
+      await this.notifications.create(
+        tx,
+        buildNotification({
+          userId: application.userId,
+          applicationId: application.id,
+          kind: changeEmailKind(
+            command.to,
+            current.status,
+            command.actorId === null ? "SYSTEM" : "ORGANIZER",
+          ),
+          params: {
+            eventName: application.event.name,
+            participantName: `${application.firstName} ${application.lastName}`,
+            termStartsOn: isoDay(current.term.startsOn),
+            termEndsOn: isoDay(current.term.endsOn),
+            fromStatus: current.status,
+            toStatus: command.to,
+          },
+        }),
+      )
 
       // D-078: the e-mail goes in the user's preferred language, else in the language of the
       // user's first application; the term labels follow it.
