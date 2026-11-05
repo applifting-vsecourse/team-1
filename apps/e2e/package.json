@@ -15,13 +15,8 @@
     "@playwright/test": "^1.55.0",
     "@types/node": "catalog:",
     "@types/pg": "^8.15.0",
-<<<<<<< HEAD
-    "dotenv": "^17.4.2",
-    "pg": "^8.23.1",
-=======
     "dotenv": "^18.0.8",
-    "pg": "^8.20.0",
->>>>>>> origin/dependabot/npm_and_yarn/dotenv-18.0.8
+    "pg": "^8.23.1",
     "prettier": "catalog:",
     "typescript": "catalog:"
   }

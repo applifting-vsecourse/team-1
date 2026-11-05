@@ -21,6 +21,13 @@ updates:
       timezone: Europe/Prague
     open-pull-requests-limit: 10
     versioning-strategy: increase
+    ignore:
+      # Types follow the Node runtime (.nvmrc, Dockerfiles: Node 24).
+      - dependency-name: "@types/node"
+        versions: [">=25"]
+      # NestJS 12 is ESM-only: a migration of its own (jest, build), not a bump.
+      - dependency-name: "@nestjs/*"
+        update-types: ["version-update:semver-major"]
     cooldown:
       default-days: 3
       semver-major-days: 14
@@ -60,6 +67,10 @@ updates:
     directories:
       - /apps/backend
       - /apps/frontend
+    ignore:
+      # A new Node major changes .nvmrc, CI and both images together, by hand.
+      - dependency-name: node
+        update-types: ["version-update:semver-major"]
     schedule:
       interval: weekly
       day: monday
@@ -78,6 +89,11 @@ updates:
     directories:
       - /
       - /apps/backend
+    ignore:
+      # A Postgres major can't read the previous major's data volume (and the
+      # course runs staging's database): upgraded by hand with a dump/restore.
+      - dependency-name: postgres
+        update-types: ["version-update:semver-major"]
     schedule:
       interval: weekly
       day: monday

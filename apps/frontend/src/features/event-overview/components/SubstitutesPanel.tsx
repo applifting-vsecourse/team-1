@@ -51,7 +51,7 @@ export function SubstitutesPanel({
   const query = useQuery(substitutesQueryOptions(eventId, term.id))
   const [chosen, setChosen] = useState<Substitute | null>(null)
   const list = query.data
-  if (!list || list.evaluationMode !== "MANUAL" || list.items.length === 0) return null
+  if (list?.evaluationMode !== "MANUAL" || list.items.length === 0) return null
   const range = formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })
   // Men and women wait for different beds, so each queue is a card of its own; shared rooms have
   // one queue.
