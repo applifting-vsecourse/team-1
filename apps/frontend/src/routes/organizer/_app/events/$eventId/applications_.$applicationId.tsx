@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router"
 
 import { ApplicationSubstituteRecords } from "@/features/event-overview/components/ApplicationSubstituteRecords"
+import { OrganizerTermChange } from "@/features/event-overview/components/OrganizerTermChange"
 import { PaymentDetail } from "@/features/event-overview/components/PaymentDetail"
 import { TermStatuses } from "@/features/event-overview/components/TermStatuses"
 
@@ -17,6 +18,7 @@ function PaymentPage() {
   return (
     <div className="flex flex-col gap-6">
       <PaymentDetail applicationId={applicationId} />
+      <OrganizerTermChange applicationId={applicationId} />
       <TermStatuses applicationId={applicationId} />
       <ApplicationSubstituteRecords applicationId={applicationId} />
     </div>

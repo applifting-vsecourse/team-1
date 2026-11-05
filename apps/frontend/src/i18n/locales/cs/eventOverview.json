@@ -356,6 +356,40 @@
     "takenHint": "{{name}} zůstává náhradníkem. Kapacita se nepřekročí.",
     "title": "Obsazení uvolněných lůžek"
   },
+  "termChange": {
+    "cancel": "Zrušit",
+    "done": {
+      "debt": "Nový termín s dluhem {{amount}}",
+      "email": "Přihlašovatel dostane e-mail o změně.",
+      "record": "Záznam změny",
+      "terms": "{{from}} → {{to}}",
+      "title": "Termín byl změněn",
+      "when": "{{date}} · {{who}}"
+    },
+    "full": {
+      "alertDescription": "{{term}} je obsazený {{confirmed}}/{{capacity}}. Potvrzením vznikne obsazenost {{next}}/{{capacity}}.",
+      "alertTitle": "Změna překročí kapacitu",
+      "back": "Vybrat jiný termín",
+      "confirm": "Potvrzuji překročení kapacity termínu",
+      "submit": "Potvrdit změnu",
+      "title": "Nový termín je plně obsazený"
+    },
+    "impact": {
+      "added": "Nový termín · Cena {{price}} · K doplacení {{owed}}",
+      "errorTitle": "Dopad změny se nepodařilo načíst",
+      "fits": "Kapacita nového termínu {{confirmed}}/{{capacity}} · Účastník se vejde.",
+      "noTransfer": "Platby se mezi termíny nepřevádějí.",
+      "removed": "Původní termín · Zaplaceno {{paid}} · Přeplatek {{overpayment}}",
+      "title": "Dopad změny"
+    },
+    "next": "Nový termín",
+    "original": "Původní termín",
+    "pick": "Vyberte termín",
+    "subject": "{{name}} · {{event}}",
+    "submit": "Potvrdit změnu termínu",
+    "title": "Změnit termíny",
+    "trigger": "Změnit termíny"
+  },
   "termStatus": {
     "action": {
       "cancel": "Zrušit v termínu",
