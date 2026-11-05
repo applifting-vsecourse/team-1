@@ -25,20 +25,21 @@ test.describe("Catalog of events", { tag: "@mobile" }, () => {
     await expect(
       page.getByRole("heading", { level: 1, name: "Letní kemp 2027 – demo" }),
     ).toBeVisible()
-    await expect(page.getByRole("heading", { name: "Terms and prices" })).toBeVisible()
+    await expect(page).toHaveURL(/\/events\/demo-letni-kemp-plny/)
     expect(await scrollsSideways(page)).toBe(false)
 
-    await page.getByRole("link", { name: "Apply participants" }).click()
+    await page.getByRole("link", { name: "Submit application" }).click()
     await expect(page).toHaveURL(/\/apply\/demo-letni-kemp-plny/)
     await expect(
       page.getByRole("region", { name: "Application for Letní kemp 2027 – demo" }),
     ).toBeVisible()
   })
 
-  test("an event that is not published has no page", async ({ page }) => {
-    await page.goto("/catalog/demo-zimni-vyjezd-2028")
+  test("an event without a working application link has no page", async ({ page }) => {
+    await page.goto("/events/demo-zimni-vyjezd-2028")
 
+    await expect(page.getByRole("heading", { level: 1, name: "Page not found" })).toBeVisible()
     await expect(page.getByRole("heading", { name: "Zimní výjezd 2028" })).toHaveCount(0)
-    await expect(page.getByRole("link", { name: "Apply participants" })).toHaveCount(0)
+    await expect(page.getByRole("link", { name: "Submit application" })).toHaveCount(0)
   })
 })

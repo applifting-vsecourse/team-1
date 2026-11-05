@@ -114,9 +114,6 @@ export class CatalogEventDetailResponseDto {
   @ApiProperty({ description: "A photo can be loaded from the photo endpoint." })
   hasPhoto!: boolean
 
-  @ApiProperty({ description: "The application link works; without it there is no button." })
-  isOpenForApplications!: boolean
-
   static fromDomain(event: CatalogEventDetail): CatalogEventDetailResponseDto {
     return {
       publicToken: event.publicToken,
@@ -128,7 +125,6 @@ export class CatalogEventDetailResponseDto {
       contactPhone: event.contactPhone,
       terms: event.terms.map((term) => PublicTermDto.fromDomain(term)),
       hasPhoto: event.hasPhoto,
-      isOpenForApplications: event.isOpenForApplications,
     }
   }
 }
