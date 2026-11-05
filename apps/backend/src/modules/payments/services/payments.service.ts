@@ -12,7 +12,7 @@ import {
 import { Identity } from "@/shared/auth/domain/identity"
 import { AppException } from "@/shared/errors/app.exception"
 import { OrganizationAccessService } from "@/shared/organization-access/organization-access.service"
-import { ForbiddenException, HttpStatus, Injectable } from "@nestjs/common"
+import { HttpStatus, Injectable } from "@nestjs/common"
 
 @Injectable()
 export class PaymentsService {
@@ -25,7 +25,7 @@ export class PaymentsService {
   async get(user: Identity, applicationId: string): Promise<PaymentSummary> {
     const { organizationId } = await this.access.assertCanAccessApplication(user, applicationId)
     const application = await this.repository.find(applicationId, organizationId)
-    if (!application) throw new ForbiddenException()
+    if (!application) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
     return paymentSummary(application)
   }
 
@@ -119,11 +119,11 @@ export class PaymentsService {
   ): Promise<void> {
     const { organizationId } = await this.access.assertCanAccessApplication(user, applicationId)
     const application = await this.repository.find(applicationId, organizationId)
-    if (!application) throw new ForbiddenException()
+    if (!application) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
     const original = paymentSummary(application).receipts.find(
       (receipt) => receipt.id === receiptId,
     )
-    if (!original) throw new ForbiddenException()
+    if (!original) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
     const newDebt = await this.repository.correct({
       applicationId,
       organizationId,

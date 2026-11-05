@@ -2,6 +2,7 @@ import { Locale } from "@/core/email/locale"
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { Prisma } from "@/generated/prisma/client"
 import { computePaymentDeadline } from "@/modules/applications/domain/payment-deadline"
+import { planPaymentDebtRenewal } from "@/modules/applications/domain/payment-debt-renewal"
 import {
   allocateSummaryPayment,
   computePayableAmount,
@@ -15,7 +16,7 @@ import {
 import { resolveChangeEmailLocale } from "@/modules/participants/domain/change-email-locale"
 import { PaymentApplication } from "@/modules/payments/domain/payment"
 import { AppException } from "@/shared/errors/app.exception"
-import { ForbiddenException, HttpStatus, Injectable } from "@nestjs/common"
+import { HttpStatus, Injectable } from "@nestjs/common"
 
 const include = {
   event: { select: { name: true, paymentPeriodDays: true } },
@@ -116,7 +117,7 @@ export class PaymentsRepository {
       const locked = await tx.$queryRaw<
         { id: string }[]
       >`SELECT id FROM application WHERE id = ${applicationId} AND "organizationId" = ${organizationId} FOR UPDATE`
-      if (!locked.length) throw new ForbiddenException()
+      if (!locked.length) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
 
       const existing = await tx.payment.findMany({
         where: { receiptId: requestId },
@@ -130,7 +131,7 @@ export class PaymentsRepository {
               row.applicationTerm.applicationId !== applicationId,
           )
         )
-          throw new ForbiddenException()
+          throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
         const total = existing.reduce((sum, row) => sum + row.amountCzk, 0)
         const sameTerm = existing.every(
           (row) =>
@@ -163,12 +164,12 @@ export class PaymentsRepository {
       const locked = await tx.$queryRaw<
         { id: string }[]
       >`SELECT id FROM application WHERE id = ${applicationId} AND "organizationId" = ${organizationId} FOR UPDATE`
-      if (!locked.length) throw new ForbiddenException()
+      if (!locked.length) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
 
       const original = await tx.payment.findMany({
         where: { receiptId, organizationId, applicationTerm: { applicationId } },
       })
-      if (!original.length) throw new ForbiddenException()
+      if (!original.length) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
       const originalTotal = original.reduce((sum, row) => sum + row.amountCzk, 0)
       if (originalTotal < 0 !== (input.isRefund ?? false))
         throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
@@ -185,7 +186,7 @@ export class PaymentsRepository {
               row.applicationTerm.applicationId !== applicationId,
           )
         )
-          throw new ForbiddenException()
+          throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
         if (
           existing.some(
             (row) =>
@@ -199,7 +200,8 @@ export class PaymentsRepository {
           throw new AppException(HttpStatus.CONFLICT, "PAYMENT_ALREADY_RECORDED")
         return null
       }
-      if (original.some((row) => row.cancelledAt !== null)) throw new ForbiddenException()
+      if (original.some((row) => row.cancelledAt !== null))
+        throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
       const paidBefore = await this.confirmedTermBalances(tx, applicationId)
       await tx.payment.updateMany({
         where: { receiptId, organizationId, applicationTerm: { applicationId } },
@@ -244,33 +246,24 @@ export class PaymentsRepository {
     applicationId: string,
     before: { id: string; owedCzk: number }[],
   ): Promise<PaymentDebtNotice | null> {
-    if (!before.some((term) => term.owedCzk <= 0)) return null
     const after = await this.confirmedTermBalances(tx, applicationId)
-    const newlyIndebtedIds = before
-      .filter(
-        (term) =>
-          term.owedCzk <= 0 &&
-          (after.find((candidate) => candidate.id === term.id)?.owedCzk ?? 0) > 0,
-      )
-      .map((term) => term.id)
-    if (!newlyIndebtedIds.length) return null
+    const renewal = planPaymentDebtRenewal(before, after)
+    if (renewal === null) return null
     const restartedAt = new Date()
     await tx.applicationTerm.updateMany({
-      where: { id: { in: newlyIndebtedIds } },
+      where: { id: { in: renewal.renewedTermIds } },
       data: { paymentPeriodStartedAt: restartedAt },
     })
-    const terms = after
-      .filter((term) => term.owedCzk > 0)
-      .map((term) => ({
-        termNumber: term.termNumber,
-        amountOwedCzk: term.owedCzk,
-        paymentDueAt: computePaymentDeadline({
-          ...term,
-          paymentPeriodStartedAt: newlyIndebtedIds.includes(term.id)
-            ? restartedAt
-            : term.paymentPeriodStartedAt,
-        }),
-      }))
+    const terms = renewal.indebtedTerms.map((term) => ({
+      termNumber: term.termNumber,
+      amountOwedCzk: term.owedCzk,
+      paymentDueAt: computePaymentDeadline({
+        ...term,
+        paymentPeriodStartedAt: renewal.renewedTermIds.includes(term.id)
+          ? restartedAt
+          : term.paymentPeriodStartedAt,
+      }),
+    }))
     return { amountOwedCzk: computePayableAmount(terms.map((term) => term.amountOwedCzk)), terms }
   }
 
@@ -393,7 +386,7 @@ export class PaymentsRepository {
       const locked = await tx.$queryRaw<
         { id: string }[]
       >`SELECT id FROM application WHERE id = ${applicationId} AND "organizationId" = ${organizationId} FOR UPDATE`
-      if (!locked.length) throw new ForbiddenException()
+      if (!locked.length) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
       const paidBefore = await this.confirmedTermBalances(tx, applicationId)
       const result = await tx.payment.updateMany({
         where: {
@@ -404,7 +397,7 @@ export class PaymentsRepository {
         },
         data: { cancelledAt: new Date() },
       })
-      if (!result.count) throw new ForbiddenException()
+      if (!result.count) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
       return this.createdDebt(tx, applicationId, paidBefore)
     })
   }
