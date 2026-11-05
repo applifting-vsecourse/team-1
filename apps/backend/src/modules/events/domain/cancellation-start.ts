@@ -4,3 +4,8 @@ export function isValidCancellationStart(value: string): boolean {
   const date = new Date(`${value}T00:00:00.000Z`)
   return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value
 }
+
+/** The start day itself already requires organizer approval. Dates are Prague calendar days. */
+export function canChangeImmediately(startsOn: Date | null, today: Date): boolean {
+  return startsOn === null || today.getTime() < startsOn.getTime()
+}
