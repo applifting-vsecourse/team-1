@@ -13,6 +13,11 @@ import {
   applicationConfirmationSubject,
 } from "@/core/email/templates/application-confirmation"
 import {
+  ChangeRequestStatus,
+  ChangeRequestStatusProps,
+  changeRequestStatusSubject,
+} from "@/core/email/templates/change-request-status"
+import {
   PaymentCorrectionEmail,
   PaymentCorrectionEmailProps,
   paymentCorrectionSubject,
@@ -97,6 +102,15 @@ export class ApplicationConfirmationMailer {
       await this.email.sendEmail(change.email, subject, html)
     } catch (error) {
       this.logFailure("change", change.email, error)
+    }
+  }
+
+  async sendChangeRequestStatus(email: string, details: ChangeRequestStatusProps): Promise<void> {
+    try {
+      const html = await renderEmail(ChangeRequestStatus, details)
+      await this.email.sendEmail(email, changeRequestStatusSubject(details.locale), html)
+    } catch (error) {
+      this.logFailure("change request", email, error)
     }
   }
 

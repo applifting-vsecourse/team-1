@@ -13,6 +13,16 @@ export type NotificationRow = Omit<NotificationItemProps, "onOpen" | "onMarkRead
   id: string
 }
 
+/** An independent notification source, composed by the area route. */
+export type NotificationFeed = {
+  items: (NotificationRow & { applicationId: string; createdAt: string })[]
+  unreadCount: number
+  state: "loading" | "error" | "ready"
+  onRetry: () => void
+  onMarkRead: (id: string) => void
+  onMarkAllRead: () => void
+}
+
 type NotificationPanelProps = {
   state: "loading" | "error" | "ready"
   /** Newest first. */

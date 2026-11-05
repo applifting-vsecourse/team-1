@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
 import { NotificationBell } from "@/components/molecules/NotificationBell"
-import { NotificationPanel } from "@/components/organisms/NotificationPanel"
+import { NotificationPanel, type NotificationFeed } from "@/components/organisms/NotificationPanel"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -30,7 +30,7 @@ import { composeNotification } from "@/features/notifications/lib/compose"
  */
 // Figma (Design system): US-118 / Moje přihlášky · Panel: Upozornění · 3 nepřečtená upozornění / Desktop · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16047-1567
 // Figma (Design system): US-118 / Moje přihlášky · Panel: Upozornění · 3 nepřečtená upozornění / Mobile · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16047-1650
-export function NotificationCenter() {
+export function NotificationCenter({ additionalFeed }: { additionalFeed?: NotificationFeed }) {
   const { t } = useTranslation("notifications")
   const navigate = useNavigate()
   const [isOpen, setIsOpen] = useState(false)
@@ -42,11 +42,41 @@ export function NotificationCenter() {
   const notifications = list.data ?? []
   const rows = notifications.map((notification) => ({
     id: notification.id,
+    createdAt: notification.createdAt,
     isUnread: notification.readAt === null,
     ...composeNotification(notification, t, language),
   }))
+  const additionalPrefix = "change-request:"
+  const items = [
+    ...rows,
+    ...(additionalFeed?.items ?? []).map((item) => ({
+      ...item,
+      id: `${additionalPrefix}${item.id}`,
+    })),
+  ].sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+
+  const markOneRead = (id: string) => {
+    if (id.startsWith(additionalPrefix)) {
+      additionalFeed?.onMarkRead(id.slice(additionalPrefix.length))
+    } else {
+      markRead.mutate(id)
+    }
+  }
 
   const open = (id: string) => {
+    if (id.startsWith(additionalPrefix)) {
+      const item = additionalFeed?.items.find(
+        (candidate) => candidate.id === id.slice(additionalPrefix.length),
+      )
+      if (!item) return
+      if (item.isUnread) markOneRead(id)
+      setIsOpen(false)
+      void navigate({
+        to: ROUTES.participant.application,
+        params: { applicationId: item.applicationId },
+      })
+      return
+    }
     const notification = notifications.find((candidate) => candidate.id === id)
     if (!notification) return
     if (notification.readAt === null) markRead.mutate(id)
@@ -62,7 +92,7 @@ export function NotificationCenter() {
   return (
     <>
       <NotificationBell
-        unreadCount={unread.data ?? 0}
+        unreadCount={(unread.data ?? 0) + (additionalFeed?.unreadCount ?? 0)}
         onClick={() => setIsOpen(true)}
       />
       <Dialog
@@ -94,13 +124,25 @@ export function NotificationCenter() {
           {/* Only the list scrolls, with its scrollbar at the edge of the panel; the padding is inside it. */}
           <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-4 md:px-6 md:pb-6">
             <NotificationPanel
-              state={list.isPending ? "loading" : list.isError ? "error" : "ready"}
-              items={rows}
-              hasUnread={rows.some((row) => row.isUnread)}
-              onRetry={() => void list.refetch()}
+              state={
+                list.isPending || additionalFeed?.state === "loading"
+                  ? "loading"
+                  : list.isError || additionalFeed?.state === "error"
+                    ? "error"
+                    : "ready"
+              }
+              items={items}
+              hasUnread={items.some((row) => row.isUnread)}
+              onRetry={() => {
+                void list.refetch()
+                additionalFeed?.onRetry()
+              }}
               onOpen={open}
-              onMarkRead={(id) => markRead.mutate(id)}
-              onMarkAllRead={() => markAllRead.mutate()}
+              onMarkRead={markOneRead}
+              onMarkAllRead={() => {
+                markAllRead.mutate()
+                additionalFeed?.onMarkAllRead()
+              }}
             />
           </div>
         </DialogContent>
