@@ -1,4 +1,5 @@
 import { ApplicationTermStatus } from "@/modules/applications/domain/evaluation"
+import { computePaymentDeadline } from "@/modules/applications/domain/payment-deadline"
 import {
   computeApplicationDue,
   computeApplicationPaid,
@@ -37,6 +38,7 @@ export type PaymentTerm = {
   priceCzk: number
   startsOn: Date
   endsOn: Date
+  paymentPeriodStartedAt: Date | null
   /** Stored rows, including cancelled entries for the audit history. */
   payments: PaymentRow[]
 }
@@ -45,6 +47,7 @@ export type PaymentApplication = {
   id: string
   eventId: string
   eventName: string
+  paymentPeriodDays: number
   /** Account the organization receives payments to; shown next to each term's variable symbol. */
   bankAccount: string
   number: number
@@ -62,6 +65,7 @@ export type PaymentTermSummary = PaymentTerm & {
   paymentStatus: PaymentStatus
   /** Most that can be returned for this term: its overpayment, 0 without one. */
   refundableCzk: number
+  paymentDueAt: Date | null
 }
 
 /** One receipt: money that arrived at once, split into rows per term. */
@@ -153,6 +157,10 @@ export function paymentSummary(application: PaymentApplication): PaymentSummary 
         owedCzk: computeTermOwed(term, payments),
         paymentStatus: computeTermPaymentStatus(term, payments),
         refundableCzk: computeRefundableAmount(dueCzk, paidCzk),
+        paymentDueAt:
+          computeTermOwed(term, payments) > 0 && term.status === "CONFIRMED"
+            ? computePaymentDeadline({ ...term, paymentPeriodDays: application.paymentPeriodDays })
+            : null,
       }
     })
   const amountDueCzk = computeApplicationDue(terms)

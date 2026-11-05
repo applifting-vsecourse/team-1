@@ -15,6 +15,7 @@ const copy: Record<
     account: string
     symbol: string
     term: string
+    due: string
     button: string
     footer: (organization: string) => string
   }
@@ -27,6 +28,7 @@ const copy: Record<
     account: "Bank account",
     symbol: "Reference number",
     term: "Term",
+    due: "Pay by",
     button: "Open my application",
     footer: (organization) => `${organization} · via Togena`,
   },
@@ -39,6 +41,7 @@ const copy: Record<
     account: "Číslo účtu",
     symbol: "Variabilní symbol",
     term: "Termín",
+    due: "Zaplaťte do",
     button: "Otevřít přihlášku",
     footer: (organization) => `${organization} · přes Togenu`,
   },
@@ -54,7 +57,12 @@ export interface PaymentCorrectionEmailProps {
   name: string
   amountOwedCzk: number
   bankAccount: string
-  debts: { termNumber: number; amountCzk: number; variableSymbol: string }[]
+  debts: {
+    termNumber: number
+    amountCzk: number
+    variableSymbol: string
+    paymentDueAt: Date | null
+  }[]
   confirmationUrl: string
 }
 
@@ -86,6 +94,19 @@ export const PaymentCorrectionEmail = ({
             value: formatCzk(debt.amountCzk, locale),
           },
           { label: `${text.term} ${debt.termNumber} · ${text.symbol}`, value: debt.variableSymbol },
+          ...(debt.paymentDueAt
+            ? [
+                {
+                  label: `${text.term} ${debt.termNumber} · ${text.due}`,
+                  value: new Intl.DateTimeFormat(locale === "cs" ? "cs-CZ" : "en-GB", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                    timeZone: "Europe/Prague",
+                  }).format(debt.paymentDueAt),
+                },
+              ]
+            : []),
         ]),
       ]}
       buttonLabel={text.button}
@@ -102,7 +123,14 @@ PaymentCorrectionEmail.PreviewProps = {
   name: "Jana Nováková",
   amountOwedCzk: 1200,
   bankAccount: "123456789/2010",
-  debts: [{ termNumber: 1, amountCzk: 1200, variableSymbol: "12345001" }],
+  debts: [
+    {
+      termNumber: 1,
+      amountCzk: 1200,
+      variableSymbol: "12345001",
+      paymentDueAt: new Date("2027-06-20T12:00:00Z"),
+    },
+  ],
   confirmationUrl: "https://example.com/apply/confirmation/example",
 } satisfies PaymentCorrectionEmailProps
 

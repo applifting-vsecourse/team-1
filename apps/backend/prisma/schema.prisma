@@ -187,6 +187,8 @@ model Event {
   name               String
   // How applications in a term are evaluated (US-101); fixed once applications open.
   evaluationMode     EvaluationMode @default(AUTOMATIC)
+  // D-099: payment period from confirmation, restarted when a correction creates a debt.
+  paymentPeriodDays  Int            @default(10)
   description        String?        @db.Text
   location           String?
   // Public page content (US-122): the one source of the event web and the catalog (US-123).

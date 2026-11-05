@@ -1,6 +1,7 @@
 import { Locale } from "@/core/email/locale"
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { Prisma } from "@/generated/prisma/client"
+import { computePaymentDeadline } from "@/modules/applications/domain/payment-deadline"
 import {
   allocateSummaryPayment,
   computeRefundableAmount,
@@ -16,7 +17,7 @@ import { AppException } from "@/shared/errors/app.exception"
 import { ForbiddenException, HttpStatus, Injectable } from "@nestjs/common"
 
 const include = {
-  event: { select: { name: true } },
+  event: { select: { name: true, paymentPeriodDays: true } },
   organization: { select: { bankAccount: true } },
   terms: {
     include: {
@@ -34,6 +35,7 @@ const toDomain = (row: Row): PaymentApplication => ({
   id: row.id,
   eventId: row.eventId,
   eventName: row.event.name,
+  paymentPeriodDays: row.event.paymentPeriodDays,
   bankAccount: row.organization.bankAccount,
   number: row.number,
   firstName: row.firstName,
@@ -47,6 +49,7 @@ const toDomain = (row: Row): PaymentApplication => ({
     priceCzk: applicationTerm.priceCzk,
     startsOn: applicationTerm.term.startsOn,
     endsOn: applicationTerm.term.endsOn,
+    paymentPeriodStartedAt: applicationTerm.paymentPeriodStartedAt,
     payments: applicationTerm.payments.map(
       ({
         id,
@@ -87,7 +90,7 @@ export type RecordPaymentInput = {
 
 export type PaymentDebtNotice = {
   amountOwedCzk: number
-  terms: { termNumber: number; amountOwedCzk: number }[]
+  terms: { termNumber: number; amountOwedCzk: number; paymentDueAt: Date | null }[]
 }
 
 @Injectable()
@@ -209,11 +212,20 @@ export class PaymentsRepository {
   private async confirmedTermBalances(
     tx: Prisma.TransactionClient,
     applicationId: string,
-  ): Promise<{ id: string; termNumber: number; owedCzk: number }[]> {
+  ): Promise<
+    {
+      id: string
+      termNumber: number
+      owedCzk: number
+      paymentPeriodStartedAt: Date | null
+      paymentPeriodDays: number
+    }[]
+  > {
     const terms = await tx.applicationTerm.findMany({
       where: { applicationId, status: "CONFIRMED" },
       include: {
         term: { select: { number: true } },
+        application: { select: { event: { select: { paymentPeriodDays: true } } } },
         payments: { where: { cancelledAt: null }, select: { amountCzk: true } },
       },
     })
@@ -221,6 +233,8 @@ export class PaymentsRepository {
       id: term.id,
       termNumber: term.term.number,
       owedCzk: computeTermOwed(term, term.payments),
+      paymentPeriodStartedAt: term.paymentPeriodStartedAt,
+      paymentPeriodDays: term.application.event.paymentPeriodDays,
     }))
   }
 
@@ -239,13 +253,23 @@ export class PaymentsRepository {
       )
       .map((term) => term.id)
     if (!newlyIndebtedIds.length) return null
+    const restartedAt = new Date()
     await tx.applicationTerm.updateMany({
       where: { id: { in: newlyIndebtedIds } },
-      data: { paymentPeriodStartedAt: new Date() },
+      data: { paymentPeriodStartedAt: restartedAt },
     })
     const terms = after
       .filter((term) => term.owedCzk > 0)
-      .map((term) => ({ termNumber: term.termNumber, amountOwedCzk: term.owedCzk }))
+      .map((term) => ({
+        termNumber: term.termNumber,
+        amountOwedCzk: term.owedCzk,
+        paymentDueAt: computePaymentDeadline({
+          ...term,
+          paymentPeriodStartedAt: newlyIndebtedIds.includes(term.id)
+            ? restartedAt
+            : term.paymentPeriodStartedAt,
+        }),
+      }))
     return { amountOwedCzk: terms.reduce((sum, term) => sum + term.amountOwedCzk, 0), terms }
   }
 

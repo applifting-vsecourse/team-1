@@ -112,6 +112,7 @@ export class PaymentsService {
         termNumber: term.termNumber,
         amountCzk: term.amountOwedCzk,
         variableSymbol: variableSymbol(context.number, term.termNumber),
+        paymentDueAt: term.paymentDueAt,
       })),
     })
   }

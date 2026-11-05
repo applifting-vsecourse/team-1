@@ -77,6 +77,7 @@ const term = (input: TermInput): PaymentApplication["terms"][number] => {
     owedCzk,
     refundableCzk: Math.max(0, -owedCzk),
     paymentStatus,
+    paymentDueAt: null,
   }
 }
 
@@ -181,7 +182,10 @@ describe("PaymentDetail", () => {
     expect(url).toBe("organizer/applications/a1/payments/p1")
     expect(options.json).toMatchObject({ amountCzk: 700, termId: "t2" })
     expect(options.json.requestId).toMatch(/[0-9a-f-]{36}/)
-    expect(await screen.findByText("Payment record corrected")).toBeInTheDocument()
+    expect(await screen.findByText("Correction saved.")).toBeInTheDocument()
+    expect(screen.getByRole("heading", { name: "System record" })).toBeInTheDocument()
+    await user.click(screen.getByRole("button", { name: "Back to payments" }))
+    expect(screen.getByRole("table")).toBeInTheDocument()
   })
 
   it("previews the remaining overpayment when correcting a refund", async () => {

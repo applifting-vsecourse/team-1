@@ -44,6 +44,12 @@ class PaymentTermResponseDto {
   paymentStatus!: string
   @ApiProperty({ description: "Limit of a refund for this term: its overpayment, 0 without one." })
   refundableCzk!: number
+  @ApiProperty({
+    nullable: true,
+    type: String,
+    description: "Restarted payment deadline; null without a renewed period or debt.",
+  })
+  paymentDueAt!: string | null
 }
 
 export class PaymentApplicationResponseDto {
@@ -102,6 +108,7 @@ export class PaymentApplicationResponseDto {
         owedCzk: term.owedCzk,
         paymentStatus: term.paymentStatus,
         refundableCzk: term.refundableCzk,
+        paymentDueAt: term.paymentDueAt?.toISOString() ?? null,
       })),
       payments: application.receipts.map((receipt) => ({
         id: receipt.id,

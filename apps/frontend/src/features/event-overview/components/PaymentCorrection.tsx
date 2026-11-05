@@ -20,6 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { formatDateRange } from "@/lib/date"
 import { formatCzk } from "@/lib/money"
 import { termDates } from "@/lib/term-label"
 
@@ -69,6 +70,9 @@ export function PaymentCorrection({
     : null
   const isSameTerm = originalTerm?.termId === termChoice
   const previewOwed = isSameTerm && termOwedAfter !== null ? termOwedAfter : owedAfter
+  const targetTerm = application.terms.find((term) => term.termId === termChoice)
+  const shouldShowMove = originalTerm && targetTerm && !isSameTerm
+  const balanceChange = payment.amountCzk - newSignedAmount
   const mutation = useMutation({
     mutationFn: () =>
       correctPayment(
@@ -95,9 +99,11 @@ export function PaymentCorrection({
         if (!isOpen && !mutation.isPending) onClose()
       }}
     >
-      <DialogContent className="top-0 left-0 h-dvh max-h-dvh w-screen max-w-none translate-x-0 translate-y-0 overflow-y-auto rounded-none border-0 p-4 sm:top-1/2 sm:left-1/2 sm:h-auto sm:max-h-[calc(100dvh-2rem)] sm:max-w-160 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-lg sm:border sm:p-6">
-        <DialogHeader className="text-left">
-          <DialogTitle className="text-2xl sm:text-xl">{t("payment.correctTitle")}</DialogTitle>
+      <DialogContent className="top-0 left-0 flex h-dvh max-h-dvh w-screen max-w-none translate-x-0 translate-y-0 flex-col overflow-y-auto rounded-none border-0 bg-card p-4 sm:top-1/2 sm:left-1/2 sm:h-auto sm:max-h-[calc(100dvh-2rem)] sm:max-w-160 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-lg sm:border sm:p-6">
+        <DialogHeader className="pr-10 text-left">
+          <DialogTitle className="max-w-64 text-2xl leading-8 sm:max-w-none sm:text-xl sm:leading-7">
+            {t("payment.correctTitle")}
+          </DialogTitle>
           <DialogDescription className="sr-only">
             {application.firstName} {application.lastName} · {application.code} ·{" "}
             {application.eventName}
@@ -115,14 +121,14 @@ export function PaymentCorrection({
             mutation.mutate()
           }}
         >
-          <dl className="flex flex-col gap-3 text-sm">
+          <dl className="flex flex-col gap-4 text-base">
             <div>
-              <dt className="text-muted-foreground">{t("payment.typeChoice")}</dt>
-              <dd>{t(isRefund ? "payment.typeRefund" : "payment.typePayment")}</dd>
+              <dt className="text-sm text-muted-foreground">{t("payment.typeChoice")}</dt>
+              <dd className="mt-2">{t(isRefund ? "payment.typeRefund" : "payment.typePayment")}</dd>
             </div>
             <div>
-              <dt className="text-muted-foreground">{t("payment.originalValue")}</dt>
-              <dd>
+              <dt className="text-sm text-muted-foreground">{t("payment.originalValue")}</dt>
+              <dd className="mt-2">
                 {formatCzk(Math.abs(payment.amountCzk))}
                 {originalTerm ? ` · ${termDates(originalTerm)}` : ""}
               </dd>
@@ -138,7 +144,7 @@ export function PaymentCorrection({
               >
                 <SelectTrigger
                   id="correct-payment-term"
-                  className="w-full data-[size=default]:h-12"
+                  className="w-full text-base data-[size=default]:h-12"
                 >
                   <SelectValue />
                 </SelectTrigger>
@@ -172,7 +178,7 @@ export function PaymentCorrection({
                 <Input
                   id="correct-payment-amount"
                   inputMode="decimal"
-                  className="h-12 pr-12"
+                  className="h-12 pr-12 md:text-base"
                   value={amount}
                   disabled={mutation.isPending}
                   aria-invalid={isInvalid && !isValid}
@@ -200,17 +206,26 @@ export function PaymentCorrection({
           </div>
           {isValid ? (
             <div
-              className="text-sm"
+              className="text-base"
               aria-live="polite"
             >
-              <span className="text-muted-foreground">{t("payment.afterCorrection")}</span>
-              <p>
+              <span className="text-sm text-muted-foreground">{t("payment.afterCorrection")}</span>
+              <p className="mt-2">
                 {t(
-                  isSameTerm && termOwedAfter !== null
-                    ? isRefund
-                      ? "payment.correctionPreviewRefund"
-                      : "payment.correctionPreviewTerm"
-                    : "payment.correctionPreview",
+                  shouldShowMove
+                    ? "payment.correctionPreviewMove"
+                    : isSameTerm &&
+                        termOwedAfter !== null &&
+                        termOwedAfter > 0 &&
+                        balanceChange !== 0
+                      ? isRefund
+                        ? "payment.correctionPreviewDebtRefund"
+                        : "payment.correctionPreviewDebtPayment"
+                      : isSameTerm && termOwedAfter !== null
+                        ? isRefund
+                          ? "payment.correctionPreviewRefund"
+                          : "payment.correctionPreviewTerm"
+                        : "payment.correctionPreview",
                   {
                     old: formatCzk(Math.abs(payment.amountCzk)),
                     amount: formatCzk(parsed),
@@ -218,6 +233,26 @@ export function PaymentCorrection({
                       previewOwed < 0 ? "payment.overpaid" : "payment.remainingToPay",
                     ),
                     owed: formatCzk(Math.abs(previewOwed)),
+                    change: formatCzk(Math.abs(balanceChange)),
+                    direction: t(
+                      balanceChange < 0
+                        ? "payment.correctionDecreases"
+                        : "payment.correctionIncreases",
+                    ),
+                    originalDirection: t(
+                      payment.amountCzk < 0
+                        ? "payment.correctionDecreases"
+                        : "payment.correctionIncreases",
+                    ),
+                    targetDirection: t(
+                      isRefund ? "payment.correctionIncreases" : "payment.correctionDecreases",
+                    ),
+                    originalTerm: originalTerm
+                      ? formatDateRange(originalTerm.startsOn, originalTerm.endsOn)
+                      : "",
+                    targetTerm: targetTerm
+                      ? formatDateRange(targetTerm.startsOn, targetTerm.endsOn)
+                      : "",
                   },
                 )}
               </p>

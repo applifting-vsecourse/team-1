@@ -39,6 +39,7 @@ export const paymentApplicationSchema = z.object({
       /** Limit of a refund for this term, from the backend. */
       refundableCzk: z.number().int(),
       paymentStatus: z.enum(["NOTHING_DUE", "UNPAID", "PARTIALLY_PAID", "PAID", "OVERPAID"]),
+      paymentDueAt: z.string().datetime().nullable(),
     }),
   ),
   /** Receipts, oldest first: money that arrived at once, split into rows per term. */

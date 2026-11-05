@@ -9,6 +9,7 @@ const term = (id: string, number: number, priceCzk: number, paidCzk: number): Pa
   priceCzk,
   startsOn: new Date(Date.UTC(2027, 6, 10 + number * 7)),
   endsOn: new Date(Date.UTC(2027, 6, 16 + number * 7)),
+  paymentPeriodStartedAt: null,
   payments: paidCzk
     ? [
         {
@@ -29,6 +30,7 @@ const application = (terms: PaymentTerm[]): PaymentApplication => ({
   id: "a1",
   eventId: "e1",
   eventName: "Camp",
+  paymentPeriodDays: 10,
   bankAccount: "123456789/0800",
   number: 12,
   firstName: "Adam",
@@ -37,6 +39,15 @@ const application = (terms: PaymentTerm[]): PaymentApplication => ({
 })
 
 describe("paymentSummary refund", () => {
+  it("uses the event payment period for the renewed deadline and hides it after settlement", () => {
+    const indebted = term("t1", 1, 4900, 500)
+    indebted.paymentPeriodStartedAt = new Date("2026-10-31T12:30:00Z")
+    const input = { ...application([indebted]), paymentPeriodDays: 7 }
+    expect(paymentSummary(input).terms[0].paymentDueAt).toEqual(new Date("2026-11-07T12:30:00Z"))
+    indebted.payments[0]!.amountCzk = 4900
+    expect(paymentSummary(input).terms[0].paymentDueAt).toBeNull()
+  })
+
   it("keeps corrected original values in history but excludes them from debt", () => {
     const original = term("t1", 1, 4900, 500)
     original.payments[0]!.cancelledAt = new Date(Date.UTC(2027, 2, 2))

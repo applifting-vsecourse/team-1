@@ -14,7 +14,6 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { formatDate } from "@/lib/date"
-import { formatCzk } from "@/lib/money"
 import { termDates, termLine } from "@/lib/term-label"
 import { cn } from "@/lib/utils"
 
@@ -25,6 +24,10 @@ import {
 } from "@/features/event-overview/api/payments"
 import { PaymentCancellation } from "@/features/event-overview/components/PaymentCancellation"
 import { PaymentCorrection } from "@/features/event-overview/components/PaymentCorrection"
+import {
+  PaymentCorrectionResult,
+  type SavedPaymentCorrection,
+} from "@/features/event-overview/components/PaymentCorrectionResult"
 import { PaymentEditor } from "@/features/event-overview/components/PaymentEditor"
 
 /** Needs attention first, then the paid (collapsed) terms, then the waitlisted ones. */
@@ -54,11 +57,7 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
   const [isRecordOpen, setIsRecordOpen] = useState(false)
   const [paymentToCancel, setPaymentToCancel] = useState<Payment | null>(null)
   const [paymentToCorrect, setPaymentToCorrect] = useState<Payment | null>(null)
-  const [savedCorrection, setSavedCorrection] = useState<{
-    original: Payment
-    amountCzk: number
-    termId?: string
-  } | null>(null)
+  const [savedCorrection, setSavedCorrection] = useState<SavedPaymentCorrection | null>(null)
   if (isPending) return <LoadingState />
   if (error) {
     return (
@@ -69,11 +68,22 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
       />
     )
   }
-  const terms = data.terms.filter(isShown).sort((a, b) => cardRank(a) - cardRank(b))
-  const correctionTerm = (termId?: string): string => {
-    const term = data.terms.find((candidate) => candidate.termId === termId)
-    return term ? ` · ${termDates(term)}` : ""
+  if (savedCorrection) {
+    return (
+      <div className="flex flex-col gap-6">
+        <Seo title={t("payment.correctionResult")} />
+        <h2 className="text-xl font-semibold tracking-tight md:text-2xl">
+          {data.firstName} {data.lastName} · {data.code}
+        </h2>
+        <PaymentCorrectionResult
+          application={data}
+          correction={savedCorrection}
+          onBack={() => setSavedCorrection(null)}
+        />
+      </div>
+    )
   }
+  const terms = data.terms.filter(isShown).sort((a, b) => cardRank(a) - cardRank(b))
   // The refund is a switch in the dialog, enabled by the backend when a term is overpaid.
   const hasOverpayment = data.refundableTermId !== null
   const hasConfirmedTerm = data.terms.some((term) => term.status === "CONFIRMED")
@@ -123,43 +133,6 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
           <AlertDescription>{t("payment.nothingDueDescription")}</AlertDescription>
         </Alert>
       )}
-      {savedCorrection ? (
-        <Alert className="border-status-success bg-status-success-bg">
-          <AlertTitle className="line-clamp-none">{t("payment.correctionSaved")}</AlertTitle>
-          <AlertDescription className="flex flex-col gap-3">
-            <p>{t("payment.correctionSavedDescription")}</p>
-            <dl className="grid gap-2 text-sm">
-              <div>
-                <dt className="text-muted-foreground">{t("payment.originalShort")}</dt>
-                <dd>
-                  {t(
-                    savedCorrection.original.amountCzk < 0
-                      ? "payment.typeRefund"
-                      : "payment.typePayment",
-                  )}{" "}
-                  {formatCzk(Math.abs(savedCorrection.original.amountCzk))}
-                  {savedCorrection.original.isSummary === true ||
-                  savedCorrection.original.rows.length !== 1
-                    ? ""
-                    : correctionTerm(savedCorrection.original.rows[0]?.termId)}
-                </dd>
-              </div>
-              <div>
-                <dt className="text-muted-foreground">{t("payment.newShort")}</dt>
-                <dd>
-                  {t(
-                    savedCorrection.original.amountCzk < 0
-                      ? "payment.typeRefund"
-                      : "payment.typePayment",
-                  )}{" "}
-                  {formatCzk(savedCorrection.amountCzk)}
-                  {correctionTerm(savedCorrection.termId)}
-                </dd>
-              </div>
-            </dl>
-          </AlertDescription>
-        </Alert>
-      ) : null}
       <TermPaymentCards>
         {terms.map((term) => (
           <TermPaymentCard

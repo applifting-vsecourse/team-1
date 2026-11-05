@@ -24,6 +24,7 @@ type Summary = {
     paidCzk: number
     owedCzk: number
     paymentStatus: string
+    paymentDueAt: string | null
     refundableCzk: number
   }[]
   payments: {
@@ -142,6 +143,12 @@ describe("organizer payments (US-44)", () => {
     const after = await summary()
     expect(after).toMatchObject({ amountPaidCzk: 5000, amountOwedCzk: 1900 })
     expect(after.terms[0].paymentStatus).toBe("PARTIALLY_PAID")
+    const restartedTerm = await prisma.applicationTerm.findFirstOrThrow({
+      where: { applicationId, termId: firstTermId() },
+    })
+    expect(new Date(after.terms[0].paymentDueAt!).getTime()).toBe(
+      restartedTerm.paymentPeriodStartedAt!.getTime() + 10 * 24 * 60 * 60 * 1000,
+    )
     expect(
       (
         await prisma.applicationTerm.findFirstOrThrow({
@@ -163,9 +170,15 @@ describe("organizer payments (US-44)", () => {
     expect((await latestEmailTo(applicantEmail))?.subject).toContain("Payment correction")
     expect((await request("PATCH", `/${original.id}`, correction)).status).toBe(204)
     expect((await summary()).payments).toHaveLength(2)
+    expect((await summary()).terms[0].paymentDueAt).toBe(after.terms[0].paymentDueAt)
   })
 
   it("does not send a correction e-mail while the application already owed money", async () => {
+    const previousStart = new Date("2026-01-01T12:00:00Z")
+    await prisma.applicationTerm.updateMany({
+      where: { applicationId, termId: firstTermId() },
+      data: { paymentPeriodStartedAt: previousStart },
+    })
     await request("POST", "", { amountCzk: 1000, termId: firstTermId() })
     const [original] = (await summary()).payments
     expect(
@@ -178,6 +191,7 @@ describe("organizer payments (US-44)", () => {
       ).status,
     ).toBe(204)
     expect((await summary()).amountOwedCzk).toBe(4900)
+    expect((await summary()).terms[0].paymentDueAt).toBe("2026-01-11T12:00:00.000Z")
     expect(await latestEmailTo(applicantEmail, 0)).toBeUndefined()
   })
 
@@ -264,6 +278,12 @@ describe("organizer payments (US-44)", () => {
     const [receipt] = (await summary()).payments
     expect((await request("DELETE", `/${receipt.id}`)).status).toBe(204)
     expect((await summary()).terms[0]).toMatchObject({ owedCzk: 6900, paymentStatus: "UNPAID" })
+    const restarted = await prisma.applicationTerm.findFirstOrThrow({
+      where: { applicationId, termId: firstTermId() },
+    })
+    expect(new Date((await summary()).terms[0].paymentDueAt!).getTime()).toBe(
+      restarted.paymentPeriodStartedAt!.getTime() + 10 * 24 * 60 * 60 * 1000,
+    )
     expect((await latestEmailTo(applicantEmail))?.subject).toContain("Payment correction")
   })
 

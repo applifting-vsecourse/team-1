@@ -108,8 +108,13 @@ it("includes the corrected debt and transfer details in e-mail 16", async () => 
     React.createElement(PaymentCorrectionEmail, {
       ...PaymentCorrectionEmail.PreviewProps,
       debts: [
-        { termNumber: 1, amountCzk: 1200, variableSymbol: "12345001" },
-        { termNumber: 2, amountCzk: 500, variableSymbol: "12345002" },
+        {
+          termNumber: 1,
+          amountCzk: 1200,
+          variableSymbol: "12345001",
+          paymentDueAt: new Date("2027-06-20T12:00:00Z"),
+        },
+        { termNumber: 2, amountCzk: 500, variableSymbol: "12345002", paymentDueAt: null },
       ],
     }),
   )
@@ -118,4 +123,6 @@ it("includes the corrected debt and transfer details in e-mail 16", async () => 
   expect(html).toContain("123456789/2010")
   expect(html).toContain("12345001")
   expect(html).toContain("12345002")
+  expect(html).toContain("Zaplaťte do")
+  expect(html).toContain("20. června 2027")
 })
