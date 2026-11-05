@@ -57,14 +57,14 @@ export function NotificationItem({
         onClick={onOpen}
         className="flex min-w-0 flex-1 flex-col gap-2 rounded-lg p-4 text-left outline-none after:absolute after:inset-0 after:rounded-lg after:content-[''] focus-visible:after:ring-[3px] focus-visible:after:ring-ring/50"
       >
-        <span className="flex items-center gap-2">
+        <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
           <Badge
             variant={isUnread ? "default" : "secondary"}
             className="px-2 py-1 text-sm"
           >
             {isUnread ? t("item.new") : t("item.read")}
           </Badge>
-          <span className="text-sm text-muted-foreground">{time}</span>
+          <span className="text-sm whitespace-nowrap text-muted-foreground">{time}</span>
           <ChevronRight
             className="ml-auto size-5 shrink-0 text-muted-foreground"
             aria-hidden="true"
