@@ -172,7 +172,7 @@
     "approved": "Žádost byla schválena",
     "back": "Zpět na žádosti",
     "cancelAll": "Odhlásit ze všech termínů",
-    "cancelNote": "Před schválením zkontrolujte storno a případnou vratku. Výsledek odešleme přihlašovateli.",
+    "cancelNote": "Před schválením zkontrolujte storno a výslednou vratku. Výsledek odešleme přihlašovateli.",
     "cancelSummary": "Odhlášení z termínu {{current}}",
     "capacity": "Kapacita nového termínu {{term}}",
     "changeNote": "Po schválení se původní termín uvolní. Platby zůstávají u původního termínu, dokud neprovedete jejich opravu. Výsledek odešleme přihlašovateli.",

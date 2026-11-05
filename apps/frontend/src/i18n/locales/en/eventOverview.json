@@ -172,7 +172,7 @@
     "approved": "Request approved",
     "back": "Back to requests",
     "cancelAll": "Cancel all terms",
-    "cancelNote": "Review the cancellation terms and any refund before approving. The applicant will be informed of the result.",
+    "cancelNote": "Review the cancellation terms and the final refund before approving. The applicant will be informed of the result.",
     "cancelSummary": "Cancellation from {{current}}",
     "capacity": "Free beds in {{term}}",
     "changeNote": "Approval releases the original term. Payments stay with their original term until corrected separately. The applicant will be informed of the result.",

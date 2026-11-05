@@ -12,8 +12,11 @@ test("participant submits a cancellation request and organizer declines it at 36
     .getByRole("link", { name: "Settings" })
     .click()
   await page.getByRole("checkbox", { name: "Set a cancellation start date" }).check()
-  await page.getByRole("textbox", { name: "Cancellation rules apply from" }).fill("01/07/2026")
+  const cancellationDate = page.getByRole("textbox", { name: "Cancellation rules apply from" })
+  await cancellationDate.clear()
+  await cancellationDate.fill("01/07/2026")
   await page.getByRole("button", { name: "Save settings" }).click()
+  await expect(page.getByText("Date saved.", { exact: true })).toBeVisible()
   await signOut(page, ORGANIZER)
 
   await signIn(page, "participant", PARTICIPANT)
