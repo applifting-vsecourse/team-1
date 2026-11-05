@@ -67,7 +67,11 @@ describe("organizer payments (US-44)", () => {
       body:
         body === undefined
           ? undefined
-          : JSON.stringify(method === "POST" ? { requestId: randomUUID(), ...body } : body),
+          : JSON.stringify(
+              method === "POST" && !suffix.endsWith("/preview")
+                ? { requestId: randomUUID(), ...body }
+                : body,
+            ),
     })
   const summary = async (): Promise<Summary> => (await request("GET")).json()
 
@@ -139,9 +143,25 @@ describe("organizer payments (US-44)", () => {
     const [original] = (await summary()).payments
     const requestId = randomUUID()
     const correction = { requestId, amountCzk: 5000, termId: firstTermId() }
+    const previewResponse = await request("POST", `/${original.id}/preview`, {
+      amountCzk: 5000,
+      termId: firstTermId(),
+    })
+    expect(previewResponse.status).toBe(200)
+    const preview = (await previewResponse.json()) as {
+      amountOwedCzk: number
+      terms: { termId: string; owedCzk: number; changeCzk: number }[]
+    }
+    expect(preview).toMatchObject({
+      amountOwedCzk: 1900,
+      terms: expect.arrayContaining([{ termId: firstTermId(), owedCzk: 1900, changeCzk: 1900 }]),
+    })
+    expect((await summary()).amountPaidCzk).toBe(6900)
+    expect(await latestEmailTo(applicantEmail, 0)).toBeUndefined()
     expect((await request("PATCH", `/${original.id}`, correction)).status).toBe(204)
     const after = await summary()
     expect(after).toMatchObject({ amountPaidCzk: 5000, amountOwedCzk: 1900 })
+    expect(after.amountOwedCzk).toBe(preview.amountOwedCzk)
     expect(after.terms[0].paymentStatus).toBe("PARTIALLY_PAID")
     const restartedTerm = await prisma.applicationTerm.findFirstOrThrow({
       where: { applicationId, termId: firstTermId() },
@@ -193,6 +213,17 @@ describe("organizer payments (US-44)", () => {
     expect((await summary()).amountOwedCzk).toBe(4900)
     expect((await summary()).terms[0].paymentDueAt).toBe("2026-01-11T12:00:00.000Z")
     expect(await latestEmailTo(applicantEmail, 0)).toBeUndefined()
+  })
+
+  it("protects correction previews and rejects a missing receipt", async () => {
+    await request("POST", "", { amountCzk: 500, termId: firstTermId() })
+    const [original] = (await summary()).payments
+    const suffix = `/${original.id}/preview`
+    const input = { amountCzk: 700, termId: firstTermId() }
+    expect((await request("POST", suffix, input, foreignCookie)).status).toBe(403)
+    expect((await request("POST", suffix, input, participantCookie)).status).toBe(403)
+    expect((await request("POST", suffix, input, "")).status).toBe(401)
+    expect((await request("POST", `/${randomUUID()}/preview`, input)).status).toBe(403)
   })
 
   it("replaces all rows of a summary receipt and allocates the new amount again", async () => {

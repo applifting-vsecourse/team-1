@@ -1,3 +1,7 @@
+import {
+  computePaymentCorrectionPreview,
+  PaymentCorrectionPreview,
+} from "@/modules/applications/domain/payment-correction-preview"
 import { variableSymbol } from "@/modules/applications/domain/variable-symbol"
 import { ApplicationConfirmationMailer } from "@/modules/participants/services/application-confirmation-mailer.service"
 import { paymentSummary, PaymentSummary } from "@/modules/payments/domain/payment"
@@ -6,8 +10,9 @@ import {
   PaymentsRepository,
 } from "@/modules/payments/repositories/payments.repository"
 import { Identity } from "@/shared/auth/domain/identity"
+import { AppException } from "@/shared/errors/app.exception"
 import { OrganizationAccessService } from "@/shared/organization-access/organization-access.service"
-import { ForbiddenException, Injectable } from "@nestjs/common"
+import { ForbiddenException, HttpStatus, Injectable } from "@nestjs/common"
 
 @Injectable()
 export class PaymentsService {
@@ -22,6 +27,41 @@ export class PaymentsService {
     const application = await this.repository.find(applicationId, organizationId)
     if (!application) throw new ForbiddenException()
     return paymentSummary(application)
+  }
+
+  async previewCorrection(
+    user: Identity,
+    applicationId: string,
+    receiptId: string,
+    amountCzk: number,
+    termId?: string,
+  ): Promise<PaymentCorrectionPreview> {
+    const { organizationId } = await this.access.assertCanAccessApplication(user, applicationId)
+    const application = await this.repository.find(applicationId, organizationId)
+    const original =
+      application &&
+      paymentSummary(application).receipts.find(
+        (receipt) => receipt.id === receiptId && receipt.cancelledAt === null,
+      )
+    if (!application || !original) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
+    const result = computePaymentCorrectionPreview({
+      terms: application.terms.map((term) => ({
+        ...term,
+        payments: term.payments.filter((row) => row.cancelledAt === null),
+      })),
+      receiptId,
+      amountCzk,
+      termId,
+      isRefund: original.amountCzk < 0,
+    })
+    if (!result.ok)
+      throw new AppException(
+        result.errorCode === "REFUND_EXCEEDS_OVERPAYMENT"
+          ? HttpStatus.CONFLICT
+          : HttpStatus.BAD_REQUEST,
+        result.errorCode,
+      )
+    return result.preview
   }
 
   /** Without `termId` a summary payment (split over the terms), with it a payment of one term. */

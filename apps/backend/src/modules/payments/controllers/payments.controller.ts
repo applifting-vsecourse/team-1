@@ -1,5 +1,9 @@
 import { CorrectPaymentRequestDto } from "@/modules/payments/controllers/dto/correct-payment.request.dto"
 import { PaymentApplicationResponseDto } from "@/modules/payments/controllers/dto/payment-application.response.dto"
+import {
+  PaymentCorrectionPreviewRequestDto,
+  PaymentCorrectionPreviewResponseDto,
+} from "@/modules/payments/controllers/dto/payment-correction-preview.dto"
 import { RecordPaymentRequestDto } from "@/modules/payments/controllers/dto/record-payment.request.dto"
 import { RecordRefundRequestDto } from "@/modules/payments/controllers/dto/record-refund.request.dto"
 import { PaymentsService } from "@/modules/payments/services/payments.service"
@@ -26,6 +30,19 @@ import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }))
 export class PaymentsController {
   constructor(private readonly payments: PaymentsService) {}
+
+  @Post(":receiptId/preview")
+  @HttpCode(200)
+  @ApiOperation({ summary: "Preview a receipt correction using the application pricing domain" })
+  @ApiResponse({ status: 200, type: PaymentCorrectionPreviewResponseDto })
+  async previewCorrection(
+    @User() user: Identity,
+    @Param("applicationId") id: string,
+    @Param("receiptId") receiptId: string,
+    @Body() body: PaymentCorrectionPreviewRequestDto,
+  ): Promise<PaymentCorrectionPreviewResponseDto> {
+    return this.payments.previewCorrection(user, id, receiptId, body.amountCzk, body.termId)
+  }
 
   @Get()
   @ApiOperation({ summary: "Payment detail of an application (US-44)" })

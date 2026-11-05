@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
@@ -25,6 +25,7 @@ import { formatCzk } from "@/lib/money"
 import { termDates } from "@/lib/term-label"
 
 import {
+  correctionPreviewQueryOptions,
   correctPayment,
   type Payment,
   type PaymentApplication,
@@ -63,16 +64,9 @@ export function PaymentCorrection({
     payment.isSummary !== true && payment.rows.length === 1
       ? application.terms.find((term) => term.termId === payment.rows[0]?.termId)
       : null
-  const newSignedAmount = isRefund ? -parsed : parsed
-  const owedAfter = application.amountOwedCzk + payment.amountCzk - newSignedAmount
-  const termOwedAfter = originalTerm
-    ? originalTerm.owedCzk + payment.amountCzk - newSignedAmount
-    : null
   const isSameTerm = originalTerm?.termId === termChoice
-  const previewOwed = isSameTerm && termOwedAfter !== null ? termOwedAfter : owedAfter
   const targetTerm = application.terms.find((term) => term.termId === termChoice)
   const shouldShowMove = originalTerm && targetTerm && !isSameTerm
-  const balanceChange = payment.amountCzk - newSignedAmount
   const mutation = useMutation({
     mutationFn: () =>
       correctPayment(
@@ -91,6 +85,22 @@ export function PaymentCorrection({
       onClose()
     },
   })
+  const preview = useQuery({
+    ...correctionPreviewQueryOptions(
+      application.id,
+      payment.id,
+      parsed,
+      termChoice === WHOLE_APPLICATION ? undefined : termChoice,
+    ),
+    enabled: isValid && !mutation.isPending,
+  })
+  const originalPreview = preview.data?.terms.find((term) => term.termId === originalTerm?.termId)
+  const targetPreview = preview.data?.terms.find((term) => term.termId === targetTerm?.termId)
+  const termOwedAfter = originalPreview?.owedCzk ?? null
+  const previewOwed =
+    isSameTerm && originalPreview ? originalPreview.owedCzk : (preview.data?.amountOwedCzk ?? 0)
+  const balanceChange = originalPreview?.changeCzk ?? 0
+  const formError = mutation.error ?? preview.error
 
   return (
     <Dialog
@@ -118,6 +128,7 @@ export function PaymentCorrection({
               setIsInvalid(true)
               return
             }
+            if (!preview.data || preview.isFetching) return
             mutation.mutate()
           }}
         >
@@ -204,7 +215,7 @@ export function PaymentCorrection({
               ) : null}
             </div>
           </div>
-          {isValid ? (
+          {isValid && preview.data ? (
             <div
               className="text-base"
               aria-live="polite"
@@ -240,12 +251,14 @@ export function PaymentCorrection({
                         : "payment.correctionIncreases",
                     ),
                     originalDirection: t(
-                      payment.amountCzk < 0
+                      (originalPreview?.changeCzk ?? 0) < 0
                         ? "payment.correctionDecreases"
                         : "payment.correctionIncreases",
                     ),
                     targetDirection: t(
-                      isRefund ? "payment.correctionIncreases" : "payment.correctionDecreases",
+                      (targetPreview?.changeCzk ?? 0) > 0
+                        ? "payment.correctionIncreases"
+                        : "payment.correctionDecreases",
                     ),
                     originalTerm: originalTerm
                       ? formatDateRange(originalTerm.startsOn, originalTerm.endsOn)
@@ -258,12 +271,12 @@ export function PaymentCorrection({
               </p>
             </div>
           ) : null}
-          {mutation.error ? (
+          {formError ? (
             <p
               role="alert"
               className="text-sm text-destructive"
             >
-              {mutation.error.message}
+              {formError.message}
             </p>
           ) : null}
           <DialogFooter>
@@ -280,7 +293,7 @@ export function PaymentCorrection({
             <Button
               type="submit"
               size="lg"
-              disabled={mutation.isPending}
+              disabled={mutation.isPending || !preview.data || preview.isFetching}
               className="h-12 w-full sm:flex-1"
             >
               {t(mutation.isPending ? "payment.saving" : "payment.saveCorrection")}

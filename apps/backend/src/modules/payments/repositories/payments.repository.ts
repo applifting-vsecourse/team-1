@@ -4,6 +4,7 @@ import { Prisma } from "@/generated/prisma/client"
 import { computePaymentDeadline } from "@/modules/applications/domain/payment-deadline"
 import {
   allocateSummaryPayment,
+  computePayableAmount,
   computeRefundableAmount,
   computeSummaryPayable,
   computeTermDue,
@@ -270,7 +271,7 @@ export class PaymentsRepository {
             : term.paymentPeriodStartedAt,
         }),
       }))
-    return { amountOwedCzk: terms.reduce((sum, term) => sum + term.amountOwedCzk, 0), terms }
+    return { amountOwedCzk: computePayableAmount(terms.map((term) => term.amountOwedCzk)), terms }
   }
 
   async findEmailContext(

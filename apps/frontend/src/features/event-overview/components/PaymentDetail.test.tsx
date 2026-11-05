@@ -139,6 +139,16 @@ const card = (dates: string): HTMLElement =>
 
 beforeEach(() => {
   vi.clearAllMocks()
+  post.mockReturnValue({
+    json: () =>
+      Promise.resolve({
+        amountOwedCzk: 999,
+        terms: [
+          { termId: "t1", owedCzk: 777, changeCzk: 500 },
+          { termId: "t2", owedCzk: 222, changeCzk: -700 },
+        ],
+      }),
+  })
   vi.stubGlobal(
     "ResizeObserver",
     class {
@@ -169,10 +179,18 @@ describe("PaymentDetail", () => {
     await user.click(await screen.findByRole("button", { name: "Edit record" }))
     const dialog = screen.getByRole("dialog")
     expect(within(dialog).getByRole("textbox", { name: "Amount (CZK) *" })).toHaveValue("500,00")
+    expect(await within(dialog).findByText(/to.*777/)).toBeInTheDocument()
+    expect(post).toHaveBeenCalledWith(
+      "organizer/applications/a1/payments/p1/preview",
+      expect.objectContaining({ json: { amountCzk: 500, termId: "t1" } }),
+    )
     await user.clear(within(dialog).getByRole("textbox", { name: "Amount (CZK) *" }))
     await user.type(within(dialog).getByRole("textbox", { name: "Amount (CZK) *" }), "700")
     await user.click(within(dialog).getByRole("combobox", { name: "Term *" }))
     await user.click(screen.getByRole("option", { name: /19–25 Jul 2027/ }))
+    await waitFor(() =>
+      expect(within(dialog).getByRole("button", { name: "Save correction" })).toBeEnabled(),
+    )
     await user.click(within(dialog).getByRole("button", { name: "Save correction" }))
     await waitFor(() => expect(patch).toHaveBeenCalledOnce())
     const [url, options] = patch.mock.calls[0] as [
@@ -189,6 +207,13 @@ describe("PaymentDetail", () => {
   })
 
   it("previews the remaining overpayment when correcting a refund", async () => {
+    post.mockReturnValue({
+      json: () =>
+        Promise.resolve({
+          amountOwedCzk: -300,
+          terms: [{ termId: "t1", owedCzk: -300, changeCzk: -200 }],
+        }),
+    })
     respondWith(() =>
       application(
         [{ ...first, paidCzk: 5000 }],

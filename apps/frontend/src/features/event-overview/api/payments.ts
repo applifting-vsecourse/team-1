@@ -62,6 +62,33 @@ export type PaymentTerm = PaymentApplication["terms"][number]
 
 const path = (id: string) => `organizer/applications/${encodeURIComponent(id)}/payments`
 
+const correctionPreviewSchema = z.object({
+  amountOwedCzk: z.number().int(),
+  terms: z.array(
+    z.object({ termId: z.string(), owedCzk: z.number().int(), changeCzk: z.number().int() }),
+  ),
+})
+
+export const correctionPreviewQueryOptions = (
+  applicationId: string,
+  receiptId: string,
+  amountCzk: number,
+  termId?: string,
+) =>
+  queryOptions({
+    queryKey: ["eventOverview", "correctionPreview", applicationId, receiptId, amountCzk, termId],
+    retry: false,
+    queryFn: async ({ signal }) =>
+      correctionPreviewSchema.parse(
+        await api
+          .post(`${path(applicationId)}/${encodeURIComponent(receiptId)}/preview`, {
+            signal,
+            json: { amountCzk, ...(termId === undefined ? {} : { termId }) },
+          })
+          .json(),
+      ),
+  })
+
 export const paymentQueryOptions = (id: string) =>
   queryOptions({
     queryKey: ["eventOverview", "payments", id],
