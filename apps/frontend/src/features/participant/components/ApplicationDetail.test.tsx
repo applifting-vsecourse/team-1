@@ -13,8 +13,13 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import type { MyApplication } from "@/features/participant/api/applications"
 import { ApplicationDetail } from "@/features/participant/components/ApplicationDetail"
 
-const { get, put } = vi.hoisted(() => ({ get: vi.fn(), put: vi.fn() }))
+const { get, put, toDataURL } = vi.hoisted(() => ({
+  get: vi.fn(),
+  put: vi.fn(),
+  toDataURL: vi.fn(),
+}))
 vi.mock("@/lib/api-client", () => ({ api: { get, put } }))
+vi.mock("qrcode", () => ({ default: { toDataURL } }))
 
 const confirmed = {
   termId: "t1",
@@ -163,6 +168,8 @@ describe("ApplicationDetail", () => {
   beforeEach(() => {
     get.mockReset()
     put.mockReset()
+    toDataURL.mockReset()
+    toDataURL.mockResolvedValue("data:image/png;base64,AAAA")
   })
 
   it("lets the participant immediately change the selected terms", async () => {
@@ -243,8 +250,9 @@ describe("ApplicationDetail", () => {
       screen.getByRole("heading", { name: "Left to pay in total" }).nextSibling,
     ).toHaveTextContent("1,200")
     expect(
-      screen.getByText(/You pay each term separately\. Use its variable symbol/),
+      screen.getByRole("button", { name: "One payment for both terms · show QR" }),
     ).toBeInTheDocument()
+    expect(screen.queryByText(/You pay each term separately/)).not.toBeInTheDocument()
     const one = cardOf(/^4–10 Jul 2027/)
     const two = cardOf(/^11–17 Jul 2027/)
     expect(within(one).getByText("Left to pay").nextSibling).toHaveTextContent("500")
@@ -253,6 +261,29 @@ describe("ApplicationDetail", () => {
     expect(within(two).getByText("48002")).toBeInTheDocument()
     // One symbol per term, no symbol of the whole application.
     expect(screen.queryByText("48000")).not.toBeInTheDocument()
+  })
+
+  it("keeps separate-term instructions when the summary QR cannot be generated", async () => {
+    const data = withTerms([
+      termPayment(1, 4900, 4400, "PARTIALLY_PAID"),
+      termPayment(2, 5600, 4900, "PARTIALLY_PAID"),
+    ])
+    renderDetail({
+      ...data,
+      paymentDetails: {
+        ...data.paymentDetails!,
+        summary: { variableSymbol: "invalid", payableCzk: 1200 },
+      },
+    })
+
+    expect(
+      await screen.findByText(/You pay each term separately\. Use its variable symbol/),
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByRole("button", { name: "One payment for both terms · show QR" }),
+    ).not.toBeInTheDocument()
+    expect(within(cardOf(/^4–10 Jul 2027/)).getByText("48001")).toBeInTheDocument()
+    expect(within(cardOf(/^11–17 Jul 2027/)).getByText("48002")).toBeInTheDocument()
   })
 
   it("keeps the paid term collapsed and the term confirmed later, with its debt, first", async () => {
@@ -346,5 +377,71 @@ describe("ApplicationDetail", () => {
     expect(screen.getByText("You don't pay anything yet.")).toBeInTheDocument()
     expect(screen.queryByText("Account")).not.toBeInTheDocument()
     expect(screen.queryByText("Variable symbol")).not.toBeInTheDocument()
+  })
+
+  it("offers one QR with the current total debt and summary symbol for both confirmed terms", async () => {
+    const second = { ...waitlisted, status: "CONFIRMED" as const }
+    renderDetail(
+      application({
+        terms: [confirmed, second],
+        amountDueCzk: 9400,
+        amountPaidCzk: 8200,
+        amountOwedCzk: 1200,
+        paymentDetails: {
+          bankAccount: "2900123456/2010",
+          summary: { variableSymbol: "48000", payableCzk: 1200 },
+          terms: [
+            {
+              termId: "t1",
+              termNumber: 1,
+              variableSymbol: "48001",
+              dueCzk: 4500,
+              paidCzk: 4000,
+              owedCzk: 500,
+              paymentStatus: "PARTIALLY_PAID",
+            },
+            {
+              termId: "t2",
+              termNumber: 2,
+              variableSymbol: "48002",
+              dueCzk: 4900,
+              paidCzk: 4200,
+              owedCzk: 700,
+              paymentStatus: "PARTIALLY_PAID",
+            },
+          ],
+        },
+      }),
+    )
+    const user = userEvent.setup()
+    await user.click(
+      await screen.findByRole("button", { name: "One payment for both terms · show QR" }),
+    )
+    const dialog = screen.getByRole("dialog")
+    expect(within(dialog).getByText("Summary variable symbol")).toBeInTheDocument()
+    expect(within(dialog).getByText("48000")).toBeInTheDocument()
+    expect(within(dialog).getByText("Combined payment breakdown")).toBeInTheDocument()
+    expect(
+      within(dialog).getByText(/Use the summary variable symbol for both confirmed terms/),
+    ).toBeInTheDocument()
+    expect(
+      within(dialog).getByText(
+        (_, element) =>
+          element?.tagName === "P" && /Breakdown: 4–10 Jul.*500/.test(element.textContent ?? ""),
+      ),
+    ).toBeInTheDocument()
+    expect(
+      within(dialog).getByText(
+        (_, element) =>
+          element?.tagName === "P" && /11–17 Jul.*700/.test(element.textContent ?? ""),
+      ),
+    ).toBeInTheDocument()
+    expect(toDataURL).toHaveBeenCalledWith(
+      expect.stringMatching(/^SPD\*1\.0\*ACC:CZ\d{22}\*AM:1200\.00\*CC:CZK\*X-VS:48000$/),
+      { width: 200, margin: 2 },
+    )
+    expect(
+      await within(dialog).findByRole("img", { name: "QR code for the combined payment" }),
+    ).toHaveAttribute("src", "data:image/png;base64,AAAA")
   })
 })

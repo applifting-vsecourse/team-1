@@ -1,11 +1,15 @@
+import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { MoneyAmount } from "@/components/atoms/MoneyAmount"
 import { TermPaymentCard, TermPaymentCards } from "@/components/molecules/TermPaymentCard"
+import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { termDatesLine } from "@/lib/term-label"
 
 import type { MyApplication } from "@/features/participant/api/applications"
+import { SummaryPaymentDialog } from "@/features/participant/components/SummaryPaymentDialog"
+import { summaryPaymentSpayd } from "@/features/participant/lib/payment-qr"
 
 type PaymentSummaryProps = {
   application: MyApplication
@@ -26,6 +30,7 @@ type PaymentSummaryProps = {
 // Figma (Design system): Detail přihlášky · Platby · Náhradník ve všech termínech · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19448-8453 (360 px: node-id=19448-8677)
 export function PaymentSummary({ application }: PaymentSummaryProps) {
   const { t } = useTranslation("participant")
+  const [isSummaryOpen, setIsSummaryOpen] = useState(false)
   const { paymentDetails } = application
 
   const confirmed = (paymentDetails?.terms ?? [])
@@ -43,6 +48,14 @@ export function PaymentSummary({ application }: PaymentSummaryProps) {
   // The total and the hint only matter when more than one term is to be paid.
   const termsWithDebt = confirmed.filter(({ payment }) => payment.owedCzk > 0).length
   const payableCzk = paymentDetails?.summary.payableCzk ?? 0
+  const canShowSummaryQr =
+    paymentDetails !== null &&
+    confirmed.length > 1 &&
+    summaryPaymentSpayd(
+      paymentDetails.bankAccount,
+      payableCzk,
+      paymentDetails.summary.variableSymbol,
+    ) !== null
 
   return (
     <div className="flex flex-col gap-6">
@@ -53,9 +66,19 @@ export function PaymentSummary({ application }: PaymentSummaryProps) {
             amountCzk={payableCzk}
             className="text-2xl font-semibold"
           />
+          {canShowSummaryQr ? (
+            <Button
+              type="button"
+              size="lg"
+              className="mt-4 w-full sm:w-auto sm:self-start"
+              onClick={() => setIsSummaryOpen(true)}
+            >
+              {t(confirmed.length === 2 ? "payment.showSummaryQrTwo" : "payment.showSummaryQrMany")}
+            </Button>
+          ) : null}
         </Card>
       ) : null}
-      {termsWithDebt > 1 ? <p>{t("payment.payEachTerm")}</p> : null}
+      {termsWithDebt > 1 && !canShowSummaryQr ? <p>{t("payment.payEachTerm")}</p> : null}
       <TermPaymentCards>
         {confirmed.map(({ payment, term }) => (
           <TermPaymentCard
@@ -82,6 +105,12 @@ export function PaymentSummary({ application }: PaymentSummaryProps) {
           />
         ))}
       </TermPaymentCards>
+      {isSummaryOpen && canShowSummaryQr ? (
+        <SummaryPaymentDialog
+          application={application}
+          onClose={() => setIsSummaryOpen(false)}
+        />
+      ) : null}
     </div>
   )
 }
