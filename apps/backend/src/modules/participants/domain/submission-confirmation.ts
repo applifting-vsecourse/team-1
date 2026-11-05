@@ -85,6 +85,10 @@ export type ApplicationChange = {
   kind: ApplicationChangeKind
   /** The term that changed: its name, else its dates. */
   termName: string
+  /** The dates of the changed term in the e-mail's language (`formatTermDates`). */
+  termDates: string
+  /** The name the organizer gave the changed term, if any. */
+  termCustomName: string | null
   /** Of the participant: the Czech copy is gendered. */
   gender: Gender
   /** The application as it stands now. */

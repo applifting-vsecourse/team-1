@@ -73,7 +73,7 @@ describe("application e-mail previews", () => {
       React.createElement(ConfirmationWithdrawn, ConfirmationWithdrawn.PreviewProps),
     )
 
-    expect(html).toContain("Potvrzení bylo odvoláno. Jste náhradník")
+    expect(html).toContain("Potvrzení účasti bylo odvoláno")
     expect(html).not.toContain("Variabilní symbol")
   })
 
@@ -84,11 +84,11 @@ describe("application e-mail previews", () => {
     )
 
     expect(cs).toContain("Termín akce byl zrušen")
-    expect(cs).toContain("Zaplacené platby se vrací; další postup sdělí organizace.")
+    expect(cs).toContain("Případné zaplacené platby za zrušený termín se vrací.")
     expect(cs).toContain("Adam Dvořák")
-    expect(cs).toContain("Alpine Collective · přes Togenu")
-    expect(en).toContain("The term has been cancelled")
-    expect(en).toContain("Paid payments are being refunded")
+    expect(cs).toContain("Alpine Collective · prostřednictvím Togeny")
+    expect(en).toContain("The event term has been cancelled")
+    expect(en).toContain("Any payments already made for the cancelled term are to be refunded")
     expect(en).toContain("Alpine Collective · via Togena")
   })
 })

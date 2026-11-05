@@ -87,7 +87,7 @@ export class ApplicationConfirmationMailer {
                 ApplicationChangeEmail,
                 buildChangeProps({ ...change, kind }, this.config.frontendUrl),
               ),
-              applicationChangeSubject(change.locale, change.eventName),
+              applicationChangeSubject(change.locale, change.eventName, kind),
             ]
       await this.email.sendEmail(change.email, subject, html)
     } catch (error) {

@@ -154,6 +154,8 @@ export class TermStatusRepository {
         bankAccount: application.event.organization.bankAccount,
         gender: application.gender,
         termName: termLabel(current.term, locale),
+        termDates: formatTermDates(current.term.startsOn, current.term.endsOn, locale),
+        termCustomName: current.term.name?.trim() || null,
         application: {
           number: application.number,
           firstName: application.firstName,

@@ -33,7 +33,7 @@ const templates: Record<
     }),
   }),
   "application-change": (locale) => ({
-    subject: applicationChangeSubject(locale, "Camp"),
+    subject: applicationChangeSubject(locale, "Camp", "CONFIRMED"),
     element: React.createElement(ApplicationChange, { ...ApplicationChange.PreviewProps, locale }),
   }),
   "application-change-confirmation-withdrawn": (locale) => ({

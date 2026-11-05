@@ -86,8 +86,8 @@ export function buildChangeProps(
     eventName: change.eventName,
     organizationName: change.organizationName,
     name: `${application.firstName} ${application.lastName}`,
-    gender: change.gender,
-    term: change.termName,
+    termDates: change.termDates,
+    termName: change.termCustomName,
     kind: change.kind,
     payment:
       change.isAmountChanged && PAYING_KINDS.includes(change.kind)
@@ -108,8 +108,8 @@ export function buildTermNoticeProps(
     eventName: change.eventName,
     organizationName: change.organizationName,
     name: `${application.firstName} ${application.lastName}`,
-    gender: change.gender,
-    term: change.termName,
+    termDates: change.termDates,
+    termName: change.termCustomName,
     confirmationUrl: confirmationUrl(frontendUrl, application.accessToken),
   }
 }

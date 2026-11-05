@@ -72,6 +72,8 @@ export class TermStatusService {
       eventName: result.eventName,
       organizationName: result.organizationName,
       termName: result.termName,
+      termDates: result.termDates,
+      termCustomName: result.termCustomName,
       gender: result.gender,
       bankAccount: result.bankAccount,
       kind: changeEmailKind(

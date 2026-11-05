@@ -18,6 +18,8 @@ const result = (
   organizationName: "Alpine Collective",
   bankAccount: "2900123456/2010",
   termName: "T1",
+  termDates: "1.–7. 7. 2027",
+  termCustomName: "T1",
   gender: "FEMALE",
   application: {
     number: 1,

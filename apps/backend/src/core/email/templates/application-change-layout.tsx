@@ -1,103 +1,77 @@
-import {
-  Body,
-  Button,
-  Container,
-  Head,
-  Heading,
-  Html,
-  Preview,
-  Section,
-  Tailwind,
-  Text,
-} from 'react-email';
 import * as React from 'react';
 import { Locale } from '@/core/email/locale';
+import {
+  EmailButton,
+  EmailFooter,
+  EmailHeading,
+  EmailLogo,
+  EmailNote,
+  EmailRow,
+  EmailRuledBlock,
+  EmailShell,
+  EmailText,
+} from './email-kit';
 
 /**
- * The one layout of the e-mails about a changed application (US-116, EMAILY.md rows 2 to 6, 9 to 11
- * and 13 to 15): logo, heading, event, one sentence, status badge, optional payment details,
- * button, organization footer. Every template passes only its copy.
+ * The one layout of the e-mails about a change of one application in one term (docs/emaily,
+ * Figma E05 to E12): heading and sentence, identification (event, participant, term), optional
+ * payment details and note, button, organization footer. Every template passes only its copy.
  */
 export interface ChangeLayoutProps {
   locale: Locale;
   preview: string;
   heading: string;
-  eventName: string;
   /** The sentence about the change. */
   text: string;
-  /** The status of the application in the term; null where no frame draws one. */
-  badge: { label: string; tone: 'positive' | 'neutral' } | null;
-  /** Label–value pairs under the badge (payment details); empty when there are none. */
+  labels: { event: string; participant: string; term: string };
+  eventName: string;
+  participantName: string;
+  /** The term in the identification block: its dates, with the name the organizer gave it. */
+  termValue: string;
+  /** Label–value pairs of the payment details; empty when there are none. */
   details: { label: string; value: string }[];
+  /** A sentence under the identification (refund, payment details), if the frame has one. */
+  note: string | null;
   buttonLabel: string;
   buttonUrl: string;
-  /** `<organization> · přes Togenu`. */
-  footer: string;
+  footer: string[];
 }
 
 export const ChangeLayout = ({
   locale,
   preview,
   heading,
-  eventName,
   text,
-  badge,
+  labels,
+  eventName,
+  participantName,
+  termValue,
   details,
+  note,
   buttonLabel,
   buttonUrl,
   footer,
 }: ChangeLayoutProps): React.JSX.Element => (
-  <Html lang={locale}>
-    <Tailwind>
-      <Head>
-        {/* 360 px (Figma mobile frames): 16 px grey around the card and 16 px card side padding.
-            The paddings sit on the table cells, so they are reached by selector. */}
-        <style>{`@media (max-width:480px){.tg-body>table>tbody>tr>td{padding:16px !important}.tg-card>tbody>tr>td{padding-left:16px !important;padding-right:16px !important}}`}</style>
-      </Head>
-      <Preview>{preview}</Preview>
-      <Body className="tg-body bg-[#f6f9f8] font-sans py-8">
-        <Container className="tg-card bg-white mx-auto px-8 py-6 max-w-[640px]">
-          <Text className="text-[#102e31] text-lg font-bold m-0">togena</Text>
-          <Heading className="text-[#102e31] text-[32px] leading-10 font-bold mt-6 mb-0 max-[480px]:text-2xl max-[480px]:leading-8">
-            {heading}
-          </Heading>
-          <Text className="text-[#102e31] text-base leading-6 mt-6 mb-0">{eventName}</Text>
-          <Text className="text-[#102e31] text-base leading-6 mt-6 mb-0">{text}</Text>
-          {badge ? (
-            <Section className="mt-6">
-              <span
-                className={
-                  badge.tone === 'positive'
-                    ? 'bg-[#dbefe7] text-[#006c60] text-sm font-medium rounded-full px-2 py-1'
-                    : 'bg-[#eef6f2] text-[#4d6565] text-sm font-medium rounded-full px-2 py-1'
-                }
-              >
-                {badge.label}
-              </span>
-            </Section>
-          ) : null}
-          {details.map((detail) => (
-            <Section
-              key={`${detail.label}-${detail.value}`}
-              className="mt-6"
-            >
-              <Text className="text-[#4d6565] text-sm leading-5 m-0">{detail.label}</Text>
-              <Text className="text-[#102e31] text-base leading-6 mt-2 mb-0">{detail.value}</Text>
-            </Section>
-          ))}
-          <Section className="mt-6">
-            <Button
-              href={buttonUrl}
-              className="bg-[#006c60] text-white text-sm font-medium rounded-[10px] px-4 py-2 box-border w-full text-center max-[480px]:py-3"
-            >
-              {buttonLabel}
-            </Button>
-          </Section>
-          <Text className="text-[#4d6565] text-sm leading-5 mt-6 mb-0">{footer}</Text>
-        </Container>
-      </Body>
-    </Tailwind>
-  </Html>
+  <EmailShell locale={locale} preview={preview}>
+    <EmailLogo />
+    <EmailHeading>{heading}</EmailHeading>
+    <EmailText>{text}</EmailText>
+    <EmailRuledBlock>
+      <EmailRow label={labels.event} value={eventName} />
+      <EmailRow label={labels.participant} value={participantName} />
+      <EmailRow label={labels.term} value={termValue} />
+    </EmailRuledBlock>
+    {details.length > 0 ? (
+      <EmailRuledBlock>
+        {details.map((detail) => (
+          <EmailRow key={`${detail.label}-${detail.value}`} label={detail.label} value={detail.value} />
+        ))}
+      </EmailRuledBlock>
+    ) : null}
+    {note ? <EmailNote>{note}</EmailNote> : null}
+    <EmailButton href={buttonUrl}>{buttonLabel}</EmailButton>
+    <EmailFooter lines={footer} />
+  </EmailShell>
 );
 
 // Only so that `pnpm backend email:dev` can list this file; the previews are the templates.
@@ -105,13 +79,19 @@ ChangeLayout.PreviewProps = {
   locale: 'cs',
   preview: 'Náhled',
   heading: 'Změna přihlášky',
-  eventName: 'Letní kemp Lipno 2027',
   text: 'Text o změně.',
-  badge: { label: 'Zrušená', tone: 'neutral' },
+  labels: { event: 'Akce', participant: 'Účastník', term: 'Termín' },
+  eventName: 'Letní kemp Lipno 2027',
+  participantName: 'Adam Dvořák',
+  termValue: '12.–18. 7. 2027',
   details: [],
-  buttonLabel: 'Otevřít moje přihlášky',
+  note: null,
+  buttonLabel: 'Zobrazit přihlášku',
   buttonUrl: 'https://team-1.vsepractical.applifting.dev/apply/confirmation/preview',
-  footer: 'Alpine Collective · přes Togenu',
+  footer: [
+    'Alpine Collective · prostřednictvím Togeny',
+    'Dotazy k přihlášce, účasti nebo platbě: organizator@togena.com',
+  ],
 } satisfies ChangeLayoutProps;
 
 export default ChangeLayout;

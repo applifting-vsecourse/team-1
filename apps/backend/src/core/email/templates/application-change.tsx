@@ -1,6 +1,6 @@
 import { Locale } from '@/core/email/locale';
-import { ChangeLayout, ChangeLayoutProps } from '@/core/email/templates/application-change-layout';
-import { Gender } from '@/shared/domain/gender';
+import { ChangeLayout } from '@/core/email/templates/application-change-layout';
+import { changeCommon, termValue } from '@/core/email/templates/application-change-copy';
 import * as React from 'react';
 
 /**
@@ -30,145 +30,132 @@ export type ChangeKind =
   | 'TERMS_CHANGED';
 
 type KindCopy = {
+  subject: (event: string) => string;
+  preview: string;
   heading: string;
-  /** `name` is the participant (nominative), `term` the term's name or dates. */
-  text: (name: string, term: string, gender: Gender) => string;
-  badge: { label: string; tone: 'positive' | 'neutral' } | null;
+  text: string;
+  /** A sentence under the identification, where the frame has one. */
+  note?: string;
 };
 
-// Copy for all locales side by side — a missing translation is a type error.
-// Czech: where a frame names the participant in the nominative the sentence is verbatim, with the
-// gendered forms picked by `gender`. Where a frame declines the name ("účast Adama Dvořáka") code
-// cannot do that, so the name stands in its place in brackets, the rest verbatim.
-const copy: Record<
-  Locale,
-  {
-    subject: (event: string) => string;
-    kinds: Record<ChangeKind, KindCopy>;
-    amountDue: string;
-    account: string;
-    variableSymbol: string;
-    button: string;
-    footer: (organization: string) => string;
-  }
-> = {
+const REFUND = {
+  en: 'The organiser will let you know about any possible refund.',
+  cs: 'Informace o případném vrácení platby vám sdělí organizátor.',
+} as const;
+
+// Copy for all locales side by side — a missing translation is a type error. Source: docs/emaily/TEXTY.md.
+const copy: Record<Locale, Record<ChangeKind, KindCopy>> = {
   en: {
-    subject: (event) => `Change in your application: ${event}`,
-    kinds: {
-      // Figma: E-mail 02 EN
-      CONFIRMED: {
-        heading: 'Your place is confirmed',
-        text: (name, term) => `The organiser has confirmed ${name}’s place for ${term}.`,
-        badge: { label: 'Confirmed · payment due', tone: 'positive' },
-      },
-      CONFIRMED_FROM_WAITLIST: {
-        heading: 'A bed has become free. Your place is confirmed',
-        text: (name, term) =>
-          `${name} is no longer a substitute. Their place for ${term} has been confirmed.`,
-        badge: { label: 'Confirmed · payment due', tone: 'positive' },
-      },
-      WAITLISTED: {
-        heading: 'You are a substitute',
-        text: (name, term) =>
-          `${name} has been placed among the substitutes for ${term}. Please do not pay anything yet.`,
-        badge: { label: 'Substitute', tone: 'neutral' },
-      },
-      REJECTED: {
-        heading: 'Your application was rejected',
-        text: (name, term) =>
-          `The organiser rejected ${name}’s place for ${term}. The status of the application in this term is Cancelled.`,
-        badge: { label: 'Cancelled', tone: 'neutral' },
-      },
-      CANCELLED: {
-        heading: 'Your cancellation is confirmed',
-        text: (name, term) =>
-          `${name} has been cancelled from ${term}. The other terms of the application stay unchanged.`,
-        badge: { label: 'Cancelled', tone: 'neutral' },
-      },
-      NO_BED_FREED: {
-        heading: 'The term has started, no bed became free',
-        text: (name, term) =>
-          `No bed became free for ${name} before ${term} started. The application in this term is therefore cancelled.`,
-        badge: { label: 'Cancelled', tone: 'neutral' },
-      },
-      CANCELLED_BY_ORGANIZER: {
-        heading: 'Application cancelled by the organiser',
-        text: (name, term) =>
-          `The organiser cancelled the application of ${name}, who was a substitute for ${term}.`,
-        badge: { label: 'Cancelled', tone: 'neutral' },
-      },
-      TERMS_CHANGED: {
-        heading: 'Your application changed',
-        text: () => 'The terms of the application changed.',
-        badge: null,
-      },
+    CONFIRMED: {
+      subject: (event) => `Place confirmed: ${event}`,
+      preview: 'Your place is confirmed. Payment details are included.',
+      heading: 'The place is confirmed',
+      text: 'The place in the term shown below has been confirmed. Payment details are included below.',
     },
-    amountDue: 'Amount due',
-    account: 'Bank account',
-    variableSymbol: 'Reference number',
-    button: 'Open my applications',
-    footer: (organization) => `${organization} · via Togena`,
+    CONFIRMED_FROM_WAITLIST: {
+      subject: (event) => `Place confirmed: ${event}`,
+      preview: 'Your place is confirmed. Payment details are included.',
+      heading: 'The place is confirmed',
+      text: 'The place in the term shown below has been confirmed. Payment details are included below.',
+    },
+    WAITLISTED: {
+      subject: (event) => `Application waitlisted: ${event}`,
+      preview: 'The application has been placed on the waiting list.',
+      heading: 'The application is waitlisted',
+      text: 'The application for the term shown below has been waitlisted. We will e-mail you if the place is confirmed. Please do not pay for this term yet.',
+    },
+    REJECTED: {
+      subject: (event) => `Application rejected: ${event}`,
+      preview: 'The organiser has rejected the application for the term shown below.',
+      heading: 'The application has been rejected',
+      text: 'The organiser has rejected the application for the term shown below. The application for this term is now cancelled. You do not need to confirm the cancellation.',
+      note: REFUND.en,
+    },
+    NO_BED_FREED: {
+      subject: (event) => `Application cancelled: ${event}`,
+      preview: 'Cancellation of the waitlisted application for the term shown below.',
+      heading: 'Application cancelled',
+      text: 'The place in the term shown below was not confirmed. The application for this term is therefore cancelled. You do not need to confirm the cancellation.',
+    },
+    CANCELLED_BY_ORGANIZER: {
+      subject: (event) => `Application cancelled by the organiser: ${event}`,
+      preview: 'The organiser has cancelled the waitlisted application.',
+      heading: 'The application has been cancelled by the organiser',
+      text: 'The organiser has cancelled the application for the term shown below, where it was on the waiting list. You do not need to confirm the cancellation.',
+    },
+    CANCELLED: {
+      subject: (event) => `Cancellation confirmed: ${event}`,
+      preview: 'Confirmation of cancellation for the term shown below.',
+      heading: 'The cancellation is confirmed',
+      text: 'We confirm the cancellation for the term shown below. The application for this term is now cancelled.',
+      note: REFUND.en,
+    },
+    TERMS_CHANGED: {
+      subject: (event) => `Changes to your application: ${event}`,
+      preview: 'A summary of application status changes for individual terms.',
+      heading: 'Changes to your application',
+      text: 'The status of your application has changed for the term listed below.',
+    },
   },
   cs: {
-    subject: (event) => `Změna ve vaší přihlášce: ${event}`,
-    kinds: {
-      CONFIRMED: {
-        heading: 'Účast je potvrzená',
-        text: (name, term) => `Organizátor potvrdil účast (${name}) v termínu ${term}.`,
-        badge: { label: 'Účast potvrzena', tone: 'positive' },
-      },
-      CONFIRMED_FROM_WAITLIST: {
-        heading: 'Uvolnilo se lůžko. Účast je potvrzená',
-        text: (name, term, gender) =>
-          `${name} už není ${gender === 'FEMALE' ? 'náhradnice' : 'náhradník'}. ${gender === 'FEMALE' ? 'Její' : 'Jeho'} účast v termínu ${term} byla potvrzená.`,
-        badge: { label: 'Účast potvrzena', tone: 'positive' },
-      },
-      WAITLISTED: {
-        heading: 'Jste náhradník',
-        text: (name, term, gender) =>
-          `${name} je v termínu ${term} zařazen${gender === 'FEMALE' ? 'á' : 'ý'} mezi náhradníky. Zatím nic neplaťte.`,
-        badge: { label: 'Náhradník', tone: 'neutral' },
-      },
-      REJECTED: {
-        heading: 'Přihláška byla zamítnuta',
-        text: (name, term) =>
-          `Organizátor zamítl účast (${name}) v termínu ${term}. Stav přihlášky v tomto termínu je Zrušená.`,
-        badge: { label: 'Zrušená', tone: 'neutral' },
-      },
-      CANCELLED: {
-        heading: 'Odhlášení je potvrzené',
-        text: (name, term, gender) =>
-          `${name} je odhlášen${gender === 'FEMALE' ? 'á' : 'ý'} z termínu ${term}. Ostatní termíny přihlášky zůstávají beze změny.`,
-        badge: { label: 'Zrušená', tone: 'neutral' },
-      },
-      NO_BED_FREED: {
-        heading: 'Termín začal, lůžko se neuvolnilo',
-        text: (name, term) =>
-          `Do začátku termínu ${term} se pro (${name}) neuvolnilo lůžko. Přihláška v tomto termínu je proto zrušená.`,
-        badge: { label: 'Zrušená', tone: 'neutral' },
-      },
-      CANCELLED_BY_ORGANIZER: {
-        heading: 'Přihláška zrušená organizátorem',
-        text: (name, term, gender) =>
-          `Organizátor zrušil přihlášku (${name}), ${gender === 'FEMALE' ? 'která byla náhradnicí' : 'který byl náhradníkem'} v termínu ${term}.`,
-        badge: { label: 'Zrušená', tone: 'neutral' },
-      },
-      TERMS_CHANGED: {
-        heading: 'Změna přihlášky',
-        text: () => 'Změnily se termíny přihlášky.',
-        badge: null,
-      },
+    CONFIRMED: {
+      subject: (event) => `Účast potvrzena: ${event}`,
+      preview: 'Potvrzení účasti a údaje k platbě.',
+      heading: 'Účast je potvrzená',
+      text: 'Účast v uvedeném termínu byla potvrzena. Platební údaje najdete níže.',
     },
-    amountDue: 'K úhradě',
-    account: 'Bankovní účet',
-    variableSymbol: 'Variabilní symbol',
-    button: 'Otevřít moje přihlášky',
-    footer: (organization) => `${organization} · přes Togenu`,
+    CONFIRMED_FROM_WAITLIST: {
+      subject: (event) => `Účast potvrzena: ${event}`,
+      preview: 'Potvrzení účasti a údaje k platbě.',
+      heading: 'Účast je potvrzená',
+      text: 'Účast v uvedeném termínu byla potvrzena. Platební údaje najdete níže.',
+    },
+    WAITLISTED: {
+      subject: (event) => `Zařazení mezi náhradníky: ${event}`,
+      preview: 'Přihláška je zařazena mezi náhradníky.',
+      heading: 'Přihláška je mezi náhradníky',
+      text: 'Přihláška v uvedeném termínu byla zařazena mezi náhradníky. Pokud bude účast potvrzena, informujeme vás e-mailem. Za tento termín zatím nic neplaťte.',
+    },
+    REJECTED: {
+      subject: (event) => `Přihláška zamítnuta: ${event}`,
+      preview: 'Organizátor zamítl účast v uvedeném termínu.',
+      heading: 'Přihláška byla zamítnuta',
+      text: 'Organizátor zamítl účast v uvedeném termínu. Přihláška v tomto termínu je zrušená. Zrušení nemusíte potvrzovat.',
+      note: REFUND.cs,
+    },
+    NO_BED_FREED: {
+      subject: (event) => `Přihláška byla zrušena: ${event}`,
+      preview: 'Zrušení přihlášky náhradníka v uvedeném termínu.',
+      heading: 'Přihláška byla zrušena',
+      text: 'Účast v uvedeném termínu nebyla potvrzena. Přihláška v tomto termínu je proto zrušená. Zrušení nemusíte potvrzovat.',
+    },
+    CANCELLED_BY_ORGANIZER: {
+      subject: (event) => `Přihláška zrušena organizátorem: ${event}`,
+      preview: 'Organizátor zrušil přihlášku vedenou mezi náhradníky.',
+      heading: 'Přihláška byla zrušena organizátorem',
+      text: 'Organizátor zrušil přihlášku v uvedeném termínu, ve kterém byla vedena mezi náhradníky. Zrušení nemusíte potvrzovat.',
+    },
+    CANCELLED: {
+      subject: (event) => `Odhlášení potvrzeno: ${event}`,
+      preview: 'Potvrzení odhlášení z uvedeného termínu.',
+      heading: 'Odhlášení je potvrzené',
+      text: 'Potvrzujeme odhlášení z uvedeného termínu. Přihláška v tomto termínu je zrušená.',
+      note: REFUND.cs,
+    },
+    TERMS_CHANGED: {
+      subject: (event) => `Změny v přihlášce: ${event}`,
+      preview: 'Přehled změn stavu přihlášky v jednotlivých termínech.',
+      heading: 'Změny v přihlášce',
+      text: 'U vaší přihlášky se změnil stav v níže uvedeném termínu.',
+    },
   },
 };
 
-export const applicationChangeSubject = (locale: Locale, eventName: string): string =>
-  copy[locale].subject(eventName);
+export const applicationChangeSubject = (
+  locale: Locale,
+  eventName: string,
+  kind: ChangeKind,
+): string => copy[locale][kind].subject(eventName);
 
 export interface ApplicationChangeProps {
   locale: Locale;
@@ -177,10 +164,10 @@ export interface ApplicationChangeProps {
   organizationName: string;
   /** First and last name of the participant. */
   name: string;
-  /** Of the participant: the Czech copy is gendered. */
-  gender: Gender;
-  /** The changed term: its name, or its dates. */
-  term: string;
+  /** The dates of the changed term, already formatted. */
+  termDates: string;
+  /** The name the organizer gave the term, if any. */
+  termName: string | null;
   kind: ChangeKind;
   /** Only when the application became confirmed; amounts are already formatted. */
   payment: {
@@ -199,49 +186,54 @@ export const ApplicationChange = ({
   eventName,
   organizationName,
   name,
-  gender,
-  term,
+  termDates,
+  termName,
   kind,
   payment,
   confirmationUrl,
 }: ApplicationChangeProps): React.JSX.Element => {
-  const text = copy[locale];
-  const kindCopy = text.kinds[kind];
+  const common = changeCommon[locale];
+  const kindCopy = copy[locale][kind];
   const details = payment
     ? [
-        { label: text.amountDue, value: payment.amount },
-        { label: text.account, value: payment.bankAccount },
-        { label: text.variableSymbol, value: payment.variableSymbol },
-        // Not drawn in Figma: kept from US-137, each confirmed term can be paid on its own.
-        ...payment.terms.map((paid) => ({
-          label: paid.name,
-          value: `${paid.amount} · ${text.variableSymbol} ${paid.variableSymbol}`,
-        })),
+        { label: common.amountDue, value: payment.amount },
+        { label: common.account, value: payment.bankAccount },
+        ...(payment.terms.length > 0
+          ? [
+              { label: common.applicationSymbol, value: payment.variableSymbol },
+              ...payment.terms.map((paid) => ({
+                label: common.termSymbol(paid.name),
+                value: paid.variableSymbol,
+              })),
+            ]
+          : [{ label: common.variableSymbol, value: payment.variableSymbol }]),
       ]
     : [];
   return (
     <ChangeLayout
       locale={locale}
-      preview={kindCopy.heading}
+      preview={kindCopy.preview}
       heading={kindCopy.heading}
+      text={kindCopy.text}
+      labels={common.labels}
       eventName={eventName}
-      text={kindCopy.text(name, term, gender)}
-      badge={kindCopy.badge}
+      participantName={name}
+      termValue={termValue(termDates, termName)}
       details={details}
-      buttonLabel={text.button}
+      note={kindCopy.note ?? null}
+      buttonLabel={common.button}
       buttonUrl={confirmationUrl}
-      footer={text.footer(organizationName)}
+      footer={common.footer(organizationName)}
     />
   );
 };
 
-// Figma (Design system): US-116 E-mailová šablona · E-mail 02 (Účast je potvrzená) · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15981-290 (360 px: 15981-329; EN: 15981-866 / 15981-905)
-// Figma (Design system): US-116 E-mail 03 (Jste náhradník) · node-id=15981-368 (360 px: 15981-398)
-// Figma (Design system): US-116 E-mail 04 / 09 / 10 (Přihláška byla zamítnuta) · node-id=15981-428 (360 px: 15981-458)
-// Figma (Design system): US-116 E-mail 05 (Uvolnilo se lůžko) · node-id=15981-488 (360 px: 15981-527)
-// Figma (Design system): US-116 E-mail 06 (Termín začal, lůžko se neuvolnilo) · node-id=15981-566 (360 px: 15981-596)
-// Figma (Design system): US-116 E-mail 11 (Odhlášení je potvrzené) · node-id=15981-626 (360 px: 15981-656)
-// Figma (Design system): US-116 E-mail 14 (Přihláška zrušená organizátorem) · node-id=15981-746 (360 px: 15981-776)
+// Figma (Design system): E05 APP_CONFIRMED · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19681-665 (360 px: 19681-702; EN: 19681-1853 / 19681-1890)
+// Figma (Design system): E06 APP_WAITLISTED · node-id=19681-739 (360 px: 19681-766)
+// Figma (Design system): E07 APP_REJECTED · node-id=19681-793 (360 px: 19681-821)
+// Figma (Design system): E08 APP_WAITLIST_EXPIRED · node-id=19681-849 (360 px: 19681-876)
+// Figma (Design system): E10 APP_WAITLIST_CANCELLED · node-id=19681-957 (360 px: 19681-984)
+// Figma (Design system): E11 APP_CANCELLED_BY_APPLICANT · node-id=19681-1011 (360 px: 19681-1039)
 // All under https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=<id>
 
 // Preview data for `pnpm backend email:dev`: a term was confirmed, payment details follow.
@@ -250,12 +242,12 @@ ApplicationChange.PreviewProps = {
   eventName: 'Letní kemp Lipno 2027',
   organizationName: 'Alpine Collective',
   name: 'Adam Dvořák',
-  gender: 'MALE',
-  term: '12.–18. 7. 2027',
+  termDates: '12.–18. 7. 2027',
+  termName: null,
   kind: 'CONFIRMED',
   payment: {
     amount: '4 900 Kč',
-    bankAccount: '123456789 / 0000',
+    bankAccount: '123456789/0800',
     variableSymbol: '2027001000',
     terms: [],
   },

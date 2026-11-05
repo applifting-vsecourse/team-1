@@ -46,6 +46,8 @@ export type StatusChangeResult = {
   bankAccount: string
   /** The changed term: its name, else its dates. */
   termName: string
+  termDates: string
+  termCustomName: string | null
   /** Of the participant: the Czech copy of the e-mail is gendered. */
   gender: Gender
   application: {
