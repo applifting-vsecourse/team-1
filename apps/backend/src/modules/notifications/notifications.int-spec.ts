@@ -66,7 +66,8 @@ describe("participant notifications (integration)", () => {
         lastName: `Dvořák${counter}`,
         birthDate: new Date(`2010-01-${String(counter).padStart(2, "0")}`),
         gender,
-        email: hasAccount ? "ucastnik@example.com" : `us118-${counter}@example.com`,
+        // Never the participant's address: other suites assert that nothing was mailed to it.
+        email: `us118-${counter}@example.com`,
         consentAt: new Date(),
         terms: { create: [{ organizationId, termId, status, priceCzk: 1000 }] },
       },
