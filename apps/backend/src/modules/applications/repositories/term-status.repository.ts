@@ -1,18 +1,96 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
+import { Prisma } from "@/generated/prisma/client"
 import { StatusChangeSnapshot } from "@/modules/applications/domain/status-transition"
+import { skippedSubstitutes } from "@/modules/applications/domain/substitute-skips"
 import { termLabel } from "@/modules/applications/domain/term-label"
 import {
   ExpiredWaitlistEntry,
   StatusChangeCommand,
   StatusChangeResult,
+  SubstituteRecord,
   TermStatusDetail,
 } from "@/modules/applications/domain/term-status"
+import { bedGroup, WaitlistCandidate } from "@/modules/applications/domain/waitlist"
 import { resolveChangeEmailLocale } from "@/modules/participants/domain/change-email-locale"
 import { Injectable } from "@nestjs/common"
+
+const recordInclude = {
+  changedBy: { select: { name: true } },
+  applicationTerm: {
+    select: {
+      termId: true,
+      status: true,
+      term: { select: { roomMode: true } },
+      application: { select: { id: true, firstName: true, lastName: true, gender: true } },
+    },
+  },
+  skips: {
+    orderBy: { createdAt: "asc" },
+    select: {
+      skippedApplicationTerm: {
+        select: {
+          status: true,
+          application: { select: { id: true, firstName: true, lastName: true } },
+        },
+      },
+    },
+  },
+} as const satisfies Prisma.ApplicationTermStatusChangeInclude
+
+type RecordRow = Prisma.ApplicationTermStatusChangeGetPayload<{ include: typeof recordInclude }>
+
+const fullName = (person: { firstName: string; lastName: string }): string =>
+  `${person.firstName} ${person.lastName}`
+
+function toRecord(row: RecordRow): SubstituteRecord {
+  const { application, term, termId, status } = row.applicationTerm
+  return {
+    id: row.id,
+    termId,
+    group: bedGroup(term.roomMode, application.gender),
+    confirmed: { applicationId: application.id, name: fullName(application), status },
+    skipped: row.skips.map(
+      ({ skippedApplicationTerm: { application: skipped, status: skippedStatus } }) => ({
+        applicationId: skipped.id,
+        name: fullName(skipped),
+        status: skippedStatus,
+      }),
+    ),
+    changedByName: row.changedBy?.name ?? null,
+    changedAt: row.createdAt,
+  }
+}
 
 @Injectable()
 export class TermStatusRepository {
   constructor(private readonly prisma: PrismaService) {}
+
+  /**
+   * Records of confirmations from the waitlist in a term (US-105), newest first. Null when the
+   * term is not a term of the event.
+   */
+  async findSubstituteRecords(
+    organizationId: string,
+    eventId: string,
+    termId: string,
+  ): Promise<SubstituteRecord[] | null> {
+    const term = await this.prisma.term.findFirst({
+      where: { id: termId, eventId, organizationId },
+      select: { id: true },
+    })
+    if (!term) return null
+    const rows = await this.prisma.applicationTermStatusChange.findMany({
+      where: {
+        organizationId,
+        fromStatus: "WAITLISTED",
+        toStatus: "CONFIRMED",
+        applicationTerm: { termId },
+      },
+      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+      include: recordInclude,
+    })
+    return rows.map(toRecord)
+  }
 
   async findTerms(applicationId: string, organizationId: string): Promise<TermStatusDetail[]> {
     const rows = await this.prisma.applicationTerm.findMany({
@@ -25,6 +103,19 @@ export class TermStatusRepository {
           include: { changedBy: { select: { name: true } } },
         },
       },
+    })
+    const records = await this.prisma.applicationTermStatusChange.findMany({
+      where: {
+        organizationId,
+        fromStatus: "WAITLISTED",
+        toStatus: "CONFIRMED",
+        OR: [
+          { applicationTerm: { applicationId } },
+          { skips: { some: { skippedApplicationTerm: { applicationId } } } },
+        ],
+      },
+      orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+      include: recordInclude,
     })
     return rows.map((row) => ({
       termId: row.termId,
@@ -40,6 +131,7 @@ export class TermStatusRepository {
         changedByName: change.changedBy?.name ?? null,
         changedAt: change.createdAt,
       })),
+      substituteRecords: records.map(toRecord).filter((record) => record.termId === row.termId),
     }))
   }
 
@@ -108,11 +200,18 @@ export class TermStatusRepository {
         confirmedGenders: confirmed.map((row) => row.application.gender),
       })
 
+      // US-105: who waits ahead of the one confirmed from the waitlist is read before the change
+      // and stored with it, so the record cannot differ from what the decision saw.
+      const skippedIds =
+        current.status === "WAITLISTED" && command.to === "CONFIRMED"
+          ? await this.findSkipped(tx, command.organizationId, command.termId, application.id)
+          : []
+
       await tx.applicationTerm.update({
         where: { id: current.id },
         data: { status: command.to },
       })
-      await tx.applicationTermStatusChange.create({
+      const change = await tx.applicationTermStatusChange.create({
         data: {
           organizationId: command.organizationId,
           applicationTermId: current.id,
@@ -121,6 +220,15 @@ export class TermStatusRepository {
           changedById: command.actorId,
         },
       })
+      if (skippedIds.length > 0) {
+        await tx.applicationTermSkip.createMany({
+          data: skippedIds.map((applicationTermId) => ({
+            organizationId: command.organizationId,
+            statusChangeId: change.id,
+            skippedApplicationTermId: applicationTermId,
+          })),
+        })
+      }
 
       // D-078: the e-mail goes in the user's preferred language, else in the language of the
       // user's first application; the term labels follow it.
@@ -168,5 +276,38 @@ export class TermStatusRepository {
         },
       }
     })
+  }
+
+  /** Ids of the application terms skipped by confirming `applicationId` from the waitlist. */
+  private async findSkipped(
+    tx: Prisma.TransactionClient,
+    organizationId: string,
+    termId: string,
+    applicationId: string,
+  ): Promise<string[]> {
+    const [term, waiting] = await Promise.all([
+      tx.term.findUnique({ where: { id: termId }, select: { roomMode: true } }),
+      tx.applicationTerm.findMany({
+        where: { organizationId, termId, status: "WAITLISTED" },
+        select: {
+          id: true,
+          application: { select: { id: true, gender: true, submittedAt: true, number: true } },
+        },
+      }),
+    ])
+    if (!term) return []
+    const candidates: WaitlistCandidate[] = waiting.map(({ application }) => ({
+      applicationId: application.id,
+      termId,
+      roomMode: term.roomMode,
+      gender: application.gender,
+      status: "WAITLISTED",
+      submittedAt: application.submittedAt,
+      number: application.number,
+    }))
+    const applicationTermIdOf = new Map(waiting.map((row) => [row.application.id, row.id]))
+    return skippedSubstitutes({ applicationId, termId }, candidates).map((skippedApplicationId) =>
+      applicationTermIdOf.get(skippedApplicationId)!,
+    )
   }
 }

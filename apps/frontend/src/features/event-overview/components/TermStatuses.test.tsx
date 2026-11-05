@@ -17,6 +17,7 @@ const term = (overrides: object = {}) => ({
   priceCzk: 6900,
   allowedStatuses: ["CONFIRMED", "CANCELLED"],
   history: [],
+  substituteRecords: [],
   ...overrides,
 })
 

@@ -37,6 +37,7 @@ import { ApplicationViews } from "@/features/event-overview/components/Applicati
 import { BulkConfirmDialog } from "@/features/event-overview/components/BulkConfirmDialog"
 import { BulkDecisionDialog } from "@/features/event-overview/components/BulkDecisionDialog"
 import { BulkSelectionBar } from "@/features/event-overview/components/BulkSelectionBar"
+import { SubstituteHistory } from "@/features/event-overview/components/SubstituteHistory"
 import {
   SubstitutesPanel,
   type SubstituteTaken as SubstituteTakenData,
@@ -170,6 +171,12 @@ export function ApplicationsPage({
             // The application of the confirmed participant, where the payment details are.
             void navigate({ to: ROUTES.organizer.application, params: { eventId, applicationId } })
           }}
+        />
+      )}
+      {substituteTerm && (
+        <SubstituteHistory
+          eventId={eventId}
+          term={substituteTerm}
         />
       )}
       <>

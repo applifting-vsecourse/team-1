@@ -266,6 +266,17 @@
     "viewWaitlist": "Náhradníci",
     "views": "Pohledy přihlášek"
   },
+  "substituteRecord": {
+    "detail": "Detail",
+    "history": "Historie obsazení",
+    "openDetail": "Otevřít detail: {{name}}",
+    "skippedAmong_few": "Přeskočení náhradníci",
+    "skippedAmong_many": "Přeskočených náhradníků",
+    "skippedAmong_one": "Přeskočený náhradník",
+    "skippedAmong_other": "Přeskočení náhradníci",
+    "skippedBy": "Přeskočeno potvrzením náhradníka",
+    "skippedList": "Přeskočení: {{names}}"
+  },
   "substitutes": {
     "bedFemale": "dámské lůžko",
     "bedMale": "pánské lůžko",

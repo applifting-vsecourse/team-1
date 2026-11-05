@@ -266,6 +266,17 @@
     "viewWaitlist": "Waitlisted",
     "views": "Application views"
   },
+  "substituteRecord": {
+    "detail": "Detail",
+    "history": "Filled beds history",
+    "openDetail": "Open detail: {{name}}",
+    "skippedAmong_few": "Skipped substitutes",
+    "skippedAmong_many": "Skipped substitutes",
+    "skippedAmong_one": "Skipped substitute",
+    "skippedAmong_other": "Skipped substitutes",
+    "skippedBy": "Skipped by confirming a substitute",
+    "skippedList": "Skipped: {{names}}"
+  },
   "substitutes": {
     "bedFemale": "women's bed",
     "bedMale": "men's bed",
