@@ -148,6 +148,7 @@ model Organization {
   applicationTerms ApplicationTerm[]
   payments         Payment[]
   statusChanges    ApplicationTermStatusChange[]
+  substituteSkips  ApplicationTermSkip[]
 
   @@map("organization")
 }
@@ -322,6 +323,7 @@ model ApplicationTerm {
 
   statusChanges ApplicationTermStatusChange[]
   payments      Payment[]
+  skippedIn     ApplicationTermSkip[]
 
   @@unique([applicationId, termId])
   @@index([termId, status])
@@ -344,9 +346,31 @@ model ApplicationTermStatusChange {
   changedById       String?
   createdAt         DateTime              @default(now())
 
+  skips ApplicationTermSkip[]
+
   @@index([applicationTermId, createdAt])
   @@index([organizationId])
   @@map("application_term_status_change")
+}
+
+// Waitlisted applications skipped when someone else was confirmed from the waitlist (US-105):
+// those ahead of the confirmed one in the same queue (term and bed group) who stayed on the
+// waitlist. Written in the transaction of the status change, never edited or deleted by the app.
+// A confirmation from the waitlist without rows here skipped nobody.
+model ApplicationTermSkip {
+  id                       String                      @id @default(cuid())
+  organization             Organization                @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId           String
+  statusChange             ApplicationTermStatusChange @relation(fields: [statusChangeId], references: [id], onDelete: Cascade)
+  statusChangeId           String
+  skippedApplicationTerm   ApplicationTerm             @relation(fields: [skippedApplicationTermId], references: [id], onDelete: Cascade)
+  skippedApplicationTermId String
+  createdAt                DateTime                    @default(now())
+
+  @@unique([statusChangeId, skippedApplicationTermId])
+  @@index([skippedApplicationTermId])
+  @@index([organizationId])
+  @@map("application_term_skip")
 }
 
 // Manually recorded payment (US-44) of one application in a term (US-137, D-051). Rows rather

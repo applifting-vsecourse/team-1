@@ -1,5 +1,6 @@
 import { Locale } from "@/core/email/locale"
 import { ApplicationTermStatus } from "@/modules/applications/domain/evaluation"
+import { BedGroup } from "@/modules/applications/domain/waitlist"
 import { Gender } from "@/shared/domain/gender"
 
 /** One entry of the system log of status changes (US-28): who, when, from which status to which. */
@@ -8,6 +9,26 @@ export type StatusChangeEntry = {
   fromStatus: ApplicationTermStatus
   toStatus: ApplicationTermStatus
   /** Name of the organizer; null when the system changed the status. */
+  changedByName: string | null
+  changedAt: Date
+}
+
+/** Someone named in a record of a filled bed. */
+export type SubstitutePerson = { applicationId: string; name: string }
+
+/**
+ * System record of one confirmation from the waitlist (US-105): who was confirmed, who was
+ * skipped (waiting ahead of them in the same queue), who did it and when. Read-only.
+ */
+export type SubstituteRecord = {
+  /** Id of the status change the record belongs to. */
+  id: string
+  termId: string
+  /** Queue the confirmed one waited in: their gender, or the one common queue. */
+  group: BedGroup
+  confirmed: SubstitutePerson
+  skipped: SubstitutePerson[]
+  /** Name of the organizer; null when the system acted. */
   changedByName: string | null
   changedAt: Date
 }
@@ -21,6 +42,8 @@ export type TermStatusDetail = {
   status: ApplicationTermStatus
   priceCzk: number
   history: StatusChangeEntry[]
+  /** Records of confirmations from the waitlist in which the application was confirmed or skipped. */
+  substituteRecords: SubstituteRecord[]
 }
 
 /** Asked for a change of one application in a term. `actorId` is null for the system. */

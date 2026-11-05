@@ -5,6 +5,7 @@ import {
 import {
   StatusChangeCommand,
   StatusChangeResult,
+  SubstituteRecord,
   TermStatusDetail,
 } from "@/modules/applications/domain/term-status"
 import { TermStatusRepository } from "@/modules/applications/repositories/term-status.repository"
@@ -31,6 +32,18 @@ export class TermStatusService {
   async getTerms(user: Identity, applicationId: string): Promise<TermStatusDetail[]> {
     const { organizationId } = await this.access.assertCanAccessApplication(user, applicationId)
     return this.repository.findTerms(applicationId, organizationId)
+  }
+
+  /** Records of confirmations from the waitlist in a term of an event (US-105), newest first. */
+  async getSubstituteRecords(
+    user: Identity,
+    eventId: string,
+    termId: string,
+  ): Promise<SubstituteRecord[]> {
+    const { organizationId } = await this.access.assertCanAccessEvent(user, eventId)
+    const records = await this.repository.findSubstituteRecords(organizationId, eventId, termId)
+    if (!records) throw new AppException(HttpStatus.NOT_FOUND, "NOT_FOUND")
+    return records
   }
 
   /** An organizer changes the status by hand; the acting user comes from the session. */

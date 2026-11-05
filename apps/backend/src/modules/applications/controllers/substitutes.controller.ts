@@ -1,5 +1,7 @@
+import { SubstituteRecordDto } from "@/modules/applications/controllers/dto/substitute-record.dto"
 import { SubstituteListResponseDto } from "@/modules/applications/controllers/dto/substitutes.dto"
 import { SubstitutesService } from "@/modules/applications/services/substitutes.service"
+import { TermStatusService } from "@/modules/applications/services/term-status.service"
 import { Auth } from "@/shared/auth/decorators/auth.decorator"
 import { User } from "@/shared/auth/decorators/user.decorator"
 import { Identity } from "@/shared/auth/domain/identity"
@@ -10,7 +12,27 @@ import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 @Controller("organizer/events/:eventId/terms/:termId/substitutes")
 @Auth("ORGANIZER")
 export class SubstitutesController {
-  constructor(private readonly substitutes: SubstitutesService) {}
+  constructor(
+    private readonly substitutes: SubstitutesService,
+    private readonly statuses: TermStatusService,
+  ) {}
+
+  @Get("history")
+  @ApiOperation({
+    summary: "System record of confirmations from the waitlist and who they skipped (US-105)",
+  })
+  @ApiResponse({ status: 200, type: [SubstituteRecordDto] })
+  @ApiResponse({ status: 403, description: "Wrong account type or foreign event" })
+  @ApiResponse({ status: 404, description: "The term is not a term of the event" })
+  async history(
+    @User() user: Identity,
+    @Param("eventId") eventId: string,
+    @Param("termId") termId: string,
+  ): Promise<SubstituteRecordDto[]> {
+    return (await this.statuses.getSubstituteRecords(user, eventId, termId)).map((record) =>
+      SubstituteRecordDto.fromDomain(record),
+    )
+  }
 
   @Get()
   @ApiOperation({
