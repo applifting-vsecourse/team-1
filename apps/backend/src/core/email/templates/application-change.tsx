@@ -14,6 +14,10 @@ import * as React from 'react';
  * - `CANCELLED`: the applicant cancelled (no. 11)
  * - `CANCELLED_BY_ORGANIZER`: Náhradník → Zrušená by the organizer (no. 14)
  *
+ * - `PAYMENT_OVERDUE`: the payment deadline passed, the organizer asked for a reminder (E14)
+ * - `PAYMENT_SETTLED`: the application in the term became fully paid (E15)
+ * - `PAYMENT_CORRECTED`: a payment was corrected and a balance is due again (E16)
+ *
  * `TERMS_CHANGED` is prepared for the term-change stories; nothing sends it yet.
  *
  * No. 13 (Potvrzená s dluhem → Náhradník) and no. 15 (term cancelled) have their own templates.
@@ -26,6 +30,10 @@ export type ChangeKind =
   | 'CANCELLED'
   | 'NO_BED_FREED'
   | 'CANCELLED_BY_ORGANIZER'
+  /** The payment e-mails: only these carry (OVERDUE, CORRECTED) or omit (SETTLED) payment details. */
+  | 'PAYMENT_OVERDUE'
+  | 'PAYMENT_SETTLED'
+  | 'PAYMENT_CORRECTED'
   /** US-33 / US-84: no trigger yet, no frame. */
   | 'TERMS_CHANGED';
 
@@ -90,6 +98,24 @@ const copy: Record<Locale, Record<ChangeKind, KindCopy>> = {
       text: 'We confirm the cancellation for the term shown below. The application for this term is now cancelled.',
       note: REFUND.en,
     },
+    PAYMENT_OVERDUE: {
+      subject: (event) => `Payment overdue: ${event}`,
+      preview: 'The payment deadline has passed. Please check the outstanding amount.',
+      heading: 'Payment is outstanding',
+      text: 'The payment deadline for the application in the term shown below has passed and an amount remains outstanding. Please pay the outstanding amount using the details below.',
+    },
+    PAYMENT_SETTLED: {
+      subject: (event) => `Payment received: ${event}`,
+      preview: 'The application for the term shown below is fully paid.',
+      heading: 'Your payment has been recorded',
+      text: 'We have recorded your payment and the application for the term shown below is fully paid. There is no outstanding balance for this term.',
+    },
+    PAYMENT_CORRECTED: {
+      subject: (event) => `Payment correction: outstanding balance for ${event}`,
+      preview: 'The previous confirmation of full payment is no longer valid. The outstanding amount is shown below.',
+      heading: 'An outstanding balance remains after a payment correction',
+      text: 'Following the organiser’s correction of the payment record, the amount shown below remains outstanding for the application in this term. The previous confirmation of full payment is no longer valid. Please pay the outstanding amount using the payment details provided.',
+    },
     TERMS_CHANGED: {
       subject: (event) => `Changes to your application: ${event}`,
       preview: 'A summary of application status changes for individual terms.',
@@ -141,6 +167,24 @@ const copy: Record<Locale, Record<ChangeKind, KindCopy>> = {
       heading: 'Odhlášení je potvrzené',
       text: 'Potvrzujeme odhlášení z uvedeného termínu. Přihláška v tomto termínu je zrušená.',
       note: REFUND.cs,
+    },
+    PAYMENT_OVERDUE: {
+      subject: (event) => `Výzva k zaplacení: ${event}`,
+      preview: 'Uplynula lhůta pro zaplacení. Zkontrolujte zbývající částku.',
+      heading: 'Zbývá uhradit platbu',
+      text: 'U přihlášky v uvedeném termínu uplynula lhůta pro zaplacení a evidujeme nedoplatek. Uhraďte prosím zbývající částku podle údajů níže.',
+    },
+    PAYMENT_SETTLED: {
+      subject: (event) => `Platba přijata: ${event}`,
+      preview: 'Přihláška v uvedeném termínu je plně zaplacená.',
+      heading: 'Platbu jsme zaevidovali',
+      text: 'Zaevidovali jsme platbu a přihláška v uvedeném termínu je plně zaplacená. Za tento termín již nic nedlužíte.',
+    },
+    PAYMENT_CORRECTED: {
+      subject: (event) => `Po opravě platby zbývá doplatit: ${event}`,
+      preview: 'Předchozí potvrzení o úplném zaplacení již neplatí. Níže najdete částku k doplacení.',
+      heading: 'Po opravě platby zbývá nedoplatek',
+      text: 'Po opravě evidence platby organizátorem zbývá u přihlášky v uvedeném termínu doplatit částku uvedenou níže. Předchozí potvrzení o úplném zaplacení již neplatí. Uhraďte prosím nedoplatek podle uvedených platebních údajů.',
     },
     TERMS_CHANGED: {
       subject: (event) => `Změny v přihlášce: ${event}`,
@@ -233,6 +277,9 @@ export const ApplicationChange = ({
 // Figma (Design system): E07 APP_REJECTED · node-id=19681-793 (360 px: 19681-821)
 // Figma (Design system): E08 APP_WAITLIST_EXPIRED · node-id=19681-849 (360 px: 19681-876)
 // Figma (Design system): E10 APP_WAITLIST_CANCELLED · node-id=19681-957 (360 px: 19681-984)
+// Figma (Design system): E14 PAYMENT_OVERDUE · node-id=19681-1259 (360 px: 19681-1296)
+// Figma (Design system): E15 PAYMENT_SETTLED · node-id=19681-1333 (360 px: 19681-1360)
+// Figma (Design system): E16 PAYMENT_CORRECTED · node-id=19681-1387 (360 px: 19681-1424)
 // Figma (Design system): E11 APP_CANCELLED_BY_APPLICANT · node-id=19681-1011 (360 px: 19681-1039)
 // All under https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=<id>
 

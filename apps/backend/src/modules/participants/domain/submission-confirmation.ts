@@ -70,6 +70,12 @@ export type ApplicationChangeKind =
   | "NO_BED_FREED"
   /** 14: Náhradník → Zrušená by the organizer. */
   | "CANCELLED_BY_ORGANIZER"
+  /** E14: the payment deadline passed and the organizer asked for the reminder; no trigger yet (#46). */
+  | "PAYMENT_OVERDUE"
+  /** E15: the application in the term became fully paid; no trigger yet (#210). */
+  | "PAYMENT_SETTLED"
+  /** E16: a payment was corrected and a balance is due again; no trigger yet (#205). */
+  | "PAYMENT_CORRECTED"
   /** US-33 / US-84: the terms of the application changed; no trigger yet. */
   | "TERMS_CHANGED"
 

@@ -69,6 +69,8 @@ const PAYING_KINDS: ApplicationChange["kind"][] = [
   "CONFIRMED",
   "CONFIRMED_FROM_WAITLIST",
   "TERMS_CHANGED",
+  "PAYMENT_OVERDUE",
+  "PAYMENT_CORRECTED",
 ]
 
 /**

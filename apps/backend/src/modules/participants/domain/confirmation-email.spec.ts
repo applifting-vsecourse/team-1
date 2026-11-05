@@ -140,7 +140,18 @@ describe("buildChangeProps", () => {
         "https://app",
       ).payment,
     ).not.toBeNull()
-    for (const kind of ["WAITLISTED", "REJECTED", "CANCELLED", "CANCELLED_BY_ORGANIZER"] as const) {
+    for (const kind of ["PAYMENT_OVERDUE", "PAYMENT_CORRECTED"] as const) {
+      expect(
+        buildChangeProps(change({ isAmountChanged: true, kind }), "https://app").payment,
+      ).not.toBeNull()
+    }
+    for (const kind of [
+      "WAITLISTED",
+      "REJECTED",
+      "CANCELLED",
+      "CANCELLED_BY_ORGANIZER",
+      "PAYMENT_SETTLED",
+    ] as const) {
       expect(
         buildChangeProps(change({ isAmountChanged: true, kind }), "https://app").payment,
       ).toBeNull()

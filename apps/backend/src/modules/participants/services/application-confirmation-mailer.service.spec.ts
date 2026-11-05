@@ -506,6 +506,13 @@ describe("ApplicationConfirmationMailer.sendApplicationChange", () => {
     ["CONFIRMED", "Place confirmed", "The place is confirmed"],
     ["CONFIRMED_FROM_WAITLIST", "Place confirmed", "The place is confirmed"],
     ["WAITLISTED", "Application waitlisted", "The application is waitlisted"],
+    ["PAYMENT_OVERDUE", "Payment overdue", "Payment is outstanding"],
+    ["PAYMENT_SETTLED", "Payment received", "Your payment has been recorded"],
+    [
+      "PAYMENT_CORRECTED",
+      "Payment correction: outstanding balance for",
+      "An outstanding balance remains after a payment correction",
+    ],
     ["REJECTED", "Application rejected", "The application has been rejected"],
     ["CANCELLED", "Cancellation confirmed", "The cancellation is confirmed"],
     ["NO_BED_FREED", "Application cancelled", "Application cancelled"],
@@ -525,29 +532,45 @@ describe("ApplicationConfirmationMailer.sendApplicationChange", () => {
     await mailer.sendApplicationChange(change({ locale: "en", kind }))
 
     const { subject, html } = sent(sendEmail)
-    expect(subject).toBe(`${subjectStart}: Letní kemp 2027`)
+    expect(subject.startsWith(subjectStart)).toBe(true)
+    expect(subject.endsWith("Letní kemp 2027")).toBe(true)
     expect(html).toContain(heading)
     expect(html).toContain("View application")
     expect(html).not.toContain("Zobrazit přihlášku")
   })
 
   describe("payment details", () => {
-    it.each(["CONFIRMED", "CONFIRMED_FROM_WAITLIST"] as const)(
-      "%s: amount, account and variable symbol (Czech labels)",
-      async (kind) => {
-        const { mailer, sendEmail } = setup()
+    it("PAYMENT_SETTLED asks for no payment: no amount due, account or symbol", async () => {
+      const { mailer, sendEmail } = setup()
 
-        await mailer.sendApplicationChange(change({ kind, isAmountChanged: true }))
+      await mailer.sendApplicationChange(
+        change({ kind: "PAYMENT_SETTLED", isAmountChanged: false }),
+      )
 
-        const { html } = sent(sendEmail)
-        expect(html).toContain("K úhradě")
-        expect(html).toContain("4 900 Kč")
-        expect(html).toContain("Bankovní účet")
-        expect(html).toContain("2900123456/2010")
-        expect(html).toContain("Variabilní symbol")
-        expect(html).toContain("49000")
-      },
-    )
+      const { html } = sent(sendEmail)
+      expect(html).toContain("Platbu jsme zaevidovali")
+      expect(html).not.toContain("K úhradě")
+      expect(html).not.toContain("Bankovní účet")
+    })
+
+    it.each([
+      "PAYMENT_OVERDUE",
+      "PAYMENT_CORRECTED",
+      "CONFIRMED",
+      "CONFIRMED_FROM_WAITLIST",
+    ] as const)("%s: amount, account and variable symbol (Czech labels)", async (kind) => {
+      const { mailer, sendEmail } = setup()
+
+      await mailer.sendApplicationChange(change({ kind, isAmountChanged: true }))
+
+      const { html } = sent(sendEmail)
+      expect(html).toContain("K úhradě")
+      expect(html).toContain("4 900 Kč")
+      expect(html).toContain("Bankovní účet")
+      expect(html).toContain("2900123456/2010")
+      expect(html).toContain("Variabilní symbol")
+      expect(html).toContain("49000")
+    })
 
     it("labels them in English like the E05 EN frame", async () => {
       const { mailer, sendEmail } = setup()
