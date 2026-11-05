@@ -166,6 +166,7 @@
     "amountChoice": "Výše platby",
     "back": "← Zpět na přihlášky",
     "cancel": "Zpět",
+    "cancelCorrection": "Zrušit",
     "cancelDescription": "Zápis platby {{amount}} bude odstraněn. Ostatní platby zůstanou zachované.",
     "cancelOverpaidPreview": "Po zrušení zůstane přeplatek: {{amount}}",
     "cancelPreview": "Po zrušení bude dlužit: {{amount}}",

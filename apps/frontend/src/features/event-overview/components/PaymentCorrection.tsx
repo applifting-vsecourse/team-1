@@ -138,7 +138,7 @@ export function PaymentCorrection({
               >
                 <SelectTrigger
                   id="correct-payment-term"
-                  className="w-full"
+                  className="w-full data-[size=default]:h-12"
                 >
                   <SelectValue />
                 </SelectTrigger>
@@ -172,7 +172,7 @@ export function PaymentCorrection({
                 <Input
                   id="correct-payment-amount"
                   inputMode="decimal"
-                  className="pr-12"
+                  className="h-12 pr-12"
                   value={amount}
                   disabled={mutation.isPending}
                   aria-invalid={isInvalid && !isValid}
@@ -200,7 +200,7 @@ export function PaymentCorrection({
           </div>
           {isValid ? (
             <div
-              className="border-t pt-3 text-sm"
+              className="text-sm"
               aria-live="polite"
             >
               <span className="text-muted-foreground">{t("payment.afterCorrection")}</span>
@@ -234,13 +234,13 @@ export function PaymentCorrection({
           <DialogFooter>
             <Button
               type="button"
-              variant="outline"
+              variant="ghost"
               size="lg"
               disabled={mutation.isPending}
               className="h-12 w-full sm:flex-1"
               onClick={onClose}
             >
-              {t("payment.cancel")}
+              {t("payment.cancelCorrection")}
             </Button>
             <Button
               type="submit"

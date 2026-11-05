@@ -166,6 +166,7 @@
     "amountChoice": "Payment amount",
     "back": "← Back to applications",
     "cancel": "Back",
+    "cancelCorrection": "Cancel",
     "cancelDescription": "The payment record of {{amount}} will be removed. Other payments will be kept.",
     "cancelOverpaidPreview": "After cancellation, overpayment remaining: {{amount}}",
     "cancelPreview": "After cancellation, amount owed: {{amount}}",
