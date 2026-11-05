@@ -55,6 +55,7 @@ export class ApplicationConfirmationMailer {
       const html = await renderEmail(ApplicationConfirmationEmail, {
         locale: confirmation.locale,
         eventName: confirmation.eventName,
+        organizationName: confirmation.organizationName,
         access,
         applications: buildConfirmationApplications(confirmation, this.config.frontendUrl),
       })

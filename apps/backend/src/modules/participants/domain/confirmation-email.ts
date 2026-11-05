@@ -48,8 +48,8 @@ function paymentOf(
 
 /** A submission only knows evaluated terms; a cancelled one never appears in the summary. */
 const termsOf = (application: SubmittedApplication): ConfirmationApplicationProps["terms"] =>
-  application.terms.flatMap(({ name, status }) =>
-    status === "CANCELLED" ? [] : [{ name, status }],
+  application.terms.flatMap(({ dates, customName, status }) =>
+    status === "CANCELLED" ? [] : [{ dates, name: customName, status }],
   )
 
 export function buildConfirmationApplications(

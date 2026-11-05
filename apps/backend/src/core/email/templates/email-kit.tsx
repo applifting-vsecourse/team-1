@@ -8,6 +8,8 @@ import {
   Hr,
   Html,
   Preview,
+  Row,
+  Column,
   Section,
   Tailwind,
   Text,
@@ -76,17 +78,106 @@ export const EmailNote = ({ children }: { children: React.ReactNode }): React.JS
 export const EmailButton = ({
   href,
   children,
+  variant = 'primary',
 }: {
   href: string;
   children: React.ReactNode;
+  /** `secondary` is the outlined button next to a primary action (one primary per context). */
+  variant?: 'primary' | 'secondary';
 }): React.JSX.Element => (
   <Section className="mt-6">
     <Button
       href={href}
-      className="bg-[#007f72] text-white text-sm font-medium rounded-lg px-4 py-3 box-border w-full text-center"
+      className={
+        variant === 'primary'
+          ? 'bg-[#007f72] text-white text-sm font-medium rounded-lg px-4 py-3 box-border w-full text-center'
+          : 'bg-white text-[#031a1e] text-sm font-medium rounded-lg px-4 py-3 box-border w-full text-center border border-solid border-[#759398]'
+      }
     >
       {children}
     </Button>
+  </Section>
+);
+
+/** A label above a value (event, participant, amount due, account…). */
+export const EmailRow = ({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}): React.JSX.Element => (
+  <Section className="mt-3 first:mt-0">
+    <Text className="text-[#50686d] text-xs leading-[18px] font-medium m-0">{label}</Text>
+    <Text className="text-[#031a1e] text-base leading-6 mt-[2px] mb-0">{value}</Text>
+  </Section>
+);
+
+/** A block between two hairlines: the identification of an application, payment details. */
+export const EmailRuledBlock = ({
+  children,
+}: {
+  children: React.ReactNode;
+}): React.JSX.Element => (
+  <Section className="mt-6 border-solid border-[#dae3e4] border-x-0 border-y py-4">
+    {children}
+  </Section>
+);
+
+export const EmailSubheading = ({ children }: { children: React.ReactNode }): React.JSX.Element => (
+  <Heading
+    as="h2"
+    className="text-[#031a1e] text-lg leading-[26px] font-semibold mt-6 mb-0"
+  >
+    {children}
+  </Heading>
+);
+
+export type EmailBadgeTone = 'success' | 'waitlist' | 'neutral';
+
+const BADGE_CLASS: Record<EmailBadgeTone, string> = {
+  success: 'bg-[#eaf6f0] text-[#16634a]',
+  waitlist: 'bg-[#f4efff] text-[#6941a5]',
+  neutral: 'bg-[#eef3f4] text-[#50686d]',
+};
+
+/** One term of an application: dates, the optional name, the status badge and its sentence. */
+export const EmailTerm = ({
+  dates,
+  name,
+  badge,
+  tone,
+  text,
+  last,
+}: {
+  dates: string;
+  name: string | null;
+  badge: string;
+  tone: EmailBadgeTone;
+  text: string;
+  last: boolean;
+}): React.JSX.Element => (
+  <Section
+    className={`py-4 ${last ? '' : 'border-solid border-[#dae3e4] border-x-0 border-t-0 border-b'}`}
+  >
+    <Row>
+      <Column>
+        <Text className="text-[#031a1e] text-lg leading-[26px] font-semibold m-0">{dates}</Text>
+        {name ? (
+          <Text className="text-[#50686d] text-xs leading-[18px] font-medium mt-[2px] mb-0">
+            {name}
+          </Text>
+        ) : null}
+      </Column>
+      <Column align="right" className="align-top">
+        <span
+          className={`${BADGE_CLASS[tone]} text-xs leading-[18px] font-medium rounded-full px-2 py-1 whitespace-nowrap`}
+        >
+          {badge}
+        </span>
+      </Column>
+    </Row>
+    <Text className="text-[#50686d] text-sm leading-5 mt-2 mb-0">{text}</Text>
   </Section>
 );
 

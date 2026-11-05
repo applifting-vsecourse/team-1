@@ -124,7 +124,7 @@ describe("ApplicationConfirmationMailer.sendSubmissionConfirmation", () => {
 
     const email = sent(sendEmail)
     expect(email.to).toBe("petra@example.com")
-    expect(email.subject).toBe("Potvrzení přihlášky: Letní kemp 2027")
+    expect(email.subject).toBe("Přihláška přijata: Letní kemp 2027")
     expect(email.html).toContain("Letní kemp 2027")
     expect(email.html).toContain("Jana Nováková")
   })
@@ -168,7 +168,7 @@ describe("ApplicationConfirmationMailer.sendSubmissionConfirmation", () => {
     expect(html).not.toContain("49002")
     expect(html).toContain("9 400 Kč")
     expect(html).toContain("4 900 Kč")
-    expect(html).toContain("platby posílejte zvlášť")
+    expect(html).toContain("Každou přihlášku zaplaťte samostatně")
   })
 
   it("shows the status of every term and charges only the confirmed ones", async () => {
@@ -202,12 +202,12 @@ describe("ApplicationConfirmationMailer.sendSubmissionConfirmation", () => {
     )
 
     const { html } = sent(sendEmail)
-    expect(html).toMatch(/1\. týden:\s*<strong>potvrzený/)
-    expect(html).toMatch(/2\. týden:\s*<strong>jste náhradník/)
+    expect(html).toContain("Účast potvrzena")
+    expect(html).toContain("Náhradník")
     expect(html).toContain("4 500 Kč")
     expect(html).not.toContain("9 400 Kč")
     expect(html).toContain("2900123456/2010")
-    expect(html).toContain("Za termín, kde jste náhradník, zatím neplaťte")
+    expect(html).toContain("Zatím nic neplaťte")
   })
 
   it("leaves out the payment details when everyone is waitlisted in every term, and says why", async () => {
@@ -222,7 +222,7 @@ describe("ApplicationConfirmationMailer.sendSubmissionConfirmation", () => {
     const { html } = sent(sendEmail)
     expect(html).not.toContain("Variabilní symbol")
     expect(html).not.toContain("2900123456/2010")
-    expect(html).toContain("Žádný termín zatím není potvrzený")
+    expect(html).toContain("Zatím nic neplaťte")
   })
 
   it("shows payment details only for the application that has a confirmed term", async () => {
@@ -291,7 +291,7 @@ describe("ApplicationConfirmationMailer.sendSubmissionConfirmation", () => {
     )
 
     const { subject, html } = sent(sendEmail)
-    expect(subject).toBe("Your application: Summer camp 2027")
+    expect(subject).toBe("Application received: Summer camp 2027")
     expect(html).toContain("Application received")
     expect(html).toContain("CZK 9,400")
     expect(html).toContain("Variable symbol")

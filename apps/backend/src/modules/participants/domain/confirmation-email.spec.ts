@@ -73,8 +73,8 @@ describe("buildConfirmationApplications", () => {
     )
 
     expect(built.terms).toEqual([
-      { name: "1. týden", status: "TO_EVALUATE" },
-      { name: "2. týden", status: "TO_EVALUATE" },
+      { dates: "12.–18. 7. 2027", name: null, status: "TO_EVALUATE" },
+      { dates: "12.–18. 7. 2027", name: null, status: "TO_EVALUATE" },
     ])
     expect(built.payment).toBeNull()
   })
@@ -94,8 +94,8 @@ describe("buildConfirmationApplications", () => {
     )
 
     expect(built.terms).toEqual([
-      { name: "1. týden", status: "CONFIRMED" },
-      { name: "2. týden", status: "WAITLISTED" },
+      { dates: "12.–18. 7. 2027", name: null, status: "CONFIRMED" },
+      { dates: "12.–18. 7. 2027", name: null, status: "WAITLISTED" },
     ])
   })
 })
