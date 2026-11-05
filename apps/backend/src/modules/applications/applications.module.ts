@@ -8,6 +8,7 @@ import { ApplicationsController } from "./controllers/applications.controller"
 import { BulkConfirmationController } from "./controllers/bulk-confirmation.controller"
 import { BulkDecisionController } from "./controllers/bulk-decision.controller"
 import { CapacityController } from "./controllers/capacity.controller"
+import { ManualApplicationController } from "./controllers/manual-application.controller"
 import { ParticipantTermChangeController } from "./controllers/participant-term-change.controller"
 import { PublicCatalogController } from "./controllers/public-catalog.controller"
 import { PublicEventsController } from "./controllers/public-events.controller"
@@ -48,6 +49,7 @@ import { WaitlistExpiryService } from "./services/waitlist-expiry.service"
     PublicEventsController,
     PublicCatalogController,
     ApplicationsController,
+    ManualApplicationController,
     CapacityController,
     SubmissionStatusController,
     TermStatusController,

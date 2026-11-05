@@ -32,6 +32,7 @@ export type NewApplication = {
   birthDate: string
   gender: Gender
   email: string
+  phone?: string
   locale: Locale
   userId: string
   consentAt: Date
@@ -40,6 +41,7 @@ export type NewApplication = {
 
 export type SavedApplication = {
   number: number
+  id: string
   accessToken: string
   firstName: string
   terms: EvaluatedTerm[]

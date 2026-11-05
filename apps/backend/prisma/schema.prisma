@@ -297,6 +297,8 @@ model Application {
   birthDate      DateTime     @db.Date
   gender         Gender
   email          String
+  // Supplied when an organizer adds an application (US-83); older public submissions have none.
+  phone          String?
   consentAt      DateTime
   // UI language at submission — the confirmation e-mail goes out in it.
   locale         Locale       @default(en)

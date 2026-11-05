@@ -414,6 +414,10 @@ export class TermStatusRepository {
       priceCzk: row.priceCzk,
       history: row.statusChanges.map((change) => ({
         id: change.id,
+        kind:
+          change.fromStatus === change.toStatus && change.changedById !== null
+            ? "CREATED_BY_ORGANIZER"
+            : "STATUS_CHANGED",
         fromStatus: change.fromStatus,
         toStatus: change.toStatus,
         changedByName: change.changedBy?.name ?? null,

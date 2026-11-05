@@ -79,12 +79,17 @@ export function TermStatuses({ applicationId }: { applicationId: string }) {
               <ul className="flex flex-col gap-1 text-sm text-muted-foreground">
                 {term.history.map((entry) => (
                   <li key={entry.id}>
-                    {t("termStatus.logEntry", {
-                      date: formatDateTime(entry.changedAt),
-                      who: entry.changedByName ?? t("termStatus.system"),
-                      from: t(`termStatus.state.${entry.fromStatus}`),
-                      to: t(`termStatus.state.${entry.toStatus}`),
-                    })}
+                    {entry.kind === "CREATED_BY_ORGANIZER"
+                      ? t("manual.historyEntry", {
+                          date: formatDateTime(entry.changedAt),
+                          name: entry.changedByName,
+                        })
+                      : t("termStatus.logEntry", {
+                          date: formatDateTime(entry.changedAt),
+                          who: entry.changedByName ?? t("termStatus.system"),
+                          from: t(`termStatus.state.${entry.fromStatus}`),
+                          to: t(`termStatus.state.${entry.toStatus}`),
+                        })}
                   </li>
                 ))}
               </ul>

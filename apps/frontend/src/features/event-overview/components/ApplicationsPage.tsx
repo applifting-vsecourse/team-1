@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { Link, useNavigate } from "@tanstack/react-router"
-import { FilterX } from "lucide-react"
+import { FilterX, Plus } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
@@ -161,6 +161,19 @@ export function ApplicationsPage({
     <div className="flex flex-col gap-6">
       <Seo title={t("applications.title")} />
       {views}
+      <Button
+        asChild
+        size="lg"
+        className="self-start"
+      >
+        <Link
+          to={ROUTES.organizer.newApplication}
+          params={{ eventId }}
+        >
+          <Plus className="size-4" />
+          {t("manual.add")}
+        </Link>
+      </Button>
       {substituteTerm && (
         <SubstitutesPanel
           eventId={eventId}

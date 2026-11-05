@@ -3,14 +3,17 @@ import {
   NewApplication,
   SavedApplication,
 } from "@/modules/applications/domain/application-submission"
+import { evaluateManualSubmission } from "@/modules/applications/domain/manual-submission"
 import { isOpenForApplications } from "@/modules/applications/domain/public-event"
 import { evaluateSubmission, isValidBirthDate } from "@/modules/applications/domain/submission"
 import { termLabel } from "@/modules/applications/domain/term-label"
 import { ApplicationsRepository } from "@/modules/applications/repositories/applications.repository"
 import { ApplicationConfirmationMailer } from "@/modules/participants/services/application-confirmation-mailer.service"
 import { ParticipantAccountsService } from "@/modules/participants/services/participant-accounts.service"
+import { Identity } from "@/shared/auth/domain/identity"
 import { Gender } from "@/shared/domain/gender"
 import { AppException } from "@/shared/errors/app.exception"
+import { OrganizationAccessService } from "@/shared/organization-access/organization-access.service"
 import { KeyedMutex } from "@/shared/utils/keyed-mutex"
 import { generateToken } from "@/shared/utils/token"
 import { HttpStatus, Injectable, Logger } from "@nestjs/common"
@@ -26,6 +29,18 @@ export type SubmitApplicationInput = {
   }[]
 }
 
+export type ManualApplicationInput = {
+  email: string
+  phone: string
+  consent: true
+  firstName: string
+  lastName: string
+  birthDate: string
+  gender: Gender
+  terms: { termId: string; status: "CONFIRMED" | "WAITLISTED" }[]
+  confirmOverCapacity?: boolean
+}
+
 @Injectable()
 export class ApplicationsService {
   private readonly logger = new Logger(ApplicationsService.name)
@@ -35,7 +50,86 @@ export class ApplicationsService {
     private readonly repository: ApplicationsRepository,
     private readonly accounts: ParticipantAccountsService,
     private readonly mailer: ApplicationConfirmationMailer,
+    private readonly access: OrganizationAccessService,
   ) {}
+
+  /** Manual creation shares duplicate checks, transaction locks, account setup and e-mail with public submission. */
+  async submitByOrganizer(
+    user: Identity,
+    eventId: string,
+    input: ManualApplicationInput,
+    locale: Locale,
+  ): Promise<SavedApplication> {
+    const { organizationId } = await this.access.assertCanAccessEvent(user, eventId)
+    const event = await this.repository.findEventForOrganizer(eventId, organizationId)
+    if (
+      !event ||
+      !isOpenForApplications({
+        termCount: event.terms.length,
+        termsWithoutRooms: event.termsWithoutRooms,
+      })
+    ) {
+      throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
+    }
+    const prices = new Map(event.terms.map(({ id, priceCzk }) => [id, priceCzk]))
+    const requestedIds = input.terms.map(({ termId }) => termId)
+    if (
+      !isValidBirthDate(input.birthDate) ||
+      requestedIds.length !== event.terms.length ||
+      new Set(requestedIds).size !== requestedIds.length ||
+      requestedIds.some((id) => !prices.has(id))
+    ) {
+      throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
+    }
+    const participant = {
+      firstName: input.firstName,
+      lastName: input.lastName,
+      birthDate: input.birthDate,
+      termIds: requestedIds,
+    }
+    const email = input.email.trim().toLowerCase()
+    const { account, submitted, saved } = await this.eventLocks.run(event.id, async () => {
+      await this.repository.assertNoDuplicate(event.id, [participant], locale)
+      const account = await this.accounts.ensureAccount({
+        email,
+        name: `${input.firstName} ${input.lastName}`,
+        locale,
+      })
+      const submitted: NewApplication = {
+        ...participant,
+        gender: input.gender,
+        email,
+        phone: input.phone.trim(),
+        locale,
+        userId: account.userId,
+        consentAt: new Date(),
+        accessToken: generateToken(),
+      }
+      const saved = await this.repository.saveEvaluated(
+        event,
+        [submitted],
+        (snapshot) => {
+          const result = evaluateManualSubmission(
+            input.terms.map(({ termId, status }) => ({
+              termId,
+              status,
+              priceCzk: prices.get(termId) as number,
+            })),
+            input.gender,
+            snapshot,
+          )
+          if (result.overCapacity.length > 0 && input.confirmOverCapacity !== true) {
+            throw new AppException(HttpStatus.CONFLICT, "CAPACITY_EXCEEDED")
+          }
+          return [result.terms]
+        },
+        user.id,
+      )
+      return { account, submitted, saved: saved[0] }
+    })
+    await this.sendConfirmation(event, email, locale, account.mustSetPassword, [submitted], [saved])
+    return saved
+  }
 
   /**
    * Stores one application per participant and evaluates every selected term
