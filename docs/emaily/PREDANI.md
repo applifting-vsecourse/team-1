@@ -22,15 +22,15 @@ Krok 5 plánu ([PLAN.md](PLAN.md)), zahájeno 5. 11. 2026. Podklady: schválený
 | 1   | Hotovo pro stávající šablony, E01–E12 a E17–E20: společný základ `email-kit.tsx`, nové znění z TEXTY.md, nový vzhled, data o termínu (datum, název) a organizaci v podkladech e-mailů. Zbývá E13 (úkol 7) a E14–E16 (úkoly 3 až 5), které šablonu zatím nemají. |
 | 2–8 | Nezahájeno.                                                                                                                                                                                                                                                     |
 
-Odchylky a nejasnosti zjištěné při realizaci úkolu 1 (k rozhodnutí PM nebo designéra, nic z toho se neřeší odhadem):
+Odchylky od Figmy zjištěné při realizaci úkolu 1 a jejich rozhodnutí (Adam, 5. 11. 2026):
 
-- **Logo a ikona upozornění:** v e-mailu je zatím jen textové slovo „togena“ a upozornění bez ikony; symbol je SVG a Gmail ho nezobrazí. Rozhodnutí o hostovaném PNG odloženo (Adam).
-- **Variabilní symbol u jednoho potvrzeného termínu:** rámec E02 ukazuje „VS celé přihlášky“ i „VS termínu“ už u jednoho potvrzeného termínu, rámec E03 jen jeden „Variabilní symbol“ (s koncovkou termínu). Kód drží pravidlo platební domény: jeden symbol, per-termínové řádky jen při více potvrzených termínech. Konstrukce symbolů patří do platební domény, ne do e-mailu.
-- **Přístup do účtu u jedné přihlášky:** rámec E01 nemá samostatné tlačítko „Přihlásit se do Togeny“. Šablona ho zachovává (magic link, případně odkaz na přihlášení), protože při selhání magic linku je to jediná cesta zpět; není nakreslen případ „jedna přihláška, nový účet“.
-- **Věta o vrácení platby (E07, E11):** rámce ji ukazují vždy, TEXTY.md ji chce jen u již zaplacené účasti. Šablona ji zobrazuje vždy, jako rámec; podmínku „zaplaceno“ by musel dodat vývoj úkolu 6.
-- **Název termínu v identifikaci změnových e-mailů:** rámce ukazují jen datum; je-li termín pojmenovaný, šablona přidá „datum · název“, aby termín šel poznat.
-- **Anglické štítky stavů** v E01–E04 (Awaiting review, Place confirmed, Waitlisted) nejsou v TEXTY.md; vychází z anglických rámců E02/E05.
-- **E13 (souhrn různých změn)** zatím jen jako jednotermínová zpráva typu `TERMS_CHANGED`; sloučení více termínů je úkol 7.
+- **Věta o vrácení platby (E07, E11):** zobrazovat jen u již zaplacené účasti, jak chce TEXTY.md; rámce E07 a E11 kreslí větu vždy, designér je upraví. Podmínku „zaplaceno“ musí dodat vývoj úkolu 6. Do té doby šablona větu zobrazuje vždy.
+- **Jedna přihláška a nový účet (E01):** ponechat. Spodní část (magic link, věta o platnosti 7 dní, náhradní odkaz) se bere z E02; samostatný rámec se nekreslí. U jedné přihlášky se stávajícím účtem zůstává tlačítko „Přihlásit se do Togeny“ jako cesta zpět při selhání magic linku.
+- **Variabilní symbol u jednoho potvrzeného termínu (E02 × E03):** ponechat pravidlo platební domény (jeden symbol, per-termínové řádky jen při více potvrzených termínech); designér upraví E02 podle E03.
+- **Logo a ikona upozornění:** zatím textové logo a upozornění bez ikony; hostovaný PNG se rozhodne později.
+- **Název termínu v identifikaci změnových e-mailů:** je-li termín pojmenovaný, zobrazuje se „datum · název“. Schváleno.
+- **Anglické štítky stavů** v E01–E04 (Awaiting review, Place confirmed, Waitlisted): schváleno, doplněno do TEXTY.md.
+- **E13 (souhrn různých změn)** je zatím jednotermínová zpráva typu `TERMS_CHANGED`; sloučení více termínů je úkol 7.
 
 Doporučené pořadí: 1, potom 2 až 5 a 6 až 8 nezávisle. Úkol 1 mění sdílené šablony, proto předchází ostatním, jinak by se nový obsah psal dvakrát.
 
