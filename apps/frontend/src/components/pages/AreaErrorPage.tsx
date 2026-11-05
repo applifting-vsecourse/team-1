@@ -3,7 +3,8 @@ import { ForbiddenPage } from "@/components/pages/ForbiddenPage"
 import { ForbiddenError } from "@/lib/errors"
 
 type AreaErrorPageProps = {
-  error: Error
+  // TanStack Router types a route error as unknown: anything can be thrown.
+  error: unknown
 }
 
 /** `errorComponent` of the signed-in area layouts: 403 page or generic error. */
