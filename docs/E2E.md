@@ -36,7 +36,7 @@ Jen cesty, bez kterých produkt nefunguje a které ukazujeme na demu. Jedna cest
 | Organizátor zvolí režim vyhodnocování před otevřením přihlášek; u otevřené je zamčený   | `evaluation-mode.spec.ts`    | ✅   |
 | Organizátor nastaví začátek storno podmínek na obrazovce široké 360 px                  | `cancellation-start.spec.ts` | ✅   |
 | Účastník odešle přihlášku v ručním režimu → organizátor ji vidí ve frontě K vyhodnocení | `queue.spec.ts`              | ✅   |
-| Návštěvník: katalog → organizace → akce → přihláška (i na mobilu)                       | `catalog.spec.ts`            | ✅   |
+| Návštěvník: landing → katalog → organizace → akce → přihláška (i na mobilu)             | `catalog.spec.ts`            | ✅   |
 
 Novou cestu přidej do tabulky v tomtéž PR. Cesta mimo tabulku se domlouvá s tech leadem. Okrajové stavy (chybné heslo, prošlý odkaz…) do E2E nepatří, pokud nejsou součástí hlavní cesty.
 
