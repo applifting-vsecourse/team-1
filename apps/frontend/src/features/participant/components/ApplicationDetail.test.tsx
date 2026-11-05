@@ -250,8 +250,9 @@ describe("ApplicationDetail", () => {
       screen.getByRole("heading", { name: "Left to pay in total" }).nextSibling,
     ).toHaveTextContent("1,200")
     expect(
-      screen.getByText(/You pay each term separately\. Use its variable symbol/),
+      screen.getByRole("button", { name: "One payment for both terms · show QR" }),
     ).toBeInTheDocument()
+    expect(screen.queryByText(/You pay each term separately/)).not.toBeInTheDocument()
     const one = cardOf(/^4–10 Jul 2027/)
     const two = cardOf(/^11–17 Jul 2027/)
     expect(within(one).getByText("Left to pay").nextSibling).toHaveTextContent("500")
@@ -260,6 +261,29 @@ describe("ApplicationDetail", () => {
     expect(within(two).getByText("48002")).toBeInTheDocument()
     // One symbol per term, no symbol of the whole application.
     expect(screen.queryByText("48000")).not.toBeInTheDocument()
+  })
+
+  it("keeps separate-term instructions when the summary QR cannot be generated", async () => {
+    const data = withTerms([
+      termPayment(1, 4900, 4400, "PARTIALLY_PAID"),
+      termPayment(2, 5600, 4900, "PARTIALLY_PAID"),
+    ])
+    renderDetail({
+      ...data,
+      paymentDetails: {
+        ...data.paymentDetails!,
+        summary: { variableSymbol: "invalid", payableCzk: 1200 },
+      },
+    })
+
+    expect(
+      await screen.findByText(/You pay each term separately\. Use its variable symbol/),
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByRole("button", { name: "One payment for both terms · show QR" }),
+    ).not.toBeInTheDocument()
+    expect(within(cardOf(/^4–10 Jul 2027/)).getByText("48001")).toBeInTheDocument()
+    expect(within(cardOf(/^11–17 Jul 2027/)).getByText("48002")).toBeInTheDocument()
   })
 
   it("keeps the paid term collapsed and the term confirmed later, with its debt, first", async () => {

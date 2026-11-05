@@ -78,7 +78,7 @@ export function PaymentSummary({ application }: PaymentSummaryProps) {
           ) : null}
         </Card>
       ) : null}
-      {termsWithDebt > 1 ? <p>{t("payment.payEachTerm")}</p> : null}
+      {termsWithDebt > 1 && !canShowSummaryQr ? <p>{t("payment.payEachTerm")}</p> : null}
       <TermPaymentCards>
         {confirmed.map(({ payment, term }) => (
           <TermPaymentCard
