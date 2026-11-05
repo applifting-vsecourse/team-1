@@ -1,6 +1,7 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { Prisma } from "@/generated/prisma/client"
 import { computeAvailablePlaces } from "@/modules/applications/domain/capacity"
+import { sameSelection } from "@/modules/applications/domain/change-request"
 import { findDuplicate } from "@/modules/applications/domain/duplicate-application"
 import { evaluateApplication } from "@/modules/applications/domain/evaluation"
 import {
@@ -130,6 +131,7 @@ export class TermStatusRepository {
     userId: string,
     applicationId: string,
     selectedIds: string[],
+    approvedRequest?: { id: string; reviewerId: string },
   ): Promise<ApplicationChange | null | undefined> {
     return this.prisma.$transaction(async (tx) => {
       const application = await tx.application.findFirst({
@@ -144,7 +146,7 @@ export class TermStatusRepository {
         where: { id: application.eventId },
         select: { cancellationStartsOn: true, evaluationMode: true },
       })
-      if (!participantChangeAllowed(event.cancellationStartsOn, new Date())) {
+      if (!approvedRequest && !participantChangeAllowed(event.cancellationStartsOn, new Date())) {
         throw new AppException(HttpStatus.CONFLICT, "CANCELLATION_APPROVAL_REQUIRED")
       }
 
@@ -153,6 +155,23 @@ export class TermStatusRepository {
       })
       const active = current.filter((row) => row.status !== "CANCELLED")
       const activeIds = new Set(active.map((row) => row.termId))
+      if (approvedRequest) {
+        const request = await tx.changeRequest.findFirst({
+          where: {
+            id: approvedRequest.id,
+            applicationId,
+            organizationId: application.organizationId,
+            status: "PENDING",
+          },
+        })
+        if (!request) throw new AppException(HttpStatus.CONFLICT, "CHANGE_REQUEST_NOT_PENDING")
+        if (
+          !sameSelection(request.currentTermIds, [...activeIds]) ||
+          !sameSelection(request.requestedTermIds, selectedIds)
+        ) {
+          throw new AppException(HttpStatus.CONFLICT, "CHANGE_REQUEST_STALE")
+        }
+      }
       const desired = new Set(selectedIds)
       const removed = active.filter((row) => !desired.has(row.termId))
       const addedIds = selectedIds.filter((id) => !activeIds.has(id))
@@ -230,7 +249,7 @@ export class TermStatusRepository {
             applicationTermId: row.id,
             fromStatus: row.status,
             toStatus: "CANCELLED",
-            changedById: userId,
+            changedById: approvedRequest?.reviewerId ?? userId,
           },
         })
       }
@@ -250,19 +269,24 @@ export class TermStatusRepository {
             select: { termId: true, application: { select: { gender: true } } },
           }),
         ])
+        const termsToEvaluate = offered.map((term) => ({
+          termId: term.id,
+          priceCzk: term.priceCzk,
+          freePlaces: computeAvailablePlaces(
+            rooms.filter((room) => room.termId === term.id),
+            confirmed.filter((row) => row.termId === term.id).map((row) => row.application.gender),
+          ),
+        }))
+        if (
+          approvedRequest &&
+          termsToEvaluate.some((term) => term.freePlaces[application.gender] <= 0)
+        ) {
+          throw new AppException(HttpStatus.CONFLICT, "CAPACITY_EXCEEDED")
+        }
         const evaluated = evaluateApplication(
           application.gender,
-          offered.map((term) => ({
-            termId: term.id,
-            priceCzk: term.priceCzk,
-            freePlaces: computeAvailablePlaces(
-              rooms.filter((room) => room.termId === term.id),
-              confirmed
-                .filter((row) => row.termId === term.id)
-                .map((row) => row.application.gender),
-            ),
-          })),
-          event.evaluationMode,
+          termsToEvaluate,
+          approvedRequest ? "AUTOMATIC" : event.evaluationMode,
         )
         hasNewConfirmation = evaluated.some((term) => term.status === "CONFIRMED")
         for (const term of evaluated) {
@@ -276,6 +300,18 @@ export class TermStatusRepository {
             },
           })
         }
+      }
+
+      if (approvedRequest) {
+        await tx.changeRequest.update({
+          where: { id: approvedRequest.id },
+          data: {
+            status: "APPROVED",
+            reviewedById: approvedRequest.reviewerId,
+            reviewedAt: new Date(),
+            notificationReadAt: null,
+          },
+        })
       }
 
       const [user, first, terms] = await Promise.all([

@@ -4,7 +4,7 @@
     "title": "Vaše přihlášky"
   },
   "change": {
-    "approvalRequired": "Změny nyní vyžadují schválení organizátora. Obraťte se prosím na organizátora.",
+    "approvalRequired": "Změny nyní vyžadují schválení organizátora. Přihláška zůstává beze změny až do rozhodnutí.",
     "back": "Zpět",
     "cancelAll": "Zrušit přihlášku",
     "cancelAllDescription": "Všechny vybrané termíny se okamžitě zruší. Platby zůstávají u původních termínů; případnou vratku domluvte s organizátorem.",
@@ -14,6 +14,10 @@
     "loadError": "Dostupné termíny se nepodařilo načíst",
     "open": "Změnit termíny nebo se odhlásit",
     "paymentNote": "Platby zůstávají u původních termínů. Pokud jste již zrušený termín zaplatili, platba nepokrývá nový termín; případnou vratku domluvte s organizátorem.",
+    "requestCancelDescription": "Žádost o odhlášení odešleme organizátorovi. Vaše účast zůstává platná do schválení.",
+    "requestDescription": "Vyberte požadované termíny. Organizátor žádost posoudí, než se přihláška změní.",
+    "requestSubmit": "Odeslat žádost",
+    "requested": "Žádost byla odeslána",
     "retry": "Zkusit znovu",
     "save": "Uložit změny",
     "saved": "Přihláška byla aktualizována",
@@ -42,6 +46,19 @@
     "empty": "Zatím tu nemáte žádnou přihlášku. Až se přihlásíte na akci, objeví se tady.",
     "errorTitle": "Přihlášky se nepodařilo načíst"
   },
+  "notifications": {
+    "empty": "Zatím nemáte žádná upozornění.",
+    "error": "Upozornění se nepodařilo načíst.",
+    "label": "Upozornění, nepřečtená: {{count}}",
+    "loading": "Načítání upozornění…",
+    "retry": "Zkusit znovu",
+    "status": {
+      "APPROVED": "Vaše žádost o změnu byla schválena",
+      "PENDING": "Vaše žádost o změnu čeká na schválení",
+      "REJECTED": "Vaše žádost o změnu byla zamítnuta"
+    },
+    "title": "Upozornění"
+  },
   "payment": {
     "payEachTerm": "Každý termín platíte zvlášť. Každý má vlastní variabilní symbol.",
     "totalOwed": "Zbývá zaplatit celkem"
@@ -51,6 +68,25 @@
     "PAID": "Zaplaceno",
     "PARTIALLY_PAID": "Částečně zaplaceno",
     "UNPAID": "Nezaplaceno"
+  },
+  "request": {
+    "cancelAll": "Odhlásit ze všech termínů",
+    "cancelTitle": "Žádost o odhlášení",
+    "changeTitle": "Změna termínu",
+    "current": "Aktuální účast",
+    "loadError": "Žádosti se nepodařilo načíst",
+    "message": {
+      "APPROVED": "Organizátor změnu schválil. Výsledek najdete také v e-mailu.",
+      "PENDING": "Žádost čeká na rozhodnutí organizátora. Vaše původní účast zatím zůstává platná.",
+      "REJECTED": "Organizátor žádost zamítl. Vaše původní účast zůstává platná."
+    },
+    "reason": "Důvod: {{reason}}",
+    "requested": "Požadovaný termín",
+    "status": {
+      "APPROVED": "Schváleno",
+      "PENDING": "Čeká na schválení",
+      "REJECTED": "Zamítnuto"
+    }
   },
   "status": {
     "cancelled": "Zrušená",
