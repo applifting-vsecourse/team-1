@@ -334,6 +334,9 @@ describe("ApplicationDetail", () => {
     expect(within(dialog).getByText("48000")).toBeInTheDocument()
     expect(within(dialog).getByText("Combined payment breakdown")).toBeInTheDocument()
     expect(
+      within(dialog).getByText(/Use the summary variable symbol for both confirmed terms/),
+    ).toBeInTheDocument()
+    expect(
       within(dialog).getByText(
         (_, element) =>
           element?.tagName === "P" && /Breakdown: 4–10 Jul.*500/.test(element.textContent ?? ""),

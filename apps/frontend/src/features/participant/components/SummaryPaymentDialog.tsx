@@ -145,7 +145,13 @@ export function SummaryPaymentDialog({ application, onClose }: Props) {
               </div>
             ))}
           </div>
-          <p className="text-base sm:col-span-2">{t("payment.summaryQrExplanation")}</p>
+          <p className="text-base sm:col-span-2">
+            {t(
+              details.terms.length === 2
+                ? "payment.summaryQrExplanation"
+                : "payment.summaryQrExplanationMany",
+            )}
+          </p>
         </div>
       </DialogContent>
     </Dialog>
