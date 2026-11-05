@@ -1,7 +1,10 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { Prisma } from "@/generated/prisma/client"
 import { computeAvailablePlaces } from "@/modules/applications/domain/capacity"
-import { sameSelection } from "@/modules/applications/domain/change-request"
+import {
+  sameSelection,
+  termChangeApprovalPolicy,
+} from "@/modules/applications/domain/change-request"
 import { findDuplicate } from "@/modules/applications/domain/duplicate-application"
 import { evaluateApplication } from "@/modules/applications/domain/evaluation"
 import {
@@ -277,16 +280,19 @@ export class TermStatusRepository {
             confirmed.filter((row) => row.termId === term.id).map((row) => row.application.gender),
           ),
         }))
-        if (
-          approvedRequest &&
-          termsToEvaluate.some((term) => term.freePlaces[application.gender] <= 0)
-        ) {
+        const policy = termChangeApprovalPolicy(
+          event.evaluationMode,
+          Boolean(approvedRequest),
+          application.gender,
+          termsToEvaluate,
+        )
+        if (!policy.hasCapacity) {
           throw new AppException(HttpStatus.CONFLICT, "CAPACITY_EXCEEDED")
         }
         const evaluated = evaluateApplication(
           application.gender,
           termsToEvaluate,
-          approvedRequest ? "AUTOMATIC" : event.evaluationMode,
+          policy.evaluationMode,
         )
         hasNewConfirmation = evaluated.some((term) => term.status === "CONFIRMED")
         for (const term of evaluated) {

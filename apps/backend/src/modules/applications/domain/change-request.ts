@@ -27,3 +27,15 @@ export const selectionPriceCzk = (
   terms: readonly { id: string; priceCzk: number }[],
 ): number =>
   termIds.reduce((sum, id) => sum + (terms.find((term) => term.id === id)?.priceCzk ?? 0), 0)
+
+export function termChangeApprovalPolicy(
+  eventMode: "AUTOMATIC" | "MANUAL",
+  approvedRequest: boolean,
+  gender: "FEMALE" | "MALE",
+  addedTerms: readonly { freePlaces: { FEMALE: number; MALE: number } }[],
+): { evaluationMode: "AUTOMATIC" | "MANUAL"; hasCapacity: boolean } {
+  return {
+    evaluationMode: approvedRequest ? "AUTOMATIC" : eventMode,
+    hasCapacity: !approvedRequest || addedTerms.every((term) => term.freePlaces[gender] > 0),
+  }
+}

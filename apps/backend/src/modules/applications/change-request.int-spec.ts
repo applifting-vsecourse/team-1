@@ -176,6 +176,51 @@ describe("change requests after cancellation starts (integration)", () => {
       403,
     )
     expect((await decide(requestId, "approve", undefined, participantCookie)).status).toBe(403)
+
+    const applicant = await prisma.user.findUniqueOrThrow({
+      where: { email: "ucastnik@example.com" },
+    })
+    const foreign = await prisma.organization.create({
+      data: { name: "Foreign organization", bankAccount: "123456789/0100" },
+    })
+    const event = await prisma.event.create({
+      data: {
+        organizationId: foreign.id,
+        name: "Foreign event",
+        publicToken: `foreign-us114-${randomUUID()}`,
+      },
+    })
+    const application = await prisma.application.create({
+      data: {
+        organizationId: foreign.id,
+        eventId: event.id,
+        userId: applicant.id,
+        accessToken: randomUUID(),
+        firstName: "Foreign",
+        lastName: "Participant",
+        birthDate: new Date("2010-01-01"),
+        gender: "MALE",
+        email: applicant.email,
+        consentAt: new Date(),
+      },
+    })
+    const foreignRequest = await prisma.changeRequest.create({
+      data: {
+        organizationId: foreign.id,
+        eventId: event.id,
+        applicationId: application.id,
+        applicantId: applicant.id,
+        currentTermIds: [],
+        requestedTermIds: [],
+      },
+    })
+    expect(
+      (await fetch(organizerUrl(`/${foreignRequest.id}`), { headers: { Cookie: organizerCookie } }))
+        .status,
+    ).toBe(403)
+    expect((await decide(foreignRequest.id, "approve")).status).toBe(403)
+    expect((await decide(foreignRequest.id, "reject")).status).toBe(403)
+    await prisma.organization.delete({ where: { id: foreign.id } })
   })
 
   it("approves exactly once and applies the change atomically", async () => {

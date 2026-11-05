@@ -136,10 +136,15 @@ export class ChangeRequestRepository {
     eventId: string,
     requestId: string,
   ): Promise<ChangeRequest | null> {
-    const row = await this.prisma.changeRequest.findFirst({
-      where: { id: requestId, organizationId, eventId },
-      include,
+    const scope = await this.prisma.changeRequest.findUnique({
+      where: { id: requestId },
+      select: { organizationId: true, eventId: true },
     })
+    if (!scope) return null
+    if (scope.organizationId !== organizationId || scope.eventId !== eventId) {
+      throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
+    }
+    const row = await this.prisma.changeRequest.findUnique({ where: { id: requestId }, include })
     return row ? this.toDomain(row) : null
   }
 
@@ -152,11 +157,17 @@ export class ChangeRequestRepository {
   ): Promise<ChangeRequest> {
     return this.prisma.$transaction(async (tx) => {
       await tx.$queryRaw`SELECT id FROM event WHERE id = ${eventId} FOR UPDATE`
-      const row = await tx.changeRequest.findFirst({
-        where: { id: requestId, organizationId, eventId, status: "PENDING" },
-        include,
+      const scope = await tx.changeRequest.findUnique({
+        where: { id: requestId },
+        select: { organizationId: true, eventId: true, status: true },
       })
-      if (!row) throw new AppException(HttpStatus.CONFLICT, "CHANGE_REQUEST_NOT_PENDING")
+      if (!scope) throw new AppException(HttpStatus.NOT_FOUND, "NOT_FOUND")
+      if (scope.organizationId !== organizationId || scope.eventId !== eventId) {
+        throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
+      }
+      if (scope.status !== "PENDING") {
+        throw new AppException(HttpStatus.CONFLICT, "CHANGE_REQUEST_NOT_PENDING")
+      }
       const updated = await tx.changeRequest.update({
         where: { id: requestId },
         data: {
