@@ -35,7 +35,8 @@ nodes:
   - {
       id: vyzva,
       type: task,
-      label: Odeslat výzvu k zaplacení jednou (automaticky, nebo ručně podle nastavení organizátora),
+      label: Odeslat výzvu k zaplacení jednou (automaticky,
+      nebo ručně podle nastavení organizátora),
       role: systém / organizátor,
     }
   - { id: e_platby_po_vyzve, type: event, label: Σ plateb = částka k úhradě }

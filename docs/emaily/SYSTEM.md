@@ -4,13 +4,13 @@ Tento dokument vymezuje odpovědnosti a postup změny komunikace. Nenavrhuje tec
 
 ## Co je zdrojem čeho
 
-| Podklad | Co určuje |
-| --- | --- |
-| Procesní a stavové modely, business rozhodnutí | Co se v doméně děje a jaká pravidla platí. |
-| [Business katalog](KATALOG.md) | Kterou událost komunikovat, komu, proč, v jakém rozsahu a s jakou očekávanou reakcí. |
-| [Texty](TEXTY.md) | Jak konkrétně sdělení zní v češtině a angličtině. |
-| Schválené vizuální návrhy | Jak zprávy vypadají a jak se v nich příjemce orientuje. |
-| Vývojové úkoly a aplikace | Jak se požadovaná komunikace realizuje. |
+| Podklad                                        | Co určuje                                                                            |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------ |
+| Procesní a stavové modely, business rozhodnutí | Co se v doméně děje a jaká pravidla platí.                                           |
+| [Business katalog](KATALOG.md)                 | Kterou událost komunikovat, komu, proč, v jakém rozsahu a s jakou očekávanou reakcí. |
+| [Texty](TEXTY.md)                              | Jak konkrétně sdělení zní v češtině a angličtině.                                    |
+| Schválené vizuální návrhy                      | Jak zprávy vypadají a jak se v nich příjemce orientuje.                              |
+| Vývojové úkoly a aplikace                      | Jak se požadovaná komunikace realizuje.                                              |
 
 Rozpor mezi zdroji je podnět k vyjasnění, ne důvod přepsat business požadavek podle aktuálního kódu. Katalog nepopisuje výpočty plateb, konstrukci variabilních symbolů ani technické sestavení a doručování zpráv.
 
