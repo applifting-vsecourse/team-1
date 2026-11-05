@@ -17,7 +17,7 @@ import { useSignOut } from "@/features/auth/hooks/useSignOut"
  * else falls back to the shared area error page.
  */
 // Figma (Design system): S16 Cizí záznam · 403 · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12117-180
-export function OrganizerAreaError({ error }: { error: Error }) {
+export function OrganizerAreaError({ error }: { error: unknown }) {
   const { t } = useTranslation("auth")
   const { user } = useSession()
   const signOut = useSignOut()
