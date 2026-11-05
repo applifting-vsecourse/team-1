@@ -44,7 +44,7 @@ Pro každou položku: co už je připravené a co udělat, až spouštěč vznik
 | E12                             | Zrušení termínu ([#246](https://github.com/applifting-vsecourse/team-1/issues/246), [#247](https://github.com/applifting-vsecourse/team-1/issues/247))  | Šablona `application-term-cancelled.tsx`, `buildTermNoticeProps`           | Jedna zpráva za přihlášku; věta o vracení plateb zůstává podle pravidel                                                                                                                         |
 | E13                             | Změna termínů, US-114                                                                                                                                   | Šablona `TERMS_CHANGED` pro jeden termín                                   | Při více současně změněných termínech jedné přihlášky poslat jednu zprávu jen s dotčenými; různé výsledky bez společného zavádějícího nadpisu                                                   |
 
-Podmínka „zaplaceno“ pro větu o vrácení platby (E07, E11): dodá ji ten, kdo napojí první spouštěč zamítnutí nebo odhlášení již zaplacené účasti. Do té doby šablony větu zobrazují vždy.
+Podmínka „zaplaceno“ pro větu o vrácení platby: **E07** zobrazuje větu dnes vždy, i bez zaplacené částky; vedeno jako bug [#342](https://github.com/applifting-vsecourse/team-1/issues/342). **E11** se zatím neřeší (Adam, 5. 11. 2026): šablona větu zobrazuje vždy a podmínku „zaplaceno“ (pole `hasPaidAmount` v `ApplicationChange`) dodá ten, kdo napojí první spouštěč odhlášení ([#84](https://github.com/applifting-vsecourse/team-1/issues/84), [#32](https://github.com/applifting-vsecourse/team-1/issues/32)).
 
 ## Rizika při slučování
 
@@ -65,7 +65,7 @@ Podmínka „zaplaceno“ pro větu o vrácení platby (E07, E11): dodá ji ten,
 
 ## Pro designéra
 
-- E07 a E11: věta o vrácení platby jen u zaplacené účasti (varianta bez ní).
+- E07 a E11: věta o vrácení platby jen u zaplacené účasti (varianta bez ní). Kód E07 opraví bug [#342](https://github.com/applifting-vsecourse/team-1/issues/342); E11 až se spouštěčem odhlášení.
 - E02: variabilní symbol podle E03 (jeden symbol u jednoho potvrzeného termínu).
 - Logo jako hostovaný PNG a ikona upozornění: rozhodnutí odloženo; kód zatím používá text a upozornění bez ikony.
 - Po dokončení upravit rámce a v katalogu zkontrolovat sekci „Figma a místo v kódu“.
@@ -99,4 +99,6 @@ Náhled všech šablon: `pnpm backend email:dev`. Automatické testy: `pnpm back
 - Text a design E16 se vedou v TEXTY.md a ve Figmě; do #260 se nezapisují (rozhodnuto 5. 11. 2026).
 - Q-PLA-03 (co po jediné výzvě bez reakce, priorita P3) předání neblokuje.
 - Tickety [#31](https://github.com/applifting-vsecourse/team-1/issues/31), [#46](https://github.com/applifting-vsecourse/team-1/issues/46), [#84](https://github.com/applifting-vsecourse/team-1/issues/84), [#32](https://github.com/applifting-vsecourse/team-1/issues/32), [#246](https://github.com/applifting-vsecourse/team-1/issues/246), [#247](https://github.com/applifting-vsecourse/team-1/issues/247), [#210](https://github.com/applifting-vsecourse/team-1/issues/210) nemají přiřazenou osobu; pořadí je věcí plánování sprintu, ne e-mailů.
+- Bug [#342](https://github.com/applifting-vsecourse/team-1/issues/342): E07 uvádí větu o vrácení platby i bez zaplacené částky.
+- E11: podmínka „zaplaceno“ se neřeší, dokud nevznikne spouštěč odhlášení.
 - Rozhodnutí o hostovaném PNG logu (odloženo).
