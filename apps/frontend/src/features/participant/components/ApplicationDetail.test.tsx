@@ -134,6 +134,7 @@ describe("ApplicationDetail", () => {
     renderDetail(application())
 
     await user.click(await screen.findByRole("button", { name: "Change terms or cancel" }))
+    expect(screen.getByText(/Payments stay with their original terms/)).toBeInTheDocument()
     await user.click(screen.getByRole("checkbox", { name: "Select term 2. týden" }))
     await user.click(screen.getByRole("button", { name: "Save changes" }))
 

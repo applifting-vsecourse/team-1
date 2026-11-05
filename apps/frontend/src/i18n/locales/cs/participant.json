@@ -13,6 +13,7 @@
     "immediateNote": "Změny se provedou okamžitě.",
     "loadError": "Dostupné termíny se nepodařilo načíst",
     "open": "Změnit termíny nebo se odhlásit",
+    "paymentNote": "Platby zůstávají u původních termínů. Pokud jste již zrušený termín zaplatili, platba nepokrývá nový termín; případnou vratku domluvte s organizátorem.",
     "retry": "Zkusit znovu",
     "save": "Uložit změny",
     "saved": "Přihláška byla aktualizována",

@@ -90,6 +90,15 @@ describe("buildChangeProps", () => {
     })
   })
 
+  it("passes every resulting term status to the summary e-mail", () => {
+    expect(buildChangeProps(change({ kind: "TERMS_CHANGED" }), "https://app").terms).toEqual([
+      { name: "1. týden", status: "CONFIRMED" },
+      { name: "2. týden", status: "WAITLISTED" },
+      { name: "3. týden", status: "CANCELLED" },
+    ])
+    expect(buildChangeProps(change(), "https://app").terms).toEqual([])
+  })
+
   it("adds payment details only when the amount changed because the application became confirmed", () => {
     expect(buildChangeProps(change(), "https://app").payment).toBeNull()
     expect(

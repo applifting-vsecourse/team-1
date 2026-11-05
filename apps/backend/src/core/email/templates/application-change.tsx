@@ -1,5 +1,6 @@
 import { Locale } from '@/core/email/locale';
 import { ChangeLayout, ChangeLayoutProps } from '@/core/email/templates/application-change-layout';
+import { ApplicationTermStatus } from '@/modules/applications/domain/evaluation';
 import { Gender } from '@/shared/domain/gender';
 import * as React from 'react';
 
@@ -14,7 +15,7 @@ import * as React from 'react';
  * - `CANCELLED`: the applicant cancelled (no. 11)
  * - `CANCELLED_BY_ORGANIZER`: Náhradník → Zrušená by the organizer (no. 14)
  *
- * `TERMS_CHANGED` is prepared for the term-change stories; nothing sends it yet.
+ * `TERMS_CHANGED` summarizes all resulting term statuses after a participant's change.
  *
  * No. 13 (Potvrzená s dluhem → Náhradník) and no. 15 (term cancelled) have their own templates.
  */
@@ -45,6 +46,7 @@ const copy: Record<
   {
     subject: (event: string) => string;
     kinds: Record<ChangeKind, KindCopy>;
+    statuses: Record<ApplicationTermStatus, string>;
     amountDue: string;
     account: string;
     variableSymbol: string;
@@ -54,6 +56,12 @@ const copy: Record<
 > = {
   en: {
     subject: (event) => `Change in your application: ${event}`,
+    statuses: {
+      TO_EVALUATE: 'Awaiting evaluation · do not pay yet',
+      CONFIRMED: 'Confirmed',
+      WAITLISTED: 'Substitute · do not pay yet',
+      CANCELLED: 'Cancelled',
+    },
     kinds: {
       // Figma: E-mail 02 EN
       CONFIRMED: {
@@ -111,6 +119,12 @@ const copy: Record<
   },
   cs: {
     subject: (event) => `Změna ve vaší přihlášce: ${event}`,
+    statuses: {
+      TO_EVALUATE: 'Čeká na vyhodnocení · zatím neplaťte',
+      CONFIRMED: 'Účast potvrzena',
+      WAITLISTED: 'Náhradník · zatím neplaťte',
+      CANCELLED: 'Zrušená',
+    },
     kinds: {
       CONFIRMED: {
         heading: 'Účast je potvrzená',
@@ -182,6 +196,8 @@ export interface ApplicationChangeProps {
   /** The changed term: its name, or its dates. */
   term: string;
   kind: ChangeKind;
+  /** Result of each term when several terms changed in one request. */
+  terms: { name: string; status: ApplicationTermStatus }[];
   /** Only when the application became confirmed; amounts are already formatted. */
   payment: {
     /** Everything due now, paid under the summary variable symbol (`…000`). */
@@ -202,23 +218,29 @@ export const ApplicationChange = ({
   gender,
   term,
   kind,
+  terms,
   payment,
   confirmationUrl,
 }: ApplicationChangeProps): React.JSX.Element => {
   const text = copy[locale];
   const kindCopy = text.kinds[kind];
-  const details = payment
-    ? [
-        { label: text.amountDue, value: payment.amount },
-        { label: text.account, value: payment.bankAccount },
-        { label: text.variableSymbol, value: payment.variableSymbol },
-        // Not drawn in Figma: kept from US-137, each confirmed term can be paid on its own.
-        ...payment.terms.map((paid) => ({
-          label: paid.name,
-          value: `${paid.amount} · ${text.variableSymbol} ${paid.variableSymbol}`,
-        })),
-      ]
-    : [];
+  const details = [
+    ...(kind === 'TERMS_CHANGED'
+      ? terms.map(({ name, status }) => ({ label: name, value: text.statuses[status] }))
+      : []),
+    ...(payment
+      ? [
+          { label: text.amountDue, value: payment.amount },
+          { label: text.account, value: payment.bankAccount },
+          { label: text.variableSymbol, value: payment.variableSymbol },
+          // Not drawn in Figma: kept from US-137, each confirmed term can be paid on its own.
+          ...payment.terms.map((paid) => ({
+            label: paid.name,
+            value: `${paid.amount} · ${text.variableSymbol} ${paid.variableSymbol}`,
+          })),
+        ]
+      : []),
+  ];
   return (
     <ChangeLayout
       locale={locale}
@@ -253,6 +275,7 @@ ApplicationChange.PreviewProps = {
   gender: 'MALE',
   term: '12.–18. 7. 2027',
   kind: 'CONFIRMED',
+  terms: [],
   payment: {
     amount: '4 900 Kč',
     bankAccount: '123456789 / 0000',

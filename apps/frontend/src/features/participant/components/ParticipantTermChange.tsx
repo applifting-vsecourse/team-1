@@ -115,6 +115,7 @@ export function ParticipantTermChange({ applicationId }: { applicationId: string
               </label>
             ))}
           </div>
+          <p className="text-sm text-muted-foreground">{t("change.paymentNote")}</p>
           {chosen.length === 0 && activeCount > 0 ? (
             <Alert>
               <AlertTitle>{t("change.cancelAllTitle")}</AlertTitle>
