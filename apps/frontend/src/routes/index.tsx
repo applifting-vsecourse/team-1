@@ -62,7 +62,7 @@ function LandingPage() {
           <Button
             asChild
             variant="ghost"
-            className="h-12 px-4"
+            className="mt-1 h-12 w-full px-4 md:mt-0 md:w-auto"
           >
             <Link to={ROUTES.catalog}>{t("catalogLink")}</Link>
           </Button>
