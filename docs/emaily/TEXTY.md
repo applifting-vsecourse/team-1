@@ -1,6 +1,6 @@
 # Návrh textů e-mailů
 
-Textace schválené Adamem 3. 11. 2026, navazující na [business katalog](KATALOG.md), včetně UX revize a české i anglické varianty. Nejde o doslovný export současných šablon ani o potvrzení jejich implementace. Texty nemění pravidla komunikace z [EMAILY.md](../procesy/zpracovani-prihlasky/EMAILY.md).
+Textace schválené Adamem 3. 11. 2026, navazující na [business katalog](KATALOG.md), včetně UX revize a české i anglické varianty. Nejde o doslovný export současných šablon ani o potvrzení jejich implementace. Texty nemění pravidla komunikace z [katalogu](KATALOG.md).
 
 ## Společné části
 
@@ -101,7 +101,7 @@ Identifikační blok, nedoplatek a platební údaje podle platebních pravidel a
 | Nadpis    | Platbu jsme zaevidovali                                                                                      | Your payment has been recorded                                                                                                           |
 | Tělo      | Zaevidovali jsme platbu a přihláška v uvedeném termínu je plně zaplacená. Za tento termín již nic nedlužíte. | We have recorded your payment and the application for the term shown below is fully paid. There is no outstanding balance for this term. |
 
-Identifikační blok, CTA přihlášky. Bez nové platební výzvy a bez platebního bloku zakázaného pravidly EMAILY.md. Zpráva potvrzuje zaplacenou účast v uvedeném termínu, nikoli pouhé přijetí částečné platby.
+Identifikační blok, CTA přihlášky. Bez nové platební výzvy a bez platebního bloku zakázaného pravidly katalogu. Zpráva potvrzuje zaplacenou účast v uvedeném termínu, nikoli pouhé přijetí částečné platby.
 
 ## PAYMENT_CORRECTED
 

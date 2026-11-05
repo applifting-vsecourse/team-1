@@ -21,7 +21,7 @@ Plán zahájen 3. 11. 2026. Výstupem inventury je business katalog transakční
 
 ## Návaznosti
 
-- [EMAILY.md](../procesy/zpracovani-prihlasky/EMAILY.md) a procesní modely zůstávají zdrojem pravidel přihlášek. Katalog je jejich komunikační pohled; rozpory se musí vyjasnit, ne potichu přepsat.
+- Procesní a stavové modely zůstávají zdrojem pravidel přihlášek. Katalog je jejich komunikační pohled a nahradil dokument EMAILY.md (zrušen 5. 11. 2026, jeho čísla zůstávají v katalogu jako „Dříve č.“); rozpory se musí vyjasnit, ne potichu přepsat.
 - [#260](https://github.com/applifting-vsecourse/team-1/issues/260) řeší texty a design přihlašovatelských e-mailů. Další vývojové úkoly se odvodí až ze schváleného rozsahu.
 - [SYSTEM.md](SYSTEM.md) popisuje business správu katalogu a postup přidání nové komunikace, ne technické řešení.
 
@@ -46,7 +46,7 @@ Plán zahájen 3. 11. 2026. Výstupem inventury je business katalog transakční
 
 Hotovo od posledního stavu:
 
-- Rozhodnutí z katalogu jsou promítnutá do [EMAILY.md](../procesy/zpracovani-prihlasky/EMAILY.md) (nový e-mail č. 16, výzva jednou, refund, magic link, kontakty), do stavových a procesních modelů obou režimů (přechod zaplacená → s dluhem po opravě platby) a do registru jako D-099 až D-104.
+- Rozhodnutí z katalogu jsou promítnutá do [katalogu](KATALOG.md) (nový e-mail PAYMENT_CORRECTED, výzva jednou, refund, magic link, kontakty), do stavových a procesních modelů obou režimů (přechod zaplacená → s dluhem po opravě platby) a do registru jako D-099 až D-104.
 - Tickety upraveny: #46 (jedna výzva, ručně nebo automaticky), #205 (návrat k dluhu a e-mail č. 16), komentář v #178 (magic link). Q-PLA-03 přeformulována.
 
 Zbývá před předáním vývoji:

@@ -953,7 +953,7 @@ rozhodnuti:
     popis: které jazyky platí pro který e-mail
     stav: hotovo
     commit: 6cdb931
-  - soubor: docs/procesy/zpracovani-prihlasky/EMAILY.md
+  - soubor: docs/emaily/KATALOG.md
     popis: totéž
     stav: hotovo
     commit: 6cdb931
@@ -983,7 +983,7 @@ rozhodnuti:
     popis: zkontrolovat, zda přechod platí i v auto režimu
     stav: hotovo
     commit: d4964be
-  - soubor: docs/procesy/zpracovani-prihlasky/EMAILY.md
+  - soubor: docs/emaily/KATALOG.md
     popis: řádek e-mailu č. 3 platí i pro tento přechod; č. 1 v auto režimu má stejný rozpor
     stav: hotovo
     commit: d4964be
@@ -1018,7 +1018,7 @@ rozhodnuti:
     popis: zkontrolovat v auto režimu
     stav: hotovo
     commit: d4964be
-  - soubor: docs/procesy/zpracovani-prihlasky/EMAILY.md
+  - soubor: docs/emaily/KATALOG.md
     popis: řádek 6 platí jen pro první den, doplnit řádek pro zrušení organizátorem
     stav: hotovo
     commit: d4964be
@@ -1192,7 +1192,7 @@ rozhodnuti:
     popis: chybí proces zrušení termínu akce (US-13)
     stav: hotovo
     commit: d4964be
-  - soubor: docs/procesy/zpracovani-prihlasky/EMAILY.md
+  - soubor: docs/emaily/KATALOG.md
     popis: chybí e-mail při zrušení termínu
     stav: hotovo
     commit: d4964be
@@ -1396,7 +1396,7 @@ rozhodnuti:
   meni:
   - D-056
   dokumentace:
-  - soubor: docs/procesy/zpracovani-prihlasky/EMAILY.md
+  - soubor: docs/emaily/KATALOG.md
     popis: nový řádek č. 13 e-mailu pro Potvrzená → Náhradník (odvolané potvrzení); stávající čísla 1 až 12
       se nemění; č. 3 jen K vyhodnocení → Náhradník; č. 1 auto ponechat „Jste náhradník“
     stav: hotovo
@@ -1446,7 +1446,7 @@ rozhodnuti:
     popis: proces zrušení termínu včetně vrácení plateb
     stav: hotovo
     commit: d4964be
-  - soubor: docs/procesy/zpracovani-prihlasky/EMAILY.md
+  - soubor: docs/emaily/KATALOG.md
     popis: řádek 15, e-mail o zrušení termínu s informací o vrácení plateb
     stav: hotovo
     commit: d4964be
@@ -1496,7 +1496,7 @@ rozhodnuti:
   z_otazek:
   - Q-KOM-08
   dokumentace:
-  - soubor: docs/procesy/zpracovani-prihlasky/EMAILY.md
+  - soubor: docs/emaily/KATALOG.md
     popis: 'pravidlo „E-maily jdou v jazyce přihlášky (Application.locale)“ doplnit: u e-mailů o změně
       přihlášky vítězí preferovaný jazyk uživatele'
     stav: hotovo
@@ -1671,7 +1671,7 @@ rozhodnuti:
   - soubor: docs/SLOVNIK.md
     popis: 'Variabilní symbol: dvouúrovňový, patří přihlášce a přihlášce v termínu; class diagram'
     stav: ceka
-  - soubor: docs/procesy/zpracovani-prihlasky/EMAILY.md
+  - soubor: docs/emaily/KATALOG.md
     popis: 'platební údaje u e-mailů č. 2, 5, 7: souhrnný VS a VS každé potvrzené přihlášky v termínu'
     stav: ceka
 - id: D-086
@@ -1950,7 +1950,7 @@ rozhodnuti:
   stav: platne
   z_otazek: []
   dokumentace:
-  - soubor: docs/procesy/zpracovani-prihlasky/EMAILY.md
+  - soubor: docs/emaily/KATALOG.md
     popis: 'e-mail č. 16, přechod Potvrzená a zaplacená → Potvrzená s dluhem'
     stav: hotovo
     commit: 667c8d3
@@ -1969,7 +1969,7 @@ rozhodnuti:
   stav: platne
   z_otazek: []
   dokumentace:
-  - soubor: docs/procesy/zpracovani-prihlasky/EMAILY.md
+  - soubor: docs/emaily/KATALOG.md
     popis: 'e-mail č. 7'
     stav: hotovo
     commit: 667c8d3
@@ -1988,7 +1988,7 @@ rozhodnuti:
   stav: platne
   z_otazek: []
   dokumentace:
-  - soubor: docs/procesy/zpracovani-prihlasky/EMAILY.md
+  - soubor: docs/emaily/KATALOG.md
     popis: 'e-maily č. 9 až 11, 15'
     stav: hotovo
     commit: 667c8d3
@@ -2007,7 +2007,7 @@ rozhodnuti:
   stav: platne
   z_otazek: []
   dokumentace:
-  - soubor: docs/procesy/zpracovani-prihlasky/EMAILY.md
+  - soubor: docs/emaily/KATALOG.md
     popis: 'pravidla e-mailů'
     stav: hotovo
     commit: 667c8d3
@@ -2026,7 +2026,7 @@ rozhodnuti:
   stav: platne
   z_otazek: []
   dokumentace:
-  - soubor: docs/procesy/zpracovani-prihlasky/EMAILY.md
+  - soubor: docs/emaily/KATALOG.md
     popis: 'e-mail č. 1, odkaz na přihlášení'
     stav: hotovo
     commit: 667c8d3
