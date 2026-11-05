@@ -12,6 +12,8 @@ import { formatDateRange } from "@/lib/date"
 import { catalogEventPhotoUrl, type CatalogEventDetail } from "@/features/catalog/api/catalog"
 
 const linkClass = "w-fit text-link underline underline-offset-4"
+const sectionClass = "flex flex-col gap-4 border-t border-border pt-8"
+const panelClass = "overflow-hidden rounded-lg border border-border bg-secondary"
 const sectionTitleClass = "text-xl font-semibold tracking-tight md:text-2xl"
 
 // US-22. The one shared page of an event at its permanent address; the catalog (US-123) links to it.
@@ -27,15 +29,8 @@ export function EventPage({ event }: { event: CatalogEventDetail }) {
   const hasContact = event.contactEmail !== null || event.contactPhone !== null
 
   return (
-    <div className="flex flex-col gap-8">
+    <Card className="gap-8 p-5 md:p-10">
       <header className="flex flex-col gap-4">
-        {event.hasPhoto ? (
-          <img
-            src={catalogEventPhotoUrl(event.publicToken)}
-            alt=""
-            className="h-40 w-full rounded-lg border border-border object-cover md:h-72"
-          />
-        ) : null}
         <div className="flex flex-col gap-2">
           <p className="flex items-center gap-2 text-sm font-medium text-link">
             <Building2
@@ -66,27 +61,34 @@ export function EventPage({ event }: { event: CatalogEventDetail }) {
             </li>
           ) : null}
         </ul>
+        {event.hasPhoto ? (
+          <img
+            src={catalogEventPhotoUrl(event.publicToken)}
+            alt=""
+            className="h-40 w-full rounded-lg border border-border object-cover md:h-72"
+          />
+        ) : null}
       </header>
 
       {paragraphs.length > 0 ? (
-        <section className="flex flex-col gap-4">
+        <section className={sectionClass}>
           <h2 className={sectionTitleClass}>{t("event.about")}</h2>
-          <Card className="gap-4 p-6">
+          <div className="flex flex-col gap-4">
             {paragraphs.map((paragraph) => (
               <p key={paragraph}>{paragraph}</p>
             ))}
-          </Card>
+          </div>
         </section>
       ) : null}
 
-      <section className="flex flex-col gap-4">
+      <section className={sectionClass}>
         <h2 className={sectionTitleClass}>{t("event.terms")}</h2>
-        <Card className="gap-0 p-0">
+        <div className={panelClass}>
           <ul>
             {event.terms.map((term) => (
               <li
                 key={term.id}
-                className="flex items-center justify-between gap-4 border-t border-border px-6 py-4 first:border-t-0"
+                className="flex items-center justify-between gap-4 border-t border-border px-5 py-4 first:border-t-0"
               >
                 <TermLabel term={term} />
                 <span className="text-right">
@@ -101,14 +103,22 @@ export function EventPage({ event }: { event: CatalogEventDetail }) {
               </li>
             ))}
           </ul>
-        </Card>
+        </div>
       </section>
 
       {hasContact ? (
-        <section className="flex flex-col gap-4">
+        <section className={sectionClass}>
           <h2 className={sectionTitleClass}>{t("event.contact")}</h2>
-          <Card className="gap-4 p-6">
-            <p className="font-medium">{event.organizationName}</p>
+          <div className={`${panelClass} flex flex-col gap-4 p-5`}>
+            <p className="flex items-center gap-3 text-xl font-bold tracking-tight">
+              <span className="flex size-10 shrink-0 items-center justify-center rounded-md bg-accent text-link">
+                <Building2
+                  aria-hidden
+                  className="size-5"
+                />
+              </span>
+              {event.organizationName}
+            </p>
             {event.contactEmail ? (
               <p className="flex items-center gap-3">
                 <Mail
@@ -137,22 +147,24 @@ export function EventPage({ event }: { event: CatalogEventDetail }) {
                 </a>
               </p>
             ) : null}
-          </Card>
+          </div>
         </section>
       ) : null}
 
-      <Button
-        asChild
-        size="lg"
-        className="w-full md:w-fit md:self-end"
-      >
-        <Link
-          to={ROUTES.applicationForm}
-          params={{ token: event.publicToken }}
+      <div className="flex justify-center border-t border-border pt-8">
+        <Button
+          asChild
+          size="lg"
+          className="w-full text-base md:w-auto md:min-w-80"
         >
-          {t("event.apply")}
-        </Link>
-      </Button>
-    </div>
+          <Link
+            to={ROUTES.applicationForm}
+            params={{ token: event.publicToken }}
+          >
+            {t("event.apply")}
+          </Link>
+        </Button>
+      </div>
+    </Card>
   )
 }
