@@ -9,6 +9,7 @@ import {
 const props = {
   locale: 'en',
   eventName: 'Summer camp 2027',
+  organizationName: 'Alpine Collective',
   access: {
     kind: 'LOGIN',
     url: 'https://team-1.vsepractical.applifting.dev/participant/login',
@@ -17,8 +18,8 @@ const props = {
     {
       name: 'Jana Nováková',
       terms: [
-        { name: 'Week 1', status: 'CONFIRMED' },
-        { name: 'Week 2', status: 'CONFIRMED' },
+        { dates: '12.–18. 7. 2027', name: 'Week 1', status: 'CONFIRMED' },
+        { dates: '19.–25. 7. 2027', name: 'Week 2', status: 'CONFIRMED' },
       ],
       payment: {
         amount: 'CZK 9,400',
@@ -35,8 +36,8 @@ const props = {
     {
       name: 'Petr Novák',
       terms: [
-        { name: 'Week 1', status: 'WAITLISTED' },
-        { name: 'Week 2', status: 'CONFIRMED' },
+        { dates: '12.–18. 7. 2027', name: 'Week 1', status: 'WAITLISTED' },
+        { dates: '19.–25. 7. 2027', name: 'Week 2', status: 'CONFIRMED' },
       ],
       payment: {
         amount: 'CZK 4,900',

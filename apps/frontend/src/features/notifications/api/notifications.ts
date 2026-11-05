@@ -5,7 +5,7 @@ import { api } from "@/lib/api-client"
 
 /** What happened; the copy is composed from `kind` and `params` at display time, never stored. */
 export const NOTIFICATION_KINDS = [
-  // STATUS_CHANGED — the rows of docs/procesy/zpracovani-prihlasky/EMAILY.md
+  // STATUS_CHANGED — the rows of docs/emaily/KATALOG.md
   "CONFIRMED",
   "CONFIRMED_FROM_WAITLIST",
   "WAITLISTED",

@@ -1,68 +1,80 @@
-import { Locale } from "@/core/email/locale"
-import { Body, Container, Head, Heading, Html, Preview, Tailwind, Text } from "react-email"
-import * as React from "react"
+import { Locale } from '@/core/email/locale';
+import * as React from 'react';
+import {
+  EmailAlert,
+  EmailFooter,
+  EmailHeading,
+  EmailLogo,
+  EmailShell,
+  EmailText,
+} from './email-kit';
 
-// Every template keeps its copy for all locales side by side, so a missing
-// translation is a type error, not a silent English e-mail.
-// Sent to the OLD address when a change of the sign-in e-mail is requested (US-125, security).
+// Figma (Design system): E20 AUTH_CHANGE_EMAIL_NOTICE · Upozornění na žádost o změnu adresy · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19681-1629 (360 px: node-id=19681-1648; EN: 19681-2063 / 19681-2082)
+
+// Sent to the OLD address when a change of the sign-in e-mail is requested. Only a notice, no action.
+// Copy for all locales side by side — a missing translation is a type error. Source: docs/emaily/TEXTY.md.
 const copy: Record<
   Locale,
   {
-    subject: string
-    heading: string
-    body: (newEmail: string) => string
-    ignore: string
+    subject: string;
+    preview: string;
+    heading: string;
+    body: (newEmail: string) => string;
+    alertTitle: string;
+    alertText: string;
+    footer: string[];
   }
 > = {
   en: {
-    subject: "A change of your sign-in e-mail was requested",
-    heading: "A change of your sign-in e-mail was requested",
+    subject: 'Sign-in e-mail change requested in Togena',
+    preview: 'The e-mail address change has not yet been completed.',
+    heading: 'An e-mail change has been requested',
     body: (newEmail) =>
-      `Someone asked to change the sign-in e-mail of your Togena account to ${newEmail}. The change takes effect only after the link sent to that address is confirmed; until then you keep signing in with this e-mail.`,
-    ignore: "If it wasn't you, change your password and don't confirm anything.",
+      `A change of the sign-in e-mail for your Togena account to ${newEmail} has been requested. The change takes effect only after the link sent to the new address is confirmed. Until then, continue using your current address.`,
+    alertTitle: 'If you did not request this change',
+    alertText: 'Change your Togena password and do not confirm the e-mail change.',
+    footer: ['Togena', 'Help with signing in or your account: support@togena.com'],
   },
   cs: {
-    subject: "Byla požádána změna přihlašovacího e-mailu",
-    heading: "Byla požádána změna přihlašovacího e-mailu",
+    subject: 'Žádost o změnu přihlašovacího e-mailu v Togeně',
+    preview: 'Změna adresy zatím není dokončená.',
+    heading: 'Byla vyžádána změna e-mailu',
     body: (newEmail) =>
-      `Někdo požádal o změnu přihlašovacího e-mailu vašeho účtu v Togeně na ${newEmail}. Změna začne platit až po potvrzení odkazu zaslaného na tuto adresu; do té doby se přihlašujete tímto e-mailem.`,
-    ignore: "Pokud jste to nebyli vy, změňte si heslo a nic nepotvrzujte.",
+      `U vašeho uživatelského účtu v Togeně byla vyžádána změna přihlašovacího e-mailu na ${newEmail}. Změna se provede až po potvrzení odkazu zaslaného na novou adresu. Do té doby se přihlašujete dosavadní adresou.`,
+    alertTitle: 'Pokud jste o změnu nežádali',
+    alertText:
+      'Změňte si heslo ke svému uživatelskému účtu v Togeně a změnu e-mailu nepotvrzujte.',
+    footer: ['Togena', 'Pomoc s přihlášením nebo uživatelským účtem: support@togena.com'],
   },
-}
+};
 
-export const changeEmailNoticeSubject = (locale: Locale): string => copy[locale].subject
+export const changeEmailNoticeSubject = (locale: Locale): string => copy[locale].subject;
 
 export interface ChangeEmailNoticeProps {
-  locale: Locale
-  newEmail: string
+  locale: Locale;
+  newEmail: string;
 }
 
 export const ChangeEmailNotice = ({
   locale,
   newEmail,
 }: ChangeEmailNoticeProps): React.JSX.Element => {
-  const text = copy[locale]
+  const text = copy[locale];
   return (
-    <Html lang={locale}>
-      <Head />
-      <Preview>{text.heading}</Preview>
-      <Tailwind>
-        <Body className="bg-gray-50 font-sans py-10">
-          <Container className="bg-white rounded-lg mx-auto p-8 max-w-xl">
-            <Heading className="text-2xl font-bold text-gray-900 m-0">{text.heading}</Heading>
-            <Text className="text-gray-700 text-base leading-6 mt-4">{text.body(newEmail)}</Text>
-            <Text className="text-gray-700 text-sm leading-5">{text.ignore}</Text>
-          </Container>
-        </Body>
-      </Tailwind>
-    </Html>
-  )
-}
+    <EmailShell locale={locale} preview={text.preview}>
+      <EmailLogo />
+      <EmailHeading>{text.heading}</EmailHeading>
+      <EmailText>{text.body(newEmail)}</EmailText>
+      <EmailAlert title={text.alertTitle} description={text.alertText} />
+      <EmailFooter lines={text.footer} />
+    </EmailShell>
+  );
+};
 
 // Preview data for `pnpm backend email:dev`.
 ChangeEmailNotice.PreviewProps = {
-  locale: "cs",
-  newEmail: "eva.nova@example.cz",
-} satisfies ChangeEmailNoticeProps
+  locale: 'cs',
+  newEmail: 'eva.nova@example.cz',
+} satisfies ChangeEmailNoticeProps;
 
-export default ChangeEmailNotice
+export default ChangeEmailNotice;

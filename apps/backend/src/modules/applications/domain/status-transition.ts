@@ -65,7 +65,7 @@ export function exceedsCapacityWhenConfirmed(gender: Gender, freePlaces: GenderC
 
 /**
  * Kind of the e-mail to the applicant after a change from `from` to `to`; the number is the row
- * of docs/procesy/zpracovani-prihlasky/EMAILY.md.
+ * of docs/emaily/KATALOG.md.
  */
 export function changeEmailKind(
   to: ApplicationTermStatus,

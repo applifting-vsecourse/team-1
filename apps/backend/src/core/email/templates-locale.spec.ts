@@ -14,7 +14,6 @@ import ChangeEmailNotice, { changeEmailNoticeSubject } from "./templates/change-
 import MagicLink, { magicLinkSubject } from "./templates/magic-link"
 import PaymentCorrectionEmail, { paymentCorrectionSubject } from "./templates/payment-correction"
 import ResetPassword, { resetPasswordSubject } from "./templates/reset-password"
-import VerifyEmail, { verifyEmailSubject } from "./templates/verify-email"
 
 // @react-email/render needs --experimental-vm-modules under jest, so the plain React renderer is used.
 const render = async (element: React.ReactElement): Promise<string> => {
@@ -34,7 +33,7 @@ const templates: Record<
     }),
   }),
   "application-change": (locale) => ({
-    subject: applicationChangeSubject(locale, "Camp"),
+    subject: applicationChangeSubject(locale, "Camp", "CONFIRMED"),
     element: React.createElement(ApplicationChange, { ...ApplicationChange.PreviewProps, locale }),
   }),
   "application-change-confirmation-withdrawn": (locale) => ({
@@ -62,7 +61,6 @@ const templates: Record<
   "reset-password": (locale) => ({
     subject: resetPasswordSubject(locale),
     element: React.createElement(ResetPassword, {
-      username: "Petra",
       url: "https://example.com/r",
       locale,
     }),
@@ -74,10 +72,6 @@ const templates: Record<
   "change-email-notice": (locale) => ({
     subject: changeEmailNoticeSubject(locale),
     element: React.createElement(ChangeEmailNotice, { ...ChangeEmailNotice.PreviewProps, locale }),
-  }),
-  "verify-email": (locale) => ({
-    subject: verifyEmailSubject(locale),
-    element: React.createElement(VerifyEmail, { url: "https://example.com/v", locale }),
   }),
 }
 
@@ -149,10 +143,10 @@ it("tells the participant the confirmed, substitute and awaiting-evaluation resu
   for (const html of [en, cs]) {
     for (const term of terms) expect(html).toContain(term.name)
   }
-  expect(en).toContain("Substitute · do not pay yet")
-  expect(en).toContain("Confirmed")
+  expect(en).toContain("Waitlisted · do not pay yet")
+  expect(en).toContain("Place confirmed")
   expect(en).not.toContain("payment due")
-  expect(en).toContain("Awaiting evaluation · do not pay yet")
+  expect(en).toContain("Awaiting review · do not pay yet")
   expect(cs).toContain("Účast potvrzena")
   expect(cs).not.toContain("k úhradě")
   expect(cs).toContain("Náhradník · zatím neplaťte")

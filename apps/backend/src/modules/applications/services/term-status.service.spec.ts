@@ -18,13 +18,24 @@ const result = (
   organizationName: "Alpine Collective",
   bankAccount: "2900123456/2010",
   termName: "T1",
+  termDates: "1.–7. 7. 2027",
+  termCustomName: "T1",
   gender: "FEMALE",
   application: {
     number: 1,
     firstName: "Jana",
     lastName: "Nováková",
     accessToken: "token",
-    terms: [{ name: "T1", termNumber: 1, status: to, priceCzk: 1000 }],
+    terms: [
+      {
+        name: "T1",
+        dates: "1.–7. 7. 2027",
+        customName: null,
+        termNumber: 1,
+        status: to,
+        priceCzk: 1000,
+      },
+    ],
   },
 })
 
@@ -87,7 +98,7 @@ describe("TermStatusService", () => {
     ["no. 13", "CONFIRMED", "WAITLISTED", "WAITLISTED_AFTER_CONFIRMED", false],
     ["no. 14", "WAITLISTED", "CANCELLED", "CANCELLED_BY_ORGANIZER", false],
   ] as const)(
-    "EMAILY.md %s: an organizer's change %s → %s e-mails kind %s",
+    "KATALOG.md legacy no. %s: an organizer's change %s → %s e-mails kind %s",
     async (_row, from, to, kind, isAmountChanged) => {
       repository.changeStatus.mockResolvedValue(result(to, from))
 

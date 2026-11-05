@@ -21,25 +21,25 @@ describe("application e-mail previews", () => {
       React.createElement(ApplicationConfirmation, ApplicationConfirmation.PreviewProps),
     )
 
-    expect(html).toContain("Přihláška přijata")
-    expect(html).toContain("Otevřít moje přihlášky")
+    expect(html).toContain("Přihlášku jsme přijali")
+    expect(html).toContain("Přihlásit se do Togeny")
   })
 
   it("renders two participants, existing account, mixed statuses (en)", async () => {
     const html = await render(React.createElement(TwoApplicants))
 
-    expect(html).toContain("Application received")
+    expect(html).toContain("We have received your applications")
     expect(html).toContain("Jana Nováková")
     expect(html).toContain("Petr Novák")
-    expect(html).toContain("please pay each one separately")
-    expect(html).toContain(">Sign in<")
+    expect(html).toContain("Pay for each application separately")
+    expect(html).toContain("Sign in to Togena")
   })
 
   it("renders no confirmed term without payment details", async () => {
     const html = await render(React.createElement(Waitlisted))
 
-    expect(html).toContain("jste náhradník")
-    expect(html).toContain("Žádný termín zatím není potvrzený")
+    expect(html).toContain("Náhradník")
+    expect(html).toContain("Zatím nic neplaťte")
     expect(html).not.toContain("Variabilní symbol")
   })
 
@@ -50,7 +50,7 @@ describe("application e-mail previews", () => {
         applications: [
           {
             ...ApplicationConfirmation.PreviewProps.applications[0],
-            terms: [{ name: "12.–18. 7. 2027", status: "CONFIRMED" }],
+            terms: [{ dates: "12.–18. 7. 2027", name: null, status: "CONFIRMED" }],
           },
         ],
       }),
@@ -73,7 +73,7 @@ describe("application e-mail previews", () => {
       React.createElement(ConfirmationWithdrawn, ConfirmationWithdrawn.PreviewProps),
     )
 
-    expect(html).toContain("Potvrzení bylo odvoláno. Jste náhradník")
+    expect(html).toContain("Potvrzení účasti bylo odvoláno")
     expect(html).not.toContain("Variabilní symbol")
   })
 
@@ -84,11 +84,11 @@ describe("application e-mail previews", () => {
     )
 
     expect(cs).toContain("Termín akce byl zrušen")
-    expect(cs).toContain("Zaplacené platby se vrací; další postup sdělí organizace.")
+    expect(cs).toContain("Případné zaplacené platby za zrušený termín se vrací.")
     expect(cs).toContain("Adam Dvořák")
-    expect(cs).toContain("Alpine Collective · přes Togenu")
-    expect(en).toContain("The term has been cancelled")
-    expect(en).toContain("Paid payments are being refunded")
+    expect(cs).toContain("Alpine Collective · prostřednictvím Togeny")
+    expect(en).toContain("The event term has been cancelled")
+    expect(en).toContain("Any payments already made for the cancelled term are to be refunded")
     expect(en).toContain("Alpine Collective · via Togena")
   })
 })

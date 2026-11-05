@@ -48,8 +48,8 @@ function paymentOf(
 
 /** A submission only knows evaluated terms; a cancelled one never appears in the summary. */
 const termsOf = (application: SubmittedApplication): ConfirmationApplicationProps["terms"] =>
-  application.terms.flatMap(({ name, status }) =>
-    status === "CANCELLED" ? [] : [{ name, status }],
+  application.terms.flatMap(({ dates, customName, status }) =>
+    status === "CANCELLED" ? [] : [{ dates, name: customName, status }],
   )
 
 export function buildConfirmationApplications(
@@ -69,11 +69,13 @@ const PAYING_KINDS: ApplicationChange["kind"][] = [
   "CONFIRMED",
   "CONFIRMED_FROM_WAITLIST",
   "TERMS_CHANGED",
+  "PAYMENT_OVERDUE",
+  "PAYMENT_CORRECTED",
 ]
 
 /**
  * Props of the change e-mail; the payment details only when the amount due changed because
- * the application became confirmed (EMAILY.md, rows 2 and 5) — never in a cancelled or
+ * the application became confirmed (docs/emaily/KATALOG.md, APP_CONFIRMED) — never in a cancelled or
  * waitlisted one, which owes nothing.
  */
 export function buildChangeProps(
@@ -86,8 +88,8 @@ export function buildChangeProps(
     eventName: change.eventName,
     organizationName: change.organizationName,
     name: `${application.firstName} ${application.lastName}`,
-    gender: change.gender,
-    term: change.termName,
+    termDates: change.termDates,
+    termName: change.termCustomName,
     kind: change.kind,
     terms:
       change.kind === "TERMS_CHANGED"
@@ -112,8 +114,8 @@ export function buildTermNoticeProps(
     eventName: change.eventName,
     organizationName: change.organizationName,
     name: `${application.firstName} ${application.lastName}`,
-    gender: change.gender,
-    term: change.termName,
+    termDates: change.termDates,
+    termName: change.termCustomName,
     confirmationUrl: confirmationUrl(frontendUrl, application.accessToken),
   }
 }

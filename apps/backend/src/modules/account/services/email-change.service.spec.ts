@@ -65,7 +65,7 @@ describe("EmailChangeService", () => {
     expect(email.sendEmail).toHaveBeenCalledTimes(1)
     const [to, subject, html] = email.sendEmail.mock.calls[0]
     expect(to).toBe("eva.mala@example.cz")
-    expect(subject).toBe("Byla požádána změna přihlašovacího e-mailu")
+    expect(subject).toBe("Žádost o změnu přihlašovacího e-mailu v Togeně")
     expect(html).toContain("eva.nova@example.cz")
   })
 

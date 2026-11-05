@@ -74,6 +74,8 @@ export type StatusChangeResult = {
   bankAccount: string
   /** The changed term: its name, else its dates. */
   termName: string
+  termDates: string
+  termCustomName: string | null
   /** Of the participant: the Czech copy of the e-mail is gendered. */
   gender: Gender
   application: {
@@ -82,7 +84,14 @@ export type StatusChangeResult = {
     lastName: string
     accessToken: string
     /** `name` is the term's label for the e-mail: its name, else its dates. */
-    terms: { name: string; termNumber: number; status: ApplicationTermStatus; priceCzk: number }[]
+    terms: {
+      name: string
+      dates: string
+      customName: string | null
+      termNumber: number
+      status: ApplicationTermStatus
+      priceCzk: number
+    }[]
   }
 }
 

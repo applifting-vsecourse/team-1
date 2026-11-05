@@ -1,7 +1,7 @@
 import { DEFAULT_LOCALE, Locale } from "@/core/email/locale"
 
 /**
- * Language of the e-mails about a changed application (D-078, EMAILY.md): the preferred language
+ * Language of the e-mails about a changed application (D-078, docs/emaily/KATALOG.md): the preferred language
  * of the user, else the language of their first application. E-mail no. 1 is not decided here,
  * it stays in the language of its application.
  *

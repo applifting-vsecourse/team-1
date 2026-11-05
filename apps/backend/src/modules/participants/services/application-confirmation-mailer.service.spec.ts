@@ -40,8 +40,22 @@ const application = (overrides: Partial<SubmittedApplication> = {}): SubmittedAp
   lastName: "Nováková",
   accessToken: "token-48",
   terms: [
-    { name: "1. týden", termNumber: 1, status: "CONFIRMED", priceCzk: 4500 },
-    { name: "2. týden", termNumber: 2, status: "CONFIRMED", priceCzk: 4900 },
+    {
+      name: "1. týden",
+      dates: "12.–18. 7. 2027",
+      customName: null,
+      termNumber: 1,
+      status: "CONFIRMED",
+      priceCzk: 4500,
+    },
+    {
+      name: "2. týden",
+      dates: "12.–18. 7. 2027",
+      customName: null,
+      termNumber: 2,
+      status: "CONFIRMED",
+      priceCzk: 4900,
+    },
   ],
   ...overrides,
 })
@@ -50,6 +64,7 @@ const confirmation = (overrides: Partial<SubmissionConfirmation> = {}): Submissi
   email: "petra@example.com",
   locale: "cs",
   eventName: "Letní kemp 2027",
+  organizationName: "Alpine Collective",
   bankAccount: "2900123456/2010",
   mustSetPassword: true,
   applications: [application()],
@@ -58,7 +73,16 @@ const confirmation = (overrides: Partial<SubmissionConfirmation> = {}): Submissi
 
 const waitlisted = (overrides: Partial<SubmittedApplication> = {}): SubmittedApplication =>
   application({
-    terms: [{ name: "Září", termNumber: 1, status: "WAITLISTED", priceCzk: 1800 }],
+    terms: [
+      {
+        name: "Září",
+        dates: "12.–18. 7. 2027",
+        customName: null,
+        termNumber: 1,
+        status: "WAITLISTED",
+        priceCzk: 1800,
+      },
+    ],
     ...overrides,
   })
 
@@ -100,7 +124,7 @@ describe("ApplicationConfirmationMailer.sendSubmissionConfirmation", () => {
 
     const email = sent(sendEmail)
     expect(email.to).toBe("petra@example.com")
-    expect(email.subject).toBe("Potvrzení přihlášky: Letní kemp 2027")
+    expect(email.subject).toBe("Přihláška přijata: Letní kemp 2027")
     expect(email.html).toContain("Letní kemp 2027")
     expect(email.html).toContain("Jana Nováková")
   })
@@ -117,7 +141,16 @@ describe("ApplicationConfirmationMailer.sendSubmissionConfirmation", () => {
             firstName: "Petr",
             lastName: "Novák",
             accessToken: "token-49",
-            terms: [{ name: "2. týden", termNumber: 2, status: "CONFIRMED", priceCzk: 4900 }],
+            terms: [
+              {
+                name: "2. týden",
+                dates: "12.–18. 7. 2027",
+                customName: null,
+                termNumber: 2,
+                status: "CONFIRMED",
+                priceCzk: 4900,
+              },
+            ],
           }),
         ],
       }),
@@ -135,7 +168,7 @@ describe("ApplicationConfirmationMailer.sendSubmissionConfirmation", () => {
     expect(html).not.toContain("49002")
     expect(html).toContain("9 400 Kč")
     expect(html).toContain("4 900 Kč")
-    expect(html).toContain("platby posílejte zvlášť")
+    expect(html).toContain("Každou přihlášku zaplaťte samostatně")
   })
 
   it("shows the status of every term and charges only the confirmed ones", async () => {
@@ -146,8 +179,22 @@ describe("ApplicationConfirmationMailer.sendSubmissionConfirmation", () => {
         applications: [
           application({
             terms: [
-              { name: "1. týden", termNumber: 1, status: "CONFIRMED", priceCzk: 4500 },
-              { name: "2. týden", termNumber: 2, status: "WAITLISTED", priceCzk: 4900 },
+              {
+                name: "1. týden",
+                dates: "12.–18. 7. 2027",
+                customName: null,
+                termNumber: 1,
+                status: "CONFIRMED",
+                priceCzk: 4500,
+              },
+              {
+                name: "2. týden",
+                dates: "12.–18. 7. 2027",
+                customName: null,
+                termNumber: 2,
+                status: "WAITLISTED",
+                priceCzk: 4900,
+              },
             ],
           }),
         ],
@@ -155,12 +202,12 @@ describe("ApplicationConfirmationMailer.sendSubmissionConfirmation", () => {
     )
 
     const { html } = sent(sendEmail)
-    expect(html).toMatch(/1\. týden:\s*<strong>potvrzený/)
-    expect(html).toMatch(/2\. týden:\s*<strong>jste náhradník/)
+    expect(html).toContain("Účast potvrzena")
+    expect(html).toContain("Náhradník")
     expect(html).toContain("4 500 Kč")
     expect(html).not.toContain("9 400 Kč")
     expect(html).toContain("2900123456/2010")
-    expect(html).toContain("Za termín, kde jste náhradník, zatím neplaťte")
+    expect(html).toContain("Zatím nic neplaťte")
   })
 
   it("leaves out the payment details when everyone is waitlisted in every term, and says why", async () => {
@@ -175,7 +222,7 @@ describe("ApplicationConfirmationMailer.sendSubmissionConfirmation", () => {
     const { html } = sent(sendEmail)
     expect(html).not.toContain("Variabilní symbol")
     expect(html).not.toContain("2900123456/2010")
-    expect(html).toContain("Žádný termín zatím není potvrzený")
+    expect(html).toContain("Zatím nic neplaťte")
   })
 
   it("shows payment details only for the application that has a confirmed term", async () => {
@@ -244,8 +291,8 @@ describe("ApplicationConfirmationMailer.sendSubmissionConfirmation", () => {
     )
 
     const { subject, html } = sent(sendEmail)
-    expect(subject).toBe("Your application: Summer camp 2027")
-    expect(html).toContain("Application received")
+    expect(subject).toBe("Application received: Summer camp 2027")
+    expect(html).toContain("We have received your application")
     expect(html).toContain("CZK 9,400")
     expect(html).toContain("Variable symbol")
   })
@@ -285,90 +332,126 @@ describe("ApplicationConfirmationMailer.sendApplicationChange", () => {
     bankAccount: "2900123456/2010",
     kind: "CONFIRMED",
     termName: "12.–18. 7. 2027",
+    termDates: "12.–18. 7. 2027",
+    termCustomName: null,
     gender: "MALE",
     application: application({
       number: 49,
       firstName: "Petr",
       lastName: "Novák",
       accessToken: "token-49",
-      terms: [{ name: "12.–18. 7. 2027", termNumber: 1, status: "CONFIRMED", priceCzk: 4900 }],
+      terms: [
+        {
+          name: "12.–18. 7. 2027",
+          dates: "12.–18. 7. 2027",
+          customName: null,
+          termNumber: 1,
+          status: "CONFIRMED",
+          priceCzk: 4900,
+        },
+      ],
     }),
     isAmountChanged: false,
     ...overrides,
   })
 
-  // EMAILY.md row → what the applicant reads, the Czech sentences of the Figma frames. Where a
-  // frame declines the name ("účast Adama Dvořáka") the name stands in brackets in its place.
-  const T = "12.–18. 7. 2027"
-  const sentences = {
-    MALE: {
-      CONFIRMED: `Organizátor potvrdil účast (Petr Novák) v termínu ${T}.`,
-      WAITLISTED: `Petr Novák je v termínu ${T} zařazený mezi náhradníky. Zatím nic neplaťte.`,
-      REJECTED: `Organizátor zamítl účast (Petr Novák) v termínu ${T}. Stav přihlášky v tomto termínu je Zrušená.`,
-      CONFIRMED_FROM_WAITLIST: `Petr Novák už není náhradník. Jeho účast v termínu ${T} byla potvrzená.`,
-      NO_BED_FREED: `Do začátku termínu ${T} se pro (Petr Novák) neuvolnilo lůžko. Přihláška v tomto termínu je proto zrušená.`,
-      CANCELLED: `Petr Novák je odhlášený z termínu ${T}. Ostatní termíny přihlášky zůstávají beze změny.`,
-      CANCELLED_BY_ORGANIZER: `Organizátor zrušil přihlášku (Petr Novák), který byl náhradníkem v termínu ${T}.`,
-      WAITLISTED_AFTER_CONFIRMED: `Organizátor odvolal potvrzení účasti (Petr Novák) v termínu ${T} a zařadil ho mezi náhradníky. Nejde o čekání na první vyhodnocení.`,
-    },
-    FEMALE: {
-      CONFIRMED: `Organizátor potvrdil účast (Petr Novák) v termínu ${T}.`,
-      WAITLISTED: `Petr Novák je v termínu ${T} zařazená mezi náhradníky. Zatím nic neplaťte.`,
-      REJECTED: `Organizátor zamítl účast (Petr Novák) v termínu ${T}. Stav přihlášky v tomto termínu je Zrušená.`,
-      CONFIRMED_FROM_WAITLIST: `Petr Novák už není náhradnice. Její účast v termínu ${T} byla potvrzená.`,
-      NO_BED_FREED: `Do začátku termínu ${T} se pro (Petr Novák) neuvolnilo lůžko. Přihláška v tomto termínu je proto zrušená.`,
-      CANCELLED: `Petr Novák je odhlášená z termínu ${T}. Ostatní termíny přihlášky zůstávají beze změny.`,
-      CANCELLED_BY_ORGANIZER: `Organizátor zrušil přihlášku (Petr Novák), která byla náhradnicí v termínu ${T}.`,
-      WAITLISTED_AFTER_CONFIRMED: `Organizátor odvolal potvrzení účasti (Petr Novák) v termínu ${T} a zařadil ji mezi náhradníky. Nejde o čekání na první vyhodnocení.`,
-    },
-  } as const
-  const headings = {
-    CONFIRMED: "Účast je potvrzená",
-    WAITLISTED: "Jste náhradník",
-    REJECTED: "Přihláška byla zamítnuta",
-    CONFIRMED_FROM_WAITLIST: "Uvolnilo se lůžko. Účast je potvrzená",
-    NO_BED_FREED: "Termín začal, lůžko se neuvolnilo",
-    CANCELLED: "Odhlášení je potvrzené",
-    CANCELLED_BY_ORGANIZER: "Přihláška zrušená organizátorem",
-    WAITLISTED_AFTER_CONFIRMED: "Potvrzení bylo odvoláno. Jste náhradník",
-  } as const
-  const rows = {
-    CONFIRMED: "no. 2",
-    WAITLISTED: "no. 3",
-    REJECTED: "no. 4, 9, 10",
-    CONFIRMED_FROM_WAITLIST: "no. 5",
-    NO_BED_FREED: "no. 6",
-    CANCELLED: "no. 11",
-    CANCELLED_BY_ORGANIZER: "no. 14",
-    WAITLISTED_AFTER_CONFIRMED: "no. 13",
-  } as const
-  const cases = (["MALE", "FEMALE"] as const).flatMap((gender) =>
-    (Object.keys(headings) as (keyof typeof headings)[]).map(
-      (kind) => [rows[kind], kind, gender] as const,
-    ),
-  )
+  // KATALOG.md legacy row → what the applicant reads: docs/emaily/TEXTY.md.
+  const cases = [
+    [
+      "no. 2",
+      "CONFIRMED",
+      "Účast potvrzena",
+      "Účast je potvrzená",
+      "Účast v uvedeném termínu byla potvrzena. Platební údaje najdete níže.",
+    ],
+    [
+      "no. 3",
+      "WAITLISTED",
+      "Zařazení mezi náhradníky",
+      "Přihláška je mezi náhradníky",
+      "Přihláška v uvedeném termínu byla zařazena mezi náhradníky.",
+    ],
+    [
+      "no. 4, 9, 10",
+      "REJECTED",
+      "Přihláška zamítnuta",
+      "Přihláška byla zamítnuta",
+      "Organizátor zamítl účast v uvedeném termínu.",
+    ],
+    [
+      "no. 5",
+      "CONFIRMED_FROM_WAITLIST",
+      "Účast potvrzena",
+      "Účast je potvrzená",
+      "Účast v uvedeném termínu byla potvrzena. Platební údaje najdete níže.",
+    ],
+    [
+      "no. 6",
+      "NO_BED_FREED",
+      "Přihláška byla zrušena",
+      "Přihláška byla zrušena",
+      "Účast v uvedeném termínu nebyla potvrzena.",
+    ],
+    [
+      "no. 11",
+      "CANCELLED",
+      "Odhlášení potvrzeno",
+      "Odhlášení je potvrzené",
+      "Potvrzujeme odhlášení z uvedeného termínu.",
+    ],
+    [
+      "no. 14",
+      "CANCELLED_BY_ORGANIZER",
+      "Přihláška zrušena organizátorem",
+      "Přihláška byla zrušena organizátorem",
+      "Organizátor zrušil přihlášku v uvedeném termínu, ve kterém byla vedena mezi náhradníky.",
+    ],
+    [
+      "no. 13",
+      "WAITLISTED_AFTER_CONFIRMED",
+      "Potvrzení účasti odvoláno",
+      "Potvrzení účasti bylo odvoláno",
+      "Organizátor odvolal potvrzení účasti v uvedeném termínu",
+    ],
+  ] as const
 
   it.each(cases)(
-    "EMAILY.md %s (%s, %s): Czech heading, sentence, link into the app and organization footer",
-    async (_row, kind, gender) => {
+    "KATALOG.md legacy no. %s (%s): Czech subject, heading, sentence, identification, link into the app and organization footer",
+    async (_row, kind, subjectStart, heading, sentence) => {
       const { mailer, sendEmail } = setup()
 
-      await mailer.sendApplicationChange(change({ kind, gender }))
+      await mailer.sendApplicationChange(change({ kind }))
 
       const { to, subject, html } = sent(sendEmail)
       expect(to).toBe("petra@example.com")
-      expect(subject).toBe("Změna ve vaší přihlášce: Letní kemp 2027")
-      expect(html).toContain(headings[kind])
-      expect(html).toContain(sentences[gender][kind])
+      expect(subject).toBe(`${subjectStart}: Letní kemp 2027`)
+      expect(html).toContain(heading)
+      expect(html).toContain(sentence)
       expect(html).toContain("Letní kemp 2027")
+      expect(html).toContain("Petr Novák")
+      expect(html).toContain("12.–18. 7. 2027")
       expect(html).toContain(`href="${FRONTEND}/apply/confirmation/token-49"`)
-      expect(html).toContain("Otevřít moje přihlášky")
-      expect(html).toContain("Alpine Collective · přes Togenu")
+      expect(html).toContain("Zobrazit přihlášku")
+      expect(html).toContain("Alpine Collective · prostřednictvím Togeny")
+      expect(html).toContain("organizator@togena.com")
       expect(html).toContain('lang="cs"')
     },
   )
 
-  it("is responsive: 16 px gutters, 24/32 px heading and a 44 px button at 360 px", async () => {
+  it.each(["REJECTED", "CANCELLED"] as const)(
+    "%s: says the organizer will tell about a possible refund, and promises none",
+    async (kind) => {
+      const { mailer, sendEmail } = setup()
+
+      await mailer.sendApplicationChange(change({ kind }))
+
+      expect(sent(sendEmail).html).toContain(
+        "Informace o případném vrácení platby vám sdělí organizátor.",
+      )
+    },
+  )
+
+  it("is responsive: 16 px canvas and card gutters at 360 px", async () => {
     const { mailer, sendEmail } = setup()
 
     await mailer.sendApplicationChange(change())
@@ -377,11 +460,10 @@ describe("ApplicationConfirmationMailer.sendApplicationChange", () => {
     expect(html).toMatch(/@media[^{]*max-width:\s*480px/)
     expect(html).toContain(".tg-card>tbody>tr>td{padding-left:16px !important")
     expect(html).toContain(".tg-body>table>tbody>tr>td{padding:16px !important}")
-    expect(html).toContain("max-480px_text-2xl")
-    expect(html).toContain("max-480px_py-3")
+    expect(html).toContain("max-480px_py-4")
   })
 
-  it("keeps TERMS_CHANGED for the term-change stories: the old sentence, payment details when the amount changed", async () => {
+  it("keeps TERMS_CHANGED for the term-change stories: its own copy, payment details when the amount changed", async () => {
     const { mailer, sendEmail } = setup()
 
     await mailer.sendApplicationChange(
@@ -393,68 +475,104 @@ describe("ApplicationConfirmationMailer.sendApplicationChange", () => {
     )
 
     const { html } = sent(sendEmail)
-    expect(html).toContain("Změnily se termíny přihlášky")
+    expect(html).toContain("Změny v přihlášce")
     expect(html).toContain("9 400 Kč")
     expect(html).toContain("49000")
     expect(html).toContain("2900123456/2010")
   })
 
-  it("sends the English e-mail of Figma frame 02 EN for a confirmation, with payment details", async () => {
+  it("sends the English e-mail of Figma frame E05 EN for a confirmation, with payment details", async () => {
     const { mailer, sendEmail } = setup()
 
     await mailer.sendApplicationChange(
-      change({ locale: "en", isAmountChanged: true, termName: "12–18 Jul 2027" }),
+      change({
+        locale: "en",
+        isAmountChanged: true,
+        termName: "12–18 Jul 2027",
+        termDates: "12–18 Jul 2027",
+      }),
     )
 
-    const { html } = sent(sendEmail)
-    expect(html).toContain("Your place is confirmed")
-    expect(html).toContain("The organiser has confirmed Petr Novák’s place for 12–18 Jul 2027.")
-    expect(html).toContain("Confirmed · payment due")
-    expect(html).toContain("Open my applications")
+    const { subject, html } = sent(sendEmail)
+    expect(subject).toBe("Place confirmed: Letní kemp 2027")
+    expect(html).toContain("The place is confirmed")
+    expect(html).toContain("The place in the term shown below has been confirmed.")
+    expect(html).toContain("View application")
     expect(html).toContain("Alpine Collective · via Togena")
     expect(html).toContain('lang="en"')
   })
 
   it.each([
-    ["CONFIRMED", "Your place is confirmed"],
-    ["CONFIRMED_FROM_WAITLIST", "A bed has become free. Your place is confirmed"],
-    ["WAITLISTED", "You are a substitute"],
-    ["REJECTED", "Your application was rejected"],
-    ["CANCELLED", "Your cancellation is confirmed"],
-    ["NO_BED_FREED", "The term has started, no bed became free"],
-    ["CANCELLED_BY_ORGANIZER", "Application cancelled by the organiser"],
-    ["WAITLISTED_AFTER_CONFIRMED", "Your confirmation was withdrawn. You are a substitute"],
-  ] as const)("writes %s in English", async (kind, heading) => {
+    ["CONFIRMED", "Place confirmed", "The place is confirmed"],
+    ["CONFIRMED_FROM_WAITLIST", "Place confirmed", "The place is confirmed"],
+    ["WAITLISTED", "Application waitlisted", "The application is waitlisted"],
+    ["PAYMENT_OVERDUE", "Payment overdue", "Payment is outstanding"],
+    ["PAYMENT_SETTLED", "Payment received", "Your payment has been recorded"],
+    [
+      "PAYMENT_CORRECTED",
+      "Payment correction: outstanding balance for",
+      "An outstanding balance remains after a payment correction",
+    ],
+    ["REJECTED", "Application rejected", "The application has been rejected"],
+    ["CANCELLED", "Cancellation confirmed", "The cancellation is confirmed"],
+    ["NO_BED_FREED", "Application cancelled", "Application cancelled"],
+    [
+      "CANCELLED_BY_ORGANIZER",
+      "Application cancelled by the organiser",
+      "The application has been cancelled by the organiser",
+    ],
+    [
+      "WAITLISTED_AFTER_CONFIRMED",
+      "Place confirmation withdrawn",
+      "The place confirmation has been withdrawn",
+    ],
+  ] as const)("writes %s in English", async (kind, subjectStart, heading) => {
     const { mailer, sendEmail } = setup()
 
     await mailer.sendApplicationChange(change({ locale: "en", kind }))
 
     const { subject, html } = sent(sendEmail)
-    expect(subject).toBe("Change in your application: Letní kemp 2027")
+    expect(subject.startsWith(subjectStart)).toBe(true)
+    expect(subject.endsWith("Letní kemp 2027")).toBe(true)
     expect(html).toContain(heading)
-    expect(html).toContain("Open my applications")
-    expect(html).not.toContain("Otevřít moje přihlášky")
+    expect(html).toContain("View application")
+    expect(html).not.toContain("Zobrazit přihlášku")
   })
 
   describe("payment details", () => {
-    it.each(["CONFIRMED", "CONFIRMED_FROM_WAITLIST"] as const)(
-      "%s: amount, account and variable symbol (Czech labels)",
-      async (kind) => {
-        const { mailer, sendEmail } = setup()
+    it("PAYMENT_SETTLED asks for no payment: no amount due, account or symbol", async () => {
+      const { mailer, sendEmail } = setup()
 
-        await mailer.sendApplicationChange(change({ kind, isAmountChanged: true }))
+      await mailer.sendApplicationChange(
+        change({ kind: "PAYMENT_SETTLED", isAmountChanged: false }),
+      )
 
-        const { html } = sent(sendEmail)
-        expect(html).toContain("K úhradě")
-        expect(html).toContain("4 900 Kč")
-        expect(html).toContain("Bankovní účet")
-        expect(html).toContain("2900123456/2010")
-        expect(html).toContain("Variabilní symbol")
-        expect(html).toContain("49000")
-      },
-    )
+      const { html } = sent(sendEmail)
+      expect(html).toContain("Platbu jsme zaevidovali")
+      expect(html).not.toContain("K úhradě")
+      expect(html).not.toContain("Bankovní účet")
+    })
 
-    it("labels them in English like the 02 EN frame", async () => {
+    it.each([
+      "PAYMENT_OVERDUE",
+      "PAYMENT_CORRECTED",
+      "CONFIRMED",
+      "CONFIRMED_FROM_WAITLIST",
+    ] as const)("%s: amount, account and variable symbol (Czech labels)", async (kind) => {
+      const { mailer, sendEmail } = setup()
+
+      await mailer.sendApplicationChange(change({ kind, isAmountChanged: true }))
+
+      const { html } = sent(sendEmail)
+      expect(html).toContain("K úhradě")
+      expect(html).toContain("4 900 Kč")
+      expect(html).toContain("Bankovní účet")
+      expect(html).toContain("2900123456/2010")
+      expect(html).toContain("Variabilní symbol")
+      expect(html).toContain("49000")
+    })
+
+    it("labels them in English like the E05 EN frame", async () => {
       const { mailer, sendEmail } = setup()
 
       await mailer.sendApplicationChange(change({ locale: "en", isAmountChanged: true }))
@@ -462,7 +580,7 @@ describe("ApplicationConfirmationMailer.sendApplicationChange", () => {
       const { html } = sent(sendEmail)
       expect(html).toContain("Amount due")
       expect(html).toContain("Bank account")
-      expect(html).toContain("Reference number")
+      expect(html).toContain("Variable symbol")
       expect(html).toContain("CZK 4,900")
     })
 
@@ -517,7 +635,7 @@ describe("ApplicationConfirmationMailer.sendApplicationChange", () => {
 
         // Only what the applicant reads, not the markup (`border`).
         const text = sent(sendEmail).html.replace(/<[^>]*>/g, " ")
-        expect(text).toMatch(/náhradník|substitute/i)
+        expect(text).toMatch(/náhradník|waitlist/i)
         expect(text).not.toMatch(/pořadí|\bpozic|\d+\.\s*místo|position|\brank|queue|order/i)
         expect(text).not.toMatch(/čeká na (potvrzení|vyhodnocení)|awaiting/i)
       }
@@ -530,7 +648,7 @@ describe("ApplicationConfirmationMailer.sendApplicationChange", () => {
       await withdrawn.mailer.sendApplicationChange(change({ kind: "WAITLISTED_AFTER_CONFIRMED" }))
       await first.mailer.sendApplicationChange(change({ kind: "WAITLISTED" }))
 
-      expect(sent(withdrawn.sendEmail).html).toContain("Potvrzení bylo odvoláno")
+      expect(sent(withdrawn.sendEmail).html).toContain("Potvrzení účasti bylo odvoláno")
       expect(sent(first.sendEmail).html).not.toContain("odvoláno")
     })
   })

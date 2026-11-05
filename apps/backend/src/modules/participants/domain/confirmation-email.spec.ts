@@ -8,9 +8,30 @@ const application: SubmittedApplication = {
   lastName: "Novák",
   accessToken: "token-49",
   terms: [
-    { name: "1. týden", termNumber: 1, status: "CONFIRMED", priceCzk: 4500 },
-    { name: "2. týden", termNumber: 2, status: "WAITLISTED", priceCzk: 4900 },
-    { name: "3. týden", termNumber: 3, status: "CANCELLED", priceCzk: 4900 },
+    {
+      name: "1. týden",
+      dates: "12.–18. 7. 2027",
+      customName: null,
+      termNumber: 1,
+      status: "CONFIRMED",
+      priceCzk: 4500,
+    },
+    {
+      name: "2. týden",
+      dates: "12.–18. 7. 2027",
+      customName: null,
+      termNumber: 2,
+      status: "WAITLISTED",
+      priceCzk: 4900,
+    },
+    {
+      name: "3. týden",
+      dates: "12.–18. 7. 2027",
+      customName: null,
+      termNumber: 3,
+      status: "CANCELLED",
+      priceCzk: 4900,
+    },
   ],
 }
 
@@ -21,14 +42,29 @@ describe("buildConfirmationApplications", () => {
         email: "a@example.com",
         locale: "cs",
         eventName: "Kemp",
+        organizationName: "Alpine Collective",
         bankAccount: "2900123456/2010",
         mustSetPassword: false,
         applications: [
           {
             ...application,
             terms: [
-              { name: "1. týden", termNumber: 1, status: "TO_EVALUATE", priceCzk: 4500 },
-              { name: "2. týden", termNumber: 2, status: "TO_EVALUATE", priceCzk: 4900 },
+              {
+                name: "1. týden",
+                dates: "12.–18. 7. 2027",
+                customName: null,
+                termNumber: 1,
+                status: "TO_EVALUATE",
+                priceCzk: 4500,
+              },
+              {
+                name: "2. týden",
+                dates: "12.–18. 7. 2027",
+                customName: null,
+                termNumber: 2,
+                status: "TO_EVALUATE",
+                priceCzk: 4900,
+              },
             ],
           },
         ],
@@ -37,8 +73,8 @@ describe("buildConfirmationApplications", () => {
     )
 
     expect(built.terms).toEqual([
-      { name: "1. týden", status: "TO_EVALUATE" },
-      { name: "2. týden", status: "TO_EVALUATE" },
+      { dates: "12.–18. 7. 2027", name: null, status: "TO_EVALUATE" },
+      { dates: "12.–18. 7. 2027", name: null, status: "TO_EVALUATE" },
     ])
     expect(built.payment).toBeNull()
   })
@@ -49,6 +85,7 @@ describe("buildConfirmationApplications", () => {
         email: "a@example.com",
         locale: "cs",
         eventName: "Kemp",
+        organizationName: "Alpine Collective",
         bankAccount: "2900123456/2010",
         mustSetPassword: false,
         applications: [application],
@@ -57,8 +94,8 @@ describe("buildConfirmationApplications", () => {
     )
 
     expect(built.terms).toEqual([
-      { name: "1. týden", status: "CONFIRMED" },
-      { name: "2. týden", status: "WAITLISTED" },
+      { dates: "12.–18. 7. 2027", name: null, status: "CONFIRMED" },
+      { dates: "12.–18. 7. 2027", name: null, status: "WAITLISTED" },
     ])
   })
 })
@@ -74,6 +111,8 @@ describe("buildChangeProps", () => {
     bankAccount: "2900123456/2010",
     kind: "REJECTED",
     termName: "1. týden",
+    termDates: "12.–18. 7. 2027",
+    termCustomName: null,
     gender: "MALE",
     application,
     isAmountChanged: false,
@@ -83,8 +122,8 @@ describe("buildChangeProps", () => {
   it("names the participant, the changed term, the organization and the link into the app", () => {
     expect(buildChangeProps(change(), "https://app")).toMatchObject({
       name: "Petr Novák",
-      gender: "MALE",
-      term: "1. týden",
+      termDates: "12.–18. 7. 2027",
+      termName: null,
       organizationName: "Alpine Collective",
       confirmationUrl: "https://app/apply/confirmation/token-49",
     })
@@ -110,7 +149,18 @@ describe("buildChangeProps", () => {
         "https://app",
       ).payment,
     ).not.toBeNull()
-    for (const kind of ["WAITLISTED", "REJECTED", "CANCELLED", "CANCELLED_BY_ORGANIZER"] as const) {
+    for (const kind of ["PAYMENT_OVERDUE", "PAYMENT_CORRECTED"] as const) {
+      expect(
+        buildChangeProps(change({ isAmountChanged: true, kind }), "https://app").payment,
+      ).not.toBeNull()
+    }
+    for (const kind of [
+      "WAITLISTED",
+      "REJECTED",
+      "CANCELLED",
+      "CANCELLED_BY_ORGANIZER",
+      "PAYMENT_SETTLED",
+    ] as const) {
       expect(
         buildChangeProps(change({ isAmountChanged: true, kind }), "https://app").payment,
       ).toBeNull()
@@ -125,6 +175,7 @@ describe("payment details of the e-mails (US-137)", () => {
         email: "a@example.com",
         locale: "cs",
         eventName: "Kemp",
+        organizationName: "Alpine Collective",
         bankAccount: "2900123456/2010",
         mustSetPassword: false,
         applications: [
@@ -132,9 +183,30 @@ describe("payment details of the e-mails (US-137)", () => {
             ...application,
             number: 48,
             terms: [
-              { name: "1. týden", termNumber: 1, status: "CONFIRMED", priceCzk: 4500 },
-              { name: "2. týden", termNumber: 2, status: "CONFIRMED", priceCzk: 4900 },
-              { name: "3. týden", termNumber: 3, status: "WAITLISTED", priceCzk: 4900 },
+              {
+                name: "1. týden",
+                dates: "12.–18. 7. 2027",
+                customName: null,
+                termNumber: 1,
+                status: "CONFIRMED",
+                priceCzk: 4500,
+              },
+              {
+                name: "2. týden",
+                dates: "12.–18. 7. 2027",
+                customName: null,
+                termNumber: 2,
+                status: "CONFIRMED",
+                priceCzk: 4900,
+              },
+              {
+                name: "3. týden",
+                dates: "12.–18. 7. 2027",
+                customName: null,
+                termNumber: 3,
+                status: "WAITLISTED",
+                priceCzk: 4900,
+              },
             ],
           },
         ],
@@ -155,6 +227,7 @@ describe("payment details of the e-mails (US-137)", () => {
         email: "a@example.com",
         locale: "cs",
         eventName: "Kemp",
+        organizationName: "Alpine Collective",
         bankAccount: "2900123456/2010",
         mustSetPassword: false,
         applications: [application],
@@ -171,10 +244,12 @@ describe("payment details of the e-mails (US-137)", () => {
         email: "a@example.com",
         locale: "cs",
         eventName: "Kemp",
+        organizationName: "Alpine Collective",
         bankAccount: "2900123456/2010",
         kind: "CONFIRMED",
-        organizationName: "Alpine Collective",
         termName: "1. týden",
+        termDates: "12.–18. 7. 2027",
+        termCustomName: null,
         gender: "MALE",
         application: { ...application, number: 12345 },
         isAmountChanged: true,

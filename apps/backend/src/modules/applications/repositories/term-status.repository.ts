@@ -16,7 +16,7 @@ import {
   StatusChangeSnapshot,
 } from "@/modules/applications/domain/status-transition"
 import { skippedSubstitutes } from "@/modules/applications/domain/substitute-skips"
-import { termLabel } from "@/modules/applications/domain/term-label"
+import { formatTermDates, termLabel } from "@/modules/applications/domain/term-label"
 import {
   ExpiredWaitlistEntry,
   StatusChangeCommand,
@@ -349,7 +349,7 @@ export class TermStatusRepository {
       const changedTerm = oneCancelled
         ? terms.find((row) => row.termId === removed[0].termId)
         : null
-      // US-118: only the cancellation of a term is told in the app (EMAILY.md, row 11); a change
+      // US-118: only the cancellation of a term is told in the app (docs/emaily/KATALOG.md, APP_CANCELLED_BY_APPLICANT); a change
       // of terms is not, the participant has just made it themselves.
       if (changedTerm) {
         await this.notifications.create(
@@ -377,6 +377,10 @@ export class TermStatusRepository {
         bankAccount: application.event.organization.bankAccount,
         gender: application.gender,
         termName: changedTerm ? termLabel(changedTerm.term, locale) : "",
+        termDates: changedTerm
+          ? formatTermDates(changedTerm.term.startsOn, changedTerm.term.endsOn, locale)
+          : "",
+        termCustomName: changedTerm?.term.name?.trim() || null,
         kind: oneCancelled ? "CANCELLED" : "TERMS_CHANGED",
         isAmountChanged: hasNewConfirmation,
         application: {
@@ -386,6 +390,8 @@ export class TermStatusRepository {
           accessToken: application.accessToken,
           terms: terms.map((row) => ({
             name: termLabel(row.term, locale),
+            dates: formatTermDates(row.term.startsOn, row.term.endsOn, locale),
+            customName: row.term.name?.trim() || null,
             termNumber: row.term.number,
             status: row.status,
             priceCzk: row.priceCzk,
@@ -614,6 +620,8 @@ export class TermStatusRepository {
         bankAccount: application.event.organization.bankAccount,
         gender: application.gender,
         termName: termLabel(current.term, locale),
+        termDates: formatTermDates(current.term.startsOn, current.term.endsOn, locale),
+        termCustomName: current.term.name?.trim() || null,
         application: {
           number: application.number,
           firstName: application.firstName,
@@ -621,6 +629,8 @@ export class TermStatusRepository {
           accessToken: application.accessToken,
           terms: terms.map((row) => ({
             name: termLabel(row.term, locale),
+            dates: formatTermDates(row.term.startsOn, row.term.endsOn, locale),
+            customName: row.term.name?.trim() || null,
             termNumber: row.term.number,
             status: row.status,
             priceCzk: row.priceCzk,

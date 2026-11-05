@@ -1,40 +1,27 @@
 import { Locale } from '@/core/email/locale';
 import { ChangeLayout } from '@/core/email/templates/application-change-layout';
-import { Gender } from '@/shared/domain/gender';
+import { changeCommon, termValue } from '@/core/email/templates/application-change-copy';
 import * as React from 'react';
 
-// Figma (Design system): US-116 E-mailová šablona · E-mail 13 (Potvrzení bylo odvoláno. Jste náhradník) · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15981-686 (360 px: node-id=15981-716)
-// E-mail no. 13 (EMAILY.md, D-074): Potvrzená s dluhem → Náhradník, the organizer moves the
+// Figma (Design system): E09 APP_CONFIRMATION_WITHDRAWN · Odvolání potvrzení · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19681-903 (360 px: node-id=19681-930)
+// E-mail no. 13 (docs/emaily/KATALOG.md, D-074): Potvrzená s dluhem → Náhradník, the organizer moves the
 // application among the substitutes. Own template, not the one of no. 3 (K vyhodnocení → Náhradník).
-// The waiting order is never told. Copy for both locales side by side.
+// The waiting order is never told. Copy for both locales side by side; source: docs/emaily/TEXTY.md.
 const copy: Record<
   Locale,
-  {
-    subject: (event: string) => string;
-    heading: string;
-    text: (name: string, term: string, gender: Gender) => string;
-    badge: string;
-    button: string;
-    footer: (organization: string) => string;
-  }
+  { subject: (event: string) => string; preview: string; heading: string; text: string }
 > = {
   en: {
-    subject: (event) => `Change in your application: ${event}`,
-    heading: 'Your confirmation was withdrawn. You are a substitute',
-    text: (name, term, gender) =>
-      `The organiser withdrew the confirmation of ${name}’s place for ${term} and moved them among the substitutes. This is not waiting for the first evaluation.`,
-    badge: 'Substitute',
-    button: 'Open my applications',
-    footer: (organization) => `${organization} · via Togena`,
+    subject: (event) => `Place confirmation withdrawn: ${event}`,
+    preview: 'The organiser has withdrawn the confirmation and waitlisted the application.',
+    heading: 'The place confirmation has been withdrawn',
+    text: 'The organiser has withdrawn the place confirmation for the term shown below and waitlisted the application. Please do not pay for this term yet. We will e-mail you if the place is confirmed again.',
   },
   cs: {
-    subject: (event) => `Změna ve vaší přihlášce: ${event}`,
-    heading: 'Potvrzení bylo odvoláno. Jste náhradník',
-    text: (name, term, gender) =>
-      `Organizátor odvolal potvrzení účasti (${name}) v termínu ${term} a zařadil ${gender === 'FEMALE' ? 'ji' : 'ho'} mezi náhradníky. Nejde o čekání na první vyhodnocení.`,
-    badge: 'Náhradník',
-    button: 'Otevřít moje přihlášky',
-    footer: (organization) => `${organization} · přes Togenu`,
+    subject: (event) => `Potvrzení účasti odvoláno: ${event}`,
+    preview: 'Organizátor odvolal potvrzení a zařadil přihlášku mezi náhradníky.',
+    heading: 'Potvrzení účasti bylo odvoláno',
+    text: 'Organizátor odvolal potvrzení účasti v uvedeném termínu a zařadil přihlášku mezi náhradníky. Za tento termín zatím nic neplaťte. Pokud bude účast znovu potvrzena, informujeme vás e-mailem.',
   },
 };
 
@@ -47,10 +34,10 @@ export interface ConfirmationWithdrawnProps {
   organizationName: string;
   /** First and last name of the participant. */
   name: string;
-  /** Of the participant: the Czech copy is gendered. */
-  gender: Gender;
-  /** The changed term: its name, or its dates. */
-  term: string;
+  /** The dates of the changed term, already formatted. */
+  termDates: string;
+  /** The name the organizer gave the term, if any. */
+  termName: string | null;
   confirmationUrl: string;
 }
 
@@ -59,23 +46,27 @@ export const ConfirmationWithdrawn = ({
   eventName,
   organizationName,
   name,
-  gender,
-  term,
+  termDates,
+  termName,
   confirmationUrl,
 }: ConfirmationWithdrawnProps): React.JSX.Element => {
   const text = copy[locale];
+  const common = changeCommon[locale];
   return (
     <ChangeLayout
       locale={locale}
-      preview={text.heading}
+      preview={text.preview}
       heading={text.heading}
+      text={text.text}
+      labels={common.labels}
       eventName={eventName}
-      text={text.text(name, term, gender)}
-      badge={{ label: text.badge, tone: 'neutral' }}
+      participantName={name}
+      termValue={termValue(termDates, termName)}
       details={[]}
-      buttonLabel={text.button}
+      note={null}
+      buttonLabel={common.button}
       buttonUrl={confirmationUrl}
-      footer={text.footer(organizationName)}
+      footer={common.footer(organizationName)}
     />
   );
 };
@@ -85,8 +76,8 @@ ConfirmationWithdrawn.PreviewProps = {
   eventName: 'Letní kemp Lipno 2027',
   organizationName: 'Alpine Collective',
   name: 'Adam Dvořák',
-  gender: 'MALE',
-  term: '12.–18. 7. 2027',
+  termDates: '12.–18. 7. 2027',
+  termName: null,
   confirmationUrl: 'https://team-1.vsepractical.applifting.dev/apply/confirmation/preview-2',
 } satisfies ConfirmationWithdrawnProps;
 

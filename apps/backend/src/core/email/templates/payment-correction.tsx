@@ -1,49 +1,45 @@
 import { formatCzk } from "@/core/email/format-czk"
 import { Locale } from "@/core/email/locale"
+import { changeCommon } from "@/core/email/templates/application-change-copy"
 import { ChangeLayout } from "@/core/email/templates/application-change-layout"
 import * as React from "react"
 
-// E-mail no. 16 (US-112): a paid confirmed term has a debt after a payment correction or removal.
-// Text and visual approval are tracked in #260; this uses the existing change-email layout.
+// E16 PAYMENT_CORRECTED (US-112): a paid confirmed term has a debt after a payment correction or removal.
+// Figma (Design system): E16 PAYMENT_CORRECTED · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19681-1387 (360 px: 19681-1424)
+// Copy of the message itself: docs/emaily/TEXTY.md (PAYMENT_CORRECTED). Labels, button and footer are shared.
 const copy: Record<
   Locale,
   {
     subject: (event: string) => string
+    preview: string
     heading: string
-    text: (name: string) => string
+    text: string
     amount: string
-    account: string
     symbol: string
     term: string
     due: string
-    button: string
-    footer: (organization: string) => string
   }
 > = {
   en: {
-    subject: (event) => `Payment correction: ${event}`,
-    heading: "Your payment record was corrected",
-    text: (name) => `A payment record for ${name} changed. There is now an amount left to pay.`,
-    amount: "Amount left to pay",
-    account: "Bank account",
-    symbol: "Reference number",
+    subject: (event) => `Payment correction: outstanding balance for ${event}`,
+    preview:
+      "The previous confirmation of full payment is no longer valid. The outstanding amount is shown below.",
+    heading: "An outstanding balance remains after a payment correction",
+    text: "Following the organiser’s correction of the payment record, the amount shown below remains outstanding for the application in this term. The previous confirmation of full payment is no longer valid. Please pay the outstanding amount using the payment details provided.",
+    amount: "Outstanding amount",
+    symbol: "Variable symbol",
     term: "Term",
     due: "Pay by",
-    button: "Open my application",
-    footer: (organization) => `${organization} · via Togena`,
   },
   cs: {
-    subject: (event) => `Oprava platby: ${event}`,
-    heading: "Platební záznam byl opraven",
-    text: (name) =>
-      `Platební záznam přihlášky (${name}) se změnil. Nyní zbývá doplatit uvedenou částku.`,
+    subject: (event) => `Po opravě platby zbývá doplatit: ${event}`,
+    preview: "Předchozí potvrzení o úplném zaplacení již neplatí. Níže najdete částku k doplacení.",
+    heading: "Po opravě platby zbývá nedoplatek",
+    text: "Po opravě evidence platby organizátorem zbývá u přihlášky v uvedeném termínu doplatit částku uvedenou níže. Předchozí potvrzení o úplném zaplacení již neplatí. Uhraďte prosím nedoplatek podle uvedených platebních údajů.",
     amount: "Aktuální nedoplatek",
-    account: "Číslo účtu",
     symbol: "Variabilní symbol",
     term: "Termín",
     due: "Zaplaťte do",
-    button: "Otevřít přihlášku",
-    footer: (organization) => `${organization} · přes Togenu`,
   },
 }
 
@@ -77,17 +73,20 @@ export const PaymentCorrectionEmail = ({
   confirmationUrl,
 }: PaymentCorrectionEmailProps): React.JSX.Element => {
   const text = copy[locale]
+  const common = changeCommon[locale]
   return (
     <ChangeLayout
       locale={locale}
-      preview={text.heading}
+      preview={text.preview}
       heading={text.heading}
+      text={text.text}
+      labels={common.labels}
       eventName={eventName}
-      text={text.text(name)}
-      badge={{ label: text.amount, tone: "neutral" }}
+      participantName={name}
+      termValue=""
       details={[
         { label: text.amount, value: formatCzk(amountOwedCzk, locale) },
-        { label: text.account, value: bankAccount },
+        { label: common.account, value: bankAccount },
         ...debts.flatMap((debt) => [
           {
             label: `${text.term} ${debt.termNumber} · ${text.amount}`,
@@ -109,9 +108,10 @@ export const PaymentCorrectionEmail = ({
             : []),
         ]),
       ]}
-      buttonLabel={text.button}
+      note={null}
+      buttonLabel={common.button}
       buttonUrl={confirmationUrl}
-      footer={text.footer(organizationName)}
+      footer={common.footer(organizationName)}
     />
   )
 }

@@ -8,6 +8,7 @@ export type SubmissionEvent = {
   id: string
   organizationId: string
   name: string
+  organizationName: string
   bankAccount: string
   /** How a new application is evaluated; fixed once applications open (US-101). */
   evaluationMode: EvaluationMode

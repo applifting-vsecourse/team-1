@@ -25,7 +25,9 @@ test.describe("Magic link", { tag: "@mobile" }, () => {
     await page.getByRole("button", { name: "Send me a link" }).click()
     await expect(page.getByRole("status")).toContainText("Check your e-mail")
 
-    await expect.poll(() => latestEmailSubject(PARTICIPANT.email)).toBe("Your Togena sign-in link")
+    await expect
+      .poll(() => latestEmailSubject(PARTICIPANT.email))
+      .toBe("Your sign-in link for Togena")
   })
 })
 
@@ -41,6 +43,6 @@ test.describe("Magic link in Czech", { tag: "@mobile" }, () => {
 
     await expect
       .poll(() => latestEmailSubject(PARTICIPANT.email))
-      .toBe("Váš přihlašovací odkaz do Togeny")
+      .toBe("Odkaz pro přihlášení do Togeny")
   })
 })

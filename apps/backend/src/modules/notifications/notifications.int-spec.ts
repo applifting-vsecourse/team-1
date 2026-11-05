@@ -188,7 +188,7 @@ describe("participant notifications (integration)", () => {
       await changeStatus(id, "CANCELLED")
 
       expect((await list()).map((item) => item.kind)).toEqual([
-        // A waitlisted application cancelled by the organizer: EMAILY.md, row 14.
+        // A waitlisted application cancelled by the organizer: docs/emaily/KATALOG.md, APP_WAITLIST_CANCELLED.
         "CANCELLED_BY_ORGANIZER",
         "WAITLISTED_AFTER_CONFIRMED",
       ])

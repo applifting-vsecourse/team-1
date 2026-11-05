@@ -1,108 +1,81 @@
 import { Locale } from '@/core/email/locale';
-import {
-  Body,
-  Button,
-  Container,
-  Head,
-  Heading,
-  Hr,
-  Html,
-  Preview,
-  Section,
-  Tailwind,
-  Text,
-} from 'react-email';
 import * as React from 'react';
+import {
+  EmailAlert,
+  EmailButton,
+  EmailFallbackLink,
+  EmailFooter,
+  EmailHeading,
+  EmailLogo,
+  EmailShell,
+  EmailText,
+} from './email-kit';
 
-// Every template keeps its copy for all locales side by side, so a missing
-// translation is a type error, not a silent English e-mail.
+// Figma (Design system): E18 AUTH_RESET_PASSWORD · Obnova hesla · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19681-1519 (360 px: node-id=19681-1546)
+
+// Copy for all locales side by side — a missing translation is a type error. Source: docs/emaily/TEXTY.md.
 const copy: Record<
   Locale,
   {
     subject: string;
     preview: string;
     heading: string;
-    body: (name: string) => string;
+    body: string;
+    alertTitle: string;
+    alertText: string;
     button: string;
     fallback: string;
-    ignore: string;
+    footer: string[];
   }
 > = {
   en: {
-    subject: 'Password reset',
-    preview: 'Reset your Togena password',
-    heading: 'Reset your password',
-    body: (name) =>
-      `Hi ${name}, we received a request to reset your Togena password. Click the button below to choose a new one.`,
+    subject: 'Reset your Togena password',
+    preview: 'Use the link in this e-mail to choose a new password.',
+    heading: 'Choose a new password',
+    body: 'We have received a request to reset the password for your Togena account. Use the button below to choose a new password. The link is valid for 1 hour.',
+    alertTitle: 'If you did not request a password reset',
+    alertText: 'Ignore this e-mail. This e-mail does not change your password.',
     button: 'Choose a new password',
     fallback: "If the button doesn't work, copy this link into your browser:",
-    ignore:
-      "If you didn't ask for a password reset, ignore this e-mail — your password stays the same.",
+    footer: ['Togena', 'Help with signing in or your account: support@togena.com'],
   },
   cs: {
-    subject: 'Obnova hesla',
-    preview: 'Obnova hesla do Togeny',
-    heading: 'Obnova hesla',
-    body: (name) =>
-      `Dobrý den, ${name}, dostali jsme žádost o obnovu hesla do Togeny. Nové heslo si nastavíte kliknutím na tlačítko níže.`,
+    subject: 'Obnova hesla do Togeny',
+    preview: 'Nastavte si nové heslo pomocí odkazu v tomto e-mailu.',
+    heading: 'Nastavení nového hesla',
+    body: 'Obdrželi jsme žádost o obnovu hesla k vašemu uživatelskému účtu v Togeně. Nové heslo si nastavíte tlačítkem níže. Odkaz platí 1 hodinu.',
+    alertTitle: 'Pokud jste o obnovu nežádali',
+    alertText: 'Tento e-mail ignorujte. Vaše heslo se tímto e-mailem nemění.',
     button: 'Nastavit nové heslo',
     fallback: 'Pokud tlačítko nefunguje, zkopírujte tento odkaz do prohlížeče:',
-    ignore:
-      'Pokud jste o obnovu hesla nežádali, tento e-mail ignorujte — heslo zůstane stejné.',
+    footer: ['Togena', 'Pomoc s přihlášením nebo uživatelským účtem: support@togena.com'],
   },
 };
 
 export const resetPasswordSubject = (locale: Locale): string => copy[locale].subject;
 
 export interface ResetPasswordProps {
-  username: string;
   url: string;
   locale: Locale;
 }
 
-export const ResetPassword = ({
-  username,
-  url,
-  locale,
-}: ResetPasswordProps): React.JSX.Element => {
+export const ResetPassword = ({ url, locale }: ResetPasswordProps): React.JSX.Element => {
   const text = copy[locale];
   return (
-    <Html lang={locale}>
-      <Head />
-      <Preview>{text.preview}</Preview>
-      <Tailwind>
-        <Body className="bg-gray-50 font-sans py-10">
-          <Container className="bg-white rounded-lg mx-auto p-8 max-w-xl">
-            <Heading className="text-2xl font-bold text-gray-900 m-0">
-              {text.heading}
-            </Heading>
-            <Text className="text-gray-700 text-base leading-6 mt-4">
-              {text.body(username)}
-            </Text>
-            <Section className="text-center my-8">
-              <Button
-                href={url}
-                className="bg-gray-900 text-white font-semibold rounded-md px-6 py-3"
-              >
-                {text.button}
-              </Button>
-            </Section>
-            <Text className="text-gray-600 text-sm leading-5">
-              {text.fallback}
-            </Text>
-            <Text className="text-blue-600 text-sm break-all">{url}</Text>
-            <Hr className="border-gray-200 my-6" />
-            <Text className="text-gray-400 text-xs">{text.ignore}</Text>
-          </Container>
-        </Body>
-      </Tailwind>
-    </Html>
+    <EmailShell locale={locale} preview={text.preview}>
+      <EmailLogo />
+      <EmailHeading>{text.heading}</EmailHeading>
+      <EmailText>{text.body}</EmailText>
+      <EmailButton href={url}>{text.button}</EmailButton>
+      <EmailAlert title={text.alertTitle} description={text.alertText} />
+      <EmailFallbackLink label={text.fallback} url={url} />
+      <EmailFooter lines={text.footer} />
+    </EmailShell>
   );
 };
 
 // Preview data for `pnpm backend email:dev`.
 ResetPassword.PreviewProps = {
-  username: 'Jana',
   url: 'https://team-1.vsepractical.applifting.dev/reset-password?token=preview',
   locale: 'cs',
 } satisfies ResetPasswordProps;

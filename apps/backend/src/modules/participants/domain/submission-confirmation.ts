@@ -13,6 +13,10 @@ export type SubmittedApplication = {
   /** Terms as evaluated; the price is the one frozen at evaluation. */
   terms: {
     name: string
+    /** The dates of the term in the e-mail's language (`formatTermDates`). */
+    dates: string
+    /** The name the organizer gave the term, if any (a term needs none, D-053). */
+    customName: string | null
     /** `Term.number`, the last three digits of the term's variable symbol. */
     termNumber: number
     status: ApplicationTermStatus
@@ -32,6 +36,8 @@ export type SubmissionConfirmation = {
   /** Application.locale — language of the e-mail. */
   locale: Locale
   eventName: string
+  /** The organization that runs the event; the footer of the e-mail. */
+  organizationName: string
   /** Account number of the organization that runs the event. */
   bankAccount: string
   /**
@@ -44,7 +50,7 @@ export type SubmissionConfirmation = {
 }
 
 /**
- * What changed in an application after it was submitted (docs/procesy/zpracovani-prihlasky/EMAILY.md,
+ * What changed in an application after it was submitted (docs/emaily/KATALOG.md,
  * the number is the row): the status of one term changed.
  */
 export type ApplicationChangeKind =
@@ -64,6 +70,12 @@ export type ApplicationChangeKind =
   | "NO_BED_FREED"
   /** 14: Náhradník → Zrušená by the organizer. */
   | "CANCELLED_BY_ORGANIZER"
+  /** E14: the payment deadline passed and the organizer asked for the reminder; no trigger yet (#46). */
+  | "PAYMENT_OVERDUE"
+  /** E15: the application in the term became fully paid; no trigger yet (#210). */
+  | "PAYMENT_SETTLED"
+  /** E16: a payment was corrected and a balance is due again; no trigger yet (#205). */
+  | "PAYMENT_CORRECTED"
   /** US-33 / US-84: the terms of the application changed; no trigger yet. */
   | "TERMS_CHANGED"
 
@@ -79,6 +91,10 @@ export type ApplicationChange = {
   kind: ApplicationChangeKind
   /** The term that changed: its name, else its dates. */
   termName: string
+  /** The dates of the changed term in the e-mail's language (`formatTermDates`). */
+  termDates: string
+  /** The name the organizer gave the changed term, if any. */
+  termCustomName: string | null
   /** Of the participant: the Czech copy is gendered. */
   gender: Gender
   /** The application as it stands now. */

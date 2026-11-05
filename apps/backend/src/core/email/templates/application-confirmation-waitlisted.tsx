@@ -9,6 +9,7 @@ import {
 const props = {
   locale: 'cs',
   eventName: 'Horský víkend 2027',
+  organizationName: 'Alpine Collective',
   access: {
     kind: 'MAGIC_LINK',
     url: 'https://team-1.vsepractical.applifting.dev/participant/magic-link?token=preview',
@@ -16,7 +17,7 @@ const props = {
   applications: [
     {
       name: 'Hana Králová',
-      terms: [{ name: 'Září', status: 'WAITLISTED' }],
+      terms: [{ dates: '12.–18. 7. 2027', name: 'Září', status: 'WAITLISTED' }],
       payment: null,
       confirmationUrl:
         'https://team-1.vsepractical.applifting.dev/apply/confirmation/preview-3',
