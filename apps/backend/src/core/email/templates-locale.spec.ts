@@ -12,6 +12,7 @@ import TermCancelled, { termCancelledSubject } from "./templates/application-ter
 import ChangeEmail, { changeEmailSubject } from "./templates/change-email"
 import ChangeEmailNotice, { changeEmailNoticeSubject } from "./templates/change-email-notice"
 import MagicLink, { magicLinkSubject } from "./templates/magic-link"
+import PaymentCorrectionEmail, { paymentCorrectionSubject } from "./templates/payment-correction"
 import ResetPassword, { resetPasswordSubject } from "./templates/reset-password"
 import VerifyEmail, { verifyEmailSubject } from "./templates/verify-email"
 
@@ -46,6 +47,13 @@ const templates: Record<
   "application-term-cancelled": (locale) => ({
     subject: termCancelledSubject(locale, "Camp"),
     element: React.createElement(TermCancelled, { ...TermCancelled.PreviewProps, locale }),
+  }),
+  "payment-correction": (locale) => ({
+    subject: paymentCorrectionSubject(locale, "Camp"),
+    element: React.createElement(PaymentCorrectionEmail, {
+      ...PaymentCorrectionEmail.PreviewProps,
+      locale,
+    }),
   }),
   "magic-link": (locale) => ({
     subject: magicLinkSubject(locale),
@@ -93,4 +101,28 @@ describe.each(Object.keys(templates))("template %s", (name) => {
       expect(other.html).not.toBe(first.html)
     }
   })
+})
+
+it("includes the corrected debt and transfer details in e-mail 16", async () => {
+  const html = await render(
+    React.createElement(PaymentCorrectionEmail, {
+      ...PaymentCorrectionEmail.PreviewProps,
+      debts: [
+        {
+          termNumber: 1,
+          amountCzk: 1200,
+          variableSymbol: "12345001",
+          paymentDueAt: new Date("2027-06-20T12:00:00Z"),
+        },
+        { termNumber: 2, amountCzk: 500, variableSymbol: "12345002", paymentDueAt: null },
+      ],
+    }),
+  )
+  expect(html).toContain("Aktuální nedoplatek")
+  expect(html).toMatch(/1[\s\u00a0\u202f]200/)
+  expect(html).toContain("123456789/2010")
+  expect(html).toContain("12345001")
+  expect(html).toContain("12345002")
+  expect(html).toContain("Zaplaťte do")
+  expect(html).toContain("20. června 2027")
 })

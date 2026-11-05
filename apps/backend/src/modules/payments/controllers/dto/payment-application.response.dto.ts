@@ -17,6 +17,9 @@ class PaymentResponseDto {
   amountCzk!: number
   @ApiProperty() recordedByName!: string
   @ApiProperty() createdAt!: string
+  @ApiProperty({ nullable: true, type: String }) cancelledAt!: string | null
+  @ApiProperty({ nullable: true, type: String }) correctsReceiptId!: string | null
+  @ApiProperty({ nullable: true, type: Boolean }) isSummary!: boolean | null
   @ApiProperty({ type: [ReceiptRowResponseDto], description: "The split over the terms." })
   rows!: ReceiptRowResponseDto[]
 }
@@ -41,6 +44,12 @@ class PaymentTermResponseDto {
   paymentStatus!: string
   @ApiProperty({ description: "Limit of a refund for this term: its overpayment, 0 without one." })
   refundableCzk!: number
+  @ApiProperty({
+    nullable: true,
+    type: String,
+    description: "Restarted payment deadline; null without a renewed period or debt.",
+  })
+  paymentDueAt!: string | null
 }
 
 export class PaymentApplicationResponseDto {
@@ -99,12 +108,16 @@ export class PaymentApplicationResponseDto {
         owedCzk: term.owedCzk,
         paymentStatus: term.paymentStatus,
         refundableCzk: term.refundableCzk,
+        paymentDueAt: term.paymentDueAt?.toISOString() ?? null,
       })),
       payments: application.receipts.map((receipt) => ({
         id: receipt.id,
         amountCzk: receipt.amountCzk,
         recordedByName: receipt.recordedByName,
         createdAt: receipt.createdAt.toISOString(),
+        cancelledAt: receipt.cancelledAt?.toISOString() ?? null,
+        correctsReceiptId: receipt.correctsReceiptId,
+        isSummary: receipt.isSummary,
         rows: receipt.rows,
       })),
     }

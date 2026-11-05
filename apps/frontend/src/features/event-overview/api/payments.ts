@@ -39,6 +39,7 @@ export const paymentApplicationSchema = z.object({
       /** Limit of a refund for this term, from the backend. */
       refundableCzk: z.number().int(),
       paymentStatus: z.enum(["NOTHING_DUE", "UNPAID", "PARTIALLY_PAID", "PAID", "OVERPAID"]),
+      paymentDueAt: z.string().datetime().nullable(),
     }),
   ),
   /** Receipts, oldest first: money that arrived at once, split into rows per term. */
@@ -48,6 +49,9 @@ export const paymentApplicationSchema = z.object({
       amountCzk: z.number().int(),
       recordedByName: z.string(),
       createdAt: z.string(),
+      cancelledAt: z.string().nullable(),
+      correctsReceiptId: z.string().nullable(),
+      isSummary: z.boolean().nullable(),
       rows: z.array(z.object({ termId: z.string(), amountCzk: z.number().int() })),
     }),
   ),
@@ -57,6 +61,33 @@ export type Payment = PaymentApplication["payments"][number]
 export type PaymentTerm = PaymentApplication["terms"][number]
 
 const path = (id: string) => `organizer/applications/${encodeURIComponent(id)}/payments`
+
+const correctionPreviewSchema = z.object({
+  amountOwedCzk: z.number().int(),
+  terms: z.array(
+    z.object({ termId: z.string(), owedCzk: z.number().int(), changeCzk: z.number().int() }),
+  ),
+})
+
+export const correctionPreviewQueryOptions = (
+  applicationId: string,
+  receiptId: string,
+  amountCzk: number,
+  termId?: string,
+) =>
+  queryOptions({
+    queryKey: ["eventOverview", "correctionPreview", applicationId, receiptId, amountCzk, termId],
+    retry: false,
+    queryFn: async ({ signal }) =>
+      correctionPreviewSchema.parse(
+        await api
+          .post(`${path(applicationId)}/${encodeURIComponent(receiptId)}/preview`, {
+            signal,
+            json: { amountCzk, ...(termId === undefined ? {} : { termId }) },
+          })
+          .json(),
+      ),
+  })
 
 export const paymentQueryOptions = (id: string) =>
   queryOptions({
@@ -82,6 +113,18 @@ export async function recordPayment(
 
 export async function cancelPayment(id: string, payment: Payment) {
   await api.delete(`${path(id)}/${encodeURIComponent(payment.id)}`)
+}
+
+export async function correctPayment(
+  id: string,
+  payment: Payment,
+  requestId: string,
+  amountCzk: number,
+  termId?: string,
+) {
+  await api.patch(`${path(id)}/${encodeURIComponent(payment.id)}`, {
+    json: { requestId, amountCzk, ...(termId === undefined ? {} : { termId }) },
+  })
 }
 
 /** A refund is always taken from one term, so `termId` is required. */
