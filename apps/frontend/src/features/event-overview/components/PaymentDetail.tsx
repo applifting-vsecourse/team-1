@@ -9,63 +9,42 @@ import { MoneyAmount } from "@/components/atoms/MoneyAmount"
 import { Seo } from "@/components/atoms/Seo"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
+import { TermPaymentCard, TermPaymentCards } from "@/components/molecules/TermPaymentCard"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { formatDate, formatDateRange } from "@/lib/date"
-import { formatCzk } from "@/lib/money"
+import { formatDate } from "@/lib/date"
+import { termDates } from "@/lib/term-label"
 import { cn } from "@/lib/utils"
 
 import {
   paymentQueryOptions,
   type Payment,
-  type PaymentApplication,
+  type PaymentTerm,
 } from "@/features/event-overview/api/payments"
 import { PaymentCancellation } from "@/features/event-overview/components/PaymentCancellation"
 import { PaymentEditor } from "@/features/event-overview/components/PaymentEditor"
 
-type PaymentState = "nothingDue" | "unpaid" | "partial" | "paid" | "overpaid"
+/** Needs attention first, then the paid (collapsed) terms, then the waitlisted ones. */
+const cardRank = (term: PaymentTerm): number =>
+  term.status === "WAITLISTED" ? 2 : term.paymentStatus === "PAID" ? 1 : 0
 
-const STATE_BADGE = {
-  nothingDue: "secondary",
-  unpaid: "secondary",
-  partial: "warning",
-  paid: "success",
-  overpaid: "info",
-} as const
-
-const STATE_ALERT = {
-  nothingDue: "border-status-info bg-status-info-bg",
-  unpaid: "border-status-info bg-status-info-bg",
-  partial: "border-status-warning bg-status-warning-bg",
-  paid: "border-status-success bg-status-success-bg",
-  overpaid: "border-status-warning bg-status-warning-bg",
-} as const
-
-function paymentState(application: PaymentApplication): PaymentState {
-  if (application.amountOwedCzk < 0) return "overpaid"
-  if (application.amountDueCzk === 0) return "nothingDue"
-  if (application.payments.length === 0) return "unpaid"
-  return application.amountOwedCzk === 0 ? "paid" : "partial"
-}
+/** Confirmed and waitlisted terms, and any other term that holds money (so it is never hidden). */
+const isShown = (term: PaymentTerm): boolean =>
+  term.status === "CONFIRMED" || term.status === "WAITLISTED" || term.paidCzk !== 0
 
 /**
- * O34: payments of one application under the event's Applications tab — who and what state,
- * the one primary action (plus the refund when overpaid), three amounts, what the state means
- * and the history with a trash button per record. On a phone the amounts become one card of
- * rows and the history a list (M13).
+ * O34: payments of one application under the event's Applications tab — a card per term with
+ * what is due, paid and left, the account and the term's variable symbol, a button to record a
+ * payment for the term, and the payment history. A paid term is a collapsed card. On a phone the
+ * cards stack and the history becomes a list (M13).
  */
-// Figma (Design system): O34a Detail platby · nezaplaceno · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12796-4661
-// Figma (Design system): O34b Zaplaceno · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12796-5016
-// Figma (Design system): O34c Částečně zaplaceno · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12796-5206
-// Figma (Design system): O34k Přeplatek · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=13980-10231
-// Figma (Design system): O34o Po vrácení části přeplatku · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=13983-9017
-// Figma (Design system): M13 Detail platby přihlášky · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14070-41745
+// Figma (Design system): Detail přihlášky · Platby · Organizátor · dluh po termínech · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15845-7697 (360 px: node-id=15845-7814)
+// Figma (Design system): O34 Detail platby, bez potvrzeného termínu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16487-6805
 export function PaymentDetail({ applicationId }: { applicationId: string }) {
   const { t } = useTranslation("eventOverview")
   const { data, isPending, error, refetch } = useQuery(paymentQueryOptions(applicationId))
-  const [isEditorOpen, setIsEditorOpen] = useState(false)
+  const [termToPay, setTermToPay] = useState<PaymentTerm | null>(null)
   const [isRefundOpen, setIsRefundOpen] = useState(false)
   const [paymentToCancel, setPaymentToCancel] = useState<Payment | null>(null)
   if (isPending) return <LoadingState />
@@ -78,42 +57,10 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
       />
     )
   }
-  const state = paymentState(data)
-  const isOverpaid = state === "overpaid"
-  const receipts = data.payments.filter((payment) => payment.amountCzk > 0).length
-  const refunds = data.payments.length - receipts
-  const confirmedTerms = data.terms
-    .filter((term) => term.status === "CONFIRMED")
-    .map((term) => formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true }))
-    .join(", ")
-  const metrics = [
-    { label: t("payment.due"), amount: data.amountDueCzk, helper: confirmedTerms },
-    {
-      label: t("payment.paid"),
-      amount: data.amountPaidCzk,
-      helper:
-        data.payments.length === 0
-          ? t("payment.noPayment")
-          : refunds > 0
-            ? t("payment.receiptsAndRefunds", {
-                receipts: t("payment.receiptCount", { count: receipts }),
-                refunds: t("payment.refundCount", { count: refunds }),
-              })
-            : t("payment.receiptCount", { count: receipts }),
-    },
-    {
-      label: t(isOverpaid ? "payment.overpaid" : "payment.remaining"),
-      amount: Math.abs(data.amountOwedCzk),
-      isWarning: isOverpaid,
-      helper: t(
-        isOverpaid
-          ? "payment.overpaidHelper"
-          : state === "paid"
-            ? "payment.settled"
-            : "payment.unpaid",
-      ),
-    },
-  ]
+  const terms = data.terms.filter(isShown).sort((a, b) => cardRank(a) - cardRank(b))
+  // A refund is taken from one term, so any overpaid term opens it.
+  const hasOverpayment = data.terms.some((term) => term.owedCzk < 0)
+  const hasConfirmedTerm = data.terms.some((term) => term.status === "CONFIRMED")
 
   return (
     <div className="flex flex-col gap-6">
@@ -135,112 +82,83 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
         </Button>
         <div className="flex flex-col gap-4 md:flex-row md:items-center">
           <div className="flex min-w-0 flex-1 flex-col gap-2">
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-              <h2 className="text-xl font-semibold tracking-tight md:text-2xl">
-                {data.firstName} {data.lastName} · {data.code}
-              </h2>
-              <Badge variant={STATE_BADGE[state]}>{t(`payment.state.${state}`)}</Badge>
-            </div>
+            <h2 className="text-xl font-semibold tracking-tight md:text-2xl">
+              {data.firstName} {data.lastName} · {data.code}
+            </h2>
             <p className="text-sm text-muted-foreground">{t("payment.description")}</p>
           </div>
-          <div className="flex flex-col gap-2 sm:flex-row">
-            {isOverpaid ? (
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={() => setIsRefundOpen(true)}
-              >
-                {t("payment.refund")}
-              </Button>
-            ) : null}
-            {/* Nothing to pay without a confirmed term (US-25); once paid, another payment
-                only creates an overpayment, so the action steps back. */}
-            {state === "nothingDue" ? null : (
-              <Button
-                variant={state === "paid" || isOverpaid ? "outline" : "default"}
-                size="lg"
-                onClick={() => setIsEditorOpen(true)}
-              >
-                {t("payment.record")}
-              </Button>
-            )}
-          </div>
+          {hasOverpayment ? (
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={() => setIsRefundOpen(true)}
+            >
+              {t("payment.refund")}
+            </Button>
+          ) : null}
         </div>
       </div>
-      {/* One card of rows on a phone (M13), three metric cards from md up (O34). */}
-      <div className="flex flex-col rounded-xl border bg-card px-4 py-2 shadow-sm md:grid md:grid-cols-3 md:gap-6 md:border-0 md:bg-transparent md:p-0 md:shadow-none">
-        {metrics.map((metric, index) => (
-          <section
-            key={metric.label}
-            className="flex items-baseline justify-between gap-4 py-2 md:flex-col md:items-start md:gap-2 md:rounded-xl md:border md:bg-card md:p-6 md:shadow-sm"
-          >
-            <h3 className="text-sm text-muted-foreground md:text-xs md:font-medium">
-              {metric.label}
-            </h3>
-            <MoneyAmount
-              amountCzk={metric.amount}
-              className={cn(
-                "font-medium md:text-4xl md:font-bold",
-                index === metrics.length - 1 && "text-lg font-semibold",
-                metric.isWarning && "text-status-warning",
-              )}
-            />
-            <p className="hidden text-sm text-muted-foreground md:block">{metric.helper}</p>
-          </section>
+      {/* Nothing to pay without a confirmed term (US-25): record a payment once a place is confirmed. */}
+      {hasConfirmedTerm ? null : (
+        <Alert className="border-status-info bg-status-info-bg">
+          <AlertTitle className="line-clamp-none">{t("payment.nothingDueTitle")}</AlertTitle>
+          <AlertDescription>{t("payment.nothingDueDescription")}</AlertDescription>
+        </Alert>
+      )}
+      {terms.filter((term) => term.owedCzk > 0).length > 1 && data.payableCzk > 0 ? (
+        <Card className="gap-2 p-6">
+          <h2 className="text-lg font-semibold">{t("payment.totalOwed")}</h2>
+          <MoneyAmount
+            amountCzk={data.payableCzk}
+            className="text-2xl font-semibold"
+          />
+        </Card>
+      ) : null}
+      <TermPaymentCards>
+        {terms.map((term) => (
+          <TermPaymentCard
+            key={term.termId}
+            title={termDates(term)}
+            // A waitlisted term that still holds money keeps its payment status (D-088).
+            status={
+              term.status === "WAITLISTED" && term.paidCzk === 0 ? "WAITLISTED" : term.paymentStatus
+            }
+            dueCzk={term.dueCzk}
+            paidCzk={term.paidCzk}
+            owedCzk={term.owedCzk}
+            bankAccount={data.bankAccount}
+            variableSymbol={term.variableSymbol}
+            action={
+              // Also after the term is paid: a payment sent by mistake is recorded as an overpayment.
+              term.status === "WAITLISTED" && term.paidCzk === 0 ? null : (
+                <Button
+                  size="lg"
+                  onClick={() => setTermToPay(term)}
+                >
+                  {t("payment.recordForTerm")}
+                </Button>
+              )
+            }
+          />
         ))}
-      </div>
-      <Alert className={STATE_ALERT[state]}>
-        <AlertTitle className="line-clamp-none">
-          {t(
-            isOverpaid
-              ? "payment.overpaidTitle"
-              : state === "nothingDue"
-                ? "payment.nothingDueTitle"
-                : state === "paid"
-                  ? "payment.recorded"
-                  : state === "partial"
-                    ? "payment.partialTitle"
-                    : "payment.waiting",
-            { amount: formatCzk(Math.abs(data.amountOwedCzk)) },
-          )}
-        </AlertTitle>
-        <AlertDescription>
-          {state === "nothingDue"
-            ? t("payment.nothingDueDescription")
-            : state === "unpaid"
-              ? t("payment.waitingDescription", { amount: formatCzk(data.amountDueCzk) })
-              : t(
-                  isOverpaid
-                    ? "payment.overpaidSummary"
-                    : state === "paid"
-                      ? "payment.settledSummary"
-                      : "payment.summary",
-                  {
-                    due: formatCzk(data.amountDueCzk),
-                    paid: formatCzk(data.amountPaidCzk),
-                    owed: formatCzk(data.amountOwedCzk),
-                  },
-                )}
-        </AlertDescription>
-      </Alert>
+      </TermPaymentCards>
       <Card className="gap-4 p-4 md:p-6">
-        <div className="flex flex-col gap-1">
-          <h2 className="text-lg font-semibold">{t("payment.history")}</h2>
-          <p className="text-sm text-muted-foreground">{t("payment.historyHelper")}</p>
-        </div>
+        <h2 className="text-lg font-semibold">{t("payment.history")}</h2>
         {data.payments.length === 0 ? (
           <p className="text-sm text-muted-foreground">{t("payment.empty")}</p>
         ) : (
           <PaymentHistory
             payments={data.payments}
+            terms={data.terms}
             onCancel={setPaymentToCancel}
           />
         )}
       </Card>
-      {isEditorOpen ? (
+      {termToPay ? (
         <PaymentEditor
           application={data}
-          onClose={() => setIsEditorOpen(false)}
+          term={termToPay}
+          onClose={() => setTermToPay(null)}
         />
       ) : null}
       {paymentToCancel ? (
@@ -261,22 +179,32 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
   )
 }
 
-/** A table from md up; on a phone each row stacks into amount, then date, method and author. */
+/** One line per term a receipt was split to; a table from md up, on a phone a stacked list. */
 function PaymentHistory({
   payments,
+  terms,
   onCancel,
 }: {
   payments: Payment[]
+  terms: PaymentTerm[]
   onCancel: (payment: Payment) => void
 }) {
   const { t } = useTranslation("eventOverview")
   const detail = "text-xs text-muted-foreground md:text-sm md:text-foreground"
+  const lines = payments.flatMap((payment) =>
+    payment.rows.map((row) => ({
+      payment,
+      amountCzk: row.amountCzk,
+      term: terms.find((candidate) => candidate.termId === row.termId),
+    })),
+  )
 
   return (
     <table className="w-full text-left text-sm">
       <thead className="hidden text-xs text-muted-foreground md:table-header-group">
         <tr className="bg-muted">
           <th className="h-10 rounded-l-md px-3 font-medium">{t("payment.date")}</th>
+          <th className="h-10 px-3 font-medium">{t("payment.term")}</th>
           <th className="h-10 px-3 font-medium">{t("payment.method")}</th>
           <th className="h-10 px-3 text-right font-medium">{t("payment.historyAmount")}</th>
           <th className="h-10 px-3 font-medium">{t("payment.recorder")}</th>
@@ -286,27 +214,30 @@ function PaymentHistory({
         </tr>
       </thead>
       <tbody>
-        {payments.map((payment) => (
+        {lines.map(({ payment, amountCzk, term }) => (
           <tr
-            key={payment.id}
+            key={`${payment.id}-${term?.termId ?? amountCzk}`}
             className="grid grid-cols-[minmax(0,1fr)_auto] border-b py-2 last:border-b-0 md:table-row"
           >
             <td className={cn("col-start-1 row-start-2 md:px-3 md:py-4", detail)}>
               {formatDate(payment.createdAt)}
             </td>
             <td className={cn("col-start-1 row-start-3 md:px-3 md:py-4", detail)}>
-              {t(payment.amountCzk < 0 ? "payment.refundMethod" : "payment.manual")}
+              {term ? termDates(term) : null}
+            </td>
+            <td className={cn("col-start-1 row-start-4 md:px-3 md:py-4", detail)}>
+              {t(amountCzk < 0 ? "payment.refundMethod" : "payment.manual")}
             </td>
             <td className="col-start-1 row-start-1 font-semibold md:px-3 md:py-4 md:text-right">
               <MoneyAmount
-                amountCzk={payment.amountCzk}
-                className={cn(payment.amountCzk < 0 && "text-status-warning")}
+                amountCzk={amountCzk}
+                className={cn(amountCzk < 0 && "text-status-warning")}
               />
             </td>
-            <td className={cn("col-start-1 row-start-4 md:px-3 md:py-4", detail)}>
+            <td className={cn("col-start-1 row-start-5 md:px-3 md:py-4", detail)}>
               {payment.recordedByName}
             </td>
-            <td className="col-start-2 row-span-4 row-start-1 self-center text-right md:px-3 md:py-2">
+            <td className="col-start-2 row-span-5 row-start-1 self-center text-right md:px-3 md:py-2">
               <Button
                 variant="ghost"
                 size="icon-lg"

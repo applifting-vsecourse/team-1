@@ -36,28 +36,15 @@
       "alertText": "You will get the payment details once your participation is confirmed.",
       "alertTitle": "Don't pay yet.",
       "note": "The organizer will review the application in each term separately. It is not a confirmed place or a waitlist spot yet."
-    },
-    "waitlistNote": "Only confirmed terms are payable. Don't pay for a term where you are waitlisted yet."
+    }
   },
   "list": {
     "empty": "You have no applications yet. Once you apply for an event, it will appear here.",
     "errorTitle": "Couldn't load your applications"
   },
   "payment": {
-    "account": "Bank account",
-    "chooseSymbol": "Use the variable symbol of the whole application, or only of the term you are paying.",
-    "detailsTitle": "Payment information",
-    "due": "Amount due",
-    "note": "Please pay by bank transfer.",
-    "overpaid": "Overpayment",
-    "owed": "Left to pay",
-    "paid": "Paid",
-    "title": "Payment for the confirmed term",
-    "toPay": "To pay",
-    "transferTitle": "Payment details",
-    "variableSymbol": "Variable symbol",
-    "waitlistedNote": "In the term {{range}} you are waitlisted and have no amount due yet.",
-    "wholeApplication": "Whole application"
+    "payEachTerm": "You pay each term separately. Each has its own variable symbol.",
+    "totalOwed": "Left to pay in total"
   },
   "paymentStatus": {
     "OVERPAID": "Overpaid",
@@ -69,7 +56,6 @@
     "cancelled": "Cancelled",
     "confirmed": "Confirmed",
     "toEvaluate": "Awaiting evaluation",
-    "waitlisted": "Waitlisted",
-    "zeroUntilConfirmed": "0 CZK until confirmed"
+    "waitlisted": "Waitlisted"
   }
 }

@@ -43,6 +43,8 @@ export class PaymentApplicationResponseDto {
   @ApiProperty() id!: string
   @ApiProperty() eventId!: string
   @ApiProperty() eventName!: string
+  @ApiProperty({ example: "2900123456/2010", description: "Account payments are sent to." })
+  bankAccount!: string
   @ApiProperty() firstName!: string
   @ApiProperty() lastName!: string
   @ApiProperty() code!: string
@@ -63,6 +65,7 @@ export class PaymentApplicationResponseDto {
       id: application.id,
       eventId: application.eventId,
       eventName: application.eventName,
+      bankAccount: application.bankAccount,
       firstName: application.firstName,
       lastName: application.lastName,
       code: toApplicationCode(application.eventName, application.number),

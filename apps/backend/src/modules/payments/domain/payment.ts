@@ -39,6 +39,8 @@ export type PaymentApplication = {
   id: string
   eventId: string
   eventName: string
+  /** Account the organization receives payments to; shown next to each term's variable symbol. */
+  bankAccount: string
   number: number
   firstName: string
   lastName: string

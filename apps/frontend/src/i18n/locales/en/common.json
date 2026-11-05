@@ -11,6 +11,7 @@
   "clipboard": {
     "copied": "Copied to the clipboard",
     "copyAccount": "Copy account number",
+    "copyAmount": "Copy amount",
     "copyVariableSymbol": "Copy variable symbol",
     "failedDescription": "Copy it manually.",
     "failedTitle": "Copying failed"
@@ -79,6 +80,26 @@
   "state": {
     "loading": "Loading…",
     "retry": "Try again"
+  },
+  "termPayment": {
+    "account": "Account",
+    "amountToPay": "Amount to pay",
+    "due": "Amount due",
+    "listTitle": "Payments by term",
+    "overpaid": "Overpayment",
+    "owed": "Left to pay",
+    "paid": "Paid",
+    "paymentDetails": "Payment details",
+    "status": {
+      "NOTHING_DUE": "Nothing to pay",
+      "OVERPAID": "Overpaid",
+      "PAID": "Paid",
+      "PARTIALLY_PAID": "Partly paid",
+      "UNPAID": "Unpaid"
+    },
+    "variableSymbol": "Variable symbol",
+    "waitlisted": "Waitlisted",
+    "waitlistedNote": "You don't pay anything yet."
   },
   "theme": {
     "dark": "Dark",
