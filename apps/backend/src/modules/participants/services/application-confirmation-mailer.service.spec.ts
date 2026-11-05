@@ -292,7 +292,7 @@ describe("ApplicationConfirmationMailer.sendSubmissionConfirmation", () => {
 
     const { subject, html } = sent(sendEmail)
     expect(subject).toBe("Application received: Summer camp 2027")
-    expect(html).toContain("Application received")
+    expect(html).toContain("We have received your application")
     expect(html).toContain("CZK 9,400")
     expect(html).toContain("Variable symbol")
   })
