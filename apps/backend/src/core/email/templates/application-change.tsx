@@ -58,7 +58,7 @@ const copy: Record<
     subject: (event) => `Change in your application: ${event}`,
     statuses: {
       TO_EVALUATE: 'Awaiting evaluation · do not pay yet',
-      CONFIRMED: 'Confirmed · payment due',
+      CONFIRMED: 'Confirmed',
       WAITLISTED: 'Substitute · do not pay yet',
       CANCELLED: 'Cancelled',
     },
@@ -121,7 +121,7 @@ const copy: Record<
     subject: (event) => `Změna ve vaší přihlášce: ${event}`,
     statuses: {
       TO_EVALUATE: 'Čeká na vyhodnocení · zatím neplaťte',
-      CONFIRMED: 'Potvrzená · k úhradě',
+      CONFIRMED: 'Účast potvrzena',
       WAITLISTED: 'Náhradník · zatím neplaťte',
       CANCELLED: 'Zrušená',
     },
