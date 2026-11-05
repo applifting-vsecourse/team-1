@@ -177,8 +177,15 @@ describe("change requests after cancellation starts (integration)", () => {
     )
     expect((await decide(requestId, "approve", undefined, participantCookie)).status).toBe(403)
 
-    const applicant = await prisma.user.findUniqueOrThrow({
-      where: { email: "ucastnik@example.com" },
+    const applicant = await prisma.user.create({
+      data: {
+        id: randomUUID(),
+        name: "Foreign Participant",
+        email: `foreign-${randomUUID()}@example.com`,
+        emailVerified: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
     })
     const foreign = await prisma.organization.create({
       data: { name: "Foreign organization", bankAccount: "123456789/0100" },
@@ -220,7 +227,16 @@ describe("change requests after cancellation starts (integration)", () => {
     ).toBe(403)
     expect((await decide(foreignRequest.id, "approve")).status).toBe(403)
     expect((await decide(foreignRequest.id, "reject")).status).toBe(403)
+    expect(
+      (
+        await fetch(`${notificationsUrl()}/${foreignRequest.id}/read`, {
+          method: "PATCH",
+          headers: { Cookie: participantCookie },
+        })
+      ).status,
+    ).toBe(403)
     await prisma.organization.delete({ where: { id: foreign.id } })
+    await prisma.user.delete({ where: { id: applicant.id } })
   })
 
   it("approves exactly once and applies the change atomically", async () => {

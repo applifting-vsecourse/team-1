@@ -219,6 +219,14 @@ export class ChangeRequestRepository {
   }
 
   async markNotificationRead(applicantId: string, requestId: string): Promise<void> {
+    const scope = await this.prisma.changeRequest.findUnique({
+      where: { id: requestId },
+      select: { applicantId: true },
+    })
+    if (!scope) throw new AppException(HttpStatus.NOT_FOUND, "NOT_FOUND")
+    if (scope.applicantId !== applicantId) {
+      throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
+    }
     const result = await this.prisma.changeRequest.updateMany({
       where: { id: requestId, applicantId },
       data: { notificationReadAt: new Date() },
