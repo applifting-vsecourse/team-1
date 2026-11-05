@@ -10,6 +10,7 @@ Plán zahájen 3. 11. 2026. Výstupem inventury je business katalog transakční
 4. **Design:** sjednotit vizuální podobu a připravit ukázky jednoduché zprávy, souhrnu více přihlášek, změny termínů a bezpečnostního upozornění. Ověřit srozumitelnost na mobilu i desktopu.
 5. **Předání vývoji:** schválený katalog, texty a design převést na vývojové úkoly. Technický návrh a realizace nejsou předmětem inventury.
 6. **Business akceptace:** na reprezentativních situacích ověřit, že správný příjemce dostává správné sdělení ve správném jazyce a počtu zpráv. Potvrdit obsah, vzhled a doručení.
+7. **Odkazy v katalogu:** do [KATALOGU](KATALOG.md) doplnit ke každé zprávě odkaz na rámec ve Figmě a místo v kódu (šablona, odesílání), aby katalog zůstal průvodcem pro vývoj i akceptaci. Po realizaci kroku 5 odkazy zkontrolovat a aktualizovat.
 
 ## Hranice inventury
 
@@ -39,8 +40,9 @@ Plán zahájen 3. 11. 2026. Výstupem inventury je business katalog transakční
 | 2. Schválení katalogu | Hotovo, katalog schválil Adam 5. 11. 2026. Rozhodnutí PM jsou zapracována do modelů a registru. |
 | 3. Obsah | Hotovo. Texty CS/EN schváleny Adamem; další revize ani skutečné kontakty se neřeší (školní projekt, `organizator@togena.com` a `support@togena.com` zůstávají fiktivní). |
 | 4. Design | Hotovo, schválil Adam 5. 11. 2026. Ve Figmě (Design system, stránka „HF / 09 E-maily · nový design“) je 24 e-mailů v aktuálním designu podle [FIGMA-REMAKE.md](../FIGMA-REMAKE.md) (primární `#007f72`, Inter, DS komponenty), každý v desktopu a na mobilu: přijetí přihlášky (E01–E04), změny stavu a zrušení (E05–E13), platby včetně nového e-mailu č. 16 (E14–E16), účet a bezpečnostní upozornění (E17–E20) a anglické varianty E02, E05, E13 a E20. Texty vychází z [TEXTY.md](TEXTY.md). Rozhodnuto: stačí čtyři anglické varianty a e-mail č. 5 nemá samostatnou variantu „Uvolnilo se lůžko“. Původní e-maily jsou archivované na stránce „ARCHIV / E-maily před úpravou 4. 11.“. Všechny sekce jsem prošel vizuálně a v rámcích není oříznutý text ani překryv. Kód šablon se zatím nemění. |
-| 5. Předání vývoji | Připraveno k zahájení (kroky 2 až 4 jsou hotové), zatím nezahájeno. Šablony v `apps/backend/src/core/email/templates/` stále používají starý vzhled (`#006c60`, Manrope) a odkazy na archivované Figma rámce. |
+| 5. Předání vývoji | Zahájeno 5. 11. 2026: vývojové úkoly jsou rozepsané v [PREDANI.md](PREDANI.md), dělení schválil Adam 5. 11. 2026. Tickety se nezakládají; práce se vede v této větvi a v tomto plánu. Šablony v `apps/backend/src/core/email/templates/` stále používají starý vzhled (`#006c60`, Manrope) a odkazy na archivované Figma rámce. |
 | 6. Business akceptace | Nezahájeno. |
+| 7. Odkazy v katalogu | Hotovo 5. 11. 2026, sekce „Figma a místo v kódu“ v [KATALOG.md](KATALOG.md); po realizaci kroku 5 zkontrolovat. |
 
 Hotovo od posledního stavu:
 
@@ -49,8 +51,8 @@ Hotovo od posledního stavu:
 
 Zbývá před předáním vývoji:
 
-- Rozhodnout, kam patří text a design e-mailu č. 16: navrženo přidat do [#260](https://github.com/applifting-vsecourse/team-1/issues/260); do ticketu zatím nezapsáno. Návrh e-mailu je ve Figmě jako E16 (`PAYMENT_CORRECTED`).
-- Design e-mailů je schválený. Ticket #260 zatím mluví o starých rámcích S17; odkázat ho na stránku „HF / 09 E-maily · nový design“.
+- Text a design e-mailu č. 16 se vedou v TEXTY.md a ve Figmě jako E16 (`PAYMENT_CORRECTED`); do ticketů se nezapisují (rozhodnuto 5. 11. 2026).
+- Design e-mailů je schválený. Ticket #260 mluví o starých rámcích S17; neupravuje se, platí stránka „HF / 09 E-maily · nový design“.
 - Věta o vrácení plateb v e-mailu č. 15 (EVENT_TERM_CANCELLED) je v souladu s D-080 a D-101; nic k potvrzení.
 - Potvrzení náhradníka po uvolnění lůžka (APP_CONFIRMED, č. 5) není business otázka: procesní modely ho mají v obou režimech (ruční: organizátor potvrdí; automatické: systém potvrdí v pořadí přijetí). Podle orientačního pokrytí v kódu odesílání nenalezeno, jde tedy o mezeru ve vývoji. Rozhodnuto: e-mail nemá samostatnou variantu textu „Uvolnilo se lůžko“, sděluje jen potvrzení účasti a platební údaje jako č. 2.
 - Vývoj vyřadí šablonu obecného ověření e-mailu (`verify-email`), D-102.

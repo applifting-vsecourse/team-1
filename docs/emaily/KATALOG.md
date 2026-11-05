@@ -1,13 +1,13 @@
 # Business katalog e-mailů
 
-Pracovní verze k 3. 11. 2026, doplněná o šest rozhodnutí PM z dotazníku v této konverzaci. Rozhodnutí jsou potvrzená; texty v [TEXTY.md](TEXTY.md) schválil Adam 3. 11. 2026, design zatím schválený není. Popisuje požadovanou komunikaci Togeny z pohledu přihlašovatele a uživatele účtu. Katalog není technický návrh. Texty, otevřené otázky a schválení jsou vedeny odděleně; existence zprávy v kódu neznamená její business schválení.
+Schválený katalog transakčních e-mailů Togeny. Popisuje požadovanou komunikaci z pohledu přihlašovatele a uživatele účtu: co se komu sdělí, kdy, v jakém rozsahu a jaká reakce se očekává. Co je v katalogu, je schváleno; konkrétní znění je v [TEXTY.md](TEXTY.md), vzhled ve Figmě (viz „Figma a místo v kódu“). Katalog není technický návrh.
 
 ## Rozsah a zdroje
 
 - Přihlášky: [EMAILY.md](../procesy/zpracovani-prihlasky/EMAILY.md) a související procesní a stavové modely.
 - Účty a přístup: komunikace při přihlášení, obnově hesla a změně adresy. Samostatné obecné ověření adresy je rozhodnutím PM vyřazeno; založení účtu odesláním přihlášky doprovází e-mail s magic linkem.
 - ID níže jsou pracovní označení katalogových položek, nikoli požadavek na názvy v kódu.
-- [TEXTY.md](TEXTY.md) obsahuje návrhy konkrétního znění. [SYSTEM.md](SYSTEM.md) vymezuje správu katalogu a předání vývoji.
+- [TEXTY.md](TEXTY.md) obsahuje znění zpráv. [SYSTEM.md](SYSTEM.md) vymezuje správu katalogu.
 
 ## Jak číst katalog
 
@@ -40,7 +40,7 @@ Příjemcem všech následujících zpráv je přihlašovatel. Uvedená čísla 
 - Potvrzení přijetí jde v jazyce přihlášky. Následné změny jdou v preferovaném jazyce uživatele, a pokud není zvolený, v jazyce jeho první přihlášky; podrobnosti stanoví EMAILY.md a D-078.
 - Změnová zpráva zahrnuje pouze přihlášky v termínech, na které je účastník přihlášený a kterých se daná změna týká. Nezměněné termíny ani jiné účastníky neopakuje. Potvrzení odhlášení zůstává i pro odebraný termín; obdobně zůstávají katalogové zprávy o zrušení účasti.
 - U současných změn více termínů téže přihlášky má příjemce dostat jeden přehled pouze dotčených termínů. Různé výsledky nesmí překrýt zavádějící společný nadpis. Prvotní potvrzení odeslaného formuláře je nadále souhrn celého odeslání, ne změnová zpráva.
-- Platební údaje patří do přijetí přihlášky v automatickém režimu s potvrzenou účastí, potvrzení účasti, výzvy k zaplacení a nově také do upozornění na opravu zaplacení. Ve zrušených přihláškách nejsou. Poslední rozšíření vychází z rozhodnutí PM v dotazníku a zatím není promítnuto do původního EMAILY.md.
+- Platební údaje patří do přijetí přihlášky v automatickém režimu s potvrzenou účastí, potvrzení účasti, výzvy k zaplacení a nově také do upozornění na opravu zaplacení. Ve zrušených přihláškách nejsou.
 - Automatická výzva po splatnosti odejde pouze na požadavek organizátora, jednou a bez automatického opakování. Upozornění na opravu zaplacení je jiný druh komunikace, ne tato výzva.
 - Při zamítnutí nebo odhlášení již zaplacené účasti zpráva neslibuje automatické vrácení peněz. Uvede: „Informace o případném vrácení platby vám sdělí organizátor.“ Při zrušení celého termínu akce zůstává informace o vrácení plateb podle platných pravidel.
 - Výpočet částek, pravidla variabilních symbolů a evidence plateb nejsou součástí tohoto katalogu. E-mail pouze komunikuje údaje určené platební doménou.
@@ -65,9 +65,7 @@ U všech těchto zpráv je rozsah jedna zpráva k dané žádosti. Žádost o zm
 - Více účastníků v jednom odeslání nemá vytvářet více potvrzovacích e-mailů. Více současně změněných termínů jedné přihlášky nemá vytvářet zprávu za každý termín.
 - Obnova hesla a žádost o změnu adresy neznamenají, že heslo či adresa už byly změněny.
 
-## Potvrzená rozhodnutí z dotazníku
-
-Zdroj: odpovědi PM v této konverzaci. Dotazník byl dokončen; finální kontrola celého katalogu je samostatný krok; textace je schválena v TEXTY.md.
+## Rozhodnutí
 
 | Otázka | Potvrzené pravidlo |
 | --- | --- |
@@ -80,22 +78,31 @@ Zdroj: odpovědi PM v této konverzaci. Dotazník byl dokončen; finální kontr
 
 ## Kontakty a další upřesnění
 
-- Kontaktní pravidlo se vztahuje na uvedený kontakt i na příjemce odpovědi na zprávu. Dotazník adresy neurčil; drafty používají schválené fiktivní `organizator@togena.com` a `support@togena.com` ([TEXTY.md](TEXTY.md)). Jde o školní projekt, skutečné kontakty se nedoplňují.
-- Nová rozhodnutí je potřeba promítnout do původního EMAILY.md, souvisejících modelů a registru rozhodnutí. V tomto kroku se aktualizuje pouze business katalog a jeho navazující podklady; registry, modely, GitHub a aplikace se nemění.
-- Původní EMAILY.md ještě uvádí „první heslo“ u přijetí přihlášky. Katalog podle odpovědi PM počítá s magic linkem; ten odpovídá také existujícímu rozhodnutí D-008.
-- Platná lhůta pro zaplacení se přebírá z platebních pravidel. Její konkrétní délku dotazník neurčil. Také případné další kroky po nezaplacení výzvy zůstávají mimo tato rozhodnutí; odpověď na četnost e-mailů sama neřeší automatické rušení přihlášek.
+- Kontaktní pravidlo se vztahuje na uvedený kontakt i na příjemce odpovědi na zprávu. Používají se fiktivní `organizator@togena.com` a `support@togena.com` ([TEXTY.md](TEXTY.md)).
+- Platná lhůta pro zaplacení se přebírá z platebních pravidel. Automatické rušení přihlášek po nezaplacené výzvě katalog neřeší.
 
-## Orientační pokrytí v aplikaci
+## Figma a místo v kódu
 
-Tato příloha pouze pomáhá navazujícímu vývoji najít existující práci. Vychází ze čtení checkoutu e8a839c dne 3. 11. 2026, ne z ověření skutečného doručení. Zjištění se mohou s dalším vývojem změnit.
+Odkazy na schválený design (Figma, Design system, stránka „HF / 09 E-maily · nový design“, schválil Adam 5. 11. 2026) a orientační místo v kódu k 5. 11. 2026. Číslo E01–E20 je označení rámce ve Figmě, ne číslo řádku v EMAILY.md. Uvedena ID uzlů (desktop/mobil) v souboru `P7CQo6rDSptsyLvCR55b8J`; URL ve tvaru `https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=<id s pomlčkou>`.
 
-| Oblast | Orientační zjištění | Podklad |
+| Katalog | Rámce ve Figmě (desktop / mobil) | Kód |
 | --- | --- | --- |
-| Přijetí přihlášky | Nalezeno odesílání souhrnu. | [Mailer přihlášek](../../apps/backend/src/modules/participants/services/application-confirmation-mailer.service.ts) |
-| Potvrzení, náhradník, zamítnutí a odvolání potvrzení | Nalezeno odesílání při ruční změně stavu. Automatické potvrzení náhradníka po uvolnění lůžka nebylo nalezeno. | [Změny stavů](../../apps/backend/src/modules/applications/services/term-status.service.ts) |
-| Nezískání lůžka | Nalezeno napojení automatického zrušení náhradníka. | [Expirace náhradníků](../../apps/backend/src/modules/applications/services/waitlist-expiry.service.ts) |
-| Výzva k zaplacení a potvrzení zaplacení | Odesílání nenalezeno; pro potvrzení zaplacení existuje [#210](https://github.com/applifting-vsecourse/team-1/issues/210). | [Platby](../../apps/backend/src/modules/payments/services/payments.service.ts) |
-| Odhlášení účastníka a zrušení termínu | Nalezeny textové varianty či šablony, nikoli jejich odesílání. | [Šablony](../../apps/backend/src/core/email/templates/) |
-| Přihlašovací odkaz, obnova hesla a změna adresy | Nalezena odpovídající komunikace; existující obecná ověřovací šablona je mimo schválený business rozsah. | [Přístup do účtu](../../apps/backend/src/shared/auth/providers/better-auth.provider.ts), [přihlašovací odkaz](../../apps/backend/src/shared/auth/magic-link/magic-link.plugin.ts), [změna adresy](../../apps/backend/src/modules/account/services/email-change.service.ts) |
+| APP_RECEIVED | E01 `19680:512`/`19680:548`; E02 `19680:584`/`19680:686`; E03 `19680:779`/`19680:868`; E04 `19680:957`/`19680:1004` | `application-confirmation.tsx`; odesílá `application-confirmation-mailer.service.ts` (`sendSubmissionConfirmation`) |
+| APP_CONFIRMED | E05 `19681:665`/`19681:702`; EN `19681:1853`/`19681:1890` | `application-change.tsx` (`CONFIRMED`, `CONFIRMED_FROM_WAITLIST`); odesílá `sendApplicationChange` z `term-status.service.ts` |
+| APP_WAITLISTED | E06 `19681:739`/`19681:766` | `application-change.tsx` (`WAITLISTED`) |
+| APP_REJECTED | E07 `19681:793`/`19681:821` | `application-change.tsx` (`REJECTED`) |
+| APP_WAITLIST_EXPIRED | E08 `19681:849`/`19681:876` | `application-change.tsx` (`NO_BED_FREED`); `waitlist-expiry.service.ts` |
+| PAYMENT_OVERDUE | E14 `19681:1259`/`19681:1296` | šablona chybí, odesílání chybí |
+| PAYMENT_SETTLED | E15 `19681:1333`/`19681:1360` | šablona chybí, odesílání chybí (#210) |
+| PAYMENT_CORRECTED | E16 `19681:1387`/`19681:1424` | šablona chybí, odesílání chybí |
+| APP_CANCELLED_BY_APPLICANT | E11 `19681:1011`/`19681:1039` | `application-change.tsx` (`CANCELLED`); odesílání nenalezeno |
+| APP_CONFIRMATION_WITHDRAWN | E09 `19681:903`/`19681:930` | `application-change-confirmation-withdrawn.tsx` |
+| APP_WAITLIST_CANCELLED | E10 `19681:957`/`19681:984` | `application-change.tsx` (`CANCELLED_BY_ORGANIZER`) |
+| EVENT_TERM_CANCELLED | E12 `19681:1067`/`19681:1095` | `application-term-cancelled.tsx`; odesílání nenalezeno |
+| Souhrn různých změn téže přihlášky | E13 `19681:1123`/`19681:1191`; EN `19681:1927`/`19681:1995` | `application-change.tsx` (`TERMS_CHANGED`, bez spouštěče) |
+| AUTH_MAGIC_LINK | E17 `19681:1461`/`19681:1491` | `magic-link.tsx`; `magic-link.plugin.ts` |
+| AUTH_RESET_PASSWORD | E18 `19681:1519`/`19681:1546` | `reset-password.tsx`; `better-auth.provider.ts` |
+| AUTH_CHANGE_EMAIL_VERIFY | E19 `19681:1573`/`19681:1601` | `change-email.tsx`; `better-auth.provider.ts` |
+| AUTH_CHANGE_EMAIL_NOTICE | E20 `19681:1629`/`19681:1648`; EN `19681:2063`/`19681:2082` | `change-email-notice.tsx`; `email-change.service.ts` |
 
-Existující texty a vzhled nejsou tímto schválené. [#260](https://github.com/applifting-vsecourse/team-1/issues/260) je návaznost pro texty a design; [#178](https://github.com/applifting-vsecourse/team-1/issues/178) zachycuje otázku přístupového odkazu. Aktuální obsah Figmy a produkční doručení nejsou touto inventurou ověřeny.
+Ne všechny rámce mají přímou položku katalogu: E13 je souhrn různých změn téže přihlášky (pravidlo ze společných pravidel přihlášek). Šablona `verify-email.tsx` je vyřazena (D-102).
