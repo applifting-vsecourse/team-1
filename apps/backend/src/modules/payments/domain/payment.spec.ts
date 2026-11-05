@@ -14,6 +14,9 @@ const term = (id: string, number: number, priceCzk: number, paidCzk: number): Pa
         {
           id: `p${number}`,
           receiptId: `r${number}`,
+          correctsReceiptId: null,
+          isSummary: false,
+          cancelledAt: null,
           amountCzk: paidCzk,
           recordedByName: "Eva",
           createdAt: new Date(Date.UTC(2027, 2, number)),
@@ -34,6 +37,40 @@ const application = (terms: PaymentTerm[]): PaymentApplication => ({
 })
 
 describe("paymentSummary refund", () => {
+  it("keeps corrected original values in history but excludes them from debt", () => {
+    const original = term("t1", 1, 4900, 500)
+    original.payments[0]!.cancelledAt = new Date(Date.UTC(2027, 2, 2))
+    original.payments.push({
+      id: "p-new",
+      receiptId: "r-new",
+      correctsReceiptId: "r1",
+      isSummary: false,
+      cancelledAt: null,
+      amountCzk: 700,
+      recordedByName: "Eva",
+      createdAt: new Date(Date.UTC(2027, 2, 2)),
+    })
+    const summary = paymentSummary(application([original]))
+    expect(summary.terms[0].paidCzk).toBe(700)
+    expect(summary.terms[0].owedCzk).toBe(4200)
+    expect(
+      summary.receipts.map((receipt) => [
+        receipt.amountCzk,
+        receipt.cancelledAt !== null,
+        receipt.correctsReceiptId,
+      ]),
+    ).toEqual([
+      [500, true, null],
+      [700, false, "r1"],
+    ])
+    // Removing the replacement must preserve the correction trail as well.
+    original.payments[1]!.cancelledAt = new Date(Date.UTC(2027, 2, 3))
+    const removed = paymentSummary(application([original]))
+    expect(removed.terms[0].paidCzk).toBe(0)
+    expect(removed.receipts).toHaveLength(2)
+    expect(removed.receipts[1].correctsReceiptId).toBe("r1")
+  })
+
   it("offers no refund without an overpayment", () => {
     const summary = paymentSummary(application([term("t1", 1, 4900, 4900), term("t2", 2, 5600, 0)]))
     expect(summary.refundableTermId).toBeNull()

@@ -308,17 +308,19 @@ model Application {
 
 // Result of evaluating one selected term of an application (US-27).
 model ApplicationTerm {
-  id             String                @id @default(cuid())
-  organization   Organization          @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  organizationId String
-  application    Application           @relation(fields: [applicationId], references: [id], onDelete: Cascade)
-  applicationId  String
-  term           Term                  @relation(fields: [termId], references: [id], onDelete: Cascade)
-  termId         String
-  status         ApplicationTermStatus
+  id                     String                @id @default(cuid())
+  organization           Organization          @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId         String
+  application            Application           @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  applicationId          String
+  term                   Term                  @relation(fields: [termId], references: [id], onDelete: Cascade)
+  termId                 String
+  status                 ApplicationTermStatus
   // Term price frozen at evaluation; later price changes affect only new applications.
-  priceCzk       Int
-  evaluatedAt    DateTime              @default(now())
+  priceCzk               Int
+  evaluatedAt            DateTime              @default(now())
+  // Restart of the payment period after a correction/removal; null = original confirmation period.
+  paymentPeriodStartedAt DateTime?
 
   statusChanges ApplicationTermStatusChange[]
   payments      Payment[]
@@ -353,20 +355,25 @@ model ApplicationTermStatusChange {
 // than a flag so a bank statement import (US-42) can add more later. One receipt (money that
 // arrived at once) is one or more rows sharing `receiptId`; a refund is a negative row.
 model Payment {
-  id                String           @id @default(cuid())
-  organization      Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  id                String          @id @default(cuid())
+  organization      Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   organizationId    String
-  applicationTerm   ApplicationTerm  @relation(fields: [applicationTermId], references: [id], onDelete: Cascade)
+  applicationTerm   ApplicationTerm @relation(fields: [applicationTermId], references: [id], onDelete: Cascade)
   applicationTermId String
   receiptId         String
+  // Set on a replacement receipt; all its rows point to the original receipt.
+  correctsReceiptId String?
+  // New receipts remember whether the organizer used the summary symbol; null is legacy data.
+  isSummary         Boolean?
   amountCzk         Int
-  recordedBy        User             @relation(fields: [recordedById], references: [id])
+  recordedBy        User            @relation(fields: [recordedById], references: [id])
   recordedById      String
-  createdAt         DateTime         @default(now())
+  createdAt         DateTime        @default(now())
   cancelledAt       DateTime?
 
   @@index([organizationId])
   @@index([applicationTermId])
   @@index([receiptId])
+  @@index([correctsReceiptId])
   @@map("payment")
 }

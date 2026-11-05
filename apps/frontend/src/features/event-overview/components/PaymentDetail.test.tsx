@@ -13,8 +13,13 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import type { PaymentApplication } from "@/features/event-overview/api/payments"
 import { PaymentDetail } from "@/features/event-overview/components/PaymentDetail"
 
-const { get, remove, post } = vi.hoisted(() => ({ get: vi.fn(), remove: vi.fn(), post: vi.fn() }))
-vi.mock("@/lib/api-client", () => ({ api: { get, delete: remove, post } }))
+const { get, remove, post, patch } = vi.hoisted(() => ({
+  get: vi.fn(),
+  remove: vi.fn(),
+  post: vi.fn(),
+  patch: vi.fn(),
+}))
+vi.mock("@/lib/api-client", () => ({ api: { get, delete: remove, post, patch } }))
 
 type TermInput = {
   id: string
@@ -80,6 +85,9 @@ const receipt = (id: string, createdAt: string, rows: { termId: string; amountCz
   amountCzk: rows.reduce((sum, row) => sum + row.amountCzk, 0),
   createdAt,
   recordedByName: "Eva",
+  cancelledAt: null,
+  correctsReceiptId: null,
+  isSummary: rows.length > 1,
   rows,
 })
 
@@ -147,6 +155,68 @@ beforeEach(() => {
 })
 
 describe("PaymentDetail", () => {
+  it("prefills a payment correction and submits the replacement for a different term", async () => {
+    respondWith(() =>
+      application(
+        [{ ...first, paidCzk: 500 }, second],
+        [receipt("p1", "2027-03-10T12:00:00Z", [{ termId: "t1", amountCzk: 500 }])],
+      ),
+    )
+    patch.mockResolvedValue(undefined)
+    setup()
+    const user = userEvent.setup()
+    await user.click(await screen.findByRole("button", { name: "Edit record" }))
+    const dialog = screen.getByRole("dialog")
+    expect(within(dialog).getByRole("textbox", { name: "Amount (CZK) *" })).toHaveValue("500,00")
+    await user.clear(within(dialog).getByRole("textbox", { name: "Amount (CZK) *" }))
+    await user.type(within(dialog).getByRole("textbox", { name: "Amount (CZK) *" }), "700")
+    await user.click(within(dialog).getByRole("combobox", { name: "Term *" }))
+    await user.click(screen.getByRole("option", { name: /19–25 Jul 2027/ }))
+    await user.click(within(dialog).getByRole("button", { name: "Save correction" }))
+    await waitFor(() => expect(patch).toHaveBeenCalledOnce())
+    const [url, options] = patch.mock.calls[0] as [
+      string,
+      { json: { requestId: string; amountCzk: number; termId: string } },
+    ]
+    expect(url).toBe("organizer/applications/a1/payments/p1")
+    expect(options.json).toMatchObject({ amountCzk: 700, termId: "t2" })
+    expect(options.json.requestId).toMatch(/[0-9a-f-]{36}/)
+    expect(await screen.findByText("Payment record corrected")).toBeInTheDocument()
+  })
+
+  it("previews the remaining overpayment when correcting a refund", async () => {
+    respondWith(() =>
+      application(
+        [{ ...first, paidCzk: 5000 }],
+        [receipt("r1", "2027-03-10T12:00:00Z", [{ termId: "t1", amountCzk: -400 }])],
+      ),
+    )
+    setup()
+    const user = userEvent.setup()
+    await user.click(await screen.findByRole("button", { name: "Edit record" }))
+    const dialog = screen.getByRole("dialog")
+    const amount = within(dialog).getByRole("textbox", { name: "Amount (CZK) *" })
+    await user.clear(amount)
+    await user.type(amount, "200")
+    expect(dialog).toHaveTextContent(/Overpayment for this term after correction:.*300/)
+  })
+
+  it("marks the original as corrected and offers actions only on the replacement", async () => {
+    const original = {
+      ...receipt("p1", "2027-03-10T12:00:00Z", [{ termId: "t1", amountCzk: 500 }]),
+      cancelledAt: "2027-03-11T12:00:00Z",
+    }
+    const replacement = {
+      ...receipt("p2", "2027-03-11T12:00:00Z", [{ termId: "t1", amountCzk: 700 }]),
+      correctsReceiptId: "p1",
+    }
+    respondWith(() => application([{ ...first, paidCzk: 700 }, second], [original, replacement]))
+    setup()
+    expect(await screen.findByText("Corrected · original entry")).toBeInTheDocument()
+    expect(screen.getByText("Correction")).toBeInTheDocument()
+    expect(screen.getAllByRole("button", { name: "Edit record" })).toHaveLength(1)
+  })
+
   it("shows the debt of each term separately, with its own variable symbol (500 + 700 CZK)", async () => {
     respondWith(() =>
       application([

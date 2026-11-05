@@ -48,6 +48,9 @@ export const paymentApplicationSchema = z.object({
       amountCzk: z.number().int(),
       recordedByName: z.string(),
       createdAt: z.string(),
+      cancelledAt: z.string().nullable(),
+      correctsReceiptId: z.string().nullable(),
+      isSummary: z.boolean().nullable(),
       rows: z.array(z.object({ termId: z.string(), amountCzk: z.number().int() })),
     }),
   ),
@@ -82,6 +85,18 @@ export async function recordPayment(
 
 export async function cancelPayment(id: string, payment: Payment) {
   await api.delete(`${path(id)}/${encodeURIComponent(payment.id)}`)
+}
+
+export async function correctPayment(
+  id: string,
+  payment: Payment,
+  requestId: string,
+  amountCzk: number,
+  termId?: string,
+) {
+  await api.patch(`${path(id)}/${encodeURIComponent(payment.id)}`, {
+    json: { requestId, amountCzk, ...(termId === undefined ? {} : { termId }) },
+  })
 }
 
 /** A refund is always taken from one term, so `termId` is required. */

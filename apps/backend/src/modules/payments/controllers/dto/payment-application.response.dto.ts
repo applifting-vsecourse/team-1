@@ -17,6 +17,9 @@ class PaymentResponseDto {
   amountCzk!: number
   @ApiProperty() recordedByName!: string
   @ApiProperty() createdAt!: string
+  @ApiProperty({ nullable: true, type: String }) cancelledAt!: string | null
+  @ApiProperty({ nullable: true, type: String }) correctsReceiptId!: string | null
+  @ApiProperty({ nullable: true, type: Boolean }) isSummary!: boolean | null
   @ApiProperty({ type: [ReceiptRowResponseDto], description: "The split over the terms." })
   rows!: ReceiptRowResponseDto[]
 }
@@ -105,6 +108,9 @@ export class PaymentApplicationResponseDto {
         amountCzk: receipt.amountCzk,
         recordedByName: receipt.recordedByName,
         createdAt: receipt.createdAt.toISOString(),
+        cancelledAt: receipt.cancelledAt?.toISOString() ?? null,
+        correctsReceiptId: receipt.correctsReceiptId,
+        isSummary: receipt.isSummary,
         rows: receipt.rows,
       })),
     }

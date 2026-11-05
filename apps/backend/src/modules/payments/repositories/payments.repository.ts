@@ -1,3 +1,4 @@
+import { Locale } from "@/core/email/locale"
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { Prisma } from "@/generated/prisma/client"
 import {
@@ -9,6 +10,7 @@ import {
   computeTermPaid,
   resolvePaymentAmount,
 } from "@/modules/applications/domain/pricing"
+import { resolveChangeEmailLocale } from "@/modules/participants/domain/change-email-locale"
 import { PaymentApplication } from "@/modules/payments/domain/payment"
 import { AppException } from "@/shared/errors/app.exception"
 import { ForbiddenException, HttpStatus, Injectable } from "@nestjs/common"
@@ -20,7 +22,6 @@ const include = {
     include: {
       term: { select: { id: true, number: true, name: true, startsOn: true, endsOn: true } },
       payments: {
-        where: { cancelledAt: null },
         include: { recordedBy: { select: { name: true } } },
       },
     },
@@ -47,9 +48,21 @@ const toDomain = (row: Row): PaymentApplication => ({
     startsOn: applicationTerm.term.startsOn,
     endsOn: applicationTerm.term.endsOn,
     payments: applicationTerm.payments.map(
-      ({ id, receiptId, amountCzk, createdAt, recordedBy }) => ({
+      ({
         id,
         receiptId,
+        correctsReceiptId,
+        isSummary,
+        cancelledAt,
+        amountCzk,
+        createdAt,
+        recordedBy,
+      }) => ({
+        id,
+        receiptId,
+        correctsReceiptId,
+        isSummary,
+        cancelledAt,
         amountCzk,
         createdAt,
         recordedByName: recordedBy.name,
@@ -69,6 +82,12 @@ export type RecordPaymentInput = {
   /** Omitted = settle the remaining debt of the term (or of the summary). */
   amountCzk?: number
   isRefund?: boolean
+  correctsReceiptId?: string
+}
+
+export type PaymentDebtNotice = {
+  amountOwedCzk: number
+  terms: { termNumber: number; amountOwedCzk: number }[]
 }
 
 @Injectable()
@@ -88,15 +107,8 @@ export class PaymentsRepository {
    * lock on the application and retries of the same `requestId` add nothing.
    */
   async record(input: RecordPaymentInput): Promise<void> {
-    const {
-      applicationId,
-      organizationId,
-      recordedById,
-      requestId,
-      termId,
-      isRefund = false,
-    } = input
-    await this.prisma.$transaction(async (tx) => {
+    const { applicationId, organizationId, requestId, termId, isRefund = false } = input
+    return this.prisma.$transaction(async (tx) => {
       const locked = await tx.$queryRaw<
         { id: string }[]
       >`SELECT id FROM application WHERE id = ${applicationId} AND "organizationId" = ${organizationId} FOR UPDATE`
@@ -116,10 +128,14 @@ export class PaymentsRepository {
         )
           throw new ForbiddenException()
         const total = existing.reduce((sum, row) => sum + row.amountCzk, 0)
-        const sameTerm =
-          termId === undefined || existing.every((row) => row.applicationTerm.termId === termId)
+        const sameTerm = existing.every(
+          (row) =>
+            row.isSummary === (termId === undefined) &&
+            (termId === undefined || row.applicationTerm.termId === termId),
+        )
         if (
           total < 0 !== isRefund ||
+          existing.some((row) => row.correctsReceiptId !== null) ||
           !sameTerm ||
           (input.amountCzk !== undefined &&
             total !== (isRefund ? -input.amountCzk : input.amountCzk))
@@ -128,64 +144,232 @@ export class PaymentsRepository {
         return
       }
 
-      if (isRefund && termId === undefined)
-        throw new AppException(HttpStatus.BAD_REQUEST, "REFUND_TERM_REQUIRED")
+      await this.createReceipt(tx, input)
+    })
+  }
 
-      const application = await tx.application.findFirstOrThrow({
-        where: { id: applicationId, organizationId },
-        include: {
-          terms: {
-            include: {
-              term: { select: { number: true, startsOn: true } },
-              payments: { where: { cancelledAt: null }, select: { amountCzk: true } },
-            },
+  /** A correction cancels and replaces a whole receipt under the same application lock. */
+  async correct(
+    input: RecordPaymentInput & { receiptId: string },
+  ): Promise<PaymentDebtNotice | null> {
+    const { applicationId, organizationId, receiptId, requestId } = input
+    if (receiptId === requestId)
+      throw new AppException(HttpStatus.CONFLICT, "PAYMENT_ALREADY_RECORDED")
+    return this.prisma.$transaction(async (tx) => {
+      const locked = await tx.$queryRaw<
+        { id: string }[]
+      >`SELECT id FROM application WHERE id = ${applicationId} AND "organizationId" = ${organizationId} FOR UPDATE`
+      if (!locked.length) throw new ForbiddenException()
+
+      const original = await tx.payment.findMany({
+        where: { receiptId, organizationId, applicationTerm: { applicationId } },
+      })
+      if (!original.length) throw new ForbiddenException()
+      const originalTotal = original.reduce((sum, row) => sum + row.amountCzk, 0)
+      if (originalTotal < 0 !== (input.isRefund ?? false))
+        throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
+
+      const existing = await tx.payment.findMany({
+        where: { receiptId: requestId },
+        include: { applicationTerm: { select: { applicationId: true, termId: true } } },
+      })
+      if (existing.length) {
+        if (
+          existing.some(
+            (row) =>
+              row.organizationId !== organizationId ||
+              row.applicationTerm.applicationId !== applicationId,
+          )
+        )
+          throw new ForbiddenException()
+        if (
+          existing.some(
+            (row) =>
+              row.correctsReceiptId !== receiptId ||
+              row.isSummary !== (input.termId === undefined) ||
+              (input.termId !== undefined && row.applicationTerm.termId !== input.termId),
+          ) ||
+          existing.reduce((sum, row) => sum + row.amountCzk, 0) !==
+            (input.isRefund ? -input.amountCzk! : input.amountCzk)
+        )
+          throw new AppException(HttpStatus.CONFLICT, "PAYMENT_ALREADY_RECORDED")
+        return null
+      }
+      if (original.some((row) => row.cancelledAt !== null)) throw new ForbiddenException()
+      const paidBefore = await this.confirmedTermBalances(tx, applicationId)
+      await tx.payment.updateMany({
+        where: { receiptId, organizationId, applicationTerm: { applicationId } },
+        data: { cancelledAt: new Date() },
+      })
+      await this.createReceipt(tx, { ...input, correctsReceiptId: receiptId })
+      return this.createdDebt(tx, applicationId, paidBefore)
+    })
+  }
+
+  private async confirmedTermBalances(
+    tx: Prisma.TransactionClient,
+    applicationId: string,
+  ): Promise<{ id: string; termNumber: number; owedCzk: number }[]> {
+    const terms = await tx.applicationTerm.findMany({
+      where: { applicationId, status: "CONFIRMED" },
+      include: {
+        term: { select: { number: true } },
+        payments: { where: { cancelledAt: null }, select: { amountCzk: true } },
+      },
+    })
+    return terms.map((term) => ({
+      id: term.id,
+      termNumber: term.term.number,
+      owedCzk: computeTermOwed(term, term.payments),
+    }))
+  }
+
+  private async createdDebt(
+    tx: Prisma.TransactionClient,
+    applicationId: string,
+    before: { id: string; owedCzk: number }[],
+  ): Promise<PaymentDebtNotice | null> {
+    if (!before.some((term) => term.owedCzk <= 0)) return null
+    const after = await this.confirmedTermBalances(tx, applicationId)
+    const newlyIndebtedIds = before
+      .filter(
+        (term) =>
+          term.owedCzk <= 0 &&
+          (after.find((candidate) => candidate.id === term.id)?.owedCzk ?? 0) > 0,
+      )
+      .map((term) => term.id)
+    if (!newlyIndebtedIds.length) return null
+    await tx.applicationTerm.updateMany({
+      where: { id: { in: newlyIndebtedIds } },
+      data: { paymentPeriodStartedAt: new Date() },
+    })
+    const terms = after
+      .filter((term) => term.owedCzk > 0)
+      .map((term) => ({ termNumber: term.termNumber, amountOwedCzk: term.owedCzk }))
+    return { amountOwedCzk: terms.reduce((sum, term) => sum + term.amountOwedCzk, 0), terms }
+  }
+
+  async findEmailContext(
+    applicationId: string,
+    organizationId: string,
+  ): Promise<{
+    email: string
+    locale: Locale
+    eventName: string
+    organizationName: string
+    number: number
+    bankAccount: string
+    accessToken: string
+    firstName: string
+    lastName: string
+  } | null> {
+    const application = await this.prisma.application.findFirst({
+      where: { id: applicationId, organizationId },
+      include: {
+        user: { select: { locale: true } },
+        event: { include: { organization: { select: { name: true, bankAccount: true } } } },
+      },
+    })
+    if (!application) return null
+    const first = application.userId
+      ? await this.prisma.application.findFirst({
+          where: { userId: application.userId },
+          orderBy: [{ submittedAt: "asc" }, { id: "asc" }],
+          select: { locale: true },
+        })
+      : null
+    return {
+      email: application.email,
+      number: application.number,
+      locale: resolveChangeEmailLocale({
+        userLocale: application.user?.locale ?? null,
+        firstApplicationLocale: first?.locale ?? application.locale,
+      }),
+      eventName: application.event.name,
+      organizationName: application.event.organization.name,
+      bankAccount: application.event.organization.bankAccount,
+      accessToken: application.accessToken,
+      firstName: application.firstName,
+      lastName: application.lastName,
+    }
+  }
+
+  private async createReceipt(
+    tx: Prisma.TransactionClient,
+    input: RecordPaymentInput,
+  ): Promise<void> {
+    const {
+      applicationId,
+      organizationId,
+      recordedById,
+      requestId,
+      termId,
+      isRefund = false,
+    } = input
+    if (isRefund && termId === undefined)
+      throw new AppException(HttpStatus.BAD_REQUEST, "REFUND_TERM_REQUIRED")
+    const application = await tx.application.findFirstOrThrow({
+      where: { id: applicationId, organizationId },
+      include: {
+        terms: {
+          include: {
+            term: { select: { number: true, startsOn: true } },
+            payments: { where: { cancelledAt: null }, select: { amountCzk: true } },
           },
         },
-      })
-      const terms = application.terms.map((applicationTerm) => ({
-        applicationTermId: applicationTerm.id,
-        termId: applicationTerm.termId,
-        status: applicationTerm.status,
-        startsOn: applicationTerm.term.startsOn,
-        termNumber: applicationTerm.term.number,
-        due: computeTermDue(applicationTerm),
-        paid: computeTermPaid(applicationTerm.payments),
-        owedCzk: computeTermOwed(applicationTerm, applicationTerm.payments),
-      }))
+      },
+    })
+    const terms = application.terms.map((applicationTerm) => ({
+      applicationTermId: applicationTerm.id,
+      termId: applicationTerm.termId,
+      status: applicationTerm.status,
+      startsOn: applicationTerm.term.startsOn,
+      termNumber: applicationTerm.term.number,
+      due: computeTermDue(applicationTerm),
+      paid: computeTermPaid(applicationTerm.payments),
+      owedCzk: computeTermOwed(applicationTerm, applicationTerm.payments),
+    }))
 
-      let rows: { applicationTermId: string; amountCzk: number }[]
-      if (termId !== undefined) {
-        const term = terms.find((candidate) => candidate.termId === termId)
-        if (!term) throw new AppException(HttpStatus.BAD_REQUEST, "PAYMENT_TERM_NOT_IN_APPLICATION")
-        const amount = resolvePaymentAmount(input.amountCzk, term.due, term.paid)
-        assertAmount(amount)
-        if (isRefund && amount > computeRefundableAmount(term.due, term.paid))
-          throw new AppException(HttpStatus.CONFLICT, "REFUND_EXCEEDS_OVERPAYMENT")
-        rows = [
-          { applicationTermId: term.applicationTermId, amountCzk: isRefund ? -amount : amount },
-        ]
-      } else {
-        const amount = resolvePaymentAmount(input.amountCzk, computeSummaryPayable(terms))
-        assertAmount(amount)
-        rows = allocateSummaryPayment(amount, terms)
-      }
+    let rows: { applicationTermId: string; amountCzk: number }[]
+    if (termId !== undefined) {
+      const term = terms.find((candidate) => candidate.termId === termId)
+      if (!term) throw new AppException(HttpStatus.BAD_REQUEST, "PAYMENT_TERM_NOT_IN_APPLICATION")
+      const amount = resolvePaymentAmount(input.amountCzk, term.due, term.paid)
+      assertAmount(amount)
+      if (isRefund && amount > computeRefundableAmount(term.due, term.paid))
+        throw new AppException(HttpStatus.CONFLICT, "REFUND_EXCEEDS_OVERPAYMENT")
+      rows = [{ applicationTermId: term.applicationTermId, amountCzk: isRefund ? -amount : amount }]
+    } else {
+      const amount = resolvePaymentAmount(input.amountCzk, computeSummaryPayable(terms))
+      assertAmount(amount)
+      rows = allocateSummaryPayment(amount, terms)
+    }
 
-      await tx.payment.createMany({
-        data: rows.map((row) => ({
-          organizationId,
-          applicationTermId: row.applicationTermId,
-          receiptId: requestId,
-          amountCzk: row.amountCzk,
-          recordedById,
-        })),
-      })
+    await tx.payment.createMany({
+      data: rows.map((row) => ({
+        organizationId,
+        applicationTermId: row.applicationTermId,
+        receiptId: requestId,
+        correctsReceiptId: input.correctsReceiptId,
+        isSummary: termId === undefined,
+        amountCzk: row.amountCzk,
+        recordedById,
+      })),
     })
   }
 
   /** Cancels the whole receipt the row belongs to; the rows stay so a retry cannot restore it. */
-  async remove(applicationId: string, organizationId: string, receiptId: string): Promise<void> {
-    await this.prisma.$transaction(async (tx) => {
-      await tx.$queryRaw`SELECT id FROM application WHERE id = ${applicationId} AND "organizationId" = ${organizationId} FOR UPDATE`
+  async remove(
+    applicationId: string,
+    organizationId: string,
+    receiptId: string,
+  ): Promise<PaymentDebtNotice | null> {
+    return this.prisma.$transaction(async (tx) => {
+      const locked = await tx.$queryRaw<
+        { id: string }[]
+      >`SELECT id FROM application WHERE id = ${applicationId} AND "organizationId" = ${organizationId} FOR UPDATE`
+      if (!locked.length) throw new ForbiddenException()
+      const paidBefore = await this.confirmedTermBalances(tx, applicationId)
       const result = await tx.payment.updateMany({
         where: {
           receiptId,
@@ -196,6 +380,7 @@ export class PaymentsRepository {
         data: { cancelledAt: new Date() },
       })
       if (!result.count) throw new ForbiddenException()
+      return this.createdDebt(tx, applicationId, paidBefore)
     })
   }
 }
