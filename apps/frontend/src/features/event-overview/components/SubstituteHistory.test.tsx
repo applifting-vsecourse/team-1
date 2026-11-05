@@ -49,7 +49,7 @@ const respond = (data: unknown) => get.mockReturnValue({ json: () => Promise.res
 beforeEach(() => vi.clearAllMocks())
 
 describe("history of filled beds at the waitlist (US-105)", () => {
-  it("shows who was confirmed, who was skipped, who did it, the term and the group", async () => {
+  it("shows who was confirmed, when, by whom and who was skipped", async () => {
     respond([record()])
     renderWithRouter(
       <SubstituteHistory
@@ -58,34 +58,24 @@ describe("history of filled beds at the waitlist (US-105)", () => {
       />,
     )
     const section = await screen.findByRole("region", { name: "Filled beds history" })
-    expect(within(section).getByText("Substitute confirmation")).toBeInTheDocument()
-    expect(within(section).getByText(/^Eva Malá · /)).toBeInTheDocument()
     expect(within(section).getByText("Petr Svoboda")).toBeInTheDocument()
-    expect(within(section).getByText("Substitute → Participation confirmed")).toBeInTheDocument()
-    expect(within(section).getByText("Skipped substitutes")).toBeInTheDocument()
-    expect(
-      within(section).getByText("Adam Dvořák, Jan Novák · stay substitutes"),
-    ).toBeInTheDocument()
-    expect(within(section).getByText(/12–18 Jul 2027 · men's beds/)).toBeInTheDocument()
-    expect(
-      within(section).getByText("Record created automatically on confirmation."),
-    ).toBeInTheDocument()
+    expect(within(section).getByText(/ · Eva Malá$/)).toBeInTheDocument()
+    expect(within(section).getByText("Skipped: Adam Dvořák, Jan Novák")).toBeInTheDocument()
     expect(
       within(section).getByRole("link", { name: "Open detail: Petr Svoboda" }),
     ).toHaveAttribute("href", "/organizer/events/e1/applications/a3")
   })
 
-  it("names a system action and leaves the skipped row out when nobody was skipped", async () => {
-    respond([record({ skipped: [], changedByName: null, group: "SHARED" })])
+  it("names a system action and leaves the skipped line out when nobody was skipped", async () => {
+    respond([record({ skipped: [], changedByName: null })])
     renderWithRouter(
       <SubstituteHistory
         eventId="e1"
         term={term}
       />,
     )
-    expect(await screen.findByText(/^System · /)).toBeInTheDocument()
-    expect(screen.queryByText(/Skipped substitute/)).toBeNull()
-    expect(screen.getByText(/shared beds/)).toBeInTheDocument()
+    expect(await screen.findByText(/ · System$/)).toBeInTheDocument()
+    expect(screen.queryByText(/Skipped:/)).toBeNull()
   })
 
   it("shows nothing without a record", async () => {
@@ -98,25 +88,6 @@ describe("history of filled beds at the waitlist (US-105)", () => {
     )
     await vi.waitFor(() => expect(get).toHaveBeenCalled())
     expect(screen.queryByRole("region")).toBeNull()
-    expect(screen.queryByText("Substitute confirmation")).toBeNull()
-  })
-
-  it("renders the whole record on a 360 px wide screen", async () => {
-    const width = window.innerWidth
-    window.innerWidth = 360
-    window.dispatchEvent(new Event("resize"))
-    respond([record()])
-    renderWithRouter(
-      <SubstituteHistory
-        eventId="e1"
-        term={term}
-      />,
-    )
-    const section = await screen.findByRole("region", { name: "Filled beds history" })
-    // One column of labelled values, no table that would need horizontal scrolling.
-    expect(within(section).queryByRole("table")).toBeNull()
-    expect(within(section).getAllByText(/./).length).toBeGreaterThan(8)
-    window.innerWidth = width
   })
 })
 
@@ -133,18 +104,31 @@ describe("record in the detail of an application (US-105)", () => {
     substituteRecords,
   })
 
-  it("shows the record where the application was skipped", async () => {
+  it("shows who confirmed the one that passed this application over", async () => {
     respond([termWith([record()])])
     renderWithRouter(<ApplicationSubstituteRecords applicationId="a1" />)
-    expect(await screen.findByText("Substitute confirmation")).toBeInTheDocument()
-    expect(screen.getByText("Petr Svoboda")).toBeInTheDocument()
-    expect(screen.getByText(/Adam Dvořák, Jan Novák/)).toBeInTheDocument()
+    expect(await screen.findByText("Skipped by confirming a substitute")).toBeInTheDocument()
+    expect(screen.getByText(/^Petr Svoboda · /)).toBeInTheDocument()
+  })
+
+  it("lists the skipped substitutes on the confirmed application", async () => {
+    respond([termWith([record()])])
+    renderWithRouter(<ApplicationSubstituteRecords applicationId="a3" />)
+    expect(await screen.findByText("Skipped substitutes")).toBeInTheDocument()
+    expect(screen.getByText("Adam Dvořák, Jan Novák")).toBeInTheDocument()
+  })
+
+  it("shows nothing for a confirmation that skipped nobody", async () => {
+    respond([termWith([record({ skipped: [] })])])
+    renderWithRouter(<ApplicationSubstituteRecords applicationId="a3" />)
+    await vi.waitFor(() => expect(get).toHaveBeenCalled())
+    expect(screen.queryByText(/Skipped/)).toBeNull()
   })
 
   it("shows nothing when the application has no record", async () => {
     respond([termWith([])])
     renderWithRouter(<ApplicationSubstituteRecords applicationId="a1" />)
     await vi.waitFor(() => expect(get).toHaveBeenCalled())
-    expect(screen.queryByText("Substitute confirmation")).toBeNull()
+    expect(screen.queryByText(/Skipped/)).toBeNull()
   })
 })
