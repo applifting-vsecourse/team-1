@@ -14,6 +14,7 @@ const optionSchema = z.object({
 export type TermChangeOption = z.infer<typeof optionSchema>
 
 const previewSchema = z.object({
+  gender: z.enum(["FEMALE", "MALE"]),
   newPriceCzk: z.number().int(),
   /** Debt over the terms the application will be in; payments are not moved between terms. */
   amountToPayCzk: z.number().int(),
@@ -24,8 +25,9 @@ const previewSchema = z.object({
       priceCzk: z.number().int(),
       /** A bed of the applicant's gender is free in the new term. */
       fits: z.boolean(),
-      capacity: z.number().int(),
-      confirmed: z.number().int(),
+      /** Beds the applicant's gender can use in the term, and how many are free. */
+      genderCapacity: z.number().int(),
+      genderFree: z.number().int(),
     }),
   ),
   removed: z.array(

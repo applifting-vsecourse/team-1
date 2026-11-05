@@ -2,9 +2,9 @@ import { useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
+import { MoneyAmount } from "@/components/atoms/MoneyAmount"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
   Dialog,
@@ -23,31 +23,32 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { apiErrorCode } from "@/lib/api-client"
-import { formatDateTime } from "@/lib/date"
-import { formatCzk } from "@/lib/money"
+import { notify } from "@/lib/notify"
 import { termLine, termTitle } from "@/lib/term-label"
+import { cn } from "@/lib/utils"
 
 import { paymentQueryOptions } from "@/features/event-overview/api/payments"
 import {
   changeTerms,
   termChangeOptionsQueryOptions,
   termChangePreviewQueryOptions,
-  type TermChangeOption,
-  type TermChangeResult,
 } from "@/features/event-overview/api/termChange"
 
-type Saved = {
-  result: TermChangeResult
-  from: TermChangeOption
-  to: TermChangeOption
-  debtCzk: number
+function Figure({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="flex flex-col gap-1">
+      <dt className="text-sm text-muted-foreground">{label}</dt>
+      <dd className="font-mono text-base font-medium">{children}</dd>
+    </div>
+  )
 }
 
 /**
- * US-33: an organizer swaps one term of an application for another. The impact is shown before
- * saving; a term without a free bed needs a conscious confirmation (as in US-28).
- * The room line of the first frame and the freed bed of the last are left out: beds come with
- * US-35 and do not exist yet. The place of the button is not drawn in Figma.
+ * US-33: an organizer swaps one term of an application for another, from the "Status in terms"
+ * block. The impact is shown before saving; a term without a free bed needs a conscious
+ * confirmation (as in US-28). Room lines of the frames are left out: beds come with US-35.
+ * The layout of the dialog follows the product owner's review of the first version, not the
+ * frame (see the PR).
  */
 // Figma (Design system): #33 Změnit termíny · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19786-35702 (mobile: 19786-35866)
 // Figma (Design system): #33 Nový termín je plně obsazený · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19786-35958 (mobile: 19786-36117)
@@ -62,7 +63,6 @@ export function OrganizerTermChange({ applicationId }: { applicationId: string }
   const [nextId, setNextId] = useState("")
   const [isFullStep, setIsFullStep] = useState(false)
   const [isOverCapacityConfirmed, setIsOverCapacityConfirmed] = useState(false)
-  const [saved, setSaved] = useState<Saved | null>(null)
 
   const current = options.data?.filter((term) => term.selected) ?? []
   const candidates = options.data?.filter((term) => !term.selected) ?? []
@@ -78,6 +78,8 @@ export function OrganizerTermChange({ applicationId }: { applicationId: string }
   })
   const added = preview.data?.added[0]
   const removed = preview.data?.removed[0]
+  const originalPrice =
+    application.data?.terms.find((term) => term.termId === original?.id)?.priceCzk ?? 0
 
   const close = () => {
     setIsOpen(false)
@@ -86,12 +88,10 @@ export function OrganizerTermChange({ applicationId }: { applicationId: string }
   }
   const mutation = useMutation({
     mutationFn: () => changeTerms(applicationId, termIds, isOverCapacityConfirmed),
-    onSuccess: async (result) => {
-      if (original && next) {
-        setSaved({ result, from: original, to: next, debtCzk: added?.priceCzk ?? 0 })
-      }
+    onSuccess: async () => {
       close()
       setNextId("")
+      notify.success(t("termChange.done.title"), t("termChange.done.description"))
       await client.invalidateQueries({ queryKey: ["eventOverview"] })
       await client.invalidateQueries({ queryKey: ["participant", "applications"] })
     },
@@ -101,47 +101,36 @@ export function OrganizerTermChange({ applicationId }: { applicationId: string }
   })
 
   if (current.length === 0 || candidates.length === 0) return null
-  const open = () => {
-    setOriginalId(current[0]?.id ?? "")
-    setNextId("")
-    setSaved(null)
-    setIsOpen(true)
-  }
   const hasError = mutation.error && apiErrorCode(mutation.error) !== "CAPACITY_EXCEEDED"
-  const name = application.data ? `${application.data.firstName} ${application.data.lastName}` : ""
+  const subject = application.data ? (
+    <div className="flex flex-col gap-1">
+      <span className="text-lg font-semibold text-foreground">
+        {application.data.firstName} {application.data.lastName}
+      </span>
+      <span className="text-sm text-muted-foreground">{application.data.eventName}</span>
+    </div>
+  ) : null
+  const errorMessage = hasError ? (
+    <p
+      role="alert"
+      className="text-sm text-destructive"
+    >
+      {mutation.error.message}
+    </p>
+  ) : null
 
   return (
     <>
-      <div className="flex justify-end">
-        <Button
-          variant="outline"
-          onClick={open}
-        >
-          {t("termChange.trigger")}
-        </Button>
-      </div>
-      {saved ? (
-        <section className="flex flex-col gap-4">
-          <h2 className="text-2xl font-semibold tracking-tight">{t("termChange.done.title")}</h2>
-          <Card className="gap-4 p-4">
-            <h3 className="text-2xl font-semibold tracking-tight">{t("termChange.done.record")}</h3>
-            <p>
-              {t("termChange.done.when", {
-                date: formatDateTime(saved.result.changedAt),
-                who: saved.result.changedByName ?? "",
-              })}
-            </p>
-            <p>
-              {t("termChange.done.terms", {
-                from: termTitle(saved.from),
-                to: termTitle(saved.to),
-              })}
-            </p>
-            <p>{t("termChange.done.debt", { amount: formatCzk(saved.debtCzk) })}</p>
-            <p>{t("termChange.done.email")}</p>
-          </Card>
-        </section>
-      ) : null}
+      <Button
+        variant="outline"
+        onClick={() => {
+          setOriginalId(current[0]?.id ?? "")
+          setNextId("")
+          setIsOpen(true)
+        }}
+      >
+        {t("termChange.trigger")}
+      </Button>
       <Dialog
         open={isOpen}
         onOpenChange={(isNowOpen) => {
@@ -154,12 +143,7 @@ export function OrganizerTermChange({ applicationId }: { applicationId: string }
               <DialogHeader>
                 <DialogTitle className="text-2xl">{t("termChange.full.title")}</DialogTitle>
                 <DialogDescription className="sr-only">
-                  {t("termChange.full.alertDescription", {
-                    term: termTitle(next),
-                    confirmed: added.confirmed,
-                    capacity: added.capacity,
-                    next: added.confirmed + 1,
-                  })}
+                  {t("termChange.full.alertTitle")}
                 </DialogDescription>
               </DialogHeader>
               <Alert variant="destructive">
@@ -169,9 +153,9 @@ export function OrganizerTermChange({ applicationId }: { applicationId: string }
                 <AlertDescription>
                   {t("termChange.full.alertDescription", {
                     term: termTitle(next),
-                    confirmed: added.confirmed,
-                    capacity: added.capacity,
-                    next: added.confirmed + 1,
+                    occupied: added.genderCapacity - added.genderFree,
+                    capacity: added.genderCapacity,
+                    next: added.genderCapacity - added.genderFree + 1,
                   })}
                 </AlertDescription>
               </Alert>
@@ -179,28 +163,14 @@ export function OrganizerTermChange({ applicationId }: { applicationId: string }
                 <Checkbox
                   id="over-capacity"
                   checked={isOverCapacityConfirmed}
-                  onCheckedChange={(value) => setIsOverCapacityConfirmed(value === true)}
+                  onCheckedChange={(isChecked) => setIsOverCapacityConfirmed(isChecked === true)}
                 />
                 <Label htmlFor="over-capacity">{t("termChange.full.confirm")}</Label>
               </div>
-              {hasError ? (
-                <p
-                  role="alert"
-                  className="text-sm text-destructive"
-                >
-                  {mutation.error.message}
-                </p>
-              ) : null}
-              <DialogFooter className="flex-col gap-2 sm:flex-col">
+              {errorMessage}
+              <DialogFooter>
                 <Button
-                  size="lg"
-                  disabled={!isOverCapacityConfirmed || mutation.isPending}
-                  onClick={() => mutation.mutate()}
-                >
-                  {t("termChange.full.submit")}
-                </Button>
-                <Button
-                  variant="ghost"
+                  variant="outline"
                   size="lg"
                   disabled={mutation.isPending}
                   onClick={() => {
@@ -210,39 +180,52 @@ export function OrganizerTermChange({ applicationId }: { applicationId: string }
                 >
                   {t("termChange.full.back")}
                 </Button>
+                <Button
+                  size="lg"
+                  disabled={!isOverCapacityConfirmed || mutation.isPending}
+                  onClick={() => mutation.mutate()}
+                >
+                  {t("termChange.full.submit")}
+                </Button>
               </DialogFooter>
             </>
           ) : (
             <>
               <DialogHeader>
                 <DialogTitle className="text-2xl">{t("termChange.title")}</DialogTitle>
-                <DialogDescription className="text-base text-foreground">
-                  {t("termChange.subject", {
-                    name,
-                    event: application.data?.eventName ?? "",
-                  })}
+                <DialogDescription className="sr-only">
+                  {application.data
+                    ? `${application.data.firstName} ${application.data.lastName} · ${application.data.eventName}`
+                    : t("termChange.title")}
                 </DialogDescription>
               </DialogHeader>
+              {subject}
               <div className="flex flex-col gap-2">
                 <Label>{t("termChange.original")}</Label>
-                <Select
-                  value={originalId}
-                  onValueChange={setOriginalId}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {current.map((term) => (
-                      <SelectItem
-                        key={term.id}
-                        value={term.id}
-                      >
-                        {termLine(term)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                {current.length === 1 && original ? (
+                  <p className="rounded-md border bg-muted px-3 py-2.5 font-medium">
+                    {termLine(original)}
+                  </p>
+                ) : (
+                  <Select
+                    value={originalId}
+                    onValueChange={setOriginalId}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent position="popper">
+                      {current.map((term) => (
+                        <SelectItem
+                          key={term.id}
+                          value={term.id}
+                        >
+                          {termLine(term)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
               </div>
               <div className="flex flex-col gap-2">
                 <Label>{t("termChange.next")}</Label>
@@ -253,7 +236,7 @@ export function OrganizerTermChange({ applicationId }: { applicationId: string }
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder={t("termChange.pick")} />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent position="popper">
                     {candidates.map((term) => (
                       <SelectItem
                         key={term.id}
@@ -273,57 +256,82 @@ export function OrganizerTermChange({ applicationId }: { applicationId: string }
                   {t("termChange.impact.errorTitle")}
                 </p>
               ) : null}
-              {preview.data && added && removed ? (
-                <Card className="gap-4 p-4">
-                  <h3 className="text-2xl font-semibold tracking-tight">
+              {preview.data && added && removed && original && next ? (
+                <section className="flex flex-col gap-4">
+                  <h3 className="text-lg font-semibold tracking-tight">
                     {t("termChange.impact.title")}
                   </h3>
-                  <p>
-                    {t("termChange.impact.added", {
-                      price: formatCzk(added.priceCzk),
-                      owed: formatCzk(preview.data.amountToPayCzk),
-                    })}
-                  </p>
-                  <p>
-                    {t("termChange.impact.removed", {
-                      paid: formatCzk(removed.paidCzk),
-                      overpayment: formatCzk(preview.data.overpaymentCzk),
-                    })}
-                  </p>
-                  <p>{t("termChange.impact.noTransfer")}</p>
-                  {added.fits ? (
-                    <p>
-                      {t("termChange.impact.fits", {
-                        confirmed: added.confirmed,
-                        capacity: added.capacity,
-                      })}
+                  <div className="flex flex-col gap-3 border-t pt-4">
+                    <p className="font-medium">
+                      {t("termChange.original")}
+                      <span className="font-normal text-muted-foreground">
+                        {" · "}
+                        {termTitle(original)}
+                      </span>
                     </p>
-                  ) : null}
-                </Card>
+                    <dl className="grid grid-cols-3 gap-3">
+                      <Figure label={t("termChange.impact.price")}>
+                        <MoneyAmount amountCzk={originalPrice} />
+                      </Figure>
+                      <Figure label={t("termChange.impact.paid")}>
+                        <MoneyAmount amountCzk={removed.paidCzk} />
+                      </Figure>
+                      <Figure label={t("termChange.impact.overpayment")}>
+                        <MoneyAmount amountCzk={removed.overpaymentCzk} />
+                      </Figure>
+                    </dl>
+                  </div>
+                  <div className="flex flex-col gap-3 border-t pt-4">
+                    <p className="font-medium">
+                      {t("termChange.next")}
+                      <span className="font-normal text-muted-foreground">
+                        {" · "}
+                        {termTitle(next)}
+                      </span>
+                    </p>
+                    <dl className="grid grid-cols-3 gap-3">
+                      <Figure label={t("termChange.impact.price")}>
+                        <MoneyAmount amountCzk={added.priceCzk} />
+                      </Figure>
+                      <Figure label={t("termChange.impact.paid")}>
+                        <MoneyAmount amountCzk={0} />
+                      </Figure>
+                      <Figure label={t("termChange.impact.toPay")}>
+                        <MoneyAmount amountCzk={added.priceCzk} />
+                      </Figure>
+                    </dl>
+                    <dl className="grid grid-cols-3 gap-3">
+                      <Figure label={t(`termChange.impact.places.${preview.data.gender}`)}>
+                        <span className={cn(!added.fits && "text-destructive")}>
+                          {t("termChange.impact.placesValue", {
+                            free: Math.max(0, added.genderFree),
+                            capacity: added.genderCapacity,
+                          })}
+                        </span>
+                      </Figure>
+                    </dl>
+                  </div>
+                  <p className="border-t pt-4 text-sm text-muted-foreground">
+                    {t("termChange.impact.noTransfer")}
+                  </p>
+                </section>
               ) : null}
-              {hasError ? (
-                <p
-                  role="alert"
-                  className="text-sm text-destructive"
+              {errorMessage}
+              <DialogFooter>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  disabled={mutation.isPending}
+                  onClick={close}
                 >
-                  {mutation.error.message}
-                </p>
-              ) : null}
-              <DialogFooter className="flex-col gap-2 sm:flex-col">
+                  {t("termChange.cancel")}
+                </Button>
                 <Button
                   size="lg"
                   disabled={!preview.data || mutation.isPending}
                   onClick={() => (added?.fits === false ? setIsFullStep(true) : mutation.mutate())}
                 >
                   {t("termChange.submit")}
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="lg"
-                  disabled={mutation.isPending}
-                  onClick={close}
-                >
-                  {t("termChange.cancel")}
                 </Button>
               </DialogFooter>
             </>

@@ -15,13 +15,25 @@ const options = [
   { id: "t1", name: "First", startsOn: "2027-07-12", endsOn: "2027-07-18", selected: true },
   { id: "t2", name: "Second", startsOn: "2027-07-19", endsOn: "2027-07-25", selected: false },
 ]
-const application = { firstName: "Adam", lastName: "Dvořák", eventName: "Camp" }
+const application = {
+  firstName: "Adam",
+  lastName: "Dvořák",
+  eventName: "Camp",
+  terms: [{ termId: "t1", priceCzk: 4900 }],
+}
 const preview = (isFitting: boolean) => ({
+  gender: "MALE",
   newPriceCzk: 5600,
   amountToPayCzk: 5600,
   overpaymentCzk: 4900,
   added: [
-    { termId: "t2", priceCzk: 5600, fits: isFitting, capacity: 50, confirmed: isFitting ? 48 : 50 },
+    {
+      termId: "t2",
+      priceCzk: 5600,
+      fits: isFitting,
+      genderCapacity: 50,
+      genderFree: isFitting ? 2 : 0,
+    },
   ],
   removed: [{ termId: "t1", paidCzk: 4900, overpaymentCzk: 4900 }],
 })
@@ -52,7 +64,7 @@ function setup() {
 async function pickNewTerm(user: ReturnType<typeof userEvent.setup>) {
   await user.click(await screen.findByRole("button", { name: "Change terms" }))
   const dialog = screen.getByRole("dialog")
-  await user.click(within(dialog).getAllByRole("combobox")[1]!)
+  await user.click(within(dialog).getByRole("combobox"))
   await user.click(await screen.findByRole("option", { name: /Second/ }))
   return dialog
 }
@@ -72,14 +84,13 @@ describe("OrganizerTermChange", () => {
     const user = userEvent.setup()
 
     const dialog = await pickNewTerm(user)
-    expect(await within(dialog).findByText(/Capacity of the new term 48\/50/)).toBeInTheDocument()
+    expect(await within(dialog).findByText(/Free places for men/)).toBeInTheDocument()
     await user.click(within(dialog).getByRole("button", { name: "Confirm the term change" }))
 
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument())
     expect(put).toHaveBeenCalledWith("organizer/applications/a1/terms", {
       json: { termIds: ["t2"] },
     })
-    expect(screen.getByText("The term has been changed")).toBeInTheDocument()
   })
 
   it("asks for a conscious confirmation when the new term is full", async () => {

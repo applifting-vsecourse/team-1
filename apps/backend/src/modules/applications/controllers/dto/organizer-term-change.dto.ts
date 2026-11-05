@@ -42,8 +42,10 @@ class AddedTermImpactDto {
   @ApiProperty() termId!: string
   @ApiProperty() priceCzk!: number
   @ApiProperty({ description: "A bed of the applicant's gender is free" }) fits!: boolean
-  @ApiProperty() capacity!: number
-  @ApiProperty() confirmed!: number
+  @ApiProperty({ description: "Beds the applicant's gender can use in the term" })
+  genderCapacity!: number
+  @ApiProperty({ description: "Free beds for the applicant's gender; below 1 = does not fit" })
+  genderFree!: number
 }
 
 class RemovedTermImpactDto {
@@ -53,6 +55,7 @@ class RemovedTermImpactDto {
 }
 
 export class OrganizerTermChangePreviewResponseDto {
+  @ApiProperty({ enum: ["FEMALE", "MALE"] }) gender!: "FEMALE" | "MALE"
   @ApiProperty() newPriceCzk!: number
   @ApiProperty() amountToPayCzk!: number
   @ApiProperty() overpaymentCzk!: number

@@ -15,6 +15,7 @@ import {
   type TermStatus,
   type TermStatusDetail,
 } from "@/features/event-overview/api/termStatus"
+import { OrganizerTermChange } from "@/features/event-overview/components/OrganizerTermChange"
 import { TermStatusChange } from "@/features/event-overview/components/TermStatusChange"
 
 const BADGE = {
@@ -50,9 +51,12 @@ export function TermStatuses({ applicationId }: { applicationId: string }) {
   }
   return (
     <Card className="gap-4 p-4 md:p-6">
-      <div className="flex flex-col gap-1">
-        <h2 className="text-lg font-semibold">{t("termStatus.title")}</h2>
-        <p className="text-sm text-muted-foreground">{t("termStatus.helper")}</p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="flex flex-col gap-1">
+          <h2 className="text-lg font-semibold">{t("termStatus.title")}</h2>
+          <p className="text-sm text-muted-foreground">{t("termStatus.helper")}</p>
+        </div>
+        <OrganizerTermChange applicationId={applicationId} />
       </div>
       <ul className="flex flex-col">
         {data.map((term) => (

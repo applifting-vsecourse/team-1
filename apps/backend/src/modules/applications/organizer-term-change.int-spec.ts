@@ -133,7 +133,7 @@ describe("organizer changes the terms of an application (integration)", () => {
       newPriceCzk: 2000,
       amountToPayCzk: 2000,
       overpaymentCzk: 1000,
-      added: [{ termId: secondId, fits: true, capacity: 2, confirmed: 0 }],
+      added: [{ termId: secondId, fits: true, genderCapacity: 2, genderFree: 2 }],
       removed: [{ termId: firstId, paidCzk: 1000, overpaymentCzk: 1000 }],
     })
     expect(await prisma.applicationTerm.count({ where: { applicationId } })).toBe(1)

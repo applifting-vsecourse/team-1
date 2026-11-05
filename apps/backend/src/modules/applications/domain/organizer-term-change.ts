@@ -25,12 +25,12 @@ export type AddedTermState = {
   termId: string
   priceCzk: number
   freePlaces: GenderCounts
-  /** Beds of the term and confirmed applications in it, for the capacity line (e.g. 48/50). */
-  capacity: number
-  confirmed: number
+  /** Beds the applicant's gender can use in the term (a shared pool counts all beds). */
+  genderCapacity: number
 }
 
 export type TermChangeImpact = {
+  gender: Gender
   newPriceCzk: number
   /** Sum of the debt of the terms the application will be in (overpaid ones count as zero). */
   amountToPayCzk: number
@@ -40,8 +40,8 @@ export type TermChangeImpact = {
     termId: string
     priceCzk: number
     fits: boolean
-    capacity: number
-    confirmed: number
+    genderCapacity: number
+    genderFree: number
   }[]
   removed: { termId: string; paidCzk: number; overpaymentCzk: number }[]
 }
@@ -78,6 +78,7 @@ export function previewTermChange(input: {
 
   const owedAll = [...keptOwed, ...addedOwed]
   return {
+    gender: input.gender,
     newPriceCzk: [
       ...kept.map((term) => computeTermDue(term)),
       ...input.added.map((term) => term.priceCzk),
@@ -90,8 +91,8 @@ export function previewTermChange(input: {
       termId: term.termId,
       priceCzk: term.priceCzk,
       fits: addedTermFits(input.gender, term.freePlaces),
-      capacity: term.capacity,
-      confirmed: term.confirmed,
+      genderCapacity: term.genderCapacity,
+      genderFree: term.freePlaces[input.gender],
     })),
     removed: removedRows,
   }

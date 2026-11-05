@@ -1,6 +1,10 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { Prisma } from "@/generated/prisma/client"
-import { computeAvailablePlaces, computeTotalBeds } from "@/modules/applications/domain/capacity"
+import {
+  computeAvailablePlaces,
+  computeTermCapacity,
+  computeTotalBeds,
+} from "@/modules/applications/domain/capacity"
 import {
   sameSelection,
   termChangeApprovalPolicy,
@@ -225,8 +229,9 @@ export class TermStatusRepository {
         termId: term.id,
         priceCzk: term.priceCzk,
         freePlaces: computeAvailablePlaces(term.rooms, genders),
-        capacity: computeTotalBeds(term.rooms),
-        confirmed: genders.length,
+        genderCapacity: term.rooms.some((room) => room.gender === null)
+          ? computeTotalBeds(term.rooms)
+          : computeTermCapacity(term.rooms)[application.gender],
       }
     })
     return previewTermChange({

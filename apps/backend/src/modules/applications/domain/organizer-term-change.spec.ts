@@ -14,14 +14,14 @@ describe("previewTermChange", () => {
       gender: "MALE",
       current,
       selectedIds: ["b"],
-      added: [{ termId: "b", priceCzk: 5600, freePlaces: free, capacity: 50, confirmed: 48 }],
+      added: [{ termId: "b", priceCzk: 5600, freePlaces: free, genderCapacity: 50 }],
     })
     expect(impact).toMatchObject({
       newPriceCzk: 5600,
       amountToPayCzk: 5600,
       overpaymentCzk: 4900,
       removed: [{ termId: "a", paidCzk: 4900, overpaymentCzk: 4900 }],
-      added: [{ termId: "b", fits: true, capacity: 50, confirmed: 48 }],
+      added: [{ termId: "b", fits: true, genderCapacity: 50, genderFree: 2 }],
     })
   })
 
@@ -30,7 +30,7 @@ describe("previewTermChange", () => {
       gender: "MALE",
       current,
       selectedIds: ["a", "b"],
-      added: [{ termId: "b", priceCzk: 5600, freePlaces: free, capacity: 50, confirmed: 48 }],
+      added: [{ termId: "b", priceCzk: 5600, freePlaces: free, genderCapacity: 50 }],
     })
     expect(impact).toMatchObject({
       newPriceCzk: 10500,
@@ -55,7 +55,7 @@ describe("previewTermChange", () => {
       gender: "MALE",
       current: [],
       selectedIds: ["b"],
-      added: [{ termId: "b", priceCzk: 5600, freePlaces: full, capacity: 50, confirmed: 50 }],
+      added: [{ termId: "b", priceCzk: 5600, freePlaces: full, genderCapacity: 50 }],
     })
     expect(impact.added[0].fits).toBe(false)
   })
