@@ -43,7 +43,7 @@
     "errorTitle": "Couldn't load your applications"
   },
   "payment": {
-    "payEachTerm": "You pay each term separately. Each has its own variable symbol.",
+    "payEachTerm": "You pay each term separately. Use its variable symbol, otherwise we cannot match the payment.",
     "totalOwed": "Left to pay in total"
   },
   "paymentStatus": {

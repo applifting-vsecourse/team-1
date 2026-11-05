@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
-import { Trash2 } from "lucide-react"
+import { Pencil, Trash2 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
@@ -14,7 +14,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { formatDate } from "@/lib/date"
-import { termDates } from "@/lib/term-label"
+import { termDates, termLine } from "@/lib/term-label"
 import { cn } from "@/lib/utils"
 
 import {
@@ -23,6 +23,11 @@ import {
   type PaymentTerm,
 } from "@/features/event-overview/api/payments"
 import { PaymentCancellation } from "@/features/event-overview/components/PaymentCancellation"
+import { PaymentCorrection } from "@/features/event-overview/components/PaymentCorrection"
+import {
+  PaymentCorrectionResult,
+  type SavedPaymentCorrection,
+} from "@/features/event-overview/components/PaymentCorrectionResult"
 import { PaymentEditor } from "@/features/event-overview/components/PaymentEditor"
 
 /** Needs attention first, then the paid (collapsed) terms, then the waitlisted ones. */
@@ -41,12 +46,18 @@ const isShown = (term: PaymentTerm): boolean =>
  */
 // Figma (Design system): Detail přihlášky · Platby · Organizátor · dluh po termínech · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15845-7697 (360 px: node-id=15845-7814)
 // Figma (Design system): O34 Detail platby, bez potvrzeného termínu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16487-6805
+// Figma (Design system): O34aa Po zápisu vratky · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16845-3106 (360 px: M13w 16845-3385)
+// Figma (Design system): US-112 · Částka platby opravená · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15883-7820 (mobile: 15883-7897)
+// Figma (Design system): US-112 · Platba přesunutá · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15883-7947 (mobile: 15883-8027)
+// Figma (Design system): US-112 · Vratka opravená · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15883-8080 (mobile: 15883-8157)
 export function PaymentDetail({ applicationId }: { applicationId: string }) {
   const { t } = useTranslation("eventOverview")
   const { data, isPending, error, refetch } = useQuery(paymentQueryOptions(applicationId))
   const [termToPay, setTermToPay] = useState<PaymentTerm | null>(null)
-  const [isRefundOpen, setIsRefundOpen] = useState(false)
+  const [isRecordOpen, setIsRecordOpen] = useState(false)
   const [paymentToCancel, setPaymentToCancel] = useState<Payment | null>(null)
+  const [paymentToCorrect, setPaymentToCorrect] = useState<Payment | null>(null)
+  const [savedCorrection, setSavedCorrection] = useState<SavedPaymentCorrection | null>(null)
   if (isPending) return <LoadingState />
   if (error) {
     return (
@@ -57,9 +68,24 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
       />
     )
   }
+  if (savedCorrection) {
+    return (
+      <div className="flex flex-col gap-6">
+        <Seo title={t("payment.correctionResult")} />
+        <h2 className="text-xl font-semibold tracking-tight md:text-2xl">
+          {data.firstName} {data.lastName} · {data.code}
+        </h2>
+        <PaymentCorrectionResult
+          application={data}
+          correction={savedCorrection}
+          onBack={() => setSavedCorrection(null)}
+        />
+      </div>
+    )
+  }
   const terms = data.terms.filter(isShown).sort((a, b) => cardRank(a) - cardRank(b))
-  // A refund is taken from one term, so any overpaid term opens it.
-  const hasOverpayment = data.terms.some((term) => term.owedCzk < 0)
+  // The refund is a switch in the dialog, enabled by the backend when a term is overpaid.
+  const hasOverpayment = data.refundableTermId !== null
   const hasConfirmedTerm = data.terms.some((term) => term.status === "CONFIRMED")
 
   return (
@@ -87,13 +113,15 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
             </h2>
             <p className="text-sm text-muted-foreground">{t("payment.description")}</p>
           </div>
-          {hasOverpayment ? (
+          {/* The summary dialog is always open to the organizer once there is a confirmed term
+              (or an overpayment to return): one payment split over the terms, or a refund. */}
+          {hasConfirmedTerm || hasOverpayment ? (
             <Button
-              variant="outline"
+              variant={data.amountOwedCzk > 0 ? "default" : "outline"}
               size="lg"
-              onClick={() => setIsRefundOpen(true)}
+              onClick={() => setIsRecordOpen(true)}
             >
-              {t("payment.refund")}
+              {t("payment.recordOrRefund")}
             </Button>
           ) : null}
         </div>
@@ -151,6 +179,7 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
             payments={data.payments}
             terms={data.terms}
             onCancel={setPaymentToCancel}
+            onCorrect={setPaymentToCorrect}
           />
         )}
       </Card>
@@ -168,11 +197,20 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
           onClose={() => setPaymentToCancel(null)}
         />
       ) : null}
-      {isRefundOpen ? (
+      {paymentToCorrect ? (
+        <PaymentCorrection
+          application={data}
+          payment={paymentToCorrect}
+          onSaved={(amountCzk, termId) =>
+            setSavedCorrection({ original: paymentToCorrect, amountCzk, termId })
+          }
+          onClose={() => setPaymentToCorrect(null)}
+        />
+      ) : null}
+      {isRecordOpen ? (
         <PaymentEditor
           application={data}
-          isRefund
-          onClose={() => setIsRefundOpen(false)}
+          onClose={() => setIsRecordOpen(false)}
         />
       ) : null}
     </div>
@@ -184,10 +222,12 @@ function PaymentHistory({
   payments,
   terms,
   onCancel,
+  onCorrect,
 }: {
   payments: Payment[]
   terms: PaymentTerm[]
   onCancel: (payment: Payment) => void
+  onCorrect: (payment: Payment) => void
 }) {
   const { t } = useTranslation("eventOverview")
   const detail = "text-xs text-muted-foreground md:text-sm md:text-foreground"
@@ -209,7 +249,7 @@ function PaymentHistory({
           <th className="h-10 px-3 text-right font-medium">{t("payment.historyAmount")}</th>
           <th className="h-10 px-3 font-medium">{t("payment.recorder")}</th>
           <th className="h-10 rounded-r-md px-3">
-            <span className="sr-only">{t("payment.cancelRecord")}</span>
+            <span className="sr-only">{t("payment.correctRecord")}</span>
           </th>
         </tr>
       </thead>
@@ -217,13 +257,16 @@ function PaymentHistory({
         {lines.map(({ payment, amountCzk, term }) => (
           <tr
             key={`${payment.id}-${term?.termId ?? amountCzk}`}
-            className="grid grid-cols-[minmax(0,1fr)_auto] border-b py-2 last:border-b-0 md:table-row"
+            className={cn(
+              "grid grid-cols-[minmax(0,1fr)_auto] border-b py-2 last:border-b-0 md:table-row",
+              payment.cancelledAt && "text-muted-foreground",
+            )}
           >
             <td className={cn("col-start-1 row-start-2 md:px-3 md:py-4", detail)}>
               {formatDate(payment.createdAt)}
             </td>
             <td className={cn("col-start-1 row-start-3 md:px-3 md:py-4", detail)}>
-              {term ? termDates(term) : null}
+              {term ? termLine(term) : null}
             </td>
             <td className={cn("col-start-1 row-start-4 md:px-3 md:py-4", detail)}>
               {t(amountCzk < 0 ? "payment.refundMethod" : "payment.manual")}
@@ -233,19 +276,44 @@ function PaymentHistory({
                 amountCzk={amountCzk}
                 className={cn(amountCzk < 0 && "text-status-warning")}
               />
+              {payment.cancelledAt ? (
+                <span className="ml-2 text-xs font-normal text-muted-foreground">
+                  {t(
+                    payments.some((item) => item.correctsReceiptId === payment.id)
+                      ? "payment.correctedOriginal"
+                      : "payment.cancelledHistory",
+                  )}
+                </span>
+              ) : payment.correctsReceiptId ? (
+                <span className="ml-2 text-xs font-normal text-muted-foreground">
+                  {t("payment.correctionHistory")}
+                </span>
+              ) : null}
             </td>
             <td className={cn("col-start-1 row-start-5 md:px-3 md:py-4", detail)}>
               {payment.recordedByName}
             </td>
             <td className="col-start-2 row-span-5 row-start-1 self-center text-right md:px-3 md:py-2">
-              <Button
-                variant="ghost"
-                size="icon-lg"
-                aria-label={t("payment.cancelRecord")}
-                onClick={() => onCancel(payment)}
-              >
-                <Trash2 />
-              </Button>
+              {payment.cancelledAt ? null : (
+                <div className="flex items-center">
+                  <Button
+                    variant="ghost"
+                    size="icon-lg"
+                    aria-label={t("payment.correctRecord")}
+                    onClick={() => onCorrect(payment)}
+                  >
+                    <Pencil />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon-lg"
+                    aria-label={t("payment.cancelRecord")}
+                    onClick={() => onCancel(payment)}
+                  >
+                    <Trash2 />
+                  </Button>
+                </div>
+              )}
             </td>
           </tr>
         ))}

@@ -43,7 +43,7 @@
     "errorTitle": "Přihlášky se nepodařilo načíst"
   },
   "payment": {
-    "payEachTerm": "Každý termín platíte zvlášť. Každý má vlastní variabilní symbol.",
+    "payEachTerm": "Každý termín platíte zvlášť. Použijte jeho variabilní symbol, jinak platbu nepřiřadíme.",
     "totalOwed": "Zbývá zaplatit celkem"
   },
   "paymentStatus": {

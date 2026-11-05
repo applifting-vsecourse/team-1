@@ -1,4 +1,5 @@
 import { ApplicationTermStatus } from "@/modules/applications/domain/evaluation"
+import { computePaymentDeadline } from "@/modules/applications/domain/payment-deadline"
 import {
   computeApplicationDue,
   computeApplicationPaid,
@@ -6,6 +7,7 @@ import {
 import {
   computeAmountOwed,
   computePayableAmount,
+  computeRefundableAmount,
   computeTermDue,
   computeTermOwed,
   computeTermPaid,
@@ -18,6 +20,9 @@ import { variableSymbol } from "@/modules/applications/domain/variable-symbol"
 export type PaymentRow = {
   id: string
   receiptId: string
+  correctsReceiptId: string | null
+  isSummary: boolean | null
+  cancelledAt: Date | null
   amountCzk: number
   recordedByName: string
   createdAt: Date
@@ -27,11 +32,14 @@ export type PaymentTerm = {
   applicationTermId: string
   termId: string
   termNumber: number
+  /** Optional name of the term (D-053); null = the term is known by its dates. */
+  termName: string | null
   status: ApplicationTermStatus
   priceCzk: number
   startsOn: Date
   endsOn: Date
-  /** Non-cancelled rows only. */
+  paymentPeriodStartedAt: Date | null
+  /** Stored rows, including cancelled entries for the audit history. */
   payments: PaymentRow[]
 }
 
@@ -39,6 +47,7 @@ export type PaymentApplication = {
   id: string
   eventId: string
   eventName: string
+  paymentPeriodDays: number
   /** Account the organization receives payments to; shown next to each term's variable symbol. */
   bankAccount: string
   number: number
@@ -54,6 +63,9 @@ export type PaymentTermSummary = PaymentTerm & {
   /** Negative is an overpayment of this term. */
   owedCzk: number
   paymentStatus: PaymentStatus
+  /** Most that can be returned for this term: its overpayment, 0 without one. */
+  refundableCzk: number
+  paymentDueAt: Date | null
 }
 
 /** One receipt: money that arrived at once, split into rows per term. */
@@ -62,6 +74,9 @@ export type Receipt = {
   amountCzk: number
   recordedByName: string
   createdAt: Date
+  cancelledAt: Date | null
+  correctsReceiptId: string | null
+  isSummary: boolean | null
   rows: { applicationTermId: string; termId: string; termNumber: number; amountCzk: number }[]
 }
 
@@ -73,15 +88,31 @@ export type PaymentSummary = Omit<PaymentApplication, "terms"> & {
   amountDueCzk: number
   amountPaidCzk: number
   amountOwedCzk: number
-  /** What a summary payment settles right now (overpaid terms not set off). */
+  /** What a summary payment settles right now: debts less overpayments of the confirmed terms. */
   payableCzk: number
+  /** The term a refund is offered for first (the most overpaid one); null without an overpayment. */
+  refundableTermId: string | null
 }
 
 /** Groups the rows of an application by receipt, in the order the receipts arrived. */
 export function groupReceipts(terms: PaymentTerm[]): Receipt[] {
   const receipts = new Map<string, Receipt>()
+  const correctedIds = new Set(
+    terms
+      .flatMap((term) => term.payments.map((payment) => payment.correctsReceiptId))
+      .filter((id): id is string => id !== null),
+  )
   const rows = terms
-    .flatMap((term) => term.payments.map((payment) => ({ term, payment })))
+    .flatMap((term) =>
+      term.payments
+        .filter(
+          (payment) =>
+            payment.cancelledAt === null ||
+            payment.correctsReceiptId !== null ||
+            correctedIds.has(payment.receiptId),
+        )
+        .map((payment) => ({ term, payment })),
+    )
     .sort(
       (a, b) =>
         a.payment.createdAt.getTime() - b.payment.createdAt.getTime() ||
@@ -93,6 +124,9 @@ export function groupReceipts(terms: PaymentTerm[]): Receipt[] {
       amountCzk: 0,
       recordedByName: payment.recordedByName,
       createdAt: payment.createdAt,
+      cancelledAt: payment.cancelledAt,
+      correctsReceiptId: payment.correctsReceiptId,
+      isSummary: payment.isSummary,
       rows: [],
     }
     receipt.amountCzk += payment.amountCzk
@@ -110,24 +144,40 @@ export function groupReceipts(terms: PaymentTerm[]): Receipt[] {
 export function paymentSummary(application: PaymentApplication): PaymentSummary {
   const terms = [...application.terms]
     .sort((a, b) => a.startsOn.getTime() - b.startsOn.getTime() || a.termNumber - b.termNumber)
-    .map((term) => ({
-      ...term,
-      variableSymbol: variableSymbol(application.number, term.termNumber),
-      dueCzk: computeTermDue(term),
-      paidCzk: computeTermPaid(term.payments),
-      owedCzk: computeTermOwed(term, term.payments),
-      paymentStatus: computeTermPaymentStatus(term, term.payments),
-    }))
+    .map((term) => {
+      const payments = term.payments.filter((payment) => payment.cancelledAt === null)
+      const dueCzk = computeTermDue(term)
+      const paidCzk = computeTermPaid(payments)
+      return {
+        ...term,
+        payments,
+        variableSymbol: variableSymbol(application.number, term.termNumber),
+        dueCzk,
+        paidCzk,
+        owedCzk: computeTermOwed(term, payments),
+        paymentStatus: computeTermPaymentStatus(term, payments),
+        refundableCzk: computeRefundableAmount(dueCzk, paidCzk),
+        paymentDueAt:
+          computeTermOwed(term, payments) > 0 && term.status === "CONFIRMED"
+            ? computePaymentDeadline({ ...term, paymentPeriodDays: application.paymentPeriodDays })
+            : null,
+      }
+    })
   const amountDueCzk = computeApplicationDue(terms)
   const amountPaidCzk = computeApplicationPaid(terms)
   return {
     ...application,
     terms,
-    receipts: groupReceipts(terms),
+    receipts: groupReceipts(application.terms),
     variableSymbol: variableSymbol(application.number),
     amountDueCzk,
     amountPaidCzk,
     amountOwedCzk: computeAmountOwed(amountDueCzk, amountPaidCzk),
     payableCzk: computePayableAmount(terms.map((term) => term.owedCzk)),
+    refundableTermId:
+      terms.reduce<PaymentTermSummary | null>(
+        (best, term) => (term.refundableCzk > (best?.refundableCzk ?? 0) ? term : best),
+        null,
+      )?.termId ?? null,
   }
 }

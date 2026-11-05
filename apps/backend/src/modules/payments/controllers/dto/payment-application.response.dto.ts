@@ -17,6 +17,9 @@ class PaymentResponseDto {
   amountCzk!: number
   @ApiProperty() recordedByName!: string
   @ApiProperty() createdAt!: string
+  @ApiProperty({ nullable: true, type: String }) cancelledAt!: string | null
+  @ApiProperty({ nullable: true, type: String }) correctsReceiptId!: string | null
+  @ApiProperty({ nullable: true, type: Boolean }) isSummary!: boolean | null
   @ApiProperty({ type: [ReceiptRowResponseDto], description: "The split over the terms." })
   rows!: ReceiptRowResponseDto[]
 }
@@ -24,6 +27,8 @@ class PaymentResponseDto {
 class PaymentTermResponseDto {
   @ApiProperty() termId!: string
   @ApiProperty() termNumber!: number
+  @ApiProperty({ nullable: true, type: String, description: "Optional name of the term." })
+  name!: string | null
   @ApiProperty({ example: "12345001", description: "Pays this term only." })
   variableSymbol!: string
   @ApiProperty({ enum: ["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED"] }) status!: string
@@ -37,6 +42,14 @@ class PaymentTermResponseDto {
   owedCzk!: number
   @ApiProperty({ enum: ["NOTHING_DUE", "UNPAID", "PARTIALLY_PAID", "PAID", "OVERPAID"] })
   paymentStatus!: string
+  @ApiProperty({ description: "Limit of a refund for this term: its overpayment, 0 without one." })
+  refundableCzk!: number
+  @ApiProperty({
+    nullable: true,
+    type: String,
+    description: "Restarted payment deadline; null without a renewed period or debt.",
+  })
+  paymentDueAt!: string | null
 }
 
 export class PaymentApplicationResponseDto {
@@ -56,6 +69,12 @@ export class PaymentApplicationResponseDto {
   amountOwedCzk!: number
   @ApiProperty({ description: "What a summary payment settles now; overpaid terms not set off." })
   payableCzk!: number
+  @ApiProperty({
+    nullable: true,
+    type: String,
+    description: "Term a refund is offered for first (the most overpaid); null = refund disabled.",
+  })
+  refundableTermId!: string | null
   @ApiProperty({ type: [PaymentTermResponseDto] }) terms!: PaymentTermResponseDto[]
   @ApiProperty({ type: [PaymentResponseDto], description: "Receipts, oldest first." })
   payments!: PaymentResponseDto[]
@@ -74,9 +93,11 @@ export class PaymentApplicationResponseDto {
       amountPaidCzk: application.amountPaidCzk,
       amountOwedCzk: application.amountOwedCzk,
       payableCzk: application.payableCzk,
+      refundableTermId: application.refundableTermId,
       terms: application.terms.map((term) => ({
         termId: term.termId,
         termNumber: term.termNumber,
+        name: term.termName,
         variableSymbol: term.variableSymbol,
         status: term.status,
         priceCzk: term.priceCzk,
@@ -86,12 +107,17 @@ export class PaymentApplicationResponseDto {
         paidCzk: term.paidCzk,
         owedCzk: term.owedCzk,
         paymentStatus: term.paymentStatus,
+        refundableCzk: term.refundableCzk,
+        paymentDueAt: term.paymentDueAt?.toISOString() ?? null,
       })),
       payments: application.receipts.map((receipt) => ({
         id: receipt.id,
         amountCzk: receipt.amountCzk,
         recordedByName: receipt.recordedByName,
         createdAt: receipt.createdAt.toISOString(),
+        cancelledAt: receipt.cancelledAt?.toISOString() ?? null,
+        correctsReceiptId: receipt.correctsReceiptId,
+        isSummary: receipt.isSummary,
         rows: receipt.rows,
       })),
     }

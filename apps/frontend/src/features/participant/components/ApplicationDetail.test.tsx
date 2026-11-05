@@ -243,7 +243,7 @@ describe("ApplicationDetail", () => {
       screen.getByRole("heading", { name: "Left to pay in total" }).nextSibling,
     ).toHaveTextContent("1,200")
     expect(
-      screen.getByText(/You pay each term separately\. Each has its own variable symbol/),
+      screen.getByText(/You pay each term separately\. Use its variable symbol/),
     ).toBeInTheDocument()
     const one = cardOf(/^4–10 Jul 2027/)
     const two = cardOf(/^11–17 Jul 2027/)
