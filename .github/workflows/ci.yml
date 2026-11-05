@@ -9,7 +9,44 @@ permissions:
   contents: read
 
 jobs:
+  # A PR that touches only docs/ skips the build, tests and E2E. `verify` and
+  # `e2e` are required checks on main, so they can't be left out with
+  # `paths-ignore` (the PR would wait for them forever); a skipped job or step
+  # counts as passed. Pushes to main always run everything.
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      code: ${{ steps.diff.outputs.code }}
+    steps:
+      # Fail safe: if this job failed, `verify` and `e2e` would be skipped and
+      # pass, so any error here means "run everything".
+      - uses: actions/checkout@v7
+        if: github.event_name == 'pull_request'
+        continue-on-error: true
+        with:
+          # The PR merge commit and its first parent (the base branch).
+          fetch-depth: 2
+
+      - id: diff
+        run: |
+          if [ "$GITHUB_EVENT_NAME" != "pull_request" ]; then
+            echo "code=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if ! changed=$(git diff --name-only HEAD^1 HEAD) || [ -z "$changed" ]; then
+            echo "code=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "$changed"
+          if echo "$changed" | grep -qv '^docs/'; then
+            echo "code=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Only docs/ changed: skipping build, tests and E2E."
+            echo "code=false" >> "$GITHUB_OUTPUT"
+          fi
+
   verify:
+    needs: changes
     runs-on: ubuntu-latest
     # Integration tests (pnpm backend test:int) need a real Postgres. Same
     # port and credentials as the local docker-compose, so the .env created
@@ -42,44 +79,63 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Create env files
+        if: needs.changes.outputs.code == 'true'
         run: pnpm env:check
 
       - name: Generate Prisma client
+        if: needs.changes.outputs.code == 'true'
         run: pnpm backend prisma:generate
 
       - name: Format check
+        if: needs.changes.outputs.code == 'true'
         run: pnpm format:check
 
       - name: Test scripts
+        if: needs.changes.outputs.code == 'true'
         run: pnpm test:scripts
 
       - name: Lint backend
+        if: needs.changes.outputs.code == 'true'
         run: pnpm backend lint:check
 
       - name: Lint frontend
+        if: needs.changes.outputs.code == 'true'
         run: pnpm frontend lint:check
 
       - name: Type-check frontend
+        if: needs.changes.outputs.code == 'true'
         run: pnpm frontend type-check
 
       - name: Test backend
+        if: needs.changes.outputs.code == 'true'
         run: pnpm backend test
 
       - name: Integration tests backend
+        if: needs.changes.outputs.code == 'true'
         run: pnpm backend test:int
 
       - name: Test frontend
+        if: needs.changes.outputs.code == 'true'
         run: pnpm frontend test:ci
 
       - name: Build backend
+        if: needs.changes.outputs.code == 'true'
         run: pnpm backend build
 
       - name: Build frontend
+        if: needs.changes.outputs.code == 'true'
         run: pnpm frontend build
+
+      # Docs-only PR: the Markdown and YAML in docs/ still have to be formatted.
+      - name: Format check (docs)
+        if: needs.changes.outputs.code != 'true'
+        run: pnpm format:root:check
 
   # E2E (Playwright, docs/E2E.md): the core journeys in a real browser against a
   # built backend + frontend and a freshly seeded `togena_e2e` database.
   e2e:
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     services:
