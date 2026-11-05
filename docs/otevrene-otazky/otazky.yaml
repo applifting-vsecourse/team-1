@@ -33,16 +33,14 @@ otazky:
     url: https://github.com/applifting-vsecourse/team-1/pull/232#issuecomment-6535280632
   poznamka: 'Odpověď PM v PR #232: není prioritní, nebrání mergi.'
 - id: Q-PRI-02
-  otazka: Jaká lhůta na zaplacení platí pro náhradníka potvrzeného na poslední chvíli, např. týden před
-    akcí?
+  otazka: 'Ověřit u PO rozhodnutí D-099: lhůtu na zaplacení (výchozí 10 dní) si nastaví organizátor u akce; když se místo uvolní v okně „začátek termínu minus lhůta“, přihláška je rovnou po splatnosti a platba se urguje. Platí, nebo má být jinak? (Rozhodl PM, jde o ověření.)'
   epic: přihlašování na akce
   us:
   - label: US-31
     url: https://github.com/applifting-vsecourse/team-1/issues/31
   stav: otevreno
   priorita: P1
-  priorita_duvod: Vyhodnocování a náhradníci jsou hlavní priorita PO; lhůta pro náhradníka na poslední
-    chvíli není určena.
+  priorita_duvod: 'Vyhodnocování a náhradníci jsou hlavní priorita PO; PM rozhodl (D-099), ověření u PO před spuštěním US-31.'
   ceka_na: po
   zdroje:
   - popis: issue
@@ -129,15 +127,14 @@ otazky:
   uzavreno_duvod: 'PROJEKT.md §9, 23. 10.: organizátor si nastaví ruční, nebo automatické vyhodnocování.
     Zařazeno k US-82 jen kvůli epicu.'
 - id: Q-PRI-07
-  otazka: Má změna termínu nebo odhláška proběhnout hned, nebo ji organizátor nejdřív schválí (kvůli kapacitě
-    a storno podmínkám)?
+  otazka: 'Ověřit u PO rozhodnutí D-100: dokud neběží storno podmínky, účastník si mění přihlášku, termíny i odhlášku bez schválení; schvaluje až organizátor po začátku storno podmínek. Platí, nebo má být jinak? (Rozhodl PM, jde o ověření.)'
   epic: přihlašování na akce
   us:
   - label: US-84
     url: https://github.com/applifting-vsecourse/team-1/issues/84
   stav: otevreno
   priorita: P1
-  priorita_duvod: Účastník si sám mění termín a odhlašuje se (návrh PO); chybí pravidlo hned / po schválení.
+  priorita_duvod: 'Účastník si sám mění termín a odhlašuje se (návrh PO); PM rozhodl (D-100), ověření u PO před spuštěním US-84.'
   ceka_na: po
   zdroje:
   - popis: issue

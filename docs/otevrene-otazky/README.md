@@ -76,9 +76,9 @@ _Nic._
 | [Q-NAS-04](#q-nas-04) | Co všechno má přihlašovatel o akci vidět, než podá přihlášku? Má být stránka dostupná komukoliv, nebo jen přes odkaz od organizátora? | [US-22](https://github.com/applifting-vsecourse/team-1/issues/22) | P1 | Veřejná stránka akce je v návrhu PO pro sprint 3 (návštěvník webu) a seznam polí není určen. |
 | [Q-NAS-05](#q-nas-05) | Jaká pole veřejných údajů o akci (fotografie atd.) se mají zobrazovat na veřejné stránce? | [US-22](https://github.com/applifting-vsecourse/team-1/issues/22) | P1 | Seznam polí je v kódu podle Figmy, PO ho ale neurčil ani neodsouhlasil. |
 | [Q-PRE-01](#q-pre-01) | Má administrace otevírat poslední akci, se kterou organizátor pracoval? | [US-51](https://github.com/applifting-vsecourse/team-1/issues/51) | P1 | Dashboard se vrací a je v návrhu PO; obsah karet není určen. |
-| [Q-PRI-02](#q-pri-02) | Jaká lhůta na zaplacení platí pro náhradníka potvrzeného na poslední chvíli, např. týden před akcí? | [US-31](https://github.com/applifting-vsecourse/team-1/issues/31) | P1 | Vyhodnocování a náhradníci jsou hlavní priorita PO; lhůta pro náhradníka na poslední chvíli není určena. |
+| [Q-PRI-02](#q-pri-02) | Ověřit u PO rozhodnutí D-099: lhůtu na zaplacení (výchozí 10 dní) si nastaví organizátor u akce; když se místo uvolní v okně „začátek termínu minus lhůta“, přihláška je rovnou po splatnosti a platba se urguje. Platí, nebo má být jinak? (Rozhodl PM, jde o ověření.) | [US-31](https://github.com/applifting-vsecourse/team-1/issues/31) | P1 | Vyhodnocování a náhradníci jsou hlavní priorita PO; PM rozhodl (D-099), ověření u PO před spuštěním US-31. |
 | [Q-PRI-03](#q-pri-03) | Platí pro změnu termínu stejné storno podmínky jako pro odhlášku (US-47)? | [US-32](https://github.com/applifting-vsecourse/team-1/issues/32) | P1 | Odhláška a změna termínu jsou v návrhu PO; pravidla stornování nejsou určena. |
-| [Q-PRI-07](#q-pri-07) | Má změna termínu nebo odhláška proběhnout hned, nebo ji organizátor nejdřív schválí (kvůli kapacitě a storno podmínkám)? | [US-84](https://github.com/applifting-vsecourse/team-1/issues/84) | P1 | Účastník si sám mění termín a odhlašuje se (návrh PO); chybí pravidlo hned / po schválení. |
+| [Q-PRI-07](#q-pri-07) | Ověřit u PO rozhodnutí D-100: dokud neběží storno podmínky, účastník si mění přihlášku, termíny i odhlášku bez schválení; schvaluje až organizátor po začátku storno podmínek. Platí, nebo má být jinak? (Rozhodl PM, jde o ověření.) | [US-84](https://github.com/applifting-vsecourse/team-1/issues/84) | P1 | Účastník si sám mění termín a odhlašuje se (návrh PO); PM rozhodl (D-100), ověření u PO před spuštěním US-84. |
 | [Q-PLA-02](#q-pla-02) | Stačí nahrání výpisu, nebo čekáte, že si systém platby načte z bankovního účtu sám? U které banky máte bankovní účet a můžete nám k němu zřídit přístup pro čtení? Blokuje ready. | [US-43](https://github.com/applifting-vsecourse/team-1/issues/43) | P2 | Označeno jako klíčové a blokující, ale board říká „platby bez banky“ a US je „Později“. |
 | [Q-PLA-04](#q-pla-04) | Jak se počítá storno při odhlášce méně než 30 dní před akcí: procento z ceny, pevná částka, nebo podle toho, jestli se za účastníka najde náhradník? | [US-47](https://github.com/applifting-vsecourse/team-1/issues/47) | P2 | Storno podmínky jsou v návrhu PO („odkdy běží“), výpočet storna ale není určen. |
 | [Q-PLA-14](#q-pla-14) | Ověřit u PO pravidlo D-087: souhrnná platba se rozdělí od nejstaršího termínu, nedoplatek zůstane na nejpozdějším, přeplatek na poslední potvrzené přihlášce v termínu. Platí, nebo má být jinak? (Rozhodl PM, jde o ověření.) | [US-127](https://github.com/applifting-vsecourse/team-1/issues/220), [US-137](https://github.com/applifting-vsecourse/team-1/issues/174) | P2 | PM rozhodl, nebrání vývoji US-137; ověření u PO nejpozději před spuštěním US-127. |
@@ -254,9 +254,9 @@ _Nic._
 
 | ID | Otázka | Dotčené US | Stav | Priorita | Čeká na |
 | --- | --- | --- | --- | --- | --- |
-| [Q-PRI-02](#q-pri-02) | Jaká lhůta na zaplacení platí pro náhradníka potvrzeného na poslední chvíli, např. týden před akcí? | [US-31](https://github.com/applifting-vsecourse/team-1/issues/31) | otevřeno | P1 | `po` |
+| [Q-PRI-02](#q-pri-02) | Ověřit u PO rozhodnutí D-099: lhůtu na zaplacení (výchozí 10 dní) si nastaví organizátor u akce; když se místo uvolní v okně „začátek termínu minus lhůta“, přihláška je rovnou po splatnosti a platba se urguje. Platí, nebo má být jinak? (Rozhodl PM, jde o ověření.) | [US-31](https://github.com/applifting-vsecourse/team-1/issues/31) | otevřeno | P1 | `po` |
 | [Q-PRI-03](#q-pri-03) | Platí pro změnu termínu stejné storno podmínky jako pro odhlášku (US-47)? | [US-32](https://github.com/applifting-vsecourse/team-1/issues/32) | otevřeno | P1 | `po` |
-| [Q-PRI-07](#q-pri-07) | Má změna termínu nebo odhláška proběhnout hned, nebo ji organizátor nejdřív schválí (kvůli kapacitě a storno podmínkám)? | [US-84](https://github.com/applifting-vsecourse/team-1/issues/84) | otevřeno | P1 | `po` |
+| [Q-PRI-07](#q-pri-07) | Ověřit u PO rozhodnutí D-100: dokud neběží storno podmínky, účastník si mění přihlášku, termíny i odhlášku bez schválení; schvaluje až organizátor po začátku storno podmínek. Platí, nebo má být jinak? (Rozhodl PM, jde o ověření.) | [US-84](https://github.com/applifting-vsecourse/team-1/issues/84) | otevřeno | P1 | `po` |
 | [Q-PRI-14](#q-pri-14) | Má se do diagramu doplnit přechod Potvrzená → Náhradník (organizátor), jak říká ticket US-28? | [US-28](https://github.com/applifting-vsecourse/team-1/issues/28) | zapsáno v dokumentaci | P1 | `pm` |
 | [Q-PRI-15](#q-pri-15) | Smí organizátor zrušit náhradníka kdykoli, nebo jen automaticky první den termínu? | [US-28](https://github.com/applifting-vsecourse/team-1/issues/28) | zapsáno v dokumentaci | P1 | `pm` |
 | [Q-PRI-21](#q-pri-21) | Co se stane s náhradníky (a ostatními přihláškami) ve zrušeném termínu akce? | [US-106 (#199)](https://github.com/applifting-vsecourse/team-1/issues/199) | zapsáno v dokumentaci | P1 | `pm` |
@@ -1104,12 +1104,12 @@ _Nic._
 
 <a id="q-pri-02"></a>
 
-### Q-PRI-02 – Jaká lhůta na zaplacení platí pro náhradníka potvrzeného na poslední chvíli, např. týden před akcí?
+### Q-PRI-02 – Ověřit u PO rozhodnutí D-099: lhůtu na zaplacení (výchozí 10 dní) si nastaví organizátor u akce; když se místo uvolní v okně „začátek termínu minus lhůta“, přihláška je rovnou po splatnosti a platba se urguje. Platí, nebo má být jinak? (Rozhodl PM, jde o ověření.)
 
 - **Epic:** přihlašování na akce · **Dotčené US:** [US-31](https://github.com/applifting-vsecourse/team-1/issues/31) · **Stav:** otevřeno · **Čeká na:** `po`
 - **Zdroje:**
   - [issue](https://github.com/applifting-vsecourse/team-1/issues/31): „**Otevřená otázka na PO:** F-18 – jaká lhůta na zaplacení platí pro náhradníka potvrzeného na poslední chvíli, např. týden před akcí?“
-- **Priorita:** P1 – Vyhodnocování a náhradníci jsou hlavní priorita PO; lhůta pro náhradníka na poslední chvíli není určena.
+- **Priorita:** P1 – Vyhodnocování a náhradníci jsou hlavní priorita PO; PM rozhodl (D-099), ověření u PO před spuštěním US-31.
 
 <a id="q-pri-03"></a>
 
@@ -1155,13 +1155,13 @@ _Nic._
 
 <a id="q-pri-07"></a>
 
-### Q-PRI-07 – Má změna termínu nebo odhláška proběhnout hned, nebo ji organizátor nejdřív schválí (kvůli kapacitě a storno podmínkám)?
+### Q-PRI-07 – Ověřit u PO rozhodnutí D-100: dokud neběží storno podmínky, účastník si mění přihlášku, termíny i odhlášku bez schválení; schvaluje až organizátor po začátku storno podmínek. Platí, nebo má být jinak? (Rozhodl PM, jde o ověření.)
 
 - **Epic:** přihlašování na akce · **Dotčené US:** [US-84](https://github.com/applifting-vsecourse/team-1/issues/84) · **Stav:** otevřeno · **Čeká na:** `po`
 - **Poznámka:** Návrh PO z 28. 10. říká: účastník si sám opraví údaje, změní termín nebo se odhlásí; když už běží storno podmínky, schvaluje organizátor. Nerozhoduje, co je „hned“ a co „po schválení“ před začátkem storno podmínek.
 - **Zdroje:**
   - [issue](https://github.com/applifting-vsecourse/team-1/issues/84): „**Otevřená otázka na PO:** F-20 – má změna termínu nebo odhláška proběhnout hned, nebo ji organizátor nejdřív schválí (kvůli kapacitě a storno podmínkám)?“
-- **Priorita:** P1 – Účastník si sám mění termín a odhlašuje se (návrh PO); chybí pravidlo hned / po schválení.
+- **Priorita:** P1 – Účastník si sám mění termín a odhlašuje se (návrh PO); PM rozhodl (D-100), ověření u PO před spuštěním US-84.
 
 <a id="q-pri-08"></a>
 
