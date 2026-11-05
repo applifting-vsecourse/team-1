@@ -67,7 +67,10 @@ export function NotificationPanel({
   if (state === "error") {
     return (
       <div className="flex flex-col gap-4">
-        <Alert variant="destructive">
+        <Alert
+          variant="destructive"
+          className="border-destructive bg-card [&>svg]:size-6"
+        >
           <TriangleAlert aria-hidden="true" />
           <AlertTitle>{t("panel.errorTitle")}</AlertTitle>
           <AlertDescription>{t("panel.errorDescription")}</AlertDescription>
@@ -85,7 +88,7 @@ export function NotificationPanel({
 
   if (items.length === 0) {
     return (
-      <Alert>
+      <Alert className="bg-secondary [&>svg]:size-6">
         <TriangleAlert aria-hidden="true" />
         <AlertTitle>{t("panel.emptyTitle")}</AlertTitle>
         <AlertDescription>{t("panel.emptyDescription")}</AlertDescription>

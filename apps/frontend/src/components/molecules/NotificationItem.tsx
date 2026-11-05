@@ -35,7 +35,10 @@ export function NotificationItem({
       className={cn("flex flex-col gap-2 rounded-lg p-4", isUnread && "bg-secondary")}
     >
       <div className="flex items-center justify-between">
-        <Badge variant={isUnread ? "default" : "secondary"}>
+        <Badge
+          variant={isUnread ? "secondary" : "default"}
+          className="px-2 py-1 text-sm"
+        >
           {isUnread ? t("item.new") : t("item.read")}
         </Badge>
         <div className="flex gap-2">

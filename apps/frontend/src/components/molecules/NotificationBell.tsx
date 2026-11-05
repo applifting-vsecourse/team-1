@@ -36,7 +36,7 @@ export function NotificationBell({ unreadCount, onClick }: NotificationBellProps
       {unreadCount > 0 ? (
         <span
           aria-hidden="true"
-          className="flex min-h-6 min-w-6 items-center justify-center rounded-full bg-accent px-1.5 text-sm text-accent-foreground"
+          className="flex min-h-6 w-6 items-center justify-center rounded-full bg-accent text-sm text-accent-foreground"
         >
           {unreadCount}
         </span>
