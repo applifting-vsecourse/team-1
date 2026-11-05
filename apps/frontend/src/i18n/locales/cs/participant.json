@@ -3,6 +3,24 @@
     "description": "Přihlášky vedené pod účtem {{name}}.",
     "title": "Vaše přihlášky"
   },
+  "change": {
+    "approvalRequired": "Změny nyní vyžadují schválení organizátora. Obraťte se prosím na organizátora.",
+    "back": "Zpět",
+    "cancelAll": "Zrušit přihlášku",
+    "cancelAllDescription": "Všechny vybrané termíny se okamžitě zruší. Platby zůstávají u původních termínů; případnou vratku domluvte s organizátorem.",
+    "cancelAllTitle": "Zrušit všechny termíny?",
+    "description": "Vyberte termíny, které chcete ponechat nebo přidat. Odškrtnutím všech termínů zrušíte přihlášku.",
+    "immediateNote": "Změny se provedou okamžitě.",
+    "loadError": "Dostupné termíny se nepodařilo načíst",
+    "open": "Změnit termíny nebo se odhlásit",
+    "paymentNote": "Platby zůstávají u původních termínů. Pokud jste již zrušený termín zaplatili, platba nepokrývá nový termín; případnou vratku domluvte s organizátorem.",
+    "retry": "Zkusit znovu",
+    "save": "Uložit změny",
+    "saved": "Přihláška byla aktualizována",
+    "saving": "Ukládání…",
+    "selectTerm": "Vybrat termín {{term}}",
+    "title": "Změna termínů"
+  },
   "contact": {
     "email": "E-mail",
     "none": "Organizace zatím nezveřejnila kontakt.",
@@ -18,8 +36,7 @@
       "alertText": "Platební údaje dostanete po potvrzení účasti.",
       "alertTitle": "Zatím nic neplaťte.",
       "note": "Organizátor přihlášku posoudí v každém termínu zvlášť. Zatím nejde o potvrzenou účast ani o zařazení mezi náhradníky."
-    },
-    "waitlistNote": "K úhradě se počítá jen potvrzený termín. Za termín, kde jste náhradník, zatím neplaťte."
+    }
   },
   "list": {
     "empty": "Zatím tu nemáte žádnou přihlášku. Až se přihlásíte na akci, objeví se tady.",
@@ -27,19 +44,22 @@
   },
   "payment": {
     "account": "Bankovní účet",
-    "chooseSymbol": "Uveďte variabilní symbol celé přihlášky, nebo jen termínu, který platíte.",
-    "detailsTitle": "Údaje o platbě",
-    "due": "Částka k úhradě",
-    "note": "Platbu proveďte převodem.",
-    "overpaid": "Přeplatek",
-    "owed": "Zbývá zaplatit",
-    "paid": "Zaplaceno",
-    "title": "Platba za potvrzený termín",
-    "toPay": "K platbě",
-    "transferTitle": "Údaje pro doplatek",
-    "variableSymbol": "Variabilní symbol",
-    "waitlistedNote": "V termínu {{range}} jste náhradník a zatím nemáte částku k úhradě.",
-    "wholeApplication": "Celá přihláška"
+    "amount": "Částka",
+    "closeQr": "Zavřít platební údaje",
+    "copyAmount": "Kopírovat částku",
+    "payEachTerm": "Každý termín platíte zvlášť. Použijte jeho variabilní symbol, jinak platbu nepřiřadíme.",
+    "qrAlt": "QR kód pro souhrnnou platbu",
+    "saveQr": "Uložit QR do telefonu",
+    "showSummaryQrMany": "Jedna platba za všechny potvrzené termíny · zobrazit QR",
+    "showSummaryQrTwo": "Jedna platba za oba termíny · zobrazit QR",
+    "summaryBreakdown": "Rozpis souhrnné platby",
+    "summaryBreakdownMobile": "Rozpis:",
+    "summaryDebt": "Dluh",
+    "summaryQrExplanation": "Použijte souhrnný variabilní symbol pro oba potvrzené termíny. Liší se od VS jednotlivých termínů; náhradnické termíny se do platby nepočítají.",
+    "summaryQrExplanationMany": "Použijte souhrnný variabilní symbol pro všechny potvrzené termíny. Liší se od VS jednotlivých termínů; náhradnické termíny se do platby nepočítají.",
+    "summaryQrTitle": "Zaplatit potvrzené termíny",
+    "summaryVariableSymbol": "Souhrnný variabilní symbol",
+    "totalOwed": "Zbývá zaplatit celkem"
   },
   "paymentStatus": {
     "OVERPAID": "Přeplatek",
@@ -51,7 +71,6 @@
     "cancelled": "Zrušená",
     "confirmed": "Potvrzeno",
     "toEvaluate": "Čeká na vyhodnocení",
-    "waitlisted": "Náhradník",
-    "zeroUntilConfirmed": "0 Kč do potvrzení"
+    "waitlisted": "Náhradník"
   }
 }

@@ -1,3 +1,4 @@
+import { ParticipantChangeOptions } from "@/modules/applications/domain/participant-term-change"
 import {
   changeEmailKind,
   rejectStatusChange,
@@ -5,6 +6,7 @@ import {
 import {
   StatusChangeCommand,
   StatusChangeResult,
+  SubstituteRecord,
   TermStatusDetail,
 } from "@/modules/applications/domain/term-status"
 import { TermStatusRepository } from "@/modules/applications/repositories/term-status.repository"
@@ -28,9 +30,41 @@ export class TermStatusService {
     private readonly mailer: ApplicationConfirmationMailer,
   ) {}
 
+  async participantChangeOptions(
+    user: Identity,
+    applicationId: string,
+  ): Promise<ParticipantChangeOptions> {
+    const options = await this.repository.participantChangeOptions(user.id, applicationId)
+    if (!options) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
+    return options
+  }
+
+  /** Before the cancellation start, the participant's selection takes effect in the same request. */
+  async changeByParticipant(
+    user: Identity,
+    applicationId: string,
+    termIds: string[],
+  ): Promise<void> {
+    const change = await this.repository.changeParticipantTerms(user.id, applicationId, termIds)
+    if (change === undefined) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
+    if (change) await this.mailer.sendApplicationChange(change)
+  }
+
   async getTerms(user: Identity, applicationId: string): Promise<TermStatusDetail[]> {
     const { organizationId } = await this.access.assertCanAccessApplication(user, applicationId)
     return this.repository.findTerms(applicationId, organizationId)
+  }
+
+  /** Records of confirmations from the waitlist in a term of an event (US-105), newest first. */
+  async getSubstituteRecords(
+    user: Identity,
+    eventId: string,
+    termId: string,
+  ): Promise<SubstituteRecord[]> {
+    const { organizationId } = await this.access.assertCanAccessEvent(user, eventId)
+    const records = await this.repository.findSubstituteRecords(organizationId, eventId, termId)
+    if (!records) throw new AppException(HttpStatus.NOT_FOUND, "NOT_FOUND")
+    return records
   }
 
   /** An organizer changes the status by hand; the acting user comes from the session. */

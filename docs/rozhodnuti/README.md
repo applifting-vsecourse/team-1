@@ -2,7 +2,7 @@
 
 > Generováno z [`rozhodnuti.yaml`](rozhodnuti.yaml) (`python generate.py`). Needituj, měň YAML.
 
-**101 platných**, 0 návrhů, 3 nahrazených nebo zrušených.
+**102 platných**, 0 návrhů, 3 nahrazených nebo zrušených.
 
 ## Návrhy čekající na PM
 
@@ -24,6 +24,7 @@ _Nic._
 | [D-093](#d-093) | Termíny a ceny jsou na veřejné stránce akce zatím vždy vidět | `docs/PROJEKT.md` | veřejná stránka akce: termíny a ceny vždy viditelné (dočasně) |
 | [D-094](#d-094) | Obsazenost a kapacita se veřejně nezveřejňují | `docs/PROJEKT.md` | katalog akcí: obsazenost a kapacita nejsou veřejné |
 | [D-096](#d-096) | Fotka veřejné stránky akce: jen JPG/JPEG a PNG | `docs/PROJEKT.md` | veřejná stránka akce: formát fotky JPG/JPEG a PNG |
+| [D-099](#d-099) | Lhůta na zaplacení se nastavuje u akce; pozdní potvrzení je rovnou po splatnosti | `docs/PROJEKT.md` | lhůta na zaplacení jako nastavení akce; potvrzení v okně lhůty = po splatnosti |
 
 ## Změny dřívějších rozhodnutí
 
@@ -56,9 +57,9 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
-| [D-104](#d-104) | Kontakty v patičce e-mailů podle druhu zprávy | 2026-11-03 | `pm` | produkt |
-| [D-102](#d-102) | Změnové e-maily se týkají jen přihlášených a změněných termínů | 2026-11-03 | `pm` | produkt |
-| [D-101](#d-101) | Při zamítnutí nebo odhlášení zaplacené účasti e-mail refund neslibuje | 2026-11-03 | `pm` | produkt |
+| [D-106](#d-106) | Kontakty v patičce e-mailů podle druhu zprávy | 2026-11-03 | `pm` | produkt |
+| [D-104](#d-104) | Změnové e-maily se týkají jen přihlášených a změněných termínů | 2026-11-03 | `pm` | produkt |
+| [D-103](#d-103) | Při zamítnutí nebo odhlášení zaplacené účasti e-mail refund neslibuje | 2026-11-03 | `pm` | produkt |
 | [D-098](#d-098) | Jména v rámci se neskloňují | 2026-11-02 | `pm` | produkt |
 | [D-078](#d-078) | Preferovaný jazyk uživatele přebíjí jazyk přihlášky u e-mailů o změně přihlášky | 2026-10-31 | `pm` | produkt |
 | [D-074](#d-074) | Přechod Potvrzená → Náhradník má vlastní e-mail jako samostatný stav v EMAILY.md | 2026-10-31 | `pm` | produkt |
@@ -90,8 +91,8 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
-| [D-100](#d-100) | Výzva po splatnosti: jednou, automaticky nebo ručně podle organizátora | 2026-11-03 | `pm` | produkt |
-| [D-099](#d-099) | Oprava platby vrací zaplacenou přihlášku k dluhu | 2026-11-03 | `pm` | produkt |
+| [D-102](#d-102) | Výzva po splatnosti: jednou, automaticky nebo ručně podle organizátora | 2026-11-03 | `pm` | produkt |
+| [D-100](#d-100) | Oprava platby vrací zaplacenou přihlášku k dluhu | 2026-11-03 | `pm` | produkt |
 | [D-097](#d-097) | VS termínů na stránce po odeslání se nedoplňuje | 2026-11-02 | `pm` | produkt |
 | [D-091](#d-091) | Jedna platba za celé odeslání formuláře je záměr, mimo US-137 | 2026-11-01 | `pm` | produkt |
 | [D-090](#d-090) | Stará platební data se smažou, seed se přepíše | 2026-11-01 | `pm` | technicke |
@@ -124,6 +125,7 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-099](#d-099) | Lhůta na zaplacení se nastavuje u akce; pozdní potvrzení je rovnou po splatnosti | 2026-11-05 | `pm` | produkt |
 | [D-079](#d-079) | Telefon účastníka je ve formuláři přihlášky povinný, u nezletilých se neřeší | 2026-10-31 | `pm` | produkt |
 | [D-077](#d-077) | Přesun mezi náhradníky jen u Potvrzené s dluhem, ruční zásahy platí v obou režimech | 2026-10-31 | `pm` | produkt |
 | [D-076](#d-076) | Při zrušení termínu se zaplacené platby vracejí, archivované přihlášky se nerulí | 2026-10-31 | `pm` | produkt |
@@ -189,7 +191,7 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
-| [D-103](#d-103) | Obecné ověření e-mailové adresy se nepožaduje | 2026-11-03 | `pm` | produkt |
+| [D-105](#d-105) | Obecné ověření e-mailové adresy se nepožaduje | 2026-11-03 | `pm` | produkt |
 | [D-072](#d-072) | Landing má dva vstupy „Jsem organizátor“ a „Jsem účastník“ | 2026-10-31 | `pm` | produkt |
 | [D-028](#d-028) | Landing má dva vstupy a je jen pro nepřihlášené | 2026-10-19 | `tym` | produkt |
 | [D-020](#d-020) | Organizace není v URL | 2026-10-16 | `tech-lead` | produkt |
@@ -1259,17 +1261,31 @@ _Nic._
 
 <a id="d-099"></a>
 
-### D-099 – Oprava platby vrací zaplacenou přihlášku k dluhu
+### D-099 – Lhůta na zaplacení se nastavuje u akce; pozdní potvrzení je rovnou po splatnosti
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** přihlašování na akce
+- **Datum:** 2026-11-05 · **Rozhodl:** `pm`
+- **Text:** Organizátor si u akce nastaví lhůtu na zaplacení; výchozí je 10 dní od potvrzení. Když se místo uvolní v okně „začátek termínu minus lhůta“ (např. týden před akcí při lhůtě 10 dní), potvrzená přihláška se rovnou označí jako po splatnosti, aby se urgovala platba. PO ověří (Q-PRI-02).
+- **Dotčené US:** [US-31](https://github.com/applifting-vsecourse/team-1/issues/31)
+- **Zdroj:** [rozhodnutí PM při přípravě statusu s PO 2026-11-05](https://github.com/applifting-vsecourse/team-1/issues/31)
+- **Z otázek:** `Q-PRI-02`
+- **Dokumentace:** `docs/PROJEKT.md`: ceka, lhůta na zaplacení jako nastavení akce; potvrzení v okně lhůty = po splatnosti
+- **Poznámka:** Rozhodl PM; PO ověří (Q-PRI-02).
+
+<a id="d-100"></a>
+
+### D-100 – Oprava platby vrací zaplacenou přihlášku k dluhu
 
 - **Stav:** platné · **Typ:** produkt · **Oblast:** platby
 - **Datum:** 2026-11-03 · **Rozhodl:** `pm`
 - **Text:** Když organizátor opraví nebo odstraní platbu u potvrzené a zaplacené přihlášky v termínu a tím znovu vznikne dluh, přihláška se vrátí do stavu Potvrzená s dluhem (lhůta pro zaplacení běží znovu) a přihlašovatel automaticky dostane upozornění na opravu s aktuálním nedoplatkem a platebními údaji. Není to výzva po splatnosti. Když dluh nevznikne, e-mail neodchází.
 - **Zdroj:** [Business katalog e-mailů, potvrzená rozhodnutí z dotazníku](../../docs/emaily/KATALOG.md)
 - **Dokumentace:** `docs/emaily/KATALOG.md`: hotovo (667c8d3), e-mail č. 16, přechod Potvrzená a zaplacená → Potvrzená s dluhem
+- **Poznámka:** Rozhodl PM; PO ověří (Q-PRI-07). Storno podmínky samotné (Q-PRI-03, Q-PLA-04) zůstávají otevřené.
 
-<a id="d-100"></a>
+<a id="d-102"></a>
 
-### D-100 – Výzva po splatnosti: jednou, automaticky nebo ručně podle organizátora
+### D-102 – Výzva po splatnosti: jednou, automaticky nebo ručně podle organizátora
 
 - **Stav:** platné · **Typ:** produkt · **Oblast:** platby
 - **Datum:** 2026-11-03 · **Rozhodl:** `pm`
@@ -1277,9 +1293,9 @@ _Nic._
 - **Zdroj:** [Business katalog e-mailů, potvrzená rozhodnutí z dotazníku](../../docs/emaily/KATALOG.md)
 - **Dokumentace:** `docs/emaily/KATALOG.md`: hotovo (667c8d3), e-mail č. 7
 
-<a id="d-101"></a>
+<a id="d-103"></a>
 
-### D-101 – Při zamítnutí nebo odhlášení zaplacené účasti e-mail refund neslibuje
+### D-103 – Při zamítnutí nebo odhlášení zaplacené účasti e-mail refund neslibuje
 
 - **Stav:** platné · **Typ:** produkt · **Oblast:** komunikace
 - **Datum:** 2026-11-03 · **Rozhodl:** `pm`
@@ -1287,9 +1303,9 @@ _Nic._
 - **Zdroj:** [Business katalog e-mailů, potvrzená rozhodnutí z dotazníku](../../docs/emaily/KATALOG.md)
 - **Dokumentace:** `docs/emaily/KATALOG.md`: hotovo (667c8d3), e-maily č. 9 až 11, 15
 
-<a id="d-102"></a>
+<a id="d-104"></a>
 
-### D-102 – Změnové e-maily se týkají jen přihlášených a změněných termínů
+### D-104 – Změnové e-maily se týkají jen přihlášených a změněných termínů
 
 - **Stav:** platné · **Typ:** produkt · **Oblast:** komunikace
 - **Datum:** 2026-11-03 · **Rozhodl:** `pm`
@@ -1297,9 +1313,9 @@ _Nic._
 - **Zdroj:** [Business katalog e-mailů, potvrzená rozhodnutí z dotazníku](../../docs/emaily/KATALOG.md)
 - **Dokumentace:** `docs/emaily/KATALOG.md`: hotovo (667c8d3), pravidla e-mailů
 
-<a id="d-103"></a>
+<a id="d-105"></a>
 
-### D-103 – Obecné ověření e-mailové adresy se nepožaduje
+### D-105 – Obecné ověření e-mailové adresy se nepožaduje
 
 - **Stav:** platné · **Typ:** produkt · **Oblast:** účty
 - **Datum:** 2026-11-03 · **Rozhodl:** `pm`
@@ -1307,9 +1323,9 @@ _Nic._
 - **Zdroj:** [Business katalog e-mailů, potvrzená rozhodnutí z dotazníku](../../docs/emaily/KATALOG.md)
 - **Dokumentace:** `docs/emaily/KATALOG.md`: hotovo (667c8d3), e-mail č. 1, odkaz na přihlášení
 
-<a id="d-104"></a>
+<a id="d-106"></a>
 
-### D-104 – Kontakty v patičce e-mailů podle druhu zprávy
+### D-106 – Kontakty v patičce e-mailů podle druhu zprávy
 
 - **Stav:** platné · **Typ:** produkt · **Oblast:** komunikace
 - **Datum:** 2026-11-03 · **Rozhodl:** `pm`

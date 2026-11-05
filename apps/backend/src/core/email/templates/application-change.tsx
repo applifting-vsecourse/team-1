@@ -1,5 +1,6 @@
 import { Locale } from '@/core/email/locale';
 import { ChangeLayout } from '@/core/email/templates/application-change-layout';
+import { ApplicationTermStatus } from '@/modules/applications/domain/evaluation';
 import { changeCommon, termValue } from '@/core/email/templates/application-change-copy';
 import * as React from 'react';
 
@@ -213,6 +214,8 @@ export interface ApplicationChangeProps {
   /** The name the organizer gave the term, if any. */
   termName: string | null;
   kind: ChangeKind;
+  /** Result of each term when several terms changed in one request (`TERMS_CHANGED`). */
+  terms: { name: string; status: ApplicationTermStatus }[];
   /** Only when the application became confirmed; amounts are already formatted. */
   payment: {
     /** Everything due now, paid under the summary variable symbol (`…000`). */
@@ -233,12 +236,17 @@ export const ApplicationChange = ({
   termDates,
   termName,
   kind,
+  terms,
   payment,
   confirmationUrl,
 }: ApplicationChangeProps): React.JSX.Element => {
   const common = changeCommon[locale];
   const kindCopy = copy[locale][kind];
-  const details = payment
+  const termRows =
+    kind === 'TERMS_CHANGED'
+      ? terms.map(({ name: label, status }) => ({ label, value: common.statuses[status] }))
+      : [];
+  const paymentRows = payment
     ? [
         { label: common.amountDue, value: payment.amount },
         { label: common.account, value: payment.bankAccount },
@@ -253,6 +261,7 @@ export const ApplicationChange = ({
           : [{ label: common.variableSymbol, value: payment.variableSymbol }]),
       ]
     : [];
+  const details = [...termRows, ...paymentRows];
   return (
     <ChangeLayout
       locale={locale}
@@ -292,6 +301,7 @@ ApplicationChange.PreviewProps = {
   termDates: '12.–18. 7. 2027',
   termName: null,
   kind: 'CONFIRMED',
+  terms: [],
   payment: {
     amount: '4 900 Kč',
     bankAccount: '123456789/0800',

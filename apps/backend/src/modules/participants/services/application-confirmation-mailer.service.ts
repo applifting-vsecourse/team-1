@@ -13,6 +13,11 @@ import {
   applicationConfirmationSubject,
 } from "@/core/email/templates/application-confirmation"
 import {
+  PaymentCorrectionEmail,
+  PaymentCorrectionEmailProps,
+  paymentCorrectionSubject,
+} from "@/core/email/templates/payment-correction"
+import {
   buildChangeProps,
   buildConfirmationApplications,
   buildTermNoticeProps,
@@ -92,6 +97,27 @@ export class ApplicationConfirmationMailer {
       await this.email.sendEmail(change.email, subject, html)
     } catch (error) {
       this.logFailure("change", change.email, error)
+    }
+  }
+
+  async sendPaymentCorrection(
+    input: { email: string; accessToken: string } & Omit<
+      PaymentCorrectionEmailProps,
+      "confirmationUrl"
+    >,
+  ): Promise<void> {
+    try {
+      const html = await renderEmail(PaymentCorrectionEmail, {
+        ...input,
+        confirmationUrl: `${this.config.frontendUrl}/apply/confirmation/${encodeURIComponent(input.accessToken)}`,
+      })
+      await this.email.sendEmail(
+        input.email,
+        paymentCorrectionSubject(input.locale, input.eventName),
+        html,
+      )
+    } catch (error) {
+      this.logFailure("payment correction", input.email, error)
     }
   }
 

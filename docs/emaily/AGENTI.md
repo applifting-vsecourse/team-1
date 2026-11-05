@@ -28,7 +28,7 @@
 - **Obě řeči**: copy je v šabloně pro `cs` i `en` a chybějící překlad je chyba typu. Česky vykání. Jazyk podle pravidel v KATALOG.md (D-078).
 - **Pojmy** ze [SLOVNIKU](../SLOVNIK.md), jména se neskloňují (D-098), peníze a data přes `formatCzk` / `formatDate`.
 - **Kontakty v patičce**: přihlášky, účast a platby organizátor, účet a přihlášení podpora Togeny.
-- **Obecné ověření e-mailové adresy** se neposílá (D-102).
+- **Obecné ověření e-mailové adresy** se neposílá (D-105).
 - **Nikdy neposílej skutečnou poštu** z vývoje: spouštěj bez `RESEND_API_KEY`.
 
 ## Po změně

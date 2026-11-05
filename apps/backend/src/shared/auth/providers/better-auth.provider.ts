@@ -89,7 +89,7 @@ const createAuth = (
             await emailProvider.sendEmail(user.email, changeEmailSubject(locale), changeHtml)
             return
           }
-          // No general address verification (D-102): the only verification e-mail is the
+          // No general address verification (D-105): the only verification e-mail is the
           // confirmation of an e-mail change above.
         } catch (error) {
           // BetterAuth swallows this error; the e-mail change request reads the flag.

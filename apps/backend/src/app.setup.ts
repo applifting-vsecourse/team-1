@@ -2,6 +2,7 @@ import { INestApplication } from "@nestjs/common"
 import { toNodeHandler } from "better-auth/node"
 import * as cookieParser from "cookie-parser"
 import * as express from "express"
+import helmet from "helmet"
 import { BetterAuth } from "./shared/auth/providers/better-auth.provider"
 import { Config } from "./shared/config/config.service"
 import { HttpErrorFilter } from "./shared/errors/http-error.filter"
@@ -12,6 +13,11 @@ import { HttpErrorFilter } from "./shared/errors/http-error.filter"
  */
 export function configureApp(app: INestApplication): void {
   const config = app.get(Config)
+
+  // Security headers (HSTS, nosniff, frame-ancestors, CSP for Swagger…) and no
+  // `X-Powered-By`. `same-site` instead of `same-origin`: locally the frontend
+  // (another port) shows the event photo straight from the API in an <img>.
+  app.use(helmet({ crossOriginResourcePolicy: { policy: "same-site" } }))
 
   // Configure CORS - Allows cross-origin requests from specific origins
   app.enableCors({

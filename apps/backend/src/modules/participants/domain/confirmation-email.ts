@@ -91,6 +91,10 @@ export function buildChangeProps(
     termDates: change.termDates,
     termName: change.termCustomName,
     kind: change.kind,
+    terms:
+      change.kind === "TERMS_CHANGED"
+        ? application.terms.map(({ name, status }) => ({ name, status }))
+        : [],
     payment:
       change.isAmountChanged && PAYING_KINDS.includes(change.kind)
         ? paymentOf(application, change.bankAccount, change.locale)

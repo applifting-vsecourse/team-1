@@ -59,7 +59,7 @@ export const ChangeLayout = ({
     <EmailRuledBlock>
       <EmailRow label={labels.event} value={eventName} />
       <EmailRow label={labels.participant} value={participantName} />
-      <EmailRow label={labels.term} value={termValue} />
+      {termValue ? <EmailRow label={labels.term} value={termValue} /> : null}
     </EmailRuledBlock>
     {details.length > 0 ? (
       <EmailRuledBlock>

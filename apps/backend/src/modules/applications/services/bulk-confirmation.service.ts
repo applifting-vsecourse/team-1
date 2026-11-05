@@ -18,6 +18,8 @@ import { HttpException, HttpStatus, Injectable } from "@nestjs/common"
 export type BulkConfirmationPreview = BulkConfirmationPlan & {
   selectedCount: number
   freePlaces: GenderCounts
+  /** What is left once the confirmable ones took their beds. */
+  freePlacesAfter: GenderCounts
   /** Shared rooms: both genders draw from one pool, so the two numbers are the same. */
   isShared: boolean
   names: Record<string, string>
@@ -46,10 +48,15 @@ export class BulkConfirmationService {
   ): Promise<BulkConfirmationPreview> {
     const { state } = await this.load(user, eventId, termId, applicationIds)
     const plan = planBulkConfirmation(state.rooms, state.confirmedGenders, state.candidates)
+    const genderOf = new Map(state.candidates.map((row) => [row.applicationId, row.gender]))
     return {
       ...plan,
       selectedCount: new Set(applicationIds).size,
       freePlaces: computeAvailablePlaces(state.rooms, state.confirmedGenders),
+      freePlacesAfter: computeAvailablePlaces(state.rooms, [
+        ...state.confirmedGenders,
+        ...plan.confirmable.map((id) => genderOf.get(id)!),
+      ]),
       isShared: state.rooms.some((room) => room.gender === null),
       names: Object.fromEntries(
         state.candidates.map((row) => [row.applicationId, `${row.firstName} ${row.lastName}`]),

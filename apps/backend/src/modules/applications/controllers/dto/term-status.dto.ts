@@ -1,3 +1,4 @@
+import { SubstituteRecordDto } from "@/modules/applications/controllers/dto/substitute-record.dto"
 import { manualTargets } from "@/modules/applications/domain/status-transition"
 import { TermStatusDetail } from "@/modules/applications/domain/term-status"
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger"
@@ -39,6 +40,12 @@ export class TermStatusResponseDto {
   @ApiProperty({ enum: STATUSES, isArray: true, description: "Statuses an organizer may set now" })
   allowedStatuses!: string[]
   @ApiProperty({ type: [StatusChangeEntryDto] }) history!: StatusChangeEntryDto[]
+  @ApiProperty({
+    type: [SubstituteRecordDto],
+    description:
+      "Confirmations from the waitlist in this term that confirmed or skipped it (US-105)",
+  })
+  substituteRecords!: SubstituteRecordDto[]
 
   static fromDomain(term: TermStatusDetail): TermStatusResponseDto {
     return {
@@ -53,6 +60,9 @@ export class TermStatusResponseDto {
         ...entry,
         changedAt: entry.changedAt.toISOString(),
       })),
+      substituteRecords: term.substituteRecords.map((record) =>
+        SubstituteRecordDto.fromDomain(record),
+      ),
     }
   }
 }

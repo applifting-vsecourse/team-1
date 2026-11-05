@@ -24,9 +24,10 @@ export type ApplicationFilters = {
   gender?: Gender
   payment?: FilterablePaymentStatus
 }
-/** Every payment status except "nothing due" can be filtered on (US-52). */
-export type FilterablePaymentStatus = Exclude<PaymentStatus, "NOTHING_DUE">
+/** Every payment status can be filtered on, "nothing due" (a waitlisted application) too. */
+export type FilterablePaymentStatus = PaymentStatus
 export const FILTERABLE_PAYMENT_STATUSES: FilterablePaymentStatus[] = [
+  "NOTHING_DUE",
   "UNPAID",
   "PARTIALLY_PAID",
   "PAID",

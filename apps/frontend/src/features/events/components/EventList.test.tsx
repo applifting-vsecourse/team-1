@@ -30,6 +30,7 @@ const event = {
   endsOn: "2027-07-25",
   applicationsOpen: true,
   evaluationMode: "AUTOMATIC",
+  cancellationStartsOn: null,
   evaluationModeLocked: true,
   missing: [],
   terms: [
@@ -65,6 +66,7 @@ const draft = {
   endsOn: null,
   applicationsOpen: false,
   evaluationMode: "AUTOMATIC",
+  cancellationStartsOn: null,
   evaluationModeLocked: false,
   missing: ["TERM", "ROOM"],
   terms: [],

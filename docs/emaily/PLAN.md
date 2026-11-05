@@ -53,7 +53,7 @@ Zbývá před předáním vývoji:
 
 - Text a design e-mailu č. 16 se vedou v TEXTY.md a ve Figmě jako E16 (`PAYMENT_CORRECTED`); do ticketů se nezapisují (rozhodnuto 5. 11. 2026).
 - Design e-mailů je schválený. Ticket #260 mluví o starých rámcích S17; neupravuje se, platí stránka „HF / 09 E-maily · nový design“.
-- Věta o vrácení plateb v e-mailu č. 15 (EVENT_TERM_CANCELLED) je v souladu s D-080 a D-101; nic k potvrzení.
+- Věta o vrácení plateb v e-mailu č. 15 (EVENT_TERM_CANCELLED) je v souladu s D-080 a D-103; nic k potvrzení.
 - Potvrzení náhradníka po uvolnění lůžka (APP_CONFIRMED, č. 5) není business otázka: procesní modely ho mají v obou režimech (ruční: organizátor potvrdí; automatické: systém potvrdí v pořadí přijetí). Podle orientačního pokrytí v kódu odesílání nenalezeno, jde tedy o mezeru ve vývoji. Rozhodnuto: e-mail nemá samostatnou variantu textu „Uvolnilo se lůžko“, sděluje jen potvrzení účasti a platební údaje jako č. 2.
-- Vývoj vyřadí šablonu obecného ověření e-mailu (`verify-email`), D-102.
+- Vývoj vyřadí šablonu obecného ověření e-mailu (`verify-email`), D-105.
 - Otevřená otázka na PO: co po jediné výzvě bez reakce, jen označit pro telefonát (US-45), nebo přihlášku po čase zrušit (Q-PLA-03, priorita P3). Předání vývoji neblokuje; vývoj automatické rušení přihlášek nedělá, dokud PM nerozhodne. Text e-mailu č. 7 na ní nezávisí.

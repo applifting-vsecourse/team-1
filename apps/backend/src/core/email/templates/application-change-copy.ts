@@ -1,10 +1,13 @@
 import { Locale } from "@/core/email/locale"
+import { ApplicationTermStatus } from "@/modules/applications/domain/evaluation"
 
 /** Wording shared by the e-mails about a change of one application (docs/emaily/TEXTY.md). */
 export const changeCommon: Record<
   Locale,
   {
     labels: { event: string; participant: string; term: string }
+    /** Result of a term in the summary of changes (E13). */
+    statuses: Record<ApplicationTermStatus, string>
     amountDue: string
     account: string
     variableSymbol: string
@@ -16,6 +19,12 @@ export const changeCommon: Record<
 > = {
   en: {
     labels: { event: "Event", participant: "Participant", term: "Term" },
+    statuses: {
+      TO_EVALUATE: "Awaiting review · do not pay yet",
+      CONFIRMED: "Place confirmed",
+      WAITLISTED: "Waitlisted · do not pay yet",
+      CANCELLED: "Cancelled",
+    },
     amountDue: "Amount due",
     account: "Bank account",
     variableSymbol: "Variable symbol",
@@ -29,6 +38,12 @@ export const changeCommon: Record<
   },
   cs: {
     labels: { event: "Akce", participant: "Účastník", term: "Termín" },
+    statuses: {
+      TO_EVALUATE: "Čeká na vyhodnocení · zatím neplaťte",
+      CONFIRMED: "Účast potvrzena",
+      WAITLISTED: "Náhradník · zatím neplaťte",
+      CANCELLED: "Zrušená",
+    },
     amountDue: "K úhradě",
     account: "Bankovní účet",
     variableSymbol: "Variabilní symbol",

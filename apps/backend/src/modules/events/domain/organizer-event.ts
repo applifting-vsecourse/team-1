@@ -43,6 +43,8 @@ export type StoredEvent = {
   termsWithoutRooms: number
   applicationCount: number
   evaluationMode: EvaluationMode
+  /** First day when cancellation rules apply; null means changes happen immediately. */
+  cancellationStartsOn: string | null
   /** ISO dates, `2027-07-04`: first term start and last term end; null without terms. */
   startsOn: string | null
   endsOn: string | null
