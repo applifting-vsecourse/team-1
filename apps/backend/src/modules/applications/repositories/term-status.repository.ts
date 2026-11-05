@@ -183,6 +183,7 @@ export class TermStatusRepository {
         throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
       }
 
+      let hasNewConfirmation = false
       if (addedIds.length > 0) {
         const registered = await tx.applicationTerm.findMany({
           where: {
@@ -263,6 +264,7 @@ export class TermStatusRepository {
           })),
           event.evaluationMode,
         )
+        hasNewConfirmation = evaluated.some((term) => term.status === "CONFIRMED")
         for (const term of evaluated) {
           await tx.applicationTerm.create({
             data: {
@@ -306,7 +308,7 @@ export class TermStatusRepository {
         gender: application.gender,
         termName: changedTerm ? termLabel(changedTerm.term, locale) : "",
         kind: oneCancelled ? "CANCELLED" : "TERMS_CHANGED",
-        isAmountChanged: addedIds.length > 0,
+        isAmountChanged: hasNewConfirmation,
         application: {
           number: application.number,
           firstName: application.firstName,

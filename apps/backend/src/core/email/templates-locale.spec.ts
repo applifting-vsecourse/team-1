@@ -94,3 +94,30 @@ describe.each(Object.keys(templates))("template %s", (name) => {
     }
   })
 })
+
+it("tells the participant the confirmed, substitute and awaiting-evaluation results of changed terms", async () => {
+  const terms = [
+    { name: "First", status: "CONFIRMED" as const },
+    { name: "Second", status: "WAITLISTED" as const },
+    { name: "Third", status: "TO_EVALUATE" as const },
+  ]
+  const [en, cs] = await Promise.all(
+    LOCALES.map((locale) =>
+      render(
+        React.createElement(ApplicationChange, {
+          ...ApplicationChange.PreviewProps,
+          locale,
+          kind: "TERMS_CHANGED",
+          terms,
+        }),
+      ),
+    ),
+  )
+  for (const html of [en, cs]) {
+    for (const term of terms) expect(html).toContain(term.name)
+  }
+  expect(en).toContain("Substitute · do not pay yet")
+  expect(en).toContain("Awaiting evaluation · do not pay yet")
+  expect(cs).toContain("Náhradník · zatím neplaťte")
+  expect(cs).toContain("Čeká na vyhodnocení · zatím neplaťte")
+})

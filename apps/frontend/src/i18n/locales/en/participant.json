@@ -13,6 +13,7 @@
     "immediateNote": "Changes take effect immediately.",
     "loadError": "Couldn't load available terms",
     "open": "Change terms or cancel",
+    "paymentNote": "Payments stay with their original terms. If you already paid for a term you remove, its payment does not cover a new term; contact the organiser about a refund.",
     "retry": "Try again",
     "save": "Save changes",
     "saved": "Application updated",
