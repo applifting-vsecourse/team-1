@@ -11,6 +11,8 @@ import { verificationDelivery } from "@/shared/auth/email-change/verification-de
 import { createMagicLinkPlugin } from "@/shared/auth/magic-link/magic-link.plugin"
 import { AuthUserRepository } from "@/shared/auth/repositories/auth-user.repository"
 import { Config } from "@/shared/config/config.service"
+import { AUTH_RATE_LIMIT_RULES } from "@/shared/rate-limit/rate-limits"
+import { TRUSTED_PROXIES } from "@/shared/rate-limit/trusted-proxies"
 import { Inject, Provider } from "@nestjs/common"
 import { betterAuth } from "better-auth"
 import { prismaAdapter } from "better-auth/adapters/prisma"
@@ -63,6 +65,19 @@ const createAuth = (
       updateAge: 60 * 60 * 24,
     },
     trustedOrigins: [config.frontendUrl],
+    // #294: BetterAuth's defaults (e.g. 3 sign-ins in 10 s) plus our own rules,
+    // on in every environment unless RATE_LIMIT_ENABLED=false. Over the limit it
+    // answers 429; the frontend translates it as TOO_MANY_REQUESTS.
+    rateLimit: {
+      enabled: config.rateLimitEnabled,
+      customRules: AUTH_RATE_LIMIT_RULES,
+    },
+    // The client is the rightmost X-Forwarded-For address that is not our proxy.
+    // Without trusted proxies BetterAuth ignores a header with several addresses,
+    // which on staging (Traefik appends the client) would switch the limit off.
+    advanced: {
+      ipAddress: { trustedProxies: [...TRUSTED_PROXIES] },
+    },
     // A new address is applied only after the link sent to it is clicked (US-125); the
     // old one keeps working until then. The link is a signed token valid for one hour.
     user: {

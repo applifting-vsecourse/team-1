@@ -27,6 +27,7 @@
   "TERM_CANCELLED": "Tento termín je zrušený a nelze ho změnit.",
   "TERM_END_BEFORE_START": "Konec musí být po začátku.",
   "TERM_LIMIT_REACHED": "Akce už má maximální počet termínů (999).",
+  "TOO_MANY_REQUESTS": "Příliš mnoho pokusů v krátké době. Chvíli počkejte a zkuste to znovu.",
   "UNAUTHORIZED": "Přihlaste se prosím.",
   "UNKNOWN": "Něco se pokazilo.",
   "VALIDATION_FAILED": "Některá pole nejsou vyplněná správně."

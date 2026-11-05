@@ -2,6 +2,7 @@ import { PrismaModule } from "@/core/prisma/prisma.module"
 import { ParticipantsModule } from "@/modules/participants/participants.module"
 import { AuthModule } from "@/shared/auth/auth.module"
 import { OrganizationAccessModule } from "@/shared/organization-access/organization-access.module"
+import { RateLimitModule } from "@/shared/rate-limit/rate-limit.module"
 import { Module } from "@nestjs/common"
 import { ApplicationsController } from "./controllers/applications.controller"
 import { BulkConfirmationController } from "./controllers/bulk-confirmation.controller"
@@ -36,7 +37,13 @@ import { WaitlistExpiryScheduler } from "./services/waitlist-expiry.scheduler"
 import { WaitlistExpiryService } from "./services/waitlist-expiry.service"
 
 @Module({
-  imports: [PrismaModule, ParticipantsModule, OrganizationAccessModule, AuthModule],
+  imports: [
+    PrismaModule,
+    ParticipantsModule,
+    OrganizationAccessModule,
+    AuthModule,
+    RateLimitModule,
+  ],
   controllers: [
     PublicEventsController,
     PublicCatalogController,

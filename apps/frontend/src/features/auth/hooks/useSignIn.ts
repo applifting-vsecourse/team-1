@@ -7,6 +7,7 @@ import {
   type AccountType,
 } from "@/features/auth/api/authSessionQueryOptions"
 import { authClient } from "@/features/auth/lib/auth-client"
+import { AuthRequestError } from "@/features/auth/lib/auth-request-error"
 
 type SignInInput = {
   email: string
@@ -27,7 +28,7 @@ export function useSignIn(accountType: AccountType) {
     // the browser closes, and never extend it. There is no checkbox to opt out.
     mutationFn: async ({ email, password, rememberMe = true }: SignInInput) => {
       const { error } = await authClient.signIn.email({ email, password, rememberMe })
-      if (error) throw new Error(error.message ?? "Sign in failed")
+      if (error) throw new AuthRequestError(error.message ?? "Sign in failed", error.status)
 
       // Load the new session now. Invalidating is not enough: the cache still
       // holds "signed out" and the guards of the next page would trust it.
