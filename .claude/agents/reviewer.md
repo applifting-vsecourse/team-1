@@ -51,6 +51,8 @@ UI that follows Figma (CLAUDE.md, "UI follows Figma"). You can't open Figma, so 
 - a new screen or block — a route page, or a component under `features/*/components` that renders a whole section — with no `Figma:` comment naming the frame and its node URL,
 - UI copy, a control type or a state that looks invented: a string with no counterpart in an earlier version of the file, an extra heading, hint or section, a drawn-looking element nobody asked for. Report it as a WARNING "not from the design? check with @design-reviewer", never as a BLOCKER — you can't tell.
 
+E-mails (CLAUDE.md, "E-mails"; `docs/emaily/AGENTI.md`): a diff that adds an e-mail template or a new send with no matching entry in `docs/emaily/KATALOG.md`; copy for only one locale; a template that does not use `email-kit.tsx`; more than one e-mail per application for one event; payment details in a cancelled-application message or a waitlist position anywhere; a diff that changes a template, sender or trigger without updating the table „Figma a místo v kódu“ in `KATALOG.md`.
+
 Story (when the prompt has one): an acceptance criterion the diff clearly doesn't implement, or a change listed under „Mimo rozsah“. If the diff was cut or the criterion can be met by code outside the diff, leave it out.
 
 ## What is a NOTE

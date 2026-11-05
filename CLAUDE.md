@@ -53,6 +53,10 @@ A story is more than its title. Before writing code, read the story and the busi
 - **Business questions go to Adam** (product manager, [Aadikk](https://github.com/Aadikk)), who takes them to the client. When a story lacks something or needs asking, don't leave a note to ask him: post one PR comment that tags `@Aadikk` and asks everything open, and link it from „Nejasnosti k byznys pravidlům“. Don't ask the client yourself.
 - **Business documents change only when asked.** If the story needs a change in `docs/`, say so in the PR instead of editing it (exception: the journey table in `docs/E2E.md`, see „E2E tests“). Diagrams are edited in the `.yaml` and regenerated ([`docs/procesy/README_generate_py.md`](docs/procesy/README_generate_py.md)), never in the generated `.md` / `.mmd`.
 
+### E-mails
+
+Any work touching e-mails — a template in `apps/backend/src/core/email/`, the code that sends one, a trigger, a recipient, copy, layout or footer — starts with [`docs/emaily/AGENTI.md`](docs/emaily/AGENTI.md). The business catalogue ([`docs/emaily/KATALOG.md`](docs/emaily/KATALOG.md)) decides which message goes to whom and when, [`TEXTY.md`](docs/emaily/TEXTY.md) holds the approved copy and Figma holds the layout. A message that is not in the catalogue is not approved: don't build it, report the gap in the PR (see „Business rules and acceptance criteria“).
+
 ### Backend structure
 
 One module per domain area under `apps/backend/src/modules/<module>/` with `controllers/` (+ `dto/`), `services/`, `repositories/`, `domain/`. Rules in [`apps/backend/src/modules/README.md`](apps/backend/src/modules/README.md). In short:

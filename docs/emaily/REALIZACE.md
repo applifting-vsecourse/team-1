@@ -1,4 +1,4 @@
-# Předání e-mailů vývoji
+# Realizace e-mailů
 
 Krok 5 plánu ([PLAN.md](PLAN.md)), zahájeno 5. 11. 2026. Podklady: schválený [katalog](KATALOG.md) (včetně sekce „Figma a místo v kódu“), [texty](TEXTY.md) a design ve Figmě (stránka „HF / 09 E-maily · nový design“). Dělení práce schválil Adam 5. 11. 2026. Tickety na GitHubu se nezakládají; úkoly se vedou v této větvi a v plánu. Technické řešení určuje vývoj, nepotvrzené business otázky neřeší odhadem.
 
