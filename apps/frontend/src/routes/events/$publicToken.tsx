@@ -31,7 +31,7 @@ function CatalogEventRoute() {
     <>
       <Seo title={event.name} />
       <PublicLayout isFullWidth>
-        <div className="mx-auto w-full max-w-275 p-4 md:p-12">
+        <div className="mx-auto w-full max-w-200 px-4 py-8 md:py-12">
           <EventPage event={event} />
         </div>
       </PublicLayout>

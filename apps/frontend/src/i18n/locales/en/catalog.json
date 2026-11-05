@@ -1,8 +1,10 @@
 {
   "event": {
+    "about": "About the event",
     "apply": "Submit application",
     "contact": "Organization contact",
-    "perPerson": "/ person"
+    "perPerson": "/ person",
+    "terms": "Terms and prices"
   },
   "list": {
     "allOrganizations": "All organizations",

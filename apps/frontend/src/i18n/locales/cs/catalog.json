@@ -1,8 +1,10 @@
 {
   "event": {
+    "about": "O akci",
     "apply": "Podat přihlášku",
     "contact": "Kontakt na organizaci",
-    "perPerson": "/ osoba"
+    "perPerson": "/ osoba",
+    "terms": "Termíny a ceny"
   },
   "list": {
     "allOrganizations": "Všechny organizace",

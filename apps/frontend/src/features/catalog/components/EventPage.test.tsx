@@ -55,10 +55,17 @@ describe("EventPage", () => {
     expect(screen.getByText("Pro děti i dospívající.")).toBeInTheDocument()
     expect(screen.getByText("12–18 Jul 2027")).toBeInTheDocument()
     expect(screen.getByText(/CZK 5,600/)).toBeInTheDocument()
-    expect(screen.getByText("Alpine Collective · Lipno nad Vltavou")).toBeInTheDocument()
+    expect(screen.getByText("Lipno nad Vltavou")).toBeInTheDocument()
+    expect(screen.getByRole("heading", { name: "Terms and prices" })).toBeVisible()
     expect(screen.getByRole("heading", { name: "Organization contact" })).toBeVisible()
-    expect(screen.getByText("Alpine Collective · info@alpine.example")).toBeInTheDocument()
-    expect(screen.getByText("+420 000 000 000")).toBeInTheDocument()
+    expect(screen.getByRole("link", { name: "info@alpine.example" })).toHaveAttribute(
+      "href",
+      "mailto:info@alpine.example",
+    )
+    expect(screen.getByRole("link", { name: "+420 000 000 000" })).toHaveAttribute(
+      "href",
+      "tel:+420000000000",
+    )
   })
 
   it("shows the photo", async () => {
@@ -97,8 +104,7 @@ describe("EventPage", () => {
       terms: [{ id: "t1", name: null, startsOn: "2027-07-12", endsOn: "2027-07-18", priceCzk: 0 }],
     })
 
-    expect(screen.getByRole("heading", { level: 2, name: "12–18 Jul 2027" })).toBeVisible()
-    expect(screen.getAllByText("12–18 Jul 2027")).toHaveLength(1)
+    expect(screen.getAllByText("12–18 Jul 2027").length).toBeGreaterThan(0)
     expect(screen.getByText(/Free/)).toBeInTheDocument()
   })
 
@@ -114,5 +120,6 @@ describe("EventPage", () => {
     expect(screen.queryByRole("link", { name: /@/ })).not.toBeInTheDocument()
     expect(screen.queryByRole("heading", { name: "Organization contact" })).not.toBeInTheDocument()
     expect(screen.getByText("Alpine Collective")).toBeInTheDocument()
+    expect(screen.queryByRole("heading", { name: "About the event" })).not.toBeInTheDocument()
   })
 })
