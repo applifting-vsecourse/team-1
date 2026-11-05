@@ -122,11 +122,9 @@ export function OrganizerTermChange({ applicationId }: { applicationId: string }
       </div>
       {saved ? (
         <section className="flex flex-col gap-4">
-          <h2 className="text-xl font-semibold tracking-tight md:text-2xl">
-            {t("termChange.done.title")}
-          </h2>
+          <h2 className="text-2xl font-semibold tracking-tight">{t("termChange.done.title")}</h2>
           <Card className="gap-4 p-4">
-            <h3 className="text-xl font-semibold tracking-tight">{t("termChange.done.record")}</h3>
+            <h3 className="text-2xl font-semibold tracking-tight">{t("termChange.done.record")}</h3>
             <p>
               {t("termChange.done.when", {
                 date: formatDateTime(saved.result.changedAt),
