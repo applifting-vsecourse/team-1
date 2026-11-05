@@ -98,7 +98,7 @@ describe("TermStatusService", () => {
     ["no. 13", "CONFIRMED", "WAITLISTED", "WAITLISTED_AFTER_CONFIRMED", false],
     ["no. 14", "WAITLISTED", "CANCELLED", "CANCELLED_BY_ORGANIZER", false],
   ] as const)(
-    "EMAILY.md %s: an organizer's change %s → %s e-mails kind %s",
+    "KATALOG.md legacy no. %s: an organizer's change %s → %s e-mails kind %s",
     async (_row, from, to, kind, isAmountChanged) => {
       repository.changeStatus.mockResolvedValue(result(to, from))
 

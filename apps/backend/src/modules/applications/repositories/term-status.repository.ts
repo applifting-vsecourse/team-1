@@ -307,7 +307,7 @@ export class TermStatusRepository {
       const changedTerm = oneCancelled
         ? terms.find((row) => row.termId === removed[0].termId)
         : null
-      // US-118: only the cancellation of a term is told in the app (EMAILY.md, row 11); a change
+      // US-118: only the cancellation of a term is told in the app (docs/emaily/KATALOG.md, APP_CANCELLED_BY_APPLICANT); a change
       // of terms is not, the participant has just made it themselves.
       if (changedTerm) {
         await this.notifications.create(

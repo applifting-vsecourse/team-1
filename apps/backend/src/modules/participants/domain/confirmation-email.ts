@@ -75,7 +75,7 @@ const PAYING_KINDS: ApplicationChange["kind"][] = [
 
 /**
  * Props of the change e-mail; the payment details only when the amount due changed because
- * the application became confirmed (EMAILY.md, rows 2 and 5) — never in a cancelled or
+ * the application became confirmed (docs/emaily/KATALOG.md, APP_CONFIRMED) — never in a cancelled or
  * waitlisted one, which owes nothing.
  */
 export function buildChangeProps(

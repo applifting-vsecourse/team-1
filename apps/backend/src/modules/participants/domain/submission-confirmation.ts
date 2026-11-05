@@ -50,7 +50,7 @@ export type SubmissionConfirmation = {
 }
 
 /**
- * What changed in an application after it was submitted (docs/procesy/zpracovani-prihlasky/EMAILY.md,
+ * What changed in an application after it was submitted (docs/emaily/KATALOG.md,
  * the number is the row): the status of one term changed.
  */
 export type ApplicationChangeKind =

@@ -9,7 +9,7 @@ export type NotificationType = "STATUS_CHANGED" | "PAYMENT" | "REQUEST"
  * reader's language (`features/notifications/lib/compose.ts`), so a kind is added there too.
  */
 export type NotificationKind =
-  /** The kinds of `changeEmailKind`: the same transitions as the e-mail about a change (EMAILY.md). */
+  /** The kinds of `changeEmailKind`: the same transitions as the e-mail about a change (docs/emaily/KATALOG.md). */
   | Extract<
       ApplicationChangeKind,
       | "CONFIRMED"

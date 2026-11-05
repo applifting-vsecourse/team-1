@@ -116,7 +116,7 @@ export class TermStatusService {
         command.actorId === null ? "SYSTEM" : "ORGANIZER",
       ),
       application: result.application,
-      // Payment details only where the application became confirmed (EMAILY.md, rows 2 and 5).
+      // Payment details only where the application became confirmed (docs/emaily/KATALOG.md, APP_CONFIRMED).
       isAmountChanged: result.to === "CONFIRMED",
     })
     return result

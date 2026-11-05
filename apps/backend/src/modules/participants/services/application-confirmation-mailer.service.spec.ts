@@ -355,7 +355,7 @@ describe("ApplicationConfirmationMailer.sendApplicationChange", () => {
     ...overrides,
   })
 
-  // EMAILY.md row → what the applicant reads: docs/emaily/TEXTY.md.
+  // KATALOG.md legacy row → what the applicant reads: docs/emaily/TEXTY.md.
   const cases = [
     [
       "no. 2",
@@ -416,7 +416,7 @@ describe("ApplicationConfirmationMailer.sendApplicationChange", () => {
   ] as const
 
   it.each(cases)(
-    "EMAILY.md %s (%s): Czech subject, heading, sentence, identification, link into the app and organization footer",
+    "KATALOG.md legacy no. %s (%s): Czech subject, heading, sentence, identification, link into the app and organization footer",
     async (_row, kind, subjectStart, heading, sentence) => {
       const { mailer, sendEmail } = setup()
 

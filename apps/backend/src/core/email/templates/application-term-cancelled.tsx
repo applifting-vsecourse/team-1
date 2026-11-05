@@ -4,7 +4,7 @@ import { changeCommon, termValue } from '@/core/email/templates/application-chan
 import * as React from 'react';
 
 // Figma (Design system): E12 EVENT_TERM_CANCELLED · Zrušení termínu akce · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19681-1067 (360 px: node-id=19681-1095)
-// E-mail no. 15 (EMAILY.md, D-065, D-076, D-080): the organizer cancelled the term and the
+// E-mail no. 15 (docs/emaily/KATALOG.md, D-065, D-076, D-080): the organizer cancelled the term and the
 // application in it is cancelled; paid payments are refunded. One e-mail per application.
 // The cancellation of a term (US-131) sends it; this story only provides the template.
 // Source of the copy: docs/emaily/TEXTY.md.

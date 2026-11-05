@@ -5,7 +5,7 @@ import { changeCommon, termValue } from '@/core/email/templates/application-chan
 import * as React from 'react';
 
 /**
- * What happened to the application in one term (docs/procesy/zpracovani-prihlasky/EMAILY.md):
+ * What happened to the application in one term (docs/emaily/KATALOG.md):
  *
  * - `CONFIRMED`: K vyhodnocení → Potvrzená s dluhem (no. 2)
  * - `WAITLISTED`: K vyhodnocení → Náhradník (no. 3)

@@ -4,7 +4,7 @@ import { changeCommon, termValue } from '@/core/email/templates/application-chan
 import * as React from 'react';
 
 // Figma (Design system): E09 APP_CONFIRMATION_WITHDRAWN · Odvolání potvrzení · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19681-903 (360 px: node-id=19681-930)
-// E-mail no. 13 (EMAILY.md, D-074): Potvrzená s dluhem → Náhradník, the organizer moves the
+// E-mail no. 13 (docs/emaily/KATALOG.md, D-074): Potvrzená s dluhem → Náhradník, the organizer moves the
 // application among the substitutes. Own template, not the one of no. 3 (K vyhodnocení → Náhradník).
 // The waiting order is never told. Copy for both locales side by side; source: docs/emaily/TEXTY.md.
 const copy: Record<

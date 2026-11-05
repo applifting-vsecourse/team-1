@@ -96,7 +96,7 @@ describe("changeEmailKind", () => {
     ["no. 9, 10", "CANCELLED", "CONFIRMED", "ORGANIZER", "REJECTED"],
     ["no. 13", "WAITLISTED", "CONFIRMED", "ORGANIZER", "WAITLISTED_AFTER_CONFIRMED"],
     ["no. 14", "CANCELLED", "WAITLISTED", "ORGANIZER", "CANCELLED_BY_ORGANIZER"],
-  ] as const)("EMAILY.md %s maps to its own kind", (_row, to, from, actor, kind) => {
+  ] as const)("KATALOG.md legacy no. %s maps to its own kind", (_row, to, from, actor, kind) => {
     expect(changeEmailKind(to, from, actor)).toBe(kind)
   })
 
