@@ -40,6 +40,7 @@ const event: OrganizerEvent = {
   endsOn: "2027-07-25",
   applicationsOpen: false,
   evaluationMode: "AUTOMATIC",
+  cancellationStartsOn: null,
   evaluationModeLocked: false,
   missing: [],
   terms: [],

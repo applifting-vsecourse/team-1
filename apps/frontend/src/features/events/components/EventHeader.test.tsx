@@ -30,6 +30,7 @@ const event = {
   endsOn: null,
   applicationsOpen: true,
   evaluationMode: "AUTOMATIC",
+  cancellationStartsOn: null,
   evaluationModeLocked: true,
   missing: [],
   terms: [],

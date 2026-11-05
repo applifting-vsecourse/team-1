@@ -9,7 +9,45 @@ permissions:
   contents: read
 
 jobs:
+  # A PR that touches only docs/ skips `verify` and `e2e` entirely. `verify` and
+  # `e2e` are required checks on main, so they can't be left out with
+  # `paths-ignore` (the PR would wait for them forever); a skipped job counts
+  # as passed. Pushes to main always run everything.
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      code: ${{ steps.diff.outputs.code }}
+    steps:
+      # Fail safe: if this job failed, `verify` and `e2e` would be skipped and
+      # pass, so any error here means "run everything".
+      - uses: actions/checkout@v7
+        if: github.event_name == 'pull_request'
+        continue-on-error: true
+        with:
+          # The PR merge commit and its first parent (the base branch).
+          fetch-depth: 2
+
+      - id: diff
+        run: |
+          if [ "$GITHUB_EVENT_NAME" != "pull_request" ]; then
+            echo "code=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if ! changed=$(git diff --name-only HEAD^1 HEAD) || [ -z "$changed" ]; then
+            echo "code=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "$changed"
+          if echo "$changed" | grep -qv '^docs/'; then
+            echo "code=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Only docs/ changed: skipping build, tests and E2E."
+            echo "code=false" >> "$GITHUB_OUTPUT"
+          fi
+
   verify:
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     # Integration tests (pnpm backend test:int) need a real Postgres. Same
     # port and credentials as the local docker-compose, so the .env created
@@ -29,11 +67,11 @@ jobs:
           --health-timeout 3s
           --health-retries 20
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: pnpm/action-setup@v6
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
 
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: .nvmrc
           cache: pnpm
@@ -80,6 +118,8 @@ jobs:
   # E2E (Playwright, docs/E2E.md): the core journeys in a real browser against a
   # built backend + frontend and a freshly seeded `togena_e2e` database.
   e2e:
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     services:
@@ -97,11 +137,11 @@ jobs:
           --health-timeout 3s
           --health-retries 20
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: pnpm/action-setup@v6
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
 
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: .nvmrc
           cache: pnpm
@@ -120,7 +160,7 @@ jobs:
 
       - name: Upload Playwright report
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: playwright-report
           path: apps/e2e/playwright-report/

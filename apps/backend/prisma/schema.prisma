@@ -148,6 +148,7 @@ model Organization {
   applicationTerms ApplicationTerm[]
   payments         Payment[]
   statusChanges    ApplicationTermStatusChange[]
+  substituteSkips  ApplicationTermSkip[]
 
   @@map("organization")
 }
@@ -181,23 +182,28 @@ enum RoomMode {
 }
 
 model Event {
-  id                 String         @id @default(cuid())
-  organization       Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  organizationId     String
-  name               String
+  id                   String         @id @default(cuid())
+  organization         Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId       String
+  name                 String
   // How applications in a term are evaluated (US-101); fixed once applications open.
-  evaluationMode     EvaluationMode @default(AUTOMATIC)
-  description        String?        @db.Text
-  location           String?
+  evaluationMode       EvaluationMode @default(AUTOMATIC)
+  // D-099: payment period from confirmation; D-101: restarted when a correction creates a debt.
+  paymentPeriodDays    Int            @default(10)
+  // First calendar day when participant changes require organizer approval (US-113/114).
+  // Null leaves changes immediate.
+  cancellationStartsOn DateTime?      @db.Date
+  description          String?        @db.Text
+  location             String?
   // Public page content (US-122): the one source of the event web and the catalog (US-123).
-  contactEmail       String?
-  contactPhone       String?
+  contactEmail         String?
+  contactPhone         String?
   // Listed in the catalog only when the organizer turns it on explicitly.
-  publishedInCatalog Boolean        @default(false)
+  publishedInCatalog   Boolean        @default(false)
   // Unguessable token in the public application link /prihlaska/<publicToken>.
-  publicToken        String         @unique
-  createdAt          DateTime       @default(now())
-  updatedAt          DateTime       @default(now()) @updatedAt
+  publicToken          String         @unique
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @default(now()) @updatedAt
 
   terms        Term[]
   applications Application[]
@@ -308,20 +314,23 @@ model Application {
 
 // Result of evaluating one selected term of an application (US-27).
 model ApplicationTerm {
-  id             String                @id @default(cuid())
-  organization   Organization          @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  organizationId String
-  application    Application           @relation(fields: [applicationId], references: [id], onDelete: Cascade)
-  applicationId  String
-  term           Term                  @relation(fields: [termId], references: [id], onDelete: Cascade)
-  termId         String
-  status         ApplicationTermStatus
+  id                     String                @id @default(cuid())
+  organization           Organization          @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId         String
+  application            Application           @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  applicationId          String
+  term                   Term                  @relation(fields: [termId], references: [id], onDelete: Cascade)
+  termId                 String
+  status                 ApplicationTermStatus
   // Term price frozen at evaluation; later price changes affect only new applications.
-  priceCzk       Int
-  evaluatedAt    DateTime              @default(now())
+  priceCzk               Int
+  evaluatedAt            DateTime              @default(now())
+  // Restart of the payment period after a correction/removal; null = original confirmation period.
+  paymentPeriodStartedAt DateTime?
 
   statusChanges ApplicationTermStatusChange[]
   payments      Payment[]
+  skippedIn     ApplicationTermSkip[]
 
   @@unique([applicationId, termId])
   @@index([termId, status])
@@ -344,29 +353,56 @@ model ApplicationTermStatusChange {
   changedById       String?
   createdAt         DateTime              @default(now())
 
+  skips ApplicationTermSkip[]
+
   @@index([applicationTermId, createdAt])
   @@index([organizationId])
   @@map("application_term_status_change")
+}
+
+// Waitlisted applications skipped when someone else was confirmed from the waitlist (US-105):
+// those ahead of the confirmed one in the same queue (term and bed group) who stayed on the
+// waitlist. Written in the transaction of the status change, never edited or deleted by the app.
+// A confirmation from the waitlist without rows here skipped nobody.
+model ApplicationTermSkip {
+  id                       String                      @id @default(cuid())
+  organization             Organization                @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId           String
+  statusChange             ApplicationTermStatusChange @relation(fields: [statusChangeId], references: [id], onDelete: Cascade)
+  statusChangeId           String
+  skippedApplicationTerm   ApplicationTerm             @relation(fields: [skippedApplicationTermId], references: [id], onDelete: Cascade)
+  skippedApplicationTermId String
+  createdAt                DateTime                    @default(now())
+
+  @@unique([statusChangeId, skippedApplicationTermId])
+  @@index([skippedApplicationTermId])
+  @@index([organizationId])
+  @@map("application_term_skip")
 }
 
 // Manually recorded payment (US-44) of one application in a term (US-137, D-051). Rows rather
 // than a flag so a bank statement import (US-42) can add more later. One receipt (money that
 // arrived at once) is one or more rows sharing `receiptId`; a refund is a negative row.
 model Payment {
-  id                String           @id @default(cuid())
-  organization      Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  id                String          @id @default(cuid())
+  organization      Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   organizationId    String
-  applicationTerm   ApplicationTerm  @relation(fields: [applicationTermId], references: [id], onDelete: Cascade)
+  applicationTerm   ApplicationTerm @relation(fields: [applicationTermId], references: [id], onDelete: Cascade)
   applicationTermId String
   receiptId         String
+  // Set on a replacement receipt; all its rows point to the original receipt.
+  correctsReceiptId String?
+  // New receipts remember whether the organizer used the summary symbol; null is legacy data.
+  isSummary         Boolean?
   amountCzk         Int
-  recordedBy        User             @relation(fields: [recordedById], references: [id])
+  recordedBy        User            @relation(fields: [recordedById], references: [id])
   recordedById      String
-  createdAt         DateTime         @default(now())
+  createdAt         DateTime        @default(now())
   cancelledAt       DateTime?
 
   @@index([organizationId])
   @@index([applicationTermId])
   @@index([receiptId])
+  @@index([correctsReceiptId])
   @@map("payment")
 }

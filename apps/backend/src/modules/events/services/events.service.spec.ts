@@ -23,6 +23,7 @@ const stored: StoredEvent = {
   termsWithoutRooms: 0,
   applicationCount: 0,
   evaluationMode: "AUTOMATIC",
+  cancellationStartsOn: null,
   startsOn: null,
   endsOn: null,
   terms: [],

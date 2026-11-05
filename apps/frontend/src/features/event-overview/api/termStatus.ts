@@ -3,6 +3,8 @@ import { z } from "zod"
 
 import { api } from "@/lib/api-client"
 
+import { substituteRecordSchema } from "@/features/event-overview/api/substituteRecords"
+
 const statusSchema = z.enum(["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED"])
 /** A status the organizer can set; nothing leads back to "to evaluate". */
 const targetSchema = z.enum(["CONFIRMED", "WAITLISTED", "CANCELLED"])
@@ -27,6 +29,8 @@ const termStatusSchema = z.object({
       changedAt: z.string(),
     }),
   ),
+  /** Confirmations from the waitlist that confirmed or skipped this application (US-105). */
+  substituteRecords: z.array(substituteRecordSchema),
 })
 export type TermStatusDetail = z.infer<typeof termStatusSchema>
 

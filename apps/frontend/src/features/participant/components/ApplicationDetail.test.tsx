@@ -13,8 +13,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import type { MyApplication } from "@/features/participant/api/applications"
 import { ApplicationDetail } from "@/features/participant/components/ApplicationDetail"
 
-const { get, toDataURL } = vi.hoisted(() => ({ get: vi.fn(), toDataURL: vi.fn() }))
-vi.mock("@/lib/api-client", () => ({ api: { get } }))
+const { get, put, toDataURL } = vi.hoisted(() => ({
+  get: vi.fn(),
+  put: vi.fn(),
+  toDataURL: vi.fn(),
+}))
+vi.mock("@/lib/api-client", () => ({ api: { get, put } }))
 vi.mock("qrcode", () => ({ default: { toDataURL } }))
 
 const confirmed = {
@@ -69,8 +73,66 @@ const application = (overrides: Partial<MyApplication> = {}): MyApplication => (
   ...overrides,
 })
 
-const renderDetail = (data: MyApplication) => {
-  get.mockReturnValue({ json: () => Promise.resolve(data) })
+const termPayment = (
+  number: number,
+  dueCzk: number,
+  paidCzk: number,
+  paymentStatus: "UNPAID" | "PARTIALLY_PAID" | "PAID" | "OVERPAID",
+) => ({
+  termId: `t${number}`,
+  termNumber: number,
+  variableSymbol: `4800${number}`,
+  dueCzk,
+  paidCzk,
+  owedCzk: dueCzk - paidCzk,
+  paymentStatus,
+})
+const secondConfirmed = { ...waitlisted, status: "CONFIRMED" as const }
+const withTerms = (
+  payments: ReturnType<typeof termPayment>[],
+  terms = [confirmed, secondConfirmed],
+): MyApplication =>
+  application({
+    terms,
+    paymentDetails: {
+      bankAccount: "2900123456/2010",
+      summary: {
+        variableSymbol: "48000",
+        payableCzk: payments.reduce((sum, item) => sum + Math.max(0, item.owedCzk), 0),
+      },
+      terms: payments,
+    },
+  })
+const cardOf = (heading: RegExp): HTMLElement =>
+  screen.getByRole("heading", { name: heading }).closest<HTMLElement>("[data-slot='card']")!
+
+const renderDetail = (data: MyApplication, canChangeImmediately = true) => {
+  get.mockImplementation((path: string) => ({
+    json: () =>
+      Promise.resolve(
+        path.endsWith("change-options")
+          ? {
+              canChangeImmediately,
+              terms: [
+                {
+                  id: "t1",
+                  name: "1. týden",
+                  startsOn: "2027-07-04",
+                  endsOn: "2027-07-10",
+                  selected: true,
+                },
+                {
+                  id: "t2",
+                  name: "2. týden",
+                  startsOn: "2027-07-11",
+                  endsOn: "2027-07-17",
+                  selected: false,
+                },
+              ],
+            }
+          : data,
+      ),
+  }))
   const root = createRootRoute({
     component: () => (
       <QueryClientProvider
@@ -89,32 +151,65 @@ const renderDetail = (data: MyApplication) => {
 }
 
 describe("ApplicationDetail", () => {
-  it("copies the account and the summary variable symbol", async () => {
+  beforeEach(() => get.mockReset())
+
+  it("copies the account, the variable symbol of the term and the amount to pay", async () => {
     const user = userEvent.setup()
     const write = vi.spyOn(navigator.clipboard, "writeText")
     renderDetail(application())
     await user.click(await screen.findByRole("button", { name: "Copy account number" }))
     expect(write).toHaveBeenLastCalledWith("2900123456/2010")
     await user.click(screen.getByRole("button", { name: "Copy variable symbol" }))
-    expect(write).toHaveBeenLastCalledWith("48000")
+    expect(write).toHaveBeenLastCalledWith("48001")
+    await user.click(screen.getByRole("button", { name: "Copy amount" }))
+    expect(write).toHaveBeenLastCalledWith("2500")
   })
 
   beforeEach(() => {
     get.mockReset()
+    put.mockReset()
     toDataURL.mockReset()
     toDataURL.mockResolvedValue("data:image/png;base64,AAAA")
   })
 
-  it("shows what is due, what is paid, what is left and where to send it", async () => {
+  it("lets the participant immediately change the selected terms", async () => {
+    const user = userEvent.setup()
+    put.mockResolvedValue(undefined)
+    renderDetail(application())
+
+    await user.click(await screen.findByRole("button", { name: "Change terms or cancel" }))
+    expect(screen.getByText(/Payments stay with their original terms/)).toBeInTheDocument()
+    await user.click(screen.getByRole("checkbox", { name: "Select term 2. týden" }))
+    await user.click(screen.getByRole("button", { name: "Save changes" }))
+
+    expect(put).toHaveBeenCalledWith("participant/applications/a1/terms", {
+      json: { termIds: ["t1", "t2"] },
+    })
+  })
+
+  it("does not offer an immediate change after cancellation starts", async () => {
+    renderDetail(application(), false)
+    expect(
+      await screen.findByText(/Changes now require the organiser's approval/),
+    ).toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: "Change terms or cancel" })).not.toBeInTheDocument()
+  })
+
+  it("shows what is due, what is paid, what is left and where to send it for the term", async () => {
     renderDetail(application())
 
     expect(
       await screen.findByRole("heading", { level: 1, name: "Letní kemp 2027" }),
     ).toBeInTheDocument()
-    expect(screen.getByText("Left to pay")).toBeInTheDocument()
     expect(screen.getByText("Partly paid")).toBeInTheDocument()
+    expect(screen.getByText("Amount due").nextSibling).toHaveTextContent("4,500")
+    expect(screen.getByText("Paid").nextSibling).toHaveTextContent("2,000")
+    expect(screen.getByText("Left to pay").nextSibling).toHaveTextContent("2,500")
     expect(screen.getByText("2900123456/2010")).toBeInTheDocument()
-    expect(screen.getByText("48000")).toBeInTheDocument()
+    expect(screen.getByText("48001")).toBeInTheDocument()
+    // The summary symbol and the total are for the whole application, not for one term.
+    expect(screen.queryByText("48000")).not.toBeInTheDocument()
+    expect(screen.queryByText("Left to pay in total")).not.toBeInTheDocument()
     expect(screen.getByRole("link", { name: "← All applications" })).toHaveAttribute(
       "href",
       "/participant",
@@ -142,57 +237,85 @@ describe("ApplicationDetail", () => {
     expect(screen.queryByText("My application")).not.toBeInTheDocument()
   })
 
-  it("offers the transfer details only while something is left to pay", async () => {
-    renderDetail(application())
-    expect(await screen.findByRole("heading", { name: "Payment details" })).toBeInTheDocument()
-  })
-
-  it("shows an overpayment as an overpayment, not as zero", async () => {
-    const base = application()
+  it("shows the debt of each confirmed term separately and the total (500 + 700 CZK)", async () => {
     renderDetail(
-      application({
-        amountPaidCzk: 5100,
-        amountOwedCzk: -600,
-        paymentStatus: "OVERPAID",
-        paymentDetails: {
-          ...base.paymentDetails!,
-          summary: { variableSymbol: "48000", payableCzk: 0 },
-        },
-      }),
+      withTerms([
+        termPayment(1, 4900, 4400, "PARTIALLY_PAID"),
+        termPayment(2, 5600, 4900, "PARTIALLY_PAID"),
+      ]),
     )
 
-    expect(await screen.findByText("Overpayment")).toBeInTheDocument()
-    expect(screen.getByRole("heading", { name: "Payment information" })).toBeInTheDocument()
-    expect(screen.queryByRole("heading", { name: "Payment details" })).not.toBeInTheDocument()
+    expect(await screen.findByRole("heading", { name: "Left to pay in total" })).toBeInTheDocument()
+    expect(
+      screen.getByRole("heading", { name: "Left to pay in total" }).nextSibling,
+    ).toHaveTextContent("1,200")
+    expect(
+      screen.getByText(/You pay each term separately\. Use its variable symbol/),
+    ).toBeInTheDocument()
+    const one = cardOf(/^4–10 Jul 2027/)
+    const two = cardOf(/^11–17 Jul 2027/)
+    expect(within(one).getByText("Left to pay").nextSibling).toHaveTextContent("500")
+    expect(within(one).getByText("48001")).toBeInTheDocument()
+    expect(within(two).getByText("Left to pay").nextSibling).toHaveTextContent("700")
+    expect(within(two).getByText("48002")).toBeInTheDocument()
+    // One symbol per term, no symbol of the whole application.
+    expect(screen.queryByText("48000")).not.toBeInTheDocument()
+  })
+
+  it("keeps the paid term collapsed and the term confirmed later, with its debt, first", async () => {
+    renderDetail(withTerms([termPayment(1, 4500, 4500, "PAID"), termPayment(2, 4900, 0, "UNPAID")]))
+
+    const paid = await screen.findByRole("button", { name: /4–10 Jul 2027.*Paid/ })
+    expect(paid).toHaveAttribute("aria-expanded", "false")
+    const unpaid = screen.getByRole("heading", { name: /^11–17 Jul 2027/ })
+    // Two confirmed terms and something left: the total shows, the hint only for several debts.
+    expect(
+      screen.getByRole("heading", { name: "Left to pay in total" }).nextSibling,
+    ).toHaveTextContent("4,900")
+    expect(screen.queryByText(/You pay each term separately/)).not.toBeInTheDocument()
+    expect(
+      within(cardOf(/^11–17 Jul 2027/)).getByText("Left to pay").nextSibling,
+    ).toHaveTextContent("4,900")
+    expect(unpaid.compareDocumentPosition(paid) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  })
+
+  it("opens a paid term to its amounts and payment details on demand", async () => {
+    const user = userEvent.setup()
+    renderDetail(
+      withTerms([termPayment(1, 4500, 4500, "PAID"), termPayment(2, 4500, 4500, "PAID")]),
+    )
+
+    const toggles = await screen.findAllByRole("button", { name: /Paid/ })
+    expect(toggles).toHaveLength(2)
+    expect(screen.queryByText("Amount due")).not.toBeInTheDocument()
+    expect(screen.queryByText("Left to pay in total")).not.toBeInTheDocument()
+
+    await user.click(toggles[0]!)
+
+    expect(toggles[0]).toHaveAttribute("aria-expanded", "true")
+    expect(screen.getByText("Amount due").nextSibling).toHaveTextContent("4,500")
+    expect(screen.getByText("48001")).toBeInTheDocument()
+    expect(toggles[1]).toHaveAttribute("aria-expanded", "false")
+  })
+
+  it("shows an overpaid term as an overpayment, without the details to pay", async () => {
+    renderDetail(withTerms([termPayment(1, 4500, 5100, "OVERPAID")], [confirmed]))
+
+    expect(await screen.findByText("Overpaid")).toBeInTheDocument()
+    expect(screen.getByText("Overpayment").nextSibling).toHaveTextContent("600")
     expect(screen.queryByText("Left to pay")).not.toBeInTheDocument()
-    expect(screen.queryByText("To pay")).not.toBeInTheDocument()
+    expect(screen.queryByText("Amount to pay")).not.toBeInTheDocument()
+    expect(screen.queryByText("Variable symbol")).not.toBeInTheDocument()
   })
 
-  it("still shows what to pay when an overpaid term makes the whole balance negative", async () => {
-    const base = application()
-    renderDetail(
-      application({
-        amountPaidCzk: 5100,
-        amountOwedCzk: -600,
-        paymentStatus: "OVERPAID",
-        paymentDetails: {
-          ...base.paymentDetails!,
-          summary: { variableSymbol: "48000", payableCzk: 1500 },
-        },
-      }),
-    )
-
-    expect(await screen.findByRole("heading", { name: "Payment details" })).toBeInTheDocument()
-    expect(screen.getByText("To pay")).toBeInTheDocument()
-  })
-
-  it("shows a waitlisted term as waitlisted without a place in line, not to be paid yet", async () => {
+  it("shows a waitlisted term as waitlisted without a place in line, nothing to pay yet", async () => {
     renderDetail(application({ terms: [confirmed, waitlisted] }))
 
-    expect(await screen.findByText("Waitlisted")).toBeInTheDocument()
-    expect(screen.getByText("0 CZK until confirmed")).toBeInTheDocument()
+    expect(await screen.findByText(/11–17 Jul 2027 · 2\. týden · Waitlisted/)).toBeInTheDocument()
+    expect(screen.getByText("You don't pay anything yet.")).toBeInTheDocument()
     expect(screen.queryByText(/in line|position/i)).not.toBeInTheDocument()
-    expect(screen.getByText(/you are waitlisted and have no amount due yet/)).toBeInTheDocument()
+    // Its payment details are not shown: there is no variable symbol to pay.
+    expect(screen.queryByText("48002")).not.toBeInTheDocument()
   })
 
   it("shows a term to evaluate as awaiting evaluation, never as waitlisted (US-102)", async () => {
@@ -211,11 +334,10 @@ describe("ApplicationDetail", () => {
     expect(screen.queryByText(/waitlisted/i)).not.toBeInTheDocument()
     expect(screen.getByText("Don't pay yet.")).toBeInTheDocument()
     expect(screen.getByText(/not a confirmed place or a waitlist spot yet/)).toBeInTheDocument()
-    expect(screen.queryByText("0 CZK until confirmed")).not.toBeInTheDocument()
-    expect(screen.queryByText("Account number")).not.toBeInTheDocument()
+    expect(screen.queryByText("Account")).not.toBeInTheDocument()
   })
 
-  it("shows no payment block when every term is waitlisted", async () => {
+  it("shows only waitlisted cards, with no payment details, when every term is waitlisted", async () => {
     renderDetail(
       application({
         terms: [waitlisted],
@@ -227,68 +349,10 @@ describe("ApplicationDetail", () => {
       }),
     )
 
-    expect(await screen.findByText("Waitlisted")).toBeInTheDocument()
-    expect(screen.queryByText("Payment for the confirmed term")).not.toBeInTheDocument()
-    expect(screen.queryByText("Account number")).not.toBeInTheDocument()
-  })
-
-  it("shows only the summary symbol while one term is confirmed (U04q)", async () => {
-    renderDetail(application({ terms: [confirmed, waitlisted] }))
-
-    expect(await screen.findByText("48000")).toBeInTheDocument()
-    expect(screen.queryByText("48001")).not.toBeInTheDocument()
-    expect(screen.queryByRole("heading", { name: "Whole application" })).not.toBeInTheDocument()
-  })
-
-  it("shows the whole application and every confirmed term with its own symbol (U04p)", async () => {
-    const second = { ...waitlisted, status: "CONFIRMED" as const }
-    renderDetail(
-      application({
-        terms: [confirmed, second],
-        amountDueCzk: 9400,
-        amountPaidCzk: 4500,
-        amountOwedCzk: 4900,
-        paymentDetails: {
-          bankAccount: "2900123456/2010",
-          summary: { variableSymbol: "48000", payableCzk: 4900 },
-          terms: [
-            {
-              termId: "t1",
-              termNumber: 1,
-              variableSymbol: "48001",
-              dueCzk: 4500,
-              paidCzk: 4500,
-              owedCzk: 0,
-              paymentStatus: "PAID",
-            },
-            {
-              termId: "t2",
-              termNumber: 2,
-              variableSymbol: "48002",
-              dueCzk: 4900,
-              paidCzk: 0,
-              owedCzk: 4900,
-              paymentStatus: "UNPAID",
-            },
-          ],
-        },
-      }),
-    )
-
-    expect(await screen.findByRole("heading", { name: "Whole application" })).toBeVisible()
-    expect(screen.getByRole("heading", { name: /^1\. týden · / })).toBeVisible()
-    expect(screen.getByRole("heading", { name: /^2\. týden · / })).toBeVisible()
-    expect(screen.getByText("48000")).toBeInTheDocument()
-    expect(screen.getByText("48001")).toBeInTheDocument()
-    expect(screen.getByText("48002")).toBeInTheDocument()
-    expect(screen.getByText(/or only of the term you are paying/)).toBeVisible()
-    // The paid term asks for nothing, the unpaid one for its debt.
-    const rows = screen.getAllByText("To pay").map((label) => label.nextElementSibling)
-    expect(rows.map((row) => row?.textContent?.replace(/\s/g, " "))).toEqual([
-      expect.stringMatching(/4.900/),
-      expect.stringMatching(/ 0$/),
-      expect.stringMatching(/4.900/),
-    ])
+    expect(await screen.findByText(/Waitlisted/)).toBeInTheDocument()
+    expect(screen.getByText("You don't pay anything yet.")).toBeInTheDocument()
+    expect(screen.queryByText("Account")).not.toBeInTheDocument()
+    expect(screen.queryByText("Variable symbol")).not.toBeInTheDocument()
   })
 
   it("offers one QR with the current total debt and summary symbol for both confirmed terms", async () => {

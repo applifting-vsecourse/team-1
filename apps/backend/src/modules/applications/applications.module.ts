@@ -7,9 +7,11 @@ import { ApplicationsController } from "./controllers/applications.controller"
 import { BulkConfirmationController } from "./controllers/bulk-confirmation.controller"
 import { BulkDecisionController } from "./controllers/bulk-decision.controller"
 import { CapacityController } from "./controllers/capacity.controller"
+import { ParticipantTermChangeController } from "./controllers/participant-term-change.controller"
 import { PublicCatalogController } from "./controllers/public-catalog.controller"
 import { PublicEventsController } from "./controllers/public-events.controller"
 import { SubmissionStatusController } from "./controllers/submission-status.controller"
+import { SubstitutesController } from "./controllers/substitutes.controller"
 import { TermStatusController } from "./controllers/term-status.controller"
 import { ApplicationsRepository } from "./repositories/applications.repository"
 import { BulkConfirmationRepository } from "./repositories/bulk-confirmation.repository"
@@ -18,6 +20,7 @@ import { CapacityRepository } from "./repositories/capacity.repository"
 import { PublicCatalogRepository } from "./repositories/public-catalog.repository"
 import { PublicEventsRepository } from "./repositories/public-events.repository"
 import { SubmissionStatusRepository } from "./repositories/submission-status.repository"
+import { SubstitutesRepository } from "./repositories/substitutes.repository"
 import { TermStatusRepository } from "./repositories/term-status.repository"
 import { ApplicationsService } from "./services/applications.service"
 import { BulkConfirmationService } from "./services/bulk-confirmation.service"
@@ -27,6 +30,7 @@ import { ContactEmailSyncService } from "./services/contact-email-sync.service"
 import { PublicCatalogService } from "./services/public-catalog.service"
 import { PublicEventsService } from "./services/public-events.service"
 import { SubmissionStatusService } from "./services/submission-status.service"
+import { SubstitutesService } from "./services/substitutes.service"
 import { TermStatusService } from "./services/term-status.service"
 import { WaitlistExpiryScheduler } from "./services/waitlist-expiry.scheduler"
 import { WaitlistExpiryService } from "./services/waitlist-expiry.service"
@@ -40,8 +44,10 @@ import { WaitlistExpiryService } from "./services/waitlist-expiry.service"
     CapacityController,
     SubmissionStatusController,
     TermStatusController,
+    ParticipantTermChangeController,
     BulkConfirmationController,
     BulkDecisionController,
+    SubstitutesController,
   ],
   providers: [
     CapacityRepository,
@@ -61,6 +67,8 @@ import { WaitlistExpiryService } from "./services/waitlist-expiry.service"
     BulkConfirmationService,
     BulkDecisionRepository,
     BulkDecisionService,
+    SubstitutesRepository,
+    SubstitutesService,
     WaitlistExpiryService,
     WaitlistExpiryScheduler,
   ],
