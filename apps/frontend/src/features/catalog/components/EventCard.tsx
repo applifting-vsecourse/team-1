@@ -19,7 +19,7 @@ export function EventCard({ event }: { event: CatalogEvent }) {
 
   return (
     <Link
-      to={ROUTES.catalogEvent}
+      to={ROUTES.event}
       params={{ publicToken: event.publicToken }}
       className="group block rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
     >

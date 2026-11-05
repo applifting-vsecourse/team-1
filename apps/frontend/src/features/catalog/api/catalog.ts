@@ -45,15 +45,14 @@ export const catalogEventDetailSchema = z.object({
       priceCzk: z.number().int(),
     }),
   ),
-  /** The photo is loaded from `public/catalog/events/:publicToken/photo`. */
+  /** The photo is loaded from `public/events/:publicToken/photo`. */
   hasPhoto: z.boolean(),
-  isOpenForApplications: z.boolean(),
 })
 export type CatalogEventDetail = z.infer<typeof catalogEventDetailSchema>
 
-/** URL of the photo of a published event, for an `<img>`. */
+/** URL of the photo of an event page, for an `<img>`. */
 export const catalogEventPhotoUrl = (publicToken: string) =>
-  `${env.VITE_API_URL}/public/catalog/events/${encodeURIComponent(publicToken)}/photo`
+  `${env.VITE_API_URL}/public/events/${encodeURIComponent(publicToken)}/photo`
 
 /** Published events and their organizations: `GET /api/public/catalog`. */
 export const catalogQueryOptions = () =>
@@ -63,12 +62,12 @@ export const catalogQueryOptions = () =>
       catalogSchema.parse(await api.get("public/catalog").json()),
   })
 
-/** The page of a published event: `GET /api/public/catalog/events/:publicToken`. */
+/** The page of an event with a working application link: `GET /api/public/events/:publicToken/page`. */
 export const catalogEventQueryOptions = (publicToken: string) =>
   queryOptions({
     queryKey: ["public-catalog", "event", publicToken],
     queryFn: async (): Promise<CatalogEventDetail> =>
       catalogEventDetailSchema.parse(
-        await api.get(`public/catalog/events/${encodeURIComponent(publicToken)}`).json(),
+        await api.get(`public/events/${encodeURIComponent(publicToken)}/page`).json(),
       ),
   })

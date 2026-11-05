@@ -106,7 +106,7 @@ describe("CatalogPage", () => {
     const card = (await screen.findByRole("heading", { name: "Letní kemp Lipno 2027" })).closest(
       "a",
     )
-    expect(card).toHaveAttribute("href", "/catalog/tok")
+    expect(card).toHaveAttribute("href", "/events/tok")
     expect(card).toHaveTextContent("Alpine Collective")
     expect(card).toHaveTextContent("Lipno nad Vltavou")
     expect(card).toHaveTextContent("Applications open")

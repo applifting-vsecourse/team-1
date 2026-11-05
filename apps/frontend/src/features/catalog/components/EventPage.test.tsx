@@ -5,7 +5,7 @@ import {
   createRouter,
   RouterProvider,
 } from "@tanstack/react-router"
-import { render, screen, within } from "@testing-library/react"
+import { render, screen } from "@testing-library/react"
 import { describe, expect, it } from "vitest"
 
 import type { CatalogEventDetail } from "@/features/catalog/api/catalog"
@@ -24,7 +24,6 @@ const event: CatalogEventDetail = {
     { id: "t2", name: "2. týden", startsOn: "2027-07-19", endsOn: "2027-07-25", priceCzk: 5600 },
   ],
   hasPhoto: true,
-  isOpenForApplications: true,
 }
 
 async function renderPage(detail: CatalogEventDetail) {
@@ -34,18 +33,13 @@ async function renderPage(detail: CatalogEventDetail) {
     path: "/",
     component: () => <EventPage event={detail} />,
   })
-  const catalog = createRoute({
-    getParentRoute: () => root,
-    path: "/catalog",
-    component: () => null,
-  })
   const apply = createRoute({
     getParentRoute: () => root,
     path: "/apply/$token",
     component: () => null,
   })
   const router = createRouter({
-    routeTree: root.addChildren([page, catalog, apply]),
+    routeTree: root.addChildren([page, apply]),
     history: createMemoryHistory({ initialEntries: ["/"] }),
   })
   render(<RouterProvider router={router} />)
@@ -57,32 +51,22 @@ describe("EventPage", () => {
     await renderPage(event)
 
     expect(screen.getByRole("heading", { level: 1, name: "Letní kemp Lipno 2027" })).toBeVisible()
-    expect(screen.getByText("Lipno nad Vltavou")).toBeInTheDocument()
     expect(screen.getByText("Týden v přírodě.")).toBeInTheDocument()
     expect(screen.getByText("Pro děti i dospívající.")).toBeInTheDocument()
     expect(screen.getByText("12–18 Jul 2027")).toBeInTheDocument()
-    expect(screen.getByText("CZK 5,600")).toBeInTheDocument()
-    const contact = screen.getByRole("heading", { name: "Organization contact" }).parentElement
-    expect(within(contact!).getByRole("link", { name: "info@alpine.example" })).toHaveAttribute(
-      "href",
-      "mailto:info@alpine.example",
-    )
-    expect(within(contact!).getByRole("link", { name: "+420 000 000 000" })).toHaveAttribute(
-      "href",
-      "tel:+420000000000",
-    )
+    expect(screen.getByText(/CZK 5,600/)).toBeInTheDocument()
+    expect(screen.getByText("Alpine Collective · Lipno nad Vltavou")).toBeInTheDocument()
+    expect(screen.getByRole("heading", { name: "Organization contact" })).toBeVisible()
+    expect(screen.getByText("Alpine Collective · info@alpine.example")).toBeInTheDocument()
+    expect(screen.getByText("+420 000 000 000")).toBeInTheDocument()
   })
 
-  it("shows the photo and a way back to the catalog", async () => {
+  it("shows the photo", async () => {
     await renderPage(event)
 
     expect(document.querySelector("img")).toHaveAttribute(
       "src",
-      expect.stringContaining("/public/catalog/events/tok123/photo"),
-    )
-    expect(screen.getByRole("link", { name: "Back to the catalog" })).toHaveAttribute(
-      "href",
-      "/catalog",
+      expect.stringContaining("/public/events/tok123/photo"),
     )
   })
 
@@ -95,17 +79,27 @@ describe("EventPage", () => {
   it("leads to the application form", async () => {
     await renderPage(event)
 
-    expect(screen.getByRole("link", { name: "Apply participants" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Submit application" })).toHaveAttribute(
       "href",
       "/apply/tok123",
     )
   })
 
-  it("offers no application when the link does not work yet", async () => {
-    await renderPage({ ...event, isOpenForApplications: false })
+  it("shows no capacity, occupancy or free beds", async () => {
+    await renderPage(event)
 
-    expect(screen.queryByRole("link", { name: "Apply participants" })).not.toBeInTheDocument()
-    expect(screen.getByRole("heading", { name: "Terms and prices" })).toBeInTheDocument()
+    expect(screen.queryByText(/capacity|free bed|occupied|waitlist/i)).not.toBeInTheDocument()
+  })
+
+  it("shows a term without a name by its dates only", async () => {
+    await renderPage({
+      ...event,
+      terms: [{ id: "t1", name: null, startsOn: "2027-07-12", endsOn: "2027-07-18", priceCzk: 0 }],
+    })
+
+    expect(screen.getByRole("heading", { level: 2, name: "12–18 Jul 2027" })).toBeVisible()
+    expect(screen.getAllByText("12–18 Jul 2027")).toHaveLength(1)
+    expect(screen.getByText(/Free/)).toBeInTheDocument()
   })
 
   it("leaves out what the organizer did not fill in", async () => {
@@ -118,6 +112,7 @@ describe("EventPage", () => {
     })
 
     expect(screen.queryByRole("link", { name: /@/ })).not.toBeInTheDocument()
-    expect(screen.getAllByText("Alpine Collective")).toHaveLength(2)
+    expect(screen.queryByRole("heading", { name: "Organization contact" })).not.toBeInTheDocument()
+    expect(screen.getByText("Alpine Collective")).toBeInTheDocument()
   })
 })
