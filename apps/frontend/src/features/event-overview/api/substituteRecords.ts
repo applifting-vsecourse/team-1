@@ -3,7 +3,12 @@ import { z } from "zod"
 
 import { api } from "@/lib/api-client"
 
-const personSchema = z.object({ applicationId: z.string(), name: z.string() })
+const personSchema = z.object({
+  applicationId: z.string(),
+  name: z.string(),
+  /** Status in the term now, not when the record was written. */
+  status: z.enum(["CONFIRMED", "WAITLISTED", "CANCELLED", "TO_EVALUATE"]),
+})
 
 /** System record of one confirmation from the waitlist (US-105). Read-only. */
 export const substituteRecordSchema = z.object({
@@ -34,3 +39,13 @@ export const substituteHistoryQueryOptions = (eventId: string, termId: string) =
             .json(),
         ),
   })
+
+/**
+ * Whom a confirmation still passes over. Once the confirmed one is no longer confirmed (back on
+ * the waitlist, cancelled), nobody is passed over any more; and a skipped one that has been
+ * confirmed or cancelled since is no longer waiting behind them.
+ */
+export const stillSkipped = (record: SubstituteRecord) =>
+  record.confirmed.status === "CONFIRMED"
+    ? record.skipped.filter((person) => person.status === "WAITLISTED")
+    : []

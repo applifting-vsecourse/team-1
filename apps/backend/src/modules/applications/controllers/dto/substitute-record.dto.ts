@@ -4,6 +4,11 @@ import { ApiProperty } from "@nestjs/swagger"
 class SubstitutePersonDto {
   @ApiProperty() applicationId!: string
   @ApiProperty() name!: string
+  @ApiProperty({
+    enum: ["CONFIRMED", "WAITLISTED", "CANCELLED", "TO_EVALUATE"],
+    description: "Status in the term now, not when the record was written",
+  })
+  status!: "CONFIRMED" | "WAITLISTED" | "CANCELLED" | "TO_EVALUATE"
 }
 
 /** System record of one confirmation from the waitlist (US-105). Read-only. */
@@ -23,7 +28,11 @@ export class SubstituteRecordDto {
   @ApiProperty() changedAt!: string
 
   static fromDomain(record: SubstituteRecord): SubstituteRecordDto {
-    const person = ({ applicationId, name }: SubstitutePerson) => ({ applicationId, name })
+    const person = ({ applicationId, name, status }: SubstitutePerson) => ({
+      applicationId,
+      name,
+      status,
+    })
     return {
       id: record.id,
       termId: record.termId,

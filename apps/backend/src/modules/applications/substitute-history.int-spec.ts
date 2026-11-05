@@ -8,7 +8,7 @@ type Record = {
   termId: string
   group: "FEMALE" | "MALE" | "SHARED"
   confirmed: { applicationId: string; name: string }
-  skipped: { applicationId: string; name: string }[]
+  skipped: { applicationId: string; name: string; status: string }[]
   changedByName: string | null
   changedAt: string
 }
@@ -147,6 +147,7 @@ describe("record of confirmed and skipped substitutes (integration)", () => {
     expect(rest).toEqual([])
     expect(record.confirmed.applicationId).toBe(third)
     expect(record.skipped.map((person) => person.applicationId)).toEqual([first, second])
+    expect(record.skipped.every((person) => person.status === "WAITLISTED")).toBe(true)
     expect(record.skipped.map((person) => person.applicationId)).not.toContain(fourth)
     expect(record.group).toBe("MALE")
     expect(record.termId).toBe(scope.termId)

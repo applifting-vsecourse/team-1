@@ -19,6 +19,7 @@ const recordInclude = {
   applicationTerm: {
     select: {
       termId: true,
+      status: true,
       term: { select: { roomMode: true } },
       application: { select: { id: true, firstName: true, lastName: true, gender: true } },
     },
@@ -27,7 +28,10 @@ const recordInclude = {
     orderBy: { createdAt: "asc" },
     select: {
       skippedApplicationTerm: {
-        select: { application: { select: { id: true, firstName: true, lastName: true } } },
+        select: {
+          status: true,
+          application: { select: { id: true, firstName: true, lastName: true } },
+        },
       },
     },
   },
@@ -39,16 +43,19 @@ const fullName = (person: { firstName: string; lastName: string }): string =>
   `${person.firstName} ${person.lastName}`
 
 function toRecord(row: RecordRow): SubstituteRecord {
-  const { application, term, termId } = row.applicationTerm
+  const { application, term, termId, status } = row.applicationTerm
   return {
     id: row.id,
     termId,
     group: bedGroup(term.roomMode, application.gender),
-    confirmed: { applicationId: application.id, name: fullName(application) },
-    skipped: row.skips.map(({ skippedApplicationTerm: { application: skipped } }) => ({
-      applicationId: skipped.id,
-      name: fullName(skipped),
-    })),
+    confirmed: { applicationId: application.id, name: fullName(application), status },
+    skipped: row.skips.map(
+      ({ skippedApplicationTerm: { application: skipped, status: skippedStatus } }) => ({
+        applicationId: skipped.id,
+        name: fullName(skipped),
+        status: skippedStatus,
+      }),
+    ),
     changedByName: row.changedBy?.name ?? null,
     changedAt: row.createdAt,
   }

@@ -14,7 +14,12 @@ export type StatusChangeEntry = {
 }
 
 /** Someone named in a record of a filled bed. */
-export type SubstitutePerson = { applicationId: string; name: string }
+export type SubstitutePerson = {
+  applicationId: string
+  name: string
+  /** Status of the application in the term now, not when the record was written. */
+  status: ApplicationTermStatus
+}
 
 /**
  * System record of one confirmation from the waitlist (US-105): who was confirmed, who was

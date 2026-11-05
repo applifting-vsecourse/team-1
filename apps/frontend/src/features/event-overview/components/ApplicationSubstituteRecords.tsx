@@ -5,6 +5,7 @@ import { DetailItem } from "@/components/molecules/DetailItem"
 import { Card } from "@/components/ui/card"
 import { formatDateTime } from "@/lib/date"
 
+import { stillSkipped } from "@/features/event-overview/api/substituteRecords"
 import { termStatusesQueryOptions } from "@/features/event-overview/api/termStatus"
 
 // Figma (Design system): US-105 Detail přihlášky · Historie · Záznam v detailu účastníka · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15781-5897 (mobile 15781-5970)
@@ -18,7 +19,9 @@ export function ApplicationSubstituteRecords({ applicationId }: { applicationId:
   if (!data) return null
   const records = data.flatMap((term) => term.substituteRecords)
   const cards = records.flatMap((record) => {
+    const skipped = stillSkipped(record)
     if (record.confirmed.applicationId !== applicationId) {
+      if (!skipped.some((person) => person.applicationId === applicationId)) return []
       return [
         <DetailItem
           key={record.id}
@@ -28,13 +31,13 @@ export function ApplicationSubstituteRecords({ applicationId }: { applicationId:
         </DetailItem>,
       ]
     }
-    if (record.skipped.length === 0) return []
+    if (skipped.length === 0) return []
     return [
       <DetailItem
         key={record.id}
-        label={t("substituteRecord.skippedAmong", { count: record.skipped.length })}
+        label={t("substituteRecord.skippedAmong", { count: skipped.length })}
       >
-        {record.skipped.map((person) => person.name).join(", ")}
+        {skipped.map((person) => person.name).join(", ")}
       </DetailItem>,
     ]
   })

@@ -19,10 +19,10 @@ const record = (overrides: object = {}) => ({
   id: "c1",
   termId: "t1",
   group: "MALE",
-  confirmed: { applicationId: "a3", name: "Petr Svoboda" },
+  confirmed: { applicationId: "a3", name: "Petr Svoboda", status: "CONFIRMED" },
   skipped: [
-    { applicationId: "a1", name: "Adam Dvořák" },
-    { applicationId: "a2", name: "Jan Novák" },
+    { applicationId: "a1", name: "Adam Dvořák", status: "WAITLISTED" },
+    { applicationId: "a2", name: "Jan Novák", status: "WAITLISTED" },
   ],
   changedByName: "Eva Malá",
   changedAt: "2027-03-11T09:32:00Z",
@@ -78,6 +78,38 @@ describe("history of filled beds at the waitlist (US-105)", () => {
     expect(screen.queryByText(/Skipped:/)).toBeNull()
   })
 
+  it("keeps the entry but drops the skipped line once the confirmed one is a substitute again", async () => {
+    respond([
+      record({ confirmed: { applicationId: "a3", name: "Petr Svoboda", status: "WAITLISTED" } }),
+    ])
+    renderWithRouter(
+      <SubstituteHistory
+        eventId="e1"
+        term={term}
+      />,
+    )
+    expect(await screen.findByText("Petr Svoboda")).toBeInTheDocument()
+    expect(screen.queryByText(/Skipped:/)).toBeNull()
+  })
+
+  it("lists only the skipped ones that still wait", async () => {
+    respond([
+      record({
+        skipped: [
+          { applicationId: "a1", name: "Adam Dvořák", status: "CANCELLED" },
+          { applicationId: "a2", name: "Jan Novák", status: "WAITLISTED" },
+        ],
+      }),
+    ])
+    renderWithRouter(
+      <SubstituteHistory
+        eventId="e1"
+        term={term}
+      />,
+    )
+    expect(await screen.findByText("Skipped: Jan Novák")).toBeInTheDocument()
+  })
+
   it("shows nothing without a record", async () => {
     respond([])
     renderWithRouter(
@@ -116,6 +148,25 @@ describe("record in the detail of an application (US-105)", () => {
     renderWithRouter(<ApplicationSubstituteRecords applicationId="a3" />)
     expect(await screen.findByText("Skipped substitutes")).toBeInTheDocument()
     expect(screen.getByText("Adam Dvořák, Jan Novák")).toBeInTheDocument()
+  })
+
+  it("shows nothing once the confirmed one is no longer confirmed", async () => {
+    const cancelled = { applicationId: "a3", name: "Petr Svoboda", status: "CANCELLED" }
+    respond([termWith([record({ confirmed: cancelled })])])
+    renderWithRouter(<ApplicationSubstituteRecords applicationId="a1" />)
+    await vi.waitFor(() => expect(get).toHaveBeenCalled())
+    expect(screen.queryByText(/Skipped/)).toBeNull()
+  })
+
+  it("shows nothing on an application that is no longer waiting", async () => {
+    respond([
+      termWith([
+        record({ skipped: [{ applicationId: "a1", name: "Adam Dvořák", status: "CANCELLED" }] }),
+      ]),
+    ])
+    renderWithRouter(<ApplicationSubstituteRecords applicationId="a1" />)
+    await vi.waitFor(() => expect(get).toHaveBeenCalled())
+    expect(screen.queryByText(/Skipped/)).toBeNull()
   })
 
   it("shows nothing for a confirmation that skipped nobody", async () => {
