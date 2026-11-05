@@ -4,10 +4,9 @@ import { Prisma } from "@/generated/prisma/client"
 import { computePaymentDeadline } from "@/modules/applications/domain/payment-deadline"
 import { planPaymentDebtRenewal } from "@/modules/applications/domain/payment-debt-renewal"
 import {
-  allocateSummaryPayment,
+  allocatePayment,
   computePayableAmount,
   computeRefundableAmount,
-  computeSummaryPayable,
   computeTermDue,
   computeTermOwed,
   computeTermPaid,
@@ -358,9 +357,12 @@ export class PaymentsRepository {
         throw new AppException(HttpStatus.CONFLICT, "REFUND_EXCEEDS_OVERPAYMENT")
       rows = [{ applicationTermId: term.applicationTermId, amountCzk: isRefund ? -amount : amount }]
     } else {
-      const amount = resolvePaymentAmount(input.amountCzk, computeSummaryPayable(terms))
+      const amount = resolvePaymentAmount(
+        input.amountCzk,
+        computePayableAmount(terms.map((term) => term.owedCzk)),
+      )
       assertAmount(amount)
-      rows = allocateSummaryPayment(amount, terms)
+      rows = allocatePayment(amount, terms)
     }
 
     await tx.payment.createMany({

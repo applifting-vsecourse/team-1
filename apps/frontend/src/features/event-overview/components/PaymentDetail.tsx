@@ -269,13 +269,7 @@ function PaymentHistory({
               {term ? termLine(term) : null}
             </td>
             <td className={cn("col-start-1 row-start-4 md:px-3 md:py-4", detail)}>
-              {t(
-                amountCzk >= 0
-                  ? "payment.manual"
-                  : payment.amountCzk > 0
-                    ? "payment.offsetMethod"
-                    : "payment.refundMethod",
-              )}
+              {t(amountCzk < 0 ? "payment.refundMethod" : "payment.manual")}
             </td>
             <td className="col-start-1 row-start-1 font-semibold md:px-3 md:py-4 md:text-right">
               <MoneyAmount

@@ -33,7 +33,7 @@ describe("computePaymentCorrectionPreview", () => {
     })
   })
 
-  it("reallocates a summary receipt including an overpayment offset", () => {
+  it("reallocates a summary receipt without setting an overpayment off against another term (D-088)", () => {
     expect(
       computePaymentCorrectionPreview({
         terms: [
@@ -49,8 +49,8 @@ describe("computePaymentCorrectionPreview", () => {
       preview: {
         amountOwedCzk: 200,
         terms: [
-          { termId: "1", owedCzk: 0, changeCzk: 500 },
-          { termId: "2", owedCzk: 200, changeCzk: -300 },
+          { termId: "1", owedCzk: -500, changeCzk: 0 },
+          { termId: "2", owedCzk: 700, changeCzk: 200 },
         ],
       },
     })

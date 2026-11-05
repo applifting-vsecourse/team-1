@@ -1,6 +1,6 @@
 import { ApplicationTermStatus } from "./evaluation"
 import {
-  allocateSummaryPayment,
+  allocatePayment,
   computeAmountDue,
   computeAmountOwed,
   computeAmountPaid,
@@ -65,7 +65,7 @@ export function computePaymentCorrectionPreview(input: {
           amountCzk: input.isRefund ? -input.amountCzk : input.amountCzk,
         },
       ]
-    : allocateSummaryPayment(
+    : allocatePayment(
         input.amountCzk,
         remaining.map((term) => ({ ...term, owedCzk: computeTermOwed(term, term.payments) })),
       )

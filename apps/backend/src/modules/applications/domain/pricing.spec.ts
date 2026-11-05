@@ -1,13 +1,11 @@
 import {
   allocatePayment,
-  allocateSummaryPayment,
   computeAmountDue,
   computeAmountOwed,
   computeAmountPaid,
   computePayableAmount,
   computePaymentStatus,
   computeSelectionPrice,
-  computeSummaryPayable,
   computeTermDue,
   computeTermOwed,
   computeTermPaid,
@@ -225,69 +223,5 @@ describe("allocatePayment", () => {
   it("returns nothing without terms or amount", () => {
     expect(allocatePayment(100, [])).toEqual([])
     expect(allocatePayment(0, [term("a", 5, 1, 500)])).toEqual([])
-  })
-})
-
-describe("summary payment with an overpaid term (US-111)", () => {
-  const term = (
-    id: string,
-    day: number,
-    number: number,
-    owedCzk: number,
-    status: "CONFIRMED" | "WAITLISTED" = "CONFIRMED",
-  ) => ({
-    applicationTermId: id,
-    status,
-    startsOn: new Date(Date.UTC(2027, 6, day)),
-    termNumber: number,
-    owedCzk,
-  })
-  const terms = [term("a", 5, 1, -700), term("b", 20, 2, 4900)]
-
-  it("offers the debt less the overpayment", () => {
-    expect(computeSummaryPayable(terms)).toBe(4200)
-  })
-
-  it("never offers less than 0 and ignores terms that are not confirmed", () => {
-    expect(computeSummaryPayable([term("a", 5, 1, -700), term("b", 20, 2, 300)])).toBe(0)
-    expect(
-      computeSummaryPayable([term("a", 5, 1, -700, "WAITLISTED"), term("b", 20, 2, 4900)]),
-    ).toBe(4900)
-  })
-
-  it("sets the overpayment off in one receipt, so every term ends at 0", () => {
-    const rows = allocateSummaryPayment(4200, terms)
-    expect(rows).toEqual([
-      { applicationTermId: "b", amountCzk: 4900 },
-      { applicationTermId: "a", amountCzk: -700 },
-    ])
-    expect(rows.reduce((sum, row) => sum + row.amountCzk, 0)).toBe(4200)
-  })
-
-  it("takes the offset from the most overpaid term first", () => {
-    expect(
-      allocateSummaryPayment(1000, [
-        term("a", 5, 1, -300),
-        term("b", 12, 2, -500),
-        term("c", 20, 3, 1800),
-      ]),
-    ).toEqual([
-      { applicationTermId: "c", amountCzk: 1800 },
-      { applicationTermId: "b", amountCzk: -500 },
-      { applicationTermId: "a", amountCzk: -300 },
-    ])
-  })
-
-  it("sets off only what a smaller payment needs", () => {
-    expect(allocateSummaryPayment(4500, terms)).toEqual([
-      { applicationTermId: "b", amountCzk: 4900 },
-      { applicationTermId: "a", amountCzk: -400 },
-    ])
-  })
-
-  it("does not set off when the money covers every debt", () => {
-    expect(allocateSummaryPayment(5000, terms)).toEqual([
-      { applicationTermId: "b", amountCzk: 5000 },
-    ])
   })
 })
