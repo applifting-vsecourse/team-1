@@ -3,7 +3,6 @@ import { toLocale } from "@/core/email/locale"
 import { renderEmail } from "@/core/email/render"
 import { ChangeEmail, changeEmailSubject } from "@/core/email/templates/change-email"
 import { ResetPassword, resetPasswordSubject } from "@/core/email/templates/reset-password"
-import { VerifyEmail, verifyEmailSubject } from "@/core/email/templates/verify-email"
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { betterAuthCoreConfig } from "@/shared/auth/config/better-auth.config"
 import { emailChangeHooks } from "@/shared/auth/email-change/email-change-hooks"
@@ -90,8 +89,8 @@ const createAuth = (
             await emailProvider.sendEmail(user.email, changeEmailSubject(locale), changeHtml)
             return
           }
-          const html = await renderEmail(VerifyEmail, { url, locale })
-          await emailProvider.sendEmail(user.email, verifyEmailSubject(locale), html)
+          // No general address verification (D-102): the only verification e-mail is the
+          // confirmation of an e-mail change above.
         } catch (error) {
           // BetterAuth swallows this error; the e-mail change request reads the flag.
           const delivery = verificationDelivery.getStore()
@@ -99,7 +98,7 @@ const createAuth = (
           throw error
         }
       },
-      sendOnSignUp: true,
+      sendOnSignUp: false,
     },
     plugins: [
       ...(betterAuthCoreConfig.plugins ?? []),

@@ -13,7 +13,6 @@ import ChangeEmail, { changeEmailSubject } from "./templates/change-email"
 import ChangeEmailNotice, { changeEmailNoticeSubject } from "./templates/change-email-notice"
 import MagicLink, { magicLinkSubject } from "./templates/magic-link"
 import ResetPassword, { resetPasswordSubject } from "./templates/reset-password"
-import VerifyEmail, { verifyEmailSubject } from "./templates/verify-email"
 
 // @react-email/render needs --experimental-vm-modules under jest, so the plain React renderer is used.
 const render = async (element: React.ReactElement): Promise<string> => {
@@ -65,10 +64,6 @@ const templates: Record<
   "change-email-notice": (locale) => ({
     subject: changeEmailNoticeSubject(locale),
     element: React.createElement(ChangeEmailNotice, { ...ChangeEmailNotice.PreviewProps, locale }),
-  }),
-  "verify-email": (locale) => ({
-    subject: verifyEmailSubject(locale),
-    element: React.createElement(VerifyEmail, { url: "https://example.com/v", locale }),
   }),
 }
 
