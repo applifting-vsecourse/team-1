@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card"
 import { formatDateTime } from "@/lib/date"
 
 import {
+  currentRecords,
   stillSkipped,
   substituteHistoryQueryOptions,
 } from "@/features/event-overview/api/substituteRecords"
@@ -26,7 +27,7 @@ export function SubstituteHistory({ eventId, term }: { eventId: string; term: { 
       className="flex flex-col gap-3"
     >
       <h2 className="text-lg font-semibold">{t("substituteRecord.history")}</h2>
-      {data.map((record) => {
+      {currentRecords(data).map((record) => {
         const skipped = stillSkipped(record)
         return (
           <Card

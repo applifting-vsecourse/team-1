@@ -110,6 +110,18 @@ describe("history of filled beds at the waitlist (US-105)", () => {
     expect(await screen.findByText("Skipped: Jan Novák")).toBeInTheDocument()
   })
 
+  it("lists a person confirmed twice once", async () => {
+    respond([record({ id: "old", changedAt: "2027-03-10T09:00:00Z" }), record()])
+    renderWithRouter(
+      <SubstituteHistory
+        eventId="e1"
+        term={term}
+      />,
+    )
+    await screen.findByRole("region", { name: "Filled beds history" })
+    expect(screen.getAllByText("Petr Svoboda")).toHaveLength(1)
+  })
+
   it("shows nothing without a record", async () => {
     respond([])
     renderWithRouter(
@@ -147,7 +159,24 @@ describe("record in the detail of an application (US-105)", () => {
     respond([termWith([record()])])
     renderWithRouter(<ApplicationSubstituteRecords applicationId="a3" />)
     expect(await screen.findByText("Skipped substitutes")).toBeInTheDocument()
-    expect(screen.getByText("Adam Dvořák, Jan Novák")).toBeInTheDocument()
+    expect(screen.getByText(/^Adam Dvořák · \d/)).toBeInTheDocument()
+    expect(screen.getByText(/^Jan Novák · \d/)).toBeInTheDocument()
+  })
+
+  it("shows a person confirmed twice once, with the newest record", async () => {
+    respond([
+      termWith([
+        record({ id: "old", changedAt: "2027-03-10T09:00:00Z" }),
+        record({
+          id: "new",
+          changedAt: "2027-03-11T09:00:00Z",
+          skipped: [{ applicationId: "a2", name: "Jan Novák", status: "WAITLISTED" }],
+        }),
+      ]),
+    ])
+    renderWithRouter(<ApplicationSubstituteRecords applicationId="a3" />)
+    expect(await screen.findAllByText("Skipped substitute")).toHaveLength(1)
+    expect(screen.queryByText(/Adam Dvořák/)).toBeNull()
   })
 
   it("shows nothing once the confirmed one is no longer confirmed", async () => {

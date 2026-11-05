@@ -49,3 +49,19 @@ export const stillSkipped = (record: SubstituteRecord) =>
   record.confirmed.status === "CONFIRMED"
     ? record.skipped.filter((person) => person.status === "WAITLISTED")
     : []
+
+/**
+ * Only the current confirmation of each person counts: confirmed, put back among the substitutes
+ * and confirmed again leaves one record, the newest, not one per confirmation.
+ */
+export const currentRecords = (records: SubstituteRecord[]) => {
+  const seen = new Set<string>()
+  return [...records]
+    .sort((a, b) => b.changedAt.localeCompare(a.changedAt))
+    .filter((record) => {
+      const key = `${record.termId}:${record.confirmed.applicationId}`
+      if (seen.has(key)) return false
+      seen.add(key)
+      return true
+    })
+}
