@@ -1,59 +1,72 @@
-import { Locale } from "@/core/email/locale"
+import { Locale } from '@/core/email/locale';
+import * as React from 'react';
 import {
-  Body,
-  Button,
-  Container,
-  Head,
-  Heading,
-  Html,
-  Preview,
-  Section,
-  Tailwind,
-  Text,
-} from "react-email"
-import * as React from "react"
+  EmailAlert,
+  EmailButton,
+  EmailFallbackLink,
+  EmailFooter,
+  EmailHeading,
+  EmailLogo,
+  EmailNote,
+  EmailShell,
+  EmailText,
+} from './email-kit';
 
-// Every template keeps its copy for all locales side by side, so a missing
-// translation is a type error, not a silent English e-mail.
-// Figma (Design system): US-125 / E-mailová šablona · Ověřovací e-mail · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16244-3444
+// Figma (Design system): E19 AUTH_CHANGE_EMAIL_VERIFY · Potvrzení změny adresy · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19681-1573 (360 px: node-id=19681-1601)
+
+// Copy for all locales side by side — a missing translation is a type error. Source: docs/emaily/TEXTY.md.
 const copy: Record<
   Locale,
   {
-    subject: string
-    heading: string
-    to: string
-    body: (currentEmail: string, newEmail: string) => string
-    button: string
-    ignore: string
+    subject: string;
+    preview: string;
+    heading: string;
+    body: (currentEmail: string, newEmail: string) => string;
+    validity: string;
+    alertTitle: string;
+    alertText: string;
+    button: string;
+    fallback: string;
+    footer: string[];
   }
 > = {
   en: {
-    subject: "Confirm your e-mail change",
-    heading: "Confirm your e-mail change",
-    to: "To",
+    subject: 'Confirm your e-mail change in Togena',
+    preview: 'Your sign-in e-mail change is awaiting confirmation.',
+    heading: 'Confirm your e-mail change',
     body: (currentEmail, newEmail) =>
-      `After you confirm, your sign-in e-mail changes from ${currentEmail} to ${newEmail}.`,
-    button: "Confirm e-mail change",
-    ignore: "If you didn't ask for this change, don't use the link.",
+      `Once confirmed, the sign-in e-mail for your Togena account will change from ${currentEmail} to ${newEmail}. Until then, your current address remains in use.`,
+    validity:
+      'The link is valid for 1 hour. If it expires, sign in using your current e-mail address and request the e-mail change again in your account settings.',
+    alertTitle: 'If you did not request this change',
+    alertText: 'Do not use the link.',
+    button: 'Confirm e-mail change',
+    fallback: "If the button doesn't work, copy this link into your browser:",
+    footer: ['Togena', 'Help with signing in or your account: support@togena.com'],
   },
   cs: {
-    subject: "Potvrďte změnu e-mailu",
-    heading: "Potvrďte změnu e-mailu",
-    to: "Komu",
+    subject: 'Potvrďte změnu e-mailu v Togeně',
+    preview: 'Změna přihlašovací adresy čeká na vaše potvrzení.',
+    heading: 'Potvrzení změny e-mailu',
     body: (currentEmail, newEmail) =>
-      `Po potvrzení se přihlašovací e-mail změní z ${currentEmail} na ${newEmail}.`,
-    button: "Potvrdit změnu e-mailu",
-    ignore: "Pokud jste o změnu nežádali, odkaz nepoužívejte.",
+      `Po potvrzení se přihlašovací e-mail vašeho uživatelského účtu v Togeně změní z ${currentEmail} na ${newEmail}. Do té doby platí dosavadní adresa.`,
+    validity:
+      'Odkaz platí 1 hodinu. Pokud vyprší, přihlaste se dosavadní adresou a změnu e-mailu zadejte znovu v nastavení uživatelského účtu.',
+    alertTitle: 'Pokud jste o změnu nežádali',
+    alertText: 'Odkaz nepoužívejte.',
+    button: 'Potvrdit změnu e-mailu',
+    fallback: 'Pokud tlačítko nefunguje, zkopírujte tento odkaz do prohlížeče:',
+    footer: ['Togena', 'Pomoc s přihlášením nebo uživatelským účtem: support@togena.com'],
   },
-}
+};
 
-export const changeEmailSubject = (locale: Locale): string => copy[locale].subject
+export const changeEmailSubject = (locale: Locale): string => copy[locale].subject;
 
 export interface ChangeEmailProps {
-  url: string
-  locale: Locale
-  currentEmail: string
-  newEmail: string
+  url: string;
+  locale: Locale;
+  currentEmail: string;
+  newEmail: string;
 }
 
 export const ChangeEmail = ({
@@ -62,43 +75,27 @@ export const ChangeEmail = ({
   currentEmail,
   newEmail,
 }: ChangeEmailProps): React.JSX.Element => {
-  const text = copy[locale]
+  const text = copy[locale];
   return (
-    <Html lang={locale}>
-      <Head />
-      <Preview>{text.heading}</Preview>
-      <Tailwind>
-        <Body className="bg-gray-50 font-sans py-10">
-          <Container className="bg-white rounded-lg mx-auto p-8 max-w-xl">
-            <Heading className="text-2xl font-bold text-gray-900 m-0">{text.heading}</Heading>
-            <Text className="text-gray-700 text-sm leading-5 mt-4">
-              {text.to}: {newEmail}
-            </Text>
-            <Text className="text-gray-700 text-base leading-6">
-              {text.body(currentEmail, newEmail)}
-            </Text>
-            <Section className="text-center my-8">
-              <Button
-                href={url}
-                className="bg-gray-900 text-white font-semibold rounded-md px-6 py-3"
-              >
-                {text.button}
-              </Button>
-            </Section>
-            <Text className="text-gray-700 text-sm leading-5">{text.ignore}</Text>
-          </Container>
-        </Body>
-      </Tailwind>
-    </Html>
-  )
-}
+    <EmailShell locale={locale} preview={text.preview}>
+      <EmailLogo />
+      <EmailHeading>{text.heading}</EmailHeading>
+      <EmailText>{text.body(currentEmail, newEmail)}</EmailText>
+      <EmailButton href={url}>{text.button}</EmailButton>
+      <EmailNote>{text.validity}</EmailNote>
+      <EmailAlert title={text.alertTitle} description={text.alertText} />
+      <EmailFallbackLink label={text.fallback} url={url} />
+      <EmailFooter lines={text.footer} />
+    </EmailShell>
+  );
+};
 
 // Preview data for `pnpm backend email:dev`.
 ChangeEmail.PreviewProps = {
-  url: "https://team-1.vsepractical.applifting.dev/api/auth/verify-email?token=preview",
-  locale: "cs",
-  currentEmail: "eva.mala@example.cz",
-  newEmail: "eva.nova@example.cz",
-} satisfies ChangeEmailProps
+  url: 'https://team-1.vsepractical.applifting.dev/api/auth/verify-email?token=preview',
+  locale: 'cs',
+  currentEmail: 'eva.mala@example.cz',
+  newEmail: 'eva.nova@example.cz',
+} satisfies ChangeEmailProps;
 
-export default ChangeEmail
+export default ChangeEmail;

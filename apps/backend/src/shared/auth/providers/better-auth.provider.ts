@@ -48,7 +48,6 @@ const createAuth = (
         // E-mails go out in the account's language (User.locale).
         const locale = toLocale((user as { locale?: unknown }).locale)
         const html = await renderEmail(ResetPassword, {
-          username: user.name,
           url: passwordResetUrl,
           locale,
         })

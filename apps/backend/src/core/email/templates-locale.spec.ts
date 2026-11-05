@@ -54,7 +54,6 @@ const templates: Record<
   "reset-password": (locale) => ({
     subject: resetPasswordSubject(locale),
     element: React.createElement(ResetPassword, {
-      username: "Petra",
       url: "https://example.com/r",
       locale,
     }),
