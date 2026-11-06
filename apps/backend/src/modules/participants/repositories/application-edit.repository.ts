@@ -102,6 +102,7 @@ export class ApplicationEditRepository {
       await this.notifications.notifyOrganizersOfApplicationEdit(tx, {
         organizationId: row.organizationId,
         applicationId: id,
+        eventId: row.eventId,
         eventName: row.event.name,
         participantName: `${input.firstName} ${input.lastName}`,
       })

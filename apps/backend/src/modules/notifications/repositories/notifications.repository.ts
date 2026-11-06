@@ -41,12 +41,13 @@ export class NotificationsRepository {
     })
   }
 
-  /** The organizer's US-86 feed can display this record when that screen is introduced. */
+  /** Writes the organizer's application-edit notification for the shared bell. */
   async notifyOrganizersOfApplicationEdit(
     tx: Prisma.TransactionClient,
     input: {
       organizationId: string
       applicationId: string
+      eventId: string
       eventName: string
       participantName: string
     },
@@ -62,6 +63,7 @@ export class NotificationsRepository {
         kind: "APPLICATION_EDITED",
         applicationId: input.applicationId,
         params: {
+          eventId: input.eventId,
           eventName: input.eventName,
           participantName: input.participantName,
         },

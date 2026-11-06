@@ -33,6 +33,7 @@ const notificationSchema = z.object({
   /** The application the notification leads to. */
   applicationId: z.string().nullable(),
   params: z.object({
+    eventId: z.string().optional(),
     eventName: z.string(),
     participantName: z.string(),
     /** ISO dates of the term the notification is about. */

@@ -121,6 +121,25 @@ describe("participant application edit (integration)", () => {
     expect(notices).toHaveLength(members.length)
     expect(notices.every((notice) => notice.readAt === null)).toBe(true)
     expect(notices.every((notice) => notice.type === "REQUEST")).toBe(true)
+    expect(
+      notices.every(
+        (notice) => (notice.params as { eventId?: string }).eventId === application.eventId,
+      ),
+    ).toBe(true)
+
+    const organizerFeed = await fetch(api("/notifications"), {
+      headers: { Cookie: organizerCookie },
+    })
+    expect(organizerFeed.status).toBe(200)
+    expect(await organizerFeed.json()).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: "APPLICATION_EDITED",
+          applicationId: ownId,
+          params: expect.objectContaining({ eventId: application.eventId }),
+        }),
+      ]),
+    )
 
     const repeated = await call("PUT", ownId, participantCookie, input)
     expect(repeated.status).toBe(200)

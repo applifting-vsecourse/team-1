@@ -32,6 +32,8 @@ export type NotificationKind =
 export type NotificationParams = {
   eventName: string
   participantName: string
+  /** Organizer application detail needs its event route. */
+  eventId?: string
   termStartsOn?: string
   termEndsOn?: string
   /** STATUS_CHANGED: the status of the application in the term before and after the change. */
