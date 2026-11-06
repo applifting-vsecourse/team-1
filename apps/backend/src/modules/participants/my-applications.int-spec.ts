@@ -14,7 +14,16 @@ type ApplicationDto = {
   amountDueCzk: number
   amountPaidCzk: number
   amountOwedCzk: number
-  paymentDetails: { bankAccount: string; summary: { variableSymbol: string } } | null
+  paymentDetails: {
+    bankAccount: string
+    summary: { variableSymbol: string }
+    terms: {
+      variableSymbol: string
+      owedCzk: number
+      paymentStatus: string
+      paymentDeadline: string | null
+    }[]
+  } | null
   paymentStatus: string
   organizationContact: { name: string; email: string | null; phone: string | null }
 }
@@ -86,6 +95,31 @@ describe("participant applications (integration)", () => {
     return application
   }
 
+  /** These accounts have no password; sign in as the participant through a session row instead. */
+  const sessionCookie = async (email: string): Promise<string> => {
+    const user = await prisma.user.findUniqueOrThrow({ where: { email } })
+    const token = `session-${email}`
+    await prisma.session.upsert({
+      where: { token },
+      update: {},
+      create: {
+        id: `s-${email}`,
+        token,
+        userId: user.id,
+        expiresAt: new Date(Date.now() + 3_600_000),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    })
+    const { createHmac } = await import("node:crypto")
+    const signature = encodeURIComponent(
+      createHmac("sha256", process.env.BETTER_AUTH_SECRET ?? "")
+        .update(token)
+        .digest("base64"),
+    )
+    return `better-auth.session_token=${token}.${signature}`
+  }
+
   beforeAll(async () => {
     prisma = await connectTestPrisma()
     await resetAndSeed(prisma)
@@ -136,6 +170,37 @@ describe("participant applications (integration)", () => {
       summary: { variableSymbol: camp.variableSymbol, payableCzk: 0 },
     })
   })
+
+  it("gives every confirmed term of every application its own variable symbol (US-41)", async () => {
+    await addApplication("vs-one@example.com", [])
+    await addApplication("vs-two@example.com", [])
+    const all = [
+      ...(await listOf(await signIn("ucastnik@example.com", "password4"))),
+      ...(await listOf(await sessionCookie("vs-one@example.com"))),
+      ...(await listOf(await sessionCookie("vs-two@example.com"))),
+    ]
+    const symbols = all.flatMap((a) => a.paymentDetails?.terms.map((t) => t.variableSymbol) ?? [])
+
+    expect(symbols.length).toBeGreaterThan(2)
+    expect(new Set(symbols).size).toBe(symbols.length)
+  })
+
+  it.each([
+    ["paid", "dl-paid@example.com", [4500], "PAID", 0],
+    ["overpaid", "dl-over@example.com", [5000], "OVERPAID", -500],
+  ])(
+    "shows the due date of the unpaid term and none for the %s one (US-41)",
+    async (_name, email, payments, firstStatus, firstOwed) => {
+      await addApplication(email, payments)
+      const [application] = await listOf(await sessionCookie(email))
+
+      const [first, second] = application.paymentDetails!.terms
+      expect(first).toMatchObject({ paymentStatus: firstStatus, owedCzk: firstOwed })
+      expect(first.paymentDeadline).toBeNull()
+      expect(second).toMatchObject({ paymentStatus: "UNPAID", owedCzk: 4900 })
+      expect(Number.isNaN(Date.parse(second.paymentDeadline!))).toBe(false)
+    },
+  )
 
   it("shows what is left to pay of a partly paid application", async () => {
     const applications = await listOf(await signIn("ucastnik@example.com", "password4"))

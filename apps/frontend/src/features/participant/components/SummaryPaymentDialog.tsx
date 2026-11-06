@@ -1,6 +1,5 @@
-import { useEffect, useState, type ReactNode } from "react"
+import type { ReactNode } from "react"
 import { X } from "lucide-react"
-import QRCode from "qrcode"
 import { useTranslation } from "react-i18next"
 
 import { CopyButton } from "@/components/atoms/CopyButton"
@@ -10,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { formatDateRange } from "@/lib/date"
 
 import type { MyApplication } from "@/features/participant/api/applications"
+import { usePaymentQr } from "@/features/participant/hooks/usePaymentQr"
 import { summaryPaymentSpayd } from "@/features/participant/lib/payment-qr"
 
 type Props = { application: MyApplication; onClose: () => void }
@@ -26,24 +26,13 @@ export function SummaryPaymentDialog({ application, onClose }: Props) {
       ...payment,
       term: application.terms.find(({ termId }) => termId === payment.termId),
     }))
-  const spayd = summaryPaymentSpayd(details.bankAccount, amountCzk, details.summary.variableSymbol)
-  const [qr, setQr] = useState<{ payload: string; image: string } | null>(null)
-  const qrImage = qr?.payload === spayd ? qr.image : null
-
-  useEffect(() => {
-    if (!spayd) return
-    let isCurrent = true
-    void QRCode.toDataURL(spayd, { width: 200, margin: 2 })
-      .then((image) => {
-        if (isCurrent) setQr({ payload: spayd, image })
-      })
-      .catch(() => {
-        if (isCurrent) setQr(null)
-      })
-    return () => {
-      isCurrent = false
-    }
-  }, [spayd])
+  const spayd = summaryPaymentSpayd(
+    details.bankAccount,
+    amountCzk,
+    details.summary.variableSymbol,
+    application.eventName,
+  )
+  const qrImage = usePaymentQr(spayd)
 
   const saveQr = () => {
     if (!qrImage) return

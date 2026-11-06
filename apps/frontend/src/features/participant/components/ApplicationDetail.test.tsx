@@ -68,6 +68,7 @@ const application = (overrides: Partial<MyApplication> = {}): MyApplication => (
         paidCzk: 2000,
         owedCzk: 2500,
         paymentStatus: "PARTIALLY_PAID" as const,
+        paymentDeadline: "2026-11-15T00:00:00.000Z",
       },
     ],
   },
@@ -87,6 +88,7 @@ const termPayment = (
   paidCzk,
   owedCzk: dueCzk - paidCzk,
   paymentStatus,
+  paymentDeadline: dueCzk > paidCzk ? "2026-11-15T00:00:00.000Z" : null,
 })
 const secondConfirmed = { ...waitlisted, status: "CONFIRMED" as const }
 const withTerms = (
@@ -555,6 +557,7 @@ describe("ApplicationDetail", () => {
               paidCzk: 4000,
               owedCzk: 500,
               paymentStatus: "PARTIALLY_PAID",
+              paymentDeadline: "2026-11-15T00:00:00.000Z",
             },
             {
               termId: "t2",
@@ -564,6 +567,7 @@ describe("ApplicationDetail", () => {
               paidCzk: 4200,
               owedCzk: 700,
               paymentStatus: "PARTIALLY_PAID",
+              paymentDeadline: "2026-11-15T00:00:00.000Z",
             },
           ],
         },
@@ -593,11 +597,54 @@ describe("ApplicationDetail", () => {
       ),
     ).toBeInTheDocument()
     expect(toDataURL).toHaveBeenCalledWith(
-      expect.stringMatching(/^SPD\*1\.0\*ACC:CZ\d{22}\*AM:1200\.00\*CC:CZK\*X-VS:48000$/),
+      expect.stringMatching(
+        /^SPD\*1\.0\*ACC:CZ\d{22}\*AM:1200\.00\*CC:CZK\*X-VS:48000\*MSG:Letni kemp 2027$/,
+      ),
       { width: 200, margin: 2 },
     )
     expect(
       await within(dialog).findByRole("img", { name: "QR code for the combined payment" }),
     ).toHaveAttribute("src", "data:image/png;base64,AAAA")
+  })
+
+  describe("payment details of a term (US-41)", () => {
+    const paidTerm = { ...termPayment(1, 4500, 4500, "PAID"), paymentDeadline: null }
+
+    it("shows the due date and a QR with the debt, the term's symbol and the event name", async () => {
+      renderDetail(withTerms([termPayment(1, 4500, 2000, "PARTIALLY_PAID"), paidTerm]))
+
+      const card = (await screen.findByText("Due date")).closest<HTMLElement>("[data-slot='card']")!
+      expect(within(card).getByText(/15 Nov 2026|Nov 15, 2026|15\/11\/2026/)).toBeInTheDocument()
+      expect(
+        await within(card).findByRole("img", { name: "QR code for the term payment" }),
+      ).toHaveAttribute("src", "data:image/png;base64,AAAA")
+      expect(toDataURL).toHaveBeenCalledWith(
+        expect.stringMatching(
+          /^SPD\*1\.0\*ACC:CZ\d{22}\*AM:2500\.00\*CC:CZK\*X-VS:48001\*MSG:Letni kemp 2027$/,
+        ),
+        { width: 200, margin: 2 },
+      )
+    })
+
+    it("draws no QR for a paid term", async () => {
+      renderDetail(withTerms([paidTerm], [confirmed]))
+
+      await screen.findByText(/4–10 Jul/)
+      expect(screen.queryByRole("img", { name: "QR code for the term payment" })).toBeNull()
+      expect(toDataURL).not.toHaveBeenCalled()
+    })
+
+    it("draws no QR for an overpaid term", async () => {
+      renderDetail(
+        withTerms(
+          [{ ...termPayment(1, 4500, 5000, "OVERPAID"), paymentDeadline: null }],
+          [confirmed],
+        ),
+      )
+
+      await screen.findByText(/4–10 Jul/)
+      expect(screen.queryByRole("img", { name: "QR code for the term payment" })).toBeNull()
+      expect(screen.queryByText("Due date")).toBeNull()
+    })
   })
 })

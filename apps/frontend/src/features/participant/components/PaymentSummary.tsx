@@ -9,6 +9,7 @@ import { termDatesLine } from "@/lib/term-label"
 
 import type { MyApplication } from "@/features/participant/api/applications"
 import { SummaryPaymentDialog } from "@/features/participant/components/SummaryPaymentDialog"
+import { TermPaymentQr } from "@/features/participant/components/TermPaymentQr"
 import { summaryPaymentSpayd } from "@/features/participant/lib/payment-qr"
 
 type PaymentSummaryProps = {
@@ -21,6 +22,7 @@ type PaymentSummaryProps = {
  * ones, which only say nothing is paid yet, last. Terms still to be evaluated or cancelled are
  * not shown here, and nothing is when no term is confirmed or waitlisted.
  */
+// Figma (Design system): #311 Moje přihláška · Přeplatek a dluh · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19799-15947 (360 px: node-id=19799-16073)
 // Figma (Design system): Detail přihlášky · Platby · Dluh 500 + 700 Kč · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15845-628 (360 px: node-id=15845-736)
 // Figma (Design system): Detail přihlášky · Platby · První termín zaplacený · druhý nově potvrzený · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15845-463 (360 px: node-id=15845-563)
 // Figma (Design system): Detail přihlášky · Platby · Více nově potvrzených · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19446-21743 (360 px: node-id=19446-21892)
@@ -48,6 +50,7 @@ export function PaymentSummary({ application }: PaymentSummaryProps) {
   // The total and the hint only matter when more than one term is to be paid.
   const termsWithDebt = confirmed.filter(({ payment }) => payment.owedCzk > 0).length
   const payableCzk = paymentDetails?.summary.payableCzk ?? 0
+  const hasOverpayment = confirmed.some(({ payment }) => payment.owedCzk < 0)
   const canShowSummaryQr =
     paymentDetails !== null &&
     confirmed.length > 1 &&
@@ -55,6 +58,7 @@ export function PaymentSummary({ application }: PaymentSummaryProps) {
       paymentDetails.bankAccount,
       payableCzk,
       paymentDetails.summary.variableSymbol,
+      application.eventName,
     ) !== null
 
   return (
@@ -66,6 +70,15 @@ export function PaymentSummary({ application }: PaymentSummaryProps) {
             amountCzk={payableCzk}
             className="text-2xl font-semibold"
           />
+          <p className="text-sm">
+            {t("payment.account")} · {paymentDetails?.bankAccount}
+          </p>
+          <p className="text-sm">
+            {t("payment.summaryVariableSymbol")} · {paymentDetails?.summary.variableSymbol}
+          </p>
+          {hasOverpayment ? (
+            <p className="text-sm">{t("payment.overpaymentNotTransferred")}</p>
+          ) : null}
           {canShowSummaryQr ? (
             <Button
               type="button"
@@ -90,6 +103,20 @@ export function PaymentSummary({ application }: PaymentSummaryProps) {
             owedCzk={payment.owedCzk}
             bankAccount={paymentDetails?.bankAccount ?? ""}
             variableSymbol={payment.variableSymbol}
+            paymentDeadline={payment.paymentDeadline}
+            note={
+              payment.owedCzk < 0 ? (
+                <p className="text-sm">{t("payment.overpaymentRefund")}</p>
+              ) : null
+            }
+            qr={
+              <TermPaymentQr
+                bankAccount={paymentDetails?.bankAccount ?? ""}
+                owedCzk={payment.owedCzk}
+                variableSymbol={payment.variableSymbol}
+                eventName={application.eventName}
+              />
+            }
           />
         ))}
         {waitlisted.map((term) => (

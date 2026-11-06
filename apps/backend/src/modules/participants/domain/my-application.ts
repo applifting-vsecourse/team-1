@@ -23,6 +23,8 @@ export type MyApplicationRecord = {
   eventName: string
   /** Account number of the organization that runs the event. */
   bankAccount: string
+  /** Event's payment period in days (D-099). */
+  paymentPeriodDays: number
   organizationName: string
   /** Public contact of the event (US-122); optional unless the event is in the catalog. */
   contactEmail: string | null
@@ -39,6 +41,10 @@ export type MyApplicationRecord = {
     priceCzk: number
     /** Non-cancelled payment rows of this application in this term. */
     payments: { amountCzk: number }[]
+    /** Latest confirmation; the payment deadline counts from it. */
+    confirmedAt: Date | null
+    /** Restart of the payment period after a correction (US-112). */
+    paymentPeriodStartedAt: Date | null
   }[]
 }
 
@@ -109,7 +115,12 @@ export function buildMyApplication(record: MyApplicationRecord): MyApplication {
   const amountDueCzk = computeApplicationDue(record.terms)
   const amountPaidCzk = computeApplicationPaid(record.terms)
   const variableSymbol = toVariableSymbol(record.number)
-  const details = buildPaymentDetails(record.number, record.bankAccount, record.terms)
+  const details = buildPaymentDetails(
+    record.number,
+    record.bankAccount,
+    record.terms,
+    record.paymentPeriodDays,
+  )
 
   return {
     id: record.id,

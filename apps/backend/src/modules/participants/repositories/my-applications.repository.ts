@@ -4,12 +4,20 @@ import { MyApplicationRecord } from "@/modules/participants/domain/my-applicatio
 import { Injectable } from "@nestjs/common"
 
 const include = {
-  event: { select: { name: true, contactEmail: true, contactPhone: true } },
+  event: {
+    select: { name: true, contactEmail: true, contactPhone: true, paymentPeriodDays: true },
+  },
   organization: { select: { name: true, bankAccount: true } },
   terms: {
     include: {
       term: true,
       payments: { where: { cancelledAt: null }, select: { amountCzk: true } },
+      statusChanges: {
+        where: { toStatus: "CONFIRMED" },
+        orderBy: { createdAt: "desc" },
+        take: 1,
+        select: { createdAt: true },
+      },
     },
   },
 } as const
@@ -51,18 +59,32 @@ function toRecord(row: Row): MyApplicationRecord {
     lastName: row.lastName,
     eventName: row.event.name,
     bankAccount: row.organization.bankAccount,
+    paymentPeriodDays: row.event.paymentPeriodDays,
     organizationName: row.organization.name,
     contactEmail: row.event.contactEmail,
     contactPhone: row.event.contactPhone,
-    terms: row.terms.map(({ term, status, priceCzk, payments }) => ({
-      termId: term.id,
-      termNumber: term.number,
-      name: term.name,
-      startsOn: term.startsOn,
-      endsOn: term.endsOn,
-      status,
-      priceCzk,
-      payments,
-    })),
+    terms: row.terms.map(
+      ({
+        term,
+        status,
+        priceCzk,
+        payments,
+        statusChanges,
+        evaluatedAt,
+        paymentPeriodStartedAt,
+      }) => ({
+        termId: term.id,
+        termNumber: term.number,
+        name: term.name,
+        startsOn: term.startsOn,
+        endsOn: term.endsOn,
+        status,
+        priceCzk,
+        payments,
+        // A term confirmed without a recorded change (older data) counts from its evaluation.
+        confirmedAt: statusChanges[0]?.createdAt ?? evaluatedAt,
+        paymentPeriodStartedAt,
+      }),
+    ),
   }
 }

@@ -25,6 +25,8 @@ const termPaymentSchema = z.object({
   /** Due − paid; negative is an overpayment of this term. */
   owedCzk: z.number().int(),
   paymentStatus: z.enum(["NOTHING_DUE", "UNPAID", "PARTIALLY_PAID", "PAID", "OVERPAID"]),
+  /** When the debt falls due (ISO datetime); `null` when nothing is owed. */
+  paymentDeadline: z.string().nullable(),
 })
 export type TermPayment = z.infer<typeof termPaymentSchema>
 

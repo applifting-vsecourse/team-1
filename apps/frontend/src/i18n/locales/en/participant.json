@@ -101,6 +101,8 @@
     "amount": "Amount",
     "closeQr": "Close payment details",
     "copyAmount": "Copy amount",
+    "overpaymentNotTransferred": "An overpayment is not carried over between terms.",
+    "overpaymentRefund": "Arrange the refund of the overpayment with the organizer.",
     "payEachTerm": "You pay each term separately. Use its variable symbol, otherwise we cannot match the payment.",
     "qrAlt": "QR code for the combined payment",
     "saveQr": "Save QR to your phone",

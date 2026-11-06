@@ -101,6 +101,8 @@
     "amount": "Částka",
     "closeQr": "Zavřít platební údaje",
     "copyAmount": "Kopírovat částku",
+    "overpaymentNotTransferred": "Přeplatek se mezi termíny nepřevádí.",
+    "overpaymentRefund": "Na vrácení přeplatku se domluvte s organizátorem.",
     "payEachTerm": "Každý termín platíte zvlášť. Použijte jeho variabilní symbol, jinak platbu nepřiřadíme.",
     "qrAlt": "QR kód pro souhrnnou platbu",
     "saveQr": "Uložit QR do telefonu",
