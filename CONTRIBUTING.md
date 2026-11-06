@@ -64,6 +64,7 @@ pnpm wt new feat/US-27-ulozeni-prihlasky   # ../team-1-wt/US-27-ulozeni-prihlask
 cd ../team-1-wt/US-27-ulozeni-prihlasky
 pnpm dev                                   # migrace, seed a dev servery na portech slotu
 claude                                     # agent pracuje jen v tomhle worktree
+pnpm wt setup                              # uvnitř worktree založeného jiným nástrojem (t3, Codex): slot, .env, databáze, install
 pnpm wt list                               # přehled slotů, větví, portů a stavu PR
 pnpm wt rm US-27-ulozeni-prihlasky         # smaže worktree i jeho databázi (větev zůstane)
 pnpm wt prune                              # ukáže čisté worktrees s mergnutým PR; `--yes` je smaže i s větví a databází
@@ -74,7 +75,7 @@ Každý worktree dostane **slot N** (1–9): frontend `3050+10N`, backend `4050+
 Pravidla:
 
 - **Jeden agent = jeden worktree = jedna větev = jedna story.** Agenti nesahají do cizích worktree.
-- **Worktree zakládej jen přes `pnpm wt new`** a pak ve VS Code, Claude Code, Codexu nebo t3 otevři tu hotovou složku. Worktrees, které si nástroj založí sám (např. `~/.t3/worktrees/`), nemají vlastní slot a `.env` a srazí se s hlavním checkoutem na portech i databázi. `pnpm wt list` je označí `(outside wt dir)`.
+- **Worktree zakládej jen přes `pnpm wt new`** a pak ve VS Code, Claude Code, Codexu nebo t3 otevři tu hotovou složku. Worktrees, které si nástroj založí sám (např. `~/.t3/worktrees/`), nemají vlastní slot a `.env` a srazí se s hlavním checkoutem na portech i databázi. Takový worktree dokonči příkazem `pnpm wt setup` uvnitř něj (bezpečné spustit opakovaně). `pnpm wt list` je označí `(outside wt dir)`.
 - Nepoužívej vestavěné worktrees Claude Code (`claude --worktree`) — nemají `.env` a srazí se na portech.
 - Sdílené soubory měň jen v rozsahu své story a v PR na to upozorni ([PROJEKT.md, sekce 11](docs/PROJEKT.md#11-pracovní-postup)). Dva paralelní PR, které mění tentýž sdílený soubor, jsou nejčastější zdroj konfliktů.
 - Migrace: pořád max. jedna na PR a rebase před merge (viz níže). Každý slot má vlastní DB, takže migrace z jedné větve nerozbije jinou.

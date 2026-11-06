@@ -3,6 +3,7 @@
 // database, so several branches (and agents) can run the app at once.
 //
 //   pnpm wt new <branch> [--from <ref>]   create ../<repo>-wt/<name> on a new or existing branch
+//   pnpm wt setup                         run inside a worktree made by another tool (t3, Codex): slot, .env, database, install
 //   pnpm wt list                          worktrees with their slots, URLs and PR state
 //   pnpm wt rm <name>                     remove the worktree and drop its databases
 //   pnpm wt prune [--yes]                 remove clean worktrees whose PR is merged (dry run without --yes)
@@ -156,8 +157,7 @@ function cmdNew(args) {
   const fromIdx = args.indexOf("--from")
   const from = fromIdx >= 0 ? args[fromIdx + 1] : "origin/main"
 
-  const used = new Set(worktrees().map((w) => w.slot))
-  const slot = Array.from({ length: MAX_SLOT }, (_, i) => i + 1).find((s) => !used.has(s))
+  const slot = freeSlot()
   if (!slot) fail(`All ${MAX_SLOT} slots are taken; remove a worktree first.`)
 
   const name = branch.replace(/^[a-z]+\//, "").replace(/[^\w.-]+/g, "-")
@@ -186,10 +186,25 @@ function cmdNew(args) {
     })
   }
 
+  prepare(dir, slot)
+  console.log(`
+✔  Worktree ready (slot ${slot})
+   ${dir}
+   branch    ${branch}
+   frontend  http://localhost:${ports(slot).frontend}
+   backend   http://localhost:${ports(slot).backend}/api
+   database  ${ports(slot).db}
+
+   cd ${dir} && pnpm dev     # migrate, seed and start this slot
+   cd ${dir} && claude       # an agent working only here
+`)
+}
+
+// Everything a fresh worktree needs besides the checkout itself.
+function prepare(dir, slot) {
   writeEnv(dir, slot)
   copyLocalFiles(dir)
-  const p = ports(slot)
-  psql(`CREATE DATABASE ${p.db}`)
+  psql(`CREATE DATABASE ${ports(slot).db}`)
 
   console.log("Installing dependencies…")
   sh("pnpm", ["install", "--frozen-lockfile", "--prefer-offline"], {
@@ -199,18 +214,31 @@ function cmdNew(args) {
   // The Prisma client is generated into src/ (gitignored); without it every
   // backend test fails to compile in a fresh worktree.
   sh("pnpm", ["backend", "prisma:generate"], { cwd: dir, stdio: "inherit" })
+}
 
-  console.log(`
-✔  Worktree ready (slot ${slot})
-   ${dir}
-   branch    ${branch}
-   frontend  http://localhost:${p.frontend}
-   backend   http://localhost:${p.backend}/api
-   database  ${p.db}
+function freeSlot(ignoreDir) {
+  const used = new Set(
+    worktrees()
+      .filter((w) => w.dir !== ignoreDir)
+      .map((w) => w.slot),
+  )
+  return Array.from({ length: MAX_SLOT }, (_, i) => i + 1).find((s) => !used.has(s))
+}
 
-   cd ${dir} && pnpm dev     # migrate, seed and start this slot
-   cd ${dir} && claude       # an agent working only here
-`)
+// For a worktree another tool created: give it its own slot, .env and database.
+// Safe to run again; a worktree that already has a unique slot keeps it.
+function cmdSetup() {
+  const dir = sh("git", ["rev-parse", "--show-toplevel"])
+  if (dir === mainRoot) fail("This is the main checkout (slot 0); run setup inside a worktree.")
+  const current = readSlot(dir)
+  const taken = worktrees().some((w) => w.dir !== dir && w.slot === current)
+  const slot = current >= 1 && !taken ? current : freeSlot(dir)
+  if (!slot) fail(`All ${MAX_SLOT} slots are taken; remove a worktree first.`)
+  prepare(dir, slot)
+  const p = ports(slot)
+  console.log(
+    `✔  ${dir} is slot ${slot}: frontend :${p.frontend}, backend :${p.backend}, database ${p.db}`,
+  )
 }
 
 function cmdList() {
@@ -286,5 +314,12 @@ function fail(msg) {
 }
 
 const [cmd, ...rest] = process.argv.slice(2)
-const commands = { new: cmdNew, list: cmdList, ls: cmdList, rm: cmdRm, prune: cmdPrune }
-;(commands[cmd] ?? (() => fail("Usage: pnpm wt <new|list|rm|prune> …")))(rest)
+const commands = {
+  new: cmdNew,
+  list: cmdList,
+  ls: cmdList,
+  rm: cmdRm,
+  prune: cmdPrune,
+  setup: cmdSetup,
+}
+;(commands[cmd] ?? (() => fail("Usage: pnpm wt <new|setup|list|rm|prune> …")))(rest)
