@@ -1,7 +1,10 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { Prisma } from "@/generated/prisma/client"
+import { findDuplicate } from "@/modules/applications/domain/duplicate-application"
+import { termLabel } from "@/modules/applications/domain/term-label"
 import { NotificationsRepository } from "@/modules/notifications/repositories/notifications.repository"
-import { Injectable } from "@nestjs/common"
+import { AppException } from "@/shared/errors/app.exception"
+import { HttpStatus, Injectable } from "@nestjs/common"
 
 export type EditableApplication = {
   id: string
@@ -62,6 +65,13 @@ export class ApplicationEditRepository {
     input: EditInput,
   ): Promise<EditableApplication | null> {
     return this.prisma.$transaction(async (tx) => {
+      const target = await tx.application.findFirst({
+        where: { id, userId },
+        select: { eventId: true },
+      })
+      if (!target) return null
+      // Submission and term changes use the event lock for the duplicate check too.
+      await tx.$queryRaw`SELECT id FROM event WHERE id = ${target.eventId} FOR UPDATE`
       await tx.$queryRaw`SELECT id FROM "application" WHERE id = ${id} FOR UPDATE`
       const row = await tx.application.findFirst({ where: { id, userId }, include })
       if (!row) return null
@@ -77,6 +87,58 @@ export class ApplicationEditRepository {
         (field) => before[field] !== input[field],
       )
       if (changedFields.length === 0) return toDto(row)
+
+      if (changedFields.some((field) => ["firstName", "lastName", "birthDate"].includes(field))) {
+        const activeTerms = await tx.applicationTerm.findMany({
+          where: { applicationId: id, status: { not: "CANCELLED" } },
+          select: { termId: true },
+        })
+        const termIds = activeTerms.map(({ termId }) => termId)
+        if (termIds.length > 0) {
+          const registered = await tx.applicationTerm.findMany({
+            where: {
+              organizationId: row.organizationId,
+              termId: { in: termIds },
+              status: { not: "CANCELLED" },
+              applicationId: { not: id },
+              application: {
+                eventId: row.eventId,
+                birthDate: new Date(`${input.birthDate}T00:00:00.000Z`),
+              },
+            },
+            select: {
+              termId: true,
+              application: { select: { firstName: true, lastName: true, birthDate: true } },
+            },
+          })
+          const duplicate = findDuplicate(
+            registered.map(({ termId, application }) => ({
+              termId,
+              firstName: application.firstName,
+              lastName: application.lastName,
+              birthDate: application.birthDate.toISOString().slice(0, 10),
+            })),
+            [
+              {
+                firstName: input.firstName,
+                lastName: input.lastName,
+                birthDate: input.birthDate,
+                termIds,
+              },
+            ],
+          )
+          if (duplicate) {
+            const term = await tx.term.findUniqueOrThrow({
+              where: { id: duplicate.termId },
+              select: { name: true, startsOn: true, endsOn: true },
+            })
+            throw new AppException(HttpStatus.CONFLICT, "APPLICATION_DUPLICATE", undefined, {
+              participant: `${input.firstName} ${input.lastName}`,
+              term: termLabel(term, row.locale),
+            })
+          }
+        }
+      }
 
       await tx.application.update({
         where: { id },

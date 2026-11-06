@@ -5,7 +5,7 @@ import {
   createRouter,
   RouterProvider,
 } from "@tanstack/react-router"
-import { render, screen } from "@testing-library/react"
+import { act, render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
@@ -27,11 +27,10 @@ const initial = {
 
 const renderPage = () => {
   get.mockReturnValue({ json: () => Promise.resolve(initial) })
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   const root = createRootRoute({
     component: () => (
-      <QueryClientProvider
-        client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
-      >
+      <QueryClientProvider client={client}>
         <EditApplicationPage applicationId="a1" />
       </QueryClientProvider>
     ),
@@ -41,6 +40,7 @@ const renderPage = () => {
     history: createMemoryHistory({ initialEntries: ["/"] }),
   })
   render(<RouterProvider router={router} />)
+  return client
 }
 
 describe("EditApplicationPage", () => {
@@ -126,5 +126,22 @@ describe("EditApplicationPage", () => {
 
     expect(screen.getByRole("textbox", { name: "First name *" })).toBe(firstName)
     expect(firstName).toHaveValue("Janax")
+  })
+
+  it("keeps unsaved values when refreshing application data fails", async () => {
+    const user = userEvent.setup()
+    const client = renderPage()
+    const phone = await screen.findByRole("textbox", { name: "Phone *" })
+    await user.type(phone, "+420 777 123 456")
+
+    get.mockReturnValue({ json: () => Promise.reject(new Error("offline")) })
+    await act(async () => {
+      await client.refetchQueries({ queryKey: ["participant", "applications", "a1", "edit"] })
+    })
+
+    expect(screen.getByRole("textbox", { name: "Phone *" })).toBe(phone)
+    expect(phone).toHaveValue("+420 777 123 456")
+    expect(screen.getByRole("button", { name: "Save changes" })).toBeEnabled()
+    expect(await screen.findByRole("button", { name: "Try again" })).toBeVisible()
   })
 })

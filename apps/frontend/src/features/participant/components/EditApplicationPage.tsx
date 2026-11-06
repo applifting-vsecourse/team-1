@@ -27,26 +27,28 @@ export function EditApplicationPage({ applicationId }: { applicationId: string }
   const { t } = useTranslation("participant")
   const query = useQuery(applicationEditQueryOptions(applicationId))
   if (query.isPending) return <LoadingState />
-  if (query.error) {
-    return (
-      <Alert variant="destructive">
-        <AlertTitle>{t("edit.loadError")}</AlertTitle>
-        <AlertDescription>
-          <Button
-            variant="outline"
-            onClick={() => void query.refetch()}
-          >
-            {t("edit.retry")}
-          </Button>
-        </AlertDescription>
-      </Alert>
-    )
-  }
+  const loadError = query.error ? (
+    <Alert variant="destructive">
+      <AlertTitle>{t("edit.loadError")}</AlertTitle>
+      <AlertDescription>
+        <Button
+          variant="outline"
+          onClick={() => void query.refetch()}
+        >
+          {t("edit.retry")}
+        </Button>
+      </AlertDescription>
+    </Alert>
+  ) : null
+  if (!query.data) return loadError ?? <LoadingState />
   return (
-    <EditForm
-      applicationId={applicationId}
-      initial={query.data}
-    />
+    <>
+      {loadError}
+      <EditForm
+        applicationId={applicationId}
+        initial={query.data}
+      />
+    </>
   )
 }
 

@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto"
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { api, connectTestPrisma, resetAndSeed, signIn } from "@/test/integration/test-api"
 
@@ -156,5 +157,55 @@ describe("participant application edit (integration)", () => {
         where: { applicationId: ownId, kind: "APPLICATION_EDITED" },
       }),
     ).toBe(members.length)
+  })
+
+  it("rejects a duplicate identity on an active term but ignores a cancelled one", async () => {
+    const own = await prisma.application.findUniqueOrThrow({
+      where: { id: ownId },
+      include: { terms: true },
+    })
+    const activeTerm = own.terms.find((term) => term.status !== "CANCELLED")!
+    const other = await prisma.application.create({
+      data: {
+        organizationId: own.organizationId,
+        eventId: own.eventId,
+        accessToken: randomUUID(),
+        firstName: "Květoslav",
+        lastName: "Zkouška",
+        birthDate: new Date("1999-06-20T00:00:00.000Z"),
+        gender: own.gender,
+        email: "duplicate-edit@example.com",
+        consentAt: new Date(),
+        terms: {
+          create: {
+            organizationId: own.organizationId,
+            termId: activeTerm.termId,
+            status: "WAITLISTED",
+            priceCzk: activeTerm.priceCzk,
+          },
+        },
+      },
+      include: { terms: true },
+    })
+    const duplicateInput = {
+      ...input,
+      firstName: "kvetoslav",
+      lastName: "Zkouska",
+      birthDate: "1999-06-20",
+    }
+    const before = await prisma.applicationEdit.count({ where: { applicationId: ownId } })
+    const rejected = await call("PUT", ownId, participantCookie, duplicateInput)
+    expect(rejected.status).toBe(409)
+    expect(await prisma.applicationEdit.count({ where: { applicationId: ownId } })).toBe(before)
+    expect((await prisma.application.findUniqueOrThrow({ where: { id: ownId } })).firstName).toBe(
+      own.firstName,
+    )
+
+    await prisma.applicationTerm.update({
+      where: { id: other.terms[0].id },
+      data: { status: "CANCELLED" },
+    })
+    const allowed = await call("PUT", ownId, participantCookie, duplicateInput)
+    expect(allowed.status).toBe(200)
   })
 })
