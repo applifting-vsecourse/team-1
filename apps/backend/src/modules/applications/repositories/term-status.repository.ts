@@ -660,12 +660,17 @@ export class TermStatusRepository {
           firstName: application.firstName,
           lastName: application.lastName,
           accessToken: application.accessToken,
-          terms: terms.map((row) => ({
-            name: termLabel(row.term, locale),
-            termNumber: row.term.number,
-            status: row.status,
-            priceCzk: row.priceCzk,
-          })),
+          // D-104: a withdrawal tells only about the terms the participant was withdrawn from.
+          terms: terms
+            .filter(
+              (row) => !organizer?.withdrawnIds || organizer.withdrawnIds.includes(row.termId),
+            )
+            .map((row) => ({
+              name: termLabel(row.term, locale),
+              termNumber: row.term.number,
+              status: row.status,
+              priceCzk: row.priceCzk,
+            })),
         },
       }
     })
