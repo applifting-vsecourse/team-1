@@ -27,6 +27,7 @@
     "applications": "Applications",
     "capacity": "Capacity",
     "overview": "Overview",
+    "payments": "Payments",
     "position": "{{current}} of {{total}}",
     "rooms": "Accommodation",
     "settings": "Settings",

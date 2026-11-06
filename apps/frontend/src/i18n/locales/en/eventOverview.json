@@ -303,6 +303,40 @@
     "typeRefund": "Refund",
     "wholeApplication": "Whole application (summary)"
   },
+  "paymentsOverview": {
+    "clearFilters": "Clear filters",
+    "debt": "Debt",
+    "debtors_few": "{{count}} participants with debt",
+    "debtors_one": "{{count}} participant with debt",
+    "debtors_other": "{{count}} participants with debt",
+    "detail": "Payment details",
+    "dueDate": "Due",
+    "empty": "No applications match the filters",
+    "error": "Payments could not be loaded",
+    "lastReminder": "Last reminder",
+    "noApplications": "No confirmed applications yet",
+    "overdueCount_few": "{{count}} past due",
+    "overdueCount_one": "{{count}} past due",
+    "overdueCount_other": "{{count}} past due",
+    "overpayment": "Overpayment",
+    "reminderCount": "Reminders sent",
+    "reminderFilter": "Payment reminders",
+    "reminders": {
+      "ALL": "All",
+      "NOT_SENT": "Not sent",
+      "SENT": "Sent, still unpaid"
+    },
+    "statusFilter": "Payment status",
+    "statuses": {
+      "ALL": "All",
+      "OVERDUE": "Past due",
+      "PAID": "Paid",
+      "PARTIALLY_PAID": "Partly paid",
+      "UNPAID": "Unpaid"
+    },
+    "title": "Payments",
+    "totalDebt": "Total debt"
+  },
   "queue": {
     "empty": "All applications are evaluated.",
     "emptyHint": "New applications in manual mode will appear in this queue.",

@@ -75,12 +75,13 @@ describe("EventHeader sections", () => {
     expect(items.map((item) => item.textContent)).toEqual([
       "Overview",
       "Applications",
+      "Payments",
       "Capacity",
       "Accommodation",
       "Terms",
       "Settings",
     ])
     expect(items[0]).toHaveAttribute("aria-current", "page")
-    expect(items[2]).toHaveAttribute("href", "/organizer/events/e1/capacity")
+    expect(items[3]).toHaveAttribute("href", "/organizer/events/e1/capacity")
   })
 })
