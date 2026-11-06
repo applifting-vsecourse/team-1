@@ -249,6 +249,17 @@ describe("ApplicationDetail", () => {
     expect(screen.queryByText(/Amount due CZK 4,900/)).not.toBeInTheDocument()
   })
 
+  it("does not invent zero debt when a repeated change adds no term", async () => {
+    const user = userEvent.setup()
+    put.mockReturnValue({ json: () => Promise.resolve({ addedTerms: [] }) })
+    renderDetail(application())
+
+    await user.click(await screen.findByRole("button", { name: "Change terms" }))
+    await user.click(screen.getByRole("button", { name: "Confirm change" }))
+    expect(await screen.findByRole("heading", { name: "Term changed" })).toBeInTheDocument()
+    expect(screen.queryByText(/New term .*Amount due/)).not.toBeInTheDocument()
+  })
+
   it("submits an approval request after cancellation starts", async () => {
     const user = userEvent.setup()
     post.mockReturnValue({
@@ -271,6 +282,9 @@ describe("ApplicationDetail", () => {
     renderDetail(application(), false)
     await user.click(await screen.findByRole("button", { name: "Change terms" }))
     expect(screen.getByText(/original terms and assigned bed remain/)).toBeInTheDocument()
+    expect(
+      screen.getByText(/New term 2. týden · Price CZK 4,900 · Amount due CZK 4,900/),
+    ).toBeInTheDocument()
     await user.click(screen.getByRole("button", { name: "Send request" }))
     expect(post).toHaveBeenCalledWith("participant/applications/a1/change-requests", {
       json: { termIds: ["t2"] },

@@ -153,19 +153,14 @@ export function ParticipantTermChange({
     onSuccess: async ({ request, change }, snapshot) => {
       await client.invalidateQueries({ queryKey: ["participant", "applications"] })
       await client.invalidateQueries({ queryKey: ["participant", "change-request-notifications"] })
+      const addedTarget = change?.addedTerms.find((term) => term.termId === snapshot.target?.id)
       setResult({
         kind: request ? "requested" : mode === "cancel" ? "cancelled" : "changed",
         mode,
         details: [
           ...snapshot.details,
-          ...(snapshot.target && change
-            ? [
-                newTermLine(
-                  snapshot.target,
-                  change.addedTerms.find((term) => term.termId === snapshot.target?.id)?.owedCzk ??
-                    0,
-                ),
-              ]
+          ...(snapshot.target && addedTarget
+            ? [newTermLine(snapshot.target, addedTarget.owedCzk)]
             : []),
         ],
         targetLabel: snapshot.target && termLine(snapshot.target),

@@ -138,24 +138,32 @@ export class TermStatusRepository {
       application.terms.filter((row) => row.status === "CANCELLED").map((row) => row.termId),
     )
     const paymentsByTerm = new Map(application.terms.map((row) => [row.termId, row.payments]))
+    const canChangeImmediately = participantChangeAllowed(
+      application.event.cancellationStartsOn,
+      new Date(),
+    )
+    const termsToEvaluate = application.event.terms.map((term) => ({
+      termId: term.id,
+      priceCzk: term.priceCzk,
+      freePlaces: computeAvailablePlaces(
+        term.rooms,
+        term.applicationTerms.map((row) => row.application.gender),
+      ),
+    }))
+    const policy = termChangeApprovalPolicy(
+      application.event.evaluationMode,
+      !canChangeImmediately,
+      application.gender,
+      termsToEvaluate,
+    )
     const evaluated = evaluateApplication(
       application.gender,
-      application.event.terms.map((term) => ({
-        termId: term.id,
-        priceCzk: term.priceCzk,
-        freePlaces: computeAvailablePlaces(
-          term.rooms,
-          term.applicationTerms.map((row) => row.application.gender),
-        ),
-      })),
-      application.event.evaluationMode,
+      termsToEvaluate,
+      policy.evaluationMode,
     )
     const owedByTerm = new Map(evaluated.map((term) => [term.termId, computeTermDue(term)]))
     return {
-      canChangeImmediately: participantChangeAllowed(
-        application.event.cancellationStartsOn,
-        new Date(),
-      ),
+      canChangeImmediately,
       terms: application.event.terms
         .filter((term) => !cancelled.has(term.id) && (active.has(term.id) || term._count.rooms > 0))
         .map((term) => ({

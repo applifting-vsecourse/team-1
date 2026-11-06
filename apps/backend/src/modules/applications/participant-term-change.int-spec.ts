@@ -202,6 +202,7 @@ describe("participant changes before cancellation starts (integration)", () => {
   it.each([
     {
       mode: "AUTOMATIC" as const,
+      approval: false,
       full: false,
       fillAfterPreview: false,
       status: "CONFIRMED",
@@ -209,6 +210,7 @@ describe("participant changes before cancellation starts (integration)", () => {
     },
     {
       mode: "MANUAL" as const,
+      approval: false,
       full: false,
       fillAfterPreview: false,
       status: "TO_EVALUATE",
@@ -216,6 +218,7 @@ describe("participant changes before cancellation starts (integration)", () => {
     },
     {
       mode: "AUTOMATIC" as const,
+      approval: false,
       full: true,
       fillAfterPreview: false,
       status: "WAITLISTED",
@@ -223,17 +226,29 @@ describe("participant changes before cancellation starts (integration)", () => {
     },
     {
       mode: "AUTOMATIC" as const,
+      approval: false,
       full: false,
       fillAfterPreview: true,
       status: "WAITLISTED",
       owed: 0,
     },
+    {
+      mode: "MANUAL" as const,
+      approval: true,
+      full: false,
+      fillAfterPreview: false,
+      status: "CONFIRMED",
+      owed: 2000,
+    },
   ])(
-    "returns domain debt for $mode, full=$full, fillAfterPreview=$fillAfterPreview",
-    async ({ mode, full, fillAfterPreview, status, owed }) => {
+    "returns domain debt for $mode, approval=$approval, full=$full, fillAfterPreview=$fillAfterPreview",
+    async ({ mode, approval, full, fillAfterPreview, status, owed }) => {
       const { organizationId } = await prisma.event.update({
         where: { id: eventId },
-        data: { evaluationMode: mode, cancellationStartsOn: null },
+        data: {
+          evaluationMode: mode,
+          cancellationStartsOn: approval ? todayInPrague(new Date()) : null,
+        },
       })
       const createdIds: string[] = []
       const createApplicant = async (termId: string): Promise<string> => {
@@ -265,14 +280,38 @@ describe("participant changes before cancellation starts (integration)", () => {
         const id = await createApplicant(firstId)
         if (full) await fillTarget()
         const preview = await (await options(id)).json()
+        expect(preview.canChangeImmediately).toBe(!approval)
         expect(preview.terms.find((term: { id: string }) => term.id === secondId)).toMatchObject({
           priceCzk: 2000,
-          owedAfterChangeCzk: mode === "AUTOMATIC" && !full ? 2000 : 0,
+          owedAfterChangeCzk: (mode === "AUTOMATIC" || approval) && !full ? 2000 : 0,
         })
         if (fillAfterPreview) await fillTarget()
-        const response = await change([secondId], id)
-        expect(response.status).toBe(200)
-        expect(await response.json()).toEqual({ addedTerms: [{ termId: secondId, owedCzk: owed }] })
+        if (approval) {
+          const response = await fetch(api(`/participant/applications/${id}/change-requests`), {
+            method: "POST",
+            headers: { Cookie: cookie, "Content-Type": "application/json" },
+            body: JSON.stringify({ termIds: [secondId] }),
+          })
+          expect(response.status).toBe(201)
+          const request = await response.json()
+          expect(
+            (
+              await fetch(
+                api(`/organizer/events/${eventId}/change-requests/${request.id}/approve`),
+                {
+                  method: "PATCH",
+                  headers: { Cookie: organizerCookie },
+                },
+              )
+            ).status,
+          ).toBe(204)
+        } else {
+          const response = await change([secondId], id)
+          expect(response.status).toBe(200)
+          expect(await response.json()).toEqual({
+            addedTerms: [{ termId: secondId, owedCzk: owed }],
+          })
+        }
         expect(
           await prisma.applicationTerm.findUniqueOrThrow({
             where: { applicationId_termId: { applicationId: id, termId: secondId } },
