@@ -1,12 +1,25 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { Prisma } from "@/generated/prisma/client"
-import { computeAvailablePlaces } from "@/modules/applications/domain/capacity"
+import {
+  computeAvailablePlaces,
+  computeTermCapacity,
+  computeTotalBeds,
+} from "@/modules/applications/domain/capacity"
 import {
   sameSelection,
   termChangeApprovalPolicy,
 } from "@/modules/applications/domain/change-request"
 import { findDuplicate } from "@/modules/applications/domain/duplicate-application"
-import { evaluateApplication } from "@/modules/applications/domain/evaluation"
+import {
+  ApplicationTermStatus,
+  evaluateApplication,
+} from "@/modules/applications/domain/evaluation"
+import {
+  AddedTermState,
+  organizerChangeStatuses,
+  previewTermChange,
+  TermChangeImpact,
+} from "@/modules/applications/domain/organizer-term-change"
 import {
   participantChangeAllowed,
   ParticipantChangeOptions,
@@ -87,12 +100,28 @@ export class TermStatusRepository {
   ) {}
 
   /** The terms the owner can choose, and the current approval boundary (US-113). */
-  async participantChangeOptions(
+  participantChangeOptions(
     userId: string,
     applicationId: string,
   ): Promise<ParticipantChangeOptions | null> {
+    return this.changeOptions({ id: applicationId, userId }, false)
+  }
+
+  /** The same options for an organizer's change (US-33); `canChangeImmediately` is not theirs to ask. */
+  organizerChangeOptions(
+    organizationId: string,
+    applicationId: string,
+  ): Promise<ParticipantChangeOptions | null> {
+    return this.changeOptions({ id: applicationId, organizationId }, true)
+  }
+
+  private async changeOptions(
+    where: Prisma.ApplicationWhereInput,
+    /** An organizer may put the application back into a term it was cancelled in (US-33). */
+    includeCancelled: boolean,
+  ): Promise<ParticipantChangeOptions | null> {
     const application = await this.prisma.application.findFirst({
-      where: { id: applicationId, userId },
+      where,
       select: {
         event: {
           select: {
@@ -126,7 +155,11 @@ export class TermStatusRepository {
         new Date(),
       ),
       terms: application.event.terms
-        .filter((term) => !cancelled.has(term.id) && (active.has(term.id) || term._count.rooms > 0))
+        .filter(
+          (term) =>
+            (includeCancelled || !cancelled.has(term.id)) &&
+            (active.has(term.id) || term._count.rooms > 0),
+        )
         .map((term) => ({
           id: term.id,
           name: term.name,
@@ -138,15 +171,125 @@ export class TermStatusRepository {
   }
 
   /** Replaces the owner's active term selection under the event lock. Cancelled rows and payments stay for audit. */
-  async changeParticipantTerms(
+  changeParticipantTerms(
     userId: string,
     applicationId: string,
     selectedIds: string[],
     approvedRequest?: { id: string; reviewerId: string },
   ): Promise<ApplicationChange | null | undefined> {
+    return this.changeTerms({
+      where: { id: applicationId, userId },
+      applicationId,
+      selectedIds,
+      approvedRequest,
+    })
+  }
+
+  /**
+   * What an organizer's change of terms would do (US-33): money per term and the free beds of the
+   * terms to be added. Read-only; the write recomputes the same under the event lock. Null: not
+   * the organization's application.
+   */
+  async previewTermChange(
+    organizationId: string,
+    applicationId: string,
+    selectedIds: string[],
+  ): Promise<TermChangeImpact | null> {
+    const application = await this.prisma.application.findFirst({
+      where: { id: applicationId, organizationId },
+      select: { gender: true, eventId: true },
+    })
+    if (!application) return null
+    const current = await this.prisma.applicationTerm.findMany({
+      where: { applicationId, organizationId },
+      include: { payments: { where: { cancelledAt: null }, select: { amountCzk: true } } },
+    })
+    const active = current.filter((row) => row.status !== "CANCELLED")
+    const activeIds = new Set(active.map((row) => row.termId))
+    const addedIds = selectedIds.filter((id) => !activeIds.has(id))
+    const offered = await this.prisma.term.findMany({
+      where: {
+        id: { in: addedIds },
+        eventId: application.eventId,
+        organizationId,
+        cancelledAt: null,
+      },
+      select: { id: true, priceCzk: true, rooms: { select: { capacity: true, gender: true } } },
+    })
+    if (offered.length !== addedIds.length || offered.some((term) => term.rooms.length === 0)) {
+      throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
+    }
+    const confirmed = await this.prisma.applicationTerm.findMany({
+      where: { organizationId, termId: { in: addedIds }, status: "CONFIRMED" },
+      select: { termId: true, application: { select: { gender: true } } },
+    })
+    const added: AddedTermState[] = offered.map((term) => {
+      const genders = confirmed
+        .filter((row) => row.termId === term.id)
+        .map((row) => row.application.gender)
+      return {
+        termId: term.id,
+        priceCzk: term.priceCzk,
+        // Payments of a cancelled row come back with it when the organizer reactivates it.
+        paidCzk: (current.find((row) => row.termId === term.id)?.payments ?? []).reduce(
+          (sum, payment) => sum + payment.amountCzk,
+          0,
+        ),
+        freePlaces: computeAvailablePlaces(term.rooms, genders),
+        genderCapacity: term.rooms.some((room) => room.gender === null)
+          ? computeTotalBeds(term.rooms)
+          : computeTermCapacity(term.rooms)[application.gender],
+      }
+    })
+    return previewTermChange({
+      gender: application.gender,
+      current: active.map((row) => ({
+        termId: row.termId,
+        status: row.status,
+        priceCzk: row.priceCzk,
+        paidCzk: row.payments.reduce((sum, payment) => sum + payment.amountCzk, 0),
+      })),
+      selectedIds,
+      added,
+    })
+  }
+
+  /**
+   * The same change made by an organizer (US-33): same lock, diff, duplicate check, log and
+   * e-mail as the participant's. It needs no approval by the cancellation start and may confirm
+   * a term over its capacity when `isOverCapacityConfirmed`. Undefined: not the organization's.
+   */
+  changeTermsByOrganizer(
+    organizationId: string,
+    applicationId: string,
+    selectedIds: string[],
+    actorId: string,
+    isOverCapacityConfirmed: boolean,
+  ): Promise<ApplicationChange | null | undefined> {
+    return this.changeTerms({
+      where: { id: applicationId, organizationId },
+      applicationId,
+      selectedIds,
+      organizer: { actorId, isOverCapacityConfirmed },
+    })
+  }
+
+  private async changeTerms({
+    where,
+    applicationId,
+    selectedIds,
+    approvedRequest,
+    organizer,
+  }: {
+    where: Prisma.ApplicationWhereInput
+    applicationId: string
+    selectedIds: string[]
+    approvedRequest?: { id: string; reviewerId: string }
+    organizer?: { actorId: string; isOverCapacityConfirmed: boolean }
+  }): Promise<ApplicationChange | null | undefined> {
     return this.prisma.$transaction(async (tx) => {
       const application = await tx.application.findFirst({
-        where: { id: applicationId, userId },
+        where,
         include: {
           event: { include: { organization: { select: { name: true, bankAccount: true } } } },
         },
@@ -157,7 +300,11 @@ export class TermStatusRepository {
         where: { id: application.eventId },
         select: { cancellationStartsOn: true, evaluationMode: true },
       })
-      if (!approvedRequest && !participantChangeAllowed(event.cancellationStartsOn, new Date())) {
+      if (
+        !approvedRequest &&
+        !organizer &&
+        !participantChangeAllowed(event.cancellationStartsOn, new Date())
+      ) {
         throw new AppException(HttpStatus.CONFLICT, "CANCELLATION_APPROVAL_REQUIRED")
       }
 
@@ -205,10 +352,11 @@ export class TermStatusRepository {
           _count: { select: { rooms: true } },
         },
       })
+      // The organizer may reactivate a term the application was cancelled in; nobody else may.
       if (
         offered.length !== addedIds.length ||
         offered.some((term) => term._count.rooms === 0) ||
-        addedIds.some((id) => current.some((row) => row.termId === id))
+        (!organizer && addedIds.some((id) => current.some((row) => row.termId === id)))
       ) {
         throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
       }
@@ -260,7 +408,7 @@ export class TermStatusRepository {
             applicationTermId: row.id,
             fromStatus: row.status,
             toStatus: "CANCELLED",
-            changedById: approvedRequest?.reviewerId ?? userId,
+            changedById: organizer?.actorId ?? approvedRequest?.reviewerId ?? application.userId,
           },
         })
       }
@@ -288,22 +436,50 @@ export class TermStatusRepository {
             confirmed.filter((row) => row.termId === term.id).map((row) => row.application.gender),
           ),
         }))
-        const policy = termChangeApprovalPolicy(
-          event.evaluationMode,
-          Boolean(approvedRequest),
-          application.gender,
-          termsToEvaluate,
-        )
-        if (!policy.hasCapacity) {
-          throw new AppException(HttpStatus.CONFLICT, "CAPACITY_EXCEEDED")
+        let evaluated: { termId: string; status: ApplicationTermStatus; priceCzk: number }[]
+        if (organizer) {
+          const decided = organizerChangeStatuses(
+            application.gender,
+            termsToEvaluate,
+            organizer.isOverCapacityConfirmed,
+          )
+          if (!decided.ok) throw new AppException(HttpStatus.CONFLICT, "CAPACITY_EXCEEDED")
+          evaluated = decided.terms
+        } else {
+          const policy = termChangeApprovalPolicy(
+            event.evaluationMode,
+            Boolean(approvedRequest),
+            application.gender,
+            termsToEvaluate,
+          )
+          if (!policy.hasCapacity) {
+            throw new AppException(HttpStatus.CONFLICT, "CAPACITY_EXCEEDED")
+          }
+          evaluated = evaluateApplication(
+            application.gender,
+            termsToEvaluate,
+            policy.evaluationMode,
+          )
         }
-        const evaluated = evaluateApplication(
-          application.gender,
-          termsToEvaluate,
-          policy.evaluationMode,
-        )
         hasNewConfirmation = evaluated.some((term) => term.status === "CONFIRMED")
         for (const term of evaluated) {
+          const cancelledRow = current.find((row) => row.termId === term.termId)
+          if (cancelledRow) {
+            await tx.applicationTerm.update({
+              where: { id: cancelledRow.id },
+              data: { status: term.status, priceCzk: term.priceCzk },
+            })
+            await tx.applicationTermStatusChange.create({
+              data: {
+                organizationId: application.organizationId,
+                applicationTermId: cancelledRow.id,
+                fromStatus: cancelledRow.status,
+                toStatus: term.status,
+                changedById: organizer?.actorId ?? application.userId,
+              },
+            })
+            continue
+          }
           await tx.applicationTerm.create({
             data: {
               organizationId: application.organizationId,
@@ -329,12 +505,16 @@ export class TermStatusRepository {
       }
 
       const [user, first, terms] = await Promise.all([
-        tx.user.findUnique({ where: { id: userId }, select: { locale: true } }),
-        tx.application.findFirst({
-          where: { userId },
-          orderBy: [{ submittedAt: "asc" }, { id: "asc" }],
-          select: { locale: true },
-        }),
+        application.userId
+          ? tx.user.findUnique({ where: { id: application.userId }, select: { locale: true } })
+          : null,
+        application.userId
+          ? tx.application.findFirst({
+              where: { userId: application.userId },
+              orderBy: [{ submittedAt: "asc" }, { id: "asc" }],
+              select: { locale: true },
+            })
+          : null,
         tx.applicationTerm.findMany({
           where: { applicationId, organizationId: application.organizationId },
           orderBy: { term: { startsOn: "asc" } },
@@ -351,11 +531,11 @@ export class TermStatusRepository {
         : null
       // US-118: only the cancellation of a term is told in the app (EMAILY.md, row 11); a change
       // of terms is not, the participant has just made it themselves.
-      if (changedTerm) {
+      if (changedTerm && !organizer && application.userId) {
         await this.notifications.create(
           tx,
           buildNotification({
-            userId,
+            userId: application.userId,
             applicationId,
             kind: "CANCELLED",
             params: {
@@ -377,7 +557,7 @@ export class TermStatusRepository {
         bankAccount: application.event.organization.bankAccount,
         gender: application.gender,
         termName: changedTerm ? termLabel(changedTerm.term, locale) : "",
-        kind: oneCancelled ? "CANCELLED" : "TERMS_CHANGED",
+        kind: oneCancelled && !organizer ? "CANCELLED" : "TERMS_CHANGED",
         isAmountChanged: hasNewConfirmation,
         application: {
           number: application.number,
