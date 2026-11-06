@@ -24,6 +24,7 @@ export const ROUTES = {
     eventSettings: "/organizer/events/$eventId/settings",
     eventCapacity: "/organizer/events/$eventId/capacity",
     eventApplications: "/organizer/events/$eventId/applications",
+    eventPayments: "/organizer/events/$eventId/payments",
     application: "/organizer/events/$eventId/applications/$applicationId",
     account: "/organizer/account",
   },

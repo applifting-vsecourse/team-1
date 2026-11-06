@@ -121,11 +121,30 @@ describe("participant changes before cancellation starts (integration)", () => {
     expect(await (await options()).json()).toMatchObject({
       canChangeImmediately: true,
       terms: [
-        { id: firstId, selected: true },
-        { id: secondId, selected: false },
+        {
+          id: firstId,
+          selected: true,
+          priceCzk: 1000,
+          paidCzk: 1000,
+          owedBeforeCancellationCzk: 0,
+          owedAfterCancellationCzk: 0,
+          overpaymentAfterCancellationCzk: 1000,
+        },
+        {
+          id: secondId,
+          selected: false,
+          priceCzk: 2000,
+          owedAfterChangeCzk: 2000,
+          paidCzk: 0,
+          owedBeforeCancellationCzk: 0,
+          owedAfterCancellationCzk: 0,
+          overpaymentAfterCancellationCzk: 0,
+        },
       ],
     })
-    expect((await change([secondId])).status).toBe(204)
+    const response = await change([secondId])
+    expect(response.status).toBe(200)
+    expect(await response.json()).toEqual({ addedTerms: [{ termId: secondId, owedCzk: 2000 }] })
     const terms = await prisma.applicationTerm.findMany({
       where: { applicationId },
       orderBy: { termId: "asc" },
@@ -150,7 +169,9 @@ describe("participant changes before cancellation starts (integration)", () => {
     const future = todayInPrague(new Date())
     future.setUTCDate(future.getUTCDate() + 1)
     await prisma.event.update({ where: { id: eventId }, data: { cancellationStartsOn: future } })
-    expect((await change([])).status).toBe(204)
+    const response = await change([])
+    expect(response.status).toBe(200)
+    expect(await response.json()).toEqual({ addedTerms: [] })
     expect(
       await prisma.applicationTerm.count({
         where: { applicationId, status: { not: "CANCELLED" } },
@@ -179,4 +200,133 @@ describe("participant changes before cancellation starts (integration)", () => {
     expect((await change([], "foreign-id")).status).toBe(403)
     expect((await options(applicationId, organizerCookie)).status).toBe(403)
   })
+
+  it.each([
+    {
+      mode: "AUTOMATIC" as const,
+      approval: false,
+      full: false,
+      fillAfterPreview: false,
+      status: "CONFIRMED",
+      owed: 2000,
+    },
+    {
+      mode: "MANUAL" as const,
+      approval: false,
+      full: false,
+      fillAfterPreview: false,
+      status: "TO_EVALUATE",
+      owed: 0,
+    },
+    {
+      mode: "AUTOMATIC" as const,
+      approval: false,
+      full: true,
+      fillAfterPreview: false,
+      status: "WAITLISTED",
+      owed: 0,
+    },
+    {
+      mode: "AUTOMATIC" as const,
+      approval: false,
+      full: false,
+      fillAfterPreview: true,
+      status: "WAITLISTED",
+      owed: 0,
+    },
+    {
+      mode: "MANUAL" as const,
+      approval: true,
+      full: false,
+      fillAfterPreview: false,
+      status: "CONFIRMED",
+      owed: 2000,
+    },
+  ])(
+    "returns domain debt for $mode, approval=$approval, full=$full, fillAfterPreview=$fillAfterPreview",
+    async ({ mode, approval, full, fillAfterPreview, status, owed }) => {
+      const { organizationId } = await prisma.event.update({
+        where: { id: eventId },
+        data: {
+          evaluationMode: mode,
+          cancellationStartsOn: approval ? todayInPrague(new Date()) : null,
+        },
+      })
+      const createdIds: string[] = []
+      const createApplicant = async (termId: string): Promise<string> => {
+        const applicant = await prisma.application.create({
+          data: {
+            organizationId,
+            eventId,
+            userId,
+            accessToken: randomUUID(),
+            firstName: "Payment impact",
+            lastName: randomUUID(),
+            birthDate: new Date("2010-01-01"),
+            gender: "MALE",
+            email: "ucastnik@example.com",
+            consentAt: new Date(),
+            terms: {
+              create: { organizationId, termId, status: "CONFIRMED", priceCzk: 1000 },
+            },
+          },
+        })
+        createdIds.push(applicant.id)
+        return applicant.id
+      }
+      const fillTarget = async (): Promise<void> => {
+        await createApplicant(secondId)
+        await createApplicant(secondId)
+      }
+      try {
+        const id = await createApplicant(firstId)
+        if (full) await fillTarget()
+        const preview = await (await options(id)).json()
+        expect(preview.canChangeImmediately).toBe(!approval)
+        expect(preview.terms.find((term: { id: string }) => term.id === firstId)).toMatchObject({
+          paidCzk: 0,
+          owedBeforeCancellationCzk: 1000,
+          owedAfterCancellationCzk: 0,
+        })
+        expect(preview.terms.find((term: { id: string }) => term.id === secondId)).toMatchObject({
+          priceCzk: 2000,
+          owedAfterChangeCzk: (mode === "AUTOMATIC" || approval) && !full ? 2000 : 0,
+        })
+        if (fillAfterPreview) await fillTarget()
+        if (approval) {
+          const response = await fetch(api(`/participant/applications/${id}/change-requests`), {
+            method: "POST",
+            headers: { Cookie: cookie, "Content-Type": "application/json" },
+            body: JSON.stringify({ termIds: [secondId] }),
+          })
+          expect(response.status).toBe(201)
+          const request = await response.json()
+          expect(
+            (
+              await fetch(
+                api(`/organizer/events/${eventId}/change-requests/${request.id}/approve`),
+                {
+                  method: "PATCH",
+                  headers: { Cookie: organizerCookie },
+                },
+              )
+            ).status,
+          ).toBe(204)
+        } else {
+          const response = await change([secondId], id)
+          expect(response.status).toBe(200)
+          expect(await response.json()).toEqual({
+            addedTerms: [{ termId: secondId, owedCzk: owed }],
+          })
+        }
+        expect(
+          await prisma.applicationTerm.findUniqueOrThrow({
+            where: { applicationId_termId: { applicationId: id, termId: secondId } },
+          }),
+        ).toMatchObject({ status, priceCzk: 2000 })
+      } finally {
+        await prisma.application.deleteMany({ where: { id: { in: createdIds } } })
+      }
+    },
+  )
 })

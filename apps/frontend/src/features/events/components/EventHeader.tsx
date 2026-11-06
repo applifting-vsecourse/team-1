@@ -9,6 +9,7 @@ import {
   Gauge,
   LayoutGrid,
   Settings,
+  Wallet,
 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
@@ -70,6 +71,7 @@ export function EventHeader({ eventId }: { eventId: string }) {
 const SECTIONS = [
   { key: "overview", to: ROUTES.organizer.event, icon: LayoutGrid, exact: true },
   { key: "applications", to: ROUTES.organizer.eventApplications, icon: ClipboardList },
+  { key: "payments", to: ROUTES.organizer.eventPayments, icon: Wallet },
   { key: "capacity", to: ROUTES.organizer.eventCapacity, icon: Gauge },
   { key: "rooms", to: ROUTES.organizer.eventRooms, icon: BedDouble },
   { key: "terms", to: ROUTES.organizer.eventTerms, icon: CalendarDays },

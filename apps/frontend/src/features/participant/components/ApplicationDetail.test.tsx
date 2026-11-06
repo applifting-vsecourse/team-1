@@ -107,7 +107,17 @@ const withTerms = (
 const cardOf = (heading: RegExp): HTMLElement =>
   screen.getByRole("heading", { name: heading }).closest<HTMLElement>("[data-slot='card']")!
 
-const renderDetail = (data: MyApplication, canChangeImmediately = true) => {
+const renderDetail = (
+  data: MyApplication,
+  canChangeImmediately = true,
+  owedAfterChangeCzk = 4900,
+) => {
+  const paid = (termId: string) =>
+    data.paymentDetails?.terms.find((payment) => payment.termId === termId)?.paidCzk ?? 0
+  const owed = (termId: string) => {
+    const term = data.terms.find((row) => row.termId === termId)
+    return term?.status === "CONFIRMED" ? Math.max(0, term.priceCzk - paid(termId)) : 0
+  }
   get.mockImplementation((path: string) => ({
     json: () =>
       Promise.resolve(
@@ -122,14 +132,30 @@ const renderDetail = (data: MyApplication, canChangeImmediately = true) => {
                     name: "1. týden",
                     startsOn: "2027-07-04",
                     endsOn: "2027-07-10",
-                    selected: true,
+                    priceCzk: 4500,
+                    owedAfterChangeCzk: 4500,
+                    paidCzk: paid("t1"),
+                    owedBeforeCancellationCzk: owed("t1"),
+                    owedAfterCancellationCzk: 0,
+                    overpaymentAfterCancellationCzk: paid("t1"),
+                    selected: data.terms.some(
+                      (term) => term.termId === "t1" && term.status !== "CANCELLED",
+                    ),
                   },
                   {
                     id: "t2",
                     name: "2. týden",
                     startsOn: "2027-07-11",
                     endsOn: "2027-07-17",
-                    selected: false,
+                    priceCzk: 4900,
+                    owedAfterChangeCzk,
+                    paidCzk: paid("t2"),
+                    owedBeforeCancellationCzk: owed("t2"),
+                    owedAfterCancellationCzk: 0,
+                    overpaymentAfterCancellationCzk: paid("t2"),
+                    selected: data.terms.some(
+                      (term) => term.termId === "t2" && term.status !== "CANCELLED",
+                    ),
                   },
                 ],
               }
@@ -178,33 +204,152 @@ describe("ApplicationDetail", () => {
 
   it("lets the participant immediately change the selected terms", async () => {
     const user = userEvent.setup()
-    put.mockResolvedValue(undefined)
+    put.mockReturnValue({
+      json: () => Promise.resolve({ addedTerms: [{ termId: "t2", owedCzk: 4900 }] }),
+    })
     renderDetail(application())
 
-    await user.click(await screen.findByRole("button", { name: "Change terms or cancel" }))
-    expect(screen.getByText(/Payments stay with their original terms/)).toBeInTheDocument()
-    await user.click(screen.getByRole("checkbox", { name: "Select term 2. týden" }))
-    await user.click(screen.getByRole("button", { name: "Save changes" }))
+    await user.click(await screen.findByRole("button", { name: "Change terms" }))
+    expect(screen.getByText(/Overpayment CZK 2,000/)).toBeInTheDocument()
+    expect(screen.getByText(/New term 2. týden · Price CZK 4,900/)).toBeInTheDocument()
+    await user.click(screen.getByRole("button", { name: "Confirm change" }))
 
     expect(put).toHaveBeenCalledWith("participant/applications/a1/terms", {
-      json: { termIds: ["t1", "t2"] },
+      json: { termIds: ["t2"] },
     })
+    expect(await screen.findByRole("heading", { name: "Term changed" })).toBeInTheDocument()
+    expect(
+      screen.getByText("New term 2. týden · Price CZK 4,900 · Amount due CZK 4,900"),
+    ).toBeInTheDocument()
+  })
+
+  it("shows the price separately from zero debt for an unconfirmed term", async () => {
+    const user = userEvent.setup()
+    put.mockReturnValue({
+      json: () => Promise.resolve({ addedTerms: [{ termId: "t2", owedCzk: 0 }] }),
+    })
+    renderDetail(application(), true, 0)
+
+    await user.click(await screen.findByRole("button", { name: "Change terms" }))
+    const impact = "New term 2. týden · Price CZK 4,900 · Amount due CZK 0"
+    expect(screen.getByText(impact)).toBeInTheDocument()
+    await user.click(screen.getByRole("button", { name: "Confirm change" }))
+    expect(await screen.findByRole("heading", { name: "Term changed" })).toBeInTheDocument()
+    expect(screen.getByText(impact)).toBeInTheDocument()
+  })
+
+  it("uses the committed debt when capacity changes after the preview", async () => {
+    const user = userEvent.setup()
+    put.mockReturnValue({
+      json: () => Promise.resolve({ addedTerms: [{ termId: "t2", owedCzk: 0 }] }),
+    })
+    renderDetail(application())
+
+    await user.click(await screen.findByRole("button", { name: "Change terms" }))
+    expect(screen.getByText(/Amount due CZK 4,900/)).toBeInTheDocument()
+    await user.click(screen.getByRole("button", { name: "Confirm change" }))
+    expect(await screen.findByRole("heading", { name: "Term changed" })).toBeInTheDocument()
+    expect(
+      screen.getByText(/New term 2. týden · Price CZK 4,900 · Amount due CZK 0/),
+    ).toBeInTheDocument()
+    expect(screen.queryByText(/Amount due CZK 4,900/)).not.toBeInTheDocument()
+  })
+
+  it("does not invent zero debt when a repeated change adds no term", async () => {
+    const user = userEvent.setup()
+    put.mockReturnValue({ json: () => Promise.resolve({ addedTerms: [] }) })
+    renderDetail(application())
+
+    await user.click(await screen.findByRole("button", { name: "Change terms" }))
+    await user.click(screen.getByRole("button", { name: "Confirm change" }))
+    expect(await screen.findByRole("heading", { name: "Term changed" })).toBeInTheDocument()
+    expect(screen.queryByText(/New term .*Amount due/)).not.toBeInTheDocument()
   })
 
   it("submits an approval request after cancellation starts", async () => {
     const user = userEvent.setup()
-    post.mockResolvedValue(undefined)
+    post.mockReturnValue({
+      json: () =>
+        Promise.resolve({
+          id: "r1",
+          applicationId: "a1",
+          eventId: "e1",
+          participantName: "Jana Nováková",
+          participantGender: "FEMALE",
+          currentTermIds: ["t1"],
+          requestedTermIds: ["t2"],
+          status: "PENDING",
+          rejectionReason: null,
+          createdAt: "2026-11-05T14:30:00.000Z",
+          reviewedAt: null,
+          terms: [],
+        }),
+    })
     renderDetail(application(), false)
+    await user.click(await screen.findByRole("button", { name: "Change terms" }))
+    expect(screen.getByText(/original terms and assigned bed remain/)).toBeInTheDocument()
     expect(
-      await screen.findByText(/Changes now require the organiser's approval/),
+      screen.getByText(/New term 2. týden · Price CZK 4,900 · Amount due CZK 4,900/),
     ).toBeInTheDocument()
-    await user.click(screen.getByRole("button", { name: "Change terms or cancel" }))
-    await user.click(screen.getByRole("checkbox", { name: "Select term 2. týden" }))
     await user.click(screen.getByRole("button", { name: "Send request" }))
     expect(post).toHaveBeenCalledWith("participant/applications/a1/change-requests", {
-      json: { termIds: ["t1", "t2"] },
+      json: { termIds: ["t2"] },
+    })
+    expect(
+      await screen.findByRole("heading", { name: "Request awaiting approval" }),
+    ).toBeInTheDocument()
+  })
+
+  it("cancels one term and shows its payment and bed impact before confirmation", async () => {
+    const user = userEvent.setup()
+    put.mockReturnValue({ json: () => Promise.resolve({ addedTerms: [] }) })
+    renderDetail(withTerms([termPayment(1, 4500, 4500, "PAID")]))
+
+    await user.click(await screen.findByRole("button", { name: "Cancel participation" }))
+    await user.click(screen.getByRole("combobox", { name: "Cancellation scope" }))
+    await user.click(screen.getByRole("option", { name: /1. týden/ }))
+    expect(
+      screen.getByText(/Paid CZK 4,500 · Debt after cancellation CZK 0 · Overpayment CZK 4,500/),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText("The bed will be released. The organiser handles any refund."),
+    ).toBeInTheDocument()
+    await user.click(screen.getByRole("button", { name: "Confirm cancellation" }))
+    expect(put).toHaveBeenCalledWith("participant/applications/a1/terms", {
+      json: { termIds: ["t2"] },
     })
   })
+
+  it.each([
+    [
+      "Cancel participation",
+      "Confirm cancellation",
+      "Cancellation confirmed",
+      /Debt after cancellation CZK 0/,
+    ],
+    [
+      "Change terms",
+      "Confirm change",
+      "Term changed",
+      /Original term · Overpayment CZK 0 · Debt CZK 0/,
+    ],
+  ])(
+    "shows debt removed by %s for an unpaid confirmed term",
+    async (open, submit, title, impact) => {
+      const user = userEvent.setup()
+      put.mockReturnValue({
+        json: () => Promise.resolve({ addedTerms: [{ termId: "t2", owedCzk: 4900 }] }),
+      })
+      renderDetail(withTerms([termPayment(1, 4500, 0, "UNPAID")], [confirmed]))
+
+      await user.click(await screen.findByRole("button", { name: open }))
+      expect(screen.getByText(impact)).toBeInTheDocument()
+      expect(screen.queryByText(/No payment impact/)).not.toBeInTheDocument()
+      await user.click(screen.getByRole("button", { name: submit }))
+      expect(await screen.findByRole("heading", { name: title })).toBeInTheDocument()
+      expect(screen.getByText(impact)).toBeInTheDocument()
+    },
+  )
 
   it("shows what is due, what is paid, what is left and where to send it for the term", async () => {
     renderDetail(application())

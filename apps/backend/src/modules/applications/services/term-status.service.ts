@@ -1,6 +1,9 @@
 import { TermChangeImpact } from "@/modules/applications/domain/organizer-term-change"
 import { WithdrawalImpact } from "@/modules/applications/domain/organizer-withdrawal"
-import { ParticipantChangeOptions } from "@/modules/applications/domain/participant-term-change"
+import {
+  ParticipantChangeOptions,
+  ParticipantTermChangeResult,
+} from "@/modules/applications/domain/participant-term-change"
 import {
   changeEmailKind,
   rejectStatusChange,
@@ -46,10 +49,11 @@ export class TermStatusService {
     user: Identity,
     applicationId: string,
     termIds: string[],
-  ): Promise<void> {
+  ): Promise<ParticipantTermChangeResult> {
     const change = await this.repository.changeParticipantTerms(user.id, applicationId, termIds)
     if (change === undefined) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
     if (change) await this.mailer.sendApplicationChange(change)
+    return { addedTerms: change?.addedTerms ?? [] }
   }
 
   /** Terms of the event an organizer can put the application in (US-33). */

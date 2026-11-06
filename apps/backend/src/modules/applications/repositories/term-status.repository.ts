@@ -26,9 +26,12 @@ import {
   WithdrawalImpact,
 } from "@/modules/applications/domain/organizer-withdrawal"
 import {
+  cancellationPaymentImpact,
   participantChangeAllowed,
   ParticipantChangeOptions,
+  ParticipantTermChangeResult,
 } from "@/modules/applications/domain/participant-term-change"
+import { computeTermDue } from "@/modules/applications/domain/pricing"
 import {
   changeEmailKind,
   StatusChangeSnapshot,
@@ -128,9 +131,11 @@ export class TermStatusRepository {
     const application = await this.prisma.application.findFirst({
       where,
       select: {
+        gender: true,
         event: {
           select: {
             cancellationStartsOn: true,
+            evaluationMode: true,
             terms: {
               where: { cancelledAt: null },
               orderBy: [{ startsOn: "asc" }, { id: "asc" }],
@@ -139,12 +144,25 @@ export class TermStatusRepository {
                 name: true,
                 startsOn: true,
                 endsOn: true,
+                priceCzk: true,
+                rooms: { select: { capacity: true, gender: true } },
+                applicationTerms: {
+                  where: { status: "CONFIRMED" },
+                  select: { application: { select: { gender: true } } },
+                },
                 _count: { select: { rooms: true } },
               },
             },
           },
         },
-        terms: { select: { termId: true, status: true } },
+        terms: {
+          select: {
+            termId: true,
+            status: true,
+            priceCzk: true,
+            payments: { where: { cancelledAt: null }, select: { amountCzk: true } },
+          },
+        },
       },
     })
     if (!application) return null
@@ -154,11 +172,33 @@ export class TermStatusRepository {
     const cancelled = new Set(
       application.terms.filter((row) => row.status === "CANCELLED").map((row) => row.termId),
     )
-    return {
-      canChangeImmediately: participantChangeAllowed(
-        application.event.cancellationStartsOn,
-        new Date(),
+    const currentByTerm = new Map(application.terms.map((row) => [row.termId, row]))
+    const canChangeImmediately = participantChangeAllowed(
+      application.event.cancellationStartsOn,
+      new Date(),
+    )
+    const termsToEvaluate = application.event.terms.map((term) => ({
+      termId: term.id,
+      priceCzk: term.priceCzk,
+      freePlaces: computeAvailablePlaces(
+        term.rooms,
+        term.applicationTerms.map((row) => row.application.gender),
       ),
+    }))
+    const policy = termChangeApprovalPolicy(
+      application.event.evaluationMode,
+      includeCancelled || !canChangeImmediately,
+      application.gender,
+      termsToEvaluate,
+    )
+    const evaluated = evaluateApplication(
+      application.gender,
+      termsToEvaluate,
+      policy.evaluationMode,
+    )
+    const owedByTerm = new Map(evaluated.map((term) => [term.termId, computeTermDue(term)]))
+    return {
+      canChangeImmediately,
       terms: application.event.terms
         .filter(
           (term) =>
@@ -170,6 +210,12 @@ export class TermStatusRepository {
           name: term.name,
           startsOn: term.startsOn.toISOString().slice(0, 10),
           endsOn: term.endsOn.toISOString().slice(0, 10),
+          priceCzk: term.priceCzk,
+          owedAfterChangeCzk: owedByTerm.get(term.id)!,
+          ...cancellationPaymentImpact(
+            currentByTerm.get(term.id)?.payments ?? [],
+            currentByTerm.get(term.id) ?? { status: "CANCELLED", priceCzk: 0 },
+          ),
           selected: active.has(term.id),
         })),
     }
@@ -181,7 +227,7 @@ export class TermStatusRepository {
     applicationId: string,
     selectedIds: string[],
     approvedRequest?: { id: string; reviewerId: string },
-  ): Promise<ApplicationChange | null | undefined> {
+  ): Promise<(ApplicationChange & ParticipantTermChangeResult) | null | undefined> {
     return this.changeTerms({
       where: { id: applicationId, userId },
       applicationId,
@@ -347,7 +393,7 @@ export class TermStatusRepository {
     selectedIds: string[]
     approvedRequest?: { id: string; reviewerId: string }
     organizer?: { actorId: string; isOverCapacityConfirmed: boolean; withdrawnIds?: string[] }
-  }): Promise<ApplicationChange | null | undefined> {
+  }): Promise<(ApplicationChange & ParticipantTermChangeResult) | null | undefined> {
     return this.prisma.$transaction(async (tx) => {
       const application = await tx.application.findFirst({
         where,
@@ -434,6 +480,7 @@ export class TermStatusRepository {
       }
 
       let hasNewConfirmation = false
+      const addedTerms: ParticipantTermChangeResult["addedTerms"] = []
       if (addedIds.length > 0) {
         const registered = await tx.applicationTerm.findMany({
           where: {
@@ -535,6 +582,7 @@ export class TermStatusRepository {
         }
         hasNewConfirmation = evaluated.some((term) => term.status === "CONFIRMED")
         for (const term of evaluated) {
+          if (!organizer) addedTerms.push({ termId: term.termId, owedCzk: computeTermDue(term) })
           const cancelledRow = current.find((row) => row.termId === term.termId)
           if (cancelledRow) {
             await tx.applicationTerm.update({
@@ -646,6 +694,7 @@ export class TermStatusRepository {
         }
       }
       return {
+        addedTerms,
         email: application.email,
         locale,
         eventName: application.event.name,
