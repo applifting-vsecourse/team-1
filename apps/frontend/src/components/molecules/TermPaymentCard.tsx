@@ -83,6 +83,8 @@ export function TermPaymentCard({
     )
   }
 
+  // The participant's cards (with a payment QR, US-41) stack label over value; the organizer's keep the rows.
+  const isStacked = qr !== undefined
   const statusBadge = (
     <Badge variant={badgeVariant[status]}>{t(`termPayment.status.${status}`)}</Badge>
   )
@@ -115,9 +117,10 @@ export function TermPaymentCard({
       {status === "UNPAID" || status === "PARTIALLY_PAID" || status === "PAID" ? (
         <div className="flex flex-col gap-1">
           <h4 className="text-sm font-semibold">{t("termPayment.paymentDetails")}</h4>
-          <dl className="flex flex-col gap-3 text-sm">
+          <dl className={isStacked ? "flex flex-col gap-3 text-sm" : "flex flex-col text-sm"}>
             {owedCzk > 0 ? (
               <CopyRow
+                isStacked={isStacked}
                 label={t("termPayment.amountToPay")}
                 value={String(owedCzk)}
                 copyLabel={t("clipboard.copyAmount")}
@@ -126,6 +129,7 @@ export function TermPaymentCard({
               </CopyRow>
             ) : null}
             <CopyRow
+              isStacked={isStacked}
               label={t("termPayment.account")}
               value={bankAccount}
               copyLabel={t("clipboard.copyAccount")}
@@ -133,6 +137,7 @@ export function TermPaymentCard({
               <span className="break-all">{bankAccount}</span>
             </CopyRow>
             <CopyRow
+              isStacked={isStacked}
               label={t("termPayment.variableSymbol")}
               value={variableSymbol}
               copyLabel={t("clipboard.copyVariableSymbol")}
@@ -140,7 +145,11 @@ export function TermPaymentCard({
               <span className="break-all">{variableSymbol}</span>
             </CopyRow>
             {owedCzk > 0 && paymentDeadline ? (
-              <div className="flex flex-col">
+              <div
+                className={
+                  isStacked ? "flex flex-col" : "flex items-center justify-between gap-4 py-2"
+                }
+              >
                 <dt className="text-muted-foreground">{t("termPayment.deadline")}</dt>
                 <dd className="text-base">{formatDate(paymentDeadline)}</dd>
               </div>
@@ -216,23 +225,39 @@ function Row({
   )
 }
 
-/** A payment detail: the label, and under it the value with its copy button. */
+/** A payment detail with its copy button; stacked: the label, and under it the value with the button. */
 function CopyRow({
   label,
   value,
   copyLabel,
+  isStacked,
   children,
 }: {
   label: string
   value: string
   copyLabel: string
+  isStacked: boolean
   children: ReactNode
 }) {
+  if (isStacked) {
+    return (
+      <div className="flex flex-col">
+        <dt className="text-muted-foreground">{label}</dt>
+        <dd className="flex min-w-0 items-center justify-between gap-2 text-base">
+          <span className="min-w-0">{children}</span>
+          <CopyButton
+            value={value}
+            label={copyLabel}
+          />
+        </dd>
+      </div>
+    )
+  }
   return (
-    <div className="flex flex-col">
+    <div className="flex items-center justify-between gap-4">
       <dt className="text-muted-foreground">{label}</dt>
-      <dd className="flex min-w-0 items-center justify-between gap-2 text-base">
-        <span className="min-w-0">{children}</span>
+      <dd className="flex min-w-0 items-center gap-2">
+        {children}
         <CopyButton
           value={value}
           label={copyLabel}
