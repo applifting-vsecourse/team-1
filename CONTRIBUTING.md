@@ -67,7 +67,7 @@ claude                                     # agent pracuje jen v tomhle worktree
 pnpm wt setup                              # uvnitř worktree založeného jiným nástrojem (t3, Codex): slot, .env, databáze, install
 pnpm wt list                               # přehled slotů, větví, portů a stavu PR
 pnpm wt rm US-27-ulozeni-prihlasky         # smaže worktree i jeho databázi (větev zůstane)
-pnpm wt prune                              # ukáže čisté worktrees s mergnutým PR; `--yes` je smaže i s větví a databází
+pnpm wt prune                              # ukáže čisté worktrees s mergnutým PR; `--yes` je smaže i s větví a databází; maže i osiřelé databáze `togena_wt<N>` po worktrees, které smazal jiný nástroj
 ```
 
 Každý worktree dostane **slot N** (1–9): frontend `3050+10N`, backend `4050+10N`, databáze `togena_wtN` ve stejném Postgresu (`localhost:5433`). Hlavní checkout je slot 0 se standardními porty. Porty a URL se zapíšou do `.env` worktree, takže CORS sedí. Existující větev (lokální nebo z `origin`) se jen checkoutne. Z hlavního checkoutu se zkopíruje i `.claude/settings.local.json`.

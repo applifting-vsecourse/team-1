@@ -6,7 +6,7 @@
 //   pnpm wt setup                         run inside a worktree made by another tool (t3, Codex): slot, .env, database, install
 //   pnpm wt list                          worktrees with their slots, URLs and PR state
 //   pnpm wt rm <name>                     remove the worktree and drop its databases
-//   pnpm wt prune [--yes]                 remove clean worktrees whose PR is merged (dry run without --yes)
+//   pnpm wt prune [--yes]                 remove clean worktrees with a merged PR and orphaned slot databases (dry run without --yes)
 //
 // Slot N (1–9) gets frontend 3050+10N, backend 4050+10N and database
 // togena_wt<N> in the shared dev Postgres (localhost:5433). The main checkout
@@ -148,6 +148,35 @@ function psql(sql) {
     return true
   } catch {
     return false
+  }
+}
+
+// Names of the databases that belong to worktree slots (togena_wt<N>, _test, _e2e), or null without Postgres.
+function slotDatabases() {
+  try {
+    const out = sh(
+      "docker",
+      [
+        "compose",
+        "-f",
+        compose,
+        "exec",
+        "-T",
+        "db",
+        "psql",
+        "-U",
+        DB_USER,
+        "-d",
+        DB_USER,
+        "-At",
+        "-c",
+        "SELECT datname FROM pg_database WHERE datname ~ '^togena_wt[0-9]+(_test|_e2e)?$'",
+      ],
+      { stdio: "pipe" },
+    )
+    return out.split("\n").filter(Boolean)
+  } catch {
+    return null
   }
 }
 
@@ -304,6 +333,24 @@ function cmdPrune(args) {
     } catch {}
     console.log(`✔  Removed ${w.dir} and branch ${w.branch}`)
   }
+
+  // Databases of slots that no worktree uses any more (the worktree was removed by t3, Codex or by hand).
+  // A new worktree reusing such a slot would otherwise start on a stale database.
+  const live = new Set(worktrees().map((w) => w.slot))
+  const dbs = slotDatabases()
+  if (dbs === null)
+    console.log("Postgres is not reachable (is Docker running?); databases not checked.")
+  const orphans = (dbs ?? []).filter((d) => !live.has(Number(d.match(/^togena_wt(\d+)/)[1])))
+  for (const d of orphans) {
+    found++
+    if (!apply) {
+      console.log(`would drop database  ${d}`)
+      continue
+    }
+    psql(`DROP DATABASE IF EXISTS ${d} WITH (FORCE)`)
+    console.log(`✔  Dropped database ${d}`)
+  }
+
   if (!found) console.log("Nothing to prune.")
   else if (!apply) console.log("\nDry run. Run `pnpm wt prune --yes` to remove them.")
 }
