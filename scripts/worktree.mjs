@@ -3,8 +3,9 @@
 // database, so several branches (and agents) can run the app at once.
 //
 //   pnpm wt new <branch> [--from <ref>]   create ../<repo>-wt/<name> on a new or existing branch
-//   pnpm wt list                          worktrees with their slots and URLs
+//   pnpm wt list                          worktrees with their slots, URLs and PR state
 //   pnpm wt rm <name>                     remove the worktree and drop its databases
+//   pnpm wt prune [--yes]                 remove clean worktrees whose PR is merged (dry run without --yes)
 //
 // Slot N (1–9) gets frontend 3050+10N, backend 4050+10N and database
 // togena_wt<N> in the shared dev Postgres (localhost:5433). The main checkout
@@ -82,6 +83,42 @@ function writeEnv(dir, slot) {
   fs.writeFileSync(path.join(dir, "apps/frontend/.env"), fe)
 }
 
+// Untracked local files an agent in the worktree needs (e.g. tool permissions).
+const LOCAL_FILES = [".claude/settings.local.json"]
+
+function copyLocalFiles(dir) {
+  for (const rel of LOCAL_FILES) {
+    const src = path.join(mainRoot, rel)
+    if (!fs.existsSync(src)) continue
+    const dest = path.join(dir, rel)
+    fs.mkdirSync(path.dirname(dest), { recursive: true })
+    fs.copyFileSync(src, dest)
+  }
+}
+
+// Branch -> "MERGED" | "OPEN" | "CLOSED", best effort (needs an authenticated gh).
+function prStates() {
+  try {
+    const rows = JSON.parse(
+      sh("gh", ["pr", "list", "--state", "all", "--limit", "200", "--json", "headRefName,state"], {
+        stdio: ["ignore", "pipe", "ignore"],
+      }),
+    )
+    const states = new Map()
+    for (const { headRefName, state } of rows) {
+      // OPEN wins over MERGED/CLOSED when a branch had several PRs.
+      if (states.get(headRefName) !== "OPEN") states.set(headRefName, state)
+    }
+    return states
+  } catch {
+    return new Map()
+  }
+}
+
+function isDirty(dir) {
+  return sh("git", ["status", "--porcelain"], { cwd: dir }) !== ""
+}
+
 function psql(sql) {
   // Best effort: the dev Postgres may not be running yet; `pnpm dev` in the
   // worktree starts it and `prisma migrate deploy` creates the database.
@@ -150,6 +187,7 @@ function cmdNew(args) {
   }
 
   writeEnv(dir, slot)
+  copyLocalFiles(dir)
   const p = ports(slot)
   psql(`CREATE DATABASE ${p.db}`)
 
@@ -176,12 +214,27 @@ function cmdNew(args) {
 }
 
 function cmdList() {
+  const states = prStates()
   for (const w of worktrees()) {
     const p = w.slot == null ? null : ports(w.slot)
     const urls = p ? `:${p.frontend} / :${p.backend}` : "(no .env)"
+    const pr = w.dir === mainRoot ? "" : (states.get(w.branch) ?? "no PR")
+    const foreign =
+      w.dir !== mainRoot && !w.dir.startsWith(wtParent + path.sep) ? " (outside wt dir)" : ""
     console.log(
-      `${String(w.slot ?? "?").padEnd(2)} ${w.branch.padEnd(45)} ${urls.padEnd(14)} ${w.dir}`,
+      `${String(w.slot ?? "?").padEnd(2)} ${w.branch.padEnd(45)} ${urls.padEnd(14)} ${pr.padEnd(7)} ${w.dir}${foreign}`,
     )
+  }
+}
+
+function removeWorktree(w, gitArgs = []) {
+  sh("git", ["worktree", "remove", w.dir, ...gitArgs], { stdio: "inherit" })
+  if (w.slot) {
+    const { db } = ports(w.slot)
+    // The integration tests use <db>_test and Playwright <db>_e2e (apps/e2e/scripts/database-url.mjs).
+    for (const d of [db, `${db}_test`, `${db}_e2e`]) {
+      psql(`DROP DATABASE IF EXISTS ${d} WITH (FORCE)`)
+    }
   }
 }
 
@@ -194,17 +247,37 @@ function cmdRm(args) {
   )
   if (!w) fail(`No worktree named ${name}. See: pnpm wt list`)
 
-  sh("git", ["worktree", "remove", w.dir, ...args.slice(1)], {
-    stdio: "inherit",
-  })
-  if (w.slot) {
-    const { db } = ports(w.slot)
-    // The integration tests use <db>_test and Playwright <db>_e2e (apps/e2e/scripts/database-url.mjs).
-    for (const d of [db, `${db}_test`, `${db}_e2e`]) {
-      psql(`DROP DATABASE IF EXISTS ${d} WITH (FORCE)`)
-    }
-  }
+  removeWorktree(w, args.slice(1))
   console.log(`✔  Removed ${w.dir}. The branch ${w.branch} is kept (git branch -d ${w.branch}).`)
+}
+
+function cmdPrune(args) {
+  const apply = args.includes("--yes")
+  const states = prStates()
+  if (states.size === 0)
+    fail("No PR data from gh (is it installed and logged in?). Nothing pruned.")
+
+  let found = 0
+  for (const w of worktrees()) {
+    if (w.dir === mainRoot || states.get(w.branch) !== "MERGED") continue
+    if (isDirty(w.dir)) {
+      console.log(`skip   ${w.branch}  (uncommitted changes) ${w.dir}`)
+      continue
+    }
+    found++
+    if (!apply) {
+      console.log(`would remove  ${w.branch}  ${w.dir}`)
+      continue
+    }
+    removeWorktree(w)
+    // Squash merges leave the branch "unmerged" for git, so -D; the PR state already proves it landed.
+    try {
+      sh("git", ["branch", "-D", w.branch], { stdio: "pipe" })
+    } catch {}
+    console.log(`✔  Removed ${w.dir} and branch ${w.branch}`)
+  }
+  if (!found) console.log("Nothing to prune.")
+  else if (!apply) console.log("\nDry run. Run `pnpm wt prune --yes` to remove them.")
 }
 
 function fail(msg) {
@@ -213,5 +286,5 @@ function fail(msg) {
 }
 
 const [cmd, ...rest] = process.argv.slice(2)
-const commands = { new: cmdNew, list: cmdList, ls: cmdList, rm: cmdRm }
-;(commands[cmd] ?? (() => fail("Usage: pnpm wt <new|list|rm> …")))(rest)
+const commands = { new: cmdNew, list: cmdList, ls: cmdList, rm: cmdRm, prune: cmdPrune }
+;(commands[cmd] ?? (() => fail("Usage: pnpm wt <new|list|rm|prune> …")))(rest)
