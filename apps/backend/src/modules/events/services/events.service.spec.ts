@@ -39,6 +39,7 @@ describe("EventsService", () => {
     repository = mock<EventsRepository>()
     access = mock<OrganizationAccessService>()
     repository.create.mockResolvedValue(stored)
+    repository.hasBankAccount.mockResolvedValue(true)
     service = new EventsService(repository, access)
   })
 
@@ -69,6 +70,17 @@ describe("EventsService", () => {
     await expect(
       service.create(organizer, { organizationId: "org-b", name: "X" }),
     ).rejects.toBeInstanceOf(ForbiddenException)
+    expect(repository.create).not.toHaveBeenCalled()
+  })
+
+  it("blocks event creation until the organization's bank account is filled in", async () => {
+    access.getOrganizationIds.mockResolvedValue(["org-a"])
+    repository.hasBankAccount.mockResolvedValue(false)
+
+    await expect(service.create(organizer, { name: "First event" })).rejects.toMatchObject({
+      status: 403,
+      response: { code: "ORGANIZATION_PROFILE_INCOMPLETE" },
+    })
     expect(repository.create).not.toHaveBeenCalled()
   })
 

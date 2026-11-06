@@ -40,6 +40,9 @@ export class EventsService {
     if (!name) throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
 
     const organizationId = await this.resolveOrganizationId(user, input.organizationId)
+    if (!(await this.repository.hasBankAccount(organizationId))) {
+      throw new AppException(HttpStatus.FORBIDDEN, "ORGANIZATION_PROFILE_INCOMPLETE")
+    }
     const event = await this.repository.create({
       organizationId,
       name,
