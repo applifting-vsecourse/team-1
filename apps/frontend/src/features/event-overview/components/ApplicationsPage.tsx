@@ -37,6 +37,7 @@ import { ApplicationViews } from "@/features/event-overview/components/Applicati
 import { BulkConfirmDialog } from "@/features/event-overview/components/BulkConfirmDialog"
 import { BulkDecisionDialog } from "@/features/event-overview/components/BulkDecisionDialog"
 import { BulkSelectionBar } from "@/features/event-overview/components/BulkSelectionBar"
+import { ChangeRequestsPanel } from "@/features/event-overview/components/ChangeRequestsPanel"
 import { SubstituteHistory } from "@/features/event-overview/components/SubstituteHistory"
 import {
   SubstitutesPanel,
@@ -145,6 +146,15 @@ export function ApplicationsPage({
       }}
     />
   )
+  if (filters.view === "CHANGE_REQUESTS") {
+    return (
+      <div className="flex flex-col gap-6">
+        <Seo title={t("applications.title")} />
+        {views}
+        <ChangeRequestsPanel eventId={eventId} />
+      </div>
+    )
+  }
   if (taken && isWaitlist) {
     return (
       <div className="flex flex-col gap-6">

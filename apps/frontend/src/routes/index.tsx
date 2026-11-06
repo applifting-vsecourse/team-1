@@ -22,9 +22,11 @@ const FEATURES = [
   { key: "payments", icon: Wallet },
 ] as const
 
-// US-96. Static page: what Togena does and the fork into the organizer and participant sign-in.
+// US-96, US-138. Static page: what Togena does, the fork into the organizer and participant sign-in and a link to the event catalog.
 // Figma (Design system): V08 Landing page produktu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12734-1364
 // Figma (Design system): M07 Landing page produktu · mobil · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12734-16749
+// Figma (Design system): Landing · dva vstupy a katalog (US-138) · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15699-1241
+// Figma (Design system): Landing · dva vstupy a katalog · mobil · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15699-1289
 function LandingPage() {
   const { t } = useTranslation("landing")
 
@@ -57,6 +59,13 @@ function LandingPage() {
               <Link to={ROUTES.participant.login}>{t("participantCta")}</Link>
             </Button>
           </div>
+          <Button
+            asChild
+            variant="ghost"
+            className="mt-1 h-12 w-full px-4 md:mt-0 md:w-auto"
+          >
+            <Link to={ROUTES.catalog}>{t("catalogLink")}</Link>
+          </Button>
         </section>
 
         <section className="border-t border-border bg-muted px-4 py-12 md:py-24">

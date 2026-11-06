@@ -53,6 +53,14 @@ enum ApplicationTermStatus {
   @@map("application_term_status")
 }
 
+enum ChangeRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+
+  @@map("change_request_status")
+}
+
 model Session {
   id        String   @id
   expiresAt DateTime
@@ -122,6 +130,8 @@ model User {
   applications     Application[]
   recordedPayments Payment[]
   statusChanges    ApplicationTermStatusChange[]
+  submittedChangeRequests ChangeRequest[] @relation("ChangeRequestApplicant")
+  reviewedChangeRequests  ChangeRequest[] @relation("ChangeRequestReviewer")
   notifications    Notification[]
 
   @@unique([email])
@@ -150,6 +160,7 @@ model Organization {
   payments         Payment[]
   statusChanges    ApplicationTermStatusChange[]
   substituteSkips  ApplicationTermSkip[]
+  changeRequests   ChangeRequest[]
 
   @@map("organization")
 }
@@ -208,6 +219,7 @@ model Event {
 
   terms        Term[]
   applications Application[]
+  changeRequests ChangeRequest[]
   photo        EventPhoto?
 
   @@index([organizationId])
@@ -309,11 +321,39 @@ model Application {
 
   terms         ApplicationTerm[]
   notifications Notification[]
+  changeRequests ChangeRequest[]
 
   @@index([organizationId])
   @@index([eventId, submittedAt])
   @@index([userId])
   @@map("application")
+}
+
+// A requested selection is a snapshot until an organizer decides. ApplicationTerm rows stay
+// untouched while pending. The event lock serializes submissions and decisions for one event.
+model ChangeRequest {
+  id               String              @id @default(cuid())
+  organization     Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId   String
+  event            Event               @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId          String
+  application      Application         @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  applicationId    String
+  applicant        User                @relation("ChangeRequestApplicant", fields: [applicantId], references: [id])
+  applicantId      String
+  currentTermIds   String[]
+  requestedTermIds String[]
+  status           ChangeRequestStatus @default(PENDING)
+  rejectionReason  String?             @db.Text
+  reviewedBy       User?               @relation("ChangeRequestReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+  reviewedById     String?
+  createdAt        DateTime            @default(now())
+  reviewedAt       DateTime?
+  notificationReadAt DateTime?
+
+  @@index([organizationId, eventId, status, createdAt])
+  @@index([applicantId, applicationId, createdAt])
+  @@map("change_request")
 }
 
 // Result of evaluating one selected term of an application (US-27).

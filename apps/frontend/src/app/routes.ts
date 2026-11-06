@@ -5,7 +5,8 @@ export const ROUTES = {
   home: "/",
 
   catalog: "/catalog",
-  catalogEvent: "/catalog/$publicToken",
+  // The permanent page of an event at its public token (US-22); the catalog links to it.
+  event: "/events/$publicToken",
 
   // Where the verification link of an e-mail change ends (US-125); the backend adds `?error=` when it fails.
   emailChange: "/email-change",

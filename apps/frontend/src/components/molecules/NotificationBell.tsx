@@ -23,7 +23,7 @@ export function NotificationBell({ unreadCount, onClick }: NotificationBellProps
       type="button"
       variant="ghost"
       size="icon-lg"
-      className={unreadCount > 0 ? "w-auto gap-1.5 px-2.5" : undefined}
+      className={unreadCount > 0 ? "relative md:w-auto md:gap-1.5 md:px-2.5" : undefined}
       aria-label={label}
       title={label}
       onClick={onClick}
@@ -35,7 +35,7 @@ export function NotificationBell({ unreadCount, onClick }: NotificationBellProps
       {unreadCount > 0 ? (
         <span
           aria-hidden="true"
-          className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-xs font-semibold text-primary-foreground"
+          className="absolute top-0 right-0 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-xs font-semibold text-primary-foreground md:static"
         >
           {unreadCount}
         </span>
