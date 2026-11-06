@@ -32,9 +32,9 @@ const ACTION_KEY = {
   CANCELLED: "cancel",
 } as const satisfies Record<TermStatus, string>
 
-/** Leaving a term is a destructive action: outlined buttons with the destructive colour. */
-const NEGATIVE = "text-destructive hover:text-destructive"
-/** Right-hand group of the row, in this order: the confirming action is always the last one. */
+/** Leaving a term is a destructive action: solid red with a visibly darker hover. */
+const NEGATIVE = "transition-colors hover:bg-destructive/75"
+/** Buttons after the withdrawal, in this order: the confirming action is always the last one. */
 const POSITIVE = ["WAITLISTED", "CONFIRMED"] as const satisfies TermStatus[]
 
 /**
@@ -65,6 +65,18 @@ export function TermStatuses({ applicationId }: { applicationId: string }) {
         <h2 className="text-lg font-semibold">{t("termStatus.title")}</h2>
         <p className="text-sm text-muted-foreground">{t("termStatus.helper")}</p>
       </div>
+      {active.length > 1 ? (
+        <div className="flex border-b pb-4">
+          <Button
+            variant="destructive"
+            className={NEGATIVE}
+            onClick={() => setWithdrawal({ termId: null })}
+          >
+            <LogOut aria-hidden />
+            {t("withdrawal.triggerWhole")}
+          </Button>
+        </div>
+      ) : null}
       <ul className="flex flex-col">
         {data.map((term) => (
           <li
@@ -74,32 +86,30 @@ export function TermStatuses({ applicationId }: { applicationId: string }) {
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
               <span className="font-medium">{termDatesLine(term)}</span>
               <Badge variant={BADGE[term.status]}>{t(`termStatus.state.${term.status}`)}</Badge>
-            </div>
-            {term.status === "CANCELLED" ? null : (
-              <div className="flex flex-wrap items-center gap-2">
-                <OrganizerTermChange
-                  applicationId={applicationId}
-                  term={term}
-                />
-                {/* US-32: a confirmed term is left through the withdrawal, which shows its impact. */}
-                {term.status === "CONFIRMED" ? (
-                  <Button
-                    variant="outline"
-                    className={NEGATIVE}
-                    onClick={() => setWithdrawal({ termId: term.termId })}
-                  >
-                    {t("withdrawal.trigger")}
-                  </Button>
-                ) : term.allowedStatuses.includes("CANCELLED") ? (
-                  <Button
-                    variant="outline"
-                    className={NEGATIVE}
-                    onClick={() => setChange({ term, to: "CANCELLED" })}
-                  >
-                    {t("termStatus.action.cancel")}
-                  </Button>
-                ) : null}
+              {term.status === "CANCELLED" ? null : (
                 <div className="flex flex-wrap gap-2 sm:ml-auto">
+                  <OrganizerTermChange
+                    applicationId={applicationId}
+                    term={term}
+                  />
+                  {/* US-32: a confirmed or waitlisted term is left through the withdrawal. */}
+                  {term.status === "CONFIRMED" || term.status === "WAITLISTED" ? (
+                    <Button
+                      variant="destructive"
+                      className={NEGATIVE}
+                      onClick={() => setWithdrawal({ termId: term.termId })}
+                    >
+                      {t("withdrawal.trigger")}
+                    </Button>
+                  ) : term.allowedStatuses.includes("CANCELLED") ? (
+                    <Button
+                      variant="destructive"
+                      className={NEGATIVE}
+                      onClick={() => setChange({ term, to: "CANCELLED" })}
+                    >
+                      {t("termStatus.action.cancel")}
+                    </Button>
+                  ) : null}
                   {POSITIVE.filter((status) => term.allowedStatuses.includes(status)).map(
                     (status) => (
                       <Button
@@ -112,8 +122,8 @@ export function TermStatuses({ applicationId }: { applicationId: string }) {
                     ),
                   )}
                 </div>
-              </div>
-            )}
+              )}
+            </div>
             {term.history.length > 0 ? (
               <ul className="flex flex-col gap-1 text-sm text-muted-foreground">
                 {term.history.map((entry) => (
@@ -138,18 +148,6 @@ export function TermStatuses({ applicationId }: { applicationId: string }) {
           initialTermId={withdrawal.termId}
           onClose={() => setWithdrawal(null)}
         />
-      ) : null}
-      {active.length > 1 ? (
-        <div className="flex justify-end border-t pt-4">
-          <Button
-            variant="outline"
-            className={NEGATIVE}
-            onClick={() => setWithdrawal({ termId: null })}
-          >
-            <LogOut aria-hidden />
-            {t("withdrawal.triggerWhole")}
-          </Button>
-        </div>
       ) : null}
       {change ? (
         <TermStatusChange

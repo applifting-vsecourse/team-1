@@ -172,13 +172,11 @@ export function OrganizerWithdrawal({
               ) : null}
             </section>
           ) : null}
-          {!isWhole ? (
-            <Alert>
-              <TriangleAlert aria-hidden />
-              <AlertTitle className="line-clamp-none">{t("withdrawal.noRefundTitle")}</AlertTitle>
-              <AlertDescription>{t("withdrawal.noRefundDescription")}</AlertDescription>
-            </Alert>
-          ) : null}
+          <Alert>
+            <TriangleAlert aria-hidden />
+            <AlertTitle className="line-clamp-none">{t("withdrawal.noRefundTitle")}</AlertTitle>
+            <AlertDescription>{t("withdrawal.noRefundDescription")}</AlertDescription>
+          </Alert>
           {mutation.error ? (
             <p
               role="alert"
