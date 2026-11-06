@@ -105,6 +105,7 @@ const application = (
     eventName: "Camp",
     firstName: "Adam",
     lastName: "Test",
+    accommodationRequest: null,
     code: "C-0047",
     bankAccount: "123456789/0000",
     amountDueCzk,
@@ -166,6 +167,19 @@ beforeEach(() => {
 })
 
 describe("PaymentDetail", () => {
+  it("shows the applicant's accommodation request in the organizer detail", async () => {
+    respondWith(() => ({
+      ...application([first]),
+      accommodationRequest: "Ground floor, please.",
+    }))
+    setup()
+
+    expect(
+      await screen.findByRole("heading", { name: "Individual accommodation request" }),
+    ).toBeVisible()
+    expect(screen.getByText("Ground floor, please.")).toBeVisible()
+  })
+
   it("prefills a payment correction and submits the replacement for a different term", async () => {
     respondWith(() =>
       application(

@@ -140,6 +140,13 @@ describe("participant application edit (integration)", () => {
         }),
       ]),
     )
+    const organizerDetail = await fetch(api(`/organizer/applications/${ownId}/payments`), {
+      headers: { Cookie: organizerCookie },
+    })
+    expect(organizerDetail.status).toBe(200)
+    expect(await organizerDetail.json()).toMatchObject({
+      accommodationRequest: input.accommodationRequest,
+    })
 
     const repeated = await call("PUT", ownId, participantCookie, input)
     expect(repeated.status).toBe(200)

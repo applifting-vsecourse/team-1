@@ -109,4 +109,22 @@ describe("EditApplicationPage", () => {
     expect(phone).toHaveValue("+420 777 123 456")
     expect(screen.getByRole("button", { name: "Try again" })).toBeEnabled()
   })
+
+  it("keeps a failed field mounted while its value passes through the original value", async () => {
+    const user = userEvent.setup()
+    put.mockReturnValue({ json: () => Promise.reject(new Error("failed")) })
+    renderPage()
+    const firstName = await screen.findByRole("textbox", { name: "First name *" })
+    await user.clear(firstName)
+    await user.type(firstName, "Petra")
+    await user.type(screen.getByRole("textbox", { name: "Phone *" }), "+420 777 123 456")
+    await user.click(screen.getByRole("button", { name: "Save changes" }))
+    expect(await screen.findByRole("heading", { name: "Changes couldn't be saved" })).toBeVisible()
+
+    await user.clear(firstName)
+    await user.type(firstName, "Janax")
+
+    expect(screen.getByRole("textbox", { name: "First name *" })).toBe(firstName)
+    expect(firstName).toHaveValue("Janax")
+  })
 })

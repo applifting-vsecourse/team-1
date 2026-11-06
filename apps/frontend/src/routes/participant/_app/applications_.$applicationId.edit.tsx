@@ -5,7 +5,7 @@ import { Seo } from "@/components/atoms/Seo"
 
 import { EditApplicationPage } from "@/features/participant/components/EditApplicationPage"
 
-export const Route = createFileRoute("/participant/_app/applications/$applicationId/edit")({
+export const Route = createFileRoute("/participant/_app/applications_/$applicationId/edit")({
   component: ApplicationEditRoute,
 })
 

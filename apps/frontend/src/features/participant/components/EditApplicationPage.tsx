@@ -66,6 +66,10 @@ function EditForm({
     phone: initial.phone ?? "",
     accommodationRequest: initial.accommodationRequest ?? "",
   })
+  const [failedFields, setFailedFields] = useState<Record<
+    keyof EditApplicationInput,
+    boolean
+  > | null>(null)
   const mutation = useMutation({
     mutationFn: () => saveApplicationEdit(applicationId, values),
     onSuccess: async () => {
@@ -91,8 +95,12 @@ function EditForm({
     accommodationRequest:
       nullableTrimmed(values.accommodationRequest) !== initial.accommodationRequest,
   }
+  const visibleFields = mutation.isError && failedFields ? failedFields : changed
   const shouldShowPersonalCard =
-    !mutation.isError || changed.firstName || changed.lastName || changed.birthDate
+    !mutation.isError ||
+    visibleFields.firstName ||
+    visibleFields.lastName ||
+    visibleFields.birthDate
   const phoneField = (
     <div className="flex flex-col gap-2">
       <Label htmlFor="edit-phone">{t("edit.phone")}</Label>
@@ -163,6 +171,7 @@ function EditForm({
       className="mx-auto flex w-full max-w-[805px] flex-col gap-6"
       onSubmit={(event) => {
         event.preventDefault()
+        setFailedFields(changed)
         mutation.mutate()
       }}
     >
@@ -184,7 +193,7 @@ function EditForm({
       {shouldShowPersonalCard ? (
         <Card className="gap-5 p-4 md:p-5">
           <h2 className="text-xl font-semibold">{t("edit.participant")}</h2>
-          {!mutation.isError || changed.firstName ? (
+          {!mutation.isError || visibleFields.firstName ? (
             <div className="flex flex-col gap-2">
               <Label htmlFor="edit-first-name">{t("edit.firstName")}</Label>
               <Input
@@ -197,7 +206,7 @@ function EditForm({
               />
             </div>
           ) : null}
-          {!mutation.isError || changed.lastName ? (
+          {!mutation.isError || visibleFields.lastName ? (
             <div className="flex flex-col gap-2">
               <Label htmlFor="edit-last-name">{t("edit.lastName")}</Label>
               <Input
@@ -210,7 +219,7 @@ function EditForm({
               />
             </div>
           ) : null}
-          {!mutation.isError || changed.birthDate ? (
+          {!mutation.isError || visibleFields.birthDate ? (
             <div className="flex flex-col gap-2">
               <Label htmlFor="edit-birth-date">{t("edit.birthDate")}</Label>
               <Input
@@ -228,8 +237,8 @@ function EditForm({
           {!mutation.isError ? phoneField : null}
         </Card>
       ) : null}
-      {mutation.isError && (changed.phone || !initial.phone) ? phoneField : null}
-      {!mutation.isError || changed.accommodationRequest ? (
+      {mutation.isError && (visibleFields.phone || !initial.phone) ? phoneField : null}
+      {!mutation.isError || visibleFields.accommodationRequest ? (
         <div className="flex flex-col gap-2">
           <Label htmlFor="edit-accommodation">{t("edit.accommodationRequest")}</Label>
           <Textarea
