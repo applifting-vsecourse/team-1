@@ -8,369 +8,377 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from "./routes/__root"
-import { Route as IndexRouteImport } from "./routes/index"
-import { Route as EmailChangeRouteImport } from "./routes/email-change"
-import { Route as ApplyTokenRouteImport } from "./routes/apply/$token"
-import { Route as CatalogIndexRouteImport } from "./routes/catalog/index"
-import { Route as EventsPublicTokenRouteImport } from "./routes/events/$publicToken"
-import { Route as OrganizerAppRouteImport } from "./routes/organizer/_app"
-import { Route as OrganizerLoginRouteImport } from "./routes/organizer/login"
-import { Route as ParticipantAppRouteImport } from "./routes/participant/_app"
-import { Route as ParticipantLoginRouteImport } from "./routes/participant/login"
-import { Route as ParticipantMagicLinkRouteImport } from "./routes/participant/magic-link"
-import { Route as ParticipantSetPasswordRouteImport } from "./routes/participant/set-password"
-import { Route as ApplyConfirmationAccessTokenRouteImport } from "./routes/apply/confirmation/$accessToken"
-import { Route as OrganizerAppIndexRouteImport } from "./routes/organizer/_app/index"
-import { Route as OrganizerAppAccountRouteImport } from "./routes/organizer/_app/account"
-import { Route as ParticipantAppIndexRouteImport } from "./routes/participant/_app/index"
-import { Route as ParticipantAppAccountRouteImport } from "./routes/participant/_app/account"
-import { Route as OrganizerAppEventsIndexRouteImport } from "./routes/organizer/_app/events/index"
-import { Route as OrganizerAppEventsEventIdRouteRouteImport } from "./routes/organizer/_app/events/$eventId/route"
-import { Route as OrganizerAppEventsNewRouteImport } from "./routes/organizer/_app/events/new"
-import { Route as ParticipantAppApplicationsApplicationIdRouteImport } from "./routes/participant/_app/applications.$applicationId"
-import { Route as OrganizerAppEventsEventIdIndexRouteImport } from "./routes/organizer/_app/events/$eventId/index"
-import { Route as OrganizerAppEventsEventIdApplicationsRouteImport } from "./routes/organizer/_app/events/$eventId/applications"
-import { Route as OrganizerAppEventsEventIdCapacityRouteImport } from "./routes/organizer/_app/events/$eventId/capacity"
-import { Route as OrganizerAppEventsEventIdPaymentsRouteImport } from "./routes/organizer/_app/events/$eventId/payments"
-import { Route as OrganizerAppEventsEventIdRoomsRouteImport } from "./routes/organizer/_app/events/$eventId/rooms"
-import { Route as OrganizerAppEventsEventIdSettingsRouteImport } from "./routes/organizer/_app/events/$eventId/settings"
-import { Route as OrganizerAppEventsEventIdTermsRouteImport } from "./routes/organizer/_app/events/$eventId/terms"
-import { Route as OrganizerAppEventsEventIdApplicationsApplicationIdRouteImport } from "./routes/organizer/_app/events/$eventId/applications_.$applicationId"
-import { Route as OrganizerAppEventsEventIdApplicationsNewRouteImport } from "./routes/organizer/_app/events/$eventId/applications_.new"
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as IndexRouteImport } from './routes/index'
+import { Route as EmailChangeRouteImport } from './routes/email-change'
+import { Route as ApplyTokenRouteImport } from './routes/apply/$token'
+import { Route as CatalogIndexRouteImport } from './routes/catalog/index'
+import { Route as EventsPublicTokenRouteImport } from './routes/events/$publicToken'
+import { Route as OrganizerAppRouteImport } from './routes/organizer/_app'
+import { Route as OrganizerLoginRouteImport } from './routes/organizer/login'
+import { Route as ParticipantAppRouteImport } from './routes/participant/_app'
+import { Route as ParticipantLoginRouteImport } from './routes/participant/login'
+import { Route as ParticipantMagicLinkRouteImport } from './routes/participant/magic-link'
+import { Route as ParticipantSetPasswordRouteImport } from './routes/participant/set-password'
+import { Route as ApplyConfirmationAccessTokenRouteImport } from './routes/apply/confirmation/$accessToken'
+import { Route as OrganizerAppIndexRouteImport } from './routes/organizer/_app/index'
+import { Route as OrganizerAppAccountRouteImport } from './routes/organizer/_app/account'
+import { Route as ParticipantAppIndexRouteImport } from './routes/participant/_app/index'
+import { Route as ParticipantAppAccountRouteImport } from './routes/participant/_app/account'
+import { Route as OrganizerAppEventsIndexRouteImport } from './routes/organizer/_app/events/index'
+import { Route as OrganizerAppEventsEventIdRouteRouteImport } from './routes/organizer/_app/events/$eventId/route'
+import { Route as OrganizerAppEventsNewRouteImport } from './routes/organizer/_app/events/new'
+import { Route as ParticipantAppApplicationsApplicationIdRouteImport } from './routes/participant/_app/applications.$applicationId'
+import { Route as OrganizerAppEventsEventIdIndexRouteImport } from './routes/organizer/_app/events/$eventId/index'
+import { Route as OrganizerAppEventsEventIdApplicationsRouteImport } from './routes/organizer/_app/events/$eventId/applications'
+import { Route as OrganizerAppEventsEventIdCapacityRouteImport } from './routes/organizer/_app/events/$eventId/capacity'
+import { Route as OrganizerAppEventsEventIdPaymentsRouteImport } from './routes/organizer/_app/events/$eventId/payments'
+import { Route as OrganizerAppEventsEventIdRoomsRouteImport } from './routes/organizer/_app/events/$eventId/rooms'
+import { Route as OrganizerAppEventsEventIdSettingsRouteImport } from './routes/organizer/_app/events/$eventId/settings'
+import { Route as OrganizerAppEventsEventIdTermsRouteImport } from './routes/organizer/_app/events/$eventId/terms'
+import { Route as OrganizerAppEventsEventIdApplicationsApplicationIdRouteImport } from './routes/organizer/_app/events/$eventId/applications_.$applicationId'
+import { Route as OrganizerAppEventsEventIdApplicationsNewRouteImport } from './routes/organizer/_app/events/$eventId/applications_.new'
 
 const IndexRoute = IndexRouteImport.update({
-  id: "/",
-  path: "/",
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EmailChangeRoute = EmailChangeRouteImport.update({
-  id: "/email-change",
-  path: "/email-change",
+  id: '/email-change',
+  path: '/email-change',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApplyTokenRoute = ApplyTokenRouteImport.update({
-  id: "/apply/$token",
-  path: "/apply/$token",
+  id: '/apply/$token',
+  path: '/apply/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CatalogIndexRoute = CatalogIndexRouteImport.update({
-  id: "/catalog/",
-  path: "/catalog/",
+  id: '/catalog/',
+  path: '/catalog/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EventsPublicTokenRoute = EventsPublicTokenRouteImport.update({
-  id: "/events/$publicToken",
-  path: "/events/$publicToken",
+  id: '/events/$publicToken',
+  path: '/events/$publicToken',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OrganizerAppRoute = OrganizerAppRouteImport.update({
-  id: "/organizer/_app",
-  path: "/organizer",
+  id: '/organizer/_app',
+  path: '/organizer',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OrganizerLoginRoute = OrganizerLoginRouteImport.update({
-  id: "/organizer/login",
-  path: "/organizer/login",
+  id: '/organizer/login',
+  path: '/organizer/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ParticipantAppRoute = ParticipantAppRouteImport.update({
-  id: "/participant/_app",
-  path: "/participant",
+  id: '/participant/_app',
+  path: '/participant',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ParticipantLoginRoute = ParticipantLoginRouteImport.update({
-  id: "/participant/login",
-  path: "/participant/login",
+  id: '/participant/login',
+  path: '/participant/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ParticipantMagicLinkRoute = ParticipantMagicLinkRouteImport.update({
-  id: "/participant/magic-link",
-  path: "/participant/magic-link",
+  id: '/participant/magic-link',
+  path: '/participant/magic-link',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ParticipantSetPasswordRoute = ParticipantSetPasswordRouteImport.update({
-  id: "/participant/set-password",
-  path: "/participant/set-password",
+  id: '/participant/set-password',
+  path: '/participant/set-password',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApplyConfirmationAccessTokenRoute = ApplyConfirmationAccessTokenRouteImport.update({
-  id: "/apply/confirmation/$accessToken",
-  path: "/apply/confirmation/$accessToken",
-  getParentRoute: () => rootRouteImport,
-} as any)
+const ApplyConfirmationAccessTokenRoute =
+  ApplyConfirmationAccessTokenRouteImport.update({
+    id: '/apply/confirmation/$accessToken',
+    path: '/apply/confirmation/$accessToken',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const OrganizerAppIndexRoute = OrganizerAppIndexRouteImport.update({
-  id: "/",
-  path: "/",
+  id: '/',
+  path: '/',
   getParentRoute: () => OrganizerAppRoute,
 } as any)
 const OrganizerAppAccountRoute = OrganizerAppAccountRouteImport.update({
-  id: "/account",
-  path: "/account",
+  id: '/account',
+  path: '/account',
   getParentRoute: () => OrganizerAppRoute,
 } as any)
 const ParticipantAppIndexRoute = ParticipantAppIndexRouteImport.update({
-  id: "/",
-  path: "/",
+  id: '/',
+  path: '/',
   getParentRoute: () => ParticipantAppRoute,
 } as any)
 const ParticipantAppAccountRoute = ParticipantAppAccountRouteImport.update({
-  id: "/account",
-  path: "/account",
+  id: '/account',
+  path: '/account',
   getParentRoute: () => ParticipantAppRoute,
 } as any)
 const OrganizerAppEventsIndexRoute = OrganizerAppEventsIndexRouteImport.update({
-  id: "/events/",
-  path: "/events/",
+  id: '/events/',
+  path: '/events/',
   getParentRoute: () => OrganizerAppRoute,
 } as any)
-const OrganizerAppEventsEventIdRouteRoute = OrganizerAppEventsEventIdRouteRouteImport.update({
-  id: "/events/$eventId",
-  path: "/events/$eventId",
-  getParentRoute: () => OrganizerAppRoute,
-} as any)
+const OrganizerAppEventsEventIdRouteRoute =
+  OrganizerAppEventsEventIdRouteRouteImport.update({
+    id: '/events/$eventId',
+    path: '/events/$eventId',
+    getParentRoute: () => OrganizerAppRoute,
+  } as any)
 const OrganizerAppEventsNewRoute = OrganizerAppEventsNewRouteImport.update({
-  id: "/events/new",
-  path: "/events/new",
+  id: '/events/new',
+  path: '/events/new',
   getParentRoute: () => OrganizerAppRoute,
 } as any)
 const ParticipantAppApplicationsApplicationIdRoute =
   ParticipantAppApplicationsApplicationIdRouteImport.update({
-    id: "/applications/$applicationId",
-    path: "/applications/$applicationId",
+    id: '/applications/$applicationId',
+    path: '/applications/$applicationId',
     getParentRoute: () => ParticipantAppRoute,
   } as any)
-const OrganizerAppEventsEventIdIndexRoute = OrganizerAppEventsEventIdIndexRouteImport.update({
-  id: "/",
-  path: "/",
-  getParentRoute: () => OrganizerAppEventsEventIdRouteRoute,
-} as any)
-const OrganizerAppEventsEventIdApplicationsRoute =
-  OrganizerAppEventsEventIdApplicationsRouteImport.update({
-    id: "/applications",
-    path: "/applications",
+const OrganizerAppEventsEventIdIndexRoute =
+  OrganizerAppEventsEventIdIndexRouteImport.update({
+    id: '/',
+    path: '/',
     getParentRoute: () => OrganizerAppEventsEventIdRouteRoute,
   } as any)
-const OrganizerAppEventsEventIdCapacityRoute = OrganizerAppEventsEventIdCapacityRouteImport.update({
-  id: "/capacity",
-  path: "/capacity",
-  getParentRoute: () => OrganizerAppEventsEventIdRouteRoute,
-} as any)
-const OrganizerAppEventsEventIdPaymentsRoute = OrganizerAppEventsEventIdPaymentsRouteImport.update({
-  id: "/payments",
-  path: "/payments",
-  getParentRoute: () => OrganizerAppEventsEventIdRouteRoute,
-} as any)
-const OrganizerAppEventsEventIdRoomsRoute = OrganizerAppEventsEventIdRoomsRouteImport.update({
-  id: "/rooms",
-  path: "/rooms",
-  getParentRoute: () => OrganizerAppEventsEventIdRouteRoute,
-} as any)
-const OrganizerAppEventsEventIdSettingsRoute = OrganizerAppEventsEventIdSettingsRouteImport.update({
-  id: "/settings",
-  path: "/settings",
-  getParentRoute: () => OrganizerAppEventsEventIdRouteRoute,
-} as any)
-const OrganizerAppEventsEventIdTermsRoute = OrganizerAppEventsEventIdTermsRouteImport.update({
-  id: "/terms",
-  path: "/terms",
-  getParentRoute: () => OrganizerAppEventsEventIdRouteRoute,
-} as any)
+const OrganizerAppEventsEventIdApplicationsRoute =
+  OrganizerAppEventsEventIdApplicationsRouteImport.update({
+    id: '/applications',
+    path: '/applications',
+    getParentRoute: () => OrganizerAppEventsEventIdRouteRoute,
+  } as any)
+const OrganizerAppEventsEventIdCapacityRoute =
+  OrganizerAppEventsEventIdCapacityRouteImport.update({
+    id: '/capacity',
+    path: '/capacity',
+    getParentRoute: () => OrganizerAppEventsEventIdRouteRoute,
+  } as any)
+const OrganizerAppEventsEventIdPaymentsRoute =
+  OrganizerAppEventsEventIdPaymentsRouteImport.update({
+    id: '/payments',
+    path: '/payments',
+    getParentRoute: () => OrganizerAppEventsEventIdRouteRoute,
+  } as any)
+const OrganizerAppEventsEventIdRoomsRoute =
+  OrganizerAppEventsEventIdRoomsRouteImport.update({
+    id: '/rooms',
+    path: '/rooms',
+    getParentRoute: () => OrganizerAppEventsEventIdRouteRoute,
+  } as any)
+const OrganizerAppEventsEventIdSettingsRoute =
+  OrganizerAppEventsEventIdSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => OrganizerAppEventsEventIdRouteRoute,
+  } as any)
+const OrganizerAppEventsEventIdTermsRoute =
+  OrganizerAppEventsEventIdTermsRouteImport.update({
+    id: '/terms',
+    path: '/terms',
+    getParentRoute: () => OrganizerAppEventsEventIdRouteRoute,
+  } as any)
 const OrganizerAppEventsEventIdApplicationsApplicationIdRoute =
   OrganizerAppEventsEventIdApplicationsApplicationIdRouteImport.update({
-    id: "/applications_/$applicationId",
-    path: "/applications/$applicationId",
+    id: '/applications_/$applicationId',
+    path: '/applications/$applicationId',
     getParentRoute: () => OrganizerAppEventsEventIdRouteRoute,
   } as any)
 const OrganizerAppEventsEventIdApplicationsNewRoute =
   OrganizerAppEventsEventIdApplicationsNewRouteImport.update({
-    id: "/applications_/new",
-    path: "/applications/new",
+    id: '/applications_/new',
+    path: '/applications/new',
     getParentRoute: () => OrganizerAppEventsEventIdRouteRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
-  "/": typeof IndexRoute
-  "/email-change": typeof EmailChangeRoute
-  "/apply/$token": typeof ApplyTokenRoute
-  "/events/$publicToken": typeof EventsPublicTokenRoute
-  "/organizer": typeof OrganizerAppRouteWithChildren
-  "/organizer/login": typeof OrganizerLoginRoute
-  "/participant": typeof ParticipantAppRouteWithChildren
-  "/participant/login": typeof ParticipantLoginRoute
-  "/participant/magic-link": typeof ParticipantMagicLinkRoute
-  "/participant/set-password": typeof ParticipantSetPasswordRoute
-  "/catalog/": typeof CatalogIndexRoute
-  "/apply/confirmation/$accessToken": typeof ApplyConfirmationAccessTokenRoute
-  "/organizer/account": typeof OrganizerAppAccountRoute
-  "/participant/account": typeof ParticipantAppAccountRoute
-  "/organizer/": typeof OrganizerAppIndexRoute
-  "/participant/": typeof ParticipantAppIndexRoute
-  "/organizer/events/$eventId": typeof OrganizerAppEventsEventIdRouteRouteWithChildren
-  "/organizer/events/new": typeof OrganizerAppEventsNewRoute
-  "/participant/applications/$applicationId": typeof ParticipantAppApplicationsApplicationIdRoute
-  "/organizer/events/": typeof OrganizerAppEventsIndexRoute
-  "/organizer/events/$eventId/applications": typeof OrganizerAppEventsEventIdApplicationsRoute
-  "/organizer/events/$eventId/capacity": typeof OrganizerAppEventsEventIdCapacityRoute
-  "/organizer/events/$eventId/payments": typeof OrganizerAppEventsEventIdPaymentsRoute
-  "/organizer/events/$eventId/rooms": typeof OrganizerAppEventsEventIdRoomsRoute
-  "/organizer/events/$eventId/settings": typeof OrganizerAppEventsEventIdSettingsRoute
-  "/organizer/events/$eventId/terms": typeof OrganizerAppEventsEventIdTermsRoute
-  "/organizer/events/$eventId/": typeof OrganizerAppEventsEventIdIndexRoute
-  "/organizer/events/$eventId/applications/$applicationId": typeof OrganizerAppEventsEventIdApplicationsApplicationIdRoute
-  "/organizer/events/$eventId/applications/new": typeof OrganizerAppEventsEventIdApplicationsNewRoute
+  '/': typeof IndexRoute
+  '/email-change': typeof EmailChangeRoute
+  '/apply/$token': typeof ApplyTokenRoute
+  '/events/$publicToken': typeof EventsPublicTokenRoute
+  '/organizer': typeof OrganizerAppRouteWithChildren
+  '/organizer/login': typeof OrganizerLoginRoute
+  '/participant': typeof ParticipantAppRouteWithChildren
+  '/participant/login': typeof ParticipantLoginRoute
+  '/participant/magic-link': typeof ParticipantMagicLinkRoute
+  '/participant/set-password': typeof ParticipantSetPasswordRoute
+  '/catalog/': typeof CatalogIndexRoute
+  '/apply/confirmation/$accessToken': typeof ApplyConfirmationAccessTokenRoute
+  '/organizer/account': typeof OrganizerAppAccountRoute
+  '/participant/account': typeof ParticipantAppAccountRoute
+  '/organizer/': typeof OrganizerAppIndexRoute
+  '/participant/': typeof ParticipantAppIndexRoute
+  '/organizer/events/$eventId': typeof OrganizerAppEventsEventIdRouteRouteWithChildren
+  '/organizer/events/new': typeof OrganizerAppEventsNewRoute
+  '/participant/applications/$applicationId': typeof ParticipantAppApplicationsApplicationIdRoute
+  '/organizer/events/': typeof OrganizerAppEventsIndexRoute
+  '/organizer/events/$eventId/applications': typeof OrganizerAppEventsEventIdApplicationsRoute
+  '/organizer/events/$eventId/capacity': typeof OrganizerAppEventsEventIdCapacityRoute
+  '/organizer/events/$eventId/payments': typeof OrganizerAppEventsEventIdPaymentsRoute
+  '/organizer/events/$eventId/rooms': typeof OrganizerAppEventsEventIdRoomsRoute
+  '/organizer/events/$eventId/settings': typeof OrganizerAppEventsEventIdSettingsRoute
+  '/organizer/events/$eventId/terms': typeof OrganizerAppEventsEventIdTermsRoute
+  '/organizer/events/$eventId/': typeof OrganizerAppEventsEventIdIndexRoute
+  '/organizer/events/$eventId/applications/$applicationId': typeof OrganizerAppEventsEventIdApplicationsApplicationIdRoute
+  '/organizer/events/$eventId/applications/new': typeof OrganizerAppEventsEventIdApplicationsNewRoute
 }
 export interface FileRoutesByTo {
-  "/": typeof IndexRoute
-  "/email-change": typeof EmailChangeRoute
-  "/apply/$token": typeof ApplyTokenRoute
-  "/events/$publicToken": typeof EventsPublicTokenRoute
-  "/organizer/login": typeof OrganizerLoginRoute
-  "/participant/login": typeof ParticipantLoginRoute
-  "/participant/magic-link": typeof ParticipantMagicLinkRoute
-  "/participant/set-password": typeof ParticipantSetPasswordRoute
-  "/catalog": typeof CatalogIndexRoute
-  "/apply/confirmation/$accessToken": typeof ApplyConfirmationAccessTokenRoute
-  "/organizer/account": typeof OrganizerAppAccountRoute
-  "/participant/account": typeof ParticipantAppAccountRoute
-  "/organizer": typeof OrganizerAppIndexRoute
-  "/participant": typeof ParticipantAppIndexRoute
-  "/organizer/events/new": typeof OrganizerAppEventsNewRoute
-  "/participant/applications/$applicationId": typeof ParticipantAppApplicationsApplicationIdRoute
-  "/organizer/events": typeof OrganizerAppEventsIndexRoute
-  "/organizer/events/$eventId/applications": typeof OrganizerAppEventsEventIdApplicationsRoute
-  "/organizer/events/$eventId/capacity": typeof OrganizerAppEventsEventIdCapacityRoute
-  "/organizer/events/$eventId/payments": typeof OrganizerAppEventsEventIdPaymentsRoute
-  "/organizer/events/$eventId/rooms": typeof OrganizerAppEventsEventIdRoomsRoute
-  "/organizer/events/$eventId/settings": typeof OrganizerAppEventsEventIdSettingsRoute
-  "/organizer/events/$eventId/terms": typeof OrganizerAppEventsEventIdTermsRoute
-  "/organizer/events/$eventId": typeof OrganizerAppEventsEventIdIndexRoute
-  "/organizer/events/$eventId/applications/$applicationId": typeof OrganizerAppEventsEventIdApplicationsApplicationIdRoute
-  "/organizer/events/$eventId/applications/new": typeof OrganizerAppEventsEventIdApplicationsNewRoute
+  '/': typeof IndexRoute
+  '/email-change': typeof EmailChangeRoute
+  '/apply/$token': typeof ApplyTokenRoute
+  '/events/$publicToken': typeof EventsPublicTokenRoute
+  '/organizer/login': typeof OrganizerLoginRoute
+  '/participant/login': typeof ParticipantLoginRoute
+  '/participant/magic-link': typeof ParticipantMagicLinkRoute
+  '/participant/set-password': typeof ParticipantSetPasswordRoute
+  '/catalog': typeof CatalogIndexRoute
+  '/apply/confirmation/$accessToken': typeof ApplyConfirmationAccessTokenRoute
+  '/organizer/account': typeof OrganizerAppAccountRoute
+  '/participant/account': typeof ParticipantAppAccountRoute
+  '/organizer': typeof OrganizerAppIndexRoute
+  '/participant': typeof ParticipantAppIndexRoute
+  '/organizer/events/new': typeof OrganizerAppEventsNewRoute
+  '/participant/applications/$applicationId': typeof ParticipantAppApplicationsApplicationIdRoute
+  '/organizer/events': typeof OrganizerAppEventsIndexRoute
+  '/organizer/events/$eventId/applications': typeof OrganizerAppEventsEventIdApplicationsRoute
+  '/organizer/events/$eventId/capacity': typeof OrganizerAppEventsEventIdCapacityRoute
+  '/organizer/events/$eventId/payments': typeof OrganizerAppEventsEventIdPaymentsRoute
+  '/organizer/events/$eventId/rooms': typeof OrganizerAppEventsEventIdRoomsRoute
+  '/organizer/events/$eventId/settings': typeof OrganizerAppEventsEventIdSettingsRoute
+  '/organizer/events/$eventId/terms': typeof OrganizerAppEventsEventIdTermsRoute
+  '/organizer/events/$eventId': typeof OrganizerAppEventsEventIdIndexRoute
+  '/organizer/events/$eventId/applications/$applicationId': typeof OrganizerAppEventsEventIdApplicationsApplicationIdRoute
+  '/organizer/events/$eventId/applications/new': typeof OrganizerAppEventsEventIdApplicationsNewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  "/": typeof IndexRoute
-  "/email-change": typeof EmailChangeRoute
-  "/apply/$token": typeof ApplyTokenRoute
-  "/events/$publicToken": typeof EventsPublicTokenRoute
-  "/organizer/_app": typeof OrganizerAppRouteWithChildren
-  "/organizer/login": typeof OrganizerLoginRoute
-  "/participant/_app": typeof ParticipantAppRouteWithChildren
-  "/participant/login": typeof ParticipantLoginRoute
-  "/participant/magic-link": typeof ParticipantMagicLinkRoute
-  "/participant/set-password": typeof ParticipantSetPasswordRoute
-  "/catalog/": typeof CatalogIndexRoute
-  "/apply/confirmation/$accessToken": typeof ApplyConfirmationAccessTokenRoute
-  "/organizer/_app/account": typeof OrganizerAppAccountRoute
-  "/participant/_app/account": typeof ParticipantAppAccountRoute
-  "/organizer/_app/": typeof OrganizerAppIndexRoute
-  "/participant/_app/": typeof ParticipantAppIndexRoute
-  "/organizer/_app/events/$eventId": typeof OrganizerAppEventsEventIdRouteRouteWithChildren
-  "/organizer/_app/events/new": typeof OrganizerAppEventsNewRoute
-  "/participant/_app/applications/$applicationId": typeof ParticipantAppApplicationsApplicationIdRoute
-  "/organizer/_app/events/": typeof OrganizerAppEventsIndexRoute
-  "/organizer/_app/events/$eventId/applications": typeof OrganizerAppEventsEventIdApplicationsRoute
-  "/organizer/_app/events/$eventId/capacity": typeof OrganizerAppEventsEventIdCapacityRoute
-  "/organizer/_app/events/$eventId/payments": typeof OrganizerAppEventsEventIdPaymentsRoute
-  "/organizer/_app/events/$eventId/rooms": typeof OrganizerAppEventsEventIdRoomsRoute
-  "/organizer/_app/events/$eventId/settings": typeof OrganizerAppEventsEventIdSettingsRoute
-  "/organizer/_app/events/$eventId/terms": typeof OrganizerAppEventsEventIdTermsRoute
-  "/organizer/_app/events/$eventId/": typeof OrganizerAppEventsEventIdIndexRoute
-  "/organizer/_app/events/$eventId/applications_/$applicationId": typeof OrganizerAppEventsEventIdApplicationsApplicationIdRoute
-  "/organizer/_app/events/$eventId/applications_/new": typeof OrganizerAppEventsEventIdApplicationsNewRoute
+  '/': typeof IndexRoute
+  '/email-change': typeof EmailChangeRoute
+  '/apply/$token': typeof ApplyTokenRoute
+  '/events/$publicToken': typeof EventsPublicTokenRoute
+  '/organizer/_app': typeof OrganizerAppRouteWithChildren
+  '/organizer/login': typeof OrganizerLoginRoute
+  '/participant/_app': typeof ParticipantAppRouteWithChildren
+  '/participant/login': typeof ParticipantLoginRoute
+  '/participant/magic-link': typeof ParticipantMagicLinkRoute
+  '/participant/set-password': typeof ParticipantSetPasswordRoute
+  '/catalog/': typeof CatalogIndexRoute
+  '/apply/confirmation/$accessToken': typeof ApplyConfirmationAccessTokenRoute
+  '/organizer/_app/account': typeof OrganizerAppAccountRoute
+  '/participant/_app/account': typeof ParticipantAppAccountRoute
+  '/organizer/_app/': typeof OrganizerAppIndexRoute
+  '/participant/_app/': typeof ParticipantAppIndexRoute
+  '/organizer/_app/events/$eventId': typeof OrganizerAppEventsEventIdRouteRouteWithChildren
+  '/organizer/_app/events/new': typeof OrganizerAppEventsNewRoute
+  '/participant/_app/applications/$applicationId': typeof ParticipantAppApplicationsApplicationIdRoute
+  '/organizer/_app/events/': typeof OrganizerAppEventsIndexRoute
+  '/organizer/_app/events/$eventId/applications': typeof OrganizerAppEventsEventIdApplicationsRoute
+  '/organizer/_app/events/$eventId/capacity': typeof OrganizerAppEventsEventIdCapacityRoute
+  '/organizer/_app/events/$eventId/payments': typeof OrganizerAppEventsEventIdPaymentsRoute
+  '/organizer/_app/events/$eventId/rooms': typeof OrganizerAppEventsEventIdRoomsRoute
+  '/organizer/_app/events/$eventId/settings': typeof OrganizerAppEventsEventIdSettingsRoute
+  '/organizer/_app/events/$eventId/terms': typeof OrganizerAppEventsEventIdTermsRoute
+  '/organizer/_app/events/$eventId/': typeof OrganizerAppEventsEventIdIndexRoute
+  '/organizer/_app/events/$eventId/applications_/$applicationId': typeof OrganizerAppEventsEventIdApplicationsApplicationIdRoute
+  '/organizer/_app/events/$eventId/applications_/new': typeof OrganizerAppEventsEventIdApplicationsNewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | "/"
-    | "/email-change"
-    | "/apply/$token"
-    | "/events/$publicToken"
-    | "/organizer"
-    | "/organizer/login"
-    | "/participant"
-    | "/participant/login"
-    | "/participant/magic-link"
-    | "/participant/set-password"
-    | "/catalog/"
-    | "/apply/confirmation/$accessToken"
-    | "/organizer/account"
-    | "/participant/account"
-    | "/organizer/"
-    | "/participant/"
-    | "/organizer/events/$eventId"
-    | "/organizer/events/new"
-    | "/participant/applications/$applicationId"
-    | "/organizer/events/"
-    | "/organizer/events/$eventId/applications"
-    | "/organizer/events/$eventId/capacity"
-    | "/organizer/events/$eventId/payments"
-    | "/organizer/events/$eventId/rooms"
-    | "/organizer/events/$eventId/settings"
-    | "/organizer/events/$eventId/terms"
-    | "/organizer/events/$eventId/"
-    | "/organizer/events/$eventId/applications/$applicationId"
-    | "/organizer/events/$eventId/applications/new"
+    | '/'
+    | '/email-change'
+    | '/apply/$token'
+    | '/events/$publicToken'
+    | '/organizer'
+    | '/organizer/login'
+    | '/participant'
+    | '/participant/login'
+    | '/participant/magic-link'
+    | '/participant/set-password'
+    | '/catalog/'
+    | '/apply/confirmation/$accessToken'
+    | '/organizer/account'
+    | '/participant/account'
+    | '/organizer/'
+    | '/participant/'
+    | '/organizer/events/$eventId'
+    | '/organizer/events/new'
+    | '/participant/applications/$applicationId'
+    | '/organizer/events/'
+    | '/organizer/events/$eventId/applications'
+    | '/organizer/events/$eventId/capacity'
+    | '/organizer/events/$eventId/payments'
+    | '/organizer/events/$eventId/rooms'
+    | '/organizer/events/$eventId/settings'
+    | '/organizer/events/$eventId/terms'
+    | '/organizer/events/$eventId/'
+    | '/organizer/events/$eventId/applications/$applicationId'
+    | '/organizer/events/$eventId/applications/new'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | "/"
-    | "/email-change"
-    | "/apply/$token"
-    | "/events/$publicToken"
-    | "/organizer/login"
-    | "/participant/login"
-    | "/participant/magic-link"
-    | "/participant/set-password"
-    | "/catalog"
-    | "/apply/confirmation/$accessToken"
-    | "/organizer/account"
-    | "/participant/account"
-    | "/organizer"
-    | "/participant"
-    | "/organizer/events/new"
-    | "/participant/applications/$applicationId"
-    | "/organizer/events"
-    | "/organizer/events/$eventId/applications"
-    | "/organizer/events/$eventId/capacity"
-    | "/organizer/events/$eventId/payments"
-    | "/organizer/events/$eventId/rooms"
-    | "/organizer/events/$eventId/settings"
-    | "/organizer/events/$eventId/terms"
-    | "/organizer/events/$eventId"
-    | "/organizer/events/$eventId/applications/$applicationId"
-    | "/organizer/events/$eventId/applications/new"
+    | '/'
+    | '/email-change'
+    | '/apply/$token'
+    | '/events/$publicToken'
+    | '/organizer/login'
+    | '/participant/login'
+    | '/participant/magic-link'
+    | '/participant/set-password'
+    | '/catalog'
+    | '/apply/confirmation/$accessToken'
+    | '/organizer/account'
+    | '/participant/account'
+    | '/organizer'
+    | '/participant'
+    | '/organizer/events/new'
+    | '/participant/applications/$applicationId'
+    | '/organizer/events'
+    | '/organizer/events/$eventId/applications'
+    | '/organizer/events/$eventId/capacity'
+    | '/organizer/events/$eventId/payments'
+    | '/organizer/events/$eventId/rooms'
+    | '/organizer/events/$eventId/settings'
+    | '/organizer/events/$eventId/terms'
+    | '/organizer/events/$eventId'
+    | '/organizer/events/$eventId/applications/$applicationId'
+    | '/organizer/events/$eventId/applications/new'
   id:
-    | "__root__"
-    | "/"
-    | "/email-change"
-    | "/apply/$token"
-    | "/events/$publicToken"
-    | "/organizer/_app"
-    | "/organizer/login"
-    | "/participant/_app"
-    | "/participant/login"
-    | "/participant/magic-link"
-    | "/participant/set-password"
-    | "/catalog/"
-    | "/apply/confirmation/$accessToken"
-    | "/organizer/_app/account"
-    | "/participant/_app/account"
-    | "/organizer/_app/"
-    | "/participant/_app/"
-    | "/organizer/_app/events/$eventId"
-    | "/organizer/_app/events/new"
-    | "/participant/_app/applications/$applicationId"
-    | "/organizer/_app/events/"
-    | "/organizer/_app/events/$eventId/applications"
-    | "/organizer/_app/events/$eventId/capacity"
-    | "/organizer/_app/events/$eventId/payments"
-    | "/organizer/_app/events/$eventId/rooms"
-    | "/organizer/_app/events/$eventId/settings"
-    | "/organizer/_app/events/$eventId/terms"
-    | "/organizer/_app/events/$eventId/"
-    | "/organizer/_app/events/$eventId/applications_/$applicationId"
-    | "/organizer/_app/events/$eventId/applications_/new"
+    | '__root__'
+    | '/'
+    | '/email-change'
+    | '/apply/$token'
+    | '/events/$publicToken'
+    | '/organizer/_app'
+    | '/organizer/login'
+    | '/participant/_app'
+    | '/participant/login'
+    | '/participant/magic-link'
+    | '/participant/set-password'
+    | '/catalog/'
+    | '/apply/confirmation/$accessToken'
+    | '/organizer/_app/account'
+    | '/participant/_app/account'
+    | '/organizer/_app/'
+    | '/participant/_app/'
+    | '/organizer/_app/events/$eventId'
+    | '/organizer/_app/events/new'
+    | '/participant/_app/applications/$applicationId'
+    | '/organizer/_app/events/'
+    | '/organizer/_app/events/$eventId/applications'
+    | '/organizer/_app/events/$eventId/capacity'
+    | '/organizer/_app/events/$eventId/payments'
+    | '/organizer/_app/events/$eventId/rooms'
+    | '/organizer/_app/events/$eventId/settings'
+    | '/organizer/_app/events/$eventId/terms'
+    | '/organizer/_app/events/$eventId/'
+    | '/organizer/_app/events/$eventId/applications_/$applicationId'
+    | '/organizer/_app/events/$eventId/applications_/new'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -388,208 +396,208 @@ export interface RootRouteChildren {
   ApplyConfirmationAccessTokenRoute: typeof ApplyConfirmationAccessTokenRoute
 }
 
-declare module "@tanstack/react-router" {
+declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    "/": {
-      id: "/"
-      path: "/"
-      fullPath: "/"
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    "/email-change": {
-      id: "/email-change"
-      path: "/email-change"
-      fullPath: "/email-change"
+    '/email-change': {
+      id: '/email-change'
+      path: '/email-change'
+      fullPath: '/email-change'
       preLoaderRoute: typeof EmailChangeRouteImport
       parentRoute: typeof rootRouteImport
     }
-    "/apply/$token": {
-      id: "/apply/$token"
-      path: "/apply/$token"
-      fullPath: "/apply/$token"
+    '/apply/$token': {
+      id: '/apply/$token'
+      path: '/apply/$token'
+      fullPath: '/apply/$token'
       preLoaderRoute: typeof ApplyTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
-    "/catalog/": {
-      id: "/catalog/"
-      path: "/catalog"
-      fullPath: "/catalog/"
+    '/catalog/': {
+      id: '/catalog/'
+      path: '/catalog'
+      fullPath: '/catalog/'
       preLoaderRoute: typeof CatalogIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    "/events/$publicToken": {
-      id: "/events/$publicToken"
-      path: "/events/$publicToken"
-      fullPath: "/events/$publicToken"
+    '/events/$publicToken': {
+      id: '/events/$publicToken'
+      path: '/events/$publicToken'
+      fullPath: '/events/$publicToken'
       preLoaderRoute: typeof EventsPublicTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
-    "/organizer/_app": {
-      id: "/organizer/_app"
-      path: "/organizer"
-      fullPath: "/organizer"
+    '/organizer/_app': {
+      id: '/organizer/_app'
+      path: '/organizer'
+      fullPath: '/organizer'
       preLoaderRoute: typeof OrganizerAppRouteImport
       parentRoute: typeof rootRouteImport
     }
-    "/organizer/login": {
-      id: "/organizer/login"
-      path: "/organizer/login"
-      fullPath: "/organizer/login"
+    '/organizer/login': {
+      id: '/organizer/login'
+      path: '/organizer/login'
+      fullPath: '/organizer/login'
       preLoaderRoute: typeof OrganizerLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    "/participant/_app": {
-      id: "/participant/_app"
-      path: "/participant"
-      fullPath: "/participant"
+    '/participant/_app': {
+      id: '/participant/_app'
+      path: '/participant'
+      fullPath: '/participant'
       preLoaderRoute: typeof ParticipantAppRouteImport
       parentRoute: typeof rootRouteImport
     }
-    "/participant/login": {
-      id: "/participant/login"
-      path: "/participant/login"
-      fullPath: "/participant/login"
+    '/participant/login': {
+      id: '/participant/login'
+      path: '/participant/login'
+      fullPath: '/participant/login'
       preLoaderRoute: typeof ParticipantLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    "/participant/magic-link": {
-      id: "/participant/magic-link"
-      path: "/participant/magic-link"
-      fullPath: "/participant/magic-link"
+    '/participant/magic-link': {
+      id: '/participant/magic-link'
+      path: '/participant/magic-link'
+      fullPath: '/participant/magic-link'
       preLoaderRoute: typeof ParticipantMagicLinkRouteImport
       parentRoute: typeof rootRouteImport
     }
-    "/participant/set-password": {
-      id: "/participant/set-password"
-      path: "/participant/set-password"
-      fullPath: "/participant/set-password"
+    '/participant/set-password': {
+      id: '/participant/set-password'
+      path: '/participant/set-password'
+      fullPath: '/participant/set-password'
       preLoaderRoute: typeof ParticipantSetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
-    "/apply/confirmation/$accessToken": {
-      id: "/apply/confirmation/$accessToken"
-      path: "/apply/confirmation/$accessToken"
-      fullPath: "/apply/confirmation/$accessToken"
+    '/apply/confirmation/$accessToken': {
+      id: '/apply/confirmation/$accessToken'
+      path: '/apply/confirmation/$accessToken'
+      fullPath: '/apply/confirmation/$accessToken'
       preLoaderRoute: typeof ApplyConfirmationAccessTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
-    "/organizer/_app/": {
-      id: "/organizer/_app/"
-      path: "/"
-      fullPath: "/organizer/"
+    '/organizer/_app/': {
+      id: '/organizer/_app/'
+      path: '/'
+      fullPath: '/organizer/'
       preLoaderRoute: typeof OrganizerAppIndexRouteImport
       parentRoute: typeof OrganizerAppRoute
     }
-    "/organizer/_app/account": {
-      id: "/organizer/_app/account"
-      path: "/account"
-      fullPath: "/organizer/account"
+    '/organizer/_app/account': {
+      id: '/organizer/_app/account'
+      path: '/account'
+      fullPath: '/organizer/account'
       preLoaderRoute: typeof OrganizerAppAccountRouteImport
       parentRoute: typeof OrganizerAppRoute
     }
-    "/participant/_app/": {
-      id: "/participant/_app/"
-      path: "/"
-      fullPath: "/participant/"
+    '/participant/_app/': {
+      id: '/participant/_app/'
+      path: '/'
+      fullPath: '/participant/'
       preLoaderRoute: typeof ParticipantAppIndexRouteImport
       parentRoute: typeof ParticipantAppRoute
     }
-    "/participant/_app/account": {
-      id: "/participant/_app/account"
-      path: "/account"
-      fullPath: "/participant/account"
+    '/participant/_app/account': {
+      id: '/participant/_app/account'
+      path: '/account'
+      fullPath: '/participant/account'
       preLoaderRoute: typeof ParticipantAppAccountRouteImport
       parentRoute: typeof ParticipantAppRoute
     }
-    "/organizer/_app/events/": {
-      id: "/organizer/_app/events/"
-      path: "/events"
-      fullPath: "/organizer/events/"
+    '/organizer/_app/events/': {
+      id: '/organizer/_app/events/'
+      path: '/events'
+      fullPath: '/organizer/events/'
       preLoaderRoute: typeof OrganizerAppEventsIndexRouteImport
       parentRoute: typeof OrganizerAppRoute
     }
-    "/organizer/_app/events/$eventId": {
-      id: "/organizer/_app/events/$eventId"
-      path: "/events/$eventId"
-      fullPath: "/organizer/events/$eventId"
+    '/organizer/_app/events/$eventId': {
+      id: '/organizer/_app/events/$eventId'
+      path: '/events/$eventId'
+      fullPath: '/organizer/events/$eventId'
       preLoaderRoute: typeof OrganizerAppEventsEventIdRouteRouteImport
       parentRoute: typeof OrganizerAppRoute
     }
-    "/organizer/_app/events/new": {
-      id: "/organizer/_app/events/new"
-      path: "/events/new"
-      fullPath: "/organizer/events/new"
+    '/organizer/_app/events/new': {
+      id: '/organizer/_app/events/new'
+      path: '/events/new'
+      fullPath: '/organizer/events/new'
       preLoaderRoute: typeof OrganizerAppEventsNewRouteImport
       parentRoute: typeof OrganizerAppRoute
     }
-    "/participant/_app/applications/$applicationId": {
-      id: "/participant/_app/applications/$applicationId"
-      path: "/applications/$applicationId"
-      fullPath: "/participant/applications/$applicationId"
+    '/participant/_app/applications/$applicationId': {
+      id: '/participant/_app/applications/$applicationId'
+      path: '/applications/$applicationId'
+      fullPath: '/participant/applications/$applicationId'
       preLoaderRoute: typeof ParticipantAppApplicationsApplicationIdRouteImport
       parentRoute: typeof ParticipantAppRoute
     }
-    "/organizer/_app/events/$eventId/": {
-      id: "/organizer/_app/events/$eventId/"
-      path: "/"
-      fullPath: "/organizer/events/$eventId/"
+    '/organizer/_app/events/$eventId/': {
+      id: '/organizer/_app/events/$eventId/'
+      path: '/'
+      fullPath: '/organizer/events/$eventId/'
       preLoaderRoute: typeof OrganizerAppEventsEventIdIndexRouteImport
       parentRoute: typeof OrganizerAppEventsEventIdRouteRoute
     }
-    "/organizer/_app/events/$eventId/applications": {
-      id: "/organizer/_app/events/$eventId/applications"
-      path: "/applications"
-      fullPath: "/organizer/events/$eventId/applications"
+    '/organizer/_app/events/$eventId/applications': {
+      id: '/organizer/_app/events/$eventId/applications'
+      path: '/applications'
+      fullPath: '/organizer/events/$eventId/applications'
       preLoaderRoute: typeof OrganizerAppEventsEventIdApplicationsRouteImport
       parentRoute: typeof OrganizerAppEventsEventIdRouteRoute
     }
-    "/organizer/_app/events/$eventId/capacity": {
-      id: "/organizer/_app/events/$eventId/capacity"
-      path: "/capacity"
-      fullPath: "/organizer/events/$eventId/capacity"
+    '/organizer/_app/events/$eventId/capacity': {
+      id: '/organizer/_app/events/$eventId/capacity'
+      path: '/capacity'
+      fullPath: '/organizer/events/$eventId/capacity'
       preLoaderRoute: typeof OrganizerAppEventsEventIdCapacityRouteImport
       parentRoute: typeof OrganizerAppEventsEventIdRouteRoute
     }
-    "/organizer/_app/events/$eventId/payments": {
-      id: "/organizer/_app/events/$eventId/payments"
-      path: "/payments"
-      fullPath: "/organizer/events/$eventId/payments"
+    '/organizer/_app/events/$eventId/payments': {
+      id: '/organizer/_app/events/$eventId/payments'
+      path: '/payments'
+      fullPath: '/organizer/events/$eventId/payments'
       preLoaderRoute: typeof OrganizerAppEventsEventIdPaymentsRouteImport
       parentRoute: typeof OrganizerAppEventsEventIdRouteRoute
     }
-    "/organizer/_app/events/$eventId/rooms": {
-      id: "/organizer/_app/events/$eventId/rooms"
-      path: "/rooms"
-      fullPath: "/organizer/events/$eventId/rooms"
+    '/organizer/_app/events/$eventId/rooms': {
+      id: '/organizer/_app/events/$eventId/rooms'
+      path: '/rooms'
+      fullPath: '/organizer/events/$eventId/rooms'
       preLoaderRoute: typeof OrganizerAppEventsEventIdRoomsRouteImport
       parentRoute: typeof OrganizerAppEventsEventIdRouteRoute
     }
-    "/organizer/_app/events/$eventId/settings": {
-      id: "/organizer/_app/events/$eventId/settings"
-      path: "/settings"
-      fullPath: "/organizer/events/$eventId/settings"
+    '/organizer/_app/events/$eventId/settings': {
+      id: '/organizer/_app/events/$eventId/settings'
+      path: '/settings'
+      fullPath: '/organizer/events/$eventId/settings'
       preLoaderRoute: typeof OrganizerAppEventsEventIdSettingsRouteImport
       parentRoute: typeof OrganizerAppEventsEventIdRouteRoute
     }
-    "/organizer/_app/events/$eventId/terms": {
-      id: "/organizer/_app/events/$eventId/terms"
-      path: "/terms"
-      fullPath: "/organizer/events/$eventId/terms"
+    '/organizer/_app/events/$eventId/terms': {
+      id: '/organizer/_app/events/$eventId/terms'
+      path: '/terms'
+      fullPath: '/organizer/events/$eventId/terms'
       preLoaderRoute: typeof OrganizerAppEventsEventIdTermsRouteImport
       parentRoute: typeof OrganizerAppEventsEventIdRouteRoute
     }
-    "/organizer/_app/events/$eventId/applications_/$applicationId": {
-      id: "/organizer/_app/events/$eventId/applications_/$applicationId"
-      path: "/applications/$applicationId"
-      fullPath: "/organizer/events/$eventId/applications/$applicationId"
+    '/organizer/_app/events/$eventId/applications_/$applicationId': {
+      id: '/organizer/_app/events/$eventId/applications_/$applicationId'
+      path: '/applications/$applicationId'
+      fullPath: '/organizer/events/$eventId/applications/$applicationId'
       preLoaderRoute: typeof OrganizerAppEventsEventIdApplicationsApplicationIdRouteImport
       parentRoute: typeof OrganizerAppEventsEventIdRouteRoute
     }
-    "/organizer/_app/events/$eventId/applications_/new": {
-      id: "/organizer/_app/events/$eventId/applications_/new"
-      path: "/applications/new"
-      fullPath: "/organizer/events/$eventId/applications/new"
+    '/organizer/_app/events/$eventId/applications_/new': {
+      id: '/organizer/_app/events/$eventId/applications_/new'
+      path: '/applications/new'
+      fullPath: '/organizer/events/$eventId/applications/new'
       preLoaderRoute: typeof OrganizerAppEventsEventIdApplicationsNewRouteImport
       parentRoute: typeof OrganizerAppEventsEventIdRouteRoute
     }
@@ -608,21 +616,29 @@ interface OrganizerAppEventsEventIdRouteRouteChildren {
   OrganizerAppEventsEventIdApplicationsNewRoute: typeof OrganizerAppEventsEventIdApplicationsNewRoute
 }
 
-const OrganizerAppEventsEventIdRouteRouteChildren: OrganizerAppEventsEventIdRouteRouteChildren = {
-  OrganizerAppEventsEventIdApplicationsRoute: OrganizerAppEventsEventIdApplicationsRoute,
-  OrganizerAppEventsEventIdCapacityRoute: OrganizerAppEventsEventIdCapacityRoute,
-  OrganizerAppEventsEventIdPaymentsRoute: OrganizerAppEventsEventIdPaymentsRoute,
-  OrganizerAppEventsEventIdRoomsRoute: OrganizerAppEventsEventIdRoomsRoute,
-  OrganizerAppEventsEventIdSettingsRoute: OrganizerAppEventsEventIdSettingsRoute,
-  OrganizerAppEventsEventIdTermsRoute: OrganizerAppEventsEventIdTermsRoute,
-  OrganizerAppEventsEventIdIndexRoute: OrganizerAppEventsEventIdIndexRoute,
-  OrganizerAppEventsEventIdApplicationsApplicationIdRoute:
-    OrganizerAppEventsEventIdApplicationsApplicationIdRoute,
-  OrganizerAppEventsEventIdApplicationsNewRoute: OrganizerAppEventsEventIdApplicationsNewRoute,
-}
+const OrganizerAppEventsEventIdRouteRouteChildren: OrganizerAppEventsEventIdRouteRouteChildren =
+  {
+    OrganizerAppEventsEventIdApplicationsRoute:
+      OrganizerAppEventsEventIdApplicationsRoute,
+    OrganizerAppEventsEventIdCapacityRoute:
+      OrganizerAppEventsEventIdCapacityRoute,
+    OrganizerAppEventsEventIdPaymentsRoute:
+      OrganizerAppEventsEventIdPaymentsRoute,
+    OrganizerAppEventsEventIdRoomsRoute: OrganizerAppEventsEventIdRoomsRoute,
+    OrganizerAppEventsEventIdSettingsRoute:
+      OrganizerAppEventsEventIdSettingsRoute,
+    OrganizerAppEventsEventIdTermsRoute: OrganizerAppEventsEventIdTermsRoute,
+    OrganizerAppEventsEventIdIndexRoute: OrganizerAppEventsEventIdIndexRoute,
+    OrganizerAppEventsEventIdApplicationsApplicationIdRoute:
+      OrganizerAppEventsEventIdApplicationsApplicationIdRoute,
+    OrganizerAppEventsEventIdApplicationsNewRoute:
+      OrganizerAppEventsEventIdApplicationsNewRoute,
+  }
 
 const OrganizerAppEventsEventIdRouteRouteWithChildren =
-  OrganizerAppEventsEventIdRouteRoute._addFileChildren(OrganizerAppEventsEventIdRouteRouteChildren)
+  OrganizerAppEventsEventIdRouteRoute._addFileChildren(
+    OrganizerAppEventsEventIdRouteRouteChildren,
+  )
 
 interface OrganizerAppRouteChildren {
   OrganizerAppAccountRoute: typeof OrganizerAppAccountRoute
@@ -635,12 +651,15 @@ interface OrganizerAppRouteChildren {
 const OrganizerAppRouteChildren: OrganizerAppRouteChildren = {
   OrganizerAppAccountRoute: OrganizerAppAccountRoute,
   OrganizerAppIndexRoute: OrganizerAppIndexRoute,
-  OrganizerAppEventsEventIdRouteRoute: OrganizerAppEventsEventIdRouteRouteWithChildren,
+  OrganizerAppEventsEventIdRouteRoute:
+    OrganizerAppEventsEventIdRouteRouteWithChildren,
   OrganizerAppEventsNewRoute: OrganizerAppEventsNewRoute,
   OrganizerAppEventsIndexRoute: OrganizerAppEventsIndexRoute,
 }
 
-const OrganizerAppRouteWithChildren = OrganizerAppRoute._addFileChildren(OrganizerAppRouteChildren)
+const OrganizerAppRouteWithChildren = OrganizerAppRoute._addFileChildren(
+  OrganizerAppRouteChildren,
+)
 
 interface ParticipantAppRouteChildren {
   ParticipantAppAccountRoute: typeof ParticipantAppAccountRoute
@@ -651,7 +670,8 @@ interface ParticipantAppRouteChildren {
 const ParticipantAppRouteChildren: ParticipantAppRouteChildren = {
   ParticipantAppAccountRoute: ParticipantAppAccountRoute,
   ParticipantAppIndexRoute: ParticipantAppIndexRoute,
-  ParticipantAppApplicationsApplicationIdRoute: ParticipantAppApplicationsApplicationIdRoute,
+  ParticipantAppApplicationsApplicationIdRoute:
+    ParticipantAppApplicationsApplicationIdRoute,
 }
 
 const ParticipantAppRouteWithChildren = ParticipantAppRoute._addFileChildren(
