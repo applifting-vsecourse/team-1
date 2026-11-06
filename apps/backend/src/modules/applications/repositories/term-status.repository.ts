@@ -145,6 +145,13 @@ export class TermStatusRepository {
     approvedRequest?: { id: string; reviewerId: string },
   ): Promise<ApplicationChange | null | undefined> {
     return this.prisma.$transaction(async (tx) => {
+      const target = await tx.application.findFirst({
+        where: { id: applicationId, userId },
+        select: { eventId: true },
+      })
+      if (!target) return undefined
+      await tx.$queryRaw`SELECT id FROM event WHERE id = ${target.eventId} FOR UPDATE`
+      // An edit of the participant's identity can commit while we wait for the event lock.
       const application = await tx.application.findFirst({
         where: { id: applicationId, userId },
         include: {
@@ -152,7 +159,6 @@ export class TermStatusRepository {
         },
       })
       if (!application) return undefined
-      await tx.$queryRaw`SELECT id FROM event WHERE id = ${application.eventId} FOR UPDATE`
       const event = await tx.event.findUniqueOrThrow({
         where: { id: application.eventId },
         select: { cancellationStartsOn: true, evaluationMode: true },
