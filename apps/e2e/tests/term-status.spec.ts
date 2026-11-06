@@ -2,9 +2,9 @@ import { expect, test } from "@playwright/test"
 import { ORGANIZER, SUMMER_CAMP_LINK } from "./support/accounts"
 import { signIn } from "./support/auth"
 
-// US-28: the organizer cancels an application in a term by hand; the change lands in the log.
+// US-28 / US-32: the organizer withdraws a confirmed participant from a term; the change lands in the log.
 test.describe("Status of an application in a term", () => {
-  test("organizer cancels an application in a term and the change is logged", async ({ page }) => {
+  test("organizer withdraws a participant from a term and the change is logged", async ({ page }) => {
     // Unique per run: the same name and birth date on the same term is a duplicate (US-23).
     const lastName = `Zrušený ${Date.now()}`
     await page.goto(SUMMER_CAMP_LINK)
@@ -36,11 +36,14 @@ test.describe("Status of an application in a term", () => {
     await expect(detail).toHaveCount(1)
     await detail.click()
 
-    await page.getByRole("button", { name: "Cancel in term" }).click()
-    await page.getByRole("dialog").getByRole("button", { name: "Cancel in term" }).click()
+    await page.getByRole("button", { name: "Withdraw", exact: true }).click()
+    const dialog = page.getByRole("dialog")
+    await expect(dialog.getByRole("heading", { name: "Impact of the withdrawal" })).toBeVisible()
+    await dialog.getByRole("button", { name: "Confirm withdrawal" }).click()
 
     await expect(page.getByRole("dialog")).not.toBeVisible()
-    await expect(page.getByText(/Confirmed → Cancelled/)).toBeVisible()
-    await expect(page.getByRole("button", { name: "Cancel in term" })).not.toBeVisible()
+    await expect(page.getByRole("heading", { name: "The participant was withdrawn" })).toBeVisible()
+    await expect(page.getByText(/Confirmed → Cancelled/).first()).toBeVisible()
+    await expect(page.getByRole("button", { name: "Withdraw", exact: true })).not.toBeVisible()
   })
 })

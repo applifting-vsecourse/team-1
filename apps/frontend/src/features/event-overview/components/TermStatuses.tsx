@@ -16,7 +16,12 @@ import {
   type TermStatusDetail,
 } from "@/features/event-overview/api/termStatus"
 import { OrganizerTermChange } from "@/features/event-overview/components/OrganizerTermChange"
+import {
+  OrganizerWithdrawal,
+  type WithdrawalOutcome,
+} from "@/features/event-overview/components/OrganizerWithdrawal"
 import { TermStatusChange } from "@/features/event-overview/components/TermStatusChange"
+import { WithdrawalResult } from "@/features/event-overview/components/WithdrawalResult"
 
 const BADGE = {
   TO_EVALUATE: "secondary",
@@ -39,6 +44,9 @@ export function TermStatuses({ applicationId }: { applicationId: string }) {
   const { t } = useTranslation("eventOverview")
   const { data, isPending, error, refetch } = useQuery(termStatusesQueryOptions(applicationId))
   const [change, setChange] = useState<{ term: TermStatusDetail; to: TermStatus } | null>(null)
+  // US-32: the term the withdrawal dialog opens on; `null` there means the whole application.
+  const [withdrawal, setWithdrawal] = useState<{ termId: string | null } | null>(null)
+  const [outcome, setOutcome] = useState<WithdrawalOutcome | null>(null)
   if (isPending) return <LoadingState />
   if (error) {
     return (
@@ -49,11 +57,28 @@ export function TermStatuses({ applicationId }: { applicationId: string }) {
       />
     )
   }
+  const active = data.filter((term) => term.status !== "CANCELLED")
   return (
     <Card className="gap-4 p-4 md:p-6">
-      <div className="flex flex-col gap-1">
-        <h2 className="text-lg font-semibold">{t("termStatus.title")}</h2>
-        <p className="text-sm text-muted-foreground">{t("termStatus.helper")}</p>
+      {outcome ? (
+        <WithdrawalResult
+          outcome={outcome}
+          onBack={() => setOutcome(null)}
+        />
+      ) : null}
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="flex flex-col gap-1">
+          <h2 className="text-lg font-semibold">{t("termStatus.title")}</h2>
+          <p className="text-sm text-muted-foreground">{t("termStatus.helper")}</p>
+        </div>
+        {active.length > 1 ? (
+          <Button
+            variant="outline"
+            onClick={() => setWithdrawal({ termId: null })}
+          >
+            {t("withdrawal.triggerWhole")}
+          </Button>
+        ) : null}
       </div>
       <ul className="flex flex-col">
         {data.map((term) => (
@@ -71,15 +96,26 @@ export function TermStatuses({ applicationId }: { applicationId: string }) {
                     term={term}
                   />
                 )}
-                {term.allowedStatuses.map((status) => (
+                {term.status === "CONFIRMED" ? (
                   <Button
-                    key={status}
-                    variant={status === "CANCELLED" ? "outline" : "default"}
-                    onClick={() => setChange({ term, to: status })}
+                    variant="outline"
+                    onClick={() => setWithdrawal({ termId: term.termId })}
                   >
-                    {t(`termStatus.action.${ACTION_KEY[status]}`)}
+                    {t("withdrawal.trigger")}
                   </Button>
-                ))}
+                ) : null}
+                {term.allowedStatuses
+                  // US-32: a confirmed term is left through the withdrawal, which shows its impact.
+                  .filter((status) => !(term.status === "CONFIRMED" && status === "CANCELLED"))
+                  .map((status) => (
+                    <Button
+                      key={status}
+                      variant={status === "CANCELLED" ? "outline" : "default"}
+                      onClick={() => setChange({ term, to: status })}
+                    >
+                      {t(`termStatus.action.${ACTION_KEY[status]}`)}
+                    </Button>
+                  ))}
               </div>
             </div>
             {term.history.length > 0 ? (
@@ -99,6 +135,18 @@ export function TermStatuses({ applicationId }: { applicationId: string }) {
           </li>
         ))}
       </ul>
+      {withdrawal ? (
+        <OrganizerWithdrawal
+          applicationId={applicationId}
+          terms={active}
+          initialTermId={withdrawal.termId}
+          onClose={() => setWithdrawal(null)}
+          onDone={(result) => {
+            setWithdrawal(null)
+            setOutcome(result)
+          }}
+        />
+      ) : null}
       {change ? (
         <TermStatusChange
           applicationId={applicationId}

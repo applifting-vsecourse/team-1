@@ -425,5 +425,38 @@
     },
     "system": "Systém",
     "title": "Stav v termínech"
+  },
+  "withdrawal": {
+    "back": "Zpět",
+    "done": {
+      "description": "Přihlašovatel dostane e-mail o změně.",
+      "title": "Účastník byl odhlášen"
+    },
+    "errorTitle": "Dopad odhlášení se nepodařilo načíst",
+    "impactTitle": "Dopad odhlášení",
+    "noRefundDescription": "Vratku zapíšete ručně po domluvě s přihlašovatelem. Změna zůstane v historii a přihlašovatel dostane e-mail.",
+    "noRefundTitle": "Platba se automaticky nevrací",
+    "oneTerm": "Jeden termín · {{term}}",
+    "othersUnchanged": "Druhý termín zůstane beze změny.",
+    "overpayment": "Přeplatek po odhlášení {{amount}}",
+    "paidAndDebt": "Zaplaceno {{paid}} · Dluh po odhlášení {{debt}}",
+    "result": {
+      "back": "Zpět na detail přihlášky",
+      "emailSent": "Přihlašovateli byl odeslán e-mail.",
+      "history": "Historie · {{date}} · {{who}}",
+      "money": "Dluh {{debt}} · Přeplatek {{overpayment}}",
+      "term": "{{term}} · Zrušená",
+      "title": "Účastník byl odhlášen",
+      "transition": "{{from}} → {{to}}"
+    },
+    "scope": "Rozsah odhlášení",
+    "submit": "Potvrdit odhlášení",
+    "submitWholeAll": "Odhlásit ze všech termínů",
+    "submitWholeTwo": "Odhlásit oba termíny",
+    "title": "Odhlásit účastníka",
+    "trigger": "Odhlásit",
+    "triggerWhole": "Odhlásit celou přihlášku",
+    "wholeImpactTitle": "Finanční dopad po termínech",
+    "wholeTitle": "Odhlásit celou přihlášku"
   }
 }
