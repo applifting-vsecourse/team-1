@@ -75,7 +75,7 @@ V `pnpm-lock.yaml` žádný balíček `brotli` není a `pnpm audit` ho nehlásí
 
 | Kategorie                 | Stav           | Co jsme našli                                                                                                                                                                                                                                                                                                                  |
 | ------------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| A01 Řízení přístupu       | Neúplné        | Pravidla `@Auth` a `OrganizationAccessService` existují. Kontrola endpointů jednoho po druhém je [#331](https://github.com/applifting-vsecourse/team-1/issues/331).                                                                                                                                                            |
+| A01 Řízení přístupu       | Bez nálezu     | Všechny endpointy prošly kontrolou ([#331](https://github.com/applifting-vsecourse/team-1/issues/331)): organizátor nedostane data cizí organizace, účastník cizí přihlášku. Integrační test volá každý endpoint organizátora jako cizí organizátor. Viz [Řízení přístupu po endpointech](#řízení-přístupu-po-endpointech).    |
 | A02 Kryptografie          | Bez nálezu     | Hesla a session řeší BetterAuth. Staging běží na HTTPS a posílá HSTS.                                                                                                                                                                                                                                                          |
 | A03 Injection             | Bez nálezu     | Ve zdrojích aplikace jen parametrizovaný `$queryRaw`, `$executeRawUnsafe` je jen v seedu a testech. Žádný `dangerouslySetInnerHTML`. CSP zakazuje inline skripty. Validaci všech vstupů jsme neprocházeli.                                                                                                                     |
 | A04 Nezabezpečený návrh   | Bez nálezu     | Veřejná přihláška má limit 20 za minutu a 100 za hodinu na IP podle PO ([#338](https://github.com/applifting-vsecourse/team-1/pull/338)). Souvisí s [US-74](https://github.com/applifting-vsecourse/team-1/issues/74).                                                                                                         |
@@ -84,7 +84,79 @@ V `pnpm-lock.yaml` žádný balíček `brotli` není a `pnpm audit` ho nehlásí
 | A07 Autentizace           | Bez nálezu     | Registrace je vypnutá, session platí 7 dní bez návštěvy. Přihlášení má limit 5 pokusů heslem a 3 magic linky za minutu na IP ([#338](https://github.com/applifting-vsecourse/team-1/pull/338)).                                                                                                                                |
 | A08 Integrita softwaru    | Bez nálezu     | CI instaluje s `--frozen-lockfile`, GitHub Actions jsou připnuté na SHA commitu, dependency review blokuje PR s novou vysokou nebo kritickou zranitelností.                                                                                                                                                                    |
 | A09 Logování a monitoring | Mimo rozsah    | Řeší [US-75](https://github.com/applifting-vsecourse/team-1/issues/75).                                                                                                                                                                                                                                                        |
-| A10 SSRF                  | Neověřeno      | Cílenou kontrolu jsme nedělali, je součástí [#331](https://github.com/applifting-vsecourse/team-1/issues/331).                                                                                                                                                                                                                 |
+| A10 SSRF                  | Bez nálezu     | Server nevolá žádnou adresu ze vstupu uživatele ([#331](https://github.com/applifting-vsecourse/team-1/issues/331)). Viz [SSRF](#ssrf).                                                                                                                                                                                        |
+
+## Řízení přístupu po endpointech
+
+Kontrola z [#331](https://github.com/applifting-vsecourse/team-1/issues/331) k 6. 11. 2026: každý endpoint z `apps/backend/src/modules/*/controllers`, bez BetterAuth pod `/api/auth/*` (černá skříňka). Cesty jsou pod `/api`.
+
+- **Ochrana:** `ORGANIZER` a `PARTICIPANT` je `@Auth('ORGANIZER')` / `@Auth('PARTICIPANT')` na controlleru (bez session 401, jiný typ účtu 403), `@Auth()` pustí kohokoliv přihlášeného, „veřejný“ je bez dekorátoru.
+- **Organizace:** jak endpoint omezí data na organizace přihlášeného organizátora. `akce` = `assertCanAccessEvent`, `přihláška` = `assertCanAccessApplication`, `seznam` = `getOrganizationIds`. Vnořené id (termín, pokoj, žádost o změnu, doklad o platbě, přihlášky v hromadné akci) repository hledá jen v té akci nebo přihlášce a jejich organizaci.
+- **Identita:** uživatel vždy z `@User()` (session). Žádné tělo požadavku nenese id uživatele ani autora, `organizationId` při založení akce se ověří přes `assertCanAccessOrganization`.
+- **Test:** pro organizátora [`organization-isolation.int-spec.ts`](../apps/backend/src/shared/organization-access/organization-isolation.int-spec.ts) zavolá každý endpoint jako organizátor jiné organizace a čeká 403 s tělem jen `{ statusCode, code, message }` a beze změny dat organizace. Druhá část podstrčí cizí vnořené id pod vlastní akci nebo přihlášku.
+
+### Organizátor
+
+| Controller                         | Metoda a cesta                                                                                            | Ochrana     | Organizace                                  | Výsledek |
+| ---------------------------------- | --------------------------------------------------------------------------------------------------------- | ----------- | ------------------------------------------- | -------- |
+| `OrganizerEventsController`        | `POST /organizer/events`                                                                                  | `ORGANIZER` | `assertCanAccessOrganization`, jinak jediná | OK       |
+|                                    | `GET /organizer/events`                                                                                   | `ORGANIZER` | seznam                                      | OK       |
+|                                    | `GET`, `DELETE /organizer/events/:eventId`                                                                | `ORGANIZER` | akce                                        | OK       |
+|                                    | `PUT …/public-page`, `PATCH …/evaluation-mode`, `PUT …/cancellation-start`                                | `ORGANIZER` | akce                                        | OK       |
+|                                    | `GET`, `PUT`, `DELETE …/photo`                                                                            | `ORGANIZER` | akce                                        | OK       |
+| `OrganizerTermsController`         | `GET`, `POST /organizer/events/:eventId/terms`, `PATCH …/:termId`, `POST …/:termId/cancel`                | `ORGANIZER` | akce, termín akce                           | OK       |
+| `RoomsController`                  | `GET …/terms/:termId/rooms`, `PATCH …/room-mode`, `POST …/rooms`, `PUT`, `DELETE …/rooms/:id`             | `ORGANIZER` | akce, termín a pokoj organizace             | OK       |
+| `CapacityController`               | `GET /organizer/events/:eventId/capacity`, `GET …/capacity/details`                                       | `ORGANIZER` | akce                                        | OK       |
+| `ApplicationListController`        | `GET /organizer/events/:eventId/applications`                                                             | `ORGANIZER` | akce                                        | OK       |
+| `OccupancyController`              | `GET /organizer/events/:eventId/occupancy`                                                                | `ORGANIZER` | akce                                        | OK       |
+| `OrganizerChangeRequestController` | `GET /organizer/events/:eventId/change-requests`, `GET …/:requestId`, `PATCH …/approve`, `PATCH …/reject` | `ORGANIZER` | akce, žádost akce                           | OK       |
+| `BulkConfirmationController`       | `POST …/terms/:termId/bulk-confirmation/preview`, `POST …/bulk-confirmation`                              | `ORGANIZER` | akce, cizí přihlášky zůstanou beze změny    | OK       |
+| `BulkDecisionController`           | `POST …/terms/:termId/bulk-decision`                                                                      | `ORGANIZER` | akce, cizí přihlášky zůstanou beze změny    | OK       |
+| `SubstitutesController`            | `GET …/terms/:termId/substitutes`, `GET …/history`, `POST …/:applicationId/confirm`                       | `ORGANIZER` | akce, termín akce (cizí 404)                | OK       |
+| `TermStatusController`             | `GET /organizer/applications/:applicationId/terms`, `PATCH …/:termId/status`                              | `ORGANIZER` | přihláška, termín přihlášky (cizí 404)      | OK       |
+| `OrganizerTermChangeController`    | `GET …/terms/change-options`, `GET …/terms/change-preview`, `PUT …/terms`                                 | `ORGANIZER` | přihláška                                   | OK       |
+| `PaymentsController`               | `GET`, `POST /organizer/applications/:applicationId/payments`, `POST …/refunds`                           | `ORGANIZER` | přihláška                                   | OK       |
+|                                    | `POST …/:receiptId/preview`, `PATCH`, `DELETE …/:receiptId`                                               | `ORGANIZER` | přihláška, doklad přihlášky                 | OK       |
+| `OrganizerProfileController`       | `GET /organizer/profile`                                                                                  | `ORGANIZER` | jen vlastní účet                            | OK       |
+
+### Účastník a každý přihlášený
+
+Data účastníka se hledají podle `userId` ze session, cizí přihláška nebo žádost vrací 403.
+
+| Controller                                        | Metoda a cesta                                                                   | Ochrana       | Omezení                       | Test                                              | Výsledek |
+| ------------------------------------------------- | -------------------------------------------------------------------------------- | ------------- | ----------------------------- | ------------------------------------------------- | -------- |
+| `MyApplicationsController`                        | `GET /participant/applications`, `GET …/:id`                                     | `PARTICIPANT` | přihlášky uživatele           | `my-applications.int-spec.ts`                     | OK       |
+| `ParticipantTermChangeController`                 | `GET /participant/applications/:applicationId/change-options`, `PUT …/terms`     | `PARTICIPANT` | přihláška uživatele           | `participant-term-change.int-spec.ts`             | OK       |
+| `ParticipantChangeRequestController`              | `GET`, `POST /participant/applications/:applicationId/change-requests`           | `PARTICIPANT` | přihláška uživatele           | `change-request.int-spec.ts`                      | OK       |
+| `ParticipantChangeRequestNotificationsController` | `GET /participant/change-request-notifications`, `PATCH …/:requestId/read`       | `PARTICIPANT` | žádosti uživatele             | `change-request.int-spec.ts`                      | OK       |
+| `ParticipantPasswordController`                   | `POST /participant/password`                                                     | `@Auth()`     | vlastní účet, organizátor 403 | `participant-password.int-spec.ts`                | OK       |
+| `MeController`                                    | `GET`, `PATCH /me`, `POST /me/email-change`                                      | `@Auth()`     | vlastní účet                  | `account.int-spec.ts`, `email-change.int-spec.ts` | OK       |
+| `NotificationsController`                         | `GET /notifications`, `GET …/unread-count`, `POST …/read-all`, `POST …/:id/read` | `@Auth()`     | oznámení uživatele, cizí 404  | `notifications.int-spec.ts`                       | OK       |
+
+### Veřejné endpointy
+
+| Controller                   | Metoda a cesta                                        | Proč je veřejný                                                                                                                                              | Výsledek |
+| ---------------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------- |
+| `ApplicationsController`     | `POST /public/events/:publicToken/applications`       | Přihlášku podává zájemce bez účtu z odkazu akce. Limit 20 za minutu a 100 za hodinu na IP ([#338](https://github.com/applifting-vsecourse/team-1/pull/338)). | OK       |
+| `PublicEventsController`     | `GET /public/events/:publicToken`                     | Formulář přihlášky z odkazu akce. Token je náhodný, vrací jen název, popis, místo a termíny s cenami.                                                        | OK       |
+| `PublicCatalogController`    | `GET /public/catalog`                                 | Katalog akcí, jen akce zveřejněné organizátorem.                                                                                                             | OK       |
+|                              | `GET /public/events/:publicToken/page`, `GET …/photo` | Veřejná stránka akce a její fotka pro odkaz akce.                                                                                                            | OK       |
+| `SubmissionStatusController` | `GET /public/applications/:accessToken`               | Stav přihlášky z e-mailu bez účtu. Tajný `accessToken` je pověření ([PROJEKT.md, kap. 10](PROJEKT.md)).                                                      | OK       |
+| `WelcomeController`          | `GET /`, `GET /health`                                | Rozcestník API a kontrola stavu pro nasazení, nevrací žádná data.                                                                                            | OK       |
+
+### Nálezy
+
+- Žádný endpoint nepustí organizátora k datům cizí organizace ani účastníka k cizí přihlášce.
+- Cizí vnořené id pod vlastní akcí nebo přihláškou odpovídá u náhradníků a stavu přihlášky v termínu 404 místo 403, stejně jako neexistující id. Nic neprozradí a takhle to chtějí stávající testy (`substitutes.int-spec.ts`, `term-status.int-spec.ts`), proto beze změny.
+
+## SSRF
+
+Kontrola z [#331](https://github.com/applifting-vsecourse/team-1/issues/331) k 6. 11. 2026: server nikde nevolá adresu převzatou ze vstupu uživatele.
+
+- **Odchozí volání:** jen e-mail přes Resend (pevná adresa API v SDK) nebo SMTP (server z proměnných prostředí). Žádný `fetch`, `axios` ani jiný HTTP klient v kódu aplikace, žádné webhooky.
+- **Obrázky:** fotka veřejné stránky se nahrává jako bajty v těle požadavku, server nic nestahuje.
+- **Odkazy v e-mailech:** skládají se z `FRONTEND_URL` v konfiguraci, nikdy z hlavičky `Host` nebo z požadavku.
+- **Přesměrování:** aplikace sama nepřesměrovává. `callbackURL` u přihlášení přes BetterAuth omezuje `trustedOrigins` na `FRONTEND_URL`.
 
 ## Sledování zranitelností
 
@@ -105,7 +177,7 @@ Popsané v [`SECURITY.md`](../SECURITY.md). Ve zkratce:
 | 4   | Vypnout Swagger v produkci, nebo ho záměrně nechat veřejný.                              | Otevřené ([#295](https://github.com/applifting-vsecourse/team-1/issues/295), čeká na PO).                                                                                                                          |
 | 5   | Povýšit nginx na podporovanou větev, aktualizovat `multer`, `qs`, `zod` a `seroval`.     | Hotovo ([#286](https://github.com/applifting-vsecourse/team-1/pull/286), [#327](https://github.com/applifting-vsecourse/team-1/pull/327), [#329](https://github.com/applifting-vsecourse/team-1/pull/329)).        |
 | 6   | Zapnout Dependabot security updates a secret scanning.                                   | Hotovo ([#284](https://github.com/applifting-vsecourse/team-1/pull/284) a nastavení repa).                                                                                                                         |
-| 7   | Projít endpointy jeden po druhém podle A01 a A10.                                        | Otevřené ([#331](https://github.com/applifting-vsecourse/team-1/issues/331)).                                                                                                                                      |
+| 7   | Projít endpointy jeden po druhém podle A01 a A10.                                        | Hotovo ([#331](https://github.com/applifting-vsecourse/team-1/issues/331)).                                                                                                                                        |
 | 8   | Připnout GitHub Actions na SHA commitu.                                                  | Hotovo ([#333](https://github.com/applifting-vsecourse/team-1/pull/333)).                                                                                                                                          |
 | 9   | Dostat klíč k Resend z Docker image do proměnných prostředí.                             | Otevřené ([#296](https://github.com/applifting-vsecourse/team-1/issues/296), čeká na přístup do Coolify).                                                                                                          |
 | 10  | Odstranit zbylé kritické a vysoké zranitelnosti v závislostech.                          | Hotovo ([#353](https://github.com/applifting-vsecourse/team-1/pull/353)).                                                                                                                                          |
