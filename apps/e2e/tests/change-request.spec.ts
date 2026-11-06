@@ -18,6 +18,7 @@ test("participant submits a cancellation request and organizer declines it at 36
   await page.getByRole("button", { name: "Save settings" }).click()
   await expect(page.getByText("Date saved.", { exact: true })).toBeVisible()
   await signOut(page, ORGANIZER)
+  await expect(page).toHaveURL(/\/$/)
 
   await signIn(page, "participant", PARTICIPANT)
   await page.setViewportSize({ width: 360, height: 800 })
@@ -36,6 +37,7 @@ test("participant submits a cancellation request and organizer declines it at 36
   ).toBeVisible()
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(360)
   await signOut(page, PARTICIPANT)
+  await expect(page).toHaveURL(/\/$/)
 
   await signIn(page, "organizer", ORGANIZER)
   await page.setViewportSize({ width: 1280, height: 800 })
