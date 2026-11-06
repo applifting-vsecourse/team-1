@@ -44,7 +44,7 @@ type Draft = {
   email: string
   phone: string
   consent: boolean
-  statuses: Record<string, "" | Status>
+  statuses: Record<string, Status | undefined>
 }
 
 const emptyDraft: Draft = {
@@ -406,13 +406,13 @@ export function ManualApplicationPage({
                   <TermPrice amountCzk={term.priceCzk} />
                 </Label>
                 <Select
-                  value={draft.statuses[term.id] || "UNSELECTED"}
+                  value={draft.statuses[term.id] ?? "UNSELECTED"}
                   onValueChange={(value) => {
                     setDraft((current) => ({
                       ...current,
                       statuses: {
                         ...current.statuses,
-                        [term.id]: value === "UNSELECTED" ? "" : (value as Status),
+                        [term.id]: value === "UNSELECTED" ? undefined : (value as Status),
                       },
                     }))
                     setErrors((current) => ({ ...current, terms: "" }))
