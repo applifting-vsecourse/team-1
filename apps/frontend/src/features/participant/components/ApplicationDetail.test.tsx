@@ -632,7 +632,7 @@ describe("ApplicationDetail", () => {
 
       await openAll()
       const card = (await screen.findByText("Due date")).closest<HTMLElement>("[data-slot='card']")!
-      expect(within(card).getByText(/15 November 2026/)).toBeInTheDocument()
+      expect(within(card).getByText(/15 Nov 2026/)).toBeInTheDocument()
       expect(
         await within(card).findByRole("img", { name: "QR code for the term payment" }),
       ).toHaveAttribute("src", "data:image/png;base64,AAAA")
