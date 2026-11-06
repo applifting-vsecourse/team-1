@@ -1,4 +1,7 @@
-import { ParticipantChangeOptions } from "@/modules/applications/domain/participant-term-change"
+import {
+  ParticipantChangeOptions,
+  ParticipantTermChangeResult,
+} from "@/modules/applications/domain/participant-term-change"
 import {
   changeEmailKind,
   rejectStatusChange,
@@ -44,10 +47,11 @@ export class TermStatusService {
     user: Identity,
     applicationId: string,
     termIds: string[],
-  ): Promise<void> {
+  ): Promise<ParticipantTermChangeResult> {
     const change = await this.repository.changeParticipantTerms(user.id, applicationId, termIds)
     if (change === undefined) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
     if (change) await this.mailer.sendApplicationChange(change)
+    return { addedTerms: change?.addedTerms ?? [] }
   }
 
   async getTerms(user: Identity, applicationId: string): Promise<TermStatusDetail[]> {

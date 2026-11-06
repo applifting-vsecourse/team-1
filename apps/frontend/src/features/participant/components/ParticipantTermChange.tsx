@@ -111,46 +111,64 @@ export function ParticipantTermChange({
           ...(target ? [target.id] : []),
         ]
   const canSubmit = removed.length > 0 && (mode === "cancel" || Boolean(target))
+  const removedImpactLines = removed.map((term) => {
+    const status = application.terms.find((item) => item.termId === term.id)?.status
+    const hasPaymentImpact = term.paidCzk !== 0 || term.owedAfterCancellationCzk !== 0
+    return hasPaymentImpact
+      ? t(mode === "change" ? "change.removedPaidChange" : "change.removedPaid", {
+          term: termTitle(term),
+          paid: formatCzk(term.paidCzk),
+          overpaid: formatCzk(term.overpaymentAfterCancellationCzk),
+          debt: formatCzk(term.owedAfterCancellationCzk),
+        })
+      : t(
+          mode === "change"
+            ? "change.removedNoPaymentChange"
+            : status === "WAITLISTED"
+              ? "change.removedNoPayment"
+              : "change.removedNoPaymentGeneric",
+          { term: termTitle(term) },
+        )
+  })
+  const newTermLine = (term: NonNullable<typeof target>, owedCzk: number) =>
+    t("change.newPrice", {
+      term: termTitle(term),
+      price: formatCzk(term.priceCzk),
+      owed: formatCzk(owedCzk),
+    })
   const impactLines = [
-    ...removed.map((term) => {
-      const status = application.terms.find((item) => item.termId === term.id)?.status
-      const hasPaymentImpact = term.paidCzk !== 0 || term.owedAfterCancellationCzk !== 0
-      return hasPaymentImpact
-        ? t(mode === "change" ? "change.removedPaidChange" : "change.removedPaid", {
-            term: termTitle(term),
-            paid: formatCzk(term.paidCzk),
-            overpaid: formatCzk(term.overpaymentAfterCancellationCzk),
-            debt: formatCzk(term.owedAfterCancellationCzk),
-          })
-        : t(
-            mode === "change"
-              ? "change.removedNoPaymentChange"
-              : status === "WAITLISTED"
-                ? "change.removedNoPayment"
-                : "change.removedNoPaymentGeneric",
-            { term: termTitle(term) },
-          )
-    }),
-    ...(mode === "change" && target
-      ? [t("change.newPrice", { term: termTitle(target), price: formatCzk(target.priceCzk) })]
-      : []),
+    ...removedImpactLines,
+    ...(mode === "change" && target ? [newTermLine(target, target.owedAfterChangeCzk)] : []),
   ]
   const mutation = useMutation({
-    mutationFn: async (_snapshot: { details: string[]; targetLabel?: string }) => {
+    mutationFn: async (_snapshot: { details: string[]; target?: typeof target }) => {
       if (options.data?.canChangeImmediately) {
-        await changeParticipantTerms(application.id, selectedIds)
-        return null
+        return {
+          request: null,
+          change: await changeParticipantTerms(application.id, selectedIds),
+        }
       }
-      return submitChangeRequest(application.id, selectedIds)
+      return { request: await submitChangeRequest(application.id, selectedIds), change: null }
     },
-    onSuccess: async (request, snapshot) => {
+    onSuccess: async ({ request, change }, snapshot) => {
       await client.invalidateQueries({ queryKey: ["participant", "applications"] })
       await client.invalidateQueries({ queryKey: ["participant", "change-request-notifications"] })
       setResult({
         kind: request ? "requested" : mode === "cancel" ? "cancelled" : "changed",
         mode,
-        details: snapshot.details,
-        targetLabel: snapshot.targetLabel,
+        details: [
+          ...snapshot.details,
+          ...(snapshot.target && change
+            ? [
+                newTermLine(
+                  snapshot.target,
+                  change.addedTerms.find((term) => term.termId === snapshot.target?.id)?.owedCzk ??
+                    0,
+                ),
+              ]
+            : []),
+        ],
+        targetLabel: snapshot.target && termLine(snapshot.target),
         at: request?.createdAt,
       })
     },
@@ -365,7 +383,10 @@ export function ParticipantTermChange({
           disabled={mutation.isPending}
           onClick={() =>
             canSubmit
-              ? mutation.mutate({ details: impactLines, targetLabel: target && termLine(target) })
+              ? mutation.mutate({
+                  details: removedImpactLines,
+                  target: mode === "change" ? target : undefined,
+                })
               : setHasValidationError(true)
           }
         >

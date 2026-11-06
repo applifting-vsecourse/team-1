@@ -33,7 +33,7 @@
     "immediateTitle": "Změna se provede ihned",
     "impact": "Dopad změny",
     "loadError": "Dostupné termíny se nepodařilo načíst",
-    "newPrice": "Nový termín {{term}} · Cena {{price}} · K doplacení {{price}}",
+    "newPrice": "Nový termín {{term}} · Cena {{price}} · K doplacení {{owed}}",
     "noAvailableTerms": "Není dostupný další termín.",
     "noTransfer": "Platba se mezi termíny nepřevádí.",
     "open": "Změnit termíny",

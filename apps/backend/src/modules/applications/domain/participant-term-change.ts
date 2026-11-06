@@ -8,6 +8,8 @@ export type ParticipantTermOption = {
   startsOn: string
   endsOn: string
   priceCzk: number
+  /** Projected debt if this term is added now, evaluated by the domain. */
+  owedAfterChangeCzk: number
   paidCzk: number
   owedAfterCancellationCzk: number
   overpaymentAfterCancellationCzk: number
@@ -17,6 +19,11 @@ export type ParticipantTermOption = {
 export type ParticipantChangeOptions = {
   canChangeImmediately: boolean
   terms: ParticipantTermOption[]
+}
+
+/** Payment impact of newly added terms, calculated in the write transaction. */
+export type ParticipantTermChangeResult = {
+  addedTerms: { termId: string; owedCzk: number }[]
 }
 
 /** One Prague calendar day controls both the options and the write. */

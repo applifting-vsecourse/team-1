@@ -107,7 +107,11 @@ const withTerms = (
 const cardOf = (heading: RegExp): HTMLElement =>
   screen.getByRole("heading", { name: heading }).closest<HTMLElement>("[data-slot='card']")!
 
-const renderDetail = (data: MyApplication, canChangeImmediately = true) => {
+const renderDetail = (
+  data: MyApplication,
+  canChangeImmediately = true,
+  owedAfterChangeCzk = 4900,
+) => {
   const paid = (termId: string) =>
     data.paymentDetails?.terms.find((payment) => payment.termId === termId)?.paidCzk ?? 0
   get.mockImplementation((path: string) => ({
@@ -125,6 +129,7 @@ const renderDetail = (data: MyApplication, canChangeImmediately = true) => {
                     startsOn: "2027-07-04",
                     endsOn: "2027-07-10",
                     priceCzk: 4500,
+                    owedAfterChangeCzk: 4500,
                     paidCzk: paid("t1"),
                     owedAfterCancellationCzk: 0,
                     overpaymentAfterCancellationCzk: paid("t1"),
@@ -138,6 +143,7 @@ const renderDetail = (data: MyApplication, canChangeImmediately = true) => {
                     startsOn: "2027-07-11",
                     endsOn: "2027-07-17",
                     priceCzk: 4900,
+                    owedAfterChangeCzk,
                     paidCzk: paid("t2"),
                     owedAfterCancellationCzk: 0,
                     overpaymentAfterCancellationCzk: paid("t2"),
@@ -192,7 +198,9 @@ describe("ApplicationDetail", () => {
 
   it("lets the participant immediately change the selected terms", async () => {
     const user = userEvent.setup()
-    put.mockResolvedValue(undefined)
+    put.mockReturnValue({
+      json: () => Promise.resolve({ addedTerms: [{ termId: "t2", owedCzk: 4900 }] }),
+    })
     renderDetail(application())
 
     await user.click(await screen.findByRole("button", { name: "Change terms" }))
@@ -203,6 +211,42 @@ describe("ApplicationDetail", () => {
     expect(put).toHaveBeenCalledWith("participant/applications/a1/terms", {
       json: { termIds: ["t2"] },
     })
+    expect(await screen.findByRole("heading", { name: "Term changed" })).toBeInTheDocument()
+    expect(
+      screen.getByText("New term 2. týden · Price CZK 4,900 · Amount due CZK 4,900"),
+    ).toBeInTheDocument()
+  })
+
+  it("shows the price separately from zero debt for an unconfirmed term", async () => {
+    const user = userEvent.setup()
+    put.mockReturnValue({
+      json: () => Promise.resolve({ addedTerms: [{ termId: "t2", owedCzk: 0 }] }),
+    })
+    renderDetail(application(), true, 0)
+
+    await user.click(await screen.findByRole("button", { name: "Change terms" }))
+    const impact = "New term 2. týden · Price CZK 4,900 · Amount due CZK 0"
+    expect(screen.getByText(impact)).toBeInTheDocument()
+    await user.click(screen.getByRole("button", { name: "Confirm change" }))
+    expect(await screen.findByRole("heading", { name: "Term changed" })).toBeInTheDocument()
+    expect(screen.getByText(impact)).toBeInTheDocument()
+  })
+
+  it("uses the committed debt when capacity changes after the preview", async () => {
+    const user = userEvent.setup()
+    put.mockReturnValue({
+      json: () => Promise.resolve({ addedTerms: [{ termId: "t2", owedCzk: 0 }] }),
+    })
+    renderDetail(application())
+
+    await user.click(await screen.findByRole("button", { name: "Change terms" }))
+    expect(screen.getByText(/Amount due CZK 4,900/)).toBeInTheDocument()
+    await user.click(screen.getByRole("button", { name: "Confirm change" }))
+    expect(await screen.findByRole("heading", { name: "Term changed" })).toBeInTheDocument()
+    expect(
+      screen.getByText(/New term 2. týden · Price CZK 4,900 · Amount due CZK 0/),
+    ).toBeInTheDocument()
+    expect(screen.queryByText(/Amount due CZK 4,900/)).not.toBeInTheDocument()
   })
 
   it("submits an approval request after cancellation starts", async () => {
@@ -238,7 +282,7 @@ describe("ApplicationDetail", () => {
 
   it("cancels one term and shows its payment and bed impact before confirmation", async () => {
     const user = userEvent.setup()
-    put.mockResolvedValue(undefined)
+    put.mockReturnValue({ json: () => Promise.resolve({ addedTerms: [] }) })
     renderDetail(withTerms([termPayment(1, 4500, 4500, "PAID")]))
 
     await user.click(await screen.findByRole("button", { name: "Cancel participation" }))

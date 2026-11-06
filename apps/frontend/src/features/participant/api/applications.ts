@@ -99,6 +99,7 @@ const changeOptionsSchema = z.object({
       startsOn: z.string(),
       endsOn: z.string(),
       priceCzk: z.number().int(),
+      owedAfterChangeCzk: z.number().int(),
       paidCzk: z.number().int(),
       owedAfterCancellationCzk: z.number().int(),
       overpaymentAfterCancellationCzk: z.number().int(),
@@ -116,8 +117,16 @@ export const participantChangeOptionsQueryOptions = (id: string) =>
       ),
   })
 
-export async function changeParticipantTerms(id: string, termIds: string[]): Promise<void> {
-  await api.put(`participant/applications/${encodeURIComponent(id)}/terms`, {
-    json: { termIds },
-  })
+const termChangeResultSchema = z.object({
+  addedTerms: z.array(z.object({ termId: z.string(), owedCzk: z.number().int() })),
+})
+
+export async function changeParticipantTerms(id: string, termIds: string[]) {
+  return termChangeResultSchema.parse(
+    await api
+      .put(`participant/applications/${encodeURIComponent(id)}/terms`, {
+        json: { termIds },
+      })
+      .json(),
+  )
 }
