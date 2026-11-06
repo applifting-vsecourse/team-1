@@ -1,4 +1,5 @@
 import { TermChangeImpact } from "@/modules/applications/domain/organizer-term-change"
+import { WithdrawalImpact } from "@/modules/applications/domain/organizer-withdrawal"
 import {
   ParticipantChangeOptions,
   ParticipantTermChangeResult,
@@ -100,6 +101,40 @@ export class TermStatusService {
     if (change === undefined) throw new AppException(HttpStatus.NOT_FOUND, "NOT_FOUND")
     if (change) await this.mailer.sendApplicationChange(change)
     return { changed: change !== null, changedAt: new Date(), changedByName: user.name }
+  }
+
+  /** What a withdrawal entered by an organizer would do to the money, before it is saved (US-32). */
+  async previewWithdrawalByOrganizer(
+    user: Identity,
+    applicationId: string,
+    termIds: string[],
+  ): Promise<WithdrawalImpact> {
+    const { organizationId } = await this.access.assertCanAccessApplication(user, applicationId)
+    const impact = await this.repository.previewWithdrawal(organizationId, applicationId, termIds)
+    if (!impact) throw new AppException(HttpStatus.NOT_FOUND, "NOT_FOUND")
+    return impact
+  }
+
+  /**
+   * An organizer withdraws the participant from the given terms (US-32): the terms become
+   * cancelled, the change is logged with the organizer and the applicant gets one e-mail.
+   */
+  async withdrawByOrganizer(
+    user: Identity,
+    applicationId: string,
+    termIds: string[],
+  ): Promise<{ changedAt: Date; changedByName: string | null }> {
+    const { organizationId } = await this.access.assertCanAccessApplication(user, applicationId)
+    const change = await this.repository.withdrawTermsByOrganizer(
+      organizationId,
+      applicationId,
+      termIds,
+      user.id,
+    )
+    if (change === undefined) throw new AppException(HttpStatus.NOT_FOUND, "NOT_FOUND")
+    // The mailer logs a failed delivery itself and never throws.
+    if (change) await this.mailer.sendApplicationChange(change)
+    return { changedAt: new Date(), changedByName: user.name }
   }
 
   async getTerms(user: Identity, applicationId: string): Promise<TermStatusDetail[]> {

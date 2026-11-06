@@ -459,5 +459,27 @@
     },
     "system": "System",
     "title": "Status in terms"
+  },
+  "withdrawal": {
+    "back": "Back",
+    "debt": "Debt after withdrawal",
+    "done": "The participant was withdrawn",
+    "errorTitle": "Could not load the impact of the withdrawal",
+    "impactTitle": "Impact of the withdrawal",
+    "noRefundDescription": "You record the refund by hand after agreeing it with the applicant. The change stays in the history and the applicant gets an e-mail.",
+    "noRefundTitle": "The payment is not refunded automatically",
+    "oneTerm": "One term · {{term}}",
+    "othersUnchanged": "The other term stays unchanged.",
+    "overpaymentLabel": "Overpayment",
+    "paid": "Paid",
+    "scope": "Withdrawal scope",
+    "submit": "Withdraw participant",
+    "submitWholeAll": "Withdraw from all terms",
+    "submitWholeTwo": "Withdraw from both terms",
+    "title": "Withdraw participant",
+    "trigger": "Withdraw",
+    "triggerWhole": "Withdraw the whole application",
+    "wholeImpactTitle": "Financial impact per term",
+    "wholeTitle": "Withdraw the whole application"
   }
 }

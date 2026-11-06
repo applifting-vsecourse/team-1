@@ -95,4 +95,21 @@ describe("TermStatuses", () => {
       json: { status: "CONFIRMED", confirmOverCapacity: true },
     })
   })
+
+  it("withdraws a confirmed or waitlisted term instead of cancelling it, and offers the whole application from two terms", async () => {
+    get.mockReturnValue({
+      json: () =>
+        Promise.resolve([
+          term({ status: "CONFIRMED", allowedStatuses: ["WAITLISTED", "CANCELLED"] }),
+          term({ termId: "t2", status: "WAITLISTED", allowedStatuses: ["CONFIRMED", "CANCELLED"] }),
+        ]),
+    })
+    setup()
+
+    expect(await screen.findAllByRole("button", { name: "Withdraw" })).toHaveLength(2)
+    expect(screen.getByRole("button", { name: "Withdraw the whole application" })).toBeVisible()
+    // A confirmed and a waitlisted term are both left through the withdrawal.
+    expect(screen.getAllByRole("button", { name: "Withdraw" })).toHaveLength(2)
+    expect(screen.queryByRole("button", { name: "Cancel in term" })).not.toBeInTheDocument()
+  })
 })
