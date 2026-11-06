@@ -9,3 +9,22 @@ export function computePaymentDeadline(input: {
     ? null
     : new Date(input.paymentPeriodStartedAt.getTime() + input.paymentPeriodDays * DAY_MS)
 }
+
+/** D-099: late confirmation is already overdue; a correction restarts the full period (D-100). */
+export function computeOverviewPaymentDeadline(input: {
+  confirmedAt: Date
+  paymentPeriodStartedAt: Date | null
+  startsOn: Date
+  paymentPeriodDays: number
+}): Date {
+  const { confirmedAt, paymentPeriodStartedAt, startsOn, paymentPeriodDays } = input
+  const restartedLater =
+    paymentPeriodStartedAt !== null && paymentPeriodStartedAt.getTime() > confirmedAt.getTime()
+  if (!restartedLater && confirmedAt.getTime() >= startsOn.getTime() - paymentPeriodDays * DAY_MS) {
+    return confirmedAt
+  }
+  return computePaymentDeadline({
+    paymentPeriodStartedAt: restartedLater ? paymentPeriodStartedAt : confirmedAt,
+    paymentPeriodDays,
+  })!
+}

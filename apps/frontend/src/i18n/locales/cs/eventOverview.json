@@ -303,6 +303,40 @@
     "typeRefund": "Vratka",
     "wholeApplication": "Celá přihláška (souhrn)"
   },
+  "paymentsOverview": {
+    "clearFilters": "Vymazat filtry",
+    "debt": "Dluh",
+    "debtors_few": "{{count}} účastníci s dluhem",
+    "debtors_one": "{{count}} účastník s dluhem",
+    "debtors_other": "{{count}} účastníků s dluhem",
+    "detail": "Detail plateb",
+    "dueDate": "Lhůta",
+    "empty": "Žádné přihlášky neodpovídají filtru",
+    "error": "Platby se nepodařilo načíst",
+    "lastReminder": "Poslední výzva",
+    "noApplications": "Zatím nejsou potvrzené přihlášky",
+    "overdueCount_few": "z toho {{count}} po lhůtě",
+    "overdueCount_one": "z toho {{count}} po lhůtě",
+    "overdueCount_other": "z toho {{count}} po lhůtě",
+    "overpayment": "Přeplatek",
+    "reminderCount": "Odeslané výzvy",
+    "reminderFilter": "Výzvy k zaplacení",
+    "reminders": {
+      "ALL": "Všichni",
+      "NOT_SENT": "Bez výzvy",
+      "SENT": "Výzva odeslána, dluh trvá"
+    },
+    "statusFilter": "Stav platby",
+    "statuses": {
+      "ALL": "Všichni",
+      "OVERDUE": "Po lhůtě",
+      "PAID": "Zaplaceno",
+      "PARTIALLY_PAID": "Částečně",
+      "UNPAID": "Nezaplaceno"
+    },
+    "title": "Platby",
+    "totalDebt": "Součet dluhů"
+  },
   "queue": {
     "empty": "Všechny přihlášky jsou vyhodnocené.",
     "emptyHint": "Nové přihlášky v ručním režimu se objeví v této frontě.",
