@@ -78,7 +78,7 @@ export class ApplicationsService {
     const requestedIds = input.terms.map(({ termId }) => termId)
     if (
       !isValidBirthDate(input.birthDate) ||
-      requestedIds.length !== event.terms.length ||
+      requestedIds.length === 0 ||
       new Set(requestedIds).size !== requestedIds.length ||
       requestedIds.some((id) => !prices.has(id))
     ) {

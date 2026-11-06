@@ -174,9 +174,11 @@ export function ManualApplicationPage({
     const phone = draft.phone.trim().replace(/[ ()-]/g, "")
     if (!/^\+?[0-9]{7,30}$/.test(phone)) nextErrors.phone = t("manual.invalidPhone")
     if (!draft.consent) nextErrors.consent = t("manual.consentRequired")
-    for (const term of terms) {
-      if (!draft.statuses[term.id]) nextErrors[term.id] = t("manual.selectTerms")
-    }
+    const selectedTerms = terms.flatMap((term) => {
+      const status = draft.statuses[term.id]
+      return status ? [{ termId: term.id, status }] : []
+    })
+    if (selectedTerms.length === 0) nextErrors.terms = t("manual.selectTerms")
     setErrors(nextErrors)
     if (Object.keys(nextErrors).length > 0 || !birthDate || draft.gender === "") return
     const input: ManualApplicationInput = {
@@ -187,7 +189,7 @@ export function ManualApplicationPage({
       email: draft.email.trim(),
       phone,
       consent: true,
-      terms: terms.map((term) => ({ termId: term.id, status: draft.statuses[term.id] as Status })),
+      terms: selectedTerms,
     }
     setPayload(input)
     if (overCapacity.length > 0) {
@@ -404,13 +406,16 @@ export function ManualApplicationPage({
                   <TermPrice amountCzk={term.priceCzk} />
                 </Label>
                 <Select
-                  value={draft.statuses[term.id] ?? ""}
+                  value={draft.statuses[term.id] || "UNSELECTED"}
                   onValueChange={(value) => {
                     setDraft((current) => ({
                       ...current,
-                      statuses: { ...current.statuses, [term.id]: value as Status },
+                      statuses: {
+                        ...current.statuses,
+                        [term.id]: value === "UNSELECTED" ? "" : (value as Status),
+                      },
                     }))
-                    setErrors((current) => ({ ...current, [term.id]: "" }))
+                    setErrors((current) => ({ ...current, terms: "" }))
                   }}
                 >
                   <SelectTrigger
@@ -420,13 +425,14 @@ export function ManualApplicationPage({
                     <SelectValue placeholder={t("manual.chooseStatus")} />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="UNSELECTED">{t("manual.termNotSelected")}</SelectItem>
                     <SelectItem value="CONFIRMED">{t("manual.statusConfirmed")}</SelectItem>
                     <SelectItem value="WAITLISTED">{t("manual.statusWaitlisted")}</SelectItem>
                   </SelectContent>
                 </Select>
-                <FieldError message={errors[term.id]} />
               </div>
             ))}
+            <FieldError message={errors.terms} />
           </Card>
           <Alert>
             <Info className="size-4" />

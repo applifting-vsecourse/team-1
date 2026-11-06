@@ -66,13 +66,13 @@ async function fillForm(
   await user.click(screen.getByRole("option", { name: status }))
 }
 
-function setup() {
+function setup(terms = [term]) {
   const root = createRootRoute({
     component: () => (
       <ManualApplicationPage
         eventId="e1"
         eventName="Camp"
-        terms={[term]}
+        terms={terms}
         organizerName="Organizer"
       />
     ),
@@ -120,6 +120,83 @@ beforeEach(() => {
 })
 
 describe("ManualApplicationPage", () => {
+  it("requires at least one selected term and clears the error after choosing a status", async () => {
+    setup()
+    const user = userEvent.setup()
+    await fillForm(user)
+    await user.click(screen.getByRole("combobox", { name: /First/ }))
+    await user.click(screen.getByRole("option", { name: "Not selected" }))
+    await user.click(
+      screen.getByRole("checkbox", { name: /I confirm that the applicant consented/ }),
+    )
+    await user.click(screen.getByRole("button", { name: "Create application" }))
+    expect(screen.getByText("Choose at least one term and its status.")).toBeInTheDocument()
+    expect(post).not.toHaveBeenCalled()
+
+    await user.click(screen.getByRole("combobox", { name: /First/ }))
+    await user.click(screen.getByRole("option", { name: "Waitlisted" }))
+    expect(screen.queryByText("Choose at least one term and its status.")).not.toBeInTheDocument()
+    await user.click(screen.getByRole("button", { name: "Create application" }))
+    expect(await screen.findByText("Application created")).toBeInTheDocument()
+  })
+
+  it.each([
+    ["Confirmed, payment due", "CONFIRMED"],
+    ["Waitlisted", "WAITLISTED"],
+  ] as const)(
+    "submits only the second term as %s after deselecting the full first term",
+    async (label, status) => {
+      const secondTerm = { ...term, id: "t2", name: "Second", priceCzk: 5600 }
+      loadSavedTerms.mockResolvedValue([{ ...savedTerm, ...secondTerm, termId: "t2", status }])
+      get.mockImplementation((path: string) => ({
+        json: () =>
+          path === "organizer/applications/a1/terms"
+            ? loadSavedTerms()
+            : Promise.resolve({
+                eventId: "e1",
+                terms: [term, secondTerm].map((option, index) => ({
+                  ...option,
+                  roomMode: "SHARED",
+                  roomCount: 1,
+                  capacity: 1,
+                  confirmed: index === 0 ? 1 : 0,
+                  free: index === 0 ? 0 : 1,
+                  waitlisted: 0,
+                  byGender: null,
+                })),
+              }),
+      }))
+      setup([term, secondTerm])
+      const user = userEvent.setup()
+      await fillForm(user, "Confirmed, payment due")
+      await user.click(screen.getByRole("combobox", { name: /First/ }))
+      await user.click(screen.getByRole("option", { name: "Not selected" }))
+      await user.click(screen.getByRole("combobox", { name: /Second/ }))
+      await user.click(screen.getByRole("option", { name: label }))
+      await user.click(
+        screen.getByRole("checkbox", { name: /I confirm that the applicant consented/ }),
+      )
+      await user.click(screen.getByRole("button", { name: "Create application" }))
+
+      expect(await screen.findByText("Application created")).toBeInTheDocument()
+      expect(post).toHaveBeenCalledTimes(1)
+      expect(post).toHaveBeenCalledWith("organizer/events/e1/applications", {
+        json: {
+          firstName: "Eva",
+          lastName: "Novak",
+          birthDate: "2000-05-15",
+          gender: "FEMALE",
+          phone: "+420777123456",
+          email: "eva@example.com",
+          consent: true,
+          terms: [{ termId: "t2", status }],
+        },
+      })
+      expect(screen.getByText(/Second/)).toBeInTheDocument()
+      expect(screen.queryByText(/First/)).not.toBeInTheDocument()
+    },
+  )
+
   it.each(["       ", "-------", "123 456"])(
     "validates consent and phone digits before creating a waitlisted application: %j",
     async (invalidPhone) => {

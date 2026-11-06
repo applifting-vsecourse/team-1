@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
 import { TriangleAlert } from "lucide-react"
@@ -16,7 +17,11 @@ import { Card } from "@/components/ui/card"
 import { myApplicationQueryOptions } from "@/features/participant/api/applications"
 import { ChangeRequestNotice } from "@/features/participant/components/ChangeRequestNotice"
 import { OrganizationContact } from "@/features/participant/components/OrganizationContact"
-import { ParticipantTermChange } from "@/features/participant/components/ParticipantTermChange"
+import {
+  ParticipantTermActions,
+  ParticipantTermChange,
+  type ChangeMode,
+} from "@/features/participant/components/ParticipantTermChange"
 import { PaymentSummary } from "@/features/participant/components/PaymentSummary"
 import { TermStatusBadge } from "@/features/participant/components/TermSummary"
 
@@ -28,6 +33,7 @@ type ApplicationDetailProps = { applicationId: string }
 export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
   const { t } = useTranslation("participant")
   const { data, isPending, error, refetch } = useQuery(myApplicationQueryOptions(applicationId))
+  const [changeMode, setChangeMode] = useState<ChangeMode | null>(null)
 
   // Figma DS / Button Style=Quiet, aligned with the page title (no left padding).
   const back = (
@@ -52,6 +58,16 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
           onRetry={() => void refetch()}
         />
       </div>
+    )
+  }
+
+  if (changeMode) {
+    return (
+      <ParticipantTermChange
+        application={data}
+        mode={changeMode}
+        onBack={() => setChangeMode(null)}
+      />
     )
   }
 
@@ -98,7 +114,10 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
         </Alert>
       ) : null}
       <PaymentSummary application={data} />
-      <ParticipantTermChange applicationId={applicationId} />
+      <ParticipantTermActions
+        application={data}
+        onStart={setChangeMode}
+      />
       <OrganizationContact contact={data.organizationContact} />
     </div>
   )

@@ -89,10 +89,44 @@ describe("organizer adds an application (US-83)", () => {
       (await create(input("CONFIRMED", { terms: [{ termId: "foreign", status: "CONFIRMED" }] })))
         .status,
     ).toBe(400)
+    expect((await create(input("CONFIRMED", { terms: [] }))).status).toBe(400)
     expect(
-      (await create(input("CONFIRMED", { terms: [{ termId: termIds[0], status: "CONFIRMED" }] })))
-        .status,
+      (
+        await create(
+          input("CONFIRMED", {
+            terms: [
+              { termId: termIds[0], status: "CONFIRMED" },
+              { termId: termIds[0], status: "WAITLISTED" },
+            ],
+          }),
+        )
+      ).status,
     ).toBe(400)
+  })
+
+  it("creates an application only for the second term without enrolling in the first", async () => {
+    const response = await create(
+      input("CONFIRMED", { terms: [{ termId: termIds[1], status: "CONFIRMED" }] }),
+    )
+    expect(response.status).toBe(201)
+    const created = (await response.json()) as Created
+    const application = await prisma.application.findUniqueOrThrow({
+      where: { id: created.applicationId },
+      include: { terms: { include: { statusChanges: true } } },
+    })
+    expect(application.terms).toHaveLength(1)
+    expect(application.terms[0]).toMatchObject({
+      termId: termIds[1],
+      status: "CONFIRMED",
+      priceCzk: 5600,
+      statusChanges: [expect.objectContaining({ changedById: organizerId })],
+    })
+    const history = await fetch(api(`/organizer/applications/${created.applicationId}/terms`), {
+      headers: { Cookie: cookie },
+    })
+    expect(await history.json()).toEqual([
+      expect.objectContaining({ termId: termIds[1], status: "CONFIRMED" }),
+    ])
   })
 
   it("stores the selected statuses, phone and organizer creation history, and gives the applicant an account", async () => {

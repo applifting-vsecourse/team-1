@@ -371,6 +371,8 @@ model ApplicationTerm {
   evaluatedAt            DateTime              @default(now())
   // Restart of the payment period after a correction/removal; null = original confirmation period.
   paymentPeriodStartedAt DateTime?
+  // Successful delivery of the one payment reminder for this term (D-102); written by US-46.
+  paymentReminderSentAt  DateTime?
 
   statusChanges ApplicationTermStatusChange[]
   payments      Payment[]
