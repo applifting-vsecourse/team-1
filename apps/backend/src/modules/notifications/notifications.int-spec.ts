@@ -316,7 +316,7 @@ describe("participant notifications (integration)", () => {
         },
       )
 
-      expect(response.status).toBe(204)
+      expect(response.status).toBe(200)
       expect(await list()).toMatchObject([
         {
           kind: "CANCELLED",

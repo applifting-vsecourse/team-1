@@ -84,6 +84,47 @@ const command = {
   isOverCapacityConfirmed: false,
 }
 
+describe("TermStatusRepository.participantChangeOptions: manual evaluation", () => {
+  it.each([
+    { cancellationStartsOn: null, canChangeImmediately: true, owedCzk: 0 },
+    { cancellationStartsOn: new Date("2000-01-01"), canChangeImmediately: false, owedCzk: 2000 },
+  ])("projects debt with canChangeImmediately=$canChangeImmediately", async (scenario) => {
+    const prisma = {
+      application: {
+        findFirst: jest.fn().mockResolvedValue({
+          gender: "MALE",
+          terms: [],
+          event: {
+            cancellationStartsOn: scenario.cancellationStartsOn,
+            evaluationMode: "MANUAL",
+            terms: [
+              {
+                id: "t2",
+                name: "Second",
+                startsOn: new Date("2027-07-08"),
+                endsOn: new Date("2027-07-14"),
+                priceCzk: 2000,
+                rooms: [{ capacity: 1, gender: "MALE" }],
+                applicationTerms: [],
+                _count: { rooms: 1 },
+              },
+            ],
+          },
+        }),
+      },
+    }
+    const repository = new TermStatusRepository(
+      prisma as unknown as PrismaService,
+      {} as NotificationsRepository,
+    )
+
+    expect(await repository.participantChangeOptions("u1", "a1")).toMatchObject({
+      canChangeImmediately: scenario.canChangeImmediately,
+      terms: [{ id: "t2", priceCzk: 2000, owedAfterChangeCzk: scenario.owedCzk }],
+    })
+  })
+})
+
 describe("TermStatusRepository.changeStatus: language and names of the e-mail (D-078, US-116)", () => {
   it("uses the preferred language of the user over the language of the application", async () => {
     const { repository } = setup({ applicationLocale: "en", user: { locale: "cs" } })

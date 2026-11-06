@@ -18,6 +18,7 @@ test("participant submits a cancellation request and organizer declines it at 36
   await page.getByRole("button", { name: "Save settings" }).click()
   await expect(page.getByText("Date saved.", { exact: true })).toBeVisible()
   await signOut(page, ORGANIZER)
+  await expect(page).toHaveURL(/\/$/)
 
   await signIn(page, "participant", PARTICIPANT)
   await page.setViewportSize({ width: 360, height: 800 })
@@ -25,18 +26,18 @@ test("participant submits a cancellation request and organizer declines it at 36
     .getByRole("link", { name: /Letní kemp 2027/ })
     .first()
     .click()
-  await page.getByRole("button", { name: "Change terms or cancel" }).click()
-  const change = page.getByRole("dialog", { name: "Change terms" })
-  for (const checkbox of await change.getByRole("checkbox").all()) {
-    if (await checkbox.isChecked()) await checkbox.uncheck()
-  }
-  await change.getByRole("button", { name: "Send request" }).click()
+  await page.getByRole("button", { name: "Cancel participation" }).click()
+  await expect(page.getByRole("heading", { name: "Cancellation impact" })).toBeVisible()
+  await page.getByRole("button", { name: "Send request" }).click()
+  await expect(page.getByRole("heading", { name: "Request awaiting approval" })).toBeVisible()
+  await page.getByRole("button", { name: "Back to application" }).click()
   await expect(page.getByRole("heading", { name: "Cancellation request" })).toBeVisible()
   await expect(
     page.getByText("Your request is awaiting the organiser's decision.", { exact: false }),
   ).toBeVisible()
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(360)
   await signOut(page, PARTICIPANT)
+  await expect(page).toHaveURL(/\/$/)
 
   await signIn(page, "organizer", ORGANIZER)
   await page.setViewportSize({ width: 1280, height: 800 })

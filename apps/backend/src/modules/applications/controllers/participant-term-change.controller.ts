@@ -1,5 +1,8 @@
 import { ParticipantTermChangeRequestDto } from "@/modules/applications/controllers/dto/participant-term-change.dto"
-import { ParticipantChangeOptions } from "@/modules/applications/domain/participant-term-change"
+import {
+  ParticipantChangeOptions,
+  ParticipantTermChangeResult,
+} from "@/modules/applications/domain/participant-term-change"
 import { TermStatusService } from "@/modules/applications/services/term-status.service"
 import { Auth } from "@/shared/auth/decorators/auth.decorator"
 import { User } from "@/shared/auth/decorators/user.decorator"
@@ -34,18 +37,18 @@ export class ParticipantTermChangeController {
   }
 
   @Put("terms")
-  @HttpCode(204)
+  @HttpCode(200)
   @ApiOperation({
     summary:
       "Immediately change or cancel the participant's terms before cancellation starts (US-113)",
   })
-  @ApiResponse({ status: 204 })
+  @ApiResponse({ status: 200 })
   @ApiResponse({ status: 409, description: "CANCELLATION_APPROVAL_REQUIRED from the start day" })
   async change(
     @User() user: Identity,
     @Param("applicationId") applicationId: string,
     @Body() body: ParticipantTermChangeRequestDto,
-  ): Promise<void> {
-    await this.statuses.changeByParticipant(user, applicationId, body.termIds)
+  ): Promise<ParticipantTermChangeResult> {
+    return this.statuses.changeByParticipant(user, applicationId, body.termIds)
   }
 }
