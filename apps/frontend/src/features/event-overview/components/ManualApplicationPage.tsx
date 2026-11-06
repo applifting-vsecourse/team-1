@@ -141,16 +141,21 @@ export function ManualApplicationPage({
     )
   }
 
+  const capacityStatuses =
+    step === "CAPACITY" && payload
+      ? Object.fromEntries(payload.terms.map(({ termId, status }) => [termId, status]))
+      : draft.statuses
+  const capacityGender = step === "CAPACITY" && payload ? payload.gender : draft.gender
   const overCapacity = terms.filter((term) => {
-    if (draft.statuses[term.id] !== "CONFIRMED") return false
+    if (capacityStatuses[term.id] !== "CONFIRMED") return false
     const row = occupancy.data?.terms.find((item) => item.id === term.id)
-    if (!row || draft.gender === "") return false
-    return (row.byGender?.[draft.gender].free ?? row.free) < 1
+    if (!row || capacityGender === "") return false
+    return (row.byGender?.[capacityGender].free ?? row.free) < 1
   })
   const warnedTerms =
     overCapacity.length > 0
       ? overCapacity
-      : terms.filter((term) => draft.statuses[term.id] === "CONFIRMED")
+      : terms.filter((term) => capacityStatuses[term.id] === "CONFIRMED")
 
   const submit = (formEvent: FormEvent) => {
     formEvent.preventDefault()
@@ -239,7 +244,7 @@ export function ManualApplicationPage({
           <h2 className="text-2xl font-bold tracking-tight">{t("manual.overCapacity")}</h2>
           {warnedTerms.map((term) => {
             const row = occupancy.data?.terms.find((item) => item.id === term.id)
-            const figures = draft.gender && row ? (row.byGender?.[draft.gender] ?? row) : null
+            const figures = capacityGender && row ? (row.byGender?.[capacityGender] ?? row) : null
             return (
               <Alert
                 key={term.id}
@@ -263,7 +268,7 @@ export function ManualApplicationPage({
           <div className="flex items-center gap-3">
             <Checkbox
               id="confirm-over-capacity"
-              disabled={mutation.isPending}
+              disabled={mutation.isPending || occupancy.isFetching}
               checked={isOverCapacityConfirmed}
               onCheckedChange={(checked) => setIsOverCapacityConfirmed(checked === true)}
             />
@@ -277,7 +282,9 @@ export function ManualApplicationPage({
           ) : null}
           <Button
             size="lg"
-            disabled={!isOverCapacityConfirmed || mutation.isPending || !payload}
+            disabled={
+              !isOverCapacityConfirmed || mutation.isPending || occupancy.isFetching || !payload
+            }
             onClick={() => payload && mutation.mutate({ ...payload, confirmOverCapacity: true })}
           >
             {t("manual.create")}

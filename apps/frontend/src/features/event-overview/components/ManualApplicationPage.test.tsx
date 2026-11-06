@@ -10,6 +10,7 @@ import { act, fireEvent, render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
+import type { EventOccupancy } from "@/features/event-overview/api/occupancy"
 import type { TermStatusDetail } from "@/features/event-overview/api/termStatus"
 import { ManualApplicationPage } from "@/features/event-overview/components/ManualApplicationPage"
 
@@ -248,5 +249,100 @@ describe("ManualApplicationPage", () => {
     await user.click(screen.getByRole("button", { name: /retry|try again/i }))
     expect(await screen.findByText("Application created")).toBeInTheDocument()
     expect(post).toHaveBeenCalledTimes(1)
+  })
+
+  it("uses the submitted selection for a late capacity rejection after the draft changes", async () => {
+    let reject!: (error: Error) => void
+    const pending = new Promise<never>((_resolve, rejectRequest) => {
+      reject = rejectRequest
+    })
+    let finishRefresh!: () => void
+    const refresh = new Promise<void>((resolve) => {
+      finishRefresh = resolve
+    })
+    const initialOccupancy: EventOccupancy = {
+      eventId: "e1",
+      terms: [
+        {
+          ...term,
+          roomMode: "GENDERED",
+          roomCount: 2,
+          capacity: 5,
+          confirmed: 0,
+          free: 5,
+          waitlisted: 0,
+          byGender: {
+            FEMALE: { capacity: 1, confirmed: 0, free: 1, waitlisted: 0 },
+            MALE: { capacity: 4, confirmed: 0, free: 4, waitlisted: 0 },
+          },
+        },
+      ],
+    }
+    post.mockReturnValueOnce({ json: () => pending })
+    loadSavedTerms.mockResolvedValue([{ ...savedTerm, status: "CONFIRMED" }])
+    get.mockImplementation((path: string) => ({
+      json: () =>
+        path === "organizer/applications/a1/terms"
+          ? loadSavedTerms()
+          : post.mock.calls.length === 0
+            ? Promise.resolve(initialOccupancy)
+            : refresh.then(() => ({
+                ...initialOccupancy,
+                terms: [
+                  {
+                    ...initialOccupancy.terms[0],
+                    confirmed: 1,
+                    free: 4,
+                    byGender: {
+                      FEMALE: { capacity: 1, confirmed: 1, free: 0, waitlisted: 0 },
+                      MALE: { capacity: 4, confirmed: 0, free: 4, waitlisted: 0 },
+                    },
+                  },
+                ],
+              })),
+    }))
+    setup()
+    const user = userEvent.setup()
+    await fillForm(user, "Confirmed, payment due")
+    await user.click(
+      screen.getByRole("checkbox", { name: /I confirm that the applicant consented/ }),
+    )
+    await user.click(screen.getByRole("button", { name: "Create application" }))
+    await user.click(screen.getByRole("combobox", { name: /First/ }))
+    await user.click(screen.getByRole("option", { name: "Waitlisted" }))
+    await user.click(screen.getByRole("combobox", { name: "Gender for room assignment *" }))
+    await user.click(screen.getByRole("option", { name: "Male" }))
+
+    await act(async () => {
+      reject(Object.assign(new Error("Capacity exceeded"), { code: "CAPACITY_EXCEEDED" }))
+      await pending.catch(() => undefined)
+    })
+    expect(
+      await screen.findByRole("heading", { name: "Confirm over capacity" }),
+    ).toBeInTheDocument()
+    expect(screen.getByText("First is full")).toBeInTheDocument()
+    expect(screen.getByRole("checkbox", { name: "I confirm exceeding capacity" })).toBeDisabled()
+    expect(screen.getByRole("button", { name: "Create application" })).toBeDisabled()
+    await act(async () => {
+      finishRefresh()
+      await refresh
+    })
+    expect(await screen.findByText(/from 1\/1 to 2\/1/)).toBeInTheDocument()
+    await user.click(screen.getByRole("checkbox", { name: "I confirm exceeding capacity" }))
+    await user.click(screen.getByRole("button", { name: "Create application" }))
+    expect(await screen.findByText("Application created")).toBeInTheDocument()
+    expect(post).toHaveBeenLastCalledWith("organizer/events/e1/applications", {
+      json: {
+        firstName: "Eva",
+        lastName: "Novak",
+        birthDate: "2000-05-15",
+        gender: "FEMALE",
+        phone: "+420777123456",
+        email: "eva@example.com",
+        consent: true,
+        terms: [{ termId: "t1", status: "CONFIRMED" }],
+        confirmOverCapacity: true,
+      },
+    })
   })
 })
