@@ -24,6 +24,7 @@ export class PaymentOverviewRepository {
           priceCzk: true,
           evaluatedAt: true,
           paymentPeriodStartedAt: true,
+          paymentReminderSentAt: true,
           payments: { where: { cancelledAt: null }, select: { amountCzk: true } },
           statusChanges: {
             where: { toStatus: "CONFIRMED" },
@@ -49,8 +50,7 @@ export class PaymentOverviewRepository {
         evaluatedAt: row.evaluatedAt,
         confirmedAt: row.statusChanges[0]?.createdAt ?? null,
         paymentPeriodStartedAt: row.paymentPeriodStartedAt,
-        // US-46 has not introduced persisted reminder delivery yet. None have been sent.
-        paymentReminderSentAt: null,
+        paymentReminderSentAt: row.paymentReminderSentAt,
         payments: row.payments,
       })),
     }

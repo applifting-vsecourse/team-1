@@ -45,6 +45,49 @@ describe("payment overview API", () => {
     expect(body.debtorCount).toBeGreaterThan(0)
   })
 
+  it("reads a persisted sent reminder for indebted and paid terms", async () => {
+    const terms = await prisma.applicationTerm.findMany({
+      where: { status: "CONFIRMED", application: { eventId } },
+      select: {
+        id: true,
+        applicationId: true,
+        termId: true,
+        priceCzk: true,
+        payments: { where: { cancelledAt: null }, select: { amountCzk: true } },
+      },
+    })
+    const debt = (term: (typeof terms)[number]) =>
+      term.priceCzk - term.payments.reduce((sum, payment) => sum + payment.amountCzk, 0)
+    const indebted = terms.find((term) => debt(term) > 0)!
+    const paid = terms.find((term) => debt(term) <= 0)!
+    expect(indebted).toBeDefined()
+    expect(paid).toBeDefined()
+    const sentAt = new Date("2026-11-06T10:00:00Z")
+    await prisma.applicationTerm.updateMany({
+      where: { id: { in: [indebted.id, paid.id] } },
+      data: { paymentReminderSentAt: sentAt },
+    })
+
+    const response = await get()
+    expect(response.status).toBe(200)
+    const body = await response.json()
+    const entryFor = (term: (typeof terms)[number]) =>
+      body.entries.find(
+        (entry: { applicationId: string; termId: string }) =>
+          entry.applicationId === term.applicationId && entry.termId === term.termId,
+      )
+    expect(entryFor(indebted)).toMatchObject({
+      reminderCount: 1,
+      lastReminderAt: sentAt.toISOString(),
+      amountOwedCzk: debt(indebted),
+    })
+    expect(entryFor(paid)).toMatchObject({
+      reminderCount: 1,
+      lastReminderAt: sentAt.toISOString(),
+      amountOwedCzk: debt(paid),
+    })
+  })
+
   it("requires an organizer with access to the event", async () => {
     expect((await get("")).status).toBe(401)
     expect((await get(await signIn("ucastnik@example.com", "password4"))).status).toBe(403)
