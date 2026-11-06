@@ -13,6 +13,7 @@ import {
   ParticipantChangeRequestController,
   ParticipantChangeRequestNotificationsController,
 } from "./controllers/change-request.controller"
+import { OrganizerTermChangeController } from "./controllers/organizer-term-change.controller"
 import { ParticipantTermChangeController } from "./controllers/participant-term-change.controller"
 import { PublicCatalogController } from "./controllers/public-catalog.controller"
 import { PublicEventsController } from "./controllers/public-events.controller"
@@ -62,6 +63,7 @@ import { WaitlistExpiryService } from "./services/waitlist-expiry.service"
     SubmissionStatusController,
     TermStatusController,
     ParticipantTermChangeController,
+    OrganizerTermChangeController,
     BulkConfirmationController,
     BulkDecisionController,
     SubstitutesController,

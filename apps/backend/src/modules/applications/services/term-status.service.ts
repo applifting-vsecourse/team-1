@@ -1,3 +1,4 @@
+import { TermChangeImpact } from "@/modules/applications/domain/organizer-term-change"
 import {
   ParticipantChangeOptions,
   ParticipantTermChangeResult,
@@ -52,6 +53,53 @@ export class TermStatusService {
     if (change === undefined) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
     if (change) await this.mailer.sendApplicationChange(change)
     return { addedTerms: change?.addedTerms ?? [] }
+  }
+
+  /** Terms of the event an organizer can put the application in (US-33). */
+  async changeOptionsForOrganizer(
+    user: Identity,
+    applicationId: string,
+  ): Promise<ParticipantChangeOptions> {
+    const { organizationId } = await this.access.assertCanAccessApplication(user, applicationId)
+    const options = await this.repository.organizerChangeOptions(organizationId, applicationId)
+    if (!options) throw new AppException(HttpStatus.NOT_FOUND, "NOT_FOUND")
+    return options
+  }
+
+  /** What an organizer's change of terms would do, before it is saved (US-33). */
+  async previewChangeByOrganizer(
+    user: Identity,
+    applicationId: string,
+    termIds: string[],
+  ): Promise<TermChangeImpact> {
+    const { organizationId } = await this.access.assertCanAccessApplication(user, applicationId)
+    const impact = await this.repository.previewTermChange(organizationId, applicationId, termIds)
+    if (!impact) throw new AppException(HttpStatus.NOT_FOUND, "NOT_FOUND")
+    return impact
+  }
+
+  /**
+   * An organizer changes the terms of an application (US-33) in the same transaction as the
+   * participant's own change; a term without a free bed needs `isOverCapacityConfirmed`.
+   * Tells the applicant by one e-mail about the change.
+   */
+  async changeTermsByOrganizer(
+    user: Identity,
+    applicationId: string,
+    termIds: string[],
+    isOverCapacityConfirmed: boolean,
+  ): Promise<{ changed: boolean; changedAt: Date; changedByName: string | null }> {
+    const { organizationId } = await this.access.assertCanAccessApplication(user, applicationId)
+    const change = await this.repository.changeTermsByOrganizer(
+      organizationId,
+      applicationId,
+      termIds,
+      user.id,
+      isOverCapacityConfirmed,
+    )
+    if (change === undefined) throw new AppException(HttpStatus.NOT_FOUND, "NOT_FOUND")
+    if (change) await this.mailer.sendApplicationChange(change)
+    return { changed: change !== null, changedAt: new Date(), changedByName: user.name }
   }
 
   async getTerms(user: Identity, applicationId: string): Promise<TermStatusDetail[]> {
