@@ -16,9 +16,9 @@ export class PublicCatalogService {
     return { organizations: organizationsOf(events), events }
   }
 
-  /** A not published or unknown event is a 404 with nothing to tell them apart. */
+  /** An unknown event and one without a working application link are a 404 with nothing to tell them apart. */
   async getEvent(publicToken: string): Promise<CatalogEventDetail> {
-    const event = await this.repository.findPublished(publicToken)
+    const event = await this.repository.findAccessible(publicToken)
     if (!event) throw new AppException(HttpStatus.NOT_FOUND, "NOT_FOUND")
     return event
   }
@@ -26,7 +26,7 @@ export class PublicCatalogService {
   async getPhoto(
     publicToken: string,
   ): Promise<{ contentType: string; data: Uint8Array; updatedAt: Date }> {
-    const photo = await this.repository.findPublishedPhoto(publicToken)
+    const photo = await this.repository.findAccessiblePhoto(publicToken)
     if (!photo) throw new AppException(HttpStatus.NOT_FOUND, "NOT_FOUND")
     return photo
   }

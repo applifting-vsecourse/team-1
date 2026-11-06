@@ -105,7 +105,7 @@ _Nic._
 | [Q-NAS-06](#q-nas-06) | Stačí kopie celé akce, nebo chceš areál a formulář spravovat zvlášť a vybírat je při zakládání akce? **Duplicita s [Q-NAS-03](#q-nas-03).** | [US-81](https://github.com/applifting-vsecourse/team-1/issues/81) | P3 | Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí. |
 | [Q-NAS-15](#q-nas-15) | Smí organizátor termíny a ceny na veřejné stránce akce skrýt, nebo mají být vždy vidět? | [US-122 (#215)](https://github.com/applifting-vsecourse/team-1/issues/215) | P3 | Zatím platí „vždy vidět“ (D-093); nic neblokuje. |
 | [Q-NAS-17](#q-nas-17) | Má mít organizátor možnost veřejně zobrazovat kapacitu a obsazenost akce (například v katalogu)? | [US-123 (#216)](https://github.com/applifting-vsecourse/team-1/issues/216), [US-22](https://github.com/applifting-vsecourse/team-1/issues/22) | P3 | Zatím platí D-094 (kapacita se nezveřejňuje); nic neblokuje. |
-| [Q-PLA-03](#q-pla-03) | Co po poslední výzvě k zaplacení bez reakce: jen označit pro telefonát (US-45), nebo má systém přihlášku po nějaké době sám zrušit? | [US-46](https://github.com/applifting-vsecourse/team-1/issues/46) | P3 | Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí. |
+| [Q-PLA-03](#q-pla-03) | Co po jediné výzvě k zaplacení bez reakce (výzva se neopakuje, D-102): jen označit pro telefonát (US-45), nebo má systém přihlášku po nějaké době sám zrušit? | [US-46](https://github.com/applifting-vsecourse/team-1/issues/46) | P3 | Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí. |
 | [Q-PLA-05](#q-pla-05) | Doúčtovává pořadatel po akci? Rozpočítání výdaje mezi účastníky je samostatná otázka. | [US-48](https://github.com/applifting-vsecourse/team-1/issues/48) | P3 | Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí. |
 | [Q-PLA-06](#q-pla-06) | Kdo ověří nárok na slevu (např. členství ve spolku)? | [US-49](https://github.com/applifting-vsecourse/team-1/issues/49) | P3 | Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí. |
 | [Q-PLA-07](#q-pla-07) | Má pořadatel účastníky ze zahraničí? | [US-50](https://github.com/applifting-vsecourse/team-1/issues/50) | P3 | Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí. |
@@ -217,7 +217,7 @@ _Nic._
 | [Q-PLA-14](#q-pla-14) | Ověřit u PO pravidlo D-087: souhrnná platba se rozdělí od nejstaršího termínu, nedoplatek zůstane na nejpozdějším, přeplatek na poslední potvrzené přihlášce v termínu. Platí, nebo má být jinak? (Rozhodl PM, jde o ověření.) | [US-127](https://github.com/applifting-vsecourse/team-1/issues/220), [US-137](https://github.com/applifting-vsecourse/team-1/issues/174) | otevřeno | P2 | `po` |
 | [Q-PLA-15](#q-pla-15) | Jak se opraví souhrnná platba rozdělená do víc řádků se společným `receiptId` (oprava částky nebo termínu v US-112)? | [US-112](https://github.com/applifting-vsecourse/team-1/issues/205), [US-137](https://github.com/applifting-vsecourse/team-1/issues/174) | otevřeno | P2 | `pm` |
 | [Q-PLA-16](#q-pla-16) | Vytvoří „označení vrácení“ v US-132 zápornou platbu na přihlášku v termínu (vratka z US-137), nebo je to samostatný příznak? | [US-132](https://github.com/applifting-vsecourse/team-1/issues/247), [US-137](https://github.com/applifting-vsecourse/team-1/issues/174) | otevřeno | P2 | `pm` |
-| [Q-PLA-03](#q-pla-03) | Co po poslední výzvě k zaplacení bez reakce: jen označit pro telefonát (US-45), nebo má systém přihlášku po nějaké době sám zrušit? | [US-46](https://github.com/applifting-vsecourse/team-1/issues/46) | otevřeno | P3 | `po` |
+| [Q-PLA-03](#q-pla-03) | Co po jediné výzvě k zaplacení bez reakce (výzva se neopakuje, D-102): jen označit pro telefonát (US-45), nebo má systém přihlášku po nějaké době sám zrušit? | [US-46](https://github.com/applifting-vsecourse/team-1/issues/46) | otevřeno | P3 | `po` |
 | [Q-PLA-05](#q-pla-05) | Doúčtovává pořadatel po akci? Rozpočítání výdaje mezi účastníky je samostatná otázka. | [US-48](https://github.com/applifting-vsecourse/team-1/issues/48) | otevřeno | P3 | `po` |
 | [Q-PLA-06](#q-pla-06) | Kdo ověří nárok na slevu (např. členství ve spolku)? | [US-49](https://github.com/applifting-vsecourse/team-1/issues/49) | otevřeno | P3 | `po` |
 | [Q-PLA-07](#q-pla-07) | Má pořadatel účastníky ze zahraničí? | [US-50](https://github.com/applifting-vsecourse/team-1/issues/50) | otevřeno | P3 | `po` |
@@ -789,7 +789,7 @@ _Nic._
 
 <a id="q-pla-03"></a>
 
-### Q-PLA-03 – Co po poslední výzvě k zaplacení bez reakce: jen označit pro telefonát (US-45), nebo má systém přihlášku po nějaké době sám zrušit?
+### Q-PLA-03 – Co po jediné výzvě k zaplacení bez reakce (výzva se neopakuje, D-102): jen označit pro telefonát (US-45), nebo má systém přihlášku po nějaké době sám zrušit?
 
 - **Epic:** platby · **Dotčené US:** [US-46](https://github.com/applifting-vsecourse/team-1/issues/46) · **Stav:** otevřeno · **Čeká na:** `po`
 - **Zdroje:**

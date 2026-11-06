@@ -6,6 +6,7 @@ import csErrors from "@/i18n/locales/cs/errors.json"
 import csEventOverview from "@/i18n/locales/cs/eventOverview.json"
 import csEvents from "@/i18n/locales/cs/events.json"
 import csLanding from "@/i18n/locales/cs/landing.json"
+import csNotifications from "@/i18n/locales/cs/notifications.json"
 import csParticipant from "@/i18n/locales/cs/participant.json"
 import enApplicationForm from "@/i18n/locales/en/applicationForm.json"
 import enAuth from "@/i18n/locales/en/auth.json"
@@ -15,6 +16,7 @@ import enErrors from "@/i18n/locales/en/errors.json"
 import enEventOverview from "@/i18n/locales/en/eventOverview.json"
 import enEvents from "@/i18n/locales/en/events.json"
 import enLanding from "@/i18n/locales/en/landing.json"
+import enNotifications from "@/i18n/locales/en/notifications.json"
 import enParticipant from "@/i18n/locales/en/participant.json"
 
 // One namespace per feature folder, so parallel branches edit different files
@@ -29,6 +31,7 @@ export const resources = {
     events: enEvents,
     applicationForm: enApplicationForm,
     participant: enParticipant,
+    notifications: enNotifications,
     eventOverview: enEventOverview,
   },
   cs: {
@@ -40,6 +43,7 @@ export const resources = {
     events: csEvents,
     applicationForm: csApplicationForm,
     participant: csParticipant,
+    notifications: csNotifications,
     eventOverview: csEventOverview,
   },
 } as const

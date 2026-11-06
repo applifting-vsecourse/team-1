@@ -15,7 +15,7 @@ test.describe("Payments", () => {
     await page.getByRole("combobox", { name: "Payment", exact: true }).click()
     await page.getByRole("option", { name: "Unpaid", exact: true }).click()
     await page.getByRole("link", { name: "Record payment" }).first().click()
-    await page.getByRole("button", { name: "Record payment", exact: true }).click()
+    await page.getByRole("button", { name: "Record payment for the term" }).first().click()
     await page.getByLabel("Record another amount").check()
     await page.getByLabel("Amount of this payment (CZK)").fill("1")
     await page

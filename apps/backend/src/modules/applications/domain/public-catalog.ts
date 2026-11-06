@@ -24,7 +24,7 @@ export type Catalog = {
   events: CatalogEvent[]
 }
 
-/** The shared event page opened from the catalog. */
+/** The shared event page at its permanent address (US-22); also opened from the catalog. */
 export type CatalogEventDetail = {
   publicToken: string
   name: string
@@ -35,7 +35,6 @@ export type CatalogEventDetail = {
   contactPhone: string | null
   terms: PublicTerm[]
   hasPhoto: boolean
-  isOpenForApplications: boolean
 }
 
 /** Number of terms and the lowest price over them, as the card summarizes the event. */

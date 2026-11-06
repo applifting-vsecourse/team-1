@@ -106,6 +106,38 @@ describe("per term (PVT)", () => {
     expect(computeTermPaid([{ amountCzk: 900 }, { amountCzk: -200 }])).toBe(700)
   })
 
+  it("one term paid, the second one confirmed later: the debt lands only on the second (US-110)", () => {
+    const firstPayments = [{ amountCzk: 4900 }]
+    const first = { status: "CONFIRMED" as const, priceCzk: 4900 }
+    const secondWaitlisted = { status: "WAITLISTED" as const, priceCzk: 5600 }
+    const secondConfirmed = { status: "CONFIRMED" as const, priceCzk: 5600 }
+
+    // While the second term is a substitute, nothing is owed anywhere.
+    expect(computeTermOwed(first, firstPayments)).toBe(0)
+    expect(computeTermOwed(secondWaitlisted, [])).toBe(0)
+
+    // Once it is confirmed, the first term stays paid and only the second has a debt.
+    expect(computeTermPaymentStatus(first, firstPayments)).toBe("PAID")
+    expect(computeTermOwed(first, firstPayments)).toBe(0)
+    expect(computeTermPaymentStatus(secondConfirmed, [])).toBe("UNPAID")
+    expect(computeTermOwed(secondConfirmed, [])).toBe(5600)
+    expect(
+      computePayableAmount([
+        computeTermOwed(first, firstPayments),
+        computeTermOwed(secondConfirmed, []),
+      ]),
+    ).toBe(5600)
+  })
+
+  it("two terms with a part-paid debt each show the debt per term (500 + 700 CZK)", () => {
+    const first = { status: "CONFIRMED" as const, priceCzk: 4900 }
+    const second = { status: "CONFIRMED" as const, priceCzk: 5600 }
+    const firstOwed = computeTermOwed(first, [{ amountCzk: 4400 }])
+    const secondOwed = computeTermOwed(second, [{ amountCzk: 4900 }])
+    expect([firstOwed, secondOwed]).toEqual([500, 700])
+    expect(computePayableAmount([firstOwed, secondOwed])).toBe(1200)
+  })
+
   it("the application summary equals the sum over its terms", () => {
     const terms = [
       { term: { status: "CONFIRMED" as const, priceCzk: 500 }, payments: [{ amountCzk: 500 }] },
