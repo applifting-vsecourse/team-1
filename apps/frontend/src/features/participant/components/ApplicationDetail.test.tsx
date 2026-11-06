@@ -602,13 +602,13 @@ describe("ApplicationDetail", () => {
     expect(
       within(dialog).getByText(
         (_, element) =>
-          element?.tagName === "SPAN" && /4–10 Jul.*500/.test(element.textContent ?? ""),
+          element?.tagName === "DIV" && /^4–10 Jul 2027.*500/.test(element.textContent ?? ""),
       ),
     ).toBeInTheDocument()
     expect(
       within(dialog).getByText(
         (_, element) =>
-          element?.tagName === "SPAN" && /11–17 Jul.*700/.test(element.textContent ?? ""),
+          element?.tagName === "DIV" && /^11–17 Jul 2027.*700/.test(element.textContent ?? ""),
       ),
     ).toBeInTheDocument()
     expect(toDataURL).toHaveBeenCalledWith(

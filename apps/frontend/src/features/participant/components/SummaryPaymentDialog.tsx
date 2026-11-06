@@ -90,15 +90,23 @@ export function SummaryPaymentDialog({ application, onClose }: Props) {
           </QrDetail>
           <div className="flex flex-col">
             <dt className="text-sm text-muted-foreground">{t("payment.summaryBreakdown")}</dt>
-            <dd className="flex flex-wrap gap-x-4 gap-y-1 text-base">
+            <dd className="grid grid-cols-2 gap-x-4 gap-y-2 pt-1">
               {owedTerms.map((payment) => (
-                <span key={payment.termId}>
-                  {payment.term
-                    ? formatDateRange(payment.term.startsOn, payment.term.endsOn)
-                    : null}
-                  {" · "}
-                  <MoneyAmount amountCzk={payment.owedCzk} />
-                </span>
+                <div
+                  key={payment.termId}
+                  className="flex flex-col"
+                >
+                  <span className="text-sm text-muted-foreground">
+                    {payment.term
+                      ? formatDateRange(payment.term.startsOn, payment.term.endsOn, {
+                          shouldShowYear: true,
+                        })
+                      : null}
+                  </span>
+                  <span className="text-base">
+                    <MoneyAmount amountCzk={payment.owedCzk} />
+                  </span>
+                </div>
               ))}
             </dd>
           </div>
@@ -116,7 +124,6 @@ export function SummaryPaymentDialog({ application, onClose }: Props) {
           <Button
             type="button"
             variant="outline"
-            size="lg"
             disabled={!qrImage}
             onClick={saveQr}
           >
