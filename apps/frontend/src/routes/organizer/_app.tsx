@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet } from "@tanstack/react-router"
+import { createFileRoute, Outlet, redirect } from "@tanstack/react-router"
 import { Calendar } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
@@ -7,6 +7,10 @@ import { Seo } from "@/components/atoms/Seo"
 import { SidebarLink } from "@/components/atoms/SidebarLink"
 import { AreaLayout } from "@/components/templates/AreaLayout"
 
+import {
+  myOnboardingOrganizationsQueryOptions,
+  organizationProfileQueryOptions,
+} from "@/features/auth/api/organizationOnboarding"
 import { OrganizerAreaError } from "@/features/auth/components/OrganizerAreaError"
 import { SidebarAccount } from "@/features/auth/components/SidebarAccount"
 import { requireAccount } from "@/features/auth/lib/require-account"
@@ -20,6 +24,15 @@ export const Route = createFileRoute("/organizer/_app")({
       loginRoute: ROUTES.organizer.login,
       accountType: "ORGANIZER",
     })
+    const organizations = await context.queryClient.ensureQueryData(
+      myOnboardingOrganizationsQueryOptions(),
+    )
+    const first = organizations[0]
+    if (!first) throw redirect({ to: ROUTES.organizer.onboarding })
+    const profile = await context.queryClient.ensureQueryData(
+      organizationProfileQueryOptions(first.id),
+    )
+    if (!profile.bankAccount) throw redirect({ to: ROUTES.organizer.onboarding })
   },
   errorComponent: OrganizerAreaError,
   component: OrganizerLayout,

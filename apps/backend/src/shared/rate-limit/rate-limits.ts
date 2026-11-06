@@ -20,4 +20,6 @@ export const APPLICATION_SUBMIT_LIMITS = [
 export const AUTH_RATE_LIMIT_RULES = {
   "/sign-in/email": { window: 60, max: 5 },
   "/sign-in/magic-link": { window: 60, max: 3 },
+  "/sign-up/email": { window: 60, max: 3 },
+  "/send-verification-email": { window: 60, max: 3 },
 }

@@ -16,6 +16,9 @@ import { Route as CatalogIndexRouteImport } from './routes/catalog/index'
 import { Route as EventsPublicTokenRouteImport } from './routes/events/$publicToken'
 import { Route as OrganizerAppRouteImport } from './routes/organizer/_app'
 import { Route as OrganizerLoginRouteImport } from './routes/organizer/login'
+import { Route as OrganizerOnboardingRouteImport } from './routes/organizer/onboarding'
+import { Route as OrganizerRegisterRouteImport } from './routes/organizer/register'
+import { Route as OrganizerVerifyEmailRouteImport } from './routes/organizer/verify-email'
 import { Route as ParticipantAppRouteImport } from './routes/participant/_app'
 import { Route as ParticipantLoginRouteImport } from './routes/participant/login'
 import { Route as ParticipantMagicLinkRouteImport } from './routes/participant/magic-link'
@@ -71,6 +74,21 @@ const OrganizerAppRoute = OrganizerAppRouteImport.update({
 const OrganizerLoginRoute = OrganizerLoginRouteImport.update({
   id: '/organizer/login',
   path: '/organizer/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrganizerOnboardingRoute = OrganizerOnboardingRouteImport.update({
+  id: '/organizer/onboarding',
+  path: '/organizer/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrganizerRegisterRoute = OrganizerRegisterRouteImport.update({
+  id: '/organizer/register',
+  path: '/organizer/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrganizerVerifyEmailRoute = OrganizerVerifyEmailRouteImport.update({
+  id: '/organizer/verify-email',
+  path: '/organizer/verify-email',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ParticipantAppRoute = ParticipantAppRouteImport.update({
@@ -197,6 +215,9 @@ export interface FileRoutesByFullPath {
   '/events/$publicToken': typeof EventsPublicTokenRoute
   '/organizer': typeof OrganizerAppRouteWithChildren
   '/organizer/login': typeof OrganizerLoginRoute
+  '/organizer/onboarding': typeof OrganizerOnboardingRoute
+  '/organizer/register': typeof OrganizerRegisterRoute
+  '/organizer/verify-email': typeof OrganizerVerifyEmailRoute
   '/participant': typeof ParticipantAppRouteWithChildren
   '/participant/login': typeof ParticipantLoginRoute
   '/participant/magic-link': typeof ParticipantMagicLinkRoute
@@ -226,6 +247,9 @@ export interface FileRoutesByTo {
   '/apply/$token': typeof ApplyTokenRoute
   '/events/$publicToken': typeof EventsPublicTokenRoute
   '/organizer/login': typeof OrganizerLoginRoute
+  '/organizer/onboarding': typeof OrganizerOnboardingRoute
+  '/organizer/register': typeof OrganizerRegisterRoute
+  '/organizer/verify-email': typeof OrganizerVerifyEmailRoute
   '/participant/login': typeof ParticipantLoginRoute
   '/participant/magic-link': typeof ParticipantMagicLinkRoute
   '/participant/set-password': typeof ParticipantSetPasswordRoute
@@ -255,6 +279,9 @@ export interface FileRoutesById {
   '/events/$publicToken': typeof EventsPublicTokenRoute
   '/organizer/_app': typeof OrganizerAppRouteWithChildren
   '/organizer/login': typeof OrganizerLoginRoute
+  '/organizer/onboarding': typeof OrganizerOnboardingRoute
+  '/organizer/register': typeof OrganizerRegisterRoute
+  '/organizer/verify-email': typeof OrganizerVerifyEmailRoute
   '/participant/_app': typeof ParticipantAppRouteWithChildren
   '/participant/login': typeof ParticipantLoginRoute
   '/participant/magic-link': typeof ParticipantMagicLinkRoute
@@ -287,6 +314,9 @@ export interface FileRouteTypes {
     | '/events/$publicToken'
     | '/organizer'
     | '/organizer/login'
+    | '/organizer/onboarding'
+    | '/organizer/register'
+    | '/organizer/verify-email'
     | '/participant'
     | '/participant/login'
     | '/participant/magic-link'
@@ -316,6 +346,9 @@ export interface FileRouteTypes {
     | '/apply/$token'
     | '/events/$publicToken'
     | '/organizer/login'
+    | '/organizer/onboarding'
+    | '/organizer/register'
+    | '/organizer/verify-email'
     | '/participant/login'
     | '/participant/magic-link'
     | '/participant/set-password'
@@ -344,6 +377,9 @@ export interface FileRouteTypes {
     | '/events/$publicToken'
     | '/organizer/_app'
     | '/organizer/login'
+    | '/organizer/onboarding'
+    | '/organizer/register'
+    | '/organizer/verify-email'
     | '/participant/_app'
     | '/participant/login'
     | '/participant/magic-link'
@@ -375,6 +411,9 @@ export interface RootRouteChildren {
   EventsPublicTokenRoute: typeof EventsPublicTokenRoute
   OrganizerAppRoute: typeof OrganizerAppRouteWithChildren
   OrganizerLoginRoute: typeof OrganizerLoginRoute
+  OrganizerOnboardingRoute: typeof OrganizerOnboardingRoute
+  OrganizerRegisterRoute: typeof OrganizerRegisterRoute
+  OrganizerVerifyEmailRoute: typeof OrganizerVerifyEmailRoute
   ParticipantAppRoute: typeof ParticipantAppRouteWithChildren
   ParticipantLoginRoute: typeof ParticipantLoginRoute
   ParticipantMagicLinkRoute: typeof ParticipantMagicLinkRoute
@@ -432,6 +471,27 @@ declare module '@tanstack/react-router' {
       path: '/organizer/login'
       fullPath: '/organizer/login'
       preLoaderRoute: typeof OrganizerLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/organizer/onboarding': {
+      id: '/organizer/onboarding'
+      path: '/organizer/onboarding'
+      fullPath: '/organizer/onboarding'
+      preLoaderRoute: typeof OrganizerOnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/organizer/register': {
+      id: '/organizer/register'
+      path: '/organizer/register'
+      fullPath: '/organizer/register'
+      preLoaderRoute: typeof OrganizerRegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/organizer/verify-email': {
+      id: '/organizer/verify-email'
+      path: '/organizer/verify-email'
+      fullPath: '/organizer/verify-email'
+      preLoaderRoute: typeof OrganizerVerifyEmailRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/participant/_app': {
@@ -662,6 +722,9 @@ const rootRouteChildren: RootRouteChildren = {
   EventsPublicTokenRoute: EventsPublicTokenRoute,
   OrganizerAppRoute: OrganizerAppRouteWithChildren,
   OrganizerLoginRoute: OrganizerLoginRoute,
+  OrganizerOnboardingRoute: OrganizerOnboardingRoute,
+  OrganizerRegisterRoute: OrganizerRegisterRoute,
+  OrganizerVerifyEmailRoute: OrganizerVerifyEmailRoute,
   ParticipantAppRoute: ParticipantAppRouteWithChildren,
   ParticipantLoginRoute: ParticipantLoginRoute,
   ParticipantMagicLinkRoute: ParticipantMagicLinkRoute,

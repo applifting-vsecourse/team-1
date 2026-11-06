@@ -146,6 +146,8 @@ model User {
 model Organization {
   id          String   @id @default(cuid())
   name        String
+  contactEmail String?
+  contactPhone String?
   // Czech account number, e.g. "2900123456/2010" — shown with payment details.
   bankAccount String
   createdAt   DateTime @default(now())

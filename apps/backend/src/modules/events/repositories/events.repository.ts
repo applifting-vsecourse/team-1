@@ -74,6 +74,14 @@ function toStored(row: EventRow): StoredEvent {
 export class EventsRepository {
   constructor(private readonly prisma: PrismaService) {}
 
+  async hasBankAccount(organizationId: string): Promise<boolean> {
+    const organization = await this.prisma.organization.findUnique({
+      where: { id: organizationId },
+      select: { bankAccount: true },
+    })
+    return Boolean(organization?.bankAccount)
+  }
+
   async findById(id: string): Promise<StoredEvent | null> {
     const row = await this.prisma.event.findUnique({ where: { id }, include })
     return row ? toStored(row) : null

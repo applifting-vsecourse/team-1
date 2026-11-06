@@ -16,6 +16,9 @@ export const ROUTES = {
 
   organizer: {
     login: "/organizer/login",
+    register: "/organizer/register",
+    verifyEmail: "/organizer/verify-email",
+    onboarding: "/organizer/onboarding",
     events: "/organizer/events",
     newEvent: "/organizer/events/new",
     event: "/organizer/events/$eventId",

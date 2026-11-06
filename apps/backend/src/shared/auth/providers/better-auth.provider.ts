@@ -38,13 +38,23 @@ const createAuth = (
     // Spread first: anything below extends it. Spread last, it replaced the whole
     // `emailAndPassword` object and silently dropped `sendResetPassword`.
     ...betterAuthCoreConfig,
+    databaseHooks: {
+      user: {
+        create: {
+          before: async (user, context) => {
+            if (context?.path !== "/sign-up/email") return
+            const preferred = context.request?.headers.get("accept-language")?.split(",")[0]
+            return { data: { ...user, locale: toLocale(preferred) } }
+          },
+        },
+      },
+    },
     emailAndPassword: {
       ...betterAuthCoreConfig.emailAndPassword,
       enabled: true,
-      // Nobody signs up in sprint 1 (docs/PROJEKT.md): organizers come from the
-      // seed, participant accounts from a submitted application. Accounts are
-      // created server-side through the internal adapter (see create-user.ts).
-      disableSignUp: true,
+      // Public sign-up creates only organizers (the accountType field is
+      // server-owned). Participants still come from a submitted application.
+      disableSignUp: false,
       sendResetPassword: async ({ user, token }) => {
         const passwordResetUrl = `${config.frontendUrl}/${config.frontendResetPasswordUrl}?token=${token}`
         // E-mails go out in the account's language (User.locale).
@@ -86,6 +96,7 @@ const createAuth = (
     },
     emailVerification: {
       expiresIn: EMAIL_VERIFICATION_TTL_SECONDS,
+      autoSignInAfterVerification: true,
       // The applications module moves the contact e-mail of the account's applications (PO, #218).
       afterEmailVerification: async (user) => {
         await emailChangeHooks.publish({ id: user.id, email: user.email })
