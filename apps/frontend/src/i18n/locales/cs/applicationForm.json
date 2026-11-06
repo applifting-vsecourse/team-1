@@ -56,8 +56,9 @@
       "termsRequired": "Vyberte alespoň jeden termín."
     },
     "firstName": "Jméno *",
-    "gender": "Pohlaví *",
+    "gender": "Pohlaví pro rozdělení pokojů *",
     "genderFemale": "Žena",
+    "genderHint": "Na pohlaví se ptáme kvůli rozdělení pokojů a kapacitě lůžek. Odpověď uvidí organizátor a použije ji pro zajištění ubytování.",
     "genderMale": "Muž",
     "genderPlaceholder": "Vyberte pohlaví",
     "heading": "Přihláška na {{event}}",
