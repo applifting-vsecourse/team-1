@@ -115,7 +115,7 @@ export function TermPaymentCard({
       {status === "UNPAID" || status === "PARTIALLY_PAID" || status === "PAID" ? (
         <div className="flex flex-col gap-1">
           <h4 className="text-sm font-semibold">{t("termPayment.paymentDetails")}</h4>
-          <dl className="flex flex-col gap-1 text-sm">
+          <dl className="flex flex-col gap-3 text-sm">
             {owedCzk > 0 ? (
               <CopyRow
                 label={t("termPayment.amountToPay")}
@@ -140,9 +140,9 @@ export function TermPaymentCard({
               <span className="break-all">{variableSymbol}</span>
             </CopyRow>
             {owedCzk > 0 && paymentDeadline ? (
-              <div className="flex min-h-10 items-center justify-between gap-4">
+              <div className="flex flex-col">
                 <dt className="text-muted-foreground">{t("termPayment.deadline")}</dt>
-                <dd className="text-right">{formatDate(paymentDeadline)}</dd>
+                <dd className="text-base">{formatDate(paymentDeadline)}</dd>
               </div>
             ) : null}
           </dl>
@@ -216,7 +216,7 @@ function Row({
   )
 }
 
-/** A payment detail: the label with its copy button on the left, the value flush right like the rows above. */
+/** A payment detail: the label, and under it the value with its copy button. */
 function CopyRow({
   label,
   value,
@@ -229,15 +229,15 @@ function CopyRow({
   children: ReactNode
 }) {
   return (
-    <div className="flex items-center justify-between gap-4">
-      <dt className="flex items-center gap-1 text-muted-foreground">
-        {label}
+    <div className="flex flex-col">
+      <dt className="text-muted-foreground">{label}</dt>
+      <dd className="flex min-w-0 items-center justify-between gap-2 text-base">
+        <span className="min-w-0">{children}</span>
         <CopyButton
           value={value}
           label={copyLabel}
         />
-      </dt>
-      <dd className="min-w-0 text-right">{children}</dd>
+      </dd>
     </div>
   )
 }
