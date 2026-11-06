@@ -365,6 +365,18 @@ describe("organizer payments (US-44)", () => {
     ])
   })
 
+  it("sends one e-mail 8 when a summary payment closes the debt of two terms", async () => {
+    await prisma.applicationTerm.updateMany({
+      where: { applicationId, termId: termIds[1] },
+      data: { status: "CONFIRMED" },
+    })
+    expect((await request("POST", "", {})).status).toBe(204)
+    expect((await summary()).amountOwedCzk).toBe(0)
+    const mails = allEmailsTo(applicantEmail)
+    expect(mails).toHaveLength(1)
+    expect(mails[0].subject).toContain(", ")
+  })
+
   it("sends no e-mail 8 for a payment of a waitlisted term", async () => {
     await request("POST", "", { amountCzk: 100, termId: termIds[1] })
     expect(await hasSentNothingTo(applicantEmail)).toBe(true)

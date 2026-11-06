@@ -141,7 +141,7 @@ export class PaymentsService {
     await this.sendPaymentReceived(applicationId, organizationId, paid)
   }
 
-  /** E-mail no. 8: one per term whose debt was closed, in the language of the other change e-mails. */
+  /** E-mail no. 8: one per payment for the terms whose debt was closed, in the language of the other change e-mails. */
   private async sendPaymentReceived(
     applicationId: string,
     organizationId: string,
@@ -150,17 +150,16 @@ export class PaymentsService {
     if (!terms.length) return
     const context = await this.repository.findEmailContext(applicationId, organizationId)
     if (!context) return
-    for (const term of terms) {
-      await this.mailer.sendPaymentReceived({
-        email: context.email,
-        accessToken: context.accessToken,
-        locale: context.locale,
-        eventName: context.eventName,
-        organizationName: context.organizationName,
-        firstName: context.firstName,
-        termName: termLabel(term, context.locale),
-      })
-    }
+    // One e-mail for the application, even when a summary payment closed several terms (EMAILY.md).
+    await this.mailer.sendPaymentReceived({
+      email: context.email,
+      accessToken: context.accessToken,
+      locale: context.locale,
+      eventName: context.eventName,
+      organizationName: context.organizationName,
+      firstName: context.firstName,
+      termName: terms.map((term) => termLabel(term, context.locale)).join(", "),
+    })
   }
 
   private async sendDebtNotice(
