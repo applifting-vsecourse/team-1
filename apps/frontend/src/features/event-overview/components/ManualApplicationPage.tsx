@@ -33,6 +33,7 @@ import {
   type ManualApplicationInput,
 } from "@/features/event-overview/api/manualApplication"
 import { occupancyQueryOptions } from "@/features/event-overview/api/occupancy"
+import { termStatusesQueryOptions } from "@/features/event-overview/api/termStatus"
 
 type Status = "CONFIRMED" | "WAITLISTED"
 type Draft = {
@@ -90,15 +91,15 @@ export function ManualApplicationPage({
   const [step, setStep] = useState<"FORM" | "CAPACITY" | "CREATED">("FORM")
   const [isOverCapacityConfirmed, setIsOverCapacityConfirmed] = useState(false)
   const [payload, setPayload] = useState<ManualApplicationInput | null>(null)
-  const [createdId, setCreatedId] = useState<string | null>(null)
+  const [created, setCreated] = useState<{ id: string; name: string } | null>(null)
   const update = (key: keyof Draft, value: Draft[keyof Draft]) => {
     setDraft((current) => ({ ...current, [key]: value }))
     setErrors((current) => ({ ...current, [key]: "" }))
   }
   const mutation = useMutation({
     mutationFn: (input: ManualApplicationInput) => createManualApplication(eventId, input),
-    onSuccess: (saved) => {
-      setCreatedId(saved.applicationId)
+    onSuccess: (saved, input) => {
+      setCreated({ id: saved.applicationId, name: `${input.firstName} ${input.lastName}` })
       setStep("CREATED")
       void client.invalidateQueries({ queryKey: ["eventOverview"] })
       void client.invalidateQueries({ queryKey: ["events", eventId] })
@@ -111,9 +112,24 @@ export function ManualApplicationPage({
       }
     },
   })
+  const savedTerms = useQuery({
+    ...termStatusesQueryOptions(created?.id ?? ""),
+    enabled: created !== null,
+  })
 
-  if (occupancy.isPending) return <LoadingState />
-  if (occupancy.isError) {
+  if (created && savedTerms.isPending) return <LoadingState />
+  if (created && savedTerms.isError) {
+    return (
+      <ErrorState
+        title={t("termStatus.errorTitle")}
+        error={savedTerms.error}
+        onRetry={() => void savedTerms.refetch()}
+      />
+    )
+  }
+
+  if (!created && occupancy.isPending) return <LoadingState />
+  if (!created && occupancy.isError) {
     return (
       <ErrorState
         title={t("manual.title")}
@@ -138,6 +154,7 @@ export function ManualApplicationPage({
 
   const submit = (formEvent: FormEvent) => {
     formEvent.preventDefault()
+    if (mutation.isPending) return
     const nextErrors: Record<string, string> = {}
     if (!draft.firstName.trim() || !draft.lastName.trim()) {
       if (!draft.firstName.trim()) nextErrors.firstName = t("manual.nameRequired")
@@ -179,23 +196,21 @@ export function ManualApplicationPage({
   return (
     <div className="flex max-w-196 flex-col gap-6">
       <Seo title={step === "CREATED" ? t("manual.created") : t("manual.title")} />
-      {step === "CREATED" && createdId ? (
+      {step === "CREATED" && created && savedTerms.data ? (
         <>
           <h2 className="text-2xl font-bold tracking-tight">{t("manual.created")}</h2>
           <Card className="gap-4 p-4 md:p-6">
-            <h3 className="text-2xl font-bold tracking-tight">
-              {draft.firstName.trim()} {draft.lastName.trim()}
-            </h3>
-            {terms.map((term) => (
-              <p key={term.id}>
+            <h3 className="text-2xl font-bold tracking-tight">{created.name}</h3>
+            {savedTerms.data.map((term) => (
+              <p key={term.termId}>
                 {termTitle(term)} ·{" "}
-                {t(
-                  draft.statuses[term.id] === "CONFIRMED"
-                    ? "manual.statusConfirmed"
-                    : "manual.statusWaitlisted",
-                )}{" "}
+                {term.status === "CONFIRMED"
+                  ? t("manual.statusConfirmed")
+                  : term.status === "WAITLISTED"
+                    ? t("manual.statusWaitlisted")
+                    : t(`termStatus.state.${term.status}`)}{" "}
                 ·{" "}
-                {draft.statuses[term.id] === "CONFIRMED" ? (
+                {term.status === "CONFIRMED" ? (
                   <TermPrice amountCzk={term.priceCzk} />
                 ) : (
                   t("manual.noPayment")
@@ -212,7 +227,7 @@ export function ManualApplicationPage({
             >
               <Link
                 to={ROUTES.organizer.application}
-                params={{ eventId, applicationId: createdId }}
+                params={{ eventId, applicationId: created.id }}
               >
                 {t("manual.openDetail")}
               </Link>
@@ -248,6 +263,7 @@ export function ManualApplicationPage({
           <div className="flex items-center gap-3">
             <Checkbox
               id="confirm-over-capacity"
+              disabled={mutation.isPending}
               checked={isOverCapacityConfirmed}
               onCheckedChange={(checked) => setIsOverCapacityConfirmed(checked === true)}
             />
@@ -269,6 +285,7 @@ export function ManualApplicationPage({
           <Button
             variant="ghost"
             size="lg"
+            disabled={mutation.isPending}
             onClick={() => {
               setDraft((current) => ({
                 ...current,
