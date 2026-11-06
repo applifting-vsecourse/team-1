@@ -42,7 +42,17 @@
       "unrs-resolver"
     ],
     "overrides": {
-      "multer@<2.5.0": "^2.5.0"
+      "multer@<2.5.0": "^2.5.0",
+      "better-auth>next": "-",
+      "shell-quote@<1.11.0": "^1.11.0",
+      "fast-uri@<3.1.9": "^3.1.9",
+      "js-yaml@>=4 <4.3.2": "^4.3.2",
+      "js-yaml@>=5 <5.4.1": "^5.4.1",
+      "brace-expansion@>=5 <5.0.12": "^5.0.12",
+      "source-map-js@<1.2.2": "^1.2.2",
+      "js-yaml@>=3 <3.15.2": "^3.15.2",
+      "brace-expansion@<1.1.21": "^1.1.21",
+      "brace-expansion@>=2 <2.1.7": "^2.1.7"
     }
   },
   "engines": {
