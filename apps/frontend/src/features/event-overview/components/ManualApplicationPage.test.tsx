@@ -10,12 +10,13 @@ import { act, fireEvent, render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
+import type { TermStatusDetail } from "@/features/event-overview/api/termStatus"
 import { ManualApplicationPage } from "@/features/event-overview/components/ManualApplicationPage"
 
 const { get, post, loadSavedTerms } = vi.hoisted(() => ({
   get: vi.fn(),
   post: vi.fn(),
-  loadSavedTerms: vi.fn(),
+  loadSavedTerms: vi.fn<() => Promise<TermStatusDetail[]>>(),
 }))
 vi.mock("@/lib/api-client", () => ({ api: { get, post } }))
 
@@ -34,7 +35,7 @@ const term = {
   endsOn: "2027-07-18",
   priceCzk: 4900,
 }
-const savedTerm = {
+const savedTerm: TermStatusDetail = {
   termId: term.id,
   name: term.name,
   startsOn: term.startsOn,
@@ -182,13 +183,23 @@ describe("ManualApplicationPage", () => {
     expect(screen.getByRole("heading", { name: "Confirm over capacity" })).toBeInTheDocument()
     expect(post).toHaveBeenCalledTimes(1)
     expect(post).toHaveBeenCalledWith("organizer/events/e1/applications", {
-      json: expect.objectContaining({
+      json: {
+        firstName: "Eva",
+        lastName: "Novak",
+        birthDate: "2000-05-15",
+        gender: "FEMALE",
+        phone: "+420777123456",
+        email: "eva@example.com",
+        consent: true,
         terms: [{ termId: "t1", status: "CONFIRMED" }],
         confirmOverCapacity: true,
-      }),
+      },
     })
 
-    await act(async () => complete({ applicationId: "a1", number: 1 }))
+    await act(async () => {
+      complete({ applicationId: "a1", number: 1 })
+      await pending
+    })
     expect(await screen.findByText("Application created")).toBeInTheDocument()
     expect(screen.getByText(/Confirmed, payment due/)).toBeInTheDocument()
     expect(screen.getByText(/5[,\s]100/)).toBeInTheDocument()
@@ -213,7 +224,10 @@ describe("ManualApplicationPage", () => {
     await user.click(screen.getByRole("combobox", { name: /First/ }))
     await user.click(screen.getByRole("option", { name: "Confirmed, payment due" }))
 
-    await act(async () => complete({ applicationId: "a1", number: 1 }))
+    await act(async () => {
+      complete({ applicationId: "a1", number: 1 })
+      await pending
+    })
     expect(await screen.findByText("Application created")).toBeInTheDocument()
     expect(screen.getByRole("heading", { name: "Eva Novak" })).toBeInTheDocument()
     expect(screen.getByText(/Waitlisted/)).toBeInTheDocument()
