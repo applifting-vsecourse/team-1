@@ -45,12 +45,15 @@ function serve(list: AppNotification[] | Error) {
   }))
 }
 
-function renderCenter(additionalFeed?: NotificationFeed) {
+function renderCenter(additionalFeed?: NotificationFeed, area?: "participant" | "organizer") {
   render(
     <QueryClientProvider
       client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
     >
-      <NotificationCenter additionalFeed={additionalFeed} />
+      <NotificationCenter
+        additionalFeed={additionalFeed}
+        area={area}
+      />
     </QueryClientProvider>,
   )
 }
@@ -235,6 +238,32 @@ describe("NotificationCenter", () => {
     expect(navigate).toHaveBeenCalledWith({
       to: "/participant/applications/$applicationId",
       params: { applicationId: "app-7" },
+    })
+  })
+
+  it("opens an edited application in the organizer area", async () => {
+    serve([
+      notification("n1", {
+        type: "REQUEST",
+        kind: "APPLICATION_EDITED",
+        applicationId: "app-7",
+        params: {
+          eventId: "event-3",
+          eventName: "Letní kemp Lipno 2027",
+          participantName: "Adam Dvořák",
+        },
+      }),
+    ])
+    renderCenter(undefined, "organizer")
+    const panel = within(await open())
+
+    expect(await panel.findByText("The applicant edited an application")).toBeVisible()
+    await userEvent.click(panel.getByRole("button", { name: /Application detail/ }))
+
+    expect(post).toHaveBeenCalledWith("notifications/n1/read")
+    expect(navigate).toHaveBeenCalledWith({
+      to: "/organizer/events/$eventId/applications/$applicationId",
+      params: { eventId: "event-3", applicationId: "app-7" },
     })
   })
 

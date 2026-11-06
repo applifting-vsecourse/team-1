@@ -4,9 +4,9 @@ import { ApiProperty } from "@nestjs/swagger"
 export class NotificationParamsDto {
   @ApiProperty() eventName!: string
   @ApiProperty() participantName!: string
-  @ApiProperty({ description: "ISO day of the term the notification is about" })
-  termStartsOn!: string
-  @ApiProperty() termEndsOn!: string
+  @ApiProperty({ required: false, description: "ISO day of the term, when this is about a term" })
+  termStartsOn?: string
+  @ApiProperty({ required: false }) termEndsOn?: string
   @ApiProperty({ required: false, description: "STATUS_CHANGED: status before the change" })
   fromStatus?: string
   @ApiProperty({ required: false, description: "STATUS_CHANGED: status after the change" })

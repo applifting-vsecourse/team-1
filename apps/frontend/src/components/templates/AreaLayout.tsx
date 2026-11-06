@@ -19,7 +19,7 @@ type AreaLayoutProps = {
   account: ReactNode
   /** `reading` for participant pages, `wide` (full width) for organizer tables. */
   width: "reading" | "wide"
-  /** The notification bell, shown before the language switcher; omitted where the area has none (the organizer until US-86). */
+  /** The notification bell, shown before the language switcher. */
   notifications?: ReactNode
   children: ReactNode
 }

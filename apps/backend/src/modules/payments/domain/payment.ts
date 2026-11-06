@@ -53,6 +53,7 @@ export type PaymentApplication = {
   number: number
   firstName: string
   lastName: string
+  accommodationRequest: string | null
   terms: PaymentTerm[]
 }
 

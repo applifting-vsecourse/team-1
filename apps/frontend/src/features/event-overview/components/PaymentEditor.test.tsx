@@ -19,6 +19,7 @@ const application: PaymentApplication = {
   bankAccount: "123456789/0000",
   firstName: "Adam",
   lastName: "Test",
+  accommodationRequest: null,
   code: "C-0047",
   terms: [
     {

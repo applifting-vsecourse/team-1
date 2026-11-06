@@ -241,6 +241,7 @@
     "title": "Event overview"
   },
   "payment": {
+    "accommodationRequest": "Individual accommodation request",
     "afterCorrection": "After saving",
     "amountChoice": "Payment amount",
     "back": "← Back to applications",

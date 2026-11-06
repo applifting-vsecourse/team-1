@@ -32,14 +32,17 @@ export function composeNotification(
 ): NotificationText {
   const { kind, params, createdAt } = notification
   const amount = formatCzk(Math.abs(params.amountCzk ?? 0), language)
-  const range = formatDateRange(params.termStartsOn, params.termEndsOn, {
-    shouldShowYear: true,
-    language,
-  })
+  const range =
+    params.termStartsOn && params.termEndsOn
+      ? formatDateRange(params.termStartsOn, params.termEndsOn, {
+          shouldShowYear: true,
+          language,
+        })
+      : null
   const text: NotificationText = {
     title: t(`title.${kind}`, { amount }),
     participant: params.participantName,
-    context: `${range} · ${params.eventName}`,
+    context: range ? `${range} · ${params.eventName}` : params.eventName,
     time: `${formatDate(createdAt, language)} · ${formatTime(createdAt, language)}`,
   }
 

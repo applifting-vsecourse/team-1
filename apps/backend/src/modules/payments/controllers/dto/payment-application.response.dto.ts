@@ -60,6 +60,7 @@ export class PaymentApplicationResponseDto {
   bankAccount!: string
   @ApiProperty() firstName!: string
   @ApiProperty() lastName!: string
+  @ApiProperty({ nullable: true, type: String }) accommodationRequest!: string | null
   @ApiProperty() code!: string
   @ApiProperty({ example: "12345000", description: "Summary symbol: pays the whole debt." })
   variableSymbol!: string
@@ -87,6 +88,7 @@ export class PaymentApplicationResponseDto {
       bankAccount: application.bankAccount,
       firstName: application.firstName,
       lastName: application.lastName,
+      accommodationRequest: application.accommodationRequest,
       code: toApplicationCode(application.eventName, application.number),
       variableSymbol: application.variableSymbol,
       amountDueCzk: application.amountDueCzk,
