@@ -130,6 +130,7 @@ export function OrganizerTermChange({
     <>
       <Button
         variant="secondary"
+        className="transition-colors hover:bg-accent hover:text-accent-foreground"
         onClick={() => {
           setNextId("")
           setIsOpen(true)
