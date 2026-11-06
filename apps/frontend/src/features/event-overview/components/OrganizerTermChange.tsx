@@ -35,15 +35,7 @@ import {
   termChangePreviewQueryOptions,
 } from "@/features/event-overview/api/termChange"
 import { type TermStatusDetail } from "@/features/event-overview/api/termStatus"
-
-function Figure({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="flex flex-col gap-1">
-      <dt className="text-sm text-muted-foreground">{label}</dt>
-      <dd className="font-mono text-base font-medium">{children}</dd>
-    </div>
-  )
-}
+import { ImpactFigure } from "@/features/event-overview/components/ImpactFigure"
 
 /**
  * US-33: an organizer swaps one term of an application for another, from the "Status in terms"
@@ -256,15 +248,15 @@ export function OrganizerTermChange({
                         </span>
                       </p>
                       <dl className="grid grid-cols-3 gap-3">
-                        <Figure label={t("termChange.impact.price")}>
+                        <ImpactFigure label={t("termChange.impact.price")}>
                           <MoneyAmount amountCzk={originalPrice} />
-                        </Figure>
-                        <Figure label={t("termChange.impact.paid")}>
+                        </ImpactFigure>
+                        <ImpactFigure label={t("termChange.impact.paid")}>
                           <MoneyAmount amountCzk={removed.paidCzk} />
-                        </Figure>
-                        <Figure label={t("termChange.impact.overpayment")}>
+                        </ImpactFigure>
+                        <ImpactFigure label={t("termChange.impact.overpayment")}>
                           <MoneyAmount amountCzk={removed.overpaymentCzk} />
-                        </Figure>
+                        </ImpactFigure>
                       </dl>
                     </div>
                     <div className="flex flex-col gap-3 border-t pt-4">
@@ -276,25 +268,25 @@ export function OrganizerTermChange({
                         </span>
                       </p>
                       <dl className="grid grid-cols-3 gap-3">
-                        <Figure label={t("termChange.impact.price")}>
+                        <ImpactFigure label={t("termChange.impact.price")}>
                           <MoneyAmount amountCzk={added.priceCzk} />
-                        </Figure>
-                        <Figure label={t("termChange.impact.paid")}>
+                        </ImpactFigure>
+                        <ImpactFigure label={t("termChange.impact.paid")}>
                           <MoneyAmount amountCzk={0} />
-                        </Figure>
-                        <Figure label={t("termChange.impact.toPay")}>
+                        </ImpactFigure>
+                        <ImpactFigure label={t("termChange.impact.toPay")}>
                           <MoneyAmount amountCzk={added.priceCzk} />
-                        </Figure>
+                        </ImpactFigure>
                       </dl>
                       <dl className="grid grid-cols-3 gap-3">
-                        <Figure label={t(`termChange.impact.places.${preview.data.gender}`)}>
+                        <ImpactFigure label={t(`termChange.impact.places.${preview.data.gender}`)}>
                           <span className={cn(!added.fits && "text-destructive")}>
                             {t("termChange.impact.placesValue", {
                               free: Math.max(0, added.genderFree),
                               capacity: added.genderCapacity,
                             })}
                           </span>
-                        </Figure>
+                        </ImpactFigure>
                       </dl>
                     </div>
                     <p className="border-t pt-4 text-sm text-muted-foreground">

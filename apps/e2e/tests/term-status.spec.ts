@@ -39,11 +39,10 @@ test.describe("Status of an application in a term", () => {
     await page.getByRole("button", { name: "Withdraw", exact: true }).click()
     const dialog = page.getByRole("dialog")
     await expect(dialog.getByRole("heading", { name: "Impact of the withdrawal" })).toBeVisible()
-    await dialog.getByRole("button", { name: "Confirm withdrawal" }).click()
+    await dialog.getByRole("button", { name: "Withdraw participant" }).click()
 
     await expect(page.getByRole("dialog")).not.toBeVisible()
-    await expect(page.getByRole("heading", { name: "The participant was withdrawn" })).toBeVisible()
-    await expect(page.getByText(/Confirmed → Cancelled/).first()).toBeVisible()
+        await expect(page.getByText(/Confirmed → Cancelled/).first()).toBeVisible()
     await expect(page.getByRole("button", { name: "Withdraw", exact: true })).not.toBeVisible()
   })
 })

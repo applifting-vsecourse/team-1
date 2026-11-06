@@ -4,11 +4,7 @@ import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { type TermStatusDetail } from "@/features/event-overview/api/termStatus"
-import {
-  OrganizerWithdrawal,
-  type WithdrawalOutcome,
-} from "@/features/event-overview/components/OrganizerWithdrawal"
-import { WithdrawalResult } from "@/features/event-overview/components/WithdrawalResult"
+import { OrganizerWithdrawal } from "@/features/event-overview/components/OrganizerWithdrawal"
 
 const { get, post } = vi.hoisted(() => ({ get: vi.fn(), post: vi.fn() }))
 vi.mock("@/lib/api-client", async () => ({
@@ -62,7 +58,7 @@ function mockApi() {
   })
 }
 
-function setup(initialTermId: string | null, onDone = vi.fn()) {
+function setup(initialTermId: string | null, onClose = vi.fn()) {
   render(
     <QueryClientProvider
       client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
@@ -71,12 +67,11 @@ function setup(initialTermId: string | null, onDone = vi.fn()) {
         applicationId="a1"
         terms={terms}
         initialTermId={initialTermId}
-        onClose={vi.fn()}
-        onDone={onDone}
+        onClose={onClose}
       />
     </QueryClientProvider>,
   )
-  return onDone
+  return onClose
 }
 
 beforeEach(() => {
@@ -86,13 +81,13 @@ beforeEach(() => {
 
 describe("OrganizerWithdrawal", () => {
   it("shows the impact of withdrawing from one term and confirms it", async () => {
-    const onDone = setup("t1")
+    const onClose = setup("t1")
     const user = userEvent.setup()
 
     const dialog = await screen.findByRole("dialog")
     expect(within(dialog).getByRole("heading", { name: "Withdraw participant" })).toBeVisible()
-    expect(await within(dialog).findByText(/Paid .*4,900.* · Debt after withdrawal/)).toBeVisible()
-    expect(within(dialog).getByText(/Overpayment after withdrawal/)).toBeVisible()
+    expect(await within(dialog).findByText("Debt after withdrawal")).toBeVisible()
+    expect(within(dialog).getByText("Overpayment")).toBeVisible()
     expect(within(dialog).getByText("The other term stays unchanged.")).toBeVisible()
     expect(get).toHaveBeenCalledWith(
       "organizer/applications/a1/terms/withdraw-preview",
@@ -100,18 +95,16 @@ describe("OrganizerWithdrawal", () => {
     )
     expect(post).not.toHaveBeenCalled()
 
-    await user.click(within(dialog).getByRole("button", { name: "Confirm withdrawal" }))
+    await user.click(within(dialog).getByRole("button", { name: "Withdraw participant" }))
 
-    await waitFor(() => expect(onDone).toHaveBeenCalled())
+    await waitFor(() => expect(onClose).toHaveBeenCalled())
     expect(post).toHaveBeenCalledWith("organizer/applications/a1/terms/withdraw", {
       json: { termIds: ["t1"] },
     })
-    const outcome = onDone.mock.calls[0]?.[0] as WithdrawalOutcome
-    expect(outcome?.terms).toMatchObject([{ termId: "t1", overpaymentCzk: 4900 }])
   })
 
   it("withdraws from the whole application with the impact per term", async () => {
-    const onDone = setup(null)
+    const onClose = setup(null)
     const user = userEvent.setup()
 
     const dialog = await screen.findByRole("dialog")
@@ -121,12 +114,12 @@ describe("OrganizerWithdrawal", () => {
     expect(
       await within(dialog).findByRole("heading", { name: "Financial impact per term" }),
     ).toBeVisible()
-    expect(within(dialog).getByText(/^First · Paid/)).toBeVisible()
-    expect(within(dialog).getByText(/^Second · Paid/)).toBeVisible()
+    expect(within(dialog).getByText(/^First/)).toBeVisible()
+    expect(within(dialog).getByText(/^Second/)).toBeVisible()
 
     await user.click(within(dialog).getByRole("button", { name: "Withdraw from both terms" }))
 
-    await waitFor(() => expect(onDone).toHaveBeenCalled())
+    await waitFor(() => expect(onClose).toHaveBeenCalled())
     expect(post).toHaveBeenCalledWith("organizer/applications/a1/terms/withdraw", {
       json: { termIds: ["t1", "t2"] },
     })
@@ -136,42 +129,6 @@ describe("OrganizerWithdrawal", () => {
     get.mockImplementation(() => ({ json: () => new Promise(() => undefined) }))
     setup("t1")
 
-    expect(await screen.findByRole("button", { name: "Confirm withdrawal" })).toBeDisabled()
-  })
-})
-
-describe("WithdrawalResult", () => {
-  it("shows the term, the money, the history entry and the e-mail", async () => {
-    const onBack = vi.fn()
-    render(
-      <WithdrawalResult
-        outcome={{
-          changedAt: "2026-11-05T14:30:00Z",
-          changedByName: "Jakub",
-          terms: [
-            {
-              termId: "t1",
-              title: "First",
-              fromStatus: "CONFIRMED",
-              debtCzk: 0,
-              overpaymentCzk: 4900,
-              hasFinancialImpact: true,
-            },
-          ],
-        }}
-        onBack={onBack}
-      />,
-    )
-
-    expect(screen.getByText("The participant was withdrawn")).toBeVisible()
-    expect(screen.getByText("First · Cancelled")).toBeVisible()
-    expect(screen.getByText(/Debt .*0.* · Overpayment .*4,900/)).toBeVisible()
-    expect(screen.getByText(/Jakub/)).toBeVisible()
-    expect(screen.getByText("Confirmed → Cancelled")).toBeVisible()
-    expect(screen.getByText("An e-mail was sent to the applicant.")).toBeVisible()
-    await userEvent
-      .setup()
-      .click(screen.getByRole("button", { name: "Back to the application detail" }))
-    expect(onBack).toHaveBeenCalled()
+    expect(await screen.findByRole("button", { name: "Withdraw participant" })).toBeDisabled()
   })
 })
