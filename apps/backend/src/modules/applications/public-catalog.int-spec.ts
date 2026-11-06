@@ -70,7 +70,7 @@ describe("public catalog (integration)", () => {
 
   it("exposes nothing sensitive in the list or on the event page", async () => {
     const list = await (await fetch(api("/public/catalog"))).text()
-    const detail = await (await fetch(api("/public/catalog/events/demo-letni-kemp-plny"))).text()
+    const detail = await (await fetch(api("/public/events/demo-letni-kemp-plny/page"))).text()
 
     for (const text of [list, detail]) {
       expect(text).not.toContain("bankAccount")
@@ -82,7 +82,6 @@ describe("public catalog (integration)", () => {
       "contactPhone",
       "description",
       "hasPhoto",
-      "isOpenForApplications",
       "location",
       "name",
       "organizationName",
@@ -92,7 +91,7 @@ describe("public catalog (integration)", () => {
   })
 
   it("opens the page of a published event with its contact", async () => {
-    const response = await fetch(api("/public/catalog/events/demo-letni-kemp-plny"))
+    const response = await fetch(api("/public/events/demo-letni-kemp-plny/page"))
 
     expect(response.status).toBe(200)
     expect(await response.json()).toMatchObject({
@@ -100,13 +99,28 @@ describe("public catalog (integration)", () => {
       organizationName: "Letní kemp z. s.",
       contactEmail: "kemp@example.com",
       hasPhoto: true,
-      isOpenForApplications: true,
     })
   })
 
-  it("answers a not published event and its photo with 404 and no content", async () => {
-    const detail = await fetch(api("/public/catalog/events/demo-zimni-vyjezd-2028"))
-    const photo = await fetch(api("/public/catalog/events/demo-zimni-vyjezd-2028/photo"))
+  it("opens the page of an accessible event that is not in the catalog, without a login", async () => {
+    const event = await prisma.event.findUniqueOrThrow({
+      where: { publicToken: "demo-letni-kemp-2027" },
+    })
+    expect(event.publishedInCatalog).toBe(false)
+
+    const response = await fetch(api("/public/events/demo-letni-kemp-2027/page"))
+    const text = await response.text()
+
+    expect(response.status).toBe(200)
+    expect(JSON.parse(text)).toMatchObject({ publicToken: "demo-letni-kemp-2027" })
+    for (const secret of ["bankAccount", "capacity", "occupied", "freeBeds", "bedCount"]) {
+      expect(text).not.toContain(secret)
+    }
+  })
+
+  it("answers an event without a working link and its photo with 404 and no content", async () => {
+    const detail = await fetch(api("/public/events/demo-zimni-vyjezd-2028/page"))
+    const photo = await fetch(api("/public/events/demo-zimni-vyjezd-2028/photo"))
 
     expect(detail.status).toBe(404)
     expect(photo.status).toBe(404)
@@ -114,14 +128,14 @@ describe("public catalog (integration)", () => {
   })
 
   it("answers an unknown event with 404", async () => {
-    const response = await fetch(api("/public/catalog/events/does-not-exist"))
+    const response = await fetch(api("/public/events/does-not-exist/page"))
 
     expect(response.status).toBe(404)
     expect(await response.json()).toMatchObject({ statusCode: 404, code: "NOT_FOUND" })
   })
 
   it("serves the photo of a published event with cache headers, and 304 for a known ETag", async () => {
-    const response = await fetch(api("/public/catalog/events/demo-letni-kemp-plny/photo"))
+    const response = await fetch(api("/public/events/demo-letni-kemp-plny/photo"))
 
     expect(response.status).toBe(200)
     expect(response.headers.get("content-type")).toContain("image/png")
@@ -129,13 +143,13 @@ describe("public catalog (integration)", () => {
     const etag = response.headers.get("etag")
     expect(etag).toBeTruthy()
 
-    const again = await fetch(api("/public/catalog/events/demo-letni-kemp-plny/photo"), {
+    const again = await fetch(api("/public/events/demo-letni-kemp-plny/photo"), {
       headers: { "If-None-Match": etag ?? "" },
     })
     expect(again.status).toBe(304)
   })
 
-  it("lists an event without a working link, but without the application offer", async () => {
+  it("lists an event without a working link, but its page is a 404", async () => {
     const organization = await prisma.organization.findFirstOrThrow({
       where: { name: "Letní kemp z. s." },
     })
@@ -159,22 +173,20 @@ describe("public catalog (integration)", () => {
     })
 
     const list = (await (await fetch(api("/public/catalog"))).json()) as CatalogBody
-    const detail = (await (
-      await fetch(api("/public/catalog/events/catalog-bez-pokoju"))
-    ).json()) as { isOpenForApplications: boolean }
+    const detail = await fetch(api("/public/events/catalog-bez-pokoju/page"))
 
     expect(list.events.find((event) => event.name === "Bez pokojů")?.isOpenForApplications).toBe(
       false,
     )
-    expect(detail.isOpenForApplications).toBe(false)
+    expect(detail.status).toBe(404)
   })
 
-  it("drops an organization from the catalog once none of its events is published", async () => {
+  it("drops an event from the catalog once unpublished, but its page stays open", async () => {
     await unpublish("demo-letni-kemp-plny")
     const body = (await (await fetch(api("/public/catalog"))).json()) as CatalogBody
 
     expect(body.events.map((event) => event.name)).not.toContain("Letní kemp 2027 – demo")
-    const detail = await fetch(api("/public/catalog/events/demo-letni-kemp-plny"))
-    expect(detail.status).toBe(404)
+    const detail = await fetch(api("/public/events/demo-letni-kemp-plny/page"))
+    expect(detail.status).toBe(200)
   })
 })

@@ -1,9 +1,9 @@
 {
   "event": {
-    "apply": "Apply participants",
-    "back": "Back to the catalog",
+    "about": "About the event",
+    "apply": "Submit application",
     "contact": "Organization contact",
-    "intro": "You can apply without registering. In the application you choose the terms and see the total price.",
+    "perPerson": "/ person",
     "terms": "Terms and prices"
   },
   "list": {
@@ -25,5 +25,10 @@
     "summary_one": "{{count}} term · {{price}}",
     "summary_other": "{{count}} terms · {{price}}",
     "title": "Event catalog"
+  },
+  "notFound": {
+    "action": "Go to the home page",
+    "description": "The link to the event is not available. Check the address or contact the organization.",
+    "title": "Page not found"
   }
 }

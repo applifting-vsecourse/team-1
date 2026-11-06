@@ -11,6 +11,7 @@
   "clipboard": {
     "copied": "Zkopírováno do schránky",
     "copyAccount": "Zkopírovat číslo účtu",
+    "copyAmount": "Kopírovat částku",
     "copyVariableSymbol": "Zkopírovat variabilní symbol",
     "failedDescription": "Zkopírujte údaj ručně.",
     "failedTitle": "Kopírování se nepodařilo"
@@ -79,6 +80,26 @@
   "state": {
     "loading": "Načítání…",
     "retry": "Zkusit znovu"
+  },
+  "termPayment": {
+    "account": "Účet",
+    "amountToPay": "Částka k platbě",
+    "due": "Částka k úhradě",
+    "listTitle": "Platby po termínech",
+    "overpaid": "Přeplatek",
+    "owed": "Zbývá zaplatit",
+    "paid": "Zaplaceno",
+    "paymentDetails": "Platební údaje",
+    "status": {
+      "NOTHING_DUE": "Nic k platbě",
+      "OVERPAID": "Přeplaceno",
+      "PAID": "Zaplaceno",
+      "PARTIALLY_PAID": "Částečně zaplaceno",
+      "UNPAID": "Nezaplaceno"
+    },
+    "variableSymbol": "Variabilní symbol",
+    "waitlisted": "Náhradník",
+    "waitlistedNote": "Zatím nic neplatíte."
   },
   "theme": {
     "dark": "Tmavý",

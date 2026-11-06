@@ -13,7 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as EmailChangeRouteImport } from './routes/email-change'
 import { Route as ApplyTokenRouteImport } from './routes/apply/$token'
 import { Route as CatalogIndexRouteImport } from './routes/catalog/index'
-import { Route as CatalogPublicTokenRouteImport } from './routes/catalog/$publicToken'
+import { Route as EventsPublicTokenRouteImport } from './routes/events/$publicToken'
 import { Route as OrganizerAppRouteImport } from './routes/organizer/_app'
 import { Route as OrganizerLoginRouteImport } from './routes/organizer/login'
 import { Route as ParticipantAppRouteImport } from './routes/participant/_app'
@@ -57,9 +57,9 @@ const CatalogIndexRoute = CatalogIndexRouteImport.update({
   path: '/catalog/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CatalogPublicTokenRoute = CatalogPublicTokenRouteImport.update({
-  id: '/catalog/$publicToken',
-  path: '/catalog/$publicToken',
+const EventsPublicTokenRoute = EventsPublicTokenRouteImport.update({
+  id: '/events/$publicToken',
+  path: '/events/$publicToken',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OrganizerAppRoute = OrganizerAppRouteImport.update({
@@ -187,7 +187,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/email-change': typeof EmailChangeRoute
   '/apply/$token': typeof ApplyTokenRoute
-  '/catalog/$publicToken': typeof CatalogPublicTokenRoute
+  '/events/$publicToken': typeof EventsPublicTokenRoute
   '/organizer': typeof OrganizerAppRouteWithChildren
   '/organizer/login': typeof OrganizerLoginRoute
   '/participant': typeof ParticipantAppRouteWithChildren
@@ -216,7 +216,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/email-change': typeof EmailChangeRoute
   '/apply/$token': typeof ApplyTokenRoute
-  '/catalog/$publicToken': typeof CatalogPublicTokenRoute
+  '/events/$publicToken': typeof EventsPublicTokenRoute
   '/organizer/login': typeof OrganizerLoginRoute
   '/participant/login': typeof ParticipantLoginRoute
   '/participant/magic-link': typeof ParticipantMagicLinkRoute
@@ -243,7 +243,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/email-change': typeof EmailChangeRoute
   '/apply/$token': typeof ApplyTokenRoute
-  '/catalog/$publicToken': typeof CatalogPublicTokenRoute
+  '/events/$publicToken': typeof EventsPublicTokenRoute
   '/organizer/_app': typeof OrganizerAppRouteWithChildren
   '/organizer/login': typeof OrganizerLoginRoute
   '/participant/_app': typeof ParticipantAppRouteWithChildren
@@ -274,7 +274,7 @@ export interface FileRouteTypes {
     | '/'
     | '/email-change'
     | '/apply/$token'
-    | '/catalog/$publicToken'
+    | '/events/$publicToken'
     | '/organizer'
     | '/organizer/login'
     | '/participant'
@@ -303,7 +303,7 @@ export interface FileRouteTypes {
     | '/'
     | '/email-change'
     | '/apply/$token'
-    | '/catalog/$publicToken'
+    | '/events/$publicToken'
     | '/organizer/login'
     | '/participant/login'
     | '/participant/magic-link'
@@ -329,7 +329,7 @@ export interface FileRouteTypes {
     | '/'
     | '/email-change'
     | '/apply/$token'
-    | '/catalog/$publicToken'
+    | '/events/$publicToken'
     | '/organizer/_app'
     | '/organizer/login'
     | '/participant/_app'
@@ -359,7 +359,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   EmailChangeRoute: typeof EmailChangeRoute
   ApplyTokenRoute: typeof ApplyTokenRoute
-  CatalogPublicTokenRoute: typeof CatalogPublicTokenRoute
+  EventsPublicTokenRoute: typeof EventsPublicTokenRoute
   OrganizerAppRoute: typeof OrganizerAppRouteWithChildren
   OrganizerLoginRoute: typeof OrganizerLoginRoute
   ParticipantAppRoute: typeof ParticipantAppRouteWithChildren
@@ -400,11 +400,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CatalogIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/catalog/$publicToken': {
-      id: '/catalog/$publicToken'
-      path: '/catalog/$publicToken'
-      fullPath: '/catalog/$publicToken'
-      preLoaderRoute: typeof CatalogPublicTokenRouteImport
+    '/events/$publicToken': {
+      id: '/events/$publicToken'
+      path: '/events/$publicToken'
+      fullPath: '/events/$publicToken'
+      preLoaderRoute: typeof EventsPublicTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/organizer/_app': {
@@ -636,7 +636,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   EmailChangeRoute: EmailChangeRoute,
   ApplyTokenRoute: ApplyTokenRoute,
-  CatalogPublicTokenRoute: CatalogPublicTokenRoute,
+  EventsPublicTokenRoute: EventsPublicTokenRoute,
   OrganizerAppRoute: OrganizerAppRouteWithChildren,
   OrganizerLoginRoute: OrganizerLoginRoute,
   ParticipantAppRoute: ParticipantAppRouteWithChildren,

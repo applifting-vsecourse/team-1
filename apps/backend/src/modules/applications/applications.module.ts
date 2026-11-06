@@ -1,4 +1,5 @@
 import { PrismaModule } from "@/core/prisma/prisma.module"
+import { NotificationsModule } from "@/modules/notifications/notifications.module"
 import { ParticipantsModule } from "@/modules/participants/participants.module"
 import { AuthModule } from "@/shared/auth/auth.module"
 import { OrganizationAccessModule } from "@/shared/organization-access/organization-access.module"
@@ -8,6 +9,12 @@ import { ApplicationsController } from "./controllers/applications.controller"
 import { BulkConfirmationController } from "./controllers/bulk-confirmation.controller"
 import { BulkDecisionController } from "./controllers/bulk-decision.controller"
 import { CapacityController } from "./controllers/capacity.controller"
+import {
+  OrganizerChangeRequestController,
+  ParticipantChangeRequestController,
+  ParticipantChangeRequestNotificationsController,
+} from "./controllers/change-request.controller"
+import { OrganizerTermChangeController } from "./controllers/organizer-term-change.controller"
 import { ParticipantTermChangeController } from "./controllers/participant-term-change.controller"
 import { PublicCatalogController } from "./controllers/public-catalog.controller"
 import { PublicEventsController } from "./controllers/public-events.controller"
@@ -18,6 +25,7 @@ import { ApplicationsRepository } from "./repositories/applications.repository"
 import { BulkConfirmationRepository } from "./repositories/bulk-confirmation.repository"
 import { BulkDecisionRepository } from "./repositories/bulk-decision.repository"
 import { CapacityRepository } from "./repositories/capacity.repository"
+import { ChangeRequestRepository } from "./repositories/change-request.repository"
 import { PublicCatalogRepository } from "./repositories/public-catalog.repository"
 import { PublicEventsRepository } from "./repositories/public-events.repository"
 import { SubmissionStatusRepository } from "./repositories/submission-status.repository"
@@ -27,6 +35,7 @@ import { ApplicationsService } from "./services/applications.service"
 import { BulkConfirmationService } from "./services/bulk-confirmation.service"
 import { BulkDecisionService } from "./services/bulk-decision.service"
 import { CapacityService } from "./services/capacity.service"
+import { ChangeRequestService } from "./services/change-request.service"
 import { ContactEmailSyncService } from "./services/contact-email-sync.service"
 import { PublicCatalogService } from "./services/public-catalog.service"
 import { PublicEventsService } from "./services/public-events.service"
@@ -39,6 +48,7 @@ import { WaitlistExpiryService } from "./services/waitlist-expiry.service"
 @Module({
   imports: [
     PrismaModule,
+    NotificationsModule,
     ParticipantsModule,
     OrganizationAccessModule,
     AuthModule,
@@ -49,15 +59,21 @@ import { WaitlistExpiryService } from "./services/waitlist-expiry.service"
     PublicCatalogController,
     ApplicationsController,
     CapacityController,
+    ParticipantChangeRequestController,
+    ParticipantChangeRequestNotificationsController,
+    OrganizerChangeRequestController,
     SubmissionStatusController,
     TermStatusController,
     ParticipantTermChangeController,
+    OrganizerTermChangeController,
     BulkConfirmationController,
     BulkDecisionController,
     SubstitutesController,
   ],
   providers: [
     CapacityRepository,
+    ChangeRequestRepository,
+    ChangeRequestService,
     CapacityService,
     PublicEventsService,
     PublicEventsRepository,

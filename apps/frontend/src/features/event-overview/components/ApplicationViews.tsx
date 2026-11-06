@@ -8,6 +8,7 @@ const VIEWS = [
   { key: "viewAll", value: "all" },
   { key: "status", value: "TO_EVALUATE" },
   { key: "viewWaitlist", value: "WAITLISTED" },
+  { key: "viewRequests", value: "CHANGE_REQUESTS" },
 ] as const
 
 const isView = (status: ApplicationsSearch["status"]): status is "TO_EVALUATE" | "WAITLISTED" =>
@@ -31,16 +32,26 @@ export function ApplicationViews({
       aria-label={t("queue.views")}
       className="flex-wrap"
       // The queue and the waitlist are views of their own; any other status is still "All".
-      value={isView(filters.status) ? filters.status : "all"}
+      value={
+        filters.view === "CHANGE_REQUESTS"
+          ? "CHANGE_REQUESTS"
+          : isView(filters.status)
+            ? filters.status
+            : "all"
+      }
       onValueChange={(value) => {
         // Pressing the active chip again must not leave the group empty.
         // Pressing the active chip again must not leave the group empty; on "All" it clears a
         // status picked in the filter (confirmed, cancelled).
         const chosen = value || "all"
         const next = { ...filters }
+        delete next.view
         if (chosen === "all") {
-          if (!filters.status) return
+          if (!filters.status && !filters.view) return
           delete next.status
+        } else if (chosen === "CHANGE_REQUESTS") {
+          delete next.status
+          next.view = "CHANGE_REQUESTS"
         } else next.status = chosen as "TO_EVALUATE" | "WAITLISTED"
         onChange(next)
       }}

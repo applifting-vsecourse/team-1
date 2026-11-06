@@ -30,13 +30,14 @@ flowchart TD
   n_e_lhuta(("Lhůta pro zaplacení<br/>dluhu uplynula"))
   n_e_zamitnuti(("Nastaly okolnosti pro<br/>zamítnutí přihlášky v<br/>termínu"))
   n_zaucotovat("Zaúčtovat platbu<br/>role: systém / organizátor")
-  n_vyzva("Odeslat výzvu k<br/>zaplacení<br/>role: systém")
+  n_vyzva("Odeslat výzvu k<br/>zaplacení jednou<br/>(automaticky<br/>role: systém / organizátor")
   n_e_platby_po_vyzve(("Σ plateb = částka k<br/>úhradě"))
   n_e_zamitnuti_po_vyzve(("Nastaly okolnosti pro<br/>zamítnutí přihlášky v<br/>termínu"))
   n_s_potvrzena_zaplacena(["Přihláška v termínu:<br/>potvrzená a zaplacená"])
   n_e_zamitnuti_zaplacena(("Nastaly okolnosti pro<br/>zamítnutí přihlášky v<br/>termínu"))
   n_e_termin(("Termín proběhne (datum<br/>= první den po<br/>posledním termínu)"))
   n_e_odhlaska(("Účastník se odhlásí"))
+  n_e_oprava_platby(("Organizátor opraví<br/>nebo odstraní platbu a<br/>vznikne dluh"))
   n_s_archivovana(["Přihláška v termínu:<br/>archivovaná"])
   n_sync_s_nahradnik{"AND"}
   n_alt_s_nahradnik{"XOR"}
@@ -69,6 +70,7 @@ flowchart TD
   n_split_vyzva -->|"Σ plateb = částka k<br/>úhradě"| n_zaucotovat
   n_split_vyzva -->|"Nastaly okolnosti pro<br/>zamítnutí přihlášky v<br/>termínu"| n_s_zrusena
   n_zaucotovat --> n_s_potvrzena_zaplacena
+  n_split_s_potvrzena_zaplacena -->|"Organizátor opraví nebo<br/>odstraní platbu a<br/>vznikne dluh"| n_s_potvrzena_dluh
   n_split_s_potvrzena_zaplacena -->|"Organizátor zruší termín<br/>akce"| n_s_zrusena
   n_split_s_potvrzena_zaplacena -->|"Nastaly okolnosti pro<br/>zamítnutí přihlášky v<br/>termínu"| n_s_zrusena
   n_split_s_potvrzena_zaplacena -->|"Účastník se odhlásí"| n_s_zrusena
@@ -100,9 +102,10 @@ flowchart TD
   n_e_termin --> n_alt_s_potvrzena_zaplacena
   n_e_odhlaska --> n_alt_s_potvrzena_zaplacena
   n_e_zruseni_terminu_zaplacena --> n_alt_s_potvrzena_zaplacena
+  n_e_oprava_platby --> n_alt_s_potvrzena_zaplacena
   n_sync_s_potvrzena_zaplacena --> n_split_s_potvrzena_zaplacena
 
-  class n_prihlaska_zaregistrovana,n_uvolni_se_luzko,n_e_zruseni_terminu_nahradnik,n_e_zruseni_terminu_dluh,n_e_zruseni_terminu_po_vyzve,n_e_zruseni_terminu_zaplacena,n_e_zruseni_nahradnika,n_e_presun,n_e_platby,n_e_zamitnuti,n_e_platby_po_vyzve,n_e_zamitnuti_po_vyzve,n_e_zamitnuti_zaplacena,n_e_odhlaska ev
+  class n_prihlaska_zaregistrovana,n_uvolni_se_luzko,n_e_zruseni_terminu_nahradnik,n_e_zruseni_terminu_dluh,n_e_zruseni_terminu_po_vyzve,n_e_zruseni_terminu_zaplacena,n_e_zruseni_nahradnika,n_e_presun,n_e_platby,n_e_zamitnuti,n_e_platby_po_vyzve,n_e_zamitnuti_po_vyzve,n_e_zamitnuti_zaplacena,n_e_odhlaska,n_e_oprava_platby ev
   class n_vyhodnotit,n_potvrdit_nahradnika,n_zaucotovat,n_vyzva task
   class n_g_vysledek,n_alt_s_nahradnik,n_split_s_nahradnik,n_alt_s_potvrzena_dluh,n_split_s_potvrzena_dluh,n_alt_vyzva,n_split_vyzva,n_alt_s_potvrzena_zaplacena,n_split_s_potvrzena_zaplacena gw_xor
   class n_s_zrusena,n_s_archivovana endst

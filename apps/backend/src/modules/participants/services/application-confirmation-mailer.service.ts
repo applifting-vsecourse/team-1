@@ -13,6 +13,16 @@ import {
   applicationConfirmationSubject,
 } from "@/core/email/templates/application-confirmation"
 import {
+  ChangeRequestStatus,
+  ChangeRequestStatusProps,
+  changeRequestStatusSubject,
+} from "@/core/email/templates/change-request-status"
+import {
+  PaymentCorrectionEmail,
+  PaymentCorrectionEmailProps,
+  paymentCorrectionSubject,
+} from "@/core/email/templates/payment-correction"
+import {
   buildChangeProps,
   buildConfirmationApplications,
   buildTermNoticeProps,
@@ -91,6 +101,36 @@ export class ApplicationConfirmationMailer {
       await this.email.sendEmail(change.email, subject, html)
     } catch (error) {
       this.logFailure("change", change.email, error)
+    }
+  }
+
+  async sendChangeRequestStatus(email: string, details: ChangeRequestStatusProps): Promise<void> {
+    try {
+      const html = await renderEmail(ChangeRequestStatus, details)
+      await this.email.sendEmail(email, changeRequestStatusSubject(details.locale), html)
+    } catch (error) {
+      this.logFailure("change request", email, error)
+    }
+  }
+
+  async sendPaymentCorrection(
+    input: { email: string; accessToken: string } & Omit<
+      PaymentCorrectionEmailProps,
+      "confirmationUrl"
+    >,
+  ): Promise<void> {
+    try {
+      const html = await renderEmail(PaymentCorrectionEmail, {
+        ...input,
+        confirmationUrl: `${this.config.frontendUrl}/apply/confirmation/${encodeURIComponent(input.accessToken)}`,
+      })
+      await this.email.sendEmail(
+        input.email,
+        paymentCorrectionSubject(input.locale, input.eventName),
+        html,
+      )
+    } catch (error) {
+      this.logFailure("payment correction", input.email, error)
     }
   }
 

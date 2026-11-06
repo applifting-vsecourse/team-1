@@ -12,6 +12,7 @@ import { BetterAuth } from "@/shared/auth/providers/better-auth.provider"
 import { Config } from "@/shared/config/config.service"
 import { generateToken } from "@/shared/utils/token"
 import { createUser } from "./create-user"
+import { seedParticipantNotifications } from "./notifications-data"
 import { seedSprintDemo } from "./sprint-demo-data"
 
 export type SeedRoom = { name: string; capacity: number; gender: Gender | null }
@@ -337,6 +338,8 @@ export const seedDatabase = async (
     applicants: [],
     payments: {},
   })
+
+  await seedParticipantNotifications(prisma, participant.id)
 }
 
 export type CreateEventParams = {
