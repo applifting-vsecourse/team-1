@@ -33,7 +33,7 @@
     "immediateTitle": "The change takes effect immediately",
     "impact": "Change impact",
     "loadError": "Couldn't load available terms",
-    "newPrice": "New term {{term}} · Price {{price}} · Due on confirmation {{price}}",
+    "newPrice": "New term {{term}} · Price {{price}} · Amount due {{price}}",
     "noAvailableTerms": "No other term is available.",
     "noTransfer": "Payments are not transferred between terms.",
     "open": "Change terms",
