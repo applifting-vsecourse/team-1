@@ -121,8 +121,22 @@ describe("participant changes before cancellation starts (integration)", () => {
     expect(await (await options()).json()).toMatchObject({
       canChangeImmediately: true,
       terms: [
-        { id: firstId, selected: true },
-        { id: secondId, selected: false },
+        {
+          id: firstId,
+          selected: true,
+          priceCzk: 1000,
+          paidCzk: 1000,
+          owedAfterCancellationCzk: 0,
+          overpaymentAfterCancellationCzk: 1000,
+        },
+        {
+          id: secondId,
+          selected: false,
+          priceCzk: 2000,
+          paidCzk: 0,
+          owedAfterCancellationCzk: 0,
+          overpaymentAfterCancellationCzk: 0,
+        },
       ],
     })
     expect((await change([secondId])).status).toBe(204)

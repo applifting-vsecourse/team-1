@@ -8,6 +8,7 @@ import {
 import { findDuplicate } from "@/modules/applications/domain/duplicate-application"
 import { evaluateApplication } from "@/modules/applications/domain/evaluation"
 import {
+  cancellationPaymentImpact,
   participantChangeAllowed,
   ParticipantChangeOptions,
 } from "@/modules/applications/domain/participant-term-change"
@@ -105,12 +106,19 @@ export class TermStatusRepository {
                 name: true,
                 startsOn: true,
                 endsOn: true,
+                priceCzk: true,
                 _count: { select: { rooms: true } },
               },
             },
           },
         },
-        terms: { select: { termId: true, status: true } },
+        terms: {
+          select: {
+            termId: true,
+            status: true,
+            payments: { where: { cancelledAt: null }, select: { amountCzk: true } },
+          },
+        },
       },
     })
     if (!application) return null
@@ -120,6 +128,7 @@ export class TermStatusRepository {
     const cancelled = new Set(
       application.terms.filter((row) => row.status === "CANCELLED").map((row) => row.termId),
     )
+    const paymentsByTerm = new Map(application.terms.map((row) => [row.termId, row.payments]))
     return {
       canChangeImmediately: participantChangeAllowed(
         application.event.cancellationStartsOn,
@@ -132,6 +141,8 @@ export class TermStatusRepository {
           name: term.name,
           startsOn: term.startsOn.toISOString().slice(0, 10),
           endsOn: term.endsOn.toISOString().slice(0, 10),
+          priceCzk: term.priceCzk,
+          ...cancellationPaymentImpact(paymentsByTerm.get(term.id) ?? []),
           selected: active.has(term.id),
         })),
     }

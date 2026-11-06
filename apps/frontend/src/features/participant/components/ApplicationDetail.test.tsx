@@ -108,6 +108,8 @@ const cardOf = (heading: RegExp): HTMLElement =>
   screen.getByRole("heading", { name: heading }).closest<HTMLElement>("[data-slot='card']")!
 
 const renderDetail = (data: MyApplication, canChangeImmediately = true) => {
+  const paid = (termId: string) =>
+    data.paymentDetails?.terms.find((payment) => payment.termId === termId)?.paidCzk ?? 0
   get.mockImplementation((path: string) => ({
     json: () =>
       Promise.resolve(
@@ -122,14 +124,26 @@ const renderDetail = (data: MyApplication, canChangeImmediately = true) => {
                     name: "1. týden",
                     startsOn: "2027-07-04",
                     endsOn: "2027-07-10",
-                    selected: true,
+                    priceCzk: 4500,
+                    paidCzk: paid("t1"),
+                    owedAfterCancellationCzk: 0,
+                    overpaymentAfterCancellationCzk: paid("t1"),
+                    selected: data.terms.some(
+                      (term) => term.termId === "t1" && term.status !== "CANCELLED",
+                    ),
                   },
                   {
                     id: "t2",
                     name: "2. týden",
                     startsOn: "2027-07-11",
                     endsOn: "2027-07-17",
-                    selected: false,
+                    priceCzk: 4900,
+                    paidCzk: paid("t2"),
+                    owedAfterCancellationCzk: 0,
+                    overpaymentAfterCancellationCzk: paid("t2"),
+                    selected: data.terms.some(
+                      (term) => term.termId === "t2" && term.status !== "CANCELLED",
+                    ),
                   },
                 ],
               }
@@ -181,28 +195,64 @@ describe("ApplicationDetail", () => {
     put.mockResolvedValue(undefined)
     renderDetail(application())
 
-    await user.click(await screen.findByRole("button", { name: "Change terms or cancel" }))
-    expect(screen.getByText(/Payments stay with their original terms/)).toBeInTheDocument()
-    await user.click(screen.getByRole("checkbox", { name: "Select term 2. týden" }))
-    await user.click(screen.getByRole("button", { name: "Save changes" }))
+    await user.click(await screen.findByRole("button", { name: "Change terms" }))
+    expect(screen.getByText(/Overpayment CZK 2,000/)).toBeInTheDocument()
+    expect(screen.getByText(/New term 2. týden · Price CZK 4,900/)).toBeInTheDocument()
+    await user.click(screen.getByRole("button", { name: "Confirm change" }))
 
     expect(put).toHaveBeenCalledWith("participant/applications/a1/terms", {
-      json: { termIds: ["t1", "t2"] },
+      json: { termIds: ["t2"] },
     })
   })
 
   it("submits an approval request after cancellation starts", async () => {
     const user = userEvent.setup()
-    post.mockResolvedValue(undefined)
+    post.mockReturnValue({
+      json: () =>
+        Promise.resolve({
+          id: "r1",
+          applicationId: "a1",
+          eventId: "e1",
+          participantName: "Jana Nováková",
+          participantGender: "FEMALE",
+          currentTermIds: ["t1"],
+          requestedTermIds: ["t2"],
+          status: "PENDING",
+          rejectionReason: null,
+          createdAt: "2026-11-05T14:30:00.000Z",
+          reviewedAt: null,
+          terms: [],
+        }),
+    })
     renderDetail(application(), false)
-    expect(
-      await screen.findByText(/Changes now require the organiser's approval/),
-    ).toBeInTheDocument()
-    await user.click(screen.getByRole("button", { name: "Change terms or cancel" }))
-    await user.click(screen.getByRole("checkbox", { name: "Select term 2. týden" }))
+    await user.click(await screen.findByRole("button", { name: "Change terms" }))
+    expect(screen.getByText(/original terms and assigned bed remain/)).toBeInTheDocument()
     await user.click(screen.getByRole("button", { name: "Send request" }))
     expect(post).toHaveBeenCalledWith("participant/applications/a1/change-requests", {
-      json: { termIds: ["t1", "t2"] },
+      json: { termIds: ["t2"] },
+    })
+    expect(
+      await screen.findByRole("heading", { name: "Request awaiting approval" }),
+    ).toBeInTheDocument()
+  })
+
+  it("cancels one term and shows its payment and bed impact before confirmation", async () => {
+    const user = userEvent.setup()
+    put.mockResolvedValue(undefined)
+    renderDetail(withTerms([termPayment(1, 4500, 4500, "PAID")]))
+
+    await user.click(await screen.findByRole("button", { name: "Cancel participation" }))
+    await user.click(screen.getByRole("combobox", { name: "Cancellation scope" }))
+    await user.click(screen.getByRole("option", { name: /1. týden/ }))
+    expect(
+      screen.getByText(/Paid CZK 4,500 · Debt after cancellation CZK 0 · Overpayment CZK 4,500/),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText("The bed will be released. The organiser handles any refund."),
+    ).toBeInTheDocument()
+    await user.click(screen.getByRole("button", { name: "Confirm cancellation" }))
+    expect(put).toHaveBeenCalledWith("participant/applications/a1/terms", {
+      json: { termIds: ["t2"] },
     })
   })
 
