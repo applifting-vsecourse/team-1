@@ -20,6 +20,7 @@ export const NOTIFICATION_KINDS = [
   "PAYMENT_REFUNDED",
   // REQUEST — prepared for US-114, nothing raises it yet
   "REQUEST_APPROVED",
+  "APPLICATION_EDITED",
 ] as const
 export type NotificationKind = (typeof NOTIFICATION_KINDS)[number]
 
@@ -35,8 +36,8 @@ const notificationSchema = z.object({
     eventName: z.string(),
     participantName: z.string(),
     /** ISO dates of the term the notification is about. */
-    termStartsOn: z.string(),
-    termEndsOn: z.string(),
+    termStartsOn: z.string().optional(),
+    termEndsOn: z.string().optional(),
     /** STATUS_CHANGED: the status in the term before and after the change. */
     fromStatus: termStatusSchema.optional(),
     toStatus: termStatusSchema.optional(),

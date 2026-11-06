@@ -41,6 +41,34 @@ export class NotificationsRepository {
     })
   }
 
+  /** The organizer's US-86 feed can display this record when that screen is introduced. */
+  async notifyOrganizersOfApplicationEdit(
+    tx: Prisma.TransactionClient,
+    input: {
+      organizationId: string
+      applicationId: string
+      eventName: string
+      participantName: string
+    },
+  ): Promise<void> {
+    const members = await tx.organizationMember.findMany({
+      where: { organizationId: input.organizationId, user: { accountType: "ORGANIZER" } },
+      select: { userId: true },
+    })
+    for (const member of members) {
+      await this.create(tx, {
+        userId: member.userId,
+        type: "REQUEST",
+        kind: "APPLICATION_EDITED",
+        applicationId: input.applicationId,
+        params: {
+          eventName: input.eventName,
+          participantName: input.participantName,
+        },
+      })
+    }
+  }
+
   /**
    * One PAYMENT notification per term a receipt touched, with what is owed in the term after the
    * change. Call it after the payment rows are written (or cancelled).

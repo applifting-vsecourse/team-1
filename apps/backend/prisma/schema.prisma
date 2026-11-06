@@ -126,13 +126,14 @@ model User {
   // Language of e-mails sent to the account (password reset, verification).
   locale          Locale      @default(en)
 
-  memberships      OrganizationMember[]
-  applications     Application[]
-  recordedPayments Payment[]
-  statusChanges    ApplicationTermStatusChange[]
-  submittedChangeRequests ChangeRequest[] @relation("ChangeRequestApplicant")
-  reviewedChangeRequests  ChangeRequest[] @relation("ChangeRequestReviewer")
-  notifications    Notification[]
+  memberships             OrganizationMember[]
+  applications            Application[]
+  recordedPayments        Payment[]
+  statusChanges           ApplicationTermStatusChange[]
+  submittedChangeRequests ChangeRequest[]               @relation("ChangeRequestApplicant")
+  reviewedChangeRequests  ChangeRequest[]               @relation("ChangeRequestReviewer")
+  notifications           Notification[]
+  applicationEdits        ApplicationEdit[]
 
   @@unique([email])
   @@map("user")
@@ -161,6 +162,7 @@ model Organization {
   statusChanges    ApplicationTermStatusChange[]
   substituteSkips  ApplicationTermSkip[]
   changeRequests   ChangeRequest[]
+  applicationEdits ApplicationEdit[]
 
   @@map("organization")
 }
@@ -217,10 +219,10 @@ model Event {
   createdAt            DateTime       @default(now())
   updatedAt            DateTime       @default(now()) @updatedAt
 
-  terms        Term[]
-  applications Application[]
+  terms          Term[]
+  applications   Application[]
   changeRequests ChangeRequest[]
-  photo        EventPhoto?
+  photo          EventPhoto?
 
   @@index([organizationId])
   @@map("event")
@@ -291,37 +293,39 @@ model Room {
 }
 
 model Application {
-  id             String       @id @default(cuid())
+  id                   String       @id @default(cuid())
   // Sequential application number, used as the variable symbol (VS) for payment.
-  number         Int          @unique @default(autoincrement())
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  organizationId String
-  event          Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  eventId        String
+  number               Int          @unique @default(autoincrement())
+  organization         Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId       String
+  event                Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId              String
   // Participant account the application is attached to (US-01). Nullable so
   // the application can be stored before the account exists.
-  user           User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
-  userId         String?
+  user                 User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId               String?
   // Secret for the confirmation page /prihlaska/potvrzeni/<accessToken> (US-25).
-  accessToken    String       @unique
-  firstName      String
-  lastName       String
-  birthDate      DateTime     @db.Date
-  gender         Gender
-  email          String
+  accessToken          String       @unique
+  firstName            String
+  lastName             String
+  birthDate            DateTime     @db.Date
+  gender               Gender
+  email                String
   // Supplied when an organizer adds an application (US-83); older public submissions have none.
-  phone          String?
-  consentAt      DateTime
+  phone                String?
+  accommodationRequest String?      @db.Text
+  consentAt            DateTime
   // UI language at submission — the confirmation e-mail goes out in it.
-  locale         Locale       @default(en)
+  locale               Locale       @default(en)
   // Arrival time on the server — decides the order of evaluation (US-27).
-  submittedAt    DateTime     @default(now())
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @default(now()) @updatedAt
+  submittedAt          DateTime     @default(now())
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @default(now()) @updatedAt
 
-  terms         ApplicationTerm[]
-  notifications Notification[]
+  terms          ApplicationTerm[]
+  notifications  Notification[]
   changeRequests ChangeRequest[]
+  edits          ApplicationEdit[]
 
   @@index([organizationId])
   @@index([eventId, submittedAt])
@@ -329,26 +333,47 @@ model Application {
   @@map("application")
 }
 
+// A participant's change of personal details, contact or accommodation request (US-34).
+// The author name and old/new values remain available even if their account later changes.
+model ApplicationEdit {
+  id             String       @id @default(cuid())
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId String
+  application    Application  @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  applicationId  String
+  changedBy      User?        @relation(fields: [changedById], references: [id], onDelete: SetNull)
+  changedById    String?
+  authorName     String
+  changedFields  String[]
+  before         Json
+  after          Json
+  createdAt      DateTime     @default(now())
+
+  @@index([organizationId])
+  @@index([applicationId, createdAt])
+  @@map("application_edit")
+}
+
 // A requested selection is a snapshot until an organizer decides. ApplicationTerm rows stay
 // untouched while pending. The event lock serializes submissions and decisions for one event.
 model ChangeRequest {
-  id               String              @id @default(cuid())
-  organization     Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  organizationId   String
-  event            Event               @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  eventId          String
-  application      Application         @relation(fields: [applicationId], references: [id], onDelete: Cascade)
-  applicationId    String
-  applicant        User                @relation("ChangeRequestApplicant", fields: [applicantId], references: [id])
-  applicantId      String
-  currentTermIds   String[]
-  requestedTermIds String[]
-  status           ChangeRequestStatus @default(PENDING)
-  rejectionReason  String?             @db.Text
-  reviewedBy       User?               @relation("ChangeRequestReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
-  reviewedById     String?
-  createdAt        DateTime            @default(now())
-  reviewedAt       DateTime?
+  id                 String              @id @default(cuid())
+  organization       Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId     String
+  event              Event               @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId            String
+  application        Application         @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  applicationId      String
+  applicant          User                @relation("ChangeRequestApplicant", fields: [applicantId], references: [id])
+  applicantId        String
+  currentTermIds     String[]
+  requestedTermIds   String[]
+  status             ChangeRequestStatus @default(PENDING)
+  rejectionReason    String?             @db.Text
+  reviewedBy         User?               @relation("ChangeRequestReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+  reviewedById       String?
+  createdAt          DateTime            @default(now())
+  reviewedAt         DateTime?
   notificationReadAt DateTime?
 
   @@index([organizationId, eventId, status, createdAt])

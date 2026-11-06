@@ -42,6 +42,34 @@
       "note": "The organizer will review the application in each term separately. It is not a confirmed place or a waitlist spot yet."
     }
   },
+  "edit": {
+    "accommodationRequest": "Individual accommodation request",
+    "accommodationSummary": "Accommodation · {{request}}",
+    "backToApplication": "Back to application",
+    "birthDate": "Date of birth *",
+    "cancel": "Cancel",
+    "firstName": "First name *",
+    "historyAccommodation": "accommodation request",
+    "historyContact": "contact",
+    "historyContactAccommodation": "Updated contact and accommodation request.",
+    "historyLine": "History · {{date}} · {{author}} · {{description}}",
+    "historyOther": "Updated: {{fields}}.",
+    "historyPersonal": "personal details",
+    "lastName": "Last name *",
+    "loadError": "Couldn't load the application",
+    "open": "Edit application",
+    "organizerNotified": "The organizer received a notification.",
+    "participant": "Participant",
+    "phone": "Phone *",
+    "phoneSummary": "Phone · {{phone}}",
+    "retry": "Try again",
+    "save": "Save changes",
+    "saveError": "Try saving your changes again",
+    "saveErrorTitle": "Changes couldn't be saved",
+    "successTitle": "Changes were saved",
+    "title": "Edit application",
+    "valuesPreserved": "Your entries have been kept."
+  },
   "list": {
     "empty": "You have no applications yet. Once you apply for an event, it will appear here.",
     "errorTitle": "Couldn't load your applications"
