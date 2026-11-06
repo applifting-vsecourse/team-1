@@ -82,42 +82,53 @@ beforeEach(() => {
 })
 
 describe("ManualApplicationPage", () => {
-  it("requires consent and creates a waitlisted application with the entered phone", async () => {
-    setup()
-    const user = userEvent.setup()
-    await user.type(await screen.findByLabelText("First name *"), "Eva")
-    await user.type(screen.getByLabelText("Last name *"), "Novak")
-    fireEvent.change(screen.getByLabelText("Date of birth *"), {
-      target: { value: "15/05/2000" },
-    })
-    await user.click(screen.getByRole("combobox", { name: "Gender for room assignment *" }))
-    await user.click(screen.getByRole("option", { name: "Female" }))
-    await user.type(screen.getByLabelText("Phone *"), "+420 777 123 456")
-    await user.type(screen.getByLabelText("E-mail *"), "eva@example.com")
-    await user.click(screen.getByRole("combobox", { name: /First/ }))
-    await user.click(screen.getByRole("option", { name: "Waitlisted" }))
+  it.each(["       ", "-------", "123 456"])(
+    "validates consent and phone digits before creating a waitlisted application: %j",
+    async (invalidPhone) => {
+      setup()
+      const user = userEvent.setup()
+      await user.type(await screen.findByLabelText("First name *"), "Eva")
+      await user.type(screen.getByLabelText("Last name *"), "Novak")
+      fireEvent.change(screen.getByLabelText("Date of birth *"), {
+        target: { value: "15/05/2000" },
+      })
+      await user.click(screen.getByRole("combobox", { name: "Gender for room assignment *" }))
+      await user.click(screen.getByRole("option", { name: "Female" }))
+      await user.type(screen.getByLabelText("Phone *"), invalidPhone)
+      await user.type(screen.getByLabelText("E-mail *"), "eva@example.com")
+      await user.click(screen.getByRole("combobox", { name: /First/ }))
+      await user.click(screen.getByRole("option", { name: "Waitlisted" }))
 
-    await user.click(screen.getByRole("button", { name: "Create application" }))
-    expect(screen.getByText("Confirm the applicant's consent.")).toBeInTheDocument()
-    expect(post).not.toHaveBeenCalled()
+      await user.click(screen.getByRole("button", { name: "Create application" }))
+      expect(screen.getByText("Confirm the applicant's consent.")).toBeInTheDocument()
+      expect(post).not.toHaveBeenCalled()
 
-    await user.click(
-      screen.getByRole("checkbox", { name: /I confirm that the applicant consented/ }),
-    )
-    await user.click(screen.getByRole("button", { name: "Create application" }))
+      await user.click(
+        screen.getByRole("checkbox", { name: /I confirm that the applicant consented/ }),
+      )
+      await user.click(screen.getByRole("button", { name: "Create application" }))
+      expect(post).not.toHaveBeenCalled()
+      expect(
+        screen.getByLabelText("Phone *").parentElement?.querySelector('[role="alert"]'),
+      ).not.toBeNull()
 
-    expect(await screen.findByText("Application created")).toBeInTheDocument()
-    expect(post).toHaveBeenCalledWith("organizer/events/e1/applications", {
-      json: {
-        firstName: "Eva",
-        lastName: "Novak",
-        birthDate: "2000-05-15",
-        gender: "FEMALE",
-        phone: "+420 777 123 456",
-        email: "eva@example.com",
-        consent: true,
-        terms: [{ termId: "t1", status: "WAITLISTED" }],
-      },
-    })
-  })
+      await user.clear(screen.getByLabelText("Phone *"))
+      await user.type(screen.getByLabelText("Phone *"), " +420 (777) 123-456 ")
+      await user.click(screen.getByRole("button", { name: "Create application" }))
+
+      expect(await screen.findByText("Application created")).toBeInTheDocument()
+      expect(post).toHaveBeenCalledWith("organizer/events/e1/applications", {
+        json: {
+          firstName: "Eva",
+          lastName: "Novak",
+          birthDate: "2000-05-15",
+          gender: "FEMALE",
+          phone: "+420777123456",
+          email: "eva@example.com",
+          consent: true,
+          terms: [{ termId: "t1", status: "WAITLISTED" }],
+        },
+      })
+    },
+  )
 })

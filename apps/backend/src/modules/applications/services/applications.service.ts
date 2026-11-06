@@ -7,7 +7,10 @@ import { evaluateManualSubmission } from "@/modules/applications/domain/manual-s
 import { isOpenForApplications } from "@/modules/applications/domain/public-event"
 import { evaluateSubmission, isValidBirthDate } from "@/modules/applications/domain/submission"
 import { termLabel } from "@/modules/applications/domain/term-label"
-import { ApplicationsRepository } from "@/modules/applications/repositories/applications.repository"
+import {
+  ApplicationsRepository,
+  ApplicationToSave,
+} from "@/modules/applications/repositories/applications.repository"
 import { ApplicationConfirmationMailer } from "@/modules/participants/services/application-confirmation-mailer.service"
 import { ParticipantAccountsService } from "@/modules/participants/services/participant-accounts.service"
 import { Identity } from "@/shared/auth/domain/identity"
@@ -88,20 +91,25 @@ export class ApplicationsService {
       termIds: requestedIds,
     }
     const email = input.email.trim().toLowerCase()
-    const { account, submitted, saved } = await this.eventLocks.run(event.id, async () => {
+    const { mustSetPassword, submitted, saved } = await this.eventLocks.run(event.id, async () => {
       await this.repository.assertNoDuplicate(event.id, [participant], locale)
-      const account = await this.accounts.ensureAccount({
-        email,
-        name: `${input.firstName} ${input.lastName}`,
-        locale,
-      })
-      const submitted: NewApplication = {
+      let mustSetPassword = false
+      const submitted: ApplicationToSave = {
         ...participant,
         gender: input.gender,
         email,
         phone: input.phone.trim(),
         locale,
-        userId: account.userId,
+        userId: async () => {
+          // Called only after capacity and duplicate validation under the database lock.
+          const account = await this.accounts.ensureAccount({
+            email,
+            name: `${input.firstName} ${input.lastName}`,
+            locale,
+          })
+          mustSetPassword = account.mustSetPassword
+          return account.userId
+        },
         consentAt: new Date(),
         accessToken: generateToken(),
       }
@@ -125,9 +133,9 @@ export class ApplicationsService {
         },
         user.id,
       )
-      return { account, submitted, saved: saved[0] }
+      return { mustSetPassword, submitted, saved: saved[0] }
     })
-    await this.sendConfirmation(event, email, locale, account.mustSetPassword, [submitted], [saved])
+    await this.sendConfirmation(event, email, locale, mustSetPassword, [submitted], [saved])
     return saved
   }
 
@@ -223,7 +231,7 @@ export class ApplicationsService {
     email: string,
     locale: Locale,
     mustSetPassword: boolean,
-    submitted: NewApplication[],
+    submitted: Pick<NewApplication, "accessToken" | "lastName">[],
     saved: SavedApplication[],
   ): Promise<void> {
     const termsById = new Map(event.terms.map((term) => [term.id, term]))

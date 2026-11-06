@@ -1,7 +1,7 @@
 import { GENDERS } from "@/shared/domain/gender"
 import type { Gender } from "@/shared/domain/gender"
 import { ApiProperty } from "@nestjs/swagger"
-import { Type } from "class-transformer"
+import { Transform, Type } from "class-transformer"
 import {
   ArrayMinSize,
   Equals,
@@ -53,7 +53,10 @@ export class ManualApplicationRequestDto {
   email!: string
 
   @ApiProperty({ example: "+420 777 123 456" })
-  @Matches(/^\+?[0-9 ()-]{7,30}$/)
+  @Transform(({ value }: { value: unknown }) =>
+    typeof value === "string" ? value.trim().replace(/[ ()-]/g, "") : value,
+  )
+  @Matches(/^\+?[0-9]{7,30}$/)
   phone!: string
 
   @ApiProperty({ description: "The organizer confirms that the applicant has consented." })

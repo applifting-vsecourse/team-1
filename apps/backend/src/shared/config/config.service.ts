@@ -93,6 +93,12 @@ export class Config {
   @IsOptional()
   readonly smtpPassword?: string
 
+  // Rate limits of sign-in and the public application (#294). Off only where one
+  // address sends many requests on purpose: E2E and most integration tests.
+  @Env("RATE_LIMIT_ENABLED", { expose: true, defaultValue: true })
+  @IsBoolean()
+  readonly rateLimitEnabled!: boolean
+
   // How often waitlisted applications of started terms are cancelled (US-106); 0 = off.
   @Env("WAITLIST_EXPIRY_INTERVAL_MS", { expose: true, defaultValue: 3_600_000 })
   readonly waitlistExpiryIntervalMs!: number

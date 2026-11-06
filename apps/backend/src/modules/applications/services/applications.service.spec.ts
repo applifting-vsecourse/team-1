@@ -34,6 +34,13 @@ const participant = {
   gender: "FEMALE" as const,
   termIds: ["t1"],
 }
+const savedApplication = {
+  id: "a1",
+  number: 7,
+  accessToken: "tok",
+  firstName: "Eva",
+  terms: [{ termId: "t1", status: "CONFIRMED" as const, priceCzk: 4500 }],
+}
 
 describe("ApplicationsService", () => {
   let repository: MockProxy<ApplicationsRepository>
@@ -50,15 +57,7 @@ describe("ApplicationsService", () => {
     service = new ApplicationsService(repository, accounts, mailer, access)
     repository.findEventForSubmission.mockResolvedValue(event)
     accounts.ensureAccount.mockResolvedValue({ userId: "u1", isNew: true, mustSetPassword: true })
-    repository.saveEvaluated.mockResolvedValue([
-      {
-        id: "a1",
-        number: 7,
-        accessToken: "tok",
-        firstName: "Eva",
-        terms: [{ termId: "t1", status: "CONFIRMED", priceCzk: 4500 }],
-      },
-    ])
+    repository.saveEvaluated.mockResolvedValue([savedApplication])
   })
 
   it("sends the ordinary confirmation and access e-mail after an organizer adds an application", async () => {
@@ -71,6 +70,11 @@ describe("ApplicationsService", () => {
     )
     access.assertCanAccessEvent.mockResolvedValue({ organizationId: "o1" })
     repository.findEventForOrganizer.mockResolvedValue(event)
+    repository.saveEvaluated.mockImplementationOnce(async (_event, applications) => {
+      const userId = applications[0].userId
+      if (typeof userId === "function") await userId()
+      return [savedApplication]
+    })
 
     await service.submitByOrganizer(
       organizer,

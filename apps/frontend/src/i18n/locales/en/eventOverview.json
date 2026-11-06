@@ -397,6 +397,43 @@
     "takenHint": "{{name}} stays a substitute. The capacity is not exceeded.",
     "title": "Filling freed beds"
   },
+  "termChange": {
+    "cancel": "Cancel",
+    "done": {
+      "description": "The applicant will get an e-mail about the change.",
+      "title": "The term has been changed"
+    },
+    "event": "Event",
+    "full": {
+      "alertDescription": "{{term}} is full at {{occupied}}/{{capacity}}. Confirming makes the occupancy {{next}}/{{capacity}}.",
+      "alertTitle": "The change exceeds the capacity",
+      "back": "Choose another term",
+      "confirm": "I confirm exceeding the capacity of the term",
+      "submit": "Confirm the change",
+      "title": "The new term is full"
+    },
+    "impact": {
+      "errorTitle": "The impact of the change could not be loaded",
+      "noTransfer": "Payments are not transferred between terms.",
+      "overpayment": "Overpayment",
+      "paid": "Paid",
+      "places": {
+        "FEMALE": "Capacity for women",
+        "MALE": "Capacity for men"
+      },
+      "placesValue": "{{free}} of {{capacity}} free",
+      "price": "Price",
+      "title": "Impact of the change",
+      "toPay": "To pay"
+    },
+    "next": "New term",
+    "original": "Original term",
+    "participant": "Participant",
+    "pick": "Choose a term",
+    "submit": "Confirm the term change",
+    "title": "Change term",
+    "trigger": "Change term"
+  },
   "termStatus": {
     "action": {
       "cancel": "Cancel in term",

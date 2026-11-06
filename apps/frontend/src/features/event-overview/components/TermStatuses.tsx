@@ -15,6 +15,7 @@ import {
   type TermStatus,
   type TermStatusDetail,
 } from "@/features/event-overview/api/termStatus"
+import { OrganizerTermChange } from "@/features/event-overview/components/OrganizerTermChange"
 import { TermStatusChange } from "@/features/event-overview/components/TermStatusChange"
 
 const BADGE = {
@@ -64,6 +65,12 @@ export function TermStatuses({ applicationId }: { applicationId: string }) {
               <span className="font-medium">{termDatesLine(term)}</span>
               <Badge variant={BADGE[term.status]}>{t(`termStatus.state.${term.status}`)}</Badge>
               <div className="flex flex-wrap gap-2 sm:ml-auto">
+                {term.status === "CANCELLED" ? null : (
+                  <OrganizerTermChange
+                    applicationId={applicationId}
+                    term={term}
+                  />
+                )}
                 {term.allowedStatuses.map((status) => (
                   <Button
                     key={status}

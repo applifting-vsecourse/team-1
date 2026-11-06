@@ -98,6 +98,20 @@ describe("SignInWithRedirect", () => {
     expect(navigate).not.toHaveBeenCalled()
   })
 
+  it("asks to wait when the server refuses more attempts (429)", async () => {
+    signInEmail.mockResolvedValueOnce({
+      error: { status: 429, message: "Too many requests. Please try again later." },
+    })
+    renderForm()
+
+    await submit("organizator@example.com", "password1")
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Too many attempts in a short time. Wait a moment and try again.",
+    )
+    expect(navigate).not.toHaveBeenCalled()
+  })
+
   it("refuses a participant on the organizer sign-in and ends the session again", async () => {
     signInEmail.mockResolvedValue({ error: null })
     getSession.mockResolvedValue(sessionOf("PARTICIPANT"))

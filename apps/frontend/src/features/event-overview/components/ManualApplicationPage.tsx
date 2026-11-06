@@ -149,7 +149,8 @@ export function ManualApplicationPage({
     }
     if (draft.gender === "") nextErrors.gender = t("manual.gender")
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(draft.email)) nextErrors.email = t("manual.invalidEmail")
-    if (!/^\+?[0-9 ()-]{7,30}$/.test(draft.phone)) nextErrors.phone = t("manual.invalidPhone")
+    const phone = draft.phone.trim().replace(/[ ()-]/g, "")
+    if (!/^\+?[0-9]{7,30}$/.test(phone)) nextErrors.phone = t("manual.invalidPhone")
     if (!draft.consent) nextErrors.consent = t("manual.consentRequired")
     for (const term of terms) {
       if (!draft.statuses[term.id]) nextErrors[term.id] = t("manual.selectTerms")
@@ -162,7 +163,7 @@ export function ManualApplicationPage({
       birthDate,
       gender: draft.gender,
       email: draft.email.trim(),
-      phone: draft.phone.trim(),
+      phone,
       consent: true,
       terms: terms.map((term) => ({ termId: term.id, status: draft.statuses[term.id] as Status })),
     }

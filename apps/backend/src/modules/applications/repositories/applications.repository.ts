@@ -25,6 +25,11 @@ type SubmittedPerson = {
 /** Decides the status of every term of every application from what the lock protects. */
 export type Evaluate = (snapshot: OccupancySnapshot) => EvaluatedTerm[][]
 
+/** Account creation can be deferred until validation under the event lock succeeds. */
+export type ApplicationToSave = Omit<NewApplication, "userId"> & {
+  userId: string | (() => Promise<string>)
+}
+
 @Injectable()
 export class ApplicationsRepository {
   constructor(private readonly prisma: PrismaService) {}
@@ -84,7 +89,7 @@ export class ApplicationsRepository {
    */
   async saveEvaluated(
     event: Pick<SubmissionEvent, "id" | "organizationId">,
-    applications: NewApplication[],
+    applications: ApplicationToSave[],
     evaluate: Evaluate,
     organizerId?: string,
   ): Promise<SavedApplication[]> {
@@ -131,12 +136,14 @@ export class ApplicationsRepository {
       const saved: SavedApplication[] = []
       for (const [index, application] of applications.entries()) {
         const terms = evaluated[index]
+        const userId =
+          typeof application.userId === "function" ? await application.userId() : application.userId
         const submittedAt = new Date()
         const row = await tx.application.create({
           data: {
             organization: { connect: { id: event.organizationId } },
             event: { connect: { id: event.id } },
-            user: { connect: { id: application.userId } },
+            user: { connect: { id: userId } },
             accessToken: application.accessToken,
             firstName: application.firstName,
             lastName: application.lastName,
