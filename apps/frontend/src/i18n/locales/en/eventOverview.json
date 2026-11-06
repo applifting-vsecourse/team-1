@@ -428,10 +428,6 @@
   },
   "withdrawal": {
     "back": "Back",
-    "done": {
-      "description": "The applicant gets an e-mail about the change.",
-      "title": "The participant was withdrawn"
-    },
     "errorTitle": "Could not load the impact of the withdrawal",
     "impactTitle": "Impact of the withdrawal",
     "noRefundDescription": "You record the refund by hand after agreeing it with the applicant. The change stays in the history and the applicant gets an e-mail.",

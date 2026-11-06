@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
@@ -21,7 +22,6 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { formatCzk } from "@/lib/money"
-import { notify } from "@/lib/notify"
 import { termDates, termTitle } from "@/lib/term-label"
 
 import { paymentQueryOptions } from "@/features/event-overview/api/payments"
@@ -104,14 +104,12 @@ export function OrganizerWithdrawal({
             }
           }),
       })
-      notify.success(t("withdrawal.done.title"), t("withdrawal.done.description"))
       await client.invalidateQueries({ queryKey: ["eventOverview"] })
       await client.invalidateQueries({ queryKey: ["participant", "applications"] })
     },
   })
 
   const termMoney = (impact: WithdrawalPreview["terms"][number]) => {
-    if (!impact.hasFinancialImpact) return null
     const paid = formatCzk(impact.paidCzk)
     const debt = formatCzk(impact.debtCzk)
     return {
@@ -209,6 +207,7 @@ export function OrganizerWithdrawal({
         ) : null}
         {!isWhole ? (
           <Alert>
+            <TriangleAlert aria-hidden />
             <AlertTitle className="line-clamp-none">{t("withdrawal.noRefundTitle")}</AlertTitle>
             <AlertDescription>{t("withdrawal.noRefundDescription")}</AlertDescription>
           </Alert>

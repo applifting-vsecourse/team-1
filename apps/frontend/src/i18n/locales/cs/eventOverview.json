@@ -428,10 +428,6 @@
   },
   "withdrawal": {
     "back": "Zpět",
-    "done": {
-      "description": "Přihlašovatel dostane e-mail o změně.",
-      "title": "Účastník byl odhlášen"
-    },
     "errorTitle": "Dopad odhlášení se nepodařilo načíst",
     "impactTitle": "Dopad odhlášení",
     "noRefundDescription": "Vratku zapíšete ručně po domluvě s přihlašovatelem. Změna zůstane v historii a přihlašovatel dostane e-mail.",

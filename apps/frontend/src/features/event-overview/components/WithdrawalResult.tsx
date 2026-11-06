@@ -38,14 +38,12 @@ export function WithdrawalResult({
           <h3 className="text-2xl font-bold tracking-tight">
             {t("withdrawal.result.term", { term: term.title })}
           </h3>
-          {term.hasFinancialImpact ? (
-            <p>
-              {t("withdrawal.result.money", {
-                debt: formatCzk(term.debtCzk),
-                overpayment: formatCzk(term.overpaymentCzk),
-              })}
-            </p>
-          ) : null}
+          <p>
+            {t("withdrawal.result.money", {
+              debt: formatCzk(term.debtCzk),
+              overpayment: formatCzk(term.overpaymentCzk),
+            })}
+          </p>
           <p>
             {t("withdrawal.result.history", {
               date: formatDateTime(outcome.changedAt),
@@ -64,6 +62,7 @@ export function WithdrawalResult({
       <Button
         variant="ghost"
         size="lg"
+        className="w-full"
         onClick={onBack}
       >
         {t("withdrawal.result.back")}
