@@ -23,6 +23,11 @@ import {
   paymentCorrectionSubject,
 } from "@/core/email/templates/payment-correction"
 import {
+  PaymentReceivedEmail,
+  PaymentReceivedEmailProps,
+  paymentReceivedSubject,
+} from "@/core/email/templates/payment-received"
+import {
   buildChangeProps,
   buildConfirmationApplications,
   buildTermNoticeProps,
@@ -131,6 +136,28 @@ export class ApplicationConfirmationMailer {
       )
     } catch (error) {
       this.logFailure("payment correction", input.email, error)
+    }
+  }
+
+  /** E-mail no. 8 (US-117): one per term whose debt a payment closed; never carries an amount. */
+  async sendPaymentReceived(
+    input: { email: string; accessToken: string } & Omit<
+      PaymentReceivedEmailProps,
+      "confirmationUrl"
+    >,
+  ): Promise<void> {
+    try {
+      const html = await renderEmail(PaymentReceivedEmail, {
+        ...input,
+        confirmationUrl: `${this.config.frontendUrl}/apply/confirmation/${encodeURIComponent(input.accessToken)}`,
+      })
+      await this.email.sendEmail(
+        input.email,
+        paymentReceivedSubject(input.locale, input.termName),
+        html,
+      )
+    } catch (error) {
+      this.logFailure("payment received", input.email, error)
     }
   }
 

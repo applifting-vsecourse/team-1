@@ -2,10 +2,12 @@ import {
   computePaymentCorrectionPreview,
   PaymentCorrectionPreview,
 } from "@/modules/applications/domain/payment-correction-preview"
+import { termLabel } from "@/modules/applications/domain/term-label"
 import { variableSymbol } from "@/modules/applications/domain/variable-symbol"
 import { ApplicationConfirmationMailer } from "@/modules/participants/services/application-confirmation-mailer.service"
 import { paymentSummary, PaymentSummary } from "@/modules/payments/domain/payment"
 import {
+  PaidTermNotice,
   PaymentDebtNotice,
   PaymentsRepository,
 } from "@/modules/payments/repositories/payments.repository"
@@ -73,7 +75,7 @@ export class PaymentsService {
     termId?: string,
   ): Promise<void> {
     const { organizationId } = await this.access.assertCanAccessApplication(user, applicationId)
-    await this.repository.record({
+    const paid = await this.repository.record({
       applicationId,
       organizationId,
       recordedById: user.id,
@@ -81,6 +83,7 @@ export class PaymentsService {
       amountCzk,
       termId,
     })
+    await this.sendPaymentReceived(applicationId, organizationId, paid)
   }
 
   /** A refund is always one negative row of one term, so `termId` is required. */
@@ -124,7 +127,7 @@ export class PaymentsService {
       (receipt) => receipt.id === receiptId,
     )
     if (!original) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
-    const newDebt = await this.repository.correct({
+    const { debt: newDebt, paid } = await this.repository.correct({
       applicationId,
       organizationId,
       recordedById: user.id,
@@ -135,6 +138,28 @@ export class PaymentsService {
       isRefund: original.amountCzk < 0,
     })
     if (newDebt !== null) await this.sendDebtNotice(applicationId, organizationId, newDebt)
+    await this.sendPaymentReceived(applicationId, organizationId, paid)
+  }
+
+  /** E-mail no. 8: one per payment for the terms whose debt was closed, in the language of the other change e-mails. */
+  private async sendPaymentReceived(
+    applicationId: string,
+    organizationId: string,
+    terms: PaidTermNotice[],
+  ): Promise<void> {
+    if (!terms.length) return
+    const context = await this.repository.findEmailContext(applicationId, organizationId)
+    if (!context) return
+    // One e-mail for the application, even when a summary payment closed several terms (EMAILY.md).
+    await this.mailer.sendPaymentReceived({
+      email: context.email,
+      accessToken: context.accessToken,
+      locale: context.locale,
+      eventName: context.eventName,
+      organizationName: context.organizationName,
+      firstName: context.firstName,
+      termName: terms.map((term) => termLabel(term, context.locale)).join(", "),
+    })
   }
 
   private async sendDebtNotice(
