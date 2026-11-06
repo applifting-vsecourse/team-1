@@ -85,12 +85,14 @@
   "termPayment": {
     "account": "Account",
     "amountToPay": "Amount to pay",
+    "deadline": "Due date",
     "due": "Amount due",
     "listTitle": "Payments by term",
     "overpaid": "Overpayment",
     "owed": "Left to pay",
     "paid": "Paid",
     "paymentDetails": "Payment details",
+    "qrAlt": "QR code for the term payment",
     "status": {
       "NOTHING_DUE": "Nothing to pay",
       "OVERPAID": "Overpaid",

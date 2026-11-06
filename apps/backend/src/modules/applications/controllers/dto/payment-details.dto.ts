@@ -37,4 +37,13 @@ export class TermPaymentDetailDto {
 
   @ApiProperty({ enum: ["NOTHING_DUE", "UNPAID", "PARTIALLY_PAID", "PAID", "OVERPAID"] })
   paymentStatus!: PaymentStatus
+
+  @ApiProperty({
+    example: "2027-06-24T10:00:00.000Z",
+    nullable: true,
+    type: String,
+    description:
+      "Due date of the debt (confirmation + the event's payment period, D-099); null when nothing is owed.",
+  })
+  paymentDeadline!: Date | null
 }

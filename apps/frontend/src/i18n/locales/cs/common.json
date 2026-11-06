@@ -85,12 +85,14 @@
   "termPayment": {
     "account": "Účet",
     "amountToPay": "Částka k platbě",
+    "deadline": "Splatnost",
     "due": "Částka k úhradě",
     "listTitle": "Platby po termínech",
     "overpaid": "Přeplatek",
     "owed": "Zbývá zaplatit",
     "paid": "Zaplaceno",
     "paymentDetails": "Platební údaje",
+    "qrAlt": "QR kód pro platbu termínu",
     "status": {
       "NOTHING_DUE": "Nic k platbě",
       "OVERPAID": "Přeplaceno",
