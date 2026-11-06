@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { formatDate } from "@/lib/date"
+import { termTitle } from "@/lib/term-label"
 
 import {
   paymentOverviewQueryOptions,
@@ -185,7 +186,7 @@ function PaymentOverviewCard({ entry, eventId }: { entry: PaymentOverviewEntry; 
       <h3 className="text-xl font-bold tracking-tight">
         {entry.firstName} {entry.lastName}
       </h3>
-      {entry.termName ? <p>{entry.termName}</p> : null}
+      <p>{termTitle({ name: entry.termName, startsOn: entry.startsOn, endsOn: entry.endsOn })}</p>
       <p className="flex flex-wrap gap-x-1">
         <span>{t(`paymentsOverview.statuses.${status}`)}</span>
         {entry.overdue ? <span>· {t("paymentsOverview.statuses.OVERDUE")}</span> : null}

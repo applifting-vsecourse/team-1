@@ -14,6 +14,7 @@ export type PaymentOverviewTerm = {
   termId: string
   termName: string | null
   startsOn: Date
+  endsOn: Date
   priceCzk: number
   evaluatedAt: Date
   confirmedAt: Date | null
@@ -28,6 +29,8 @@ export type PaymentOverviewEntry = {
   lastName: string
   termId: string
   termName: string | null
+  startsOn: Date
+  endsOn: Date
   paymentStatus: PaymentStatus
   amountDueCzk: number
   amountPaidCzk: number
@@ -67,6 +70,8 @@ export function paymentOverview(
       lastName: term.lastName,
       termId: term.termId,
       termName: term.termName,
+      startsOn: term.startsOn,
+      endsOn: term.endsOn,
       paymentStatus: computeTermPaymentStatus(current, term.payments),
       amountDueCzk: term.priceCzk,
       amountPaidCzk,

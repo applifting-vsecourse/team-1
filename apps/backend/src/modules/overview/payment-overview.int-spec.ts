@@ -34,6 +34,8 @@ describe("payment overview API", () => {
       ),
     ).toBe(true)
     expect(body.entries[0].paymentDueAt).toBeTruthy()
+    expect(body.entries[0].startsOn).toMatch(/^\d{4}-\d{2}-\d{2}$/)
+    expect(body.entries[0].endsOn).toMatch(/^\d{4}-\d{2}-\d{2}$/)
     expect(body.totalDebtCzk).toBe(
       body.entries.reduce(
         (sum: number, entry: { amountOwedCzk: number }) => sum + Math.max(0, entry.amountOwedCzk),

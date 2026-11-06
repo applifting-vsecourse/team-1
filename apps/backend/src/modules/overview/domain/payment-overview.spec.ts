@@ -8,6 +8,7 @@ const term: PaymentOverviewTerm = {
   termId: "t1",
   termName: "Letní týden",
   startsOn: new Date("2027-07-01T00:00:00Z"),
+  endsOn: new Date("2027-07-07T00:00:00Z"),
   priceCzk: 4900,
   evaluatedAt: new Date("2026-10-25T12:00:00Z"),
   confirmedAt: null,

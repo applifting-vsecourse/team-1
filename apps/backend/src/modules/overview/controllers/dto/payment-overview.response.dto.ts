@@ -7,6 +7,8 @@ class PaymentOverviewEntryDto {
   @ApiProperty() lastName!: string
   @ApiProperty() termId!: string
   @ApiProperty({ nullable: true, type: String }) termName!: string | null
+  @ApiProperty() startsOn!: string
+  @ApiProperty() endsOn!: string
   @ApiProperty({ enum: ["NOTHING_DUE", "UNPAID", "PARTIALLY_PAID", "PAID", "OVERPAID"] })
   paymentStatus!: string
   @ApiProperty() amountDueCzk!: number
@@ -31,6 +33,8 @@ export class PaymentOverviewResponseDto {
       overdueCount: data.overdueCount,
       entries: data.entries.map((entry) => ({
         ...entry,
+        startsOn: entry.startsOn.toISOString().slice(0, 10),
+        endsOn: entry.endsOn.toISOString().slice(0, 10),
         paymentDueAt: entry.paymentDueAt.toISOString(),
         lastReminderAt: entry.lastReminderAt?.toISOString() ?? null,
       })),

@@ -20,7 +20,7 @@ export class PaymentOverviewRepository {
         where: { organizationId, status: "CONFIRMED", application: { eventId } },
         select: {
           application: { select: { id: true, firstName: true, lastName: true } },
-          term: { select: { id: true, name: true, startsOn: true } },
+          term: { select: { id: true, name: true, startsOn: true, endsOn: true } },
           priceCzk: true,
           evaluatedAt: true,
           paymentPeriodStartedAt: true,
@@ -44,6 +44,7 @@ export class PaymentOverviewRepository {
         termId: row.term.id,
         termName: row.term.name,
         startsOn: row.term.startsOn,
+        endsOn: row.term.endsOn,
         priceCzk: row.priceCzk,
         evaluatedAt: row.evaluatedAt,
         confirmedAt: row.statusChanges[0]?.createdAt ?? null,

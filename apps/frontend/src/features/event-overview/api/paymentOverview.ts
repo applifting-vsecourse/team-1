@@ -14,6 +14,8 @@ const paymentOverviewSchema = z.object({
       lastName: z.string(),
       termId: z.string(),
       termName: z.string().nullable(),
+      startsOn: z.string(),
+      endsOn: z.string(),
       paymentStatus: z.enum(["NOTHING_DUE", "UNPAID", "PARTIALLY_PAID", "PAID", "OVERPAID"]),
       amountDueCzk: z.number().int(),
       amountPaidCzk: z.number().int(),

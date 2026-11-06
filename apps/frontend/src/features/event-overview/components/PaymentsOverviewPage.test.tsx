@@ -10,15 +10,18 @@ import { render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { afterEach, describe, expect, it, vi } from "vitest"
 
+import { type PaymentOverviewEntry } from "@/features/event-overview/api/paymentOverview"
 import { PaymentsOverviewPage } from "@/features/event-overview/components/PaymentsOverviewPage"
 
-const entries = [
+const entries: PaymentOverviewEntry[] = [
   {
     applicationId: "a1",
     firstName: "Adam",
     lastName: "Dvořák",
     termId: "t1",
     termName: "Summer week",
+    startsOn: "2027-07-01",
+    endsOn: "2027-07-07",
     paymentStatus: "PARTIALLY_PAID",
     amountDueCzk: 4900,
     amountPaidCzk: 2000,
@@ -34,6 +37,8 @@ const entries = [
     lastName: "Nováková",
     termId: "t1",
     termName: "Summer week",
+    startsOn: "2027-07-01",
+    endsOn: "2027-07-07",
     paymentStatus: "UNPAID",
     amountDueCzk: 4900,
     amountPaidCzk: 0,
@@ -49,6 +54,8 @@ const entries = [
     lastName: "Černý",
     termId: "t1",
     termName: "Summer week",
+    startsOn: "2027-07-01",
+    endsOn: "2027-07-07",
     paymentStatus: "PAID",
     amountDueCzk: 4900,
     amountPaidCzk: 4900,
@@ -138,5 +145,11 @@ describe("PaymentsOverviewPage", () => {
     ])
     expect(await screen.findByText("Eva Malá")).toBeVisible()
     expect(screen.getByText(/Overpayment/)).toHaveTextContent("Overpayment CZK 500")
+  })
+
+  it("identifies an unnamed term by its dates", async () => {
+    renderPage([{ ...entries[0]!, termName: null }])
+    expect(await screen.findByText("Adam Dvořák")).toBeVisible()
+    expect(screen.getByText("1–7 Jul 2027")).toBeVisible()
   })
 })
