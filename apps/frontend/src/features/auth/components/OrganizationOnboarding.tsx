@@ -53,7 +53,7 @@ export function OrganizationOnboarding() {
           variant="outline"
           onClick={() => {
             void memberships.refetch()
-            void profileQuery.refetch()
+            if (organizationId) void profileQuery.refetch()
           }}
         >
           {t("registration.retry")}
