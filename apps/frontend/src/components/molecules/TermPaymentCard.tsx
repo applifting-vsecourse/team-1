@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/accordion"
 import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
-import { formatDate } from "@/lib/date"
+import { formatDateLong } from "@/lib/date"
 
 export type TermPaymentStatus =
   "NOTHING_DUE" | "UNPAID" | "PARTIALLY_PAID" | "PAID" | "OVERPAID" | "WAITLISTED"
@@ -140,20 +140,21 @@ export function TermPaymentCard({
               <span className="break-all">{variableSymbol}</span>
             </CopyRow>
             {owedCzk > 0 && paymentDeadline ? (
-              <div className="flex items-center justify-between gap-4 py-2">
+              <div className="flex min-h-10 items-center justify-between gap-4">
                 <dt className="text-muted-foreground">{t("termPayment.deadline")}</dt>
-                <dd>{formatDate(paymentDeadline)}</dd>
+                <dd>{formatDateLong(paymentDeadline)}</dd>
               </div>
             ) : null}
           </dl>
-          {owedCzk > 0 ? qr : null}
+          {owedCzk > 0 && qr ? <div className="flex justify-center pt-2">{qr}</div> : null}
         </div>
       ) : null}
       {note}
     </>
   )
 
-  if (status === "PAID") {
+  // A paid term, or one with a payment QR (US-41), starts collapsed so the cards of a list read alike.
+  if (status === "PAID" || qr !== undefined) {
     return (
       <Card className="gap-0 p-0">
         <Accordion

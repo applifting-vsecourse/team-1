@@ -109,6 +109,17 @@ const withTerms = (
 const cardOf = (heading: RegExp): HTMLElement =>
   screen.getByRole("heading", { name: heading }).closest<HTMLElement>("[data-slot='card']")!
 
+/** Cards of the term payments start collapsed; open them all (US-41). */
+const openAll = async (): Promise<void> => {
+  const user = userEvent.setup()
+  const triggers = await screen.findAllByRole("button", { expanded: false })
+  for (const trigger of triggers.filter(
+    (el) => el.getAttribute("data-slot") === "accordion-trigger",
+  )) {
+    await user.click(trigger)
+  }
+}
+
 const renderDetail = (
   data: MyApplication,
   canChangeImmediately = true,
@@ -188,6 +199,7 @@ describe("ApplicationDetail", () => {
     const user = userEvent.setup()
     const write = vi.spyOn(navigator.clipboard, "writeText")
     renderDetail(application())
+    await openAll()
     await user.click(await screen.findByRole("button", { name: "Copy account number" }))
     expect(write).toHaveBeenLastCalledWith("2900123456/2010")
     await user.click(screen.getByRole("button", { name: "Copy variable symbol" }))
@@ -359,6 +371,7 @@ describe("ApplicationDetail", () => {
     expect(
       await screen.findByRole("heading", { level: 1, name: "Letní kemp 2027" }),
     ).toBeInTheDocument()
+    await openAll()
     expect(screen.getByText("Partly paid")).toBeInTheDocument()
     expect(screen.getByText("Amount due").nextSibling).toHaveTextContent("4,500")
     expect(screen.getByText("Paid").nextSibling).toHaveTextContent("2,000")
@@ -404,6 +417,7 @@ describe("ApplicationDetail", () => {
     )
 
     expect(await screen.findByRole("heading", { name: "Left to pay in total" })).toBeInTheDocument()
+    await openAll()
     expect(
       screen.getByRole("heading", { name: "Left to pay in total" }).nextSibling,
     ).toHaveTextContent("1,200")
@@ -434,6 +448,7 @@ describe("ApplicationDetail", () => {
       },
     })
 
+    await openAll()
     expect(
       await screen.findByText(/You pay each term separately\. Use its variable symbol/),
     ).toBeInTheDocument()
@@ -449,6 +464,7 @@ describe("ApplicationDetail", () => {
 
     const paid = await screen.findByRole("button", { name: /4–10 Jul 2027.*Paid/ })
     expect(paid).toHaveAttribute("aria-expanded", "false")
+    await openAll()
     const unpaid = screen.getByRole("heading", { name: /^11–17 Jul 2027/ })
     // Two confirmed terms and something left: the total shows, the hint only for several debts.
     expect(
@@ -484,6 +500,7 @@ describe("ApplicationDetail", () => {
     renderDetail(withTerms([termPayment(1, 4500, 5100, "OVERPAID")], [confirmed]))
 
     expect(await screen.findByText("Overpaid")).toBeInTheDocument()
+    await openAll()
     expect(screen.getByText("Overpayment").nextSibling).toHaveTextContent("600")
     expect(screen.queryByText("Left to pay")).not.toBeInTheDocument()
     expect(screen.queryByText("Amount to pay")).not.toBeInTheDocument()
@@ -613,8 +630,9 @@ describe("ApplicationDetail", () => {
     it("shows the due date and a QR with the debt, the term's symbol and the event name", async () => {
       renderDetail(withTerms([termPayment(1, 4500, 2000, "PARTIALLY_PAID"), paidTerm]))
 
+      await openAll()
       const card = (await screen.findByText("Due date")).closest<HTMLElement>("[data-slot='card']")!
-      expect(within(card).getByText(/15 Nov 2026|Nov 15, 2026|15\/11\/2026/)).toBeInTheDocument()
+      expect(within(card).getByText(/15 November 2026/)).toBeInTheDocument()
       expect(
         await within(card).findByRole("img", { name: "QR code for the term payment" }),
       ).toHaveAttribute("src", "data:image/png;base64,AAAA")
