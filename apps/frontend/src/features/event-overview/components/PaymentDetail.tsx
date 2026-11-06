@@ -22,6 +22,7 @@ import {
   type Payment,
   type PaymentTerm,
 } from "@/features/event-overview/api/payments"
+import { ParticipantDetails } from "@/features/event-overview/components/ParticipantDetails"
 import { PaymentCancellation } from "@/features/event-overview/components/PaymentCancellation"
 import { PaymentCorrection } from "@/features/event-overview/components/PaymentCorrection"
 import {
@@ -126,6 +127,7 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
           ) : null}
         </div>
       </div>
+      <ParticipantDetails application={data} />
       {/* Nothing to pay without a confirmed term (US-25): record a payment once a place is confirmed. */}
       {hasConfirmedTerm ? null : (
         <Alert className="border-status-info bg-status-info-bg">

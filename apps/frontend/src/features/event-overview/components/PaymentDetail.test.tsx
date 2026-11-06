@@ -106,6 +106,9 @@ const application = (
     firstName: "Adam",
     lastName: "Test",
     code: "C-0047",
+    birthDate: "2011-05-04",
+    gender: "MALE",
+    email: "eva.mala@example.cz",
     bankAccount: "123456789/0000",
     amountDueCzk,
     amountPaidCzk,
@@ -166,6 +169,18 @@ beforeEach(() => {
 })
 
 describe("PaymentDetail", () => {
+  it("shows the participant's date of birth, gender and the applicant's contact", async () => {
+    respondWith(() => application([first]))
+    setup()
+
+    const details = await screen.findByRole("group", { name: "Participant details" })
+    expect(within(details).getByText("Adam Test")).toBeInTheDocument()
+    expect(within(details).getByText("Date of birth and gender")).toBeInTheDocument()
+    expect(within(details).getByText(/^4 May 2011 · man$/)).toBeInTheDocument()
+    expect(within(details).getByText("Applicant contact")).toBeInTheDocument()
+    expect(within(details).getByText("eva.mala@example.cz")).toBeInTheDocument()
+  })
+
   it("prefills a payment correction and submits the replacement for a different term", async () => {
     respondWith(() =>
       application(
