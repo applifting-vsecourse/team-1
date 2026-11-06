@@ -154,6 +154,7 @@ export class TermStatusRepository {
           select: {
             termId: true,
             status: true,
+            priceCzk: true,
             payments: { where: { cancelledAt: null }, select: { amountCzk: true } },
           },
         },
@@ -166,7 +167,7 @@ export class TermStatusRepository {
     const cancelled = new Set(
       application.terms.filter((row) => row.status === "CANCELLED").map((row) => row.termId),
     )
-    const paymentsByTerm = new Map(application.terms.map((row) => [row.termId, row.payments]))
+    const currentByTerm = new Map(application.terms.map((row) => [row.termId, row]))
     const canChangeImmediately = participantChangeAllowed(
       application.event.cancellationStartsOn,
       new Date(),
@@ -206,7 +207,10 @@ export class TermStatusRepository {
           endsOn: term.endsOn.toISOString().slice(0, 10),
           priceCzk: term.priceCzk,
           owedAfterChangeCzk: owedByTerm.get(term.id)!,
-          ...cancellationPaymentImpact(paymentsByTerm.get(term.id) ?? []),
+          ...cancellationPaymentImpact(
+            currentByTerm.get(term.id)?.payments ?? [],
+            currentByTerm.get(term.id) ?? { status: "CANCELLED", priceCzk: 0 },
+          ),
           selected: active.has(term.id),
         })),
     }

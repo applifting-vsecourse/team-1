@@ -113,7 +113,10 @@ export function ParticipantTermChange({
   const canSubmit = removed.length > 0 && (mode === "cancel" || Boolean(target))
   const removedImpactLines = removed.map((term) => {
     const status = application.terms.find((item) => item.termId === term.id)?.status
-    const hasPaymentImpact = term.paidCzk !== 0 || term.owedAfterCancellationCzk !== 0
+    const hasPaymentImpact =
+      term.paidCzk !== 0 ||
+      term.owedBeforeCancellationCzk !== 0 ||
+      term.owedAfterCancellationCzk !== 0
     return hasPaymentImpact
       ? t(mode === "change" ? "change.removedPaidChange" : "change.removedPaid", {
           term: termTitle(term),

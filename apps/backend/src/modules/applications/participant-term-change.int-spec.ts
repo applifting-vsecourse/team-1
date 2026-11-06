@@ -126,6 +126,7 @@ describe("participant changes before cancellation starts (integration)", () => {
           selected: true,
           priceCzk: 1000,
           paidCzk: 1000,
+          owedBeforeCancellationCzk: 0,
           owedAfterCancellationCzk: 0,
           overpaymentAfterCancellationCzk: 1000,
         },
@@ -135,6 +136,7 @@ describe("participant changes before cancellation starts (integration)", () => {
           priceCzk: 2000,
           owedAfterChangeCzk: 2000,
           paidCzk: 0,
+          owedBeforeCancellationCzk: 0,
           owedAfterCancellationCzk: 0,
           overpaymentAfterCancellationCzk: 0,
         },
@@ -281,6 +283,11 @@ describe("participant changes before cancellation starts (integration)", () => {
         if (full) await fillTarget()
         const preview = await (await options(id)).json()
         expect(preview.canChangeImmediately).toBe(!approval)
+        expect(preview.terms.find((term: { id: string }) => term.id === firstId)).toMatchObject({
+          paidCzk: 0,
+          owedBeforeCancellationCzk: 1000,
+          owedAfterCancellationCzk: 0,
+        })
         expect(preview.terms.find((term: { id: string }) => term.id === secondId)).toMatchObject({
           priceCzk: 2000,
           owedAfterChangeCzk: (mode === "AUTOMATIC" || approval) && !full ? 2000 : 0,

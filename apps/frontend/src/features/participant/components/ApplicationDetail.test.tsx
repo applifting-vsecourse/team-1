@@ -114,6 +114,10 @@ const renderDetail = (
 ) => {
   const paid = (termId: string) =>
     data.paymentDetails?.terms.find((payment) => payment.termId === termId)?.paidCzk ?? 0
+  const owed = (termId: string) => {
+    const term = data.terms.find((row) => row.termId === termId)
+    return term?.status === "CONFIRMED" ? Math.max(0, term.priceCzk - paid(termId)) : 0
+  }
   get.mockImplementation((path: string) => ({
     json: () =>
       Promise.resolve(
@@ -131,6 +135,7 @@ const renderDetail = (
                     priceCzk: 4500,
                     owedAfterChangeCzk: 4500,
                     paidCzk: paid("t1"),
+                    owedBeforeCancellationCzk: owed("t1"),
                     owedAfterCancellationCzk: 0,
                     overpaymentAfterCancellationCzk: paid("t1"),
                     selected: data.terms.some(
@@ -145,6 +150,7 @@ const renderDetail = (
                     priceCzk: 4900,
                     owedAfterChangeCzk,
                     paidCzk: paid("t2"),
+                    owedBeforeCancellationCzk: owed("t2"),
                     owedAfterCancellationCzk: 0,
                     overpaymentAfterCancellationCzk: paid("t2"),
                     selected: data.terms.some(
@@ -313,6 +319,37 @@ describe("ApplicationDetail", () => {
       json: { termIds: ["t2"] },
     })
   })
+
+  it.each([
+    [
+      "Cancel participation",
+      "Confirm cancellation",
+      "Cancellation confirmed",
+      /Debt after cancellation CZK 0/,
+    ],
+    [
+      "Change terms",
+      "Confirm change",
+      "Term changed",
+      /Original term · Overpayment CZK 0 · Debt CZK 0/,
+    ],
+  ])(
+    "shows debt removed by %s for an unpaid confirmed term",
+    async (open, submit, title, impact) => {
+      const user = userEvent.setup()
+      put.mockReturnValue({
+        json: () => Promise.resolve({ addedTerms: [{ termId: "t2", owedCzk: 4900 }] }),
+      })
+      renderDetail(withTerms([termPayment(1, 4500, 0, "UNPAID")], [confirmed]))
+
+      await user.click(await screen.findByRole("button", { name: open }))
+      expect(screen.getByText(impact)).toBeInTheDocument()
+      expect(screen.queryByText(/No payment impact/)).not.toBeInTheDocument()
+      await user.click(screen.getByRole("button", { name: submit }))
+      expect(await screen.findByRole("heading", { name: title })).toBeInTheDocument()
+      expect(screen.getByText(impact)).toBeInTheDocument()
+    },
+  )
 
   it("shows what is due, what is paid, what is left and where to send it for the term", async () => {
     renderDetail(application())

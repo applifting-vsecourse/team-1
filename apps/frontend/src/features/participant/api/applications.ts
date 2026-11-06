@@ -101,6 +101,7 @@ const changeOptionsSchema = z.object({
       priceCzk: z.number().int(),
       owedAfterChangeCzk: z.number().int(),
       paidCzk: z.number().int(),
+      owedBeforeCancellationCzk: z.number().int(),
       owedAfterCancellationCzk: z.number().int(),
       overpaymentAfterCancellationCzk: z.number().int(),
       selected: z.boolean(),
