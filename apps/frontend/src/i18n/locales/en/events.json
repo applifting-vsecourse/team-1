@@ -14,7 +14,7 @@
   },
   "delete": {
     "action": "Delete event",
-    "allowed": "This event has no applications yet.",
+    "allowed": "This event does not have any applications yet.",
     "blocked": "The event cannot be deleted because it has applications.",
     "confirm": "Delete event",
     "deleted": "Event {{name}} has been deleted.",
