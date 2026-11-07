@@ -121,7 +121,7 @@
     "backToTerms": "← Všechny termíny",
     "confirmedColumn": "Potvrzeno / kapacita",
     "confirmedOnly": "Volno se počítá pouze z potvrzených přihlášek.",
-    "footnote": "Kapacita vychází z lůžek v pokojích. Pokoje jsou společné pro všechny termíny; volno se počítá jen z potvrzených přihlášek.",
+    "footnote": "Kapacita vychází z lůžek v pokojích daného termínu. Volno se počítá jen z potvrzených přihlášek v tomto termínu.",
     "freeColumn": "Volná místa",
     "freePlaces_few": "{{count}} volná místa",
     "freePlaces_one": "{{count}} volné místo",
