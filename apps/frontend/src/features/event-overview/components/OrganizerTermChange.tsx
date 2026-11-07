@@ -272,10 +272,10 @@ export function OrganizerTermChange({
                           <MoneyAmount amountCzk={added.priceCzk} />
                         </ImpactFigure>
                         <ImpactFigure label={t("termChange.impact.paid")}>
-                          <MoneyAmount amountCzk={0} />
+                          <MoneyAmount amountCzk={added.paidCzk} />
                         </ImpactFigure>
                         <ImpactFigure label={t("termChange.impact.toPay")}>
-                          <MoneyAmount amountCzk={added.priceCzk} />
+                          <MoneyAmount amountCzk={Math.max(0, added.priceCzk - added.paidCzk)} />
                         </ImpactFigure>
                       </dl>
                       <dl className="grid grid-cols-3 gap-3">

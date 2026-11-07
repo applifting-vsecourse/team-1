@@ -23,6 +23,8 @@ const previewSchema = z.object({
     z.object({
       termId: z.string(),
       priceCzk: z.number().int(),
+      /** Already paid in the term; a reactivated term keeps its payments. */
+      paidCzk: z.number().int(),
       /** A bed of the applicant's gender is free in the new term. */
       fits: z.boolean(),
       /** Beds the applicant's gender can use in the term, and how many are free. */

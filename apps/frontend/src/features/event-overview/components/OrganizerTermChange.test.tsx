@@ -21,7 +21,7 @@ const application = {
   eventName: "Camp",
   terms: [{ termId: "t1", priceCzk: 4900 }],
 }
-const preview = (isFitting: boolean) => ({
+const preview = (isFitting: boolean, paidCzk = 0) => ({
   gender: "MALE",
   newPriceCzk: 5600,
   amountToPayCzk: 5600,
@@ -30,6 +30,7 @@ const preview = (isFitting: boolean) => ({
     {
       termId: "t2",
       priceCzk: 5600,
+      paidCzk,
       fits: isFitting,
       genderCapacity: 50,
       genderFree: isFitting ? 2 : 0,
@@ -38,14 +39,14 @@ const preview = (isFitting: boolean) => ({
   removed: [{ termId: "t1", paidCzk: 4900, overpaymentCzk: 4900 }],
 })
 
-function mockApi(isFitting: boolean) {
+function mockApi(isFitting: boolean, paidCzk = 0) {
   get.mockImplementation((path: string) => ({
     json: () =>
       Promise.resolve(
         path.endsWith("change-options")
           ? options
           : path.endsWith("change-preview")
-            ? preview(isFitting)
+            ? preview(isFitting, paidCzk)
             : application,
       ),
   }))
@@ -120,5 +121,17 @@ describe("OrganizerTermChange", () => {
         json: { termIds: ["t2"], confirmOverCapacity: true },
       }),
     )
+  })
+
+  it("counts the payments kept in a term the application returns to", async () => {
+    mockApi(true, 5600)
+    setup()
+    const user = userEvent.setup()
+
+    const dialog = await pickNewTerm(user)
+    const figure = async (label: string) =>
+      (await within(dialog).findAllByText(label)).at(-1)!.parentElement!
+    expect(await figure("Paid")).toHaveTextContent(/5,600/)
+    expect(await figure("To pay")).toHaveTextContent(/CZK 0$/)
   })
 })
