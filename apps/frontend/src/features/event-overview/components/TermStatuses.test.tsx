@@ -36,6 +36,29 @@ beforeEach(() => {
 })
 
 describe("TermStatuses", () => {
+  it("shows that an organizer created the application", async () => {
+    get.mockReturnValue({
+      json: () =>
+        Promise.resolve([
+          term({
+            history: [
+              {
+                id: "c0",
+                kind: "CREATED_BY_ORGANIZER",
+                fromStatus: "WAITLISTED",
+                toStatus: "WAITLISTED",
+                changedByName: "Eva",
+                changedAt: "2027-03-10T12:00:00Z",
+              },
+            ],
+          }),
+        ]),
+    })
+    setup()
+
+    expect(await screen.findByText(/Added by organiser · Eva/)).toBeInTheDocument()
+  })
+
   it("offers only the changes the server allows and shows the log", async () => {
     get.mockReturnValue({
       json: () =>
@@ -46,6 +69,7 @@ describe("TermStatuses", () => {
             history: [
               {
                 id: "c1",
+                kind: "STATUS_CHANGED",
                 fromStatus: "CONFIRMED",
                 toStatus: "CANCELLED",
                 changedByName: "Eva",
