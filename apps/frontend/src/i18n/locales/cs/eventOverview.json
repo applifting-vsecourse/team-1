@@ -183,6 +183,11 @@
     "freeBeds_few": "{{count}} volná místa",
     "freeBeds_one": "{{count}} volné místo",
     "freeBeds_other": "{{count}} volných míst",
+    "healthCurrent": "Současné zdravotní omezení",
+    "healthNote": "Schválením se uložené zdravotní omezení nahradí požadovaným. Žadatel se o výsledku dozví v aplikaci.",
+    "healthRemoved": "Odstranit zdravotní omezení",
+    "healthRequested": "Požadované zdravotní omezení",
+    "healthSummary": "Změna zdravotního omezení",
     "loadError": "Žádosti se nepodařilo načíst",
     "participant": "Účastník",
     "pending": "Čeká na schválení",
@@ -310,6 +315,7 @@
     "wholeApplication": "Celá přihláška (souhrn)"
   },
   "paymentsOverview": {
+    "cancellationTerms": "Storno podmínky",
     "clearFilters": "Vymazat filtry",
     "debt": "Dluh",
     "debtors_few": "{{count}} účastníci s dluhem",

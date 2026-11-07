@@ -31,6 +31,7 @@ const event = {
   applicationsOpen: true,
   evaluationMode: "AUTOMATIC",
   cancellationStartsOn: null,
+  cancellationTerms: null,
   evaluationModeLocked: true,
   missing: [],
   terms: [
@@ -67,6 +68,7 @@ const draft = {
   applicationsOpen: false,
   evaluationMode: "AUTOMATIC",
   cancellationStartsOn: null,
+  cancellationTerms: null,
   evaluationModeLocked: false,
   missing: ["TERM", "ROOM"],
   terms: [],

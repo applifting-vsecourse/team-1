@@ -61,6 +61,14 @@ enum ChangeRequestStatus {
   @@map("change_request_status")
 }
 
+// What a change request asks for: another selection of terms or (US-68) another health note.
+enum ChangeRequestKind {
+  TERMS
+  HEALTH
+
+  @@map("change_request_kind")
+}
+
 model Session {
   id        String   @id
   expiresAt DateTime
@@ -208,6 +216,8 @@ model Event {
   // First calendar day when participant changes require organizer approval (US-113/114).
   // Null leaves changes immediate.
   cancellationStartsOn DateTime?      @db.Date
+  // Cancellation terms the organizer shows to applicants (US-47), free text; null until written.
+  cancellationTerms    String?        @db.Text
   description          String?        @db.Text
   location             String?
   // Public page content (US-122): the one source of the event web and the catalog (US-123).
@@ -362,6 +372,9 @@ model ChangeRequest {
   applicantId      String
   currentTermIds   String[]
   requestedTermIds String[]
+  kind             ChangeRequestKind   @default(TERMS)
+  // US-68: the requested health note ("" = remove it); consent is given with the request.
+  healthNote       String?             @db.Text
   status           ChangeRequestStatus @default(PENDING)
   rejectionReason  String?             @db.Text
   reviewedBy       User?               @relation("ChangeRequestReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
@@ -445,6 +458,12 @@ model ApplicationTermSkip {
   @@map("application_term_skip")
 }
 
+// Where a payment row comes from. SIMULATION is the staging/demo button of the participant (US-115).
+enum PaymentSource {
+  MANUAL
+  SIMULATION
+}
+
 // Manually recorded payment (US-44) of one application in a term (US-137, D-051). Rows rather
 // than a flag so a bank statement import (US-42) can add more later. One receipt (money that
 // arrived at once) is one or more rows sharing `receiptId`; a refund is a negative row.
@@ -460,6 +479,7 @@ model Payment {
   // New receipts remember whether the organizer used the summary symbol; null is legacy data.
   isSummary         Boolean?
   amountCzk         Int
+  source            PaymentSource   @default(MANUAL)
   recordedBy        User            @relation(fields: [recordedById], references: [id])
   recordedById      String
   createdAt         DateTime        @default(now())

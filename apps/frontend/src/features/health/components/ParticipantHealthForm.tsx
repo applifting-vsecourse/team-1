@@ -12,7 +12,12 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { notify } from "@/lib/notify"
 
-import { ownHealthQueryOptions, saveHealth, type Health } from "@/features/health/api/health"
+import {
+  ownHealthQueryOptions,
+  requestHealthChange,
+  saveHealth,
+  type Health,
+} from "@/features/health/api/health"
 
 /** Same limit as the API (`HEALTH_NOTE_MAX_LENGTH`). */
 const NOTE_MAX_LENGTH = 2000
@@ -48,23 +53,42 @@ export function ParticipantHealthForm({ applicationId }: { applicationId: string
 function HealthFields({ applicationId, health }: { applicationId: string; health: Health }) {
   const { t } = useTranslation("health")
   const client = useQueryClient()
+  // Filled-in data is read-only; changing it goes through a request to the organizer.
+  const isStored = health.note !== null
+  const [isEditing, setIsEditing] = useState(false)
   const [note, setNote] = useState(health.note ?? "")
   const [hasConsent, setHasConsent] = useState(health.consentAt !== null)
 
   const mutation = useMutation({
-    mutationFn: () => saveHealth(applicationId, { note, consent: hasConsent }),
-    onSuccess: (saved) => {
-      client.setQueryData(ownHealthQueryOptions(applicationId).queryKey, saved)
+    mutationFn: async () => {
+      if (isStored) {
+        await requestHealthChange(applicationId, { note, consent: hasConsent })
+        return null
+      }
+      return saveHealth(applicationId, { note, consent: hasConsent })
+    },
+    onSuccess: async (saved) => {
+      if (saved) client.setQueryData(ownHealthQueryOptions(applicationId).queryKey, saved)
+      else {
+        await client.invalidateQueries({ queryKey: ownHealthQueryOptions(applicationId).queryKey })
+        setIsEditing(false)
+      }
       void client.invalidateQueries({
         queryKey: ["organizer", "applications", applicationId, "health"],
       })
-      notify.success(t("saved"))
+      notify.success(t(isStored ? "requestSent" : "saved"))
     },
   })
 
   const hasNote = note.trim() !== ""
   // Filling it in needs the consent; clearing a stored note does not.
-  const canSave = hasNote ? hasConsent : health.note !== null
+  const canSave = isStored
+    ? isEditing && note.trim() !== health.note?.trim() && (hasNote ? hasConsent : true)
+    : hasNote
+      ? hasConsent
+      : false
+  const isLocked = isStored && !isEditing
+  const pending = health.pendingRequest
   const noteId = "health-note"
 
   return (
@@ -85,6 +109,7 @@ function HealthFields({ applicationId, health }: { applicationId: string; health
           id={noteId}
           className="min-h-32"
           maxLength={NOTE_MAX_LENGTH}
+          readOnly={isLocked}
           value={note}
           onChange={(event) => setNote(event.target.value)}
         />
@@ -98,6 +123,7 @@ function HealthFields({ applicationId, health }: { applicationId: string; health
           id="health-consent"
           className="size-5"
           checked={hasConsent}
+          disabled={isLocked}
           onCheckedChange={(isChecked) => setHasConsent(isChecked === true)}
         />
         <Label
@@ -107,19 +133,41 @@ function HealthFields({ applicationId, health }: { applicationId: string; health
           {t("consent")}
         </Label>
       </div>
+      {isStored && pending ? (
+        <Alert>
+          <AlertTitle>{t("pendingTitle")}</AlertTitle>
+          <AlertDescription>{t("pendingText")}</AlertDescription>
+        </Alert>
+      ) : null}
       {mutation.error ? (
         <Alert variant="destructive">
           <AlertDescription>{mutation.error.message}</AlertDescription>
         </Alert>
       ) : null}
-      <Button
-        type="submit"
-        size="lg"
-        className="w-full"
-        disabled={!canSave || mutation.isPending}
-      >
-        {t("save")}
-      </Button>
+      {isLocked ? (
+        <Button
+          type="button"
+          size="lg"
+          variant="outline"
+          className="w-full"
+          disabled={pending !== null}
+          onClick={() => {
+            setIsEditing(true)
+            setHasConsent(false)
+          }}
+        >
+          {t("requestChange")}
+        </Button>
+      ) : (
+        <Button
+          type="submit"
+          size="lg"
+          className="w-full"
+          disabled={!canSave || mutation.isPending}
+        >
+          {t(isStored ? "requestSubmit" : "save")}
+        </Button>
+      )}
     </form>
   )
 }

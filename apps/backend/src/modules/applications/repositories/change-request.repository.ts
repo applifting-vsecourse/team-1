@@ -6,6 +6,7 @@ import {
   selectionPriceCzk,
 } from "@/modules/applications/domain/change-request"
 import { participantChangeAllowed } from "@/modules/applications/domain/participant-term-change"
+import { HealthDecision } from "@/modules/health/domain/health"
 import { resolveChangeEmailLocale } from "@/modules/participants/domain/change-email-locale"
 import { AppException } from "@/shared/errors/app.exception"
 import { HttpStatus, Injectable } from "@nestjs/common"
@@ -19,6 +20,7 @@ const include = {
       email: true,
       locale: true,
       terms: { select: { termId: true, priceCzk: true } },
+      health: { select: { note: true } },
     },
   },
   applicant: {
@@ -89,7 +91,7 @@ export class ChangeRequestRepository {
         throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
       }
       const pending = await tx.changeRequest.findFirst({
-        where: { applicationId, status: "PENDING" },
+        where: { applicationId, status: "PENDING", kind: "TERMS" },
         select: { id: true },
       })
       if (pending) throw new AppException(HttpStatus.CONFLICT, "CHANGE_REQUEST_PENDING")
@@ -108,6 +110,92 @@ export class ChangeRequestRepository {
     })
   }
 
+  /** US-68: the applicant asks to change health data that is already filled in. */
+  async createHealth(
+    applicantId: string,
+    applicationId: string,
+    decision: HealthDecision,
+  ): Promise<ChangeRequest> {
+    return this.prisma.$transaction(async (tx) => {
+      const application = await tx.application.findFirst({
+        where: { id: applicationId, userId: applicantId },
+        select: { eventId: true, organizationId: true, health: { select: { note: true } } },
+      })
+      if (!application) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
+      if (!application.health) {
+        throw new AppException(HttpStatus.CONFLICT, "HEALTH_REQUEST_NOT_NEEDED")
+      }
+      if (decision.kind === "consent-required") {
+        throw new AppException(HttpStatus.BAD_REQUEST, "HEALTH_CONSENT_REQUIRED")
+      }
+      const note = decision.kind === "save" ? decision.note : ""
+      if (note === application.health.note) {
+        throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
+      }
+      const pending = await tx.changeRequest.findFirst({
+        where: { applicationId, status: "PENDING", kind: "HEALTH" },
+        select: { id: true },
+      })
+      if (pending) throw new AppException(HttpStatus.CONFLICT, "CHANGE_REQUEST_PENDING")
+      const created = await tx.changeRequest.create({
+        data: {
+          organizationId: application.organizationId,
+          eventId: application.eventId,
+          applicationId,
+          applicantId,
+          kind: "HEALTH",
+          currentTermIds: [],
+          requestedTermIds: [],
+          healthNote: note,
+        },
+        include,
+      })
+      return this.toDomain(created)
+    })
+  }
+
+  /** US-68: approval writes the requested note (consent given with the request) and closes it. */
+  async approveHealth(
+    organizationId: string,
+    eventId: string,
+    requestId: string,
+    reviewerId: string,
+  ): Promise<void> {
+    await this.prisma.$transaction(async (tx) => {
+      const request = await tx.changeRequest.findUnique({ where: { id: requestId } })
+      if (!request) throw new AppException(HttpStatus.NOT_FOUND, "NOT_FOUND")
+      if (request.organizationId !== organizationId || request.eventId !== eventId) {
+        throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
+      }
+      const closed = await tx.changeRequest.updateMany({
+        where: { id: requestId, status: "PENDING", kind: "HEALTH" },
+        data: {
+          status: "APPROVED",
+          reviewedById: reviewerId,
+          reviewedAt: new Date(),
+          notificationReadAt: null,
+        },
+      })
+      if (closed.count === 0)
+        throw new AppException(HttpStatus.CONFLICT, "CHANGE_REQUEST_NOT_PENDING")
+      const note = request.healthNote ?? ""
+      if (note === "") {
+        await tx.applicationHealth.deleteMany({ where: { applicationId: request.applicationId } })
+      } else {
+        await tx.applicationHealth.upsert({
+          where: { applicationId: request.applicationId },
+          create: {
+            organizationId,
+            applicationId: request.applicationId,
+            note,
+            consentAt: request.createdAt,
+          },
+          update: { note, consentAt: request.createdAt },
+        })
+      }
+    })
+  }
+
   async forParticipant(applicantId: string, applicationId: string): Promise<ChangeRequest[]> {
     const application = await this.prisma.application.findFirst({
       where: { id: applicationId, userId: applicantId },
@@ -115,7 +203,7 @@ export class ChangeRequestRepository {
     })
     if (!application) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
     const rows = await this.prisma.changeRequest.findMany({
-      where: { applicationId, applicantId },
+      where: { applicationId, applicantId, kind: "TERMS" },
       orderBy: [{ createdAt: "desc" }, { id: "desc" }],
       include,
     })
@@ -241,6 +329,8 @@ export class ChangeRequestRepository {
     applicantId: string
     currentTermIds: string[]
     requestedTermIds: string[]
+    kind: "TERMS" | "HEALTH"
+    healthNote: string | null
     status: "PENDING" | "APPROVED" | "REJECTED"
     rejectionReason: string | null
     createdAt: Date
@@ -252,6 +342,7 @@ export class ChangeRequestRepository {
       email: string
       locale: "en" | "cs"
       terms: { termId: string; priceCzk: number }[]
+      health: { note: string } | null
     }
     applicant: { locale: "en" | "cs"; applications: { locale: "en" | "cs" }[] }
     event: {
@@ -280,6 +371,9 @@ export class ChangeRequestRepository {
       participantGender: row.application.gender,
       currentTermIds: row.currentTermIds,
       requestedTermIds: row.requestedTermIds,
+      kind: row.kind,
+      currentHealthNote: row.kind === "HEALTH" ? (row.application.health?.note ?? null) : null,
+      requestedHealthNote: row.healthNote,
       currentPriceCzk: selectionPriceCzk(row.currentTermIds, terms),
       requestedPriceCzk: selectionPriceCzk(row.requestedTermIds, terms),
       status: row.status,

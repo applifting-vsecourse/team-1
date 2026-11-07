@@ -35,7 +35,24 @@ export class HealthResponseDto {
   @ApiProperty({ type: String, nullable: true, description: "ISO datetime of the consent." })
   consentAt!: string | null
 
+  @ApiProperty({
+    nullable: true,
+    description: "Change request awaiting the organizer (empty note = removal); null if none.",
+    type: "object",
+    properties: { note: { type: "string" }, createdAt: { type: "string" } },
+  })
+  pendingRequest!: { note: string; createdAt: string } | null
+
   static fromDomain(record: HealthRecord): HealthResponseDto {
-    return { ...record, consentAt: record.consentAt?.toISOString() ?? null }
+    return {
+      ...record,
+      consentAt: record.consentAt?.toISOString() ?? null,
+      pendingRequest: record.pendingRequest
+        ? {
+            note: record.pendingRequest.note,
+            createdAt: record.pendingRequest.createdAt.toISOString(),
+          }
+        : null,
+    }
   }
 }

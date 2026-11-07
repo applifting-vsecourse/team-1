@@ -8,6 +8,11 @@
   "noteLabel": "Participant's health restriction",
   "organizerCardTitle": "Information available to the organiser",
   "organizerTitle": "Health restriction · {{name}}",
+  "pendingText": "The organiser will review the change. Until then the original data stays valid.",
+  "pendingTitle": "Request awaiting approval",
+  "requestChange": "Request a change",
+  "requestSent": "Request sent",
+  "requestSubmit": "Send request",
   "save": "Save health data",
   "saved": "Health data saved",
   "title": "Health restriction"

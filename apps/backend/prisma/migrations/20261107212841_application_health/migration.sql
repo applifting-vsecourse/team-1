@@ -1,3 +1,10 @@
+-- CreateEnum
+CREATE TYPE "change_request_kind" AS ENUM ('TERMS', 'HEALTH');
+
+-- AlterTable
+ALTER TABLE "change_request" ADD COLUMN     "healthNote" TEXT,
+ADD COLUMN     "kind" "change_request_kind" NOT NULL DEFAULT 'TERMS';
+
 -- CreateTable
 CREATE TABLE "application_health" (
     "id" TEXT NOT NULL,

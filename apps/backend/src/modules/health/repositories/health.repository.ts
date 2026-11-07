@@ -9,6 +9,11 @@ const select = {
   lastName: true,
   event: { select: { name: true } },
   health: { select: { note: true, consentAt: true } },
+  changeRequests: {
+    where: { kind: "HEALTH", status: "PENDING" },
+    take: 1,
+    select: { healthNote: true, createdAt: true },
+  },
 } as const
 
 /** The only place of the health restriction that touches the database. */
@@ -69,6 +74,7 @@ function toRecord(row: {
   lastName: string
   event: { name: string }
   health: { note: string; consentAt: Date } | null
+  changeRequests: { healthNote: string | null; createdAt: Date }[]
 }): HealthRecord {
   return {
     applicationId: row.id,
@@ -77,5 +83,8 @@ function toRecord(row: {
     lastName: row.lastName,
     note: row.health?.note ?? null,
     consentAt: row.health?.consentAt ?? null,
+    pendingRequest: row.changeRequests[0]
+      ? { note: row.changeRequests[0].healthNote ?? "", createdAt: row.changeRequests[0].createdAt }
+      : null,
   }
 }

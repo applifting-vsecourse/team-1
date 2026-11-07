@@ -12,6 +12,8 @@ export const healthSchema = z.object({
   note: z.string().nullable(),
   /** When the explicit consent was given (ISO datetime); `null` together with the note. */
   consentAt: z.string().datetime().nullable(),
+  /** The participant's change request awaiting the organizer; empty note = removal. */
+  pendingRequest: z.object({ note: z.string(), createdAt: z.string() }).nullable(),
 })
 export type Health = z.infer<typeof healthSchema>
 
@@ -32,6 +34,19 @@ export async function saveHealth(
   values: { note: string; consent: boolean },
 ): Promise<Health> {
   return healthSchema.parse(await api.put(ownPath(applicationId), { json: values }).json())
+}
+
+/** `POST /api/participant/applications/:id/health-change-requests` — once the data is filled in. */
+export async function requestHealthChange(
+  applicationId: string,
+  values: { note: string; consent: boolean },
+): Promise<void> {
+  await api.post(
+    `participant/applications/${encodeURIComponent(applicationId)}/health-change-requests`,
+    {
+      json: values,
+    },
+  )
 }
 
 /** `GET /api/organizer/applications/:id/health` — organizers of the organization only. */

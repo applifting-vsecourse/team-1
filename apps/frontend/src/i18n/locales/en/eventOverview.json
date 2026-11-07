@@ -183,6 +183,11 @@
     "freeBeds_few": "{{count}} free beds",
     "freeBeds_one": "{{count}} free bed",
     "freeBeds_other": "{{count}} free beds",
+    "healthCurrent": "Current health restriction",
+    "healthNote": "Approval replaces the stored health restriction with the requested one. The applicant is informed in the app.",
+    "healthRemoved": "Remove the health restriction",
+    "healthRequested": "Requested health restriction",
+    "healthSummary": "Health restriction change",
     "loadError": "Couldn't load change requests",
     "participant": "Participant",
     "pending": "Awaiting approval",
@@ -310,6 +315,7 @@
     "wholeApplication": "Whole application (summary)"
   },
   "paymentsOverview": {
+    "cancellationTerms": "Cancellation terms",
     "clearFilters": "Clear filters",
     "debt": "Debt",
     "debtors_few": "{{count}} participants with debt",

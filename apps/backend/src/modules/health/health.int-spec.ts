@@ -12,6 +12,7 @@ describe("health restriction (integration)", () => {
   let otherParticipant: string
   let organizer: string
   let foreignOrganizer: string
+  let requestId: string
 
   const request = (
     path: string,
@@ -108,12 +109,118 @@ describe("health restriction (integration)", () => {
     }
   })
 
-  it("removes the record when the participant clears the note, without a consent", async () => {
-    const response = await save(participant, { note: "   ", consent: false })
+  const requestChange = (cookie: string | undefined, body: unknown): Promise<Response> =>
+    request(`/participant/applications/${applicationId}/health-change-requests`, cookie, {
+      method: "POST",
+      body,
+    })
 
-    expect(response.status).toBe(200)
-    expect(await response.json()).toMatchObject({ note: null, consentAt: null })
+  it("refuses to overwrite filled-in data directly: a second PUT needs a request", async () => {
+    for (const body of [
+      { note: "Jiný údaj", consent: true },
+      { note: "", consent: false },
+    ]) {
+      const response = await save(participant, body)
+      expect(response.status).toBe(409)
+      expect(await response.json()).toMatchObject({ code: "HEALTH_CHANGE_REQUEST_REQUIRED" })
+    }
+    expect(
+      await prisma.applicationHealth.findUniqueOrThrow({ where: { applicationId } }),
+    ).toMatchObject({ note: NOTE })
+  })
+
+  it("creates a change request that is visible to the organizer and leaves the data untouched", async () => {
+    expect((await requestChange(participant, { note: "Nový údaj", consent: false })).status).toBe(
+      400,
+    )
+    expect((await requestChange(otherParticipant, { note: "x", consent: true })).status).toBe(403)
+
+    const created = await requestChange(participant, { note: "Nový údaj", consent: true })
+    expect(created.status).toBe(201)
+    expect((await requestChange(participant, { note: "Další", consent: true })).status).toBe(409)
+
+    const own = await request(`/participant/applications/${applicationId}/health`, participant)
+    expect(await own.json()).toMatchObject({
+      note: NOTE,
+      pendingRequest: { note: "Nový údaj" },
+    })
+
+    const list = await request(`/organizer/events/${eventId}/change-requests`, organizer)
+    const items = await list.json()
+    expect(items).toHaveLength(1)
+    expect(items[0]).toMatchObject({
+      kind: "HEALTH",
+      currentHealthNote: NOTE,
+      requestedHealthNote: "Nový údaj",
+    })
+    // The term-change list of the participant does not show it.
+    const terms = await request(
+      `/participant/applications/${applicationId}/change-requests`,
+      participant,
+    )
+    expect(await terms.json()).toEqual([])
+    requestId = items[0].id
+  })
+
+  it("keeps a foreign organizer away from the request", async () => {
+    const decide = (cookie: string, action: string) =>
+      request(`/organizer/events/${eventId}/change-requests/${requestId}/${action}`, cookie, {
+        method: "PATCH",
+        body: {},
+      })
+    expect((await decide(foreignOrganizer, "approve")).status).toBe(403)
+    expect((await decide(foreignOrganizer, "reject")).status).toBe(403)
+    expect(
+      (await request(`/organizer/events/${eventId}/change-requests`, foreignOrganizer)).status,
+    ).toBe(403)
+    expect(
+      await prisma.applicationHealth.findUniqueOrThrow({ where: { applicationId } }),
+    ).toMatchObject({ note: NOTE })
+  })
+
+  it("writes the requested note when the organizer approves", async () => {
+    const response = await request(
+      `/organizer/events/${eventId}/change-requests/${requestId}/approve`,
+      organizer,
+      { method: "PATCH", body: {} },
+    )
+
+    expect(response.status).toBe(204)
+    expect(
+      await prisma.applicationHealth.findUniqueOrThrow({ where: { applicationId } }),
+    ).toMatchObject({ note: "Nový údaj" })
+    const own = await request(`/participant/applications/${applicationId}/health`, participant)
+    expect(await own.json()).toMatchObject({ note: "Nový údaj", pendingRequest: null })
+  })
+
+  it("keeps the data when the organizer rejects, and removes it when an empty note is approved", async () => {
+    await requestChange(participant, { note: "Odmítnuto", consent: true })
+    let items = await (
+      await request(`/organizer/events/${eventId}/change-requests`, organizer)
+    ).json()
+    const reject = await request(
+      `/organizer/events/${eventId}/change-requests/${items[0].id}/reject`,
+      organizer,
+      { method: "PATCH", body: { reason: "ne" } },
+    )
+    expect(reject.status).toBe(204)
+    expect(
+      await prisma.applicationHealth.findUniqueOrThrow({ where: { applicationId } }),
+    ).toMatchObject({ note: "Nový údaj" })
+
+    expect((await requestChange(participant, { note: "  ", consent: false })).status).toBe(201)
+    items = await (await request(`/organizer/events/${eventId}/change-requests`, organizer)).json()
+    await request(
+      `/organizer/events/${eventId}/change-requests/${items[0].id}/approve`,
+      organizer,
+      {
+        method: "PATCH",
+        body: {},
+      },
+    )
     expect(await prisma.applicationHealth.count({ where: { applicationId } })).toBe(0)
+    // Nothing stored any more: the participant writes directly again and needs no request.
+    expect((await requestChange(participant, { note: "x", consent: true })).status).toBe(409)
   })
 
   it("rejects a note over the limit and unknown fields", async () => {

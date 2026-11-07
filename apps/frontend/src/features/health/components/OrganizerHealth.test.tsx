@@ -24,6 +24,7 @@ const health: Health = {
   lastName: "Dvořák",
   note: "Astma · inhalátor u sebe.",
   consentAt: "2026-11-05T13:30:00.000Z",
+  pendingRequest: null,
 }
 
 function setup(value: Health) {

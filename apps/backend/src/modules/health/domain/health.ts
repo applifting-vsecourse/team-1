@@ -22,6 +22,13 @@ export function decideHealth({ note, consent }: HealthInput): HealthDecision {
   return { kind: "save", note: trimmed }
 }
 
+/**
+ * Once the participant has filled the restriction in, only an organizer can change it: the
+ * participant sends a change request instead (US-68). Before the first fill they write it directly.
+ */
+export const healthWriteRoute = (hasStoredNote: boolean): "write" | "request" =>
+  hasStoredNote ? "request" : "write"
+
 /** The stored restriction with who it belongs to — what both screens show. */
 export type HealthRecord = {
   applicationId: string
@@ -32,4 +39,6 @@ export type HealthRecord = {
   note: string | null
   /** When the explicit consent was given; `null` together with the note. */
   consentAt: Date | null
+  /** The participant's change request awaiting the organizer, if any. */
+  pendingRequest: { note: string; createdAt: Date } | null
 }
