@@ -118,6 +118,19 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
         application={data}
         onStart={setChangeMode}
       />
+      <Button
+        asChild
+        variant="outline"
+        size="lg"
+        className="self-start"
+      >
+        <Link
+          to={ROUTES.participant.applicationMeals}
+          params={{ applicationId }}
+        >
+          {t("detail.meals")}
+        </Link>
+      </Button>
       <OrganizationContact contact={data.organizationContact} />
     </div>
   )
