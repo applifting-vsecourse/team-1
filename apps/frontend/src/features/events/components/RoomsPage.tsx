@@ -82,11 +82,7 @@ export function RoomsPage({
   const [pendingMode, setPendingMode] = useState<RoomMode | null>(null)
   const [isCopying, setIsCopying] = useState(false)
   // The result of a copy into one term, shown until dismissed or another term is picked.
-  const [copied, setCopied] = useState<{
-    termId: string
-    rooms: number
-    beds: number
-  } | null>(null)
+  const [copied, setCopied] = useState<string | null>(null)
   const refresh = async () => {
     await Promise.all([
       client.invalidateQueries({ queryKey: ["events", eventId] }),
@@ -241,7 +237,7 @@ export function RoomsPage({
         ))}
       </div>
       {/* Figma (Design system): US-100 / Kopie dokončena · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15728-4529 */}
-      {copied?.termId === selected.id ? (
+      {copied === selected.id ? (
         <Card>
           <CardHeader>
             <CardTitle>
@@ -253,8 +249,8 @@ export function RoomsPage({
               <AlertTitle>{t("rooms.copy.doneHeading")}</AlertTitle>
               <AlertDescription>
                 {t("rooms.copy.doneBody", {
-                  rooms: t("rooms.roomCount", { count: copied.rooms }),
-                  beds: t("rooms.beds", { count: copied.beds }),
+                  rooms: t("rooms.roomCount", { count: term.rooms.length }),
+                  beds: t("rooms.beds", { count: term.capacity.total }),
                 })}
               </AlertDescription>
             </Alert>
@@ -424,8 +420,8 @@ export function RoomsPage({
           target={term}
           sourceTerms={terms.filter((item) => item.id !== selected.id)}
           onClose={() => setIsCopying(false)}
-          onCopied={async (result) => {
-            setCopied({ termId: selected.id, ...result })
+          onCopied={async () => {
+            setCopied(selected.id)
             await refresh()
           }}
         />

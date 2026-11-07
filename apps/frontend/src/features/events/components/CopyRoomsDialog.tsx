@@ -36,8 +36,6 @@ import {
 /** What the dialog needs to know about a term it can copy from. */
 export type CopyTerm = { id: string; name: string | null; startsOn: string; endsOn: string }
 
-const bedsOf = (rooms: TermRooms["rooms"]) => rooms.reduce((sum, room) => sum + room.capacity, 0)
-
 // Two steps: pick the source term, then a preview of what the copy does. With rooms already in the
 // target the organizer chooses to add to them or replace them (Návrh A / Návrh B).
 // Figma (Design system): US-100 / Ubytování · Dialog: Vybrat zdrojový termín
@@ -55,7 +53,7 @@ export function CopyRoomsDialog({
   /** The other terms of the event with their room mode. */
   sourceTerms: (CopyTerm & { roomMode: RoomMode })[]
   onClose: () => void
-  onCopied: (copied: { rooms: number; beds: number }) => Promise<void>
+  onCopied: () => Promise<void>
 }) {
   const { t } = useTranslation("events")
   const cancelRef = useRef<HTMLButtonElement>(null)
@@ -69,15 +67,17 @@ export function CopyRoomsDialog({
   const sourceRooms = source.data?.rooms ?? []
   const hasTargetRooms = target.rooms.length > 0
   const isReplacing = hasTargetRooms && strategy === "REPLACE"
+  // Capacities are the server's (`capacity.total`); the dialog only combines them for the preview.
+  const sourceBeds = source.data?.capacity.total ?? 0
   const resultRooms = (isReplacing ? 0 : target.rooms.length) + sourceRooms.length
-  const resultBeds = (isReplacing ? 0 : bedsOf(target.rooms)) + bedsOf(sourceRooms)
+  const resultBeds = (isReplacing ? 0 : target.capacity.total) + sourceBeds
   const rooms = (count: number) => t("rooms.roomCount", { count })
   const beds = (count: number) => t("rooms.beds", { count })
   const mutation = useMutation({
     mutationFn: () =>
       copyRooms(target.eventId, target.termId, sourceId, hasTargetRooms ? strategy : "ADD"),
     onSuccess: async () => {
-      await onCopied({ rooms: resultRooms, beds: resultBeds })
+      await onCopied()
       onClose()
     },
   })
@@ -115,7 +115,7 @@ export function CopyRoomsDialog({
                     <dd>
                       {t("rooms.copy.summary", {
                         rooms: rooms(sourceRooms.length),
-                        beds: beds(bedsOf(sourceRooms)),
+                        beds: beds(sourceBeds),
                       })}
                     </dd>
                   </div>
@@ -126,7 +126,7 @@ export function CopyRoomsDialog({
                     <dd>
                       {t("rooms.copy.summary", {
                         rooms: rooms(target.rooms.length),
-                        beds: beds(bedsOf(target.rooms)),
+                        beds: beds(target.capacity.total),
                       })}
                     </dd>
                   </div>
@@ -175,8 +175,7 @@ export function CopyRoomsDialog({
                   <div className="flex flex-col gap-2">
                     <dt className="text-sm text-muted-foreground">{t("rooms.copy.source")}</dt>
                     <dd>
-                      {termDates(sourceTerm)} · {rooms(sourceRooms.length)},{" "}
-                      {beds(bedsOf(sourceRooms))}
+                      {termDates(sourceTerm)} · {rooms(sourceRooms.length)}, {beds(sourceBeds)}
                     </dd>
                   </div>
                   <div className="flex flex-col gap-2">
@@ -189,7 +188,7 @@ export function CopyRoomsDialog({
                 <p>
                   {t("rooms.copy.emptyBody", {
                     rooms: rooms(sourceRooms.length),
-                    beds: beds(bedsOf(sourceRooms)),
+                    beds: beds(sourceBeds),
                   })}
                 </p>
               </>
@@ -234,7 +233,7 @@ export function CopyRoomsDialog({
                 {sourceRooms.length
                   ? t("rooms.copy.summary", {
                       rooms: rooms(sourceRooms.length),
-                      beds: beds(bedsOf(sourceRooms)),
+                      beds: beds(sourceBeds),
                     })
                   : t("rooms.copy.emptySource")}
               </p>
