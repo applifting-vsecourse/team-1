@@ -13,6 +13,7 @@
     "count_few": "{{count}} přihlášky",
     "count_one": "{{count}} přihláška",
     "count_other": "{{count}} přihlášek",
+    "debt": "Účastníci s dluhem",
     "detail": "Detail",
     "due": "Částka k úhradě",
     "empty": "Pro tento výběr jsme nenašli žádné přihlášky.",
@@ -54,6 +55,23 @@
     "waitlisted": "Náhradník",
     "waitlistedPositionFemale": "Náhradnice · {{position}}",
     "waitlistedPositionMale": "Náhradník · {{position}}"
+  },
+  "attention": {
+    "allClear": "Nic nevyžaduje pozornost",
+    "allClearCounts": "K vyhodnocení {{toEvaluate}} · Účastníci s dluhem {{debt}} · Žádosti ke schválení {{requests}}",
+    "debt": {
+      "body": "Z toho {{overdue}} po lhůtě · Součet dluhů {{total}}",
+      "title": "Účastníci s dluhem · {{count}}"
+    },
+    "loadFailed": "Nepodařilo se načíst, co vyžaduje pozornost",
+    "requests": {
+      "body": "Změny a odhlášení po začátku storna",
+      "title": "Žádosti ke schválení · {{count}}"
+    },
+    "toEvaluate": {
+      "body": "Přihlášky čekající na rozhodnutí",
+      "title": "K vyhodnocení · {{count}}"
+    }
   },
   "bulk": {
     "alertTitle": "Potvrdí se {{confirmed}} ze {{selected}} přihlášek.",
@@ -395,6 +413,9 @@
     "taken": "Lůžko mezitím obsadil jiný organizátor.",
     "takenHint": "{{name}} zůstává náhradníkem. Kapacita se nepřekročí.",
     "title": "Obsazení uvolněných lůžek"
+  },
+  "switcher": {
+    "label": "Akce"
   },
   "termChange": {
     "cancel": "Zrušit",

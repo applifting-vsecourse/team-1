@@ -7,6 +7,7 @@ import {
   computeAmountOwed,
   computePaymentStatus,
   PaymentStatus,
+  termHasDebt,
 } from "@/modules/applications/domain/pricing"
 import { variableSymbol } from "@/modules/applications/domain/variable-symbol"
 import {
@@ -24,9 +25,14 @@ export type ApplicationFilters = {
   gender?: Gender
   payment?: FilterablePaymentStatus
 }
-/** Every payment status can be filtered on, "nothing due" (a waitlisted application) too. */
-export type FilterablePaymentStatus = PaymentStatus
+/**
+ * Every payment status can be filtered on, "nothing due" (a waitlisted application) too.
+ * `DEBT` is an application with a confirmed term that is not fully paid, the participants of
+ * the payments overview (US-45) and of the attention card (US-51).
+ */
+export type FilterablePaymentStatus = PaymentStatus | "DEBT"
 export const FILTERABLE_PAYMENT_STATUSES: FilterablePaymentStatus[] = [
+  "DEBT",
   "NOTHING_DUE",
   "UNPAID",
   "PARTIALLY_PAID",
@@ -119,6 +125,10 @@ export function applicationList(
           ).includes(word),
         ) &&
         (!filters.gender || row.gender === filters.gender) &&
+        (filters.payment !== "DEBT" ||
+          row.terms.some((term) =>
+            termHasDebt({ status: term.status, priceCzk: term.priceCzk }, term.payments),
+          )) &&
         (!(filters.termId || filters.status) ||
           row.terms.some(
             (term) =>
@@ -153,7 +163,12 @@ export function applicationList(
         paymentStatus: computePaymentStatus(amountDueCzk, amountPaidCzk),
       }
     })
-    .filter((row) => filters.payment === undefined || row.paymentStatus === filters.payment)
+    .filter(
+      (row) =>
+        filters.payment === undefined ||
+        filters.payment === "DEBT" ||
+        row.paymentStatus === filters.payment,
+    )
   if (!isWaitlistView) return entries
   // One term's waitlist: each bed group in the order of receipt (US-30).
   const termOf = (entry: ApplicationListEntry) =>

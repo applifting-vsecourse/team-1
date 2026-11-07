@@ -10,6 +10,8 @@ export const applicationsSearchSchema = z.object({
   term: z.string().optional(),
   status: z.enum(["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED"]).optional(),
   gender: z.enum(["FEMALE", "MALE"]).optional(),
-  payment: z.enum(["NOTHING_DUE", "UNPAID", "PARTIALLY_PAID", "PAID", "OVERPAID"]).optional(),
+  payment: z
+    .enum(["DEBT", "NOTHING_DUE", "UNPAID", "PARTIALLY_PAID", "PAID", "OVERPAID"])
+    .optional(),
 })
 export type ApplicationsSearch = z.infer<typeof applicationsSearchSchema>

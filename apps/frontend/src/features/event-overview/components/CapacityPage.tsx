@@ -154,7 +154,7 @@ function Filled({
   )
 }
 
-function TermList({ eventId, terms }: { eventId: string; terms: TermOccupancy[] }) {
+export function TermList({ eventId, terms }: { eventId: string; terms: TermOccupancy[] }) {
   const { t } = useTranslation("eventOverview")
   // The room mode belongs to the term; the women / men columns are there when any term is gendered.
   const isGendered = terms.some((term) => term.byGender !== null)

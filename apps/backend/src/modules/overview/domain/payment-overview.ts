@@ -5,6 +5,7 @@ import {
   computeTermPaid,
   computeTermPaymentStatus,
   PaymentStatus,
+  termHasDebt,
 } from "@/modules/applications/domain/pricing"
 
 export type PaymentOverviewTerm = {
@@ -88,8 +89,13 @@ export function paymentOverview(
       a.lastName.localeCompare(b.lastName) ||
       a.firstName.localeCompare(b.firstName),
   )
+  // Same predicate as the "debt" filter of the applications list, so the counts agree (US-51).
   const debtors = new Set(
-    entries.filter((entry) => entry.amountOwedCzk > 0).map((entry) => entry.applicationId),
+    terms
+      .filter((term) =>
+        termHasDebt({ status: "CONFIRMED", priceCzk: term.priceCzk }, term.payments),
+      )
+      .map((term) => term.applicationId),
   )
   const overdue = new Set(
     entries.filter((entry) => entry.overdue).map((entry) => entry.applicationId),

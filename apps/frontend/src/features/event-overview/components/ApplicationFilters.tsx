@@ -72,6 +72,7 @@ export function ApplicationFilters({
       label: t("applications.payment"),
       all: t("applications.allPayments"),
       values: [
+        { id: "DEBT", name: t("applications.debt") },
         { id: "NOTHING_DUE", name: t("applications.nothingDue") },
         { id: "UNPAID", name: t("applications.unpaid") },
         { id: "PARTIALLY_PAID", name: t("applications.partial") },
