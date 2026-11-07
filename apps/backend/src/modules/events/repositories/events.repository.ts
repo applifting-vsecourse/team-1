@@ -64,6 +64,7 @@ function toStored(row: EventRow): StoredEvent {
     applicationCount: row._count.applications,
     evaluationMode: row.evaluationMode,
     cancellationStartsOn: row.cancellationStartsOn ? isoDate(row.cancellationStartsOn) : null,
+    cancellationTerms: row.cancellationTerms,
     startsOn: starts[0] ?? null,
     endsOn: ends[ends.length - 1] ?? null,
     terms: sortTerms(terms),
@@ -122,6 +123,18 @@ export class EventsRepository {
           ? new Date(`${cancellationStartsOn}T00:00:00.000Z`)
           : null,
       },
+    })
+    if (count !== 1) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
+  }
+
+  async setCancellationTerms(
+    id: string,
+    organizationId: string,
+    cancellationTerms: string,
+  ): Promise<void> {
+    const { count } = await this.prisma.event.updateMany({
+      where: { id, organizationId },
+      data: { cancellationTerms },
     })
     if (count !== 1) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
   }

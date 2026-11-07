@@ -309,6 +309,7 @@
     "wholeApplication": "Celá přihláška (souhrn)"
   },
   "paymentsOverview": {
+    "cancellationTerms": "Storno podmínky",
     "clearFilters": "Vymazat filtry",
     "debt": "Dluh",
     "debtors_few": "{{count}} účastníci s dluhem",

@@ -207,6 +207,8 @@ model Event {
   // First calendar day when participant changes require organizer approval (US-113/114).
   // Null leaves changes immediate.
   cancellationStartsOn DateTime?      @db.Date
+  // Cancellation terms the organizer shows to applicants (US-47), free text; null until written.
+  cancellationTerms    String?        @db.Text
   description          String?        @db.Text
   location             String?
   // Public page content (US-122): the one source of the event web and the catalog (US-123).

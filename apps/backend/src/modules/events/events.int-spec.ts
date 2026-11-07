@@ -15,6 +15,7 @@ type EventBody = {
   applicationsOpen: boolean
   missing: string[]
   cancellationStartsOn: string | null
+  cancellationTerms: string | null
 }
 
 describe("organizer events (integration)", () => {
@@ -220,6 +221,36 @@ describe("organizer events (integration)", () => {
     expect(
       (await prisma.event.findUniqueOrThrow({ where: { id: created.id } })).cancellationStartsOn,
     ).toBeNull()
+  })
+
+  it("saves the cancellation terms of an event (US-47)", async () => {
+    const created = (await (await post(cookieA, { name: "Storno podmínky" })).json()) as EventBody
+    const url = api(`/organizer/events/${created.id}/cancellation-terms`)
+    const save = (cookie: string | null, value: unknown): Promise<Response> =>
+      fetch(url, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", ...(cookie ? { Cookie: cookie } : {}) },
+        body: JSON.stringify({ cancellationTerms: value }),
+      })
+    const text = "Při odhlášení více než 30 dní před začátkem se vrací celá částka."
+
+    expect(created.cancellationTerms).toBeNull()
+    expect((await save(null, text)).status).toBe(401)
+    expect((await save(cookieB, text)).status).toBe(403)
+    expect((await save(cookieA, "   ")).status).toBe(400)
+    expect((await save(cookieA, "a".repeat(2001))).status).toBe(400)
+    expect((await save(cookieA, undefined)).status).toBe(400)
+
+    const saved = await save(cookieA, `  ${text}\n`)
+    expect(saved.status).toBe(200)
+    expect(await saved.json()).toMatchObject({ cancellationTerms: text })
+    const detail = await fetch(api(`/organizer/events/${created.id}`), {
+      headers: { Cookie: cookieA },
+    })
+    expect(await detail.json()).toMatchObject({ cancellationTerms: text })
+    expect(
+      (await prisma.event.findUniqueOrThrow({ where: { id: created.id } })).cancellationTerms,
+    ).toBe(text)
   })
 
   it("deletes only an event nobody has applied to", async () => {
