@@ -162,6 +162,8 @@ export class ChangeRequestRepository {
     reviewerId: string,
   ): Promise<void> {
     await this.prisma.$transaction(async (tx) => {
+      // Same event lock as `reject`, so a concurrent decision on one request is serialized.
+      await tx.$queryRaw`SELECT id FROM event WHERE id = ${eventId} FOR UPDATE`
       const request = await tx.changeRequest.findUnique({ where: { id: requestId } })
       if (!request) throw new AppException(HttpStatus.NOT_FOUND, "NOT_FOUND")
       if (request.organizationId !== organizationId || request.eventId !== eventId) {

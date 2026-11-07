@@ -110,7 +110,7 @@ function HealthFields({ applicationId, health }: { applicationId: string; health
           className="min-h-32"
           maxLength={NOTE_MAX_LENGTH}
           readOnly={isLocked}
-          value={note}
+          value={isLocked ? (health.note ?? "") : note}
           onChange={(event) => setNote(event.target.value)}
         />
       </div>
@@ -153,6 +153,7 @@ function HealthFields({ applicationId, health }: { applicationId: string; health
           disabled={pending !== null}
           onClick={() => {
             setIsEditing(true)
+            setNote(health.note ?? "")
             setHasConsent(false)
           }}
         >

@@ -96,6 +96,10 @@ describe("ParticipantHealthForm", () => {
       }),
     )
     expect(saveHealth).not.toHaveBeenCalled()
+    // After sending, the stored data is shown again, not the unapproved wording.
+    await waitFor(() =>
+      expect(screen.getByLabelText("Participant's health restriction")).toHaveValue("Astma"),
+    )
   })
 
   it("disables a new request while one awaits the organizer", async () => {
