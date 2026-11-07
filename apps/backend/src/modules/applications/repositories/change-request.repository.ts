@@ -119,17 +119,23 @@ export class ChangeRequestRepository {
     return this.prisma.$transaction(async (tx) => {
       const application = await tx.application.findFirst({
         where: { id: applicationId, userId: applicantId },
-        select: { eventId: true, organizationId: true, health: { select: { note: true } } },
+        select: { eventId: true, organizationId: true },
       })
       if (!application) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
-      if (!application.health) {
+      // Same event lock as the term requests: concurrent submissions are checked one by one.
+      await tx.$queryRaw`SELECT id FROM event WHERE id = ${application.eventId} FOR UPDATE`
+      const stored = await tx.applicationHealth.findUnique({
+        where: { applicationId },
+        select: { note: true },
+      })
+      if (!stored) {
         throw new AppException(HttpStatus.CONFLICT, "HEALTH_REQUEST_NOT_NEEDED")
       }
       if (decision.kind === "consent-required") {
         throw new AppException(HttpStatus.BAD_REQUEST, "HEALTH_CONSENT_REQUIRED")
       }
       const note = decision.kind === "save" ? decision.note : ""
-      if (note === application.health.note) {
+      if (note === stored.note) {
         throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
       }
       const pending = await tx.changeRequest.findFirst({
