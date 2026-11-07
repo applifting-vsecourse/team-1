@@ -31,7 +31,9 @@ export class ParticipantTransportController {
   constructor(private readonly transport: TransportService) {}
 
   @Get()
-  @ApiOperation({ summary: "Transport offered for the application's event and the chosen one" })
+  @ApiOperation({
+    summary: "Transport offered in each active term of the application and the chosen one",
+  })
   @ApiResponse({ status: 200, type: ApplicationTransportResponseDto })
   async get(
     @User() user: Identity,
@@ -44,13 +46,15 @@ export class ParticipantTransportController {
 
   @Put()
   @HttpCode(204)
-  @ApiOperation({ summary: "Choose the transport of the application; null = own transport" })
+  @ApiOperation({
+    summary: "Choose the transport to one term of the application; null = own transport",
+  })
   @ApiResponse({ status: 204 })
   async choose(
     @User() user: Identity,
     @Param("applicationId") applicationId: string,
     @Body() body: ChooseTransportRequestDto,
   ): Promise<void> {
-    await this.transport.choose(user, applicationId, body.transportId ?? null)
+    await this.transport.choose(user, applicationId, body.termId, body.transportId ?? null)
   }
 }

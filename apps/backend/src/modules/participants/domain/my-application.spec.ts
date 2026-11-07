@@ -27,6 +27,8 @@ const record = (overrides: Partial<MyApplicationRecord> = {}): MyApplicationReco
       payments: [],
       confirmedAt: null,
       paymentPeriodStartedAt: null,
+      transportOffered: false,
+      transportDecided: false,
     },
     {
       termId: "t1",
@@ -39,6 +41,8 @@ const record = (overrides: Partial<MyApplicationRecord> = {}): MyApplicationReco
       payments: [],
       confirmedAt: null,
       paymentPeriodStartedAt: null,
+      transportOffered: false,
+      transportDecided: false,
     },
   ],
   ...overrides,

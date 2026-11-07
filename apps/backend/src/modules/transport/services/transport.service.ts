@@ -1,6 +1,7 @@
 import {
   ApplicationTransport,
   EventTransport,
+  isDepartureWithinTerm,
   OWN_TRANSPORT_ID,
   TransportInput,
   TransportParticipants,
@@ -23,21 +24,53 @@ export class TransportService {
     return { eventId, organizationId }
   }
 
+  /** A transport lives in an active term and leaves no later than the term ends. */
+  private assertFits(term: { endsOn: string; isCancelled: boolean }, input: TransportInput) {
+    if (term.isCancelled) throw new AppException(HttpStatus.BAD_REQUEST, "TERM_CANCELLED")
+    if (!isDepartureWithinTerm(input.departureAt, term.endsOn)) {
+      throw new AppException(HttpStatus.BAD_REQUEST, "TRANSPORT_AFTER_TERM_END", undefined, {
+        endsOn: term.endsOn,
+      })
+    }
+  }
+
   async list(user: Identity, eventId: string): Promise<EventTransport> {
     return this.repository.list(await this.scope(user, eventId))
   }
 
-  async save(user: Identity, eventId: string, input: TransportInput, id?: string): Promise<void> {
-    await this.repository.save(await this.scope(user, eventId), input, id)
+  async create(
+    user: Identity,
+    eventId: string,
+    termId: string,
+    input: TransportInput,
+  ): Promise<void> {
+    const scope = await this.scope(user, eventId)
+    const term = await this.repository.findTerm(scope, termId)
+    if (!term) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
+    this.assertFits(term, input)
+    await this.repository.create(scope, termId, input)
+  }
+
+  async update(user: Identity, eventId: string, id: string, input: TransportInput): Promise<void> {
+    const scope = await this.scope(user, eventId)
+    const term = await this.repository.termOfTransport(scope, id)
+    if (!term) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
+    this.assertFits(term, input)
+    await this.repository.update(scope, id, input)
   }
 
   async participants(
     user: Identity,
     eventId: string,
     transportId: string,
+    termId?: string,
   ): Promise<TransportParticipants> {
-    const id = transportId === OWN_TRANSPORT_ID ? null : transportId
-    return this.repository.participants(await this.scope(user, eventId), id)
+    const scope = await this.scope(user, eventId)
+    if (transportId !== OWN_TRANSPORT_ID) {
+      return this.repository.participants(scope, transportId, "")
+    }
+    if (!termId) throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
+    return this.repository.participants(scope, null, termId)
   }
 
   /** Someone else's application and a missing one look the same: 403 with no content. */
@@ -47,9 +80,14 @@ export class TransportService {
     return result
   }
 
-  async choose(user: Identity, applicationId: string, transportId: string | null): Promise<void> {
+  async choose(
+    user: Identity,
+    applicationId: string,
+    termId: string,
+    transportId: string | null,
+  ): Promise<void> {
     const id = transportId === OWN_TRANSPORT_ID ? null : transportId
-    if (!(await this.repository.choose(user.id, applicationId, id))) {
+    if (!(await this.repository.choose(user.id, applicationId, termId, id))) {
       throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
     }
   }

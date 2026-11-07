@@ -1,5 +1,8 @@
-/** Pseudo id of "own transport" (US-65): no transport chosen, so the participant gets there alone. */
+/** Pseudo id of "own transport" in URLs and requests: no transport, the participant gets there alone. */
 export const OWN_TRANSPORT_ID = "own"
+
+/** The organizations are Czech: a departure counts for the calendar day of this zone. */
+const TIME_ZONE = "Europe/Prague"
 
 export type TransportInput = {
   name: string
@@ -9,40 +12,58 @@ export type TransportInput = {
 
 export type TransportSummary = TransportInput & {
   id: string
-  /** Applications of the event with an active term that chose this transport. */
+  /** Participants with an active term of this transport that chose it. */
   participantsCount: number
+}
+
+export type TermInfo = {
+  termId: string
+  termName: string | null
+  /** ISO dates, e.g. "2027-07-12". */
+  startsOn: string
+  endsOn: string
+}
+
+export type TermTransport = TermInfo & {
+  transports: TransportSummary[]
+  /** Participants of the term who chose to get there on their own. */
+  ownCount: number
 }
 
 export type EventTransport = {
   eventName: string
   eventLocation: string | null
-  transports: TransportSummary[]
-  /** Applications with an active term that chose no transport. */
-  ownCount: number
+  terms: TermTransport[]
 }
 
 export type TransportParticipant = { applicationId: string; name: string; email: string }
 
-export type TransportTermGroup = {
-  termId: string
-  termName: string | null
-  startsOn: string
-  endsOn: string
-  participants: TransportParticipant[]
-}
-
-export type TransportParticipants = {
+export type TransportParticipants = TermInfo & {
   /** The transport's name; null for own transport (the frontend translates it). */
   name: string | null
-  groups: TransportTermGroup[]
+  participants: TransportParticipant[]
 }
 
 export type ApplicationTransport = {
   participantName: string
   eventName: string
-  selectedTransportId: string | null
-  options: Omit<TransportSummary, "participantsCount">[]
+  terms: (TermInfo & {
+    status: string
+    selectedTransportId: string | null
+    isOwn: boolean
+    options: (TransportInput & { id: string })[]
+  })[]
 }
 
 /** The name `Adam Dvořák` of a participant, as in the lists. */
 export const fullName = (firstName: string, lastName: string): string => `${firstName} ${lastName}`
+
+/** The calendar day (`2027-07-12`) of an instant in Czech time. */
+export function departureDay(departureAt: Date): string {
+  return new Intl.DateTimeFormat("sv-SE", { timeZone: TIME_ZONE }).format(departureAt)
+}
+
+/** A bus must not leave after the last day of the term; the day itself is fine. */
+export function isDepartureWithinTerm(departureAt: Date, termEndsOn: string): boolean {
+  return departureDay(departureAt) <= termEndsOn
+}

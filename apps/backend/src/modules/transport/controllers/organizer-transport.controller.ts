@@ -1,7 +1,8 @@
 import {
+  CreateTransportRequestDto,
   EventTransportResponseDto,
   TransportParticipantsResponseDto,
-  TransportRequestDto,
+  UpdateTransportRequestDto,
 } from "@/modules/transport/controllers/dto/transport.dto"
 import { TransportService } from "@/modules/transport/services/transport.service"
 import { Auth } from "@/shared/auth/decorators/auth.decorator"
@@ -15,6 +16,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UsePipes,
   ValidationPipe,
 } from "@nestjs/common"
@@ -41,41 +43,48 @@ export class OrganizerTransportController {
 
   @Post()
   @HttpCode(204)
-  @ApiOperation({ summary: "Add a way of transport: name, place and time of departure" })
+  @ApiOperation({ summary: "Add a way of transport to a term: name, place and time of departure" })
   @ApiResponse({ status: 204 })
-  @ApiResponse({ status: 400, description: "Invalid name, place or time" })
+  @ApiResponse({
+    status: 400,
+    description: "Invalid name, place or time, or a departure after the term ends",
+  })
   async create(
     @User() user: Identity,
     @Param("eventId") eventId: string,
-    @Body() body: TransportRequestDto,
+    @Body() body: CreateTransportRequestDto,
   ): Promise<void> {
-    await this.transport.save(user, eventId, body.toInput())
+    await this.transport.create(user, eventId, body.termId, body.toInput())
   }
 
   @Put(":id")
   @HttpCode(204)
   @ApiOperation({ summary: "Edit a way of transport" })
   @ApiResponse({ status: 204 })
-  @ApiResponse({ status: 400, description: "Invalid name, place or time" })
+  @ApiResponse({
+    status: 400,
+    description: "Invalid name, place or time, or a departure after the term ends",
+  })
   async update(
     @User() user: Identity,
     @Param("eventId") eventId: string,
     @Param("id") id: string,
-    @Body() body: TransportRequestDto,
+    @Body() body: UpdateTransportRequestDto,
   ): Promise<void> {
-    await this.transport.save(user, eventId, body.toInput(), id)
+    await this.transport.update(user, eventId, id, body.toInput())
   }
 
   @Get(":id/participants")
   @ApiOperation({
-    summary: "Participants of one way of transport by term; `own` lists those on their own",
+    summary: "Participants of one way of transport; `own` lists those of `termId` on their own",
   })
   @ApiResponse({ status: 200, type: TransportParticipantsResponseDto })
   async participants(
     @User() user: Identity,
     @Param("eventId") eventId: string,
     @Param("id") id: string,
+    @Query("termId") termId?: string,
   ): Promise<TransportParticipantsResponseDto> {
-    return this.transport.participants(user, eventId, id)
+    return this.transport.participants(user, eventId, id, termId)
   }
 }
