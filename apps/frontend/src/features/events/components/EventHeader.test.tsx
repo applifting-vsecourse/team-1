@@ -33,6 +33,7 @@ const event = {
   cancellationStartsOn: null,
   cancellationTerms: null,
   evaluationModeLocked: true,
+  hasApplications: false,
   missing: [],
   terms: [],
 }

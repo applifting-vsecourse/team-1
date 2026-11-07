@@ -1,0 +1,45 @@
+import { useState } from "react"
+import { useTranslation } from "react-i18next"
+
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+
+import type { OrganizerEvent } from "@/features/events/api/events"
+import { DeleteEventDialog } from "@/features/events/components/DeleteEventDialog"
+
+/**
+ * "Smazání akce" at the bottom of the event settings: a quiet button, disabled with
+ * the reason written out once the event has applications. The server still refuses
+ * such an event (an application may arrive after the screen was loaded).
+ */
+// Figma (Design system): #315 Nastavení akce · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19798-37338
+// Figma (Design system): #315 Nastavení · Akce bez přihlášek · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19798-37570
+export function DeleteEventSection({ event }: { event: OrganizerEvent }) {
+  const { t } = useTranslation("events")
+  const [isOpen, setIsOpen] = useState(false)
+
+  return (
+    <Card className="gap-4 p-6">
+      <h2 className="text-lg font-semibold tracking-tight">{t("delete.sectionTitle")}</h2>
+      <p id="delete-event-reason">
+        {event.hasApplications ? t("delete.blocked") : t("delete.allowed")}
+      </p>
+      <Button
+        variant="ghost"
+        size="lg"
+        className="w-full"
+        disabled={event.hasApplications}
+        aria-describedby="delete-event-reason"
+        onClick={() => setIsOpen(true)}
+      >
+        {t("delete.action")}
+      </Button>
+      {isOpen ? (
+        <DeleteEventDialog
+          event={event}
+          onClose={() => setIsOpen(false)}
+        />
+      ) : null}
+    </Card>
+  )
+}
