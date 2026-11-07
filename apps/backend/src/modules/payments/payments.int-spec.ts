@@ -593,6 +593,17 @@ describe("organizer payments (US-44)", () => {
     },
   )
 
+  it("returns the participant's date of birth and gender and the applicant's contact", async () => {
+    expect(await summary()).toMatchObject({
+      birthDate: "2000-01-01",
+      gender: "FEMALE",
+      email: applicantEmail,
+    })
+    const foreign = await request("GET", "", undefined, foreignCookie)
+    expect(foreign.status).toBe(403)
+    expect(JSON.stringify(await foreign.json())).not.toContain(applicantEmail)
+  })
+
   it("rejects supplied author fields", async () => {
     expect((await request("POST", "", { amountCzk: 3000, recordedById: "other" })).status).toBe(400)
   })

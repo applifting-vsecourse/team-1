@@ -43,6 +43,9 @@ const toDomain = (row: Row): PaymentApplication => ({
   number: row.number,
   firstName: row.firstName,
   lastName: row.lastName,
+  birthDate: row.birthDate,
+  gender: row.gender,
+  email: row.email,
   terms: row.terms.map((applicationTerm) => ({
     applicationTermId: applicationTerm.id,
     termId: applicationTerm.term.id,

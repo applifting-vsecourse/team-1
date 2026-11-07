@@ -10,6 +10,11 @@ export const paymentApplicationSchema = z.object({
   firstName: z.string(),
   lastName: z.string(),
   code: z.string(),
+  /** Participant date of birth, `YYYY-MM-DD`. */
+  birthDate: z.string(),
+  gender: z.enum(["FEMALE", "MALE"]),
+  /** Contact of the applicant who submitted the application. */
+  email: z.string(),
   /** Account the organization receives payments to. */
   bankAccount: z.string(),
   amountDueCzk: z.number().int(),
