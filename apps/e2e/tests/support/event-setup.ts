@@ -1,12 +1,12 @@
 import { expect, type Page } from "@playwright/test"
 import { ORGANIZER } from "./accounts"
-import { signIn } from "./auth"
+import { openEventList, signIn } from "./auth"
 
 /** Signs in as the organizer and creates an event named `name` with one term priced 4 500 CZK. */
 export async function createEventWithTerm(page: Page, name: string) {
   await signIn(page, "organizer", ORGANIZER)
   // Leaving before the sign-in answers would abort it and keep the session out.
-  await expect(page.getByRole("heading", { level: 1, name: "Event list" })).toBeVisible()
+  await openEventList(page)
 
   await page.goto("/organizer/events/new")
   await page.getByLabel("Event name").fill(name)

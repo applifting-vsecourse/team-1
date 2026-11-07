@@ -15,6 +15,8 @@ export const ROUTES = {
   applicationConfirmation: "/apply/confirmation/$accessToken",
 
   organizer: {
+    // Redirects to the overview of the last opened event, or to the events list.
+    home: "/organizer",
     login: "/organizer/login",
     register: "/organizer/register",
     verifyEmail: "/organizer/verify-email",

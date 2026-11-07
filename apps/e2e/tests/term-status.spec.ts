@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test"
 import { ORGANIZER, SUMMER_CAMP_LINK } from "./support/accounts"
-import { signIn } from "./support/auth"
+import { openEventList, signIn } from "./support/auth"
 
 // US-28 / US-32: the organizer withdraws a confirmed participant from a term; the change lands in the log.
 test.describe("Status of an application in a term", () => {
@@ -26,7 +26,7 @@ test.describe("Status of an application in a term", () => {
     await expect(page).toHaveURL(/\/apply\/confirmation\//)
 
     await signIn(page, "organizer", ORGANIZER)
-    await expect(page.getByRole("heading", { level: 1, name: "Event list" })).toBeVisible()
+    await openEventList(page)
     await page.getByRole("link", { name: /Letní kemp 2027(?! – demo)/ }).click()
     await page
       .getByRole("navigation", { name: "Event sections" })

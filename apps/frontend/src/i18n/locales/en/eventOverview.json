@@ -13,6 +13,7 @@
     "count_few": "{{count}} applications",
     "count_one": "{{count}} application",
     "count_other": "{{count}} applications",
+    "debt": "Participants with a balance due",
     "detail": "Detail",
     "due": "Amount due",
     "empty": "We found no applications matching this selection.",
@@ -49,11 +50,34 @@
     "title": "Applications",
     "toEvaluate": "Awaiting evaluation",
     "unpaid": "Unpaid",
+    "waitlistFreeBed": "Substitutes with a free bed",
     "waitlistNote": "A waitlist is kept per term and bed group (women, men, or shared rooms), in order of receipt. Confirm a waitlisted applicant in their detail; first check for a free bed and send payment details only after confirmation.",
     "waitlistNoteTitle": "Waitlisted applicants have a place in the queue, not a confirmed place.",
     "waitlisted": "Waitlisted",
     "waitlistedPositionFemale": "Waitlisted · {{position}}",
     "waitlistedPositionMale": "Waitlisted · {{position}}"
+  },
+  "attention": {
+    "allClear": "Nothing needs your attention",
+    "allClearEvaluation": "Awaiting review {{toEvaluate}} · Substitutes to resolve {{substitutes}}",
+    "allClearOthers": "Participants with a balance due {{debt}} · Pending requests {{requests}}",
+    "debt": {
+      "body": "{{overdue}} overdue · Total balance due {{total}}",
+      "title": "Participants with a balance due · {{count}}"
+    },
+    "loadFailed": "Could not load what needs your attention",
+    "requests": {
+      "body": "Changes and cancellations after the cancellation period begins",
+      "title": "Requests awaiting approval · {{count}}"
+    },
+    "substitutes": {
+      "body": "Freed beds in the matching group",
+      "title": "Substitutes to resolve · {{count}}"
+    },
+    "toEvaluate": {
+      "body": "Applications awaiting a decision",
+      "title": "Awaiting review · {{count}}"
+    }
   },
   "bulk": {
     "alertTitle": "{{confirmed}} of {{selected}} applications will be confirmed.",
@@ -395,6 +419,9 @@
     "taken": "The bed has meanwhile been taken by another organizer.",
     "takenHint": "{{name}} stays a substitute. The capacity is not exceeded.",
     "title": "Filling freed beds"
+  },
+  "switcher": {
+    "label": "Event"
   },
   "termChange": {
     "cancel": "Cancel",

@@ -82,6 +82,14 @@ export function computeTermPaymentStatus(
   return computePaymentStatus(computeTermDue(term), computeTermPaid(payments))
 }
 
+/** A term is in debt when it is confirmed and its payments do not cover its price (US-51, US-45). */
+export function termHasDebt(
+  term: { status: ApplicationTermStatus; priceCzk: number },
+  payments: { amountCzk: number }[],
+): boolean {
+  return computeTermOwed(term, payments) > 0
+}
+
 /**
  * What a summary payment (`…000`) settles right now: the debt of terms that have
  * one. An overpayment of one term is not set off against another term's debt

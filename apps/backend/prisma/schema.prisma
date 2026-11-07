@@ -133,6 +133,7 @@ model User {
   submittedChangeRequests ChangeRequest[] @relation("ChangeRequestApplicant")
   reviewedChangeRequests  ChangeRequest[] @relation("ChangeRequestReviewer")
   notifications    Notification[]
+  lastOpenedEvent  LastOpenedEvent?
 
   @@unique([email])
   @@map("user")
@@ -227,6 +228,7 @@ model Event {
   changeRequests ChangeRequest[]
   photo        EventPhoto?
   mealOptions  MealOption[]
+  lastOpenedBy LastOpenedEvent[]
 
   @@index([organizationId])
   @@map("event")
@@ -516,4 +518,17 @@ enum NotificationType {
   STATUS_CHANGED
   PAYMENT
   REQUEST
+}
+
+// The event an organizer opened last (US-51): where the administration lands after login,
+// on any device. One row per user; gone with the user or the event.
+model LastOpenedEvent {
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId   String   @id
+  event    Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId  String
+  openedAt DateTime @default(now())
+
+  @@index([eventId])
+  @@map("last_opened_event")
 }
