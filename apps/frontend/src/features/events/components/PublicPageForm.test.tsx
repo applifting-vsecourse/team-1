@@ -42,6 +42,7 @@ const event: OrganizerEvent = {
   evaluationMode: "AUTOMATIC",
   cancellationStartsOn: null,
   evaluationModeLocked: false,
+  hasApplications: false,
   missing: [],
   terms: [],
 }
