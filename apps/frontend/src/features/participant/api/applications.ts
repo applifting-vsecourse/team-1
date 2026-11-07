@@ -11,6 +11,10 @@ const termSchema = z.object({
   endsOn: z.string(),
   status: z.enum(["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED"]),
   priceCzk: z.number().int(),
+  /** The organizer offers transport to this term (US-65). */
+  transportOffered: z.boolean(),
+  /** The participant chose a transport or their own transport for this term. */
+  transportDecided: z.boolean(),
 })
 export type MyApplicationTerm = z.infer<typeof termSchema>
 

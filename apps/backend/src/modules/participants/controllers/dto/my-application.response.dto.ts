@@ -33,6 +33,12 @@ export class MyApplicationTermDto {
   @ApiProperty({ example: 4500, description: "Price frozen at evaluation, whole CZK." })
   priceCzk!: number
 
+  @ApiProperty({ description: "The organizer offers transport to this term (US-65)." })
+  transportOffered!: boolean
+
+  @ApiProperty({ description: "The participant chose a transport or their own transport." })
+  transportDecided!: boolean
+
   static fromDomain(term: MyApplicationTerm): MyApplicationTermDto {
     return Object.assign(new MyApplicationTermDto(), term)
   }

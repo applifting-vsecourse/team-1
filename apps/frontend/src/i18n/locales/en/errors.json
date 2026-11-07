@@ -35,6 +35,7 @@
   "TERM_END_BEFORE_START": "Enter an end date that is not before the start date.",
   "TERM_LIMIT_REACHED": "The event already has the maximum number of terms (999).",
   "TOO_MANY_REQUESTS": "Too many attempts in a short time. Wait a moment and try again.",
+  "TRANSPORT_AFTER_TERM_END": "The departure can't be after the term ends ({{endsOn}}).",
   "UNAUTHORIZED": "Please sign in.",
   "UNKNOWN": "Something went wrong.",
   "VALIDATION_FAILED": "Some fields are not filled in correctly."
