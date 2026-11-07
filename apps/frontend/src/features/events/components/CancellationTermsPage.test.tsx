@@ -25,6 +25,7 @@ const event = {
   evaluationMode: "AUTOMATIC",
   cancellationStartsOn: null,
   cancellationTerms: null as string | null,
+  hasApplications: false,
   evaluationModeLocked: false,
   missing: ["TERM", "ROOM"],
   terms: [],
