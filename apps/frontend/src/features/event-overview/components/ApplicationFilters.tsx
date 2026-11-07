@@ -97,7 +97,9 @@ export function ApplicationFilters({
   const gender = filters.gender
     ? t(filters.gender === "FEMALE" ? "applications.female" : "applications.male")
     : undefined
-  const activeCount = active.length + (gender ? 1 : 0)
+  // Set by the card "Náhradníci k vyřešení"; no control of its own, only a chip to remove it.
+  const waitlist = filters.waitlist ? t("applications.waitlistFreeBed") : undefined
+  const activeCount = active.length + (gender ? 1 : 0) + (waitlist ? 1 : 0)
   const hasFilters = Object.values(filters).some(Boolean)
   const remove = (key: keyof ApplicationsSearch) => {
     const next = { ...filters }
@@ -192,9 +194,11 @@ export function ApplicationFilters({
         >
           {active.map((filter) => chip(filter.key, filter.name, "h-auto min-h-11 max-w-full"))}
           {gender && chip("gender", gender)}
+          {waitlist && chip("waitlist", waitlist)}
         </div>
       )}
       {gender && chip("gender", gender, "hidden md:inline-flex")}
+      {waitlist && chip("waitlist", waitlist, "hidden md:inline-flex")}
       {hasFilters && (
         <Button
           variant="ghost"

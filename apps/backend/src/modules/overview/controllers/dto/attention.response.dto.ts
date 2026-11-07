@@ -9,6 +9,7 @@ class AttentionDebtDto {
 
 export class AttentionResponseDto {
   @ApiProperty() toEvaluateCount!: number
+  @ApiProperty() substituteCount!: number
   @ApiProperty({ type: AttentionDebtDto }) debt!: AttentionDebtDto
   @ApiProperty() changeRequestCount!: number
 

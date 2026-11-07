@@ -5,6 +5,7 @@ import { api } from "@/lib/api-client"
 
 const attentionSchema = z.object({
   toEvaluateCount: z.number().int(),
+  substituteCount: z.number().int(),
   debt: z.object({
     debtorCount: z.number().int(),
     overdueCount: z.number().int(),

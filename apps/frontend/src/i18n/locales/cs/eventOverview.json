@@ -50,6 +50,7 @@
     "title": "Přihlášky",
     "toEvaluate": "Čeká na vyhodnocení",
     "unpaid": "Nezaplaceno",
+    "waitlistFreeBed": "Náhradníci s volným lůžkem",
     "waitlistNote": "Přijetí náhradníka řešte v jeho detailu. Nejprve ověřte volné lůžko; platební údaje pošlete až po potvrzení.",
     "waitlistNoteTitle": "Náhradníci mají pořadí, místo zatím nemají potvrzené.",
     "waitlisted": "Náhradník",
@@ -58,7 +59,8 @@
   },
   "attention": {
     "allClear": "Nic nevyžaduje pozornost",
-    "allClearCounts": "K vyhodnocení {{toEvaluate}} · Účastníci s dluhem {{debt}} · Žádosti ke schválení {{requests}}",
+    "allClearEvaluation": "K vyhodnocení {{toEvaluate}} · Náhradníci k vyřešení {{substitutes}}",
+    "allClearOthers": "Účastníci s dluhem {{debt}} · Žádosti ke schválení {{requests}}",
     "debt": {
       "body": "Z toho {{overdue}} po lhůtě · Součet dluhů {{total}}",
       "title": "Účastníci s dluhem · {{count}}"
@@ -67,6 +69,10 @@
     "requests": {
       "body": "Změny a odhlášení po začátku storna",
       "title": "Žádosti ke schválení · {{count}}"
+    },
+    "substitutes": {
+      "body": "Uvolněná lůžka v odpovídající skupině",
+      "title": "Náhradníci k vyřešení · {{count}}"
     },
     "toEvaluate": {
       "body": "Přihlášky čekající na rozhodnutí",

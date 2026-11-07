@@ -1,4 +1,6 @@
+import { RoomCapacity } from "@/modules/applications/domain/capacity"
 import { ApplicationTermStatus } from "@/modules/applications/domain/evaluation"
+import { EvaluationMode } from "@/modules/applications/domain/evaluation-mode"
 import {
   computeApplicationDue,
   computeApplicationPaid,
@@ -9,6 +11,7 @@ import {
   PaymentStatus,
   termHasDebt,
 } from "@/modules/applications/domain/pricing"
+import { eligibleSubstitutes } from "@/modules/applications/domain/substitutes"
 import { variableSymbol } from "@/modules/applications/domain/variable-symbol"
 import {
   bedGroup,
@@ -24,7 +27,11 @@ export type ApplicationFilters = {
   status?: ApplicationTermStatus
   gender?: Gender
   payment?: FilterablePaymentStatus
+  /** `FREE_BED`: waitlisted in a manually evaluated term with a free bed for them (US-51, US-104). */
+  waitlist?: WaitlistFilter
 }
+export const WAITLIST_FILTERS = ["FREE_BED"] as const
+export type WaitlistFilter = (typeof WAITLIST_FILTERS)[number]
 /**
  * Every payment status can be filtered on, "nothing due" (a waitlisted application) too.
  * `DEBT` is an application with a confirmed term that is not fully paid, the participants of
@@ -48,6 +55,8 @@ export type ListedApplication = {
   gender: Gender
   email: string
   submittedAt: Date
+  /** How the event evaluates applications (US-101); only manual evaluation has substitutes to approve. */
+  evaluationMode: EvaluationMode
   terms: {
     id: string
     name: string | null
@@ -55,6 +64,8 @@ export type ListedApplication = {
     endsOn: Date
     /** Room mode of the term decides its waitlist queues (US-99, D-063). */
     roomMode: RoomMode
+    /** Rooms of the term, from which its free beds are computed. */
+    rooms: RoomCapacity[]
     status: ApplicationTermStatus
     priceCzk: number
     /** `Term.number`. */
@@ -64,8 +75,11 @@ export type ListedApplication = {
   }[]
 }
 
-export type ApplicationListEntry = Omit<ListedApplication, "number" | "terms"> & {
-  terms: (Omit<ListedApplication["terms"][number], "payments" | "termNumber"> & {
+export type ApplicationListEntry = Omit<
+  ListedApplication,
+  "number" | "terms" | "evaluationMode"
+> & {
+  terms: (Omit<ListedApplication["terms"][number], "payments" | "termNumber" | "rooms"> & {
     /** 1-based place in the waitlist of the term and bed group; null unless waitlisted (US-30). */
     waitlistPosition: number | null
   })[]
@@ -81,6 +95,39 @@ const searchableSymbols = (row: ListedApplication): string =>
     variableSymbol(row.number),
     ...row.terms.map((term) => variableSymbol(row.number, term.termNumber)),
   ].join(" ")
+
+/**
+ * Applications waitlisted in a manually evaluated term that has a free bed for them: the ones the
+ * organizer can approve now. The single predicate of the list filter and of the card "Náhradníci
+ * k vyřešení" (US-51). Free beds come from `eligibleSubstitutes`, the same as for US-104.
+ */
+export function approvableSubstituteIds(rows: ListedApplication[]): Set<string> {
+  const ids = new Set<string>()
+  const termIds = new Set(rows.flatMap((row) => row.terms.map((term) => term.id)))
+  for (const termId of termIds) {
+    const members = rows.flatMap((row) =>
+      row.terms.filter((term) => term.id === termId).map((term) => ({ row, term })),
+    )
+    const rooms = members[0]!.term.rooms
+    const candidates = members
+      .filter(({ row }) => row.evaluationMode === "MANUAL")
+      .map(({ row, term }) => ({
+        applicationId: row.id,
+        termId,
+        roomMode: term.roomMode,
+        gender: row.gender,
+        status: term.status,
+        submittedAt: row.submittedAt,
+        number: row.number,
+      }))
+    const confirmedGenders = members
+      .filter(({ term }) => term.status === "CONFIRMED")
+      .map(({ row }) => row.gender)
+    for (const { applicationId } of eligibleSubstitutes({ rooms, confirmedGenders }, candidates))
+      ids.add(applicationId)
+  }
+  return ids
+}
 
 export function applicationList(
   rows: ListedApplication[],
@@ -116,9 +163,11 @@ export function applicationList(
         (a, b) => a.submittedAt.getTime() - b.submittedAt.getTime() || a.number - b.number,
       )
     : rows
+  const approvable = filters.waitlist === "FREE_BED" ? approvableSubstituteIds(rows) : null
   const entries = ordered
     .filter(
       (row) =>
+        (!approvable || approvable.has(row.id)) &&
         words.every((word) =>
           normalize(
             `${row.firstName} ${row.lastName} ${row.email} ${searchableSymbols(row)}`,

@@ -1,3 +1,4 @@
+import { useEffect } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
@@ -7,6 +8,7 @@ import { Seo } from "@/components/atoms/Seo"
 
 import { EventOverview } from "@/features/event-overview/components/EventOverview"
 import { eventsQueryOptions } from "@/features/events/api/events"
+import { rememberLastOpenedEvent } from "@/features/events/api/last-opened-event"
 import { EventSetup } from "@/features/events/components/EventSetup"
 
 export const Route = createFileRoute("/organizer/_app/events/$eventId/")({
@@ -20,6 +22,11 @@ function EventOverviewPage() {
   const { t } = useTranslation("eventOverview")
   const navigate = useNavigate()
   const { data: events } = useQuery(eventsQueryOptions())
+
+  // Opening the overview makes this the event login lands on next time (US-51).
+  useEffect(() => {
+    rememberLastOpenedEvent(eventId).catch(() => undefined)
+  }, [eventId])
 
   return (
     <div className="flex flex-col gap-8">

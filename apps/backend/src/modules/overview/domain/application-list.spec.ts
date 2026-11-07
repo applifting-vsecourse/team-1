@@ -9,6 +9,7 @@ const row: ListedApplication = {
   gender: "FEMALE",
   email: "test@example.com",
   submittedAt: new Date(),
+  evaluationMode: "AUTOMATIC",
   terms: [
     {
       id: "t1",
@@ -16,6 +17,7 @@ const row: ListedApplication = {
       startsOn: new Date(),
       endsOn: new Date(),
       roomMode: "GENDERED" as const,
+      rooms: [],
       status: "CONFIRMED",
       priceCzk: 1000,
       termNumber: 1,
@@ -27,6 +29,7 @@ const row: ListedApplication = {
       startsOn: new Date(),
       endsOn: new Date(),
       roomMode: "GENDERED" as const,
+      rooms: [],
       status: "WAITLISTED",
       priceCzk: 2000,
       termNumber: 2,
@@ -195,5 +198,44 @@ describe("queue of applications to evaluate (US-103)", () => {
     expect(
       applicationList(mixed, { status: "TO_EVALUATE", termId: "t2" }).map((entry) => entry.id),
     ).toEqual(["both"])
+  })
+})
+
+describe("waitlist filter FREE_BED (US-51)", () => {
+  const rooms = [
+    { capacity: 2, gender: "FEMALE" as const },
+    { capacity: 1, gender: "MALE" as const },
+  ]
+  const application = (
+    id: string,
+    number: number,
+    gender: "FEMALE" | "MALE",
+    status: "CONFIRMED" | "WAITLISTED",
+    evaluationMode: "AUTOMATIC" | "MANUAL" = "MANUAL",
+  ): ListedApplication => ({
+    ...row,
+    id,
+    number,
+    gender,
+    evaluationMode,
+    submittedAt: new Date(2026, 9, number),
+    terms: [{ ...row.terms[0]!, id: "t1", rooms, status, payments: [] }],
+  })
+  const ids = (rows: ListedApplication[]) =>
+    applicationList(rows, { waitlist: "FREE_BED" }).map((entry) => entry.id)
+
+  it("lists waitlisted applicants whose gender has a free bed in a manual event", () => {
+    const rows = [
+      application("m1", 1, "MALE", "CONFIRMED"),
+      application("f1", 2, "FEMALE", "CONFIRMED"),
+      application("w-male", 3, "MALE", "WAITLISTED"),
+      application("w-female", 4, "FEMALE", "WAITLISTED"),
+    ]
+    expect(ids(rows)).toEqual(["w-female"])
+  })
+
+  it("lists nobody without a free bed, for confirmed applications or in automatic evaluation", () => {
+    expect(ids([application("m1", 1, "MALE", "CONFIRMED")])).toEqual([])
+    expect(ids([application("w", 1, "FEMALE", "WAITLISTED", "AUTOMATIC")])).toEqual([])
   })
 })

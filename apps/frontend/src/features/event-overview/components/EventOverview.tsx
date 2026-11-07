@@ -27,8 +27,8 @@ type Translate = ReturnType<typeof useTranslation<"eventOverview">>["t"]
 /**
  * What needs the organizer's attention in an event (US-51): the event switcher, a card per kind of
  * work that links to the applications list filtered the same way the count was made, and the
- * occupancy of the terms (the list of US-29). The card "Náhradníci k vyřešení" is not here until
- * the PO decides what it counts (Q in the PR).
+ * occupancy of the terms (the list of US-29). "Náhradníci k vyřešení" counts waitlisted applicants
+ * the organizer can approve now: manual evaluation and a free bed (PO, 2026-11-07).
  */
 // Figma (Design system): #51 Letní kemp Lipno 2027 / Desktop · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19798-36893
 // Figma (Design system): #51 Letní kemp Lipno 2027 / Mobile · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19798-37048
@@ -99,8 +99,13 @@ function AttentionCards({ eventId }: { eventId: string }) {
       <Card className="gap-4 p-6">
         <h2 className="text-2xl font-semibold tracking-tight">{t("attention.allClear")}</h2>
         <p>
-          {t("attention.allClearCounts", {
+          {t("attention.allClearEvaluation", {
             toEvaluate: data.toEvaluateCount,
+            substitutes: data.substituteCount,
+          })}
+        </p>
+        <p>
+          {t("attention.allClearOthers", {
             debt: data.debt.debtorCount,
             requests: data.changeRequestCount,
           })}
@@ -133,6 +138,13 @@ function attentionCards(data: Attention, t: Translate) {
       title: t("attention.toEvaluate.title", { count: data.toEvaluateCount }),
       body: t("attention.toEvaluate.body"),
       search: { status: "TO_EVALUATE" },
+    },
+    {
+      key: "substitutes",
+      count: data.substituteCount,
+      title: t("attention.substitutes.title", { count: data.substituteCount }),
+      body: t("attention.substitutes.body"),
+      search: { waitlist: "FREE_BED" },
     },
     {
       key: "debt",

@@ -6,6 +6,7 @@ const base = {
   birthDate: new Date("2000-01-01"),
   email: "x@example.com",
   submittedAt: new Date("2026-10-01"),
+  evaluationMode: "MANUAL" as const,
   firstName: "A",
   lastName: "B",
   gender: "FEMALE" as const,
@@ -20,6 +21,7 @@ const term = (
   startsOn: new Date("2027-07-01"),
   endsOn: new Date("2027-07-07"),
   roomMode: "GENDERED",
+  rooms: [{ capacity: 2, gender: "FEMALE" }],
   status,
   priceCzk: 1000,
   termNumber: 1,
@@ -66,6 +68,21 @@ describe("attention", () => {
     expect(attention.toEvaluateCount).toBe(
       applicationList(applications, ATTENTION_FILTERS.toEvaluate).length,
     )
+  })
+
+  it("counts waitlisted applications with a free bed like the list filtered by that card", () => {
+    const attention = computeAttention(applications, payments, 0)
+    // The women's room has 2 beds, held by a2, a3 and a4 (in t1): a5 waits without a free bed.
+    expect(attention.substituteCount).toBe(0)
+    expect(attention.substituteCount).toBe(
+      applicationList(applications, ATTENTION_FILTERS.substitutes).length,
+    )
+    // Once two of them leave, a bed is free and a5 can be approved.
+    const freed = applications.filter((application) => !["a2", "a3"].includes(application.id))
+    expect(computeAttention(freed, payments, 0).substituteCount).toBe(1)
+    expect(applicationList(freed, ATTENTION_FILTERS.substitutes).map((row) => row.id)).toEqual([
+      "a5",
+    ])
   })
 
   it("takes the debt figures from the payments overview and matches the debt filter", () => {

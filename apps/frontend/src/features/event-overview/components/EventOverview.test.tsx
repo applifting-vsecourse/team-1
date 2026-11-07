@@ -73,11 +73,15 @@ describe("EventOverview", () => {
   it("shows a card with a count per kind of work, each linking to the list filtered by it", async () => {
     renderOverview({
       toEvaluateCount: 12,
+      substituteCount: 3,
       debt: { debtorCount: 6, overdueCount: 3, totalDebtCzk: 18400 },
       changeRequestCount: 2,
     })
     const toEvaluate = await screen.findByRole("link", { name: /Awaiting review · 12/ })
     expect(toEvaluate.getAttribute("href")).toContain("status=TO_EVALUATE")
+    const substitutes = screen.getByRole("link", { name: /Substitutes to resolve · 3/ })
+    expect(substitutes).toHaveTextContent("Freed beds in the matching group")
+    expect(substitutes.getAttribute("href")).toContain("waitlist=FREE_BED")
     const debt = screen.getByRole("link", { name: /Participants with a balance due · 6/ })
     expect(debt).toHaveTextContent("3 overdue · Total balance due")
     expect(debt).toHaveTextContent("18,400")
@@ -91,15 +95,13 @@ describe("EventOverview", () => {
   it("says nothing needs attention when every count is zero, and still shows the occupancy", async () => {
     renderOverview({
       toEvaluateCount: 0,
+      substituteCount: 0,
       debt: { debtorCount: 0, overdueCount: 0, totalDebtCzk: 0 },
       changeRequestCount: 0,
     })
     expect(await screen.findByText("Nothing needs your attention")).toBeVisible()
-    expect(
-      screen.getByText(
-        "Awaiting review 0 · Participants with a balance due 0 · Pending requests 0",
-      ),
-    ).toBeVisible()
+    expect(screen.getByText("Awaiting review 0 · Substitutes to resolve 0")).toBeVisible()
+    expect(screen.getByText("Participants with a balance due 0 · Pending requests 0")).toBeVisible()
     expect(screen.queryByRole("link", { name: /Awaiting review/ })).not.toBeInTheDocument()
     expect(await screen.findByText("Summer week")).toBeVisible()
   })

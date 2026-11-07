@@ -45,7 +45,8 @@
     "events": "Akce",
     "expandMenu": "Rozbalit menu",
     "main": "Hlavní navigace",
-    "openMenu": "Otevřít navigaci"
+    "openMenu": "Otevřít navigaci",
+    "overview": "Přehled"
   },
   "pages": {
     "error": {

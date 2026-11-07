@@ -18,9 +18,10 @@ export class ApplicationListRepository {
         gender: true,
         email: true,
         submittedAt: true,
+        event: { select: { evaluationMode: true } },
         terms: {
           include: {
-            term: true,
+            term: { include: { rooms: { select: { capacity: true, gender: true } } } },
             payments: { where: { cancelledAt: null }, select: { amountCzk: true } },
           },
           orderBy: { term: { startsOn: "asc" } },
@@ -28,8 +29,9 @@ export class ApplicationListRepository {
       },
       orderBy: [{ submittedAt: "desc" }, { number: "desc" }],
     })
-    return rows.map((row) => ({
+    return rows.map(({ event, ...row }) => ({
       ...row,
+      evaluationMode: event.evaluationMode,
       terms: row.terms.map(({ status, priceCzk, term, payments }) => ({
         id: term.id,
         termNumber: term.number,
@@ -37,6 +39,7 @@ export class ApplicationListRepository {
         startsOn: term.startsOn,
         endsOn: term.endsOn,
         roomMode: term.roomMode,
+        rooms: term.rooms,
         status,
         priceCzk,
         payments,

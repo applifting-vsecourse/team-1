@@ -38,6 +38,27 @@ describe("attention overview API (US-51)", () => {
     expect(attention.debt.debtorCount).toBeGreaterThan(0)
   })
 
+  it("counts approvable substitutes like the filtered list: manual evaluation, a free bed", async () => {
+    // The seed has no waitlist here: one confirmed applicant waits instead, so their bed is free.
+    const waitlisted = await prisma.applicationTerm.findFirstOrThrow({
+      where: { status: "CONFIRMED", application: { eventId } },
+    })
+    await prisma.applicationTerm.update({
+      where: { id: waitlisted.id },
+      data: { status: "WAITLISTED" },
+    })
+    // Automatic evaluation has nothing to approve.
+    expect((await (await get("/attention")).json()).substituteCount).toBe(0)
+    expect(await (await get("/applications?waitlist=FREE_BED")).json()).toEqual([])
+
+    await prisma.event.update({ where: { id: eventId }, data: { evaluationMode: "MANUAL" } })
+    const attention = await (await get("/attention")).json()
+    const approvable = await (await get("/applications?waitlist=FREE_BED")).json()
+    expect(attention.substituteCount).toBe(approvable.length)
+    expect(attention.substituteCount).toBeGreaterThan(0)
+    expect(approvable.map((row: { id: string }) => row.id)).toContain(waitlisted.applicationId)
+  })
+
   it("is for organizers of the event only", async () => {
     expect((await get("/attention", "")).status).toBe(401)
     expect(
