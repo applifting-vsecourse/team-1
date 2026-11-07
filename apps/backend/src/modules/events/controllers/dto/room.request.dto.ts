@@ -1,4 +1,4 @@
-import { RoomMode } from "@/modules/events/domain/rooms"
+import { RoomCopyStrategy, RoomMode } from "@/modules/events/domain/rooms"
 import { Gender } from "@/shared/domain/gender"
 import { ApiProperty } from "@nestjs/swagger"
 import { Transform, Type } from "class-transformer"
@@ -62,4 +62,18 @@ export class RoomModeRequestDto {
   @ValidateNested({ each: true })
   @Type(() => RoomGenderDto)
   rooms?: RoomGenderDto[]
+}
+
+export class RoomCopyRequestDto {
+  @ApiProperty({ description: "Term of the same event to copy the rooms from" })
+  @IsString()
+  @MinLength(1)
+  sourceTermId!: string
+
+  @ApiProperty({
+    enum: ["ADD", "REPLACE"],
+    description: "Keep the rooms the term already has and add the copies, or replace them",
+  })
+  @IsIn(["ADD", "REPLACE"])
+  strategy!: RoomCopyStrategy
 }

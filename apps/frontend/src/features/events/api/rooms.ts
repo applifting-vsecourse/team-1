@@ -62,3 +62,14 @@ export async function setRoomMode(
 ): Promise<void> {
   await api.patch(`${base(eventId, termId)}/room-mode`, { json: { roomMode, rooms } })
 }
+/** What a copy does with the rooms the target term already has. */
+export type RoomCopyStrategy = "ADD" | "REPLACE"
+/** One-off copy of the rooms of another term of the event; the copies are independent. */
+export async function copyRooms(
+  eventId: string,
+  termId: string,
+  sourceTermId: string,
+  strategy: RoomCopyStrategy,
+): Promise<void> {
+  await api.post(`${base(eventId, termId)}/rooms/copy`, { json: { sourceTermId, strategy } })
+}

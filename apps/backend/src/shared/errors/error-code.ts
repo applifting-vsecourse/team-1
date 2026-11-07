@@ -8,6 +8,7 @@
  */
 export const ERROR_CODES = [
   "ROOM_NAME_TAKEN",
+  "ROOM_COPY_NAMES_TAKEN",
   "UNAUTHORIZED",
   "FORBIDDEN",
   "NOT_FOUND",
