@@ -240,6 +240,7 @@ export function RoomsPage({
           </Card>
         ))}
       </div>
+      {/* Figma (Design system): US-100 / Kopie dokončena · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15728-4529 */}
       {copied?.termId === selected.id ? (
         <Card>
           <CardHeader>
