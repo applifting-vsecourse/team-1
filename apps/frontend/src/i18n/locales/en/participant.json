@@ -108,6 +108,13 @@
     "saveQr": "Download QR code",
     "showSummaryQrMany": "One payment for all confirmed terms · show QR",
     "showSummaryQrTwo": "One payment for both terms · show QR",
+    "simulation": {
+      "alertText": "The button does not make a bank transfer.",
+      "alertTitle": "Demo: payments are simulated.",
+      "logLine": "+{{amount}} · {{term}} · source: simulation",
+      "logTitle": "Simulation log",
+      "paid": "I paid"
+    },
     "summaryBreakdown": "Breakdown",
     "summaryQrExplanation": "Covers all confirmed terms. The summary variable symbol differs from the per-term ones.",
     "summaryQrTitle": "Pay for confirmed terms",

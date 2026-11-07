@@ -92,6 +92,8 @@ export type RecordPaymentInput = {
   amountCzk?: number
   isRefund?: boolean
   correctsReceiptId?: string
+  /** Defaults to a manually recorded payment. */
+  source?: "MANUAL" | "SIMULATION"
 }
 
 export type PaymentDebtNotice = {
@@ -119,6 +121,15 @@ export class PaymentsRepository {
       include,
     })
     return row ? toDomain(row) : null
+  }
+
+  /** The organization of an application of this participant; `null` for someone else's or a missing one. */
+  async findOrganizationOfUser(userId: string, applicationId: string): Promise<string | null> {
+    const application = await this.prisma.application.findFirst({
+      where: { id: applicationId, userId },
+      select: { organizationId: true },
+    })
+    return application?.organizationId ?? null
   }
 
   /**
@@ -413,6 +424,7 @@ export class PaymentsRepository {
         correctsReceiptId: input.correctsReceiptId,
         isSummary: termId === undefined,
         amountCzk: row.amountCzk,
+        source: input.source,
         recordedById,
       })),
     })

@@ -45,6 +45,8 @@ export default async function globalSetup(): Promise<void> {
       SMTP_HOST: "",
       // #294: every test sends from 127.0.0.1; rate-limit.int-spec.ts starts its own server with limits on.
       RATE_LIMIT_ENABLED: "false",
+      // US-115: the participant's simulated payment is available.
+      PAYMENT_SIMULATION_ENABLED: "true",
       // US-106: the waitlist expiry job runs every second so a test does not have to wait.
       WAITLIST_EXPIRY_INTERVAL_MS: "1000",
     },
