@@ -116,15 +116,29 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
           </div>
           {/* The summary dialog is always open to the organizer once there is a confirmed term
               (or an overpayment to return): one payment split over the terms, or a refund. */}
-          {hasConfirmedTerm || hasOverpayment ? (
+          <div className="flex flex-wrap items-center gap-2">
             <Button
-              variant={data.amountOwedCzk > 0 ? "default" : "outline"}
+              asChild
+              variant="outline"
               size="lg"
-              onClick={() => setIsRecordOpen(true)}
             >
-              {t("payment.recordOrRefund")}
+              <Link
+                to={ROUTES.organizer.applicationHealth}
+                params={{ eventId: data.eventId, applicationId }}
+              >
+                {t("payment.health")}
+              </Link>
             </Button>
-          ) : null}
+            {hasConfirmedTerm || hasOverpayment ? (
+              <Button
+                variant={data.amountOwedCzk > 0 ? "default" : "outline"}
+                size="lg"
+                onClick={() => setIsRecordOpen(true)}
+              >
+                {t("payment.recordOrRefund")}
+              </Button>
+            ) : null}
+          </div>
         </div>
       </div>
       <ParticipantDetails application={data} />

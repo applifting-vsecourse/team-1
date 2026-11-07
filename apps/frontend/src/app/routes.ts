@@ -29,6 +29,7 @@ export const ROUTES = {
     eventApplications: "/organizer/events/$eventId/applications",
     eventPayments: "/organizer/events/$eventId/payments",
     application: "/organizer/events/$eventId/applications/$applicationId",
+    applicationHealth: "/organizer/events/$eventId/applications/$applicationId/health",
     account: "/organizer/account",
   },
 
@@ -38,6 +39,7 @@ export const ROUTES = {
     setPassword: "/participant/set-password",
     applications: "/participant",
     application: "/participant/applications/$applicationId",
+    applicationHealth: "/participant/applications/$applicationId/health",
     account: "/participant/account",
   },
 } as const

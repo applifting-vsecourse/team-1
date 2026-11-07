@@ -247,6 +247,7 @@
     "errorTitle": "Detail platby se nepodařilo načíst",
     "genderFemale": "žena",
     "genderMale": "muž",
+    "health": "Zdravotní omezení",
     "history": "Historie plateb",
     "historyAmount": "Částka",
     "invalidAmount": "Zadejte celé kladné číslo v Kč.",

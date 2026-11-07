@@ -39,7 +39,9 @@ import { Route as OrganizerAppEventsEventIdPaymentsRouteImport } from './routes/
 import { Route as OrganizerAppEventsEventIdRoomsRouteImport } from './routes/organizer/_app/events/$eventId/rooms'
 import { Route as OrganizerAppEventsEventIdSettingsRouteImport } from './routes/organizer/_app/events/$eventId/settings'
 import { Route as OrganizerAppEventsEventIdTermsRouteImport } from './routes/organizer/_app/events/$eventId/terms'
+import { Route as ParticipantAppApplicationsApplicationIdHealthRouteImport } from './routes/participant/_app/applications.$applicationId_.health'
 import { Route as OrganizerAppEventsEventIdApplicationsApplicationIdRouteImport } from './routes/organizer/_app/events/$eventId/applications_.$applicationId'
+import { Route as OrganizerAppEventsEventIdApplicationsApplicationIdHealthRouteImport } from './routes/organizer/_app/events/$eventId/applications_.$applicationId_.health'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -201,10 +203,22 @@ const OrganizerAppEventsEventIdTermsRoute =
     path: '/terms',
     getParentRoute: () => OrganizerAppEventsEventIdRouteRoute,
   } as any)
+const ParticipantAppApplicationsApplicationIdHealthRoute =
+  ParticipantAppApplicationsApplicationIdHealthRouteImport.update({
+    id: '/applications/$applicationId_/health',
+    path: '/applications/$applicationId/health',
+    getParentRoute: () => ParticipantAppRoute,
+  } as any)
 const OrganizerAppEventsEventIdApplicationsApplicationIdRoute =
   OrganizerAppEventsEventIdApplicationsApplicationIdRouteImport.update({
     id: '/applications_/$applicationId',
     path: '/applications/$applicationId',
+    getParentRoute: () => OrganizerAppEventsEventIdRouteRoute,
+  } as any)
+const OrganizerAppEventsEventIdApplicationsApplicationIdHealthRoute =
+  OrganizerAppEventsEventIdApplicationsApplicationIdHealthRouteImport.update({
+    id: '/applications_/$applicationId_/health',
+    path: '/applications/$applicationId/health',
     getParentRoute: () => OrganizerAppEventsEventIdRouteRoute,
   } as any)
 
@@ -238,8 +252,10 @@ export interface FileRoutesByFullPath {
   '/organizer/events/$eventId/rooms': typeof OrganizerAppEventsEventIdRoomsRoute
   '/organizer/events/$eventId/settings': typeof OrganizerAppEventsEventIdSettingsRoute
   '/organizer/events/$eventId/terms': typeof OrganizerAppEventsEventIdTermsRoute
+  '/participant/applications/$applicationId/health': typeof ParticipantAppApplicationsApplicationIdHealthRoute
   '/organizer/events/$eventId/': typeof OrganizerAppEventsEventIdIndexRoute
   '/organizer/events/$eventId/applications/$applicationId': typeof OrganizerAppEventsEventIdApplicationsApplicationIdRoute
+  '/organizer/events/$eventId/applications/$applicationId/health': typeof OrganizerAppEventsEventIdApplicationsApplicationIdHealthRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -268,8 +284,10 @@ export interface FileRoutesByTo {
   '/organizer/events/$eventId/rooms': typeof OrganizerAppEventsEventIdRoomsRoute
   '/organizer/events/$eventId/settings': typeof OrganizerAppEventsEventIdSettingsRoute
   '/organizer/events/$eventId/terms': typeof OrganizerAppEventsEventIdTermsRoute
+  '/participant/applications/$applicationId/health': typeof ParticipantAppApplicationsApplicationIdHealthRoute
   '/organizer/events/$eventId': typeof OrganizerAppEventsEventIdIndexRoute
   '/organizer/events/$eventId/applications/$applicationId': typeof OrganizerAppEventsEventIdApplicationsApplicationIdRoute
+  '/organizer/events/$eventId/applications/$applicationId/health': typeof OrganizerAppEventsEventIdApplicationsApplicationIdHealthRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -302,8 +320,10 @@ export interface FileRoutesById {
   '/organizer/_app/events/$eventId/rooms': typeof OrganizerAppEventsEventIdRoomsRoute
   '/organizer/_app/events/$eventId/settings': typeof OrganizerAppEventsEventIdSettingsRoute
   '/organizer/_app/events/$eventId/terms': typeof OrganizerAppEventsEventIdTermsRoute
+  '/participant/_app/applications/$applicationId_/health': typeof ParticipantAppApplicationsApplicationIdHealthRoute
   '/organizer/_app/events/$eventId/': typeof OrganizerAppEventsEventIdIndexRoute
   '/organizer/_app/events/$eventId/applications_/$applicationId': typeof OrganizerAppEventsEventIdApplicationsApplicationIdRoute
+  '/organizer/_app/events/$eventId/applications_/$applicationId_/health': typeof OrganizerAppEventsEventIdApplicationsApplicationIdHealthRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -337,8 +357,10 @@ export interface FileRouteTypes {
     | '/organizer/events/$eventId/rooms'
     | '/organizer/events/$eventId/settings'
     | '/organizer/events/$eventId/terms'
+    | '/participant/applications/$applicationId/health'
     | '/organizer/events/$eventId/'
     | '/organizer/events/$eventId/applications/$applicationId'
+    | '/organizer/events/$eventId/applications/$applicationId/health'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -367,8 +389,10 @@ export interface FileRouteTypes {
     | '/organizer/events/$eventId/rooms'
     | '/organizer/events/$eventId/settings'
     | '/organizer/events/$eventId/terms'
+    | '/participant/applications/$applicationId/health'
     | '/organizer/events/$eventId'
     | '/organizer/events/$eventId/applications/$applicationId'
+    | '/organizer/events/$eventId/applications/$applicationId/health'
   id:
     | '__root__'
     | '/'
@@ -400,8 +424,10 @@ export interface FileRouteTypes {
     | '/organizer/_app/events/$eventId/rooms'
     | '/organizer/_app/events/$eventId/settings'
     | '/organizer/_app/events/$eventId/terms'
+    | '/participant/_app/applications/$applicationId_/health'
     | '/organizer/_app/events/$eventId/'
     | '/organizer/_app/events/$eventId/applications_/$applicationId'
+    | '/organizer/_app/events/$eventId/applications_/$applicationId_/health'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -634,11 +660,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrganizerAppEventsEventIdTermsRouteImport
       parentRoute: typeof OrganizerAppEventsEventIdRouteRoute
     }
+    '/participant/_app/applications/$applicationId_/health': {
+      id: '/participant/_app/applications/$applicationId_/health'
+      path: '/applications/$applicationId/health'
+      fullPath: '/participant/applications/$applicationId/health'
+      preLoaderRoute: typeof ParticipantAppApplicationsApplicationIdHealthRouteImport
+      parentRoute: typeof ParticipantAppRoute
+    }
     '/organizer/_app/events/$eventId/applications_/$applicationId': {
       id: '/organizer/_app/events/$eventId/applications_/$applicationId'
       path: '/applications/$applicationId'
       fullPath: '/organizer/events/$eventId/applications/$applicationId'
       preLoaderRoute: typeof OrganizerAppEventsEventIdApplicationsApplicationIdRouteImport
+      parentRoute: typeof OrganizerAppEventsEventIdRouteRoute
+    }
+    '/organizer/_app/events/$eventId/applications_/$applicationId_/health': {
+      id: '/organizer/_app/events/$eventId/applications_/$applicationId_/health'
+      path: '/applications/$applicationId/health'
+      fullPath: '/organizer/events/$eventId/applications/$applicationId/health'
+      preLoaderRoute: typeof OrganizerAppEventsEventIdApplicationsApplicationIdHealthRouteImport
       parentRoute: typeof OrganizerAppEventsEventIdRouteRoute
     }
   }
@@ -653,6 +693,7 @@ interface OrganizerAppEventsEventIdRouteRouteChildren {
   OrganizerAppEventsEventIdTermsRoute: typeof OrganizerAppEventsEventIdTermsRoute
   OrganizerAppEventsEventIdIndexRoute: typeof OrganizerAppEventsEventIdIndexRoute
   OrganizerAppEventsEventIdApplicationsApplicationIdRoute: typeof OrganizerAppEventsEventIdApplicationsApplicationIdRoute
+  OrganizerAppEventsEventIdApplicationsApplicationIdHealthRoute: typeof OrganizerAppEventsEventIdApplicationsApplicationIdHealthRoute
 }
 
 const OrganizerAppEventsEventIdRouteRouteChildren: OrganizerAppEventsEventIdRouteRouteChildren =
@@ -670,6 +711,8 @@ const OrganizerAppEventsEventIdRouteRouteChildren: OrganizerAppEventsEventIdRout
     OrganizerAppEventsEventIdIndexRoute: OrganizerAppEventsEventIdIndexRoute,
     OrganizerAppEventsEventIdApplicationsApplicationIdRoute:
       OrganizerAppEventsEventIdApplicationsApplicationIdRoute,
+    OrganizerAppEventsEventIdApplicationsApplicationIdHealthRoute:
+      OrganizerAppEventsEventIdApplicationsApplicationIdHealthRoute,
   }
 
 const OrganizerAppEventsEventIdRouteRouteWithChildren =
@@ -702,6 +745,7 @@ interface ParticipantAppRouteChildren {
   ParticipantAppAccountRoute: typeof ParticipantAppAccountRoute
   ParticipantAppIndexRoute: typeof ParticipantAppIndexRoute
   ParticipantAppApplicationsApplicationIdRoute: typeof ParticipantAppApplicationsApplicationIdRoute
+  ParticipantAppApplicationsApplicationIdHealthRoute: typeof ParticipantAppApplicationsApplicationIdHealthRoute
 }
 
 const ParticipantAppRouteChildren: ParticipantAppRouteChildren = {
@@ -709,6 +753,8 @@ const ParticipantAppRouteChildren: ParticipantAppRouteChildren = {
   ParticipantAppIndexRoute: ParticipantAppIndexRoute,
   ParticipantAppApplicationsApplicationIdRoute:
     ParticipantAppApplicationsApplicationIdRoute,
+  ParticipantAppApplicationsApplicationIdHealthRoute:
+    ParticipantAppApplicationsApplicationIdHealthRoute,
 }
 
 const ParticipantAppRouteWithChildren = ParticipantAppRoute._addFileChildren(
