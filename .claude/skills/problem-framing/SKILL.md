@@ -32,9 +32,9 @@ Jedna věc často obsahuje víc nesouvisejících bodů. Rozděl ji a každý bo
 
 1. **Co zdroj říká doslova** (krátká citace).
 2. **Co zdroj doopravdy potřebuje** (co ho blokuje, co nemůže dokončit, čím si není jistý).
-3. **Je to už rozhodnuté?** Hledej odpověď v komentářích uživatele, v `docs/rozhodnuti/` (registr rozhodnutí), `docs/otevrene-otazky/` (zodpovězené otázky), `SLOVNIK.md`, `EMAILY.md`, ticketu. Pokud ano, zdroj jen nenašel nebo nepochopil odpověď.
+3. **Je to už rozhodnuté?** Hledej odpověď v komentářích uživatele, v `docs/rozhodnuti/` (registr rozhodnutí), `docs/otevrene-otazky/` (zodpovězené otázky), `SLOVNIK.md`, `docs/emaily/KATALOG.md`, ticketu. Pokud ano, zdroj jen nenašel nebo nepochopil odpověď.
 4. **Typ** (vyber jeden):
-   - **Dluh dokumentace na straně PM:** model nebo dokument chybí nebo je zastaralý (např. přechod, který padl v rozhodnutí, ale není v diagramu nebo `EMAILY.md`).
+   - **Dluh dokumentace na straně PM:** model nebo dokument chybí nebo je zastaralý (např. přechod, který padl v rozhodnutí, ale není v diagramu nebo v katalogu e-mailů).
    - **Byznys rozhodnutí:** pravidlo zatím nikdo nerozhodl a někdo čeká na uživatele.
    - **Nejasné pravidlo procesu:** není jasné, čím se tým řídí (cílový stav v dokumentaci × stávající implementace; který zdroj platí).
    - **Rozpor mezi zdroji:** ticket, diagram, PROJEKT, Figma říkají každé něco jiného.
@@ -50,7 +50,7 @@ Jedna věc často obsahuje víc nesouvisejících bodů. Rozděl ji a každý bo
 - **Řešení teď:** co se navrhuje, aby šlo pokračovat (kód, dočasný text, odložení do jiného ticketu). Ověř, jestli neodporuje modelům a dřívějším rozhodnutím, a uveď důsledky (co se zablokuje, co zůstane rozdílné od cílového stavu, kde vznikne dluh).
 - **Cílový stav:** jak to má být v budoucnu. Ten určuje uživatel.
 
-Nejdřív se zeptej, jestli návrh **odsouhlasí**, a pak jak to má být v budoucnu. Cílový stav ber doslova z uživatelovy odpovědi a zapiš ho do karty jako samostatné pole. Není-li z odpovědi jasné, jak přesně, zeptej se, neodhaduj. Rozdíl „řešení teď × cílový stav“ je často celý výsledek: tým udělá první, ty zapíšeš druhé (modely, `EMAILY.md`, ticket pro doladění), a ten rozdíl zůstane viditelný (např. jako ticket s labelem `enhancement`).
+Nejdřív se zeptej, jestli návrh **odsouhlasí**, a pak jak to má být v budoucnu. Cílový stav ber doslova z uživatelovy odpovědi a zapiš ho do karty jako samostatné pole. Není-li z odpovědi jasné, jak přesně, zeptej se, neodhaduj. Rozdíl „řešení teď × cílový stav“ je často celý výsledek: tým udělá první, ty zapíšeš druhé (modely, katalog e-mailů, ticket pro doladění), a ten rozdíl zůstane viditelný (např. jako ticket s labelem `enhancement`).
 
 ## 3. Karta problému
 

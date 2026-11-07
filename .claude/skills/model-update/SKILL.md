@@ -14,7 +14,7 @@ Pracuje se v repu Togena (kořen repozitáře), složka `docs/procesy/`. Uživat
 ### 0. Podklady (vždy)
 
 - `docs/procesy/MMABP_LITE.md`: zásady (kap. 5), postupy tvorby (kap. 6, včetně detailního procesu a oddílu **Provázanost modelů**), schéma YAML (kap. 7).
-- `docs/procesy/zpracovani-prihlasky/README.md` a YAML dotčeného režimu (`rucni-vyhodnocovani/`, `automaticke-vyhodnocovani/`), `EMAILY.md`; podle potřeby `docs/PROJEKT.md`, `docs/SLOVNIK.md` a registr rozhodnutí `docs/rozhodnuti/` (rozhodnutí a jejich `dokumentace`).
+- `docs/procesy/zpracovani-prihlasky/README.md` a YAML dotčeného režimu (`rucni-vyhodnocovani/`, `automaticke-vyhodnocovani/`), `docs/emaily/KATALOG.md`; podle potřeby `docs/PROJEKT.md`, `docs/SLOVNIK.md` a registr rozhodnutí `docs/rozhodnuti/` (rozhodnutí a jejich `dokumentace`).
 
 Globální procesní mapa Togeny v repu zatím neexistuje a diagram tříd a cykly dalších tříd ve `SLOVNIK.md` jsou ručně psaný Mermaid, ne YAML. Řekni to, až na ně narazíš, a nepředstírej generování.
 
@@ -51,7 +51,7 @@ Mezery a rozpory z této kontroly jsou další nálezy.
 - **A, změna modelu:** uživatel rozhodl, že se mění.
 - **B, model je správně:** mění se kód nebo ticket.
 - **C, nerozhodnuto:** čeká na odpověď. Vypiš a neměň.
-- **D, jen doplnit dokument:** model sedí, chybí řádek v `EMAILY.md`, `SLOVNIK.md` apod.
+- **D, jen doplnit dokument:** model sedí, chybí řádek v `docs/emaily/KATALOG.md`, `SLOVNIK.md` apod.
 - **E, mezera nebo rozpor z kontroly MMABP:** uživatel zatím nerozhodl. Zeptej se.
 
 Otázky formuluj **byznysovým jazykem** („Může účastník zrušit přihlášku, když už zaplatil?“, ne „chybí přechod Zaplacená → Zrušená“), po pár najednou, každou s jednou větou kontextu a s návrhem odpovědi. Nic neodhaduj.
@@ -65,10 +65,10 @@ Tabulka **nález, zdroj / rozhodnutí (kdo a kde), kategorie, co se změní, kde
 1. Edituj jen **YAML**. `.mmd` a `.md` v `zpracovani-prihlasky/*/` jsou generované.
 2. Sdílená část (platby, výzva, zrušení, archivace) je kopie v obou režimech, změna se dělá na obou místech.
 3. Zápis: čekání jako tok `zdroj → událost → další` (brány doplní generátor); cykly jen přímé přechody s `reason` a `op`; text s dvojtečkou do uvozovek; stavy „Přihláška v termínu: …“. Detail v kap. 7 `MMABP_LITE.md`.
-4. Změna, která vyvolává e-mail, jde i do `EMAILY.md`.
+4. Změna, která vyvolává e-mail, jde i do `docs/emaily/KATALOG.md` (sloupec „Přechod přihlášky v termínu a režim“) a případně do `TEXTY.md`.
 5. Vygeneruj: `python3 docs/procesy/generate.py docs/procesy/zpracovani-prihlasky/<režim>/*.yaml` a přečti varování.
 6. Zkontroluj syntaxi: `docs/procesy/check_mermaid.sh docs/procesy/zpracovani-prihlasky/*/*.mmd`. Při chybě oprav YAML nebo generátor, nikdy `.mmd`.
-7. **Projdi znovu matici provázanosti** pro změněný model a promítni důsledky do ostatních modelů a dokumentů modelů: `EMAILY.md`, `zpracovani-prihlasky/README.md`.
+7. **Projdi znovu matici provázanosti** pro změněný model a promítni důsledky do ostatních modelů a dokumentů modelů: `docs/emaily/KATALOG.md`, `zpracovani-prihlasky/README.md`.
 8. Změna generátoru nebo schématu: aktualizuj kap. 7 `MMABP_LITE.md` a `LEGENDA.md`.
 
 ### 7. Předat kontrole dopadu (vždy, i když se nic neupravovalo)
