@@ -1,0 +1,14 @@
+{
+  "audienceText": "Zdravotní omezení uvidí pouze organizátor akce. Alergie na potraviny vyplňte ve stravování.",
+  "audienceTitle": "Údaje pro organizátora",
+  "consent": "Výslovně souhlasím se zpracováním uvedených zdravotních údajů pro zajištění účasti na akci.",
+  "consentGiven": "Výslovný souhlas udělen · {{at}}",
+  "errorTitle": "Zdravotní omezení se nepodařilo načíst",
+  "notFilled": "Účastník zdravotní omezení nevyplnil.",
+  "noteLabel": "Zdravotní omezení účastníka",
+  "organizerCardTitle": "Údaj dostupný organizátorovi",
+  "organizerTitle": "Zdravotní omezení · {{name}}",
+  "save": "Uložit zdravotní údaje",
+  "saved": "Zdravotní údaje uloženy",
+  "title": "Zdravotní omezení"
+}

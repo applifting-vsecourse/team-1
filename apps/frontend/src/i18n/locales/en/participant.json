@@ -71,6 +71,7 @@
   "detail": {
     "back": "← All applications",
     "errorTitle": "Couldn't load the application",
+    "health": "Health restriction",
     "termsTitle": "Status by term",
     "title": "My application",
     "toEvaluate": {

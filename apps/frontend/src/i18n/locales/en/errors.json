@@ -13,6 +13,7 @@
   "EVALUATION_MODE_LOCKED": "This event already accepts applications, so the evaluation mode can no longer be changed.",
   "EVENT_HAS_APPLICATIONS": "An event with applications cannot be deleted.",
   "FORBIDDEN": "You don't have access to this.",
+  "HEALTH_CONSENT_REQUIRED": "Tick the explicit consent with processing of the health data before saving.",
   "INTERNAL": "Something went wrong on the server. Please try again.",
   "INVALID_EMAIL_OR_PASSWORD": "Wrong e-mail or password.",
   "INVALID_RESPONSE": "The server response could not be read. Please try again.",

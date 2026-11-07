@@ -1,0 +1,83 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import { render, screen, waitFor } from "@testing-library/react"
+import userEvent from "@testing-library/user-event"
+import { beforeEach, describe, expect, it, vi } from "vitest"
+
+import type { Health } from "@/features/health/api/health"
+import { ParticipantHealthForm } from "@/features/health/components/ParticipantHealthForm"
+
+const { getHealth, saveHealth } = vi.hoisted(() => ({ getHealth: vi.fn(), saveHealth: vi.fn() }))
+vi.mock("@/features/health/api/health", async (importOriginal) => {
+  const original = await importOriginal<typeof import("@/features/health/api/health")>()
+  return {
+    ...original,
+    ownHealthQueryOptions: (id: string) => ({
+      queryKey: ["participant", "applications", id, "health"],
+      queryFn: getHealth,
+    }),
+    saveHealth,
+  }
+})
+
+const empty: Health = {
+  applicationId: "a1",
+  eventName: "Letní kemp Lipno 2027",
+  firstName: "Adam",
+  lastName: "Dvořák",
+  note: null,
+  consentAt: null,
+}
+
+function setup(health: Health = empty) {
+  getHealth.mockResolvedValue(health)
+  saveHealth.mockResolvedValue({
+    ...health,
+    note: "Astma",
+    consentAt: "2026-11-05T13:30:00.000Z",
+  })
+  render(
+    <QueryClientProvider
+      client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
+    >
+      <ParticipantHealthForm applicationId="a1" />
+    </QueryClientProvider>,
+  )
+}
+
+describe("ParticipantHealthForm", () => {
+  beforeEach(() => vi.clearAllMocks())
+
+  it("shows the participant and the event", async () => {
+    setup()
+    expect(await screen.findByText("Adam Dvořák · Letní kemp Lipno 2027")).toBeInTheDocument()
+  })
+
+  it("keeps saving disabled until the explicit consent is ticked", async () => {
+    const user = userEvent.setup()
+    setup()
+    await user.type(await screen.findByLabelText("Participant's health restriction"), "Astma")
+    const save = screen.getByRole("button", { name: "Save health data" })
+    expect(save).toBeDisabled()
+
+    await user.click(screen.getByRole("checkbox"))
+    expect(save).toBeEnabled()
+
+    await user.click(save)
+    await waitFor(() =>
+      expect(saveHealth).toHaveBeenCalledWith("a1", { note: "Astma", consent: true }),
+    )
+  })
+
+  it("lets the participant remove a stored note without a consent", async () => {
+    const user = userEvent.setup()
+    setup({ ...empty, note: "Astma", consentAt: "2026-11-05T13:30:00.000Z" })
+    const field = await screen.findByLabelText("Participant's health restriction")
+    expect(screen.getByRole("checkbox")).toBeChecked()
+
+    await user.clear(field)
+    await user.click(screen.getByRole("checkbox"))
+    await user.click(screen.getByRole("button", { name: "Save health data" }))
+
+    await waitFor(() => expect(saveHealth).toHaveBeenCalledWith("a1", { note: "", consent: false }))
+  })
+})

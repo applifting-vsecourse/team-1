@@ -247,6 +247,7 @@
     "errorTitle": "Payment details could not be loaded",
     "genderFemale": "woman",
     "genderMale": "man",
+    "health": "Health restriction",
     "history": "Payment history",
     "historyAmount": "Amount",
     "invalidAmount": "Enter a positive whole amount in CZK.",

@@ -163,6 +163,7 @@ model Organization {
   statusChanges    ApplicationTermStatusChange[]
   substituteSkips  ApplicationTermSkip[]
   changeRequests   ChangeRequest[]
+  applicationHealth ApplicationHealth[]
 
   @@map("organization")
 }
@@ -322,11 +323,29 @@ model Application {
   terms         ApplicationTerm[]
   notifications Notification[]
   changeRequests ChangeRequest[]
+  health        ApplicationHealth?
 
   @@index([organizationId])
   @@index([eventId, submittedAt])
   @@index([userId])
   @@map("application")
+}
+
+// Health restriction of the participant (US-68): a specially protected personal datum, so it lives
+// in its own table that no other query includes. Only the account of the application writes it,
+// only an organizer of the organization reads it. A row exists only with the explicit consent.
+model ApplicationHealth {
+  id             String       @id @default(cuid())
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId String
+  application    Application  @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  applicationId  String       @unique
+  note           String       @db.Text
+  consentAt      DateTime
+  updatedAt      DateTime     @default(now()) @updatedAt
+
+  @@index([organizationId])
+  @@map("application_health")
 }
 
 // A requested selection is a snapshot until an organizer decides. ApplicationTerm rows stay
