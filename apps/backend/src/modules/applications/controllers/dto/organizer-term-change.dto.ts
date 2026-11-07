@@ -46,6 +46,8 @@ class AddedTermImpactDto {
   @ApiProperty() priceCzk!: number
   @ApiProperty({ description: "Already paid in the term (a reactivated one keeps its payments)" })
   paidCzk!: number
+  @ApiProperty({ description: "Debt left in the term; an overpaid one counts as zero" })
+  toPayCzk!: number
   @ApiProperty({ description: "A bed of the applicant's gender is free" }) fits!: boolean
   @ApiProperty({ description: "Beds the applicant's gender can use in the term" })
   genderCapacity!: number
