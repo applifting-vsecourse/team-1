@@ -71,6 +71,15 @@ describe("ParticipantMeals", () => {
     )
   })
 
+  it("does not send an option the organizer has removed", async () => {
+    const user = userEvent.setup()
+    setup({ ...meals, selectedOptionIds: ["gf", "removed"] })
+    await user.click(await screen.findByRole("button", { name: "Save meals" }))
+    await waitFor(() =>
+      expect(saveOwnMeals).toHaveBeenCalledWith("a1", { optionIds: ["gf"], allergies: "Peanuts" }),
+    )
+  })
+
   it("shows only the allergies field when the organizer offers no option", async () => {
     setup({ ...meals, options: [], selectedOptionIds: [], allergies: null })
     expect(await screen.findByLabelText("Allergies and other dietary restrictions")).toHaveValue("")

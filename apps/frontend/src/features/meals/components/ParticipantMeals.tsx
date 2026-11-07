@@ -47,7 +47,12 @@ function MealsForm({ applicationId, meals }: { applicationId: string; meals: Own
   const [allergies, setAllergies] = useState(meals.allergies ?? "")
 
   const mutation = useMutation({
-    mutationFn: () => saveOwnMeals(applicationId, { optionIds: [...optionIds], allergies }),
+    // An option the organizer removed meanwhile is no longer offered, so it is not sent either.
+    mutationFn: () =>
+      saveOwnMeals(applicationId, {
+        optionIds: meals.options.map((option) => option.id).filter((id) => optionIds.has(id)),
+        allergies,
+      }),
     onSuccess: (saved) => {
       client.setQueryData(ownMealsQueryOptions(applicationId).queryKey, saved)
       void client.invalidateQueries({ queryKey: ["organizer", "events"] })
@@ -64,7 +69,7 @@ function MealsForm({ applicationId, meals }: { applicationId: string; meals: Own
 
   return (
     <form
-      className="flex max-w-196 flex-col gap-6"
+      className="flex flex-col gap-6"
       onSubmit={(event) => {
         event.preventDefault()
         mutation.mutate()
@@ -75,15 +80,15 @@ function MealsForm({ applicationId, meals }: { applicationId: string; meals: Own
         description={meals.eventName}
       />
       {meals.options.length > 0 ? (
-        <div className="flex flex-col">
+        <div className="flex flex-col gap-6">
           {meals.options.map((option) => (
             <div
               key={option.id}
-              className="flex min-h-11 items-center gap-3"
+              className="flex items-center gap-3 py-2"
             >
               <Checkbox
                 id={`meal-${option.id}`}
-                className="size-5"
+                className="size-6"
                 checked={optionIds.has(option.id)}
                 onCheckedChange={(isChecked) => toggle(option.id, isChecked === true)}
               />
