@@ -325,6 +325,7 @@ describe("ApplicationsPage", () => {
     await user.click(screen.getAllByRole("combobox", { name: "Payment" })[0]!)
     expect(screen.getAllByRole("option").map((option) => option.textContent)).toEqual([
       "All payments",
+      "Participants with a balance due",
       "No amount due",
       "Unpaid",
       "Partially paid",

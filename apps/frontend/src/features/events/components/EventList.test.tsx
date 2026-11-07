@@ -33,6 +33,7 @@ const event = {
   cancellationStartsOn: null,
   cancellationTerms: null,
   evaluationModeLocked: true,
+  hasApplications: false,
   missing: [],
   terms: [
     {
@@ -70,6 +71,7 @@ const draft = {
   cancellationStartsOn: null,
   cancellationTerms: null,
   evaluationModeLocked: false,
+  hasApplications: false,
   missing: ["TERM", "ROOM"],
   terms: [],
 }

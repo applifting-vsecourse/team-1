@@ -1,11 +1,12 @@
 import { expect, test } from "@playwright/test"
 import { ORGANIZER } from "./support/accounts"
-import { signIn } from "./support/auth"
+import { openEventList, signIn } from "./support/auth"
 
 test("organizer sets the cancellation start date in a usable 360 px settings screen", async ({
   page,
 }) => {
   await signIn(page, "organizer", ORGANIZER)
+  await openEventList(page)
   await page.getByRole("link", { name: /Letní kemp 2027(?! – demo)/ }).click()
   await page
     .getByRole("navigation", { name: "Event sections" })

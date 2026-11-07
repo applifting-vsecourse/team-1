@@ -1,6 +1,12 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { Prisma } from "@/generated/prisma/client"
-import { RoomGenderAssignment, RoomInput, RoomMode, TermRooms } from "@/modules/events/domain/rooms"
+import {
+  RoomCopyStrategy,
+  RoomGenderAssignment,
+  RoomInput,
+  RoomMode,
+  TermRooms,
+} from "@/modules/events/domain/rooms"
 import { AppException } from "@/shared/errors/app.exception"
 import { HttpStatus, Injectable } from "@nestjs/common"
 
@@ -101,6 +107,50 @@ export class RoomsRepository {
     await this.write(scope, async (tx) => {
       const result = await tx.room.deleteMany({ where: { id, termId, organizationId } })
       if (!result.count) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
+    })
+  }
+
+  /**
+   * One-off copy of name, capacity and gender from another term of the same event; the copies are
+   * independent rows. Terms with different room modes cannot be copied: a gendered room needs a gender.
+   */
+  async copy(scope: TermScope, sourceTermId: string, strategy: RoomCopyStrategy): Promise<void> {
+    const { eventId, termId, organizationId } = scope
+    await this.write(scope, async (tx, mode) => {
+      const source = await tx.term.findFirst({
+        where: { id: sourceTermId, eventId, organizationId },
+        include: { rooms: { orderBy: [{ createdAt: "asc" }, { id: "asc" }] } },
+      })
+      if (!source) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
+      if (source.id === termId || source.roomMode !== mode || !source.rooms.length) {
+        throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
+      }
+      if (strategy === "REPLACE") await tx.room.deleteMany({ where: { termId, organizationId } })
+      else {
+        const taken = new Set(
+          (await tx.room.findMany({ where: { termId, organizationId } })).map((room) =>
+            room.name.toLowerCase(),
+          ),
+        )
+        const colliding = source.rooms.filter((room) => taken.has(room.name.toLowerCase()))
+        if (colliding.length) {
+          throw new AppException(
+            HttpStatus.CONFLICT,
+            "ROOM_COPY_NAMES_TAKEN",
+            "Rooms with these names already exist in the term",
+            { names: colliding.map((room) => room.name).join(", ") },
+          )
+        }
+      }
+      await tx.room.createMany({
+        data: source.rooms.map(({ name, capacity, gender }) => ({
+          name,
+          capacity,
+          gender,
+          termId,
+          organizationId,
+        })),
+      })
     })
   }
 }

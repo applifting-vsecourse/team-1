@@ -48,6 +48,8 @@ export const organizerEventSchema = z.object({
   cancellationTerms: z.string().nullable(),
   /** Applications are open, so the mode can no longer change. */
   evaluationModeLocked: z.boolean(),
+  /** At least one application exists; the event can no longer be deleted. */
+  hasApplications: z.boolean(),
   missing: z.array(z.enum(["TERM", "ROOM"])),
   /** Terms that are still offered, in chronological order. */
   terms: z.array(eventTermSummarySchema),

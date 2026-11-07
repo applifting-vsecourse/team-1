@@ -18,9 +18,13 @@
   },
   "comingSoon": "Coming soon — {{story}}.",
   "dateField": {
+    "done": "Done",
     "month": "Month",
     "openCalendar": "Choose a date in the calendar",
     "placeholder": "DD/MM/YYYY",
+    "placeholderTime": "DD/MM/YYYY HH:mm",
+    "time": "Time",
+    "timePlaceholder": "HH:mm",
     "year": "Year"
   },
   "eventTabs": {
@@ -31,7 +35,8 @@
     "position": "{{current}} of {{total}}",
     "rooms": "Accommodation",
     "settings": "Settings",
-    "terms": "Terms"
+    "terms": "Terms",
+    "transport": "Transport"
   },
   "language": {
     "cs": "Čeština",
@@ -45,7 +50,8 @@
     "events": "Events",
     "expandMenu": "Expand menu",
     "main": "Main navigation",
-    "openMenu": "Open navigation"
+    "openMenu": "Open navigation",
+    "overview": "Overview"
   },
   "pages": {
     "error": {

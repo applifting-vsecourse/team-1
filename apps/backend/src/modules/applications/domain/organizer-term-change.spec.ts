@@ -21,7 +21,7 @@ describe("previewTermChange", () => {
       amountToPayCzk: 5600,
       overpaymentCzk: 4900,
       removed: [{ termId: "a", paidCzk: 4900, overpaymentCzk: 4900 }],
-      added: [{ termId: "b", fits: true, genderCapacity: 50, genderFree: 2 }],
+      added: [{ termId: "b", toPayCzk: 5600, fits: true, genderCapacity: 50, genderFree: 2 }],
     })
   })
 
@@ -49,6 +49,7 @@ describe("previewTermChange", () => {
     })
     expect(impact).toMatchObject({ amountToPayCzk: 0, overpaymentCzk: 0 })
     expect(impact.added[0].paidCzk).toBe(4900)
+    expect(impact.added[0].toPayCzk).toBe(0)
   })
 
   it("does not count a removed term without payments as an overpayment", () => {

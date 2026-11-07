@@ -9,6 +9,7 @@ import csHealth from "@/i18n/locales/cs/health.json"
 import csLanding from "@/i18n/locales/cs/landing.json"
 import csNotifications from "@/i18n/locales/cs/notifications.json"
 import csParticipant from "@/i18n/locales/cs/participant.json"
+import csTransport from "@/i18n/locales/cs/transport.json"
 import enApplicationForm from "@/i18n/locales/en/applicationForm.json"
 import enAuth from "@/i18n/locales/en/auth.json"
 import enCatalog from "@/i18n/locales/en/catalog.json"
@@ -20,6 +21,7 @@ import enHealth from "@/i18n/locales/en/health.json"
 import enLanding from "@/i18n/locales/en/landing.json"
 import enNotifications from "@/i18n/locales/en/notifications.json"
 import enParticipant from "@/i18n/locales/en/participant.json"
+import enTransport from "@/i18n/locales/en/transport.json"
 
 // One namespace per feature folder, so parallel branches edit different files
 // (docs/PROJEKT.md, section 8). English is the source of truth for the keys.
@@ -36,6 +38,7 @@ export const resources = {
     notifications: enNotifications,
     eventOverview: enEventOverview,
     health: enHealth,
+    transport: enTransport,
   },
   cs: {
     common: csCommon,
@@ -49,6 +52,7 @@ export const resources = {
     notifications: csNotifications,
     eventOverview: csEventOverview,
     health: csHealth,
+    transport: csTransport,
   },
 } as const
 

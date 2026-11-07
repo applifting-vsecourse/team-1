@@ -42,6 +42,8 @@ export type TermChangeImpact = {
     termId: string
     priceCzk: number
     paidCzk: number
+    /** Debt left in the term (an overpaid one counts as zero). */
+    toPayCzk: number
     fits: boolean
     genderCapacity: number
     genderFree: number
@@ -94,6 +96,7 @@ export function previewTermChange(input: {
       termId: term.termId,
       priceCzk: term.priceCzk,
       paidCzk: term.paidCzk ?? 0,
+      toPayCzk: Math.max(0, term.priceCzk - (term.paidCzk ?? 0)),
       fits: addedTermFits(input.gender, term.freePlaces),
       genderCapacity: term.genderCapacity,
       genderFree: term.freePlaces[input.gender],

@@ -29,6 +29,8 @@ const confirmed = {
   endsOn: "2027-07-10",
   status: "CONFIRMED" as const,
   priceCzk: 4500,
+  transportOffered: false,
+  transportDecided: false,
 }
 const waitlisted = {
   termId: "t2",
@@ -37,6 +39,8 @@ const waitlisted = {
   endsOn: "2027-07-17",
   status: "WAITLISTED" as const,
   priceCzk: 4900,
+  transportOffered: false,
+  transportDecided: false,
 }
 
 const application = (overrides: Partial<MyApplication> = {}): MyApplication => ({
@@ -706,6 +710,43 @@ describe("ApplicationDetail", () => {
 
       await screen.findByText("Demo: payments are simulated.")
       expect(screen.queryByRole("button", { name: "I paid" })).toBeNull()
+    })
+  })
+
+  describe("transport (US-65)", () => {
+    const withTransport = (isDecided: boolean): MyApplication =>
+      application({
+        terms: [{ ...confirmed, transportOffered: true, transportDecided: isDecided }],
+      })
+
+    it("asks for a transport in a checklist and separates terms and transport into sections", async () => {
+      renderDetail(withTransport(false))
+
+      expect(await screen.findByRole("heading", { name: "What is left to arrange" })).toBeVisible()
+      expect(screen.getByText("0 of 1 done")).toBeVisible()
+      expect(screen.getByRole("heading", { name: /^Transport · / })).toBeVisible()
+      expect(screen.getByRole("heading", { name: "Terms and payments" })).toBeVisible()
+      expect(screen.getByRole("heading", { name: "Transport" })).toBeVisible()
+      expect(screen.getByRole("link", { name: "Choose transport" })).toHaveAttribute(
+        "href",
+        "/participant/applications/a1/transport",
+      )
+    })
+
+    it("shows the step as done and offers a change once the transport is chosen", async () => {
+      renderDetail(withTransport(true))
+
+      expect(await screen.findByText("1 of 1 done")).toBeVisible()
+      expect(screen.getByRole("link", { name: "Change transport" })).toBeVisible()
+      expect(screen.queryByRole("link", { name: "Choose transport" })).toBeNull()
+    })
+
+    it("asks for nothing when no transport is offered", async () => {
+      renderDetail(application())
+
+      await screen.findByText(/4–10 Jul/)
+      expect(screen.queryByRole("heading", { name: "What is left to arrange" })).toBeNull()
+      expect(screen.queryByRole("heading", { name: "Transport" })).toBeNull()
     })
   })
 })

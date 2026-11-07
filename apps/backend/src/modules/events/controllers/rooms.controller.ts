@@ -1,4 +1,5 @@
 import {
+  RoomCopyRequestDto,
   RoomModeRequestDto,
   RoomRequestDto,
 } from "@/modules/events/controllers/dto/room.request.dto"
@@ -72,6 +73,27 @@ export class RoomsController {
     @Body() body: RoomRequestDto,
   ): Promise<void> {
     await this.rooms.save(user, eventId, termId, { ...body, gender: body.gender ?? null })
+  }
+
+  @Post("rooms/copy")
+  @HttpCode(204)
+  @ApiOperation({ summary: "Copy the rooms of another term of the event into this term" })
+  @ApiResponse({ status: 204 })
+  @ApiResponse({
+    status: 400,
+    description: "Same term, a term without rooms, or a different room mode",
+  })
+  @ApiResponse({
+    status: 409,
+    description: "Copied room names already used in this term, listed in params.names",
+  })
+  async copy(
+    @User() user: Identity,
+    @Param("eventId") eventId: string,
+    @Param("termId") termId: string,
+    @Body() body: RoomCopyRequestDto,
+  ): Promise<void> {
+    await this.rooms.copy(user, eventId, termId, body.sourceTermId, body.strategy)
   }
 
   @Put("rooms/:id")

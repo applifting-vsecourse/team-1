@@ -97,6 +97,6 @@ import { WaitlistExpiryService } from "./services/waitlist-expiry.service"
     WaitlistExpiryService,
     WaitlistExpiryScheduler,
   ],
-  exports: [TermStatusService],
+  exports: [TermStatusService, ChangeRequestService],
 })
 export class ApplicationsModule {}

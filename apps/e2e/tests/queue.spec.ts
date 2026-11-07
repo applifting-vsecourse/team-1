@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test"
 import { MANUAL_EVENT_LINK, ORGANIZER } from "./support/accounts"
-import { signIn } from "./support/auth"
+import { openEventList, signIn } from "./support/auth"
 
 // US-103: in the manual mode a submitted application waits for the organizer in the queue "To evaluate".
 test.describe("Queue to evaluate", () => {
@@ -26,6 +26,8 @@ test.describe("Queue to evaluate", () => {
     await expect(page).toHaveURL(/\/apply\/confirmation\//)
 
     await signIn(page, "organizer", ORGANIZER)
+
+    await openEventList(page)
     await page.getByRole("link", { name: /Ruční vyhodnocení 2028/ }).click()
     await page
       .getByRole("navigation", { name: "Event sections" })

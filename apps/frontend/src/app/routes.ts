@@ -15,6 +15,8 @@ export const ROUTES = {
   applicationConfirmation: "/apply/confirmation/$accessToken",
 
   organizer: {
+    // Redirects to the overview of the last opened event, or to the events list.
+    home: "/organizer",
     login: "/organizer/login",
     register: "/organizer/register",
     verifyEmail: "/organizer/verify-email",
@@ -29,6 +31,10 @@ export const ROUTES = {
     eventApplications: "/organizer/events/$eventId/applications",
     eventPayments: "/organizer/events/$eventId/payments",
     eventCancellationTerms: "/organizer/events/$eventId/payments/cancellation",
+    eventTransport: "/organizer/events/$eventId/transport",
+    eventTransportNew: "/organizer/events/$eventId/transport/new",
+    eventTransportEdit: "/organizer/events/$eventId/transport/$transportId",
+    eventTransportParticipants: "/organizer/events/$eventId/transport/$transportId/participants",
     application: "/organizer/events/$eventId/applications/$applicationId",
     applicationHealth: "/organizer/events/$eventId/applications/$applicationId/health",
     account: "/organizer/account",
@@ -41,6 +47,7 @@ export const ROUTES = {
     applications: "/participant",
     application: "/participant/applications/$applicationId",
     applicationHealth: "/participant/applications/$applicationId/health",
+    applicationTransport: "/participant/applications/$applicationId/transport",
     account: "/participant/account",
   },
 } as const
