@@ -69,6 +69,12 @@ export const myApplicationSchema = z.object({
       terms: z.array(termPaymentSchema),
     })
     .nullable(),
+  /** `true` only on staging and demo (US-115). */
+  canSimulatePayment: z.boolean(),
+  /** Payments the participant simulated, newest first. */
+  simulatedPayments: z.array(
+    z.object({ termId: z.string(), amountCzk: z.number().int(), createdAt: z.string() }),
+  ),
   organizationContact: organizationContactSchema,
 })
 export type MyApplication = z.infer<typeof myApplicationSchema>
@@ -91,6 +97,13 @@ export const myApplicationQueryOptions = (id: string) =>
         await api.get(`participant/applications/${encodeURIComponent(id)}`).json(),
       ),
   })
+
+/** `POST /api/participant/applications/:id/payments/simulation` — staging and demo only (US-115). */
+export async function simulatePayment(id: string, termId: string) {
+  await api.post(`participant/applications/${encodeURIComponent(id)}/payments/simulation`, {
+    json: { termId },
+  })
+}
 
 const changeOptionsSchema = z.object({
   canChangeImmediately: z.boolean(),

@@ -109,6 +109,13 @@
     "saveQr": "Stáhnout QR kód",
     "showSummaryQrMany": "Jedna platba za všechny potvrzené termíny · zobrazit QR",
     "showSummaryQrTwo": "Jedna platba za oba termíny · zobrazit QR",
+    "simulation": {
+      "alertText": "Tlačítko nezadává bankovní převod.",
+      "alertTitle": "Demo: platby jsou simulované.",
+      "logLine": "+{{amount}} · {{term}} · zdroj: simulace",
+      "logTitle": "Záznam simulace",
+      "paid": "Zaplatil jsem"
+    },
     "summaryBreakdown": "Rozpis",
     "summaryQrExplanation": "Platí pro všechny potvrzené termíny. Souhrnný VS se liší od VS jednotlivých termínů.",
     "summaryQrTitle": "Zaplatit potvrzené termíny",

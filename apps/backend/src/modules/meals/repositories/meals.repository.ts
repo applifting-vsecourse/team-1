@@ -9,6 +9,7 @@ const ownSelect = {
   firstName: true,
   lastName: true,
   allergies: true,
+  specialRequest: true,
   event: { select: { name: true } },
   mealOptions: { select: { id: true } },
 } as const
@@ -74,6 +75,7 @@ export class MealsRepository {
       options: await this.listOptions(row.eventId),
       selectedOptionIds: row.mealOptions.map((option) => option.id),
       allergies: row.allergies,
+      specialRequest: row.specialRequest,
     }
   }
 
@@ -89,10 +91,11 @@ export class MealsRepository {
     applicationId: string,
     optionIds: string[],
     allergies: string | null,
+    specialRequest: string | null,
   ): Promise<void> {
     await this.prisma.application.update({
       where: { id: applicationId },
-      data: { allergies, mealOptions: { set: optionIds.map((id) => ({ id })) } },
+      data: { allergies, specialRequest, mealOptions: { set: optionIds.map((id) => ({ id })) } },
     })
   }
 
@@ -115,6 +118,7 @@ export class MealsRepository {
                 firstName: true,
                 lastName: true,
                 allergies: true,
+                specialRequest: true,
                 mealOptions: { select: { id: true } },
               },
             },
@@ -132,6 +136,7 @@ export class MealsRepository {
         firstName: application.firstName,
         lastName: application.lastName,
         allergies: application.allergies,
+        specialRequest: application.specialRequest,
         optionIds: application.mealOptions.map((option) => option.id),
       })),
     }))

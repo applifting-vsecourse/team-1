@@ -30,6 +30,7 @@ const meals: OwnMeals = {
   ],
   selectedOptionIds: ["gf"],
   allergies: "Peanuts",
+  specialRequest: "Early dinner",
 }
 
 function setup(value: OwnMeals = meals) {
@@ -54,6 +55,7 @@ describe("ParticipantMeals", () => {
     expect(screen.getByRole("checkbox", { name: "Vegetarian" })).not.toBeChecked()
     expect(screen.getByRole("checkbox", { name: "Gluten-free" })).toBeChecked()
     expect(screen.getByLabelText("Allergies and other dietary restrictions")).toHaveValue("Peanuts")
+    expect(screen.getByLabelText("Special request")).toHaveValue("Early dinner")
   })
 
   it("saves the ticked options and the allergies", async () => {
@@ -64,10 +66,17 @@ describe("ParticipantMeals", () => {
     const allergies = screen.getByLabelText("Allergies and other dietary restrictions")
     await user.clear(allergies)
     await user.type(allergies, "Milk")
+    const request = screen.getByLabelText("Special request")
+    await user.clear(request)
+    await user.type(request, "Late arrival")
     await user.click(screen.getByRole("button", { name: "Save meals" }))
 
     await waitFor(() =>
-      expect(saveOwnMeals).toHaveBeenCalledWith("a1", { optionIds: ["veg"], allergies: "Milk" }),
+      expect(saveOwnMeals).toHaveBeenCalledWith("a1", {
+        optionIds: ["veg"],
+        allergies: "Milk",
+        specialRequest: "Late arrival",
+      }),
     )
   })
 
@@ -76,12 +85,16 @@ describe("ParticipantMeals", () => {
     setup({ ...meals, selectedOptionIds: ["gf", "removed"] })
     await user.click(await screen.findByRole("button", { name: "Save meals" }))
     await waitFor(() =>
-      expect(saveOwnMeals).toHaveBeenCalledWith("a1", { optionIds: ["gf"], allergies: "Peanuts" }),
+      expect(saveOwnMeals).toHaveBeenCalledWith("a1", {
+        optionIds: ["gf"],
+        allergies: "Peanuts",
+        specialRequest: "Early dinner",
+      }),
     )
   })
 
   it("shows only the allergies field when the organizer offers no option", async () => {
-    setup({ ...meals, options: [], selectedOptionIds: [], allergies: null })
+    setup({ ...meals, options: [], selectedOptionIds: [], allergies: null, specialRequest: null })
     expect(await screen.findByLabelText("Allergies and other dietary restrictions")).toHaveValue("")
     expect(screen.queryByRole("checkbox")).not.toBeInTheDocument()
   })

@@ -29,6 +29,14 @@ const terms: KitchenTerm[] = [
       { applicationId: "a1", firstName: "Adam", lastName: "Dvořák", allergies: "Peanuts" },
       { applicationId: "a2", firstName: "Jana", lastName: "Nováková", allergies: "Milk protein" },
     ],
+    specialRequests: [
+      {
+        applicationId: "a1",
+        firstName: "Adam",
+        lastName: "Dvořák",
+        specialRequest: "Early dinner",
+      },
+    ],
   },
   {
     termId: "t2",
@@ -42,6 +50,7 @@ const terms: KitchenTerm[] = [
       { id: "gf", name: "Gluten-free", count: 0 },
     ],
     allergies: [],
+    specialRequests: [],
   },
 ]
 
@@ -89,6 +98,8 @@ describe("KitchenSummary", () => {
     expect(screen.getByText("Restrictions may overlap.")).toBeVisible()
     expect(screen.getByText("Adam Dvořák · Peanuts")).toBeVisible()
     expect(screen.getByText("Jana Nováková · Milk protein")).toBeVisible()
+    expect(screen.getByRole("heading", { name: "Special requests" })).toBeVisible()
+    expect(screen.getByText("Adam Dvořák · Early dinner")).toBeVisible()
   })
 
   it("switches the term", async () => {
@@ -98,6 +109,7 @@ describe("KitchenSummary", () => {
     await user.click(await screen.findByRole("option", { name: /Aug 2027/ }))
     expect(screen.getByText("Regular meal · 1")).toBeVisible()
     expect(screen.queryByText("Adam Dvořák · Peanuts")).not.toBeInTheDocument()
+    expect(screen.queryByRole("heading", { name: "Special requests" })).not.toBeInTheDocument()
   })
 
   it("prints the summary and links to the options", async () => {

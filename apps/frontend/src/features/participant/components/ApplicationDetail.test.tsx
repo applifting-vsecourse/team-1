@@ -46,6 +46,8 @@ const application = (overrides: Partial<MyApplication> = {}): MyApplication => (
   lastName: "Nováková",
   code: "LKL-0048",
   variableSymbol: "48000",
+  canSimulatePayment: false,
+  simulatedPayments: [],
   terms: [confirmed],
   amountDueCzk: 4500,
   amountPaidCzk: 2000,
@@ -661,6 +663,49 @@ describe("ApplicationDetail", () => {
       await screen.findByText(/4–10 Jul/)
       expect(screen.queryByRole("img", { name: "QR code for the term payment" })).toBeNull()
       expect(screen.queryByText("Due date")).toBeNull()
+    })
+  })
+
+  describe("payment simulation (US-115)", () => {
+    it("shows no simulation where the backend does not offer it (production)", async () => {
+      renderDetail(application())
+
+      await screen.findByText(/4–10 Jul/)
+      expect(screen.queryByRole("button", { name: "I paid" })).toBeNull()
+      expect(screen.queryByText("Demo: payments are simulated.")).toBeNull()
+    })
+
+    it("simulates the payment of one term and lists it", async () => {
+      post.mockReset()
+      post.mockResolvedValue({})
+      const user = userEvent.setup()
+      renderDetail(
+        application({
+          canSimulatePayment: true,
+          simulatedPayments: [
+            { termId: "t1", amountCzk: 2500, createdAt: "2027-01-01T10:00:00.000Z" },
+          ],
+        }),
+      )
+
+      expect(await screen.findByText("Demo: payments are simulated.")).toBeInTheDocument()
+      expect(screen.getByText("Simulation log")).toBeInTheDocument()
+      expect(screen.getByText(/\+CZK 2,500 · .* · source: simulation/)).toBeInTheDocument()
+      await user.click(screen.getByRole("button", { name: "I paid" }))
+
+      expect(post).toHaveBeenCalledWith("participant/applications/a1/payments/simulation", {
+        json: { termId: "t1" },
+      })
+    })
+
+    it("offers no button for a term with nothing left to pay", async () => {
+      renderDetail({
+        ...withTerms([termPayment(1, 4500, 4500, "PAID")], [confirmed]),
+        canSimulatePayment: true,
+      })
+
+      await screen.findByText("Demo: payments are simulated.")
+      expect(screen.queryByRole("button", { name: "I paid" })).toBeNull()
     })
   })
 })

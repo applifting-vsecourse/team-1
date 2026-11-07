@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto"
 import {
   computePaymentCorrectionPreview,
   PaymentCorrectionPreview,
@@ -12,6 +13,7 @@ import {
   PaymentsRepository,
 } from "@/modules/payments/repositories/payments.repository"
 import { Identity } from "@/shared/auth/domain/identity"
+import { Config } from "@/shared/config/config.service"
 import { AppException } from "@/shared/errors/app.exception"
 import { OrganizationAccessService } from "@/shared/organization-access/organization-access.service"
 import { HttpStatus, Injectable } from "@nestjs/common"
@@ -22,6 +24,7 @@ export class PaymentsService {
     private readonly repository: PaymentsRepository,
     private readonly access: OrganizationAccessService,
     private readonly mailer: ApplicationConfirmationMailer,
+    private readonly config: Config,
   ) {}
 
   async get(user: Identity, applicationId: string): Promise<PaymentSummary> {
@@ -82,6 +85,26 @@ export class PaymentsService {
       requestId,
       amountCzk,
       termId,
+    })
+    await this.sendPaymentReceived(applicationId, organizationId, paid)
+  }
+
+  /**
+   * US-115, staging and demo only: the signed-in participant settles the remaining debt of one
+   * term with a payment of source SIMULATION. Production (flag off) has no such endpoint.
+   */
+  async simulate(user: Identity, applicationId: string, termId: string): Promise<void> {
+    if (!this.config.paymentSimulationEnabled)
+      throw new AppException(HttpStatus.NOT_FOUND, "NOT_FOUND")
+    const organizationId = await this.repository.findOrganizationOfUser(user.id, applicationId)
+    if (!organizationId) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
+    const paid = await this.repository.record({
+      applicationId,
+      organizationId,
+      recordedById: user.id,
+      requestId: randomUUID(),
+      termId,
+      source: "SIMULATION",
     })
     await this.sendPaymentReceived(applicationId, organizationId, paid)
   }

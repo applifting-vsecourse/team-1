@@ -9,6 +9,7 @@ type KitchenTerm = {
   regular: number
   options: (Option & { count: number })[]
   allergies: { firstName: string; lastName: string; allergies: string }[]
+  specialRequests: { lastName: string; specialRequest: string }[]
 }
 
 describe("meals (integration)", () => {
@@ -65,7 +66,18 @@ describe("meals (integration)", () => {
     expect((await request("GET", ownPath(), organizer)).status).toBe(403)
   })
 
-  it("starts with no options and refuses blank or repeated names", async () => {
+  it("offers vegetarian and gluten-free in a newly created event", async () => {
+    const created = await request("POST", "/organizer/events", organizer, { name: "Winter camp" })
+    expect(created.status).toBe(201)
+    const { id } = (await created.json()) as { id: string }
+    const options = await request("GET", `/organizer/events/${id}/meals/options`, organizer)
+    expect(((await options.json()) as Option[]).map((option) => option.name)).toEqual([
+      "Vegetariánská",
+      "Bezlepková",
+    ])
+  })
+
+  it("starts with no options in a seeded event and refuses blank or repeated names", async () => {
     expect(await (await request("GET", optionsPath(), organizer)).json()).toEqual([])
     expect((await saveOptions([{ name: "  " }])).status).toBe(400)
     expect((await saveOptions([{ name: "Vegan" }, { name: "vegan" }])).status).toBe(400)
@@ -90,31 +102,45 @@ describe("meals (integration)", () => {
     ])
   })
 
-  it("lets the participant tick offered options and write allergies", async () => {
+  it("lets the participant tick offered options and write allergies and a special request", async () => {
     const own = await (await request("GET", ownPath(), participant)).json()
     expect(own.options).toHaveLength(2)
-    expect(own).toMatchObject({ selectedOptionIds: [], allergies: null })
+    expect(own).toMatchObject({ selectedOptionIds: [], allergies: null, specialRequest: null })
 
     const [first] = own.options as Option[]
     const saved = await request("PUT", ownPath(), participant, {
       optionIds: [first!.id],
       allergies: "  Peanuts ",
+      specialRequest: " Early dinner ",
     })
     expect(saved.status).toBe(200)
     expect(await saved.json()).toMatchObject({
       selectedOptionIds: [first!.id],
       allergies: "Peanuts",
+      specialRequest: "Early dinner",
     })
   })
 
   it("refuses an unknown option and someone else's application", async () => {
     expect(
-      (await request("PUT", ownPath(), participant, { optionIds: ["nope"], allergies: "" })).status,
+      (
+        await request("PUT", ownPath(), participant, {
+          optionIds: ["nope"],
+          allergies: "",
+          specialRequest: "",
+        })
+      ).status,
     ).toBe(400)
     const stranger = await signIn("ucastnik2@example.com", "password5")
     expect((await request("GET", ownPath(), stranger)).status).toBe(403)
     expect(
-      (await request("PUT", ownPath(), stranger, { optionIds: [], allergies: "x" })).status,
+      (
+        await request("PUT", ownPath(), stranger, {
+          optionIds: [],
+          allergies: "x",
+          specialRequest: "",
+        })
+      ).status,
     ).toBe(403)
   })
 
@@ -135,6 +161,9 @@ describe("meals (integration)", () => {
       expect(term.options.find((option) => option.name === "Vegetarian")?.count).toBe(0)
       expect(term.allergies).toContainEqual(
         expect.objectContaining({ lastName: "Nováková", allergies: "Peanuts" }),
+      )
+      expect(term.specialRequests).toContainEqual(
+        expect.objectContaining({ lastName: "Nováková", specialRequest: "Early dinner" }),
       )
     }
   })

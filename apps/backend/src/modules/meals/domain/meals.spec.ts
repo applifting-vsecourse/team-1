@@ -15,6 +15,7 @@ const person = (over: Partial<KitchenPerson>): KitchenPerson => ({
   lastName: "Dvořák",
   optionIds: [],
   allergies: null,
+  specialRequest: null,
   ...over,
 })
 const term = (people: KitchenPerson[]) => ({
@@ -51,17 +52,32 @@ describe("decideOptions", () => {
 describe("decideSelection", () => {
   it("accepts offered options once and trims the allergies", () => {
     expect(
-      decideSelection({ optionIds: ["veg", "veg"], allergies: "  peanuts " }, [veg, gf]),
-    ).toEqual({ kind: "ok", optionIds: ["veg"], allergies: "peanuts" })
+      decideSelection(
+        { optionIds: ["veg", "veg"], allergies: "  peanuts ", specialRequest: " late arrival " },
+        [veg, gf],
+      ),
+    ).toEqual({
+      kind: "ok",
+      optionIds: ["veg"],
+      allergies: "peanuts",
+      specialRequest: "late arrival",
+    })
   })
 
   it("clears empty allergies and refuses unknown options", () => {
-    expect(decideSelection({ optionIds: [], allergies: "  " }, [veg])).toEqual({
+    expect(decideSelection({ optionIds: [], allergies: "  ", specialRequest: "" }, [veg])).toEqual({
       kind: "ok",
       optionIds: [],
       allergies: null,
+      specialRequest: null,
     })
-    expect(decideSelection({ optionIds: ["other"], allergies: "" }, [veg]).kind).toBe("invalid")
+    expect(
+      decideSelection({ optionIds: ["other"], allergies: "", specialRequest: "" }, [veg]).kind,
+    ).toBe("invalid")
+    expect(
+      decideSelection({ optionIds: [], allergies: "", specialRequest: "x".repeat(1001) }, [veg])
+        .kind,
+    ).toBe("invalid")
   })
 })
 
@@ -74,20 +90,22 @@ describe("kitchenSummary", () => {
           person({ applicationId: "2", optionIds: ["veg"] }),
           person({ applicationId: "3", optionIds: ["veg", "gf"], allergies: "Milk" }),
           person({ applicationId: "4", lastName: "Adamová", allergies: "Peanuts" }),
+          person({ applicationId: "5", lastName: "Zelená", specialRequest: "Early dinner" }),
         ]),
       ],
       [veg, gf],
     )
-    expect(summary).toMatchObject({ total: 4, regular: 2 })
+    expect(summary).toMatchObject({ total: 5, regular: 3 })
     expect(summary!.options).toEqual([
       { ...veg, count: 2 },
       { ...gf, count: 1 },
     ])
     expect(summary!.allergies.map((entry) => entry.applicationId)).toEqual(["4", "3"])
+    expect(summary!.specialRequests.map((entry) => entry.applicationId)).toEqual(["5"])
   })
 
   it("is empty for a term without confirmed participants", () => {
     const [summary] = kitchenSummary([term([])], [veg])
-    expect(summary).toMatchObject({ total: 0, regular: 0, allergies: [] })
+    expect(summary).toMatchObject({ total: 0, regular: 0, allergies: [], specialRequests: [] })
   })
 })

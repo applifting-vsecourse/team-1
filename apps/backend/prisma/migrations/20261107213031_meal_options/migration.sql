@@ -1,5 +1,6 @@
 -- AlterTable
-ALTER TABLE "application" ADD COLUMN     "allergies" TEXT;
+ALTER TABLE "application" ADD COLUMN     "allergies" TEXT,
+ADD COLUMN     "specialRequest" TEXT;
 
 -- CreateTable
 CREATE TABLE "meal_option" (
@@ -41,3 +42,9 @@ ALTER TABLE "_ApplicationToMealOption" ADD CONSTRAINT "_ApplicationToMealOption_
 
 -- AddForeignKey
 ALTER TABLE "_ApplicationToMealOption" ADD CONSTRAINT "_ApplicationToMealOption_B_fkey" FOREIGN KEY ("B") REFERENCES "meal_option"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- Existing events offer the usual meal restrictions until the organizer changes the list.
+INSERT INTO "meal_option" ("id", "organizationId", "eventId", "name", "position")
+SELECT gen_random_uuid()::text, e."organizationId", e."id", d."name", d."position"
+FROM "event" e
+CROSS JOIN (VALUES ('Vegetariánská', 0), ('Bezlepková', 1)) AS d("name", "position");

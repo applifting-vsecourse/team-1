@@ -1,5 +1,6 @@
 import { EvaluationMode } from "@/modules/applications/domain/evaluation-mode"
 import { isValidCancellationStart } from "@/modules/events/domain/cancellation-start"
+import { normalizeCancellationTerms } from "@/modules/events/domain/cancellation-terms"
 import { OrganizerEvent, toOrganizerEvent } from "@/modules/events/domain/organizer-event"
 import {
   cleanFileName,
@@ -87,6 +88,18 @@ export class EventsService {
     }
     const { organizationId } = await this.organizationAccess.assertCanAccessEvent(user, eventId)
     await this.repository.setCancellationStart(eventId, organizationId, cancellationStartsOn)
+    return this.get(user, eventId)
+  }
+
+  async setCancellationTerms(
+    user: Identity,
+    eventId: string,
+    cancellationTerms: string,
+  ): Promise<OrganizerEvent> {
+    const text = normalizeCancellationTerms(cancellationTerms)
+    if (text === null) throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
+    const { organizationId } = await this.organizationAccess.assertCanAccessEvent(user, eventId)
+    await this.repository.setCancellationTerms(eventId, organizationId, text)
     return this.get(user, eventId)
   }
 

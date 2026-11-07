@@ -15,6 +15,8 @@ import { ownMealsQueryOptions, saveOwnMeals, type OwnMeals } from "@/features/me
 
 /** Same limit as the API (`ALLERGIES_MAX_LENGTH`). */
 const ALLERGIES_MAX_LENGTH = 1000
+/** Same limit as the API (`SPECIAL_REQUEST_MAX_LENGTH`). */
+const SPECIAL_REQUEST_MAX_LENGTH = 1000
 
 /** The meal restrictions of the participant of one application: ticked options and allergies. */
 // Figma (Design system): #64 / Stravování · Adam Dvořák / Desktop · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19795-11810 (360 px: node-id=19795-11931)
@@ -45,6 +47,7 @@ function MealsForm({ applicationId, meals }: { applicationId: string; meals: Own
   const client = useQueryClient()
   const [optionIds, setOptionIds] = useState(new Set(meals.selectedOptionIds))
   const [allergies, setAllergies] = useState(meals.allergies ?? "")
+  const [specialRequest, setSpecialRequest] = useState(meals.specialRequest ?? "")
 
   const mutation = useMutation({
     // An option the organizer removed meanwhile is no longer offered, so it is not sent either.
@@ -52,6 +55,7 @@ function MealsForm({ applicationId, meals }: { applicationId: string; meals: Own
       saveOwnMeals(applicationId, {
         optionIds: meals.options.map((option) => option.id).filter((id) => optionIds.has(id)),
         allergies,
+        specialRequest,
       }),
     onSuccess: (saved) => {
       client.setQueryData(ownMealsQueryOptions(applicationId).queryKey, saved)
@@ -110,6 +114,17 @@ function MealsForm({ applicationId, meals }: { applicationId: string; meals: Own
           maxLength={ALLERGIES_MAX_LENGTH}
           value={allergies}
           onChange={(event) => setAllergies(event.target.value)}
+        />
+      </div>
+      {/* PM-requested addition (US-64), not drawn in Figma. */}
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="meal-special-request">{t("own.specialRequestLabel")}</Label>
+        <Textarea
+          id="meal-special-request"
+          className="min-h-32"
+          maxLength={SPECIAL_REQUEST_MAX_LENGTH}
+          value={specialRequest}
+          onChange={(event) => setSpecialRequest(event.target.value)}
         />
       </div>
       {mutation.error ? (

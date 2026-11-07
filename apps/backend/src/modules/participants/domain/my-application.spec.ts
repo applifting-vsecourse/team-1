@@ -102,7 +102,20 @@ describe("buildMyApplication", () => {
   ])("%s", (_name, payments, paid, owed, status) => {
     const base = record()
     const result = buildMyApplication(
-      record({ terms: base.terms.map((term, i) => (i === 0 ? { ...term, payments } : term)) }),
+      record({
+        terms: base.terms.map((term, i) =>
+          i === 0
+            ? {
+                ...term,
+                payments: payments.map((payment) => ({
+                  ...payment,
+                  source: "MANUAL" as const,
+                  createdAt: day("2027-05-02"),
+                })),
+              }
+            : term,
+        ),
+      }),
     )
 
     expect(result.amountPaidCzk).toBe(paid)
@@ -159,7 +172,10 @@ describe("buildMyApplication", () => {
     })
 
     it("has no deadline when nothing is owed", () => {
-      const term = withTerm({ confirmedAt: day("2027-05-01"), payments: [{ amountCzk: 4500 }] })
+      const term = withTerm({
+        confirmedAt: day("2027-05-01"),
+        payments: [{ amountCzk: 4500, source: "MANUAL", createdAt: day("2027-05-02") }],
+      })
       expect(term.owedCzk).toBe(0)
       expect(term.paymentDeadline).toBeNull()
     })
@@ -167,6 +183,30 @@ describe("buildMyApplication", () => {
     it("has no deadline for a free term", () => {
       const term = withTerm({ confirmedAt: day("2027-05-01"), priceCzk: 0 })
       expect(term.paymentDeadline).toBeNull()
+    })
+  })
+
+  describe("payment simulation (US-115)", () => {
+    const withPayments = (payments: MyApplicationRecord["terms"][number]["payments"]) =>
+      record({ terms: [{ ...record().terms[1], payments }] })
+
+    it("offers the simulation only when the environment allows it", () => {
+      expect(buildMyApplication(record()).canSimulatePayment).toBe(false)
+      expect(buildMyApplication(record(), true).canSimulatePayment).toBe(true)
+    })
+
+    it("lists only simulated payments, newest first", () => {
+      const result = buildMyApplication(
+        withPayments([
+          { amountCzk: 1000, source: "MANUAL", createdAt: day("2027-05-01") },
+          { amountCzk: 500, source: "SIMULATION", createdAt: day("2027-05-02") },
+          { amountCzk: 2000, source: "SIMULATION", createdAt: day("2027-05-03") },
+        ]),
+      )
+      expect(result.simulatedPayments).toEqual([
+        { termId: "t1", amountCzk: 2000, createdAt: "2027-05-03T00:00:00.000Z" },
+        { termId: "t1", amountCzk: 500, createdAt: "2027-05-02T00:00:00.000Z" },
+      ])
     })
   })
 })

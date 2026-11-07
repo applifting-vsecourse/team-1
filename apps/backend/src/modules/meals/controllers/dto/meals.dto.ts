@@ -5,6 +5,7 @@ import {
   MEAL_OPTIONS_MAX,
   MealOption,
   OwnMeals,
+  SPECIAL_REQUEST_MAX_LENGTH,
 } from "@/modules/meals/domain/meals"
 import { ApiProperty } from "@nestjs/swagger"
 import { Type } from "class-transformer"
@@ -57,6 +58,14 @@ export class SaveMealsRequestDto {
   @IsString()
   @MaxLength(ALLERGIES_MAX_LENGTH)
   allergies!: string
+
+  @ApiProperty({
+    maxLength: SPECIAL_REQUEST_MAX_LENGTH,
+    description: "Free text for the kitchen. Empty clears it.",
+  })
+  @IsString()
+  @MaxLength(SPECIAL_REQUEST_MAX_LENGTH)
+  specialRequest!: string
 }
 
 export class OwnMealsResponseDto {
@@ -67,6 +76,7 @@ export class OwnMealsResponseDto {
   @ApiProperty({ type: [MealOptionDto] }) options!: MealOptionDto[]
   @ApiProperty({ type: [String] }) selectedOptionIds!: string[]
   @ApiProperty({ type: String, nullable: true }) allergies!: string | null
+  @ApiProperty({ type: String, nullable: true }) specialRequest!: string | null
 
   static fromDomain(meals: OwnMeals): OwnMealsResponseDto {
     return { ...meals, options: meals.options.map((option) => MealOptionDto.fromDomain(option)) }
@@ -84,6 +94,13 @@ class KitchenAllergyDto {
   @ApiProperty() allergies!: string
 }
 
+class KitchenSpecialRequestDto {
+  @ApiProperty() applicationId!: string
+  @ApiProperty() firstName!: string
+  @ApiProperty() lastName!: string
+  @ApiProperty() specialRequest!: string
+}
+
 export class KitchenTermSummaryDto {
   @ApiProperty() termId!: string
   @ApiProperty({ type: String, nullable: true }) name!: string | null
@@ -95,6 +112,7 @@ export class KitchenTermSummaryDto {
   @ApiProperty({ type: [KitchenOptionCountDto], description: "Counts may overlap." })
   options!: KitchenOptionCountDto[]
   @ApiProperty({ type: [KitchenAllergyDto] }) allergies!: KitchenAllergyDto[]
+  @ApiProperty({ type: [KitchenSpecialRequestDto] }) specialRequests!: KitchenSpecialRequestDto[]
 
   static fromDomain(summary: KitchenTermSummary): KitchenTermSummaryDto {
     return {

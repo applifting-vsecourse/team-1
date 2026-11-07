@@ -102,6 +102,19 @@ export function KitchenSummary({ eventId, eventName }: { eventId: string; eventN
               </p>
             ))}
           </Card>
+          {term.specialRequests.length > 0 ? (
+            <Card className="gap-4 p-4">
+              <h2 className="text-2xl font-bold">{t("kitchen.specialRequestsTitle")}</h2>
+              {term.specialRequests.map((entry) => (
+                <p
+                  key={entry.applicationId}
+                  className="break-words whitespace-pre-line"
+                >
+                  {entry.firstName} {entry.lastName} · {entry.specialRequest}
+                </p>
+              ))}
+            </Card>
+          ) : null}
           <Button
             size="lg"
             className="w-full print:hidden"

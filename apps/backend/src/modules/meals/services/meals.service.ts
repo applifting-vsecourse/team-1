@@ -67,7 +67,12 @@ export class MealsService {
     if (decision.kind === "invalid") {
       throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED", "Invalid meal selection")
     }
-    await this.meals.saveSelection(applicationId, decision.optionIds, decision.allergies)
+    await this.meals.saveSelection(
+      applicationId,
+      decision.optionIds,
+      decision.allergies,
+      decision.specialRequest,
+    )
     return this.getOwn(user, applicationId)
   }
 }

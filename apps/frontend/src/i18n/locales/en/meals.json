@@ -7,6 +7,7 @@
     "print": "Print summary",
     "regular": "Regular meal",
     "setUpOptions": "Set up meal options",
+    "specialRequestsTitle": "Special requests",
     "termLabel": "Term",
     "title": "Kitchen summary"
   },
@@ -22,6 +23,7 @@
     "allergiesLabel": "Allergies and other dietary restrictions",
     "pageTitle": "Meals",
     "save": "Save meals",
+    "specialRequestLabel": "Special request",
     "title": "Meals · {{name}}"
   }
 }

@@ -7,6 +7,7 @@
     "print": "Vytisknout souhrn",
     "regular": "Běžná strava",
     "setUpOptions": "Nastavit varianty stravy",
+    "specialRequestsTitle": "Speciální požadavky",
     "termLabel": "Termín",
     "title": "Souhrn pro kuchyni"
   },
@@ -22,6 +23,7 @@
     "allergiesLabel": "Alergie a další stravovací omezení",
     "pageTitle": "Stravování",
     "save": "Uložit stravování",
+    "specialRequestLabel": "Speciální požadavek",
     "title": "Stravování · {{name}}"
   }
 }
