@@ -163,6 +163,7 @@ model Organization {
   statusChanges    ApplicationTermStatusChange[]
   substituteSkips  ApplicationTermSkip[]
   changeRequests   ChangeRequest[]
+  transports       Transport[]
 
   @@map("organization")
 }
@@ -223,6 +224,7 @@ model Event {
   applications Application[]
   changeRequests ChangeRequest[]
   photo        EventPhoto?
+  transports   Transport[]
 
   @@index([organizationId])
   @@map("event")
@@ -271,6 +273,27 @@ model Term {
   @@index([organizationId])
   @@index([eventId])
   @@map("term")
+}
+
+// A way to get to the event, set up by the organizer (US-65): a bus, a shared ride. Where and when
+// it leaves. Capacity and price are not tracked yet (open question in the story).
+model Transport {
+  id             String       @id @default(cuid())
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId String
+  event          Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId        String
+  name           String
+  departurePlace String
+  departureAt    DateTime
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @default(now()) @updatedAt
+
+  applications Application[]
+
+  @@index([organizationId])
+  @@index([eventId])
+  @@map("transport")
 }
 
 // A room belongs to exactly one term (US-99, D-052).
@@ -322,6 +345,10 @@ model Application {
   terms         ApplicationTerm[]
   notifications Notification[]
   changeRequests ChangeRequest[]
+
+  // Chosen transport (US-65); null = own transport.
+  transport   Transport? @relation(fields: [transportId], references: [id], onDelete: SetNull)
+  transportId String?
 
   @@index([organizationId])
   @@index([eventId, submittedAt])

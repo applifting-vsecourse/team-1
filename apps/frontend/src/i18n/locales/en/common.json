@@ -31,7 +31,8 @@
     "position": "{{current}} of {{total}}",
     "rooms": "Accommodation",
     "settings": "Settings",
-    "terms": "Terms"
+    "terms": "Terms",
+    "transport": "Transport"
   },
   "language": {
     "cs": "Čeština",

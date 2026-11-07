@@ -84,6 +84,19 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
         title={data.eventName}
         description={`${data.firstName} ${data.lastName} · ${data.code}`}
       />
+      <Button
+        asChild
+        variant="outline"
+        size="lg"
+        className="self-start"
+      >
+        <Link
+          to={ROUTES.participant.applicationTransport}
+          params={{ applicationId }}
+        >
+          {t("detail.transport")}
+        </Link>
+      </Button>
       {otherTerms.length > 0 ? (
         <Card className="gap-0 p-6">
           <h2 className="pb-4 text-lg font-semibold">{t("detail.termsTitle")}</h2>

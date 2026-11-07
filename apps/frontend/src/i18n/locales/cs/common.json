@@ -31,7 +31,8 @@
     "position": "{{current}} z {{total}}",
     "rooms": "Ubytování",
     "settings": "Nastavení",
-    "terms": "Termíny"
+    "terms": "Termíny",
+    "transport": "Doprava"
   },
   "language": {
     "cs": "Čeština",

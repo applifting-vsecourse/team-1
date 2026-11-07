@@ -77,7 +77,8 @@
       "alertText": "You will get the payment details once your participation is confirmed.",
       "alertTitle": "Don't pay yet.",
       "note": "The organizer will review the application in each term separately. It is not a confirmed place or a waitlist spot yet."
-    }
+    },
+    "transport": "Transport"
   },
   "list": {
     "empty": "You have no applications yet. Once you apply for an event, it will appear here.",
