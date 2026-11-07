@@ -99,6 +99,9 @@ export class OrganizerEventResponseDto {
   @ApiProperty({ type: String, nullable: true, example: "2027-07-01" })
   cancellationStartsOn!: string | null
 
+  @ApiProperty({ type: String, nullable: true, description: "Cancellation terms (US-47)." })
+  cancellationTerms!: string | null
+
   @ApiProperty({
     description: "Applications are open, so the evaluation mode can no longer change.",
   })
@@ -141,6 +144,7 @@ export class OrganizerEventResponseDto {
       missing: event.missing,
       evaluationMode: event.evaluationMode,
       cancellationStartsOn: event.cancellationStartsOn,
+      cancellationTerms: event.cancellationTerms,
       evaluationModeLocked: event.evaluationModeLocked,
       terms: event.terms.map((term) => EventTermSummaryDto.fromDomain(term)),
     }

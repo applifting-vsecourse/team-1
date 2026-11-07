@@ -309,6 +309,7 @@
     "wholeApplication": "Whole application (summary)"
   },
   "paymentsOverview": {
+    "cancellationTerms": "Cancellation terms",
     "clearFilters": "Clear filters",
     "debt": "Debt",
     "debtors_few": "{{count}} participants with debt",

@@ -33,6 +33,7 @@ const base = {
   applicationsOpen: false,
   evaluationMode: "AUTOMATIC",
   cancellationStartsOn: null,
+  cancellationTerms: null,
   evaluationModeLocked: false,
   missing: ["TERM", "ROOM"],
   terms: [],
