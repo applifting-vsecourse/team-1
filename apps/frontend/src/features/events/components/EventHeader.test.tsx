@@ -79,6 +79,7 @@ describe("EventHeader sections", () => {
       "Capacity",
       "Accommodation",
       "Terms",
+      "Transport",
       "Settings",
     ])
     expect(items[0]).toHaveAttribute("aria-current", "page")

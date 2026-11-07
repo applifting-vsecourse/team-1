@@ -27,11 +27,13 @@ function Harness({
   initial = "",
   min,
   max,
+  hasTime,
   onValue,
 }: {
   initial?: string
   min?: string
   max?: string
+  hasTime?: boolean
   onValue?: (value: string) => void
 }) {
   const [value, setValue] = useState(initial)
@@ -43,6 +45,7 @@ function Harness({
         value={value}
         min={min}
         max={max}
+        hasTime={hasTime}
         onChange={(next) => {
           setValue(next)
           onValue?.(next)
@@ -181,5 +184,79 @@ describe("DateField", () => {
     render(<Resettable />)
     await userEvent.click(screen.getByRole("button", { name: "reset" }))
     expect(field()).toHaveValue("")
+  })
+
+  it("has no time field in the calendar unless it is asked for", async () => {
+    render(<Harness initial="2014-05-18" />)
+    await userEvent.click(screen.getByRole("button", { name: "Choose a date in the calendar" }))
+    expect(screen.queryByLabelText("Time")).not.toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: "Done" })).not.toBeInTheDocument()
+  })
+
+  describe("with a time", () => {
+    it("turns typed text into a yyyy-MM-ddTHH:mm value and formats it on leaving", async () => {
+      render(<Harness hasTime />)
+      expect(field()).toHaveAttribute("placeholder", "DD/MM/YYYY HH:mm")
+      await userEvent.type(field(), "12/7/2027 8:00")
+      expect(value()).toBe("2027-07-12T08:00")
+      await userEvent.tab()
+      expect(field()).toHaveValue("12/07/2027 08:00")
+    })
+
+    it("passes on a day without a time as text, so the form can complain", async () => {
+      render(<Harness hasTime />)
+      await userEvent.type(field(), "12/07/2027")
+      expect(value()).toBe("12/07/2027")
+    })
+
+    it("shows the Czech format", async () => {
+      await act(() => i18n.changeLanguage("cs"))
+      render(
+        <Harness
+          initial="2027-07-12T08:00"
+          hasTime
+        />,
+      )
+      expect(field()).toHaveValue("12. 7. 2027 8:00")
+      expect(field()).toHaveAttribute("placeholder", "D. M. RRRR H:mm")
+    })
+
+    it("keeps the calendar open after a day, with the default time, and takes a time", async () => {
+      render(
+        <Harness
+          hasTime
+          max="2027-07-18"
+        />,
+      )
+      await userEvent.type(field(), "12/07/2027 06:00")
+      await userEvent.click(screen.getByRole("button", { name: "Choose a date in the calendar" }))
+      await userEvent.click(screen.getByRole("button", { name: /, 14 July 2027$/ }))
+      expect(value()).toBe("2027-07-14T06:00")
+      expect(screen.getByRole("grid")).toBeInTheDocument()
+
+      const time = screen.getByLabelText("Time")
+      await userEvent.clear(time)
+      await userEvent.type(time, "9.30")
+      expect(value()).toBe("2027-07-14T09:30")
+      expect(field()).toHaveValue("14/07/2027 09:30")
+
+      await userEvent.click(screen.getByRole("button", { name: "Done" }))
+      expect(screen.queryByRole("grid")).not.toBeInTheDocument()
+    })
+
+    it("gives a first picked day the default time and offers no day after max", async () => {
+      render(
+        <Harness
+          hasTime
+          min="2027-07-12"
+          max="2027-07-18"
+        />,
+      )
+      await userEvent.click(screen.getByRole("button", { name: "Choose a date in the calendar" }))
+      expect(screen.getByLabelText("Time")).toBeDisabled()
+      expect(screen.getByRole("button", { name: /, 19 July 2027$/ })).toBeDisabled()
+      await userEvent.click(screen.getByRole("button", { name: /, 18 July 2027$/ }))
+      expect(value()).toBe("2027-07-18T08:00")
+    })
   })
 })

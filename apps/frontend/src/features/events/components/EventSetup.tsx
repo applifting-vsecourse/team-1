@@ -1,10 +1,11 @@
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
-import { Circle, CircleAlert, CircleCheck, Copy } from "lucide-react"
+import { CircleAlert, Copy } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
+import { Checklist } from "@/components/molecules/Checklist"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { SectionHeader } from "@/components/molecules/SectionHeader"
@@ -170,56 +171,38 @@ function MissingSteps({ event }: { event: OrganizerEvent }) {
 
   return (
     <>
-      <Card className="gap-4 p-6">
-        <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
-          <div className="flex flex-col gap-1">
-            <h3 className="text-lg font-semibold tracking-tight">{t("overview.missing.title")}</h3>
-            <p className="text-sm text-muted-foreground">{t("overview.missing.intro")}</p>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            {t("overview.missing.progress", {
-              done: STEPS.length - event.missing.length,
-              total: STEPS.length,
-            })}
-          </p>
-        </div>
-        <ul className="flex flex-col">
-          {STEPS.map((step) => {
-            const isMissing = event.missing.includes(step)
-            const Icon = isMissing ? Circle : CircleCheck
-            return (
-              <li
-                key={step}
-                className="flex items-center gap-3 border-t border-border py-4 last:pb-0"
+      <Checklist
+        title={t("overview.missing.title")}
+        intro={t("overview.missing.intro")}
+        progress={t("overview.missing.progress", {
+          done: STEPS.length - event.missing.length,
+          total: STEPS.length,
+        })}
+        items={STEPS.map((step) => {
+          const isMissing = event.missing.includes(step)
+          return {
+            key: step,
+            title: steps[step].title,
+            body: steps[step].body,
+            isDone: !isMissing,
+            action: isMissing ? (
+              <Button
+                asChild
+                // One primary action per view: the step to do first.
+                variant={step === firstMissing ? "default" : "outline"}
+                size="lg"
               >
-                <Icon
-                  aria-hidden
-                  className={isMissing ? "size-5 text-muted-foreground" : "size-5 text-primary"}
-                />
-                <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-                  <h4 className="text-sm font-medium">{steps[step].title}</h4>
-                  <p className="text-sm text-muted-foreground">{steps[step].body}</p>
-                </div>
-                {isMissing ? (
-                  <Button
-                    asChild
-                    // One primary action per view: the step to do first.
-                    variant={step === firstMissing ? "default" : "outline"}
-                    size="lg"
-                  >
-                    <Link
-                      to={steps[step].to}
-                      params={{ eventId: event.id }}
-                    >
-                      {steps[step].action}
-                    </Link>
-                  </Button>
-                ) : null}
-              </li>
-            )
-          })}
-        </ul>
-      </Card>
+                <Link
+                  to={steps[step].to}
+                  params={{ eventId: event.id }}
+                >
+                  {steps[step].action}
+                </Link>
+              </Button>
+            ) : null,
+          }
+        })}
+      />
       <Alert>
         <CircleAlert />
         <AlertTitle>{t("overview.inactiveTitle")}</AlertTitle>

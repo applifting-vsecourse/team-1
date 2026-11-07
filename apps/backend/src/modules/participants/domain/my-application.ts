@@ -45,6 +45,10 @@ export type MyApplicationRecord = {
     confirmedAt: Date | null
     /** Restart of the payment period after a correction (US-112). */
     paymentPeriodStartedAt: Date | null
+    /** The organizer set up at least one transport to this term (US-65). */
+    transportOffered: boolean
+    /** The participant chose a transport or their own transport for this term. */
+    transportDecided: boolean
   }[]
 }
 
@@ -56,6 +60,10 @@ export type MyApplicationTerm = {
   endsOn: string
   status: ApplicationTermStatus
   priceCzk: number
+  /** Transport is offered in this term (US-65). */
+  transportOffered: boolean
+  /** The participant has told how they get there. */
+  transportDecided: boolean
 }
 
 /** Where and how much to pay — only when at least one term is confirmed (US-25). */
@@ -138,6 +146,8 @@ export function buildMyApplication(record: MyApplicationRecord): MyApplication {
         endsOn: toIsoDate(term.endsOn),
         status: term.status,
         priceCzk: term.priceCzk,
+        transportOffered: term.transportOffered,
+        transportDecided: term.transportDecided,
       })),
     amountDueCzk,
     amountPaidCzk,

@@ -81,6 +81,24 @@ describe("organization isolation of organizer endpoints (integration)", () => {
       { method: "POST", path: `${e}/terms`, body: termBody },
       { method: "PATCH", path: t, body: termBody },
       { method: "POST", path: `${t}/cancel`, body: { reason: "Foreign" } },
+      // transport
+      { method: "GET", path: `${e}/transport` },
+      {
+        method: "POST",
+        path: `${e}/transport`,
+        body: {
+          termId: term,
+          name: "X",
+          departurePlace: "Y",
+          departureAt: "2027-07-12T06:00:00.000Z",
+        },
+      },
+      {
+        method: "PUT",
+        path: `${e}/transport/none`,
+        body: { name: "X", departurePlace: "Y", departureAt: "2027-07-12T06:00:00.000Z" },
+      },
+      { method: "GET", path: `${e}/transport/own/participants?termId=${term}` },
       // rooms
       { method: "GET", path: `${t}/rooms` },
       { method: "PATCH", path: `${t}/room-mode`, body: { roomMode: "SHARED" } },
