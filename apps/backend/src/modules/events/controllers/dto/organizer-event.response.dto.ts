@@ -104,6 +104,12 @@ export class OrganizerEventResponseDto {
   })
   evaluationModeLocked!: boolean
 
+  @ApiProperty({
+    description:
+      "At least one application exists, so the event cannot be deleted (the server still checks on delete).",
+  })
+  hasApplications!: boolean
+
   @ApiProperty({ description: "The application link works; otherwise the public page is a 404." })
   applicationsOpen!: boolean
 
@@ -142,6 +148,7 @@ export class OrganizerEventResponseDto {
       evaluationMode: event.evaluationMode,
       cancellationStartsOn: event.cancellationStartsOn,
       evaluationModeLocked: event.evaluationModeLocked,
+      hasApplications: event.applicationCount > 0,
       terms: event.terms.map((term) => EventTermSummaryDto.fromDomain(term)),
     }
   }

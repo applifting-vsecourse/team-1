@@ -1,4 +1,3 @@
-import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
 import { Circle, CircleAlert, CircleCheck, Copy } from "lucide-react"
@@ -14,7 +13,6 @@ import { Card } from "@/components/ui/card"
 import { notify } from "@/lib/notify"
 
 import { eventQueryOptions, type OrganizerEvent } from "@/features/events/api/events"
-import { DeleteEventDialog } from "@/features/events/components/DeleteEventDialog"
 import { applicationLink } from "@/features/events/lib/application-link"
 
 /**
@@ -29,7 +27,6 @@ export function EventSetup({ eventId }: { eventId: string }) {
   const { t } = useTranslation("events")
   const { t: tCommon } = useTranslation()
   const { data: event, isPending, error, refetch } = useQuery(eventQueryOptions(eventId))
-  const [isDeleteOpen, setIsDeleteOpen] = useState(false)
 
   if (isPending) return <LoadingState />
   if (error) {
@@ -84,22 +81,6 @@ export function EventSetup({ eventId }: { eventId: string }) {
       ) : (
         <MissingSteps event={event} />
       )}
-      <div className="flex flex-col items-start gap-2 border-t pt-6">
-        <p className="text-sm text-muted-foreground">{t("delete.hint")}</p>
-        <Button
-          variant="outline"
-          size="lg"
-          onClick={() => setIsDeleteOpen(true)}
-        >
-          {t("delete.action")}
-        </Button>
-      </div>
-      {isDeleteOpen ? (
-        <DeleteEventDialog
-          event={event}
-          onClose={() => setIsDeleteOpen(false)}
-        />
-      ) : null}
     </div>
   )
 }

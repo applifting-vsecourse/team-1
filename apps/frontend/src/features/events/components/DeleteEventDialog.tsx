@@ -22,7 +22,7 @@ import { deleteEvent, eventKeys, type OrganizerEvent } from "@/features/events/a
 /**
  * Confirms deleting an event with its terms and rooms. The API refuses an event with
  * applications (issue #153); the dialog then shows that error and keeps the event.
- * No Figma frame yet — follows the term cancel and room deletion dialogs (X21).
+ * Figma: #315 Opravdu smazat akci? (node 19798-37776); opened from DeleteEventSection.
  */
 export function DeleteEventDialog({
   event,

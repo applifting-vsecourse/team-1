@@ -265,6 +265,7 @@ describe("organizer events (integration)", () => {
       expect(await manual.json()).toMatchObject({
         evaluationMode: "MANUAL",
         evaluationModeLocked: false,
+        hasApplications: false,
       })
       expect((await patch(cookieA, created.id, { evaluationMode: "nope" })).status).toBe(400)
 

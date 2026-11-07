@@ -32,6 +32,7 @@ const event = {
   evaluationMode: "AUTOMATIC",
   cancellationStartsOn: null,
   evaluationModeLocked: true,
+  hasApplications: false,
   missing: [],
   terms: [],
 }

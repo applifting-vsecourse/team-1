@@ -32,6 +32,7 @@ const event = {
   evaluationMode: "AUTOMATIC",
   cancellationStartsOn: null,
   evaluationModeLocked: true,
+  hasApplications: false,
   missing: [],
   terms: [
     {
@@ -68,6 +69,7 @@ const draft = {
   evaluationMode: "AUTOMATIC",
   cancellationStartsOn: null,
   evaluationModeLocked: false,
+  hasApplications: false,
   missing: ["TERM", "ROOM"],
   terms: [],
 }
