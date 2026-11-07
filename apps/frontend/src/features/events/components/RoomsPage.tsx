@@ -10,6 +10,7 @@ import { EmptyState } from "@/components/molecules/EmptyState"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { SectionHeader } from "@/components/molecules/SectionHeader"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -29,7 +30,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { termDatesLine } from "@/lib/term-label"
+import { termDates, termDatesLine } from "@/lib/term-label"
 import { cn } from "@/lib/utils"
 
 import { eventKeys } from "@/features/events/api/events"
@@ -39,6 +40,7 @@ import {
   type Room,
   type RoomMode,
 } from "@/features/events/api/rooms"
+import { CopyRoomsDialog } from "@/features/events/components/CopyRoomsDialog"
 import { DeleteRoomDialog } from "@/features/events/components/DeleteRoomDialog"
 import { RoomDialog } from "@/features/events/components/RoomDialog"
 import { RoomModeDialog } from "@/features/events/components/RoomModeDialog"
@@ -78,6 +80,13 @@ export function RoomsPage({
   const [editor, setEditor] = useState<Room | "new" | null>(null)
   const [deleting, setDeleting] = useState<Room | null>(null)
   const [pendingMode, setPendingMode] = useState<RoomMode | null>(null)
+  const [isCopying, setIsCopying] = useState(false)
+  // The result of a copy into one term, shown until dismissed or another term is picked.
+  const [copied, setCopied] = useState<{
+    termId: string
+    rooms: number
+    beds: number
+  } | null>(null)
   const refresh = async () => {
     await Promise.all([
       client.invalidateQueries({ queryKey: ["events", eventId] }),
@@ -165,7 +174,10 @@ export function RoomsPage({
         <Label htmlFor="accommodation-term">{t("rooms.termLabel")}</Label>
         <Select
           value={selected.id}
-          onValueChange={(value) => onSelectTerm(value)}
+          onValueChange={(value) => {
+            setCopied(null)
+            onSelectTerm(value)
+          }}
         >
           <SelectTrigger
             id="accommodation-term"
@@ -228,6 +240,34 @@ export function RoomsPage({
           </Card>
         ))}
       </div>
+      {copied?.termId === selected.id ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>
+              <h3>{t("rooms.copy.doneTitle")}</h3>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-4">
+            <Alert>
+              <AlertTitle>{t("rooms.copy.doneHeading")}</AlertTitle>
+              <AlertDescription>
+                {t("rooms.copy.doneBody", {
+                  rooms: t("rooms.roomCount", { count: copied.rooms }),
+                  beds: t("rooms.beds", { count: copied.beds }),
+                })}
+              </AlertDescription>
+            </Alert>
+            <p>{t("rooms.copy.doneHint", { term: termDates(selected) })}</p>
+            <Button
+              size="lg"
+              className="self-start max-sm:w-full"
+              onClick={() => setCopied(null)}
+            >
+              {t("rooms.copy.doneAction")}
+            </Button>
+          </CardContent>
+        </Card>
+      ) : null}
       <Card>
         <CardHeader className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
           <CardTitle>
@@ -247,6 +287,16 @@ export function RoomsPage({
                 {t("rooms.showTerms")}
               </Link>
             </Button>
+            {terms.length > 1 ? (
+              <Button
+                variant="outline"
+                size="lg"
+                className="max-sm:w-full"
+                onClick={() => setIsCopying(true)}
+              >
+                {t("rooms.copy.open")}
+              </Button>
+            ) : null}
             <Button
               size="lg"
               className="max-sm:w-full"
@@ -366,6 +416,17 @@ export function RoomsPage({
           targetMode={pendingMode}
           onClose={() => setPendingMode(null)}
           onSaved={refresh}
+        />
+      ) : null}
+      {isCopying ? (
+        <CopyRoomsDialog
+          target={term}
+          sourceTerms={terms.filter((item) => item.id !== selected.id)}
+          onClose={() => setIsCopying(false)}
+          onCopied={async (result) => {
+            setCopied({ termId: selected.id, ...result })
+            await refresh()
+          }}
         />
       ) : null}
       {editor ? (
