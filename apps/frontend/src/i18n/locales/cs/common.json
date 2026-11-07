@@ -18,9 +18,13 @@
   },
   "comingSoon": "Připravuje se — {{story}}.",
   "dateField": {
+    "done": "Hotovo",
     "month": "Měsíc",
     "openCalendar": "Vybrat datum v kalendáři",
     "placeholder": "D. M. RRRR",
+    "placeholderTime": "D. M. RRRR H:mm",
+    "time": "Čas",
+    "timePlaceholder": "H:mm",
     "year": "Rok"
   },
   "eventTabs": {

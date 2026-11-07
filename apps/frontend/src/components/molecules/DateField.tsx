@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import {
   Select,
@@ -19,10 +20,15 @@ import {
 import { currentLanguage } from "@/i18n"
 import {
   formatDateInput,
+  formatDateTimeInput,
   isIsoDate,
+  isIsoDateTime,
   isoToLocalDate,
   localDateToIso,
   parseDateInput,
+  parseDateTimeInput,
+  parseTimeInput,
+  splitDateTime,
 } from "@/lib/date-input"
 import { cn } from "@/lib/utils"
 
@@ -40,7 +46,15 @@ type DateFieldProps = Omit<
   /** Earliest / latest day that can be picked, `yyyy-MM-dd`. */
   min?: string
   max?: string
+  /**
+   * Also asks for a time of day: the value is `yyyy-MM-ddTHH:mm` and the calendar gets a time
+   * field. Off by default — a day-only field looks and works as before.
+   */
+  hasTime?: boolean
 }
+
+/** The time a day gets when it is picked in the calendar before any time was given. */
+const DEFAULT_TIME = "08:00"
 
 const MonthsDropdown = (props: DropdownProps) => (
   <CalendarDropdown
@@ -57,8 +71,10 @@ const YearsDropdown = (props: DropdownProps) => (
 
 const capitalize = (text: string) => text.charAt(0).toLocaleUpperCase() + text.slice(1)
 
-const toDisplay = (value: string, language: "cs" | "en") =>
-  isIsoDate(value) ? formatDateInput(value, language) : value
+const toDisplay = (value: string, language: "cs" | "en", hasTime: boolean) => {
+  if (hasTime) return isIsoDateTime(value) ? formatDateTimeInput(value, language) : value
+  return isIsoDate(value) ? formatDateInput(value, language) : value
+}
 
 /** Month / year picker in the calendar header: the kit Select behind DayPicker's dropdown slot. */
 // Figma (Design system): DS / Date picker · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14790-1710
@@ -110,6 +126,7 @@ export function DateField({
   onChange,
   min,
   max,
+  hasTime = false,
   onBlur,
   className,
   ...inputProps
@@ -117,19 +134,24 @@ export function DateField({
   const { t } = useTranslation("common")
   const language = currentLanguage()
   const [isOpen, setIsOpen] = useState(false)
-  const [text, setText] = useState(() => toDisplay(value, language))
+  const parse = hasTime ? parseDateTimeInput : parseDateInput
+  const show = (iso: string) =>
+    hasTime ? formatDateTimeInput(iso, language) : formatDateInput(iso, language)
+  const [text, setText] = useState(() => toDisplay(value, language, hasTime))
+  const [timeText, setTimeText] = useState("")
   const [seen, setSeen] = useState({ value, language })
 
   // The form changed the value (reset, other language): show it, unless it is
   // what was just typed.
   if (seen.value !== value || seen.language !== language) {
     setSeen({ value, language })
-    if (seen.language !== language || (parseDateInput(text) ?? text) !== value) {
-      setText(toDisplay(value, language))
+    if (seen.language !== language || (parse(text) ?? text) !== value) {
+      setText(toDisplay(value, language, hasTime))
     }
   }
 
-  const selected = isoToLocalDate(value)
+  const { date: day, time } = hasTime ? splitDateTime(value) : { date: value, time: "" }
+  const selected = isoToLocalDate(day)
   const minDate = min ? isoToLocalDate(min) : undefined
   const maxDate = max ? isoToLocalDate(max) : undefined
   const today = new Date()
@@ -148,13 +170,16 @@ export function DateField({
 
   const handleTyped = (typed: string) => {
     setText(typed)
-    onChange(parseDateInput(typed) ?? typed.trim())
+    onChange(parse(typed) ?? typed.trim())
   }
 
   return (
     <Popover
       open={isOpen}
-      onOpenChange={setIsOpen}
+      onOpenChange={(isNext) => {
+        setIsOpen(isNext)
+        if (isNext) setTimeText(time)
+      }}
     >
       <PopoverAnchor asChild>
         <div className="relative">
@@ -162,14 +187,14 @@ export function DateField({
             type="text"
             inputMode="numeric"
             autoComplete="off"
-            placeholder={t("dateField.placeholder")}
+            placeholder={t(hasTime ? "dateField.placeholderTime" : "dateField.placeholder")}
             className={cn("pr-12", className)}
             {...inputProps}
             value={text}
             onChange={(event) => handleTyped(event.target.value)}
             onBlur={(event) => {
-              const iso = parseDateInput(text)
-              if (iso) setText(formatDateInput(iso, language))
+              const iso = parse(text)
+              if (iso) setText(show(iso))
               onBlur?.(event)
             }}
           />
@@ -200,9 +225,17 @@ export function DateField({
           selected={selected}
           onSelect={(date) => {
             const iso = localDateToIso(date)
-            setText(formatDateInput(iso, language))
-            onChange(iso)
-            setIsOpen(false)
+            if (!hasTime) {
+              setText(formatDateInput(iso, language))
+              onChange(iso)
+              setIsOpen(false)
+              return
+            }
+            // The time stays while the day changes; a first pick brings the default time.
+            const picked = `${iso}T${time || DEFAULT_TIME}`
+            setTimeText(time || DEFAULT_TIME)
+            setText(show(picked))
+            onChange(picked)
           }}
           defaultMonth={opensOn}
           startMonth={new Date(firstYear, 0, 1)}
@@ -230,6 +263,41 @@ export function DateField({
           classNames={{ month: "flex w-full flex-col gap-2" }}
           components={{ MonthsDropdown, YearsDropdown }}
         />
+        {hasTime ? (
+          <div className="flex items-end gap-3 border-t p-3">
+            <div className="flex flex-1 flex-col gap-1.5">
+              <Label htmlFor={`${inputProps.id ?? "date"}-time`}>{t("dateField.time")}</Label>
+              <Input
+                id={`${inputProps.id ?? "date"}-time`}
+                type="text"
+                inputMode="numeric"
+                autoComplete="off"
+                placeholder={t("dateField.timePlaceholder")}
+                disabled={!selected}
+                value={timeText}
+                onChange={(event) => {
+                  setTimeText(event.target.value)
+                  const parsed = parseTimeInput(event.target.value)
+                  if (parsed && selected) {
+                    const next = `${day}T${parsed}`
+                    setText(show(next))
+                    onChange(next)
+                  }
+                }}
+                onBlur={() => {
+                  const parsed = parseTimeInput(timeText)
+                  if (parsed) setTimeText(parsed)
+                }}
+              />
+            </div>
+            <Button
+              type="button"
+              onClick={() => setIsOpen(false)}
+            >
+              {t("dateField.done")}
+            </Button>
+          </div>
+        ) : null}
       </PopoverContent>
     </Popover>
   )
