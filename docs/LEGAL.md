@@ -4,14 +4,14 @@
 
 Tento dokument je konceptuální vrstva ([US-97](https://github.com/applifting-vsecourse/team-1/issues/164), feature F-56). Nasazení stránky v aplikaci a souhlas ve formuláři přihlášky řeší [US-77](https://github.com/applifting-vsecourse/team-1/issues/77). VOP, výmaz osobních údajů a záznam přístupů se podle rozhodnutí z 29. 10. 2026 nedělají.
 
-| Údaj                                | Hodnota                                            |
-| ----------------------------------- | -------------------------------------------------- |
-| Verze                               | 1.0                                                |
-| Datum platnosti                     | 6. 11. 2026                                        |
-| Kontakt pro dotazy k osobním údajům | `[DOPLNIT: kontaktní e-mail provozovatele Togeny]` |
-| Provozovatel Togeny                 | `[DOPLNIT: název / jméno provozovatele]`           |
+| Údaj                                | Hodnota                                  |
+| ----------------------------------- | ---------------------------------------- |
+| Verze                               | 1.0                                      |
+| Datum platnosti                     | 6. 11. 2026                              |
+| Kontakt pro dotazy k osobním údajům | support@togena.com                       |
+| Provozovatel Togeny                 | `[DOPLNIT: název / jméno provozovatele]` |
 
-Údaje v hranatých závorkách s `DOPLNIT` zatím nejsou nikde určené (viz PR, „Nejasnosti k byznys pravidlům“). Do nasazené stránky se nesmí dostat, dokud je produktový manažer nedoplní.
+Kontakt `support@togena.com` je fiktivní, stejný jako v e-mailech aplikace. Název provozovatele (`DOPLNIT`) zatím není nikde určený (viz PR, „Nejasnosti k byznys pravidlům“); do nasazené stránky se placeholder nesmí dostat, dokud ho produktový manažer nedoplní.
 
 ---
 
@@ -42,7 +42,7 @@ Máte právo požádat o informace o zpracování svých údajů, o jejich oprav
 
 #### 5. Kontakt
 
-Dotazy k osobním údajům posílejte na: `[DOPLNIT: kontaktní e-mail provozovatele Togeny]`.
+Dotazy k osobním údajům posílejte na: support@togena.com.
 
 #### 6. Změny
 
@@ -77,7 +77,7 @@ You may ask for information about how your data is processed, ask for it to be c
 
 #### 5. Contact
 
-Send questions about personal data to: `[TO BE FILLED IN: Togena operator contact e-mail]`.
+Send questions about personal data to: support@togena.com.
 
 #### 6. Changes
 
