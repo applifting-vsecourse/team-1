@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test"
 import { MOUNTAIN_WEEKEND_TOKEN, ORGANIZER, PARTICIPANT } from "./support/accounts"
-import { fillSignInForm, signIn, signOut } from "./support/auth"
+import { fillSignInForm, openEventList, signIn, signOut } from "./support/auth"
 import { eventIdByPublicToken } from "./support/events"
 
 // US-96 landing → US-02 sign-in and sign-out, and the boundary between the two account types.
@@ -14,7 +14,7 @@ test.describe("Sign-in", () => {
     await expect(page).toHaveURL(/\/organizer\/login/)
 
     await fillSignInForm(page, ORGANIZER)
-    await expect(page.getByRole("heading", { level: 1, name: "Event list" })).toBeVisible()
+    await openEventList(page)
 
     // The account menu sits at the bottom of the sidebar.
     await page
@@ -26,6 +26,30 @@ test.describe("Sign-in", () => {
     await expect(page).toHaveURL(/\/$/)
     await page.goto("/organizer")
     await expect(page).toHaveURL(/\/organizer\/login/)
+  })
+
+  test("organizer lands on the overview of the event opened last (US-51)", async ({ page }) => {
+    await signIn(page, "organizer", ORGANIZER)
+    await openEventList(page)
+    const remembered = page.waitForResponse(
+      (response) =>
+        response.request().method() === "PUT" && response.url().endsWith("/last-opened"),
+    )
+    await page.getByRole("link", { name: /Letní kemp 2027(?! – demo)/ }).click()
+    await expect(page).toHaveURL(/\/organizer\/events\/[^/]+$/)
+    expect((await remembered).status()).toBe(204)
+    const eventUrl = page.url()
+    await expect(page.getByRole("combobox", { name: "Event" })).toBeVisible()
+
+    await signOut(page, ORGANIZER)
+    await expect(page).toHaveURL(/\/$/)
+    await signIn(page, "organizer", ORGANIZER)
+    await expect(page).toHaveURL(eventUrl)
+
+    // The sidebar item "Overview" leads to the same place from anywhere.
+    await page.goto("/organizer/events")
+    await page.getByRole("complementary").getByRole("link", { name: "Overview" }).click()
+    await expect(page).toHaveURL(eventUrl)
   })
 
   test(
@@ -54,7 +78,7 @@ test.describe("Sign-in", () => {
   test("organizer cannot open another organization's event (US-10)", async ({ page }) => {
     const eventId = await eventIdByPublicToken(MOUNTAIN_WEEKEND_TOKEN)
     await signIn(page, "organizer", ORGANIZER)
-    await expect(page.getByRole("heading", { level: 1, name: "Event list" })).toBeVisible()
+    await openEventList(page)
 
     await page.goto(`/organizer/events/${eventId}`)
     await expect(page.getByText("403 · The requested record isn't available to you.")).toBeVisible()

@@ -1,11 +1,12 @@
 import { expect, test } from "@playwright/test"
 import { ORGANIZER, PARTICIPANT } from "./support/accounts"
-import { signIn, signOut } from "./support/auth"
+import { openEventList, signIn, signOut } from "./support/auth"
 
 test("participant submits a cancellation request and organizer declines it at 360 px", async ({
   page,
 }) => {
   await signIn(page, "organizer", ORGANIZER)
+  await openEventList(page)
   await page.getByRole("link", { name: /Letní kemp 2027(?! – demo)/ }).click()
   await page
     .getByRole("navigation", { name: "Event sections" })
@@ -40,6 +41,7 @@ test("participant submits a cancellation request and organizer declines it at 36
   await expect(page).toHaveURL(/\/$/)
 
   await signIn(page, "organizer", ORGANIZER)
+  await openEventList(page)
   await page.setViewportSize({ width: 1280, height: 800 })
   await page.getByRole("link", { name: /Letní kemp 2027(?! – demo)/ }).click()
   await page

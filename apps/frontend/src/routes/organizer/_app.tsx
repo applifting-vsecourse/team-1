@@ -1,5 +1,5 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router"
-import { Calendar } from "lucide-react"
+import { Calendar, LayoutGrid } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
@@ -48,12 +48,21 @@ function OrganizerLayout() {
         width="wide"
         roleLabel={t("accountRole.ORGANIZER")}
         nav={
-          <SidebarLink
-            to={ROUTES.organizer.events}
-            icon={Calendar}
-          >
-            {t("nav.events")}
-          </SidebarLink>
+          <>
+            {/* Figma (Design system): #51 Letní kemp Lipno 2027 / Desktop · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19798-36893 */}
+            <SidebarLink
+              to={ROUTES.organizer.home}
+              icon={LayoutGrid}
+            >
+              {t("nav.overview")}
+            </SidebarLink>
+            <SidebarLink
+              to={ROUTES.organizer.events}
+              icon={Calendar}
+            >
+              {t("nav.events")}
+            </SidebarLink>
+          </>
         }
         account={<SidebarAccount />}
       >

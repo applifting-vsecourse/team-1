@@ -45,7 +45,8 @@
     "events": "Events",
     "expandMenu": "Expand menu",
     "main": "Main navigation",
-    "openMenu": "Open navigation"
+    "openMenu": "Open navigation",
+    "overview": "Overview"
   },
   "pages": {
     "error": {
