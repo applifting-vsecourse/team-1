@@ -5,6 +5,10 @@ CREATE TYPE "change_request_kind" AS ENUM ('TERMS', 'HEALTH');
 ALTER TABLE "change_request" ADD COLUMN     "healthNote" TEXT,
 ADD COLUMN     "kind" "change_request_kind" NOT NULL DEFAULT 'TERMS';
 
+-- One pending request per application and kind (a term request must not block a health one).
+DROP INDEX "change_request_one_pending_per_application";
+CREATE UNIQUE INDEX "change_request_one_pending_per_application_kind" ON "change_request"("applicationId", "kind") WHERE "status" = 'PENDING';
+
 -- CreateTable
 CREATE TABLE "application_health" (
     "id" TEXT NOT NULL,

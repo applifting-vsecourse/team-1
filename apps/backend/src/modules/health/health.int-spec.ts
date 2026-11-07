@@ -193,6 +193,26 @@ describe("health restriction (integration)", () => {
     expect(await own.json()).toMatchObject({ note: "Nový údaj", pendingRequest: null })
   })
 
+  it("does not let a pending term request block a health request", async () => {
+    const application = await prisma.application.findUniqueOrThrow({ where: { id: applicationId } })
+    const term = await prisma.changeRequest.create({
+      data: {
+        organizationId: application.organizationId,
+        eventId,
+        applicationId,
+        applicantId: application.userId!,
+        currentTermIds: [],
+        requestedTermIds: [],
+      },
+    })
+
+    expect(
+      (await requestChange(participant, { note: "Vedle termínu", consent: true })).status,
+    ).toBe(201)
+    await prisma.changeRequest.deleteMany({ where: { applicationId } })
+    expect(term.status).toBe("PENDING")
+  })
+
   it("keeps the data when the organizer rejects, and removes it when an empty note is approved", async () => {
     await requestChange(participant, { note: "Odmítnuto", consent: true })
     let items = await (

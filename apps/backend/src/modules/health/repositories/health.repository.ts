@@ -1,6 +1,8 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
+import { Prisma } from "@/generated/prisma/client"
 import { HealthRecord } from "@/modules/health/domain/health"
-import { Injectable } from "@nestjs/common"
+import { AppException } from "@/shared/errors/app.exception"
+import { HttpStatus, Injectable } from "@nestjs/common"
 
 const select = {
   id: true,
@@ -48,11 +50,18 @@ export class HealthRepository {
     note: string,
     consentAt: Date,
   ): Promise<void> {
-    await this.prisma.applicationHealth.upsert({
-      where: { applicationId },
-      create: { organizationId, applicationId, note, consentAt },
-      update: { note, consentAt },
-    })
+    // A plain create: the unique `applicationId` makes the first fill atomic. A concurrent second
+    // write fails instead of overwriting data that is already filled in.
+    try {
+      await this.prisma.applicationHealth.create({
+        data: { organizationId, applicationId, note, consentAt },
+      })
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+        throw new AppException(HttpStatus.CONFLICT, "HEALTH_CHANGE_REQUEST_REQUIRED")
+      }
+      throw error
+    }
   }
 
   async clear(applicationId: string): Promise<void> {
