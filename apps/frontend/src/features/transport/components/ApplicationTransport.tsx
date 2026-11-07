@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useNavigate } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
@@ -37,6 +38,7 @@ export function ApplicationTransport({ applicationId }: { applicationId: string 
   const { t } = useTranslation("transport")
   const query = useQuery(applicationTransportQueryOptions(applicationId))
   const client = useQueryClient()
+  const navigate = useNavigate()
   // What was changed on this page: term → transport id or own.
   const [changes, setChanges] = useState<Record<string, string>>({})
   const mutation = useMutation({
@@ -52,6 +54,8 @@ export function ApplicationTransport({ applicationId }: { applicationId: string 
       await client.invalidateQueries({ queryKey: transportKeys.application(applicationId) })
       await client.invalidateQueries({ queryKey: ["participant"] })
       notify.success(t("saved"))
+      // Saved and confirmed: back to the application, there is nothing more to do here.
+      await navigate({ to: ROUTES.participant.application, params: { applicationId } })
     },
   })
 
