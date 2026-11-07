@@ -183,4 +183,17 @@ describe("transport (integration)", () => {
       applicationId,
     )
   })
+
+  it("leaves out participants whose terms of the event are all cancelled", async () => {
+    await send(`/participant/applications/${applicationId}/transport`, participant, "PUT", {
+      transportId,
+    })
+    await prisma.term.updateMany({ where: { eventId }, data: { cancelledAt: new Date() } })
+
+    expect((await listing()).transports[0].participantsCount).toBe(0)
+    const body: Participants = await (
+      await send(`/organizer/events/${eventId}/transport/${transportId}/participants`, organizer)
+    ).json()
+    expect(body.groups).toEqual([])
+  })
 })

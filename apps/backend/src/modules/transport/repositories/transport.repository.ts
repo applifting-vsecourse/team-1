@@ -11,8 +11,13 @@ import { HttpStatus, Injectable } from "@nestjs/common"
 
 type Scope = { eventId: string; organizationId: string }
 
-// An application takes part in the event while at least one of its terms is not cancelled.
-const active = { terms: { some: { status: { not: "CANCELLED" as const } } } }
+// An application takes part in the event while at least one of its terms is neither cancelled
+// itself nor a cancelled term of the event (cancelling a term leaves the application's status).
+const active = {
+  terms: {
+    some: { status: { not: "CANCELLED" as const }, term: { cancelledAt: null } },
+  },
+}
 
 /** The only place of transport (US-65) that touches the database. */
 @Injectable()
