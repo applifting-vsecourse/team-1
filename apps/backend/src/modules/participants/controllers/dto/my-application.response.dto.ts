@@ -68,6 +68,17 @@ export class OrganizationContactDto {
   }
 }
 
+export class SimulatedPaymentDto {
+  @ApiProperty()
+  termId!: string
+
+  @ApiProperty({ example: 500, description: "Whole CZK." })
+  amountCzk!: number
+
+  @ApiProperty({ example: "2027-03-01T10:00:00.000Z", description: "ISO datetime." })
+  createdAt!: string
+}
+
 export class MyApplicationResponseDto {
   @ApiProperty()
   id!: string
@@ -117,6 +128,14 @@ export class MyApplicationResponseDto {
     description: "NOTHING_DUE while no term is confirmed.",
   })
   paymentStatus!: PaymentStatus
+
+  @ApiProperty({
+    description: "True only on staging and demo, where the participant may simulate a payment.",
+  })
+  canSimulatePayment!: boolean
+
+  @ApiProperty({ type: [SimulatedPaymentDto], description: "Newest first." })
+  simulatedPayments!: SimulatedPaymentDto[]
 
   @ApiProperty({
     type: OrganizationContactDto,

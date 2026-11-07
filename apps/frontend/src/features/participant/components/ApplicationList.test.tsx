@@ -22,6 +22,8 @@ const application = (overrides: Partial<MyApplication> = {}): MyApplication => (
   lastName: "Nováková",
   code: "LKL-0048",
   variableSymbol: "48000",
+  canSimulatePayment: false,
+  simulatedPayments: [],
   terms: [
     {
       termId: "t1",

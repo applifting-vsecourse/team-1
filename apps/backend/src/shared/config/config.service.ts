@@ -102,4 +102,9 @@ export class Config {
   // How often waitlisted applications of started terms are cancelled (US-106); 0 = off.
   @Env("WAITLIST_EXPIRY_INTERVAL_MS", { expose: true, defaultValue: 3_600_000 })
   readonly waitlistExpiryIntervalMs!: number
+
+  // Staging and demo only (US-115): lets a participant simulate paying a debt. Off unless set.
+  @Env("PAYMENT_SIMULATION_ENABLED", { expose: true, defaultValue: false })
+  @IsBoolean()
+  readonly paymentSimulationEnabled!: boolean
 }
