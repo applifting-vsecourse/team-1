@@ -28,6 +28,8 @@ export const ROUTES = {
     eventCapacity: "/organizer/events/$eventId/capacity",
     eventApplications: "/organizer/events/$eventId/applications",
     eventPayments: "/organizer/events/$eventId/payments",
+    eventMeals: "/organizer/events/$eventId/meals",
+    eventMealOptions: "/organizer/events/$eventId/meals/options",
     application: "/organizer/events/$eventId/applications/$applicationId",
     account: "/organizer/account",
   },
@@ -38,6 +40,7 @@ export const ROUTES = {
     setPassword: "/participant/set-password",
     applications: "/participant",
     application: "/participant/applications/$applicationId",
+    applicationMeals: "/participant/applications/$applicationId/meals",
     account: "/participant/account",
   },
 } as const

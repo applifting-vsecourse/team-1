@@ -1,0 +1,27 @@
+{
+  "kitchen": {
+    "allergiesTitle": "Alergie",
+    "countsTitle": "Počty stravování",
+    "description": "{{event}} · Stravování",
+    "overlapNote": "Omezení se mohou překrývat.",
+    "print": "Vytisknout souhrn",
+    "regular": "Běžná strava",
+    "setUpOptions": "Nastavit varianty stravy",
+    "termLabel": "Termín",
+    "title": "Souhrn pro kuchyni"
+  },
+  "options": {
+    "add": "Přidat omezení",
+    "cardTitle": "Nabízená omezení",
+    "nameLabel": "Název omezení",
+    "remove": "Odebrat {{name}}",
+    "save": "Uložit varianty",
+    "title": "Varianty stravování"
+  },
+  "own": {
+    "allergiesLabel": "Alergie a další stravovací omezení",
+    "pageTitle": "Stravování",
+    "save": "Uložit stravování",
+    "title": "Stravování · {{name}}"
+  }
+}

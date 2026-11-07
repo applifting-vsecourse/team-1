@@ -71,6 +71,7 @@
   "detail": {
     "back": "← All applications",
     "errorTitle": "Couldn't load the application",
+    "meals": "Meals",
     "termsTitle": "Status by term",
     "title": "My application",
     "toEvaluate": {

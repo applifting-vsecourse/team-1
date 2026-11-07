@@ -26,6 +26,7 @@
   "eventTabs": {
     "applications": "Applications",
     "capacity": "Capacity",
+    "meals": "Meals",
     "overview": "Overview",
     "payments": "Payments",
     "position": "{{current}} of {{total}}",
