@@ -11,7 +11,10 @@ const include = {
   terms: {
     include: {
       term: true,
-      payments: { where: { cancelledAt: null }, select: { amountCzk: true } },
+      payments: {
+        where: { cancelledAt: null },
+        select: { amountCzk: true, source: true, createdAt: true },
+      },
       statusChanges: {
         where: { toStatus: "CONFIRMED" },
         orderBy: { createdAt: "desc" },

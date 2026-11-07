@@ -39,6 +39,7 @@ jobs:
           push: true
           build-args: |
             RESEND_API_KEY=${{ secrets.RESEND_API_KEY }}
+            PAYMENT_SIMULATION_ENABLED=true
           tags: ${{ env.REGISTRY }}/${{ steps.slug.outputs.slug }}-backend:latest
       - name: Build & push frontend
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0

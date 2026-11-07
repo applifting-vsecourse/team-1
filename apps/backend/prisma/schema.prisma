@@ -428,6 +428,12 @@ model ApplicationTermSkip {
   @@map("application_term_skip")
 }
 
+// Where a payment row comes from. SIMULATION is the staging/demo button of the participant (US-115).
+enum PaymentSource {
+  MANUAL
+  SIMULATION
+}
+
 // Manually recorded payment (US-44) of one application in a term (US-137, D-051). Rows rather
 // than a flag so a bank statement import (US-42) can add more later. One receipt (money that
 // arrived at once) is one or more rows sharing `receiptId`; a refund is a negative row.
@@ -443,6 +449,7 @@ model Payment {
   // New receipts remember whether the organizer used the summary symbol; null is legacy data.
   isSummary         Boolean?
   amountCzk         Int
+  source            PaymentSource   @default(MANUAL)
   recordedBy        User            @relation(fields: [recordedById], references: [id])
   recordedById      String
   createdAt         DateTime        @default(now())
