@@ -25,6 +25,8 @@ const previewSchema = z.object({
       priceCzk: z.number().int(),
       /** Already paid in the term; a reactivated term keeps its payments. */
       paidCzk: z.number().int(),
+      /** Debt left in the term; computed by the backend. */
+      toPayCzk: z.number().int(),
       /** A bed of the applicant's gender is free in the new term. */
       fits: z.boolean(),
       /** Beds the applicant's gender can use in the term, and how many are free. */

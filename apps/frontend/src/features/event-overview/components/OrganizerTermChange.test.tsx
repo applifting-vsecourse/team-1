@@ -31,6 +31,7 @@ const preview = (isFitting: boolean, paidCzk = 0) => ({
       termId: "t2",
       priceCzk: 5600,
       paidCzk,
+      toPayCzk: Math.max(0, 5600 - paidCzk),
       fits: isFitting,
       genderCapacity: 50,
       genderFree: isFitting ? 2 : 0,
