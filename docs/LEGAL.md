@@ -4,14 +4,14 @@
 
 Tento dokument je konceptuální vrstva ([US-97](https://github.com/applifting-vsecourse/team-1/issues/164), feature F-56). Nasazení stránky v aplikaci a souhlas ve formuláři přihlášky řeší [US-77](https://github.com/applifting-vsecourse/team-1/issues/77). VOP, výmaz osobních údajů a záznam přístupů se podle rozhodnutí z 29. 10. 2026 nedělají.
 
-| Údaj                                | Hodnota                                  |
-| ----------------------------------- | ---------------------------------------- |
-| Verze                               | 1.0                                      |
-| Datum platnosti                     | 6. 11. 2026                              |
-| Kontakt pro dotazy k osobním údajům | support@togena.com                       |
-| Provozovatel Togeny                 | `[DOPLNIT: název / jméno provozovatele]` |
+| Údaj                                | Hodnota               |
+| ----------------------------------- | --------------------- |
+| Verze                               | 1.0                   |
+| Datum platnosti                     | 6. 11. 2026           |
+| Kontakt pro dotazy k osobním údajům | support@togena.com    |
+| Provozovatel Togeny                 | Togena Systems s.r.o. |
 
-Kontakt `support@togena.com` je fiktivní, stejný jako v e-mailech aplikace. Název provozovatele (`DOPLNIT`) zatím není nikde určený (viz PR, „Nejasnosti k byznys pravidlům“); do nasazené stránky se placeholder nesmí dostat, dokud ho produktový manažer nedoplní.
+Kontakt `support@togena.com` a provozovatel Togena Systems s.r.o. jsou fiktivní (určil produktový manažer); kontakt je stejný jako v e-mailech aplikace.
 
 ---
 
