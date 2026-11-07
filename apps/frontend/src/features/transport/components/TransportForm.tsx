@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useNavigate } from "@tanstack/react-router"
 import { Loader2 } from "lucide-react"
-import { useForm } from "react-hook-form"
+import { useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
@@ -134,7 +134,8 @@ function TransportFields({
       }
     })
   const form = useForm<Values>({ resolver: zodResolver(schema), defaultValues: defaults })
-  const term = terms.find((item) => item.termId === form.watch("termId"))
+  const termId = useWatch({ control: form.control, name: "termId" })
+  const term = terms.find((item) => item.termId === termId)
   const copyable = terms.flatMap((item) =>
     item.transports
       .filter((transport) => transport.id !== transportId)
