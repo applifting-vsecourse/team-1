@@ -10,6 +10,12 @@ import type { Language } from "@/i18n"
 const ISO_DATE = /^(\d{4})-(\d{2})-(\d{2})$/
 const DAY_FIRST = /^(\d{1,2})\s*[./-]\s*(\d{1,2})\s*[./-]\s*(\d{4})$/
 const EIGHT_DIGITS = /^(\d{2})(\d{2})(\d{4})$/
+const TIME = /^(\d{1,2})\s*[:.]\s*(\d{2})$/
+const FOUR_DIGITS = /^(\d{2})(\d{2})$/
+const HOUR = /^(\d{1,2})$/
+const ISO_DATE_TIME = /^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})$/
+// A day, then a time with a separator (`8:30`, `8.30`) or four digits (`0830`).
+const DATE_THEN_TIME = /^(.+?)[\s,]+(\d{1,2}\s*[:.]\s*\d{2}|\d{4})$/
 
 const isLeapYear = (year: number) => (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0
 
@@ -67,4 +73,51 @@ export function isoToLocalDate(iso: string): Date | undefined {
 /** A `Date` (its local day) → ISO day. */
 export function localDateToIso(date: Date): string {
   return toIso(date.getFullYear(), date.getMonth() + 1, date.getDate())
+}
+
+/**
+ * A time of day typed into a time field → `HH:mm`, or `null` when it is not one. `8:00`, `08:00`,
+ * `8.00`, `0800` and a bare hour (`8`) are accepted.
+ */
+export function parseTimeInput(text: string): string | null {
+  const match = TIME.exec(text.trim()) ?? FOUR_DIGITS.exec(text.trim()) ?? HOUR.exec(text.trim())
+  if (!match) return null
+  const [hours, minutes] = [Number(match[1]), Number(match[2] ?? 0)]
+  return hours < 24 && minutes < 60
+    ? `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`
+    : null
+}
+
+/** `true` for a real day and time written as `yyyy-MM-ddTHH:mm`. */
+export function isIsoDateTime(text: string): boolean {
+  const match = ISO_DATE_TIME.exec(text)
+  return match ? isIsoDate(match[1]!) && parseTimeInput(match[2]!) === match[2] : false
+}
+
+/** The day and the time of `yyyy-MM-ddTHH:mm`; empty strings for what is not there. */
+export function splitDateTime(value: string): { date: string; time: string } {
+  const [date = "", time = ""] = value.split("T")
+  return { date, time }
+}
+
+/**
+ * What a user typed → `2014-05-18T08:30`, or `null` when it is not a real day followed by a
+ * time (`18. 5. 2014 8:30`, `18/05/2014 08:30`, `18052014 0830`, a pasted ISO value).
+ */
+export function parseDateTimeInput(text: string): string | null {
+  const value = text.trim()
+  if (isIsoDateTime(value)) return value
+  const match = DATE_THEN_TIME.exec(value)
+  if (!match) return null
+  const date = parseDateInput(match[1]!)
+  const time = parseTimeInput(match[2]!)
+  return date && time ? `${date}T${time}` : null
+}
+
+/** ISO day and time → what the field shows — cs: `18. 5. 2014 8:30`, en: `18/05/2014 08:30`. */
+export function formatDateTimeInput(iso: string, language: Language): string {
+  if (!isIsoDateTime(iso)) return iso
+  const { date, time } = splitDateTime(iso)
+  const shown = language === "cs" ? time.replace(/^0/, "") : time
+  return `${formatDateInput(date, language)} ${shown}`
 }

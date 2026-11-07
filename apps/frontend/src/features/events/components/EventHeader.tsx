@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query"
 import { Link, useMatchRoute } from "@tanstack/react-router"
 import {
   BedDouble,
+  Bus,
   CalendarDays,
   Check,
   ChevronDown,
@@ -75,6 +76,7 @@ const SECTIONS = [
   { key: "capacity", to: ROUTES.organizer.eventCapacity, icon: Gauge },
   { key: "rooms", to: ROUTES.organizer.eventRooms, icon: BedDouble },
   { key: "terms", to: ROUTES.organizer.eventTerms, icon: CalendarDays },
+  { key: "transport", to: ROUTES.organizer.eventTransport, icon: Bus },
   { key: "settings", to: ROUTES.organizer.eventSettings, icon: Settings },
 ] as const
 

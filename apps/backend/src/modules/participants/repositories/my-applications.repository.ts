@@ -10,7 +10,7 @@ const include = {
   organization: { select: { name: true, bankAccount: true } },
   terms: {
     include: {
-      term: true,
+      term: { include: { _count: { select: { transports: true } } } },
       payments: {
         where: { cancelledAt: null },
         select: { amountCzk: true, source: true, createdAt: true },
@@ -75,6 +75,8 @@ function toRecord(row: Row): MyApplicationRecord {
         statusChanges,
         evaluatedAt,
         paymentPeriodStartedAt,
+        transportId,
+        ownTransport,
       }) => ({
         termId: term.id,
         termNumber: term.number,
@@ -87,6 +89,9 @@ function toRecord(row: Row): MyApplicationRecord {
         // A term confirmed without a recorded change (older data) counts from its evaluation.
         confirmedAt: statusChanges[0]?.createdAt ?? evaluatedAt,
         paymentPeriodStartedAt,
+        // A cancelled term keeps the status of its applications, but nothing is arranged for it.
+        transportOffered: term.cancelledAt === null && term._count.transports > 0,
+        transportDecided: transportId !== null || ownTransport,
       }),
     ),
   }
