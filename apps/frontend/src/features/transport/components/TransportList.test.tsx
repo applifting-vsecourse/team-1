@@ -14,14 +14,30 @@ import { TransportList } from "@/features/transport/components/TransportList"
 const listing = {
   eventName: "Letní kemp",
   eventLocation: "Areál Lipno",
-  ownCount: 2,
-  transports: [
+  terms: [
     {
-      id: "t1",
-      name: "Autobus z Prahy",
-      departurePlace: "Praha, Černý Most",
-      departureAt: "2027-07-12T06:00:00.000Z",
-      participantsCount: 24,
+      termId: "term1",
+      termName: "Letní týden",
+      startsOn: "2027-07-12",
+      endsOn: "2027-07-18",
+      ownCount: 2,
+      transports: [
+        {
+          id: "t1",
+          name: "Autobus z Prahy",
+          departurePlace: "Praha, Černý Most",
+          departureAt: "2027-07-12T06:00:00.000Z",
+          participantsCount: 24,
+        },
+      ],
+    },
+    {
+      termId: "term2",
+      termName: null,
+      startsOn: "2027-07-19",
+      endsOn: "2027-07-25",
+      ownCount: 0,
+      transports: [],
     },
   ],
 }
@@ -50,14 +66,19 @@ function renderList() {
 afterEach(() => vi.restoreAllMocks())
 
 describe("TransportList", () => {
-  it("shows each transport with its place and participants, and own transport", async () => {
+  it("groups transport by term, with own transport and an add button in each", async () => {
     renderList()
 
-    expect(await screen.findByRole("heading", { name: "Autobus z Prahy" })).toBeInTheDocument()
+    expect(await screen.findByRole("heading", { name: "Letní týden" })).toBeInTheDocument()
+    expect(screen.getByRole("heading", { name: "Autobus z Prahy" })).toBeInTheDocument()
     expect(screen.getByText("Praha, Černý Most")).toBeInTheDocument()
     expect(screen.getByText("Registered participants · 24")).toBeInTheDocument()
-    expect(screen.getByRole("heading", { name: "Own transport" })).toBeInTheDocument()
-    expect(screen.getByText("Areál Lipno")).toBeInTheDocument()
-    expect(screen.getByRole("link", { name: "Add transport" })).toBeInTheDocument()
+    expect(screen.getAllByRole("heading", { name: "Own transport" })).toHaveLength(2)
+    expect(screen.getAllByText("Areál Lipno")).toHaveLength(2)
+    expect(screen.getAllByRole("link", { name: "Add transport" })).toHaveLength(2)
+    expect(screen.getAllByRole("link", { name: "Add transport" })[1]).toHaveAttribute(
+      "href",
+      expect.stringContaining("termId=term2"),
+    )
   })
 })

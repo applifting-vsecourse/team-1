@@ -14,34 +14,41 @@ const optionSchema = z.object({
   departureAt: z.string(),
 })
 const summarySchema = optionSchema.extend({ participantsCount: z.number().int() })
+const termSchema = z.object({
+  termId: z.string(),
+  termName: z.string().nullable(),
+  /** ISO dates, `2027-07-12`. */
+  startsOn: z.string(),
+  endsOn: z.string(),
+})
 const eventTransportSchema = z.object({
   eventName: z.string(),
   eventLocation: z.string().nullable(),
-  transports: z.array(summarySchema),
-  ownCount: z.number().int(),
+  terms: z.array(
+    termSchema.extend({ transports: z.array(summarySchema), ownCount: z.number().int() }),
+  ),
 })
-const participantsSchema = z.object({
+const participantsSchema = termSchema.extend({
   name: z.string().nullable(),
-  groups: z.array(
-    z.object({
-      termId: z.string(),
-      termName: z.string().nullable(),
-      startsOn: z.string(),
-      endsOn: z.string(),
-      participants: z.array(
-        z.object({ applicationId: z.string(), name: z.string(), email: z.string() }),
-      ),
-    }),
+  participants: z.array(
+    z.object({ applicationId: z.string(), name: z.string(), email: z.string() }),
   ),
 })
 const applicationTransportSchema = z.object({
   participantName: z.string(),
   eventName: z.string(),
-  selectedTransportId: z.string().nullable(),
-  options: z.array(optionSchema),
+  terms: z.array(
+    termSchema.extend({
+      status: z.string(),
+      selectedTransportId: z.string().nullable(),
+      isOwn: z.boolean(),
+      options: z.array(optionSchema),
+    }),
+  ),
 })
 
 export type TransportOption = z.infer<typeof optionSchema>
+export type TermTransport = z.infer<typeof eventTransportSchema>["terms"][number]
 export type TransportInput = Omit<TransportOption, "id">
 
 const base = (eventId: string) => `organizer/events/${encodeURIComponent(eventId)}/transport`
@@ -50,8 +57,8 @@ const ofApplication = (applicationId: string) =>
 
 export const transportKeys = {
   event: (eventId: string) => ["events", eventId, "transport"] as const,
-  participants: (eventId: string, id: string) =>
-    ["events", eventId, "transport", id, "participants"] as const,
+  participants: (eventId: string, id: string, termId: string) =>
+    ["events", eventId, "transport", id, termId, "participants"] as const,
   application: (applicationId: string) => ["applications", applicationId, "transport"] as const,
 }
 
@@ -61,12 +68,17 @@ export const eventTransportQueryOptions = (eventId: string) =>
     queryFn: async () => eventTransportSchema.parse(await api.get(base(eventId)).json()),
   })
 
-export const transportParticipantsQueryOptions = (eventId: string, id: string) =>
+/** `termId` is only needed for own transport, which belongs to no transport row. */
+export const transportParticipantsQueryOptions = (eventId: string, id: string, termId = "") =>
   queryOptions({
-    queryKey: transportKeys.participants(eventId, id),
+    queryKey: transportKeys.participants(eventId, id, termId),
     queryFn: async () =>
       participantsSchema.parse(
-        await api.get(`${base(eventId)}/${encodeURIComponent(id)}/participants`).json(),
+        await api
+          .get(`${base(eventId)}/${encodeURIComponent(id)}/participants`, {
+            searchParams: id === OWN_TRANSPORT_ID ? { termId } : undefined,
+          })
+          .json(),
       ),
   })
 
@@ -77,19 +89,24 @@ export const applicationTransportQueryOptions = (applicationId: string) =>
       applicationTransportSchema.parse(await api.get(ofApplication(applicationId)).json()),
   })
 
+/** A new transport goes to a term; the term of an existing one does not change. */
 export async function saveTransport(
   eventId: string,
   input: TransportInput,
-  id?: string,
+  target: { termId: string } | { id: string },
 ): Promise<void> {
-  if (id) await api.put(`${base(eventId)}/${encodeURIComponent(id)}`, { json: input })
-  else await api.post(base(eventId), { json: input })
+  if ("id" in target) {
+    await api.put(`${base(eventId)}/${encodeURIComponent(target.id)}`, { json: input })
+  } else {
+    await api.post(base(eventId), { json: { ...input, termId: target.termId } })
+  }
 }
 
 /** `null` chooses own transport. */
 export async function chooseTransport(
   applicationId: string,
+  termId: string,
   transportId: string | null,
 ): Promise<void> {
-  await api.put(ofApplication(applicationId), { json: { transportId } })
+  await api.put(ofApplication(applicationId), { json: { termId, transportId } })
 }

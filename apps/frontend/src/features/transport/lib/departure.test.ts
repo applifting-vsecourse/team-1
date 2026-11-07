@@ -1,15 +1,20 @@
 import { describe, expect, it } from "vitest"
 
-import { fromDateTimeLocal, toDateTimeLocal } from "@/features/transport/lib/departure"
+import { dayOf, fromDateTimeValue, toDateTimeValue } from "@/features/transport/lib/departure"
 
-describe("datetime-local conversion", () => {
+describe("date and time values", () => {
   it("round-trips an instant through the field value", () => {
     const iso = "2027-07-12T06:00:00.000Z"
-    expect(fromDateTimeLocal(toDateTimeLocal(iso))).toBe(iso)
+    expect(fromDateTimeValue(toDateTimeValue(iso))).toBe(iso)
   })
 
-  it("reads an empty or invalid value as no time", () => {
-    expect(fromDateTimeLocal("")).toBeNull()
-    expect(fromDateTimeLocal("soon")).toBeNull()
+  it("reads anything but a full value as no time", () => {
+    expect(fromDateTimeValue("")).toBeNull()
+    expect(fromDateTimeValue("soon")).toBeNull()
+    expect(fromDateTimeValue("2027-07-12")).toBeNull()
+  })
+
+  it("takes the day of a value", () => {
+    expect(dayOf("2027-07-12T08:00")).toBe("2027-07-12")
   })
 })

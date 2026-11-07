@@ -51,6 +51,8 @@ type DateFieldProps = Omit<
    * field. Off by default — a day-only field looks and works as before.
    */
   hasTime?: boolean
+  /** The day the calendar opens on while nothing is picked, `yyyy-MM-dd` (e.g. the start of a term). */
+  openOn?: string
 }
 
 /** The time a day gets when it is picked in the calendar before any time was given. */
@@ -127,6 +129,7 @@ export function DateField({
   min,
   max,
   hasTime = false,
+  openOn,
   onBlur,
   className,
   ...inputProps
@@ -166,6 +169,7 @@ export function DateField({
   )
   const opensOn =
     selected ??
+    (openOn ? isoToLocalDate(openOn) : undefined) ??
     (maxDate && today > maxDate ? maxDate : minDate && today < minDate ? minDate : today)
 
   const handleTyped = (typed: string) => {

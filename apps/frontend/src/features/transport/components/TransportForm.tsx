@@ -9,6 +9,7 @@ import { z } from "zod"
 import { ROUTES } from "@/app/routes"
 import { BackLink } from "@/components/atoms/BackLink"
 import { Seo } from "@/components/atoms/Seo"
+import { DateField } from "@/components/molecules/DateField"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { SectionHeader } from "@/components/molecules/SectionHeader"
@@ -16,24 +17,47 @@ import { Button } from "@/components/ui/button"
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { formatDate } from "@/lib/date"
+import { termTitle } from "@/lib/term-label"
 
 import {
   eventTransportQueryOptions,
   saveTransport,
   transportKeys,
+  type TermTransport,
 } from "@/features/transport/api/transport"
-import { fromDateTimeLocal, toDateTimeLocal } from "@/features/transport/lib/departure"
+import { dayOf, fromDateTimeValue, toDateTimeValue } from "@/features/transport/lib/departure"
 
-// Add or edit a way of transport: name, place and time of departure.
+type Values = { termId: string; name: string; departurePlace: string; departureAt: string }
+
+// Add or edit a way of transport of a term: name, place and time of departure. A new one can start
+// as a copy of an existing one (name and place repeat; the time does not).
 // Figma (Design system): #65 Upravit dopravu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19795-12715
 // Mobile · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19795-12865
-export function TransportForm({ eventId, transportId }: { eventId: string; transportId?: string }) {
+export function TransportForm({
+  eventId,
+  transportId,
+  termId,
+}: {
+  eventId: string
+  transportId?: string
+  /** The term a new transport is preselected for. */
+  termId?: string
+}) {
   const { t } = useTranslation("transport")
   const query = useQuery(eventTransportQueryOptions(eventId))
   if (!query.data) {
@@ -49,15 +73,24 @@ export function TransportForm({ eventId, transportId }: { eventId: string; trans
       <LoadingState />
     )
   }
-  const existing = query.data.transports.find((item) => item.id === transportId)
+  const { terms } = query.data
+  const owner = terms.find((term) => term.transports.some((item) => item.id === transportId))
+  const existing = owner?.transports.find((item) => item.id === transportId)
   return (
     <TransportFields
+      key={transportId ?? "new"}
       eventId={eventId}
       transportId={transportId}
+      terms={terms}
       defaults={{
+        termId:
+          owner?.termId ??
+          terms.find((term) => term.termId === termId)?.termId ??
+          terms[0]?.termId ??
+          "",
         name: existing?.name ?? "",
         departurePlace: existing?.departurePlace ?? "",
-        departureAt: existing ? toDateTimeLocal(existing.departureAt) : "",
+        departureAt: existing ? toDateTimeValue(existing.departureAt) : "",
       }}
     />
   )
@@ -66,35 +99,57 @@ export function TransportForm({ eventId, transportId }: { eventId: string; trans
 function TransportFields({
   eventId,
   transportId,
+  terms,
   defaults,
 }: {
   eventId: string
   transportId?: string
-  defaults: { name: string; departurePlace: string; departureAt: string }
+  terms: TermTransport[]
+  defaults: Values
 }) {
   const { t } = useTranslation("transport")
   const client = useQueryClient()
   const navigate = useNavigate()
   const required = t("required")
-  const schema = z.object({
-    name: z.string().trim().min(1, required).max(100, t("tooLong")),
-    departurePlace: z.string().trim().min(1, required).max(200, t("tooLong")),
-    departureAt: z.string().refine((value) => fromDateTimeLocal(value) !== null, required),
-  })
-  const form = useForm<z.infer<typeof schema>>({
-    resolver: zodResolver(schema),
-    defaultValues: defaults,
-  })
+  const isEdit = transportId !== undefined
+  const schema = z
+    .object({
+      termId: z.string().min(1, required),
+      name: z.string().trim().min(1, required).max(100, t("tooLong")),
+      departurePlace: z.string().trim().min(1, required).max(200, t("tooLong")),
+      departureAt: z.string(),
+    })
+    .superRefine((values, context) => {
+      if (fromDateTimeValue(values.departureAt) === null) {
+        context.addIssue({ code: "custom", path: ["departureAt"], message: t("whenInvalid") })
+        return
+      }
+      const term = terms.find((item) => item.termId === values.termId)
+      if (term && dayOf(values.departureAt) > term.endsOn) {
+        context.addIssue({
+          code: "custom",
+          path: ["departureAt"],
+          message: t("afterTermEnd", { date: formatDate(term.endsOn) }),
+        })
+      }
+    })
+  const form = useForm<Values>({ resolver: zodResolver(schema), defaultValues: defaults })
+  const term = terms.find((item) => item.termId === form.watch("termId"))
+  const copyable = terms.flatMap((item) =>
+    item.transports
+      .filter((transport) => transport.id !== transportId)
+      .map((transport) => ({ ...transport, term: item })),
+  )
   const mutation = useMutation({
-    mutationFn: (values: z.infer<typeof schema>) =>
+    mutationFn: (values: Values) =>
       saveTransport(
         eventId,
         {
           name: values.name,
           departurePlace: values.departurePlace,
-          departureAt: fromDateTimeLocal(values.departureAt) ?? "",
+          departureAt: fromDateTimeValue(values.departureAt) ?? "",
         },
-        transportId,
+        transportId ? { id: transportId } : { termId: values.termId },
       ),
     onSuccess: () => client.invalidateQueries({ queryKey: transportKeys.event(eventId) }),
   })
@@ -131,6 +186,71 @@ function TransportFields({
             void submit(event)
           }}
         >
+          <FormField
+            control={form.control}
+            name="termId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{t("termLabel")}</FormLabel>
+                <Select
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  disabled={isEdit}
+                >
+                  <FormControl>
+                    <SelectTrigger className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {terms.map((item) => (
+                      <SelectItem
+                        key={item.termId}
+                        value={item.termId}
+                      >
+                        {termTitle({ ...item, name: item.termName })}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          {!isEdit && copyable.length > 0 ? (
+            <div className="flex flex-col gap-2">
+              <FormLabel htmlFor="transport-copy">{t("copyLabel")}</FormLabel>
+              <Select
+                onValueChange={(id) => {
+                  const source = copyable.find((item) => item.id === id)
+                  if (!source) return
+                  form.setValue("name", source.name, { shouldValidate: form.formState.isSubmitted })
+                  form.setValue("departurePlace", source.departurePlace, {
+                    shouldValidate: form.formState.isSubmitted,
+                  })
+                }}
+              >
+                <SelectTrigger
+                  id="transport-copy"
+                  className="w-full"
+                >
+                  <SelectValue placeholder={t("copyPlaceholder")} />
+                </SelectTrigger>
+                <SelectContent>
+                  {copyable.map((item) => (
+                    <SelectItem
+                      key={item.id}
+                      value={item.id}
+                    >
+                      {item.name} · {item.departurePlace} (
+                      {termTitle({ ...item.term, name: item.term.termName })})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">{t("copyHint")}</p>
+            </div>
+          ) : null}
           <FormField
             control={form.control}
             name="name"
@@ -170,12 +290,17 @@ function TransportFields({
               <FormItem>
                 <FormLabel>{t("whenLabel")}</FormLabel>
                 <FormControl>
-                  <Input
+                  <DateField
+                    hasTime
+                    openOn={term?.startsOn}
+                    max={term?.endsOn}
                     {...field}
-                    type="datetime-local"
                   />
                 </FormControl>
-                <FormMessage />
+                <FormDescription className="text-xs leading-[18px] font-medium">
+                  {t("whenHint")}
+                </FormDescription>
+                <FormMessage className="text-xs leading-[18px] font-medium" />
               </FormItem>
             )}
           />
