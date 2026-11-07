@@ -82,6 +82,18 @@ export function PaymentsOverviewPage({
       <div className="flex flex-col gap-2">
         <h2 className="text-2xl font-bold tracking-tight">{t("paymentsOverview.title")}</h2>
         {eventName ? <p>{eventName}</p> : null}
+        <Button
+          asChild
+          variant="outline"
+          className="self-start"
+        >
+          <Link
+            to={ROUTES.organizer.eventCancellationTerms}
+            params={{ eventId }}
+          >
+            {t("paymentsOverview.cancellationTerms")}
+          </Link>
+        </Button>
       </div>
       <Card className="gap-4 p-4">
         <h3 className="text-xl font-bold tracking-tight">

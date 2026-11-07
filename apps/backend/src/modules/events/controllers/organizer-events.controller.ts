@@ -1,4 +1,5 @@
 import { CancellationStartRequestDto } from "@/modules/events/controllers/dto/cancellation-start.request.dto"
+import { CancellationTermsRequestDto } from "@/modules/events/controllers/dto/cancellation-terms.request.dto"
 import { CreateEventDto } from "@/modules/events/controllers/dto/create-event.dto"
 import { EvaluationModeRequestDto } from "@/modules/events/controllers/dto/evaluation-mode.request.dto"
 import { OrganizerEventResponseDto } from "@/modules/events/controllers/dto/organizer-event.response.dto"
@@ -168,6 +169,21 @@ export class OrganizerEventsController {
   ): Promise<OrganizerEventResponseDto> {
     return OrganizerEventResponseDto.fromDomain(
       await this.events.setCancellationStart(user, eventId, dto.cancellationStartsOn),
+    )
+  }
+
+  @Put(":eventId/cancellation-terms")
+  @ApiOperation({ summary: "Write the cancellation terms shown to applicants (US-47)" })
+  @ApiResponse({ status: 200, type: OrganizerEventResponseDto })
+  @ApiResponse({ status: 400, description: "Empty or too long text." })
+  @ApiResponse({ status: 403, description: "Unknown event or of another organization." })
+  async setCancellationTerms(
+    @User() user: Identity,
+    @Param("eventId") eventId: string,
+    @Body() dto: CancellationTermsRequestDto,
+  ): Promise<OrganizerEventResponseDto> {
+    return OrganizerEventResponseDto.fromDomain(
+      await this.events.setCancellationTerms(user, eventId, dto.cancellationTerms),
     )
   }
 

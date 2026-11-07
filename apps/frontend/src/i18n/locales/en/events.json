@@ -12,6 +12,19 @@
     "savedTitle": "Date saved.",
     "title": "Approval of participant changes"
   },
+  "cancellationTerms": {
+    "alertDescription": "Shown before an application is confirmed and when a participant cancels. You record refunds manually.",
+    "alertTitle": "Terms for applicants",
+    "edit": "Edit terms",
+    "label": "Cancellation terms",
+    "previewTitle": "Cancellation terms preview",
+    "required": "Write the cancellation terms.",
+    "save": "Save terms",
+    "saveFailed": "Could not save the cancellation terms",
+    "saved": "Cancellation terms saved",
+    "subtitle": "{{name}} · Finance",
+    "title": "Cancellation terms"
+  },
   "delete": {
     "action": "Delete event",
     "confirm": "Delete event",

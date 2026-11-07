@@ -28,6 +28,7 @@ export const ROUTES = {
     eventCapacity: "/organizer/events/$eventId/capacity",
     eventApplications: "/organizer/events/$eventId/applications",
     eventPayments: "/organizer/events/$eventId/payments",
+    eventCancellationTerms: "/organizer/events/$eventId/payments/cancellation",
     application: "/organizer/events/$eventId/applications/$applicationId",
     account: "/organizer/account",
   },

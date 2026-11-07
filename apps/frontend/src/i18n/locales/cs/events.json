@@ -12,6 +12,19 @@
     "savedTitle": "Datum je uložené.",
     "title": "Schvalování změn účastníků"
   },
+  "cancellationTerms": {
+    "alertDescription": "Zobrazí se před potvrzením přihlášky a při odhlášení. Vratku zapisujete ručně.",
+    "alertTitle": "Podmínky pro přihlašovatele",
+    "edit": "Upravit podmínky",
+    "label": "Podmínky odhlášení",
+    "previewTitle": "Náhled storno podmínek",
+    "required": "Napište storno podmínky.",
+    "save": "Uložit podmínky",
+    "saveFailed": "Storno podmínky se nepodařilo uložit",
+    "saved": "Storno podmínky uloženy",
+    "subtitle": "{{name}} · Finance",
+    "title": "Storno podmínky"
+  },
   "delete": {
     "action": "Smazat akci",
     "confirm": "Smazat akci",
