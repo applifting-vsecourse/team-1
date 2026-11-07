@@ -30,11 +30,13 @@
   "PUBLIC_PAGE_INCOMPLETE": "Fill in the description, the place and a contact e-mail before listing the event in the catalog.",
   "REFUND_EXCEEDS_OVERPAYMENT": "The amount exceeds the current overpayment. Refresh the detail and check the refunded amount.",
   "REFUND_TERM_REQUIRED": "A refund must be recorded for a specific term.",
+  "ROOM_COPY_NAMES_TAKEN": "The term already has rooms named {{names}}. Rename or delete them first, or replace the existing rooms instead.",
   "ROOM_NAME_TAKEN": "A room with this name already exists in the event.",
   "TERM_CANCELLED": "This term was cancelled and can't be changed.",
   "TERM_END_BEFORE_START": "Enter an end date that is not before the start date.",
   "TERM_LIMIT_REACHED": "The event already has the maximum number of terms (999).",
   "TOO_MANY_REQUESTS": "Too many attempts in a short time. Wait a moment and try again.",
+  "TRANSPORT_AFTER_TERM_END": "The departure can't be after the term ends ({{endsOn}}).",
   "UNAUTHORIZED": "Please sign in.",
   "UNKNOWN": "Something went wrong.",
   "VALIDATION_FAILED": "Some fields are not filled in correctly."

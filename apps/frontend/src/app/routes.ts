@@ -33,6 +33,10 @@ export const ROUTES = {
     eventMeals: "/organizer/events/$eventId/meals",
     eventMealOptions: "/organizer/events/$eventId/meals/options",
     eventCancellationTerms: "/organizer/events/$eventId/payments/cancellation",
+    eventTransport: "/organizer/events/$eventId/transport",
+    eventTransportNew: "/organizer/events/$eventId/transport/new",
+    eventTransportEdit: "/organizer/events/$eventId/transport/$transportId",
+    eventTransportParticipants: "/organizer/events/$eventId/transport/$transportId/participants",
     application: "/organizer/events/$eventId/applications/$applicationId",
     account: "/organizer/account",
   },
@@ -44,6 +48,7 @@ export const ROUTES = {
     applications: "/participant",
     application: "/participant/applications/$applicationId",
     applicationMeals: "/participant/applications/$applicationId/meals",
+    applicationTransport: "/participant/applications/$applicationId/transport",
     account: "/participant/account",
   },
 } as const

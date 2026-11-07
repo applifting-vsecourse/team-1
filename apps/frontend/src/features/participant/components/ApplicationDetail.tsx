@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
 import { MoneyAmount } from "@/components/atoms/MoneyAmount"
+import { Checklist } from "@/components/molecules/Checklist"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { PageHeader } from "@/components/molecules/PageHeader"
@@ -13,6 +14,7 @@ import { TermLabel } from "@/components/molecules/TermLabel"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { termTitle } from "@/lib/term-label"
 
 import { myApplicationQueryOptions } from "@/features/participant/api/applications"
 import { ChangeRequestNotice } from "@/features/participant/components/ChangeRequestNotice"
@@ -77,47 +79,113 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
     (term) => term.status === "TO_EVALUATE" || term.status === "CANCELLED",
   )
 
+  // Transport is asked for every confirmed term the organizer offers it to.
+  const transportTerms = data.terms.filter(
+    (term) => term.status === "CONFIRMED" && term.transportOffered,
+  )
+  const transportOpen = transportTerms.filter((term) => !term.transportDecided).length
+  const transportLink = (isOpen: boolean) => (
+    <Button
+      asChild
+      variant={isOpen ? "default" : "outline"}
+      size="lg"
+    >
+      <Link
+        to={ROUTES.participant.applicationTransport}
+        params={{ applicationId }}
+      >
+        {t(isOpen ? "detail.todo.choose" : "detail.todo.change")}
+      </Link>
+    </Button>
+  )
+
   return (
-    <div className="flex flex-col gap-6">
-      {back}
-      <PageHeader
-        title={data.eventName}
-        description={`${data.firstName} ${data.lastName} · ${data.code}`}
-      />
-      {otherTerms.length > 0 ? (
-        <Card className="gap-0 p-6">
-          <h2 className="pb-4 text-lg font-semibold">{t("detail.termsTitle")}</h2>
-          <ul>
-            {otherTerms.map((term) => (
-              <li
-                key={term.termId}
-                className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t py-4 last:pb-0"
-              >
-                <TermLabel term={term} />
-                <TermStatusBadge term={term} />
-                <span className="w-full sm:w-50 sm:text-right">
-                  {term.status === "TO_EVALUATE" ? null : <MoneyAmount amountCzk={0} />}
-                </span>
-              </li>
-            ))}
-          </ul>
-          {hasToEvaluate ? <p className="pt-4">{t("detail.toEvaluate.note")}</p> : null}
-        </Card>
+    <div className="flex flex-col gap-10">
+      <div className="flex flex-col gap-6">
+        {back}
+        <PageHeader
+          title={data.eventName}
+          description={`${data.firstName} ${data.lastName} · ${data.code}`}
+        />
+      </div>
+      {transportTerms.length > 0 ? (
+        <Checklist
+          title={t("detail.todo.title")}
+          intro={t("detail.todo.intro")}
+          progress={t("detail.todo.progress", {
+            done: transportTerms.length - transportOpen,
+            total: transportTerms.length,
+          })}
+          items={transportTerms.map((term) => ({
+            key: term.termId,
+            title: t("detail.todo.transportTitle", { term: termTitle(term) }),
+            body: t("detail.todo.transportBody"),
+            isDone: term.transportDecided,
+          }))}
+        />
       ) : null}
-      <ChangeRequestNotice applicationId={applicationId} />
-      {hasToEvaluate ? (
-        // Figma (Design system): Togena / Alert · node-id=15751-1777 (360 px: 15751-1810)
-        <Alert>
-          <TriangleAlert aria-hidden />
-          <AlertTitle>{t("detail.toEvaluate.alertTitle")}</AlertTitle>
-          <AlertDescription>{t("detail.toEvaluate.alertText")}</AlertDescription>
-        </Alert>
+      <section
+        aria-labelledby="application-terms"
+        className="flex flex-col gap-6"
+      >
+        <h2
+          id="application-terms"
+          className="text-2xl font-semibold tracking-tight"
+        >
+          {t("detail.sections.terms")}
+        </h2>
+        {otherTerms.length > 0 ? (
+          <Card className="gap-0 p-6">
+            <h2 className="pb-4 text-lg font-semibold">{t("detail.termsTitle")}</h2>
+            <ul>
+              {otherTerms.map((term) => (
+                <li
+                  key={term.termId}
+                  className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t py-4 last:pb-0"
+                >
+                  <TermLabel term={term} />
+                  <TermStatusBadge term={term} />
+                  <span className="w-full sm:w-50 sm:text-right">
+                    {term.status === "TO_EVALUATE" ? null : <MoneyAmount amountCzk={0} />}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            {hasToEvaluate ? <p className="pt-4">{t("detail.toEvaluate.note")}</p> : null}
+          </Card>
+        ) : null}
+        <ChangeRequestNotice applicationId={applicationId} />
+        {hasToEvaluate ? (
+          // Figma (Design system): Togena / Alert · node-id=15751-1777 (360 px: 15751-1810)
+          <Alert>
+            <TriangleAlert aria-hidden />
+            <AlertTitle>{t("detail.toEvaluate.alertTitle")}</AlertTitle>
+            <AlertDescription>{t("detail.toEvaluate.alertText")}</AlertDescription>
+          </Alert>
+        ) : null}
+        <PaymentSummary application={data} />
+        <ParticipantTermActions
+          application={data}
+          onStart={setChangeMode}
+        />
+      </section>
+      {transportTerms.length > 0 ? (
+        <section
+          aria-labelledby="application-transport"
+          className="flex flex-col gap-4"
+        >
+          <h2
+            id="application-transport"
+            className="text-2xl font-semibold tracking-tight"
+          >
+            {t("detail.sections.transport")}
+          </h2>
+          <Card className="gap-4 p-6">
+            <p>{t("detail.transportIntro")}</p>
+            <div>{transportLink(transportOpen > 0)}</div>
+          </Card>
+        </section>
       ) : null}
-      <PaymentSummary application={data} />
-      <ParticipantTermActions
-        application={data}
-        onStart={setChangeMode}
-      />
       <Button
         asChild
         variant="outline"

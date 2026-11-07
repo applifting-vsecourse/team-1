@@ -72,13 +72,27 @@
     "back": "← Všechny přihlášky",
     "errorTitle": "Přihlášku se nepodařilo načíst",
     "meals": "Stravování",
+    "sections": {
+      "terms": "Termíny a platby",
+      "transport": "Doprava"
+    },
     "termsTitle": "Stav podle termínů",
     "title": "Moje přihláška",
     "toEvaluate": {
       "alertText": "Platební údaje dostanete po potvrzení účasti.",
       "alertTitle": "Zatím nic neplaťte.",
       "note": "Organizátor přihlášku posoudí v každém termínu zvlášť. Zatím nejde o potvrzenou účast ani o zařazení mezi náhradníky."
-    }
+    },
+    "todo": {
+      "change": "Změnit dopravu",
+      "choose": "Vybrat dopravu",
+      "intro": "Organizátor to od vás potřebuje k naplánování akce.",
+      "progress": "Hotovo {{done}} z {{total}}",
+      "title": "Co zbývá zařídit",
+      "transportBody": "Vyberte, jak se účastník dostane na akci.",
+      "transportTitle": "Doprava · {{term}}"
+    },
+    "transportIntro": "Vyberte, jak se účastník dostane na jednotlivé termíny, a zjistěte, kde a kdy doprava odjíždí."
   },
   "list": {
     "empty": "Zatím tu nemáte žádnou přihlášku. Až se přihlásíte na akci, objeví se tady.",

@@ -1,5 +1,11 @@
 import { computeRoomCapacity } from "@/modules/applications/domain/capacity"
-import { RoomGenderAssignment, RoomInput, RoomMode, TermRooms } from "@/modules/events/domain/rooms"
+import {
+  RoomCopyStrategy,
+  RoomGenderAssignment,
+  RoomInput,
+  RoomMode,
+  TermRooms,
+} from "@/modules/events/domain/rooms"
 import { RoomsRepository } from "@/modules/events/repositories/rooms.repository"
 import { Identity } from "@/shared/auth/domain/identity"
 import { OrganizationAccessService } from "@/shared/organization-access/organization-access.service"
@@ -44,5 +50,15 @@ export class RoomsService {
 
   async remove(user: Identity, eventId: string, termId: string, id: string): Promise<void> {
     await this.repository.remove(await this.scope(user, eventId, termId), id)
+  }
+
+  async copy(
+    user: Identity,
+    eventId: string,
+    termId: string,
+    sourceTermId: string,
+    strategy: RoomCopyStrategy,
+  ): Promise<void> {
+    await this.repository.copy(await this.scope(user, eventId, termId), sourceTermId, strategy)
   }
 }

@@ -19,6 +19,7 @@ import {
   type EvaluationMode,
 } from "@/features/events/api/events"
 import { CancellationStartForm } from "@/features/events/components/CancellationStartForm"
+import { DeleteEventSection } from "@/features/events/components/DeleteEventSection"
 import { PublicPageForm } from "@/features/events/components/PublicPageForm"
 
 const MODES = ["AUTOMATIC", "MANUAL"] as const
@@ -61,6 +62,7 @@ export function EventSettings({ eventId }: { eventId: string }) {
         event={event}
       />
       <PublicPageForm event={event} />
+      <DeleteEventSection event={event} />
     </div>
   )
 }

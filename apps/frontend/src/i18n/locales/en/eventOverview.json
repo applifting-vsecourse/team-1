@@ -145,7 +145,7 @@
     "backToTerms": "← All terms",
     "confirmedColumn": "Confirmed / capacity",
     "confirmedOnly": "Free places are counted from confirmed applications only.",
-    "footnote": "Capacity comes from the beds in rooms. Rooms are shared by all terms; free places are counted from confirmed applications only.",
+    "footnote": "Capacity comes from the beds in this term’s rooms. Free places are counted from confirmed applications in this term only.",
     "freeColumn": "Free places",
     "freePlaces_few": "{{count}} free places",
     "freePlaces_one": "{{count}} free place",
