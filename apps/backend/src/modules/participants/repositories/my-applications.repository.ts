@@ -86,7 +86,8 @@ function toRecord(row: Row): MyApplicationRecord {
         // A term confirmed without a recorded change (older data) counts from its evaluation.
         confirmedAt: statusChanges[0]?.createdAt ?? evaluatedAt,
         paymentPeriodStartedAt,
-        transportOffered: term._count.transports > 0,
+        // A cancelled term keeps the status of its applications, but nothing is arranged for it.
+        transportOffered: term.cancelledAt === null && term._count.transports > 0,
         transportDecided: transportId !== null || ownTransport,
       }),
     ),

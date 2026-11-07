@@ -12,6 +12,8 @@ describe("date and time values", () => {
     expect(fromDateTimeValue("")).toBeNull()
     expect(fromDateTimeValue("soon")).toBeNull()
     expect(fromDateTimeValue("2027-07-12")).toBeNull()
+    expect(fromDateTimeValue("2027-02-31T08:00")).toBeNull()
+    expect(fromDateTimeValue("2027-07-12T25:00")).toBeNull()
   })
 
   it("takes the day of a value", () => {

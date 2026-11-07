@@ -187,5 +187,10 @@ describe("transport (integration)", () => {
 
     expect((await listing()).terms.some((term) => term.termId === termId)).toBe(false)
     expect((await offer()).terms.some((term) => term.termId === termId)).toBe(false)
+    // The overview no longer asks for a transport to it.
+    const overview: { terms: { termId: string; transportOffered: boolean }[] } = await (
+      await send(`/participant/applications/${applicationId}`, participant)
+    ).json()
+    expect(overview.terms.find((term) => term.termId === termId)?.transportOffered).toBe(false)
   })
 })
