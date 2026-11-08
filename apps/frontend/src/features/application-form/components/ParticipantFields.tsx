@@ -171,10 +171,12 @@ export function ParticipantFields({ index, terms, onRemove, isDisabled }: Partic
                   ))}
                 </SelectContent>
               </Select>
-              <FormDescription className="text-base leading-6 text-foreground">
-                {t("form.genderHint")}
-              </FormDescription>
-              <FormMessage />
+              <div className="flex flex-col">
+                <FormDescription className="text-xs leading-[18px] font-medium">
+                  {t("form.genderHint")}
+                </FormDescription>
+                <FormMessage className="text-xs leading-[18px] font-medium" />
+              </div>
             </FormItem>
           )}
         />
