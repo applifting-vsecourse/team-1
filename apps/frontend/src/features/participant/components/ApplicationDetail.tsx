@@ -106,6 +106,19 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
         <PageHeader
           title={data.eventName}
           description={`${data.firstName} ${data.lastName} · ${data.code}`}
+          actions={
+            <Button
+              asChild
+              variant="outline"
+            >
+              <Link
+                to={ROUTES.participant.editApplication}
+                params={{ applicationId }}
+              >
+                {t("edit.open")}
+              </Link>
+            </Button>
+          }
         />
       </div>
       {transportTerms.length > 0 ? (

@@ -9,6 +9,7 @@ export const paymentApplicationSchema = z.object({
   eventName: z.string(),
   firstName: z.string(),
   lastName: z.string(),
+  accommodationRequest: z.string().nullable(),
   code: z.string(),
   /** Participant date of birth, `YYYY-MM-DD`. */
   birthDate: z.string(),

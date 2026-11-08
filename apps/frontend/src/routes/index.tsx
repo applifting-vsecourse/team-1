@@ -370,10 +370,12 @@ function LandingPage() {
                 <CatalogButton isOnPrimary />
               </div>
             </div>
-            <Art
-              illustration={CelebrateIllustration}
-              className="w-56 md:w-72"
-            />
+            <div className="flex items-center justify-center rounded-lg bg-card p-6">
+              <Art
+                illustration={CelebrateIllustration}
+                className="w-48 md:w-64"
+              />
+            </div>
           </div>
         </section>
       </PublicLayout>

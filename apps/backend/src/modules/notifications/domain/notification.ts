@@ -26,13 +26,16 @@ export type NotificationKind =
   | "PAYMENT_REFUNDED"
   /** Prepared for US-114 (requests for a change); nothing raises it yet. */
   | "REQUEST_APPROVED"
+  | "APPLICATION_EDITED"
 
 /** The data the copy is composed from. Dates are ISO days, amounts whole CZK. */
 export type NotificationParams = {
   eventName: string
   participantName: string
-  termStartsOn: string
-  termEndsOn: string
+  /** Organizer application detail needs its event route. */
+  eventId?: string
+  termStartsOn?: string
+  termEndsOn?: string
   /** STATUS_CHANGED: the status of the application in the term before and after the change. */
   fromStatus?: ApplicationTermStatus
   toStatus?: ApplicationTermStatus
@@ -65,7 +68,7 @@ export type NewNotification = {
 export const typeOfKind = (kind: NotificationKind): NotificationType =>
   kind.startsWith("PAYMENT_")
     ? "PAYMENT"
-    : kind.startsWith("REQUEST_")
+    : kind.startsWith("REQUEST_") || kind === "APPLICATION_EDITED"
       ? "REQUEST"
       : "STATUS_CHANGED"
 

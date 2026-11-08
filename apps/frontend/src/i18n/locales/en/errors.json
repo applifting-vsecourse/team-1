@@ -1,5 +1,6 @@
 {
   "APPLICATION_DUPLICATE": "{{participant}} is already registered for the term “{{term}}” (same name and date of birth).",
+  "APPLICATION_NOT_EDITABLE": "This application can no longer be edited: it has no active term, or all its terms are over.",
   "BED_ALREADY_TAKEN": "The bed has meanwhile been taken by someone else.",
   "CANCELLATION_APPROVAL_REQUIRED": "Changes now require the organiser's approval. Contact the organiser.",
   "CAPACITY_EXCEEDED": "Confirming would exceed the capacity of the term. Confirm knowingly.",
@@ -36,6 +37,7 @@
   "ROOM_COPY_NAMES_TAKEN": "The term already has rooms named {{names}}. Rename or delete them first, or replace the existing rooms instead.",
   "ROOM_NAME_TAKEN": "A room with this name already exists in the event.",
   "TERM_CANCELLED": "This term was cancelled and can't be changed.",
+  "TERM_ENDED": "This term is already over, so it can no longer take applications.",
   "TERM_END_BEFORE_START": "Enter an end date that is not before the start date.",
   "TERM_LIMIT_REACHED": "The event already has the maximum number of terms (999).",
   "TOO_MANY_REQUESTS": "Too many attempts in a short time. Wait a moment and try again.",

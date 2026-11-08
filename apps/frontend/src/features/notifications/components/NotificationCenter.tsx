@@ -24,13 +24,19 @@ import {
 import { composeNotification } from "@/features/notifications/lib/compose"
 
 /**
- * The participant's bell with the number of unread notifications and the panel it opens (US-118).
+ * The bell with the number of unread notifications and the panel it opens (US-118).
  * The count is fetched when the page loads, the list when the panel opens; marking as read
  * refetches both.
  */
 // Figma (Design system): US-118 / Moje přihlášky · Panel: Upozornění · 3 nepřečtená upozornění / Desktop · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16047-1567
 // Figma (Design system): US-118 / Moje přihlášky · Panel: Upozornění · 3 nepřečtená upozornění / Mobile · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16047-1650
-export function NotificationCenter({ additionalFeed }: { additionalFeed?: NotificationFeed }) {
+export function NotificationCenter({
+  additionalFeed,
+  area = "participant",
+}: {
+  additionalFeed?: NotificationFeed
+  area?: "participant" | "organizer"
+}) {
   const { t } = useTranslation("notifications")
   const navigate = useNavigate()
   const [isOpen, setIsOpen] = useState(false)
@@ -82,6 +88,21 @@ export function NotificationCenter({ additionalFeed }: { additionalFeed?: Notifi
     if (notification.readAt === null) markRead.mutate(id)
     setIsOpen(false)
     if (notification.applicationId) {
+      if (area === "organizer") {
+        // An older notification may not carry the event: the events list is the fallback.
+        if (!notification.params.eventId) {
+          void navigate({ to: ROUTES.organizer.events })
+          return
+        }
+        void navigate({
+          to: ROUTES.organizer.application,
+          params: {
+            eventId: notification.params.eventId,
+            applicationId: notification.applicationId,
+          },
+        })
+        return
+      }
       void navigate({
         to: ROUTES.participant.application,
         params: { applicationId: notification.applicationId },

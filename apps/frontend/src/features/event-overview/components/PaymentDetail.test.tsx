@@ -105,6 +105,7 @@ const application = (
     eventName: "Camp",
     firstName: "Adam",
     lastName: "Test",
+    accommodationRequest: null,
     code: "C-0047",
     birthDate: "2011-05-04",
     gender: "MALE",
@@ -169,6 +170,19 @@ beforeEach(() => {
 })
 
 describe("PaymentDetail", () => {
+  it("shows the applicant's accommodation request in the organizer detail", async () => {
+    respondWith(() => ({
+      ...application([first]),
+      accommodationRequest: "Ground floor, please.",
+    }))
+    setup()
+
+    expect(
+      await screen.findByRole("heading", { name: "Individual accommodation request" }),
+    ).toBeVisible()
+    expect(screen.getByText("Ground floor, please.")).toBeVisible()
+  })
+
   it("shows the participant's date of birth, gender and the applicant's contact", async () => {
     respondWith(() => application([first]))
     setup()

@@ -141,6 +141,7 @@ model User {
   submittedChangeRequests ChangeRequest[] @relation("ChangeRequestApplicant")
   reviewedChangeRequests  ChangeRequest[] @relation("ChangeRequestReviewer")
   notifications    Notification[]
+  applicationEdits ApplicationEdit[]
   lastOpenedEvent  LastOpenedEvent?
 
   @@unique([email])
@@ -172,6 +173,7 @@ model Organization {
   statusChanges    ApplicationTermStatusChange[]
   substituteSkips  ApplicationTermSkip[]
   changeRequests   ChangeRequest[]
+  applicationEdits ApplicationEdit[]
   mealOptions      MealOption[]
   applicationHealth ApplicationHealth[]
   transports       Transport[]
@@ -371,6 +373,7 @@ model Application {
   email          String
   // Supplied when an organizer adds an application (US-83); older public submissions have none.
   phone          String?
+  accommodationRequest String? @db.Text
   consentAt      DateTime
   // UI language at submission — the confirmation e-mail goes out in it.
   locale         Locale       @default(en)
@@ -387,12 +390,34 @@ model Application {
   terms         ApplicationTerm[]
   notifications Notification[]
   changeRequests ChangeRequest[]
+  edits ApplicationEdit[]
   health        ApplicationHealth?
 
   @@index([organizationId])
   @@index([eventId, submittedAt])
   @@index([userId])
   @@map("application")
+}
+
+// A participant's change of personal details, contact or accommodation request (US-34).
+// The author name and old/new values remain available even if their account later changes.
+model ApplicationEdit {
+  id             String       @id @default(cuid())
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId String
+  application    Application  @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  applicationId  String
+  changedBy      User?        @relation(fields: [changedById], references: [id], onDelete: SetNull)
+  changedById    String?
+  authorName     String
+  changedFields  String[]
+  before         Json
+  after          Json
+  createdAt      DateTime     @default(now())
+
+  @@index([organizationId])
+  @@index([applicationId, createdAt])
+  @@map("application_edit")
 }
 
 // Health restriction of the participant (US-68): a specially protected personal datum, so it lives
