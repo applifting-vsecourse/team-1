@@ -340,9 +340,33 @@ export function ApplicationsPage({
                     </TableHeader>
                     <TableBody>
                       {visibleRows.map((row) => (
-                        <TableRow key={row.id}>
+                        <TableRow
+                          key={row.id}
+                          className="cursor-pointer"
+                          onClick={(event) => {
+                            // The detail link in the row stays the keyboard and new-tab path; the row only
+                            // widens the mouse target. Controls inside the row keep their own behaviour.
+                            if (
+                              event.defaultPrevented ||
+                              event.button !== 0 ||
+                              event.metaKey ||
+                              event.ctrlKey ||
+                              event.shiftKey ||
+                              event.altKey ||
+                              (event.target as HTMLElement).closest(
+                                "a, button, input, label, [role=checkbox]",
+                              )
+                            ) {
+                              return
+                            }
+                            void navigate({
+                              to: ROUTES.organizer.application,
+                              params: { eventId, applicationId: row.id },
+                            })
+                          }}
+                        >
                           {bulkTerm && (
-                            <TableCell>
+                            <TableCell onClick={(event) => event.stopPropagation()}>
                               <SelectRow
                                 row={row}
                                 selectedIds={selectedIds}
