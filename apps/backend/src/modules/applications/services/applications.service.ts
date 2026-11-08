@@ -7,6 +7,7 @@ import { evaluateManualSubmission } from "@/modules/applications/domain/manual-s
 import { isOpenForApplications } from "@/modules/applications/domain/public-event"
 import { evaluateSubmission, isValidBirthDate } from "@/modules/applications/domain/submission"
 import { termLabel } from "@/modules/applications/domain/term-label"
+import { todayInPrague } from "@/modules/applications/domain/waitlist-expiry"
 import {
   ApplicationsRepository,
   ApplicationToSave,
@@ -83,6 +84,12 @@ export class ApplicationsService {
       requestedIds.some((id) => !prices.has(id))
     ) {
       throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
+    }
+    // A term that is over takes no applications, not even from the organizer; checked before the
+    // account is created and the confirmation e-mail goes out.
+    const today = todayInPrague(new Date()).toISOString().slice(0, 10)
+    if (event.terms.some(({ id, endsOn }) => requestedIds.includes(id) && endsOn < today)) {
+      throw new AppException(HttpStatus.CONFLICT, "TERM_ENDED")
     }
     const participant = {
       firstName: input.firstName,
