@@ -298,6 +298,16 @@ describe("ApplicationsPage", () => {
       "status=WAITLISTED&waitlist=FREE_BED",
     )
   })
+  it("leaves the free-bed filter of the card when another view is chosen (#397)", async () => {
+    const onFilters = setup([application], false, undefined, null, {
+      status: "WAITLISTED",
+      waitlist: "FREE_BED",
+    })
+    await screen.findByRole("radio", { name: "Waitlisted" })
+    await userEvent.setup().click(screen.getByRole("radio", { name: "All applications" }))
+    expect(onFilters).toHaveBeenLastCalledWith({})
+    expect(screen.queryByRole("button", { name: /Substitutes with a free bed/ })).toBeNull()
+  })
   it("keeps identifying and contact details in mobile cards for same-name participants", async () => {
     setup([
       application,

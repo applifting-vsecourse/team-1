@@ -230,7 +230,12 @@ function FilterFields({
       <Select
         value={filters[option.key] ?? "all"}
         onValueChange={(value) =>
-          onChange({ ...filters, [option.key]: value === "all" ? undefined : value })
+          onChange({
+            ...filters,
+            [option.key]: value === "all" ? undefined : value,
+            // A changed status leaves the free-bed filter of the overview card (it fits waitlisted only).
+            ...(option.key === "status" ? { waitlist: undefined } : {}),
+          })
         }
       >
         <SelectTrigger
