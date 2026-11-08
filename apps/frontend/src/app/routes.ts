@@ -49,6 +49,7 @@ export const ROUTES = {
     setPassword: "/participant/set-password",
     applications: "/participant",
     application: "/participant/applications/$applicationId",
+    editApplication: "/participant/applications/$applicationId/edit",
     applicationMeals: "/participant/applications/$applicationId/meals",
     applicationHealth: "/participant/applications/$applicationId/health",
     applicationTransport: "/participant/applications/$applicationId/transport",

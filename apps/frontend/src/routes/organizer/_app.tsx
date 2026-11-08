@@ -14,6 +14,7 @@ import {
 import { OrganizerAreaError } from "@/features/auth/components/OrganizerAreaError"
 import { SidebarAccount } from "@/features/auth/components/SidebarAccount"
 import { requireAccount } from "@/features/auth/lib/require-account"
+import { NotificationCenter } from "@/features/notifications/components/NotificationCenter"
 
 // Every /organizer/* page except the login sits under this layout.
 export const Route = createFileRoute("/organizer/_app")({
@@ -61,6 +62,7 @@ function OrganizerLayout() {
           </>
         }
         account={<SidebarAccount />}
+        notifications={<NotificationCenter area="organizer" />}
       >
         <Outlet />
       </AreaLayout>

@@ -269,6 +269,7 @@
     "title": "Přehled akce"
   },
   "payment": {
+    "accommodationRequest": "Požadavek na individuální řešení ubytování",
     "afterCorrection": "Po uložení",
     "amountChoice": "Výše platby",
     "back": "← Zpět na přihlášky",

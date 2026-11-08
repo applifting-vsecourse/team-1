@@ -141,6 +141,12 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
           </div>
         </div>
       </div>
+      {data.accommodationRequest ? (
+        <Card className="gap-2 p-4 md:p-6">
+          <h3 className="text-lg font-semibold">{t("payment.accommodationRequest")}</h3>
+          <p className="break-words whitespace-pre-wrap">{data.accommodationRequest}</p>
+        </Card>
+      ) : null}
       <ParticipantDetails application={data} />
       {/* Nothing to pay without a confirmed term (US-25): record a payment once a place is confirmed. */}
       {hasConfirmedTerm ? null : (
