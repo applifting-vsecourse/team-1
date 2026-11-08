@@ -52,22 +52,49 @@ describe("AreaLayout sidebar", () => {
     const user = userEvent.setup()
     const view = renderLayout()
     const sidebar = await screen.findByRole("complementary", { name: "Main navigation" })
-    const toggle = within(sidebar).getByRole("button", { name: "Collapse menu" })
+    const toggle = within(sidebar).getByRole("button", { name: "Collapse panel" })
     expect(toggle).toHaveAttribute("aria-expanded", "true")
     await user.click(toggle)
     expect(sidebar).toHaveAttribute("data-collapsed", "true")
     expect(toggle).toHaveAttribute("aria-expanded", "false")
-    expect(toggle).toHaveAccessibleName("Expand menu")
+    expect(toggle).toHaveAccessibleName("Expand panel")
     expect(toggle).toHaveFocus()
     expect(within(sidebar).getByRole("link", { name: "Events" })).toHaveAttribute("title", "Events")
     expect(within(sidebar).getByRole("link", { name: "togena" })).toBeInTheDocument()
     expect(localStorage.getItem("togena.sidebar.collapsed")).toBe("true")
     view.unmount()
     renderLayout()
-    const restored = await screen.findByRole("button", { name: "Expand menu" })
+    const restored = await screen.findByRole("button", { name: "Expand panel" })
     await user.click(restored)
     expect(restored).toHaveAttribute("aria-expanded", "true")
     expect(localStorage.getItem("togena.sidebar.collapsed")).toBe("false")
+  })
+
+  it("toggles with Ctrl+B and Cmd+B, but not while typing in a field", async () => {
+    const user = userEvent.setup()
+    renderLayout()
+    const sidebar = await screen.findByRole("complementary", { name: "Main navigation" })
+    await user.keyboard("{Control>}b{/Control}")
+    expect(sidebar).toHaveAttribute("data-collapsed", "true")
+    await user.keyboard("{Meta>}b{/Meta}")
+    expect(sidebar).toHaveAttribute("data-collapsed", "false")
+    const field = document.createElement("input")
+    document.body.appendChild(field)
+    field.focus()
+    await user.keyboard("{Control>}b{/Control}")
+    expect(sidebar).toHaveAttribute("data-collapsed", "false")
+    field.remove()
+  })
+
+  it("has a single icon-only control, no text button at the bottom, and a tooltip with the shortcut", async () => {
+    const user = userEvent.setup()
+    renderLayout()
+    const sidebar = await screen.findByRole("complementary", { name: "Main navigation" })
+    expect(within(sidebar).getAllByRole("button", { name: /panel/ })).toHaveLength(1)
+    expect(within(sidebar).queryByText("Collapse panel")).not.toBeInTheDocument()
+    await user.hover(within(sidebar).getByRole("button", { name: "Collapse panel" }))
+    expect(await screen.findByRole("tooltip")).toHaveTextContent("Collapse panel")
+    expect(screen.getByRole("tooltip")).toHaveTextContent("Ctrl B")
   })
 
   it("keeps the mobile drawer expanded when the desktop menu is collapsed", async () => {
@@ -77,7 +104,7 @@ describe("AreaLayout sidebar", () => {
     await user.click(await screen.findByRole("button", { name: "Open navigation" }))
     const drawer = screen.getByRole("dialog", { name: "Organizer" })
     expect(within(drawer).getByRole("link", { name: "Events" })).toBeInTheDocument()
-    expect(within(drawer).queryByRole("button", { name: "Expand menu" })).not.toBeInTheDocument()
+    expect(within(drawer).queryByRole("button", { name: "Expand panel" })).not.toBeInTheDocument()
     expect(drawer.querySelector("[data-collapsed]")).toBeNull()
   })
 
@@ -90,8 +117,8 @@ describe("AreaLayout sidebar", () => {
     })
     const user = userEvent.setup()
     renderLayout()
-    await user.click(await screen.findByRole("button", { name: "Collapse menu" }))
-    expect(screen.getByRole("button", { name: "Expand menu" })).toHaveAttribute(
+    await user.click(await screen.findByRole("button", { name: "Collapse panel" }))
+    expect(screen.getByRole("button", { name: "Expand panel" })).toHaveAttribute(
       "aria-expanded",
       "false",
     )
