@@ -56,6 +56,11 @@ describe("attention overview API (US-51)", () => {
     const approvable = await (await get("/applications?waitlist=FREE_BED")).json()
     expect(attention.substituteCount).toBe(approvable.length)
     expect(attention.substituteCount).toBeGreaterThan(0)
+    // The card links with both filters (#397): the list it opens has the rows the card counts.
+    const cardList = await (await get("/applications?status=WAITLISTED&waitlist=FREE_BED")).json()
+    expect(cardList.map((row: { id: string }) => row.id).sort()).toEqual(
+      approvable.map((row: { id: string }) => row.id).sort(),
+    )
     expect(approvable.map((row: { id: string }) => row.id)).toContain(waitlisted.applicationId)
   })
 

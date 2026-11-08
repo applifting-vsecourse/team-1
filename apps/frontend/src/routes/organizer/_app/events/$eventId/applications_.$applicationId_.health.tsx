@@ -15,12 +15,15 @@ export const Route = createFileRoute(
 // US-68: the health restriction of a participant, for organizers only.
 function OrganizerHealthPage() {
   const { t } = useTranslation("health")
-  const { applicationId } = Route.useParams()
+  const { eventId, applicationId } = Route.useParams()
 
   return (
     <>
       <Seo title={t("title")} />
-      <OrganizerHealth applicationId={applicationId} />
+      <OrganizerHealth
+        eventId={eventId}
+        applicationId={applicationId}
+      />
     </>
   )
 }

@@ -113,6 +113,7 @@ describe("manual status change of an application in a term (integration)", () =>
     expect(term.history).toEqual([
       {
         id: expect.any(String),
+        kind: "STATUS_CHANGED",
         fromStatus: "WAITLISTED",
         toStatus: "CONFIRMED",
         changedByName: expect.any(String),

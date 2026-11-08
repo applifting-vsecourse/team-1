@@ -3,7 +3,9 @@ import { useQuery } from "@tanstack/react-query"
 import { TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { ROUTES } from "@/app/routes"
 import { LogoSymbol } from "@/components/atoms/Logo"
+import { BackLink } from "@/components/molecules/BackLink"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -75,6 +77,8 @@ export function CatalogPage({ organizationId, onOrganizationChange }: CatalogPag
 
   return (
     <div className="flex flex-col gap-6">
+      <BackLink to={ROUTES.home}>{t("list.backHome")}</BackLink>
+
       <h1 className="text-2xl/8 font-bold tracking-tight md:text-3xl/10">{t("list.title")}</h1>
 
       {isPending ? (

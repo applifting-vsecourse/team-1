@@ -5,6 +5,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import type { Health } from "@/features/health/api/health"
 import { OrganizerHealth } from "@/features/health/components/OrganizerHealth"
 
+vi.mock("@tanstack/react-router", () => ({
+  Link: ({ to, children }: { to: string; children: React.ReactNode }) => (
+    <a href={to}>{children}</a>
+  ),
+}))
+
 const { getHealth } = vi.hoisted(() => ({ getHealth: vi.fn() }))
 vi.mock("@/features/health/api/health", async (importOriginal) => {
   const original = await importOriginal<typeof import("@/features/health/api/health")>()
@@ -33,7 +39,10 @@ function setup(value: Health) {
     <QueryClientProvider
       client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
     >
-      <OrganizerHealth applicationId="a1" />
+      <OrganizerHealth
+        eventId="e1"
+        applicationId="a1"
+      />
     </QueryClientProvider>,
   )
 }
@@ -48,6 +57,11 @@ describe("OrganizerHealth", () => {
     ).toBeInTheDocument()
     expect(screen.getByText("Astma · inhalátor u sebe.")).toBeInTheDocument()
     expect(screen.getByText(/Explicit consent given · /)).toBeInTheDocument()
+  })
+
+  it("links back to the application", async () => {
+    setup(health)
+    expect(await screen.findByRole("link", { name: "← Application" })).toBeInTheDocument()
   })
 
   it("says so when nothing was entered", async () => {

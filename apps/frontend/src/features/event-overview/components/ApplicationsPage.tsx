@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { Link, useNavigate } from "@tanstack/react-router"
-import { FilterX } from "lucide-react"
+import { FilterX, Plus } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
@@ -171,6 +171,19 @@ export function ApplicationsPage({
     <div className="flex flex-col gap-6">
       <Seo title={t("applications.title")} />
       {views}
+      <Button
+        asChild
+        size="lg"
+        className="self-start"
+      >
+        <Link
+          to={ROUTES.organizer.newApplication}
+          params={{ eventId }}
+        >
+          <Plus className="size-4" />
+          {t("manual.add")}
+        </Link>
+      </Button>
       {substituteTerm && (
         <SubstitutesPanel
           eventId={eventId}
@@ -211,7 +224,7 @@ export function ApplicationsPage({
               maxLength={100}
               defaultValue={filters.q ?? ""}
               placeholder={t("applications.searchPlaceholder")}
-              className="w-full md:w-80"
+              className="w-full md:w-56"
               onChange={(event) => {
                 setPage(0)
                 const q = event.target.value.trim()
@@ -328,7 +341,6 @@ export function ApplicationsPage({
                             "participant",
                             "terms",
                             "payment",
-                            "due",
                             "owed",
                             "submitted",
                             "actions",
@@ -340,9 +352,33 @@ export function ApplicationsPage({
                     </TableHeader>
                     <TableBody>
                       {visibleRows.map((row) => (
-                        <TableRow key={row.id}>
+                        <TableRow
+                          key={row.id}
+                          className="cursor-pointer"
+                          onClick={(event) => {
+                            // The detail link in the row stays the keyboard and new-tab path; the row only
+                            // widens the mouse target. Controls inside the row keep their own behaviour.
+                            if (
+                              event.defaultPrevented ||
+                              event.button !== 0 ||
+                              event.metaKey ||
+                              event.ctrlKey ||
+                              event.shiftKey ||
+                              event.altKey ||
+                              (event.target as HTMLElement).closest(
+                                "a, button, input, label, [role=checkbox]",
+                              )
+                            ) {
+                              return
+                            }
+                            void navigate({
+                              to: ROUTES.organizer.application,
+                              params: { eventId, applicationId: row.id },
+                            })
+                          }}
+                        >
                           {bulkTerm && (
-                            <TableCell>
+                            <TableCell onClick={(event) => event.stopPropagation()}>
                               <SelectRow
                                 row={row}
                                 selectedIds={selectedIds}
@@ -369,9 +405,6 @@ export function ApplicationsPage({
                           </TableCell>
                           <TableCell>
                             <PaymentStatus application={row} />
-                          </TableCell>
-                          <TableCell>
-                            <MoneyAmount amountCzk={row.amountDueCzk} />
                           </TableCell>
                           <TableCell>
                             <MoneyAmount amountCzk={row.amountOwedCzk} />
@@ -428,6 +461,9 @@ export function ApplicationsPage({
                         </span>
                         <Terms application={row} />
                         <PaymentStatus application={row} />
+                        <span className="text-sm">
+                          {t("applications.owed")}: <MoneyAmount amountCzk={row.amountOwedCzk} />
+                        </span>
                       </Link>
                     </div>
                   ))}

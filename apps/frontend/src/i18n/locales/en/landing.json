@@ -1,5 +1,9 @@
 {
   "catalogLink": "Browse events",
+  "cta": {
+    "body": "Togena helps organizers list terms, keep track of places and see applications and payments in one place.",
+    "title": "Ready to list your first event?"
+  },
   "description": "Togena helps organizers list terms, keep track of places and see applications and payments in one place. Participants apply from a link, without signing up.",
   "features": {
     "capacity": {
@@ -21,8 +25,46 @@
     }
   },
   "footer": "Togena · Managing multi-term events",
+  "footerLinks": {
+    "login": "Sign in",
+    "myApplications": "My applications",
+    "organizers": "For organizers",
+    "participants": "For participants",
+    "register": "Create an account"
+  },
+  "nav": {
+    "catalog": "Event catalog",
+    "organizers": "For organizers",
+    "participants": "For participants"
+  },
   "organizerCta": "I'm an organizer",
   "participantCta": "I'm a participant",
+  "participants": {
+    "body": "Applicants pick one or more terms from the link and see the status of each one after submitting.",
+    "title": "Participants apply from a link, without signing up"
+  },
+  "preview": {
+    "confirmed": "Confirmed 139",
+    "event": "Summer camp Modrá Hora",
+    "paid": "Paid",
+    "waitlist": "Substitutes 9"
+  },
   "title": "Registrations for events with multiple terms",
-  "titleAccent": "without the chaos"
+  "titleAccent": "without the chaos",
+  "types": {
+    "camps": {
+      "body": "Terms, rooms and participants' payments in one place.",
+      "title": "Summer camps"
+    },
+    "conferences": {
+      "body": "Applications without e-mail chains and spreadsheets.",
+      "title": "Conferences and workshops"
+    },
+    "description": "From children's camps to conferences and sports training weeks.",
+    "title": "For every kind of event",
+    "trips": {
+      "body": "Capacity by rooms and an overview of substitutes.",
+      "title": "Training weeks and trips"
+    }
+  }
 }

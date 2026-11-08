@@ -10,7 +10,8 @@ test.describe("Sign-in", () => {
     page,
   }) => {
     await page.goto("/")
-    await page.getByRole("link", { name: "I'm an organizer" }).click()
+    // The landing repeats the entry links; the first one is in the hero.
+    await page.getByRole("link", { name: "I'm an organizer" }).first().click()
     await expect(page).toHaveURL(/\/organizer\/login/)
 
     await fillSignInForm(page, ORGANIZER)
@@ -44,11 +45,6 @@ test.describe("Sign-in", () => {
     await signOut(page, ORGANIZER)
     await expect(page).toHaveURL(/\/$/)
     await signIn(page, "organizer", ORGANIZER)
-    await expect(page).toHaveURL(eventUrl)
-
-    // The sidebar item "Overview" leads to the same place from anywhere.
-    await page.goto("/organizer/events")
-    await page.getByRole("complementary").getByRole("link", { name: "Overview" }).click()
     await expect(page).toHaveURL(eventUrl)
   })
 

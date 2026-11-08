@@ -38,10 +38,13 @@ export function EventOverview({
   eventId,
   events,
   onEventChange,
+  setup,
 }: {
   eventId: string
   events: { id: string; name: string }[]
   onEventChange: (eventId: string) => void
+  /** Setup steps the event still needs before its link can be shared; shown above the cards (#314). */
+  setup?: ReactNode
 }) {
   const { t } = useTranslation("eventOverview")
 
@@ -73,6 +76,7 @@ export function EventOverview({
           </Select>
         </div>
       ) : null}
+      {setup}
       <AttentionCards eventId={eventId} />
       <Occupancy eventId={eventId} />
     </div>
@@ -94,26 +98,6 @@ function AttentionCards({ eventId }: { eventId: string }) {
     )
   }
   const cards = attentionCards(data, t)
-  if (cards.every((card) => card.count === 0)) {
-    return (
-      <Card className="gap-4 p-6">
-        <h2 className="text-2xl font-semibold tracking-tight">{t("attention.allClear")}</h2>
-        <p>
-          {t("attention.allClearEvaluation", {
-            toEvaluate: data.toEvaluateCount,
-            substitutes: data.substituteCount,
-          })}
-        </p>
-        <p>
-          {t("attention.allClearOthers", {
-            debt: data.debt.debtorCount,
-            requests: data.changeRequestCount,
-          })}
-        </p>
-      </Card>
-    )
-  }
-
   return (
     <div className="grid gap-6 md:grid-cols-2">
       {cards.map((card) => (
@@ -144,7 +128,9 @@ function attentionCards(data: Attention, t: Translate) {
       count: data.substituteCount,
       title: t("attention.substitutes.title", { count: data.substituteCount }),
       body: t("attention.substitutes.body"),
-      search: { waitlist: "FREE_BED" },
+      // The waitlist view (tab, order, freed-bed filling; US-104) with the free-bed filter, so the
+      // list has as many rows as the card counts.
+      search: { status: "WAITLISTED", waitlist: "FREE_BED" },
     },
     {
       key: "debt",

@@ -31,6 +31,8 @@ Stav k 5. 11. 2026, větev `t3/email-template-system`. Vše, co jde udělat bez 
 | 7   | Hotovo pro změnu termínů přihlašovatelem | E13 (`TERMS_CHANGED`): jedna zpráva se všemi termíny a jejich výsledky (US-113), v novém vzhledu                                                                               | Schvalování změn US-114 (PR #337), pokud bude posílat vlastní zprávy                                                                                                                                                                                                                                                         |
 | 8   | Hotovo                                   | `verify-email` vyřazen (D-105), `sendOnSignUp: false`; kontakty v patičkách podle pravidla                                                                                     | Nic; [#178](https://github.com/applifting-vsecourse/team-1/issues/178) (chybějící magic link) řeší E02                                                                                                                                                                                                                       |
 
+US-83: Ruční vytvoření přihlášky organizátorem odesílá existující potvrzení `APP_RECEIVED` přes `ApplicationsService.submitByOrganizer` → `ApplicationConfirmationMailer.sendSubmissionConfirmation`. Jde o jednu zprávu za vytvoření, se stavy vybraných termínů a při založení účtu s přístupovým odkazem; pokryto `applications.service.spec.ts`.
+
 ## Co musí počkat na jiné tickety
 
 Pro každou položku: co už je připravené a co udělat, až spouštěč vznikne. Odesílání se vždy napojí přes existující místo, ne novou cestou.
