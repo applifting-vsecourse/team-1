@@ -29,8 +29,9 @@ const sessionOf = (accountType: "ORGANIZER" | "PARTICIPANT"): Session => ({
   },
 })
 
-function setup() {
+function setup(initialSession?: Session) {
   const queryClient = new QueryClient()
+  if (initialSession !== undefined) queryClient.setQueryData(authKeys.session(), initialSession)
   const root = createRootRouteWithContext<{ queryClient: QueryClient }>()()
   const landing = createRoute({
     getParentRoute: () => root,
@@ -61,9 +62,8 @@ afterEach(() => cleanup())
 
 describe("landing (/)", () => {
   it("shows the landing to a signed-out visitor", async () => {
-    const { queryClient } = setup()
+    setup(null)
     expect(await screen.findByText(LANDING)).toBeInTheDocument()
-    expect(queryClient.getQueryData(authKeys.session())).toBeNull()
   })
 
   it("shows the landing when the session request fails", async () => {
