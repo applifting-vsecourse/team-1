@@ -7,6 +7,7 @@ import {
   RouterProvider,
 } from "@tanstack/react-router"
 import { render, screen } from "@testing-library/react"
+import userEvent from "@testing-library/user-event"
 import { afterEach, describe, expect, it, vi } from "vitest"
 
 import { TransportList } from "@/features/transport/components/TransportList"
@@ -80,5 +81,19 @@ describe("TransportList", () => {
       "href",
       expect.stringContaining("termId=term2"),
     )
+  })
+
+  it("asks for an acknowledgement before deleting a transport that participants chose", async () => {
+    renderList()
+    const user = userEvent.setup()
+
+    await user.click(await screen.findByRole("button", { name: "More actions" }))
+    await user.click(await screen.findByRole("menuitem", { name: "Delete transport" }))
+
+    expect(await screen.findByText(/24 participants chose this transport/)).toBeInTheDocument()
+    const confirm = screen.getByRole("button", { name: "Delete transport" })
+    expect(confirm).toBeDisabled()
+    await user.click(screen.getByRole("checkbox"))
+    expect(confirm).toBeEnabled()
   })
 })

@@ -89,6 +89,8 @@
       "choose": "Choose transport",
       "intro": "The organizer needs this from you to plan the event.",
       "progress": "{{done}} of {{total}} done",
+      "statusDone": "Done",
+      "statusOpen": "To do",
       "title": "What is left to arrange",
       "transportBody": "Choose how the participant gets to the event.",
       "transportTitle": "Transport · {{term}}"

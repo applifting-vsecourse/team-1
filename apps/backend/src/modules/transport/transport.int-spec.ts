@@ -181,6 +181,19 @@ describe("transport (integration)", () => {
     expect((await send(`${base()}/own/participants`, organizer)).status).toBe(400)
   })
 
+  it("deletes a transport and leaves its participants with no transport chosen", async () => {
+    await send(mine(), participant, "PUT", { termId, transportId })
+    expect((await send(`${base()}/${transportId}`, otherOrganizer, "DELETE")).status).toBe(403)
+    expect((await inTerm()).transports).toHaveLength(1)
+
+    expect((await send(`${base()}/${transportId}`, organizer, "DELETE")).status).toBe(204)
+    expect((await inTerm()).transports).toHaveLength(0)
+    const row = (await offer()).terms.find((term) => term.termId === termId)!
+    expect(row.selectedTransportId).toBeNull()
+    expect(row.isOwn).toBe(false)
+    expect((await send(`${base()}/${transportId}`, organizer, "DELETE")).status).toBe(403)
+  })
+
   it("leaves out participants of a cancelled term", async () => {
     await send(mine(), participant, "PUT", { termId, transportId })
     await prisma.term.update({ where: { id: termId }, data: { cancelledAt: new Date() } })

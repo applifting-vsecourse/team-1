@@ -89,6 +89,8 @@
       "choose": "Vybrat dopravu",
       "intro": "Organizátor to od vás potřebuje k naplánování akce.",
       "progress": "Hotovo {{done}} z {{total}}",
+      "statusDone": "Hotovo",
+      "statusOpen": "K vyřízení",
       "title": "Co zbývá zařídit",
       "transportBody": "Vyberte, jak se účastník dostane na akci.",
       "transportTitle": "Doprava · {{term}}"

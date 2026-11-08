@@ -47,6 +47,7 @@ const applicationTransportSchema = z.object({
   ),
 })
 
+export type TransportSummary = z.infer<typeof summarySchema>
 export type TransportOption = z.infer<typeof optionSchema>
 export type TermTransport = z.infer<typeof eventTransportSchema>["terms"][number]
 export type TransportInput = Omit<TransportOption, "id">
@@ -100,6 +101,11 @@ export async function saveTransport(
   } else {
     await api.post(base(eventId), { json: { ...input, termId: target.termId } })
   }
+}
+
+/** Participants who chose it are left with no transport chosen. */
+export async function deleteTransport(eventId: string, id: string): Promise<void> {
+  await api.delete(`${base(eventId)}/${encodeURIComponent(id)}`)
 }
 
 /** `null` chooses own transport. */

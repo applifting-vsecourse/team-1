@@ -119,6 +119,11 @@ export class TransportRepository {
     await this.prisma.transport.updateMany({ where: { id, organizationId }, data: input })
   }
 
+  /** Participants who chose it fall back to "not chosen yet" (`onDelete: SetNull`). */
+  async remove({ organizationId }: Scope, id: string): Promise<void> {
+    await this.prisma.transport.deleteMany({ where: { id, organizationId } })
+  }
+
   /** `transportId` null lists the participants of `termId` who travel on their own. */
   async participants(
     { eventId, organizationId }: Scope,

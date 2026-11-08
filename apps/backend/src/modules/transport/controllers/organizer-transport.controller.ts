@@ -11,6 +11,7 @@ import { Identity } from "@/shared/auth/domain/identity"
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   Param,
@@ -72,6 +73,21 @@ export class OrganizerTransportController {
     @Body() body: UpdateTransportRequestDto,
   ): Promise<void> {
     await this.transport.update(user, eventId, id, body.toInput())
+  }
+
+  @Delete(":id")
+  @HttpCode(204)
+  @ApiOperation({
+    summary:
+      "Delete a way of transport; participants who chose it are left with no transport chosen",
+  })
+  @ApiResponse({ status: 204 })
+  async remove(
+    @User() user: Identity,
+    @Param("eventId") eventId: string,
+    @Param("id") id: string,
+  ): Promise<void> {
+    await this.transport.remove(user, eventId, id)
   }
 
   @Get(":id/participants")

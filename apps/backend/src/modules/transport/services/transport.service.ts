@@ -59,6 +59,14 @@ export class TransportService {
     await this.repository.update(scope, id, input)
   }
 
+  async remove(user: Identity, eventId: string, id: string): Promise<void> {
+    const scope = await this.scope(user, eventId)
+    if (!(await this.repository.termOfTransport(scope, id))) {
+      throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
+    }
+    await this.repository.remove(scope, id)
+  }
+
   async participants(
     user: Identity,
     eventId: string,

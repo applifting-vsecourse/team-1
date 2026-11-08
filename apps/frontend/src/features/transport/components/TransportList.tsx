@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
+import { MapPin, Users } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
@@ -17,7 +18,7 @@ import {
   OWN_TRANSPORT_ID,
   type TermTransport,
 } from "@/features/transport/api/transport"
-import { departureText } from "@/features/transport/lib/departure"
+import { TransportCard } from "@/features/transport/components/TransportCard"
 
 // Transport of an event, term by term: every way of getting there with a link to its participants.
 // Figma (Design system): #65 Doprava · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19795-12467
@@ -86,44 +87,32 @@ function TermSection({
         {term.termName ? <p className="text-sm text-muted-foreground">{termDates(term)}</p> : null}
       </div>
       {term.transports.map((transport) => (
-        <Card
+        <TransportCard
           key={transport.id}
-          className="gap-4 p-4"
-        >
-          <h4 className="text-lg font-semibold">{transport.name}</h4>
-          <p>{t("departure", { when: departureText(transport.departureAt, t("at")) })}</p>
-          <p>{transport.departurePlace}</p>
-          <p>{t("participants", { count: transport.participantsCount })}</p>
-          <Button
-            asChild
-            variant="outline"
-            size="lg"
-          >
-            <Link
-              to={ROUTES.organizer.eventTransportEdit}
-              params={{ eventId, transportId: transport.id }}
-            >
-              {t("edit")}
-            </Link>
-          </Button>
-          <Button
-            asChild
-            variant="outline"
-            size="lg"
-          >
-            <Link
-              to={ROUTES.organizer.eventTransportParticipants}
-              params={{ eventId, transportId: transport.id }}
-            >
-              {t("showParticipants")}
-            </Link>
-          </Button>
-        </Card>
+          eventId={eventId}
+          transport={transport}
+        />
       ))}
       <Card className="gap-4 p-4">
         <h4 className="text-lg font-semibold">{t("own")}</h4>
-        {eventLocation ? <p>{eventLocation}</p> : null}
-        <p>{t("participants", { count: term.ownCount })}</p>
+        <ul className="flex flex-col gap-2 text-sm">
+          {eventLocation ? (
+            <li className="flex items-start gap-2">
+              <MapPin
+                aria-hidden
+                className="mt-0.5 size-4 shrink-0 text-muted-foreground"
+              />
+              <span>{eventLocation}</span>
+            </li>
+          ) : null}
+          <li className="flex items-start gap-2">
+            <Users
+              aria-hidden
+              className="mt-0.5 size-4 shrink-0 text-muted-foreground"
+            />
+            <span>{t("participants", { count: term.ownCount })}</span>
+          </li>
+        </ul>
         <Button
           asChild
           variant="outline"
