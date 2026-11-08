@@ -328,7 +328,6 @@ export function ApplicationsPage({
                             "participant",
                             "terms",
                             "payment",
-                            "due",
                             "owed",
                             "submitted",
                             "actions",
@@ -395,9 +394,6 @@ export function ApplicationsPage({
                             <PaymentStatus application={row} />
                           </TableCell>
                           <TableCell>
-                            <MoneyAmount amountCzk={row.amountDueCzk} />
-                          </TableCell>
-                          <TableCell>
                             <MoneyAmount amountCzk={row.amountOwedCzk} />
                           </TableCell>
                           <TableCell>{formatDateTime(row.submittedAt)}</TableCell>
@@ -452,6 +448,9 @@ export function ApplicationsPage({
                         </span>
                         <Terms application={row} />
                         <PaymentStatus application={row} />
+                        <span className="text-sm">
+                          {t("applications.owed")}: <MoneyAmount amountCzk={row.amountOwedCzk} />
+                        </span>
                       </Link>
                     </div>
                   ))}

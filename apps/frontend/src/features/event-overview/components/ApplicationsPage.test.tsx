@@ -392,6 +392,12 @@ describe("ApplicationsPage", () => {
       "/organizer/events/e1/applications/a1",
     )
   })
+  it("shows one debt column and no amount-to-pay column", async () => {
+    setup([application])
+    await screen.findByRole("link", { name: "Record payment" })
+    expect(screen.getByRole("columnheader", { name: "Balance due" })).toBeInTheDocument()
+    expect(screen.queryByRole("columnheader", { name: "Amount due" })).not.toBeInTheDocument()
+  })
   describe("clickable row", () => {
     it("opens the detail when the row is clicked", async () => {
       setup([application], false, undefined, null, {})

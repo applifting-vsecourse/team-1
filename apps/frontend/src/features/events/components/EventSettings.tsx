@@ -97,7 +97,7 @@ function ChooseMode({ eventId, saved }: { eventId: string; saved: EvaluationMode
 
   return (
     <form
-      className="flex flex-col gap-6"
+      className="flex w-full max-w-196 flex-col gap-6"
       onSubmit={(e) => {
         e.preventDefault()
         mutation.mutate()
