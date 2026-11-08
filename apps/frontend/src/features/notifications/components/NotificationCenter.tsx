@@ -89,7 +89,11 @@ export function NotificationCenter({
     setIsOpen(false)
     if (notification.applicationId) {
       if (area === "organizer") {
-        if (!notification.params.eventId) return
+        // An older notification may not carry the event: the events list is the fallback.
+        if (!notification.params.eventId) {
+          void navigate({ to: ROUTES.organizer.events })
+          return
+        }
         void navigate({
           to: ROUTES.organizer.application,
           params: {

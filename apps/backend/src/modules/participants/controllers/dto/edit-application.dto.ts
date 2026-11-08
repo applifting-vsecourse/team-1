@@ -1,4 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger"
+import { Transform } from "class-transformer"
 import { IsNotEmpty, IsOptional, IsString, Matches, MaxLength } from "class-validator"
 
 export class EditApplicationRequestDto {
@@ -19,7 +20,10 @@ export class EditApplicationRequestDto {
   birthDate!: string
 
   @ApiProperty({ example: "+420 777 123 456" })
-  @Matches(/^\+?[0-9 ()-]{7,30}$/)
+  @Transform(({ value }: { value: unknown }) =>
+    typeof value === "string" ? value.trim().replace(/[ ()-]/g, "") : value,
+  )
+  @Matches(/^\+?[0-9]{7,30}$/)
   phone!: string
 
   @ApiProperty({ nullable: true, maxLength: 2000 })

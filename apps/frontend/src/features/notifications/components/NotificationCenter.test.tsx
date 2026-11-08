@@ -267,6 +267,24 @@ describe("NotificationCenter", () => {
     })
   })
 
+  it("falls back to the events list when an organizer notification has no event", async () => {
+    serve([
+      notification("n1", {
+        type: "REQUEST",
+        kind: "APPLICATION_EDITED",
+        applicationId: "app-7",
+        params: { eventName: "Letní kemp Lipno 2027", participantName: "Adam Dvořák" },
+      }),
+    ])
+    renderCenter(undefined, "organizer")
+    const panel = within(await open())
+
+    await userEvent.click(await panel.findByRole("button", { name: /Application detail/ }))
+
+    expect(post).toHaveBeenCalledWith("notifications/n1/read")
+    expect(navigate).toHaveBeenCalledWith({ to: "/organizer/events" })
+  })
+
   it("is a modal that fits the screen at 360 px", async () => {
     window.innerWidth = 360
     serve([notification("1")])

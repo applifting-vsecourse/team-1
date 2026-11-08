@@ -18,6 +18,8 @@ describe("participant application edit (integration)", () => {
       ...(body ? { body: JSON.stringify(body) } : {}),
     })
 
+  // Spaces, brackets and dashes are removed before the phone is compared and stored.
+  const normalizedPhone = "+420777123456"
   const input = {
     firstName: "Jana",
     lastName: "Nováková",
@@ -77,6 +79,7 @@ describe("participant application edit (integration)", () => {
       { ...input, firstName: "  " },
       { ...input, birthDate: "2027-02-30" },
       { ...input, phone: "abc" },
+      { ...input, phone: "(((((((" },
       { ...input, accommodationRequest: "x".repeat(2001) },
     ]) {
       expect((await call("PUT", ownId, participantCookie, invalid)).status).toBe(400)
@@ -92,7 +95,7 @@ describe("participant application edit (integration)", () => {
       firstName: "Jana",
       lastName: "Nováková",
       birthDate: "2000-05-15",
-      phone: "+420 777 123 456",
+      phone: normalizedPhone,
       accommodationRequest: "Prosím o pokoj v přízemí.",
       history: [
         {
@@ -104,14 +107,14 @@ describe("participant application edit (integration)", () => {
     expect(new Date(saved.history[0].createdAt).getTime()).toBeGreaterThan(0)
 
     const application = await prisma.application.findUniqueOrThrow({ where: { id: ownId } })
-    expect(application.phone).toBe(input.phone)
+    expect(application.phone).toBe(normalizedPhone)
     expect(application.accommodationRequest).toBe(input.accommodationRequest)
     const history = await prisma.applicationEdit.findFirstOrThrow({
       where: { applicationId: ownId },
     })
     expect(history.changedById).toBe(application.userId)
     expect(history.before).toMatchObject({ phone: null, accommodationRequest: null })
-    expect(history.after).toMatchObject({ phone: input.phone })
+    expect(history.after).toMatchObject({ phone: normalizedPhone })
 
     const members = await prisma.organizationMember.findMany({
       where: { organizationId: application.organizationId, user: { accountType: "ORGANIZER" } },
@@ -207,5 +210,55 @@ describe("participant application edit (integration)", () => {
     })
     const allowed = await call("PUT", ownId, participantCookie, duplicateInput)
     expect(allowed.status).toBe(200)
+  })
+
+  it("does not edit a cancelled application or one whose terms are over", async () => {
+    const terms = await prisma.applicationTerm.findMany({
+      where: { applicationId: ownId },
+      include: { term: true },
+    })
+    const edits = await prisma.applicationEdit.count({ where: { applicationId: ownId } })
+    const attempt = { ...input, firstName: "Zrušená" }
+
+    try {
+      await prisma.applicationTerm.updateMany({
+        where: { applicationId: ownId },
+        data: { status: "CANCELLED" },
+      })
+      const cancelled = await call("PUT", ownId, participantCookie, attempt)
+      expect(cancelled.status).toBe(409)
+      expect(await cancelled.json()).toMatchObject({ code: "APPLICATION_NOT_EDITABLE" })
+    } finally {
+      for (const term of terms) {
+        await prisma.applicationTerm.update({
+          where: { id: term.id },
+          data: { status: term.status },
+        })
+      }
+    }
+
+    try {
+      for (const { term } of terms) {
+        await prisma.term.update({
+          where: { id: term.id },
+          data: { startsOn: new Date("2020-07-01"), endsOn: new Date("2020-07-08") },
+        })
+      }
+      const over = await call("PUT", ownId, participantCookie, attempt)
+      expect(over.status).toBe(409)
+      expect(await over.json()).toMatchObject({ code: "APPLICATION_NOT_EDITABLE" })
+    } finally {
+      for (const { term } of terms) {
+        await prisma.term.update({
+          where: { id: term.id },
+          data: { startsOn: term.startsOn, endsOn: term.endsOn },
+        })
+      }
+    }
+
+    expect(await prisma.applicationEdit.count({ where: { applicationId: ownId } })).toBe(edits)
+    expect(
+      (await prisma.application.findUniqueOrThrow({ where: { id: ownId } })).firstName,
+    ).not.toBe("Zrušená")
   })
 })

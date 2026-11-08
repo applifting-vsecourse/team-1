@@ -2,6 +2,7 @@ import { PrismaService } from "@/core/prisma/prisma.service"
 import { Prisma } from "@/generated/prisma/client"
 import { findDuplicate } from "@/modules/applications/domain/duplicate-application"
 import { termLabel } from "@/modules/applications/domain/term-label"
+import { todayInPrague } from "@/modules/applications/domain/waitlist-expiry"
 import { NotificationsRepository } from "@/modules/notifications/repositories/notifications.repository"
 import { AppException } from "@/shared/errors/app.exception"
 import { HttpStatus, Injectable } from "@nestjs/common"
@@ -24,7 +25,7 @@ export type EditInput = Pick<
 
 const include = {
   event: { select: { name: true } },
-  edits: { orderBy: { createdAt: "desc" }, take: 50 },
+  edits: { orderBy: [{ createdAt: "desc" }, { id: "desc" }], take: 50 },
 } as const satisfies Prisma.ApplicationInclude
 
 type Row = Prisma.ApplicationGetPayload<{ include: typeof include }>
@@ -76,6 +77,17 @@ export class ApplicationEditRepository {
       const row = await tx.application.findFirst({ where: { id, userId }, include })
       if (!row) return null
 
+      // Only an application with a live term can be edited: a cancelled one, or one whose terms
+      // are all over, is history.
+      const activeTerms = await tx.applicationTerm.findMany({
+        where: { applicationId: id, status: { not: "CANCELLED" } },
+        select: { termId: true, term: { select: { endsOn: true } } },
+      })
+      const today = todayInPrague(new Date())
+      if (!activeTerms.some(({ term }) => term.endsOn >= today)) {
+        throw new AppException(HttpStatus.CONFLICT, "APPLICATION_NOT_EDITABLE")
+      }
+
       const before: EditInput = {
         firstName: row.firstName,
         lastName: row.lastName,
@@ -89,10 +101,6 @@ export class ApplicationEditRepository {
       if (changedFields.length === 0) return toDto(row)
 
       if (changedFields.some((field) => ["firstName", "lastName", "birthDate"].includes(field))) {
-        const activeTerms = await tx.applicationTerm.findMany({
-          where: { applicationId: id, status: { not: "CANCELLED" } },
-          select: { termId: true },
-        })
         const termIds = activeTerms.map(({ termId }) => termId)
         if (termIds.length > 0) {
           const registered = await tx.applicationTerm.findMany({

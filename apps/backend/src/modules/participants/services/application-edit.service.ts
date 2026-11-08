@@ -27,7 +27,7 @@ export class ApplicationEditService {
       firstName: input.firstName.trim(),
       lastName: input.lastName.trim(),
       birthDate: input.birthDate,
-      phone: input.phone?.trim() ?? null,
+      phone: input.phone?.trim().replace(/[ ()-]/g, "") ?? null,
       accommodationRequest: input.accommodationRequest?.trim() || null,
     }
     if (

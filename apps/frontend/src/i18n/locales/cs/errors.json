@@ -1,5 +1,6 @@
 {
   "APPLICATION_DUPLICATE": "Přihláška už existuje. Účastník: {{participant}}, termín: „{{term}}“. Zkontrolujte potvrzovací e-mail.",
+  "APPLICATION_NOT_EDITABLE": "Tuto přihlášku už nelze upravit: nemá žádný aktivní termín, nebo všechny její termíny už skončily.",
   "BED_ALREADY_TAKEN": "Lůžko mezitím obsadil jiný organizátor.",
   "CANCELLATION_APPROVAL_REQUIRED": "Změny nyní vyžadují schválení organizátora. Obraťte se na organizátora.",
   "CAPACITY_EXCEEDED": "Potvrzením by se překročila kapacita termínu. Potvrďte vědomě.",

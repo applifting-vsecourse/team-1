@@ -56,10 +56,10 @@ export class NotificationsRepository {
       where: { organizationId: input.organizationId, user: { accountType: "ORGANIZER" } },
       select: { userId: true },
     })
-    for (const member of members) {
-      await this.create(tx, {
+    await tx.notification.createMany({
+      data: members.map((member) => ({
         userId: member.userId,
-        type: "REQUEST",
+        type: "REQUEST" as const,
         kind: "APPLICATION_EDITED",
         applicationId: input.applicationId,
         params: {
@@ -67,8 +67,8 @@ export class NotificationsRepository {
           eventName: input.eventName,
           participantName: input.participantName,
         },
-      })
-    }
+      })),
+    })
   }
 
   /**
