@@ -153,7 +153,7 @@ export function ChangePasswordForm() {
             type="button"
             variant="ghost"
             size="lg"
-            className="h-12 flex-1 rounded-lg"
+            className="h-12 rounded-lg md:flex-1"
             onClick={goBack}
           >
             {t("changePassword.back")}
@@ -161,7 +161,7 @@ export function ChangePasswordForm() {
           <Button
             type="submit"
             size="lg"
-            className="h-12 flex-1 rounded-lg"
+            className="h-12 rounded-lg md:flex-1"
             disabled={changePassword.isPending}
           >
             {changePassword.isPending ? <Loader2 className="animate-spin" /> : null}
