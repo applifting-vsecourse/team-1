@@ -118,7 +118,7 @@ describe("EventOverview", () => {
       },
       <p>Setup steps</p>,
     )
-    const cards = await screen.findByText("Nothing needs your attention")
+    const cards = await screen.findByRole("link", { name: /Awaiting review/ })
     const setup = screen.getByText("Setup steps")
     const switcher = screen.getByRole("combobox", { name: "Event" })
     expect(switcher.compareDocumentPosition(setup) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()

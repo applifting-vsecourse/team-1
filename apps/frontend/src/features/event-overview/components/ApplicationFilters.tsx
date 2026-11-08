@@ -210,11 +210,16 @@ export function ApplicationFilters({
       {hasFilters && (
         <Button
           variant="ghost"
-          size="lg"
-          className="w-fit"
+          size="icon-lg"
+          className="shrink-0"
+          aria-label={t("applications.clear")}
+          title={t("applications.clear")}
           onClick={() => onChange({})}
         >
-          {t("applications.clear")}
+          <X
+            className="size-5"
+            aria-hidden="true"
+          />
         </Button>
       )}
     </div>
