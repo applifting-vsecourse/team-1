@@ -1,14 +1,12 @@
 import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
-import { CircleAlert, Copy } from "lucide-react"
+import { Copy } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
 import { Checklist } from "@/components/molecules/Checklist"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
-import { SectionHeader } from "@/components/molecules/SectionHeader"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { notify } from "@/lib/notify"
@@ -52,10 +50,6 @@ export function EventSetup({ eventId }: { eventId: string }) {
 
   return (
     <div className="flex flex-col gap-6">
-      <SectionHeader
-        title={t("overview.title")}
-        description={subtitle(event, t)}
-      />
       <p className="text-sm">
         <span className="text-muted-foreground">{t("evaluationMode.overviewLabel")}: </span>
         <span className="font-medium">
@@ -86,26 +80,12 @@ export function EventSetup({ eventId }: { eventId: string }) {
   )
 }
 
-function subtitle(event: OrganizerEvent, t: ReturnType<typeof useTranslation<"events">>["t"]) {
-  return event.termCount > 0
-    ? t("overview.subtitleTerms", {
-        count: event.termCount,
-        name: event.name,
-        organization: event.organizationName,
-      })
-    : t("overview.subtitleNoTerms", {
-        name: event.name,
-        organization: event.organizationName,
-      })
-}
-
 function ShareLink({ link, onCopy }: { link: string; onCopy: () => void }) {
   const { t } = useTranslation("events")
 
   return (
     <Card className="gap-3 p-6">
       <h3 className="text-lg font-semibold tracking-tight">{t("overview.ready.title")}</h3>
-      <p className="text-sm text-muted-foreground">{t("overview.ready.body")}</p>
       <div className="flex items-center gap-2">
         <a
           href={link}
@@ -137,13 +117,11 @@ function MissingSteps({ event }: { event: OrganizerEvent }) {
   const steps = {
     TERM: {
       title: t("overview.missing.termTitle"),
-      body: t("overview.missing.termBody"),
       action: t("overview.missing.addTerm"),
       to: ROUTES.organizer.eventTerms,
     },
     ROOM: {
       title: t("overview.missing.roomTitle"),
-      body: t("overview.missing.roomBody"),
       action: t("overview.missing.addRoom"),
       to: ROUTES.organizer.eventRooms,
     },
@@ -151,44 +129,35 @@ function MissingSteps({ event }: { event: OrganizerEvent }) {
   const firstMissing = STEPS.find((step) => event.missing.includes(step))
 
   return (
-    <>
-      <Checklist
-        title={t("overview.missing.title")}
-        intro={t("overview.missing.intro")}
-        progress={t("overview.missing.progress", {
-          done: STEPS.length - event.missing.length,
-          total: STEPS.length,
-        })}
-        items={STEPS.map((step) => {
-          const isMissing = event.missing.includes(step)
-          return {
-            key: step,
-            title: steps[step].title,
-            body: steps[step].body,
-            isDone: !isMissing,
-            action: isMissing ? (
-              <Button
-                asChild
-                // One primary action per view: the step to do first.
-                variant={step === firstMissing ? "default" : "outline"}
-                size="lg"
+    <Checklist
+      title={t("overview.missing.title")}
+      progress={t("overview.missing.progress", {
+        done: STEPS.length - event.missing.length,
+        total: STEPS.length,
+      })}
+      items={STEPS.map((step) => {
+        const isMissing = event.missing.includes(step)
+        return {
+          key: step,
+          title: steps[step].title,
+          isDone: !isMissing,
+          action: isMissing ? (
+            <Button
+              asChild
+              // One primary action per view: the step to do first.
+              variant={step === firstMissing ? "default" : "outline"}
+              size="lg"
+            >
+              <Link
+                to={steps[step].to}
+                params={{ eventId: event.id }}
               >
-                <Link
-                  to={steps[step].to}
-                  params={{ eventId: event.id }}
-                >
-                  {steps[step].action}
-                </Link>
-              </Button>
-            ) : null,
-          }
-        })}
-      />
-      <Alert>
-        <CircleAlert />
-        <AlertTitle>{t("overview.inactiveTitle")}</AlertTitle>
-        <AlertDescription>{t("overview.inactiveBody")}</AlertDescription>
-      </Alert>
-    </>
+                {steps[step].action}
+              </Link>
+            </Button>
+          ) : null,
+        }
+      })}
+    />
   )
 }
