@@ -51,9 +51,11 @@ describe("organizer sidebar", () => {
     "highlights exactly one item, Events, on %s",
     async (entry) => {
       renderAt(entry)
-      const links = await screen.findAllByRole("link", { name: /^(Overview|Events)$/ })
+      const links = await screen.findAllByRole("link", { name: /^Events$/ })
       const active = links.filter((link) => link.getAttribute("data-status") === "active")
       expect(active.map((link) => link.textContent)).toEqual(["Events"])
+      // "Overview" is left out for now (#394).
+      expect(screen.queryByRole("link", { name: "Overview" })).not.toBeInTheDocument()
     },
   )
 })

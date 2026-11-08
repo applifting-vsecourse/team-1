@@ -45,11 +45,6 @@ test.describe("Sign-in", () => {
     await expect(page).toHaveURL(/\/$/)
     await signIn(page, "organizer", ORGANIZER)
     await expect(page).toHaveURL(eventUrl)
-
-    // The sidebar item "Overview" leads to the same place from anywhere.
-    await page.goto("/organizer/events")
-    await page.getByRole("complementary").getByRole("link", { name: "Overview" }).click()
-    await expect(page).toHaveURL(eventUrl)
   })
 
   test(
