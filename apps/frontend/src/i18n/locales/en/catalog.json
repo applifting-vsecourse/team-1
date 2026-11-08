@@ -8,6 +8,7 @@
   },
   "list": {
     "allOrganizations": "All organizations",
+    "backHome": "Home",
     "badgeOpen": "Applications open",
     "badgePublished": "Published",
     "description": "Find an organization and its published events in one place.",

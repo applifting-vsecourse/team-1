@@ -1,8 +1,10 @@
 import { useId } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { TriangleAlert } from "lucide-react"
+import { Link } from "@tanstack/react-router"
+import { ArrowLeft, TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { ROUTES } from "@/app/routes"
 import { LogoSymbol } from "@/components/atoms/Logo"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -75,6 +77,17 @@ export function CatalogPage({ organizationId, onOrganizationChange }: CatalogPag
 
   return (
     <div className="flex flex-col gap-6">
+      <Button
+        asChild
+        variant="ghost"
+        className="-ml-3 w-fit"
+      >
+        <Link to={ROUTES.home}>
+          <ArrowLeft aria-hidden />
+          {t("list.backHome")}
+        </Link>
+      </Button>
+
       <h1 className="text-2xl/8 font-bold tracking-tight md:text-3xl/10">{t("list.title")}</h1>
 
       {isPending ? (
