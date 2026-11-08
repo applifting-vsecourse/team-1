@@ -84,8 +84,7 @@ async function pickSource(user: ReturnType<typeof userEvent.setup>) {
     await screen.findByRole("option", { name: /Week 3.*different room mode/ }),
   ).toHaveAttribute("aria-disabled", "true")
   await user.click(screen.getByRole("option", { name: /Week 2 · rooms by gender/ }))
-  expect(await screen.findByText("2 rooms · 10 beds")).toBeInTheDocument()
-  await user.click(screen.getByRole("button", { name: "Show preview" }))
+  expect(await screen.findByRole("button", { name: /Copy rooms|Add 2 rooms/ })).toBeEnabled()
 }
 
 describe("copying rooms into a term", () => {
@@ -96,7 +95,7 @@ describe("copying rooms into a term", () => {
 
   it("previews the copy into an empty term and copies without a choice", async () => {
     const { user, onCopied, onClose } = renderDialog(termRooms("t1", []))
-    expect(screen.getByRole("button", { name: "Show preview" })).toBeDisabled()
+    expect(screen.getByRole("button", { name: "Copy rooms" })).toBeDisabled()
     await pickSource(user)
     expect(
       screen.getByText(/The target term gets 2 rooms of its own and a capacity of 10 beds/),
