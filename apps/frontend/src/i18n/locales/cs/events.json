@@ -112,28 +112,17 @@
     "copyAgain": "Kopírovat znovu",
     "copyLink": "Zkopírovat odkaz",
     "errorTitle": "Akci se nepodařilo načíst",
-    "inactiveBody": "Akce je uložená v seznamu. Přihláška se zpřístupní, až bude mít každý termín cenu a alespoň jeden pokoj.",
-    "inactiveTitle": "Odkaz na přihlášku zatím není aktivní",
     "missing": {
       "addRoom": "Přidat pokoj",
       "addTerm": "Přidat termín a cenu",
-      "intro": "Doplňte tyto dva kroky. Potom bude možné přímý odkaz zkopírovat a rozeslat.",
       "progress": "{{done}} ze {{total}} hotovo",
-      "roomBody": "Termín bez pokojů nemá kapacitu a odkaz zůstává vypnutý.",
       "roomTitle": "Přidejte alespoň jeden pokoj ke každému termínu",
-      "termBody": "Účastníci potřebují vědět, kdy se akce koná a kolik stojí.",
       "termTitle": "Přidejte alespoň jeden termín s cenou",
       "title": "Co chybí ke zpřístupnění přihlášky"
     },
     "ready": {
-      "body": "Každý termín má cenu i alespoň jeden pokoj. Odkaz můžete rozeslat zájemcům.",
       "title": "Přihláška je připravená ke sdílení"
-    },
-    "subtitleNoTerms": "{{name}} · {{organization}} · zatím bez termínu",
-    "subtitleTerms_few": "{{name}} · pořádá {{organization}} · {{count}} vypsané termíny",
-    "subtitleTerms_one": "{{name}} · pořádá {{organization}} · {{count}} vypsaný termín",
-    "subtitleTerms_other": "{{name}} · pořádá {{organization}} · {{count}} vypsaných termínů",
-    "title": "Přehled akce"
+    }
   },
   "publicPage": {
     "cancel": "Zrušit",

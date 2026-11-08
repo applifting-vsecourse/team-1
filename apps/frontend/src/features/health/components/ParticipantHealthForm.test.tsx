@@ -6,6 +6,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import type { Health } from "@/features/health/api/health"
 import { ParticipantHealthForm } from "@/features/health/components/ParticipantHealthForm"
 
+const { navigate, success } = vi.hoisted(() => ({ navigate: vi.fn(), success: vi.fn() }))
+vi.mock("@tanstack/react-router", () => ({ useNavigate: () => navigate }))
+vi.mock("@/lib/notify", () => ({ notify: { success } }))
+
 const { getHealth, saveHealth, requestHealthChange } = vi.hoisted(() => ({
   getHealth: vi.fn(),
   saveHealth: vi.fn(),
@@ -74,6 +78,32 @@ describe("ParticipantHealthForm", () => {
     )
   })
 
+  it("confirms with a toast and returns to the application after saving", async () => {
+    const user = userEvent.setup()
+    setup()
+    await user.type(await screen.findByLabelText("Participant's health restriction"), "Astma")
+    await user.click(screen.getByRole("checkbox"))
+    await user.click(screen.getByRole("button", { name: "Save health data" }))
+    await waitFor(() =>
+      expect(navigate).toHaveBeenCalledWith({
+        to: "/participant/applications/$applicationId",
+        params: { applicationId: "a1" },
+      }),
+    )
+    expect(success).toHaveBeenCalledWith("Health data saved")
+  })
+
+  it("shows the error and stays on the form when saving fails", async () => {
+    const user = userEvent.setup()
+    setup()
+    saveHealth.mockRejectedValue(new Error("Server said no"))
+    await user.type(await screen.findByLabelText("Participant's health restriction"), "Astma")
+    await user.click(screen.getByRole("checkbox"))
+    await user.click(screen.getByRole("button", { name: "Save health data" }))
+    expect(await screen.findByText("Server said no")).toBeVisible()
+    expect(navigate).not.toHaveBeenCalled()
+  })
+
   it("shows filled-in data read-only and sends a change as a request, not a save", async () => {
     const user = userEvent.setup()
     setup({ ...empty, note: "Astma", consentAt: "2026-11-05T13:30:00.000Z" })
@@ -96,6 +126,8 @@ describe("ParticipantHealthForm", () => {
       }),
     )
     expect(saveHealth).not.toHaveBeenCalled()
+    expect(success).toHaveBeenCalledWith("Request sent")
+    expect(navigate).toHaveBeenCalled()
     // After sending, the stored data is shown again, not the unapproved wording.
     await waitFor(() =>
       expect(screen.getByLabelText("Participant's health restriction")).toHaveValue("Astma"),

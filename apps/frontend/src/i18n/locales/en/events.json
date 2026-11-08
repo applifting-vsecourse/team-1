@@ -112,28 +112,17 @@
     "copyAgain": "Copy again",
     "copyLink": "Copy link",
     "errorTitle": "Couldn't load the event",
-    "inactiveBody": "The event is saved in the list. Applications open once every term has a price and at least one room.",
-    "inactiveTitle": "The application link is not active yet",
     "missing": {
       "addRoom": "Add a room",
       "addTerm": "Add a term and price",
-      "intro": "Complete these two steps. Then you can copy the direct link and send it out.",
       "progress": "{{done}} of {{total}} done",
-      "roomBody": "A term without rooms has no capacity and keeps the link closed.",
       "roomTitle": "Add at least one room to every term",
-      "termBody": "Applicants need to know when the event takes place and what it costs.",
       "termTitle": "Add at least one term with a price",
       "title": "What is missing to open applications"
     },
     "ready": {
-      "body": "Every term has a price and at least one room. You can send the link to applicants.",
       "title": "Applications are ready to share"
-    },
-    "subtitleNoTerms": "{{name}} · {{organization}} · no term yet",
-    "subtitleTerms_few": "{{name}} · run by {{organization}} · {{count}} terms listed",
-    "subtitleTerms_one": "{{name}} · run by {{organization}} · {{count}} term listed",
-    "subtitleTerms_other": "{{name}} · run by {{organization}} · {{count}} terms listed",
-    "title": "Event overview"
+    }
   },
   "publicPage": {
     "cancel": "Cancel",

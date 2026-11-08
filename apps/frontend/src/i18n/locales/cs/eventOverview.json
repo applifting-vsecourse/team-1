@@ -5,6 +5,7 @@
     "allPayments": "Všechny platby",
     "allStatuses": "Všechny stavy v termínu",
     "allTerms": "Všechny termíny",
+    "allWaitlisted": "Všichni náhradníci",
     "cancelled": "Zrušená",
     "clear": "Vymazat filtry",
     "clearSearchAndFilters": "Vymazat hledání a filtry",
@@ -13,7 +14,7 @@
     "count_few": "{{count}} přihlášky",
     "count_one": "{{count}} přihláška",
     "count_other": "{{count}} přihlášek",
-    "debt": "Účastníci s dluhem",
+    "debt": "S dluhem",
     "detail": "Detail",
     "due": "Částka k úhradě",
     "empty": "Pro tento výběr jsme nenašli žádné přihlášky.",
@@ -50,6 +51,7 @@
     "title": "Přihlášky",
     "toEvaluate": "Čeká na vyhodnocení",
     "unpaid": "Nezaplaceno",
+    "waitlistFilter": "Náhradníci",
     "waitlistFreeBed": "Náhradníci s volným lůžkem",
     "waitlistNote": "Přijetí náhradníka řešte v jeho detailu. Nejprve ověřte volné lůžko; platební údaje pošlete až po potvrzení.",
     "waitlistNoteTitle": "Náhradníci mají pořadí, místo zatím nemají potvrzené.",
@@ -58,9 +60,6 @@
     "waitlistedPositionMale": "Náhradník · {{position}}"
   },
   "attention": {
-    "allClear": "Nic nevyžaduje pozornost",
-    "allClearEvaluation": "K vyhodnocení {{toEvaluate}} · Náhradníci k vyřešení {{substitutes}}",
-    "allClearOthers": "Účastníci s dluhem {{debt}} · Žádosti ke schválení {{requests}}",
     "debt": {
       "body": "Z toho {{overdue}} po lhůtě · Součet dluhů {{total}}",
       "title": "Účastníci s dluhem · {{count}}"

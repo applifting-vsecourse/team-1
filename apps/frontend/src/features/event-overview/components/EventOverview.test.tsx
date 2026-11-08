@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import {
   createMemoryHistory,
@@ -31,7 +32,7 @@ const occupancy = {
   ],
 }
 
-function renderOverview(attention: Attention) {
+function renderOverview(attention: Attention, setup?: ReactNode) {
   vi.spyOn(globalThis, "fetch").mockImplementation((input) => {
     const url = String(input instanceof Request ? input.url : input)
     const body = url.endsWith("/attention") ? attention : occupancy
@@ -51,6 +52,7 @@ function renderOverview(attention: Attention) {
         eventId="e1"
         events={[{ id: "e1", name: "Summer camp" }]}
         onEventChange={() => undefined}
+        setup={setup}
       />
     ),
   })
@@ -81,6 +83,7 @@ describe("EventOverview", () => {
     expect(toEvaluate.getAttribute("href")).toContain("status=TO_EVALUATE")
     const substitutes = screen.getByRole("link", { name: /Substitutes to resolve · 3/ })
     expect(substitutes).toHaveTextContent("Freed beds in the matching group")
+    expect(substitutes.getAttribute("href")).toContain("status=WAITLISTED")
     expect(substitutes.getAttribute("href")).toContain("waitlist=FREE_BED")
     const debt = screen.getByRole("link", { name: /Participants with a balance due · 6/ })
     expect(debt).toHaveTextContent("3 overdue · Total balance due")
@@ -92,17 +95,33 @@ describe("EventOverview", () => {
     expect(screen.getByRole("combobox", { name: "Event" })).toBeVisible()
   })
 
-  it("says nothing needs attention when every count is zero, and still shows the occupancy", async () => {
+  it("still shows the cards, with zero counts, when nothing needs attention", async () => {
     renderOverview({
       toEvaluateCount: 0,
       substituteCount: 0,
       debt: { debtorCount: 0, overdueCount: 0, totalDebtCzk: 0 },
       changeRequestCount: 0,
     })
-    expect(await screen.findByText("Nothing needs your attention")).toBeVisible()
-    expect(screen.getByText("Awaiting review 0 · Substitutes to resolve 0")).toBeVisible()
-    expect(screen.getByText("Participants with a balance due 0 · Pending requests 0")).toBeVisible()
-    expect(screen.queryByRole("link", { name: /Awaiting review/ })).not.toBeInTheDocument()
+    expect(await screen.findByRole("link", { name: /Awaiting review · 0/ })).toBeVisible()
+    expect(screen.getByRole("link", { name: /Substitutes to resolve · 0/ })).toBeVisible()
+    expect(screen.queryByText("Nothing needs your attention")).not.toBeInTheDocument()
     expect(await screen.findByText("Summer week")).toBeVisible()
+  })
+
+  it("puts the setup steps the event still needs between the switcher and the cards", async () => {
+    renderOverview(
+      {
+        toEvaluateCount: 0,
+        substituteCount: 0,
+        debt: { debtorCount: 0, overdueCount: 0, totalDebtCzk: 0 },
+        changeRequestCount: 0,
+      },
+      <p>Setup steps</p>,
+    )
+    const cards = await screen.findByRole("link", { name: /Awaiting review/ })
+    const setup = screen.getByText("Setup steps")
+    const switcher = screen.getByRole("combobox", { name: "Event" })
+    expect(switcher.compareDocumentPosition(setup) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(setup.compareDocumentPosition(cards) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   })
 })

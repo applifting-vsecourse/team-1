@@ -23,6 +23,7 @@
     "allergiesLabel": "Allergies and other dietary restrictions",
     "pageTitle": "Meals",
     "save": "Save meals",
+    "saved": "Meals saved",
     "specialRequestLabel": "Special request",
     "title": "Meals · {{name}}"
   }
