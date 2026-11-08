@@ -132,12 +132,15 @@ describe("AreaLayout sidebar", () => {
     expect(screen.getAllByRole("button", { name: "Eva Malá" })).toHaveLength(1)
   })
 
-  it("keeps language and theme in the top bar and out of the drawer", async () => {
+  it("keeps language and theme out of the top bar and the drawer", async () => {
     const user = userEvent.setup()
     renderLayout()
 
-    expect(await screen.findByRole("button", { name: "Change language" })).toBeInTheDocument()
-    expect(screen.getByRole("button", { name: "Toggle theme" })).toBeInTheDocument()
+    expect(
+      await screen.findByRole("complementary", { name: "Main navigation" }),
+    ).toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: "Change language" })).not.toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: "Toggle theme" })).not.toBeInTheDocument()
 
     await user.click(screen.getByRole("button", { name: "Open navigation" }))
     const drawer = await screen.findByRole("dialog")
