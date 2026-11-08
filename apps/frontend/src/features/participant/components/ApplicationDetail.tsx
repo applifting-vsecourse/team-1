@@ -186,6 +186,19 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
           </Card>
         </section>
       ) : null}
+      <Button
+        asChild
+        variant="outline"
+        size="lg"
+        className="self-start"
+      >
+        <Link
+          to={ROUTES.participant.applicationMeals}
+          params={{ applicationId }}
+        >
+          {t("detail.meals")}
+        </Link>
+      </Button>
       <OrganizationContact contact={data.organizationContact} />
     </div>
   )

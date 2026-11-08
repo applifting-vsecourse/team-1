@@ -164,6 +164,7 @@ model Organization {
   statusChanges    ApplicationTermStatusChange[]
   substituteSkips  ApplicationTermSkip[]
   changeRequests   ChangeRequest[]
+  mealOptions      MealOption[]
   transports       Transport[]
 
   @@map("organization")
@@ -227,6 +228,7 @@ model Event {
   applications Application[]
   changeRequests ChangeRequest[]
   photo        EventPhoto?
+  mealOptions  MealOption[]
   lastOpenedBy LastOpenedEvent[]
 
   @@index([organizationId])
@@ -245,6 +247,25 @@ model EventPhoto {
   updatedAt   DateTime @default(now()) @updatedAt
 
   @@map("event_photo")
+}
+
+// A meal restriction the organizer offers on the application of an event (US-64), e.g. vegetarian.
+model MealOption {
+  id             String       @id @default(cuid())
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId String
+  event          Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId        String
+  name           String
+  // Order in which the organizer listed the options.
+  position       Int
+  createdAt      DateTime     @default(now())
+
+  applications Application[]
+
+  @@index([organizationId])
+  @@index([eventId, position])
+  @@map("meal_option")
 }
 
 model Term {
@@ -346,6 +367,11 @@ model Application {
   submittedAt    DateTime     @default(now())
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @default(now()) @updatedAt
+
+  // Meal restrictions of the participant (US-64): ticked options of the event and free text.
+  mealOptions   MealOption[]
+  allergies     String?      @db.Text
+  specialRequest String?     @db.Text
 
   terms         ApplicationTerm[]
   notifications Notification[]

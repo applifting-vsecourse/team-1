@@ -6,6 +6,7 @@ import csErrors from "@/i18n/locales/cs/errors.json"
 import csEventOverview from "@/i18n/locales/cs/eventOverview.json"
 import csEvents from "@/i18n/locales/cs/events.json"
 import csLanding from "@/i18n/locales/cs/landing.json"
+import csMeals from "@/i18n/locales/cs/meals.json"
 import csNotifications from "@/i18n/locales/cs/notifications.json"
 import csParticipant from "@/i18n/locales/cs/participant.json"
 import csTransport from "@/i18n/locales/cs/transport.json"
@@ -17,6 +18,7 @@ import enErrors from "@/i18n/locales/en/errors.json"
 import enEventOverview from "@/i18n/locales/en/eventOverview.json"
 import enEvents from "@/i18n/locales/en/events.json"
 import enLanding from "@/i18n/locales/en/landing.json"
+import enMeals from "@/i18n/locales/en/meals.json"
 import enNotifications from "@/i18n/locales/en/notifications.json"
 import enParticipant from "@/i18n/locales/en/participant.json"
 import enTransport from "@/i18n/locales/en/transport.json"
@@ -35,6 +37,7 @@ export const resources = {
     participant: enParticipant,
     notifications: enNotifications,
     eventOverview: enEventOverview,
+    meals: enMeals,
     transport: enTransport,
   },
   cs: {
@@ -48,6 +51,7 @@ export const resources = {
     participant: csParticipant,
     notifications: csNotifications,
     eventOverview: csEventOverview,
+    meals: csMeals,
     transport: csTransport,
   },
 } as const

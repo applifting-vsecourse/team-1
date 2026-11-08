@@ -71,6 +71,7 @@
   "detail": {
     "back": "← All applications",
     "errorTitle": "Couldn't load the application",
+    "meals": "Meals",
     "sections": {
       "terms": "Terms and payments",
       "transport": "Transport"

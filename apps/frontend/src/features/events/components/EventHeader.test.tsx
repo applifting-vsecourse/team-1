@@ -79,6 +79,7 @@ describe("EventHeader sections", () => {
       "Applications",
       "Payments",
       "Capacity",
+      "Meals",
       "Accommodation",
       "Terms",
       "Transport",

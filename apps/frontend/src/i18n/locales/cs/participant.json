@@ -71,6 +71,7 @@
   "detail": {
     "back": "← Všechny přihlášky",
     "errorTitle": "Přihlášku se nepodařilo načíst",
+    "meals": "Stravování",
     "sections": {
       "terms": "Termíny a platby",
       "transport": "Doprava"

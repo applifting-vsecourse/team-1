@@ -30,6 +30,7 @@
   "eventTabs": {
     "applications": "Přihlášky",
     "capacity": "Kapacity",
+    "meals": "Stravování",
     "overview": "Přehled",
     "payments": "Platby",
     "position": "{{current}} z {{total}}",
