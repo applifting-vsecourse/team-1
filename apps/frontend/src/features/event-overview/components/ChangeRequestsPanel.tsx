@@ -15,8 +15,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import { formatDate, formatDateRange } from "@/lib/date"
 import { formatCzk } from "@/lib/money"
 import { notify } from "@/lib/notify"
@@ -202,8 +202,9 @@ export function ChangeRequestsPanel({ eventId }: { eventId: string }) {
             )}
             <div className="flex flex-col gap-2">
               <Label htmlFor="change-request-reason">{t("changeRequests.reason")}</Label>
-              <Input
+              <Textarea
                 id="change-request-reason"
+                className="min-h-32 rounded-xl shadow-none"
                 value={reason}
                 maxLength={1000}
                 placeholder={t("changeRequests.reasonPlaceholder")}
