@@ -63,11 +63,14 @@ jobs:
           const match = response.body.match(/<!-- screenshot-capture-input:v1 (\{.*\}) -->/);
           if (!match) throw new Error("Missing screenshot input");
           const input = JSON.parse(match[1]);
-          if (input.pr !== 344 || input.head !== "2b29c52321ea0c603b9412382ff50e726626a1ab" || input.specSha256 !== "52a52c21c75a9b23397f9fb27d2ad4db0016008cca6e1a8366b09f4c980f90a5") throw new Error("Input identity mismatch");
+          if (input.pr !== 344 || input.head !== "2b29c52321ea0c603b9412382ff50e726626a1ab" || input.specSha256 !== "17e866c2fd320eb23e18664ac9a759ca1dccec9478fbca234dfc38a9f3effd99") throw new Error("Input identity mismatch");
           const source = Buffer.from(input.specBase64, "base64");
-          if (crypto.createHash("sha256").update(source).digest("hex") !== "52a52c21c75a9b23397f9fb27d2ad4db0016008cca6e1a8366b09f4c980f90a5") throw new Error("Spec integrity mismatch");
+          if (crypto.createHash("sha256").update(source).digest("hex") !== "17e866c2fd320eb23e18664ac9a759ca1dccec9478fbca234dfc38a9f3effd99") throw new Error("Spec integrity mismatch");
           fs.writeFileSync("apps/e2e/tests/zz-screenshots.spec.ts", source, {flag: "wx"});
           NODE
+
+      - name: Validate temporary Playwright test discovery
+        run: pnpm e2e exec playwright test tests/zz-screenshots.spec.ts --list --project=desktop
 
       - name: Capture desktop and 360 px screenshots using only seed data
         env:
