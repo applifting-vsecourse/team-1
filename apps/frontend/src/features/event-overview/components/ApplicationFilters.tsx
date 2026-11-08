@@ -20,6 +20,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { cn } from "@/lib/utils"
 
 import type { ApplicationsSearch } from "@/features/event-overview/lib/applications-search"
 
@@ -269,7 +270,11 @@ function FilterFields({
     return (
       <div
         key={option.key}
-        className="flex min-w-0 flex-col gap-2 md:w-44"
+        className={cn(
+          "flex min-w-0 flex-col gap-2 md:w-44",
+          // The whole value "Náhradníci s volným lůžkem" stays visible on one line.
+          option.key === "waitlist" && "md:w-60",
+        )}
       >
         <Label htmlFor={`${idPrefix}-filter-${option.key}`}>{option.label}</Label>
         {option.isLocked ? (
