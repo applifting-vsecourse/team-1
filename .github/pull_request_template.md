@@ -8,6 +8,10 @@ Closes #
 
 <!-- Kroky pro reviewera / product managera: kam kliknout, s jakým seed účtem, co má být vidět. -->
 
+## Screenshoty
+
+<!-- Mění-li se, co uživatel vidí: desktop a 360 px, u vizuální opravy před/po (postup v CLAUDE.md, „Screenshots in the PR“). Jinak jeden řádek, proč tu žádné nejsou. -->
+
 ## Checklist
 
 - [ ] Jeden PR na story (BE + FE + testy); je-li větší než cca 400 řádků kódu / 20 souborů, je níže napsáno proč
