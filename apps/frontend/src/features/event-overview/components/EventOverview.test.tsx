@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import {
   createMemoryHistory,
@@ -31,7 +32,7 @@ const occupancy = {
   ],
 }
 
-function renderOverview(attention: Attention) {
+function renderOverview(attention: Attention, setup?: ReactNode) {
   vi.spyOn(globalThis, "fetch").mockImplementation((input) => {
     const url = String(input instanceof Request ? input.url : input)
     const body = url.endsWith("/attention") ? attention : occupancy
@@ -51,6 +52,7 @@ function renderOverview(attention: Attention) {
         eventId="e1"
         events={[{ id: "e1", name: "Summer camp" }]}
         onEventChange={() => undefined}
+        setup={setup}
       />
     ),
   })
@@ -104,5 +106,22 @@ describe("EventOverview", () => {
     expect(screen.getByText("Participants with a balance due 0 · Pending requests 0")).toBeVisible()
     expect(screen.queryByRole("link", { name: /Awaiting review/ })).not.toBeInTheDocument()
     expect(await screen.findByText("Summer week")).toBeVisible()
+  })
+
+  it("puts the setup steps the event still needs between the switcher and the cards", async () => {
+    renderOverview(
+      {
+        toEvaluateCount: 0,
+        substituteCount: 0,
+        debt: { debtorCount: 0, overdueCount: 0, totalDebtCzk: 0 },
+        changeRequestCount: 0,
+      },
+      <p>Setup steps</p>,
+    )
+    const cards = await screen.findByText("Nothing needs your attention")
+    const setup = screen.getByText("Setup steps")
+    const switcher = screen.getByRole("combobox", { name: "Event" })
+    expect(switcher.compareDocumentPosition(setup) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(setup.compareDocumentPosition(cards) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   })
 })

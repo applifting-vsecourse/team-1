@@ -13,7 +13,9 @@ test.describe("Event setup", () => {
       .getByRole("navigation", { name: "Event sections" })
       .getByRole("link", { name: "Overview" })
       .click()
-    await expect(page.getByText("The application link is not active yet")).toBeVisible()
+    await expect(
+      page.getByRole("heading", { name: "What is missing to open applications" }),
+    ).toBeVisible()
     await expect(page.getByRole("button", { name: /Copy/ })).toHaveCount(0)
   })
 
