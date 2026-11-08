@@ -61,6 +61,14 @@ enum ChangeRequestStatus {
   @@map("change_request_status")
 }
 
+// What a change request asks for: another selection of terms or (US-68) another health note.
+enum ChangeRequestKind {
+  TERMS
+  HEALTH
+
+  @@map("change_request_kind")
+}
+
 model Session {
   id        String   @id
   expiresAt DateTime
@@ -133,6 +141,7 @@ model User {
   submittedChangeRequests ChangeRequest[] @relation("ChangeRequestApplicant")
   reviewedChangeRequests  ChangeRequest[] @relation("ChangeRequestReviewer")
   notifications    Notification[]
+  lastOpenedEvent  LastOpenedEvent?
 
   @@unique([email])
   @@map("user")
@@ -146,6 +155,8 @@ model User {
 model Organization {
   id          String   @id @default(cuid())
   name        String
+  contactEmail String?
+  contactPhone String?
   // Czech account number, e.g. "2900123456/2010" — shown with payment details.
   bankAccount String
   createdAt   DateTime @default(now())
@@ -161,6 +172,9 @@ model Organization {
   statusChanges    ApplicationTermStatusChange[]
   substituteSkips  ApplicationTermSkip[]
   changeRequests   ChangeRequest[]
+  mealOptions      MealOption[]
+  applicationHealth ApplicationHealth[]
+  transports       Transport[]
 
   @@map("organization")
 }
@@ -205,6 +219,8 @@ model Event {
   // First calendar day when participant changes require organizer approval (US-113/114).
   // Null leaves changes immediate.
   cancellationStartsOn DateTime?      @db.Date
+  // Cancellation terms the organizer shows to applicants (US-47), free text; null until written.
+  cancellationTerms    String?        @db.Text
   description          String?        @db.Text
   location             String?
   // Public page content (US-122): the one source of the event web and the catalog (US-123).
@@ -221,6 +237,8 @@ model Event {
   applications Application[]
   changeRequests ChangeRequest[]
   photo        EventPhoto?
+  mealOptions  MealOption[]
+  lastOpenedBy LastOpenedEvent[]
 
   @@index([organizationId])
   @@map("event")
@@ -238,6 +256,25 @@ model EventPhoto {
   updatedAt   DateTime @default(now()) @updatedAt
 
   @@map("event_photo")
+}
+
+// A meal restriction the organizer offers on the application of an event (US-64), e.g. vegetarian.
+model MealOption {
+  id             String       @id @default(cuid())
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId String
+  event          Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId        String
+  name           String
+  // Order in which the organizer listed the options.
+  position       Int
+  createdAt      DateTime     @default(now())
+
+  applications Application[]
+
+  @@index([organizationId])
+  @@index([eventId, position])
+  @@map("meal_option")
 }
 
 model Term {
@@ -264,11 +301,34 @@ model Term {
 
   applicationTerms ApplicationTerm[]
   rooms            Room[]
+  transports       Transport[]
 
   @@unique([eventId, number])
   @@index([organizationId])
   @@index([eventId])
   @@map("term")
+}
+
+// A way to get to a term, set up by the organizer (US-65): a bus, a shared ride. Where and when
+// it leaves. Capacity and price are not tracked yet (open question in the story).
+model Transport {
+  id             String       @id @default(cuid())
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId String
+  term           Term         @relation(fields: [termId], references: [id], onDelete: Cascade)
+  termId         String
+  name           String
+  departurePlace String
+  // Never later than the last day of the term.
+  departureAt    DateTime
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @default(now()) @updatedAt
+
+  applicationTerms ApplicationTerm[]
+
+  @@index([organizationId])
+  @@index([termId])
+  @@map("transport")
 }
 
 // A room belongs to exactly one term (US-99, D-052).
@@ -319,14 +379,37 @@ model Application {
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @default(now()) @updatedAt
 
+  // Meal restrictions of the participant (US-64): ticked options of the event and free text.
+  mealOptions   MealOption[]
+  allergies     String?      @db.Text
+  specialRequest String?     @db.Text
+
   terms         ApplicationTerm[]
   notifications Notification[]
   changeRequests ChangeRequest[]
+  health        ApplicationHealth?
 
   @@index([organizationId])
   @@index([eventId, submittedAt])
   @@index([userId])
   @@map("application")
+}
+
+// Health restriction of the participant (US-68): a specially protected personal datum, so it lives
+// in its own table that no other query includes. Only the account of the application writes it,
+// only an organizer of the organization reads it. A row exists only with the explicit consent.
+model ApplicationHealth {
+  id             String       @id @default(cuid())
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId String
+  application    Application  @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  applicationId  String       @unique
+  note           String       @db.Text
+  consentAt      DateTime
+  updatedAt      DateTime     @default(now()) @updatedAt
+
+  @@index([organizationId])
+  @@map("application_health")
 }
 
 // A requested selection is a snapshot until an organizer decides. ApplicationTerm rows stay
@@ -343,6 +426,9 @@ model ChangeRequest {
   applicantId      String
   currentTermIds   String[]
   requestedTermIds String[]
+  kind             ChangeRequestKind   @default(TERMS)
+  // US-68: the requested health note ("" = remove it); consent is given with the request.
+  healthNote       String?             @db.Text
   status           ChangeRequestStatus @default(PENDING)
   rejectionReason  String?             @db.Text
   reviewedBy       User?               @relation("ChangeRequestReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
@@ -373,6 +459,11 @@ model ApplicationTerm {
   paymentPeriodStartedAt DateTime?
   // Successful delivery of the one payment reminder for this term (D-102); written by US-46.
   paymentReminderSentAt  DateTime?
+  // Transport of the participant to this term (US-65). Neither set = not chosen yet;
+  // `ownTransport` = chose to get there alone.
+  transport              Transport?            @relation(fields: [transportId], references: [id], onDelete: SetNull)
+  transportId            String?
+  ownTransport           Boolean               @default(false)
 
   statusChanges ApplicationTermStatusChange[]
   payments      Payment[]
@@ -426,6 +517,12 @@ model ApplicationTermSkip {
   @@map("application_term_skip")
 }
 
+// Where a payment row comes from. SIMULATION is the staging/demo button of the participant (US-115).
+enum PaymentSource {
+  MANUAL
+  SIMULATION
+}
+
 // Manually recorded payment (US-44) of one application in a term (US-137, D-051). Rows rather
 // than a flag so a bank statement import (US-42) can add more later. One receipt (money that
 // arrived at once) is one or more rows sharing `receiptId`; a refund is a negative row.
@@ -441,6 +538,7 @@ model Payment {
   // New receipts remember whether the organizer used the summary symbol; null is legacy data.
   isSummary         Boolean?
   amountCzk         Int
+  source            PaymentSource   @default(MANUAL)
   recordedBy        User            @relation(fields: [recordedById], references: [id])
   recordedById      String
   createdAt         DateTime        @default(now())
@@ -481,4 +579,17 @@ enum NotificationType {
   STATUS_CHANGED
   PAYMENT
   REQUEST
+}
+
+// The event an organizer opened last (US-51): where the administration lands after login,
+// on any device. One row per user; gone with the user or the event.
+model LastOpenedEvent {
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId   String   @id
+  event    Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId  String
+  openedAt DateTime @default(now())
+
+  @@index([eventId])
+  @@map("last_opened_event")
 }

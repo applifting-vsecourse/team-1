@@ -13,6 +13,7 @@ import ChangeEmail, { changeEmailSubject } from "./templates/change-email"
 import ChangeEmailNotice, { changeEmailNoticeSubject } from "./templates/change-email-notice"
 import MagicLink, { magicLinkSubject } from "./templates/magic-link"
 import PaymentCorrectionEmail, { paymentCorrectionSubject } from "./templates/payment-correction"
+import PaymentReceivedEmail, { paymentReceivedSubject } from "./templates/payment-received"
 import ResetPassword, { resetPasswordSubject } from "./templates/reset-password"
 import VerifyEmail, { verifyEmailSubject } from "./templates/verify-email"
 
@@ -52,6 +53,13 @@ const templates: Record<
     subject: paymentCorrectionSubject(locale, "Camp"),
     element: React.createElement(PaymentCorrectionEmail, {
       ...PaymentCorrectionEmail.PreviewProps,
+      locale,
+    }),
+  }),
+  "payment-received": (locale) => ({
+    subject: paymentReceivedSubject(locale, "Term"),
+    element: React.createElement(PaymentReceivedEmail, {
+      ...PaymentReceivedEmail.PreviewProps,
       locale,
     }),
   }),

@@ -71,13 +71,29 @@
   "detail": {
     "back": "← All applications",
     "errorTitle": "Couldn't load the application",
+    "health": "Health restriction",
+    "meals": "Meals",
+    "sections": {
+      "terms": "Terms and payments",
+      "transport": "Transport"
+    },
     "termsTitle": "Status by term",
     "title": "My application",
     "toEvaluate": {
       "alertText": "You will get the payment details once your participation is confirmed.",
       "alertTitle": "Don't pay yet.",
       "note": "The organizer will review the application in each term separately. It is not a confirmed place or a waitlist spot yet."
-    }
+    },
+    "todo": {
+      "change": "Change transport",
+      "choose": "Choose transport",
+      "intro": "The organizer needs this from you to plan the event.",
+      "progress": "{{done}} of {{total}} done",
+      "title": "What is left to arrange",
+      "transportBody": "Choose how the participant gets to the event.",
+      "transportTitle": "Transport · {{term}}"
+    },
+    "transportIntro": "Choose how the participant gets to each term, and see where and when the transport leaves."
   },
   "list": {
     "empty": "You have no applications yet. Once you apply for an event, it will appear here.",
@@ -101,16 +117,22 @@
     "amount": "Amount",
     "closeQr": "Close payment details",
     "copyAmount": "Copy amount",
+    "overpaymentNotTransferred": "An overpayment is not carried over between terms.",
+    "overpaymentRefund": "Arrange the refund of the overpayment with the organizer.",
     "payEachTerm": "You pay each term separately. Use its variable symbol, otherwise we cannot match the payment.",
     "qrAlt": "QR code for the combined payment",
-    "saveQr": "Save QR to your phone",
+    "saveQr": "Download QR code",
     "showSummaryQrMany": "One payment for all confirmed terms · show QR",
     "showSummaryQrTwo": "One payment for both terms · show QR",
-    "summaryBreakdown": "Combined payment breakdown",
-    "summaryBreakdownMobile": "Breakdown:",
-    "summaryDebt": "Debt",
-    "summaryQrExplanation": "Use the summary variable symbol for both confirmed terms. It differs from the symbols for individual terms; waitlisted terms are not included in the payment.",
-    "summaryQrExplanationMany": "Use the summary variable symbol for all confirmed terms. It differs from the symbols for individual terms; waitlisted terms are not included in the payment.",
+    "simulation": {
+      "alertText": "The button does not make a bank transfer.",
+      "alertTitle": "Demo: payments are simulated.",
+      "logLine": "+{{amount}} · {{term}} · source: simulation",
+      "logTitle": "Simulation log",
+      "paid": "I paid"
+    },
+    "summaryBreakdown": "Breakdown",
+    "summaryQrExplanation": "Covers all confirmed terms. The summary variable symbol differs from the per-term ones.",
     "summaryQrTitle": "Pay for confirmed terms",
     "summaryVariableSymbol": "Summary variable symbol",
     "totalOwed": "Left to pay in total"

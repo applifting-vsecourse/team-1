@@ -1,0 +1,19 @@
+{
+  "audienceText": "Only the event organiser will see the health restriction. Enter food allergies under meals.",
+  "audienceTitle": "Information for the organiser",
+  "consent": "I explicitly consent to the processing of the health data above to ensure participation in the event.",
+  "consentGiven": "Explicit consent given · {{at}}",
+  "errorTitle": "The health restriction could not be loaded",
+  "notFilled": "The participant has not entered a health restriction.",
+  "noteLabel": "Participant's health restriction",
+  "organizerCardTitle": "Information available to the organiser",
+  "organizerTitle": "Health restriction · {{name}}",
+  "pendingText": "The organiser will review the change. Until then the original data stays valid.",
+  "pendingTitle": "Request awaiting approval",
+  "requestChange": "Request a change",
+  "requestSent": "Request sent",
+  "requestSubmit": "Send request",
+  "save": "Save health data",
+  "saved": "Health data saved",
+  "title": "Health restriction"
+}

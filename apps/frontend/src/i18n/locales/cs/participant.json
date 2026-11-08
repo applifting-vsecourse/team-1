@@ -71,13 +71,29 @@
   "detail": {
     "back": "← Všechny přihlášky",
     "errorTitle": "Přihlášku se nepodařilo načíst",
+    "health": "Zdravotní omezení",
+    "meals": "Stravování",
+    "sections": {
+      "terms": "Termíny a platby",
+      "transport": "Doprava"
+    },
     "termsTitle": "Stav podle termínů",
     "title": "Moje přihláška",
     "toEvaluate": {
       "alertText": "Platební údaje dostanete po potvrzení účasti.",
       "alertTitle": "Zatím nic neplaťte.",
       "note": "Organizátor přihlášku posoudí v každém termínu zvlášť. Zatím nejde o potvrzenou účast ani o zařazení mezi náhradníky."
-    }
+    },
+    "todo": {
+      "change": "Změnit dopravu",
+      "choose": "Vybrat dopravu",
+      "intro": "Organizátor to od vás potřebuje k naplánování akce.",
+      "progress": "Hotovo {{done}} z {{total}}",
+      "title": "Co zbývá zařídit",
+      "transportBody": "Vyberte, jak se účastník dostane na akci.",
+      "transportTitle": "Doprava · {{term}}"
+    },
+    "transportIntro": "Vyberte, jak se účastník dostane na jednotlivé termíny, a zjistěte, kde a kdy doprava odjíždí."
   },
   "list": {
     "empty": "Zatím tu nemáte žádnou přihlášku. Až se přihlásíte na akci, objeví se tady.",
@@ -101,16 +117,22 @@
     "amount": "Částka",
     "closeQr": "Zavřít platební údaje",
     "copyAmount": "Kopírovat částku",
+    "overpaymentNotTransferred": "Přeplatek se mezi termíny nepřevádí.",
+    "overpaymentRefund": "Na vrácení přeplatku se domluvte s organizátorem.",
     "payEachTerm": "Každý termín platíte zvlášť. Použijte jeho variabilní symbol, jinak platbu nepřiřadíme.",
     "qrAlt": "QR kód pro souhrnnou platbu",
-    "saveQr": "Uložit QR do telefonu",
+    "saveQr": "Stáhnout QR kód",
     "showSummaryQrMany": "Jedna platba za všechny potvrzené termíny · zobrazit QR",
     "showSummaryQrTwo": "Jedna platba za oba termíny · zobrazit QR",
-    "summaryBreakdown": "Rozpis souhrnné platby",
-    "summaryBreakdownMobile": "Rozpis:",
-    "summaryDebt": "Dluh",
-    "summaryQrExplanation": "Použijte souhrnný variabilní symbol pro oba potvrzené termíny. Liší se od VS jednotlivých termínů; náhradnické termíny se do platby nepočítají.",
-    "summaryQrExplanationMany": "Použijte souhrnný variabilní symbol pro všechny potvrzené termíny. Liší se od VS jednotlivých termínů; náhradnické termíny se do platby nepočítají.",
+    "simulation": {
+      "alertText": "Tlačítko nezadává bankovní převod.",
+      "alertTitle": "Demo: platby jsou simulované.",
+      "logLine": "+{{amount}} · {{term}} · zdroj: simulace",
+      "logTitle": "Záznam simulace",
+      "paid": "Zaplatil jsem"
+    },
+    "summaryBreakdown": "Rozpis",
+    "summaryQrExplanation": "Platí pro všechny potvrzené termíny. Souhrnný VS se liší od VS jednotlivých termínů.",
     "summaryQrTitle": "Zaplatit potvrzené termíny",
     "summaryVariableSymbol": "Souhrnný variabilní symbol",
     "totalOwed": "Zbývá zaplatit celkem"

@@ -22,6 +22,7 @@ import {
   type Payment,
   type PaymentTerm,
 } from "@/features/event-overview/api/payments"
+import { ParticipantDetails } from "@/features/event-overview/components/ParticipantDetails"
 import { PaymentCancellation } from "@/features/event-overview/components/PaymentCancellation"
 import { PaymentCorrection } from "@/features/event-overview/components/PaymentCorrection"
 import {
@@ -115,17 +116,32 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
           </div>
           {/* The summary dialog is always open to the organizer once there is a confirmed term
               (or an overpayment to return): one payment split over the terms, or a refund. */}
-          {hasConfirmedTerm || hasOverpayment ? (
+          <div className="flex flex-wrap items-center gap-2">
             <Button
-              variant={data.amountOwedCzk > 0 ? "default" : "outline"}
+              asChild
+              variant="outline"
               size="lg"
-              onClick={() => setIsRecordOpen(true)}
             >
-              {t("payment.recordOrRefund")}
+              <Link
+                to={ROUTES.organizer.applicationHealth}
+                params={{ eventId: data.eventId, applicationId }}
+              >
+                {t("payment.health")}
+              </Link>
             </Button>
-          ) : null}
+            {hasConfirmedTerm || hasOverpayment ? (
+              <Button
+                variant={data.amountOwedCzk > 0 ? "default" : "outline"}
+                size="lg"
+                onClick={() => setIsRecordOpen(true)}
+              >
+                {t("payment.recordOrRefund")}
+              </Button>
+            ) : null}
+          </div>
         </div>
       </div>
+      <ParticipantDetails application={data} />
       {/* Nothing to pay without a confirmed term (US-25): record a payment once a place is confirmed. */}
       {hasConfirmedTerm ? null : (
         <Alert className="border-status-info bg-status-info-bg">

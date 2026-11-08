@@ -4,12 +4,26 @@ import {
   OrganizerTermChangeRequestDto,
   OrganizerTermChangeResponseDto,
   OrganizerTermOptionDto,
+  OrganizerWithdrawalPreviewResponseDto,
+  OrganizerWithdrawalRequestDto,
+  OrganizerWithdrawalResponseDto,
 } from "@/modules/applications/controllers/dto/organizer-term-change.dto"
 import { TermStatusService } from "@/modules/applications/services/term-status.service"
 import { Auth } from "@/shared/auth/decorators/auth.decorator"
 import { User } from "@/shared/auth/decorators/user.decorator"
 import { Identity } from "@/shared/auth/domain/identity"
-import { Body, Controller, Get, Param, Put, Query, UsePipes, ValidationPipe } from "@nestjs/common"
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Param,
+  Post,
+  Put,
+  Query,
+  UsePipes,
+  ValidationPipe,
+} from "@nestjs/common"
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 
 @ApiTags("applications")
@@ -70,5 +84,37 @@ export class OrganizerTermChangeController {
       changedAt: result.changedAt.toISOString(),
       changedByName: result.changedByName,
     }
+  }
+
+  @Get("withdraw-preview")
+  @ApiOperation({
+    summary: "Impact of withdrawing the participant from terms, before saving (US-32)",
+  })
+  @ApiResponse({ status: 200, type: OrganizerWithdrawalPreviewResponseDto })
+  @ApiResponse({ status: 403, description: "Wrong account type or foreign application" })
+  @ApiResponse({ status: 409, description: "A term is not one the application is in" })
+  async withdrawalPreview(
+    @User() user: Identity,
+    @Param("applicationId") applicationId: string,
+    @Query() query: OrganizerTermChangePreviewQueryDto,
+  ): Promise<OrganizerWithdrawalPreviewResponseDto> {
+    return OrganizerWithdrawalPreviewResponseDto.fromDomain(
+      await this.statuses.previewWithdrawalByOrganizer(user, applicationId, query.termIds),
+    )
+  }
+
+  @Post("withdraw")
+  @HttpCode(200)
+  @ApiOperation({ summary: "Withdraw the participant from terms as an organizer (US-32)" })
+  @ApiResponse({ status: 200, type: OrganizerWithdrawalResponseDto })
+  @ApiResponse({ status: 403, description: "Wrong account type or foreign application" })
+  @ApiResponse({ status: 409, description: "A term is not one the application is in" })
+  async withdraw(
+    @User() user: Identity,
+    @Param("applicationId") applicationId: string,
+    @Body() body: OrganizerWithdrawalRequestDto,
+  ): Promise<OrganizerWithdrawalResponseDto> {
+    const result = await this.statuses.withdrawByOrganizer(user, applicationId, body.termIds)
+    return { changedAt: result.changedAt.toISOString(), changedByName: result.changedByName }
   }
 }

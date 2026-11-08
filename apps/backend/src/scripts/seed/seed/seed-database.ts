@@ -109,6 +109,14 @@ export const seedDatabase = async (
     accountType: "PARTICIPANT",
   })
 
+  // A second participant with several terms to pay (US-41): one paid, one part-paid, one unpaid.
+  const payingParticipant = await createUser(betterAuth, {
+    email: "ucastnik2@example.com",
+    password: "password5",
+    name: "Adam Dvořák",
+    accountType: "PARTICIPANT",
+  })
+
   console.log("Creating organizations and events")
 
   const summerCamp = await prisma.organization.create({
@@ -301,6 +309,36 @@ export const seedDatabase = async (
       },
     ],
     payments: { 0: 1000 },
+  })
+
+  // Payment details of several terms (US-41): 6 900 CZK paid goes to the earliest terms first —
+  // the first term is paid, the second part-paid, the third unpaid, so two terms carry a QR.
+  await createEvent(prisma, {
+    organizationId: mountainClub.id,
+    recordedById: organizerB.id,
+    name: "Zimní kurz 2027",
+    description: "Tři týdenní běžkařské kurzy na horské chatě.",
+    location: "Chata Sněžka, Pec pod Sněžkou",
+    publicToken: "demo-zimni-kurz-2027",
+    contact: { email: "horsky-klub@example.com", phone: "+420 777 000 002" },
+    terms: [
+      { name: "První týden", startsOn: "2027-12-12", endsOn: "2027-12-19", priceCzk: 4900 },
+      { name: "Druhý týden", startsOn: "2027-12-19", endsOn: "2027-12-26", priceCzk: 4900 },
+      { name: "Třetí týden", startsOn: "2027-12-26", endsOn: "2028-01-02", priceCzk: 4900 },
+    ],
+    rooms: [...rooms("FEMALE", ["A", 4]), ...rooms("MALE", ["B", 4])],
+    applicants: [
+      {
+        firstName: "Adam",
+        lastName: "Dvořák",
+        birthDate: "2008-03-21",
+        gender: "MALE",
+        email: "ucastnik2@example.com",
+        termIndexes: [0, 1, 2],
+        userId: payingParticipant.id,
+      },
+    ],
+    payments: { 0: 6900 },
   })
 
   // A term known by its dates only (US-119, D-053): the unnamed state is visible on staging.

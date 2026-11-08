@@ -166,3 +166,19 @@
     @apply tracking-tight;
   }
 }
+
+/* A page with a block marked `data-print-area` (the kitchen summary, US-64) prints only that block. */
+@media print {
+  body:has([data-print-area]) * {
+    visibility: hidden;
+  }
+  body:has([data-print-area]) [data-print-area],
+  body:has([data-print-area]) [data-print-area] * {
+    visibility: visible;
+  }
+  body:has([data-print-area]) [data-print-area] {
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+  }
+}

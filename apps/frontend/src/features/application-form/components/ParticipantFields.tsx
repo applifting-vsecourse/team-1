@@ -39,6 +39,9 @@ import {
 // V07a https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12666-2708
 // M02a https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12666-18899
 // M03  https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12666-19517 (errors)
+// US-120 gender label + explanation: #245 Údaje účastníka
+//   desktop https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19799-67177
+//   mobile  https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19799-67279
 
 type ParticipantFieldsProps = {
   /** Position in the form, 0-based. */
@@ -168,6 +171,9 @@ export function ParticipantFields({ index, terms, onRemove, isDisabled }: Partic
                   ))}
                 </SelectContent>
               </Select>
+              <FormDescription className="text-base leading-6 text-foreground">
+                {t("form.genderHint")}
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}

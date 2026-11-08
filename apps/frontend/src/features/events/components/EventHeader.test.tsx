@@ -31,7 +31,9 @@ const event = {
   applicationsOpen: true,
   evaluationMode: "AUTOMATIC",
   cancellationStartsOn: null,
+  cancellationTerms: null,
   evaluationModeLocked: true,
+  hasApplications: false,
   missing: [],
   terms: [],
 }
@@ -77,8 +79,10 @@ describe("EventHeader sections", () => {
       "Applications",
       "Payments",
       "Capacity",
+      "Meals",
       "Accommodation",
       "Terms",
+      "Transport",
       "Settings",
     ])
     expect(items[0]).toHaveAttribute("aria-current", "page")

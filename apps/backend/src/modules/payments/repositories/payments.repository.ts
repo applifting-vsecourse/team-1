@@ -15,6 +15,7 @@ import {
 import { NotificationsRepository } from "@/modules/notifications/repositories/notifications.repository"
 import { resolveChangeEmailLocale } from "@/modules/participants/domain/change-email-locale"
 import { PaymentApplication } from "@/modules/payments/domain/payment"
+import { planPaymentConfirmations } from "@/modules/payments/domain/payment-confirmation"
 import { AppException } from "@/shared/errors/app.exception"
 import { HttpStatus, Injectable } from "@nestjs/common"
 
@@ -42,6 +43,9 @@ const toDomain = (row: Row): PaymentApplication => ({
   number: row.number,
   firstName: row.firstName,
   lastName: row.lastName,
+  birthDate: row.birthDate,
+  gender: row.gender,
+  email: row.email,
   terms: row.terms.map((applicationTerm) => ({
     applicationTermId: applicationTerm.id,
     termId: applicationTerm.term.id,
@@ -88,11 +92,20 @@ export type RecordPaymentInput = {
   amountCzk?: number
   isRefund?: boolean
   correctsReceiptId?: string
+  /** Defaults to a manually recorded payment. */
+  source?: "MANUAL" | "SIMULATION"
 }
 
 export type PaymentDebtNotice = {
   amountOwedCzk: number
   terms: { termNumber: number; amountOwedCzk: number; paymentDueAt: Date | null }[]
+}
+
+/** A confirmed term whose debt a payment closed (e-mail no. 8, US-117). */
+export type PaidTermNotice = {
+  name: string | null
+  startsOn: Date
+  endsOn: Date
 }
 
 @Injectable()
@@ -110,11 +123,20 @@ export class PaymentsRepository {
     return row ? toDomain(row) : null
   }
 
+  /** The organization of an application of this participant; `null` for someone else's or a missing one. */
+  async findOrganizationOfUser(userId: string, applicationId: string): Promise<string | null> {
+    const application = await this.prisma.application.findFirst({
+      where: { id: applicationId, userId },
+      select: { organizationId: true },
+    })
+    return application?.organizationId ?? null
+  }
+
   /**
    * Each submission is one receipt of one or more rows. Balance resolution is serialized by a
    * lock on the application and retries of the same `requestId` add nothing.
    */
-  async record(input: RecordPaymentInput): Promise<void> {
+  async record(input: RecordPaymentInput): Promise<PaidTermNotice[]> {
     const { applicationId, organizationId, requestId, termId, isRefund = false } = input
     return this.prisma.$transaction(async (tx) => {
       const locked = await tx.$queryRaw<
@@ -149,17 +171,19 @@ export class PaymentsRepository {
             total !== (isRefund ? -input.amountCzk : input.amountCzk))
         )
           throw new AppException(HttpStatus.CONFLICT, "PAYMENT_ALREADY_RECORDED")
-        return
+        return []
       }
 
+      const owedBefore = await this.confirmedTermBalances(tx, applicationId)
       await this.createReceipt(tx, input)
+      return this.closedDebts(tx, applicationId, owedBefore)
     })
   }
 
   /** A correction cancels and replaces a whole receipt under the same application lock. */
   async correct(
     input: RecordPaymentInput & { receiptId: string },
-  ): Promise<PaymentDebtNotice | null> {
+  ): Promise<{ debt: PaymentDebtNotice | null; paid: PaidTermNotice[] }> {
     const { applicationId, organizationId, receiptId, requestId } = input
     if (receiptId === requestId)
       throw new AppException(HttpStatus.CONFLICT, "PAYMENT_ALREADY_RECORDED")
@@ -201,7 +225,7 @@ export class PaymentsRepository {
             (input.isRefund ? -input.amountCzk! : input.amountCzk)
         )
           throw new AppException(HttpStatus.CONFLICT, "PAYMENT_ALREADY_RECORDED")
-        return null
+        return { debt: null, paid: [] }
       }
       if (original.some((row) => row.cancelledAt !== null))
         throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
@@ -211,7 +235,10 @@ export class PaymentsRepository {
         data: { cancelledAt: new Date() },
       })
       await this.createReceipt(tx, { ...input, correctsReceiptId: receiptId })
-      return this.createdDebt(tx, applicationId, paidBefore)
+      return {
+        debt: await this.createdDebt(tx, applicationId, paidBefore),
+        paid: await this.closedDebts(tx, applicationId, paidBefore),
+      }
     })
   }
 
@@ -225,12 +252,15 @@ export class PaymentsRepository {
       owedCzk: number
       paymentPeriodStartedAt: Date | null
       paymentPeriodDays: number
+      name: string | null
+      startsOn: Date
+      endsOn: Date
     }[]
   > {
     const terms = await tx.applicationTerm.findMany({
       where: { applicationId, status: "CONFIRMED" },
       include: {
-        term: { select: { number: true } },
+        term: { select: { number: true, name: true, startsOn: true, endsOn: true } },
         application: { select: { event: { select: { paymentPeriodDays: true } } } },
         payments: { where: { cancelledAt: null }, select: { amountCzk: true } },
       },
@@ -241,6 +271,23 @@ export class PaymentsRepository {
       owedCzk: computeTermOwed(term, term.payments),
       paymentPeriodStartedAt: term.paymentPeriodStartedAt,
       paymentPeriodDays: term.application.event.paymentPeriodDays,
+      name: term.term.name,
+      startsOn: term.term.startsOn,
+      endsOn: term.term.endsOn,
+    }))
+  }
+
+  /** Terms whose debt the change inside this transaction closed (US-117). */
+  private async closedDebts(
+    tx: Prisma.TransactionClient,
+    applicationId: string,
+    before: { id: string; owedCzk: number }[],
+  ): Promise<PaidTermNotice[]> {
+    const after = await this.confirmedTermBalances(tx, applicationId)
+    return planPaymentConfirmations(before, after).map(({ name, startsOn, endsOn }) => ({
+      name,
+      startsOn,
+      endsOn,
     }))
   }
 
@@ -377,6 +424,7 @@ export class PaymentsRepository {
         correctsReceiptId: input.correctsReceiptId,
         isSummary: termId === undefined,
         amountCzk: row.amountCzk,
+        source: input.source,
         recordedById,
       })),
     })

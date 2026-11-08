@@ -1,6 +1,7 @@
 import { ChangeRequest } from "@/modules/applications/domain/change-request"
 import { ChangeRequestRepository } from "@/modules/applications/repositories/change-request.repository"
 import { TermStatusRepository } from "@/modules/applications/repositories/term-status.repository"
+import { decideHealth, HealthInput } from "@/modules/health/domain/health"
 import { ApplicationConfirmationMailer } from "@/modules/participants/services/application-confirmation-mailer.service"
 import { Identity } from "@/shared/auth/domain/identity"
 import { AppException } from "@/shared/errors/app.exception"
@@ -53,8 +54,21 @@ export class ChangeRequestService {
     return request
   }
 
+  /** US-68: a request to change health data that is already filled in. */
+  async submitHealth(
+    user: Identity,
+    applicationId: string,
+    input: HealthInput,
+  ): Promise<ChangeRequest> {
+    return this.requests.createHealth(user.id, applicationId, decideHealth(input))
+  }
+
   async approve(user: Identity, eventId: string, requestId: string): Promise<void> {
     const request = await this.forOrganizer(user, eventId, requestId)
+    if (request.kind === "HEALTH") {
+      const { organizationId } = await this.access.assertCanAccessEvent(user, eventId)
+      return this.requests.approveHealth(organizationId, eventId, requestId, user.id)
+    }
     const changed = await this.terms.changeParticipantTerms(
       request.applicantId,
       request.applicationId,
@@ -74,6 +88,7 @@ export class ChangeRequestService {
       user.id,
       reason.trim(),
     )
+    if (request.kind === "HEALTH") return
     await this.mailer.sendChangeRequestStatus(request.email, {
       locale: request.locale,
       status: "REJECTED",

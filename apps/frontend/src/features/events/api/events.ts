@@ -44,8 +44,12 @@ export const organizerEventSchema = z.object({
   evaluationMode: evaluationModeSchema,
   /** ISO day; null means participant changes do not wait for approval. */
   cancellationStartsOn: z.string().nullable(),
+  /** Free text shown to applicants (US-47); null until the organizer writes it. */
+  cancellationTerms: z.string().nullable(),
   /** Applications are open, so the mode can no longer change. */
   evaluationModeLocked: z.boolean(),
+  /** At least one application exists; the event can no longer be deleted. */
+  hasApplications: z.boolean(),
   missing: z.array(z.enum(["TERM", "ROOM"])),
   /** Terms that are still offered, in chronological order. */
   terms: z.array(eventTermSummarySchema),
@@ -119,6 +123,22 @@ export async function setCancellationStart(
       .json(),
   )
 }
+
+/** `PUT /api/organizer/events/:eventId/cancellation-terms` — the text applicants see (US-47). */
+export async function setCancellationTerms(
+  eventId: string,
+  cancellationTerms: string,
+): Promise<OrganizerEvent> {
+  return organizerEventSchema.parse(
+    await api
+      .put(`organizer/events/${encodeURIComponent(eventId)}/cancellation-terms`, {
+        json: { cancellationTerms },
+      })
+      .json(),
+  )
+}
+
+export const CANCELLATION_TERMS_MAX_LENGTH = 2000
 
 export type PublicPageInput = {
   name: string

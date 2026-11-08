@@ -1,8 +1,10 @@
 import { randomUUID } from "node:crypto"
 import { PrismaService } from "@/core/prisma/prisma.service"
 import {
+  allEmailsTo,
   api,
   connectTestPrisma,
+  hasSentNothingTo,
   latestEmailTo,
   resetAndSeed,
   signIn,
@@ -157,7 +159,9 @@ describe("organizer payments (US-44)", () => {
       terms: expect.arrayContaining([{ termId: firstTermId(), owedCzk: 1900, changeCzk: 1900 }]),
     })
     expect((await summary()).amountPaidCzk).toBe(6900)
-    expect(await latestEmailTo(applicantEmail, 0)).toBeUndefined()
+    expect(allEmailsTo(applicantEmail).map((mail) => mail.subject)).toEqual([
+      expect.stringMatching(/^Payment for .+ received$/),
+    ])
     expect((await request("PATCH", `/${original.id}`, correction)).status).toBe(204)
     const after = await summary()
     expect(after).toMatchObject({ amountPaidCzk: 5000, amountOwedCzk: 1900 })
@@ -265,7 +269,8 @@ describe("organizer payments (US-44)", () => {
       ).status,
     ).toBe(204)
     expect((await summary()).terms[0].owedCzk).toBe(-300)
-    expect(await latestEmailTo(applicantEmail, 0)).toBeUndefined()
+    // only e-mail 8 of the first payment; neither the refund nor its correction sent anything
+    expect(allEmailsTo(applicantEmail)).toHaveLength(1)
   })
 
   it("keeps the original refund active when the replacement exceeds the term overpayment", async () => {
@@ -316,6 +321,65 @@ describe("organizer payments (US-44)", () => {
       restarted.paymentPeriodStartedAt!.getTime() + 10 * 24 * 60 * 60 * 1000,
     )
     expect((await latestEmailTo(applicantEmail))?.subject).toContain("Payment correction")
+  })
+
+  it("sends e-mail 8 once when a payment closes the debt of the term, without an amount", async () => {
+    expect((await request("POST", "", { amountCzk: 3000 })).status).toBe(204)
+    expect(await hasSentNothingTo(applicantEmail)).toBe(true)
+    expect((await request("POST", "", { amountCzk: 3900 })).status).toBe(204)
+    const mail = await latestEmailTo(applicantEmail)
+    expect(mail?.subject).toMatch(/^Payment for .+ received$/)
+    expect(allEmailsTo(applicantEmail)).toHaveLength(1)
+    expect(mail?.subject).not.toMatch(/\d{3}/)
+  })
+
+  it("sends no further e-mail 8 for an overpayment or a retry", async () => {
+    expect((await request("POST", "", {})).status).toBe(204)
+    expect(allEmailsTo(applicantEmail)).toHaveLength(1)
+    // already paid: a further payment (overpayment) and a retry send nothing
+    const requestId = randomUUID()
+    expect(
+      (await request("POST", "", { requestId, amountCzk: 100, termId: firstTermId() })).status,
+    ).toBe(204)
+    expect(
+      (await request("POST", "", { requestId, amountCzk: 100, termId: firstTermId() })).status,
+    ).toBe(204)
+    await latestEmailTo(applicantEmail, 500)
+    expect(allEmailsTo(applicantEmail)).toHaveLength(1)
+  })
+
+  it("sends e-mail 8 when a correction raises a partial payment to the full price", async () => {
+    await request("POST", "", { amountCzk: 3000, termId: firstTermId() })
+    const [original] = (await summary()).payments
+    expect(
+      (
+        await request("PATCH", `/${original.id}`, {
+          requestId: randomUUID(),
+          amountCzk: 6900,
+          termId: firstTermId(),
+        })
+      ).status,
+    ).toBe(204)
+    expect(allEmailsTo(applicantEmail).map((mail) => mail.subject)).toEqual([
+      expect.stringMatching(/^Payment for .+ received$/),
+    ])
+  })
+
+  it("sends one e-mail 8 when a summary payment closes the debt of two terms", async () => {
+    await prisma.applicationTerm.updateMany({
+      where: { applicationId, termId: termIds[1] },
+      data: { status: "CONFIRMED" },
+    })
+    expect((await request("POST", "", {})).status).toBe(204)
+    expect((await summary()).amountOwedCzk).toBe(0)
+    const mails = allEmailsTo(applicantEmail)
+    expect(mails).toHaveLength(1)
+    expect(mails[0].subject).toContain(", ")
+  })
+
+  it("sends no e-mail 8 for a payment of a waitlisted term", async () => {
+    await request("POST", "", { amountCzk: 100, termId: termIds[1] })
+    expect(await hasSentNothingTo(applicantEmail)).toBe(true)
   })
 
   it("keeps each instalment in history and cancels only the selected receipt", async () => {
@@ -528,6 +592,17 @@ describe("organizer payments (US-44)", () => {
       expect((await request("POST", "", { requestId, amountCzk: 3000 })).status).toBe(400)
     },
   )
+
+  it("returns the participant's date of birth and gender and the applicant's contact", async () => {
+    expect(await summary()).toMatchObject({
+      birthDate: "2000-01-01",
+      gender: "FEMALE",
+      email: applicantEmail,
+    })
+    const foreign = await request("GET", "", undefined, foreignCookie)
+    expect(foreign.status).toBe(403)
+    expect(JSON.stringify(await foreign.json())).not.toContain(applicantEmail)
+  })
 
   it("rejects supplied author fields", async () => {
     expect((await request("POST", "", { amountCzk: 3000, recordedById: "other" })).status).toBe(400)

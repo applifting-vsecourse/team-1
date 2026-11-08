@@ -13,6 +13,7 @@ import {
   OrganizerChangeRequestController,
   ParticipantChangeRequestController,
   ParticipantChangeRequestNotificationsController,
+  ParticipantHealthChangeRequestController,
 } from "./controllers/change-request.controller"
 import { ManualApplicationController } from "./controllers/manual-application.controller"
 import { OrganizerTermChangeController } from "./controllers/organizer-term-change.controller"
@@ -62,6 +63,7 @@ import { WaitlistExpiryService } from "./services/waitlist-expiry.service"
     ManualApplicationController,
     CapacityController,
     ParticipantChangeRequestController,
+    ParticipantHealthChangeRequestController,
     ParticipantChangeRequestNotificationsController,
     OrganizerChangeRequestController,
     SubmissionStatusController,
@@ -97,6 +99,6 @@ import { WaitlistExpiryService } from "./services/waitlist-expiry.service"
     WaitlistExpiryService,
     WaitlistExpiryScheduler,
   ],
-  exports: [TermStatusService],
+  exports: [TermStatusService, ChangeRequestService],
 })
 export class ApplicationsModule {}

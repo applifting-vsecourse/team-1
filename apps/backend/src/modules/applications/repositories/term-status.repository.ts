@@ -21,6 +21,11 @@ import {
   TermChangeImpact,
 } from "@/modules/applications/domain/organizer-term-change"
 import {
+  previewWithdrawal,
+  rejectWithdrawal,
+  WithdrawalImpact,
+} from "@/modules/applications/domain/organizer-withdrawal"
+import {
   cancellationPaymentImpact,
   participantChangeAllowed,
   ParticipantChangeOptions,
@@ -320,6 +325,62 @@ export class TermStatusRepository {
     })
   }
 
+  /**
+   * An organizer withdraws the participant from terms (US-32): the same transaction as the term
+   * change, with the terms to leave named instead of the ones to stay in. Undefined: not the
+   * organization's application.
+   */
+  withdrawTermsByOrganizer(
+    organizationId: string,
+    applicationId: string,
+    withdrawnIds: string[],
+    actorId: string,
+  ): Promise<ApplicationChange | null | undefined> {
+    return this.changeTerms({
+      where: { id: applicationId, organizationId },
+      applicationId,
+      selectedIds: [],
+      organizer: { actorId, isOverCapacityConfirmed: false, withdrawnIds },
+    })
+  }
+
+  /**
+   * What a withdrawal would do to the money per term (US-32). Read-only; the write cancels the same
+   * terms under the event lock. Null: not the organization's application.
+   */
+  async previewWithdrawal(
+    organizationId: string,
+    applicationId: string,
+    withdrawnIds: string[],
+  ): Promise<WithdrawalImpact | null> {
+    const application = await this.prisma.application.findFirst({
+      where: { id: applicationId, organizationId },
+      select: { id: true },
+    })
+    if (!application) return null
+    const current = await this.prisma.applicationTerm.findMany({
+      where: { applicationId, organizationId, status: { not: "CANCELLED" } },
+      include: { payments: { where: { cancelledAt: null }, select: { amountCzk: true } } },
+    })
+    const rejection = rejectWithdrawal(
+      current.map((row) => row.termId),
+      withdrawnIds,
+    )
+    if (rejection === "NOTHING_SELECTED") {
+      throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
+    }
+    if (rejection) throw new AppException(HttpStatus.CONFLICT, "INVALID_STATUS_TRANSITION")
+    return previewWithdrawal({
+      current: current.map((row) => ({
+        termId: row.termId,
+        status: row.status,
+        priceCzk: row.priceCzk,
+        paidCzk: row.payments.reduce((sum, payment) => sum + payment.amountCzk, 0),
+      })),
+      withdrawnIds,
+    })
+  }
+
   private async changeTerms({
     where,
     applicationId,
@@ -331,7 +392,7 @@ export class TermStatusRepository {
     applicationId: string
     selectedIds: string[]
     approvedRequest?: { id: string; reviewerId: string }
-    organizer?: { actorId: string; isOverCapacityConfirmed: boolean }
+    organizer?: { actorId: string; isOverCapacityConfirmed: boolean; withdrawnIds?: string[] }
   }): Promise<(ApplicationChange & ParticipantTermChangeResult) | null | undefined> {
     return this.prisma.$transaction(async (tx) => {
       const application = await tx.application.findFirst({
@@ -376,9 +437,20 @@ export class TermStatusRepository {
           throw new AppException(HttpStatus.CONFLICT, "CHANGE_REQUEST_STALE")
         }
       }
-      const desired = new Set(selectedIds)
+      // US-32: a withdrawal names the terms to leave, the rest of the active ones stay.
+      if (organizer?.withdrawnIds) {
+        const rejection = rejectWithdrawal([...activeIds], organizer.withdrawnIds)
+        if (rejection === "NOTHING_SELECTED") {
+          throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
+        }
+        if (rejection) throw new AppException(HttpStatus.CONFLICT, "INVALID_STATUS_TRANSITION")
+      }
+      const keptIds = organizer?.withdrawnIds
+        ? active.map((row) => row.termId).filter((id) => !organizer.withdrawnIds?.includes(id))
+        : selectedIds
+      const desired = new Set(keptIds)
       const removed = active.filter((row) => !desired.has(row.termId))
-      const addedIds = selectedIds.filter((id) => !activeIds.has(id))
+      const addedIds = keptIds.filter((id) => !activeIds.has(id))
       if (removed.length === 0 && addedIds.length === 0) return null
 
       const offered = await tx.term.findMany({
@@ -597,6 +669,30 @@ export class TermStatusRepository {
           }),
         )
       }
+      // US-32: the participant is told in the app about every term the organizer withdrew them
+      // from, as about any other cancellation (EMAILY.md, row 11).
+      if (organizer?.withdrawnIds && application.userId) {
+        for (const row of removed) {
+          const withdrawn = terms.find((candidate) => candidate.termId === row.termId)
+          if (!withdrawn) continue
+          await this.notifications.create(
+            tx,
+            buildNotification({
+              userId: application.userId,
+              applicationId,
+              kind: "CANCELLED",
+              params: {
+                eventName: application.event.name,
+                participantName: `${application.firstName} ${application.lastName}`,
+                termStartsOn: isoDay(withdrawn.term.startsOn),
+                termEndsOn: isoDay(withdrawn.term.endsOn),
+                fromStatus: row.status,
+                toStatus: "CANCELLED",
+              },
+            }),
+          )
+        }
+      }
       return {
         addedTerms,
         email: application.email,
@@ -613,12 +709,17 @@ export class TermStatusRepository {
           firstName: application.firstName,
           lastName: application.lastName,
           accessToken: application.accessToken,
-          terms: terms.map((row) => ({
-            name: termLabel(row.term, locale),
-            termNumber: row.term.number,
-            status: row.status,
-            priceCzk: row.priceCzk,
-          })),
+          // D-104: a withdrawal tells only about the terms the participant was withdrawn from.
+          terms: terms
+            .filter(
+              (row) => !organizer?.withdrawnIds || organizer.withdrawnIds.includes(row.termId),
+            )
+            .map((row) => ({
+              name: termLabel(row.term, locale),
+              termNumber: row.term.number,
+              status: row.status,
+              priceCzk: row.priceCzk,
+            })),
         },
       }
     })
