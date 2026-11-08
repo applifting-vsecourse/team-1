@@ -20,6 +20,8 @@ const env = {
   BACKEND_URL: `http://localhost:${port}`,
   FRONTEND_URL: frontendUrl,
   NODE_ENV: "test",
+  // #294: all journeys sign in and apply from one address; the limits have integration tests.
+  RATE_LIMIT_ENABLED: "false",
 }
 
 const run = (command) => execSync(command, { cwd: backendRoot, env, stdio: "inherit" })

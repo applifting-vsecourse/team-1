@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet } from "@tanstack/react-router"
+import { createFileRoute, Outlet, redirect } from "@tanstack/react-router"
 import { Calendar } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
@@ -7,6 +7,10 @@ import { Seo } from "@/components/atoms/Seo"
 import { SidebarLink } from "@/components/atoms/SidebarLink"
 import { AreaLayout } from "@/components/templates/AreaLayout"
 
+import {
+  myOnboardingOrganizationsQueryOptions,
+  organizationProfileQueryOptions,
+} from "@/features/auth/api/organizationOnboarding"
 import { OrganizerAreaError } from "@/features/auth/components/OrganizerAreaError"
 import { SidebarAccount } from "@/features/auth/components/SidebarAccount"
 import { requireAccount } from "@/features/auth/lib/require-account"
@@ -21,6 +25,15 @@ export const Route = createFileRoute("/organizer/_app")({
       loginRoute: ROUTES.organizer.login,
       accountType: "ORGANIZER",
     })
+    const organizations = await context.queryClient.ensureQueryData(
+      myOnboardingOrganizationsQueryOptions(),
+    )
+    const first = organizations[0]
+    if (!first) throw redirect({ to: ROUTES.organizer.onboarding })
+    const profile = await context.queryClient.ensureQueryData(
+      organizationProfileQueryOptions(first.id),
+    )
+    if (!profile.bankAccount) throw redirect({ to: ROUTES.organizer.onboarding })
   },
   errorComponent: OrganizerAreaError,
   component: OrganizerLayout,
@@ -36,12 +49,17 @@ function OrganizerLayout() {
         width="wide"
         roleLabel={t("accountRole.ORGANIZER")}
         nav={
-          <SidebarLink
-            to={ROUTES.organizer.events}
-            icon={Calendar}
-          >
-            {t("nav.events")}
-          </SidebarLink>
+          <>
+            {/* Temporarily without the "Přehled" item (#394): it only redirected to the last event and lit up
+                before "Akce". Bring it back in a later sprint. */}
+            {/* Figma (Design system): #51 Letní kemp Lipno 2027 / Desktop · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19798-36893 */}
+            <SidebarLink
+              to={ROUTES.organizer.events}
+              icon={Calendar}
+            >
+              {t("nav.events")}
+            </SidebarLink>
+          </>
         }
         account={<SidebarAccount />}
         notifications={<NotificationCenter area="organizer" />}

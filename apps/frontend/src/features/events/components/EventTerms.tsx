@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query"
 import { Ban, MoreHorizontal, Pencil } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { CapacityProgress } from "@/components/atoms/CapacityProgress"
 import { EmptyState } from "@/components/molecules/EmptyState"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
@@ -15,7 +16,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Progress } from "@/components/ui/progress"
 import { formatDateRange } from "@/lib/date"
 import { formatTermPrice } from "@/lib/money"
 import { notify } from "@/lib/notify"
@@ -215,11 +215,19 @@ function TermOccupancy({ term }: { term: EventTerm }) {
 
   return (
     <div className="flex w-full items-center gap-3 sm:w-70">
-      <span className="shrink-0 text-sm font-medium tabular-nums">{label}</span>
+      <span
+        className={cn(
+          "shrink-0 text-sm font-medium tabular-nums",
+          term.confirmedCount > term.capacity && "text-destructive",
+        )}
+      >
+        {label}
+      </span>
       {term.capacity > 0 ? (
-        <Progress
-          value={(term.confirmedCount / term.capacity) * 100}
-          aria-label={label}
+        <CapacityProgress
+          confirmed={term.confirmedCount}
+          capacity={term.capacity}
+          label={label}
           className="flex-1"
         />
       ) : null}

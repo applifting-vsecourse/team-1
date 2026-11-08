@@ -13,6 +13,11 @@ export function formatDate(date: DateInput, language: Language = currentLanguage
   )
 }
 
+/** cs: `7. února 2027`, en: `7 February 2027` */
+export function formatDateLong(date: DateInput, language: Language = currentLanguage()) {
+  return new Intl.DateTimeFormat(INTL_LOCALES[language], { dateStyle: "long" }).format(toDate(date))
+}
+
 /** cs: `7. 2. 2027 20:00`, en: `7 Feb 2027, 20:00` */
 export function formatDateTime(date: DateInput, language: Language = currentLanguage()) {
   return new Intl.DateTimeFormat(INTL_LOCALES[language], {

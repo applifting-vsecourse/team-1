@@ -11,6 +11,10 @@ const termSchema = z.object({
   endsOn: z.string(),
   status: z.enum(["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED"]),
   priceCzk: z.number().int(),
+  /** The organizer offers transport to this term (US-65). */
+  transportOffered: z.boolean(),
+  /** The participant chose a transport or their own transport for this term. */
+  transportDecided: z.boolean(),
 })
 export type MyApplicationTerm = z.infer<typeof termSchema>
 
@@ -25,6 +29,8 @@ const termPaymentSchema = z.object({
   /** Due − paid; negative is an overpayment of this term. */
   owedCzk: z.number().int(),
   paymentStatus: z.enum(["NOTHING_DUE", "UNPAID", "PARTIALLY_PAID", "PAID", "OVERPAID"]),
+  /** When the debt falls due (ISO datetime); `null` when nothing is owed. */
+  paymentDeadline: z.string().nullable(),
 })
 export type TermPayment = z.infer<typeof termPaymentSchema>
 
@@ -67,6 +73,12 @@ export const myApplicationSchema = z.object({
       terms: z.array(termPaymentSchema),
     })
     .nullable(),
+  /** `true` only on staging and demo (US-115). */
+  canSimulatePayment: z.boolean(),
+  /** Payments the participant simulated, newest first. */
+  simulatedPayments: z.array(
+    z.object({ termId: z.string(), amountCzk: z.number().int(), createdAt: z.string() }),
+  ),
   organizationContact: organizationContactSchema,
 })
 export type MyApplication = z.infer<typeof myApplicationSchema>
@@ -90,6 +102,13 @@ export const myApplicationQueryOptions = (id: string) =>
       ),
   })
 
+/** `POST /api/participant/applications/:id/payments/simulation` — staging and demo only (US-115). */
+export async function simulatePayment(id: string, termId: string) {
+  await api.post(`participant/applications/${encodeURIComponent(id)}/payments/simulation`, {
+    json: { termId },
+  })
+}
+
 const changeOptionsSchema = z.object({
   canChangeImmediately: z.boolean(),
   terms: z.array(
@@ -98,6 +117,12 @@ const changeOptionsSchema = z.object({
       name: z.string().nullable(),
       startsOn: z.string(),
       endsOn: z.string(),
+      priceCzk: z.number().int(),
+      owedAfterChangeCzk: z.number().int(),
+      paidCzk: z.number().int(),
+      owedBeforeCancellationCzk: z.number().int(),
+      owedAfterCancellationCzk: z.number().int(),
+      overpaymentAfterCancellationCzk: z.number().int(),
       selected: z.boolean(),
     }),
   ),
@@ -112,8 +137,16 @@ export const participantChangeOptionsQueryOptions = (id: string) =>
       ),
   })
 
-export async function changeParticipantTerms(id: string, termIds: string[]): Promise<void> {
-  await api.put(`participant/applications/${encodeURIComponent(id)}/terms`, {
-    json: { termIds },
-  })
+const termChangeResultSchema = z.object({
+  addedTerms: z.array(z.object({ termId: z.string(), owedCzk: z.number().int() })),
+})
+
+export async function changeParticipantTerms(id: string, termIds: string[]) {
+  return termChangeResultSchema.parse(
+    await api
+      .put(`participant/applications/${encodeURIComponent(id)}/terms`, {
+        json: { termIds },
+      })
+      .json(),
+  )
 }

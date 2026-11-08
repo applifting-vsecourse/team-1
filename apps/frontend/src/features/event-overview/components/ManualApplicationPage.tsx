@@ -33,6 +33,7 @@ import {
   type ManualApplicationInput,
 } from "@/features/event-overview/api/manualApplication"
 import { occupancyQueryOptions } from "@/features/event-overview/api/occupancy"
+import { termStatusesQueryOptions } from "@/features/event-overview/api/termStatus"
 
 type Status = "CONFIRMED" | "WAITLISTED"
 type Draft = {
@@ -43,7 +44,7 @@ type Draft = {
   email: string
   phone: string
   consent: boolean
-  statuses: Record<string, "" | Status>
+  statuses: Record<string, Status | undefined>
 }
 
 const emptyDraft: Draft = {
@@ -90,15 +91,15 @@ export function ManualApplicationPage({
   const [step, setStep] = useState<"FORM" | "CAPACITY" | "CREATED">("FORM")
   const [isOverCapacityConfirmed, setIsOverCapacityConfirmed] = useState(false)
   const [payload, setPayload] = useState<ManualApplicationInput | null>(null)
-  const [createdId, setCreatedId] = useState<string | null>(null)
+  const [created, setCreated] = useState<{ id: string; name: string } | null>(null)
   const update = (key: keyof Draft, value: Draft[keyof Draft]) => {
     setDraft((current) => ({ ...current, [key]: value }))
     setErrors((current) => ({ ...current, [key]: "" }))
   }
   const mutation = useMutation({
     mutationFn: (input: ManualApplicationInput) => createManualApplication(eventId, input),
-    onSuccess: (saved) => {
-      setCreatedId(saved.applicationId)
+    onSuccess: (saved, input) => {
+      setCreated({ id: saved.applicationId, name: `${input.firstName} ${input.lastName}` })
       setStep("CREATED")
       void client.invalidateQueries({ queryKey: ["eventOverview"] })
       void client.invalidateQueries({ queryKey: ["events", eventId] })
@@ -111,9 +112,24 @@ export function ManualApplicationPage({
       }
     },
   })
+  const savedTerms = useQuery({
+    ...termStatusesQueryOptions(created?.id ?? ""),
+    enabled: created !== null,
+  })
 
-  if (occupancy.isPending) return <LoadingState />
-  if (occupancy.isError) {
+  if (created && savedTerms.isPending) return <LoadingState />
+  if (created && savedTerms.isError) {
+    return (
+      <ErrorState
+        title={t("termStatus.errorTitle")}
+        error={savedTerms.error}
+        onRetry={() => void savedTerms.refetch()}
+      />
+    )
+  }
+
+  if (!created && occupancy.isPending) return <LoadingState />
+  if (!created && occupancy.isError) {
     return (
       <ErrorState
         title={t("manual.title")}
@@ -125,19 +141,25 @@ export function ManualApplicationPage({
     )
   }
 
+  const capacityStatuses =
+    step === "CAPACITY" && payload
+      ? Object.fromEntries(payload.terms.map(({ termId, status }) => [termId, status]))
+      : draft.statuses
+  const capacityGender = step === "CAPACITY" && payload ? payload.gender : draft.gender
   const overCapacity = terms.filter((term) => {
-    if (draft.statuses[term.id] !== "CONFIRMED") return false
+    if (capacityStatuses[term.id] !== "CONFIRMED") return false
     const row = occupancy.data?.terms.find((item) => item.id === term.id)
-    if (!row || draft.gender === "") return false
-    return (row.byGender?.[draft.gender].free ?? row.free) < 1
+    if (!row || capacityGender === "") return false
+    return (row.byGender?.[capacityGender].free ?? row.free) < 1
   })
   const warnedTerms =
     overCapacity.length > 0
       ? overCapacity
-      : terms.filter((term) => draft.statuses[term.id] === "CONFIRMED")
+      : terms.filter((term) => capacityStatuses[term.id] === "CONFIRMED")
 
   const submit = (formEvent: FormEvent) => {
     formEvent.preventDefault()
+    if (mutation.isPending) return
     const nextErrors: Record<string, string> = {}
     if (!draft.firstName.trim() || !draft.lastName.trim()) {
       if (!draft.firstName.trim()) nextErrors.firstName = t("manual.nameRequired")
@@ -149,11 +171,14 @@ export function ManualApplicationPage({
     }
     if (draft.gender === "") nextErrors.gender = t("manual.gender")
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(draft.email)) nextErrors.email = t("manual.invalidEmail")
-    if (!/^\+?[0-9 ()-]{7,30}$/.test(draft.phone)) nextErrors.phone = t("manual.invalidPhone")
+    const phone = draft.phone.trim().replace(/[ ()-]/g, "")
+    if (!/^\+?[0-9]{7,30}$/.test(phone)) nextErrors.phone = t("manual.invalidPhone")
     if (!draft.consent) nextErrors.consent = t("manual.consentRequired")
-    for (const term of terms) {
-      if (!draft.statuses[term.id]) nextErrors[term.id] = t("manual.selectTerms")
-    }
+    const selectedTerms = terms.flatMap((term) => {
+      const status = draft.statuses[term.id]
+      return status ? [{ termId: term.id, status }] : []
+    })
+    if (selectedTerms.length === 0) nextErrors.terms = t("manual.selectTerms")
     setErrors(nextErrors)
     if (Object.keys(nextErrors).length > 0 || !birthDate || draft.gender === "") return
     const input: ManualApplicationInput = {
@@ -162,9 +187,9 @@ export function ManualApplicationPage({
       birthDate,
       gender: draft.gender,
       email: draft.email.trim(),
-      phone: draft.phone.trim(),
+      phone,
       consent: true,
-      terms: terms.map((term) => ({ termId: term.id, status: draft.statuses[term.id] as Status })),
+      terms: selectedTerms,
     }
     setPayload(input)
     if (overCapacity.length > 0) {
@@ -178,23 +203,21 @@ export function ManualApplicationPage({
   return (
     <div className="flex max-w-196 flex-col gap-6">
       <Seo title={step === "CREATED" ? t("manual.created") : t("manual.title")} />
-      {step === "CREATED" && createdId ? (
+      {step === "CREATED" && created && savedTerms.data ? (
         <>
           <h2 className="text-2xl font-bold tracking-tight">{t("manual.created")}</h2>
           <Card className="gap-4 p-4 md:p-6">
-            <h3 className="text-2xl font-bold tracking-tight">
-              {draft.firstName.trim()} {draft.lastName.trim()}
-            </h3>
-            {terms.map((term) => (
-              <p key={term.id}>
+            <h3 className="text-2xl font-bold tracking-tight">{created.name}</h3>
+            {savedTerms.data.map((term) => (
+              <p key={term.termId}>
                 {termTitle(term)} ·{" "}
-                {t(
-                  draft.statuses[term.id] === "CONFIRMED"
-                    ? "manual.statusConfirmed"
-                    : "manual.statusWaitlisted",
-                )}{" "}
+                {term.status === "CONFIRMED"
+                  ? t("manual.statusConfirmed")
+                  : term.status === "WAITLISTED"
+                    ? t("manual.statusWaitlisted")
+                    : t(`termStatus.state.${term.status}`)}{" "}
                 ·{" "}
-                {draft.statuses[term.id] === "CONFIRMED" ? (
+                {term.status === "CONFIRMED" ? (
                   <TermPrice amountCzk={term.priceCzk} />
                 ) : (
                   t("manual.noPayment")
@@ -211,7 +234,7 @@ export function ManualApplicationPage({
             >
               <Link
                 to={ROUTES.organizer.application}
-                params={{ eventId, applicationId: createdId }}
+                params={{ eventId, applicationId: created.id }}
               >
                 {t("manual.openDetail")}
               </Link>
@@ -223,7 +246,7 @@ export function ManualApplicationPage({
           <h2 className="text-2xl font-bold tracking-tight">{t("manual.overCapacity")}</h2>
           {warnedTerms.map((term) => {
             const row = occupancy.data?.terms.find((item) => item.id === term.id)
-            const figures = draft.gender && row ? (row.byGender?.[draft.gender] ?? row) : null
+            const figures = capacityGender && row ? (row.byGender?.[capacityGender] ?? row) : null
             return (
               <Alert
                 key={term.id}
@@ -247,6 +270,7 @@ export function ManualApplicationPage({
           <div className="flex items-center gap-3">
             <Checkbox
               id="confirm-over-capacity"
+              disabled={mutation.isPending || occupancy.isFetching}
               checked={isOverCapacityConfirmed}
               onCheckedChange={(checked) => setIsOverCapacityConfirmed(checked === true)}
             />
@@ -260,7 +284,9 @@ export function ManualApplicationPage({
           ) : null}
           <Button
             size="lg"
-            disabled={!isOverCapacityConfirmed || mutation.isPending || !payload}
+            disabled={
+              !isOverCapacityConfirmed || mutation.isPending || occupancy.isFetching || !payload
+            }
             onClick={() => payload && mutation.mutate({ ...payload, confirmOverCapacity: true })}
           >
             {t("manual.create")}
@@ -268,6 +294,7 @@ export function ManualApplicationPage({
           <Button
             variant="ghost"
             size="lg"
+            disabled={mutation.isPending}
             onClick={() => {
               setDraft((current) => ({
                 ...current,
@@ -379,13 +406,16 @@ export function ManualApplicationPage({
                   <TermPrice amountCzk={term.priceCzk} />
                 </Label>
                 <Select
-                  value={draft.statuses[term.id] ?? ""}
+                  value={draft.statuses[term.id] ?? "UNSELECTED"}
                   onValueChange={(value) => {
                     setDraft((current) => ({
                       ...current,
-                      statuses: { ...current.statuses, [term.id]: value as Status },
+                      statuses: {
+                        ...current.statuses,
+                        [term.id]: value === "UNSELECTED" ? undefined : (value as Status),
+                      },
                     }))
-                    setErrors((current) => ({ ...current, [term.id]: "" }))
+                    setErrors((current) => ({ ...current, terms: "" }))
                   }}
                 >
                   <SelectTrigger
@@ -395,13 +425,14 @@ export function ManualApplicationPage({
                     <SelectValue placeholder={t("manual.chooseStatus")} />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="UNSELECTED">{t("manual.termNotSelected")}</SelectItem>
                     <SelectItem value="CONFIRMED">{t("manual.statusConfirmed")}</SelectItem>
                     <SelectItem value="WAITLISTED">{t("manual.statusWaitlisted")}</SelectItem>
                   </SelectContent>
                 </Select>
-                <FieldError message={errors[term.id]} />
               </div>
             ))}
+            <FieldError message={errors.terms} />
           </Card>
           <Alert>
             <Info className="size-4" />

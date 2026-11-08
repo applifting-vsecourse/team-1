@@ -89,10 +89,44 @@ describe("organizer adds an application (US-83)", () => {
       (await create(input("CONFIRMED", { terms: [{ termId: "foreign", status: "CONFIRMED" }] })))
         .status,
     ).toBe(400)
+    expect((await create(input("CONFIRMED", { terms: [] }))).status).toBe(400)
     expect(
-      (await create(input("CONFIRMED", { terms: [{ termId: termIds[0], status: "CONFIRMED" }] })))
-        .status,
+      (
+        await create(
+          input("CONFIRMED", {
+            terms: [
+              { termId: termIds[0], status: "CONFIRMED" },
+              { termId: termIds[0], status: "WAITLISTED" },
+            ],
+          }),
+        )
+      ).status,
     ).toBe(400)
+  })
+
+  it("creates an application only for the second term without enrolling in the first", async () => {
+    const response = await create(
+      input("CONFIRMED", { terms: [{ termId: termIds[1], status: "CONFIRMED" }] }),
+    )
+    expect(response.status).toBe(201)
+    const created = (await response.json()) as Created
+    const application = await prisma.application.findUniqueOrThrow({
+      where: { id: created.applicationId },
+      include: { terms: { include: { statusChanges: true } } },
+    })
+    expect(application.terms).toHaveLength(1)
+    expect(application.terms[0]).toMatchObject({
+      termId: termIds[1],
+      status: "CONFIRMED",
+      priceCzk: 5600,
+      statusChanges: [expect.objectContaining({ changedById: organizerId })],
+    })
+    const history = await fetch(api(`/organizer/applications/${created.applicationId}/terms`), {
+      headers: { Cookie: cookie },
+    })
+    expect(await history.json()).toEqual([
+      expect.objectContaining({ termId: termIds[1], status: "CONFIRMED" }),
+    ])
   })
 
   it("stores the selected statuses, phone and organizer creation history, and gives the applicant an account", async () => {
@@ -107,7 +141,7 @@ describe("organizer adds an application (US-83)", () => {
         terms: { orderBy: { term: { number: "asc" } }, include: { statusChanges: true } },
       },
     })
-    expect(application.phone).toBe("+420 777 123 456")
+    expect(application.phone).toBe("+420777123456")
     expect(application.user?.mustSetPassword).toBe(true)
     expect(application.terms.map((term) => [term.status, term.priceCzk])).toEqual([
       ["CONFIRMED", 4900],
@@ -129,6 +163,18 @@ describe("organizer adds an application (US-83)", () => {
     const rejected = await create(over)
     expect(rejected.status).toBe(409)
     expect(((await rejected.json()) as { code: string }).code).toBe("CAPACITY_EXCEEDED")
+    const email = (over as { email: string }).email
+    expect(await prisma.user.findUnique({ where: { email } })).toBeNull()
+    expect(await prisma.application.count({ where: { email } })).toBe(0)
+    // The rejected contact can still submit a waitlisted application and receive access.
+    expect(
+      (
+        await create({
+          ...over,
+          terms: termIds.map((termId) => ({ termId, status: "WAITLISTED" })),
+        })
+      ).status,
+    ).toBe(201)
     expect((await create(input("WAITLISTED"))).status).toBe(201)
     expect((await create(input("CONFIRMED", { confirmOverCapacity: true }))).status).toBe(201)
   })
@@ -139,4 +185,11 @@ describe("organizer adds an application (US-83)", () => {
     const duplicate = { ...first, email: "another@example.com" }
     expect((await create(duplicate)).status).toBe(409)
   })
+
+  it.each(["       ", "-------", "( ) - ( )", "123 456", "+"])(
+    "rejects a phone without at least seven digits: %j",
+    async (phone) => {
+      expect((await create(input("WAITLISTED", { phone }))).status).toBe(400)
+    },
+  )
 })

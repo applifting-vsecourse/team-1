@@ -18,19 +18,26 @@
   },
   "comingSoon": "Připravuje se — {{story}}.",
   "dateField": {
+    "done": "Hotovo",
     "month": "Měsíc",
     "openCalendar": "Vybrat datum v kalendáři",
     "placeholder": "D. M. RRRR",
+    "placeholderTime": "D. M. RRRR H:mm",
+    "time": "Čas",
+    "timePlaceholder": "H:mm",
     "year": "Rok"
   },
   "eventTabs": {
     "applications": "Přihlášky",
     "capacity": "Kapacity",
+    "meals": "Stravování",
     "overview": "Přehled",
+    "payments": "Platby",
     "position": "{{current}} z {{total}}",
     "rooms": "Ubytování",
     "settings": "Nastavení",
-    "terms": "Termíny"
+    "terms": "Termíny",
+    "transport": "Doprava"
   },
   "language": {
     "cs": "Čeština",
@@ -39,12 +46,14 @@
   },
   "nav": {
     "applications": "Přihlášky",
-    "collapseMenu": "Sbalit menu",
+    "collapsePanel": "Sbalit panel",
+    "collapseShortcut": "Ctrl B",
     "eventSections": "Části akce",
     "events": "Akce",
-    "expandMenu": "Rozbalit menu",
+    "expandPanel": "Rozbalit panel",
     "main": "Hlavní navigace",
-    "openMenu": "Otevřít navigaci"
+    "openMenu": "Otevřít navigaci",
+    "overview": "Přehled"
   },
   "pages": {
     "error": {
@@ -84,12 +93,14 @@
   "termPayment": {
     "account": "Účet",
     "amountToPay": "Částka k platbě",
+    "deadline": "Splatnost",
     "due": "Částka k úhradě",
     "listTitle": "Platby po termínech",
     "overpaid": "Přeplatek",
     "owed": "Zbývá zaplatit",
     "paid": "Zaplaceno",
     "paymentDetails": "Platební údaje",
+    "qrAlt": "QR kód pro platbu termínu",
     "status": {
       "NOTHING_DUE": "Nic k platbě",
       "OVERPAID": "Přeplaceno",

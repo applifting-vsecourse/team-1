@@ -29,8 +29,9 @@ export type EnsureAccountResult = {
  * section 9) and refuses an organizer's or admin's e-mail — one e-mail is one
  * account type.
  *
- * It runs on its own connection, outside the evaluation transaction of the
- * applications module: call it before that transaction starts.
+ * It runs on its own connection. Manual submissions defer it until validation
+ * under the evaluation transaction's event lock succeeds, so a capacity
+ * rejection cannot leave an account behind.
  */
 @Injectable()
 export class ParticipantAccountsService {

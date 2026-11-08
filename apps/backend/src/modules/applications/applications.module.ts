@@ -3,6 +3,7 @@ import { NotificationsModule } from "@/modules/notifications/notifications.modul
 import { ParticipantsModule } from "@/modules/participants/participants.module"
 import { AuthModule } from "@/shared/auth/auth.module"
 import { OrganizationAccessModule } from "@/shared/organization-access/organization-access.module"
+import { RateLimitModule } from "@/shared/rate-limit/rate-limit.module"
 import { Module } from "@nestjs/common"
 import { ApplicationsController } from "./controllers/applications.controller"
 import { BulkConfirmationController } from "./controllers/bulk-confirmation.controller"
@@ -12,8 +13,10 @@ import {
   OrganizerChangeRequestController,
   ParticipantChangeRequestController,
   ParticipantChangeRequestNotificationsController,
+  ParticipantHealthChangeRequestController,
 } from "./controllers/change-request.controller"
 import { ManualApplicationController } from "./controllers/manual-application.controller"
+import { OrganizerTermChangeController } from "./controllers/organizer-term-change.controller"
 import { ParticipantTermChangeController } from "./controllers/participant-term-change.controller"
 import { PublicCatalogController } from "./controllers/public-catalog.controller"
 import { PublicEventsController } from "./controllers/public-events.controller"
@@ -51,6 +54,7 @@ import { WaitlistExpiryService } from "./services/waitlist-expiry.service"
     ParticipantsModule,
     OrganizationAccessModule,
     AuthModule,
+    RateLimitModule,
   ],
   controllers: [
     PublicEventsController,
@@ -59,11 +63,13 @@ import { WaitlistExpiryService } from "./services/waitlist-expiry.service"
     ManualApplicationController,
     CapacityController,
     ParticipantChangeRequestController,
+    ParticipantHealthChangeRequestController,
     ParticipantChangeRequestNotificationsController,
     OrganizerChangeRequestController,
     SubmissionStatusController,
     TermStatusController,
     ParticipantTermChangeController,
+    OrganizerTermChangeController,
     BulkConfirmationController,
     BulkDecisionController,
     SubstitutesController,
@@ -93,6 +99,6 @@ import { WaitlistExpiryService } from "./services/waitlist-expiry.service"
     WaitlistExpiryService,
     WaitlistExpiryScheduler,
   ],
-  exports: [TermStatusService],
+  exports: [TermStatusService, ChangeRequestService],
 })
 export class ApplicationsModule {}

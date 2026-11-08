@@ -23,6 +23,8 @@ export type MyApplicationRecord = {
   eventName: string
   /** Account number of the organization that runs the event. */
   bankAccount: string
+  /** Event's payment period in days (D-099). */
+  paymentPeriodDays: number
   organizationName: string
   /** Public contact of the event (US-122); optional unless the event is in the catalog. */
   contactEmail: string | null
@@ -38,7 +40,15 @@ export type MyApplicationRecord = {
     /** Price frozen at evaluation. */
     priceCzk: number
     /** Non-cancelled payment rows of this application in this term. */
-    payments: { amountCzk: number }[]
+    payments: { amountCzk: number; source: "MANUAL" | "SIMULATION"; createdAt: Date }[]
+    /** Latest confirmation; the payment deadline counts from it. */
+    confirmedAt: Date | null
+    /** Restart of the payment period after a correction (US-112). */
+    paymentPeriodStartedAt: Date | null
+    /** The organizer set up at least one transport to this term (US-65). */
+    transportOffered: boolean
+    /** The participant chose a transport or their own transport for this term. */
+    transportDecided: boolean
   }[]
 }
 
@@ -50,6 +60,10 @@ export type MyApplicationTerm = {
   endsOn: string
   status: ApplicationTermStatus
   priceCzk: number
+  /** Transport is offered in this term (US-65). */
+  transportOffered: boolean
+  /** The participant has told how they get there. */
+  transportDecided: boolean
 }
 
 /** Where and how much to pay — only when at least one term is confirmed (US-25). */
@@ -60,6 +74,14 @@ export type OrganizationContact = {
   name: string
   email: string | null
   phone: string | null
+}
+
+/** A payment the participant simulated on staging or demo (US-115). */
+export type SimulatedPayment = {
+  termId: string
+  amountCzk: number
+  /** ISO datetime. */
+  createdAt: string
 }
 
 export type MyApplication = {
@@ -78,6 +100,10 @@ export type MyApplication = {
   amountOwedCzk: number
   paymentStatus: PaymentStatus
   paymentDetails: PaymentDetails | null
+  /** The simulation button is offered only where the backend allows it (never in production). */
+  canSimulatePayment: boolean
+  /** Newest first. */
+  simulatedPayments: SimulatedPayment[]
   organizationContact: OrganizationContact
 }
 
@@ -105,11 +131,19 @@ const toIsoDate = (date: Date): string => date.toISOString().slice(0, 10)
  * participant sees a waitlisted term only as waitlisted, never
  * their place in line.
  */
-export function buildMyApplication(record: MyApplicationRecord): MyApplication {
+export function buildMyApplication(
+  record: MyApplicationRecord,
+  canSimulatePayment = false,
+): MyApplication {
   const amountDueCzk = computeApplicationDue(record.terms)
   const amountPaidCzk = computeApplicationPaid(record.terms)
   const variableSymbol = toVariableSymbol(record.number)
-  const details = buildPaymentDetails(record.number, record.bankAccount, record.terms)
+  const details = buildPaymentDetails(
+    record.number,
+    record.bankAccount,
+    record.terms,
+    record.paymentPeriodDays,
+  )
 
   return {
     id: record.id,
@@ -127,6 +161,8 @@ export function buildMyApplication(record: MyApplicationRecord): MyApplication {
         endsOn: toIsoDate(term.endsOn),
         status: term.status,
         priceCzk: term.priceCzk,
+        transportOffered: term.transportOffered,
+        transportDecided: term.transportDecided,
       })),
     amountDueCzk,
     amountPaidCzk,
@@ -134,6 +170,19 @@ export function buildMyApplication(record: MyApplicationRecord): MyApplication {
     paymentStatus: computePaymentStatus(amountDueCzk, amountPaidCzk),
     // All terms waitlisted: nothing to pay yet, so no payment details (US-25).
     paymentDetails: details,
+    canSimulatePayment,
+    simulatedPayments: record.terms
+      .flatMap((term) =>
+        term.payments
+          .filter((payment) => payment.source === "SIMULATION")
+          .map((payment) => ({
+            termId: term.termId,
+            amountCzk: payment.amountCzk,
+            createdAt: payment.createdAt,
+          })),
+      )
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      .map((payment) => ({ ...payment, createdAt: payment.createdAt.toISOString() })),
     organizationContact: {
       name: record.organizationName,
       email: record.contactEmail,

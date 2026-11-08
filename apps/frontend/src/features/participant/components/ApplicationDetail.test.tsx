@@ -29,6 +29,8 @@ const confirmed = {
   endsOn: "2027-07-10",
   status: "CONFIRMED" as const,
   priceCzk: 4500,
+  transportOffered: false,
+  transportDecided: false,
 }
 const waitlisted = {
   termId: "t2",
@@ -37,6 +39,8 @@ const waitlisted = {
   endsOn: "2027-07-17",
   status: "WAITLISTED" as const,
   priceCzk: 4900,
+  transportOffered: false,
+  transportDecided: false,
 }
 
 const application = (overrides: Partial<MyApplication> = {}): MyApplication => ({
@@ -46,6 +50,8 @@ const application = (overrides: Partial<MyApplication> = {}): MyApplication => (
   lastName: "Nováková",
   code: "LKL-0048",
   variableSymbol: "48000",
+  canSimulatePayment: false,
+  simulatedPayments: [],
   terms: [confirmed],
   amountDueCzk: 4500,
   amountPaidCzk: 2000,
@@ -68,6 +74,7 @@ const application = (overrides: Partial<MyApplication> = {}): MyApplication => (
         paidCzk: 2000,
         owedCzk: 2500,
         paymentStatus: "PARTIALLY_PAID" as const,
+        paymentDeadline: "2026-11-15T00:00:00.000Z",
       },
     ],
   },
@@ -87,6 +94,7 @@ const termPayment = (
   paidCzk,
   owedCzk: dueCzk - paidCzk,
   paymentStatus,
+  paymentDeadline: dueCzk > paidCzk ? "2026-11-15T00:00:00.000Z" : null,
 })
 const secondConfirmed = { ...waitlisted, status: "CONFIRMED" as const }
 const withTerms = (
@@ -107,7 +115,28 @@ const withTerms = (
 const cardOf = (heading: RegExp): HTMLElement =>
   screen.getByRole("heading", { name: heading }).closest<HTMLElement>("[data-slot='card']")!
 
-const renderDetail = (data: MyApplication, canChangeImmediately = true) => {
+/** Cards of the term payments start collapsed; open them all (US-41). */
+const openAll = async (): Promise<void> => {
+  const user = userEvent.setup()
+  const triggers = await screen.findAllByRole("button", { expanded: false })
+  for (const trigger of triggers.filter(
+    (el) => el.getAttribute("data-slot") === "accordion-trigger",
+  )) {
+    await user.click(trigger)
+  }
+}
+
+const renderDetail = (
+  data: MyApplication,
+  canChangeImmediately = true,
+  owedAfterChangeCzk = 4900,
+) => {
+  const paid = (termId: string) =>
+    data.paymentDetails?.terms.find((payment) => payment.termId === termId)?.paidCzk ?? 0
+  const owed = (termId: string) => {
+    const term = data.terms.find((row) => row.termId === termId)
+    return term?.status === "CONFIRMED" ? Math.max(0, term.priceCzk - paid(termId)) : 0
+  }
   get.mockImplementation((path: string) => ({
     json: () =>
       Promise.resolve(
@@ -122,14 +151,30 @@ const renderDetail = (data: MyApplication, canChangeImmediately = true) => {
                     name: "1. týden",
                     startsOn: "2027-07-04",
                     endsOn: "2027-07-10",
-                    selected: true,
+                    priceCzk: 4500,
+                    owedAfterChangeCzk: 4500,
+                    paidCzk: paid("t1"),
+                    owedBeforeCancellationCzk: owed("t1"),
+                    owedAfterCancellationCzk: 0,
+                    overpaymentAfterCancellationCzk: paid("t1"),
+                    selected: data.terms.some(
+                      (term) => term.termId === "t1" && term.status !== "CANCELLED",
+                    ),
                   },
                   {
                     id: "t2",
                     name: "2. týden",
                     startsOn: "2027-07-11",
                     endsOn: "2027-07-17",
-                    selected: false,
+                    priceCzk: 4900,
+                    owedAfterChangeCzk,
+                    paidCzk: paid("t2"),
+                    owedBeforeCancellationCzk: owed("t2"),
+                    owedAfterCancellationCzk: 0,
+                    overpaymentAfterCancellationCzk: paid("t2"),
+                    selected: data.terms.some(
+                      (term) => term.termId === "t2" && term.status !== "CANCELLED",
+                    ),
                   },
                 ],
               }
@@ -160,6 +205,7 @@ describe("ApplicationDetail", () => {
     const user = userEvent.setup()
     const write = vi.spyOn(navigator.clipboard, "writeText")
     renderDetail(application())
+    await openAll()
     await user.click(await screen.findByRole("button", { name: "Copy account number" }))
     expect(write).toHaveBeenLastCalledWith("2900123456/2010")
     await user.click(screen.getByRole("button", { name: "Copy variable symbol" }))
@@ -178,33 +224,152 @@ describe("ApplicationDetail", () => {
 
   it("lets the participant immediately change the selected terms", async () => {
     const user = userEvent.setup()
-    put.mockResolvedValue(undefined)
+    put.mockReturnValue({
+      json: () => Promise.resolve({ addedTerms: [{ termId: "t2", owedCzk: 4900 }] }),
+    })
     renderDetail(application())
 
-    await user.click(await screen.findByRole("button", { name: "Change terms or cancel" }))
-    expect(screen.getByText(/Payments stay with their original terms/)).toBeInTheDocument()
-    await user.click(screen.getByRole("checkbox", { name: "Select term 2. týden" }))
-    await user.click(screen.getByRole("button", { name: "Save changes" }))
+    await user.click(await screen.findByRole("button", { name: "Change terms" }))
+    expect(screen.getByText(/Overpayment CZK 2,000/)).toBeInTheDocument()
+    expect(screen.getByText(/New term 2. týden · Price CZK 4,900/)).toBeInTheDocument()
+    await user.click(screen.getByRole("button", { name: "Confirm change" }))
 
     expect(put).toHaveBeenCalledWith("participant/applications/a1/terms", {
-      json: { termIds: ["t1", "t2"] },
+      json: { termIds: ["t2"] },
     })
+    expect(await screen.findByRole("heading", { name: "Term changed" })).toBeInTheDocument()
+    expect(
+      screen.getByText("New term 2. týden · Price CZK 4,900 · Amount due CZK 4,900"),
+    ).toBeInTheDocument()
+  })
+
+  it("shows the price separately from zero debt for an unconfirmed term", async () => {
+    const user = userEvent.setup()
+    put.mockReturnValue({
+      json: () => Promise.resolve({ addedTerms: [{ termId: "t2", owedCzk: 0 }] }),
+    })
+    renderDetail(application(), true, 0)
+
+    await user.click(await screen.findByRole("button", { name: "Change terms" }))
+    const impact = "New term 2. týden · Price CZK 4,900 · Amount due CZK 0"
+    expect(screen.getByText(impact)).toBeInTheDocument()
+    await user.click(screen.getByRole("button", { name: "Confirm change" }))
+    expect(await screen.findByRole("heading", { name: "Term changed" })).toBeInTheDocument()
+    expect(screen.getByText(impact)).toBeInTheDocument()
+  })
+
+  it("uses the committed debt when capacity changes after the preview", async () => {
+    const user = userEvent.setup()
+    put.mockReturnValue({
+      json: () => Promise.resolve({ addedTerms: [{ termId: "t2", owedCzk: 0 }] }),
+    })
+    renderDetail(application())
+
+    await user.click(await screen.findByRole("button", { name: "Change terms" }))
+    expect(screen.getByText(/Amount due CZK 4,900/)).toBeInTheDocument()
+    await user.click(screen.getByRole("button", { name: "Confirm change" }))
+    expect(await screen.findByRole("heading", { name: "Term changed" })).toBeInTheDocument()
+    expect(
+      screen.getByText(/New term 2. týden · Price CZK 4,900 · Amount due CZK 0/),
+    ).toBeInTheDocument()
+    expect(screen.queryByText(/Amount due CZK 4,900/)).not.toBeInTheDocument()
+  })
+
+  it("does not invent zero debt when a repeated change adds no term", async () => {
+    const user = userEvent.setup()
+    put.mockReturnValue({ json: () => Promise.resolve({ addedTerms: [] }) })
+    renderDetail(application())
+
+    await user.click(await screen.findByRole("button", { name: "Change terms" }))
+    await user.click(screen.getByRole("button", { name: "Confirm change" }))
+    expect(await screen.findByRole("heading", { name: "Term changed" })).toBeInTheDocument()
+    expect(screen.queryByText(/New term .*Amount due/)).not.toBeInTheDocument()
   })
 
   it("submits an approval request after cancellation starts", async () => {
     const user = userEvent.setup()
-    post.mockResolvedValue(undefined)
+    post.mockReturnValue({
+      json: () =>
+        Promise.resolve({
+          id: "r1",
+          applicationId: "a1",
+          eventId: "e1",
+          participantName: "Jana Nováková",
+          participantGender: "FEMALE",
+          currentTermIds: ["t1"],
+          requestedTermIds: ["t2"],
+          status: "PENDING",
+          rejectionReason: null,
+          createdAt: "2026-11-05T14:30:00.000Z",
+          reviewedAt: null,
+          terms: [],
+        }),
+    })
     renderDetail(application(), false)
+    await user.click(await screen.findByRole("button", { name: "Change terms" }))
+    expect(screen.getByText(/original terms and assigned bed remain/)).toBeInTheDocument()
     expect(
-      await screen.findByText(/Changes now require the organiser's approval/),
+      screen.getByText(/New term 2. týden · Price CZK 4,900 · Amount due CZK 4,900/),
     ).toBeInTheDocument()
-    await user.click(screen.getByRole("button", { name: "Change terms or cancel" }))
-    await user.click(screen.getByRole("checkbox", { name: "Select term 2. týden" }))
     await user.click(screen.getByRole("button", { name: "Send request" }))
     expect(post).toHaveBeenCalledWith("participant/applications/a1/change-requests", {
-      json: { termIds: ["t1", "t2"] },
+      json: { termIds: ["t2"] },
+    })
+    expect(
+      await screen.findByRole("heading", { name: "Request awaiting approval" }),
+    ).toBeInTheDocument()
+  })
+
+  it("cancels one term and shows its payment and bed impact before confirmation", async () => {
+    const user = userEvent.setup()
+    put.mockReturnValue({ json: () => Promise.resolve({ addedTerms: [] }) })
+    renderDetail(withTerms([termPayment(1, 4500, 4500, "PAID")]))
+
+    await user.click(await screen.findByRole("button", { name: "Cancel participation" }))
+    await user.click(screen.getByRole("combobox", { name: "Cancellation scope" }))
+    await user.click(screen.getByRole("option", { name: /1. týden/ }))
+    expect(
+      screen.getByText(/Paid CZK 4,500 · Debt after cancellation CZK 0 · Overpayment CZK 4,500/),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText("The bed will be released. The organiser handles any refund."),
+    ).toBeInTheDocument()
+    await user.click(screen.getByRole("button", { name: "Confirm cancellation" }))
+    expect(put).toHaveBeenCalledWith("participant/applications/a1/terms", {
+      json: { termIds: ["t2"] },
     })
   })
+
+  it.each([
+    [
+      "Cancel participation",
+      "Confirm cancellation",
+      "Cancellation confirmed",
+      /Debt after cancellation CZK 0/,
+    ],
+    [
+      "Change terms",
+      "Confirm change",
+      "Term changed",
+      /Original term · Overpayment CZK 0 · Debt CZK 0/,
+    ],
+  ])(
+    "shows debt removed by %s for an unpaid confirmed term",
+    async (open, submit, title, impact) => {
+      const user = userEvent.setup()
+      put.mockReturnValue({
+        json: () => Promise.resolve({ addedTerms: [{ termId: "t2", owedCzk: 4900 }] }),
+      })
+      renderDetail(withTerms([termPayment(1, 4500, 0, "UNPAID")], [confirmed]))
+
+      await user.click(await screen.findByRole("button", { name: open }))
+      expect(screen.getByText(impact)).toBeInTheDocument()
+      expect(screen.queryByText(/No payment impact/)).not.toBeInTheDocument()
+      await user.click(screen.getByRole("button", { name: submit }))
+      expect(await screen.findByRole("heading", { name: title })).toBeInTheDocument()
+      expect(screen.getByText(impact)).toBeInTheDocument()
+    },
+  )
 
   it("shows what is due, what is paid, what is left and where to send it for the term", async () => {
     renderDetail(application())
@@ -212,6 +377,7 @@ describe("ApplicationDetail", () => {
     expect(
       await screen.findByRole("heading", { level: 1, name: "Letní kemp 2027" }),
     ).toBeInTheDocument()
+    await openAll()
     expect(screen.getByText("Partly paid")).toBeInTheDocument()
     expect(screen.getByText("Amount due").nextSibling).toHaveTextContent("4,500")
     expect(screen.getByText("Paid").nextSibling).toHaveTextContent("2,000")
@@ -257,6 +423,7 @@ describe("ApplicationDetail", () => {
     )
 
     expect(await screen.findByRole("heading", { name: "Left to pay in total" })).toBeInTheDocument()
+    await openAll()
     expect(
       screen.getByRole("heading", { name: "Left to pay in total" }).nextSibling,
     ).toHaveTextContent("1,200")
@@ -287,6 +454,7 @@ describe("ApplicationDetail", () => {
       },
     })
 
+    await openAll()
     expect(
       await screen.findByText(/You pay each term separately\. Use its variable symbol/),
     ).toBeInTheDocument()
@@ -302,6 +470,7 @@ describe("ApplicationDetail", () => {
 
     const paid = await screen.findByRole("button", { name: /4–10 Jul 2027.*Paid/ })
     expect(paid).toHaveAttribute("aria-expanded", "false")
+    await openAll()
     const unpaid = screen.getByRole("heading", { name: /^11–17 Jul 2027/ })
     // Two confirmed terms and something left: the total shows, the hint only for several debts.
     expect(
@@ -337,6 +506,7 @@ describe("ApplicationDetail", () => {
     renderDetail(withTerms([termPayment(1, 4500, 5100, "OVERPAID")], [confirmed]))
 
     expect(await screen.findByText("Overpaid")).toBeInTheDocument()
+    await openAll()
     expect(screen.getByText("Overpayment").nextSibling).toHaveTextContent("600")
     expect(screen.queryByText("Left to pay")).not.toBeInTheDocument()
     expect(screen.queryByText("Amount to pay")).not.toBeInTheDocument()
@@ -410,6 +580,7 @@ describe("ApplicationDetail", () => {
               paidCzk: 4000,
               owedCzk: 500,
               paymentStatus: "PARTIALLY_PAID",
+              paymentDeadline: "2026-11-15T00:00:00.000Z",
             },
             {
               termId: "t2",
@@ -419,6 +590,7 @@ describe("ApplicationDetail", () => {
               paidCzk: 4200,
               owedCzk: 700,
               paymentStatus: "PARTIALLY_PAID",
+              paymentDeadline: "2026-11-15T00:00:00.000Z",
             },
           ],
         },
@@ -431,28 +603,150 @@ describe("ApplicationDetail", () => {
     const dialog = screen.getByRole("dialog")
     expect(within(dialog).getByText("Summary variable symbol")).toBeInTheDocument()
     expect(within(dialog).getByText("48000")).toBeInTheDocument()
-    expect(within(dialog).getByText("Combined payment breakdown")).toBeInTheDocument()
-    expect(
-      within(dialog).getByText(/Use the summary variable symbol for both confirmed terms/),
-    ).toBeInTheDocument()
+    expect(within(dialog).getByText("Breakdown")).toBeInTheDocument()
+    expect(within(dialog).getByText(/Covers all confirmed terms/)).toBeInTheDocument()
     expect(
       within(dialog).getByText(
         (_, element) =>
-          element?.tagName === "P" && /Breakdown: 4–10 Jul.*500/.test(element.textContent ?? ""),
+          element?.tagName === "DIV" && /^4–10 Jul 2027.*500/.test(element.textContent ?? ""),
       ),
     ).toBeInTheDocument()
     expect(
       within(dialog).getByText(
         (_, element) =>
-          element?.tagName === "P" && /11–17 Jul.*700/.test(element.textContent ?? ""),
+          element?.tagName === "DIV" && /^11–17 Jul 2027.*700/.test(element.textContent ?? ""),
       ),
     ).toBeInTheDocument()
     expect(toDataURL).toHaveBeenCalledWith(
-      expect.stringMatching(/^SPD\*1\.0\*ACC:CZ\d{22}\*AM:1200\.00\*CC:CZK\*X-VS:48000$/),
+      expect.stringMatching(
+        /^SPD\*1\.0\*ACC:CZ\d{22}\*AM:1200\.00\*CC:CZK\*X-VS:48000\*MSG:Letni kemp 2027$/,
+      ),
       { width: 200, margin: 2 },
     )
     expect(
       await within(dialog).findByRole("img", { name: "QR code for the combined payment" }),
     ).toHaveAttribute("src", "data:image/png;base64,AAAA")
+  })
+
+  describe("payment details of a term (US-41)", () => {
+    const paidTerm = { ...termPayment(1, 4500, 4500, "PAID"), paymentDeadline: null }
+
+    it("shows the due date and a QR with the debt, the term's symbol and the event name", async () => {
+      renderDetail(withTerms([termPayment(1, 4500, 2000, "PARTIALLY_PAID"), paidTerm]))
+
+      await openAll()
+      const card = (await screen.findByText("Due date")).closest<HTMLElement>("[data-slot='card']")!
+      expect(within(card).getByText(/15 Nov 2026/)).toBeInTheDocument()
+      expect(
+        await within(card).findByRole("img", { name: "QR code for the term payment" }),
+      ).toHaveAttribute("src", "data:image/png;base64,AAAA")
+      expect(toDataURL).toHaveBeenCalledWith(
+        expect.stringMatching(
+          /^SPD\*1\.0\*ACC:CZ\d{22}\*AM:2500\.00\*CC:CZK\*X-VS:48001\*MSG:Letni kemp 2027$/,
+        ),
+        { width: 200, margin: 2 },
+      )
+    })
+
+    it("draws no QR for a paid term", async () => {
+      renderDetail(withTerms([paidTerm], [confirmed]))
+
+      await screen.findByText(/4–10 Jul/)
+      expect(screen.queryByRole("img", { name: "QR code for the term payment" })).toBeNull()
+      expect(toDataURL).not.toHaveBeenCalled()
+    })
+
+    it("draws no QR for an overpaid term", async () => {
+      renderDetail(
+        withTerms(
+          [{ ...termPayment(1, 4500, 5000, "OVERPAID"), paymentDeadline: null }],
+          [confirmed],
+        ),
+      )
+
+      await screen.findByText(/4–10 Jul/)
+      expect(screen.queryByRole("img", { name: "QR code for the term payment" })).toBeNull()
+      expect(screen.queryByText("Due date")).toBeNull()
+    })
+  })
+
+  describe("payment simulation (US-115)", () => {
+    it("shows no simulation where the backend does not offer it (production)", async () => {
+      renderDetail(application())
+
+      await screen.findByText(/4–10 Jul/)
+      expect(screen.queryByRole("button", { name: "I paid" })).toBeNull()
+      expect(screen.queryByText("Demo: payments are simulated.")).toBeNull()
+    })
+
+    it("simulates the payment of one term and lists it", async () => {
+      post.mockReset()
+      post.mockResolvedValue({})
+      const user = userEvent.setup()
+      renderDetail(
+        application({
+          canSimulatePayment: true,
+          simulatedPayments: [
+            { termId: "t1", amountCzk: 2500, createdAt: "2027-01-01T10:00:00.000Z" },
+          ],
+        }),
+      )
+
+      expect(await screen.findByText("Demo: payments are simulated.")).toBeInTheDocument()
+      expect(screen.getByText("Simulation log")).toBeInTheDocument()
+      expect(screen.getByText(/\+CZK 2,500 · .* · source: simulation/)).toBeInTheDocument()
+      await user.click(screen.getByRole("button", { name: "I paid" }))
+
+      expect(post).toHaveBeenCalledWith("participant/applications/a1/payments/simulation", {
+        json: { termId: "t1" },
+      })
+    })
+
+    it("offers no button for a term with nothing left to pay", async () => {
+      renderDetail({
+        ...withTerms([termPayment(1, 4500, 4500, "PAID")], [confirmed]),
+        canSimulatePayment: true,
+      })
+
+      await screen.findByText("Demo: payments are simulated.")
+      expect(screen.queryByRole("button", { name: "I paid" })).toBeNull()
+    })
+  })
+
+  describe("transport (US-65)", () => {
+    const withTransport = (isDecided: boolean): MyApplication =>
+      application({
+        terms: [{ ...confirmed, transportOffered: true, transportDecided: isDecided }],
+      })
+
+    it("asks for a transport in a checklist and separates terms and transport into sections", async () => {
+      renderDetail(withTransport(false))
+
+      expect(await screen.findByRole("heading", { name: "What is left to arrange" })).toBeVisible()
+      expect(screen.getByText("0 of 1 done")).toBeVisible()
+      expect(screen.getByRole("heading", { name: /^Transport · / })).toBeVisible()
+      expect(screen.getByRole("heading", { name: "Terms and payments" })).toBeVisible()
+      expect(screen.getByRole("heading", { name: "Transport" })).toBeVisible()
+      expect(screen.getByRole("link", { name: "Choose transport" })).toHaveAttribute(
+        "href",
+        "/participant/applications/a1/transport",
+      )
+    })
+
+    it("shows the step as done and offers a change once the transport is chosen", async () => {
+      renderDetail(withTransport(true))
+
+      expect(await screen.findByText("1 of 1 done")).toBeVisible()
+      expect(screen.getByRole("link", { name: "Change transport" })).toBeVisible()
+      expect(screen.queryByRole("link", { name: "Choose transport" })).toBeNull()
+    })
+
+    it("asks for nothing when no transport is offered", async () => {
+      renderDetail(application())
+
+      await screen.findByText(/4–10 Jul/)
+      expect(screen.queryByRole("heading", { name: "What is left to arrange" })).toBeNull()
+      expect(screen.queryByRole("heading", { name: "Transport" })).toBeNull()
+    })
   })
 })

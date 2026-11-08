@@ -19,6 +19,7 @@ import {
   type EvaluationMode,
 } from "@/features/events/api/events"
 import { CancellationStartForm } from "@/features/events/components/CancellationStartForm"
+import { DeleteEventSection } from "@/features/events/components/DeleteEventSection"
 import { PublicPageForm } from "@/features/events/components/PublicPageForm"
 
 const MODES = ["AUTOMATIC", "MANUAL"] as const
@@ -61,6 +62,7 @@ export function EventSettings({ eventId }: { eventId: string }) {
         event={event}
       />
       <PublicPageForm event={event} />
+      <DeleteEventSection event={event} />
     </div>
   )
 }
@@ -95,7 +97,7 @@ function ChooseMode({ eventId, saved }: { eventId: string; saved: EvaluationMode
 
   return (
     <form
-      className="flex flex-col gap-6"
+      className="flex w-full max-w-196 flex-col gap-6"
       onSubmit={(e) => {
         e.preventDefault()
         mutation.mutate()

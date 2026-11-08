@@ -62,6 +62,11 @@ export class PaymentApplicationResponseDto {
   @ApiProperty() lastName!: string
   @ApiProperty({ nullable: true, type: String }) accommodationRequest!: string | null
   @ApiProperty() code!: string
+  @ApiProperty({ example: "2011-05-04", description: "Participant date of birth." })
+  birthDate!: string
+  @ApiProperty({ enum: ["FEMALE", "MALE"] }) gender!: string
+  @ApiProperty({ example: "eva.mala@example.cz", description: "Contact of the applicant." })
+  email!: string
   @ApiProperty({ example: "12345000", description: "Summary symbol: pays the whole debt." })
   variableSymbol!: string
   @ApiProperty() amountDueCzk!: number
@@ -90,6 +95,9 @@ export class PaymentApplicationResponseDto {
       lastName: application.lastName,
       accommodationRequest: application.accommodationRequest,
       code: toApplicationCode(application.eventName, application.number),
+      birthDate: application.birthDate.toISOString().slice(0, 10),
+      gender: application.gender,
+      email: application.email,
       variableSymbol: application.variableSymbol,
       amountDueCzk: application.amountDueCzk,
       amountPaidCzk: application.amountPaidCzk,

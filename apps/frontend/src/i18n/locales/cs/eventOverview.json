@@ -5,6 +5,7 @@
     "allPayments": "Všechny platby",
     "allStatuses": "Všechny stavy v termínu",
     "allTerms": "Všechny termíny",
+    "allWaitlisted": "Všichni náhradníci",
     "cancelled": "Zrušená",
     "clear": "Vymazat filtry",
     "clearSearchAndFilters": "Vymazat hledání a filtry",
@@ -13,20 +14,20 @@
     "count_few": "{{count}} přihlášky",
     "count_one": "{{count}} přihláška",
     "count_other": "{{count}} přihlášek",
+    "debt": "S dluhem",
     "detail": "Detail",
-    "due": "Částka k úhradě",
     "empty": "Pro tento výběr jsme nenašli žádné přihlášky.",
     "error": "Přihlášky se nepodařilo načíst",
     "female": "žena",
     "filters": "Filtry",
     "filtersImmediate": "Změny filtrů se projeví okamžitě.",
-    "hint": "Filtry lze kombinovat: termín, stav přihlášky v termínu a úhrada. Nezaplaceno = dluh větší než 0 Kč. Jedna přihláška může mít více termínů s různým stavem. Částka k úhradě a dluh jsou součty za celou přihlášku; náhradník za daný termín nic neplatí.",
+    "hint": "Filtry lze kombinovat: termín, stav přihlášky v termínu a úhrada. Nezaplaceno = dluh větší než 0 Kč. Jedna přihláška může mít více termínů s různým stavem. Dluh je součet za celou přihlášku; náhradník za daný termín nic neplatí.",
     "male": "muž",
     "next": "Další →",
     "noApplications": "Zatím nebyla přijata žádná přihláška.",
     "nothingDue": "Bez částky k úhradě",
     "overpaid": "Přeplatek",
-    "owed": "Dluží",
+    "owed": "Dluh",
     "pagination": "Stránkování",
     "paid": "Zaplaceno",
     "partial": "Částečně zaplaceno",
@@ -49,11 +50,32 @@
     "title": "Přihlášky",
     "toEvaluate": "Čeká na vyhodnocení",
     "unpaid": "Nezaplaceno",
+    "waitlistFilter": "Náhradníci",
+    "waitlistFreeBed": "Náhradníci s volným lůžkem",
     "waitlistNote": "Přijetí náhradníka řešte v jeho detailu. Nejprve ověřte volné lůžko; platební údaje pošlete až po potvrzení.",
     "waitlistNoteTitle": "Náhradníci mají pořadí, místo zatím nemají potvrzené.",
     "waitlisted": "Náhradník",
     "waitlistedPositionFemale": "Náhradnice · {{position}}",
     "waitlistedPositionMale": "Náhradník · {{position}}"
+  },
+  "attention": {
+    "debt": {
+      "body": "Z toho {{overdue}} po lhůtě · Součet dluhů {{total}}",
+      "title": "Účastníci s dluhem · {{count}}"
+    },
+    "loadFailed": "Nepodařilo se načíst, co vyžaduje pozornost",
+    "requests": {
+      "body": "Změny a odhlášení po začátku storna",
+      "title": "Žádosti ke schválení · {{count}}"
+    },
+    "substitutes": {
+      "body": "Uvolněná lůžka v odpovídající skupině",
+      "title": "Náhradníci k vyřešení · {{count}}"
+    },
+    "toEvaluate": {
+      "body": "Přihlášky čekající na rozhodnutí",
+      "title": "K vyhodnocení · {{count}}"
+    }
   },
   "bulk": {
     "alertTitle": "Potvrdí se {{confirmed}} ze {{selected}} přihlášek.",
@@ -121,7 +143,7 @@
     "backToTerms": "← Všechny termíny",
     "confirmedColumn": "Potvrzeno / kapacita",
     "confirmedOnly": "Volno se počítá pouze z potvrzených přihlášek.",
-    "footnote": "Kapacita vychází z lůžek v pokojích. Pokoje jsou společné pro všechny termíny; volno se počítá jen z potvrzených přihlášek.",
+    "footnote": "Kapacita vychází z lůžek v pokojích daného termínu. Volno se počítá jen z potvrzených přihlášek v tomto termínu.",
     "freeColumn": "Volná místa",
     "freePlaces_few": "{{count}} volná místa",
     "freePlaces_one": "{{count}} volné místo",
@@ -183,6 +205,11 @@
     "freeBeds_few": "{{count}} volná místa",
     "freeBeds_one": "{{count}} volné místo",
     "freeBeds_other": "{{count}} volných míst",
+    "healthCurrent": "Současné zdravotní omezení",
+    "healthNote": "Schválením se uložené zdravotní omezení nahradí požadovaným. Žadatel se o výsledku dozví v aplikaci.",
+    "healthRemoved": "Odstranit zdravotní omezení",
+    "healthRequested": "Požadované zdravotní omezení",
+    "healthSummary": "Změna zdravotního omezení",
     "loadError": "Žádosti se nepodařilo načíst",
     "participant": "Účastník",
     "pending": "Čeká na schválení",
@@ -231,9 +258,10 @@
     "participant": "Účastník",
     "phone": "Telefon *",
     "returnToWaitlist": "Zvolit stav Náhradník",
-    "selectTerms": "U každého termínu zvolte stav.",
+    "selectTerms": "Vyberte alespoň jeden termín a jeho stav.",
     "statusConfirmed": "Potvrzená s dluhem",
     "statusWaitlisted": "Náhradník",
+    "termNotSelected": "Nevybráno",
     "terms": "Termíny a jejich stav",
     "title": "Přidat přihlášku"
   },
@@ -287,6 +315,9 @@
     "editorDue": "K úhradě",
     "empty": "Zatím žádná zaznamenaná platba.",
     "errorTitle": "Detail platby se nepodařilo načíst",
+    "genderFemale": "žena",
+    "genderMale": "muž",
+    "health": "Zdravotní omezení",
     "history": "Historie plateb",
     "historyAmount": "Částka",
     "invalidAmount": "Zadejte celé kladné číslo v Kč.",
@@ -309,6 +340,9 @@
     "paidNow": "Zaplaceno nyní",
     "paidSoFar": "Dosud zaplaceno",
     "partialHint": "Po této platbě zbývá doplatit {{owed}}.",
+    "participantBirthGender": "Datum narození a pohlaví",
+    "participantCard": "Údaje účastníka",
+    "participantContact": "Kontakt přihlašovatele",
     "payRemaining": "Doplatit zbývajících {{amount}}",
     "placeholder": "Např. 3 000",
     "preview": "Po uložení bude dlužit",
@@ -344,6 +378,41 @@
     "typePayment": "Platba",
     "typeRefund": "Vratka",
     "wholeApplication": "Celá přihláška (souhrn)"
+  },
+  "paymentsOverview": {
+    "cancellationTerms": "Storno podmínky",
+    "clearFilters": "Vymazat filtry",
+    "debt": "Dluh",
+    "debtors_few": "{{count}} účastníci s dluhem",
+    "debtors_one": "{{count}} účastník s dluhem",
+    "debtors_other": "{{count}} účastníků s dluhem",
+    "detail": "Detail plateb",
+    "dueDate": "Lhůta",
+    "empty": "Žádné přihlášky neodpovídají filtru",
+    "error": "Platby se nepodařilo načíst",
+    "lastReminder": "Poslední výzva",
+    "noApplications": "Zatím nejsou potvrzené přihlášky",
+    "overdueCount_few": "z toho {{count}} po lhůtě",
+    "overdueCount_one": "z toho {{count}} po lhůtě",
+    "overdueCount_other": "z toho {{count}} po lhůtě",
+    "overpayment": "Přeplatek",
+    "reminderCount": "Odeslané výzvy",
+    "reminderFilter": "Výzvy k zaplacení",
+    "reminders": {
+      "ALL": "Všichni",
+      "NOT_SENT": "Bez výzvy",
+      "SENT": "Výzva odeslána, dluh trvá"
+    },
+    "statusFilter": "Stav platby",
+    "statuses": {
+      "ALL": "Všichni",
+      "OVERDUE": "Po lhůtě",
+      "PAID": "Zaplaceno",
+      "PARTIALLY_PAID": "Částečně",
+      "UNPAID": "Nezaplaceno"
+    },
+    "title": "Platby",
+    "totalDebt": "Součet dluhů"
   },
   "queue": {
     "empty": "Všechny přihlášky jsou vyhodnocené.",
@@ -398,6 +467,46 @@
     "takenHint": "{{name}} zůstává náhradníkem. Kapacita se nepřekročí.",
     "title": "Obsazení uvolněných lůžek"
   },
+  "switcher": {
+    "label": "Akce"
+  },
+  "termChange": {
+    "cancel": "Zrušit",
+    "done": {
+      "description": "Přihlašovatel dostane e-mail o změně.",
+      "title": "Termín byl změněn"
+    },
+    "event": "Akce",
+    "full": {
+      "alertDescription": "{{term}} je obsazený {{occupied}}/{{capacity}}. Potvrzením vznikne obsazenost {{next}}/{{capacity}}.",
+      "alertTitle": "Změna překročí kapacitu",
+      "back": "Vybrat jiný termín",
+      "confirm": "Potvrzuji překročení kapacity termínu",
+      "submit": "Potvrdit změnu",
+      "title": "Nový termín je plně obsazený"
+    },
+    "impact": {
+      "errorTitle": "Dopad změny se nepodařilo načíst",
+      "noTransfer": "Platby se mezi termíny nepřevádějí.",
+      "overpayment": "Přeplatek",
+      "paid": "Zaplaceno",
+      "places": {
+        "FEMALE": "Kapacita pro ženy",
+        "MALE": "Kapacita pro muže"
+      },
+      "placesValue": "{{free}} z {{capacity}} volných",
+      "price": "Cena",
+      "title": "Dopad změny",
+      "toPay": "K doplacení"
+    },
+    "next": "Nový termín",
+    "original": "Původní termín",
+    "participant": "Účastník",
+    "pick": "Vyberte termín",
+    "submit": "Potvrdit změnu termínu",
+    "title": "Změnit termín",
+    "trigger": "Změnit termín"
+  },
   "termStatus": {
     "action": {
       "cancel": "Zrušit v termínu",
@@ -430,5 +539,27 @@
     },
     "system": "Systém",
     "title": "Stav v termínech"
+  },
+  "withdrawal": {
+    "back": "Zpět",
+    "debt": "Dluh po odhlášení",
+    "done": "Účastník byl odhlášen",
+    "errorTitle": "Dopad odhlášení se nepodařilo načíst",
+    "impactTitle": "Dopad odhlášení",
+    "noRefundDescription": "Vratku zapíšete ručně po domluvě s přihlašovatelem. Změna zůstane v historii a přihlašovatel dostane e-mail.",
+    "noRefundTitle": "Platba se automaticky nevrací",
+    "oneTerm": "Jeden termín · {{term}}",
+    "othersUnchanged": "Druhý termín zůstane beze změny.",
+    "overpaymentLabel": "Přeplatek",
+    "paid": "Zaplaceno",
+    "scope": "Rozsah odhlášení",
+    "submit": "Odhlásit účastníka",
+    "submitWholeAll": "Odhlásit ze všech termínů",
+    "submitWholeTwo": "Odhlásit oba termíny",
+    "title": "Odhlásit účastníka",
+    "trigger": "Odhlásit",
+    "triggerWhole": "Odhlásit celou přihlášku",
+    "wholeImpactTitle": "Finanční dopad po termínech",
+    "wholeTitle": "Odhlásit celou přihlášku"
   }
 }

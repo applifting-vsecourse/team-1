@@ -24,7 +24,7 @@ export const Route = createFileRoute("/organizer/login")({
   component: OrganizerLoginPage,
 })
 
-// US-02 (S01, S13). Organizer accounts come from the seed in sprint 1 — no sign-up.
+// US-02 (S01, S13) sign-in; US-69 adds public organizer registration.
 function OrganizerLoginPage() {
   const { from } = Route.useSearch()
   const { t } = useTranslation("auth")
@@ -38,6 +38,13 @@ function OrganizerLoginPage() {
         cardTitle={t("organizerLogin.cardTitle")}
         footer={
           <>
+            <Link
+              to={ROUTES.organizer.register}
+              className="font-medium text-accent-foreground underline underline-offset-4"
+            >
+              {t("registration.newAccount")}
+            </Link>
+            <br />
             {t("organizerLogin.participantHint")}{" "}
             <Link
               to={ROUTES.participant.login}
@@ -51,7 +58,7 @@ function OrganizerLoginPage() {
         <SignInWithRedirect
           from={from}
           accountType="ORGANIZER"
-          fallback={ROUTES.organizer.events}
+          fallback={ROUTES.organizer.home}
           emailHint={t("organizerLogin.emailHint")}
         />
       </AuthLayout>

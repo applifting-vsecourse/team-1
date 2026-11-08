@@ -46,8 +46,10 @@ export function ApplicationViews({
         const chosen = value || "all"
         const next = { ...filters }
         delete next.view
+        // The free-bed filter comes from the card of the overview; choosing a view leaves it.
+        delete next.waitlist
         if (chosen === "all") {
-          if (!filters.status && !filters.view) return
+          if (!filters.status && !filters.view && !filters.waitlist) return
           delete next.status
         } else if (chosen === "CHANGE_REQUESTS") {
           delete next.status

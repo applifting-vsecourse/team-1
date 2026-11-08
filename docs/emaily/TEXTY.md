@@ -1,6 +1,6 @@
 # Návrh textů e-mailů
 
-Textace schválené Adamem 3. 11. 2026, navazující na [business katalog](KATALOG.md), včetně UX revize a české i anglické varianty. Nejde o doslovný export současných šablon ani o potvrzení jejich implementace. Texty nemění pravidla komunikace z [EMAILY.md](../procesy/zpracovani-prihlasky/EMAILY.md).
+Textace schválené Adamem 3. 11. 2026, navazující na [business katalog](KATALOG.md), včetně UX revize a české i anglické varianty. Nejde o doslovný export současných šablon ani o potvrzení jejich implementace. Texty nemění pravidla komunikace z [katalogu](KATALOG.md).
 
 ## Společné části
 
@@ -32,6 +32,8 @@ Počet v úvodu a nadpisu přizpůsobit jedné/více přihláškám. Jedna zprá
 | Náhradník     | Přihláška je zařazena mezi náhradníky. Pokud bude účast potvrzena, informujeme vás e-mailem. Zatím nic neplaťte. | The application is waitlisted. We will e-mail you if the place is confirmed. Please do not pay yet. |
 
 „Zatím nic neplaťte“ se vztahuje jen ke konkrétnímu nepotvrzenému termínu; ve smíšeném souhrnu nesmí být globální zákaz platby. Platební blok je jen u potvrzených termínů, CTA podle společných částí. Text pro více přihlášek, pouze pokud souhrn obsahuje částku k úhradě: „Plaťte pouze za potvrzené termíny. Každou přihlášku zaplaťte samostatně podle uvedené částky a variabilního symbolu. / Please pay only for confirmed terms. Pay for each application separately using the amount and variable symbol shown.“
+
+Anglické štítky stavů termínu v souhrnu: „Awaiting review“ (K vyhodnocení), „Place confirmed“ (Potvrzená), „Waitlisted“ (Náhradník); české: „Čeká na vyhodnocení“, „Účast potvrzena“, „Náhradník“. Schválil Adam 5. 11. 2026.
 
 K přihlašovacímu odkazu doplnit: „Odkaz platí 7 dní a lze jej použít pouze jednou. Pokud už nefunguje, na přihlašovací stránce Togeny si můžete nechat poslat nový. / The link is valid for 7 days and can only be used once. If it no longer works, you can request a new one on the Togena sign-in page.“
 
@@ -99,7 +101,7 @@ Identifikační blok, nedoplatek a platební údaje podle platebních pravidel a
 | Nadpis    | Platbu jsme zaevidovali                                                                                      | Your payment has been recorded                                                                                                           |
 | Tělo      | Zaevidovali jsme platbu a přihláška v uvedeném termínu je plně zaplacená. Za tento termín již nic nedlužíte. | We have recorded your payment and the application for the term shown below is fully paid. There is no outstanding balance for this term. |
 
-Identifikační blok, CTA přihlášky. Bez nové platební výzvy a bez platebního bloku zakázaného pravidly EMAILY.md. Zpráva potvrzuje zaplacenou účast v uvedeném termínu, nikoli pouhé přijetí částečné platby.
+Identifikační blok, CTA přihlášky. Bez nové platební výzvy a bez platebního bloku zakázaného pravidly katalogu. Zpráva potvrzuje zaplacenou účast v uvedeném termínu, nikoli pouhé přijetí částečné platby.
 
 ## PAYMENT_CORRECTED
 

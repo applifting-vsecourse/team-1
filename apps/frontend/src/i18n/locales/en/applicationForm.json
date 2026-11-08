@@ -56,8 +56,9 @@
       "termsRequired": "Choose at least one term."
     },
     "firstName": "First name *",
-    "gender": "Gender *",
+    "gender": "Gender for room allocation *",
     "genderFemale": "Woman",
+    "genderHint": "We ask about gender to allocate rooms and bed capacity. The organizer will see your answer and use it to arrange accommodation.",
     "genderMale": "Man",
     "genderPlaceholder": "Select gender",
     "heading": "Application for {{event}}",

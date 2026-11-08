@@ -6,7 +6,7 @@ import {
   createRouter,
   RouterProvider,
 } from "@tanstack/react-router"
-import { render, screen, within } from "@testing-library/react"
+import { render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { afterEach, describe, expect, it, vi } from "vitest"
 
@@ -33,7 +33,9 @@ const base = {
   applicationsOpen: false,
   evaluationMode: "AUTOMATIC",
   cancellationStartsOn: null,
+  cancellationTerms: null,
   evaluationModeLocked: false,
+  hasApplications: false,
   missing: ["TERM", "ROOM"],
   terms: [],
 }
@@ -127,54 +129,5 @@ describe("EventSetup", () => {
     renderSetup({ ...base, evaluationMode: "MANUAL", evaluationModeLocked: true })
     expect(await screen.findByText("Manual")).toBeInTheDocument()
     expect(screen.queryByRole("link", { name: "Change" })).not.toBeInTheDocument()
-  })
-
-  it("deletes the event after confirmation and returns to the event list", async () => {
-    const success = vi.spyOn(notify, "success")
-    renderSetup(base, () => new Response(null, { status: 204 }))
-    const user = userEvent.setup()
-
-    await user.click(await screen.findByRole("button", { name: "Delete event" }))
-    const dialog = screen.getByRole("dialog")
-    expect(dialog).toHaveTextContent("Jarní víkend Lipno 2027")
-    expect(dialog).toHaveTextContent("Delete this event?")
-    await user.click(within(dialog).getByRole("button", { name: "Delete event" }))
-
-    expect(await screen.findByText("Events list")).toBeInTheDocument()
-    const call = vi
-      .mocked(globalThis.fetch)
-      .mock.calls.map(([input, init]) => ({
-        method: input instanceof Request ? input.method : init?.method,
-        url: input instanceof Request ? input.url : String(input),
-      }))
-      .find((request) => request.method === "DELETE")
-    expect(call?.url).toMatch(/organizer\/events\/e1$/)
-    expect(success).toHaveBeenCalledWith("Event Jarní víkend Lipno 2027 has been deleted.")
-  })
-
-  it("keeps the dialog open and shows the error when the event has applications", async () => {
-    renderSetup(
-      base,
-      () =>
-        new Response(
-          JSON.stringify({
-            statusCode: 409,
-            code: "EVENT_HAS_APPLICATIONS",
-            message: "Event has applications",
-          }),
-          { status: 409, headers: { "Content-Type": "application/json" } },
-        ),
-    )
-    const user = userEvent.setup()
-
-    await user.click(await screen.findByRole("button", { name: "Delete event" }))
-    await user.click(
-      within(screen.getByRole("dialog")).getByRole("button", { name: "Delete event" }),
-    )
-
-    const dialog = screen.getByRole("dialog")
-    expect(await within(dialog).findByText("Could not delete the event")).toBeInTheDocument()
-    expect(dialog).toHaveTextContent("An event with applications cannot be deleted.")
-    expect(screen.queryByText("Events list")).not.toBeInTheDocument()
   })
 })

@@ -5,6 +5,7 @@
     "allPayments": "All payments",
     "allStatuses": "All term statuses",
     "allTerms": "All terms",
+    "allWaitlisted": "All waitlisted",
     "cancelled": "Cancelled",
     "clear": "Clear filters",
     "clearSearchAndFilters": "Clear search and filters",
@@ -13,20 +14,20 @@
     "count_few": "{{count}} applications",
     "count_one": "{{count}} application",
     "count_other": "{{count}} applications",
+    "debt": "With a balance due",
     "detail": "Detail",
-    "due": "Amount due",
     "empty": "We found no applications matching this selection.",
     "error": "Could not load applications",
     "female": "woman",
     "filters": "Filters",
     "filtersImmediate": "Filter changes take effect immediately.",
-    "hint": "Combine term, application status in term and payment filters. Unpaid means a debt greater than CZK 0. One application can have multiple terms with different statuses. Amount due and debt are totals for the whole application; nothing is due for waitlisted terms.",
+    "hint": "Combine term, application status in term and payment filters. Unpaid means a debt greater than CZK 0. One application can have multiple terms with different statuses. The balance due is a total for the whole application; nothing is due for waitlisted terms.",
     "male": "man",
     "next": "Next →",
     "noApplications": "No applications have been received yet.",
     "nothingDue": "No amount due",
     "overpaid": "Overpaid",
-    "owed": "Owed",
+    "owed": "Balance due",
     "pagination": "Pagination",
     "paid": "Paid",
     "partial": "Partially paid",
@@ -49,11 +50,32 @@
     "title": "Applications",
     "toEvaluate": "Awaiting evaluation",
     "unpaid": "Unpaid",
+    "waitlistFilter": "Waitlist",
+    "waitlistFreeBed": "Substitutes with a free bed",
     "waitlistNote": "A waitlist is kept per term and bed group (women, men, or shared rooms), in order of receipt. Confirm a waitlisted applicant in their detail; first check for a free bed and send payment details only after confirmation.",
     "waitlistNoteTitle": "Waitlisted applicants have a place in the queue, not a confirmed place.",
     "waitlisted": "Waitlisted",
     "waitlistedPositionFemale": "Waitlisted · {{position}}",
     "waitlistedPositionMale": "Waitlisted · {{position}}"
+  },
+  "attention": {
+    "debt": {
+      "body": "{{overdue}} overdue · Total balance due {{total}}",
+      "title": "Participants with a balance due · {{count}}"
+    },
+    "loadFailed": "Could not load what needs your attention",
+    "requests": {
+      "body": "Changes and cancellations after the cancellation period begins",
+      "title": "Requests awaiting approval · {{count}}"
+    },
+    "substitutes": {
+      "body": "Freed beds in the matching group",
+      "title": "Substitutes to resolve · {{count}}"
+    },
+    "toEvaluate": {
+      "body": "Applications awaiting a decision",
+      "title": "Awaiting review · {{count}}"
+    }
   },
   "bulk": {
     "alertTitle": "{{confirmed}} of {{selected}} applications will be confirmed.",
@@ -121,7 +143,7 @@
     "backToTerms": "← All terms",
     "confirmedColumn": "Confirmed / capacity",
     "confirmedOnly": "Free places are counted from confirmed applications only.",
-    "footnote": "Capacity comes from the beds in rooms. Rooms are shared by all terms; free places are counted from confirmed applications only.",
+    "footnote": "Capacity comes from the beds in this term’s rooms. Free places are counted from confirmed applications in this term only.",
     "freeColumn": "Free places",
     "freePlaces_few": "{{count}} free places",
     "freePlaces_one": "{{count}} free place",
@@ -183,6 +205,11 @@
     "freeBeds_few": "{{count}} free beds",
     "freeBeds_one": "{{count}} free bed",
     "freeBeds_other": "{{count}} free beds",
+    "healthCurrent": "Current health restriction",
+    "healthNote": "Approval replaces the stored health restriction with the requested one. The applicant is informed in the app.",
+    "healthRemoved": "Remove the health restriction",
+    "healthRequested": "Requested health restriction",
+    "healthSummary": "Health restriction change",
     "loadError": "Couldn't load change requests",
     "participant": "Participant",
     "pending": "Awaiting approval",
@@ -231,9 +258,10 @@
     "participant": "Participant",
     "phone": "Phone *",
     "returnToWaitlist": "Choose waitlisted",
-    "selectTerms": "Choose a status for each term.",
+    "selectTerms": "Choose at least one term and its status.",
     "statusConfirmed": "Confirmed, payment due",
     "statusWaitlisted": "Waitlisted",
+    "termNotSelected": "Not selected",
     "terms": "Terms and their status",
     "title": "Add application"
   },
@@ -287,6 +315,9 @@
     "editorDue": "Amount due",
     "empty": "No payment recorded yet.",
     "errorTitle": "Payment details could not be loaded",
+    "genderFemale": "woman",
+    "genderMale": "man",
+    "health": "Health restriction",
     "history": "Payment history",
     "historyAmount": "Amount",
     "invalidAmount": "Enter a positive whole amount in CZK.",
@@ -309,6 +340,9 @@
     "paidNow": "Paid now",
     "paidSoFar": "Paid so far",
     "partialHint": "After this payment, {{owed}} remains to be paid.",
+    "participantBirthGender": "Date of birth and gender",
+    "participantCard": "Participant details",
+    "participantContact": "Applicant contact",
     "payRemaining": "Settle the remaining {{amount}}",
     "placeholder": "E.g. 3,000",
     "preview": "After saving, amount owed",
@@ -344,6 +378,41 @@
     "typePayment": "Payment",
     "typeRefund": "Refund",
     "wholeApplication": "Whole application (summary)"
+  },
+  "paymentsOverview": {
+    "cancellationTerms": "Cancellation terms",
+    "clearFilters": "Clear filters",
+    "debt": "Debt",
+    "debtors_few": "{{count}} participants with debt",
+    "debtors_one": "{{count}} participant with debt",
+    "debtors_other": "{{count}} participants with debt",
+    "detail": "Payment details",
+    "dueDate": "Due",
+    "empty": "No applications match the filters",
+    "error": "Payments could not be loaded",
+    "lastReminder": "Last reminder",
+    "noApplications": "No confirmed applications yet",
+    "overdueCount_few": "{{count}} past due",
+    "overdueCount_one": "{{count}} past due",
+    "overdueCount_other": "{{count}} past due",
+    "overpayment": "Overpayment",
+    "reminderCount": "Reminders sent",
+    "reminderFilter": "Payment reminders",
+    "reminders": {
+      "ALL": "All",
+      "NOT_SENT": "Not sent",
+      "SENT": "Sent, still unpaid"
+    },
+    "statusFilter": "Payment status",
+    "statuses": {
+      "ALL": "All",
+      "OVERDUE": "Past due",
+      "PAID": "Paid",
+      "PARTIALLY_PAID": "Partly paid",
+      "UNPAID": "Unpaid"
+    },
+    "title": "Payments",
+    "totalDebt": "Total debt"
   },
   "queue": {
     "empty": "All applications are evaluated.",
@@ -398,6 +467,46 @@
     "takenHint": "{{name}} stays a substitute. The capacity is not exceeded.",
     "title": "Filling freed beds"
   },
+  "switcher": {
+    "label": "Event"
+  },
+  "termChange": {
+    "cancel": "Cancel",
+    "done": {
+      "description": "The applicant will get an e-mail about the change.",
+      "title": "The term has been changed"
+    },
+    "event": "Event",
+    "full": {
+      "alertDescription": "{{term}} is full at {{occupied}}/{{capacity}}. Confirming makes the occupancy {{next}}/{{capacity}}.",
+      "alertTitle": "The change exceeds the capacity",
+      "back": "Choose another term",
+      "confirm": "I confirm exceeding the capacity of the term",
+      "submit": "Confirm the change",
+      "title": "The new term is full"
+    },
+    "impact": {
+      "errorTitle": "The impact of the change could not be loaded",
+      "noTransfer": "Payments are not transferred between terms.",
+      "overpayment": "Overpayment",
+      "paid": "Paid",
+      "places": {
+        "FEMALE": "Capacity for women",
+        "MALE": "Capacity for men"
+      },
+      "placesValue": "{{free}} of {{capacity}} free",
+      "price": "Price",
+      "title": "Impact of the change",
+      "toPay": "To pay"
+    },
+    "next": "New term",
+    "original": "Original term",
+    "participant": "Participant",
+    "pick": "Choose a term",
+    "submit": "Confirm the term change",
+    "title": "Change term",
+    "trigger": "Change term"
+  },
   "termStatus": {
     "action": {
       "cancel": "Cancel in term",
@@ -430,5 +539,27 @@
     },
     "system": "System",
     "title": "Status in terms"
+  },
+  "withdrawal": {
+    "back": "Back",
+    "debt": "Debt after withdrawal",
+    "done": "The participant was withdrawn",
+    "errorTitle": "Could not load the impact of the withdrawal",
+    "impactTitle": "Impact of the withdrawal",
+    "noRefundDescription": "You record the refund by hand after agreeing it with the applicant. The change stays in the history and the applicant gets an e-mail.",
+    "noRefundTitle": "The payment is not refunded automatically",
+    "oneTerm": "One term · {{term}}",
+    "othersUnchanged": "The other term stays unchanged.",
+    "overpaymentLabel": "Overpayment",
+    "paid": "Paid",
+    "scope": "Withdrawal scope",
+    "submit": "Withdraw participant",
+    "submitWholeAll": "Withdraw from all terms",
+    "submitWholeTwo": "Withdraw from both terms",
+    "title": "Withdraw participant",
+    "trigger": "Withdraw",
+    "triggerWhole": "Withdraw the whole application",
+    "wholeImpactTitle": "Financial impact per term",
+    "wholeTitle": "Withdraw the whole application"
   }
 }

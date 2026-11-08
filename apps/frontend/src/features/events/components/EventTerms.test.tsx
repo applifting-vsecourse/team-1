@@ -33,7 +33,9 @@ const event = {
   applicationsOpen: true,
   evaluationMode: "AUTOMATIC",
   cancellationStartsOn: null,
+  cancellationTerms: null,
   evaluationModeLocked: true,
+  hasApplications: false,
   missing: [],
   terms: [],
 }
@@ -113,6 +115,20 @@ describe("EventTerms", () => {
     expect(screen.getByRole("progressbar", { name: "18 / 60 places" })).toBeInTheDocument()
     expect(screen.getByText("Cancelled term")).toBeInTheDocument()
     expect(screen.getByText("Zrušený · 12–18 Jul 2027 · Cancelled")).toBeInTheDocument()
+  })
+
+  it("highlights a term with more confirmed than beds in red, and leaves a normal one alone", async () => {
+    renderTerms([term({ id: "t1", confirmedCount: 63 }), terms[1]])
+
+    const over = await screen.findByText("63 / 60 places")
+    expect(over).toHaveClass("text-destructive")
+    expect(screen.getByRole("progressbar", { name: "63 / 60 places" })).toHaveClass(
+      "[&_[data-slot=progress-indicator]]:bg-destructive",
+    )
+    expect(screen.getByText("18 / 60 places")).not.toHaveClass("text-destructive")
+    expect(screen.getByRole("progressbar", { name: "18 / 60 places" })).not.toHaveClass(
+      "[&_[data-slot=progress-indicator]]:bg-destructive",
+    )
   })
 
   it("lists a term without a name by its dates only", async () => {

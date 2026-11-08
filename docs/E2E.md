@@ -20,6 +20,7 @@ Jen cesty, bez kterých produkt nefunguje a které ukazujeme na demu. Jedna cest
 | Cesta                                                                                   | Soubor                       | Stav |
 | --------------------------------------------------------------------------------------- | ---------------------------- | ---- |
 | Landing → přihlášení organizátora → seznam akcí → odhlášení                             | `sign-in.spec.ts`            | ✅   |
+| Organizátor po přihlášení skončí na přehledu naposledy otevřené akce                    | `sign-in.spec.ts`            | ✅   |
 | Účastník se nedostane do správy akcí (403)                                              | `sign-in.spec.ts`            | ✅   |
 | Organizátor neotevře akci cizí organizace (403)                                         | `sign-in.spec.ts`            | ✅   |
 | Účastník: přihlášení heslem a odhlášení (i na mobilu)                                   | `sign-in.spec.ts`            | ✅   |
@@ -30,7 +31,7 @@ Jen cesty, bez kterých produkt nefunguje a které ukazujeme na demu. Jedna cest
 | Organizátor založí akci s termínem a cenou, přidá pokoj termínu a zkopíruje odkaz       | `event-setup.spec.ts`        | ✅   |
 | Organizátor otevře akci → Kapacity → obsazenost termínu a odkaz na filtrované přihlášky | `capacity.spec.ts`           | ✅   |
 | Organizátor vidí přihlášku v seznamu a zapíše platbu                                    | `payments.spec.ts`           | ✅   |
-| Organizátor ručně zruší přihlášku v termínu a změna se zapíše do záznamu                | `term-status.spec.ts`        | ✅   |
+| Organizátor odhlásí účastníka z termínu a změna se zapíše do záznamu                    | `term-status.spec.ts`        | ✅   |
 | Organizátor otevře pořadník termínu a vidí náhradníky v pořadí přijetí                  | `waitlist.spec.ts`           | ✅   |
 | Organizátor smaže akci bez přihlášek; akci s přihláškami smazat nejde                   | `delete-event.spec.ts`       | ✅   |
 | Organizátor zvolí režim vyhodnocování před otevřením přihlášek; u otevřené je zamčený   | `evaluation-mode.spec.ts`    | ✅   |

@@ -6,6 +6,7 @@ import helmet from "helmet"
 import { BetterAuth } from "./shared/auth/providers/better-auth.provider"
 import { Config } from "./shared/config/config.service"
 import { HttpErrorFilter } from "./shared/errors/http-error.filter"
+import { TRUSTED_PROXIES } from "./shared/rate-limit/trusted-proxies"
 
 /**
  * Everything the HTTP app needs besides its modules. Shared by `main.ts` and
@@ -29,6 +30,9 @@ export function configureApp(app: INestApplication): void {
   app.use(cookieParser())
 
   const appInstance = app.getHttpAdapter().getInstance()
+  // `req.ip` is the client behind our proxy (Traefik on staging), not the proxy:
+  // rate limits count it (#294).
+  appInstance.set("trust proxy", [...TRUSTED_PROXIES])
   const betterAuth = app.get<BetterAuth>("BetterAuth")
   // Express 5 (via NestJS 11) requires named wildcards — a bare `*` throws.
   appInstance.all("/api/auth/*splat", toNodeHandler(betterAuth))

@@ -15,21 +15,6 @@ describe("accounts (integration)", () => {
     await prisma.$disconnect()
   })
 
-  it("refuses public sign-up — nobody registers in sprint 1", async () => {
-    const response = await fetch(api("/auth/sign-up/email"), {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: "new@example.com",
-        password: "password123",
-        name: "New",
-      }),
-    })
-
-    expect(response.status).toBe(400)
-    expect(await prisma.user.count({ where: { email: "new@example.com" } })).toBe(0)
-  })
-
   it("answers /api/me without a session with 401 and a code to translate", async () => {
     const response = await fetch(api("/me"))
 

@@ -3,10 +3,13 @@ import { Module } from "@nestjs/common"
 import { AccountModule } from "./modules/account/account.module"
 import { ApplicationsModule } from "./modules/applications/applications.module"
 import { EventsModule } from "./modules/events/events.module"
+import { HealthModule } from "./modules/health/health.module"
+import { MealsModule } from "./modules/meals/meals.module"
 import { NotificationsModule } from "./modules/notifications/notifications.module"
 import { OverviewModule } from "./modules/overview/overview.module"
 import { ParticipantsModule } from "./modules/participants/participants.module"
 import { PaymentsModule } from "./modules/payments/payments.module"
+import { TransportModule } from "./modules/transport/transport.module"
 import { WelcomeModule } from "./modules/welcome/welcome.module"
 import { AuthModule } from "./shared/auth/auth.module"
 import { Config } from "./shared/config/config.service"
@@ -20,8 +23,11 @@ const imports = [
   ApplicationsModule,
   ParticipantsModule,
   PaymentsModule,
+  MealsModule,
+  HealthModule,
   NotificationsModule,
   OverviewModule,
+  TransportModule,
 ]
 
 @Module({

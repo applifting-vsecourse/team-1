@@ -18,6 +18,7 @@ const stored: StoredEvent = {
   applicationCount: 0,
   evaluationMode: "AUTOMATIC",
   cancellationStartsOn: null,
+  cancellationTerms: null,
   startsOn: null,
   endsOn: null,
   terms: [],

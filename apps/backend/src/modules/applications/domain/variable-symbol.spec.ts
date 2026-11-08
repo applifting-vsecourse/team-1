@@ -1,5 +1,21 @@
 import { parseVariableSymbol, variableSymbol } from "./variable-symbol"
 
+describe("variableSymbol uniqueness", () => {
+  it("never repeats across applications and terms, and never collides with a summary symbol", () => {
+    const symbols = new Set<string>()
+    let count = 0
+    for (const application of [1, 2, 3, 999, 1000, 8_999_999]) {
+      for (const term of [1, 2, 3, 999]) {
+        symbols.add(variableSymbol(application, term))
+        count += 1
+      }
+      symbols.add(variableSymbol(application))
+      count += 1
+    }
+    expect(symbols.size).toBe(count)
+  })
+})
+
 describe("variableSymbol", () => {
   it("builds the summary and per-term symbols", () => {
     expect(variableSymbol(12345)).toBe("12345000")

@@ -1,14 +1,19 @@
 import { useState } from "react"
+import { TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { MoneyAmount } from "@/components/atoms/MoneyAmount"
 import { TermPaymentCard, TermPaymentCards } from "@/components/molecules/TermPaymentCard"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { formatCzk } from "@/lib/money"
 import { termDatesLine } from "@/lib/term-label"
 
 import type { MyApplication } from "@/features/participant/api/applications"
+import { SimulatePaymentButton } from "@/features/participant/components/SimulatePaymentButton"
 import { SummaryPaymentDialog } from "@/features/participant/components/SummaryPaymentDialog"
+import { TermPaymentQr } from "@/features/participant/components/TermPaymentQr"
 import { summaryPaymentSpayd } from "@/features/participant/lib/payment-qr"
 
 type PaymentSummaryProps = {
@@ -21,6 +26,9 @@ type PaymentSummaryProps = {
  * ones, which only say nothing is paid yet, last. Terms still to be evaluated or cancelled are
  * not shown here, and nothing is when no term is confirmed or waitlisted.
  */
+// Figma (Design system): US-115 / Detail přihlášky · Platby · simulace · Návrh A · simulace termínu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15954-1005 (360 px: node-id=15954-1133)
+// Figma (Design system): US-115 / Detail přihlášky · Platby · simulace · Výsledek návrhu A · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15954-1446 (360 px: node-id=15954-1551)
+// Figma (Design system): #311 Moje přihláška · Přeplatek a dluh · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19799-15947 (360 px: node-id=19799-16073)
 // Figma (Design system): Detail přihlášky · Platby · Dluh 500 + 700 Kč · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15845-628 (360 px: node-id=15845-736)
 // Figma (Design system): Detail přihlášky · Platby · První termín zaplacený · druhý nově potvrzený · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15845-463 (360 px: node-id=15845-563)
 // Figma (Design system): Detail přihlášky · Platby · Více nově potvrzených · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19446-21743 (360 px: node-id=19446-21892)
@@ -48,6 +56,7 @@ export function PaymentSummary({ application }: PaymentSummaryProps) {
   // The total and the hint only matter when more than one term is to be paid.
   const termsWithDebt = confirmed.filter(({ payment }) => payment.owedCzk > 0).length
   const payableCzk = paymentDetails?.summary.payableCzk ?? 0
+  const hasOverpayment = confirmed.some(({ payment }) => payment.owedCzk < 0)
   const canShowSummaryQr =
     paymentDetails !== null &&
     confirmed.length > 1 &&
@@ -55,10 +64,20 @@ export function PaymentSummary({ application }: PaymentSummaryProps) {
       paymentDetails.bankAccount,
       payableCzk,
       paymentDetails.summary.variableSymbol,
+      application.eventName,
     ) !== null
+
+  const simulatedPayments = application.simulatedPayments
 
   return (
     <div className="flex flex-col gap-6">
+      {application.canSimulatePayment ? (
+        <Alert>
+          <TriangleAlert aria-hidden />
+          <AlertTitle>{t("payment.simulation.alertTitle")}</AlertTitle>
+          <AlertDescription>{t("payment.simulation.alertText")}</AlertDescription>
+        </Alert>
+      ) : null}
       {confirmed.length > 1 && payableCzk > 0 ? (
         <Card className="gap-2 p-6">
           <h2 className="text-lg font-semibold">{t("payment.totalOwed")}</h2>
@@ -66,6 +85,15 @@ export function PaymentSummary({ application }: PaymentSummaryProps) {
             amountCzk={payableCzk}
             className="text-2xl font-semibold"
           />
+          <p className="text-sm">
+            {t("payment.account")} · {paymentDetails?.bankAccount}
+          </p>
+          <p className="text-sm">
+            {t("payment.summaryVariableSymbol")} · {paymentDetails?.summary.variableSymbol}
+          </p>
+          {hasOverpayment ? (
+            <p className="text-sm">{t("payment.overpaymentNotTransferred")}</p>
+          ) : null}
           {canShowSummaryQr ? (
             <Button
               type="button"
@@ -81,16 +109,40 @@ export function PaymentSummary({ application }: PaymentSummaryProps) {
       {termsWithDebt > 1 && !canShowSummaryQr ? <p>{t("payment.payEachTerm")}</p> : null}
       <TermPaymentCards>
         {confirmed.map(({ payment, term }) => (
-          <TermPaymentCard
+          <div
             key={payment.termId}
-            title={termDatesLine(term)}
-            status={payment.paymentStatus}
-            dueCzk={payment.dueCzk}
-            paidCzk={payment.paidCzk}
-            owedCzk={payment.owedCzk}
-            bankAccount={paymentDetails?.bankAccount ?? ""}
-            variableSymbol={payment.variableSymbol}
-          />
+            className="flex flex-col gap-4"
+          >
+            <TermPaymentCard
+              title={termDatesLine(term)}
+              status={payment.paymentStatus}
+              dueCzk={payment.dueCzk}
+              paidCzk={payment.paidCzk}
+              owedCzk={payment.owedCzk}
+              bankAccount={paymentDetails?.bankAccount ?? ""}
+              variableSymbol={payment.variableSymbol}
+              paymentDeadline={payment.paymentDeadline}
+              note={
+                payment.owedCzk < 0 ? (
+                  <p className="text-sm">{t("payment.overpaymentRefund")}</p>
+                ) : null
+              }
+              qr={
+                <TermPaymentQr
+                  bankAccount={paymentDetails?.bankAccount ?? ""}
+                  owedCzk={payment.owedCzk}
+                  variableSymbol={payment.variableSymbol}
+                  eventName={application.eventName}
+                />
+              }
+            />
+            {application.canSimulatePayment && payment.owedCzk > 0 ? (
+              <SimulatePaymentButton
+                applicationId={application.id}
+                termId={payment.termId}
+              />
+            ) : null}
+          </div>
         ))}
         {waitlisted.map((term) => (
           <TermPaymentCard
@@ -105,6 +157,24 @@ export function PaymentSummary({ application }: PaymentSummaryProps) {
           />
         ))}
       </TermPaymentCards>
+      {simulatedPayments.length > 0 ? (
+        <Card className="gap-2 p-6">
+          <h2 className="text-lg font-semibold">{t("payment.simulation.logTitle")}</h2>
+          <ul>
+            {simulatedPayments.map((payment) => {
+              const term = application.terms.find(({ termId }) => termId === payment.termId)
+              return (
+                <li key={payment.createdAt + payment.termId}>
+                  {t("payment.simulation.logLine", {
+                    amount: formatCzk(payment.amountCzk),
+                    term: term ? termDatesLine(term) : "",
+                  })}
+                </li>
+              )
+            })}
+          </ul>
+        </Card>
+      ) : null}
       {isSummaryOpen && canShowSummaryQr ? (
         <SummaryPaymentDialog
           application={application}

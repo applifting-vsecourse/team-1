@@ -31,7 +31,9 @@ const event = {
   applicationsOpen: true,
   evaluationMode: "AUTOMATIC",
   cancellationStartsOn: null,
+  cancellationTerms: null,
   evaluationModeLocked: true,
+  hasApplications: false,
   missing: [],
   terms: [],
 }
@@ -75,12 +77,15 @@ describe("EventHeader sections", () => {
     expect(items.map((item) => item.textContent)).toEqual([
       "Overview",
       "Applications",
+      "Payments",
       "Capacity",
+      "Meals",
       "Accommodation",
       "Terms",
+      "Transport",
       "Settings",
     ])
     expect(items[0]).toHaveAttribute("aria-current", "page")
-    expect(items[2]).toHaveAttribute("href", "/organizer/events/e1/capacity")
+    expect(items[3]).toHaveAttribute("href", "/organizer/events/e1/capacity")
   })
 })

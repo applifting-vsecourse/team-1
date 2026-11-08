@@ -11,7 +11,9 @@ import { Button } from "@/components/ui/button"
 import { redirectSignedIn } from "@/features/auth/lib/redirect-signed-in"
 
 export const Route = createFileRoute("/")({
-  loader: ({ context }) => redirectSignedIn(context.queryClient),
+  // beforeLoad, not loader: a landing the router has already cached (visited signed out) would
+  // otherwise render at once while the loader redirects, which is a visible flash of the landing.
+  beforeLoad: ({ context }) => redirectSignedIn(context.queryClient),
   component: LandingPage,
 })
 

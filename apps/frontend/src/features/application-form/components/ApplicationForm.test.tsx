@@ -56,7 +56,7 @@ async function fillParticipant(
   await userEvent.type(card.getByLabelText("First name *"), data.first)
   await userEvent.type(card.getByLabelText("Last name *"), data.last)
   await userEvent.type(card.getByLabelText("Date of birth *"), data.birth)
-  await userEvent.click(card.getByRole("combobox", { name: "Gender *" }))
+  await userEvent.click(card.getByRole("combobox", { name: "Gender for room allocation *" }))
   await userEvent.click(await screen.findByRole("option", { name: data.gender }))
   await userEvent.click(card.getByRole("checkbox", { name: data.term }))
 }
@@ -124,6 +124,20 @@ describe("ApplicationForm", () => {
     expect(
       screen.getByRole("checkbox", { name: /^11–17 Jul 2027\s?·\s?Week 2\s?·\s?CZK\s4,900$/ }),
     ).toBeInTheDocument()
+  })
+
+  it("explains why the gender is asked and links the explanation to the field", () => {
+    render(
+      <ApplicationForm
+        event={event}
+        onSubmit={submitSpy()}
+      />,
+    )
+
+    const hint = screen.getByText(/to allocate rooms and bed capacity/)
+    expect(
+      screen.getByRole("combobox", { name: "Gender for room allocation *" }),
+    ).toHaveAccessibleDescription(hint.textContent ?? "")
   })
 
   it("shows the price of the ticked terms per participant and updates it with every change", async () => {

@@ -36,6 +36,9 @@ const application = (terms: PaymentTerm[]): PaymentApplication => ({
   firstName: "Adam",
   lastName: "Test",
   accommodationRequest: null,
+  birthDate: new Date("2011-05-04"),
+  gender: "MALE",
+  email: "eva.mala@example.cz",
   terms,
 })
 

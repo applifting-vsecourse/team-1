@@ -21,6 +21,9 @@ const application: PaymentApplication = {
   lastName: "Test",
   accommodationRequest: null,
   code: "C-0047",
+  birthDate: "2011-05-04",
+  gender: "MALE",
+  email: "eva.mala@example.cz",
   terms: [
     {
       termId: "t1",

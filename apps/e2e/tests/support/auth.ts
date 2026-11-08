@@ -1,4 +1,4 @@
-import type { Page } from "@playwright/test"
+import { expect, type Page } from "@playwright/test"
 import type { Account } from "./accounts"
 
 /** Signs in through the real form on /organizer/login or /participant/login. */
@@ -24,4 +24,14 @@ export async function signOut(page: Page, account: Account) {
   if (await openMenu.isVisible()) await openMenu.click()
   await page.getByRole("button", { name: account.email }).click()
   await page.getByRole("menuitem", { name: "Sign out" }).click()
+}
+
+/**
+ * After the organizer signs in, waits until the sign-in answered and opens the events list. The
+ * administration lands on the event opened last (US-51), so the landing depends on earlier tests.
+ */
+export async function openEventList(page: Page) {
+  await expect(page).toHaveURL(/\/organizer\/events/)
+  await page.goto("/organizer/events")
+  await expect(page.getByRole("heading", { level: 1, name: "Event list" })).toBeVisible()
 }
