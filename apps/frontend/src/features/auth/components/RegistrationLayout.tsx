@@ -8,6 +8,7 @@ import { Logo } from "@/components/atoms/Logo"
 import { LanguageSwitcher } from "@/components/molecules/LanguageSwitcher"
 import { ThemeSwitcher } from "@/components/molecules/ThemeSwitcher"
 import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -108,8 +109,8 @@ export function RegistrationLayout({ children }: Props) {
           </DropdownMenuContent>
         </DropdownMenu>
       </header>
-      <main className="min-h-[calc(100svh-5rem)] bg-background p-4 md:p-12">
-        <div className="flex w-full flex-col gap-4">{children}</div>
+      <main className="min-h-[calc(100svh-5rem)] bg-background px-4 pt-10 pb-12 md:pt-20 md:pb-28">
+        <Card className="mx-auto w-full max-w-110 gap-4 p-6">{children}</Card>
       </main>
     </>
   )
