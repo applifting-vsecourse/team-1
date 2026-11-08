@@ -70,19 +70,16 @@ describe("attention", () => {
     )
   })
 
-  it("counts waitlisted applications with a free bed like the list filtered by that card", () => {
+  it("counts waitlisted applications like the list filtered by that card", () => {
     const attention = computeAttention(applications, payments, 0)
-    // The women's room has 2 beds, held by a2, a3 and a4 (in t1): a5 waits without a free bed.
-    expect(attention.substituteCount).toBe(0)
+    // a5 waits without a free bed and still counts: the card counts every waitlisted application.
+    expect(attention.substituteCount).toBe(1)
     expect(attention.substituteCount).toBe(
       applicationList(applications, ATTENTION_FILTERS.substitutes).length,
     )
-    // Once two of them leave, a bed is free and a5 can be approved.
-    const freed = applications.filter((application) => !["a2", "a3"].includes(application.id))
-    expect(computeAttention(freed, payments, 0).substituteCount).toBe(1)
-    expect(applicationList(freed, ATTENTION_FILTERS.substitutes).map((row) => row.id)).toEqual([
-      "a5",
-    ])
+    expect(
+      applicationList(applications, ATTENTION_FILTERS.substitutes).map((row) => row.id),
+    ).toEqual(["a5"])
   })
 
   it("takes the debt figures from the payments overview and matches the debt filter", () => {
