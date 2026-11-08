@@ -10,6 +10,11 @@ export type ChangeRequest = {
   participantGender: "FEMALE" | "MALE"
   currentTermIds: string[]
   requestedTermIds: string[]
+  /** `HEALTH` (US-68): a request to change the health note; the term fields are then empty. */
+  kind: "TERMS" | "HEALTH"
+  /** Health requests only: the stored note and the requested one ("" = remove). */
+  currentHealthNote: string | null
+  requestedHealthNote: string | null
   currentPriceCzk: number
   requestedPriceCzk: number
   status: "PENDING" | "APPROVED" | "REJECTED"

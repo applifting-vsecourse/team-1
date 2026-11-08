@@ -71,6 +71,7 @@
   "detail": {
     "back": "← All applications",
     "errorTitle": "Couldn't load the application",
+    "health": "Health restriction",
     "meals": "Meals",
     "sections": {
       "terms": "Terms and payments",

@@ -38,6 +38,7 @@ export const ROUTES = {
     eventTransportEdit: "/organizer/events/$eventId/transport/$transportId",
     eventTransportParticipants: "/organizer/events/$eventId/transport/$transportId/participants",
     application: "/organizer/events/$eventId/applications/$applicationId",
+    applicationHealth: "/organizer/events/$eventId/applications/$applicationId/health",
     account: "/organizer/account",
   },
 
@@ -48,6 +49,7 @@ export const ROUTES = {
     applications: "/participant",
     application: "/participant/applications/$applicationId",
     applicationMeals: "/participant/applications/$applicationId/meals",
+    applicationHealth: "/participant/applications/$applicationId/health",
     applicationTransport: "/participant/applications/$applicationId/transport",
     account: "/participant/account",
   },

@@ -13,6 +13,7 @@ import {
   OrganizerChangeRequestController,
   ParticipantChangeRequestController,
   ParticipantChangeRequestNotificationsController,
+  ParticipantHealthChangeRequestController,
 } from "./controllers/change-request.controller"
 import { OrganizerTermChangeController } from "./controllers/organizer-term-change.controller"
 import { ParticipantTermChangeController } from "./controllers/participant-term-change.controller"
@@ -60,6 +61,7 @@ import { WaitlistExpiryService } from "./services/waitlist-expiry.service"
     ApplicationsController,
     CapacityController,
     ParticipantChangeRequestController,
+    ParticipantHealthChangeRequestController,
     ParticipantChangeRequestNotificationsController,
     OrganizerChangeRequestController,
     SubmissionStatusController,

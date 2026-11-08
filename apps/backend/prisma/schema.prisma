@@ -61,6 +61,14 @@ enum ChangeRequestStatus {
   @@map("change_request_status")
 }
 
+// What a change request asks for: another selection of terms or (US-68) another health note.
+enum ChangeRequestKind {
+  TERMS
+  HEALTH
+
+  @@map("change_request_kind")
+}
+
 model Session {
   id        String   @id
   expiresAt DateTime
@@ -165,6 +173,7 @@ model Organization {
   substituteSkips  ApplicationTermSkip[]
   changeRequests   ChangeRequest[]
   mealOptions      MealOption[]
+  applicationHealth ApplicationHealth[]
   transports       Transport[]
 
   @@map("organization")
@@ -376,11 +385,29 @@ model Application {
   terms         ApplicationTerm[]
   notifications Notification[]
   changeRequests ChangeRequest[]
+  health        ApplicationHealth?
 
   @@index([organizationId])
   @@index([eventId, submittedAt])
   @@index([userId])
   @@map("application")
+}
+
+// Health restriction of the participant (US-68): a specially protected personal datum, so it lives
+// in its own table that no other query includes. Only the account of the application writes it,
+// only an organizer of the organization reads it. A row exists only with the explicit consent.
+model ApplicationHealth {
+  id             String       @id @default(cuid())
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId String
+  application    Application  @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  applicationId  String       @unique
+  note           String       @db.Text
+  consentAt      DateTime
+  updatedAt      DateTime     @default(now()) @updatedAt
+
+  @@index([organizationId])
+  @@map("application_health")
 }
 
 // A requested selection is a snapshot until an organizer decides. ApplicationTerm rows stay
@@ -397,6 +424,9 @@ model ChangeRequest {
   applicantId      String
   currentTermIds   String[]
   requestedTermIds String[]
+  kind             ChangeRequestKind   @default(TERMS)
+  // US-68: the requested health note ("" = remove it); consent is given with the request.
+  healthNote       String?             @db.Text
   status           ChangeRequestStatus @default(PENDING)
   rejectionReason  String?             @db.Text
   reviewedBy       User?               @relation("ChangeRequestReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)

@@ -5,6 +5,7 @@ import csCommon from "@/i18n/locales/cs/common.json"
 import csErrors from "@/i18n/locales/cs/errors.json"
 import csEventOverview from "@/i18n/locales/cs/eventOverview.json"
 import csEvents from "@/i18n/locales/cs/events.json"
+import csHealth from "@/i18n/locales/cs/health.json"
 import csLanding from "@/i18n/locales/cs/landing.json"
 import csMeals from "@/i18n/locales/cs/meals.json"
 import csNotifications from "@/i18n/locales/cs/notifications.json"
@@ -17,6 +18,7 @@ import enCommon from "@/i18n/locales/en/common.json"
 import enErrors from "@/i18n/locales/en/errors.json"
 import enEventOverview from "@/i18n/locales/en/eventOverview.json"
 import enEvents from "@/i18n/locales/en/events.json"
+import enHealth from "@/i18n/locales/en/health.json"
 import enLanding from "@/i18n/locales/en/landing.json"
 import enMeals from "@/i18n/locales/en/meals.json"
 import enNotifications from "@/i18n/locales/en/notifications.json"
@@ -38,6 +40,7 @@ export const resources = {
     notifications: enNotifications,
     eventOverview: enEventOverview,
     meals: enMeals,
+    health: enHealth,
     transport: enTransport,
   },
   cs: {
@@ -52,6 +55,7 @@ export const resources = {
     notifications: csNotifications,
     eventOverview: csEventOverview,
     meals: csMeals,
+    health: csHealth,
     transport: csTransport,
   },
 } as const

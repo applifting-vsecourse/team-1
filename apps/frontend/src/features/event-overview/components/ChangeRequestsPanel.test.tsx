@@ -16,6 +16,9 @@ const request = {
   participantGender: "MALE",
   currentTermIds: ["t1"],
   requestedTermIds: ["t2"],
+  kind: "TERMS",
+  currentHealthNote: null,
+  requestedHealthNote: null,
   currentPriceCzk: 4900,
   requestedPriceCzk: 5600,
   status: "PENDING",
@@ -26,6 +29,16 @@ const request = {
     { id: "t1", name: "First", startsOn: "2027-07-12", endsOn: "2027-07-18", priceCzk: 4900 },
     { id: "t2", name: "Second", startsOn: "2027-07-19", endsOn: "2027-07-25", priceCzk: 5600 },
   ],
+}
+
+const healthRequest = {
+  ...request,
+  id: "r2",
+  currentTermIds: [],
+  requestedTermIds: [],
+  kind: "HEALTH",
+  currentHealthNote: "Astma",
+  requestedHealthNote: "Astma, alergie",
 }
 
 beforeEach(() => {
@@ -100,6 +113,28 @@ describe("ChangeRequestsPanel", () => {
     await user.click(within(dialog).getByRole("button", { name: "Decline request" }))
     expect(patch).toHaveBeenCalledWith("organizer/events/e1/change-requests/r1/reject", {
       json: { reason: "Please contact us" },
+    })
+  })
+
+  it("shows a health request with the current and the requested note and approves it", async () => {
+    patch.mockResolvedValue(undefined)
+    get.mockImplementation(() => ({ json: () => Promise.resolve([healthRequest]) }))
+    render(
+      <QueryClientProvider
+        client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
+      >
+        <ChangeRequestsPanel eventId="e1" />
+      </QueryClientProvider>,
+    )
+    const user = userEvent.setup()
+    expect(await screen.findByText("Health restriction change")).toBeInTheDocument()
+    await user.click(screen.getByRole("button", { name: "Review request" }))
+    const dialog = screen.getByRole("dialog", { name: "Review request" })
+    expect(within(dialog).getByText("Astma")).toBeInTheDocument()
+    expect(within(dialog).getByText("Astma, alergie")).toBeInTheDocument()
+    await user.click(within(dialog).getByRole("button", { name: "Approve request" }))
+    expect(patch).toHaveBeenCalledWith("organizer/events/e1/change-requests/r2/approve", {
+      json: {},
     })
   })
 })
