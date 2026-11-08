@@ -193,6 +193,19 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
         className="self-start"
       >
         <Link
+          to={ROUTES.participant.applicationMeals}
+          params={{ applicationId }}
+        >
+          {t("detail.meals")}
+        </Link>
+      </Button>
+      <Button
+        asChild
+        variant="outline"
+        size="lg"
+        className="self-start"
+      >
+        <Link
           to={ROUTES.participant.applicationHealth}
           params={{ applicationId }}
         >

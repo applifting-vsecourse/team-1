@@ -1,0 +1,29 @@
+{
+  "kitchen": {
+    "allergiesTitle": "Allergies",
+    "countsTitle": "Meal counts",
+    "description": "{{event}} · Meals",
+    "overlapNote": "Restrictions may overlap.",
+    "print": "Print summary",
+    "regular": "Regular meal",
+    "setUpOptions": "Set up meal options",
+    "specialRequestsTitle": "Special requests",
+    "termLabel": "Term",
+    "title": "Kitchen summary"
+  },
+  "options": {
+    "add": "Add restriction",
+    "cardTitle": "Offered restrictions",
+    "nameLabel": "Restriction name",
+    "remove": "Remove {{name}}",
+    "save": "Save options",
+    "title": "Meal options"
+  },
+  "own": {
+    "allergiesLabel": "Allergies and other dietary restrictions",
+    "pageTitle": "Meals",
+    "save": "Save meals",
+    "specialRequestLabel": "Special request",
+    "title": "Meals · {{name}}"
+  }
+}
