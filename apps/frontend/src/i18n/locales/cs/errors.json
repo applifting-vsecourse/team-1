@@ -36,6 +36,7 @@
   "ROOM_COPY_NAMES_TAKEN": "Termín už má pokoje s názvy {{names}}. Nejdřív je přejmenujte nebo smažte, případně stávající pokoje nahraďte.",
   "ROOM_NAME_TAKEN": "Pokoj s tímto názvem už v akci existuje.",
   "TERM_CANCELLED": "Tento termín je zrušený a nelze ho změnit.",
+  "TERM_ENDED": "Tento termín už skončil, nelze do něj přidat přihlášku.",
   "TERM_END_BEFORE_START": "Konec musí být po začátku.",
   "TERM_LIMIT_REACHED": "Akce už má maximální počet termínů (999).",
   "TOO_MANY_REQUESTS": "Příliš mnoho pokusů v krátké době. Chvíli počkejte a zkuste to znovu.",
