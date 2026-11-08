@@ -92,12 +92,12 @@ function HeroVisual() {
   const { t } = useTranslation("landing")
 
   return (
-    <div className="relative flex flex-col gap-4 md:block">
+    <div className="relative mx-auto flex w-full max-w-md flex-col gap-4 lg:block lg:max-w-none">
       <Art
         illustration={CampIllustration}
-        className="md:px-4"
+        className="lg:px-4"
       />
-      <div className="rounded-lg border border-border bg-card p-4 shadow-sm md:absolute md:-bottom-6 md:left-0 md:w-80 md:rotate-6">
+      <div className="rounded-lg border border-border bg-card p-4 shadow-sm lg:absolute lg:-bottom-6 lg:left-0 lg:w-80 lg:rotate-6">
         <div className="flex items-center justify-between gap-2 text-sm font-semibold">
           <span>{t("preview.event")}</span>
           <span className="font-mono whitespace-nowrap">148 / 180</span>
@@ -113,7 +113,7 @@ function HeroVisual() {
           </Badge>
         </div>
       </div>
-      <div className="hidden w-48 rounded-lg border border-border bg-card p-4 shadow-sm md:absolute md:top-4 md:right-0 md:block md:-rotate-6">
+      <div className="hidden w-48 rounded-lg border border-border bg-card p-4 shadow-sm lg:absolute lg:top-4 lg:right-0 lg:block lg:-rotate-6">
         <p className="text-xs text-muted-foreground">{t("preview.paid")}</p>
         <p className="font-mono text-3xl font-semibold text-link">87 %</p>
       </div>
@@ -211,16 +211,16 @@ function LandingPage() {
         <section className="relative overflow-hidden">
           <div
             aria-hidden
-            className="absolute inset-x-0 -bottom-24 h-32 origin-bottom-left -skew-y-6 border-t-4 border-primary bg-accent md:h-48"
+            className="absolute inset-x-0 bottom-0 h-48 border-t-4 border-primary bg-accent [clip-path:polygon(0_70%,100%_0,100%_100%,0_100%)] lg:h-60"
           />
           <div
             className={cn(
               CONTENT,
-              "relative grid items-center gap-8 py-12 md:grid-cols-2 md:gap-12 md:py-24",
+              "relative grid items-center gap-24 pt-12 pb-20 lg:grid-cols-2 lg:gap-12 lg:pt-24 lg:pb-52",
             )}
           >
             <div className="flex flex-col gap-6">
-              <h1 className="text-4xl leading-11 font-bold tracking-tight md:text-6xl md:leading-16">
+              <h1 className="text-4xl leading-11 font-bold tracking-tight md:text-5xl md:leading-14 xl:text-6xl xl:leading-16">
                 {t("title")} <span className="text-link">{t("titleAccent")}</span>
               </h1>
               <p className="max-w-lg text-muted-foreground md:text-lg">{t("description")}</p>
