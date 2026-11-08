@@ -148,8 +148,8 @@ function attentionCards(data: Attention, t: Translate) {
       count: data.substituteCount,
       title: t("attention.substitutes.title", { count: data.substituteCount }),
       body: t("attention.substitutes.body"),
-      // Status too, so the list opens in the waitlist view (tab, order, freed-bed filling; US-104).
-      search: { status: "WAITLISTED", waitlist: "FREE_BED" },
+      // The waitlist view (tab, order, freed-bed filling; US-104), without the free-bed filter.
+      search: { status: "WAITLISTED" },
     },
     {
       key: "debt",

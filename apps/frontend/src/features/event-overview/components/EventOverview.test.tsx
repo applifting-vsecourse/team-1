@@ -84,7 +84,7 @@ describe("EventOverview", () => {
     const substitutes = screen.getByRole("link", { name: /Substitutes to resolve · 3/ })
     expect(substitutes).toHaveTextContent("Freed beds in the matching group")
     expect(substitutes.getAttribute("href")).toContain("status=WAITLISTED")
-    expect(substitutes.getAttribute("href")).toContain("waitlist=FREE_BED")
+    expect(substitutes.getAttribute("href")).not.toContain("waitlist=")
     const debt = screen.getByRole("link", { name: /Participants with a balance due · 6/ })
     expect(debt).toHaveTextContent("3 overdue · Total balance due")
     expect(debt).toHaveTextContent("18,400")
