@@ -43,7 +43,7 @@ function OrganizerLoginPage() {
           <div className="flex flex-col gap-4">
             <Button
               asChild
-              variant="secondary"
+              variant="outline"
               size="lg"
               className="h-12 w-full"
             >

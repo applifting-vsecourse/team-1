@@ -145,7 +145,7 @@ export function OrganizerRegistration() {
         </Button>
         <Button
           asChild
-          variant="secondary"
+          variant="outline"
           size="lg"
           className="h-12 w-full"
         >
