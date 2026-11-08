@@ -256,10 +256,10 @@ export function TransportDialog({
                       <Textarea
                         {...field}
                         rows={4}
+                        placeholder={t("instructionsPlaceholder")}
                         maxLength={2000}
                       />
                     </FormControl>
-                    <FormDescription className="text-xs">{t("instructionsHint")}</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
