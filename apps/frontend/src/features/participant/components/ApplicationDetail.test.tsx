@@ -692,8 +692,15 @@ describe("ApplicationDetail", () => {
         }),
       )
 
-      expect(await screen.findByText("Demo: payments are simulated.")).toBeInTheDocument()
-      expect(screen.getByText("Simulation log")).toBeInTheDocument()
+      expect(
+        await screen.findByRole("heading", { name: "Simulated payment history" }),
+      ).toBeVisible()
+      expect(screen.queryByText("Demo: payments are simulated.")).toBeNull()
+      expect(
+        screen.getByText(
+          "Test payments created with the “I paid” button. These are not actual bank transfers.",
+        ),
+      ).toBeVisible()
       expect(screen.getByText(/\+CZK 2,500 · .* · source: simulation/)).toBeInTheDocument()
       await user.click(screen.getByRole("button", { name: "I paid" }))
 
@@ -708,7 +715,7 @@ describe("ApplicationDetail", () => {
         canSimulatePayment: true,
       })
 
-      await screen.findByText("Demo: payments are simulated.")
+      await screen.findByText(/4–10 Jul/)
       expect(screen.queryByRole("button", { name: "I paid" })).toBeNull()
     })
   })
@@ -726,7 +733,7 @@ describe("ApplicationDetail", () => {
       expect(screen.getByText("0 of 1 done")).toBeVisible()
       expect(screen.getByRole("heading", { name: /^Transport · / })).toBeVisible()
       expect(screen.getByRole("heading", { name: "Terms and payments" })).toBeVisible()
-      expect(screen.getByRole("heading", { name: "Transport" })).toBeVisible()
+      expect(screen.getByRole("region", { name: "Transport" })).toBeVisible()
       expect(screen.getByRole("link", { name: "Choose transport" })).toHaveAttribute(
         "href",
         "/participant/applications/a1/transport",
@@ -741,11 +748,19 @@ describe("ApplicationDetail", () => {
       expect(screen.queryByRole("link", { name: "Choose transport" })).toBeNull()
     })
 
-    it("asks for nothing when no transport is offered", async () => {
+    it("keeps meals and health together even when no transport is offered", async () => {
       renderDetail(application())
 
-      await screen.findByText(/4–10 Jul/)
-      expect(screen.queryByRole("heading", { name: "What is left to arrange" })).toBeNull()
+      const todo = await screen.findByRole("region", { name: "What is left to arrange" })
+      expect(within(todo).getByRole("link", { name: "Meals" })).toHaveAttribute(
+        "href",
+        "/participant/applications/a1/meals",
+      )
+      expect(within(todo).getByRole("link", { name: "Health restriction" })).toHaveAttribute(
+        "href",
+        "/participant/applications/a1/health",
+      )
+      expect(within(todo).queryByText(/of .* done/)).toBeNull()
       expect(screen.queryByRole("heading", { name: "Transport" })).toBeNull()
     })
   })

@@ -125,10 +125,9 @@
     "showSummaryQrMany": "One payment for all confirmed terms · show QR",
     "showSummaryQrTwo": "One payment for both terms · show QR",
     "simulation": {
-      "alertText": "The button does not make a bank transfer.",
-      "alertTitle": "Demo: payments are simulated.",
+      "logDescription": "Test payments created with the “I paid” button. These are not actual bank transfers.",
       "logLine": "+{{amount}} · {{term}} · source: simulation",
-      "logTitle": "Simulation log",
+      "logTitle": "Simulated payment history",
       "paid": "I paid"
     },
     "summaryBreakdown": "Breakdown",

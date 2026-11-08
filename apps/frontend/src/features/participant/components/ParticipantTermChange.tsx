@@ -43,7 +43,7 @@ export function ParticipantTermActions({
   if (!application.terms.some((term) => term.status !== "CANCELLED")) return null
   const isPendingRequest = requests.data?.some((request) => request.status === "PENDING") ?? false
   return (
-    <div className="flex flex-wrap gap-3 border-t pt-4">
+    <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
       <Button
         variant="outline"
         size="lg"
@@ -53,7 +53,7 @@ export function ParticipantTermActions({
         {t("change.open")}
       </Button>
       <Button
-        variant="outline"
+        variant="destructive"
         size="lg"
         disabled={requests.isPending || requests.isError || isPendingRequest}
         onClick={() => onStart("cancel")}

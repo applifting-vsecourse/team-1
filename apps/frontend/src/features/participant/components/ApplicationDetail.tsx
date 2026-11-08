@@ -32,6 +32,7 @@ type ApplicationDetailProps = { applicationId: string }
 /** One application: the event, the status of every term and, with a confirmed term, the payment details. */
 // Figma (Design system): Detail přihlášky · Moje přihlášky (K vyhodnocení) · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15751-1721 (360 px: node-id=15751-1784)
 // Figma (Design system): U04 Moje přihláška · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=11988-11066
+// Action placement follows #407; its linked #311 frames cover the payment cards only.
 export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
   const { t } = useTranslation("participant")
   const { data, isPending, error, refetch } = useQuery(myApplicationQueryOptions(applicationId))
@@ -107,23 +108,64 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
           title={data.eventName}
           description={`${data.firstName} ${data.lastName} · ${data.code}`}
         />
-      </div>
-      {transportTerms.length > 0 ? (
-        <Checklist
-          title={t("detail.todo.title")}
-          intro={t("detail.todo.intro")}
-          progress={t("detail.todo.progress", {
-            done: transportTerms.length - transportOpen,
-            total: transportTerms.length,
-          })}
-          items={transportTerms.map((term) => ({
-            key: term.termId,
-            title: t("detail.todo.transportTitle", { term: termTitle(term) }),
-            body: t("detail.todo.transportBody"),
-            isDone: term.transportDecided,
-          }))}
+        <ParticipantTermActions
+          application={data}
+          onStart={setChangeMode}
         />
-      ) : null}
+      </div>
+      <section
+        aria-labelledby="application-todo"
+        className="flex flex-col gap-4"
+      >
+        <h2
+          id="application-todo"
+          className="text-2xl font-semibold tracking-tight"
+        >
+          {t("detail.todo.title")}
+        </h2>
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+          <Button
+            asChild
+            variant="secondary"
+            size="lg"
+          >
+            <Link
+              to={ROUTES.participant.applicationMeals}
+              params={{ applicationId }}
+            >
+              {t("detail.meals")}
+            </Link>
+          </Button>
+          <Button
+            asChild
+            variant="secondary"
+            size="lg"
+          >
+            <Link
+              to={ROUTES.participant.applicationHealth}
+              params={{ applicationId }}
+            >
+              {t("detail.health")}
+            </Link>
+          </Button>
+        </div>
+        {transportTerms.length > 0 ? (
+          <Checklist
+            title={t("detail.sections.transport")}
+            intro={t("detail.todo.intro")}
+            progress={t("detail.todo.progress", {
+              done: transportTerms.length - transportOpen,
+              total: transportTerms.length,
+            })}
+            items={transportTerms.map((term) => ({
+              key: term.termId,
+              title: t("detail.todo.transportTitle", { term: termTitle(term) }),
+              body: t("detail.todo.transportBody"),
+              isDone: term.transportDecided,
+            }))}
+          />
+        ) : null}
+      </section>
       <section
         aria-labelledby="application-terms"
         className="flex flex-col gap-6"
@@ -164,10 +206,6 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
           </Alert>
         ) : null}
         <PaymentSummary application={data} />
-        <ParticipantTermActions
-          application={data}
-          onStart={setChangeMode}
-        />
       </section>
       {transportTerms.length > 0 ? (
         <section
@@ -186,32 +224,6 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
           </Card>
         </section>
       ) : null}
-      <Button
-        asChild
-        variant="outline"
-        size="lg"
-        className="self-start"
-      >
-        <Link
-          to={ROUTES.participant.applicationMeals}
-          params={{ applicationId }}
-        >
-          {t("detail.meals")}
-        </Link>
-      </Button>
-      <Button
-        asChild
-        variant="outline"
-        size="lg"
-        className="self-start"
-      >
-        <Link
-          to={ROUTES.participant.applicationHealth}
-          params={{ applicationId }}
-        >
-          {t("detail.health")}
-        </Link>
-      </Button>
       <OrganizationContact contact={data.organizationContact} />
     </div>
   )
