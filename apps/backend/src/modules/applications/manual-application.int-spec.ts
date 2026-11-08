@@ -186,6 +186,28 @@ describe("organizer adds an application (US-83)", () => {
     expect((await create(duplicate)).status).toBe(409)
   })
 
+  it("rejects a term that is already over and sends nothing", async () => {
+    const [first] = termIds
+    const term = await prisma.term.findUniqueOrThrow({ where: { id: first } })
+    const body = input("WAITLISTED") as Record<string, unknown>
+    try {
+      await prisma.term.update({
+        where: { id: first },
+        data: { startsOn: new Date("2020-07-01"), endsOn: new Date("2020-07-08") },
+      })
+      const response = await create(body)
+      expect(response.status).toBe(409)
+      expect(await response.json()).toMatchObject({ code: "TERM_ENDED" })
+      expect(await prisma.application.count({ where: { email: body.email as string } })).toBe(0)
+      expect(await prisma.user.count({ where: { email: body.email as string } })).toBe(0)
+    } finally {
+      await prisma.term.update({
+        where: { id: first },
+        data: { startsOn: term.startsOn, endsOn: term.endsOn },
+      })
+    }
+  })
+
   it.each(["       ", "-------", "( ) - ( )", "123 456", "+"])(
     "rejects a phone without at least seven digits: %j",
     async (phone) => {
