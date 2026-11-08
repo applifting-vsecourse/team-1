@@ -15,6 +15,7 @@ import {
   ParticipantChangeRequestNotificationsController,
   ParticipantHealthChangeRequestController,
 } from "./controllers/change-request.controller"
+import { ManualApplicationController } from "./controllers/manual-application.controller"
 import { OrganizerTermChangeController } from "./controllers/organizer-term-change.controller"
 import { ParticipantTermChangeController } from "./controllers/participant-term-change.controller"
 import { PublicCatalogController } from "./controllers/public-catalog.controller"
@@ -59,6 +60,7 @@ import { WaitlistExpiryService } from "./services/waitlist-expiry.service"
     PublicEventsController,
     PublicCatalogController,
     ApplicationsController,
+    ManualApplicationController,
     CapacityController,
     ParticipantChangeRequestController,
     ParticipantHealthChangeRequestController,
