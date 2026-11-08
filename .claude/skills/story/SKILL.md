@@ -15,7 +15,7 @@ Arguments: `$ARGUMENTS`. `<issue>` is the GitHub issue number, not the US number
 5. Read only what the story needs:
    - the files in its „Dokumenty“ section; for an older issue without it, the `CLAUDE.md` section „Business rules and acceptance criteria“ decides,
    - `docs/PROJEKT.md` and `docs/SLOVNIK.md`: Grep the term and read that section, not the whole file,
-   - with UI: `DESIGN.md` and the frames from „Podklady“, following `CLAUDE.md`, „UI follows Figma“.
+   - with UI: `DESIGN.md` and the frames from „Podklady“, following `.claude/rules/frontend.md`, „UI follows Figma“.
 6. Build it. What is under „Mimo rozsah“ or in another open issue stays out.
 
 ## Finish: `/story <issue> finish`
