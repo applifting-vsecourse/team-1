@@ -1,7 +1,9 @@
 import { useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useNavigate } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
+import { ROUTES } from "@/app/routes"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { PageHeader } from "@/components/molecules/PageHeader"
@@ -53,6 +55,7 @@ export function ParticipantHealthForm({ applicationId }: { applicationId: string
 function HealthFields({ applicationId, health }: { applicationId: string; health: Health }) {
   const { t } = useTranslation("health")
   const client = useQueryClient()
+  const navigate = useNavigate()
   // Filled-in data is read-only; changing it goes through a request to the organizer.
   const isStored = health.note !== null
   const [isEditing, setIsEditing] = useState(false)
@@ -77,6 +80,7 @@ function HealthFields({ applicationId, health }: { applicationId: string; health
         queryKey: ["organizer", "applications", applicationId, "health"],
       })
       notify.success(t(isStored ? "requestSent" : "saved"))
+      await navigate({ to: ROUTES.participant.application, params: { applicationId } })
     },
   })
 

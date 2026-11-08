@@ -6,6 +6,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import type { OwnMeals } from "@/features/meals/api/meals"
 import { ParticipantMeals } from "@/features/meals/components/ParticipantMeals"
 
+const { navigate, success } = vi.hoisted(() => ({ navigate: vi.fn(), success: vi.fn() }))
+vi.mock("@tanstack/react-router", () => ({ useNavigate: () => navigate }))
+vi.mock("@/lib/notify", () => ({ notify: { success } }))
+
 const { getMeals, saveOwnMeals } = vi.hoisted(() => ({ getMeals: vi.fn(), saveOwnMeals: vi.fn() }))
 vi.mock("@/features/meals/api/meals", async (importOriginal) => {
   const original = await importOriginal<typeof import("@/features/meals/api/meals")>()
@@ -78,6 +82,29 @@ describe("ParticipantMeals", () => {
         specialRequest: "Late arrival",
       }),
     )
+  })
+
+  it("confirms with a toast and returns to the application after saving", async () => {
+    const user = userEvent.setup()
+    setup()
+    await user.click(await screen.findByRole("button", { name: "Save meals" }))
+    await waitFor(() =>
+      expect(navigate).toHaveBeenCalledWith({
+        to: "/participant/applications/$applicationId",
+        params: { applicationId: "a1" },
+      }),
+    )
+    expect(success).toHaveBeenCalledWith("Meals saved")
+  })
+
+  it("shows the error and stays on the form when saving fails", async () => {
+    const user = userEvent.setup()
+    setup()
+    saveOwnMeals.mockRejectedValue(new Error("Server said no"))
+    await user.click(await screen.findByRole("button", { name: "Save meals" }))
+    expect(await screen.findByText("Server said no")).toBeVisible()
+    expect(navigate).not.toHaveBeenCalled()
+    expect(success).not.toHaveBeenCalled()
   })
 
   it("does not send an option the organizer has removed", async () => {
