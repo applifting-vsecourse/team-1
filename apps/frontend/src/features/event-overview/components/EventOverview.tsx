@@ -38,10 +38,13 @@ export function EventOverview({
   eventId,
   events,
   onEventChange,
+  setup,
 }: {
   eventId: string
   events: { id: string; name: string }[]
   onEventChange: (eventId: string) => void
+  /** Setup steps the event still needs before its link can be shared; shown above the cards (#314). */
+  setup?: ReactNode
 }) {
   const { t } = useTranslation("eventOverview")
 
@@ -73,6 +76,7 @@ export function EventOverview({
           </Select>
         </div>
       ) : null}
+      {setup}
       <AttentionCards eventId={eventId} />
       <Occupancy eventId={eventId} />
     </div>
