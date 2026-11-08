@@ -216,7 +216,7 @@ function LandingPage() {
           <div
             className={cn(
               CONTENT,
-              "relative grid items-center gap-12 pt-12 pb-16 lg:grid-cols-2 lg:pt-24 lg:pb-36",
+              "relative grid items-center gap-16 pt-12 pb-20 lg:grid-cols-2 lg:gap-12 lg:pt-24 lg:pb-52",
             )}
           >
             <div className="flex flex-col gap-6">
