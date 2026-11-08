@@ -14,7 +14,7 @@
     "count_few": "{{count}} applications",
     "count_one": "{{count}} application",
     "count_other": "{{count}} applications",
-    "debt": "Participants with a balance due",
+    "debt": "With a balance due",
     "detail": "Detail",
     "due": "Amount due",
     "empty": "We found no applications matching this selection.",

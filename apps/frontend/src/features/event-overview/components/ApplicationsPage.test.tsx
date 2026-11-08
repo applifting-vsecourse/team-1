@@ -5,6 +5,7 @@ import {
   createRootRoute,
   createRoute,
   createRouter,
+  Outlet,
   RouterProvider,
 } from "@tanstack/react-router"
 import { render, screen, within } from "@testing-library/react"
@@ -103,22 +104,30 @@ function setup(
       },
     )
     return (
-      <ApplicationsPage
-        eventId="e1"
-        filters={filters}
-        onFiltersChange={(next) => {
-          onFiltersChange(next)
-          setFilters(next)
-        }}
-      />
+      <>
+        <Outlet />
+        <ApplicationsPage
+          eventId="e1"
+          filters={filters}
+          onFiltersChange={(next) => {
+            onFiltersChange(next)
+            setFilters(next)
+          }}
+        />
+      </>
     )
   }
   const root = createRootRoute({
     component: Page,
   })
   const route = createRoute({ getParentRoute: () => root, path: "/" })
+  const detail = createRoute({
+    getParentRoute: () => root,
+    path: "/organizer/events/$eventId/applications/$applicationId",
+    component: () => <p>Application detail page</p>,
+  })
   const router = createRouter({
-    routeTree: root.addChildren([route]),
+    routeTree: root.addChildren([route, detail]),
     history: createMemoryHistory({ initialEntries: ["/"] }),
   })
   render(
@@ -358,7 +367,7 @@ describe("ApplicationsPage", () => {
     await user.click(screen.getAllByRole("combobox", { name: "Payment" })[0]!)
     expect(screen.getAllByRole("option").map((option) => option.textContent)).toEqual([
       "All payments",
-      "Participants with a balance due",
+      "With a balance due",
       "No amount due",
       "Unpaid",
       "Partially paid",
@@ -382,6 +391,34 @@ describe("ApplicationsPage", () => {
       "href",
       "/organizer/events/e1/applications/a1",
     )
+  })
+  describe("clickable row", () => {
+    it("opens the detail when the row is clicked", async () => {
+      setup([application], false, undefined, null, {})
+      const row = await screen.findByRole("row", { name: /Jana Test/ })
+      await userEvent.setup().click(within(row).getByText("jana@example.com", { exact: false }))
+      expect(await screen.findByText("Application detail page")).toBeInTheDocument()
+    })
+    it("keeps the detail link as the keyboard path", async () => {
+      setup([application], false, undefined, null, {})
+      const user = userEvent.setup()
+      const link = await screen.findByRole("link", { name: "Record payment" })
+      await user.tab()
+      link.focus()
+      await user.keyboard("{Enter}")
+      expect(await screen.findByText("Application detail page")).toBeInTheDocument()
+    })
+    it("does not open the detail when a row is selected", async () => {
+      setup([application], false, undefined, null, { status: "TO_EVALUATE" })
+      const user = userEvent.setup()
+      await screen.findAllByText("jana@example.com", { exact: false })
+      const checkbox = screen.getAllByRole("checkbox", {
+        name: /Select application: Jana Test/,
+      })[0]!
+      await user.click(checkbox)
+      expect(checkbox).toBeChecked()
+      expect(screen.queryByText("Application detail page")).not.toBeInTheDocument()
+    })
   })
   it.each([
     ["no terms", { terms: [] }],
