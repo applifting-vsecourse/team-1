@@ -5,6 +5,7 @@
     "allPayments": "All payments",
     "allStatuses": "All term statuses",
     "allTerms": "All terms",
+    "allWaitlisted": "All waitlisted",
     "cancelled": "Cancelled",
     "clear": "Clear filters",
     "clearSearchAndFilters": "Clear search and filters",
@@ -50,6 +51,7 @@
     "title": "Applications",
     "toEvaluate": "Awaiting evaluation",
     "unpaid": "Unpaid",
+    "waitlistFilter": "Waitlist",
     "waitlistFreeBed": "Substitutes with a free bed",
     "waitlistNote": "A waitlist is kept per term and bed group (women, men, or shared rooms), in order of receipt. Confirm a waitlisted applicant in their detail; first check for a free bed and send payment details only after confirmation.",
     "waitlistNoteTitle": "Waitlisted applicants have a place in the queue, not a confirmed place.",
@@ -58,9 +60,6 @@
     "waitlistedPositionMale": "Waitlisted · {{position}}"
   },
   "attention": {
-    "allClear": "Nothing needs your attention",
-    "allClearEvaluation": "Awaiting review {{toEvaluate}} · Substitutes to resolve {{substitutes}}",
-    "allClearOthers": "Participants with a balance due {{debt}} · Pending requests {{requests}}",
     "debt": {
       "body": "{{overdue}} overdue · Total balance due {{total}}",
       "title": "Participants with a balance due · {{count}}"

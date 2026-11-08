@@ -20,10 +20,11 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { cn } from "@/lib/utils"
 
 import type { ApplicationsSearch } from "@/features/event-overview/lib/applications-search"
 
-type FilterKey = "status" | "payment" | "term"
+type FilterKey = "status" | "waitlist" | "payment" | "term"
 type FilterOption = {
   key: FilterKey
   label: string
@@ -67,6 +68,17 @@ export function ApplicationFilters({
         { id: "CANCELLED", name: t("applications.cancelled") },
       ],
     },
+    // Only in the waitlist view; the card "Náhradníci k vyřešení" opens it set to a free bed.
+    ...(filters.status === "WAITLISTED"
+      ? [
+          {
+            key: "waitlist" as const,
+            label: t("applications.waitlistFilter"),
+            all: t("applications.allWaitlisted"),
+            values: [{ id: "FREE_BED", name: t("applications.waitlistFreeBed") }],
+          },
+        ]
+      : []),
     {
       key: "payment",
       label: t("applications.payment"),
@@ -97,9 +109,7 @@ export function ApplicationFilters({
   const gender = filters.gender
     ? t(filters.gender === "FEMALE" ? "applications.female" : "applications.male")
     : undefined
-  // Set by the card "Náhradníci k vyřešení"; no control of its own, only a chip to remove it.
-  const waitlist = filters.waitlist ? t("applications.waitlistFreeBed") : undefined
-  const activeCount = active.length + (gender ? 1 : 0) + (waitlist ? 1 : 0)
+  const activeCount = active.length + (gender ? 1 : 0)
   const hasFilters = Object.values(filters).some(Boolean)
   const remove = (key: keyof ApplicationsSearch) => {
     const next = { ...filters }
@@ -194,19 +204,22 @@ export function ApplicationFilters({
         >
           {active.map((filter) => chip(filter.key, filter.name, "h-auto min-h-11 max-w-full"))}
           {gender && chip("gender", gender)}
-          {waitlist && chip("waitlist", waitlist)}
         </div>
       )}
       {gender && chip("gender", gender, "hidden md:inline-flex")}
-      {waitlist && chip("waitlist", waitlist, "hidden md:inline-flex")}
       {hasFilters && (
         <Button
           variant="ghost"
-          size="lg"
-          className="w-fit"
+          size="icon-lg"
+          className="shrink-0"
+          aria-label={t("applications.clear")}
+          title={t("applications.clear")}
           onClick={() => onChange({})}
         >
-          {t("applications.clear")}
+          <X
+            className="size-5"
+            aria-hidden="true"
+          />
         </Button>
       )}
     </div>
@@ -230,7 +243,12 @@ function FilterFields({
       <Select
         value={filters[option.key] ?? "all"}
         onValueChange={(value) =>
-          onChange({ ...filters, [option.key]: value === "all" ? undefined : value })
+          onChange({
+            ...filters,
+            [option.key]: value === "all" ? undefined : value,
+            // A changed status leaves the free-bed filter of the overview card (it fits waitlisted only).
+            ...(option.key === "status" ? { waitlist: undefined } : {}),
+          })
         }
       >
         <SelectTrigger
@@ -257,7 +275,12 @@ function FilterFields({
     return (
       <div
         key={option.key}
-        className="flex min-w-0 flex-col gap-2 md:min-w-40"
+        className={cn(
+          "flex min-w-0 flex-col gap-2 md:w-56",
+          // Wide enough for the whole value ("Náhradníci s volným lůžkem", a date range) on one line.
+          option.key === "waitlist" && "md:w-60",
+          option.key === "payment" && "md:w-48",
+        )}
       >
         <Label htmlFor={`${idPrefix}-filter-${option.key}`}>{option.label}</Label>
         {option.isLocked ? (
