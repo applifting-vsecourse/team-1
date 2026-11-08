@@ -10,7 +10,8 @@ test.describe("Sign-in", () => {
     page,
   }) => {
     await page.goto("/")
-    await page.getByRole("link", { name: "I'm an organizer" }).click()
+    // The landing repeats the entry links; the first one is in the hero.
+    await page.getByRole("link", { name: "I'm an organizer" }).first().click()
     await expect(page).toHaveURL(/\/organizer\/login/)
 
     await fillSignInForm(page, ORGANIZER)
