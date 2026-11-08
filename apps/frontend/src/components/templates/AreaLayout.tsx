@@ -18,7 +18,7 @@ type AreaLayoutProps = {
   roleLabel: string
   /** The signed-in account at the bottom of the sidebar and the drawer (a slot: `components/` never imports from `features/`). */
   account: ReactNode
-  /** `reading` for participant pages, `wide` (full width) for organizer tables. */
+  /** `reading` for participant pages, `wide` (1200 px) for organizer tables. */
   width: "reading" | "wide"
   /** The notification bell, shown before the language switcher; omitted where the area has none (the organizer until US-86). */
   notifications?: ReactNode
@@ -200,7 +200,12 @@ export function AreaLayout({
           </div>
         </div>
         <main className="px-4 pt-6 pb-12 md:px-8 md:pt-8">
-          <div className={cn("flex w-full flex-col gap-6", width === "reading" && "max-w-196")}>
+          <div
+            className={cn(
+              "mx-auto flex w-full flex-col gap-6",
+              width === "reading" ? "max-w-196" : "max-w-300",
+            )}
+          >
             <EmbeddedPageContext.Provider value>{children}</EmbeddedPageContext.Provider>
           </div>
         </main>
