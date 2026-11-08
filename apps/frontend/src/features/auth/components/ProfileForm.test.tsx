@@ -88,7 +88,7 @@ describe("ProfileForm", () => {
     await userEvent.type(screen.getByLabelText("Full name"), "Eva Nová")
     await userEvent.click(screen.getByRole("button", { name: "Save changes" }))
 
-    await waitFor(() => expect(notify.success).toHaveBeenCalledWith("Details saved."))
+    await waitFor(() => expect(notify.success).toHaveBeenCalledWith("New details saved"))
   })
 
   it("refuses an empty name and sends nothing", async () => {

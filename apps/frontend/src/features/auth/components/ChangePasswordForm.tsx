@@ -1,10 +1,12 @@
 import { useMemo } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { useNavigate, useRouter } from "@tanstack/react-router"
 import { CircleAlert, Loader2 } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
+import { ROUTES } from "@/app/routes"
 import { PasswordInput } from "@/components/molecules/PasswordInput"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -16,12 +18,15 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
+import { notify } from "@/lib/notify"
 
 import {
   ChangePasswordError,
   INVALID_PASSWORD,
   useChangePassword,
 } from "@/features/auth/hooks/useChangePassword"
+import { useSession } from "@/features/auth/hooks/useSession"
+import { accountHome } from "@/features/auth/lib/account-home"
 
 const MIN_PASSWORD_LENGTH = 8
 
@@ -47,6 +52,9 @@ export function ChangePasswordForm() {
   const { t } = useTranslation("auth")
   const { t: tErrors } = useTranslation("errors")
   const changePassword = useChangePassword()
+  const router = useRouter()
+  const navigate = useNavigate()
+  const { user } = useSession()
   const schema = useMemo(
     () =>
       createSchema({
@@ -69,6 +77,17 @@ export function ChangePasswordForm() {
       return
     }
     form.reset(emptyValues)
+    notify.success(t("changePassword.saved"))
+  }
+
+  // „Zpět“ leaves the page: the previous in-app page, or the area home when the
+  // account page was opened directly.
+  const goBack = () => {
+    if (router.history.canGoBack()) {
+      router.history.back()
+      return
+    }
+    void navigate({ to: user ? accountHome(user) : ROUTES.home })
   }
 
   const isFailureShown = changePassword.isError && errors.currentPassword === undefined
@@ -135,12 +154,9 @@ export function ChangePasswordForm() {
             variant="ghost"
             size="lg"
             className="h-12 flex-1 rounded-lg"
-            onClick={() => {
-              form.reset(emptyValues)
-              changePassword.reset()
-            }}
+            onClick={goBack}
           >
-            {t("changePassword.cancel")}
+            {t("changePassword.back")}
           </Button>
           <Button
             type="submit"
