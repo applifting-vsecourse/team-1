@@ -17,7 +17,6 @@ import {
   Param,
   Post,
   Put,
-  Query,
   UsePipes,
   ValidationPipe,
 } from "@nestjs/common"
@@ -44,18 +43,22 @@ export class OrganizerTransportController {
 
   @Post()
   @HttpCode(204)
-  @ApiOperation({ summary: "Add a way of transport to a term: name, place and time of departure" })
+  @ApiOperation({
+    summary:
+      "Add a way of transport to a term: a ride (name, place, time of departure) or own transport (at most one per term); instructions are optional",
+  })
   @ApiResponse({ status: 204 })
   @ApiResponse({
     status: 400,
     description: "Invalid name, place or time, or a departure after the term ends",
   })
+  @ApiResponse({ status: 409, description: "The term already has own transport" })
   async create(
     @User() user: Identity,
     @Param("eventId") eventId: string,
     @Body() body: CreateTransportRequestDto,
   ): Promise<void> {
-    await this.transport.create(user, eventId, body.termId, body.toInput())
+    await this.transport.create(user, eventId, body.termId, body.kind, body.toInput())
   }
 
   @Put(":id")
@@ -92,15 +95,14 @@ export class OrganizerTransportController {
 
   @Get(":id/participants")
   @ApiOperation({
-    summary: "Participants of one way of transport; `own` lists those of `termId` on their own",
+    summary: "Participants of one way of transport (own transport included)",
   })
   @ApiResponse({ status: 200, type: TransportParticipantsResponseDto })
   async participants(
     @User() user: Identity,
     @Param("eventId") eventId: string,
     @Param("id") id: string,
-    @Query("termId") termId?: string,
   ): Promise<TransportParticipantsResponseDto> {
-    return this.transport.participants(user, eventId, id, termId)
+    return this.transport.participants(user, eventId, id)
   }
 }

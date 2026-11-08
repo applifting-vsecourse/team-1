@@ -40,6 +40,7 @@
   "TERM_LIMIT_REACHED": "The event already has the maximum number of terms (999).",
   "TOO_MANY_REQUESTS": "Too many attempts in a short time. Wait a moment and try again.",
   "TRANSPORT_AFTER_TERM_END": "The departure can't be after the term ends ({{endsOn}}).",
+  "TRANSPORT_OWN_EXISTS": "Own transport is already added to this term.",
   "UNAUTHORIZED": "Please sign in.",
   "UNKNOWN": "Something went wrong.",
   "VALIDATION_FAILED": "Some fields are not filled in correctly."

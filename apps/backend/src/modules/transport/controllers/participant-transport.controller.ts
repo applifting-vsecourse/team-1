@@ -47,7 +47,7 @@ export class ParticipantTransportController {
   @Put()
   @HttpCode(204)
   @ApiOperation({
-    summary: "Choose the transport to one term of the application; null = own transport",
+    summary: "Choose the transport to one term of the application",
   })
   @ApiResponse({ status: 204 })
   async choose(
@@ -55,6 +55,6 @@ export class ParticipantTransportController {
     @Param("applicationId") applicationId: string,
     @Body() body: ChooseTransportRequestDto,
   ): Promise<void> {
-    await this.transport.choose(user, applicationId, body.termId, body.transportId ?? null)
+    await this.transport.choose(user, applicationId, body.termId, body.transportId)
   }
 }

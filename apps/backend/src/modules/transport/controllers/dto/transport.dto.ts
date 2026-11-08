@@ -2,41 +2,64 @@ import {
   ApplicationTransport,
   EventTransport,
   TransportInput,
+  TransportKind,
   TransportParticipants,
 } from "@/modules/transport/domain/transport"
-import { ApiProperty } from "@nestjs/swagger"
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger"
 import { Transform } from "class-transformer"
-import { IsDateString, IsOptional, IsString, MaxLength, MinLength } from "class-validator"
+import { IsDateString, IsIn, IsOptional, IsString, MaxLength, MinLength } from "class-validator"
 
 const trim = ({ value }: { value: unknown }) => (typeof value === "string" ? value.trim() : value)
 
 export class UpdateTransportRequestDto {
-  @ApiProperty({ example: "Autobus z Prahy", maxLength: 100 })
-  @Transform(trim)
-  @IsString()
-  @MinLength(1)
-  @MaxLength(100)
-  name!: string
-
-  @ApiProperty({ example: "Praha, Černý Most · nástupiště 3", maxLength: 200 })
-  @Transform(trim)
-  @IsString()
-  @MinLength(1)
-  @MaxLength(200)
-  departurePlace!: string
-
-  @ApiProperty({
-    example: "2027-07-12T06:00:00.000Z",
-    description: "ISO 8601 instant, no later than the last day of the term",
+  @ApiPropertyOptional({
+    example: "Autobus z Prahy",
+    maxLength: 100,
+    description: "Required for a ride; ignored for own transport",
   })
-  @IsDateString()
-  departureAt!: string
+  @IsOptional()
+  @Transform(trim)
+  @IsString()
+  @MaxLength(100)
+  name?: string
 
-  toInput(): TransportInput {
+  @ApiPropertyOptional({
+    example: "Praha, Černý Most · nástupiště 3",
+    maxLength: 200,
+    description: "Required for a ride; ignored for own transport",
+  })
+  @IsOptional()
+  @Transform(trim)
+  @IsString()
+  @MaxLength(200)
+  departurePlace?: string
+
+  @ApiPropertyOptional({
+    example: "2027-07-12T06:00:00.000Z",
+    description:
+      "ISO 8601 instant, no later than the last day of the term; required for a ride, ignored for own transport",
+  })
+  @IsOptional()
+  @IsDateString()
+  departureAt?: string
+
+  @ApiPropertyOptional({
+    example: "Parkoviště za bránou, vjezd z hlavní silnice.",
+    maxLength: 2000,
+    description: "Free text for the participant: address, where to park, what to bring",
+  })
+  @IsOptional()
+  @Transform(trim)
+  @IsString()
+  @MaxLength(2000)
+  instructions?: string
+
+  toInput(): Partial<TransportInput> {
     return {
       name: this.name,
       departurePlace: this.departurePlace,
-      departureAt: new Date(this.departureAt),
+      departureAt: this.departureAt ? new Date(this.departureAt) : undefined,
+      instructions: this.instructions ?? null,
     }
   }
 }
@@ -46,6 +69,10 @@ export class CreateTransportRequestDto extends UpdateTransportRequestDto {
   @IsString()
   @MinLength(1)
   termId!: string
+
+  @ApiProperty({ enum: ["SCHEDULED", "OWN"], description: "Own transport: at most one per term" })
+  @IsIn(["SCHEDULED", "OWN"])
+  kind!: TransportKind
 }
 
 export class ChooseTransportRequestDto {
@@ -54,17 +81,19 @@ export class ChooseTransportRequestDto {
   @MinLength(1)
   termId!: string
 
-  @ApiProperty({ nullable: true, description: "Transport id; null or `own` = own transport" })
-  @IsOptional()
+  @ApiProperty({ description: "Id of one of the transport offered in the term" })
   @IsString()
-  transportId?: string | null
+  @MinLength(1)
+  transportId!: string
 }
 
 export class TransportOptionDto {
   @ApiProperty() id!: string
-  @ApiProperty() name!: string
-  @ApiProperty() departurePlace!: string
-  @ApiProperty({ type: String, format: "date-time" }) departureAt!: string
+  @ApiProperty({ enum: ["SCHEDULED", "OWN"] }) kind!: TransportKind
+  @ApiProperty({ description: "Empty for own transport" }) name!: string
+  @ApiProperty({ nullable: true, type: String }) departurePlace!: string | null
+  @ApiProperty({ nullable: true, type: String, format: "date-time" }) departureAt!: string | null
+  @ApiProperty({ nullable: true, type: String }) instructions!: string | null
 }
 
 export class TransportSummaryDto extends TransportOptionDto {
@@ -80,12 +109,10 @@ class TermDto {
 
 export class TermTransportDto extends TermDto {
   @ApiProperty({ type: [TransportSummaryDto] }) transports!: TransportSummaryDto[]
-  @ApiProperty() ownCount!: number
 }
 
 export class EventTransportResponseDto {
   @ApiProperty() eventName!: string
-  @ApiProperty({ nullable: true, type: String }) eventLocation!: string | null
   @ApiProperty({ type: [TermTransportDto] }) terms!: TermTransportDto[]
 
   static fromDomain(domain: EventTransport): EventTransportResponseDto {
@@ -95,7 +122,7 @@ export class EventTransportResponseDto {
         ...term,
         transports: term.transports.map((item) => ({
           ...item,
-          departureAt: item.departureAt.toISOString(),
+          departureAt: item.departureAt?.toISOString() ?? null,
         })),
       })),
     }
@@ -109,15 +136,14 @@ export class TransportParticipantDto {
 }
 
 export class TransportParticipantsResponseDto extends TermDto implements TransportParticipants {
-  @ApiProperty({ nullable: true, type: String }) name!: string | null
+  @ApiProperty({ description: "Empty for own transport" }) name!: string
+  @ApiProperty({ enum: ["SCHEDULED", "OWN"] }) kind!: TransportKind
   @ApiProperty({ type: [TransportParticipantDto] }) participants!: TransportParticipantDto[]
 }
 
 export class TermChoiceDto extends TermDto {
   @ApiProperty() status!: string
   @ApiProperty({ nullable: true, type: String }) selectedTransportId!: string | null
-  @ApiProperty({ description: "The participant chose to get there on their own" })
-  isOwn!: boolean
   @ApiProperty({ type: [TransportOptionDto] }) options!: TransportOptionDto[]
 }
 
@@ -133,7 +159,7 @@ export class ApplicationTransportResponseDto {
         ...term,
         options: term.options.map((item) => ({
           ...item,
-          departureAt: item.departureAt.toISOString(),
+          departureAt: item.departureAt?.toISOString() ?? null,
         })),
       })),
     }

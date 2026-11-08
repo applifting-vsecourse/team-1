@@ -61,7 +61,9 @@ export function DeleteTransportDialog({
       <DialogContent className="gap-4 p-6 sm:max-w-130">
         <DialogHeader>
           <DialogTitle className="text-lg tracking-tight">{t("deleteTitle")}</DialogTitle>
-          <DialogDescription>{t("deleteDescription", { name: transport.name })}</DialogDescription>
+          <DialogDescription>
+            {t("deleteDescription", { name: transport.kind === "OWN" ? t("own") : transport.name })}
+          </DialogDescription>
         </DialogHeader>
         {hasParticipants ? (
           <>

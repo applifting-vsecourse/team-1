@@ -88,6 +88,7 @@ describe("organization isolation of organizer endpoints (integration)", () => {
         path: `${e}/transport`,
         body: {
           termId: term,
+          kind: "SCHEDULED",
           name: "X",
           departurePlace: "Y",
           departureAt: "2027-07-12T06:00:00.000Z",
@@ -98,7 +99,8 @@ describe("organization isolation of organizer endpoints (integration)", () => {
         path: `${e}/transport/none`,
         body: { name: "X", departurePlace: "Y", departureAt: "2027-07-12T06:00:00.000Z" },
       },
-      { method: "GET", path: `${e}/transport/own/participants?termId=${term}` },
+      { method: "DELETE", path: `${e}/transport/none` },
+      { method: "GET", path: `${e}/transport/none/participants` },
       // rooms
       { method: "GET", path: `${t}/rooms` },
       { method: "PATCH", path: `${t}/room-mode`, body: { roomMode: "SHARED" } },

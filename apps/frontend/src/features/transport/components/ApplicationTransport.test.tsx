@@ -34,10 +34,11 @@ const offer = {
       endsOn: "2027-07-18",
       status: "CONFIRMED",
       selectedTransportId: null,
-      isOwn: false,
       options: [
         {
           id: "t1",
+          kind: "SCHEDULED",
+          instructions: null,
           name: "Autobus z Prahy",
           departurePlace: "Praha, Černý Most",
           departureAt: "2027-07-12T06:00:00.000Z",

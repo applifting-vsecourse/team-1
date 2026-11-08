@@ -34,8 +34,6 @@ export const ROUTES = {
     eventMealOptions: "/organizer/events/$eventId/meals/options",
     eventCancellationTerms: "/organizer/events/$eventId/payments/cancellation",
     eventTransport: "/organizer/events/$eventId/transport",
-    eventTransportNew: "/organizer/events/$eventId/transport/new",
-    eventTransportEdit: "/organizer/events/$eventId/transport/$transportId",
     eventTransportParticipants: "/organizer/events/$eventId/transport/$transportId/participants",
     application: "/organizer/events/$eventId/applications/$applicationId",
     applicationHealth: "/organizer/events/$eventId/applications/$applicationId/health",

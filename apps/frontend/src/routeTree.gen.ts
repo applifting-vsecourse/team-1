@@ -47,8 +47,6 @@ import { Route as ParticipantAppApplicationsApplicationIdTransportRouteImport } 
 import { Route as OrganizerAppEventsEventIdApplicationsApplicationIdRouteImport } from './routes/organizer/_app/events/$eventId/applications_.$applicationId'
 import { Route as OrganizerAppEventsEventIdMealsOptionsRouteImport } from './routes/organizer/_app/events/$eventId/meals_.options'
 import { Route as OrganizerAppEventsEventIdPaymentsCancellationRouteImport } from './routes/organizer/_app/events/$eventId/payments_.cancellation'
-import { Route as OrganizerAppEventsEventIdTransportTransportIdRouteImport } from './routes/organizer/_app/events/$eventId/transport_.$transportId'
-import { Route as OrganizerAppEventsEventIdTransportNewRouteImport } from './routes/organizer/_app/events/$eventId/transport_.new'
 import { Route as OrganizerAppEventsEventIdApplicationsApplicationIdHealthRouteImport } from './routes/organizer/_app/events/$eventId/applications_.$applicationId_.health'
 import { Route as OrganizerAppEventsEventIdTransportTransportIdParticipantsRouteImport } from './routes/organizer/_app/events/$eventId/transport_.$transportId_.participants'
 
@@ -260,18 +258,6 @@ const OrganizerAppEventsEventIdPaymentsCancellationRoute =
     path: '/payments/cancellation',
     getParentRoute: () => OrganizerAppEventsEventIdRouteRoute,
   } as any)
-const OrganizerAppEventsEventIdTransportTransportIdRoute =
-  OrganizerAppEventsEventIdTransportTransportIdRouteImport.update({
-    id: '/transport_/$transportId',
-    path: '/transport/$transportId',
-    getParentRoute: () => OrganizerAppEventsEventIdRouteRoute,
-  } as any)
-const OrganizerAppEventsEventIdTransportNewRoute =
-  OrganizerAppEventsEventIdTransportNewRouteImport.update({
-    id: '/transport_/new',
-    path: '/transport/new',
-    getParentRoute: () => OrganizerAppEventsEventIdRouteRoute,
-  } as any)
 const OrganizerAppEventsEventIdApplicationsApplicationIdHealthRoute =
   OrganizerAppEventsEventIdApplicationsApplicationIdHealthRouteImport.update({
     id: '/applications_/$applicationId_/health',
@@ -324,8 +310,6 @@ export interface FileRoutesByFullPath {
   '/organizer/events/$eventId/applications/$applicationId': typeof OrganizerAppEventsEventIdApplicationsApplicationIdRoute
   '/organizer/events/$eventId/meals/options': typeof OrganizerAppEventsEventIdMealsOptionsRoute
   '/organizer/events/$eventId/payments/cancellation': typeof OrganizerAppEventsEventIdPaymentsCancellationRoute
-  '/organizer/events/$eventId/transport/$transportId': typeof OrganizerAppEventsEventIdTransportTransportIdRoute
-  '/organizer/events/$eventId/transport/new': typeof OrganizerAppEventsEventIdTransportNewRoute
   '/organizer/events/$eventId/applications/$applicationId/health': typeof OrganizerAppEventsEventIdApplicationsApplicationIdHealthRoute
   '/organizer/events/$eventId/transport/$transportId/participants': typeof OrganizerAppEventsEventIdTransportTransportIdParticipantsRoute
 }
@@ -365,8 +349,6 @@ export interface FileRoutesByTo {
   '/organizer/events/$eventId/applications/$applicationId': typeof OrganizerAppEventsEventIdApplicationsApplicationIdRoute
   '/organizer/events/$eventId/meals/options': typeof OrganizerAppEventsEventIdMealsOptionsRoute
   '/organizer/events/$eventId/payments/cancellation': typeof OrganizerAppEventsEventIdPaymentsCancellationRoute
-  '/organizer/events/$eventId/transport/$transportId': typeof OrganizerAppEventsEventIdTransportTransportIdRoute
-  '/organizer/events/$eventId/transport/new': typeof OrganizerAppEventsEventIdTransportNewRoute
   '/organizer/events/$eventId/applications/$applicationId/health': typeof OrganizerAppEventsEventIdApplicationsApplicationIdHealthRoute
   '/organizer/events/$eventId/transport/$transportId/participants': typeof OrganizerAppEventsEventIdTransportTransportIdParticipantsRoute
 }
@@ -410,8 +392,6 @@ export interface FileRoutesById {
   '/organizer/_app/events/$eventId/applications_/$applicationId': typeof OrganizerAppEventsEventIdApplicationsApplicationIdRoute
   '/organizer/_app/events/$eventId/meals_/options': typeof OrganizerAppEventsEventIdMealsOptionsRoute
   '/organizer/_app/events/$eventId/payments_/cancellation': typeof OrganizerAppEventsEventIdPaymentsCancellationRoute
-  '/organizer/_app/events/$eventId/transport_/$transportId': typeof OrganizerAppEventsEventIdTransportTransportIdRoute
-  '/organizer/_app/events/$eventId/transport_/new': typeof OrganizerAppEventsEventIdTransportNewRoute
   '/organizer/_app/events/$eventId/applications_/$applicationId_/health': typeof OrganizerAppEventsEventIdApplicationsApplicationIdHealthRoute
   '/organizer/_app/events/$eventId/transport_/$transportId_/participants': typeof OrganizerAppEventsEventIdTransportTransportIdParticipantsRoute
 }
@@ -456,8 +436,6 @@ export interface FileRouteTypes {
     | '/organizer/events/$eventId/applications/$applicationId'
     | '/organizer/events/$eventId/meals/options'
     | '/organizer/events/$eventId/payments/cancellation'
-    | '/organizer/events/$eventId/transport/$transportId'
-    | '/organizer/events/$eventId/transport/new'
     | '/organizer/events/$eventId/applications/$applicationId/health'
     | '/organizer/events/$eventId/transport/$transportId/participants'
   fileRoutesByTo: FileRoutesByTo
@@ -497,8 +475,6 @@ export interface FileRouteTypes {
     | '/organizer/events/$eventId/applications/$applicationId'
     | '/organizer/events/$eventId/meals/options'
     | '/organizer/events/$eventId/payments/cancellation'
-    | '/organizer/events/$eventId/transport/$transportId'
-    | '/organizer/events/$eventId/transport/new'
     | '/organizer/events/$eventId/applications/$applicationId/health'
     | '/organizer/events/$eventId/transport/$transportId/participants'
   id:
@@ -541,8 +517,6 @@ export interface FileRouteTypes {
     | '/organizer/_app/events/$eventId/applications_/$applicationId'
     | '/organizer/_app/events/$eventId/meals_/options'
     | '/organizer/_app/events/$eventId/payments_/cancellation'
-    | '/organizer/_app/events/$eventId/transport_/$transportId'
-    | '/organizer/_app/events/$eventId/transport_/new'
     | '/organizer/_app/events/$eventId/applications_/$applicationId_/health'
     | '/organizer/_app/events/$eventId/transport_/$transportId_/participants'
   fileRoutesById: FileRoutesById
@@ -833,20 +807,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrganizerAppEventsEventIdPaymentsCancellationRouteImport
       parentRoute: typeof OrganizerAppEventsEventIdRouteRoute
     }
-    '/organizer/_app/events/$eventId/transport_/$transportId': {
-      id: '/organizer/_app/events/$eventId/transport_/$transportId'
-      path: '/transport/$transportId'
-      fullPath: '/organizer/events/$eventId/transport/$transportId'
-      preLoaderRoute: typeof OrganizerAppEventsEventIdTransportTransportIdRouteImport
-      parentRoute: typeof OrganizerAppEventsEventIdRouteRoute
-    }
-    '/organizer/_app/events/$eventId/transport_/new': {
-      id: '/organizer/_app/events/$eventId/transport_/new'
-      path: '/transport/new'
-      fullPath: '/organizer/events/$eventId/transport/new'
-      preLoaderRoute: typeof OrganizerAppEventsEventIdTransportNewRouteImport
-      parentRoute: typeof OrganizerAppEventsEventIdRouteRoute
-    }
     '/organizer/_app/events/$eventId/applications_/$applicationId_/health': {
       id: '/organizer/_app/events/$eventId/applications_/$applicationId_/health'
       path: '/applications/$applicationId/health'
@@ -877,8 +837,6 @@ interface OrganizerAppEventsEventIdRouteRouteChildren {
   OrganizerAppEventsEventIdApplicationsApplicationIdRoute: typeof OrganizerAppEventsEventIdApplicationsApplicationIdRoute
   OrganizerAppEventsEventIdMealsOptionsRoute: typeof OrganizerAppEventsEventIdMealsOptionsRoute
   OrganizerAppEventsEventIdPaymentsCancellationRoute: typeof OrganizerAppEventsEventIdPaymentsCancellationRoute
-  OrganizerAppEventsEventIdTransportTransportIdRoute: typeof OrganizerAppEventsEventIdTransportTransportIdRoute
-  OrganizerAppEventsEventIdTransportNewRoute: typeof OrganizerAppEventsEventIdTransportNewRoute
   OrganizerAppEventsEventIdApplicationsApplicationIdHealthRoute: typeof OrganizerAppEventsEventIdApplicationsApplicationIdHealthRoute
   OrganizerAppEventsEventIdTransportTransportIdParticipantsRoute: typeof OrganizerAppEventsEventIdTransportTransportIdParticipantsRoute
 }
@@ -905,10 +863,6 @@ const OrganizerAppEventsEventIdRouteRouteChildren: OrganizerAppEventsEventIdRout
       OrganizerAppEventsEventIdMealsOptionsRoute,
     OrganizerAppEventsEventIdPaymentsCancellationRoute:
       OrganizerAppEventsEventIdPaymentsCancellationRoute,
-    OrganizerAppEventsEventIdTransportTransportIdRoute:
-      OrganizerAppEventsEventIdTransportTransportIdRoute,
-    OrganizerAppEventsEventIdTransportNewRoute:
-      OrganizerAppEventsEventIdTransportNewRoute,
     OrganizerAppEventsEventIdApplicationsApplicationIdHealthRoute:
       OrganizerAppEventsEventIdApplicationsApplicationIdHealthRoute,
     OrganizerAppEventsEventIdTransportTransportIdParticipantsRoute:

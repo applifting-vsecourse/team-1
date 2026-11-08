@@ -5,6 +5,8 @@ import {
   fullName,
   TermInfo,
   TransportInput,
+  TransportKind,
+  TransportOption,
   TransportParticipants,
 } from "@/modules/transport/domain/transport"
 import { AppException } from "@/shared/errors/app.exception"
@@ -30,6 +32,29 @@ const termInfo = (term: {
 const activeTerm = { cancelledAt: null }
 const taking = { status: { not: "CANCELLED" as const }, term: activeTerm }
 
+// Rides by departure, own transport last.
+const transportOrder = [
+  { kind: "asc" as const },
+  { departureAt: "asc" as const },
+  { id: "asc" as const },
+]
+
+const option = (transport: {
+  id: string
+  kind: TransportKind
+  name: string
+  departurePlace: string | null
+  departureAt: Date | null
+  instructions: string | null
+}): TransportOption => ({
+  id: transport.id,
+  kind: transport.kind,
+  name: transport.name,
+  departurePlace: transport.departurePlace,
+  departureAt: transport.departureAt,
+  instructions: transport.instructions,
+})
+
 /** The only place of transport (US-65) that touches the database. */
 @Injectable()
 export class TransportRepository {
@@ -38,14 +63,14 @@ export class TransportRepository {
   async list({ eventId, organizationId }: Scope): Promise<EventTransport> {
     const event = await this.prisma.event.findFirst({
       where: { id: eventId, organizationId },
-      select: { name: true, location: true },
+      select: { name: true },
     })
     if (!event) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
-    const [terms, chosen, own] = await Promise.all([
+    const [terms, chosen] = await Promise.all([
       this.prisma.term.findMany({
         where: { eventId, organizationId, cancelledAt: null },
         orderBy: [{ startsOn: "asc" }, { number: "asc" }],
-        include: { transports: { orderBy: [{ departureAt: "asc" }, { id: "asc" }] } },
+        include: { transports: { orderBy: transportOrder } },
       }),
       this.prisma.applicationTerm.groupBy({
         by: ["transportId"],
@@ -57,26 +82,15 @@ export class TransportRepository {
         },
         _count: { _all: true },
       }),
-      this.prisma.applicationTerm.groupBy({
-        by: ["termId"],
-        where: { organizationId, ownTransport: true, ...taking, term: { eventId, ...activeTerm } },
-        _count: { _all: true },
-      }),
     ])
     const chosenBy = new Map(chosen.map((row) => [row.transportId, row._count._all]))
-    const ownIn = new Map(own.map((row) => [row.termId, row._count._all]))
     return {
       eventName: event.name,
-      eventLocation: event.location,
       terms: terms.map((term) => ({
         ...termInfo(term),
-        ownCount: ownIn.get(term.id) ?? 0,
-        transports: term.transports.map(({ id, name, departurePlace, departureAt }) => ({
-          id,
-          name,
-          departurePlace,
-          departureAt,
-          participantsCount: chosenBy.get(id) ?? 0,
+        transports: term.transports.map((transport) => ({
+          ...option(transport),
+          participantsCount: chosenBy.get(transport.id) ?? 0,
         })),
       })),
     }
@@ -97,7 +111,12 @@ export class TransportRepository {
   async termOfTransport(
     { eventId, organizationId }: Scope,
     id: string,
-  ): Promise<{ termId: string; endsOn: string; isCancelled: boolean } | null> {
+  ): Promise<{
+    termId: string
+    kind: TransportKind
+    endsOn: string
+    isCancelled: boolean
+  } | null> {
     const transport = await this.prisma.transport.findFirst({
       where: { id, organizationId, term: { eventId } },
       include: { term: true },
@@ -105,14 +124,26 @@ export class TransportRepository {
     return transport
       ? {
           termId: transport.termId,
+          kind: transport.kind,
           endsOn: isoDay(transport.term.endsOn),
           isCancelled: transport.term.cancelledAt !== null,
         }
       : null
   }
 
-  async create({ organizationId }: Scope, termId: string, input: TransportInput): Promise<void> {
-    await this.prisma.transport.create({ data: { ...input, termId, organizationId } })
+  async create(
+    { organizationId }: Scope,
+    termId: string,
+    kind: TransportKind,
+    input: TransportInput,
+  ): Promise<void> {
+    await this.prisma.transport.create({ data: { ...input, kind, termId, organizationId } })
+  }
+
+  async hasOwn({ organizationId }: Scope, termId: string): Promise<boolean> {
+    return (
+      (await this.prisma.transport.count({ where: { termId, organizationId, kind: "OWN" } })) > 0
+    )
   }
 
   async update({ organizationId }: Scope, id: string, input: TransportInput): Promise<void> {
@@ -127,34 +158,24 @@ export class TransportRepository {
   /** `transportId` null lists the participants of `termId` who travel on their own. */
   async participants(
     { eventId, organizationId }: Scope,
-    transportId: string | null,
-    termId: string,
+    transportId: string,
   ): Promise<TransportParticipants> {
-    const transport = transportId
-      ? await this.prisma.transport.findFirst({
-          where: { id: transportId, organizationId, term: { eventId } },
-        })
-      : null
-    if (transportId && !transport) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
-    const term = await this.prisma.term.findFirst({
-      where: { id: transport?.termId ?? termId, eventId, organizationId },
+    const transport = await this.prisma.transport.findFirst({
+      where: { id: transportId, organizationId, term: { eventId } },
+      include: { term: true },
     })
-    if (!term) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
+    if (!transport) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
     const rows = await this.prisma.applicationTerm.findMany({
-      where: {
-        termId: term.id,
-        organizationId,
-        ...taking,
-        ...(transport ? { transportId: transport.id } : { ownTransport: true }),
-      },
+      where: { termId: transport.termId, organizationId, ...taking, transportId: transport.id },
       orderBy: [{ application: { lastName: "asc" } }, { application: { firstName: "asc" } }],
       select: {
         application: { select: { id: true, firstName: true, lastName: true, email: true } },
       },
     })
     return {
-      ...termInfo(term),
-      name: transport?.name ?? null,
+      ...termInfo(transport.term),
+      name: transport.name,
+      kind: transport.kind,
       participants: rows.map(({ application }) => ({
         applicationId: application.id,
         name: fullName(application.firstName, application.lastName),
@@ -173,7 +194,7 @@ export class TransportRepository {
           where: taking,
           orderBy: { term: { startsOn: "asc" } },
           include: {
-            term: { include: { transports: { orderBy: [{ departureAt: "asc" }, { id: "asc" }] } } },
+            term: { include: { transports: { orderBy: transportOrder } } },
           },
         },
       },
@@ -182,17 +203,11 @@ export class TransportRepository {
     return {
       participantName: fullName(application.firstName, application.lastName),
       eventName: application.event.name,
-      terms: application.terms.map(({ term, status, transportId, ownTransport }) => ({
+      terms: application.terms.map(({ term, status, transportId }) => ({
         ...termInfo(term),
         status,
         selectedTransportId: transportId,
-        isOwn: ownTransport,
-        options: term.transports.map(({ id, name, departurePlace, departureAt }) => ({
-          id,
-          name,
-          departurePlace,
-          departureAt,
-        })),
+        options: term.transports.map(option),
       })),
     }
   }
@@ -202,22 +217,19 @@ export class TransportRepository {
     userId: string,
     applicationId: string,
     termId: string,
-    transportId: string | null,
+    transportId: string,
   ): Promise<boolean> {
     const row = await this.prisma.applicationTerm.findFirst({
       where: { applicationId, termId, application: { userId }, ...taking },
       select: { id: true },
     })
     if (!row) return false
-    if (
-      transportId &&
-      !(await this.prisma.transport.findFirst({ where: { id: transportId, termId } }))
-    ) {
+    if (!(await this.prisma.transport.findFirst({ where: { id: transportId, termId } }))) {
       return false
     }
     await this.prisma.applicationTerm.update({
       where: { id: row.id },
-      data: { transportId, ownTransport: transportId === null },
+      data: { transportId },
     })
     return true
   }
