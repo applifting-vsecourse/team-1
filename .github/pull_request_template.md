@@ -10,7 +10,7 @@ Closes #
 
 ## Screenshoty
 
-<!-- Mění-li se, co uživatel vidí: desktop a 360 px, u vizuální opravy před/po (postup v CLAUDE.md, „Screenshots in the PR“). Jinak jeden řádek, proč tu žádné nejsou. -->
+<!-- Mění-li se, co uživatel vidí: desktop a 360 px, u vizuální opravy před/po (postup ve skillu `pr-finish`, krok 3). Jinak jeden řádek, proč tu žádné nejsou. -->
 
 ## Checklist
 
