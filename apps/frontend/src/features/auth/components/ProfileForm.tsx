@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { LANGUAGES } from "@/i18n"
+import { notify } from "@/lib/notify"
 import { cn } from "@/lib/utils"
 
 import {
@@ -71,8 +72,14 @@ export function ProfileForm({ user }: { user: SessionUser }) {
     try {
       const saved = await update.mutateAsync({ name: values.name, locale: values.locale })
       form.reset({ name: saved.name ?? "", locale: saved.locale })
-      // The frames confirm only the language; a saved name alone has no drawn state.
-      if (isLanguageChanged) setSavedLocale(saved.locale)
+      // The frames draw the inline confirmation only for the language; the toast (#125)
+      // confirms every save, a saved name alone included.
+      if (isLanguageChanged) {
+        setSavedLocale(saved.locale)
+        notify.success(t("profile.saved.title"), t(`profile.saved.description.${saved.locale}`))
+      } else {
+        notify.success(t("profile.savedDetails"))
+      }
     } catch {
       // The Alert below shows it; the form keeps its data.
     }
