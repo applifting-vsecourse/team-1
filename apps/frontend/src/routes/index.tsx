@@ -319,7 +319,7 @@ function LandingPage() {
                 <Link to={ROUTES.catalog}>{t("catalogLink")}</Link>
               </Button>
             </div>
-            <div className="flex items-center justify-center rounded-lg bg-card p-6 shadow-md md:order-last">
+            <div className="flex items-center justify-center rounded-lg bg-card p-6 shadow-sm md:order-last">
               <Art
                 illustration={DashboardIllustration}
                 className="max-h-72"
