@@ -5,6 +5,7 @@ import { AuthModule } from "@/shared/auth/auth.module"
 import { OrganizationAccessModule } from "@/shared/organization-access/organization-access.module"
 import { RateLimitModule } from "@/shared/rate-limit/rate-limit.module"
 import { Module } from "@nestjs/common"
+import { ApplicationHistoryController } from "./controllers/application-history.controller"
 import { ApplicationsController } from "./controllers/applications.controller"
 import { BulkConfirmationController } from "./controllers/bulk-confirmation.controller"
 import { BulkDecisionController } from "./controllers/bulk-decision.controller"
@@ -23,6 +24,7 @@ import { PublicEventsController } from "./controllers/public-events.controller"
 import { SubmissionStatusController } from "./controllers/submission-status.controller"
 import { SubstitutesController } from "./controllers/substitutes.controller"
 import { TermStatusController } from "./controllers/term-status.controller"
+import { ApplicationHistoryRepository } from "./repositories/application-history.repository"
 import { ApplicationsRepository } from "./repositories/applications.repository"
 import { BulkConfirmationRepository } from "./repositories/bulk-confirmation.repository"
 import { BulkDecisionRepository } from "./repositories/bulk-decision.repository"
@@ -33,6 +35,7 @@ import { PublicEventsRepository } from "./repositories/public-events.repository"
 import { SubmissionStatusRepository } from "./repositories/submission-status.repository"
 import { SubstitutesRepository } from "./repositories/substitutes.repository"
 import { TermStatusRepository } from "./repositories/term-status.repository"
+import { ApplicationHistoryService } from "./services/application-history.service"
 import { ApplicationsService } from "./services/applications.service"
 import { BulkConfirmationService } from "./services/bulk-confirmation.service"
 import { BulkDecisionService } from "./services/bulk-decision.service"
@@ -60,6 +63,7 @@ import { WaitlistExpiryService } from "./services/waitlist-expiry.service"
     PublicEventsController,
     PublicCatalogController,
     ApplicationsController,
+    ApplicationHistoryController,
     ManualApplicationController,
     CapacityController,
     ParticipantChangeRequestController,
@@ -85,6 +89,8 @@ import { WaitlistExpiryService } from "./services/waitlist-expiry.service"
     PublicCatalogRepository,
     ApplicationsService,
     ApplicationsRepository,
+    ApplicationHistoryRepository,
+    ApplicationHistoryService,
     ContactEmailSyncService,
     SubmissionStatusService,
     SubmissionStatusRepository,

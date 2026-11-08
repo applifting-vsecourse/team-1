@@ -223,6 +223,16 @@
     "submitted": "Submitted {{date}} · original application unchanged",
     "title": "Change requests"
   },
+  "history": {
+    "created": "Application created",
+    "entry": "{{date}} · {{who}} · {{change}}",
+    "errorTitle": "Could not load the history of changes",
+    "payment": "Payment {{amount}}",
+    "refund": "Refund {{amount}}",
+    "status": "{{term}}: {{from}} → {{to}}",
+    "system": "System",
+    "title": "History of changes"
+  },
   "manual": {
     "add": "Add application",
     "applicant": "Applicant",
