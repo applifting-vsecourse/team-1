@@ -100,6 +100,12 @@ beforeAll(() => {
 afterEach(() => vi.restoreAllMocks())
 
 describe("CatalogPage", () => {
+  it("leads back to the landing page", async () => {
+    renderPage(() => json(catalog))
+
+    expect(await screen.findByRole("link", { name: "Home" })).toHaveAttribute("href", "/")
+  })
+
   it("lists the published events as cards that open the event page", async () => {
     renderPage(() => json(catalog))
 

@@ -61,8 +61,9 @@ function LandingPage() {
           </div>
           <Button
             asChild
-            variant="ghost"
-            className="mt-1 h-12 w-full px-4 md:mt-0 md:w-auto"
+            size="lg"
+            variant="outline"
+            className="w-full md:w-auto"
           >
             <Link to={ROUTES.catalog}>{t("catalogLink")}</Link>
           </Button>
