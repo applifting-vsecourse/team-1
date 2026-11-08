@@ -160,18 +160,6 @@ export function TransportList({ eventId }: { eventId: string }) {
             <h3>{t("listTitle")}</h3>
           </CardTitle>
           <div className="flex flex-col-reverse gap-2 sm:flex-row sm:flex-wrap sm:items-center">
-            {hasOwn ? null : (
-              <Button
-                variant="outline"
-                size="lg"
-                className="max-sm:w-full"
-                onClick={() => {
-                  setEditor({ kind: "OWN" })
-                }}
-              >
-                {t("addOwn")}
-              </Button>
-            )}
             <Button
               size="lg"
               className="max-sm:w-full"
@@ -257,6 +245,7 @@ export function TransportList({ eventId }: { eventId: string }) {
           term={term}
           kind={editor.kind}
           transport={editor.transport}
+          canAddOwn={!hasOwn}
           copyable={copyable}
           onClose={() => {
             setEditor(null)

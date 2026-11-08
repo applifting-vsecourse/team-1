@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Loader2 } from "lucide-react"
@@ -12,7 +13,6 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogTitle,
 } from "@/components/ui/dialog"
@@ -26,6 +26,8 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import {
   Select,
   SelectContent,
@@ -54,16 +56,20 @@ type Values = { name: string; departurePlace: string; departureAt: string; instr
 export function TransportDialog({
   eventId,
   term,
-  kind,
+  kind: initialKind,
   transport,
+  canAddOwn,
   copyable,
   onClose,
 }: {
   eventId: string
   term: TermTransport
+  /** The kind of an existing transport; a new one starts as a ride and can be switched. */
   kind: TransportKind
   /** Present when editing. */
   transport?: TransportSummary
+  /** Own transport is offered once per term. */
+  canAddOwn: boolean
   /** Rides of other terms to start a new one from. */
   copyable: TransportSummary[]
   onClose: () => void
@@ -71,6 +77,7 @@ export function TransportDialog({
   const { t } = useTranslation("transport")
   const client = useQueryClient()
   const required = t("required")
+  const [kind, setKind] = useState(initialKind)
   const isRide = kind === "SCHEDULED"
   const schema = z
     .object({
@@ -129,9 +136,7 @@ export function TransportDialog({
     onClose()
   })
   const isPending = mutation.isPending || form.formState.isSubmitting
-  const title = isRide
-    ? t(transport ? "editTitle" : "addTitle")
-    : t(transport ? "editOwnTitle" : "addOwnTitle")
+  const title = transport ? t(isRide ? "editTitle" : "editOwnTitle") : t("add")
   return (
     <Dialog
       open
@@ -139,14 +144,14 @@ export function TransportDialog({
         if (!isOpen && !isPending) onClose()
       }}
     >
-      <DialogContent className="max-h-[90dvh] overflow-y-auto bg-card shadow-md sm:max-w-170">
+      <DialogContent
+        aria-describedby={undefined}
+        className="max-h-[90dvh] overflow-y-auto bg-card shadow-md sm:max-w-170"
+      >
         <p className="text-xs font-medium text-muted-foreground uppercase">
           {termTitle({ ...term, name: term.termName })}
         </p>
         <DialogTitle className="pr-8">{title}</DialogTitle>
-        <DialogDescription className="text-base">
-          {t(isRide ? "rideDescription" : "ownDescription")}
-        </DialogDescription>
         <Form {...form}>
           <form
             noValidate
@@ -159,6 +164,38 @@ export function TransportDialog({
               disabled={isPending}
               className="flex flex-col gap-4"
             >
+              {!transport && canAddOwn ? (
+                <div className="flex flex-col gap-2">
+                  <Label>{t("typeLabel")}</Label>
+                  <RadioGroup
+                    value={kind}
+                    onValueChange={(value) => {
+                      setKind(value === "OWN" ? "OWN" : "SCHEDULED")
+                    }}
+                  >
+                    {(["SCHEDULED", "OWN"] as const).map((value) => (
+                      <div
+                        key={value}
+                        className="flex min-h-11 items-start gap-2 p-2"
+                      >
+                        <RadioGroupItem
+                          value={value}
+                          id={`transport-kind-${value}`}
+                          className="size-5"
+                        />
+                        <div className="flex flex-col">
+                          <Label htmlFor={`transport-kind-${value}`}>
+                            {t(value === "OWN" ? "typeOwn" : "typeRide")}
+                          </Label>
+                          <p className="text-xs text-muted-foreground">
+                            {t(value === "OWN" ? "typeOwnHint" : "typeRideHint")}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </RadioGroup>
+                </div>
+              ) : null}
               {isRide && !transport && copyable.length > 0 ? (
                 <div className="flex flex-col gap-2">
                   <FormLabel htmlFor="transport-copy">{t("copyLabel")}</FormLabel>

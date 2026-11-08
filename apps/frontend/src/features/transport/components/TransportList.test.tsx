@@ -81,9 +81,8 @@ describe("TransportList", () => {
     expect((await screen.findAllByText("Autobus z Prahy")).length).toBeGreaterThan(0)
     expect(screen.getAllByText("Praha, Černý Most").length).toBeGreaterThan(0)
     expect(screen.getAllByText("Own transport").length).toBeGreaterThan(0)
-    // The term already has own transport, so it is not offered a second one.
+    expect(screen.getAllByRole("button", { name: "Add transport" })).toHaveLength(1)
     expect(screen.queryByRole("button", { name: "Add own transport" })).not.toBeInTheDocument()
-    expect(screen.getByRole("button", { name: "Add transport" })).toBeInTheDocument()
   })
 
   it("asks for an acknowledgement before deleting a transport that participants chose", async () => {
@@ -100,5 +99,17 @@ describe("TransportList", () => {
     expect(confirm).toBeDisabled()
     await user.click(screen.getByRole("checkbox"))
     expect(confirm).toBeEnabled()
+  })
+})
+
+describe("TransportList add dialog", () => {
+  it("offers own transport as a type of the one add flow, only while the term has none", async () => {
+    renderList()
+    const user = userEvent.setup()
+
+    await user.click(await screen.findByRole("button", { name: "Add transport" }))
+    // Term 1 already has own transport: no choice of type.
+    expect(await screen.findByRole("dialog")).toBeInTheDocument()
+    expect(screen.queryByRole("radio", { name: "Own transport" })).not.toBeInTheDocument()
   })
 })
