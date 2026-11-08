@@ -6,6 +6,7 @@ import {
 import { evaluateManualSubmission } from "@/modules/applications/domain/manual-submission"
 import { isOpenForApplications } from "@/modules/applications/domain/public-event"
 import { evaluateSubmission, isValidBirthDate } from "@/modules/applications/domain/submission"
+import { hasEndedTerm } from "@/modules/applications/domain/term-ended"
 import { termLabel } from "@/modules/applications/domain/term-label"
 import { todayInPrague } from "@/modules/applications/domain/waitlist-expiry"
 import {
@@ -88,7 +89,7 @@ export class ApplicationsService {
     // A term that is over takes no applications, not even from the organizer; checked before the
     // account is created and the confirmation e-mail goes out.
     const today = todayInPrague(new Date()).toISOString().slice(0, 10)
-    if (event.terms.some(({ id, endsOn }) => requestedIds.includes(id) && endsOn < today)) {
+    if (hasEndedTerm(event.terms, requestedIds, today)) {
       throw new AppException(HttpStatus.CONFLICT, "TERM_ENDED")
     }
     const participant = {
