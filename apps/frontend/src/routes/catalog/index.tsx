@@ -27,7 +27,7 @@ function CatalogRoute() {
     <>
       <Seo title={t("list.title")} />
       <PublicLayout isFullWidth>
-        <div className="mx-auto w-full max-w-275 px-4 py-8 md:p-12">
+        <div className="mx-auto w-full max-w-275 px-4 pt-4 pb-8 md:px-12 md:pt-8 md:pb-12">
           <CatalogPage
             organizationId={organization}
             onOrganizationChange={(organizationId) =>

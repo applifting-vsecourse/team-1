@@ -4,6 +4,7 @@ import { z } from "zod"
 
 import { ROUTES } from "@/app/routes"
 import { Seo } from "@/components/atoms/Seo"
+import { BackLink } from "@/components/molecules/BackLink"
 import { AuthLayout } from "@/components/templates/AuthLayout"
 import { Card } from "@/components/ui/card"
 
@@ -37,6 +38,7 @@ function ParticipantLoginPage() {
       <Seo title={t("participantLogin.title")} />
       <AuthLayout
         title={t("participantLogin.title")}
+        back={<BackLink to={ROUTES.home}>{t("backHome")}</BackLink>}
         description={t("participantLogin.description")}
       >
         <div className="flex flex-col gap-4">

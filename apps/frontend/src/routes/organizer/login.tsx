@@ -4,6 +4,7 @@ import { z } from "zod"
 
 import { ROUTES } from "@/app/routes"
 import { Seo } from "@/components/atoms/Seo"
+import { BackLink } from "@/components/molecules/BackLink"
 import { AuthLayout } from "@/components/templates/AuthLayout"
 
 import { authSessionQueryOptions } from "@/features/auth/api/authSessionQueryOptions"
@@ -34,6 +35,7 @@ function OrganizerLoginPage() {
       <Seo title={t("organizerLogin.title")} />
       <AuthLayout
         title={t("organizerLogin.title")}
+        back={<BackLink to={ROUTES.home}>{t("backHome")}</BackLink>}
         description={t("organizerLogin.description")}
         cardTitle={t("organizerLogin.cardTitle")}
         footer={
