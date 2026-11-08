@@ -1,0 +1,117 @@
+name: Capture PR 344 screenshots
+
+on:
+  push:
+    branches: [pr-screenshots]
+    paths: [".github/workflows/capture-pr-344-20261108.yml"]
+
+permissions:
+  contents: write
+  issues: read
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: togena
+          POSTGRES_PASSWORD: togena
+          POSTGRES_DB: togena
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U togena -d togena"
+          --health-interval 3s
+          --health-timeout 3s
+          --health-retries 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 2b29c52321ea0c603b9412382ff50e726626a1ab
+          persist-credentials: false
+
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Create test environment
+        run: pnpm env:check
+
+      - name: Generate Prisma client
+        run: pnpm backend prisma:generate
+
+      - name: Install Chromium
+        run: pnpm e2e exec playwright install --with-deps chromium
+
+      - name: Materialize temporary spec without committing it
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api repos/applifting-vsecourse/team-1/issues/comments/6725882462 > "$RUNNER_TEMP/screenshot-input.json"
+          node <<'NODE'
+          const fs = require("node:fs"), crypto = require("node:crypto");
+          const response = JSON.parse(fs.readFileSync(process.env.RUNNER_TEMP + "/screenshot-input.json", "utf8"));
+          const match = response.body.match(/<!-- screenshot-capture-input:v1 (\{.*\}) -->/);
+          if (!match) throw new Error("Missing screenshot input");
+          const input = JSON.parse(match[1]);
+          if (input.pr !== 344 || input.head !== "2b29c52321ea0c603b9412382ff50e726626a1ab" || input.specSha256 !== "52a52c21c75a9b23397f9fb27d2ad4db0016008cca6e1a8366b09f4c980f90a5") throw new Error("Input identity mismatch");
+          const source = Buffer.from(input.specBase64, "base64");
+          if (crypto.createHash("sha256").update(source).digest("hex") !== "52a52c21c75a9b23397f9fb27d2ad4db0016008cca6e1a8366b09f4c980f90a5") throw new Error("Spec integrity mismatch");
+          fs.writeFileSync("apps/e2e/tests/zz-screenshots.spec.ts", source, {flag: "wx"});
+          NODE
+
+      - name: Capture desktop and 360 px screenshots using only seed data
+        env:
+          RESEND_API_KEY: ""
+        run: pnpm e2e test tests/zz-screenshots.spec.ts --project=desktop
+
+      - name: Publish six new PNG files only on pr-screenshots
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          files=(apps/e2e/test-results/screenshots/344/*/*.png)
+          test "${#files[@]}" -eq 6
+          node <<'NODE'
+          const fs = require("node:fs"), path = require("node:path");
+          const root = "apps/e2e/test-results/screenshots/344";
+          const files = fs.readdirSync(root).flatMap(dir => fs.readdirSync(path.join(root, dir)).map(name => path.join(root, dir, name))).filter(f => f.endsWith(".png"));
+          const expected = ["desktop-1440-01-form.png", "desktop-1440-02-capacity.png", "desktop-1440-03-created.png", "mobile-360-01-form.png", "mobile-360-02-capacity.png", "mobile-360-03-created.png"];
+          if (files.length !== 6 || expected.some(name => !files.some(f => path.basename(f) === name))) throw new Error("Screenshot set mismatch");
+          for (const file of files) {
+            const png = fs.readFileSync(file);
+            if (png.subarray(0,8).toString("hex") !== "89504e470d0a1a0a") throw new Error("Invalid PNG");
+            const width = png.readUInt32BE(16);
+            if (width !== (path.basename(file).startsWith("mobile") ? 360 : 1440)) throw new Error("Wrong viewport width");
+          }
+          NODE
+          for source in "${files[@]}"; do
+            filename="us83-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-$(basename "$source")"
+            base64 -w0 "$source" > "$RUNNER_TEMP/screenshot.b64"
+            gh api -X PUT "repos/${GITHUB_REPOSITORY}/contents/344/$filename" -f message="Screenshots for #344" -f branch="pr-screenshots" -F content=@"$RUNNER_TEMP/screenshot.b64" --silent
+          done
+
+      - name: Preserve screenshots or failure diagnostics
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: pr-344-screenshots
+          path: |
+            apps/e2e/test-results/
+            apps/e2e/playwright-report/
+          retention-days: 1
+          if-no-files-found: ignore
+
+      - name: Remove the temporary spec and input
+        if: always()
+        run: rm -f apps/e2e/tests/zz-screenshots.spec.ts "$RUNNER_TEMP/screenshot-input.json" "$RUNNER_TEMP/screenshot.b64"
