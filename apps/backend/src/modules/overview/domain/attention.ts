@@ -12,14 +12,14 @@ import { PaymentOverview } from "@/modules/overview/domain/payment-overview"
  */
 export const ATTENTION_FILTERS = {
   toEvaluate: { status: "TO_EVALUATE" },
-  substitutes: { status: "WAITLISTED" },
+  substitutes: { waitlist: "FREE_BED" },
   debt: { payment: "DEBT" },
 } as const satisfies Record<string, ApplicationFilters>
 
 export type Attention = {
   /** Applications with a term awaiting evaluation. */
   toEvaluateCount: number
-  /** Applications waiting in a waitlist, whether or not a bed is free now (decision on #397). */
+  /** Waitlisted applications the organizer can approve now: manual evaluation, a free bed. */
   substituteCount: number
   /** Participants with a debt; the figures are those of the payments overview (US-45). */
   debt: { debtorCount: number; overdueCount: number; totalDebtCzk: number }

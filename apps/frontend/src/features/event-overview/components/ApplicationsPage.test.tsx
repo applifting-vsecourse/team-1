@@ -292,6 +292,10 @@ describe("ApplicationsPage", () => {
     })
     expect((await screen.findAllByText("Waitlisted · 1")).length).toBeGreaterThan(0)
     expect(screen.getByRole("radio", { name: "Waitlisted" })).toBeChecked()
+    // The free-bed filter is a select of its own, not a loose chip.
+    expect(screen.getAllByRole("combobox", { name: "Waitlist" })[0]).toHaveTextContent(
+      "Substitutes with a free bed",
+    )
     expect(screen.getByRole("status")).toHaveTextContent(/not a confirmed place/)
     const request = get.mock.calls.find(([path]) => String(path).endsWith("applications"))!
     expect(String((request[1] as { searchParams: URLSearchParams }).searchParams)).toBe(

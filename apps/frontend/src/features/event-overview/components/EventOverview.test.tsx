@@ -84,7 +84,7 @@ describe("EventOverview", () => {
     const substitutes = screen.getByRole("link", { name: /Substitutes to resolve · 3/ })
     expect(substitutes).toHaveTextContent("Freed beds in the matching group")
     expect(substitutes.getAttribute("href")).toContain("status=WAITLISTED")
-    expect(substitutes.getAttribute("href")).not.toContain("waitlist=")
+    expect(substitutes.getAttribute("href")).toContain("waitlist=FREE_BED")
     const debt = screen.getByRole("link", { name: /Participants with a balance due · 6/ })
     expect(debt).toHaveTextContent("3 overdue · Total balance due")
     expect(debt).toHaveTextContent("18,400")
@@ -95,17 +95,16 @@ describe("EventOverview", () => {
     expect(screen.getByRole("combobox", { name: "Event" })).toBeVisible()
   })
 
-  it("says nothing needs attention when every count is zero, and still shows the occupancy", async () => {
+  it("still shows the cards, with zero counts, when nothing needs attention", async () => {
     renderOverview({
       toEvaluateCount: 0,
       substituteCount: 0,
       debt: { debtorCount: 0, overdueCount: 0, totalDebtCzk: 0 },
       changeRequestCount: 0,
     })
-    expect(await screen.findByText("Nothing needs your attention")).toBeVisible()
-    expect(screen.getByText("Awaiting review 0 · Substitutes to resolve 0")).toBeVisible()
-    expect(screen.getByText("Participants with a balance due 0 · Pending requests 0")).toBeVisible()
-    expect(screen.queryByRole("link", { name: /Awaiting review/ })).not.toBeInTheDocument()
+    expect(await screen.findByRole("link", { name: /Awaiting review · 0/ })).toBeVisible()
+    expect(screen.getByRole("link", { name: /Substitutes to resolve · 0/ })).toBeVisible()
+    expect(screen.queryByText("Nothing needs your attention")).not.toBeInTheDocument()
     expect(await screen.findByText("Summer week")).toBeVisible()
   })
 
