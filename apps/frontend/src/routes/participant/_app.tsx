@@ -34,7 +34,7 @@ function ParticipantLayout() {
     <>
       <Seo title={t("area.participant")} />
       <AreaLayout
-        width="wide"
+        width="reading"
         roleLabel={t("accountRole.PARTICIPANT")}
         nav={
           <SidebarLink
