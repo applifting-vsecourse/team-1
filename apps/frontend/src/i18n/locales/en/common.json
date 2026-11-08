@@ -46,10 +46,11 @@
   },
   "nav": {
     "applications": "Applications",
-    "collapseMenu": "Collapse menu",
+    "collapsePanel": "Collapse panel",
+    "collapseShortcut": "Ctrl B",
     "eventSections": "Event sections",
     "events": "Events",
-    "expandMenu": "Expand menu",
+    "expandPanel": "Expand panel",
     "main": "Main navigation",
     "openMenu": "Open navigation",
     "overview": "Overview"
