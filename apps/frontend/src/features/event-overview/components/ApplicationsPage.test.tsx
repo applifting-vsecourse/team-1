@@ -279,6 +279,39 @@ describe("ApplicationsPage", () => {
     expect(screen.getByText("Sorted: waitlist order")).toBeInTheDocument()
     expect(screen.getByRole("status")).toHaveTextContent(/not a confirmed place/)
   })
+  it("opens the waitlist view for the filters of the card Substitutes to resolve (#397)", async () => {
+    const waiting = (id: string, gender: string, position: number) => ({
+      ...application,
+      id,
+      gender,
+      terms: [{ ...application.terms[1], waitlistPosition: position }],
+    })
+    setup([waiting("a1", "FEMALE", 1), waiting("a2", "MALE", 2)], false, undefined, null, {
+      status: "WAITLISTED",
+      waitlist: "FREE_BED",
+    })
+    expect((await screen.findAllByText("Waitlisted · 1")).length).toBeGreaterThan(0)
+    expect(screen.getByRole("radio", { name: "Waitlisted" })).toBeChecked()
+    // The free-bed filter is a select of its own, not a loose chip.
+    expect(screen.getAllByRole("combobox", { name: "Waitlist" })[0]).toHaveTextContent(
+      "Substitutes with a free bed",
+    )
+    expect(screen.getByRole("status")).toHaveTextContent(/not a confirmed place/)
+    const request = get.mock.calls.find(([path]) => String(path).endsWith("applications"))!
+    expect(String((request[1] as { searchParams: URLSearchParams }).searchParams)).toBe(
+      "status=WAITLISTED&waitlist=FREE_BED",
+    )
+  })
+  it("leaves the free-bed filter of the card when another view is chosen (#397)", async () => {
+    const onFilters = setup([application], false, undefined, null, {
+      status: "WAITLISTED",
+      waitlist: "FREE_BED",
+    })
+    await screen.findByRole("radio", { name: "Waitlisted" })
+    await userEvent.setup().click(screen.getByRole("radio", { name: "All applications" }))
+    expect(onFilters).toHaveBeenLastCalledWith({})
+    expect(screen.queryByRole("button", { name: /Substitutes with a free bed/ })).toBeNull()
+  })
   it("keeps identifying and contact details in mobile cards for same-name participants", async () => {
     setup([
       application,

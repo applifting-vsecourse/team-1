@@ -211,7 +211,7 @@ export function ApplicationsPage({
               maxLength={100}
               defaultValue={filters.q ?? ""}
               placeholder={t("applications.searchPlaceholder")}
-              className="w-full md:w-80"
+              className="w-full md:w-56"
               onChange={(event) => {
                 setPage(0)
                 const q = event.target.value.trim()
