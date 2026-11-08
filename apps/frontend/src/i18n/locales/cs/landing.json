@@ -1,5 +1,9 @@
 {
   "catalogLink": "Prohlédnout katalog akcí",
+  "cta": {
+    "body": "Togena pomáhá organizátorům vypsat termíny, hlídat místa a vidět přihlášky i platby na jednom místě.",
+    "title": "Připraveni vypsat první akci?"
+  },
   "description": "Togena pomáhá organizátorům vypsat termíny, hlídat místa a vidět přihlášky i platby na jednom místě. Účastníci se přihlásí z odkazu bez registrace.",
   "features": {
     "capacity": {
@@ -21,8 +25,46 @@
     }
   },
   "footer": "Togena · Správa vícetermínových akcí",
+  "footerLinks": {
+    "login": "Přihlásit se",
+    "myApplications": "Moje přihlášky",
+    "organizers": "Pro organizátory",
+    "participants": "Pro účastníky",
+    "register": "Založit účet"
+  },
+  "nav": {
+    "catalog": "Katalog akcí",
+    "organizers": "Pro organizátory",
+    "participants": "Pro účastníky"
+  },
   "organizerCta": "Jsem organizátor",
   "participantCta": "Jsem účastník",
-  "title": "Přihlášky na akce s více termíny",
-  "titleAccent": "bez zmatku"
+  "participants": {
+    "body": "Zájemce si z odkazu vybere termín nebo více termínů a po odeslání vidí stav každého z nich.",
+    "title": "Účastníci se přihlásí z odkazu bez registrace"
+  },
+  "preview": {
+    "confirmed": "Potvrzeno 139",
+    "event": "Letní tábor Modrá Hora",
+    "paid": "Zaplaceno",
+    "waitlist": "Náhradníci 9"
+  },
+  "title": "Přihlášky na akce s více termíny",
+  "titleAccent": "bez zmatku",
+  "types": {
+    "camps": {
+      "body": "Termíny, pokoje a platby účastníků na jednom místě.",
+      "title": "Letní tábory"
+    },
+    "conferences": {
+      "body": "Přihlášky bez e-mailových řetězců a tabulek.",
+      "title": "Konference a workshopy"
+    },
+    "description": "Od dětských táborů přes konference až po sportovní soustředění.",
+    "title": "Pro každý typ akce",
+    "trips": {
+      "body": "Kapacita podle pokojů a přehled náhradníků.",
+      "title": "Soustředění a výjezdy"
+    }
+  }
 }
