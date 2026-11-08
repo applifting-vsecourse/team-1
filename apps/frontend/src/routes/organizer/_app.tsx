@@ -52,6 +52,8 @@ function OrganizerLayout() {
             {/* Figma (Design system): #51 Letní kemp Lipno 2027 / Desktop · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19798-36893 */}
             <SidebarLink
               to={ROUTES.organizer.home}
+              // /organizer only redirects to a page under "Akce"; without exact it would match every page.
+              activeOptions={{ exact: true }}
               icon={LayoutGrid}
             >
               {t("nav.overview")}
