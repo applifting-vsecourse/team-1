@@ -65,7 +65,7 @@ export function AuthLayout({
         children
       )}
 
-      {footer ? <p className="text-center text-sm text-muted-foreground">{footer}</p> : null}
+      {footer ? <div className="text-center text-sm text-muted-foreground">{footer}</div> : null}
     </div>
   )
 
