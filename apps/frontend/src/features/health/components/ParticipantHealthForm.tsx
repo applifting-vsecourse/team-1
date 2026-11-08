@@ -4,6 +4,7 @@ import { useNavigate } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
+import { BackLink } from "@/components/atoms/BackLink"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { PageHeader } from "@/components/molecules/PageHeader"
@@ -103,6 +104,12 @@ function HealthFields({ applicationId, health }: { applicationId: string; health
         mutation.mutate()
       }}
     >
+      <BackLink
+        to={ROUTES.participant.application}
+        params={{ applicationId }}
+      >
+        {t("backToApplication")}
+      </BackLink>
       <PageHeader
         title={t("title")}
         description={`${health.firstName} ${health.lastName} · ${health.eventName}`}

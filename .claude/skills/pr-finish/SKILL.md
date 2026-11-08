@@ -17,7 +17,7 @@ Tell the author in a short list in your last message, before the PR is opened an
 - **Ticket link:** the branch is `feat/US-<n>-<slug>` (`fix/`, `chore/`, `docs/` for the rest), the PR title is the story title and every PR that belongs to an issue starts its body with `Closes #<issue number>`. `Refs` doesn't link the PR and the issue in GitHub. On merge, the issue closes and the board's „Item closed“ workflow moves it to In Business Review; the product manager moves it to Done after checking it on staging.
 - **Acceptance criteria:** the report above is in the PR body and every ✅ one is ticked in the issue on the board. Tick them yourself with `gh issue edit <n> --body-file` when you open or update the PR, and change nothing else in the issue. Leave ❌ and ❓ unticked.
 - **Open items:** „Nejasnosti k byznys pravidlům“, „Odchylky od Figmy“ and „Mimo rozsah story“ are in the PR when they apply.
-- **Screenshots:** the PR changes what a user sees, but „Screenshoty“ has neither pictures nor a line saying why there are none (step 3).
+- **Screenshots:** the PR changes what a user sees, but „Screenshoty“ has neither pictures nor a line saying why there are none (step 3). Verify it on the live PR body, not on your local file.
 
 ## 3. Screenshots
 
@@ -32,6 +32,7 @@ When a PR changes what a user sees and a picture saves the reviewer a click — 
     -f message="Screenshots for #<pr>" -f branch=pr-screenshots -F content=@<name>.b64
   ```
   Then embed `![<what it shows>](https://raw.githubusercontent.com/applifting-vsecourse/team-1/pr-screenshots/<pr>/<name>.png)` with a caption saying which screen, state and width it is.
+- **Write the body in one pass and check it afterwards.** Upload the images first (the PR number is known once the draft is open), then build the body with the final `![…](…)` lines already in it — no placeholder to replace later. After every `gh pr create` / `gh pr edit`, read the body back (`gh pr view <n> --json body -q .body`) and check that it contains one `pr-screenshots/<pr>/…png` line per picture you took (including the 360 px one) and no leftover placeholder; `gh pr edit` can fail quietly, so never trust its output. Do not tell the author the screenshots are in until you have seen them in the read-back body.
 - If taking or uploading them is blocked or fails, say so in one line under „Screenshoty“ and go on; screenshots never hold a PR back.
 
 ## 4. Review loop

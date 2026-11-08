@@ -37,4 +37,20 @@ describe("AuthLayout", () => {
     expect(screen.queryByText("Public header")).not.toBeInTheDocument()
     expect(screen.queryByRole("main")).not.toBeInTheDocument()
   })
+
+  it("renders the back link above the heading", () => {
+    render(
+      <AuthLayout
+        title="Title"
+        description="Description"
+        back={<a href="/">Home</a>}
+      >
+        <p>Body</p>
+      </AuthLayout>,
+    )
+
+    const link = screen.getByRole("link", { name: "Home" })
+    const heading = screen.getByRole("heading", { name: "Title" })
+    expect(link.compareDocumentPosition(heading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  })
 })
