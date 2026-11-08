@@ -23,6 +23,7 @@
     "allergiesLabel": "Alergie a další stravovací omezení",
     "pageTitle": "Stravování",
     "save": "Uložit stravování",
+    "saved": "Stravování uloženo",
     "specialRequestLabel": "Speciální požadavek",
     "title": "Stravování · {{name}}"
   }

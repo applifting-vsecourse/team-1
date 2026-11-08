@@ -1,7 +1,9 @@
 import { useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useNavigate } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
+import { ROUTES } from "@/app/routes"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { PageHeader } from "@/components/molecules/PageHeader"
@@ -10,6 +12,7 @@ import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { notify } from "@/lib/notify"
 
 import { ownMealsQueryOptions, saveOwnMeals, type OwnMeals } from "@/features/meals/api/meals"
 
@@ -45,6 +48,7 @@ export function ParticipantMeals({ applicationId }: { applicationId: string }) {
 function MealsForm({ applicationId, meals }: { applicationId: string; meals: OwnMeals }) {
   const { t } = useTranslation("meals")
   const client = useQueryClient()
+  const navigate = useNavigate()
   const [optionIds, setOptionIds] = useState(new Set(meals.selectedOptionIds))
   const [allergies, setAllergies] = useState(meals.allergies ?? "")
   const [specialRequest, setSpecialRequest] = useState(meals.specialRequest ?? "")
@@ -57,9 +61,11 @@ function MealsForm({ applicationId, meals }: { applicationId: string; meals: Own
         allergies,
         specialRequest,
       }),
-    onSuccess: (saved) => {
+    onSuccess: async (saved) => {
       client.setQueryData(ownMealsQueryOptions(applicationId).queryKey, saved)
       void client.invalidateQueries({ queryKey: ["organizer", "events"] })
+      notify.success(t("own.saved"))
+      await navigate({ to: ROUTES.participant.application, params: { applicationId } })
     },
   })
 
