@@ -61,13 +61,22 @@ function EditForm({
 }) {
   const { t } = useTranslation("participant")
   const client = useQueryClient()
-  const [values, setValues] = useState<EditApplicationInput>({
+  // Untouched fields follow refreshed server data; only local edits override it.
+  const [edits, setEdits] = useState<Partial<EditApplicationInput>>({})
+  const values: EditApplicationInput = {
     firstName: initial.firstName,
     lastName: initial.lastName,
     birthDate: initial.birthDate,
     phone: initial.phone ?? "",
     accommodationRequest: initial.accommodationRequest ?? "",
-  })
+    ...edits,
+  }
+  const set = (key: keyof EditApplicationInput, value: string) =>
+    setEdits((current) => {
+      const next = { ...current, [key]: value }
+      if (value === (initial[key] ?? "")) delete next[key]
+      return next
+    })
   const [failedFields, setFailedFields] = useState<Record<
     keyof EditApplicationInput,
     boolean
@@ -113,7 +122,7 @@ function EditForm({
         maxLength={30}
         pattern={String.raw`\+?[0-9 \(\)\-]{7,30}`}
         value={values.phone ?? ""}
-        onChange={(event) => setValues((current) => ({ ...current, phone: event.target.value }))}
+        onChange={(event) => set("phone", event.target.value)}
         className="h-12"
       />
     </div>
@@ -164,9 +173,6 @@ function EditForm({
       </div>
     )
   }
-
-  const set = (key: keyof EditApplicationInput, value: string) =>
-    setValues((current) => ({ ...current, [key]: value }))
 
   return (
     <form

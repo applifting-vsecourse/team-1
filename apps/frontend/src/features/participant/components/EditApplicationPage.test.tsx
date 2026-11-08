@@ -5,7 +5,7 @@ import {
   createRouter,
   RouterProvider,
 } from "@tanstack/react-router"
-import { act, render, screen } from "@testing-library/react"
+import { act, render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
@@ -143,5 +143,95 @@ describe("EditApplicationPage", () => {
     expect(phone).toHaveValue("+420 777 123 456")
     expect(screen.getByRole("button", { name: "Save changes" })).toBeEnabled()
     expect(await screen.findByRole("button", { name: "Try again" })).toBeVisible()
+  })
+
+  it("refreshes untouched fields without losing a local edit or submitting stale values", async () => {
+    const user = userEvent.setup()
+    put.mockReturnValue({ json: () => Promise.resolve(initial) })
+    const client = renderPage()
+    const accommodation = await screen.findByRole("textbox", {
+      name: "Individual accommodation request",
+    })
+    await user.type(accommodation, "Ground floor, please.")
+    const refreshed = {
+      ...initial,
+      firstName: "Petra",
+      lastName: "Nová",
+      birthDate: "2001-02-03",
+      phone: "+420 777 999 888",
+      accommodationRequest: "Another tab's request",
+    }
+    get.mockReturnValue({ json: () => Promise.resolve(refreshed) })
+    await act(async () => {
+      await client.refetchQueries({ queryKey: ["participant", "applications", "a1", "edit"] })
+    })
+
+    await waitFor(() =>
+      expect(screen.getByRole("textbox", { name: "First name *" })).toHaveValue("Petra"),
+    )
+    expect(screen.getByRole("textbox", { name: "Last name *" })).toHaveValue("Nová")
+    expect(screen.getByLabelText("Date of birth *")).toHaveValue("2001-02-03")
+    expect(screen.getByRole("textbox", { name: "Phone *" })).toHaveValue(refreshed.phone)
+    expect(screen.getByRole("textbox", { name: "Individual accommodation request" })).toBe(
+      accommodation,
+    )
+    expect(accommodation).toHaveValue("Ground floor, please.")
+    await user.click(screen.getByRole("button", { name: "Save changes" }))
+    expect(put).toHaveBeenCalledWith("participant/applications/a1/edit", {
+      json: {
+        firstName: refreshed.firstName,
+        lastName: refreshed.lastName,
+        birthDate: refreshed.birthDate,
+        phone: refreshed.phone,
+        accommodationRequest: "Ground floor, please.",
+      },
+    })
+  })
+
+  it("keeps an untouched refreshed form unchanged and updates the accommodation request", async () => {
+    const client = renderPage()
+    await screen.findByRole("button", { name: "Save changes" })
+    get.mockReturnValue({
+      json: () => Promise.resolve({ ...initial, accommodationRequest: "Ground floor" }),
+    })
+    await act(async () => {
+      await client.refetchQueries({ queryKey: ["participant", "applications", "a1", "edit"] })
+    })
+
+    await waitFor(() =>
+      expect(screen.getByRole("textbox", { name: "Individual accommodation request" })).toHaveValue(
+        "Ground floor",
+      ),
+    )
+    expect(screen.getByRole("button", { name: "Save changes" })).toBeDisabled()
+  })
+
+  it("refreshes a reverted field while preserving an explicitly cleared optional field", async () => {
+    const user = userEvent.setup()
+    const client = renderPage()
+    const firstName = await screen.findByRole("textbox", { name: "First name *" })
+    const accommodation = screen.getByRole("textbox", { name: "Individual accommodation request" })
+    get.mockReturnValue({
+      json: () => Promise.resolve({ ...initial, accommodationRequest: "Ground floor" }),
+    })
+    await act(async () => {
+      await client.refetchQueries({ queryKey: ["participant", "applications", "a1", "edit"] })
+    })
+    await waitFor(() => expect(accommodation).toHaveValue("Ground floor"))
+    await user.clear(accommodation)
+    await user.type(firstName, "x")
+    await user.clear(firstName)
+    await user.type(firstName, initial.firstName)
+    get.mockReturnValue({
+      json: () =>
+        Promise.resolve({ ...initial, firstName: "Petra", accommodationRequest: "Upper floor" }),
+    })
+    await act(async () => {
+      await client.refetchQueries({ queryKey: ["participant", "applications", "a1", "edit"] })
+    })
+
+    await waitFor(() => expect(firstName).toHaveValue("Petra"))
+    expect(accommodation).toHaveValue("")
+    expect(screen.getByRole("button", { name: "Save changes" })).toBeEnabled()
   })
 })
