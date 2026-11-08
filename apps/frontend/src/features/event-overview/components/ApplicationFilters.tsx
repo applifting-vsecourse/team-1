@@ -273,7 +273,8 @@ function FilterFields({
         className={cn(
           "flex min-w-0 flex-col gap-2 md:w-56",
           // Wide enough for the whole value ("Náhradníci s volným lůžkem", a date range) on one line.
-          (option.key === "waitlist" || option.key === "term") && "md:w-64",
+          option.key === "waitlist" && "md:w-60",
+          option.key === "payment" && "md:w-48",
         )}
       >
         <Label htmlFor={`${idPrefix}-filter-${option.key}`}>{option.label}</Label>
