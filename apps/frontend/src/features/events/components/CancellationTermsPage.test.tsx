@@ -26,6 +26,7 @@ const event = {
   cancellationStartsOn: null,
   cancellationTerms: null as string | null,
   evaluationModeLocked: false,
+  hasApplications: false,
   missing: ["TERM", "ROOM"],
   terms: [],
 }
