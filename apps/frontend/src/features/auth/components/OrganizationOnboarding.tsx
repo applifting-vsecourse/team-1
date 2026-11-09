@@ -8,6 +8,7 @@ import { ROUTES } from "@/app/routes"
 import { Seo } from "@/components/atoms/Seo"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 
 import {
@@ -279,8 +280,10 @@ function OrganizationReady({ profile }: { profile: OrganizationProfile }) {
     <RegistrationLayout>
       <Seo title={t("registration.readyTitle")} />
       <h1 className="text-2xl font-bold tracking-tight">{t("registration.readyTitle")}</h1>
-      <h2 className="text-2xl font-bold tracking-tight">{profile.name}</h2>
-      <p>{t("registration.readyDescription")}</p>
+      <Card className="gap-4 p-4 shadow-none">
+        <h2 className="text-2xl font-bold tracking-tight">{profile.name}</h2>
+        <p>{t("registration.readyDescription")}</p>
+      </Card>
       <Button
         asChild
         size="lg"
