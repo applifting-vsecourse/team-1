@@ -6,19 +6,19 @@ import { PageHeader } from "@/components/molecules/PageHeader"
 import { Card } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
-import { AppearanceCard } from "@/features/auth/components/AppearanceCard"
 import { ChangeEmailSection } from "@/features/auth/components/ChangeEmailSection"
 import { ChangePasswordForm } from "@/features/auth/components/ChangePasswordForm"
+import { PreferencesCard } from "@/features/auth/components/PreferencesCard"
 import { ProfileForm } from "@/features/auth/components/ProfileForm"
 import { useEmailChangedNotice } from "@/features/auth/hooks/useEmailChangedNotice"
 import { useSession } from "@/features/auth/hooks/useSession"
 
-const SECTIONS = ["profile", "security"] as const
+const SECTIONS = ["profile", "preferences", "security"] as const
 type Section = (typeof SECTIONS)[number]
 
 /**
- * Account settings of every signed-in account: „Profil“ (name, language) and
- * „Zabezpečení“ (password). Signing out stays
+ * Account settings of every signed-in account: „Profil“ (name, e-mail), „Předvolby“
+ * (language, theme) and „Zabezpečení“ (password). Signing out stays
  * in the account menu of the sidebar.
  */
 // Figma (Design system): US-124 / Nastavení účtu · Profil a jazyk · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16199-2145
@@ -74,8 +74,9 @@ export function AccountPage({ isEmailChanged = false }: { isEmailChanged?: boole
             <ProfileForm user={user} />
           </Card>
           <ChangeEmailSection user={user} />
-          <AppearanceCard user={user} />
         </div>
+      ) : section === "preferences" ? (
+        <PreferencesCard user={user} />
       ) : (
         <Card className="gap-4 p-4">
           <h2 className="text-2xl font-bold">{t("changePassword.title")}</h2>
