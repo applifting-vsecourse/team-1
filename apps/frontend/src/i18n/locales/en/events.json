@@ -180,6 +180,8 @@
       "addConfirm_other": "Add {{count}} rooms",
       "addHeading": "Add the copied rooms?",
       "cancel": "Cancel",
+      "collisionBody": "The target term already has rooms named {{names}}. Rename or delete them first, or replace the existing rooms instead.",
+      "collisionHeading": "Some room names already exist",
       "done": "Rooms copied",
       "emptyBody": "Names and capacities of the rooms are copied. The target term gets {{rooms}} of its own and a capacity of {{beds}}.",
       "emptyConfirm": "Copy rooms",

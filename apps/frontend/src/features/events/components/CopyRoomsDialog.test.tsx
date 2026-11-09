@@ -135,4 +135,21 @@ describe("copying rooms into a term", () => {
     })
     expect(onCopied).toHaveBeenCalled()
   })
+
+  it("warns about names that already exist in the target before an add, and not for a replace", async () => {
+    const { user } = renderDialog(
+      termRooms("t1", [{ id: "o", name: "a", capacity: 3, gender: "MALE" as const }]),
+    )
+    await pickSource(user)
+    expect(screen.getByText("Some room names already exist")).toBeInTheDocument()
+    expect(screen.getByText(/already has rooms named A\./)).toBeInTheDocument()
+    await user.click(screen.getByRole("radio", { name: "Replace the existing rooms" }))
+    expect(screen.queryByText("Some room names already exist")).not.toBeInTheDocument()
+  })
+
+  it("shows no warning when the names differ", async () => {
+    const { user } = renderDialog(termRooms("t1", ownRoom))
+    await pickSource(user)
+    expect(screen.queryByText("Some room names already exist")).not.toBeInTheDocument()
+  })
 })

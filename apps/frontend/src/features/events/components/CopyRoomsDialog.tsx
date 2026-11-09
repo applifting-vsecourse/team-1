@@ -70,6 +70,14 @@ export function CopyRoomsDialog({
   const sourceBeds = source.data?.capacity.total ?? 0
   const resultRooms = (isReplacing ? 0 : target.rooms.length) + sourceRooms.length
   const resultBeds = (isReplacing ? 0 : target.capacity.total) + sourceBeds
+  // The server compares names case-insensitively and refuses an ADD with a collision.
+  const takenNames = new Set(target.rooms.map((room) => room.name.toLowerCase()))
+  const collidingNames =
+    hasTargetRooms && !isReplacing
+      ? sourceRooms
+          .filter((room) => takenNames.has(room.name.toLowerCase()))
+          .map((room) => room.name)
+      : []
   const rooms = (count: number) => t("rooms.roomCount", { count })
   const beds = (count: number) => t("rooms.beds", { count })
   const mutation = useMutation({
@@ -201,6 +209,14 @@ export function CopyRoomsDialog({
                       })}
                     </AlertDescription>
                   </Alert>
+                  {collidingNames.length ? (
+                    <Alert variant="destructive">
+                      <AlertTitle>{t("rooms.copy.collisionHeading")}</AlertTitle>
+                      <AlertDescription>
+                        {t("rooms.copy.collisionBody", { names: collidingNames.join(", ") })}
+                      </AlertDescription>
+                    </Alert>
+                  ) : null}
                 </>
               ) : (
                 <>

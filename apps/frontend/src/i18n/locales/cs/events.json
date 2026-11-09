@@ -180,6 +180,8 @@
       "addConfirm_other": "Přidat {{count}} pokojů",
       "addHeading": "Přidat kopírované pokoje?",
       "cancel": "Zrušit",
+      "collisionBody": "Cílový termín už má pokoje s názvy {{names}}. Nejdřív je přejmenujte nebo smažte, případně místo toho existující pokoje nahraďte.",
+      "collisionHeading": "Některé názvy pokojů už existují",
       "done": "Pokoje zkopírovány",
       "emptyBody": "Zkopírují se názvy a kapacity pokojů. Cílový termín získá {{rooms}} vlastních a kapacitu {{beds}}.",
       "emptyConfirm": "Zkopírovat pokoje",
