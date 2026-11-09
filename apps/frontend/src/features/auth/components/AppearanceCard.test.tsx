@@ -45,7 +45,7 @@ describe("AppearanceCard", () => {
     expect(screen.getByRole("radio", { name: /Čeština/ })).toBeChecked()
     await userEvent.click(screen.getByRole("radio", { name: /English/ }))
 
-    expect(mutateAsync).toHaveBeenCalledWith({ name: "Eva Malá", locale: "en" })
+    expect(mutateAsync).toHaveBeenCalledWith({ locale: "en" })
     expect(notify.success).toHaveBeenCalled()
   })
 

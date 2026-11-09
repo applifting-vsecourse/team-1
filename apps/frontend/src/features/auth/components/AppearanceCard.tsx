@@ -35,7 +35,7 @@ export function AppearanceCard({ user }: { user: SessionUser }) {
     // A toggle group reports an empty value when the chosen item is clicked again.
     if (!parsed.success || parsed.data === user.locale) return
     try {
-      const saved = await update.mutateAsync({ name: user.name, locale: parsed.data })
+      const saved = await update.mutateAsync({ locale: parsed.data })
       notify.success(t("profile.saved.title"), t(`profile.saved.description.${saved.locale}`))
     } catch {
       notify.error(t("appearance.languageFailed"))
