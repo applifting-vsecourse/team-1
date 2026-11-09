@@ -6,7 +6,7 @@ import {
   createRouter,
   RouterProvider,
 } from "@tanstack/react-router"
-import { render, screen, within } from "@testing-library/react"
+import { render, screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
@@ -27,8 +27,13 @@ vi.stubGlobal(
 Element.prototype.hasPointerCapture = () => false
 Element.prototype.scrollIntoView = vi.fn()
 
-const { get } = vi.hoisted(() => ({ get: vi.fn() }))
-vi.mock("@/lib/api-client", () => ({ api: { get }, apiErrorCode: () => undefined }))
+const { get, post, success } = vi.hoisted(() => ({
+  get: vi.fn(),
+  post: vi.fn(),
+  success: vi.fn(),
+}))
+vi.mock("@/lib/api-client", () => ({ api: { get, post }, apiErrorCode: () => undefined }))
+vi.mock("@/lib/notify", () => ({ notify: { success } }))
 
 const terms: AccommodationTerm[] = [
   {
@@ -36,6 +41,14 @@ const terms: AccommodationTerm[] = [
     name: "Week 1",
     startsOn: "2027-07-12",
     endsOn: "2027-07-18",
+    roomMode: "GENDERED",
+    byGender: { FEMALE: { free: 0 }, MALE: { free: 2 } },
+  },
+  {
+    id: "t3",
+    name: "Week 3",
+    startsOn: "2027-07-26",
+    endsOn: "2027-08-01",
     roomMode: "GENDERED",
     byGender: { FEMALE: { free: 0 }, MALE: { free: 2 } },
   },
@@ -108,7 +121,11 @@ function renderRooms(termId: string) {
 }
 
 describe("accommodation by term", () => {
-  beforeEach(() => get.mockReset())
+  beforeEach(() => {
+    get.mockReset()
+    post.mockReset()
+    success.mockReset()
+  })
 
   it("shows only the rooms of the selected term, with its metrics and gender column", async () => {
     renderRooms("t1")
@@ -156,5 +173,27 @@ describe("accommodation by term", () => {
     await user.click(screen.getByRole("combobox", { name: "Term" }))
     await user.click(await screen.findByRole("option", { name: "19–25 Jul 2027 · Week 2" }))
     expect(onSelectTerm).toHaveBeenCalledWith("t2")
+  })
+
+  it("copies rooms from another term, closes the dialog and confirms with a toast", async () => {
+    post.mockResolvedValue(undefined)
+    byTerm.t3 = termRooms(
+      "t3",
+      [{ id: "x", name: "Other", gender: "MALE", capacity: 4 }],
+      "GENDERED",
+    )
+    const { user } = renderRooms("t1")
+    await screen.findByRole("table")
+    await user.click(screen.getByRole("button", { name: "Copy rooms from term…" }))
+    const dialog = await screen.findByRole("dialog")
+    await user.click(within(dialog).getByRole("combobox", { name: "Source term" }))
+    await user.click(await screen.findByRole("option", { name: /Week 3/ }))
+    await user.click(await within(dialog).findByRole("button", { name: "Add 1 room" }))
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument())
+    expect(post).toHaveBeenCalledWith("organizer/events/e1/terms/t1/rooms/copy", {
+      json: { sourceTermId: "t3", strategy: "ADD" },
+    })
+    expect(success).toHaveBeenCalledWith("Rooms copied")
+    expect(screen.queryByText("The copy is done.")).not.toBeInTheDocument()
   })
 })

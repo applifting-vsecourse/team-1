@@ -84,8 +84,7 @@ async function pickSource(user: ReturnType<typeof userEvent.setup>) {
     await screen.findByRole("option", { name: /Week 3.*different room mode/ }),
   ).toHaveAttribute("aria-disabled", "true")
   await user.click(screen.getByRole("option", { name: /Week 2 · rooms by gender/ }))
-  expect(await screen.findByText("2 rooms · 10 beds")).toBeInTheDocument()
-  await user.click(screen.getByRole("button", { name: "Show preview" }))
+  expect(await screen.findByRole("button", { name: /Copy rooms|Add 2 rooms/ })).toBeEnabled()
 }
 
 describe("copying rooms into a term", () => {
@@ -96,7 +95,7 @@ describe("copying rooms into a term", () => {
 
   it("previews the copy into an empty term and copies without a choice", async () => {
     const { user, onCopied, onClose } = renderDialog(termRooms("t1", []))
-    expect(screen.getByRole("button", { name: "Show preview" })).toBeDisabled()
+    expect(screen.getByRole("button", { name: "Copy rooms" })).toBeDisabled()
     await pickSource(user)
     expect(
       screen.getByText(/The target term gets 2 rooms of its own and a capacity of 10 beds/),
@@ -135,5 +134,22 @@ describe("copying rooms into a term", () => {
       json: { sourceTermId: "t2", strategy: "REPLACE" },
     })
     expect(onCopied).toHaveBeenCalled()
+  })
+
+  it("warns about names that already exist in the target before an add, and not for a replace", async () => {
+    const { user } = renderDialog(
+      termRooms("t1", [{ id: "o", name: "a", capacity: 3, gender: "MALE" as const }]),
+    )
+    await pickSource(user)
+    expect(screen.getByText("Some room names already exist")).toBeInTheDocument()
+    expect(screen.getByText(/already has rooms named A\./)).toBeInTheDocument()
+    await user.click(screen.getByRole("radio", { name: "Replace the existing rooms" }))
+    expect(screen.queryByText("Some room names already exist")).not.toBeInTheDocument()
+  })
+
+  it("shows no warning when the names differ", async () => {
+    const { user } = renderDialog(termRooms("t1", ownRoom))
+    await pickSource(user)
+    expect(screen.queryByText("Some room names already exist")).not.toBeInTheDocument()
   })
 })
