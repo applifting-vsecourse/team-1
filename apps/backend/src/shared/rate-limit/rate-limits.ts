@@ -12,6 +12,13 @@ export const APPLICATION_SUBMIT_LIMITS = [
 ]
 
 /**
+ * Skipping the verification link on staging/demo: 3 tries a minute per client IP, like asking
+ * for another verification e-mail. Replaces the per-minute limit of the public application
+ * (the hourly one still applies).
+ */
+export const EMAIL_VERIFICATION_BYPASS_LIMIT = { limit: 3, ttl: MINUTE_MS }
+
+/**
  * Sign-in limits per client IP, on top of BetterAuth's defaults (#294).
  * Paths are relative to `/api/auth`, windows in seconds.
  * - password: 5 attempts a minute stops guessing, a typo or two still passes;

@@ -1,11 +1,22 @@
 import { useState } from "react"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { useLocation, useNavigate } from "@tanstack/react-router"
 import { TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
+import { z } from "zod"
 
+import { ROUTES } from "@/app/routes"
 import { Seo } from "@/components/atoms/Seo"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { apiErrorCode } from "@/lib/api-client"
 
+import { authSessionQueryOptions } from "@/features/auth/api/authSessionQueryOptions"
+import {
+  emailVerificationBypassQueryOptions,
+  verifyEmailWithoutLink,
+} from "@/features/auth/api/emailVerificationBypass"
 import { RegistrationLayout } from "@/features/auth/components/RegistrationLayout"
 import { authClient } from "@/features/auth/lib/auth-client"
 
@@ -18,6 +29,22 @@ export function VerifyOrganizerEmail({ email, error }: Props) {
   const { t: tErrors } = useTranslation("errors")
   const [isPending, setPending] = useState(false)
   const [failure, setFailure] = useState<string | null>(null)
+  const navigate = useNavigate()
+  const queryClient = useQueryClient()
+  // Only environments without working e-mails switch the bypass on (EMAIL_VERIFICATION_BYPASS_ENABLED).
+  const { data: isBypassOn } = useQuery(emailVerificationBypassQueryOptions())
+  // The one-time token of this registration travels in the history state, never in the URL.
+  const bypassToken = useLocation({
+    select: (location) => {
+      const parsed = z.object({ bypassToken: z.string() }).safeParse(location.state)
+      return parsed.success ? parsed.data.bypassToken : null
+    },
+  })
+  // Without a token (it expired, or the screen was opened directly) the password proves ownership.
+  const [isTokenRefused, setTokenRefused] = useState(false)
+  const [password, setPassword] = useState("")
+  const shouldAskPassword = !bypassToken || isTokenRefused
+  const canBypass = Boolean(isBypassOn && email)
   const isExpired = Boolean(error)
   const title = t(isExpired ? "registration.expiredTitle" : "registration.verifyTitle")
 
@@ -35,6 +62,37 @@ export function VerifyOrganizerEmail({ email, error }: Props) {
       }
     } catch {
       setFailure(t("registration.resendFailed"))
+    } finally {
+      setPending(false)
+    }
+  }
+
+  const verifyWithoutEmail = async () => {
+    setPending(true)
+    setFailure(null)
+    try {
+      await verifyEmailWithoutLink(
+        bypassToken && !isTokenRefused ? { token: bypassToken } : { email, password },
+      )
+      // Load the new session now: the guards of the next page would trust a cached "signed out".
+      await queryClient.fetchQuery({ ...authSessionQueryOptions(), staleTime: 0 })
+      await navigate({ to: ROUTES.organizer.onboarding })
+    } catch (bypassError) {
+      if (apiErrorCode(bypassError) === "TOO_MANY_REQUESTS") {
+        setFailure(tErrors("TOO_MANY_REQUESTS"))
+      } else if (apiErrorCode(bypassError) === "EMAIL_VERIFICATION_BYPASS_NOT_ALLOWED") {
+        // A refused token is spent or expired: from here on only the password works.
+        setFailure(
+          t(
+            shouldAskPassword
+              ? "registration.verifyBypassWrongPassword"
+              : "registration.verifyBypassExpired",
+          ),
+        )
+        setTokenRefused(true)
+      } else {
+        setFailure(t("registration.verifyBypassFailed"))
+      }
     } finally {
       setPending(false)
     }
@@ -75,6 +133,37 @@ export function VerifyOrganizerEmail({ email, error }: Props) {
       >
         {t(isExpired ? "registration.expiredAction" : "registration.resend")}
       </Button>
+      {canBypass ? (
+        <>
+          {shouldAskPassword ? (
+            <div className="flex flex-col gap-2">
+              <label
+                htmlFor="bypass-password"
+                className="text-sm font-medium"
+              >
+                {t("registration.verifyBypassPassword")}
+              </label>
+              <Input
+                id="bypass-password"
+                className="h-12"
+                type="password"
+                autoComplete="current-password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+              />
+            </div>
+          ) : null}
+          <Button
+            size="lg"
+            variant="outline"
+            disabled={isPending || (shouldAskPassword && !password)}
+            onClick={() => void verifyWithoutEmail()}
+            className="h-12 w-full"
+          >
+            {t("registration.verifyBypass")}
+          </Button>
+        </>
+      ) : null}
     </RegistrationLayout>
   )
 }

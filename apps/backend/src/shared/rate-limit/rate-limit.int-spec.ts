@@ -16,16 +16,19 @@ let baseUrl: string
 beforeAll(async () => {
   const port = await freePort()
   baseUrl = `http://127.0.0.1:${port}`
+  // RATE_LIMIT_ENABLED is left unset on purpose: the limits must be on by default (deployments
+  // do not set it).
+  const env = { ...process.env }
+  delete env.RATE_LIMIT_ENABLED
   server = spawn("node", ["dist/main.js"], {
     cwd: backendRoot,
     env: {
-      ...process.env,
+      ...env,
       PORT: String(port),
       BACKEND_URL: baseUrl,
       NODE_ENV: "test",
       RESEND_API_KEY: "",
       SMTP_HOST: "",
-      RATE_LIMIT_ENABLED: "true",
       WAITLIST_EXPIRY_INTERVAL_MS: "0",
     },
     stdio: "ignore",
@@ -107,6 +110,18 @@ describe("rate limits (integration)", () => {
     const over = await request()
 
     expect(first).toEqual([200, 200, 200])
+    expect(over.status).toBe(429)
+  })
+
+  it("allow 3 verification bypass tries a minute, then answer 429", async () => {
+    const request = (): Promise<Response> =>
+      post("/email-verification-bypass", "203.0.113.60", { token: "anything" })
+
+    const first = await statuses(3, request)
+    const over = await request()
+
+    // The bypass is off on this server, so the allowed tries are answered 404.
+    expect(first).toEqual([404, 404, 404])
     expect(over.status).toBe(429)
   })
 })
