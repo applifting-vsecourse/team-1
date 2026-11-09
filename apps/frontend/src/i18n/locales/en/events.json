@@ -51,6 +51,7 @@
     "overviewLabel": "Evaluation mode",
     "save": "Save mode",
     "saveFailed": "Could not save the change",
+    "saved": "Evaluation mode saved.",
     "subtitle": "Choose the rule before applications open.",
     "title": "Application evaluation mode"
   },
