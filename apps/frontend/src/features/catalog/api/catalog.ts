@@ -19,6 +19,8 @@ export const catalogEventSchema = z.object({
   /** Lowest term price, whole CZK. */
   fromPriceCzk: z.number().int().nullable(),
   isOpenForApplications: z.boolean(),
+  /** The photo is loaded from `public/events/:publicToken/photo`. */
+  hasPhoto: z.boolean(),
 })
 export type CatalogEvent = z.infer<typeof catalogEventSchema>
 

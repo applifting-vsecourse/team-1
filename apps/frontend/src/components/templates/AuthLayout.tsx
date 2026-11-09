@@ -1,5 +1,6 @@
 import type { ReactNode } from "react"
 
+import { BandBackdrop } from "@/components/atoms/BandBackdrop"
 import { useIsEmbeddedPage } from "@/components/atoms/EmbeddedPage"
 import { Header } from "@/components/organisms/Header"
 import { Card } from "@/components/ui/card"
@@ -74,7 +75,10 @@ export function AuthLayout({
   return (
     <>
       <Header />
-      <main className="min-h-svh">{content}</main>
+      <main className="relative min-h-svh overflow-hidden">
+        <BandBackdrop className="h-40 lg:h-56" />
+        <div className="relative">{content}</div>
+      </main>
     </>
   )
 }
