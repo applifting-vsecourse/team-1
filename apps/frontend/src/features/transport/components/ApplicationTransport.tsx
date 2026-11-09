@@ -25,7 +25,6 @@ import { termTitle } from "@/lib/term-label"
 import {
   applicationTransportQueryOptions,
   chooseTransport,
-  OWN_TRANSPORT_ID,
   transportKeys,
 } from "@/features/transport/api/transport"
 import { departureText } from "@/features/transport/lib/departure"
@@ -44,8 +43,22 @@ export function ApplicationTransport({ applicationId }: { applicationId: string 
   const mutation = useMutation({
     mutationFn: async () => {
       await Promise.all(
-        Object.entries(changes).map(([termId, id]) =>
-          chooseTransport(applicationId, termId, id === OWN_TRANSPORT_ID ? null : id),
+        Object.entries(changes).map(([termId, id]) => chooseTransport(applicationId, termId, id)),
+      )
+    },
+    onError: async () => {
+      // A transport may have been deleted meanwhile: show what is still on offer.
+      await client.invalidateQueries({ queryKey: transportKeys.application(applicationId) })
+      // Drop choices that are no longer on offer, keep the valid ones.
+      const fresh = client.getQueryData(applicationTransportQueryOptions(applicationId).queryKey)
+      if (!fresh) return
+      setChanges((current) =>
+        Object.fromEntries(
+          Object.entries(current).filter(([termId, id]) =>
+            fresh.terms.some(
+              (term) => term.termId === termId && term.options.some((option) => option.id === id),
+            ),
+          ),
         ),
       )
     },
@@ -88,8 +101,7 @@ export function ApplicationTransport({ applicationId }: { applicationId: string 
       </BackLink>
       <SectionHeader title={title} />
       {terms.map((term) => {
-        const saved = term.isOwn ? OWN_TRANSPORT_ID : term.selectedTransportId
-        const value = changes[term.termId] ?? saved ?? ""
+        const value = changes[term.termId] ?? term.selectedTransportId ?? ""
         const selected = term.options.find((option) => option.id === value)
         const label = termTitle({ ...term, name: term.termName })
         return (
@@ -118,18 +130,27 @@ export function ApplicationTransport({ applicationId }: { applicationId: string 
                       key={option.id}
                       value={option.id}
                     >
-                      {option.name}
+                      {option.kind === "OWN" ? t("own") : option.name}
                     </SelectItem>
                   ))}
-                  <SelectItem value={OWN_TRANSPORT_ID}>{t("own")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            {selected ? (
+            {selected && (selected.departureAt || selected.instructions) ? (
               <Card className="gap-4 p-4">
-                <h4 className="text-lg font-semibold">{t("departureTitle")}</h4>
-                <p>{departureText(selected.departureAt, t("at"))}</p>
-                <p>{selected.departurePlace}</p>
+                {selected.departureAt ? (
+                  <>
+                    <h4 className="text-lg font-semibold">{t("departureTitle")}</h4>
+                    <p>{departureText(selected.departureAt, t("at"))}</p>
+                    <p>{selected.departurePlace}</p>
+                  </>
+                ) : null}
+                {selected.instructions ? (
+                  <>
+                    <h4 className="text-lg font-semibold">{t("instructionsTitle")}</h4>
+                    <p className="whitespace-pre-line">{selected.instructions}</p>
+                  </>
+                ) : null}
               </Card>
             ) : null}
           </section>

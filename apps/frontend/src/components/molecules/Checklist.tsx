@@ -1,6 +1,7 @@
 import type { ReactNode } from "react"
 import { Circle, CircleCheck } from "lucide-react"
 
+import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
 
 export type ChecklistItem = {
@@ -9,6 +10,8 @@ export type ChecklistItem = {
   body?: string
   /** A done item shows a check; an open one an empty circle. */
   isDone: boolean
+  /** Shown as a badge instead of the icon — the icon looks like a radio button you can click. */
+  statusLabel?: string
   /** The button or link that does the step; usually only for open items. */
   action?: ReactNode
 }
@@ -44,14 +47,19 @@ export function Checklist({ title, intro, progress, items }: ChecklistProps) {
               key={item.key}
               className="flex flex-wrap items-center gap-3 border-t border-border py-4 last:pb-0"
             >
-              <Icon
-                aria-hidden
-                className={item.isDone ? "size-5 text-primary" : "size-5 text-muted-foreground"}
-              />
+              {item.statusLabel ? null : (
+                <Icon
+                  aria-hidden
+                  className={item.isDone ? "size-5 text-primary" : "size-5 text-muted-foreground"}
+                />
+              )}
               <div className="flex min-w-0 flex-1 flex-col gap-0.5">
                 <h4 className="text-sm font-medium">{item.title}</h4>
                 {item.body ? <p className="text-sm text-muted-foreground">{item.body}</p> : null}
               </div>
+              {item.statusLabel ? (
+                <Badge variant={item.isDone ? "success" : "warning"}>{item.statusLabel}</Badge>
+              ) : null}
               {item.action}
             </li>
           )

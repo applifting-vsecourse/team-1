@@ -76,7 +76,6 @@ function toRecord(row: Row): MyApplicationRecord {
         evaluatedAt,
         paymentPeriodStartedAt,
         transportId,
-        ownTransport,
       }) => ({
         termId: term.id,
         termNumber: term.number,
@@ -91,7 +90,7 @@ function toRecord(row: Row): MyApplicationRecord {
         paymentPeriodStartedAt,
         // A cancelled term keeps the status of its applications, but nothing is arranged for it.
         transportOffered: term.cancelledAt === null && term._count.transports > 0,
-        transportDecided: transportId !== null || ownTransport,
+        transportDecided: transportId !== null,
       }),
     ),
   }

@@ -311,18 +311,32 @@ model Term {
   @@map("term")
 }
 
-// A way to get to a term, set up by the organizer (US-65): a bus, a shared ride. Where and when
-// it leaves. Capacity and price are not tracked yet (open question in the story).
+// Kind of transport: a ride with a place and time of departure, or "own transport" — the
+// participant gets there alone, the organizer only adds instructions (how to arrive, where to park).
+enum TransportKind {
+  SCHEDULED
+  OWN
+
+  @@map("transport_kind")
+}
+
+// A way to get to a term, set up by the organizer (US-65): a bus, a shared ride, or own transport
+// (at most one per term, only when the organizer offers it). Capacity and price are not tracked yet.
 model Transport {
   id             String       @id @default(cuid())
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   organizationId String
   term           Term         @relation(fields: [termId], references: [id], onDelete: Cascade)
   termId         String
+  kind           TransportKind @default(SCHEDULED)
+  // Empty for own transport: the UI shows the translated "Own transport".
   name           String
-  departurePlace String
-  // Never later than the last day of the term.
-  departureAt    DateTime
+  // Required for SCHEDULED, empty for OWN.
+  departurePlace String?
+  // Required for SCHEDULED, never later than the last day of the term; empty for OWN.
+  departureAt    DateTime?
+  // Optional free text for the participant: address, where to park, what to bring.
+  instructions   String?
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @default(now()) @updatedAt
 
@@ -484,11 +498,10 @@ model ApplicationTerm {
   paymentPeriodStartedAt DateTime?
   // Successful delivery of the one payment reminder for this term (D-102); written by US-46.
   paymentReminderSentAt  DateTime?
-  // Transport of the participant to this term (US-65). Neither set = not chosen yet;
-  // `ownTransport` = chose to get there alone.
+  // Transport of the participant to this term (US-65). Not set = not chosen yet; own transport
+  // is a Transport of kind OWN.
   transport              Transport?            @relation(fields: [transportId], references: [id], onDelete: SetNull)
   transportId            String?
-  ownTransport           Boolean               @default(false)
 
   statusChanges ApplicationTermStatusChange[]
   payments      Payment[]

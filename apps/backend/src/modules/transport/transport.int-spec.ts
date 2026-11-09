@@ -3,11 +3,19 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { api, connectTestPrisma, resetAndSeed, signIn } from "@/test/integration/test-api"
 
-type Summary = { id: string; name: string; departurePlace: string; participantsCount: number }
-type TermListing = { termId: string; transports: Summary[]; ownCount: number }
+type Summary = {
+  id: string
+  kind: string
+  name: string
+  departurePlace: string | null
+  instructions: string | null
+  participantsCount: number
+}
+type TermListing = { termId: string; transports: Summary[] }
 type Listing = { terms: TermListing[] }
 type Participants = {
-  name: string | null
+  name: string
+  kind: string
   termId: string
   participants: { applicationId: string }[]
 }
@@ -15,7 +23,6 @@ type Offer = {
   terms: {
     termId: string
     selectedTransportId: string | null
-    isOwn: boolean
     options: { id: string }[]
   }[]
 }
@@ -45,6 +52,7 @@ describe("transport (integration)", () => {
     (await listing()).terms.find((term) => term.termId === termId)!
   const offer = async (): Promise<Offer> => (await send(mine(), participant)).json()
   const bus = () => ({
+    kind: "SCHEDULED",
     termId,
     name: "Autobus z Prahy",
     departurePlace: "Praha, Černý Most · nástupiště 3",
@@ -131,7 +139,7 @@ describe("transport (integration)", () => {
 
   it("lets the participant choose a way of transport for each term separately", async () => {
     const before = (await offer()).terms.find((term) => term.termId === termId)!
-    expect(before).toMatchObject({ selectedTransportId: null, isOwn: false })
+    expect(before).toMatchObject({ selectedTransportId: null })
     expect(before.options.map((option) => option.id)).toEqual([transportId])
     expect((await offer()).terms.find((term) => term.termId === otherTermId)!.options).toEqual([])
 
@@ -167,18 +175,90 @@ describe("transport (integration)", () => {
     expect(body.participants.map((p) => p.applicationId)).toEqual([applicationId])
   })
 
-  it("counts and lists those who chose to go on their own, per term", async () => {
-    expect((await send(mine(), participant, "PUT", { termId, transportId: null })).status).toBe(204)
-    const counted = await inTerm()
-    expect(counted.transports[0].participantsCount).toBe(0)
-    expect(counted.ownCount).toBe(1)
+  it("adds own transport on request, at most one per term, with instructions only", async () => {
+    expect((await inTerm()).transports.some((item) => item.kind === "OWN")).toBe(false)
+    const own = {
+      kind: "OWN",
+      termId,
+      instructions: "Parkoviště za bránou, vjezd z hlavní silnice.",
+    }
+    expect((await send(base(), organizer, "POST", own)).status).toBe(204)
+    const second = await send(base(), organizer, "POST", own)
+    expect(second.status).toBe(409)
+    expect((await second.json()).code).toBe("TRANSPORT_OWN_EXISTS")
 
-    const own: Participants = await (
-      await send(`${base()}/own/participants?termId=${termId}`, organizer)
+    const added = (await inTerm()).transports.find((item) => item.kind === "OWN")!
+    expect(added).toMatchObject({
+      name: "",
+      departurePlace: null,
+      instructions: "Parkoviště za bránou, vjezd z hlavní silnice.",
+    })
+    // Own transport is chosen like any other and its participants are listed the same way.
+    expect((await send(mine(), participant, "PUT", { termId, transportId: added.id })).status).toBe(
+      204,
+    )
+    const listed: Participants = await (
+      await send(`${base()}/${added.id}/participants`, organizer)
     ).json()
-    expect(own.name).toBeNull()
-    expect(own.participants.map((p) => p.applicationId)).toEqual([applicationId])
-    expect((await send(`${base()}/own/participants`, organizer)).status).toBe(400)
+    expect(listed).toMatchObject({ kind: "OWN", name: "" })
+    expect(listed.participants.map((p) => p.applicationId)).toEqual([applicationId])
+    expect((await send(`${base()}/${added.id}?confirmed=true`, organizer, "DELETE")).status).toBe(
+      204,
+    )
+  })
+
+  it("deletes a transport nobody chose without a confirmation", async () => {
+    await send(base(), organizer, "POST", {
+      kind: "SCHEDULED",
+      termId,
+      name: "Empty bus",
+      departurePlace: "Brno",
+      departureAt: "2027-07-01T06:00:00.000Z",
+    })
+    const empty = (await inTerm()).transports.find((item) => item.name === "Empty bus")!
+    expect((await send(`${base()}/${empty.id}`, organizer, "DELETE")).status).toBe(204)
+  })
+
+  it("answers 409 when own transport is added at the same time", async () => {
+    const own = { kind: "OWN", termId }
+    const results = await Promise.all([
+      send(base(), organizer, "POST", own),
+      send(base(), organizer, "POST", own),
+    ])
+    expect(results.map((r) => r.status).sort()).toEqual([204, 409])
+    await prisma.transport.deleteMany({ where: { termId, kind: "OWN" } })
+  })
+
+  it("requires name, place and time of a ride but not of own transport", async () => {
+    const incomplete = await send(base(), organizer, "POST", {
+      kind: "SCHEDULED",
+      termId,
+      name: "X",
+    })
+    expect(incomplete.status).toBe(400)
+  })
+
+  it("deletes a transport and leaves its participants with no transport chosen", async () => {
+    await send(mine(), participant, "PUT", { termId, transportId })
+    expect((await send(`${base()}/${transportId}`, otherOrganizer, "DELETE")).status).toBe(403)
+    expect((await inTerm()).transports).toHaveLength(1)
+
+    // Somebody chose it: without the confirmation the server refuses and says how many.
+    const refused = await send(`${base()}/${transportId}`, organizer, "DELETE")
+    expect(refused.status).toBe(409)
+    expect(await refused.json()).toMatchObject({
+      code: "TRANSPORT_HAS_PARTICIPANTS",
+      params: { count: "1" },
+    })
+    expect((await inTerm()).transports).toHaveLength(1)
+
+    expect(
+      (await send(`${base()}/${transportId}?confirmed=true`, organizer, "DELETE")).status,
+    ).toBe(204)
+    expect((await inTerm()).transports).toHaveLength(0)
+    const row = (await offer()).terms.find((term) => term.termId === termId)!
+    expect(row.selectedTransportId).toBeNull()
+    expect((await send(`${base()}/${transportId}`, organizer, "DELETE")).status).toBe(403)
   })
 
   it("leaves out participants of a cancelled term", async () => {

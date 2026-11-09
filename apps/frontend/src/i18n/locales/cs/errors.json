@@ -42,6 +42,9 @@
   "TERM_LIMIT_REACHED": "Akce už má maximální počet termínů (999).",
   "TOO_MANY_REQUESTS": "Příliš mnoho pokusů v krátké době. Chvíli počkejte a zkuste to znovu.",
   "TRANSPORT_AFTER_TERM_END": "Odjezd nemůže být po skončení termínu ({{endsOn}}).",
+  "TRANSPORT_HAS_PARTICIPANTS": "Tuto dopravu už si vybrali účastníci ({{count}}). Potvrďte smazání, aby mohlo pokračovat.",
+  "TRANSPORT_OWN_EXISTS": "Vlastní doprava už je u tohoto termínu přidaná.",
+  "TRANSPORT_UNAVAILABLE": "Tato doprava už není dostupná. Nabídka byla obnovena.",
   "UNAUTHORIZED": "Přihlaste se prosím.",
   "UNKNOWN": "Něco se pokazilo.",
   "VALIDATION_FAILED": "Některá pole nejsou vyplněná správně."

@@ -135,6 +135,9 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
             title: t("detail.todo.transportTitle", { term: termTitle(term) }),
             body: t("detail.todo.transportBody"),
             isDone: term.transportDecided,
+            statusLabel: t(
+              term.transportDecided ? "detail.todo.statusDone" : "detail.todo.statusOpen",
+            ),
           }))}
         />
       ) : null}

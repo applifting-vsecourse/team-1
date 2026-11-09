@@ -11,25 +11,20 @@ import { SectionHeader } from "@/components/molecules/SectionHeader"
 import { Card } from "@/components/ui/card"
 import { termTitle } from "@/lib/term-label"
 
-import {
-  OWN_TRANSPORT_ID,
-  transportParticipantsQueryOptions,
-} from "@/features/transport/api/transport"
+import { transportParticipantsQueryOptions } from "@/features/transport/api/transport"
 
-// Participants of one way of transport (own transport is per term).
+// Participants of one way of transport.
 // Figma (Design system): #65 Autobus z Prahy · Účastníci · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19795-13135
 // Mobile · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19795-13270
 export function TransportParticipants({
   eventId,
   transportId,
-  termId,
 }: {
   eventId: string
   transportId: string
-  termId?: string
 }) {
   const { t } = useTranslation("transport")
-  const query = useQuery(transportParticipantsQueryOptions(eventId, transportId, termId))
+  const query = useQuery(transportParticipantsQueryOptions(eventId, transportId))
 
   if (!query.data) {
     return query.isError ? (
@@ -45,7 +40,7 @@ export function TransportParticipants({
     )
   }
   const { participants, ...term } = query.data
-  const name = transportId === OWN_TRANSPORT_ID ? t("own") : (query.data.name ?? "")
+  const name = query.data.kind === "OWN" ? t("own") : query.data.name
   const title = t("participantsTitle", { name })
 
   return (

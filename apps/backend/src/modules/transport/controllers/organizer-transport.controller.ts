@@ -11,6 +11,7 @@ import { Identity } from "@/shared/auth/domain/identity"
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   Param,
@@ -43,18 +44,22 @@ export class OrganizerTransportController {
 
   @Post()
   @HttpCode(204)
-  @ApiOperation({ summary: "Add a way of transport to a term: name, place and time of departure" })
+  @ApiOperation({
+    summary:
+      "Add a way of transport to a term: a ride (name, place, time of departure) or own transport (at most one per term); instructions are optional",
+  })
   @ApiResponse({ status: 204 })
   @ApiResponse({
     status: 400,
     description: "Invalid name, place or time, or a departure after the term ends",
   })
+  @ApiResponse({ status: 409, description: "The term already has own transport" })
   async create(
     @User() user: Identity,
     @Param("eventId") eventId: string,
     @Body() body: CreateTransportRequestDto,
   ): Promise<void> {
-    await this.transport.create(user, eventId, body.termId, body.toInput())
+    await this.transport.create(user, eventId, body.termId, body.kind, body.toInput())
   }
 
   @Put(":id")
@@ -74,17 +79,37 @@ export class OrganizerTransportController {
     await this.transport.update(user, eventId, id, body.toInput())
   }
 
+  @Delete(":id")
+  @HttpCode(204)
+  @ApiOperation({
+    summary:
+      "Delete a way of transport; participants who chose it are left with no transport chosen",
+  })
+  @ApiResponse({ status: 204 })
+  @ApiResponse({
+    status: 409,
+    description:
+      "TRANSPORT_HAS_PARTICIPANTS: participants chose it and `confirmed=true` is missing",
+  })
+  async remove(
+    @User() user: Identity,
+    @Param("eventId") eventId: string,
+    @Param("id") id: string,
+    @Query("confirmed") confirmed?: string,
+  ): Promise<void> {
+    await this.transport.remove(user, eventId, id, confirmed === "true")
+  }
+
   @Get(":id/participants")
   @ApiOperation({
-    summary: "Participants of one way of transport; `own` lists those of `termId` on their own",
+    summary: "Participants of one way of transport (own transport included)",
   })
   @ApiResponse({ status: 200, type: TransportParticipantsResponseDto })
   async participants(
     @User() user: Identity,
     @Param("eventId") eventId: string,
     @Param("id") id: string,
-    @Query("termId") termId?: string,
   ): Promise<TransportParticipantsResponseDto> {
-    return this.transport.participants(user, eventId, id, termId)
+    return this.transport.participants(user, eventId, id)
   }
 }

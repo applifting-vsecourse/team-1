@@ -7,37 +7,46 @@ import {
   RouterProvider,
 } from "@tanstack/react-router"
 import { render, screen } from "@testing-library/react"
+import userEvent from "@testing-library/user-event"
 import { afterEach, describe, expect, it, vi } from "vitest"
 
 import { TransportList } from "@/features/transport/components/TransportList"
 
+const bus = {
+  id: "t1",
+  kind: "SCHEDULED",
+  name: "Autobus z Prahy",
+  departurePlace: "Praha, Černý Most",
+  departureAt: "2027-07-12T06:00:00.000Z",
+  instructions: null,
+  participantsCount: 24,
+}
+const own = {
+  id: "own1",
+  kind: "OWN",
+  name: "",
+  departurePlace: null,
+  departureAt: null,
+  instructions: "Parkoviště za bránou",
+  participantsCount: 2,
+}
+
 const listing = {
   eventName: "Letní kemp",
-  eventLocation: "Areál Lipno",
   terms: [
     {
       termId: "term1",
       termName: "Letní týden",
       startsOn: "2027-07-12",
       endsOn: "2027-07-18",
-      ownCount: 2,
-      transports: [
-        {
-          id: "t1",
-          name: "Autobus z Prahy",
-          departurePlace: "Praha, Černý Most",
-          departureAt: "2027-07-12T06:00:00.000Z",
-          participantsCount: 24,
-        },
-      ],
+      transports: [bus, own],
     },
     {
       termId: "term2",
       termName: null,
       startsOn: "2027-07-19",
       endsOn: "2027-07-25",
-      ownCount: 0,
-      transports: [],
+      transports: [bus],
     },
   ],
 }
@@ -66,19 +75,41 @@ function renderList() {
 afterEach(() => vi.restoreAllMocks())
 
 describe("TransportList", () => {
-  it("groups transport by term, with own transport and an add button in each", async () => {
+  it("lists the transport of a term, own transport only where it was added", async () => {
     renderList()
 
-    expect(await screen.findByRole("heading", { name: "Letní týden" })).toBeInTheDocument()
-    expect(screen.getByRole("heading", { name: "Autobus z Prahy" })).toBeInTheDocument()
-    expect(screen.getByText("Praha, Černý Most")).toBeInTheDocument()
-    expect(screen.getByText("Registered participants · 24")).toBeInTheDocument()
-    expect(screen.getAllByRole("heading", { name: "Own transport" })).toHaveLength(2)
-    expect(screen.getAllByText("Areál Lipno")).toHaveLength(2)
-    expect(screen.getAllByRole("link", { name: "Add transport" })).toHaveLength(2)
-    expect(screen.getAllByRole("link", { name: "Add transport" })[1]).toHaveAttribute(
-      "href",
-      expect.stringContaining("termId=term2"),
-    )
+    expect((await screen.findAllByText("Autobus z Prahy")).length).toBeGreaterThan(0)
+    expect(screen.getAllByText("Praha, Černý Most").length).toBeGreaterThan(0)
+    expect(screen.getAllByText("Own transport").length).toBeGreaterThan(0)
+    expect(screen.getAllByRole("button", { name: "Add transport" })).toHaveLength(1)
+    expect(screen.queryByRole("button", { name: "Add own transport" })).not.toBeInTheDocument()
+  })
+
+  it("asks for an acknowledgement before deleting a transport that participants chose", async () => {
+    renderList()
+    const user = userEvent.setup()
+
+    const [deleteButton] = await screen.findAllByRole("button", {
+      name: "Delete transport Autobus z Prahy",
+    })
+    await user.click(deleteButton!)
+
+    expect(await screen.findByText(/24 participants chose this transport/)).toBeInTheDocument()
+    const confirm = screen.getByRole("button", { name: "Delete transport" })
+    expect(confirm).toBeDisabled()
+    await user.click(screen.getByRole("checkbox"))
+    expect(confirm).toBeEnabled()
+  })
+})
+
+describe("TransportList add dialog", () => {
+  it("offers own transport as a type of the one add flow, only while the term has none", async () => {
+    renderList()
+    const user = userEvent.setup()
+
+    await user.click(await screen.findByRole("button", { name: "Add transport" }))
+    // Term 1 already has own transport: no choice of type.
+    expect(await screen.findByRole("dialog")).toBeInTheDocument()
+    expect(screen.queryByRole("radio", { name: "Own transport" })).not.toBeInTheDocument()
   })
 })

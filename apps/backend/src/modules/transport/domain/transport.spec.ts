@@ -1,4 +1,4 @@
-import { departureDay, isDepartureWithinTerm } from "./transport"
+import { departureDay, isDepartureWithinTerm, normalizeInput } from "./transport"
 
 describe("departure within the term", () => {
   it("reads the day in Czech time", () => {
@@ -16,5 +16,23 @@ describe("departure within the term", () => {
 
   it("allows a departure before the term starts", () => {
     expect(isDepartureWithinTerm(new Date("2027-07-10T06:00:00.000Z"), "2027-07-18")).toBe(true)
+  })
+})
+
+describe("normalizeInput", () => {
+  const ride = { name: "Bus", departurePlace: "Praha", departureAt: new Date(), instructions: " " }
+
+  it("requires name, place and time of a ride and trims the instructions to null", () => {
+    expect(normalizeInput("SCHEDULED", ride)).toMatchObject({ name: "Bus", instructions: null })
+    expect(normalizeInput("SCHEDULED", { ...ride, departurePlace: undefined })).toBeNull()
+  })
+
+  it("keeps only the instructions of own transport", () => {
+    expect(normalizeInput("OWN", { ...ride, instructions: " Parking " })).toEqual({
+      name: "",
+      departurePlace: null,
+      departureAt: null,
+      instructions: "Parking",
+    })
   })
 })
