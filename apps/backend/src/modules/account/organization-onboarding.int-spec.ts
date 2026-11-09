@@ -81,6 +81,16 @@ describe("organization self-onboarding (integration)", () => {
     })
     expect(invalid.status).toBe(400)
 
+    const tooLong = await fetch(api(`/organizer/organizations/${organization.id}/profile`), {
+      method: "PUT",
+      headers: { ...jsonHeaders, Cookie: cookie },
+      body: JSON.stringify({
+        contactEmail: `${"a".repeat(200)}@lipno.example.cz`,
+        bankAccount: "2900123456/2010",
+      }),
+    })
+    expect(tooLong.status).toBe(400)
+
     const save = await fetch(api(`/organizer/organizations/${organization.id}/profile`), {
       method: "PUT",
       headers: { ...jsonHeaders, Cookie: cookie },

@@ -18,6 +18,8 @@ export class UpdateOrganizationProfileDto {
     typeof value === "string" ? value.trim().toLowerCase() : value,
   )
   @IsEmail()
+  // Same limit as the event's own contact e-mail, which the form of public details pre-fills from here.
+  @MaxLength(200)
   contactEmail!: string
 
   @ApiProperty({ required: false, example: "+420 777 123 456" })

@@ -63,10 +63,32 @@ describe("organizer events (integration)", () => {
       applicationsOpen: false,
       missing: ["TERM"],
     })
+
+    // The organization's e-mail comes with the event, in the list and in the detail the form reads.
     const organization = await prisma.organization.findFirstOrThrow({
       where: { name: "Letní kemp z. s." },
     })
-    expect(created.organizationContactEmail).toBe(organization.contactEmail)
+    const original = organization.contactEmail
+    await prisma.organization.update({
+      where: { id: organization.id },
+      data: { contactEmail: "office@letni-kemp.example" },
+    })
+    try {
+      const detail = await fetch(api(`/organizer/events/${created.id}`), {
+        headers: { Cookie: cookieA },
+      })
+      expect(((await detail.json()) as EventBody).organizationContactEmail).toBe(
+        "office@letni-kemp.example",
+      )
+      const all = await fetch(api("/organizer/events"), { headers: { Cookie: cookieA } })
+      const listed = ((await all.json()) as EventBody[]).find((event) => event.id === created.id)
+      expect(listed?.organizationContactEmail).toBe("office@letni-kemp.example")
+    } finally {
+      await prisma.organization.update({
+        where: { id: organization.id },
+        data: { contactEmail: original },
+      })
+    }
 
     const list = await fetch(api("/organizer/events"), { headers: { Cookie: cookieA } })
     const events = (await list.json()) as EventBody[]
