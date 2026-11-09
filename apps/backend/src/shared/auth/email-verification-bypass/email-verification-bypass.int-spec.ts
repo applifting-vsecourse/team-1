@@ -130,6 +130,37 @@ describe("e-mail verification bypass (integration)", () => {
     expect(again.status).toBe(403)
   })
 
+  it("refuses the password for an account without an open bypass registration", async () => {
+    // Registered before the bypass was switched on (or in the shared fixtures): no registration row.
+    const legacy = "bypass-legacy@example.com"
+    await register(shared, legacy)
+    await prisma.verification.deleteMany({
+      where: {
+        identifier: { startsWith: "email-verification-bypass" },
+        value: await userId(legacy),
+      },
+    })
+    const late = "bypass-late@example.com"
+    await register(shared, late)
+    await prisma.verification.updateMany({
+      where: {
+        identifier: { startsWith: "email-verification-bypass-registration:" },
+        value: await userId(late),
+      },
+      data: { expiresAt: new Date(Date.now() - 1000) },
+    })
+
+    for (const email of [legacy, late]) {
+      const refused = await post(shared, "/email-verification-bypass", {
+        email,
+        password: "password123",
+      })
+      expect(refused.status).toBe(403)
+      expect(refused.headers.getSetCookie()).toHaveLength(0)
+      expect((await prisma.user.findUniqueOrThrow({ where: { email } })).emailVerified).toBe(false)
+    }
+  })
+
   it("is not reachable through BetterAuth's own routes", async () => {
     const token = await register(shared, "bypass-direct@example.com")
     expect((await post(shared, "/auth/email-verification-bypass", { token })).status).toBe(404)

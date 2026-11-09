@@ -95,7 +95,9 @@ export class Config {
 
   // Rate limits of sign-in and the public application (#294). Off only where one
   // address sends many requests on purpose: E2E and most integration tests.
-  @Env("RATE_LIMIT_ENABLED", { expose: true, defaultValue: true })
+  // The default is the string "true": the config library compares the raw value with it, so a
+  // boolean `true` would read as off when the variable is not set (as on the deployment).
+  @Env("RATE_LIMIT_ENABLED", { expose: true, defaultValue: "true" })
   @IsBoolean()
   readonly rateLimitEnabled!: boolean
 

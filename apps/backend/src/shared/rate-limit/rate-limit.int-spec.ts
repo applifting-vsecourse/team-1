@@ -16,16 +16,19 @@ let baseUrl: string
 beforeAll(async () => {
   const port = await freePort()
   baseUrl = `http://127.0.0.1:${port}`
+  // RATE_LIMIT_ENABLED is left unset on purpose: the limits must be on by default (deployments
+  // do not set it).
+  const env = { ...process.env }
+  delete env.RATE_LIMIT_ENABLED
   server = spawn("node", ["dist/main.js"], {
     cwd: backendRoot,
     env: {
-      ...process.env,
+      ...env,
       PORT: String(port),
       BACKEND_URL: baseUrl,
       NODE_ENV: "test",
       RESEND_API_KEY: "",
       SMTP_HOST: "",
-      RATE_LIMIT_ENABLED: "true",
       WAITLIST_EXPIRY_INTERVAL_MS: "0",
     },
     stdio: "ignore",
