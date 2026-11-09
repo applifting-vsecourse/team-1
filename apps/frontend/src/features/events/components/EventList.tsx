@@ -9,6 +9,7 @@ import { EmptyState } from "@/components/molecules/EmptyState"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { PageHeader } from "@/components/molecules/PageHeader"
+import { Pagination } from "@/components/molecules/Pagination"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -21,6 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { usePagination } from "@/hooks/usePagination"
 import { cn } from "@/lib/utils"
 
 import { eventsQueryOptions, type OrganizerEvent } from "@/features/events/api/events"
@@ -93,6 +95,8 @@ function FilteredEvents({
       (organizationId === "all" || event.organizationId === organizationId),
   )
 
+  const { pageItems, ...pagination } = usePagination(shown, `${needle}|${status}|${organizationId}`)
+
   return (
     <Card className="gap-4 p-4 md:p-6">
       <div className="flex flex-col gap-3 md:flex-row md:items-center">
@@ -152,7 +156,7 @@ function FilteredEvents({
         <EmptyState message={t("list.noMatch")} />
       ) : (
         <ul className="flex flex-col">
-          {shown.map((event) => (
+          {pageItems.map((event) => (
             // The event that was just created keeps the selected surface (O02a).
             <li
               key={event.id}
@@ -167,6 +171,10 @@ function FilteredEvents({
           ))}
         </ul>
       )}
+      <Pagination
+        {...pagination}
+        onPageChange={pagination.setPage}
+      />
     </Card>
   )
 }

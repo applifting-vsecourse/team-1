@@ -18,6 +18,8 @@ type AreaLayoutProps = {
   account: ReactNode
   /** `reading` for participant pages, `wide` (1200 px) for organizer tables. */
   width: "reading" | "wide"
+  /** Where the logo leads; the landing page by default, which sends a signed-in user to their area's start. */
+  logoTo?: string
   /** The notification bell, the only control at the right of the top bar. */
   notifications?: ReactNode
   children: ReactNode
@@ -48,6 +50,7 @@ export function AreaLayout({
   roleLabel,
   account,
   width,
+  logoTo,
   notifications,
   children,
 }: AreaLayoutProps) {
@@ -110,7 +113,10 @@ export function AreaLayout({
           )}
         >
           <div className={cn("flex items-center", isSidebarCollapsed && "h-10")}>
-            <Logo isCompact={isSidebarCollapsed} />
+            <Logo
+              isCompact={isSidebarCollapsed}
+              to={logoTo}
+            />
           </div>
           <TooltipProvider>
             <Tooltip>
@@ -158,7 +164,7 @@ export function AreaLayout({
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <div className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-1 border-b border-border bg-card px-2 sm:gap-2 sm:px-4 md:static md:h-16 md:px-8">
+        <div className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-1 border-b border-border bg-card px-2 sm:gap-2 sm:px-4 md:h-16 md:px-8">
           <Sheet
             open={menuOpenedOn === pathname}
             onOpenChange={(isOpen) => setMenuOpenedOn(isOpen ? pathname : null)}
@@ -179,14 +185,14 @@ export function AreaLayout({
             >
               <SheetTitle className="sr-only">{roleLabel}</SheetTitle>
               <div className="flex h-10 items-center pl-1">
-                <Logo />
+                <Logo to={logoTo} />
               </div>
               <nav className="flex flex-col gap-2">{nav}</nav>
               <div className="mt-auto border-t border-sidebar-border pt-2">{account}</div>
             </SheetContent>
           </Sheet>
           <div className="md:hidden">
-            <Logo />
+            <Logo to={logoTo} />
           </div>
           <p className="hidden flex-1 text-xs font-medium tracking-wider text-muted-foreground uppercase md:block">
             {roleLabel}

@@ -9,6 +9,7 @@ import { MoneyAmount } from "@/components/atoms/MoneyAmount"
 import { Seo } from "@/components/atoms/Seo"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
+import { Pagination } from "@/components/molecules/Pagination"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -23,6 +24,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { PAGE_SIZE } from "@/hooks/usePagination"
 import { formatDate, formatDateRange, formatDateTime } from "@/lib/date"
 import { notify } from "@/lib/notify"
 
@@ -86,9 +88,10 @@ export function ApplicationsPage({
   const [dialog, setDialog] = useState<"CONFIRM" | BulkDecision | null>(null)
   // Filling a freed bed (US-104) works on one term of the waitlist, like deciding in bulk.
   const [taken, setTaken] = useState<SubstituteTakenData | null>(null)
-  const pageCount = Math.max(1, Math.ceil((query.data?.length ?? 0) / 20))
+  const pageCount = Math.max(1, Math.ceil((query.data?.length ?? 0) / PAGE_SIZE))
   const currentPage = Math.min(page, pageCount - 1)
-  const visibleRows = query.data?.slice(currentPage * 20, (currentPage + 1) * 20) ?? []
+  const visibleRows =
+    query.data?.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE) ?? []
   // Only what the filter shows counts, so narrowing the filter never decides on a hidden row.
   const selected = bulkTerm ? (query.data ?? []).filter((row) => selectedIds.has(row.id)) : []
   const isAllSelected = (query.data?.length ?? 0) > 0 && selected.length === query.data?.length
@@ -468,34 +471,13 @@ export function ApplicationsPage({
                     </div>
                   ))}
                 </div>
-                {pageCount > 1 && (
-                  <nav
-                    aria-label={t("applications.pagination")}
-                    className="flex flex-wrap items-center justify-end gap-4"
-                  >
-                    <span className="text-sm text-muted-foreground">
-                      {t("applications.range", {
-                        from: currentPage * 20 + 1,
-                        to: Math.min((currentPage + 1) * 20, query.data.length),
-                        count: query.data.length,
-                      })}
-                    </span>
-                    <Button
-                      variant="ghost"
-                      disabled={currentPage === 0}
-                      onClick={() => setPage(currentPage - 1)}
-                    >
-                      {t("applications.previous")}
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      disabled={currentPage + 1 === pageCount}
-                      onClick={() => setPage(currentPage + 1)}
-                    >
-                      {t("applications.next")}
-                    </Button>
-                  </nav>
-                )}
+                <Pagination
+                  page={currentPage}
+                  pageCount={pageCount}
+                  pageSize={PAGE_SIZE}
+                  total={query.data.length}
+                  onPageChange={setPage}
+                />
                 {bulkTerm && selected.length > 0 && (
                   <BulkSelectionBar
                     count={selected.length}

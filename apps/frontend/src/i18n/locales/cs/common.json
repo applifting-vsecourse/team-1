@@ -79,6 +79,12 @@
       "title": "Stránka nenalezena"
     }
   },
+  "pagination": {
+    "label": "Stránkování",
+    "next": "Další →",
+    "previous": "Předchozí",
+    "range": "Zobrazeno {{from}}–{{to}} z {{count}}"
+  },
   "password": {
     "hide": "Skrýt heslo",
     "show": "Zobrazit heslo"
