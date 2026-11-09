@@ -8,6 +8,8 @@ import { PrismaService } from "@/core/prisma/prisma.service"
 import { betterAuthCoreConfig } from "@/shared/auth/config/better-auth.config"
 import { emailChangeHooks } from "@/shared/auth/email-change/email-change-hooks"
 import { verificationDelivery } from "@/shared/auth/email-change/verification-delivery"
+import { createEmailVerificationBypassPlugin } from "@/shared/auth/email-verification-bypass/email-verification-bypass.plugin"
+import { EMAIL_VERIFICATION_TTL_SECONDS } from "@/shared/auth/email-verification-ttl"
 import { createMagicLinkPlugin } from "@/shared/auth/magic-link/magic-link.plugin"
 import { AuthUserRepository } from "@/shared/auth/repositories/auth-user.repository"
 import { Config } from "@/shared/config/config.service"
@@ -16,9 +18,6 @@ import { TRUSTED_PROXIES } from "@/shared/rate-limit/trusted-proxies"
 import { Inject, Provider } from "@nestjs/common"
 import { betterAuth } from "better-auth"
 import { prismaAdapter } from "better-auth/adapters/prisma"
-
-/** How long the link that confirms a new e-mail address works. */
-export const EMAIL_VERIFICATION_TTL_SECONDS = 60 * 60
 
 const createAuth = (
   prismaService: PrismaService,
@@ -131,6 +130,7 @@ const createAuth = (
     plugins: [
       ...(betterAuthCoreConfig.plugins ?? []),
       createMagicLinkPlugin(config, emailProvider),
+      createEmailVerificationBypassPlugin(config),
     ],
   })
 

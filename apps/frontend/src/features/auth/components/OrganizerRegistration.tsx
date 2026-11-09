@@ -82,7 +82,7 @@ export function OrganizerRegistration() {
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             aria-invalid={isSubmitted && !isValidEmail}
-            placeholder="kuba@example.cz"
+            placeholder={t("registration.emailPlaceholder")}
           />
           {isSubmitted && !isValidEmail ? (
             <p className="text-sm text-destructive">{t("registration.emailInvalid")}</p>

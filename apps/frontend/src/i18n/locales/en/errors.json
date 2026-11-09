@@ -9,6 +9,8 @@
   "CHANGE_REQUEST_STALE": "The application has changed since this request was sent. Refresh the detail.",
   "EMAIL_DELIVERY_FAILED": "The verification e-mail could not be sent. Try again later.",
   "EMAIL_TAKEN": "This e-mail is already taken.",
+  "EMAIL_VERIFICATION_BYPASS_DISABLED": "Skipping e-mail verification is not available here.",
+  "EMAIL_VERIFICATION_BYPASS_NOT_ALLOWED": "This account can't be verified without the e-mail link.",
   "EMAIL_VERIFICATION_REQUIRED": "Verify your e-mail address before continuing.",
   "EVALUATION_MODE_LOCKED": "This event already accepts applications, so the evaluation mode can no longer be changed.",
   "EVENT_HAS_APPLICATIONS": "An event with applications cannot be deleted.",

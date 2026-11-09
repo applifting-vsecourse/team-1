@@ -107,4 +107,11 @@ export class Config {
   @Env("PAYMENT_SIMULATION_ENABLED", { expose: true, defaultValue: false })
   @IsBoolean()
   readonly paymentSimulationEnabled!: boolean
+
+  // Staging and demo without a sender domain: lets an organizer skip the e-mail verification
+  // link after registering. On unless set to false; turn it off wherever real e-mails go out.
+  // The library compares the raw value with the string "true", so the default is that string.
+  @Env("EMAIL_VERIFICATION_BYPASS_ENABLED", { expose: true, defaultValue: "true" })
+  @IsBoolean()
+  readonly emailVerificationBypassEnabled!: boolean
 }

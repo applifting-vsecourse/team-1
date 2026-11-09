@@ -1,18 +1,20 @@
-import { render, screen, waitFor } from "@testing-library/react"
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import { render as rtlRender, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { OrganizerRegistration } from "@/features/auth/components/OrganizerRegistration"
 import { VerifyOrganizerEmail } from "@/features/auth/components/VerifyOrganizerEmail"
 
-const { signUp, resend, navigate } = vi.hoisted(() => ({
+const { signUp, resend, navigate, authFetch } = vi.hoisted(() => ({
+  authFetch: vi.fn(),
   signUp: vi.fn(),
   resend: vi.fn(),
   navigate: vi.fn(),
 }))
 
 vi.mock("@/features/auth/lib/auth-client", () => ({
-  authClient: { signUp: { email: signUp }, sendVerificationEmail: resend },
+  authClient: { signUp: { email: signUp }, sendVerificationEmail: resend, $fetch: authFetch },
 }))
 vi.mock("@tanstack/react-router", () => ({
   Link: ({ to, children }: { to: string; children: React.ReactNode }) => (
@@ -24,11 +26,22 @@ vi.mock("@/features/auth/components/RegistrationLayout", () => ({
   RegistrationLayout: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }))
 
+const render = (ui: React.ReactElement) =>
+  rtlRender(
+    <QueryClientProvider
+      client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
+    >
+      {ui}
+    </QueryClientProvider>,
+  )
+
 describe("organizer registration", () => {
   beforeEach(() => {
     signUp.mockReset()
     resend.mockReset()
     navigate.mockReset()
+    authFetch.mockReset()
+    authFetch.mockResolvedValue({ data: { enabled: false }, error: null })
   })
 
   it("keeps invalid e-mail and short password on the form", async () => {
@@ -78,6 +91,31 @@ describe("organizer registration", () => {
     await userEvent.click(screen.getByRole("button", { name: "Send a new verification link" }))
     await waitFor(() =>
       expect(resend).toHaveBeenCalledWith(expect.objectContaining({ email: "new@example.com" })),
+    )
+  })
+
+  it("hides the verify-without-e-mail button when the bypass is off", async () => {
+    render(<VerifyOrganizerEmail email="new@example.com" />)
+    await waitFor(() => expect(authFetch).toHaveBeenCalled())
+    expect(screen.queryByRole("button", { name: "Verify without e-mail" })).not.toBeInTheDocument()
+  })
+
+  it("verifies without the e-mail link when the bypass is on", async () => {
+    authFetch.mockImplementation((path: string) =>
+      Promise.resolve(
+        path.endsWith("/status")
+          ? { data: { enabled: true }, error: null }
+          : { data: { status: true }, error: null },
+      ),
+    )
+    render(<VerifyOrganizerEmail email="new@example.com" />)
+    await userEvent.click(await screen.findByRole("button", { name: "Verify without e-mail" }))
+
+    await waitFor(() =>
+      expect(authFetch).toHaveBeenCalledWith(
+        "/email-verification-bypass",
+        expect.objectContaining({ method: "POST", body: { email: "new@example.com" } }),
+      ),
     )
   })
 })
