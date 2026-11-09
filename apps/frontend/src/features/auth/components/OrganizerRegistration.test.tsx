@@ -6,8 +6,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import { OrganizerRegistration } from "@/features/auth/components/OrganizerRegistration"
 import { VerifyOrganizerEmail } from "@/features/auth/components/VerifyOrganizerEmail"
 
-const { signUp, resend, navigate, authFetch } = vi.hoisted(() => ({
+const { signUp, resend, navigate, authFetch, location } = vi.hoisted(() => ({
   authFetch: vi.fn(),
+  location: { state: {} },
   signUp: vi.fn(),
   resend: vi.fn(),
   navigate: vi.fn(),
@@ -21,6 +22,7 @@ vi.mock("@tanstack/react-router", () => ({
     <a href={to}>{children}</a>
   ),
   useNavigate: () => navigate,
+  useLocation: ({ select }: { select: (value: { state: unknown }) => unknown }) => select(location),
 }))
 vi.mock("@/features/auth/components/RegistrationLayout", () => ({
   RegistrationLayout: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
@@ -41,6 +43,7 @@ describe("organizer registration", () => {
     resend.mockReset()
     navigate.mockReset()
     authFetch.mockReset()
+    location.state = {}
     authFetch.mockResolvedValue({ data: { enabled: false }, error: null })
   })
 
@@ -68,6 +71,7 @@ describe("organizer registration", () => {
       expect(navigate).toHaveBeenCalledWith({
         to: "/organizer/verify-email",
         search: { email: "new@example.com" },
+        state: { password: "password123" },
       }),
     )
     expect(signUp).toHaveBeenCalledWith(
@@ -100,7 +104,15 @@ describe("organizer registration", () => {
     expect(screen.queryByRole("button", { name: "Verify without e-mail" })).not.toBeInTheDocument()
   })
 
+  it("hides the button when the registration password is not available", async () => {
+    authFetch.mockResolvedValue({ data: { enabled: true }, error: null })
+    render(<VerifyOrganizerEmail email="new@example.com" />)
+    await waitFor(() => expect(authFetch).toHaveBeenCalled())
+    expect(screen.queryByRole("button", { name: "Verify without e-mail" })).not.toBeInTheDocument()
+  })
+
   it("verifies without the e-mail link when the bypass is on", async () => {
+    location.state = { password: "password123" }
     authFetch.mockImplementation((path: string) =>
       Promise.resolve(
         path.endsWith("/status")
@@ -114,7 +126,10 @@ describe("organizer registration", () => {
     await waitFor(() =>
       expect(authFetch).toHaveBeenCalledWith(
         "/email-verification-bypass",
-        expect.objectContaining({ method: "POST", body: { email: "new@example.com" } }),
+        expect.objectContaining({
+          method: "POST",
+          body: { email: "new@example.com", password: "password123" },
+        }),
       ),
     )
   })

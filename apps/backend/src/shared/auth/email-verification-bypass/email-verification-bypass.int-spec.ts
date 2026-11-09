@@ -38,7 +38,10 @@ describe("e-mail verification bypass (integration)", () => {
     await signUp(shared, email)
     expect((await fetch(`${shared}/auth/email-verification-bypass/status`)).status).toBe(200)
 
-    const response = await post(shared, "/auth/email-verification-bypass", { email })
+    const response = await post(shared, "/auth/email-verification-bypass", {
+      email,
+      password: "password123",
+    })
     expect(response.status).toBe(200)
     const cookie = response.headers
       .getSetCookie()
@@ -51,9 +54,26 @@ describe("e-mail verification bypass (integration)", () => {
     expect(create.status).toBe(201)
   })
 
+  it("refuses a caller that does not know the password and leaves the account unverified", async () => {
+    const email = "bypass-wrong-password@example.com"
+    await signUp(shared, email)
+
+    const wrong = await post(shared, "/auth/email-verification-bypass", {
+      email,
+      password: "not-the-password",
+    })
+    expect(wrong.status).toBe(403)
+    expect(await wrong.json()).toMatchObject({ code: "EMAIL_VERIFICATION_BYPASS_NOT_ALLOWED" })
+    expect(wrong.headers.getSetCookie()).toHaveLength(0)
+    const missing = await post(shared, "/auth/email-verification-bypass", { email })
+    expect(missing.status).toBe(403)
+    expect((await prisma.user.findUniqueOrThrow({ where: { email } })).emailVerified).toBe(false)
+  })
+
   it("refuses accounts that are already verified, older than the link or not organizers", async () => {
     const verified = await post(shared, "/auth/email-verification-bypass", {
       email: "organizator@example.com",
+      password: "password1",
     })
     expect(verified.status).toBe(403)
     expect(await verified.json()).toMatchObject({ code: "EMAIL_VERIFICATION_BYPASS_NOT_ALLOWED" })
@@ -64,13 +84,21 @@ describe("e-mail verification bypass (integration)", () => {
       where: { email: old },
       data: { createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000) },
     })
-    expect((await post(shared, "/auth/email-verification-bypass", { email: old })).status).toBe(403)
+    expect(
+      (
+        await post(shared, "/auth/email-verification-bypass", {
+          email: old,
+          password: "password123",
+        })
+      ).status,
+    ).toBe(403)
     expect((await prisma.user.findUniqueOrThrow({ where: { email: old } })).emailVerified).toBe(
       false,
     )
 
     const unknown = await post(shared, "/auth/email-verification-bypass", {
       email: "nobody@example.com",
+      password: "password123",
     })
     expect(unknown.status).toBe(403)
   })
@@ -111,7 +139,10 @@ describe("e-mail verification bypass (integration)", () => {
       expect(await (await fetch(`${off}/auth/email-verification-bypass/status`)).json()).toEqual({
         enabled: false,
       })
-      const response = await post(off, "/auth/email-verification-bypass", { email })
+      const response = await post(off, "/auth/email-verification-bypass", {
+        email,
+        password: "password123",
+      })
       expect(response.status).toBe(404)
       expect(await response.json()).toMatchObject({ code: "EMAIL_VERIFICATION_BYPASS_DISABLED" })
       expect(response.headers.getSetCookie()).toHaveLength(0)

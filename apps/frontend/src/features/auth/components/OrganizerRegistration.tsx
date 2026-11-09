@@ -45,7 +45,12 @@ export function OrganizerRegistration() {
         setFailure(error.status === 429 ? tErrors("TOO_MANY_REQUESTS") : t("registration.failed"))
         return
       }
-      await navigate({ to: ROUTES.organizer.verifyEmail, search: { email: address } })
+      // The password travels in the history state so the staging bypass can prove ownership; never in the URL.
+      await navigate({
+        to: ROUTES.organizer.verifyEmail,
+        search: { email: address },
+        state: { password },
+      })
     } catch {
       setFailure(t("registration.failed"))
     } finally {

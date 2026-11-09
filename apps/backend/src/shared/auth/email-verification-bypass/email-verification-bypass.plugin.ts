@@ -13,9 +13,9 @@ const bypassError = (status: "FORBIDDEN" | "NOT_FOUND", code: string): APIError 
  * Staging and demo only: environments without a verified sender domain cannot deliver the
  * verification link, so the organizer could never finish registration. While
  * EMAIL_VERIFICATION_BYPASS_ENABLED is on, a button on "Verify your e-mail" marks the
- * account verified and signs it in. It only reaches an organizer account that is still
- * unverified and was registered within the lifetime of the verification link, so it cannot
- * verify an older account, and an e-mail change (which keeps a verified account) never
+ * account verified and signs it in. The caller must prove ownership with the account's
+ * password, and it only reaches an organizer account that is still unverified and was
+ * registered within the lifetime of the verification link, so it cannot verify an older account, and an e-mail change (which keeps a verified account) never
  * goes through it.
  */
 export const createEmailVerificationBypassPlugin = (config: Config): BetterAuthPlugin => ({
@@ -30,11 +30,11 @@ export const createEmailVerificationBypassPlugin = (config: Config): BetterAuthP
       if (!config.emailVerificationBypassEnabled) {
         throw bypassError("NOT_FOUND", "EMAIL_VERIFICATION_BYPASS_DISABLED")
       }
-      const email = (ctx.body as { email?: unknown } | undefined)?.email
-      if (typeof email !== "string")
+      const { email, password } = (ctx.body ?? {}) as { email?: unknown; password?: unknown }
+      if (typeof email !== "string" || typeof password !== "string")
         throw bypassError("FORBIDDEN", "EMAIL_VERIFICATION_BYPASS_NOT_ALLOWED")
       const adapter = ctx.context.internalAdapter
-      const found = await adapter.findUserByEmail(email.toLowerCase())
+      const found = await adapter.findUserByEmail(email.toLowerCase(), { includeAccounts: true })
       const user = found?.user as
         (NonNullable<typeof found>["user"] & { accountType?: string }) | undefined
       const registeredMs = user ? Date.now() - new Date(user.createdAt).getTime() : Infinity
@@ -46,6 +46,12 @@ export const createEmailVerificationBypassPlugin = (config: Config): BetterAuthP
       ) {
         throw bypassError("FORBIDDEN", "EMAIL_VERIFICATION_BYPASS_NOT_ALLOWED")
       }
+      // Proof that the caller is the one who registered: the password they just chose.
+      const hash = found?.accounts.find(
+        (account) => account.providerId === "credential" && account.accountId === user.id,
+      )?.password
+      const isOwner = hash ? await ctx.context.password.verify({ hash, password }) : false
+      if (!isOwner) throw bypassError("FORBIDDEN", "EMAIL_VERIFICATION_BYPASS_NOT_ALLOWED")
       const verified = await adapter.updateUser(user.id, { emailVerified: true })
       const session = await adapter.createSession(user.id)
       await setSessionCookie(ctx, { session, user: verified })

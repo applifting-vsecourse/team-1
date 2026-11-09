@@ -1,8 +1,9 @@
 import { useState } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { useNavigate } from "@tanstack/react-router"
+import { useLocation, useNavigate } from "@tanstack/react-router"
 import { TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
+import { z } from "zod"
 
 import { ROUTES } from "@/app/routes"
 import { Seo } from "@/components/atoms/Seo"
@@ -10,6 +11,10 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 
 import { authSessionQueryOptions } from "@/features/auth/api/authSessionQueryOptions"
+import {
+  emailVerificationBypassQueryOptions,
+  verifyEmailWithoutLink,
+} from "@/features/auth/api/emailVerificationBypass"
 import { RegistrationLayout } from "@/features/auth/components/RegistrationLayout"
 import { authClient } from "@/features/auth/lib/auth-client"
 
@@ -25,17 +30,15 @@ export function VerifyOrganizerEmail({ email, error }: Props) {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   // Only environments without working e-mails switch the bypass on (EMAIL_VERIFICATION_BYPASS_ENABLED).
-  const { data: canBypass } = useQuery({
-    queryKey: ["auth", "email-verification-bypass"],
-    queryFn: async () => {
-      const { data } = await authClient.$fetch<{ enabled: boolean }>(
-        "/email-verification-bypass/status",
-      )
-      return Boolean(data?.enabled)
+  const { data: isBypassOn } = useQuery(emailVerificationBypassQueryOptions())
+  // The password of the registration travels in the history state, never in the URL.
+  const registrationPassword = useLocation({
+    select: (location) => {
+      const parsed = z.object({ password: z.string() }).safeParse(location.state)
+      return parsed.success ? parsed.data.password : null
     },
-    staleTime: Infinity,
-    retry: false,
   })
+  const canBypass = Boolean(isBypassOn && registrationPassword)
   const isExpired = Boolean(error)
   const title = t(isExpired ? "registration.expiredTitle" : "registration.verifyTitle")
 
@@ -59,14 +62,11 @@ export function VerifyOrganizerEmail({ email, error }: Props) {
   }
 
   const verifyWithoutEmail = async () => {
-    if (!email) return
+    if (!email || !registrationPassword) return
     setPending(true)
     setFailure(null)
     try {
-      const { error: bypassError } = await authClient.$fetch("/email-verification-bypass", {
-        method: "POST",
-        body: { email },
-      })
+      const bypassError = await verifyEmailWithoutLink(email, registrationPassword)
       if (bypassError) {
         setFailure(
           bypassError.status === 429
