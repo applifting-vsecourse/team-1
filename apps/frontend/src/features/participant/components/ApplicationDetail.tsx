@@ -123,31 +123,20 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
         />
       </div>
       {transportOpen > 0 ? (
-        <section
-          aria-labelledby="application-todo"
-          className="flex flex-col gap-4"
-        >
-          <h2
-            id="application-todo"
-            className="text-2xl font-semibold tracking-tight"
-          >
-            {t("detail.todo.title")}
-          </h2>
-          <Checklist
-            title={t("detail.todo.transportHeading")}
-            intro={t("detail.todo.intro")}
-            progress={t("detail.todo.progress", {
-              done: transportTerms.length - transportOpen,
-              total: transportTerms.length,
-            })}
-            items={transportTerms.map((term) => ({
-              key: term.termId,
-              title: t("detail.todo.transportTitle", { term: termTitle(term) }),
-              body: t("detail.todo.transportBody"),
-              isDone: term.transportDecided,
-            }))}
-          />
-        </section>
+        <Checklist
+          title={t("detail.todo.title")}
+          intro={t("detail.todo.intro")}
+          progress={t("detail.todo.progress", {
+            done: transportTerms.length - transportOpen,
+            total: transportTerms.length,
+          })}
+          items={transportTerms.map((term) => ({
+            key: term.termId,
+            title: t("detail.todo.transportTitle", { term: termTitle(term) }),
+            body: t("detail.todo.transportBody"),
+            isDone: term.transportDecided,
+          }))}
+        />
       ) : null}
       <section
         aria-labelledby="application-terms"
@@ -211,43 +200,32 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
           </Card>
         </section>
       ) : null}
-      <section
-        aria-labelledby="application-participant-details"
-        className="flex flex-col gap-4"
-      >
-        <h2
-          id="application-participant-details"
-          className="text-2xl font-semibold tracking-tight"
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+        <Button
+          asChild
+          variant="secondary"
+          size="lg"
         >
-          {t("detail.sections.participantDetails")}
-        </h2>
-        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-          <Button
-            asChild
-            variant="secondary"
-            size="lg"
+          <Link
+            to={ROUTES.participant.applicationMeals}
+            params={{ applicationId }}
           >
-            <Link
-              to={ROUTES.participant.applicationMeals}
-              params={{ applicationId }}
-            >
-              {t("detail.meals")}
-            </Link>
-          </Button>
-          <Button
-            asChild
-            variant="secondary"
-            size="lg"
+            {t("detail.meals")}
+          </Link>
+        </Button>
+        <Button
+          asChild
+          variant="secondary"
+          size="lg"
+        >
+          <Link
+            to={ROUTES.participant.applicationHealth}
+            params={{ applicationId }}
           >
-            <Link
-              to={ROUTES.participant.applicationHealth}
-              params={{ applicationId }}
-            >
-              {t("detail.health")}
-            </Link>
-          </Button>
-        </div>
-      </section>
+            {t("detail.health")}
+          </Link>
+        </Button>
+      </div>
       <OrganizationContact contact={data.organizationContact} />
     </div>
   )

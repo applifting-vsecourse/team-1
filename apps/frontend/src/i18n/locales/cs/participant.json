@@ -74,7 +74,6 @@
     "health": "Zdravotní omezení",
     "meals": "Stravování",
     "sections": {
-      "participantDetails": "Údaje účastníka",
       "terms": "Termíny a platby",
       "transport": "Doprava"
     },
@@ -92,7 +91,6 @@
       "progress": "Hotovo {{done}} z {{total}}",
       "title": "Co zbývá zařídit",
       "transportBody": "Vyberte, jak se účastník dostane na akci.",
-      "transportHeading": "Výběr dopravy podle termínu",
       "transportTitle": "Doprava · {{term}}"
     },
     "transportIntro": "Vyberte, jak se účastník dostane na jednotlivé termíny, a zjistěte, kde a kdy doprava odjíždí."

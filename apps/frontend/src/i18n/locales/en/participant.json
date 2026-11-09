@@ -74,7 +74,6 @@
     "health": "Health restriction",
     "meals": "Meals",
     "sections": {
-      "participantDetails": "Participant details",
       "terms": "Terms and payments",
       "transport": "Transport"
     },
@@ -92,7 +91,6 @@
       "progress": "{{done}} of {{total}} done",
       "title": "What is left to arrange",
       "transportBody": "Choose how the participant gets to the event.",
-      "transportHeading": "Choose transport by term",
       "transportTitle": "Transport · {{term}}"
     },
     "transportIntro": "Choose how the participant gets to each term, and see where and when the transport leaves."

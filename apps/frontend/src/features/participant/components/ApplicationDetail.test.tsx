@@ -735,9 +735,8 @@ describe("ApplicationDetail", () => {
       expect(screen.getByText("0 of 1 done")).toBeVisible()
       expect(screen.getByRole("heading", { name: /^Transport · / })).toBeVisible()
       expect(screen.getByRole("heading", { name: "Terms and payments" })).toBeVisible()
-      expect(screen.getByRole("heading", { name: "Choose transport by term" })).toBeVisible()
       expect(screen.getByRole("heading", { name: "Transport" })).toBeVisible()
-      const todo = screen.getByRole("region", { name: "What is left to arrange" })
+      const todo = cardOf(/^What is left to arrange$/)
       expect(within(todo).queryByRole("link", { name: "Meals" })).not.toBeInTheDocument()
       expect(
         within(todo).queryByRole("link", { name: "Health restriction" }),
@@ -772,15 +771,14 @@ describe("ApplicationDetail", () => {
       expect(screen.queryByRole("link", { name: "Choose transport" })).not.toBeInTheDocument()
     })
 
-    it("keeps meals and health together even when no transport is offered", async () => {
+    it("keeps meals and health available even when no transport is offered", async () => {
       renderDetail(application())
 
-      const details = await screen.findByRole("region", { name: "Participant details" })
-      expect(within(details).getByRole("link", { name: "Meals" })).toHaveAttribute(
+      expect(await screen.findByRole("link", { name: "Meals" })).toHaveAttribute(
         "href",
         "/participant/applications/a1/meals",
       )
-      expect(within(details).getByRole("link", { name: "Health restriction" })).toHaveAttribute(
+      expect(screen.getByRole("link", { name: "Health restriction" })).toHaveAttribute(
         "href",
         "/participant/applications/a1/health",
       )
@@ -800,9 +798,8 @@ describe("ApplicationDetail", () => {
           }),
         )
 
-        const details = await screen.findByRole("region", { name: "Participant details" })
-        expect(within(details).getByRole("link", { name: "Meals" })).toBeVisible()
-        expect(within(details).getByRole("link", { name: "Health restriction" })).toBeVisible()
+        expect(await screen.findByRole("link", { name: "Meals" })).toBeVisible()
+        expect(screen.getByRole("link", { name: "Health restriction" })).toBeVisible()
         expect(
           screen.queryByRole("heading", { name: "What is left to arrange" }),
         ).not.toBeInTheDocument()
