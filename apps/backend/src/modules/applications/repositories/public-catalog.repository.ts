@@ -43,6 +43,7 @@ export class PublicCatalogRepository {
 
     return events
       .map((event) => {
+        const isOpen = isOpenForTerms(event.terms.map((term) => ({ roomCount: term._count.rooms })))
         return {
           publicToken: event.publicToken,
           name: event.name,
@@ -55,10 +56,10 @@ export class PublicCatalogRepository {
             endsOn: isoDate(term.endsOn),
           })),
           ...summarizeTerms(event.terms),
-          hasPhoto: event.photo !== null,
-          isOpenForApplications: isOpenForTerms(
-            event.terms.map((term) => ({ roomCount: term._count.rooms })),
-          ),
+          // The photo endpoint has the same gate as the page, so a card of an event without a
+          // working link must not ask for a photo that would answer 404.
+          hasPhoto: event.photo !== null && isOpen,
+          isOpenForApplications: isOpen,
         }
       })
       .sort(
