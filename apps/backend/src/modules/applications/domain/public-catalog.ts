@@ -15,6 +15,8 @@ export type CatalogEvent = {
   fromPriceCzk: number | null
   /** The application link works (docs/PROJEKT.md, section 5). */
   isOpenForApplications: boolean
+  /** The photo of the event page can be loaded from the photo endpoint (the card shows it). */
+  hasPhoto: boolean
 }
 
 export type CatalogOrganization = { id: string; name: string }

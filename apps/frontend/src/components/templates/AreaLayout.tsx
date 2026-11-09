@@ -5,8 +5,6 @@ import { useTranslation } from "react-i18next"
 
 import { EmbeddedPageContext } from "@/components/atoms/EmbeddedPage"
 import { Logo } from "@/components/atoms/Logo"
-import { LanguageSwitcher } from "@/components/molecules/LanguageSwitcher"
-import { ThemeSwitcher } from "@/components/molecules/ThemeSwitcher"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
@@ -20,7 +18,7 @@ type AreaLayoutProps = {
   account: ReactNode
   /** `reading` for participant pages, `wide` (1200 px) for organizer tables. */
   width: "reading" | "wide"
-  /** The notification bell, shown before the language switcher; omitted where the area has none (the organizer until US-86). */
+  /** The notification bell, the only control at the right of the top bar. */
   notifications?: ReactNode
   children: ReactNode
 }
@@ -28,10 +26,10 @@ type AreaLayoutProps = {
 /**
  * Chrome of the signed-in areas: a sidebar with the logo, the area
  * navigation and the account at the bottom, and a workspace with the top bar
- * above the page. The bar carries the role label, language and theme. Below
- * `md` the sidebar moves into a sheet opened from the bar (the account stays
- * at its bottom), so the page starts right under the 56 px bar: menu, logo,
- * language and theme. Organizer and participant layouts differ only in
+ * above the page. The bar carries the role label and the notification bell;
+ * language and theme live in the account settings. Below `md` the sidebar
+ * moves into a sheet opened from the bar (the account stays at its bottom),
+ * so the page starts right under the 56 px bar: menu, logo and the bell. Organizer and participant layouts differ only in
  * navigation and content width, so they share this template; the route
  * layouts (`routes/organizer/_app.tsx`, `routes/participant/_app.tsx`) fill
  * the slots.
@@ -193,11 +191,7 @@ export function AreaLayout({
           <p className="hidden flex-1 text-xs font-medium tracking-wider text-muted-foreground uppercase md:block">
             {roleLabel}
           </p>
-          <div className="ml-auto flex items-center gap-1 md:ml-0 md:gap-2">
-            {notifications}
-            <LanguageSwitcher />
-            <ThemeSwitcher />
-          </div>
+          <div className="ml-auto flex items-center gap-1 md:ml-0 md:gap-2">{notifications}</div>
         </div>
         <main className="px-4 pt-6 pb-12 md:px-8 md:pt-8">
           <div

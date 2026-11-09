@@ -3,7 +3,11 @@ import { useQuery } from "@tanstack/react-query"
 import { TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { ROUTES } from "@/app/routes"
+import CampIllustration from "@/assets/illustrations/camp.svg?react"
+import { BandBackdrop } from "@/components/atoms/BandBackdrop"
 import { LogoSymbol } from "@/components/atoms/Logo"
+import { BackLink } from "@/components/molecules/BackLink"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -16,12 +20,14 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Skeleton } from "@/components/ui/skeleton"
+import { cn } from "@/lib/utils"
 
 import { catalogQueryOptions } from "@/features/catalog/api/catalog"
 import { EventCard } from "@/features/catalog/components/EventCard"
 import { eventsOf, knownOrganizationId } from "@/features/catalog/lib/catalog"
 
 const ALL = "all"
+const CONTENT = "mx-auto w-full max-w-300 px-4 md:px-6"
 
 type CatalogPageProps = {
   /** The chosen organization; without one, all events are listed. */
@@ -74,69 +80,86 @@ export function CatalogPage({ organizationId, onOrganizationChange }: CatalogPag
   )
 
   return (
-    <div className="flex flex-col gap-6">
-      <h1 className="text-2xl/8 font-bold tracking-tight md:text-3xl/10">{t("list.title")}</h1>
-
-      {isPending ? (
-        <Card
-          role="status"
-          className="max-w-160 gap-4 p-6 shadow-none"
-        >
-          {[0, 1, 2].map((row) => (
-            <div
-              key={row}
-              className="flex items-center gap-3"
-            >
-              <Skeleton className="size-10 shrink-0 rounded-full" />
-              <div className="flex flex-1 flex-col gap-1.5">
-                <Skeleton className="h-4 w-full rounded-lg" />
-                <Skeleton className="h-3 w-full rounded-lg" />
-              </div>
+    <>
+      <section className="relative overflow-hidden">
+        <BandBackdrop />
+        <div className={cn(CONTENT, "relative flex flex-col gap-6 pt-4 pb-16 md:pt-8 lg:pb-24")}>
+          <BackLink to={ROUTES.home}>{t("list.backHome")}</BackLink>
+          <div className="grid items-center gap-6 lg:grid-cols-[1fr_auto] lg:gap-12">
+            <div className="flex flex-col gap-3">
+              <h1 className="text-4xl/11 font-bold tracking-tight md:text-5xl/14">
+                {t("list.title")}
+              </h1>
+              <p className="max-w-lg text-muted-foreground md:text-lg">{t("list.description")}</p>
             </div>
-          ))}
-          <p className="text-sm text-muted-foreground">{t("list.loading")}</p>
-        </Card>
-      ) : null}
-
-      {isError ? (
-        <Alert variant="destructive">
-          <TriangleAlert aria-hidden />
-          <AlertTitle>{t("list.errorTitle")}</AlertTitle>
-          <AlertDescription>{t("list.errorDescription")}</AlertDescription>
-        </Alert>
-      ) : null}
-
-      {isEmpty ? (
-        <div className="flex flex-col items-center gap-4 p-6 text-center">
-          <LogoSymbol className="size-14 text-primary" />
-          <h2 className="text-2xl/8 font-bold tracking-tight">{t("list.emptyTitle")}</h2>
-          <p className="text-muted-foreground">{t("list.emptyDescription")}</p>
+            <CampIllustration
+              aria-hidden
+              className="hidden h-44 w-auto lg:block"
+            />
+          </div>
         </div>
-      ) : null}
+      </section>
 
-      {data && !isEmpty ? <p>{t("list.description")}</p> : null}
+      <div className={cn(CONTENT, "flex flex-col gap-6 pt-8 pb-12 md:pt-12 md:pb-20")}>
+        {isPending ? (
+          <Card
+            role="status"
+            className="max-w-160 gap-4 p-6 shadow-none"
+          >
+            {[0, 1, 2].map((row) => (
+              <div
+                key={row}
+                className="flex items-center gap-3"
+              >
+                <Skeleton className="size-10 shrink-0 rounded-full" />
+                <div className="flex flex-1 flex-col gap-1.5">
+                  <Skeleton className="h-4 w-full rounded-lg" />
+                  <Skeleton className="h-3 w-full rounded-lg" />
+                </div>
+              </div>
+            ))}
+            <p className="text-sm text-muted-foreground">{t("list.loading")}</p>
+          </Card>
+        ) : null}
 
-      {select}
+        {isError ? (
+          <Alert variant="destructive">
+            <TriangleAlert aria-hidden />
+            <AlertTitle>{t("list.errorTitle")}</AlertTitle>
+            <AlertDescription>{t("list.errorDescription")}</AlertDescription>
+          </Alert>
+        ) : null}
 
-      {isError ? (
-        <Button
-          size="lg"
-          className="w-full md:w-55"
-          onClick={() => void refetch()}
-        >
-          {t("list.retry")}
-        </Button>
-      ) : null}
+        {isEmpty ? (
+          <div className="flex flex-col items-center gap-4 p-6 text-center">
+            <LogoSymbol className="size-14 text-primary" />
+            <h2 className="text-2xl/8 font-bold tracking-tight">{t("list.emptyTitle")}</h2>
+            <p className="text-muted-foreground">{t("list.emptyDescription")}</p>
+          </div>
+        ) : null}
 
-      {data && !isEmpty ? (
-        <ul className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {events.map((event) => (
-            <li key={event.publicToken}>
-              <EventCard event={event} />
-            </li>
-          ))}
-        </ul>
-      ) : null}
-    </div>
+        {select}
+
+        {isError ? (
+          <Button
+            size="lg"
+            className="w-full md:w-55"
+            onClick={() => void refetch()}
+          >
+            {t("list.retry")}
+          </Button>
+        ) : null}
+
+        {data && !isEmpty ? (
+          <ul className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {events.map((event) => (
+              <li key={event.publicToken}>
+                <EventCard event={event} />
+              </li>
+            ))}
+          </ul>
+        ) : null}
+      </div>
+    </>
   )
 }

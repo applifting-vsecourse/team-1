@@ -74,6 +74,7 @@
     "health": "Zdravotní omezení",
     "meals": "Stravování",
     "sections": {
+      "participantDetails": "Údaje účastníka",
       "terms": "Termíny a platby",
       "transport": "Doprava"
     },
@@ -91,9 +92,38 @@
       "progress": "Hotovo {{done}} z {{total}}",
       "title": "Co zbývá zařídit",
       "transportBody": "Vyberte, jak se účastník dostane na akci.",
+      "transportHeading": "Výběr dopravy podle termínu",
       "transportTitle": "Doprava · {{term}}"
     },
     "transportIntro": "Vyberte, jak se účastník dostane na jednotlivé termíny, a zjistěte, kde a kdy doprava odjíždí."
+  },
+  "edit": {
+    "accommodationRequest": "Požadavek na individuální řešení ubytování",
+    "accommodationSummary": "Ubytování · {{request}}",
+    "backToApplication": "Zpět na přihlášku",
+    "birthDate": "Datum narození *",
+    "cancel": "Zrušit",
+    "firstName": "Jméno *",
+    "historyAccommodation": "požadavek na ubytování",
+    "historyContact": "kontakt",
+    "historyContactAccommodation": "Upraven kontakt a požadavek na ubytování.",
+    "historyLine": "Historie · {{date}} · {{author}} · {{description}}",
+    "historyOther": "Upraveno: {{fields}}.",
+    "historyPersonal": "osobní údaje",
+    "lastName": "Příjmení *",
+    "loadError": "Přihlášku se nepodařilo načíst",
+    "open": "Upravit přihlášku",
+    "organizerNotified": "Organizátor dostal upozornění.",
+    "participant": "Účastník",
+    "phone": "Telefon *",
+    "phoneSummary": "Telefon · {{phone}}",
+    "retry": "Zkusit znovu",
+    "save": "Uložit změny",
+    "saveError": "Zkuste změny uložit znovu",
+    "saveErrorTitle": "Změny se nepodařilo uložit",
+    "successTitle": "Změny byly uloženy",
+    "title": "Upravit přihlášku",
+    "valuesPreserved": "Vyplněné údaje zůstaly zachované."
   },
   "list": {
     "empty": "Zatím tu nemáte žádnou přihlášku. Až se přihlásíte na akci, objeví se tady.",

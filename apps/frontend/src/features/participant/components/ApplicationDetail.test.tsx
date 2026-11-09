@@ -229,7 +229,9 @@ describe("ApplicationDetail", () => {
     })
     renderDetail(application())
 
-    await user.click(await screen.findByRole("button", { name: "Change terms" }))
+    const terms = await screen.findByRole("region", { name: "Terms and payments" })
+    expect(within(terms).getByRole("button", { name: "Cancel participation" })).toBeVisible()
+    await user.click(await within(terms).findByRole("button", { name: "Change terms" }))
     expect(screen.getByText(/Overpayment CZK 2,000/)).toBeInTheDocument()
     expect(screen.getByText(/New term 2. týden · Price CZK 4,900/)).toBeInTheDocument()
     await user.click(screen.getByRole("button", { name: "Confirm change" }))
@@ -733,35 +735,79 @@ describe("ApplicationDetail", () => {
       expect(screen.getByText("0 of 1 done")).toBeVisible()
       expect(screen.getByRole("heading", { name: /^Transport · / })).toBeVisible()
       expect(screen.getByRole("heading", { name: "Terms and payments" })).toBeVisible()
-      expect(screen.getByRole("region", { name: "Transport" })).toBeVisible()
+      expect(screen.getByRole("heading", { name: "Choose transport by term" })).toBeVisible()
+      expect(screen.getByRole("heading", { name: "Transport" })).toBeVisible()
+      const todo = screen.getByRole("region", { name: "What is left to arrange" })
+      expect(within(todo).queryByRole("link", { name: "Meals" })).not.toBeInTheDocument()
+      expect(
+        within(todo).queryByRole("link", { name: "Health restriction" }),
+      ).not.toBeInTheDocument()
       expect(screen.getByRole("link", { name: "Choose transport" })).toHaveAttribute(
         "href",
         "/participant/applications/a1/transport",
       )
     })
 
-    it("shows the step as done and offers a change once the transport is chosen", async () => {
+    it("counts completed choices while another term still needs transport", async () => {
+      renderDetail(
+        application({
+          terms: [
+            { ...confirmed, transportOffered: true, transportDecided: true },
+            { ...secondConfirmed, transportOffered: true, transportDecided: false },
+          ],
+        }),
+      )
+
+      expect(await screen.findByText("1 of 2 done")).toBeVisible()
+      expect(screen.getByRole("link", { name: "Choose transport" })).toBeVisible()
+    })
+
+    it("offers a change but hides the checklist once all transport choices are made", async () => {
       renderDetail(withTransport(true))
 
-      expect(await screen.findByText("1 of 1 done")).toBeVisible()
-      expect(screen.getByRole("link", { name: "Change transport" })).toBeVisible()
-      expect(screen.queryByRole("link", { name: "Choose transport" })).toBeNull()
+      expect(await screen.findByRole("link", { name: "Change transport" })).toBeVisible()
+      expect(
+        screen.queryByRole("heading", { name: "What is left to arrange" }),
+      ).not.toBeInTheDocument()
+      expect(screen.queryByRole("link", { name: "Choose transport" })).not.toBeInTheDocument()
     })
 
     it("keeps meals and health together even when no transport is offered", async () => {
       renderDetail(application())
 
-      const todo = await screen.findByRole("region", { name: "What is left to arrange" })
-      expect(within(todo).getByRole("link", { name: "Meals" })).toHaveAttribute(
+      const details = await screen.findByRole("region", { name: "Participant details" })
+      expect(within(details).getByRole("link", { name: "Meals" })).toHaveAttribute(
         "href",
         "/participant/applications/a1/meals",
       )
-      expect(within(todo).getByRole("link", { name: "Health restriction" })).toHaveAttribute(
+      expect(within(details).getByRole("link", { name: "Health restriction" })).toHaveAttribute(
         "href",
         "/participant/applications/a1/health",
       )
-      expect(within(todo).queryByText(/of .* done/)).toBeNull()
-      expect(screen.queryByRole("heading", { name: "Transport" })).toBeNull()
+      expect(
+        screen.queryByRole("heading", { name: "What is left to arrange" }),
+      ).not.toBeInTheDocument()
+      expect(screen.queryByRole("heading", { name: "Transport" })).not.toBeInTheDocument()
     })
+
+    it.each(["TO_EVALUATE", "WAITLISTED", "CANCELLED"] as const)(
+      "keeps participant links without transport tasks when the term is %s",
+      async (status) => {
+        renderDetail(
+          application({
+            terms: [{ ...confirmed, status, transportOffered: true }],
+            paymentDetails: null,
+          }),
+        )
+
+        const details = await screen.findByRole("region", { name: "Participant details" })
+        expect(within(details).getByRole("link", { name: "Meals" })).toBeVisible()
+        expect(within(details).getByRole("link", { name: "Health restriction" })).toBeVisible()
+        expect(
+          screen.queryByRole("heading", { name: "What is left to arrange" }),
+        ).not.toBeInTheDocument()
+        expect(screen.queryByRole("heading", { name: "Transport" })).not.toBeInTheDocument()
+      },
+    )
   })
 })

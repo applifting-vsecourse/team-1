@@ -53,6 +53,7 @@ export type PaymentApplication = {
   number: number
   firstName: string
   lastName: string
+  accommodationRequest: string | null
   birthDate: Date
   gender: "FEMALE" | "MALE"
   /** Contact of the applicant who submitted the application. */

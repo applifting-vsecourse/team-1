@@ -26,6 +26,7 @@ const event = (overrides: object) => ({
   termCount: 2,
   fromPriceCzk: 4900,
   isOpenForApplications: true,
+  hasPhoto: true,
   ...overrides,
 })
 
@@ -49,6 +50,7 @@ const catalog = {
       organizationId: "o2",
       organizationName: "Summit Events",
       isOpenForApplications: false,
+      hasPhoto: false,
     }),
   ],
 }
@@ -100,6 +102,12 @@ beforeAll(() => {
 afterEach(() => vi.restoreAllMocks())
 
 describe("CatalogPage", () => {
+  it("leads back to the landing page", async () => {
+    renderPage(() => json(catalog))
+
+    expect(await screen.findByRole("link", { name: "Home" })).toHaveAttribute("href", "/")
+  })
+
   it("lists the published events as cards that open the event page", async () => {
     renderPage(() => json(catalog))
 
@@ -118,6 +126,22 @@ describe("CatalogPage", () => {
       screen.getByRole("heading", { name: "Víkend na Šumavě" }).closest("a"),
     ).toHaveTextContent("1 term · CZK 2,900")
     expect(screen.getByText("Published")).toBeInTheDocument()
+  })
+
+  it("shows the photo of an event that has one", async () => {
+    renderPage(() => json(catalog))
+
+    const card = (await screen.findByRole("heading", { name: "Letní kemp Lipno 2027" })).closest(
+      "a",
+    )
+    expect(card?.querySelector("img")).toHaveAttribute(
+      "src",
+      expect.stringContaining("/public/events/tok/photo"),
+    )
+    const withoutPhoto = screen
+      .getByRole("heading", { name: "Podzimní konference 2027" })
+      .closest("a")
+    expect(withoutPhoto?.querySelector("img")).toBeNull()
   })
 
   it("shows the events of the chosen organization only", async () => {

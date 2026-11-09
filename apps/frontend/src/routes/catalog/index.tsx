@@ -27,18 +27,16 @@ function CatalogRoute() {
     <>
       <Seo title={t("list.title")} />
       <PublicLayout isFullWidth>
-        <div className="mx-auto w-full max-w-275 px-4 py-8 md:p-12">
-          <CatalogPage
-            organizationId={organization}
-            onOrganizationChange={(organizationId) =>
-              void navigate({
-                to: ROUTES.catalog,
-                search: { organization: organizationId },
-                replace: true,
-              })
-            }
-          />
-        </div>
+        <CatalogPage
+          organizationId={organization}
+          onOrganizationChange={(organizationId) =>
+            void navigate({
+              to: ROUTES.catalog,
+              search: { organization: organizationId },
+              replace: true,
+            })
+          }
+        />
       </PublicLayout>
     </>
   )

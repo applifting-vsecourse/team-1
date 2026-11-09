@@ -10,6 +10,7 @@ type CatalogBody = {
     termCount: number
     fromPriceCzk: number | null
     isOpenForApplications: boolean
+    hasPhoto: boolean
   }[]
 }
 
@@ -65,6 +66,7 @@ describe("public catalog (integration)", () => {
         { name: "2. týden", startsOn: "2027-07-11", endsOn: "2027-07-17" },
       ],
       isOpenForApplications: true,
+      hasPhoto: true,
     })
   })
 
@@ -138,7 +140,7 @@ describe("public catalog (integration)", () => {
     const response = await fetch(api("/public/events/demo-letni-kemp-plny/photo"))
 
     expect(response.status).toBe(200)
-    expect(response.headers.get("content-type")).toContain("image/png")
+    expect(response.headers.get("content-type")).toContain("image/jpeg")
     expect(response.headers.get("cache-control")).toContain("max-age")
     const etag = response.headers.get("etag")
     expect(etag).toBeTruthy()

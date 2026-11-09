@@ -4,6 +4,7 @@ import { Globe, Menu, Sun } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
+import { BandBackdrop } from "@/components/atoms/BandBackdrop"
 import { Logo } from "@/components/atoms/Logo"
 import { LanguageSwitcher } from "@/components/molecules/LanguageSwitcher"
 import { ThemeSwitcher } from "@/components/molecules/ThemeSwitcher"
@@ -108,8 +109,9 @@ export function RegistrationLayout({ children }: Props) {
           </DropdownMenuContent>
         </DropdownMenu>
       </header>
-      <main className="min-h-[calc(100svh-5rem)] bg-background p-4 md:p-12">
-        <div className="flex w-full flex-col gap-4">{children}</div>
+      <main className="relative min-h-[calc(100svh-5rem)] overflow-hidden bg-background p-4 md:p-12">
+        <BandBackdrop className="h-40 lg:h-56" />
+        <div className="relative mx-auto flex w-full max-w-110 flex-col gap-4">{children}</div>
       </main>
     </>
   )

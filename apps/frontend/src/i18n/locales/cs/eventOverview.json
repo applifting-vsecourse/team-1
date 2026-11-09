@@ -223,6 +223,16 @@
     "submitted": "Podáno {{date}} · původní přihláška beze změny",
     "title": "Žádosti o změnu"
   },
+  "history": {
+    "created": "Přihláška vytvořena",
+    "entry": "{{date}} · {{who}} · {{change}}",
+    "errorTitle": "Historii změn se nepodařilo načíst",
+    "payment": "Platba {{amount}}",
+    "refund": "Vratka {{amount}}",
+    "status": "{{term}}: {{from}} → {{to}}",
+    "system": "Systém",
+    "title": "Historie změn"
+  },
   "manual": {
     "add": "Přidat přihlášku",
     "applicant": "Přihlašovatel",
@@ -269,6 +279,7 @@
     "title": "Přehled akce"
   },
   "payment": {
+    "accommodationRequest": "Požadavek na individuální řešení ubytování",
     "afterCorrection": "Po uložení",
     "amountChoice": "Výše platby",
     "back": "← Zpět na přihlášky",

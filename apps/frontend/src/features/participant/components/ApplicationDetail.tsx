@@ -107,51 +107,34 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
         <PageHeader
           title={data.eventName}
           description={`${data.firstName} ${data.lastName} · ${data.code}`}
-        />
-        <ParticipantTermActions
-          application={data}
-          onStart={setChangeMode}
+          actions={
+            <Button
+              asChild
+              variant="outline"
+            >
+              <Link
+                to={ROUTES.participant.editApplication}
+                params={{ applicationId }}
+              >
+                {t("edit.open")}
+              </Link>
+            </Button>
+          }
         />
       </div>
-      <section
-        aria-labelledby="application-todo"
-        className="flex flex-col gap-4"
-      >
-        <h2
-          id="application-todo"
-          className="text-2xl font-semibold tracking-tight"
+      {transportOpen > 0 ? (
+        <section
+          aria-labelledby="application-todo"
+          className="flex flex-col gap-4"
         >
-          {t("detail.todo.title")}
-        </h2>
-        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-          <Button
-            asChild
-            variant="secondary"
-            size="lg"
+          <h2
+            id="application-todo"
+            className="text-2xl font-semibold tracking-tight"
           >
-            <Link
-              to={ROUTES.participant.applicationMeals}
-              params={{ applicationId }}
-            >
-              {t("detail.meals")}
-            </Link>
-          </Button>
-          <Button
-            asChild
-            variant="secondary"
-            size="lg"
-          >
-            <Link
-              to={ROUTES.participant.applicationHealth}
-              params={{ applicationId }}
-            >
-              {t("detail.health")}
-            </Link>
-          </Button>
-        </div>
-        {transportTerms.length > 0 ? (
+            {t("detail.todo.title")}
+          </h2>
           <Checklist
-            title={t("detail.sections.transport")}
+            title={t("detail.todo.transportHeading")}
             intro={t("detail.todo.intro")}
             progress={t("detail.todo.progress", {
               done: transportTerms.length - transportOpen,
@@ -164,8 +147,8 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
               isDone: term.transportDecided,
             }))}
           />
-        ) : null}
-      </section>
+        </section>
+      ) : null}
       <section
         aria-labelledby="application-terms"
         className="flex flex-col gap-6"
@@ -176,6 +159,10 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
         >
           {t("detail.sections.terms")}
         </h2>
+        <ParticipantTermActions
+          application={data}
+          onStart={setChangeMode}
+        />
         {otherTerms.length > 0 ? (
           <Card className="gap-0 p-6">
             <h2 className="pb-4 text-lg font-semibold">{t("detail.termsTitle")}</h2>
@@ -224,6 +211,43 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
           </Card>
         </section>
       ) : null}
+      <section
+        aria-labelledby="application-participant-details"
+        className="flex flex-col gap-4"
+      >
+        <h2
+          id="application-participant-details"
+          className="text-2xl font-semibold tracking-tight"
+        >
+          {t("detail.sections.participantDetails")}
+        </h2>
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+          <Button
+            asChild
+            variant="secondary"
+            size="lg"
+          >
+            <Link
+              to={ROUTES.participant.applicationMeals}
+              params={{ applicationId }}
+            >
+              {t("detail.meals")}
+            </Link>
+          </Button>
+          <Button
+            asChild
+            variant="secondary"
+            size="lg"
+          >
+            <Link
+              to={ROUTES.participant.applicationHealth}
+              params={{ applicationId }}
+            >
+              {t("detail.health")}
+            </Link>
+          </Button>
+        </div>
+      </section>
       <OrganizationContact contact={data.organizationContact} />
     </div>
   )
