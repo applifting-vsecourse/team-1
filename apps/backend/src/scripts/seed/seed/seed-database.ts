@@ -13,6 +13,7 @@ import { Config } from "@/shared/config/config.service"
 import { generateToken } from "@/shared/utils/token"
 import { createUser } from "./create-user"
 import { seedParticipantNotifications } from "./notifications-data"
+import { seedPresentationData } from "./presentation-data"
 import { SEED_PHOTOS } from "./seed-photos"
 import { seedSprintDemo } from "./sprint-demo-data"
 
@@ -377,6 +378,13 @@ export const seedDatabase = async (
     rooms: [...rooms("FEMALE", ["A", 4]), ...rooms("MALE", ["B", 4])],
     applicants: [],
     payments: {},
+  })
+
+  await seedPresentationData(prisma, {
+    organizationId: summerCamp.id,
+    recordedById: organizerA.id,
+    participantId: participant.id,
+    createEvent,
   })
 
   await seedParticipantNotifications(prisma, participant.id)

@@ -125,14 +125,14 @@ pnpm format                         # Prettier na celý repozitář
 
 Registrace je vypnutá (ve sprintu 1 se nikdo neregistruje), takže se přihlašuj účty ze seedu:
 
-| E-mail                     | Heslo           | Typ         | Co vidí                                                                 |
-| -------------------------- | --------------- | ----------- | ----------------------------------------------------------------------- |
-| `organizator@example.com`  | `password1`     | organizátor | Letní kemp z. s. — „Letní kemp 2027“ a akce pro Sprint Demo (níže)      |
-| `organizator2@example.com` | `password2`     | organizátor | Horský spolek Sněžka — akce „Horský víkend 2027“ (s náhradnicí)         |
-| `organizator3@example.com` | `password3`     | organizátor | obě organizace (akce seskupené podle pořadatele)                        |
-| `ucastnik@example.com`     | `password4`     | účastník    | přihláška na oba týdny Letního kempu, zaplaceno                         |
-| `ucastnik2@example.com`    | `password5`     | účastník    | Adam Dvořák, „Zimní kurz 2027“: 3 termíny, 1 zaplacený, 2 s dluhem a QR |
-| `admin@example.com`        | `adminpassword` | admin       | zatím nic (bez UI)                                                      |
+| E-mail                     | Heslo           | Typ         | Co vidí                                                                                                                                |
+| -------------------------- | --------------- | ----------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `organizator@example.com`  | `password1`     | organizátor | Letní kemp z. s. — „Letní kemp 2027“ a akce pro Sprint Demo (níže)                                                                     |
+| `organizator2@example.com` | `password2`     | organizátor | Horský spolek Sněžka — akce „Horský víkend 2027“ (s náhradnicí)                                                                        |
+| `organizator3@example.com` | `password3`     | organizátor | obě organizace (akce seskupené podle pořadatele)                                                                                       |
+| `ucastnik@example.com`     | `password4`     | účastník    | přihláška na oba týdny Letního kempu, zaplaceno (na stagingu a lokálně mimo testy je to `togena.team1@gmail.com`, aby chodily e-maily) |
+| `ucastnik2@example.com`    | `password5`     | účastník    | Adam Dvořák, „Zimní kurz 2027“: 3 termíny, 1 zaplacený, 2 s dluhem a QR                                                                |
+| `admin@example.com`        | `adminpassword` | admin       | zatím nic (bez UI)                                                                                                                     |
 
 Odkazy na přihlášku ze seedu: `/apply/demo-letni-kemp-2027` a `/apply/demo-horsky-vikend-2027`. Skutečné akce dostanou náhodný token.
 
