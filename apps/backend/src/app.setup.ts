@@ -1,6 +1,6 @@
 import { INestApplication } from "@nestjs/common"
 import { toNodeHandler } from "better-auth/node"
-import * as cookieParser from "cookie-parser"
+import cookieParser from "cookie-parser"
 import * as express from "express"
 import helmet from "helmet"
 import { BetterAuth } from "./shared/auth/providers/better-auth.provider"
