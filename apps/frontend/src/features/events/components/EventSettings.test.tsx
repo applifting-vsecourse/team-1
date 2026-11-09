@@ -3,6 +3,8 @@ import { render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { afterEach, describe, expect, it, vi } from "vitest"
 
+import { notify } from "@/lib/notify"
+
 import { EventSettings } from "@/features/events/components/EventSettings"
 
 // Radix's radio group measures things jsdom doesn't have.
@@ -40,6 +42,11 @@ const event = {
   missing: ["TERM", "ROOM"],
   terms: [],
 }
+
+vi.mock("@/lib/notify", async (importOriginal) => {
+  const original = await importOriginal<{ notify: Record<string, unknown> }>()
+  return { notify: { ...original.notify, success: vi.fn() } }
+})
 
 function renderSettings(current: object, patchResponse?: () => Response) {
   const json = { headers: { "Content-Type": "application/json" } }
@@ -108,6 +115,7 @@ describe("EventSettings", () => {
     await vi.waitFor(() => expect(patches).toHaveLength(1))
     expect(patches[0]!.url).toContain("/organizer/events/e1/evaluation-mode")
     expect(patches[0]!.body).toEqual({ evaluationMode: "MANUAL" })
+    await vi.waitFor(() => expect(notify.success).toHaveBeenCalledWith("Evaluation mode saved."))
   })
 
   it("shows the translated error when the server says the mode is locked", async () => {

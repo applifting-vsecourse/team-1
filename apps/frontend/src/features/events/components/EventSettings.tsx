@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { notify } from "@/lib/notify"
 
 import {
   evaluationModeSchema,
@@ -88,11 +89,14 @@ function ChooseMode({ eventId, saved }: { eventId: string; saved: EvaluationMode
   const [mode, setMode] = useState<EvaluationMode>(saved)
   const mutation = useMutation({
     mutationFn: () => setEvaluationMode(eventId, mode),
-    onSuccess: () =>
-      Promise.all([
+    onSuccess: async (updated) => {
+      setMode(updated.evaluationMode)
+      notify.success(t("evaluationMode.saved"))
+      await Promise.all([
         queryClient.invalidateQueries({ queryKey: eventKeys.detail(eventId) }),
         queryClient.invalidateQueries({ queryKey: eventKeys.all() }),
-      ]),
+      ])
+    },
   })
 
   return (
