@@ -7,6 +7,9 @@ import { date, type CreateEventParams, type SeedApplicant, type SeedRoom } from 
 // a cancellation date. Added on top of the base seed and the sprint demo, never instead of them.
 // Skipped when NODE_ENV is "test" (E2E and integration tests), so the tests keep their exact data.
 
+/** Mailbox that receives the e-mails of the demo. */
+const DEMO_PARTICIPANT_EMAIL = "togena.team1@gmail.com"
+
 type CreateEvent = (prisma: PrismaService, params: CreateEventParams) => Promise<void>
 
 type Person = [firstName: string, lastName: string, gender: Gender, birthDate: string]
@@ -139,7 +142,6 @@ export async function seedPresentationData(
   // --- Jarní prázdniny: automatic evaluation, waitlist, payments, cancellation ----------------
   const springApplicants = SPRING_PEOPLE.map(([person, terms]) => toApplicant(person, terms))
   springApplicants[5].userId = participantId
-  springApplicants[5].email = "ucastnik@example.com"
 
   await createEvent(prisma, {
     ...common,
@@ -225,5 +227,17 @@ export async function seedPresentationData(
       cancellationStartsOn: date("2028-01-15"),
       cancellationTerms: "Do 15. 1. 2028 storno zdarma, poté 50 % ceny termínu.",
     },
+  })
+
+  // The demo participant gets a real mailbox, so the e-mails of the demo (confirmation, payment,
+  // changes) arrive somewhere a person can open them. Everything stays under the one account:
+  // its applications, notifications and password (see CONTRIBUTING.md).
+  await prisma.user.update({
+    where: { id: participantId },
+    data: { email: DEMO_PARTICIPANT_EMAIL },
+  })
+  await prisma.application.updateMany({
+    where: { userId: participantId },
+    data: { email: DEMO_PARTICIPANT_EMAIL },
   })
 }
