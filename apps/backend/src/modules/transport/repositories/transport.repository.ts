@@ -169,14 +169,14 @@ export class TransportRepository {
    * @returns false when somebody chose it and the deletion was not confirmed.
    */
   async remove({ organizationId }: Scope, id: string, isConfirmed: boolean): Promise<boolean> {
-    const { count } = await this.prisma.transport.deleteMany({
-      where: {
-        id,
-        organizationId,
-        ...(isConfirmed ? {} : { applicationTerms: { none: { status: taking.status } } }),
-      },
+    return this.prisma.$transaction(async (tx) => {
+      if (!isConfirmed) {
+        const chosen = await tx.applicationTerm.count({ where: { transportId: id, ...taking } })
+        if (chosen > 0) return false
+      }
+      const { count } = await tx.transport.deleteMany({ where: { id, organizationId } })
+      return count > 0
     })
-    return count > 0
   }
 
   /** `transportId` null lists the participants of `termId` who travel on their own. */

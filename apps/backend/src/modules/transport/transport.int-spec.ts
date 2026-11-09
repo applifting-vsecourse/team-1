@@ -202,11 +202,21 @@ describe("transport (integration)", () => {
     ).json()
     expect(listed).toMatchObject({ kind: "OWN", name: "" })
     expect(listed.participants.map((p) => p.applicationId)).toEqual([applicationId])
-    expect((await send(`${base()}/${added.id}`, organizer, "DELETE")).status).toBe(204)
+    expect((await send(`${base()}/${added.id}?confirmed=true`, organizer, "DELETE")).status).toBe(
+      204,
+    )
   })
 
   it("deletes a transport nobody chose without a confirmation", async () => {
-    expect((await send(`${base()}/${transportId}`, organizer, "DELETE")).status).toBe(204)
+    await send(base(), organizer, "POST", {
+      kind: "SCHEDULED",
+      termId,
+      name: "Empty bus",
+      departurePlace: "Brno",
+      departureAt: "2027-07-01T06:00:00.000Z",
+    })
+    const empty = (await inTerm()).transports.find((item) => item.name === "Empty bus")!
+    expect((await send(`${base()}/${empty.id}`, organizer, "DELETE")).status).toBe(204)
   })
 
   it("answers 409 when own transport is added at the same time", async () => {
@@ -216,6 +226,7 @@ describe("transport (integration)", () => {
       send(base(), organizer, "POST", own),
     ])
     expect(results.map((r) => r.status).sort()).toEqual([204, 409])
+    await prisma.transport.deleteMany({ where: { termId, kind: "OWN" } })
   })
 
   it("requires name, place and time of a ride but not of own transport", async () => {
