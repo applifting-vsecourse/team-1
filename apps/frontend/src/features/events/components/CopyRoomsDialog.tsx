@@ -102,8 +102,8 @@ export function CopyRoomsDialog({
         <DialogHeader>
           <DialogTitle>{t("rooms.copy.title")}</DialogTitle>
         </DialogHeader>
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-col gap-2">
+        <div className="flex min-w-0 flex-col gap-4">
+          <div className="flex min-w-0 flex-col gap-2">
             <Label htmlFor="copy-source-term">{t("rooms.copy.sourceLabel")}</Label>
             <Select
               value={sourceId}
@@ -111,7 +111,7 @@ export function CopyRoomsDialog({
             >
               <SelectTrigger
                 id="copy-source-term"
-                className="w-full bg-card"
+                className="w-full min-w-0 bg-card"
               >
                 <SelectValue placeholder={t("rooms.copy.sourcePlaceholder")} />
               </SelectTrigger>
@@ -137,11 +137,11 @@ export function CopyRoomsDialog({
           ) : null}
           {source.data && sourceRooms.length === 0 ? <p>{t("rooms.copy.emptySource")}</p> : null}
           {isReady && sourceTerm ? (
-            <div className="flex flex-col gap-4">
+            <div className="flex min-w-0 flex-col gap-4">
               {hasTargetRooms ? (
                 <>
                   <dl className="grid gap-4 sm:grid-cols-2">
-                    <div className="flex flex-col gap-2">
+                    <div className="flex min-w-0 flex-col gap-2">
                       <dt className="text-sm text-muted-foreground">
                         {t("rooms.copy.sourceHeading")}
                       </dt>
@@ -152,7 +152,7 @@ export function CopyRoomsDialog({
                         })}
                       </dd>
                     </div>
-                    <div className="flex flex-col gap-2">
+                    <div className="flex min-w-0 flex-col gap-2">
                       <dt className="text-sm text-muted-foreground">
                         {t("rooms.copy.targetHeading")}
                       </dt>
@@ -205,13 +205,13 @@ export function CopyRoomsDialog({
               ) : (
                 <>
                   <dl className="grid gap-4 sm:grid-cols-2">
-                    <div className="flex flex-col gap-2">
+                    <div className="flex min-w-0 flex-col gap-2">
                       <dt className="text-sm text-muted-foreground">{t("rooms.copy.source")}</dt>
                       <dd>
                         {termDates(sourceTerm)} · {rooms(sourceRooms.length)}, {beds(sourceBeds)}
                       </dd>
                     </div>
-                    <div className="flex flex-col gap-2">
+                    <div className="flex min-w-0 flex-col gap-2">
                       <dt className="text-sm text-muted-foreground">{t("rooms.copy.target")}</dt>
                       <dd>
                         {termDates(target)} · {t("rooms.copy.targetEmpty")}
