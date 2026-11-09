@@ -13,6 +13,7 @@ import { Config } from "@/shared/config/config.service"
 import { generateToken } from "@/shared/utils/token"
 import { createUser } from "./create-user"
 import { seedParticipantNotifications } from "./notifications-data"
+import { SEED_PHOTOS } from "./seed-photos"
 import { seedSprintDemo } from "./sprint-demo-data"
 
 export type SeedRoom = { name: string; capacity: number; gender: Gender | null }
@@ -219,7 +220,8 @@ export const seedDatabase = async (
     publicPage: {
       contactEmail: "horsky-klub@example.com",
       contactPhone: "+420 777 000 002",
-      photoFileName: "horsky-vikend-2027.png",
+      photoFileName: "horsky-vikend-2027.jpg",
+      photo: "mountains",
     },
     terms: [
       {
@@ -409,13 +411,8 @@ export type SeedPublicPage = {
   contactEmail: string
   contactPhone: string
   photoFileName: string
+  photo: keyof typeof SEED_PHOTOS
 }
-
-// A 1×1 PNG: the seed needs a valid photo, not a pretty one.
-const SEED_PHOTO = Buffer.from(
-  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==",
-  "base64",
-)
 
 export async function createEvent(prisma: PrismaService, params: CreateEventParams): Promise<void> {
   const { organizationId } = params
@@ -439,8 +436,8 @@ export async function createEvent(prisma: PrismaService, params: CreateEventPara
         photo: {
           create: {
             fileName: params.publicPage.photoFileName,
-            contentType: "image/png",
-            data: new Uint8Array(SEED_PHOTO),
+            contentType: "image/jpeg",
+            data: new Uint8Array(SEED_PHOTOS[params.publicPage.photo]),
           },
         },
       }),

@@ -37,6 +37,7 @@ export class PublicCatalogRepository {
         location: true,
         organization: { select: { id: true, name: true } },
         terms: termsInclude,
+        photo: { select: { id: true } },
       },
     })
 
@@ -54,6 +55,7 @@ export class PublicCatalogRepository {
             endsOn: isoDate(term.endsOn),
           })),
           ...summarizeTerms(event.terms),
+          hasPhoto: event.photo !== null,
           isOpenForApplications: isOpenForTerms(
             event.terms.map((term) => ({ roomCount: term._count.rooms })),
           ),
