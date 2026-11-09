@@ -39,12 +39,18 @@ import {
 
 const SECTION = "public-page"
 
+const MAX_EMAIL_LENGTH = 200
+
+const offeredOrganizationEmail = (email: string | null): string =>
+  email && email.length <= MAX_EMAIL_LENGTH ? email : ""
+
 const valuesOf = (event: OrganizerEvent): PublicPageInput => ({
   name: event.name,
   description: event.description ?? "",
   location: event.location ?? "",
-  // Until the event has its own address, the organization's one is offered (the organizer may overwrite it).
-  contactEmail: event.contactEmail ?? event.organizationContactEmail ?? "",
+  // Until the event has its own address, the organization's one is offered (the organizer may
+  // overwrite it) — unless it is longer than the API accepts, which would block every save.
+  contactEmail: event.contactEmail ?? offeredOrganizationEmail(event.organizationContactEmail),
   contactPhone: event.contactPhone ?? "",
   publishedInCatalog: event.publishedInCatalog,
 })

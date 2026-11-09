@@ -81,11 +81,14 @@ describe("organization self-onboarding (integration)", () => {
     })
     expect(invalid.status).toBe(400)
 
+    // 201 characters, each part within its own limit, so only the length of the whole is wrong.
+    const longEmail = `${"a".repeat(60)}@${"b".repeat(63)}.${"c".repeat(63)}.${"d".repeat(12)}`
+    expect(longEmail).toHaveLength(201)
     const tooLong = await fetch(api(`/organizer/organizations/${organization.id}/profile`), {
       method: "PUT",
       headers: { ...jsonHeaders, Cookie: cookie },
       body: JSON.stringify({
-        contactEmail: `${"a".repeat(200)}@lipno.example.cz`,
+        contactEmail: longEmail,
         bankAccount: "2900123456/2010",
       }),
     })

@@ -172,6 +172,17 @@ describe("PublicPageForm", () => {
     expect(screen.getByLabelText("Contact e-mail")).toHaveValue("office@alpine.example")
   })
 
+  it("does not offer an organization e-mail the API would refuse", async () => {
+    renderForm({
+      ...event,
+      contactEmail: null,
+      organizationContactEmail: `${"a".repeat(201)}@x.cz`,
+    })
+    await open(userEvent.setup())
+
+    expect(screen.getByLabelText("Contact e-mail")).toHaveValue("")
+  })
+
   it("keeps the event's own e-mail over the organization's", async () => {
     renderForm()
     await open(userEvent.setup())
