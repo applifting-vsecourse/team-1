@@ -1,7 +1,7 @@
 import { queryOptions } from "@tanstack/react-query"
 import { z } from "zod"
 
-import { authClient } from "@/features/auth/lib/auth-client"
+import { api } from "@/lib/api-client"
 
 const statusSchema = z.object({ enabled: z.boolean() })
 
@@ -13,24 +13,24 @@ export const emailVerificationBypassQueryOptions = () =>
   queryOptions({
     queryKey: ["auth", "email-verification-bypass"],
     queryFn: async () => {
-      const { data } = await authClient.$fetch("/email-verification-bypass/status")
-      const parsed = statusSchema.safeParse(data)
+      const parsed = statusSchema.safeParse(
+        await api.get("email-verification-bypass/status").json(),
+      )
       return parsed.success && parsed.data.enabled
     },
     staleTime: Infinity,
     retry: false,
   })
 
-export type BypassResult = { status: number } | null
+/** The sign-up response carries the one-time token of this registration while the bypass is on. */
+const signUpResultSchema = z.object({ emailVerificationBypassToken: z.string().optional() })
 
-/** Verifies the just-registered account and signs it in; the password proves it is the registrant. */
-export async function verifyEmailWithoutLink(
-  email: string,
-  password: string,
-): Promise<BypassResult> {
-  const { error } = await authClient.$fetch("/email-verification-bypass", {
-    method: "POST",
-    body: { email, password },
-  })
-  return error ? { status: error.status } : null
+export function bypassTokenOf(signUpResult: unknown): string | undefined {
+  const parsed = signUpResultSchema.safeParse(signUpResult)
+  return parsed.success ? parsed.data.emailVerificationBypassToken : undefined
+}
+
+/** Verifies the just-registered account with its token and signs it in (session cookie). */
+export async function verifyEmailWithoutLink(token: string): Promise<void> {
+  await api.post("email-verification-bypass", { json: { token } })
 }

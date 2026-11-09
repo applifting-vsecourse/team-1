@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { currentLanguage } from "@/i18n"
 
+import { bypassTokenOf } from "@/features/auth/api/emailVerificationBypass"
 import { RegistrationLayout } from "@/features/auth/components/RegistrationLayout"
 import { authClient } from "@/features/auth/lib/auth-client"
 
@@ -37,7 +38,7 @@ export function OrganizerRegistration() {
     const address = email.trim().toLowerCase()
     try {
       const callbackURL = `${window.location.origin}${ROUTES.organizer.verifyEmail}?email=${encodeURIComponent(address)}`
-      const { error } = await authClient.signUp.email(
+      const { data, error } = await authClient.signUp.email(
         { email: address, password, name: address, callbackURL },
         { headers: { "Accept-Language": currentLanguage() } },
       )
@@ -45,11 +46,12 @@ export function OrganizerRegistration() {
         setFailure(error.status === 429 ? tErrors("TOO_MANY_REQUESTS") : t("registration.failed"))
         return
       }
-      // The password travels in the history state so the staging bypass can prove ownership; never in the URL.
+      // The one-time token of the staging bypass (only present while it is on) travels in the history
+      // state, never in the URL.
       await navigate({
         to: ROUTES.organizer.verifyEmail,
         search: { email: address },
-        state: { password },
+        state: { bypassToken: bypassTokenOf(data) },
       })
     } catch {
       setFailure(t("registration.failed"))

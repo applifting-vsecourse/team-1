@@ -9,6 +9,7 @@ import { ROUTES } from "@/app/routes"
 import { Seo } from "@/components/atoms/Seo"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
+import { apiErrorCode } from "@/lib/api-client"
 
 import { authSessionQueryOptions } from "@/features/auth/api/authSessionQueryOptions"
 import {
@@ -31,14 +32,14 @@ export function VerifyOrganizerEmail({ email, error }: Props) {
   const queryClient = useQueryClient()
   // Only environments without working e-mails switch the bypass on (EMAIL_VERIFICATION_BYPASS_ENABLED).
   const { data: isBypassOn } = useQuery(emailVerificationBypassQueryOptions())
-  // The password of the registration travels in the history state, never in the URL.
-  const registrationPassword = useLocation({
+  // The one-time token of this registration travels in the history state, never in the URL.
+  const bypassToken = useLocation({
     select: (location) => {
-      const parsed = z.object({ password: z.string() }).safeParse(location.state)
-      return parsed.success ? parsed.data.password : null
+      const parsed = z.object({ bypassToken: z.string() }).safeParse(location.state)
+      return parsed.success ? parsed.data.bypassToken : null
     },
   })
-  const canBypass = Boolean(isBypassOn && registrationPassword)
+  const canBypass = Boolean(isBypassOn && bypassToken)
   const isExpired = Boolean(error)
   const title = t(isExpired ? "registration.expiredTitle" : "registration.verifyTitle")
 
@@ -62,24 +63,20 @@ export function VerifyOrganizerEmail({ email, error }: Props) {
   }
 
   const verifyWithoutEmail = async () => {
-    if (!email || !registrationPassword) return
+    if (!bypassToken) return
     setPending(true)
     setFailure(null)
     try {
-      const bypassError = await verifyEmailWithoutLink(email, registrationPassword)
-      if (bypassError) {
-        setFailure(
-          bypassError.status === 429
-            ? tErrors("TOO_MANY_REQUESTS")
-            : t("registration.verifyBypassFailed"),
-        )
-        return
-      }
+      await verifyEmailWithoutLink(bypassToken)
       // Load the new session now: the guards of the next page would trust a cached "signed out".
       await queryClient.fetchQuery({ ...authSessionQueryOptions(), staleTime: 0 })
       await navigate({ to: ROUTES.organizer.onboarding })
-    } catch {
-      setFailure(t("registration.verifyBypassFailed"))
+    } catch (bypassError) {
+      setFailure(
+        apiErrorCode(bypassError) === "TOO_MANY_REQUESTS"
+          ? tErrors("TOO_MANY_REQUESTS")
+          : t("registration.verifyBypassFailed"),
+      )
     } finally {
       setPending(false)
     }
@@ -124,7 +121,7 @@ export function VerifyOrganizerEmail({ email, error }: Props) {
         <Button
           size="lg"
           variant="outline"
-          disabled={isPending || !email}
+          disabled={isPending}
           onClick={() => void verifyWithoutEmail()}
           className="h-12 w-full"
         >

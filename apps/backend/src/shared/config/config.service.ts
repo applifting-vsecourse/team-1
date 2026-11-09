@@ -109,9 +109,9 @@ export class Config {
   readonly paymentSimulationEnabled!: boolean
 
   // Staging and demo without a sender domain: lets an organizer skip the e-mail verification
-  // link after registering. On unless set to false; turn it off wherever real e-mails go out.
-  // The library compares the raw value with the string "true", so the default is that string.
-  @Env("EMAIL_VERIFICATION_BYPASS_ENABLED", { expose: true, defaultValue: "true" })
+  // link after registering. Off unless set to true (deploy.yml for the school demo); never on
+  // where real e-mails go out, or anyone could register a foreign address as verified.
+  @Env("EMAIL_VERIFICATION_BYPASS_ENABLED", { expose: true, defaultValue: false })
   @IsBoolean()
   readonly emailVerificationBypassEnabled!: boolean
 }

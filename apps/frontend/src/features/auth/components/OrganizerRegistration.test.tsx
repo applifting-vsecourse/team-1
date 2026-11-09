@@ -6,8 +6,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import { OrganizerRegistration } from "@/features/auth/components/OrganizerRegistration"
 import { VerifyOrganizerEmail } from "@/features/auth/components/VerifyOrganizerEmail"
 
-const { signUp, resend, navigate, authFetch, location } = vi.hoisted(() => ({
-  authFetch: vi.fn(),
+const { signUp, resend, navigate, apiStatus, apiPost, location } = vi.hoisted(() => ({
+  apiStatus: vi.fn(),
+  apiPost: vi.fn(),
   location: { state: {} },
   signUp: vi.fn(),
   resend: vi.fn(),
@@ -15,7 +16,11 @@ const { signUp, resend, navigate, authFetch, location } = vi.hoisted(() => ({
 }))
 
 vi.mock("@/features/auth/lib/auth-client", () => ({
-  authClient: { signUp: { email: signUp }, sendVerificationEmail: resend, $fetch: authFetch },
+  authClient: { signUp: { email: signUp }, sendVerificationEmail: resend },
+}))
+vi.mock("@/lib/api-client", () => ({
+  api: { get: () => ({ json: apiStatus }), post: apiPost },
+  apiErrorCode: () => undefined,
 }))
 vi.mock("@tanstack/react-router", () => ({
   Link: ({ to, children }: { to: string; children: React.ReactNode }) => (
@@ -42,9 +47,10 @@ describe("organizer registration", () => {
     signUp.mockReset()
     resend.mockReset()
     navigate.mockReset()
-    authFetch.mockReset()
+    apiStatus.mockReset()
+    apiPost.mockReset()
     location.state = {}
-    authFetch.mockResolvedValue({ data: { enabled: false }, error: null })
+    apiStatus.mockResolvedValue({ enabled: false })
   })
 
   it("keeps invalid e-mail and short password on the form", async () => {
@@ -61,7 +67,7 @@ describe("organizer registration", () => {
   })
 
   it("sends a verification link and opens the instructions", async () => {
-    signUp.mockResolvedValue({ error: null })
+    signUp.mockResolvedValue({ data: { emailVerificationBypassToken: "one-time" }, error: null })
     render(<OrganizerRegistration />)
     await userEvent.type(screen.getByLabelText("E-mail *"), "new@example.com")
     await userEvent.type(screen.getByLabelText("Password *"), "password123")
@@ -71,7 +77,7 @@ describe("organizer registration", () => {
       expect(navigate).toHaveBeenCalledWith({
         to: "/organizer/verify-email",
         search: { email: "new@example.com" },
-        state: { password: "password123" },
+        state: { bypassToken: "one-time" },
       }),
     )
     expect(signUp).toHaveBeenCalledWith(
@@ -99,38 +105,38 @@ describe("organizer registration", () => {
   })
 
   it("hides the verify-without-e-mail button when the bypass is off", async () => {
+    location.state = { bypassToken: "one-time" }
     render(<VerifyOrganizerEmail email="new@example.com" />)
-    await waitFor(() => expect(authFetch).toHaveBeenCalled())
+    await waitFor(() => expect(apiStatus).toHaveBeenCalled())
     expect(screen.queryByRole("button", { name: "Verify without e-mail" })).not.toBeInTheDocument()
   })
 
-  it("hides the button when the registration password is not available", async () => {
-    authFetch.mockResolvedValue({ data: { enabled: true }, error: null })
+  it("hides the button when this registration has no token", async () => {
+    apiStatus.mockResolvedValue({ enabled: true })
     render(<VerifyOrganizerEmail email="new@example.com" />)
-    await waitFor(() => expect(authFetch).toHaveBeenCalled())
+    await waitFor(() => expect(apiStatus).toHaveBeenCalled())
     expect(screen.queryByRole("button", { name: "Verify without e-mail" })).not.toBeInTheDocument()
   })
 
-  it("verifies without the e-mail link when the bypass is on", async () => {
-    location.state = { password: "password123" }
-    authFetch.mockImplementation((path: string) =>
-      Promise.resolve(
-        path.endsWith("/status")
-          ? { data: { enabled: true }, error: null }
-          : { data: { status: true }, error: null },
-      ),
-    )
+  it("treats a status answer of the wrong shape as off", async () => {
+    apiStatus.mockResolvedValue({ enabled: "false" })
+    location.state = { bypassToken: "one-time" }
+    render(<VerifyOrganizerEmail email="new@example.com" />)
+    await waitFor(() => expect(apiStatus).toHaveBeenCalled())
+    expect(screen.queryByRole("button", { name: "Verify without e-mail" })).not.toBeInTheDocument()
+  })
+
+  it("verifies with the one-time token when the bypass is on", async () => {
+    apiStatus.mockResolvedValue({ enabled: true })
+    apiPost.mockResolvedValue({})
+    location.state = { bypassToken: "one-time" }
     render(<VerifyOrganizerEmail email="new@example.com" />)
     await userEvent.click(await screen.findByRole("button", { name: "Verify without e-mail" }))
 
     await waitFor(() =>
-      expect(authFetch).toHaveBeenCalledWith(
-        "/email-verification-bypass",
-        expect.objectContaining({
-          method: "POST",
-          body: { email: "new@example.com", password: "password123" },
-        }),
-      ),
+      expect(apiPost).toHaveBeenCalledWith("email-verification-bypass", {
+        json: { token: "one-time" },
+      }),
     )
   })
 })

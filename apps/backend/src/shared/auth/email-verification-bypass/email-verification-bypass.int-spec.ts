@@ -1,5 +1,6 @@
 // Staging/demo bypass of the e-mail verification link. The shared test server runs with
-// EMAIL_VERIFICATION_BYPASS_ENABLED=true; the "off" case starts its own server with it off.
+// EMAIL_VERIFICATION_BYPASS_ENABLED=true; the "off" case starts its own server without the
+// variable, which is how a deployment that does not opt in runs.
 import { ChildProcess, spawn } from "node:child_process"
 import { createServer } from "node:net"
 import { resolve } from "node:path"
@@ -17,8 +18,17 @@ const post = (base: string, path: string, body: unknown, cookie?: string): Promi
     body: JSON.stringify(body),
   })
 
-const signUp = (base: string, email: string): Promise<Response> =>
-  post(base, "/auth/sign-up/email", { email, password: "password123", name: email })
+/** Registers an organizer and returns the one-time token the sign-up response carries. */
+async function register(base: string, email: string): Promise<string | undefined> {
+  const response = await post(base, "/auth/sign-up/email", {
+    email,
+    password: "password123",
+    name: email,
+  })
+  expect(response.status).toBe(200)
+  const body = (await response.json()) as { emailVerificationBypassToken?: string }
+  return body.emailVerificationBypassToken
+}
 
 describe("e-mail verification bypass (integration)", () => {
   let prisma: PrismaService
@@ -33,16 +43,16 @@ describe("e-mail verification bypass (integration)", () => {
     await prisma.$disconnect()
   })
 
-  it("verifies a fresh organizer account, signs it in and lets it create an organization", async () => {
+  it("verifies the registered account with its token, signs it in and lets it create an organization", async () => {
     const email = "bypass-organizer@example.com"
-    await signUp(shared, email)
-    expect((await fetch(`${shared}/auth/email-verification-bypass/status`)).status).toBe(200)
-
-    const response = await post(shared, "/auth/email-verification-bypass", {
-      email,
-      password: "password123",
+    const token = await register(shared, email)
+    expect(token).toBeTruthy()
+    expect(await (await fetch(`${shared}/email-verification-bypass/status`)).json()).toEqual({
+      enabled: true,
     })
-    expect(response.status).toBe(200)
+
+    const response = await post(shared, "/email-verification-bypass", { token })
+    expect(response.status).toBe(204)
     const cookie = response.headers
       .getSetCookie()
       .map((value) => value.split(";")[0])
@@ -54,66 +64,55 @@ describe("e-mail verification bypass (integration)", () => {
     expect(create.status).toBe(201)
   })
 
-  it("refuses a caller that does not know the password and leaves the account unverified", async () => {
-    const email = "bypass-wrong-password@example.com"
-    await signUp(shared, email)
+  it("accepts a token only once", async () => {
+    const token = await register(shared, "bypass-replay@example.com")
+    expect((await post(shared, "/email-verification-bypass", { token })).status).toBe(204)
 
-    const wrong = await post(shared, "/auth/email-verification-bypass", {
-      email,
-      password: "not-the-password",
+    const replay = await post(shared, "/email-verification-bypass", { token })
+    expect(replay.status).toBe(403)
+    expect(await replay.json()).toMatchObject({ code: "EMAIL_VERIFICATION_BYPASS_NOT_ALLOWED" })
+    expect(replay.headers.getSetCookie()).toHaveLength(0)
+  })
+
+  it("refuses an unknown, an expired and a missing token and leaves accounts unverified", async () => {
+    const email = "bypass-expired@example.com"
+    const token = await register(shared, email)
+    await prisma.verification.updateMany({
+      where: {
+        identifier: { startsWith: "email-verification-bypass:" },
+        value: await userId(email),
+      },
+      data: { expiresAt: new Date(Date.now() - 1000) },
     })
-    expect(wrong.status).toBe(403)
-    expect(await wrong.json()).toMatchObject({ code: "EMAIL_VERIFICATION_BYPASS_NOT_ALLOWED" })
-    expect(wrong.headers.getSetCookie()).toHaveLength(0)
-    const missing = await post(shared, "/auth/email-verification-bypass", { email })
-    expect(missing.status).toBe(403)
+
+    for (const attempt of [token, "not-a-token"]) {
+      const refused = await post(shared, "/email-verification-bypass", { token: attempt })
+      expect(refused.status).toBe(403)
+      expect(await refused.json()).toMatchObject({ code: "EMAIL_VERIFICATION_BYPASS_NOT_ALLOWED" })
+      expect(refused.headers.getSetCookie()).toHaveLength(0)
+    }
+    expect((await post(shared, "/email-verification-bypass", {})).status).toBe(400)
     expect((await prisma.user.findUniqueOrThrow({ where: { email } })).emailVerified).toBe(false)
   })
 
-  it("refuses accounts that are already verified, older than the link or not organizers", async () => {
-    const verified = await post(shared, "/auth/email-verification-bypass", {
-      email: "organizator@example.com",
-      password: "password1",
-    })
-    expect(verified.status).toBe(403)
-    expect(await verified.json()).toMatchObject({ code: "EMAIL_VERIFICATION_BYPASS_NOT_ALLOWED" })
-
-    const old = "bypass-old@example.com"
-    await signUp(shared, old)
-    await prisma.user.update({
-      where: { email: old },
-      data: { createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000) },
-    })
-    expect(
-      (
-        await post(shared, "/auth/email-verification-bypass", {
-          email: old,
-          password: "password123",
-        })
-      ).status,
-    ).toBe(403)
-    expect((await prisma.user.findUniqueOrThrow({ where: { email: old } })).emailVerified).toBe(
-      false,
-    )
-
-    const unknown = await post(shared, "/auth/email-verification-bypass", {
-      email: "nobody@example.com",
-      password: "password123",
-    })
-    expect(unknown.status).toBe(403)
+  it("is not reachable through BetterAuth's own routes", async () => {
+    const token = await register(shared, "bypass-direct@example.com")
+    expect((await post(shared, "/auth/email-verification-bypass", { token })).status).toBe(404)
   })
 
-  describe("with the flag off", () => {
+  describe("when the deployment does not switch it on", () => {
     let server: ChildProcess
     let off: string
 
     beforeAll(async () => {
       const port = await freePort()
       off = `http://127.0.0.1:${port}/api`
+      const env = { ...process.env }
+      delete env.EMAIL_VERIFICATION_BYPASS_ENABLED
       server = spawn("node", ["dist/main.js"], {
         cwd: backendRoot,
         env: {
-          ...process.env,
+          ...env,
           PORT: String(port),
           BACKEND_URL: `http://127.0.0.1:${port}`,
           NODE_ENV: "test",
@@ -121,7 +120,6 @@ describe("e-mail verification bypass (integration)", () => {
           SMTP_HOST: "",
           RATE_LIMIT_ENABLED: "false",
           WAITLIST_EXPIRY_INTERVAL_MS: "0",
-          EMAIL_VERIFICATION_BYPASS_ENABLED: "false",
         },
         stdio: "ignore",
       })
@@ -132,23 +130,24 @@ describe("e-mail verification bypass (integration)", () => {
       server?.kill()
     })
 
-    it("reports the bypass as off and leaves the account unverified", async () => {
+    it("hands out no token, reports it off and refuses the endpoint", async () => {
       const email = "bypass-off@example.com"
-      await signUp(off, email)
-
-      expect(await (await fetch(`${off}/auth/email-verification-bypass/status`)).json()).toEqual({
+      expect(await register(off, email)).toBeUndefined()
+      expect(await (await fetch(`${off}/email-verification-bypass/status`)).json()).toEqual({
         enabled: false,
       })
-      const response = await post(off, "/auth/email-verification-bypass", {
-        email,
-        password: "password123",
-      })
+
+      const response = await post(off, "/email-verification-bypass", { token: "anything" })
       expect(response.status).toBe(404)
       expect(await response.json()).toMatchObject({ code: "EMAIL_VERIFICATION_BYPASS_DISABLED" })
       expect(response.headers.getSetCookie()).toHaveLength(0)
       expect((await prisma.user.findUniqueOrThrow({ where: { email } })).emailVerified).toBe(false)
     })
   })
+
+  async function userId(email: string): Promise<string> {
+    return (await prisma.user.findUniqueOrThrow({ where: { email } })).id
+  }
 })
 
 function freePort(): Promise<number> {
