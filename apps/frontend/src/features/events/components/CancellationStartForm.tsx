@@ -5,9 +5,9 @@ import { useTranslation } from "react-i18next"
 
 import { DateField } from "@/components/molecules/DateField"
 import { ErrorState } from "@/components/molecules/ErrorState"
+import { SettingsCard } from "@/components/molecules/SettingsCard"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { formatDate } from "@/lib/date"
@@ -55,8 +55,7 @@ export function CancellationStartForm({ event }: { event: OrganizerEvent }) {
   }
 
   return (
-    <Card className="max-w-196 gap-4 p-4 sm:p-6">
-      <h2 className="text-2xl font-semibold tracking-tight">{t("cancellationStart.title")}</h2>
+    <SettingsCard title={t("cancellationStart.title")}>
       <form
         noValidate
         className="flex flex-col gap-4"
@@ -143,6 +142,6 @@ export function CancellationStartForm({ event }: { event: OrganizerEvent }) {
           </div>
         ) : null}
       </form>
-    </Card>
+    </SettingsCard>
   )
 }
