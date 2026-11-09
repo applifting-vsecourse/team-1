@@ -82,7 +82,7 @@
   "pagination": {
     "label": "Pagination",
     "next": "Next →",
-    "previous": "Previous",
+    "previous": "← Previous",
     "range": "Showing {{from}}–{{to}} of {{count}}"
   },
   "password": {

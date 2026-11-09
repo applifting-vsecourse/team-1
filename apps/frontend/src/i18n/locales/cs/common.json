@@ -82,7 +82,7 @@
   "pagination": {
     "label": "Stránkování",
     "next": "Další →",
-    "previous": "Předchozí",
+    "previous": "← Předchozí",
     "range": "Zobrazeno {{from}}–{{to}} z {{count}}"
   },
   "password": {
