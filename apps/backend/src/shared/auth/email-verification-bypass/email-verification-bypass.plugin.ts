@@ -91,8 +91,12 @@ export const createEmailVerificationBypassPlugin = (config: Config): BetterAuthP
             ? await adapter.findVerificationValue(registrationIdentifierOf(found.user.id))
             : null
           const isOpen = Boolean(registration && registration.expiresAt.getTime() > Date.now())
-          // Verify the password in every case, so the answer takes the same time.
-          const isOwner = hash ? await ctx.context.password.verify({ hash, password }) : false
+          // Do the same expensive hashing work for an unknown account or one without a password
+          // (as BetterAuth's own sign-in does), so the response time does not reveal which
+          // e-mails are registered.
+          let isOwner = false
+          if (hash) isOwner = await ctx.context.password.verify({ hash, password })
+          else await ctx.context.password.hash(password)
           user = isOwner && isOpen ? (found?.user ?? null) : null
         }
         const accountType = (user as { accountType?: string } | null)?.accountType
