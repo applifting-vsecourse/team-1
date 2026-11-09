@@ -229,7 +229,9 @@ describe("ApplicationDetail", () => {
     })
     renderDetail(application())
 
-    await user.click(await screen.findByRole("button", { name: "Change terms" }))
+    const terms = await screen.findByRole("region", { name: "Terms and payments" })
+    expect(within(terms).getByRole("button", { name: "Cancel participation" })).toBeVisible()
+    await user.click(await within(terms).findByRole("button", { name: "Change terms" }))
     expect(screen.getByText(/Overpayment CZK 2,000/)).toBeInTheDocument()
     expect(screen.getByText(/New term 2. týden · Price CZK 4,900/)).toBeInTheDocument()
     await user.click(screen.getByRole("button", { name: "Confirm change" }))
@@ -692,8 +694,15 @@ describe("ApplicationDetail", () => {
         }),
       )
 
-      expect(await screen.findByText("Demo: payments are simulated.")).toBeInTheDocument()
-      expect(screen.getByText("Simulation log")).toBeInTheDocument()
+      expect(
+        await screen.findByRole("heading", { name: "Simulated payment history" }),
+      ).toBeVisible()
+      expect(screen.queryByText("Demo: payments are simulated.")).toBeNull()
+      expect(
+        screen.getByText(
+          "Test payments created with the “I paid” button. These are not actual bank transfers.",
+        ),
+      ).toBeVisible()
       expect(screen.getByText(/\+CZK 2,500 · .* · source: simulation/)).toBeInTheDocument()
       await user.click(screen.getByRole("button", { name: "I paid" }))
 
@@ -708,7 +717,7 @@ describe("ApplicationDetail", () => {
         canSimulatePayment: true,
       })
 
-      await screen.findByText("Demo: payments are simulated.")
+      await screen.findByText(/4–10 Jul/)
       expect(screen.queryByRole("button", { name: "I paid" })).toBeNull()
     })
   })
@@ -727,26 +736,75 @@ describe("ApplicationDetail", () => {
       expect(screen.getByRole("heading", { name: /^Transport · / })).toBeVisible()
       expect(screen.getByRole("heading", { name: "Terms and payments" })).toBeVisible()
       expect(screen.getByRole("heading", { name: "Transport" })).toBeVisible()
+      const todo = cardOf(/^What is left to arrange$/)
+      expect(within(todo).queryByRole("link", { name: "Meals" })).not.toBeInTheDocument()
+      expect(
+        within(todo).queryByRole("link", { name: "Health restriction" }),
+      ).not.toBeInTheDocument()
       expect(screen.getByRole("link", { name: "Choose transport" })).toHaveAttribute(
         "href",
         "/participant/applications/a1/transport",
       )
     })
 
-    it("shows the step as done and offers a change once the transport is chosen", async () => {
+    it("counts completed choices while another term still needs transport", async () => {
+      renderDetail(
+        application({
+          terms: [
+            { ...confirmed, transportOffered: true, transportDecided: true },
+            { ...secondConfirmed, transportOffered: true, transportDecided: false },
+          ],
+        }),
+      )
+
+      expect(await screen.findByText("1 of 2 done")).toBeVisible()
+      expect(screen.getByRole("link", { name: "Choose transport" })).toBeVisible()
+    })
+
+    it("offers a change but hides the checklist once all transport choices are made", async () => {
       renderDetail(withTransport(true))
 
-      expect(await screen.findByText("1 of 1 done")).toBeVisible()
-      expect(screen.getByRole("link", { name: "Change transport" })).toBeVisible()
-      expect(screen.queryByRole("link", { name: "Choose transport" })).toBeNull()
+      expect(await screen.findByRole("link", { name: "Change transport" })).toBeVisible()
+      expect(
+        screen.queryByRole("heading", { name: "What is left to arrange" }),
+      ).not.toBeInTheDocument()
+      expect(screen.queryByRole("link", { name: "Choose transport" })).not.toBeInTheDocument()
     })
 
-    it("asks for nothing when no transport is offered", async () => {
+    it("keeps meals and health available even when no transport is offered", async () => {
       renderDetail(application())
 
-      await screen.findByText(/4–10 Jul/)
-      expect(screen.queryByRole("heading", { name: "What is left to arrange" })).toBeNull()
-      expect(screen.queryByRole("heading", { name: "Transport" })).toBeNull()
+      expect(await screen.findByRole("link", { name: "Meals" })).toHaveAttribute(
+        "href",
+        "/participant/applications/a1/meals",
+      )
+      expect(screen.getByRole("link", { name: "Health restriction" })).toHaveAttribute(
+        "href",
+        "/participant/applications/a1/health",
+      )
+      expect(
+        screen.queryByRole("heading", { name: "What is left to arrange" }),
+      ).not.toBeInTheDocument()
+      expect(screen.queryByRole("heading", { name: "Transport" })).not.toBeInTheDocument()
     })
+
+    it.each(["TO_EVALUATE", "WAITLISTED", "CANCELLED"] as const)(
+      "keeps participant links without transport tasks when the term is %s",
+      async (status) => {
+        renderDetail(
+          application({
+            terms: [{ ...confirmed, status, transportOffered: true }],
+            paymentDetails: null,
+          }),
+        )
+
+        expect(await screen.findByRole("link", { name: "Meals" })).toBeVisible()
+        expect(screen.getByRole("link", { name: "Health restriction" })).toBeVisible()
+        expect(
+          screen.queryByRole("heading", { name: "What is left to arrange" }),
+        ).not.toBeInTheDocument()
+        expect(screen.queryByRole("heading", { name: "Transport" })).not.toBeInTheDocument()
+      },
+    )
   })
 })

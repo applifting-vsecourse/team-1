@@ -153,10 +153,9 @@
     "showSummaryQrMany": "Jedna platba za všechny potvrzené termíny · zobrazit QR",
     "showSummaryQrTwo": "Jedna platba za oba termíny · zobrazit QR",
     "simulation": {
-      "alertText": "Tlačítko nezadává bankovní převod.",
-      "alertTitle": "Demo: platby jsou simulované.",
+      "logDescription": "Zkušební platby vytvořené tlačítkem „Zaplatil jsem“. Nejde o skutečné bankovní převody.",
       "logLine": "+{{amount}} · {{term}} · zdroj: simulace",
-      "logTitle": "Záznam simulace",
+      "logTitle": "Historie simulovaných plateb",
       "paid": "Zaplatil jsem"
     },
     "summaryBreakdown": "Rozpis",

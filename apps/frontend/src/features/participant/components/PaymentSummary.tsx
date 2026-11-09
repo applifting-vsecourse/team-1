@@ -1,10 +1,8 @@
 import { useState } from "react"
-import { TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { MoneyAmount } from "@/components/atoms/MoneyAmount"
 import { TermPaymentCard, TermPaymentCards } from "@/components/molecules/TermPaymentCard"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { formatCzk } from "@/lib/money"
@@ -71,13 +69,6 @@ export function PaymentSummary({ application }: PaymentSummaryProps) {
 
   return (
     <div className="flex flex-col gap-6">
-      {application.canSimulatePayment ? (
-        <Alert>
-          <TriangleAlert aria-hidden />
-          <AlertTitle>{t("payment.simulation.alertTitle")}</AlertTitle>
-          <AlertDescription>{t("payment.simulation.alertText")}</AlertDescription>
-        </Alert>
-      ) : null}
       {confirmed.length > 1 && payableCzk > 0 ? (
         <Card className="gap-2 p-6">
           <h2 className="text-lg font-semibold">{t("payment.totalOwed")}</h2>
@@ -160,6 +151,7 @@ export function PaymentSummary({ application }: PaymentSummaryProps) {
       {simulatedPayments.length > 0 ? (
         <Card className="gap-2 p-6">
           <h2 className="text-lg font-semibold">{t("payment.simulation.logTitle")}</h2>
+          <p className="text-sm text-muted-foreground">{t("payment.simulation.logDescription")}</p>
           <ul>
             {simulatedPayments.map((payment) => {
               const term = application.terms.find(({ termId }) => termId === payment.termId)
