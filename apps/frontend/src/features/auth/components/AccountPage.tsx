@@ -6,10 +6,10 @@ import { PageHeader } from "@/components/molecules/PageHeader"
 import { Card } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
+import { AppearanceCard } from "@/features/auth/components/AppearanceCard"
 import { ChangeEmailSection } from "@/features/auth/components/ChangeEmailSection"
 import { ChangePasswordForm } from "@/features/auth/components/ChangePasswordForm"
 import { ProfileForm } from "@/features/auth/components/ProfileForm"
-import { ThemeSetting } from "@/features/auth/components/ThemeSetting"
 import { useEmailChangedNotice } from "@/features/auth/hooks/useEmailChangedNotice"
 import { useSession } from "@/features/auth/hooks/useSession"
 
@@ -74,7 +74,7 @@ export function AccountPage({ isEmailChanged = false }: { isEmailChanged?: boole
             <ProfileForm user={user} />
           </Card>
           <ChangeEmailSection user={user} />
-          <ThemeSetting />
+          <AppearanceCard user={user} />
         </div>
       ) : (
         <Card className="gap-4 p-4">
