@@ -26,6 +26,7 @@ const event: OrganizerEvent = {
   id: "e1",
   organizationId: "o1",
   organizationName: "Alpine Collective",
+  organizationContactEmail: "office@alpine.example",
   name: "Letní kemp Lipno 2027",
   description: "Týden v přírodě.",
   location: "Lipno nad Vltavou",
@@ -164,6 +165,31 @@ describe("PublicPageForm", () => {
     expect(screen.getByText("Add an event photo")).toBeInTheDocument()
   })
 
+  it("offers the organization's e-mail until the event has its own", async () => {
+    renderForm({ ...event, contactEmail: null })
+    await open(userEvent.setup())
+
+    expect(screen.getByLabelText("Contact e-mail")).toHaveValue("office@alpine.example")
+  })
+
+  it("does not offer an organization e-mail the API would refuse", async () => {
+    renderForm({
+      ...event,
+      contactEmail: null,
+      organizationContactEmail: `${"a".repeat(201)}@x.cz`,
+    })
+    await open(userEvent.setup())
+
+    expect(screen.getByLabelText("Contact e-mail")).toHaveValue("")
+  })
+
+  it("keeps the event's own e-mail over the organization's", async () => {
+    renderForm()
+    await open(userEvent.setup())
+
+    expect(screen.getByLabelText("Contact e-mail")).toHaveValue("info@alpine.example")
+  })
+
   it("lists the offered terms with their prices, not the cancelled ones", async () => {
     renderForm()
     await open(userEvent.setup())
@@ -233,7 +259,13 @@ describe("PublicPageForm", () => {
   })
 
   it("asks for description, venue and e-mail before the catalog", async () => {
-    const sent = renderForm({ ...event, description: null, location: null, contactEmail: null })
+    const sent = renderForm({
+      ...event,
+      description: null,
+      location: null,
+      contactEmail: null,
+      organizationContactEmail: null,
+    })
     const user = userEvent.setup()
     await open(user)
 

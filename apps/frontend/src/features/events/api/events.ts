@@ -23,6 +23,7 @@ export const organizerEventSchema = z.object({
   id: z.string(),
   organizationId: z.string(),
   organizationName: z.string(),
+  organizationContactEmail: z.string().nullable(),
   name: z.string(),
   description: z.string().nullable(),
   location: z.string().nullable(),

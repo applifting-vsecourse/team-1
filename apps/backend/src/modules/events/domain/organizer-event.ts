@@ -27,6 +27,8 @@ export type StoredEvent = {
   id: string
   organizationId: string
   organizationName: string
+  /** Contact e-mail of the organization; the public page form offers it until the event has its own. */
+  organizationContactEmail: string | null
   name: string
   description: string | null
   location: string | null

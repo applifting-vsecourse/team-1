@@ -10,6 +10,7 @@ const stored: StoredEvent = {
   id: "e1",
   organizationId: "org-a",
   organizationName: "Letní kemp z. s.",
+  organizationContactEmail: null,
   name: "Letní kemp 2027",
   description: null,
   location: null,

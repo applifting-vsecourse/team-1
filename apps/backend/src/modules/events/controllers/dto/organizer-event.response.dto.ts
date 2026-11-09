@@ -43,6 +43,9 @@ export class OrganizerEventResponseDto {
   @ApiProperty({ example: "Letní kemp z. s." })
   organizationName!: string
 
+  @ApiProperty({ type: String, nullable: true })
+  organizationContactEmail!: string | null
+
   @ApiProperty({ example: "Letní kemp 2027" })
   name!: string
 
@@ -134,6 +137,7 @@ export class OrganizerEventResponseDto {
       id: event.id,
       organizationId: event.organizationId,
       organizationName: event.organizationName,
+      organizationContactEmail: event.organizationContactEmail,
       name: event.name,
       description: event.description,
       location: event.location,
