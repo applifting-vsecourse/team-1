@@ -52,6 +52,7 @@ const termRooms = (termId: string, rooms: TermRooms["rooms"], roomMode: TermRoom
   eventId: "e1",
   eventName: "Summer camp",
   organizationName: "Camp",
+  organizationContactEmail: null,
   termId,
   termName: termId,
   startsOn: "2027-07-12",

@@ -11,6 +11,7 @@ type EventBody = {
   id: string
   name: string
   organizationName: string
+  organizationContactEmail: string | null
   publicToken: string
   applicationsOpen: boolean
   missing: string[]
@@ -62,6 +63,10 @@ describe("organizer events (integration)", () => {
       applicationsOpen: false,
       missing: ["TERM"],
     })
+    const organization = await prisma.organization.findFirstOrThrow({
+      where: { name: "Letní kemp z. s." },
+    })
+    expect(created.organizationContactEmail).toBe(organization.contactEmail)
 
     const list = await fetch(api("/organizer/events"), { headers: { Cookie: cookieA } })
     const events = (await list.json()) as EventBody[]

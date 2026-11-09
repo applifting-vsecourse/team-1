@@ -19,6 +19,7 @@ const base = {
   id: "e1",
   organizationId: "o1",
   organizationName: "Kemp Lipno",
+  organizationContactEmail: null,
   name: "Jarní víkend Lipno 2027",
   description: null,
   location: null,

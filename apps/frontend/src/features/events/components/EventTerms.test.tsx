@@ -18,6 +18,7 @@ const event = {
   id: "e1",
   organizationId: "o1",
   organizationName: "Kemp Lipno",
+  organizationContactEmail: null,
   name: "Letní kemp Lipno 2027",
   description: null,
   location: null,

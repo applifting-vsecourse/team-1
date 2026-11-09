@@ -13,7 +13,7 @@ import { AppException } from "@/shared/errors/app.exception"
 import { HttpStatus, Injectable } from "@nestjs/common"
 
 const include = {
-  organization: { select: { name: true } },
+  organization: { select: { name: true, contactEmail: true } },
   terms: {
     where: { cancelledAt: null },
     select: {
@@ -51,6 +51,7 @@ function toStored(row: EventRow): StoredEvent {
     id: row.id,
     organizationId: row.organizationId,
     organizationName: row.organization.name,
+    organizationContactEmail: row.organization.contactEmail,
     name: row.name,
     description: row.description,
     location: row.location,

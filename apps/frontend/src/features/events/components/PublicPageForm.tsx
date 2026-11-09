@@ -43,7 +43,8 @@ const valuesOf = (event: OrganizerEvent): PublicPageInput => ({
   name: event.name,
   description: event.description ?? "",
   location: event.location ?? "",
-  contactEmail: event.contactEmail ?? "",
+  // Until the event has its own address, the organization's one is offered (the organizer may overwrite it).
+  contactEmail: event.contactEmail ?? event.organizationContactEmail ?? "",
   contactPhone: event.contactPhone ?? "",
   publishedInCatalog: event.publishedInCatalog,
 })
