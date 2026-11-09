@@ -49,6 +49,18 @@ export function ApplicationTransport({ applicationId }: { applicationId: string 
     onError: async () => {
       // A transport may have been deleted meanwhile: show what is still on offer.
       await client.invalidateQueries({ queryKey: transportKeys.application(applicationId) })
+      // Drop choices that are no longer on offer, keep the valid ones.
+      const fresh = client.getQueryData(applicationTransportQueryOptions(applicationId).queryKey)
+      if (!fresh) return
+      setChanges((current) =>
+        Object.fromEntries(
+          Object.entries(current).filter(([termId, id]) =>
+            fresh.terms.some(
+              (term) => term.termId === termId && term.options.some((option) => option.id === id),
+            ),
+          ),
+        ),
+      )
     },
     onSuccess: async () => {
       setChanges({})

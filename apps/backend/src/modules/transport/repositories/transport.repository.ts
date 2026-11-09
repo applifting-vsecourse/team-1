@@ -169,14 +169,22 @@ export class TransportRepository {
    * @returns false when somebody chose it and the deletion was not confirmed.
    */
   async remove({ organizationId }: Scope, id: string, isConfirmed: boolean): Promise<boolean> {
-    const { count } = await this.prisma.transport.deleteMany({
-      where: {
-        id,
-        organizationId,
-        ...(isConfirmed ? {} : { applicationTerms: { none: taking } }),
-      },
+    return this.prisma.$transaction(async (tx) => {
+      // Lock the row first: a choice saved at the same moment holds a share lock on it (foreign
+      // key), so the count below sees it or the choice fails — it is never dropped unseen.
+      const locked = await tx.$queryRaw<{ id: string }[]>`
+        SELECT "id" FROM "transport"
+        WHERE "id" = ${id} AND "organizationId" = ${organizationId} FOR UPDATE`
+      if (locked.length === 0) return false
+      if (
+        !isConfirmed &&
+        (await tx.applicationTerm.count({ where: { transportId: id, ...taking } })) > 0
+      ) {
+        return false
+      }
+      const { count } = await tx.transport.deleteMany({ where: { id, organizationId } })
+      return count > 0
     })
-    return count > 0
   }
 
   /** `transportId` null lists the participants of `termId` who travel on their own. */
