@@ -78,12 +78,18 @@ export class TransportService {
     await this.repository.update(scope, id, input)
   }
 
-  async remove(user: Identity, eventId: string, id: string): Promise<void> {
+  /** With participants on it, the deletion has to be confirmed (they fall back to "not chosen"). */
+  async remove(user: Identity, eventId: string, id: string, isConfirmed: boolean): Promise<void> {
     const scope = await this.scope(user, eventId)
     if (!(await this.repository.termOfTransport(scope, id))) {
       throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
     }
-    await this.repository.remove(scope, id)
+    if (!(await this.repository.remove(scope, id, isConfirmed))) {
+      const { participants } = await this.repository.participants(scope, id)
+      throw new AppException(HttpStatus.CONFLICT, "TRANSPORT_HAS_PARTICIPANTS", undefined, {
+        count: String(participants.length),
+      })
+    }
   }
 
   async participants(

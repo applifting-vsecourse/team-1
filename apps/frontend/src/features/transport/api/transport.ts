@@ -107,8 +107,14 @@ export async function saveTransport(
 }
 
 /** Participants who chose it are left with no transport chosen. */
-export async function deleteTransport(eventId: string, id: string): Promise<void> {
-  await api.delete(`${base(eventId)}/${encodeURIComponent(id)}`)
+export async function deleteTransport(
+  eventId: string,
+  id: string,
+  isConfirmed: boolean,
+): Promise<void> {
+  await api.delete(`${base(eventId)}/${encodeURIComponent(id)}`, {
+    searchParams: { confirmed: isConfirmed },
+  })
 }
 
 export async function chooseTransport(

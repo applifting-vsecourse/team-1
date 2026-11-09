@@ -205,6 +205,19 @@ describe("transport (integration)", () => {
     expect((await send(`${base()}/${added.id}`, organizer, "DELETE")).status).toBe(204)
   })
 
+  it("deletes a transport nobody chose without a confirmation", async () => {
+    expect((await send(`${base()}/${transportId}`, organizer, "DELETE")).status).toBe(204)
+  })
+
+  it("answers 409 when own transport is added at the same time", async () => {
+    const own = { kind: "OWN", termId }
+    const results = await Promise.all([
+      send(base(), organizer, "POST", own),
+      send(base(), organizer, "POST", own),
+    ])
+    expect(results.map((r) => r.status).sort()).toEqual([204, 409])
+  })
+
   it("requires name, place and time of a ride but not of own transport", async () => {
     const incomplete = await send(base(), organizer, "POST", {
       kind: "SCHEDULED",
@@ -219,7 +232,18 @@ describe("transport (integration)", () => {
     expect((await send(`${base()}/${transportId}`, otherOrganizer, "DELETE")).status).toBe(403)
     expect((await inTerm()).transports).toHaveLength(1)
 
-    expect((await send(`${base()}/${transportId}`, organizer, "DELETE")).status).toBe(204)
+    // Somebody chose it: without the confirmation the server refuses and says how many.
+    const refused = await send(`${base()}/${transportId}`, organizer, "DELETE")
+    expect(refused.status).toBe(409)
+    expect(await refused.json()).toMatchObject({
+      code: "TRANSPORT_HAS_PARTICIPANTS",
+      params: { count: "1" },
+    })
+    expect((await inTerm()).transports).toHaveLength(1)
+
+    expect(
+      (await send(`${base()}/${transportId}?confirmed=true`, organizer, "DELETE")).status,
+    ).toBe(204)
     expect((await inTerm()).transports).toHaveLength(0)
     const row = (await offer()).terms.find((term) => term.termId === termId)!
     expect(row.selectedTransportId).toBeNull()

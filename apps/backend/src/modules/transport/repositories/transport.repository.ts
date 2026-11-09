@@ -29,6 +29,10 @@ const termInfo = (term: {
 
 // A participant takes part in a term unless the application in it or the term itself is cancelled
 // (cancelling a term leaves the status of the applications in it).
+function isPrismaError(error: unknown, code: string): boolean {
+  return typeof error === "object" && error !== null && "code" in error && error.code === code
+}
+
 const activeTerm = { cancelledAt: null }
 const taking = { status: { not: "CANCELLED" as const }, term: activeTerm }
 
@@ -137,7 +141,15 @@ export class TransportRepository {
     kind: TransportKind,
     input: TransportInput,
   ): Promise<void> {
-    await this.prisma.transport.create({ data: { ...input, kind, termId, organizationId } })
+    try {
+      await this.prisma.transport.create({ data: { ...input, kind, termId, organizationId } })
+    } catch (error) {
+      // Two organizers adding own transport at once: the partial unique index lets one through.
+      if (isPrismaError(error, "P2002")) {
+        throw new AppException(HttpStatus.CONFLICT, "TRANSPORT_OWN_EXISTS")
+      }
+      throw error
+    }
   }
 
   async hasOwn({ organizationId }: Scope, termId: string): Promise<boolean> {
@@ -150,9 +162,21 @@ export class TransportRepository {
     await this.prisma.transport.updateMany({ where: { id, organizationId }, data: input })
   }
 
-  /** Participants who chose it fall back to "not chosen yet" (`onDelete: SetNull`). */
-  async remove({ organizationId }: Scope, id: string): Promise<void> {
-    await this.prisma.transport.deleteMany({ where: { id, organizationId } })
+  /**
+   * Participants who chose it fall back to "not chosen yet" (`onDelete: SetNull`). Without
+   * `isConfirmed` it is deleted only while nobody has chosen it — checked in the same statement,
+   * so a choice made a moment ago is never dropped silently.
+   * @returns false when somebody chose it and the deletion was not confirmed.
+   */
+  async remove({ organizationId }: Scope, id: string, isConfirmed: boolean): Promise<boolean> {
+    const { count } = await this.prisma.transport.deleteMany({
+      where: {
+        id,
+        organizationId,
+        ...(isConfirmed ? {} : { applicationTerms: { none: { status: taking.status } } }),
+      },
+    })
+    return count > 0
   }
 
   /** `transportId` null lists the participants of `termId` who travel on their own. */
@@ -227,10 +251,18 @@ export class TransportRepository {
     if (!(await this.prisma.transport.findFirst({ where: { id: transportId, termId } }))) {
       return false
     }
-    await this.prisma.applicationTerm.update({
-      where: { id: row.id },
-      data: { transportId },
-    })
+    try {
+      await this.prisma.applicationTerm.update({
+        where: { id: row.id },
+        data: { transportId },
+      })
+    } catch (error) {
+      // The organizer deleted the transport between the check and the save.
+      if (isPrismaError(error, "P2003")) {
+        throw new AppException(HttpStatus.CONFLICT, "TRANSPORT_UNAVAILABLE")
+      }
+      throw error
+    }
     return true
   }
 }

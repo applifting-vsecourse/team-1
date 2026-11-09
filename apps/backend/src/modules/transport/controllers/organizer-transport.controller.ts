@@ -17,6 +17,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UsePipes,
   ValidationPipe,
 } from "@nestjs/common"
@@ -85,12 +86,18 @@ export class OrganizerTransportController {
       "Delete a way of transport; participants who chose it are left with no transport chosen",
   })
   @ApiResponse({ status: 204 })
+  @ApiResponse({
+    status: 409,
+    description:
+      "TRANSPORT_HAS_PARTICIPANTS: participants chose it and `confirmed=true` is missing",
+  })
   async remove(
     @User() user: Identity,
     @Param("eventId") eventId: string,
     @Param("id") id: string,
+    @Query("confirmed") confirmed?: string,
   ): Promise<void> {
-    await this.transport.remove(user, eventId, id)
+    await this.transport.remove(user, eventId, id, confirmed === "true")
   }
 
   @Get(":id/participants")

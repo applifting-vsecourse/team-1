@@ -46,6 +46,10 @@ export function ApplicationTransport({ applicationId }: { applicationId: string 
         Object.entries(changes).map(([termId, id]) => chooseTransport(applicationId, termId, id)),
       )
     },
+    onError: async () => {
+      // A transport may have been deleted meanwhile: show what is still on offer.
+      await client.invalidateQueries({ queryKey: transportKeys.application(applicationId) })
+    },
     onSuccess: async () => {
       setChanges({})
       await client.invalidateQueries({ queryKey: transportKeys.application(applicationId) })

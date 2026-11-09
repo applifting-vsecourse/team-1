@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
@@ -19,6 +19,7 @@ import { notify } from "@/lib/notify"
 
 import {
   deleteTransport,
+  eventTransportQueryOptions,
   transportKeys,
   type TransportSummary,
 } from "@/features/transport/api/transport"
@@ -28,7 +29,7 @@ import {
 // Design proposal (US-402): not in Figma yet.
 export function DeleteTransportDialog({
   eventId,
-  transport,
+  transport: opened,
   onClose,
 }: {
   eventId: string
@@ -38,9 +39,17 @@ export function DeleteTransportDialog({
   const { t } = useTranslation("transport")
   const client = useQueryClient()
   const [isAcknowledged, setIsAcknowledged] = useState(false)
+  // The list is refetched while the dialog is open: participants who chose the transport in the
+  // meantime show up in the warning instead of being dropped without one.
+  const { data } = useQuery(eventTransportQueryOptions(eventId))
+  const transport =
+    data?.terms.flatMap((term) => term.transports).find((item) => item.id === opened.id) ?? opened
   const hasParticipants = transport.participantsCount > 0
   const mutation = useMutation({
-    mutationFn: () => deleteTransport(eventId, transport.id),
+    mutationFn: () => deleteTransport(eventId, transport.id, isAcknowledged),
+    onError: async () => {
+      await client.invalidateQueries({ queryKey: transportKeys.event(eventId) })
+    },
     onSuccess: async () => {
       await Promise.all([
         client.invalidateQueries({ queryKey: transportKeys.event(eventId) }),
