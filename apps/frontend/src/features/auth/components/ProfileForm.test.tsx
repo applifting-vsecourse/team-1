@@ -54,30 +54,12 @@ describe("ProfileForm", () => {
     await i18n.changeLanguage("en")
   })
 
-  it("shows the name and the saved language (the e-mail has its own card)", () => {
+  it("shows the name (the e-mail has its own card, the language its own choice)", () => {
     renderForm()
 
     expect(screen.getByLabelText("Full name")).toHaveValue("Eva Malá")
-    expect(screen.getByRole("combobox", { name: "Language" })).toHaveTextContent("Čeština")
+    expect(screen.queryByRole("combobox", { name: "Language" })).not.toBeInTheDocument()
     expect(screen.queryByText("eva.mala@example.cz")).not.toBeInTheDocument()
-  })
-
-  it("saves the language, confirms it and switches the UI to it", async () => {
-    updateProfile.mockResolvedValue({ name: "Eva Malá", locale: "en" })
-    renderForm()
-
-    await userEvent.click(screen.getByRole("combobox", { name: "Language" }))
-    await userEvent.click(await screen.findByRole("option", { name: "English" }))
-    await userEvent.click(screen.getByRole("button", { name: "Save changes" }))
-
-    expect(updateProfile).toHaveBeenCalledWith({ name: "Eva Malá", locale: "en" })
-    expect(await screen.findByText("Language saved.")).toBeInTheDocument()
-    expect(screen.getByText("Application update e-mails will be sent in English.")).toBeVisible()
-    expect(i18n.resolvedLanguage).toBe("en")
-    expect(notify.success).toHaveBeenCalledWith(
-      "Language saved.",
-      "Application update e-mails will be sent in English.",
-    )
   })
 
   it("confirms a saved name with a toast", async () => {
@@ -88,6 +70,7 @@ describe("ProfileForm", () => {
     await userEvent.type(screen.getByLabelText("Full name"), "Eva Nová")
     await userEvent.click(screen.getByRole("button", { name: "Save changes" }))
 
+    expect(updateProfile).toHaveBeenCalledWith({ name: "Eva Nová", locale: "cs" })
     await waitFor(() => expect(notify.success).toHaveBeenCalledWith("New details saved"))
   })
 
