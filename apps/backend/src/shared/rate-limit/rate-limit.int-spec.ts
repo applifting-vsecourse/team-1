@@ -109,6 +109,18 @@ describe("rate limits (integration)", () => {
     expect(first).toEqual([200, 200, 200])
     expect(over.status).toBe(429)
   })
+
+  it("allow 3 verification bypass tries a minute, then answer 429", async () => {
+    const request = (): Promise<Response> =>
+      post("/email-verification-bypass", "203.0.113.60", { token: "anything" })
+
+    const first = await statuses(3, request)
+    const over = await request()
+
+    // The bypass is off on this server, so the allowed tries are answered 404.
+    expect(first).toEqual([404, 404, 404])
+    expect(over.status).toBe(429)
+  })
 })
 
 function freePort(): Promise<number> {

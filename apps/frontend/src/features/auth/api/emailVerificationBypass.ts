@@ -30,7 +30,10 @@ export function bypassTokenOf(signUpResult: unknown): string | undefined {
   return parsed.success ? parsed.data.emailVerificationBypassToken : undefined
 }
 
-/** Verifies the just-registered account with its token and signs it in (session cookie). */
-export async function verifyEmailWithoutLink(token: string): Promise<void> {
-  await api.post("email-verification-bypass", { json: { token } })
+/** Proof of ownership: the one-time token of the registration or, once it is gone, its password. */
+export type BypassProof = { token: string } | { email: string; password: string }
+
+/** Verifies the just-registered account and signs it in (session cookie). */
+export async function verifyEmailWithoutLink(proof: BypassProof): Promise<void> {
+  await api.post("email-verification-bypass", { json: proof })
 }

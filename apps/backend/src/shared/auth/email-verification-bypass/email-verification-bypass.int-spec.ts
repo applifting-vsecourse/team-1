@@ -95,6 +95,41 @@ describe("e-mail verification bypass (integration)", () => {
     expect((await prisma.user.findUniqueOrThrow({ where: { email } })).emailVerified).toBe(false)
   })
 
+  it("lets the registrant continue with the password after the token expired", async () => {
+    const email = "bypass-password@example.com"
+    await register(shared, email)
+    await prisma.verification.updateMany({
+      where: {
+        identifier: { startsWith: "email-verification-bypass:" },
+        value: await userId(email),
+      },
+      data: { expiresAt: new Date(Date.now() - 1000) },
+    })
+
+    const wrong = await post(shared, "/email-verification-bypass", {
+      email,
+      password: "not-the-password",
+    })
+    expect(wrong.status).toBe(403)
+    expect(await wrong.json()).toMatchObject({ code: "EMAIL_VERIFICATION_BYPASS_NOT_ALLOWED" })
+    expect((await prisma.user.findUniqueOrThrow({ where: { email } })).emailVerified).toBe(false)
+
+    const response = await post(shared, "/email-verification-bypass", {
+      email,
+      password: "password123",
+    })
+    expect(response.status).toBe(204)
+    expect(response.headers.getSetCookie().length).toBeGreaterThan(0)
+    expect((await prisma.user.findUniqueOrThrow({ where: { email } })).emailVerified).toBe(true)
+
+    // Already verified: neither the password nor anything else works any more.
+    const again = await post(shared, "/email-verification-bypass", {
+      email,
+      password: "password123",
+    })
+    expect(again.status).toBe(403)
+  })
+
   it("is not reachable through BetterAuth's own routes", async () => {
     const token = await register(shared, "bypass-direct@example.com")
     expect((await post(shared, "/auth/email-verification-bypass", { token })).status).toBe(404)

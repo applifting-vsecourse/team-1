@@ -20,7 +20,7 @@ vi.mock("@/features/auth/lib/auth-client", () => ({
 }))
 vi.mock("@/lib/api-client", () => ({
   api: { get: () => ({ json: apiStatus }), post: apiPost },
-  apiErrorCode: () => undefined,
+  apiErrorCode: (error: { code?: string }) => error.code,
 }))
 vi.mock("@tanstack/react-router", () => ({
   Link: ({ to, children }: { to: string; children: React.ReactNode }) => (
@@ -111,11 +111,45 @@ describe("organizer registration", () => {
     expect(screen.queryByRole("button", { name: "Verify without e-mail" })).not.toBeInTheDocument()
   })
 
-  it("hides the button when this registration has no token", async () => {
+  it("asks for the password when this registration has no token", async () => {
     apiStatus.mockResolvedValue({ enabled: true })
+    apiPost.mockResolvedValue({})
     render(<VerifyOrganizerEmail email="new@example.com" />)
-    await waitFor(() => expect(apiStatus).toHaveBeenCalled())
-    expect(screen.queryByRole("button", { name: "Verify without e-mail" })).not.toBeInTheDocument()
+    const button = await screen.findByRole("button", { name: "Verify without e-mail" })
+    expect(button).toBeDisabled()
+
+    await userEvent.type(
+      screen.getByLabelText("Password you chose when registering"),
+      "password123",
+    )
+    await userEvent.click(button)
+    await waitFor(() =>
+      expect(apiPost).toHaveBeenCalledWith("email-verification-bypass", {
+        json: { email: "new@example.com", password: "password123" },
+      }),
+    )
+  })
+
+  it("explains an expired token and continues with the password", async () => {
+    apiStatus.mockResolvedValue({ enabled: true })
+    apiPost.mockRejectedValueOnce({ code: "EMAIL_VERIFICATION_BYPASS_NOT_ALLOWED" })
+    location.state = { bypassToken: "one-time" }
+    render(<VerifyOrganizerEmail email="new@example.com" />)
+    expect(screen.queryByLabelText("Password you chose when registering")).not.toBeInTheDocument()
+    await userEvent.click(await screen.findByRole("button", { name: "Verify without e-mail" }))
+
+    expect(await screen.findByText(/The one-time verification expired/)).toBeInTheDocument()
+    await userEvent.type(
+      screen.getByLabelText("Password you chose when registering"),
+      "password123",
+    )
+    apiPost.mockResolvedValueOnce({})
+    await userEvent.click(screen.getByRole("button", { name: "Verify without e-mail" }))
+    await waitFor(() =>
+      expect(apiPost).toHaveBeenLastCalledWith("email-verification-bypass", {
+        json: { email: "new@example.com", password: "password123" },
+      }),
+    )
   })
 
   it("treats a status answer of the wrong shape as off", async () => {

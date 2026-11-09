@@ -2,6 +2,7 @@ import { InjectBetterAuth, type BetterAuth } from "@/shared/auth/providers/bette
 import { Config } from "@/shared/config/config.service"
 import { AppException } from "@/shared/errors/app.exception"
 import { RateLimitGuard } from "@/shared/rate-limit/rate-limit.guard"
+import { EMAIL_VERIFICATION_BYPASS_LIMIT } from "@/shared/rate-limit/rate-limits"
 import {
   Body,
   Controller,
@@ -15,20 +16,35 @@ import {
   ValidationPipe,
 } from "@nestjs/common"
 import { ApiOperation, ApiTags } from "@nestjs/swagger"
-import { IsString, MinLength } from "class-validator"
+import { Throttle } from "@nestjs/throttler"
+import { IsEmail, IsOptional, IsString, MinLength, ValidateIf } from "class-validator"
 import { Response } from "express"
 import type { BypassOutcome } from "./email-verification-bypass.plugin"
 
+/**
+ * The proof of ownership is either the one-time token from the sign-up response or, when that
+ * has expired or was lost (reload in another tab), the e-mail and password of the registration.
+ */
 export class EmailVerificationBypassRequestDto {
+  @IsOptional()
   @IsString()
   @MinLength(1)
-  token!: string
+  token?: string
+
+  @ValidateIf((dto: EmailVerificationBypassRequestDto) => !dto.token)
+  @IsEmail()
+  email?: string
+
+  @ValidateIf((dto: EmailVerificationBypassRequestDto) => !dto.token)
+  @IsString()
+  @MinLength(1)
+  password?: string
 }
 
 /** The plugin's endpoint is not part of BetterAuth's inferred type (the plugin is annotated). */
 type BypassApi = {
   emailVerificationBypass: (input: {
-    body: { token: string }
+    body: { token?: string; email?: string; password?: string }
     returnHeaders: true
   }) => Promise<{ headers: Headers; response: BypassOutcome }>
 }
@@ -56,7 +72,11 @@ export class EmailVerificationBypassController {
   @Post()
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(RateLimitGuard)
-  @ApiOperation({ summary: "Verifies the registered account with the one-time token and signs in" })
+  @Throttle({ minute: EMAIL_VERIFICATION_BYPASS_LIMIT })
+  @ApiOperation({
+    summary:
+      "Verifies the registered account (one-time token, or e-mail and password) and signs in",
+  })
   async verify(
     @Body() dto: EmailVerificationBypassRequestDto,
     @Res({ passthrough: true }) res: Response,
@@ -66,7 +86,10 @@ export class EmailVerificationBypassController {
     }
     const { headers, response } = await (
       this.auth.api as unknown as BypassApi
-    ).emailVerificationBypass({ body: { token: dto.token }, returnHeaders: true })
+    ).emailVerificationBypass({
+      body: { token: dto.token, email: dto.email, password: dto.password },
+      returnHeaders: true,
+    })
     if (response.status !== "verified") {
       throw new AppException(HttpStatus.FORBIDDEN, "EMAIL_VERIFICATION_BYPASS_NOT_ALLOWED")
     }

@@ -9,6 +9,7 @@ import { ROUTES } from "@/app/routes"
 import { Seo } from "@/components/atoms/Seo"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { apiErrorCode } from "@/lib/api-client"
 
 import { authSessionQueryOptions } from "@/features/auth/api/authSessionQueryOptions"
@@ -39,7 +40,11 @@ export function VerifyOrganizerEmail({ email, error }: Props) {
       return parsed.success ? parsed.data.bypassToken : null
     },
   })
-  const canBypass = Boolean(isBypassOn && bypassToken)
+  // Without a token (it expired, or the screen was opened directly) the password proves ownership.
+  const [isTokenRefused, setTokenRefused] = useState(false)
+  const [password, setPassword] = useState("")
+  const shouldAskPassword = !bypassToken || isTokenRefused
+  const canBypass = Boolean(isBypassOn && email)
   const isExpired = Boolean(error)
   const title = t(isExpired ? "registration.expiredTitle" : "registration.verifyTitle")
 
@@ -63,20 +68,31 @@ export function VerifyOrganizerEmail({ email, error }: Props) {
   }
 
   const verifyWithoutEmail = async () => {
-    if (!bypassToken) return
     setPending(true)
     setFailure(null)
     try {
-      await verifyEmailWithoutLink(bypassToken)
+      await verifyEmailWithoutLink(
+        bypassToken && !isTokenRefused ? { token: bypassToken } : { email, password },
+      )
       // Load the new session now: the guards of the next page would trust a cached "signed out".
       await queryClient.fetchQuery({ ...authSessionQueryOptions(), staleTime: 0 })
       await navigate({ to: ROUTES.organizer.onboarding })
     } catch (bypassError) {
-      setFailure(
-        apiErrorCode(bypassError) === "TOO_MANY_REQUESTS"
-          ? tErrors("TOO_MANY_REQUESTS")
-          : t("registration.verifyBypassFailed"),
-      )
+      if (apiErrorCode(bypassError) === "TOO_MANY_REQUESTS") {
+        setFailure(tErrors("TOO_MANY_REQUESTS"))
+      } else if (apiErrorCode(bypassError) === "EMAIL_VERIFICATION_BYPASS_NOT_ALLOWED") {
+        // A refused token is spent or expired: from here on only the password works.
+        setFailure(
+          t(
+            shouldAskPassword
+              ? "registration.verifyBypassWrongPassword"
+              : "registration.verifyBypassExpired",
+          ),
+        )
+        setTokenRefused(true)
+      } else {
+        setFailure(t("registration.verifyBypassFailed"))
+      }
     } finally {
       setPending(false)
     }
@@ -118,15 +134,35 @@ export function VerifyOrganizerEmail({ email, error }: Props) {
         {t(isExpired ? "registration.expiredAction" : "registration.resend")}
       </Button>
       {canBypass ? (
-        <Button
-          size="lg"
-          variant="outline"
-          disabled={isPending}
-          onClick={() => void verifyWithoutEmail()}
-          className="h-12 w-full"
-        >
-          {t("registration.verifyBypass")}
-        </Button>
+        <>
+          {shouldAskPassword ? (
+            <div className="flex flex-col gap-2">
+              <label
+                htmlFor="bypass-password"
+                className="text-sm font-medium"
+              >
+                {t("registration.verifyBypassPassword")}
+              </label>
+              <Input
+                id="bypass-password"
+                className="h-12"
+                type="password"
+                autoComplete="current-password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+              />
+            </div>
+          ) : null}
+          <Button
+            size="lg"
+            variant="outline"
+            disabled={isPending || (shouldAskPassword && !password)}
+            onClick={() => void verifyWithoutEmail()}
+            className="h-12 w-full"
+          >
+            {t("registration.verifyBypass")}
+          </Button>
+        </>
       ) : null}
     </RegistrationLayout>
   )

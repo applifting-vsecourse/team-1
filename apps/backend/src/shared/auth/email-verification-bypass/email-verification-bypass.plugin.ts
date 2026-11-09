@@ -21,8 +21,9 @@ export type BypassOutcome = { status: "verified" } | { status: "refused" }
  * verification link, so the organizer could never finish registration. While
  * EMAIL_VERIFICATION_BYPASS_ENABLED is on, the sign-up response carries a one-time token bound
  * to that registration (stored hashed, valid 15 minutes). Handing the token back marks that
- * account verified and signs it in. Without the token nothing can be verified, so neither a
- * foreign account nor an e-mail change (which keeps a verified account) goes through it.
+ * account verified and signs it in. If the token has expired, the password of the registration
+ * is the alternative proof. Without either nothing can be verified, so neither a foreign account
+ * nor an e-mail change (which keeps a verified account) goes through it.
  *
  * The endpoint is server-only (not routed under /api/auth): the Nest controller calls it, so
  * errors leave through the common AppException filter.
@@ -54,12 +55,24 @@ export const createEmailVerificationBypassPlugin = (config: Config): BetterAuthP
       "/email-verification-bypass",
       { method: "POST", metadata: { SERVER_ONLY: true } },
       async (ctx): Promise<BypassOutcome> => {
-        const token = (ctx.body as { token?: unknown } | undefined)?.token
-        if (typeof token !== "string") return { status: "refused" }
+        const { token, email, password } = (ctx.body ?? {}) as Record<string, unknown>
         const adapter = ctx.context.internalAdapter
-        // Single use: the row is consumed (and an expired one dropped) in one step.
-        const row = await adapter.consumeVerificationValue(identifierOf(token))
-        const user = row ? await adapter.findUserById(row.value) : null
+        let user: Awaited<ReturnType<typeof adapter.findUserById>> | null = null
+        if (typeof token === "string") {
+          // Single use: the row is consumed (and an expired one dropped) in one step.
+          const row = await adapter.consumeVerificationValue(identifierOf(token))
+          user = row ? await adapter.findUserById(row.value) : null
+        } else if (typeof email === "string" && typeof password === "string") {
+          // The token expired or was lost: the password of the registration proves ownership.
+          const found = await adapter.findUserByEmail(email.toLowerCase(), {
+            includeAccounts: true,
+          })
+          const hash = found?.accounts.find(
+            (account) => account.providerId === "credential" && account.accountId === found.user.id,
+          )?.password
+          const isOwner = hash ? await ctx.context.password.verify({ hash, password }) : false
+          user = isOwner ? (found?.user ?? null) : null
+        }
         const accountType = (user as { accountType?: string } | null)?.accountType
         if (!user || user.emailVerified || accountType !== "ORGANIZER") return { status: "refused" }
         const verified = await adapter.updateUser(user.id, { emailVerified: true })
