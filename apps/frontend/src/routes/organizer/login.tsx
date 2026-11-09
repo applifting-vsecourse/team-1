@@ -6,6 +6,7 @@ import { ROUTES } from "@/app/routes"
 import { Seo } from "@/components/atoms/Seo"
 import { BackLink } from "@/components/molecules/BackLink"
 import { AuthLayout } from "@/components/templates/AuthLayout"
+import { Button } from "@/components/ui/button"
 
 import { authSessionQueryOptions } from "@/features/auth/api/authSessionQueryOptions"
 import { SignInWithRedirect } from "@/features/auth/components/SignInWithRedirect"
@@ -39,22 +40,25 @@ function OrganizerLoginPage() {
         description={t("organizerLogin.description")}
         cardTitle={t("organizerLogin.cardTitle")}
         footer={
-          <>
-            <Link
-              to={ROUTES.organizer.register}
-              className="font-medium text-accent-foreground underline underline-offset-4"
+          <div className="flex flex-col gap-4">
+            <Button
+              asChild
+              variant="outline"
+              size="lg"
+              className="h-12 w-full"
             >
-              {t("registration.newAccount")}
-            </Link>
-            <br />
-            {t("organizerLogin.participantHint")}{" "}
-            <Link
-              to={ROUTES.participant.login}
-              className="font-medium text-accent-foreground underline underline-offset-4"
-            >
-              {t("organizerLogin.participantLink")}
-            </Link>
-          </>
+              <Link to={ROUTES.organizer.register}>{t("organizerLogin.createAccount")}</Link>
+            </Button>
+            <div className="flex flex-col items-center gap-1 text-center text-sm text-muted-foreground">
+              {t("organizerLogin.participantHint")}
+              <Link
+                to={ROUTES.participant.login}
+                className="font-medium text-accent-foreground underline underline-offset-4"
+              >
+                {t("organizerLogin.participantLink")}
+              </Link>
+            </div>
+          </div>
         }
       >
         <SignInWithRedirect

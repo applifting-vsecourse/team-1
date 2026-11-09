@@ -44,11 +44,23 @@ describe("organizer registration", () => {
     expect(signUp).not.toHaveBeenCalled()
   })
 
+  it("blocks submit when the repeated password differs", async () => {
+    render(<OrganizerRegistration />)
+    await userEvent.type(screen.getByLabelText("E-mail *"), "new@example.com")
+    await userEvent.type(screen.getByLabelText("Password *"), "password123")
+    await userEvent.type(screen.getByLabelText("Repeat password *"), "password124")
+    await userEvent.click(screen.getByRole("button", { name: "Create account" }))
+
+    expect(screen.getByText("The passwords do not match.")).toBeInTheDocument()
+    expect(signUp).not.toHaveBeenCalled()
+  })
+
   it("sends a verification link and opens the instructions", async () => {
     signUp.mockResolvedValue({ error: null })
     render(<OrganizerRegistration />)
     await userEvent.type(screen.getByLabelText("E-mail *"), "new@example.com")
     await userEvent.type(screen.getByLabelText("Password *"), "password123")
+    await userEvent.type(screen.getByLabelText("Repeat password *"), "password123")
     await userEvent.click(screen.getByRole("button", { name: "Create account" }))
 
     await waitFor(() =>

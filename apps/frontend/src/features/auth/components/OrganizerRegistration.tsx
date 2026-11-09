@@ -21,17 +21,19 @@ export function OrganizerRegistration() {
   const navigate = useNavigate()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [passwordRepeat, setPasswordRepeat] = useState("")
   const [isSubmitted, setSubmitted] = useState(false)
   const [isPending, setPending] = useState(false)
   const [failure, setFailure] = useState<string | null>(null)
   const isValidEmail = z.string().email().safeParse(email.trim()).success
   const isValidPassword = password.length >= 8
+  const isRepeatMatching = passwordRepeat === password
 
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setSubmitted(true)
     setFailure(null)
-    if (!isValidEmail || !isValidPassword) return
+    if (!isValidEmail || !isValidPassword || !isRepeatMatching) return
 
     setPending(true)
     const address = email.trim().toLowerCase()
@@ -54,7 +56,7 @@ export function OrganizerRegistration() {
   }
 
   const title =
-    isSubmitted && (!isValidEmail || !isValidPassword)
+    isSubmitted && (!isValidEmail || !isValidPassword || !isRepeatMatching)
       ? t("registration.invalidTitle")
       : t("registration.title")
 
@@ -108,6 +110,26 @@ export function OrganizerRegistration() {
             {t("registration.passwordHint")}
           </p>
         </div>
+        <div className="flex flex-col gap-2">
+          <label
+            htmlFor="registration-password-repeat"
+            className="text-sm font-medium"
+          >
+            {t("registration.passwordRepeat")}
+          </label>
+          <Input
+            id="registration-password-repeat"
+            className="h-12"
+            type="password"
+            autoComplete="new-password"
+            value={passwordRepeat}
+            onChange={(event) => setPasswordRepeat(event.target.value)}
+            aria-invalid={isSubmitted && !isRepeatMatching}
+          />
+          {isSubmitted && !isRepeatMatching ? (
+            <p className="text-sm text-destructive">{t("registration.passwordMismatch")}</p>
+          ) : null}
+        </div>
         {failure ? (
           <Alert variant="destructive">
             <AlertDescription>{failure}</AlertDescription>
@@ -123,7 +145,7 @@ export function OrganizerRegistration() {
         </Button>
         <Button
           asChild
-          variant="ghost"
+          variant="outline"
           size="lg"
           className="h-12 w-full"
         >
