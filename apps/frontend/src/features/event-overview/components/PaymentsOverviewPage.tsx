@@ -8,6 +8,7 @@ import { MoneyAmount } from "@/components/atoms/MoneyAmount"
 import { Seo } from "@/components/atoms/Seo"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
+import { Pagination } from "@/components/molecules/Pagination"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
@@ -18,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { usePagination } from "@/hooks/usePagination"
 import { formatDate } from "@/lib/date"
 import { termTitle } from "@/lib/term-label"
 
@@ -173,17 +175,40 @@ export function PaymentsOverviewPage({
           ) : null}
         </div>
       ) : (
-        <div className="flex flex-col gap-4">
-          {entries.map((entry) => (
-            <PaymentOverviewCard
-              key={entry.termId + entry.applicationId}
-              entry={entry}
-              eventId={eventId}
-            />
-          ))}
-        </div>
+        <PaymentEntries
+          entries={entries}
+          eventId={eventId}
+          resetKey={`${status}|${reminder}`}
+        />
       )}
     </section>
+  )
+}
+
+function PaymentEntries({
+  entries,
+  eventId,
+  resetKey,
+}: {
+  entries: PaymentOverviewEntry[]
+  eventId: string
+  resetKey: string
+}) {
+  const { pageItems, ...pagination } = usePagination(entries, resetKey)
+  return (
+    <div className="flex flex-col gap-4">
+      {pageItems.map((entry) => (
+        <PaymentOverviewCard
+          key={entry.termId + entry.applicationId}
+          entry={entry}
+          eventId={eventId}
+        />
+      ))}
+      <Pagination
+        {...pagination}
+        onPageChange={pagination.setPage}
+      />
+    </div>
   )
 }
 

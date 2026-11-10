@@ -8,6 +8,7 @@ import CampIllustration from "@/assets/illustrations/camp.svg?react"
 import { BandBackdrop } from "@/components/atoms/BandBackdrop"
 import { LogoSymbol } from "@/components/atoms/Logo"
 import { BackLink } from "@/components/molecules/BackLink"
+import { Pagination } from "@/components/molecules/Pagination"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -20,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Skeleton } from "@/components/ui/skeleton"
+import { usePagination } from "@/hooks/usePagination"
 import { cn } from "@/lib/utils"
 
 import { catalogQueryOptions } from "@/features/catalog/api/catalog"
@@ -50,6 +52,7 @@ export function CatalogPage({ organizationId, onOrganizationChange }: CatalogPag
   const organization = data ? knownOrganizationId(data, organizationId) : undefined
   const events = data ? eventsOf(data, organization) : []
   const isEmpty = data?.events.length === 0
+  const { pageItems, ...pagination } = usePagination(events, organization ?? ALL, 18)
 
   const select = (
     <div className="flex w-full flex-col gap-2 md:w-82">
@@ -151,13 +154,19 @@ export function CatalogPage({ organizationId, onOrganizationChange }: CatalogPag
         ) : null}
 
         {data && !isEmpty ? (
-          <ul className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {events.map((event) => (
-              <li key={event.publicToken}>
-                <EventCard event={event} />
-              </li>
-            ))}
-          </ul>
+          <>
+            <ul className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {pageItems.map((event) => (
+                <li key={event.publicToken}>
+                  <EventCard event={event} />
+                </li>
+              ))}
+            </ul>
+            <Pagination
+              {...pagination}
+              onPageChange={pagination.setPage}
+            />
+          </>
         ) : null}
       </div>
     </>

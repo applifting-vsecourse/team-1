@@ -255,9 +255,9 @@ describe("ApplicationsPage", () => {
     setup(Array.from({ length: 21 }, (_, index) => ({ ...application, id: `a${index}` })))
     const user = userEvent.setup()
     await user.click(await screen.findByRole("button", { name: "Next →" }))
-    expect(screen.getByText("Showing 21–21 of 21 applications")).toBeInTheDocument()
+    expect(screen.getByText("Showing 21–21 of 21")).toBeInTheDocument()
     await user.type(screen.getByRole("searchbox"), "jana")
-    expect(await screen.findByText("Showing 1–20 of 21 applications")).toBeInTheDocument()
+    expect(await screen.findByText("Showing 1–20 of 21")).toBeInTheDocument()
   })
   it("passes combined filters, displays all terms and links to payment", async () => {
     setup()

@@ -79,6 +79,12 @@
       "title": "Page not found"
     }
   },
+  "pagination": {
+    "label": "Pagination",
+    "next": "Next →",
+    "previous": "← Previous",
+    "range": "Showing {{from}}–{{to}} of {{count}}"
+  },
   "password": {
     "hide": "Hide password",
     "show": "Show password"

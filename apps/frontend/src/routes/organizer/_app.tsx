@@ -47,6 +47,7 @@ function OrganizerLayout() {
       <Seo title={t("area.organizer")} />
       <AreaLayout
         width="wide"
+        logoTo={ROUTES.organizer.events}
         roleLabel={t("accountRole.ORGANIZER")}
         nav={
           <>
