@@ -13,3 +13,4 @@ Zápisy ze statusů týmu a statusů s Product Ownerem od 14. 10. 2026. Jsou př
 | 3. 11. 2026  | Status            | [2026-11-03-status.md](2026-11-03-status.md)                       |
 | 4. 11. 2026  | Async status s PO | [2026-11-04-async-status-s-po.md](2026-11-04-async-status-s-po.md) |
 | 5. 11. 2026  | Status            | [2026-11-05-status.md](2026-11-05-status.md)                       |
+| 11. 11. 2026 | Status s PO       | [2026-11-11-status-s-po.md](2026-11-11-status-s-po.md)             |
