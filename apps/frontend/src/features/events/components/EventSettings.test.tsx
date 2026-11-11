@@ -147,7 +147,7 @@ describe("EventSettings", () => {
     expect(screen.queryByRole("button", { name: "Save mode" })).not.toBeInTheDocument()
   })
 
-  it("saves a real cancellation day and shows the saved state", async () => {
+  it("saves a real cancellation day and confirms with a toast", async () => {
     const writes = renderCancellation()
     const user = userEvent.setup()
 
@@ -159,7 +159,12 @@ describe("EventSettings", () => {
     await user.click(screen.getByRole("button", { name: "Save settings" }))
 
     await vi.waitFor(() => expect(writes).toEqual([{ cancellationStartsOn: "2027-07-01" }]))
-    expect(await screen.findByText("Date saved.")).toBeInTheDocument()
+    await vi.waitFor(() =>
+      expect(notify.success).toHaveBeenCalledWith(
+        "Date saved.",
+        "Cancellation rules start: 1 Jul 2027.",
+      ),
+    )
   })
 
   it("clears a saved date and leaves the immediate-change explanation", async () => {
@@ -170,7 +175,12 @@ describe("EventSettings", () => {
     await user.click(screen.getByRole("button", { name: "Save settings" }))
 
     await vi.waitFor(() => expect(writes).toEqual([{ cancellationStartsOn: null }]))
-    expect(await screen.findByText("Date removed.")).toBeInTheDocument()
+    await vi.waitFor(() =>
+      expect(notify.success).toHaveBeenCalledWith(
+        "Date removed.",
+        "Term changes and cancellations now take effect immediately, without approval.",
+      ),
+    )
     expect(screen.getByText(/Without a date, term changes/)).toBeInTheDocument()
   })
 
@@ -227,7 +237,7 @@ describe("EventSettings", () => {
     expect(
       await screen.findByRole("textbox", { name: "Cancellation rules apply from" }),
     ).toHaveValue("01/01/2020")
-    expect(screen.getByText("Date saved.")).toBeInTheDocument()
+    expect(notify.success).not.toHaveBeenCalled()
     expect(screen.queryByRole("button", { name: "Save settings" })).not.toBeInTheDocument()
     expect(
       screen.queryByText("The cancellation conditions start date must not be in the past."),

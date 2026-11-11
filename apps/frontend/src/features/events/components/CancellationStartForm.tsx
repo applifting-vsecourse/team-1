@@ -1,17 +1,17 @@
 import { useState, type FormEvent } from "react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { Loader2, TriangleAlert } from "lucide-react"
+import { Loader2 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { DateField } from "@/components/molecules/DateField"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { SettingsCard } from "@/components/molecules/SettingsCard"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { formatDate } from "@/lib/date"
 import { isIsoDate, todayIsoInAppZone } from "@/lib/date-input"
+import { notify } from "@/lib/notify"
 
 import { eventKeys, setCancellationStart, type OrganizerEvent } from "@/features/events/api/events"
 
@@ -31,8 +31,19 @@ export function CancellationStartForm({ event }: { event: OrganizerEvent }) {
   const isDirty = (isEnabled ? date : null) !== event.cancellationStartsOn
   const mutation = useMutation({
     mutationFn: () => setCancellationStart(event.id, isEnabled ? date : null),
-    onSuccess: async () => {
+    onSuccess: async (saved) => {
       setHasAttempted(false)
+      if (saved.cancellationStartsOn) {
+        notify.success(
+          t("cancellationStart.savedTitle"),
+          t("cancellationStart.savedDate", { date: formatDate(saved.cancellationStartsOn) }),
+        )
+      } else {
+        notify.success(
+          t("cancellationStart.clearedTitle"),
+          t("cancellationStart.clearedDescription"),
+        )
+      }
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: eventKeys.detail(event.id) }),
         queryClient.invalidateQueries({ queryKey: eventKeys.all() }),
@@ -96,22 +107,6 @@ export function CancellationStartForm({ event }: { event: OrganizerEvent }) {
           </div>
         ) : null}
         <p>{t(isEnabled ? "cancellationStart.afterDate" : "cancellationStart.noDate")}</p>
-        {!isDirty && event.cancellationStartsOn ? (
-          <Alert className="bg-accent">
-            <TriangleAlert aria-hidden="true" />
-            <AlertTitle>{t("cancellationStart.savedTitle")}</AlertTitle>
-            <AlertDescription>
-              {t("cancellationStart.savedDate", { date: formatDate(event.cancellationStartsOn) })}
-            </AlertDescription>
-          </Alert>
-        ) : null}
-        {!isDirty && mutation.isSuccess && event.cancellationStartsOn === null ? (
-          <Alert className="bg-accent">
-            <TriangleAlert aria-hidden="true" />
-            <AlertTitle>{t("cancellationStart.clearedTitle")}</AlertTitle>
-            <AlertDescription>{t("cancellationStart.clearedDescription")}</AlertDescription>
-          </Alert>
-        ) : null}
         {mutation.isError ? (
           <ErrorState
             title={t("cancellationStart.saveFailed")}
