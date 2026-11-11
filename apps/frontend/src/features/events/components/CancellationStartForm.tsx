@@ -23,32 +23,22 @@ export function CancellationStartForm({ event }: { event: OrganizerEvent }) {
   const [isEnabled, setIsEnabled] = useState(event.cancellationStartsOn !== null)
   const [date, setDate] = useState(event.cancellationStartsOn ?? "")
   const [hasAttempted, setHasAttempted] = useState(false)
-  const [savedDate, setSavedDate] = useState<string | undefined>(
-    event.cancellationStartsOn ?? undefined,
-  )
   // A new or changed date may not be in the past; the unchanged (even lapsed) date stays valid.
   const isDateInPast =
     isIsoDate(date) && date !== event.cancellationStartsOn && date < todayIsoInAppZone()
   const isDateInvalid = hasAttempted && isEnabled && (!isIsoDate(date) || isDateInPast)
+  // Save is offered only when the form differs from what is stored.
+  const isDirty = (isEnabled ? date : null) !== event.cancellationStartsOn
   const mutation = useMutation({
     mutationFn: () => setCancellationStart(event.id, isEnabled ? date : null),
-    onSuccess: async (saved) => {
+    onSuccess: async () => {
       setHasAttempted(false)
-      setSavedDate(saved.cancellationStartsOn ?? undefined)
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: eventKeys.detail(event.id) }),
         queryClient.invalidateQueries({ queryKey: eventKeys.all() }),
       ])
     },
   })
-
-  const reset = () => {
-    setIsEnabled(event.cancellationStartsOn !== null)
-    setDate(event.cancellationStartsOn ?? "")
-    setHasAttempted(false)
-    setSavedDate(event.cancellationStartsOn ?? undefined)
-    mutation.reset()
-  }
 
   const submit = (e: FormEvent) => {
     e.preventDefault()
@@ -71,7 +61,6 @@ export function CancellationStartForm({ event }: { event: OrganizerEvent }) {
             onCheckedChange={(checked) => {
               setIsEnabled(checked === true)
               setHasAttempted(false)
-              setSavedDate(undefined)
               mutation.reset()
             }}
           />
@@ -91,7 +80,6 @@ export function CancellationStartForm({ event }: { event: OrganizerEvent }) {
               min={todayIsoInAppZone()}
               onChange={(value) => {
                 setDate(value)
-                setSavedDate(undefined)
                 mutation.reset()
               }}
               aria-invalid={isDateInvalid || undefined}
@@ -108,12 +96,12 @@ export function CancellationStartForm({ event }: { event: OrganizerEvent }) {
           </div>
         ) : null}
         <p>{t(isEnabled ? "cancellationStart.afterDate" : "cancellationStart.noDate")}</p>
-        {savedDate ? (
+        {!isDirty && event.cancellationStartsOn ? (
           <Alert className="bg-accent">
             <TriangleAlert aria-hidden="true" />
             <AlertTitle>{t("cancellationStart.savedTitle")}</AlertTitle>
             <AlertDescription>
-              {t("cancellationStart.savedDate", { date: formatDate(savedDate) })}
+              {t("cancellationStart.savedDate", { date: formatDate(event.cancellationStartsOn) })}
             </AlertDescription>
           </Alert>
         ) : null}
@@ -123,27 +111,15 @@ export function CancellationStartForm({ event }: { event: OrganizerEvent }) {
             error={mutation.error}
           />
         ) : null}
-        {savedDate === undefined ? (
-          <div className="flex flex-col gap-3 sm:flex-row-reverse">
-            <Button
-              type="submit"
-              size="lg"
-              className="sm:flex-1"
-              disabled={mutation.isPending}
-            >
-              {mutation.isPending ? <Loader2 className="animate-spin" /> : null}
-              {t("cancellationStart.save")}
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="lg"
-              className="sm:flex-1"
-              onClick={reset}
-            >
-              {t("cancellationStart.cancel")}
-            </Button>
-          </div>
+        {isDirty ? (
+          <Button
+            type="submit"
+            size="lg"
+            disabled={mutation.isPending}
+          >
+            {mutation.isPending ? <Loader2 className="animate-spin" /> : null}
+            {t("cancellationStart.save")}
+          </Button>
         ) : null}
       </form>
     </SettingsCard>
