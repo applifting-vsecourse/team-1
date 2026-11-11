@@ -14,7 +14,9 @@ test("organizer sets the cancellation start date in a usable 360 px settings scr
     .click()
   await page.setViewportSize({ width: 360, height: 800 })
 
-  await expect(page.getByRole("heading", { name: "Approval of participant requests" })).toBeVisible()
+  await expect(
+    page.getByRole("heading", { name: "Approval of participant requests" }),
+  ).toBeVisible()
   await expect(
     page.getByText("Approval is off. Participant requests are carried out immediately."),
   ).toBeVisible()
