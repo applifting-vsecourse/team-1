@@ -2,6 +2,7 @@
   "cancellationStart": {
     "afterDate": "From this date, term changes and cancellations are sent to the organizer for approval.",
     "cancel": "Cancel",
+    "dateInPast": "The cancellation conditions start date must not be in the past.",
     "dateLabel": "Cancellation rules apply from",
     "enable": "Set a cancellation start date",
     "invalidDate": "Enter a valid calendar date.",

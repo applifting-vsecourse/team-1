@@ -2,6 +2,7 @@
   "cancellationStart": {
     "afterDate": "Od tohoto data se změny termínů a odhlášky předávají organizátorovi ke schválení.",
     "cancel": "Zrušit",
+    "dateInPast": "Datum začátku platnosti storno podmínek nesmí být v minulosti.",
     "dateLabel": "Storno podmínky platí od",
     "enable": "Nastavit datum začátku storna",
     "invalidDate": "Zadejte platné kalendářní datum.",

@@ -3,6 +3,7 @@
   "APPLICATION_NOT_EDITABLE": "This application can no longer be edited: it has no active term, or all its terms are over.",
   "BED_ALREADY_TAKEN": "The bed has meanwhile been taken by someone else.",
   "CANCELLATION_APPROVAL_REQUIRED": "Changes now require the organiser's approval. Contact the organiser.",
+  "CANCELLATION_START_IN_PAST": "The cancellation conditions start date must not be in the past.",
   "CAPACITY_EXCEEDED": "Confirming would exceed the capacity of the term. Confirm knowingly.",
   "CHANGE_REQUEST_NOT_PENDING": "This request has already been decided. Refresh the list.",
   "CHANGE_REQUEST_NOT_REQUIRED": "This change takes effect immediately. Refresh the application.",

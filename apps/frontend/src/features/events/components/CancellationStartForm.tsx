@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { formatDate } from "@/lib/date"
-import { isIsoDate } from "@/lib/date-input"
+import { isIsoDate, todayIsoInAppZone } from "@/lib/date-input"
 
 import { eventKeys, setCancellationStart, type OrganizerEvent } from "@/features/events/api/events"
 
@@ -26,7 +26,10 @@ export function CancellationStartForm({ event }: { event: OrganizerEvent }) {
   const [savedDate, setSavedDate] = useState<string | undefined>(
     event.cancellationStartsOn ?? undefined,
   )
-  const isDateInvalid = hasAttempted && isEnabled && !isIsoDate(date)
+  // A new or changed date may not be in the past; the unchanged (even lapsed) date stays valid.
+  const isDateInPast =
+    isIsoDate(date) && date !== event.cancellationStartsOn && date < todayIsoInAppZone()
+  const isDateInvalid = hasAttempted && isEnabled && (!isIsoDate(date) || isDateInPast)
   const mutation = useMutation({
     mutationFn: () => setCancellationStart(event.id, isEnabled ? date : null),
     onSuccess: async (saved) => {
@@ -50,7 +53,7 @@ export function CancellationStartForm({ event }: { event: OrganizerEvent }) {
   const submit = (e: FormEvent) => {
     e.preventDefault()
     setHasAttempted(true)
-    if (isEnabled && !isIsoDate(date)) return
+    if (isEnabled && (!isIsoDate(date) || isDateInPast)) return
     mutation.mutate()
   }
 
@@ -85,6 +88,7 @@ export function CancellationStartForm({ event }: { event: OrganizerEvent }) {
             <DateField
               id="cancellation-start-date"
               value={date}
+              min={todayIsoInAppZone()}
               onChange={(value) => {
                 setDate(value)
                 setSavedDate(undefined)
@@ -98,7 +102,7 @@ export function CancellationStartForm({ event }: { event: OrganizerEvent }) {
                 id="cancellation-start-error"
                 className="text-sm text-destructive"
               >
-                {t("cancellationStart.invalidDate")}
+                {t(isDateInPast ? "cancellationStart.dateInPast" : "cancellationStart.invalidDate")}
               </p>
             ) : null}
           </div>

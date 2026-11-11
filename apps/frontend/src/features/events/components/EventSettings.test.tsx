@@ -188,6 +188,54 @@ describe("EventSettings", () => {
     expect(writes).toEqual([])
   })
 
+  it("rejects a new cancellation day in the past before calling the API", async () => {
+    const writes = renderCancellation()
+    const user = userEvent.setup()
+
+    await user.click(await screen.findByRole("checkbox", { name: "Set a cancellation start date" }))
+    await user.type(
+      screen.getByRole("textbox", { name: "Cancellation rules apply from" }),
+      "01/01/2020",
+    )
+    await user.click(screen.getByRole("button", { name: "Save settings" }))
+
+    expect(
+      screen.getByText("The cancellation conditions start date must not be in the past."),
+    ).toBeInTheDocument()
+    expect(writes).toEqual([])
+  })
+
+  it("rejects changing a saved day to another day in the past", async () => {
+    const writes = renderCancellation("2027-07-01")
+    const user = userEvent.setup()
+
+    const input = await screen.findByRole("textbox", { name: "Cancellation rules apply from" })
+    await user.clear(input)
+    await user.type(input, "01/01/2020")
+    await user.click(screen.getByRole("button", { name: "Save settings" }))
+
+    expect(
+      screen.getByText("The cancellation conditions start date must not be in the past."),
+    ).toBeInTheDocument()
+    expect(writes).toEqual([])
+  })
+
+  it("keeps an unchanged day that has already passed valid", async () => {
+    const writes = renderCancellation("2020-01-01")
+    const user = userEvent.setup()
+
+    // The saved state hides the buttons until the field is touched; retyping the same day re-saves it.
+    const input = await screen.findByRole("textbox", { name: "Cancellation rules apply from" })
+    await user.clear(input)
+    await user.type(input, "01/01/2020")
+    await user.click(screen.getByRole("button", { name: "Save settings" }))
+
+    await vi.waitFor(() => expect(writes).toEqual([{ cancellationStartsOn: "2020-01-01" }]))
+    expect(
+      screen.queryByText("The cancellation conditions start date must not be in the past."),
+    ).not.toBeInTheDocument()
+  })
+
   it("cancels an unsaved change and restores the saved date", async () => {
     const writes = renderCancellation("2027-07-01")
     const user = userEvent.setup()

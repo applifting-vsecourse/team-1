@@ -2091,3 +2091,23 @@ rozhodnuti:
     popis: 'společné části, patička'
     stav: hotovo
     commit: 667c8d3
+- id: D-107
+  nazev: 'Storno podmínky se nenastavují zpětně'
+  text: 'Datum, odkdy běží storno podmínky, nelze nastavit ani změnit na den v minulosti; nejbližší možné datum je dnešek (okamžitá platnost) a dále budoucnost. Platí při prvním nastavení i při změně již nastaveného data, v kalendářním dni v časové zóně Europe/Prague. Již uložené datum, které mezitím uplynulo, zůstává platné a jeho nezměněné uložení neselže. Uložené datum lze smazat (změny se pak opět provádějí ihned bez schvalování), i když už uplynulo.'
+  typ: produkt
+  oblast: platby
+  datum: '2026-11-11'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: 'Nález PM při testování US-113 a doplnění pravidla k #372'
+    url: https://github.com/applifting-vsecourse/team-1/issues/372
+  us:
+  - label: '#372'
+    url: https://github.com/applifting-vsecourse/team-1/issues/372
+  - label: US-113
+    url: https://github.com/applifting-vsecourse/team-1/issues/206
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+  poznamka: 'Navazuje na D-100 (schvalování od data začátku storna). Obsah storno podmínek a vratky (US-47) tím není dotčen.'

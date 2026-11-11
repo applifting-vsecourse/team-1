@@ -1,5 +1,9 @@
 import { EvaluationMode } from "@/modules/applications/domain/evaluation-mode"
-import { isValidCancellationStart } from "@/modules/events/domain/cancellation-start"
+import { todayInPrague } from "@/modules/applications/domain/waitlist-expiry"
+import {
+  isCancellationStartAllowed,
+  isValidCancellationStart,
+} from "@/modules/events/domain/cancellation-start"
 import { normalizeCancellationTerms } from "@/modules/events/domain/cancellation-terms"
 import { OrganizerEvent, toOrganizerEvent } from "@/modules/events/domain/organizer-event"
 import {
@@ -87,6 +91,11 @@ export class EventsService {
       throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
     }
     const { organizationId } = await this.organizationAccess.assertCanAccessEvent(user, eventId)
+    const today = todayInPrague(new Date()).toISOString().slice(0, 10)
+    const current = (await this.get(user, eventId)).cancellationStartsOn
+    if (!isCancellationStartAllowed(cancellationStartsOn, current, today)) {
+      throw new AppException(HttpStatus.BAD_REQUEST, "CANCELLATION_START_IN_PAST")
+    }
     await this.repository.setCancellationStart(eventId, organizationId, cancellationStartsOn)
     return this.get(user, eventId)
   }

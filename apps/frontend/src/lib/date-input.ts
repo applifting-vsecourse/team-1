@@ -62,6 +62,19 @@ export function formatDateInput(iso: string, language: Language): string {
     : `${String(day).padStart(2, "0")}/${String(month).padStart(2, "0")}/${match[1]}`
 }
 
+/** The application time zone: all calendar days (terms, cancellation start) are Prague days. */
+const APP_TIME_ZONE = "Europe/Prague"
+
+/** Today's calendar day in the application time zone, as an ISO day (never the browser's zone). */
+export function todayIsoInAppZone(now: Date = new Date()): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: APP_TIME_ZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(now)
+}
+
 /** ISO day → a `Date` at local midnight of that day (for the calendar). */
 export function isoToLocalDate(iso: string): Date | undefined {
   if (!isIsoDate(iso)) return undefined
