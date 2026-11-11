@@ -3,7 +3,7 @@
   "APPLICATION_NOT_EDITABLE": "Tuto přihlášku už nelze upravit: nemá žádný aktivní termín, nebo všechny její termíny už skončily.",
   "BED_ALREADY_TAKEN": "Lůžko mezitím obsadil jiný organizátor.",
   "CANCELLATION_APPROVAL_REQUIRED": "Změny nyní vyžadují schválení organizátora. Obraťte se na organizátora.",
-  "CANCELLATION_START_IN_PAST": "Datum začátku platnosti storno podmínek nesmí být v minulosti.",
+  "CANCELLATION_START_IN_PAST": "Datum začátku schvalování nesmí být v minulosti.",
   "CAPACITY_EXCEEDED": "Potvrzením by se překročila kapacita termínu. Potvrďte vědomě.",
   "CHANGE_REQUEST_NOT_PENDING": "O této žádosti už bylo rozhodnuto. Obnovte seznam.",
   "CHANGE_REQUEST_NOT_REQUIRED": "Tato změna se provede okamžitě. Obnovte přihlášku.",
