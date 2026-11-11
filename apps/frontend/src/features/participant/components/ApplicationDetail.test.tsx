@@ -334,7 +334,7 @@ describe("ApplicationDetail", () => {
       screen.getByText(/Paid CZK 4,500 · Debt after cancellation CZK 0 · Overpayment CZK 4,500/),
     ).toBeInTheDocument()
     expect(
-      screen.getByText("The bed will be released. The organiser handles any refund."),
+      screen.getByText("The bed will be released. The organizer handles any refund."),
     ).toBeInTheDocument()
     await user.click(screen.getByRole("button", { name: "Confirm cancellation" }))
     expect(put).toHaveBeenCalledWith("participant/applications/a1/terms", {

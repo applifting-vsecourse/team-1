@@ -42,7 +42,7 @@ test("participant submits a cancellation request and organizer declines it at 36
   await page.getByRole("button", { name: "Back to application" }).click()
   await expect(page.getByRole("heading", { name: "Cancellation request" })).toBeVisible()
   await expect(
-    page.getByText("Your request is awaiting the organiser's decision.", { exact: false }),
+    page.getByText("Your request is awaiting the organizer's decision.", { exact: false }),
   ).toBeVisible()
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(360)
   await signOut(page, PARTICIPANT)
