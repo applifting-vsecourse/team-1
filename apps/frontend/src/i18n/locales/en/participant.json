@@ -5,7 +5,7 @@
   },
   "change": {
     "allTerms": "Whole application · all terms ({{count}})",
-    "approvalDescription": "Approval is now on. Your original terms and assigned bed remain until the request is approved.",
+    "approvalDescription": "Approval by the organiser is now on. Your original terms and assigned bed remain until the request is approved.",
     "approvalRequired": "Changes now require the organiser's approval. Your application stays unchanged until a decision is made.",
     "approvalTitle": "The organiser must approve this change",
     "back": "Back",
@@ -28,7 +28,7 @@
     "confirmChange": "Confirm change",
     "description": "Select the terms you want to keep or add. Clearing all terms cancels the application.",
     "discard": "Cancel",
-    "immediateDescription": "Approval has not started yet.",
+    "immediateDescription": "Approval by the organiser has not started yet.",
     "immediateNote": "Changes take effect immediately.",
     "immediateTitle": "The change takes effect immediately",
     "impact": "Change impact",
