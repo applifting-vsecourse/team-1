@@ -1,6 +1,8 @@
 {
   "cancellationStart": {
     "afterDate": "Od tohoto data se změny termínů a odhlášky předávají organizátorovi ke schválení.",
+    "clearedDescription": "Změny termínů a odhlášky se nyní provádějí ihned, bez schvalování.",
+    "clearedTitle": "Datum je odstraněné.",
     "dateInPast": "Datum začátku platnosti storno podmínek nesmí být v minulosti.",
     "dateLabel": "Storno podmínky platí od",
     "enable": "Nastavit datum začátku storna",

@@ -105,6 +105,13 @@ export function CancellationStartForm({ event }: { event: OrganizerEvent }) {
             </AlertDescription>
           </Alert>
         ) : null}
+        {!isDirty && mutation.isSuccess && event.cancellationStartsOn === null ? (
+          <Alert className="bg-accent">
+            <TriangleAlert aria-hidden="true" />
+            <AlertTitle>{t("cancellationStart.clearedTitle")}</AlertTitle>
+            <AlertDescription>{t("cancellationStart.clearedDescription")}</AlertDescription>
+          </Alert>
+        ) : null}
         {mutation.isError ? (
           <ErrorState
             title={t("cancellationStart.saveFailed")}

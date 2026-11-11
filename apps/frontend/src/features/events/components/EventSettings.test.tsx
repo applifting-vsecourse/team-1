@@ -170,6 +170,7 @@ describe("EventSettings", () => {
     await user.click(screen.getByRole("button", { name: "Save settings" }))
 
     await vi.waitFor(() => expect(writes).toEqual([{ cancellationStartsOn: null }]))
+    expect(await screen.findByText("Date removed.")).toBeInTheDocument()
     expect(screen.getByText(/Without a date, term changes/)).toBeInTheDocument()
   })
 

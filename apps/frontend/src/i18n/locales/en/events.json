@@ -1,6 +1,8 @@
 {
   "cancellationStart": {
     "afterDate": "From this date, term changes and cancellations are sent to the organizer for approval.",
+    "clearedDescription": "Term changes and cancellations now take effect immediately, without approval.",
+    "clearedTitle": "Date removed.",
     "dateInPast": "The cancellation conditions start date must not be in the past.",
     "dateLabel": "Cancellation rules apply from",
     "enable": "Set a cancellation start date",
