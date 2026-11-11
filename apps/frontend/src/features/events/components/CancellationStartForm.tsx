@@ -15,7 +15,7 @@ import { notify } from "@/lib/notify"
 
 import { eventKeys, setCancellationStart, type OrganizerEvent } from "@/features/events/api/events"
 
-// Figma: US-113 / Nastavení akce · Storno · Bez data / Nastavit datum / Datum uložené
+// Figma: US-113 / Nastavení akce · Schvalování (ve Figmě pod názvem Storno)
 // https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15903-7883
 export function CancellationStartForm({ event }: { event: OrganizerEvent }) {
   const { t } = useTranslation("events")

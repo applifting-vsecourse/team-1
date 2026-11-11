@@ -5,7 +5,7 @@
   },
   "change": {
     "allTerms": "Celá přihláška · všechny termíny ({{count}})",
-    "approvalDescription": "Začalo období storna. Do schválení žádosti platí původní termíny i přidělené lůžko.",
+    "approvalDescription": "Schvalování už je zapnuté. Do schválení žádosti platí původní termíny i přidělené lůžko.",
     "approvalRequired": "Změny nyní vyžadují schválení organizátora. Přihláška zůstává beze změny až do rozhodnutí.",
     "approvalTitle": "Změnu musí schválit organizátor",
     "back": "Zpět",
@@ -28,7 +28,7 @@
     "confirmChange": "Potvrdit změnu",
     "description": "Vyberte termíny, které chcete ponechat nebo přidat. Odškrtnutím všech termínů zrušíte přihlášku.",
     "discard": "Zrušit",
-    "immediateDescription": "Datum začátku storna ještě nenastalo.",
+    "immediateDescription": "Schvalování ještě nezačalo.",
     "immediateNote": "Změny se provedou okamžitě.",
     "immediateTitle": "Změna se provede ihned",
     "impact": "Dopad změny",

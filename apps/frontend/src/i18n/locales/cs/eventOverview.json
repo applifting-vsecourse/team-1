@@ -61,7 +61,7 @@
     },
     "loadFailed": "Nepodařilo se načíst, co vyžaduje pozornost",
     "requests": {
-      "body": "Změny a odhlášení po začátku storna",
+      "body": "Požadavky účastníků od začátku schvalování",
       "title": "Žádosti ke schválení · {{count}}"
     },
     "substitutes": {

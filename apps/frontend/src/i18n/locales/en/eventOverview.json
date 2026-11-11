@@ -61,7 +61,7 @@
     },
     "loadFailed": "Could not load what needs your attention",
     "requests": {
-      "body": "Changes and cancellations after the cancellation period begins",
+      "body": "Participant requests since approval began",
       "title": "Requests awaiting approval · {{count}}"
     },
     "substitutes": {

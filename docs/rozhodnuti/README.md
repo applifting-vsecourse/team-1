@@ -91,7 +91,7 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
-| [D-107](#d-107) | Storno podmínky se nenastavují zpětně | 2026-11-11 | `pm` | produkt |
+| [D-107](#d-107) | Schvalování požadavků účastníků nelze zapnout zpětně | 2026-11-11 | `pm` | produkt |
 | [D-102](#d-102) | Výzva po splatnosti: jednou, automaticky nebo ručně podle organizátora | 2026-11-03 | `pm` | produkt |
 | [D-100](#d-100) | Oprava platby vrací zaplacenou přihlášku k dluhu | 2026-11-03 | `pm` | produkt |
 | [D-097](#d-097) | VS termínů na stránce po odeslání se nedoplňuje | 2026-11-02 | `pm` | produkt |
@@ -1336,11 +1336,11 @@ _Nic._
 
 <a id="d-107"></a>
 
-### D-107 – Storno podmínky se nenastavují zpětně
+### D-107 – Schvalování požadavků účastníků nelze zapnout zpětně
 
 - **Stav:** platné · **Typ:** produkt · **Oblast:** platby
 - **Datum:** 2026-11-11 · **Rozhodl:** `pm`
-- **Text:** Datum, odkdy běží storno podmínky, nelze nastavit ani změnit na den v minulosti; nejbližší možné datum je dnešek (okamžitá platnost) a dále budoucnost. Platí při prvním nastavení i při změně již nastaveného data, v kalendářním dni v časové zóně Europe/Prague. Již uložené datum, které mezitím uplynulo, zůstává platné a jeho nezměněné uložení neselže. Uložené datum lze smazat (změny se pak opět provádějí ihned bez schvalování), i když už uplynulo.
+- **Text:** Datum, od kterého se požadavky účastníků (odhlášky, změny termínů) předávají organizátorovi ke schválení, nelze nastavit ani změnit na den v minulosti; nejbližší možné datum je dnešek (schvalování pak platí ihned) a dále budoucnost. Platí při prvním zapnutí schvalování i při změně již nastaveného data, v kalendářním dni v časové zóně Europe/Prague. Již uložené datum, které mezitím uplynulo, zůstává platné a jeho nezměněné uložení neselže. Schvalování lze vypnout smazáním data (požadavky se pak opět provádějí ihned), i když už začalo.
 - **Dotčené US:** [#372](https://github.com/applifting-vsecourse/team-1/issues/372), [US-113](https://github.com/applifting-vsecourse/team-1/issues/206)
 - **Zdroj:** [Nález PM při testování US-113 a doplnění pravidla k #372](https://github.com/applifting-vsecourse/team-1/issues/372)
-- **Poznámka:** Navazuje na D-100 (schvalování od data začátku storna). Obsah storno podmínek a vratky (US-47) tím není dotčen.
+- **Poznámka:** Navazuje na D-100 (schvalování od data, dříve „začátek storno podmínek“). Tento pojem se v textech aplikace už nepoužívá; „storno podmínky“ zůstávají jen jako text podmínek pro přihlašovatele (US-47), který se tím nemění.
