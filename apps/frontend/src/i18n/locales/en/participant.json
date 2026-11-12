@@ -144,14 +144,11 @@
   "payment": {
     "account": "Bank account",
     "amount": "Amount",
-    "closeQr": "Close payment details",
     "copyAmount": "Copy amount",
     "overpaymentNotTransferred": "An overpayment is not carried over between terms.",
     "overpaymentRefund": "Arrange the refund of the overpayment with the organizer.",
     "qrAlt": "QR code for the combined payment",
     "saveQr": "Download QR code",
-    "showSummaryQrMany": "One payment for all confirmed terms · show QR",
-    "showSummaryQrTwo": "One payment for both terms · show QR",
     "simulation": {
       "logDescription": "Test payments created with the “I paid” button. These are not actual bank transfers.",
       "logLine": "+{{amount}} · {{term}} · source: simulation",
@@ -160,7 +157,6 @@
     },
     "summaryBreakdown": "Breakdown",
     "summaryQrExplanation": "Covers all confirmed terms. The summary variable symbol differs from the per-term ones.",
-    "summaryQrTitle": "Pay for confirmed terms",
     "summaryVariableSymbol": "Summary variable symbol",
     "totalOwed": "Left to pay in total"
   },

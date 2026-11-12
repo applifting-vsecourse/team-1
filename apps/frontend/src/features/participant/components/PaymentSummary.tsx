@@ -1,18 +1,14 @@
-import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { MoneyAmount } from "@/components/atoms/MoneyAmount"
 import { TermPaymentCard, TermPaymentCards } from "@/components/molecules/TermPaymentCard"
-import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { formatCzk } from "@/lib/money"
 import { termDatesLine } from "@/lib/term-label"
 
 import type { MyApplication } from "@/features/participant/api/applications"
 import { SimulatePaymentButton } from "@/features/participant/components/SimulatePaymentButton"
-import { SummaryPaymentDialog } from "@/features/participant/components/SummaryPaymentDialog"
+import { SummaryPaymentDetails } from "@/features/participant/components/SummaryPaymentDetails"
 import { TermPaymentQr } from "@/features/participant/components/TermPaymentQr"
-import { summaryPaymentSpayd } from "@/features/participant/lib/payment-qr"
 
 type PaymentSummaryProps = {
   application: MyApplication
@@ -31,7 +27,6 @@ type PaymentSummaryProps = {
 // Figma (Design system): Detail přihlášky · Platby · Náhradník ve všech termínech · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19448-8453 (360 px: node-id=19448-8677)
 export function PaymentSummary({ application }: PaymentSummaryProps) {
   const { t } = useTranslation("participant")
-  const [isSummaryOpen, setIsSummaryOpen] = useState(false)
   const { paymentDetails } = application
 
   const confirmed = (paymentDetails?.terms ?? [])
@@ -45,50 +40,12 @@ export function PaymentSummary({ application }: PaymentSummaryProps) {
     )
   const otherTerms = application.terms.filter((term) => term.status !== "CONFIRMED")
 
-  // The total and the hint only matter when more than one term is to be paid.
-  const payableCzk = paymentDetails?.summary.payableCzk ?? 0
-  const hasOverpayment = confirmed.some(({ payment }) => payment.owedCzk < 0)
-  const canShowSummaryQr =
-    paymentDetails !== null &&
-    confirmed.length > 1 &&
-    summaryPaymentSpayd(
-      paymentDetails.bankAccount,
-      payableCzk,
-      paymentDetails.summary.variableSymbol,
-      application.eventName,
-    ) !== null
-
   const simulatedPayments = application.simulatedPayments
 
   return (
     <div className="flex flex-col gap-6">
-      {confirmed.length > 1 && payableCzk > 0 ? (
-        <Card className="gap-2 p-6">
-          <h2 className="text-lg font-semibold">{t("payment.totalOwed")}</h2>
-          <MoneyAmount
-            amountCzk={payableCzk}
-            className="text-2xl font-semibold"
-          />
-          <p className="text-sm">
-            {t("payment.account")} · {paymentDetails?.bankAccount}
-          </p>
-          <p className="text-sm">
-            {t("payment.summaryVariableSymbol")} · {paymentDetails?.summary.variableSymbol}
-          </p>
-          {hasOverpayment ? (
-            <p className="text-sm">{t("payment.overpaymentNotTransferred")}</p>
-          ) : null}
-          {canShowSummaryQr ? (
-            <Button
-              type="button"
-              size="lg"
-              className="mt-4 w-full sm:w-auto sm:self-start"
-              onClick={() => setIsSummaryOpen(true)}
-            >
-              {t(confirmed.length === 2 ? "payment.showSummaryQrTwo" : "payment.showSummaryQrMany")}
-            </Button>
-          ) : null}
-        </Card>
+      {paymentDetails && paymentDetails.summary.payableCzk > 0 ? (
+        <SummaryPaymentDetails application={application} />
       ) : null}
       <TermPaymentCards isSingleColumn>
         {confirmed.map(({ payment, term }, index) => (
@@ -159,12 +116,6 @@ export function PaymentSummary({ application }: PaymentSummaryProps) {
             })}
           </ul>
         </Card>
-      ) : null}
-      {isSummaryOpen && canShowSummaryQr ? (
-        <SummaryPaymentDialog
-          application={application}
-          onClose={() => setIsSummaryOpen(false)}
-        />
       ) : null}
     </div>
   )
