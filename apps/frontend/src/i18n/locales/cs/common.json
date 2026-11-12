@@ -102,17 +102,25 @@
     "deadline": "Splatnost",
     "due": "Částka k úhradě",
     "listTitle": "Platby po termínech",
+    "note": {
+      "CANCELLED": "V tomto termínu se akce neúčastníte.",
+      "TO_EVALUATE": "Přihlášku posoudí organizátor. Zatím nic neplaťte.",
+      "WAITLISTED": "O případném potvrzení vám dáme vědět. Zatím nic neplaťte."
+    },
     "overpaid": "Přeplatek",
     "owed": "Zbývá zaplatit",
     "paid": "Zaplaceno",
     "paymentDetails": "Platební údaje",
     "qrAlt": "QR kód pro platbu termínu",
     "status": {
+      "CANCELLED": "Zrušená",
       "NOTHING_DUE": "Nic k platbě",
       "OVERPAID": "Přeplaceno",
       "PAID": "Zaplaceno",
       "PARTIALLY_PAID": "Částečně zaplaceno",
-      "UNPAID": "Nezaplaceno"
+      "TO_EVALUATE": "K vyhodnocení",
+      "UNPAID": "Nezaplaceno",
+      "WAITLISTED": "Náhradník"
     },
     "variableSymbol": "Variabilní symbol",
     "waitlisted": "Náhradník",

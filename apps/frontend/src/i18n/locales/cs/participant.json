@@ -77,7 +77,6 @@
       "terms": "Termíny a platby",
       "transport": "Doprava"
     },
-    "termsTitle": "Stav podle termínů",
     "title": "Moje přihláška",
     "toEvaluate": {
       "alertText": "Platební údaje dostanete po potvrzení účasti.",
@@ -149,7 +148,6 @@
     "copyAmount": "Kopírovat částku",
     "overpaymentNotTransferred": "Přeplatek se mezi termíny nepřevádí.",
     "overpaymentRefund": "Na vrácení přeplatku se domluvte s organizátorem.",
-    "payEachTerm": "Každý termín platíte zvlášť. Použijte jeho variabilní symbol, jinak platbu nepřiřadíme.",
     "qrAlt": "QR kód pro souhrnnou platbu",
     "saveQr": "Stáhnout QR kód",
     "showSummaryQrMany": "Jedna platba za všechny potvrzené termíny · zobrazit QR",

@@ -77,7 +77,6 @@
       "terms": "Terms and payments",
       "transport": "Transport"
     },
-    "termsTitle": "Status by term",
     "title": "My application",
     "toEvaluate": {
       "alertText": "You will get the payment details once your participation is confirmed.",
@@ -149,7 +148,6 @@
     "copyAmount": "Copy amount",
     "overpaymentNotTransferred": "An overpayment is not carried over between terms.",
     "overpaymentRefund": "Arrange the refund of the overpayment with the organizer.",
-    "payEachTerm": "You pay each term separately. Use its variable symbol, otherwise we cannot match the payment.",
     "qrAlt": "QR code for the combined payment",
     "saveQr": "Download QR code",
     "showSummaryQrMany": "One payment for all confirmed terms · show QR",

@@ -105,8 +105,11 @@ describe("TermPaymentCard", () => {
       />,
     )
 
-    expect(screen.getByText("12–18 Jul 2027 · Waitlisted")).toBeInTheDocument()
-    expect(screen.getByText("You don't pay anything yet.")).toBeInTheDocument()
+    expect(screen.getByRole("heading", { name: "12–18 Jul 2027" })).toBeInTheDocument()
+    expect(screen.getByText("Waitlisted", { exact: true })).toBeInTheDocument()
+    expect(
+      screen.getByText("We will let you know if your place is confirmed. Don't pay yet."),
+    ).toBeInTheDocument()
     expect(screen.queryByText("Variable symbol")).not.toBeInTheDocument()
     expect(screen.queryByText("Amount due")).not.toBeInTheDocument()
   })

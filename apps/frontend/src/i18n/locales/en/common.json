@@ -102,17 +102,25 @@
     "deadline": "Due date",
     "due": "Amount due",
     "listTitle": "Payments by term",
+    "note": {
+      "CANCELLED": "You are not attending this term.",
+      "TO_EVALUATE": "The organizer will assess your application. Don't pay yet.",
+      "WAITLISTED": "We will let you know if your place is confirmed. Don't pay yet."
+    },
     "overpaid": "Overpayment",
     "owed": "Left to pay",
     "paid": "Paid",
     "paymentDetails": "Payment details",
     "qrAlt": "QR code for the term payment",
     "status": {
+      "CANCELLED": "Cancelled",
       "NOTHING_DUE": "Nothing to pay",
       "OVERPAID": "Overpaid",
       "PAID": "Paid",
       "PARTIALLY_PAID": "Partly paid",
-      "UNPAID": "Unpaid"
+      "TO_EVALUATE": "Awaiting evaluation",
+      "UNPAID": "Unpaid",
+      "WAITLISTED": "Waitlisted"
     },
     "variableSymbol": "Variable symbol",
     "waitlisted": "Waitlisted",

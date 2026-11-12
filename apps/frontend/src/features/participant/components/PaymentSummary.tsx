@@ -18,12 +18,7 @@ type PaymentSummaryProps = {
   application: MyApplication
 }
 
-/**
- * What is due, paid and left for each term, with the account and the variable symbol of the term
- * (US-110). Terms that need a payment come first, paid ones (collapsed) after them and waitlisted
- * ones, which only say nothing is paid yet, last. Terms still to be evaluated or cancelled are
- * not shown here, and nothing is when no term is confirmed or waitlisted.
- */
+/** Application-wide payment details followed by one card for every selected term. */
 // Figma (Design system): US-115 / Detail přihlášky · Platby · simulace · Návrh A · simulace termínu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15954-1005 (360 px: node-id=15954-1133)
 // Figma (Design system): US-115 / Detail přihlášky · Platby · simulace · Výsledek návrhu A · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15954-1446 (360 px: node-id=15954-1551)
 // Figma (Design system): #311 Moje přihláška · Přeplatek a dluh · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19799-15947 (360 px: node-id=19799-16073)
@@ -48,11 +43,9 @@ export function PaymentSummary({ application }: PaymentSummaryProps) {
       (a, b) =>
         Number(a.payment.paymentStatus === "PAID") - Number(b.payment.paymentStatus === "PAID"),
     )
-  const waitlisted = application.terms.filter((term) => term.status === "WAITLISTED")
-  if (confirmed.length === 0 && waitlisted.length === 0) return null
+  const otherTerms = application.terms.filter((term) => term.status !== "CONFIRMED")
 
   // The total and the hint only matter when more than one term is to be paid.
-  const termsWithDebt = confirmed.filter(({ payment }) => payment.owedCzk > 0).length
   const payableCzk = paymentDetails?.summary.payableCzk ?? 0
   const hasOverpayment = confirmed.some(({ payment }) => payment.owedCzk < 0)
   const canShowSummaryQr =
@@ -97,9 +90,8 @@ export function PaymentSummary({ application }: PaymentSummaryProps) {
           ) : null}
         </Card>
       ) : null}
-      {termsWithDebt > 1 && !canShowSummaryQr ? <p>{t("payment.payEachTerm")}</p> : null}
-      <TermPaymentCards>
-        {confirmed.map(({ payment, term }) => (
+      <TermPaymentCards isSingleColumn>
+        {confirmed.map(({ payment, term }, index) => (
           <div
             key={payment.termId}
             className="flex flex-col gap-4"
@@ -113,6 +105,7 @@ export function PaymentSummary({ application }: PaymentSummaryProps) {
               bankAccount={paymentDetails?.bankAccount ?? ""}
               variableSymbol={payment.variableSymbol}
               paymentDeadline={payment.paymentDeadline}
+              isInitiallyOpen={index === 0 && payment.owedCzk !== 0}
               note={
                 payment.owedCzk < 0 ? (
                   <p className="text-sm">{t("payment.overpaymentRefund")}</p>
@@ -135,11 +128,11 @@ export function PaymentSummary({ application }: PaymentSummaryProps) {
             ) : null}
           </div>
         ))}
-        {waitlisted.map((term) => (
+        {otherTerms.map((term) => (
           <TermPaymentCard
             key={term.termId}
             title={termDatesLine(term)}
-            status="WAITLISTED"
+            status={term.status === "CONFIRMED" ? "NOTHING_DUE" : term.status}
             dueCzk={0}
             paidCzk={0}
             owedCzk={0}

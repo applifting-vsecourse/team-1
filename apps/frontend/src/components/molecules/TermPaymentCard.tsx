@@ -12,9 +12,17 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
 import { formatDate } from "@/lib/date"
+import { cn } from "@/lib/utils"
 
 export type TermPaymentStatus =
-  "NOTHING_DUE" | "UNPAID" | "PARTIALLY_PAID" | "PAID" | "OVERPAID" | "WAITLISTED"
+  | "NOTHING_DUE"
+  | "UNPAID"
+  | "PARTIALLY_PAID"
+  | "PAID"
+  | "OVERPAID"
+  | "WAITLISTED"
+  | "TO_EVALUATE"
+  | "CANCELLED"
 
 type TermPaymentCardProps = {
   /** The term: its dates, with the name when it has one. */
@@ -32,6 +40,8 @@ type TermPaymentCardProps = {
   qr?: ReactNode
   /** A line under the payment details, e.g. what to do with an overpayment. */
   note?: ReactNode
+  /** Whether the participant initially sees this term's payment details. */
+  isInitiallyOpen?: boolean
   /** What the viewer can do with the term, e.g. the organizer's "record a payment". */
   action?: ReactNode
 }
@@ -49,6 +59,7 @@ const badgeVariant = {
  * variable symbol of the term (US-110). A paid term is a collapsed card (date and badge) that opens
  * to the detail; a waitlisted one only says nothing is paid yet.
  */
+// Figma (Design system): #311 Moje přihláška · Čekající termíny · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19799-15589 (360 px: node-id=19799-15705)
 // Figma (Design system): #311 Moje přihláška · Adam Dvořák · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19799-15345 (360 px: node-id=19799-15493)
 // Figma (Design system): #311 Moje přihláška · Zaplaceno a termín zdarma · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19799-15771 (360 px: node-id=19799-15884)
 // Figma (Design system): #311 Moje přihláška · Přeplatek a dluh · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19799-15947 (360 px: node-id=19799-16073)
@@ -66,19 +77,19 @@ export function TermPaymentCard({
   bankAccount,
   variableSymbol,
   paymentDeadline,
+  isInitiallyOpen = false,
   qr,
   note,
   action,
 }: TermPaymentCardProps) {
   const { t } = useTranslation("common")
 
-  if (status === "WAITLISTED") {
+  if (status === "WAITLISTED" || status === "TO_EVALUATE" || status === "CANCELLED") {
     return (
       <Card className="gap-2 p-6">
-        <h3 className="text-lg font-semibold">
-          {title} · {t("termPayment.waitlisted")}
-        </h3>
-        <p className="text-sm text-muted-foreground">{t("termPayment.waitlistedNote")}</p>
+        <h3 className="text-lg font-semibold">{title}</h3>
+        <p className="text-sm">{t(`termPayment.status.${status}`)}</p>
+        <p className="text-sm">{t(`termPayment.note.${status}`)}</p>
       </Card>
     )
   }
@@ -168,6 +179,7 @@ export function TermPaymentCard({
       <Card className="gap-0 p-0">
         <Accordion
           type="single"
+          defaultValue={isInitiallyOpen ? "detail" : undefined}
           collapsible
         >
           <AccordionItem
@@ -197,13 +209,21 @@ export function TermPaymentCard({
 }
 
 /** The cards of one application, side by side on a desktop and one under another on a phone. */
-export function TermPaymentCards({ children }: { children: ReactNode }) {
+export function TermPaymentCards({
+  children,
+  isSingleColumn = false,
+}: {
+  children: ReactNode
+  isSingleColumn?: boolean
+}) {
   const { t } = useTranslation("common")
 
   return (
     <section className="flex flex-col gap-4">
       <h2 className="sr-only">{t("termPayment.listTitle")}</h2>
-      <div className="grid items-start gap-6 md:grid-cols-2">{children}</div>
+      <div className={cn("grid items-start gap-6", !isSingleColumn && "md:grid-cols-2")}>
+        {children}
+      </div>
     </section>
   )
 }
