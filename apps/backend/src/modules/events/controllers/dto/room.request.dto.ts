@@ -37,6 +37,15 @@ export class RoomRequestDto {
   gender?: Gender | null
 }
 
+export class RoomExtraBedsRequestDto {
+  // Any number of extra beds, each one more bed; no upper limit besides the Int column.
+  @ApiProperty({ minimum: 0, maximum: 2147483647 })
+  @IsInt()
+  @Min(0)
+  @Max(2147483647)
+  extraBeds!: number
+}
+
 export class RoomGenderDto {
   @ApiProperty()
   @IsString()

@@ -61,18 +61,18 @@ export function DeleteRoomDialog({
                 : room.gender === "FEMALE"
                   ? "rooms.deleteFemaleImpact"
                   : "rooms.deleteMaleImpact",
-              { before, after: before - room.capacity },
+              { before, after: before - room.beds },
             )}
           </AlertTitle>
           <AlertDescription>
-            {t("rooms.deleteImpactHint", { name: room.name, count: room.capacity })}
+            {t("rooms.deleteImpactHint", { name: room.name, count: room.beds })}
           </AlertDescription>
         </Alert>
         <DialogDescription className="text-base text-foreground">
           {room.name}
           {room.gender
             ? ` · ${t(room.gender === "FEMALE" ? "rooms.female" : "rooms.male")}`
-            : ""} · {t("rooms.beds", { count: room.capacity })}
+            : ""} · {t("rooms.beds", { count: room.beds })}
         </DialogDescription>
         <p className="text-sm text-muted-foreground">{t("rooms.deleteHint")}</p>
         {mutation.isError ? (

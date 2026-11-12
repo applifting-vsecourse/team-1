@@ -17,6 +17,8 @@ export const capacitySchema = z.object({
           name: z.string(),
           gender: z.enum(["FEMALE", "MALE"]).nullable(),
           capacity: z.number().int().min(1),
+          extraBeds: z.number().int().min(0),
+          beds: z.number().int().min(1),
         }),
       ),
       name: z.string().nullable(),

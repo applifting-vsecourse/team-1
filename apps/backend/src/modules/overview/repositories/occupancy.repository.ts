@@ -18,7 +18,7 @@ export class OccupancyRepository {
           where: { cancelledAt: null },
           orderBy: [{ startsOn: "asc" }, { endsOn: "asc" }, { id: "asc" }],
           include: {
-            rooms: { select: { capacity: true, gender: true } },
+            rooms: { select: { capacity: true, extraBeds: true, gender: true } },
             applicationTerms: {
               select: { status: true, application: { select: { gender: true } } },
             },

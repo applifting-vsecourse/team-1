@@ -32,7 +32,7 @@ export class CapacityRepository {
                 roomMode: true,
                 rooms: {
                   orderBy: { id: "asc" },
-                  select: { id: true, name: true, capacity: true, gender: true },
+                  select: { id: true, name: true, capacity: true, extraBeds: true, gender: true },
                 },
                 applicationTerms: {
                   where: { status: "CONFIRMED", organizationId },

@@ -491,7 +491,10 @@ export async function createEvent(prisma: PrismaService, params: CreateEventPara
       selected.map((term) => ({
         termId: term.id,
         priceCzk: term.priceCzk,
-        freePlaces: computeAvailablePlaces(params.rooms, confirmed.get(term.id)!),
+        freePlaces: computeAvailablePlaces(
+          params.rooms.map((room) => ({ ...room, extraBeds: 0 })),
+          confirmed.get(term.id)!,
+        ),
       })),
       params.evaluationMode ?? "AUTOMATIC",
     )

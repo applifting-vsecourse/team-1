@@ -1,7 +1,7 @@
 import { CapacitySnapshot, computeEventCapacity } from "./event-capacity"
 
 const rooms = (count: number, gender: "FEMALE" | "MALE" | null, capacity = 5) =>
-  Array.from({ length: count }, () => ({ gender, capacity }))
+  Array.from({ length: count }, () => ({ gender, capacity, extraBeds: 0 }))
 
 describe("computeEventCapacity", () => {
   const snapshot: CapacitySnapshot = {
@@ -10,8 +10,8 @@ describe("computeEventCapacity", () => {
         id: "first",
         roomMode: "GENDERED",
         rooms: [
-          { gender: "FEMALE", capacity: 2 },
-          { gender: "MALE", capacity: 3 },
+          { gender: "FEMALE", capacity: 2, extraBeds: 0 },
+          { gender: "MALE", capacity: 3, extraBeds: 0 },
         ],
         confirmed: [{ gender: "FEMALE" }, { gender: "FEMALE" }, { gender: "MALE" }],
       },
@@ -19,8 +19,8 @@ describe("computeEventCapacity", () => {
         id: "second",
         roomMode: "GENDERED",
         rooms: [
-          { gender: "FEMALE", capacity: 2 },
-          { gender: "MALE", capacity: 3 },
+          { gender: "FEMALE", capacity: 2, extraBeds: 0 },
+          { gender: "MALE", capacity: 3, extraBeds: 0 },
         ],
         confirmed: [],
       },
@@ -62,7 +62,7 @@ describe("computeEventCapacity", () => {
   it("does not let a change of rooms in one term touch another term", () => {
     const changed: CapacitySnapshot = {
       terms: [
-        { ...snapshot.terms[0], rooms: [{ gender: "MALE", capacity: 5 }] },
+        { ...snapshot.terms[0], rooms: [{ gender: "MALE", capacity: 5, extraBeds: 0 }] },
         snapshot.terms[1],
       ],
     }

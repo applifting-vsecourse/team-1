@@ -23,8 +23,8 @@ describe("BulkConfirmationService", () => {
   // One man's and one woman's bed free.
   const state: BulkTermState = {
     rooms: [
-      { capacity: 2, gender: "MALE" },
-      { capacity: 2, gender: "FEMALE" },
+      { capacity: 2, extraBeds: 0, gender: "MALE" },
+      { capacity: 2, extraBeds: 0, gender: "FEMALE" },
     ],
     confirmedGenders: ["MALE", "FEMALE"],
     // Deliberately out of order of receipt.

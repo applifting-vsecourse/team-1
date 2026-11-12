@@ -9,8 +9,8 @@ describe("manual application evaluation", () => {
   it("flags a full gendered term but keeps the chosen statuses and prices", () => {
     const result = evaluateManualSubmission(choices, "FEMALE", {
       roomsByTerm: {
-        women: [{ capacity: 1, gender: "FEMALE" }],
-        shared: [{ capacity: 1, gender: null }],
+        women: [{ capacity: 1, extraBeds: 0, gender: "FEMALE" }],
+        shared: [{ capacity: 1, extraBeds: 0, gender: null }],
       },
       confirmedGenders: { women: ["FEMALE"], shared: ["MALE"] },
     })
@@ -23,7 +23,7 @@ describe("manual application evaluation", () => {
       [{ termId: "shared", priceCzk: 5600, status: "CONFIRMED" }],
       "FEMALE",
       {
-        roomsByTerm: { shared: [{ capacity: 1, gender: null }] },
+        roomsByTerm: { shared: [{ capacity: 1, extraBeds: 0, gender: null }] },
         confirmedGenders: { shared: ["MALE"] },
       },
     )

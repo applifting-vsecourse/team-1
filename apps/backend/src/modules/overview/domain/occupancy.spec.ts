@@ -11,9 +11,9 @@ describe("computeEventOccupancy", () => {
           ...term,
           roomMode: "GENDERED",
           rooms: [
-            { capacity: 5, gender: "FEMALE" },
-            { capacity: 5, gender: "FEMALE" },
-            { capacity: 4, gender: "MALE" },
+            { capacity: 5, extraBeds: 0, gender: "FEMALE" },
+            { capacity: 5, extraBeds: 0, gender: "FEMALE" },
+            { capacity: 4, extraBeds: 0, gender: "MALE" },
           ],
           confirmed: ["FEMALE", "FEMALE", "MALE", "MALE", "MALE", "MALE"],
           waitlisted: ["MALE", "MALE", "FEMALE"],
@@ -33,8 +33,8 @@ describe("computeEventOccupancy", () => {
     const pool = {
       roomMode: "SHARED" as const,
       rooms: [
-        { capacity: 6, gender: null },
-        { capacity: 4, gender: null },
+        { capacity: 6, extraBeds: 0, gender: null },
+        { capacity: 4, extraBeds: 0, gender: null },
       ],
     }
     const { terms } = computeEventOccupancy({
@@ -61,7 +61,7 @@ describe("computeEventOccupancy", () => {
         {
           ...term,
           roomMode: "SHARED",
-          rooms: [{ capacity: 1, gender: null }],
+          rooms: [{ capacity: 1, extraBeds: 0, gender: null }],
           confirmed: ["FEMALE", "MALE"],
           waitlisted: [],
         },
@@ -77,7 +77,7 @@ describe("computeEventOccupancy", () => {
         {
           ...term,
           roomMode: "GENDERED",
-          rooms: [{ capacity: 5, gender: "FEMALE" }],
+          rooms: [{ capacity: 5, extraBeds: 0, gender: "FEMALE" }],
           confirmed: [],
           waitlisted: [],
         },
@@ -85,7 +85,7 @@ describe("computeEventOccupancy", () => {
           ...term,
           id: "t2",
           roomMode: "SHARED",
-          rooms: [{ capacity: 8, gender: null }],
+          rooms: [{ capacity: 8, extraBeds: 0, gender: null }],
           confirmed: ["MALE"],
           waitlisted: [],
         },
