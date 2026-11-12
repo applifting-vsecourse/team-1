@@ -27,6 +27,8 @@ export type TermPaymentStatus =
 type TermPaymentCardProps = {
   /** The term: its dates, with the name when it has one. */
   title: string
+  /** Show a non-payment status on its own line, as in the participant view. */
+  isStatusSeparate?: boolean
   status: TermPaymentStatus
   dueCzk: number
   paidCzk: number
@@ -70,6 +72,7 @@ const badgeVariant = {
 // Figma (Design system): Detail přihlášky · Platby · Náhradník v jednom termínu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19448-8297 (360 px: node-id=19448-8571)
 export function TermPaymentCard({
   title,
+  isStatusSeparate = false,
   status,
   dueCzk,
   paidCzk,
@@ -87,9 +90,16 @@ export function TermPaymentCard({
   if (status === "WAITLISTED" || status === "TO_EVALUATE" || status === "CANCELLED") {
     return (
       <Card className="gap-2 p-6">
-        <h3 className="text-lg font-semibold">{title}</h3>
-        <p className="text-sm">{t(`termPayment.status.${status}`)}</p>
-        <p className="text-sm">{t(`termPayment.note.${status}`)}</p>
+        <h3 className="text-lg font-semibold">
+          {title}
+          {isStatusSeparate ? null : <> · {t(`termPayment.status.${status}`)}</>}
+        </h3>
+        {isStatusSeparate ? <p className="text-sm">{t(`termPayment.status.${status}`)}</p> : null}
+        <p className={isStatusSeparate ? "text-sm" : "text-sm text-muted-foreground"}>
+          {status === "WAITLISTED" && !isStatusSeparate
+            ? t("termPayment.waitlistedNote")
+            : t(`termPayment.note.${status}`)}
+        </p>
       </Card>
     )
   }

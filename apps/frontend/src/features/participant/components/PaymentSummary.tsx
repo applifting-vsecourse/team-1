@@ -89,6 +89,7 @@ export function PaymentSummary({ application }: PaymentSummaryProps) {
           <TermPaymentCard
             key={term.termId}
             title={termDatesLine(term)}
+            isStatusSeparate
             status={term.status === "CONFIRMED" ? "NOTHING_DUE" : term.status}
             dueCzk={0}
             paidCzk={0}
