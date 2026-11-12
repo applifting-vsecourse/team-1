@@ -171,6 +171,24 @@ describe("designed status states", () => {
     expect(screen.queryByRole("button", { name: "Change status" })).not.toBeInTheDocument()
     expect(screen.getByRole("button", { name: "Withdraw" })).toBeVisible()
   })
+  it.each([
+    { name: "free term", priceCzk: 0, owedCzk: 0 },
+    { name: "retained payment covering the price", priceCzk: 6900, owedCzk: -6900 },
+  ])("labels confirmation as paid for $name", async ({ priceCzk, owedCzk }) => {
+    get.mockReturnValue({
+      json: () => Promise.resolve([term({ priceCzk, owedCzk, confirmationDueCzk: 0 })]),
+    })
+    patch.mockResolvedValue(undefined)
+    setup()
+    const user = userEvent.setup()
+    await user.click(await screen.findByRole("button", { name: "Change status" }))
+    expect(screen.getByRole("combobox")).toHaveTextContent("Confirmed and paid")
+    await user.click(screen.getByRole("button", { name: "Save status" }))
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument())
+    expect(patch).toHaveBeenCalledWith("organizer/applications/a1/terms/t1/status", {
+      json: { status: "CONFIRMED" },
+    })
+  })
   it("cancels a waitlisted term through the status endpoint", async () => {
     get.mockReturnValue({ json: () => Promise.resolve([term({ allowedStatuses: ["CANCELLED"] })]) })
     patch.mockResolvedValue(undefined)

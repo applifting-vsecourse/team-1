@@ -134,7 +134,9 @@ export function TermStatusChange({
                 >
                   {t(
                     status === "CONFIRMED"
-                      ? "termStatus.confirmedWithDebt"
+                      ? term.confirmationDueCzk > 0
+                        ? "termStatus.confirmedWithDebt"
+                        : "termStatus.confirmedPaid"
                       : `termStatus.state.${status}`,
                   )}
                 </SelectItem>
