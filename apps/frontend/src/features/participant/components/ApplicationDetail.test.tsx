@@ -242,6 +242,7 @@ describe("ApplicationDetail", () => {
     expect(within(dialog).getByRole("heading", { name: "Change impact" })).toBeInTheDocument()
     expect(within(dialog).getByText(/overpayment CZK 2,000/)).toBeInTheDocument()
     expect(within(dialog).getByText("Price CZK 4,900 · amount due CZK 4,900")).toBeInTheDocument()
+    expect(within(dialog).getByRole("combobox", { name: "New term" })).toBeInTheDocument()
     expect(within(dialog).getByText(/Money is not refunded automatically/)).toBeInTheDocument()
     // Cancel and confirm sit side by side, in the footer of the dialog.
     const cancel = within(dialog).getByRole("button", { name: "Cancel" })
@@ -351,7 +352,7 @@ describe("ApplicationDetail", () => {
     renderDetail(withTerms([termPayment(1, 4500, 4500, "PAID")]))
 
     await user.click(await screen.findByRole("button", { name: "Cancel participation" }))
-    await user.click(screen.getByRole("combobox"))
+    await user.click(screen.getByRole("combobox", { name: "What do you want to cancel?" }))
     await user.click(screen.getByRole("option", { name: /Only 1. týden/ }))
     expect(screen.getByText("Paid CZK 4,500 · debt after cancellation CZK 0")).toBeInTheDocument()
     expect(screen.getByText(/An overpayment of CZK 4,500 will arise/)).toBeInTheDocument()

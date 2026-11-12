@@ -210,12 +210,15 @@ export function ParticipantTermChange({
           <>
             {active.length > 1 ? (
               <div className="flex flex-col gap-2">
-                <Label>{t("change.sourceTerm")}</Label>
+                <Label htmlFor="source-term">{t("change.sourceTerm")}</Label>
                 <Select
                   value={source?.id}
                   onValueChange={setSourceId}
                 >
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger
+                    id="source-term"
+                    className="w-full"
+                  >
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent position="popper">
@@ -234,12 +237,15 @@ export function ParticipantTermChange({
               <DetailItem label={t("change.sourceTerm")}>{termLine(source)}</DetailItem>
             ) : null}
             <div className="flex flex-col gap-2">
-              <Label>{t("change.targetTerm")}</Label>
+              <Label htmlFor="target-term">{t("change.targetTerm")}</Label>
               <Select
                 value={target?.id}
                 onValueChange={setTargetId}
               >
-                <SelectTrigger className="w-full">
+                <SelectTrigger
+                  id="target-term"
+                  className="w-full"
+                >
                   <SelectValue placeholder={t("change.noAvailableTerms")} />
                 </SelectTrigger>
                 <SelectContent position="popper">
@@ -257,12 +263,15 @@ export function ParticipantTermChange({
           </>
         ) : (
           <div className="flex flex-col gap-2">
-            <Label>{t("change.cancelScope")}</Label>
+            <Label htmlFor="cancel-scope">{t("change.cancelScope")}</Label>
             <Select
               value={cancelId}
               onValueChange={setCancelId}
             >
-              <SelectTrigger className="w-full">
+              <SelectTrigger
+                id="cancel-scope"
+                className="w-full"
+              >
                 <SelectValue />
               </SelectTrigger>
               <SelectContent position="popper">
