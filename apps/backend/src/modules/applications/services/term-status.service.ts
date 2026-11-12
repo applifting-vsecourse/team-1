@@ -15,6 +15,7 @@ import {
   SubstituteRecord,
   TermStatusDetail,
 } from "@/modules/applications/domain/term-status"
+import { isWaitlistExpired } from "@/modules/applications/domain/waitlist-expiry"
 import { SubstitutesRepository } from "@/modules/applications/repositories/substitutes.repository"
 import { TermStatusRepository } from "@/modules/applications/repositories/term-status.repository"
 import { ApplicationConfirmationMailer } from "@/modules/participants/services/application-confirmation-mailer.service"
@@ -246,6 +247,9 @@ export class TermStatusService {
     do {
       const state = await this.substitutes.findTermStateById(termId)
       if (!state || state.isCancelled || state.evaluationMode !== "AUTOMATIC") return
+      // From midnight of the first day the waitlist is cancelled (D-064); a bed freed between that
+      // moment and the next run of the expiry job must not be given to someone about to be cancelled.
+      if (isWaitlistExpired(state.startsOn, new Date())) return
       // Each round confirms one, so the waitlist length bounds the rounds even if a round loses.
       if (budget === 0) budget = state.waitlisted.length + 1
       const [next] = proposedSubstitutes(

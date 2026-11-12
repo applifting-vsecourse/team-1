@@ -17,6 +17,8 @@ export type SubstituteTermState = {
   eventId: string
   /** A cancelled term takes no one into its beds (US-13). */
   isCancelled: boolean
+  /** First day of the term: from then on the waitlist is cancelled, not filled (D-064). */
+  startsOn: Date
   evaluationMode: "AUTOMATIC" | "MANUAL"
   roomMode: "GENDERED" | "SHARED"
   rooms: RoomCapacity[]
@@ -54,6 +56,7 @@ export class SubstitutesRepository {
         eventId: true,
         organizationId: true,
         cancelledAt: true,
+        startsOn: true,
         roomMode: true,
         event: { select: { evaluationMode: true } },
       },
@@ -93,6 +96,7 @@ export class SubstitutesRepository {
       organizationId,
       eventId,
       isCancelled: term.cancelledAt !== null,
+      startsOn: term.startsOn,
       evaluationMode: term.event.evaluationMode,
       roomMode: term.roomMode,
       rooms,

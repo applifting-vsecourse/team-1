@@ -209,6 +209,7 @@ describe("TermStatusService.fillFreedBeds (US-31)", () => {
     organizationId: "org",
     eventId: "e1",
     isCancelled: false,
+    startsOn: new Date("2099-07-01"),
     evaluationMode: "AUTOMATIC",
     roomMode: "GENDERED",
     rooms: [{ capacity: 2, extraBeds: 0, gender: "MALE" }],
@@ -289,6 +290,14 @@ describe("TermStatusService.fillFreedBeds (US-31)", () => {
 
   it("leaves the proposal to the organizer in the manual mode", async () => {
     substitutes.findTermStateById.mockResolvedValue(state({ evaluationMode: "MANUAL" }))
+
+    await service.fillFreedBeds(["t1"])
+
+    expect(repository.changeStatus).not.toHaveBeenCalled()
+  })
+
+  it("confirms nobody once the term has started, the waitlist is cancelled then (D-064)", async () => {
+    substitutes.findTermStateById.mockResolvedValue(state({ startsOn: new Date("2020-07-01") }))
 
     await service.fillFreedBeds(["t1"])
 
