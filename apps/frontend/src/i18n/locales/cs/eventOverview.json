@@ -6,6 +6,7 @@
     "allStatuses": "Všechny stavy v termínu",
     "allTerms": "Všechny termíny",
     "allWaitlisted": "Všichni náhradníci",
+    "archived": "Archivovaná",
     "cancelled": "Zrušená",
     "clear": "Vymazat filtry",
     "clearSearchAndFilters": "Vymazat hledání a filtry",
@@ -538,6 +539,7 @@
     "overCapacityDescription": "Potvrzením se překročí kapacita termínu. Potvrďte, jen pokud to vědomě přijímáte.",
     "overCapacityTitle": "Pro toto pohlaví není volné lůžko",
     "state": {
+      "ARCHIVED": "Archivovaná",
       "CANCELLED": "Zrušená",
       "CONFIRMED": "Potvrzená",
       "TO_EVALUATE": "Čeká na vyhodnocení",

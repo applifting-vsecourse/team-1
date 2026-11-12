@@ -33,7 +33,7 @@ export const paymentApplicationSchema = z.object({
       name: z.string().nullable(),
       /** Application number × 1000 + term number: pays this term only. */
       variableSymbol: z.string(),
-      status: z.enum(["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED"]),
+      status: z.enum(["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED", "ARCHIVED"]),
       priceCzk: z.number().int(),
       startsOn: z.string(),
       endsOn: z.string(),

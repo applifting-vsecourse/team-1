@@ -46,7 +46,7 @@ const copy: Record<
   {
     subject: (event: string) => string;
     kinds: Record<ChangeKind, KindCopy>;
-    statuses: Record<ApplicationTermStatus, string>;
+    statuses: Record<Exclude<ApplicationTermStatus, 'ARCHIVED'>, string>;
     amountDue: string;
     account: string;
     variableSymbol: string;
@@ -197,7 +197,7 @@ export interface ApplicationChangeProps {
   term: string;
   kind: ChangeKind;
   /** Result of each term when several terms changed in one request. */
-  terms: { name: string; status: ApplicationTermStatus }[];
+  terms: { name: string; status: Exclude<ApplicationTermStatus, 'ARCHIVED'> }[];
   /** Only when the application became confirmed; amounts are already formatted. */
   payment: {
     /** Everything due now, paid under the summary variable symbol (`…000`). */

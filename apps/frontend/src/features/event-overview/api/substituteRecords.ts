@@ -7,7 +7,7 @@ const personSchema = z.object({
   applicationId: z.string(),
   name: z.string(),
   /** Status in the term now, not when the record was written. */
-  status: z.enum(["CONFIRMED", "WAITLISTED", "CANCELLED", "TO_EVALUATE"]),
+  status: z.enum(["CONFIRMED", "WAITLISTED", "CANCELLED", "TO_EVALUATE", "ARCHIVED"]),
 })
 
 /** System record of one confirmation from the waitlist (US-105). Read-only. */

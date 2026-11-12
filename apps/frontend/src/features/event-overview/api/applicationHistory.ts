@@ -3,7 +3,7 @@ import { z } from "zod"
 
 import { api } from "@/lib/api-client"
 
-const statusSchema = z.enum(["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED"])
+const statusSchema = z.enum(["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED", "ARCHIVED"])
 const base = { id: z.string(), at: z.string(), author: z.string().nullable() }
 
 const historyEntrySchema = z.discriminatedUnion("kind", [

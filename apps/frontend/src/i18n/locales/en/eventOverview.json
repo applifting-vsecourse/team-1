@@ -6,6 +6,7 @@
     "allStatuses": "All term statuses",
     "allTerms": "All terms",
     "allWaitlisted": "All waitlisted",
+    "archived": "Archived",
     "cancelled": "Cancelled",
     "clear": "Clear filters",
     "clearSearchAndFilters": "Clear search and filters",
@@ -538,6 +539,7 @@
     "overCapacityDescription": "Confirming exceeds the capacity of the term. Confirm only if you knowingly accept it.",
     "overCapacityTitle": "No free bed for this gender",
     "state": {
+      "ARCHIVED": "Archived",
       "CANCELLED": "Cancelled",
       "CONFIRMED": "Confirmed",
       "TO_EVALUATE": "Awaiting evaluation",

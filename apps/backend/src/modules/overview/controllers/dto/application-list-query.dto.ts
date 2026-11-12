@@ -14,10 +14,12 @@ export class ApplicationListQueryDto {
   @MaxLength(100)
   q?: string
   @ApiPropertyOptional() @IsOptional() @IsString() termId?: string
-  @ApiPropertyOptional({ enum: ["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED"] })
+  @ApiPropertyOptional({
+    enum: ["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED", "ARCHIVED"],
+  })
   @IsOptional()
-  @IsIn(["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED"])
-  status?: "TO_EVALUATE" | "CONFIRMED" | "WAITLISTED" | "CANCELLED"
+  @IsIn(["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED", "ARCHIVED"])
+  status?: "TO_EVALUATE" | "CONFIRMED" | "WAITLISTED" | "CANCELLED" | "ARCHIVED"
   @ApiPropertyOptional({ enum: ["FEMALE", "MALE"] })
   @IsOptional()
   @IsIn(["FEMALE", "MALE"])

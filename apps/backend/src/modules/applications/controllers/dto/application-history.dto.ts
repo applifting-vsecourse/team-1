@@ -1,7 +1,7 @@
 import { HistoryEntry } from "@/modules/applications/domain/application-history"
 import { ApiProperty } from "@nestjs/swagger"
 
-const STATUSES = ["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED"]
+const STATUSES = ["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED", "ARCHIVED"]
 
 /** One change of an application: when, by whom and what. The fields after `author` depend on `kind`. */
 export class HistoryEntryDto {

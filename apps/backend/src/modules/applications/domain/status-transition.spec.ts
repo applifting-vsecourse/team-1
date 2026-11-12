@@ -146,3 +146,18 @@ describe("rejectStatusChange", () => {
     expect(rejectStatusChange(full, "WAITLISTED", false)).toBeNull()
   })
 })
+
+it("keeps archived terms terminal and unavailable as a manual target (US-109)", () => {
+  expect(manualTargets("ARCHIVED")).toEqual([])
+  for (const target of [
+    "CONFIRMED",
+    "CANCELLED",
+    "WAITLISTED",
+    "TO_EVALUATE",
+    "ARCHIVED",
+  ] as const) {
+    expect(canChange("SYSTEM", "ARCHIVED", target)).toBe(false)
+    expect(canChangeManually("ARCHIVED", target)).toBe(false)
+    expect(canChangeManually(target, "ARCHIVED")).toBe(false)
+  }
+})

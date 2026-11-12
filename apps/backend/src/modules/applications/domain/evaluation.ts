@@ -6,7 +6,8 @@ import { Gender, GenderCounts } from "@/shared/domain/gender"
  * ("K vyhodnocení", US-102) exists only in the manual evaluation mode: the application
  * is registered and waits for the organizer; it takes no bed and owes nothing.
  */
-export type ApplicationTermStatus = "TO_EVALUATE" | "CONFIRMED" | "WAITLISTED" | "CANCELLED"
+export type ApplicationTermStatus =
+  "TO_EVALUATE" | "CONFIRMED" | "WAITLISTED" | "CANCELLED" | "ARCHIVED"
 
 /** What the automatic evaluation of a new application can decide. */
 export type AutomaticEvaluationStatus = "CONFIRMED" | "WAITLISTED"

@@ -40,7 +40,11 @@ export function ParticipantTermActions({
 }) {
   const { t } = useTranslation("participant")
   const requests = useQuery(participantChangeRequestsQueryOptions(application.id))
-  if (!application.terms.some((term) => term.status !== "CANCELLED")) return null
+  if (
+    !application.terms.some((term) => term.status !== "CANCELLED" && term.status !== "ARCHIVED")
+  ) {
+    return null
+  }
   const isPendingRequest = requests.data?.some((request) => request.status === "PENDING") ?? false
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">

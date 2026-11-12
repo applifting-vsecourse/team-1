@@ -42,6 +42,8 @@ enum Locale {
 }
 
 enum ApplicationTermStatus {
+  // Terminal: confirmed and paid after the term ends (US-109).
+  ARCHIVED
   CONFIRMED
   WAITLISTED
   // Terminal (US-28): rejected, cancelled or not obtained a bed. Does not block a new application.
@@ -516,7 +518,7 @@ model ApplicationTerm {
 }
 
 // System log of every status change of an application in a term (US-28): who, when, from which
-// status to which. Written by the one status service, so later stories (waitlist, cancellation,
+// status to which. Written by the status service or the atomic archival job, so later stories (waitlist, cancellation,
 // manual add) reuse it. `changedBy` is null when the system itself changed the status.
 model ApplicationTermStatusChange {
   id                String                @id @default(cuid())

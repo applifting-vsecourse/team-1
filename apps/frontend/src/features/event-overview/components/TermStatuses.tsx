@@ -25,6 +25,7 @@ const BADGE = {
   CONFIRMED: "success",
   WAITLISTED: "secondary",
   CANCELLED: "secondary",
+  ARCHIVED: "secondary",
 } as const
 const ACTION_KEY = {
   CONFIRMED: "confirm",

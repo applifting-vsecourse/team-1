@@ -201,6 +201,21 @@ const renderDetail = (
 describe("ApplicationDetail", () => {
   beforeEach(() => get.mockReset())
 
+  it("keeps archived terms visible without payment or term change actions", async () => {
+    renderDetail(
+      application({
+        terms: [{ ...confirmed, status: "ARCHIVED" }],
+        amountPaidCzk: 4500,
+        amountOwedCzk: 0,
+        paymentStatus: "PAID",
+        paymentDetails: null,
+      }),
+    )
+    expect(await screen.findByText("Archived")).toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: "Change terms" })).not.toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: /Show payment QR/ })).not.toBeInTheDocument()
+  })
+
   it("copies the account, the variable symbol of the term and the amount to pay", async () => {
     const user = userEvent.setup()
     const write = vi.spyOn(navigator.clipboard, "writeText")

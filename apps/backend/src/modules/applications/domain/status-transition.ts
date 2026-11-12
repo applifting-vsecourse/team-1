@@ -18,19 +18,21 @@ const MANUAL_TRANSITIONS: Record<ApplicationTermStatus, ApplicationTermStatus[]>
   WAITLISTED: ["CONFIRMED", "CANCELLED"],
   CONFIRMED: ["WAITLISTED", "CANCELLED"],
   CANCELLED: [],
+  ARCHIVED: [],
 }
 
 /**
- * Changes the system makes by itself (actor null), the same table for both evaluation modes:
- * Náhradník → Zrušená on the first day of the term (US-106). Anything else is not the system's
- * to do, so a job that read a waitlisted application a moment ago cannot cancel one an
- * organizer has confirmed meanwhile.
+ * Changes handled by the status service for the system (actor null), in both evaluation modes:
+ * Náhradník → Zrušená on the first day of the term (US-106). A stale waitlist job cannot cancel
+ * an application an organizer has confirmed meanwhile. Archiving is handled separately by
+ * canArchiveTerm and the atomic archival repository, with its additional date and debt checks.
  */
 const SYSTEM_TRANSITIONS: Record<ApplicationTermStatus, ApplicationTermStatus[]> = {
   TO_EVALUATE: [],
   WAITLISTED: ["CANCELLED"],
   CONFIRMED: [],
   CANCELLED: [],
+  ARCHIVED: [],
 }
 
 /** Who asks for a change: an organizer by hand, or the system on its own. */

@@ -225,3 +225,14 @@ describe("allocatePayment", () => {
     expect(allocatePayment(0, [term("a", 5, 1, 500)])).toEqual([])
   })
 })
+
+describe("archived paid terms (US-109)", () => {
+  it("preserves the amount due instead of turning the paid price into an overpayment", () => {
+    const archived = { status: "ARCHIVED" as const, priceCzk: 1000 }
+    expect(computeAmountDue([archived])).toBe(1000)
+    expect(computeTermDue(archived)).toBe(1000)
+    expect(computeTermOwed(archived, [{ amountCzk: 1000 }])).toBe(0)
+    expect(computeTermPaymentStatus(archived, [{ amountCzk: 1000 }])).toBe("PAID")
+    expect(computeTermPaymentStatus(archived, [{ amountCzk: 1100 }])).toBe("OVERPAID")
+  })
+})
