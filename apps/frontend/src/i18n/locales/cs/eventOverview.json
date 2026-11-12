@@ -73,6 +73,14 @@
       "title": "K vyhodnocení · {{count}}"
     }
   },
+  "autoConfirmed": {
+    "bedFEMALE": "dámské lůžko",
+    "bedMALE": "mužské lůžko",
+    "bedSHARED": "lůžko",
+    "bodyFemale": "{{name}} obsadila první dostupné {{bed}} v termínu {{range}}. Přihlašovateli jsme poslali e-mail s platebními údaji.",
+    "bodyMale": "{{name}} obsadil první dostupné {{bed}} v termínu {{range}}. Přihlašovateli jsme poslali e-mail s platebními údaji.",
+    "title": "Účast byla potvrzena automaticky"
+  },
   "bulk": {
     "alertTitle": "Potvrdí se {{confirmed}} ze {{selected}} přihlášek.",
     "cancel": "Zrušit",
@@ -466,8 +474,16 @@
     "groupFemale": "Ženy",
     "groupMale": "Muži",
     "groupShared": "Společné pokoje",
-    "intro": "Náhradníci čekající na uvolněné lůžko v pořadí, v jakém přišly jejich přihlášky. Jednoho z nich můžete potvrdit.",
+    "intro": "Systém navrhl prvního náhradníka podle pořadí a dostupného lůžka.",
     "list": "Vhodní náhradníci",
+    "proposal": {
+      "bodyFemale": "{{range}} · {{name}} je první vhodná náhradnice.",
+      "bodyMale": "{{range}} · {{name}} je první vhodný náhradník.",
+      "confirm": "Potvrdit účast",
+      "titleFemale": "Uvolnilo se dámské lůžko",
+      "titleMale": "Uvolnilo se pánské lůžko",
+      "titleShared": "Uvolnilo se lůžko"
+    },
     "refresh": "Zobrazit aktuální náhradníky",
     "taken": "Lůžko mezitím obsadil jiný organizátor.",
     "takenHint": "{{name}} zůstává náhradníkem. Kapacita se nepřekročí.",

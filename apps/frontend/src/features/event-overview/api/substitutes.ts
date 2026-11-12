@@ -15,6 +15,8 @@ const substituteSchema = z.object({
   /** Position in the waitlist of the bed group. */
   position: z.number().int(),
   priceCzk: z.number().int(),
+  /** The first of its bed group: the one the freed bed is proposed to (US-31). */
+  isProposed: z.boolean(),
 })
 export type Substitute = z.infer<typeof substituteSchema>
 

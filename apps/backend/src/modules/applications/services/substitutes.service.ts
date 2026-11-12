@@ -1,4 +1,8 @@
-import { eligibleSubstitutes, freeBedsOf } from "@/modules/applications/domain/substitutes"
+import {
+  eligibleSubstitutes,
+  freeBedsOf,
+  proposedSubstitutes,
+} from "@/modules/applications/domain/substitutes"
 import {
   SubstituteApplication,
   SubstitutesRepository,
@@ -16,12 +20,15 @@ export type SubstituteList = {
   evaluationMode: "AUTOMATIC" | "MANUAL"
   roomMode: "GENDERED" | "SHARED"
   freeBeds: GenderCounts
-  items: (SubstituteApplication & { position: number })[]
+  /** `isProposed`: the first of its bed group, whom the freed bed is offered to (US-31). */
+  items: (SubstituteApplication & { position: number; isProposed: boolean })[]
 }
 
 /**
  * Manual filling of a freed bed by a waitlisted application (US-104, process step "ručně
- * potvrdit"). Who is eligible is `eligibleSubstitutes`; the confirmation itself is the single
+ * potvrdit"; US-31 adds the proposal). Who is eligible is `eligibleSubstitutes`, who is proposed
+ * `proposedSubstitutes`; the automatic mode confirms the proposal itself (`TermStatusService.
+ * fillFreedBeds`). The confirmation itself is the single
  * status change of `TermStatusService`, which locks the event and re-checks the beds.
  */
 @Injectable()
@@ -36,14 +43,21 @@ export class SubstitutesService {
     const { state } = await this.load(user, eventId, termId)
     const byId = new Map(state.waitlisted.map((row) => [row.applicationId, row]))
     // Filling by hand is for the manual evaluation mode only; nobody is offered otherwise.
-    const eligible =
-      state.evaluationMode === "MANUAL" ? eligibleSubstitutes(state, state.waitlisted) : []
+    const manual = state.evaluationMode === "MANUAL"
+    const eligible = manual ? eligibleSubstitutes(state, state.waitlisted) : []
+    const proposed = new Set(
+      (manual ? proposedSubstitutes(state, state.waitlisted) : []).map((row) => row.applicationId),
+    )
     return {
       termId,
       evaluationMode: state.evaluationMode,
       roomMode: state.roomMode,
       freeBeds: freeBedsOf(state),
-      items: eligible.map((row) => ({ ...byId.get(row.applicationId)!, position: row.position })),
+      items: eligible.map((row) => ({
+        ...byId.get(row.applicationId)!,
+        position: row.position,
+        isProposed: proposed.has(row.applicationId),
+      })),
     }
   }
 

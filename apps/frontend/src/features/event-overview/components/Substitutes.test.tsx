@@ -29,6 +29,7 @@ const item = (id: string, firstName: string, position: number) => ({
   submittedAt: `2027-03-10T09:1${position}:00Z`,
   position,
   priceCzk: 4900,
+  isProposed: position === 1,
 })
 const term = { id: "t1", startsOn: "2027-07-12", endsOn: "2027-07-18" }
 const list = (overrides = {}) => ({
@@ -70,6 +71,53 @@ function setup(data: unknown = list()) {
 }
 beforeEach(() => vi.clearAllMocks())
 
+describe("proposed substitute of a freed bed (US-31)", () => {
+  it("proposes the first substitute of the bed group with the freed bed", async () => {
+    setup()
+    const proposal = await screen.findByRole("region", { name: "A men's bed has been freed" })
+    expect(
+      within(proposal).getByText(/Adam Test is the first suitable substitute\./),
+    ).toBeInTheDocument()
+    expect(within(proposal).queryByText(/Petr Test/)).toBeNull()
+  })
+
+  it("proposes one substitute per gender and names a shared bed neutrally", async () => {
+    setup(
+      list({
+        freeBeds: { FEMALE: 1, MALE: 1 },
+        items: [item("a1", "Adam", 1), { ...item("a3", "Jana", 1), gender: "FEMALE" }],
+      }),
+    )
+    expect(await screen.findByRole("region", { name: "A men's bed has been freed" })).toBeVisible()
+    expect(screen.getByRole("region", { name: "A women's bed has been freed" })).toBeVisible()
+  })
+
+  it("names a shared bed neutrally", async () => {
+    setup(list({ roomMode: "SHARED" }))
+    expect(await screen.findByRole("region", { name: "A bed has been freed" })).toBeVisible()
+  })
+
+  it("confirms the proposal in one step, without a dialog", async () => {
+    post.mockResolvedValue({})
+    setup()
+    const user = userEvent.setup()
+    await user.click(await screen.findByRole("button", { name: "Confirm attendance: Adam Test" }))
+    expect(screen.queryByRole("dialog")).toBeNull()
+    expect(post).toHaveBeenCalledWith("organizer/events/e1/terms/t1/substitutes/a1/confirm")
+    await vi.waitFor(() => expect(onConfirmed).toHaveBeenCalledWith("a1"))
+  })
+
+  it("says the bed was taken meanwhile when the proposal is stale", async () => {
+    post.mockRejectedValue(Object.assign(new Error("taken"), { code: "BED_ALREADY_TAKEN" }))
+    setup()
+    const user = userEvent.setup()
+    await user.click(await screen.findByRole("button", { name: "Confirm attendance: Adam Test" }))
+    expect(
+      await screen.findByText("The bed has meanwhile been taken by another organizer."),
+    ).toBeInTheDocument()
+  })
+})
+
 describe("suitable substitutes (US-104)", () => {
   it("lists the substitutes of the free bed in order, with the free beds of the term", async () => {
     setup()
@@ -89,7 +137,7 @@ describe("suitable substitutes (US-104)", () => {
       }),
     )
     expect(await screen.findByText("Filling freed beds")).toBeInTheDocument()
-    expect(screen.getAllByRole("heading", { level: 2 })).toHaveLength(1)
+    expect(screen.getAllByRole("heading", { name: "Filling freed beds" })).toHaveLength(1)
     const men = await screen.findByRole("region", { name: "Men" })
     const women = screen.getByRole("region", { name: "Women" })
     expect(within(men).getByText(/1 free men's bed/)).toBeInTheDocument()

@@ -1,4 +1,4 @@
-import { eligibleSubstitutes } from "@/modules/applications/domain/substitutes"
+import { eligibleSubstitutes, proposedSubstitutes } from "@/modules/applications/domain/substitutes"
 import { WaitlistCandidate } from "@/modules/applications/domain/waitlist"
 
 const candidate = (
@@ -73,5 +73,48 @@ describe("eligibleSubstitutes", () => {
       candidate("done", "MALE", 0, { status: "CONFIRMED" }),
     ])
     expect(ids(result)).toEqual(["early", "late"])
+  })
+})
+
+describe("proposedSubstitutes (US-31)", () => {
+  const rooms = [
+    { capacity: 2, extraBeds: 0, gender: "FEMALE" as const },
+    { capacity: 2, extraBeds: 0, gender: "MALE" as const },
+  ]
+
+  it("proposes the first of each gender that has a free bed", () => {
+    const result = proposedSubstitutes({ rooms, confirmedGenders: ["MALE", "MALE"] }, [
+      candidate("petr", "MALE", 0),
+      candidate("jana", "FEMALE", 2),
+      candidate("eva", "FEMALE", 1),
+    ])
+    expect(ids(result)).toEqual(["eva"])
+    expect(result[0]).toMatchObject({ position: 1, group: "FEMALE" })
+  })
+
+  it("proposes one per gender when both have a free bed, in order of receipt", () => {
+    const result = proposedSubstitutes({ rooms, confirmedGenders: [] }, [
+      candidate("a", "MALE", 0),
+      candidate("b", "MALE", 1),
+      candidate("c", "FEMALE", 2),
+    ])
+    expect(ids(result)).toEqual(["a", "c"])
+  })
+
+  it("proposes one for the common queue of shared rooms", () => {
+    const shared = [{ capacity: 3, extraBeds: 0, gender: null }]
+    const result = proposedSubstitutes({ rooms: shared, confirmedGenders: [] }, [
+      candidate("jana", "FEMALE", 1, { roomMode: "SHARED" }),
+      candidate("petr", "MALE", 0, { roomMode: "SHARED" }),
+    ])
+    expect(ids(result)).toEqual(["petr"])
+  })
+
+  it("proposes nobody without a free bed", () => {
+    expect(
+      proposedSubstitutes({ rooms, confirmedGenders: ["MALE", "MALE"] }, [
+        candidate("petr", "MALE", 0),
+      ]),
+    ).toEqual([])
   })
 })

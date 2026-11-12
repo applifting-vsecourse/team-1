@@ -13,6 +13,10 @@ export type SubstituteApplication = WaitlistCandidate & {
 }
 
 export type SubstituteTermState = {
+  organizationId: string
+  eventId: string
+  /** A cancelled term takes no one into its beds (US-13). */
+  isCancelled: boolean
   evaluationMode: "AUTOMATIC" | "MANUAL"
   roomMode: "GENDERED" | "SHARED"
   rooms: RoomCapacity[]
@@ -26,16 +30,37 @@ export class SubstitutesRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   /** Null when the term is not a term of the event. */
-  async findTermState(
+  findTermState(
     organizationId: string,
     eventId: string,
     termId: string,
   ): Promise<SubstituteTermState | null> {
+    return this.readTermState({ id: termId, eventId, organizationId })
+  }
+
+  /** The same for the system, which knows the term only (US-31). Null when there is none. */
+  findTermStateById(termId: string): Promise<SubstituteTermState | null> {
+    return this.readTermState({ id: termId })
+  }
+
+  private async readTermState(where: {
+    id: string
+    eventId?: string
+    organizationId?: string
+  }): Promise<SubstituteTermState | null> {
     const term = await this.prisma.term.findFirst({
-      where: { id: termId, eventId, organizationId },
-      select: { roomMode: true, event: { select: { evaluationMode: true } } },
+      where,
+      select: {
+        eventId: true,
+        organizationId: true,
+        cancelledAt: true,
+        roomMode: true,
+        event: { select: { evaluationMode: true } },
+      },
     })
     if (!term) return null
+    const { organizationId, eventId } = term
+    const termId = where.id
     const [rooms, confirmed, waiting] = await Promise.all([
       this.prisma.room.findMany({
         where: { termId },
@@ -65,6 +90,9 @@ export class SubstitutesRepository {
       }),
     ])
     return {
+      organizationId,
+      eventId,
+      isCancelled: term.cancelledAt !== null,
       evaluationMode: term.event.evaluationMode,
       roomMode: term.roomMode,
       rooms,

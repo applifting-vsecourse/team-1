@@ -1,4 +1,5 @@
 import { computeRoomCapacity } from "@/modules/applications/domain/capacity"
+import { TermStatusService } from "@/modules/applications/services/term-status.service"
 import {
   RoomCopyStrategy,
   RoomGenderAssignment,
@@ -16,6 +17,7 @@ export class RoomsService {
   constructor(
     private readonly repository: RoomsRepository,
     private readonly access: OrganizationAccessService,
+    private readonly statuses: TermStatusService,
   ) {}
 
   private async scope(user: Identity, eventId: string, termId: string) {
@@ -36,6 +38,7 @@ export class RoomsService {
     assignments: RoomGenderAssignment[],
   ): Promise<void> {
     await this.repository.setMode(await this.scope(user, eventId, termId), mode, assignments)
+    await this.statuses.fillFreedBeds([termId])
   }
 
   async save(
@@ -46,6 +49,8 @@ export class RoomsService {
     id?: string,
   ): Promise<void> {
     await this.repository.save(await this.scope(user, eventId, termId), input, id)
+    // A new or bigger room is a free bed for the waitlist (US-31, D-014).
+    await this.statuses.fillFreedBeds([termId])
   }
 
   async setExtraBeds(
@@ -56,6 +61,7 @@ export class RoomsService {
     extraBeds: number,
   ): Promise<void> {
     await this.repository.setExtraBeds(await this.scope(user, eventId, termId), id, extraBeds)
+    await this.statuses.fillFreedBeds([termId])
   }
 
   async remove(user: Identity, eventId: string, termId: string, id: string): Promise<void> {
@@ -70,5 +76,6 @@ export class RoomsService {
     strategy: RoomCopyStrategy,
   ): Promise<void> {
     await this.repository.copy(await this.scope(user, eventId, termId), sourceTermId, strategy)
+    await this.statuses.fillFreedBeds([termId])
   }
 }

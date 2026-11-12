@@ -1,6 +1,7 @@
 import { ChangeRequest } from "@/modules/applications/domain/change-request"
 import { ChangeRequestRepository } from "@/modules/applications/repositories/change-request.repository"
 import { TermStatusRepository } from "@/modules/applications/repositories/term-status.repository"
+import { TermStatusService } from "@/modules/applications/services/term-status.service"
 import { decideHealth, HealthInput } from "@/modules/health/domain/health"
 import { ApplicationConfirmationMailer } from "@/modules/participants/services/application-confirmation-mailer.service"
 import { Identity } from "@/shared/auth/domain/identity"
@@ -15,6 +16,7 @@ export class ChangeRequestService {
     private readonly terms: TermStatusRepository,
     private readonly access: OrganizationAccessService,
     private readonly mailer: ApplicationConfirmationMailer,
+    private readonly statuses: TermStatusService,
   ) {}
 
   async submit(user: Identity, applicationId: string, termIds: string[]): Promise<ChangeRequest> {
@@ -77,6 +79,8 @@ export class ChangeRequestService {
     )
     if (!changed) throw new AppException(HttpStatus.CONFLICT, "CHANGE_REQUEST_STALE")
     await this.mailer.sendApplicationChange(changed)
+    // The approved change may give up a confirmed bed (US-31).
+    await this.statuses.fillFreedBeds(changed.freedTermIds)
   }
 
   async reject(user: Identity, eventId: string, requestId: string, reason: string): Promise<void> {

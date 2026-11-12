@@ -73,6 +73,14 @@
       "title": "Awaiting review · {{count}}"
     }
   },
+  "autoConfirmed": {
+    "bedFEMALE": "women's bed",
+    "bedMALE": "men's bed",
+    "bedSHARED": "bed",
+    "bodyFemale": "{{name}} took the first available {{bed}} in the term {{range}}. We have e-mailed the applicant the payment details.",
+    "bodyMale": "{{name}} took the first available {{bed}} in the term {{range}}. We have e-mailed the applicant the payment details.",
+    "title": "Attendance was confirmed automatically"
+  },
   "bulk": {
     "alertTitle": "{{confirmed}} of {{selected}} applications will be confirmed.",
     "cancel": "Cancel",
@@ -466,8 +474,16 @@
     "groupFemale": "Women",
     "groupMale": "Men",
     "groupShared": "Shared rooms",
-    "intro": "Substitutes waiting for the freed bed, in the order their applications came in. You can confirm one of them.",
+    "intro": "The system proposed the first substitute by order and available bed.",
     "list": "Suitable substitutes",
+    "proposal": {
+      "bodyFemale": "{{range}} · {{name}} is the first suitable substitute.",
+      "bodyMale": "{{range}} · {{name}} is the first suitable substitute.",
+      "confirm": "Confirm attendance",
+      "titleFemale": "A women's bed has been freed",
+      "titleMale": "A men's bed has been freed",
+      "titleShared": "A bed has been freed"
+    },
     "refresh": "Show current substitutes",
     "taken": "The bed has meanwhile been taken by another organizer.",
     "takenHint": "{{name}} stays a substitute. The capacity is not exceeded.",

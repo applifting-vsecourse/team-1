@@ -48,3 +48,21 @@ export function eligibleSubstitutes(
       group: bedGroup(candidate.roomMode, candidate.gender),
     }))
 }
+
+/**
+ * Whom a freed bed is offered to (US-31): the first eligible substitute of each bed group. In
+ * the automatic evaluation mode the system confirms them, in the manual one the organizer is
+ * shown them as the proposal. Gendered rooms have one queue per gender, so up to two; shared
+ * rooms have one. In order of receipt.
+ */
+export function proposedSubstitutes(
+  term: SubstituteTerm,
+  waitlisted: WaitlistCandidate[],
+): EligibleSubstitute[] {
+  const seen = new Set<BedGroup>()
+  return eligibleSubstitutes(term, waitlisted).filter((row) => {
+    if (seen.has(row.group)) return false
+    seen.add(row.group)
+    return true
+  })
+}
