@@ -236,6 +236,7 @@
     "extraBedsNoteTitle": "Applies to the selected term only",
     "extraBedsRemove": "Remove extra beds",
     "extraBedsSave": "Save extra beds",
+    "extraBedsSaved": "Extra beds saved",
     "extraBedsSummary": "Base beds {{capacity}} · Extra beds +{{extraBeds}}",
     "extraBedsTitle": "Extra beds in the room",
     "extraBedsTotal_few": "Total {{count}} beds",

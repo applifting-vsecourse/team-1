@@ -236,6 +236,7 @@
     "extraBedsNoteTitle": "Platí pouze pro vybraný termín",
     "extraBedsRemove": "Odebrat přistýlky",
     "extraBedsSave": "Uložit přistýlky",
+    "extraBedsSaved": "Přistýlky byly uloženy",
     "extraBedsSummary": "Základní lůžka {{capacity}} · Přistýlky +{{extraBeds}}",
     "extraBedsTitle": "Přistýlky v pokoji",
     "extraBedsTotal_few": "Celkem {{count}} lůžka",

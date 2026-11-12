@@ -180,6 +180,7 @@ describe("accommodation by term", () => {
     expect(patch).toHaveBeenCalledWith("organizer/events/e1/terms/t1/rooms/r2/extra-beds", {
       json: { extraBeds: 3 },
     })
+    expect(success).toHaveBeenCalledWith("Extra beds saved")
   })
 
   it("explains an invalid number in the dialog instead of saving it", async () => {

@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { notify } from "@/lib/notify"
 
 import { setExtraBeds, type Room, type TermRooms } from "@/features/events/api/rooms"
 
@@ -46,6 +47,7 @@ export function RoomExtraBedsDialog({
       return
     }
     await onSaved()
+    notify.success(t("rooms.extraBedsSaved"))
     onClose()
   }
   const submit = () => {
