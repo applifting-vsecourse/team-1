@@ -116,7 +116,7 @@ export function RoomModeDialog({
                 className="flex flex-col gap-2"
               >
                 <legend className="text-sm font-medium">
-                  {room.name} · {t("rooms.beds", { count: room.capacity })}
+                  {room.name} · {t("rooms.beds", { count: room.beds })}
                 </legend>
                 <RadioGroup
                   className="grid-flow-col justify-start gap-8"
