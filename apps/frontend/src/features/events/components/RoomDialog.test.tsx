@@ -79,7 +79,7 @@ describe("room form", () => {
 
   it("keeps entered data on an API error and allows retry", async () => {
     put.mockRejectedValueOnce(new Error("Connection failed")).mockResolvedValueOnce(undefined)
-    const room = { id: "r1", name: "12", capacity: 5, gender: "FEMALE" as const }
+    const room = { id: "r1", name: "12", capacity: 5, extraBeds: 0, gender: "FEMALE" as const }
     const { user, onClose } = renderDialog(event, room)
     await user.clear(screen.getByLabelText("Capacity *"))
     await user.type(screen.getByLabelText("Capacity *"), "21")

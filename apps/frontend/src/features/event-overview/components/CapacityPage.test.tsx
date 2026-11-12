@@ -51,7 +51,10 @@ const shared = {
 function renderPage(
   body: unknown,
   status = 200,
-  props: { termId?: string; rooms?: { gender: "FEMALE" | "MALE" | null; capacity: number }[] } = {},
+  props: {
+    termId?: string
+    rooms?: { gender: "FEMALE" | "MALE" | null; capacity: number; extraBeds: number }[]
+  } = {},
 ) {
   vi.spyOn(globalThis, "fetch").mockImplementation(() =>
     Promise.resolve(
@@ -119,8 +122,8 @@ describe("CapacityPage", () => {
     renderPage(gendered, 200, {
       termId: "t1",
       rooms: [
-        { gender: "FEMALE", capacity: 5 },
-        { gender: "MALE", capacity: 5 },
+        { gender: "FEMALE", capacity: 5, extraBeds: 0 },
+        { gender: "MALE", capacity: 5, extraBeds: 0 },
       ],
     })
 

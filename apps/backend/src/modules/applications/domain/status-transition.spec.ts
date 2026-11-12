@@ -111,7 +111,7 @@ describe("rejectStatusChange", () => {
   const snapshot = (overrides: Partial<StatusChangeSnapshot> = {}): StatusChangeSnapshot => ({
     status: "WAITLISTED",
     gender: "FEMALE",
-    rooms: [{ capacity: 1, gender: "FEMALE" }],
+    rooms: [{ capacity: 1, extraBeds: 0, gender: "FEMALE" }],
     confirmedGenders: [],
     ...overrides,
   })
@@ -128,7 +128,7 @@ describe("rejectStatusChange", () => {
 
   it("counts shared rooms as one pool for all genders", () => {
     const shared = snapshot({
-      rooms: [{ capacity: 1, gender: null }],
+      rooms: [{ capacity: 1, extraBeds: 0, gender: null }],
       confirmedGenders: ["MALE"],
     })
     expect(rejectStatusChange(shared, "CONFIRMED", false)).toBe("CAPACITY_EXCEEDED")

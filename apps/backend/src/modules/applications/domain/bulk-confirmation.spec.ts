@@ -15,8 +15,8 @@ const candidate = (
 
 describe("planBulkConfirmation", () => {
   const rooms = [
-    { capacity: 2, gender: "MALE" as const },
-    { capacity: 2, gender: "FEMALE" as const },
+    { capacity: 2, extraBeds: 0, gender: "MALE" as const },
+    { capacity: 2, extraBeds: 0, gender: "FEMALE" as const },
   ]
 
   it("confirms in order of receipt and leaves out those that do not fit, whatever order they were selected in", () => {
@@ -40,7 +40,7 @@ describe("planBulkConfirmation", () => {
 
   it("breaks a tie of arrival times by the application number", () => {
     const plan = planBulkConfirmation(
-      [{ capacity: 1, gender: "MALE" }],
+      [{ capacity: 1, extraBeds: 0, gender: "MALE" }],
       [],
       [candidate("second", "MALE", 1, 8), candidate("first", "MALE", 1, 7)],
     )
@@ -49,7 +49,7 @@ describe("planBulkConfirmation", () => {
 
   it("counts shared rooms as one pool for both genders", () => {
     const plan = planBulkConfirmation(
-      [{ capacity: 2, gender: null }],
+      [{ capacity: 2, extraBeds: 0, gender: null }],
       ["MALE"],
       [candidate("jana", "FEMALE", 1), candidate("adam", "MALE", 2)],
     )

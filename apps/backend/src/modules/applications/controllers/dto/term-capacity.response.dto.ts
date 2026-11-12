@@ -18,6 +18,8 @@ class CapacityRoomDto {
   gender!: "FEMALE" | "MALE" | null
   @ApiProperty()
   capacity!: number
+  @ApiProperty({ description: "Extra beds (přistýlky); each adds one bed to the room's capacity" })
+  extraBeds!: number
 }
 
 class CapacityTermDetailsDto {

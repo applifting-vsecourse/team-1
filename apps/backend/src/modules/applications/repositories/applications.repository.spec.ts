@@ -18,7 +18,9 @@ describe("ApplicationsRepository deferred account creation", () => {
           .mockResolvedValueOnce([{ termId: "t1", application: { gender: "FEMALE" } }]),
       },
       room: {
-        findMany: jest.fn().mockResolvedValue([{ termId: "t1", capacity: 1, gender: "FEMALE" }]),
+        findMany: jest
+          .fn()
+          .mockResolvedValue([{ termId: "t1", capacity: 1, extraBeds: 0, gender: "FEMALE" }]),
       },
       application: { create: jest.fn().mockResolvedValue({ id: "a1", number: 1 }) },
     }

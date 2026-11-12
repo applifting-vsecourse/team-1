@@ -1,5 +1,6 @@
 import {
   RoomCopyRequestDto,
+  RoomExtraBedsRequestDto,
   RoomModeRequestDto,
   RoomRequestDto,
 } from "@/modules/events/controllers/dto/room.request.dto"
@@ -110,6 +111,25 @@ export class RoomsController {
     @Body() body: RoomRequestDto,
   ): Promise<void> {
     await this.rooms.save(user, eventId, termId, { ...body, gender: body.gender ?? null }, id)
+  }
+
+  @Patch("rooms/:id/extra-beds")
+  @HttpCode(204)
+  @ApiOperation({
+    summary: "Set the extra beds (přistýlky) of a room in this term; each adds one bed",
+    description:
+      "Only this term changes. Lowering below the confirmed applications is allowed: free beds then turn negative.",
+  })
+  @ApiResponse({ status: 204 })
+  @ApiResponse({ status: 400, description: "Not a whole number of at least 0" })
+  async extraBeds(
+    @User() user: Identity,
+    @Param("eventId") eventId: string,
+    @Param("termId") termId: string,
+    @Param("id") id: string,
+    @Body() body: RoomExtraBedsRequestDto,
+  ): Promise<void> {
+    await this.rooms.setExtraBeds(user, eventId, termId, id, body.extraBeds)
   }
 
   @Delete("rooms/:id")

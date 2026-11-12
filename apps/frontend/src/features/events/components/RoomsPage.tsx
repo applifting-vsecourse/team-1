@@ -57,6 +57,8 @@ export type AccommodationTerm = {
 
 // Rooms of one term of an event under the event header: the term, its room mode, capacity metrics
 // and the room table with edit / delete icon buttons in each row.
+// Each room also shows its extra beds (přistýlky) with a link to their own screen (US-80).
+// Figma (Design system): Pokoje v termínu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19786-37078 (mobile 19786-37234)
 // Figma (Design system): O18a / O18b · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12358-1789
 // Shared-room variant · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12358-3883
 export function RoomsPage({
@@ -115,6 +117,22 @@ export function RoomsPage({
     )
   }
   const isGendered = term.roomMode === "GENDERED"
+  const extraBedsLink = (room: Room) => (
+    <Button
+      asChild
+      variant="ghost"
+      size="lg"
+      className="max-sm:w-full"
+    >
+      <Link
+        to={ROUTES.organizer.eventRoomExtraBeds}
+        params={{ eventId }}
+        search={{ termId: term.termId, roomId: room.id }}
+      >
+        {t(room.extraBeds ? "rooms.extraBedsEdit" : "rooms.extraBedsAdd")}
+      </Link>
+    </Button>
+  )
   const metrics: { label: string; value: string | number; helper: string | null; free?: number }[] =
     isGendered
       ? [
@@ -279,6 +297,7 @@ export function RoomsPage({
                     <TableRow>
                       <TableHead>{t("rooms.nameColumn")}</TableHead>
                       <TableHead className="text-right">{t("rooms.capacityColumn")}</TableHead>
+                      <TableHead className="text-right">{t("rooms.extraBedsColumn")}</TableHead>
                       {isGendered ? <TableHead>{t("rooms.genderColumn")}</TableHead> : null}
                       <TableHead>
                         <span className="sr-only">{t("rooms.actionsColumn")}</span>
@@ -294,6 +313,9 @@ export function RoomsPage({
                         <TableCell className="text-right">
                           {t("rooms.beds", { count: room.capacity })}
                         </TableCell>
+                        <TableCell className="text-right">
+                          {room.extraBeds ? <Badge variant="info">+{room.extraBeds}</Badge> : "+0"}
+                        </TableCell>
                         {isGendered ? (
                           <TableCell>
                             {room.gender ? (
@@ -304,7 +326,8 @@ export function RoomsPage({
                           </TableCell>
                         ) : null}
                         <TableCell>
-                          <div className="flex justify-end gap-1">
+                          <div className="flex items-center justify-end gap-1">
+                            {extraBedsLink(room)}
                             <Button
                               variant="ghost"
                               size="icon-lg"
@@ -337,11 +360,15 @@ export function RoomsPage({
                     <div className="flex min-w-0 flex-1 flex-col gap-1">
                       <span className="font-medium break-words">{room.name}</span>
                       <span className="text-sm text-muted-foreground">
-                        {t("rooms.beds", { count: room.capacity })}
+                        {t("rooms.extraBedsSummary", {
+                          capacity: room.capacity,
+                          extraBeds: room.extraBeds,
+                        })}
                         {room.gender
                           ? ` · ${t(room.gender === "FEMALE" ? "rooms.female" : "rooms.male")}`
                           : ""}
                       </span>
+                      {extraBedsLink(room)}
                     </div>
                     <div className="flex gap-1">
                       <Button

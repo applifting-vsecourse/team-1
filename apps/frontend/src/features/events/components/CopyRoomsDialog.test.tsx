@@ -35,10 +35,10 @@ const termRooms = (termId: string, rooms: TermRooms["rooms"]): TermRooms => ({
   capacity: { FEMALE: 0, MALE: 0, total: rooms.reduce((n, room) => n + room.capacity, 0) },
 })
 const sourceRooms = [
-  { id: "a", name: "A", capacity: 4, gender: "FEMALE" as const },
-  { id: "b", name: "B", capacity: 6, gender: "MALE" as const },
+  { id: "a", name: "A", capacity: 4, extraBeds: 0, gender: "FEMALE" as const },
+  { id: "b", name: "B", capacity: 6, extraBeds: 0, gender: "MALE" as const },
 ]
-const ownRoom = [{ id: "o", name: "Own", capacity: 3, gender: "MALE" as const }]
+const ownRoom = [{ id: "o", name: "Own", capacity: 3, extraBeds: 0, gender: "MALE" as const }]
 const sourceTerms = [
   {
     id: "t2",
@@ -138,7 +138,7 @@ describe("copying rooms into a term", () => {
 
   it("warns about names that already exist in the target before an add, and not for a replace", async () => {
     const { user } = renderDialog(
-      termRooms("t1", [{ id: "o", name: "a", capacity: 3, gender: "MALE" as const }]),
+      termRooms("t1", [{ id: "o", name: "a", capacity: 3, extraBeds: 0, gender: "MALE" as const }]),
     )
     await pickSource(user)
     expect(screen.getByText("Some room names already exist")).toBeInTheDocument()

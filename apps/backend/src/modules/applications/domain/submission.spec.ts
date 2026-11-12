@@ -1,12 +1,12 @@
 import { evaluateSubmission, isValidBirthDate, SubmittedParticipant } from "./submission"
 
 const rooms = [
-  { capacity: 1, gender: "FEMALE" as const },
-  { capacity: 2, gender: "MALE" as const },
+  { capacity: 1, extraBeds: 0, gender: "FEMALE" as const },
+  { capacity: 2, extraBeds: 0, gender: "MALE" as const },
 ]
 const sharedRooms = (capacity: number) => ({
-  t1: [{ capacity, gender: null }],
-  t2: [{ capacity, gender: null }],
+  t1: [{ capacity, extraBeds: 0, gender: null }],
+  t2: [{ capacity, extraBeds: 0, gender: null }],
 })
 const girl = (...termIds: string[]): SubmittedParticipant => ({
   gender: "FEMALE",
@@ -108,8 +108,8 @@ describe("evaluateSubmission", () => {
       [girl("t1", "t2"), boy("t1", "t2")],
       {
         roomsByTerm: {
-          t1: [{ capacity: 1, gender: "FEMALE" }],
-          t2: [{ capacity: 1, gender: "MALE" }],
+          t1: [{ capacity: 1, extraBeds: 0, gender: "FEMALE" }],
+          t2: [{ capacity: 1, extraBeds: 0, gender: "MALE" }],
         },
         confirmedGenders: {},
       },

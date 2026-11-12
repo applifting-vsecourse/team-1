@@ -73,21 +73,29 @@ const termRooms = (termId: string, rooms: TermRooms["rooms"], roomMode: TermRoom
   roomMode,
   rooms,
   capacity: {
-    FEMALE: rooms.filter((room) => room.gender === "FEMALE").reduce((n, r) => n + r.capacity, 0),
-    MALE: rooms.filter((room) => room.gender === "MALE").reduce((n, r) => n + r.capacity, 0),
-    total: rooms.reduce((n, r) => n + r.capacity, 0),
+    FEMALE: rooms
+      .filter((room) => room.gender === "FEMALE")
+      .reduce((n, r) => n + r.capacity + r.extraBeds, 0),
+    MALE: rooms
+      .filter((room) => room.gender === "MALE")
+      .reduce((n, r) => n + r.capacity + r.extraBeds, 0),
+    total: rooms.reduce((n, r) => n + r.capacity + r.extraBeds, 0),
   },
 })
 const byTerm: Record<string, TermRooms> = {
   t1: termRooms(
     "t1",
     [
-      { id: "r1", name: "Gendered room", gender: "FEMALE", capacity: 5000 },
-      { id: "r2", name: "Men's room", gender: "MALE", capacity: 4 },
+      { id: "r1", name: "Gendered room", gender: "FEMALE", capacity: 5000, extraBeds: 2 },
+      { id: "r2", name: "Men's room", gender: "MALE", capacity: 4, extraBeds: 0 },
     ],
     "GENDERED",
   ),
-  t2: termRooms("t2", [{ id: "s1", name: "Shared room", gender: null, capacity: 60 }], "SHARED"),
+  t2: termRooms(
+    "t2",
+    [{ id: "s1", name: "Shared room", gender: null, capacity: 60, extraBeds: 0 }],
+    "SHARED",
+  ),
 }
 
 function renderRooms(termId: string) {
@@ -112,8 +120,12 @@ function renderRooms(termId: string) {
     getParentRoute: () => root,
     path: "/organizer/events/$eventId/terms",
   })
+  const extraBedsRoute = createRoute({
+    getParentRoute: () => root,
+    path: "/organizer/events/$eventId/rooms/extra-beds",
+  })
   const router = createRouter({
-    routeTree: root.addChildren([termsRoute]),
+    routeTree: root.addChildren([termsRoute, extraBedsRoute]),
     history: createMemoryHistory({ initialEntries: ["/"] }),
   })
   render(<RouterProvider router={router} />)
@@ -137,6 +149,31 @@ describe("accommodation by term", () => {
     expect(screen.getByText("Capacity exhausted")).toBeInTheDocument()
     expect(screen.getByText("Beds available")).toBeInTheDocument()
     expect(screen.getByRole("columnheader", { name: "Gender" })).toBeInTheDocument()
+  })
+
+  it("shows the extra beds of every room and links to their own screen", async () => {
+    renderRooms("t1")
+    const table = await screen.findByRole("table")
+    expect(within(table).getByRole("columnheader", { name: "Extra beds" })).toBeInTheDocument()
+    expect(within(table).getByText("+2")).toBeInTheDocument()
+    expect(within(table).getByText("+0")).toBeInTheDocument()
+    const edit = within(table).getByRole("link", { name: "Edit extra beds" })
+    expect(edit).toHaveAttribute(
+      "href",
+      expect.stringContaining("/organizer/events/e1/rooms/extra-beds?termId=t1&roomId=r1"),
+    )
+    expect(within(table).getByRole("link", { name: "Add extra bed" })).toHaveAttribute(
+      "href",
+      expect.stringContaining("roomId=r2"),
+    )
+  })
+
+  it("shows base beds and extra beds in the phone list at 360 px", async () => {
+    window.innerWidth = 360
+    renderRooms("t1")
+    await screen.findByRole("table")
+    expect(screen.getAllByText(/Base beds 5000 · Extra beds \+2/).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/Base beds 4 · Extra beds \+0/).length).toBeGreaterThan(0)
   })
 
   it("shows a shared term with its shared capacity and no gender column", async () => {
@@ -179,7 +216,7 @@ describe("accommodation by term", () => {
     post.mockResolvedValue(undefined)
     byTerm.t3 = termRooms(
       "t3",
-      [{ id: "x", name: "Other", gender: "MALE", capacity: 4 }],
+      [{ id: "x", name: "Other", gender: "MALE", capacity: 4, extraBeds: 0 }],
       "GENDERED",
     )
     const { user } = renderRooms("t1")

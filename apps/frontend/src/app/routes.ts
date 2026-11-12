@@ -26,6 +26,7 @@ export const ROUTES = {
     event: "/organizer/events/$eventId",
     eventTerms: "/organizer/events/$eventId/terms",
     eventRooms: "/organizer/events/$eventId/rooms",
+    eventRoomExtraBeds: "/organizer/events/$eventId/rooms/extra-beds",
     eventSettings: "/organizer/events/$eventId/settings",
     eventCapacity: "/organizer/events/$eventId/capacity",
     eventApplications: "/organizer/events/$eventId/applications",

@@ -357,6 +357,8 @@ model Room {
   name           String
   // At least one bed; no product upper limit (US-14).
   capacity       Int
+  // Extra beds (přistýlky) of this room in this term; each adds one bed to the capacity (US-80).
+  extraBeds      Int          @default(0)
   gender         Gender?
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @default(now()) @updatedAt

@@ -3,7 +3,8 @@ import { Gender } from "@/shared/domain/gender"
 
 export type RoomMode = "GENDERED" | "SHARED"
 export type Room = RoomCapacity & { id: string; name: string }
-export type RoomInput = Omit<Room, "id">
+/** What the organizer edits in a room; extra beds have their own action. */
+export type RoomInput = Omit<Room, "id" | "extraBeds">
 /** What a copy does with rooms the target term already has: keep them and add, or remove them first. */
 export type RoomCopyStrategy = "ADD" | "REPLACE"
 /** Gender chosen for one existing room when the term switches to gendered rooms. */
