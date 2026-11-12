@@ -18,7 +18,11 @@ export function SectionHeader({ title, description, actions }: SectionHeaderProp
         <h2 className="text-xl font-semibold tracking-tight md:text-2xl">{title}</h2>
         {description ? <p className="text-sm text-muted-foreground">{description}</p> : null}
       </div>
-      {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}
+      {actions ? (
+        <div className="flex flex-wrap items-center gap-2 max-sm:w-full max-sm:*:flex-1">
+          {actions}
+        </div>
+      ) : null}
     </div>
   )
 }

@@ -123,7 +123,6 @@ export function RoomsPage({
   const extraBedsButton = (room: Room) => (
     <Button
       variant="outline"
-      size="lg"
       className="max-sm:flex-1"
       onClick={() => setExtraBedsRoom(room)}
     >
@@ -247,7 +246,7 @@ export function RoomsPage({
         ))}
       </div>
       <Card>
-        <CardHeader className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+        <CardHeader className="flex flex-col gap-3 max-sm:items-stretch sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
           <CardTitle>
             <h3>{t("rooms.listTitle")}</h3>
           </CardTitle>

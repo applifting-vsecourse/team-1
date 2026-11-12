@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { formatDateRange } from "@/lib/date"
 import { notify } from "@/lib/notify"
 
 import { setExtraBeds, type Room, type TermRooms } from "@/features/events/api/rooms"
@@ -69,24 +70,34 @@ export function RoomExtraBedsDialog({
       <DialogContent className="max-h-[90dvh] overflow-y-auto bg-card shadow-md sm:max-w-170">
         <DialogTitle>{t("rooms.extraBedsTitle")}</DialogTitle>
         <DialogDescription className="text-base">
-          {t("rooms.extraBedsContext", { event: term.eventName, room: room.name })}
+          {t("rooms.extraBedsContext", {
+            room: room.name,
+            term: formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true }),
+          })}
         </DialogDescription>
         <form
           noValidate
-          className="flex flex-col gap-4"
+          className="flex flex-col gap-6"
           onSubmit={(event) => {
             event.preventDefault()
             if (!isPending) submit()
           }}
         >
-          <h3 className="text-2xl font-bold">{room.name}</h3>
-          <p>
+          <dl className="grid grid-cols-3 gap-4 text-sm">
             {[
-              t("rooms.extraBedsBase", { count: room.capacity }),
-              t("rooms.extraBedsCount", { count: room.extraBeds }),
-              t("rooms.extraBedsTotal", { count: room.beds }),
-            ].join(" · ")}
-          </p>
+              [t("rooms.extraBedsBaseLabel"), String(room.capacity)],
+              [t("rooms.extraBedsCountLabel"), `+${room.extraBeds}`],
+              [t("rooms.extraBedsTotalLabel"), String(room.beds)],
+            ].map(([label, value]) => (
+              <div
+                key={label}
+                className="flex flex-col gap-1"
+              >
+                <dt className="text-muted-foreground">{label}</dt>
+                <dd className="text-2xl font-bold">{value}</dd>
+              </div>
+            ))}
+          </dl>
           <fieldset
             disabled={isPending}
             className="flex flex-col gap-2"

@@ -201,9 +201,7 @@ describe("accommodation by term", () => {
     await user.click(within(table).getByRole("button", { name: "Edit extra beds" }))
     const dialog = await screen.findByRole("dialog")
     expect(within(dialog).getByLabelText("Number of extra beds")).toHaveValue(2)
-    expect(
-      within(dialog).getByText("Base capacity 5000 beds · Extra beds 2 · Total 5002 beds"),
-    ).toBeInTheDocument()
+    expect(within(dialog).getByText("5002")).toBeInTheDocument()
     await user.click(within(dialog).getByRole("button", { name: "Remove extra beds" }))
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument())
     expect(patch).toHaveBeenCalledWith("organizer/events/e1/terms/t1/rooms/r1/extra-beds", {
