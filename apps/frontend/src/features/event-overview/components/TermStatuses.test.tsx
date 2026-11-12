@@ -3,6 +3,8 @@ import { render, screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
+import { i18n } from "@/i18n"
+
 import { TermStatuses } from "@/features/event-overview/components/TermStatuses"
 
 const { get, patch } = vi.hoisted(() => ({ get: vi.fn(), patch: vi.fn() }))
@@ -15,6 +17,7 @@ const term = (overrides: object = {}) => ({
   endsOn: "2027-07-18",
   status: "WAITLISTED",
   priceCzk: 6900,
+  waitlistPosition: null,
   allowedStatuses: ["CONFIRMED", "CANCELLED"],
   history: [],
   substituteRecords: [],
@@ -36,6 +39,42 @@ beforeEach(() => {
 })
 
 describe("TermStatuses", () => {
+  it("shows the server position for each waitlisted term only", async () => {
+    get.mockReturnValue({
+      json: () =>
+        Promise.resolve([
+          term({ waitlistPosition: 2 }),
+          term({ termId: "t2", name: "T2", waitlistPosition: 5 }),
+          ...["CONFIRMED", "CANCELLED", "TO_EVALUATE"].map((status, index) =>
+            term({
+              termId: `other${index}`,
+              name: status,
+              status,
+              waitlistPosition: 9,
+              allowedStatuses: [],
+            }),
+          ),
+          term({ termId: "missing", name: "Missing position" }),
+        ]),
+    })
+    setup()
+    expect(await screen.findByText("#2 on the waitlist")).toBeVisible()
+    expect(screen.getByText("#5 on the waitlist")).toBeVisible()
+    expect(screen.queryByText("#9 on the waitlist")).not.toBeInTheDocument()
+    expect(screen.getAllByText(/on the waitlist$/)).toHaveLength(2)
+  })
+
+  it("localizes the waitlist position in Czech", async () => {
+    await i18n.changeLanguage("cs")
+    try {
+      get.mockReturnValue({ json: () => Promise.resolve([term({ waitlistPosition: 2 })]) })
+      setup()
+      expect(await screen.findByText("2. v pořadníku")).toBeVisible()
+    } finally {
+      await i18n.changeLanguage("en")
+    }
+  })
+
   it("shows that an organizer created the application", async () => {
     get.mockReturnValue({
       json: () =>
