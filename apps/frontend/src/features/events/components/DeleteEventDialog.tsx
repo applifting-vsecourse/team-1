@@ -26,8 +26,8 @@ import { deleteEvent, eventKeys, type OrganizerEvent } from "@/features/events/a
  * applications (issue #153, code EVENT_HAS_APPLICATIONS); the same dialog then turns into
  * "Akci nelze smazat" and the event settings behind it refresh to the blocked state.
  */
-// Figma (Design system): #404 Dialog · potvrzení smazání · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=22642-93349
-// Figma (Design system): #404 Dialog · akci nelze smazat · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=22642-93522
+// Figma (Design system): #404 Dialog · potvrzení smazání · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=22642-93349 (mobil 22642-93462)
+// Figma (Design system): #404 Dialog · akci nelze smazat · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=22642-93522 (mobil 22642-93635)
 export function DeleteEventDialog({
   event,
   onClose,

@@ -13,6 +13,8 @@ import { DeleteEventDialog } from "@/features/events/components/DeleteEventDialo
  * such an event (an application may arrive after the screen was loaded).
  */
 // Figma (Design system): #315 Nastavení akce · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19798-37338
+// Figma (Design system): #404 Dialog · potvrzení smazání (karta Smazání akce na pozadí) · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=22642-93349 (mobil 22642-93462)
+// Figma (Design system): #404 Dialog · akci nelze smazat (karta Smazání akce na pozadí) · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=22642-93522 (mobil 22642-93635)
 // Figma (Design system): #315 Nastavení · Akce bez přihlášek · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19798-37570
 export function DeleteEventSection({ event }: { event: OrganizerEvent }) {
   const { t } = useTranslation("events")
