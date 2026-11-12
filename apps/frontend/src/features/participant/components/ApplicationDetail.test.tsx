@@ -6,9 +6,11 @@ import {
   createRouter,
   RouterProvider,
 } from "@tanstack/react-router"
-import { render, screen, within } from "@testing-library/react"
+import { render, screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
+
+import { notify } from "@/lib/notify"
 
 import type { MyApplication } from "@/features/participant/api/applications"
 import { ApplicationDetail } from "@/features/participant/components/ApplicationDetail"
@@ -20,6 +22,9 @@ const { get, put, post, toDataURL } = vi.hoisted(() => ({
   toDataURL: vi.fn(),
 }))
 vi.mock("@/lib/api-client", () => ({ api: { get, put, post } }))
+vi.mock("@/lib/notify", () => ({
+  notify: { success: vi.fn(), info: vi.fn(), warning: vi.fn(), error: vi.fn() },
+}))
 vi.mock("qrcode", () => ({ default: { toDataURL } }))
 
 const confirmed = {
@@ -218,11 +223,12 @@ describe("ApplicationDetail", () => {
     get.mockReset()
     put.mockReset()
     post.mockReset()
+    vi.mocked(notify.success).mockClear()
     toDataURL.mockReset()
     toDataURL.mockResolvedValue("data:image/png;base64,AAAA")
   })
 
-  it("lets the participant immediately change the selected terms", async () => {
+  it("changes the term from a dialog, shows the impact and confirms with a toast", async () => {
     const user = userEvent.setup()
     put.mockReturnValue({
       json: () => Promise.resolve({ addedTerms: [{ termId: "t2", owedCzk: 4900 }] }),
@@ -232,63 +238,46 @@ describe("ApplicationDetail", () => {
     const terms = await screen.findByRole("region", { name: "Terms and payments" })
     expect(within(terms).getByRole("button", { name: "Cancel participation" })).toBeVisible()
     await user.click(await within(terms).findByRole("button", { name: "Change terms" }))
-    expect(screen.getByText(/Overpayment CZK 2,000/)).toBeInTheDocument()
-    expect(screen.getByText(/New term 2. týden · Price CZK 4,900/)).toBeInTheDocument()
-    await user.click(screen.getByRole("button", { name: "Confirm change" }))
+    const dialog = await screen.findByRole("dialog", { name: "Change term" })
+    expect(within(dialog).getByRole("heading", { name: "Change impact" })).toBeInTheDocument()
+    expect(within(dialog).getByText(/overpayment CZK 2,000/)).toBeInTheDocument()
+    expect(within(dialog).getByText("Price CZK 4,900 · amount due CZK 4,900")).toBeInTheDocument()
+    expect(within(dialog).getByText(/Money is not refunded automatically/)).toBeInTheDocument()
+    // Cancel and confirm sit side by side, in the footer of the dialog.
+    const cancel = within(dialog).getByRole("button", { name: "Cancel" })
+    const confirm = within(dialog).getByRole("button", { name: "Confirm change" })
+    expect(cancel.parentElement).toBe(confirm.parentElement)
+    await user.click(confirm)
 
     expect(put).toHaveBeenCalledWith("participant/applications/a1/terms", {
       json: { termIds: ["t2"] },
     })
-    expect(await screen.findByRole("heading", { name: "Term changed" })).toBeInTheDocument()
-    expect(
-      screen.getByText("New term 2. týden · Price CZK 4,900 · Amount due CZK 4,900"),
-    ).toBeInTheDocument()
+    await waitFor(() => expect(notify.success).toHaveBeenCalledWith("Term changed"))
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument())
+    expect(screen.queryByRole("heading", { name: "Term changed" })).not.toBeInTheDocument()
   })
 
   it("shows the price separately from zero debt for an unconfirmed term", async () => {
     const user = userEvent.setup()
-    put.mockReturnValue({
-      json: () => Promise.resolve({ addedTerms: [{ termId: "t2", owedCzk: 0 }] }),
-    })
     renderDetail(application(), true, 0)
 
     await user.click(await screen.findByRole("button", { name: "Change terms" }))
-    const impact = "New term 2. týden · Price CZK 4,900 · Amount due CZK 0"
-    expect(screen.getByText(impact)).toBeInTheDocument()
-    await user.click(screen.getByRole("button", { name: "Confirm change" }))
-    expect(await screen.findByRole("heading", { name: "Term changed" })).toBeInTheDocument()
-    expect(screen.getByText(impact)).toBeInTheDocument()
+    expect(screen.getByText("Price CZK 4,900 · amount due CZK 0")).toBeInTheDocument()
   })
 
-  it("uses the committed debt when capacity changes after the preview", async () => {
+  it("closes the dialog without saving", async () => {
     const user = userEvent.setup()
-    put.mockReturnValue({
-      json: () => Promise.resolve({ addedTerms: [{ termId: "t2", owedCzk: 0 }] }),
-    })
     renderDetail(application())
 
     await user.click(await screen.findByRole("button", { name: "Change terms" }))
-    expect(screen.getByText(/Amount due CZK 4,900/)).toBeInTheDocument()
-    await user.click(screen.getByRole("button", { name: "Confirm change" }))
-    expect(await screen.findByRole("heading", { name: "Term changed" })).toBeInTheDocument()
-    expect(
-      screen.getByText(/New term 2. týden · Price CZK 4,900 · Amount due CZK 0/),
-    ).toBeInTheDocument()
-    expect(screen.queryByText(/Amount due CZK 4,900/)).not.toBeInTheDocument()
+    const dialog = await screen.findByRole("dialog", { name: "Change term" })
+    await user.click(within(dialog).getByRole("button", { name: "Cancel" }))
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument())
+    expect(put).not.toHaveBeenCalled()
+    expect(notify.success).not.toHaveBeenCalled()
   })
 
-  it("does not invent zero debt when a repeated change adds no term", async () => {
-    const user = userEvent.setup()
-    put.mockReturnValue({ json: () => Promise.resolve({ addedTerms: [] }) })
-    renderDetail(application())
-
-    await user.click(await screen.findByRole("button", { name: "Change terms" }))
-    await user.click(screen.getByRole("button", { name: "Confirm change" }))
-    expect(await screen.findByRole("heading", { name: "Term changed" })).toBeInTheDocument()
-    expect(screen.queryByText(/New term .*Amount due/)).not.toBeInTheDocument()
-  })
-
-  it("submits an approval request after cancellation starts", async () => {
+  it("submits an approval request after cancellation starts and confirms with a toast", async () => {
     const user = userEvent.setup()
     post.mockReturnValue({
       json: () =>
@@ -309,17 +298,51 @@ describe("ApplicationDetail", () => {
     })
     renderDetail(application(), false)
     await user.click(await screen.findByRole("button", { name: "Change terms" }))
-    expect(screen.getByText(/original terms and assigned bed remain/)).toBeInTheDocument()
-    expect(
-      screen.getByText(/New term 2. týden · Price CZK 4,900 · Amount due CZK 4,900/),
-    ).toBeInTheDocument()
+    expect(screen.getByText("The organiser approves the request")).toBeInTheDocument()
+    expect(screen.getByText(/stay unchanged until the decision/)).toBeInTheDocument()
+    expect(screen.getByText("Price CZK 4,900 · amount due CZK 4,900")).toBeInTheDocument()
     await user.click(screen.getByRole("button", { name: "Send request" }))
     expect(post).toHaveBeenCalledWith("participant/applications/a1/change-requests", {
       json: { termIds: ["t2"] },
     })
+    await waitFor(() => expect(notify.success).toHaveBeenCalledWith("Term change request sent"))
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument())
+  })
+
+  it("asks for a cancellation after cancellation starts and shows the impact after approval", async () => {
+    const user = userEvent.setup()
+    post.mockReturnValue({
+      json: () =>
+        Promise.resolve({
+          id: "r1",
+          applicationId: "a1",
+          eventId: "e1",
+          participantName: "Jana Nováková",
+          participantGender: "FEMALE",
+          currentTermIds: ["t1"],
+          requestedTermIds: [],
+          status: "PENDING",
+          rejectionReason: null,
+          createdAt: "2026-11-05T14:30:00.000Z",
+          reviewedAt: null,
+          terms: [],
+        }),
+    })
+    renderDetail(application(), false)
+    await user.click(await screen.findByRole("button", { name: "Cancel participation" }))
+    const dialog = await screen.findByRole("dialog", { name: "Request cancellation" })
     expect(
-      await screen.findByRole("heading", { name: "Request awaiting approval" }),
+      within(dialog).getByRole("heading", { name: "Impact after approval" }),
     ).toBeInTheDocument()
+    expect(
+      within(dialog).getByText(/decides the cancellation fee and any refund/),
+    ).toBeInTheDocument()
+    expect(within(dialog).getByText("The bed is released only after approval.")).toBeInTheDocument()
+    await user.click(within(dialog).getByRole("button", { name: "Send request" }))
+    expect(post).toHaveBeenCalledWith("participant/applications/a1/change-requests", {
+      json: { termIds: [] },
+    })
+    await waitFor(() => expect(notify.success).toHaveBeenCalledWith("Cancellation request sent"))
   })
 
   it("cancels one term and shows its payment and bed impact before confirmation", async () => {
@@ -328,50 +351,31 @@ describe("ApplicationDetail", () => {
     renderDetail(withTerms([termPayment(1, 4500, 4500, "PAID")]))
 
     await user.click(await screen.findByRole("button", { name: "Cancel participation" }))
-    await user.click(screen.getByRole("combobox", { name: "Cancellation scope" }))
-    await user.click(screen.getByRole("option", { name: /1. týden/ }))
+    await user.click(screen.getByRole("combobox"))
+    await user.click(screen.getByRole("option", { name: /Only 1. týden/ }))
+    expect(screen.getByText("Paid CZK 4,500 · debt after cancellation CZK 0")).toBeInTheDocument()
+    expect(screen.getByText(/An overpayment of CZK 4,500 will arise/)).toBeInTheDocument()
     expect(
-      screen.getByText(/Paid CZK 4,500 · Debt after cancellation CZK 0 · Overpayment CZK 4,500/),
-    ).toBeInTheDocument()
-    expect(
-      screen.getByText("The bed will be released. The organiser handles any refund."),
+      screen.getByText("The bed is released immediately. The other terms stay unchanged."),
     ).toBeInTheDocument()
     await user.click(screen.getByRole("button", { name: "Confirm cancellation" }))
     expect(put).toHaveBeenCalledWith("participant/applications/a1/terms", {
       json: { termIds: ["t2"] },
     })
+    await waitFor(() => expect(notify.success).toHaveBeenCalledWith("Term cancelled"))
   })
 
   it.each([
-    [
-      "Cancel participation",
-      "Confirm cancellation",
-      "Cancellation confirmed",
-      /Debt after cancellation CZK 0/,
-    ],
-    [
-      "Change terms",
-      "Confirm change",
-      "Term changed",
-      /Original term · Overpayment CZK 0 · Debt CZK 0/,
-    ],
-  ])(
-    "shows debt removed by %s for an unpaid confirmed term",
-    async (open, submit, title, impact) => {
-      const user = userEvent.setup()
-      put.mockReturnValue({
-        json: () => Promise.resolve({ addedTerms: [{ termId: "t2", owedCzk: 4900 }] }),
-      })
-      renderDetail(withTerms([termPayment(1, 4500, 0, "UNPAID")], [confirmed]))
+    ["Cancel participation", /Debt after cancellation CZK 0|debt after cancellation CZK 0/],
+    ["Change terms", /Paid CZK 0 · overpayment CZK 0 · debt CZK 0/],
+  ])("shows debt removed by %s for an unpaid confirmed term", async (open, impact) => {
+    const user = userEvent.setup()
+    renderDetail(withTerms([termPayment(1, 4500, 0, "UNPAID")], [confirmed]))
 
-      await user.click(await screen.findByRole("button", { name: open }))
-      expect(screen.getByText(impact)).toBeInTheDocument()
-      expect(screen.queryByText(/No payment impact/)).not.toBeInTheDocument()
-      await user.click(screen.getByRole("button", { name: submit }))
-      expect(await screen.findByRole("heading", { name: title })).toBeInTheDocument()
-      expect(screen.getByText(impact)).toBeInTheDocument()
-    },
-  )
+    await user.click(await screen.findByRole("button", { name: open }))
+    expect(screen.getByText(impact)).toBeInTheDocument()
+    expect(screen.queryByText(/No payment impact/)).not.toBeInTheDocument()
+  })
 
   it("shows what is due, what is paid, what is left and where to send it for the term", async () => {
     renderDetail(application())

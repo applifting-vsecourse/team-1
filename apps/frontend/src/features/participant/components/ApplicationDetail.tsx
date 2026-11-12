@@ -64,16 +64,6 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
     )
   }
 
-  if (changeMode) {
-    return (
-      <ParticipantTermChange
-        application={data}
-        mode={changeMode}
-        onBack={() => setChangeMode(null)}
-      />
-    )
-  }
-
   const hasToEvaluate = data.terms.some((term) => term.status === "TO_EVALUATE")
   // Confirmed and waitlisted terms are shown with their payment below (US-110).
   const otherTerms = data.terms.filter(
@@ -230,6 +220,13 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
         </Button>
       </div>
       <OrganizationContact contact={data.organizationContact} />
+      {changeMode ? (
+        <ParticipantTermChange
+          application={data}
+          mode={changeMode}
+          onClose={() => setChangeMode(null)}
+        />
+      ) : null}
     </div>
   )
 }
