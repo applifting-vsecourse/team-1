@@ -82,7 +82,8 @@ describe("DeleteEventSection", () => {
     await user.click(await screen.findByRole("button", { name: "Delete event" }))
     const dialog = screen.getByRole("dialog")
     expect(dialog).toHaveTextContent("Jarní víkend Lipno 2027")
-    expect(dialog).toHaveTextContent("Delete this event?")
+    expect(dialog).toHaveTextContent("Delete event?")
+    expect(dialog).toHaveTextContent("A deleted event cannot be restored.")
     await user.click(within(dialog).getByRole("button", { name: "Delete event" }))
 
     expect(await screen.findByText("Events list")).toBeInTheDocument()
@@ -97,7 +98,7 @@ describe("DeleteEventSection", () => {
     expect(success).toHaveBeenCalledWith("Event Jarní víkend Lipno 2027 has been deleted.")
   })
 
-  it("keeps the dialog open and shows the error when the event has applications", async () => {
+  it("turns into the blocked dialog when the event got an application meanwhile", async () => {
     renderSection(
       base,
       () =>
@@ -118,9 +119,34 @@ describe("DeleteEventSection", () => {
     )
 
     const dialog = screen.getByRole("dialog")
-    expect(await within(dialog).findByText("Could not delete the event")).toBeInTheDocument()
-    expect(dialog).toHaveTextContent("An event with applications cannot be deleted.")
+    expect(await within(dialog).findByText("The event cannot be deleted")).toBeInTheDocument()
+    expect(dialog).toHaveTextContent("The event already has an application.")
+    expect(dialog).toHaveTextContent("A new application was submitted in the meantime.")
+    expect(within(dialog).queryByRole("button", { name: "Delete event" })).not.toBeInTheDocument()
+    // The footer button and the corner X of the dialog both close it.
+    expect(within(dialog).getAllByRole("button", { name: "Close" })).toHaveLength(2)
     expect(screen.queryByText("Events list")).not.toBeInTheDocument()
+  })
+
+  it("shows the translated error and keeps the confirmation for any other failure", async () => {
+    renderSection(
+      base,
+      () =>
+        new Response(JSON.stringify({ statusCode: 500, code: "INTERNAL_ERROR", message: "x" }), {
+          status: 500,
+          headers: { "Content-Type": "application/json" },
+        }),
+    )
+    const user = userEvent.setup()
+
+    await user.click(await screen.findByRole("button", { name: "Delete event" }))
+    await user.click(
+      within(screen.getByRole("dialog")).getByRole("button", { name: "Delete event" }),
+    )
+
+    const dialog = screen.getByRole("dialog")
+    expect(await within(dialog).findByText("Could not delete the event")).toBeInTheDocument()
+    expect(within(dialog).getByRole("button", { name: "Delete event" })).toBeInTheDocument()
   })
 
   it("disables the button and explains why when the event has applications", async () => {

@@ -27,15 +27,20 @@
   },
   "delete": {
     "action": "Delete event",
-    "allowed": "This event does not have any applications yet.",
+    "alertDescription": "A deleted event cannot be restored.",
+    "alertTitle": "You are about to permanently delete the event.",
+    "allowed": "An event without applications can be permanently deleted.",
     "blocked": "The event cannot be deleted because it has applications.",
+    "blockedAlertDescription": "A new application was submitted in the meantime.",
+    "blockedAlertTitle": "The event already has an application.",
+    "blockedTitle": "The event cannot be deleted",
+    "cancel": "Cancel",
+    "close": "Close",
     "confirm": "Delete event",
     "deleted": "Event {{name}} has been deleted.",
-    "description": "The event is deleted together with its terms and rooms. Only an event nobody has applied to can be deleted. This cannot be undone.",
     "failed": "Could not delete the event",
-    "keep": "Keep",
     "sectionTitle": "Delete event",
-    "title": "Delete this event?"
+    "title": "Delete event?"
   },
   "evaluationMode": {
     "afterOpenLocked": "The mode will be locked and can no longer be changed.",
