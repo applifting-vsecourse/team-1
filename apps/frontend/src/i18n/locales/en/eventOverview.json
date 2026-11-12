@@ -519,7 +519,19 @@
       "confirm": "Confirm",
       "waitlist": "Move to waitlist"
     },
+    "allowedChanges": "You can confirm or cancel a waitlisted application. Moving an application to the waitlist is only available from Confirmed with balance due.",
+    "cancel": "Cancel",
+    "cancelImpact": "Other terms remain unchanged. This change does not itself issue a bank refund.",
+    "cancelSubmit": "Cancel participation in term",
+    "capacityConsent": "I knowingly confirm the application over capacity.",
+    "change": "Change status",
+    "changeNotice": "The change is recorded automatically and the applicant receives an e-mail.",
+    "changeTerms": "Change terms",
+    "changeTitle": "Change status in term",
     "confirmAnyway": "Confirm anyway",
+    "confirmImpact": "Occupancy will change from {{occupied}}/{{capacity}} to {{next}}/{{capacity}}. The amount due will be {{price}}.",
+    "confirmedPaid": "Confirmed and paid",
+    "confirmedWithDebt": "Confirmed with balance due",
     "dialog": {
       "back": "Back",
       "cancelDescription": "The cancellation cannot be undone. The applicant gets an e-mail and may apply for this term again.",
@@ -532,19 +544,38 @@
       "waitlistSubmit": "Move to waitlist",
       "waitlistTitle": "Move to waitlist"
     },
+    "emptyDescription": "No term has been selected yet.",
+    "emptyTitle": "No terms selected",
     "errorTitle": "The statuses could not be loaded",
     "helper": "Each term is decided separately. The applicant gets an e-mail about every change.",
+    "impact": {
+      "CANCELLED": "You will cancel participation in this term.",
+      "CONFIRMED": "There is a free place in the term.",
+      "WAITLISTED": "The application will be waitlisted."
+    },
     "logEntry": "{{date}} · {{who}}: {{from}} → {{to}}",
-    "overCapacityDescription": "Confirming exceeds the capacity of the term. Confirm only if you knowingly accept it.",
-    "overCapacityTitle": "No free bed for this gender",
+    "newStatus": "New status",
+    "overCapacityDescription": "Capacity is {{occupied}}/{{capacity}}. After confirmation it will be {{next}}/{{capacity}}. Continue only if you knowingly accept an application over capacity.",
+    "overCapacityTitle": "Confirmation will exceed capacity.",
+    "retry": "Try again",
+    "save": "Save status",
+    "saveError": "The change was not saved",
+    "saveErrorDescription": "The original status has been retained. Please try again.",
+    "saveErrorTitle": "The status could not be changed",
+    "saving": "Saving…",
+    "savingTitle": "Saving status change",
     "state": {
       "CANCELLED": "Cancelled",
       "CONFIRMED": "Confirmed",
       "TO_EVALUATE": "Awaiting evaluation",
       "WAITLISTED": "Waitlisted"
     },
+    "summary": "Occupancy {{occupied}}/{{capacity}} · Price {{price}} · Balance {{debt}}",
+    "summaryWithoutPrice": "Occupancy {{occupied}}/{{capacity}} · Balance {{debt}}",
     "system": "System",
-    "title": "Status in terms"
+    "title": "Status by term",
+    "waitlistImpact": "Nothing is payable for this term yet.",
+    "waitlistedTitle": "Waitlisted · Allowed changes"
   },
   "withdrawal": {
     "back": "Back",

@@ -31,7 +31,7 @@ import {
   ParticipantChangeOptions,
   ParticipantTermChangeResult,
 } from "@/modules/applications/domain/participant-term-change"
-import { computeTermDue } from "@/modules/applications/domain/pricing"
+import { computeTermDue, computeTermOwed } from "@/modules/applications/domain/pricing"
 import {
   changeEmailKind,
   StatusChangeSnapshot,
@@ -45,6 +45,7 @@ import {
   SubstituteRecord,
   TermStatusDetail,
 } from "@/modules/applications/domain/term-status"
+import { termStatusSummary } from "@/modules/applications/domain/term-status-summary"
 import { bedGroup, WaitlistCandidate } from "@/modules/applications/domain/waitlist"
 import { buildNotification, isoDay } from "@/modules/notifications/domain/notification"
 import { NotificationsRepository } from "@/modules/notifications/repositories/notifications.repository"
@@ -767,7 +768,17 @@ export class TermStatusRepository {
       where: { applicationId, organizationId },
       orderBy: { term: { startsOn: "asc" } },
       include: {
-        term: { select: { name: true, startsOn: true, endsOn: true } },
+        application: { select: { gender: true } },
+        term: {
+          include: {
+            rooms: { select: { capacity: true, extraBeds: true, gender: true } },
+            applicationTerms: {
+              where: { status: "CONFIRMED", organizationId },
+              select: { application: { select: { gender: true } } },
+            },
+          },
+        },
+        payments: { where: { cancelledAt: null }, select: { amountCzk: true } },
         statusChanges: {
           orderBy: [{ createdAt: "asc" }, { id: "asc" }],
           include: { changedBy: { select: { name: true } } },
@@ -794,6 +805,13 @@ export class TermStatusRepository {
       endsOn: row.term.endsOn,
       status: row.status,
       priceCzk: row.priceCzk,
+      ...termStatusSummary(
+        row,
+        row.payments,
+        row.term.rooms,
+        row.term.applicationTerms.map((term) => term.application.gender),
+        row.application.gender,
+      ),
       history: row.statusChanges.map((change) => ({
         id: change.id,
         kind:
@@ -844,12 +862,17 @@ export class TermStatusRepository {
       })
       if (!application) return null
       await tx.$queryRaw`SELECT id FROM event WHERE id = ${application.eventId} FOR UPDATE`
+      // Payment writes take the application lock; read debt only after their commit (D-077).
+      await tx.$queryRaw`SELECT id FROM application WHERE id = ${application.id} AND "organizationId" = ${command.organizationId} FOR UPDATE`
 
       const current = await tx.applicationTerm.findUnique({
         where: {
           applicationId_termId: { applicationId: application.id, termId: command.termId },
         },
-        include: { term: { select: { name: true, startsOn: true, endsOn: true } } },
+        include: {
+          term: { select: { name: true, startsOn: true, endsOn: true } },
+          payments: { where: { cancelledAt: null }, select: { amountCzk: true } },
+        },
       })
       if (!current) return null
 
@@ -869,6 +892,7 @@ export class TermStatusRepository {
       ])
       decide({
         status: current.status,
+        owedCzk: computeTermOwed(current, current.payments),
         gender: application.gender,
         rooms,
         confirmedGenders: confirmed.map((row) => row.application.gender),

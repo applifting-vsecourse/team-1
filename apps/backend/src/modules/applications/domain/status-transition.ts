@@ -8,7 +8,7 @@ import { Gender, GenderCounts } from "@/shared/domain/gender"
  *
  * - Náhradník → Potvrzená s dluhem (confirm, the organizer when a bed frees up)
  * - Náhradník → Zrušená, Potvrzená → Zrušená (cancel)
- * - Potvrzená → Náhradník (decided in PR #232, the diagram will follow)
+ * - Potvrzená s dluhem → Náhradník (D-077); settled confirmations cannot move back.
  * - K vyhodnocení → Potvrzená / Náhradník / Zrušená (the organizer's decision, manual evaluation
  *   mode only, nothing leads back into the state; D-058)
  * - Zrušená is terminal.
@@ -18,6 +18,16 @@ const MANUAL_TRANSITIONS: Record<ApplicationTermStatus, ApplicationTermStatus[]>
   WAITLISTED: ["CONFIRMED", "CANCELLED"],
   CONFIRMED: ["WAITLISTED", "CANCELLED"],
   CANCELLED: [],
+}
+
+/** D-077: only a confirmed term with outstanding debt may return to the waitlist. */
+export function manualStatusTargets(
+  from: ApplicationTermStatus,
+  owedCzk: number,
+): ApplicationTermStatus[] {
+  return manualTargets(from).filter(
+    (to) => from !== "CONFIRMED" || to !== "WAITLISTED" || owedCzk > 0,
+  )
 }
 
 /**
@@ -88,6 +98,7 @@ export function changeEmailKind(
 /** What a status change needs to know, read under the lock. */
 export type StatusChangeSnapshot = {
   status: ApplicationTermStatus
+  owedCzk: number
   gender: Gender
   /** Rooms of the term the status changes in. */
   rooms: RoomCapacity[]
@@ -108,6 +119,8 @@ export function rejectStatusChange(
   actor: StatusChangeActor = "ORGANIZER",
 ): StatusChangeRejection | null {
   if (!canChange(actor, snapshot.status, to)) return "INVALID_STATUS_TRANSITION"
+  if (actor === "ORGANIZER" && !manualStatusTargets(snapshot.status, snapshot.owedCzk).includes(to))
+    return "INVALID_STATUS_TRANSITION"
   if (to === "CONFIRMED" && !isOverCapacityConfirmed) {
     const free = computeAvailablePlaces(snapshot.rooms, snapshot.confirmedGenders)
     if (exceedsCapacityWhenConfirmed(snapshot.gender, free)) return "CAPACITY_EXCEEDED"

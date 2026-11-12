@@ -161,6 +161,61 @@ describe("manual status change of an application in a term (integration)", () =>
     expect((await view(id)).status).toBe("WAITLISTED")
   })
 
+  it.each(["AUTOMATIC", "MANUAL"] as const)(
+    "enforces D-077 in %s mode, including payment committed before the application lock",
+    async (evaluationMode) => {
+      await prisma.event.update({ where: { id: eventId }, data: { evaluationMode } })
+      for (const [priceCzk, paidCzk, allowed] of [
+        [1000, 1000, false],
+        [1000, 1200, false],
+        [0, 0, false],
+        [1000, 900, true],
+      ] as const) {
+        const id = await addApplication("MALE", "CONFIRMED")
+        const applicationTerm = await prisma.applicationTerm.findUniqueOrThrow({
+          where: { applicationId_termId: { applicationId: id, termId } },
+        })
+        await prisma.applicationTerm.update({
+          where: { id: applicationTerm.id },
+          data: { priceCzk },
+        })
+        let request: Promise<Response> | undefined
+        await prisma.$transaction(async (tx) => {
+          await tx.$queryRaw`SELECT id FROM application WHERE id = ${id} FOR UPDATE`
+          if (paidCzk)
+            await tx.payment.create({
+              data: {
+                organizationId,
+                applicationTermId: applicationTerm.id,
+                receiptId: `us129-${id}`,
+                amountCzk: paidCzk,
+                recordedById: organizerId,
+              },
+            })
+          request = change(id, { status: "WAITLISTED" })
+          let waiting = false
+          for (let attempt = 0; attempt < 40; attempt++) {
+            const [activity] = await prisma.$queryRaw<{ waiting: boolean }[]>`SELECT EXISTS (
+              SELECT 1 FROM pg_stat_activity WHERE datname = current_database()
+              AND wait_event_type = 'Lock'
+              AND query LIKE 'SELECT id FROM application WHERE id = %'
+            ) AS waiting`
+            if (activity.waiting) {
+              waiting = true
+              break
+            }
+            await new Promise((resolve) => setTimeout(resolve, 25))
+          }
+          expect(waiting).toBe(true)
+        })
+        expect((await request!).status).toBe(allowed ? 204 : 409)
+        const result = await view(id)
+        expect(result.status).toBe(allowed ? "WAITLISTED" : "CONFIRMED")
+        if (!allowed) expect(result.allowedStatuses).not.toContain("WAITLISTED")
+      }
+    },
+  )
+
   it("rejects changes the state diagram does not have", async () => {
     const confirmed = await addApplication("MALE", "CONFIRMED")
     const cancelled = await addApplication("MALE", "CANCELLED")

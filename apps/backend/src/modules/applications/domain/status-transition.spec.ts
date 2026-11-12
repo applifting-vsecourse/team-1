@@ -3,6 +3,7 @@ import {
   canChangeManually,
   changeEmailKind,
   exceedsCapacityWhenConfirmed,
+  manualStatusTargets,
   manualTargets,
   rejectStatusChange,
   StatusChangeSnapshot,
@@ -57,6 +58,7 @@ describe("system transitions (US-106)", () => {
 
   it("rejects a system cancellation of an application confirmed meanwhile", () => {
     const snapshot: StatusChangeSnapshot = {
+      owedCzk: 1000,
       status: "CONFIRMED",
       gender: "FEMALE",
       rooms: [],
@@ -109,6 +111,7 @@ describe("changeEmailKind", () => {
 
 describe("rejectStatusChange", () => {
   const snapshot = (overrides: Partial<StatusChangeSnapshot> = {}): StatusChangeSnapshot => ({
+    owedCzk: 1000,
     status: "WAITLISTED",
     gender: "FEMALE",
     rooms: [{ capacity: 1, extraBeds: 0, gender: "FEMALE" }],
@@ -144,5 +147,21 @@ describe("rejectStatusChange", () => {
     const full = snapshot({ status: "CONFIRMED", confirmedGenders: ["FEMALE", "FEMALE"] })
     expect(rejectStatusChange(full, "CANCELLED", false)).toBeNull()
     expect(rejectStatusChange(full, "WAITLISTED", false)).toBeNull()
+  })
+})
+
+describe("D-077", () => {
+  it.each([0, -100, -1000])("rejects waitlisting a settled term with balance %s", (owedCzk) => {
+    expect(manualStatusTargets("CONFIRMED", owedCzk)).not.toContain("WAITLISTED")
+    expect(
+      rejectStatusChange(
+        { status: "CONFIRMED", owedCzk, gender: "FEMALE", rooms: [], confirmedGenders: [] },
+        "WAITLISTED",
+        true,
+      ),
+    ).toBe("INVALID_STATUS_TRANSITION")
+  })
+  it("allows moving a partially paid term with debt to the waitlist", () => {
+    expect(manualStatusTargets("CONFIRMED", 1)).toContain("WAITLISTED")
   })
 })

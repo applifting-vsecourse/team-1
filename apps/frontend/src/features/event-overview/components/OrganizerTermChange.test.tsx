@@ -53,7 +53,7 @@ function mockApi(isFitting: boolean, paidCzk = 0) {
   }))
 }
 
-function setup() {
+function setup(isEmpty = false) {
   render(
     <QueryClientProvider
       client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
@@ -61,7 +61,14 @@ function setup() {
       <OrganizerTermChange
         applicationId="a1"
         term={
-          { termId: "t1", name: "First", startsOn: "2027-07-12", endsOn: "2027-07-18" } as never
+          isEmpty
+            ? null
+            : ({
+                termId: "t1",
+                name: "First",
+                startsOn: "2027-07-12",
+                endsOn: "2027-07-18",
+              } as never)
         }
       />
     </QueryClientProvider>,
@@ -135,4 +142,33 @@ describe("OrganizerTermChange", () => {
     expect(await figure("Paid")).toHaveTextContent(/5,600/)
     expect(await figure("To pay")).toHaveTextContent(/CZK 0$/)
   })
+})
+
+it("adds a term from the empty status block using the existing preview and change flow", async () => {
+  get.mockImplementation((path: string) => ({
+    json: () =>
+      Promise.resolve(
+        path.endsWith("change-options")
+          ? options.map((option) => ({ ...option, selected: false }))
+          : path.endsWith("change-preview")
+            ? { ...preview(true), removed: [] }
+            : application,
+      ),
+  }))
+  put.mockReturnValue({
+    json: () =>
+      Promise.resolve({ changed: true, changedAt: "2026-11-05T14:30:00Z", changedByName: "Eva" }),
+  })
+  setup(true)
+  const user = userEvent.setup()
+  await user.click(await screen.findByRole("button", { name: "Change terms" }))
+  await user.click(screen.getByRole("combobox"))
+  await user.click(await screen.findByRole("option", { name: /Second/ }))
+  expect(await screen.findByText(/Capacity for men/)).toBeVisible()
+  await user.click(screen.getByRole("button", { name: "Confirm the term change" }))
+  await waitFor(() =>
+    expect(put).toHaveBeenCalledWith("organizer/applications/a1/terms", {
+      json: { termIds: ["t2"] },
+    }),
+  )
 })
