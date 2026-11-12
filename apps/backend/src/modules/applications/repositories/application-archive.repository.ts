@@ -22,9 +22,10 @@ export class ApplicationArchiveRepository {
     let archived = 0
     for (const event of events) {
       archived += await this.prisma.$transaction(async (tx) => {
-        // Status changes use the event lock; payment writes lock their application.
-        // Take both in a stable order before reading the status and balance.
+        // Status changes use the event lock, term edits lock their term, payments their application.
+        // Match submission ordering and read dates, status and balances only after all locks.
         await tx.$queryRaw`SELECT id FROM event WHERE id = ${event.id} AND "organizationId" = ${event.organizationId} FOR UPDATE`
+        await tx.$queryRaw`SELECT id FROM term WHERE "eventId" = ${event.id} AND "organizationId" = ${event.organizationId} ORDER BY id FOR UPDATE`
         await tx.$queryRaw`SELECT id FROM application WHERE "eventId" = ${event.id} AND "organizationId" = ${event.organizationId} ORDER BY id FOR UPDATE`
         const terms = await tx.applicationTerm.findMany({
           where: {

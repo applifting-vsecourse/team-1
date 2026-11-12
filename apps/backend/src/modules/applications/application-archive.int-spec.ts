@@ -175,6 +175,60 @@ describe("archiving applications after their term (integration)", () => {
           }),
         ])
       }
+      // A concurrent extension or cancellation must commit before the archival reads term dates.
+      const extended = await add("CONFIRMED", 1000)
+      const cancelled = await add("CONFIRMED", 1000)
+      const extendedRow = await prisma.applicationTerm.findUniqueOrThrow({
+        where: { id: extended },
+      })
+      const cancelledRow = await prisma.applicationTerm.findUniqueOrThrow({
+        where: { id: cancelled },
+      })
+      let releaseTerms!: () => void
+      let termsLocked!: () => void
+      const termsHeld = new Promise<void>((resolve) => {
+        releaseTerms = resolve
+      })
+      const termsReady = new Promise<void>((resolve) => {
+        termsLocked = resolve
+      })
+      const edits = prisma.$transaction(async (tx) => {
+        await tx.term.update({
+          where: { id: extendedRow.termId },
+          data: { endsOn: new Date("2090-07-03") },
+        })
+        await tx.term.update({
+          where: { id: cancelledRow.termId },
+          data: { cancelledAt: new Date() },
+        })
+        termsLocked()
+        await termsHeld
+      })
+      await termsReady
+      const afterEdits = archive.archiveFinished(new Date("2090-07-01T22:00:00Z"))
+      try {
+        let waiting = false
+        for (let attempt = 0; attempt < 40 && !waiting; attempt++) {
+          const [state] = await prisma.$queryRaw<{ waiting: boolean }[]>`
+            SELECT EXISTS (
+              SELECT 1 FROM pg_stat_activity
+              WHERE datname = current_database() AND wait_event_type = 'Lock'
+                AND query LIKE 'SELECT id FROM term WHERE "eventId" = %'
+            ) AS waiting`
+          waiting = state.waiting
+          if (!waiting) await new Promise((resolve) => setTimeout(resolve, 25))
+        }
+        expect(waiting).toBe(true)
+      } finally {
+        releaseTerms()
+      }
+      await edits
+      expect(await afterEdits).toBe(0)
+      for (const id of [extended, cancelled]) {
+        expect((await prisma.applicationTerm.findUniqueOrThrow({ where: { id } })).status).toBe(
+          "CONFIRMED",
+        )
+      }
       expect(readFileSync(process.env.TEST_MAIL_LOG!, "utf8")).toBe(mailBefore)
     },
   )
