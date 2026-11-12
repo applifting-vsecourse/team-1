@@ -9,6 +9,7 @@ import { Seo } from "@/components/atoms/Seo"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { Pagination } from "@/components/molecules/Pagination"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
@@ -19,6 +20,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 import { usePagination } from "@/hooks/usePagination"
 import { formatDate } from "@/lib/date"
 import { termTitle } from "@/lib/term-label"
@@ -47,6 +56,7 @@ function matches(entry: PaymentOverviewEntry, status: StatusFilter, reminder: Re
   return isPaymentMatch && isReminderMatch
 }
 
+// Figma (Design system): #399 Přehled plateb · detail a storno podmínky · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=22642-92813 (360 px: node-id=22642-93088)
 // Figma (Design system): #45 / Platby / Desktop · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19786-51878
 // Figma (Design system): #45 / Platby / Mobile · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19786-52056
 // Figma (Design system): #45 / Žádné přihlášky neodpovídají filtru · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19786-52384 (mobile: 19786-52519)
@@ -86,7 +96,8 @@ export function PaymentsOverviewPage({
         {eventName ? <p>{eventName}</p> : null}
         <Button
           asChild
-          variant="outline"
+          variant="ghost"
+          size="lg"
           className="self-start"
         >
           <Link
@@ -194,16 +205,37 @@ function PaymentEntries({
   eventId: string
   resetKey: string
 }) {
+  const { t } = useTranslation("eventOverview")
   const { pageItems, ...pagination } = usePagination(entries, resetKey)
   return (
     <div className="flex flex-col gap-4">
-      {pageItems.map((entry) => (
-        <PaymentOverviewCard
-          key={entry.termId + entry.applicationId}
-          entry={entry}
-          eventId={eventId}
-        />
-      ))}
+      {/* On a phone the table scrolls sideways (Togena / Application list table). */}
+      <div className="rounded-lg border bg-card">
+        <Table className="min-w-190">
+          <caption className="sr-only">{t("paymentsOverview.list")}</caption>
+          <TableHeader className="bg-muted">
+            <TableRow>
+              <TableHead className="h-12 px-4">{t("paymentsOverview.participant")}</TableHead>
+              <TableHead className="px-4">{t("paymentsOverview.term")}</TableHead>
+              <TableHead className="px-4">{t("paymentsOverview.statusFilter")}</TableHead>
+              <TableHead className="px-4">{t("paymentsOverview.debt")}</TableHead>
+              <TableHead className="px-4">{t("paymentsOverview.dueAndReminders")}</TableHead>
+              <TableHead className="px-4">
+                <span className="sr-only">{t("paymentsOverview.detail")}</span>
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {pageItems.map((entry) => (
+              <PaymentOverviewRow
+                key={entry.termId + entry.applicationId}
+                entry={entry}
+                eventId={eventId}
+              />
+            ))}
+          </TableBody>
+        </Table>
+      </div>
       <Pagination
         {...pagination}
         onPageChange={pagination.setPage}
@@ -212,47 +244,68 @@ function PaymentEntries({
   )
 }
 
-function PaymentOverviewCard({ entry, eventId }: { entry: PaymentOverviewEntry; eventId: string }) {
+function PaymentOverviewRow({ entry, eventId }: { entry: PaymentOverviewEntry; eventId: string }) {
   const { t } = useTranslation("eventOverview")
   const status =
     entry.paymentStatus === "OVERPAID" || entry.paymentStatus === "NOTHING_DUE"
       ? "PAID"
       : entry.paymentStatus
   return (
-    <Card className="gap-4 p-4">
-      <h3 className="text-xl font-bold tracking-tight">
+    <TableRow>
+      <TableCell className="px-4 py-4 whitespace-normal">
         {entry.firstName} {entry.lastName}
-      </h3>
-      <p>{termTitle({ name: entry.termName, startsOn: entry.startsOn, endsOn: entry.endsOn })}</p>
-      <p className="flex flex-wrap gap-x-1">
-        <span>{t(`paymentsOverview.statuses.${status}`)}</span>
-        {entry.overdue ? <span>· {t("paymentsOverview.statuses.OVERDUE")}</span> : null}
-        <span>
-          · {t(entry.amountOwedCzk < 0 ? "paymentsOverview.overpayment" : "paymentsOverview.debt")}{" "}
-          <MoneyAmount amountCzk={Math.abs(entry.amountOwedCzk)} />
-        </span>
-      </p>
-      <p>
-        {t("paymentsOverview.dueDate")} {formatDate(entry.paymentDueAt)} ·{" "}
-        {t("paymentsOverview.reminderCount")} {entry.reminderCount}
-      </p>
-      {entry.lastReminderAt ? (
-        <p>
-          {t("paymentsOverview.lastReminder")} {formatDate(entry.lastReminderAt)}
-        </p>
-      ) : null}
-      <Button
-        asChild
-        variant="ghost"
-        className="w-full"
-      >
-        <Link
-          to={ROUTES.organizer.application}
-          params={{ eventId, applicationId: entry.applicationId }}
+      </TableCell>
+      <TableCell className="px-4 py-4 whitespace-normal">
+        {termTitle({ name: entry.termName, startsOn: entry.startsOn, endsOn: entry.endsOn })}
+      </TableCell>
+      <TableCell className="px-4 py-4">
+        <Badge
+          variant={
+            status === "PAID" ? "success" : status === "PARTIALLY_PAID" ? "warning" : "secondary"
+          }
         >
-          {t("paymentsOverview.detail")}
-        </Link>
-      </Button>
-    </Card>
+          {t(`paymentsOverview.statuses.${status}`)}
+        </Badge>
+      </TableCell>
+      <TableCell className="px-4 py-4">
+        {entry.amountOwedCzk < 0 ? (
+          <span>
+            {t("paymentsOverview.overpayment")} <MoneyAmount amountCzk={-entry.amountOwedCzk} />
+          </span>
+        ) : (
+          <MoneyAmount amountCzk={entry.amountOwedCzk} />
+        )}
+      </TableCell>
+      <TableCell className="px-4 py-4">
+        <span className={entry.overdue ? "text-destructive" : undefined}>
+          {formatDate(entry.paymentDueAt)}
+          {entry.overdue ? ` · ${t("paymentsOverview.statuses.OVERDUE").toLowerCase()}` : null}
+        </span>
+        <br />
+        <span className={entry.overdue ? "text-destructive" : undefined}>
+          {entry.lastReminderAt
+            ? t("paymentsOverview.remindersLast", {
+                count: entry.reminderCount,
+                date: formatDate(entry.lastReminderAt),
+              })
+            : t("paymentsOverview.remindersLine", { count: entry.reminderCount })}
+        </span>
+      </TableCell>
+      <TableCell className="px-4 py-2">
+        <Button
+          asChild
+          variant="ghost"
+          size="lg"
+        >
+          <Link
+            to={ROUTES.organizer.application}
+            params={{ eventId, applicationId: entry.applicationId }}
+            aria-label={`${t("paymentsOverview.detail")} ${entry.firstName} ${entry.lastName}`}
+          >
+            {t("paymentsOverview.detail")}
+          </Link>
+        </Button>
+      </TableCell>
+    </TableRow>
   )
 }
