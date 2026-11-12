@@ -73,27 +73,30 @@ const termRooms = (termId: string, rooms: TermRooms["rooms"], roomMode: TermRoom
   roomMode,
   rooms,
   capacity: {
-    FEMALE: rooms
-      .filter((room) => room.gender === "FEMALE")
-      .reduce((n, r) => n + r.capacity + r.extraBeds, 0),
-    MALE: rooms
-      .filter((room) => room.gender === "MALE")
-      .reduce((n, r) => n + r.capacity + r.extraBeds, 0),
-    total: rooms.reduce((n, r) => n + r.capacity + r.extraBeds, 0),
+    FEMALE: rooms.filter((room) => room.gender === "FEMALE").reduce((n, r) => n + r.beds, 0),
+    MALE: rooms.filter((room) => room.gender === "MALE").reduce((n, r) => n + r.beds, 0),
+    total: rooms.reduce((n, r) => n + r.beds, 0),
   },
 })
 const byTerm: Record<string, TermRooms> = {
   t1: termRooms(
     "t1",
     [
-      { id: "r1", name: "Gendered room", gender: "FEMALE", capacity: 5000, extraBeds: 2 },
-      { id: "r2", name: "Men's room", gender: "MALE", capacity: 4, extraBeds: 0 },
+      {
+        id: "r1",
+        name: "Gendered room",
+        gender: "FEMALE",
+        capacity: 5000,
+        extraBeds: 2,
+        beds: 5002,
+      },
+      { id: "r2", name: "Men's room", gender: "MALE", capacity: 4, extraBeds: 0, beds: 4 },
     ],
     "GENDERED",
   ),
   t2: termRooms(
     "t2",
-    [{ id: "s1", name: "Shared room", gender: null, capacity: 60, extraBeds: 0 }],
+    [{ id: "s1", name: "Shared room", gender: null, capacity: 60, extraBeds: 0, beds: 60 }],
     "SHARED",
   ),
 }
@@ -216,7 +219,7 @@ describe("accommodation by term", () => {
     post.mockResolvedValue(undefined)
     byTerm.t3 = termRooms(
       "t3",
-      [{ id: "x", name: "Other", gender: "MALE", capacity: 4, extraBeds: 0 }],
+      [{ id: "x", name: "Other", gender: "MALE", capacity: 4, extraBeds: 0, beds: 4 }],
       "GENDERED",
     )
     const { user } = renderRooms("t1")

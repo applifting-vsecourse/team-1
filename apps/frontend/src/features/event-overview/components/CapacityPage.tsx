@@ -28,7 +28,7 @@ import { UnfinishedEvent } from "@/features/event-overview/components/Unfinished
 import type { ApplicationsSearch } from "@/features/event-overview/lib/applications-search"
 
 type Gender = "FEMALE" | "MALE"
-type Room = { gender: Gender | null; capacity: number; extraBeds: number }
+type Room = { gender: Gender | null; beds: number }
 
 const GENDERS = ["FEMALE", "MALE"] as const
 
@@ -37,8 +37,7 @@ function roomGroups(rooms: readonly Room[], gender: Gender) {
   const groups = new Map<number, number>()
   for (const room of rooms) {
     if (room.gender !== gender) continue
-    const beds = room.capacity + room.extraBeds
-    groups.set(beds, (groups.get(beds) ?? 0) + 1)
+    groups.set(room.beds, (groups.get(room.beds) ?? 0) + 1)
   }
   return [...groups].sort(([a], [b]) => b - a).map(([beds, count]) => ({ beds, count }))
 }

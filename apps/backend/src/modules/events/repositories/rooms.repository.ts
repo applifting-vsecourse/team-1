@@ -1,5 +1,6 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { Prisma } from "@/generated/prisma/client"
+import { computeRoomBeds } from "@/modules/applications/domain/capacity"
 import {
   RoomCopyStrategy,
   RoomGenderAssignment,
@@ -39,6 +40,7 @@ export class RoomsRepository {
         name,
         capacity,
         extraBeds,
+        beds: computeRoomBeds({ capacity, extraBeds }),
         gender,
       })),
     }

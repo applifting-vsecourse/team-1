@@ -53,7 +53,7 @@ function renderPage(
   status = 200,
   props: {
     termId?: string
-    rooms?: { gender: "FEMALE" | "MALE" | null; capacity: number; extraBeds: number }[]
+    rooms?: { gender: "FEMALE" | "MALE" | null; beds: number }[]
   } = {},
 ) {
   vi.spyOn(globalThis, "fetch").mockImplementation(() =>
@@ -122,8 +122,8 @@ describe("CapacityPage", () => {
     renderPage(gendered, 200, {
       termId: "t1",
       rooms: [
-        { gender: "FEMALE", capacity: 5, extraBeds: 0 },
-        { gender: "MALE", capacity: 5, extraBeds: 0 },
+        { gender: "FEMALE", beds: 5 },
+        { gender: "MALE", beds: 5 },
       ],
     })
 

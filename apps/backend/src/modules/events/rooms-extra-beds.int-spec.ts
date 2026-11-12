@@ -90,7 +90,7 @@ describe("extra beds of a room (integration)", () => {
   it("adds any number of extra beds to the room, the women's group and the free beds of this term only", async () => {
     expect((await setExtraBeds(2)).status).toBe(204)
     const [room] = (await rooms(termId)).rooms
-    expect(room).toMatchObject({ capacity: 4, extraBeds: 2 })
+    expect(room).toMatchObject({ capacity: 4, extraBeds: 2, beds: 6 })
     expect((await rooms(termId)).capacity).toEqual({ FEMALE: 6, MALE: 0, total: 6 })
     const terms = await capacities()
     expect(terms[termId].capacity).toEqual({ FEMALE: 6, MALE: 0 })

@@ -10,6 +10,8 @@ const roomSchema = z.object({
   capacity: z.number().int().min(1),
   /** Extra beds (přistýlky) of the room in this term; each is one more bed. */
   extraBeds: z.number().int().min(0),
+  /** Capacity plus extra beds, computed by the API. */
+  beds: z.number().int().min(1),
   gender: z.enum(["FEMALE", "MALE"]).nullable(),
 })
 const termRoomsSchema = z.object({
@@ -28,7 +30,7 @@ const termRoomsSchema = z.object({
 export type Room = z.infer<typeof roomSchema>
 export type RoomMode = z.infer<typeof roomModeSchema>
 export type TermRooms = z.infer<typeof termRoomsSchema>
-export type RoomInput = Omit<Room, "id" | "extraBeds">
+export type RoomInput = Omit<Room, "id" | "extraBeds" | "beds">
 /** Gender chosen for an existing room when a term switches to gendered rooms. */
 export type RoomGender = { id: string; gender: "FEMALE" | "MALE" }
 

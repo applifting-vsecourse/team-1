@@ -78,7 +78,6 @@ export function RoomExtraBedsPage({
   }
   const term = current.data
   const extraBeds = Number(value)
-  const total = room.capacity + (Number.isInteger(extraBeds) && extraBeds >= 0 ? extraBeds : 0)
   // The room of the same name in another term, if that term has one.
   const roomIn = (index: number) =>
     queries[index]?.data?.rooms.find((item) => item.name.toLowerCase() === room.name.toLowerCase())
@@ -132,8 +131,8 @@ export function RoomExtraBedsPage({
             <p>
               {[
                 t("rooms.extraBedsBase", { count: room.capacity }),
-                t("rooms.extraBedsCount", { count: Number.isFinite(extraBeds) ? extraBeds : 0 }),
-                t("rooms.extraBedsTotal", { count: total }),
+                t("rooms.extraBedsCount", { count: room.extraBeds }),
+                t("rooms.extraBedsTotal", { count: room.beds }),
               ].join(" · ")}
             </p>
             <div className="flex flex-col gap-2">

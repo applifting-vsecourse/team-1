@@ -62,9 +62,15 @@ const termRooms = (termId: string, rooms: TermRooms["rooms"]): TermRooms => ({
   capacity: { FEMALE: 0, MALE: 0, total: 0 },
 })
 const byTerm: Record<string, TermRooms> = {
-  t1: termRooms("t1", [{ id: "a1", name: "Room A1", gender: "FEMALE", capacity: 4, extraBeds: 2 }]),
-  t2: termRooms("t2", [{ id: "b1", name: "room a1", gender: "FEMALE", capacity: 4, extraBeds: 0 }]),
-  t3: termRooms("t3", [{ id: "c1", name: "Other", gender: "FEMALE", capacity: 4, extraBeds: 0 }]),
+  t1: termRooms("t1", [
+    { id: "a1", name: "Room A1", gender: "FEMALE", capacity: 4, extraBeds: 2, beds: 6 },
+  ]),
+  t2: termRooms("t2", [
+    { id: "b1", name: "room a1", gender: "FEMALE", capacity: 4, extraBeds: 0, beds: 4 },
+  ]),
+  t3: termRooms("t3", [
+    { id: "c1", name: "Other", gender: "FEMALE", capacity: 4, extraBeds: 0, beds: 4 },
+  ]),
 }
 
 function renderPage() {
@@ -106,15 +112,12 @@ describe("extra beds of a room", () => {
     expect(screen.getByRole("button", { name: "Save extra beds" })).toBeEnabled()
   })
 
-  it("recalculates the total while typing and saves the number for this term only", async () => {
+  it("saves the number for this term only", async () => {
     patch.mockResolvedValue(undefined)
     const { user } = renderPage()
     const input = await screen.findByLabelText("Number of extra beds")
     await user.clear(input)
     await user.type(input, "5")
-    expect(
-      screen.getByText("Base capacity 4 beds · Extra beds 5 · Total 9 beds"),
-    ).toBeInTheDocument()
     await user.click(screen.getByRole("button", { name: "Save extra beds" }))
     await waitFor(() =>
       expect(patch).toHaveBeenCalledWith("organizer/events/e1/terms/t1/rooms/a1/extra-beds", {

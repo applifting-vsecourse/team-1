@@ -7,6 +7,7 @@ class RoomResponseDto {
   @ApiProperty() name!: string
   @ApiProperty() capacity!: number
   @ApiProperty({ description: "Extra beds (přistýlky), each one more bed" }) extraBeds!: number
+  @ApiProperty({ description: "All beds of the room: capacity plus extra beds" }) beds!: number
   @ApiProperty({ enum: ["FEMALE", "MALE"], nullable: true }) gender!: Gender | null
 }
 class RoomCapacityDto {
