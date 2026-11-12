@@ -86,12 +86,14 @@ export function TermStatuses({ applicationId }: { applicationId: string }) {
           >
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
               <span className="font-medium">{termDatesLine(term)}</span>
-              <Badge variant={BADGE[term.status]}>{t(`termStatus.state.${term.status}`)}</Badge>
-              {term.status === "WAITLISTED" && term.waitlistPosition !== null ? (
-                <span className="text-sm font-bold">
-                  {t("termStatus.waitlistPosition", { position: term.waitlistPosition })}
-                </span>
-              ) : null}
+              <div className="flex items-center gap-3">
+                <Badge variant={BADGE[term.status]}>{t(`termStatus.state.${term.status}`)}</Badge>
+                {term.status === "WAITLISTED" && term.waitlistPosition !== null ? (
+                  <span className="text-sm font-bold">
+                    {t("termStatus.waitlistPosition", { position: term.waitlistPosition })}
+                  </span>
+                ) : null}
+              </div>
               {term.status === "CANCELLED" ? null : (
                 <div className="flex flex-wrap gap-2 sm:ml-auto">
                   <OrganizerTermChange
