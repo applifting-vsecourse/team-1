@@ -373,7 +373,7 @@ export function ParticipantTermChange({
     >
       <DialogContent className="flex max-h-[calc(100dvh-2rem)] flex-col gap-0 overflow-hidden p-0 sm:max-w-160">
         <div className="flex [scrollbar-width:thin] flex-col gap-4 overflow-y-auto p-6">
-          <DialogHeader>
+          <DialogHeader className="text-left">
             <DialogTitle className="text-2xl">{title}</DialogTitle>
             <DialogDescription className="sr-only">{subject}</DialogDescription>
           </DialogHeader>
