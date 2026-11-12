@@ -27,12 +27,13 @@ vi.stubGlobal(
 Element.prototype.hasPointerCapture = () => false
 Element.prototype.scrollIntoView = vi.fn()
 
-const { get, post, success } = vi.hoisted(() => ({
+const { get, post, patch, success } = vi.hoisted(() => ({
   get: vi.fn(),
   post: vi.fn(),
+  patch: vi.fn(),
   success: vi.fn(),
 }))
-vi.mock("@/lib/api-client", () => ({ api: { get, post }, apiErrorCode: () => undefined }))
+vi.mock("@/lib/api-client", () => ({ api: { get, post, patch }, apiErrorCode: () => undefined }))
 vi.mock("@/lib/notify", () => ({ notify: { success } }))
 
 const terms: AccommodationTerm[] = [
@@ -123,12 +124,8 @@ function renderRooms(termId: string) {
     getParentRoute: () => root,
     path: "/organizer/events/$eventId/terms",
   })
-  const extraBedsRoute = createRoute({
-    getParentRoute: () => root,
-    path: "/organizer/events/$eventId/rooms/extra-beds",
-  })
   const router = createRouter({
-    routeTree: root.addChildren([termsRoute, extraBedsRoute]),
+    routeTree: root.addChildren([termsRoute]),
     history: createMemoryHistory({ initialEntries: ["/"] }),
   })
   render(<RouterProvider router={router} />)
@@ -139,6 +136,7 @@ describe("accommodation by term", () => {
   beforeEach(() => {
     get.mockReset()
     post.mockReset()
+    patch.mockReset()
     success.mockReset()
   })
 
@@ -154,29 +152,70 @@ describe("accommodation by term", () => {
     expect(screen.getByRole("columnheader", { name: "Gender" })).toBeInTheDocument()
   })
 
-  it("shows the extra beds of every room and links to their own screen", async () => {
+  it("shows the extra beds only when a room has some, without a +0", async () => {
     renderRooms("t1")
     const table = await screen.findByRole("table")
     expect(within(table).getByRole("columnheader", { name: "Extra beds" })).toBeInTheDocument()
     expect(within(table).getByText("+2")).toBeInTheDocument()
-    expect(within(table).getByText("+0")).toBeInTheDocument()
-    const edit = within(table).getByRole("link", { name: "Edit extra beds" })
-    expect(edit).toHaveAttribute(
-      "href",
-      expect.stringContaining("/organizer/events/e1/rooms/extra-beds?termId=t1&roomId=r1"),
-    )
-    expect(within(table).getByRole("link", { name: "Add extra bed" })).toHaveAttribute(
-      "href",
-      expect.stringContaining("roomId=r2"),
-    )
+    expect(within(table).queryByText("+0")).not.toBeInTheDocument()
+    expect(within(table).getByRole("button", { name: "Edit extra beds" })).toBeInTheDocument()
+    expect(within(table).getByRole("button", { name: "Add extra bed" })).toBeInTheDocument()
   })
 
-  it("shows base beds and extra beds in the phone list at 360 px", async () => {
+  it("has no extra beds column while no room has extra beds", async () => {
+    renderRooms("t2")
+    const table = await screen.findByRole("table")
+    expect(within(table).queryByRole("columnheader", { name: "Extra beds" })).toBeNull()
+  })
+
+  it("adds extra beds in a dialog that saves and closes", async () => {
+    patch.mockResolvedValue(undefined)
+    const { user } = renderRooms("t1")
+    const table = await screen.findByRole("table")
+    await user.click(within(table).getByRole("button", { name: "Add extra bed" }))
+    const dialog = await screen.findByRole("dialog")
+    await user.type(within(dialog).getByLabelText("Number of extra beds"), "3")
+    await user.click(within(dialog).getByRole("button", { name: "Save extra beds" }))
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument())
+    expect(patch).toHaveBeenCalledWith("organizer/events/e1/terms/t1/rooms/r2/extra-beds", {
+      json: { extraBeds: 3 },
+    })
+  })
+
+  it("explains an invalid number in the dialog instead of saving it", async () => {
+    const { user } = renderRooms("t1")
+    const table = await screen.findByRole("table")
+    await user.click(within(table).getByRole("button", { name: "Add extra bed" }))
+    const dialog = await screen.findByRole("dialog")
+    await user.type(within(dialog).getByLabelText("Number of extra beds"), "-1")
+    await user.click(within(dialog).getByRole("button", { name: "Save extra beds" }))
+    expect(await within(dialog).findByText("Enter a whole number, at least 1.")).toBeInTheDocument()
+    expect(patch).not.toHaveBeenCalled()
+  })
+
+  it("removes the extra beds of a room with a button instead of entering 0", async () => {
+    patch.mockResolvedValue(undefined)
+    const { user } = renderRooms("t1")
+    const table = await screen.findByRole("table")
+    await user.click(within(table).getByRole("button", { name: "Edit extra beds" }))
+    const dialog = await screen.findByRole("dialog")
+    expect(within(dialog).getByLabelText("Number of extra beds")).toHaveValue(2)
+    expect(
+      within(dialog).getByText("Base capacity 5000 beds · Extra beds 2 · Total 5002 beds"),
+    ).toBeInTheDocument()
+    await user.click(within(dialog).getByRole("button", { name: "Remove extra beds" }))
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument())
+    expect(patch).toHaveBeenCalledWith("organizer/events/e1/terms/t1/rooms/r1/extra-beds", {
+      json: { extraBeds: 0 },
+    })
+  })
+
+  it("lists the rooms with their actions below at 360 px", async () => {
     window.innerWidth = 360
     renderRooms("t1")
     await screen.findByRole("table")
     expect(screen.getAllByText(/Base beds 5000 · Extra beds \+2/).length).toBeGreaterThan(0)
-    expect(screen.getAllByText(/Base beds 4 · Extra beds \+0/).length).toBeGreaterThan(0)
+    expect(screen.getAllByRole("button", { name: "Edit extra beds" }).length).toBe(2)
   })
 
   it("shows a shared term with its shared capacity and no gender column", async () => {

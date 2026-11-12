@@ -43,6 +43,7 @@ import {
 import { CopyRoomsDialog } from "@/features/events/components/CopyRoomsDialog"
 import { DeleteRoomDialog } from "@/features/events/components/DeleteRoomDialog"
 import { RoomDialog } from "@/features/events/components/RoomDialog"
+import { RoomExtraBedsDialog } from "@/features/events/components/RoomExtraBedsDialog"
 import { RoomModeDialog } from "@/features/events/components/RoomModeDialog"
 
 /** What the page needs to know about every active term; the route reads it from the occupancy. */
@@ -57,7 +58,7 @@ export type AccommodationTerm = {
 
 // Rooms of one term of an event under the event header: the term, its room mode, capacity metrics
 // and the room table with edit / delete icon buttons in each row.
-// Each room also shows its extra beds (přistýlky) with a link to their own screen (US-80).
+// Each room also shows its extra beds (přistýlky) and a button that opens their dialog (US-80).
 // Figma (Design system): Pokoje v termínu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19786-37078 (mobile 19786-37234)
 // Figma (Design system): O18a / O18b · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12358-1789
 // Shared-room variant · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12358-3883
@@ -81,6 +82,7 @@ export function RoomsPage({
   })
   const [editor, setEditor] = useState<Room | "new" | null>(null)
   const [deleting, setDeleting] = useState<Room | null>(null)
+  const [extraBedsRoom, setExtraBedsRoom] = useState<Room | null>(null)
   const [pendingMode, setPendingMode] = useState<RoomMode | null>(null)
   const [isCopying, setIsCopying] = useState(false)
   const refresh = async () => {
@@ -117,20 +119,15 @@ export function RoomsPage({
     )
   }
   const isGendered = term.roomMode === "GENDERED"
-  const extraBedsLink = (room: Room) => (
+  const hasExtraBeds = term.rooms.some((room) => room.extraBeds > 0)
+  const extraBedsButton = (room: Room) => (
     <Button
-      asChild
-      variant="ghost"
+      variant="outline"
       size="lg"
-      className="max-sm:w-full"
+      className="max-sm:flex-1"
+      onClick={() => setExtraBedsRoom(room)}
     >
-      <Link
-        to={ROUTES.organizer.eventRoomExtraBeds}
-        params={{ eventId }}
-        search={{ termId: term.termId, roomId: room.id }}
-      >
-        {t(room.extraBeds ? "rooms.extraBedsEdit" : "rooms.extraBedsAdd")}
-      </Link>
+      {t(room.extraBeds ? "rooms.extraBedsEdit" : "rooms.extraBedsAdd")}
     </Button>
   )
   const metrics: { label: string; value: string | number; helper: string | null; free?: number }[] =
@@ -297,7 +294,9 @@ export function RoomsPage({
                     <TableRow>
                       <TableHead>{t("rooms.nameColumn")}</TableHead>
                       <TableHead className="text-right">{t("rooms.capacityColumn")}</TableHead>
-                      <TableHead className="text-right">{t("rooms.extraBedsColumn")}</TableHead>
+                      {hasExtraBeds ? (
+                        <TableHead className="text-right">{t("rooms.extraBedsColumn")}</TableHead>
+                      ) : null}
                       {isGendered ? <TableHead>{t("rooms.genderColumn")}</TableHead> : null}
                       <TableHead>
                         <span className="sr-only">{t("rooms.actionsColumn")}</span>
@@ -313,9 +312,13 @@ export function RoomsPage({
                         <TableCell className="text-right">
                           {t("rooms.beds", { count: room.capacity })}
                         </TableCell>
-                        <TableCell className="text-right">
-                          {room.extraBeds ? <Badge variant="info">+{room.extraBeds}</Badge> : "+0"}
-                        </TableCell>
+                        {hasExtraBeds ? (
+                          <TableCell className="text-right">
+                            {room.extraBeds ? (
+                              <Badge variant="info">+{room.extraBeds}</Badge>
+                            ) : null}
+                          </TableCell>
+                        ) : null}
                         {isGendered ? (
                           <TableCell>
                             {room.gender ? (
@@ -327,7 +330,7 @@ export function RoomsPage({
                         ) : null}
                         <TableCell>
                           <div className="flex items-center justify-end gap-1">
-                            {extraBedsLink(room)}
+                            {extraBedsButton(room)}
                             <Button
                               variant="ghost"
                               size="icon-lg"
@@ -355,39 +358,43 @@ export function RoomsPage({
                 {term.rooms.map((room) => (
                   <li
                     key={room.id}
-                    className="flex items-center gap-4 py-3"
+                    className="flex flex-col gap-3 py-4"
                   >
-                    <div className="flex min-w-0 flex-1 flex-col gap-1">
-                      <span className="font-medium break-words">{room.name}</span>
-                      <span className="text-sm text-muted-foreground">
-                        {t("rooms.extraBedsSummary", {
-                          capacity: room.capacity,
-                          extraBeds: room.extraBeds,
-                        })}
-                        {room.gender
-                          ? ` · ${t(room.gender === "FEMALE" ? "rooms.female" : "rooms.male")}`
-                          : ""}
-                      </span>
-                      {extraBedsLink(room)}
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex min-w-0 flex-col gap-1">
+                        <span className="font-medium break-words">{room.name}</span>
+                        <span className="text-sm text-muted-foreground">
+                          {room.extraBeds
+                            ? t("rooms.extraBedsSummary", {
+                                capacity: room.capacity,
+                                extraBeds: room.extraBeds,
+                              })
+                            : t("rooms.beds", { count: room.capacity })}
+                          {room.gender
+                            ? ` · ${t(room.gender === "FEMALE" ? "rooms.female" : "rooms.male")}`
+                            : ""}
+                        </span>
+                      </div>
+                      <div className="flex shrink-0 gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon-lg"
+                          aria-label={t("rooms.editRoom", { name: room.name })}
+                          onClick={() => setEditor(room)}
+                        >
+                          <Pencil />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon-lg"
+                          aria-label={t("rooms.deleteRoom", { name: room.name })}
+                          onClick={() => setDeleting(room)}
+                        >
+                          <Trash2 />
+                        </Button>
+                      </div>
                     </div>
-                    <div className="flex gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon-lg"
-                        aria-label={t("rooms.editRoom", { name: room.name })}
-                        onClick={() => setEditor(room)}
-                      >
-                        <Pencil />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon-lg"
-                        aria-label={t("rooms.deleteRoom", { name: room.name })}
-                        onClick={() => setDeleting(room)}
-                      >
-                        <Trash2 />
-                      </Button>
-                    </div>
+                    <div className="flex">{extraBedsButton(room)}</div>
                   </li>
                 ))}
               </ul>
@@ -430,6 +437,15 @@ export function RoomsPage({
             setEditor(null)
             setDeleting(room)
           }}
+        />
+      ) : null}
+      {extraBedsRoom ? (
+        <RoomExtraBedsDialog
+          key={extraBedsRoom.id}
+          term={term}
+          room={extraBedsRoom}
+          onClose={() => setExtraBedsRoom(null)}
+          onSaved={refresh}
         />
       ) : null}
       {deleting ? (
