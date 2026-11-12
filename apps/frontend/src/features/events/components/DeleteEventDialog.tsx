@@ -63,7 +63,7 @@ export function DeleteEventDialog({
       }}
     >
       <DialogContent className="gap-3 rounded-md p-4 sm:max-w-160 sm:p-6">
-        <DialogHeader>
+        <DialogHeader className="text-left">
           <DialogTitle className="pr-8 text-2xl leading-8 tracking-tight">
             {isBlocked ? t("delete.blockedTitle") : t("delete.title")}
           </DialogTitle>
@@ -75,7 +75,7 @@ export function DeleteEventDialog({
             className="border-destructive bg-card *:data-[slot=alert-description]:text-muted-foreground"
           >
             <CircleAlert />
-            <AlertTitle>{t("delete.blockedAlertTitle")}</AlertTitle>
+            <AlertTitle className="line-clamp-none">{t("delete.blockedAlertTitle")}</AlertTitle>
             <AlertDescription>{t("delete.blockedAlertDescription")}</AlertDescription>
           </Alert>
         ) : (
@@ -85,7 +85,7 @@ export function DeleteEventDialog({
               className="border-destructive bg-card *:data-[slot=alert-description]:text-muted-foreground"
             >
               <CircleAlert />
-              <AlertTitle>{t("delete.alertTitle")}</AlertTitle>
+              <AlertTitle className="line-clamp-none">{t("delete.alertTitle")}</AlertTitle>
               <AlertDescription>{t("delete.alertDescription")}</AlertDescription>
             </Alert>
             {mutation.isError ? (

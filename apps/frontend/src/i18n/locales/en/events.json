@@ -28,7 +28,7 @@
   "delete": {
     "action": "Delete event",
     "alertDescription": "A deleted event cannot be restored.",
-    "alertTitle": "You are about to permanently delete the event.",
+    "alertTitle": "The event will be permanently deleted.",
     "allowed": "An event without applications can be permanently deleted.",
     "blocked": "The event cannot be deleted because it has applications.",
     "blockedAlertDescription": "A new application was submitted in the meantime.",
