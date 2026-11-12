@@ -337,6 +337,22 @@ describe("ApplicationDetail", () => {
     ).toBeInTheDocument()
   })
 
+  it("cancels active terms while retaining the archived selection", async () => {
+    const user = userEvent.setup()
+    put.mockReturnValue({ json: () => Promise.resolve({ addedTerms: [] }) })
+    renderDetail(
+      application({
+        terms: [{ ...confirmed, status: "ARCHIVED" }, secondConfirmed],
+        paymentDetails: null,
+      }),
+    )
+    await user.click(await screen.findByRole("button", { name: "Cancel participation" }))
+    await user.click(screen.getByRole("button", { name: "Confirm cancellation" }))
+    expect(put).toHaveBeenCalledWith("participant/applications/a1/terms", {
+      json: { termIds: ["t1"] },
+    })
+  })
+
   it("cancels one term and shows its payment and bed impact before confirmation", async () => {
     const user = userEvent.setup()
     put.mockReturnValue({ json: () => Promise.resolve({ addedTerms: [] }) })

@@ -59,7 +59,7 @@ export function TermStatuses({ applicationId }: { applicationId: string }) {
       />
     )
   }
-  const active = data.filter((term) => term.status !== "CANCELLED")
+  const active = data.filter((term) => term.status !== "CANCELLED" && term.status !== "ARCHIVED")
   return (
     <Card className="gap-4 p-4 md:p-6">
       <div className="flex flex-col gap-1">

@@ -96,7 +96,11 @@ export function ParticipantTermChange({
   }>()
   const [hasValidationError, setHasValidationError] = useState(false)
 
-  const active = options.data?.terms.filter((term) => term.selected) ?? []
+  const archivedIds = application.terms
+    .filter((term) => term.status === "ARCHIVED")
+    .map((term) => term.termId)
+  const active =
+    options.data?.terms.filter((term) => term.selected && !archivedIds.includes(term.id)) ?? []
   const available = options.data?.terms.filter((term) => !term.selected) ?? []
   const source = active.find((term) => term.id === sourceId) ?? active[0]
   const target = available.find((term) => term.id === targetId) ?? available[0]
@@ -108,13 +112,15 @@ export function ParticipantTermChange({
       : source
         ? [source]
         : []
-  const selectedIds =
-    mode === "cancel"
+  const selectedIds = [
+    ...archivedIds,
+    ...(mode === "cancel"
       ? active.filter((term) => !removed.includes(term)).map((term) => term.id)
       : [
           ...active.filter((term) => term.id !== source?.id).map((term) => term.id),
           ...(target ? [target.id] : []),
-        ]
+        ]),
+  ]
   const canSubmit = removed.length > 0 && (mode === "cancel" || Boolean(target))
   const removedImpactLines = removed.map((term) => {
     const status = application.terms.find((item) => item.termId === term.id)?.status
