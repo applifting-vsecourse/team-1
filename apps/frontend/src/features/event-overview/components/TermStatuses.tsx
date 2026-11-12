@@ -100,7 +100,7 @@ export function TermStatuses({ applicationId }: { applicationId: string }) {
                     occupied: term.occupied,
                     capacity: term.capacity,
                     price: formatCzk(term.priceCzk),
-                    debt: formatCzk(Math.max(term.owedCzk, 0)),
+                    debt: formatCzk(term.debtCzk),
                   },
                 )}
               </p>

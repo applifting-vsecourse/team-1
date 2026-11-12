@@ -39,6 +39,9 @@ export class TermStatusResponseDto {
   @ApiProperty({ enum: STATUSES }) status!: string
   @ApiProperty() priceCzk!: number
   @ApiProperty() owedCzk!: number
+  @ApiProperty() debtCzk!: number
+  @ApiProperty() confirmationExceedsCapacity!: boolean
+  @ApiProperty() confirmationNextOccupied!: number
   @ApiProperty() capacity!: number
   @ApiProperty() occupied!: number
   @ApiProperty() confirmationCapacity!: number
@@ -63,6 +66,9 @@ export class TermStatusResponseDto {
       status: term.status,
       priceCzk: term.priceCzk,
       owedCzk: term.owedCzk,
+      debtCzk: term.debtCzk,
+      confirmationExceedsCapacity: term.confirmationExceedsCapacity,
+      confirmationNextOccupied: term.confirmationNextOccupied,
       capacity: term.capacity,
       occupied: term.occupied,
       confirmationCapacity: term.confirmationCapacity,

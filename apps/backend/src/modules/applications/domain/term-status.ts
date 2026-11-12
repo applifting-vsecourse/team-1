@@ -48,6 +48,9 @@ export type TermStatusDetail = {
   status: ApplicationTermStatus
   priceCzk: number
   owedCzk: number
+  debtCzk: number
+  confirmationExceedsCapacity: boolean
+  confirmationNextOccupied: number
   capacity: number
   occupied: number
   confirmationCapacity: number

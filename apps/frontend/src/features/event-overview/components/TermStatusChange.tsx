@@ -51,7 +51,7 @@ export function TermStatusChange({
       (term.status !== "CONFIRMED" || status !== "CANCELLED"),
   )
   const [to, setTo] = useState<TermStatus>(allowed[0] ?? "CONFIRMED")
-  const isFull = term.confirmationOccupied >= term.confirmationCapacity
+  const isFull = term.confirmationExceedsCapacity
   const [isOverCapacity, setIsOverCapacity] = useState(allowed[0] === "CONFIRMED" && isFull)
   const [isOverCapacityConfirmed, setIsOverCapacityConfirmed] = useState(false)
   const mutation = useMutation({
@@ -156,7 +156,7 @@ export function TermStatusChange({
                 {t("termStatus.overCapacityDescription", {
                   occupied: term.confirmationOccupied,
                   capacity: term.confirmationCapacity,
-                  next: term.confirmationOccupied + 1,
+                  next: term.confirmationNextOccupied,
                 })}
               </AlertDescription>
             </Alert>
@@ -184,7 +184,7 @@ export function TermStatusChange({
                 ? t("termStatus.confirmImpact", {
                     occupied: term.confirmationOccupied,
                     capacity: term.confirmationCapacity,
-                    next: term.confirmationOccupied + 1,
+                    next: term.confirmationNextOccupied,
                     price: formatCzk(term.confirmationDueCzk),
                   })
                 : t(to === "CANCELLED" ? "termStatus.cancelImpact" : "termStatus.waitlistImpact")}

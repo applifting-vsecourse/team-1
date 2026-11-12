@@ -17,6 +17,9 @@ const term = (overrides: object = {}) => ({
   priceCzk: 6900,
   owedCzk: 1000,
   capacity: 50,
+  debtCzk: 0,
+  confirmationExceedsCapacity: false,
+  confirmationNextOccupied: 49,
   confirmationCapacity: 50,
   confirmationOccupied: 48,
   confirmationDueCzk: 6900,
@@ -200,6 +203,34 @@ describe("designed status states", () => {
     expect(patch).toHaveBeenCalledWith("organizer/applications/a1/terms/t1/status", {
       json: { status: "CANCELLED" },
     })
+  })
+  it("uses the server's capacity decision before the first save", async () => {
+    get.mockReturnValue({
+      json: () =>
+        Promise.resolve([
+          term({
+            confirmationExceedsCapacity: true,
+            confirmationOccupied: 50,
+            confirmationNextOccupied: 51,
+          }),
+        ]),
+    })
+    patch.mockResolvedValue(undefined)
+    setup()
+    const user = userEvent.setup()
+    await user.click(await screen.findByRole("button", { name: "Change status" }))
+    expect(screen.getByRole("button", { name: "Save status" })).toBeDisabled()
+    expect(patch).not.toHaveBeenCalled()
+    expect(screen.getByText(/After confirmation it will be 51\/50/)).toBeVisible()
+    await user.click(
+      screen.getByRole("checkbox", { name: "I knowingly confirm the application over capacity." }),
+    )
+    await user.click(screen.getByRole("button", { name: "Save status" }))
+    await waitFor(() =>
+      expect(patch).toHaveBeenCalledWith("organizer/applications/a1/terms/t1/status", {
+        json: { status: "CONFIRMED", confirmOverCapacity: true },
+      }),
+    )
   })
   it("keeps the selected state after an error and allows retry", async () => {
     get.mockReturnValue({ json: () => Promise.resolve([term()]) })

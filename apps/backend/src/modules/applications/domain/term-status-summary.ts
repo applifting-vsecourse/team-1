@@ -6,6 +6,7 @@ import {
 } from "@/modules/applications/domain/capacity"
 import { ApplicationTermStatus } from "@/modules/applications/domain/evaluation"
 import { computeTermOwed } from "@/modules/applications/domain/pricing"
+import { exceedsCapacityWhenConfirmed } from "@/modules/applications/domain/status-transition"
 import { Gender } from "@/shared/domain/gender"
 
 /** Read-only status card and confirmation preview; the write checks again under the event lock. */
@@ -17,6 +18,9 @@ export function termStatusSummary(
   gender: Gender,
 ): {
   owedCzk: number
+  debtCzk: number
+  confirmationExceedsCapacity: boolean
+  confirmationNextOccupied: number
   capacity: number
   occupied: number
   confirmationCapacity: number
@@ -27,13 +31,18 @@ export function termStatusSummary(
   const confirmationCapacity = rooms.some((room) => room.gender === null)
     ? capacity
     : computeTermCapacity(rooms)[gender]
-  const free = computeAvailablePlaces(rooms, confirmedGenders)[gender]
+  const freePlaces = computeAvailablePlaces(rooms, confirmedGenders)
+  const confirmationOccupied = confirmationCapacity - freePlaces[gender]
+  const owedCzk = computeTermOwed(term, payments)
   return {
-    owedCzk: computeTermOwed(term, payments),
+    owedCzk,
+    debtCzk: Math.max(owedCzk, 0),
+    confirmationExceedsCapacity: exceedsCapacityWhenConfirmed(gender, freePlaces),
+    confirmationNextOccupied: confirmationOccupied + 1,
     capacity,
     occupied: confirmedGenders.length,
     confirmationCapacity,
-    confirmationOccupied: confirmationCapacity - free,
+    confirmationOccupied,
     confirmationDueCzk: Math.max(computeTermOwed({ ...term, status: "CONFIRMED" }, payments), 0),
   }
 }
