@@ -177,6 +177,7 @@ model Organization {
   mealOptions      MealOption[]
   applicationHealth ApplicationHealth[]
   transports       Transport[]
+  programBlocks    ProgramBlock[]
 
   @@map("organization")
 }
@@ -304,6 +305,7 @@ model Term {
   applicationTerms ApplicationTerm[]
   rooms            Room[]
   transports       Transport[]
+  programBlocks    ProgramBlock[]
 
   @@unique([eventId, number])
   @@index([organizationId])
@@ -345,6 +347,31 @@ model Transport {
   @@index([organizationId])
   @@index([termId])
   @@map("transport")
+}
+
+// One block of the program of a term (US-66): what happens on which day, when and where. Each term has
+// its own program; every confirmed participant sees it. The times are wall-clock "HH:mm" of the term's
+// day (no time zone), so they never shift.
+model ProgramBlock {
+  id             String       @id @default(cuid())
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId String
+  term           Term         @relation(fields: [termId], references: [id], onDelete: Cascade)
+  termId         String
+  // A day within the term (startsOn–endsOn).
+  date           DateTime     @db.Date
+  // "HH:mm", zero-padded, so that sorting as text sorts by time. endTime is after startTime.
+  startTime      String
+  endTime        String
+  name           String
+  place          String?
+  description    String?      @db.Text
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @default(now()) @updatedAt
+
+  @@index([organizationId])
+  @@index([termId, date, startTime])
+  @@map("program_block")
 }
 
 // A room belongs to exactly one term (US-99, D-052).

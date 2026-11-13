@@ -3,6 +3,7 @@ import { Link, useMatchRoute } from "@tanstack/react-router"
 import {
   BedDouble,
   Bus,
+  CalendarClock,
   CalendarDays,
   Check,
   ChevronDown,
@@ -79,6 +80,7 @@ const SECTIONS = [
   { key: "rooms", to: ROUTES.organizer.eventRooms, icon: BedDouble },
   { key: "terms", to: ROUTES.organizer.eventTerms, icon: CalendarDays },
   { key: "transport", to: ROUTES.organizer.eventTransport, icon: Bus },
+  { key: "program", to: ROUTES.organizer.eventProgram, icon: CalendarClock },
   { key: "settings", to: ROUTES.organizer.eventSettings, icon: Settings },
 ] as const
 
