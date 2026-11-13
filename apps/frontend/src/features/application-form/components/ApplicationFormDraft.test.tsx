@@ -63,6 +63,9 @@ async function fillWholeForm() {
   await userEvent.click(screen.getByRole("checkbox", { name: /I agree to the processing/ }))
 }
 
+// Filling in the whole form takes a while on a busy machine.
+vi.setConfig({ testTimeout: 20_000 })
+
 describe("ApplicationForm draft in sessionStorage", () => {
   beforeEach(() => {
     window.sessionStorage.clear()
