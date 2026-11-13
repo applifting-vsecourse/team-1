@@ -39,6 +39,7 @@ const person = (
   end: string,
   amountCzk = 6900,
 ) => ({
+  id: `app-${number}`,
   firstName,
   lastName,
   code: `LK-${number}`,
@@ -64,7 +65,7 @@ const data = (overrides: Partial<Data> = {}): Data => ({
   ...overrides,
 })
 
-const renderStatus = async (value: Data) => {
+const renderStatus = async (value: Data, signedInParticipantEmail: string | null = null) => {
   get.mockReturnValue({ json: () => Promise.resolve(value) })
   const root = createRootRoute({
     component: () => (
@@ -72,7 +73,10 @@ const renderStatus = async (value: Data) => {
         client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
       >
         <Suspense>
-          <SubmissionStatus accessToken="tok" />
+          <SubmissionStatus
+            accessToken="tok"
+            signedInParticipantEmail={signedInParticipantEmail}
+          />
         </Suspense>
       </QueryClientProvider>
     ),
@@ -198,5 +202,59 @@ describe("SubmissionStatus", () => {
 
     expect(screen.getByText(/You already have an account for jana@example.com/)).toBeVisible()
     expect(screen.getByRole("link", { name: "Sign in to the application" })).toBeVisible()
+  })
+
+  describe("link under the account card (#318)", () => {
+    it("keeps the sign-in link for an applicant who is not signed in", async () => {
+      await renderStatus(data())
+
+      expect(screen.getByRole("link", { name: "Go to sign in" })).toHaveAttribute(
+        "href",
+        "/participant/login",
+      )
+      expect(screen.queryByRole("link", { name: "View application" })).not.toBeInTheDocument()
+    })
+
+    it("opens the submitted application for a signed-in applicant who owns it", async () => {
+      await renderStatus(data({ isNewAccount: false }), "Jana@Example.com")
+
+      expect(screen.getByRole("link", { name: "View application" })).toHaveAttribute(
+        "href",
+        "/participant/applications/app-0048",
+      )
+      expect(screen.queryByRole("link", { name: /sign in/i })).not.toBeInTheDocument()
+    })
+
+    it("opens the list of applications when one submission holds several of them", async () => {
+      await renderStatus(
+        data({
+          applications: [
+            jana(),
+            person("Matěj", "Novák", "0049", "CONFIRMED", "2027-08-02", "2027-08-08"),
+          ],
+        }),
+        "jana@example.com",
+      )
+
+      expect(screen.getByRole("link", { name: "View applications" })).toHaveAttribute(
+        "href",
+        "/participant",
+      )
+    })
+
+    it("keeps the sign-in link for a signed-in organizer (the route passes no participant e-mail)", async () => {
+      await renderStatus(data(), null)
+
+      expect(screen.getByRole("link", { name: "Go to sign in" })).toHaveAttribute(
+        "href",
+        "/participant/login",
+      )
+    })
+
+    it("keeps the sign-in link for a signed-in applicant who applied for another e-mail", async () => {
+      await renderStatus(data(), "someone-else@example.com")
+
+      expect(screen.getByRole("link", { name: "Go to sign in" })).toBeVisible()
+    })
   })
 })

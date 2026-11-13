@@ -8,6 +8,7 @@ import { HTTPError } from "@/lib/api-client"
 import { submissionStatusQueryOptions } from "@/features/application-form/api/submissionStatus"
 import { ApplicationLinkNotFound } from "@/features/application-form/components/ApplicationLinkNotFound"
 import { SubmissionStatus } from "@/features/application-form/components/SubmissionStatus"
+import { useSession } from "@/features/auth/hooks/useSession"
 
 export const Route = createFileRoute("/apply/confirmation/$accessToken")({
   // Secret URL, so it survives a reload and can go in the e-mail. An unknown token is a 404.
@@ -27,12 +28,16 @@ export const Route = createFileRoute("/apply/confirmation/$accessToken")({
 function ApplicationConfirmationPage() {
   const { accessToken } = Route.useParams()
   const { t } = useTranslation("applicationForm")
+  const { user } = useSession()
 
   return (
     <>
       <Seo title={t("confirmation.title")} />
       <PublicLayout>
-        <SubmissionStatus accessToken={accessToken} />
+        <SubmissionStatus
+          accessToken={accessToken}
+          signedInParticipantEmail={user?.accountType === "PARTICIPANT" ? user.email : null}
+        />
       </PublicLayout>
     </>
   )

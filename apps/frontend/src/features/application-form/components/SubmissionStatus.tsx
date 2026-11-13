@@ -23,6 +23,8 @@ import {
 
 type SubmissionStatusProps = {
   accessToken: string
+  /** E-mail of the signed-in participant account, `null` when nobody (or an organizer) is signed in. */
+  signedInParticipantEmail?: string | null
 }
 
 /** Names of the participants, "Jana Nováková a Matěj Novák". */
@@ -43,7 +45,10 @@ function listNames(applications: SubmittedApplication[]): string {
 // Figma (Design system): V04a Všechny termíny na čekací listině · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12710-2345
 // Figma (Design system): Potvrzení odeslání · Po odeslání (K vyhodnocení) · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15751-1267 (360 px: node-id=15751-1297)
 // Figma (Design system): M06 Stav a platba po odeslání · 360 px · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12666-20366
-export function SubmissionStatus({ accessToken }: SubmissionStatusProps) {
+export function SubmissionStatus({
+  accessToken,
+  signedInParticipantEmail = null,
+}: SubmissionStatusProps) {
   const { t } = useTranslation("applicationForm")
   const { data } = useSuspenseQuery(submissionStatusQueryOptions(accessToken))
   const termCount = data.applications.reduce((sum, a) => sum + a.terms.length, 0)
@@ -105,7 +110,10 @@ export function SubmissionStatus({ accessToken }: SubmissionStatusProps) {
         </section>
       )}
 
-      <AccountCard data={data} />
+      <AccountCard
+        data={data}
+        signedInParticipantEmail={signedInParticipantEmail}
+      />
     </div>
   )
 }
@@ -252,9 +260,20 @@ function PaymentCard({ payers }: { payers: SubmittedApplication[] }) {
 }
 
 // Figma (Design system): V04 Přístup k přihlášce · node-id=12710-1643, V06 Přihláška je v existujícím účtu · node-id=12710-1947
-function AccountCard({ data }: { data: SubmissionStatusData }) {
+function AccountCard({
+  data,
+  signedInParticipantEmail,
+}: {
+  data: SubmissionStatusData
+  signedInParticipantEmail: string | null
+}) {
   const { t } = useTranslation("applicationForm")
   const kind = data.isNewAccount ? "newAccount" : "existingAccount"
+  // A signed-in participant whose account owns the submission (same e-mail) is already in:
+  // the link opens the application. Everyone else keeps the sign-in link (#318).
+  const isOwner = signedInParticipantEmail?.toLowerCase() === data.email.toLowerCase()
+  const [onlyApplication] = data.applications
+  const singleApplicationId = data.applications.length === 1 ? onlyApplication?.id : undefined
 
   return (
     <>
@@ -267,7 +286,20 @@ function AccountCard({ data }: { data: SubmissionStatusData }) {
         size="lg"
         className="w-full sm:w-fit"
       >
-        <Link to={ROUTES.participant.login}>{t(`confirmation.account.${kind}Action`)}</Link>
+        {isOwner && singleApplicationId ? (
+          <Link
+            to={ROUTES.participant.application}
+            params={{ applicationId: singleApplicationId }}
+          >
+            {t("confirmation.account.viewApplication")}
+          </Link>
+        ) : isOwner ? (
+          <Link to={ROUTES.participant.applications}>
+            {t("confirmation.account.viewApplications")}
+          </Link>
+        ) : (
+          <Link to={ROUTES.participant.login}>{t(`confirmation.account.${kind}Action`)}</Link>
+        )}
       </Button>
     </>
   )

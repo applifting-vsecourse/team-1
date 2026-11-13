@@ -15,6 +15,8 @@ const termSchema = z.object({
 })
 
 const submittedApplicationSchema = z.object({
+  /** Id of the application, for the link to its detail. */
+  id: z.string(),
   firstName: z.string(),
   lastName: z.string(),
   /** Reference for people, `LKL-0048`. */
