@@ -92,8 +92,11 @@ export class EventsService {
     }
     const { organizationId } = await this.organizationAccess.assertCanAccessEvent(user, eventId)
     const today = todayInPrague(new Date()).toISOString().slice(0, 10)
-    const current = (await this.get(user, eventId)).cancellationStartsOn
-    if (!isCancellationStartAllowed(cancellationStartsOn, current, today)) {
+    const event = await this.get(user, eventId)
+    // An unchanged day (even a lapsed one) is not written again: a concurrent change made after
+    // the read above must not be overwritten with the older value.
+    if (cancellationStartsOn === event.cancellationStartsOn) return event
+    if (!isCancellationStartAllowed(cancellationStartsOn, event.cancellationStartsOn, today)) {
       throw new AppException(HttpStatus.BAD_REQUEST, "CANCELLATION_START_IN_PAST")
     }
     await this.repository.setCancellationStart(eventId, organizationId, cancellationStartsOn)
