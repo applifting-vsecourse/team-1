@@ -8,8 +8,9 @@ import type { OrganizerEvent } from "@/features/events/api/events"
 import { DeleteEventDialog } from "@/features/events/components/DeleteEventDialog"
 
 /**
- * "Smazání akce" at the bottom of the event settings: a quiet button, disabled with
- * the reason written out once the event has applications. The server still refuses
+ * "Smazání akce" at the bottom of the event settings: a destructive button for an event
+ * without applications (PM decision on #404: follows the frame), a quiet disabled one with
+ * the reason written out once the event has applications (#315). The server still refuses
  * such an event (an application may arrive after the screen was loaded).
  */
 // Figma (Design system): #315 Nastavení akce · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19798-37338
@@ -27,7 +28,7 @@ export function DeleteEventSection({ event }: { event: OrganizerEvent }) {
         {event.hasApplications ? t("delete.blocked") : t("delete.allowed")}
       </p>
       <Button
-        variant="ghost"
+        variant={event.hasApplications ? "ghost" : "destructive"}
         size="lg"
         className="w-full"
         disabled={event.hasApplications}

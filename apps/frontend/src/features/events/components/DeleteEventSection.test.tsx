@@ -149,12 +149,25 @@ describe("DeleteEventSection", () => {
     expect(within(dialog).getByRole("button", { name: "Delete event" })).toBeInTheDocument()
   })
 
+  it("offers a destructive button when the event has no applications", async () => {
+    renderSection(base)
+
+    const button = await screen.findByRole("button", { name: "Delete event" })
+    expect(button).toBeEnabled()
+    expect(button).toHaveAttribute("data-variant", "destructive")
+    expect(
+      screen.getByText("An event without applications can be permanently deleted."),
+    ).toBeInTheDocument()
+  })
+
   it("disables the button and explains why when the event has applications", async () => {
     renderSection({ ...base, hasApplications: true })
 
     expect(
       await screen.findByText("The event cannot be deleted because it has applications."),
     ).toBeInTheDocument()
-    expect(screen.getByRole("button", { name: "Delete event" })).toBeDisabled()
+    const button = screen.getByRole("button", { name: "Delete event" })
+    expect(button).toBeDisabled()
+    expect(button).toHaveAttribute("data-variant", "ghost")
   })
 })
