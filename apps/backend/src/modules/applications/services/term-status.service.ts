@@ -8,13 +8,14 @@ import {
   changeEmailKind,
   rejectStatusChange,
 } from "@/modules/applications/domain/status-transition"
-import { proposedSubstitutes } from "@/modules/applications/domain/substitutes"
+import { FreedBed, substituteForFreedBed } from "@/modules/applications/domain/substitutes"
 import {
   StatusChangeCommand,
   StatusChangeResult,
   SubstituteRecord,
   TermStatusDetail,
 } from "@/modules/applications/domain/term-status"
+import { bedGroup } from "@/modules/applications/domain/waitlist"
 import { isWaitlistExpired } from "@/modules/applications/domain/waitlist-expiry"
 import { SubstitutesRepository } from "@/modules/applications/repositories/substitutes.repository"
 import { TermStatusRepository } from "@/modules/applications/repositories/term-status.repository"
@@ -59,7 +60,7 @@ export class TermStatusService {
     const change = await this.repository.changeParticipantTerms(user.id, applicationId, termIds)
     if (change === undefined) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
     if (change) await this.mailer.sendApplicationChange(change)
-    await this.fillFreedBeds(change?.freedTermIds ?? [])
+    await this.fillFreedBeds(change?.freedBeds ?? [])
     return { addedTerms: change?.addedTerms ?? [] }
   }
 
@@ -107,7 +108,7 @@ export class TermStatusService {
     )
     if (change === undefined) throw new AppException(HttpStatus.NOT_FOUND, "NOT_FOUND")
     if (change) await this.mailer.sendApplicationChange(change)
-    await this.fillFreedBeds(change?.freedTermIds ?? [])
+    await this.fillFreedBeds(change?.freedBeds ?? [])
     return { changed: change !== null, changedAt: new Date(), changedByName: user.name }
   }
 
@@ -142,7 +143,7 @@ export class TermStatusService {
     if (change === undefined) throw new AppException(HttpStatus.NOT_FOUND, "NOT_FOUND")
     // The mailer logs a failed delivery itself and never throws.
     if (change) await this.mailer.sendApplicationChange(change)
-    await this.fillFreedBeds(change?.freedTermIds ?? [])
+    await this.fillFreedBeds(change?.freedBeds ?? [])
     return { changedAt: new Date(), changedByName: user.name }
   }
 
@@ -216,33 +217,37 @@ export class TermStatusService {
     // A confirmed participant giving up the bed (cancelled, put on the waitlist) frees it (US-31).
     // The one moved to the waitlist does not take the bed it has just given up (organizer's decision).
     if (result.from === "CONFIRMED") {
-      await this.fillFreedBeds([command.termId], { except: command.applicationId })
+      await this.fillFreedBeds([{ termId: command.termId, gender: result.gender }], {
+        except: command.applicationId,
+      })
     }
     return result
   }
 
   /**
    * US-31: in the automatic evaluation mode the system confirms the first eligible substitute of
-   * every bed group that has a free bed, one after another, until no bed or substitute is left;
-   * the applicant gets the e-mail with payment details of the one status change. In the manual
-   * mode it does nothing: the organizer is shown the proposal and confirms it (US-104).
+   * the bed group of each bed that was freed, one substitute per freed bed; the applicant gets
+   * the e-mail with payment details of the one status change. Beds that were free before are not
+   * filled (an organizer adds a bed for someone and leaves it empty, PM 13. 11.), and a bigger
+   * capacity never calls this: it only makes the organizer's notice appear (US-104). In the
+   * manual mode it does nothing, the organizer confirms the proposal.
    *
    * Every confirmation is `applyChange`, which locks the event and checks the beds again, so two
    * runs at once (or a submission for the last bed) never confirm two for one bed: the loser
    * finds the bed taken or the application no longer waiting and reads the state again. Runs
    * after the transaction that freed the bed; a failure is logged, it never fails that request.
    */
-  async fillFreedBeds(termIds: string[], options: { except?: string } = {}): Promise<void> {
-    for (const termId of new Set(termIds)) {
+  async fillFreedBeds(beds: FreedBed[], options: { except?: string } = {}): Promise<void> {
+    for (const bed of beds) {
       try {
-        await this.fillTerm(termId, options.except)
+        await this.fillBed(bed, options.except)
       } catch (error) {
-        this.logger.error(`Filling freed beds of term ${termId} failed`, error)
+        this.logger.error(`Filling a freed bed of term ${bed.termId} failed`, error)
       }
     }
   }
 
-  private async fillTerm(termId: string, except?: string): Promise<void> {
+  private async fillBed({ termId, gender }: FreedBed, except?: string): Promise<void> {
     let budget = 0
     do {
       const state = await this.substitutes.findTermStateById(termId)
@@ -250,11 +255,14 @@ export class TermStatusService {
       // From midnight of the first day the waitlist is cancelled (D-064); a bed freed between that
       // moment and the next run of the expiry job must not be given to someone about to be cancelled.
       if (isWaitlistExpired(state.startsOn, new Date())) return
-      // Each round confirms one, so the waitlist length bounds the rounds even if a round loses.
+      // A round that loses (bed or application taken meanwhile) tries the next one; the waitlist
+      // length bounds the rounds.
       if (budget === 0) budget = state.waitlisted.length + 1
-      const [next] = proposedSubstitutes(
+      const next = substituteForFreedBed(
         state,
-        state.waitlisted.filter((row) => row.applicationId !== except),
+        state.waitlisted,
+        bedGroup(state.roomMode, gender),
+        except,
       )
       if (!next) return
       try {
@@ -266,6 +274,7 @@ export class TermStatusService {
           actorId: null,
           isOverCapacityConfirmed: false,
         })
+        return
       } catch (error) {
         // Someone else took the bed or the application, read the state again.
         const isLost =

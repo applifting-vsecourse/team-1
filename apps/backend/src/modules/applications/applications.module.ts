@@ -22,6 +22,7 @@ import { ParticipantTermChangeController } from "./controllers/participant-term-
 import { PublicCatalogController } from "./controllers/public-catalog.controller"
 import { PublicEventsController } from "./controllers/public-events.controller"
 import { SubmissionStatusController } from "./controllers/submission-status.controller"
+import { SubstituteProposalsController } from "./controllers/substitute-proposals.controller"
 import { SubstitutesController } from "./controllers/substitutes.controller"
 import { TermStatusController } from "./controllers/term-status.controller"
 import { ApplicationHistoryRepository } from "./repositories/application-history.repository"
@@ -77,6 +78,7 @@ import { WaitlistExpiryService } from "./services/waitlist-expiry.service"
     BulkConfirmationController,
     BulkDecisionController,
     SubstitutesController,
+    SubstituteProposalsController,
   ],
   providers: [
     CapacityRepository,

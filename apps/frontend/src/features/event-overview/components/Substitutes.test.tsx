@@ -72,9 +72,17 @@ function setup(data: unknown = list()) {
 beforeEach(() => vi.clearAllMocks())
 
 describe("proposed substitute of a freed bed (US-31)", () => {
+  it("is shown in the automatic evaluation mode too, for a bed a bigger capacity made", async () => {
+    setup(list({ evaluationMode: "AUTOMATIC" }))
+    const proposal = await screen.findByRole("region", { name: "A men's bed was freed or added" })
+    expect(
+      within(proposal).getByText(/Adam Test is the first suitable substitute\./),
+    ).toBeInTheDocument()
+  })
+
   it("proposes the first substitute of the bed group with the freed bed", async () => {
     setup()
-    const proposal = await screen.findByRole("region", { name: "A men's bed has been freed" })
+    const proposal = await screen.findByRole("region", { name: "A men's bed was freed or added" })
     expect(
       within(proposal).getByText(/Adam Test is the first suitable substitute\./),
     ).toBeInTheDocument()
@@ -88,13 +96,15 @@ describe("proposed substitute of a freed bed (US-31)", () => {
         items: [item("a1", "Adam", 1), { ...item("a3", "Jana", 1), gender: "FEMALE" }],
       }),
     )
-    expect(await screen.findByRole("region", { name: "A men's bed has been freed" })).toBeVisible()
-    expect(screen.getByRole("region", { name: "A women's bed has been freed" })).toBeVisible()
+    expect(
+      await screen.findByRole("region", { name: "A men's bed was freed or added" }),
+    ).toBeVisible()
+    expect(screen.getByRole("region", { name: "A women's bed was freed or added" })).toBeVisible()
   })
 
   it("names a shared bed neutrally", async () => {
     setup(list({ roomMode: "SHARED" }))
-    expect(await screen.findByRole("region", { name: "A bed has been freed" })).toBeVisible()
+    expect(await screen.findByRole("region", { name: "A bed was freed or added" })).toBeVisible()
   })
 
   it("confirms the proposal in one step, without a dialog", async () => {

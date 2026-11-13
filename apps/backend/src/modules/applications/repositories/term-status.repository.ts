@@ -37,6 +37,7 @@ import {
   StatusChangeSnapshot,
 } from "@/modules/applications/domain/status-transition"
 import { skippedSubstitutes } from "@/modules/applications/domain/substitute-skips"
+import { FreedBed } from "@/modules/applications/domain/substitutes"
 import { termLabel } from "@/modules/applications/domain/term-label"
 import {
   ExpiredWaitlistEntry,
@@ -53,9 +54,9 @@ import { ApplicationChange } from "@/modules/participants/domain/submission-conf
 import { AppException } from "@/shared/errors/app.exception"
 import { HttpStatus, Injectable } from "@nestjs/common"
 
-/** What a change of terms leaves behind: the e-mail and the terms in which a confirmed bed was given up (US-31). */
+/** What a change of terms leaves behind: the e-mail and the confirmed beds it gave up (US-31). */
 export type TermsChange = ApplicationChange &
-  ParticipantTermChangeResult & { freedTermIds: string[] }
+  ParticipantTermChangeResult & { freedBeds: FreedBed[] }
 
 const recordInclude = {
   changedBy: { select: { name: true } },
@@ -710,7 +711,9 @@ export class TermStatusRepository {
       return {
         addedTerms,
         // A confirmed participant leaving a term frees a bed for the waitlist (US-31).
-        freedTermIds: removed.filter((row) => row.status === "CONFIRMED").map((row) => row.termId),
+        freedBeds: removed
+          .filter((row) => row.status === "CONFIRMED")
+          .map((row) => ({ termId: row.termId, gender: application.gender })),
         email: application.email,
         locale,
         eventName: application.event.name,

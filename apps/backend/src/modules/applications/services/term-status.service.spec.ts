@@ -206,10 +206,13 @@ describe("TermStatusService.fillFreedBeds (US-31)", () => {
       number: minute + 1,
     }) as SubstituteApplication
   const state = (overrides: Partial<SubstituteTermState> = {}): SubstituteTermState => ({
+    termId: "t1",
+    name: null,
     organizationId: "org",
     eventId: "e1",
     isCancelled: false,
     startsOn: new Date("2099-07-01"),
+    endsOn: new Date("2099-07-08"),
     evaluationMode: "AUTOMATIC",
     roomMode: "GENDERED",
     rooms: [{ capacity: 2, extraBeds: 0, gender: "MALE" }],
@@ -234,12 +237,15 @@ describe("TermStatusService.fillFreedBeds (US-31)", () => {
     )
   })
 
-  it("confirms the first substitute in order of receipt as the system and e-mails them", async () => {
-    substitutes.findTermStateById
-      .mockResolvedValueOnce(state())
-      .mockResolvedValueOnce(state({ confirmedGenders: ["MALE", "MALE"] }))
+  const male = { termId: "t1", gender: "MALE" } as const
+  const female = { termId: "t1", gender: "FEMALE" } as const
+  const confirmedIds = (): string[] =>
+    repository.changeStatus.mock.calls.map(([command]) => command.applicationId)
 
-    await service.fillFreedBeds(["t1"])
+  it("confirms the first substitute in order of receipt as the system and e-mails them", async () => {
+    substitutes.findTermStateById.mockResolvedValueOnce(state())
+
+    await service.fillFreedBeds([male])
 
     expect(repository.changeStatus).toHaveBeenCalledTimes(1)
     expect(repository.changeStatus).toHaveBeenCalledWith(
@@ -258,40 +264,60 @@ describe("TermStatusService.fillFreedBeds (US-31)", () => {
     )
   })
 
-  it("fills every free bed, one confirmation at a time", async () => {
+  it("confirms one substitute per freed bed, however many beds are free", async () => {
+    // Two beds are free in the term, but the action freed one: the other was free before.
+    substitutes.findTermStateById.mockResolvedValue(state({ confirmedGenders: [] }))
+
+    await service.fillFreedBeds([male])
+
+    expect(confirmedIds()).toEqual(["adam"])
+  })
+
+  it("confirms two substitutes for two freed beds, one round each", async () => {
     substitutes.findTermStateById
       .mockResolvedValueOnce(state({ confirmedGenders: [] }))
       .mockResolvedValueOnce(
         state({ confirmedGenders: ["MALE"], waitlisted: [waiting("petr", "MALE", 1)] }),
       )
-      .mockResolvedValueOnce(state({ confirmedGenders: ["MALE", "MALE"], waitlisted: [] }))
 
-    await service.fillFreedBeds(["t1"])
+    await service.fillFreedBeds([male, male])
 
-    expect(repository.changeStatus.mock.calls.map(([command]) => command.applicationId)).toEqual([
-      "adam",
-      "petr",
-    ])
+    expect(confirmedIds()).toEqual(["adam", "petr"])
+  })
+
+  it("fills a freed bed only from its own bed group", async () => {
+    // A free women's bed that was added earlier is not taken when a man leaves.
+    substitutes.findTermStateById.mockResolvedValue(
+      state({
+        rooms: [
+          { capacity: 1, extraBeds: 0, gender: "MALE" },
+          { capacity: 1, extraBeds: 0, gender: "FEMALE" },
+        ],
+        confirmedGenders: [],
+        waitlisted: [waiting("jana", "FEMALE", 0), waiting("adam", "MALE", 1)],
+      }),
+    )
+
+    await service.fillFreedBeds([male])
+    expect(confirmedIds()).toEqual(["adam"])
+
+    repository.changeStatus.mockClear()
+    await service.fillFreedBeds([female])
+    expect(confirmedIds()).toEqual(["jana"])
   })
 
   it("does not give the bed back to the one that has just been moved to the waitlist", async () => {
-    substitutes.findTermStateById
-      .mockResolvedValueOnce(state({ confirmedGenders: [] }))
-      .mockResolvedValueOnce(
-        state({ confirmedGenders: ["MALE"], waitlisted: [waiting("adam", "MALE", 0)] }),
-      )
+    substitutes.findTermStateById.mockResolvedValueOnce(state({ confirmedGenders: [] }))
 
-    await service.fillFreedBeds(["t1"], { except: "adam" })
+    await service.fillFreedBeds([male], { except: "adam" })
 
-    expect(repository.changeStatus.mock.calls.map(([command]) => command.applicationId)).toEqual([
-      "petr",
-    ])
+    expect(confirmedIds()).toEqual(["petr"])
   })
 
   it("leaves the proposal to the organizer in the manual mode", async () => {
     substitutes.findTermStateById.mockResolvedValue(state({ evaluationMode: "MANUAL" }))
 
-    await service.fillFreedBeds(["t1"])
+    await service.fillFreedBeds([male])
 
     expect(repository.changeStatus).not.toHaveBeenCalled()
   })
@@ -299,23 +325,35 @@ describe("TermStatusService.fillFreedBeds (US-31)", () => {
   it("confirms nobody once the term has started, the waitlist is cancelled then (D-064)", async () => {
     substitutes.findTermStateById.mockResolvedValue(state({ startsOn: new Date("2020-07-01") }))
 
-    await service.fillFreedBeds(["t1"])
+    await service.fillFreedBeds([male])
 
     expect(repository.changeStatus).not.toHaveBeenCalled()
   })
 
-  it("confirms nobody into a cancelled term or without a free bed", async () => {
+  it("confirms nobody into a cancelled term or when the bed is gone", async () => {
     substitutes.findTermStateById.mockResolvedValueOnce(state({ isCancelled: true }))
-    await service.fillFreedBeds(["t1"])
+    await service.fillFreedBeds([male])
     substitutes.findTermStateById.mockResolvedValueOnce(
       state({ confirmedGenders: ["MALE", "MALE"] }),
     )
-    await service.fillFreedBeds(["t1"])
+    await service.fillFreedBeds([male])
 
     expect(repository.changeStatus).not.toHaveBeenCalled()
   })
 
-  it("reads the state again when the bed was taken meanwhile, and never fails the caller", async () => {
+  it("tries the next substitute when the first is no longer waiting, and never fails the caller", async () => {
+    substitutes.findTermStateById.mockResolvedValue(state({ confirmedGenders: [] }))
+    repository.changeStatus
+      .mockRejectedValueOnce(new AppException(HttpStatus.CONFLICT, "INVALID_STATUS_TRANSITION"))
+      .mockResolvedValueOnce(result("CONFIRMED"))
+
+    await expect(service.fillFreedBeds([male])).resolves.toBeUndefined()
+
+    expect(repository.changeStatus).toHaveBeenCalledTimes(2)
+    expect(mailer.sendApplicationChange).toHaveBeenCalledTimes(1)
+  })
+
+  it("reads the state again when the bed was taken meanwhile and confirms nobody", async () => {
     substitutes.findTermStateById
       .mockResolvedValueOnce(state())
       .mockResolvedValueOnce(state({ confirmedGenders: ["MALE", "MALE"] }))
@@ -323,7 +361,7 @@ describe("TermStatusService.fillFreedBeds (US-31)", () => {
       new AppException(HttpStatus.CONFLICT, "CAPACITY_EXCEEDED"),
     )
 
-    await expect(service.fillFreedBeds(["t1"])).resolves.toBeUndefined()
+    await expect(service.fillFreedBeds([male])).resolves.toBeUndefined()
 
     expect(repository.changeStatus).toHaveBeenCalledTimes(1)
     expect(mailer.sendApplicationChange).not.toHaveBeenCalled()
@@ -333,9 +371,9 @@ describe("TermStatusService.fillFreedBeds (US-31)", () => {
     substitutes.findTermStateById.mockRejectedValue(new Error("db down"))
     const logged = jest.spyOn(Logger.prototype, "error").mockImplementation(() => undefined)
 
-    await expect(service.fillFreedBeds(["t1", "t1"])).resolves.toBeUndefined()
+    await expect(service.fillFreedBeds([male, male])).resolves.toBeUndefined()
 
-    expect(logged).toHaveBeenCalledTimes(1)
+    expect(logged).toHaveBeenCalledTimes(2)
     logged.mockRestore()
   })
 })

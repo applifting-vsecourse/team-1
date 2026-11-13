@@ -20,6 +20,7 @@ import { formatCzk } from "@/lib/money"
 import { attentionQueryOptions, type Attention } from "@/features/event-overview/api/attention"
 import { occupancyQueryOptions } from "@/features/event-overview/api/occupancy"
 import { TermList } from "@/features/event-overview/components/CapacityPage"
+import { FreedBedBanner } from "@/features/event-overview/components/FreedBedBanner"
 import type { ApplicationsSearch } from "@/features/event-overview/lib/applications-search"
 
 type Translate = ReturnType<typeof useTranslation<"eventOverview">>["t"]
@@ -28,7 +29,7 @@ type Translate = ReturnType<typeof useTranslation<"eventOverview">>["t"]
  * What needs the organizer's attention in an event (US-51): the event switcher, a card per kind of
  * work that links to the applications list filtered the same way the count was made, and the
  * occupancy of the terms (the list of US-29). "Náhradníci k vyřešení" counts waitlisted applicants
- * the organizer can approve now: manual evaluation and a free bed (PO, 2026-11-07).
+ * the organizer can approve now: a free bed for them, in both evaluation modes (PO, 2026-11-07; US-31).
  */
 // Figma (Design system): #51 Letní kemp Lipno 2027 / Desktop · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19798-36893
 // Figma (Design system): #51 Letní kemp Lipno 2027 / Mobile · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19798-37048
@@ -77,6 +78,7 @@ export function EventOverview({
         </div>
       ) : null}
       {setup}
+      <FreedBedBanner eventId={eventId} />
       <AttentionCards eventId={eventId} />
       <Occupancy eventId={eventId} />
     </div>

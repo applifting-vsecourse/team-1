@@ -80,7 +80,7 @@ export class ChangeRequestService {
     if (!changed) throw new AppException(HttpStatus.CONFLICT, "CHANGE_REQUEST_STALE")
     await this.mailer.sendApplicationChange(changed)
     // The approved change may give up a confirmed bed (US-31).
-    await this.statuses.fillFreedBeds(changed.freedTermIds)
+    await this.statuses.fillFreedBeds(changed.freedBeds)
   }
 
   async reject(user: Identity, eventId: string, requestId: string, reason: string): Promise<void> {

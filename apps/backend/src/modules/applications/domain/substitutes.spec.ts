@@ -1,4 +1,8 @@
-import { eligibleSubstitutes, proposedSubstitutes } from "@/modules/applications/domain/substitutes"
+import {
+  eligibleSubstitutes,
+  proposedSubstitutes,
+  substituteForFreedBed,
+} from "@/modules/applications/domain/substitutes"
 import { WaitlistCandidate } from "@/modules/applications/domain/waitlist"
 
 const candidate = (
@@ -116,5 +120,53 @@ describe("proposedSubstitutes (US-31)", () => {
         candidate("petr", "MALE", 0),
       ]),
     ).toEqual([])
+  })
+})
+
+describe("substituteForFreedBed (US-31)", () => {
+  const rooms = [
+    { capacity: 1, extraBeds: 0, gender: "FEMALE" as const },
+    { capacity: 1, extraBeds: 0, gender: "MALE" as const },
+  ]
+  const waiting = [
+    candidate("jana", "FEMALE", 0),
+    candidate("petr", "MALE", 1),
+    candidate("adam", "MALE", 2),
+  ]
+
+  it("takes the first of the group of the freed bed, not of another group with a free bed", () => {
+    const term = { rooms, confirmedGenders: [] }
+    expect(substituteForFreedBed(term, waiting, "MALE")?.applicationId).toBe("petr")
+    expect(substituteForFreedBed(term, waiting, "FEMALE")?.applicationId).toBe("jana")
+  })
+
+  it("takes nobody when the group has no free bed or no substitute", () => {
+    expect(
+      substituteForFreedBed({ rooms, confirmedGenders: ["MALE"] }, waiting, "MALE"),
+    ).toBeUndefined()
+    expect(
+      substituteForFreedBed(
+        { rooms, confirmedGenders: [] },
+        [candidate("jana", "FEMALE", 0)],
+        "MALE",
+      ),
+    ).toBeUndefined()
+  })
+
+  it("skips the application that must not take the bed", () => {
+    expect(
+      substituteForFreedBed({ rooms, confirmedGenders: [] }, waiting, "MALE", "petr")
+        ?.applicationId,
+    ).toBe("adam")
+  })
+
+  it("has one common queue in shared rooms", () => {
+    const shared = [{ capacity: 1, extraBeds: 0, gender: null }]
+    const result = substituteForFreedBed(
+      { rooms: shared, confirmedGenders: [] },
+      [candidate("jana", "FEMALE", 0, { roomMode: "SHARED" })],
+      "SHARED",
+    )
+    expect(result?.applicationId).toBe("jana")
   })
 })

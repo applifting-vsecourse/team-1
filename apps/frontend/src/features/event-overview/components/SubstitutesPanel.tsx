@@ -34,7 +34,8 @@ const bedKind = (list: SubstituteList, gender: Substitute["gender"]): BedKind =>
   list.roomMode === "SHARED" ? "Shared" : gender === "MALE" ? "Male" : "Female"
 
 // Figma (Design system): US-104 Přihlášky · Vhodní náhradníci · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15780-5459 (mobile 15780-5571)
-// Shown above the waitlist of one term when a bed is free and the event is evaluated by hand.
+// Shown above the waitlist of one term when a bed is free, in both evaluation modes (US-31): the
+// automatic mode fills the beds an action freed, a bed a bigger capacity made is the organizer's.
 // The list looks like the applications list (table, cards on mobile), without its filters.
 export function SubstitutesPanel({
   eventId,
@@ -51,7 +52,7 @@ export function SubstitutesPanel({
   const query = useQuery(substitutesQueryOptions(eventId, term.id))
   const [chosen, setChosen] = useState<Substitute | null>(null)
   const list = query.data
-  if (list?.evaluationMode !== "MANUAL" || list.items.length === 0) return null
+  if (!list || list.items.length === 0) return null
   const range = formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })
   // Men and women wait for different beds, so each queue is a card of its own; shared rooms have
   // one queue.

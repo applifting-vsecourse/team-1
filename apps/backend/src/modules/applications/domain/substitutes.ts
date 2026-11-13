@@ -7,7 +7,7 @@ import {
   waitlistKey,
   waitlistPositions,
 } from "@/modules/applications/domain/waitlist"
-import { GenderCounts } from "@/shared/domain/gender"
+import { Gender, GenderCounts } from "@/shared/domain/gender"
 
 /** What decides who may take a freed bed in a term (US-104). */
 export type SubstituteTerm = {
@@ -65,4 +65,26 @@ export function proposedSubstitutes(
     seen.add(row.group)
     return true
   })
+}
+
+/** A bed that a status change or a change of terms has just given up (US-31). */
+export type FreedBed = { termId: string; gender: Gender }
+
+/**
+ * Who takes one freed bed in the automatic evaluation mode (US-31): the first eligible substitute
+ * of the bed group of the one that left, not of any other group. So a bed that was free before
+ * (an organizer's added one, left empty on purpose) is never taken by a substitute of another
+ * group, and one freed bed takes at most one substitute. `except` is an application that must
+ * not take it, the one the organizer has just moved to the waitlist.
+ */
+export function substituteForFreedBed(
+  term: SubstituteTerm,
+  waitlisted: WaitlistCandidate[],
+  group: BedGroup,
+  except?: string,
+): EligibleSubstitute | undefined {
+  return proposedSubstitutes(
+    term,
+    waitlisted.filter((candidate) => candidate.applicationId !== except),
+  ).find((row) => row.group === group)
 }

@@ -1,5 +1,4 @@
 import { PrismaModule } from "@/core/prisma/prisma.module"
-import { ApplicationsModule } from "@/modules/applications/applications.module"
 import { LastOpenedEventController } from "@/modules/events/controllers/last-opened-event.controller"
 import { RoomsController } from "@/modules/events/controllers/rooms.controller"
 import { LastOpenedEventRepository } from "@/modules/events/repositories/last-opened-event.repository"
@@ -17,7 +16,7 @@ import { EventsService } from "./services/events.service"
 import { TermsService } from "./services/terms.service"
 
 @Module({
-  imports: [PrismaModule, OrganizationAccessModule, AuthModule, ApplicationsModule],
+  imports: [PrismaModule, OrganizationAccessModule, AuthModule],
   controllers: [
     RoomsController,
     OrganizerEventsController,

@@ -227,6 +227,15 @@
     "submitted": "Podáno {{date}} · původní přihláška beze změny",
     "title": "Žádosti o změnu"
   },
+  "freedBeds": {
+    "bedFEMALE": "dámské lůžko",
+    "bedMALE": "pánské lůžko",
+    "bedSHARED": "lůžko",
+    "confirm": "Přejít k potvrzení",
+    "proposalFemale": "{{name}} je první vhodná náhradnice na {{bed}}.",
+    "proposalMale": "{{name}} je první vhodný náhradník na {{bed}}.",
+    "title": "Uvolnilo se nebo přibylo lůžko v termínu {{range}}"
+  },
   "history": {
     "created": "Přihláška vytvořena",
     "entry": "{{date}} · {{who}} · {{change}}",
@@ -432,6 +441,7 @@
     "empty": "Všechny přihlášky jsou vyhodnocené.",
     "emptyHint": "Nové přihlášky v ručním režimu se objeví v této frontě.",
     "loading": "Načítám…",
+    "proposalCount": "{{view}}, počet lůžek čekajících na potvrzení: {{count}}",
     "status": "K vyhodnocení",
     "viewAll": "Všechny přihlášky",
     "viewRequests": "Žádosti o změnu",
@@ -480,9 +490,9 @@
       "bodyFemale": "{{range}} · {{name}} je první vhodná náhradnice.",
       "bodyMale": "{{range}} · {{name}} je první vhodný náhradník.",
       "confirm": "Potvrdit účast",
-      "titleFemale": "Uvolnilo se dámské lůžko",
-      "titleMale": "Uvolnilo se pánské lůžko",
-      "titleShared": "Uvolnilo se lůžko"
+      "titleFemale": "Uvolnilo se nebo přibylo dámské lůžko",
+      "titleMale": "Uvolnilo se nebo přibylo pánské lůžko",
+      "titleShared": "Uvolnilo se nebo přibylo lůžko"
     },
     "refresh": "Zobrazit aktuální náhradníky",
     "taken": "Lůžko mezitím obsadil jiný organizátor.",

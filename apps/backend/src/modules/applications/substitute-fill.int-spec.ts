@@ -104,6 +104,43 @@ describe("filling a freed bed with a substitute (integration)", () => {
       })
     ).json()) as List
 
+  type Proposal = {
+    termId: string
+    group: "FEMALE" | "MALE" | "SHARED"
+    freeBeds: number
+    substitute: { applicationId: string }
+  }
+  const proposals = async (event: { eventId: string }): Promise<Proposal[]> =>
+    (await (
+      await fetch(api(`/organizer/events/${event.eventId}/substitute-proposals`), {
+        headers: { Cookie: cookie },
+      })
+    ).json()) as Proposal[]
+  const confirm = (
+    event: { eventId: string; termId: string },
+    applicationId: string,
+  ): Promise<Response> =>
+    fetch(
+      api(
+        `/organizer/events/${event.eventId}/terms/${event.termId}/substitutes/${applicationId}/confirm`,
+      ),
+      { method: "POST", headers: { Cookie: cookie } },
+    )
+  const extraBeds = (
+    event: { eventId: string; termId: string; roomIds: string[] },
+    count: number,
+  ): Promise<Response> =>
+    fetch(
+      api(
+        `/organizer/events/${event.eventId}/terms/${event.termId}/rooms/${event.roomIds[0]}/extra-beds`,
+      ),
+      {
+        method: "PATCH",
+        headers: { Cookie: cookie, "Content-Type": "application/json" },
+        body: JSON.stringify({ extraBeds: count }),
+      },
+    )
+
   beforeAll(async () => {
     prisma = await connectTestPrisma()
     await resetAndSeed(prisma)
@@ -198,26 +235,84 @@ describe("filling a freed bed with a substitute (integration)", () => {
       expect(await statusOf(substitute.id)).toBe("CONFIRMED")
     })
 
-    it("fills a bed that a bigger room (extra bed) opens, one substitute per bed", async () => {
+    it("never confirms anyone by itself when the capacity grows, and the bed is proposed to the organizer", async () => {
       const event = await createEvent("AUTOMATIC")
       await addApplication(event, "MALE", 0, "CONFIRMED")
       const first = await addApplication(event, "MALE", 1, "WAITLISTED")
       const second = await addApplication(event, "MALE", 2, "WAITLISTED")
 
-      const response = await fetch(
-        api(
-          `/organizer/events/${event.eventId}/terms/${event.termId}/rooms/${event.roomIds[0]}/extra-beds`,
-        ),
+      const response = await extraBeds(event, 1)
+
+      expect(response.status).toBe(204)
+      expect(await statusOf(first.id)).toBe("WAITLISTED")
+      expect(await statusOf(second.id)).toBe("WAITLISTED")
+      expect(await proposals(event)).toMatchObject([
         {
-          method: "PATCH",
+          termId: event.termId,
+          group: "MALE",
+          freeBeds: 1,
+          substitute: { applicationId: first.id },
+        },
+      ])
+      // One step: the organizer confirms the proposal, the first of the queue.
+      expect((await confirm(event, first.id)).status).toBe(204)
+      expect(await statusOf(first.id)).toBe("CONFIRMED")
+      expect(await proposals(event)).toEqual([])
+    })
+
+    it("does not fill a new room or a changed room mode by itself either", async () => {
+      const event = await createEvent("AUTOMATIC")
+      await addApplication(event, "MALE", 0, "CONFIRMED")
+      const waiting = await addApplication(event, "MALE", 1, "WAITLISTED")
+
+      const added = await fetch(
+        api(`/organizer/events/${event.eventId}/terms/${event.termId}/rooms`),
+        {
+          method: "POST",
           headers: { Cookie: cookie, "Content-Type": "application/json" },
-          body: JSON.stringify({ extraBeds: 1 }),
+          body: JSON.stringify({ name: "B", capacity: 2, gender: "MALE" }),
         },
       )
 
-      expect(response.status).toBe(204)
+      expect(added.status).toBeLessThan(300)
+      expect(await statusOf(waiting.id)).toBe("WAITLISTED")
+      expect(await proposals(event)).toHaveLength(1)
+    })
+
+    it("fills only the bed that was freed when another bed was free already", async () => {
+      // Two men's beds: one taken, one added by the organizer and left empty.
+      const event = await createEvent("AUTOMATIC", [{ gender: "MALE", capacity: 2 }])
+      const leaving = await addApplication(event, "MALE", 0, "CONFIRMED")
+      const first = await addApplication(event, "MALE", 1, "WAITLISTED")
+      const second = await addApplication(event, "MALE", 2, "WAITLISTED")
+
+      await cancel(leaving.id, event.termId)
+
       expect(await statusOf(first.id)).toBe("CONFIRMED")
       expect(await statusOf(second.id)).toBe("WAITLISTED")
+      // The bed that was free before stays free, proposed to the next in the queue.
+      expect(await proposals(event)).toMatchObject([
+        { freeBeds: 1, substitute: { applicationId: second.id } },
+      ])
+    })
+
+    it("fills a freed bed only from its own bed group, not an earlier free bed of the other gender", async () => {
+      const event = await createEvent("AUTOMATIC", [
+        { gender: "MALE", capacity: 1 },
+        { gender: "FEMALE", capacity: 1 },
+      ])
+      const man = await addApplication(event, "MALE", 0, "CONFIRMED")
+      const woman = await addApplication(event, "FEMALE", 1, "WAITLISTED")
+      const waitingMan = await addApplication(event, "MALE", 2, "WAITLISTED")
+
+      await cancel(man.id, event.termId)
+
+      expect(await statusOf(waitingMan.id)).toBe("CONFIRMED")
+      // The women's bed was free before: it is for the organizer to fill.
+      expect(await statusOf(woman.id)).toBe("WAITLISTED")
+      expect(await proposals(event)).toMatchObject([
+        { group: "FEMALE", substitute: { applicationId: woman.id } },
+      ])
     })
 
     it("fills every bed freed at once, in order of receipt", async () => {
@@ -241,29 +336,21 @@ describe("filling a freed bed with a substitute (integration)", () => {
       expect(confirmed).toBe(2)
     })
 
-    it("never confirms two substitutes into one bed, however many freeing events race", async () => {
+    it("never confirms two substitutes into one bed, however many requests race", async () => {
       const event = await createEvent("AUTOMATIC")
       const confirmed = await addApplication(event, "MALE", 0, "CONFIRMED")
       const waiting = await Promise.all(
         [1, 2, 3, 4].map((minute) => addApplication(event, "MALE", minute, "WAITLISTED")),
       )
 
-      // The cancellation fills the bed, and a parallel save of the room asks to fill it as well.
-      await Promise.all([
+      // The same bed is given up three times at once: only the first wins the transition.
+      const responses = await Promise.all([
         cancel(confirmed.id, event.termId),
-        fetch(
-          api(
-            `/organizer/events/${event.eventId}/terms/${event.termId}/rooms/${event.roomIds[0]}/extra-beds`,
-          ),
-          {
-            method: "PATCH",
-            headers: { Cookie: cookie, "Content-Type": "application/json" },
-            body: JSON.stringify({ extraBeds: 0 }),
-          },
-        ),
+        cancel(confirmed.id, event.termId),
         cancel(confirmed.id, event.termId),
       ])
 
+      expect(responses.filter((response) => response.status === 204)).toHaveLength(1)
       const statuses = await Promise.all(waiting.map(({ id }) => statusOf(id)))
       expect(statuses.filter((status) => status === "CONFIRMED")).toHaveLength(1)
       expect(statuses[0]).toBe("CONFIRMED")
@@ -273,6 +360,27 @@ describe("filling a freed bed with a substitute (integration)", () => {
         }),
       ).toBe(1)
       expect(allEmailsTo(waiting[0].email).length).toBeLessThanOrEqual(1)
+    })
+
+    it("never exceeds the capacity when the organizer confirms by hand while the system fills", async () => {
+      const event = await createEvent("AUTOMATIC", [{ gender: "MALE", capacity: 2 }])
+      const a = await addApplication(event, "MALE", 0, "CONFIRMED")
+      const b = await addApplication(event, "MALE", 1, "CONFIRMED")
+      const waiting = await Promise.all(
+        [2, 3, 4].map((minute) => addApplication(event, "MALE", minute, "WAITLISTED")),
+      )
+
+      await Promise.all([
+        cancel(a.id, event.termId),
+        cancel(b.id, event.termId),
+        confirm(event, waiting[2].id),
+      ])
+
+      expect(
+        await prisma.applicationTerm.count({
+          where: { termId: event.termId, status: "CONFIRMED" },
+        }),
+      ).toBe(2)
     })
   })
 
@@ -321,6 +429,46 @@ describe("filling a freed bed with a substitute (integration)", () => {
       const statuses = [await statusOf(first.id), await statusOf(second.id)]
       expect(statuses.filter((status) => status === "CONFIRMED")).toHaveLength(1)
       expect((await list(event)).items).toEqual([])
+    })
+
+    it("proposes the bed a bigger capacity made, and confirms nobody by itself", async () => {
+      const event = await createEvent("MANUAL")
+      await addApplication(event, "MALE", 0, "CONFIRMED")
+      const first = await addApplication(event, "MALE", 1, "WAITLISTED")
+      expect(await proposals(event)).toEqual([])
+
+      expect((await extraBeds(event, 1)).status).toBe(204)
+
+      expect(await statusOf(first.id)).toBe("WAITLISTED")
+      expect(await proposals(event)).toMatchObject([
+        { group: "MALE", substitute: { applicationId: first.id } },
+      ])
+    })
+  })
+
+  describe("the organizer's notice of free beds", () => {
+    it("is for organizers of the event only", async () => {
+      const event = await createEvent("MANUAL")
+      const url = api(`/organizer/events/${event.eventId}/substitute-proposals`)
+      expect((await fetch(url)).status).toBe(401)
+      const foreign = await signIn("organizator2@example.com", "password2")
+      expect((await fetch(url, { headers: { Cookie: foreign } })).status).toBe(403)
+    })
+
+    it("lists a proposal per term and bed group, leaves out cancelled terms", async () => {
+      const event = await createEvent("MANUAL", [
+        { gender: "MALE", capacity: 1 },
+        { gender: "FEMALE", capacity: 1 },
+      ])
+      const man = await addApplication(event, "MALE", 0, "WAITLISTED")
+      const woman = await addApplication(event, "FEMALE", 1, "WAITLISTED")
+
+      expect((await proposals(event)).map((row) => row.substitute.applicationId).sort()).toEqual(
+        [man.id, woman.id].sort(),
+      )
+
+      await prisma.term.update({ where: { id: event.termId }, data: { cancelledAt: new Date() } })
+      expect(await proposals(event)).toEqual([])
     })
   })
 })
