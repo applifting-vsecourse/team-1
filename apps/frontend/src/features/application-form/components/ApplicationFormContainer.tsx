@@ -14,6 +14,7 @@ export function ApplicationFormContainer({ token, event }: { token: string; even
   return (
     <ApplicationForm
       event={event}
+      draftKey={token}
       isDone={submit.isSuccess}
       errorMessage={submit.error?.message}
       onSubmit={async (values) => {
