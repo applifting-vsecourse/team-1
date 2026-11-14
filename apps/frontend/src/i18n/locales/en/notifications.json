@@ -27,6 +27,7 @@
     "title": "Notifications"
   },
   "status": {
+    "ARCHIVED": "Archived",
     "CANCELLED": "Cancelled",
     "CONFIRMED": "Confirmed",
     "TO_EVALUATE": "Awaiting evaluation",

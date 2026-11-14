@@ -139,11 +139,13 @@ function TermStatusCard({
             {t(
               isConfirmed
                 ? "confirmation.status.confirmed"
-                : term.status === "CANCELLED"
-                  ? "confirmation.status.cancelled"
-                  : term.status === "TO_EVALUATE"
-                    ? "confirmation.status.toEvaluate"
-                    : "confirmation.status.waitlisted",
+                : term.status === "ARCHIVED"
+                  ? "confirmation.status.archived"
+                  : term.status === "CANCELLED"
+                    ? "confirmation.status.cancelled"
+                    : term.status === "TO_EVALUATE"
+                      ? "confirmation.status.toEvaluate"
+                      : "confirmation.status.waitlisted",
             )}
           </Badge>
           <span
@@ -155,7 +157,9 @@ function TermStatusCard({
           >
             {isConfirmed ? (
               <MoneyAmount amountCzk={term.priceCzk} />
-            ) : term.status === "CANCELLED" || term.status === "TO_EVALUATE" ? null : (
+            ) : term.status === "ARCHIVED" ||
+              term.status === "CANCELLED" ||
+              term.status === "TO_EVALUATE" ? null : (
               t("confirmation.doNotPayYet")
             )}
           </span>

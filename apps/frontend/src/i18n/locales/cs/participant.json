@@ -193,6 +193,7 @@
     }
   },
   "status": {
+    "archived": "Archivovaná",
     "cancelled": "Zrušená",
     "confirmed": "Potvrzeno",
     "toEvaluate": "Čeká na vyhodnocení",

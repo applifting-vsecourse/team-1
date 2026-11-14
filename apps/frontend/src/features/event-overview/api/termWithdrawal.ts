@@ -7,7 +7,7 @@ const previewSchema = z.object({
   terms: z.array(
     z.object({
       termId: z.string(),
-      status: z.enum(["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED"]),
+      status: z.enum(["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED", "ARCHIVED"]),
       isWithdrawn: z.boolean(),
       /** False for a waitlisted or not yet evaluated term: nothing is owed there. */
       hasFinancialImpact: z.boolean(),

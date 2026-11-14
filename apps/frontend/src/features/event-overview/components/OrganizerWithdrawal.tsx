@@ -50,7 +50,7 @@ export function OrganizerWithdrawal({
   onClose,
 }: {
   applicationId: string
-  /** Terms the application is in now (not cancelled). */
+  /** Active terms only (neither cancelled nor archived). */
   terms: TermStatusDetail[]
   /** The term the dialog opens on; null withdraws from the whole application. */
   initialTermId: string | null

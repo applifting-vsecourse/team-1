@@ -20,6 +20,7 @@
       "variableSymbolOf": "{{name}} · {{amount}} · variable symbol"
     },
     "status": {
+      "archived": "Archived",
       "cancelled": "Cancelled",
       "confirmed": "Confirmed",
       "toEvaluate": "Awaiting evaluation",

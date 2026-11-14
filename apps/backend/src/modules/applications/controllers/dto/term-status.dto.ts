@@ -4,7 +4,7 @@ import { TermStatusDetail } from "@/modules/applications/domain/term-status"
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger"
 import { IsBoolean, IsIn, IsOptional } from "class-validator"
 
-const STATUSES = ["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED"] as const
+const STATUSES = ["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED", "ARCHIVED"] as const
 /** What an organizer can set: nothing leads back to "to evaluate" (US-102). */
 const TARGET_STATUSES = ["CONFIRMED", "WAITLISTED", "CANCELLED"] as const
 

@@ -201,6 +201,21 @@ const renderDetail = (
 describe("ApplicationDetail", () => {
   beforeEach(() => get.mockReset())
 
+  it("keeps archived terms visible without payment or term change actions", async () => {
+    renderDetail(
+      application({
+        terms: [{ ...confirmed, status: "ARCHIVED" }],
+        amountPaidCzk: 4500,
+        amountOwedCzk: 0,
+        paymentStatus: "PAID",
+        paymentDetails: null,
+      }),
+    )
+    expect(await screen.findByText("Archived")).toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: "Change terms" })).not.toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: /Show payment QR/ })).not.toBeInTheDocument()
+  })
+
   it("copies the account, the variable symbol of the term and the amount to pay", async () => {
     const user = userEvent.setup()
     const write = vi.spyOn(navigator.clipboard, "writeText")
@@ -320,6 +335,22 @@ describe("ApplicationDetail", () => {
     expect(
       await screen.findByRole("heading", { name: "Request awaiting approval" }),
     ).toBeInTheDocument()
+  })
+
+  it("cancels active terms while retaining the archived selection", async () => {
+    const user = userEvent.setup()
+    put.mockReturnValue({ json: () => Promise.resolve({ addedTerms: [] }) })
+    renderDetail(
+      application({
+        terms: [{ ...confirmed, status: "ARCHIVED" }, secondConfirmed],
+        paymentDetails: null,
+      }),
+    )
+    await user.click(await screen.findByRole("button", { name: "Cancel participation" }))
+    await user.click(screen.getByRole("button", { name: "Confirm cancellation" }))
+    expect(put).toHaveBeenCalledWith("participant/applications/a1/terms", {
+      json: { termIds: ["t1"] },
+    })
   })
 
   it("cancels one term and shows its payment and bed impact before confirmation", async () => {

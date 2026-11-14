@@ -120,6 +120,31 @@ describe("TermStatuses", () => {
     })
   })
 
+  it("withdraws only active terms from an application with archived history", async () => {
+    const user = userEvent.setup()
+    get.mockImplementation((path: string) => ({
+      json: () =>
+        path.endsWith("/terms")
+          ? Promise.resolve([
+              term({ termId: "archived", status: "ARCHIVED", allowedStatuses: [] }),
+              term({ status: "CONFIRMED", allowedStatuses: ["CANCELLED"] }),
+              term({ termId: "t2" }),
+            ])
+          : path.endsWith("withdraw-preview")
+            ? Promise.resolve({ terms: [], overpaymentCzk: 0 })
+            : new Promise<never>(() => undefined),
+    }))
+    setup()
+    expect(await screen.findByText("Archived")).toBeVisible()
+    expect(screen.getAllByRole("button", { name: "Withdraw" })).toHaveLength(2)
+    await user.click(screen.getByRole("button", { name: "Withdraw the whole application" }))
+    await waitFor(() =>
+      expect(get).toHaveBeenCalledWith("organizer/applications/a1/terms/withdraw-preview", {
+        searchParams: { termIds: "t1,t2" },
+      }),
+    )
+  })
+
   it("withdraws a confirmed or waitlisted term instead of cancelling it, and offers the whole application from two terms", async () => {
     get.mockReturnValue({
       json: () =>

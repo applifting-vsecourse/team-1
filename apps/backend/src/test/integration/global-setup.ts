@@ -49,6 +49,7 @@ export default async function globalSetup(): Promise<void> {
       PAYMENT_SIMULATION_ENABLED: "true",
       // US-106: the waitlist expiry job runs every second so a test does not have to wait.
       WAITLIST_EXPIRY_INTERVAL_MS: "1000",
+      APPLICATION_ARCHIVE_INTERVAL_MS: "1000",
       // Staging bypass of the verification e-mail; email-verification-bypass.int-spec.ts starts its own server with it off.
       EMAIL_VERIFICATION_BYPASS_ENABLED: "true",
     },

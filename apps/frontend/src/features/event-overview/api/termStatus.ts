@@ -5,7 +5,7 @@ import { api } from "@/lib/api-client"
 
 import { substituteRecordSchema } from "@/features/event-overview/api/substituteRecords"
 
-const statusSchema = z.enum(["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED"])
+const statusSchema = z.enum(["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED", "ARCHIVED"])
 /** A status the organizer can set; nothing leads back to "to evaluate". */
 const targetSchema = z.enum(["CONFIRMED", "WAITLISTED", "CANCELLED"])
 export type TermStatus = z.infer<typeof targetSchema>

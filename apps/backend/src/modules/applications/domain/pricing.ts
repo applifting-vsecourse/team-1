@@ -5,12 +5,12 @@ export function computeSelectionPrice(termPricesCzk: number[]): number {
   return termPricesCzk.reduce((sum, price) => sum + price, 0)
 }
 
-/** Amount due = sum of frozen prices of CONFIRMED terms only (US-40). */
+/** Amount due = sum of frozen prices of confirmed and archived terms (US-40). */
 export function computeAmountDue(
   terms: { status: ApplicationTermStatus; priceCzk: number }[],
 ): number {
   return terms
-    .filter((term) => term.status === "CONFIRMED")
+    .filter((term) => term.status === "CONFIRMED" || term.status === "ARCHIVED")
     .reduce((sum, term) => sum + term.priceCzk, 0)
 }
 
@@ -58,9 +58,9 @@ export function resolvePaymentAmount(
 // stay as thin wrappers with unchanged values.
 // ---------------------------------------------------------------------------
 
-/** Due of one term: its frozen price when CONFIRMED, otherwise nothing (waitlist, cancelled). */
+/** Due of one term: confirmed and archived terms retain their frozen price. */
 export function computeTermDue(term: { status: ApplicationTermStatus; priceCzk: number }): number {
-  return term.status === "CONFIRMED" ? term.priceCzk : 0
+  return term.status === "CONFIRMED" || term.status === "ARCHIVED" ? term.priceCzk : 0
 }
 
 /** Paid of one term = sum of its non-cancelled rows (refunds are negative rows). */
