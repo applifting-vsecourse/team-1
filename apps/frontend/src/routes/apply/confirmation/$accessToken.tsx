@@ -28,7 +28,7 @@ export const Route = createFileRoute("/apply/confirmation/$accessToken")({
 function ApplicationConfirmationPage() {
   const { accessToken } = Route.useParams()
   const { t } = useTranslation("applicationForm")
-  const { user } = useSession()
+  const { user, isPending } = useSession()
 
   return (
     <>
@@ -36,7 +36,13 @@ function ApplicationConfirmationPage() {
       <PublicLayout>
         <SubmissionStatus
           accessToken={accessToken}
-          signedInParticipantEmail={user?.accountType === "PARTICIPANT" ? user.email : null}
+          signedInParticipant={
+            isPending
+              ? "loading"
+              : user?.accountType === "PARTICIPANT"
+                ? { email: user.email, mustSetPassword: user.mustSetPassword }
+                : null
+          }
         />
       </PublicLayout>
     </>

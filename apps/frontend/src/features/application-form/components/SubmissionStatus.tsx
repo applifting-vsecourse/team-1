@@ -23,9 +23,15 @@ import {
 
 type SubmissionStatusProps = {
   accessToken: string
-  /** E-mail of the signed-in participant account, `null` when nobody (or an organizer) is signed in. */
-  signedInParticipantEmail?: string | null
+  /**
+   * The signed-in participant account; `null` when nobody (or an organizer) is signed in,
+   * `"loading"` while the session is still being read — the action under the account card
+   * waits for it, so a signed-in applicant never sees the sign-in link first.
+   */
+  signedInParticipant?: SignedInParticipant | "loading" | null
 }
+
+export type SignedInParticipant = { email: string; mustSetPassword: boolean }
 
 /** Names of the participants, "Jana Nováková a Matěj Novák". */
 function listNames(applications: SubmittedApplication[]): string {
@@ -47,7 +53,7 @@ function listNames(applications: SubmittedApplication[]): string {
 // Figma (Design system): M06 Stav a platba po odeslání · 360 px · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12666-20366
 export function SubmissionStatus({
   accessToken,
-  signedInParticipantEmail = null,
+  signedInParticipant = null,
 }: SubmissionStatusProps) {
   const { t } = useTranslation("applicationForm")
   const { data } = useSuspenseQuery(submissionStatusQueryOptions(accessToken))
@@ -112,7 +118,7 @@ export function SubmissionStatus({
 
       <AccountCard
         data={data}
-        signedInParticipantEmail={signedInParticipantEmail}
+        signedInParticipant={signedInParticipant}
       />
     </div>
   )
@@ -262,16 +268,22 @@ function PaymentCard({ payers }: { payers: SubmittedApplication[] }) {
 // Figma (Design system): V04 Přístup k přihlášce · node-id=12710-1643, V06 Přihláška je v existujícím účtu · node-id=12710-1947
 function AccountCard({
   data,
-  signedInParticipantEmail,
+  signedInParticipant,
 }: {
   data: SubmissionStatusData
-  signedInParticipantEmail: string | null
+  signedInParticipant: SignedInParticipant | "loading" | null
 }) {
   const { t } = useTranslation("applicationForm")
   const kind = data.isNewAccount ? "newAccount" : "existingAccount"
+  const isSessionLoading = signedInParticipant === "loading"
   // A signed-in participant whose account owns the submission (same e-mail) is already in:
   // the link opens the application. Everyone else keeps the sign-in link (#318).
-  const isOwner = signedInParticipantEmail?.toLowerCase() === data.email.toLowerCase()
+  const isOwner =
+    !isSessionLoading && signedInParticipant?.email.toLowerCase() === data.email.toLowerCase()
+  // Without a password the participant has to set one first, which always ends on the list of
+  // applications — so the action says what it really does instead of promising the detail.
+  const shouldSetPassword =
+    isOwner && !isSessionLoading && signedInParticipant?.mustSetPassword === true
   const [onlyApplication] = data.applications
   const singleApplicationId = data.applications.length === 1 ? onlyApplication?.id : undefined
 
@@ -281,26 +293,30 @@ function AccountCard({
         <h2 className="text-lg font-semibold">{t("confirmation.account.title")}</h2>
         <p>{t(`confirmation.account.${kind}`, { email: data.email })}</p>
       </Card>
-      <Button
-        asChild
-        size="lg"
-        className="w-full sm:w-fit"
-      >
-        {isOwner && singleApplicationId ? (
-          <Link
-            to={ROUTES.participant.application}
-            params={{ applicationId: singleApplicationId }}
-          >
-            {t("confirmation.account.viewApplication")}
-          </Link>
-        ) : isOwner ? (
-          <Link to={ROUTES.participant.applications}>
-            {t("confirmation.account.viewApplications")}
-          </Link>
-        ) : (
-          <Link to={ROUTES.participant.login}>{t(`confirmation.account.${kind}Action`)}</Link>
-        )}
-      </Button>
+      {isSessionLoading ? null : (
+        <Button
+          asChild
+          size="lg"
+          className="w-full sm:w-fit"
+        >
+          {shouldSetPassword ? (
+            <Link to={ROUTES.participant.setPassword}>{t("confirmation.account.setPassword")}</Link>
+          ) : isOwner && singleApplicationId ? (
+            <Link
+              to={ROUTES.participant.application}
+              params={{ applicationId: singleApplicationId }}
+            >
+              {t("confirmation.account.viewApplication")}
+            </Link>
+          ) : isOwner ? (
+            <Link to={ROUTES.participant.applications}>
+              {t("confirmation.account.viewApplications")}
+            </Link>
+          ) : (
+            <Link to={ROUTES.participant.login}>{t(`confirmation.account.${kind}Action`)}</Link>
+          )}
+        </Button>
+      )}
     </>
   )
 }

@@ -1,4 +1,4 @@
-import { Suspense } from "react"
+import { Suspense, useState } from "react"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import {
   createMemoryHistory,
@@ -7,12 +7,15 @@ import {
   createRouter,
   RouterProvider,
 } from "@tanstack/react-router"
-import { render, screen } from "@testing-library/react"
+import { act, render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import type { SubmissionStatus as Data } from "@/features/application-form/api/submissionStatus"
-import { SubmissionStatus } from "@/features/application-form/components/SubmissionStatus"
+import {
+  SubmissionStatus,
+  type SignedInParticipant,
+} from "@/features/application-form/components/SubmissionStatus"
 
 const { get } = vi.hoisted(() => ({ get: vi.fn() }))
 vi.mock("@/lib/api-client", () => ({ api: { get } }))
@@ -65,28 +68,43 @@ const data = (overrides: Partial<Data> = {}): Data => ({
   ...overrides,
 })
 
-const renderStatus = async (value: Data, signedInParticipantEmail: string | null = null) => {
+const owner = (email: string, shouldSetPassword = false): SignedInParticipant => ({
+  email,
+  mustSetPassword: shouldSetPassword,
+})
+
+const renderStatus = async (
+  value: Data,
+  signedInParticipant: SignedInParticipant | "loading" | null = null,
+) => {
   get.mockReturnValue({ json: () => Promise.resolve(value) })
-  const root = createRootRoute({
-    component: () => (
-      <QueryClientProvider
-        client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
-      >
+  let updateParticipant: (participant: SignedInParticipant | "loading" | null) => void = () => {
+    throw new Error("Status has not rendered yet")
+  }
+  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+  function Status() {
+    const [participant, setParticipant] = useState(signedInParticipant)
+    updateParticipant = setParticipant
+    return (
+      <QueryClientProvider client={queryClient}>
         <Suspense>
           <SubmissionStatus
             accessToken="tok"
-            signedInParticipantEmail={signedInParticipantEmail}
+            signedInParticipant={participant}
           />
         </Suspense>
       </QueryClientProvider>
-    ),
-  })
+    )
+  }
+  const root = createRootRoute({ component: Status })
   const router = createRouter({
     routeTree: root.addChildren([createRoute({ getParentRoute: () => root, path: "/" })]),
     history: createMemoryHistory({ initialEntries: ["/"] }),
   })
   render(<RouterProvider router={router} />)
   await screen.findByRole("heading", { level: 1 })
+  return (participant: SignedInParticipant | "loading" | null) =>
+    act(() => updateParticipant(participant))
 }
 
 describe("SubmissionStatus", () => {
@@ -216,7 +234,7 @@ describe("SubmissionStatus", () => {
     })
 
     it("opens the submitted application for a signed-in applicant who owns it", async () => {
-      await renderStatus(data({ isNewAccount: false }), "Jana@Example.com")
+      await renderStatus(data({ isNewAccount: false }), owner("Jana@Example.com"))
 
       expect(screen.getByRole("link", { name: "View application" })).toHaveAttribute(
         "href",
@@ -233,7 +251,7 @@ describe("SubmissionStatus", () => {
             person("Matěj", "Novák", "0049", "CONFIRMED", "2027-08-02", "2027-08-08"),
           ],
         }),
-        "jana@example.com",
+        owner("jana@example.com"),
       )
 
       expect(screen.getByRole("link", { name: "View applications" })).toHaveAttribute(
@@ -252,9 +270,46 @@ describe("SubmissionStatus", () => {
     })
 
     it("keeps the sign-in link for a signed-in applicant who applied for another e-mail", async () => {
-      await renderStatus(data(), "someone-else@example.com")
+      await renderStatus(data(), owner("someone-else@example.com", true))
 
       expect(screen.getByRole("link", { name: "Go to sign in" })).toBeVisible()
+    })
+
+    it("shows no action while the session is loading, then the link for the signed-in owner", async () => {
+      const updateParticipant = await renderStatus(data({ isNewAccount: false }), "loading")
+
+      expect(screen.getByText(/You already have an account/)).toBeVisible()
+      expect(screen.queryByRole("link", { name: /sign in/i })).not.toBeInTheDocument()
+      expect(screen.queryByRole("link", { name: "View application" })).not.toBeInTheDocument()
+
+      updateParticipant(owner("jana@example.com"))
+      expect(screen.getByRole("link", { name: "View application" })).toHaveAttribute(
+        "href",
+        "/participant/applications/app-0048",
+      )
+      expect(screen.queryByRole("link", { name: /sign in/i })).not.toBeInTheDocument()
+    })
+
+    it("shows the sign-in action only after the session resolves as signed out", async () => {
+      const updateParticipant = await renderStatus(data(), "loading")
+
+      expect(screen.queryByRole("link", { name: /sign in/i })).not.toBeInTheDocument()
+      updateParticipant(null)
+      expect(screen.getByRole("link", { name: "Go to sign in" })).toHaveAttribute(
+        "href",
+        "/participant/login",
+      )
+    })
+
+    it("offers setting the password after loading a signed-in owner who has none yet", async () => {
+      const updateParticipant = await renderStatus(data(), "loading")
+      updateParticipant(owner("jana@example.com", true))
+
+      expect(screen.getByRole("link", { name: "Set password" })).toHaveAttribute(
+        "href",
+        "/participant/set-password",
+      )
+      expect(screen.queryByRole("link", { name: "View application" })).not.toBeInTheDocument()
     })
   })
 })

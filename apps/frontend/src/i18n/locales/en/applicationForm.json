@@ -5,6 +5,7 @@
       "existingAccountAction": "Sign in to the application",
       "newAccount": "We created a participant account for {{email}}. The confirmation e-mail contains a sign-in link. After opening it for the first time, you set your own password. The link is valid for 7 days.",
       "newAccountAction": "Go to sign in",
+      "setPassword": "Set password",
       "title": "We sent the confirmation by e-mail",
       "viewApplication": "View application",
       "viewApplications": "View applications"
