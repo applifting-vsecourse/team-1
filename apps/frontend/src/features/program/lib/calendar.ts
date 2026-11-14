@@ -1,8 +1,10 @@
 /** Height of one hour in the calendar, px. */
-export const HOUR_HEIGHT = 64
+export const HOUR_HEIGHT = 48
 
 const DEFAULT_FROM = 7
-const DEFAULT_TO = 21
+const DEFAULT_TO = 18
+/** A block ending after the default end draws the calendar to midnight. */
+const LATE_TO = 24
 
 type Timed = { startTime: string; endTime: string }
 
@@ -12,13 +14,13 @@ export function toMinutes(time: string): number {
   return hours * 60 + minutes
 }
 
-/** The hours shown: 7:00–21:00, wider when a block starts earlier or ends later. */
+/** The hours shown: 7:00–18:00; to midnight when a block ends later, earlier start when one starts earlier. */
 export function hourRange(blocks: Timed[]): { from: number; to: number } {
   let from = DEFAULT_FROM
   let to = DEFAULT_TO
   for (const block of blocks) {
     from = Math.min(from, Math.floor(toMinutes(block.startTime) / 60))
-    to = Math.max(to, Math.ceil(toMinutes(block.endTime) / 60))
+    if (toMinutes(block.endTime) > DEFAULT_TO * 60) to = LATE_TO
   }
   return { from, to }
 }
@@ -59,4 +61,21 @@ export function placeBlocks<T extends Timed>(blocks: T[]): PlacedBlock<T>[] {
   }
   closeGroup()
   return placed
+}
+
+/** Blocks of the same day whose time overlaps `start`–`end`; `exceptId` leaves out the block being edited. */
+export function overlapping<T extends Timed & { id: string; date: string }>(
+  blocks: T[],
+  candidate: { date: string; startTime: string; endTime: string },
+  exceptId?: string,
+): T[] {
+  const start = toMinutes(candidate.startTime)
+  const end = toMinutes(candidate.endTime)
+  return blocks.filter(
+    (block) =>
+      block.id !== exceptId &&
+      block.date === candidate.date &&
+      toMinutes(block.startTime) < end &&
+      start < toMinutes(block.endTime),
+  )
 }

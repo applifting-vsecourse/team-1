@@ -13,7 +13,7 @@
   "deleting": "Mažeme…",
   "description": "Program jednotlivých termínů. Účastníci ho vidí ve své přihlášce.",
   "descriptionLabel": "Popis",
-  "editOf": "Upravit blok {{name}}",
+  "edit": "Upravit",
   "editTitle": "Upravit blok",
   "empty": "Program tohoto termínu je zatím prázdný. Přidejte první blok.",
   "endBeforeStart": "Konec musí být po začátku.",
@@ -27,6 +27,7 @@
   "nameRequired": "Zadejte název bloku.",
   "noTerms": "Akce zatím nemá žádné termíny. Program se skládá po termínech, nejdřív přidejte termín.",
   "noTermsAction": "Přejít na termíny",
+  "overlapWarning": "V tomto čase už je v programu jiný blok: {{blocks}}. Blok můžete přesto uložit.",
   "own": {
     "back": "← Zpět na přihlášku",
     "empty": "Program zatím není zveřejněný.",

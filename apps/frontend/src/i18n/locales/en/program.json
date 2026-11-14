@@ -13,7 +13,7 @@
   "deleting": "Deleting…",
   "description": "The program of each term. Participants see it in their application.",
   "descriptionLabel": "Description",
-  "editOf": "Edit block {{name}}",
+  "edit": "Edit",
   "editTitle": "Edit block",
   "empty": "The program of this term is empty so far. Add the first block.",
   "endBeforeStart": "The end must be after the start.",
@@ -27,6 +27,7 @@
   "nameRequired": "Enter the block name.",
   "noTerms": "The event has no terms yet. The program is built per term, so add a term first.",
   "noTermsAction": "Go to terms",
+  "overlapWarning": "There is already another block at this time: {{blocks}}. You can still save this one.",
   "own": {
     "back": "← Back to application",
     "empty": "The program is not published yet.",

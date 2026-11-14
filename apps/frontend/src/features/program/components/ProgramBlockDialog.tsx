@@ -1,11 +1,12 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { Loader2, Trash2 } from "lucide-react"
-import { useForm } from "react-hook-form"
+import { Loader2, TriangleAlert } from "lucide-react"
+import { useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
 import { ErrorState } from "@/components/molecules/ErrorState"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -43,8 +44,8 @@ import {
   type TermProgram,
 } from "@/features/program/api/program"
 import { TimeSelect } from "@/features/program/components/TimeSelect"
-import { toMinutes } from "@/features/program/lib/calendar"
-import { daysOfTerm, formatDay } from "@/features/program/lib/days"
+import { overlapping, toMinutes } from "@/features/program/lib/calendar"
+import { daysOfTerm, formatDay, timeRange } from "@/features/program/lib/days"
 
 type Values = ProgramBlockInput
 
@@ -69,7 +70,6 @@ export function ProgramBlockDialog({
   term,
   block,
   defaultDate,
-  onDelete,
   onClose,
 }: {
   eventId: string
@@ -78,8 +78,6 @@ export function ProgramBlockDialog({
   block?: ProgramBlock
   /** The day a new block starts on. */
   defaultDate: string
-  /** Offered when editing: deleting the block from its dialog. */
-  onDelete?: () => void
   onClose: () => void
 }) {
   const { t } = useTranslation("program")
@@ -137,6 +135,12 @@ export function ProgramBlockDialog({
     notify.success(t("saved"), t("savedDescription"))
     onClose()
   })
+  const [date, startTime, endTime] = useWatch({
+    control: form.control,
+    name: ["date", "startTime", "endTime"],
+  })
+  // A warning, not an error: parallel activities are allowed, but a clash is usually a slip.
+  const clashes = overlapping(term.blocks, { date, startTime, endTime }, block?.id)
   const isPending = mutation.isPending || form.formState.isSubmitting
   return (
     <Dialog
@@ -282,6 +286,16 @@ export function ProgramBlockDialog({
                 )}
               />
             </fieldset>
+            {clashes.length ? (
+              <Alert className="border-status-warning/30 bg-status-warning-bg text-status-warning *:data-[slot=alert-description]:text-status-warning">
+                <TriangleAlert />
+                <AlertDescription>
+                  {t("overlapWarning", {
+                    blocks: clashes.map((item) => `${item.name} (${timeRange(item)})`).join(", "),
+                  })}
+                </AlertDescription>
+              </Alert>
+            ) : null}
             <p className="text-xs text-muted-foreground">* {t("required")}</p>
             {mutation.isError ? (
               <ErrorState
@@ -289,20 +303,7 @@ export function ProgramBlockDialog({
                 error={mutation.error}
               />
             ) : null}
-            <DialogFooter className="gap-4 max-sm:flex-col-reverse sm:items-center">
-              {onDelete ? (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="lg"
-                  className="border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive sm:mr-auto"
-                  disabled={isPending}
-                  onClick={onDelete}
-                >
-                  <Trash2 />
-                  {t("delete")}
-                </Button>
-              ) : null}
+            <DialogFooter className="gap-4 max-sm:flex-col-reverse sm:items-center sm:justify-end">
               <DialogClose asChild>
                 <Button
                   type="button"

@@ -22,6 +22,7 @@ import { termDatesLine } from "@/lib/term-label"
 
 import { eventProgramQueryOptions, type ProgramBlock } from "@/features/program/api/program"
 import { DeleteProgramBlockDialog } from "@/features/program/components/DeleteProgramBlockDialog"
+import { ProgramBlockDetailDialog } from "@/features/program/components/ProgramBlockDetailDialog"
 import { ProgramBlockDialog } from "@/features/program/components/ProgramBlockDialog"
 import { ProgramCalendar } from "@/features/program/components/ProgramCalendar"
 
@@ -36,6 +37,7 @@ export function ProgramPage({ eventId }: { eventId: string }) {
   const { t } = useTranslation("program")
   const query = useQuery(eventProgramQueryOptions(eventId))
   const [termId, setTermId] = useState<string | null>(null)
+  const [viewing, setViewing] = useState<ProgramBlock | null>(null)
   const [editor, setEditor] = useState<Editor | null>(null)
   const [deleting, setDeleting] = useState<ProgramBlock | null>(null)
 
@@ -126,10 +128,24 @@ export function ProgramPage({ eventId }: { eventId: string }) {
       ) : null}
       <ProgramCalendar
         term={term}
-        onSelect={(block) => {
-          setEditor({ block, date: block.date })
-        }}
+        onSelect={setViewing}
       />
+      {viewing ? (
+        <ProgramBlockDetailDialog
+          block={viewing}
+          onEdit={() => {
+            setEditor({ block: viewing, date: viewing.date })
+            setViewing(null)
+          }}
+          onDelete={() => {
+            setDeleting(viewing)
+            setViewing(null)
+          }}
+          onClose={() => {
+            setViewing(null)
+          }}
+        />
+      ) : null}
       {editor ? (
         <ProgramBlockDialog
           key={editor.block?.id ?? "new"}
@@ -137,14 +153,6 @@ export function ProgramPage({ eventId }: { eventId: string }) {
           term={term}
           block={editor.block}
           defaultDate={editor.date}
-          onDelete={
-            editor.block
-              ? () => {
-                  setDeleting(editor.block ?? null)
-                  setEditor(null)
-                }
-              : undefined
-          }
           onClose={() => {
             setEditor(null)
           }}

@@ -19,7 +19,8 @@ import {
 } from "@/components/ui/select"
 import { termDatesLine } from "@/lib/term-label"
 
-import { applicationProgramQueryOptions } from "@/features/program/api/program"
+import { applicationProgramQueryOptions, type ProgramBlock } from "@/features/program/api/program"
+import { ProgramBlockDetailDialog } from "@/features/program/components/ProgramBlockDetailDialog"
 import { ProgramCalendar } from "@/features/program/components/ProgramCalendar"
 
 // The program of the terms the participant is confirmed in: days and blocks by time, with a switch
@@ -31,6 +32,7 @@ export function ParticipantProgram({ applicationId }: { applicationId: string })
   const { t } = useTranslation("program")
   const query = useQuery(applicationProgramQueryOptions(applicationId))
   const [termId, setTermId] = useState<string | null>(null)
+  const [viewing, setViewing] = useState<ProgramBlock | null>(null)
 
   if (!query.data) {
     return query.isError ? (
@@ -88,10 +90,21 @@ export function ParticipantProgram({ applicationId }: { applicationId: string })
         </div>
       ) : null}
       {term?.blocks.length ? (
-        <ProgramCalendar term={term} />
+        <ProgramCalendar
+          term={term}
+          onSelect={setViewing}
+        />
       ) : (
         <EmptyState message={t("own.empty")} />
       )}
+      {viewing ? (
+        <ProgramBlockDetailDialog
+          block={viewing}
+          onClose={() => {
+            setViewing(null)
+          }}
+        />
+      ) : null}
     </div>
   )
 }

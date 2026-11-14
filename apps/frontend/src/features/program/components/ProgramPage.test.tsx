@@ -78,22 +78,29 @@ describe("ProgramPage", () => {
     expect(
       within(screen.getByRole("region", { name: "Program calendar" })).getAllByRole("heading"),
     ).toHaveLength(3)
-    expect(screen.getByText("10:00–12:00")).toBeInTheDocument()
     expect(screen.getByText("Dílny")).toBeInTheDocument()
-    expect(screen.getByText("Chata A–C")).toBeInTheDocument()
+    expect(screen.queryByText("10:00–12:00")).not.toBeInTheDocument()
   })
 
-  it("opens the note of a block from its info button", async () => {
+  it("opens all about a block on a click, with edit and delete for the organizer", async () => {
     renderPage(program([term]))
     await userEvent.click(await screen.findByRole("button", { name: "Show details of Dílny" }))
-    expect(await screen.findByText("Výroba suvenýrů")).toBeInTheDocument()
+    const dialog = await screen.findByRole("dialog")
+    expect(within(dialog).getByText("Výroba suvenýrů")).toBeInTheDocument()
+    expect(within(dialog).getByText("Chata A–C")).toBeInTheDocument()
+    expect(within(dialog).getByRole("button", { name: "Delete block" })).toBeInTheDocument()
+    await userEvent.click(within(dialog).getByRole("button", { name: "Edit" }))
+    expect(await screen.findByRole("heading", { name: "Edit block" })).toBeInTheDocument()
   })
 
-  it("edits a block by clicking it and offers a delete button in the dialog", async () => {
-    renderPage(program([term]))
-    await userEvent.click(await screen.findByRole("button", { name: "Edit block Dílny" }))
+  it("warns that a block already exists at the chosen time", async () => {
+    renderPage(program([{ ...term, startsOn: "2027-07-13" }]))
+    await userEvent.click(await screen.findByRole("button", { name: "Add block" }))
     const dialog = await screen.findByRole("dialog")
-    expect(within(dialog).getByRole("button", { name: "Delete block" })).toBeInTheDocument()
+    expect(within(dialog).queryByRole("alert")).not.toBeInTheDocument()
+    await userEvent.click(within(dialog).getByRole("combobox", { name: /^From/ }))
+    await userEvent.click(await screen.findByRole("option", { name: "10" }))
+    expect(await within(dialog).findByRole("alert")).toHaveTextContent(/Dílny \(10:00–12:00\)/)
   })
 
   it("explains an event without terms", async () => {
