@@ -252,7 +252,9 @@ export function AssignRoomDialog({
             </div>
           ) : null}
           {result ? (
-            <p className="rounded-lg bg-muted p-3 text-sm text-muted-foreground">{result}</p>
+            <p className="rounded-lg bg-accent p-3 text-sm font-medium text-accent-foreground">
+              {result}
+            </p>
           ) : null}
           {mutation.isError ? (
             <ErrorState

@@ -283,8 +283,8 @@ export function RoomTableRow({
         aria-label={room.name}
         className="align-top whitespace-normal"
       >
-        <div className="flex flex-col items-start gap-1">
-          <span className="font-bold break-words">{room.name}</span>
+        <div className="flex items-center gap-2 whitespace-nowrap">
+          <span className="font-bold">{room.name}</span>
           {room.gender ? <Badge variant="secondary">{roomGenderLabel(room.gender)}</Badge> : null}
         </div>
       </TableCell>
@@ -334,12 +334,9 @@ export function RoomCard({
           : isEligible && isDragActive && "bg-muted",
       )}
     >
-      <div className="flex items-center gap-2">
-        <span className="min-w-0 flex-1 font-semibold break-words">{room.name}</span>
+      <div className="flex items-center justify-center gap-2">
+        <span className="font-semibold break-words">{room.name}</span>
         {room.gender ? <Badge variant="secondary">{roomGenderLabel(room.gender)}</Badge> : null}
-        <span className="shrink-0 text-sm text-muted-foreground">
-          {room.participants.length} / {room.beds}
-        </span>
       </div>
       {room.participants.length ? (
         <Chips
@@ -350,7 +347,9 @@ export function RoomCard({
         />
       ) : null}
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <span>{freeBedsLabel(room)}</span>
+        <span>
+          {room.participants.length} / {room.beds} · {freeBedsLabel(room)}
+        </span>
         <ExtraBeds room={room} />
       </div>
       <div className="flex flex-wrap items-center gap-1">{actions}</div>

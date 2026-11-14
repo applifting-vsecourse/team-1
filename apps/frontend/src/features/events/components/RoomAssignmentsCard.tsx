@@ -67,15 +67,6 @@ function useScrolledOut(element: HTMLElement | null): boolean {
   return isOut
 }
 
-function Stat({ label, value }: { label: string; value: string | number }) {
-  return (
-    <div className="inline-flex items-baseline gap-1.5 rounded-full bg-secondary px-3.5 py-1.5 text-sm">
-      <dt className="text-muted-foreground">{label}</dt>
-      <dd className="font-semibold">{value}</dd>
-    </div>
-  )
-}
-
 /** The count of the unassigned, a bit louder than a plain badge but never a warning. */
 function CountBadge({ count, isAllDone }: { count: number; isAllDone: boolean }) {
   return (
@@ -158,8 +149,6 @@ export function RoomAssignmentsCard({
 
   const hasRooms = data.rooms.length > 0
   const isNobodyAssigned = data.rooms.every((room) => room.participants.length === 0)
-  const totalBeds = data.rooms.reduce((sum, room) => sum + room.beds, 0)
-  const occupied = data.rooms.reduce((sum, room) => sum + room.participants.length, 0)
   const visibleRooms = data.rooms.filter((room) =>
     room.name.toLocaleLowerCase().includes(search.trim().toLocaleLowerCase()),
   )
@@ -252,24 +241,6 @@ export function RoomAssignmentsCard({
       onDragCancel={() => setDragged(null)}
     >
       <div className="flex flex-col gap-4">
-        <dl className="flex flex-wrap justify-center gap-2">
-          <Stat
-            label={t("roomAssignments.statRooms")}
-            value={data.rooms.length}
-          />
-          <Stat
-            label={t("roomAssignments.statBeds")}
-            value={totalBeds}
-          />
-          <Stat
-            label={t("roomAssignments.statOccupied")}
-            value={occupied}
-          />
-          <Stat
-            label={t("roomAssignments.statFree")}
-            value={Math.max(0, totalBeds - occupied)}
-          />
-        </dl>
         {/* On a phone the count of the unassigned stays under the top bar while the rooms scroll. */}
         {isPanelScrolledOut ? (
           <div
@@ -354,14 +325,14 @@ export function RoomAssignmentsCard({
                     <Button
                       type="button"
                       variant="ghost"
-                      size="icon"
+                      size="icon-lg"
                       aria-label={t("pagination.previous", { ns: "common" })}
                       disabled={paging.page === 0}
                       onClick={() => paging.setPage(paging.page - 1)}
                     >
-                      <ChevronLeft />
+                      <ChevronLeft className="size-5" />
                     </Button>
-                    <span className="text-sm whitespace-nowrap text-muted-foreground">
+                    <span className="text-base font-medium whitespace-nowrap text-muted-foreground">
                       {t("roomAssignments.range", {
                         from: paging.page * paging.pageSize + 1,
                         to: Math.min((paging.page + 1) * paging.pageSize, paging.total),
@@ -371,12 +342,12 @@ export function RoomAssignmentsCard({
                     <Button
                       type="button"
                       variant="ghost"
-                      size="icon"
+                      size="icon-lg"
                       aria-label={t("pagination.next", { ns: "common" })}
                       disabled={paging.page + 1 === paging.pageCount}
                       onClick={() => paging.setPage(paging.page + 1)}
                     >
-                      <ChevronRight />
+                      <ChevronRight className="size-5" />
                     </Button>
                   </div>
                 ) : null}
@@ -462,7 +433,9 @@ export function RoomAssignmentsCard({
       </div>
       {/* In a portal: inside the card an ancestor offset the fixed overlay to a screen corner. */}
       {createPortal(
-        <DragOverlay>{dragged ? <ParticipantGhost name={dragged.name} /> : null}</DragOverlay>,
+        <DragOverlay dropAnimation={null}>
+          {dragged ? <ParticipantGhost name={dragged.name} /> : null}
+        </DragOverlay>,
         document.body,
       )}
     </DndContext>

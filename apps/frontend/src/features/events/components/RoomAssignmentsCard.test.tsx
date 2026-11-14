@@ -137,9 +137,6 @@ describe("room assignment", () => {
     expect(within(table).getByText("Jana Nováková")).toBeInTheDocument()
     expect(within(table).getAllByText("3 free beds")).toHaveLength(2)
     expect(within(table).getByText("Full")).toBeInTheDocument()
-    expect(screen.getByText("Beds").nextSibling).toHaveTextContent("8")
-    expect(screen.getByText("Occupied").nextSibling).toHaveTextContent("2")
-    expect(screen.getByText("Free beds").nextSibling).toHaveTextContent("6")
   })
 
   it("assigns through the dialog without a drag and confirms with a toast", async () => {
