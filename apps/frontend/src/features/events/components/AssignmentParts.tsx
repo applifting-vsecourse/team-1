@@ -1,4 +1,4 @@
-import type { DragEvent, ReactNode } from "react"
+import { useRef, useState, type DragEvent, type ReactNode } from "react"
 import { GripVertical } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
@@ -51,11 +51,23 @@ export function ParticipantChip({
 } & DragHandlers) {
   const { t } = useTranslation("events")
   const name = participantName(participant)
+  // The chip is a plain draggable button that opens the menu on click. Radix' own trigger opens
+  // on pointer down and cancels the default of it, which would swallow a drag; so the trigger is
+  // only an invisible anchor over the chip.
+  const [isOpen, setIsOpen] = useState(false)
+  const buttonRef = useRef<HTMLButtonElement>(null)
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
+    <DropdownMenu
+      open={isOpen}
+      onOpenChange={setIsOpen}
+    >
+      <span className="relative inline-flex">
         <button
+          ref={buttonRef}
           type="button"
+          aria-haspopup="menu"
+          aria-expanded={isOpen}
+          onClick={() => setIsOpen((isShown) => !isShown)}
           draggable={isDraggable}
           aria-label={t("roomAssignments.participantMenu", { name })}
           onDragStart={(event) => {
@@ -82,8 +94,20 @@ export function ParticipantChip({
           ) : null}
           {name}
         </button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="start">
+        <DropdownMenuTrigger asChild>
+          <span
+            aria-hidden
+            className="pointer-events-none absolute inset-0"
+          />
+        </DropdownMenuTrigger>
+      </span>
+      <DropdownMenuContent
+        align="start"
+        onCloseAutoFocus={(event) => {
+          event.preventDefault()
+          buttonRef.current?.focus()
+        }}
+      >
         <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
           {name}
         </DropdownMenuLabel>
