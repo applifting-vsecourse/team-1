@@ -2168,7 +2168,8 @@ rozhodnuti:
   dokumentace:
   - soubor: docs/procesy/zpracovani-prihlasky/automaticke-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml
     popis: 'hrana Náhradník → Potvrzená s dluhem jen za uvolněné lůžko (model-update)'
-    stav: ceka
+    stav: hotovo
+    commit: fc55cb22
   poznamka: 'Doporučení: schválit, jak PM napsal v #470; upřesňuje D-014 a D-059.'
 - id: D-109
   nazev: 'Registrace organizátora vyžaduje ověření e-mailu odkazem'
@@ -2219,10 +2220,12 @@ rozhodnuti:
   dokumentace:
   - soubor: docs/procesy/zpracovani-prihlasky/rucni-vyhodnocovani/zpracovani-prihlasky.yaml
     popis: 'uzel e_termin: první den po konci termínu přihlášky'
-    stav: ceka
+    stav: hotovo
+    commit: fc55cb22
   - soubor: docs/procesy/zpracovani-prihlasky/automaticke-vyhodnocovani/zpracovani-prihlasky.yaml
     popis: 'uzel e_termin: první den po konci termínu přihlášky'
-    stav: ceka
+    stav: hotovo
+    commit: fc55cb22
   - soubor: docs/SLOVNIK.md
     popis: 'Archivovaná: po konci vlastního termínu'
     stav: hotovo

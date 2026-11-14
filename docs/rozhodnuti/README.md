@@ -13,9 +13,6 @@ _Nic._
 | ID | Rozhodnutí | Soubor | Co zapsat |
 | --- | --- | --- | --- |
 | [D-100](#d-100) | Před začátkem storno podmínek si účastník mění přihlášku a termíny bez schválení | `docs/SLOVNIK.md` | pojem Schvalování požadavků účastníků (dříve „začátek storna“) |
-| [D-108](#d-108) | Automatické doplnění náhradníka jen za uvolněná lůžka, zvýšení kapacity nikdy | `docs/procesy/zpracovani-prihlasky/automaticke-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml` | hrana Náhradník → Potvrzená s dluhem jen za uvolněné lůžko (model-update) |
-| [D-110](#d-110) | Archivace přihlášky v termínu první den po konci jejího termínu | `docs/procesy/zpracovani-prihlasky/rucni-vyhodnocovani/zpracovani-prihlasky.yaml` | uzel e_termin: první den po konci termínu přihlášky |
-| [D-110](#d-110) | Archivace přihlášky v termínu první den po konci jejího termínu | `docs/procesy/zpracovani-prihlasky/automaticke-vyhodnocovani/zpracovani-prihlasky.yaml` | uzel e_termin: první den po konci termínu přihlášky |
 | [D-140](#d-140) | E-maily o přijetí a zamítnutí žádosti o změnu | `docs/emaily/TEXTY.md` | texty obou zpráv CS/EN |
 
 ## Změny dřívějších rozhodnutí
@@ -1420,7 +1417,7 @@ _Nic._
 - **Text:** V automatickém režimu systém po uvolnění lůžka (zrušení, odhláška, přesun mezi náhradníky, změna termínu) potvrdí prvního vhodného náhradníka ze skupiny lůžek toho, kdo odešel, nejvýše tolik náhradníků, kolik lůžek se uvolnilo; do termínu, který už začal, nepotvrzuje. Zvýšení kapacity (pokoj, přistýlka, změna režimu pokojů) nikdy samo nikoho nepotvrdí, v žádném režimu; organizátor uvidí upozornění s navrženým náhradníkem. Dohledávání po pádu serveru se neřeší, změna pohlaví lůžko neuvolňuje.
 - **Dotčené US:** [US-31](https://github.com/applifting-vsecourse/team-1/issues/31)
 - **Zdroj:** [komentáře PM v PR #470 (US-31), 13. 11.](https://github.com/applifting-vsecourse/team-1/pull/470)
-- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/automaticke-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml`: ceka, hrana Náhradník → Potvrzená s dluhem jen za uvolněné lůžko (model-update)
+- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/automaticke-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml`: hotovo (fc55cb22), hrana Náhradník → Potvrzená s dluhem jen za uvolněné lůžko (model-update)
 - **Poznámka:** Doporučení: schválit, jak PM napsal v #470; upřesňuje D-014 a D-059.
 
 <a id="d-109"></a>
@@ -1445,8 +1442,8 @@ _Nic._
 - **Text:** Přihláška v termínu přejde Potvrzená a zaplacená → Archivovaná první den po konci svého termínu (endsOn, kalendářní den v Europe/Prague), ne až po posledním termínu akce. Archivovaná je koncový stav. Souhrnné platby (D-087) se archivované přihlášce v termínu nepřidělují; oprava platby (D-101, D-119) zůstává povolená.
 - **Dotčené US:** [US-109](https://github.com/applifting-vsecourse/team-1/issues/202)
 - **Zdroj:** [PR #474 (US-109), dotaz na PM 14. 11.](https://github.com/applifting-vsecourse/team-1/pull/474)
-- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/rucni-vyhodnocovani/zpracovani-prihlasky.yaml`: ceka, uzel e_termin: první den po konci termínu přihlášky
-- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/automaticke-vyhodnocovani/zpracovani-prihlasky.yaml`: ceka, uzel e_termin: první den po konci termínu přihlášky
+- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/rucni-vyhodnocovani/zpracovani-prihlasky.yaml`: hotovo (fc55cb22), uzel e_termin: první den po konci termínu přihlášky
+- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/automaticke-vyhodnocovani/zpracovani-prihlasky.yaml`: hotovo (fc55cb22), uzel e_termin: první den po konci termínu přihlášky
 - **Dokumentace:** `docs/SLOVNIK.md`: hotovo (991a0edd), Archivovaná: po konci vlastního termínu
 - **Poznámka:** Doporučení: schválit před dokončením #474; zamykat platby po archivaci (alternativa) přidá kód bez přínosu.
 
