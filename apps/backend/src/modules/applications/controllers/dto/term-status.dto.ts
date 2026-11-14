@@ -1,5 +1,5 @@
 import { SubstituteRecordDto } from "@/modules/applications/controllers/dto/substitute-record.dto"
-import { manualTargets } from "@/modules/applications/domain/status-transition"
+import { manualStatusTargets } from "@/modules/applications/domain/status-transition"
 import { TermStatusDetail } from "@/modules/applications/domain/term-status"
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger"
 import { IsBoolean, IsIn, IsOptional } from "class-validator"
@@ -38,6 +38,15 @@ export class TermStatusResponseDto {
   @ApiProperty() endsOn!: string
   @ApiProperty({ enum: STATUSES }) status!: string
   @ApiProperty() priceCzk!: number
+  @ApiProperty() owedCzk!: number
+  @ApiProperty() debtCzk!: number
+  @ApiProperty() confirmationExceedsCapacity!: boolean
+  @ApiProperty() confirmationNextOccupied!: number
+  @ApiProperty() capacity!: number
+  @ApiProperty() occupied!: number
+  @ApiProperty() confirmationCapacity!: number
+  @ApiProperty() confirmationOccupied!: number
+  @ApiProperty() confirmationDueCzk!: number
   @ApiProperty({ enum: STATUSES, isArray: true, description: "Statuses an organizer may set now" })
   allowedStatuses!: string[]
   @ApiProperty({ type: [StatusChangeEntryDto] }) history!: StatusChangeEntryDto[]
@@ -56,7 +65,16 @@ export class TermStatusResponseDto {
       endsOn: term.endsOn.toISOString().slice(0, 10),
       status: term.status,
       priceCzk: term.priceCzk,
-      allowedStatuses: manualTargets(term.status),
+      owedCzk: term.owedCzk,
+      debtCzk: term.debtCzk,
+      confirmationExceedsCapacity: term.confirmationExceedsCapacity,
+      confirmationNextOccupied: term.confirmationNextOccupied,
+      capacity: term.capacity,
+      occupied: term.occupied,
+      confirmationCapacity: term.confirmationCapacity,
+      confirmationOccupied: term.confirmationOccupied,
+      confirmationDueCzk: term.confirmationDueCzk,
+      allowedStatuses: manualStatusTargets(term.status, term.owedCzk),
       history: term.history.map((entry) => ({
         ...entry,
         changedAt: entry.changedAt.toISOString(),

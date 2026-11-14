@@ -47,6 +47,15 @@ export type TermStatusDetail = {
   endsOn: Date
   status: ApplicationTermStatus
   priceCzk: number
+  owedCzk: number
+  debtCzk: number
+  confirmationExceedsCapacity: boolean
+  confirmationNextOccupied: number
+  capacity: number
+  occupied: number
+  confirmationCapacity: number
+  confirmationOccupied: number
+  confirmationDueCzk: number
   history: StatusChangeEntry[]
   /** Records of confirmations from the waitlist in which the application was confirmed or skipped. */
   substituteRecords: SubstituteRecord[]

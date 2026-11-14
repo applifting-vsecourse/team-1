@@ -519,7 +519,19 @@
       "confirm": "Potvrdit",
       "waitlist": "Zařadit mezi náhradníky"
     },
+    "allowedChanges": "Náhradníka můžete potvrdit nebo zrušit. Přesun mezi náhradníky je dostupný pouze z Potvrzené s dluhem.",
+    "cancel": "Zrušit",
+    "cancelImpact": "Ostatní termíny zůstávají beze změny. Tato změna sama neprovádí bankovní vratku.",
+    "cancelSubmit": "Zrušit účast v termínu",
+    "capacityConsent": "Vědomě potvrzuji přihlášku nad kapacitu.",
+    "change": "Změnit stav",
+    "changeNotice": "Změna se zaznamená automaticky a přihlašovatel dostane e-mail.",
+    "changeTerms": "Změnit termíny",
+    "changeTitle": "Změnit stav v termínu",
     "confirmAnyway": "Přesto potvrdit",
+    "confirmImpact": "Obsazenost se změní z {{occupied}}/{{capacity}} na {{next}}/{{capacity}}. K úhradě bude {{price}}.",
+    "confirmedPaid": "Potvrzená a zaplacená",
+    "confirmedWithDebt": "Potvrzená s dluhem",
     "dialog": {
       "back": "Zpět",
       "cancelDescription": "Zrušení nejde vrátit. Přihlašovatel dostane e-mail a může se na tento termín přihlásit znovu.",
@@ -532,19 +544,38 @@
       "waitlistSubmit": "Zařadit mezi náhradníky",
       "waitlistTitle": "Zařadit mezi náhradníky"
     },
+    "emptyDescription": "Zatím není vybraný žádný termín.",
+    "emptyTitle": "Přihláška nemá žádný termín",
     "errorTitle": "Stavy se nepodařilo načíst",
     "helper": "Každý termín se rozhoduje zvlášť. Přihlašovatel dostane e-mail o každé změně.",
+    "impact": {
+      "CANCELLED": "Zrušíte účast v tomto termínu.",
+      "CONFIRMED": "V termínu je volné místo.",
+      "WAITLISTED": "Přihláška bude mezi náhradníky."
+    },
     "logEntry": "{{date}} · {{who}}: {{from}} → {{to}}",
-    "overCapacityDescription": "Potvrzením se překročí kapacita termínu. Potvrďte, jen pokud to vědomě přijímáte.",
-    "overCapacityTitle": "Pro toto pohlaví není volné lůžko",
+    "newStatus": "Nový stav",
+    "overCapacityDescription": "Kapacita je {{occupied}}/{{capacity}}. Po potvrzení bude {{next}}/{{capacity}}. Pokračujte jen při vědomém přijetí nad kapacitu.",
+    "overCapacityTitle": "Potvrzení překročí kapacitu.",
+    "retry": "Zkusit znovu",
+    "save": "Uložit změnu",
+    "saveError": "Změna nebyla uložena",
+    "saveErrorDescription": "Původní stav zůstal zachovaný. Zkuste akci znovu.",
+    "saveErrorTitle": "Stav se nepodařilo změnit",
+    "saving": "Ukládání…",
+    "savingTitle": "Změna stavu se ukládá",
     "state": {
       "CANCELLED": "Zrušená",
       "CONFIRMED": "Potvrzená",
       "TO_EVALUATE": "Čeká na vyhodnocení",
       "WAITLISTED": "Náhradník"
     },
+    "summary": "Obsazenost {{occupied}}/{{capacity}} · Cena {{price}} · Dluh {{debt}}",
+    "summaryWithoutPrice": "Obsazenost {{occupied}}/{{capacity}} · Dluh {{debt}}",
     "system": "Systém",
-    "title": "Stav v termínech"
+    "title": "Stav v termínech",
+    "waitlistImpact": "Za tento termín se zatím neplatí.",
+    "waitlistedTitle": "Náhradník · povolené změny"
   },
   "withdrawal": {
     "back": "Zpět",

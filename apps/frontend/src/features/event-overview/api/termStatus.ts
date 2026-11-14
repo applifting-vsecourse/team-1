@@ -17,6 +17,15 @@ const termStatusSchema = z.object({
   endsOn: z.string(),
   status: statusSchema,
   priceCzk: z.number().int(),
+  owedCzk: z.number().int(),
+  debtCzk: z.number().int(),
+  confirmationExceedsCapacity: z.boolean(),
+  confirmationNextOccupied: z.number().int(),
+  capacity: z.number().int(),
+  occupied: z.number().int(),
+  confirmationCapacity: z.number().int(),
+  confirmationOccupied: z.number().int(),
+  confirmationDueCzk: z.number().int(),
   /** Statuses the organizer may set now, decided by the server. */
   allowedStatuses: z.array(targetSchema),
   history: z.array(
