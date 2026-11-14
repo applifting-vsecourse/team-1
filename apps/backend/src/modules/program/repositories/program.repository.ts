@@ -135,8 +135,9 @@ export class ProgramRepository {
   }
 
   /**
-   * The program of the terms the participant is confirmed in (waitlisted, cancelled and archived
-   * applications do not see it). Read straight from the database, so a change shows at once.
+   * The program of the terms the participant is confirmed in: only `CONFIRMED` terms count, so a
+   * waitlisted, cancelled or (with US-109) archived application in a term does not see it. Read
+   * straight from the database, so a change shows at once.
    * `null` when the application is not the participant's.
    */
   async ofApplication(userId: string, applicationId: string): Promise<ApplicationProgram | null> {

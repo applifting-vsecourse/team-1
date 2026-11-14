@@ -175,8 +175,10 @@ describe("program (integration)", () => {
     expect(
       (await send(`/participant/applications/${applicationId}/program`, organizer)).status,
     ).toBe(403)
+    // Another account's application: the seed may give the same account several applications.
+    const own = await prisma.application.findUniqueOrThrow({ where: { id: applicationId } })
     const foreign = await prisma.application.findFirstOrThrow({
-      where: { NOT: { id: applicationId }, userId: { not: null } },
+      where: { userId: { not: null }, NOT: { userId: own.userId } },
     })
     expect(
       (await send(`/participant/applications/${foreign.id}/program`, participant)).status,
