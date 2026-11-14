@@ -286,7 +286,7 @@ apps/frontend/src/
 
 ### Vazby mezi moduly
 
-- **Přihlášky → účty a e-maily:** po uložení všech přihlášek jednoho odeslání formuláře `ApplicationsService` zavolá `ParticipantAccountsService.ensureAccount(email)` a **jednou** `ApplicationConfirmationMailer.sendSubmissionConfirmation(...)` (US-56): jeden souhrnný e-mail za celé odeslání, i s více účastníky. E-mail o změně přihlášky (`sendApplicationChange`) volají až US-28, 32, 33, 34 a 84.
+- **Přihlášky → účty a e-maily:** po uložení všech přihlášek jednoho odeslání formuláře `ApplicationsService` zavolá `ParticipantAccountsService.ensureAccount(email)` a **jednou** `ApplicationConfirmationMailer.sendSubmissionConfirmation(...)` (US-56): jeden souhrnný e-mail za celé odeslání, i s více účastníky. E-mail o změně přihlášky (`sendApplicationChange`) volají `TermStatusService` (změny stavu přihlášky v termínu) a `ChangeRequestService` (žádosti o změnu).
 - **Přihlášky ↔ přehledy:** stav přihlášky v termínu ([stavový diagram přihlášky v termínu](procesy/zpracovani-prihlasky/README.md)) se mění a počítá jen v doménových funkcích z fáze 0 (`modules/applications/domain`). Nikdo ho nepočítá znovu po svém.
 
 ## 9. Rozhodnutí
