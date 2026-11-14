@@ -20,6 +20,12 @@ flowchart TD
   n_s_k_vyhodnoceni(["Přihláška v termínu: k<br/>vyhodnocení"])
   n_vyhodnotit("Organizátor vyhodnotí<br/>přihlášky v termínu")
   n_g_vysledek{"XOR"}
+  n_e_rucni_pridani(("Organizátor přidá<br/>přihlášku ručně a určí<br/>stav každého termínu"))
+  n_g_rucni{"XOR"}
+  n_n_rucni["Ručně přidaná<br/>přihláška přeskočí K<br/>vyhodnocení.<br/>Organizátor vybere<br/>neprázdnou podmnožinu<br/>aktivních termínů a<br/>potvrdí souhlas<br/>přihlašovatele (D-153;<br/>právní stránka je<br/>otevřená, Q-PRI-24).<br/>Telefon je povinný<br/>(D-079). Nad kapacitu<br/>jen vědomě."]
+  n_e_pridani_terminu(("Přidá se termín k<br/>existující přihlášce"))
+  n_g_pridani{"XOR"}
+  n_n_pridani["Od data schvalování<br/>požadavků účastníků<br/>přidá termín<br/>přihlašovatel žádostí<br/>(zadost-o-zmenu).<br/>Platby se při změně<br/>termínu nepřevádějí<br/>(D-051, D-088), vratka<br/>se nevytváří (D-134)."]
   n_s_zrusena(["Přihláška v termínu:<br/>zrušená"])
   n_s_nahradnik(["Přihláška v termínu:<br/>náhradník"])
   n_s_potvrzena_dluh(["Přihláška v termínu:<br/>potvrzená s dluhem"])
@@ -33,6 +39,7 @@ flowchart TD
   n_e_zruseni_nahradnika(("Organizátor zruší<br/>náhradníka"))
   n_e_presun(("Organizátor přesune<br/>přihlášku mezi<br/>náhradníky"))
   n_rucne_potvrdit("Ručně potvrdit<br/>přihlášku v termínu<br/>role: organizátor")
+  n_n_kapacita["Zvýšení kapacity<br/>náhradníka nikdy samo<br/>nepotvrdí; organizátor<br/>v administraci akce<br/>dostane banner s<br/>navrženým náhradníkem<br/>(přehled + pohled<br/>Náhradníci) a potvrdí<br/>ho jedním krokem<br/>(D-108)."]
   n_e_platby(("Σ plateb = částka k<br/>úhradě"))
   n_e_lhuta(("Lhůta pro zaplacení<br/>dluhu uplynula"))
   n_e_zamitnuti(("Nastaly okolnosti pro<br/>zamítnutí přihlášky v<br/>termínu"))
@@ -42,10 +49,17 @@ flowchart TD
   n_e_zamitnuti_po_vyzve(("Nastaly okolnosti pro<br/>zamítnutí přihlášky v<br/>termínu"))
   n_s_potvrzena_zaplacena(["Přihláška v termínu:<br/>potvrzená a zaplacená"])
   n_e_zamitnuti_zaplacena(("Nastaly okolnosti pro<br/>zamítnutí přihlášky v<br/>termínu"))
-  n_e_termin(("Termín proběhne (datum<br/>= první den po<br/>posledním termínu)"))
-  n_e_odhlaska(("Účastník se odhlásí"))
+  n_e_termin(("Termín přihlášky v<br/>termínu skončil (první<br/>den po jeho posledním<br/>dni, Europe/Prague)"))
+  n_e_odhlaska(("Účastník se odhlásí<br/>(nebo odhlášku zadá<br/>organizátor)"))
+  n_e_odhlaska_dluh(("Účastník se odhlásí<br/>(nebo odhlášku zadá<br/>organizátor)"))
+  n_e_odhlaska_nahradnik(("Účastník se odhlásí<br/>(nebo odhlášku zadá<br/>organizátor)"))
+  n_n_zrusena["Zaplacené peníze<br/>zůstávají u termínu<br/>jako přeplatek, vrací<br/>organizátor vratkou<br/>(D-051, D-088, D-103)."]
+  n_n_zadost["Odhláška a změna<br/>termínu od data<br/>schvalování jde přes<br/>žádost (zadost-o-<br/>zmenu)."]
   n_e_oprava_platby(("Organizátor opraví<br/>nebo odstraní platbu a<br/>vznikne dluh"))
+  n_n_lhuta["Lhůta = Event.paymentP<br/>eriodDays (výchozí 10<br/>dní, D-099). Když se<br/>místo uvolní v okně<br/>(začátek termínu minus<br/>lhůta), potvrzená<br/>přihláška je rovnou po<br/>splatnosti. Výzva<br/>odchází jen na<br/>požadavek organizátora<br/>(D-102)."]
+  n_n_oprava["Oprava platby spouští<br/>lhůtu znovu (D-101)."]
   n_s_archivovana(["Přihláška v termínu:<br/>archivovaná"])
+  n_n_archivovana["Archivovaná je<br/>koncová. Souhrnná<br/>platba se jí nepřidělí<br/>(D-087), oprava platby<br/>zůstává povolená, bez<br/>nového přechodu<br/>(D-110)."]
   n_sync_do_poradniku{"AND"}
   n_alt_do_poradniku{"XOR"}
   n_split_do_poradniku{"XOR"}
@@ -70,11 +84,22 @@ flowchart TD
   n_g_vysledek -->|"zamítne"| n_s_zrusena
   n_g_vysledek -->|"potvrdí"| n_s_potvrzena_dluh
   n_g_vysledek -->|"zařadí jako náhradníka"| n_s_nahradnik
+  n_e_rucni_pridani --> n_g_rucni
+  n_g_rucni -->|"potvrzená s dluhem"| n_s_potvrzena_dluh
+  n_g_rucni -->|"náhradník"| n_s_nahradnik
+  n_n_rucni -.-> n_e_rucni_pridani
+  n_e_pridani_terminu --> n_g_pridani
+  n_g_pridani -->|"organizátor přidá termín<br/>(nad kapacitou jen po<br/>vědomém potvrzení)"| n_s_potvrzena_dluh
+  n_g_pridani -->|"přihlašovatel přidá<br/>termín před datem<br/>schvalování"| n_s_k_vyhodnoceni
+  n_n_pridani -.-> n_e_pridani_terminu
+  n_split_s_nahradnik -->|"Účastník se odhlásí<br/>(nebo odhlášku zadá<br/>organizátor)"| n_s_zrusena
   n_split_s_nahradnik -->|"Organizátor zruší termín<br/>akce"| n_s_zrusena
   n_split_s_nahradnik -->|"Uvolní se místo"| n_rucne_potvrdit
   n_split_s_nahradnik -->|"Nastala půlnoc<br/>(Europe/Prague) prvního<br/>dne termínu akce"| n_s_zrusena
   n_split_s_nahradnik -->|"Organizátor zruší<br/>náhradníka"| n_s_zrusena
   n_rucne_potvrdit --> n_s_potvrzena_dluh
+  n_n_kapacita -.-> n_rucne_potvrdit
+  n_split_s_potvrzena_dluh -->|"Účastník se odhlásí<br/>(nebo odhlášku zadá<br/>organizátor)"| n_s_zrusena
   n_split_s_potvrzena_dluh -->|"Organizátor zruší termín<br/>akce"| n_s_zrusena
   n_split_s_potvrzena_dluh -->|"Σ plateb = částka k<br/>úhradě"| n_zaucotovat
   n_split_s_potvrzena_dluh -->|"Lhůta pro zaplacení<br/>dluhu uplynula"| n_vyzva
@@ -85,10 +110,17 @@ flowchart TD
   n_split_vyzva -->|"Nastaly okolnosti pro<br/>zamítnutí přihlášky v<br/>termínu"| n_s_zrusena
   n_zaucotovat --> n_s_potvrzena_zaplacena
   n_split_s_potvrzena_zaplacena -->|"Organizátor opraví nebo<br/>odstraní platbu a<br/>vznikne dluh"| n_s_potvrzena_dluh
+  n_n_oprava -.-> n_e_oprava_platby
+  n_n_lhuta -.-> n_e_lhuta
   n_split_s_potvrzena_zaplacena -->|"Organizátor zruší termín<br/>akce"| n_s_zrusena
   n_split_s_potvrzena_zaplacena -->|"Nastaly okolnosti pro<br/>zamítnutí přihlášky v<br/>termínu"| n_s_zrusena
-  n_split_s_potvrzena_zaplacena -->|"Účastník se odhlásí"| n_s_zrusena
-  n_split_s_potvrzena_zaplacena -->|"Termín proběhne (datum =<br/>první den po posledním<br/>termínu)"| n_s_archivovana
+  n_split_s_potvrzena_zaplacena -->|"Účastník se odhlásí<br/>(nebo odhlášku zadá<br/>organizátor)"| n_s_zrusena
+  n_n_zrusena -.-> n_s_zrusena
+  n_n_zadost -.-> n_s_potvrzena_zaplacena
+  n_n_zadost -.-> n_s_potvrzena_dluh
+  n_n_zadost -.-> n_s_nahradnik
+  n_split_s_potvrzena_zaplacena -->|"Termín přihlášky v<br/>termínu skončil (první<br/>den po jeho posledním<br/>dni, Europe/Prague)"| n_s_archivovana
+  n_n_archivovana -.-> n_s_archivovana
   n_do_poradniku --> n_sync_do_poradniku
   n_alt_do_poradniku --> n_sync_do_poradniku
   n_chce_vyhodnotit --> n_alt_do_poradniku
@@ -100,6 +132,7 @@ flowchart TD
   n_e_zacatek --> n_alt_s_nahradnik
   n_e_zruseni_nahradnika --> n_alt_s_nahradnik
   n_e_zruseni_terminu_nahradnik --> n_alt_s_nahradnik
+  n_e_odhlaska_nahradnik --> n_alt_s_nahradnik
   n_sync_s_nahradnik --> n_split_s_nahradnik
   n_s_potvrzena_dluh --> n_sync_s_potvrzena_dluh
   n_alt_s_potvrzena_dluh --> n_sync_s_potvrzena_dluh
@@ -108,6 +141,7 @@ flowchart TD
   n_e_zamitnuti --> n_alt_s_potvrzena_dluh
   n_e_presun --> n_alt_s_potvrzena_dluh
   n_e_zruseni_terminu_dluh --> n_alt_s_potvrzena_dluh
+  n_e_odhlaska_dluh --> n_alt_s_potvrzena_dluh
   n_sync_s_potvrzena_dluh --> n_split_s_potvrzena_dluh
   n_vyzva --> n_sync_vyzva
   n_alt_vyzva --> n_sync_vyzva
@@ -124,10 +158,11 @@ flowchart TD
   n_e_oprava_platby --> n_alt_s_potvrzena_zaplacena
   n_sync_s_potvrzena_zaplacena --> n_split_s_potvrzena_zaplacena
 
-  class n_prihlaska_zaregistrovana,n_chce_vyhodnotit,n_uvolni_se_misto,n_e_zruseni_terminu_nahradnik,n_e_zruseni_terminu_dluh,n_e_zruseni_terminu_po_vyzve,n_e_zruseni_terminu_zaplacena,n_e_zruseni_terminu_kv,n_e_zruseni_nahradnika,n_e_presun,n_e_platby,n_e_zamitnuti,n_e_platby_po_vyzve,n_e_zamitnuti_po_vyzve,n_e_zamitnuti_zaplacena,n_e_odhlaska,n_e_oprava_platby ev
+  class n_prihlaska_zaregistrovana,n_chce_vyhodnotit,n_e_rucni_pridani,n_e_pridani_terminu,n_uvolni_se_misto,n_e_zruseni_terminu_nahradnik,n_e_zruseni_terminu_dluh,n_e_zruseni_terminu_po_vyzve,n_e_zruseni_terminu_zaplacena,n_e_zruseni_terminu_kv,n_e_zruseni_nahradnika,n_e_presun,n_e_platby,n_e_zamitnuti,n_e_platby_po_vyzve,n_e_zamitnuti_po_vyzve,n_e_zamitnuti_zaplacena,n_e_odhlaska,n_e_odhlaska_dluh,n_e_odhlaska_nahradnik,n_e_oprava_platby ev
   class n_do_poradniku,n_vyhodnotit,n_rucne_potvrdit,n_zaucotovat,n_vyzva task
   class n_s_k_vyhodnoceni,n_s_nahradnik,n_s_potvrzena_dluh,n_s_potvrzena_zaplacena st
-  class n_g_vysledek,n_alt_do_poradniku,n_split_do_poradniku,n_alt_s_nahradnik,n_split_s_nahradnik,n_alt_s_potvrzena_dluh,n_split_s_potvrzena_dluh,n_alt_vyzva,n_split_vyzva,n_alt_s_potvrzena_zaplacena,n_split_s_potvrzena_zaplacena gw_xor
+  class n_g_vysledek,n_g_rucni,n_g_pridani,n_alt_do_poradniku,n_split_do_poradniku,n_alt_s_nahradnik,n_split_s_nahradnik,n_alt_s_potvrzena_dluh,n_split_s_potvrzena_dluh,n_alt_vyzva,n_split_vyzva,n_alt_s_potvrzena_zaplacena,n_split_s_potvrzena_zaplacena gw_xor
+  class n_n_rucni,n_n_pridani,n_n_kapacita,n_n_zrusena,n_n_zadost,n_n_lhuta,n_n_oprava,n_n_archivovana note
   class n_s_zrusena,n_s_archivovana endst
   class n_e_zacatek,n_e_lhuta,n_e_termin timed
   class n_sync_do_poradniku,n_sync_s_nahradnik,n_sync_s_potvrzena_dluh,n_sync_vyzva,n_sync_s_potvrzena_zaplacena gw_and
