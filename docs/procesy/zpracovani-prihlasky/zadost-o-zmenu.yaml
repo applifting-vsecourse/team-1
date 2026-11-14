@@ -2,7 +2,7 @@ title: Žádost o změnu přihlášky ke schválení
 direction: TD
 
 # Společné pro obě vyhodnocování (D-100, D-134, D-140). Žádost je samostatný objekt, stav přihlášky v termínu mění až schválení,
-# a to stejným přechodem jako okamžitá změna (cancel(), addTerm() ve stavovém diagramu přihlášky v termínu).
+# a to jako rozhodnutí organizátora (cancel(), addTerm() ve stavovém diagramu přihlášky v termínu; přidaný termín je Potvrzená s dluhem i v ručním režimu).
 
 nodes:
   - {
@@ -34,7 +34,7 @@ nodes:
   - {
       id: provest,
       type: task,
-      label: "Provést změnu stejným přechodem jako okamžitou změnu (D-134)",
+      label: "Provést změnu jako rozhodnutí organizátora: odhláška stejným přechodem jako okamžitá, přidaný termín rovnou Potvrzená s dluhem v obou režimech, bez dalšího vyhodnocení (D-134)",
       role: systém,
     }
   - { id: email_zmena, type: task, label: Poslat běžný e-mail o změně přihlášky, role: systém }

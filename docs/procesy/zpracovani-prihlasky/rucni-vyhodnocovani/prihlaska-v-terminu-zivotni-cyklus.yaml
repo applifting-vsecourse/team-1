@@ -27,7 +27,12 @@ transitions:
       reason: Organizátor přihlášku přidá ručně a určí stav termínu,
       op: registerByOrganizer(),
     }
-  - { from: start, to: potvrzena_dluh, reason: Organizátor přidá termín, op: addTerm() }
+  - {
+      from: start,
+      to: potvrzena_dluh,
+      reason: Organizátor přidá termín nebo schválí žádost o přidání termínu,
+      op: addTerm(),
+    }
   - {
       from: start,
       to: k_vyhodnoceni,

@@ -9,7 +9,7 @@ stateDiagram-v2
   [*] --> n_nahradnik : Nová přihláška v termínu<br/>přijata a volné lůžko ve<br/>skupině lůžek účastníka<br/>není / register()
   [*] --> n_potvrzena_dluh : Organizátor přihlášku<br/>přidá ručně a určí stav<br/>termínu /<br/>registerByOrganizer()
   [*] --> n_nahradnik : Organizátor přihlášku<br/>přidá ručně a určí stav<br/>termínu /<br/>registerByOrganizer()
-  [*] --> n_potvrzena_dluh : Organizátor přidá termín /<br/>addTerm()
+  [*] --> n_potvrzena_dluh : Organizátor přidá termín<br/>nebo schválí žádost o<br/>přidání termínu /<br/>addTerm()
   [*] --> n_potvrzena_dluh : Přihlašovatel přidá termín<br/>a je volné lůžko /<br/>addTerm()
   [*] --> n_nahradnik : Přihlašovatel přidá termín<br/>a volné lůžko není /<br/>addTerm()
   n_nahradnik --> n_potvrzena_dluh : Uvolní se lůžko ve skupině<br/>lůžek účastníka (uvolnění<br/>zrušením, odhláškou,<br/>přesunem mezi náhradníky<br/>nebo změnou termínu,<br/>nejvýš tolik náhradníků,<br/>kolik lůžek se uvolnilo) a<br/>je první v pořadí přijetí.<br/>Potvrzení v okně „začátek<br/>termínu minus lhůta“ je<br/>rovnou po splatnosti<br/>(D-099) / confirm()

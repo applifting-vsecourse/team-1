@@ -9,7 +9,7 @@ stateDiagram-v2
   [*] --> n_k_vyhodnoceni : Nová přihláška v termínu<br/>přijata / register()
   [*] --> n_potvrzena_dluh : Organizátor přihlášku<br/>přidá ručně a určí stav<br/>termínu /<br/>registerByOrganizer()
   [*] --> n_nahradnik : Organizátor přihlášku<br/>přidá ručně a určí stav<br/>termínu /<br/>registerByOrganizer()
-  [*] --> n_potvrzena_dluh : Organizátor přidá termín /<br/>addTerm()
+  [*] --> n_potvrzena_dluh : Organizátor přidá termín<br/>nebo schválí žádost o<br/>přidání termínu /<br/>addTerm()
   [*] --> n_k_vyhodnoceni : Přihlašovatel přidá termín<br/>před datem schvalování /<br/>addTerm()
   n_k_vyhodnoceni --> n_potvrzena_dluh : Organizátor vyhodnotí<br/>přihlášku v termínu -<br/>potvrdí / confirm()
   n_k_vyhodnoceni --> n_nahradnik : Organizátor vyhodnotí<br/>přihlášku v termínu -<br/>zařadí jako náhradníka /<br/>putOnWaitlist()

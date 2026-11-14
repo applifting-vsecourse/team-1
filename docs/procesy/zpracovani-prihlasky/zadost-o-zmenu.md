@@ -23,7 +23,7 @@ flowchart TD
   n_g_rozhodnuti{"XOR"}
   n_g_plny{"XOR"}
   n_e_plny(["Schválení vrací 409<br/>(cílový termín je<br/>plný), žádost zůstává<br/>čekající"])
-  n_provest("Provést změnu stejným<br/>přechodem jako<br/>okamžitou změnu<br/>(D-134)<br/>role: systém")
+  n_provest("Provést změnu jako<br/>rozhodnutí<br/>organizátora: odhláška<br/>stejným přechodem jako<br/>okamžitá, přidaný<br/>termín rovnou<br/>Potvrzená s dluhem v<br/>obou režimech, bez<br/>dalšího vyhodnocení<br/>(D-134)<br/>role: systém")
   n_email_zmena("Poslat běžný e-mail o<br/>změně přihlášky<br/>role: systém")
   n_s_schvalena(["Žádost o změnu:<br/>schválená"])
   n_email_zamitnuti("Poslat e-mail CHANGE_R<br/>EQUEST_REJECTED<br/>role: systém")
