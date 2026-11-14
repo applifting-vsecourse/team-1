@@ -41,7 +41,7 @@ export function ProgramBlockDetailDialog({
     >
       <DialogContent className="max-h-[90dvh] gap-0 overflow-y-auto bg-card p-0 shadow-md sm:max-w-130">
         <div className="flex flex-col gap-1 p-6 pr-14">
-          <DialogTitle className="text-xl leading-tight tracking-tight break-words">
+          <DialogTitle className="text-lg leading-snug tracking-tight break-words">
             {block.name}
           </DialogTitle>
           <DialogDescription className="sr-only">{t("detailHint")}</DialogDescription>
@@ -85,7 +85,7 @@ export function ProgramBlockDetailDialog({
               type="button"
               variant="outline"
               size="lg"
-              className="border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive sm:mr-auto"
+              className="border-destructive text-destructive hover:bg-destructive/10 hover:text-destructive sm:mr-auto"
               onClick={onDelete}
             >
               <Trash2 />

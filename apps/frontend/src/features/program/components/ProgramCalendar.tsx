@@ -46,7 +46,7 @@ export function ProgramCalendar({
                 key={day}
                 className="flex items-baseline gap-2 border-l px-3 py-3 text-sm"
               >
-                <span className="font-semibold">{header.weekday}</span>
+                <span className="font-medium">{header.weekday}</span>
                 <span className="text-muted-foreground">{header.date}</span>
               </h2>
             )
@@ -79,7 +79,7 @@ export function ProgramCalendar({
               {hours.map((hour, index) => (
                 <span
                   key={hour}
-                  className="absolute left-0 w-full pr-2 text-right font-mono text-xs text-muted-foreground"
+                  className="absolute left-0 w-full pr-2 text-right text-xs font-medium text-muted-foreground"
                   style={{ top: index * HOUR_HEIGHT + (index > 0 ? 4 : 0) }}
                 >
                   {String(hour).padStart(2, "0")}:00
@@ -128,7 +128,7 @@ function CalendarBlock({
   const minutes = Math.max(toMinutes(block.endTime) - start, 30)
   return (
     <article
-      className="absolute rounded-md border border-l-4 border-primary/20 border-l-primary bg-accent text-accent-foreground transition-colors hover:border-primary/50 hover:border-l-primary"
+      className="absolute rounded-md border-l-4 border-l-primary bg-accent text-accent-foreground transition hover:brightness-95"
       style={{
         top: ((start - from * 60) / 60) * HOUR_HEIGHT + 1,
         // The block is at least as tall as its time span and grows so the whole name always shows.

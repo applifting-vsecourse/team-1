@@ -34,7 +34,7 @@ import {
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { notify } from "@/lib/notify"
-import { termDates, termTitle } from "@/lib/term-label"
+import { termDates } from "@/lib/term-label"
 
 import {
   programKeys,
@@ -151,9 +151,6 @@ export function ProgramBlockDialog({
       }}
     >
       <DialogContent className="max-h-[90dvh] overflow-y-auto bg-card shadow-md sm:max-w-140">
-        <p className="text-xs font-medium text-muted-foreground uppercase">
-          {termTitle({ ...term, name: term.termName })}
-        </p>
         <DialogTitle className="pr-8">{t(block ? "editTitle" : "addTitle")}</DialogTitle>
         <DialogDescription>{t(block ? "hintEdit" : "hintAdd")}</DialogDescription>
         <Form {...form}>
