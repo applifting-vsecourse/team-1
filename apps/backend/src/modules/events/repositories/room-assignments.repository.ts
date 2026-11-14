@@ -1,15 +1,16 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { Prisma } from "@/generated/prisma/client"
-import { computeRoomBeds } from "@/modules/applications/domain/capacity"
-import { ApplicationTermStatus } from "@/modules/applications/domain/evaluation"
+import { computeFreeRoomBeds, computeRoomBeds } from "@/modules/applications/domain/capacity"
+import {
+  ApplicationTermStatus,
+  ASSIGNABLE_STATUSES,
+} from "@/modules/applications/domain/evaluation"
 import { releaseAssignments } from "@/modules/applications/repositories/release-assignments"
 import {
-  ASSIGNABLE_STATUSES,
   AssignmentOtherTerm,
   AssignmentParticipant,
   AssignmentRoom,
   findSameNamedRoom,
-  freeBeds,
   rejectAssignment,
   TermAssignments,
 } from "@/modules/events/domain/room-assignment"
@@ -103,7 +104,7 @@ export class RoomAssignmentsRepository {
             id: room.id,
             name: room.name,
             gender: room.gender,
-            freeBeds: freeBeds(room, room._count.assignments),
+            freeBeds: computeFreeRoomBeds(room, room._count.assignments),
           })),
         })),
     }))

@@ -75,7 +75,9 @@ export class TermsRepository {
 
   async cancel(termId: string, reason: string): Promise<EventTerm> {
     const row = await this.prisma.$transaction(async (tx) => {
-      // US-35: nobody sleeps in the rooms of a cancelled term.
+      // US-35: under the lock of the action, like room assignment, so none lands after the cancel.
+      await tx.$queryRaw`SELECT e.id FROM event e JOIN term t ON t."eventId" = e.id WHERE t.id = ${termId} FOR UPDATE OF e`
+      // Nobody sleeps in the rooms of a cancelled term.
       await releaseAssignments(tx, { termId })
       return tx.term.update({
         where: { id: termId },

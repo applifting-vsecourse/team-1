@@ -1,9 +1,6 @@
-import {
-  findSameNamedRoom,
-  freeBeds,
-  isAssignable,
-  rejectAssignment,
-} from "@/modules/events/domain/room-assignment"
+import { computeFreeRoomBeds } from "@/modules/applications/domain/capacity"
+import { isAssignable } from "@/modules/applications/domain/evaluation"
+import { findSameNamedRoom, rejectAssignment } from "@/modules/events/domain/room-assignment"
 
 describe("isAssignable", () => {
   it("allows confirmed and to-evaluate, not waitlisted or cancelled", () => {
@@ -14,10 +11,10 @@ describe("isAssignable", () => {
   })
 })
 
-describe("freeBeds", () => {
+describe("computeFreeRoomBeds", () => {
   it("counts own and extra beds", () => {
-    expect(freeBeds({ capacity: 2, extraBeds: 1 }, 2)).toBe(1)
-    expect(freeBeds({ capacity: 2, extraBeds: 0 }, 2)).toBe(0)
+    expect(computeFreeRoomBeds({ capacity: 2, extraBeds: 1 }, 2)).toBe(1)
+    expect(computeFreeRoomBeds({ capacity: 2, extraBeds: 0 }, 2)).toBe(0)
   })
 })
 

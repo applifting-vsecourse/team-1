@@ -13,6 +13,7 @@ import { findDuplicate } from "@/modules/applications/domain/duplicate-applicati
 import {
   ApplicationTermStatus,
   evaluateApplication,
+  isAssignable,
 } from "@/modules/applications/domain/evaluation"
 import {
   AddedTermState,
@@ -47,7 +48,6 @@ import {
 } from "@/modules/applications/domain/term-status"
 import { bedGroup, WaitlistCandidate } from "@/modules/applications/domain/waitlist"
 import { releaseAssignments } from "@/modules/applications/repositories/release-assignments"
-import { isAssignable } from "@/modules/events/domain/room-assignment"
 import { buildNotification, isoDay } from "@/modules/notifications/domain/notification"
 import { NotificationsRepository } from "@/modules/notifications/repositories/notifications.repository"
 import { resolveChangeEmailLocale } from "@/modules/participants/domain/change-email-locale"

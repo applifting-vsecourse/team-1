@@ -1,24 +1,6 @@
-import { computeRoomBeds } from "@/modules/applications/domain/capacity"
-import { ApplicationTermStatus } from "@/modules/applications/domain/evaluation"
+import { computeFreeRoomBeds } from "@/modules/applications/domain/capacity"
+import { ApplicationTermStatus, isAssignable } from "@/modules/applications/domain/evaluation"
 import { Gender } from "@/shared/domain/gender"
-
-/**
- * Who can sleep in a room (US-35): a confirmed application in the term, or one still waiting for
- * the manual evaluation (the assignment confirms nothing). Waitlisted and cancelled ones cannot.
- */
-export const ASSIGNABLE_STATUSES: readonly ApplicationTermStatus[] = ["CONFIRMED", "TO_EVALUATE"]
-
-export function isAssignable(status: ApplicationTermStatus): boolean {
-  return ASSIGNABLE_STATUSES.includes(status)
-}
-
-/** Free beds of a room: all its beds (own + extra beds, US-80) minus the people assigned. */
-export function freeBeds(
-  room: { capacity: number; extraBeds: number },
-  assignedCount: number,
-): number {
-  return computeRoomBeds(room) - assignedCount
-}
 
 export type AssignmentRejection = "ROOM_ASSIGNMENT_STATUS_INVALID" | "ROOM_FULL"
 
@@ -35,7 +17,7 @@ export function rejectAssignment(input: {
 }): AssignmentRejection | null {
   if (!isAssignable(input.status)) return "ROOM_ASSIGNMENT_STATUS_INVALID"
   if (input.alreadyInRoom) return null
-  return freeBeds(input.room, input.assignedCount) <= 0 ? "ROOM_FULL" : null
+  return computeFreeRoomBeds(input.room, input.assignedCount) <= 0 ? "ROOM_FULL" : null
 }
 
 const normalize = (name: string): string => name.trim().toLocaleLowerCase("cs")
