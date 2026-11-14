@@ -11,13 +11,13 @@ import {
   type DragStartEvent,
 } from "@dnd-kit/core"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { Search } from "lucide-react"
+import { ChevronLeft, ChevronRight, Search } from "lucide-react"
+import { createPortal } from "react-dom"
 import { useTranslation } from "react-i18next"
 
 import { EmptyState } from "@/components/molecules/EmptyState"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
-import { Pagination } from "@/components/molecules/Pagination"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -50,8 +50,8 @@ import {
 
 type Term = { eventId: string; termId: string; startsOn: string; endsOn: string }
 
-/** The unassigned list is paged: a camp can have hundreds of people. */
-const UNASSIGNED_PAGE_SIZE = 8
+/** The unassigned list is paged and searchable: a camp can have hundreds of people. */
+const UNASSIGNED_PAGE_SIZE = 10
 
 /** True while the element is scrolled out of the viewport; where unsupported the bar stays hidden. */
 function useScrolledOut(element: HTMLElement | null): boolean {
@@ -69,9 +69,9 @@ function useScrolledOut(element: HTMLElement | null): boolean {
 
 function Stat({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="flex flex-col gap-0.5 px-4 first:pl-0">
-      <dt className="text-xs text-muted-foreground">{label}</dt>
-      <dd className="text-xl font-semibold tracking-tight">{value}</dd>
+    <div className="inline-flex items-baseline gap-1.5 rounded-full bg-secondary px-3.5 py-1.5 text-sm">
+      <dt className="text-muted-foreground">{label}</dt>
+      <dd className="font-semibold">{value}</dd>
     </div>
   )
 }
@@ -114,6 +114,7 @@ export function RoomAssignmentsCard({
   const [dialog, setDialog] = useState<{ target: AssignTarget } | null>(null)
   const [dragged, setDragged] = useState<DragData | null>(null)
   const [search, setSearch] = useState("")
+  const [peopleSearch, setPeopleSearch] = useState("")
   // The panel renders only once the data is there, so it is tracked as state, not as a ref object.
   const [panel, setPanel] = useState<HTMLDivElement | null>(null)
   const isPanelScrolledOut = useScrolledOut(panel)
@@ -133,7 +134,12 @@ export function RoomAssignmentsCard({
       unassignRoom(term.eventId, term.termId, applicationTermId),
   })
   const unassignedList = query.data?.unassigned ?? []
-  const paging = usePagination(unassignedList, "", UNASSIGNED_PAGE_SIZE)
+  const foundPeople = unassignedList.filter((participant) =>
+    participantName(participant)
+      .toLocaleLowerCase()
+      .includes(peopleSearch.trim().toLocaleLowerCase()),
+  )
+  const paging = usePagination(foundPeople, peopleSearch, UNASSIGNED_PAGE_SIZE)
 
   const data = query.data
   if (!data) {
@@ -154,7 +160,6 @@ export function RoomAssignmentsCard({
   const isNobodyAssigned = data.rooms.every((room) => room.participants.length === 0)
   const totalBeds = data.rooms.reduce((sum, room) => sum + room.beds, 0)
   const occupied = data.rooms.reduce((sum, room) => sum + room.participants.length, 0)
-  const hasGenderColumn = data.rooms.some((room) => room.gender !== null)
   const visibleRooms = data.rooms.filter((room) =>
     room.name.toLocaleLowerCase().includes(search.trim().toLocaleLowerCase()),
   )
@@ -247,7 +252,7 @@ export function RoomAssignmentsCard({
       onDragCancel={() => setDragged(null)}
     >
       <div className="flex flex-col gap-4">
-        <dl className="flex divide-x divide-border">
+        <dl className="flex flex-wrap justify-center gap-2">
           <Stat
             label={t("roomAssignments.statRooms")}
             value={data.rooms.length}
@@ -312,6 +317,27 @@ export function RoomAssignmentsCard({
               </p>
             ) : (
               <>
+                {unassigned.length > UNASSIGNED_PAGE_SIZE ? (
+                  <div className="relative border-t border-border px-3 py-2">
+                    <Search
+                      className="pointer-events-none absolute top-1/2 left-5.5 size-4 -translate-y-1/2 text-muted-foreground"
+                      aria-hidden
+                    />
+                    <Input
+                      type="search"
+                      aria-label={t("roomAssignments.searchPeopleLabel")}
+                      placeholder={t("roomAssignments.searchPeoplePlaceholder")}
+                      className="h-9 pl-9"
+                      value={peopleSearch}
+                      onChange={(event) => setPeopleSearch(event.target.value)}
+                    />
+                  </div>
+                ) : null}
+                {foundPeople.length === 0 ? (
+                  <p className="border-t border-border px-3 pt-3 pb-4 text-sm text-muted-foreground">
+                    {t("roomAssignments.noPersonMatch")}
+                  </p>
+                ) : null}
                 <ul>
                   {paging.pageItems.map((participant, index) => (
                     <UnassignedRow
@@ -324,14 +350,34 @@ export function RoomAssignmentsCard({
                   ))}
                 </ul>
                 {paging.pageCount > 1 ? (
-                  <div className="border-t border-border px-3 py-2">
-                    <Pagination
-                      page={paging.page}
-                      pageCount={paging.pageCount}
-                      pageSize={paging.pageSize}
-                      total={paging.total}
-                      onPageChange={paging.setPage}
-                    />
+                  <div className="flex items-center justify-between border-t border-border px-2 py-1">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      aria-label={t("pagination.previous", { ns: "common" })}
+                      disabled={paging.page === 0}
+                      onClick={() => paging.setPage(paging.page - 1)}
+                    >
+                      <ChevronLeft />
+                    </Button>
+                    <span className="text-sm whitespace-nowrap text-muted-foreground">
+                      {t("roomAssignments.range", {
+                        from: paging.page * paging.pageSize + 1,
+                        to: Math.min((paging.page + 1) * paging.pageSize, paging.total),
+                        count: paging.total,
+                      })}
+                    </span>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      aria-label={t("pagination.next", { ns: "common" })}
+                      disabled={paging.page + 1 === paging.pageCount}
+                      onClick={() => paging.setPage(paging.page + 1)}
+                    >
+                      <ChevronRight />
+                    </Button>
                   </div>
                 ) : null}
               </>
@@ -361,10 +407,7 @@ export function RoomAssignmentsCard({
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>{t("roomAssignments.roomNameColumn")}</TableHead>
-                        {hasGenderColumn ? (
-                          <TableHead>{t("roomAssignments.genderColumn")}</TableHead>
-                        ) : null}
+                        <TableHead>{t("roomAssignments.roomColumn")}</TableHead>
                         <TableHead>{t("roomAssignments.participantsColumn")}</TableHead>
                         <TableHead>{t("roomAssignments.occupancyColumn")}</TableHead>
                         <TableHead>
@@ -376,7 +419,6 @@ export function RoomAssignmentsCard({
                       {visibleRooms.map((room) => (
                         <RoomTableRow
                           key={room.id}
-                          hasGenderColumn={hasGenderColumn}
                           {...roomProps(room)}
                         />
                       ))}
@@ -418,7 +460,11 @@ export function RoomAssignmentsCard({
           />
         ) : null}
       </div>
-      <DragOverlay>{dragged ? <ParticipantGhost name={dragged.name} /> : null}</DragOverlay>
+      {/* In a portal: inside the card an ancestor offset the fixed overlay to a screen corner. */}
+      {createPortal(
+        <DragOverlay>{dragged ? <ParticipantGhost name={dragged.name} /> : null}</DragOverlay>,
+        document.body,
+      )}
     </DndContext>
   )
 }

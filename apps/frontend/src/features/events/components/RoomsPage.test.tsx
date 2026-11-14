@@ -153,7 +153,7 @@ describe("accommodation by term", () => {
     success.mockReset()
   })
 
-  it("shows only the rooms of the selected term, with its metrics and the gender in its own column", async () => {
+  it("shows only the rooms of the selected term, with its metrics and the gender with the room name", async () => {
     renderRooms("t1")
     const table = await screen.findByRole("table")
     expect(within(table).getByText(/^Gendered room/)).toBeInTheDocument()
@@ -163,7 +163,6 @@ describe("accommodation by term", () => {
     expect(screen.getByText("Capacity exhausted")).toBeInTheDocument()
     expect(screen.getByText("Beds available")).toBeInTheDocument()
     expect(within(table).getByText("Gendered room")).toBeInTheDocument()
-    expect(within(table).getByRole("columnheader", { name: "Gender" })).toBeInTheDocument()
     expect(within(table).getByText("Women's")).toBeInTheDocument()
     expect(within(table).getByText("Extra bed +2")).toBeInTheDocument()
   })
@@ -237,7 +236,7 @@ describe("accommodation by term", () => {
     const table = await screen.findByRole("table")
     expect(within(table).getByText("Shared room")).toBeInTheDocument()
     expect(screen.getByText("Room capacity")).toBeInTheDocument()
-    expect(within(table).queryByRole("columnheader", { name: "Gender" })).not.toBeInTheDocument()
+    expect(within(table).queryByText(/Women's|Men's/)).not.toBeInTheDocument()
     expect(screen.queryByText("Capacity exhausted")).not.toBeInTheDocument()
   })
 

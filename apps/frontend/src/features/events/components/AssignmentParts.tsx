@@ -49,11 +49,14 @@ export function ParticipantGhost({ name }: { name: string }) {
 export function ParticipantChip({
   participant,
   roomId,
+  scope,
   onMove,
   onRemove,
 }: {
   participant: AssignmentParticipant
   roomId: string
+  /** The table and the mobile cards are both in the DOM; their draggables need their own ids. */
+  scope: "row" | "card"
   onMove: () => void
   onRemove: () => void
 }) {
@@ -65,7 +68,7 @@ export function ParticipantChip({
     fromRoomId: roomId,
   }
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
-    id: `chip:${participant.applicationTermId}`,
+    id: `chip:${scope}:${participant.applicationTermId}`,
     data,
   })
   // Radix opens its trigger on pointer down, which would fight the drag; so the chip opens the
@@ -207,9 +210,12 @@ type RoomProps = {
 
 function Chips({
   room,
+  scope,
   onMoveParticipant,
   onRemoveParticipant,
-}: Pick<RoomProps, "room" | "onMoveParticipant" | "onRemoveParticipant">) {
+}: Pick<RoomProps, "room" | "onMoveParticipant" | "onRemoveParticipant"> & {
+  scope: "row" | "card"
+}) {
   return (
     <div className="flex flex-wrap gap-1.5">
       {room.participants.map((participant) => (
@@ -217,6 +223,7 @@ function Chips({
           key={participant.applicationTermId}
           participant={participant}
           roomId={room.id}
+          scope={scope}
           onMove={() => onMoveParticipant(participant)}
           onRemove={() => onRemoveParticipant(participant)}
         />
@@ -248,16 +255,15 @@ function Occupancy({ room, isDropping }: { room: AssignmentRoom; isDropping: boo
   )
 }
 
-/** Desktop row of a room: name, gender, people as chips, occupancy and the room actions. */
+/** Desktop row of a room: name with its gender, people as chips, occupancy and the room actions. */
 export function RoomTableRow({
   room,
   isEligible,
   isDragActive,
-  hasGenderColumn,
   actions,
   onMoveParticipant,
   onRemoveParticipant,
-}: RoomProps & { hasGenderColumn: boolean }) {
+}: RoomProps) {
   const { roomGenderLabel } = useAssignmentLabels()
   const { setNodeRef, isOver } = useDroppable({
     id: `row:${room.id}`,
@@ -273,17 +279,19 @@ export function RoomTableRow({
           : isEligible && isDragActive && "bg-muted",
       )}
     >
-      <TableCell className="align-top font-bold break-words whitespace-normal">
-        {room.name}
-      </TableCell>
-      {hasGenderColumn ? (
-        <TableCell className="align-top">
+      <TableCell
+        aria-label={room.name}
+        className="align-top whitespace-normal"
+      >
+        <div className="flex flex-col items-start gap-1">
+          <span className="font-bold break-words">{room.name}</span>
           {room.gender ? <Badge variant="secondary">{roomGenderLabel(room.gender)}</Badge> : null}
-        </TableCell>
-      ) : null}
+        </div>
+      </TableCell>
       <TableCell className="min-w-64 align-top whitespace-normal">
         <Chips
           room={room}
+          scope="row"
           onMoveParticipant={onMoveParticipant}
           onRemoveParticipant={onRemoveParticipant}
         />
@@ -336,6 +344,7 @@ export function RoomCard({
       {room.participants.length ? (
         <Chips
           room={room}
+          scope="card"
           onMoveParticipant={onMoveParticipant}
           onRemoveParticipant={onRemoveParticipant}
         />

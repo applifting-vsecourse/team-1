@@ -4,7 +4,6 @@ import { Loader2 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ErrorState } from "@/components/molecules/ErrorState"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -28,7 +27,6 @@ import {
 } from "@/features/events/api/room-assignments"
 import {
   freeBedCount,
-  participantInitials,
   sameRoomName,
   useAssignmentLabels,
 } from "@/features/events/components/room-assignment-labels"
@@ -144,24 +142,12 @@ export function AssignRoomDialog({
             void submit()
           }}
         >
-          <div className="flex items-center gap-3 rounded-lg bg-muted p-3">
-            <Avatar size="lg">
-              <AvatarFallback>{participantInitials(target)}</AvatarFallback>
-            </Avatar>
-            <div className="flex min-w-0 flex-col gap-1">
-              <span className="font-semibold break-words">{name}</span>
-              <span className="flex flex-wrap items-center gap-1.5">
-                <Badge variant="secondary">{genderLabel(target.gender)}</Badge>
-                <Badge variant={target.status === "TO_EVALUATE" ? "info" : "success"}>
-                  {statusLabel(target.status, target.gender)}
-                </Badge>
-                {current ? (
-                  <span className="text-sm text-muted-foreground">
-                    {t("roomAssignments.nowIn", { room: roomTitle(current) })}
-                  </span>
-                ) : null}
-              </span>
-            </div>
+          <div className="flex flex-col gap-0.5 rounded-lg border border-border px-3 py-2.5">
+            <span className="text-sm font-medium break-words">{name}</span>
+            <span className="text-sm text-muted-foreground">
+              {genderLabel(target.gender)} · {statusLabel(target.status, target.gender)}
+              {current ? ` · ${t("roomAssignments.nowIn", { room: roomTitle(current) })}` : ""}
+            </span>
           </div>
           <fieldset className="flex flex-col gap-2">
             <legend className="mb-2 text-sm font-medium">{t("roomAssignments.roomChoice")}</legend>

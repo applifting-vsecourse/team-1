@@ -301,10 +301,30 @@ describe("room assignment", () => {
     }
     const user = renderCard()
     expect(await screen.findByText("Test Osoba00")).toBeInTheDocument()
-    expect(screen.queryByText("Test Osoba08")).not.toBeInTheDocument()
+    expect(screen.getByText("Test Osoba09")).toBeInTheDocument()
+    expect(screen.queryByText("Test Osoba10")).not.toBeInTheDocument()
+    expect(screen.getByText("1–10 / 11")).toBeInTheDocument()
     await user.click(screen.getByRole("button", { name: "Next →" }))
-    expect(await screen.findByText("Test Osoba08")).toBeInTheDocument()
+    expect(await screen.findByText("Test Osoba10")).toBeInTheDocument()
     expect(screen.queryByText("Test Osoba00")).not.toBeInTheDocument()
+  })
+
+  it("searches the unassigned by name once the list is long", async () => {
+    data = {
+      ...base(),
+      unassigned: Array.from({ length: 11 }, (_, index) => ({
+        ...person(`u${index}`, "Test", `Osoba${String(index).padStart(2, "0")}`),
+        alsoInTerms: [],
+      })),
+    }
+    const user = renderCard()
+    const search = await screen.findByRole("searchbox", { name: "Search unassigned participants" })
+    await user.type(search, "Osoba10")
+    expect(await screen.findByText("Test Osoba10")).toBeInTheDocument()
+    expect(screen.queryByText("Test Osoba00")).not.toBeInTheDocument()
+    await user.clear(search)
+    await user.type(search, "zzz")
+    expect(await screen.findByText("No participant with this name.")).toBeInTheDocument()
   })
 
   it("says it is optional while nobody is assigned, without a warning", async () => {
