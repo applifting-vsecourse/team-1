@@ -12,7 +12,7 @@ Když se něco rozhodne (v týmu, s PO, s klientem), zapíše se do [registru ro
 
 ## 1. O čem projekt je
 
-**Togena** je platforma pro pořadatele vícetermínových akcí (letní kempy, soustředění, LARP tábory, firemní výjezdy). Nahrazuje Google tabulky, ruční počítání kapacit a párování plateb.
+**Togena** je platforma pro organizátory vícetermínových akcí (letní kempy, soustředění, LARP tábory, firemní výjezdy). Nahrazuje Google tabulky, ruční počítání kapacit a párování plateb.
 
 Problém klienta: přihlášky se otevírají v jeden okamžik (7. 2. 2027 ve 20:00), do druhého dne je plno a organizátor ručně počítá, kdo se vejde do dámských a pánských pokojů, kdo je náhradník a kdo kolik dluží.
 
@@ -68,15 +68,22 @@ Původní rozsah sprintu 1 (tabulka stories) je v [archivu](archiv/SPRINT-1.md).
 
 - Kapacita termínu pro ženy = součet kapacit dámských pokojů, pro muže = pánských. 10 + 10 pokojů po 5 místech pojme 50 + 50, **ne** 52 + 48.
 - Pokoj (návaznost na US-14): kapacita od 1 bez produktového horního limitu. Pokoje platily do 28.10.2026 pro všechny termíny akce, což je **překonáno** následujícím bodem. V režimu `GENDERED` má pohlaví dámský / pánský; v režimu `SHARED` může být bez pohlaví. US-26 zatím řeší pouze režim `GENDERED`.
-- Od 28.10.2026 se ubytování, pokoje, jejich kapacity a dostupnost řeší po termínech (rozhodnutí [D-052](rozhodnuti/README.md#d-052)). Každý termín musí mít ubytování: odkaz na přihlášku funguje, až má každý termín cenu i aspoň jeden pokoj. Režim pokojů (dělený podle pohlaví, nebo společný) se může lišit po termínech ([D-062](rozhodnuti/README.md#d-062)); datový model zatím drží `Event.roomMode` na úrovni akce, viz sekce 8. Řeší to [US-99](https://github.com/applifting-vsecourse/team-1/issues/192) (pokoje po termínech) a [US-100](https://github.com/applifting-vsecourse/team-1/issues/193) (kopírování pokojů mezi termíny). Starší model „pokoj platí pro všechny termíny akce“ ještě popisují US-14, US-26 (mají poznámku „platí do 28.10.2026“) a odstavec o US-26 v sekci 10 („Rozdíly vůči boardu“).
+- Od 28.10.2026 se ubytování, pokoje, jejich kapacity a dostupnost řeší po termínech (rozhodnutí [D-052](rozhodnuti/README.md#d-052)). Každý termín musí mít ubytování: odkaz na přihlášku funguje, až má každý termín cenu i aspoň jeden pokoj. Režim pokojů (dělený podle pohlaví, nebo společný) se může lišit po termínech ([D-062](rozhodnuti/README.md#d-062)); v datovém modelu je režim pokojů na termínu (`Term.roomMode`) a pokoj patří právě jednomu termínu (`Room.termId`), viz sekce 7 ([US-99](https://github.com/applifting-vsecourse/team-1/issues/192)); pokoje mezi termíny kopíruje [US-100](https://github.com/applifting-vsecourse/team-1/issues/193). Starší model „pokoj platí pro všechny termíny akce“ ještě popisují US-14, US-26 (mají poznámku „platí do 28.10.2026“) a odstavec o US-26 v sekci 10 („Rozdíly vůči boardu“).
 - Telefon účastníka je ve formuláři povinný; telefon zákonného zástupce u nezletilých se zatím neřeší ([D-079](rozhodnuti/README.md#d-079)).
 - Přihláška se uloží vždy, i když je plno. Termíny se vyhodnocují zvlášť v pořadí přijetí na serveru. Dvě souběžné přihlášky nikdy nepřekročí kapacitu.
-- Variabilní symbol = číslo přihlášky.
-- Odkaz na přihlášku funguje, až má akce aspoň jeden termín s cenou a aspoň jeden pokoj (do 28.10.2026; od té doby musí mít ubytování **každý termín**).
+- Variabilní symbol je dvouúrovňový ([D-085](rozhodnuti/README.md#d-085)): `Application.number × 1000 + Term.number`. `…000` je souhrn přihlášky (zaplatí aktuální dluh), `…nnn` je platba za jeden termín. VS se neukládá, počítá se a čte celočíselně (`vs / 1000`, `vs % 1000`). Souhrnný VS platí vždy, částka se bere z aktuálního dluhu v okamžiku zápisu. Hodnoty od 9 000 000 000 jsou vyhrazeny pro souhrn odeslání formuláře, proto musí být `Application.number` menší než 9 000 000 (hlídá `variableSymbol()`, v databázi omezení není). Platby různých přihlášek se nesčítají.
+- Odkaz na přihlášku funguje, až má akce aspoň jeden termín s cenou a aspoň jeden pokoj (do 28.10.2026; od té doby musí mít ubytování **každý nezrušený termín**; zrušený termín se do podmínky nepočítá, [D-152](rozhodnuti/README.md#d-152)).
 - Otevření přihlášek ([D-067](rozhodnuti/README.md#d-067)): moment, kdy akce splní všechny požadavky (termín s cenou, ubytování u každého termínu). Tehdy se vygeneruje odkaz a přihlašování se spustí samo. Výhled, zatím nezavedený:
   - plánované nebo ruční spuštění přihlášek pro akci; čas se zadává v zóně Europe/Prague a organizátor ho může zrušit, dokud spuštění nenastalo ([D-081](rozhodnuti/README.md#d-081));
   - ruční pozastavení přihlášek pro celou akci (např. při výpadku ubytování); účastník důvod nevidí a odeslání přihlášky skončí chybou, že bylo přihlašování pozastaveno ([D-082](rozhodnuti/README.md#d-082)).
-- Režim vyhodnocování jde měnit, dokud je počet přijatých přihlášek 0; po první přijaté přihlášce je zamčený ([D-083](rozhodnuti/README.md#d-083)).
+- Režim vyhodnocování jde měnit, dokud je počet přijatých přihlášek 0; po první přijaté přihlášce je zamčený, počítá se i zrušená přihláška ([D-083](rozhodnuti/README.md#d-083)).
+- Veřejná stránka akce a katalog akcí ([US-122](https://github.com/applifting-vsecourse/team-1/issues/215), [US-123](https://github.com/applifting-vsecourse/team-1/issues/216)):
+  - popis, místo a kontakt (e-mail) jsou povinné jen v okamžiku, kdy organizátor akci zveřejňuje v katalogu; bez zveřejnění je lze nechat prázdné ([D-092](rozhodnuti/README.md#d-092));
+  - termíny a ceny jsou na veřejné stránce akce vždy vidět, organizátor je nemůže skrýt ([D-093](rozhodnuti/README.md#d-093), PO odsouhlasil 4. 11., [D-116](rozhodnuti/README.md#d-116));
+  - obsazenost a kapacita se veřejně nezveřejňují, ani v katalogu akcí (žádný pruh obsazenosti ani text „80 / 120 potvrzených“); rámce ve Figmě, které je kreslí, se v tomto bodě neimplementují ([D-094](rozhodnuti/README.md#d-094));
+  - stránka akce má stálou adresu `/events/<publicToken>` bez přihlášení, i když akce není v katalogu; akce bez funkčního odkazu a neexistující token vrací 404 bez obsahu ([D-116](rozhodnuti/README.md#d-116));
+  - fotografie veřejné stránky akce smí být JPG/JPEG nebo PNG, WebP ne ([D-096](rozhodnuti/README.md#d-096)); nejvýš 2 MB, jedna na akci, ukládá se do databáze ([D-116](rozhodnuti/README.md#d-116)).
+- Lhůta na zaplacení je nastavení akce, výchozí je 10 dní od potvrzení ([D-099](rozhodnuti/README.md#d-099)). Když se místo uvolní v okně „začátek termínu minus lhůta“ (např. týden před akcí při lhůtě 10 dní), potvrzená přihláška se rovnou označí jako po splatnosti, aby se urgovala platba. Zatím je v kódu jen výchozí hodnota (`Event.paymentPeriodDays`); pole „Lhůta na zaplacení (dny)“ v Nastavení akce přidá samostatná story, výzvu k zaplacení řeší [US-46](https://github.com/applifting-vsecourse/team-1/issues/46).
 - Formulář přihlášky funguje na 360 px bez vodorovného posunu. Tlačítko Odeslat je po stisku neaktivní.
 - Cizí záznam přes URL i API vrací **403** a nic z obsahu.
 - Vlastní heslo přihlašovatele má aspoň 8 znaků.
@@ -90,27 +97,40 @@ Slovník pojmů business domény včetně mapování na kód (sloupec „V kódu
 ## 7. Datový model (US-71)
 
 ```
-User (BetterAuth)     accountType: ORGANIZER | PARTICIPANT | ADMIN, mustSetPassword (obojí v session)
-Organization          name, bankAccount
+User (BetterAuth)     accountType: ORGANIZER | PARTICIPANT | ADMIN, mustSetPassword (obojí v session), locale (en | cs, výchozí en, D-069)
+Organization          name, bankAccount, contactEmail?, contactPhone?
 OrganizationMember    userId, organizationId                       (M:N, organizátor ↔ organizace)
-Event                 organizationId, name, description?, location?, publicToken (unikátní, neuhodnutelný), roomMode (po US-99 se ruší, režim pokojů bude po termínech, D-084)
-Term                  organizationId, eventId, name, startsOn, endsOn, priceCzk
-Room                  organizationId, eventId, name, capacity (od 1 bez horního limitu), gender?
-Application           organizationId, eventId, userId (účet přihlašovatele), number (VS, sekvence),
+Event                 organizationId, name, description?, location?, contactEmail?, contactPhone?, publicToken (unikátní, neuhodnutelný),
+                      evaluationMode (AUTOMATIC | MANUAL, výchozí AUTOMATIC, D-083), paymentPeriodDays (lhůta na zaplacení, výchozí 10, D-099), cancellationStartsOn?, cancellationTerms?, publishedInCatalog (výchozí false)
+Term                  organizationId, eventId, number (1–999 v akci, neměnné, D-086), name? (D-053), startsOn, endsOn, priceCzk, roomMode (GENDERED | SHARED, výchozí GENDERED, D-062), cancelledAt?, cancelReason?
+Room                  organizationId, termId (pokoj patří termínu, D-052), name, capacity (od 1 bez horního limitu), extraBeds (přistýlky, výchozí 0, US-80), gender?
+Application           organizationId, eventId, userId (účet přihlašovatele), number (základ VS, sekvence),
                       accessToken (stránka potvrzení), firstName, lastName, birthDate, gender, email,
-                      phone (povinný, D-079),
+                      phone (ve formuláři povinný, D-079; v DB nullable, starší přihlášky ho nemají), locale (en | cs), accommodationRequest?, allergies?, specialRequest?,
                       consentAt, submittedAt
-ApplicationTerm       applicationId, termId, status (viz stavový diagram), priceCzk (zmrazená cena), evaluatedAt
-Payment               organizationId, applicationTermId (přihláška v termínu), amountCzk, recordedById, createdAt
+ApplicationTerm       applicationId, termId, status (TO_EVALUATE | WAITLISTED | CONFIRMED | CANCELLED, viz stavový diagram), priceCzk (zmrazená cena), evaluatedAt, paymentPeriodStartedAt?, paymentReminderSentAt?, transportId?
+Payment               organizationId, applicationTermId (přihláška v termínu), receiptId (příjem, D-089), amountCzk (záporná = vratka), source (MANUAL | SIMULATION), isSummary?, correctsReceiptId?, recordedById, createdAt, cancelledAt?
+ApplicationTermStatusChange  applicationTermId, fromStatus, toStatus, changedById? (null = systém); systémový záznam každé změny stavu (US-28)
+ApplicationTermSkip          statusChangeId, skippedApplicationTermId; přeskočení náhradníci při obsazení z pořadníku (US-105)
+ChangeRequest         eventId, applicationId, applicantId, kind (TERMS | HEALTH), currentTermIds, requestedTermIds, healthNote?, status (PENDING | APPROVED | REJECTED), rejectionReason?, reviewedById?  (žádost o změnu ke schválení, US-114)
+ApplicationEdit       applicationId, changedById?, authorName, changedFields, before, after   (historie úprav údajů přihlašovatelem, US-34)
+ApplicationHealth     applicationId (unikátní), note, consentAt   (zdravotní omezení, samostatná tabulka, US-68)
+MealOption            eventId, name, position   (nabízená stravovací omezení akce, US-64)
+Transport             termId, kind (SCHEDULED | OWN), name, departurePlace?, departureAt?, instructions?   (doprava termínu, US-65)
+ProgramBlock          termId, date, startTime, endTime ("HH:mm"), name, place?, description?   (program termínu, US-66)
+EventPhoto            eventId (unikátní), fileName, contentType, data   (fotka veřejné stránky, v DB, US-122)
+Notification          userId, type (STATUS_CHANGED | PAYMENT | REQUEST), kind, applicationId?, params, readAt?   (upozornění v aplikaci, US-118)
+LastOpenedEvent       userId, eventId, openedAt   (kam organizátor po přihlášení přistane, US-51)
 ```
 
 - Každá tabulka s daty organizace má **přímý** `organizationId` — izolace (US-10) je pak jeden filtr.
 - Peníze jako celé číslo v Kč (`Int`).
-- `Application.number` je globální autoincrement → VS.
+- `Application.number` je globální autoincrement, základ variabilního symbolu (VS = `number × 1000 + Term.number`, viz sekce 5). Musí být menší než 9 000 000.
+- `Term.number` je pořadové číslo termínu v akci (1 až 999), přidělené při vzniku termínu jako nejvyšší + 1 ([D-086](rozhodnuti/README.md#d-086)). Nikdy se nemění ani nepoužije znovu, ani po zrušení termínu: zrušený termín číslo drží, limit 999 platí včetně zrušených termínů a 1000. termín se odmítne chybou `TERM_LIMIT_REACHED`. Je druhou úrovní variabilního symbolu.
 - Cena se při vyhodnocení zkopíruje do `ApplicationTerm.priceCzk`; pozdější změna ceny termínu se týká jen nových přihlášek.
 - `Application.userId` je nullable: přihláška se uloží, i když účet přihlašovatele ještě nevznikl.
-- Veřejná registrace (`/api/auth/sign-up`) je vypnutá. Účty vznikají jen na serveru (seed, přihláška).
-- Platby jsou řádky (`Payment`), ne příznak na přihlášce — připraveno na import z banky (US-42). Ve sprintu 1 UI zapíše nebo smaže jednu platbu.
+- Veřejná registrace (`/api/auth/sign-up`) zakládá vždy organizátora (US-69: registrace, ověření e-mailu, založení organizace, [D-126](rozhodnuti/README.md#d-126)). Účty přihlašovatelů vznikají jen na serveru, odesláním přihlášky. Magic link nezaloží nový účet.
+- Platby jsou řádky (`Payment`), ne příznak na přihlášce — připraveno na import z banky (US-42). Platba patří přihlášce v termínu. Příjem (peníze, které dorazily najednou) tvoří jeden nebo více řádků se stejným `receiptId` ([D-089](rozhodnuti/README.md#d-089)): platba na souhrnný VS vytvoří řádek za každou potvrzenou přihlášku v termínu, kterou splácí, a zrušení jednoho řádku zruší celou skupinu. Vratka je jeden záporný řádek na jedné přihlášce v termínu, omezený jejím přeplatkem; zadává se přes `termId` (bez něj chyba). Opravená platba je nový příjem odkazující na původní (`correctsReceiptId`, US-112, [D-119](rozhodnuti/README.md#d-119)).
 
 ## 8. Architektura
 
@@ -121,26 +141,49 @@ Veřejné
   /                                    landing (US-96)
   /apply/$token                        formulář přihlášky (US-23)
   /apply/confirmation/$accessToken     stav a platební údaje (US-25)
+  /catalog                             katalog akcí (US-123)
+  /events/$publicToken                 veřejná stránka akce (US-22)
+  /email-change                        konec ověřovacího odkazu změny e-mailu (US-125)
 
 Přihlášení
   /organizer/login                     e-mail + heslo (S01)
+  /organizer/register                  registrace organizátora (US-69)
+  /organizer/verify-email              ověření e-mailu
+  /organizer/onboarding                založení organizace po registraci
   /participant/login                   e-mail + heslo, nebo „pošlete mi odkaz“ (S10)
   /participant/set-password            povinně po prvním vstupu odkazem (S09)
+  /participant/magic-link              vstup přihlašovatele odkazem z e-mailu
 
 Organizátor (jen ORGANIZER, jinak 403)
-  /organizer                           přesměrování na /organizer/events (dashboard zrušen 2026-10-25)
-  /organizer/events                    akce seskupené podle pořadatele (O02)
+  /organizer                           přesměrování na přehled naposledy otevřené akce, bez ní na /organizer/events (US-51, D-050, D-114)
+  /organizer/events                    akce seskupené podle organizace (O02)
   /organizer/events/new
   /organizer/events/$eventId           přehled a obsazenost (US-29)
   /organizer/events/$eventId/terms
   /organizer/events/$eventId/rooms
   /organizer/events/$eventId/capacity  kapacity všech termínů; `?termId=` detail termínu (N3 / N4)
   /organizer/events/$eventId/applications
+  /organizer/events/$eventId/applications/new          ruční přidání přihlášky (US-83)
+  /organizer/events/$eventId/applications/$applicationId        detail přihlášky
+  /organizer/events/$eventId/applications/$applicationId/health  zdravotní omezení účastníka (US-68)
+  /organizer/events/$eventId/settings              nastavení akce
+  /organizer/events/$eventId/payments              přehled plateb a dluhů (US-45)
+  /organizer/events/$eventId/payments/cancellation storno podmínky (US-47)
+  /organizer/events/$eventId/meals                 souhrn pro kuchyni (US-64)
+  /organizer/events/$eventId/meals/options         varianty stravování
+  /organizer/events/$eventId/program               program akce (US-66)
+  /organizer/events/$eventId/transport             doprava (US-65)
+  /organizer/events/$eventId/transport/$transportId/participants  účastníci dopravy
   /organizer/account
 
 Přihlašovatel (jen PARTICIPANT)
   /participant                         moje přihlášky (US-54)
   /participant/applications/$applicationId  jedna přihláška: stav, platba (US-54)
+  /participant/applications/$applicationId/edit       úprava údajů (US-34)
+  /participant/applications/$applicationId/meals      stravování (US-64)
+  /participant/applications/$applicationId/health     zdravotní omezení (US-68)
+  /participant/applications/$applicationId/program    program (US-66)
+  /participant/applications/$applicationId/transport  doprava (US-65)
   /participant/account
 ```
 
@@ -150,31 +193,52 @@ Organizace v URL není. Přístup se ověřuje přes členství v organizaci, kt
 
 ```
 /auth/*                                    BetterAuth (černá skříňka)
-/me                                        přihlášený uživatel včetně accountType
+/me                                        GET, PATCH přihlášený uživatel včetně accountType a `locale`; POST email-change změna e-mailu (US-124, US-125)
 /public/events/:publicToken                akce + termíny s cenami pro formulář
 /public/events/:publicToken/applications   POST odeslání přihlášky
 /public/applications/:accessToken          stránka potvrzení
-/organizer/events[/:eventId]               akce
-/organizer/events/:eventId/terms[/:id]     termíny
-/organizer/events/:eventId/rooms[/:id]     pokoje
-/organizer/events/:eventId/room-mode       PATCH režim pokojů
+/organizer/events[/:eventId]               akce; PUT :eventId/public-page, PUT/GET/DELETE :eventId/photo, PATCH :eventId/evaluation-mode (D-083), PUT :eventId/cancellation-start a cancellation-terms (US-113, US-47), DELETE :eventId
+/organizer/events/:eventId/terms[/:termId]   termíny; POST :termId/cancel zrušení termínu (US-13, bez DELETE)
+/organizer/events/:eventId/terms/:termId/rooms[/:id]    pokoje termínu (D-052); POST rooms/copy kopie z jiného termínu (US-100), PATCH rooms/:id/extra-beds přistýlky (US-80)
+/organizer/events/:eventId/terms/:termId/room-mode      PATCH režim pokojů termínu (D-062)
 /organizer/events/:eventId/applications    seznam s filtry ?termId&status&paid
 /organizer/events/:eventId/occupancy       obsazenost
 /organizer/events/:eventId/capacity        aktuální kapacita a volná lůžka podle pohlaví pro každý termín
 /organizer/events/:eventId/capacity/details  přehled včetně pokojů a dat termínů
-/organizer/applications/:id/payments[/:id] zápis a zrušení platby
+/organizer/applications/:id/payments       GET seznam, POST zápis příjmu (volitelný `termId`: bez něj souhrn, s ním platba za jeden termín); PATCH/DELETE :receiptId oprava a zrušení příjmu, POST :receiptId/preview náhled opravy (US-111, US-112)
+/organizer/applications/:id/payments/refunds   POST vratka, `termId` povinné (D-089)
 /participant/applications[/:id]            moje přihlášky a jedna přihláška (US-54)
 /participant/password                      POST první heslo přihlašovatele (US-04)
+/notifications                             GET, GET unread-count, POST read-all, POST :id/read (US-118)
+/public/catalog                            GET katalog akcí (US-123)
+/public/events/:publicToken/page|photo     GET veřejná stránka a fotka akce (US-22, US-122)
+/organizer/organizations                   POST založení organizace; GET :organizationId; PUT :organizationId/profile (US-69)
+/organizer/profile                         GET profil organizátora
+/organizer/last-opened-event, PUT /organizer/events/:eventId/last-opened   poslední otevřená akce (US-51)
+/organizer/events/:eventId/attention       GET co vyžaduje pozornost (US-51)
+/organizer/events/:eventId/payments        GET přehled plateb a dluhu (US-45)
+/organizer/events/:eventId/applications    POST ruční přidání přihlášky (US-83)
+/organizer/events/:eventId/terms/:termId/substitutes   GET pořadník, GET history, POST :applicationId/confirm (US-104, US-105)
+/organizer/events/:eventId/terms/:termId/bulk-confirmation (POST, POST preview) a bulk-decision (POST)   hromadná rozhodnutí (US-107, US-108)
+/organizer/events/:eventId/change-requests GET, GET :requestId, PATCH :requestId/approve|reject (US-114)
+/organizer/applications/:applicationId/terms   GET stavy, PATCH :termId/status, GET change-options|change-preview, PUT změna termínů, GET withdraw-preview, POST withdraw (US-28, US-32, US-33)
+/organizer/applications/:applicationId/history GET historie přihlášky; /health GET zdravotní omezení
+/organizer/events/:eventId/meals           GET options, PUT options, GET summary (US-64)
+/organizer/events/:eventId/transport       GET, POST, PUT/DELETE :id, GET :id/participants (US-65)
+/organizer/events/:eventId/program         GET, POST terms/:termId/blocks, PUT/DELETE blocks/:id (US-66)
+/participant/applications/:id              GET, GET :id/edit, PUT :id/edit úprava údajů (US-34)
+/participant/applications/:applicationId/  change-requests (GET, POST), health-change-requests (POST), change-options (GET), PUT terms (US-84), meals, health, transport, program (GET/PUT), payments/simulation (POST, jen staging a demo, US-115)
+/participant/change-request-notifications  GET, PATCH :requestId/read
 ```
 
 ### Lokalizace (EN / CZ)
 
-- **Frontend:** i18next + react-i18next. Výchozí jazyk je angličtina; při první návštěvě rozhoduje jazyk prohlížeče (český prohlížeč → čeština). Přepínač v hlavičce, volba se pamatuje v `localStorage` (`togena.language`). URL jsou pro oba jazyky stejné.
+- **Frontend:** i18next + react-i18next. Výchozí jazyk je angličtina; při první návštěvě rozhoduje jazyk prohlížeče (český prohlížeč → čeština). Přepínač jazyka je na veřejných stránkách a při registraci v hlavičce; v administraci a v oblasti přihlašovatele je volba jazyka (ukládá se do účtu) a vzhledu (jen v zařízení) v Nastavení účtu → Předvolby ([D-147](rozhodnuti/README.md#d-147)). Volba se pamatuje v `localStorage` (`togena.language`). URL jsou pro oba jazyky stejné. Přihlášený uživatel si jazyk ukládá i do účtu (`User.locale`, `PATCH /me`) a ten je jazykem jeho e-mailů ([D-069](rozhodnuti/README.md#d-069)). Jazyk aplikace po přihlášení na jiném zařízení se z účtu zatím nepřebírá, rozhoduje volba uložená v prohlížeči (řeší US-128).
 - **Překlady:** `apps/frontend/src/i18n/locales/{en,cs}/<namespace>.json`, jeden namespace na feature složku (`events`, `applicationForm`, `participant`, `eventOverview`, `auth`, `landing`) + `common` a `errors`. Každý proud edituje svoje soubory. Klíče jsou typově kontrolované proti angličtině a test hlídá, že obě jazykové verze mají stejné klíče.
 - **Formáty:** peníze a data přes `formatCzk` / `formatDate` v `lib/`, podle aktuálního jazyka (`1 500 Kč` / `CZK 1,500`).
 - **Chyby z API:** backend vrací `{ statusCode, code, message }` (volitelně i `params`); frontend přeloží `code` přes `errors.json`; volitelné `params` (klíč → hodnota) se dosadí do zástupných značek `{{…}}` v překladu. Nový kód = `shared/errors/error-code.ts` + oba `errors.json`.
 - **Jazyk požadavku:** frontend posílá `Accept-Language`, backend ho čte dekorátorem `@RequestLocale()`.
-- **E-maily:** potvrzení přihlášky (e-mail č. 1) jde v jazyce přihlášky (`Application.locale`, uloží se při odeslání z `@RequestLocale()`), e-maily o změně přihlášky v preferovaném jazyce uživatele, a když ho nenastavil, v jazyce jeho první přihlášky ([D-078](rozhodnuti/README.md#d-078); preferovaný jazyk zatím v kódu není, viz [D-069](rozhodnuti/README.md#d-069)), reset hesla a ověření e-mailu v jazyce účtu (`User.locale`). Samostatný e-mail s magic linkem jde v jazyce UI v okamžiku žádosti (frontend ho pošle jako `metadata.locale`), `User.locale` se pro něj nepoužije; když jazyk chybí, platí `en`. Šablony mají texty obou jazyků vedle sebe (`core/email/templates`).
+- **E-maily:** potvrzení přihlášky (e-mail č. 1) jde v jazyce přihlášky (`Application.locale`, uloží se při odeslání z `@RequestLocale()`), e-maily o změně přihlášky v preferovaném jazyce uživatele, a když ho nenastavil, v jazyce jeho první přihlášky ([D-078](rozhodnuti/README.md#d-078); preferovaný jazyk uživatele je `User.locale`, nastavuje se v Nastavení účtu, viz [D-069](rozhodnuti/README.md#d-069). Do US-128 schéma „nenastaveno“ od výchozího `en` nerozliší, proto `en` znamená „nenastaveno“ a platí jazyk první přihlášky, [D-136](rozhodnuti/README.md#d-136)), reset hesla a ověření e-mailu v jazyce účtu (`User.locale`). Samostatný e-mail s magic linkem jde v jazyce UI v okamžiku žádosti (frontend ho pošle jako `metadata.locale`), `User.locale` se pro něj nepoužije; když jazyk chybí, platí `en`. Šablony mají texty obou jazyků vedle sebe (`core/email/templates`).
 
 ### Backend (NestJS)
 
@@ -251,9 +315,9 @@ Tabulka rozdílů vůči boardu pro US-01, US-04, US-56 a Figmu (jednorázové h
 
 ## 12. Otevřené body
 
-| #   | Bod                                                       | Kdo       |
-| --- | --------------------------------------------------------- | --------- |
-| 3   | Připojit Figma konektor a převzít tokeny do `global.css`. | tech lead |
+| #   | Bod                 | Kdo |
+| --- | ------------------- | --- |
+| –   | Žádný otevřený bod. | –   |
 
 ## 13. Archiv
 
