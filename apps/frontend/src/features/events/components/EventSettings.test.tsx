@@ -1,10 +1,11 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { render, screen } from "@testing-library/react"
+import { act, render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import { afterEach, describe, expect, it, vi } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { notify } from "@/lib/notify"
 
+import { eventKeys } from "@/features/events/api/events"
 import { EventSettings } from "@/features/events/components/EventSettings"
 
 // Radix's radio group measures things jsdom doesn't have.
@@ -86,17 +87,30 @@ function renderCancellation(start: string | null = null) {
     }
     return new Response(JSON.stringify(request.url.endsWith("/terms") ? [] : current), json)
   })
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   render(
-    <QueryClientProvider
-      client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
-    >
+    <QueryClientProvider client={client}>
       <EventSettings eventId="e1" />
     </QueryClientProvider>,
   )
-  return writes
+  return {
+    writes,
+    refetch: async (start: string | null) => {
+      current = { ...current, cancellationStartsOn: start }
+      await act(() => client.invalidateQueries({ queryKey: eventKeys.detail("e1") }))
+    },
+  }
 }
 
-afterEach(() => vi.restoreAllMocks())
+beforeEach(() => {
+  vi.useFakeTimers({ toFake: ["Date"] })
+  vi.setSystemTime(new Date("2027-06-01T10:00:00Z"))
+})
+
+afterEach(() => {
+  vi.useRealTimers()
+  vi.restoreAllMocks()
+})
 
 describe("EventSettings", () => {
   it("offers both modes with automatic preselected", async () => {
@@ -148,7 +162,7 @@ describe("EventSettings", () => {
   })
 
   it("saves a real cancellation day and confirms with a toast", async () => {
-    const writes = renderCancellation()
+    const { writes } = renderCancellation()
     const user = userEvent.setup()
 
     await user.click(await screen.findByRole("checkbox", { name: "Turn on approval" }))
@@ -159,13 +173,13 @@ describe("EventSettings", () => {
     await vi.waitFor(() =>
       expect(notify.success).toHaveBeenCalledWith(
         "Approval is set.",
-        "Participant requests need approval from 1 Jul 2027.",
+        "Term changes and cancellations need approval from 1 Jul 2027.",
       ),
     )
   })
 
   it("clears a saved date and leaves the immediate-change explanation", async () => {
-    const writes = renderCancellation("2027-07-01")
+    const { writes } = renderCancellation("2027-07-01")
     const user = userEvent.setup()
 
     await user.click(await screen.findByRole("checkbox", { name: "Turn on approval" }))
@@ -175,14 +189,16 @@ describe("EventSettings", () => {
     await vi.waitFor(() =>
       expect(notify.success).toHaveBeenCalledWith(
         "Approval is off.",
-        "Participant requests are now carried out immediately, without approval.",
+        "New term changes and cancellations are now carried out immediately, without approval.",
       ),
     )
-    expect(screen.getByText(/Approval is off\. Participant requests/)).toBeInTheDocument()
+    expect(
+      screen.getByText(/Approval is off\. New term changes and cancellations/),
+    ).toBeInTheDocument()
   })
 
   it("rejects an impossible day before calling the API", async () => {
-    const writes = renderCancellation()
+    const { writes } = renderCancellation()
     const user = userEvent.setup()
 
     await user.click(await screen.findByRole("checkbox", { name: "Turn on approval" }))
@@ -194,7 +210,7 @@ describe("EventSettings", () => {
   })
 
   it("rejects a new cancellation day in the past before calling the API", async () => {
-    const writes = renderCancellation()
+    const { writes } = renderCancellation()
     const user = userEvent.setup()
 
     await user.click(await screen.findByRole("checkbox", { name: "Turn on approval" }))
@@ -206,7 +222,7 @@ describe("EventSettings", () => {
   })
 
   it("rejects changing a saved day to another day in the past", async () => {
-    const writes = renderCancellation("2027-07-01")
+    const { writes } = renderCancellation("2027-07-01")
     const user = userEvent.setup()
 
     const input = await screen.findByRole("textbox", { name: "Approve requests from" })
@@ -219,7 +235,7 @@ describe("EventSettings", () => {
   })
 
   it("keeps a saved day that has already passed valid without offering Save", async () => {
-    const writes = renderCancellation("2020-01-01")
+    const { writes } = renderCancellation("2020-01-01")
 
     expect(await screen.findByRole("textbox", { name: "Approve requests from" })).toHaveValue(
       "01/01/2020",
@@ -269,5 +285,70 @@ describe("EventSettings", () => {
 
     await user.click(checkbox)
     expect(save()).toBeInTheDocument()
+  })
+
+  it("follows server refetches in an untouched form without offering stale writes", async () => {
+    const { writes, refetch } = renderCancellation()
+    const checkbox = await screen.findByRole("checkbox", { name: "Turn on approval" })
+
+    await refetch("2027-07-01")
+    await waitFor(() => expect(checkbox).toBeChecked())
+    expect(screen.getByRole("textbox", { name: "Approve requests from" })).toHaveValue("01/07/2027")
+    expect(screen.queryByRole("button", { name: "Save settings" })).not.toBeInTheDocument()
+
+    await refetch("2027-07-02")
+    await waitFor(() =>
+      expect(screen.getByRole("textbox", { name: "Approve requests from" })).toHaveValue(
+        "02/07/2027",
+      ),
+    )
+    await refetch(null)
+    await waitFor(() => expect(checkbox).not.toBeChecked())
+    expect(screen.queryByRole("textbox", { name: "Approve requests from" })).not.toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: "Save settings" })).not.toBeInTheDocument()
+    expect(writes).toEqual([])
+  })
+
+  it("preserves a user's edited date across a server refetch", async () => {
+    const { writes, refetch } = renderCancellation("2027-07-01")
+    const user = userEvent.setup()
+    const input = await screen.findByRole("textbox", { name: "Approve requests from" })
+    await user.clear(input)
+    await user.type(input, "03/07/2027")
+
+    await refetch("2027-07-02")
+    expect(input).toHaveValue("03/07/2027")
+    await user.click(screen.getByRole("button", { name: "Save settings" }))
+    await vi.waitFor(() => expect(writes).toEqual([{ cancellationStartsOn: "2027-07-03" }]))
+    await vi.waitFor(() =>
+      expect(screen.queryByRole("button", { name: "Save settings" })).not.toBeInTheDocument(),
+    )
+    await refetch(null)
+    await waitFor(() =>
+      expect(screen.getByRole("checkbox", { name: "Turn on approval" })).not.toBeChecked(),
+    )
+  })
+
+  it("preserves a user's switch-off across a server refetch", async () => {
+    const { writes, refetch } = renderCancellation("2027-07-01")
+    const user = userEvent.setup()
+    await user.click(await screen.findByRole("checkbox", { name: "Turn on approval" }))
+    await refetch("2027-07-02")
+
+    expect(screen.getByRole("checkbox", { name: "Turn on approval" })).not.toBeChecked()
+    await user.click(screen.getByRole("button", { name: "Save settings" }))
+    await vi.waitFor(() => expect(writes).toEqual([{ cancellationStartsOn: null }]))
+  })
+
+  it("follows refetches again after the user undoes their edit", async () => {
+    const { refetch } = renderCancellation()
+    const user = userEvent.setup()
+    const checkbox = await screen.findByRole("checkbox", { name: "Turn on approval" })
+    await user.click(checkbox)
+    await user.click(checkbox)
+    await refetch("2027-07-01")
+
+    await waitFor(() => expect(checkbox).toBeChecked())
+    expect(screen.queryByRole("button", { name: "Save settings" })).not.toBeInTheDocument()
   })
 })

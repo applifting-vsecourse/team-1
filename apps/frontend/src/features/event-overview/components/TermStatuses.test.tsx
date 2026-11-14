@@ -56,7 +56,7 @@ describe("TermStatuses", () => {
     })
     setup()
 
-    expect(await screen.findByText(/Added by organizer · Eva/)).toBeInTheDocument()
+    expect(await screen.findByText(/Added by organiser · Eva/)).toBeInTheDocument()
   })
 
   it("offers only the changes the server allows and shows the log", async () => {

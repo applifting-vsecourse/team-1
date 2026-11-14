@@ -1,16 +1,16 @@
 {
   "cancellationStart": {
-    "afterDate": "From this date, participant requests are sent to the organizer for approval.",
-    "clearedDescription": "Participant requests are now carried out immediately, without approval.",
+    "afterDate": "From this date, term changes and cancellations are sent to the organizer for approval.",
+    "clearedDescription": "New term changes and cancellations are now carried out immediately, without approval.",
     "clearedTitle": "Approval is off.",
     "dateInPast": "The approval start date must not be in the past.",
     "dateLabel": "Approve requests from",
     "enable": "Turn on approval",
     "invalidDate": "Enter a valid calendar date.",
-    "noDate": "Approval is off. Participant requests are carried out immediately.",
+    "noDate": "Approval is off. New term changes and cancellations are carried out immediately.",
     "save": "Save settings",
     "saveFailed": "Could not save the approval setting",
-    "savedDate": "Participant requests need approval from {{date}}.",
+    "savedDate": "Term changes and cancellations need approval from {{date}}.",
     "savedTitle": "Approval is set.",
     "title": "Approval of participant requests"
   },

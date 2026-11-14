@@ -18,7 +18,9 @@ test("organizer sets the cancellation start date in a usable 360 px settings scr
     page.getByRole("heading", { name: "Approval of participant requests" }),
   ).toBeVisible()
   await expect(
-    page.getByText("Approval is off. Participant requests are carried out immediately."),
+    page.getByText(
+      "Approval is off. New term changes and cancellations are carried out immediately.",
+    ),
   ).toBeVisible()
   await page.getByRole("checkbox", { name: "Turn on approval" }).check()
   await page.getByRole("textbox", { name: "Approve requests from" }).fill("01/07/2035")

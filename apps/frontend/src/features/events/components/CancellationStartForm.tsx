@@ -20,8 +20,16 @@ import { eventKeys, setCancellationStart, type OrganizerEvent } from "@/features
 export function CancellationStartForm({ event }: { event: OrganizerEvent }) {
   const { t } = useTranslation("events")
   const queryClient = useQueryClient()
-  const [isEnabled, setIsEnabled] = useState(event.cancellationStartsOn !== null)
-  const [date, setDate] = useState(event.cancellationStartsOn ?? "")
+  // Untouched fields follow server refetches; only user edits have a local draft.
+  const [draft, setDraft] = useState<{ isEnabled: boolean; date: string } | null>(null)
+  const isEnabled = draft?.isEnabled ?? event.cancellationStartsOn !== null
+  const date = draft?.date ?? event.cancellationStartsOn ?? ""
+  const updateDraft = (next: { isEnabled: boolean; date: string }) => {
+    const isMatchingServer =
+      next.isEnabled === (event.cancellationStartsOn !== null) &&
+      (!next.isEnabled || next.date === event.cancellationStartsOn)
+    setDraft(isMatchingServer ? null : next)
+  }
   const [hasAttempted, setHasAttempted] = useState(false)
   // A new or changed date may not be in the past; the unchanged (even lapsed) date stays valid.
   const isDateInPast =
@@ -30,8 +38,8 @@ export function CancellationStartForm({ event }: { event: OrganizerEvent }) {
   // Save is offered only when the form differs from what is stored.
   const isDirty = (isEnabled ? date : null) !== event.cancellationStartsOn
   const mutation = useMutation({
-    mutationFn: () => setCancellationStart(event.id, isEnabled ? date : null),
-    onSuccess: async (saved) => {
+    mutationFn: (value: string | null) => setCancellationStart(event.id, value),
+    onSuccess: async (saved, submitted) => {
       setHasAttempted(false)
       if (saved.cancellationStartsOn) {
         notify.success(
@@ -48,6 +56,9 @@ export function CancellationStartForm({ event }: { event: OrganizerEvent }) {
         queryClient.invalidateQueries({ queryKey: eventKeys.detail(event.id) }),
         queryClient.invalidateQueries({ queryKey: eventKeys.all() }),
       ])
+      setDraft((current) =>
+        current && (current.isEnabled ? current.date : null) !== submitted ? current : null,
+      )
     },
   })
 
@@ -55,7 +66,8 @@ export function CancellationStartForm({ event }: { event: OrganizerEvent }) {
     e.preventDefault()
     setHasAttempted(true)
     if (isEnabled && (!isIsoDate(date) || isDateInPast)) return
-    mutation.mutate()
+    if (!isDirty) return
+    mutation.mutate(isEnabled ? date : null)
   }
 
   return (
@@ -70,7 +82,7 @@ export function CancellationStartForm({ event }: { event: OrganizerEvent }) {
             id="cancellation-start-enabled"
             checked={isEnabled}
             onCheckedChange={(checked) => {
-              setIsEnabled(checked === true)
+              updateDraft({ isEnabled: checked === true, date })
               setHasAttempted(false)
               mutation.reset()
             }}
@@ -90,7 +102,7 @@ export function CancellationStartForm({ event }: { event: OrganizerEvent }) {
               value={date}
               min={todayIsoInAppZone()}
               onChange={(value) => {
-                setDate(value)
+                updateDraft({ isEnabled, date: value })
                 mutation.reset()
               }}
               aria-invalid={isDateInvalid || undefined}

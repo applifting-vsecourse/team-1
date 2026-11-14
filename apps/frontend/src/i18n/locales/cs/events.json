@@ -1,16 +1,16 @@
 {
   "cancellationStart": {
-    "afterDate": "Od tohoto data se požadavky účastníků předávají organizátorovi ke schválení.",
-    "clearedDescription": "Požadavky účastníků se nyní provádějí ihned, bez schvalování.",
+    "afterDate": "Od tohoto data se změny termínů a odhlášky předávají organizátorovi ke schválení.",
+    "clearedDescription": "Nové změny termínů a odhlášky se nyní provádějí ihned, bez schvalování.",
     "clearedTitle": "Schvalování je vypnuté.",
     "dateInPast": "Datum začátku schvalování nesmí být v minulosti.",
     "dateLabel": "Schvalovat od",
     "enable": "Zapnout schvalování",
     "invalidDate": "Zadejte platné kalendářní datum.",
-    "noDate": "Schvalování je vypnuté. Požadavky účastníků se provádějí ihned.",
+    "noDate": "Schvalování je vypnuté. Nové změny termínů a odhlášky se provádějí ihned.",
     "save": "Uložit nastavení",
     "saveFailed": "Schvalování se nepodařilo uložit",
-    "savedDate": "Požadavky účastníků se schvalují od {{date}}.",
+    "savedDate": "Změny termínů a odhlášky se schvalují od {{date}}.",
     "savedTitle": "Schvalování je nastavené.",
     "title": "Schvalování požadavků účastníků"
   },
