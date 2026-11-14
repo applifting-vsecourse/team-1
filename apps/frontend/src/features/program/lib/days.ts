@@ -2,8 +2,6 @@ import { eachDayOfInterval, format, parseISO } from "date-fns"
 
 import { currentLanguage, INTL_LOCALES } from "@/i18n"
 
-import type { ProgramBlock } from "@/features/program/api/program"
-
 /** cs: `Pondělí 12. 7. 2027`, en: `Monday, 12/07/2027` — the weekday starts with a capital. */
 export function formatDay(isoDay: string): string {
   const text = new Intl.DateTimeFormat(INTL_LOCALES[currentLanguage()], {
@@ -26,21 +24,24 @@ export function daysOfTerm(term: { startsOn: string; endsOn: string }): string[]
   )
 }
 
-export type ProgramDay = { date: string; blocks: ProgramBlock[] }
+/** The columns of the calendar: every day of the term, plus a day outside it that still has a block, so nothing is hidden. */
+export function calendarDays(term: {
+  startsOn: string
+  endsOn: string
+  blocks: { date: string }[]
+}): string[] {
+  const days = new Set(daysOfTerm(term))
+  for (const block of term.blocks) days.add(block.date)
+  return [...days].sort((a, b) => a.localeCompare(b))
+}
 
-/**
- * The days of the term with their blocks. With `shouldShowEmptyDays` (the organizer) every day of the
- * term is there, so a day without a block can be filled; a day outside the term that still has a
- * block is kept too, so nothing is hidden. The participant gets only days with a block.
- */
-export function groupByDay(
-  term: { startsOn: string; endsOn: string; blocks: ProgramBlock[] },
-  shouldShowEmptyDays: boolean,
-): ProgramDay[] {
-  const days = new Map<string, ProgramBlock[]>()
-  if (shouldShowEmptyDays) for (const date of daysOfTerm(term)) days.set(date, [])
-  for (const block of term.blocks) days.set(block.date, [...(days.get(block.date) ?? []), block])
-  return [...days.entries()]
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([date, blocks]) => ({ date, blocks }))
+/** Column header of a day: `Mon` and `12/07`. */
+export function formatDayHeader(isoDay: string): { weekday: string; date: string } {
+  const locale = INTL_LOCALES[currentLanguage()]
+  const day = parseISO(isoDay)
+  const weekday = new Intl.DateTimeFormat(locale, { weekday: "short" }).format(day)
+  return {
+    weekday: weekday.charAt(0).toUpperCase() + weekday.slice(1),
+    date: new Intl.DateTimeFormat(locale, { day: "numeric", month: "numeric" }).format(day),
+  }
 }

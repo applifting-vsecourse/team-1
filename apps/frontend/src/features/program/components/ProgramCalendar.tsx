@@ -1,0 +1,220 @@
+import { Info, MapPin } from "lucide-react"
+import { useTranslation } from "react-i18next"
+
+import { Button } from "@/components/ui/button"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { cn } from "@/lib/utils"
+
+import type { ProgramBlock } from "@/features/program/api/program"
+import { HOUR_HEIGHT, hourRange, placeBlocks, toMinutes } from "@/features/program/lib/calendar"
+import { calendarDays, formatDayHeader, timeRange } from "@/features/program/lib/days"
+
+const GUTTER = "3.5rem"
+const DAY_MIN = "9.5rem"
+
+/**
+ * The program of a term as a calendar: a column per day of the term, hours down the side and every
+ * block drawn over its time span. The organizer clicks a block to edit it (`onSelect`); the participant
+ * only reads. A note on a block opens from its info button.
+ */
+export function ProgramCalendar({
+  term,
+  onSelect,
+}: {
+  term: { startsOn: string; endsOn: string; blocks: ProgramBlock[] }
+  onSelect?: (block: ProgramBlock) => void
+}) {
+  const { t } = useTranslation("program")
+  const days = calendarDays(term)
+  const { from, to } = hourRange(term.blocks)
+  const hours = Array.from({ length: to - from }, (_, index) => from + index)
+  const columns = `${GUTTER} repeat(${String(days.length)}, minmax(${DAY_MIN}, 1fr))`
+
+  return (
+    <section
+      aria-label={t("calendarLabel")}
+      className="overflow-x-auto rounded-lg border bg-card shadow-sm"
+    >
+      <div className="min-w-max">
+        <div
+          className="grid border-b"
+          style={{ gridTemplateColumns: columns }}
+        >
+          <div className="sticky left-0 z-20 bg-card" />
+          {days.map((day) => {
+            const header = formatDayHeader(day)
+            return (
+              <h2
+                key={day}
+                className="flex items-baseline gap-2 border-l px-3 py-3 text-sm"
+              >
+                <span className="font-semibold">{header.weekday}</span>
+                <span className="text-muted-foreground">{header.date}</span>
+              </h2>
+            )
+          })}
+        </div>
+        <div
+          className="relative"
+          style={{ height: hours.length * HOUR_HEIGHT }}
+        >
+          <div
+            aria-hidden
+            className="absolute inset-0"
+          >
+            {hours.map((hour, index) => (
+              <div
+                key={hour}
+                className={cn("absolute inset-x-0 border-border", index > 0 && "border-t")}
+                style={{ top: index * HOUR_HEIGHT }}
+              />
+            ))}
+          </div>
+          <div
+            className="relative grid h-full"
+            style={{ gridTemplateColumns: columns }}
+          >
+            <div
+              aria-hidden
+              className="sticky left-0 z-20 bg-card"
+            >
+              {hours.map((hour, index) => (
+                <span
+                  key={hour}
+                  className="absolute left-0 w-full pr-2 text-right font-mono text-xs text-muted-foreground"
+                  style={{ top: index * HOUR_HEIGHT + (index > 0 ? 4 : 0) }}
+                >
+                  {String(hour).padStart(2, "0")}:00
+                </span>
+              ))}
+            </div>
+            {days.map((day) => (
+              <div
+                key={day}
+                className="relative border-l"
+              >
+                {placeBlocks(term.blocks.filter((block) => block.date === day)).map((item) => (
+                  <CalendarBlock
+                    key={item.block.id}
+                    block={item.block}
+                    column={item.column}
+                    columns={item.columns}
+                    from={from}
+                    onSelect={onSelect}
+                  />
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function CalendarBlock({
+  block,
+  column,
+  columns,
+  from,
+  onSelect,
+}: {
+  block: ProgramBlock
+  column: number
+  columns: number
+  from: number
+  onSelect?: (block: ProgramBlock) => void
+}) {
+  const { t } = useTranslation("program")
+  const start = toMinutes(block.startTime)
+  const minutes = Math.max(toMinutes(block.endTime) - start, 15)
+  const isCompact = minutes < 45
+  const hasPlace = minutes >= 75 && block.place
+  return (
+    <article
+      className={cn(
+        "group absolute overflow-hidden rounded-md border border-l-4 border-primary/20 border-l-primary bg-accent text-accent-foreground",
+        onSelect && "transition-colors hover:border-primary/50 hover:border-l-primary",
+      )}
+      style={{
+        top: ((start - from * 60) / 60) * HOUR_HEIGHT + 1,
+        height: (minutes / 60) * HOUR_HEIGHT - 2,
+        left: `calc(${String((column * 100) / columns)}% + 2px)`,
+        width: `calc(${String(100 / columns)}% - 4px)`,
+      }}
+    >
+      {onSelect ? (
+        <button
+          type="button"
+          aria-label={t("editOf", { name: block.name })}
+          className="absolute inset-0 rounded-sm outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+          onClick={() => {
+            onSelect(block)
+          }}
+        />
+      ) : null}
+      <div
+        className={cn(
+          "pointer-events-none relative flex h-full min-w-0 gap-x-2 px-2 pr-8 text-xs",
+          isCompact ? "items-center" : "flex-col gap-y-0.5 py-1.5",
+        )}
+      >
+        <span className="font-mono whitespace-nowrap text-muted-foreground">
+          {timeRange(block)}
+        </span>
+        <span
+          className={cn(
+            "min-w-0 text-sm leading-tight font-medium text-foreground",
+            isCompact ? "truncate" : "line-clamp-2",
+          )}
+        >
+          {block.name}
+        </span>
+        {hasPlace ? (
+          <span className="flex min-w-0 items-center gap-1 text-muted-foreground">
+            <MapPin
+              aria-hidden
+              className="size-3 shrink-0"
+            />
+            <span className="sr-only">{t("placeLabel")}: </span>
+            <span className="truncate">{block.place}</span>
+          </span>
+        ) : null}
+      </div>
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon-xs"
+            aria-label={t("info", { name: block.name })}
+            className="absolute top-1 right-1 z-10 text-muted-foreground hover:text-foreground"
+          >
+            <Info />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent
+          align="start"
+          className="flex flex-col gap-2"
+        >
+          <p className="font-semibold">{block.name}</p>
+          <p className="font-mono text-xs text-muted-foreground">{timeRange(block)}</p>
+          {block.place ? (
+            <p className="flex items-center gap-1 text-sm">
+              <MapPin
+                aria-hidden
+                className="size-4 shrink-0 text-muted-foreground"
+              />
+              <span className="sr-only">{t("placeLabel")}: </span>
+              {block.place}
+            </p>
+          ) : null}
+          {block.description ? (
+            <p className="text-sm break-words whitespace-pre-line text-muted-foreground">
+              {block.description}
+            </p>
+          ) : null}
+        </PopoverContent>
+      </Popover>
+    </article>
+  )
+}

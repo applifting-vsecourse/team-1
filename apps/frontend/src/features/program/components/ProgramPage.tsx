@@ -1,7 +1,6 @@
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
-import { Pencil, Trash2 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
@@ -24,13 +23,13 @@ import { termDatesLine } from "@/lib/term-label"
 import { eventProgramQueryOptions, type ProgramBlock } from "@/features/program/api/program"
 import { DeleteProgramBlockDialog } from "@/features/program/components/DeleteProgramBlockDialog"
 import { ProgramBlockDialog } from "@/features/program/components/ProgramBlockDialog"
-import { ProgramDayCard } from "@/features/program/components/ProgramDayCard"
-import { groupByDay } from "@/features/program/lib/days"
+import { ProgramCalendar } from "@/features/program/components/ProgramCalendar"
 
 type Editor = { block?: ProgramBlock; date: string }
 
 // The program of an event, term by term: pick a term, see its days with blocks by time, add / edit
 // in a dialog, delete after a confirmation. Each term has its own program.
+// Deviation from Figma by request: the days are a calendar with hours, blocks are drawn over their time span.
 // Design: Figma (Design system) US-66 · O35 Program termínu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=23263-91745
 // Mobile · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=23266-93029
 export function ProgramPage({ eventId }: { eventId: string }) {
@@ -79,7 +78,6 @@ export function ProgramPage({ eventId }: { eventId: string }) {
       </div>
     )
   }
-  const days = groupByDay(term, true)
 
   return (
     <div className="flex flex-col gap-6">
@@ -123,40 +121,15 @@ export function ProgramPage({ eventId }: { eventId: string }) {
           {t("add")}
         </Button>
       </div>
-      {term.blocks.length === 0 ? <EmptyState message={t("empty")} /> : null}
-      <div className="flex flex-col gap-6">
-        {days.map((day) => (
-          <ProgramDayCard
-            key={day.date}
-            date={day.date}
-            blocks={day.blocks}
-            actions={(block) => (
-              <>
-                <Button
-                  variant="ghost"
-                  size="icon-lg"
-                  aria-label={t("editOf", { name: block.name })}
-                  onClick={() => {
-                    setEditor({ block, date: block.date })
-                  }}
-                >
-                  <Pencil />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon-lg"
-                  aria-label={t("deleteOf", { name: block.name })}
-                  onClick={() => {
-                    setDeleting(block)
-                  }}
-                >
-                  <Trash2 />
-                </Button>
-              </>
-            )}
-          />
-        ))}
-      </div>
+      {term.blocks.length === 0 ? (
+        <p className="text-sm text-muted-foreground">{t("empty")}</p>
+      ) : null}
+      <ProgramCalendar
+        term={term}
+        onSelect={(block) => {
+          setEditor({ block, date: block.date })
+        }}
+      />
       {editor ? (
         <ProgramBlockDialog
           key={editor.block?.id ?? "new"}

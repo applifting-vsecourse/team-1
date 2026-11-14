@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { Loader2 } from "lucide-react"
+import { Loader2, Trash2 } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
@@ -42,11 +42,23 @@ import {
   type ProgramBlockInput,
   type TermProgram,
 } from "@/features/program/api/program"
+import { TimeSelect } from "@/features/program/components/TimeSelect"
+import { toMinutes } from "@/features/program/lib/calendar"
 import { daysOfTerm, formatDay } from "@/features/program/lib/days"
 
 type Values = ProgramBlockInput
 
 const TIME = /^([01]\d|2[0-3]):[0-5]\d$/
+
+/** A new block starts at 9:00 and lasts an hour; the minutes stay on `00` until changed. */
+const DEFAULT_START = "09:00"
+const DEFAULT_END = "10:00"
+
+/** One hour after `time`, kept within the day. */
+function hourAfter(time: string): string {
+  const minutes = Math.min(toMinutes(time) + 60, 23 * 60 + 55)
+  return `${String(Math.floor(minutes / 60)).padStart(2, "0")}:${String(minutes % 60).padStart(2, "0")}`
+}
 
 // Add or edit a block of the program of a term: day (only the days of the term), time from–to, name
 // (required), place and description. A change shows to the participants at once.
@@ -104,8 +116,8 @@ export function ProgramBlockDialog({
     resolver: zodResolver(schema),
     defaultValues: {
       date: block?.date ?? defaultDate,
-      startTime: block?.startTime ?? "",
-      endTime: block?.endTime ?? "",
+      startTime: block?.startTime ?? DEFAULT_START,
+      endTime: block?.endTime ?? DEFAULT_END,
       name: block?.name ?? "",
       place: block?.place ?? "",
       description: block?.description ?? "",
@@ -189,9 +201,14 @@ export function ProgramBlockDialog({
                     <FormItem>
                       <FormLabel>{t("startLabel")} *</FormLabel>
                       <FormControl>
-                        <Input
-                          type="time"
-                          {...field}
+                        <TimeSelect
+                          value={field.value}
+                          onChange={(time) => {
+                            field.onChange(time)
+                            if (form.getValues("endTime") <= time) {
+                              form.setValue("endTime", hourAfter(time))
+                            }
+                          }}
                         />
                       </FormControl>
                       <FormMessage />
@@ -205,9 +222,9 @@ export function ProgramBlockDialog({
                     <FormItem>
                       <FormLabel>{t("endLabel")} *</FormLabel>
                       <FormControl>
-                        <Input
-                          type="time"
-                          {...field}
+                        <TimeSelect
+                          value={field.value}
+                          onChange={field.onChange}
                         />
                       </FormControl>
                       <FormMessage />
@@ -276,12 +293,13 @@ export function ProgramBlockDialog({
               {onDelete ? (
                 <Button
                   type="button"
-                  variant="ghost"
+                  variant="outline"
                   size="lg"
-                  className="text-destructive hover:text-destructive sm:mr-auto"
+                  className="border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive sm:mr-auto"
                   disabled={isPending}
                   onClick={onDelete}
                 >
+                  <Trash2 />
                   {t("delete")}
                 </Button>
               ) : null}

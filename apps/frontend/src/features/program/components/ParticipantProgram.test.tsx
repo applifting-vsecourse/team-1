@@ -6,7 +6,7 @@ import {
   createRouter,
   RouterProvider,
 } from "@tanstack/react-router"
-import { render, screen } from "@testing-library/react"
+import { render, screen, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { afterEach, describe, expect, it, vi } from "vitest"
 
@@ -72,18 +72,17 @@ function renderPage(terms: unknown[]) {
 afterEach(() => vi.restoreAllMocks())
 
 describe("ParticipantProgram", () => {
-  it("shows the days with a block and opens a description", async () => {
+  it("draws the calendar of the term and opens the note from the info button", async () => {
     renderPage([term("t1", "Letní týden", "2027-07-12", [block])])
     expect(await screen.findByText("Dílny")).toBeInTheDocument()
     expect(screen.getByText("10:00–12:00")).toBeInTheDocument()
+    expect(
+      within(screen.getByRole("region", { name: "Program calendar" })).getAllByRole("heading"),
+    ).toHaveLength(7)
     expect(screen.queryByRole("combobox")).not.toBeInTheDocument()
-    const toggle = screen.getByRole("button", { name: /Show description/ })
-    expect(toggle).toHaveAttribute("aria-expanded", "false")
-    await userEvent.click(toggle)
-    expect(screen.getByRole("button", { name: /Hide description/ })).toHaveAttribute(
-      "aria-expanded",
-      "true",
-    )
+    expect(screen.queryByRole("button", { name: /Edit block/ })).not.toBeInTheDocument()
+    await userEvent.click(screen.getByRole("button", { name: "Show details of Dílny" }))
+    expect(await screen.findByText("Výroba suvenýrů a hudební dílna")).toBeInTheDocument()
   })
 
   it("switches between several terms", async () => {

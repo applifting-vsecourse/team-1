@@ -72,12 +72,28 @@ function renderPage(data: unknown) {
 afterEach(() => vi.restoreAllMocks())
 
 describe("ProgramPage", () => {
-  it("shows every day of the term with its blocks and a hint for an empty day", async () => {
+  it("draws a column per day of the term and the block over its time span", async () => {
     renderPage(program([term]))
-    expect(await screen.findByRole("heading", { name: /Tuesday/ })).toBeInTheDocument()
+    expect(await screen.findByRole("heading", { name: /Tue/ })).toBeInTheDocument()
+    expect(
+      within(screen.getByRole("region", { name: "Program calendar" })).getAllByRole("heading"),
+    ).toHaveLength(3)
     expect(screen.getByText("10:00–12:00")).toBeInTheDocument()
     expect(screen.getByText("Dílny")).toBeInTheDocument()
-    expect(screen.getAllByText("There is no block for this day yet.")).toHaveLength(2)
+    expect(screen.getByText("Chata A–C")).toBeInTheDocument()
+  })
+
+  it("opens the note of a block from its info button", async () => {
+    renderPage(program([term]))
+    await userEvent.click(await screen.findByRole("button", { name: "Show details of Dílny" }))
+    expect(await screen.findByText("Výroba suvenýrů")).toBeInTheDocument()
+  })
+
+  it("edits a block by clicking it and offers a delete button in the dialog", async () => {
+    renderPage(program([term]))
+    await userEvent.click(await screen.findByRole("button", { name: "Edit block Dílny" }))
+    const dialog = await screen.findByRole("dialog")
+    expect(within(dialog).getByRole("button", { name: "Delete block" })).toBeInTheDocument()
   })
 
   it("explains an event without terms", async () => {
@@ -95,8 +111,13 @@ describe("ProgramPage", () => {
     const fetchMock = renderPage(program([term]))
     await userEvent.click(await screen.findByRole("button", { name: "Add block" }))
     const dialog = await screen.findByRole("dialog")
-    await userEvent.type(within(dialog).getByLabelText(/^From/), "11:00")
-    await userEvent.type(within(dialog).getByLabelText(/^To/), "10:00")
+    // The block starts at 09:00 with minutes on 00; moving the start to 11:00 pushes the end along.
+    await userEvent.click(within(dialog).getByRole("combobox", { name: /^From/ }))
+    await userEvent.click(await screen.findByRole("option", { name: "11" }))
+    const [, , , endHours] = within(dialog).getAllByRole("combobox")
+    expect(endHours).toHaveTextContent("12")
+    await userEvent.click(endHours!)
+    await userEvent.click(await screen.findByRole("option", { name: "10" }))
     await userEvent.click(within(dialog).getByRole("button", { name: "Add block" }))
     expect(await within(dialog).findByText("Enter the block name.")).toBeInTheDocument()
     expect(within(dialog).getByText("The end must be after the start.")).toBeInTheDocument()
@@ -111,8 +132,6 @@ describe("ProgramPage", () => {
     const fetchMock = renderPage(program([term]))
     await userEvent.click(await screen.findByRole("button", { name: "Add block" }))
     const dialog = await screen.findByRole("dialog")
-    await userEvent.type(within(dialog).getByLabelText(/^From/), "08:00")
-    await userEvent.type(within(dialog).getByLabelText(/^To/), "09:00")
     await userEvent.type(within(dialog).getByLabelText(/^Block name/), "Snídaně")
     await userEvent.click(within(dialog).getByRole("button", { name: "Add block" }))
     await waitFor(() => {
