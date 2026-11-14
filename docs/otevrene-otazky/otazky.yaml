@@ -2240,15 +2240,16 @@ otazky:
     url: https://github.com/applifting-vsecourse/team-1/issues/64
   - label: US-65
     url: https://github.com/applifting-vsecourse/team-1/issues/65
-  stav: otevreno
+  stav: rozhodnuto
+  rozhodnuti_ref: D-159
   priorita: P1
   priorita_duvod: 'Požadavek PO pro Sprint 4, ovlivní datový model; refinement 17. 11.'
-  ceka_na: po
+  ceka_na: pm
   zdroje:
   - popis: 'status s PO 11. 11., §2'
     url: https://github.com/applifting-vsecourse/team-1/blob/7e88428b276a2b1cabd4f95a48456856b04c60d4/docs/zapisy/2026-11-11-status-s-po.md
     citace: '„Počítat s pozdějším příjezdem a dřívějším odjezdem. Organizátor potřebuje pro každý den vědět, kolik lidí je přítomných, kolik jich spí a kolik se jich stravuje.“'
-  poznamka: 'Doporučení: volitelné datum (a čas) příjezdu a odjezdu u přihlášky v termínu, výchozí celý termín; denní počty z potvrzených přihlášek; zadává účastník i organizátor.'
+  poznamka: 'Rozhodl PM za PO 14. 11.: jen informace v souhrnu pro kuchyni (D-159, US-143).'
 - id: Q-UBY-06
   otazka: 'Jak má organizátor před spuštěním přihlášek předem připravit pokoje nebo konkrétní osoby (páry, rodiny), aby to nenarušilo vyhodnocení?'
   epic: ubytování

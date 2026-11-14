@@ -46,11 +46,10 @@
 
 _Nic._
 
-### `po` (Tomáš): 30
+### `po` (Tomáš): 29
 
 | ID | Otázka | Dotčené US | Priorita | Proč |
 | --- | --- | --- | --- | --- |
-| [Q-UBY-05](#q-uby-05) | Jak evidovat pozdější příjezd a dřívější odjezd účastníka a z čeho počítat denní počty přítomných, ubytovaných a stravujících? | [US-36](https://github.com/applifting-vsecourse/team-1/issues/36), [US-64](https://github.com/applifting-vsecourse/team-1/issues/64), [US-65](https://github.com/applifting-vsecourse/team-1/issues/65) | P1 | Požadavek PO pro Sprint 4, ovlivní datový model; refinement 17. 11. |
 | [Q-KOM-04](#q-kom-04) | Mají účastníci dostat upozornění, když se na nástěnce objeví něco nového? Je to MVP, nebo Nice to have? | [US-91](https://github.com/applifting-vsecourse/team-1/issues/91) | P2 | PO 11. 11. chce komunitu potvrzených účastníků (§4); ověřit na refinementu 17. 11. |
 | [Q-UCT-11](#q-uct-11) | Jaké údaje o sobě navzájem uvidí potvrzení účastníci téže akce a jak se k tomu dává souhlas? | [US-92](https://github.com/applifting-vsecourse/team-1/issues/92) | P2 | PO 11. 11. chce viditelnost v uzavřené skupině; rozsah údajů a souhlas chybí. |
 | [Q-EKO-01](#q-eko-01) | Stačí ti přehled za celou akci, nebo ho potřebuješ i po termínech? | [US-59](https://github.com/applifting-vsecourse/team-1/issues/59) | P3 | Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí. |
@@ -113,6 +112,7 @@ _Nic._
 | [Q-BEZ-05](#q-bez-05) | Kde a jak dlouho smí formulář přihlášky držet osobní údaje (i dětí) v prohlížeči a jak se uloží formulář s více účastníky? | [#179](https://github.com/applifting-vsecourse/team-1/issues/179) | [D-118](../rozhodnuti/README.md#d-118): Rozepsaná veřejná přihláška se drží v sessionStorage | – |
 | [Q-KOM-08](#q-kom-08) | Má se User.locale aktualizovat s každou přihláškou nebo přepnutím jazyka? | [#183](https://github.com/applifting-vsecourse/team-1/issues/183) | [D-069](../rozhodnuti/README.md#d-069): Uživatel si nastaví preferovaný jazyk (aplikace i e-maily) | – |
 | [Q-NAS-15](#q-nas-15) | Smí organizátor termíny a ceny na veřejné stránce akce skrýt, nebo mají být vždy vidět? | [US-122 (#215)](https://github.com/applifting-vsecourse/team-1/issues/215) | [D-116](../rozhodnuti/README.md#d-116): Veřejná stránka akce má stálou adresu a pevný obsah | – |
+| [Q-UBY-05](#q-uby-05) | Jak evidovat pozdější příjezd a dřívější odjezd účastníka a z čeho počítat denní počty přítomných, ubytovaných a stravujících? | [US-36](https://github.com/applifting-vsecourse/team-1/issues/36), [US-64](https://github.com/applifting-vsecourse/team-1/issues/64), [US-65](https://github.com/applifting-vsecourse/team-1/issues/65) | [D-159](../rozhodnuti/README.md#d-159): Pozdější příjezd a dřívější odjezd jen jako informace pro kuchyni | – |
 
 ## Tickety k založení
 
@@ -232,7 +232,7 @@ _Nic._
 
 | ID | Otázka | Dotčené US | Stav | Priorita | Čeká na |
 | --- | --- | --- | --- | --- | --- |
-| [Q-UBY-05](#q-uby-05) | Jak evidovat pozdější příjezd a dřívější odjezd účastníka a z čeho počítat denní počty přítomných, ubytovaných a stravujících? | [US-36](https://github.com/applifting-vsecourse/team-1/issues/36), [US-64](https://github.com/applifting-vsecourse/team-1/issues/64), [US-65](https://github.com/applifting-vsecourse/team-1/issues/65) | otevřeno | P1 | `po` |
+| [Q-UBY-05](#q-uby-05) | Jak evidovat pozdější příjezd a dřívější odjezd účastníka a z čeho počítat denní počty přítomných, ubytovaných a stravujících? | [US-36](https://github.com/applifting-vsecourse/team-1/issues/36), [US-64](https://github.com/applifting-vsecourse/team-1/issues/64), [US-65](https://github.com/applifting-vsecourse/team-1/issues/65) | rozhodnuto, nezapsáno | P1 | `pm` |
 | [Q-UBY-01](#q-uby-01) | Brief uvádí rozdělení do pokojů mezi nutnostmi pro 7. 2., v rozhovoru ale pokoje řešíte na místě. Platí tedy Nice to have? | [US-35](https://github.com/applifting-vsecourse/team-1/issues/35) | rozhodnuto, nezapsáno | P2 | `pm` |
 | [Q-UBY-02](#q-uby-02) | Je ještě jiné pravidlo, které má systém hlídat? | [US-37](https://github.com/applifting-vsecourse/team-1/issues/37) | rozhodnuto, nezapsáno | P3 | `pm` |
 | [Q-UBY-03](#q-uby-03) | Mají být zájmena v přihlášce jako nepovinné pole? Organizátor LARP tábora je plánuje do přihlášek přidat. | [US-38](https://github.com/applifting-vsecourse/team-1/issues/38) | otevřeno | P3 | `po` |
@@ -1561,11 +1561,12 @@ _Nic._
 
 ### Q-UBY-05 – Jak evidovat pozdější příjezd a dřívější odjezd účastníka a z čeho počítat denní počty přítomných, ubytovaných a stravujících?
 
-- **Epic:** ubytování · **Dotčené US:** [US-36](https://github.com/applifting-vsecourse/team-1/issues/36), [US-64](https://github.com/applifting-vsecourse/team-1/issues/64), [US-65](https://github.com/applifting-vsecourse/team-1/issues/65) · **Stav:** otevřeno · **Čeká na:** `po`
-- **Poznámka:** Doporučení: volitelné datum (a čas) příjezdu a odjezdu u přihlášky v termínu, výchozí celý termín; denní počty z potvrzených přihlášek; zadává účastník i organizátor.
+- **Epic:** ubytování · **Dotčené US:** [US-36](https://github.com/applifting-vsecourse/team-1/issues/36), [US-64](https://github.com/applifting-vsecourse/team-1/issues/64), [US-65](https://github.com/applifting-vsecourse/team-1/issues/65) · **Stav:** rozhodnuto, nezapsáno · **Čeká na:** `pm`
+- **Poznámka:** Rozhodl PM za PO 14. 11.: jen informace v souhrnu pro kuchyni (D-159, US-143).
 - **Zdroje:**
   - [status s PO 11. 11., §2](https://github.com/applifting-vsecourse/team-1/blob/7e88428b276a2b1cabd4f95a48456856b04c60d4/docs/zapisy/2026-11-11-status-s-po.md): „Počítat s pozdějším příjezdem a dřívějším odjezdem. Organizátor potřebuje pro každý den vědět, kolik lidí je přítomných, kolik jich spí a kolik se jich stravuje.“
 - **Priorita:** P1 – Požadavek PO pro Sprint 4, ovlivní datový model; refinement 17. 11.
+- **Rozhodnutí:** [D-159](../rozhodnuti/README.md#d-159): Přihlašovatel u přihlášky v termínu volitelně zadá pozdější příjezd nebo dřívější odjezd účastníka (datum a čas v rozsahu termínu). Organizátor ho vidí v souhrnu pro kuchyni u účastníka. Aplikace s údajem dál nepočítá: žádné denní počty, jídla, výchozí hodnoty ani nastavení organizátora; nemění cenu, kapacitu ani stav.
 
 <a id="q-uby-06"></a>
 

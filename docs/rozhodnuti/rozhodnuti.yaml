@@ -2513,6 +2513,8 @@ rozhodnuti:
   rozhodl:
   - pm
   stav: platne
+  zmeneno_v:
+  - D-155
   z_otazek:
   - Q-LOG-04
   dokumentace: []
@@ -3219,3 +3221,98 @@ rozhodnuti:
   z_otazek: []
   dokumentace: []
   poznamka: 'Doporučení: schválit; Figma se opraví podle kódu.'
+- id: D-155
+  nazev: 'Kopírování programu mezi termíny'
+  text: 'Organizátor zkopíruje celý program jednoho termínu do jiného termínu téže akce. Bloky jdou podle pořadí dne (1. den na 1. den); bloky ze dnů, které cílový termín nemá, se přeskočí a organizátor vidí jejich počet. Má-li cílový termín program, organizátor zvolí „přidat ke stávajícím“, nebo „nahradit“ (jako D-115). Překryv bloků jen upozorní. Kopie je jednorázová a nevyvolá e-mail.'
+  typ: produkt
+  oblast: logistika
+  datum: '2026-11-14'
+  zdroj:
+  - popis: 'US-142, rozhodnutí PM 14. 11. (zařazeno do Sprintu 4)'
+    url: https://github.com/applifting-vsecourse/team-1/issues/495
+  us:
+  - label: US-142
+    url: https://github.com/applifting-vsecourse/team-1/issues/495
+  rozhodl:
+  - pm
+  stav: platne
+  meni:
+  - D-123
+  z_otazek: []
+  dokumentace: []
+  poznamka: 'Rozhodl PM za PO 14. 11.; mění větu D-123 „Kopírování programu mezi termíny zatím není“.'
+- id: D-156
+  nazev: 'Lhůta na zaplacení: 1–60 dní, změna platí jen pro nově potvrzené'
+  text: 'Organizátor nastaví lhůtu na zaplacení akce jako celý počet dní od 1 do 60 (výchozí 10, D-099). Změna lhůty platí jen pro přihlášky v termínu potvrzené po uložení; splatnost dříve potvrzených se nemění.'
+  typ: produkt
+  oblast: platby
+  datum: '2026-11-14'
+  zdroj:
+  - popis: 'US-139, rozhodnutí PM 14. 11.'
+    url: https://github.com/applifting-vsecourse/team-1/issues/483
+  us:
+  - label: US-139
+    url: https://github.com/applifting-vsecourse/team-1/issues/483
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+  poznamka: 'Rozhodl PM za PO 14. 11. Delší lhůta a pevné datum jsou enhancement #501 a #500.'
+- id: D-157
+  nazev: 'Vyhodnocení vybraných přihlášek jedním krokem'
+  text: 'Organizátor jednou akcí vyhodnotí vybrané přihlášky ve stavu K vyhodnocení v jednom termínu: v pořadí přijetí potvrdí ty, kdo se vejdou, ostatní zařadí mezi náhradníky. U lůžek rozdělených podle pohlaví se počítá volné lůžko ve skupině dané přihlášky. Akce nenahrazuje hromadné potvrzení ani hromadné zařazení mezi náhradníky (US-107, US-108).'
+  typ: produkt
+  oblast: přihlašování na akce
+  datum: '2026-11-14'
+  zdroj:
+  - popis: 'US-140, rozhodnutí PM 14. 11.'
+    url: https://github.com/applifting-vsecourse/team-1/issues/484
+  us:
+  - label: US-140
+    url: https://github.com/applifting-vsecourse/team-1/issues/484
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+  poznamka: 'Rozhodl PM za PO 14. 11.'
+- id: D-158
+  nazev: 'Storno podmínky vidí přihlašovatel před odhláškou a změnou termínu'
+  text: 'Přihlašovatel vidí text storno podmínek akce v Moje přihláška a před potvrzením odhlášky i změny termínu, jen u přihlášek v termínu, které jde odhlásit nebo změnit (ne u zrušené a archivované). Bez vyplněného textu se nic nezobrazí.'
+  typ: produkt
+  oblast: přihlašování na akce
+  datum: '2026-11-14'
+  zdroj:
+  - popis: 'US-141, rozhodnutí PM 14. 11.'
+    url: https://github.com/applifting-vsecourse/team-1/issues/487
+  us:
+  - label: US-141
+    url: https://github.com/applifting-vsecourse/team-1/issues/487
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+  poznamka: 'Rozhodl PM za PO 14. 11.'
+- id: D-159
+  nazev: 'Pozdější příjezd a dřívější odjezd jen jako informace pro kuchyni'
+  text: 'Přihlašovatel u přihlášky v termínu volitelně zadá pozdější příjezd nebo dřívější odjezd účastníka (datum a čas v rozsahu termínu). Organizátor ho vidí v souhrnu pro kuchyni u účastníka. Aplikace s údajem dál nepočítá: žádné denní počty, jídla, výchozí hodnoty ani nastavení organizátora; nemění cenu, kapacitu ani stav.'
+  typ: produkt
+  oblast: ubytování
+  datum: '2026-11-14'
+  zdroj:
+  - popis: 'US-143, rozhodnutí PM 14. 11. za PO'
+    url: https://github.com/applifting-vsecourse/team-1/issues/485
+  - popis: 'status s PO 11. 11., §2'
+    soubor: docs/zapisy/2026-11-11-status-s-po.md
+  us:
+  - label: US-143
+    url: https://github.com/applifting-vsecourse/team-1/issues/485
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek:
+  - Q-UBY-05
+  dokumentace: []
+  poznamka: 'Rozhodl PM za PO 14. 11.'

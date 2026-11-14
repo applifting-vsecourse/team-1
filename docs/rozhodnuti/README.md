@@ -2,7 +2,7 @@
 
 > Generováno z [`rozhodnuti.yaml`](rozhodnuti.yaml) (`python generate.py`). Needituj, měň YAML.
 
-**149 platných**, 0 návrhů, 4 nahrazených nebo zrušených.
+**154 platných**, 0 návrhů, 4 nahrazených nebo zrušených.
 
 ## Návrhy čekající na PM
 
@@ -37,6 +37,7 @@ _Nic._
 | [D-136](#d-136) | Do US-128 znamená jazyk en „nenastaveno“ | 2026-11-06 | mění [D-078](#d-078) |
 | [D-147](#d-147) | Jazyk a vzhled se přepínají v Nastavení účtu | 2026-11-08 | mění [D-042](#d-042) |
 | [D-154](#d-154) | Seznam přihlášek: pátá volba filtru úhrady a jeden sloupec Dluh | 2026-11-08 | mění [D-044](#d-044) |
+| [D-155](#d-155) | Kopírování programu mezi termíny | 2026-11-14 | mění [D-123](#d-123) |
 
 ## Platná rozhodnutí podle oblasti
 
@@ -74,6 +75,7 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-155](#d-155) | Kopírování programu mezi termíny | 2026-11-14 | `pm` | produkt |
 | [D-123](#d-123) | Program akce: jeden program po termínech, vidí potvrzení | 2026-11-14 | `pm` | produkt |
 | [D-124](#d-124) | Doprava patří k termínu, bez kapacity a ceny | 2026-11-09 | `pm` | produkt |
 | [D-122](#d-122) | Zdravotní omezení: souhlas, vidí organizátoři organizace, změna žádostí | 2026-11-07 | `pm` | produkt |
@@ -105,6 +107,7 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-156](#d-156) | Lhůta na zaplacení: 1–60 dní, změna platí jen pro nově potvrzené | 2026-11-14 | `pm` | produkt |
 | [D-125](#d-125) | Import plateb: CSV z jedné banky nebo jednoduchý generický formát | 2026-11-11 | `pm` | produkt |
 | [D-113](#d-113) | Storno podmínky jsou volný text na akci, bez výpočtu | 2026-11-07 | `pm` | produkt |
 | [D-149](#d-149) | Zápis platby: souhrnný dialog vždy, vratka bez potvrzujícího alertu | 2026-11-04 | `pm` | produkt |
@@ -147,6 +150,8 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-158](#d-158) | Storno podmínky vidí přihlašovatel před odhláškou a změnou termínu | 2026-11-14 | `pm` | produkt |
+| [D-157](#d-157) | Vyhodnocení vybraných přihlášek jedním krokem | 2026-11-14 | `pm` | produkt |
 | [D-110](#d-110) | Archivace přihlášky v termínu první den po konci jejího termínu | 2026-11-14 | `pm` | produkt |
 | [D-129](#d-129) | Odkaz na stránce po odeslání přihlášky se řídí relací | 2026-11-13 | `pm` | produkt |
 | [D-118](#d-118) | Rozepsaná veřejná přihláška se drží v sessionStorage | 2026-11-13 | `pm` | produkt |
@@ -221,6 +226,7 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-159](#d-159) | Pozdější příjezd a dřívější odjezd jen jako informace pro kuchyni | 2026-11-14 | `pm` | produkt |
 | [D-112](#d-112) | Pravidla pokojů jen varují; nad kapacitu přistýlka po vědomém potvrzení | 2026-11-14 | `pm` | produkt |
 | [D-111](#d-111) | Přiřazení do pokojů: do pokoje, i ve stavu K vyhodnocení, zveřejnění zvlášť | 2026-11-14 | `pm` | produkt |
 | [D-139](#d-139) | Přistýlka je počet lůžek navíc v pokoji a termínu | 2026-11-12 | `pm` | produkt |
@@ -1600,6 +1606,7 @@ _Nic._
 - **Text:** Organizátor sestaví program termínu z bloků (název, den, čas od–do, místo, popis); program je jeden pro všechny, bez volitelných bloků a kapacity. Přihlašovatel ho vidí v Moje přihláška jen u potvrzeného termínu (náhradník, zrušená a archivovaná ne). Organizátor smí upravit i proběhlý termín, překryv bloků jen upozorní. Kopírování programu mezi termíny zatím není.
 - **Dotčené US:** [US-66](https://github.com/applifting-vsecourse/team-1/issues/66)
 - **Zdroj:** [otázky v US-66](https://github.com/applifting-vsecourse/team-1/issues/66); [PR #477 (US-66)](https://github.com/applifting-vsecourse/team-1/pull/477)
+- **Změněno v:** [D-155](#d-155)
 - **Z otázek:** `Q-LOG-04`
 - **Poznámka:** Doporučení: schválit podle doporučení PR a PO jen informovat (REPORT N-020).
 
@@ -1955,3 +1962,60 @@ _Nic._
 - **Zdroj:** [PR #287 (US-108)](https://github.com/applifting-vsecourse/team-1/pull/287); [PR #415, PM 8. 11.](https://github.com/applifting-vsecourse/team-1/pull/415); [PR #418](https://github.com/applifting-vsecourse/team-1/pull/418)
 - **Mění:** [D-044](#d-044)
 - **Poznámka:** Doporučení: schválit; Figma se opraví podle kódu.
+
+<a id="d-155"></a>
+
+### D-155 – Kopírování programu mezi termíny
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** logistika
+- **Datum:** 2026-11-14 · **Rozhodl:** `pm`
+- **Text:** Organizátor zkopíruje celý program jednoho termínu do jiného termínu téže akce. Bloky jdou podle pořadí dne (1. den na 1. den); bloky ze dnů, které cílový termín nemá, se přeskočí a organizátor vidí jejich počet. Má-li cílový termín program, organizátor zvolí „přidat ke stávajícím“, nebo „nahradit“ (jako D-115). Překryv bloků jen upozorní. Kopie je jednorázová a nevyvolá e-mail.
+- **Dotčené US:** [US-142](https://github.com/applifting-vsecourse/team-1/issues/495)
+- **Zdroj:** [US-142, rozhodnutí PM 14. 11. (zařazeno do Sprintu 4)](https://github.com/applifting-vsecourse/team-1/issues/495)
+- **Mění:** [D-123](#d-123)
+- **Poznámka:** Rozhodl PM za PO 14. 11.; mění větu D-123 „Kopírování programu mezi termíny zatím není“.
+
+<a id="d-156"></a>
+
+### D-156 – Lhůta na zaplacení: 1–60 dní, změna platí jen pro nově potvrzené
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** platby
+- **Datum:** 2026-11-14 · **Rozhodl:** `pm`
+- **Text:** Organizátor nastaví lhůtu na zaplacení akce jako celý počet dní od 1 do 60 (výchozí 10, D-099). Změna lhůty platí jen pro přihlášky v termínu potvrzené po uložení; splatnost dříve potvrzených se nemění.
+- **Dotčené US:** [US-139](https://github.com/applifting-vsecourse/team-1/issues/483)
+- **Zdroj:** [US-139, rozhodnutí PM 14. 11.](https://github.com/applifting-vsecourse/team-1/issues/483)
+- **Poznámka:** Rozhodl PM za PO 14. 11. Delší lhůta a pevné datum jsou enhancement #501 a #500.
+
+<a id="d-157"></a>
+
+### D-157 – Vyhodnocení vybraných přihlášek jedním krokem
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** přihlašování na akce
+- **Datum:** 2026-11-14 · **Rozhodl:** `pm`
+- **Text:** Organizátor jednou akcí vyhodnotí vybrané přihlášky ve stavu K vyhodnocení v jednom termínu: v pořadí přijetí potvrdí ty, kdo se vejdou, ostatní zařadí mezi náhradníky. U lůžek rozdělených podle pohlaví se počítá volné lůžko ve skupině dané přihlášky. Akce nenahrazuje hromadné potvrzení ani hromadné zařazení mezi náhradníky (US-107, US-108).
+- **Dotčené US:** [US-140](https://github.com/applifting-vsecourse/team-1/issues/484)
+- **Zdroj:** [US-140, rozhodnutí PM 14. 11.](https://github.com/applifting-vsecourse/team-1/issues/484)
+- **Poznámka:** Rozhodl PM za PO 14. 11.
+
+<a id="d-158"></a>
+
+### D-158 – Storno podmínky vidí přihlašovatel před odhláškou a změnou termínu
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** přihlašování na akce
+- **Datum:** 2026-11-14 · **Rozhodl:** `pm`
+- **Text:** Přihlašovatel vidí text storno podmínek akce v Moje přihláška a před potvrzením odhlášky i změny termínu, jen u přihlášek v termínu, které jde odhlásit nebo změnit (ne u zrušené a archivované). Bez vyplněného textu se nic nezobrazí.
+- **Dotčené US:** [US-141](https://github.com/applifting-vsecourse/team-1/issues/487)
+- **Zdroj:** [US-141, rozhodnutí PM 14. 11.](https://github.com/applifting-vsecourse/team-1/issues/487)
+- **Poznámka:** Rozhodl PM za PO 14. 11.
+
+<a id="d-159"></a>
+
+### D-159 – Pozdější příjezd a dřívější odjezd jen jako informace pro kuchyni
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** ubytování
+- **Datum:** 2026-11-14 · **Rozhodl:** `pm`
+- **Text:** Přihlašovatel u přihlášky v termínu volitelně zadá pozdější příjezd nebo dřívější odjezd účastníka (datum a čas v rozsahu termínu). Organizátor ho vidí v souhrnu pro kuchyni u účastníka. Aplikace s údajem dál nepočítá: žádné denní počty, jídla, výchozí hodnoty ani nastavení organizátora; nemění cenu, kapacitu ani stav.
+- **Dotčené US:** [US-143](https://github.com/applifting-vsecourse/team-1/issues/485)
+- **Zdroj:** [US-143, rozhodnutí PM 14. 11. za PO](https://github.com/applifting-vsecourse/team-1/issues/485); [status s PO 11. 11., §2](../../docs/zapisy/2026-11-11-status-s-po.md)
+- **Z otázek:** `Q-UBY-05`
+- **Poznámka:** Rozhodl PM za PO 14. 11.
