@@ -6,6 +6,7 @@ type Status = "CONFIRMED" | "WAITLISTED" | "CANCELLED"
 type TermView = {
   termId: string
   status: Status
+  waitlistPosition: number | null
   allowedStatuses: Status[]
   history: { fromStatus: Status; toStatus: Status; changedByName: string | null }[]
 }
@@ -101,6 +102,43 @@ describe("manual status change of an application in a term (integration)", () =>
   })
   afterAll(async () => {
     await prisma?.$disconnect()
+  })
+
+  it("uses the same positions as the list for gendered and shared term queues", async () => {
+    const first = await addApplication("FEMALE", "WAITLISTED")
+    const man = await addApplication("MALE", "WAITLISTED")
+    const second = await addApplication("FEMALE", "WAITLISTED")
+    const confirmed = await addApplication("FEMALE", "CONFIRMED")
+    const compare = async (expected: number[]) => {
+      const response = await fetch(api(`/organizer/events/${eventId}/applications`), {
+        headers: { Cookie: cookie },
+      })
+      expect(response.status).toBe(200)
+      const list = (await response.json()) as {
+        id: string
+        terms: { id: string; waitlistPosition: number | null }[]
+      }[]
+      for (const [index, id] of [first, man, second].entries()) {
+        const detail = await view(id)
+        expect(detail.waitlistPosition).toBe(expected[index])
+        expect(detail.waitlistPosition).toBe(
+          list.find((row) => row.id === id)?.terms.find((term) => term.id === termId)
+            ?.waitlistPosition,
+        )
+      }
+      expect((await view(confirmed)).waitlistPosition).toBeNull()
+    }
+    await compare([1, 1, 2])
+    await prisma.term.update({ where: { id: termId }, data: { roomMode: "SHARED" } })
+    await compare([1, 2, 3])
+    await prisma.applicationTerm.update({
+      where: { applicationId_termId: { applicationId: first, termId } },
+      data: { status: "CONFIRMED" },
+    })
+    expect((await view(first)).waitlistPosition).toBeNull()
+    expect((await view(second)).waitlistPosition).toBe(2)
+    await prisma.term.update({ where: { id: termId }, data: { roomMode: "GENDERED" } })
+    await prisma.application.deleteMany({ where: { id: { in: [first, man, second, confirmed] } } })
   })
 
   it("confirms a waitlisted application into a free bed and logs who, when and from-to", async () => {

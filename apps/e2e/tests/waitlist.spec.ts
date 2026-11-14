@@ -19,6 +19,17 @@ test.describe("Waitlist", () => {
     await page.goto(`${page.url()}?status=WAITLISTED`)
     await expect(page.getByText(/not a confirmed place/)).toBeVisible()
     await expect(page.getByText("Waitlisted · 1").first()).toBeVisible()
-    await expect(page.getByText("Waitlisted · 2").first()).toBeVisible()
+    const second = page
+      .getByRole("row")
+      .filter({ has: page.getByText("Waitlisted · 2", { exact: true }) })
+      .first()
+    await expect(second).toBeVisible()
+    await second.getByRole("link", { name: "Detail" }).click()
+    await expect(page.getByText("#2 on the waitlist", { exact: true })).toBeVisible()
+    await page.setViewportSize({ width: 360, height: 800 })
+    await expect(page.getByText("#2 on the waitlist", { exact: true })).toBeVisible()
+    await expect
+      .poll(() => page.evaluate(() => document.documentElement.scrollWidth))
+      .toBeLessThanOrEqual(360)
   })
 })

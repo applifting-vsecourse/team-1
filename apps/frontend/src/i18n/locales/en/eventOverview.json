@@ -544,7 +544,8 @@
       "WAITLISTED": "Waitlisted"
     },
     "system": "System",
-    "title": "Status in terms"
+    "title": "Status in terms",
+    "waitlistPosition": "#{{position}} on the waitlist"
   },
   "withdrawal": {
     "back": "Back",

@@ -23,6 +23,7 @@ const term = (id: string, name: string, startsOn: string, endsOn: string) =>
     allowedStatuses: [],
     history: [],
     substituteRecords: [],
+    waitlistPosition: null,
   }) as TermStatusDetail
 const terms = [
   term("t1", "First", "2027-07-12", "2027-07-18"),

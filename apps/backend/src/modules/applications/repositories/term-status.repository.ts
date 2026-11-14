@@ -45,7 +45,12 @@ import {
   SubstituteRecord,
   TermStatusDetail,
 } from "@/modules/applications/domain/term-status"
-import { bedGroup, WaitlistCandidate } from "@/modules/applications/domain/waitlist"
+import {
+  bedGroup,
+  WaitlistCandidate,
+  waitlistKey,
+  waitlistPositions,
+} from "@/modules/applications/domain/waitlist"
 import { buildNotification, isoDay } from "@/modules/notifications/domain/notification"
 import { NotificationsRepository } from "@/modules/notifications/repositories/notifications.repository"
 import { resolveChangeEmailLocale } from "@/modules/participants/domain/change-email-locale"
@@ -774,6 +779,30 @@ export class TermStatusRepository {
         },
       },
     })
+    const waiting = await this.prisma.applicationTerm.findMany({
+      where: {
+        organizationId,
+        termId: { in: rows.filter((row) => row.status === "WAITLISTED").map((row) => row.termId) },
+        status: "WAITLISTED",
+      },
+      select: {
+        termId: true,
+        status: true,
+        term: { select: { roomMode: true } },
+        application: { select: { id: true, gender: true, submittedAt: true, number: true } },
+      },
+    })
+    // US-364: use the same queue calculation as the Applications tab, with every candidate.
+    const positions = waitlistPositions(
+      waiting.map(({ application, term, ...row }) => ({
+        ...row,
+        applicationId: application.id,
+        roomMode: term.roomMode,
+        gender: application.gender,
+        submittedAt: application.submittedAt,
+        number: application.number,
+      })),
+    )
     const records = await this.prisma.applicationTermStatusChange.findMany({
       where: {
         organizationId,
@@ -794,6 +823,10 @@ export class TermStatusRepository {
       endsOn: row.term.endsOn,
       status: row.status,
       priceCzk: row.priceCzk,
+      waitlistPosition:
+        row.status === "WAITLISTED"
+          ? (positions.get(waitlistKey(applicationId, row.termId)) ?? null)
+          : null,
       history: row.statusChanges.map((change) => ({
         id: change.id,
         kind:

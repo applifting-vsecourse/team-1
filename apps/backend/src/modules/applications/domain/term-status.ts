@@ -47,6 +47,8 @@ export type TermStatusDetail = {
   endsOn: Date
   status: ApplicationTermStatus
   priceCzk: number
+  /** Current 1-based place in the term and bed group, null unless waitlisted. */
+  waitlistPosition: number | null
   history: StatusChangeEntry[]
   /** Records of confirmations from the waitlist in which the application was confirmed or skipped. */
   substituteRecords: SubstituteRecord[]

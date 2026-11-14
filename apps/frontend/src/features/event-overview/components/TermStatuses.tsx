@@ -40,8 +40,9 @@ const POSITIVE = ["WAITLISTED", "CONFIRMED"] as const satisfies TermStatus[]
 /**
  * US-28: status of the application in every term, with the manual changes the status diagram
  * allows and the system log of past changes (who, when, from which status to which).
- * No Figma frame exists for this block yet; built from the kit following DESIGN.md.
+ * Waitlist position is supplied by the same domain calculation as the Applications tab.
  */
+// Figma (Design system): #364 Detail přihlášky · pořadí u termínu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=22642-89925 (360 px: 22642-90090)
 export function TermStatuses({ applicationId }: { applicationId: string }) {
   const { t } = useTranslation("eventOverview")
   const { data, isPending, error, refetch } = useQuery(termStatusesQueryOptions(applicationId))
@@ -85,7 +86,14 @@ export function TermStatuses({ applicationId }: { applicationId: string }) {
           >
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
               <span className="font-medium">{termDatesLine(term)}</span>
-              <Badge variant={BADGE[term.status]}>{t(`termStatus.state.${term.status}`)}</Badge>
+              <div className="flex items-center gap-3">
+                <Badge variant={BADGE[term.status]}>{t(`termStatus.state.${term.status}`)}</Badge>
+                {term.status === "WAITLISTED" && term.waitlistPosition !== null ? (
+                  <span className="text-sm font-bold">
+                    {t("termStatus.waitlistPosition", { position: term.waitlistPosition })}
+                  </span>
+                ) : null}
+              </div>
               {term.status === "CANCELLED" ? null : (
                 <div className="flex flex-wrap gap-2 sm:ml-auto">
                   <OrganizerTermChange
