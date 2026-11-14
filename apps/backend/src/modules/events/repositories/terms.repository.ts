@@ -2,6 +2,7 @@ import { PrismaService } from "@/core/prisma/prisma.service"
 import { Prisma } from "@/generated/prisma/client"
 import { computeTotalBeds } from "@/modules/applications/domain/capacity"
 import { MAX_TERM_NUMBER } from "@/modules/applications/domain/variable-symbol"
+import { releaseAssignments } from "@/modules/applications/repositories/release-assignments"
 import { EventTerm, TermInput } from "@/modules/events/domain/event-term"
 import { AppException } from "@/shared/errors/app.exception"
 import { HttpStatus, Injectable } from "@nestjs/common"
@@ -73,10 +74,14 @@ export class TermsRepository {
   }
 
   async cancel(termId: string, reason: string): Promise<EventTerm> {
-    const row = await this.prisma.term.update({
-      where: { id: termId },
-      data: { cancelledAt: new Date(), cancelReason: reason },
-      include,
+    const row = await this.prisma.$transaction(async (tx) => {
+      // US-35: nobody sleeps in the rooms of a cancelled term.
+      await releaseAssignments(tx, { termId })
+      return tx.term.update({
+        where: { id: termId },
+        data: { cancelledAt: new Date(), cancelReason: reason },
+        include,
+      })
     })
     return toTerm(row)
   }

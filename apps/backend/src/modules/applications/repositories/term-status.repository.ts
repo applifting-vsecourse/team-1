@@ -46,6 +46,8 @@ import {
   TermStatusDetail,
 } from "@/modules/applications/domain/term-status"
 import { bedGroup, WaitlistCandidate } from "@/modules/applications/domain/waitlist"
+import { releaseAssignments } from "@/modules/applications/repositories/release-assignments"
+import { isAssignable } from "@/modules/events/domain/room-assignment"
 import { buildNotification, isoDay } from "@/modules/notifications/domain/notification"
 import { NotificationsRepository } from "@/modules/notifications/repositories/notifications.repository"
 import { resolveChangeEmailLocale } from "@/modules/participants/domain/change-email-locale"
@@ -531,6 +533,7 @@ export class TermStatusRepository {
 
       for (const row of removed) {
         await tx.applicationTerm.update({ where: { id: row.id }, data: { status: "CANCELLED" } })
+        await releaseAssignments(tx, { applicationTermId: row.id })
         await tx.applicationTermStatusChange.create({
           data: {
             organizationId: application.organizationId,
@@ -885,6 +888,8 @@ export class TermStatusRepository {
         where: { id: current.id },
         data: { status: command.to },
       })
+      // US-35: leaving confirmed / to evaluate frees the bed the application had in a room.
+      if (!isAssignable(command.to)) await releaseAssignments(tx, { applicationTermId: current.id })
       const change = await tx.applicationTermStatusChange.create({
         data: {
           organizationId: command.organizationId,

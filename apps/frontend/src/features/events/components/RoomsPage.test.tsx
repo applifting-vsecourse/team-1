@@ -105,7 +105,20 @@ const byTerm: Record<string, TermRooms> = {
 function renderRooms(termId: string) {
   const onSelectTerm = vi.fn()
   get.mockImplementation((path: string) => ({
-    json: () => Promise.resolve(byTerm[/terms\/([^/]+)\/rooms/.exec(path)?.[1] ?? ""]),
+    json: () => {
+      const roomTerm = byTerm[/terms\/([^/]+)\/rooms/.exec(path)?.[1] ?? ""]
+      const assignmentTerm = byTerm[/terms\/([^/]+)\/room-assignments/.exec(path)?.[1] ?? ""]
+      return Promise.resolve(
+        assignmentTerm
+          ? {
+              eventId: "e1",
+              termId: assignmentTerm.termId,
+              rooms: assignmentTerm.rooms.map((room) => ({ ...room, participants: [] })),
+              unassigned: [],
+            }
+          : roomTerm,
+      )
+    },
   }))
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   const root = createRootRoute({
@@ -140,32 +153,31 @@ describe("accommodation by term", () => {
     success.mockReset()
   })
 
-  it("shows only the rooms of the selected term, with its metrics and gender column", async () => {
+  it("shows only the rooms of the selected term, with its metrics and the gender in the room title", async () => {
     renderRooms("t1")
     const table = await screen.findByRole("table")
-    expect(within(table).getByText("Gendered room")).toBeInTheDocument()
-    expect(within(table).queryByText("Shared room")).not.toBeInTheDocument()
+    expect(within(table).getByText(/^Gendered room/)).toBeInTheDocument()
+    expect(within(table).queryByText(/Shared room/)).not.toBeInTheDocument()
     expect(get).toHaveBeenCalledWith("organizer/events/e1/terms/t1/rooms")
     expect(screen.getByText("Women's rooms")).toBeInTheDocument()
     expect(screen.getByText("Capacity exhausted")).toBeInTheDocument()
     expect(screen.getByText("Beds available")).toBeInTheDocument()
-    expect(screen.getByRole("columnheader", { name: "Gender" })).toBeInTheDocument()
+    expect(within(table).getByText("Gendered room · Women's · Extra bed +2")).toBeInTheDocument()
   })
 
-  it("shows the extra beds only when a room has some, without a +0", async () => {
+  it("shows the extra beds in the title only when a room has some, without a +0", async () => {
     renderRooms("t1")
     const table = await screen.findByRole("table")
-    expect(within(table).getByRole("columnheader", { name: "Extra beds" })).toBeInTheDocument()
-    expect(within(table).getByText("+2")).toBeInTheDocument()
-    expect(within(table).queryByText("+0")).not.toBeInTheDocument()
+    expect(within(table).getByText(/Extra bed \+2/)).toBeInTheDocument()
+    expect(within(table).queryByText(/Extra bed \+0/)).not.toBeInTheDocument()
     expect(within(table).getByRole("button", { name: "Edit extra beds" })).toBeInTheDocument()
     expect(within(table).getByRole("button", { name: "Add extra bed" })).toBeInTheDocument()
   })
 
-  it("has no extra beds column while no room has extra beds", async () => {
+  it("has no extra bed note in the title while no room has extra beds", async () => {
     renderRooms("t2")
     const table = await screen.findByRole("table")
-    expect(within(table).queryByRole("columnheader", { name: "Extra beds" })).toBeNull()
+    expect(within(table).queryByText(/Extra bed \+/)).toBeNull()
   })
 
   it("adds extra beds in a dialog that saves and closes", async () => {
@@ -213,16 +225,16 @@ describe("accommodation by term", () => {
     window.innerWidth = 360
     renderRooms("t1")
     await screen.findByRole("table")
-    expect(screen.getAllByText(/Base beds 5000 · Extra beds \+2/).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/Extra bed \+2/).length).toBeGreaterThan(0)
     expect(screen.getAllByRole("button", { name: "Edit extra beds" }).length).toBe(2)
   })
 
-  it("shows a shared term with its shared capacity and no gender column", async () => {
+  it("shows a shared term with its shared capacity and no gender in the room title", async () => {
     renderRooms("t2")
     const table = await screen.findByRole("table")
     expect(within(table).getByText("Shared room")).toBeInTheDocument()
     expect(screen.getByText("Room capacity")).toBeInTheDocument()
-    expect(screen.queryByRole("columnheader", { name: "Gender" })).not.toBeInTheDocument()
+    expect(within(table).queryByText(/Women's|Men's/)).not.toBeInTheDocument()
     expect(screen.queryByText("Capacity exhausted")).not.toBeInTheDocument()
   })
 

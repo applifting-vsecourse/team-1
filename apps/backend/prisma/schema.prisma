@@ -172,6 +172,7 @@ model Organization {
   payments         Payment[]
   statusChanges    ApplicationTermStatusChange[]
   substituteSkips  ApplicationTermSkip[]
+  roomAssignments  RoomAssignment[]
   changeRequests   ChangeRequest[]
   applicationEdits ApplicationEdit[]
   mealOptions      MealOption[]
@@ -390,9 +391,28 @@ model Room {
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @default(now()) @updatedAt
 
+  assignments    RoomAssignment[]
+
   @@index([organizationId])
   @@index([termId])
   @@map("room")
+}
+
+// Which room a participant (application in a term) sleeps in (US-35). Rooms count beds, there is
+// no bed entity; the assignment lives and dies with the room and with the application in the term.
+model RoomAssignment {
+  id                String          @id @default(cuid())
+  organization      Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId    String
+  applicationTerm   ApplicationTerm @relation(fields: [applicationTermId], references: [id], onDelete: Cascade)
+  applicationTermId String          @unique
+  room              Room            @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  roomId            String
+  createdAt         DateTime        @default(now())
+
+  @@index([roomId])
+  @@index([organizationId])
+  @@map("room_assignment")
 }
 
 model Application {
@@ -535,6 +555,7 @@ model ApplicationTerm {
   statusChanges ApplicationTermStatusChange[]
   payments      Payment[]
   skippedIn     ApplicationTermSkip[]
+  roomAssignment RoomAssignment?
 
   @@unique([applicationId, termId])
   @@index([termId, status])
