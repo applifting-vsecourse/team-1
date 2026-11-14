@@ -10,6 +10,7 @@ import { calendarDays, formatDayHeader } from "@/features/program/lib/days"
 const GUTTER = "3.5rem"
 const DAY_MIN = "9.5rem"
 
+// Design: Figma (Design system) US-66 · O35 Program termínu (calendar) · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=23263-91745
 /**
  * The program of a term as a calendar: a column per day of the term, hours down the side and every
  * block drawn over its time span with its full name. A click on a block opens its details (`onSelect`).

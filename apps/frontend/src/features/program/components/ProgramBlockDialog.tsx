@@ -63,6 +63,7 @@ function hourAfter(time: string): string {
 
 // Add or edit a block of the program of a term: day (only the days of the term), time from–to, name
 // (required), place and description. A change shows to the participants at once.
+// Overlap warning: X25e · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=23390-121032
 // Design: Figma (Design system) US-66 · X25 Přidat blok / X25a Upravit blok / X25b Chyby u polí /
 // X25c Den mimo termín · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=23264-91877
 export function ProgramBlockDialog({
@@ -197,7 +198,7 @@ export function ProgramBlockDialog({
                   </FormItem>
                 )}
               />
-              <div className="grid grid-cols-2 items-start gap-4">
+              <div className="grid grid-cols-1 items-start gap-4 sm:grid-cols-2">
                 <FormField
                   control={form.control}
                   name="startTime"

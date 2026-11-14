@@ -16,7 +16,8 @@ import { formatDay, formatDuration, timeRange } from "@/features/program/lib/day
 
 // All about one block of the program: name on top, then day, time, place and note, each on its own row
 // with an icon. The organizer also gets edit and delete, the participant only reads.
-// Deviation from Figma by request: opened by a click on the block in the calendar.
+// Design: Figma (Design system) US-66 · X26 Detail bloku · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=23391-93750
+// Mobile · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=23391-93997 · participant (no buttons) U14c · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=23391-120984
 export function ProgramBlockDetailDialog({
   block,
   onEdit,

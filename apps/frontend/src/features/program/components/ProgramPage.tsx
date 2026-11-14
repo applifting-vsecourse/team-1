@@ -30,7 +30,6 @@ type Editor = { block?: ProgramBlock; date: string }
 
 // The program of an event, term by term: pick a term, see its days with blocks by time, add / edit
 // in a dialog, delete after a confirmation. Each term has its own program.
-// Deviation from Figma by request: the days are a calendar with hours, blocks are drawn over their time span.
 // Design: Figma (Design system) US-66 · O35 Program termínu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=23263-91745
 // Mobile · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=23266-93029
 export function ProgramPage({ eventId }: { eventId: string }) {

@@ -25,7 +25,6 @@ import { ProgramCalendar } from "@/features/program/components/ProgramCalendar"
 
 // The program of the terms the participant is confirmed in: days and blocks by time, with a switch
 // between terms when there are more. Waitlisted, cancelled and archived terms have none.
-// Deviation from Figma by request: the same calendar as the organizer's, read only.
 // Design: Figma (Design system) US-66 · U14 Program · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=23269-27218
 // Mobile · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=23270-27504
 export function ParticipantProgram({ applicationId }: { applicationId: string }) {
