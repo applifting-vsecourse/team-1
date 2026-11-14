@@ -1299,7 +1299,8 @@ rozhodnuti:
   dokumentace:
   - soubor: docs/PROJEKT.md
     popis: 'pravidlo jazyka aplikace a e-mailů: preferovaný jazyk uživatele (zapsat při zadání ticketu)'
-    stav: ceka
+    stav: hotovo
+    commit: 991a0edd
   zmeneno_v:
   - D-078
 - id: D-070
@@ -1691,13 +1692,16 @@ rozhodnuti:
   dokumentace:
   - soubor: docs/PROJEKT.md
     popis: 'řádek „Variabilní symbol = číslo přihlášky“ (sekce 5) přepsat na dvouúrovňový VS; uvést vyhrazený rozsah VS od 9 000 000 000 a omezení Application.number < 9 000 000'
-    stav: ceka
+    stav: hotovo
+    commit: 991a0edd
   - soubor: docs/SLOVNIK.md
     popis: 'Variabilní symbol: dvouúrovňový, patří přihlášce a přihlášce v termínu; class diagram'
-    stav: ceka
+    stav: hotovo
+    commit: 991a0edd
   - soubor: docs/emaily/KATALOG.md
     popis: 'platební údaje u e-mailů č. 2, 5, 7: souhrnný VS a VS každé potvrzené přihlášky v termínu'
-    stav: ceka
+    stav: hotovo
+    commit: 991a0edd
 - id: D-086
   nazev: '`Term.number` je neměnné číslo termínu v akci'
   text: 'Pořadové číslo 1 až 999 v rámci akce, přidělené při vzniku termínu (nejvyšší + 1). Nikdy se nemění ani nepoužije znovu, ani po zrušení termínu (zrušený termín číslo drží). Limit tedy platí včetně zrušených termínů; 1000. termín se odmítne chybou `TERM_LIMIT_REACHED`.'
@@ -1717,7 +1721,8 @@ rozhodnuti:
   dokumentace:
   - soubor: docs/PROJEKT.md
     popis: 'datový model: Term.number'
-    stav: ceka
+    stav: hotovo
+    commit: 991a0edd
 - id: D-087
   nazev: 'Souhrnná platba se rozděluje od nejstaršího termínu'
   text: 'Platba na souhrnný VS se rozdělí na potvrzené přihlášky v termínu s dluhem, od nejstaršího data konání (shoda: podle `Term.number`), každou nejvýše do výše jejího dluhu. Nedoplatek zůstane na nejpozdějším termínu. Přeplatek se zapíše na poslední potvrzenou přihlášku v termínu v tomto pořadí (bez potvrzené na poslední přihlášku v termínu).'
@@ -1741,7 +1746,8 @@ rozhodnuti:
   dokumentace:
   - soubor: docs/SLOVNIK.md
     popis: 'pojmy Souhrn přihlášky a Příjem; pravidlo rozdělení'
-    stav: ceka
+    stav: hotovo
+    commit: 991a0edd
   poznamka: 'Rozhodl PM; PO 4. 11. (A1): vnitřní rozdělení mu je jedno, chce celek za akci. Platí i pro souhrnné QR (PM 4. 11., PR #302).'
 - id: D-088
   nazev: 'Platba na VS bez dluhu je přeplatek přihlášky v termínu'
@@ -1764,7 +1770,8 @@ rozhodnuti:
   dokumentace:
   - soubor: docs/SLOVNIK.md
     popis: 'Přeplatek patří přihlášce v termínu'
-    stav: ceka
+    stav: hotovo
+    commit: 991a0edd
   poznamka: 'Upřesňuje D-051. Dluh přihlášky = součet kladných dluhů jejích termínů, přeplatek jednoho termínu se neodečítá (PM 6. 11., PR #357); seznam přihlášek sjednotí #362.'
 - id: D-089
   nazev: 'Příjem = řádky `Payment` po přihlášce v termínu se společným `receiptId`'
@@ -1786,7 +1793,8 @@ rozhodnuti:
   dokumentace:
   - soubor: docs/PROJEKT.md
     popis: 'datový model: Payment.applicationTermId, Payment.receiptId; API plateb s volitelným termId'
-    stav: ceka
+    stav: hotovo
+    commit: 991a0edd
   poznamka: 'Upřesňuje D-016 a D-051.'
 - id: D-090
   nazev: 'Stará platební data se smažou, seed se přepíše'
@@ -1843,7 +1851,8 @@ rozhodnuti:
   dokumentace:
   - soubor: docs/PROJEKT.md
     popis: 'veřejná stránka akce: povinnost polí jen pro zveřejnění v katalogu'
-    stav: ceka
+    stav: hotovo
+    commit: 991a0edd
   poznamka: 'Souvisí s Q-NAS-05 (seznam polí veřejné stránky); ta zůstává otevřená do odsouhlasení celého seznamu polí.'
 - id: D-093
   nazev: 'Termíny a ceny jsou na veřejné stránce akce zatím vždy vidět'
@@ -1866,7 +1875,8 @@ rozhodnuti:
   dokumentace:
   - soubor: docs/PROJEKT.md
     popis: 'veřejná stránka akce: termíny a ceny vždy viditelné (dočasně)'
-    stav: ceka
+    stav: hotovo
+    commit: 991a0edd
   poznamka: 'Dočasné, do odpovědi PO na Q-NAS-15.'
 - id: D-094
   nazev: 'Obsazenost a kapacita se veřejně nezveřejňují'
@@ -1887,7 +1897,8 @@ rozhodnuti:
   dokumentace:
   - soubor: docs/PROJEKT.md
     popis: 'katalog akcí: obsazenost a kapacita nejsou veřejné'
-    stav: ceka
+    stav: hotovo
+    commit: 991a0edd
   poznamka: 'Rozpor s Figmou katalogu (pruh obsazenosti); nahlásit designu.'
 - id: D-095
   nazev: 'Odkaz na katalog z landingu je samostatná story'
@@ -1926,7 +1937,8 @@ rozhodnuti:
   dokumentace:
   - soubor: docs/PROJEKT.md
     popis: 'veřejná stránka akce: formát fotky JPG/JPEG a PNG'
-    stav: ceka
+    stav: hotovo
+    commit: 991a0edd
   poznamka: 'Mění návrh v #215, který počítal i s WebP.'
 - id: D-097
   nazev: 'VS termínů na stránce po odeslání se nedoplňuje'
@@ -1986,7 +1998,8 @@ rozhodnuti:
   dokumentace:
   - soubor: docs/PROJEKT.md
     popis: 'lhůta na zaplacení jako nastavení akce; potvrzení v okně lhůty = po splatnosti'
-    stav: ceka
+    stav: hotovo
+    commit: 991a0edd
   poznamka: 'Rozhodl PM, PO potvrdil 4. 11. (A2). Lhůtu zatím nejde nastavit (výchozích 10 dní, Event.paymentPeriodDays); doporučeno číselné pole v Nastavení akce, ticket (N-047).'
 - id: D-100
   nazev: 'Před začátkem storno podmínek si účastník mění přihlášku a termíny bez schválení'
@@ -2148,7 +2161,9 @@ rozhodnuti:
   us:
   - label: US-31
     url: https://github.com/applifting-vsecourse/team-1/issues/31
-  stav: navrh
+  rozhodl:
+  - pm
+  stav: platne
   z_otazek: []
   dokumentace:
   - soubor: docs/procesy/zpracovani-prihlasky/automaticke-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml
@@ -2172,14 +2187,17 @@ rozhodnuti:
   us:
   - label: US-69
     url: https://github.com/applifting-vsecourse/team-1/issues/69
-  stav: navrh
+  rozhodl:
+  - pm
+  stav: platne
   meni:
   - D-105
   z_otazek: []
   dokumentace:
   - soubor: docs/emaily/KATALOG.md
     popis: 'řádek AUTH_ORGANIZER_VERIFY: ověření e-mailu organizátora'
-    stav: ceka
+    stav: hotovo
+    commit: 991a0edd
   poznamka: 'Doporučení: schválit a merge #347 podmínit ponecháním ověřovacího e-mailu organizátora (potvrdí tech-lead).'
 - id: D-110
   nazev: 'Archivace přihlášky v termínu první den po konci jejího termínu'
@@ -2194,7 +2212,9 @@ rozhodnuti:
   us:
   - label: US-109
     url: https://github.com/applifting-vsecourse/team-1/issues/202
-  stav: navrh
+  rozhodl:
+  - pm
+  stav: platne
   z_otazek: []
   dokumentace:
   - soubor: docs/procesy/zpracovani-prihlasky/rucni-vyhodnocovani/zpracovani-prihlasky.yaml
@@ -2205,7 +2225,8 @@ rozhodnuti:
     stav: ceka
   - soubor: docs/SLOVNIK.md
     popis: 'Archivovaná: po konci vlastního termínu'
-    stav: ceka
+    stav: hotovo
+    commit: 991a0edd
   poznamka: 'Doporučení: schválit před dokončením #474; zamykat platby po archivaci (alternativa) přidá kód bez přínosu.'
 - id: D-111
   nazev: 'Přiřazení do pokojů: do pokoje, i ve stavu K vyhodnocení, zveřejnění zvlášť'
@@ -2222,7 +2243,9 @@ rozhodnuti:
   us:
   - label: US-35
     url: https://github.com/applifting-vsecourse/team-1/issues/35
-  stav: navrh
+  rozhodl:
+  - pm
+  stav: platne
   z_otazek: []
   dokumentace: []
   poznamka: 'Doporučení: poslat PO doporučené odpovědi (REPORT N-006) a po souhlasu schválit s rozhodl: po.'
@@ -2241,7 +2264,9 @@ rozhodnuti:
   us:
   - label: US-37
     url: https://github.com/applifting-vsecourse/team-1/issues/37
-  stav: navrh
+  rozhodl:
+  - pm
+  stav: platne
   z_otazek:
   - Q-UBY-02
   dokumentace: []
@@ -2259,7 +2284,9 @@ rozhodnuti:
   us:
   - label: US-47
     url: https://github.com/applifting-vsecourse/team-1/issues/47
-  stav: navrh
+  rozhodl:
+  - pm
+  stav: platne
   z_otazek:
   - Q-PRI-03
   - Q-PLA-04
@@ -2280,7 +2307,9 @@ rozhodnuti:
   us:
   - label: US-51
     url: https://github.com/applifting-vsecourse/team-1/issues/51
-  stav: navrh
+  rozhodl:
+  - pm
+  stav: platne
   meni:
   - D-050
   - D-042
@@ -2304,7 +2333,9 @@ rozhodnuti:
   us:
   - label: US-100
     url: https://github.com/applifting-vsecourse/team-1/issues/193
-  stav: navrh
+  rozhodl:
+  - pm
+  stav: platne
   z_otazek:
   - Q-NAS-07
   dokumentace: []
@@ -2326,7 +2357,9 @@ rozhodnuti:
     url: https://github.com/applifting-vsecourse/team-1/issues/22
   - label: US-122
     url: https://github.com/applifting-vsecourse/team-1/issues/215
-  stav: navrh
+  rozhodl:
+  - pm
+  stav: platne
   z_otazek:
   - Q-NAS-04
   - Q-NAS-05
@@ -2346,7 +2379,9 @@ rozhodnuti:
   us:
   - label: US-56
     url: https://github.com/applifting-vsecourse/team-1/issues/56
-  stav: navrh
+  rozhodl:
+  - pm
+  stav: platne
   z_otazek:
   - Q-BEZ-04
   dokumentace: []
@@ -2368,7 +2403,9 @@ rozhodnuti:
   us:
   - label: '#179'
     url: https://github.com/applifting-vsecourse/team-1/issues/179
-  stav: navrh
+  rozhodl:
+  - pm
+  stav: platne
   z_otazek:
   - Q-BEZ-05
   dokumentace: []
@@ -2388,7 +2425,9 @@ rozhodnuti:
   us:
   - label: US-112
     url: https://github.com/applifting-vsecourse/team-1/issues/205
-  stav: navrh
+  rozhodl:
+  - pm
+  stav: platne
   z_otazek:
   - Q-PLA-15
   dokumentace: []
@@ -2406,7 +2445,9 @@ rozhodnuti:
   us:
   - label: US-35
     url: https://github.com/applifting-vsecourse/team-1/issues/35
-  stav: navrh
+  rozhodl:
+  - pm
+  stav: platne
   z_otazek:
   - Q-UBY-01
   dokumentace: []
@@ -2424,7 +2465,9 @@ rozhodnuti:
   us:
   - label: US-64
     url: https://github.com/applifting-vsecourse/team-1/issues/64
-  stav: navrh
+  rozhodl:
+  - pm
+  stav: platne
   z_otazek:
   - Q-LOG-02
   dokumentace: []
@@ -2442,7 +2485,9 @@ rozhodnuti:
   us:
   - label: US-68
     url: https://github.com/applifting-vsecourse/team-1/issues/68
-  stav: navrh
+  rozhodl:
+  - pm
+  stav: platne
   z_otazek:
   - Q-LOG-05
   dokumentace: []
@@ -2462,7 +2507,9 @@ rozhodnuti:
   us:
   - label: US-66
     url: https://github.com/applifting-vsecourse/team-1/issues/66
-  stav: navrh
+  rozhodl:
+  - pm
+  stav: platne
   z_otazek:
   - Q-LOG-04
   dokumentace: []
@@ -2482,7 +2529,9 @@ rozhodnuti:
   us:
   - label: US-65
     url: https://github.com/applifting-vsecourse/team-1/issues/65
-  stav: navrh
+  rozhodl:
+  - pm
+  stav: platne
   z_otazek:
   - Q-LOG-03
   dokumentace: []
@@ -2502,7 +2551,9 @@ rozhodnuti:
     url: https://github.com/applifting-vsecourse/team-1/issues/42
   - label: US-43
     url: https://github.com/applifting-vsecourse/team-1/issues/43
-  stav: navrh
+  rozhodl:
+  - pm
+  stav: platne
   z_otazek:
   - Q-PLA-02
   dokumentace: []
@@ -2524,7 +2575,9 @@ rozhodnuti:
     url: https://github.com/applifting-vsecourse/team-1/issues/69
   - label: US-08
     url: https://github.com/applifting-vsecourse/team-1/issues/8
-  stav: navrh
+  rozhodl:
+  - pm
+  stav: platne
   meni:
   - D-001
   - D-006
@@ -2535,7 +2588,8 @@ rozhodnuti:
   dokumentace:
   - soubor: docs/PROJEKT.md
     popis: 'registrace organizátora a organizace (dnes „Veřejná registrace je vypnutá“, ř. 112)'
-    stav: ceka
+    stav: hotovo
+    commit: 991a0edd
   poznamka: 'Doporučení: schválit s rozhodl: po, pm; mění D-001 a D-006, které platily pro sprint 1.'
 - id: D-127
   nazev: 'Odhláška zadaná organizátorem posílá souhrnný e-mail o změně'
@@ -2550,12 +2604,15 @@ rozhodnuti:
   us:
   - label: US-32
     url: https://github.com/applifting-vsecourse/team-1/issues/32
-  stav: navrh
+  rozhodl:
+  - pm
+  stav: platne
   z_otazek: []
   dokumentace:
   - soubor: docs/emaily/KATALOG.md
     popis: 'APP_CANCELLED_BY_APPLICANT a APP_WAITLIST_CANCELLED: odhláška organizátorem jde jako TERMS_CHANGED'
-    stav: ceka
+    stav: hotovo
+    commit: 991a0edd
   poznamka: 'Doporučení: schválit včetně náhradníka (jedno tlačítko Odhlásit); sloučení řádků KATALOGu až po demu.'
 - id: D-128
   nazev: 'Změna e-mailu účtu přepíše e-mail ve všech jeho přihláškách'
@@ -2570,12 +2627,15 @@ rozhodnuti:
   us:
   - label: US-125
     url: https://github.com/applifting-vsecourse/team-1/issues/218
-  stav: navrh
+  rozhodl:
+  - pm
+  stav: platne
   z_otazek: []
   dokumentace:
   - soubor: docs/emaily/KATALOG.md
     popis: 'adresát e-mailů k přihláškám po změně e-mailu účtu'
-    stav: ceka
+    stav: hotovo
+    commit: 991a0edd
   poznamka: 'Doporučení: schválit a designu nahlásit opravu rámců US-125.'
 - id: D-129
   nazev: 'Odkaz na stránce po odeslání přihlášky se řídí relací'
@@ -2592,7 +2652,9 @@ rozhodnuti:
   us:
   - label: '#318'
     url: https://github.com/applifting-vsecourse/team-1/issues/318
-  stav: navrh
+  rozhodl:
+  - pm
+  stav: platne
   z_otazek: []
   dokumentace: []
   poznamka: 'Doporučení: schválit včetně odpovědí na dvě otázky z #476 (jiný e-mail beze změny, více přihlášek vede na seznam).'
@@ -2611,12 +2673,15 @@ rozhodnuti:
   us:
   - label: US-105
     url: https://github.com/applifting-vsecourse/team-1/issues/198
-  stav: navrh
+  rozhodl:
+  - pm
+  stav: platne
   z_otazek: []
   dokumentace:
   - soubor: docs/SLOVNIK.md
     popis: 'pojem Přeskočený náhradník'
-    stav: ceka
+    stav: hotovo
+    commit: 991a0edd
   poznamka: 'Doporučení: schválit; PM v #323 slíbil zápis („rozhodnutí ok, zadokumentuji“).'
 - id: D-131
   nazev: 'Účastnická část Sprintu 4: spolubydlení, pokoj, platba, doprava'
@@ -2633,7 +2698,9 @@ rozhodnuti:
     url: https://github.com/applifting-vsecourse/team-1/issues/39
   - label: US-38
     url: https://github.com/applifting-vsecourse/team-1/issues/38
-  stav: navrh
+  rozhodl:
+  - pm
+  stav: platne
   z_otazek:
   - Q-UBY-04
   dokumentace: []
@@ -2653,7 +2720,9 @@ rozhodnuti:
   us:
   - label: '#311'
     url: https://github.com/applifting-vsecourse/team-1/issues/311
-  stav: navrh
+  rozhodl:
+  - pm
+  stav: platne
   z_otazek: []
   dokumentace: []
   poznamka: 'Doporučení: schválit; v #311 opravit odkaz na D-099 až D-103 (ta ID mají jiný význam).'
@@ -2670,7 +2739,9 @@ rozhodnuti:
   us:
   - label: '#289'
     url: https://github.com/applifting-vsecourse/team-1/issues/289
-  stav: navrh
+  rozhodl:
+  - pm
+  stav: platne
   z_otazek: []
   dokumentace: []
   poznamka: 'Doporučení: schválit; zatím nezavedeno, v #289 opravit odkaz na ID.'
@@ -2695,7 +2766,9 @@ rozhodnuti:
     url: https://github.com/applifting-vsecourse/team-1/issues/84
   - label: US-114
     url: https://github.com/applifting-vsecourse/team-1/issues/207
-  stav: navrh
+  rozhodl:
+  - pm
+  stav: platne
   z_otazek: []
   dokumentace: []
   poznamka: 'Doporučení: schválit podle kódu; change-options bez kapacity je follow-up ticket (N-084).'
@@ -2716,7 +2789,9 @@ rozhodnuti:
   us:
   - label: US-115
     url: https://github.com/applifting-vsecourse/team-1/issues/208
-  stav: navrh
+  rozhodl:
+  - pm
+  stav: platne
   z_otazek: []
   dokumentace: []
   poznamka: 'Doporučení: schválit; v produkci s reálnými e-maily musí být oba přepínače vypnuté.'
@@ -2737,7 +2812,9 @@ rozhodnuti:
   us:
   - label: US-128
     url: https://github.com/applifting-vsecourse/team-1/issues/243
-  stav: navrh
+  rozhodl:
+  - pm
+  stav: platne
   meni:
   - D-078
   z_otazek: []
@@ -2758,7 +2835,9 @@ rozhodnuti:
     url: https://github.com/applifting-vsecourse/team-1/issues/83
   - label: US-84
     url: https://github.com/applifting-vsecourse/team-1/issues/84
-  stav: navrh
+  rozhodl:
+  - pm
+  stav: platne
   z_otazek: []
   dokumentace: []
   poznamka: 'Doporučení: schválit s výjimkou pro organizátora (doslovné znění PM v #442 by ji zakázalo); veřejné podání dnes kontrolu nemá, založit ticket.'
@@ -2781,7 +2860,9 @@ rozhodnuti:
     url: https://github.com/applifting-vsecourse/team-1/issues/192
   - label: US-80
     url: https://github.com/applifting-vsecourse/team-1/issues/80
-  stav: navrh
+  rozhodl:
+  - pm
+  stav: platne
   z_otazek: []
   dokumentace: []
   poznamka: 'Doporučení: schválit; odpovídá D-014 a přání PO z 11. 11.'
@@ -2798,7 +2879,9 @@ rozhodnuti:
   us:
   - label: US-80
     url: https://github.com/applifting-vsecourse/team-1/issues/80
-  stav: navrh
+  rozhodl:
+  - pm
+  stav: platne
   z_otazek: []
   dokumentace: []
   poznamka: 'Doporučení: schválit podle #466 a odpovědět na dva dotazy v #80.'
@@ -2815,12 +2898,15 @@ rozhodnuti:
   us:
   - label: US-114
     url: https://github.com/applifting-vsecourse/team-1/issues/207
-  stav: navrh
+  rozhodl:
+  - pm
+  stav: platne
   z_otazek: []
   dokumentace:
   - soubor: docs/emaily/KATALOG.md
     popis: 'dvě zprávy: žádost čeká na schválení, žádost zamítnuta'
-    stav: ceka
+    stav: hotovo
+    commit: 991a0edd
   - soubor: docs/emaily/TEXTY.md
     popis: 'texty obou zpráv CS/EN'
     stav: ceka
@@ -2842,7 +2928,9 @@ rozhodnuti:
     url: https://github.com/applifting-vsecourse/team-1/issues/34
   - label: US-53
     url: https://github.com/applifting-vsecourse/team-1/issues/53
-  stav: navrh
+  rozhodl:
+  - pm
+  stav: platne
   z_otazek: []
   dokumentace: []
   poznamka: 'Doporučení: schválit a kritérium „údaje přihlašovatele“ v US-53 zúžit na e-mail přihlášky.'
@@ -2865,7 +2953,9 @@ rozhodnuti:
     url: https://github.com/applifting-vsecourse/team-1/issues/200
   - label: US-108
     url: https://github.com/applifting-vsecourse/team-1/issues/201
-  stav: navrh
+  rozhodl:
+  - pm
+  stav: platne
   z_otazek: []
   dokumentace: []
   poznamka: 'Doporučení: schválit, ukázat dvoukrokovou variantu PO na stagingu a jednokrokovou akci založit jako ticket Sprintu 4.'
@@ -2886,7 +2976,9 @@ rozhodnuti:
     url: https://github.com/applifting-vsecourse/team-1/issues/164
   - label: US-77
     url: https://github.com/applifting-vsecourse/team-1/issues/77
-  stav: navrh
+  rozhodl:
+  - pm
+  stav: platne
   z_otazek:
   - Q-PLT-04
   - Q-PLT-05
@@ -2911,7 +3003,9 @@ rozhodnuti:
   - popis: 'status s PO 11. 11., Priority pro Sprint 4'
     soubor: docs/zapisy/2026-11-11-status-s-po.md
   us: []
-  stav: navrh
+  rozhodl:
+  - pm
+  stav: platne
   z_otazek: []
   dokumentace: []
   poznamka: 'Doporučení: schválit s rozhodl: po.'
@@ -2928,7 +3022,9 @@ rozhodnuti:
   us:
   - label: US-107
     url: https://github.com/applifting-vsecourse/team-1/issues/200
-  stav: navrh
+  rozhodl:
+  - pm
+  stav: platne
   z_otazek: []
   dokumentace: []
   poznamka: 'Doporučení: schválit s rozhodl: po.'
@@ -2949,7 +3045,9 @@ rozhodnuti:
   - popis: 'status s PO 11. 11., §7'
     soubor: docs/zapisy/2026-11-11-status-s-po.md
   us: []
-  stav: navrh
+  rozhodl:
+  - pm
+  stav: platne
   z_otazek: []
   dokumentace: []
   poznamka: 'Doporučení: schválit s rozhodl: tym; pravidlo o E2E testech už je v CLAUDE.md.'
@@ -2966,7 +3064,9 @@ rozhodnuti:
   - popis: 'PR #460'
     url: https://github.com/applifting-vsecourse/team-1/pull/460
   us: []
-  stav: navrh
+  rozhodl:
+  - pm
+  stav: platne
   meni:
   - D-042
   z_otazek: []
@@ -2985,7 +3085,9 @@ rozhodnuti:
   us:
   - label: US-118
     url: https://github.com/applifting-vsecourse/team-1/issues/211
-  stav: navrh
+  rozhodl:
+  - pm
+  stav: platne
   z_otazek: []
   dokumentace: []
   poznamka: 'Doporučení: schválit; stavy v textech upozornění sladit se SLOVNIKem později.'
@@ -3004,7 +3106,9 @@ rozhodnuti:
   us:
   - label: US-111
     url: https://github.com/applifting-vsecourse/team-1/issues/204
-  stav: navrh
+  rozhodl:
+  - pm
+  stav: platne
   z_otazek: []
   dokumentace: []
   poznamka: 'Doporučení: schválit.'
@@ -3021,7 +3125,9 @@ rozhodnuti:
   - popis: 'PR #338'
     url: https://github.com/applifting-vsecourse/team-1/pull/338
   us: []
-  stav: navrh
+  rozhodl:
+  - pm
+  stav: platne
   z_otazek: []
   dokumentace: []
   poznamka: 'Doporučení: schválit a text hlášky potvrdit komentářem v #338.'
@@ -3038,7 +3144,9 @@ rozhodnuti:
   us:
   - label: US-117
     url: https://github.com/applifting-vsecourse/team-1/issues/210
-  stav: navrh
+  rozhodl:
+  - pm
+  stav: platne
   z_otazek: []
   dokumentace: []
   poznamka: 'Doporučení: schválit; v #311 a #361 opravit odkaz „D-101 e-mail č. 8“ (D-101 je oprava platby).'
@@ -3055,7 +3163,9 @@ rozhodnuti:
   us:
   - label: US-99
     url: https://github.com/applifting-vsecourse/team-1/issues/192
-  stav: navrh
+  rozhodl:
+  - pm
+  stav: platne
   z_otazek: []
   dokumentace: []
   poznamka: 'Doporučení: schválit jako upřesnění D-067.'
@@ -3072,7 +3182,9 @@ rozhodnuti:
   us:
   - label: US-83
     url: https://github.com/applifting-vsecourse/team-1/issues/83
-  stav: navrh
+  rozhodl:
+  - pm
+  stav: platne
   z_otazek:
   - Q-PRI-24
   dokumentace: []
@@ -3096,7 +3208,9 @@ rozhodnuti:
     url: https://github.com/applifting-vsecourse/team-1/issues/52
   - label: US-108
     url: https://github.com/applifting-vsecourse/team-1/issues/201
-  stav: navrh
+  rozhodl:
+  - pm
+  stav: platne
   meni:
   - D-044
   z_otazek: []
