@@ -78,7 +78,6 @@
       "terms": "Termíny a platby",
       "transport": "Doprava"
     },
-    "termsTitle": "Stav podle termínů",
     "title": "Moje přihláška",
     "toEvaluate": {
       "alertText": "Platební údaje dostanete po potvrzení účasti.",
@@ -146,15 +145,11 @@
   "payment": {
     "account": "Bankovní účet",
     "amount": "Částka",
-    "closeQr": "Zavřít platební údaje",
     "copyAmount": "Kopírovat částku",
     "overpaymentNotTransferred": "Přeplatek se mezi termíny nepřevádí.",
     "overpaymentRefund": "Na vrácení přeplatku se domluvte s organizátorem.",
-    "payEachTerm": "Každý termín platíte zvlášť. Použijte jeho variabilní symbol, jinak platbu nepřiřadíme.",
     "qrAlt": "QR kód pro souhrnnou platbu",
     "saveQr": "Stáhnout QR kód",
-    "showSummaryQrMany": "Jedna platba za všechny potvrzené termíny · zobrazit QR",
-    "showSummaryQrTwo": "Jedna platba za oba termíny · zobrazit QR",
     "simulation": {
       "logDescription": "Zkušební platby vytvořené tlačítkem „Zaplatil jsem“. Nejde o skutečné bankovní převody.",
       "logLine": "+{{amount}} · {{term}} · zdroj: simulace",
@@ -163,7 +158,6 @@
     },
     "summaryBreakdown": "Rozpis",
     "summaryQrExplanation": "Platí pro všechny potvrzené termíny. Souhrnný VS se liší od VS jednotlivých termínů.",
-    "summaryQrTitle": "Zaplatit potvrzené termíny",
     "summaryVariableSymbol": "Souhrnný variabilní symbol",
     "totalOwed": "Zbývá zaplatit celkem"
   },

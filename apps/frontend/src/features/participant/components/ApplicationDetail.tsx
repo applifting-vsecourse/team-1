@@ -1,17 +1,13 @@
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
-import { TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
-import { MoneyAmount } from "@/components/atoms/MoneyAmount"
 import { Checklist } from "@/components/molecules/Checklist"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { PageHeader } from "@/components/molecules/PageHeader"
-import { TermLabel } from "@/components/molecules/TermLabel"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { termTitle } from "@/lib/term-label"
@@ -25,7 +21,6 @@ import {
   type ChangeMode,
 } from "@/features/participant/components/ParticipantTermChange"
 import { PaymentSummary } from "@/features/participant/components/PaymentSummary"
-import { TermStatusBadge } from "@/features/participant/components/TermSummary"
 
 type ApplicationDetailProps = { applicationId: string }
 
@@ -73,12 +68,6 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
       />
     )
   }
-
-  const hasToEvaluate = data.terms.some((term) => term.status === "TO_EVALUATE")
-  // Confirmed and waitlisted terms are shown with their payment below (US-110).
-  const otherTerms = data.terms.filter(
-    (term) => term.status === "TO_EVALUATE" || term.status === "CANCELLED",
-  )
 
   // Transport is asked for every confirmed term the organizer offers it to.
   const transportTerms = data.terms.filter(
@@ -155,35 +144,7 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
           application={data}
           onStart={setChangeMode}
         />
-        {otherTerms.length > 0 ? (
-          <Card className="gap-0 p-6">
-            <h2 className="pb-4 text-lg font-semibold">{t("detail.termsTitle")}</h2>
-            <ul>
-              {otherTerms.map((term) => (
-                <li
-                  key={term.termId}
-                  className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t py-4 last:pb-0"
-                >
-                  <TermLabel term={term} />
-                  <TermStatusBadge term={term} />
-                  <span className="w-full sm:w-50 sm:text-right">
-                    {term.status === "TO_EVALUATE" ? null : <MoneyAmount amountCzk={0} />}
-                  </span>
-                </li>
-              ))}
-            </ul>
-            {hasToEvaluate ? <p className="pt-4">{t("detail.toEvaluate.note")}</p> : null}
-          </Card>
-        ) : null}
         <ChangeRequestNotice applicationId={applicationId} />
-        {hasToEvaluate ? (
-          // Figma (Design system): Togena / Alert · node-id=15751-1777 (360 px: 15751-1810)
-          <Alert>
-            <TriangleAlert aria-hidden />
-            <AlertTitle>{t("detail.toEvaluate.alertTitle")}</AlertTitle>
-            <AlertDescription>{t("detail.toEvaluate.alertText")}</AlertDescription>
-          </Alert>
-        ) : null}
         <PaymentSummary application={data} />
       </section>
       {transportTerms.length > 0 ? (
