@@ -50,11 +50,14 @@ export function ParticipantChip({
   participant,
   roomId,
   scope,
+  isBlock = false,
   onMove,
   onRemove,
 }: {
   participant: AssignmentParticipant
   roomId: string
+  /** A full-width chip, as in the stacked list of a mobile room card. */
+  isBlock?: boolean
   /** The table and the mobile cards are both in the DOM; their draggables need their own ids. */
   scope: "row" | "card"
   onMove: () => void
@@ -88,7 +91,7 @@ export function ParticipantChip({
       open={isOpen}
       onOpenChange={setIsOpen}
     >
-      <span className="relative inline-flex">
+      <span className={cn("relative inline-flex", isBlock && "flex w-full")}>
         <button
           {...attributes}
           {...listeners}
@@ -100,6 +103,7 @@ export function ParticipantChip({
           onClick={() => setIsOpen((isShown) => !isShown)}
           className={cn(
             chipClass,
+            isBlock && "w-full justify-start",
             "cursor-grab touch-manipulation outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50",
             isDragging && "opacity-40",
           )}
@@ -217,13 +221,14 @@ function Chips({
   scope: "row" | "card"
 }) {
   return (
-    <div className="flex flex-wrap gap-1.5">
+    <div className={scope === "card" ? "grid gap-1.5" : "flex flex-wrap gap-1.5"}>
       {room.participants.map((participant) => (
         <ParticipantChip
           key={participant.applicationTermId}
           participant={participant}
           roomId={room.id}
           scope={scope}
+          isBlock={scope === "card"}
           onMove={() => onMoveParticipant(participant)}
           onRemove={() => onRemoveParticipant(participant)}
         />
@@ -309,7 +314,7 @@ export function RoomTableRow({
   )
 }
 
-/** Mobile card of a room: the same content; people are dragged by a long press or assigned in the dialog. */
+/** Mobile card of a room: title, occupancy with a bar, the people stacked, then the room actions. */
 export function RoomCard({
   room,
   isEligible,
@@ -324,35 +329,51 @@ export function RoomCard({
     data: { roomId: room.id },
   })
   const isDropping = isEligible && isOver
+  const isFull = room.participants.length >= room.beds
+  const share = Math.min(100, Math.round((room.participants.length / Math.max(1, room.beds)) * 100))
   return (
     <li
       ref={setNodeRef}
       className={cn(
-        "flex flex-col gap-2.5 rounded-xl border border-border bg-card p-4",
+        "flex flex-col rounded-xl border border-border bg-card",
         isDropping
           ? "bg-accent outline-2 -outline-offset-2 outline-ring"
           : isEligible && isDragActive && "bg-muted",
       )}
     >
-      <div className="flex items-center justify-center gap-2">
-        <span className="font-semibold break-words">{room.name}</span>
-        {room.gender ? <Badge variant="secondary">{roomGenderLabel(room.gender)}</Badge> : null}
-      </div>
-      {room.participants.length ? (
-        <Chips
-          room={room}
-          scope="card"
-          onMoveParticipant={onMoveParticipant}
-          onRemoveParticipant={onRemoveParticipant}
-        />
-      ) : null}
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <span>
-          {room.participants.length} / {room.beds} · {freeBedsLabel(room)}
-        </span>
+      <div className="flex flex-col gap-3 p-4">
+        <div className="flex items-center justify-center gap-2">
+          <span className="font-semibold break-words">{room.name}</span>
+          {room.gender ? <Badge variant="secondary">{roomGenderLabel(room.gender)}</Badge> : null}
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="text-sm font-semibold whitespace-nowrap">
+            {room.participants.length} / {room.beds}
+          </span>
+          <div
+            role="presentation"
+            className="h-1.5 flex-1 overflow-hidden rounded-full bg-secondary"
+          >
+            <div
+              className={cn("h-full rounded-full", isFull ? "bg-muted-foreground" : "bg-primary")}
+              style={{ width: `${share}%` }}
+            />
+          </div>
+          <Badge variant={isFull ? "secondary" : "success"}>{freeBedsLabel(room)}</Badge>
+        </div>
         <ExtraBeds room={room} />
       </div>
-      <div className="flex flex-wrap items-center gap-1">{actions}</div>
+      {room.participants.length ? (
+        <div className="border-t border-border p-4">
+          <Chips
+            room={room}
+            scope="card"
+            onMoveParticipant={onMoveParticipant}
+            onRemoveParticipant={onRemoveParticipant}
+          />
+        </div>
+      ) : null}
+      <div className="flex items-center gap-1 border-t border-border p-3">{actions}</div>
     </li>
   )
 }
