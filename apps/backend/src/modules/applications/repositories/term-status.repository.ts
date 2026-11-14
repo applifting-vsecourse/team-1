@@ -13,6 +13,7 @@ import { findDuplicate } from "@/modules/applications/domain/duplicate-applicati
 import {
   ApplicationTermStatus,
   evaluateApplication,
+  isAssignable,
 } from "@/modules/applications/domain/evaluation"
 import {
   AddedTermState,
@@ -51,6 +52,7 @@ import { NotificationsRepository } from "@/modules/notifications/repositories/no
 import { resolveChangeEmailLocale } from "@/modules/participants/domain/change-email-locale"
 import { ApplicationChange } from "@/modules/participants/domain/submission-confirmation"
 import { AppException } from "@/shared/errors/app.exception"
+import { releaseAssignments } from "@/shared/room-assignments/release-assignments"
 import { HttpStatus, Injectable } from "@nestjs/common"
 
 const recordInclude = {
@@ -531,6 +533,7 @@ export class TermStatusRepository {
 
       for (const row of removed) {
         await tx.applicationTerm.update({ where: { id: row.id }, data: { status: "CANCELLED" } })
+        await releaseAssignments(tx, { applicationTermId: row.id })
         await tx.applicationTermStatusChange.create({
           data: {
             organizationId: application.organizationId,
@@ -885,6 +888,8 @@ export class TermStatusRepository {
         where: { id: current.id },
         data: { status: command.to },
       })
+      // US-35: leaving confirmed / to evaluate frees the bed the application had in a room.
+      if (!isAssignable(command.to)) await releaseAssignments(tx, { applicationTermId: current.id })
       const change = await tx.applicationTermStatusChange.create({
         data: {
           organizationId: command.organizationId,

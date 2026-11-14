@@ -12,6 +12,14 @@ export function computeRoomBeds(room: Pick<RoomCapacity, "capacity" | "extraBeds
   return room.capacity + room.extraBeds
 }
 
+/** Beds of a room still free once `assignedCount` people sleep in it (US-35). Not clamped: an overfilled room is negative. */
+export function computeFreeRoomBeds(
+  room: Pick<RoomCapacity, "capacity" | "extraBeds">,
+  assignedCount: number,
+): number {
+  return computeRoomBeds(room) - assignedCount
+}
+
 /**
  * Capacity of a term (US-26): women = beds in women's rooms, men = beds in
  * men's rooms. Rooms belong to one term (US-99), so every term has its own
