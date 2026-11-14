@@ -33,6 +33,8 @@
   "PAYMENT_TERM_NOT_IN_APPLICATION": "The selected term does not belong to this application.",
   "PHOTO_INVALID_TYPE": "The photo has to be a JPG, JPEG or PNG image.",
   "PHOTO_TOO_LARGE": "The photo is too large. Choose a photo up to 2 MB.",
+  "PROGRAM_DAY_OUTSIDE_TERM": "This day is not in the term ({{startsOn}} – {{endsOn}}). Choose another day.",
+  "PROGRAM_END_BEFORE_START": "The end must be after the start.",
   "PUBLIC_PAGE_INCOMPLETE": "Fill in the description, the place and a contact e-mail before listing the event in the catalog.",
   "REFUND_EXCEEDS_OVERPAYMENT": "The amount exceeds the current overpayment. Refresh the detail and check the refunded amount.",
   "REFUND_TERM_REQUIRED": "A refund must be recorded for a specific term.",
