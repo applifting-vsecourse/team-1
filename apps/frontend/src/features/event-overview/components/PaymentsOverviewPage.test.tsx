@@ -113,10 +113,21 @@ describe("PaymentsOverviewPage", () => {
     renderPage()
     expect(await screen.findByText("Summer camp")).toBeVisible()
     expect(screen.getByText(/7,800/)).toBeVisible()
-    expect(screen.getAllByRole("link", { name: "Payment details" })).toHaveLength(3)
-    expect(
-      screen.getAllByRole("link", { name: "Payment details" })[0]!.getAttribute("href"),
-    ).toContain("/organizer/events/e1/applications/a1")
+    expect(screen.getAllByRole("link", { name: /^Detail/ })).toHaveLength(3)
+    expect(screen.getByRole("link", { name: "Detail Adam Dvořák" }).getAttribute("href")).toContain(
+      "/organizer/events/e1/applications/a1",
+    )
+  })
+
+  it("lists the payments in a table with the due date and reminders of each row", async () => {
+    renderPage()
+    const row = (await screen.findByText("Adam Dvořák")).closest("tr")!
+    expect(row).toHaveTextContent("Partly paid")
+    expect(row).toHaveTextContent(/2,900/)
+    expect(row).toHaveTextContent("past due")
+    expect(row).toHaveTextContent("Reminders: 1 · last")
+    expect(screen.getByRole("columnheader", { name: "Participant" })).toBeVisible()
+    expect(screen.getByRole("link", { name: "Cancellation terms" })).toBeVisible()
   })
 
   it("shows only still-indebted participants when filtering sent reminders", async () => {

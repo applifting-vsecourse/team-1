@@ -86,8 +86,9 @@ export function TermStatuses({ applicationId }: { applicationId: string }) {
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
               <span className="font-medium">{termDatesLine(term)}</span>
               <Badge variant={BADGE[term.status]}>{t(`termStatus.state.${term.status}`)}</Badge>
+              {/* On a phone the actions stack at full width; from sm up they wrap in a row. */}
               {term.status === "CANCELLED" ? null : (
-                <div className="flex flex-wrap gap-2 sm:ml-auto">
+                <div className="flex w-full flex-col gap-2 *:w-full sm:ml-auto sm:w-auto sm:flex-row sm:flex-wrap sm:*:w-auto">
                   <OrganizerTermChange
                     applicationId={applicationId}
                     term={term}
