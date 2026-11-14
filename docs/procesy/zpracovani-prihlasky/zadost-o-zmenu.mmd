@@ -11,7 +11,7 @@ flowchart TD
   classDef note fill:#fffbe6,stroke:#d69e2e,stroke-dasharray:3 3
   classDef unsure stroke-dasharray:4 3,stroke-width:2px,stroke:#d69e2e
 
-  n_e_zadost(("Přihlašovatel od data<br/>schvalování požadavků<br/>účastníků podá žádost<br/>o změnu termínů nebo<br/>odhlášení (nebo žádost<br/>o změnu zdravotního<br/>omezení)"))
+  n_e_zadost(("Přihlašovatel od data<br/>schvalování požadavků<br/>účastníků podá žádost<br/>o změnu termínů nebo<br/>odhlášení"))
   n_g_ceka{"XOR"}
   n_e_chyba(["Žádost se nezaloží<br/>(chyba<br/>CHANGE_REQUEST_PENDING<br/>nebo<br/>CHANGE_REQUEST_STALE)"])
   n_zalozit("Založit žádost (stav<br/>čeká), upozornit<br/>organizátora (zvonek)<br/>a poslat<br/>přihlašovateli e-mail <br/>CHANGE_REQUEST_RECEIVE<br/>D (po schválení D-140)<br/>role: systém")
@@ -25,7 +25,7 @@ flowchart TD
   n_s_schvalena(["Žádost o změnu:<br/>schválená"])
   n_email_zamitnuti("Poslat e-mail CHANGE_R<br/>EQUEST_REJECTED<br/>role: systém")
   n_s_zamitnuta(["Žádost o změnu:<br/>zamítnutá (přihláška<br/>beze změny)"])
-  n_n_zdravi["U žádosti o změnu<br/>zdravotního omezení<br/>schválení změní jen<br/>zdravotní poznámku,<br/>stav přihlášky v<br/>termínu se nemění.<br/>Zamítnutá žádost není<br/>stav Zrušená."]
+  n_n_zdravi["Žádost o změnu<br/>zdravotního omezení<br/>tento proces<br/>nepoužívá: podává se<br/>kdykoli (D-122), bez<br/>kontroly kapacity a<br/>bez e-mailů<br/>CHANGE_REQUEST_*;<br/>schválení změní jen<br/>zdravotní omezení.<br/>Zamítnutá žádost není<br/>stav Zrušená."]
   n_n_datum["Žádost vzniká jen od<br/>data schvalování; před<br/>ním se změna provede<br/>ihned (D-100). Když<br/>organizátor<br/>schvalování vypne<br/>smazáním data, nové<br/>žádosti nejdou, osud<br/>čekajících je otevřený<br/>(Q-PRI-25)."]
   n_sync_e_rozhodnuti{"AND"}
 
@@ -42,7 +42,7 @@ flowchart TD
   n_email_zmena --> n_s_schvalena
   n_g_rozhodnuti -->|"zamítne (volitelný<br/>důvod)"| n_email_zamitnuti
   n_email_zamitnuti --> n_s_zamitnuta
-  n_n_zdravi -.-> n_provest
+  n_n_zdravi -.-> n_e_zadost
   n_n_datum -.-> n_e_zadost
   n_e_rozhodnuti --> n_sync_e_rozhodnuti
 

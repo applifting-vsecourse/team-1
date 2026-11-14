@@ -8,7 +8,7 @@ nodes:
   - {
       id: e_zadost,
       type: event,
-      label: "Přihlašovatel od data schvalování požadavků účastníků podá žádost o změnu termínů nebo odhlášení (nebo žádost o změnu zdravotního omezení)",
+      label: "Přihlašovatel od data schvalování požadavků účastníků podá žádost o změnu termínů nebo odhlášení",
     }
   - { id: g_ceka, type: gateway, kind: x }
   - {
@@ -49,7 +49,7 @@ nodes:
   - {
       id: n_zdravi,
       type: note,
-      label: "U žádosti o změnu zdravotního omezení schválení změní jen zdravotní poznámku, stav přihlášky v termínu se nemění. Zamítnutá žádost není stav Zrušená.",
+      label: "Žádost o změnu zdravotního omezení tento proces nepoužívá: podává se kdykoli (D-122), bez kontroly kapacity a bez e-mailů CHANGE_REQUEST_*; schválení změní jen zdravotní omezení. Zamítnutá žádost není stav Zrušená.",
     }
   - {
       id: n_datum,
@@ -71,5 +71,5 @@ flows:
   - { from: email_zmena, to: s_schvalena }
   - { from: g_rozhodnuti, to: email_zamitnuti, label: zamítne (volitelný důvod) }
   - { from: email_zamitnuti, to: s_zamitnuta }
-  - { from: n_zdravi, to: provest, dashed: true }
+  - { from: n_zdravi, to: e_zadost, dashed: true }
   - { from: n_datum, to: e_zadost, dashed: true }
