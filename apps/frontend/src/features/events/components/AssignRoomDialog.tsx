@@ -212,6 +212,7 @@ export function AssignRoomDialog({
             >
               <Checkbox
                 id={`also-${other.termId}`}
+                disabled={match.freeBeds <= 0}
                 checked={alsoIds.includes(other.termId)}
                 onCheckedChange={(value) =>
                   setAlsoIds((ids) =>
@@ -229,6 +230,7 @@ export function AssignRoomDialog({
                   term: termLine(other),
                   room: roomTitle({ ...match, extraBeds: 0 }),
                 })}
+                {match.freeBeds <= 0 ? ` · ${t("roomAssignments.full")}` : ""}
               </Label>
             </div>
           ))}

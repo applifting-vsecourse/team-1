@@ -160,6 +160,30 @@ describe("room assignment", () => {
     })
   })
 
+  it("disables the same-room step when that room of the other term is full", async () => {
+    data = {
+      ...base(),
+      unassigned: [
+        {
+          ...person("p3", "Barbora", "Šimková"),
+          alsoInTerms: [
+            {
+              ...otherTerm,
+              rooms: [{ id: "r3-t2", name: "Room C", gender: "FEMALE", freeBeds: 0 }],
+            },
+          ],
+        },
+      ],
+    }
+    const user = renderCard()
+    await user.click(
+      await screen.findByRole("button", { name: "Assign Barbora Šimková to a room" }),
+    )
+    const dialog = await screen.findByRole("dialog")
+    await user.click(within(dialog).getByRole("radio", { name: /Room C/ }))
+    expect(await within(dialog).findByRole("checkbox", { name: /Room C.*Full/ })).toBeDisabled()
+  })
+
   it("offers no same-room step when the other term has no room of that name", async () => {
     const user = renderCard()
     await user.click(

@@ -47,12 +47,12 @@ import {
   TermStatusDetail,
 } from "@/modules/applications/domain/term-status"
 import { bedGroup, WaitlistCandidate } from "@/modules/applications/domain/waitlist"
-import { releaseAssignments } from "@/modules/applications/repositories/release-assignments"
 import { buildNotification, isoDay } from "@/modules/notifications/domain/notification"
 import { NotificationsRepository } from "@/modules/notifications/repositories/notifications.repository"
 import { resolveChangeEmailLocale } from "@/modules/participants/domain/change-email-locale"
 import { ApplicationChange } from "@/modules/participants/domain/submission-confirmation"
 import { AppException } from "@/shared/errors/app.exception"
+import { releaseAssignments } from "@/shared/room-assignments/release-assignments"
 import { HttpStatus, Injectable } from "@nestjs/common"
 
 const recordInclude = {

@@ -5,7 +5,6 @@ import {
   ApplicationTermStatus,
   ASSIGNABLE_STATUSES,
 } from "@/modules/applications/domain/evaluation"
-import { releaseAssignments } from "@/modules/applications/repositories/release-assignments"
 import {
   AssignmentOtherTerm,
   AssignmentParticipant,
@@ -15,6 +14,7 @@ import {
   TermAssignments,
 } from "@/modules/events/domain/room-assignment"
 import { AppException } from "@/shared/errors/app.exception"
+import { releaseAssignments } from "@/shared/room-assignments/release-assignments"
 import { HttpStatus, Injectable } from "@nestjs/common"
 
 type TermScope = { eventId: string; termId: string; organizationId: string }

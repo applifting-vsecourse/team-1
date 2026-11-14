@@ -2,9 +2,9 @@ import { PrismaService } from "@/core/prisma/prisma.service"
 import { Prisma } from "@/generated/prisma/client"
 import { computeTotalBeds } from "@/modules/applications/domain/capacity"
 import { MAX_TERM_NUMBER } from "@/modules/applications/domain/variable-symbol"
-import { releaseAssignments } from "@/modules/applications/repositories/release-assignments"
 import { EventTerm, TermInput } from "@/modules/events/domain/event-term"
 import { AppException } from "@/shared/errors/app.exception"
+import { releaseAssignments } from "@/shared/room-assignments/release-assignments"
 import { HttpStatus, Injectable } from "@nestjs/common"
 
 const include = {
