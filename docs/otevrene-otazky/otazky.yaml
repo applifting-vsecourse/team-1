@@ -38,7 +38,7 @@ otazky:
   us:
   - label: US-31
     url: https://github.com/applifting-vsecourse/team-1/issues/31
-  stav: rozhodnuto
+  stav: uzavreno
   priorita: P2
   priorita_duvod: 'Rozhodnuto, chybí zápis do PROJEKT.md (D-099).'
   ceka_na: pm
@@ -57,7 +57,7 @@ otazky:
   us:
   - label: US-32
     url: https://github.com/applifting-vsecourse/team-1/issues/32
-  stav: rozhodnuto
+  stav: uzavreno
   rozhodnuti_ref: D-113
   priorita: P1
   priorita_duvod: Odhláška a změna termínu jsou v návrhu PO; pravidla stornování nejsou určena.
@@ -283,7 +283,7 @@ otazky:
   us:
   - label: US-22
     url: https://github.com/applifting-vsecourse/team-1/issues/22
-  stav: rozhodnuto
+  stav: uzavreno
   rozhodnuti_ref: D-116
   priorita: P1
   priorita_duvod: Veřejná stránka akce je v návrhu PO pro sprint 3 (návštěvník webu) a seznam polí není
@@ -301,7 +301,7 @@ otazky:
   us:
   - label: US-22
     url: https://github.com/applifting-vsecourse/team-1/issues/22
-  stav: rozhodnuto
+  stav: uzavreno
   rozhodnuti_ref: D-116
   priorita: P1
   priorita_duvod: Seznam polí je v kódu podle Figmy, PO ho ale neurčil ani neodsouhlasil.
@@ -340,7 +340,7 @@ otazky:
     url: https://github.com/applifting-vsecourse/team-1/issues/193
   - label: US-99
     url: https://github.com/applifting-vsecourse/team-1/issues/192
-  stav: rozhodnuto
+  stav: uzavreno
   rozhodnuti_ref: D-115
   priorita: P1
   priorita_duvod: US-100 je ve sprintu 3 a bez odpovědi nejde implementovat kopírování pokojů.
@@ -410,7 +410,7 @@ otazky:
   us:
   - label: US-08
     url: https://github.com/applifting-vsecourse/team-1/issues/8
-  stav: rozhodnuto
+  stav: uzavreno
   rozhodnuti_ref: D-126
   priorita: P1
   priorita_duvod: Self-onboarding organizace je v rozsahu sprintu 3; otázka určuje dopad na model a UX.
@@ -540,7 +540,7 @@ otazky:
   us:
   - label: US-43
     url: https://github.com/applifting-vsecourse/team-1/issues/43
-  stav: rozhodnuto
+  stav: uzavreno
   rozhodnuti_ref: D-125
   priorita: P2
   priorita_duvod: Označeno jako klíčové a blokující, ale board říká „platby bez banky“ a US je „Později“.
@@ -577,7 +577,7 @@ otazky:
   us:
   - label: US-47
     url: https://github.com/applifting-vsecourse/team-1/issues/47
-  stav: rozhodnuto
+  stav: uzavreno
   rozhodnuti_ref: D-113
   priorita: P2
   priorita_duvod: Storno podmínky jsou v návrhu PO („odkdy běží“), výpočet storna ale není určen.
@@ -689,7 +689,7 @@ otazky:
   us:
   - label: '#174'
     url: https://github.com/applifting-vsecourse/team-1/issues/174
-  stav: rozhodnuto
+  stav: uzavreno
   priorita: P1
   priorita_duvod: Rozpracovaný ticket o platbě v termínu; kód se bez odpovědí nedomýšlí a PO 28. 10. platbu
     v termínu výslovně chtěl.
@@ -751,7 +751,7 @@ otazky:
     url: https://github.com/applifting-vsecourse/team-1/issues/220
   - label: US-137
     url: https://github.com/applifting-vsecourse/team-1/issues/174
-  stav: rozhodnuto
+  stav: uzavreno
   priorita: P2
   priorita_duvod: 'Rozhodnuto, chybí zápis do SLOVNIK (D-087).'
   ceka_na: pm
@@ -774,7 +774,7 @@ otazky:
     url: https://github.com/applifting-vsecourse/team-1/issues/205
   - label: US-137
     url: https://github.com/applifting-vsecourse/team-1/issues/174
-  stav: rozhodnuto
+  stav: uzavreno
   rozhodnuti_ref: D-119
   priorita: P2
   priorita_duvod: 'US-112 navazuje na model příjmu z US-137.'
@@ -794,7 +794,7 @@ otazky:
     url: https://github.com/applifting-vsecourse/team-1/issues/247
   - label: US-137
     url: https://github.com/applifting-vsecourse/team-1/issues/174
-  stav: rozhodnuto
+  stav: uzavreno
   rozhodnuti_ref: D-089
   priorita: P2
   priorita_duvod: 'US-132 navazuje na vratku jako zápornou platbu.'
@@ -835,7 +835,7 @@ otazky:
   us:
   - label: US-35
     url: https://github.com/applifting-vsecourse/team-1/issues/35
-  stav: rozhodnuto
+  stav: uzavreno
   rozhodnuti_ref: D-120
   priorita: P2
   priorita_duvod: PO chce interaktivní prvek u kapacit ubytování; samotné přiřazování na lůžka je ale
@@ -852,7 +852,7 @@ otazky:
   us:
   - label: US-37
     url: https://github.com/applifting-vsecourse/team-1/issues/37
-  stav: rozhodnuto
+  stav: uzavreno
   rozhodnuti_ref: D-112
   priorita: P3
   priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
@@ -883,7 +883,7 @@ otazky:
   us:
   - label: US-39
     url: https://github.com/applifting-vsecourse/team-1/issues/39
-  stav: rozhodnuto
+  stav: uzavreno
   rozhodnuti_ref: D-131
   priorita: P3
   priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
@@ -913,7 +913,7 @@ otazky:
   us:
   - label: US-64
     url: https://github.com/applifting-vsecourse/team-1/issues/64
-  stav: rozhodnuto
+  stav: uzavreno
   rozhodnuti_ref: D-121
   priorita: P3
   priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
@@ -928,7 +928,7 @@ otazky:
   us:
   - label: US-65
     url: https://github.com/applifting-vsecourse/team-1/issues/65
-  stav: rozhodnuto
+  stav: uzavreno
   rozhodnuti_ref: D-124
   priorita: P3
   priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
@@ -944,7 +944,7 @@ otazky:
   us:
   - label: US-66
     url: https://github.com/applifting-vsecourse/team-1/issues/66
-  stav: rozhodnuto
+  stav: uzavreno
   rozhodnuti_ref: D-123
   priorita: P3
   priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
@@ -960,7 +960,7 @@ otazky:
   us:
   - label: US-68
     url: https://github.com/applifting-vsecourse/team-1/issues/68
-  stav: rozhodnuto
+  stav: uzavreno
   rozhodnuti_ref: D-122
   priorita: P3
   priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
@@ -1125,7 +1125,7 @@ otazky:
   us:
   - label: US-51
     url: https://github.com/applifting-vsecourse/team-1/issues/51
-  stav: rozhodnuto
+  stav: uzavreno
   rozhodnuti_ref: D-114
   priorita: P1
   priorita_duvod: Dashboard se vrací a je v návrhu PO; obsah karet není určen.
@@ -1141,7 +1141,7 @@ otazky:
   us:
   - label: US-51
     url: https://github.com/applifting-vsecourse/team-1/issues/51
-  stav: rozhodnuto
+  stav: uzavreno
   rozhodnuti_ref: D-114
   priorita: P1
   priorita_duvod: Dashboard se vrací a je v návrhu PO; obsah karet není určen.
@@ -1237,7 +1237,7 @@ otazky:
   us:
   - label: US-69
     url: https://github.com/applifting-vsecourse/team-1/issues/69
-  stav: rozhodnuto
+  stav: uzavreno
   rozhodnuti_ref: D-126
   priorita: P2
   priorita_duvod: Souvisí s self-onboardingem organizace (sprint 3) a otevřeným bodem o povinné organizaci.
@@ -1417,7 +1417,7 @@ otazky:
     url: https://github.com/applifting-vsecourse/team-1/issues/186
   - label: US-69
     url: https://github.com/applifting-vsecourse/team-1/issues/69
-  stav: rozhodnuto
+  stav: uzavreno
   rozhodnuti_ref: D-126
   priorita: P3
   priorita_duvod: Platformový admin se do sprintu 3 nezařazuje, byznysová potřeba nepotvrzena (zápis 28.
@@ -1563,7 +1563,7 @@ otazky:
   us:
   - label: '#178'
     url: https://github.com/applifting-vsecourse/team-1/issues/178
-  stav: rozhodnuto
+  stav: uzavreno
   rozhodnuti_ref: D-117
   priorita: P1
   priorita_duvod: 'Potvrzená chyba: potvrzovací e-mail nesplňuje akceptační kritérium (zápis 27. 10.).'
@@ -1581,7 +1581,7 @@ otazky:
   us:
   - label: '#179'
     url: https://github.com/applifting-vsecourse/team-1/issues/179
-  stav: rozhodnuto
+  stav: uzavreno
   rozhodnuti_ref: D-118
   priorita: P2
   priorita_duvod: Rozpracovaná oprava nebo úprava v běžícím flow přihlášek a účtů; nic neblokuje, ale
@@ -1698,7 +1698,7 @@ otazky:
   us:
   - label: '#183'
     url: https://github.com/applifting-vsecourse/team-1/issues/183
-  stav: rozhodnuto
+  stav: uzavreno
   priorita: P2
   priorita_duvod: Žádný zdroj to neurčuje; reset hesla a ověření e-mailu u účtu založeného anglicky zůstávají
     anglicky.
@@ -2074,7 +2074,7 @@ otazky:
   us:
   - label: US-122 (#215)
     url: https://github.com/applifting-vsecourse/team-1/issues/215
-  stav: rozhodnuto
+  stav: uzavreno
   rozhodnuti_ref: D-116
   priorita: P3
   priorita_duvod: Zatím platí „vždy vidět“ (D-093); nic neblokuje.
@@ -2240,7 +2240,7 @@ otazky:
     url: https://github.com/applifting-vsecourse/team-1/issues/64
   - label: US-65
     url: https://github.com/applifting-vsecourse/team-1/issues/65
-  stav: rozhodnuto
+  stav: uzavreno
   rozhodnuti_ref: D-159
   priorita: P1
   priorita_duvod: 'Požadavek PO pro Sprint 4, ovlivní datový model; refinement 17. 11.'
