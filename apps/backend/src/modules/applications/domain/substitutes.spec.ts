@@ -20,8 +20,8 @@ const ids = (list: { applicationId: string }[]) => list.map((row) => row.applica
 
 describe("eligibleSubstitutes", () => {
   const rooms = [
-    { capacity: 1, gender: "FEMALE" as const },
-    { capacity: 1, gender: "MALE" as const },
+    { capacity: 1, extraBeds: 0, gender: "FEMALE" as const },
+    { capacity: 1, extraBeds: 0, gender: "MALE" as const },
   ]
 
   it("offers only the gender that has a free bed, in order of receipt", () => {
@@ -54,7 +54,7 @@ describe("eligibleSubstitutes", () => {
   })
 
   it("has one common queue in shared rooms, whatever the gender", () => {
-    const shared = [{ capacity: 2, gender: null }]
+    const shared = [{ capacity: 2, extraBeds: 0, gender: null }]
     const result = eligibleSubstitutes({ rooms: shared, confirmedGenders: ["MALE"] }, [
       candidate("jana", "FEMALE", 1, { roomMode: "SHARED" }),
       candidate("petr", "MALE", 0, { roomMode: "SHARED" }),

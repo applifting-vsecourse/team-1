@@ -8,7 +8,7 @@ import { HttpStatus, Injectable } from "@nestjs/common"
 
 const include = {
   applicationTerms: { select: { status: true } },
-  rooms: { select: { capacity: true, gender: true } },
+  rooms: { select: { capacity: true, extraBeds: true, gender: true } },
 } as const
 
 type TermRow = Prisma.TermGetPayload<{ include: typeof include }>

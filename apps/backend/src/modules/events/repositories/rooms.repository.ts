@@ -1,5 +1,6 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { Prisma } from "@/generated/prisma/client"
+import { computeRoomBeds } from "@/modules/applications/domain/capacity"
 import {
   RoomCopyStrategy,
   RoomGenderAssignment,
@@ -34,7 +35,14 @@ export class RoomsRepository {
       startsOn: term.startsOn.toISOString().slice(0, 10),
       endsOn: term.endsOn.toISOString().slice(0, 10),
       roomMode: term.roomMode,
-      rooms: term.rooms.map(({ id, name, capacity, gender }) => ({ id, name, capacity, gender })),
+      rooms: term.rooms.map(({ id, name, capacity, extraBeds, gender }) => ({
+        id,
+        name,
+        capacity,
+        extraBeds,
+        beds: computeRoomBeds({ capacity, extraBeds }),
+        gender,
+      })),
     }
   }
 
@@ -102,6 +110,18 @@ export class RoomsRepository {
     })
   }
 
+  /** Sets the number of extra beds of a room; under the event lock like every room write. Never blocked by occupancy. */
+  async setExtraBeds(scope: TermScope, id: string, extraBeds: number): Promise<void> {
+    const { termId, organizationId } = scope
+    await this.write(scope, async (tx) => {
+      const result = await tx.room.updateMany({
+        where: { id, termId, organizationId },
+        data: { extraBeds },
+      })
+      if (!result.count) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
+    })
+  }
+
   async remove(scope: TermScope, id: string): Promise<void> {
     const { termId, organizationId } = scope
     await this.write(scope, async (tx) => {
@@ -111,7 +131,7 @@ export class RoomsRepository {
   }
 
   /**
-   * One-off copy of name, capacity and gender from another term of the same event; the copies are
+   * One-off copy of name, capacity and gender (not the extra beds, they belong to the term) from another term of the same event; the copies are
    * independent rows. Terms with different room modes cannot be copied: a gendered room needs a gender.
    */
   async copy(scope: TermScope, sourceTermId: string, strategy: RoomCopyStrategy): Promise<void> {

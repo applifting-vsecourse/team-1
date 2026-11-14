@@ -203,8 +203,8 @@ describe("queue of applications to evaluate (US-103)", () => {
 
 describe("waitlist filter FREE_BED (US-51)", () => {
   const rooms = [
-    { capacity: 2, gender: "FEMALE" as const },
-    { capacity: 1, gender: "MALE" as const },
+    { capacity: 2, extraBeds: 0, gender: "FEMALE" as const },
+    { capacity: 1, extraBeds: 0, gender: "MALE" as const },
   ]
   const application = (
     id: string,

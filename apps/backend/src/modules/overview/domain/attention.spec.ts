@@ -21,7 +21,7 @@ const term = (
   startsOn: new Date("2027-07-01"),
   endsOn: new Date("2027-07-07"),
   roomMode: "GENDERED",
-  rooms: [{ capacity: 2, gender: "FEMALE" }],
+  rooms: [{ capacity: 2, extraBeds: 0, gender: "FEMALE" }],
   status,
   priceCzk: 1000,
   termNumber: 1,

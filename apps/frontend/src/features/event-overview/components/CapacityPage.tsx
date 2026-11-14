@@ -28,15 +28,16 @@ import { UnfinishedEvent } from "@/features/event-overview/components/Unfinished
 import type { ApplicationsSearch } from "@/features/event-overview/lib/applications-search"
 
 type Gender = "FEMALE" | "MALE"
-type Room = { gender: Gender | null; capacity: number }
+type Room = { gender: Gender | null; beds: number }
 
 const GENDERS = ["FEMALE", "MALE"] as const
 
-/** Rooms of one gender grouped by their bed count, largest first: `[{ beds: 5, count: 10 }]`. */
+/** Rooms of one gender grouped by their beds with the extra beds (přistýlky), largest first: `[{ beds: 5, count: 10 }]`. */
 function roomGroups(rooms: readonly Room[], gender: Gender) {
   const groups = new Map<number, number>()
   for (const room of rooms) {
-    if (room.gender === gender) groups.set(room.capacity, (groups.get(room.capacity) ?? 0) + 1)
+    if (room.gender !== gender) continue
+    groups.set(room.beds, (groups.get(room.beds) ?? 0) + 1)
   }
   return [...groups].sort(([a], [b]) => b - a).map(([beds, count]) => ({ beds, count }))
 }

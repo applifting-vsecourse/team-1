@@ -21,7 +21,9 @@ export class ApplicationListRepository {
         event: { select: { evaluationMode: true } },
         terms: {
           include: {
-            term: { include: { rooms: { select: { capacity: true, gender: true } } } },
+            term: {
+              include: { rooms: { select: { capacity: true, extraBeds: true, gender: true } } },
+            },
             payments: { where: { cancelledAt: null }, select: { amountCzk: true } },
           },
           orderBy: { term: { startsOn: "asc" } },

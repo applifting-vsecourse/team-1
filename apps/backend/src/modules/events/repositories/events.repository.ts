@@ -22,7 +22,7 @@ const include = {
       startsOn: true,
       endsOn: true,
       roomMode: true,
-      rooms: { select: { capacity: true, gender: true } },
+      rooms: { select: { capacity: true, extraBeds: true, gender: true } },
       _count: { select: { applicationTerms: { where: { status: "CONFIRMED" } } } },
     },
   },

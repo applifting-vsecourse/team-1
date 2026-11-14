@@ -204,6 +204,20 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
         </section>
       ) : null}
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+        {data.terms.some((term) => term.status === "CONFIRMED") ? (
+          <Button
+            asChild
+            variant="secondary"
+            size="lg"
+          >
+            <Link
+              to={ROUTES.participant.applicationProgram}
+              params={{ applicationId }}
+            >
+              {t("detail.program")}
+            </Link>
+          </Button>
+        ) : null}
         <Button
           asChild
           variant="secondary"

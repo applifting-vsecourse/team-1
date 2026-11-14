@@ -104,7 +104,7 @@ describe("TermStatusRepository.participantChangeOptions: manual evaluation", () 
                 startsOn: new Date("2027-07-08"),
                 endsOn: new Date("2027-07-14"),
                 priceCzk: 2000,
-                rooms: [{ capacity: 1, gender: "MALE" }],
+                rooms: [{ capacity: 1, extraBeds: 0, gender: "MALE" }],
                 applicationTerms: [],
                 _count: { rooms: 1 },
               },

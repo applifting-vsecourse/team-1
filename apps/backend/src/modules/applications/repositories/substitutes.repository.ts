@@ -37,7 +37,10 @@ export class SubstitutesRepository {
     })
     if (!term) return null
     const [rooms, confirmed, waiting] = await Promise.all([
-      this.prisma.room.findMany({ where: { termId }, select: { capacity: true, gender: true } }),
+      this.prisma.room.findMany({
+        where: { termId },
+        select: { capacity: true, extraBeds: true, gender: true },
+      }),
       this.prisma.applicationTerm.findMany({
         where: { organizationId, termId, status: "CONFIRMED" },
         select: { application: { select: { gender: true } } },

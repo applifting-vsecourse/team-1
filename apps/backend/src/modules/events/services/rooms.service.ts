@@ -48,6 +48,16 @@ export class RoomsService {
     await this.repository.save(await this.scope(user, eventId, termId), input, id)
   }
 
+  async setExtraBeds(
+    user: Identity,
+    eventId: string,
+    termId: string,
+    id: string,
+    extraBeds: number,
+  ): Promise<void> {
+    await this.repository.setExtraBeds(await this.scope(user, eventId, termId), id, extraBeds)
+  }
+
   async remove(user: Identity, eventId: string, termId: string, id: string): Promise<void> {
     await this.repository.remove(await this.scope(user, eventId, termId), id)
   }

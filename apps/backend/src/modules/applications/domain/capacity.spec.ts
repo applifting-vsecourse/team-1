@@ -1,6 +1,8 @@
 import { Gender } from "@/shared/domain/gender"
 import {
+  computeAvailablePlaces,
   computeFreePlaces,
+  computeRoomBeds,
   computeSharedFreePlaces,
   computeTermCapacity,
   computeTotalBeds,
@@ -10,7 +12,7 @@ import {
 import { evaluateQueue } from "./evaluation"
 
 const rooms = (count: number, capacity: number, gender: Gender): RoomCapacity[] =>
-  Array.from({ length: count }, () => ({ capacity, gender }))
+  Array.from({ length: count }, () => ({ capacity, extraBeds: 0, gender }))
 
 // Brief, p. 1: ten women's and ten men's rooms of five beds each.
 const briefRooms = [...rooms(10, 5, "FEMALE"), ...rooms(10, 5, "MALE")]
@@ -87,10 +89,45 @@ describe("computeFreePlaces", () => {
 describe("computeSharedFreePlaces", () => {
   it("counts a shared bed once and does not clamp an overbooked term", () => {
     const shared: RoomCapacity[] = [
-      { capacity: 6, gender: null },
-      { capacity: 4, gender: null },
+      { capacity: 6, extraBeds: 0, gender: null },
+      { capacity: 4, extraBeds: 0, gender: null },
     ]
     expect(computeSharedFreePlaces(shared, 3)).toBe(7)
     expect(computeSharedFreePlaces(shared, 12)).toBe(-2)
+  })
+})
+
+describe("extra beds (přistýlky)", () => {
+  const withExtra = (extraBeds: number, capacity = 4, gender: Gender | null = "FEMALE") => ({
+    capacity,
+    extraBeds,
+    gender,
+  })
+
+  it("counts every extra bed as one more bed of the room", () => {
+    expect(computeRoomBeds(withExtra(2))).toBe(6)
+    expect(computeRoomBeds(withExtra(0))).toBe(4)
+  })
+
+  it("adds them to the group of the room's gender", () => {
+    expect(computeTermCapacity([withExtra(2), withExtra(1, 5, "MALE")])).toEqual({
+      FEMALE: 6,
+      MALE: 6,
+    })
+  })
+
+  it("adds them to the common pool of shared rooms once", () => {
+    const shared = [withExtra(2, 4, null), withExtra(1, 3, null)]
+    expect(computeTotalBeds(shared)).toBe(10)
+    expect(computeAvailablePlaces(shared, ["FEMALE", "MALE"])).toEqual({ FEMALE: 8, MALE: 8 })
+    expect(computeSharedFreePlaces(shared, 4)).toBe(6)
+  })
+
+  it("moves the free beds of one gender only and may leave them negative", () => {
+    const gendered = [withExtra(1), withExtra(0, 2, "MALE")]
+    expect(computeAvailablePlaces(gendered, ["FEMALE", "MALE", "MALE", "MALE"])).toEqual({
+      FEMALE: 4,
+      MALE: -1,
+    })
   })
 })

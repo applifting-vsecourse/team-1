@@ -145,7 +145,7 @@ export class TermStatusRepository {
                 startsOn: true,
                 endsOn: true,
                 priceCzk: true,
-                rooms: { select: { capacity: true, gender: true } },
+                rooms: { select: { capacity: true, extraBeds: true, gender: true } },
                 applicationTerms: {
                   where: { status: "CONFIRMED" },
                   select: { application: { select: { gender: true } } },
@@ -265,7 +265,11 @@ export class TermStatusRepository {
         organizationId,
         cancelledAt: null,
       },
-      select: { id: true, priceCzk: true, rooms: { select: { capacity: true, gender: true } } },
+      select: {
+        id: true,
+        priceCzk: true,
+        rooms: { select: { capacity: true, extraBeds: true, gender: true } },
+      },
     })
     if (offered.length !== addedIds.length || offered.some((term) => term.rooms.length === 0)) {
       throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
@@ -542,7 +546,7 @@ export class TermStatusRepository {
         const [rooms, confirmed] = await Promise.all([
           tx.room.findMany({
             where: { organizationId: application.organizationId, termId: { in: addedIds } },
-            select: { termId: true, capacity: true, gender: true },
+            select: { termId: true, capacity: true, extraBeds: true, gender: true },
           }),
           tx.applicationTerm.findMany({
             where: {
@@ -852,7 +856,7 @@ export class TermStatusRepository {
       const [rooms, confirmed] = await Promise.all([
         tx.room.findMany({
           where: { termId: command.termId },
-          select: { capacity: true, gender: true },
+          select: { capacity: true, extraBeds: true, gender: true },
         }),
         tx.applicationTerm.findMany({
           where: {

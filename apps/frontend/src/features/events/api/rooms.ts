@@ -8,6 +8,10 @@ const roomSchema = z.object({
   id: z.string(),
   name: z.string(),
   capacity: z.number().int().min(1),
+  /** Extra beds (přistýlky) of the room in this term; each is one more bed. */
+  extraBeds: z.number().int().min(0),
+  /** Capacity plus extra beds, computed by the API. */
+  beds: z.number().int().min(1),
   gender: z.enum(["FEMALE", "MALE"]).nullable(),
 })
 const termRoomsSchema = z.object({
@@ -26,7 +30,7 @@ const termRoomsSchema = z.object({
 export type Room = z.infer<typeof roomSchema>
 export type RoomMode = z.infer<typeof roomModeSchema>
 export type TermRooms = z.infer<typeof termRoomsSchema>
-export type RoomInput = Omit<Room, "id">
+export type RoomInput = Omit<Room, "id" | "extraBeds" | "beds">
 /** Gender chosen for an existing room when a term switches to gendered rooms. */
 export type RoomGender = { id: string; gender: "FEMALE" | "MALE" }
 
@@ -49,6 +53,17 @@ export async function saveRoom(
   const path = `${base(eventId, termId)}/rooms${id ? `/${encodeURIComponent(id)}` : ""}`
   if (id) await api.put(path, { json: input })
   else await api.post(path, { json: input })
+}
+/** Sets the extra beds of one room of the term; only this term changes. */
+export async function setExtraBeds(
+  eventId: string,
+  termId: string,
+  roomId: string,
+  extraBeds: number,
+): Promise<void> {
+  await api.patch(`${base(eventId, termId)}/rooms/${encodeURIComponent(roomId)}/extra-beds`, {
+    json: { extraBeds },
+  })
 }
 export async function deleteRoom(eventId: string, termId: string, id: string): Promise<void> {
   await api.delete(`${base(eventId, termId)}/rooms/${encodeURIComponent(id)}`)

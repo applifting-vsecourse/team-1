@@ -40,7 +40,7 @@ describe("CapacityService", () => {
         {
           id: "term",
           roomMode: "SHARED",
-          rooms: [{ gender: null, capacity: 5000 }],
+          rooms: [{ gender: null, capacity: 5000, extraBeds: 0 }],
           confirmed: [{ gender: "FEMALE" }],
         },
       ],
@@ -68,13 +68,13 @@ describe("CapacityService", () => {
           startsOn: new Date("2027-07-04"),
           endsOn: new Date("2027-07-10"),
           roomMode: "SHARED",
-          rooms: [{ id: "room", name: "1", gender: null, capacity: 5000 }],
+          rooms: [{ id: "room", name: "1", gender: null, capacity: 5000, extraBeds: 0 }],
           confirmed: [],
         },
       ],
     })
     expect(await new CapacityService(repository, access).getDetails(user, "event")).toMatchObject({
-      terms: [{ roomMode: "SHARED", rooms: [{ gender: null, capacity: 5000 }] }],
+      terms: [{ roomMode: "SHARED", rooms: [{ gender: null, capacity: 5000, extraBeds: 0 }] }],
     })
   })
 })
