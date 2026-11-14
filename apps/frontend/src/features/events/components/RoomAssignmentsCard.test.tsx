@@ -1,10 +1,28 @@
+import type * as Dnd from "@dnd-kit/core"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react"
+import { act, render, screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import type { RoomAssignments } from "@/features/events/api/room-assignments"
 import { RoomAssignmentsCard } from "@/features/events/components/RoomAssignmentsCard"
+
+// jsdom has no layout, so a drag is driven through the handlers the card gives to the context.
+const { dnd } = vi.hoisted(() => ({
+  dnd: {
+    props: null as null | { onDragStart: (e: unknown) => void; onDragEnd: (e: unknown) => void },
+  },
+}))
+vi.mock("@dnd-kit/core", async (importOriginal) => {
+  const actual = await importOriginal<Record<string, never> & typeof Dnd>()
+  return {
+    ...actual,
+    DndContext: (props: React.ComponentProps<typeof actual.DndContext>) => {
+      dnd.props = props as never
+      return <actual.DndContext {...props} />
+    },
+  }
+})
 
 // Radix measures things jsdom doesn't have.
 vi.stubGlobal(
@@ -92,7 +110,14 @@ function renderCard() {
   )
   return userEvent.setup()
 }
-const dragData = () => ({ dataTransfer: { setData: vi.fn(), effectAllowed: "", dropEffect: "" } })
+const dragFrom = (applicationTermId: string, name: string, fromRoomId: string | null) => ({
+  active: { data: { current: { applicationTermId, name, fromRoomId } } },
+})
+const overRoom = (roomId: string) => ({ over: { data: { current: { roomId } } } })
+const drop = (from: ReturnType<typeof dragFrom>, roomId: string) => {
+  act(() => dnd.props?.onDragStart(from))
+  act(() => dnd.props?.onDragEnd({ ...from, ...overRoom(roomId) }))
+}
 
 describe("room assignment", () => {
   beforeEach(() => {
@@ -112,7 +137,9 @@ describe("room assignment", () => {
     expect(within(table).getByText("Jana Nováková")).toBeInTheDocument()
     expect(within(table).getAllByText("3 free beds")).toHaveLength(2)
     expect(within(table).getByText("Full")).toBeInTheDocument()
-    expect(screen.getByText("3 rooms · 8 beds in total")).toBeInTheDocument()
+    expect(screen.getByText("Beds").nextSibling).toHaveTextContent("8")
+    expect(screen.getByText("Occupied").nextSibling).toHaveTextContent("2")
+    expect(screen.getByText("Free beds").nextSibling).toHaveTextContent("6")
   })
 
   it("assigns through the dialog without a drag and confirms with a toast", async () => {
@@ -181,7 +208,9 @@ describe("room assignment", () => {
     )
     const dialog = await screen.findByRole("dialog")
     await user.click(within(dialog).getByRole("radio", { name: /Room C/ }))
-    expect(await within(dialog).findByRole("checkbox", { name: /Room C.*Full/ })).toBeDisabled()
+    expect(
+      await within(dialog).findByRole("checkbox", { name: /Room C.*full in that term/ }),
+    ).toBeDisabled()
   })
 
   it("offers no same-room step when the other term has no room of that name", async () => {
@@ -200,7 +229,7 @@ describe("room assignment", () => {
     await user.click(within(table).getByRole("button", { name: "Actions for Jana Nováková" }))
     await user.click(await screen.findByRole("menuitem", { name: "Move to another room…" }))
     const dialog = await screen.findByRole("dialog")
-    expect(within(dialog).getByRole("radio", { name: /Room A.*current room/ })).toBeDisabled()
+    expect(within(dialog).getByRole("radio", { name: /Room A.*Current room/ })).toBeDisabled()
     await user.click(within(dialog).getByRole("radio", { name: /Room C/ }))
     await user.click(within(dialog).getByRole("button", { name: "Move" }))
     await waitFor(() => expect(put).toHaveBeenCalled())
@@ -224,15 +253,8 @@ describe("room assignment", () => {
 
   it("assigns by dragging an unassigned person onto a room with a free bed", async () => {
     renderCard()
-    const handle = (await screen.findByText("Barbora Šimková")).closest("[draggable]")!
-    const table = screen.getByRole("table")
-    const target = within(table)
-      .getByText(/^Room C/)
-      .closest("tr")!
-    fireEvent.dragStart(handle, dragData())
-    fireEvent.dragOver(target, dragData())
-    expect(within(target).getByText("Drop here")).toBeInTheDocument()
-    fireEvent.drop(target, dragData())
+    await screen.findByText("Barbora Šimková")
+    drop(dragFrom("p3", "Barbora Šimková", null), "r3")
     await waitFor(() => expect(put).toHaveBeenCalled())
     expect(put).toHaveBeenCalledWith("organizer/events/e1/terms/t1/room-assignments/p3", {
       json: { roomId: "r3", alsoTermIds: [] },
@@ -241,25 +263,15 @@ describe("room assignment", () => {
 
   it("does not take a drop on a full room", async () => {
     renderCard()
-    const handle = (await screen.findByText("Barbora Šimková")).closest("[draggable]")!
-    const full = within(screen.getByRole("table"))
-      .getByText(/^Room B/)
-      .closest("tr")!
-    fireEvent.dragStart(handle, dragData())
-    fireEvent.dragOver(full, dragData())
-    fireEvent.drop(full, dragData())
+    await screen.findByText("Barbora Šimková")
+    drop(dragFrom("p3", "Barbora Šimková", null), "r2")
     expect(put).not.toHaveBeenCalled()
   })
 
   it("moves a person by dragging their chip onto another room", async () => {
     renderCard()
-    const table = await screen.findByRole("table")
-    const chip = within(table).getByRole("button", { name: "Actions for Jana Nováková" })
-    const target = within(table)
-      .getByText(/^Room C/)
-      .closest("tr")!
-    fireEvent.dragStart(chip, dragData())
-    fireEvent.drop(target, dragData())
+    await screen.findByText("Barbora Šimková")
+    drop(dragFrom("p1", "Jana Nováková", "r1"), "r3")
     await waitFor(() => expect(put).toHaveBeenCalled())
     expect(put).toHaveBeenCalledWith("organizer/events/e1/terms/t1/room-assignments/p1", {
       json: { roomId: "r3", alsoTermIds: [] },
@@ -270,6 +282,29 @@ describe("room assignment", () => {
         "Jana Nováková · Room C · Women's",
       ),
     )
+  })
+
+  it("does nothing when a chip is dropped on its own room", async () => {
+    renderCard()
+    await screen.findByText("Barbora Šimková")
+    drop(dragFrom("p1", "Jana Nováková", "r1"), "r1")
+    expect(put).not.toHaveBeenCalled()
+  })
+
+  it("pages a long list of the unassigned", async () => {
+    data = {
+      ...base(),
+      unassigned: Array.from({ length: 11 }, (_, index) => ({
+        ...person(`u${index}`, "Test", `Osoba${String(index).padStart(2, "0")}`),
+        alsoInTerms: [],
+      })),
+    }
+    const user = renderCard()
+    expect(await screen.findByText("Test Osoba00")).toBeInTheDocument()
+    expect(screen.queryByText("Test Osoba08")).not.toBeInTheDocument()
+    await user.click(screen.getByRole("button", { name: "Next →" }))
+    expect(await screen.findByText("Test Osoba08")).toBeInTheDocument()
+    expect(screen.queryByText("Test Osoba00")).not.toBeInTheDocument()
   })
 
   it("says it is optional while nobody is assigned, without a warning", async () => {
@@ -326,9 +361,13 @@ describe("room assignment", () => {
     await screen.findByText("Barbora Šimková")
     expect(screen.getAllByText(/^Room A/).length).toBe(2)
     expect(screen.getAllByRole("button", { name: "Actions r1" }).length).toBe(2)
-    expect(screen.queryByRole("status")).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole("status", { name: "Unassigned participants" }),
+    ).not.toBeInTheDocument()
     act(() => notify([{ isIntersecting: false }]))
-    expect(await screen.findByRole("status")).toHaveTextContent("Unassigned participants2")
+    expect(
+      await screen.findByRole("status", { name: "Unassigned participants" }),
+    ).toHaveTextContent("Unassigned participants2")
     vi.unstubAllGlobals()
   })
 })

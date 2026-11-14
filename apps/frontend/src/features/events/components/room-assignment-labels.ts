@@ -12,6 +12,10 @@ export const participantName = (
   participant: Pick<AssignmentParticipant, "firstName" | "lastName">,
 ): string => `${participant.firstName} ${participant.lastName}`
 
+export const participantInitials = (
+  participant: Pick<AssignmentParticipant, "firstName" | "lastName">,
+): string => `${participant.firstName.charAt(0)}${participant.lastName.charAt(0)}`.toUpperCase()
+
 const normalize = (name: string): string => name.trim().toLocaleLowerCase("cs")
 export const sameRoomName = (a: string, b: string): boolean => normalize(a) === normalize(b)
 
@@ -20,22 +24,28 @@ export function useAssignmentLabels() {
   const { t } = useTranslation("events")
   const genderLabel = (gender: Gender): string =>
     t(gender === "FEMALE" ? "roomAssignments.female" : "roomAssignments.male")
+  const roomGenderLabel = (gender: Gender): string =>
+    t(gender === "FEMALE" ? "rooms.female" : "rooms.male")
   const roomTitle = (room: Pick<AssignmentRoom, "name" | "gender" | "extraBeds">): string =>
     [
       room.name,
-      room.gender ? t(room.gender === "FEMALE" ? "rooms.female" : "rooms.male") : null,
+      room.gender ? roomGenderLabel(room.gender) : null,
       room.extraBeds > 0 ? t("roomAssignments.extraBeds", { count: room.extraBeds }) : null,
     ]
       .filter(Boolean)
       .join(" · ")
   return {
     genderLabel,
+    roomGenderLabel,
     roomTitle,
-    statusLabel: (status: AssignmentParticipant["status"]): string =>
+    /** The application is feminine in Czech; a man's one reads "Potvrzen" like the participant. */
+    statusLabel: (status: AssignmentParticipant["status"], gender: Gender): string =>
       t(
         status === "TO_EVALUATE"
           ? "roomAssignments.statusToEvaluate"
-          : "roomAssignments.statusConfirmed",
+          : gender === "MALE"
+            ? "roomAssignments.statusConfirmedMale"
+            : "roomAssignments.statusConfirmed",
       ),
     freeBedsLabel: (room: Pick<AssignmentRoom, "beds" | "participants">): string => {
       const free = freeBedCount(room)

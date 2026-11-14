@@ -1,7 +1,10 @@
-import { useRef, useState, type DragEvent, type ReactNode } from "react"
+import type { ReactNode } from "react"
+import { useCallback, useRef, useState } from "react"
+import { useDraggable, useDroppable } from "@dnd-kit/core"
 import { GripVertical } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -24,38 +27,59 @@ import {
 } from "@/features/events/components/room-assignment-labels"
 
 /** What is being dragged: a participant of the unassigned list, or one taken out of a room. */
-export type DragState = { applicationTermId: string; name: string; fromRoomId: string | null }
+export type DragData = { applicationTermId: string; name: string; fromRoomId: string | null }
 
-type DragHandlers = {
-  onDragStart: (drag: DragState) => void
-  onDragEnd: () => void
+const chipClass =
+  "inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-border bg-secondary px-2 py-1 text-sm"
+
+/** The chip that follows the pointer while dragging. */
+export function ParticipantGhost({ name }: { name: string }) {
+  return (
+    <span className={cn(chipClass, "cursor-grabbing bg-card shadow-md")}>
+      <GripVertical
+        className="size-3 text-muted-foreground"
+        aria-hidden
+      />
+      {name}
+    </span>
+  )
 }
 
-/** A participant sitting in a room; click opens the actions (move, remove), desktop also drags it. */
+/** A participant sitting in a room: click opens the actions (move, remove), the chip can be dragged. */
 export function ParticipantChip({
   participant,
   roomId,
-  isDraggable,
-  isDragging,
   onMove,
   onRemove,
-  onDragStart,
-  onDragEnd,
 }: {
   participant: AssignmentParticipant
   roomId: string
-  isDraggable: boolean
-  isDragging: boolean
   onMove: () => void
   onRemove: () => void
-} & DragHandlers) {
+}) {
   const { t } = useTranslation("events")
   const name = participantName(participant)
-  // The chip is a plain draggable button that opens the menu on click. Radix' own trigger opens
-  // on pointer down and cancels the default of it, which would swallow a drag; so the trigger is
-  // only an invisible anchor over the chip.
+  const data: DragData = {
+    applicationTermId: participant.applicationTermId,
+    name,
+    fromRoomId: roomId,
+  }
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+    id: `chip:${participant.applicationTermId}`,
+    data,
+  })
+  // Radix opens its trigger on pointer down, which would fight the drag; so the chip opens the
+  // menu on click and the trigger is only an invisible anchor over it.
   const [isOpen, setIsOpen] = useState(false)
-  const buttonRef = useRef<HTMLButtonElement>(null)
+  const buttonRef = useRef<HTMLButtonElement | null>(null)
+  // A stable ref callback: a new one per render would detach the draggable mid-drag.
+  const setRefs = useCallback(
+    (node: HTMLButtonElement | null) => {
+      buttonRef.current = node
+      setNodeRef(node)
+    },
+    [setNodeRef],
+  )
   return (
     <DropdownMenu
       open={isOpen}
@@ -63,35 +87,24 @@ export function ParticipantChip({
     >
       <span className="relative inline-flex">
         <button
-          ref={buttonRef}
+          {...attributes}
+          {...listeners}
+          ref={setRefs}
           type="button"
           aria-haspopup="menu"
           aria-expanded={isOpen}
-          onClick={() => setIsOpen((isShown) => !isShown)}
-          draggable={isDraggable}
           aria-label={t("roomAssignments.participantMenu", { name })}
-          onDragStart={(event) => {
-            event.dataTransfer.effectAllowed = "move"
-            event.dataTransfer.setData("text/plain", participant.applicationTermId)
-            onDragStart({
-              applicationTermId: participant.applicationTermId,
-              name,
-              fromRoomId: roomId,
-            })
-          }}
-          onDragEnd={onDragEnd}
+          onClick={() => setIsOpen((isShown) => !isShown)}
           className={cn(
-            "inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-border bg-secondary px-2 py-1 text-sm outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50",
-            isDraggable && "cursor-grab",
-            isDragging && "opacity-50",
+            chipClass,
+            "cursor-grab touch-manipulation outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50",
+            isDragging && "opacity-40",
           )}
         >
-          {isDraggable ? (
-            <GripVertical
-              className="size-3 text-muted-foreground"
-              aria-hidden
-            />
-          ) : null}
+          <GripVertical
+            className="size-3 text-muted-foreground"
+            aria-hidden
+          />
           {name}
         </button>
         <DropdownMenuTrigger asChild>
@@ -123,50 +136,49 @@ export function UnassignedRow({
   participant,
   isFirst,
   isDisabled,
-  isDragging,
   onAssign,
-  onDragStart,
-  onDragEnd,
 }: {
   participant: UnassignedParticipant
   isFirst: boolean
   isDisabled: boolean
-  isDragging: boolean
   onAssign: () => void
-} & DragHandlers) {
+}) {
   const { t } = useTranslation("events")
   const { genderLabel, statusLabel } = useAssignmentLabels()
   const name = participantName(participant)
+  const data: DragData = {
+    applicationTermId: participant.applicationTermId,
+    name,
+    fromRoomId: null,
+  }
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+    id: `row:${participant.applicationTermId}`,
+    data,
+    disabled: isDisabled,
+  })
   return (
     <li
       className={cn(
         "flex items-center gap-2.5 px-3 py-2.5",
         !isFirst && "border-t border-border",
-        isDragging && "opacity-50",
+        isDragging && "opacity-40",
       )}
     >
       <div
-        draggable={!isDisabled}
-        onDragStart={(event: DragEvent) => {
-          event.dataTransfer.effectAllowed = "move"
-          event.dataTransfer.setData("text/plain", participant.applicationTermId)
-          onDragStart({
-            applicationTermId: participant.applicationTermId,
-            name,
-            fromRoomId: null,
-          })
-        }}
-        onDragEnd={onDragEnd}
-        className={cn("flex min-w-0 flex-1 items-center gap-2.5", !isDisabled && "md:cursor-grab")}
+        {...attributes}
+        {...listeners}
+        ref={setNodeRef}
+        className={cn("flex min-w-0 flex-1 items-center gap-2.5", !isDisabled && "cursor-grab")}
       >
         <GripVertical
-          className="hidden size-3.5 shrink-0 text-muted-foreground md:block"
+          className="size-3.5 shrink-0 text-muted-foreground"
           aria-hidden
         />
         <div className="flex min-w-0 flex-col gap-0.5">
           <span className="truncate text-sm font-medium">{name}</span>
           <span className="truncate text-sm text-muted-foreground">
-            {genderLabel(participant.gender)} · {statusLabel(participant.status)}
+            {genderLabel(participant.gender)} ·{" "}
+            {statusLabel(participant.status, participant.gender)}
           </span>
         </div>
       </div>
@@ -183,96 +195,103 @@ export function UnassignedRow({
   )
 }
 
-/** Drop target state of a room while something is dragged. */
-export type RoomDrop = { eligible: boolean; over: boolean }
+type RoomProps = {
+  room: AssignmentRoom
+  /** Something is being dragged and this room has a free bed (and is not the dragged one's own). */
+  isEligible: boolean
+  isDragActive: boolean
+  actions: ReactNode
+  onMoveParticipant: (participant: AssignmentParticipant) => void
+  onRemoveParticipant: (participant: AssignmentParticipant) => void
+}
+
+function Chips({
+  room,
+  onMoveParticipant,
+  onRemoveParticipant,
+}: Pick<RoomProps, "room" | "onMoveParticipant" | "onRemoveParticipant">) {
+  return (
+    <div className="flex flex-wrap gap-1.5">
+      {room.participants.map((participant) => (
+        <ParticipantChip
+          key={participant.applicationTermId}
+          participant={participant}
+          roomId={room.id}
+          onMove={() => onMoveParticipant(participant)}
+          onRemove={() => onRemoveParticipant(participant)}
+        />
+      ))}
+    </div>
+  )
+}
+
+function ExtraBeds({ room }: { room: AssignmentRoom }) {
+  const { t } = useTranslation("events")
+  return room.extraBeds > 0 ? (
+    <Badge variant="info">{t("roomAssignments.extraBeds", { count: room.extraBeds })}</Badge>
+  ) : null
+}
 
 function Occupancy({ room, isDropping }: { room: AssignmentRoom; isDropping: boolean }) {
   const { t } = useTranslation("events")
   const { freeBedsLabel } = useAssignmentLabels()
   return (
-    <div className="flex flex-col gap-1 text-sm">
-      <span>
+    <div className="flex flex-col items-start gap-1 text-sm">
+      <span className="font-medium">
         {room.participants.length} / {room.beds}
       </span>
-      <span className={cn("font-semibold", isDropping ? "text-link" : "text-muted-foreground")}>
+      <span className={cn("font-medium", isDropping ? "text-link" : "text-muted-foreground")}>
         {isDropping ? t("roomAssignments.dropHere") : freeBedsLabel(room)}
       </span>
+      <ExtraBeds room={room} />
     </div>
   )
 }
 
-type RoomRowProps = {
-  room: AssignmentRoom
-  drop: RoomDrop
-  drag: DragState | null
-  actions: ReactNode
-  onMoveParticipant: (participant: AssignmentParticipant) => void
-  onRemoveParticipant: (participant: AssignmentParticipant) => void
-  onDragOver: (event: DragEvent) => void
-  onDragLeave: () => void
-  onDrop: (event: DragEvent) => void
-} & DragHandlers
-
-/** Desktop row of a room (md and up): title, participants as chips, occupancy and the room actions. */
+/** Desktop row of a room: name, gender, people as chips, occupancy and the room actions. */
 export function RoomTableRow({
   room,
-  drop,
-  drag,
+  isEligible,
+  isDragActive,
+  hasGenderColumn,
   actions,
   onMoveParticipant,
   onRemoveParticipant,
-  onDragOver,
-  onDragLeave,
-  onDrop,
-  onDragStart,
-  onDragEnd,
-}: RoomRowProps) {
-  const { roomTitle } = useAssignmentLabels()
+}: RoomProps & { hasGenderColumn: boolean }) {
+  const { roomGenderLabel } = useAssignmentLabels()
+  const { setNodeRef, isOver } = useDroppable({
+    id: `row:${room.id}`,
+    data: { roomId: room.id },
+  })
+  const isDropping = isEligible && isOver
   return (
     <TableRow
-      onDragOver={onDragOver}
-      onDragLeave={onDragLeave}
-      onDrop={onDrop}
+      ref={setNodeRef}
       className={cn(
-        drop.over
+        isDropping
           ? "bg-accent outline-2 -outline-offset-2 outline-ring"
-          : drop.eligible && "bg-muted",
+          : isEligible && isDragActive && "bg-muted",
       )}
     >
-      <TableCell
-        aria-label={room.name}
-        className="align-top whitespace-normal"
-      >
-        <div className="flex flex-col gap-1.5">
-          <span className="font-bold break-words">{roomTitle(room)}</span>
-          {room.participants.length || drop.over ? (
-            <div className="flex flex-wrap gap-1.5">
-              {room.participants.map((participant) => (
-                <ParticipantChip
-                  key={participant.applicationTermId}
-                  participant={participant}
-                  roomId={room.id}
-                  isDraggable
-                  isDragging={drag?.applicationTermId === participant.applicationTermId}
-                  onMove={() => onMoveParticipant(participant)}
-                  onRemove={() => onRemoveParticipant(participant)}
-                  onDragStart={onDragStart}
-                  onDragEnd={onDragEnd}
-                />
-              ))}
-              {drop.over && drag ? (
-                <span className="inline-flex min-h-9 items-center rounded-lg border border-dashed border-primary bg-secondary px-2 py-1 text-sm">
-                  {drag.name}
-                </span>
-              ) : null}
-            </div>
-          ) : null}
-        </div>
+      <TableCell className="align-top font-bold break-words whitespace-normal">
+        {room.name}
       </TableCell>
-      <TableCell className="w-32 align-top">
+      {hasGenderColumn ? (
+        <TableCell className="align-top">
+          {room.gender ? <Badge variant="secondary">{roomGenderLabel(room.gender)}</Badge> : null}
+        </TableCell>
+      ) : null}
+      <TableCell className="min-w-64 align-top whitespace-normal">
+        <Chips
+          room={room}
+          onMoveParticipant={onMoveParticipant}
+          onRemoveParticipant={onRemoveParticipant}
+        />
+      </TableCell>
+      <TableCell className="w-36 align-top">
         <Occupancy
           room={room}
-          isDropping={drop.over}
+          isDropping={isDropping}
         />
       </TableCell>
       <TableCell className="w-48 align-top">
@@ -282,40 +301,49 @@ export function RoomTableRow({
   )
 }
 
-/** Mobile card of a room (below md): the same content, no dragging — people are assigned in the dialog. */
+/** Mobile card of a room: the same content; people are dragged by a long press or assigned in the dialog. */
 export function RoomCard({
   room,
+  isEligible,
+  isDragActive,
   actions,
   onMoveParticipant,
   onRemoveParticipant,
-}: Pick<RoomRowProps, "room" | "actions" | "onMoveParticipant" | "onRemoveParticipant">) {
-  const { roomTitle, freeBedsLabel } = useAssignmentLabels()
+}: RoomProps) {
+  const { roomGenderLabel, freeBedsLabel } = useAssignmentLabels()
+  const { setNodeRef, isOver } = useDroppable({
+    id: `card:${room.id}`,
+    data: { roomId: room.id },
+  })
+  const isDropping = isEligible && isOver
   return (
-    <li className="flex flex-col gap-2.5 rounded-xl border border-border bg-card p-4">
-      <div className="flex items-center justify-between gap-2">
-        <span className="font-semibold break-words">{roomTitle(room)}</span>
+    <li
+      ref={setNodeRef}
+      className={cn(
+        "flex flex-col gap-2.5 rounded-xl border border-border bg-card p-4",
+        isDropping
+          ? "bg-accent outline-2 -outline-offset-2 outline-ring"
+          : isEligible && isDragActive && "bg-muted",
+      )}
+    >
+      <div className="flex items-center gap-2">
+        <span className="min-w-0 flex-1 font-semibold break-words">{room.name}</span>
+        {room.gender ? <Badge variant="secondary">{roomGenderLabel(room.gender)}</Badge> : null}
         <span className="shrink-0 text-sm text-muted-foreground">
           {room.participants.length} / {room.beds}
         </span>
       </div>
       {room.participants.length ? (
-        <div className="flex flex-wrap gap-1.5">
-          {room.participants.map((participant) => (
-            <ParticipantChip
-              key={participant.applicationTermId}
-              participant={participant}
-              roomId={room.id}
-              isDraggable={false}
-              isDragging={false}
-              onMove={() => onMoveParticipant(participant)}
-              onRemove={() => onRemoveParticipant(participant)}
-              onDragStart={() => undefined}
-              onDragEnd={() => undefined}
-            />
-          ))}
-        </div>
+        <Chips
+          room={room}
+          onMoveParticipant={onMoveParticipant}
+          onRemoveParticipant={onRemoveParticipant}
+        />
       ) : null}
-      <span className="text-sm text-muted-foreground">{freeBedsLabel(room)}</span>
+      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <span>{freeBedsLabel(room)}</span>
+        <ExtraBeds room={room} />
+      </div>
       <div className="flex flex-wrap items-center gap-1">{actions}</div>
     </li>
   )
