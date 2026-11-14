@@ -233,17 +233,42 @@ describe("organizer events (integration)", () => {
     expect((await save(cookieA, undefined)).status).toBe(400)
     expect((await save(cookieA, "2027-07-01T00:00:00Z")).status).toBe(400)
 
-    const saved = await save(cookieA, "2027-07-01")
+    // Not retroactive: yesterday and older are rejected and nothing is stored.
+    const day = (offset: number): string => {
+      const date = new Date(Date.now() + offset * 86_400_000)
+      return new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Prague" }).format(date)
+    }
+    const stored = async () =>
+      (await prisma.event.findUniqueOrThrow({ where: { id: created.id } })).cancellationStartsOn
+    const yesterday = await save(cookieA, day(-1))
+    expect(yesterday.status).toBe(400)
+    expect(await yesterday.json()).toMatchObject({ code: "CANCELLATION_START_IN_PAST" })
+    expect((await save(cookieA, "2020-01-01")).status).toBe(400)
+    expect(await stored()).toBeNull()
+    expect((await save(cookieA, day(0))).status).toBe(200)
+    expect((await save(cookieA, day(30))).status).toBe(200)
+    expect((await save(cookieA, day(-1))).status).toBe(400)
+    expect((await stored())?.toISOString().slice(0, 10)).toBe(day(30))
+    // A lapsed saved day stays valid when unchanged, can be cleared, but not moved to another past day.
+    await prisma.event.update({
+      where: { id: created.id },
+      data: { cancellationStartsOn: new Date("2020-01-01T00:00:00.000Z") },
+    })
+    expect((await save(cookieA, "2020-01-01")).status).toBe(200)
+    expect((await save(cookieA, "2020-01-02")).status).toBe(400)
+    expect((await save(cookieA, null)).status).toBe(200)
+
+    const saved = await save(cookieA, day(30))
     expect(saved.status).toBe(200)
-    expect(await saved.json()).toMatchObject({ cancellationStartsOn: "2027-07-01" })
+    expect(await saved.json()).toMatchObject({ cancellationStartsOn: day(30) })
     expect(
       (await prisma.event.findUniqueOrThrow({ where: { id: created.id } })).cancellationStartsOn,
-    ).toEqual(new Date("2027-07-01T00:00:00.000Z"))
+    ).toEqual(new Date(`${day(30)}T00:00:00.000Z`))
 
     const detail = await fetch(api(`/organizer/events/${created.id}`), {
       headers: { Cookie: cookieA },
     })
-    expect(await detail.json()).toMatchObject({ cancellationStartsOn: "2027-07-01" })
+    expect(await detail.json()).toMatchObject({ cancellationStartsOn: day(30) })
     expect((await save(cookieA, null)).status).toBe(200)
     expect(
       (await prisma.event.findUniqueOrThrow({ where: { id: created.id } })).cancellationStartsOn,

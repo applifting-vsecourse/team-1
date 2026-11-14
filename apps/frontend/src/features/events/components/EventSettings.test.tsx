@@ -147,58 +147,127 @@ describe("EventSettings", () => {
     expect(screen.queryByRole("button", { name: "Save mode" })).not.toBeInTheDocument()
   })
 
-  it("saves a real cancellation day and shows the saved state", async () => {
+  it("saves a real cancellation day and confirms with a toast", async () => {
     const writes = renderCancellation()
     const user = userEvent.setup()
 
-    await user.click(await screen.findByRole("checkbox", { name: "Set a cancellation start date" }))
-    await user.type(
-      screen.getByRole("textbox", { name: "Cancellation rules apply from" }),
-      "01/07/2027",
-    )
+    await user.click(await screen.findByRole("checkbox", { name: "Turn on approval" }))
+    await user.type(screen.getByRole("textbox", { name: "Approve requests from" }), "01/07/2027")
     await user.click(screen.getByRole("button", { name: "Save settings" }))
 
     await vi.waitFor(() => expect(writes).toEqual([{ cancellationStartsOn: "2027-07-01" }]))
-    expect(await screen.findByText("Date saved.")).toBeInTheDocument()
+    await vi.waitFor(() =>
+      expect(notify.success).toHaveBeenCalledWith(
+        "Approval is set.",
+        "Participant requests need approval from 1 Jul 2027.",
+      ),
+    )
   })
 
   it("clears a saved date and leaves the immediate-change explanation", async () => {
     const writes = renderCancellation("2027-07-01")
     const user = userEvent.setup()
 
-    await user.click(await screen.findByRole("checkbox", { name: "Set a cancellation start date" }))
+    await user.click(await screen.findByRole("checkbox", { name: "Turn on approval" }))
     await user.click(screen.getByRole("button", { name: "Save settings" }))
 
     await vi.waitFor(() => expect(writes).toEqual([{ cancellationStartsOn: null }]))
-    expect(screen.getByText(/Without a date, term changes/)).toBeInTheDocument()
+    await vi.waitFor(() =>
+      expect(notify.success).toHaveBeenCalledWith(
+        "Approval is off.",
+        "Participant requests are now carried out immediately, without approval.",
+      ),
+    )
+    expect(screen.getByText(/Approval is off\. Participant requests/)).toBeInTheDocument()
   })
 
   it("rejects an impossible day before calling the API", async () => {
     const writes = renderCancellation()
     const user = userEvent.setup()
 
-    await user.click(await screen.findByRole("checkbox", { name: "Set a cancellation start date" }))
-    await user.type(
-      screen.getByRole("textbox", { name: "Cancellation rules apply from" }),
-      "31/02/2027",
-    )
+    await user.click(await screen.findByRole("checkbox", { name: "Turn on approval" }))
+    await user.type(screen.getByRole("textbox", { name: "Approve requests from" }), "31/02/2027")
     await user.click(screen.getByRole("button", { name: "Save settings" }))
 
     expect(screen.getByText("Enter a valid calendar date.")).toBeInTheDocument()
     expect(writes).toEqual([])
   })
 
-  it("cancels an unsaved change and restores the saved date", async () => {
+  it("rejects a new cancellation day in the past before calling the API", async () => {
+    const writes = renderCancellation()
+    const user = userEvent.setup()
+
+    await user.click(await screen.findByRole("checkbox", { name: "Turn on approval" }))
+    await user.type(screen.getByRole("textbox", { name: "Approve requests from" }), "01/01/2020")
+    await user.click(screen.getByRole("button", { name: "Save settings" }))
+
+    expect(screen.getByText("The approval start date must not be in the past.")).toBeInTheDocument()
+    expect(writes).toEqual([])
+  })
+
+  it("rejects changing a saved day to another day in the past", async () => {
     const writes = renderCancellation("2027-07-01")
     const user = userEvent.setup()
 
-    await user.click(await screen.findByRole("checkbox", { name: "Set a cancellation start date" }))
-    await user.click(screen.getByRole("button", { name: "Cancel" }))
+    const input = await screen.findByRole("textbox", { name: "Approve requests from" })
+    await user.clear(input)
+    await user.type(input, "01/01/2020")
+    await user.click(screen.getByRole("button", { name: "Save settings" }))
 
-    expect(screen.getByRole("checkbox", { name: "Set a cancellation start date" })).toBeChecked()
-    expect(screen.getByRole("textbox", { name: "Cancellation rules apply from" })).toHaveValue(
-      "01/07/2027",
-    )
+    expect(screen.getByText("The approval start date must not be in the past.")).toBeInTheDocument()
     expect(writes).toEqual([])
+  })
+
+  it("keeps a saved day that has already passed valid without offering Save", async () => {
+    const writes = renderCancellation("2020-01-01")
+
+    expect(await screen.findByRole("textbox", { name: "Approve requests from" })).toHaveValue(
+      "01/01/2020",
+    )
+    expect(notify.success).not.toHaveBeenCalled()
+    expect(screen.queryByRole("button", { name: "Save settings" })).not.toBeInTheDocument()
+    expect(
+      screen.queryByText("The approval start date must not be in the past."),
+    ).not.toBeInTheDocument()
+    expect(writes).toEqual([])
+  })
+
+  it("offers Save only while the form differs from the stored state", async () => {
+    renderCancellation()
+    const user = userEvent.setup()
+    const save = () => screen.queryByRole("button", { name: "Save settings" })
+
+    const checkbox = await screen.findByRole("checkbox", { name: "Turn on approval" })
+    expect(checkbox).not.toBeChecked()
+    expect(save()).not.toBeInTheDocument()
+
+    await user.click(checkbox)
+    expect(save()).toBeInTheDocument()
+    expect(screen.getByRole("textbox", { name: "Approve requests from" })).toBeVisible()
+
+    await user.click(checkbox)
+    expect(save()).not.toBeInTheDocument()
+  })
+
+  it("offers Save after a saved date is changed or switched off, and hides it again when restored", async () => {
+    renderCancellation("2027-07-01")
+    const user = userEvent.setup()
+    const save = () => screen.queryByRole("button", { name: "Save settings" })
+
+    const checkbox = await screen.findByRole("checkbox", { name: "Turn on approval" })
+    expect(checkbox).toBeChecked()
+    expect(save()).not.toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: "Cancel" })).not.toBeInTheDocument()
+
+    const input = screen.getByRole("textbox", { name: "Approve requests from" })
+    await user.clear(input)
+    await user.type(input, "02/07/2027")
+    expect(save()).toBeInTheDocument()
+    await user.clear(input)
+    await user.type(input, "01/07/2027")
+    expect(save()).not.toBeInTheDocument()
+
+    await user.click(checkbox)
+    expect(save()).toBeInTheDocument()
   })
 })

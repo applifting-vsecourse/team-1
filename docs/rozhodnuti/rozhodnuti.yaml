@@ -2091,3 +2091,23 @@ rozhodnuti:
     popis: 'společné části, patička'
     stav: hotovo
     commit: 667c8d3
+- id: D-107
+  nazev: 'Schvalování požadavků účastníků nelze zapnout zpětně'
+  text: 'Datum, od kterého se požadavky účastníků (odhlášky, změny termínů) předávají organizátorovi ke schválení, nelze nastavit ani změnit na den v minulosti; nejbližší možné datum je dnešek (schvalování pak platí ihned) a dále budoucnost. Platí při prvním zapnutí schvalování i při změně již nastaveného data, v kalendářním dni v časové zóně Europe/Prague. Již uložené datum, které mezitím uplynulo, zůstává platné a jeho nezměněné uložení neselže. Schvalování lze vypnout smazáním data (požadavky se pak opět provádějí ihned), i když už začalo.'
+  typ: produkt
+  oblast: platby
+  datum: '2026-11-11'
+  rozhodl:
+  - pm
+  zdroj:
+  - popis: 'Nález PM při testování US-113 a doplnění pravidla k #372'
+    url: https://github.com/applifting-vsecourse/team-1/issues/372
+  us:
+  - label: '#372'
+    url: https://github.com/applifting-vsecourse/team-1/issues/372
+  - label: US-113
+    url: https://github.com/applifting-vsecourse/team-1/issues/206
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+  poznamka: 'Navazuje na D-100 (schvalování od data, dříve „začátek storno podmínek“). Tento pojem se v textech aplikace už nepoužívá; „storno podmínky“ zůstávají jen jako text podmínek pro přihlašovatele (US-47), který se tím nemění.'

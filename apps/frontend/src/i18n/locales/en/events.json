@@ -1,16 +1,18 @@
 {
   "cancellationStart": {
-    "afterDate": "From this date, term changes and cancellations are sent to the organizer for approval.",
-    "cancel": "Cancel",
-    "dateLabel": "Cancellation rules apply from",
-    "enable": "Set a cancellation start date",
+    "afterDate": "From this date, participant requests are sent to the organizer for approval.",
+    "clearedDescription": "Participant requests are now carried out immediately, without approval.",
+    "clearedTitle": "Approval is off.",
+    "dateInPast": "The approval start date must not be in the past.",
+    "dateLabel": "Approve requests from",
+    "enable": "Turn on approval",
     "invalidDate": "Enter a valid calendar date.",
-    "noDate": "Without a date, term changes and cancellations take effect immediately.",
+    "noDate": "Approval is off. Participant requests are carried out immediately.",
     "save": "Save settings",
-    "saveFailed": "Could not save the cancellation date",
-    "savedDate": "Cancellation rules start: {{date}}.",
-    "savedTitle": "Date saved.",
-    "title": "Approval of participant changes"
+    "saveFailed": "Could not save the approval setting",
+    "savedDate": "Participant requests need approval from {{date}}.",
+    "savedTitle": "Approval is set.",
+    "title": "Approval of participant requests"
   },
   "cancellationTerms": {
     "alertDescription": "Shown before an application is confirmed and when a participant cancels. You record refunds manually.",

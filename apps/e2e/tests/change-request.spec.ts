@@ -2,6 +2,14 @@ import { expect, test } from "@playwright/test"
 import { ORGANIZER, PARTICIPANT } from "./support/accounts"
 import { openEventList, signIn, signOut } from "./support/auth"
 
+// Approval is switched on from today (the English field format is DD/MM/YYYY); past days are rejected.
+const today = new Intl.DateTimeFormat("en-GB", {
+  timeZone: "Europe/Prague",
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+}).format(new Date())
+
 test("participant submits a cancellation request and organizer declines it at 360 px", async ({
   page,
 }) => {
@@ -12,12 +20,12 @@ test("participant submits a cancellation request and organizer declines it at 36
     .getByRole("navigation", { name: "Event sections" })
     .getByRole("link", { name: "Settings" })
     .click()
-  await page.getByRole("checkbox", { name: "Set a cancellation start date" }).check()
-  const cancellationDate = page.getByRole("textbox", { name: "Cancellation rules apply from" })
+  await page.getByRole("checkbox", { name: "Turn on approval" }).check()
+  const cancellationDate = page.getByRole("textbox", { name: "Approve requests from" })
   await cancellationDate.clear()
-  await cancellationDate.fill("01/07/2026")
+  await cancellationDate.fill(today)
   await page.getByRole("button", { name: "Save settings" }).click()
-  await expect(page.getByText("Date saved.", { exact: true })).toBeVisible()
+  await expect(page.getByText("Approval is set.", { exact: true })).toBeVisible()
   await signOut(page, ORGANIZER)
   await expect(page).toHaveURL(/\/$/)
 
@@ -34,7 +42,7 @@ test("participant submits a cancellation request and organizer declines it at 36
   await page.getByRole("button", { name: "Back to application" }).click()
   await expect(page.getByRole("heading", { name: "Cancellation request" })).toBeVisible()
   await expect(
-    page.getByText("Your request is awaiting the organiser's decision.", { exact: false }),
+    page.getByText("Your request is awaiting the organizer's decision.", { exact: false }),
   ).toBeVisible()
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(360)
   await signOut(page, PARTICIPANT)
