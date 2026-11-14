@@ -8,6 +8,7 @@ type StatusBody = {
   email: string
   isNewAccount: boolean
   applications: {
+    id: string
     firstName: string
     code: string
     variableSymbol: string
@@ -102,6 +103,7 @@ describe("submission status (integration)", () => {
     expect(response.status).toBe(200)
     expect(body.isNewAccount).toBe(true)
     expect(body.applications.map((a) => a.firstName)).toEqual(["Jana", "Matěj"])
+    expect(body.applications.every((a) => a.id.length > 0)).toBe(true)
     expect(body.applications.map((a) => a.payment)).toMatchObject([
       { bankAccount: "2900123456/2010", summary: { payableCzk: 1000 } },
       { bankAccount: "2900123456/2010", summary: { payableCzk: 3000 } },

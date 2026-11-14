@@ -45,6 +45,7 @@ export class SubmissionStatusRepository {
       email: first.email,
       mustSetPassword: first.user?.mustSetPassword ?? false,
       applications: rows.map((row) => ({
+        id: row.id,
         number: row.number,
         firstName: row.firstName,
         lastName: row.lastName,
