@@ -23,7 +23,6 @@
   "INVALID_EMAIL_OR_PASSWORD": "Wrong e-mail or password.",
   "INVALID_RESPONSE": "The server response could not be read. Please try again.",
   "INVALID_STATUS_TRANSITION": "This change is not possible from the current status of the application in the term.",
-  "MANUAL_FILL_NOT_AVAILABLE": "Filling a freed bed by hand is available only when applications are evaluated manually.",
   "NOT_FOUND": "Not found.",
   "ORGANIZATION_ALREADY_EXISTS": "You already have an organization.",
   "ORGANIZATION_PROFILE_INCOMPLETE": "Complete your organization's profile before creating an event.",

@@ -73,6 +73,14 @@
       "title": "Awaiting review · {{count}}"
     }
   },
+  "autoConfirmed": {
+    "bedFEMALE": "women's bed",
+    "bedMALE": "men's bed",
+    "bedSHARED": "bed",
+    "bodyFemale": "{{name}} took the first available {{bed}} in the term {{range}}. We have e-mailed the applicant the payment details.",
+    "bodyMale": "{{name}} took the first available {{bed}} in the term {{range}}. We have e-mailed the applicant the payment details.",
+    "title": "Attendance was confirmed automatically"
+  },
   "bulk": {
     "alertTitle": "{{confirmed}} of {{selected}} applications will be confirmed.",
     "cancel": "Cancel",
@@ -218,6 +226,15 @@
     "review": "Review request",
     "submitted": "Submitted {{date}} · original application unchanged",
     "title": "Change requests"
+  },
+  "freedBeds": {
+    "bedFEMALE": "women's bed",
+    "bedMALE": "men's bed",
+    "bedSHARED": "bed",
+    "confirm": "Go to confirmation",
+    "proposalFemale": "{{name}} is the first suitable substitute for the {{bed}}.",
+    "proposalMale": "{{name}} is the first suitable substitute for the {{bed}}.",
+    "title": "A bed was freed or added in the term {{range}}"
   },
   "history": {
     "created": "Application created",
@@ -424,6 +441,7 @@
     "empty": "All applications are evaluated.",
     "emptyHint": "New applications in manual mode will appear in this queue.",
     "loading": "Loading…",
+    "proposalCount": "{{view}}, beds waiting for confirmation: {{count}}",
     "status": "To evaluate",
     "viewAll": "All applications",
     "viewRequests": "Change requests",
@@ -466,8 +484,16 @@
     "groupFemale": "Women",
     "groupMale": "Men",
     "groupShared": "Shared rooms",
-    "intro": "Substitutes waiting for the freed bed, in the order their applications came in. You can confirm one of them.",
+    "intro": "The system proposed the first substitute by order and available bed.",
     "list": "Suitable substitutes",
+    "proposal": {
+      "bodyFemale": "{{range}} · {{name}} is the first suitable substitute.",
+      "bodyMale": "{{range}} · {{name}} is the first suitable substitute.",
+      "confirm": "Confirm attendance",
+      "titleFemale": "A women's bed was freed or added",
+      "titleMale": "A men's bed was freed or added",
+      "titleShared": "A bed was freed or added"
+    },
     "refresh": "Show current substitutes",
     "taken": "The bed has meanwhile been taken by another organizer.",
     "takenHint": "{{name}} stays a substitute. The capacity is not exceeded.",

@@ -75,6 +75,8 @@ describe("manual status change of an application in a term (integration)", () =>
         organizationId,
         name: "US-28",
         publicToken: "us-28-event",
+        // Manual statuses by the organizer: the automatic mode fills a freed bed by itself (US-31).
+        evaluationMode: "MANUAL",
         terms: {
           create: [
             {

@@ -15,6 +15,8 @@ const substituteSchema = z.object({
   /** Position in the waitlist of the bed group. */
   position: z.number().int(),
   priceCzk: z.number().int(),
+  /** The first of its bed group: the one the freed bed is proposed to (US-31). */
+  isProposed: z.boolean(),
 })
 export type Substitute = z.infer<typeof substituteSchema>
 
@@ -45,3 +47,38 @@ export async function confirmSubstitute(
 ): Promise<void> {
   await api.post(`${path(eventId, termId)}/${encodeURIComponent(applicationId)}/confirm`)
 }
+
+const proposalSchema = z.object({
+  termId: z.string(),
+  termName: z.string().nullable(),
+  startsOn: z.string(),
+  endsOn: z.string(),
+  /** Bed group: a gender in gendered rooms, or the one common pool. */
+  group: z.enum(["FEMALE", "MALE", "SHARED"]),
+  freeBeds: z.number().int(),
+  substitute: z.object({
+    applicationId: z.string(),
+    firstName: z.string(),
+    lastName: z.string(),
+    gender: z.enum(["FEMALE", "MALE"]),
+    priceCzk: z.number().int(),
+  }),
+})
+export type SubstituteProposal = z.infer<typeof proposalSchema>
+
+/**
+ * `GET /api/organizer/events/:eventId/substitute-proposals` — the free beds of the event's terms
+ * with the first substitute each is proposed to: the organizer's notice (US-31).
+ */
+export const substituteProposalsQueryOptions = (eventId: string) =>
+  queryOptions({
+    queryKey: ["eventOverview", "substituteProposals", eventId],
+    queryFn: async () =>
+      z
+        .array(proposalSchema)
+        .parse(
+          await api
+            .get(`organizer/events/${encodeURIComponent(eventId)}/substitute-proposals`)
+            .json(),
+        ),
+  })

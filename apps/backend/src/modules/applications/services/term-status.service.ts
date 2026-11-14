@@ -8,18 +8,22 @@ import {
   changeEmailKind,
   rejectStatusChange,
 } from "@/modules/applications/domain/status-transition"
+import { FreedBed, substituteForFreedBed } from "@/modules/applications/domain/substitutes"
 import {
   StatusChangeCommand,
   StatusChangeResult,
   SubstituteRecord,
   TermStatusDetail,
 } from "@/modules/applications/domain/term-status"
+import { bedGroup } from "@/modules/applications/domain/waitlist"
+import { isWaitlistExpired } from "@/modules/applications/domain/waitlist-expiry"
+import { SubstitutesRepository } from "@/modules/applications/repositories/substitutes.repository"
 import { TermStatusRepository } from "@/modules/applications/repositories/term-status.repository"
 import { ApplicationConfirmationMailer } from "@/modules/participants/services/application-confirmation-mailer.service"
 import { Identity } from "@/shared/auth/domain/identity"
 import { AppException } from "@/shared/errors/app.exception"
 import { OrganizationAccessService } from "@/shared/organization-access/organization-access.service"
-import { HttpStatus, Injectable } from "@nestjs/common"
+import { HttpStatus, Injectable, Logger } from "@nestjs/common"
 
 /**
  * The one service that changes the status of an application in a term (US-28).
@@ -29,8 +33,11 @@ import { HttpStatus, Injectable } from "@nestjs/common"
  */
 @Injectable()
 export class TermStatusService {
+  private readonly logger = new Logger(TermStatusService.name)
+
   constructor(
     private readonly repository: TermStatusRepository,
+    private readonly substitutes: SubstitutesRepository,
     private readonly access: OrganizationAccessService,
     private readonly mailer: ApplicationConfirmationMailer,
   ) {}
@@ -53,6 +60,7 @@ export class TermStatusService {
     const change = await this.repository.changeParticipantTerms(user.id, applicationId, termIds)
     if (change === undefined) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
     if (change) await this.mailer.sendApplicationChange(change)
+    await this.fillFreedBeds(change?.freedBeds ?? [])
     return { addedTerms: change?.addedTerms ?? [] }
   }
 
@@ -100,6 +108,7 @@ export class TermStatusService {
     )
     if (change === undefined) throw new AppException(HttpStatus.NOT_FOUND, "NOT_FOUND")
     if (change) await this.mailer.sendApplicationChange(change)
+    await this.fillFreedBeds(change?.freedBeds ?? [])
     return { changed: change !== null, changedAt: new Date(), changedByName: user.name }
   }
 
@@ -134,6 +143,7 @@ export class TermStatusService {
     if (change === undefined) throw new AppException(HttpStatus.NOT_FOUND, "NOT_FOUND")
     // The mailer logs a failed delivery itself and never throws.
     if (change) await this.mailer.sendApplicationChange(change)
+    await this.fillFreedBeds(change?.freedBeds ?? [])
     return { changedAt: new Date(), changedByName: user.name }
   }
 
@@ -204,6 +214,74 @@ export class TermStatusService {
       // Payment details only where the application became confirmed (EMAILY.md, rows 2 and 5).
       isAmountChanged: result.to === "CONFIRMED",
     })
+    // A confirmed participant giving up the bed (cancelled, put on the waitlist) frees it (US-31).
+    // The one moved to the waitlist does not take the bed it has just given up (organizer's decision).
+    if (result.from === "CONFIRMED") {
+      await this.fillFreedBeds([{ termId: command.termId, gender: result.gender }], {
+        except: command.applicationId,
+      })
+    }
     return result
+  }
+
+  /**
+   * US-31: in the automatic evaluation mode the system confirms the first eligible substitute of
+   * the bed group of each bed that was freed, one substitute per freed bed; the applicant gets
+   * the e-mail with payment details of the one status change. Beds that were free before are not
+   * filled (an organizer adds a bed for someone and leaves it empty, PM 13. 11.), and a bigger
+   * capacity never calls this: it only makes the organizer's notice appear (US-104). In the
+   * manual mode it does nothing, the organizer confirms the proposal.
+   *
+   * Every confirmation is `applyChange`, which locks the event and checks the beds again, so two
+   * runs at once (or a submission for the last bed) never confirm two for one bed: the loser
+   * finds the bed taken or the application no longer waiting and reads the state again. Runs
+   * after the transaction that freed the bed; a failure is logged, it never fails that request.
+   */
+  async fillFreedBeds(beds: FreedBed[], options: { except?: string } = {}): Promise<void> {
+    for (const bed of beds) {
+      try {
+        await this.fillBed(bed, options.except)
+      } catch (error) {
+        this.logger.error(`Filling a freed bed of term ${bed.termId} failed`, error)
+      }
+    }
+  }
+
+  private async fillBed({ termId, gender }: FreedBed, except?: string): Promise<void> {
+    let budget = 0
+    do {
+      const state = await this.substitutes.findTermStateById(termId)
+      if (!state || state.isCancelled || state.evaluationMode !== "AUTOMATIC") return
+      // From midnight of the first day the waitlist is cancelled (D-064); a bed freed between that
+      // moment and the next run of the expiry job must not be given to someone about to be cancelled.
+      if (isWaitlistExpired(state.startsOn, new Date())) return
+      // A round that loses (bed or application taken meanwhile) tries the next one; the waitlist
+      // length bounds the rounds.
+      if (budget === 0) budget = state.waitlisted.length + 1
+      const next = substituteForFreedBed(
+        state,
+        state.waitlisted,
+        bedGroup(state.roomMode, gender),
+        except,
+      )
+      if (!next) return
+      try {
+        await this.applyChange({
+          organizationId: state.organizationId,
+          applicationId: next.applicationId,
+          termId,
+          to: "CONFIRMED",
+          actorId: null,
+          isOverCapacityConfirmed: false,
+        })
+        return
+      } catch (error) {
+        // Someone else took the bed or the application, read the state again.
+        const isLost =
+          error instanceof AppException &&
+          (error.code === "CAPACITY_EXCEEDED" || error.code === "INVALID_STATUS_TRANSITION")
+        if (!isLost) throw error
+      }
+    } while (--budget > 0)
   }
 }

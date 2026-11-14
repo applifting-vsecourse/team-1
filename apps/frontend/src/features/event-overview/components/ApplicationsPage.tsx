@@ -140,6 +140,7 @@ export function ApplicationsPage({
   }
   const views = (
     <ApplicationViews
+      eventId={eventId}
       filters={filters}
       onChange={(next) => {
         setPage(0)
