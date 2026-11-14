@@ -5,6 +5,7 @@ import {
   daysOfTerm,
   formatDay,
   formatDayHeader,
+  formatDuration,
   timeRange,
 } from "@/features/program/lib/days"
 
@@ -27,6 +28,9 @@ describe("program days", () => {
   it("formats a time range and a day with a capitalised weekday", () => {
     expect(timeRange({ startTime: "09:00", endTime: "10:30" })).toBe("09:00–10:30")
     expect(formatDay("2027-07-12")).toMatch(/^Monday/)
+    expect(formatDuration({ startTime: "09:00", endTime: "11:30" })).toBe("2 h 30 min")
+    expect(formatDuration({ startTime: "09:00", endTime: "09:45" })).toBe("45 min")
+    expect(formatDuration({ startTime: "09:00", endTime: "12:00" })).toBe("3 h")
     expect(formatDayHeader("2027-07-12").weekday).toBe("Mon")
   })
 })

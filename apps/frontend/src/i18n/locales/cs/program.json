@@ -13,6 +13,7 @@
   "deleting": "Mažeme…",
   "description": "Program jednotlivých termínů. Účastníci ho vidí ve své přihlášce.",
   "descriptionLabel": "Popis",
+  "detailHint": "Podrobnosti bloku programu.",
   "edit": "Upravit",
   "editTitle": "Upravit blok",
   "empty": "Program tohoto termínu je zatím prázdný. Přidejte první blok.",
@@ -44,6 +45,7 @@
   "startLabel": "Čas od",
   "termLabel": "Termín",
   "timeInvalid": "Zadejte čas ve tvaru 09:00.",
+  "timeLabel": "Čas",
   "title": "Program",
   "tooLong": "Text je příliš dlouhý."
 }

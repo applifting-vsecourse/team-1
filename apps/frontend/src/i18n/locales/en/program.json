@@ -13,6 +13,7 @@
   "deleting": "Deleting…",
   "description": "The program of each term. Participants see it in their application.",
   "descriptionLabel": "Description",
+  "detailHint": "Details of a program block.",
   "edit": "Edit",
   "editTitle": "Edit block",
   "empty": "The program of this term is empty so far. Add the first block.",
@@ -44,6 +45,7 @@
   "startLabel": "From",
   "termLabel": "Term",
   "timeInvalid": "Enter the time as 09:00.",
+  "timeLabel": "Time",
   "title": "Program",
   "tooLong": "This is too long."
 }

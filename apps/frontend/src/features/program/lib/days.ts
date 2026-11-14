@@ -2,6 +2,8 @@ import { eachDayOfInterval, format, parseISO } from "date-fns"
 
 import { currentLanguage, INTL_LOCALES } from "@/i18n"
 
+import { toMinutes } from "@/features/program/lib/calendar"
+
 /** cs: `Pondělí 12. 7. 2027`, en: `Monday, 12/07/2027` — the weekday starts with a capital. */
 export function formatDay(isoDay: string): string {
   const text = new Intl.DateTimeFormat(INTL_LOCALES[currentLanguage()], {
@@ -16,6 +18,16 @@ export function formatDay(isoDay: string): string {
 /** `10:00–12:00` */
 export const timeRange = (block: { startTime: string; endTime: string }): string =>
   `${block.startTime}–${block.endTime}`
+
+/** `2 h 30 min`, `45 min`, `3 h` */
+export function formatDuration(block: { startTime: string; endTime: string }): string {
+  const minutes = toMinutes(block.endTime) - toMinutes(block.startTime)
+  const hours = Math.floor(minutes / 60)
+  const rest = minutes % 60
+  return [hours ? `${String(hours)} h` : "", rest ? `${String(rest)} min` : ""]
+    .filter(Boolean)
+    .join(" ")
+}
 
 /** Every day of a term, as ISO days. */
 export function daysOfTerm(term: { startsOn: string; endsOn: string }): string[] {
