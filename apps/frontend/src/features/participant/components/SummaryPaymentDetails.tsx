@@ -71,11 +71,11 @@ export function SummaryPaymentDetails({ application }: Props) {
         </QrDetail>
         <div className="flex flex-col">
           <dt className="text-sm text-muted-foreground">{t("payment.summaryBreakdown")}</dt>
-          <dd className="grid grid-cols-2 gap-x-4 gap-y-2 pt-1">
+          <dd className="grid gap-x-4 gap-y-2 pt-1 sm:grid-cols-2">
             {owedTerms.map((payment) => (
               <div
                 key={payment.termId}
-                className="flex flex-col"
+                className="flex items-baseline justify-between gap-x-4 sm:flex-col sm:items-start"
               >
                 <span className="text-sm text-muted-foreground">
                   {payment.term
@@ -84,7 +84,7 @@ export function SummaryPaymentDetails({ application }: Props) {
                       })
                     : null}
                 </span>
-                <span className="text-base">
+                <span className="shrink-0 text-base whitespace-nowrap">
                   <MoneyAmount amountCzk={payment.owedCzk} />
                 </span>
               </div>
