@@ -41,7 +41,7 @@
     "sourceTerm": "Původní termín",
     "targetTerm": "Nový termín",
     "title": "Změnit termín",
-    "toEvaluateNoBed": "K vyhodnocení · bez lůžka i platby",
+    "toEvaluateNoBed": "Čeká na vyhodnocení · bez lůžka i platby",
     "toast": {
       "cancelled": "Termín byl odhlášen",
       "changed": "Termín byl změněn",
