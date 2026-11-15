@@ -23,7 +23,6 @@
   "INVALID_EMAIL_OR_PASSWORD": "Nesprávný e-mail nebo heslo.",
   "INVALID_RESPONSE": "Odpověď serveru se nepodařilo načíst. Zkuste to znovu.",
   "INVALID_STATUS_TRANSITION": "Z aktuálního stavu přihlášky v termínu tuto změnu provést nejde.",
-  "MANUAL_FILL_NOT_AVAILABLE": "Ruční obsazení uvolněného lůžka je možné jen při ručním vyhodnocování přihlášek.",
   "NOT_FOUND": "Nenalezeno.",
   "ORGANIZATION_ALREADY_EXISTS": "Organizaci už máte založenou.",
   "ORGANIZATION_PROFILE_INCOMPLETE": "Před založením akce doplňte profil organizace.",

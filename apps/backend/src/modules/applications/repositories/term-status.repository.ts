@@ -38,6 +38,7 @@ import {
   StatusChangeSnapshot,
 } from "@/modules/applications/domain/status-transition"
 import { skippedSubstitutes } from "@/modules/applications/domain/substitute-skips"
+import { FreedBed } from "@/modules/applications/domain/substitutes"
 import { termLabel } from "@/modules/applications/domain/term-label"
 import {
   ExpiredWaitlistEntry,
@@ -54,6 +55,10 @@ import { ApplicationChange } from "@/modules/participants/domain/submission-conf
 import { AppException } from "@/shared/errors/app.exception"
 import { releaseAssignments } from "@/shared/room-assignments/release-assignments"
 import { HttpStatus, Injectable } from "@nestjs/common"
+
+/** What a change of terms leaves behind: the e-mail and the confirmed beds it gave up (US-31). */
+export type TermsChange = ApplicationChange &
+  ParticipantTermChangeResult & { freedBeds: FreedBed[] }
 
 const recordInclude = {
   changedBy: { select: { name: true } },
@@ -229,7 +234,7 @@ export class TermStatusRepository {
     applicationId: string,
     selectedIds: string[],
     approvedRequest?: { id: string; reviewerId: string },
-  ): Promise<(ApplicationChange & ParticipantTermChangeResult) | null | undefined> {
+  ): Promise<TermsChange | null | undefined> {
     return this.changeTerms({
       where: { id: applicationId, userId },
       applicationId,
@@ -322,7 +327,7 @@ export class TermStatusRepository {
     selectedIds: string[],
     actorId: string,
     isOverCapacityConfirmed: boolean,
-  ): Promise<ApplicationChange | null | undefined> {
+  ): Promise<TermsChange | null | undefined> {
     return this.changeTerms({
       where: { id: applicationId, organizationId },
       applicationId,
@@ -341,7 +346,7 @@ export class TermStatusRepository {
     applicationId: string,
     withdrawnIds: string[],
     actorId: string,
-  ): Promise<ApplicationChange | null | undefined> {
+  ): Promise<TermsChange | null | undefined> {
     return this.changeTerms({
       where: { id: applicationId, organizationId },
       applicationId,
@@ -399,7 +404,7 @@ export class TermStatusRepository {
     selectedIds: string[]
     approvedRequest?: { id: string; reviewerId: string }
     organizer?: { actorId: string; isOverCapacityConfirmed: boolean; withdrawnIds?: string[] }
-  }): Promise<(ApplicationChange & ParticipantTermChangeResult) | null | undefined> {
+  }): Promise<TermsChange | null | undefined> {
     return this.prisma.$transaction(async (tx) => {
       const target = await tx.application.findFirst({
         where,
@@ -708,6 +713,10 @@ export class TermStatusRepository {
       }
       return {
         addedTerms,
+        // A confirmed participant leaving a term frees a bed for the waitlist (US-31).
+        freedBeds: removed
+          .filter((row) => row.status === "CONFIRMED")
+          .map((row) => ({ termId: row.termId, gender: application.gender })),
         email: application.email,
         locale,
         eventName: application.event.name,

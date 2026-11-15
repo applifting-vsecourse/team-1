@@ -22,6 +22,7 @@ import {
   type Payment,
   type PaymentTerm,
 } from "@/features/event-overview/api/payments"
+import { AutoConfirmedNotice } from "@/features/event-overview/components/AutoConfirmedNotice"
 import { ParticipantDetails } from "@/features/event-overview/components/ParticipantDetails"
 import { PaymentCancellation } from "@/features/event-overview/components/PaymentCancellation"
 import { PaymentCorrection } from "@/features/event-overview/components/PaymentCorrection"
@@ -141,6 +142,11 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
           </div>
         </div>
       </div>
+      <AutoConfirmedNotice
+        applicationId={applicationId}
+        firstName={data.firstName}
+        gender={data.gender}
+      />
       {data.accommodationRequest ? (
         <Card className="gap-2 p-4 md:p-6">
           <h3 className="text-lg font-semibold">{t("payment.accommodationRequest")}</h3>

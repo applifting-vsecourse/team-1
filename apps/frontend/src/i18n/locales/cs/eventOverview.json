@@ -73,6 +73,14 @@
       "title": "K vyhodnocení · {{count}}"
     }
   },
+  "autoConfirmed": {
+    "bedFEMALE": "dámské lůžko",
+    "bedMALE": "mužské lůžko",
+    "bedSHARED": "lůžko",
+    "bodyFemale": "{{name}} obsadila první dostupné {{bed}} v termínu {{range}}. Přihlašovateli jsme poslali e-mail s platebními údaji.",
+    "bodyMale": "{{name}} obsadil první dostupné {{bed}} v termínu {{range}}. Přihlašovateli jsme poslali e-mail s platebními údaji.",
+    "title": "Účast byla potvrzena automaticky"
+  },
   "bulk": {
     "alertTitle": "Potvrdí se {{confirmed}} ze {{selected}} přihlášek.",
     "cancel": "Zrušit",
@@ -218,6 +226,15 @@
     "review": "Posoudit žádost",
     "submitted": "Podáno {{date}} · původní přihláška beze změny",
     "title": "Žádosti o změnu"
+  },
+  "freedBeds": {
+    "bedFEMALE": "dámské lůžko",
+    "bedMALE": "pánské lůžko",
+    "bedSHARED": "lůžko",
+    "confirm": "Přejít k potvrzení",
+    "proposalFemale": "{{name}} je první vhodná náhradnice na {{bed}}.",
+    "proposalMale": "{{name}} je první vhodný náhradník na {{bed}}.",
+    "title": "Uvolnilo se nebo přibylo lůžko v termínu {{range}}"
   },
   "history": {
     "created": "Přihláška vytvořena",
@@ -424,6 +441,7 @@
     "empty": "Všechny přihlášky jsou vyhodnocené.",
     "emptyHint": "Nové přihlášky v ručním režimu se objeví v této frontě.",
     "loading": "Načítám…",
+    "proposalCount": "{{view}}, počet lůžek čekajících na potvrzení: {{count}}",
     "status": "K vyhodnocení",
     "viewAll": "Všechny přihlášky",
     "viewRequests": "Žádosti o změnu",
@@ -466,8 +484,16 @@
     "groupFemale": "Ženy",
     "groupMale": "Muži",
     "groupShared": "Společné pokoje",
-    "intro": "Náhradníci čekající na uvolněné lůžko v pořadí, v jakém přišly jejich přihlášky. Jednoho z nich můžete potvrdit.",
+    "intro": "Systém navrhl prvního náhradníka podle pořadí a dostupného lůžka.",
     "list": "Vhodní náhradníci",
+    "proposal": {
+      "bodyFemale": "{{range}} · {{name}} je první vhodná náhradnice.",
+      "bodyMale": "{{range}} · {{name}} je první vhodný náhradník.",
+      "confirm": "Potvrdit účast",
+      "titleFemale": "Uvolnilo se nebo přibylo dámské lůžko",
+      "titleMale": "Uvolnilo se nebo přibylo pánské lůžko",
+      "titleShared": "Uvolnilo se nebo přibylo lůžko"
+    },
     "refresh": "Zobrazit aktuální náhradníky",
     "taken": "Lůžko mezitím obsadil jiný organizátor.",
     "takenHint": "{{name}} zůstává náhradníkem. Kapacita se nepřekročí.",

@@ -1,7 +1,10 @@
+import { useQuery } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
+import { Badge } from "@/components/ui/badge"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 
+import { substituteProposalsQueryOptions } from "@/features/event-overview/api/substitutes"
 import type { ApplicationsSearch } from "@/features/event-overview/lib/applications-search"
 
 const VIEWS = [
@@ -17,13 +20,17 @@ const isView = (status: ApplicationsSearch["status"]): status is "TO_EVALUATE" |
 // Figma (Design system): US-103 Přihlášky · Fronta od nejstarších, chips "Pohledy přihlášek podle dema" · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16852-31378
 // The chips and the status filter read and write the same `status` param, so they cannot disagree.
 export function ApplicationViews({
+  eventId,
   filters,
   onChange,
 }: {
+  eventId: string
   filters: ApplicationsSearch
   onChange: (filters: ApplicationsSearch) => void
 }) {
   const { t } = useTranslation("eventOverview")
+  // US-31: the substitutes view carries the number of free beds waiting for the organizer.
+  const proposalCount = useQuery(substituteProposalsQueryOptions(eventId)).data?.length ?? 0
   return (
     <ToggleGroup
       type="single"
@@ -62,9 +69,22 @@ export function ApplicationViews({
         <ToggleGroupItem
           key={view.key}
           value={view.value}
+          aria-label={
+            view.value === "WAITLISTED" && proposalCount > 0
+              ? t("queue.proposalCount", { view: t(`queue.${view.key}`), count: proposalCount })
+              : undefined
+          }
           className="h-9 rounded-full px-3 data-[state=on]:border-border data-[state=on]:bg-accent data-[state=on]:text-accent-foreground"
         >
           {t(`queue.${view.key}`)}
+          {view.value === "WAITLISTED" && proposalCount > 0 ? (
+            <Badge
+              variant="info"
+              aria-hidden="true"
+            >
+              {proposalCount}
+            </Badge>
+          ) : null}
         </ToggleGroupItem>
       ))}
     </ToggleGroup>

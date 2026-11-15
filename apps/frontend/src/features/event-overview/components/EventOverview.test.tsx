@@ -32,10 +32,31 @@ const occupancy = {
   ],
 }
 
-function renderOverview(attention: Attention, setup?: ReactNode) {
+const proposal = (overrides: object = {}) => ({
+  termId: "t1",
+  termName: null,
+  startsOn: "2027-07-12",
+  endsOn: "2027-07-18",
+  group: "MALE",
+  freeBeds: 1,
+  substitute: {
+    applicationId: "a1",
+    firstName: "Adam",
+    lastName: "Dvořák",
+    gender: "MALE",
+    priceCzk: 4900,
+  },
+  ...overrides,
+})
+
+function renderOverview(attention: Attention, setup?: ReactNode, proposals: object[] = []) {
   vi.spyOn(globalThis, "fetch").mockImplementation((input) => {
     const url = String(input instanceof Request ? input.url : input)
-    const body = url.endsWith("/attention") ? attention : occupancy
+    const body = url.endsWith("/attention")
+      ? attention
+      : url.endsWith("/substitute-proposals")
+        ? proposals
+        : occupancy
     return Promise.resolve(
       new Response(JSON.stringify(body), {
         status: 200,
@@ -123,5 +144,53 @@ describe("EventOverview", () => {
     const switcher = screen.getByRole("combobox", { name: "Event" })
     expect(switcher.compareDocumentPosition(setup) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     expect(setup.compareDocumentPosition(cards) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  })
+
+  it("shows a banner per term with the proposed substitute and the way to confirm (US-31)", async () => {
+    renderOverview(
+      {
+        toEvaluateCount: 0,
+        substituteCount: 1,
+        debt: { debtorCount: 0, overdueCount: 0, totalDebtCzk: 0 },
+        changeRequestCount: 0,
+      },
+      undefined,
+      [
+        proposal(),
+        proposal({
+          group: "FEMALE",
+          substitute: {
+            applicationId: "a2",
+            firstName: "Jana",
+            lastName: "Nováková",
+            gender: "FEMALE",
+            priceCzk: 4900,
+          },
+        }),
+      ],
+    )
+    const banner = await screen.findByRole("alert")
+    expect(banner).toHaveTextContent("A bed was freed or added in the term 12–18 Jul 2027")
+    expect(banner).toHaveTextContent(
+      "Adam Dvořák is the first suitable substitute for the men's bed.",
+    )
+    expect(banner).toHaveTextContent(
+      "Jana Nováková is the first suitable substitute for the women's bed.",
+    )
+    const link = screen.getByRole("link", { name: "Go to confirmation" })
+    expect(link.getAttribute("href")).toContain("status=WAITLISTED")
+    expect(link.getAttribute("href")).toContain("term=t1")
+    expect(screen.getAllByRole("alert")).toHaveLength(1)
+  })
+
+  it("shows no banner without a proposal", async () => {
+    renderOverview({
+      toEvaluateCount: 0,
+      substituteCount: 0,
+      debt: { debtorCount: 0, overdueCount: 0, totalDebtCzk: 0 },
+      changeRequestCount: 0,
+    })
+    await screen.findByRole("link", { name: /Awaiting review/ })
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument()
   })
 })
