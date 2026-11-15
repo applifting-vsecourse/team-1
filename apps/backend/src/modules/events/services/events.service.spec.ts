@@ -210,4 +210,47 @@ describe("EventsService", () => {
       expect(repository.savePhoto).not.toHaveBeenCalled()
     })
   })
+
+  describe("cancellation start (#372)", () => {
+    const day = (offset: number): string =>
+      new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Prague" }).format(
+        new Date(Date.now() + offset * 86_400_000),
+      )
+
+    beforeEach(() => {
+      access.assertCanAccessEvent.mockResolvedValue({ organizationId: "org-a" })
+    })
+
+    it("does not write an unchanged lapsed day again", async () => {
+      repository.findById.mockResolvedValue({
+        ...stored,
+        cancellationStartsOn: "2020-01-01",
+      })
+
+      const event = await service.setCancellationStart(organizer, "e1", "2020-01-01")
+
+      expect(event.cancellationStartsOn).toBe("2020-01-01")
+      expect(repository.setCancellationStart).not.toHaveBeenCalled()
+    })
+
+    it("refuses another day in the past without writing", async () => {
+      repository.findById.mockResolvedValue({
+        ...stored,
+        cancellationStartsOn: "2020-01-01",
+      })
+
+      await expect(service.setCancellationStart(organizer, "e1", "2020-01-02")).rejects.toThrow()
+      expect(repository.setCancellationStart).not.toHaveBeenCalled()
+    })
+
+    it("writes today, a future day and a cleared date", async () => {
+      repository.findById.mockResolvedValue(stored)
+
+      await service.setCancellationStart(organizer, "e1", day(0))
+      await service.setCancellationStart(organizer, "e1", day(30))
+
+      expect(repository.setCancellationStart).toHaveBeenCalledWith("e1", "org-a", day(0))
+      expect(repository.setCancellationStart).toHaveBeenCalledWith("e1", "org-a", day(30))
+    })
+  })
 })

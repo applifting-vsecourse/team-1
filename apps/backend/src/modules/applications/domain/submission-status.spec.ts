@@ -19,12 +19,14 @@ const record = (overrides: Partial<SubmissionRecord> = {}): SubmissionRecord => 
   mustSetPassword: true,
   applications: [
     {
+      id: "app-48",
       number: 48,
       firstName: "Jana",
       lastName: "Nováková",
       terms: [term("t1", "CONFIRMED", "2027-07-04", 6900)],
     },
     {
+      id: "app-49",
       number: 49,
       firstName: "Matěj",
       lastName: "Novák",
@@ -54,6 +56,7 @@ describe("buildSubmissionStatus", () => {
       { bankAccount: "2900123456/2010", summary: { variableSymbol: "49000", payableCzk: 7400 } },
     ])
     expect(status.applications.map((a) => a.code)).toEqual(["LK-0048", "LK-0049"])
+    expect(status.applications.map((a) => a.id)).toEqual(["app-48", "app-49"])
   })
 
   it("lists the terms by date and shows a waitlisted term only as such, without a place in line", () => {
