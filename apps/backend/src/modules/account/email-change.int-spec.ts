@@ -4,6 +4,7 @@
 import { createHmac, randomUUID } from "node:crypto"
 import { PrismaService } from "@/core/prisma/prisma.service"
 import {
+  allEmailsTo,
   api,
   connectTestPrisma,
   hasSentNothingTo,
@@ -279,11 +280,13 @@ describe("changing the sign-in e-mail (integration)", () => {
     const account = await participant()
     const cookie = await signIn(account.email, account.password)
 
+    const emailsBefore = allEmailsTo(taken)
+
     const response = await requestChange(cookie, { newEmail: taken })
 
     expect(response.status).toBe(400)
     expect(await response.json()).toMatchObject({ statusCode: 400, code: "EMAIL_TAKEN" })
-    expect(await hasSentNothingTo(taken)).toBe(true)
+    expect(allEmailsTo(taken)).toEqual(emailsBefore)
     expect((await prisma.user.findUniqueOrThrow({ where: { id: account.id } })).email).toBe(
       account.email,
     )
