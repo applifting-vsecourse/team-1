@@ -65,7 +65,7 @@ export function TermStatuses({ applicationId }: { applicationId: string }) {
     <Card className="gap-4 p-4 md:p-6">
       <div className="flex flex-col gap-1">
         <h2 className="text-lg font-semibold">{t("termStatus.title")}</h2>
-        <p className="text-muted-foreground text-sm">{t("termStatus.helper")}</p>
+        <p className="text-sm text-muted-foreground">{t("termStatus.helper")}</p>
       </div>
       {active.length > 1 ? (
         <div className="flex border-b pb-4">
@@ -142,7 +142,7 @@ export function TermStatuses({ applicationId }: { applicationId: string }) {
               )}
             </div>
             {term.history.length > 0 ? (
-              <ul className="text-muted-foreground flex flex-col gap-1 text-sm">
+              <ul className="flex flex-col gap-1 text-sm text-muted-foreground">
                 {term.history.map((entry) => (
                   <li key={entry.id}>
                     {entry.kind === "CREATED_BY_ORGANIZER"

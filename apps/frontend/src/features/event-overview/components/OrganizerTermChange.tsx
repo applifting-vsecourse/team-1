@@ -105,16 +105,16 @@ export function OrganizerTermChange({
   const hasError = mutation.error && apiErrorCode(mutation.error) !== "CAPACITY_EXCEEDED"
   const subject = application.data ? (
     <div className="flex flex-col gap-1">
-      <span className="text-foreground text-lg font-semibold">
+      <span className="text-lg font-semibold text-foreground">
         {application.data.firstName} {application.data.lastName}
       </span>
-      <span className="text-muted-foreground text-sm">{application.data.eventName}</span>
+      <span className="text-sm text-muted-foreground">{application.data.eventName}</span>
     </div>
   ) : null
   const errorMessage = hasError ? (
     <p
       role="alert"
-      className="text-destructive text-sm"
+      className="text-sm text-destructive"
     >
       {mutation.error.message}
     </p>
@@ -125,7 +125,7 @@ export function OrganizerTermChange({
       <Button
         variant="secondary"
         className={cn(
-          "hover:bg-accent hover:text-accent-foreground transition-colors",
+          "transition-colors hover:bg-accent hover:text-accent-foreground",
           triggerClassName,
         )}
         onClick={() => {
@@ -143,7 +143,7 @@ export function OrganizerTermChange({
         }}
       >
         <DialogContent className="flex max-h-[calc(100dvh-2rem)] flex-col gap-0 overflow-hidden p-0 sm:max-w-160">
-          <div className="flex flex-col gap-6 overflow-y-auto p-6 [scrollbar-width:thin]">
+          <div className="flex [scrollbar-width:thin] flex-col gap-6 overflow-y-auto p-6">
             {isFullStep && next && added ? (
               <>
                 <DialogHeader>
@@ -234,7 +234,7 @@ export function OrganizerTermChange({
                 {preview.error ? (
                   <p
                     role="alert"
-                    className="text-destructive text-sm"
+                    className="text-sm text-destructive"
                   >
                     {t("termChange.impact.errorTitle")}
                   </p>
@@ -247,7 +247,7 @@ export function OrganizerTermChange({
                     <div className="flex flex-col gap-3 border-t pt-4">
                       <p className="font-medium">
                         {t("termChange.original")}
-                        <span className="text-muted-foreground font-normal">
+                        <span className="font-normal text-muted-foreground">
                           {" · "}
                           {termTitle(original)}
                         </span>
@@ -267,7 +267,7 @@ export function OrganizerTermChange({
                     <div className="flex flex-col gap-3 border-t pt-4">
                       <p className="font-medium">
                         {t("termChange.next")}
-                        <span className="text-muted-foreground font-normal">
+                        <span className="font-normal text-muted-foreground">
                           {" · "}
                           {termTitle(next)}
                         </span>
@@ -294,7 +294,7 @@ export function OrganizerTermChange({
                         </ImpactFigure>
                       </dl>
                     </div>
-                    <p className="text-muted-foreground border-t pt-4 text-sm">
+                    <p className="border-t pt-4 text-sm text-muted-foreground">
                       {t("termChange.impact.noTransfer")}
                     </p>
                   </section>
