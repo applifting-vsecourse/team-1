@@ -19,6 +19,21 @@ PDIR, REPO = Path(pos[0]), Path(pos[1])
 
 OP = re.compile(r"(?m)^(?:\(\d\) )?(Nahradit|Vložit za řádek|Novým):\n```text\n(.*?)\n```", re.S)
 report = []
+
+
+def split_items(src):
+    """Položky `### …` mimo oplocené bloky; `###` uvnitř ```text bloku je text patche."""
+    items, cur, fenced = [], None, False
+    for ln in src.splitlines(keepends=True):
+        if ln.startswith("```"):
+            fenced = not fenced
+        if not fenced and ln.startswith("### "):
+            cur = [ln[4:]]
+            items.append(cur)
+        elif cur is not None:
+            cur.append(ln)
+    return ["".join(c) for c in items]
+
 for pfile in sorted(PDIR.glob("*.patch.md")):
     src = pfile.read_text()
     head = re.match(r"# Patche: (\S+)", src)
@@ -28,7 +43,7 @@ for pfile in sorted(PDIR.glob("*.patch.md")):
     target = head.group(1)
     doc_path = REPO / target
     doc = doc_path.read_text()
-    for it in re.split(r"(?m)^### ", src)[1:]:
+    for it in split_items(src):
         title = it.splitlines()[0]
         cond = re.search(r"(?m)^Podmínka: (.*)$", it)
         if cond and any(s in cond.group(1) for s in SKIP_COND):

@@ -92,7 +92,7 @@ def link_ids(s):
 
 
 need = []
-for ln in section("Opravdu potřebuje tvé rozhodnutí").splitlines():
+for ln in (section("Opravdu potřebuje vaše rozhodnutí") or section("Opravdu potřebuje tvé rozhodnutí")).splitlines():
     if ln.startswith("- "):
         need.append("<li>" + link_ids(inline(ln[2:])) + "</li>")
 
@@ -181,7 +181,7 @@ button:focus-visible, a:focus-visible, select:focus-visible, textarea:focus-visi
 <header style="display:grid;gap:8px">
   <h1>{TITLE}</h1>
   <div class="meta">{"".join(f"<span>{inline(h)}</span>" for h in head)}</div>
-  <p style="margin:0;max-width:75ch">Výchozí je <strong>Ano</strong> u všeho. Přepni na <strong>Změnit</strong> jen výjimky, napiš co jinak a tlačítkem zkopíruj výjimky do chatu.</p>
+  <p style="margin:0;max-width:75ch">Výchozí je <strong>Ano</strong> u všeho. Přepněte na <strong>Změnit</strong> jen výjimky, napište, co jinak, a tlačítkem zkopírujte výjimky do chatu.</p>
 </header>
 
 <section aria-labelledby="h-main">
@@ -206,7 +206,7 @@ button:focus-visible, a:focus-visible, select:focus-visible, textarea:focus-visi
 </section>
 
 <section aria-labelledby="h-need">
-  <h2 id="h-need">Opravdu potřebuje tvé rozhodnutí</h2>
+  <h2 id="h-need">Opravdu potřebuje vaše rozhodnutí</h2>
   <ul class="need">{"".join(need)}</ul>
 </section>
 

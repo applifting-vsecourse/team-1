@@ -56,7 +56,7 @@ Jedna velká konsolidace na Opus narazila na limit API, proto se dělí hned od 
    - **Sonnet:** `$OUT/KOMENTARE.md`: odpovědi do PR a ticketů v 1. osobě PM, max 2–3 věty, tag jen tam, kde odpověď ukládá úkol, cíl (`Kam:` URL komentáře, na který se odpovídá, nebo „nový komentář“).
 3. **Skript:** `python3 -I .claude/skills/pm-routine/tools/gen_html.py $OUT "<titulek>"` → `$OUT/REPORT.html`, publikovat jako Artifact (soukromý). Každý nález má přepínač Ano/Změnit a tlačítko „zkopírovat výjimky“.
 
-**Brána 1 (PM):** do chatu max ~15 řádků (počty podle priority, top věci z „Opravdu potřebuje tvé rozhodnutí“, odkaz na report). PM defaultně schvaluje všechna doporučení a vrací jen výjimky.
+**Brána 1 (PM):** do chatu max ~15 řádků (počty podle priority, top věci z „Opravdu potřebuje vaše rozhodnutí“, odkaz na report). PM defaultně schvaluje všechna doporučení a vrací jen výjimky.
 
 ### Formát `REPORT.md` (čte ho `gen_html.py`)
 
@@ -69,7 +69,7 @@ Kategorie: K1 … · K8 …
 | ID | Co | Doporučení | Potvrdí | Ano/Změnit |
 | N-001 · P1 · K2 | … | … | PM | Ano |
 
-## Opravdu potřebuje tvé rozhodnutí
+## Opravdu potřebuje vaše rozhodnutí
 - **N-003** – max 2 věty s doporučením (max 10 položek)
 
 ## Pro klienta/PO
