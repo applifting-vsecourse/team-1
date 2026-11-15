@@ -1,6 +1,7 @@
 import { PrismaModule } from "@/core/prisma/prisma.module"
 import { LastOpenedEventController } from "@/modules/events/controllers/last-opened-event.controller"
 import { RoomAssignmentsController } from "@/modules/events/controllers/room-assignments.controller"
+import { RoomWarningsController } from "@/modules/events/controllers/room-warnings.controller"
 import { RoomsController } from "@/modules/events/controllers/rooms.controller"
 import { LastOpenedEventRepository } from "@/modules/events/repositories/last-opened-event.repository"
 import { RoomAssignmentsRepository } from "@/modules/events/repositories/room-assignments.repository"
@@ -23,6 +24,7 @@ import { TermsService } from "./services/terms.service"
   controllers: [
     RoomsController,
     RoomAssignmentsController,
+    RoomWarningsController,
     OrganizerEventsController,
     OrganizerTermsController,
     LastOpenedEventController,

@@ -1,4 +1,5 @@
 import { TermAssignments } from "@/modules/events/domain/room-assignment"
+import { RoomWarningKind } from "@/modules/events/domain/room-warnings"
 import { RoomAssignmentsRepository } from "@/modules/events/repositories/room-assignments.repository"
 import { Identity } from "@/shared/auth/domain/identity"
 import { OrganizationAccessService } from "@/shared/organization-access/organization-access.service"
@@ -27,12 +28,14 @@ export class RoomAssignmentsService {
     applicationTermId: string,
     roomId: string,
     alsoTermIds: string[],
+    confirmExtraBed: boolean,
   ): Promise<void> {
     await this.repository.assign(
       await this.scope(user, eventId, termId),
       applicationTermId,
       roomId,
       alsoTermIds,
+      confirmExtraBed,
     )
   }
 
@@ -43,5 +46,23 @@ export class RoomAssignmentsService {
     applicationTermId: string,
   ): Promise<void> {
     await this.repository.unassign(await this.scope(user, eventId, termId), applicationTermId)
+  }
+
+  async acknowledgeWarning(
+    user: Identity,
+    eventId: string,
+    termId: string,
+    input: {
+      kind: RoomWarningKind
+      roomId: string | null
+      applicationTermId: string | null
+      note: string
+    },
+  ): Promise<void> {
+    await this.repository.acknowledge(
+      await this.scope(user, eventId, termId),
+      input,
+      user.name ?? user.email,
+    )
   }
 }
