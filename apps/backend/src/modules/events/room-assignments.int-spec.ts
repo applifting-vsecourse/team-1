@@ -408,8 +408,8 @@ describe("room assignments (integration)", () => {
         data: {
           organizationId,
           eventId,
-          number: 10,
-          name: "T10",
+          number: 11,
+          name: "T11",
           startsOn: new Date("2027-09-01"),
           endsOn: new Date("2027-09-01"),
           priceCzk: 1000,

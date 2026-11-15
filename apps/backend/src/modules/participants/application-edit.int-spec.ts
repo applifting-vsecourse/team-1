@@ -179,11 +179,13 @@ describe("participant application edit (integration)", () => {
       individualAccommodation: false,
     })
     expect(withdrawn.status).toBe(200)
-    expect(await withdrawn.json()).toMatchObject({
-      individualAccommodation: false,
-      accommodationRequest: null,
-      history: [{ changedFields: ["individualAccommodation", "accommodationRequest"] }],
-    })
+    const saved = await withdrawn.json()
+    expect(saved).toMatchObject({ individualAccommodation: false, accommodationRequest: null })
+    // The newest entry is this save: the request and its note are one change.
+    expect(saved.history[0].changedFields).toEqual([
+      "individualAccommodation",
+      "accommodationRequest",
+    ])
 
     const bare = await call("PUT", ownId, participantCookie, {
       ...input,
