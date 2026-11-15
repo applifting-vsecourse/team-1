@@ -132,10 +132,21 @@ describe("TermStatuses", () => {
             ])
           : path.endsWith("withdraw-preview")
             ? Promise.resolve({ terms: [], overpaymentCzk: 0 })
-            : new Promise<never>(() => undefined),
+            : path.endsWith("change-options")
+              ? Promise.resolve([
+                  {
+                    id: "candidate",
+                    name: null,
+                    startsOn: "2027-07-19",
+                    endsOn: "2027-07-25",
+                    selected: false,
+                  },
+                ])
+              : new Promise<never>(() => undefined),
     }))
     setup()
     expect(await screen.findByText("Archived")).toBeVisible()
+    expect(await screen.findAllByRole("button", { name: "Change term" })).toHaveLength(2)
     expect(screen.getAllByRole("button", { name: "Withdraw" })).toHaveLength(2)
     await user.click(screen.getByRole("button", { name: "Withdraw the whole application" }))
     await waitFor(() =>

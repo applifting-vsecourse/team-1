@@ -256,6 +256,10 @@ export class TermStatusRepository {
       include: { payments: { where: { cancelledAt: null }, select: { amountCzk: true } } },
     })
     const active = current.filter((row) => row.status !== "CANCELLED")
+    const selected = new Set(selectedIds)
+    if (active.some((row) => row.status === "ARCHIVED" && !selected.has(row.termId))) {
+      throw new AppException(HttpStatus.CONFLICT, "INVALID_STATUS_TRANSITION")
+    }
     const activeIds = new Set(active.map((row) => row.termId))
     const addedIds = selectedIds.filter((id) => !activeIds.has(id))
     const offered = await this.prisma.term.findMany({

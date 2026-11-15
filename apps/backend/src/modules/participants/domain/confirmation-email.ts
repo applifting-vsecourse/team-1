@@ -29,10 +29,10 @@ function paymentOf(
   bankAccount: string,
   locale: SubmissionConfirmation["locale"],
 ): Payment | null {
-  if (!application.terms.some((term) => term.status === "CONFIRMED")) return null
   const confirmed = application.terms.filter((term) => term.status === "CONFIRMED")
+  if (confirmed.length === 0) return null
   return {
-    amount: formatCzk(computeAmountDue(application.terms), locale),
+    amount: formatCzk(computeAmountDue(confirmed), locale),
     bankAccount,
     variableSymbol: variableSymbol(application.number),
     terms:

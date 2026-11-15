@@ -87,7 +87,7 @@ export function TermStatuses({ applicationId }: { applicationId: string }) {
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
               <span className="font-medium">{termDatesLine(term)}</span>
               <Badge variant={BADGE[term.status]}>{t(`termStatus.state.${term.status}`)}</Badge>
-              {term.status === "CANCELLED" ? null : (
+              {term.status === "CANCELLED" || term.status === "ARCHIVED" ? null : (
                 <div className="flex flex-wrap gap-2 sm:ml-auto">
                   <OrganizerTermChange
                     applicationId={applicationId}
