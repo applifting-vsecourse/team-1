@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { formatDateTime } from "@/lib/date"
 import { termDatesLine } from "@/lib/term-label"
+import { cn } from "@/lib/utils"
 
 import {
   termStatusesQueryOptions,
@@ -64,7 +65,7 @@ export function TermStatuses({ applicationId }: { applicationId: string }) {
     <Card className="gap-4 p-4 md:p-6">
       <div className="flex flex-col gap-1">
         <h2 className="text-lg font-semibold">{t("termStatus.title")}</h2>
-        <p className="text-sm text-muted-foreground">{t("termStatus.helper")}</p>
+        <p className="text-muted-foreground text-sm">{t("termStatus.helper")}</p>
       </div>
       {active.length > 1 ? (
         <div className="flex border-b pb-4">
@@ -94,12 +95,19 @@ export function TermStatuses({ applicationId }: { applicationId: string }) {
                   </span>
                 ) : null}
               </div>
-              {/* On a phone the actions stack at full width; from sm up they wrap in a row. */}
               {term.status === "CANCELLED" ? null : (
-                <div className="flex w-full flex-col gap-2 *:w-full sm:ml-auto sm:w-auto sm:flex-row sm:flex-wrap sm:*:w-auto">
+                <div
+                  className={cn(
+                    "grid w-full gap-2 sm:ml-auto sm:flex sm:w-auto sm:flex-wrap",
+                    term.status === "WAITLISTED" && "max-sm:grid-cols-2",
+                  )}
+                >
                   <OrganizerTermChange
                     applicationId={applicationId}
                     term={term}
+                    triggerClassName={
+                      term.status === "WAITLISTED" ? "max-sm:col-span-2" : undefined
+                    }
                   />
                   {/* US-32: a confirmed or waitlisted term is left through the withdrawal. */}
                   {term.status === "CONFIRMED" || term.status === "WAITLISTED" ? (
@@ -134,7 +142,7 @@ export function TermStatuses({ applicationId }: { applicationId: string }) {
               )}
             </div>
             {term.history.length > 0 ? (
-              <ul className="flex flex-col gap-1 text-sm text-muted-foreground">
+              <ul className="text-muted-foreground flex flex-col gap-1 text-sm">
                 {term.history.map((entry) => (
                   <li key={entry.id}>
                     {entry.kind === "CREATED_BY_ORGANIZER"
