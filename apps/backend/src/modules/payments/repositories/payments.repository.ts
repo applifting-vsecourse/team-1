@@ -6,6 +6,7 @@ import { planPaymentDebtRenewal } from "@/modules/applications/domain/payment-de
 import {
   allocatePayment,
   computePayableAmount,
+  computeSummaryPayableAmount,
   computeRefundableAmount,
   computeTermDue,
   computeTermOwed,
@@ -409,12 +410,10 @@ export class PaymentsRepository {
         throw new AppException(HttpStatus.CONFLICT, "REFUND_EXCEEDS_OVERPAYMENT")
       rows = [{ applicationTermId: term.applicationTermId, amountCzk: isRefund ? -amount : amount }]
     } else {
-      const amount = resolvePaymentAmount(
-        input.amountCzk,
-        computePayableAmount(terms.map((term) => term.owedCzk)),
-      )
+      const amount = resolvePaymentAmount(input.amountCzk, computeSummaryPayableAmount(terms))
       assertAmount(amount)
       rows = allocatePayment(amount, terms)
+      if (rows.length === 0) throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
     }
 
     await tx.payment.createMany({

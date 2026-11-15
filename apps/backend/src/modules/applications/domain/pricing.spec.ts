@@ -4,6 +4,7 @@ import {
   computeAmountOwed,
   computeAmountPaid,
   computePayableAmount,
+  computeSummaryPayableAmount,
   computePaymentStatus,
   computeSelectionPrice,
   computeTermDue,
@@ -227,6 +228,38 @@ describe("allocatePayment", () => {
 })
 
 describe("archived paid terms (US-109)", () => {
+  const archived = {
+    applicationTermId: "archived",
+    status: "ARCHIVED" as const,
+    startsOn: new Date("2026-07-20"),
+    termNumber: 2,
+    owedCzk: 1000,
+  }
+  const active = {
+    applicationTermId: "active",
+    status: "CONFIRMED" as const,
+    startsOn: new Date("2026-07-05"),
+    termNumber: 1,
+    owedCzk: 1000,
+  }
+
+  it("settles only the confirmed debt of a mixed application", () => {
+    const terms = [archived, active]
+    const payable = computeSummaryPayableAmount(terms)
+    expect(payable).toBe(1000)
+    expect(allocatePayment(payable, terms)).toEqual([
+      { applicationTermId: "active", amountCzk: 1000 },
+    ])
+  })
+
+  it("excludes archived terms from the fallback for excess summary payments", () => {
+    expect(computeSummaryPayableAmount([archived])).toBe(0)
+    expect(allocatePayment(1000, [archived])).toEqual([])
+    expect(allocatePayment(1000, [archived, { ...active, status: "WAITLISTED" }])).toEqual([
+      { applicationTermId: "active", amountCzk: 1000 },
+    ])
+  })
+
   it("preserves the amount due instead of turning the paid price into an overpayment", () => {
     const archived = { status: "ARCHIVED" as const, priceCzk: 1000 }
     expect(computeAmountDue([archived])).toBe(1000)
