@@ -102,7 +102,7 @@ Novým:
 ```
 ````
 
-Patch, jehož kotvu mění jiný patch, se sloučí do jednoho. Patche s `D-nnn` z téže dávky se aplikují až po zápisu registru.
+Obsahuje-li kotva nebo nový text vlastní blok kódu (```), má vnější plot víc backticků (`text … `). Patch, jehož kotvu mění jiný patch, se sloučí do jednoho. Patche s `D-nnn` z téže dávky se aplikují až po zápisu registru.
 
 ## Fáze 3: Zápis návrhů (Sonnet, draft PR, bez čekání na PM)
 
