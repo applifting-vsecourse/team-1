@@ -125,9 +125,9 @@ export type AllocatedPayment = { applicationTermId: string; amountCzk: number }
  */
 export function allocatePayment(amountCzk: number, terms: AllocationTerm[]): AllocatedPayment[] {
   if (amountCzk <= 0) return []
-  const ordered = terms.filter((term) => term.status !== "ARCHIVED").sort(
-    (a, b) => a.startsOn.getTime() - b.startsOn.getTime() || a.termNumber - b.termNumber,
-  )
+  const ordered = terms
+    .filter((term) => term.status !== "ARCHIVED")
+    .sort((a, b) => a.startsOn.getTime() - b.startsOn.getTime() || a.termNumber - b.termNumber)
   if (ordered.length === 0) return []
   const confirmed = ordered.filter((term) => term.status === "CONFIRMED")
   const rows: AllocatedPayment[] = []

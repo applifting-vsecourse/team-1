@@ -6,8 +6,8 @@ import { planPaymentDebtRenewal } from "@/modules/applications/domain/payment-de
 import {
   allocatePayment,
   computePayableAmount,
-  computeSummaryPayableAmount,
   computeRefundableAmount,
+  computeSummaryPayableAmount,
   computeTermDue,
   computeTermOwed,
   computeTermPaid,
