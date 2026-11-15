@@ -402,6 +402,86 @@ describe("room assignments (integration)", () => {
       // a participant sees none of it
       expect((await call(base(t), "GET", undefined, participantCookie)).status).toBe(403)
     })
+
+    it("confirms a warning knowingly, keeps it muted, forgets it when it no longer holds", async () => {
+      const t = (
+        await prisma.term.create({
+          data: {
+            organizationId,
+            eventId,
+            number: 10,
+            name: "T10",
+            startsOn: new Date("2027-09-01"),
+            endsOn: new Date("2027-09-01"),
+            priceCzk: 1000,
+          },
+        })
+      ).id
+      type Listed = {
+        warnings: {
+          kind: string
+          roomId: string | null
+          acknowledged: boolean
+          note: string | null
+          acknowledgedBy: string | null
+        }[]
+        summary: { violations: number; acknowledged: number; confirmedWithoutBed: number }
+      }
+      const listed = async (): Promise<Listed> => (await list(t)) as unknown as Listed
+      const acknowledge = (body: unknown, session = cookie): Promise<Response> =>
+        call(
+          `/organizer/events/${eventId}/terms/${t}/room-warnings/acknowledgements`,
+          "POST",
+          body,
+          session,
+        )
+      const tight = await makeRoom(t, "Těsný", 1)
+      const [a, b] = await Promise.all(
+        ["A", "B"].map((name) =>
+          makeApplication(`Potvrzení ${name}`, [{ termId: t, status: "CONFIRMED" }]),
+        ),
+      )
+      expect((await assign(a.rows[t], tight, undefined, t)).status).toBe(204)
+      expect((await assign(b.rows[t], tight, undefined, t, true)).status).toBe(204)
+      // taking the extra bed away overfills the room
+      await prisma.room.update({ where: { id: tight }, data: { extraBeds: 0 } })
+      expect((await listed()).summary).toMatchObject({ violations: 1, acknowledged: 0 })
+
+      // nothing to confirm: a mixed-gender warning does not hold in a room of the same gender
+      const missing = await acknowledge({ kind: "MIXED_GENDER", roomId: tight, note: "x" })
+      expect(missing.status).toBe(409)
+      expect(((await missing.json()) as { code: string }).code).toBe("ROOM_WARNING_NOT_FOUND")
+      // a foreign organization and a participant get 403
+      expect(
+        (await acknowledge({ kind: "OVERCROWDED", roomId: tight, note: "x" }, foreignCookie))
+          .status,
+      ).toBe(403)
+      expect(
+        (await acknowledge({ kind: "OVERCROWDED", roomId: tight }, participantCookie)).status,
+      ).toBe(403)
+
+      const ok = await acknowledge({
+        kind: "OVERCROWDED",
+        roomId: tight,
+        note: "  Rodina s dítětem  ",
+      })
+      expect(ok.status).toBe(204)
+      const after = await listed()
+      expect(after.summary).toMatchObject({ violations: 0, acknowledged: 1 })
+      expect(after.warnings[0]).toMatchObject({
+        acknowledged: true,
+        note: "Rodina s dítětem",
+        acknowledgedBy: expect.any(String),
+      })
+
+      // the situation changes: the room is not overcrowded any more, the confirmation is forgotten
+      expect((await call(`${base(t)}/${b.rows[t]}`, "DELETE")).status).toBe(204)
+      expect(await prisma.roomWarningAcknowledgement.count({ where: { termId: t } })).toBe(0)
+      // and when it is overcrowded again it is a new, unconfirmed warning
+      expect((await assign(b.rows[t], tight, undefined, t, true)).status).toBe(204)
+      await prisma.room.update({ where: { id: tight }, data: { extraBeds: 0 } })
+      expect((await listed()).summary).toMatchObject({ violations: 1, acknowledged: 0 })
+    })
   })
 
   describe("releases the bed when the application leaves confirmed / to evaluate", () => {

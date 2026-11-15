@@ -8,6 +8,7 @@ import {
   RoomMode,
   TermRooms,
 } from "@/modules/events/domain/rooms"
+import { pruneAcknowledgements } from "@/modules/events/repositories/room-warnings.queries"
 import { AppException } from "@/shared/errors/app.exception"
 import { HttpStatus, Injectable } from "@nestjs/common"
 
@@ -55,7 +56,9 @@ export class RoomsRepository {
       await tx.$queryRaw`SELECT id FROM event WHERE id = ${eventId} AND "organizationId" = ${organizationId} FOR UPDATE`
       const term = await tx.term.findFirst({ where: { id: termId, eventId, organizationId } })
       if (!term) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
-      return action(tx, term.roomMode)
+      const result = await action(tx, term.roomMode)
+      await pruneAcknowledgements(tx, { termId, organizationId })
+      return result
     })
   }
 
