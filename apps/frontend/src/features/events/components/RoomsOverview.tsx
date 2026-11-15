@@ -37,7 +37,7 @@ import {
 // birth, free beds), and the confirmed people still without a room.
 // Individual accommodation (US-38) is deliberately not read here (D-161); no warnings of US-37 are
 // listed, only a small line back to the assignment where they are handled.
-// Figma (Design system): #36 / Přehled ubytování · výchozí · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=25786-111072 (mobile 25786-111467, print A4 25788-112117 · 25788-112336)
+// Figma (Design system): #36 / Přehled ubytování · výchozí · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=25846-112117 (mobile 25846-112551, print A4 25847-112218 · 25847-112433)
 // Figma (Design system): #36 / s odkazem na varování · bez přiřazení · plně obsazený · smíšené pokoje · přistýlka · bez pokojů · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=25786-111071
 // Changes over the first frames (review of the implementation): view picker as a select left of
 // the term, room cards like in the assignment, equal card size, small warning line, no "edit"
