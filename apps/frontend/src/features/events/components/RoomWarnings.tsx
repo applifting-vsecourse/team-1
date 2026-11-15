@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { formatDate } from "@/lib/date"
+import { cn } from "@/lib/utils"
 
 import type {
   AssignmentRoom,
@@ -100,7 +101,7 @@ export function RoomWarningStrip({
 }
 
 // Above the rooms: a small summary of broken room rules and confirmed people without a bed. Green
-// while nothing is broken, the warning colour as soon as something is. Before anyone is assigned
+// while no rule is broken (people without a bed are only counted), the warning colour once one is. Before anyone is assigned
 // there is nothing to check, so it says so.
 // Figma (Design system): Souhrn a upozornění v rozdělení do pokojů · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=23410-94640 (mobile 23410-95377; improved after review: compact, no jump buttons)
 // Figma (Design system): Bez porušení pravidel · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=23412-95922 (mobile 23412-96515)
@@ -154,16 +155,24 @@ export function RoomWarningsSummary({
     <div
       role="status"
       aria-label={t("roomWarnings.summaryTitle")}
-      className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 rounded-lg border border-status-warning/30 bg-status-warning-bg px-4 py-2.5 text-center text-sm"
+      className={cn(
+        "flex flex-wrap items-center justify-center gap-x-12 gap-y-2 rounded-lg border px-4 py-2.5 text-center text-sm",
+        summary.violations > 0
+          ? "border-status-warning/30 bg-status-warning-bg"
+          : "border-border bg-accent",
+      )}
     >
       <span className="flex items-center gap-2 font-medium">
         <AlertTriangle
-          className="size-4 text-status-warning"
+          className={cn(
+            "size-4",
+            summary.violations > 0 ? "text-status-warning" : "text-muted-foreground",
+          )}
           aria-hidden
         />
         {t("roomWarnings.summaryTitle")}
       </span>
-      <ul className="flex flex-wrap items-center justify-center gap-x-6 gap-y-1">
+      <ul className="flex flex-wrap items-center justify-center gap-x-12 gap-y-1">
         {counts.map(({ key, count, label }) => (
           <li
             key={key}
