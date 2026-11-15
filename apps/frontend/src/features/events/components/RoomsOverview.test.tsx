@@ -207,6 +207,16 @@ describe("RoomsOverview (US-36)", () => {
     expect(onShowAssignment).toHaveBeenCalledOnce()
   })
 
+  it("has no warning line when only people without a bed are warned about", async () => {
+    data.warnings = [
+      warning({ kind: "CONFIRMED_WITHOUT_BED", roomId: null, applicationTermId: "p4" }),
+    ]
+    data.summary = { violations: 0, acknowledged: 0, confirmedWithoutBed: 1 }
+    renderOverview()
+    await roomCard("Room A")
+    expect(screen.queryByText(/warning/)).not.toBeInTheDocument()
+  })
+
   it("has no warning line without an open warning", async () => {
     data.warnings = [warning({ acknowledged: true })]
     renderOverview()

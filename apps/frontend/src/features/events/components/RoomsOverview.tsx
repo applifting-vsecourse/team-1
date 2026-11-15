@@ -71,8 +71,9 @@ export function RoomsOverview({
   const totals = overviewTotals(data.rooms)
   const extraBeds = data.rooms.reduce((sum, room) => sum + room.extraBeds, 0)
   const withoutRoom = confirmedWithoutRoom(data.unassigned)
-  // The same count as the summary of the room assignment: rules broken and confirmed without a bed.
-  const openWarnings = data.summary.violations + data.summary.confirmedWithoutBed
+  // Only a broken room rule (overfilled room, mixed genders) counts; one already confirmed knowingly
+  // is not in the summary, and people confirmed without a bed are the business of the assignment.
+  const openWarnings = data.summary.violations
   const hasRooms = data.rooms.length > 0
   const metrics = [
     { label: t("roomOverview.rooms"), value: totals.rooms, helper: null },
