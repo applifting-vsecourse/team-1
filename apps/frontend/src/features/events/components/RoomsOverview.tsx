@@ -16,7 +16,6 @@ import { cn } from "@/lib/utils"
 import {
   roomAssignmentsQueryOptions,
   type AssignmentRoom,
-  type RoomWarning,
   type UnassignedParticipant,
 } from "@/features/events/api/room-assignments"
 import type { TermRooms } from "@/features/events/api/rooms"
@@ -72,7 +71,8 @@ export function RoomsOverview({
   const totals = overviewTotals(data.rooms)
   const extraBeds = data.rooms.reduce((sum, room) => sum + room.extraBeds, 0)
   const withoutRoom = confirmedWithoutRoom(data.unassigned)
-  const openWarnings = data.warnings.filter((warning: RoomWarning) => !warning.acknowledged).length
+  // The same count as the summary of the room assignment: rules broken and confirmed without a bed.
+  const openWarnings = data.summary.violations + data.summary.confirmedWithoutBed
   const hasRooms = data.rooms.length > 0
   const metrics = [
     { label: t("roomOverview.rooms"), value: totals.rooms, helper: null },
@@ -152,17 +152,21 @@ export function RoomsOverview({
             ))}
           </dl>
           {openWarnings > 0 ? (
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-status-warning print:hidden">
-              <p className="flex items-center gap-2">
+            <div
+              role="status"
+              className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 rounded-lg border border-status-warning/30 bg-status-warning-bg px-4 py-2 text-sm print:hidden"
+            >
+              <span className="flex items-center gap-2 font-medium">
                 <AlertTriangle
-                  className="size-4 shrink-0"
+                  className="size-4 shrink-0 text-status-warning"
                   aria-hidden
                 />
                 {t("roomOverview.warnings", { count: openWarnings })}
-              </p>
+              </span>
               <Button
-                variant="outline"
+                variant="ghost"
                 size="sm"
+                className="text-link"
                 onClick={onShowAssignment}
               >
                 {t("roomOverview.showWarnings")}

@@ -200,6 +200,7 @@ describe("RoomsOverview (US-36)", () => {
 
   it("links to the assignment from open warnings only (US-37), never lists them", async () => {
     data.warnings = [warning(), warning({ acknowledged: true })]
+    data.summary = { violations: 1, acknowledged: 1, confirmedWithoutBed: 0 }
     const user = renderOverview()
     expect(await screen.findByText("The room assignment has 1 warning.")).toBeInTheDocument()
     await user.click(screen.getByRole("button", { name: "Show in the assignment" }))
