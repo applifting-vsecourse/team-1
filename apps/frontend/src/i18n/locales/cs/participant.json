@@ -41,7 +41,7 @@
     "sourceTerm": "Původní termín",
     "targetTerm": "Nový termín",
     "title": "Změnit termín",
-    "toEvaluateNoBed": "Čeká na vyhodnocení · bez lůžka i platby",
+    "toEvaluateNoBed": "K vyhodnocení · bez lůžka i platby",
     "toast": {
       "cancelled": "Termín byl odhlášen",
       "changed": "Termín byl změněn",
@@ -179,6 +179,7 @@
         "change": "Organizátor žádost zamítl. Vaše původní účast zůstává platná."
       }
     },
+    "onlyTerms": "Pouze {{terms}}",
     "pendingDescription": "Odesláno {{date}}. Do schválení se termíny, lůžko ani platby nemění. O rozhodnutí vás informujeme e-mailem i v aplikaci.",
     "pendingTitle": "Žádost čeká na rozhodnutí organizátora",
     "reason": "Důvod: {{reason}}",

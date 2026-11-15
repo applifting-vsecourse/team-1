@@ -179,6 +179,7 @@
         "change": "The organiser declined the request. Your original participation remains valid."
       }
     },
+    "onlyTerms": "Only {{terms}}",
     "pendingDescription": "Sent {{date}}. Until approval, terms, bed and payments do not change. We will tell you the decision by e-mail and in the app.",
     "pendingTitle": "Request awaiting the organiser's decision",
     "reason": "Reason: {{reason}}",

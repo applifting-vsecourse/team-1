@@ -7,7 +7,8 @@ import { ErrorState } from "@/components/molecules/ErrorState"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
-import { formatDateRange, formatDateTime } from "@/lib/date"
+import { formatDateTime } from "@/lib/date"
+import { termLine } from "@/lib/term-label"
 
 import { participantChangeRequestsQueryOptions } from "@/features/participant/api/changeRequests"
 
@@ -32,11 +33,16 @@ export function ChangeRequestNotice({ applicationId }: { applicationId: string }
     ids
       .map((id) => {
         const term = request.terms.find((term) => term.id === id)
-        return term ? formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true }) : ""
+        return term ? termLine(term) : ""
       })
       .filter(Boolean)
       .join(", ")
-  const isCancel = request.requestedTermIds.length === 0
+  // The kind of the request follows from what it adds and removes: no new term is a cancellation
+  // (of the whole application or of some terms), a new term is a change.
+  const removedIds = request.currentTermIds.filter((id) => !request.requestedTermIds.includes(id))
+  const addedIds = request.requestedTermIds.filter((id) => !request.currentTermIds.includes(id))
+  const isCancel = addedIds.length === 0
+  const isWholeApplication = request.requestedTermIds.length === 0
   const isPending = request.status === "PENDING"
   return (
     <>
@@ -66,14 +72,16 @@ export function ChangeRequestNotice({ applicationId }: { applicationId: string }
         )}
         {isCancel ? (
           <DetailItem label={t("request.request")}>
-            {t("request.wholeApplication", { count: request.currentTermIds.length })}
+            {isWholeApplication
+              ? t("request.wholeApplication", { count: request.currentTermIds.length })
+              : t("request.onlyTerms", { terms: labels(removedIds) })}
           </DetailItem>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2">
-            <DetailItem label={t("request.current")}>{labels(request.currentTermIds)}</DetailItem>
-            <DetailItem label={t("request.requested")}>
-              {labels(request.requestedTermIds)}
-            </DetailItem>
+            {removedIds.length > 0 ? (
+              <DetailItem label={t("request.current")}>{labels(removedIds)}</DetailItem>
+            ) : null}
+            <DetailItem label={t("request.requested")}>{labels(addedIds)}</DetailItem>
           </div>
         )}
         <p>{t(`request.message.${request.status}.${isCancel ? "cancel" : "change"}`)}</p>

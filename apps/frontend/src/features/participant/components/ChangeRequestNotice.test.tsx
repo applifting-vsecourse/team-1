@@ -52,6 +52,17 @@ describe("ChangeRequestNotice", () => {
     expect(screen.queryByText("Awaiting approval")).not.toBeInTheDocument()
   })
 
+  it("shows a partial cancellation as a cancellation of the removed term, not as a term change", async () => {
+    renderNotice([request({ currentTermIds: ["t1", "t2"], requestedTermIds: ["t2"] })])
+
+    expect(await screen.findByRole("heading", { name: "Requested cancellation" })).toBeVisible()
+    expect(screen.queryByRole("heading", { name: "Requested term change" })).not.toBeInTheDocument()
+    expect(screen.getByText(/^Only 1. týden/)).toBeInTheDocument()
+    expect(screen.queryByText("New term")).not.toBeInTheDocument()
+    expect(screen.queryByText(/Whole application/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/^2. týden/)).not.toBeInTheDocument()
+  })
+
   it("shows the original and the new term of a pending term change", async () => {
     renderNotice([request({ currentTermIds: ["t1"], requestedTermIds: ["t2"] })])
 

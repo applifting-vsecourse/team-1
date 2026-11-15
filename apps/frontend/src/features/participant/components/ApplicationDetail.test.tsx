@@ -244,6 +244,8 @@ describe("ApplicationDetail", () => {
     expect(within(dialog).getByText("Price CZK 4,900 · amount due CZK 4,900")).toBeInTheDocument()
     expect(within(dialog).getByRole("combobox", { name: "New term" })).toBeInTheDocument()
     expect(within(dialog).getByText(/Money is not refunded automatically/)).toBeInTheDocument()
+    // The kit's close cross is hard-coded English; the translated "Cancel" button closes the dialog.
+    expect(within(dialog).queryByRole("button", { name: "Close" })).not.toBeInTheDocument()
     // Cancel and confirm sit side by side, in the footer of the dialog.
     const cancel = within(dialog).getByRole("button", { name: "Cancel" })
     const confirm = within(dialog).getByRole("button", { name: "Confirm change" })

@@ -292,8 +292,8 @@ export function ParticipantTermChange({
           </div>
         )}
         {canSubmit ? (
-          <section className="flex flex-col gap-4">
-            <h3 className="text-lg font-semibold tracking-tight">
+          <section className="flex flex-col gap-3 rounded-lg border p-4">
+            <h3 className="text-2xl font-bold tracking-tight">
               {t(
                 mode === "change"
                   ? "change.impact"
@@ -305,7 +305,6 @@ export function ParticipantTermChange({
             {removed.map((term) => (
               <DetailItem
                 key={term.id}
-                className="border-t pt-4"
                 label={
                   mode === "change"
                     ? t(isImmediate ? "change.impactOriginal" : "change.impactOriginalRequest")
@@ -316,17 +315,14 @@ export function ParticipantTermChange({
               </DetailItem>
             ))}
             {mode === "change" && target ? (
-              <DetailItem
-                className="border-t pt-4"
-                label={t("change.impactNew")}
-              >
+              <DetailItem label={t("change.impactNew")}>
                 {t("change.newPrice", {
                   price: formatCzk(target.priceCzk),
                   owed: formatCzk(target.owedAfterChangeCzk),
                 })}
               </DetailItem>
             ) : null}
-            {impactNote ? <p className="border-t pt-4">{impactNote}</p> : null}
+            {impactNote ? <p>{impactNote}</p> : null}
           </section>
         ) : null}
         {!isImmediate ? (
@@ -380,7 +376,10 @@ export function ParticipantTermChange({
         if (!isOpen && !mutation.isPending) onClose()
       }}
     >
-      <DialogContent className="flex max-h-[calc(100dvh-2rem)] flex-col gap-0 overflow-hidden p-0 sm:max-w-160">
+      <DialogContent
+        showCloseButton={false}
+        className="flex max-h-[calc(100dvh-2rem)] flex-col gap-0 overflow-hidden p-0 sm:max-w-160"
+      >
         <div className="flex [scrollbar-width:thin] flex-col gap-4 overflow-y-auto p-6">
           <DialogHeader className="text-left">
             <DialogTitle className="text-2xl">{title}</DialogTitle>
