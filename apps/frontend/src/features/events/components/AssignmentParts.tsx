@@ -32,7 +32,7 @@ import { RoomWarningStrip } from "@/features/events/components/RoomWarnings"
 export type DragData = { applicationTermId: string; name: string; fromRoomId: string | null }
 
 const chipClass =
-  "inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-border bg-secondary px-2 py-1 text-sm"
+  "inline-flex min-h-9 max-w-full items-center gap-1.5 rounded-lg border border-border bg-secondary px-2 py-1 text-sm"
 
 /** The chip that follows the pointer while dragging. */
 export function ParticipantGhost({ name }: { name: string }) {
@@ -111,10 +111,13 @@ export function ParticipantChip({
           )}
         >
           <GripVertical
-            className="size-3 text-muted-foreground"
+            className="size-3 shrink-0 text-muted-foreground"
             aria-hidden
           />
-          {name}
+          <span className="min-w-0 break-words">
+            {name}
+            {participant.individualAccommodation ? ` · ${t("roomAssignments.individual")}` : ""}
+          </span>
         </button>
         <DropdownMenuTrigger asChild>
           <span
@@ -188,6 +191,7 @@ export function UnassignedRow({
           <span className="truncate text-sm text-muted-foreground">
             {genderLabel(participant.gender)} ·{" "}
             {statusLabel(participant.status, participant.gender)}
+            {participant.individualAccommodation ? ` · ${t("roomAssignments.individual")}` : ""}
           </span>
         </div>
       </div>

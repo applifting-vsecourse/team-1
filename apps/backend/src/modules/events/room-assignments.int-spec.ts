@@ -403,6 +403,58 @@ describe("room assignments (integration)", () => {
       expect((await call(base(t), "GET", undefined, participantCookie)).status).toBe(403)
     })
 
+    it("does not count a person with a request for individual accommodation as mixed gender (US-38)", async () => {
+      const term = await prisma.term.create({
+        data: {
+          organizationId,
+          eventId,
+          number: 10,
+          name: "T10",
+          startsOn: new Date("2027-09-01"),
+          endsOn: new Date("2027-09-01"),
+          priceCzk: 1000,
+        },
+      })
+      const t = term.id
+      type Warned = {
+        warnings: { kind: string; roomId: string | null }[]
+        rooms: {
+          id: string
+          participants: { applicationTermId: string; individualAccommodation: boolean }[]
+        }[]
+        unassigned: { applicationTermId: string; individualAccommodation: boolean }[]
+      }
+      const warned = async (): Promise<Warned> => (await list(t)) as unknown as Warned
+      const makeMale = async (name: string, individual: boolean) => {
+        const application = await makeApplication(name, [{ termId: t, status: "CONFIRMED" }])
+        await prisma.application.update({
+          where: { id: application.applicationId },
+          data: { gender: "MALE", individualAccommodation: individual },
+        })
+        return application.rows[t]
+      }
+      const women = await makeRoom(t, "Dámský", 3)
+      const [partner, other] = await Promise.all([
+        makeMale("Partner", true),
+        makeMale("Cizí", false),
+      ])
+
+      expect(
+        (await warned()).unassigned.find((row) => row.applicationTermId === partner),
+      ).toMatchObject({
+        individualAccommodation: true,
+      })
+      expect((await assign(partner, women, undefined, t)).status).toBe(204)
+      const afterPartner = await warned()
+      expect(afterPartner.warnings.filter((warning) => warning.kind === "MIXED_GENDER")).toEqual([])
+      expect(afterPartner.rooms.find((room) => room.id === women)?.participants).toMatchObject([
+        { applicationTermId: partner, individualAccommodation: true },
+      ])
+      // a man without the request in the same women's room is still a warning
+      expect((await assign(other, women, undefined, t)).status).toBe(204)
+      expect((await warned()).warnings.map((warning) => warning.kind)).toContain("MIXED_GENDER")
+    })
+
     it("confirms a warning knowingly, keeps it muted, forgets it when it no longer holds", async () => {
       const t = (
         await prisma.term.create({

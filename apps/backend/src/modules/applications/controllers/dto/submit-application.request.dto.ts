@@ -1,3 +1,4 @@
+import { MAX_ACCOMMODATION_NOTE_LENGTH } from "@/shared/domain/accommodation"
 import { GENDERS } from "@/shared/domain/gender"
 import type { Gender } from "@/shared/domain/gender"
 import { ApiProperty } from "@nestjs/swagger"
@@ -8,9 +9,11 @@ import {
   ArrayUnique,
   Equals,
   IsArray,
+  IsBoolean,
   IsEmail,
   IsIn,
   IsNotEmpty,
+  IsOptional,
   IsString,
   Matches,
   MaxLength,
@@ -41,6 +44,25 @@ export class SubmitParticipantDto {
   @ApiProperty({ enum: GENDERS })
   @IsIn(GENDERS)
   gender!: Gender
+
+  @ApiProperty({
+    required: false,
+    description: "The participant wants the accommodation settled individually (US-38).",
+  })
+  @IsOptional()
+  @IsBoolean()
+  individualAccommodation?: boolean
+
+  @ApiProperty({
+    required: false,
+    nullable: true,
+    maxLength: MAX_ACCOMMODATION_NOTE_LENGTH,
+    description: "Optional note to the organizer; kept only with individualAccommodation.",
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(MAX_ACCOMMODATION_NOTE_LENGTH)
+  accommodationRequest?: string | null
 
   @ApiProperty({ type: [String], description: "Ids of the terms of the event." })
   @IsArray()

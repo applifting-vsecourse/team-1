@@ -5,6 +5,8 @@ import { z } from "zod"
 import { parseDateInput } from "@/lib/date-input"
 
 export const GENDERS = ["FEMALE", "MALE"] as const
+/** Longest note to the organizer about the individual accommodation (the server holds the same limit). */
+export const MAX_ACCOMMODATION_NOTE_LENGTH = 2000
 
 const EARLIEST_BIRTH_DATE = "1900-01-01"
 
@@ -39,6 +41,11 @@ export const createApplicationFormSchema = (
       return iso
     }),
     gender: z.enum(GENDERS, { error: t("form.errors.genderRequired") }),
+    // US-38: the note is optional and only meant when the box is ticked.
+    individualAccommodation: z.boolean(),
+    accommodationRequest: z
+      .string()
+      .max(MAX_ACCOMMODATION_NOTE_LENGTH, t("form.errors.accommodationRequestTooLong")),
     termIds: z.array(z.string()).min(1, t("form.errors.termsRequired")),
   })
 

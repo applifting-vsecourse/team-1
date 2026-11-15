@@ -44,6 +44,8 @@ const emptyParticipant: ParticipantDraft = {
   firstName: "",
   lastName: "",
   birthDate: "",
+  individualAccommodation: false,
+  accommodationRequest: "",
   termIds: [],
 }
 

@@ -50,7 +50,8 @@ export function AcknowledgeWarningDialog({
     mutationFn: () => acknowledgeRoomWarning(eventId, termId, warning, note.trim()),
   })
   const isPending = mutation.isPending
-  const women = room.participants.filter((person) => person.gender === "FEMALE").length
+  const counted = room.participants.filter((person) => !person.individualAccommodation)
+  const women = counted.filter((person) => person.gender === "FEMALE").length
   const submit = async () => {
     if (isPending) return
     try {
@@ -84,7 +85,7 @@ export function AcknowledgeWarningDialog({
               {warning.kind === "MIXED_GENDER"
                 ? t("acknowledgeDialog.mixedGenderValue", {
                     women: t("roomWarnings.women", { count: women }),
-                    men: t("roomWarnings.men", { count: room.participants.length - women }),
+                    men: t("roomWarnings.men", { count: counted.length - women }),
                   })
                 : t("acknowledgeDialog.overcrowdedValue", {
                     people: t("roomWarnings.people", { count: room.participants.length }),

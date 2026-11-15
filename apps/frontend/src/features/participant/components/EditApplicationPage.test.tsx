@@ -5,7 +5,7 @@ import {
   createRouter,
   RouterProvider,
 } from "@tanstack/react-router"
-import { act, render, screen, waitFor } from "@testing-library/react"
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
@@ -21,6 +21,7 @@ const initial = {
   lastName: "Nováková",
   birthDate: "2005-03-14",
   phone: null,
+  individualAccommodation: true,
   accommodationRequest: null,
   history: [],
 }
@@ -67,7 +68,7 @@ describe("EditApplicationPage", () => {
               id: "edit-1",
               createdAt: "2026-11-06T10:30:00.000Z",
               authorName: "Jana Nováková",
-              changedFields: ["phone", "accommodationRequest"],
+              changedFields: ["phone", "individualAccommodation", "accommodationRequest"],
             },
           ],
         }),
@@ -75,7 +76,7 @@ describe("EditApplicationPage", () => {
     renderPage()
     await user.type(await screen.findByRole("textbox", { name: "Phone *" }), "+420 777 123 456")
     await user.type(
-      screen.getByRole("textbox", { name: "Individual accommodation request" }),
+      screen.getByRole("textbox", { name: "Note for the organizer (optional)" }),
       "Ground floor, please.",
     )
     await user.click(screen.getByRole("button", { name: "Save changes" }))
@@ -86,6 +87,7 @@ describe("EditApplicationPage", () => {
         lastName: "Nováková",
         birthDate: "2005-03-14",
         phone: "+420 777 123 456",
+        individualAccommodation: true,
         accommodationRequest: "Ground floor, please.",
       },
     })
@@ -150,7 +152,7 @@ describe("EditApplicationPage", () => {
     put.mockReturnValue({ json: () => Promise.resolve(initial) })
     const client = renderPage()
     const accommodation = await screen.findByRole("textbox", {
-      name: "Individual accommodation request",
+      name: "Note for the organizer (optional)",
     })
     await user.type(accommodation, "Ground floor, please.")
     const refreshed = {
@@ -172,7 +174,7 @@ describe("EditApplicationPage", () => {
     expect(screen.getByRole("textbox", { name: "Last name *" })).toHaveValue("Nová")
     expect(screen.getByLabelText("Date of birth *")).toHaveValue("2001-02-03")
     expect(screen.getByRole("textbox", { name: "Phone *" })).toHaveValue(refreshed.phone)
-    expect(screen.getByRole("textbox", { name: "Individual accommodation request" })).toBe(
+    expect(screen.getByRole("textbox", { name: "Note for the organizer (optional)" })).toBe(
       accommodation,
     )
     expect(accommodation).toHaveValue("Ground floor, please.")
@@ -183,6 +185,7 @@ describe("EditApplicationPage", () => {
         lastName: refreshed.lastName,
         birthDate: refreshed.birthDate,
         phone: refreshed.phone,
+        individualAccommodation: true,
         accommodationRequest: "Ground floor, please.",
       },
     })
@@ -199,9 +202,9 @@ describe("EditApplicationPage", () => {
     })
 
     await waitFor(() =>
-      expect(screen.getByRole("textbox", { name: "Individual accommodation request" })).toHaveValue(
-        "Ground floor",
-      ),
+      expect(
+        screen.getByRole("textbox", { name: "Note for the organizer (optional)" }),
+      ).toHaveValue("Ground floor"),
     )
     expect(screen.getByRole("button", { name: "Save changes" })).toBeDisabled()
   })
@@ -210,7 +213,7 @@ describe("EditApplicationPage", () => {
     const user = userEvent.setup()
     const client = renderPage()
     const firstName = await screen.findByRole("textbox", { name: "First name *" })
-    const accommodation = screen.getByRole("textbox", { name: "Individual accommodation request" })
+    const accommodation = screen.getByRole("textbox", { name: "Note for the organizer (optional)" })
     get.mockReturnValue({
       json: () => Promise.resolve({ ...initial, accommodationRequest: "Ground floor" }),
     })
@@ -233,5 +236,119 @@ describe("EditApplicationPage", () => {
     await waitFor(() => expect(firstName).toHaveValue("Petra"))
     expect(accommodation).toHaveValue("")
     expect(screen.getByRole("button", { name: "Save changes" })).toBeEnabled()
+  })
+
+  describe("request for individual accommodation (US-38)", () => {
+    const withoutRequest = { ...initial, individualAccommodation: false }
+    const renderUnticked = () => {
+      get.mockReturnValue({ json: () => Promise.resolve(withoutRequest) })
+      const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+      const root = createRootRoute({
+        component: () => (
+          <QueryClientProvider client={client}>
+            <EditApplicationPage applicationId="a1" />
+          </QueryClientProvider>
+        ),
+      })
+      render(
+        <RouterProvider
+          router={createRouter({
+            routeTree: root,
+            history: createMemoryHistory({ initialEntries: ["/"] }),
+          })}
+        />,
+      )
+    }
+    const box = () =>
+      screen.findByRole("checkbox", { name: "I want to arrange the accommodation individually" })
+    const note = () => screen.queryByRole("textbox", { name: "Note for the organizer (optional)" })
+
+    it("asks for the note only once the box is ticked and says who sees it", async () => {
+      const user = userEvent.setup()
+      renderUnticked()
+      await user.click(await box())
+      expect(screen.getByText("Only the event organizer will see this.")).toBeInTheDocument()
+      expect(note()).toBeInTheDocument()
+      await user.click(await box())
+      expect(note()).not.toBeInTheDocument()
+      expect(screen.getByRole("button", { name: "Save changes" })).toBeDisabled()
+    })
+
+    it("saves the ticked box with its note and records one accommodation change", async () => {
+      const user = userEvent.setup()
+      put.mockReturnValue({
+        json: () =>
+          Promise.resolve({
+            ...initial,
+            individualAccommodation: true,
+            accommodationRequest: "Ground floor",
+            history: [
+              {
+                id: "edit-1",
+                createdAt: "2026-11-06T10:30:00.000Z",
+                authorName: "Jana Nováková",
+                changedFields: ["individualAccommodation", "accommodationRequest"],
+              },
+            ],
+          }),
+      })
+      renderUnticked()
+      await user.click(await box())
+      await user.type(note()!, "Ground floor")
+      await user.type(screen.getByRole("textbox", { name: "Phone *" }), "+420 777 123 456")
+      await user.click(screen.getByRole("button", { name: "Save changes" }))
+
+      expect(put).toHaveBeenCalledWith("participant/applications/a1/edit", {
+        json: {
+          firstName: "Jana",
+          lastName: "Nováková",
+          birthDate: "2005-03-14",
+          phone: "+420 777 123 456",
+          individualAccommodation: true,
+          accommodationRequest: "Ground floor",
+        },
+      })
+      expect(
+        await screen.findByText("Accommodation · Individual arrangement · Ground floor"),
+      ).toBeVisible()
+      expect(screen.getByText(/Jana Nováková · Updated: accommodation request/)).toBeInTheDocument()
+    })
+
+    it("sends no note when the box is unticked", async () => {
+      const user = userEvent.setup()
+      get.mockReturnValue({
+        json: () =>
+          Promise.resolve({ ...initial, accommodationRequest: "Ground floor", history: [] }),
+      })
+      put.mockReturnValue({ json: () => Promise.resolve(withoutRequest) })
+      renderPage()
+      get.mockReturnValue({
+        json: () =>
+          Promise.resolve({ ...initial, accommodationRequest: "Ground floor", history: [] }),
+      })
+      await user.click(await box())
+      await user.type(screen.getByRole("textbox", { name: "Phone *" }), "+420 777 123 456")
+      await user.click(screen.getByRole("button", { name: "Save changes" }))
+      expect(put).toHaveBeenCalledWith("participant/applications/a1/edit", {
+        json: {
+          firstName: "Jana",
+          lastName: "Nováková",
+          birthDate: "2005-03-14",
+          phone: "+420 777 123 456",
+          individualAccommodation: false,
+          accommodationRequest: null,
+        },
+      })
+    })
+
+    it("shows an error under a note over 2,000 characters and does not save it", async () => {
+      renderUnticked()
+      const user = userEvent.setup()
+      await user.click(await box())
+      fireEvent.change(note()!, { target: { value: "x".repeat(2001) } })
+      await user.click(screen.getByRole("button", { name: "Save changes" }))
+      expect(screen.getByText("The note can have at most 2,000 characters.")).toBeVisible()
+      expect(put).not.toHaveBeenCalled()
+    })
   })
 })

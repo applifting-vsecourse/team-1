@@ -38,7 +38,13 @@ export type RoomWarningsSummary = {
 
 export type RoomWarningsInput = {
   rooms: { id: string; capacity: number; extraBeds: number; gender: Gender | null }[]
-  assignments: { roomId: string; applicationTermId: string; gender: Gender }[]
+  assignments: {
+    roomId: string
+    applicationTermId: string
+    gender: Gender
+    /** Asked to settle the accommodation individually (US-38): not counted as mixed gender. */
+    individualAccommodation: boolean
+  }[]
   /** Confirmed applications of the term that sleep in no room. */
   confirmedWithoutRoom: { applicationTermId: string }[]
   acknowledgements: RoomWarningAcknowledgement[]
@@ -57,7 +63,8 @@ const sameSubject = (
  * block nothing:
  * - a room holds more people than beds (extra beds included), e.g. after an extra bed was taken away;
  * - a room with a set gender holds the other gender (rooms without a gender, the shared mode, never
- *   warn; individual accommodation of US-38 does not exist yet, an exemption belongs here);
+ *   warn; an applicant with a request for individual accommodation, US-38, is not counted, since
+ *   partners and families are meant to share a room);
  * - a confirmed application has no bed, but only once the term has at least one assignment, since
  *   assigning is optional.
  * An acknowledgement counts only while its warning still holds, so one that went away is forgotten.
@@ -73,7 +80,12 @@ export function computeRoomWarnings(input: RoomWarningsInput): {
     if (inRoom.length > computeRoomBeds(room)) {
       found.push({ kind: "OVERCROWDED", roomId: room.id, applicationTermId: null })
     }
-    if (room.gender !== null && inRoom.some((assignment) => assignment.gender !== room.gender)) {
+    if (
+      room.gender !== null &&
+      inRoom.some(
+        (assignment) => !assignment.individualAccommodation && assignment.gender !== room.gender,
+      )
+    ) {
       found.push({ kind: "MIXED_GENDER", roomId: room.id, applicationTermId: null })
     }
   }

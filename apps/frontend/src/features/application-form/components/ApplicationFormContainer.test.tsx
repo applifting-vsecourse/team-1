@@ -136,6 +136,8 @@ describe("ApplicationFormContainer", () => {
           lastName: "Nováková",
           birthDate: "2010-05-17",
           gender: "FEMALE",
+          individualAccommodation: false,
+          accommodationRequest: "",
           termIds: ["t1"],
         },
       ],

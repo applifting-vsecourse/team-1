@@ -25,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Textarea } from "@/components/ui/textarea"
 import { formatDateRange } from "@/lib/date"
 import { termName } from "@/lib/term-label"
 import { cn } from "@/lib/utils"
@@ -42,6 +43,9 @@ import {
 // US-120 gender label + explanation: #245 Údaje účastníka
 //   desktop https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19799-67177
 //   mobile  https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19799-67279
+// US-38 individual accommodation (checkbox, hint, note; states: unticked, ticked with a note, note too long)
+//   desktop https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=25584-11418
+//   mobile  https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=25584-11441
 
 type ParticipantFieldsProps = {
   /** Position in the form, 0-based. */
@@ -59,6 +63,10 @@ export function ParticipantFields({ index, terms, onRemove, isDisabled }: Partic
   const [firstName, lastName] = useWatch({
     control,
     name: [`participants.${index}.firstName`, `participants.${index}.lastName`],
+  })
+  const isIndividual = useWatch({
+    control,
+    name: `participants.${index}.individualAccommodation`,
   })
   const number = index + 1
   const name = [firstName, lastName].filter(Boolean).join(" ").trim()
@@ -180,6 +188,51 @@ export function ParticipantFields({ index, terms, onRemove, isDisabled }: Partic
             </FormItem>
           )}
         />
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <FormField
+          control={control}
+          name={`participants.${index}.individualAccommodation`}
+          render={({ field }) => (
+            <FormItem>
+              <div className="flex min-h-11 items-center gap-3">
+                <FormControl>
+                  <Checkbox
+                    className="size-5"
+                    checked={field.value}
+                    onCheckedChange={(isChecked) => field.onChange(isChecked === true)}
+                    onBlur={field.onBlur}
+                  />
+                </FormControl>
+                <FormLabel className="flex-1 cursor-pointer self-stretch leading-5 font-normal">
+                  {t("form.individualAccommodation")}
+                </FormLabel>
+              </div>
+              <FormDescription className="text-sm text-foreground">
+                {t("form.individualAccommodationHint")}
+              </FormDescription>
+            </FormItem>
+          )}
+        />
+        {isIndividual ? (
+          <FormField
+            control={control}
+            name={`participants.${index}.accommodationRequest`}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{t("form.accommodationRequest")}</FormLabel>
+                <FormControl>
+                  <Textarea
+                    {...field}
+                    className="min-h-32"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        ) : null}
       </div>
 
       <FormField

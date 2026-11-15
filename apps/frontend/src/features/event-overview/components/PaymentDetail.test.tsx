@@ -105,6 +105,7 @@ const application = (
     eventName: "Camp",
     firstName: "Adam",
     lastName: "Test",
+    individualAccommodation: false,
     accommodationRequest: null,
     code: "C-0047",
     birthDate: "2011-05-04",
@@ -170,17 +171,30 @@ beforeEach(() => {
 })
 
 describe("PaymentDetail", () => {
-  it("shows the applicant's accommodation request in the organizer detail", async () => {
+  it("shows the applicant's request for individual accommodation and its note (US-38)", async () => {
     respondWith(() => ({
       ...application([first]),
+      individualAccommodation: true,
       accommodationRequest: "Ground floor, please.",
     }))
     setup()
 
+    expect(await screen.findByRole("heading", { name: "Individual accommodation" })).toBeVisible()
     expect(
-      await screen.findByRole("heading", { name: "Individual accommodation request" }),
+      screen.getByText("The participant wants the accommodation arranged individually."),
     ).toBeVisible()
-    expect(screen.getByText("Ground floor, please.")).toBeVisible()
+    expect(screen.getByText("Note · Ground floor, please.")).toBeVisible()
+  })
+
+  it("says so when there is no request for individual accommodation (US-38)", async () => {
+    respondWith(() => application([first]))
+    setup()
+
+    expect(await screen.findByRole("heading", { name: "Individual accommodation" })).toBeVisible()
+    expect(
+      screen.getByText("The participant has no request for individual accommodation."),
+    ).toBeVisible()
+    expect(screen.queryByText(/^Note ·/)).not.toBeInTheDocument()
   })
 
   it("shows the participant's date of birth, gender and the applicant's contact", async () => {

@@ -21,8 +21,10 @@ function useWarningText() {
   const { t } = useTranslation("events")
   return (warning: RoomWarning, room: AssignmentRoom): string => {
     if (warning.kind === "MIXED_GENDER") {
-      const women = room.participants.filter((person) => person.gender === "FEMALE").length
-      const men = room.participants.length - women
+      // Who asked for individual accommodation is not counted, as in the rule itself (US-38).
+      const counted = room.participants.filter((person) => !person.individualAccommodation)
+      const women = counted.filter((person) => person.gender === "FEMALE").length
+      const men = counted.length - women
       return t("roomWarnings.mixedGender", {
         women: t("roomWarnings.women", { count: women }),
         men: t("roomWarnings.men", { count: men }),

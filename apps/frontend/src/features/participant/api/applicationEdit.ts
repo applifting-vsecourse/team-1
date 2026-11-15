@@ -17,6 +17,7 @@ const editableApplicationSchema = z.object({
   lastName: z.string(),
   birthDate: z.string(),
   phone: z.string().nullable(),
+  individualAccommodation: z.boolean(),
   accommodationRequest: z.string().nullable(),
   history: z.array(entrySchema),
 })
@@ -24,7 +25,12 @@ const editableApplicationSchema = z.object({
 export type EditableApplication = z.infer<typeof editableApplicationSchema>
 export type EditApplicationInput = Pick<
   EditableApplication,
-  "firstName" | "lastName" | "birthDate" | "phone" | "accommodationRequest"
+  | "firstName"
+  | "lastName"
+  | "birthDate"
+  | "phone"
+  | "individualAccommodation"
+  | "accommodationRequest"
 >
 
 export const applicationEditQueryOptions = (id: string) =>

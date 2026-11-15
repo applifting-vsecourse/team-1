@@ -9,6 +9,7 @@ import { LoadingState } from "@/components/molecules/LoadingState"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -22,6 +23,7 @@ import {
 } from "@/features/participant/api/applicationEdit"
 
 // Figma (Design system): Upravit přihlášku · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19795-13915 (mobile: 19795-14057)
+// Figma (Design system): US-38 individuální řešení ubytování v úpravě údajů · nezaškrtnuto node-id=25586-32206 (mobile: 25586-32330); zaškrtnuto s poznámkou 25586-32411 (mobile: 25586-32543); chyba 25586-32632 (mobile: 25586-32768)
 // Figma (Design system): Změny byly uloženy · node-id=19795-14149 (mobile: 19795-14264); Změny se nepodařilo uložit · node-id=19795-14329 (mobile: 19795-14464)
 export function EditApplicationPage({ applicationId }: { applicationId: string }) {
   const { t } = useTranslation("participant")
@@ -52,6 +54,12 @@ export function EditApplicationPage({ applicationId }: { applicationId: string }
   )
 }
 
+const MAX_ACCOMMODATION_NOTE_LENGTH = 2000
+
+/** The request for individual accommodation and its note are one change in the history (US-38). */
+const isAccommodation = (fields: string[]): boolean =>
+  fields.some((field) => field === "accommodationRequest" || field === "individualAccommodation")
+
 function EditForm({
   applicationId,
   initial,
@@ -68,21 +76,27 @@ function EditForm({
     lastName: initial.lastName,
     birthDate: initial.birthDate,
     phone: initial.phone ?? "",
+    individualAccommodation: initial.individualAccommodation,
     accommodationRequest: initial.accommodationRequest ?? "",
     ...edits,
   }
-  const set = (key: keyof EditApplicationInput, value: string) =>
+  const set = (key: keyof EditApplicationInput, value: string | boolean) =>
     setEdits((current) => {
       const next = { ...current, [key]: value }
       if (value === (initial[key] ?? "")) delete next[key]
       return next
     })
   const [failedFields, setFailedFields] = useState<Record<
-    keyof EditApplicationInput,
+    Exclude<keyof EditApplicationInput, "individualAccommodation">,
     boolean
   > | null>(null)
   const mutation = useMutation({
-    mutationFn: () => saveApplicationEdit(applicationId, values),
+    mutationFn: () =>
+      saveApplicationEdit(applicationId, {
+        ...values,
+        // The note belongs to the request: without it none is sent.
+        accommodationRequest: values.individualAccommodation ? values.accommodationRequest : null,
+      }),
     onSuccess: async () => {
       await client.invalidateQueries({ queryKey: ["participant", "applications"] })
     },
@@ -92,19 +106,25 @@ function EditForm({
     const trimmed = value?.trim()
     return trimmed?.length ? trimmed : null
   }
+  const isNoteTooLong =
+    values.individualAccommodation &&
+    (values.accommodationRequest ?? "").length > MAX_ACCOMMODATION_NOTE_LENGTH
+  const isAccommodationChanged =
+    values.individualAccommodation !== initial.individualAccommodation ||
+    (values.individualAccommodation ? nullableTrimmed(values.accommodationRequest) : null) !==
+      initial.accommodationRequest
   const isChanged =
     values.firstName.trim() !== initial.firstName ||
     values.lastName.trim() !== initial.lastName ||
     values.birthDate !== initial.birthDate ||
     nullableTrimmed(values.phone) !== initial.phone ||
-    nullableTrimmed(values.accommodationRequest) !== initial.accommodationRequest
+    isAccommodationChanged
   const changed = {
     firstName: values.firstName.trim() !== initial.firstName,
     lastName: values.lastName.trim() !== initial.lastName,
     birthDate: values.birthDate !== initial.birthDate,
     phone: nullableTrimmed(values.phone) !== initial.phone,
-    accommodationRequest:
-      nullableTrimmed(values.accommodationRequest) !== initial.accommodationRequest,
+    accommodationRequest: isAccommodationChanged,
   }
   const visibleFields = mutation.isError && failedFields ? failedFields : changed
   const shouldShowPersonalCard =
@@ -137,10 +157,11 @@ function EditForm({
         ? t("edit.historyPersonal")
         : null,
       fields.includes("phone") ? t("edit.historyContact") : null,
-      fields.includes("accommodationRequest") ? t("edit.historyAccommodation") : null,
+      isAccommodation(fields) ? t("edit.historyAccommodation") : null,
     ].filter(Boolean)
     const historyDescription =
-      fields.length === 2 && fields.includes("phone") && fields.includes("accommodationRequest")
+      isAccommodation(fields) &&
+      fields.filter((field) => !isAccommodation([field])).join() === "phone"
         ? t("edit.historyContactAccommodation")
         : t("edit.historyOther", { fields: kinds.join(", ") })
     return (
@@ -151,7 +172,15 @@ function EditForm({
             {saved.firstName} {saved.lastName}
           </h2>
           <p>{t("edit.phoneSummary", { phone: saved.phone })}</p>
-          <p>{t("edit.accommodationSummary", { request: saved.accommodationRequest ?? "—" })}</p>
+          <p>
+            {t("edit.accommodationSummary", {
+              request: saved.individualAccommodation
+                ? [t("edit.accommodationIndividual"), saved.accommodationRequest]
+                    .filter(Boolean)
+                    .join(" · ")
+                : "—",
+            })}
+          </p>
           <p>{t("edit.organizerNotified")}</p>
           {change ? (
             <p>
@@ -179,6 +208,7 @@ function EditForm({
       className="mx-auto flex w-full max-w-[805px] flex-col gap-6"
       onSubmit={(event) => {
         event.preventDefault()
+        if (isNoteTooLong) return
         setFailedFields(changed)
         mutation.mutate()
       }}
@@ -248,14 +278,42 @@ function EditForm({
       {mutation.isError && (visibleFields.phone || !initial.phone) ? phoneField : null}
       {!mutation.isError || visibleFields.accommodationRequest ? (
         <div className="flex flex-col gap-2">
-          <Label htmlFor="edit-accommodation">{t("edit.accommodationRequest")}</Label>
-          <Textarea
-            id="edit-accommodation"
-            maxLength={2000}
-            value={values.accommodationRequest ?? ""}
-            onChange={(event) => set("accommodationRequest", event.target.value)}
-            className="min-h-32"
-          />
+          <div className="flex min-h-11 items-center gap-3">
+            <Checkbox
+              id="edit-individual-accommodation"
+              className="size-5"
+              checked={values.individualAccommodation}
+              onCheckedChange={(isChecked) => set("individualAccommodation", isChecked === true)}
+            />
+            <Label
+              htmlFor="edit-individual-accommodation"
+              className="flex-1 cursor-pointer self-stretch leading-5 font-normal"
+            >
+              {t("edit.individualAccommodation")}
+            </Label>
+          </div>
+          {values.individualAccommodation ? (
+            <>
+              <Label htmlFor="edit-accommodation">{t("edit.accommodationRequest")}</Label>
+              <Textarea
+                id="edit-accommodation"
+                value={values.accommodationRequest ?? ""}
+                onChange={(event) => set("accommodationRequest", event.target.value)}
+                aria-invalid={isNoteTooLong}
+                aria-describedby={isNoteTooLong ? "edit-accommodation-error" : undefined}
+                className="min-h-32"
+              />
+              {isNoteTooLong ? (
+                <p
+                  id="edit-accommodation-error"
+                  className="text-sm text-destructive"
+                >
+                  {t("edit.accommodationRequestTooLong")}
+                </p>
+              ) : null}
+            </>
+          ) : null}
+          <p className="text-sm text-foreground">{t("edit.individualAccommodationHint")}</p>
         </div>
       ) : null}
       <Button

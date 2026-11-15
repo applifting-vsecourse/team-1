@@ -25,6 +25,7 @@ describe("participant application edit (integration)", () => {
     lastName: "Nováková",
     birthDate: "2000-05-15",
     phone: "+420 777 123 456",
+    individualAccommodation: true,
     accommodationRequest: "Prosím o pokoj v přízemí.",
   }
 
@@ -53,6 +54,7 @@ describe("participant application edit (integration)", () => {
       eventName: "Letní kemp 2027",
       firstName: "Jana",
       phone: null,
+      individualAccommodation: false,
       accommodationRequest: null,
       history: [],
     })
@@ -81,6 +83,8 @@ describe("participant application edit (integration)", () => {
       { ...input, phone: "abc" },
       { ...input, phone: "(((((((" },
       { ...input, accommodationRequest: "x".repeat(2001) },
+      { ...input, individualAccommodation: "yes" },
+      { ...input, individualAccommodation: undefined },
     ]) {
       expect((await call("PUT", ownId, participantCookie, invalid)).status).toBe(400)
     }
@@ -96,11 +100,12 @@ describe("participant application edit (integration)", () => {
       lastName: "Nováková",
       birthDate: "2000-05-15",
       phone: normalizedPhone,
+      individualAccommodation: true,
       accommodationRequest: "Prosím o pokoj v přízemí.",
       history: [
         {
           authorName: "Jana Nováková",
-          changedFields: ["birthDate", "phone", "accommodationRequest"],
+          changedFields: ["birthDate", "phone", "individualAccommodation", "accommodationRequest"],
         },
       ],
     })
@@ -108,12 +113,17 @@ describe("participant application edit (integration)", () => {
 
     const application = await prisma.application.findUniqueOrThrow({ where: { id: ownId } })
     expect(application.phone).toBe(normalizedPhone)
+    expect(application.individualAccommodation).toBe(true)
     expect(application.accommodationRequest).toBe(input.accommodationRequest)
     const history = await prisma.applicationEdit.findFirstOrThrow({
       where: { applicationId: ownId },
     })
     expect(history.changedById).toBe(application.userId)
-    expect(history.before).toMatchObject({ phone: null, accommodationRequest: null })
+    expect(history.before).toMatchObject({
+      phone: null,
+      individualAccommodation: false,
+      accommodationRequest: null,
+    })
     expect(history.after).toMatchObject({ phone: normalizedPhone })
 
     const members = await prisma.organizationMember.findMany({
@@ -149,6 +159,7 @@ describe("participant application edit (integration)", () => {
     })
     expect(organizerDetail.status).toBe(200)
     expect(await organizerDetail.json()).toMatchObject({
+      individualAccommodation: true,
       accommodationRequest: input.accommodationRequest,
     })
 
@@ -160,6 +171,33 @@ describe("participant application edit (integration)", () => {
         where: { applicationId: ownId, kind: "APPLICATION_EDITED" },
       }),
     ).toBe(members.length)
+  })
+
+  it("drops the note when the request is withdrawn and keeps a request without a note (US-38)", async () => {
+    const withdrawn = await call("PUT", ownId, participantCookie, {
+      ...input,
+      individualAccommodation: false,
+    })
+    expect(withdrawn.status).toBe(200)
+    expect(await withdrawn.json()).toMatchObject({
+      individualAccommodation: false,
+      accommodationRequest: null,
+      history: [{ changedFields: ["individualAccommodation", "accommodationRequest"] }],
+    })
+
+    const bare = await call("PUT", ownId, participantCookie, {
+      ...input,
+      accommodationRequest: "   ",
+    })
+    expect(bare.status).toBe(200)
+    expect(await bare.json()).toMatchObject({
+      individualAccommodation: true,
+      accommodationRequest: null,
+    })
+    const application = await prisma.application.findUniqueOrThrow({ where: { id: ownId } })
+    expect(application).toMatchObject({ individualAccommodation: true, accommodationRequest: null })
+    // Put the application back for the tests that follow.
+    await call("PUT", ownId, participantCookie, input)
   })
 
   it("rejects a duplicate identity on an active term but ignores a cancelled one", async () => {

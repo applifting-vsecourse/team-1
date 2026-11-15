@@ -11,11 +11,17 @@ const base = (over: Partial<RoomWarningsInput>): RoomWarningsInput => ({
   acknowledgements: [],
   ...over,
 })
-const at = (roomId: string, n: number, gender: "MALE" | "FEMALE" = "MALE") =>
+const at = (
+  roomId: string,
+  n: number,
+  gender: "MALE" | "FEMALE" = "MALE",
+  individualAccommodation = false,
+) =>
   Array.from({ length: n }, (_, i) => ({
     roomId,
-    applicationTermId: `${roomId}-${i}`,
+    applicationTermId: `${roomId}-${i}${individualAccommodation ? "-individual" : ""}`,
     gender,
+    individualAccommodation,
   }))
 
 describe("computeRoomWarnings", () => {
@@ -48,14 +54,36 @@ describe("computeRoomWarnings", () => {
     expect(result.summary.violations).toBe(1)
   })
 
+  it("does not count an applicant with a request for individual accommodation as mixed gender", () => {
+    const result = computeRoomWarnings(
+      base({ assignments: [...at("men", 1), ...at("men", 1, "FEMALE", true)] }),
+    )
+    expect(result.warnings).toEqual([])
+    expect(result.summary).toEqual({ violations: 0, acknowledged: 0, confirmedWithoutBed: 0 })
+  })
+
+  it("still warns when a person without the request is of the other gender", () => {
+    const result = computeRoomWarnings(
+      base({
+        rooms: [{ ...men, capacity: 4 }],
+        assignments: [...at("men", 1), ...at("men", 1, "FEMALE", true), ...at("men", 1, "FEMALE")],
+      }),
+    )
+    expect(result.warnings).toMatchObject([{ kind: "MIXED_GENDER", roomId: "men" }])
+  })
+
+  it("keeps a person with the request in the count of beds", () => {
+    const result = computeRoomWarnings(
+      base({ assignments: [...at("men", 2), ...at("men", 1, "FEMALE", true)] }),
+    )
+    expect(result.warnings).toMatchObject([{ kind: "OVERCROWDED", roomId: "men" }])
+  })
+
   it("does not watch the gender in rooms without one (shared mode)", () => {
     const result = computeRoomWarnings(
       base({
         rooms: [shared],
-        assignments: [
-          ...at("shared", 1),
-          { roomId: "shared", applicationTermId: "w", gender: "FEMALE" },
-        ],
+        assignments: [...at("shared", 1), ...at("shared", 1, "FEMALE")],
       }),
     )
     expect(result.warnings).toEqual([])

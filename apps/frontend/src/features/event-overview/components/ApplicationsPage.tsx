@@ -53,6 +53,7 @@ import type { ApplicationsSearch } from "@/features/event-overview/lib/applicati
 // Figma (Design system): O05 / Náhradníci (waitlist of a term and gender) · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12769-3721
 // Figma (Design system): M12 · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14070-41596
 // Figma (Design system): US-103 view chips + queue (ApplicationViews, ApplicationQueue) · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15765-4897
+// Figma (Design system): US-38 badge in the row, empty filter · desktop https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=25587-109569 (mobile: 25587-109801); empty 25587-110253 (mobile: 25587-110406)
 // Figma (Design system): M12b / Empty results · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14189-43641
 export function ApplicationsPage({
   eventId,
@@ -113,6 +114,10 @@ export function ApplicationsPage({
     onFiltersChange(next)
   }
   const hasFilters = Object.values(filters).some(Boolean)
+  // Only the filter of individual accommodation is set: nobody has asked for it (US-38).
+  const isOnlyIndividual =
+    filters.accommodation === "INDIVIDUAL" &&
+    Object.entries(filters).every(([key, value]) => !value || key === "accommodation")
   const isWaitlist = filters.status === "WAITLISTED"
   const substituteTerm = isWaitlist
     ? filters.term
@@ -305,8 +310,15 @@ export function ApplicationsPage({
                 <p className="text-sm text-muted-foreground">
                   {isQueue && !filters.q && !filters.term
                     ? t("queue.empty")
-                    : t(hasFilters ? "applications.empty" : "applications.noApplications")}
+                    : isOnlyIndividual
+                      ? t("applications.emptyIndividual")
+                      : t(hasFilters ? "applications.empty" : "applications.noApplications")}
                 </p>
+                {isOnlyIndividual && !isQueue && (
+                  <p className="text-sm text-muted-foreground">
+                    {t("applications.emptyIndividualHint")}
+                  </p>
+                )}
                 {isQueue && !filters.q && !filters.term && (
                   <p className="text-sm text-muted-foreground">{t("queue.emptyHint")}</p>
                 )}
@@ -403,6 +415,14 @@ export function ApplicationsPage({
                               )}{" "}
                               · {row.email}
                             </p>
+                            {row.individualAccommodation && (
+                              <Badge
+                                variant="secondary"
+                                className="mt-1"
+                              >
+                                {t("applications.individualAccommodation")}
+                              </Badge>
+                            )}
                           </TableCell>
                           <TableCell>
                             <Terms application={row} />
@@ -463,6 +483,14 @@ export function ApplicationsPage({
                           {" · "}
                           {row.email}
                         </span>
+                        {row.individualAccommodation && (
+                          <Badge
+                            variant="secondary"
+                            className="w-fit"
+                          >
+                            {t("applications.individualAccommodation")}
+                          </Badge>
+                        )}
                         <Terms application={row} />
                         <PaymentStatus application={row} />
                         <span className="text-sm">

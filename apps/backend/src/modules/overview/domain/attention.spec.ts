@@ -10,6 +10,7 @@ const base = {
   firstName: "A",
   lastName: "B",
   gender: "FEMALE" as const,
+  individualAccommodation: false,
 }
 const term = (
   status: ListedApplication["terms"][number]["status"],

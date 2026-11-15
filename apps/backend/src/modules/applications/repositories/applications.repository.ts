@@ -151,6 +151,8 @@ export class ApplicationsRepository {
             gender: application.gender,
             email: application.email,
             phone: application.phone,
+            individualAccommodation: application.individualAccommodation ?? false,
+            accommodationRequest: application.accommodationRequest ?? null,
             locale: application.locale,
             consentAt: application.consentAt,
             submittedAt,

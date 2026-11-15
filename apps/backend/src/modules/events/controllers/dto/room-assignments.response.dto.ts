@@ -11,6 +11,7 @@ class ParticipantDto {
   @ApiProperty() firstName!: string
   @ApiProperty() lastName!: string
   @ApiProperty({ enum: ["FEMALE", "MALE"] }) gender!: Gender
+  @ApiProperty() individualAccommodation!: boolean
   @ApiProperty({ enum: STATUSES }) status!: string
 }
 class OtherTermRoomDto {
