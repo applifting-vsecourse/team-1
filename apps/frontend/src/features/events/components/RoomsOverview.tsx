@@ -154,19 +154,22 @@ export function RoomsOverview({
           {openWarnings > 0 ? (
             <div
               role="status"
-              className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 rounded-lg border border-status-warning/30 bg-status-warning-bg px-4 py-2 text-sm print:hidden"
+              className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-lg border border-status-warning/30 bg-status-warning-bg px-3 py-2.5 print:hidden"
             >
-              <span className="flex items-center gap-2 font-medium">
+              <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-status-warning/15 text-status-warning">
                 <AlertTriangle
-                  className="size-4 shrink-0 text-status-warning"
+                  className="size-4"
                   aria-hidden
                 />
-                {t("roomOverview.warnings", { count: openWarnings })}
               </span>
+              <p className="min-w-0 flex-1 text-sm font-medium break-words">
+                {t("roomOverview.warnings", { count: openWarnings })}
+              </p>
+              {/* The warning button of the assignment, a little lighter. */}
               <Button
-                variant="ghost"
+                type="button"
                 size="sm"
-                className="text-link"
+                className="bg-status-warning/85 text-status-warning-bg hover:bg-status-warning"
                 onClick={onShowAssignment}
               >
                 {t("roomOverview.showWarnings")}
