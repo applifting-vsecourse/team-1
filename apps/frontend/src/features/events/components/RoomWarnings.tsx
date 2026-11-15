@@ -154,7 +154,7 @@ export function RoomWarningsSummary({
     <div
       role="status"
       aria-label={t("roomWarnings.summaryTitle")}
-      className="flex flex-wrap items-center gap-x-5 gap-y-2 rounded-lg border border-status-warning/30 bg-status-warning-bg px-4 py-2.5 text-sm"
+      className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 rounded-lg border border-status-warning/30 bg-status-warning-bg px-4 py-2.5 text-center text-sm"
     >
       <span className="flex items-center gap-2 font-medium">
         <AlertTriangle
@@ -163,14 +163,14 @@ export function RoomWarningsSummary({
         />
         {t("roomWarnings.summaryTitle")}
       </span>
-      <ul className="flex flex-wrap items-center gap-x-5 gap-y-1">
+      <ul className="flex flex-wrap items-center justify-center gap-x-6 gap-y-1">
         {counts.map(({ key, count, label }) => (
           <li
             key={key}
-            className="flex items-baseline gap-2"
+            className="flex items-baseline gap-1.5"
           >
-            <span className="text-xl leading-none font-bold">{count}</span>
-            <span className="text-muted-foreground">{label}</span>
+            <span className="font-bold">{count}</span>
+            <span>{label}</span>
           </li>
         ))}
       </ul>

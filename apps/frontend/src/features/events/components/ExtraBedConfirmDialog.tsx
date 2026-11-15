@@ -85,13 +85,10 @@ export function ExtraBedConfirmDialog({
           {rows.map(([label, value, isKey]) => (
             <div
               key={label}
-              className={cn(
-                "flex items-start justify-between gap-4 px-4 py-2.5",
-                isKey && "bg-accent",
-              )}
+              className="flex items-start justify-between gap-4 px-4 py-2.5"
             >
               <dt className="text-muted-foreground">{label}</dt>
-              <dd className={cn("text-right break-words", isKey ? "font-bold" : "font-medium")}>
+              <dd className={cn("text-right break-words", isKey ? "font-semibold" : "font-medium")}>
                 {value}
               </dd>
             </div>

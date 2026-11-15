@@ -1,7 +1,7 @@
 import type { ReactNode } from "react"
 import { useCallback, useRef, useState } from "react"
 import { useDraggable, useDroppable } from "@dnd-kit/core"
-import { GripVertical } from "lucide-react"
+import { AlertTriangle, GripVertical } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { Badge } from "@/components/ui/badge"
@@ -275,7 +275,6 @@ function Occupancy({
           {isDropping ? t("roomAssignments.dropHere") : freeBedsLabel(room)}
         </span>
       )}
-      <WarningLabels kinds={kinds} />
       <ExtraBeds room={room} />
     </div>
   )
@@ -283,16 +282,23 @@ function Occupancy({
 
 function WarningLabels({ kinds }: { kinds: RoomWarning["kind"][] }) {
   const { t } = useTranslation("events")
-  return (
-    <>
-      {kinds.includes("OVERCROWDED") ? (
-        <Badge variant="warning">{t("roomWarnings.overcrowdedLabel")}</Badge>
-      ) : null}
-      {kinds.includes("MIXED_GENDER") ? (
-        <Badge variant="warning">{t("roomWarnings.mixedGenderLabel")}</Badge>
-      ) : null}
-    </>
-  )
+  const chips = [
+    kinds.includes("OVERCROWDED") ? t("roomWarnings.overcrowdedLabel") : null,
+    kinds.includes("MIXED_GENDER") ? t("roomWarnings.mixedGenderLabel") : null,
+  ].filter((label): label is string => label !== null)
+  return chips.map((label) => (
+    <Badge
+      key={label}
+      variant="warning"
+      className="gap-1"
+    >
+      <AlertTriangle
+        className="size-3"
+        aria-hidden
+      />
+      {label}
+    </Badge>
+  ))
 }
 
 /** Warning strips of a room; marked for the jump from the summary. */
@@ -353,9 +359,10 @@ export function RoomTableRow({
             isWarned && "shadow-[inset_4px_0_0_0_var(--color-status-warning)]",
           )}
         >
-          <div className="flex items-center gap-2 whitespace-nowrap">
+          <div className="flex flex-wrap items-center gap-2">
             <span className="font-bold">{room.name}</span>
             {room.gender ? <Badge variant="secondary">{roomGenderLabel(room.gender)}</Badge> : null}
+            <WarningLabels kinds={openKinds(warnings)} />
           </div>
         </TableCell>
         <TableCell className="min-w-64 align-top whitespace-normal">
@@ -431,9 +438,10 @@ export function RoomCard({
       )}
     >
       <div className="flex flex-col gap-3 p-4">
-        <div className="flex items-center justify-center gap-2">
+        <div className="flex flex-wrap items-center justify-center gap-2">
           <span className="font-semibold break-words">{room.name}</span>
           {room.gender ? <Badge variant="secondary">{roomGenderLabel(room.gender)}</Badge> : null}
+          <WarningLabels kinds={kinds} />
         </div>
         <div className="flex items-center gap-3">
           <span className="text-sm font-semibold whitespace-nowrap">
@@ -452,11 +460,6 @@ export function RoomCard({
             <Badge variant={isFull ? "secondary" : "success"}>{freeBedsLabel(room)}</Badge>
           )}
         </div>
-        {kinds.length > 0 ? (
-          <div className="flex flex-col items-start gap-1 text-sm">
-            <WarningLabels kinds={kinds} />
-          </div>
-        ) : null}
         <ExtraBeds room={room} />
       </div>
       {room.participants.length ? (

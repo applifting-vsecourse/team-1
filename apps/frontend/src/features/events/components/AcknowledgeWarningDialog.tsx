@@ -73,7 +73,7 @@ export function AcknowledgeWarningDialog({
         <DialogDescription className="text-base">
           {t("acknowledgeDialog.description")}
         </DialogDescription>
-        <dl className="flex flex-col divide-y divide-border rounded-lg border border-border bg-status-warning-bg text-sm">
+        <dl className="flex flex-col divide-y divide-border rounded-lg border border-border text-sm">
           <div className="flex items-start justify-between gap-4 px-4 py-2.5">
             <dt className="text-muted-foreground">{t("acknowledgeDialog.room")}</dt>
             <dd className="text-right font-medium break-words">{roomTitle(room)}</dd>
