@@ -9,7 +9,7 @@ import {
   OrganizationContact,
   PaymentDetails,
 } from "@/modules/participants/domain/my-application"
-import { ApiProperty } from "@nestjs/swagger"
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger"
 
 export class MyApplicationTermDto {
   @ApiProperty()
@@ -32,6 +32,9 @@ export class MyApplicationTermDto {
 
   @ApiProperty({ example: 4500, description: "Price frozen at evaluation, whole CZK." })
   priceCzk!: number
+
+  @ApiPropertyOptional({ description: "Overpayment retained on an archived term, whole CZK." })
+  archivedOverpaymentCzk?: number
 
   @ApiProperty({ description: "The organizer offers transport to this term (US-65)." })
   transportOffered!: boolean

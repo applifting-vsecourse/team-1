@@ -79,6 +79,27 @@ describe("buildMyApplication", () => {
     )
   })
 
+  it("reports an archived overpayment separately from active payment details", () => {
+    const [upcoming, first] = record().terms
+    const result = buildMyApplication(
+      record({
+        terms: [
+          upcoming,
+          {
+            ...first,
+            status: "ARCHIVED",
+            payments: [{ amountCzk: 5100, source: "MANUAL", createdAt: at(10) }],
+          },
+        ],
+      }),
+    )
+
+    expect(result.terms[0]).toMatchObject({ termId: "t1", archivedOverpaymentCzk: 600 })
+    expect(result.terms[1]).not.toHaveProperty("archivedOverpaymentCzk")
+    expect(result.paymentDetails?.summary.payableCzk).toBe(4900)
+    expect(result.paymentDetails?.terms.map((term) => term.termId)).toEqual(["t2"])
+  })
+
   it("carries the organization name with the contact of the event, as typed", () => {
     expect(buildMyApplication(record()).organizationContact).toEqual({
       name: "Letní kemp z. s.",

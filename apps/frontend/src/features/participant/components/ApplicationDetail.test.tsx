@@ -201,17 +201,18 @@ const renderDetail = (
 describe("ApplicationDetail", () => {
   beforeEach(() => get.mockReset())
 
-  it("keeps archived terms visible without payment or term change actions", async () => {
+  it("shows an archived overpayment without payment or term change actions", async () => {
     renderDetail(
       application({
-        terms: [{ ...confirmed, status: "ARCHIVED" }],
-        amountPaidCzk: 4500,
-        amountOwedCzk: 0,
-        paymentStatus: "PAID",
+        terms: [{ ...confirmed, status: "ARCHIVED", archivedOverpaymentCzk: 600 }],
+        amountPaidCzk: 5100,
+        amountOwedCzk: -600,
+        paymentStatus: "OVERPAID",
         paymentDetails: null,
       }),
     )
     expect(await screen.findByText("Archived")).toBeInTheDocument()
+    expect(screen.getByText(/Overpaid/)).toHaveTextContent("600")
     expect(screen.queryByRole("button", { name: "Change terms" })).not.toBeInTheDocument()
     expect(screen.queryByRole("button", { name: /Show payment QR/ })).not.toBeInTheDocument()
   })

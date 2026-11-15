@@ -11,6 +11,7 @@ const termSchema = z.object({
   endsOn: z.string(),
   status: z.enum(["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED", "ARCHIVED"]),
   priceCzk: z.number().int(),
+  archivedOverpaymentCzk: z.number().int().nonnegative().optional(),
   /** The organizer offers transport to this term (US-65). */
   transportOffered: z.boolean(),
   /** The participant chose a transport or their own transport for this term. */

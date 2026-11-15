@@ -168,7 +168,12 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
                   <TermLabel term={term} />
                   <TermStatusBadge term={term} />
                   <span className="w-full sm:w-50 sm:text-right">
-                    {term.status === "TO_EVALUATE" ? null : <MoneyAmount amountCzk={0} />}
+                    {term.status === "TO_EVALUATE" ? null : (
+                      <>
+                        {term.archivedOverpaymentCzk ? `${t("paymentStatus.OVERPAID")} · ` : null}
+                        <MoneyAmount amountCzk={term.archivedOverpaymentCzk ?? 0} />
+                      </>
+                    )}
                   </span>
                 </li>
               ))}
