@@ -274,6 +274,15 @@ describe("EditApplicationPage", () => {
       expect(screen.getByRole("button", { name: "Save changes" })).toBeDisabled()
     })
 
+    it("shows how much of the 2,000 characters the note uses", async () => {
+      const user = userEvent.setup()
+      renderUnticked()
+      await user.click(await box())
+      expect(screen.getByText("0 / 2,000")).toBeInTheDocument()
+      await user.type(note()!, "Ground")
+      expect(screen.getByText("6 / 2,000")).toBeInTheDocument()
+    })
+
     it("saves the ticked box with its note and records one accommodation change", async () => {
       const user = userEvent.setup()
       put.mockReturnValue({

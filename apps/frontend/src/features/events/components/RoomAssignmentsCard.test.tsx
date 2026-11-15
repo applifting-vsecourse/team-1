@@ -331,10 +331,13 @@ describe("room assignment", () => {
         ],
       }
       renderCard()
-      expect(await screen.findByText("Woman · To evaluate · individually")).toBeInTheDocument()
-      expect(screen.getByText("Woman · Confirmed")).toBeInTheDocument()
+      expect(await screen.findByText("Barbora Šimková")).toBeInTheDocument()
+      expect(screen.getByText("Woman · To evaluate")).toBeInTheDocument()
+      // A visible badge for the unassigned one, and for the one in the room in the table and the
+      // card of the phone layout; none for the others.
+      expect(screen.getAllByText("Individual accommodation")).toHaveLength(3)
       const table = screen.getByRole("table")
-      expect(within(table).getByText("Jana Nováková · individually")).toBeInTheDocument()
+      expect(within(table).getByText("Individual accommodation")).toBeInTheDocument()
       expect(within(table).getByText("Eva Horká")).toBeInTheDocument()
       expect(screen.getByRole("button", { name: "Assign Barbora Šimková to a room" })).toBeEnabled()
     })

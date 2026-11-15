@@ -172,11 +172,11 @@ describe("ApplicationsPage", () => {
     it("says nobody has asked for it when the filter finds nothing", async () => {
       setup([], false, undefined, null, { accommodation: "INDIVIDUAL" })
       expect(
-        await screen.findByText("No application asks for individual accommodation."),
+        await screen.findByRole("heading", {
+          name: "Nobody has asked for individual accommodation yet",
+        }),
       ).toBeVisible()
-      expect(
-        screen.getByText("Nobody has made the request yet. Change the filters or clear them."),
-      ).toBeVisible()
+      expect(screen.getByText(/as soon as an applicant makes it/)).toBeVisible()
       expect(screen.getByRole("button", { name: "Clear search and filters" })).toBeVisible()
     })
 

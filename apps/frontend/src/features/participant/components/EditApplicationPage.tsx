@@ -5,6 +5,7 @@ import { TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
+import { CharacterCounter } from "@/components/atoms/CharacterCounter"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -277,23 +278,28 @@ function EditForm({
       ) : null}
       {mutation.isError && (visibleFields.phone || !initial.phone) ? phoneField : null}
       {!mutation.isError || visibleFields.accommodationRequest ? (
-        <div className="flex flex-col gap-2">
-          <div className="flex min-h-11 items-center gap-3">
-            <Checkbox
-              id="edit-individual-accommodation"
-              className="size-5"
-              checked={values.individualAccommodation}
-              onCheckedChange={(isChecked) => set("individualAccommodation", isChecked === true)}
-            />
-            <Label
-              htmlFor="edit-individual-accommodation"
-              className="flex-1 cursor-pointer self-stretch leading-5 font-normal"
-            >
-              {t("edit.individualAccommodation")}
-            </Label>
+        <div className="flex flex-col gap-4 border-t border-border pt-4">
+          <div className="flex flex-col gap-1">
+            <div className="flex min-h-11 items-center gap-3">
+              <Checkbox
+                id="edit-individual-accommodation"
+                className="size-5"
+                checked={values.individualAccommodation}
+                onCheckedChange={(isChecked) => set("individualAccommodation", isChecked === true)}
+              />
+              <Label
+                htmlFor="edit-individual-accommodation"
+                className="flex-1 cursor-pointer self-stretch leading-5 font-normal"
+              >
+                {t("edit.individualAccommodation")}
+              </Label>
+            </div>
+            <p className="pl-8 text-sm text-muted-foreground">
+              {t("edit.individualAccommodationHint")}
+            </p>
           </div>
           {values.individualAccommodation ? (
-            <>
+            <div className="flex flex-col gap-2">
               <Label htmlFor="edit-accommodation">{t("edit.accommodationRequest")}</Label>
               <Textarea
                 id="edit-accommodation"
@@ -303,17 +309,22 @@ function EditForm({
                 aria-describedby={isNoteTooLong ? "edit-accommodation-error" : undefined}
                 className="min-h-32"
               />
-              {isNoteTooLong ? (
-                <p
-                  id="edit-accommodation-error"
-                  className="text-sm text-destructive"
-                >
-                  {t("edit.accommodationRequestTooLong")}
-                </p>
-              ) : null}
-            </>
+              <div className="flex items-start gap-3">
+                {isNoteTooLong ? (
+                  <p
+                    id="edit-accommodation-error"
+                    className="text-sm text-destructive"
+                  >
+                    {t("edit.accommodationRequestTooLong")}
+                  </p>
+                ) : null}
+                <CharacterCounter
+                  count={(values.accommodationRequest ?? "").length}
+                  max={MAX_ACCOMMODATION_NOTE_LENGTH}
+                />
+              </div>
+            </div>
           ) : null}
-          <p className="text-sm text-foreground">{t("edit.individualAccommodationHint")}</p>
         </div>
       ) : null}
       <Button

@@ -256,6 +256,26 @@ describe("ApplicationForm", () => {
       expect(card.getByRole("combobox", { name: "Gender for room allocation *" })).toBeVisible()
     })
 
+    it("sits below the terms and shows how much of the 2,000 characters is used", async () => {
+      render(
+        <ApplicationForm
+          event={event}
+          onSubmit={submitSpy()}
+        />,
+      )
+      const card = within(participantCard(1))
+      const terms = card.getByRole("group", { name: /Choose terms/ })
+      const box = card.getByRole("checkbox", {
+        name: "I want to arrange the accommodation individually",
+      })
+      expect(terms.compareDocumentPosition(box) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+
+      await userEvent.click(box)
+      expect(card.getByText("0 / 2,000")).toBeInTheDocument()
+      await userEvent.type(note()!, "Ground floor")
+      expect(card.getByText("12 / 2,000")).toBeInTheDocument()
+    })
+
     it("submits the request with its note", async () => {
       const onSubmit = submitSpy()
       render(

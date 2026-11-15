@@ -3,6 +3,7 @@ import { X } from "lucide-react"
 import { useFormContext, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import { CharacterCounter } from "@/components/atoms/CharacterCounter"
 import { TermPrice } from "@/components/atoms/MoneyAmount"
 import { DateField } from "@/components/molecules/DateField"
 import { Button } from "@/components/ui/button"
@@ -33,6 +34,7 @@ import { cn } from "@/lib/utils"
 import type { PublicTerm } from "@/features/application-form/api/publicEvent"
 import {
   GENDERS,
+  MAX_ACCOMMODATION_NOTE_LENGTH,
   type ApplicationFormDraft,
 } from "@/features/application-form/lib/application-form-schema"
 
@@ -190,51 +192,6 @@ export function ParticipantFields({ index, terms, onRemove, isDisabled }: Partic
         />
       </div>
 
-      <div className="flex flex-col gap-2">
-        <FormField
-          control={control}
-          name={`participants.${index}.individualAccommodation`}
-          render={({ field }) => (
-            <FormItem>
-              <div className="flex min-h-11 items-center gap-3">
-                <FormControl>
-                  <Checkbox
-                    className="size-5"
-                    checked={field.value}
-                    onCheckedChange={(isChecked) => field.onChange(isChecked === true)}
-                    onBlur={field.onBlur}
-                  />
-                </FormControl>
-                <FormLabel className="flex-1 cursor-pointer self-stretch leading-5 font-normal">
-                  {t("form.individualAccommodation")}
-                </FormLabel>
-              </div>
-              <FormDescription className="text-sm text-foreground">
-                {t("form.individualAccommodationHint")}
-              </FormDescription>
-            </FormItem>
-          )}
-        />
-        {isIndividual ? (
-          <FormField
-            control={control}
-            name={`participants.${index}.accommodationRequest`}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t("form.accommodationRequest")}</FormLabel>
-                <FormControl>
-                  <Textarea
-                    {...field}
-                    className="min-h-32"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        ) : null}
-      </div>
-
       <FormField
         control={control}
         name={`participants.${index}.termIds`}
@@ -292,6 +249,58 @@ export function ParticipantFields({ index, terms, onRemove, isDisabled }: Partic
           </FormItem>
         )}
       />
+
+      {/* US-38: below the terms, set off by a hairline; the note appears once the box is ticked. */}
+      <div className="flex flex-col gap-4 border-t border-border pt-4">
+        <FormField
+          control={control}
+          name={`participants.${index}.individualAccommodation`}
+          render={({ field }) => (
+            <FormItem className="gap-1">
+              <div className="flex min-h-11 items-center gap-3">
+                <FormControl>
+                  <Checkbox
+                    className="size-5"
+                    checked={field.value}
+                    onCheckedChange={(isChecked) => field.onChange(isChecked === true)}
+                    onBlur={field.onBlur}
+                  />
+                </FormControl>
+                <FormLabel className="flex-1 cursor-pointer self-stretch leading-5 font-normal">
+                  {t("form.individualAccommodation")}
+                </FormLabel>
+              </div>
+              <FormDescription className="pl-8 text-sm">
+                {t("form.individualAccommodationHint")}
+              </FormDescription>
+            </FormItem>
+          )}
+        />
+        {isIndividual ? (
+          <FormField
+            control={control}
+            name={`participants.${index}.accommodationRequest`}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{t("form.accommodationRequest")}</FormLabel>
+                <FormControl>
+                  <Textarea
+                    {...field}
+                    className="min-h-32"
+                  />
+                </FormControl>
+                <div className="flex items-start gap-3">
+                  <FormMessage />
+                  <CharacterCounter
+                    count={field.value.length}
+                    max={MAX_ACCOMMODATION_NOTE_LENGTH}
+                  />
+                </div>
+              </FormItem>
+            )}
+          />
+        ) : null}
+      </div>
     </Card>
   )
 }

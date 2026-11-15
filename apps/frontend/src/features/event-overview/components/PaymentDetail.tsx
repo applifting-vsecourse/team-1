@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next"
 import { ROUTES } from "@/app/routes"
 import { MoneyAmount } from "@/components/atoms/MoneyAmount"
 import { Seo } from "@/components/atoms/Seo"
+import { DetailItem } from "@/components/molecules/DetailItem"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { TermPaymentCard, TermPaymentCards } from "@/components/molecules/TermPaymentCard"
@@ -138,20 +139,29 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
       />
       <ParticipantDetails application={data} />
       {/* US-38: who asked to settle the accommodation individually, with the note; only for organizers. */}
-      <Card className="gap-2 p-4 md:p-6">
+      <Card
+        role="group"
+        aria-label={t("payment.individualAccommodation")}
+        className="gap-4 p-4 md:p-6"
+      >
         <h3 className="text-lg font-semibold">{t("payment.individualAccommodation")}</h3>
-        <p>
-          {t(
-            data.individualAccommodation
-              ? "payment.individualAccommodationYes"
-              : "payment.individualAccommodationNo",
-          )}
-        </p>
-        {data.individualAccommodation && data.accommodationRequest ? (
-          <p className="break-words whitespace-pre-wrap">
-            {t("payment.individualAccommodationNote", { note: data.accommodationRequest })}
-          </p>
-        ) : null}
+        <div className="grid gap-4 md:grid-cols-[12rem_1fr]">
+          <DetailItem label={t("payment.individualAccommodationRequest")}>
+            {t(
+              data.individualAccommodation
+                ? "payment.individualAccommodationYes"
+                : "payment.individualAccommodationNo",
+            )}
+          </DetailItem>
+          {data.individualAccommodation ? (
+            <DetailItem
+              label={t("payment.individualAccommodationNote")}
+              className="whitespace-pre-wrap"
+            >
+              {data.accommodationRequest ?? t("payment.individualAccommodationNoNote")}
+            </DetailItem>
+          ) : null}
+        </div>
       </Card>
       {/* Nothing to pay without a confirmed term (US-25): record a payment once a place is confirmed. */}
       {hasConfirmedTerm ? null : (

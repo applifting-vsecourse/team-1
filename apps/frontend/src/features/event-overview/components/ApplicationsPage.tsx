@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { Link, useNavigate } from "@tanstack/react-router"
-import { FilterX, Plus } from "lucide-react"
+import { BedDouble, FilterX, Plus } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
@@ -305,20 +305,43 @@ export function ApplicationsPage({
                 </Label>
               </div>
             )}
-            {query.data.length === 0 ? (
+            {query.data.length === 0 && isOnlyIndividual && !isQueue ? (
+              // US-38: nobody asked for individual accommodation yet.
+              <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed border-border px-6 py-10 text-center">
+                <span className="flex size-12 items-center justify-center rounded-full bg-accent text-accent-foreground">
+                  <BedDouble
+                    className="size-6"
+                    aria-hidden="true"
+                  />
+                </span>
+                <h2 className="text-lg font-semibold">{t("applications.emptyIndividualTitle")}</h2>
+                <p className="max-w-prose text-sm text-muted-foreground">
+                  {t("applications.emptyIndividualHint")}
+                </p>
+                <Button
+                  variant="secondary"
+                  size="lg"
+                  className="mt-2 border border-border"
+                  onClick={() => {
+                    setPage(0)
+                    onFiltersChange({})
+                    searchInput.current?.focus()
+                  }}
+                >
+                  <FilterX
+                    className="size-4 shrink-0"
+                    aria-hidden="true"
+                  />
+                  {t("applications.clearSearchAndFilters")}
+                </Button>
+              </div>
+            ) : query.data.length === 0 ? (
               <div className="flex flex-col items-start gap-4 py-6">
                 <p className="text-sm text-muted-foreground">
                   {isQueue && !filters.q && !filters.term
                     ? t("queue.empty")
-                    : isOnlyIndividual
-                      ? t("applications.emptyIndividual")
-                      : t(hasFilters ? "applications.empty" : "applications.noApplications")}
+                    : t(hasFilters ? "applications.empty" : "applications.noApplications")}
                 </p>
-                {isOnlyIndividual && !isQueue && (
-                  <p className="text-sm text-muted-foreground">
-                    {t("applications.emptyIndividualHint")}
-                  </p>
-                )}
                 {isQueue && !filters.q && !filters.term && (
                   <p className="text-sm text-muted-foreground">{t("queue.emptyHint")}</p>
                 )}
@@ -403,8 +426,15 @@ export function ApplicationsPage({
                             </TableCell>
                           )}
                           <TableCell>
-                            <p className="font-medium">
-                              {row.firstName} {row.lastName}
+                            <p className="flex flex-wrap items-center gap-x-2 gap-y-1 font-medium">
+                              <span>
+                                {row.firstName} {row.lastName}
+                              </span>
+                              {row.individualAccommodation && (
+                                <Badge variant="info">
+                                  {t("applications.individualAccommodation")}
+                                </Badge>
+                              )}
                             </p>
                             <p className="text-xs text-muted-foreground">
                               {formatDate(row.birthDate)} ·{" "}
@@ -415,14 +445,6 @@ export function ApplicationsPage({
                               )}{" "}
                               · {row.email}
                             </p>
-                            {row.individualAccommodation && (
-                              <Badge
-                                variant="secondary"
-                                className="mt-1"
-                              >
-                                {t("applications.individualAccommodation")}
-                              </Badge>
-                            )}
                           </TableCell>
                           <TableCell>
                             <Terms application={row} />
@@ -474,8 +496,15 @@ export function ApplicationsPage({
                         params={{ eventId, applicationId: row.id }}
                         className="flex min-w-0 flex-1 flex-col gap-2 py-3"
                       >
-                        <span className="font-medium">
-                          {row.firstName} {row.lastName}
+                        <span className="flex flex-wrap items-center gap-x-2 gap-y-1 font-medium">
+                          <span>
+                            {row.firstName} {row.lastName}
+                          </span>
+                          {row.individualAccommodation && (
+                            <Badge variant="info">
+                              {t("applications.individualAccommodation")}
+                            </Badge>
+                          )}
                         </span>
                         <span className="text-xs wrap-anywhere text-muted-foreground">
                           {formatDate(row.birthDate)} ·{" "}
@@ -483,14 +512,6 @@ export function ApplicationsPage({
                           {" · "}
                           {row.email}
                         </span>
-                        {row.individualAccommodation && (
-                          <Badge
-                            variant="secondary"
-                            className="w-fit"
-                          >
-                            {t("applications.individualAccommodation")}
-                          </Badge>
-                        )}
                         <Terms application={row} />
                         <PaymentStatus application={row} />
                         <span className="text-sm">

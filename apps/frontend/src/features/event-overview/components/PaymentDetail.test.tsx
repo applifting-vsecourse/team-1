@@ -180,10 +180,11 @@ describe("PaymentDetail", () => {
     setup()
 
     expect(await screen.findByRole("heading", { name: "Individual accommodation" })).toBeVisible()
-    expect(
-      screen.getByText("The participant wants the accommodation arranged individually."),
-    ).toBeVisible()
-    expect(screen.getByText("Note · Ground floor, please.")).toBeVisible()
+    const card = within(screen.getByRole("group", { name: "Individual accommodation" }))
+    expect(card.getByText("Request")).toBeVisible()
+    expect(card.getByText("Yes")).toBeVisible()
+    expect(card.getByText("Note")).toBeVisible()
+    expect(card.getByText("Ground floor, please.")).toBeVisible()
   })
 
   it("says so when there is no request for individual accommodation (US-38)", async () => {
@@ -191,10 +192,10 @@ describe("PaymentDetail", () => {
     setup()
 
     expect(await screen.findByRole("heading", { name: "Individual accommodation" })).toBeVisible()
-    expect(
-      screen.getByText("The participant has no request for individual accommodation."),
-    ).toBeVisible()
-    expect(screen.queryByText(/^Note ·/)).not.toBeInTheDocument()
+    const card = within(screen.getByRole("group", { name: "Individual accommodation" }))
+    expect(card.getByText("Request")).toBeVisible()
+    expect(card.getByText("No")).toBeVisible()
+    expect(card.queryByText("Note")).not.toBeInTheDocument()
   })
 
   it("shows the participant's date of birth, gender and the applicant's contact", async () => {
