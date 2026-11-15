@@ -10,6 +10,7 @@ import { variableSymbol as toVariableSymbol } from "./variable-symbol"
 
 /** One application of a submission as stored — what the confirmation page is built from (US-25). */
 export type SubmittedApplicationRecord = {
+  id: string
   /** Global sequence, the variable symbol. */
   number: number
   firstName: string
@@ -45,6 +46,8 @@ export type SubmissionRecord = {
 export type ApplicationPayment = PaymentDetails
 
 export type SubmittedApplicationStatus = {
+  /** Lets a signed-in owner open the application's detail. */
+  id: string
   firstName: string
   lastName: string
   /** Reference for people, `LK-0048`. */
@@ -103,6 +106,7 @@ export function buildSubmissionStatus(record: SubmissionRecord): SubmissionStatu
       const details = buildPaymentDetails(application.number, record.bankAccount, application.terms)
 
       return {
+        id: application.id,
         firstName: application.firstName,
         lastName: application.lastName,
         code: toApplicationCode(record.eventName, application.number),

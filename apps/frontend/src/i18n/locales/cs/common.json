@@ -8,6 +8,7 @@
     "organizer": "Organizátor",
     "participant": "Moje přihláška"
   },
+  "characterCounter": "{{count}} / {{max}}",
   "clipboard": {
     "copied": "Zkopírováno do schránky",
     "copyAccount": "Zkopírovat číslo účtu",
@@ -34,6 +35,7 @@
     "overview": "Přehled",
     "payments": "Platby",
     "position": "{{current}} z {{total}}",
+    "program": "Program",
     "rooms": "Ubytování",
     "settings": "Nastavení",
     "terms": "Termíny",

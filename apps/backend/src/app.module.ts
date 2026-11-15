@@ -9,6 +9,7 @@ import { NotificationsModule } from "./modules/notifications/notifications.modul
 import { OverviewModule } from "./modules/overview/overview.module"
 import { ParticipantsModule } from "./modules/participants/participants.module"
 import { PaymentsModule } from "./modules/payments/payments.module"
+import { ProgramModule } from "./modules/program/program.module"
 import { TransportModule } from "./modules/transport/transport.module"
 import { WelcomeModule } from "./modules/welcome/welcome.module"
 import { AuthModule } from "./shared/auth/auth.module"
@@ -27,6 +28,7 @@ const imports = [
   HealthModule,
   NotificationsModule,
   OverviewModule,
+  ProgramModule,
   TransportModule,
 ]
 

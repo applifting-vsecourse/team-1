@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next"
 import { ROUTES } from "@/app/routes"
 import { MoneyAmount } from "@/components/atoms/MoneyAmount"
 import { Seo } from "@/components/atoms/Seo"
+import { DetailItem } from "@/components/molecules/DetailItem"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { TermPaymentCard, TermPaymentCards } from "@/components/molecules/TermPaymentCard"
@@ -22,6 +23,7 @@ import {
   type Payment,
   type PaymentTerm,
 } from "@/features/event-overview/api/payments"
+import { AutoConfirmedNotice } from "@/features/event-overview/components/AutoConfirmedNotice"
 import { ParticipantDetails } from "@/features/event-overview/components/ParticipantDetails"
 import { PaymentCancellation } from "@/features/event-overview/components/PaymentCancellation"
 import { PaymentCorrection } from "@/features/event-overview/components/PaymentCorrection"
@@ -29,7 +31,7 @@ import {
   PaymentCorrectionResult,
   type SavedPaymentCorrection,
 } from "@/features/event-overview/components/PaymentCorrectionResult"
-import { PaymentEditor } from "@/features/event-overview/components/PaymentEditor"
+import { PaymentEditor, type RecordType } from "@/features/event-overview/components/PaymentEditor"
 
 /** Needs attention first, then the paid (collapsed) terms, then the waitlisted ones. */
 const cardRank = (term: PaymentTerm): number =>
@@ -42,20 +44,22 @@ const isShown = (term: PaymentTerm): boolean =>
 /**
  * O34: payments of one application under the event's Applications tab — a card per term with
  * what is due, paid and left, the account and the term's variable symbol, a button to record a
- * payment for the term, and the payment history. A paid term is a collapsed card. On a phone the
+ * payment for the term (a refund of the overpayment when the term is overpaid), and the payment history. A paid term is a collapsed card. On a phone the
  * cards stack and the history becomes a list (M13).
  */
+// Figma (Design system): #399 Detail plateb · akce u přeplatku · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=22642-91955 (360 px: node-id=22642-92182)
 // Figma (Design system): Detail přihlášky · Platby · Organizátor · dluh po termínech · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15845-7697 (360 px: node-id=15845-7814)
 // Figma (Design system): O34 Detail platby, bez potvrzeného termínu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16487-6805
 // Figma (Design system): O34aa Po zápisu vratky · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16845-3106 (360 px: M13w 16845-3385)
 // Figma (Design system): US-112 · Částka platby opravená · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15883-7820 (mobile: 15883-7897)
 // Figma (Design system): US-112 · Platba přesunutá · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15883-7947 (mobile: 15883-8027)
 // Figma (Design system): US-112 · Vratka opravená · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15883-8080 (mobile: 15883-8157)
+// Figma (Design system): US-38 card "Individuální ubytování" · with request desktop https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=25587-110703 (mobile: 25587-110821); without 25587-110890 (mobile: 25587-111008)
 export function PaymentDetail({ applicationId }: { applicationId: string }) {
   const { t } = useTranslation("eventOverview")
   const { data, isPending, error, refetch } = useQuery(paymentQueryOptions(applicationId))
-  const [termToPay, setTermToPay] = useState<PaymentTerm | null>(null)
-  const [isRecordOpen, setIsRecordOpen] = useState(false)
+  // The record dialog: for one term or the whole application, opened on a payment or a refund.
+  const [editor, setEditor] = useState<{ term?: PaymentTerm; type: RecordType } | null>(null)
   const [paymentToCancel, setPaymentToCancel] = useState<Payment | null>(null)
   const [paymentToCorrect, setPaymentToCorrect] = useState<Payment | null>(null)
   const [savedCorrection, setSavedCorrection] = useState<SavedPaymentCorrection | null>(null)
@@ -85,7 +89,7 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
     )
   }
   const terms = data.terms.filter(isShown).sort((a, b) => cardRank(a) - cardRank(b))
-  // The refund is a switch in the dialog, enabled by the backend when a term is overpaid.
+  // A term the backend reports an overpayment for is refunded, not paid (#399).
   const hasOverpayment = data.refundableTermId !== null
   const hasConfirmedTerm = data.terms.some((term) => term.status === "CONFIRMED")
 
@@ -114,40 +118,44 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
             </h2>
             <p className="text-sm text-muted-foreground">{t("payment.description")}</p>
           </div>
-          {/* The summary dialog is always open to the organizer once there is a confirmed term
-              (or an overpayment to return): one payment split over the terms, or a refund. */}
-          <div className="flex flex-wrap items-center gap-2">
-            <Button
-              asChild
-              variant="outline"
-              size="lg"
+          <Button
+            asChild
+            variant="outline"
+            size="lg"
+          >
+            <Link
+              to={ROUTES.organizer.applicationHealth}
+              params={{ eventId: data.eventId, applicationId }}
             >
-              <Link
-                to={ROUTES.organizer.applicationHealth}
-                params={{ eventId: data.eventId, applicationId }}
-              >
-                {t("payment.health")}
-              </Link>
-            </Button>
-            {hasConfirmedTerm || hasOverpayment ? (
-              <Button
-                variant={data.amountOwedCzk > 0 ? "default" : "outline"}
-                size="lg"
-                onClick={() => setIsRecordOpen(true)}
-              >
-                {t("payment.recordOrRefund")}
-              </Button>
-            ) : null}
-          </div>
+              {t("payment.health")}
+            </Link>
+          </Button>
         </div>
       </div>
-      {data.accommodationRequest ? (
-        <Card className="gap-2 p-4 md:p-6">
-          <h3 className="text-lg font-semibold">{t("payment.accommodationRequest")}</h3>
-          <p className="break-words whitespace-pre-wrap">{data.accommodationRequest}</p>
-        </Card>
-      ) : null}
+      <AutoConfirmedNotice
+        applicationId={applicationId}
+        firstName={data.firstName}
+        gender={data.gender}
+      />
       <ParticipantDetails application={data} />
+      {/* US-38: who asked to settle the accommodation individually, with the note; only for organizers. */}
+      <Card
+        role="group"
+        aria-label={t("payment.individualAccommodation")}
+        className="gap-4 p-4 md:p-6"
+      >
+        <h3 className="text-lg font-semibold">{t("payment.individualAccommodation")}</h3>
+        {data.individualAccommodation ? (
+          <DetailItem
+            label={t("payment.individualAccommodationNote")}
+            className="whitespace-pre-wrap"
+          >
+            {data.accommodationRequest ?? t("payment.individualAccommodationNoNote")}
+          </DetailItem>
+        ) : (
+          <p className="text-muted-foreground">{t("payment.individualAccommodationNone")}</p>
+        )}
+      </Card>
       {/* Nothing to pay without a confirmed term (US-25): record a payment once a place is confirmed. */}
       {hasConfirmedTerm ? null : (
         <Alert className="border-status-info bg-status-info-bg">
@@ -180,10 +188,17 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
             variableSymbol={term.variableSymbol}
             action={
               // Also after the term is paid: a payment sent by mistake is recorded as an overpayment.
-              term.status === "WAITLISTED" && term.paidCzk === 0 ? null : (
+              term.status === "WAITLISTED" && term.paidCzk === 0 ? null : term.refundableCzk > 0 ? (
                 <Button
                   size="lg"
-                  onClick={() => setTermToPay(term)}
+                  onClick={() => setEditor({ term, type: "refund" })}
+                >
+                  {t("payment.returnOverpayment")}
+                </Button>
+              ) : (
+                <Button
+                  size="lg"
+                  onClick={() => setEditor({ term, type: "payment" })}
                 >
                   {t("payment.recordForTerm")}
                 </Button>
@@ -192,6 +207,31 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
           />
         ))}
       </TermPaymentCards>
+      {hasConfirmedTerm || hasOverpayment ? (
+        // One payment split over the terms, or a refund of an overpayment (Figma "Akce plateb").
+        <div className="flex flex-col gap-4 md:flex-row">
+          {hasConfirmedTerm ? (
+            <Button
+              variant="ghost"
+              size="lg"
+              className="md:flex-1"
+              onClick={() => setEditor({ type: "payment" })}
+            >
+              {t("payment.record")}
+            </Button>
+          ) : null}
+          {hasOverpayment ? (
+            <Button
+              variant="ghost"
+              size="lg"
+              className="md:flex-1"
+              onClick={() => setEditor({ type: "refund" })}
+            >
+              {t("payment.recordRefundAction")}
+            </Button>
+          ) : null}
+        </div>
+      ) : null}
       <Card className="gap-4 p-4 md:p-6">
         <h2 className="text-lg font-semibold">{t("payment.history")}</h2>
         {data.payments.length === 0 ? (
@@ -205,13 +245,6 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
           />
         )}
       </Card>
-      {termToPay ? (
-        <PaymentEditor
-          application={data}
-          term={termToPay}
-          onClose={() => setTermToPay(null)}
-        />
-      ) : null}
       {paymentToCancel ? (
         <PaymentCancellation
           application={data}
@@ -229,10 +262,12 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
           onClose={() => setPaymentToCorrect(null)}
         />
       ) : null}
-      {isRecordOpen ? (
+      {editor ? (
         <PaymentEditor
           application={data}
-          onClose={() => setIsRecordOpen(false)}
+          term={editor.term}
+          initialType={editor.type}
+          onClose={() => setEditor(null)}
         />
       ) : null}
     </div>

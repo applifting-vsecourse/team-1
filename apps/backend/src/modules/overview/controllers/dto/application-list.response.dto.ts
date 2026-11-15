@@ -22,6 +22,7 @@ export class ApplicationListResponseDto {
   @ApiProperty() lastName!: string
   @ApiProperty() birthDate!: string
   @ApiProperty({ enum: ["FEMALE", "MALE"] }) gender!: string
+  @ApiProperty() individualAccommodation!: boolean
   @ApiProperty() email!: string
   @ApiProperty() submittedAt!: string
   @ApiProperty() amountDueCzk!: number

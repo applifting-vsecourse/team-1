@@ -34,6 +34,7 @@ const application = {
   lastName: "Test",
   birthDate: "2000-01-01",
   gender: "FEMALE",
+  individualAccommodation: false,
   email: "jana@example.com",
   submittedAt: "2027-01-01T12:00:00Z",
   amountDueCzk: 1000,
@@ -141,6 +142,52 @@ function setup(
 }
 beforeEach(() => vi.clearAllMocks())
 describe("ApplicationsPage", () => {
+  describe("individual accommodation (US-38)", () => {
+    it("marks who asked for it in the table and the mobile cards, and nobody else", async () => {
+      setup([
+        { ...application, individualAccommodation: true },
+        { ...application, id: "a2", firstName: "Eva", email: "eva@example.com" },
+      ])
+      await screen.findAllByText("Jana Test")
+      // One badge in the table and one in the cards, for the one application with the request.
+      expect(screen.getAllByText("Individual accommodation")).toHaveLength(2)
+    })
+
+    it("filters the list by individual accommodation, keeping the other filters", async () => {
+      const user = userEvent.setup()
+      const change = setup([application], false, undefined, null, { term: "t1" })
+      await user.click(await screen.findByRole("combobox", { name: "Accommodation" }))
+      await user.click(screen.getByRole("option", { name: "Individual" }))
+      expect(change).toHaveBeenLastCalledWith({ term: "t1", accommodation: "INDIVIDUAL" })
+    })
+
+    it("sends the filter to the server", async () => {
+      setup([application], false, undefined, null, { accommodation: "INDIVIDUAL" })
+      await screen.findAllByText("Jana Test")
+      const calls = get.mock.calls as [string, { searchParams: URLSearchParams }][]
+      const listCall = calls.find(([path]) => path.endsWith("/applications"))
+      expect(String(listCall?.[1].searchParams)).toBe("accommodation=INDIVIDUAL")
+    })
+
+    it("says nobody has asked for it when the filter finds nothing", async () => {
+      setup([], false, undefined, null, { accommodation: "INDIVIDUAL" })
+      expect(
+        await screen.findByRole("heading", {
+          name: "Nobody has asked for individual accommodation yet",
+        }),
+      ).toBeVisible()
+      expect(screen.getByText(/as soon as an applicant makes it/)).toBeVisible()
+      expect(screen.getByRole("button", { name: "Clear search and filters" })).toBeVisible()
+    })
+
+    it("keeps the general message when other filters are set too", async () => {
+      setup([], false, undefined, null, { accommodation: "INDIVIDUAL", term: "t1" })
+      expect(
+        await screen.findByText("We found no applications matching this selection."),
+      ).toBeVisible()
+    })
+  })
+
   it("applies a mobile selection immediately and keeps it after closing the panel", async () => {
     const change = setup([application], false, "Jana")
     const user = userEvent.setup()
@@ -198,7 +245,8 @@ describe("ApplicationsPage", () => {
     const trigger = await screen.findByRole("button", { name: "Filters · 4" })
     await user.click(trigger)
     const dialog = screen.getByRole("dialog", { name: "Filters" })
-    expect(within(dialog).getAllByRole("combobox")).toHaveLength(3)
+    // Status, payment and term, and since US-38 the accommodation.
+    expect(within(dialog).getAllByRole("combobox")).toHaveLength(4)
     await user.click(within(dialog).getByRole("button", { name: "Clear filters" }))
     expect(change).toHaveBeenLastCalledWith({})
     expect(within(dialog).getByRole("combobox", { name: "Status in term" })).toHaveTextContent(

@@ -8,6 +8,7 @@
     "organizer": "Organizer",
     "participant": "My application"
   },
+  "characterCounter": "{{count}} / {{max}}",
   "clipboard": {
     "copied": "Copied to the clipboard",
     "copyAccount": "Copy account number",
@@ -34,6 +35,7 @@
     "overview": "Overview",
     "payments": "Payments",
     "position": "{{current}} of {{total}}",
+    "program": "Program",
     "rooms": "Accommodation",
     "settings": "Settings",
     "terms": "Terms",

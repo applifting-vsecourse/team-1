@@ -27,9 +27,13 @@ export type ApplicationFilters = {
   status?: ApplicationTermStatus
   gender?: Gender
   payment?: FilterablePaymentStatus
-  /** `FREE_BED`: waitlisted in a manually evaluated term with a free bed for them (US-51, US-104). */
+  /** `FREE_BED`: waitlisted in a term with a free bed for them (US-51, US-104, US-31). */
   waitlist?: WaitlistFilter
+  /** `INDIVIDUAL`: the applicant asked to settle the accommodation individually (US-38). */
+  accommodation?: AccommodationFilter
 }
+export const ACCOMMODATION_FILTERS = ["INDIVIDUAL"] as const
+export type AccommodationFilter = (typeof ACCOMMODATION_FILTERS)[number]
 export const WAITLIST_FILTERS = ["FREE_BED"] as const
 export type WaitlistFilter = (typeof WAITLIST_FILTERS)[number]
 /**
@@ -53,9 +57,10 @@ export type ListedApplication = {
   lastName: string
   birthDate: Date
   gender: Gender
+  individualAccommodation: boolean
   email: string
   submittedAt: Date
-  /** How the event evaluates applications (US-101); only manual evaluation has substitutes to approve. */
+  /** How the event evaluates applications (US-101). */
   evaluationMode: EvaluationMode
   terms: {
     id: string
@@ -97,7 +102,7 @@ const searchableSymbols = (row: ListedApplication): string =>
   ].join(" ")
 
 /**
- * Applications waitlisted in a manually evaluated term that has a free bed for them: the ones the
+ * Applications waitlisted in a term that has a free bed for them: the ones the
  * organizer can approve now. The single predicate of the list filter and of the card "Náhradníci
  * k vyřešení" (US-51). Free beds come from `eligibleSubstitutes`, the same as for US-104.
  */
@@ -109,17 +114,17 @@ export function approvableSubstituteIds(rows: ListedApplication[]): Set<string> 
       row.terms.filter((term) => term.id === termId).map((term) => ({ row, term })),
     )
     const rooms = members[0]!.term.rooms
-    const candidates = members
-      .filter(({ row }) => row.evaluationMode === "MANUAL")
-      .map(({ row, term }) => ({
-        applicationId: row.id,
-        termId,
-        roomMode: term.roomMode,
-        gender: row.gender,
-        status: term.status,
-        submittedAt: row.submittedAt,
-        number: row.number,
-      }))
+    // Both evaluation modes (US-31): the automatic one fills only the beds an action freed, a bed
+    // that a bigger capacity made is left to the organizer.
+    const candidates = members.map(({ row, term }) => ({
+      applicationId: row.id,
+      termId,
+      roomMode: term.roomMode,
+      gender: row.gender,
+      status: term.status,
+      submittedAt: row.submittedAt,
+      number: row.number,
+    }))
     const confirmedGenders = members
       .filter(({ term }) => term.status === "CONFIRMED")
       .map(({ row }) => row.gender)
@@ -174,6 +179,7 @@ export function applicationList(
           ).includes(word),
         ) &&
         (!filters.gender || row.gender === filters.gender) &&
+        (filters.accommodation !== "INDIVIDUAL" || row.individualAccommodation) &&
         (filters.payment !== "DEBT" ||
           row.terms.some((term) =>
             termHasDebt({ status: term.status, priceCzk: term.priceCzk }, term.payments),
@@ -194,6 +200,7 @@ export function applicationList(
         lastName: row.lastName,
         birthDate: row.birthDate,
         gender: row.gender,
+        individualAccommodation: row.individualAccommodation,
         email: row.email,
         submittedAt: row.submittedAt,
         terms: row.terms.map((term) => ({

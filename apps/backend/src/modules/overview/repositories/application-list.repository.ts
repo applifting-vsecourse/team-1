@@ -16,6 +16,7 @@ export class ApplicationListRepository {
         lastName: true,
         birthDate: true,
         gender: true,
+        individualAccommodation: true,
         email: true,
         submittedAt: true,
         event: { select: { evaluationMode: true } },

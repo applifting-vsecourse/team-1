@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { Link, useNavigate } from "@tanstack/react-router"
-import { FilterX, Plus } from "lucide-react"
+import { BedDouble, FilterX, Plus } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
@@ -27,6 +27,7 @@ import {
 import { PAGE_SIZE } from "@/hooks/usePagination"
 import { formatDate, formatDateRange, formatDateTime } from "@/lib/date"
 import { notify } from "@/lib/notify"
+import { cn } from "@/lib/utils"
 
 import {
   applicationsQueryOptions,
@@ -53,6 +54,7 @@ import type { ApplicationsSearch } from "@/features/event-overview/lib/applicati
 // Figma (Design system): O05 / Náhradníci (waitlist of a term and gender) · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12769-3721
 // Figma (Design system): M12 · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14070-41596
 // Figma (Design system): US-103 view chips + queue (ApplicationViews, ApplicationQueue) · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15765-4897
+// Figma (Design system): US-38 badge in the row, empty filter · desktop https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=25587-109569 (mobile: 25587-109801); empty 25587-110253 (mobile: 25587-110406)
 // Figma (Design system): M12b / Empty results · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14189-43641
 export function ApplicationsPage({
   eventId,
@@ -113,6 +115,10 @@ export function ApplicationsPage({
     onFiltersChange(next)
   }
   const hasFilters = Object.values(filters).some(Boolean)
+  // Only the filter of individual accommodation is set: nobody has asked for it (US-38).
+  const isOnlyIndividual =
+    filters.accommodation === "INDIVIDUAL" &&
+    Object.entries(filters).every(([key, value]) => !value || key === "accommodation")
   const isWaitlist = filters.status === "WAITLISTED"
   const substituteTerm = isWaitlist
     ? filters.term
@@ -140,6 +146,7 @@ export function ApplicationsPage({
   }
   const views = (
     <ApplicationViews
+      eventId={eventId}
       filters={filters}
       onChange={(next) => {
         setPage(0)
@@ -299,7 +306,37 @@ export function ApplicationsPage({
                 </Label>
               </div>
             )}
-            {query.data.length === 0 ? (
+            {query.data.length === 0 && isOnlyIndividual && !isQueue ? (
+              // US-38: nobody asked for individual accommodation yet.
+              <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed border-border px-6 py-10 text-center">
+                <span className="flex size-12 items-center justify-center rounded-full bg-accent text-accent-foreground">
+                  <BedDouble
+                    className="size-6"
+                    aria-hidden="true"
+                  />
+                </span>
+                <h2 className="text-lg font-semibold">{t("applications.emptyIndividualTitle")}</h2>
+                <p className="max-w-prose text-sm text-muted-foreground">
+                  {t("applications.emptyIndividualHint")}
+                </p>
+                <Button
+                  variant="secondary"
+                  size="lg"
+                  className="mt-2 border border-border"
+                  onClick={() => {
+                    setPage(0)
+                    onFiltersChange({})
+                    searchInput.current?.focus()
+                  }}
+                >
+                  <FilterX
+                    className="size-4 shrink-0"
+                    aria-hidden="true"
+                  />
+                  {t("applications.clearSearchAndFilters")}
+                </Button>
+              </div>
+            ) : query.data.length === 0 ? (
               <div className="flex flex-col items-start gap-4 py-6">
                 <p className="text-sm text-muted-foreground">
                   {isQueue && !filters.q && !filters.term
@@ -390,8 +427,20 @@ export function ApplicationsPage({
                             </TableCell>
                           )}
                           <TableCell>
-                            <p className="font-medium">
-                              {row.firstName} {row.lastName}
+                            <p
+                              className={cn(
+                                "flex flex-wrap items-center gap-x-2 gap-y-1 font-medium",
+                                row.individualAccommodation && "mb-2",
+                              )}
+                            >
+                              <span>
+                                {row.firstName} {row.lastName}
+                              </span>
+                              {row.individualAccommodation && (
+                                <Badge variant="secondary">
+                                  {t("applications.individualAccommodation")}
+                                </Badge>
+                              )}
                             </p>
                             <p className="text-xs text-muted-foreground">
                               {formatDate(row.birthDate)} ·{" "}
@@ -453,8 +502,20 @@ export function ApplicationsPage({
                         params={{ eventId, applicationId: row.id }}
                         className="flex min-w-0 flex-1 flex-col gap-2 py-3"
                       >
-                        <span className="font-medium">
-                          {row.firstName} {row.lastName}
+                        <span
+                          className={cn(
+                            "flex flex-wrap items-center gap-x-2 gap-y-1 font-medium",
+                            row.individualAccommodation && "mb-1",
+                          )}
+                        >
+                          <span>
+                            {row.firstName} {row.lastName}
+                          </span>
+                          {row.individualAccommodation && (
+                            <Badge variant="secondary">
+                              {t("applications.individualAccommodation")}
+                            </Badge>
+                          )}
                         </span>
                         <span className="text-xs wrap-anywhere text-muted-foreground">
                           {formatDate(row.birthDate)} ·{" "}

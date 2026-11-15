@@ -6,7 +6,6 @@ import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
 import { Seo } from "@/components/atoms/Seo"
-import { EmptyState } from "@/components/molecules/EmptyState"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { SectionHeader } from "@/components/molecules/SectionHeader"
@@ -21,14 +20,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
 import { notify } from "@/lib/notify"
 import { termDatesLine } from "@/lib/term-label"
 import { cn } from "@/lib/utils"
@@ -42,6 +33,7 @@ import {
 } from "@/features/events/api/rooms"
 import { CopyRoomsDialog } from "@/features/events/components/CopyRoomsDialog"
 import { DeleteRoomDialog } from "@/features/events/components/DeleteRoomDialog"
+import { RoomAssignmentsCard } from "@/features/events/components/RoomAssignmentsCard"
 import { RoomDialog } from "@/features/events/components/RoomDialog"
 import { RoomExtraBedsDialog } from "@/features/events/components/RoomExtraBedsDialog"
 import { RoomModeDialog } from "@/features/events/components/RoomModeDialog"
@@ -59,6 +51,7 @@ export type AccommodationTerm = {
 // Rooms of one term of an event under the event header: the term, its room mode, capacity metrics
 // and the room table with edit / delete icon buttons in each row.
 // Each room also shows its extra beds (přistýlky) and a button that opens their dialog (US-80).
+// The list of rooms is the room assignment of US-35 (RoomAssignmentsCard); the room actions stay here.
 // Figma (Design system): Pokoje v termínu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19786-37078 (mobile 19786-37234)
 // Figma (Design system): O18a / O18b · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12358-1789
 // Shared-room variant · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12358-3883
@@ -119,7 +112,6 @@ export function RoomsPage({
     )
   }
   const isGendered = term.roomMode === "GENDERED"
-  const hasExtraBeds = term.rooms.some((room) => room.extraBeds > 0)
   const extraBedsButton = (room: Room) => (
     <Button
       variant="outline"
@@ -248,7 +240,7 @@ export function RoomsPage({
       <Card>
         <CardHeader className="flex flex-col gap-3 max-sm:items-stretch sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
           <CardTitle>
-            <h3>{t("rooms.listTitle")}</h3>
+            <h3>{t("roomAssignments.cardTitle")}</h3>
           </CardTitle>
           <div className="flex flex-col-reverse gap-2 sm:flex-row sm:flex-wrap sm:items-center">
             <Button
@@ -283,127 +275,36 @@ export function RoomsPage({
             </Button>
           </div>
         </CardHeader>
-        <CardContent className="flex flex-col gap-4">
-          {term.rooms.length ? (
-            <>
-              {/* A table from md up, like the applications list; on a phone a list of rows. */}
-              <div className="hidden md:block">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>{t("rooms.nameColumn")}</TableHead>
-                      <TableHead className="text-right">{t("rooms.capacityColumn")}</TableHead>
-                      {hasExtraBeds ? (
-                        <TableHead className="text-right">{t("rooms.extraBedsColumn")}</TableHead>
-                      ) : null}
-                      {isGendered ? <TableHead>{t("rooms.genderColumn")}</TableHead> : null}
-                      <TableHead>
-                        <span className="sr-only">{t("rooms.actionsColumn")}</span>
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {term.rooms.map((room) => (
-                      <TableRow key={room.id}>
-                        <TableCell className="font-medium break-words whitespace-normal">
-                          {room.name}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {t("rooms.beds", { count: room.capacity })}
-                        </TableCell>
-                        {hasExtraBeds ? (
-                          <TableCell className="text-right">
-                            {room.extraBeds ? (
-                              <Badge variant="info">+{room.extraBeds}</Badge>
-                            ) : null}
-                          </TableCell>
-                        ) : null}
-                        {isGendered ? (
-                          <TableCell>
-                            {room.gender ? (
-                              <Badge variant="secondary">
-                                {t(room.gender === "FEMALE" ? "rooms.female" : "rooms.male")}
-                              </Badge>
-                            ) : null}
-                          </TableCell>
-                        ) : null}
-                        <TableCell>
-                          <div className="flex items-center justify-end gap-1">
-                            {extraBedsButton(room)}
-                            <Button
-                              variant="ghost"
-                              size="icon-lg"
-                              aria-label={t("rooms.editRoom", { name: room.name })}
-                              onClick={() => setEditor(room)}
-                            >
-                              <Pencil />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon-lg"
-                              aria-label={t("rooms.deleteRoom", { name: room.name })}
-                              onClick={() => setDeleting(room)}
-                            >
-                              <Trash2 />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-              <ul className="divide-y md:hidden">
-                {term.rooms.map((room) => (
-                  <li
-                    key={room.id}
-                    className="flex flex-col gap-3 py-4"
+        <CardContent>
+          <RoomAssignmentsCard
+            term={term}
+            onAddRoom={() => setEditor("new")}
+            roomActions={(roomId) => {
+              const room = term.rooms.find((item) => item.id === roomId)
+              if (!room) return null
+              return (
+                <>
+                  {extraBedsButton(room)}
+                  <Button
+                    variant="ghost"
+                    size="icon-lg"
+                    aria-label={t("rooms.editRoom", { name: room.name })}
+                    onClick={() => setEditor(room)}
                   >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex min-w-0 flex-col gap-1">
-                        <span className="font-medium break-words">{room.name}</span>
-                        <span className="text-sm text-muted-foreground">
-                          {room.extraBeds
-                            ? t("rooms.extraBedsSummary", {
-                                capacity: room.capacity,
-                                extraBeds: room.extraBeds,
-                              })
-                            : t("rooms.beds", { count: room.capacity })}
-                          {room.gender
-                            ? ` · ${t(room.gender === "FEMALE" ? "rooms.female" : "rooms.male")}`
-                            : ""}
-                        </span>
-                      </div>
-                      <div className="flex shrink-0 gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon-lg"
-                          aria-label={t("rooms.editRoom", { name: room.name })}
-                          onClick={() => setEditor(room)}
-                        >
-                          <Pencil />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon-lg"
-                          aria-label={t("rooms.deleteRoom", { name: room.name })}
-                          onClick={() => setDeleting(room)}
-                        >
-                          <Trash2 />
-                        </Button>
-                      </div>
-                    </div>
-                    <div className="flex">{extraBedsButton(room)}</div>
-                  </li>
-                ))}
-              </ul>
-              <p className="text-xs text-muted-foreground">
-                {t("rooms.shown", { count: term.rooms.length })}
-              </p>
-            </>
-          ) : (
-            <EmptyState message={t("rooms.empty")} />
-          )}
+                    <Pencil />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon-lg"
+                    aria-label={t("rooms.deleteRoom", { name: room.name })}
+                    onClick={() => setDeleting(room)}
+                  >
+                    <Trash2 />
+                  </Button>
+                </>
+              )
+            }}
+          />
         </CardContent>
       </Card>
       {pendingMode ? (

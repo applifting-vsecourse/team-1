@@ -167,16 +167,19 @@ model Organization {
   events           Event[]
   terms            Term[]
   rooms            Room[]
+  roomWarningAcknowledgements RoomWarningAcknowledgement[]
   applications     Application[]
   applicationTerms ApplicationTerm[]
   payments         Payment[]
   statusChanges    ApplicationTermStatusChange[]
   substituteSkips  ApplicationTermSkip[]
+  roomAssignments  RoomAssignment[]
   changeRequests   ChangeRequest[]
   applicationEdits ApplicationEdit[]
   mealOptions      MealOption[]
   applicationHealth ApplicationHealth[]
   transports       Transport[]
+  programBlocks    ProgramBlock[]
 
   @@map("organization")
 }
@@ -303,7 +306,9 @@ model Term {
 
   applicationTerms ApplicationTerm[]
   rooms            Room[]
+  roomWarningAcknowledgements RoomWarningAcknowledgement[]
   transports       Transport[]
+  programBlocks    ProgramBlock[]
 
   @@unique([eventId, number])
   @@index([organizationId])
@@ -347,6 +352,31 @@ model Transport {
   @@map("transport")
 }
 
+// One block of the program of a term (US-66): what happens on which day, when and where. Each term has
+// its own program; every confirmed participant sees it. The times are wall-clock "HH:mm" of the term's
+// day (no time zone), so they never shift.
+model ProgramBlock {
+  id             String       @id @default(cuid())
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId String
+  term           Term         @relation(fields: [termId], references: [id], onDelete: Cascade)
+  termId         String
+  // A day within the term (startsOn–endsOn).
+  date           DateTime     @db.Date
+  // "HH:mm", zero-padded, so that sorting as text sorts by time. endTime is after startTime.
+  startTime      String
+  endTime        String
+  name           String
+  place          String?
+  description    String?      @db.Text
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @default(now()) @updatedAt
+
+  @@index([organizationId])
+  @@index([termId, date, startTime])
+  @@map("program_block")
+}
+
 // A room belongs to exactly one term (US-99, D-052).
 model Room {
   id             String       @id @default(cuid())
@@ -363,9 +393,63 @@ model Room {
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @default(now()) @updatedAt
 
+  assignments    RoomAssignment[]
+  warningAcknowledgements RoomWarningAcknowledgement[]
+
   @@index([organizationId])
   @@index([termId])
   @@map("room")
+}
+
+// Which room a participant (application in a term) sleeps in (US-35). Rooms count beds, there is
+// no bed entity; the assignment lives and dies with the room and with the application in the term.
+model RoomAssignment {
+  id                String          @id @default(cuid())
+  organization      Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId    String
+  applicationTerm   ApplicationTerm @relation(fields: [applicationTermId], references: [id], onDelete: Cascade)
+  applicationTermId String          @unique
+  room              Room            @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  roomId            String
+  createdAt         DateTime        @default(now())
+
+  @@index([roomId])
+  @@index([organizationId])
+  @@map("room_assignment")
+}
+
+enum RoomWarningKind {
+  OVERCROWDED
+  MIXED_GENDER
+  CONFIRMED_WITHOUT_BED
+
+  @@map("room_warning_kind")
+}
+
+// An organizer knowingly confirmed a warning of the room rules (US-37). It belongs to one concrete
+// warning: a room (the first two kinds) or an application in the term (CONFIRMED_WITHOUT_BED), and
+// is deleted as soon as that warning no longer holds. Only organizers of the event ever see it.
+model RoomWarningAcknowledgement {
+  id                 String           @id @default(cuid())
+  organization       Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId     String
+  term               Term             @relation(fields: [termId], references: [id], onDelete: Cascade)
+  termId             String
+  kind               RoomWarningKind
+  room               Room?            @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  roomId             String?
+  applicationTerm    ApplicationTerm? @relation(fields: [applicationTermId], references: [id], onDelete: Cascade)
+  applicationTermId  String?
+  note               String           @default("")
+  // The organizer's name at the time; the account may be removed later.
+  acknowledgedByName String
+  createdAt          DateTime         @default(now())
+
+  @@unique([kind, roomId])
+  @@unique([kind, applicationTermId])
+  @@index([termId])
+  @@index([organizationId])
+  @@map("room_warning_acknowledgement")
 }
 
 model Application {
@@ -389,6 +473,9 @@ model Application {
   email          String
   // Supplied when an organizer adds an application (US-83); older public submissions have none.
   phone          String?
+  // US-38: the applicant asked to settle the accommodation individually; the note is optional and
+  // only kept while this is set.
+  individualAccommodation Boolean @default(false)
   accommodationRequest String? @db.Text
   consentAt      DateTime
   // UI language at submission — the confirmation e-mail goes out in it.
@@ -508,6 +595,8 @@ model ApplicationTerm {
   statusChanges ApplicationTermStatusChange[]
   payments      Payment[]
   skippedIn     ApplicationTermSkip[]
+  roomAssignment RoomAssignment?
+  roomWarningAcknowledgements RoomWarningAcknowledgement[]
 
   @@unique([applicationId, termId])
   @@index([termId, status])

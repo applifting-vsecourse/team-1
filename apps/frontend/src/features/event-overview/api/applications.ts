@@ -11,6 +11,7 @@ const applicationSchema = z.object({
   lastName: z.string(),
   birthDate: z.string(),
   gender: z.enum(["FEMALE", "MALE"]),
+  individualAccommodation: z.boolean(),
   email: z.string(),
   submittedAt: z.string(),
   amountDueCzk: z.number().int(),
@@ -42,6 +43,7 @@ export const applicationsQueryOptions = (eventId: string, filters: ApplicationsS
       if (filters.gender) searchParams.set("gender", filters.gender)
       if (filters.payment) searchParams.set("payment", filters.payment)
       if (filters.waitlist) searchParams.set("waitlist", filters.waitlist)
+      if (filters.accommodation) searchParams.set("accommodation", filters.accommodation)
       return z.array(applicationSchema).parse(
         await api
           .get(`organizer/events/${encodeURIComponent(eventId)}/applications`, {

@@ -33,6 +33,8 @@ export type NewApplication = {
   gender: Gender
   email: string
   phone?: string
+  individualAccommodation?: boolean
+  accommodationRequest?: string | null
   locale: Locale
   userId: string
   consentAt: Date

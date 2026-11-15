@@ -59,16 +59,6 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
     )
   }
 
-  if (changeMode) {
-    return (
-      <ParticipantTermChange
-        application={data}
-        mode={changeMode}
-        onBack={() => setChangeMode(null)}
-      />
-    )
-  }
-
   // Transport is asked for every confirmed term the organizer offers it to.
   const transportTerms = data.terms.filter(
     (term) => term.status === "CONFIRMED" && term.transportOffered,
@@ -144,7 +134,10 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
           application={data}
           onStart={setChangeMode}
         />
-        <ChangeRequestNotice applicationId={applicationId} />
+        <ChangeRequestNotice
+          applicationId={applicationId}
+          terms={data.terms}
+        />
         <PaymentSummary application={data} />
       </section>
       {transportTerms.length > 0 ? (
@@ -165,6 +158,20 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
         </section>
       ) : null}
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+        {data.terms.some((term) => term.status === "CONFIRMED") ? (
+          <Button
+            asChild
+            variant="secondary"
+            size="lg"
+          >
+            <Link
+              to={ROUTES.participant.applicationProgram}
+              params={{ applicationId }}
+            >
+              {t("detail.program")}
+            </Link>
+          </Button>
+        ) : null}
         <Button
           asChild
           variant="secondary"
@@ -191,6 +198,13 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
         </Button>
       </div>
       <OrganizationContact contact={data.organizationContact} />
+      {changeMode ? (
+        <ParticipantTermChange
+          application={data}
+          mode={changeMode}
+          onClose={() => setChangeMode(null)}
+        />
+      ) : null}
     </div>
   )
 }

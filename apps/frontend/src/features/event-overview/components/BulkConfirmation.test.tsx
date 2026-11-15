@@ -27,6 +27,7 @@ const row = (id: string, firstName: string, gender: "MALE" | "FEMALE", minute: n
   lastName: "Test",
   birthDate: "2011-05-04",
   gender,
+  individualAccommodation: false,
   email: `${id}@example.com`,
   submittedAt: `2027-03-10T09:${String(minute).padStart(2, "0")}:00Z`,
   amountDueCzk: 0,
