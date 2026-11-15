@@ -102,8 +102,9 @@ const byTerm: Record<string, TermRooms> = {
   ),
 }
 
-function renderRooms(termId: string) {
+function renderRooms(termId: string, view: "assignment" | "overview" = "assignment") {
   const onSelectTerm = vi.fn()
+  const onSelectView = vi.fn()
   get.mockImplementation((path: string) => ({
     json: () => {
       const roomTerm = byTerm[/terms\/([^/]+)\/rooms/.exec(path)?.[1] ?? ""]
@@ -129,8 +130,10 @@ function renderRooms(termId: string) {
         <RoomsPage
           eventId="e1"
           termId={termId}
+          view={view}
           terms={terms}
           onSelectTerm={onSelectTerm}
+          onSelectView={onSelectView}
         />
       </QueryClientProvider>
     ),
@@ -144,7 +147,7 @@ function renderRooms(termId: string) {
     history: createMemoryHistory({ initialEntries: ["/"] }),
   })
   render(<RouterProvider router={router} />)
-  return { onSelectTerm, user: userEvent.setup() }
+  return { onSelectTerm, onSelectView, user: userEvent.setup() }
 }
 
 describe("accommodation by term", () => {
@@ -167,6 +170,29 @@ describe("accommodation by term", () => {
     expect(within(table).getByText("Gendered room")).toBeInTheDocument()
     expect(within(table).getByText("Women's")).toBeInTheDocument()
     expect(within(table).getByText("Extra bed +2")).toBeInTheDocument()
+  })
+
+  it("switches between the room assignment and the overview (US-36)", async () => {
+    const { user, onSelectView } = renderRooms("t1")
+    await screen.findByRole("table")
+    const assignment = screen.getByRole("radio", { name: "Room assignment" })
+    expect(assignment).toBeChecked()
+    // Pressing the active view again leaves it as it is.
+    await user.click(assignment)
+    expect(onSelectView).not.toHaveBeenCalled()
+    await user.click(screen.getByRole("radio", { name: "Accommodation overview" }))
+    expect(onSelectView).toHaveBeenCalledWith("overview")
+  })
+
+  it("shows the overview of the selected term instead of the assignment", async () => {
+    renderRooms("t1", "overview")
+    expect(
+      await screen.findByRole("heading", { name: "Gendered room", level: 3 }),
+    ).toBeInTheDocument()
+    expect(screen.queryByRole("table")).not.toBeInTheDocument()
+    expect(screen.getByRole("radio", { name: "Accommodation overview" })).toBeChecked()
+    expect(screen.getByRole("combobox", { name: "Term" })).toBeInTheDocument()
+    expect(get).toHaveBeenCalledWith("organizer/events/e1/terms/t1/room-assignments")
   })
 
   it("shows the extra beds in the title only when a room has some, without a +0", async () => {

@@ -61,6 +61,7 @@ const person = (
   applicationId: `a-${id}`,
   firstName,
   lastName,
+  birthYear: 2011,
   gender: "FEMALE" as const,
   individualAccommodation: isIndividual,
   status: status as "CONFIRMED" | "TO_EVALUATE",
