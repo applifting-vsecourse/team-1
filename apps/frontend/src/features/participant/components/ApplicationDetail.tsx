@@ -165,7 +165,10 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
             {hasToEvaluate ? <p className="pt-4">{t("detail.toEvaluate.note")}</p> : null}
           </Card>
         ) : null}
-        <ChangeRequestNotice applicationId={applicationId} />
+        <ChangeRequestNotice
+          applicationId={applicationId}
+          terms={data.terms}
+        />
         {hasToEvaluate ? (
           // Figma (Design system): Togena / Alert · node-id=15751-1777 (360 px: 15751-1810)
           <Alert>

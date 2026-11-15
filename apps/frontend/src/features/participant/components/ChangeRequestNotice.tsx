@@ -10,11 +10,18 @@ import { Card } from "@/components/ui/card"
 import { formatDateTime } from "@/lib/date"
 import { termLine } from "@/lib/term-label"
 
+import type { MyApplicationTerm } from "@/features/participant/api/applications"
 import { participantChangeRequestsQueryOptions } from "@/features/participant/api/changeRequests"
 
 // Figma (Design system): #408 Detail · žádost odeslána · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=22640-39109 (mobile: 22640-39243)
 // Figma (Design system): US-114 Detail přihlášky · Žádost čeká / Změna schválená / Žádost zamítnutá · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15928-9271 (mobile: 15928-9331)
-export function ChangeRequestNotice({ applicationId }: { applicationId: string }) {
+export function ChangeRequestNotice({
+  applicationId,
+  terms,
+}: {
+  applicationId: string
+  terms: Pick<MyApplicationTerm, "termId" | "status">[]
+}) {
   const { t } = useTranslation("participant")
   const query = useQuery(participantChangeRequestsQueryOptions(applicationId))
   if (query.isPending) return null
@@ -44,6 +51,13 @@ export function ChangeRequestNotice({ applicationId }: { applicationId: string }
   const isCancel = addedIds.length === 0
   const isWholeApplication = request.requestedTermIds.length === 0
   const isPending = request.status === "PENDING"
+  const hasRemovedBed = removedIds.some((id) =>
+    terms.some((term) => term.termId === id && term.status === "CONFIRMED"),
+  )
+  const messageKey =
+    isPending && !hasRemovedBed
+      ? (`request.message.PENDING.${isCancel ? "cancelWithoutBed" : "changeWithoutBed"}` as const)
+      : (`request.message.${request.status}.${isCancel ? "cancel" : "change"}` as const)
   return (
     <>
       {isPending ? (
@@ -51,7 +65,12 @@ export function ChangeRequestNotice({ applicationId }: { applicationId: string }
           <TriangleAlert aria-hidden />
           <AlertTitle className="line-clamp-none">{t("request.pendingTitle")}</AlertTitle>
           <AlertDescription>
-            {t("request.pendingDescription", { date: formatDateTime(request.createdAt) })}
+            {t(
+              hasRemovedBed ? "request.pendingDescription" : "request.pendingDescriptionWithoutBed",
+              {
+                date: formatDateTime(request.createdAt),
+              },
+            )}
           </AlertDescription>
         </Alert>
       ) : null}
@@ -84,7 +103,7 @@ export function ChangeRequestNotice({ applicationId }: { applicationId: string }
             <DetailItem label={t("request.requested")}>{labels(addedIds)}</DetailItem>
           </div>
         )}
-        <p>{t(`request.message.${request.status}.${isCancel ? "cancel" : "change"}`)}</p>
+        <p>{t(messageKey)}</p>
         {request.rejectionReason ? (
           <p>{t("request.reason", { reason: request.rejectionReason })}</p>
         ) : null}

@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
+import type { MyApplicationTerm } from "@/features/participant/api/applications"
 import { ChangeRequestNotice } from "@/features/participant/components/ChangeRequestNotice"
 
 const { get } = vi.hoisted(() => ({ get: vi.fn() }))
@@ -26,13 +27,22 @@ const request = (overrides: Record<string, unknown> = {}) => ({
   ...overrides,
 })
 
-const renderNotice = (data: unknown[]) => {
+const renderNotice = (
+  data: unknown[],
+  terms: Pick<MyApplicationTerm, "termId" | "status">[] = [
+    { termId: "t1", status: "CONFIRMED" },
+    { termId: "t2", status: "CONFIRMED" },
+  ],
+) => {
   get.mockReturnValue({ json: () => Promise.resolve(data) })
   render(
     <QueryClientProvider
       client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
     >
-      <ChangeRequestNotice applicationId="a1" />
+      <ChangeRequestNotice
+        applicationId="a1"
+        terms={terms}
+      />
     </QueryClientProvider>,
   )
 }
@@ -70,6 +80,60 @@ describe("ChangeRequestNotice", () => {
     expect(screen.getByText("Original term")).toBeInTheDocument()
     expect(screen.getByText("New term")).toBeInTheDocument()
     expect(screen.getByText("The original bed is released only after approval.")).toBeVisible()
+  })
+
+  it.each(["TO_EVALUATE", "WAITLISTED", "CONFIRMED"] as const)(
+    "mentions a bed only for cancellation of a CONFIRMED term, not %s",
+    async (status) => {
+      renderNotice(
+        [request({ currentTermIds: ["t1"], requestedTermIds: [] })],
+        [{ termId: "t1", status }],
+      )
+
+      await screen.findByRole("heading", { name: "Requested cancellation" })
+      if (status === "CONFIRMED") {
+        expect(screen.getByText(/The bed is released only after approval\./)).toBeVisible()
+      } else {
+        expect(screen.queryAllByText(/bed/i)).toHaveLength(0)
+        expect(
+          screen.getByText(/The cancellation takes effect only after approval\./),
+        ).toBeVisible()
+      }
+    },
+  )
+
+  it.each(["TO_EVALUATE", "WAITLISTED", "CONFIRMED"] as const)(
+    "mentions a bed only for change of a CONFIRMED term, not %s",
+    async (status) => {
+      renderNotice(
+        [request({ currentTermIds: ["t1"], requestedTermIds: ["t2"] })],
+        [
+          { termId: "t1", status },
+          { termId: "t2", status: "CONFIRMED" },
+        ],
+      )
+
+      await screen.findByRole("heading", { name: "Requested term change" })
+      if (status === "CONFIRMED") {
+        expect(screen.getByText("The original bed is released only after approval.")).toBeVisible()
+      } else {
+        expect(screen.queryAllByText(/bed/i)).toHaveLength(0)
+        expect(screen.getByText("The term change takes effect only after approval.")).toBeVisible()
+      }
+    },
+  )
+
+  it("does not mention a bed when only an unconfirmed term is removed and a confirmed term is kept", async () => {
+    renderNotice(
+      [request({ requestedTermIds: ["t2"] })],
+      [
+        { termId: "t1", status: "WAITLISTED" },
+        { termId: "t2", status: "CONFIRMED" },
+      ],
+    )
+
+    await screen.findByRole("heading", { name: "Requested cancellation" })
+    expect(screen.queryAllByText(/bed/i)).toHaveLength(0)
   })
 
   it("keeps the status and the reason of a declined request", async () => {

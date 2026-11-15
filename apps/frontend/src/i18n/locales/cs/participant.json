@@ -173,7 +173,9 @@
       },
       "PENDING": {
         "cancel": "Lůžko se uvolní až po schválení. Storno a případnou vratku určí organizátor.",
-        "change": "Původní lůžko se uvolní až po schválení."
+        "cancelWithoutBed": "Odhlášení se provede až po schválení. Storno a případnou vratku určí organizátor.",
+        "change": "Původní lůžko se uvolní až po schválení.",
+        "changeWithoutBed": "Změna termínu se provede až po schválení."
       },
       "REJECTED": {
         "cancel": "Organizátor žádost zamítl. Vaše původní účast zůstává platná.",
@@ -182,6 +184,7 @@
     },
     "onlyTerms": "Pouze {{terms}}",
     "pendingDescription": "Odesláno {{date}}. Do schválení se termíny, lůžko ani platby nemění. O rozhodnutí vás informujeme e-mailem i v aplikaci.",
+    "pendingDescriptionWithoutBed": "Odesláno {{date}}. Do schválení se termíny ani platby nemění. O rozhodnutí vás informujeme e-mailem i v aplikaci.",
     "pendingTitle": "Žádost čeká na rozhodnutí organizátora",
     "reason": "Důvod: {{reason}}",
     "request": "Žádost",
