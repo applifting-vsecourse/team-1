@@ -13,6 +13,7 @@ import {
   rejectAssignment,
   TermAssignments,
 } from "@/modules/events/domain/room-assignment"
+import { computeRoomWarnings } from "@/modules/events/domain/room-warnings"
 import { AppException } from "@/shared/errors/app.exception"
 import { releaseAssignments } from "@/shared/room-assignments/release-assignments"
 import { HttpStatus, Injectable } from "@nestjs/common"
@@ -109,7 +110,23 @@ export class RoomAssignmentsRepository {
         })),
     }))
 
-    return { eventId, termId, rooms, unassigned }
+    const { warnings, summary } = computeRoomWarnings({
+      rooms: term.rooms,
+      assignments: term.rooms.flatMap((room) =>
+        room.assignments.map((assignment) => ({
+          roomId: room.id,
+          applicationTermId: assignment.applicationTermId,
+          gender: assignment.applicationTerm.application.gender,
+        })),
+      ),
+      // "To evaluate" people are assignable but not confirmed, so they never lack a bed.
+      confirmedWithoutRoom: waiting
+        .filter((row) => row.status === "CONFIRMED")
+        .map((row) => ({ applicationTermId: row.id })),
+      acknowledgements: [],
+    })
+
+    return { eventId, termId, rooms, unassigned, warnings, summary }
   }
 
   /** All writes share the event lock with rooms and evaluation, so two organizers never overfill a room. */
@@ -131,6 +148,7 @@ export class RoomAssignmentsRepository {
     application: { id: string; status: ApplicationTermStatus },
     room: { id: string; capacity: number; extraBeds: number },
     organizationId: string,
+    confirmExtraBed: boolean,
   ): Promise<void> {
     const [assignedCount, current] = await Promise.all([
       tx.roomAssignment.count({ where: { roomId: room.id } }),
@@ -142,7 +160,13 @@ export class RoomAssignmentsRepository {
       assignedCount,
       alreadyInRoom: current?.roomId === room.id,
     })
-    if (rejection) throw new AppException(HttpStatus.CONFLICT, rejection)
+    // A full room takes one more person only as a knowingly confirmed extra bed (D-112). It is the
+    // same transaction under the same event lock, and nothing here evaluates the term (D-108).
+    if (rejection === "ROOM_FULL" && confirmExtraBed) {
+      await tx.room.update({ where: { id: room.id }, data: { extraBeds: { increment: 1 } } })
+    } else if (rejection) {
+      throw new AppException(HttpStatus.CONFLICT, rejection)
+    }
     await tx.roomAssignment.upsert({
       where: { applicationTermId: application.id },
       create: { organizationId, applicationTermId: application.id, roomId: room.id },
@@ -153,13 +177,15 @@ export class RoomAssignmentsRepository {
   /**
    * Puts an application of the term into a room, moving it when it already sleeps elsewhere. With
    * `alsoTermIds` the same-named room of each other term of its application gets it too (AC3);
-   * one transaction, so either all of them are placed or none.
+   * one transaction, so either all of them are placed or none. With `confirmExtraBed` a full room
+   * gets an extra bed for them (US-37); without it a full room is a 409.
    */
   async assign(
     scope: TermScope,
     applicationTermId: string,
     roomId: string,
     alsoTermIds: string[],
+    confirmExtraBed: boolean,
   ): Promise<void> {
     const { termId, organizationId } = scope
     await this.write(scope, async (tx) => {
@@ -170,7 +196,7 @@ export class RoomAssignmentsRepository {
       const room = await tx.room.findFirst({ where: { id: roomId, organizationId } })
       if (!room) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
       if (room.termId !== termId) throw new AppException(HttpStatus.CONFLICT, "ROOM_NOT_IN_TERM")
-      await this.place(tx, application, room, organizationId)
+      await this.place(tx, application, room, organizationId, confirmExtraBed)
 
       for (const otherTermId of new Set(alsoTermIds)) {
         if (otherTermId === termId) continue
@@ -189,7 +215,7 @@ export class RoomAssignmentsRepository {
         if (!match) {
           throw new AppException(HttpStatus.CONFLICT, "ROOM_ASSIGNMENT_NO_MATCHING_ROOM")
         }
-        await this.place(tx, other, match, organizationId)
+        await this.place(tx, other, match, organizationId, confirmExtraBed)
       }
     })
   }

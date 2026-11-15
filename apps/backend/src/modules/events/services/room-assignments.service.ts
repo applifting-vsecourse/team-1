@@ -27,12 +27,14 @@ export class RoomAssignmentsService {
     applicationTermId: string,
     roomId: string,
     alsoTermIds: string[],
+    confirmExtraBed: boolean,
   ): Promise<void> {
     await this.repository.assign(
       await this.scope(user, eventId, termId),
       applicationTermId,
       roomId,
       alsoTermIds,
+      confirmExtraBed,
     )
   }
 

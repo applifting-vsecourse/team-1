@@ -19,12 +19,14 @@ import { cn } from "@/lib/utils"
 import type {
   AssignmentParticipant,
   AssignmentRoom,
+  RoomWarning,
   UnassignedParticipant,
 } from "@/features/events/api/room-assignments"
 import {
   participantName,
   useAssignmentLabels,
 } from "@/features/events/components/room-assignment-labels"
+import { RoomWarningStrip } from "@/features/events/components/RoomWarnings"
 
 /** What is being dragged: a participant of the unassigned list, or one taken out of a room. */
 export type DragData = { applicationTermId: string; name: string; fromRoomId: string | null }
@@ -204,8 +206,11 @@ export function UnassignedRow({
 
 type RoomProps = {
   room: AssignmentRoom
-  /** Something is being dragged and this room has a free bed (and is not the dragged one's own). */
+  /** Something is being dragged and this room can take them (a full one as an extra bed) and is not the dragged one's own. */
   isEligible: boolean
+  /** Rule warnings of this room (US-37). */
+  warnings: RoomWarning[]
+  onAcknowledge: (warning: RoomWarning, room: AssignmentRoom) => void
   isDragActive: boolean
   actions: ReactNode
   onMoveParticipant: (participant: AssignmentParticipant) => void
@@ -244,26 +249,78 @@ function ExtraBeds({ room }: { room: AssignmentRoom }) {
   ) : null
 }
 
-function Occupancy({ room, isDropping }: { room: AssignmentRoom; isDropping: boolean }) {
+/** The kinds of the warnings nobody has confirmed yet, which the room is marked with. */
+const openKinds = (warnings: RoomWarning[]): RoomWarning["kind"][] =>
+  warnings.filter((warning) => !warning.acknowledged).map((warning) => warning.kind)
+
+function Occupancy({
+  room,
+  warnings,
+  isDropping,
+}: {
+  room: AssignmentRoom
+  warnings: RoomWarning[]
+  isDropping: boolean
+}) {
   const { t } = useTranslation("events")
   const { freeBedsLabel } = useAssignmentLabels()
+  const kinds = openKinds(warnings)
   return (
     <div className="flex flex-col items-start gap-1 text-sm">
       <span className="font-medium">
         {room.participants.length} / {room.beds}
       </span>
-      <span className={cn("font-medium", isDropping ? "text-link" : "text-muted-foreground")}>
-        {isDropping ? t("roomAssignments.dropHere") : freeBedsLabel(room)}
-      </span>
+      {kinds.includes("OVERCROWDED") ? null : (
+        <span className={cn("font-medium", isDropping ? "text-link" : "text-muted-foreground")}>
+          {isDropping ? t("roomAssignments.dropHere") : freeBedsLabel(room)}
+        </span>
+      )}
+      <WarningLabels kinds={kinds} />
       <ExtraBeds room={room} />
     </div>
   )
+}
+
+function WarningLabels({ kinds }: { kinds: RoomWarning["kind"][] }) {
+  const { t } = useTranslation("events")
+  return (
+    <>
+      {kinds.includes("OVERCROWDED") ? (
+        <span className="font-bold text-status-warning">{t("roomWarnings.overcrowdedLabel")}</span>
+      ) : null}
+      {kinds.includes("MIXED_GENDER") ? (
+        <span className="font-bold text-status-warning">{t("roomWarnings.mixedGenderLabel")}</span>
+      ) : null}
+    </>
+  )
+}
+
+/** Warning strips of a room; marked for the jump from the summary. */
+function Strips({
+  room,
+  warnings,
+  onAcknowledge,
+}: Pick<RoomProps, "room" | "warnings" | "onAcknowledge">) {
+  return warnings.map((warning) => (
+    <div
+      key={warning.kind}
+      data-room-warning={warning.acknowledged ? "acknowledged" : "open"}
+    >
+      <RoomWarningStrip
+        room={room}
+        warning={warning}
+        onAcknowledge={onAcknowledge}
+      />
+    </div>
+  ))
 }
 
 /** Desktop row of a room: name with its gender, people as chips, occupancy and the room actions. */
 export function RoomTableRow({
   room,
   isEligible,
+  warnings,
+  onAcknowledge,
   isDragActive,
   actions,
   onMoveParticipant,
@@ -275,42 +332,63 @@ export function RoomTableRow({
     data: { roomId: room.id },
   })
   const isDropping = isEligible && isOver
+  const isWarned = openKinds(warnings).length > 0
   return (
-    <TableRow
-      ref={setNodeRef}
-      className={cn(
-        isDropping
-          ? "bg-accent outline-2 -outline-offset-2 outline-ring"
-          : isEligible && isDragActive && "bg-muted",
-      )}
-    >
-      <TableCell
-        aria-label={room.name}
-        className="align-top whitespace-normal"
+    <>
+      <TableRow
+        ref={setNodeRef}
+        className={cn(
+          isDropping
+            ? "bg-accent outline-2 -outline-offset-2 outline-ring"
+            : isEligible && isDragActive
+              ? "bg-muted"
+              : isWarned && "bg-status-warning-bg hover:bg-status-warning-bg",
+          warnings.length > 0 && "border-b-0",
+        )}
       >
-        <div className="flex items-center gap-2 whitespace-nowrap">
-          <span className="font-bold">{room.name}</span>
-          {room.gender ? <Badge variant="secondary">{roomGenderLabel(room.gender)}</Badge> : null}
-        </div>
-      </TableCell>
-      <TableCell className="min-w-64 align-top whitespace-normal">
-        <Chips
-          room={room}
-          scope="row"
-          onMoveParticipant={onMoveParticipant}
-          onRemoveParticipant={onRemoveParticipant}
-        />
-      </TableCell>
-      <TableCell className="w-36 align-top">
-        <Occupancy
-          room={room}
-          isDropping={isDropping}
-        />
-      </TableCell>
-      <TableCell className="w-48 align-top">
-        <div className="flex items-center justify-end gap-1">{actions}</div>
-      </TableCell>
-    </TableRow>
+        <TableCell
+          aria-label={room.name}
+          className="align-top whitespace-normal"
+        >
+          <div className="flex items-center gap-2 whitespace-nowrap">
+            <span className="font-bold">{room.name}</span>
+            {room.gender ? <Badge variant="secondary">{roomGenderLabel(room.gender)}</Badge> : null}
+          </div>
+        </TableCell>
+        <TableCell className="min-w-64 align-top whitespace-normal">
+          <Chips
+            room={room}
+            scope="row"
+            onMoveParticipant={onMoveParticipant}
+            onRemoveParticipant={onRemoveParticipant}
+          />
+        </TableCell>
+        <TableCell className="w-36 align-top">
+          <Occupancy
+            room={room}
+            warnings={warnings}
+            isDropping={isDropping}
+          />
+        </TableCell>
+        <TableCell className="w-48 align-top">
+          <div className="flex items-center justify-end gap-1">{actions}</div>
+        </TableCell>
+      </TableRow>
+      {warnings.length > 0 ? (
+        <TableRow className="hover:bg-transparent">
+          <TableCell
+            colSpan={4}
+            className="p-0"
+          >
+            <Strips
+              room={room}
+              warnings={warnings}
+              onAcknowledge={onAcknowledge}
+            />
+          </TableCell>
+        </TableRow>
+      ) : null}
+    </>
   )
 }
 
@@ -318,6 +396,8 @@ export function RoomTableRow({
 export function RoomCard({
   room,
   isEligible,
+  warnings,
+  onAcknowledge,
   isDragActive,
   actions,
   onMoveParticipant,
@@ -330,15 +410,18 @@ export function RoomCard({
   })
   const isDropping = isEligible && isOver
   const isFull = room.participants.length >= room.beds
+  const kinds = openKinds(warnings)
   const share = Math.min(100, Math.round((room.participants.length / Math.max(1, room.beds)) * 100))
   return (
     <li
       ref={setNodeRef}
       className={cn(
-        "flex flex-col rounded-xl border border-border bg-card",
+        "flex flex-col overflow-hidden rounded-xl border border-border bg-card",
         isDropping
           ? "bg-accent outline-2 -outline-offset-2 outline-ring"
-          : isEligible && isDragActive && "bg-muted",
+          : isEligible && isDragActive
+            ? "bg-muted"
+            : kinds.length > 0 && "bg-status-warning-bg",
       )}
     >
       <div className="flex flex-col gap-3 p-4">
@@ -359,8 +442,15 @@ export function RoomCard({
               style={{ width: `${share}%` }}
             />
           </div>
-          <Badge variant={isFull ? "secondary" : "success"}>{freeBedsLabel(room)}</Badge>
+          {kinds.includes("OVERCROWDED") ? null : (
+            <Badge variant={isFull ? "secondary" : "success"}>{freeBedsLabel(room)}</Badge>
+          )}
         </div>
+        {kinds.length > 0 ? (
+          <div className="flex flex-col items-start gap-1 text-sm">
+            <WarningLabels kinds={kinds} />
+          </div>
+        ) : null}
         <ExtraBeds room={room} />
       </div>
       {room.participants.length ? (
@@ -373,6 +463,11 @@ export function RoomCard({
           />
         </div>
       ) : null}
+      <Strips
+        room={room}
+        warnings={warnings}
+        onAcknowledge={onAcknowledge}
+      />
       <div className="flex items-center gap-1 border-t border-border p-3">{actions}</div>
     </li>
   )

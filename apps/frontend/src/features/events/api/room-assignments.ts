@@ -42,12 +42,35 @@ const assignmentRoomSchema = z.object({
   gender: genderSchema.nullable(),
   participants: z.array(participantSchema),
 })
+const warningKindSchema = z.enum(["OVERCROWDED", "MIXED_GENDER", "CONFIRMED_WITHOUT_BED"])
+const roomWarningSchema = z.object({
+  kind: warningKindSchema,
+  /** Set for the two room kinds. */
+  roomId: z.string().nullable(),
+  /** Set for CONFIRMED_WITHOUT_BED. */
+  applicationTermId: z.string().nullable(),
+  /** Knowingly confirmed by an organizer: shown muted, not counted. */
+  acknowledged: z.boolean(),
+  note: z.string().nullable(),
+  acknowledgedAt: z.string().nullable(),
+  acknowledgedBy: z.string().nullable(),
+})
+const roomWarningsSummarySchema = z.object({
+  violations: z.number().int(),
+  acknowledged: z.number().int(),
+  confirmedWithoutBed: z.number().int(),
+})
 const roomAssignmentsSchema = z.object({
   eventId: z.string(),
   termId: z.string(),
   rooms: z.array(assignmentRoomSchema),
   unassigned: z.array(unassignedSchema),
+  warnings: z.array(roomWarningSchema),
+  summary: roomWarningsSummarySchema,
 })
+
+export type RoomWarning = z.infer<typeof roomWarningSchema>
+export type RoomWarningKind = z.infer<typeof warningKindSchema>
 
 export type AssignmentParticipant = z.infer<typeof participantSchema>
 export type UnassignedParticipant = z.infer<typeof unassignedSchema>
@@ -77,10 +100,31 @@ export async function assignRoom(
   applicationTermId: string,
   roomId: string,
   alsoTermIds: string[] = [],
+  isExtraBedConfirmed = false,
 ): Promise<void> {
   await api.put(`${base(eventId, termId)}/${encodeURIComponent(applicationTermId)}`, {
-    json: { roomId, alsoTermIds },
+    json: { roomId, alsoTermIds, ...(isExtraBedConfirmed ? { confirmExtraBed: true } : {}) },
   })
+}
+
+/** Knowingly confirms a warning with a note only organizers of the event see (US-37). */
+export async function acknowledgeRoomWarning(
+  eventId: string,
+  termId: string,
+  warning: Pick<RoomWarning, "kind" | "roomId" | "applicationTermId">,
+  note: string,
+): Promise<void> {
+  await api.post(
+    `organizer/events/${encodeURIComponent(eventId)}/terms/${encodeURIComponent(termId)}/room-warnings/acknowledgements`,
+    {
+      json: {
+        kind: warning.kind,
+        ...(warning.roomId ? { roomId: warning.roomId } : {}),
+        ...(warning.applicationTermId ? { applicationTermId: warning.applicationTermId } : {}),
+        note,
+      },
+    },
+  )
 }
 
 /** Takes the participant out of their room; they are unassigned again. */
