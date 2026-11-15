@@ -215,6 +215,7 @@
     "freeBeds_other": "{{count}} volných lůžek",
     "full": "Plný",
     "individual": "Individuální ubytování",
+    "individualShort": "Individuální",
     "loadFailed": "Rozdělení do pokojů se nepodařilo načíst.",
     "male": "Muž",
     "move": "Přesunout do jiného pokoje…",

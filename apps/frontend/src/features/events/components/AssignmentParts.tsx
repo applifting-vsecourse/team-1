@@ -120,7 +120,7 @@ export function ParticipantChip({
               variant="secondary"
               className="ml-1 bg-card"
             >
-              {t("roomAssignments.individual")}
+              {t("roomAssignments.individualShort")}
             </Badge>
           ) : null}
         </button>
