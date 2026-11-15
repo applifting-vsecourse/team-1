@@ -40,6 +40,8 @@ export type AssignmentParticipant = {
   firstName: string
   lastName: string
   gender: Gender
+  /** The applicant asked to settle the accommodation individually (US-38). */
+  individualAccommodation: boolean
   status: ApplicationTermStatus
 }
 

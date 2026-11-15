@@ -41,6 +41,7 @@
     }
   },
   "form": {
+    "accommodationRequest": "Note for the organizer (optional)",
     "addParticipant": "Add another participant",
     "birthDate": "Date of birth *",
     "birthDateHint": "Type a date or choose from the calendar. E.g. 25/10/1990.",
@@ -54,6 +55,7 @@
     "email": "Contact e-mail *",
     "emailHint": "The confirmation of the whole application will be sent to this e-mail.",
     "errors": {
+      "accommodationRequestTooLong": "The note can have at most 2,000 characters.",
       "birthDateInvalid": "Enter a valid date of birth.",
       "consentRequired": "Consent to the processing of personal data is required to submit.",
       "dateFormat": "Enter the date as DD/MM/YYYY.",
@@ -70,6 +72,8 @@
     "genderMale": "Man",
     "genderPlaceholder": "Select gender",
     "heading": "Application for {{event}}",
+    "individualAccommodation": "I want to arrange the accommodation individually",
+    "individualAccommodationHint": "Only the event organizer will see this.",
     "intro": "You can apply without an account. Choose one or more terms for each participant.",
     "lastName": "Last name *",
     "participantTitle": "Participant {{number}}",

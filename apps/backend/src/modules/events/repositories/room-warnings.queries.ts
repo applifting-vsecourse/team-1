@@ -40,6 +40,7 @@ export async function loadRoomWarnings(
       roomId: assignment.roomId,
       applicationTermId: assignment.applicationTermId,
       gender: assignment.applicationTerm.application.gender,
+      individualAccommodation: assignment.applicationTerm.application.individualAccommodation,
     })),
     confirmedWithoutRoom: confirmed.map((row) => ({ applicationTermId: row.id })),
     acknowledgements,

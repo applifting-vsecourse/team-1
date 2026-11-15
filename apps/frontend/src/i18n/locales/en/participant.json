@@ -87,7 +87,9 @@
     "transportIntro": "Choose how the participant gets to each term, and see where and when the transport leaves."
   },
   "edit": {
-    "accommodationRequest": "Individual accommodation request",
+    "accommodationIndividual": "Individual arrangement",
+    "accommodationRequest": "Note for the organizer (optional)",
+    "accommodationRequestTooLong": "The note can have at most 2,000 characters.",
     "accommodationSummary": "Accommodation · {{request}}",
     "backToApplication": "Back to application",
     "birthDate": "Date of birth *",
@@ -99,6 +101,8 @@
     "historyLine": "History · {{date}} · {{author}} · {{description}}",
     "historyOther": "Updated: {{fields}}.",
     "historyPersonal": "personal details",
+    "individualAccommodation": "I want to arrange the accommodation individually",
+    "individualAccommodationHint": "Only the event organizer will see this.",
     "lastName": "Last name *",
     "loadError": "Couldn't load the application",
     "open": "Edit application",

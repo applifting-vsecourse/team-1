@@ -214,6 +214,8 @@
     "freeBeds_one": "{{count}} free bed",
     "freeBeds_other": "{{count}} free beds",
     "full": "Full",
+    "individual": "Individual accommodation",
+    "individualShort": "Individual",
     "loadFailed": "Could not load the room assignment.",
     "male": "Man",
     "move": "Move to another room…",

@@ -83,6 +83,7 @@ export class RoomAssignmentsRepository {
       firstName: row.application.firstName,
       lastName: row.application.lastName,
       gender: row.application.gender,
+      individualAccommodation: row.application.individualAccommodation,
       status: row.status,
     })
 

@@ -1,6 +1,7 @@
+import { MAX_ACCOMMODATION_NOTE_LENGTH } from "@/shared/domain/accommodation"
 import { ApiProperty } from "@nestjs/swagger"
 import { Transform } from "class-transformer"
-import { IsNotEmpty, IsOptional, IsString, Matches, MaxLength } from "class-validator"
+import { IsBoolean, IsNotEmpty, IsOptional, IsString, Matches, MaxLength } from "class-validator"
 
 export class EditApplicationRequestDto {
   @ApiProperty({ maxLength: 100 })
@@ -26,10 +27,14 @@ export class EditApplicationRequestDto {
   @Matches(/^\+?[0-9]{7,30}$/)
   phone!: string
 
-  @ApiProperty({ nullable: true, maxLength: 2000 })
+  @ApiProperty()
+  @IsBoolean()
+  individualAccommodation!: boolean
+
+  @ApiProperty({ nullable: true, maxLength: MAX_ACCOMMODATION_NOTE_LENGTH })
   @IsOptional()
   @IsString()
-  @MaxLength(2000)
+  @MaxLength(MAX_ACCOMMODATION_NOTE_LENGTH)
   accommodationRequest!: string | null
 }
 
@@ -47,6 +52,7 @@ export class EditableApplicationDto {
   @ApiProperty() lastName!: string
   @ApiProperty() birthDate!: string
   @ApiProperty({ nullable: true, type: String }) phone!: string | null
+  @ApiProperty() individualAccommodation!: boolean
   @ApiProperty({ nullable: true, type: String }) accommodationRequest!: string | null
   @ApiProperty({ type: [ApplicationEditEntryDto] }) history!: ApplicationEditEntryDto[]
 }

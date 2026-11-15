@@ -11,6 +11,8 @@ const participantSchema = z.object({
   firstName: z.string(),
   lastName: z.string(),
   gender: genderSchema,
+  /** Asked to settle the accommodation individually (US-38). */
+  individualAccommodation: z.boolean(),
   status: z.enum(["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED"]),
 })
 const otherTermSchema = z.object({

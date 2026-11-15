@@ -32,7 +32,7 @@ import { RoomWarningStrip } from "@/features/events/components/RoomWarnings"
 export type DragData = { applicationTermId: string; name: string; fromRoomId: string | null }
 
 const chipClass =
-  "inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-border bg-secondary px-2 py-1 text-sm"
+  "inline-flex min-h-9 max-w-full items-center gap-1.5 rounded-lg border border-border bg-secondary px-2 py-1 text-sm"
 
 /** The chip that follows the pointer while dragging. */
 export function ParticipantGhost({ name }: { name: string }) {
@@ -111,10 +111,18 @@ export function ParticipantChip({
           )}
         >
           <GripVertical
-            className="size-3 text-muted-foreground"
+            className="size-3 shrink-0 text-muted-foreground"
             aria-hidden
           />
-          {name}
+          <span className="min-w-0 break-words">{name}</span>
+          {participant.individualAccommodation ? (
+            <Badge
+              variant="secondary"
+              className="ml-1 bg-card"
+            >
+              {t("roomAssignments.individualShort")}
+            </Badge>
+          ) : null}
         </button>
         <DropdownMenuTrigger asChild>
           <span
@@ -183,8 +191,18 @@ export function UnassignedRow({
           className="size-3.5 shrink-0 text-muted-foreground"
           aria-hidden
         />
-        <div className="flex min-w-0 flex-col gap-0.5">
-          <span className="truncate text-sm font-medium">{name}</span>
+        <div
+          className={cn(
+            "flex min-w-0 flex-col gap-0.5",
+            participant.individualAccommodation && "gap-2",
+          )}
+        >
+          <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
+            <span className="truncate text-sm font-medium">{name}</span>
+            {participant.individualAccommodation ? (
+              <Badge variant="secondary">{t("roomAssignments.individual")}</Badge>
+            ) : null}
+          </span>
           <span className="truncate text-sm text-muted-foreground">
             {genderLabel(participant.gender)} ·{" "}
             {statusLabel(participant.status, participant.gender)}

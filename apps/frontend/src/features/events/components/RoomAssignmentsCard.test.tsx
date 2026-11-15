@@ -50,12 +50,19 @@ vi.mock("@/lib/api-client", () => ({
 }))
 vi.mock("@/lib/notify", () => ({ notify: { success, error } }))
 
-const person = (id: string, firstName: string, lastName: string, status = "CONFIRMED") => ({
+const person = (
+  id: string,
+  firstName: string,
+  lastName: string,
+  status = "CONFIRMED",
+  isIndividual = false,
+) => ({
   applicationTermId: id,
   applicationId: `a-${id}`,
   firstName,
   lastName,
   gender: "FEMALE" as const,
+  individualAccommodation: isIndividual,
   status: status as "CONFIRMED" | "TO_EVALUATE",
 })
 const room = (
@@ -307,6 +314,49 @@ describe("room assignment", () => {
     await waitFor(() => expect(put).toHaveBeenCalled())
     expect(put).toHaveBeenCalledWith("organizer/events/e1/terms/t1/room-assignments/p4", {
       json: { roomId: "r2", alsoTermIds: [], confirmExtraBed: true },
+    })
+  })
+
+  describe("individual accommodation (US-38)", () => {
+    it("marks who asked for it, among the unassigned and in a room, and still lets them be assigned", async () => {
+      data = {
+        ...base(),
+        rooms: [
+          room("r1", "Room A", 4, [person("p1", "Jana", "Nováková", "CONFIRMED", true)]),
+          room("r2", "Room B", 1, [person("p2", "Eva", "Horká")]),
+        ],
+        unassigned: [
+          { ...person("p3", "Barbora", "Šimková", "TO_EVALUATE", true), alsoInTerms: [] },
+          { ...person("p4", "Nikola", "Králová"), alsoInTerms: [] },
+        ],
+      }
+      renderCard()
+      expect(await screen.findByText("Barbora Šimková")).toBeInTheDocument()
+      expect(screen.getByText("Woman · To evaluate")).toBeInTheDocument()
+      // The unassigned one has the full badge; in the room, in the table and in the card of the
+      // phone layout, the chip carries a short one. Nobody else has any.
+      expect(screen.getAllByText("Individual accommodation")).toHaveLength(1)
+      expect(screen.getAllByText("Individual")).toHaveLength(2)
+      const table = screen.getByRole("table")
+      expect(within(table).getByText("Individual")).toBeInTheDocument()
+      expect(within(table).getByText("Eva Horká")).toBeInTheDocument()
+      expect(screen.getByRole("button", { name: "Assign Barbora Šimková to a room" })).toBeEnabled()
+    })
+
+    it("does not count them in the people of the mixed gender warning", async () => {
+      const man = { ...person("p6", "Tomáš", "Dvořák"), gender: "MALE" as never }
+      const partner = { ...person("p7", "Lucie", "Veselá", "CONFIRMED", true) }
+      data = {
+        ...base(),
+        rooms: [room("r1", "Room A", 4, [person("p1", "Jana", "Nováková"), man, partner])],
+        warnings: [warning({ kind: "MIXED_GENDER", roomId: "r1" })],
+        summary: { violations: 1, acknowledged: 0, confirmedWithoutBed: 0 },
+      }
+      renderCard()
+      // The text is on the page twice (desktop table and mobile card); both count the same.
+      const texts = await screen.findAllByText("Mixed genders: 1 woman and 1 man.")
+      expect(texts.length).toBeGreaterThan(0)
+      expect(screen.queryByText("Mixed genders: 2 women and 1 man.")).not.toBeInTheDocument()
     })
   })
 

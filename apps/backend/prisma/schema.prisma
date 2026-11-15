@@ -473,6 +473,9 @@ model Application {
   email          String
   // Supplied when an organizer adds an application (US-83); older public submissions have none.
   phone          String?
+  // US-38: the applicant asked to settle the accommodation individually; the note is optional and
+  // only kept while this is set.
+  individualAccommodation Boolean @default(false)
   accommodationRequest String? @db.Text
   consentAt      DateTime
   // UI language at submission — the confirmation e-mail goes out in it.

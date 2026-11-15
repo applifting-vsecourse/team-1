@@ -1,6 +1,8 @@
 import {
+  ACCOMMODATION_FILTERS,
   FILTERABLE_PAYMENT_STATUSES,
   WAITLIST_FILTERS,
+  type AccommodationFilter,
   type FilterablePaymentStatus,
   type WaitlistFilter,
 } from "@/modules/overview/domain/application-list"
@@ -33,4 +35,11 @@ export class ApplicationListQueryDto {
   @IsOptional()
   @IsIn(WAITLIST_FILTERS)
   waitlist?: WaitlistFilter
+  @ApiPropertyOptional({
+    enum: ACCOMMODATION_FILTERS,
+    description: "INDIVIDUAL: the applicant asked to settle the accommodation individually (US-38)",
+  })
+  @IsOptional()
+  @IsIn(ACCOMMODATION_FILTERS)
+  accommodation?: AccommodationFilter
 }
