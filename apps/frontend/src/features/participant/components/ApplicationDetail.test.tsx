@@ -135,6 +135,7 @@ const renderDetail = (
   data: MyApplication,
   canChangeImmediately = true,
   owedAfterChangeCzk = 4900,
+  optionsState?: "loading" | "error",
 ) => {
   const paid = (termId: string) =>
     data.paymentDetails?.terms.find((payment) => payment.termId === termId)?.paidCzk ?? 0
@@ -143,8 +144,12 @@ const renderDetail = (
     return term?.status === "CONFIRMED" ? Math.max(0, term.priceCzk - paid(termId)) : 0
   }
   get.mockImplementation((path: string) => ({
-    json: () =>
-      Promise.resolve(
+    json: () => {
+      if (path.endsWith("change-options")) {
+        if (optionsState === "loading") return new Promise(() => undefined)
+        if (optionsState === "error") return Promise.reject(new Error("Options unavailable"))
+      }
+      return Promise.resolve(
         path.endsWith("change-requests")
           ? []
           : path.endsWith("change-options")
@@ -184,7 +189,8 @@ const renderDetail = (
                 ],
               }
             : data,
-      ),
+      )
+    },
   }))
   const root = createRootRoute({
     component: () => (
@@ -259,6 +265,64 @@ describe("ApplicationDetail", () => {
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument())
     expect(screen.queryByRole("heading", { name: "Term changed" })).not.toBeInTheDocument()
   })
+
+  describe.each([true, false])("bed release with immediate cancellation %s", (isImmediate) => {
+    it.each(["TO_EVALUATE", "WAITLISTED", "CONFIRMED"] as const)(
+      "only announces a bed release for a confirmed removed term, status %s",
+      async (status) => {
+        const user = userEvent.setup()
+        renderDetail(
+          application({ terms: [{ ...confirmed, status }], paymentDetails: null }),
+          isImmediate,
+        )
+
+        await user.click(await screen.findByRole("button", { name: "Cancel participation" }))
+        const dialog = await screen.findByRole("dialog")
+        await within(dialog).findByRole("heading", {
+          name: isImmediate ? "Cancellation impact" : "Impact after approval",
+        })
+        if (status === "TO_EVALUATE") {
+          expect(
+            within(dialog).getByText("Awaiting evaluation · no bed and no payment"),
+          ).toBeVisible()
+        }
+        const release = within(dialog).queryByText(/bed is released/)
+        if (status === "CONFIRMED") expect(release).toBeVisible()
+        else expect(release).not.toBeInTheDocument()
+      },
+    )
+
+    it("does not announce release when only the unconfirmed term is removed", async () => {
+      const user = userEvent.setup()
+      renderDetail(application({ terms: [confirmed, waitlisted] }), isImmediate)
+
+      await user.click(await screen.findByRole("button", { name: "Cancel participation" }))
+      await user.click(await screen.findByRole("combobox", { name: "What do you want to cancel?" }))
+      await user.click(screen.getByRole("option", { name: /Only 2. týden/ }))
+      expect(
+        within(screen.getByRole("dialog")).queryByText(/bed is released/),
+      ).not.toBeInTheDocument()
+    })
+  })
+
+  it.each(["loading", "error"] as const)(
+    "closes the dialog using Cancel while %s",
+    async (state) => {
+      const user = userEvent.setup()
+      renderDetail(application(), true, 4900, state)
+
+      await user.click(await screen.findByRole("button", { name: "Change terms" }))
+      const dialog = await screen.findByRole("dialog")
+      if (state === "error") await within(dialog).findByRole("button", { name: "Try again" })
+      expect(
+        within(dialog).queryByRole("button", { name: "Confirm change" }),
+      ).not.toBeInTheDocument()
+      await user.click(within(dialog).getByRole("button", { name: "Cancel" }))
+      await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument())
+      expect(put).not.toHaveBeenCalled()
+      expect(post).not.toHaveBeenCalled()
+    },
+  )
 
   it("shows the price separately from zero debt for an unconfirmed term", async () => {
     const user = userEvent.setup()

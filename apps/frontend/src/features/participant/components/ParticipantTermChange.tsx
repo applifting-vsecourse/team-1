@@ -110,6 +110,9 @@ export function ParticipantTermChange({
       : source
         ? [source]
         : []
+  const hasRemovedBed = removed.some((term) =>
+    application.terms.some((item) => item.termId === term.id && item.status === "CONFIRMED"),
+  )
   const kept = active.filter((term) => !removed.includes(term))
   const selectedIds =
     mode === "cancel"
@@ -325,7 +328,7 @@ export function ParticipantTermChange({
             {impactNote ? <p>{impactNote}</p> : null}
           </section>
         ) : null}
-        {!isImmediate ? (
+        {!hasRemovedBed ? null : !isImmediate ? (
           <p>{t("change.bedAfterApproval")}</p>
         ) : mode === "change" ? (
           <p>{t("change.bedChange")}</p>
@@ -337,34 +340,6 @@ export function ParticipantTermChange({
             <AlertDescription>{mutation.error.message}</AlertDescription>
           </Alert>
         ) : null}
-        <DialogFooter className="flex-row gap-2">
-          <Button
-            variant="ghost"
-            size="lg"
-            className="flex-1"
-            disabled={mutation.isPending}
-            onClick={onClose}
-          >
-            {t("change.discard")}
-          </Button>
-          <Button
-            size="lg"
-            className="flex-2"
-            variant={mode === "cancel" && isImmediate ? "destructive" : "default"}
-            disabled={!canSubmit || mutation.isPending}
-            onClick={() => mutation.mutate()}
-          >
-            {t(
-              mutation.isPending
-                ? "change.saving"
-                : !isImmediate
-                  ? "change.requestSubmit"
-                  : mode === "cancel"
-                    ? "change.confirmCancel"
-                    : "change.confirmChange",
-            )}
-          </Button>
-        </DialogFooter>
       </>
     )
   }
@@ -387,6 +362,36 @@ export function ParticipantTermChange({
           </DialogHeader>
           <p>{subject}</p>
           {body()}
+          <DialogFooter className="flex-row gap-2">
+            <Button
+              variant="ghost"
+              size="lg"
+              className="flex-1"
+              disabled={mutation.isPending}
+              onClick={onClose}
+            >
+              {t("change.discard")}
+            </Button>
+            {!options.isPending && !options.isError ? (
+              <Button
+                size="lg"
+                className="flex-2"
+                variant={mode === "cancel" && isImmediate ? "destructive" : "default"}
+                disabled={!canSubmit || mutation.isPending}
+                onClick={() => mutation.mutate()}
+              >
+                {t(
+                  mutation.isPending
+                    ? "change.saving"
+                    : !isImmediate
+                      ? "change.requestSubmit"
+                      : mode === "cancel"
+                        ? "change.confirmCancel"
+                        : "change.confirmChange",
+                )}
+              </Button>
+            ) : null}
+          </DialogFooter>
         </div>
       </DialogContent>
     </Dialog>
