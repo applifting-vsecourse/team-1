@@ -66,7 +66,7 @@ const secondTerm: PaymentApplication["terms"][number] = {
   endsOn: "2027-07-25",
 }
 const label = "Amount of this payment (CZK)"
-function setup(paidCzk = 0) {
+function setup(paidCzk = 0, initialType?: "refund", hasPreselectedTerm = false) {
   const client = new QueryClient({ defaultOptions: { mutations: { retry: false } } })
   const invalidate = vi.spyOn(client, "invalidateQueries")
   const onClose = vi.fn()
@@ -89,6 +89,17 @@ function setup(paidCzk = 0) {
           amountOwedCzk: 6900 - paidCzk,
           payableCzk: Math.max(0, 6900 - paidCzk),
         }}
+        term={
+          hasPreselectedTerm
+            ? {
+                ...application.terms[0]!,
+                owedCzk: 6900 - paidCzk,
+                paidCzk,
+                refundableCzk: Math.max(0, paidCzk - 6900),
+              }
+            : undefined
+        }
+        initialType={initialType}
         onClose={onClose}
       />
     </QueryClientProvider>,
@@ -118,13 +129,15 @@ describe("PaymentEditor", () => {
   it("defaults to refunding the whole overpayment and supports partial refunds", async () => {
     const { user, onClose } = setup(7400)
     await user.click(screen.getByRole("radio", { name: "Refund" }))
-    const input = screen.getByLabelText("Refunded amount (CZK)")
+    const input = screen.getByLabelText("Amount *")
     expect(input).toHaveValue("500")
-    expect(screen.getByText("After saving, left to refund").nextSibling).toHaveTextContent(/0/)
+    expect(screen.getByText("After saving").nextSibling).toHaveTextContent(/Overpayment will be.*0/)
     await user.clear(input)
     await user.type(input, "200")
-    expect(screen.getByText("After saving, left to refund").nextSibling).toHaveTextContent(/300/)
-    await user.click(screen.getByRole("button", { name: /Record refund.*200/ }))
+    expect(screen.getByText("After saving").nextSibling).toHaveTextContent(
+      /Overpayment will be.*300/,
+    )
+    await user.click(screen.getByRole("button", { name: "Record refund" }))
     await waitFor(() => expect(onClose).toHaveBeenCalledOnce())
     expect(recordRefund).toHaveBeenCalledWith("a1", expect.any(String), 200, "t1")
     expect(recordPayment).not.toHaveBeenCalled()
@@ -133,7 +146,7 @@ describe("PaymentEditor", () => {
   it.each(["0", "-1", "0.5", ""])("blocks invalid refund %s", async (value) => {
     const { user } = setup(7400)
     await user.click(screen.getByRole("radio", { name: "Refund" }))
-    const input = screen.getByLabelText("Refunded amount (CZK)")
+    const input = screen.getByLabelText("Amount *")
     await user.clear(input)
     if (value) await user.type(input, value)
     await user.click(screen.getByRole("button", { name: "Record refund" }))
@@ -150,9 +163,26 @@ describe("PaymentEditor", () => {
   it("offers the refund for the term the backend names, with its overpayment as the limit", async () => {
     const { user } = setup(7400)
     await user.click(screen.getByRole("radio", { name: "Refund" }))
-    expect(screen.getByRole("combobox", { name: "Term" })).toHaveTextContent(/Jul 2027/)
-    expect(screen.getByText("Overpayment to refund").nextSibling).toHaveTextContent(/500/)
+    expect(screen.getByRole("combobox", { name: "Term *" })).toHaveTextContent(/Jul 2027/)
+    expect(screen.getByText(/you can refund at most/)).toHaveTextContent(/Jul 2027.*500/)
+    expect(screen.getByRole("heading", { name: "Refund overpayment" })).toBeInTheDocument()
   })
+
+  it.each([true, false])(
+    "opens on the refund of the overpayment, preselected (term passed: %s)",
+    async (hasPreselectedTerm) => {
+      const { user, onClose } = setup(7400, "refund", hasPreselectedTerm)
+      expect(screen.getByRole("heading", { name: "Refund overpayment" })).toBeInTheDocument()
+      expect(screen.getByRole("radio", { name: "Refund" })).toBeChecked()
+      expect(screen.getByLabelText("Amount *")).toHaveValue("500")
+      expect(screen.getByText("After saving").nextSibling).toHaveTextContent(
+        /Overpayment will be.*0/,
+      )
+      await user.click(screen.getByRole("button", { name: "Record refund" }))
+      await waitFor(() => expect(onClose).toHaveBeenCalledOnce())
+      expect(recordRefund).toHaveBeenCalledWith("a1", expect.any(String), 500, "t1")
+    },
+  )
 
   it("records a payment for the term chosen in the dialog", async () => {
     const { user } = setup(3000)
@@ -167,7 +197,7 @@ describe("PaymentEditor", () => {
   it("says the refund exceeds the overpayment, apart from other invalid values", async () => {
     const { user } = setup(7400)
     await user.click(screen.getByRole("radio", { name: "Refund" }))
-    const input = screen.getByLabelText("Refunded amount (CZK)")
+    const input = screen.getByLabelText("Amount *")
     await user.clear(input)
     await user.type(input, "501")
     await user.click(screen.getByRole("button", { name: "Record refund" }))
@@ -176,14 +206,14 @@ describe("PaymentEditor", () => {
     await user.type(input, "0")
     await user.click(screen.getByRole("button", { name: "Record refund" }))
     expect(screen.getByRole("alert")).toHaveTextContent("Enter a positive whole amount")
-    expect(screen.queryByText("After saving, left to refund")).not.toBeInTheDocument()
+    expect(screen.queryByText(/Overpayment will be/)).not.toBeInTheDocument()
   })
 
   it("shows a refund the server rejected as an alert with its message", async () => {
     recordRefund.mockRejectedValueOnce(new Error("The term does not belong to this application."))
     const { user } = setup(7400)
     await user.click(screen.getByRole("radio", { name: "Refund" }))
-    await user.click(screen.getByRole("button", { name: /Record refund.*500/ }))
+    await user.click(screen.getByRole("button", { name: "Record refund" }))
     const alert = await screen.findByRole("alert")
     expect(alert).toHaveTextContent("The refund could not be recorded")
     expect(alert).toHaveTextContent("The term does not belong to this application.")
@@ -270,7 +300,7 @@ describe("PaymentEditor", () => {
 
   it("Back makes no request and submit is disabled while saving", async () => {
     const { user, onClose } = setup()
-    await user.click(screen.getByRole("button", { name: "Back" }))
+    await user.click(screen.getByRole("button", { name: "Cancel" }))
     expect(onClose).toHaveBeenCalledOnce()
     expect(recordPayment).not.toHaveBeenCalled()
     recordPayment.mockReturnValue(new Promise(vi.fn()))

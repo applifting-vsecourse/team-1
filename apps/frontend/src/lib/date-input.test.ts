@@ -10,6 +10,7 @@ import {
   parseDateTimeInput,
   parseTimeInput,
   splitDateTime,
+  todayIsoInAppZone,
 } from "@/lib/date-input"
 
 describe("parseDateInput", () => {
@@ -158,5 +159,15 @@ describe("date with a time", () => {
   it("splits a value into the day and the time", () => {
     expect(splitDateTime("2027-07-12T08:30")).toEqual({ date: "2027-07-12", time: "08:30" })
     expect(splitDateTime("2027-07-12")).toEqual({ date: "2027-07-12", time: "" })
+  })
+})
+
+describe("todayIsoInAppZone", () => {
+  it("uses the Prague calendar day, not UTC", () => {
+    // 23:30 UTC on 30 Jun is already 1 Jul in Prague (CEST, UTC+2).
+    expect(todayIsoInAppZone(new Date("2027-06-30T23:30:00Z"))).toBe("2027-07-01")
+    // 23:30 UTC on 31 Dec is already 1 Jan in Prague (CET, UTC+1).
+    expect(todayIsoInAppZone(new Date("2027-12-31T23:30:00Z"))).toBe("2028-01-01")
+    expect(todayIsoInAppZone(new Date("2027-07-01T10:00:00Z"))).toBe("2027-07-01")
   })
 })

@@ -14,6 +14,11 @@ class SubstituteDto {
   @ApiProperty({ description: "Position in the waitlist of the bed group (US-30)" })
   position!: number
   @ApiProperty({ description: "Price of the term, whole CZK" }) priceCzk!: number
+  @ApiProperty({
+    description:
+      "The first of its bed group, whom the freed bed is proposed to; the organizer confirms them in one step (US-31)",
+  })
+  isProposed!: boolean
 }
 
 export class SubstituteListResponseDto {
@@ -45,6 +50,7 @@ export class SubstituteListResponseDto {
         submittedAt: item.submittedAt.toISOString(),
         position: item.position,
         priceCzk: item.priceCzk,
+        isProposed: item.isProposed,
       })),
     }
   }

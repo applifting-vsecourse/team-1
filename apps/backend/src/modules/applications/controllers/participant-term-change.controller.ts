@@ -39,8 +39,7 @@ export class ParticipantTermChangeController {
   @Put("terms")
   @HttpCode(200)
   @ApiOperation({
-    summary:
-      "Immediately change or cancel the participant's terms before cancellation starts (US-113)",
+    summary: "Immediately change or cancel the participant's terms before approval starts (US-113)",
   })
   @ApiResponse({ status: 200 })
   @ApiResponse({ status: 409, description: "CANCELLATION_APPROVAL_REQUIRED from the start day" })

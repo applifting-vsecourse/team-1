@@ -118,7 +118,7 @@ export function TermStatuses({ applicationId }: { applicationId: string }) {
                 </Button>
               ) : null}
               {term.status !== "CANCELLED" ? (
-                <div className="flex flex-col gap-2 sm:flex-row">
+                <div className="flex w-full flex-col gap-2 *:w-full sm:w-auto sm:flex-row sm:flex-wrap sm:*:w-auto">
                   <OrganizerTermChange
                     applicationId={applicationId}
                     term={term}
