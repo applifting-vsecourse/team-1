@@ -234,6 +234,18 @@ describe("EventSettings", () => {
     expect(writes).toEqual([])
   })
 
+  it("offers no past day in the calendar after Prague midnight passes with the form open", async () => {
+    renderCancellation()
+    const user = userEvent.setup()
+    await user.click(await screen.findByRole("checkbox", { name: "Turn on approval" }))
+
+    vi.setSystemTime(new Date("2027-06-01T22:30:00Z")) // 2 Jun 00:30 in Prague
+    await user.click(screen.getByRole("button", { name: "Choose a date in the calendar" }))
+
+    expect(await screen.findByRole("button", { name: "Tuesday, 1 June 2027" })).toBeDisabled()
+    expect(screen.getByRole("button", { name: "Today, Wednesday, 2 June 2027" })).toBeEnabled()
+  })
+
   it("rejects an impossible day before calling the API", async () => {
     const { writes } = renderCancellation()
     const user = userEvent.setup()

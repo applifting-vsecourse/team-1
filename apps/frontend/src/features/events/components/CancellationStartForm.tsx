@@ -63,6 +63,8 @@ export function CancellationStartForm({ event }: { event: OrganizerEvent }) {
     },
   })
 
+  const refreshToday = () => setToday(todayIsoInAppZone())
+
   const submit = (e: FormEvent) => {
     e.preventDefault()
     if (mutation.isPending) return
@@ -81,6 +83,9 @@ export function CancellationStartForm({ event }: { event: OrganizerEvent }) {
         noValidate
         className="flex flex-col gap-4"
         onSubmit={submit}
+        // Before the calendar can open, bring the earliest pickable day up to date.
+        onPointerDownCapture={refreshToday}
+        onFocusCapture={refreshToday}
       >
         <div className="flex min-h-10 items-center gap-3">
           <Checkbox
