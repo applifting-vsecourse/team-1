@@ -33,6 +33,8 @@
   "PAYMENT_TERM_NOT_IN_APPLICATION": "Vybraný termín k této přihlášce nepatří.",
   "PHOTO_INVALID_TYPE": "Fotografie musí být ve formátu JPG, JPEG nebo PNG.",
   "PHOTO_TOO_LARGE": "Fotografie je příliš velká. Vyberte fotografii do 2 MB.",
+  "PROGRAM_DAY_OUTSIDE_TERM": "Tento den už není v termínu ({{startsOn}} – {{endsOn}}). Vyberte jiný den.",
+  "PROGRAM_END_BEFORE_START": "Konec musí být po začátku.",
   "PUBLIC_PAGE_INCOMPLETE": "Před zveřejněním akce v katalogu vyplňte popis, místo konání a kontaktní e-mail.",
   "REFUND_EXCEEDS_OVERPAYMENT": "Částka převyšuje aktuální přeplatek. Obnovte detail a zkontrolujte vrácenou částku.",
   "REFUND_TERM_REQUIRED": "Vratka musí být vedená u konkrétního termínu.",

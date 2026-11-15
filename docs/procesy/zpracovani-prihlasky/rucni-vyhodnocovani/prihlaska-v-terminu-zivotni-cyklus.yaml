@@ -13,6 +13,33 @@ states:
 
 transitions:
   - { from: start, to: k_vyhodnoceni, reason: Nová přihláška v termínu přijata, op: register() }
+  # přidání termínu k existující přihlášce a ruční přidání přihlášky: start → stav, podle toho, kdo mění (D-134, D-153)
+  # ručně přidaná přihláška přeskočí K vyhodnocení
+  - {
+      from: start,
+      to: potvrzena_dluh,
+      reason: Organizátor přihlášku přidá ručně a určí stav termínu,
+      op: registerByOrganizer(),
+    }
+  - {
+      from: start,
+      to: nahradnik,
+      reason: Organizátor přihlášku přidá ručně a určí stav termínu,
+      op: registerByOrganizer(),
+    }
+  - {
+      from: start,
+      to: potvrzena_dluh,
+      reason: Organizátor přidá termín nebo schválí žádost o přidání termínu,
+      op: addTerm(),
+    }
+  - {
+      from: start,
+      to: k_vyhodnoceni,
+      reason: Přihlašovatel přidá termín před datem schvalování,
+      op: addTerm(),
+    }
+  # Odhláška a změna termínu od data schvalování jde přes žádost (zadost-o-zmenu.yaml, D-134, D-140); stavové přechody se tím nemění, žádost je samostatný objekt.
 
   - {
       from: k_vyhodnoceni,
@@ -36,7 +63,7 @@ transitions:
   - {
       from: nahradnik,
       to: potvrzena_dluh,
-      reason: Uvolní se místo a organizátor ručně potvrdí,
+      reason: Uvolní se místo a organizátor ručně potvrdí (návrh náhradníka dostane organizátor jako banner). Potvrzení v okně „začátek termínu minus lhůta“ je rovnou po splatnosti (D-099),
       op: confirm(),
     }
 
@@ -47,6 +74,12 @@ transitions:
       op: cancel(),
     }
   - { from: nahradnik, to: zrusena, reason: Organizátor zruší náhradníka, op: cancel() }
+  - {
+      from: nahradnik,
+      to: zrusena,
+      reason: Účastník se odhlásí (nebo odhlášku zadá organizátor),
+      op: cancel(),
+    }
 
   - {
       from: potvrzena_dluh,
@@ -59,6 +92,12 @@ transitions:
       to: potvrzena_dluh,
       reason: Lhůta pro zaplacení dluhu uplynula,
       op: sendPaymentRequest(),
+    }
+  - {
+      from: potvrzena_dluh,
+      to: zrusena,
+      reason: Účastník se odhlásí (nebo odhlášku zadá organizátor),
+      op: cancel(),
     }
   - {
       from: potvrzena_dluh,
@@ -79,12 +118,22 @@ transitions:
       reason: Nastaly okolnosti pro zamítnutí přihlášky v termínu,
       op: cancel(),
     }
-  - { from: potvrzena_zaplacena, to: zrusena, reason: Účastník se odhlásí, op: cancel() }
-  - { from: potvrzena_zaplacena, to: archivovana, reason: Termín proběhne, op: archive() }
+  - {
+      from: potvrzena_zaplacena,
+      to: zrusena,
+      reason: Účastník se odhlásí (nebo odhlášku zadá organizátor),
+      op: cancel(),
+    }
+  - {
+      from: potvrzena_zaplacena,
+      to: archivovana,
+      reason: První den po posledním dni termínu přihlášky v termínu,
+      op: archive(),
+    }
   - {
       from: potvrzena_zaplacena,
       to: potvrzena_dluh,
-      reason: Organizátor opraví nebo odstraní platbu a vznikne dluh,
+      reason: "Organizátor opraví nebo odstraní platbu a vznikne dluh (lhůta pro zaplacení běží znovu, D-101)",
       op: correctPayment(),
     }
 

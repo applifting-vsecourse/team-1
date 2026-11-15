@@ -73,6 +73,7 @@
     "errorTitle": "Couldn't load the application",
     "health": "Health restriction",
     "meals": "Meals",
+    "program": "Program",
     "sections": {
       "terms": "Terms and payments",
       "transport": "Transport"

@@ -2,7 +2,7 @@
 
 > Generováno z [`rozhodnuti.yaml`](rozhodnuti.yaml) (`python generate.py`). Needituj, měň YAML.
 
-**102 platných**, 0 návrhů, 3 nahrazených nebo zrušených.
+**154 platných**, 0 návrhů, 4 nahrazených nebo zrušených.
 
 ## Návrhy čekající na PM
 
@@ -12,19 +12,8 @@ _Nic._
 
 | ID | Rozhodnutí | Soubor | Co zapsat |
 | --- | --- | --- | --- |
-| [D-069](#d-069) | Uživatel si nastaví preferovaný jazyk (aplikace i e-maily) | `docs/PROJEKT.md` | pravidlo jazyka aplikace a e-mailů: preferovaný jazyk uživatele (zapsat při zadání ticketu) |
-| [D-085](#d-085) | Dvouúrovňový variabilní symbol | `docs/PROJEKT.md` | řádek „Variabilní symbol = číslo přihlášky“ (sekce 5) přepsat na dvouúrovňový VS; uvést vyhrazený rozsah VS od 9 000 000 000 a omezení Application.number < 9 000 000 |
-| [D-085](#d-085) | Dvouúrovňový variabilní symbol | `docs/SLOVNIK.md` | Variabilní symbol: dvouúrovňový, patří přihlášce a přihlášce v termínu; class diagram |
-| [D-085](#d-085) | Dvouúrovňový variabilní symbol | `docs/emaily/KATALOG.md` | platební údaje u e-mailů č. 2, 5, 7: souhrnný VS a VS každé potvrzené přihlášky v termínu |
-| [D-086](#d-086) | `Term.number` je neměnné číslo termínu v akci | `docs/PROJEKT.md` | datový model: Term.number |
-| [D-087](#d-087) | Souhrnná platba se rozděluje od nejstaršího termínu | `docs/SLOVNIK.md` | pojmy Souhrn přihlášky a Příjem; pravidlo rozdělení |
-| [D-088](#d-088) | Platba na VS bez dluhu je přeplatek přihlášky v termínu | `docs/SLOVNIK.md` | Přeplatek patří přihlášce v termínu |
-| [D-089](#d-089) | Příjem = řádky `Payment` po přihlášce v termínu se společným `receiptId` | `docs/PROJEKT.md` | datový model: Payment.applicationTermId, Payment.receiptId; API plateb s volitelným termId |
-| [D-092](#d-092) | Popis, místo a kontakt jsou povinné jen pro zveřejnění v katalogu | `docs/PROJEKT.md` | veřejná stránka akce: povinnost polí jen pro zveřejnění v katalogu |
-| [D-093](#d-093) | Termíny a ceny jsou na veřejné stránce akce zatím vždy vidět | `docs/PROJEKT.md` | veřejná stránka akce: termíny a ceny vždy viditelné (dočasně) |
-| [D-094](#d-094) | Obsazenost a kapacita se veřejně nezveřejňují | `docs/PROJEKT.md` | katalog akcí: obsazenost a kapacita nejsou veřejné |
-| [D-096](#d-096) | Fotka veřejné stránky akce: jen JPG/JPEG a PNG | `docs/PROJEKT.md` | veřejná stránka akce: formát fotky JPG/JPEG a PNG |
-| [D-099](#d-099) | Lhůta na zaplacení se nastavuje u akce; pozdní potvrzení je rovnou po splatnosti | `docs/PROJEKT.md` | lhůta na zaplacení jako nastavení akce; potvrzení v okně lhůty = po splatnosti |
+| [D-100](#d-100) | Před začátkem storno podmínek si účastník mění přihlášku a termíny bez schválení | `docs/SLOVNIK.md` | pojem Schvalování požadavků účastníků (dříve „začátek storna“) |
+| [D-140](#d-140) | E-maily o přijetí a zamítnutí žádosti o změnu | `docs/emaily/TEXTY.md` | texty obou zpráv CS/EN |
 
 ## Změny dřívějších rozhodnutí
 
@@ -34,6 +23,7 @@ _Nic._
 | [D-040](#d-040) | Vyhodnocování přihlášek: ruční nebo automatické | 2026-10-23 | nahrazuje [D-003](#d-003) |
 | [D-043](#d-043) | E-mail organizátora v přihlášce: obecná chyba VALIDATION_FAILED | 2026-10-25 | nahrazuje [D-013](#d-013) |
 | [D-050](#d-050) | Dashboard organizátora se vrací | 2026-10-28 | mění [D-042](#d-042) |
+| [D-062](#d-062) | Režim pokojů se může lišit po termínech | 2026-10-31 | nahrazuje [D-054](#d-054) |
 | [D-071](#d-071) | Práce se nedělí do proudů | 2026-10-31 | mění [D-026](#d-026) |
 | [D-072](#d-072) | Landing má dva vstupy „Jsem organizátor“ a „Jsem účastník“ | 2026-10-31 | nahrazuje [D-027](#d-027)mění [D-006](#d-006) |
 | [D-074](#d-074) | Přechod Potvrzená → Náhradník má vlastní e-mail jako samostatný stav v EMAILY.md | 2026-10-31 | mění [D-056](#d-056) |
@@ -41,6 +31,13 @@ _Nic._
 | [D-078](#d-078) | Preferovaný jazyk uživatele přebíjí jazyk přihlášky u e-mailů o změně přihlášky | 2026-10-31 | mění [D-069](#d-069) |
 | [D-083](#d-083) | Režim vyhodnocování lze měnit, dokud je počet přijatých přihlášek 0 | 2026-10-31 | mění [D-068](#d-068) |
 | [D-085](#d-085) | Dvouúrovňový variabilní symbol | 2026-11-01 | mění [D-016](#d-016), mění [D-034](#d-034) |
+| [D-109](#d-109) | Registrace organizátora vyžaduje ověření e-mailu odkazem | 2026-11-06 | mění [D-105](#d-105) |
+| [D-114](#d-114) | Přehled akce je dashboard; po přihlášení poslední otevřená akce | 2026-11-07 | mění [D-050](#d-050), mění [D-042](#d-042) |
+| [D-126](#d-126) | Organizátor se registruje sám a zakládá organizaci bez schvalování | 2026-10-28 | mění [D-001](#d-001), mění [D-006](#d-006) |
+| [D-136](#d-136) | Do US-128 znamená jazyk en „nenastaveno“ | 2026-11-06 | mění [D-078](#d-078) |
+| [D-147](#d-147) | Jazyk a vzhled se přepínají v Nastavení účtu | 2026-11-08 | mění [D-042](#d-042) |
+| [D-154](#d-154) | Seznam přihlášek: pátá volba filtru úhrady a jeden sloupec Dluh | 2026-11-08 | mění [D-044](#d-044) |
+| [D-155](#d-155) | Kopírování programu mezi termíny | 2026-11-14 | mění [D-123](#d-123) |
 
 ## Platná rozhodnutí podle oblasti
 
@@ -57,6 +54,12 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-117](#d-117) | Magic link je i v souhrnném potvrzovacím e-mailu, ne v e-mailu o změně | 2026-11-13 | `pm` | produkt |
+| [D-151](#d-151) | Potvrzení zaplacení: jazyk podle D-078, jeden e-mail za platbu | 2026-11-06 | `pm` | produkt |
+| [D-136](#d-136) | Do US-128 znamená jazyk en „nenastaveno“ | 2026-11-06 | `pm` | produkt |
+| [D-127](#d-127) | Odhláška zadaná organizátorem posílá souhrnný e-mail o změně | 2026-11-06 | `pm` | produkt |
+| [D-148](#d-148) | Upozornění přihlašovatele v aplikaci: vznik a texty | 2026-11-05 | `pm` | produkt |
+| [D-140](#d-140) | E-maily o přijetí a zamítnutí žádosti o změnu | 2026-11-05 | `pm` | produkt |
 | [D-106](#d-106) | Kontakty v patičce e-mailů podle druhu zprávy | 2026-11-03 | `pm` | produkt |
 | [D-104](#d-104) | Změnové e-maily se týkají jen přihlášených a změněných termínů | 2026-11-03 | `pm` | produkt |
 | [D-103](#d-103) | Při zamítnutí nebo odhlášení zaplacené účasti e-mail refund neslibuje | 2026-11-03 | `pm` | produkt |
@@ -68,10 +71,23 @@ _Nic._
 | [D-055](#d-055) | Jazyk magic link e-mailu je jazyk UI při žádosti | 2026-10-30 | `tech-lead` | produkt |
 | [D-034](#d-034) | Souhrnný potvrzovací e-mail | 2026-10-21 | `po` | produkt |
 
+### logistika
+
+| ID | Rozhodnutí | Datum | Rozhodl | Typ |
+| --- | --- | --- | --- | --- |
+| [D-155](#d-155) | Kopírování programu mezi termíny | 2026-11-14 | `pm` | produkt |
+| [D-123](#d-123) | Program akce: jeden program po termínech, vidí potvrzení | 2026-11-14 | `pm` | produkt |
+| [D-124](#d-124) | Doprava patří k termínu, bez kapacity a ceny | 2026-11-09 | `pm` | produkt |
+| [D-122](#d-122) | Zdravotní omezení: souhlas, vidí organizátoři organizace, změna žádostí | 2026-11-07 | `pm` | produkt |
+| [D-121](#d-121) | Stravovací omezení: výchozí varianty, souhrn jen z potvrzených | 2026-11-07 | `pm` | produkt |
+
 ### nastavení akce
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-115](#d-115) | Kopírování pokojů mezi termíny: přidat, nebo nahradit | 2026-11-07 | `pm` | produkt |
+| [D-116](#d-116) | Veřejná stránka akce má stálou adresu a pevný obsah | 2026-11-04 | `pm` | produkt |
+| [D-152](#d-152) | Zrušený termín se do podmínky funkčního odkazu nepočítá | 2026-11-02 | `pm` | produkt |
 | [D-096](#d-096) | Fotka veřejné stránky akce: jen JPG/JPEG a PNG | 2026-11-02 | `pm` | produkt |
 | [D-093](#d-093) | Termíny a ceny jsou na veřejné stránce akce zatím vždy vidět | 2026-11-02 | `pm` | produkt |
 | [D-092](#d-092) | Popis, místo a kontakt jsou povinné jen pro zveřejnění v katalogu | 2026-11-02 | `pm` | produkt |
@@ -91,8 +107,15 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-156](#d-156) | Lhůta na zaplacení: 1–60 dní, změna platí jen pro nově potvrzené | 2026-11-14 | `pm` | produkt |
+| [D-125](#d-125) | Import plateb: CSV z jedné banky nebo jednoduchý generický formát | 2026-11-11 | `pm` | produkt |
+| [D-113](#d-113) | Storno podmínky jsou volný text na akci, bez výpočtu | 2026-11-07 | `pm` | produkt |
+| [D-149](#d-149) | Zápis platby: souhrnný dialog vždy, vratka bez potvrzujícího alertu | 2026-11-04 | `pm` | produkt |
+| [D-133](#d-133) | Hláška o nově potvrzeném termínu svítí 7 dní | 2026-11-04 | `pm` | produkt |
+| [D-132](#d-132) | Moje přihláška ukazuje platební údaje ve dvou úrovních | 2026-11-04 | `pm` | produkt |
+| [D-119](#d-119) | Oprava platby nebo vratky stornuje celý příjem a vytvoří náhradní | 2026-11-04 | `pm` | produkt |
 | [D-102](#d-102) | Výzva po splatnosti: jednou, automaticky nebo ručně podle organizátora | 2026-11-03 | `pm` | produkt |
-| [D-100](#d-100) | Oprava platby vrací zaplacenou přihlášku k dluhu | 2026-11-03 | `pm` | produkt |
+| [D-101](#d-101) | Oprava platby vrací zaplacenou přihlášku k dluhu | 2026-11-03 | `pm` | produkt |
 | [D-097](#d-097) | VS termínů na stránce po odeslání se nedoplňuje | 2026-11-02 | `pm` | produkt |
 | [D-091](#d-091) | Jedna platba za celé odeslání formuláře je záměr, mimo US-137 | 2026-11-01 | `pm` | produkt |
 | [D-090](#d-090) | Stará platební data se smažou, seed se přepíše | 2026-11-01 | `pm` | technicke |
@@ -112,12 +135,14 @@ _Nic._
 | --- | --- | --- | --- | --- |
 | [D-095](#d-095) | Odkaz na katalog z landingu je samostatná story | 2026-11-02 | `pm` | produkt |
 | [D-094](#d-094) | Obsazenost a kapacita se veřejně nezveřejňují | 2026-11-02 | `pm` | produkt |
+| [D-143](#d-143) | Správce a zpracovatel údajů; VOP, výmaz a záznam přístupů se nedělají | 2026-10-29 | `pm` | byznys |
 | [D-005](#d-005) | Produkt se jmenuje Togena | 2026-10-16 | `tech-lead` | produkt |
 
 ### přehledy
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-114](#d-114) | Přehled akce je dashboard; po přihlášení poslední otevřená akce | 2026-11-07 | `pm` | produkt |
 | [D-050](#d-050) | Dashboard organizátora se vrací | 2026-10-28 | `pm` | produkt |
 | [D-042](#d-042) | Dashboard organizátora se ruší | 2026-10-25 | `tech-lead` | produkt |
 
@@ -125,7 +150,22 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
-| [D-099](#d-099) | Lhůta na zaplacení se nastavuje u akce; pozdní potvrzení je rovnou po splatnosti | 2026-11-05 | `pm` | produkt |
+| [D-158](#d-158) | Storno podmínky vidí přihlašovatel před odhláškou a změnou termínu | 2026-11-14 | `pm` | produkt |
+| [D-157](#d-157) | Vyhodnocení vybraných přihlášek jedním krokem | 2026-11-14 | `pm` | produkt |
+| [D-110](#d-110) | Archivace přihlášky v termínu první den po konci jejího termínu | 2026-11-14 | `pm` | produkt |
+| [D-129](#d-129) | Odkaz na stránce po odeslání přihlášky se řídí relací | 2026-11-13 | `pm` | produkt |
+| [D-118](#d-118) | Rozepsaná veřejná přihláška se drží v sessionStorage | 2026-11-13 | `pm` | produkt |
+| [D-108](#d-108) | Automatické doplnění náhradníka jen za uvolněná lůžka, zvýšení kapacity nikdy | 2026-11-13 | `pm` | produkt |
+| [D-142](#d-142) | Hromadné akce nad přihláškami: v jednom termínu, potvrdí jen ty, kdo se vejdou | 2026-11-11 | `pm` | produkt |
+| [D-131](#d-131) | Účastnická část Sprintu 4: spolubydlení, pokoj, platba, doprava | 2026-11-11 | `pm` | produkt |
+| [D-137](#d-137) | Do termínu, který začal, nejde podat přihlášku ani ji měnit přihlašovatelem | 2026-11-09 | `pm` | produkt |
+| [D-154](#d-154) | Seznam přihlášek: pátá volba filtru úhrady a jeden sloupec Dluh | 2026-11-08 | `pm` | produkt |
+| [D-153](#d-153) | Ruční přidání přihlášky: souhlas potvrzuje organizátor, stav po termínech | 2026-11-08 | `pm` | produkt |
+| [D-141](#d-141) | Úprava údajů přihlášky: pole, doba a upozornění | 2026-11-08 | `pm` | produkt |
+| [D-134](#d-134) | Stav termínu přidaného změnou podle toho, kdo mění | 2026-11-06 | `pm` | produkt |
+| [D-130](#d-130) | Přeskočený náhradník je čekající před potvrzeným ve stejné frontě | 2026-11-05 | `pm` | produkt |
+| [D-100](#d-100) | Před začátkem storno podmínek si účastník mění přihlášku a termíny bez schválení | 2026-11-05 | `pm`, `po` | produkt |
+| [D-099](#d-099) | Lhůta na zaplacení se nastavuje u akce; pozdní potvrzení je rovnou po splatnosti | 2026-11-05 | `pm`, `po` | produkt |
 | [D-079](#d-079) | Telefon účastníka je ve formuláři přihlášky povinný, u nezletilých se neřeší | 2026-10-31 | `pm` | produkt |
 | [D-077](#d-077) | Přesun mezi náhradníky jen u Potvrzené s dluhem, ruční zásahy platí v obou režimech | 2026-10-31 | `pm` | produkt |
 | [D-076](#d-076) | Při zrušení termínu se zaplacené platby vracejí, archivované přihlášky se nerulí | 2026-10-31 | `pm` | produkt |
@@ -139,6 +179,7 @@ _Nic._
 | [D-058](#d-058) | Přechody z K vyhodnocení doplní US-102 | 2026-10-31 | `pm` | produkt |
 | [D-057](#d-057) | Organizátor smí zrušit náhradníka kdykoli | 2026-10-31 | `pm` | produkt |
 | [D-056](#d-056) | Potvrzená → Náhradník ručně organizátorem | 2026-10-31 | `pm` | produkt |
+| [D-145](#d-145) | Kanban přihlášek nenahradí hromadné operace | 2026-10-28 | `pm` | produkt |
 | [D-045](#d-045) | Duplicitní přihláška (#160, US-23) | 2026-10-26 | `tym` | produkt |
 | [D-043](#d-043) | E-mail organizátora v přihlášce: obecná chyba VALIDATION_FAILED | 2026-10-25 | `tech-lead` | produkt |
 | [D-040](#d-040) | Vyhodnocování přihlášek: ruční nebo automatické | 2026-10-23 | `tym` | produkt |
@@ -152,6 +193,8 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-135](#d-135) | Funkce jen pro staging a demo jsou v produkci vypnuté | 2026-11-09 | `pm` | technicke |
+| [D-150](#d-150) | Omezení počtu požadavků na přihlášku a přihlášení | 2026-11-04 | `pm` | technicke |
 | [D-033](#d-033) | E-maily na stagingu přes Resend | 2026-10-21 | `tech-lead` | technicke |
 | [D-024](#d-024) | Jazyk: kód anglicky, dokumentace česky, UI lokalizované EN / CZ | 2026-10-16 | `tech-lead` | technicke |
 | [D-021](#d-021) | Stack zůstává ze starteru | 2026-10-16 | `tech-lead` | technicke |
@@ -164,6 +207,8 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-146](#d-146) | Pracovní pravidla týmu a očekávání PO | 2026-11-11 | `pm` | proces |
+| [D-144](#d-144) | Priority Sprintu 3 a 4 a odsun redesignu | 2026-11-11 | `pm` | proces |
 | [D-071](#d-071) | Práce se nedělí do proudů | 2026-10-31 | `pm` | proces |
 | [D-060](#d-060) | Blok „Stav v termínech“: merge neblokuje, UI/UX dolaďovat zpětně | 2026-10-31 | `pm` | proces |
 | [D-048](#d-048) | MVP / nice to have se vede milestonem | 2026-10-27 | `pm` | proces |
@@ -181,8 +226,13 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-159](#d-159) | Pozdější příjezd a dřívější odjezd jen jako informace pro kuchyni | 2026-11-14 | `pm` | produkt |
+| [D-112](#d-112) | Pravidla pokojů jen varují; nad kapacitu přistýlka po vědomém potvrzení | 2026-11-14 | `pm` | produkt |
+| [D-111](#d-111) | Přiřazení do pokojů: do pokoje, i ve stavu K vyhodnocení, zveřejnění zvlášť | 2026-11-14 | `pm` | produkt |
+| [D-139](#d-139) | Přistýlka je počet lůžek navíc v pokoji a termínu | 2026-11-12 | `pm` | produkt |
+| [D-138](#d-138) | Změna režimu pokojů a kapacity u obsazeného termínu jen varuje | 2026-11-11 | `pm` | produkt |
+| [D-120](#d-120) | Rozdělení do pokojů je cíl Sprintu 4, ale volitelné | 2026-11-11 | `pm` | produkt |
 | [D-084](#d-084) | Datový model režimu pokojů po termínech se přepíše na nový systém bez migrace | 2026-10-31 | `pm` | technicke |
-| [D-054](#d-054) | US-26: čtecí přehled kapacit jen pro akce s dělením podle pohlaví | 2026-10-23 | `po` | produkt |
 | [D-041](#d-041) | US-14: kapacita pokoje bez horního limitu | 2026-10-23 | `po` | produkt |
 | [D-039](#d-039) | US-14: oba režimy pokojů jsou v rozsahu | 2026-10-22 | `po` | produkt |
 | [D-014](#d-014) | Pokles kapacity pod počet potvrzených je povolený | 2026-10-16 | `tech-lead` | produkt |
@@ -191,8 +241,12 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-147](#d-147) | Jazyk a vzhled se přepínají v Nastavení účtu | 2026-11-08 | `pm` | produkt |
+| [D-109](#d-109) | Registrace organizátora vyžaduje ověření e-mailu odkazem | 2026-11-06 | `pm` | produkt |
+| [D-128](#d-128) | Změna e-mailu účtu přepíše e-mail ve všech jeho přihláškách | 2026-11-03 | `pm` | produkt |
 | [D-105](#d-105) | Obecné ověření e-mailové adresy se nepožaduje | 2026-11-03 | `pm` | produkt |
 | [D-072](#d-072) | Landing má dva vstupy „Jsem organizátor“ a „Jsem účastník“ | 2026-10-31 | `pm` | produkt |
+| [D-126](#d-126) | Organizátor se registruje sám a zakládá organizaci bez schvalování | 2026-10-28 | `pm` | produkt |
 | [D-028](#d-028) | Landing má dva vstupy a je jen pro nepřihlášené | 2026-10-19 | `tym` | produkt |
 | [D-020](#d-020) | Organizace není v URL | 2026-10-16 | `tech-lead` | produkt |
 | [D-009](#d-009) | Nová přihláška se přiřadí k existujícímu účtu | 2026-10-16 | `tech-lead` | produkt |
@@ -208,6 +262,7 @@ _Nic._
 | [D-003](#d-003) | Potvrzování je automatické | board | `tym` | [D-040](#d-040) |
 | [D-013](#d-013) | E-mail organizátora v přihlášce: chyba u pole (původní) | 2026-10-16 | `tech-lead` | [D-043](#d-043) |
 | [D-027](#d-027) | Landing má jediný vstup „Pro organizátory“ | 2026-10-19 | `tym` | [D-072](#d-072) |
+| [D-054](#d-054) | US-26: čtecí přehled kapacit jen pro akce s dělením podle pohlaví | 2026-10-23 | `po` | [D-062](#d-062) |
 
 ## Detail
 
@@ -219,6 +274,7 @@ _Nic._
 - **Datum:** board (bez data) · **Rozhodl:** `tym`
 - **Text:** Organizátorské účty ve sprintu 1 vznikají v seedu, ne registrací.
 - **Zdroj:** board (zadání)
+- **Změněno v:** [D-126](#d-126)
 
 <a id="d-002"></a>
 
@@ -266,7 +322,7 @@ _Nic._
 - **Datum:** 2026-10-16 · **Rozhodl:** `tech-lead`
 - **Text:** **Ve sprintu 1 se nikdo neregistruje.** Landing má dva vstupy: „Pro organizátory – přihlásit se“ a „Mám přihlášku – přihlásit se“. Účet účastníka vzniká odesláním přihlášky.
 - **Zdroj:** [PROJEKT.md, sekce 9 (původní zápis)](../../docs/PROJEKT.md)
-- **Změněno v:** [D-027](#d-027), [D-072](#d-072)
+- **Změněno v:** [D-027](#d-027), [D-072](#d-072), [D-126](#d-126)
 
 <a id="d-007"></a>
 
@@ -393,7 +449,7 @@ _Nic._
 
 - **Stav:** platné · **Typ:** produkt · **Oblast:** účty
 - **Datum:** 2026-10-16 · **Rozhodl:** `tech-lead`
-- **Text:** Organizace není v URL; akce jsou seskupené podle pořadatele.
+- **Text:** Organizace není v URL; akce jsou seskupené podle organizace.
 - **Zdroj:** [PROJEKT.md, sekce 9 (původní zápis)](../../docs/PROJEKT.md)
 
 <a id="d-021"></a>
@@ -482,7 +538,8 @@ _Nic._
 - **Stav:** platné · **Typ:** design · **Oblast:** design
 - **Datum:** 2026-10-20 · **Rozhodl:** `tech-lead`
 - **Text:** Redesign se dělá v původním Figma souboru a v původních barvách (DS / Semantic), barvy „Future Teal“ se nepoužívají. Rohy loga značí jen jednu aktivní věc (položka sidebaru, záložka, krok, karta akce). Pravidla: `docs/FIGMA-REMAKE.md`.
-- **Zdroj:** [PROJEKT.md, sekce 9 (původní zápis)](../../docs/PROJEKT.md)
+- **Zdroj:** [PROJEKT.md, sekce 9 (původní zápis)](../../docs/PROJEKT.md); [status s PO 11. 11., §1 Nový design](../../docs/zapisy/2026-11-11-status-s-po.md); [status 27. 10.: dvouúrovňová navigace](../../docs/zapisy/2026-10-27-status.md)
+- **Poznámka:** PO 11. 11.: motiv rohů OK; tečku v levém sloupci odstranit nebo promyslet; tmavší navigace kvůli kontrastu. Dvouúrovňová navigace zůstává (27. 10.).
 
 <a id="d-030"></a>
 
@@ -510,6 +567,7 @@ _Nic._
 - **Datum:** 2026-10-20 · **Rozhodl:** `pm`
 - **Text:** **Byznysový slovník v repozitáři je závazný** pro názvy v kódu, commitech a issues. Rozhodnuto na [statusu 20. 10.](zapisy/2026-10-20-status.md).
 - **Zdroj:** [statusu 20. 10.](../../docs/zapisy/2026-10-20-status.md)
+- **Z otázek:** `Q-UCT-09`
 
 <a id="d-033"></a>
 
@@ -529,6 +587,7 @@ _Nic._
 - **Text:** **Souhrnný potvrzovací e-mail.** Přihlašovatel dostane JEDEN e-mail za celé odeslání formuláře, i když přihlásil víc účastníků (minimum e-mailů). V něm je u každého účastníka stav termínů a u každé přihlášky s potvrzeným termínem její částka k úhradě, bankovní účet organizace a vlastní variabilní symbol (platby se nesčítají). E-mail o změně přihlášky jde za jednu přihlášku. Selhání odeslání neshodí volajícího, jen se zaloguje.
 - **Zdroj:** [PROJEKT.md, sekce 9 (původní zápis)](../../docs/PROJEKT.md)
 - **Změněno v:** [D-085](#d-085)
+- **Z otázek:** `Q-UCT-01`
 
 <a id="d-035"></a>
 
@@ -603,7 +662,7 @@ _Nic._
 - **Datum:** 2026-10-25 · **Rozhodl:** `tech-lead`
 - **Text:** **Dashboard organizátora se ruší.** Po přihlášení organizátor přistane na seznamu akcí (`/organizer` přesměruje na `/organizer/events`), sidebar má jen „Akce“ a „Organizace“. Panel „Co vyžaduje pozornost“ přijde nad seznam akcí, až budou data z US-29 / US-52. Účet (avatar, jméno, e-mail) je dole v sidebaru a v mobilním draweru, menu se otevírá nahoru (Nastavení účtu, Odhlásit se). Horní lišta má roli, jazyk a vzhled; na mobilu menu, logo, jazyk a vzhled. Sekce akce jsou na mobilu rozbalovací menu s aktuální sekcí („Přehled · 1 z 5“) místo posuvných záložek. Návrh N1–N9, Figma stránka „HF / 07 Návrh 25. 10.“. **Zrušení dashboardu bylo změněno rozhodnutím 2026-10-28** (dashboard se vrací).
 - **Zdroj:** [PROJEKT.md, sekce 9 (původní zápis)](../../docs/PROJEKT.md)
-- **Změněno v:** [D-050](#d-050)
+- **Změněno v:** [D-050](#d-050), [D-114](#d-114), [D-147](#d-147)
 
 <a id="d-043"></a>
 
@@ -624,6 +683,7 @@ _Nic._
 - **Text:** **Nálezy z testování (#153).** Smazat jde jen akci bez přihlášek (`DELETE /api/organizer/events/:eventId`, jinak 409 `EVENT_HAS_APPLICATIONS`); smaže i termíny a pokoje. Archivace akce s přihláškami je mimo rozsah. Filtr úhrady v seznamu přihlášek má stavy Nezaplaceno / Částečně zaplaceno / Zaplaceno / Přeplatek (`?payment=`). U přihlášky bez částky k úhradě (jen náhradník) se platba nezapisuje; u zaplacené je „Zapsat platbu“ jen vedlejší akce. Po odeslání za více účastníků je nahoře součet k úhradě, platby zůstávají po účastnících (vlastní VS).
 - **Dotčené US:** [#153](https://github.com/applifting-vsecourse/team-1/issues/153)
 - **Zdroj:** [PROJEKT.md, sekce 9 (původní zápis)](../../docs/PROJEKT.md)
+- **Změněno v:** [D-154](#d-154)
 
 <a id="d-045"></a>
 
@@ -680,6 +740,7 @@ _Nic._
 - **Text:** **Dashboard organizátora se vrací** a mění tím rozhodnutí z 2026-10-25 („Dashboard organizátora se ruší“); dashboard požaduje PO. Dashboard je zaměřený na **actionability**: ukazuje, co organizátor má řešit teď (například přihlášky čekající na vyhodnocení, nezaplacené přihlášky), a vede ho přímo k akci. Panel „Co vyžaduje pozornost“ z rozhodnutí 2026-10-25 se tím stává jádrem dashboardu, ne pruhem nad seznamem akcí. Zbytek rozhodnutí 2026-10-25 (účet dole v sidebaru, horní lišta, sekce akce jako rozbalovací menu na mobilu) platí dál. Obsah, route a umístění v navigaci doplní návrh a story; do té doby platí `/organizer` → `/organizer/events`.
 - **Zdroj:** [PROJEKT.md, sekce 9 (původní zápis)](../../docs/PROJEKT.md)
 - **Mění:** [D-042](#d-042)
+- **Změněno v:** [D-114](#d-114)
 
 <a id="d-051"></a>
 
@@ -713,10 +774,12 @@ _Nic._
 
 ### D-054 – US-26: čtecí přehled kapacit jen pro akce s dělením podle pohlaví
 
-- **Stav:** platné · **Typ:** produkt · **Oblast:** ubytování
+- **Stav:** nahrazené · **Typ:** produkt · **Oblast:** ubytování
 - **Datum:** 2026-10-23 · **Rozhodl:** `po`
 - **Text:** Upřesnění zadavatele 2026-10-23 pro US-26: navazuje na US-14, zachovává volitelné pohlaví v datovém modelu a ruší původní maximum 20 lůžek. Výpočet a správa kapacit v US-26 jsou jen pro akce s dělením podle pohlaví; společná kapacita se implementuje později. Při otevření akce v režimu SHARED se v přehledu US-26 zobrazí informace o nepodporovaném režimu. US-26 je pouze čtecí přehled; veškeré úpravy pokojů patří do US-14.
 - **Zdroj:** [PROJEKT.md, sekce 10 (původní zápis)](../../docs/PROJEKT.md)
+- **Nahrazeno v:** [D-062](#d-062)
+- **Poznámka:** SHARED je podporovaný od US-99 (#256): kapacita bez dělení podle pohlaví se počítá jako jedna.
 
 <a id="d-055"></a>
 
@@ -815,6 +878,7 @@ _Nic._
 - **Text:** Systém má umožnit odlišný režim pokojů v odlišných termínech. „Implementováno“ v #80 znamená, že to řeší odkazovaný ticket, ne že je hotovo; pravdu říká stav #192 (US-99).
 - **Dotčené US:** [US-30](https://github.com/applifting-vsecourse/team-1/issues/30)
 - **Zdroj:** [PR, komentář PM](https://github.com/applifting-vsecourse/team-1/pull/234)
+- **Nahrazuje:** [D-054](#d-054)
 - **Z otázek:** `Q-NAS-08`
 - **Dokumentace:** `docs/PROJEKT.md`: hotovo (d4964be), řádek 71 říká „Režim pokojů zůstává na úrovni akce“ a datový model má Event.roomMode: rozpor s rozhodnutím
 
@@ -902,7 +966,7 @@ _Nic._
 - **Zdroj:** [PR #231, komentář PM](https://github.com/applifting-vsecourse/team-1/pull/231#issuecomment-6545470005)
 - **Změněno v:** [D-078](#d-078)
 - **Z otázek:** `Q-KOM-08`
-- **Dokumentace:** `docs/PROJEKT.md`: ceka, pravidlo jazyka aplikace a e-mailů: preferovaný jazyk uživatele (zapsat při zadání ticketu)
+- **Dokumentace:** `docs/PROJEKT.md`: hotovo (991a0edd), pravidlo jazyka aplikace a e-mailů: preferovaný jazyk uživatele (zapsat při zadání ticketu)
 
 <a id="d-070"></a>
 
@@ -977,7 +1041,7 @@ _Nic._
 - **Text:** V angličtině se datum narození zobrazuje a zadává jako DD/MM/YYYY (en-GB), například 25/10/1990.
 - **Dotčené US:** [#177](https://github.com/applifting-vsecourse/team-1/issues/177)
 - **Zdroj:** [odpověď PM v chatu na Q-PRI-12 (PR #226, nejasnosti k byznys pravidlům)](https://github.com/applifting-vsecourse/team-1/pull/226)
-- **Z otázek:** `Q-PRI-12`
+- **Z otázek:** `Q-PRI-12`, `Q-PRI-11`
 - **Poznámka:** Potvrzuje stav zapracovaný v PR #226 (sloučeno). Q-PRI-11 (formát podle jazyka aplikace, nebo systému) zůstává otevřená.
 
 <a id="d-076"></a>
@@ -1014,6 +1078,7 @@ _Nic._
 - **Text:** Preferovaný jazyk uživatele přebíjí jazyk přihlášky u e-mailů o změně přihlášky. Když ho uživatel nenastavil, platí jazyk jeho první přihlášky.
 - **Zdroj:** [odpověď PM v chatu k návrhům ticketů (PM rutina, krok 3)](https://github.com/applifting-vsecourse/team-1/pull/242)
 - **Mění:** [D-069](#d-069)
+- **Změněno v:** [D-136](#d-136)
 - **Z otázek:** `Q-KOM-08`
 - **Dokumentace:** `docs/emaily/KATALOG.md`: hotovo (c8c2f0a), pravidlo „E-maily jdou v jazyce přihlášky (Application.locale)“ doplnit: u e-mailů o změně přihlášky vítězí preferovaný jazyk uživatele
 - **Dokumentace:** `docs/PROJEKT.md`: hotovo (c8c2f0a), lokalizace: pořadí jazyka (preferovaný jazyk uživatele, jinak jazyk přihlášky)
@@ -1063,7 +1128,7 @@ _Nic._
 - **Datum:** 2026-10-31 · **Rozhodl:** `pm`
 - **Text:** Pozastavení přihlášek platí pro celou akci. Účastník nevidí důvod. Při pozastavení dostane chybu, že bylo přihlašování pozastaveno (týká se i rozpracované přihlášky).
 - **Zdroj:** [odpověď PM v chatu k návrhům ticketů (PM rutina, krok 3)](https://github.com/applifting-vsecourse/team-1/pull/242)
-- **Z otázek:** `Q-NAS-11`
+- **Z otázek:** `Q-NAS-11`, `Q-NAS-01`
 - **Dokumentace:** `docs/PROJEKT.md`: hotovo (c8c2f0a), sekce 5, výhled pozastavení: pro akci, bez důvodu, chyba při odeslání
 - **Poznámka:** Upřesňuje výhled z D-067. Výklad: třetí odpověď („hlásí chybu“) se týkala rozpracované přihlášky.
 
@@ -1079,7 +1144,7 @@ _Nic._
 - **Z otázek:** `Q-NAS-12`
 - **Dokumentace:** `docs/PROJEKT.md`: hotovo (c8c2f0a), pravidlo zamčení režimu vyhodnocování: od první přijaté přihlášky
 - **Dokumentace:** `docs/procesy/zpracovani-prihlasky/README.md`: hotovo (c8c2f0a), řádek „Nastavení akce“: režim lze změnit do první přihlášky
-- **Poznámka:** Konkretizuje D-068 (jde o změnu do první přihlášky, ne o kombinaci).
+- **Poznámka:** Konkretizuje D-068 (jde o změnu do první přihlášky, ne o kombinaci). Do počtu se počítá i zrušená přihláška. Kód zamyká už otevřením přihlášek (evaluation-mode.ts), oprava ticketem do Sprintu 4 (N-004).
 
 <a id="d-084"></a>
 
@@ -1104,9 +1169,9 @@ _Nic._
 - **Dotčené US:** [US-137](https://github.com/applifting-vsecourse/team-1/issues/174)
 - **Zdroj:** [ticket US-137 (#174), rozhodnutí PM v konverzaci 2026-11-01](https://github.com/applifting-vsecourse/team-1/issues/174)
 - **Mění:** [D-016](#d-016), [D-034](#d-034)
-- **Dokumentace:** `docs/PROJEKT.md`: ceka, řádek „Variabilní symbol = číslo přihlášky“ (sekce 5) přepsat na dvouúrovňový VS; uvést vyhrazený rozsah VS od 9 000 000 000 a omezení Application.number < 9 000 000
-- **Dokumentace:** `docs/SLOVNIK.md`: ceka, Variabilní symbol: dvouúrovňový, patří přihlášce a přihlášce v termínu; class diagram
-- **Dokumentace:** `docs/emaily/KATALOG.md`: ceka, platební údaje u e-mailů č. 2, 5, 7: souhrnný VS a VS každé potvrzené přihlášky v termínu
+- **Dokumentace:** `docs/PROJEKT.md`: hotovo (991a0edd), řádek „Variabilní symbol = číslo přihlášky“ (sekce 5) přepsat na dvouúrovňový VS; uvést vyhrazený rozsah VS od 9 000 000 000 a omezení Application.number < 9 000 000
+- **Dokumentace:** `docs/SLOVNIK.md`: hotovo (991a0edd), Variabilní symbol: dvouúrovňový, patří přihlášce a přihlášce v termínu; class diagram
+- **Dokumentace:** `docs/emaily/KATALOG.md`: hotovo (991a0edd), platební údaje u e-mailů č. 2, 5, 7: souhrnný VS a VS každé potvrzené přihlášky v termínu
 
 <a id="d-086"></a>
 
@@ -1117,7 +1182,7 @@ _Nic._
 - **Text:** Pořadové číslo 1 až 999 v rámci akce, přidělené při vzniku termínu (nejvyšší + 1). Nikdy se nemění ani nepoužije znovu, ani po zrušení termínu (zrušený termín číslo drží). Limit tedy platí včetně zrušených termínů; 1000. termín se odmítne chybou `TERM_LIMIT_REACHED`.
 - **Dotčené US:** [US-137](https://github.com/applifting-vsecourse/team-1/issues/174)
 - **Zdroj:** [ticket US-137 (#174), rozhodnutí PM v konverzaci 2026-11-01](https://github.com/applifting-vsecourse/team-1/issues/174)
-- **Dokumentace:** `docs/PROJEKT.md`: ceka, datový model: Term.number
+- **Dokumentace:** `docs/PROJEKT.md`: hotovo (991a0edd), datový model: Term.number
 
 <a id="d-087"></a>
 
@@ -1127,10 +1192,10 @@ _Nic._
 - **Datum:** 2026-11-01 · **Rozhodl:** `pm`
 - **Text:** Platba na souhrnný VS se rozdělí na potvrzené přihlášky v termínu s dluhem, od nejstaršího data konání (shoda: podle `Term.number`), každou nejvýše do výše jejího dluhu. Nedoplatek zůstane na nejpozdějším termínu. Přeplatek se zapíše na poslední potvrzenou přihlášku v termínu v tomto pořadí (bez potvrzené na poslední přihlášku v termínu).
 - **Dotčené US:** [US-137](https://github.com/applifting-vsecourse/team-1/issues/174)
-- **Zdroj:** [ticket US-137 (#174), rozhodnutí PM v konverzaci 2026-11-01](https://github.com/applifting-vsecourse/team-1/issues/174)
+- **Zdroj:** [ticket US-137 (#174), rozhodnutí PM v konverzaci 2026-11-01](https://github.com/applifting-vsecourse/team-1/issues/174); [async status s PO 4. 11. (A1): platba za akci jako celek](../../docs/zapisy/2026-11-04-async-status-s-po.md)
 - **Z otázek:** `Q-PLA-11`, `Q-PLA-14`
-- **Dokumentace:** `docs/SLOVNIK.md`: ceka, pojmy Souhrn přihlášky a Příjem; pravidlo rozdělení
-- **Poznámka:** Rozhodl PM; PO ověří (Q-PLA-14).
+- **Dokumentace:** `docs/SLOVNIK.md`: hotovo (991a0edd), pojmy Souhrn přihlášky a Příjem; pravidlo rozdělení
+- **Poznámka:** Rozhodl PM; PO 4. 11. (A1): vnitřní rozdělení mu je jedno, chce celek za akci. Platí i pro souhrnné QR (PM 4. 11., PR #302).
 
 <a id="d-088"></a>
 
@@ -1141,9 +1206,9 @@ _Nic._
 - **Text:** Platba na VS přihlášky v termínu bez dluhu (náhradník, zrušená, již zaplacená) se zapíše jako přeplatek té přihlášky v termínu. Nic se neodmítá. Přeplatek se nepřevádí na jinou přihlášku v termínu a vrací se vratkou. Platba zrušeného termínu nebo náhradníka zůstává u své přihlášky v termínu.
 - **Dotčené US:** [US-137](https://github.com/applifting-vsecourse/team-1/issues/174)
 - **Zdroj:** [ticket US-137 (#174), rozhodnutí PM v konverzaci 2026-11-01](https://github.com/applifting-vsecourse/team-1/issues/174)
-- **Z otázek:** `Q-PLA-11`
-- **Dokumentace:** `docs/SLOVNIK.md`: ceka, Přeplatek patří přihlášce v termínu
-- **Poznámka:** Upřesňuje D-051.
+- **Z otázek:** `Q-PLA-11`, `Q-PLA-17`
+- **Dokumentace:** `docs/SLOVNIK.md`: hotovo (991a0edd), Přeplatek patří přihlášce v termínu
+- **Poznámka:** Upřesňuje D-051. Dluh přihlášky = součet kladných dluhů jejích termínů, přeplatek jednoho termínu se neodečítá (PM 6. 11., PR #357); seznam přihlášek sjednotí #362.
 
 <a id="d-089"></a>
 
@@ -1154,7 +1219,8 @@ _Nic._
 - **Text:** Platba na souhrnný VS vytvoří víc řádků se stejným `receiptId`. Zrušení jednoho řádku zruší celou skupinu. Vratka se zadává přes `termId` (bez něj chyba) a je jeden záporný řádek na jedné přihlášce v termínu, omezený jejím přeplatkem. Zápis: cesta plateb přihlášky + volitelný `termId` (bez něj souhrn).
 - **Dotčené US:** [US-137](https://github.com/applifting-vsecourse/team-1/issues/174)
 - **Zdroj:** [ticket US-137 (#174), rozhodnutí PM v konverzaci 2026-11-01](https://github.com/applifting-vsecourse/team-1/issues/174)
-- **Dokumentace:** `docs/PROJEKT.md`: ceka, datový model: Payment.applicationTermId, Payment.receiptId; API plateb s volitelným termId
+- **Z otázek:** `Q-PLA-16`
+- **Dokumentace:** `docs/PROJEKT.md`: hotovo (991a0edd), datový model: Payment.applicationTermId, Payment.receiptId; API plateb s volitelným termId
 - **Poznámka:** Upřesňuje D-016 a D-051.
 
 <a id="d-090"></a>
@@ -1188,7 +1254,7 @@ _Nic._
 - **Text:** Veřejná stránka akce: popis, místo a kontakt (e-mail) jsou povinné jen v okamžiku, kdy organizátor akci zveřejňuje v katalogu. Bez zveřejnění je lze nechat prázdné.
 - **Dotčené US:** [US-122](https://github.com/applifting-vsecourse/team-1/issues/215)
 - **Zdroj:** [ticket US-122 (#215), odpověď PM bod 1](https://github.com/applifting-vsecourse/team-1/issues/215#issuecomment-6581262940)
-- **Dokumentace:** `docs/PROJEKT.md`: ceka, veřejná stránka akce: povinnost polí jen pro zveřejnění v katalogu
+- **Dokumentace:** `docs/PROJEKT.md`: hotovo (991a0edd), veřejná stránka akce: povinnost polí jen pro zveřejnění v katalogu
 - **Poznámka:** Souvisí s Q-NAS-05 (seznam polí veřejné stránky); ta zůstává otevřená do odsouhlasení celého seznamu polí.
 
 <a id="d-093"></a>
@@ -1200,7 +1266,7 @@ _Nic._
 - **Text:** Termíny a ceny na veřejné stránce akce se zatím zobrazují vždy, organizátor je nemůže skrýt. Další upřesnění se zeptáme PO (Q-NAS-15).
 - **Dotčené US:** [US-122](https://github.com/applifting-vsecourse/team-1/issues/215)
 - **Zdroj:** [ticket US-122 (#215), odpověď PM bod 2](https://github.com/applifting-vsecourse/team-1/issues/215#issuecomment-6581262940); [PR](https://github.com/applifting-vsecourse/team-1/pull/258#issuecomment-6582044173)
-- **Dokumentace:** `docs/PROJEKT.md`: ceka, veřejná stránka akce: termíny a ceny vždy viditelné (dočasně)
+- **Dokumentace:** `docs/PROJEKT.md`: hotovo (991a0edd), veřejná stránka akce: termíny a ceny vždy viditelné (dočasně)
 - **Poznámka:** Dočasné, do odpovědi PO na Q-NAS-15.
 
 <a id="d-094"></a>
@@ -1212,7 +1278,7 @@ _Nic._
 - **Text:** V katalogu akcí ani jinde veřejně se zatím nezobrazuje obsazenost ani kapacita (žádný pruh obsazenosti ani text „80 / 120 potvrzených“). Rámce ve Figmě, které je kreslí, se v tomto bodě neimplementují.
 - **Dotčené US:** [US-123](https://github.com/applifting-vsecourse/team-1/issues/216)
 - **Zdroj:** [ticket US-123 (#216), odpověď PM bod 1](https://github.com/applifting-vsecourse/team-1/issues/216#issuecomment-6585291926)
-- **Dokumentace:** `docs/PROJEKT.md`: ceka, katalog akcí: obsazenost a kapacita nejsou veřejné
+- **Dokumentace:** `docs/PROJEKT.md`: hotovo (991a0edd), katalog akcí: obsazenost a kapacita nejsou veřejné
 - **Poznámka:** Rozpor s Figmou katalogu (pruh obsazenosti); nahlásit designu.
 
 <a id="d-095"></a>
@@ -1235,7 +1301,7 @@ _Nic._
 - **Text:** Fotografie na veřejné stránce akce smí být JPG/JPEG nebo PNG, WebP ne (podle Figmy).
 - **Dotčené US:** [US-122](https://github.com/applifting-vsecourse/team-1/issues/215)
 - **Zdroj:** [PR](https://github.com/applifting-vsecourse/team-1/pull/258#issuecomment-6582044173)
-- **Dokumentace:** `docs/PROJEKT.md`: ceka, veřejná stránka akce: formát fotky JPG/JPEG a PNG
+- **Dokumentace:** `docs/PROJEKT.md`: hotovo (991a0edd), veřejná stránka akce: formát fotky JPG/JPEG a PNG
 - **Poznámka:** Mění návrh v #215, který počítal i s WebP.
 
 <a id="d-097"></a>
@@ -1264,24 +1330,36 @@ _Nic._
 ### D-099 – Lhůta na zaplacení se nastavuje u akce; pozdní potvrzení je rovnou po splatnosti
 
 - **Stav:** platné · **Typ:** produkt · **Oblast:** přihlašování na akce
-- **Datum:** 2026-11-05 · **Rozhodl:** `pm`
-- **Text:** Organizátor si u akce nastaví lhůtu na zaplacení; výchozí je 10 dní od potvrzení. Když se místo uvolní v okně „začátek termínu minus lhůta“ (např. týden před akcí při lhůtě 10 dní), potvrzená přihláška se rovnou označí jako po splatnosti, aby se urgovala platba. PO ověří (Q-PRI-02).
+- **Datum:** 2026-11-05 · **Rozhodl:** `pm`, `po`
+- **Text:** Organizátor si u akce nastaví lhůtu na zaplacení; výchozí je 10 dní od potvrzení. Když se místo uvolní v okně „začátek termínu minus lhůta“ (např. týden před akcí při lhůtě 10 dní), potvrzená přihláška se rovnou označí jako po splatnosti, aby se urgovala platba. PO potvrdil 4. 11. 2026; výhybku bez upomínky kryje ruční výzva (D-102).
 - **Dotčené US:** [US-31](https://github.com/applifting-vsecourse/team-1/issues/31)
-- **Zdroj:** [rozhodnutí PM při přípravě statusu s PO 2026-11-05](https://github.com/applifting-vsecourse/team-1/issues/31)
+- **Zdroj:** [rozhodnutí PM při přípravě statusu s PO 2026-11-05](https://github.com/applifting-vsecourse/team-1/issues/31); [async status s PO 4. 11. (A2): lhůta na zaplacení](../../docs/zapisy/2026-11-04-async-status-s-po.md)
 - **Z otázek:** `Q-PRI-02`
-- **Dokumentace:** `docs/PROJEKT.md`: ceka, lhůta na zaplacení jako nastavení akce; potvrzení v okně lhůty = po splatnosti
-- **Poznámka:** Rozhodl PM; PO ověří (Q-PRI-02).
+- **Dokumentace:** `docs/PROJEKT.md`: hotovo (991a0edd), lhůta na zaplacení jako nastavení akce; potvrzení v okně lhůty = po splatnosti
+- **Poznámka:** Rozhodl PM, PO potvrdil 4. 11. (A2). Lhůtu zatím nejde nastavit (výchozích 10 dní, Event.paymentPeriodDays); doporučeno číselné pole v Nastavení akce, ticket (N-047).
 
 <a id="d-100"></a>
 
-### D-100 – Oprava platby vrací zaplacenou přihlášku k dluhu
+### D-100 – Před začátkem storno podmínek si účastník mění přihlášku a termíny bez schválení
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** přihlašování na akce
+- **Datum:** 2026-11-05 · **Rozhodl:** `pm`, `po`
+- **Text:** Dokud neběží storno podmínky, účastník si sám a bez schválení organizátora mění přihlášku, termíny i odhlašuje. Schvalování organizátorem začíná až od data, odkdy běží storno podmínky (US-113, US-114). PO potvrdil 4. 11. 2026.
+- **Dotčené US:** [US-84](https://github.com/applifting-vsecourse/team-1/issues/84), [US-114](https://github.com/applifting-vsecourse/team-1/issues/207)
+- **Zdroj:** [rozhodnutí PM při přípravě statusu s PO 2026-11-05](https://github.com/applifting-vsecourse/team-1/issues/84); [async status s PO 4. 11. (A3): „Změny a odhlášení: OK.“](../../docs/zapisy/2026-11-04-async-status-s-po.md); [PR #325: hranice dne cancellationStartsOn](https://github.com/applifting-vsecourse/team-1/pull/325#issuecomment-6660278716)
+- **Z otázek:** `Q-PRI-07`
+- **Dokumentace:** `docs/SLOVNIK.md`: ceka, pojem Schvalování požadavků účastníků (dříve „začátek storna“)
+- **Poznámka:** Rozhodl PM, PO potvrdil 4. 11. Celý den cancellationStartsOn (Europe/Prague) už vyžaduje schválení (PR #325). Storno podmínky jako text: D-113 (návrh).
+
+<a id="d-101"></a>
+
+### D-101 – Oprava platby vrací zaplacenou přihlášku k dluhu
 
 - **Stav:** platné · **Typ:** produkt · **Oblast:** platby
 - **Datum:** 2026-11-03 · **Rozhodl:** `pm`
 - **Text:** Když organizátor opraví nebo odstraní platbu u potvrzené a zaplacené přihlášky v termínu a tím znovu vznikne dluh, přihláška se vrátí do stavu Potvrzená s dluhem (lhůta pro zaplacení běží znovu) a přihlašovatel automaticky dostane upozornění na opravu s aktuálním nedoplatkem a platebními údaji. Není to výzva po splatnosti. Když dluh nevznikne, e-mail neodchází.
 - **Zdroj:** [Business katalog e-mailů, potvrzená rozhodnutí z dotazníku](../../docs/emaily/KATALOG.md)
 - **Dokumentace:** `docs/emaily/KATALOG.md`: hotovo (667c8d3), e-mail č. 16, přechod Potvrzená a zaplacená → Potvrzená s dluhem
-- **Poznámka:** Rozhodl PM; PO ověří (Q-PRI-07). Storno podmínky samotné (Q-PRI-03, Q-PLA-04) zůstávají otevřené.
 
 <a id="d-102"></a>
 
@@ -1291,6 +1369,7 @@ _Nic._
 - **Datum:** 2026-11-03 · **Rozhodl:** `pm`
 - **Text:** Výzva k zaplacení po uplynutí lhůty se posílá jednou a bez automatického opakování. Organizátor si v nastavení akce určí, zda se posílá automaticky, nebo ji posílá ručně.
 - **Zdroj:** [Business katalog e-mailů, potvrzená rozhodnutí z dotazníku](../../docs/emaily/KATALOG.md)
+- **Z otázek:** `Q-PLA-03`
 - **Dokumentace:** `docs/emaily/KATALOG.md`: hotovo (667c8d3), e-mail č. 7
 
 <a id="d-103"></a>
@@ -1321,6 +1400,7 @@ _Nic._
 - **Datum:** 2026-11-03 · **Rozhodl:** `pm`
 - **Text:** Účet vzniká odesláním přihlášky a potvrzovací e-mail obsahuje magic link (D-008); samostatné obecné ověření e-mailové adresy se neposílá. Netýká se potvrzení změny přihlašovací adresy.
 - **Zdroj:** [Business katalog e-mailů, potvrzená rozhodnutí z dotazníku](../../docs/emaily/KATALOG.md)
+- **Změněno v:** [D-109](#d-109)
 - **Dokumentace:** `docs/emaily/KATALOG.md`: hotovo (667c8d3), e-mail č. 1, odkaz na přihlášení
 
 <a id="d-106"></a>
@@ -1332,3 +1412,610 @@ _Nic._
 - **Text:** Přihlášky, účast a platby řeší organizátor akce, přihlášení, heslo a zabezpečení účtu podpora Togeny. E-mail uvede příslušný kontakt a odpovědi na něj jdou stejnému příjemci. Školní projekt: skutečné kontakty se nedoplňují, používají se fiktivní adresy z docs/emaily/TEXTY.md.
 - **Zdroj:** [Business katalog e-mailů, potvrzená rozhodnutí z dotazníku](../../docs/emaily/KATALOG.md)
 - **Dokumentace:** `docs/emaily/TEXTY.md`: hotovo (667c8d3), společné části, patička
+- **Poznámka:** Po US-122 existuje Event.contactEmail a aplikace ho ukazuje; patička e-mailů zůstává do dema fiktivní, přechod na Event.contactEmail až po demu.
+
+<a id="d-108"></a>
+
+### D-108 – Automatické doplnění náhradníka jen za uvolněná lůžka, zvýšení kapacity nikdy
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** přihlašování na akce
+- **Datum:** 2026-11-13 · **Rozhodl:** `pm` · **Navrhl:** `pm`
+- **Text:** V automatickém režimu systém po uvolnění lůžka (zrušení, odhláška, přesun mezi náhradníky, změna termínu) potvrdí prvního vhodného náhradníka ze skupiny lůžek toho, kdo odešel, nejvýše tolik náhradníků, kolik lůžek se uvolnilo; do termínu, který už začal, nepotvrzuje. Zvýšení kapacity (pokoj, přistýlka, změna režimu pokojů) nikdy samo nikoho nepotvrdí, v žádném režimu; organizátor uvidí upozornění s navrženým náhradníkem. Dohledávání po pádu serveru se neřeší, změna pohlaví lůžko neuvolňuje.
+- **Dotčené US:** [US-31](https://github.com/applifting-vsecourse/team-1/issues/31)
+- **Zdroj:** [komentáře PM v PR #470 (US-31), 13. 11.](https://github.com/applifting-vsecourse/team-1/pull/470)
+- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/automaticke-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.yaml`: hotovo (fc55cb22), hrana Náhradník → Potvrzená s dluhem jen za uvolněné lůžko (model-update)
+- **Poznámka:** Doporučení: schválit, jak PM napsal v #470; upřesňuje D-014 a D-059.
+
+<a id="d-109"></a>
+
+### D-109 – Registrace organizátora vyžaduje ověření e-mailu odkazem
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** účty
+- **Datum:** 2026-11-06 · **Rozhodl:** `pm` · **Navrhl:** `pm`
+- **Text:** Organizátor se po registraci ověří odkazem z e-mailu (US-69); bez ověření se nepřihlásí ani nezaloží organizaci. D-105 (bez obecného ověření e-mailu) platí jen pro přihlašovatele a účty vzniklé odesláním přihlášky. Obejití ověření je jen pro staging a demo (D-135).
+- **Dotčené US:** [US-69](https://github.com/applifting-vsecourse/team-1/issues/69)
+- **Zdroj:** [akceptační kritéria US-69: registrace se dokončí ověřením e-mailu odkazem](https://github.com/applifting-vsecourse/team-1/issues/69); [PR #367 (US-69)](https://github.com/applifting-vsecourse/team-1/pull/367); [PR #347 vypíná ověřovací e-mail (sendOnSignUp: false)](https://github.com/applifting-vsecourse/team-1/pull/347)
+- **Mění:** [D-105](#d-105)
+- **Dokumentace:** `docs/emaily/KATALOG.md`: hotovo (991a0edd), řádek AUTH_ORGANIZER_VERIFY: ověření e-mailu organizátora
+- **Poznámka:** Doporučení: schválit a merge #347 podmínit ponecháním ověřovacího e-mailu organizátora (potvrdí tech-lead).
+
+<a id="d-110"></a>
+
+### D-110 – Archivace přihlášky v termínu první den po konci jejího termínu
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** přihlašování na akce
+- **Datum:** 2026-11-14 · **Rozhodl:** `pm` · **Navrhl:** `pm`
+- **Text:** Přihláška v termínu přejde Potvrzená a zaplacená → Archivovaná první den po konci svého termínu (endsOn, kalendářní den v Europe/Prague), ne až po posledním termínu akce. Archivovaná je koncový stav. Souhrnné platby (D-087) se archivované přihlášce v termínu nepřidělují; oprava platby (D-101, D-119) zůstává povolená.
+- **Dotčené US:** [US-109](https://github.com/applifting-vsecourse/team-1/issues/202)
+- **Zdroj:** [PR #474 (US-109), dotaz na PM 14. 11.](https://github.com/applifting-vsecourse/team-1/pull/474)
+- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/rucni-vyhodnocovani/zpracovani-prihlasky.yaml`: hotovo (fc55cb22), uzel e_termin: první den po konci termínu přihlášky
+- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/automaticke-vyhodnocovani/zpracovani-prihlasky.yaml`: hotovo (fc55cb22), uzel e_termin: první den po konci termínu přihlášky
+- **Dokumentace:** `docs/SLOVNIK.md`: hotovo (991a0edd), Archivovaná: po konci vlastního termínu
+- **Poznámka:** Doporučení: schválit před dokončením #474; zamykat platby po archivaci (alternativa) přidá kód bez přínosu.
+
+<a id="d-111"></a>
+
+### D-111 – Přiřazení do pokojů: do pokoje, i ve stavu K vyhodnocení, zveřejnění zvlášť
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** ubytování
+- **Datum:** 2026-11-14 · **Rozhodl:** `pm` · **Navrhl:** `pm`
+- **Text:** Organizátor přiřazuje potvrzené přihlášky i přihlášky K vyhodnocení; přiřazení nic nepotvrzuje a kapacitu drží jen potvrzení. Přiřazuje se do pokoje, ne na konkrétní lůžko; stejný pokoj v dalším termínu se pozná podle názvu. Při zrušení nebo změně termínu se přiřazení samo zruší. Přihlašovatel pokoj uvidí až po samostatném zveřejnění rozdělení.
+- **Dotčené US:** [US-35](https://github.com/applifting-vsecourse/team-1/issues/35)
+- **Zdroj:** [otázky vývojáře v US-35, 14. 11.](https://github.com/applifting-vsecourse/team-1/issues/35); [status s PO 11. 11., §2.2](../../docs/zapisy/2026-11-11-status-s-po.md)
+- **Poznámka:** Doporučení: poslat PO doporučené odpovědi (REPORT N-006) a po souhlasu schválit s rozhodl: po.
+
+<a id="d-112"></a>
+
+### D-112 – Pravidla pokojů jen varují; nad kapacitu přistýlka po vědomém potvrzení
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** ubytování
+- **Datum:** 2026-11-14 · **Rozhodl:** `pm` · **Navrhl:** `pm`
+- **Text:** Systém hlídá jen přeplnění pokoje, smíšené pohlaví v pokoji s určeným pohlavím a potvrzeného účastníka bez lůžka; vše jen jako varování, organizátora neblokuje. Přiřazení nad kapacitu pokoje po vědomém potvrzení přidá přistýlku. Smíšené pohlaví ve společných pokojích se nehlídá, věk se neřeší. Varování o potvrzeném bez lůžka se ukazuje až po prvním přiřazení v termínu.
+- **Dotčené US:** [US-37](https://github.com/applifting-vsecourse/team-1/issues/37)
+- **Zdroj:** [otázky vývojáře v US-37, 14. 11.](https://github.com/applifting-vsecourse/team-1/issues/37); [status s PO 11. 11., §2](../../docs/zapisy/2026-11-11-status-s-po.md)
+- **Z otázek:** `Q-UBY-02`
+- **Poznámka:** Doporučení: poslat PO doporučené odpovědi (REPORT N-007) a po souhlasu schválit s rozhodl: po.
+
+<a id="d-113"></a>
+
+### D-113 – Storno podmínky jsou volný text na akci, bez výpočtu
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** platby
+- **Datum:** 2026-11-07 · **Rozhodl:** `pm` · **Navrhl:** `pm`
+- **Text:** Organizátor u akce napíše storno podmínky jako volný text (nejvýše 2000 znaků), jeden pro odhlášku i změnu termínu. Systém z nich nic nepočítá a nevytváří storno poplatky ani vratky (D-051). Od kdy změny schvaluje organizátor, řídí datum podle D-100, ne tento text. Výpočet storna je mimo MVP.
+- **Dotčené US:** [US-47](https://github.com/applifting-vsecourse/team-1/issues/47)
+- **Zdroj:** [PR #384 (US-47), odpovědi PM 7. 11.](https://github.com/applifting-vsecourse/team-1/pull/384)
+- **Z otázek:** `Q-PRI-03`, `Q-PLA-04`
+- **Poznámka:** Doporučení: schválit; zobrazení textu přihlašovateli je samostatný ticket (N-084).
+
+<a id="d-114"></a>
+
+### D-114 – Přehled akce je dashboard; po přihlášení poslední otevřená akce
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** přehledy
+- **Datum:** 2026-11-07 · **Rozhodl:** `pm` · **Navrhl:** `pm`
+- **Text:** Dashboard organizátora je Přehled akce se čtyřmi kartami „co vyžaduje pozornost“: K vyhodnocení, Náhradníci k vyřešení (náhradníci s volným lůžkem), Účastníci s dluhem a Žádosti ke schválení; každá s počtem a odkazem na stejně filtrovaný seznam, zobrazují se i s nulou. Po přihlášení se organizátorovi otevře akce, kterou otevřel naposledy (ukládá se na serveru); bez ní seznam akcí.
+- **Dotčené US:** [US-51](https://github.com/applifting-vsecourse/team-1/issues/51)
+- **Zdroj:** [PR #388 (US-51), odpovědi PM body 1, 3, 4](https://github.com/applifting-vsecourse/team-1/pull/388#issuecomment-6711961745); [PR #410: karta Náhradníci k vyřešení](https://github.com/applifting-vsecourse/team-1/pull/410)
+- **Mění:** [D-050](#d-050), [D-042](#d-042)
+- **Z otázek:** `Q-PRE-01`, `Q-PRE-02`
+- **Poznámka:** Doporučení: schválit; mění obsah dashboardu z D-050 a D-042, kód je hotový (#388, #410).
+
+<a id="d-115"></a>
+
+### D-115 – Kopírování pokojů mezi termíny: přidat, nebo nahradit
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** nastavení akce
+- **Datum:** 2026-11-07 · **Rozhodl:** `pm` · **Navrhl:** `pm`
+- **Text:** Organizátor zkopíruje pokoje z jiného termínu téže akce; má-li cílový termín pokoje, zvolí „přidat ke stávajícím“, nebo „nahradit“. Kopie je jednorázová, pokoje jsou pak nezávislé; kopíruje se název, kapacita a pohlaví, přistýlky ne (D-139). Zdroj s jiným režimem pokojů nejde zvolit; při „přidat“ se kopie s kolizí názvů odmítne celá. Po kopii jen toast.
+- **Dotčené US:** [US-100](https://github.com/applifting-vsecourse/team-1/issues/193)
+- **Zdroj:** [PR #376 (US-100), tělo uvádí odpověď PO 7. 11. (v repu nedoložená)](https://github.com/applifting-vsecourse/team-1/pull/376); [PR #441](https://github.com/applifting-vsecourse/team-1/pull/441)
+- **Z otázek:** `Q-NAS-07`
+- **Poznámka:** Doporučení: schválit s rozhodl: pm (souhlas PO v repu doložený není); kolize a jiný režim řeší Q-NAS-20.
+
+<a id="d-116"></a>
+
+### D-116 – Veřejná stránka akce má stálou adresu a pevný obsah
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** nastavení akce
+- **Datum:** 2026-11-04 · **Rozhodl:** `pm` · **Navrhl:** `po`
+- **Text:** Každá akce s funkčním odkazem na přihlášku má stálou veřejnou stránku /events/<publicToken> bez přihlášení, i když není v katalogu; katalog na ni jen odkazuje. Akce bez funkčního odkazu a neznámý token vrací 404. Stránka ukazuje název, organizaci, místo, popis, termíny s cenami, kontakt a jednu fotku (do 2 MB, JPG nebo PNG podle obsahu, uložená v databázi); kapacitu ani obsazenost ne (D-094). Název akce se mění jen ve formuláři Veřejné údaje.
+- **Dotčené US:** [US-22](https://github.com/applifting-vsecourse/team-1/issues/22), [US-122](https://github.com/applifting-vsecourse/team-1/issues/215)
+- **Zdroj:** [async status s PO 4. 11.: „Veřejná stránka akce a katalog: OK.“](../../docs/zapisy/2026-11-04-async-status-s-po.md); [PR #345 (US-22)](https://github.com/applifting-vsecourse/team-1/pull/345)
+- **Z otázek:** `Q-NAS-04`, `Q-NAS-05`, `Q-NAS-15`
+- **Poznámka:** Doporučení: schválit s rozhodl: po, pm; doplňuje D-092 až D-096, Q-NAS-17 zůstává na PO.
+
+<a id="d-117"></a>
+
+### D-117 – Magic link je i v souhrnném potvrzovacím e-mailu, ne v e-mailu o změně
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** komunikace
+- **Datum:** 2026-11-13 · **Rozhodl:** `pm` · **Navrhl:** `pm`
+- **Text:** Když odeslání přihlášky zakládá účet, magic link nese hlavní potvrzovací e-mail i souhrnný e-mail za více účastníků. E-mail o změně přihlášky magic link nemá. Selhání vytvoření odkazu se jen zaloguje a e-mail použije odkaz na přihlášení.
+- **Dotčené US:** [US-56](https://github.com/applifting-vsecourse/team-1/issues/56)
+- **Zdroj:** [komentář PM v #178, 13. 11.](https://github.com/applifting-vsecourse/team-1/issues/178)
+- **Z otázek:** `Q-BEZ-04`
+- **Poznámka:** Doporučení: schválit; implementace až po merge #347, navazuje na D-034 a D-105.
+
+<a id="d-118"></a>
+
+### D-118 – Rozepsaná veřejná přihláška se drží v sessionStorage
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** přihlašování na akce
+- **Datum:** 2026-11-13 · **Rozhodl:** `pm` · **Navrhl:** `pm`
+- **Text:** Veřejný formulář přihlášky ukládá vyplněné údaje (všichni účastníci a vybrané termíny, bez souhlasu) do sessionStorage pod klíčem podle odkazu akce; přežije obnovení stránky, ne zavření záložky. Po odeslání se uložený stav smaže; tlačítko Smazat s potvrzením vyčistí formulář i uložený stav.
+- **Dotčené US:** [#179](https://github.com/applifting-vsecourse/team-1/issues/179)
+- **Zdroj:** [komentář PM v #179, 13. 11.](https://github.com/applifting-vsecourse/team-1/issues/179); [PR #475](https://github.com/applifting-vsecourse/team-1/pull/475); [status s PO 28. 10.: formulář zachová údaje při refreshi](../../docs/zapisy/2026-10-28-status-s-po.md)
+- **Z otázek:** `Q-BEZ-05`
+- **Poznámka:** Doporučení: schválit; dialog Smazat nemá rámec ve Figmě (design).
+
+<a id="d-119"></a>
+
+### D-119 – Oprava platby nebo vratky stornuje celý příjem a vytvoří náhradní
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** platby
+- **Datum:** 2026-11-04 · **Rozhodl:** `pm` · **Navrhl:** `pm`
+- **Text:** Oprava zapsané platby nebo vratky stornuje celý původní příjem (všechny řádky se stejným receiptId) a v jedné transakci vytvoří náhradní příjem (correctsReceiptId); souhrnná platba se rozpočítá znovu podle D-087. Původní hodnoty zůstávají v historii jako opravené; vratku nelze opravit nad přeplatek.
+- **Dotčené US:** [US-112](https://github.com/applifting-vsecourse/team-1/issues/205)
+- **Zdroj:** [US-112, rozhodnutí 4. 11.](https://github.com/applifting-vsecourse/team-1/issues/205); [PR #324 (US-112)](https://github.com/applifting-vsecourse/team-1/pull/324)
+- **Z otázek:** `Q-PLA-15`
+- **Poznámka:** Doporučení: schválit; upřesňuje D-089, kód je hotový (#324).
+
+<a id="d-120"></a>
+
+### D-120 – Rozdělení do pokojů je cíl Sprintu 4, ale volitelné
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** ubytování
+- **Datum:** 2026-11-11 · **Rozhodl:** `pm` · **Navrhl:** `po`
+- **Text:** Rozdělení účastníků do pokojů je hlavní cíl Sprintu 4, pro běh akce je ale volitelné: některé akce rozdělují až na místě, takže zveřejnění ani úplné rozdělení nesmí být podmínkou. Přiřazení nesmí bránit stavu přihlášky (jde i ve stavu K vyhodnocení).
+- **Dotčené US:** [US-35](https://github.com/applifting-vsecourse/team-1/issues/35)
+- **Zdroj:** [status s PO 11. 11., §2 a §2.2](../../docs/zapisy/2026-11-11-status-s-po.md)
+- **Z otázek:** `Q-UBY-01`
+- **Poznámka:** Doporučení: schválit s rozhodl: po.
+
+<a id="d-121"></a>
+
+### D-121 – Stravovací omezení: výchozí varianty, souhrn jen z potvrzených
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** logistika
+- **Datum:** 2026-11-07 · **Rozhodl:** `pm` · **Navrhl:** `pm`
+- **Text:** Nová akce nabízí varianty Vegetariánská a Bezlepková; organizátor je může přejmenovat, přidat i odebrat. Přihlašovatel omezení zaškrtne a doplní alergie a speciální požadavek na platformě po podání přihlášky, ne ve veřejném formuláři. Souhrn pro kuchyni počítá jen potvrzené přihlášky v termínu a je živý.
+- **Dotčené US:** [US-64](https://github.com/applifting-vsecourse/team-1/issues/64)
+- **Zdroj:** [PR #386 (US-64), komentář PM 7. 11.](https://github.com/applifting-vsecourse/team-1/pull/386)
+- **Z otázek:** `Q-LOG-02`
+- **Poznámka:** Doporučení: schválit; denní počty podle příjezdů a odjezdů řeší Q-UBY-05.
+
+<a id="d-122"></a>
+
+### D-122 – Zdravotní omezení: souhlas, vidí organizátoři organizace, změna žádostí
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** logistika
+- **Datum:** 2026-11-07 · **Rozhodl:** `pm` · **Navrhl:** `pm`
+- **Text:** Zdravotní omezení vyplní přihlašovatel na stránce přihlášky s výslovným souhlasem (bez souhlasu se neuloží); ve veřejném formuláři není. Vidí ho všichni organizátoři organizace, které akce patří, a nikdo jiný. Po prvním vyplnění ho přihlašovatel sám nemění ani nemaže, pošle žádost organizátorovi bez časového omezení. Mazání po akci a záznam přístupů se nedělají (D-143).
+- **Dotčené US:** [US-68](https://github.com/applifting-vsecourse/team-1/issues/68)
+- **Zdroj:** [PR #385 (US-68), komentář PM 7. 11.](https://github.com/applifting-vsecourse/team-1/pull/385)
+- **Z otázek:** `Q-LOG-05`
+- **Poznámka:** Doporučení: schválit; dobu uchování pokrývá D-143.
+
+<a id="d-123"></a>
+
+### D-123 – Program akce: jeden program po termínech, vidí potvrzení
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** logistika
+- **Datum:** 2026-11-14 · **Rozhodl:** `pm` · **Navrhl:** `tym`
+- **Text:** Organizátor sestaví program termínu z bloků (název, den, čas od–do, místo, popis); program je jeden pro všechny, bez volitelných bloků a kapacity. Přihlašovatel ho vidí v Moje přihláška jen u potvrzeného termínu (náhradník, zrušená a archivovaná ne). Organizátor smí upravit i proběhlý termín, překryv bloků jen upozorní. Kopírování programu mezi termíny zatím není.
+- **Dotčené US:** [US-66](https://github.com/applifting-vsecourse/team-1/issues/66)
+- **Zdroj:** [otázky v US-66](https://github.com/applifting-vsecourse/team-1/issues/66); [PR #477 (US-66)](https://github.com/applifting-vsecourse/team-1/pull/477)
+- **Změněno v:** [D-155](#d-155)
+- **Z otázek:** `Q-LOG-04`
+- **Poznámka:** Doporučení: schválit podle doporučení PR a PO jen informovat (REPORT N-020).
+
+<a id="d-124"></a>
+
+### D-124 – Doprava patří k termínu, bez kapacity a ceny
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** logistika
+- **Datum:** 2026-11-09 · **Rozhodl:** `pm` · **Navrhl:** `pm`
+- **Text:** Organizátor přidá termínu způsoby dopravy: organizované (název, místo a čas odjezdu, pokyny) a nejvýš jednu vlastní; odjezd nesmí být po posledním dni termínu. Přihlašovatel vybírá dopravu za každý termín zvlášť, vyžaduje se jen u potvrzených termínů. Kapacita ani cena dopravy se v MVP nehlídají. Smazání dopravy s vybranými účastníky organizátor potvrdí a účastníkům se volba zruší bez e-mailu.
+- **Dotčené US:** [US-65](https://github.com/applifting-vsecourse/team-1/issues/65)
+- **Zdroj:** [PR #381 (US-65)](https://github.com/applifting-vsecourse/team-1/pull/381); [PR #425: rozhodl PM, nezapsáno](https://github.com/applifting-vsecourse/team-1/pull/425)
+- **Z otázek:** `Q-LOG-03`
+- **Poznámka:** Doporučení: schválit; slevu za vlastní dopravu řeší až US-49.
+
+<a id="d-125"></a>
+
+### D-125 – Import plateb: CSV z jedné banky nebo jednoduchý generický formát
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** platby
+- **Datum:** 2026-11-11 · **Rozhodl:** `pm` · **Navrhl:** `po`
+- **Text:** Pro Sprint 4 stačí nahrát výpis v CSV z jedné banky (Fio) nebo v jednoduchém generickém formátu; formáty všech českých bank se nepodporují. Jednoznačné platby se spárují podle variabilního symbolu, nespárované vyřeší organizátor ručně a vidí důvod. Přímé napojení na banku je mimo sprint.
+- **Dotčené US:** [US-42](https://github.com/applifting-vsecourse/team-1/issues/42), [US-43](https://github.com/applifting-vsecourse/team-1/issues/43)
+- **Zdroj:** [status s PO 11. 11., §5](../../docs/zapisy/2026-11-11-status-s-po.md)
+- **Z otázek:** `Q-PLA-02`
+- **Poznámka:** Doporučení: schválit s rozhodl: po a upravit AC #42 („CSV nebo GPC, jakákoliv banka“).
+
+<a id="d-126"></a>
+
+### D-126 – Organizátor se registruje sám a zakládá organizaci bez schvalování
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** účty
+- **Datum:** 2026-10-28 · **Rozhodl:** `pm` · **Navrhl:** `po`
+- **Text:** Organizátor se zaregistruje e-mailem a heslem, ověří e-mail odkazem (D-109) a založí organizaci bez schvalování správcem platformy; dokud nedoplní profil (kontaktní e-mail, telefon, bankovní účet), nezaloží akci. Každý organizátor patří do organizace. Účet přihlašovatele dál vzniká jen odesláním přihlášky.
+- **Dotčené US:** [US-69](https://github.com/applifting-vsecourse/team-1/issues/69), [US-08](https://github.com/applifting-vsecourse/team-1/issues/8)
+- **Zdroj:** [status s PO 28. 10.: self-onboarding organizace](../../docs/zapisy/2026-10-28-status-s-po.md); [PR #367 (US-69)](https://github.com/applifting-vsecourse/team-1/pull/367)
+- **Mění:** [D-001](#d-001), [D-006](#d-006)
+- **Z otázek:** `Q-UCT-04`, `Q-PLT-02`, `Q-PLT-11`
+- **Dokumentace:** `docs/PROJEKT.md`: hotovo (991a0edd), registrace organizátora a organizace (dnes „Veřejná registrace je vypnutá“, ř. 112)
+- **Poznámka:** Doporučení: schválit s rozhodl: po, pm; mění D-001 a D-006, které platily pro sprint 1.
+
+<a id="d-127"></a>
+
+### D-127 – Odhláška zadaná organizátorem posílá souhrnný e-mail o změně
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** komunikace
+- **Datum:** 2026-11-06 · **Rozhodl:** `pm` · **Navrhl:** `pm`
+- **Text:** Když organizátor odhlásí účastníka z jednoho nebo všech termínů (potvrzeného i náhradníka), přihlašovatel dostane jeden souhrnný e-mail o změně přihlášky jen s dotčenými termíny (D-104), bez slibu vrácení peněz (D-103). Samostatný e-mail pro jeden termín je enhancement.
+- **Dotčené US:** [US-32](https://github.com/applifting-vsecourse/team-1/issues/32)
+- **Zdroj:** [US-32, komentáře 6. 11. (varianta B)](https://github.com/applifting-vsecourse/team-1/issues/32)
+- **Dokumentace:** `docs/emaily/KATALOG.md`: hotovo (991a0edd), APP_CANCELLED_BY_APPLICANT a APP_WAITLIST_CANCELLED: odhláška organizátorem jde jako TERMS_CHANGED
+- **Poznámka:** Doporučení: schválit včetně náhradníka (jedno tlačítko Odhlásit); sloučení řádků KATALOGu až po demu.
+
+<a id="d-128"></a>
+
+### D-128 – Změna e-mailu účtu přepíše e-mail ve všech jeho přihláškách
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** účty
+- **Datum:** 2026-11-03 · **Rozhodl:** `pm` · **Navrhl:** `pm`
+- **Text:** Po potvrzení odkazu na nové adrese se nový e-mail nastaví účtu i všem jeho přihláškám; další e-maily jdou na novou adresu, do potvrzení platí stará. Na starou adresu jde při žádosti upozornění. Obsazená adresa vrací obecnou chybu „Tento e-mail už je obsazený.“
+- **Dotčené US:** [US-125](https://github.com/applifting-vsecourse/team-1/issues/218)
+- **Zdroj:** [US-125, komentáře PM 3. 11.](https://github.com/applifting-vsecourse/team-1/issues/218)
+- **Dokumentace:** `docs/emaily/KATALOG.md`: hotovo (991a0edd), adresát e-mailů k přihláškám po změně e-mailu účtu
+- **Poznámka:** Doporučení: schválit a designu nahlásit opravu rámců US-125.
+
+<a id="d-129"></a>
+
+### D-129 – Odkaz na stránce po odeslání přihlášky se řídí relací
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** přihlašování na akce
+- **Datum:** 2026-11-13 · **Rozhodl:** `pm` · **Navrhl:** `pm`
+- **Text:** Nepřihlášený přihlašovatel vidí „Přejít na přihlášení“. Přihlášený přihlašovatel s přihláškou na e-mail svého účtu vidí „Zobrazit přihlášku“ (detail odeslané přihlášky), při více přihláškách z jednoho odeslání „Zobrazit přihlášky“ (seznam Moje přihlášky). Přihláška na jiný e-mail než účet a přihlášený organizátor: beze změny.
+- **Dotčené US:** [#318](https://github.com/applifting-vsecourse/team-1/issues/318)
+- **Zdroj:** [komentář PM v #318, 13. 11.](https://github.com/applifting-vsecourse/team-1/issues/318); [PR #476](https://github.com/applifting-vsecourse/team-1/pull/476)
+- **Poznámka:** Doporučení: schválit včetně odpovědí na dvě otázky z #476 (jiný e-mail beze změny, více přihlášek vede na seznam).
+
+<a id="d-130"></a>
+
+### D-130 – Přeskočený náhradník je čekající před potvrzeným ve stejné frontě
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** přihlašování na akce
+- **Datum:** 2026-11-05 · **Rozhodl:** `pm` · **Navrhl:** `pm`
+- **Text:** Při ručním potvrzení náhradníka se jako přeskočení zapíší náhradníci téže fronty (termín a skupina lůžek; u pokojů bez pohlaví společná fronta, D-063), kteří byli v pořadí přijetí před potvrzeným a zůstali náhradníky. Záznam vzniká automaticky, bez povinného komentáře, a zobrazuje se, dokud platí. V automatickém režimu se přeskočení nezapisuje; zpětně se nedoplňuje.
+- **Dotčené US:** [US-105](https://github.com/applifting-vsecourse/team-1/issues/198)
+- **Zdroj:** [PR #323 (US-105), komentář PM](https://github.com/applifting-vsecourse/team-1/pull/323); [status s PO 28. 10.: záznam bez povinného komentáře](../../docs/zapisy/2026-10-28-status-s-po.md)
+- **Dokumentace:** `docs/SLOVNIK.md`: hotovo (991a0edd), pojem Přeskočený náhradník
+- **Poznámka:** Doporučení: schválit; PM v #323 slíbil zápis („rozhodnutí ok, zadokumentuji“).
+
+<a id="d-131"></a>
+
+### D-131 – Účastnická část Sprintu 4: spolubydlení, pokoj, platba, doprava
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** přihlašování na akce
+- **Datum:** 2026-11-11 · **Rozhodl:** `pm` · **Navrhl:** `po`
+- **Text:** Po potvrzení účasti účastník napíše, s kým chce bydlet, a organizátor u každého přání vidí, zda je splněné. Po zveřejnění rozdělení účastník vidí svůj pokoj a spolubydlící. Vidí stav platby a může aktualizovat dopravu a čas příjezdu či odjezdu; změna se hned propíše organizátorovi. Část je primárně pro mobil.
+- **Dotčené US:** [US-39](https://github.com/applifting-vsecourse/team-1/issues/39), [US-38](https://github.com/applifting-vsecourse/team-1/issues/38)
+- **Zdroj:** [status s PO 11. 11., §2 a §4](../../docs/zapisy/2026-11-11-status-s-po.md)
+- **Z otázek:** `Q-UBY-04`
+- **Poznámka:** Doporučení: schválit s rozhodl: po a AC1 #39 („v přihlášce až 3 jména“) přepsat na refinementu 17. 11.
+
+<a id="d-132"></a>
+
+### D-132 – Moje přihláška ukazuje platební údaje ve dvou úrovních
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** platby
+- **Datum:** 2026-11-04 · **Rozhodl:** `pm` · **Navrhl:** `pm`
+- **Text:** Nahoře souhrnný variabilní symbol (…000) a souhrnné QR pro aktuální dluh celé přihlášky, níže variabilní symbol a QR každého termínu s dluhem. QR se nevytváří při nulovém dluhu ani pro náhradníka, zrušený a zaplacený termín. Karty po termínech ukazují všechny stavy; přeplatek se mezi termíny nepřevádí (D-088).
+- **Dotčené US:** [#311](https://github.com/applifting-vsecourse/team-1/issues/311)
+- **Zdroj:** [ticket #311, rozhodnutí PM 4. 11.](https://github.com/applifting-vsecourse/team-1/issues/311); [PR #472](https://github.com/applifting-vsecourse/team-1/pull/472)
+- **Poznámka:** Doporučení: schválit; v #311 opravit odkaz na D-099 až D-103 (ta ID mají jiný význam).
+
+<a id="d-133"></a>
+
+### D-133 – Hláška o nově potvrzeném termínu svítí 7 dní
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** platby
+- **Datum:** 2026-11-04 · **Rozhodl:** `pm` · **Navrhl:** `pm`
+- **Text:** V Moje přihláška se u termínu ukazuje hláška o nově potvrzeném termínu 7 dní od potvrzení; při potvrzení více termínů najednou jedna hláška. Po 7 dnech zmizí.
+- **Dotčené US:** [#289](https://github.com/applifting-vsecourse/team-1/issues/289)
+- **Zdroj:** [ticket #289, rozhodnutí PM 4. 11.](https://github.com/applifting-vsecourse/team-1/issues/289)
+- **Poznámka:** Doporučení: schválit; zatím nezavedeno, v #289 opravit odkaz na ID.
+
+<a id="d-134"></a>
+
+### D-134 – Stav termínu přidaného změnou podle toho, kdo mění
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** přihlašování na akce
+- **Datum:** 2026-11-06 · **Rozhodl:** `pm` · **Navrhl:** `tym`
+- **Text:** Organizátor přidá termín jako Potvrzená s dluhem (nad kapacitou jen vědomým potvrzením). Přihlašovatel před začátkem schvalování: nový termín se vyhodnotí podle režimu (ruční: K vyhodnocení; automatický: Potvrzená s dluhem, při plném termínu Náhradník). Po začátku schvalování vznikne žádost; schválení do plného termínu selže (409) a žádost zůstane otevřená. Platby se při změně termínu nepřevádějí (D-088).
+- **Dotčené US:** [US-33](https://github.com/applifting-vsecourse/team-1/issues/33), [US-84](https://github.com/applifting-vsecourse/team-1/issues/84), [US-114](https://github.com/applifting-vsecourse/team-1/issues/207)
+- **Zdroj:** [PR #350 (US-33)](https://github.com/applifting-vsecourse/team-1/pull/350); [PR #351 (US-84)](https://github.com/applifting-vsecourse/team-1/pull/351); [PR #337 (US-114)](https://github.com/applifting-vsecourse/team-1/pull/337)
+- **Poznámka:** Doporučení: schválit podle kódu; change-options bez kapacity je follow-up ticket (N-084).
+
+<a id="d-135"></a>
+
+### D-135 – Funkce jen pro staging a demo jsou v produkci vypnuté
+
+- **Stav:** platné · **Typ:** technicke · **Oblast:** technický základ
+- **Datum:** 2026-11-09 · **Rozhodl:** `pm` · **Navrhl:** `tym`
+- **Text:** Simulace platby přihlašovatelem (tlačítko „Zaplatil jsem“, US-115) a ověření registrace organizátora bez e-mailu (#454) jsou jen pro staging a demo. Řídí je přepínače PAYMENT_SIMULATION_ENABLED a EMAIL_VERIFICATION_BYPASS_ENABLED, výchozí vypnuto. Nejsou součástí produktu a nemění pravidla plateb (D-002).
+- **Dotčené US:** [US-115](https://github.com/applifting-vsecourse/team-1/issues/208)
+- **Zdroj:** [PR #387 (US-115), PM 7. 11.: „Vše OK“](https://github.com/applifting-vsecourse/team-1/pull/387); [PR #430](https://github.com/applifting-vsecourse/team-1/pull/430); [PR #454](https://github.com/applifting-vsecourse/team-1/pull/454)
+- **Poznámka:** Doporučení: schválit; v produkci s reálnými e-maily musí být oba přepínače vypnuté.
+
+<a id="d-136"></a>
+
+### D-136 – Do US-128 znamená jazyk en „nenastaveno“
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** komunikace
+- **Datum:** 2026-11-06 · **Rozhodl:** `pm` · **Navrhl:** `tym`
+- **Text:** Dokud User.locale nejde odlišit od výchozí angličtiny (US-128), bere se za preferovaný jazyk jen čeština; en znamená „nenastaveno“ a u e-mailů o změně rozhoduje jazyk první přihlášky (D-078). Vědomě zvolená angličtina se do té doby u e-mailů o změně neprojeví.
+- **Dotčené US:** [US-128](https://github.com/applifting-vsecourse/team-1/issues/243)
+- **Zdroj:** [PR #273 (US-116)](https://github.com/applifting-vsecourse/team-1/pull/273); [PR #361, PM: „as-is ok, sjednotí #243“](https://github.com/applifting-vsecourse/team-1/pull/361); [PR #460: Předvolby](https://github.com/applifting-vsecourse/team-1/pull/460)
+- **Mění:** [D-078](#d-078)
+- **Poznámka:** Doporučení: schválit jako dočasné a US-128 zařadit do dalšího sprintu.
+
+<a id="d-137"></a>
+
+### D-137 – Do termínu, který začal, nejde podat přihlášku ani ji měnit přihlašovatelem
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** přihlašování na akce
+- **Datum:** 2026-11-09 · **Rozhodl:** `pm` · **Navrhl:** `pm`
+- **Text:** Od prvního dne termínu (startsOn, Europe/Prague) nejde do termínu podat veřejnou přihlášku a přihlašovatel ho nepřidá ani nezmění. Organizátor smí přihlášku do termínu přidat nebo změnit až do jeho posledního dne (endsOn).
+- **Dotčené US:** [US-83](https://github.com/applifting-vsecourse/team-1/issues/83), [US-84](https://github.com/applifting-vsecourse/team-1/issues/84)
+- **Zdroj:** [PR #442, komentář PM 9. 11.](https://github.com/applifting-vsecourse/team-1/pull/442)
+- **Poznámka:** Doporučení: schválit s výjimkou pro organizátora (doslovné znění PM v #442 by ji zakázalo); veřejné podání dnes kontrolu nemá, založit ticket.
+
+<a id="d-138"></a>
+
+### D-138 – Změna režimu pokojů a kapacity u obsazeného termínu jen varuje
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** ubytování
+- **Datum:** 2026-11-11 · **Rozhodl:** `pm` · **Navrhl:** `tym`
+- **Text:** Organizátor smí změnit režim pokojů, snížit kapacitu pokoje nebo ubrat přistýlku i u termínu s potvrzenými přihláškami; potvrzené přihlášky se nemění a termín může být přeplněný. Systém jen upozorní, nezablokuje (D-014).
+- **Dotčené US:** [US-99](https://github.com/applifting-vsecourse/team-1/issues/192), [US-80](https://github.com/applifting-vsecourse/team-1/issues/80)
+- **Zdroj:** [PR #256 (US-99), Nejasnosti 1](https://github.com/applifting-vsecourse/team-1/pull/256); [PR #466 (US-80)](https://github.com/applifting-vsecourse/team-1/pull/466); [status s PO 11. 11., §2: varování, ne blokace](../../docs/zapisy/2026-11-11-status-s-po.md)
+- **Poznámka:** Doporučení: schválit; odpovídá D-014 a přání PO z 11. 11.
+
+<a id="d-139"></a>
+
+### D-139 – Přistýlka je počet lůžek navíc v pokoji a termínu
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** ubytování
+- **Datum:** 2026-11-12 · **Rozhodl:** `pm` · **Navrhl:** `tym`
+- **Text:** Organizátor nastaví u pokoje v termínu počet přistýlek; každá přidá jedno lůžko a platí jen pro ten termín. Přistýlky se při kopírování pokojů nekopírují. Přidání přistýlky ani pokoje nikoho automaticky nepotvrdí (D-108), jen přibude volné lůžko.
+- **Dotčené US:** [US-80](https://github.com/applifting-vsecourse/team-1/issues/80)
+- **Zdroj:** [PR #466 (US-80), Nejasnosti 1–2](https://github.com/applifting-vsecourse/team-1/pull/466)
+- **Poznámka:** Doporučení: schválit podle #466 a odpovědět na dva dotazy v #80.
+
+<a id="d-140"></a>
+
+### D-140 – E-maily o přijetí a zamítnutí žádosti o změnu
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** komunikace
+- **Datum:** 2026-11-05 · **Rozhodl:** `pm` · **Navrhl:** `tym`
+- **Text:** Po začátku schvalování dostane přihlašovatel e-mail, že jeho žádost o odhlášku nebo změnu termínu čeká na schválení, a e-mail při jejím zamítnutí (s důvodem, je-li zadán). Schválení oznamuje běžný e-mail o změně přihlášky. Platí stávající znění se jmény v nesklonném tvaru (D-098).
+- **Dotčené US:** [US-114](https://github.com/applifting-vsecourse/team-1/issues/207)
+- **Zdroj:** [PR #337 (US-114)](https://github.com/applifting-vsecourse/team-1/pull/337)
+- **Dokumentace:** `docs/emaily/KATALOG.md`: hotovo (991a0edd), dvě zprávy: žádost čeká na schválení, žádost zamítnuta
+- **Dokumentace:** `docs/emaily/TEXTY.md`: ceka, texty obou zpráv CS/EN
+- **Poznámka:** Doporučení: schválit se stávajícím zněním; rámec ve Figmě dodá design.
+
+<a id="d-141"></a>
+
+### D-141 – Úprava údajů přihlášky: pole, doba a upozornění
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** přihlašování na akce
+- **Datum:** 2026-11-08 · **Rozhodl:** `pm` · **Navrhl:** `tym`
+- **Text:** Přihlašovatel i organizátor upraví jméno, příjmení, datum narození, telefon a požadavek na individuální ubytování; pohlaví a e-mail přihlášky se nemění. Úprava jde, dokud má přihláška aktivní termín, který neskončil. Každá změna se zapíše do historie a organizátorům přijde upozornění v aplikaci; přihlašovateli se e-mail neposílá (D-104).
+- **Dotčené US:** [US-34](https://github.com/applifting-vsecourse/team-1/issues/34), [US-53](https://github.com/applifting-vsecourse/team-1/issues/53)
+- **Zdroj:** [PR #352 (US-34)](https://github.com/applifting-vsecourse/team-1/pull/352); [PR #390 (US-53), dotazy bez odpovědi](https://github.com/applifting-vsecourse/team-1/pull/390)
+- **Poznámka:** Doporučení: schválit a kritérium „údaje přihlašovatele“ v US-53 zúžit na e-mail přihlášky.
+
+<a id="d-142"></a>
+
+### D-142 – Hromadné akce nad přihláškami: v jednom termínu, potvrdí jen ty, kdo se vejdou
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** přihlašování na akce
+- **Datum:** 2026-11-11 · **Rozhodl:** `pm` · **Navrhl:** `po`
+- **Text:** Hromadný výběr, potvrzení, zařazení mezi náhradníky a zamítnutí platí vždy pro jeden termín. Hromadné potvrzení potvrdí v pořadí přijetí jen ty, kdo se vejdou do volných lůžek, ostatní nechá beze změny; nad kapacitu se potvrzuje jen jednotlivě (D-059). Zbytek organizátor zařadí mezi náhradníky druhou hromadnou akcí; jeden krok „potvrdit, kdo se vejde, zbytek mezi náhradníky“ je požadavek PO pro Sprint 4.
+- **Dotčené US:** [US-107](https://github.com/applifting-vsecourse/team-1/issues/200), [US-108](https://github.com/applifting-vsecourse/team-1/issues/201)
+- **Zdroj:** [status s PO 11. 11., §3](../../docs/zapisy/2026-11-11-status-s-po.md); [async status s PO 4. 11.: fronta a hromadné vyhodnocení](../../docs/zapisy/2026-11-04-async-status-s-po.md); [PR #287 (US-108)](https://github.com/applifting-vsecourse/team-1/pull/287)
+- **Poznámka:** Doporučení: schválit, ukázat dvoukrokovou variantu PO na stagingu a jednokrokovou akci založit jako ticket Sprintu 4.
+
+<a id="d-143"></a>
+
+### D-143 – Správce a zpracovatel údajů; VOP, výmaz a záznam přístupů se nedělají
+
+- **Stav:** platné · **Typ:** byznys · **Oblast:** platforma
+- **Datum:** 2026-10-29 · **Rozhodl:** `pm` · **Navrhl:** `po`
+- **Text:** Organizace je správcem údajů přihlašovatelů a účastníků, Togena jejich zpracovatelem a správcem údajů organizátorů. GDPR má nízkou prioritu, jen základní zásady (docs/LEGAL.md, fiktivní provozovatel Togena Systems s.r.o.). Všeobecné obchodní podmínky, výmaz osobních údajů a záznam přístupů se v projektu nedělají.
+- **Dotčené US:** [US-97](https://github.com/applifting-vsecourse/team-1/issues/164), [US-77](https://github.com/applifting-vsecourse/team-1/issues/77)
+- **Zdroj:** [status s PO 28. 10.: GDPR, správce a zpracovatel](../../docs/zapisy/2026-10-28-status-s-po.md); [zásady zpracování osobních údajů, ř. 5](../../docs/LEGAL.md)
+- **Z otázek:** `Q-PLT-04`, `Q-PLT-05`, `Q-PLT-06`, `Q-TEC-03`
+- **Poznámka:** Doporučení: schválit s rozhodl: po, pm; dnes je to jen v uzavreno_duvod a v docs/LEGAL.md.
+
+<a id="d-144"></a>
+
+### D-144 – Priority Sprintu 3 a 4 a odsun redesignu
+
+- **Stav:** platné · **Typ:** proces · **Oblast:** tým a proces
+- **Datum:** 2026-11-11 · **Rozhodl:** `pm` · **Navrhl:** `po`
+- **Text:** Sprint 3: hlavní prioritou organizátora je vyhodnocování přihlášek a náhradníků, k tomu účastnická a veřejná část (katalog, landing); stávající design s průběžnými UX úpravami, kompletní redesign se přesouvá do Sprintu 4. Pořadí priorit Sprintu 4: 1. nový design, 2. ubytování (přiřazení do pokojů, spolubydlení, individuální požadavky), 3. import a párování plateb z CSV, 4. účastnický pohled s důvodem se vracet.
+- **Zdroj:** [status s PO 28. 10.](../../docs/zapisy/2026-10-28-status-s-po.md); [status 3. 11.](../../docs/zapisy/2026-11-03-status.md); [async status s PO 4. 11.](../../docs/zapisy/2026-11-04-async-status-s-po.md); [status s PO 11. 11., Priority pro Sprint 4](../../docs/zapisy/2026-11-11-status-s-po.md)
+- **Poznámka:** Doporučení: schválit s rozhodl: po.
+
+<a id="d-145"></a>
+
+### D-145 – Kanban přihlášek nenahradí hromadné operace
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** přihlašování na akce
+- **Datum:** 2026-10-28 · **Rozhodl:** `pm` · **Navrhl:** `po`
+- **Text:** Kanban přihlášek je možný, ale nesmí nahradit hromadné operace nad přihláškami (hromadné potvrzení, zařazení mezi náhradníky, zamítnutí).
+- **Dotčené US:** [US-107](https://github.com/applifting-vsecourse/team-1/issues/200)
+- **Zdroj:** [status s PO 28. 10.](../../docs/zapisy/2026-10-28-status-s-po.md)
+- **Poznámka:** Doporučení: schválit s rozhodl: po.
+
+<a id="d-146"></a>
+
+### D-146 – Pracovní pravidla týmu a očekávání PO
+
+- **Stav:** platné · **Typ:** proces · **Oblast:** tým a proces
+- **Datum:** 2026-11-11 · **Rozhodl:** `pm` · **Navrhl:** `tym`
+- **Text:** Autor před review provede byznys testování a zaškrtne splněná akceptační kritéria; odkaz na PR jde do hlavního kanálu, kód se komentuje v GitHubu; denní digitální standup v kanálu; posledních pár hodin před demem se nic nemění; byznysovou otázku ve story označí PM. Nové obrazovky a workflow se PO ukazují před stavbou a průběžný feedback PO preferuje jako krátké komentované záznamy obrazovky a screenshoty.
+- **Zdroj:** [status 27. 10.](../../docs/zapisy/2026-10-27-status.md); [status 3. 11.](../../docs/zapisy/2026-11-03-status.md); [status 5. 11.](../../docs/zapisy/2026-11-05-status.md); [status s PO 11. 11., §7](../../docs/zapisy/2026-11-11-status-s-po.md)
+- **Poznámka:** Doporučení: schválit s rozhodl: tym; pravidlo o E2E testech už je v CLAUDE.md.
+
+<a id="d-147"></a>
+
+### D-147 – Jazyk a vzhled se přepínají v Nastavení účtu
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** účty
+- **Datum:** 2026-11-08 · **Rozhodl:** `pm` · **Navrhl:** `tym`
+- **Text:** V administraci i v oblasti přihlašovatele se jazyk (ukládá se do účtu) a vzhled (jen v zařízení) přepínají v Nastavení účtu › Předvolby, ne v horní liště; lišta nese zvonek upozornění. Veřejné stránky a registrace mají přepínač jazyka v hlavičce.
+- **Zdroj:** [PR #444](https://github.com/applifting-vsecourse/team-1/pull/444); [PR #460](https://github.com/applifting-vsecourse/team-1/pull/460)
+- **Mění:** [D-042](#d-042)
+- **Poznámka:** Doporučení: schválit; Figma N1 a N6 kreslí přepínače v liště (opraví design), PROJEKT popisuje patch D-069 (b).
+
+<a id="d-148"></a>
+
+### D-148 – Upozornění přihlašovatele v aplikaci: vznik a texty
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** komunikace
+- **Datum:** 2026-11-05 · **Rozhodl:** `pm` · **Navrhl:** `pm`
+- **Text:** Upozornění v aplikaci vzniká při změně stavu přihlášky v termínu a při platbě; při změně termínů přihlašovatelem nevzniká. Platba, která uzavře více termínů, vytvoří upozornění za každý termín. Texty druhů, které Figma nekreslí, platí v první verzi tak, jak jsou.
+- **Dotčené US:** [US-118](https://github.com/applifting-vsecourse/team-1/issues/211)
+- **Zdroj:** [PR #340 (US-118), schválení PM 5. 11.](https://github.com/applifting-vsecourse/team-1/pull/340)
+- **Poznámka:** Doporučení: schválit; stavy v textech upozornění sladit se SLOVNIKem později.
+
+<a id="d-149"></a>
+
+### D-149 – Zápis platby: souhrnný dialog vždy, vratka bez potvrzujícího alertu
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** platby
+- **Datum:** 2026-11-04 · **Rozhodl:** `pm` · **Navrhl:** `pm`
+- **Text:** Organizátor může zapsat platbu na celou přihlášku (souhrn, rozpočítá se podle D-087), jakmile má potvrzený termín nebo přeplatek. Vratka se nabízí jen u termínu s přeplatkem a předvolí termín s největším přeplatkem; po zapsané vratce se potvrzující hláška nezobrazuje, stačí řádek v historii.
+- **Dotčené US:** [US-111](https://github.com/applifting-vsecourse/team-1/issues/204)
+- **Zdroj:** [PR #313 (US-111), komentáře PM 4. 11.](https://github.com/applifting-vsecourse/team-1/pull/313); [PR #468](https://github.com/applifting-vsecourse/team-1/pull/468)
+- **Poznámka:** Doporučení: schválit.
+
+<a id="d-150"></a>
+
+### D-150 – Omezení počtu požadavků na přihlášku a přihlášení
+
+- **Stav:** platné · **Typ:** technicke · **Oblast:** technický základ
+- **Datum:** 2026-11-04 · **Rozhodl:** `pm` · **Navrhl:** `tym`
+- **Text:** Veřejná přihláška: nejvýš 20 odeslání za minutu a 100 za hodinu z jedné IP adresy. Přihlášení: 5 pokusů heslem a 3 žádosti o magic link za minutu z IP adresy. Překročení vrací 429 TOO_MANY_REQUESTS s hláškou „Příliš mnoho pokusů v krátké době. Chvíli počkejte a zkuste to znovu.“
+- **Zdroj:** [ticket #294, PM 4. 11.](https://github.com/applifting-vsecourse/team-1/issues/294); [PR #338](https://github.com/applifting-vsecourse/team-1/pull/338)
+- **Poznámka:** Doporučení: schválit a text hlášky potvrdit komentářem v #338.
+
+<a id="d-151"></a>
+
+### D-151 – Potvrzení zaplacení: jazyk podle D-078, jeden e-mail za platbu
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** komunikace
+- **Datum:** 2026-11-06 · **Rozhodl:** `pm` · **Navrhl:** `tym`
+- **Text:** E-mail o přijetí platby (PAYMENT_SETTLED) jde v jazyce podle D-078. Platba, která uzavře dluh více termínů, vyvolá jeden e-mail s výčtem termínů. Sjednocení jazyka řeší US-128.
+- **Dotčené US:** [US-117](https://github.com/applifting-vsecourse/team-1/issues/210)
+- **Zdroj:** [PR #361 (US-117), PM: „as-is ok“](https://github.com/applifting-vsecourse/team-1/pull/361)
+- **Poznámka:** Doporučení: schválit; v #311 a #361 opravit odkaz „D-101 e-mail č. 8“ (D-101 je oprava platby).
+
+<a id="d-152"></a>
+
+### D-152 – Zrušený termín se do podmínky funkčního odkazu nepočítá
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** nastavení akce
+- **Datum:** 2026-11-02 · **Rozhodl:** `pm` · **Navrhl:** `tym`
+- **Text:** Odkaz na přihlášku (D-067) funguje, když má akce aspoň jeden nezrušený termín s cenou a každý nezrušený termín má aspoň jeden pokoj. Zrušení termínu bez pokojů odkaz znovu otevře.
+- **Dotčené US:** [US-99](https://github.com/applifting-vsecourse/team-1/issues/192)
+- **Zdroj:** [PR #256 (US-99), Nejasnosti 2](https://github.com/applifting-vsecourse/team-1/pull/256)
+- **Poznámka:** Doporučení: schválit jako upřesnění D-067.
+
+<a id="d-153"></a>
+
+### D-153 – Ruční přidání přihlášky: souhlas potvrzuje organizátor, stav po termínech
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** přihlašování na akce
+- **Datum:** 2026-11-08 · **Rozhodl:** `pm` · **Navrhl:** `tym`
+- **Text:** Organizátor při ručním přidání přihlášky vybere aspoň jeden aktivní termín, u každého určí stav (Potvrzená s dluhem, nebo Náhradník, v obou režimech vyhodnocování) a potvrdí, že má od přihlašovatele souhlas se zpracováním údajů. Telefon je povinný (D-079), potvrzení nad kapacitu je vědomé.
+- **Dotčené US:** [US-83](https://github.com/applifting-vsecourse/team-1/issues/83)
+- **Zdroj:** [PR #344 (US-83)](https://github.com/applifting-vsecourse/team-1/pull/344)
+- **Z otázek:** `Q-PRI-24`
+- **Poznámka:** Doporučení: schválit; právní stránku souhlasu potvrdí PO (Q-PRI-24).
+
+<a id="d-154"></a>
+
+### D-154 – Seznam přihlášek: pátá volba filtru úhrady a jeden sloupec Dluh
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** přihlašování na akce
+- **Datum:** 2026-11-08 · **Rozhodl:** `pm` · **Navrhl:** `pm`
+- **Text:** Filtr úhrady v seznamu přihlášek má volby Nezaplaceno, Částečně zaplaceno, Zaplaceno, Přeplatek a Bez částky k úhradě (náhradníci a zrušené). Seznam ukazuje jediný sloupec Dluh místo Částka k úhradě. Název stavu zůstává Zrušená.
+- **Dotčené US:** [US-52](https://github.com/applifting-vsecourse/team-1/issues/52), [US-108](https://github.com/applifting-vsecourse/team-1/issues/201)
+- **Zdroj:** [PR #287 (US-108)](https://github.com/applifting-vsecourse/team-1/pull/287); [PR #415, PM 8. 11.](https://github.com/applifting-vsecourse/team-1/pull/415); [PR #418](https://github.com/applifting-vsecourse/team-1/pull/418)
+- **Mění:** [D-044](#d-044)
+- **Poznámka:** Doporučení: schválit; Figma se opraví podle kódu.
+
+<a id="d-155"></a>
+
+### D-155 – Kopírování programu mezi termíny
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** logistika
+- **Datum:** 2026-11-14 · **Rozhodl:** `pm`
+- **Text:** Organizátor zkopíruje celý program jednoho termínu do jiného termínu téže akce. Bloky jdou podle pořadí dne (1. den na 1. den); bloky ze dnů, které cílový termín nemá, se přeskočí a organizátor vidí jejich počet. Má-li cílový termín program, organizátor zvolí „přidat ke stávajícím“, nebo „nahradit“ (jako D-115). Překryv bloků jen upozorní. Kopie je jednorázová a nevyvolá e-mail.
+- **Dotčené US:** [US-142](https://github.com/applifting-vsecourse/team-1/issues/495)
+- **Zdroj:** [US-142, rozhodnutí PM 14. 11. (zařazeno do Sprintu 4)](https://github.com/applifting-vsecourse/team-1/issues/495)
+- **Mění:** [D-123](#d-123)
+- **Poznámka:** Rozhodl PM za PO 14. 11.; mění větu D-123 „Kopírování programu mezi termíny zatím není“.
+
+<a id="d-156"></a>
+
+### D-156 – Lhůta na zaplacení: 1–60 dní, změna platí jen pro nově potvrzené
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** platby
+- **Datum:** 2026-11-14 · **Rozhodl:** `pm`
+- **Text:** Organizátor nastaví lhůtu na zaplacení akce jako celý počet dní od 1 do 60 (výchozí 10, D-099). Změna lhůty platí jen pro přihlášky v termínu potvrzené po uložení; splatnost dříve potvrzených se nemění.
+- **Dotčené US:** [US-139](https://github.com/applifting-vsecourse/team-1/issues/483)
+- **Zdroj:** [US-139, rozhodnutí PM 14. 11.](https://github.com/applifting-vsecourse/team-1/issues/483)
+- **Poznámka:** Rozhodl PM za PO 14. 11. Delší lhůta a pevné datum jsou enhancement #501 a #500.
+
+<a id="d-157"></a>
+
+### D-157 – Vyhodnocení vybraných přihlášek jedním krokem
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** přihlašování na akce
+- **Datum:** 2026-11-14 · **Rozhodl:** `pm`
+- **Text:** Organizátor jednou akcí vyhodnotí vybrané přihlášky ve stavu K vyhodnocení v jednom termínu: v pořadí přijetí potvrdí ty, kdo se vejdou, ostatní zařadí mezi náhradníky. U lůžek rozdělených podle pohlaví se počítá volné lůžko ve skupině dané přihlášky. Akce nenahrazuje hromadné potvrzení ani hromadné zařazení mezi náhradníky (US-107, US-108).
+- **Dotčené US:** [US-140](https://github.com/applifting-vsecourse/team-1/issues/484)
+- **Zdroj:** [US-140, rozhodnutí PM 14. 11.](https://github.com/applifting-vsecourse/team-1/issues/484)
+- **Poznámka:** Rozhodl PM za PO 14. 11.
+
+<a id="d-158"></a>
+
+### D-158 – Storno podmínky vidí přihlašovatel před odhláškou a změnou termínu
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** přihlašování na akce
+- **Datum:** 2026-11-14 · **Rozhodl:** `pm`
+- **Text:** Přihlašovatel vidí text storno podmínek akce v Moje přihláška a před potvrzením odhlášky i změny termínu, jen u přihlášek v termínu, které jde odhlásit nebo změnit (ne u zrušené a archivované). Bez vyplněného textu se nic nezobrazí.
+- **Dotčené US:** [US-141](https://github.com/applifting-vsecourse/team-1/issues/487)
+- **Zdroj:** [US-141, rozhodnutí PM 14. 11.](https://github.com/applifting-vsecourse/team-1/issues/487)
+- **Poznámka:** Rozhodl PM za PO 14. 11.
+
+<a id="d-159"></a>
+
+### D-159 – Pozdější příjezd a dřívější odjezd jen jako informace pro kuchyni
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** ubytování
+- **Datum:** 2026-11-14 · **Rozhodl:** `pm`
+- **Text:** Přihlašovatel u přihlášky v termínu volitelně zadá pozdější příjezd nebo dřívější odjezd účastníka (datum a čas v rozsahu termínu). Organizátor ho vidí v souhrnu pro kuchyni u účastníka. Aplikace s údajem dál nepočítá: žádné denní počty, jídla, výchozí hodnoty ani nastavení organizátora; nemění cenu, kapacitu ani stav.
+- **Dotčené US:** [US-143](https://github.com/applifting-vsecourse/team-1/issues/485)
+- **Zdroj:** [US-143, rozhodnutí PM 14. 11. za PO](https://github.com/applifting-vsecourse/team-1/issues/485); [status s PO 11. 11., §2](../../docs/zapisy/2026-11-11-status-s-po.md)
+- **Z otázek:** `Q-UBY-05`
+- **Poznámka:** Rozhodl PM za PO 14. 11.
