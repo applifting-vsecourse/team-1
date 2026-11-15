@@ -169,6 +169,7 @@ model Organization {
   events           Event[]
   terms            Term[]
   rooms            Room[]
+  roomWarningAcknowledgements RoomWarningAcknowledgement[]
   applications     Application[]
   applicationTerms ApplicationTerm[]
   payments         Payment[]
@@ -307,6 +308,7 @@ model Term {
 
   applicationTerms ApplicationTerm[]
   rooms            Room[]
+  roomWarningAcknowledgements RoomWarningAcknowledgement[]
   transports       Transport[]
   programBlocks    ProgramBlock[]
 
@@ -394,6 +396,7 @@ model Room {
   updatedAt      DateTime     @default(now()) @updatedAt
 
   assignments    RoomAssignment[]
+  warningAcknowledgements RoomWarningAcknowledgement[]
 
   @@index([organizationId])
   @@index([termId])
@@ -417,6 +420,40 @@ model RoomAssignment {
   @@map("room_assignment")
 }
 
+enum RoomWarningKind {
+  OVERCROWDED
+  MIXED_GENDER
+  CONFIRMED_WITHOUT_BED
+
+  @@map("room_warning_kind")
+}
+
+// An organizer knowingly confirmed a warning of the room rules (US-37). It belongs to one concrete
+// warning: a room (the first two kinds) or an application in the term (CONFIRMED_WITHOUT_BED), and
+// is deleted as soon as that warning no longer holds. Only organizers of the event ever see it.
+model RoomWarningAcknowledgement {
+  id                 String           @id @default(cuid())
+  organization       Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId     String
+  term               Term             @relation(fields: [termId], references: [id], onDelete: Cascade)
+  termId             String
+  kind               RoomWarningKind
+  room               Room?            @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  roomId             String?
+  applicationTerm    ApplicationTerm? @relation(fields: [applicationTermId], references: [id], onDelete: Cascade)
+  applicationTermId  String?
+  note               String           @default("")
+  // The organizer's name at the time; the account may be removed later.
+  acknowledgedByName String
+  createdAt          DateTime         @default(now())
+
+  @@unique([kind, roomId])
+  @@unique([kind, applicationTermId])
+  @@index([termId])
+  @@index([organizationId])
+  @@map("room_warning_acknowledgement")
+}
+
 model Application {
   id             String       @id @default(cuid())
   // Sequential application number, used as the variable symbol (VS) for payment.
@@ -438,6 +475,9 @@ model Application {
   email          String
   // Supplied when an organizer adds an application (US-83); older public submissions have none.
   phone          String?
+  // US-38: the applicant asked to settle the accommodation individually; the note is optional and
+  // only kept while this is set.
+  individualAccommodation Boolean @default(false)
   accommodationRequest String? @db.Text
   consentAt      DateTime
   // UI language at submission — the confirmation e-mail goes out in it.
@@ -558,6 +598,7 @@ model ApplicationTerm {
   payments      Payment[]
   skippedIn     ApplicationTermSkip[]
   roomAssignment RoomAssignment?
+  roomWarningAcknowledgements RoomWarningAcknowledgement[]
 
   @@unique([applicationId, termId])
   @@index([termId, status])

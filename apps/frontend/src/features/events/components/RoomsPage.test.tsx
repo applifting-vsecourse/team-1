@@ -115,6 +115,8 @@ function renderRooms(termId: string) {
               termId: assignmentTerm.termId,
               rooms: assignmentTerm.rooms.map((room) => ({ ...room, participants: [] })),
               unassigned: [],
+              warnings: [],
+              summary: { violations: 0, acknowledged: 0, confirmedWithoutBed: 0 },
             }
           : roomTerm,
       )

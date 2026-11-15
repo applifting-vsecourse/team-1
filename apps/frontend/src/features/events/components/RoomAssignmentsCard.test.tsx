@@ -4,7 +4,7 @@ import { act, render, screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import type { RoomAssignments } from "@/features/events/api/room-assignments"
+import type { RoomAssignments, RoomWarning } from "@/features/events/api/room-assignments"
 import { RoomAssignmentsCard } from "@/features/events/components/RoomAssignmentsCard"
 
 // jsdom has no layout, so a drag is driven through the handlers the card gives to the context.
@@ -36,25 +36,33 @@ vi.stubGlobal(
 Element.prototype.hasPointerCapture = () => false
 Element.prototype.scrollIntoView = vi.fn()
 
-const { get, put, del, success, error } = vi.hoisted(() => ({
+const { get, put, post, del, success, error } = vi.hoisted(() => ({
   get: vi.fn(),
   put: vi.fn(),
+  post: vi.fn(),
   del: vi.fn(),
   success: vi.fn(),
   error: vi.fn(),
 }))
 vi.mock("@/lib/api-client", () => ({
-  api: { get, put, delete: del },
+  api: { get, put, post, delete: del },
   apiErrorCode: () => undefined,
 }))
 vi.mock("@/lib/notify", () => ({ notify: { success, error } }))
 
-const person = (id: string, firstName: string, lastName: string, status = "CONFIRMED") => ({
+const person = (
+  id: string,
+  firstName: string,
+  lastName: string,
+  status = "CONFIRMED",
+  isIndividual = false,
+) => ({
   applicationTermId: id,
   applicationId: `a-${id}`,
   firstName,
   lastName,
   gender: "FEMALE" as const,
+  individualAccommodation: isIndividual,
   status: status as "CONFIRMED" | "TO_EVALUATE",
 })
 const room = (
@@ -91,6 +99,18 @@ const base = (): RoomAssignments => ({
     { ...person("p3", "Barbora", "Šimková"), alsoInTerms: [otherTerm] },
     { ...person("p4", "Nikola", "Králová", "TO_EVALUATE"), alsoInTerms: [] },
   ],
+  warnings: [],
+  summary: { violations: 0, acknowledged: 0, confirmedWithoutBed: 0 },
+})
+const warning = (over: Partial<RoomWarning>): RoomWarning => ({
+  kind: "OVERCROWDED",
+  roomId: "r2",
+  applicationTermId: null,
+  acknowledged: false,
+  note: null,
+  acknowledgedAt: null,
+  acknowledgedBy: null,
+  ...over,
 })
 
 let data = base()
@@ -122,7 +142,7 @@ const drop = (from: ReturnType<typeof dragFrom>, roomId: string) => {
 describe("room assignment", () => {
   beforeEach(() => {
     data = base()
-    for (const mock of [get, put, del, success, error]) mock.mockReset()
+    for (const mock of [get, put, post, del, success, error]) mock.mockReset()
     put.mockResolvedValue(undefined)
     del.mockResolvedValue(undefined)
   })
@@ -155,11 +175,11 @@ describe("room assignment", () => {
     await waitFor(() => expect(success).toHaveBeenCalled())
   })
 
-  it("does not offer a full room and asks for a room before saving", async () => {
+  it("asks for a room before saving", async () => {
     const user = renderCard()
     await user.click(await screen.findByRole("button", { name: "Assign Nikola Králová to a room" }))
     const dialog = await screen.findByRole("dialog")
-    expect(within(dialog).getByRole("radio", { name: /Room B/ })).toBeDisabled()
+    expect(within(dialog).getByRole("radio", { name: /Room B/ })).toBeEnabled()
     await user.click(within(dialog).getByRole("button", { name: "Assign" }))
     expect(await within(dialog).findByText("Choose a room.")).toBeInTheDocument()
     expect(put).not.toHaveBeenCalled()
@@ -258,11 +278,184 @@ describe("room assignment", () => {
     })
   })
 
-  it("does not take a drop on a full room", async () => {
-    renderCard()
+  it("asks before a full room takes someone as an extra bed, and cancelling changes nothing", async () => {
+    const user = renderCard()
     await screen.findByText("Barbora Šimková")
     drop(dragFrom("p3", "Barbora Šimková", null), "r2")
+    const dialog = await screen.findByRole("dialog", { name: "Room B is full" })
+    expect(within(dialog).getByText("1 + 1 extra bed")).toBeInTheDocument()
     expect(put).not.toHaveBeenCalled()
+    await user.click(within(dialog).getByRole("button", { name: "Cancel" }))
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
+    expect(put).not.toHaveBeenCalled()
+  })
+
+  it("assigns as an extra bed after the confirmation (drag)", async () => {
+    const user = renderCard()
+    await screen.findByText("Barbora Šimková")
+    drop(dragFrom("p3", "Barbora Šimková", null), "r2")
+    const dialog = await screen.findByRole("dialog", { name: "Room B is full" })
+    await user.click(within(dialog).getByRole("button", { name: "Assign as an extra bed" }))
+    await waitFor(() => expect(put).toHaveBeenCalled())
+    expect(put).toHaveBeenCalledWith("organizer/events/e1/terms/t1/room-assignments/p3", {
+      json: { roomId: "r2", alsoTermIds: [], confirmExtraBed: true },
+    })
+    await waitFor(() => expect(success).toHaveBeenCalled())
+  })
+
+  it("moves a person into a full room as an extra bed through the dialog", async () => {
+    const user = renderCard()
+    await user.click(await screen.findByRole("button", { name: "Assign Nikola Králová to a room" }))
+    const dialog = await screen.findByRole("dialog")
+    await user.click(within(dialog).getByRole("radio", { name: /Room B/ }))
+    await user.click(within(dialog).getByRole("button", { name: "Assign" }))
+    const confirm = await screen.findByRole("dialog", { name: "Room B is full" })
+    await user.click(within(confirm).getByRole("button", { name: "Assign as an extra bed" }))
+    await waitFor(() => expect(put).toHaveBeenCalled())
+    expect(put).toHaveBeenCalledWith("organizer/events/e1/terms/t1/room-assignments/p4", {
+      json: { roomId: "r2", alsoTermIds: [], confirmExtraBed: true },
+    })
+  })
+
+  describe("individual accommodation (US-38)", () => {
+    it("marks who asked for it, among the unassigned and in a room, and still lets them be assigned", async () => {
+      data = {
+        ...base(),
+        rooms: [
+          room("r1", "Room A", 4, [person("p1", "Jana", "Nováková", "CONFIRMED", true)]),
+          room("r2", "Room B", 1, [person("p2", "Eva", "Horká")]),
+        ],
+        unassigned: [
+          { ...person("p3", "Barbora", "Šimková", "TO_EVALUATE", true), alsoInTerms: [] },
+          { ...person("p4", "Nikola", "Králová"), alsoInTerms: [] },
+        ],
+      }
+      renderCard()
+      expect(await screen.findByText("Barbora Šimková")).toBeInTheDocument()
+      expect(screen.getByText("Woman · To evaluate")).toBeInTheDocument()
+      // The unassigned one has the full badge; in the room, in the table and in the card of the
+      // phone layout, the chip carries a short one. Nobody else has any.
+      expect(screen.getAllByText("Individual accommodation")).toHaveLength(1)
+      expect(screen.getAllByText("Individual")).toHaveLength(2)
+      const table = screen.getByRole("table")
+      expect(within(table).getByText("Individual")).toBeInTheDocument()
+      expect(within(table).getByText("Eva Horká")).toBeInTheDocument()
+      expect(screen.getByRole("button", { name: "Assign Barbora Šimková to a room" })).toBeEnabled()
+    })
+
+    it("does not count them in the people of the mixed gender warning", async () => {
+      const man = { ...person("p6", "Tomáš", "Dvořák"), gender: "MALE" as never }
+      const partner = { ...person("p7", "Lucie", "Veselá", "CONFIRMED", true) }
+      data = {
+        ...base(),
+        rooms: [room("r1", "Room A", 4, [person("p1", "Jana", "Nováková"), man, partner])],
+        warnings: [warning({ kind: "MIXED_GENDER", roomId: "r1" })],
+        summary: { violations: 1, acknowledged: 0, confirmedWithoutBed: 0 },
+      }
+      renderCard()
+      // The text is on the page twice (desktop table and mobile card); both count the same.
+      const texts = await screen.findAllByText("Mixed genders: 1 woman and 1 man.")
+      expect(texts.length).toBeGreaterThan(0)
+      expect(screen.queryByText("Mixed genders: 2 women and 1 man.")).not.toBeInTheDocument()
+    })
+  })
+
+  describe("room rule warnings (US-37)", () => {
+    const overcrowded = () => {
+      data = {
+        ...base(),
+        rooms: [
+          room("r1", "Room A", 4, [person("p1", "Jana", "Nováková")]),
+          room("r2", "Room B", 1, [person("p2", "Eva", "Horká"), person("p5", "Iva", "Malá")]),
+        ],
+        warnings: [
+          warning({}),
+          warning({ kind: "CONFIRMED_WITHOUT_BED", roomId: null, applicationTermId: "p3" }),
+        ],
+        summary: { violations: 1, acknowledged: 0, confirmedWithoutBed: 1 },
+      }
+    }
+
+    it("says the assignment has not started while nobody is in a room", async () => {
+      data = {
+        ...base(),
+        rooms: [room("r1", "Room A", 4), room("r2", "Room B", 1)],
+      }
+      renderCard()
+      expect(await screen.findByText("Room assignment has not started yet")).toBeInTheDocument()
+    })
+
+    it("says the rules are followed when there is no warning", async () => {
+      renderCard()
+      expect(await screen.findByText("The assignment follows the room rules")).toBeInTheDocument()
+      expect(screen.getByText("All 2 confirmed participants have a bed.")).toBeInTheDocument()
+    })
+
+    it("counts the broken rules and the confirmed without a bed, and marks the room", async () => {
+      overcrowded()
+      renderCard()
+      expect(await screen.findByText("Room rules summary")).toBeInTheDocument()
+      expect(screen.getByText("rule broken")).toBeInTheDocument()
+      expect(screen.getByText("confirmed without a bed")).toBeInTheDocument()
+      const table = screen.getByRole("table")
+      expect(
+        within(table).getByText("Overcrowded room: 2 participants for 1 bed."),
+      ).toBeInTheDocument()
+      expect(within(table).getByText("Overcrowded")).toBeInTheDocument()
+    })
+
+    it("confirms a warning with a note the organizer types", async () => {
+      overcrowded()
+      post.mockResolvedValue(undefined)
+      const user = renderCard()
+      const table = await screen.findByRole("table")
+      await user.click(within(table).getByRole("button", { name: "Confirm with a note" }))
+      const dialog = await screen.findByRole("dialog", { name: "Confirm the warning" })
+      expect(
+        within(dialog).getByText("Only the organizers of the event see the note."),
+      ).toBeInTheDocument()
+      await user.type(within(dialog).getByLabelText("Note"), "Family with a child")
+      await user.click(within(dialog).getByRole("button", { name: "Confirm the warning" }))
+      await waitFor(() => expect(post).toHaveBeenCalled())
+      expect(post).toHaveBeenCalledWith(
+        "organizer/events/e1/terms/t1/room-warnings/acknowledgements",
+        { json: { kind: "OVERCROWDED", roomId: "r2", note: "Family with a child" } },
+      )
+    })
+
+    it("shows a confirmed warning muted with its note and does not count it", async () => {
+      overcrowded()
+      data = {
+        ...data,
+        warnings: [
+          warning({
+            acknowledged: true,
+            note: "Family with a child",
+            acknowledgedBy: "Eva Malá",
+            acknowledgedAt: "2026-11-12T10:00:00.000Z",
+          }),
+        ],
+        summary: { violations: 0, acknowledged: 1, confirmedWithoutBed: 0 },
+      }
+      renderCard()
+      const table = await screen.findByRole("table")
+      expect(within(table).getByText("Overcrowding confirmed")).toBeInTheDocument()
+      expect(within(table).getByText("Note: Family with a child")).toBeInTheDocument()
+      expect(within(table).getByText(/^Eva Malá, /)).toBeInTheDocument()
+      expect(
+        within(table).queryByRole("button", { name: "Confirm with a note" }),
+      ).not.toBeInTheDocument()
+      expect(screen.getByText("The assignment follows the room rules")).toBeInTheDocument()
+    })
+
+    it("does not check mixed genders in shared rooms and says so", async () => {
+      overcrowded()
+      data = { ...data, rooms: data.rooms.map((item) => ({ ...item, gender: null })) }
+      renderCard()
+      expect(
+        await screen.findByText("Mixed genders are not checked in shared rooms."),
+      ).toBeInTheDocument()
+    })
   })
 
   it("moves a person by dragging their chip onto another room", async () => {
@@ -377,6 +570,7 @@ describe("room assignment", () => {
     renderCard()
     await screen.findByText("Barbora Šimková")
     expect(screen.getAllByText(/^Room A/).length).toBe(2)
+    expect(screen.getByText("The assignment follows the room rules")).toBeInTheDocument()
     expect(screen.getAllByRole("button", { name: "Actions r1" }).length).toBe(2)
     expect(
       screen.queryByRole("status", { name: "Unassigned participants" }),

@@ -16,6 +16,7 @@ import {
 import { ApplicationConfirmationMailer } from "@/modules/participants/services/application-confirmation-mailer.service"
 import { ParticipantAccountsService } from "@/modules/participants/services/participant-accounts.service"
 import { Identity } from "@/shared/auth/domain/identity"
+import { normalizeAccommodation } from "@/shared/domain/accommodation"
 import { Gender } from "@/shared/domain/gender"
 import { AppException } from "@/shared/errors/app.exception"
 import { OrganizationAccessService } from "@/shared/organization-access/organization-access.service"
@@ -30,6 +31,8 @@ export type SubmitApplicationInput = {
     lastName: string
     birthDate: string
     gender: Gender
+    individualAccommodation?: boolean
+    accommodationRequest?: string | null
     termIds: string[]
   }[]
 }
@@ -197,6 +200,10 @@ export class ApplicationsService {
       const consentAt = new Date()
       const applications: NewApplication[] = input.participants.map((participant) => ({
         ...participant,
+        ...normalizeAccommodation(
+          participant.individualAccommodation,
+          participant.accommodationRequest,
+        ),
         email,
         locale,
         userId: account.userId,

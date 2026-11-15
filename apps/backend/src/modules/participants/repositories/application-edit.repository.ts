@@ -14,13 +14,19 @@ export type EditableApplication = {
   lastName: string
   birthDate: string
   phone: string | null
+  individualAccommodation: boolean
   accommodationRequest: string | null
   history: { id: string; createdAt: string; authorName: string; changedFields: string[] }[]
 }
 
 export type EditInput = Pick<
   EditableApplication,
-  "firstName" | "lastName" | "birthDate" | "phone" | "accommodationRequest"
+  | "firstName"
+  | "lastName"
+  | "birthDate"
+  | "phone"
+  | "individualAccommodation"
+  | "accommodationRequest"
 >
 
 const include = {
@@ -37,6 +43,7 @@ const toDto = (row: Row): EditableApplication => ({
   lastName: row.lastName,
   birthDate: row.birthDate.toISOString().slice(0, 10),
   phone: row.phone,
+  individualAccommodation: row.individualAccommodation,
   accommodationRequest: row.accommodationRequest,
   history: row.edits.map((edit) => ({
     id: edit.id,
@@ -93,6 +100,7 @@ export class ApplicationEditRepository {
         lastName: row.lastName,
         birthDate: row.birthDate.toISOString().slice(0, 10),
         phone: row.phone,
+        individualAccommodation: row.individualAccommodation,
         accommodationRequest: row.accommodationRequest,
       }
       const changedFields = (Object.keys(input) as (keyof EditInput)[]).filter(
@@ -155,6 +163,7 @@ export class ApplicationEditRepository {
           lastName: input.lastName,
           birthDate: new Date(`${input.birthDate}T00:00:00.000Z`),
           phone: input.phone,
+          individualAccommodation: input.individualAccommodation,
           accommodationRequest: input.accommodationRequest,
         },
       })

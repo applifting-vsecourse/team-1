@@ -46,7 +46,7 @@
 
 _Nic._
 
-### `po` (Tomáš): 29
+### `po` (Tomáš): 28
 
 | ID | Otázka | Dotčené US | Priorita | Proč |
 | --- | --- | --- | --- | --- |
@@ -76,7 +76,6 @@ _Nic._
 | [Q-TEC-01](#q-tec-01) | Kolik lidí loni podalo přihlášku v první hodině? Jak předejít selhání systému ten večer? | [US-74](https://github.com/applifting-vsecourse/team-1/issues/74) | P3 | Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí. |
 | [Q-TEC-02](#q-tec-02) | Jakou ztrátu dat je PO ochoten unést (hodina, den)? | [US-76](https://github.com/applifting-vsecourse/team-1/issues/76) | P3 | Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí. |
 | [Q-TEC-04](#q-tec-04) | Potřebuješ do systému stará data, nebo ročník 2027 začne načisto? | [US-85](https://github.com/applifting-vsecourse/team-1/issues/85) | P3 | Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí. |
-| [Q-UBY-03](#q-uby-03) | Mají být zájmena v přihlášce jako nepovinné pole? Organizátor LARP tábora je plánuje do přihlášek přidat. | [US-38](https://github.com/applifting-vsecourse/team-1/issues/38) | P3 | Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí. |
 | [Q-UCT-02](#q-uct-02) | Od kolika let může účastník podat přihlášku sám? Platí to pro všechny akce stejně, nebo si to nastaví organizátor? | [US-07](https://github.com/applifting-vsecourse/team-1/issues/7) | P3 | US-07 není v prioritách Sprintu 4 (PO 11. 11.). |
 | [Q-UCT-06](#q-uct-06) | Zabírají členové organizačního týmu lůžka v kapacitě akce? Platí za účast? | [US-93](https://github.com/applifting-vsecourse/team-1/issues/93) | P3 | Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí. |
 
@@ -85,6 +84,7 @@ _Nic._
 | ID | Otázka | Dotčené US | Rozhodnutí | Zapsat do |
 | --- | --- | --- | --- | --- |
 | [Q-PRI-07](#q-pri-07) | Ověřit u PO rozhodnutí D-100: dokud neběží storno podmínky, účastník si mění přihlášku, termíny i odhlášku bez schválení; schvaluje až organizátor po začátku storno podmínek. Platí, nebo má být jinak? (Rozhodl PM, jde o ověření.) | [US-84](https://github.com/applifting-vsecourse/team-1/issues/84) | [D-100](../rozhodnuti/README.md#d-100): Před začátkem storno podmínek si účastník mění přihlášku a termíny bez schválení | `docs/SLOVNIK.md` |
+| [Q-UBY-03](#q-uby-03) | Mají být zájmena v přihlášce jako nepovinné pole? Organizátor LARP tábora je plánuje do přihlášek přidat. | [US-38](https://github.com/applifting-vsecourse/team-1/issues/38) | [D-161](../rozhodnuti/README.md#d-161): Individuální ubytování: zobrazení, viditelnost a navazující story | – |
 
 ## Tickety k založení
 
@@ -181,7 +181,7 @@ _Nic._
 
 | ID | Otázka | Dotčené US | Stav | Priorita | Čeká na |
 | --- | --- | --- | --- | --- | --- |
-| [Q-UBY-03](#q-uby-03) | Mají být zájmena v přihlášce jako nepovinné pole? Organizátor LARP tábora je plánuje do přihlášek přidat. | [US-38](https://github.com/applifting-vsecourse/team-1/issues/38) | otevřeno | P3 | `po` |
+| [Q-UBY-03](#q-uby-03) | Mají být zájmena v přihlášce jako nepovinné pole? Organizátor LARP tábora je plánuje do přihlášek přidat. | [US-38](https://github.com/applifting-vsecourse/team-1/issues/38) | rozhodnuto, nezapsáno | P3 | `pm` |
 | [Q-UBY-06](#q-uby-06) | Jak má organizátor před spuštěním přihlášek předem připravit pokoje nebo konkrétní osoby (páry, rodiny), aby to nenarušilo vyhodnocení? | [US-38](https://github.com/applifting-vsecourse/team-1/issues/38) | otevřeno | P3 | `pm` |
 
 ### Epic: účty
@@ -1514,10 +1514,11 @@ _Nic._
 
 ### Q-UBY-03 – Mají být zájmena v přihlášce jako nepovinné pole? Organizátor LARP tábora je plánuje do přihlášek přidat.
 
-- **Epic:** ubytování · **Dotčené US:** [US-38](https://github.com/applifting-vsecourse/team-1/issues/38) · **Stav:** otevřeno · **Čeká na:** `po`
+- **Epic:** ubytování · **Dotčené US:** [US-38](https://github.com/applifting-vsecourse/team-1/issues/38) · **Stav:** rozhodnuto, nezapsáno · **Čeká na:** `pm`
 - **Zdroje:**
   - [issue](https://github.com/applifting-vsecourse/team-1/issues/38): „**Otevřená otázka na PO:** F-23 – mají být zájmena v přihlášce jako nepovinné pole? Organizátor LARP tábora je plánuje do přihlášek přidat.“
 - **Priorita:** P3 – Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
+- **Rozhodnutí:** [D-161](../rozhodnuti/README.md#d-161): US-38 se staví podle Figmy (zaškrtnutí „Chci ubytování řešit individuálně“ + nepovinná poznámka); zda je zaškrtnutí potřeba, řeší navazující ticket. Účastník s požadavkem se nepočítá do varování „smíšený pokoj“. Organizátor má filtr v seznamu přihlášek a štítek u účastníka v rozdělení do pokojů. Organizátorské role zatím nejsou, požadavek vidí každý přihlášený pod organizátorským účtem; exporty a tištěné přehledy se zatím neřeší. Zájmena v přihlášce a seznam individuálních požadavků v kartě Ubytování jsou samostatné story.
 
 <a id="q-uby-04"></a>
 

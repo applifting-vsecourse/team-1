@@ -15,5 +15,7 @@ export const applicationsSearchSchema = z.object({
     .optional(),
   /** Waitlisted with a free bed in a manually evaluated term: the card "Náhradníci k vyřešení". */
   waitlist: z.enum(["FREE_BED"]).optional(),
+  /** Applicants who asked to settle the accommodation individually (US-38). */
+  accommodation: z.enum(["INDIVIDUAL"]).optional(),
 })
 export type ApplicationsSearch = z.infer<typeof applicationsSearchSchema>

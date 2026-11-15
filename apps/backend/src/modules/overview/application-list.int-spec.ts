@@ -113,8 +113,39 @@ describe("application list API", () => {
     expect(rows.every((row) => row.paymentStatus === "NOTHING_DUE")).toBe(true)
   })
 
+  it("flags and filters applications with a request for individual accommodation (US-38)", async () => {
+    const [first, second] = await prisma.application.findMany({
+      where: { eventId },
+      orderBy: { number: "asc" },
+      take: 2,
+    })
+    await prisma.application.updateMany({
+      where: { id: { in: [first.id, second.id] } },
+      data: { individualAccommodation: true },
+    })
+    const all = await (await get()).json()
+    expect(
+      all.filter((row: { individualAccommodation: boolean }) => row.individualAccommodation),
+    ).toHaveLength(2)
+
+    const rows = await (await get("?accommodation=INDIVIDUAL")).json()
+    expect(rows.map((row: { id: string }) => row.id).sort()).toEqual([first.id, second.id].sort())
+    expect(
+      rows.every((row: { individualAccommodation: boolean }) => row.individualAccommodation),
+    ).toBe(true)
+    const combined = await (
+      await get(`?accommodation=INDIVIDUAL&q=${encodeURIComponent(first.lastName)}`)
+    ).json()
+    expect(combined.map((row: { id: string }) => row.id)).toContain(first.id)
+    await prisma.application.updateMany({
+      where: { id: { in: [first.id, second.id] } },
+      data: { individualAccommodation: false },
+    })
+  })
+
   it("validates filters and protects organization data", async () => {
     for (const query of [
+      "?accommodation=OTHER",
       "?payment=OTHER",
       "?status=OTHER",
       "?gender=OTHER",

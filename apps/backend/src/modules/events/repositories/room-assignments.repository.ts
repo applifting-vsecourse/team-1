@@ -13,6 +13,11 @@ import {
   rejectAssignment,
   TermAssignments,
 } from "@/modules/events/domain/room-assignment"
+import { RoomWarningKind } from "@/modules/events/domain/room-warnings"
+import {
+  loadRoomWarnings,
+  pruneAcknowledgements,
+} from "@/modules/events/repositories/room-warnings.queries"
 import { AppException } from "@/shared/errors/app.exception"
 import { releaseAssignments } from "@/shared/room-assignments/release-assignments"
 import { HttpStatus, Injectable } from "@nestjs/common"
@@ -78,6 +83,7 @@ export class RoomAssignmentsRepository {
       firstName: row.application.firstName,
       lastName: row.application.lastName,
       gender: row.application.gender,
+      individualAccommodation: row.application.individualAccommodation,
       status: row.status,
     })
 
@@ -109,7 +115,9 @@ export class RoomAssignmentsRepository {
         })),
     }))
 
-    return { eventId, termId, rooms, unassigned }
+    const { warnings, summary } = await loadRoomWarnings(this.prisma, { termId, organizationId })
+
+    return { eventId, termId, rooms, unassigned, warnings, summary }
   }
 
   /** All writes share the event lock with rooms and evaluation, so two organizers never overfill a room. */
@@ -122,7 +130,9 @@ export class RoomAssignmentsRepository {
       const term = await tx.term.findFirst({ where: { id: termId, eventId, organizationId } })
       if (!term) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
       if (term.cancelledAt) throw new AppException(HttpStatus.CONFLICT, "TERM_CANCELLED")
-      return action(tx)
+      const result = await action(tx)
+      await pruneAcknowledgements(tx, { termId, organizationId })
+      return result
     })
   }
 
@@ -131,6 +141,7 @@ export class RoomAssignmentsRepository {
     application: { id: string; status: ApplicationTermStatus },
     room: { id: string; capacity: number; extraBeds: number },
     organizationId: string,
+    confirmExtraBed: boolean,
   ): Promise<void> {
     const [assignedCount, current] = await Promise.all([
       tx.roomAssignment.count({ where: { roomId: room.id } }),
@@ -142,7 +153,13 @@ export class RoomAssignmentsRepository {
       assignedCount,
       alreadyInRoom: current?.roomId === room.id,
     })
-    if (rejection) throw new AppException(HttpStatus.CONFLICT, rejection)
+    // A full room takes one more person only as a knowingly confirmed extra bed (D-112). It is the
+    // same transaction under the same event lock, and nothing here evaluates the term (D-108).
+    if (rejection === "ROOM_FULL" && confirmExtraBed) {
+      await tx.room.update({ where: { id: room.id }, data: { extraBeds: { increment: 1 } } })
+    } else if (rejection) {
+      throw new AppException(HttpStatus.CONFLICT, rejection)
+    }
     await tx.roomAssignment.upsert({
       where: { applicationTermId: application.id },
       create: { organizationId, applicationTermId: application.id, roomId: room.id },
@@ -153,13 +170,15 @@ export class RoomAssignmentsRepository {
   /**
    * Puts an application of the term into a room, moving it when it already sleeps elsewhere. With
    * `alsoTermIds` the same-named room of each other term of its application gets it too (AC3);
-   * one transaction, so either all of them are placed or none.
+   * one transaction, so either all of them are placed or none. With `confirmExtraBed` a full room
+   * gets an extra bed for them (US-37); without it a full room is a 409.
    */
   async assign(
     scope: TermScope,
     applicationTermId: string,
     roomId: string,
     alsoTermIds: string[],
+    confirmExtraBed: boolean,
   ): Promise<void> {
     const { termId, organizationId } = scope
     await this.write(scope, async (tx) => {
@@ -170,7 +189,7 @@ export class RoomAssignmentsRepository {
       const room = await tx.room.findFirst({ where: { id: roomId, organizationId } })
       if (!room) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
       if (room.termId !== termId) throw new AppException(HttpStatus.CONFLICT, "ROOM_NOT_IN_TERM")
-      await this.place(tx, application, room, organizationId)
+      await this.place(tx, application, room, organizationId, confirmExtraBed)
 
       for (const otherTermId of new Set(alsoTermIds)) {
         if (otherTermId === termId) continue
@@ -189,7 +208,7 @@ export class RoomAssignmentsRepository {
         if (!match) {
           throw new AppException(HttpStatus.CONFLICT, "ROOM_ASSIGNMENT_NO_MATCHING_ROOM")
         }
-        await this.place(tx, other, match, organizationId)
+        await this.place(tx, other, match, organizationId, confirmExtraBed)
       }
     })
   }
@@ -203,6 +222,55 @@ export class RoomAssignmentsRepository {
       })
       if (!application) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
       await releaseAssignments(tx, { applicationTermId })
+    })
+  }
+
+  /**
+   * Knowingly confirms a warning that holds right now, with a note; confirming it again replaces the
+   * note. Every kind of warning of the term can be confirmed, a foreign room or application is 403.
+   */
+  async acknowledge(
+    scope: TermScope,
+    input: {
+      kind: RoomWarningKind
+      roomId: string | null
+      applicationTermId: string | null
+      note: string
+    },
+    organizerName: string,
+  ): Promise<void> {
+    const { termId, organizationId } = scope
+    await this.write(scope, async (tx) => {
+      const subject = input.roomId
+        ? await tx.room.findFirst({ where: { id: input.roomId, organizationId } })
+        : input.applicationTermId
+          ? await tx.applicationTerm.findFirst({
+              where: { id: input.applicationTermId, organizationId },
+            })
+          : null
+      if (!subject) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
+      const { warnings } = await loadRoomWarnings(tx, { termId, organizationId })
+      const holds = warnings.some(
+        (warning) =>
+          warning.kind === input.kind &&
+          warning.roomId === input.roomId &&
+          warning.applicationTermId === input.applicationTermId,
+      )
+      if (!holds) throw new AppException(HttpStatus.CONFLICT, "ROOM_WARNING_NOT_FOUND")
+      const where = {
+        termId,
+        organizationId,
+        kind: input.kind,
+        roomId: input.roomId,
+        applicationTermId: input.applicationTermId,
+      }
+      const existing = await tx.roomWarningAcknowledgement.findFirst({ where })
+      const data = { note: input.note, acknowledgedByName: organizerName, createdAt: new Date() }
+      if (existing) {
+        await tx.roomWarningAcknowledgement.update({ where: { id: existing.id }, data })
+      } else {
+        await tx.roomWarningAcknowledgement.create({ data: { ...where, ...data } })
+      }
     })
   }
 }

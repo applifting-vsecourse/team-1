@@ -46,7 +46,7 @@ export class RoomAssignmentsController {
   @ApiResponse({
     status: 409,
     description:
-      "Room full, participant not assignable, room of another term, cancelled term, or no room of the same name in an other term",
+      "Room full (without confirmExtraBed), participant not assignable, room of another term, cancelled term, or no room of the same name in an other term",
   })
   async assign(
     @User() user: Identity,
@@ -62,6 +62,7 @@ export class RoomAssignmentsController {
       applicationTermId,
       body.roomId,
       body.alsoTermIds ?? [],
+      body.confirmExtraBed ?? false,
     )
   }
 
