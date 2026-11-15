@@ -77,6 +77,7 @@ describe("system transitions (US-106)", () => {
     const snapshot = (confirmedGenders: StatusChangeSnapshot["confirmedGenders"]) =>
       ({
         status: "WAITLISTED",
+        owedCzk: 0,
         gender: "MALE",
         rooms: [{ capacity: 1, extraBeds: 0, gender: "MALE" }],
         confirmedGenders,
