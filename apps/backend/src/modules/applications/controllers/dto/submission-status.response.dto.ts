@@ -45,6 +45,9 @@ export class ApplicationPaymentDto {
 }
 
 export class SubmittedApplicationDto {
+  @ApiProperty({ description: "Id of the application, for the link to its detail." })
+  id!: string
+
   @ApiProperty({ example: "Jana" })
   firstName!: string
 
