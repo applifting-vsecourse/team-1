@@ -31,9 +31,10 @@ export function CancellationStartForm({ event }: { event: OrganizerEvent }) {
     setDraft(isMatchingServer ? null : next)
   }
   const [hasAttempted, setHasAttempted] = useState(false)
+  // Re-read at submit, so a form left open over Prague midnight does not judge by yesterday.
+  const [today, setToday] = useState(todayIsoInAppZone)
   // A new or changed date may not be in the past; the unchanged (even lapsed) date stays valid.
-  const isDateInPast =
-    isIsoDate(date) && date !== event.cancellationStartsOn && date < todayIsoInAppZone()
+  const isDateInPast = isIsoDate(date) && date !== event.cancellationStartsOn && date < today
   const isDateInvalid = hasAttempted && isEnabled && (!isIsoDate(date) || isDateInPast)
   // Save is offered only when the form differs from what is stored.
   const isDirty = (isEnabled ? date : null) !== event.cancellationStartsOn
@@ -64,8 +65,12 @@ export function CancellationStartForm({ event }: { event: OrganizerEvent }) {
 
   const submit = (e: FormEvent) => {
     e.preventDefault()
+    if (mutation.isPending) return
+    const currentToday = todayIsoInAppZone()
+    setToday(currentToday)
     setHasAttempted(true)
-    if (isEnabled && (!isIsoDate(date) || isDateInPast)) return
+    const isPast = isIsoDate(date) && date !== event.cancellationStartsOn && date < currentToday
+    if (isEnabled && (!isIsoDate(date) || isPast)) return
     if (!isDirty) return
     mutation.mutate(isEnabled ? date : null)
   }
@@ -81,6 +86,7 @@ export function CancellationStartForm({ event }: { event: OrganizerEvent }) {
           <Checkbox
             id="cancellation-start-enabled"
             checked={isEnabled}
+            disabled={mutation.isPending}
             onCheckedChange={(checked) => {
               updateDraft({ isEnabled: checked === true, date })
               setHasAttempted(false)
@@ -100,7 +106,8 @@ export function CancellationStartForm({ event }: { event: OrganizerEvent }) {
             <DateField
               id="cancellation-start-date"
               value={date}
-              min={todayIsoInAppZone()}
+              min={today}
+              disabled={mutation.isPending}
               onChange={(value) => {
                 updateDraft({ isEnabled, date: value })
                 mutation.reset()

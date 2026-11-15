@@ -73,14 +73,17 @@ function renderSettings(current: object, patchResponse?: () => Response) {
   return patches
 }
 
-function renderCancellation(start: string | null = null) {
+function renderCancellation(start: string | null = null, isHeld = false) {
   const json = { headers: { "Content-Type": "application/json" } }
   const writes: unknown[] = []
+  let release: () => void = vi.fn()
+  const gate = isHeld ? new Promise<void>((resolve) => (release = resolve)) : null
   let current = { ...event, cancellationStartsOn: start }
   vi.spyOn(globalThis, "fetch").mockImplementation(async (input) => {
     const request = input as Request
     if (request.method === "PUT" && request.url.endsWith("/cancellation-start")) {
       const body = (await request.clone().json()) as { cancellationStartsOn: string | null }
+      await gate
       writes.push(body)
       current = { ...current, cancellationStartsOn: body.cancellationStartsOn }
       return new Response(JSON.stringify(current), json)
@@ -95,6 +98,7 @@ function renderCancellation(start: string | null = null) {
   )
   return {
     writes,
+    release,
     refetch: async (start: string | null) => {
       current = { ...current, cancellationStartsOn: start }
       await act(() => client.invalidateQueries({ queryKey: eventKeys.detail("e1") }))
@@ -195,6 +199,39 @@ describe("EventSettings", () => {
     expect(
       screen.getByText(/Approval is off\. New term changes and cancellations/),
     ).toBeInTheDocument()
+  })
+
+  it("locks the fields while saving so a later edit cannot be lost or resubmit", async () => {
+    const { writes, release } = renderCancellation("2027-07-01", true)
+    const user = userEvent.setup()
+    const input = await screen.findByRole("textbox", { name: "Approve requests from" })
+    await user.clear(input)
+    await user.type(input, "03/07/2027")
+    await user.click(screen.getByRole("button", { name: "Save settings" }))
+
+    await vi.waitFor(() => expect(input).toBeDisabled())
+    expect(screen.getByRole("checkbox", { name: "Turn on approval" })).toBeDisabled()
+    expect(screen.getByRole("button", { name: "Save settings" })).toBeDisabled()
+
+    release()
+    await vi.waitFor(() => expect(writes).toEqual([{ cancellationStartsOn: "2027-07-03" }]))
+    await vi.waitFor(() => expect(input).toBeEnabled())
+    expect(input).toHaveValue("03/07/2027")
+  })
+
+  it("judges the day at submit, not by the last render, when Prague midnight passes", async () => {
+    const { writes } = renderCancellation("2027-07-01")
+    const user = userEvent.setup()
+    const input = await screen.findByRole("textbox", { name: "Approve requests from" })
+    await user.clear(input)
+    await user.type(input, "01/06/2027")
+    expect(screen.getByRole("button", { name: "Save settings" })).toBeInTheDocument()
+
+    vi.setSystemTime(new Date("2027-06-01T22:30:00Z")) // 2 Jun 00:30 in Prague
+    await user.click(screen.getByRole("button", { name: "Save settings" }))
+
+    expect(screen.getByText("The approval start date must not be in the past.")).toBeInTheDocument()
+    expect(writes).toEqual([])
   })
 
   it("rejects an impossible day before calling the API", async () => {
