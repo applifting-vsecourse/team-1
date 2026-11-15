@@ -71,18 +71,28 @@ export function AcknowledgeWarningDialog({
       <DialogContent className="max-h-[90dvh] overflow-y-auto bg-card shadow-md sm:max-w-160">
         <DialogTitle>{t("acknowledgeDialog.title")}</DialogTitle>
         <DialogDescription className="text-base">
-          {warning.kind === "MIXED_GENDER"
-            ? t("acknowledgeDialog.mixedGender", {
-                room: roomTitle(room),
-                women: t("roomWarnings.women", { count: women }),
-                men: t("roomWarnings.men", { count: room.participants.length - women }),
-              })
-            : t("acknowledgeDialog.overcrowded", {
-                room: roomTitle(room),
-                people: t("roomWarnings.people", { count: room.participants.length }),
-                beds: t("roomWarnings.beds", { count: room.beds }),
-              })}
+          {t("acknowledgeDialog.description")}
         </DialogDescription>
+        <dl className="flex flex-col divide-y divide-border rounded-lg border border-border bg-status-warning-bg text-sm">
+          <div className="flex items-start justify-between gap-4 px-4 py-2.5">
+            <dt className="text-muted-foreground">{t("acknowledgeDialog.room")}</dt>
+            <dd className="text-right font-medium break-words">{roomTitle(room)}</dd>
+          </div>
+          <div className="flex items-start justify-between gap-4 px-4 py-2.5">
+            <dt className="text-muted-foreground">{t("acknowledgeDialog.warning")}</dt>
+            <dd className="text-right font-bold break-words">
+              {warning.kind === "MIXED_GENDER"
+                ? t("acknowledgeDialog.mixedGenderValue", {
+                    women: t("roomWarnings.women", { count: women }),
+                    men: t("roomWarnings.men", { count: room.participants.length - women }),
+                  })
+                : t("acknowledgeDialog.overcrowdedValue", {
+                    people: t("roomWarnings.people", { count: room.participants.length }),
+                    beds: t("roomWarnings.beds", { count: room.beds }),
+                  })}
+            </dd>
+          </div>
+        </dl>
         <form
           noValidate
           className="flex flex-col gap-4"

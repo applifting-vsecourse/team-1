@@ -1,13 +1,16 @@
 {
   "acknowledgeDialog": {
     "confirm": "Potvrdit upozornění",
+    "description": "Potvrzením říkáte, že je rozdělení záměrné. Nic se tím neblokuje.",
     "done": "Upozornění potvrzeno",
     "failed": "Upozornění se nepodařilo potvrdit.",
-    "mixedGender": "{{room}} má smíšené pohlaví: {{women}} a {{men}}. Upozornění vás nezablokuje, můžete ho vědomě potvrdit.",
+    "mixedGenderValue": "Smíšené pohlaví: {{women}} a {{men}}",
     "noteHint": "Poznámku uvidí jen organizátoři akce.",
     "noteLabel": "Poznámka",
-    "overcrowded": "{{room}} je přeplněný: {{people}} na {{beds}}. Upozornění vás nezablokuje, můžete ho vědomě potvrdit.",
-    "title": "Potvrdit upozornění"
+    "overcrowdedValue": "Přeplněno: {{people}} na {{beds}}",
+    "room": "Pokoj",
+    "title": "Potvrdit upozornění",
+    "warning": "Upozornění"
   },
   "cancellationStart": {
     "afterDate": "Od tohoto data se změny termínů a odhlášky předávají organizátorovi ke schválení.",
@@ -69,10 +72,10 @@
     "bedsAfter": "Lůžka po přiřazení",
     "bedsAfterValue": "{{beds}} + 1 přistýlka",
     "confirm": "Přiřadit jako přistýlku",
-    "description_few": "Jako přistýlku můžete přiřadit: {{name}}. Pokoj má všech {{count}} lůžek obsazených.",
-    "description_one": "Jako přistýlku můžete přiřadit: {{name}}. Pokoj má jediné lůžko obsazené.",
-    "description_other": "Jako přistýlku můžete přiřadit: {{name}}. Pokoj má všech {{count}} lůžek obsazených.",
-    "explain": "Po potvrzení se k pokoji v tomto termínu přidá přistýlka (+1 lůžko) a {{name}} se na ni přiřadí.",
+    "description": "Všechna lůžka pokoje jsou obsazená.",
+    "explain": "Po potvrzení se k pokoji v tomto termínu přidá přistýlka (+1 lůžko).",
+    "person": "Účastník",
+    "room": "Pokoj",
     "term": "Termín",
     "title": "{{room}} je plný"
   },
@@ -240,7 +243,6 @@
   "roomWarnings": {
     "acknowledge": "Potvrdit s poznámkou",
     "acknowledgedBadge": "Potvrzeno",
-    "acknowledgedCount": "vědomě potvrzené upozornění (nepočítá se)",
     "beds_few": "{{count}} lůžka",
     "beds_one": "{{count}} lůžko",
     "beds_other": "{{count}} lůžek",
@@ -258,7 +260,7 @@
     "noneTitle": "Rozdělení neporušuje pravidla pokojů",
     "notStartedBody": "Upozornění na pravidla pokojů se zobrazí, jakmile přiřadíte prvního potvrzeného účastníka.",
     "notStartedTitle": "Rozdělení do pokojů zatím nezačalo",
-    "noteBy": "Poznámka: {{note}} · {{name}}, {{date}}",
+    "note": "Poznámka: {{note}}",
     "overcrowded": "Přeplněný pokoj: {{people}} na {{beds}}.",
     "overcrowdedAcknowledged": "Přeplnění potvrzeno",
     "overcrowdedLabel": "Přeplněný",
@@ -266,9 +268,6 @@
     "people_one": "{{count}} účastník",
     "people_other": "{{count}} účastníků",
     "sharedNote": "Ve společných pokojích se smíšené pohlaví nehlídá.",
-    "showParticipants": "Zobrazit účastníky",
-    "showRooms": "Zobrazit pokoje",
-    "summaryBody": "Upozornění vás nezablokují. O rozdělení rozhodujete vy.",
     "summaryTitle": "Souhrn pravidel pokojů",
     "violations_few": "porušení pravidel",
     "violations_one": "porušení pravidla",

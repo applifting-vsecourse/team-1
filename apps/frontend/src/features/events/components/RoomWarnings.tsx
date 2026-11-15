@@ -1,8 +1,7 @@
-import { AlertTriangle, CheckCircle2 } from "lucide-react"
+import { AlertTriangle, CheckCircle2, ShieldCheck } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { formatDate } from "@/lib/date"
 
@@ -35,9 +34,9 @@ function useWarningText() {
   }
 }
 
-// Under the row of a room: what is wrong, and a way to confirm it knowingly (AC4), or the muted
-// confirmation with its note and who made it. Warnings are information only, they block nothing.
-// Figma (Design system): Upozornění u pokoje · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=23410-95117 (confirmed: 23410-95277)
+// Under the row of a room, one line per warning: what is wrong and a clear way to confirm it
+// knowingly (AC4). Warnings are information only, they block nothing.
+// Figma (Design system): Upozornění u pokoje · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=23410-95117 (improved after review: icon tile, filled confirm button)
 export function RoomWarningStrip({
   room,
   warning,
@@ -51,34 +50,47 @@ export function RoomWarningStrip({
   const warningText = useWarningText()
   if (warning.acknowledged) {
     return (
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-border bg-secondary px-3 py-2.5">
-        <Badge variant="secondary">{t("roomWarnings.acknowledgedBadge")}</Badge>
-        <p className="min-w-0 flex-1 text-sm break-words text-muted-foreground">
-          {t(
-            warning.kind === "MIXED_GENDER"
-              ? "roomWarnings.mixedGenderAcknowledged"
-              : "roomWarnings.overcrowdedAcknowledged",
-          )}
-          {" · "}
-          {t(warning.note ? "roomWarnings.noteBy" : "roomWarnings.confirmedBy", {
-            note: warning.note ?? "",
-            name: warning.acknowledgedBy ?? "",
-            date: warning.acknowledgedAt ? formatDate(warning.acknowledgedAt) : "",
-          })}
-        </p>
+      <div className="flex items-start gap-3 border-t border-border bg-secondary px-3 py-2.5">
+        <ShieldCheck
+          className="mt-0.5 size-4 shrink-0 text-muted-foreground"
+          aria-hidden
+        />
+        <div className="flex min-w-0 flex-1 flex-col gap-0.5 text-sm">
+          <p className="font-medium text-muted-foreground">
+            {t(
+              warning.kind === "MIXED_GENDER"
+                ? "roomWarnings.mixedGenderAcknowledged"
+                : "roomWarnings.overcrowdedAcknowledged",
+            )}
+          </p>
+          {warning.note ? (
+            <p className="break-words text-muted-foreground">
+              {t("roomWarnings.note", { note: warning.note })}
+            </p>
+          ) : null}
+          <p className="text-xs text-muted-foreground">
+            {t("roomWarnings.confirmedBy", {
+              name: warning.acknowledgedBy ?? "",
+              date: warning.acknowledgedAt ? formatDate(warning.acknowledgedAt) : "",
+            })}
+          </p>
+        </div>
       </div>
     )
   }
   return (
-    <div className="flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-status-warning bg-status-warning-bg px-3 py-2.5">
-      <AlertTriangle
-        className="size-5 shrink-0 text-status-warning"
-        aria-hidden
-      />
-      <p className="min-w-0 flex-1 text-sm break-words">{warningText(warning, room)}</p>
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-status-warning/40 bg-status-warning-bg px-3 py-2.5">
+      <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-status-warning/15 text-status-warning">
+        <AlertTriangle
+          className="size-4"
+          aria-hidden
+        />
+      </span>
+      <p className="min-w-0 flex-1 text-sm font-medium break-words">{warningText(warning, room)}</p>
       <Button
         type="button"
-        variant="ghost"
+        size="sm"
+        className="bg-status-warning text-status-warning-bg hover:bg-status-warning/90"
         onClick={() => onAcknowledge(warning, room)}
       >
         {t("roomWarnings.acknowledge")}
@@ -87,25 +99,22 @@ export function RoomWarningStrip({
   )
 }
 
-// Above the rooms: how many rules are broken and how many confirmed people sleep nowhere, with a
-// jump to each. Before anyone is assigned there is nothing to check, so it says so.
-// Figma (Design system): Souhrn a upozornění v rozdělení do pokojů · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=23410-94640 (mobile 23410-95377)
+// Above the rooms: a small summary of broken room rules and confirmed people without a bed. Green
+// while nothing is broken, the warning colour as soon as something is. Before anyone is assigned
+// there is nothing to check, so it says so.
+// Figma (Design system): Souhrn a upozornění v rozdělení do pokojů · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=23410-94640 (mobile 23410-95377; improved after review: compact, no jump buttons)
 // Figma (Design system): Bez porušení pravidel · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=23412-95922 (mobile 23412-96515)
 // Figma (Design system): Termín bez rozdělení · žádná upozornění · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=23412-96655 (mobile 23412-97243)
 // Figma (Design system): Společné pokoje · smíšené pohlaví se nehlídá · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=23412-97375 (mobile 23412-97961)
 export function RoomWarningsSummary({
   data,
   isSharedMode,
-  onShowRooms,
-  onShowParticipants,
 }: {
   data: Pick<RoomAssignments, "rooms" | "summary" | "warnings">
   isSharedMode: boolean
-  onShowRooms: () => void
-  onShowParticipants: () => void
 }) {
   const { t } = useTranslation("events")
-  const { summary, warnings } = data
+  const { summary } = data
   const assigned = data.rooms.flatMap((room) => room.participants)
   if (assigned.length === 0) {
     return (
@@ -116,7 +125,7 @@ export function RoomWarningsSummary({
       </Alert>
     )
   }
-  if (warnings.length === 0) {
+  if (summary.violations + summary.confirmedWithoutBed === 0) {
     return (
       <Alert className="bg-accent">
         <CheckCircle2 aria-hidden />
@@ -134,48 +143,40 @@ export function RoomWarningsSummary({
       key: "violations",
       count: summary.violations,
       label: t("roomWarnings.violations", { count: summary.violations }),
-      action: t("roomWarnings.showRooms"),
-      onAction: onShowRooms,
     },
     {
       key: "withoutBed",
       count: summary.confirmedWithoutBed,
       label: t("roomWarnings.withoutBed", { count: summary.confirmedWithoutBed }),
-      action: t("roomWarnings.showParticipants"),
-      onAction: onShowParticipants,
     },
   ]
   return (
-    <Alert variant="warning">
-      <AlertTriangle aria-hidden />
-      <AlertTitle className="line-clamp-none">{t("roomWarnings.summaryTitle")}</AlertTitle>
-      <AlertDescription className="text-muted-foreground">
-        {t(isSharedMode ? "roomWarnings.sharedNote" : "roomWarnings.summaryBody")}
-      </AlertDescription>
-      <div className="col-start-2 mt-2 flex flex-col gap-3 md:flex-row md:items-center md:gap-6">
-        {counts.map(({ key, count, label, action, onAction }) => (
-          <div
+    <div
+      role="status"
+      aria-label={t("roomWarnings.summaryTitle")}
+      className="flex flex-wrap items-center gap-x-5 gap-y-2 rounded-lg border border-status-warning/30 bg-status-warning-bg px-4 py-2.5 text-sm"
+    >
+      <span className="flex items-center gap-2 font-medium">
+        <AlertTriangle
+          className="size-4 text-status-warning"
+          aria-hidden
+        />
+        {t("roomWarnings.summaryTitle")}
+      </span>
+      <ul className="flex flex-wrap items-center gap-x-5 gap-y-1">
+        {counts.map(({ key, count, label }) => (
+          <li
             key={key}
-            className="flex flex-wrap items-center gap-x-3 gap-y-1"
+            className="flex items-baseline gap-2"
           >
-            <span className="text-2xl font-bold">{count}</span>
-            <span>{label}</span>
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={onAction}
-            >
-              {action}
-            </Button>
-          </div>
+            <span className="text-xl leading-none font-bold">{count}</span>
+            <span className="text-muted-foreground">{label}</span>
+          </li>
         ))}
-        {summary.acknowledged > 0 ? (
-          <div className="flex items-center gap-3 text-muted-foreground">
-            <span className="text-2xl font-bold">{summary.acknowledged}</span>
-            <span>{t("roomWarnings.acknowledgedCount", { count: summary.acknowledged })}</span>
-          </div>
-        ) : null}
-      </div>
-    </Alert>
+      </ul>
+      {isSharedMode ? (
+        <span className="text-xs text-muted-foreground">{t("roomWarnings.sharedNote")}</span>
+      ) : null}
+    </div>
   )
 }

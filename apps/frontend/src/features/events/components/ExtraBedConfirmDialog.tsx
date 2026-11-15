@@ -13,6 +13,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { formatDateRange } from "@/lib/date"
+import { cn } from "@/lib/utils"
 
 import { assignRoom, type AssignmentRoom } from "@/features/events/api/room-assignments"
 import { useAssignmentLabels } from "@/features/events/components/room-assignment-labels"
@@ -59,13 +60,14 @@ export function ExtraBedConfirmDialog({
     await onDone({ roomTitle: roomTitle(room), isMoved: request.isMove })
     onClose()
   }
-  const rows = [
-    [t("roomAssignments.roomChoice"), roomTitle(room)],
+  const rows: [string, string, boolean?][] = [
+    [t("extraBedDialog.person"), name],
+    [t("extraBedDialog.room"), roomTitle(room)],
     [
       t("extraBedDialog.term"),
       formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true }),
     ],
-    [t("extraBedDialog.bedsAfter"), t("extraBedDialog.bedsAfterValue", { beds: room.beds })],
+    [t("extraBedDialog.bedsAfter"), t("extraBedDialog.bedsAfterValue", { beds: room.beds }), true],
   ]
   return (
     <Dialog
@@ -77,20 +79,25 @@ export function ExtraBedConfirmDialog({
       <DialogContent className="max-h-[90dvh] overflow-y-auto bg-card shadow-md sm:max-w-160">
         <DialogTitle>{t("extraBedDialog.title", { room: room.name })}</DialogTitle>
         <DialogDescription className="text-base">
-          {t("extraBedDialog.description", { name, count: room.beds })}
+          {t("extraBedDialog.description")}
         </DialogDescription>
-        <dl className="flex flex-col gap-2 rounded-lg bg-secondary p-4 text-sm">
-          {rows.map(([label, value]) => (
+        <dl className="flex flex-col divide-y divide-border rounded-lg border border-border text-sm">
+          {rows.map(([label, value, isKey]) => (
             <div
               key={label}
-              className="flex items-start justify-between gap-3"
+              className={cn(
+                "flex items-start justify-between gap-4 px-4 py-2.5",
+                isKey && "bg-accent",
+              )}
             >
               <dt className="text-muted-foreground">{label}</dt>
-              <dd className="text-right font-medium break-words">{value}</dd>
+              <dd className={cn("text-right break-words", isKey ? "font-bold" : "font-medium")}>
+                {value}
+              </dd>
             </div>
           ))}
         </dl>
-        <p className="text-sm text-muted-foreground">{t("extraBedDialog.explain", { name })}</p>
+        <p className="text-sm text-muted-foreground">{t("extraBedDialog.explain")}</p>
         {mutation.isError ? (
           <ErrorState
             title={t("roomAssignments.failed")}

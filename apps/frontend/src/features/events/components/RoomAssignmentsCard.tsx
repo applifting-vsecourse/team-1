@@ -74,13 +74,6 @@ function useScrolledOut(element: HTMLElement | null): boolean {
   return isOut
 }
 
-/** Scrolls the first visible match into view (the desktop and the phone layout both sit in the DOM). */
-function scrollToFirst(selector: string): void {
-  const matches = Array.from(document.querySelectorAll<HTMLElement>(selector))
-  const target = matches.find((element) => element.offsetParent !== null) ?? matches[0]
-  target?.scrollIntoView({ behavior: "smooth", block: "center" })
-}
-
 /** The count of the unassigned, a bit louder than a plain badge but never a warning. */
 function CountBadge({ count, isAllDone }: { count: number; isAllDone: boolean }) {
   return (
@@ -275,8 +268,6 @@ export function RoomAssignmentsCard({
         <RoomWarningsSummary
           data={data}
           isSharedMode={hasRooms && data.rooms.every((room) => room.gender === null)}
-          onShowRooms={() => scrollToFirst('[data-room-warning="open"]')}
-          onShowParticipants={() => scrollToFirst("[data-unassigned-panel]")}
         />
         {/* On a phone the count of the unassigned stays under the top bar while the rooms scroll. */}
         {isPanelScrolledOut ? (
@@ -297,7 +288,6 @@ export function RoomAssignmentsCard({
         <div className="flex flex-col gap-4 md:flex-row md:items-start">
           <div
             ref={setPanel}
-            data-unassigned-panel
             className="flex shrink-0 flex-col rounded-lg border border-border bg-card md:sticky md:top-20 md:w-85"
           >
             <div className="flex flex-col gap-1 px-3 pt-3 pb-2.5">

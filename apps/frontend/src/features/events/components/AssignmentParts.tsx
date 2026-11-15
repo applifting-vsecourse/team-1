@@ -286,10 +286,10 @@ function WarningLabels({ kinds }: { kinds: RoomWarning["kind"][] }) {
   return (
     <>
       {kinds.includes("OVERCROWDED") ? (
-        <span className="font-bold text-status-warning">{t("roomWarnings.overcrowdedLabel")}</span>
+        <Badge variant="warning">{t("roomWarnings.overcrowdedLabel")}</Badge>
       ) : null}
       {kinds.includes("MIXED_GENDER") ? (
-        <span className="font-bold text-status-warning">{t("roomWarnings.mixedGenderLabel")}</span>
+        <Badge variant="warning">{t("roomWarnings.mixedGenderLabel")}</Badge>
       ) : null}
     </>
   )
@@ -348,7 +348,10 @@ export function RoomTableRow({
       >
         <TableCell
           aria-label={room.name}
-          className="align-top whitespace-normal"
+          className={cn(
+            "align-top whitespace-normal",
+            isWarned && "shadow-[inset_4px_0_0_0_var(--color-status-warning)]",
+          )}
         >
           <div className="flex items-center gap-2 whitespace-nowrap">
             <span className="font-bold">{room.name}</span>
@@ -378,7 +381,10 @@ export function RoomTableRow({
         <TableRow className="hover:bg-transparent">
           <TableCell
             colSpan={4}
-            className="p-0"
+            className={cn(
+              "p-0",
+              isWarned && "shadow-[inset_4px_0_0_0_var(--color-status-warning)]",
+            )}
           >
             <Strips
               room={room}
@@ -421,7 +427,7 @@ export function RoomCard({
           ? "bg-accent outline-2 -outline-offset-2 outline-ring"
           : isEligible && isDragActive
             ? "bg-muted"
-            : kinds.length > 0 && "bg-status-warning-bg",
+            : kinds.length > 0 && "border-l-4 border-l-status-warning bg-status-warning-bg",
       )}
     >
       <div className="flex flex-col gap-3 p-4">

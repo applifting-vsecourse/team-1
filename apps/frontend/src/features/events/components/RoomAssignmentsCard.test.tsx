@@ -389,12 +389,13 @@ describe("room assignment", () => {
       }
       renderCard()
       const table = await screen.findByRole("table")
-      expect(within(table).getByText("Confirmed")).toBeInTheDocument()
-      expect(within(table).getByText(/Note: Family with a child · Eva Malá/)).toBeInTheDocument()
+      expect(within(table).getByText("Overcrowding confirmed")).toBeInTheDocument()
+      expect(within(table).getByText("Note: Family with a child")).toBeInTheDocument()
+      expect(within(table).getByText(/^Eva Malá, /)).toBeInTheDocument()
       expect(
         within(table).queryByRole("button", { name: "Confirm with a note" }),
       ).not.toBeInTheDocument()
-      expect(screen.getByText("warning knowingly confirmed (not counted)")).toBeInTheDocument()
+      expect(screen.getByText("The assignment follows the room rules")).toBeInTheDocument()
     })
 
     it("does not check mixed genders in shared rooms and says so", async () => {
