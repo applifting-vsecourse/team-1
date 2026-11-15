@@ -234,8 +234,14 @@ describe("waitlist filter FREE_BED (US-51)", () => {
     expect(ids(rows)).toEqual(["w-female"])
   })
 
-  it("lists nobody without a free bed, for confirmed applications or in automatic evaluation", () => {
+  it("lists nobody without a free bed or for confirmed applications", () => {
     expect(ids([application("m1", 1, "MALE", "CONFIRMED")])).toEqual([])
-    expect(ids([application("w", 1, "FEMALE", "WAITLISTED", "AUTOMATIC")])).toEqual([])
+    expect(
+      ids([application("m1", 1, "MALE", "CONFIRMED"), application("w", 2, "MALE", "WAITLISTED")]),
+    ).toEqual([])
+  })
+
+  it("lists them in an automatic event too: a bed a bigger capacity made is the organizer's to fill (US-31)", () => {
+    expect(ids([application("w", 1, "FEMALE", "WAITLISTED", "AUTOMATIC")])).toEqual(["w"])
   })
 })

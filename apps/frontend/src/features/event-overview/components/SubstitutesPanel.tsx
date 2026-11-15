@@ -34,7 +34,8 @@ const bedKind = (list: SubstituteList, gender: Substitute["gender"]): BedKind =>
   list.roomMode === "SHARED" ? "Shared" : gender === "MALE" ? "Male" : "Female"
 
 // Figma (Design system): US-104 Přihlášky · Vhodní náhradníci · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15780-5459 (mobile 15780-5571)
-// Shown above the waitlist of one term when a bed is free and the event is evaluated by hand.
+// Shown above the waitlist of one term when a bed is free, in both evaluation modes (US-31): the
+// automatic mode fills the beds an action freed, a bed a bigger capacity made is the organizer's.
 // The list looks like the applications list (table, cards on mobile), without its filters.
 export function SubstitutesPanel({
   eventId,
@@ -51,7 +52,7 @@ export function SubstitutesPanel({
   const query = useQuery(substitutesQueryOptions(eventId, term.id))
   const [chosen, setChosen] = useState<Substitute | null>(null)
   const list = query.data
-  if (list?.evaluationMode !== "MANUAL" || list.items.length === 0) return null
+  if (!list || list.items.length === 0) return null
   const range = formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })
   // Men and women wait for different beds, so each queue is a card of its own; shared rooms have
   // one queue.
@@ -76,41 +77,123 @@ export function SubstitutesPanel({
             items: list.items.filter((item) => item.gender === gender),
           }))
           .filter((group) => group.items.length > 0)
+  const proposals = list.items.filter((item) => item.isProposed)
   return (
-    <section
-      aria-label={t("substitutes.list")}
-      className="flex flex-col gap-6 rounded-lg border bg-card p-4 shadow-sm md:p-6"
-    >
-      <div className="flex flex-col gap-1">
-        <h2 className="text-lg font-semibold">{t("substitutes.title")}</h2>
-        <p className="text-sm text-muted-foreground">{t("substitutes.intro")}</p>
-      </div>
-      {groups.map((group) => (
-        <SubstituteGroup
-          key={group.key}
-          title={group.title}
-          freeBeds={group.freeBeds}
-          items={group.items}
-          range={range}
-          onChoose={setChosen}
-        />
-      ))}
-      {chosen && (
-        <ConfirmSubstituteDialog
+    <>
+      {proposals.map((proposal) => (
+        <SubstituteProposal
+          key={proposal.applicationId}
           eventId={eventId}
           term={term}
           list={list}
-          substitute={chosen}
-          onClose={() => setChosen(null)}
-          onConfirmed={(applicationId) => {
-            setChosen(null)
-            onConfirmed(applicationId)
-          }}
-          onTaken={(taken) => {
-            setChosen(null)
-            onTaken(taken)
-          }}
+          substitute={proposal}
+          onConfirmed={onConfirmed}
+          onTaken={onTaken}
         />
+      ))}
+      <section
+        aria-label={t("substitutes.list")}
+        className="flex flex-col gap-6 rounded-lg border bg-card p-4 shadow-sm md:p-6"
+      >
+        <div className="flex flex-col gap-1">
+          <h2 className="text-lg font-semibold">{t("substitutes.title")}</h2>
+          <p className="text-sm text-muted-foreground">{t("substitutes.intro")}</p>
+        </div>
+        {groups.map((group) => (
+          <SubstituteGroup
+            key={group.key}
+            title={group.title}
+            freeBeds={group.freeBeds}
+            items={group.items}
+            range={range}
+            onChoose={setChosen}
+          />
+        ))}
+        {chosen && (
+          <ConfirmSubstituteDialog
+            eventId={eventId}
+            term={term}
+            list={list}
+            substitute={chosen}
+            onClose={() => setChosen(null)}
+            onConfirmed={(applicationId) => {
+              setChosen(null)
+              onConfirmed(applicationId)
+            }}
+            onTaken={(taken) => {
+              setChosen(null)
+              onTaken(taken)
+            }}
+          />
+        )}
+      </section>
+    </>
+  )
+}
+
+// Figma (Design system): US-31 Ruční režim · navržený náhradník · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=22642-89399 (mobile 22642-89577)
+// A freed bed and the first substitute of its bed group, confirmed in one step (US-31). The
+// list below it stays for confirming someone else (US-104).
+function SubstituteProposal({
+  eventId,
+  term,
+  list,
+  substitute,
+  onConfirmed,
+  onTaken,
+}: {
+  eventId: string
+  term: SubstituteTerm
+  list: SubstituteList
+  substitute: Substitute
+  onConfirmed: (applicationId: string) => void
+  onTaken: (taken: SubstituteTaken) => void
+}) {
+  const { t } = useTranslation("eventOverview")
+  const client = useQueryClient()
+  const kind = bedKind(list, substitute.gender)
+  const name = label(substitute)
+  const range = formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })
+  const confirm = useMutation({
+    mutationFn: () => confirmSubstitute(eventId, term.id, substitute.applicationId),
+    onSuccess: () => {
+      void client.invalidateQueries({ queryKey: ["eventOverview"] })
+      onConfirmed(substitute.applicationId)
+    },
+    onError: (error) => {
+      // Someone took the bed since the proposal was shown: the proposal is stale.
+      if (apiErrorCode(error) === "BED_ALREADY_TAKEN") {
+        void client.invalidateQueries({ queryKey: ["eventOverview"] })
+        onTaken({ name, range, beds: t(`substitutes.free${kind}`, { count: 0 }) })
+      }
+    },
+  })
+  return (
+    <section
+      aria-label={t(`substitutes.proposal.title${kind}`)}
+      className="flex flex-col items-start gap-3 rounded-xl border bg-card p-4"
+    >
+      <h2 className="text-lg font-semibold">{t(`substitutes.proposal.title${kind}`)}</h2>
+      <p className="text-sm">
+        {t(
+          substitute.gender === "FEMALE"
+            ? "substitutes.proposal.bodyFemale"
+            : "substitutes.proposal.bodyMale",
+          { range, name },
+        )}
+      </p>
+      <Button
+        className="w-full md:w-55"
+        aria-label={`${t("substitutes.proposal.confirm")}: ${name}`}
+        disabled={confirm.isPending}
+        onClick={() => confirm.mutate()}
+      >
+        {t("substitutes.proposal.confirm")}
+      </Button>
+      {confirm.isError && apiErrorCode(confirm.error) !== "BED_ALREADY_TAKEN" && (
+        <Alert variant="destructive">
+          <AlertDescription>{confirm.error.message}</AlertDescription>
+        </Alert>
       )}
     </section>
   )

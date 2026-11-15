@@ -90,9 +90,22 @@ describe("archiving applications after their term (integration)", () => {
       const overpaid = await add("CONFIRMED", 1100)
       const free = await add("CONFIRMED", 0, undefined, null, 0)
       const raced = await add("CONFIRMED", 1000)
+      const unpaid = await add("CONFIRMED", 999)
+      for (const applicationTermId of [paid, unpaid]) {
+        const { termId } = await prisma.applicationTerm.findUniqueOrThrow({
+          where: { id: applicationTermId },
+          select: { termId: true },
+        })
+        const room = await prisma.room.create({
+          data: { termId, organizationId, name: "Archive room", capacity: 1, gender: "FEMALE" },
+        })
+        await prisma.roomAssignment.create({
+          data: { organizationId, roomId: room.id, applicationTermId },
+        })
+      }
       const excluded = [
         raced,
-        await add("CONFIRMED", 999),
+        unpaid,
         await add("CANCELLED", 1000),
         await add("WAITLISTED", 1000),
         await add("TO_EVALUATE", 1000),
@@ -160,6 +173,12 @@ describe("archiving applications after their term (integration)", () => {
           select: { id: true, status: true },
         }),
       ).toEqual(before)
+      expect(
+        await prisma.roomAssignment.findMany({
+          where: { applicationTermId: { in: [paid, unpaid] } },
+          select: { applicationTermId: true },
+        }),
+      ).toEqual([{ applicationTermId: unpaid }])
       for (const id of [paid, overpaid, free]) {
         expect((await prisma.applicationTerm.findUniqueOrThrow({ where: { id } })).status).toBe(
           "ARCHIVED",

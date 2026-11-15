@@ -13,6 +13,7 @@ import { findDuplicate } from "@/modules/applications/domain/duplicate-applicati
 import {
   ApplicationTermStatus,
   evaluateApplication,
+  isAssignable,
 } from "@/modules/applications/domain/evaluation"
 import {
   AddedTermState,
@@ -37,6 +38,7 @@ import {
   StatusChangeSnapshot,
 } from "@/modules/applications/domain/status-transition"
 import { skippedSubstitutes } from "@/modules/applications/domain/substitute-skips"
+import { FreedBed } from "@/modules/applications/domain/substitutes"
 import { termLabel } from "@/modules/applications/domain/term-label"
 import {
   ExpiredWaitlistEntry,
@@ -51,7 +53,12 @@ import { NotificationsRepository } from "@/modules/notifications/repositories/no
 import { resolveChangeEmailLocale } from "@/modules/participants/domain/change-email-locale"
 import { ApplicationChange } from "@/modules/participants/domain/submission-confirmation"
 import { AppException } from "@/shared/errors/app.exception"
+import { releaseAssignments } from "@/shared/room-assignments/release-assignments"
 import { HttpStatus, Injectable } from "@nestjs/common"
+
+/** What a change of terms leaves behind: the e-mail and the confirmed beds it gave up (US-31). */
+export type TermsChange = ApplicationChange &
+  ParticipantTermChangeResult & { freedBeds: FreedBed[] }
 
 const recordInclude = {
   changedBy: { select: { name: true } },
@@ -227,7 +234,7 @@ export class TermStatusRepository {
     applicationId: string,
     selectedIds: string[],
     approvedRequest?: { id: string; reviewerId: string },
-  ): Promise<(ApplicationChange & ParticipantTermChangeResult) | null | undefined> {
+  ): Promise<TermsChange | null | undefined> {
     return this.changeTerms({
       where: { id: applicationId, userId },
       applicationId,
@@ -324,7 +331,7 @@ export class TermStatusRepository {
     selectedIds: string[],
     actorId: string,
     isOverCapacityConfirmed: boolean,
-  ): Promise<ApplicationChange | null | undefined> {
+  ): Promise<TermsChange | null | undefined> {
     return this.changeTerms({
       where: { id: applicationId, organizationId },
       applicationId,
@@ -343,7 +350,7 @@ export class TermStatusRepository {
     applicationId: string,
     withdrawnIds: string[],
     actorId: string,
-  ): Promise<ApplicationChange | null | undefined> {
+  ): Promise<TermsChange | null | undefined> {
     return this.changeTerms({
       where: { id: applicationId, organizationId },
       applicationId,
@@ -401,7 +408,7 @@ export class TermStatusRepository {
     selectedIds: string[]
     approvedRequest?: { id: string; reviewerId: string }
     organizer?: { actorId: string; isOverCapacityConfirmed: boolean; withdrawnIds?: string[] }
-  }): Promise<(ApplicationChange & ParticipantTermChangeResult) | null | undefined> {
+  }): Promise<TermsChange | null | undefined> {
     return this.prisma.$transaction(async (tx) => {
       const target = await tx.application.findFirst({
         where,
@@ -538,6 +545,7 @@ export class TermStatusRepository {
 
       for (const row of removed) {
         await tx.applicationTerm.update({ where: { id: row.id }, data: { status: "CANCELLED" } })
+        await releaseAssignments(tx, { applicationTermId: row.id })
         await tx.applicationTermStatusChange.create({
           data: {
             organizationId: application.organizationId,
@@ -712,6 +720,10 @@ export class TermStatusRepository {
       }
       return {
         addedTerms,
+        // A confirmed participant leaving a term frees a bed for the waitlist (US-31).
+        freedBeds: removed
+          .filter((row) => row.status === "CONFIRMED")
+          .map((row) => ({ termId: row.termId, gender: application.gender })),
         email: application.email,
         locale,
         eventName: application.event.name,
@@ -892,6 +904,8 @@ export class TermStatusRepository {
         where: { id: current.id },
         data: { status: command.to },
       })
+      // US-35: leaving confirmed / to evaluate frees the bed the application had in a room.
+      if (!isAssignable(command.to)) await releaseAssignments(tx, { applicationTermId: current.id })
       const change = await tx.applicationTermStatusChange.create({
         data: {
           organizationId: command.organizationId,

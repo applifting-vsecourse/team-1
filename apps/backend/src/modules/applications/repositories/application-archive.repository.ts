@@ -1,5 +1,6 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { canArchiveTerm } from "@/modules/applications/domain/application-archive"
+import { releaseAssignments } from "@/shared/room-assignments/release-assignments"
 import { Injectable } from "@nestjs/common"
 
 @Injectable()
@@ -46,6 +47,7 @@ export class ApplicationArchiveRepository {
             where: { id: term.id, organizationId: event.organizationId },
             data: { status: "ARCHIVED" },
           })
+          await releaseAssignments(tx, { applicationTermId: term.id })
           await tx.applicationTermStatusChange.create({
             data: {
               organizationId: term.organizationId,
