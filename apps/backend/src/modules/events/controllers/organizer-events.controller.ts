@@ -158,7 +158,9 @@ export class OrganizerEventsController {
   }
 
   @Put(":eventId/cancellation-start")
-  @ApiOperation({ summary: "Set or clear the first day cancellation rules apply (US-113)" })
+  @ApiOperation({
+    summary: "Set or clear the first day participant requests need approval (US-113)",
+  })
   @ApiResponse({ status: 200, type: OrganizerEventResponseDto })
   @ApiResponse({ status: 400, description: "Invalid calendar day." })
   @ApiResponse({ status: 403, description: "Unknown event or of another organization." })

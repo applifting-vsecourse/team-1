@@ -2,7 +2,7 @@
 
 > Generováno z [`rozhodnuti.yaml`](rozhodnuti.yaml) (`python generate.py`). Needituj, měň YAML.
 
-**154 platných**, 0 návrhů, 4 nahrazených nebo zrušených.
+**155 platných**, 0 návrhů, 4 nahrazených nebo zrušených.
 
 ## Návrhy čekající na PM
 
@@ -109,6 +109,7 @@ _Nic._
 | --- | --- | --- | --- | --- |
 | [D-156](#d-156) | Lhůta na zaplacení: 1–60 dní, změna platí jen pro nově potvrzené | 2026-11-14 | `pm` | produkt |
 | [D-125](#d-125) | Import plateb: CSV z jedné banky nebo jednoduchý generický formát | 2026-11-11 | `pm` | produkt |
+| [D-107](#d-107) | Schvalování požadavků účastníků nelze zapnout zpětně | 2026-11-11 | `pm` | produkt |
 | [D-113](#d-113) | Storno podmínky jsou volný text na akci, bez výpočtu | 2026-11-07 | `pm` | produkt |
 | [D-149](#d-149) | Zápis platby: souhrnný dialog vždy, vratka bez potvrzujícího alertu | 2026-11-04 | `pm` | produkt |
 | [D-133](#d-133) | Hláška o nově potvrzeném termínu svítí 7 dní | 2026-11-04 | `pm` | produkt |
@@ -1413,6 +1414,17 @@ _Nic._
 - **Zdroj:** [Business katalog e-mailů, potvrzená rozhodnutí z dotazníku](../../docs/emaily/KATALOG.md)
 - **Dokumentace:** `docs/emaily/TEXTY.md`: hotovo (667c8d3), společné části, patička
 - **Poznámka:** Po US-122 existuje Event.contactEmail a aplikace ho ukazuje; patička e-mailů zůstává do dema fiktivní, přechod na Event.contactEmail až po demu.
+
+<a id="d-107"></a>
+
+### D-107 – Schvalování požadavků účastníků nelze zapnout zpětně
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** platby
+- **Datum:** 2026-11-11 · **Rozhodl:** `pm`
+- **Text:** Datum, od kterého se požadavky účastníků (odhlášky, změny termínů) předávají organizátorovi ke schválení, nelze nastavit ani změnit na den v minulosti; nejbližší možné datum je dnešek (schvalování pak platí ihned) a dále budoucnost. Platí při prvním zapnutí schvalování i při změně již nastaveného data, v kalendářním dni v časové zóně Europe/Prague. Již uložené datum, které mezitím uplynulo, zůstává platné a jeho nezměněné uložení neselže. Schvalování lze vypnout smazáním data (požadavky se pak opět provádějí ihned), i když už začalo.
+- **Dotčené US:** [#372](https://github.com/applifting-vsecourse/team-1/issues/372), [US-113](https://github.com/applifting-vsecourse/team-1/issues/206)
+- **Zdroj:** [Nález PM při testování US-113 a doplnění pravidla k #372](https://github.com/applifting-vsecourse/team-1/issues/372)
+- **Poznámka:** Navazuje na D-100 (schvalování od data, dříve „začátek storno podmínek“). Tento pojem se v textech aplikace už nepoužívá; „storno podmínky“ zůstávají jen jako text podmínek pro přihlašovatele (US-47), který se tím nemění.
 
 <a id="d-108"></a>
 
