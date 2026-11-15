@@ -82,6 +82,7 @@ export class RoomAssignmentsRepository {
       applicationId: row.applicationId,
       firstName: row.application.firstName,
       lastName: row.application.lastName,
+      birthYear: row.application.birthDate.getUTCFullYear(),
       gender: row.application.gender,
       individualAccommodation: row.application.individualAccommodation,
       status: row.status,

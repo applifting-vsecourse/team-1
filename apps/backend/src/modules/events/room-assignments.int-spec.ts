@@ -4,10 +4,15 @@ import { api, connectTestPrisma, resetAndSeed, signIn } from "@/test/integration
 
 type Status = "CONFIRMED" | "TO_EVALUATE" | "WAITLISTED"
 type Listing = {
-  rooms: { id: string; name: string; participants: { applicationTermId: string }[] }[]
+  rooms: {
+    id: string
+    name: string
+    participants: { applicationTermId: string; birthYear: number }[]
+  }[]
   unassigned: {
     applicationTermId: string
     lastName: string
+    birthYear: number
     alsoInTerms: { termId: string; rooms: { name: string; freeBeds: number }[] }[]
   }[]
 }
@@ -161,6 +166,25 @@ describe("room assignments (integration)", () => {
     expect(((await response.json()) as { code: string }).code).toBe(
       "ROOM_ASSIGNMENT_STATUS_INVALID",
     )
+  })
+
+  it("gives the birth year, never the full birth date, of assigned and unassigned people (US-36)", async () => {
+    const assigned = await makeApplication("Rok přiřazený", [
+      { termId: term1, status: "CONFIRMED" },
+    ])
+    const waiting = await makeApplication("Rok nepřiřazený", [
+      { termId: term1, status: "CONFIRMED" },
+    ])
+    expect((await assign(assigned.rows[term1], rooms.b1)).status).toBe(204)
+    const body = await list()
+    const inRoom = body.rooms
+      .flatMap((room) => room.participants)
+      .find((person) => person.applicationTermId === assigned.rows[term1])
+    const without = body.unassigned.find((row) => row.applicationTermId === waiting.rows[term1])
+    expect(inRoom?.birthYear).toBe(2010)
+    expect(without?.birthYear).toBe(2010)
+    expect(JSON.stringify(body)).not.toContain("2010-01-01")
+    await call(`${base()}/${assigned.rows[term1]}`, "DELETE")
   })
 
   it("assigns, moves and unassigns, and never overfills a room", async () => {

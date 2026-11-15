@@ -39,6 +39,8 @@ export type AssignmentParticipant = {
   applicationId: string
   firstName: string
   lastName: string
+  /** Year only, enough to tell namesakes apart in the overview (US-36); never the full date. */
+  birthYear: number
   gender: Gender
   /** The applicant asked to settle the accommodation individually (US-38). */
   individualAccommodation: boolean

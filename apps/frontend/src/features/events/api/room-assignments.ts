@@ -10,6 +10,8 @@ const participantSchema = z.object({
   applicationId: z.string(),
   firstName: z.string(),
   lastName: z.string(),
+  /** Year only (US-36); the overview tells namesakes apart with it. */
+  birthYear: z.number().int(),
   gender: genderSchema,
   /** Asked to settle the accommodation individually (US-38). */
   individualAccommodation: z.boolean(),

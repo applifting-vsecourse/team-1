@@ -10,6 +10,8 @@ class ParticipantDto {
   @ApiProperty() applicationId!: string
   @ApiProperty() firstName!: string
   @ApiProperty() lastName!: string
+  @ApiProperty({ example: 2011, description: "Birth year only, not the full date" })
+  birthYear!: number
   @ApiProperty({ enum: ["FEMALE", "MALE"] }) gender!: Gender
   @ApiProperty() individualAccommodation!: boolean
   @ApiProperty({ enum: STATUSES }) status!: string

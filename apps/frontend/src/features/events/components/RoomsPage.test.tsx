@@ -102,8 +102,9 @@ const byTerm: Record<string, TermRooms> = {
   ),
 }
 
-function renderRooms(termId: string) {
+function renderRooms(termId: string, view: "assignment" | "overview" = "assignment") {
   const onSelectTerm = vi.fn()
+  const onSelectView = vi.fn()
   get.mockImplementation((path: string) => ({
     json: () => {
       const roomTerm = byTerm[/terms\/([^/]+)\/rooms/.exec(path)?.[1] ?? ""]
@@ -129,8 +130,10 @@ function renderRooms(termId: string) {
         <RoomsPage
           eventId="e1"
           termId={termId}
+          view={view}
           terms={terms}
           onSelectTerm={onSelectTerm}
+          onSelectView={onSelectView}
         />
       </QueryClientProvider>
     ),
@@ -144,7 +147,7 @@ function renderRooms(termId: string) {
     history: createMemoryHistory({ initialEntries: ["/"] }),
   })
   render(<RouterProvider router={router} />)
-  return { onSelectTerm, user: userEvent.setup() }
+  return { onSelectTerm, onSelectView, user: userEvent.setup() }
 }
 
 describe("accommodation by term", () => {
@@ -167,6 +170,32 @@ describe("accommodation by term", () => {
     expect(within(table).getByText("Gendered room")).toBeInTheDocument()
     expect(within(table).getByText("Women's")).toBeInTheDocument()
     expect(within(table).getByText("Extra bed +2")).toBeInTheDocument()
+  })
+
+  it("switches between the room assignment and the overview with a select left of the term (US-36)", async () => {
+    const { user, onSelectView } = renderRooms("t1")
+    await screen.findByRole("table")
+    const view = screen.getByRole("combobox", { name: "Accommodation view" })
+    const term = screen.getByRole("combobox", { name: "Term" })
+    expect(view).toHaveTextContent("Room assignment")
+    // The view picker comes first, the term picker after it.
+    expect(view.compareDocumentPosition(term) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    await user.click(view)
+    await user.click(screen.getByRole("option", { name: "Accommodation overview" }))
+    expect(onSelectView).toHaveBeenCalledWith("overview")
+  })
+
+  it("shows the overview of the selected term instead of the assignment", async () => {
+    renderRooms("t1", "overview")
+    expect(
+      await screen.findByRole("heading", { name: "Gendered room", level: 3 }),
+    ).toBeInTheDocument()
+    expect(screen.queryByRole("table")).not.toBeInTheDocument()
+    expect(screen.getByRole("combobox", { name: "Accommodation view" })).toHaveTextContent(
+      "Accommodation overview",
+    )
+    expect(screen.getByRole("combobox", { name: "Term" })).toBeInTheDocument()
+    expect(get).toHaveBeenCalledWith("organizer/events/e1/terms/t1/room-assignments")
   })
 
   it("shows the extra beds in the title only when a room has some, without a +0", async () => {
