@@ -2,7 +2,7 @@
 
 > Generováno z [`rozhodnuti.yaml`](rozhodnuti.yaml) (`python generate.py`). Needituj, měň YAML.
 
-**155 platných**, 0 návrhů, 4 nahrazených nebo zrušených.
+**157 platných**, 0 návrhů, 4 nahrazených nebo zrušených.
 
 ## Návrhy čekající na PM
 
@@ -227,6 +227,8 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-161](#d-161) | Individuální ubytování: zobrazení, viditelnost a navazující story | 2026-11-15 | `pm` | produkt |
+| [D-160](#d-160) | Potvrzení varování pokoje, poznámka a přistýlka po termínech | 2026-11-15 | `pm` | produkt |
 | [D-159](#d-159) | Pozdější příjezd a dřívější odjezd jen jako informace pro kuchyni | 2026-11-14 | `pm` | produkt |
 | [D-112](#d-112) | Pravidla pokojů jen varují; nad kapacitu přistýlka po vědomém potvrzení | 2026-11-14 | `pm` | produkt |
 | [D-111](#d-111) | Přiřazení do pokojů: do pokoje, i ve stavu K vyhodnocení, zveřejnění zvlášť | 2026-11-14 | `pm` | produkt |
@@ -2031,3 +2033,26 @@ _Nic._
 - **Zdroj:** [US-143, rozhodnutí PM 14. 11. za PO](https://github.com/applifting-vsecourse/team-1/issues/485); [status s PO 11. 11., §2](../../docs/zapisy/2026-11-11-status-s-po.md)
 - **Z otázek:** `Q-UBY-05`
 - **Poznámka:** Rozhodl PM za PO 14. 11.
+
+<a id="d-160"></a>
+
+### D-160 – Potvrzení varování pokoje, poznámka a přistýlka po termínech
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** ubytování
+- **Datum:** 2026-11-15 · **Rozhodl:** `pm`
+- **Text:** Vědomé potvrzení varování patří ke konkrétnímu varování (druh + pokoj, u „bez lůžka“ přihláška v termínu) a zmizí, jakmile varování přestane platit; když nastane znovu, je to nové varování. Poznámka při potvrzení je nepovinná, nejvýše 500 znaků. Dialog přistýlky je vždy o jednom pokoji v jednom termínu, stejný pokoj v dalším termínu se přiřazuje zvlášť; přidání přistýlky do více termínů najednou je vylepšení mimo US-37.
+- **Dotčené US:** [US-37](https://github.com/applifting-vsecourse/team-1/issues/37)
+- **Zdroj:** [US-37, rozhodnutí PM 15. 11.](https://github.com/applifting-vsecourse/team-1/issues/37#issuecomment-6897230716)
+- **Poznámka:** Rozhodl PM 15. 11.
+
+<a id="d-161"></a>
+
+### D-161 – Individuální ubytování: zobrazení, viditelnost a navazující story
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** ubytování
+- **Datum:** 2026-11-15 · **Rozhodl:** `pm`
+- **Text:** US-38 se staví podle Figmy (zaškrtnutí „Chci ubytování řešit individuálně“ + nepovinná poznámka); zda je zaškrtnutí potřeba, řeší navazující ticket. Účastník s požadavkem se nepočítá do varování „smíšený pokoj“. Organizátor má filtr v seznamu přihlášek a štítek u účastníka v rozdělení do pokojů. Organizátorské role zatím nejsou, požadavek vidí každý přihlášený pod organizátorským účtem; exporty a tištěné přehledy se zatím neřeší. Zájmena v přihlášce a seznam individuálních požadavků v kartě Ubytování jsou samostatné story.
+- **Dotčené US:** [US-38](https://github.com/applifting-vsecourse/team-1/issues/38)
+- **Zdroj:** [US-38, rozhodnutí PM 15. 11.](https://github.com/applifting-vsecourse/team-1/issues/38#issuecomment-6897230967)
+- **Z otázek:** `Q-UBY-03`
+- **Poznámka:** Rozhodl PM 15. 11.

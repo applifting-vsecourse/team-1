@@ -868,15 +868,16 @@ otazky:
   us:
   - label: US-38
     url: https://github.com/applifting-vsecourse/team-1/issues/38
-  stav: otevreno
+  stav: rozhodnuto
   priorita: P3
   priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
-  ceka_na: po
+  ceka_na: pm
   zdroje:
   - popis: issue
     url: https://github.com/applifting-vsecourse/team-1/issues/38
     citace: „**Otevřená otázka na PO:** F-23 – mají být zájmena v přihlášce jako nepovinné pole? Organizátor
       LARP tábora je plánuje do přihlášek přidat.“
+  rozhodnuti_ref: D-161
 - id: Q-UBY-04
   otazka: Necháme to až po rozdělení do pokojů (US-35)?
   epic: ubytování

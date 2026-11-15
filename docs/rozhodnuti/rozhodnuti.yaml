@@ -3336,3 +3336,54 @@ rozhodnuti:
   - Q-UBY-05
   dokumentace: []
   poznamka: 'Rozhodl PM za PO 14. 11.'
+- id: D-160
+  nazev: 'Potvrzení varování pokoje, poznámka a přistýlka po termínech'
+  text: 'Vědomé potvrzení varování patří ke konkrétnímu varování (druh + pokoj, u „bez lůžka“ přihláška v termínu) a zmizí, jakmile varování přestane platit; když nastane znovu, je to nové varování. Poznámka při potvrzení je nepovinná, nejvýše 500 znaků. Dialog přistýlky je vždy o jednom pokoji v jednom termínu, stejný pokoj v dalším termínu se přiřazuje zvlášť; přidání přistýlky do více termínů najednou je vylepšení mimo US-37.'
+  typ: produkt
+  oblast: ubytování
+  datum: '2026-11-15'
+  zdroj:
+  - popis: 'US-37, rozhodnutí PM 15. 11.'
+    url: https://github.com/applifting-vsecourse/team-1/issues/37#issuecomment-6897230716
+  us:
+  - label: US-37
+    url: https://github.com/applifting-vsecourse/team-1/issues/37
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+  navazne_tickety:
+  - popis: 'Přistýlka ve více termínech najednou'
+    url: https://github.com/applifting-vsecourse/team-1/issues/513
+  poznamka: 'Rozhodl PM 15. 11.'
+- id: D-161
+  nazev: 'Individuální ubytování: zobrazení, viditelnost a navazující story'
+  text: 'US-38 se staví podle Figmy (zaškrtnutí „Chci ubytování řešit individuálně“ + nepovinná poznámka); zda je zaškrtnutí potřeba, řeší navazující ticket. Účastník s požadavkem se nepočítá do varování „smíšený pokoj“. Organizátor má filtr v seznamu přihlášek a štítek u účastníka v rozdělení do pokojů. Organizátorské role zatím nejsou, požadavek vidí každý přihlášený pod organizátorským účtem; exporty a tištěné přehledy se zatím neřeší. Zájmena v přihlášce a seznam individuálních požadavků v kartě Ubytování jsou samostatné story.'
+  typ: produkt
+  oblast: ubytování
+  datum: '2026-11-15'
+  zdroj:
+  - popis: 'US-38, rozhodnutí PM 15. 11.'
+    url: https://github.com/applifting-vsecourse/team-1/issues/38#issuecomment-6897230967
+  us:
+  - label: US-38
+    url: https://github.com/applifting-vsecourse/team-1/issues/38
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek:
+  - Q-UBY-03
+  dokumentace: []
+  navazne_tickety:
+  - popis: 'Úprava údajů přihlášky organizátorem'
+    url: https://github.com/applifting-vsecourse/team-1/issues/515
+  - popis: 'Zájmena v přihlášce'
+    url: https://github.com/applifting-vsecourse/team-1/issues/516
+  - popis: 'Je zaškrtávátko individuálního ubytování potřeba?'
+    url: https://github.com/applifting-vsecourse/team-1/issues/517
+  - popis: 'Ruční přidání přihlášky: požadavek na individuální ubytování'
+    url: https://github.com/applifting-vsecourse/team-1/issues/518
+  - popis: 'Karta Ubytování: seznam individuálních požadavků'
+    url: https://github.com/applifting-vsecourse/team-1/issues/514
+  poznamka: 'Rozhodl PM 15. 11.'
