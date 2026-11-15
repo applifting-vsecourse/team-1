@@ -116,7 +116,12 @@ export function ParticipantChip({
           />
           <span className="min-w-0 break-words">{name}</span>
           {participant.individualAccommodation ? (
-            <Badge variant="info">{t("roomAssignments.individual")}</Badge>
+            <Badge
+              variant="secondary"
+              className="ml-1 bg-card"
+            >
+              {t("roomAssignments.individual")}
+            </Badge>
           ) : null}
         </button>
         <DropdownMenuTrigger asChild>
@@ -186,11 +191,16 @@ export function UnassignedRow({
           className="size-3.5 shrink-0 text-muted-foreground"
           aria-hidden
         />
-        <div className="flex min-w-0 flex-col gap-0.5">
+        <div
+          className={cn(
+            "flex min-w-0 flex-col gap-0.5",
+            participant.individualAccommodation && "gap-2",
+          )}
+        >
           <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
             <span className="truncate text-sm font-medium">{name}</span>
             {participant.individualAccommodation ? (
-              <Badge variant="info">{t("roomAssignments.individual")}</Badge>
+              <Badge variant="secondary">{t("roomAssignments.individual")}</Badge>
             ) : null}
           </span>
           <span className="truncate text-sm text-muted-foreground">

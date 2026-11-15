@@ -145,23 +145,16 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
         className="gap-4 p-4 md:p-6"
       >
         <h3 className="text-lg font-semibold">{t("payment.individualAccommodation")}</h3>
-        <div className="grid gap-4 md:grid-cols-[12rem_1fr]">
-          <DetailItem label={t("payment.individualAccommodationRequest")}>
-            {t(
-              data.individualAccommodation
-                ? "payment.individualAccommodationYes"
-                : "payment.individualAccommodationNo",
-            )}
+        {data.individualAccommodation ? (
+          <DetailItem
+            label={t("payment.individualAccommodationNote")}
+            className="whitespace-pre-wrap"
+          >
+            {data.accommodationRequest ?? t("payment.individualAccommodationNoNote")}
           </DetailItem>
-          {data.individualAccommodation ? (
-            <DetailItem
-              label={t("payment.individualAccommodationNote")}
-              className="whitespace-pre-wrap"
-            >
-              {data.accommodationRequest ?? t("payment.individualAccommodationNoNote")}
-            </DetailItem>
-          ) : null}
-        </div>
+        ) : (
+          <p className="text-muted-foreground">{t("payment.individualAccommodationNone")}</p>
+        )}
       </Card>
       {/* Nothing to pay without a confirmed term (US-25): record a payment once a place is confirmed. */}
       {hasConfirmedTerm ? null : (

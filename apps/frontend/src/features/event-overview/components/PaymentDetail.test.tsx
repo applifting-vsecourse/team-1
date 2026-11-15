@@ -181,9 +181,8 @@ describe("PaymentDetail", () => {
 
     expect(await screen.findByRole("heading", { name: "Individual accommodation" })).toBeVisible()
     const card = within(screen.getByRole("group", { name: "Individual accommodation" }))
-    expect(card.getByText("Request")).toBeVisible()
-    expect(card.getByText("Yes")).toBeVisible()
     expect(card.getByText("Note")).toBeVisible()
+    expect(card.queryByText("Request")).not.toBeInTheDocument()
     expect(card.getByText("Ground floor, please.")).toBeVisible()
   })
 
@@ -193,8 +192,9 @@ describe("PaymentDetail", () => {
 
     expect(await screen.findByRole("heading", { name: "Individual accommodation" })).toBeVisible()
     const card = within(screen.getByRole("group", { name: "Individual accommodation" }))
-    expect(card.getByText("Request")).toBeVisible()
-    expect(card.getByText("No")).toBeVisible()
+    expect(
+      card.getByText("The participant has no request for individual accommodation."),
+    ).toBeVisible()
     expect(card.queryByText("Note")).not.toBeInTheDocument()
   })
 

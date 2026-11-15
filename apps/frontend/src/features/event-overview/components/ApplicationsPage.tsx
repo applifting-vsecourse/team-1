@@ -27,6 +27,7 @@ import {
 import { PAGE_SIZE } from "@/hooks/usePagination"
 import { formatDate, formatDateRange, formatDateTime } from "@/lib/date"
 import { notify } from "@/lib/notify"
+import { cn } from "@/lib/utils"
 
 import {
   applicationsQueryOptions,
@@ -426,12 +427,17 @@ export function ApplicationsPage({
                             </TableCell>
                           )}
                           <TableCell>
-                            <p className="flex flex-wrap items-center gap-x-2 gap-y-1 font-medium">
+                            <p
+                              className={cn(
+                                "flex flex-wrap items-center gap-x-2 gap-y-1 font-medium",
+                                row.individualAccommodation && "mb-2",
+                              )}
+                            >
                               <span>
                                 {row.firstName} {row.lastName}
                               </span>
                               {row.individualAccommodation && (
-                                <Badge variant="info">
+                                <Badge variant="secondary">
                                   {t("applications.individualAccommodation")}
                                 </Badge>
                               )}
@@ -496,12 +502,17 @@ export function ApplicationsPage({
                         params={{ eventId, applicationId: row.id }}
                         className="flex min-w-0 flex-1 flex-col gap-2 py-3"
                       >
-                        <span className="flex flex-wrap items-center gap-x-2 gap-y-1 font-medium">
+                        <span
+                          className={cn(
+                            "flex flex-wrap items-center gap-x-2 gap-y-1 font-medium",
+                            row.individualAccommodation && "mb-1",
+                          )}
+                        >
                           <span>
                             {row.firstName} {row.lastName}
                           </span>
                           {row.individualAccommodation && (
-                            <Badge variant="info">
+                            <Badge variant="secondary">
                               {t("applications.individualAccommodation")}
                             </Badge>
                           )}
