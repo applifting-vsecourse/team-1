@@ -256,14 +256,15 @@ export function RoomsPage({
             </Select>
             <p className="text-xs text-muted-foreground">{t("rooms.modeHint")}</p>
           </div>
-          <div
-            className={cn("grid gap-4 md:gap-6", isGendered ? "md:grid-cols-3" : "md:grid-cols-2")}
-          >
+          <div className={cn("grid gap-4", isGendered ? "md:grid-cols-3" : "md:grid-cols-2")}>
             {metrics.map((metric) => (
-              <Card key={metric.label}>
-                <CardContent className="flex flex-col gap-2">
-                  <h3 className="text-xs font-medium text-muted-foreground">{metric.label}</h3>
-                  <p className="text-3xl font-bold tracking-tight md:text-4xl">{metric.value}</p>
+              <Card
+                key={metric.label}
+                className="gap-1 py-4"
+              >
+                <CardContent className="flex flex-col gap-1 px-4">
+                  <h3 className="text-sm text-muted-foreground">{metric.label}</h3>
+                  <p className="text-2xl font-semibold tracking-tight">{metric.value}</p>
                   {metric.helper ? (
                     <p className="text-sm text-muted-foreground">{metric.helper}</p>
                   ) : null}

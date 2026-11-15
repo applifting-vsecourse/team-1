@@ -127,6 +127,8 @@ describe("RoomsOverview (US-36)", () => {
     expect(b.getByText("1 / 3")).toBeInTheDocument()
     // The same badge as in the room assignment (US-80).
     expect(b.getByText("Extra bed +1")).toHaveAttribute("data-variant", "info")
+    // Right under the capacity, on the right side of the card.
+    expect(b.getByText("Extra bed +1").parentElement).toHaveClass("justify-end")
     // Beds above the capacity are extra beds; the last of three beds is the extra one.
     expect(b.getAllByText("Extra bed")).toHaveLength(1)
     expect(b.getAllByText("Free bed")).toHaveLength(2)

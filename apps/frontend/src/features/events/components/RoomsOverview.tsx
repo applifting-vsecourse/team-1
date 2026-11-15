@@ -152,20 +152,22 @@ export function RoomsOverview({
             ))}
           </dl>
           {openWarnings > 0 ? (
-            <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-status-warning print:hidden">
-              <AlertTriangle
-                className="size-4 shrink-0"
-                aria-hidden
-              />
-              <span>{t("roomOverview.warnings", { count: openWarnings })}</span>
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-status-warning print:hidden">
+              <p className="flex items-center gap-2">
+                <AlertTriangle
+                  className="size-4 shrink-0"
+                  aria-hidden
+                />
+                {t("roomOverview.warnings", { count: openWarnings })}
+              </p>
               <Button
-                variant="link"
-                className="h-auto p-0 text-sm text-status-warning"
+                variant="outline"
+                size="sm"
                 onClick={onShowAssignment}
               >
                 {t("roomOverview.showWarnings")}
               </Button>
-            </p>
+            </div>
           ) : null}
           <ul className="grid items-stretch gap-4 md:auto-rows-fr md:grid-cols-2 print:block print:columns-2 print:gap-4">
             {data.rooms.map((room) => (
@@ -180,14 +182,18 @@ export function RoomsOverview({
           {withoutRoom.length > 0 ? <WithoutRoomCard people={withoutRoom} /> : null}
         </>
       ) : (
-        <div className="flex flex-col items-center gap-3 rounded-lg border border-border p-10 text-center print:hidden">
-          <EmptyState message={t("rooms.empty")} />
-          <Button
-            size="lg"
-            onClick={onShowAssignment}
-          >
-            {t("roomOverview.emptyAction")}
-          </Button>
+        <div className="rounded-lg border border-border px-6 print:hidden">
+          <EmptyState
+            message={t("rooms.empty")}
+            action={
+              <Button
+                size="lg"
+                onClick={onShowAssignment}
+              >
+                {t("roomOverview.emptyAction")}
+              </Button>
+            }
+          />
         </div>
       )}
     </section>
@@ -240,7 +246,7 @@ function RoomOverviewCard({ room }: { room: AssignmentRoom }) {
           </Badge>
         </div>
         {room.extraBeds > 0 ? (
-          <div className="print:hidden">
+          <div className="flex justify-end print:hidden">
             <ExtraBeds room={room} />
           </div>
         ) : null}
