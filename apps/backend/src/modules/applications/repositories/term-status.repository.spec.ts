@@ -64,6 +64,7 @@ const setup = (options: {
       update: jest.fn().mockResolvedValue({}),
     },
     applicationTermStatusChange: { create: jest.fn().mockResolvedValue({}) },
+    roomAssignment: { deleteMany: jest.fn().mockResolvedValue({ count: 0 }) },
   }
   const prisma = { $transaction: (fn: (t: typeof tx) => unknown): unknown => fn(tx) }
   return {
