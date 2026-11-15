@@ -4,9 +4,10 @@ from pathlib import Path
 """REPORT.md + DETAIL.md -> REPORT.html (Ano/Změnit u každého nálezu). Usage: gen_html.py <OUT> ["Titulek"]"""
 OUT = Path(sys.argv[1])
 TITLE = sys.argv[2] if len(sys.argv) > 2 else "PM rutina Togena"
-KEY = "togena-pm-" + OUT.name
 report = (OUT / "REPORT.md").read_text()
 detail = (OUT / "DETAIL.md").read_text()
+# klíč z obsahu reportu: nový nebo změněný report nepřevezme uložené volby
+KEY = "togena-pm-" + __import__("hashlib").sha1((report + detail).encode()).hexdigest()[:12]
 
 
 def inline(s):

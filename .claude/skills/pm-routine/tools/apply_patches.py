@@ -60,6 +60,8 @@ for pfile in sorted(PDIR.glob("*.patch.md")):
             else:
                 ops.append((cur[0], cur[1], body))
                 cur = None
+        if cur is not None:  # anchor without its „Novým“ block: reject the whole item
+            ops = None
         if not ops:
             report.append(f"FAIL-PARSE {target} | {title}")
             continue
