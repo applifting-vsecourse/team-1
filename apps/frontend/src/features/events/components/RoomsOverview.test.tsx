@@ -86,13 +86,19 @@ function renderOverview() {
     <QueryClientProvider client={client}>
       <RoomsOverview
         term={term}
-        termSelect={<span>Term picker</span>}
+        selectors={<span>Term picker</span>}
         onShowAssignment={onShowAssignment}
       />
     </QueryClientProvider>,
   )
   return userEvent.setup()
 }
+/** The summary cards on screen (the print header has its own list with the same labels). */
+const summaryList = (): HTMLElement =>
+  screen
+    .getAllByText("Rooms")
+    .map((label) => label.closest("dl")!)
+    .find((list) => list.classList.contains("md:grid-cols-4"))!
 const roomCard = async (name: string) =>
   (await screen.findByRole("heading", { name, level: 3 })).closest("li") as HTMLElement
 
@@ -119,7 +125,8 @@ describe("RoomsOverview (US-36)", () => {
 
     const b = within(await roomCard("Room B"))
     expect(b.getByText("1 / 3")).toBeInTheDocument()
-    expect(b.getByText("Extra bed +1")).toBeInTheDocument()
+    // The same badge as in the room assignment (US-80).
+    expect(b.getByText("Extra bed +1")).toHaveAttribute("data-variant", "info")
     // Beds above the capacity are extra beds; the last of three beds is the extra one.
     expect(b.getAllByText("Extra bed")).toHaveLength(1)
     expect(b.getAllByText("Free bed")).toHaveLength(2)
@@ -128,7 +135,7 @@ describe("RoomsOverview (US-36)", () => {
   it("sums rooms, beds, occupied and free beds", async () => {
     renderOverview()
     await roomCard("Room A")
-    const summary = screen.getByText("Rooms").closest("dl") as HTMLElement
+    const summary = summaryList()
     const values = within(summary)
       .getAllByRole("definition")
       .map((item) => item.textContent)
@@ -159,7 +166,7 @@ describe("RoomsOverview (US-36)", () => {
   it("tells the shared rooms from the gendered ones", async () => {
     data.rooms = [room("r1", "Room A", 3, [], 0, null), room("r2", "Room B", 3, [], 0, "MALE")]
     renderOverview()
-    expect(within(await roomCard("Room A")).getByText("Shared")).toBeInTheDocument()
+    expect(within(await roomCard("Room A")).getByText("Mixed")).toBeInTheDocument()
     expect(within(await roomCard("Room B")).getByText("Men's")).toBeInTheDocument()
   })
 
@@ -183,9 +190,9 @@ describe("RoomsOverview (US-36)", () => {
     data.rooms = []
     data.unassigned = []
     const user = renderOverview()
-    expect(await screen.findByText("This term has no rooms")).toBeInTheDocument()
+    expect(await screen.findByText("Rooms of this term will appear here.")).toBeInTheDocument()
     expect(screen.getByRole("button", { name: "Print overview" })).toBeDisabled()
-    await user.click(screen.getByRole("button", { name: "Add rooms" }))
+    await user.click(screen.getByRole("button", { name: "Go to the room assignment" }))
     expect(onShowAssignment).toHaveBeenCalledOnce()
   })
 
@@ -204,15 +211,38 @@ describe("RoomsOverview (US-36)", () => {
     expect(screen.queryByText(/warning/)).not.toBeInTheDocument()
   })
 
-  it("goes back to the assignment and prints", async () => {
+  it("prints, and has no button to edit the assignment", async () => {
     const print = vi.spyOn(window, "print").mockImplementation(() => undefined)
     const user = renderOverview()
     await roomCard("Room A")
-    await user.click(screen.getByRole("button", { name: "Edit assignment" }))
-    expect(onShowAssignment).toHaveBeenCalledOnce()
+    expect(screen.queryByRole("button", { name: "Edit assignment" })).not.toBeInTheDocument()
     await user.click(screen.getByRole("button", { name: "Print overview" }))
     expect(print).toHaveBeenCalledOnce()
     print.mockRestore()
+  })
+
+  it("puts the to-evaluate label next to the name, not into the year of birth", async () => {
+    renderOverview()
+    const card = within(await roomCard("Room A"))
+    const label = card.getByText("To evaluate")
+    const name = card.getByText("Eva Horká")
+    expect(label.parentElement).toBe(name.parentElement)
+    expect(label.parentElement).not.toContainElement(card.getByText("b. 2010"))
+  })
+
+  it("makes every room card the same size", async () => {
+    renderOverview()
+    const card = await roomCard("Room A")
+    expect(card.parentElement).toHaveClass("md:auto-rows-fr")
+    expect(card.firstElementChild).toHaveClass("h-full")
+  })
+
+  it("lists who is without a room with gender and status", async () => {
+    renderOverview()
+    const heading = await screen.findByRole("heading", { name: "Confirmed without a room" })
+    expect(
+      within(heading.parentElement!.parentElement!).getByText("Woman · Confirmed"),
+    ).toBeInTheDocument()
   })
 
   describe("print (AC3)", () => {
@@ -221,7 +251,7 @@ describe("RoomsOverview (US-36)", () => {
       await roomCard("Room A")
       const toolbar = screen.getByText("Term picker").parentElement!
       expect(toolbar).toHaveClass("print:hidden")
-      expect(screen.getByText("Rooms").closest("dl")).toHaveClass("print:hidden")
+      expect(summaryList()).toHaveClass("print:hidden")
       // Nothing that is clicked is printed: every button sits inside the hidden toolbar.
       for (const button of screen.getAllByRole("button")) {
         expect(button.closest(".print\\:hidden")).not.toBeNull()
@@ -236,9 +266,14 @@ describe("RoomsOverview (US-36)", () => {
       expect(
         within(area).getByRole("heading", { name: "Summer camp", level: 2 }),
       ).toBeInTheDocument()
-      expect(area.textContent).toMatch(/Accommodation overview · term .*Week 1/)
+      // The basic facts in a row: term, rooms, beds, occupied, free beds.
+      const facts = within(area)
+        .getAllByRole("term")
+        .filter((item) => item.closest(".print\\:flex") !== null)
+        .map((item) => `${item.textContent}: ${item.nextElementSibling?.textContent}`)
+      expect(facts[0]).toMatch(/^Term: .*Week 1$/)
+      expect(facts.slice(1)).toEqual(["Rooms: 2", "Beds: 7", "Occupied: 3", "Free beds: 4"])
       expect(area.textContent).toMatch(/Printed /)
-      expect(area.textContent).toContain("2 rooms · 7 beds · 3 occupied · 4 free beds")
     })
 
     it("keeps a room on one page and in two columns", async () => {
@@ -277,6 +312,5 @@ describe("RoomsOverview (US-36)", () => {
     expect(card.parentElement).toHaveClass("md:grid-cols-2")
     expect(card.parentElement).not.toHaveClass("grid-cols-2")
     expect(screen.getByRole("button", { name: "Print overview" })).toHaveClass("max-sm:w-full")
-    expect(screen.getByRole("button", { name: "Edit assignment" })).toHaveClass("max-sm:w-full")
   })
 })

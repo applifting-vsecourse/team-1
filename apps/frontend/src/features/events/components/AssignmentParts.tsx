@@ -260,7 +260,7 @@ function Chips({
   )
 }
 
-function ExtraBeds({ room }: { room: AssignmentRoom }) {
+export function ExtraBeds({ room }: { room: AssignmentRoom }) {
   const { t } = useTranslation("events")
   return room.extraBeds > 0 ? (
     <Badge variant="info">{t("roomAssignments.extraBeds", { count: room.extraBeds })}</Badge>

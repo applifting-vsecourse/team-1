@@ -172,15 +172,16 @@ describe("accommodation by term", () => {
     expect(within(table).getByText("Extra bed +2")).toBeInTheDocument()
   })
 
-  it("switches between the room assignment and the overview (US-36)", async () => {
+  it("switches between the room assignment and the overview with a select left of the term (US-36)", async () => {
     const { user, onSelectView } = renderRooms("t1")
     await screen.findByRole("table")
-    const assignment = screen.getByRole("radio", { name: "Room assignment" })
-    expect(assignment).toBeChecked()
-    // Pressing the active view again leaves it as it is.
-    await user.click(assignment)
-    expect(onSelectView).not.toHaveBeenCalled()
-    await user.click(screen.getByRole("radio", { name: "Accommodation overview" }))
+    const view = screen.getByRole("combobox", { name: "Accommodation view" })
+    const term = screen.getByRole("combobox", { name: "Term" })
+    expect(view).toHaveTextContent("Room assignment")
+    // The view picker comes first, the term picker after it.
+    expect(view.compareDocumentPosition(term) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    await user.click(view)
+    await user.click(screen.getByRole("option", { name: "Accommodation overview" }))
     expect(onSelectView).toHaveBeenCalledWith("overview")
   })
 
@@ -190,7 +191,9 @@ describe("accommodation by term", () => {
       await screen.findByRole("heading", { name: "Gendered room", level: 3 }),
     ).toBeInTheDocument()
     expect(screen.queryByRole("table")).not.toBeInTheDocument()
-    expect(screen.getByRole("radio", { name: "Accommodation overview" })).toBeChecked()
+    expect(screen.getByRole("combobox", { name: "Accommodation view" })).toHaveTextContent(
+      "Accommodation overview",
+    )
     expect(screen.getByRole("combobox", { name: "Term" })).toBeInTheDocument()
     expect(get).toHaveBeenCalledWith("organizer/events/e1/terms/t1/room-assignments")
   })

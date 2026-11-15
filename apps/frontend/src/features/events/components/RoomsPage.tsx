@@ -20,7 +20,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { notify } from "@/lib/notify"
 import { termDatesLine } from "@/lib/term-label"
 import { cn } from "@/lib/utils"
@@ -189,6 +188,27 @@ export function RoomsPage({
       </Select>
     </div>
   )
+  // The view picker sits left of the term picker, in both views.
+  const selectors = (
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+      <Select
+        value={view}
+        onValueChange={(next) => onSelectView(next === "overview" ? "overview" : "assignment")}
+      >
+        <SelectTrigger
+          aria-label={t("roomOverview.views")}
+          className="w-full bg-card sm:w-60"
+        >
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="assignment">{t("roomOverview.viewAssignment")}</SelectItem>
+          <SelectItem value="overview">{t("roomOverview.viewOverview")}</SelectItem>
+        </SelectContent>
+      </Select>
+      {termSelect}
+    </div>
+  )
   return (
     <div className="flex flex-col gap-6">
       <Seo title={t("rooms.title")} />
@@ -196,28 +216,6 @@ export function RoomsPage({
         title={t("rooms.title")}
         description={view === "assignment" ? t("rooms.description") : undefined}
       />
-      <ToggleGroup
-        type="single"
-        variant="outline"
-        spacing={2}
-        aria-label={t("roomOverview.views")}
-        className="flex-wrap"
-        value={view}
-        onValueChange={(next) => {
-          // Pressing the active chip again must not leave the group empty.
-          if (next === "assignment" || next === "overview") onSelectView(next)
-        }}
-      >
-        {(["assignment", "overview"] as const).map((item) => (
-          <ToggleGroupItem
-            key={item}
-            value={item}
-            className="h-9 rounded-full px-3 data-[state=on]:border-border data-[state=on]:bg-accent data-[state=on]:text-accent-foreground"
-          >
-            {t(item === "assignment" ? "roomOverview.viewAssignment" : "roomOverview.viewOverview")}
-          </ToggleGroupItem>
-        ))}
-      </ToggleGroup>
       {query.isError ? (
         <ErrorState
           title={t("rooms.loadFailed")}
@@ -230,12 +228,12 @@ export function RoomsPage({
       {view === "overview" ? (
         <RoomsOverview
           term={term}
-          termSelect={termSelect}
+          selectors={selectors}
           onShowAssignment={() => onSelectView("assignment")}
         />
       ) : (
         <>
-          {termSelect}
+          {selectors}
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
             <Label htmlFor="room-mode">{t("rooms.mode")}</Label>
             <Select
