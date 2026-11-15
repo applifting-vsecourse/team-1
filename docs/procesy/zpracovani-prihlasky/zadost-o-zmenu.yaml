@@ -1,0 +1,75 @@
+title: Žádost o změnu přihlášky ke schválení
+direction: TD
+
+# Společné pro obě vyhodnocování (D-100, D-134, D-140). Žádost je samostatný objekt, stav přihlášky v termínu mění až schválení,
+# a to jako rozhodnutí organizátora (cancel(), addTerm() ve stavovém diagramu přihlášky v termínu; přidaný termín je Potvrzená s dluhem i v ručním režimu).
+
+nodes:
+  - {
+      id: e_zadost,
+      type: event,
+      label: "Přihlašovatel od data schvalování požadavků účastníků podá žádost o změnu termínů nebo odhlášení",
+    }
+  - { id: g_ceka, type: gateway, kind: x }
+  - {
+      id: e_chyba,
+      type: end,
+      label: "Žádost se nezaloží (chyba CHANGE_REQUEST_PENDING nebo CHANGE_REQUEST_STALE)",
+    }
+  - {
+      id: zalozit,
+      type: task,
+      label: "Založit žádost (stav čeká), upozornit organizátora (zvonek) a poslat přihlašovateli e-mail CHANGE_REQUEST_RECEIVED (po schválení D-140)",
+      role: systém,
+    }
+  - { id: s_ceka, type: state, label: "Žádost o změnu: čeká" }
+  - { id: e_rozhodnuti, type: event, label: Organizátor žádost rozhodne }
+  - { id: g_rozhodnuti, type: gateway, kind: x }
+  - { id: g_plny, type: gateway, kind: x }
+  - {
+      id: e_plny,
+      type: end,
+      label: "Schválení vrací 409 (cílový termín je plný), žádost zůstává čekající",
+    }
+  - {
+      id: provest,
+      type: task,
+      label: "Provést změnu jako rozhodnutí organizátora: odhláška stejným přechodem jako okamžitá, přidaný termín rovnou Potvrzená s dluhem v obou režimech, bez dalšího vyhodnocení (D-134)",
+      role: systém,
+    }
+  - { id: email_zmena, type: task, label: Poslat běžný e-mail o změně přihlášky, role: systém }
+  - { id: s_schvalena, type: end, label: "Žádost o změnu: schválená" }
+  - {
+      id: email_zamitnuti,
+      type: task,
+      label: "Poslat e-mail CHANGE_REQUEST_REJECTED",
+      role: systém,
+    }
+  - { id: s_zamitnuta, type: end, label: "Žádost o změnu: zamítnutá (přihláška beze změny)" }
+  - {
+      id: n_zdravi,
+      type: note,
+      label: "Žádost o změnu zdravotního omezení tento proces nepoužívá: podává se kdykoli (D-122), bez kontroly kapacity a bez e-mailů CHANGE_REQUEST_*; schválení změní jen zdravotní omezení. Zamítnutá žádost není stav Zrušená.",
+    }
+  - {
+      id: n_datum,
+      type: note,
+      label: "Žádost vzniká jen od data schvalování; před ním se změna provede ihned (D-100). Když organizátor schvalování vypne smazáním data, nové žádosti nejdou, osud čekajících je otevřený (Q-PRI-25).",
+    }
+
+flows:
+  - { from: e_zadost, to: g_ceka }
+  - { from: g_ceka, to: e_chyba, label: žádost už čeká nebo je zastaralá }
+  - { from: g_ceka, to: zalozit, label: žádost nečeká a není zastaralá }
+  - { from: zalozit, to: s_ceka }
+  - { from: s_ceka, to: e_rozhodnuti }
+  - { from: e_rozhodnuti, to: g_rozhodnuti }
+  - { from: g_rozhodnuti, to: g_plny, label: schválí }
+  - { from: g_plny, to: e_plny, label: cílový termín je plný }
+  - { from: g_plny, to: provest, label: cílový termín není plný }
+  - { from: provest, to: email_zmena }
+  - { from: email_zmena, to: s_schvalena }
+  - { from: g_rozhodnuti, to: email_zamitnuti, label: zamítne (volitelný důvod) }
+  - { from: email_zamitnuti, to: s_zamitnuta }
+  - { from: n_zdravi, to: e_zadost, dashed: true }
+  - { from: n_datum, to: e_zadost, dashed: true }

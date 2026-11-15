@@ -5,7 +5,7 @@
   },
   "change": {
     "allTerms": "Celá přihláška · všechny termíny ({{count}})",
-    "approvalDescription": "Začalo období storna, proto odesíláte žádost. Původní přihláška a lůžko zůstávají do rozhodnutí beze změny.",
+    "approvalDescription": "Schvalování organizátorem už je zapnuté, proto odesíláte žádost. Původní přihláška a lůžko zůstávají do rozhodnutí beze změny.",
     "approvalTitle": "Žádost schvaluje organizátor",
     "bedAfterApproval": "Lůžko se uvolní až po schválení.",
     "bedCancel": "Lůžko se uvolní ihned.",
@@ -61,6 +61,7 @@
     "errorTitle": "Přihlášku se nepodařilo načíst",
     "health": "Zdravotní omezení",
     "meals": "Stravování",
+    "program": "Program",
     "sections": {
       "terms": "Termíny a platby",
       "transport": "Doprava"

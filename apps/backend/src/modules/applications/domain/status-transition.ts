@@ -21,14 +21,15 @@ const MANUAL_TRANSITIONS: Record<ApplicationTermStatus, ApplicationTermStatus[]>
 }
 
 /**
- * Changes the system makes by itself (actor null), the same table for both evaluation modes:
- * Náhradník → Zrušená on the first day of the term (US-106). Anything else is not the system's
- * to do, so a job that read a waitlisted application a moment ago cannot cancel one an
- * organizer has confirmed meanwhile.
+ * Changes the system makes by itself (actor null): Náhradník → Zrušená on the first day of the
+ * term (US-106) and Náhradník → Potvrzená s dluhem when a bed frees up in the automatic
+ * evaluation mode (US-31; the mode is the caller's to check, the table is the same for both).
+ * Anything else is not the system's to do, so a job that read a waitlisted application a moment
+ * ago cannot cancel one an organizer has confirmed meanwhile.
  */
 const SYSTEM_TRANSITIONS: Record<ApplicationTermStatus, ApplicationTermStatus[]> = {
   TO_EVALUATE: [],
-  WAITLISTED: ["CANCELLED"],
+  WAITLISTED: ["CANCELLED", "CONFIRMED"],
   CONFIRMED: [],
   CANCELLED: [],
 }

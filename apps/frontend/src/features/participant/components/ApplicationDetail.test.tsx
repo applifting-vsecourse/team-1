@@ -301,7 +301,7 @@ describe("ApplicationDetail", () => {
     })
     renderDetail(application(), false)
     await user.click(await screen.findByRole("button", { name: "Change terms" }))
-    expect(screen.getByText("The organiser approves the request")).toBeInTheDocument()
+    expect(screen.getByText("The organizer approves the request")).toBeInTheDocument()
     expect(screen.getByText(/stay unchanged until the decision/)).toBeInTheDocument()
     expect(screen.getByText("Price CZK 4,900 · amount due CZK 4,900")).toBeInTheDocument()
     await user.click(screen.getByRole("button", { name: "Send request" }))

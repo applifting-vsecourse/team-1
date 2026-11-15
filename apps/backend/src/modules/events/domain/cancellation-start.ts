@@ -9,3 +9,16 @@ export function isValidCancellationStart(value: string): boolean {
 export function canChangeImmediately(startsOn: Date | null, today: Date): boolean {
   return startsOn === null || today.getTime() < startsOn.getTime()
 }
+
+/**
+ * Cancellation rules cannot be introduced retroactively: a new or changed start day may not be
+ * before today. Clearing the date and re-saving the unchanged one (even when it has passed
+ * meanwhile) stay allowed. `today` is the Prague calendar day as `yyyy-MM-dd`.
+ */
+export function isCancellationStartAllowed(
+  next: string | null,
+  current: string | null,
+  today: string,
+): boolean {
+  return next === null || next === current || next >= today
+}

@@ -43,7 +43,7 @@ describe("ChangeRequestNotice", () => {
   it("shows a pending cancellation as an alert and a structured card", async () => {
     renderNotice([request()])
 
-    expect(await screen.findByText("Request awaiting the organiser's decision")).toBeInTheDocument()
+    expect(await screen.findByText("Request awaiting the organizer's decision")).toBeInTheDocument()
     expect(screen.getByText(/Until approval, terms, bed and payments do not change/)).toBeVisible()
     expect(screen.getByRole("heading", { name: "Requested cancellation" })).toBeInTheDocument()
     expect(screen.getByText("Request")).toBeInTheDocument()
@@ -77,6 +77,6 @@ describe("ChangeRequestNotice", () => {
 
     expect(await screen.findByText("Declined")).toBeInTheDocument()
     expect(screen.getByText("Reason: Full")).toBeInTheDocument()
-    expect(screen.queryByText("Request awaiting the organiser's decision")).not.toBeInTheDocument()
+    expect(screen.queryByText("Request awaiting the organizer's decision")).not.toBeInTheDocument()
   })
 })
