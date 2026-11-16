@@ -120,8 +120,8 @@
       "reasons": {
         "AMOUNT_NOT_WHOLE": "The amount is not in whole crowns",
         "NO_VARIABLE_SYMBOL": "No variable symbol",
-        "TERM_NOT_PAYABLE": "The term is not confirmed",
-        "UNKNOWN_VARIABLE_SYMBOL": "No application with this variable symbol"
+        "UNKNOWN_VARIABLE_SYMBOL": "No application with this variable symbol",
+        "UNSUPPORTED_CURRENCY": "The currency is not CZK"
       },
       "title": "Payments to assign manually",
       "variableSymbol": "Variable symbol"

@@ -25,6 +25,7 @@ describe("parseBankStatement", () => {
         externalId: "27618911774",
         bookedOn: "2026-05-05",
         amountCents: 690000,
+        currency: "CZK",
         variableSymbol: "12001",
         counterpartyName: "Hana Novotná",
         message: "Záloha kemp",
@@ -33,6 +34,7 @@ describe("parseBankStatement", () => {
         externalId: "27619778154",
         bookedOn: "2026-05-07",
         amountCents: 144350,
+        currency: "CZK",
         variableSymbol: null,
         counterpartyName: "Jan Novák",
         message: null,
@@ -76,9 +78,14 @@ describe("decideMatch", () => {
       { termId: "t2", termNumber: 2, status: "WAITLISTED", owedCzk: 0 },
     ],
   }
-  const row = (variableSymbol: string | null, amountCents: number) => ({
+  const row = (
+    variableSymbol: string | null,
+    amountCents: number,
+    currency: string | null = "CZK",
+  ) => ({
     variableSymbol,
     amountCents,
+    currency,
   })
 
   it("matches a term symbol and reports an overpayment", () => {
@@ -90,6 +97,16 @@ describe("decideMatch", () => {
       overpaidCzk: 0,
     })
     expect(decideMatch(row("12001", 700000), application)).toMatchObject({ overpaidCzk: 100 })
+  })
+
+  it("records money for a term without a debt as an overpayment (D-088)", () => {
+    expect(decideMatch(row("12002", 100000), application)).toEqual({
+      kind: "matched",
+      applicationId: "a1",
+      termId: "t2",
+      amountCzk: 1000,
+      overpaidCzk: 1000,
+    })
   })
 
   it("matches the summary symbol over the confirmed terms", () => {
@@ -106,11 +123,12 @@ describe("decideMatch", () => {
     expect(decideMatch(row("99001", 100000), null)).toMatchObject({
       reason: "UNKNOWN_VARIABLE_SYMBOL",
     })
-    expect(decideMatch(row("12002", 100000), application)).toMatchObject({
-      reason: "TERM_NOT_PAYABLE",
+    expect(decideMatch(row("12005", 100000), application)).toMatchObject({
+      reason: "UNKNOWN_VARIABLE_SYMBOL",
+      applicationId: "a1",
     })
-    expect(decideMatch(row("12003", 100000), application)).toMatchObject({
-      reason: "TERM_NOT_PAYABLE",
+    expect(decideMatch(row("12001", 10000, "EUR"), application)).toMatchObject({
+      reason: "UNSUPPORTED_CURRENCY",
     })
     expect(decideMatch(row("12001", 100050), application)).toMatchObject({
       reason: "AMOUNT_NOT_WHOLE",

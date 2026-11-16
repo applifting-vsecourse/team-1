@@ -59,10 +59,12 @@ export class BankStatementsService {
     }
     // One row after another: two payments of the same application must see each other's balance.
     for (const row of statement.incoming) {
-      if (await this.repository.exists(organizationId, row.externalId)) {
+      const earlier = await this.repository.find(organizationId, row.externalId)
+      if (earlier?.status === "MATCHED") {
         result.duplicateCount++
         continue
       }
+      const retryOf = earlier?.id
       const parsed = row.variableSymbol ? parseVariableSymbol(row.variableSymbol) : null
       const application = parsed
         ? await this.repository.findApplication(eventId, parsed.applicationNumber)
@@ -75,6 +77,7 @@ export class BankStatementsService {
             eventId,
             importedById: user.id,
             row,
+            retryOf,
             reason: decision.reason,
             applicationId: decision.applicationId,
           }))
@@ -102,6 +105,7 @@ export class BankStatementsService {
           eventId,
           importedById: user.id,
           row,
+          retryOf,
           applicationId: decision.applicationId,
           receiptId,
         }))

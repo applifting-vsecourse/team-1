@@ -23,7 +23,7 @@ export class StatementImportResponseDto {
 const REASONS: UnmatchedReason[] = [
   "NO_VARIABLE_SYMBOL",
   "UNKNOWN_VARIABLE_SYMBOL",
-  "TERM_NOT_PAYABLE",
+  "UNSUPPORTED_CURRENCY",
   "AMOUNT_NOT_WHOLE",
 ]
 

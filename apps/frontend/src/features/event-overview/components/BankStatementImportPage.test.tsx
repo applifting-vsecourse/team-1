@@ -32,7 +32,7 @@ const unmatched = {
       variableSymbol: "12002",
       counterpartyName: null,
       message: null,
-      reason: "TERM_NOT_PAYABLE",
+      reason: "UNSUPPORTED_CURRENCY",
       applicationId: "a1",
       applicantName: "Jana Nováková",
     },
@@ -94,7 +94,7 @@ describe("BankStatementImportPage", () => {
     renderPage()
     const row = (await screen.findByText("Hana Novotná")).closest("tr")!
     expect(row).toHaveTextContent("No variable symbol")
-    expect(screen.getByText("The term is not confirmed")).toBeVisible()
+    expect(screen.getByText("The currency is not CZK")).toBeVisible()
     expect(
       screen.getByRole("link", { name: "Detail Jana Nováková" }).getAttribute("href"),
     ).toContain("/organizer/events/e1/applications/a1")

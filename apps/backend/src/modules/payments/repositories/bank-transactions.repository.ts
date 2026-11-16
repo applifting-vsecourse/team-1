@@ -48,42 +48,56 @@ export class BankTransactionsRepository {
     }
   }
 
-  async exists(organizationId: string, externalId: string): Promise<boolean> {
-    const found = await this.prisma.bankTransaction.findUnique({
+  /** An earlier import of the same operation: matched ones are final, unmatched ones may be retried. */
+  async find(
+    organizationId: string,
+    externalId: string,
+  ): Promise<{ id: string; status: "MATCHED" | "UNMATCHED" } | null> {
+    return this.prisma.bankTransaction.findUnique({
       where: { organizationId_externalId: { organizationId, externalId } },
-      select: { id: true },
+      select: { id: true, status: true },
     })
-    return found !== null
   }
 
-  /** @returns false when the same transaction was stored meanwhile (a parallel upload). */
+  /**
+   * Stores the transaction; with `retryOf` the earlier unmatched import is replaced, e.g. when the
+   * statement of two events is uploaded to the other event next.
+   * @returns false when it was stored (or matched) meanwhile by a parallel upload.
+   */
   async save(input: {
     organizationId: string
     eventId: string
     importedById: string
     row: StatementRow
+    retryOf?: string
     applicationId?: string
     receiptId?: string
     reason?: UnmatchedReason
   }): Promise<boolean> {
     const { row } = input
+    const data = {
+      eventId: input.eventId,
+      importedById: input.importedById,
+      bookedOn: new Date(`${row.bookedOn}T00:00:00.000Z`),
+      amountCents: row.amountCents,
+      variableSymbol: row.variableSymbol,
+      counterpartyName: row.counterpartyName,
+      message: row.message,
+      status: input.reason ? ("UNMATCHED" as const) : ("MATCHED" as const),
+      reason: input.reason ?? null,
+      receiptId: input.receiptId ?? null,
+      applicationId: input.applicationId ?? null,
+    }
+    if (input.retryOf) {
+      const result = await this.prisma.bankTransaction.updateMany({
+        where: { id: input.retryOf, status: "UNMATCHED" },
+        data,
+      })
+      return result.count === 1
+    }
     try {
       await this.prisma.bankTransaction.create({
-        data: {
-          organizationId: input.organizationId,
-          eventId: input.eventId,
-          importedById: input.importedById,
-          externalId: row.externalId,
-          bookedOn: new Date(`${row.bookedOn}T00:00:00.000Z`),
-          amountCents: row.amountCents,
-          variableSymbol: row.variableSymbol,
-          counterpartyName: row.counterpartyName,
-          message: row.message,
-          status: input.reason ? "UNMATCHED" : "MATCHED",
-          reason: input.reason,
-          receiptId: input.receiptId,
-          applicationId: input.applicationId,
-        },
+        data: { ...data, organizationId: input.organizationId, externalId: row.externalId },
       })
       return true
     } catch (error) {

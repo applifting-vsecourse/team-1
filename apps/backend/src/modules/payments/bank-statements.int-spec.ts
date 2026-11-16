@@ -30,12 +30,12 @@ describe("bank statement import (US-42)", () => {
       body: csv,
     })
 
-  const statement = (id: string, rows: [amount: number, vs: string][]): string =>
+  const statement = (id: string, rows: [amount: number, vs: string, currency?: string][]): string =>
     [
       "ID operace;Datum;Objem;Měna;Protiúčet;Název protiúčtu;Kód banky;Název banky;KS;VS;SS;Poznámka;Zpráva pro příjemce;Typ",
       ...rows.map(
-        ([amount, vs], index) =>
-          `${id}${index};05.05.2026;${amount};CZK;1;Test Payer;800;CS;;${vs};;;;Platba`,
+        ([amount, vs, currency = "CZK"], index) =>
+          `${id}${index};05.05.2026;${amount};${currency};1;Test Payer;800;CS;;${vs};;;;Platba`,
       ),
     ].join("\r\n")
 
@@ -93,15 +93,16 @@ describe("bank statement import (US-42)", () => {
       [100, String(waitlistedVs)],
       [200, ""],
       [300, "9999999001"],
+      [400, String(vs), "EUR"],
       [-50, String(vs)],
     ])
     const response = await upload(csv)
     expect(response.status).toBe(200)
     expect(await response.json()).toMatchObject({
-      matchedCount: 1,
-      matchedCzk: 7000,
-      overpaidCount: 1,
-      overpaidCzk: 100,
+      matchedCount: 2,
+      matchedCzk: 7100,
+      overpaidCount: 2,
+      overpaidCzk: 200,
       unmatchedCount: 3,
       duplicateCount: 0,
       ignoredCount: 1,
@@ -110,9 +111,15 @@ describe("bank statement import (US-42)", () => {
       where: { applicationTerm: { application: { number: numbers.first } } },
     })
     expect(rows).toMatchObject([{ amountCzk: 7000, source: "BANK_IMPORT" }])
+    // D-088: money for a term without a debt stays with its application as an overpayment.
+    expect(
+      await prisma.payment.count({
+        where: { applicationTerm: { application: { number: numbers.second } }, amountCzk: 100 },
+      }),
+    ).toBe(1)
 
     const again = (await (await upload(csv)).json()) as ImportResult
-    expect(again).toMatchObject({ matchedCount: 0, unmatchedCount: 0, duplicateCount: 4 })
+    expect(again).toMatchObject({ matchedCount: 0, unmatchedCount: 3, duplicateCount: 2 })
     expect(
       await prisma.payment.count({
         where: { applicationTerm: { application: { number: numbers.first } } },
@@ -126,8 +133,8 @@ describe("bank statement import (US-42)", () => {
     ).json()) as { transactions: { reason: string }[] }
     expect(unmatched.transactions.map((row) => row.reason).sort()).toEqual([
       "NO_VARIABLE_SYMBOL",
-      "TERM_NOT_PAYABLE",
       "UNKNOWN_VARIABLE_SYMBOL",
+      "UNSUPPORTED_CURRENCY",
     ])
   })
 

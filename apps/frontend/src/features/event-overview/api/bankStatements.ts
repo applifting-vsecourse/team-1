@@ -18,7 +18,7 @@ export type StatementImportResult = z.infer<typeof importResultSchema>
 export const UNMATCHED_REASONS = [
   "NO_VARIABLE_SYMBOL",
   "UNKNOWN_VARIABLE_SYMBOL",
-  "TERM_NOT_PAYABLE",
+  "UNSUPPORTED_CURRENCY",
   "AMOUNT_NOT_WHOLE",
 ] as const
 

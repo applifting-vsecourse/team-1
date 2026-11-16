@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto"
+import { computePayableAmount } from "@/modules/applications/domain/pricing"
 import { parseVariableSymbol } from "@/modules/applications/domain/variable-symbol"
 
 /**
@@ -13,6 +14,8 @@ export type StatementRow = {
   bookedOn: string
   /** Hundredths of CZK; negative = outgoing. */
   amountCents: number
+  /** Currency code of the statement row; null when the format has no such column. */
+  currency: string | null
   variableSymbol: string | null
   counterpartyName: string | null
   message: string | null
@@ -25,11 +28,15 @@ export type ParsedStatement = {
   ignoredCount: number
 }
 
+/** The upload limit of the endpoint; the parser refuses more, so loops over the text stay bounded. */
+export const MAX_STATEMENT_CHARS = 2_000_000
+
 export class InvalidStatementError extends Error {}
 
 const FIELD_ALIASES: Record<string, string[]> = {
   id: ["id operace", "id", "id transakce"],
   date: ["datum", "date", "datum zaúčtování"],
+  currency: ["měna", "mena", "currency"],
   amount: ["objem", "částka", "castka", "amount", "suma"],
   variableSymbol: ["vs", "variabilní symbol", "variabilni symbol", "variablesymbol"],
   name: ["název protiúčtu", "nazev protiuctu", "name", "jméno"],
@@ -44,7 +51,8 @@ export function splitCsv(text: string, delimiter: string): string[][] {
   let row: string[] = []
   let field = ""
   let quoted = false
-  for (let i = 0; i < text.length; i++) {
+  const length = Math.min(text.length, MAX_STATEMENT_CHARS)
+  for (let i = 0; i < length; i++) {
     const char = text[i]
     if (quoted) {
       if (char === '"' && text[i + 1] === '"') {
@@ -105,6 +113,7 @@ export function parseStatementDate(value: string): string | null {
 }
 
 export function parseBankStatement(input: string): ParsedStatement {
+  if (input.length > MAX_STATEMENT_CHARS) throw new InvalidStatementError("Statement too large")
   const text = input.replace(/^\uFEFF/, "")
   const rows = splitCsv(text, detectDelimiter(text))
   // The Fio export has an info preamble above the header; find the first row that has the columns.
@@ -144,6 +153,7 @@ export function parseBankStatement(input: string): ParsedStatement {
       ignoredCount++
       continue
     }
+    const currency = cell("currency").toUpperCase() || null
     const variableSymbol = cell("variableSymbol") || null
     const counterpartyName = cell("name") || null
     const message = cell("message") || null
@@ -158,13 +168,21 @@ export function parseBankStatement(input: string): ParsedStatement {
       seenHashes.set(hash, occurrence)
       externalId = `gen-${hash}-${occurrence}`
     }
-    incoming.push({ externalId, bookedOn, amountCents, variableSymbol, counterpartyName, message })
+    incoming.push({
+      externalId,
+      bookedOn,
+      amountCents,
+      currency,
+      variableSymbol,
+      counterpartyName,
+      message,
+    })
   }
   return { incoming, ignoredCount }
 }
 
 export type UnmatchedReason =
-  "NO_VARIABLE_SYMBOL" | "UNKNOWN_VARIABLE_SYMBOL" | "TERM_NOT_PAYABLE" | "AMOUNT_NOT_WHOLE"
+  "NO_VARIABLE_SYMBOL" | "UNKNOWN_VARIABLE_SYMBOL" | "UNSUPPORTED_CURRENCY" | "AMOUNT_NOT_WHOLE"
 
 /** What matching needs to know about the application a variable symbol points to. */
 export type MatchableApplication = {
@@ -189,9 +207,12 @@ export type MatchDecision =
  * inside the variable symbol (the repository restricts it to the event).
  */
 export function decideMatch(
-  row: Pick<StatementRow, "variableSymbol" | "amountCents">,
+  row: Pick<StatementRow, "variableSymbol" | "amountCents" | "currency">,
   application: MatchableApplication | null,
 ): MatchDecision {
+  // Amounts are whole CZK everywhere; a foreign currency is never taken at its nominal value.
+  if (row.currency !== null && row.currency !== "CZK")
+    return { kind: "unmatched", reason: "UNSUPPORTED_CURRENCY", applicationId: application?.id }
   if (!row.variableSymbol) return { kind: "unmatched", reason: "NO_VARIABLE_SYMBOL" }
   if (!application) return { kind: "unmatched", reason: "UNKNOWN_VARIABLE_SYMBOL" }
   const parsed = parseVariableSymbol(row.variableSymbol)
@@ -199,11 +220,10 @@ export function decideMatch(
   if (row.amountCents % 100 !== 0)
     return { kind: "unmatched", reason: "AMOUNT_NOT_WHOLE", applicationId: application.id }
   const amountCzk = row.amountCents / 100
-  const confirmed = application.terms.filter((term) => term.status === "CONFIRMED")
+  // D-088: money for a term without a debt (substitute, cancelled, paid) is an overpayment of that
+  // application in the term, nothing is refused. So any term of the application can be paid.
   if (parsed.termNumber === null) {
-    if (!confirmed.length)
-      return { kind: "unmatched", reason: "TERM_NOT_PAYABLE", applicationId: application.id }
-    const payable = confirmed.reduce((sum, term) => sum + Math.max(term.owedCzk, 0), 0)
+    const payable = computePayableAmount(application.terms.map((term) => term.owedCzk))
     return {
       kind: "matched",
       applicationId: application.id,
@@ -211,8 +231,9 @@ export function decideMatch(
       overpaidCzk: Math.max(amountCzk - payable, 0),
     }
   }
-  const term = confirmed.find((candidate) => candidate.termNumber === parsed.termNumber)
-  if (!term) return { kind: "unmatched", reason: "TERM_NOT_PAYABLE", applicationId: application.id }
+  const term = application.terms.find((candidate) => candidate.termNumber === parsed.termNumber)
+  if (!term)
+    return { kind: "unmatched", reason: "UNKNOWN_VARIABLE_SYMBOL", applicationId: application.id }
   return {
     kind: "matched",
     applicationId: application.id,
