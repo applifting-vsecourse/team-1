@@ -4,8 +4,13 @@ import { useTranslation } from "react-i18next"
 import { EmptyState } from "@/components/molecules/EmptyState"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
+import { Pagination } from "@/components/molecules/Pagination"
+import { usePagination } from "@/hooks/usePagination"
 
-import { myApplicationsQueryOptions } from "@/features/participant/api/applications"
+import {
+  myApplicationsQueryOptions,
+  type MyApplication,
+} from "@/features/participant/api/applications"
 import { ApplicationCard } from "@/features/participant/components/ApplicationCard"
 
 /** All applications under the signed-in account — loading, empty and error are all drawn here (DESIGN.md). */
@@ -26,13 +31,24 @@ export function ApplicationList() {
   }
   if (data.length === 0) return <EmptyState message={t("list.empty")} />
 
+  return <Applications applications={data} />
+}
+
+function Applications({ applications }: { applications: MyApplication[] }) {
+  const { pageItems, ...pagination } = usePagination(applications)
   return (
-    <ul className="flex flex-col gap-6">
-      {data.map((application) => (
-        <li key={application.id}>
-          <ApplicationCard application={application} />
-        </li>
-      ))}
-    </ul>
+    <div className="flex flex-col gap-6">
+      <ul className="flex flex-col gap-6">
+        {pageItems.map((application) => (
+          <li key={application.id}>
+            <ApplicationCard application={application} />
+          </li>
+        ))}
+      </ul>
+      <Pagination
+        {...pagination}
+        onPageChange={pagination.setPage}
+      />
+    </div>
   )
 }

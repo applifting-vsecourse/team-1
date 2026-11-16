@@ -1,6 +1,14 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { Prisma } from "@/generated/prisma/client"
-import { RoomGenderAssignment, RoomInput, RoomMode, TermRooms } from "@/modules/events/domain/rooms"
+import { computeRoomBeds } from "@/modules/applications/domain/capacity"
+import {
+  RoomCopyStrategy,
+  RoomGenderAssignment,
+  RoomInput,
+  RoomMode,
+  TermRooms,
+} from "@/modules/events/domain/rooms"
+import { pruneAcknowledgements } from "@/modules/events/repositories/room-warnings.queries"
 import { AppException } from "@/shared/errors/app.exception"
 import { HttpStatus, Injectable } from "@nestjs/common"
 
@@ -28,7 +36,14 @@ export class RoomsRepository {
       startsOn: term.startsOn.toISOString().slice(0, 10),
       endsOn: term.endsOn.toISOString().slice(0, 10),
       roomMode: term.roomMode,
-      rooms: term.rooms.map(({ id, name, capacity, gender }) => ({ id, name, capacity, gender })),
+      rooms: term.rooms.map(({ id, name, capacity, extraBeds, gender }) => ({
+        id,
+        name,
+        capacity,
+        extraBeds,
+        beds: computeRoomBeds({ capacity, extraBeds }),
+        gender,
+      })),
     }
   }
 
@@ -41,7 +56,9 @@ export class RoomsRepository {
       await tx.$queryRaw`SELECT id FROM event WHERE id = ${eventId} AND "organizationId" = ${organizationId} FOR UPDATE`
       const term = await tx.term.findFirst({ where: { id: termId, eventId, organizationId } })
       if (!term) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
-      return action(tx, term.roomMode)
+      const result = await action(tx, term.roomMode)
+      await pruneAcknowledgements(tx, { termId, organizationId })
+      return result
     })
   }
 
@@ -96,11 +113,67 @@ export class RoomsRepository {
     })
   }
 
+  /** Sets the number of extra beds of a room; under the event lock like every room write. Never blocked by occupancy. */
+  async setExtraBeds(scope: TermScope, id: string, extraBeds: number): Promise<void> {
+    const { termId, organizationId } = scope
+    await this.write(scope, async (tx) => {
+      const result = await tx.room.updateMany({
+        where: { id, termId, organizationId },
+        data: { extraBeds },
+      })
+      if (!result.count) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
+    })
+  }
+
   async remove(scope: TermScope, id: string): Promise<void> {
     const { termId, organizationId } = scope
     await this.write(scope, async (tx) => {
       const result = await tx.room.deleteMany({ where: { id, termId, organizationId } })
       if (!result.count) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
+    })
+  }
+
+  /**
+   * One-off copy of name, capacity and gender (not the extra beds, they belong to the term) from another term of the same event; the copies are
+   * independent rows. Terms with different room modes cannot be copied: a gendered room needs a gender.
+   */
+  async copy(scope: TermScope, sourceTermId: string, strategy: RoomCopyStrategy): Promise<void> {
+    const { eventId, termId, organizationId } = scope
+    await this.write(scope, async (tx, mode) => {
+      const source = await tx.term.findFirst({
+        where: { id: sourceTermId, eventId, organizationId },
+        include: { rooms: { orderBy: [{ createdAt: "asc" }, { id: "asc" }] } },
+      })
+      if (!source) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
+      if (source.id === termId || source.roomMode !== mode || !source.rooms.length) {
+        throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
+      }
+      if (strategy === "REPLACE") await tx.room.deleteMany({ where: { termId, organizationId } })
+      else {
+        const taken = new Set(
+          (await tx.room.findMany({ where: { termId, organizationId } })).map((room) =>
+            room.name.toLowerCase(),
+          ),
+        )
+        const colliding = source.rooms.filter((room) => taken.has(room.name.toLowerCase()))
+        if (colliding.length) {
+          throw new AppException(
+            HttpStatus.CONFLICT,
+            "ROOM_COPY_NAMES_TAKEN",
+            "Rooms with these names already exist in the term",
+            { names: colliding.map((room) => room.name).join(", ") },
+          )
+        }
+      }
+      await tx.room.createMany({
+        data: source.rooms.map(({ name, capacity, gender }) => ({
+          name,
+          capacity,
+          gender,
+          termId,
+          organizationId,
+        })),
+      })
     })
   }
 }

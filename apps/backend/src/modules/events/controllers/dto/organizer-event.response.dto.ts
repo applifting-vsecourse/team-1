@@ -43,6 +43,9 @@ export class OrganizerEventResponseDto {
   @ApiProperty({ example: "Letní kemp z. s." })
   organizationName!: string
 
+  @ApiProperty({ type: String, nullable: true })
+  organizationContactEmail!: string | null
+
   @ApiProperty({ example: "Letní kemp 2027" })
   name!: string
 
@@ -99,10 +102,19 @@ export class OrganizerEventResponseDto {
   @ApiProperty({ type: String, nullable: true, example: "2027-07-01" })
   cancellationStartsOn!: string | null
 
+  @ApiProperty({ type: String, nullable: true, description: "Cancellation terms (US-47)." })
+  cancellationTerms!: string | null
+
   @ApiProperty({
     description: "Applications are open, so the evaluation mode can no longer change.",
   })
   evaluationModeLocked!: boolean
+
+  @ApiProperty({
+    description:
+      "At least one application exists, so the event cannot be deleted (the server still checks on delete).",
+  })
+  hasApplications!: boolean
 
   @ApiProperty({ description: "The application link works; otherwise the public page is a 404." })
   applicationsOpen!: boolean
@@ -125,6 +137,7 @@ export class OrganizerEventResponseDto {
       id: event.id,
       organizationId: event.organizationId,
       organizationName: event.organizationName,
+      organizationContactEmail: event.organizationContactEmail,
       name: event.name,
       description: event.description,
       location: event.location,
@@ -141,7 +154,9 @@ export class OrganizerEventResponseDto {
       missing: event.missing,
       evaluationMode: event.evaluationMode,
       cancellationStartsOn: event.cancellationStartsOn,
+      cancellationTerms: event.cancellationTerms,
       evaluationModeLocked: event.evaluationModeLocked,
+      hasApplications: event.applicationCount > 0,
       terms: event.terms.map((term) => EventTermSummaryDto.fromDomain(term)),
     }
   }

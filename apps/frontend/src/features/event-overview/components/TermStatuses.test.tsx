@@ -36,6 +36,29 @@ beforeEach(() => {
 })
 
 describe("TermStatuses", () => {
+  it("shows that an organizer created the application", async () => {
+    get.mockReturnValue({
+      json: () =>
+        Promise.resolve([
+          term({
+            history: [
+              {
+                id: "c0",
+                kind: "CREATED_BY_ORGANIZER",
+                fromStatus: "WAITLISTED",
+                toStatus: "WAITLISTED",
+                changedByName: "Eva",
+                changedAt: "2027-03-10T12:00:00Z",
+              },
+            ],
+          }),
+        ]),
+    })
+    setup()
+
+    expect(await screen.findByText(/Added by organiser · Eva/)).toBeInTheDocument()
+  })
+
   it("offers only the changes the server allows and shows the log", async () => {
     get.mockReturnValue({
       json: () =>
@@ -46,6 +69,7 @@ describe("TermStatuses", () => {
             history: [
               {
                 id: "c1",
+                kind: "STATUS_CHANGED",
                 fromStatus: "CONFIRMED",
                 toStatus: "CANCELLED",
                 changedByName: "Eva",
@@ -94,5 +118,22 @@ describe("TermStatuses", () => {
     expect(patch).toHaveBeenLastCalledWith("organizer/applications/a1/terms/t1/status", {
       json: { status: "CONFIRMED", confirmOverCapacity: true },
     })
+  })
+
+  it("withdraws a confirmed or waitlisted term instead of cancelling it, and offers the whole application from two terms", async () => {
+    get.mockReturnValue({
+      json: () =>
+        Promise.resolve([
+          term({ status: "CONFIRMED", allowedStatuses: ["WAITLISTED", "CANCELLED"] }),
+          term({ termId: "t2", status: "WAITLISTED", allowedStatuses: ["CONFIRMED", "CANCELLED"] }),
+        ]),
+    })
+    setup()
+
+    expect(await screen.findAllByRole("button", { name: "Withdraw" })).toHaveLength(2)
+    expect(screen.getByRole("button", { name: "Withdraw the whole application" })).toBeVisible()
+    // A confirmed and a waitlisted term are both left through the withdrawal.
+    expect(screen.getAllByRole("button", { name: "Withdraw" })).toHaveLength(2)
+    expect(screen.queryByRole("button", { name: "Cancel in term" })).not.toBeInTheDocument()
   })
 })

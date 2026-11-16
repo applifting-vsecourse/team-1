@@ -1,6 +1,8 @@
 import { ChangeRequest } from "@/modules/applications/domain/change-request"
 import { ChangeRequestRepository } from "@/modules/applications/repositories/change-request.repository"
 import { TermStatusRepository } from "@/modules/applications/repositories/term-status.repository"
+import { TermStatusService } from "@/modules/applications/services/term-status.service"
+import { decideHealth, HealthInput } from "@/modules/health/domain/health"
 import { ApplicationConfirmationMailer } from "@/modules/participants/services/application-confirmation-mailer.service"
 import { Identity } from "@/shared/auth/domain/identity"
 import { AppException } from "@/shared/errors/app.exception"
@@ -14,6 +16,7 @@ export class ChangeRequestService {
     private readonly terms: TermStatusRepository,
     private readonly access: OrganizationAccessService,
     private readonly mailer: ApplicationConfirmationMailer,
+    private readonly statuses: TermStatusService,
   ) {}
 
   async submit(user: Identity, applicationId: string, termIds: string[]): Promise<ChangeRequest> {
@@ -53,8 +56,21 @@ export class ChangeRequestService {
     return request
   }
 
+  /** US-68: a request to change health data that is already filled in. */
+  async submitHealth(
+    user: Identity,
+    applicationId: string,
+    input: HealthInput,
+  ): Promise<ChangeRequest> {
+    return this.requests.createHealth(user.id, applicationId, decideHealth(input))
+  }
+
   async approve(user: Identity, eventId: string, requestId: string): Promise<void> {
     const request = await this.forOrganizer(user, eventId, requestId)
+    if (request.kind === "HEALTH") {
+      const { organizationId } = await this.access.assertCanAccessEvent(user, eventId)
+      return this.requests.approveHealth(organizationId, eventId, requestId, user.id)
+    }
     const changed = await this.terms.changeParticipantTerms(
       request.applicantId,
       request.applicationId,
@@ -63,6 +79,8 @@ export class ChangeRequestService {
     )
     if (!changed) throw new AppException(HttpStatus.CONFLICT, "CHANGE_REQUEST_STALE")
     await this.mailer.sendApplicationChange(changed)
+    // The approved change may give up a confirmed bed (US-31).
+    await this.statuses.fillFreedBeds(changed.freedBeds)
   }
 
   async reject(user: Identity, eventId: string, requestId: string, reason: string): Promise<void> {
@@ -74,6 +92,7 @@ export class ChangeRequestService {
       user.id,
       reason.trim(),
     )
+    if (request.kind === "HEALTH") return
     await this.mailer.sendChangeRequestStatus(request.email, {
       locale: request.locale,
       status: "REJECTED",

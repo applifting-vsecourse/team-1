@@ -8,11 +8,12 @@ import {
 import { sortTerms } from "@/modules/events/domain/event-term"
 import { NewEvent, StoredEvent } from "@/modules/events/domain/organizer-event"
 import { PhotoContentType, PublicPageInput } from "@/modules/events/domain/public-page"
+import { DEFAULT_MEAL_OPTION_NAMES } from "@/modules/meals/domain/meals"
 import { AppException } from "@/shared/errors/app.exception"
 import { HttpStatus, Injectable } from "@nestjs/common"
 
 const include = {
-  organization: { select: { name: true } },
+  organization: { select: { name: true, contactEmail: true } },
   terms: {
     where: { cancelledAt: null },
     select: {
@@ -21,7 +22,7 @@ const include = {
       startsOn: true,
       endsOn: true,
       roomMode: true,
-      rooms: { select: { capacity: true, gender: true } },
+      rooms: { select: { capacity: true, extraBeds: true, gender: true } },
       _count: { select: { applicationTerms: { where: { status: "CONFIRMED" } } } },
     },
   },
@@ -50,6 +51,7 @@ function toStored(row: EventRow): StoredEvent {
     id: row.id,
     organizationId: row.organizationId,
     organizationName: row.organization.name,
+    organizationContactEmail: row.organization.contactEmail,
     name: row.name,
     description: row.description,
     location: row.location,
@@ -64,6 +66,7 @@ function toStored(row: EventRow): StoredEvent {
     applicationCount: row._count.applications,
     evaluationMode: row.evaluationMode,
     cancellationStartsOn: row.cancellationStartsOn ? isoDate(row.cancellationStartsOn) : null,
+    cancellationTerms: row.cancellationTerms,
     startsOn: starts[0] ?? null,
     endsOn: ends[ends.length - 1] ?? null,
     terms: sortTerms(terms),
@@ -73,6 +76,14 @@ function toStored(row: EventRow): StoredEvent {
 @Injectable()
 export class EventsRepository {
   constructor(private readonly prisma: PrismaService) {}
+
+  async hasBankAccount(organizationId: string): Promise<boolean> {
+    const organization = await this.prisma.organization.findUnique({
+      where: { id: organizationId },
+      select: { bankAccount: true },
+    })
+    return Boolean(organization?.bankAccount)
+  }
 
   async findById(id: string): Promise<StoredEvent | null> {
     const row = await this.prisma.event.findUnique({ where: { id }, include })
@@ -89,7 +100,20 @@ export class EventsRepository {
   }
 
   async create(event: NewEvent): Promise<StoredEvent> {
-    const row = await this.prisma.event.create({ data: event, include })
+    const row = await this.prisma.event.create({
+      data: {
+        ...event,
+        // A new event offers the usual meal restrictions; the organizer can change the list (US-64).
+        mealOptions: {
+          create: DEFAULT_MEAL_OPTION_NAMES.map((name, position) => ({
+            organizationId: event.organizationId,
+            name,
+            position,
+          })),
+        },
+      },
+      include,
+    })
     return toStored(row)
   }
 
@@ -114,6 +138,18 @@ export class EventsRepository {
           ? new Date(`${cancellationStartsOn}T00:00:00.000Z`)
           : null,
       },
+    })
+    if (count !== 1) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
+  }
+
+  async setCancellationTerms(
+    id: string,
+    organizationId: string,
+    cancellationTerms: string,
+  ): Promise<void> {
+    const { count } = await this.prisma.event.updateMany({
+      where: { id, organizationId },
+      data: { cancellationTerms },
     })
     if (count !== 1) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
   }

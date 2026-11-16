@@ -27,6 +27,8 @@ export type StoredEvent = {
   id: string
   organizationId: string
   organizationName: string
+  /** Contact e-mail of the organization; the public page form offers it until the event has its own. */
+  organizationContactEmail: string | null
   name: string
   description: string | null
   location: string | null
@@ -45,6 +47,8 @@ export type StoredEvent = {
   evaluationMode: EvaluationMode
   /** First day when cancellation rules apply; null means changes happen immediately. */
   cancellationStartsOn: string | null
+  /** Free text shown to applicants (US-47); null until the organizer writes it. */
+  cancellationTerms: string | null
   /** ISO dates, `2027-07-04`: first term start and last term end; null without terms. */
   startsOn: string | null
   endsOn: string | null

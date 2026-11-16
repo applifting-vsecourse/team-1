@@ -24,7 +24,9 @@ Goal: tell the tester (usually the product manager) what **actually works** vers
    - Board column is not always readable via `gh`; say so instead of guessing.
 5. **Decide what can be tested and how.** Separate: (a) end-to-end through the UI - possible only if the whole chain exists; (b) isolated - integration/e2e specs and seed data that create the state directly. Name the spec files.
 6. **Report.** Short and scannable; the tester must not wade through text.
-   - First line: one-sentence verdict (exists / partly / missing) with PR number and state.
+   - Header: ticket title with a link to the issue (full URL, e.g. from `gh issue view N --json url`), plus links to the PR(s).
+   - Then 2-3 sentences in plain business language: what the ticket is supposed to do for the user/organizer (the goal and the visible result, not implementation or file names).
+   - First line of the verdict: one-sentence verdict (exists / partly / missing) with PR number and state.
    - Things in ideal state: one line each with ✅ and a few words (e.g. "design sedí ✅"). No evidence paragraphs, no file lists.
    - Then **only what is missing, broken or unverified**, each one line: ❓ not verified, ⚠️ inconsistency or open item (registers, Figma deviations, unticked criteria/checklist), ❌ missing. Say what exactly and why it matters.
    - **Test now:** 3-5 short steps for what can be tried today; name what cannot be tested.

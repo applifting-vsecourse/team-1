@@ -33,6 +33,7 @@
     "WAITLISTED": "Náhradník"
   },
   "title": {
+    "APPLICATION_EDITED": "Přihlašovatel upravil přihlášku",
     "CANCELLED": "Odhlášení bylo potvrzeno",
     "CANCELLED_BY_ORGANIZER": "Přihlášku zrušil organizátor",
     "CONFIRMED": "Přihláška byla potvrzena",

@@ -241,7 +241,8 @@ export async function seedSprintDemo(
     publicPage: {
       contactEmail: "kemp@example.com",
       contactPhone: "+420 777 000 001",
-      photoFileName: "letni-kemp-2027.png",
+      photoFileName: "letni-kemp-2027.jpg",
+      photo: "campfire",
     },
     terms: [
       { name: "1. týden", startsOn: "2027-07-04", endsOn: "2027-07-10", priceCzk: 4500 },

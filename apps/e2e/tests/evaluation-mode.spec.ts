@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test"
 import { ORGANIZER } from "./support/accounts"
-import { signIn } from "./support/auth"
+import { openEventList, signIn } from "./support/auth"
 import { createEventWithTerm } from "./support/event-setup"
 
 const sections = (page: import("@playwright/test").Page) =>
@@ -27,6 +27,7 @@ test.describe("Evaluation mode", () => {
     page,
   }) => {
     await signIn(page, "organizer", ORGANIZER)
+    await openEventList(page)
     await page.getByRole("link", { name: /Letní kemp 2027(?! – demo)/ }).click()
 
     await sections(page).getByRole("link", { name: "Settings" }).click()

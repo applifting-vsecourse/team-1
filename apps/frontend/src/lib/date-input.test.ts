@@ -2,10 +2,15 @@ import { describe, expect, it } from "vitest"
 
 import {
   formatDateInput,
+  formatDateTimeInput,
   isIsoDate,
   isoToLocalDate,
   localDateToIso,
   parseDateInput,
+  parseDateTimeInput,
+  parseTimeInput,
+  splitDateTime,
+  todayIsoInAppZone,
 } from "@/lib/date-input"
 
 describe("parseDateInput", () => {
@@ -110,5 +115,59 @@ describe("local days", () => {
 
   it("has no date for something that is not an ISO day", () => {
     expect(isoToLocalDate("18.")).toBeUndefined()
+  })
+})
+
+describe("time of day", () => {
+  it("reads a time with a separator, four digits or a bare hour", () => {
+    expect(parseTimeInput("8:30")).toBe("08:30")
+    expect(parseTimeInput("08:30")).toBe("08:30")
+    expect(parseTimeInput("8.30")).toBe("08:30")
+    expect(parseTimeInput("0830")).toBe("08:30")
+    expect(parseTimeInput("8")).toBe("08:00")
+  })
+
+  it("rejects a time that does not exist", () => {
+    expect(parseTimeInput("24:00")).toBeNull()
+    expect(parseTimeInput("8:60")).toBeNull()
+    expect(parseTimeInput("soon")).toBeNull()
+  })
+})
+
+describe("date with a time", () => {
+  it("reads the Czech and the English form", () => {
+    expect(parseDateTimeInput("12. 7. 2027 8:30")).toBe("2027-07-12T08:30")
+    expect(parseDateTimeInput("12.7.2027 8.30")).toBe("2027-07-12T08:30")
+    expect(parseDateTimeInput("12/07/2027 08:30")).toBe("2027-07-12T08:30")
+    expect(parseDateTimeInput("12072027 0830")).toBe("2027-07-12T08:30")
+    expect(parseDateTimeInput("2027-07-12T08:30")).toBe("2027-07-12T08:30")
+  })
+
+  it("is null without a time, with a bad day or with a bad time", () => {
+    expect(parseDateTimeInput("12. 7. 2027")).toBeNull()
+    expect(parseDateTimeInput("12/07/2027")).toBeNull()
+    expect(parseDateTimeInput("31/02/2027 08:30")).toBeNull()
+    expect(parseDateTimeInput("12/07/2027 25:00")).toBeNull()
+  })
+
+  it("shows a value in the language of the app", () => {
+    expect(formatDateTimeInput("2027-07-12T08:30", "cs")).toBe("12. 7. 2027 8:30")
+    expect(formatDateTimeInput("2027-07-12T08:30", "en")).toBe("12/07/2027 08:30")
+    expect(formatDateTimeInput("typed text", "en")).toBe("typed text")
+  })
+
+  it("splits a value into the day and the time", () => {
+    expect(splitDateTime("2027-07-12T08:30")).toEqual({ date: "2027-07-12", time: "08:30" })
+    expect(splitDateTime("2027-07-12")).toEqual({ date: "2027-07-12", time: "" })
+  })
+})
+
+describe("todayIsoInAppZone", () => {
+  it("uses the Prague calendar day, not UTC", () => {
+    // 23:30 UTC on 30 Jun is already 1 Jul in Prague (CEST, UTC+2).
+    expect(todayIsoInAppZone(new Date("2027-06-30T23:30:00Z"))).toBe("2027-07-01")
+    // 23:30 UTC on 31 Dec is already 1 Jan in Prague (CET, UTC+1).
+    expect(todayIsoInAppZone(new Date("2027-12-31T23:30:00Z"))).toBe("2028-01-01")
+    expect(todayIsoInAppZone(new Date("2027-07-01T10:00:00Z"))).toBe("2027-07-01")
   })
 })

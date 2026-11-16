@@ -1,3 +1,4 @@
+import { computeRoomBeds } from "@/modules/applications/domain/capacity"
 import { EventCapacityDetails, TermCapacity } from "@/modules/applications/domain/event-capacity"
 import { ApiProperty } from "@nestjs/swagger"
 
@@ -18,6 +19,10 @@ class CapacityRoomDto {
   gender!: "FEMALE" | "MALE" | null
   @ApiProperty()
   capacity!: number
+  @ApiProperty({ description: "Extra beds (přistýlky); each adds one bed to the room's capacity" })
+  extraBeds!: number
+  @ApiProperty({ description: "All beds of the room: capacity plus extra beds" })
+  beds!: number
 }
 
 class CapacityTermDetailsDto {
@@ -50,7 +55,7 @@ export class EventCapacityResponseDto {
       eventName: event.eventName,
       terms: event.terms.map((term) => ({
         ...term,
-        rooms: term.rooms.map((room) => ({ ...room })),
+        rooms: term.rooms.map((room) => ({ ...room, beds: computeRoomBeds(room) })),
       })),
     }
   }

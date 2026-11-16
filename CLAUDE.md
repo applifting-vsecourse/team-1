@@ -57,60 +57,17 @@ A story is more than its title. Before writing code, read the story and the busi
 
 Any work touching e-mails — a template in `apps/backend/src/core/email/`, the code that sends one, a trigger, a recipient, copy, layout or footer — starts with [`docs/emaily/AGENTI.md`](docs/emaily/AGENTI.md). The business catalogue ([`docs/emaily/KATALOG.md`](docs/emaily/KATALOG.md)) decides which message goes to whom and when, [`TEXTY.md`](docs/emaily/TEXTY.md) holds the approved copy and Figma holds the layout. A message that is not in the catalogue is not approved: don't build it, report the gap in the PR (see „Business rules and acceptance criteria“).
 
-### Backend structure
-
-One module per domain area under `apps/backend/src/modules/<module>/` with `controllers/` (+ `dto/`), `services/`, `repositories/`, `domain/`. Rules in [`apps/backend/src/modules/README.md`](apps/backend/src/modules/README.md). In short:
-
-- Only repositories touch Prisma, and they return domain types, not Prisma types.
-- Domain calculations (capacity, evaluation, price, debt) are pure functions in `domain/`, computed in exactly one place and unit-tested without a database.
-- The acting user always comes from the session (`@User() user: Identity`), never from the request body.
-- Protect controllers with `@Auth('ORGANIZER')` / `@Auth('PARTICIPANT')` (401 without a session, 403 for the wrong account type). Public endpoints have no decorator.
-- Organization data is always filtered by `organizationId`; a foreign record returns 403 with no content. Use `OrganizationAccessService` (`shared/organization-access`) — never hand-roll the check.
-- Capacity, evaluation and price come only from `modules/applications/domain` (`capacity.ts`, `evaluation.ts`, `pricing.ts`). Reuse them; don't recompute.
-- The worked example module is `modules/account` (`GET /api/me`).
-- Money is whole CZK as `Int`.
-
-### Frontend structure
-
-- Shared components follow atomic design: `components/{atoms,molecules,organisms,templates,pages}`, plus vendored shadcn in `components/ui`. A layer imports only from lower layers; `components/` never imports from `features/`. ESLint enforces both. Details: [`apps/frontend/src/components/README.md`](apps/frontend/src/components/README.md).
-- Domain code lives in `features/<feature>/{api,hooks,components,lib}`. Features don't import from each other.
-- Route files in `src/routes/` stay thin: load data, compose the page. All paths are in `src/app/routes.ts` (`ROUTES`).
-- Imports use the `@/` alias; relative imports only for siblings.
-- Every server payload is parsed with a zod schema in `features/<feature>/api/`.
-- The session user carries `accountType` and `mustSetPassword`. Area layouts guard with `requireAccount` in `beforeLoad`; a wrong account type throws `ForbiddenError` and renders the 403 page.
-
-### UI controls come from the kit
-
-Need a control that isn't in `src/components/ui/`? Add it with `pnpm dlx shadcn@latest add <name>` — don't hand-roll one in a feature folder, even where a native input would do the job. One accessibility implementation to reason about beats a per-control judgement call.
-
-The CLI puts `shadow-xs`/`shadow-sm` on inputs and textareas. [`DESIGN.md`](DESIGN.md) allows shadows only on cards (`shadow-sm`) and on things that float — dialogs, dropdowns, toasts. Keep them on cards, strip them from inputs, textareas and other controls.
-
-The CLI also has two habits to undo after every `add`: it imports `cn` from the npm package `cn` (rewrite to `import { cn } from "@/lib/utils"`) and adds `cn` to `apps/frontend/package.json` (remove it and restore `pnpm-lock.yaml` from `main`).
-
-### UI follows Figma — don't invent
-
-Screens are designed before they are built, and the frames are linked in the story's issue ("HF wireframy" first, "LF wireframy" only when there is no hi-fi). Build what is drawn:
-
-- **Open the frames before writing UI.** Use the Figma MCP — load the `figma:figma-design-to-code` skill, then `get_design_context` for each linked node (mobile 360 px _and_ desktop). Take structure, order of sections, control types, sizes, copy and every drawn state (default, error, sending, empty, invalid link…) from the frames. The returned code is a reference to adapt to our components and tokens, never to paste.
-- **Don't invent.** No extra elements, copy, states or layout that the design doesn't show, and don't swap a drawn control for one you prefer (a select stays a select). If something is missing from the design — a state, an error text, where a field goes — stop and ask the designer / tech lead; leave it out meanwhile and say so in the PR.
-- **Copy:** the Czech text from Figma goes in verbatim; the English text is a translation of it. Texts the design doesn't contain are not made up — see above.
-- **Reuse before restyle:** colours, radii and fonts are already tokens in `global.css`; controls come from `components/ui`, shared pieces from `components/atoms|molecules`. Don't re-draw what the kit has, and don't hardcode what a token has.
-- **Figma vs. [`DESIGN.md`](DESIGN.md) / the kit:** when they disagree (a card that isn't a list item, a size or width off the scale) build the frame, and list every such case in the PR — the tech lead decides whether the rule or the design changes ([PROJEKT.md, section 8](docs/PROJEKT.md)). Never silently pick the rule.
-- **Mark the source.** The main component of each screen or block carries a comment with the frame name and node URL, so reviewers and the design agent find the spec in the code:
-  ```tsx
-  // Figma (Design system): V07a Dva účastníci · https://www.figma.com/design/<file>/<name>?node-id=12666-2708
-  ```
-- **Check before the PR.** Run `@design-reviewer US-<n>` (Claude Code, needs the Figma MCP) on the branch, fix every `MISMATCH`, `EXTRA` and `MISSING`, and paste what remains — plus every `CONFLICT` — into the PR under "Odchylky od Figmy". No Figma access? Say so in the PR instead of guessing the design.
-
-The AI review (`@reviewer`) can't open Figma; it only checks that new UI carries the `Figma:` comment and reminds you to run `@design-reviewer`.
-
 ### Pull request size
 
-One PR per feature (user story): backend, frontend and tests together on one branch, linked to the story (`Closes #23`, see „Before you open the PR“). Don't split a story by layer (a backend PR and a frontend PR) or into „část 1/2“ parts. Keep the PR reviewable — aim for ~400 changed lines of code (not counting tests, migration SQL, lockfile, generated files) and ~20 files; when a story needs more, keep it in one PR and say in the PR body why it's bigger. The PR comment „Co se změnilo“ flags large PRs.
+One PR per feature (user story): backend, frontend and tests together on one branch, linked to the story (`Closes #23`, see „Pull requests“). Don't split a story by layer (a backend PR and a frontend PR) or into „část 1/2“ parts. Keep the PR reviewable — aim for ~400 changed lines of code (not counting tests, migration SQL, lockfile, generated files) and ~20 files; when a story needs more, keep it in one PR and say in the PR body why it's bigger. The PR comment „Co se změnilo“ flags large PRs.
+
+### Path-scoped rules
+
+Rules tied to one part of the repo live in [`.claude/rules/`](.claude/rules/) and load when you work on matching files: [`backend.md`](.claude/rules/backend.md) (`apps/backend`), [`frontend.md`](.claude/rules/frontend.md) (`apps/frontend`, `DESIGN.md`: structure, UI controls from the kit, UI follows Figma) and [`e2e.md`](.claude/rules/e2e.md) (`apps/e2e`).
 
 ### E2E tests
 
-Only the core journeys listed in [`docs/E2E.md`](docs/E2E.md) get an E2E test (`apps/e2e`); everything else is a unit, API (`*.int-spec.ts`) or component test. When a story completes a journey from that list, add or enable its test in the same PR. Locators by role / label / text, English copy, no `waitForTimeout`, every test independent of the others.
+Only the core journeys listed in [`docs/E2E.md`](docs/E2E.md) get an E2E test (`apps/e2e`); everything else is a unit, API (`*.int-spec.ts`) or component test. When a story completes a journey from that list, add or enable its test in the same PR. Writing rules: [`e2e.md`](.claude/rules/e2e.md).
 
 ### Stay in the story's scope
 
@@ -118,18 +75,16 @@ Build what the acceptance criteria ask and nothing else: no extra features, refa
 
 When a demo is near (the user or the tech lead says so), the bar is higher: only changes that make an acceptance criterion pass. Don't touch the seed or the demo data (`apps/backend/src/scripts/seed/seed/sprint-demo-data.ts`, the demo accounts in [`CONTRIBUTING.md`](CONTRIBUTING.md)) — the demo and the E2E tests stand on them — and don't add migrations, dependencies or shared-file changes beyond what the story needs. A risky change the story doesn't need is a proposal in the PR, not a commit.
 
-### Before you open the PR
+### Pull requests
 
-Open the PR as a draft (`gh pr create --draft`) and run `gh pr ready` when the work is finished: Codex reviews a PR once it is ready, so it reviews finished work instead of every push.
+Open the PR as a draft (`gh pr create --draft`) and run `gh pr ready` when the work is finished: Codex reviews a PR once it is ready. The branch is `feat/US-<n>-<slug>` (`fix/`, `chore/`, `docs/` for the rest), the PR title is the story title and every PR that belongs to an issue starts its body with `Closes #<issue number>` (`Refs` doesn't link them).
 
-Go through the acceptance criteria once more and compare them with what you built. In the PR body, under „Akceptační kritéria“, list each one as `✅ splněno — <test or file that shows it>`, `❌ nesplněno — <why>` or `❓ nelze ověřit — <what is missing>`. A criterion is met only when a test or a manual step you describe shows it. While any is ❌ or ❓, leave the matching PR-template checkbox unticked and write what is missing.
+Run the `pr-finish` skill before opening a PR, when marking it ready and after every push ([`.claude/skills/pr-finish/SKILL.md`](.claude/skills/pr-finish/SKILL.md)). The rules it carries out:
 
-Then tell the author what the PR still lacks — a short list in your last message, before the PR is opened and whenever it is updated:
-
-- **E2E test:** the story completes or changes a journey from the table in [`docs/E2E.md`](docs/E2E.md), but `apps/e2e` has no new or enabled test for it (rules in „E2E tests“; a changed UI text that a locator uses means a changed test; run `pnpm e2e test`). If no listed journey is touched, say „žádná cesta z docs/E2E.md se nemění“ and don't add an E2E test.
-- **Ticket link:** the branch is `feat/US-<n>-<slug>` (`fix/`, `chore/`, `docs/` for the rest), the PR title is the story title and every PR that belongs to an issue starts its body with `Closes #<issue number>`. `Refs` doesn't link the PR and the issue in GitHub. On merge, the issue closes and the board's „Item closed“ workflow moves it to In Business Review; the product manager moves it to Done after checking it on staging.
-- **Acceptance criteria:** the report above is in the PR body and every ✅ one is ticked in the issue on the board. Tick them yourself with `gh issue edit <n> --body-file` when you open or update the PR, and change nothing else in the issue. Leave ❌ and ❓ unticked.
-- **Open items:** „Nejasnosti k byznys pravidlům“, „Odchylky od Figmy“ and „Mimo rozsah story“ are in the PR when they apply.
+- **Acceptance criteria:** list each one in the PR body under „Akceptační kritéria“ as ✅ / ❌ / ❓ with the test or file that shows it, and tick the ✅ ones in the issue. A criterion is met only when a test or a described manual step shows it.
+- **What the PR still lacks:** tell the author in your last message — E2E test (journey from [`docs/E2E.md`](docs/E2E.md)), ticket link, criteria, open items („Nejasnosti k byznys pravidlům“, „Odchylky od Figmy“, „Mimo rozsah story“) and screenshots.
+- **Screenshots:** a PR that changes what a user sees gets them under „Screenshoty“ (desktop and 360 px, before / after for a fix), taken headless from seed data and uploaded to the `pr-screenshots` branch, never to the PR branch.
+- **Review:** after every push wait for the Codex review (`node scripts/pr-review.mjs wait <pr>`) and answer every finding and every „Pozor“ in a PR comment starting with `<!-- ai-review-answer: <sha> -->`.
 
 ### Migrations
 
@@ -155,8 +110,6 @@ Several stories — and agents — run side by side, each in its own git worktre
 
 The rules a review checks live in one place: the `reviewer` agent ([`.claude/agents/reviewer.md`](.claude/agents/reviewer.md)). `@reviewer` runs it, and the Codex code review of every PR reads its BLOCKER and WARNING lists through [`AGENTS.md`](AGENTS.md). When you add a rule here that a review should enforce, add it to the agent's BLOCKER or WARNING list too — never into `AGENTS.md`, a hook or a workflow.
 
-An agent working on a PR doesn't stop at green CI. After every push, run `node scripts/pr-review.mjs wait <pr>` in the background: it waits for the Codex review of that exact commit (asking for one with `@codex review` when none comes), prints its findings and ends with a verdict (`REVIEWED`, `ANSWERED`, `CLEAN`, `FAILED`, `SKIPPED`, `TIMEOUT`). On `FAILED`, `SKIPPED` or `TIMEOUT` no review exists, so tell the author. Also read „Co se změnilo“ from `github-actions` (`gh pr view <n> --comments`). The Codex review is not a check, so green CI doesn't mean a clean review. Fix what the review rightly finds and push again, then read the new review too.
+An agent working on a PR doesn't stop at green CI: the Codex review is not a check. The loop (wait for the review, fix, answer) is in the `pr-finish` skill, step 4; a Stop hook (`.claude/settings.json`) holds an agent back once when it is not finished.
 
-Then answer it, so everyone can see that nothing was ignored. Post a new PR comment in Czech (`gh pr comment`), starting with the line `<!-- ai-review-answer: <sha> -->` (the 7-character reviewed commit), that goes through every finding (`P0`, `P1`) of the latest review and every „Pozor“ from „Co se změnilo“, each as `opraveno v <commit>` or `neopravuji — <důvod>`. A later review with new findings gets its own answer. With no findings, no answer is needed. A Stop hook (`.claude/settings.json`) holds an agent back once when the head commit's review is still running or has findings without that answer.
-
-Don't reach for the browser to check your own work. Tests and type-checks are the evidence; open the running app when asked to, not on your own initiative.
+Don't reach for the browser to check your own work. Tests and type-checks are the evidence; open the running app when asked to, not on your own initiative. The exception is taking screenshots for the PR, headless and as the `pr-finish` skill describes.

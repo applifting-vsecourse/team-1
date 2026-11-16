@@ -5,6 +5,7 @@ import {
   createRootRoute,
   createRoute,
   createRouter,
+  Outlet,
   RouterProvider,
 } from "@tanstack/react-router"
 import { render, screen, within } from "@testing-library/react"
@@ -33,6 +34,7 @@ const application = {
   lastName: "Test",
   birthDate: "2000-01-01",
   gender: "FEMALE",
+  individualAccommodation: false,
   email: "jana@example.com",
   submittedAt: "2027-01-01T12:00:00Z",
   amountDueCzk: 1000,
@@ -103,22 +105,30 @@ function setup(
       },
     )
     return (
-      <ApplicationsPage
-        eventId="e1"
-        filters={filters}
-        onFiltersChange={(next) => {
-          onFiltersChange(next)
-          setFilters(next)
-        }}
-      />
+      <>
+        <Outlet />
+        <ApplicationsPage
+          eventId="e1"
+          filters={filters}
+          onFiltersChange={(next) => {
+            onFiltersChange(next)
+            setFilters(next)
+          }}
+        />
+      </>
     )
   }
   const root = createRootRoute({
     component: Page,
   })
   const route = createRoute({ getParentRoute: () => root, path: "/" })
+  const detail = createRoute({
+    getParentRoute: () => root,
+    path: "/organizer/events/$eventId/applications/$applicationId",
+    component: () => <p>Application detail page</p>,
+  })
   const router = createRouter({
-    routeTree: root.addChildren([route]),
+    routeTree: root.addChildren([route, detail]),
     history: createMemoryHistory({ initialEntries: ["/"] }),
   })
   render(
@@ -132,6 +142,52 @@ function setup(
 }
 beforeEach(() => vi.clearAllMocks())
 describe("ApplicationsPage", () => {
+  describe("individual accommodation (US-38)", () => {
+    it("marks who asked for it in the table and the mobile cards, and nobody else", async () => {
+      setup([
+        { ...application, individualAccommodation: true },
+        { ...application, id: "a2", firstName: "Eva", email: "eva@example.com" },
+      ])
+      await screen.findAllByText("Jana Test")
+      // One badge in the table and one in the cards, for the one application with the request.
+      expect(screen.getAllByText("Individual accommodation")).toHaveLength(2)
+    })
+
+    it("filters the list by individual accommodation, keeping the other filters", async () => {
+      const user = userEvent.setup()
+      const change = setup([application], false, undefined, null, { term: "t1" })
+      await user.click(await screen.findByRole("combobox", { name: "Accommodation" }))
+      await user.click(screen.getByRole("option", { name: "Individual" }))
+      expect(change).toHaveBeenLastCalledWith({ term: "t1", accommodation: "INDIVIDUAL" })
+    })
+
+    it("sends the filter to the server", async () => {
+      setup([application], false, undefined, null, { accommodation: "INDIVIDUAL" })
+      await screen.findAllByText("Jana Test")
+      const calls = get.mock.calls as [string, { searchParams: URLSearchParams }][]
+      const listCall = calls.find(([path]) => path.endsWith("/applications"))
+      expect(String(listCall?.[1].searchParams)).toBe("accommodation=INDIVIDUAL")
+    })
+
+    it("says nobody has asked for it when the filter finds nothing", async () => {
+      setup([], false, undefined, null, { accommodation: "INDIVIDUAL" })
+      expect(
+        await screen.findByRole("heading", {
+          name: "Nobody has asked for individual accommodation yet",
+        }),
+      ).toBeVisible()
+      expect(screen.getByText(/as soon as an applicant makes it/)).toBeVisible()
+      expect(screen.getByRole("button", { name: "Clear search and filters" })).toBeVisible()
+    })
+
+    it("keeps the general message when other filters are set too", async () => {
+      setup([], false, undefined, null, { accommodation: "INDIVIDUAL", term: "t1" })
+      expect(
+        await screen.findByText("We found no applications matching this selection."),
+      ).toBeVisible()
+    })
+  })
+
   it("applies a mobile selection immediately and keeps it after closing the panel", async () => {
     const change = setup([application], false, "Jana")
     const user = userEvent.setup()
@@ -189,7 +245,8 @@ describe("ApplicationsPage", () => {
     const trigger = await screen.findByRole("button", { name: "Filters · 4" })
     await user.click(trigger)
     const dialog = screen.getByRole("dialog", { name: "Filters" })
-    expect(within(dialog).getAllByRole("combobox")).toHaveLength(3)
+    // Status, payment and term, and since US-38 the accommodation.
+    expect(within(dialog).getAllByRole("combobox")).toHaveLength(4)
     await user.click(within(dialog).getByRole("button", { name: "Clear filters" }))
     expect(change).toHaveBeenLastCalledWith({})
     expect(within(dialog).getByRole("combobox", { name: "Status in term" })).toHaveTextContent(
@@ -246,9 +303,9 @@ describe("ApplicationsPage", () => {
     setup(Array.from({ length: 21 }, (_, index) => ({ ...application, id: `a${index}` })))
     const user = userEvent.setup()
     await user.click(await screen.findByRole("button", { name: "Next →" }))
-    expect(screen.getByText("Showing 21–21 of 21 applications")).toBeInTheDocument()
+    expect(screen.getByText("Showing 21–21 of 21")).toBeInTheDocument()
     await user.type(screen.getByRole("searchbox"), "jana")
-    expect(await screen.findByText("Showing 1–20 of 21 applications")).toBeInTheDocument()
+    expect(await screen.findByText("Showing 1–20 of 21")).toBeInTheDocument()
   })
   it("passes combined filters, displays all terms and links to payment", async () => {
     setup()
@@ -278,6 +335,39 @@ describe("ApplicationsPage", () => {
     expect(screen.getAllByText("Waitlisted · 2").length).toBeGreaterThan(0)
     expect(screen.getByText("Sorted: waitlist order")).toBeInTheDocument()
     expect(screen.getByRole("status")).toHaveTextContent(/not a confirmed place/)
+  })
+  it("opens the waitlist view for the filters of the card Substitutes to resolve (#397)", async () => {
+    const waiting = (id: string, gender: string, position: number) => ({
+      ...application,
+      id,
+      gender,
+      terms: [{ ...application.terms[1], waitlistPosition: position }],
+    })
+    setup([waiting("a1", "FEMALE", 1), waiting("a2", "MALE", 2)], false, undefined, null, {
+      status: "WAITLISTED",
+      waitlist: "FREE_BED",
+    })
+    expect((await screen.findAllByText("Waitlisted · 1")).length).toBeGreaterThan(0)
+    expect(screen.getByRole("radio", { name: "Waitlisted" })).toBeChecked()
+    // The free-bed filter is a select of its own, not a loose chip.
+    expect(screen.getAllByRole("combobox", { name: "Waitlist" })[0]).toHaveTextContent(
+      "Substitutes with a free bed",
+    )
+    expect(screen.getByRole("status")).toHaveTextContent(/not a confirmed place/)
+    const request = get.mock.calls.find(([path]) => String(path).endsWith("applications"))!
+    expect(String((request[1] as { searchParams: URLSearchParams }).searchParams)).toBe(
+      "status=WAITLISTED&waitlist=FREE_BED",
+    )
+  })
+  it("leaves the free-bed filter of the card when another view is chosen (#397)", async () => {
+    const onFilters = setup([application], false, undefined, null, {
+      status: "WAITLISTED",
+      waitlist: "FREE_BED",
+    })
+    await screen.findByRole("radio", { name: "Waitlisted" })
+    await userEvent.setup().click(screen.getByRole("radio", { name: "All applications" }))
+    expect(onFilters).toHaveBeenLastCalledWith({})
+    expect(screen.queryByRole("button", { name: /Substitutes with a free bed/ })).toBeNull()
   })
   it("keeps identifying and contact details in mobile cards for same-name participants", async () => {
     setup([
@@ -325,6 +415,7 @@ describe("ApplicationsPage", () => {
     await user.click(screen.getAllByRole("combobox", { name: "Payment" })[0]!)
     expect(screen.getAllByRole("option").map((option) => option.textContent)).toEqual([
       "All payments",
+      "With a balance due",
       "No amount due",
       "Unpaid",
       "Partially paid",
@@ -348,6 +439,40 @@ describe("ApplicationsPage", () => {
       "href",
       "/organizer/events/e1/applications/a1",
     )
+  })
+  it("shows one debt column and no amount-to-pay column", async () => {
+    setup([application])
+    await screen.findByRole("link", { name: "Record payment" })
+    expect(screen.getByRole("columnheader", { name: "Balance due" })).toBeInTheDocument()
+    expect(screen.queryByRole("columnheader", { name: "Amount due" })).not.toBeInTheDocument()
+  })
+  describe("clickable row", () => {
+    it("opens the detail when the row is clicked", async () => {
+      setup([application], false, undefined, null, {})
+      const row = await screen.findByRole("row", { name: /Jana Test/ })
+      await userEvent.setup().click(within(row).getByText("jana@example.com", { exact: false }))
+      expect(await screen.findByText("Application detail page")).toBeInTheDocument()
+    })
+    it("keeps the detail link as the keyboard path", async () => {
+      setup([application], false, undefined, null, {})
+      const user = userEvent.setup()
+      const link = await screen.findByRole("link", { name: "Record payment" })
+      await user.tab()
+      link.focus()
+      await user.keyboard("{Enter}")
+      expect(await screen.findByText("Application detail page")).toBeInTheDocument()
+    })
+    it("does not open the detail when a row is selected", async () => {
+      setup([application], false, undefined, null, { status: "TO_EVALUATE" })
+      const user = userEvent.setup()
+      await screen.findAllByText("jana@example.com", { exact: false })
+      const checkbox = screen.getAllByRole("checkbox", {
+        name: /Select application: Jana Test/,
+      })[0]!
+      await user.click(checkbox)
+      expect(checkbox).toBeChecked()
+      expect(screen.queryByText("Application detail page")).not.toBeInTheDocument()
+    })
   })
   it.each([
     ["no terms", { terms: [] }],

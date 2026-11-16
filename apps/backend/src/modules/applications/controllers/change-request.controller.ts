@@ -1,6 +1,7 @@
 import { ParticipantTermChangeRequestDto } from "@/modules/applications/controllers/dto/participant-term-change.dto"
 import { ChangeRequest } from "@/modules/applications/domain/change-request"
 import { ChangeRequestService } from "@/modules/applications/services/change-request.service"
+import { HEALTH_NOTE_MAX_LENGTH } from "@/modules/health/domain/health"
 import { Auth } from "@/shared/auth/decorators/auth.decorator"
 import { User } from "@/shared/auth/decorators/user.decorator"
 import { Identity } from "@/shared/auth/domain/identity"
@@ -15,7 +16,7 @@ import {
   UsePipes,
   ValidationPipe,
 } from "@nestjs/common"
-import { IsOptional, IsString, MaxLength } from "class-validator"
+import { IsBoolean, IsOptional, IsString, MaxLength } from "class-validator"
 
 class RejectRequestDto {
   @IsOptional()
@@ -45,6 +46,31 @@ export class ParticipantChangeRequestController {
     @Body() body: ParticipantTermChangeRequestDto,
   ): Promise<ChangeRequest> {
     return this.requests.submit(user, applicationId, body.termIds)
+  }
+}
+
+class HealthChangeRequestDto {
+  @IsString()
+  @MaxLength(HEALTH_NOTE_MAX_LENGTH)
+  note!: string
+
+  @IsBoolean()
+  consent!: boolean
+}
+
+@Controller("participant/applications/:applicationId/health-change-requests")
+@Auth("PARTICIPANT")
+@UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }))
+export class ParticipantHealthChangeRequestController {
+  constructor(private readonly requests: ChangeRequestService) {}
+
+  @Post()
+  submit(
+    @User() user: Identity,
+    @Param("applicationId") applicationId: string,
+    @Body() body: HealthChangeRequestDto,
+  ): Promise<ChangeRequest> {
+    return this.requests.submitHealth(user, applicationId, body)
   }
 }
 

@@ -11,10 +11,12 @@ type EventBody = {
   id: string
   name: string
   organizationName: string
+  organizationContactEmail: string | null
   publicToken: string
   applicationsOpen: boolean
   missing: string[]
   cancellationStartsOn: string | null
+  cancellationTerms: string | null
 }
 
 describe("organizer events (integration)", () => {
@@ -61,6 +63,32 @@ describe("organizer events (integration)", () => {
       applicationsOpen: false,
       missing: ["TERM"],
     })
+
+    // The organization's e-mail comes with the event, in the list and in the detail the form reads.
+    const organization = await prisma.organization.findFirstOrThrow({
+      where: { name: "Letní kemp z. s." },
+    })
+    const original = organization.contactEmail
+    await prisma.organization.update({
+      where: { id: organization.id },
+      data: { contactEmail: "office@letni-kemp.example" },
+    })
+    try {
+      const detail = await fetch(api(`/organizer/events/${created.id}`), {
+        headers: { Cookie: cookieA },
+      })
+      expect(((await detail.json()) as EventBody).organizationContactEmail).toBe(
+        "office@letni-kemp.example",
+      )
+      const all = await fetch(api("/organizer/events"), { headers: { Cookie: cookieA } })
+      const listed = ((await all.json()) as EventBody[]).find((event) => event.id === created.id)
+      expect(listed?.organizationContactEmail).toBe("office@letni-kemp.example")
+    } finally {
+      await prisma.organization.update({
+        where: { id: organization.id },
+        data: { contactEmail: original },
+      })
+    }
 
     const list = await fetch(api("/organizer/events"), { headers: { Cookie: cookieA } })
     const events = (await list.json()) as EventBody[]
@@ -205,21 +233,76 @@ describe("organizer events (integration)", () => {
     expect((await save(cookieA, undefined)).status).toBe(400)
     expect((await save(cookieA, "2027-07-01T00:00:00Z")).status).toBe(400)
 
-    const saved = await save(cookieA, "2027-07-01")
+    // Not retroactive: yesterday and older are rejected and nothing is stored.
+    const day = (offset: number): string => {
+      const date = new Date(Date.now() + offset * 86_400_000)
+      return new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Prague" }).format(date)
+    }
+    const stored = async () =>
+      (await prisma.event.findUniqueOrThrow({ where: { id: created.id } })).cancellationStartsOn
+    const yesterday = await save(cookieA, day(-1))
+    expect(yesterday.status).toBe(400)
+    expect(await yesterday.json()).toMatchObject({ code: "CANCELLATION_START_IN_PAST" })
+    expect((await save(cookieA, "2020-01-01")).status).toBe(400)
+    expect(await stored()).toBeNull()
+    expect((await save(cookieA, day(0))).status).toBe(200)
+    expect((await save(cookieA, day(30))).status).toBe(200)
+    expect((await save(cookieA, day(-1))).status).toBe(400)
+    expect((await stored())?.toISOString().slice(0, 10)).toBe(day(30))
+    // A lapsed saved day stays valid when unchanged, can be cleared, but not moved to another past day.
+    await prisma.event.update({
+      where: { id: created.id },
+      data: { cancellationStartsOn: new Date("2020-01-01T00:00:00.000Z") },
+    })
+    expect((await save(cookieA, "2020-01-01")).status).toBe(200)
+    expect((await save(cookieA, "2020-01-02")).status).toBe(400)
+    expect((await save(cookieA, null)).status).toBe(200)
+
+    const saved = await save(cookieA, day(30))
     expect(saved.status).toBe(200)
-    expect(await saved.json()).toMatchObject({ cancellationStartsOn: "2027-07-01" })
+    expect(await saved.json()).toMatchObject({ cancellationStartsOn: day(30) })
     expect(
       (await prisma.event.findUniqueOrThrow({ where: { id: created.id } })).cancellationStartsOn,
-    ).toEqual(new Date("2027-07-01T00:00:00.000Z"))
+    ).toEqual(new Date(`${day(30)}T00:00:00.000Z`))
 
     const detail = await fetch(api(`/organizer/events/${created.id}`), {
       headers: { Cookie: cookieA },
     })
-    expect(await detail.json()).toMatchObject({ cancellationStartsOn: "2027-07-01" })
+    expect(await detail.json()).toMatchObject({ cancellationStartsOn: day(30) })
     expect((await save(cookieA, null)).status).toBe(200)
     expect(
       (await prisma.event.findUniqueOrThrow({ where: { id: created.id } })).cancellationStartsOn,
     ).toBeNull()
+  })
+
+  it("saves the cancellation terms of an event (US-47)", async () => {
+    const created = (await (await post(cookieA, { name: "Storno podmínky" })).json()) as EventBody
+    const url = api(`/organizer/events/${created.id}/cancellation-terms`)
+    const save = (cookie: string | null, value: unknown): Promise<Response> =>
+      fetch(url, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", ...(cookie ? { Cookie: cookie } : {}) },
+        body: JSON.stringify({ cancellationTerms: value }),
+      })
+    const text = "Při odhlášení více než 30 dní před začátkem se vrací celá částka."
+
+    expect(created.cancellationTerms).toBeNull()
+    expect((await save(null, text)).status).toBe(401)
+    expect((await save(cookieB, text)).status).toBe(403)
+    expect((await save(cookieA, "   ")).status).toBe(400)
+    expect((await save(cookieA, "a".repeat(2001))).status).toBe(400)
+    expect((await save(cookieA, undefined)).status).toBe(400)
+
+    const saved = await save(cookieA, `  ${text}\n`)
+    expect(saved.status).toBe(200)
+    expect(await saved.json()).toMatchObject({ cancellationTerms: text })
+    const detail = await fetch(api(`/organizer/events/${created.id}`), {
+      headers: { Cookie: cookieA },
+    })
+    expect(await detail.json()).toMatchObject({ cancellationTerms: text })
+    expect(
+      (await prisma.event.findUniqueOrThrow({ where: { id: created.id } })).cancellationTerms,
+    ).toBe(text)
   })
 
   it("deletes only an event nobody has applied to", async () => {
@@ -265,6 +348,7 @@ describe("organizer events (integration)", () => {
       expect(await manual.json()).toMatchObject({
         evaluationMode: "MANUAL",
         evaluationModeLocked: false,
+        hasApplications: false,
       })
       expect((await patch(cookieA, created.id, { evaluationMode: "nope" })).status).toBe(400)
 

@@ -5,11 +5,11 @@ import { useTranslation } from "react-i18next"
 
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
-import { SectionHeader } from "@/components/molecules/SectionHeader"
+import { SettingsCard } from "@/components/molecules/SettingsCard"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { notify } from "@/lib/notify"
 
 import {
   evaluationModeSchema,
@@ -19,6 +19,7 @@ import {
   type EvaluationMode,
 } from "@/features/events/api/events"
 import { CancellationStartForm } from "@/features/events/components/CancellationStartForm"
+import { DeleteEventSection } from "@/features/events/components/DeleteEventSection"
 import { PublicPageForm } from "@/features/events/components/PublicPageForm"
 
 const MODES = ["AUTOMATIC", "MANUAL"] as const
@@ -61,6 +62,7 @@ export function EventSettings({ eventId }: { eventId: string }) {
         event={event}
       />
       <PublicPageForm event={event} />
+      <DeleteEventSection event={event} />
     </div>
   )
 }
@@ -68,15 +70,14 @@ export function EventSettings({ eventId }: { eventId: string }) {
 function LockedMode({ mode }: { mode: EvaluationMode }) {
   const { t } = useTranslation("events")
   return (
-    <Card className="gap-3 p-6">
-      <h2 className="text-lg font-semibold tracking-tight">{t("evaluationMode.lockedTitle")}</h2>
+    <SettingsCard title={t("evaluationMode.lockedTitle")}>
       <p>
         {t("evaluationMode.lockedValue", {
           mode: t(`evaluationMode.${mode === "AUTOMATIC" ? "automatic" : "manual"}`),
         })}
       </p>
       <p>{t("evaluationMode.lockedReason")}</p>
-    </Card>
+    </SettingsCard>
   )
 }
 
@@ -86,27 +87,26 @@ function ChooseMode({ eventId, saved }: { eventId: string; saved: EvaluationMode
   const [mode, setMode] = useState<EvaluationMode>(saved)
   const mutation = useMutation({
     mutationFn: () => setEvaluationMode(eventId, mode),
-    onSuccess: () =>
-      Promise.all([
+    onSuccess: async (updated) => {
+      setMode(updated.evaluationMode)
+      notify.success(t("evaluationMode.saved"))
+      await Promise.all([
         queryClient.invalidateQueries({ queryKey: eventKeys.detail(eventId) }),
         queryClient.invalidateQueries({ queryKey: eventKeys.all() }),
-      ]),
+      ])
+    },
   })
 
   return (
-    <form
-      className="flex flex-col gap-6"
-      onSubmit={(e) => {
-        e.preventDefault()
-        mutation.mutate()
-      }}
-    >
-      <SectionHeader
-        title={t("evaluationMode.title")}
-        description={t("evaluationMode.subtitle")}
-      />
-      <Card className="gap-4 p-6">
-        <h3 className="text-lg font-semibold tracking-tight">{t("evaluationMode.chooseTitle")}</h3>
+    <SettingsCard title={t("evaluationMode.title")}>
+      <form
+        className="flex flex-col gap-4"
+        onSubmit={(e) => {
+          e.preventDefault()
+          mutation.mutate()
+        }}
+      >
+        <p>{t("evaluationMode.subtitle")}</p>
         <RadioGroup
           aria-label={t("evaluationMode.legend")}
           value={mode}
@@ -128,32 +128,27 @@ function ChooseMode({ eventId, saved }: { eventId: string; saved: EvaluationMode
             </div>
           ))}
         </RadioGroup>
-        <p className="text-sm text-muted-foreground">{t("evaluationMode.manualHint")}</p>
-      </Card>
-      <Card className="gap-2 p-6">
-        <h3 className="text-lg font-semibold tracking-tight">
-          {t("evaluationMode.afterOpenTitle")}
-        </h3>
-        <p className="text-sm text-muted-foreground">{t("evaluationMode.afterOpenVisible")}</p>
-        <p className="text-sm text-muted-foreground">{t("evaluationMode.afterOpenLocked")}</p>
-      </Card>
-      {mutation.isError ? (
-        <ErrorState
-          title={t("evaluationMode.saveFailed")}
-          error={mutation.error}
-        />
-      ) : null}
-      <div className="flex md:justify-end">
-        <Button
-          type="submit"
-          size="lg"
-          className="w-full md:w-auto"
-          disabled={mutation.isPending}
-        >
-          {mutation.isPending ? <Loader2 className="animate-spin" /> : null}
-          {t("evaluationMode.save")}
-        </Button>
-      </div>
-    </form>
+        <p>{t("evaluationMode.manualHint")}</p>
+        <p>{t("evaluationMode.afterOpenVisible")}</p>
+        <p>{t("evaluationMode.afterOpenLocked")}</p>
+        {mutation.isError ? (
+          <ErrorState
+            title={t("evaluationMode.saveFailed")}
+            error={mutation.error}
+          />
+        ) : null}
+        <div className="flex flex-col gap-3 sm:flex-row-reverse">
+          <Button
+            type="submit"
+            size="lg"
+            className="sm:flex-1"
+            disabled={mutation.isPending}
+          >
+            {mutation.isPending ? <Loader2 className="animate-spin" /> : null}
+            {t("evaluationMode.save")}
+          </Button>
+        </div>
+      </form>
+    </SettingsCard>
   )
 }

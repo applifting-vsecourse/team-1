@@ -22,6 +22,8 @@ const application = (overrides: Partial<MyApplication> = {}): MyApplication => (
   lastName: "Nováková",
   code: "LKL-0048",
   variableSymbol: "48000",
+  canSimulatePayment: false,
+  simulatedPayments: [],
   terms: [
     {
       termId: "t1",
@@ -30,6 +32,8 @@ const application = (overrides: Partial<MyApplication> = {}): MyApplication => (
       endsOn: "2027-07-10",
       status: "CONFIRMED",
       priceCzk: 4500,
+      transportOffered: false,
+      transportDecided: false,
     },
     {
       termId: "t2",
@@ -38,6 +42,8 @@ const application = (overrides: Partial<MyApplication> = {}): MyApplication => (
       endsOn: "2027-07-17",
       status: "WAITLISTED",
       priceCzk: 4900,
+      transportOffered: false,
+      transportDecided: false,
     },
   ],
   amountDueCzk: 4500,

@@ -177,7 +177,7 @@ describe("manual filling of a freed bed (integration)", () => {
     expect(await statusOf(man)).toBe("WAITLISTED")
   })
 
-  it("is not available in the automatic evaluation mode", async () => {
+  it("works in the automatic evaluation mode too: a free bed nobody filled is proposed (US-31)", async () => {
     const waiting = await addApplication("MALE", 20, "WAITLISTED", {
       eventId: autoEventId,
       termId: autoTermId,
@@ -185,11 +185,10 @@ describe("manual filling of a freed bed (integration)", () => {
     const listed = (await (
       await fetch(url("", autoEventId, autoTermId), { headers: { Cookie: cookie } })
     ).json()) as List
-    expect(listed.items).toEqual([])
+    expect(listed.items.map((item) => item.applicationId)).toEqual([waiting])
     const response = await confirm(waiting, cookie, autoEventId, autoTermId)
-    expect(response.status).toBe(409)
-    expect(((await response.json()) as { code: string }).code).toBe("MANUAL_FILL_NOT_AVAILABLE")
-    expect(await statusOf(waiting)).toBe("WAITLISTED")
+    expect(response.status).toBe(204)
+    expect(await statusOf(waiting)).toBe("CONFIRMED")
   })
 
   it("answers 404 for a term of another event", async () => {

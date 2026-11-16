@@ -4,26 +4,51 @@
     "title": "Your applications"
   },
   "change": {
-    "approvalRequired": "Changes now require the organiser's approval. Your application stays unchanged until a decision is made.",
-    "back": "Back",
-    "cancelAll": "Cancel application",
-    "cancelAllDescription": "All selected terms will be cancelled immediately. Payments remain attached to their original terms; contact the organiser about any refund.",
-    "cancelAllTitle": "Cancel all terms?",
-    "description": "Select the terms you want to keep or add. Clearing all terms cancels the application.",
-    "immediateNote": "Changes take effect immediately.",
+    "allTerms": "Whole application · all terms ({{count}})",
+    "approvalDescription": "Approval by the organizer is now on, so you are sending a request. Your original application and bed stay unchanged until the decision.",
+    "approvalTitle": "The organizer approves the request",
+    "bedAfterApproval": "The bed is released only after approval.",
+    "bedCancel": "The bed is released immediately.",
+    "bedCancelKept": "The bed is released immediately. The other terms stay unchanged.",
+    "bedChange": "After confirmation the original bed is released immediately.",
+    "cancelImpact": "Cancellation impact",
+    "cancelImpactAfterApproval": "Impact after approval",
+    "cancelOpen": "Cancel participation",
+    "cancelRequestTitle": "Request cancellation",
+    "cancelScope": "What do you want to cancel?",
+    "cancelScopeHint": "One term or the whole application",
+    "cancelTitle": "Cancel application",
+    "confirmCancel": "Confirm cancellation",
+    "confirmChange": "Confirm change",
+    "discard": "Cancel",
+    "impact": "Change impact",
+    "impactNew": "New term · new amount due",
+    "impactOriginal": "Original term · refund",
+    "impactOriginalRequest": "Original term",
     "loadError": "Couldn't load available terms",
-    "open": "Change terms or cancel",
-    "paymentNote": "Payments stay with their original terms. If you already paid for a term you remove, its payment does not cover a new term; contact the organiser about a refund.",
-    "requestCancelDescription": "A cancellation request will be sent to the organiser. Your participation stays valid until it is approved.",
-    "requestDescription": "Choose the terms you want. The organiser will review the request before your application changes.",
+    "newPrice": "Price {{price}} · amount due {{owed}}",
+    "noAvailableTerms": "No other term is available.",
+    "noPayment": "No payment impact",
+    "noTransfer": "Payment is not transferred between terms. Money is not refunded automatically.",
+    "onlyTerm": "Only {{term}}",
+    "open": "Change terms",
+    "overpaidCancel": "An overpayment of {{overpaid}} will arise. The organizer will arrange the refund; it does not happen automatically.",
+    "paidCancel": "Paid {{paid}} · debt after cancellation {{debt}}",
+    "paidChange": "Paid {{paid}} · overpayment {{overpaid}} · debt {{debt}}",
+    "refundByOrganizer": "The organizer decides the cancellation fee and any refund.",
     "requestSubmit": "Send request",
-    "requested": "Request sent",
-    "retry": "Try again",
-    "save": "Save changes",
-    "saved": "Application updated",
     "saving": "Saving…",
-    "selectTerm": "Select term {{term}}",
-    "title": "Change terms"
+    "sourceTerm": "Original term",
+    "targetTerm": "New term",
+    "title": "Change term",
+    "toEvaluateNoBed": "Awaiting evaluation · no bed and no payment",
+    "toast": {
+      "cancelled": "Term cancelled",
+      "changed": "Term changed",
+      "requestedCancel": "Cancellation request sent",
+      "requestedChange": "Term change request sent"
+    },
+    "waitlistedNoPayment": "Waitlisted · no payment impact"
   },
   "contact": {
     "email": "E-mail",
@@ -34,13 +59,64 @@
   "detail": {
     "back": "← All applications",
     "errorTitle": "Couldn't load the application",
+    "health": "Health restriction",
+    "meals": "Meals",
+    "program": "Program",
+    "sections": {
+      "terms": "Terms and payments",
+      "transport": "Transport"
+    },
     "termsTitle": "Status by term",
     "title": "My application",
     "toEvaluate": {
       "alertText": "You will get the payment details once your participation is confirmed.",
       "alertTitle": "Don't pay yet.",
       "note": "The organizer will review the application in each term separately. It is not a confirmed place or a waitlist spot yet."
-    }
+    },
+    "todo": {
+      "change": "Change transport",
+      "choose": "Choose transport",
+      "intro": "The organizer needs this from you to plan the event.",
+      "progress": "{{done}} of {{total}} done",
+      "statusDone": "Done",
+      "statusOpen": "To do",
+      "title": "What is left to arrange",
+      "transportBody": "Choose how the participant gets to the event.",
+      "transportTitle": "Transport · {{term}}"
+    },
+    "transportIntro": "Choose how the participant gets to each term, and see where and when the transport leaves."
+  },
+  "edit": {
+    "accommodationIndividual": "Individual arrangement",
+    "accommodationRequest": "Note for the organizer (optional)",
+    "accommodationRequestTooLong": "The note can have at most 2,000 characters.",
+    "accommodationSummary": "Accommodation · {{request}}",
+    "backToApplication": "Back to application",
+    "birthDate": "Date of birth *",
+    "cancel": "Cancel",
+    "firstName": "First name *",
+    "historyAccommodation": "accommodation request",
+    "historyContact": "contact",
+    "historyContactAccommodation": "Updated contact and accommodation request.",
+    "historyLine": "History · {{date}} · {{author}} · {{description}}",
+    "historyOther": "Updated: {{fields}}.",
+    "historyPersonal": "personal details",
+    "individualAccommodation": "I want to arrange the accommodation individually",
+    "individualAccommodationHint": "Only the event organizer will see this.",
+    "lastName": "Last name *",
+    "loadError": "Couldn't load the application",
+    "open": "Edit application",
+    "organizerNotified": "The organizer received a notification.",
+    "participant": "Participant",
+    "phone": "Phone *",
+    "phoneSummary": "Phone · {{phone}}",
+    "retry": "Try again",
+    "save": "Save changes",
+    "saveError": "Try saving your changes again",
+    "saveErrorTitle": "Changes couldn't be saved",
+    "successTitle": "Changes were saved",
+    "title": "Edit application",
+    "valuesPreserved": "Your entries have been kept."
   },
   "list": {
     "empty": "You have no applications yet. Once you apply for an event, it will appear here.",
@@ -64,16 +140,21 @@
     "amount": "Amount",
     "closeQr": "Close payment details",
     "copyAmount": "Copy amount",
+    "overpaymentNotTransferred": "An overpayment is not carried over between terms.",
+    "overpaymentRefund": "Arrange the refund of the overpayment with the organizer.",
     "payEachTerm": "You pay each term separately. Use its variable symbol, otherwise we cannot match the payment.",
     "qrAlt": "QR code for the combined payment",
-    "saveQr": "Save QR to your phone",
+    "saveQr": "Download QR code",
     "showSummaryQrMany": "One payment for all confirmed terms · show QR",
     "showSummaryQrTwo": "One payment for both terms · show QR",
-    "summaryBreakdown": "Combined payment breakdown",
-    "summaryBreakdownMobile": "Breakdown:",
-    "summaryDebt": "Debt",
-    "summaryQrExplanation": "Use the summary variable symbol for both confirmed terms. It differs from the symbols for individual terms; waitlisted terms are not included in the payment.",
-    "summaryQrExplanationMany": "Use the summary variable symbol for all confirmed terms. It differs from the symbols for individual terms; waitlisted terms are not included in the payment.",
+    "simulation": {
+      "logDescription": "Test payments created with the “I paid” button. These are not actual bank transfers.",
+      "logLine": "+{{amount}} · {{term}} · source: simulation",
+      "logTitle": "Simulated payment history",
+      "paid": "I paid"
+    },
+    "summaryBreakdown": "Breakdown",
+    "summaryQrExplanation": "Covers all confirmed terms. The summary variable symbol differs from the per-term ones.",
     "summaryQrTitle": "Pay for confirmed terms",
     "summaryVariableSymbol": "Summary variable symbol",
     "totalOwed": "Left to pay in total"
@@ -85,23 +166,39 @@
     "UNPAID": "Unpaid"
   },
   "request": {
-    "cancelAll": "Cancel all terms",
-    "cancelTitle": "Cancellation request",
-    "changeTitle": "Term change",
-    "current": "Current participation",
+    "cancelTitle": "Requested cancellation",
+    "changeTitle": "Requested term change",
+    "current": "Original term",
     "loadError": "Couldn't load change requests",
     "message": {
-      "APPROVED": "The organiser approved the change. You will also find the result in your e-mail.",
-      "PENDING": "Your request is awaiting the organiser's decision. Your original participation remains valid.",
-      "REJECTED": "The organiser declined the request. Your original participation remains valid."
+      "APPROVED": {
+        "cancel": "The organizer approved the request. You will also find the result in your e-mail.",
+        "change": "The organizer approved the change. You will also find the result in your e-mail."
+      },
+      "PENDING": {
+        "cancel": "The bed is released only after approval. The organizer decides the cancellation fee and any refund.",
+        "cancelWithoutBed": "The cancellation takes effect only after approval. The organizer decides the cancellation fee and any refund.",
+        "change": "The original bed is released only after approval.",
+        "changeWithoutBed": "The term change takes effect only after approval."
+      },
+      "REJECTED": {
+        "cancel": "The organizer declined the request. Your original participation remains valid.",
+        "change": "The organizer declined the request. Your original participation remains valid."
+      }
     },
+    "onlyTerms": "Only {{terms}}",
+    "pendingDescription": "Sent {{date}}. Until approval, terms, bed and payments do not change. We will tell you the decision by e-mail and in the app.",
+    "pendingDescriptionWithoutBed": "Sent {{date}}. Until approval, terms and payments do not change. We will tell you the decision by e-mail and in the app.",
+    "pendingTitle": "Request awaiting the organizer's decision",
     "reason": "Reason: {{reason}}",
-    "requested": "Requested terms",
+    "request": "Request",
+    "requested": "New term",
     "status": {
       "APPROVED": "Approved",
       "PENDING": "Awaiting approval",
       "REJECTED": "Declined"
-    }
+    },
+    "wholeApplication": "Whole application · all terms ({{count}})"
   },
   "status": {
     "cancelled": "Cancelled",

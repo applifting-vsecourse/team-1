@@ -8,7 +8,7 @@ import { isOpenForTerms } from "@/modules/applications/domain/public-event"
 import { isoDate } from "@/shared/utils/iso-date"
 import { Injectable } from "@nestjs/common"
 
-/** Only events the organizer published in the catalog (US-122) are ever read here. */
+/** The catalog list shows only events the organizer published in it (US-122). */
 const published = { publishedInCatalog: true }
 
 const termsInclude = {
@@ -37,11 +37,13 @@ export class PublicCatalogRepository {
         location: true,
         organization: { select: { id: true, name: true } },
         terms: termsInclude,
+        photo: { select: { id: true } },
       },
     })
 
     return events
       .map((event) => {
+        const isOpen = isOpenForTerms(event.terms.map((term) => ({ roomCount: term._count.rooms })))
         return {
           publicToken: event.publicToken,
           name: event.name,
@@ -54,9 +56,10 @@ export class PublicCatalogRepository {
             endsOn: isoDate(term.endsOn),
           })),
           ...summarizeTerms(event.terms),
-          isOpenForApplications: isOpenForTerms(
-            event.terms.map((term) => ({ roomCount: term._count.rooms })),
-          ),
+          // The photo endpoint has the same gate as the page, so a card of an event without a
+          // working link must not ask for a photo that would answer 404.
+          hasPhoto: event.photo !== null && isOpen,
+          isOpenForApplications: isOpen,
         }
       })
       .sort(
@@ -66,9 +69,13 @@ export class PublicCatalogRepository {
       )
   }
 
-  async findPublished(publicToken: string): Promise<CatalogEventDetail | null> {
-    const event = await this.prisma.event.findFirst({
-      where: { publicToken, ...published },
+  /**
+   * The page of an event at its permanent address (US-22): any event whose application link
+   * works, published in the catalog or not. Anything else is `null`.
+   */
+  async findAccessible(publicToken: string): Promise<CatalogEventDetail | null> {
+    const event = await this.prisma.event.findUnique({
+      where: { publicToken },
       select: {
         publicToken: true,
         name: true,
@@ -82,6 +89,7 @@ export class PublicCatalogRepository {
       },
     })
     if (!event) return null
+    if (!isOpenForTerms(event.terms.map((term) => ({ roomCount: term._count.rooms })))) return null
 
     return {
       publicToken: event.publicToken,
@@ -99,19 +107,22 @@ export class PublicCatalogRepository {
         priceCzk: term.priceCzk,
       })),
       hasPhoto: event.photo !== null,
-      isOpenForApplications: isOpenForTerms(
-        event.terms.map((term) => ({ roomCount: term._count.rooms })),
-      ),
     }
   }
 
-  async findPublishedPhoto(
+  /** The photo of an event with a working application link, same gate as the page. */
+  async findAccessiblePhoto(
     publicToken: string,
   ): Promise<{ contentType: string; data: Uint8Array; updatedAt: Date } | null> {
-    const photo = await this.prisma.eventPhoto.findFirst({
-      where: { event: { publicToken, ...published } },
-      select: { contentType: true, data: true, updatedAt: true },
+    const event = await this.prisma.event.findUnique({
+      where: { publicToken },
+      select: {
+        photo: { select: { contentType: true, data: true, updatedAt: true } },
+        terms: { where: termsInclude.where, select: { _count: { select: { rooms: true } } } },
+      },
     })
-    return photo
+    if (!event?.photo) return null
+    if (!isOpenForTerms(event.terms.map((term) => ({ roomCount: term._count.rooms })))) return null
+    return event.photo
   }
 }

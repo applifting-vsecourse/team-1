@@ -6,6 +6,7 @@ import { Gender } from "@/shared/domain/gender"
 /** One entry of the system log of status changes (US-28): who, when, from which status to which. */
 export type StatusChangeEntry = {
   id: string
+  kind: "STATUS_CHANGED" | "CREATED_BY_ORGANIZER"
   fromStatus: ApplicationTermStatus
   toStatus: ApplicationTermStatus
   /** Name of the organizer; null when the system changed the status. */

@@ -11,6 +11,10 @@ const changeRequestSchema = z.object({
   participantGender: z.enum(["FEMALE", "MALE"]),
   currentTermIds: z.array(z.string()),
   requestedTermIds: z.array(z.string()),
+  /** `HEALTH` (US-68): a change of the health restriction; the term fields are then empty. */
+  kind: z.enum(["TERMS", "HEALTH"]),
+  currentHealthNote: z.string().nullable(),
+  requestedHealthNote: z.string().nullable(),
   currentPriceCzk: z.number().int(),
   requestedPriceCzk: z.number().int(),
   status: z.enum(["PENDING", "APPROVED", "REJECTED"]),

@@ -16,6 +16,9 @@ const request = {
   participantGender: "MALE",
   currentTermIds: ["t1"],
   requestedTermIds: ["t2"],
+  kind: "TERMS",
+  currentHealthNote: null,
+  requestedHealthNote: null,
   currentPriceCzk: 4900,
   requestedPriceCzk: 5600,
   status: "PENDING",
@@ -26,6 +29,16 @@ const request = {
     { id: "t1", name: "First", startsOn: "2027-07-12", endsOn: "2027-07-18", priceCzk: 4900 },
     { id: "t2", name: "Second", startsOn: "2027-07-19", endsOn: "2027-07-25", priceCzk: 5600 },
   ],
+}
+
+const healthRequest = {
+  ...request,
+  id: "r2",
+  currentTermIds: [],
+  requestedTermIds: [],
+  kind: "HEALTH",
+  currentHealthNote: "Astma",
+  requestedHealthNote: "Astma, alergie",
 }
 
 beforeEach(() => {
@@ -100,6 +113,81 @@ describe("ChangeRequestsPanel", () => {
     await user.click(within(dialog).getByRole("button", { name: "Decline request" }))
     expect(patch).toHaveBeenCalledWith("organizer/events/e1/change-requests/r1/reject", {
       json: { reason: "Please contact us" },
+    })
+  })
+
+  it("shows a health request with the current and the requested note and approves it", async () => {
+    patch.mockResolvedValue(undefined)
+    get.mockImplementation(() => ({ json: () => Promise.resolve([healthRequest]) }))
+    render(
+      <QueryClientProvider
+        client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
+      >
+        <ChangeRequestsPanel eventId="e1" />
+      </QueryClientProvider>,
+    )
+    const user = userEvent.setup()
+    expect(await screen.findByText("Health restriction change")).toBeInTheDocument()
+    await user.click(screen.getByRole("button", { name: "Review request" }))
+    const dialog = screen.getByRole("dialog", { name: "Review request" })
+    expect(within(dialog).getByText("Astma")).toBeInTheDocument()
+    expect(within(dialog).getByText("Astma, alergie")).toBeInTheDocument()
+    await user.click(within(dialog).getByRole("button", { name: "Approve request" }))
+    expect(patch).toHaveBeenCalledWith("organizer/events/e1/change-requests/r2/approve", {
+      json: {},
+    })
+  })
+  describe.each([
+    ["TERMS", request],
+    ["HEALTH", healthRequest],
+  ])("%s request form", (_kind, item) => {
+    const renderPanel = () => {
+      get.mockImplementation((path: string) => ({
+        json: () =>
+          Promise.resolve(path.endsWith("occupancy") ? { eventId: "e1", terms: [] } : [item]),
+      }))
+      render(
+        <QueryClientProvider
+          client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
+        >
+          <ChangeRequestsPanel eventId="e1" />
+        </QueryClientProvider>,
+      )
+    }
+
+    it("is closed until a request is selected", async () => {
+      renderPanel()
+      expect(await screen.findByRole("button", { name: "Review request" })).toBeInTheDocument()
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
+      expect(
+        screen.queryByRole("textbox", { name: "Reason for declining" }),
+      ).not.toBeInTheDocument()
+      await userEvent.setup().click(screen.getByRole("button", { name: "Review request" }))
+      expect(screen.getByRole("dialog", { name: "Review request" })).toBeInTheDocument()
+    })
+
+    it("closes on Back to requests without any API call or reason kept", async () => {
+      renderPanel()
+      const user = userEvent.setup()
+      await user.click(await screen.findByRole("button", { name: "Review request" }))
+      await user.type(screen.getByRole("textbox", { name: "Reason for declining" }), "draft")
+      await user.click(screen.getByRole("button", { name: "Back to requests" }))
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
+      expect(patch).not.toHaveBeenCalled()
+      await user.click(screen.getByRole("button", { name: "Review request" }))
+      expect(screen.getByRole("textbox", { name: "Reason for declining" })).toHaveValue("")
+    })
+
+    it("closes with the close icon and Escape without any API call", async () => {
+      renderPanel()
+      const user = userEvent.setup()
+      await user.click(await screen.findByRole("button", { name: "Review request" }))
+      await user.click(screen.getByRole("button", { name: "Close" }))
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
+      await user.click(screen.getByRole("button", { name: "Review request" }))
+      await user.keyboard("{Escape}")
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
+      expect(patch).not.toHaveBeenCalled()
     })
   })
 })

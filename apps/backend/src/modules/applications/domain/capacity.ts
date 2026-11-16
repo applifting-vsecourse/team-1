@@ -2,7 +2,22 @@ import { emptyGenderCounts, Gender, GenderCounts, GENDERS } from "@/shared/domai
 
 export type RoomCapacity = {
   capacity: number
+  /** Extra beds (přistýlky) of the room in its term, each one more bed (US-80). */
+  extraBeds: number
   gender: Gender | null
+}
+
+/** Beds of one room: its own beds plus its extra beds. The only place that adds them up. */
+export function computeRoomBeds(room: Pick<RoomCapacity, "capacity" | "extraBeds">): number {
+  return room.capacity + room.extraBeds
+}
+
+/** Beds of a room still free once `assignedCount` people sleep in it (US-35). Not clamped: an overfilled room is negative. */
+export function computeFreeRoomBeds(
+  room: Pick<RoomCapacity, "capacity" | "extraBeds">,
+  assignedCount: number,
+): number {
+  return computeRoomBeds(room) - assignedCount
 }
 
 /**
@@ -13,7 +28,7 @@ export type RoomCapacity = {
 export function computeTermCapacity(rooms: RoomCapacity[]): GenderCounts {
   const capacity = emptyGenderCounts()
   for (const room of rooms) {
-    if (room.gender !== null) capacity[room.gender] += room.capacity
+    if (room.gender !== null) capacity[room.gender] += computeRoomBeds(room)
   }
   return capacity
 }
@@ -44,7 +59,7 @@ export function computeFreePlaces(capacity: GenderCounts, confirmed: GenderCount
 export function computeRoomCapacity(rooms: RoomCapacity[]): GenderCounts & { total: number } {
   return {
     ...computeTermCapacity(rooms),
-    total: rooms.reduce((sum, room) => sum + room.capacity, 0),
+    total: rooms.reduce((sum, room) => sum + computeRoomBeds(room), 0),
   }
 }
 

@@ -33,6 +33,7 @@ describe("buildPaymentDetails", () => {
           paidCzk: 500,
           owedCzk: 0,
           paymentStatus: "PAID",
+          paymentDeadline: null,
         },
         {
           termId: "t2",
@@ -42,6 +43,7 @@ describe("buildPaymentDetails", () => {
           paidCzk: 0,
           owedCzk: 700,
           paymentStatus: "UNPAID",
+          paymentDeadline: null,
         },
       ],
     })

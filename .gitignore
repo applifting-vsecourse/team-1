@@ -36,3 +36,6 @@ apps/e2e/test-results-mail.log
 # Python bytecode (skripty v .claude/skills a docs/*/generate.py)
 __pycache__/
 *.pyc
+
+# Codex local environment
+.codex/

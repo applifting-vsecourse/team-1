@@ -36,7 +36,8 @@ export class SubstitutesController {
 
   @Get()
   @ApiOperation({
-    summary: "Waitlisted applications a free bed of the term is for, in order of receipt (US-104)",
+    summary:
+      "Waitlisted applications a free bed of the term is for, in order of receipt, the first of each bed group proposed (US-104, US-31)",
   })
   @ApiResponse({ status: 200, type: SubstituteListResponseDto })
   @ApiResponse({ status: 403, description: "Wrong account type or foreign event" })
@@ -56,8 +57,7 @@ export class SubstitutesController {
   @ApiResponse({ status: 403, description: "Wrong account type or foreign event" })
   @ApiResponse({
     status: 409,
-    description:
-      "BED_ALREADY_TAKEN, MANUAL_FILL_NOT_AVAILABLE (automatic mode) or INVALID_STATUS_TRANSITION",
+    description: "BED_ALREADY_TAKEN or INVALID_STATUS_TRANSITION",
   })
   async confirm(
     @User() user: Identity,

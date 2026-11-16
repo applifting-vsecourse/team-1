@@ -16,12 +16,40 @@ export function czechIban(bankAccount: string): string | null {
   return `CZ${String(98 - remainder).padStart(2, "0")}${bban}`
 }
 
-/** Standard Czech QR Platba (SPAYD); the code is generated locally in the browser. */
-export function summaryPaymentSpayd(
-  bankAccount: string,
-  amountCzk: number,
-  variableSymbol: string,
-): string | null {
+/** SPAYD allows 60 characters of message in the limited set of upper-case ASCII; `*` separates fields. */
+const MAX_MESSAGE_LENGTH = 60
+
+/** The event name as a SPAYD message: no diacritics, no `*`, at most 60 characters. */
+export function spaydMessage(text: string): string {
+  return text
+    .normalize("NFD")
+    .replace(/\p{M}/gu, "")
+    .replace(/[^\x20-\x7e]/g, "")
+    .replace(/\*/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, MAX_MESSAGE_LENGTH)
+    .trim()
+}
+
+type PaymentSpaydInput = {
+  bankAccount: string
+  amountCzk: number
+  variableSymbol: string
+  /** Shown to the payer and the recipient, e.g. the event name. */
+  message?: string
+}
+
+/**
+ * Standard Czech QR Platba (SPAYD); the code is generated locally in the browser.
+ * `null` when there is nothing to pay or the account or symbol is unusable.
+ */
+export function paymentSpayd({
+  bankAccount,
+  amountCzk,
+  variableSymbol,
+  message,
+}: PaymentSpaydInput): string | null {
   const iban = czechIban(bankAccount)
   if (
     !iban ||
@@ -31,5 +59,15 @@ export function summaryPaymentSpayd(
   ) {
     return null
   }
-  return `SPD*1.0*ACC:${iban}*AM:${amountCzk}.00*CC:CZK*X-VS:${variableSymbol}`
+  const text = message ? spaydMessage(message) : ""
+  return `SPD*1.0*ACC:${iban}*AM:${amountCzk}.00*CC:CZK*X-VS:${variableSymbol}${text ? `*MSG:${text}` : ""}`
+}
+
+export function summaryPaymentSpayd(
+  bankAccount: string,
+  amountCzk: number,
+  variableSymbol: string,
+  message?: string,
+): string | null {
+  return paymentSpayd({ bankAccount, amountCzk, variableSymbol, message })
 }

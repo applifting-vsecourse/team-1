@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/react"
+import { fireEvent, render, screen, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { describe, expect, it, vi } from "vitest"
 
@@ -56,7 +56,7 @@ async function fillParticipant(
   await userEvent.type(card.getByLabelText("First name *"), data.first)
   await userEvent.type(card.getByLabelText("Last name *"), data.last)
   await userEvent.type(card.getByLabelText("Date of birth *"), data.birth)
-  await userEvent.click(card.getByRole("combobox", { name: "Gender *" }))
+  await userEvent.click(card.getByRole("combobox", { name: "Gender for room allocation *" }))
   await userEvent.click(await screen.findByRole("option", { name: data.gender }))
   await userEvent.click(card.getByRole("checkbox", { name: data.term }))
 }
@@ -124,6 +124,20 @@ describe("ApplicationForm", () => {
     expect(
       screen.getByRole("checkbox", { name: /^11–17 Jul 2027\s?·\s?Week 2\s?·\s?CZK\s4,900$/ }),
     ).toBeInTheDocument()
+  })
+
+  it("explains why the gender is asked and links the explanation to the field", () => {
+    render(
+      <ApplicationForm
+        event={event}
+        onSubmit={submitSpy()}
+      />,
+    )
+
+    const hint = screen.getByText(/to allocate rooms and bed capacity/)
+    expect(
+      screen.getByRole("combobox", { name: "Gender for room allocation *" }),
+    ).toHaveAccessibleDescription(hint.textContent ?? "")
   })
 
   it("shows the price of the ticked terms per participant and updates it with every change", async () => {
@@ -212,9 +226,100 @@ describe("ApplicationForm", () => {
           lastName: "Nováková",
           birthDate: "2010-05-17",
           gender: "FEMALE",
+          individualAccommodation: false,
+          accommodationRequest: "",
           termIds: ["t2"],
         },
       ],
+    })
+  })
+
+  describe("individual accommodation (US-38)", () => {
+    const note = () => screen.queryByLabelText("Note for the organizer (optional)")
+
+    it("asks for a note only after the box is ticked and says who sees it", async () => {
+      render(
+        <ApplicationForm
+          event={event}
+          onSubmit={submitSpy()}
+        />,
+      )
+      const card = within(participantCard(1))
+      expect(card.getByText("Only the event organizer will see this.")).toBeInTheDocument()
+      expect(note()).not.toBeInTheDocument()
+
+      await userEvent.click(
+        card.getByRole("checkbox", { name: "I want to arrange the accommodation individually" }),
+      )
+      expect(note()).toBeInTheDocument()
+      // The gender stays required next to it.
+      expect(card.getByRole("combobox", { name: "Gender for room allocation *" })).toBeVisible()
+    })
+
+    it("sits below the terms and shows how much of the 2,000 characters is used", async () => {
+      render(
+        <ApplicationForm
+          event={event}
+          onSubmit={submitSpy()}
+        />,
+      )
+      const card = within(participantCard(1))
+      const terms = card.getByRole("group", { name: /Choose terms/ })
+      const box = card.getByRole("checkbox", {
+        name: "I want to arrange the accommodation individually",
+      })
+      expect(terms.compareDocumentPosition(box) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+
+      await userEvent.click(box)
+      expect(card.getByText("0 / 2,000")).toBeInTheDocument()
+      await userEvent.type(note()!, "Ground floor")
+      expect(card.getByText("12 / 2,000")).toBeInTheDocument()
+    })
+
+    it("submits the request with its note", async () => {
+      const onSubmit = submitSpy()
+      render(
+        <ApplicationForm
+          event={event}
+          onSubmit={onSubmit}
+        />,
+      )
+      await fillParticipant(1, anna)
+      await userEvent.click(
+        screen.getByRole("checkbox", { name: "I want to arrange the accommodation individually" }),
+      )
+      await userEvent.type(note()!, "Ground floor, please.")
+      await userEvent.type(screen.getByLabelText("Contact e-mail *"), "anna@example.com")
+      await userEvent.click(screen.getByRole("checkbox", { name: /agree to the processing/ }))
+      await userEvent.click(screen.getByRole("button", { name: "Submit application" }))
+
+      expect(onSubmit.mock.lastCall?.[0].participants[0]).toMatchObject({
+        individualAccommodation: true,
+        accommodationRequest: "Ground floor, please.",
+      })
+    })
+
+    it("does not submit a note over 2,000 characters and shows the error under the field", async () => {
+      const onSubmit = submitSpy()
+      render(
+        <ApplicationForm
+          event={event}
+          onSubmit={onSubmit}
+        />,
+      )
+      await fillParticipant(1, anna)
+      await userEvent.click(
+        screen.getByRole("checkbox", { name: "I want to arrange the accommodation individually" }),
+      )
+      fireEvent.change(note()!, { target: { value: "x".repeat(2001) } })
+      await userEvent.type(screen.getByLabelText("Contact e-mail *"), "anna@example.com")
+      await userEvent.click(screen.getByRole("checkbox", { name: /agree to the processing/ }))
+      await userEvent.click(screen.getByRole("button", { name: "Submit application" }))
+
+      expect(
+        await screen.findByText("The note can have at most 2,000 characters."),
+      ).toBeInTheDocument()
+      expect(onSubmit).not.toHaveBeenCalled()
     })
   })
 

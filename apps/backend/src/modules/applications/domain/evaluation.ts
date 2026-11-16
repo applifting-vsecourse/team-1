@@ -8,6 +8,16 @@ import { Gender, GenderCounts } from "@/shared/domain/gender"
  */
 export type ApplicationTermStatus = "TO_EVALUATE" | "CONFIRMED" | "WAITLISTED" | "CANCELLED"
 
+/**
+ * Who can sleep in a room (US-35): a confirmed application in the term, or one still waiting for
+ * the manual evaluation (the assignment confirms nothing). Waitlisted and cancelled ones cannot.
+ */
+export const ASSIGNABLE_STATUSES: readonly ApplicationTermStatus[] = ["CONFIRMED", "TO_EVALUATE"]
+
+export function isAssignable(status: ApplicationTermStatus): boolean {
+  return ASSIGNABLE_STATUSES.includes(status)
+}
+
 /** What the automatic evaluation of a new application can decide. */
 export type AutomaticEvaluationStatus = "CONFIRMED" | "WAITLISTED"
 

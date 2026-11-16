@@ -3,6 +3,7 @@ import { X } from "lucide-react"
 import { useFormContext, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import { CharacterCounter } from "@/components/atoms/CharacterCounter"
 import { TermPrice } from "@/components/atoms/MoneyAmount"
 import { DateField } from "@/components/molecules/DateField"
 import { Button } from "@/components/ui/button"
@@ -25,6 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Textarea } from "@/components/ui/textarea"
 import { formatDateRange } from "@/lib/date"
 import { termName } from "@/lib/term-label"
 import { cn } from "@/lib/utils"
@@ -32,6 +34,7 @@ import { cn } from "@/lib/utils"
 import type { PublicTerm } from "@/features/application-form/api/publicEvent"
 import {
   GENDERS,
+  MAX_ACCOMMODATION_NOTE_LENGTH,
   type ApplicationFormDraft,
 } from "@/features/application-form/lib/application-form-schema"
 
@@ -39,6 +42,12 @@ import {
 // V07a https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12666-2708
 // M02a https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12666-18899
 // M03  https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12666-19517 (errors)
+// US-120 gender label + explanation: #245 Údaje účastníka
+//   desktop https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19799-67177
+//   mobile  https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19799-67279
+// US-38 individual accommodation (checkbox, hint, note; states: unticked, ticked with a note, note too long)
+//   desktop https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=25584-11418
+//   mobile  https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=25584-11441
 
 type ParticipantFieldsProps = {
   /** Position in the form, 0-based. */
@@ -56,6 +65,10 @@ export function ParticipantFields({ index, terms, onRemove, isDisabled }: Partic
   const [firstName, lastName] = useWatch({
     control,
     name: [`participants.${index}.firstName`, `participants.${index}.lastName`],
+  })
+  const isIndividual = useWatch({
+    control,
+    name: `participants.${index}.individualAccommodation`,
   })
   const number = index + 1
   const name = [firstName, lastName].filter(Boolean).join(" ").trim()
@@ -168,7 +181,12 @@ export function ParticipantFields({ index, terms, onRemove, isDisabled }: Partic
                   ))}
                 </SelectContent>
               </Select>
-              <FormMessage />
+              <div className="flex flex-col">
+                <FormDescription className="text-xs leading-[18px] font-medium">
+                  {t("form.genderHint")}
+                </FormDescription>
+                <FormMessage className="text-xs leading-[18px] font-medium" />
+              </div>
             </FormItem>
           )}
         />
@@ -231,6 +249,58 @@ export function ParticipantFields({ index, terms, onRemove, isDisabled }: Partic
           </FormItem>
         )}
       />
+
+      {/* US-38: below the terms, set off by a hairline; the note appears once the box is ticked. */}
+      <div className="flex flex-col gap-4 border-t border-border pt-4">
+        <FormField
+          control={control}
+          name={`participants.${index}.individualAccommodation`}
+          render={({ field }) => (
+            <FormItem className="gap-1">
+              <div className="flex min-h-11 items-center gap-3">
+                <FormControl>
+                  <Checkbox
+                    className="size-5"
+                    checked={field.value}
+                    onCheckedChange={(isChecked) => field.onChange(isChecked === true)}
+                    onBlur={field.onBlur}
+                  />
+                </FormControl>
+                <FormLabel className="flex-1 cursor-pointer self-stretch leading-5 font-normal">
+                  {t("form.individualAccommodation")}
+                </FormLabel>
+              </div>
+              <FormDescription className="pl-8 text-sm">
+                {t("form.individualAccommodationHint")}
+              </FormDescription>
+            </FormItem>
+          )}
+        />
+        {isIndividual ? (
+          <FormField
+            control={control}
+            name={`participants.${index}.accommodationRequest`}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{t("form.accommodationRequest")}</FormLabel>
+                <FormControl>
+                  <Textarea
+                    {...field}
+                    className="min-h-32"
+                  />
+                </FormControl>
+                <div className="flex items-start gap-3">
+                  <FormMessage />
+                  <CharacterCounter
+                    count={field.value.length}
+                    max={MAX_ACCOMMODATION_NOTE_LENGTH}
+                  />
+                </div>
+              </FormItem>
+            )}
+          />
+        ) : null}
+      </div>
     </Card>
   )
 }

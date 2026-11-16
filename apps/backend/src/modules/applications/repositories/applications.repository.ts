@@ -25,13 +25,29 @@ type SubmittedPerson = {
 /** Decides the status of every term of every application from what the lock protects. */
 export type Evaluate = (snapshot: OccupancySnapshot) => EvaluatedTerm[][]
 
+/** Account creation can be deferred until validation under the event lock succeeds. */
+export type ApplicationToSave = Omit<NewApplication, "userId"> & {
+  userId: string | (() => Promise<string>)
+}
+
 @Injectable()
 export class ApplicationsRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async findEventForSubmission(publicToken: string): Promise<SubmissionEvent | null> {
+    return this.findEvent({ publicToken })
+  }
+
+  async findEventForOrganizer(
+    eventId: string,
+    organizationId: string,
+  ): Promise<SubmissionEvent | null> {
+    return this.findEvent({ id: eventId, organizationId })
+  }
+
+  private async findEvent(where: Prisma.EventWhereUniqueInput): Promise<SubmissionEvent | null> {
     const event = await this.prisma.event.findUnique({
-      where: { publicToken },
+      where,
       include: {
         organization: { select: { name: true, bankAccount: true } },
         terms: {
@@ -74,8 +90,9 @@ export class ApplicationsRepository {
    */
   async saveEvaluated(
     event: Pick<SubmissionEvent, "id" | "organizationId">,
-    applications: NewApplication[],
+    applications: ApplicationToSave[],
     evaluate: Evaluate,
+    organizerId?: string,
   ): Promise<SavedApplication[]> {
     const termIds = [...new Set(applications.flatMap((application) => application.termIds))]
 
@@ -98,7 +115,7 @@ export class ApplicationsRepository {
       const [rooms, confirmed] = await Promise.all([
         tx.room.findMany({
           where: { termId: { in: termIds } },
-          select: { termId: true, capacity: true, gender: true },
+          select: { termId: true, capacity: true, extraBeds: true, gender: true },
         }),
         tx.applicationTerm.findMany({
           where: { termId: { in: termIds }, status: "CONFIRMED" },
@@ -111,8 +128,8 @@ export class ApplicationsRepository {
       }
 
       const roomsByTerm: OccupancySnapshot["roomsByTerm"] = {}
-      for (const { termId, capacity, gender } of rooms) {
-        roomsByTerm[termId] = [...(roomsByTerm[termId] ?? []), { capacity, gender }]
+      for (const { termId, capacity, extraBeds, gender } of rooms) {
+        roomsByTerm[termId] = [...(roomsByTerm[termId] ?? []), { capacity, extraBeds, gender }]
       }
 
       const evaluated = evaluate({ roomsByTerm, confirmedGenders })
@@ -120,18 +137,23 @@ export class ApplicationsRepository {
       const saved: SavedApplication[] = []
       for (const [index, application] of applications.entries()) {
         const terms = evaluated[index]
+        const userId =
+          typeof application.userId === "function" ? await application.userId() : application.userId
         const submittedAt = new Date()
         const row = await tx.application.create({
           data: {
             organization: { connect: { id: event.organizationId } },
             event: { connect: { id: event.id } },
-            user: { connect: { id: application.userId } },
+            user: { connect: { id: userId } },
             accessToken: application.accessToken,
             firstName: application.firstName,
             lastName: application.lastName,
             birthDate: new Date(`${application.birthDate}T00:00:00Z`),
             gender: application.gender,
             email: application.email,
+            phone: application.phone,
+            individualAccommodation: application.individualAccommodation ?? false,
+            accommodationRequest: application.accommodationRequest ?? null,
             locale: application.locale,
             consentAt: application.consentAt,
             submittedAt,
@@ -142,13 +164,26 @@ export class ApplicationsRepository {
                 status: term.status,
                 priceCzk: term.priceCzk,
                 evaluatedAt: submittedAt,
+                ...(organizerId
+                  ? {
+                      statusChanges: {
+                        create: {
+                          organization: { connect: { id: event.organizationId } },
+                          fromStatus: term.status,
+                          toStatus: term.status,
+                          changedBy: { connect: { id: organizerId } },
+                        },
+                      },
+                    }
+                  : {}),
               })),
             },
           },
-          select: { number: true },
+          select: { id: true, number: true },
         })
         saved.push({
           number: row.number,
+          id: row.id,
           accessToken: application.accessToken,
           firstName: application.firstName,
           terms,

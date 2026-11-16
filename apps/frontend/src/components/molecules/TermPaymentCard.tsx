@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/accordion"
 import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
+import { formatDate } from "@/lib/date"
 
 export type TermPaymentStatus =
   "NOTHING_DUE" | "UNPAID" | "PARTIALLY_PAID" | "PAID" | "OVERPAID" | "WAITLISTED"
@@ -25,6 +26,12 @@ type TermPaymentCardProps = {
   owedCzk: number
   bankAccount: string
   variableSymbol: string
+  /** When the debt falls due (ISO datetime); shown next to what is owed. */
+  paymentDeadline?: string | null
+  /** The payment QR of the debt (US-41), shown under the payment details. */
+  qr?: ReactNode
+  /** A line under the payment details, e.g. what to do with an overpayment. */
+  note?: ReactNode
   /** What the viewer can do with the term, e.g. the organizer's "record a payment". */
   action?: ReactNode
 }
@@ -42,6 +49,9 @@ const badgeVariant = {
  * variable symbol of the term (US-110). A paid term is a collapsed card (date and badge) that opens
  * to the detail; a waitlisted one only says nothing is paid yet.
  */
+// Figma (Design system): #311 Moje přihláška · Adam Dvořák · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19799-15345 (360 px: node-id=19799-15493)
+// Figma (Design system): #311 Moje přihláška · Zaplaceno a termín zdarma · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19799-15771 (360 px: node-id=19799-15884)
+// Figma (Design system): #311 Moje přihláška · Přeplatek a dluh · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19799-15947 (360 px: node-id=19799-16073)
 // Figma (Design system): Karta termínu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19446-14246
 // Figma (Design system): Detail přihlášky · Platby · Dluh 500 + 700 Kč · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15845-628 (360 px: node-id=15845-736)
 // Figma (Design system): Detail přihlášky · Platby · Oba termíny zaplacené #203 · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19446-22050 (360 px: node-id=19446-22404)
@@ -55,6 +65,9 @@ export function TermPaymentCard({
   owedCzk,
   bankAccount,
   variableSymbol,
+  paymentDeadline,
+  qr,
+  note,
   action,
 }: TermPaymentCardProps) {
   const { t } = useTranslation("common")
@@ -70,6 +83,8 @@ export function TermPaymentCard({
     )
   }
 
+  // The participant's cards (with a payment QR, US-41) stack label over value; the organizer's keep the rows.
+  const isStacked = qr !== undefined
   const statusBadge = (
     <Badge variant={badgeVariant[status]}>{t(`termPayment.status.${status}`)}</Badge>
   )
@@ -102,9 +117,10 @@ export function TermPaymentCard({
       {status === "UNPAID" || status === "PARTIALLY_PAID" || status === "PAID" ? (
         <div className="flex flex-col gap-1">
           <h4 className="text-sm font-semibold">{t("termPayment.paymentDetails")}</h4>
-          <dl className="flex flex-col text-sm">
+          <dl className={isStacked ? "flex flex-col gap-3 text-sm" : "flex flex-col text-sm"}>
             {owedCzk > 0 ? (
               <CopyRow
+                isStacked={isStacked}
                 label={t("termPayment.amountToPay")}
                 value={String(owedCzk)}
                 copyLabel={t("clipboard.copyAmount")}
@@ -113,6 +129,7 @@ export function TermPaymentCard({
               </CopyRow>
             ) : null}
             <CopyRow
+              isStacked={isStacked}
               label={t("termPayment.account")}
               value={bankAccount}
               copyLabel={t("clipboard.copyAccount")}
@@ -120,19 +137,33 @@ export function TermPaymentCard({
               <span className="break-all">{bankAccount}</span>
             </CopyRow>
             <CopyRow
+              isStacked={isStacked}
               label={t("termPayment.variableSymbol")}
               value={variableSymbol}
               copyLabel={t("clipboard.copyVariableSymbol")}
             >
               <span className="break-all">{variableSymbol}</span>
             </CopyRow>
+            {owedCzk > 0 && paymentDeadline ? (
+              <div
+                className={
+                  isStacked ? "flex flex-col" : "flex items-center justify-between gap-4 py-2"
+                }
+              >
+                <dt className="text-muted-foreground">{t("termPayment.deadline")}</dt>
+                <dd className="text-base">{formatDate(paymentDeadline)}</dd>
+              </div>
+            ) : null}
           </dl>
+          {owedCzk > 0 && qr ? <div className="flex justify-center pt-2">{qr}</div> : null}
         </div>
       ) : null}
+      {note}
     </>
   )
 
-  if (status === "PAID") {
+  // A paid term, or one with a payment QR (US-41), starts collapsed so the cards of a list read alike.
+  if (status === "PAID" || qr !== undefined) {
     return (
       <Card className="gap-0 p-0">
         <Accordion
@@ -194,17 +225,34 @@ function Row({
   )
 }
 
+/** A payment detail with its copy button; stacked: the label, and under it the value with the button. */
 function CopyRow({
   label,
   value,
   copyLabel,
+  isStacked,
   children,
 }: {
   label: string
   value: string
   copyLabel: string
+  isStacked: boolean
   children: ReactNode
 }) {
+  if (isStacked) {
+    return (
+      <div className="flex flex-col">
+        <dt className="text-muted-foreground">{label}</dt>
+        <dd className="flex min-w-0 items-center justify-between gap-2 text-base">
+          <span className="min-w-0">{children}</span>
+          <CopyButton
+            value={value}
+            label={copyLabel}
+          />
+        </dd>
+      </div>
+    )
+  }
   return (
     <div className="flex items-center justify-between gap-4">
       <dt className="text-muted-foreground">{label}</dt>

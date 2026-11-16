@@ -3,10 +3,28 @@ import { render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
+import { notify } from "@/lib/notify"
+
+import type { SessionUser } from "@/features/auth/api/authSessionQueryOptions"
 import { ChangePasswordForm } from "@/features/auth/components/ChangePasswordForm"
 
 const authClient = vi.hoisted(() => ({ changePassword: vi.fn() }))
 vi.mock("@/features/auth/lib/auth-client", () => ({ authClient }))
+
+const router = vi.hoisted(() => ({
+  history: { canGoBack: vi.fn(), back: vi.fn() },
+  navigate: vi.fn(),
+}))
+vi.mock("@tanstack/react-router", () => ({
+  useRouter: () => ({ history: router.history }),
+  useNavigate: () => router.navigate,
+}))
+vi.mock("@/lib/notify", () => ({ notify: { success: vi.fn() } }))
+vi.mock("@/features/auth/hooks/useSession", () => ({
+  useSession: () => ({
+    user: { id: "u1", accountType: "ORGANIZER", mustSetPassword: false } as SessionUser,
+  }),
+}))
 
 const renderForm = () =>
   render(
@@ -23,6 +41,10 @@ const fill = async (current: string, next: string) => {
 
 describe("ChangePasswordForm", () => {
   beforeEach(() => {
+    router.history.canGoBack.mockReset()
+    router.history.back.mockReset()
+    router.navigate.mockReset()
+    vi.mocked(notify.success).mockReset()
     authClient.changePassword.mockReset()
     authClient.changePassword.mockResolvedValue({ data: {}, error: null })
   })
@@ -38,6 +60,7 @@ describe("ChangePasswordForm", () => {
     })
     expect(await screen.findByLabelText("New password *")).toHaveValue("")
     expect(screen.getByLabelText("Current password *")).toHaveValue("")
+    expect(notify.success).toHaveBeenCalledWith("New password saved")
   })
 
   it("refuses a new password shorter than 8 characters and sends nothing", async () => {
@@ -81,12 +104,23 @@ describe("ChangePasswordForm", () => {
     )
   })
 
-  it("empties the form on Cancel", async () => {
+  it("goes back to the previous page on Back", async () => {
+    router.history.canGoBack.mockReturnValue(true)
     renderForm()
-    await userEvent.type(screen.getByLabelText("New password *"), "abc")
 
-    await userEvent.click(screen.getByRole("button", { name: "Cancel" }))
+    await userEvent.click(screen.getByRole("button", { name: "Back" }))
 
-    expect(screen.getByLabelText("New password *")).toHaveValue("")
+    expect(router.history.back).toHaveBeenCalled()
+    expect(router.navigate).not.toHaveBeenCalled()
+  })
+
+  it("goes to the area home on Back when there is no previous page", async () => {
+    router.history.canGoBack.mockReturnValue(false)
+    renderForm()
+
+    await userEvent.click(screen.getByRole("button", { name: "Back" }))
+
+    expect(router.history.back).not.toHaveBeenCalled()
+    expect(router.navigate).toHaveBeenCalledWith({ to: "/organizer" })
   })
 })

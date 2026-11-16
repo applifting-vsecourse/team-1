@@ -1,4 +1,5 @@
 import { ApplicationTermStatus } from "./evaluation"
+import { computeOverviewPaymentDeadline } from "./payment-deadline"
 import {
   computeAmountDue,
   computeAmountPaid,
@@ -21,6 +22,10 @@ export type PaymentTermRecord = {
   /** Price frozen at evaluation. */
   priceCzk: number
   payments: { amountCzk: number }[]
+  /** Latest confirmation of the term; with `paymentPeriodDays` it gives the due date (US-41). */
+  confirmedAt?: Date | null
+  /** Restart of the payment period after a correction (US-112). */
+  paymentPeriodStartedAt?: Date | null
 }
 
 /** Summary over the terms of one application: Σ due and Σ paid, as before US-137. */
@@ -43,6 +48,8 @@ export type TermPaymentDetail = {
   /** Negative is an overpayment of this term. */
   owedCzk: number
   paymentStatus: PaymentStatus
+  /** When the debt of this term falls due (D-099); `null` when nothing is owed or it is not known. */
+  paymentDeadline: Date | null
 }
 
 export type PaymentDetails = {
@@ -66,21 +73,35 @@ export function buildPaymentDetails(
   applicationNumber: number,
   bankAccount: string,
   terms: PaymentTermRecord[],
+  /** Event's payment period; without it no deadline is computed. */
+  paymentPeriodDays?: number,
 ): PaymentDetails | null {
   const confirmed = terms
     .filter((term) => term.status === "CONFIRMED")
     .sort((a, b) => a.startsOn.getTime() - b.startsOn.getTime() || a.termNumber - b.termNumber)
   if (confirmed.length === 0) return null
 
-  const details = confirmed.map((term) => ({
-    termId: term.termId,
-    termNumber: term.termNumber,
-    variableSymbol: variableSymbol(applicationNumber, term.termNumber),
-    dueCzk: computeTermDue(term),
-    paidCzk: computeTermPaid(term.payments),
-    owedCzk: computeTermOwed(term, term.payments),
-    paymentStatus: computeTermPaymentStatus(term, term.payments),
-  }))
+  const details = confirmed.map((term) => {
+    const owedCzk = computeTermOwed(term, term.payments)
+    return {
+      termId: term.termId,
+      termNumber: term.termNumber,
+      variableSymbol: variableSymbol(applicationNumber, term.termNumber),
+      dueCzk: computeTermDue(term),
+      paidCzk: computeTermPaid(term.payments),
+      owedCzk,
+      paymentStatus: computeTermPaymentStatus(term, term.payments),
+      paymentDeadline:
+        owedCzk > 0 && term.confirmedAt && paymentPeriodDays !== undefined
+          ? computeOverviewPaymentDeadline({
+              confirmedAt: term.confirmedAt,
+              paymentPeriodStartedAt: term.paymentPeriodStartedAt ?? null,
+              startsOn: term.startsOn,
+              paymentPeriodDays,
+            })
+          : null,
+    }
+  })
   return {
     bankAccount,
     summary: {

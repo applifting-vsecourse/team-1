@@ -15,8 +15,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import { formatDate, formatDateRange } from "@/lib/date"
 import { formatCzk } from "@/lib/money"
 import { notify } from "@/lib/notify"
@@ -70,12 +70,14 @@ export function ChangeRequestsPanel({ eventId }: { eventId: string }) {
   }
   const request = query.data.find((item) => item.id === selectedId)
   const summary = (item: EventChangeRequest) =>
-    item.requestedTermIds.length === 0
-      ? t("changeRequests.cancelSummary", { current: termLabels(item, item.currentTermIds) })
-      : t("changeRequests.changeSummary", {
-          current: termLabels(item, item.currentTermIds),
-          requested: termLabels(item, item.requestedTermIds),
-        })
+    item.kind === "HEALTH"
+      ? t("changeRequests.healthSummary")
+      : item.requestedTermIds.length === 0
+        ? t("changeRequests.cancelSummary", { current: termLabels(item, item.currentTermIds) })
+        : t("changeRequests.changeSummary", {
+            current: termLabels(item, item.currentTermIds),
+            requested: termLabels(item, item.requestedTermIds),
+          })
   const freePlaces = (item: EventChangeRequest, termId: string) => {
     const term = occupancy.data?.terms.find((term) => term.id === termId)
     return term?.byGender ? term.byGender[item.participantGender].free : term?.free
@@ -133,51 +135,76 @@ export function ChangeRequestsPanel({ eventId }: { eventId: string }) {
               <p className="text-sm text-muted-foreground">{t("changeRequests.participant")}</p>
               <p>{request.participantName}</p>
             </div>
-            <div>
-              <p className="text-sm text-muted-foreground">{t("changeRequests.current")}</p>
-              <p>{termLabels(request, request.currentTermIds)}</p>
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">{t("changeRequests.requested")}</p>
-              <p>
-                {request.requestedTermIds.length
-                  ? termLabels(request, request.requestedTermIds)
-                  : t("changeRequests.cancelAll")}
-              </p>
-            </div>
-            {request.requestedTermIds
-              .filter((id) => !request.currentTermIds.includes(id))
-              .map((id) => (
-                <div key={id}>
+            {request.kind === "HEALTH" ? (
+              <>
+                <div>
                   <p className="text-sm text-muted-foreground">
-                    {t("changeRequests.capacity", { term: termLabels(request, [id]) })}
+                    {t("changeRequests.healthCurrent")}
                   </p>
-                  <p>
-                    {freePlaces(request, id) === undefined
-                      ? t("changeRequests.checkAtApproval")
-                      : `${t("changeRequests.freeBeds", { count: freePlaces(request, id) })} · ${t("changeRequests.checkAtApproval")}`}
+                  <p className="break-words whitespace-pre-line">{request.currentHealthNote}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">
+                    {t("changeRequests.healthRequested")}
+                  </p>
+                  <p className="break-words whitespace-pre-line">
+                    {request.requestedHealthNote === ""
+                      ? t("changeRequests.healthRemoved")
+                      : request.requestedHealthNote}
                   </p>
                 </div>
-              ))}
-            {request.requestedTermIds.length ? (
-              <div>
-                <p className="text-sm text-muted-foreground">{t("changeRequests.price")}</p>
+                <p>{t("changeRequests.healthNote")}</p>
+              </>
+            ) : (
+              <>
+                <div>
+                  <p className="text-sm text-muted-foreground">{t("changeRequests.current")}</p>
+                  <p>{termLabels(request, request.currentTermIds)}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">{t("changeRequests.requested")}</p>
+                  <p>
+                    {request.requestedTermIds.length
+                      ? termLabels(request, request.requestedTermIds)
+                      : t("changeRequests.cancelAll")}
+                  </p>
+                </div>
+                {request.requestedTermIds
+                  .filter((id) => !request.currentTermIds.includes(id))
+                  .map((id) => (
+                    <div key={id}>
+                      <p className="text-sm text-muted-foreground">
+                        {t("changeRequests.capacity", { term: termLabels(request, [id]) })}
+                      </p>
+                      <p>
+                        {freePlaces(request, id) === undefined
+                          ? t("changeRequests.checkAtApproval")
+                          : `${t("changeRequests.freeBeds", { count: freePlaces(request, id) })} · ${t("changeRequests.checkAtApproval")}`}
+                      </p>
+                    </div>
+                  ))}
+                {request.requestedTermIds.length ? (
+                  <div>
+                    <p className="text-sm text-muted-foreground">{t("changeRequests.price")}</p>
+                    <p>
+                      {formatCzk(request.currentPriceCzk)} → {formatCzk(request.requestedPriceCzk)}
+                    </p>
+                  </div>
+                ) : null}
                 <p>
-                  {formatCzk(request.currentPriceCzk)} → {formatCzk(request.requestedPriceCzk)}
+                  {t(
+                    request.requestedTermIds.length
+                      ? "changeRequests.changeNote"
+                      : "changeRequests.cancelNote",
+                  )}
                 </p>
-              </div>
-            ) : null}
-            <p>
-              {t(
-                request.requestedTermIds.length
-                  ? "changeRequests.changeNote"
-                  : "changeRequests.cancelNote",
-              )}
-            </p>
+              </>
+            )}
             <div className="flex flex-col gap-2">
               <Label htmlFor="change-request-reason">{t("changeRequests.reason")}</Label>
-              <Input
+              <Textarea
                 id="change-request-reason"
+                className="min-h-32 rounded-xl shadow-none"
                 value={reason}
                 maxLength={1000}
                 placeholder={t("changeRequests.reasonPlaceholder")}

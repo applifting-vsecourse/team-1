@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router"
 
+import { ApplicationHistory } from "@/features/event-overview/components/ApplicationHistory"
 import { ApplicationSubstituteRecords } from "@/features/event-overview/components/ApplicationSubstituteRecords"
 import { PaymentDetail } from "@/features/event-overview/components/PaymentDetail"
 import { TermStatuses } from "@/features/event-overview/components/TermStatuses"
@@ -19,6 +20,7 @@ function PaymentPage() {
       <PaymentDetail applicationId={applicationId} />
       <TermStatuses applicationId={applicationId} />
       <ApplicationSubstituteRecords applicationId={applicationId} />
+      <ApplicationHistory applicationId={applicationId} />
     </div>
   )
 }

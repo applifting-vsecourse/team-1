@@ -22,6 +22,7 @@ const termStatusSchema = z.object({
   history: z.array(
     z.object({
       id: z.string(),
+      kind: z.enum(["STATUS_CHANGED", "CREATED_BY_ORGANIZER"]),
       fromStatus: statusSchema,
       toStatus: statusSchema,
       /** Null: the system changed the status. */

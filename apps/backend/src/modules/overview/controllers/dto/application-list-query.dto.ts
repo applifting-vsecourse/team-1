@@ -1,6 +1,10 @@
 import {
+  ACCOMMODATION_FILTERS,
   FILTERABLE_PAYMENT_STATUSES,
+  WAITLIST_FILTERS,
+  type AccommodationFilter,
   type FilterablePaymentStatus,
+  type WaitlistFilter,
 } from "@/modules/overview/domain/application-list"
 import { ApiPropertyOptional } from "@nestjs/swagger"
 import { IsIn, IsOptional, IsString, MaxLength } from "class-validator"
@@ -24,4 +28,18 @@ export class ApplicationListQueryDto {
   @IsOptional()
   @IsIn(FILTERABLE_PAYMENT_STATUSES)
   payment?: FilterablePaymentStatus
+  @ApiPropertyOptional({
+    enum: WAITLIST_FILTERS,
+    description: "FREE_BED: waitlisted with a free bed in a manually evaluated term",
+  })
+  @IsOptional()
+  @IsIn(WAITLIST_FILTERS)
+  waitlist?: WaitlistFilter
+  @ApiPropertyOptional({
+    enum: ACCOMMODATION_FILTERS,
+    description: "INDIVIDUAL: the applicant asked to settle the accommodation individually (US-38)",
+  })
+  @IsOptional()
+  @IsIn(ACCOMMODATION_FILTERS)
+  accommodation?: AccommodationFilter
 }

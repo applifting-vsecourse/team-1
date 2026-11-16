@@ -14,8 +14,20 @@ type ApplicationDto = {
   amountDueCzk: number
   amountPaidCzk: number
   amountOwedCzk: number
-  paymentDetails: { bankAccount: string; summary: { variableSymbol: string } } | null
+  paymentDetails: {
+    bankAccount: string
+    summary: { variableSymbol: string }
+    terms: {
+      termId: string
+      variableSymbol: string
+      owedCzk: number
+      paymentStatus: string
+      paymentDeadline: string | null
+    }[]
+  } | null
   paymentStatus: string
+  canSimulatePayment: boolean
+  simulatedPayments: { termId: string; amountCzk: number }[]
   organizationContact: { name: string; email: string | null; phone: string | null }
 }
 
@@ -86,6 +98,31 @@ describe("participant applications (integration)", () => {
     return application
   }
 
+  /** These accounts have no password; sign in as the participant through a session row instead. */
+  const sessionCookie = async (email: string): Promise<string> => {
+    const user = await prisma.user.findUniqueOrThrow({ where: { email } })
+    const token = `session-${email}`
+    await prisma.session.upsert({
+      where: { token },
+      update: {},
+      create: {
+        id: `s-${email}`,
+        token,
+        userId: user.id,
+        expiresAt: new Date(Date.now() + 3_600_000),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    })
+    const { createHmac } = await import("node:crypto")
+    const signature = encodeURIComponent(
+      createHmac("sha256", process.env.BETTER_AUTH_SECRET ?? "")
+        .update(token)
+        .digest("base64"),
+    )
+    return `better-auth.session_token=${token}.${signature}`
+  }
+
   beforeAll(async () => {
     prisma = await connectTestPrisma()
     await resetAndSeed(prisma)
@@ -136,6 +173,37 @@ describe("participant applications (integration)", () => {
       summary: { variableSymbol: camp.variableSymbol, payableCzk: 0 },
     })
   })
+
+  it("gives every confirmed term of every application its own variable symbol (US-41)", async () => {
+    await addApplication("vs-one@example.com", [])
+    await addApplication("vs-two@example.com", [])
+    const all = [
+      ...(await listOf(await signIn("ucastnik@example.com", "password4"))),
+      ...(await listOf(await sessionCookie("vs-one@example.com"))),
+      ...(await listOf(await sessionCookie("vs-two@example.com"))),
+    ]
+    const symbols = all.flatMap((a) => a.paymentDetails?.terms.map((t) => t.variableSymbol) ?? [])
+
+    expect(symbols.length).toBeGreaterThan(2)
+    expect(new Set(symbols).size).toBe(symbols.length)
+  })
+
+  it.each([
+    ["paid", "dl-paid@example.com", [4500], "PAID", 0],
+    ["overpaid", "dl-over@example.com", [5000], "OVERPAID", -500],
+  ])(
+    "shows the due date of the unpaid term and none for the %s one (US-41)",
+    async (_name, email, payments, firstStatus, firstOwed) => {
+      await addApplication(email, payments)
+      const [application] = await listOf(await sessionCookie(email))
+
+      const [first, second] = application.paymentDetails!.terms
+      expect(first).toMatchObject({ paymentStatus: firstStatus, owedCzk: firstOwed })
+      expect(first.paymentDeadline).toBeNull()
+      expect(second).toMatchObject({ paymentStatus: "UNPAID", owedCzk: 4900 })
+      expect(Number.isNaN(Date.parse(second.paymentDeadline!))).toBe(false)
+    },
+  )
 
   it("shows what is left to pay of a partly paid application", async () => {
     const applications = await listOf(await signIn("ucastnik@example.com", "password4"))
@@ -286,5 +354,64 @@ describe("participant applications (integration)", () => {
     const cookie = await signIn("organizator@example.com", "password1")
 
     expect((await get("/participant/applications", cookie)).status).toBe(403)
+  })
+
+  describe("payment simulation (US-115)", () => {
+    const simulate = (applicationId: string, termId: string, cookie?: string): Promise<Response> =>
+      fetch(api(`/participant/applications/${applicationId}/payments/simulation`), {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...(cookie ? { Cookie: cookie } : {}) },
+        body: JSON.stringify({ termId }),
+      })
+
+    it("settles the debt of one term with a payment of source simulation", async () => {
+      const email = "simulation@example.com"
+      const { id } = await addApplication(email, [])
+      const cookie = await sessionCookie(email)
+      const before = (await listOf(cookie))[0]
+      const [first, second] = before.paymentDetails!.terms
+
+      expect(before).toMatchObject({ canSimulatePayment: true, simulatedPayments: [] })
+      expect((await simulate(id, first.termId, cookie)).status).toBe(204)
+
+      const after = (await listOf(cookie))[0]
+      expect(after.paymentDetails!.terms.find((t) => t.termId === first.termId)?.owedCzk).toBe(0)
+      expect(after.paymentDetails!.terms.find((t) => t.termId === second.termId)?.owedCzk).toBe(
+        second.owedCzk,
+      )
+      expect(after.simulatedPayments).toEqual([
+        expect.objectContaining({ termId: first.termId, amountCzk: first.owedCzk }),
+      ])
+      const rows = await prisma.payment.findMany({
+        where: { applicationTerm: { applicationId: id } },
+      })
+      expect(rows).toHaveLength(1)
+      expect(rows[0]).toMatchObject({ source: "SIMULATION", amountCzk: first.owedCzk })
+    })
+
+    it("refuses a term that has nothing left to pay", async () => {
+      const email = "simulation-paid@example.com"
+      const { id } = await addApplication(email, [])
+      const cookie = await sessionCookie(email)
+      const [first] = (await listOf(cookie))[0].paymentDetails!.terms
+      expect((await simulate(id, first.termId, cookie)).status).toBe(204)
+
+      expect((await simulate(id, first.termId, cookie)).status).toBe(400)
+    })
+
+    it("refuses someone else's application, an organizer and a missing session", async () => {
+      const { id } = await addApplication("simulation-owner@example.com", [])
+      await addApplication("simulation-other@example.com", [])
+      const other = await sessionCookie("simulation-other@example.com")
+      const term = await prisma.applicationTerm.findFirstOrThrow({ where: { applicationId: id } })
+
+      expect((await simulate(id, term.termId, other)).status).toBe(403)
+      const organizer = await signIn("organizator@example.com", "password1")
+      expect((await simulate(id, term.termId, organizer)).status).toBe(403)
+      expect((await simulate(id, term.termId)).status).toBe(401)
+      expect(
+        await prisma.payment.count({ where: { applicationTerm: { applicationId: id } } }),
+      ).toBe(0)
+    })
   })
 })

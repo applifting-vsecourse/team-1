@@ -41,6 +41,9 @@ export class AccountTypeGuard implements CanActivate {
     if (!accountType || !allowed.includes(accountType)) {
       throw new ForbiddenException()
     }
+    if (accountType === "ORGANIZER" && user?.emailVerified === false) {
+      throw new AppException(HttpStatus.FORBIDDEN, "EMAIL_VERIFICATION_REQUIRED")
+    }
     if (accountType === "PARTICIPANT" && user?.mustSetPassword) {
       throw new AppException(HttpStatus.FORBIDDEN, "PASSWORD_REQUIRED", "Set your password first")
     }

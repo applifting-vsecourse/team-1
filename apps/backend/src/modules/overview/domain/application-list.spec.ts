@@ -7,8 +7,10 @@ const row: ListedApplication = {
   lastName: "Test",
   birthDate: new Date("2000-01-01"),
   gender: "FEMALE",
+  individualAccommodation: false,
   email: "test@example.com",
   submittedAt: new Date(),
+  evaluationMode: "AUTOMATIC",
   terms: [
     {
       id: "t1",
@@ -16,6 +18,7 @@ const row: ListedApplication = {
       startsOn: new Date(),
       endsOn: new Date(),
       roomMode: "GENDERED" as const,
+      rooms: [],
       status: "CONFIRMED",
       priceCzk: 1000,
       termNumber: 1,
@@ -27,6 +30,7 @@ const row: ListedApplication = {
       startsOn: new Date(),
       endsOn: new Date(),
       roomMode: "GENDERED" as const,
+      rooms: [],
       status: "WAITLISTED",
       priceCzk: 2000,
       termNumber: 2,
@@ -100,6 +104,23 @@ describe("application list filters", () => {
     for (const payment of ["UNPAID", "PARTIALLY_PAID", "PAID", "OVERPAID"] as const)
       expect(applicationList([waiting], { payment })).toEqual([])
     expect(applicationList([waiting], {})[0].paymentStatus).toBe("NOTHING_DUE")
+  })
+})
+
+describe("filter of individual accommodation (US-38)", () => {
+  const individual = { ...row, id: "a2", number: 49, individualAccommodation: true }
+
+  it("lists only applications with the request and tells which they are", () => {
+    const entries = applicationList([row, individual], { accommodation: "INDIVIDUAL" })
+    expect(entries.map((entry) => entry.id)).toEqual(["a2"])
+    expect(entries[0].individualAccommodation).toBe(true)
+  })
+
+  it("lists everyone without the filter and combines it with the others", () => {
+    expect(applicationList([row, individual], {})).toHaveLength(2)
+    expect(
+      applicationList([row, individual], { accommodation: "INDIVIDUAL", q: "nobody" }),
+    ).toEqual([])
   })
 })
 
@@ -195,5 +216,50 @@ describe("queue of applications to evaluate (US-103)", () => {
     expect(
       applicationList(mixed, { status: "TO_EVALUATE", termId: "t2" }).map((entry) => entry.id),
     ).toEqual(["both"])
+  })
+})
+
+describe("waitlist filter FREE_BED (US-51)", () => {
+  const rooms = [
+    { capacity: 2, extraBeds: 0, gender: "FEMALE" as const },
+    { capacity: 1, extraBeds: 0, gender: "MALE" as const },
+  ]
+  const application = (
+    id: string,
+    number: number,
+    gender: "FEMALE" | "MALE",
+    status: "CONFIRMED" | "WAITLISTED",
+    evaluationMode: "AUTOMATIC" | "MANUAL" = "MANUAL",
+  ): ListedApplication => ({
+    ...row,
+    id,
+    number,
+    gender,
+    evaluationMode,
+    submittedAt: new Date(2026, 9, number),
+    terms: [{ ...row.terms[0]!, id: "t1", rooms, status, payments: [] }],
+  })
+  const ids = (rows: ListedApplication[]) =>
+    applicationList(rows, { waitlist: "FREE_BED" }).map((entry) => entry.id)
+
+  it("lists waitlisted applicants whose gender has a free bed in a manual event", () => {
+    const rows = [
+      application("m1", 1, "MALE", "CONFIRMED"),
+      application("f1", 2, "FEMALE", "CONFIRMED"),
+      application("w-male", 3, "MALE", "WAITLISTED"),
+      application("w-female", 4, "FEMALE", "WAITLISTED"),
+    ]
+    expect(ids(rows)).toEqual(["w-female"])
+  })
+
+  it("lists nobody without a free bed or for confirmed applications", () => {
+    expect(ids([application("m1", 1, "MALE", "CONFIRMED")])).toEqual([])
+    expect(
+      ids([application("m1", 1, "MALE", "CONFIRMED"), application("w", 2, "MALE", "WAITLISTED")]),
+    ).toEqual([])
+  })
+
+  it("lists them in an automatic event too: a bed a bigger capacity made is the organizer's to fill (US-31)", () => {
+    expect(ids([application("w", 1, "FEMALE", "WAITLISTED", "AUTOMATIC")])).toEqual(["w"])
   })
 })

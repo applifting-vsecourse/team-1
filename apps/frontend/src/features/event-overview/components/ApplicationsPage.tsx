@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { Link, useNavigate } from "@tanstack/react-router"
-import { FilterX } from "lucide-react"
+import { BedDouble, FilterX, Plus } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
@@ -9,6 +9,7 @@ import { MoneyAmount } from "@/components/atoms/MoneyAmount"
 import { Seo } from "@/components/atoms/Seo"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
+import { Pagination } from "@/components/molecules/Pagination"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -23,8 +24,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { PAGE_SIZE } from "@/hooks/usePagination"
 import { formatDate, formatDateRange, formatDateTime } from "@/lib/date"
 import { notify } from "@/lib/notify"
+import { cn } from "@/lib/utils"
 
 import {
   applicationsQueryOptions,
@@ -51,6 +54,7 @@ import type { ApplicationsSearch } from "@/features/event-overview/lib/applicati
 // Figma (Design system): O05 / Náhradníci (waitlist of a term and gender) · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12769-3721
 // Figma (Design system): M12 · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14070-41596
 // Figma (Design system): US-103 view chips + queue (ApplicationViews, ApplicationQueue) · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15765-4897
+// Figma (Design system): US-38 badge in the row, empty filter · desktop https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=25587-109569 (mobile: 25587-109801); empty 25587-110253 (mobile: 25587-110406)
 // Figma (Design system): M12b / Empty results · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14189-43641
 export function ApplicationsPage({
   eventId,
@@ -86,9 +90,10 @@ export function ApplicationsPage({
   const [dialog, setDialog] = useState<"CONFIRM" | BulkDecision | null>(null)
   // Filling a freed bed (US-104) works on one term of the waitlist, like deciding in bulk.
   const [taken, setTaken] = useState<SubstituteTakenData | null>(null)
-  const pageCount = Math.max(1, Math.ceil((query.data?.length ?? 0) / 20))
+  const pageCount = Math.max(1, Math.ceil((query.data?.length ?? 0) / PAGE_SIZE))
   const currentPage = Math.min(page, pageCount - 1)
-  const visibleRows = query.data?.slice(currentPage * 20, (currentPage + 1) * 20) ?? []
+  const visibleRows =
+    query.data?.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE) ?? []
   // Only what the filter shows counts, so narrowing the filter never decides on a hidden row.
   const selected = bulkTerm ? (query.data ?? []).filter((row) => selectedIds.has(row.id)) : []
   const isAllSelected = (query.data?.length ?? 0) > 0 && selected.length === query.data?.length
@@ -110,6 +115,10 @@ export function ApplicationsPage({
     onFiltersChange(next)
   }
   const hasFilters = Object.values(filters).some(Boolean)
+  // Only the filter of individual accommodation is set: nobody has asked for it (US-38).
+  const isOnlyIndividual =
+    filters.accommodation === "INDIVIDUAL" &&
+    Object.entries(filters).every(([key, value]) => !value || key === "accommodation")
   const isWaitlist = filters.status === "WAITLISTED"
   const substituteTerm = isWaitlist
     ? filters.term
@@ -137,6 +146,7 @@ export function ApplicationsPage({
   }
   const views = (
     <ApplicationViews
+      eventId={eventId}
       filters={filters}
       onChange={(next) => {
         setPage(0)
@@ -171,6 +181,19 @@ export function ApplicationsPage({
     <div className="flex flex-col gap-6">
       <Seo title={t("applications.title")} />
       {views}
+      <Button
+        asChild
+        size="lg"
+        className="self-start"
+      >
+        <Link
+          to={ROUTES.organizer.newApplication}
+          params={{ eventId }}
+        >
+          <Plus className="size-4" />
+          {t("manual.add")}
+        </Link>
+      </Button>
       {substituteTerm && (
         <SubstitutesPanel
           eventId={eventId}
@@ -211,7 +234,7 @@ export function ApplicationsPage({
               maxLength={100}
               defaultValue={filters.q ?? ""}
               placeholder={t("applications.searchPlaceholder")}
-              className="w-full md:w-80"
+              className="w-full md:w-56"
               onChange={(event) => {
                 setPage(0)
                 const q = event.target.value.trim()
@@ -283,7 +306,37 @@ export function ApplicationsPage({
                 </Label>
               </div>
             )}
-            {query.data.length === 0 ? (
+            {query.data.length === 0 && isOnlyIndividual && !isQueue ? (
+              // US-38: nobody asked for individual accommodation yet.
+              <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed border-border px-6 py-10 text-center">
+                <span className="flex size-12 items-center justify-center rounded-full bg-accent text-accent-foreground">
+                  <BedDouble
+                    className="size-6"
+                    aria-hidden="true"
+                  />
+                </span>
+                <h2 className="text-lg font-semibold">{t("applications.emptyIndividualTitle")}</h2>
+                <p className="max-w-prose text-sm text-muted-foreground">
+                  {t("applications.emptyIndividualHint")}
+                </p>
+                <Button
+                  variant="secondary"
+                  size="lg"
+                  className="mt-2 border border-border"
+                  onClick={() => {
+                    setPage(0)
+                    onFiltersChange({})
+                    searchInput.current?.focus()
+                  }}
+                >
+                  <FilterX
+                    className="size-4 shrink-0"
+                    aria-hidden="true"
+                  />
+                  {t("applications.clearSearchAndFilters")}
+                </Button>
+              </div>
+            ) : query.data.length === 0 ? (
               <div className="flex flex-col items-start gap-4 py-6">
                 <p className="text-sm text-muted-foreground">
                   {isQueue && !filters.q && !filters.term
@@ -328,7 +381,6 @@ export function ApplicationsPage({
                             "participant",
                             "terms",
                             "payment",
-                            "due",
                             "owed",
                             "submitted",
                             "actions",
@@ -340,9 +392,33 @@ export function ApplicationsPage({
                     </TableHeader>
                     <TableBody>
                       {visibleRows.map((row) => (
-                        <TableRow key={row.id}>
+                        <TableRow
+                          key={row.id}
+                          className="cursor-pointer"
+                          onClick={(event) => {
+                            // The detail link in the row stays the keyboard and new-tab path; the row only
+                            // widens the mouse target. Controls inside the row keep their own behaviour.
+                            if (
+                              event.defaultPrevented ||
+                              event.button !== 0 ||
+                              event.metaKey ||
+                              event.ctrlKey ||
+                              event.shiftKey ||
+                              event.altKey ||
+                              (event.target as HTMLElement).closest(
+                                "a, button, input, label, [role=checkbox]",
+                              )
+                            ) {
+                              return
+                            }
+                            void navigate({
+                              to: ROUTES.organizer.application,
+                              params: { eventId, applicationId: row.id },
+                            })
+                          }}
+                        >
                           {bulkTerm && (
-                            <TableCell>
+                            <TableCell onClick={(event) => event.stopPropagation()}>
                               <SelectRow
                                 row={row}
                                 selectedIds={selectedIds}
@@ -351,8 +427,20 @@ export function ApplicationsPage({
                             </TableCell>
                           )}
                           <TableCell>
-                            <p className="font-medium">
-                              {row.firstName} {row.lastName}
+                            <p
+                              className={cn(
+                                "flex flex-wrap items-center gap-x-2 gap-y-1 font-medium",
+                                row.individualAccommodation && "mb-2",
+                              )}
+                            >
+                              <span>
+                                {row.firstName} {row.lastName}
+                              </span>
+                              {row.individualAccommodation && (
+                                <Badge variant="secondary">
+                                  {t("applications.individualAccommodation")}
+                                </Badge>
+                              )}
                             </p>
                             <p className="text-xs text-muted-foreground">
                               {formatDate(row.birthDate)} ·{" "}
@@ -369,9 +457,6 @@ export function ApplicationsPage({
                           </TableCell>
                           <TableCell>
                             <PaymentStatus application={row} />
-                          </TableCell>
-                          <TableCell>
-                            <MoneyAmount amountCzk={row.amountDueCzk} />
                           </TableCell>
                           <TableCell>
                             <MoneyAmount amountCzk={row.amountOwedCzk} />
@@ -417,8 +502,20 @@ export function ApplicationsPage({
                         params={{ eventId, applicationId: row.id }}
                         className="flex min-w-0 flex-1 flex-col gap-2 py-3"
                       >
-                        <span className="font-medium">
-                          {row.firstName} {row.lastName}
+                        <span
+                          className={cn(
+                            "flex flex-wrap items-center gap-x-2 gap-y-1 font-medium",
+                            row.individualAccommodation && "mb-1",
+                          )}
+                        >
+                          <span>
+                            {row.firstName} {row.lastName}
+                          </span>
+                          {row.individualAccommodation && (
+                            <Badge variant="secondary">
+                              {t("applications.individualAccommodation")}
+                            </Badge>
+                          )}
                         </span>
                         <span className="text-xs wrap-anywhere text-muted-foreground">
                           {formatDate(row.birthDate)} ·{" "}
@@ -428,38 +525,20 @@ export function ApplicationsPage({
                         </span>
                         <Terms application={row} />
                         <PaymentStatus application={row} />
+                        <span className="text-sm">
+                          {t("applications.owed")}: <MoneyAmount amountCzk={row.amountOwedCzk} />
+                        </span>
                       </Link>
                     </div>
                   ))}
                 </div>
-                {pageCount > 1 && (
-                  <nav
-                    aria-label={t("applications.pagination")}
-                    className="flex flex-wrap items-center justify-end gap-4"
-                  >
-                    <span className="text-sm text-muted-foreground">
-                      {t("applications.range", {
-                        from: currentPage * 20 + 1,
-                        to: Math.min((currentPage + 1) * 20, query.data.length),
-                        count: query.data.length,
-                      })}
-                    </span>
-                    <Button
-                      variant="ghost"
-                      disabled={currentPage === 0}
-                      onClick={() => setPage(currentPage - 1)}
-                    >
-                      {t("applications.previous")}
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      disabled={currentPage + 1 === pageCount}
-                      onClick={() => setPage(currentPage + 1)}
-                    >
-                      {t("applications.next")}
-                    </Button>
-                  </nav>
-                )}
+                <Pagination
+                  page={currentPage}
+                  pageCount={pageCount}
+                  pageSize={PAGE_SIZE}
+                  total={query.data.length}
+                  onPageChange={setPage}
+                />
                 {bulkTerm && selected.length > 0 && (
                   <BulkSelectionBar
                     count={selected.length}

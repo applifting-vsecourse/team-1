@@ -93,7 +93,27 @@ export class Config {
   @IsOptional()
   readonly smtpPassword?: string
 
+  // Rate limits of sign-in and the public application (#294). Off only where one
+  // address sends many requests on purpose: E2E and most integration tests.
+  // The default is the string "true": the config library compares the raw value with it, so a
+  // boolean `true` would read as off when the variable is not set (as on the deployment).
+  @Env("RATE_LIMIT_ENABLED", { expose: true, defaultValue: "true" })
+  @IsBoolean()
+  readonly rateLimitEnabled!: boolean
+
   // How often waitlisted applications of started terms are cancelled (US-106); 0 = off.
   @Env("WAITLIST_EXPIRY_INTERVAL_MS", { expose: true, defaultValue: 3_600_000 })
   readonly waitlistExpiryIntervalMs!: number
+
+  // Staging and demo only (US-115): lets a participant simulate paying a debt. Off unless set.
+  @Env("PAYMENT_SIMULATION_ENABLED", { expose: true, defaultValue: false })
+  @IsBoolean()
+  readonly paymentSimulationEnabled!: boolean
+
+  // Staging and demo without a sender domain: lets an organizer skip the e-mail verification
+  // link after registering. Off unless set to true (deploy.yml for the school demo); never on
+  // where real e-mails go out, or anyone could register a foreign address as verified.
+  @Env("EMAIL_VERIFICATION_BYPASS_ENABLED", { expose: true, defaultValue: false })
+  @IsBoolean()
+  readonly emailVerificationBypassEnabled!: boolean
 }

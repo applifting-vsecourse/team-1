@@ -4,6 +4,7 @@ import { ParticipantsModule } from "@/modules/participants/participants.module"
 import { AuthModule } from "@/shared/auth/auth.module"
 import { OrganizationAccessModule } from "@/shared/organization-access/organization-access.module"
 import { Module } from "@nestjs/common"
+import { ParticipantPaymentsController } from "./controllers/participant-payments.controller"
 import { PaymentsController } from "./controllers/payments.controller"
 import { PaymentsRepository } from "./repositories/payments.repository"
 import { PaymentsService } from "./services/payments.service"
@@ -16,7 +17,7 @@ import { PaymentsService } from "./services/payments.service"
     OrganizationAccessModule,
     ParticipantsModule,
   ],
-  controllers: [PaymentsController],
+  controllers: [PaymentsController, ParticipantPaymentsController],
   providers: [PaymentsRepository, PaymentsService],
 })
 export class PaymentsModule {}

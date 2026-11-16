@@ -41,6 +41,36 @@ export class NotificationsRepository {
     })
   }
 
+  /** Writes the organizer's application-edit notification for the shared bell. */
+  async notifyOrganizersOfApplicationEdit(
+    tx: Prisma.TransactionClient,
+    input: {
+      organizationId: string
+      applicationId: string
+      eventId: string
+      eventName: string
+      participantName: string
+    },
+  ): Promise<void> {
+    const members = await tx.organizationMember.findMany({
+      where: { organizationId: input.organizationId, user: { accountType: "ORGANIZER" } },
+      select: { userId: true },
+    })
+    await tx.notification.createMany({
+      data: members.map((member) => ({
+        userId: member.userId,
+        type: "REQUEST" as const,
+        kind: "APPLICATION_EDITED",
+        applicationId: input.applicationId,
+        params: {
+          eventId: input.eventId,
+          eventName: input.eventName,
+          participantName: input.participantName,
+        },
+      })),
+    })
+  }
+
   /**
    * One PAYMENT notification per term a receipt touched, with what is owed in the term after the
    * change. Call it after the payment rows are written (or cancelled).

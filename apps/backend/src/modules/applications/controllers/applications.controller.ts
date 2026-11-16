@@ -3,7 +3,8 @@ import { SubmitApplicationRequestDto } from "@/modules/applications/controllers/
 import { SubmitApplicationResponseDto } from "@/modules/applications/controllers/dto/submit-application.response.dto"
 import { ApplicationsService } from "@/modules/applications/services/applications.service"
 import { RequestLocale } from "@/shared/i18n/request-locale"
-import { Body, Controller, Param, Post, UsePipes, ValidationPipe } from "@nestjs/common"
+import { RateLimitGuard } from "@/shared/rate-limit/rate-limit.guard"
+import { Body, Controller, Param, Post, UseGuards, UsePipes, ValidationPipe } from "@nestjs/common"
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 
 /** Public — no `@Auth`: applicants submit without an account. */
@@ -14,6 +15,7 @@ export class ApplicationsController {
   constructor(private readonly applications: ApplicationsService) {}
 
   @Post(":publicToken/applications")
+  @UseGuards(RateLimitGuard)
   @ApiOperation({
     summary: "Submit an application; every selected term is confirmed or waitlisted at once",
   })
@@ -24,6 +26,11 @@ export class ApplicationsController {
       "VALIDATION_FAILED — invalid data, a term that is not (or no longer) in the event, or an e-mail that can't apply (deliberately not told apart).",
   })
   @ApiResponse({ status: 404, description: "Unknown or not yet open link (NOT_FOUND)." })
+  @ApiResponse({
+    status: 429,
+    description:
+      "TOO_MANY_REQUESTS — over 20 submissions a minute or 100 an hour from one address.",
+  })
   async submit(
     @Param("publicToken") publicToken: string,
     @Body() body: SubmitApplicationRequestDto,

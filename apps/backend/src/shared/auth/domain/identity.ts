@@ -11,5 +11,6 @@ export class Identity {
     public readonly accountType: AccountType,
     public readonly mustSetPassword: boolean,
     public readonly locale: Locale = "en",
+    public readonly emailVerified: boolean = true,
   ) {}
 }

@@ -40,8 +40,15 @@ export const participantChangeRequestsQueryOptions = (applicationId: string) =>
         ),
   })
 
-export async function submitChangeRequest(applicationId: string, termIds: string[]): Promise<void> {
-  await api.post(`participant/applications/${encodeURIComponent(applicationId)}/change-requests`, {
-    json: { termIds },
-  })
+export async function submitChangeRequest(
+  applicationId: string,
+  termIds: string[],
+): Promise<ChangeRequest> {
+  return changeRequestSchema.parse(
+    await api
+      .post(`participant/applications/${encodeURIComponent(applicationId)}/change-requests`, {
+        json: { termIds },
+      })
+      .json(),
+  )
 }

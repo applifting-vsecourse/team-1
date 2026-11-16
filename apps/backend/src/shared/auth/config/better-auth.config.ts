@@ -4,6 +4,7 @@ import { BetterAuthOptions } from "better-auth/types"
 export const betterAuthCoreConfig: BetterAuthOptions = {
   emailAndPassword: {
     enabled: true,
+    requireEmailVerification: true,
   },
   user: {
     additionalFields: {
@@ -12,7 +13,9 @@ export const betterAuthCoreConfig: BetterAuthOptions = {
       accountType: {
         type: "string",
         required: true,
-        defaultValue: "PARTICIPANT",
+        // Public e-mail/password sign-up is reserved for organizers. Participant
+        // accounts are created by the application flow with an explicit type.
+        defaultValue: "ORGANIZER",
         input: false,
       },
       mustSetPassword: {

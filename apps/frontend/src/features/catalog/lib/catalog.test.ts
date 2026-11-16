@@ -13,6 +13,7 @@ const event = (publicToken: string, organizationId: string): CatalogEvent => ({
   termCount: 0,
   fromPriceCzk: null,
   isOpenForApplications: false,
+  hasPhoto: false,
 })
 
 const catalog: Catalog = {

@@ -3,14 +3,23 @@ import {
   NewApplication,
   SavedApplication,
 } from "@/modules/applications/domain/application-submission"
+import { evaluateManualSubmission } from "@/modules/applications/domain/manual-submission"
 import { isOpenForApplications } from "@/modules/applications/domain/public-event"
 import { evaluateSubmission, isValidBirthDate } from "@/modules/applications/domain/submission"
+import { hasEndedTerm } from "@/modules/applications/domain/term-ended"
 import { formatTermDates, termLabel } from "@/modules/applications/domain/term-label"
-import { ApplicationsRepository } from "@/modules/applications/repositories/applications.repository"
+import { todayInPrague } from "@/modules/applications/domain/waitlist-expiry"
+import {
+  ApplicationsRepository,
+  ApplicationToSave,
+} from "@/modules/applications/repositories/applications.repository"
 import { ApplicationConfirmationMailer } from "@/modules/participants/services/application-confirmation-mailer.service"
 import { ParticipantAccountsService } from "@/modules/participants/services/participant-accounts.service"
+import { Identity } from "@/shared/auth/domain/identity"
+import { normalizeAccommodation } from "@/shared/domain/accommodation"
 import { Gender } from "@/shared/domain/gender"
 import { AppException } from "@/shared/errors/app.exception"
+import { OrganizationAccessService } from "@/shared/organization-access/organization-access.service"
 import { KeyedMutex } from "@/shared/utils/keyed-mutex"
 import { generateToken } from "@/shared/utils/token"
 import { HttpStatus, Injectable, Logger } from "@nestjs/common"
@@ -22,8 +31,22 @@ export type SubmitApplicationInput = {
     lastName: string
     birthDate: string
     gender: Gender
+    individualAccommodation?: boolean
+    accommodationRequest?: string | null
     termIds: string[]
   }[]
+}
+
+export type ManualApplicationInput = {
+  email: string
+  phone: string
+  consent: true
+  firstName: string
+  lastName: string
+  birthDate: string
+  gender: Gender
+  terms: { termId: string; status: "CONFIRMED" | "WAITLISTED" }[]
+  confirmOverCapacity?: boolean
 }
 
 @Injectable()
@@ -35,7 +58,97 @@ export class ApplicationsService {
     private readonly repository: ApplicationsRepository,
     private readonly accounts: ParticipantAccountsService,
     private readonly mailer: ApplicationConfirmationMailer,
+    private readonly access: OrganizationAccessService,
   ) {}
+
+  /** Manual creation shares duplicate checks, transaction locks, account setup and e-mail with public submission. */
+  async submitByOrganizer(
+    user: Identity,
+    eventId: string,
+    input: ManualApplicationInput,
+    locale: Locale,
+  ): Promise<SavedApplication> {
+    const { organizationId } = await this.access.assertCanAccessEvent(user, eventId)
+    const event = await this.repository.findEventForOrganizer(eventId, organizationId)
+    if (
+      !event ||
+      !isOpenForApplications({
+        termCount: event.terms.length,
+        termsWithoutRooms: event.termsWithoutRooms,
+      })
+    ) {
+      throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
+    }
+    const prices = new Map(event.terms.map(({ id, priceCzk }) => [id, priceCzk]))
+    const requestedIds = input.terms.map(({ termId }) => termId)
+    if (
+      !isValidBirthDate(input.birthDate) ||
+      requestedIds.length === 0 ||
+      new Set(requestedIds).size !== requestedIds.length ||
+      requestedIds.some((id) => !prices.has(id))
+    ) {
+      throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
+    }
+    // A term that is over takes no applications, not even from the organizer; checked before the
+    // account is created and the confirmation e-mail goes out.
+    const today = todayInPrague(new Date()).toISOString().slice(0, 10)
+    if (hasEndedTerm(event.terms, requestedIds, today)) {
+      throw new AppException(HttpStatus.CONFLICT, "TERM_ENDED")
+    }
+    const participant = {
+      firstName: input.firstName,
+      lastName: input.lastName,
+      birthDate: input.birthDate,
+      termIds: requestedIds,
+    }
+    const email = input.email.trim().toLowerCase()
+    const { mustSetPassword, submitted, saved } = await this.eventLocks.run(event.id, async () => {
+      await this.repository.assertNoDuplicate(event.id, [participant], locale)
+      let mustSetPassword = false
+      const submitted: ApplicationToSave = {
+        ...participant,
+        gender: input.gender,
+        email,
+        phone: input.phone.trim(),
+        locale,
+        userId: async () => {
+          // Called only after capacity and duplicate validation under the database lock.
+          const account = await this.accounts.ensureAccount({
+            email,
+            name: `${input.firstName} ${input.lastName}`,
+            locale,
+          })
+          mustSetPassword = account.mustSetPassword
+          return account.userId
+        },
+        consentAt: new Date(),
+        accessToken: generateToken(),
+      }
+      const saved = await this.repository.saveEvaluated(
+        event,
+        [submitted],
+        (snapshot) => {
+          const result = evaluateManualSubmission(
+            input.terms.map(({ termId, status }) => ({
+              termId,
+              status,
+              priceCzk: prices.get(termId) as number,
+            })),
+            input.gender,
+            snapshot,
+          )
+          if (result.overCapacity.length > 0 && input.confirmOverCapacity !== true) {
+            throw new AppException(HttpStatus.CONFLICT, "CAPACITY_EXCEEDED")
+          }
+          return [result.terms]
+        },
+        user.id,
+      )
+      return { mustSetPassword, submitted, saved: saved[0] }
+    })
+    await this.sendConfirmation(event, email, locale, mustSetPassword, [submitted], [saved])
+    return saved
+  }
 
   /**
    * Stores one application per participant and evaluates every selected term
@@ -87,6 +200,10 @@ export class ApplicationsService {
       const consentAt = new Date()
       const applications: NewApplication[] = input.participants.map((participant) => ({
         ...participant,
+        ...normalizeAccommodation(
+          participant.individualAccommodation,
+          participant.accommodationRequest,
+        ),
         email,
         locale,
         userId: account.userId,
@@ -130,7 +247,7 @@ export class ApplicationsService {
     email: string,
     locale: Locale,
     mustSetPassword: boolean,
-    submitted: NewApplication[],
+    submitted: Pick<NewApplication, "accessToken" | "lastName">[],
     saved: SavedApplication[],
   ): Promise<void> {
     const termsById = new Map(event.terms.map((term) => [term.id, term]))

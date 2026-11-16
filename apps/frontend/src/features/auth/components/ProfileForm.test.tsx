@@ -1,9 +1,10 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { render, screen } from "@testing-library/react"
+import { render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { i18n } from "@/i18n"
+import { notify } from "@/lib/notify"
 
 import type { SessionUser } from "@/features/auth/api/authSessionQueryOptions"
 import type * as ProfileApi from "@/features/auth/api/profile"
@@ -18,6 +19,8 @@ vi.mock("@/features/auth/api/profile", async (importOriginal) => ({
   updateProfile,
 }))
 vi.mock("@/features/auth/lib/auth-client", () => ({ authClient: { getSession } }))
+
+vi.mock("@/lib/notify", () => ({ notify: { success: vi.fn() } }))
 
 const user: SessionUser = {
   id: "u1",
@@ -45,31 +48,30 @@ describe("ProfileForm", () => {
       scrollIntoView: () => undefined,
     })
     updateProfile.mockReset()
+    vi.mocked(notify.success).mockReset()
     getSession.mockReset()
     getSession.mockResolvedValue({ data: { user }, error: null })
     await i18n.changeLanguage("en")
   })
 
-  it("shows the name and the saved language (the e-mail has its own card)", () => {
+  it("shows the name (the e-mail has its own card, the language its own choice)", () => {
     renderForm()
 
     expect(screen.getByLabelText("Full name")).toHaveValue("Eva Malá")
-    expect(screen.getByRole("combobox", { name: "Language" })).toHaveTextContent("Čeština")
+    expect(screen.queryByRole("combobox", { name: "Language" })).not.toBeInTheDocument()
     expect(screen.queryByText("eva.mala@example.cz")).not.toBeInTheDocument()
   })
 
-  it("saves the language, confirms it and switches the UI to it", async () => {
-    updateProfile.mockResolvedValue({ name: "Eva Malá", locale: "en" })
+  it("confirms a saved name with a toast", async () => {
+    updateProfile.mockResolvedValue({ name: "Eva Nová", locale: "cs" })
     renderForm()
 
-    await userEvent.click(screen.getByRole("combobox", { name: "Language" }))
-    await userEvent.click(await screen.findByRole("option", { name: "English" }))
+    await userEvent.clear(screen.getByLabelText("Full name"))
+    await userEvent.type(screen.getByLabelText("Full name"), "Eva Nová")
     await userEvent.click(screen.getByRole("button", { name: "Save changes" }))
 
-    expect(updateProfile).toHaveBeenCalledWith({ name: "Eva Malá", locale: "en" })
-    expect(await screen.findByText("Language saved.")).toBeInTheDocument()
-    expect(screen.getByText("Application update e-mails will be sent in English.")).toBeVisible()
-    expect(i18n.resolvedLanguage).toBe("en")
+    expect(updateProfile).toHaveBeenCalledWith({ name: "Eva Nová", locale: "cs" })
+    await waitFor(() => expect(notify.success).toHaveBeenCalledWith("New details saved"))
   })
 
   it("refuses an empty name and sends nothing", async () => {
@@ -80,5 +82,6 @@ describe("ProfileForm", () => {
 
     expect(await screen.findByText("Some fields are not filled in correctly.")).toBeInTheDocument()
     expect(updateProfile).not.toHaveBeenCalled()
+    expect(notify.success).not.toHaveBeenCalled()
   })
 })

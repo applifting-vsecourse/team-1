@@ -1,13 +1,14 @@
 {
   "event": {
-    "apply": "Přihlásit účastníky",
-    "back": "Zpět na katalog",
-    "contact": "Kontakt organizace",
-    "intro": "Na akci se můžete přihlásit bez registrace. V přihlášce vyberete termíny a uvidíte celkovou cenu.",
+    "about": "O akci",
+    "apply": "Podat přihlášku",
+    "contact": "Kontakt na organizaci",
+    "perPerson": "/ osoba",
     "terms": "Termíny a ceny"
   },
   "list": {
     "allOrganizations": "Všechny organizace",
+    "backHome": "Domů",
     "badgeOpen": "Přihlašování otevřené",
     "badgePublished": "Publikováno",
     "description": "Najděte organizaci a její zveřejněné akce na jednom místě.",
@@ -25,5 +26,10 @@
     "summary_one": "{{count}} termín · {{price}}",
     "summary_other": "{{count}} termínů · {{price}}",
     "title": "Katalog akcí"
+  },
+  "notFound": {
+    "action": "Přejít na úvodní stránku",
+    "description": "Odkaz na akci není dostupný. Zkontrolujte adresu nebo kontaktujte organizaci.",
+    "title": "Stránka nebyla nalezena"
   }
 }

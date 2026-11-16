@@ -43,7 +43,7 @@ describe("redirectSignedIn", () => {
       redirectSignedIn(withSession({ user: user({ accountType: "ORGANIZER" }) })),
     )
     expect(isRedirect(error)).toBe(true)
-    expect(error).toMatchObject({ options: { to: ROUTES.organizer.events } })
+    expect(error).toMatchObject({ options: { to: ROUTES.organizer.home } })
   })
 
   it("sends a participant to their applications", async () => {

@@ -28,6 +28,7 @@ describe("organizationsOf", () => {
     termCount: 0,
     fromPriceCzk: null,
     isOpenForApplications: false,
+    hasPhoto: false,
   })
 
   it("lists each organization once, by name", () => {

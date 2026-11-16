@@ -10,6 +10,7 @@ const stored: StoredEvent = {
   id: "e1",
   organizationId: "org-a",
   organizationName: "Letní kemp z. s.",
+  organizationContactEmail: null,
   name: "Letní kemp 2027",
   description: null,
   location: null,
@@ -24,6 +25,7 @@ const stored: StoredEvent = {
   applicationCount: 0,
   evaluationMode: "AUTOMATIC",
   cancellationStartsOn: null,
+  cancellationTerms: null,
   startsOn: null,
   endsOn: null,
   terms: [],
@@ -39,6 +41,7 @@ describe("EventsService", () => {
     repository = mock<EventsRepository>()
     access = mock<OrganizationAccessService>()
     repository.create.mockResolvedValue(stored)
+    repository.hasBankAccount.mockResolvedValue(true)
     service = new EventsService(repository, access)
   })
 
@@ -69,6 +72,17 @@ describe("EventsService", () => {
     await expect(
       service.create(organizer, { organizationId: "org-b", name: "X" }),
     ).rejects.toBeInstanceOf(ForbiddenException)
+    expect(repository.create).not.toHaveBeenCalled()
+  })
+
+  it("blocks event creation until the organization's bank account is filled in", async () => {
+    access.getOrganizationIds.mockResolvedValue(["org-a"])
+    repository.hasBankAccount.mockResolvedValue(false)
+
+    await expect(service.create(organizer, { name: "First event" })).rejects.toMatchObject({
+      status: 403,
+      response: { code: "ORGANIZATION_PROFILE_INCOMPLETE" },
+    })
     expect(repository.create).not.toHaveBeenCalled()
   })
 
@@ -194,6 +208,49 @@ describe("EventsService", () => {
         response: { code: "PHOTO_TOO_LARGE" },
       })
       expect(repository.savePhoto).not.toHaveBeenCalled()
+    })
+  })
+
+  describe("cancellation start (#372)", () => {
+    const day = (offset: number): string =>
+      new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Prague" }).format(
+        new Date(Date.now() + offset * 86_400_000),
+      )
+
+    beforeEach(() => {
+      access.assertCanAccessEvent.mockResolvedValue({ organizationId: "org-a" })
+    })
+
+    it("does not write an unchanged lapsed day again", async () => {
+      repository.findById.mockResolvedValue({
+        ...stored,
+        cancellationStartsOn: "2020-01-01",
+      })
+
+      const event = await service.setCancellationStart(organizer, "e1", "2020-01-01")
+
+      expect(event.cancellationStartsOn).toBe("2020-01-01")
+      expect(repository.setCancellationStart).not.toHaveBeenCalled()
+    })
+
+    it("refuses another day in the past without writing", async () => {
+      repository.findById.mockResolvedValue({
+        ...stored,
+        cancellationStartsOn: "2020-01-01",
+      })
+
+      await expect(service.setCancellationStart(organizer, "e1", "2020-01-02")).rejects.toThrow()
+      expect(repository.setCancellationStart).not.toHaveBeenCalled()
+    })
+
+    it("writes today, a future day and a cleared date", async () => {
+      repository.findById.mockResolvedValue(stored)
+
+      await service.setCancellationStart(organizer, "e1", day(0))
+      await service.setCancellationStart(organizer, "e1", day(30))
+
+      expect(repository.setCancellationStart).toHaveBeenCalledWith("e1", "org-a", day(0))
+      expect(repository.setCancellationStart).toHaveBeenCalledWith("e1", "org-a", day(30))
     })
   })
 })

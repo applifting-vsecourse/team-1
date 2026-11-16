@@ -71,6 +71,16 @@ describe("composeNotification", () => {
     expect(compose("CONFIRMED", "cs").time).toMatch(/^\d{1,2}\. \d{1,2}\. 2027 · \d{2}:\d{2}$/)
   })
 
+  it("shows an application edit without inventing a term", () => {
+    const notice = base("APPLICATION_EDITED")
+    delete notice.params.termStartsOn
+    delete notice.params.termEndsOn
+    expect(composeNotification(notice, i18n.getFixedT("cs", "notifications"), "cs")).toMatchObject({
+      title: "Přihlašovatel upravil přihlášku",
+      context: "Letní kemp Lipno 2027",
+    })
+  })
+
   it.each(NOTIFICATION_KINDS)("has a title and a context for %s in both languages", (kind) => {
     for (const language of ["en", "cs"] as const) {
       const { title, participant, context } = compose(kind, language)

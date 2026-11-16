@@ -15,12 +15,34 @@ nodes:
       role: systém,
     }
   - { id: g_vysledek, type: gateway, kind: x }
+  - {
+      id: e_rucni_pridani,
+      type: event,
+      label: Organizátor přidá přihlášku ručně a určí stav každého termínu,
+    }
+  - { id: g_rucni, type: gateway, kind: x }
+  - {
+      id: n_rucni,
+      type: note,
+      label: "Organizátor vybere neprázdnou podmnožinu aktivních termínů a potvrdí souhlas přihlašovatele (D-153; právní stránka je otevřená, Q-PRI-24). Telefon je povinný (D-079). Nad kapacitu jen vědomě.",
+    }
+  - { id: e_pridani_terminu, type: event, label: Přidá se termín k existující přihlášce }
+  - { id: g_pridani, type: gateway, kind: x }
+  - {
+      id: n_pridani,
+      type: note,
+      label: "Od data schvalování požadavků účastníků přidá termín přihlašovatel žádostí (zadost-o-zmenu). Platby se při změně termínu nepřevádějí (D-051, D-088), vratka se nevytváří (D-134).",
+    }
 
   - { id: s_zrusena, type: end, label: "Přihláška v termínu: zrušená" }
   - { id: s_nahradnik, type: state, label: "Přihláška v termínu: náhradník" }
   - { id: s_potvrzena_dluh, type: state, label: "Přihláška v termínu: potvrzená s dluhem" }
 
-  - { id: uvolni_se_luzko, type: event, label: Uvolní se lůžko ve skupině lůžek účastníka }
+  - {
+      id: uvolni_se_luzko,
+      type: event,
+      label: "Uvolní se lůžko ve skupině lůžek účastníka (zrušení, odhláška, přesun mezi náhradníky, změna termínu)",
+    }
   - { id: e_zacatek, type: timed, label: Nastala půlnoc (Europe/Prague) prvního dne termínu akce }
   - { id: e_zruseni_terminu_nahradnik, type: event, label: Organizátor zruší termín akce }
   - { id: e_zruseni_terminu_dluh, type: event, label: Organizátor zruší termín akce }
@@ -31,8 +53,13 @@ nodes:
   - {
       id: potvrdit_nahradnika,
       type: task,
-      label: Potvrdit náhradníka v pořadí přijetí,
+      label: "Potvrdit náhradníka v pořadí přijetí (nejvýš tolik, kolik se lůžek uvolnilo; do termínu, který už začal, ne)",
       role: systém,
+    }
+  - {
+      id: n_kapacita,
+      type: note,
+      label: "Zvýšení kapacity (pokoj, přistýlka, změna režimu pokojů) náhradníka nikdy samo nepotvrdí; organizátor dostane upozornění s navrženým náhradníkem a potvrdí ho jedním krokem (D-014, D-108). Přidání lůžka nespouští vyhodnocení (D-139). Přihláška, kterou organizátor právě přesunul mezi náhradníky, si lůžko hned nevezme zpět.",
     }
 
   - { id: e_platby, type: event, label: Σ plateb = částka k úhradě }
@@ -59,14 +86,49 @@ nodes:
       type: event,
       label: Nastaly okolnosti pro zamítnutí přihlášky v termínu,
     }
-  - { id: e_termin, type: timed, label: Termín proběhne (datum = první den po posledním termínu) }
-  - { id: e_odhlaska, type: event, label: Účastník se odhlásí }
+  - {
+      id: e_termin,
+      type: timed,
+      label: "Termín přihlášky v termínu skončil (první den po jeho posledním dni, Europe/Prague)",
+    }
+  - { id: e_odhlaska, type: event, label: Účastník se odhlásí (nebo odhlášku zadá organizátor) }
+  - {
+      id: e_odhlaska_dluh,
+      type: event,
+      label: Účastník se odhlásí (nebo odhlášku zadá organizátor),
+    }
+  - {
+      id: e_odhlaska_nahradnik,
+      type: event,
+      label: Účastník se odhlásí (nebo odhlášku zadá organizátor),
+    }
+  - {
+      id: n_zrusena,
+      type: note,
+      label: "Zaplacené peníze zůstávají u termínu jako přeplatek, vrací organizátor vratkou (D-051, D-088, D-103).",
+    }
+  - {
+      id: n_zadost,
+      type: note,
+      label: Odhláška a změna termínu od data schvalování jde přes žádost (zadost-o-zmenu).,
+    }
   - {
       id: e_oprava_platby,
       type: event,
       label: Organizátor opraví nebo odstraní platbu a vznikne dluh,
     }
+  - {
+      id: n_lhuta,
+      type: note,
+      label: "Lhůta = Event.paymentPeriodDays (výchozí 10 dní, D-099). Když se místo uvolní v okně (začátek termínu minus lhůta), potvrzená přihláška je rovnou po splatnosti. Výzva odchází jen na požadavek organizátora (D-102).",
+    }
+  - { id: n_oprava, type: note, label: Oprava platby spouští lhůtu znovu (D-101). }
   - { id: s_archivovana, type: end, label: "Přihláška v termínu: archivovaná" }
+  - {
+      id: n_archivovana,
+      type: note,
+      label: "Archivovaná je koncová. Souhrnná platba se jí nepřidělí (D-087), oprava platby zůstává povolená, bez nového přechodu (D-110).",
+    }
 
 flows:
   - { from: prihlaska_zaregistrovana, to: vyhodnotit }
@@ -74,23 +136,45 @@ flows:
   - { from: g_vysledek, to: s_potvrzena_dluh, label: volné lůžko ve skupině lůžek účastníka je }
   - { from: g_vysledek, to: s_nahradnik, label: volné lůžko ve skupině lůžek účastníka není }
 
-  # náhradník čeká na jednu ze čtyř událostí
+  # ruční přidání přihlášky organizátorem (D-153): bez vyhodnocení, stav termínu určí organizátor
+  - { from: e_rucni_pridani, to: g_rucni }
+  - { from: g_rucni, to: s_potvrzena_dluh, label: potvrzená s dluhem }
+  - { from: g_rucni, to: s_nahradnik, label: náhradník }
+  - { from: n_rucni, to: e_rucni_pridani, dashed: true }
+
+  # přidání termínu k existující přihlášce (D-134): stav nového termínu podle toho, kdo mění
+  - { from: e_pridani_terminu, to: g_pridani }
+  - {
+      from: g_pridani,
+      to: s_potvrzena_dluh,
+      label: organizátor přidá termín (nad kapacitou jen po vědomém potvrzení),
+    }
+  - { from: g_pridani, to: s_potvrzena_dluh, label: přihlašovatel přidá termín a je volné lůžko }
+  - { from: g_pridani, to: s_nahradnik, label: přihlašovatel přidá termín a volné lůžko není }
+  - { from: n_pridani, to: e_pridani_terminu, dashed: true }
+
+  # náhradník čeká na jednu z pěti událostí
   - { from: s_nahradnik, to: uvolni_se_luzko }
   - { from: s_nahradnik, to: e_zacatek }
   - { from: s_nahradnik, to: e_zruseni_nahradnika }
   - { from: s_nahradnik, to: e_zruseni_terminu_nahradnik }
+  - { from: s_nahradnik, to: e_odhlaska_nahradnik }
+  - { from: e_odhlaska_nahradnik, to: s_zrusena }
   - { from: e_zruseni_terminu_nahradnik, to: s_zrusena }
   - { from: uvolni_se_luzko, to: potvrdit_nahradnika }
   - { from: e_zacatek, to: s_zrusena }
   - { from: e_zruseni_nahradnika, to: s_zrusena }
   - { from: potvrdit_nahradnika, to: s_potvrzena_dluh }
+  - { from: n_kapacita, to: potvrdit_nahradnika, dashed: true }
 
-  # čekání na jednu z pěti událostí: generátor doplní AND, XOR (sloučení) a XOR (rozdělení)
+  # čekání na jednu ze šesti událostí: generátor doplní AND, XOR (sloučení) a XOR (rozdělení)
   - { from: s_potvrzena_dluh, to: e_platby }
   - { from: s_potvrzena_dluh, to: e_lhuta }
   - { from: s_potvrzena_dluh, to: e_zamitnuti }
   - { from: s_potvrzena_dluh, to: e_presun }
   - { from: s_potvrzena_dluh, to: e_zruseni_terminu_dluh }
+  - { from: s_potvrzena_dluh, to: e_odhlaska_dluh }
+  - { from: e_odhlaska_dluh, to: s_zrusena }
   - { from: e_zruseni_terminu_dluh, to: s_zrusena }
   - { from: e_platby, to: zaucotovat }
   - { from: e_lhuta, to: vyzva }
@@ -112,7 +196,14 @@ flows:
   - { from: s_potvrzena_zaplacena, to: e_zruseni_terminu_zaplacena }
   - { from: s_potvrzena_zaplacena, to: e_oprava_platby }
   - { from: e_oprava_platby, to: s_potvrzena_dluh }
+  - { from: n_oprava, to: e_oprava_platby, dashed: true }
+  - { from: n_lhuta, to: e_lhuta, dashed: true }
   - { from: e_zruseni_terminu_zaplacena, to: s_zrusena }
   - { from: e_zamitnuti_zaplacena, to: s_zrusena }
   - { from: e_odhlaska, to: s_zrusena }
+  - { from: n_zrusena, to: s_zrusena, dashed: true }
+  - { from: n_zadost, to: s_potvrzena_zaplacena, dashed: true }
+  - { from: n_zadost, to: s_potvrzena_dluh, dashed: true }
+  - { from: n_zadost, to: s_nahradnik, dashed: true }
   - { from: e_termin, to: s_archivovana }
+  - { from: n_archivovana, to: s_archivovana, dashed: true }

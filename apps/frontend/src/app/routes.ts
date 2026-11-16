@@ -5,7 +5,8 @@ export const ROUTES = {
   home: "/",
 
   catalog: "/catalog",
-  catalogEvent: "/catalog/$publicToken",
+  // The permanent page of an event at its public token (US-22); the catalog links to it.
+  event: "/events/$publicToken",
 
   // Where the verification link of an e-mail change ends (US-125); the backend adds `?error=` when it fails.
   emailChange: "/email-change",
@@ -14,7 +15,12 @@ export const ROUTES = {
   applicationConfirmation: "/apply/confirmation/$accessToken",
 
   organizer: {
+    // Redirects to the overview of the last opened event, or to the events list.
+    home: "/organizer",
     login: "/organizer/login",
+    register: "/organizer/register",
+    verifyEmail: "/organizer/verify-email",
+    onboarding: "/organizer/onboarding",
     events: "/organizer/events",
     newEvent: "/organizer/events/new",
     event: "/organizer/events/$eventId",
@@ -23,7 +29,16 @@ export const ROUTES = {
     eventSettings: "/organizer/events/$eventId/settings",
     eventCapacity: "/organizer/events/$eventId/capacity",
     eventApplications: "/organizer/events/$eventId/applications",
+    newApplication: "/organizer/events/$eventId/applications/new",
+    eventPayments: "/organizer/events/$eventId/payments",
+    eventMeals: "/organizer/events/$eventId/meals",
+    eventMealOptions: "/organizer/events/$eventId/meals/options",
+    eventCancellationTerms: "/organizer/events/$eventId/payments/cancellation",
+    eventProgram: "/organizer/events/$eventId/program",
+    eventTransport: "/organizer/events/$eventId/transport",
+    eventTransportParticipants: "/organizer/events/$eventId/transport/$transportId/participants",
     application: "/organizer/events/$eventId/applications/$applicationId",
+    applicationHealth: "/organizer/events/$eventId/applications/$applicationId/health",
     account: "/organizer/account",
   },
 
@@ -33,6 +48,11 @@ export const ROUTES = {
     setPassword: "/participant/set-password",
     applications: "/participant",
     application: "/participant/applications/$applicationId",
+    editApplication: "/participant/applications/$applicationId/edit",
+    applicationMeals: "/participant/applications/$applicationId/meals",
+    applicationHealth: "/participant/applications/$applicationId/health",
+    applicationProgram: "/participant/applications/$applicationId/program",
+    applicationTransport: "/participant/applications/$applicationId/transport",
     account: "/participant/account",
   },
 } as const

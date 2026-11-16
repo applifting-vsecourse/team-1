@@ -1,4 +1,6 @@
 import {
+  RoomCopyRequestDto,
+  RoomExtraBedsRequestDto,
   RoomModeRequestDto,
   RoomRequestDto,
 } from "@/modules/events/controllers/dto/room.request.dto"
@@ -74,6 +76,27 @@ export class RoomsController {
     await this.rooms.save(user, eventId, termId, { ...body, gender: body.gender ?? null })
   }
 
+  @Post("rooms/copy")
+  @HttpCode(204)
+  @ApiOperation({ summary: "Copy the rooms of another term of the event into this term" })
+  @ApiResponse({ status: 204 })
+  @ApiResponse({
+    status: 400,
+    description: "Same term, a term without rooms, or a different room mode",
+  })
+  @ApiResponse({
+    status: 409,
+    description: "Copied room names already used in this term, listed in params.names",
+  })
+  async copy(
+    @User() user: Identity,
+    @Param("eventId") eventId: string,
+    @Param("termId") termId: string,
+    @Body() body: RoomCopyRequestDto,
+  ): Promise<void> {
+    await this.rooms.copy(user, eventId, termId, body.sourceTermId, body.strategy)
+  }
+
   @Put("rooms/:id")
   @HttpCode(204)
   @ApiOperation({ summary: "Edit a room of the term" })
@@ -88,6 +111,25 @@ export class RoomsController {
     @Body() body: RoomRequestDto,
   ): Promise<void> {
     await this.rooms.save(user, eventId, termId, { ...body, gender: body.gender ?? null }, id)
+  }
+
+  @Patch("rooms/:id/extra-beds")
+  @HttpCode(204)
+  @ApiOperation({
+    summary: "Set the extra beds (přistýlky) of a room in this term; each adds one bed",
+    description:
+      "Only this term changes. Lowering below the confirmed applications is allowed: free beds then turn negative.",
+  })
+  @ApiResponse({ status: 204 })
+  @ApiResponse({ status: 400, description: "Not a whole number of at least 0" })
+  async extraBeds(
+    @User() user: Identity,
+    @Param("eventId") eventId: string,
+    @Param("termId") termId: string,
+    @Param("id") id: string,
+    @Body() body: RoomExtraBedsRequestDto,
+  ): Promise<void> {
+    await this.rooms.setExtraBeds(user, eventId, termId, id, body.extraBeds)
   }
 
   @Delete("rooms/:id")

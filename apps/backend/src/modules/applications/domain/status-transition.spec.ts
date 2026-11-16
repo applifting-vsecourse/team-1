@@ -48,9 +48,12 @@ describe("manual status transitions (US-28)", () => {
 })
 
 describe("system transitions (US-106)", () => {
-  it("lets the system cancel a waitlisted application and nothing else", () => {
+  it("lets the system cancel or confirm a waitlisted application and nothing else", () => {
     expect(canChange("SYSTEM", "WAITLISTED", "CANCELLED")).toBe(true)
-    expect(canChange("SYSTEM", "WAITLISTED", "CONFIRMED")).toBe(false)
+    // US-31: the system fills a freed bed in the automatic evaluation mode.
+    expect(canChange("SYSTEM", "WAITLISTED", "CONFIRMED")).toBe(true)
+    expect(canChange("SYSTEM", "TO_EVALUATE", "CONFIRMED")).toBe(false)
+    expect(canChange("SYSTEM", "CANCELLED", "CONFIRMED")).toBe(false)
     expect(canChange("SYSTEM", "CONFIRMED", "CANCELLED")).toBe(false)
     expect(canChange("SYSTEM", "CANCELLED", "CANCELLED")).toBe(false)
   })
@@ -66,6 +69,20 @@ describe("system transitions (US-106)", () => {
       "INVALID_STATUS_TRANSITION",
     )
     expect(rejectStatusChange(snapshot, "CANCELLED", false, "ORGANIZER")).toBeNull()
+  })
+
+  it("lets the system confirm a waitlisted application only into a free bed (US-31)", () => {
+    const snapshot = (confirmedGenders: StatusChangeSnapshot["confirmedGenders"]) =>
+      ({
+        status: "WAITLISTED",
+        gender: "MALE",
+        rooms: [{ capacity: 1, extraBeds: 0, gender: "MALE" }],
+        confirmedGenders,
+      }) satisfies StatusChangeSnapshot
+    expect(rejectStatusChange(snapshot([]), "CONFIRMED", false, "SYSTEM")).toBeNull()
+    expect(rejectStatusChange(snapshot(["MALE"]), "CONFIRMED", false, "SYSTEM")).toBe(
+      "CAPACITY_EXCEEDED",
+    )
   })
 
   it("picks e-mail no. 6 only for the system cancelling a waitlisted application", () => {
@@ -111,7 +128,7 @@ describe("rejectStatusChange", () => {
   const snapshot = (overrides: Partial<StatusChangeSnapshot> = {}): StatusChangeSnapshot => ({
     status: "WAITLISTED",
     gender: "FEMALE",
-    rooms: [{ capacity: 1, gender: "FEMALE" }],
+    rooms: [{ capacity: 1, extraBeds: 0, gender: "FEMALE" }],
     confirmedGenders: [],
     ...overrides,
   })
@@ -128,7 +145,7 @@ describe("rejectStatusChange", () => {
 
   it("counts shared rooms as one pool for all genders", () => {
     const shared = snapshot({
-      rooms: [{ capacity: 1, gender: null }],
+      rooms: [{ capacity: 1, extraBeds: 0, gender: null }],
       confirmedGenders: ["MALE"],
     })
     expect(rejectStatusChange(shared, "CONFIRMED", false)).toBe("CAPACITY_EXCEEDED")

@@ -16,6 +16,7 @@ const event = {
   id: "e1",
   organizationId: "o1",
   organizationName: "Kemp Lipno",
+  organizationContactEmail: null,
   name: "Letní kemp Lipno 2027",
   description: null,
   location: null,
@@ -31,7 +32,9 @@ const event = {
   applicationsOpen: true,
   evaluationMode: "AUTOMATIC",
   cancellationStartsOn: null,
+  cancellationTerms: null,
   evaluationModeLocked: true,
+  hasApplications: false,
   missing: [],
   terms: [
     {
@@ -67,7 +70,9 @@ const draft = {
   applicationsOpen: false,
   evaluationMode: "AUTOMATIC",
   cancellationStartsOn: null,
+  cancellationTerms: null,
   evaluationModeLocked: false,
+  hasApplications: false,
   missing: ["TERM", "ROOM"],
   terms: [],
 }

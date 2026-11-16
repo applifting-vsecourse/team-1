@@ -7,23 +7,29 @@ import { Controller, Get, Param, Req, Res } from "@nestjs/common"
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 import type { Request, Response } from "express"
 
-/** Public — no `@Auth`: anyone browses the catalog. Only events published in US-122 appear. */
+/**
+ * Public — no `@Auth`. The catalog lists only events published in US-122; the page of an event
+ * (and its photo) is open for every event with a working application link (US-22).
+ */
 @ApiTags("applications")
-@Controller("public/catalog")
+@Controller("public")
 export class PublicCatalogController {
   constructor(private readonly catalog: PublicCatalogService) {}
 
-  @Get()
+  @Get("catalog")
   @ApiOperation({ summary: "Published events and the organizations that have them" })
   @ApiResponse({ status: 200, type: CatalogResponseDto })
   async list(): Promise<CatalogResponseDto> {
     return CatalogResponseDto.fromDomain(await this.catalog.list())
   }
 
-  @Get("events/:publicToken")
-  @ApiOperation({ summary: "The public page of an event published in the catalog" })
+  @Get("events/:publicToken/page")
+  @ApiOperation({ summary: "The public page of an event with a working application link" })
   @ApiResponse({ status: 200, type: CatalogEventDetailResponseDto })
-  @ApiResponse({ status: 404, description: "Unknown or not published event (NOT_FOUND)." })
+  @ApiResponse({
+    status: 404,
+    description: "Unknown event or one without a working application link (NOT_FOUND).",
+  })
   async getEvent(
     @Param("publicToken") publicToken: string,
   ): Promise<CatalogEventDetailResponseDto> {
@@ -31,10 +37,10 @@ export class PublicCatalogController {
   }
 
   @Get("events/:publicToken/photo")
-  @ApiOperation({ summary: "The photo of a published event" })
+  @ApiOperation({ summary: "The photo of an event page" })
   @ApiResponse({ status: 200, description: "The image." })
   @ApiResponse({ status: 304, description: "Unchanged since the ETag the client sent." })
-  @ApiResponse({ status: 404, description: "Not published or no photo (NOT_FOUND)." })
+  @ApiResponse({ status: 404, description: "No page for the event or no photo (NOT_FOUND)." })
   async getPhoto(
     @Param("publicToken") publicToken: string,
     @Req() req: Request,

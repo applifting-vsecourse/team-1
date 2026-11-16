@@ -6,7 +6,7 @@ import {
   createRouter,
   RouterProvider,
 } from "@tanstack/react-router"
-import { render, screen, within } from "@testing-library/react"
+import { render, screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
@@ -27,8 +27,14 @@ vi.stubGlobal(
 Element.prototype.hasPointerCapture = () => false
 Element.prototype.scrollIntoView = vi.fn()
 
-const { get } = vi.hoisted(() => ({ get: vi.fn() }))
-vi.mock("@/lib/api-client", () => ({ api: { get }, apiErrorCode: () => undefined }))
+const { get, post, patch, success } = vi.hoisted(() => ({
+  get: vi.fn(),
+  post: vi.fn(),
+  patch: vi.fn(),
+  success: vi.fn(),
+}))
+vi.mock("@/lib/api-client", () => ({ api: { get, post, patch }, apiErrorCode: () => undefined }))
+vi.mock("@/lib/notify", () => ({ notify: { success } }))
 
 const terms: AccommodationTerm[] = [
   {
@@ -36,6 +42,14 @@ const terms: AccommodationTerm[] = [
     name: "Week 1",
     startsOn: "2027-07-12",
     endsOn: "2027-07-18",
+    roomMode: "GENDERED",
+    byGender: { FEMALE: { free: 0 }, MALE: { free: 2 } },
+  },
+  {
+    id: "t3",
+    name: "Week 3",
+    startsOn: "2027-07-26",
+    endsOn: "2027-08-01",
     roomMode: "GENDERED",
     byGender: { FEMALE: { free: 0 }, MALE: { free: 2 } },
   },
@@ -52,6 +66,7 @@ const termRooms = (termId: string, rooms: TermRooms["rooms"], roomMode: TermRoom
   eventId: "e1",
   eventName: "Summer camp",
   organizationName: "Camp",
+  organizationContactEmail: null,
   termId,
   termName: termId,
   startsOn: "2027-07-12",
@@ -59,27 +74,54 @@ const termRooms = (termId: string, rooms: TermRooms["rooms"], roomMode: TermRoom
   roomMode,
   rooms,
   capacity: {
-    FEMALE: rooms.filter((room) => room.gender === "FEMALE").reduce((n, r) => n + r.capacity, 0),
-    MALE: rooms.filter((room) => room.gender === "MALE").reduce((n, r) => n + r.capacity, 0),
-    total: rooms.reduce((n, r) => n + r.capacity, 0),
+    FEMALE: rooms.filter((room) => room.gender === "FEMALE").reduce((n, r) => n + r.beds, 0),
+    MALE: rooms.filter((room) => room.gender === "MALE").reduce((n, r) => n + r.beds, 0),
+    total: rooms.reduce((n, r) => n + r.beds, 0),
   },
 })
 const byTerm: Record<string, TermRooms> = {
   t1: termRooms(
     "t1",
     [
-      { id: "r1", name: "Gendered room", gender: "FEMALE", capacity: 5000 },
-      { id: "r2", name: "Men's room", gender: "MALE", capacity: 4 },
+      {
+        id: "r1",
+        name: "Gendered room",
+        gender: "FEMALE",
+        capacity: 5000,
+        extraBeds: 2,
+        beds: 5002,
+      },
+      { id: "r2", name: "Men's room", gender: "MALE", capacity: 4, extraBeds: 0, beds: 4 },
     ],
     "GENDERED",
   ),
-  t2: termRooms("t2", [{ id: "s1", name: "Shared room", gender: null, capacity: 60 }], "SHARED"),
+  t2: termRooms(
+    "t2",
+    [{ id: "s1", name: "Shared room", gender: null, capacity: 60, extraBeds: 0, beds: 60 }],
+    "SHARED",
+  ),
 }
 
-function renderRooms(termId: string) {
+function renderRooms(termId: string, view: "assignment" | "overview" = "assignment") {
   const onSelectTerm = vi.fn()
+  const onSelectView = vi.fn()
   get.mockImplementation((path: string) => ({
-    json: () => Promise.resolve(byTerm[/terms\/([^/]+)\/rooms/.exec(path)?.[1] ?? ""]),
+    json: () => {
+      const roomTerm = byTerm[/terms\/([^/]+)\/rooms/.exec(path)?.[1] ?? ""]
+      const assignmentTerm = byTerm[/terms\/([^/]+)\/room-assignments/.exec(path)?.[1] ?? ""]
+      return Promise.resolve(
+        assignmentTerm
+          ? {
+              eventId: "e1",
+              termId: assignmentTerm.termId,
+              rooms: assignmentTerm.rooms.map((room) => ({ ...room, participants: [] })),
+              unassigned: [],
+              warnings: [],
+              summary: { violations: 0, acknowledged: 0, confirmedWithoutBed: 0 },
+            }
+          : roomTerm,
+      )
+    },
   }))
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   const root = createRootRoute({
@@ -88,8 +130,10 @@ function renderRooms(termId: string) {
         <RoomsPage
           eventId="e1"
           termId={termId}
+          view={view}
           terms={terms}
           onSelectTerm={onSelectTerm}
+          onSelectView={onSelectView}
         />
       </QueryClientProvider>
     ),
@@ -103,30 +147,127 @@ function renderRooms(termId: string) {
     history: createMemoryHistory({ initialEntries: ["/"] }),
   })
   render(<RouterProvider router={router} />)
-  return { onSelectTerm, user: userEvent.setup() }
+  return { onSelectTerm, onSelectView, user: userEvent.setup() }
 }
 
 describe("accommodation by term", () => {
-  beforeEach(() => get.mockReset())
+  beforeEach(() => {
+    get.mockReset()
+    post.mockReset()
+    patch.mockReset()
+    success.mockReset()
+  })
 
-  it("shows only the rooms of the selected term, with its metrics and gender column", async () => {
+  it("shows only the rooms of the selected term, with its metrics and the gender with the room name", async () => {
     renderRooms("t1")
     const table = await screen.findByRole("table")
-    expect(within(table).getByText("Gendered room")).toBeInTheDocument()
-    expect(within(table).queryByText("Shared room")).not.toBeInTheDocument()
+    expect(within(table).getByText(/^Gendered room/)).toBeInTheDocument()
+    expect(within(table).queryByText(/Shared room/)).not.toBeInTheDocument()
     expect(get).toHaveBeenCalledWith("organizer/events/e1/terms/t1/rooms")
     expect(screen.getByText("Women's rooms")).toBeInTheDocument()
     expect(screen.getByText("Capacity exhausted")).toBeInTheDocument()
     expect(screen.getByText("Beds available")).toBeInTheDocument()
-    expect(screen.getByRole("columnheader", { name: "Gender" })).toBeInTheDocument()
+    expect(within(table).getByText("Gendered room")).toBeInTheDocument()
+    expect(within(table).getByText("Women's")).toBeInTheDocument()
+    expect(within(table).getByText("Extra bed +2")).toBeInTheDocument()
   })
 
-  it("shows a shared term with its shared capacity and no gender column", async () => {
+  it("switches between the room assignment and the overview with a select left of the term (US-36)", async () => {
+    const { user, onSelectView } = renderRooms("t1")
+    await screen.findByRole("table")
+    const view = screen.getByRole("combobox", { name: "Accommodation view" })
+    const term = screen.getByRole("combobox", { name: "Term" })
+    expect(view).toHaveTextContent("Room assignment")
+    // The view picker comes first, the term picker after it.
+    expect(view.compareDocumentPosition(term) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    await user.click(view)
+    await user.click(screen.getByRole("option", { name: "Accommodation overview" }))
+    expect(onSelectView).toHaveBeenCalledWith("overview")
+  })
+
+  it("shows the overview of the selected term instead of the assignment", async () => {
+    renderRooms("t1", "overview")
+    expect(
+      await screen.findByRole("heading", { name: "Gendered room", level: 3 }),
+    ).toBeInTheDocument()
+    expect(screen.queryByRole("table")).not.toBeInTheDocument()
+    expect(screen.getByRole("combobox", { name: "Accommodation view" })).toHaveTextContent(
+      "Accommodation overview",
+    )
+    expect(screen.getByRole("combobox", { name: "Term" })).toBeInTheDocument()
+    expect(get).toHaveBeenCalledWith("organizer/events/e1/terms/t1/room-assignments")
+  })
+
+  it("shows the extra beds in the title only when a room has some, without a +0", async () => {
+    renderRooms("t1")
+    const table = await screen.findByRole("table")
+    expect(within(table).getByText(/Extra bed \+2/)).toBeInTheDocument()
+    expect(within(table).queryByText(/Extra bed \+0/)).not.toBeInTheDocument()
+    expect(within(table).getByRole("button", { name: "Edit extra beds" })).toBeInTheDocument()
+    expect(within(table).getByRole("button", { name: "Add extra bed" })).toBeInTheDocument()
+  })
+
+  it("has no extra bed note in the title while no room has extra beds", async () => {
+    renderRooms("t2")
+    const table = await screen.findByRole("table")
+    expect(within(table).queryByText(/Extra bed \+/)).toBeNull()
+  })
+
+  it("adds extra beds in a dialog that saves and closes", async () => {
+    patch.mockResolvedValue(undefined)
+    const { user } = renderRooms("t1")
+    const table = await screen.findByRole("table")
+    await user.click(within(table).getByRole("button", { name: "Add extra bed" }))
+    const dialog = await screen.findByRole("dialog")
+    await user.type(within(dialog).getByLabelText("Number of extra beds"), "3")
+    await user.click(within(dialog).getByRole("button", { name: "Save extra beds" }))
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument())
+    expect(patch).toHaveBeenCalledWith("organizer/events/e1/terms/t1/rooms/r2/extra-beds", {
+      json: { extraBeds: 3 },
+    })
+    expect(success).toHaveBeenCalledWith("Extra beds saved")
+  })
+
+  it("explains an invalid number in the dialog instead of saving it", async () => {
+    const { user } = renderRooms("t1")
+    const table = await screen.findByRole("table")
+    await user.click(within(table).getByRole("button", { name: "Add extra bed" }))
+    const dialog = await screen.findByRole("dialog")
+    await user.type(within(dialog).getByLabelText("Number of extra beds"), "-1")
+    await user.click(within(dialog).getByRole("button", { name: "Save extra beds" }))
+    expect(await within(dialog).findByText("Enter a whole number, at least 1.")).toBeInTheDocument()
+    expect(patch).not.toHaveBeenCalled()
+  })
+
+  it("removes the extra beds of a room with a button instead of entering 0", async () => {
+    patch.mockResolvedValue(undefined)
+    const { user } = renderRooms("t1")
+    const table = await screen.findByRole("table")
+    await user.click(within(table).getByRole("button", { name: "Edit extra beds" }))
+    const dialog = await screen.findByRole("dialog")
+    expect(within(dialog).getByLabelText("Number of extra beds")).toHaveValue(2)
+    expect(within(dialog).getByText("5002")).toBeInTheDocument()
+    await user.click(within(dialog).getByRole("button", { name: "Remove extra beds" }))
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument())
+    expect(patch).toHaveBeenCalledWith("organizer/events/e1/terms/t1/rooms/r1/extra-beds", {
+      json: { extraBeds: 0 },
+    })
+  })
+
+  it("lists the rooms with their actions below at 360 px", async () => {
+    window.innerWidth = 360
+    renderRooms("t1")
+    await screen.findByRole("table")
+    expect(screen.getAllByText(/Extra bed \+2/).length).toBeGreaterThan(0)
+    expect(screen.getAllByRole("button", { name: "Edit extra beds" }).length).toBe(2)
+  })
+
+  it("shows a shared term with its shared capacity and no gender in the room title", async () => {
     renderRooms("t2")
     const table = await screen.findByRole("table")
     expect(within(table).getByText("Shared room")).toBeInTheDocument()
     expect(screen.getByText("Room capacity")).toBeInTheDocument()
-    expect(screen.queryByRole("columnheader", { name: "Gender" })).not.toBeInTheDocument()
+    expect(within(table).queryByText(/Women's|Men's/)).not.toBeInTheDocument()
     expect(screen.queryByText("Capacity exhausted")).not.toBeInTheDocument()
   })
 
@@ -155,5 +296,27 @@ describe("accommodation by term", () => {
     await user.click(screen.getByRole("combobox", { name: "Term" }))
     await user.click(await screen.findByRole("option", { name: "19–25 Jul 2027 · Week 2" }))
     expect(onSelectTerm).toHaveBeenCalledWith("t2")
+  })
+
+  it("copies rooms from another term, closes the dialog and confirms with a toast", async () => {
+    post.mockResolvedValue(undefined)
+    byTerm.t3 = termRooms(
+      "t3",
+      [{ id: "x", name: "Other", gender: "MALE", capacity: 4, extraBeds: 0, beds: 4 }],
+      "GENDERED",
+    )
+    const { user } = renderRooms("t1")
+    await screen.findByRole("table")
+    await user.click(screen.getByRole("button", { name: "Copy rooms from term…" }))
+    const dialog = await screen.findByRole("dialog")
+    await user.click(within(dialog).getByRole("combobox", { name: "Source term" }))
+    await user.click(await screen.findByRole("option", { name: /Week 3/ }))
+    await user.click(await within(dialog).findByRole("button", { name: "Add 1 room" }))
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument())
+    expect(post).toHaveBeenCalledWith("organizer/events/e1/terms/t1/rooms/copy", {
+      json: { sourceTermId: "t3", strategy: "ADD" },
+    })
+    expect(success).toHaveBeenCalledWith("Rooms copied")
+    expect(screen.queryByText("The copy is done.")).not.toBeInTheDocument()
   })
 })
