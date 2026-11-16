@@ -53,11 +53,9 @@ Jádro MVP:
 ## 4. Board
 
 - Všechny položky jsou issues v tomto repu, story ve formátu `US-xx Název` podle `.github/ISSUE_TEMPLATE/user-story.md`.
-- **Status:** Backlog → Ready (definovaná akceptační kritéria) → (Design) → In progress → Code review (otevřený PR) → In Test (tester před mergem) → In Business Review (po merge, PM na stagingu) → Done. Merguje se až po testu od testera; postup je v [CONTRIBUTING.md](../CONTRIBUTING.md). Jestli se story může začít vyvíjet, určuje štítek `design: …`, ne sloupec. Pole Sprint (iterace) se vyplňuje, Size (XS–XL) a Estimate zatím ne.
+- **Status:** Backlog → Ready (definovaná akceptační kritéria) → (Design) → In progress → Code review (otevřený PR) → In Test (tester před mergem) → In Business Review (po merge, PM na stagingu) → Done. Merguje se až po testu od testera; postup je v [CONTRIBUTING.md](../CONTRIBUTING.md). Jestli se story může začít vyvíjet, určuje štítek `design: …`, ne sloupec. **Priorita se eviduje milníkem** (`MVP` / `Nice to have`), ne štítkem. **Sprint se eviduje polem Sprint (iterace) v projektu**, ne štítkem; každý nový ticket se automaticky přidá do projektu a dostane aktuální sprint. Pole Sprint (iterace) se vyplňuje, Size (XS–XL) a Estimate zatím ne.
 - **Štítky:**
   - `epic: …` — 11 epiců (účty, nastavení akce, přihlašování na akce, platby, ubytování, přehledy, komunikace, ekonomika, logistika, platforma, technický základ)
-  - `priority: MVP` / `priority: nice to have`
-  - `sprint 1` — osekané MVP pro první sprint
   - designový tok: `design: needed` → `design: done`, bez UI `design: not needed`; vyvíjet se může story s `design: done` nebo `design: not needed` bez otevřené otázky na PO
 - Uzavřené (vypuštěné podle finálního feature breakdownu): US-17 zálohy, US-48 doúčtování, US-50 platba kartou, US-63 nahrání dokumentu, US-67 oddíly.
 - Každá story má sekci **Mimo rozsah** — co tam je, se v dané story nedělá (ani agentem).

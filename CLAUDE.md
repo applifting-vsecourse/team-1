@@ -57,6 +57,15 @@ A story is more than its title. Before writing code, read the story and the busi
 
 Any work touching e-mails — a template in `apps/backend/src/core/email/`, the code that sends one, a trigger, a recipient, copy, layout or footer — starts with [`docs/emaily/AGENTI.md`](docs/emaily/AGENTI.md). The business catalogue ([`docs/emaily/KATALOG.md`](docs/emaily/KATALOG.md)) decides which message goes to whom and when, [`TEXTY.md`](docs/emaily/TEXTY.md) holds the approved copy and Figma holds the layout. A message that is not in the catalogue is not approved: don't build it, report the gap in the PR (see „Business rules and acceptance criteria“).
 
+### Issues: labels, milestone, board
+
+Applies to every agent that creates or edits an issue (`gh issue create` / `gh issue edit`, skills `backlog-idea`, `pm-routine`, `problem-framing`, `story`).
+
+- **Priority is the milestone** (`MVP` / `Nice to have`), never a label. Don't use the `priority: …` labels and don't add them to an issue. Without a clear priority leave the milestone empty and say so; don't guess.
+- **Sprint is the `Sprint` field in the project** ([team-1 project](https://github.com/orgs/applifting-vsecourse/projects/12)), never a label. The `sprint …` labels are not used. The current sprint is the one iteration in the field that is not completed (check `gh project field-list 12 --owner applifting-vsecourse`; in November 2026 it is „Sprint 4“).
+- **Every new issue goes into the project** (`gh project item-add 12 --owner applifting-vsecourse --url <issue url>`) and gets the current sprint in the `Sprint` field (`gh project item-edit`, verify with a GraphQL query), unless the user says otherwise.
+- Labels stay for the kind (`bug`, `enhancement`, `chore`, `idea`, `question`), the epic (`epic: …`) and the design flow (`design: …`). Don't create new labels for priority or sprint.
+
 ### Pull request size
 
 One PR per feature (user story): backend, frontend and tests together on one branch, linked to the story (`Closes #23`, see „Pull requests“). Don't split a story by layer (a backend PR and a frontend PR) or into „část 1/2“ parts. Keep the PR reviewable — aim for ~400 changed lines of code (not counting tests, migration SQL, lockfile, generated files) and ~20 files; when a story needs more, keep it in one PR and say in the PR body why it's bigger. The PR comment „Co se změnilo“ flags large PRs.
