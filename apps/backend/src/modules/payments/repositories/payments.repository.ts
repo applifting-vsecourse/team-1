@@ -95,7 +95,7 @@ export type RecordPaymentInput = {
   isRefund?: boolean
   correctsReceiptId?: string
   /** Defaults to a manually recorded payment. */
-  source?: "MANUAL" | "SIMULATION"
+  source?: "MANUAL" | "SIMULATION" | "BANK_IMPORT"
 }
 
 export type PaymentDebtNotice = {

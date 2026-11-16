@@ -1,6 +1,7 @@
 {
   "APPLICATION_DUPLICATE": "Přihláška už existuje. Účastník: {{participant}}, termín: „{{term}}“. Zkontrolujte potvrzovací e-mail.",
   "APPLICATION_NOT_EDITABLE": "Tuto přihlášku už nelze upravit: nemá žádný aktivní termín, nebo všechny její termíny už skončily.",
+  "BANK_STATEMENT_INVALID": "Soubor není podporovaný výpis z banky. Nahrajte CSV export z Fio banky nebo CSV se sloupci datum, částka a variabilní symbol.",
   "BED_ALREADY_TAKEN": "Lůžko mezitím obsadil jiný organizátor.",
   "CANCELLATION_APPROVAL_REQUIRED": "Změny nyní vyžadují schválení organizátora. Obraťte se na organizátora.",
   "CANCELLATION_START_IN_PAST": "Datum začátku schvalování nesmí být v minulosti.",

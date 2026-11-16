@@ -40,7 +40,11 @@ export type MyApplicationRecord = {
     /** Price frozen at evaluation. */
     priceCzk: number
     /** Non-cancelled payment rows of this application in this term. */
-    payments: { amountCzk: number; source: "MANUAL" | "SIMULATION"; createdAt: Date }[]
+    payments: {
+      amountCzk: number
+      source: "MANUAL" | "SIMULATION" | "BANK_IMPORT"
+      createdAt: Date
+    }[]
     /** Latest confirmation; the payment deadline counts from it. */
     confirmedAt: Date | null
     /** Restart of the payment period after a correction (US-112). */
