@@ -12,6 +12,7 @@ export type StoredBankTransaction = {
   id: string
   bookedOn: Date
   amountCents: number
+  currency: string
   variableSymbol: string | null
   counterpartyName: string | null
   message: string | null
@@ -80,6 +81,7 @@ export class BankTransactionsRepository {
       importedById: input.importedById,
       bookedOn: new Date(`${row.bookedOn}T00:00:00.000Z`),
       amountCents: row.amountCents,
+      currency: row.currency ?? "CZK",
       variableSymbol: row.variableSymbol,
       counterpartyName: row.counterpartyName,
       message: row.message,
@@ -117,6 +119,7 @@ export class BankTransactionsRepository {
       id: row.id,
       bookedOn: row.bookedOn,
       amountCents: row.amountCents,
+      currency: row.currency,
       variableSymbol: row.variableSymbol,
       counterpartyName: row.counterpartyName,
       message: row.message,

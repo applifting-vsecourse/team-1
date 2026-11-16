@@ -15,6 +15,7 @@ CREATE TABLE "bank_transaction" (
     "externalId" TEXT NOT NULL,
     "bookedOn" DATE NOT NULL,
     "amountCents" INTEGER NOT NULL,
+    "currency" TEXT NOT NULL DEFAULT 'CZK',
     "variableSymbol" TEXT,
     "counterpartyName" TEXT,
     "message" TEXT,

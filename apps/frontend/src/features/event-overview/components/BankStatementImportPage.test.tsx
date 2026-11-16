@@ -18,6 +18,7 @@ const unmatched = {
       id: "b1",
       bookedOn: "2026-05-05",
       amountCents: 20000,
+      currency: "CZK",
       variableSymbol: null,
       counterpartyName: "Hana Novotná",
       message: "Camp",
@@ -29,6 +30,7 @@ const unmatched = {
       id: "b2",
       bookedOn: "2026-05-06",
       amountCents: 10000,
+      currency: "EUR",
       variableSymbol: "12002",
       counterpartyName: null,
       message: null,
@@ -95,6 +97,7 @@ describe("BankStatementImportPage", () => {
     const row = (await screen.findByText("Hana Novotná")).closest("tr")!
     expect(row).toHaveTextContent("No variable symbol")
     expect(screen.getByText("The currency is not CZK")).toBeVisible()
+    expect(screen.getByText(/€100\.00/)).toBeVisible()
     expect(
       screen.getByRole("link", { name: "Detail Jana Nováková" }).getAttribute("href"),
     ).toContain("/organizer/events/e1/applications/a1")

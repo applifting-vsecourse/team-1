@@ -21,6 +21,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { formatDate } from "@/lib/date"
+import { formatCurrencyAmount } from "@/lib/money"
 import { notify } from "@/lib/notify"
 
 import {
@@ -203,7 +204,13 @@ function UnmatchedTransactions({ eventId }: { eventId: string }) {
                   <TableCell className="px-4 py-4">{formatDate(row.bookedOn)}</TableCell>
                   <TableCell className="px-4 py-4">{row.variableSymbol ?? "–"}</TableCell>
                   <TableCell className="px-4 py-4">
-                    <MoneyAmount amountCzk={row.amountCents / 100} />
+                    {row.currency === "CZK" ? (
+                      <MoneyAmount amountCzk={row.amountCents / 100} />
+                    ) : (
+                      <span className="whitespace-nowrap tabular-nums">
+                        {formatCurrencyAmount(row.amountCents / 100, row.currency)}
+                      </span>
+                    )}
                   </TableCell>
                   <TableCell className="px-4 py-4 whitespace-normal">
                     {row.counterpartyName}

@@ -684,6 +684,8 @@ model BankTransaction {
   bookedOn         DateTime               @db.Date
   // Hundredths of CZK, as in the statement.
   amountCents      Int
+  // ISO code of the statement row; only CZK is ever matched.
+  currency         String                 @default("CZK")
   variableSymbol   String?
   counterpartyName String?
   message          String?

@@ -79,11 +79,24 @@ export function splitCsv(text: string, delimiter: string): string[][] {
   return rows
 }
 
-function detectDelimiter(text: string): string {
-  const sample = text.split(/\r?\n/).slice(0, 20).join("\n")
-  const semicolons = (sample.match(/;/g) ?? []).length
-  const commas = (sample.match(/,/g) ?? []).length
-  return semicolons >= commas ? ";" : ","
+/** The row with the required columns, found in the rows parsed with one delimiter. */
+function findHeader(rows: string[][]): { index: number; columns: Record<string, number> } | null {
+  for (let i = 0; i < rows.length; i++) {
+    const names = rows[i].map(normalize)
+    const columns: Record<string, number> = {}
+    for (const [key, aliases] of Object.entries(FIELD_ALIASES)) {
+      // Aliases are in order of preference, so "Zpráva pro příjemce" beats a looser column.
+      const index = aliases.map((alias) => names.indexOf(alias)).find((found) => found >= 0) ?? -1
+      if (index >= 0) columns[key] = index
+    }
+    if (
+      columns.date !== undefined &&
+      columns.amount !== undefined &&
+      columns.variableSymbol !== undefined
+    )
+      return { index: i, columns }
+  }
+  return null
 }
 
 /** `1 443,50`, `1443.50`, `-1034` → hundredths; null when it is not a number. */
@@ -115,28 +128,18 @@ export function parseStatementDate(value: string): string | null {
 export function parseBankStatement(input: string): ParsedStatement {
   if (input.length > MAX_STATEMENT_CHARS) throw new InvalidStatementError("Statement too large")
   const text = input.replace(/^\uFEFF/, "")
-  const rows = splitCsv(text, detectDelimiter(text))
-  // The Fio export has an info preamble above the header; find the first row that has the columns.
-  let headerIndex = -1
-  let columns: Record<string, number> = {}
-  for (let i = 0; i < rows.length && headerIndex < 0; i++) {
-    const names = rows[i].map(normalize)
-    const found: Record<string, number> = {}
-    for (const [key, aliases] of Object.entries(FIELD_ALIASES)) {
-      // Aliases are in order of preference, so "Zpráva pro příjemce" beats a looser column.
-      const index = aliases.map((alias) => names.indexOf(alias)).find((found) => found >= 0) ?? -1
-      if (index >= 0) found[key] = index
-    }
-    if (
-      found.date !== undefined &&
-      found.amount !== undefined &&
-      found.variableSymbol !== undefined
-    ) {
-      headerIndex = i
-      columns = found
-    }
+  // The delimiter is the one under which the header is found, not a count of characters, which
+  // free text (a message with semicolons) would skew. The Fio export has a preamble above it.
+  let rows: string[][] = []
+  let header: ReturnType<typeof findHeader> = null
+  for (const delimiter of [";", ","]) {
+    rows = splitCsv(text, delimiter)
+    header = findHeader(rows)
+    if (header) break
   }
-  if (headerIndex < 0) throw new InvalidStatementError("Missing header with date, amount and VS")
+  if (!header) throw new InvalidStatementError("Missing header with date, amount and VS")
+  const headerIndex = header.index
+  const columns = header.columns
 
   const incoming: StatementRow[] = []
   const seenHashes = new Map<string, number>()

@@ -86,7 +86,8 @@ export class BankStatementsService {
           continue
         }
         result.unmatchedCount++
-        result.unmatchedCzk += row.amountCents / 100
+        // Another currency is not counted into the crowns of the summary.
+        if (!row.currency || row.currency === "CZK") result.unmatchedCzk += row.amountCents / 100
         continue
       }
       // Deterministic receipt id: when the upload dies between payment and row, the retry adds nothing.

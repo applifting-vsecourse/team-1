@@ -28,8 +28,9 @@ const unmatchedSchema = z.object({
       id: z.string(),
       /** `YYYY-MM-DD` */
       bookedOn: z.string(),
-      /** Hundredths of CZK. */
+      /** Hundredths of the currency. */
       amountCents: z.number().int(),
+      currency: z.string(),
       variableSymbol: z.string().nullable(),
       counterpartyName: z.string().nullable(),
       message: z.string().nullable(),

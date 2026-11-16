@@ -104,6 +104,8 @@ describe("bank statement import (US-42)", () => {
       overpaidCount: 2,
       overpaidCzk: 200,
       unmatchedCount: 3,
+      // The 400 EUR are not crowns.
+      unmatchedCzk: 500,
       duplicateCount: 0,
       ignoredCount: 1,
     })

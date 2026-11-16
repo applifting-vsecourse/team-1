@@ -54,6 +54,13 @@ describe("parseBankStatement", () => {
     )
   })
 
+  it("finds the header whatever the free text holds, so semicolons in a message do not pick the delimiter", () => {
+    const csv = 'date,amount,vs,message\n2026-05-05,500,12001,"a;b;c;d;e;f;g;h"'
+    expect(parseBankStatement(csv).incoming).toMatchObject([
+      { amountCents: 50000, variableSymbol: "12001", message: "a;b;c;d;e;f;g;h" },
+    ])
+  })
+
   it("rejects a file without the columns or with a broken row", () => {
     expect(() => parseBankStatement("a;b\n1;2")).toThrow(InvalidStatementError)
     expect(() => parseBankStatement("datum;částka;vs\nnonsense;5;1")).toThrow(InvalidStatementError)

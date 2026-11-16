@@ -30,7 +30,9 @@ const REASONS: UnmatchedReason[] = [
 class UnmatchedTransactionDto {
   @ApiProperty() id!: string
   @ApiProperty({ description: "YYYY-MM-DD" }) bookedOn!: string
-  @ApiProperty({ description: "Hundredths of CZK" }) amountCents!: number
+  @ApiProperty({ description: "Hundredths of the currency" }) amountCents!: number
+  @ApiProperty({ description: "ISO currency code, CZK unless the statement says otherwise" })
+  currency!: string
   @ApiProperty({ nullable: true, type: String }) variableSymbol!: string | null
   @ApiProperty({ nullable: true, type: String }) counterpartyName!: string | null
   @ApiProperty({ nullable: true, type: String }) message!: string | null
@@ -53,6 +55,7 @@ export class UnmatchedTransactionsResponseDto {
         id: row.id,
         bookedOn: row.bookedOn.toISOString().slice(0, 10),
         amountCents: row.amountCents,
+        currency: row.currency,
         variableSymbol: row.variableSymbol,
         counterpartyName: row.counterpartyName,
         message: row.message,
