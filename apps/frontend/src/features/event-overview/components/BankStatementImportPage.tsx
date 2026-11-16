@@ -204,13 +204,10 @@ function UnmatchedTransactions({ eventId }: { eventId: string }) {
                   <TableCell className="px-4 py-4">{formatDate(row.bookedOn)}</TableCell>
                   <TableCell className="px-4 py-4">{row.variableSymbol ?? "–"}</TableCell>
                   <TableCell className="px-4 py-4">
-                    {row.currency === "CZK" ? (
-                      <MoneyAmount amountCzk={row.amountCents / 100} />
-                    ) : (
-                      <span className="whitespace-nowrap tabular-nums">
-                        {formatCurrencyAmount(row.amountCents / 100, row.currency)}
-                      </span>
-                    )}
+                    {/* Cents stay visible: a statement amount is not rounded to whole crowns. */}
+                    <span className="whitespace-nowrap tabular-nums">
+                      {formatCurrencyAmount(row.amountCents / 100, row.currency)}
+                    </span>
                   </TableCell>
                   <TableCell className="px-4 py-4 whitespace-normal">
                     {row.counterpartyName}

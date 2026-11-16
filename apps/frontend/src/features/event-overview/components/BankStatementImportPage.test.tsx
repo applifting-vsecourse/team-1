@@ -17,7 +17,7 @@ const unmatched = {
     {
       id: "b1",
       bookedOn: "2026-05-05",
-      amountCents: 20000,
+      amountCents: 144350,
       currency: "CZK",
       variableSymbol: null,
       counterpartyName: "Hana Novotná",
@@ -98,6 +98,7 @@ describe("BankStatementImportPage", () => {
     expect(row).toHaveTextContent("No variable symbol")
     expect(screen.getByText("The currency is not CZK")).toBeVisible()
     expect(screen.getByText(/€100\.00/)).toBeVisible()
+    expect(screen.getByText(/1,443\.50/)).toBeVisible()
     expect(
       screen.getByRole("link", { name: "Detail Jana Nováková" }).getAttribute("href"),
     ).toContain("/organizer/events/e1/applications/a1")

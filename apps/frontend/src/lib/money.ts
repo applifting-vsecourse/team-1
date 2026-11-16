@@ -22,7 +22,7 @@ export function formatTermPrice(priceCzk: number, language: Language = currentLa
     : formatCzk(priceCzk, language)
 }
 
-/** An amount of the bank statement in its own currency (`100,00 €`); crowns go through `formatCzk`. */
+/** An amount of the bank statement in its own currency with its cents (`1 443,50 Kč`, `100,00 €`). */
 export function formatCurrencyAmount(
   amount: number,
   currency: string,

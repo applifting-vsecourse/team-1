@@ -157,6 +157,8 @@ export function parseBankStatement(input: string): ParsedStatement {
       continue
     }
     const currency = cell("currency").toUpperCase() || null
+    if (currency !== null && !/^[A-Z]{3}$/.test(currency))
+      throw new InvalidStatementError(`Invalid currency: ${currency.slice(0, 10)}`)
     const variableSymbol = cell("variableSymbol") || null
     const counterpartyName = cell("name") || null
     const message = cell("message") || null
