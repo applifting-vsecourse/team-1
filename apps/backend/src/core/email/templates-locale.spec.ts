@@ -11,10 +11,12 @@ import ApplicationConfirmation, {
 import TermCancelled, { termCancelledSubject } from "./templates/application-term-cancelled"
 import ChangeEmail, { changeEmailSubject } from "./templates/change-email"
 import ChangeEmailNotice, { changeEmailNoticeSubject } from "./templates/change-email-notice"
+import ChangeRequestStatus, { changeRequestStatusSubject } from "./templates/change-request-status"
 import MagicLink, { magicLinkSubject } from "./templates/magic-link"
 import PaymentCorrectionEmail, { paymentCorrectionSubject } from "./templates/payment-correction"
 import PaymentReceivedEmail, { paymentReceivedSubject } from "./templates/payment-received"
 import ResetPassword, { resetPasswordSubject } from "./templates/reset-password"
+import VerifyEmail, { verifyEmailSubject } from "./templates/verify-email"
 
 // @react-email/render needs --experimental-vm-modules under jest, so the plain React renderer is used.
 const render = async (element: React.ReactElement): Promise<string> => {
@@ -62,6 +64,22 @@ const templates: Record<
       locale,
     }),
   }),
+  "change-request-status-pending": (locale) => ({
+    subject: changeRequestStatusSubject(locale),
+    element: React.createElement(ChangeRequestStatus, {
+      ...ChangeRequestStatus.PreviewProps,
+      status: "PENDING",
+      locale,
+    }),
+  }),
+  "change-request-status-rejected": (locale) => ({
+    subject: changeRequestStatusSubject(locale),
+    element: React.createElement(ChangeRequestStatus, {
+      ...ChangeRequestStatus.PreviewProps,
+      status: "REJECTED",
+      locale,
+    }),
+  }),
   "magic-link": (locale) => ({
     subject: magicLinkSubject(locale),
     element: React.createElement(MagicLink, { url: "https://example.com/l", locale }),
@@ -72,6 +90,10 @@ const templates: Record<
       url: "https://example.com/r",
       locale,
     }),
+  }),
+  "verify-email": (locale) => ({
+    subject: verifyEmailSubject(locale),
+    element: React.createElement(VerifyEmail, { url: "https://example.com/v", locale }),
   }),
   "change-email": (locale) => ({
     subject: changeEmailSubject(locale),

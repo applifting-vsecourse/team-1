@@ -1,7 +1,9 @@
 import { Locale } from "@/core/email/locale"
-import { Body, Container, Head, Heading, Html, Preview, Tailwind, Text } from "react-email"
 import * as React from "react"
+import { EmailFooter, EmailHeading, EmailLogo, EmailNote, EmailShell, EmailText } from "./email-kit"
 
+// E-mails CHANGE_REQUEST_RECEIVED (PENDING) and CHANGE_REQUEST_REJECTED (REJECTED), US-114.
+// Figma: no frame yet (docs/emaily/KATALOG.md), so the shared building blocks of email-kit are used.
 const copy: Record<
   Locale,
   {
@@ -11,6 +13,7 @@ const copy: Record<
     pendingBody: (name: string, event: string) => string
     rejectedBody: (name: string, event: string) => string
     reason: (reason: string) => string
+    footer: string[]
   }
 > = {
   en: {
@@ -22,6 +25,10 @@ const copy: Record<
     rejectedBody: (name, event) =>
       `The organiser declined the change requested for ${name} at ${event}. The existing application remains valid.`,
     reason: (reason) => `Reason: ${reason}`,
+    footer: [
+      "Togena",
+      "Questions about your application, attendance or payment: organizator@togena.com",
+    ],
   },
   cs: {
     subject: "Žádost o změnu přihlášky",
@@ -32,6 +39,7 @@ const copy: Record<
     rejectedBody: (name, event) =>
       `Organizátor zamítl žádost o změnu přihlášky účastníka ${name} na akci ${event}. Původní přihláška zůstává platná.`,
     reason: (reason) => `Důvod: ${reason}`,
+    footer: ["Togena", "Dotazy k přihlášce, účasti nebo platbě: organizator@togena.com"],
   },
 }
 
@@ -55,26 +63,30 @@ export function ChangeRequestStatus({
   const text = copy[locale]
   const heading = status === "PENDING" ? text.pending : text.rejected
   return (
-    <Html lang={locale}>
-      <Head />
-      <Preview>{heading}</Preview>
-      <Tailwind>
-        <Body className="bg-gray-50 font-sans py-10">
-          <Container className="bg-white rounded-lg mx-auto p-8 max-w-xl">
-            <Heading className="text-2xl font-bold text-gray-900 m-0">{heading}</Heading>
-            <Text className="text-gray-700 text-base leading-6 mt-4">
-              {status === "PENDING"
-                ? text.pendingBody(participantName, eventName)
-                : text.rejectedBody(participantName, eventName)}
-            </Text>
-            {reason ? (
-              <Text className="text-gray-700 text-base leading-6">{text.reason(reason)}</Text>
-            ) : null}
-          </Container>
-        </Body>
-      </Tailwind>
-    </Html>
+    <EmailShell
+      locale={locale}
+      preview={heading}
+    >
+      <EmailLogo />
+      <EmailHeading>{heading}</EmailHeading>
+      <EmailText>
+        {status === "PENDING"
+          ? text.pendingBody(participantName, eventName)
+          : text.rejectedBody(participantName, eventName)}
+      </EmailText>
+      {reason ? <EmailNote>{text.reason(reason)}</EmailNote> : null}
+      <EmailFooter lines={text.footer} />
+    </EmailShell>
   )
 }
+
+// Preview data for `pnpm backend email:dev`.
+ChangeRequestStatus.PreviewProps = {
+  locale: "cs",
+  status: "REJECTED",
+  participantName: "Adam Dvořák",
+  eventName: "Letní kemp Lipno 2027",
+  reason: "Termín je již plně obsazen.",
+} satisfies ChangeRequestStatusProps
 
 export default ChangeRequestStatus

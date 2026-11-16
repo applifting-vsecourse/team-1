@@ -3,6 +3,7 @@ import { toLocale } from "@/core/email/locale"
 import { renderEmail } from "@/core/email/render"
 import { ChangeEmail, changeEmailSubject } from "@/core/email/templates/change-email"
 import { ResetPassword, resetPasswordSubject } from "@/core/email/templates/reset-password"
+import { VerifyEmail, verifyEmailSubject } from "@/core/email/templates/verify-email"
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { betterAuthCoreConfig } from "@/shared/auth/config/better-auth.config"
 import { emailChangeHooks } from "@/shared/auth/email-change/email-change-hooks"
@@ -114,8 +115,12 @@ const createAuth = (
             await emailProvider.sendEmail(user.email, changeEmailSubject(locale), changeHtml)
             return
           }
-          // No general address verification (D-105): the only verification e-mail is the
-          // confirmation of an e-mail change above.
+          // Registration of an organizer (US-69) is confirmed by this e-mail. Participant accounts
+          // come from an application (already verified, never via /sign-up/email) and get none
+          // (D-105).
+          if ((user as { accountType?: unknown }).accountType !== "ORGANIZER") return
+          const html = await renderEmail(VerifyEmail, { url, locale })
+          await emailProvider.sendEmail(user.email, verifyEmailSubject(locale), html)
         } catch (error) {
           // BetterAuth swallows this error; the e-mail change request reads the flag.
           const delivery = verificationDelivery.getStore()
@@ -123,7 +128,7 @@ const createAuth = (
           throw error
         }
       },
-      sendOnSignUp: false,
+      sendOnSignUp: true,
     },
     plugins: [
       ...(betterAuthCoreConfig.plugins ?? []),

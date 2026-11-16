@@ -161,6 +161,38 @@ Identifikační blok, CTA přihlášky. Bez platebních údajů.
 
 Identifikační blok, CTA přihlášky. Bez platební výzvy. Věta neříká, že refundace už byla provedena; neurčuje nové datum ani výši. Před napojením potvrdit soulad s pravidly rušení termínů.
 
+## CHANGE_REQUEST_RECEIVED a CHANGE_REQUEST_REJECTED
+
+Stav: k potvrzení PM (znění převzato doslova ze šablony `change-request-status.tsx`, US-114, [#337](https://github.com/applifting-vsecourse/team-1/issues/337)). Rámec ve Figmě zatím není. `{participantName}` je účastník, `{eventName}` akce.
+
+| Pole                     | CS                                                                                                                                          | EN                                                                                                                                      |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| Předmět (obě zprávy)     | Žádost o změnu přihlášky                                                                                                                    | Application change request                                                                                                              |
+| Nadpis: žádost čeká      | Vaše žádost čeká na schválení                                                                                                               | Your request is awaiting approval                                                                                                       |
+| Tělo: žádost čeká        | Žádost o změnu přihlášky účastníka {participantName} na akci {eventName} čeká na rozhodnutí organizátora. Původní přihláška zůstává platná. | The change requested for {participantName} at {eventName} is awaiting the organiser's decision. The existing application remains valid. |
+| Nadpis: žádost zamítnuta | Vaše žádost byla zamítnuta                                                                                                                  | Your request was declined                                                                                                               |
+| Tělo: žádost zamítnuta   | Organizátor zamítl žádost o změnu přihlášky účastníka {participantName} na akci {eventName}. Původní přihláška zůstává platná.              | The organiser declined the change requested for {participantName} at {eventName}. The existing application remains valid.               |
+| Důvod (je-li zadán)      | Důvod: {reason}                                                                                                                             | Reason: {reason}                                                                                                                        |
+| Patička                  | Togena · Dotazy k přihlášce, účasti nebo platbě: organizator@togena.com                                                                     | Togena · Questions about your application, attendance or payment: organizator@togena.com                                                |
+
+Bez platebních údajů, pořadí a odkazu na přihlášku. Šablona nemá preheader ani tlačítko; preheader je shodný s nadpisem. Schválení žádosti sděluje běžná změnová zpráva ([D-140](../rozhodnuti/README.md#d-140)).
+
+## AUTH_ORGANIZER_VERIFY
+
+Stav: k potvrzení PM (znění převzato ze šablony `verify-email.tsx`). Platí jen pro registraci organizátora (US-69); přihlašovatel obecné ověření adresy nedostává ([D-105](../rozhodnuti/README.md#d-105), [D-109](../rozhodnuti/README.md#d-109)).
+
+| Pole           | CS                                                                                                                      | EN                                                                                                                                        |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Předmět        | Potvrďte svůj e-mail v Togeně                                                                                           | Confirm your email for Togena                                                                                                             |
+| Preheader      | Potvrďte svou e-mailovou adresu pomocí odkazu v tomto e-mailu.                                                          | Use the link in this e-mail to confirm your e-mail address.                                                                               |
+| Nadpis         | Potvrzení e-mailové adresy                                                                                              | Confirm your e-mail address                                                                                                               |
+| Tělo           | Děkujeme za registraci vaší organizace v Togeně. Svou e-mailovou adresu potvrdíte tlačítkem níže. Odkaz platí 1 hodinu. | Thank you for registering your organization in Togena. Use the button below to confirm your e-mail address. The link is valid for 1 hour. |
+| Bezpečnost     | Pokud jste se neregistrovali. Tento e-mail ignorujte. Dokud adresu nepotvrdíte, nic se nestane.                         | If you did not register. Ignore this e-mail. Nothing happens until you confirm your address.                                              |
+| CTA            | Potvrdit e-mail                                                                                                         | Confirm e-mail                                                                                                                            |
+| Náhradní odkaz | Pokud tlačítko nefunguje, zkopírujte tento odkaz do prohlížeče:                                                         | If the button doesn't work, copy this link into your browser:                                                                             |
+
+Cíl `{verifyUrl}`, auth patička (kontakt podpora Togeny). Doba platnosti odpovídá konfiguraci ověřovacích odkazů v kódu (1 hodina).
+
 ## AUTH_MAGIC_LINK
 
 | Pole            | CS                                                                                                                                | EN                                                                                                                                    |

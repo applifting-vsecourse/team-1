@@ -1,5 +1,6 @@
 import { Locale } from "@/core/email/locale"
 import { ChangeLayout } from "@/core/email/templates/application-change-layout"
+import { changeCommon } from "@/core/email/templates/application-change-copy"
 import * as React from "react"
 
 // E-mail no. 8 (US-117): the debt of a confirmed term was paid. A plain confirmation of receipt,
@@ -10,7 +11,6 @@ const copy: Record<
     subject: (term: string) => string
     text: (name: string, term: string, event: string) => string
     button: string
-    footer: (organization: string) => string
   }
 > = {
   en: {
@@ -18,14 +18,12 @@ const copy: Record<
     text: (name, term, event) =>
       `Hello ${name}, we have received your payment for ${term} at ${event}. You are all paid up and don't need to do anything else. You can check your application on the My application page:`,
     button: "My application",
-    footer: (organization) => `${organization} · via Togena`,
   },
   cs: {
     subject: (term) => `Platba za termín ${term} byla přijata`,
     text: (name, term, event) =>
       `Dobrý den, ${name}, platbu za termín ${term} akce ${event} jsme přijali. Máte zaplaceno a nemusíte nic dalšího řešit. Stav přihlášky najdete na stránce Moje přihláška:`,
     button: "Moje přihláška",
-    footer: (organization) => `${organization} · přes Togenu`,
   },
 }
 
@@ -59,11 +57,14 @@ export const PaymentReceivedEmail = ({
       heading={subject}
       eventName={eventName}
       text={text.text(firstName, termName, eventName)}
-      badge={null}
+      labels={changeCommon[locale].labels}
+      participantName={firstName}
+      termValue={termName}
       details={[]}
+      note={null}
       buttonLabel={text.button}
       buttonUrl={confirmationUrl}
-      footer={[text.footer(organizationName)]}
+      footer={changeCommon[locale].footer(organizationName)}
     />
   )
 }
