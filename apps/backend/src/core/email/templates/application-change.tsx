@@ -255,7 +255,7 @@ export const ApplicationChange = ({
               { label: common.applicationSymbol, value: payment.variableSymbol },
               ...payment.terms.map((paid) => ({
                 label: common.termSymbol(paid.name),
-                value: paid.variableSymbol,
+                value: `${paid.variableSymbol} · ${paid.amount}`,
               })),
             ]
           : [{ label: common.variableSymbol, value: payment.variableSymbol }]),

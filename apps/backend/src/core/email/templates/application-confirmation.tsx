@@ -227,7 +227,7 @@ export const ApplicationConfirmation = ({
                     <EmailRow
                       key={term.variableSymbol}
                       label={text.termSymbol(term.name)}
-                      value={term.variableSymbol}
+                      value={`${term.variableSymbol} · ${term.amount}`}
                     />
                   ))}
                 </>
