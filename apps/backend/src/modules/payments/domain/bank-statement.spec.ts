@@ -61,6 +61,11 @@ describe("parseBankStatement", () => {
     ])
   })
 
+  it("reads Kč as CZK in the currency column", () => {
+    const csv = "datum;částka;měna;vs\n05.05.2026;500;Kč;12001"
+    expect(parseBankStatement(csv).incoming).toMatchObject([{ currency: "CZK" }])
+  })
+
   it("rejects a file without the columns or with a broken row", () => {
     expect(() => parseBankStatement("a;b\n1;2")).toThrow(InvalidStatementError)
     expect(() => parseBankStatement("datum;částka;měna;vs\n05.05.2026;5;C!;1")).toThrow(

@@ -156,7 +156,9 @@ export function parseBankStatement(input: string): ParsedStatement {
       ignoredCount++
       continue
     }
-    const currency = cell("currency").toUpperCase() || null
+    const rawCurrency = cell("currency").toUpperCase()
+    // The crown is often written as a word or symbol rather than the ISO code.
+    const currency = ["KČ", "KC"].includes(rawCurrency) ? "CZK" : rawCurrency || null
     if (currency !== null && !/^[A-Z]{3}$/.test(currency))
       throw new InvalidStatementError(`Invalid currency: ${currency.slice(0, 10)}`)
     const variableSymbol = cell("variableSymbol") || null
