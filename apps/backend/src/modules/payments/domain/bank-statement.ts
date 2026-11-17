@@ -168,7 +168,17 @@ export function parseBankStatement(input: string): ParsedStatement {
     if (!externalId) {
       // No bank id: two identical rows of one file are two payments, so count the repeats.
       const hash = createHash("sha1")
-        .update([bookedOn, amountCents, variableSymbol, counterpartyName, message].join("|"))
+        .update(
+          // The currency is part of the identity: 500 CZK and 500 EUR are different payments.
+          [
+            bookedOn,
+            amountCents,
+            currency ?? "CZK",
+            variableSymbol,
+            counterpartyName,
+            message,
+          ].join("|"),
+        )
         .digest("hex")
         .slice(0, 16)
       const occurrence = (seenHashes.get(hash) ?? 0) + 1

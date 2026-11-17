@@ -33,8 +33,9 @@ import {
 
 const MAX_STATEMENT_BYTES = 2 * 1024 * 1024
 
-// Figma (Design system): no frame for US-42 yet. Built from the Platby list (#45 / Platby · node-id=19786-51878),
-// the Upload field (Togena / Upload · node-id=15207-1978) and the summary cards of #45.
+// Design proposal (US-42), no Figma frame exists yet; the structure and copy still need the designer's review.
+// Based on Figma (Design system): #45 Platby · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19786-51878
+// Upload field (Togena / Upload) · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15207-1978
 export function BankStatementImportPage({
   eventId,
   eventName,

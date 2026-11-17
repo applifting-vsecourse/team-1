@@ -42,6 +42,15 @@ describe("parseBankStatement", () => {
     ])
   })
 
+  it("keeps the currency in the identity of a generic row, a missing currency counts as CZK", () => {
+    const id = (csv: string) => parseBankStatement(csv).incoming[0].externalId
+    const czk = id("date,currency,amount,vs\n2026-05-05,CZK,500,12001\n")
+    const eur = id("date,currency,amount,vs\n2026-05-05,EUR,500,12001\n")
+    expect(czk).not.toBe(eur)
+    expect(id("date,amount,vs\n2026-05-05,500,12001\n")).toBe(czk)
+    expect(id("date,currency,amount,vs\n2026-05-05,Kč,500,12001\n")).toBe(czk)
+  })
+
   it("reads a generic comma separated CSV and numbers identical rows so a re-upload yields the same ids", () => {
     const csv = "date,amount,vs,name\n2026-05-05,500,12001,A\n2026-05-05,500,12001,A\n"
     const first = parseBankStatement(csv).incoming
