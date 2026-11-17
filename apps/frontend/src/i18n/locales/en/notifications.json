@@ -34,6 +34,7 @@
   },
   "title": {
     "APPLICATION_EDITED": "The applicant edited an application",
+    "APPLICATION_EDITED_BY_ORGANIZER": "The organizer edited an application",
     "CANCELLED": "Your cancellation is confirmed",
     "CANCELLED_BY_ORGANIZER": "The organizer cancelled the application",
     "CONFIRMED": "Application confirmed",

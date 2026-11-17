@@ -24,12 +24,37 @@ export type HistoryPaymentRow = {
   cancelledAt: Date | null
 }
 
+/** The details of an application an edit can change (D-141). */
+export const EDITABLE_FIELDS = [
+  "firstName",
+  "lastName",
+  "birthDate",
+  "phone",
+  "individualAccommodation",
+  "accommodationRequest",
+] as const
+export type EditableField = (typeof EDITABLE_FIELDS)[number]
+
+/** One stored edit of the details: who saved it, which fields and their values before and after. */
+export type HistoryEdit = {
+  id: string
+  authorName: string
+  changedFields: string[]
+  before: Partial<Record<EditableField, string | boolean | null>>
+  after: Partial<Record<EditableField, string | boolean | null>>
+  changedAt: Date
+}
+
+/** A changed field with its value before and after; a flag is `"true"` / `"false"`. */
+export type HistoryFieldChange = { field: EditableField; from: string | null; to: string | null }
+
 export type ApplicationHistorySource = {
   /** E-mail of the applicant who submitted the application. */
   applicantEmail: string
   createdAt: Date
   statusChanges: HistoryStatusChange[]
   paymentRows: HistoryPaymentRow[]
+  edits: HistoryEdit[]
 }
 
 type EntryBase = {
@@ -40,6 +65,7 @@ type EntryBase = {
 }
 
 export type HistoryEntry =
+  | (EntryBase & { kind: "EDIT"; changes: HistoryFieldChange[] })
   | (EntryBase & { kind: "APPLICATION_CREATED" })
   | (EntryBase & {
       kind: "STATUS_CHANGE"
@@ -57,10 +83,13 @@ export type HistoryEntry =
       isCancelled: boolean
     })
 
+const asText = (value: string | boolean | null | undefined): string | null =>
+  value === undefined || value === null || value === "" ? null : String(value)
+
 /**
  * The history of changes of an application (US-53): its creation, every status change in a term
  * and every recorded payment or refund, newest first. A receipt split over several terms is one
- * entry. Computed here and nowhere else; the screen only formats the entries.
+ * entry, as is every edit of the details with what changed in it. Computed here and nowhere else; the screen only formats the entries.
  */
 export function buildApplicationHistory(source: ApplicationHistorySource): HistoryEntry[] {
   const entries: HistoryEntry[] = [
@@ -100,6 +129,22 @@ export function buildApplicationHistory(source: ApplicationHistorySource): Histo
       amountCzk: rows.reduce((sum, row) => sum + row.amountCzk, 0),
       isCorrection: first.correctsReceiptId !== null,
       isCancelled: first.cancelledAt !== null,
+    })
+  }
+
+  for (const edit of source.edits) {
+    entries.push({
+      kind: "EDIT",
+      id: `edit-${edit.id}`,
+      at: edit.changedAt,
+      author: edit.authorName,
+      changes: EDITABLE_FIELDS.filter((field) => edit.changedFields.includes(field)).map(
+        (field) => ({
+          field,
+          from: asText(edit.before[field]),
+          to: asText(edit.after[field]),
+        }),
+      ),
     })
   }
 

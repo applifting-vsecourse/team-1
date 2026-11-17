@@ -233,6 +233,29 @@
     "submitted": "Submitted {{date}} · original application unchanged",
     "title": "Change requests"
   },
+  "editDetails": {
+    "afterSave": "After saving: the change is written to the application history. The applicant will not get an e-mail.",
+    "birthDate": "Date of birth *",
+    "birthDateInvalid": "Enter a valid date of birth.",
+    "cancel": "Cancel",
+    "email": "Application e-mail (can't be changed)",
+    "firstName": "First name *",
+    "firstNameRequired": "Enter the first name.",
+    "gender": "Gender (can't be changed)",
+    "individualAccommodation": "Individual accommodation",
+    "lastName": "Last name *",
+    "lastNameRequired": "Enter the last name.",
+    "note": "Note (max. 2,000 characters)",
+    "noteTooLong": "The note can be at most 2,000 characters long.",
+    "phone": "Phone *",
+    "phoneInvalid": "Enter a valid phone number, for example +420 777 123 456 (7 to 15 digits, optionally starting with +).",
+    "phoneRequired": "Enter the phone number.",
+    "save": "Save changes",
+    "saveError": "The changes could not be saved",
+    "saved": "Participant details saved.",
+    "saving": "Saving…",
+    "title": "Edit participant details"
+  },
   "freedBeds": {
     "bedFEMALE": "women's bed",
     "bedMALE": "men's bed",
@@ -243,14 +266,27 @@
     "title": "A bed was freed or added in the term {{range}}"
   },
   "history": {
+    "change": "{{field}}: {{from}} → {{to}}",
     "created": "Application created",
+    "edit": "{{changes}}",
+    "emptyValue": "—",
     "entry": "{{date}} · {{who}} · {{change}}",
     "errorTitle": "Could not load the history of changes",
+    "field": {
+      "accommodationRequest": "Accommodation note",
+      "birthDate": "Date of birth",
+      "firstName": "First name",
+      "individualAccommodation": "Individual accommodation",
+      "lastName": "Last name",
+      "phone": "Phone"
+    },
+    "no": "no",
     "payment": "Payment {{amount}}",
     "refund": "Refund {{amount}}",
     "status": "{{term}}: {{from}} → {{to}}",
     "system": "System",
-    "title": "History of changes"
+    "title": "History of changes",
+    "yes": "yes"
   },
   "manual": {
     "add": "Add application",
@@ -343,6 +379,7 @@
     "dialogCancel": "Cancel",
     "dialogTitle": "Record payment or refund",
     "due": "Amount due",
+    "editParticipant": "Edit",
     "editorDue": "Amount due",
     "empty": "No payment recorded yet.",
     "errorTitle": "Payment details could not be loaded",
@@ -377,8 +414,10 @@
     "partialHint": "After this payment, {{owed}} remains to be paid.",
     "participantBirthGender": "Date of birth and gender",
     "participantCard": "Participant details",
-    "participantContact": "Applicant contact",
+    "participantContact": "Contact",
+    "participantName": "Name",
     "payRemaining": "Settle the remaining {{amount}}",
+    "phoneNone": "Not provided",
     "placeholder": "E.g. 3,000",
     "preview": "After saving, amount owed",
     "receivedHint": "Enter the amount actually received.",

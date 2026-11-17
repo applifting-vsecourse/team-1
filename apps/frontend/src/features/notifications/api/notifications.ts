@@ -21,6 +21,7 @@ export const NOTIFICATION_KINDS = [
   // REQUEST — prepared for US-114, nothing raises it yet
   "REQUEST_APPROVED",
   "APPLICATION_EDITED",
+  "APPLICATION_EDITED_BY_ORGANIZER",
 ] as const
 export type NotificationKind = (typeof NOTIFICATION_KINDS)[number]
 

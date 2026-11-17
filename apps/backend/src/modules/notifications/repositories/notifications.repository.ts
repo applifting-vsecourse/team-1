@@ -50,17 +50,23 @@ export class NotificationsRepository {
       eventId: string
       eventName: string
       participantName: string
+      /** An organizer made the change: it reads as theirs and is not sent to them. */
+      editedBy?: { userId: string }
     },
   ): Promise<void> {
     const members = await tx.organizationMember.findMany({
-      where: { organizationId: input.organizationId, user: { accountType: "ORGANIZER" } },
+      where: {
+        organizationId: input.organizationId,
+        user: { accountType: "ORGANIZER" },
+        ...(input.editedBy ? { userId: { not: input.editedBy.userId } } : {}),
+      },
       select: { userId: true },
     })
     await tx.notification.createMany({
       data: members.map((member) => ({
         userId: member.userId,
         type: "REQUEST" as const,
-        kind: "APPLICATION_EDITED",
+        kind: input.editedBy ? "APPLICATION_EDITED_BY_ORGANIZER" : "APPLICATION_EDITED",
         applicationId: input.applicationId,
         params: {
           eventId: input.eventId,

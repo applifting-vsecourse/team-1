@@ -1,3 +1,4 @@
+import { isApplicationEditable } from "@/modules/applications/domain/application-editable"
 import { ApplicationTermStatus } from "@/modules/applications/domain/evaluation"
 import { computePaymentDeadline } from "@/modules/applications/domain/payment-deadline"
 import {
@@ -15,6 +16,7 @@ import {
   PaymentStatus,
 } from "@/modules/applications/domain/pricing"
 import { variableSymbol } from "@/modules/applications/domain/variable-symbol"
+import { todayInPrague } from "@/modules/applications/domain/waitlist-expiry"
 
 /** One stored row: money of one receipt on one application in a term. */
 export type PaymentRow = {
@@ -59,6 +61,8 @@ export type PaymentApplication = {
   gender: "FEMALE" | "MALE"
   /** Contact of the applicant who submitted the application. */
   email: string
+  /** Phone of the participant (required since D-079); null for an application from before that. */
+  phone: string | null
   terms: PaymentTerm[]
 }
 
@@ -98,6 +102,8 @@ export type PaymentSummary = Omit<PaymentApplication, "terms"> & {
   payableCzk: number
   /** The term a refund is offered for first (the most overpaid one); null without an overpayment. */
   refundableTermId: string | null
+  /** The details can still be edited (D-141): a live term that has not ended. */
+  isEditable: boolean
 }
 
 /** Groups the rows of an application by receipt, in the order the receipts arrived. */
@@ -147,7 +153,10 @@ export function groupReceipts(terms: PaymentTerm[]): Receipt[] {
   return [...receipts.values()]
 }
 
-export function paymentSummary(application: PaymentApplication): PaymentSummary {
+export function paymentSummary(
+  application: PaymentApplication,
+  now: Date = new Date(),
+): PaymentSummary {
   const terms = [...application.terms]
     .sort((a, b) => a.startsOn.getTime() - b.startsOn.getTime() || a.termNumber - b.termNumber)
     .map((term) => {
@@ -180,6 +189,7 @@ export function paymentSummary(application: PaymentApplication): PaymentSummary 
     amountPaidCzk,
     amountOwedCzk: computeAmountOwed(amountDueCzk, amountPaidCzk),
     payableCzk: computePayableAmount(terms.map((term) => term.owedCzk)),
+    isEditable: isApplicationEditable(application.terms, todayInPrague(now)),
     refundableTermId:
       terms.reduce<PaymentTermSummary | null>(
         (best, term) => (term.refundableCzk > (best?.refundableCzk ?? 0) ? term : best),

@@ -1,5 +1,6 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { Prisma } from "@/generated/prisma/client"
+import { isApplicationEditable } from "@/modules/applications/domain/application-editable"
 import { findDuplicate } from "@/modules/applications/domain/duplicate-application"
 import { termLabel } from "@/modules/applications/domain/term-label"
 import { todayInPrague } from "@/modules/applications/domain/waitlist-expiry"
@@ -28,6 +29,12 @@ export type EditInput = Pick<
   | "individualAccommodation"
   | "accommodationRequest"
 >
+
+/** Whose application it is: the applicant's own, or any application of the organizer's organization. */
+export type EditScope = { userId: string } | { organizationId: string }
+
+/** Who saves the edit; the audit record and the organizers' notification carry the name. */
+export type Editor = { id: string; name: string }
 
 const include = {
   event: { select: { name: true } },
@@ -65,35 +72,44 @@ export class ApplicationEditRepository {
     return row ? toDto(row) : null
   }
 
-  /** Serializes edits to the same application and stores the audit record with the change. */
+  /**
+   * Serializes edits to the same application and stores the audit record with the change.
+   * `null` when the application is outside `scope`.
+   */
   async save(
-    userId: string,
-    authorName: string,
+    scope: EditScope,
+    editor: Editor,
     id: string,
     input: EditInput,
   ): Promise<EditableApplication | null> {
     return this.prisma.$transaction(async (tx) => {
       const target = await tx.application.findFirst({
-        where: { id, userId },
+        where: { id, ...scope },
         select: { eventId: true },
       })
       if (!target) return null
       // Submission and term changes use the event lock for the duplicate check too.
       await tx.$queryRaw`SELECT id FROM event WHERE id = ${target.eventId} FOR UPDATE`
       await tx.$queryRaw`SELECT id FROM "application" WHERE id = ${id} FOR UPDATE`
-      const row = await tx.application.findFirst({ where: { id, userId }, include })
+      const row = await tx.application.findFirst({ where: { id, ...scope }, include })
       if (!row) return null
 
       // Only an application with a live term can be edited: a cancelled one, or one whose terms
       // are all over, is history.
-      const activeTerms = await tx.applicationTerm.findMany({
-        where: { applicationId: id, status: { not: "CANCELLED" } },
-        select: { termId: true, term: { select: { endsOn: true } } },
+      const terms = await tx.applicationTerm.findMany({
+        where: { applicationId: id },
+        select: { termId: true, status: true, term: { select: { endsOn: true } } },
       })
       const today = todayInPrague(new Date())
-      if (!activeTerms.some(({ term }) => term.endsOn >= today)) {
+      if (
+        !isApplicationEditable(
+          terms.map(({ status, term }) => ({ status, endsOn: term.endsOn })),
+          today,
+        )
+      ) {
         throw new AppException(HttpStatus.CONFLICT, "APPLICATION_NOT_EDITABLE")
       }
+      const activeTerms = terms.filter(({ status }) => status !== "CANCELLED")
 
       const before: EditInput = {
         firstName: row.firstName,
@@ -171,8 +187,8 @@ export class ApplicationEditRepository {
         data: {
           organizationId: row.organizationId,
           applicationId: id,
-          changedById: userId,
-          authorName,
+          changedById: editor.id,
+          authorName: editor.name,
           changedFields,
           before: before as Prisma.InputJsonObject,
           after: input as Prisma.InputJsonObject,
@@ -184,8 +200,10 @@ export class ApplicationEditRepository {
         eventId: row.eventId,
         eventName: row.event.name,
         participantName: `${input.firstName} ${input.lastName}`,
+        // An organizer's own change is not news to them; the applicant is no organizer anyway.
+        editedBy: "organizationId" in scope ? { userId: editor.id } : undefined,
       })
-      const updated = toDto((await tx.application.findFirst({ where: { id, userId }, include }))!)
+      const updated = toDto((await tx.application.findFirst({ where: { id, ...scope }, include }))!)
       // Two edits can share a millisecond; the response must show this save first.
       updated.history.sort((a, b) => (a.id === edit.id ? -1 : b.id === edit.id ? 1 : 0))
       return updated
