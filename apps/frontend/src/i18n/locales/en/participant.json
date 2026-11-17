@@ -111,7 +111,7 @@
     "phone": "Phone (optional)",
     "phoneInvalid": "Enter a valid phone number, for example +420 777 123 456 (7 to 15 digits, optionally starting with +).",
     "phoneSummary": "Phone · {{phone}}",
-    "phoneSummaryNone": "Phone · not provided",
+    "phoneSummaryNone": "Phone · —",
     "retry": "Try again",
     "save": "Save changes",
     "saveError": "Try saving your changes again",

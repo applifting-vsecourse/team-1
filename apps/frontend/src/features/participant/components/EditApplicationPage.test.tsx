@@ -133,7 +133,7 @@ describe("EditApplicationPage", () => {
         accommodationRequest: "",
       },
     })
-    expect(await screen.findByText("Phone · not provided")).toBeInTheDocument()
+    expect(await screen.findByText("Phone · —")).toBeInTheDocument()
   })
 
   it.each(["abc", "123456", "+420 777 abc", "123454623123121221212121212112"])(
