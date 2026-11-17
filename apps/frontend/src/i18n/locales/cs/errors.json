@@ -22,6 +22,7 @@
   "HEALTH_REQUEST_NOT_NEEDED": "Zatím není co měnit. Zdravotní omezení vyplňte přímo.",
   "INTERNAL": "Na serveru se něco pokazilo. Zkuste to prosím znovu.",
   "INVALID_EMAIL_OR_PASSWORD": "Nesprávný e-mail nebo heslo.",
+  "INVALID_PHONE": "Zadejte platné telefonní číslo, například +420 777 123 456 (7 až 15 číslic, případně začínající +).",
   "INVALID_RESPONSE": "Odpověď serveru se nepodařilo načíst. Zkuste to znovu.",
   "INVALID_STATUS_TRANSITION": "Z aktuálního stavu přihlášky v termínu tuto změnu provést nejde.",
   "NOT_FOUND": "Nenalezeno.",

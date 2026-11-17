@@ -94,7 +94,7 @@ describe("ApplicationsService", () => {
 
     expect(repository.saveEvaluated).toHaveBeenCalledWith(
       event,
-      [expect.objectContaining({ phone: "+420 777 123 456", consentAt: expect.any(Date) })],
+      [expect.objectContaining({ phone: "+420777123456", consentAt: expect.any(Date) })],
       expect.any(Function),
       "organizer",
     )
@@ -104,6 +104,52 @@ describe("ApplicationsService", () => {
         mustSetPassword: true,
         applications: [expect.objectContaining({ number: 7, firstName: "Eva" })],
       }),
+    )
+  })
+
+  describe("phone of a manually added application", () => {
+    const organizer = new Identity(
+      "organizer",
+      "organizer@example.com",
+      "Organizer",
+      "ORGANIZER",
+      false,
+    )
+    const manualInput = {
+      firstName: "Eva",
+      lastName: "Nováková",
+      birthDate: "2014-05-18",
+      gender: "FEMALE" as const,
+      email: "eva@example.com",
+      consent: true as const,
+      terms: [{ termId: "t1", status: "CONFIRMED" as const }],
+    }
+
+    beforeEach(() => {
+      access.assertCanAccessEvent.mockResolvedValue({ organizationId: "o1" })
+      repository.findEventForOrganizer.mockResolvedValue(event)
+    })
+
+    it.each([undefined, null, "", "   "])("stores no phone for %j", async (phone) => {
+      await service.submitByOrganizer(organizer, "e1", { ...manualInput, phone }, "cs")
+
+      expect(repository.saveEvaluated).toHaveBeenCalledWith(
+        event,
+        [expect.not.objectContaining({ phone: expect.anything() })],
+        expect.any(Function),
+        "organizer",
+      )
+    })
+
+    it.each(["abc", "123456x", "123454623123121221212121212112"])(
+      "rejects the phone %j before anything is stored or sent",
+      async (phone) => {
+        await expect(
+          service.submitByOrganizer(organizer, "e1", { ...manualInput, phone }, "cs"),
+        ).rejects.toMatchObject(new AppException(HttpStatus.BAD_REQUEST, "INVALID_PHONE"))
+        expect(repository.saveEvaluated).not.toHaveBeenCalled()
+        expect(mailer.sendSubmissionConfirmation).not.toHaveBeenCalled()
+      },
     )
   })
 

@@ -6,6 +6,7 @@ import {
 } from "@/modules/participants/repositories/application-edit.repository"
 import { Identity } from "@/shared/auth/domain/identity"
 import { normalizeAccommodation } from "@/shared/domain/accommodation"
+import { isValidPhone, normalizePhone } from "@/shared/domain/phone"
 import { AppException } from "@/shared/errors/app.exception"
 import { HttpStatus, Injectable } from "@nestjs/common"
 
@@ -22,22 +23,21 @@ export class ApplicationEditService {
   async save(
     user: Identity,
     applicationId: string,
-    input: EditInput,
+    input: Omit<EditInput, "phone"> & { phone?: string | null },
   ): Promise<EditableApplication> {
     const normalized: EditInput = {
       firstName: input.firstName.trim(),
       lastName: input.lastName.trim(),
       birthDate: input.birthDate,
-      phone: input.phone?.trim().replace(/[ ()-]/g, "") ?? null,
+      phone: normalizePhone(input.phone),
       ...normalizeAccommodation(input.individualAccommodation, input.accommodationRequest),
     }
-    if (
-      !normalized.firstName ||
-      !normalized.lastName ||
-      !isValidBirthDate(normalized.birthDate) ||
-      !normalized.phone
-    ) {
+    if (!normalized.firstName || !normalized.lastName || !isValidBirthDate(normalized.birthDate)) {
       throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
+    }
+    // The phone is optional; a filled-in one has to be a phone.
+    if (!isValidPhone(normalized.phone)) {
+      throw new AppException(HttpStatus.BAD_REQUEST, "INVALID_PHONE")
     }
     const application = await this.edits.save(
       user.id,

@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/select"
 import { formatDateRange } from "@/lib/date"
 import { parseDateInput } from "@/lib/date-input"
+import { isValidPhone, MAX_PHONE_INPUT_LENGTH, normalizePhone } from "@/lib/phone"
 import { termTitle } from "@/lib/term-label"
 
 import {
@@ -171,8 +172,8 @@ export function ManualApplicationPage({
     }
     if (draft.gender === "") nextErrors.gender = t("manual.gender")
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(draft.email)) nextErrors.email = t("manual.invalidEmail")
-    const phone = draft.phone.trim().replace(/[ ()-]/g, "")
-    if (!/^\+?[0-9]{7,30}$/.test(phone)) nextErrors.phone = t("manual.invalidPhone")
+    const phone = normalizePhone(draft.phone)
+    if (!isValidPhone(phone)) nextErrors.phone = t("manual.invalidPhone")
     if (!draft.consent) nextErrors.consent = t("manual.consentRequired")
     const selectedTerms = terms.flatMap((term) => {
       const status = draft.statuses[term.id]
@@ -374,6 +375,7 @@ export function ManualApplicationPage({
               <Input
                 id="manual-phone"
                 type="tel"
+                maxLength={MAX_PHONE_INPUT_LENGTH}
                 value={draft.phone}
                 onChange={(e) => update("phone", e.target.value)}
               />
