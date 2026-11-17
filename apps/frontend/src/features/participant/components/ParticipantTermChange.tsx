@@ -244,6 +244,7 @@ export function ParticipantTermChange({
               <Select
                 value={target?.id}
                 onValueChange={setTargetId}
+                disabled={available.length === 0}
               >
                 <SelectTrigger
                   id="target-term"
