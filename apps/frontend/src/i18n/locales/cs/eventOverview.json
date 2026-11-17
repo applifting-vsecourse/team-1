@@ -89,7 +89,7 @@
   },
   "bankStatement": {
     "back": "Zpět na platby",
-    "description": "Nahrajte výpis z Fio banky v CSV nebo CSV se sloupci datum, částka a variabilní symbol. Platby se k přihláškám spárují podle variabilního symbolu.",
+    "description": "Nahrajte výpis z Fio banky ve formátu CSV. Platby se k přihláškám spárují podle variabilního symbolu.",
     "done": "Výpis byl zpracován",
     "result": {
       "duplicates_few": "{{count}} transakce už byly nahrané dříve a nezapočítaly se znovu.",

@@ -89,7 +89,7 @@
   },
   "bankStatement": {
     "back": "Back to payments",
-    "description": "Upload a CSV statement from Fio, or a CSV with the columns date, amount and variable symbol. Payments are matched to applications by variable symbol.",
+    "description": "Upload a CSV statement from Fio. Payments are matched to applications by variable symbol.",
     "done": "The statement was processed",
     "result": {
       "duplicates_few": "{{count}} transactions were already imported and were not counted again.",

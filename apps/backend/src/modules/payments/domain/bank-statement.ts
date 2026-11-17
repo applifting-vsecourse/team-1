@@ -1,20 +1,18 @@
-import { createHash } from "node:crypto"
 import { computePayableAmount } from "@/modules/applications/domain/pricing"
 import { parseVariableSymbol } from "@/modules/applications/domain/variable-symbol"
 
 /**
- * Parser of a bank statement in CSV (US-42, D-125): the Fio export and a simple generic format
- * (header with `date`, `amount` and `variableSymbol`, optionally `id`, `name` and `message`; Czech
- * names `datum`, `částka`, `vs`, `název protiúčtu`, `zpráva` work too).
+ * Parser of the Fio CSV statement (US-42, D-125): semicolon separated, a preamble above the header
+ * row with `ID operace`, `Datum`, `Objem`, `Měna`, `VS`, `Název protiúčtu` and `Zpráva pro příjemce`.
  */
 export type StatementRow = {
-  /** Id of the operation at the bank, or a hash of the row for the generic format. */
+  /** Id of the operation at the bank (`ID operace`). */
   externalId: string
   /** `YYYY-MM-DD` */
   bookedOn: string
   /** Hundredths of CZK; negative = outgoing. */
   amountCents: number
-  /** Currency code of the statement row; null when the format has no such column. */
+  /** Currency code of the statement row; null when the export has no such column. */
   currency: string | null
   variableSymbol: string | null
   counterpartyName: string | null
@@ -33,14 +31,14 @@ export const MAX_STATEMENT_CHARS = 2_000_000
 
 export class InvalidStatementError extends Error {}
 
-const FIELD_ALIASES: Record<string, string[]> = {
-  id: ["id operace", "id", "id transakce"],
-  date: ["datum", "date", "datum zaúčtování"],
-  currency: ["měna", "mena", "currency"],
-  amount: ["objem", "částka", "castka", "amount", "suma"],
-  variableSymbol: ["vs", "variabilní symbol", "variabilni symbol", "variablesymbol"],
-  name: ["název protiúčtu", "nazev protiuctu", "name", "jméno"],
-  message: ["zpráva pro příjemce", "zprava pro prijemce", "message", "zpráva"],
+const FIELD_ALIASES: Record<string, string> = {
+  id: "id operace",
+  date: "datum",
+  currency: "měna",
+  amount: "objem",
+  variableSymbol: "vs",
+  name: "název protiúčtu",
+  message: "zpráva pro příjemce",
 }
 
 const normalize = (value: string): string => value.trim().toLowerCase().replace(/\s+/g, " ")
@@ -79,17 +77,17 @@ export function splitCsv(text: string, delimiter: string): string[][] {
   return rows
 }
 
-/** The row with the required columns, found in the rows parsed with one delimiter. */
+/** The row with the required columns, found below the preamble of the Fio export. */
 function findHeader(rows: string[][]): { index: number; columns: Record<string, number> } | null {
   for (let i = 0; i < rows.length; i++) {
     const names = rows[i].map(normalize)
     const columns: Record<string, number> = {}
-    for (const [key, aliases] of Object.entries(FIELD_ALIASES)) {
-      // Aliases are in order of preference, so "Zpráva pro příjemce" beats a looser column.
-      const index = aliases.map((alias) => names.indexOf(alias)).find((found) => found >= 0) ?? -1
+    for (const [key, name] of Object.entries(FIELD_ALIASES)) {
+      const index = names.indexOf(name)
       if (index >= 0) columns[key] = index
     }
     if (
+      columns.id !== undefined &&
       columns.date !== undefined &&
       columns.amount !== undefined &&
       columns.variableSymbol !== undefined
@@ -106,15 +104,12 @@ export function parseAmountCents(value: string): number | null {
   return Math.round(Number(cleaned) * 100)
 }
 
-/** `15.05.2026` or `2026-05-15` → `2026-05-15`; null for anything else or a date that does not exist. */
+/** `15.05.2026` → `2026-05-15`; null for anything else or a date that does not exist. */
 export function parseStatementDate(value: string): string | null {
   const text = value.trim()
-  let year: number, month: number, day: number
   const czech = /^(\d{1,2})\.\s?(\d{1,2})\.\s?(\d{4})$/.exec(text)
-  const iso = /^(\d{4})-(\d{2})-(\d{2})$/.exec(text)
-  if (czech) [day, month, year] = [Number(czech[1]), Number(czech[2]), Number(czech[3])]
-  else if (iso) [year, month, day] = [Number(iso[1]), Number(iso[2]), Number(iso[3])]
-  else return null
+  if (!czech) return null
+  const [day, month, year] = [Number(czech[1]), Number(czech[2]), Number(czech[3])]
   const date = new Date(Date.UTC(year, month - 1, day))
   if (
     date.getUTCFullYear() !== year ||
@@ -128,21 +123,13 @@ export function parseStatementDate(value: string): string | null {
 export function parseBankStatement(input: string): ParsedStatement {
   if (input.length > MAX_STATEMENT_CHARS) throw new InvalidStatementError("Statement too large")
   const text = input.replace(/^\uFEFF/, "")
-  // The delimiter is the one under which the header is found, not a count of characters, which
-  // free text (a message with semicolons) would skew. The Fio export has a preamble above it.
-  let rows: string[][] = []
-  let header: ReturnType<typeof findHeader> = null
-  for (const delimiter of [";", ","]) {
-    rows = splitCsv(text, delimiter)
-    header = findHeader(rows)
-    if (header) break
-  }
-  if (!header) throw new InvalidStatementError("Missing header with date, amount and VS")
+  const rows = splitCsv(text, ";")
+  const header = findHeader(rows)
+  if (!header) throw new InvalidStatementError("Missing header with ID, date, amount and VS")
   const headerIndex = header.index
   const columns = header.columns
 
   const incoming: StatementRow[] = []
-  const seenHashes = new Map<string, number>()
   let ignoredCount = 0
   for (const row of rows.slice(headerIndex + 1)) {
     if (row.every((cell) => cell.trim() === "")) continue
@@ -157,34 +144,15 @@ export function parseBankStatement(input: string): ParsedStatement {
       continue
     }
     const rawCurrency = cell("currency").toUpperCase()
-    // The crown is often written as a word or symbol rather than the ISO code.
-    const currency = ["KČ", "KC"].includes(rawCurrency) ? "CZK" : rawCurrency || null
+    const currency = rawCurrency || null
     if (currency !== null && !/^[A-Z]{3}$/.test(currency))
       throw new InvalidStatementError(`Invalid currency: ${currency.slice(0, 10)}`)
     const variableSymbol = cell("variableSymbol") || null
     const counterpartyName = cell("name") || null
     const message = cell("message") || null
-    let externalId = cell("id")
-    if (!externalId) {
-      // No bank id: two identical rows of one file are two payments, so count the repeats.
-      const hash = createHash("sha1")
-        .update(
-          // The currency is part of the identity: 500 CZK and 500 EUR are different payments.
-          [
-            bookedOn,
-            amountCents,
-            currency ?? "CZK",
-            variableSymbol,
-            counterpartyName,
-            message,
-          ].join("|"),
-        )
-        .digest("hex")
-        .slice(0, 16)
-      const occurrence = (seenHashes.get(hash) ?? 0) + 1
-      seenHashes.set(hash, occurrence)
-      externalId = `gen-${hash}-${occurrence}`
-    }
+    const externalId = cell("id")
+    if (!externalId)
+      throw new InvalidStatementError(`Row without ID operace: ${row.join(";").slice(0, 80)}`)
     incoming.push({
       externalId,
       bookedOn,

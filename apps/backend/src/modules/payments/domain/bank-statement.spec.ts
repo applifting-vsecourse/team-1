@@ -42,45 +42,19 @@ describe("parseBankStatement", () => {
     ])
   })
 
-  it("keeps the currency in the identity of a generic row, a missing currency counts as CZK", () => {
-    const id = (csv: string) => parseBankStatement(csv).incoming[0].externalId
-    const czk = id("date,currency,amount,vs\n2026-05-05,CZK,500,12001\n")
-    const eur = id("date,currency,amount,vs\n2026-05-05,EUR,500,12001\n")
-    expect(czk).not.toBe(eur)
-    expect(id("date,amount,vs\n2026-05-05,500,12001\n")).toBe(czk)
-    expect(id("date,currency,amount,vs\n2026-05-05,Kč,500,12001\n")).toBe(czk)
-  })
-
-  it("reads a generic comma separated CSV and numbers identical rows so a re-upload yields the same ids", () => {
-    const csv = "date,amount,vs,name\n2026-05-05,500,12001,A\n2026-05-05,500,12001,A\n"
-    const first = parseBankStatement(csv).incoming
-    expect(first.map((row) => row.externalId)).toEqual([
-      expect.stringMatching(/^gen-[0-9a-f]{16}-1$/),
-      expect.stringMatching(/^gen-[0-9a-f]{16}-2$/),
-    ])
-    expect(parseBankStatement(csv).incoming.map((row) => row.externalId)).toEqual(
-      first.map((row) => row.externalId),
-    )
-  })
-
-  it("finds the header whatever the free text holds, so semicolons in a message do not pick the delimiter", () => {
-    const csv = 'date,amount,vs,message\n2026-05-05,500,12001,"a;b;c;d;e;f;g;h"'
-    expect(parseBankStatement(csv).incoming).toMatchObject([
-      { amountCents: 50000, variableSymbol: "12001", message: "a;b;c;d;e;f;g;h" },
-    ])
-  })
-
-  it("reads Kč as CZK in the currency column", () => {
-    const csv = "datum;částka;měna;vs\n05.05.2026;500;Kč;12001"
-    expect(parseBankStatement(csv).incoming).toMatchObject([{ currency: "CZK" }])
-  })
-
   it("rejects a file without the columns or with a broken row", () => {
     expect(() => parseBankStatement("a;b\n1;2")).toThrow(InvalidStatementError)
-    expect(() => parseBankStatement("datum;částka;měna;vs\n05.05.2026;5;C!;1")).toThrow(
+    const header = "ID operace;Datum;Objem;Měna;VS"
+    expect(() => parseBankStatement(`${header}\n1;05.05.2026;5;C!;1`)).toThrow(
       InvalidStatementError,
     )
-    expect(() => parseBankStatement("datum;částka;vs\nnonsense;5;1")).toThrow(InvalidStatementError)
+    expect(() => parseBankStatement(`${header}\n1;nonsense;5;CZK;1`)).toThrow(InvalidStatementError)
+    expect(() => parseBankStatement(`${header}\n;05.05.2026;5;CZK;1`)).toThrow(
+      InvalidStatementError,
+    )
+    expect(() => parseBankStatement("Datum;Objem;Měna;VS\n05.05.2026;5;CZK;1")).toThrow(
+      InvalidStatementError,
+    )
   })
 })
 
@@ -90,7 +64,8 @@ describe("parsing values", () => {
     expect(parseAmountCents("-1034")).toBe(-103400)
     expect(parseAmountCents("abc")).toBeNull()
     expect(parseStatementDate("05.05.2026")).toBe("2026-05-05")
-    expect(parseStatementDate("2026-02-30")).toBeNull()
+    expect(parseStatementDate("30.02.2026")).toBeNull()
+    expect(parseStatementDate("2026-05-05")).toBeNull()
   })
 })
 
