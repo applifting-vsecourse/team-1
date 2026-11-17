@@ -58,12 +58,12 @@
     "title": "Smazat akci?"
   },
   "evaluationMode": {
-    "afterOpenLocked": "Režim se uzamkne a nebude možné jej změnit.",
+    "afterOpenLocked": "První přijatá přihláška režim uzamkne.",
     "afterOpenVisible": "Zvolený režim bude vidět v přehledu akce.",
     "automatic": "Automaticky",
     "change": "Změnit",
     "legend": "Režim vyhodnocování",
-    "lockedReason": "Přihlášky jsou otevřené, proto už režim nelze změnit.",
+    "lockedReason": "Akce už má přihlášku, proto už režim nelze změnit.",
     "lockedTitle": "Režim vyhodnocování",
     "lockedValue": "{{mode}} · uzamčeno",
     "manual": "Ručně",
@@ -72,7 +72,7 @@
     "save": "Uložit režim",
     "saveFailed": "Změnu se nepodařilo uložit",
     "saved": "Režim vyhodnocování byl uložen.",
-    "subtitle": "Zvolte pravidlo před otevřením přihlášek.",
+    "subtitle": "Zvolte pravidlo před příchodem první přihlášky.",
     "title": "Režim vyhodnocování přihlášek"
   },
   "extraBedDialog": {

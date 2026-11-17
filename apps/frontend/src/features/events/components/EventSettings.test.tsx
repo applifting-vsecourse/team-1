@@ -151,7 +151,7 @@ describe("EventSettings", () => {
     await user.click(await screen.findByRole("radio", { name: "Manual" }))
     await user.click(screen.getByRole("button", { name: "Save mode" }))
 
-    expect(await screen.findByText(/already accepts applications/)).toBeInTheDocument()
+    expect(await screen.findByText(/already has an application/)).toBeInTheDocument()
   })
 
   it("explains why a locked mode cannot be changed", async () => {
@@ -159,7 +159,9 @@ describe("EventSettings", () => {
 
     expect(await screen.findByText("Automatic · locked")).toBeInTheDocument()
     expect(
-      screen.getByText("Applications are open, so the mode can no longer be changed."),
+      screen.getByText(
+        "The event already has an application, so the mode can no longer be changed.",
+      ),
     ).toBeInTheDocument()
     expect(screen.queryByRole("radio")).not.toBeInTheDocument()
     expect(screen.queryByRole("button", { name: "Save mode" })).not.toBeInTheDocument()

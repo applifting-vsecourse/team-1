@@ -15,7 +15,7 @@
   "EMAIL_VERIFICATION_BYPASS_DISABLED": "Skipping e-mail verification is not available here.",
   "EMAIL_VERIFICATION_BYPASS_NOT_ALLOWED": "This account can't be verified without the e-mail link.",
   "EMAIL_VERIFICATION_REQUIRED": "Verify your e-mail address before continuing.",
-  "EVALUATION_MODE_LOCKED": "This event already accepts applications, so the evaluation mode can no longer be changed.",
+  "EVALUATION_MODE_LOCKED": "This event already has an application, so the evaluation mode can no longer be changed.",
   "EVENT_HAS_APPLICATIONS": "An event with applications cannot be deleted.",
   "FORBIDDEN": "You don't have access to this.",
   "HEALTH_CHANGE_REQUEST_REQUIRED": "The health restriction has already been filled in. Send a change request to the organiser instead.",
