@@ -52,6 +52,7 @@ import { buildNotification, isoDay } from "@/modules/notifications/domain/notifi
 import { NotificationsRepository } from "@/modules/notifications/repositories/notifications.repository"
 import { resolveChangeEmailLocale } from "@/modules/participants/domain/change-email-locale"
 import { ApplicationChange } from "@/modules/participants/domain/submission-confirmation"
+import { Gender } from "@/shared/domain/gender"
 import { AppException } from "@/shared/errors/app.exception"
 import { releaseAssignments } from "@/shared/room-assignments/release-assignments"
 import { HttpStatus, Injectable } from "@nestjs/common"
@@ -363,10 +364,10 @@ export class TermStatusRepository {
     organizationId: string,
     applicationId: string,
     withdrawnIds: string[],
-  ): Promise<WithdrawalImpact | null> {
+  ): Promise<{ impact: WithdrawalImpact; gender: Gender } | null> {
     const application = await this.prisma.application.findFirst({
       where: { id: applicationId, organizationId },
-      select: { id: true },
+      select: { id: true, gender: true },
     })
     if (!application) return null
     const current = await this.prisma.applicationTerm.findMany({
@@ -381,7 +382,7 @@ export class TermStatusRepository {
       throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
     }
     if (rejection) throw new AppException(HttpStatus.CONFLICT, "INVALID_STATUS_TRANSITION")
-    return previewWithdrawal({
+    const impact = previewWithdrawal({
       current: current.map((row) => ({
         termId: row.termId,
         status: row.status,
@@ -390,6 +391,7 @@ export class TermStatusRepository {
       })),
       withdrawnIds,
     })
+    return { impact, gender: application.gender }
   }
 
   private async changeTerms({

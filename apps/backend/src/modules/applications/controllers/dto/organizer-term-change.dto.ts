@@ -99,6 +99,11 @@ export class OrganizerWithdrawalRequestDto {
   termIds!: string[]
 }
 
+class WithdrawalSubstituteDto {
+  @ApiProperty() firstName!: string
+  @ApiProperty() lastName!: string
+}
+
 class WithdrawalTermImpactDto {
   @ApiProperty() termId!: string
   @ApiProperty({ enum: ["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED"] })
@@ -110,6 +115,13 @@ class WithdrawalTermImpactDto {
   @ApiProperty({ description: "Debt of the term after the withdrawal" }) debtCzk!: number
   @ApiProperty({ description: "Overpayment of the term after the withdrawal" })
   overpaymentCzk!: number
+  @ApiProperty({
+    nullable: true,
+    type: WithdrawalSubstituteDto,
+    description:
+      "Waitlisted applicant the system confirms into the freed bed (automatic evaluation mode only)",
+  })
+  substitute!: WithdrawalSubstituteDto | null
 }
 
 export class OrganizerWithdrawalPreviewResponseDto {

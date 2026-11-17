@@ -37,16 +37,20 @@ const row = (termId: string, isWithdrawn: boolean, paidCzk: number, overpaymentC
   paidCzk,
   debtCzk: 0,
   overpaymentCzk,
+  substitute: null,
 })
 
-function mockApi() {
+function mockApi(substitute: { firstName: string; lastName: string } | null = null) {
   get.mockImplementation((path: string, options?: { searchParams?: { termIds: string } }) => ({
     json: () => {
       if (!path.endsWith("withdraw-preview")) return Promise.resolve(application)
       const ids = options?.searchParams?.termIds.split(",") ?? []
       return Promise.resolve({
         terms: [
-          row("t1", ids.includes("t1"), 4900, ids.includes("t1") ? 4900 : 0),
+          {
+            ...row("t1", ids.includes("t1"), 4900, ids.includes("t1") ? 4900 : 0),
+            substitute: ids.includes("t1") ? substitute : null,
+          },
           row("t2", ids.includes("t2"), 0, 0),
         ],
         overpaymentCzk: 4900,
@@ -130,5 +134,27 @@ describe("OrganizerWithdrawal", () => {
     setup("t1")
 
     expect(await screen.findByRole("button", { name: "Withdraw participant" })).toBeDisabled()
+  })
+})
+
+describe("OrganizerWithdrawal substitute warning (US-546)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it("names the substitute who fills the bed automatically", async () => {
+    mockApi({ firstName: "Petr", lastName: "Novák" })
+    setup("t1")
+
+    expect(await screen.findByText("A substitute fills the bed automatically")).toBeInTheDocument()
+    expect(screen.getByText(/Petr Novák/)).toBeInTheDocument()
+  })
+
+  it("shows no warning when nobody takes the bed", async () => {
+    mockApi(null)
+    setup("t1")
+
+    await screen.findByText("Impact of the withdrawal")
+    expect(screen.queryByText("A substitute fills the bed automatically")).not.toBeInTheDocument()
   })
 })

@@ -471,4 +471,53 @@ describe("filling a freed bed with a substitute (integration)", () => {
       expect(await proposals(event)).toEqual([])
     })
   })
+
+  describe("warning before the withdrawal (US-546)", () => {
+    const previewSubstitute = async (
+      applicationId: string,
+      termId: string,
+    ): Promise<{ firstName: string; lastName: string } | null> => {
+      const response = await fetch(
+        api(`/organizer/applications/${applicationId}/terms/withdraw-preview?termIds=${termId}`),
+        { headers: { Cookie: cookie } },
+      )
+      expect(response.status).toBe(200)
+      const body = (await response.json()) as {
+        terms: { termId: string; substitute: { firstName: string; lastName: string } | null }[]
+      }
+      return body.terms.find((row) => row.termId === termId)!.substitute
+    }
+
+    it("names the substitute the system then confirms", async () => {
+      const event = await createEvent("AUTOMATIC")
+      const confirmed = await addApplication(event, "MALE", 0, "CONFIRMED")
+      await addApplication(event, "FEMALE", 1, "WAITLISTED")
+      const first = await addApplication(event, "MALE", 2, "WAITLISTED")
+      await addApplication(event, "MALE", 3, "WAITLISTED")
+
+      const substitute = await previewSubstitute(confirmed.id, event.termId)
+      const firstName = await prisma.application.findUniqueOrThrow({ where: { id: first.id } })
+      expect(substitute).toEqual({ firstName: firstName.firstName, lastName: firstName.lastName })
+      expect(await statusOf(first.id)).toBe("WAITLISTED")
+
+      await cancel(confirmed.id, event.termId)
+      expect(await statusOf(first.id)).toBe("CONFIRMED")
+    })
+
+    it("shows no substitute when nobody of the bed group waits", async () => {
+      const event = await createEvent("AUTOMATIC")
+      const confirmed = await addApplication(event, "MALE", 0, "CONFIRMED")
+      await addApplication(event, "FEMALE", 1, "WAITLISTED")
+
+      expect(await previewSubstitute(confirmed.id, event.termId)).toBeNull()
+    })
+
+    it("shows no substitute in the manual mode", async () => {
+      const event = await createEvent("MANUAL")
+      const confirmed = await addApplication(event, "MALE", 0, "CONFIRMED")
+      await addApplication(event, "MALE", 1, "WAITLISTED")
+
+      expect(await previewSubstitute(confirmed.id, event.termId)).toBeNull()
+    })
+  })
 })

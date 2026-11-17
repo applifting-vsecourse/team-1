@@ -32,6 +32,11 @@ export type WithdrawalTermImpact = {
   debtCzk: number
   /** Overpayment of the term after the withdrawal; payments are not moved (D-088). */
   overpaymentCzk: number
+  /**
+   * The waitlisted applicant the system confirms into the freed bed (US-546); null when nobody
+   * takes it (manual evaluation mode, no eligible substitute, expired waitlist).
+   */
+  substitute: { firstName: string; lastName: string } | null
 }
 
 export type WithdrawalImpact = {
@@ -63,6 +68,7 @@ export function previewWithdrawal(input: {
       paidCzk: term.paidCzk,
       debtCzk: Math.max(0, owed),
       overpaymentCzk: Math.max(0, -owed),
+      substitute: null,
     }
   })
   return {

@@ -15,6 +15,8 @@ const previewSchema = z.object({
       /** Debt of the term after the withdrawal: a withdrawn term owes nothing. */
       debtCzk: z.number().int(),
       overpaymentCzk: z.number().int(),
+      /** Waitlisted applicant the system confirms into the freed bed (automatic mode only). */
+      substitute: z.object({ firstName: z.string(), lastName: z.string() }).nullable(),
     }),
   ),
   overpaymentCzk: z.number().int(),

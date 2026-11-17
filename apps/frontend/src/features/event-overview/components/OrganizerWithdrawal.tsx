@@ -84,6 +84,10 @@ export function OrganizerWithdrawal({
       : t("withdrawal.submitWholeAll")
   const hasOthers = !isWhole && terms.length > 1
   const impactRows = preview.data?.terms.filter((row) => row.isWithdrawn) ?? []
+  const substituteRows = impactRows.flatMap((row) => {
+    const term = terms.find((candidate) => candidate.termId === row.termId)
+    return row.substitute && term ? [{ row, term }] : []
+  })
 
   return (
     <Dialog
@@ -172,6 +176,19 @@ export function OrganizerWithdrawal({
               ) : null}
             </section>
           ) : null}
+          {/* US-546: the freed bed is filled by the system, so say who gets it before confirming. */}
+          {substituteRows.map(({ row, term }) => (
+            <Alert key={row.termId}>
+              <TriangleAlert aria-hidden />
+              <AlertTitle className="line-clamp-none">{t("withdrawal.substituteTitle")}</AlertTitle>
+              <AlertDescription>
+                {t("withdrawal.substituteDescription", {
+                  term: termDates(term),
+                  name: `${row.substitute?.firstName} ${row.substitute?.lastName}`,
+                })}
+              </AlertDescription>
+            </Alert>
+          ))}
           <Alert>
             <TriangleAlert aria-hidden />
             <AlertTitle className="line-clamp-none">{t("withdrawal.noRefundTitle")}</AlertTitle>

@@ -8,7 +8,11 @@ import {
   changeEmailKind,
   rejectStatusChange,
 } from "@/modules/applications/domain/status-transition"
-import { FreedBed, substituteForFreedBed } from "@/modules/applications/domain/substitutes"
+import {
+  FreedBed,
+  substituteAfterWithdrawal,
+  substituteForFreedBed,
+} from "@/modules/applications/domain/substitutes"
 import {
   StatusChangeCommand,
   StatusChangeResult,
@@ -17,13 +21,30 @@ import {
 } from "@/modules/applications/domain/term-status"
 import { bedGroup } from "@/modules/applications/domain/waitlist"
 import { isWaitlistExpired } from "@/modules/applications/domain/waitlist-expiry"
-import { SubstitutesRepository } from "@/modules/applications/repositories/substitutes.repository"
+import {
+  SubstitutesRepository,
+  SubstituteTermState,
+} from "@/modules/applications/repositories/substitutes.repository"
 import { TermStatusRepository } from "@/modules/applications/repositories/term-status.repository"
 import { ApplicationConfirmationMailer } from "@/modules/participants/services/application-confirmation-mailer.service"
 import { Identity } from "@/shared/auth/domain/identity"
 import { AppException } from "@/shared/errors/app.exception"
 import { OrganizationAccessService } from "@/shared/organization-access/organization-access.service"
 import { HttpStatus, Injectable, Logger } from "@nestjs/common"
+
+/**
+ * Whether a freed bed of the term is filled by the system (US-31): only in a live term of the
+ * automatic evaluation mode. From midnight of the first day the waitlist is cancelled (D-064); a
+ * bed freed between that moment and the next run of the expiry job must not be given to someone
+ * about to be cancelled.
+ */
+function isBedFilledAutomatically(state: SubstituteTermState): boolean {
+  return (
+    !state.isCancelled &&
+    state.evaluationMode === "AUTOMATIC" &&
+    !isWaitlistExpired(state.startsOn, new Date())
+  )
+}
 
 /**
  * The one service that changes the status of an application in a term (US-28).
@@ -119,9 +140,30 @@ export class TermStatusService {
     termIds: string[],
   ): Promise<WithdrawalImpact> {
     const { organizationId } = await this.access.assertCanAccessApplication(user, applicationId)
-    const impact = await this.repository.previewWithdrawal(organizationId, applicationId, termIds)
-    if (!impact) throw new AppException(HttpStatus.NOT_FOUND, "NOT_FOUND")
-    return impact
+    const preview = await this.repository.previewWithdrawal(organizationId, applicationId, termIds)
+    if (!preview) throw new AppException(HttpStatus.NOT_FOUND, "NOT_FOUND")
+    // US-546: name the substitute the system confirms into each confirmed bed that is given up.
+    const terms = await Promise.all(
+      preview.impact.terms.map(async (term) => {
+        if (!term.isWithdrawn || term.status !== "CONFIRMED") return term
+        const state = await this.substitutes.findTermStateById(term.termId)
+        if (!state || !isBedFilledAutomatically(state)) return term
+        const next = substituteAfterWithdrawal(
+          state,
+          state.waitlisted,
+          preview.gender,
+          state.roomMode,
+        )
+        const substitute = state.waitlisted.find((row) => row.applicationId === next?.applicationId)
+        return {
+          ...term,
+          substitute: substitute
+            ? { firstName: substitute.firstName, lastName: substitute.lastName }
+            : null,
+        }
+      }),
+    )
+    return { ...preview.impact, terms }
   }
 
   /**
@@ -251,10 +293,7 @@ export class TermStatusService {
     let budget = 0
     do {
       const state = await this.substitutes.findTermStateById(termId)
-      if (!state || state.isCancelled || state.evaluationMode !== "AUTOMATIC") return
-      // From midnight of the first day the waitlist is cancelled (D-064); a bed freed between that
-      // moment and the next run of the expiry job must not be given to someone about to be cancelled.
-      if (isWaitlistExpired(state.startsOn, new Date())) return
+      if (!state || !isBedFilledAutomatically(state)) return
       // A round that loses (bed or application taken meanwhile) tries the next one; the waitlist
       // length bounds the rounds.
       if (budget === 0) budget = state.waitlisted.length + 1
