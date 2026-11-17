@@ -498,7 +498,7 @@
       "endBeforeStart": "The end must be after the start.",
       "endsOn": "End date *",
       "fieldRequired": "Fill in this field.",
-      "name": "Term name (optional)",
+      "name": "Term name",
       "namePlaceholder": "e.g. 1st turn, class 5, ages 8–10",
       "price": "Term price (CZK) *",
       "priceHelper": "The whole price of the term; no deposit.",

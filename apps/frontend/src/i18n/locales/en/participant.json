@@ -88,7 +88,7 @@
   },
   "edit": {
     "accommodationIndividual": "Individual arrangement",
-    "accommodationRequest": "Note for the organizer (optional)",
+    "accommodationRequest": "Note for the organizer",
     "accommodationRequestTooLong": "The note can have at most 2,000 characters.",
     "accommodationSummary": "Accommodation · {{request}}",
     "backToApplication": "Back to application",
