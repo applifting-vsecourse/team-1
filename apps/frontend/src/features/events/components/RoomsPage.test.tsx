@@ -263,7 +263,7 @@ describe("accommodation by term", () => {
     const table = await screen.findByRole("table")
     await user.click(within(table).getByRole("button", { name: "Add an extra bed – Men's room" }))
     const dialog = await screen.findByRole("dialog")
-    await user.type(within(dialog).getByLabelText("Number of extra beds"), "-1")
+    await user.type(within(dialog).getByLabelText("Number of extra beds"), "0")
     await user.click(within(dialog).getByRole("button", { name: "Save extra beds" }))
     expect(await within(dialog).findByText("Enter a whole number, at least 1.")).toBeInTheDocument()
     expect(patch).not.toHaveBeenCalled()
