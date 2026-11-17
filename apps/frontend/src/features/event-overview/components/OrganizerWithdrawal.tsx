@@ -176,7 +176,8 @@ export function OrganizerWithdrawal({
               ) : null}
             </section>
           ) : null}
-          {/* US-546: the freed bed is filled by the system, so say who gets it before confirming. */}
+          {/* US-546: the freed bed is filled by the system, so say who gets it before confirming.
+              Figma: no frame yet (issue #546 is `design: needed`), built from the kit's Alert. */}
           {substituteRows.map(({ row, term }) => (
             <Alert key={row.termId}>
               <TriangleAlert aria-hidden />
