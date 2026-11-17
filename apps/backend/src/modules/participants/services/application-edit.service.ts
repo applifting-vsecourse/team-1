@@ -11,6 +11,9 @@ import { AppException } from "@/shared/errors/app.exception"
 import { OrganizationAccessService } from "@/shared/organization-access/organization-access.service"
 import { HttpStatus, Injectable } from "@nestjs/common"
 
+/** What the client sends: the phone is optional, an empty one means none. */
+type EditRequest = Omit<EditInput, "phone"> & { phone?: string | null }
+
 @Injectable()
 export class ApplicationEditService {
   constructor(
@@ -27,7 +30,7 @@ export class ApplicationEditService {
   async save(
     user: Identity,
     applicationId: string,
-    input: Omit<EditInput, "phone"> & { phone?: string | null },
+    input: EditRequest,
   ): Promise<EditableApplication> {
     const application = await this.edits.save(
       { userId: user.id },
@@ -43,7 +46,7 @@ export class ApplicationEditService {
   async saveByOrganizer(
     user: Identity,
     applicationId: string,
-    input: EditInput,
+    input: EditRequest,
   ): Promise<EditableApplication> {
     const { organizationId } = await this.access.assertCanAccessApplication(user, applicationId)
     const application = await this.edits.save(
@@ -60,7 +63,7 @@ export class ApplicationEditService {
     return { id: user.id, name: user.name?.trim() || user.email }
   }
 
-  private validated(input: EditInput): EditInput {
+  private validated(input: EditRequest): EditInput {
     const normalized: EditInput = {
       firstName: input.firstName.trim(),
       lastName: input.lastName.trim(),

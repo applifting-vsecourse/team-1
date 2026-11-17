@@ -48,7 +48,7 @@ describe("ParticipantEditDialog", () => {
     const dialog = screen.getByRole("dialog", { name: "Edit participant details" })
     expect(within(dialog).getByLabelText("First name *")).toHaveValue("Tomáš")
     expect(within(dialog).getByLabelText("Last name *")).toHaveValue("Nowak")
-    expect(within(dialog).getByLabelText("Phone *")).toHaveValue("+420777123456")
+    expect(within(dialog).getByLabelText("Phone")).toHaveValue("+420777123456")
     expect(within(dialog).getByText("Gender (can't be changed)")).toBeVisible()
     expect(within(dialog).getByText("rodice.novakovi@email.cz")).toBeVisible()
     expect(within(dialog).queryByRole("textbox", { name: /e-mail/i })).not.toBeInTheDocument()
@@ -60,7 +60,7 @@ describe("ParticipantEditDialog", () => {
     const lastName = screen.getByLabelText("Last name *")
     await user.clear(lastName)
     await user.type(lastName, "Novák")
-    const phone = screen.getByLabelText("Phone *")
+    const phone = screen.getByLabelText("Phone")
     await user.clear(phone)
     await user.type(phone, "+420 777 000 111")
     await user.click(screen.getByRole("button", { name: "Save changes" }))
@@ -100,18 +100,29 @@ describe("ParticipantEditDialog", () => {
   it("shows errors under the fields and sends nothing", async () => {
     const { user } = setup()
     await user.clear(screen.getByLabelText("First name *"))
-    await user.clear(screen.getByLabelText("Phone *"))
     await user.click(screen.getByRole("button", { name: "Save changes" }))
 
     expect(await screen.findByText("Enter the first name.")).toBeVisible()
-    expect(screen.getByText("Enter the phone number.")).toBeVisible()
     expect(screen.getByLabelText("First name *")).toBeInvalid()
     expect(put).not.toHaveBeenCalled()
   })
 
+  it("lets the phone stay empty and sends it as no phone (it is optional)", async () => {
+    const { user } = setup()
+    await user.clear(screen.getByLabelText("Phone"))
+    await user.click(screen.getByRole("button", { name: "Save changes" }))
+
+    await waitFor(() =>
+      expect(put).toHaveBeenCalledWith("organizer/applications/a1/details", {
+        json: expect.objectContaining({ phone: null }) as unknown,
+      }),
+    )
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument()
+  })
+
   it("rejects a phone in the wrong format and a too long note", async () => {
     const { user } = setup({ individualAccommodation: true })
-    const phone = screen.getByLabelText("Phone *")
+    const phone = screen.getByLabelText("Phone")
     await user.clear(phone)
     await user.type(phone, "12345")
     await user.click(screen.getByLabelText(/^Note/))

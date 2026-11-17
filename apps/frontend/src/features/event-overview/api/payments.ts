@@ -153,7 +153,8 @@ export type EditApplicationInput = {
   lastName: string
   /** `YYYY-MM-DD`. */
   birthDate: string
-  phone: string
+  /** Optional; null = no phone. */
+  phone: string | null
   individualAccommodation: boolean
   accommodationRequest: string | null
 }
