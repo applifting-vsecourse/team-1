@@ -353,7 +353,6 @@
     "historyAmount": "Částka",
     "individualAccommodation": "Individuální ubytování",
     "individualAccommodationNoNote": "Bez poznámky",
-    "individualAccommodationNone": "Účastník nemá požadavek na individuální ubytování.",
     "individualAccommodationNote": "Poznámka",
     "invalidAmount": "Zadejte celé kladné číslo v Kč.",
     "invalidRefund": "Zadejte kladnou celou částku v Kč, nejvýše {{amount}}.",

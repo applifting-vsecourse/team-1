@@ -353,7 +353,6 @@
     "historyAmount": "Amount",
     "individualAccommodation": "Individual accommodation",
     "individualAccommodationNoNote": "No note",
-    "individualAccommodationNone": "The participant has no request for individual accommodation.",
     "individualAccommodationNote": "Note",
     "invalidAmount": "Enter a positive whole amount in CZK.",
     "invalidRefund": "Enter a positive whole amount in CZK, up to {{amount}}.",
