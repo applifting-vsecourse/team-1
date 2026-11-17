@@ -124,6 +124,31 @@ describe("EventSettings", () => {
     expect(screen.getByRole("radio", { name: "Manual" })).not.toBeChecked()
   })
 
+  it("explains each mode in a popover that opens on click and keeps the card free of extra hints", async () => {
+    renderSettings(event)
+    const user = userEvent.setup()
+
+    await screen.findByRole("radio", { name: "Automatic" })
+    expect(screen.queryByText(/Choose the rule/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/shown in the event overview/)).not.toBeInTheDocument()
+    expect(
+      screen.getByText("You can change the mode until the first application is received."),
+    ).toBeInTheDocument()
+
+    await user.click(screen.getByRole("button", { name: "Explanation: Automatic" }))
+    expect(
+      await screen.findByText(/A freed bed goes to the first substitute\./),
+    ).toBeInTheDocument()
+    await user.keyboard("{Escape}")
+
+    await user.click(screen.getByRole("button", { name: "Explanation: Manual" }))
+    expect(
+      await screen.findByText(
+        "You decide on every application: confirm it, add it to the substitutes or reject it.",
+      ),
+    ).toBeInTheDocument()
+  })
+
   it("saves the chosen mode", async () => {
     const patches = renderSettings(event, () => new Response(JSON.stringify(event)))
     const user = userEvent.setup()

@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { Loader2 } from "lucide-react"
+import { Info, Loader2 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ErrorState } from "@/components/molecules/ErrorState"
@@ -8,6 +8,7 @@ import { LoadingState } from "@/components/molecules/LoadingState"
 import { SettingsCard } from "@/components/molecules/SettingsCard"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { notify } from "@/lib/notify"
 
@@ -106,30 +107,44 @@ function ChooseMode({ eventId, saved }: { eventId: string; saved: EvaluationMode
           mutation.mutate()
         }}
       >
-        <p>{t("evaluationMode.subtitle")}</p>
         <RadioGroup
           aria-label={t("evaluationMode.legend")}
           value={mode}
           onValueChange={(value) => setMode(evaluationModeSchema.parse(value))}
           className="flex flex-col gap-3 sm:flex-row sm:gap-6"
         >
-          {MODES.map((value) => (
-            <div
-              key={value}
-              className="flex items-center gap-2"
-            >
-              <RadioGroupItem
-                id={`evaluation-mode-${value}`}
-                value={value}
-              />
-              <Label htmlFor={`evaluation-mode-${value}`}>
-                {t(`evaluationMode.${value === "AUTOMATIC" ? "automatic" : "manual"}`)}
-              </Label>
-            </div>
-          ))}
+          {MODES.map((value) => {
+            const name = t(`evaluationMode.${value === "AUTOMATIC" ? "automatic" : "manual"}`)
+            return (
+              <div
+                key={value}
+                className="flex items-center gap-2"
+              >
+                <RadioGroupItem
+                  id={`evaluation-mode-${value}`}
+                  value={value}
+                />
+                <Label htmlFor={`evaluation-mode-${value}`}>{name}</Label>
+                {/* A popover, not a tooltip: it opens on tap and on Enter / Space too. */}
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-sm"
+                      aria-label={t("evaluationMode.infoLabel", { mode: name })}
+                    >
+                      <Info />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="text-sm">
+                    {t(`evaluationMode.${value === "AUTOMATIC" ? "automaticInfo" : "manualInfo"}`)}
+                  </PopoverContent>
+                </Popover>
+              </div>
+            )
+          })}
         </RadioGroup>
-        <p>{t("evaluationMode.manualHint")}</p>
-        <p>{t("evaluationMode.afterOpenVisible")}</p>
         <p>{t("evaluationMode.afterOpenLocked")}</p>
         {mutation.isError ? (
           <ErrorState
