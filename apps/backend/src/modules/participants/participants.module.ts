@@ -1,8 +1,10 @@
 import { PrismaModule } from "@/core/prisma/prisma.module"
 import { NotificationsModule } from "@/modules/notifications/notifications.module"
 import { AuthModule } from "@/shared/auth/auth.module"
+import { OrganizationAccessModule } from "@/shared/organization-access/organization-access.module"
 import { Module } from "@nestjs/common"
 import { MyApplicationsController } from "./controllers/my-applications.controller"
+import { OrganizerApplicationEditController } from "./controllers/organizer-application-edit.controller"
 import { ParticipantPasswordController } from "./controllers/participant-password.controller"
 import { ApplicationEditRepository } from "./repositories/application-edit.repository"
 import { MyApplicationsRepository } from "./repositories/my-applications.repository"
@@ -15,8 +17,12 @@ import { ParticipantPasswordService } from "./services/participant-password.serv
 
 /** Imported by the applications module. */
 @Module({
-  imports: [AuthModule, PrismaModule, NotificationsModule],
-  controllers: [ParticipantPasswordController, MyApplicationsController],
+  imports: [AuthModule, PrismaModule, NotificationsModule, OrganizationAccessModule],
+  controllers: [
+    ParticipantPasswordController,
+    MyApplicationsController,
+    OrganizerApplicationEditController,
+  ],
   providers: [
     ParticipantAccountsService,
     ParticipantPasswordService,
