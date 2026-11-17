@@ -23,7 +23,7 @@ export class ApplicationEditService {
   async save(
     user: Identity,
     applicationId: string,
-    input: Omit<EditInput, "phone"> & { phone?: string | null },
+    input: EditInput,
   ): Promise<EditableApplication> {
     const normalized: EditInput = {
       firstName: input.firstName.trim(),
@@ -35,7 +35,7 @@ export class ApplicationEditService {
     if (!normalized.firstName || !normalized.lastName || !isValidBirthDate(normalized.birthDate)) {
       throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
     }
-    // The phone is optional; a filled-in one has to be a phone.
+    // The phone is required (D-079) and has to be a phone.
     if (!isValidPhone(normalized.phone)) {
       throw new AppException(HttpStatus.BAD_REQUEST, "INVALID_PHONE")
     }

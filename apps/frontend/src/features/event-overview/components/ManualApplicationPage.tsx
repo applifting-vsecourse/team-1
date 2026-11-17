@@ -173,7 +173,9 @@ export function ManualApplicationPage({
     if (draft.gender === "") nextErrors.gender = t("manual.gender")
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(draft.email)) nextErrors.email = t("manual.invalidEmail")
     const phone = normalizePhone(draft.phone)
-    if (!isValidPhone(phone)) nextErrors.phone = t("manual.invalidPhone")
+    if (!isValidPhone(phone)) {
+      nextErrors.phone = t(phone === null ? "manual.phoneRequired" : "manual.invalidPhone")
+    }
     if (!draft.consent) nextErrors.consent = t("manual.consentRequired")
     const selectedTerms = terms.flatMap((term) => {
       const status = draft.statuses[term.id]
@@ -181,7 +183,7 @@ export function ManualApplicationPage({
     })
     if (selectedTerms.length === 0) nextErrors.terms = t("manual.selectTerms")
     setErrors(nextErrors)
-    if (Object.keys(nextErrors).length > 0 || !birthDate || draft.gender === "") return
+    if (Object.keys(nextErrors).length > 0 || !birthDate || draft.gender === "" || !phone) return
     const input: ManualApplicationInput = {
       firstName: draft.firstName.trim(),
       lastName: draft.lastName.trim(),

@@ -8,7 +8,7 @@ export type ManualApplicationInput = {
   birthDate: string
   gender: "FEMALE" | "MALE"
   email: string
-  phone: string | null
+  phone: string
   consent: true
   terms: { termId: string; status: "CONFIRMED" | "WAITLISTED" }[]
   confirmOverCapacity?: boolean

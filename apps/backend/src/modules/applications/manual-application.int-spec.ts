@@ -103,37 +103,28 @@ describe("organizer adds an application (US-83)", () => {
     ).toBe(400)
   })
 
-  it.each(["abc", "+420 777 abc", "123 456", "+", "123454623123121221212121212112", "+-+-+-+"])(
-    "rejects the phone %j with INVALID_PHONE and stores nothing",
-    async (phone) => {
-      const body = input("WAITLISTED", { phone }) as { email: string }
-      const response = await create(body)
-      expect(response.status).toBe(400)
-      expect(await response.json()).toMatchObject({ code: "INVALID_PHONE" })
-      expect(await prisma.application.count({ where: { email: body.email } })).toBe(0)
-      expect(await prisma.user.findUnique({ where: { email: body.email } })).toBeNull()
-    },
-  )
-
-  it("rejects a phone that is not text", async () => {
-    expect((await create(input("WAITLISTED", { phone: 777123456 }))).status).toBe(400)
-    expect((await create(input("WAITLISTED", { phone: "1".repeat(41) }))).status).toBe(400)
+  it.each([
+    "abc",
+    "+420 777 abc",
+    "123 456",
+    "+",
+    "123454623123121221212121212112",
+    "+-+-+-+",
+    "",
+    "   ",
+    "( ) - ( )",
+  ])("rejects the phone %j with INVALID_PHONE and stores nothing", async (phone) => {
+    const body = input("WAITLISTED", { phone }) as { email: string }
+    const response = await create(body)
+    expect(response.status).toBe(400)
+    expect(await response.json()).toMatchObject({ code: "INVALID_PHONE" })
+    expect(await prisma.application.count({ where: { email: body.email } })).toBe(0)
+    expect(await prisma.user.findUnique({ where: { email: body.email } })).toBeNull()
   })
 
-  it("keeps the phone optional: an empty, null or missing phone is stored as null", async () => {
-    for (const override of [
-      { phone: "" },
-      { phone: "  " },
-      { phone: null },
-      { phone: undefined },
-    ]) {
-      const response = await create(input("WAITLISTED", override))
-      expect(response.status).toBe(201)
-      const created = (await response.json()) as Created
-      expect(
-        (await prisma.application.findUniqueOrThrow({ where: { id: created.applicationId } }))
-          .phone,
-      ).toBeNull()
+  it("rejects a phone that is missing or not text", async () => {
+    for (const phone of [undefined, null, 777123456, "1".repeat(41)]) {
+      expect((await create(input("WAITLISTED", { phone }))).status).toBe(400)
     }
   })
 

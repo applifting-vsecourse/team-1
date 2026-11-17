@@ -32,8 +32,12 @@ describe("phone", () => {
     expect(isValidPhone(normalizePhone(raw))).toBe(false)
   })
 
-  it.each(["", "   ", "( ) - ( )", null, undefined])("treats %j as no phone", (raw) => {
-    expect(normalizePhone(raw)).toBeNull()
-    expect(isValidPhone(normalizePhone(raw))).toBe(true)
-  })
+  // The phone is required: no phone is not valid.
+  it.each(["", "   ", "( ) - ( )", null, undefined])(
+    "treats %j as no phone, which is not valid",
+    (raw) => {
+      expect(normalizePhone(raw)).toBeNull()
+      expect(isValidPhone(normalizePhone(raw))).toBe(false)
+    },
+  )
 })

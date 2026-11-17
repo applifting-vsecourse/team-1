@@ -60,7 +60,7 @@ async function fillForm(
   })
   await user.click(screen.getByRole("combobox", { name: "Gender for room assignment *" }))
   await user.click(screen.getByRole("option", { name: "Female" }))
-  if (phone) await user.type(screen.getByLabelText("Phone (optional)"), phone)
+  if (phone) await user.type(screen.getByLabelText("Phone *"), phone)
   await user.type(screen.getByLabelText("E-mail *"), "eva@example.com")
   await user.click(screen.getByRole("combobox", { name: /First/ }))
   await user.click(screen.getByRole("option", { name: status }))
@@ -197,7 +197,14 @@ describe("ManualApplicationPage", () => {
     },
   )
 
-  it.each(["abc", "123 456", "+420 777 abc", "123454623123121221212121212112"])(
+  it.each([
+    "       ",
+    "-------",
+    "123 456",
+    "abc",
+    "+420 777 abc",
+    "123454623123121221212121212112",
+  ])(
     "validates consent and phone digits before creating a waitlisted application: %j",
     async (invalidPhone) => {
       setup()
@@ -214,11 +221,11 @@ describe("ManualApplicationPage", () => {
       await user.click(screen.getByRole("button", { name: "Create application" }))
       expect(post).not.toHaveBeenCalled()
       expect(
-        screen.getByLabelText("Phone (optional)").parentElement?.querySelector('[role="alert"]'),
+        screen.getByLabelText("Phone *").parentElement?.querySelector('[role="alert"]'),
       ).not.toBeNull()
 
-      await user.clear(screen.getByLabelText("Phone (optional)"))
-      await user.type(screen.getByLabelText("Phone (optional)"), " +420 (777) 123-456 ")
+      await user.clear(screen.getByLabelText("Phone *"))
+      await user.type(screen.getByLabelText("Phone *"), " +420 (777) 123-456 ")
       await user.click(screen.getByRole("button", { name: "Create application" }))
 
       expect(await screen.findByText("Application created")).toBeInTheDocument()
@@ -237,32 +244,20 @@ describe("ManualApplicationPage", () => {
     },
   )
 
-  it.each(["", "   ", "( ) - ( )"])(
-    "sends no phone when it is left empty (%j): the phone is optional",
-    async (emptyPhone) => {
-      setup()
-      const user = userEvent.setup()
-      await fillForm(user, "Waitlisted", emptyPhone)
-      await user.click(
-        screen.getByRole("checkbox", { name: /I confirm that the applicant consented/ }),
-      )
-      await user.click(screen.getByRole("button", { name: "Create application" }))
+  it("asks for the phone when it is left empty, with its own message", async () => {
+    setup()
+    const user = userEvent.setup()
+    await fillForm(user, "Waitlisted", "")
+    await user.click(
+      screen.getByRole("checkbox", { name: /I confirm that the applicant consented/ }),
+    )
+    await user.click(screen.getByRole("button", { name: "Create application" }))
 
-      expect(await screen.findByText("Application created")).toBeInTheDocument()
-      expect(post).toHaveBeenCalledWith("organizer/events/e1/applications", {
-        json: {
-          firstName: "Eva",
-          lastName: "Novak",
-          birthDate: "2000-05-15",
-          gender: "FEMALE",
-          phone: null,
-          email: "eva@example.com",
-          consent: true,
-          terms: [{ termId: "t1", status: "WAITLISTED" }],
-        },
-      })
-    },
-  )
+    expect(post).not.toHaveBeenCalled()
+    expect(
+      screen.getByLabelText("Phone *").parentElement?.querySelector('[role="alert"]'),
+    ).toHaveTextContent("Enter a phone number.")
+  })
 
   it("disables returning to waitlist during a slow save and shows the stored confirmation and price", async () => {
     let complete!: (saved: { applicationId: string; number: number }) => void

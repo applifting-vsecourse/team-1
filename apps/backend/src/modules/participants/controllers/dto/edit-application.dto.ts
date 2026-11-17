@@ -22,14 +22,12 @@ export class EditApplicationRequestDto {
 
   @ApiProperty({
     example: "+420 777 123 456",
-    nullable: true,
-    required: false,
-    description: "Optional; empty means no phone. A filled-in one is checked in the service.",
+    maxLength: MAX_PHONE_INPUT_LENGTH,
+    description: "Required; its format (optional +, 7 to 15 digits) is checked in the service.",
   })
-  @IsOptional()
   @IsString()
   @MaxLength(MAX_PHONE_INPUT_LENGTH)
-  phone?: string | null
+  phone!: string
 
   @ApiProperty()
   @IsBoolean()

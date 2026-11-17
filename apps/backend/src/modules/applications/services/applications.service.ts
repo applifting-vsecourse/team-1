@@ -40,7 +40,7 @@ export type SubmitApplicationInput = {
 
 export type ManualApplicationInput = {
   email: string
-  phone?: string | null
+  phone: string
   consent: true
   firstName: string
   lastName: string
@@ -80,7 +80,7 @@ export class ApplicationsService {
     ) {
       throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
     }
-    // The phone is optional; a filled-in one has to be a phone.
+    // The phone is required (D-153) and has to be a phone.
     const phone = normalizePhone(input.phone)
     if (!isValidPhone(phone)) {
       throw new AppException(HttpStatus.BAD_REQUEST, "INVALID_PHONE")
@@ -115,7 +115,7 @@ export class ApplicationsService {
         ...participant,
         gender: input.gender,
         email,
-        phone: phone ?? undefined,
+        phone,
         locale,
         userId: async () => {
           // Called only after capacity and duplicate validation under the database lock.
