@@ -84,7 +84,6 @@ describe("organizer edit of an application (integration)", () => {
       { ...input, firstName: "  " },
       { ...input, birthDate: "2027-02-30" },
       { ...input, accommodationRequest: "x".repeat(2001) },
-      { ...input, phone: undefined },
       { ...input, email: "novy@example.com" },
       { ...input, gender: "MALE" },
     ]) {
@@ -268,4 +267,31 @@ describe("organizer edit of an application (integration)", () => {
       (await prisma.application.findUniqueOrThrow({ where: { id: applicationId } })).firstName,
     ).not.toBe("Zrušená")
   })
+
+  it.each([
+    ["an empty string", ""],
+    ["blanks", "   "],
+    ["null", null],
+    ["a missing field", undefined],
+  ])(
+    "saves %s as no phone (it is optional) and records the removal in the history",
+    async (_name, phone) => {
+      await edit(applicationId, organizerCookie, { ...input, phone: "+420 777 123 456" })
+      const before = await prisma.applicationEdit.count({ where: { applicationId } })
+
+      const response = await edit(applicationId, organizerCookie, { ...input, phone })
+      expect(response.status).toBe(200)
+      expect(await response.json()).toMatchObject({ phone: null })
+      expect(
+        (await prisma.application.findUniqueOrThrow({ where: { id: applicationId } })).phone,
+      ).toBeNull()
+      expect(await prisma.applicationEdit.count({ where: { applicationId } })).toBe(before + 1)
+      const record = await prisma.applicationEdit.findFirstOrThrow({
+        where: { applicationId },
+        orderBy: { createdAt: "desc" },
+      })
+      expect(record.changedFields).toEqual(["phone"])
+      expect(record.after).toMatchObject({ phone: null })
+    },
+  )
 })

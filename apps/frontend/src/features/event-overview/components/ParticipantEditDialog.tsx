@@ -74,7 +74,7 @@ export function ParticipantEditDialog({ application, onClose }: ParticipantEditD
         firstName: firstName.trim(),
         lastName: lastName.trim(),
         birthDate,
-        phone: normalizePhone(phone) ?? "",
+        phone: normalizePhone(phone),
         individualAccommodation: hasAccommodation,
         // The note belongs to the request: without it none is sent.
         accommodationRequest: hasAccommodation ? note.trim() || null : null,
@@ -100,11 +100,8 @@ export function ParticipantEditDialog({ application, onClose }: ParticipantEditD
     if (!isIsoDate(birthDate) || birthDate < EARLIEST_BIRTH_DATE || birthDate > today()) {
       next.birthDate = t("editDetails.birthDateInvalid")
     }
-    if (!isValidPhone(normalizedPhone)) {
-      next.phone = t(
-        normalizedPhone === null ? "editDetails.phoneRequired" : "editDetails.phoneInvalid",
-      )
-    }
+    // The phone is optional; a filled-in one has to be a phone.
+    if (!isValidPhone(normalizedPhone)) next.phone = t("editDetails.phoneInvalid")
     if (hasAccommodation && note.length > MAX_ACCOMMODATION_NOTE_LENGTH) {
       next.accommodationRequest = t("editDetails.noteTooLong")
     }
