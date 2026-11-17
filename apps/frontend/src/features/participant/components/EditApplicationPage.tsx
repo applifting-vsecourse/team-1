@@ -96,6 +96,7 @@ function EditForm({
     mutationFn: () =>
       saveApplicationEdit(applicationId, {
         ...values,
+        phone: normalizePhone(values.phone) === null ? null : (values.phone ?? "").trim(),
         // The note belongs to the request: without it none is sent.
         accommodationRequest: values.individualAccommodation ? values.accommodationRequest : null,
       }),
@@ -108,8 +109,7 @@ function EditForm({
     const trimmed = value?.trim()
     return trimmed?.length ? trimmed : null
   }
-  const phone = normalizePhone(values.phone)
-  const isPhoneInvalid = !isValidPhone(phone)
+  const isPhoneInvalid = !isValidPhone(normalizePhone(values.phone))
   const [isPhoneChecked, setIsPhoneChecked] = useState(false)
   const shouldShowPhoneError = isPhoneInvalid && isPhoneChecked
   const isNoteTooLong =
@@ -157,7 +157,7 @@ function EditForm({
           role="alert"
           className="text-sm text-destructive"
         >
-          {t(phone === null ? "edit.phoneRequired" : "edit.phoneInvalid")}
+          {t("edit.phoneInvalid")}
         </p>
       ) : null}
     </div>
@@ -186,7 +186,11 @@ function EditForm({
           <h2 className="text-xl font-semibold">
             {saved.firstName} {saved.lastName}
           </h2>
-          <p>{t("edit.phoneSummary", { phone: saved.phone })}</p>
+          <p>
+            {saved.phone
+              ? t("edit.phoneSummary", { phone: saved.phone })
+              : t("edit.phoneSummaryNone")}
+          </p>
           <p>
             {t("edit.accommodationSummary", {
               request: saved.individualAccommodation
@@ -291,7 +295,7 @@ function EditForm({
           {!mutation.isError ? phoneField : null}
         </Card>
       ) : null}
-      {mutation.isError && (visibleFields.phone || !initial.phone) ? phoneField : null}
+      {mutation.isError && visibleFields.phone ? phoneField : null}
       {!mutation.isError || visibleFields.accommodationRequest ? (
         <div className="flex flex-col gap-4 border-t border-border pt-4">
           <div className="flex flex-col gap-1">

@@ -83,30 +83,24 @@ describe("participant application edit (integration)", () => {
       { ...input, accommodationRequest: "x".repeat(2001) },
       { ...input, individualAccommodation: "yes" },
       { ...input, individualAccommodation: undefined },
-      { ...input, phone: undefined },
-      { ...input, phone: null },
     ]) {
       expect((await call("PUT", ownId, participantCookie, invalid)).status).toBe(400)
     }
     expect(await prisma.applicationEdit.count({ where: { applicationId: ownId } })).toBe(0)
   })
 
-  it.each([
-    "abc",
-    "123456",
-    "123456x",
-    "123454623123121221212121212112",
-    "+1234567890123456",
-    "",
-    "   ",
-    "(((((((",
-  ])("rejects the phone %j with INVALID_PHONE and writes nothing", async (phone) => {
-    const response = await call("PUT", ownId, participantCookie, { ...input, phone })
-    expect(response.status).toBe(400)
-    expect(await response.json()).toMatchObject({ code: "INVALID_PHONE" })
-    expect(await prisma.applicationEdit.count({ where: { applicationId: ownId } })).toBe(0)
-    expect((await prisma.application.findUniqueOrThrow({ where: { id: ownId } })).phone).toBeNull()
-  })
+  it.each(["abc", "123456", "123456x", "123454623123121221212121212112", "+1234567890123456"])(
+    "rejects the phone %j with INVALID_PHONE and writes nothing",
+    async (phone) => {
+      const response = await call("PUT", ownId, participantCookie, { ...input, phone })
+      expect(response.status).toBe(400)
+      expect(await response.json()).toMatchObject({ code: "INVALID_PHONE" })
+      expect(await prisma.applicationEdit.count({ where: { applicationId: ownId } })).toBe(0)
+      expect(
+        (await prisma.application.findUniqueOrThrow({ where: { id: ownId } })).phone,
+      ).toBeNull()
+    },
+  )
 
   it("updates fields, records actor and time, and notifies every organizer once", async () => {
     const response = await call("PUT", ownId, participantCookie, input)
@@ -317,5 +311,31 @@ describe("participant application edit (integration)", () => {
     expect(
       (await prisma.application.findUniqueOrThrow({ where: { id: ownId } })).firstName,
     ).not.toBe("Zrušená")
+  })
+
+  it("keeps the phone optional: an empty, null or missing phone saves as null, and removes a stored one", async () => {
+    // Runs last: it changes the application and leaves a history behind.
+    const own = {
+      firstName: "Jana",
+      lastName: "Nováková",
+      birthDate: "2000-05-15",
+      individualAccommodation: false,
+      accommodationRequest: null,
+    }
+    for (const phone of ["", "   ", null, undefined]) {
+      const response = await call("PUT", ownId, participantCookie, { ...own, phone })
+      expect(response.status).toBe(200)
+      expect(await response.json()).toMatchObject({ phone: null })
+    }
+    await prisma.application.update({ where: { id: ownId }, data: { phone: normalizedPhone } })
+    const cleared = await call("PUT", ownId, participantCookie, { ...own, phone: "" })
+    expect(cleared.status).toBe(200)
+    const body = (await cleared.json()) as {
+      phone: string | null
+      history: { changedFields: string[] }[]
+    }
+    expect(body.phone).toBeNull()
+    expect(body.history[0].changedFields).toEqual(["phone"])
+    expect((await prisma.application.findUniqueOrThrow({ where: { id: ownId } })).phone).toBeNull()
   })
 })

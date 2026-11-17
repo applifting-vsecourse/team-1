@@ -74,7 +74,10 @@ describe("EditApplicationPage", () => {
         }),
     })
     renderPage()
-    await user.type(await screen.findByRole("textbox", { name: "Phone *" }), "+420 777 123 456")
+    await user.type(
+      await screen.findByRole("textbox", { name: "Phone (optional)" }),
+      "+420 777 123 456",
+    )
     await user.type(
       screen.getByRole("textbox", { name: "Note for the organizer (optional)" }),
       "Ground floor, please.",
@@ -97,29 +100,48 @@ describe("EditApplicationPage", () => {
     ).toBeInTheDocument()
   })
 
-  it.each(["", "   ", "( ) - ( )"])(
-    "requires the phone: %j is rejected with a message and nothing is sent",
-    async (emptyPhone) => {
-      const user = userEvent.setup()
-      renderPage()
-      const firstName = await screen.findByRole("textbox", { name: "First name *" })
-      await user.clear(firstName)
-      await user.type(firstName, "Petra")
-      if (emptyPhone) await user.type(screen.getByRole("textbox", { name: "Phone *" }), emptyPhone)
-      await user.click(screen.getByRole("button", { name: "Save changes" }))
+  it("saves without a phone: it is optional", async () => {
+    const user = userEvent.setup()
+    put.mockReturnValue({
+      json: () =>
+        Promise.resolve({
+          ...initial,
+          firstName: "Petra",
+          history: [
+            {
+              id: "edit-1",
+              createdAt: "2026-11-06T10:30:00.000Z",
+              authorName: "Jana Nováková",
+              changedFields: ["firstName"],
+            },
+          ],
+        }),
+    })
+    renderPage()
+    const firstName = await screen.findByRole("textbox", { name: "First name *" })
+    await user.clear(firstName)
+    await user.type(firstName, "Petra")
+    await user.click(screen.getByRole("button", { name: "Save changes" }))
 
-      expect(put).not.toHaveBeenCalled()
-      expect(await screen.findByRole("alert")).toHaveTextContent("Enter a phone number.")
-      expect(screen.getByRole("textbox", { name: "Phone *" })).toBeInvalid()
-    },
-  )
+    expect(put).toHaveBeenCalledWith("participant/applications/a1/edit", {
+      json: {
+        firstName: "Petra",
+        lastName: "Nováková",
+        birthDate: "2005-03-14",
+        phone: null,
+        individualAccommodation: true,
+        accommodationRequest: "",
+      },
+    })
+    expect(await screen.findByText("Phone · —")).toBeInTheDocument()
+  })
 
   it.each(["abc", "123456", "+420 777 abc", "123454623123121221212121212112"])(
     "rejects the phone %j with a message and does not send it",
     async (invalidPhone) => {
       const user = userEvent.setup()
       renderPage()
-      const phone = await screen.findByRole("textbox", { name: "Phone *" })
+      const phone = await screen.findByRole("textbox", { name: "Phone (optional)" })
       await user.type(phone, invalidPhone)
       await user.click(screen.getByRole("button", { name: "Save changes" }))
 
@@ -137,7 +159,7 @@ describe("EditApplicationPage", () => {
     const user = userEvent.setup()
     put.mockReturnValue({ json: () => Promise.reject(new Error("failed")) })
     renderPage()
-    const phone = await screen.findByRole("textbox", { name: "Phone *" })
+    const phone = await screen.findByRole("textbox", { name: "Phone (optional)" })
     await user.type(phone, "+420 777 123 456")
     await user.click(screen.getByRole("button", { name: "Save changes" }))
 
@@ -155,7 +177,7 @@ describe("EditApplicationPage", () => {
     const firstName = await screen.findByRole("textbox", { name: "First name *" })
     await user.clear(firstName)
     await user.type(firstName, "Petra")
-    await user.type(screen.getByRole("textbox", { name: "Phone *" }), "+420 777 123 456")
+    await user.type(screen.getByRole("textbox", { name: "Phone (optional)" }), "+420 777 123 456")
     await user.click(screen.getByRole("button", { name: "Save changes" }))
     expect(await screen.findByRole("heading", { name: "Changes couldn't be saved" })).toBeVisible()
 
@@ -169,7 +191,7 @@ describe("EditApplicationPage", () => {
   it("keeps unsaved values when refreshing application data fails", async () => {
     const user = userEvent.setup()
     const client = renderPage()
-    const phone = await screen.findByRole("textbox", { name: "Phone *" })
+    const phone = await screen.findByRole("textbox", { name: "Phone (optional)" })
     await user.type(phone, "+420 777 123 456")
 
     get.mockReturnValue({ json: () => Promise.reject(new Error("offline")) })
@@ -177,7 +199,7 @@ describe("EditApplicationPage", () => {
       await client.refetchQueries({ queryKey: ["participant", "applications", "a1", "edit"] })
     })
 
-    expect(screen.getByRole("textbox", { name: "Phone *" })).toBe(phone)
+    expect(screen.getByRole("textbox", { name: "Phone (optional)" })).toBe(phone)
     expect(phone).toHaveValue("+420 777 123 456")
     expect(screen.getByRole("button", { name: "Save changes" })).toBeEnabled()
     expect(await screen.findByRole("button", { name: "Try again" })).toBeVisible()
@@ -209,7 +231,7 @@ describe("EditApplicationPage", () => {
     )
     expect(screen.getByRole("textbox", { name: "Last name *" })).toHaveValue("Nová")
     expect(screen.getByLabelText("Date of birth *")).toHaveValue("2001-02-03")
-    expect(screen.getByRole("textbox", { name: "Phone *" })).toHaveValue(refreshed.phone)
+    expect(screen.getByRole("textbox", { name: "Phone (optional)" })).toHaveValue(refreshed.phone)
     expect(screen.getByRole("textbox", { name: "Note for the organizer (optional)" })).toBe(
       accommodation,
     )
@@ -340,7 +362,7 @@ describe("EditApplicationPage", () => {
       renderUnticked()
       await user.click(await box())
       await user.type(note()!, "Ground floor")
-      await user.type(screen.getByRole("textbox", { name: "Phone *" }), "+420 777 123 456")
+      await user.type(screen.getByRole("textbox", { name: "Phone (optional)" }), "+420 777 123 456")
       await user.click(screen.getByRole("button", { name: "Save changes" }))
 
       expect(put).toHaveBeenCalledWith("participant/applications/a1/edit", {
@@ -372,7 +394,7 @@ describe("EditApplicationPage", () => {
           Promise.resolve({ ...initial, accommodationRequest: "Ground floor", history: [] }),
       })
       await user.click(await box())
-      await user.type(screen.getByRole("textbox", { name: "Phone *" }), "+420 777 123 456")
+      await user.type(screen.getByRole("textbox", { name: "Phone (optional)" }), "+420 777 123 456")
       await user.click(screen.getByRole("button", { name: "Save changes" }))
       expect(put).toHaveBeenCalledWith("participant/applications/a1/edit", {
         json: {

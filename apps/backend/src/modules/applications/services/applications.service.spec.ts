@@ -130,7 +130,18 @@ describe("ApplicationsService", () => {
       repository.findEventForOrganizer.mockResolvedValue(event)
     })
 
-    it.each(["", "   ", "( ) - ( )", "abc", "123456x", "123454623123121221212121212112"])(
+    it.each([undefined, null, "", "   "])("stores no phone for %j", async (phone) => {
+      await service.submitByOrganizer(organizer, "e1", { ...manualInput, phone }, "cs")
+
+      expect(repository.saveEvaluated).toHaveBeenCalledWith(
+        event,
+        [expect.not.objectContaining({ phone: expect.anything() })],
+        expect.any(Function),
+        "organizer",
+      )
+    })
+
+    it.each(["abc", "123456x", "123454623123121221212121212112"])(
       "rejects the phone %j before anything is stored or sent",
       async (phone) => {
         await expect(
