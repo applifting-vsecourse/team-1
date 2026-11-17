@@ -495,7 +495,9 @@ export function RoomCard({
         warnings={warnings}
         onAcknowledge={onAcknowledge}
       />
-      <div className="flex items-center gap-1 border-t border-border p-3">{actions}</div>
+      <div className="flex items-center justify-end gap-1 border-t border-border p-3">
+        {actions}
+      </div>
     </li>
   )
 }

@@ -6,7 +6,7 @@ import {
   createRouter,
   RouterProvider,
 } from "@tanstack/react-router"
-import { render, screen, waitFor, within } from "@testing-library/react"
+import { act, render, screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
@@ -203,8 +203,38 @@ describe("accommodation by term", () => {
     const table = await screen.findByRole("table")
     expect(within(table).getByText(/Extra bed \+2/)).toBeInTheDocument()
     expect(within(table).queryByText(/Extra bed \+0/)).not.toBeInTheDocument()
-    expect(within(table).getByRole("button", { name: "Edit extra beds" })).toBeInTheDocument()
-    expect(within(table).getByRole("button", { name: "Add extra bed" })).toBeInTheDocument()
+    expect(
+      within(table).getByRole("button", { name: "Edit extra beds (2) – Gendered room" }),
+    ).toBeInTheDocument()
+    expect(
+      within(table).getByRole("button", { name: "Add an extra bed – Men's room" }),
+    ).toBeInTheDocument()
+  })
+
+  it("shows the extra beds action as an icon with the room name and a count badge only when there are some", async () => {
+    renderRooms("t1")
+    const table = await screen.findByRole("table")
+    const edit = within(table).getByRole("button", { name: "Edit extra beds (2) – Gendered room" })
+    const add = within(table).getByRole("button", { name: "Add an extra bed – Men's room" })
+    expect(edit).toHaveTextContent("2")
+    expect(add).toHaveTextContent("")
+    expect(edit.querySelector("svg")).not.toBeNull()
+    expect(add.querySelector("svg")).not.toBeNull()
+  })
+
+  it("explains the extra beds icon in a tooltip on hover and on focus", async () => {
+    const { user } = renderRooms("t1")
+    const table = await screen.findByRole("table")
+    const add = within(table).getByRole("button", { name: "Add an extra bed – Men's room" })
+    await user.hover(add)
+    expect(await screen.findByRole("tooltip")).toHaveTextContent("Add an extra bed – Men's room")
+    await user.unhover(add)
+    act(() =>
+      within(table).getByRole("button", { name: "Edit extra beds (2) – Gendered room" }).focus(),
+    )
+    expect(await screen.findByRole("tooltip")).toHaveTextContent(
+      "Edit extra beds (2) – Gendered room",
+    )
   })
 
   it("has no extra bed note in the title while no room has extra beds", async () => {
@@ -217,7 +247,7 @@ describe("accommodation by term", () => {
     patch.mockResolvedValue(undefined)
     const { user } = renderRooms("t1")
     const table = await screen.findByRole("table")
-    await user.click(within(table).getByRole("button", { name: "Add extra bed" }))
+    await user.click(within(table).getByRole("button", { name: "Add an extra bed – Men's room" }))
     const dialog = await screen.findByRole("dialog")
     await user.type(within(dialog).getByLabelText("Number of extra beds"), "3")
     await user.click(within(dialog).getByRole("button", { name: "Save extra beds" }))
@@ -231,7 +261,7 @@ describe("accommodation by term", () => {
   it("explains an invalid number in the dialog instead of saving it", async () => {
     const { user } = renderRooms("t1")
     const table = await screen.findByRole("table")
-    await user.click(within(table).getByRole("button", { name: "Add extra bed" }))
+    await user.click(within(table).getByRole("button", { name: "Add an extra bed – Men's room" }))
     const dialog = await screen.findByRole("dialog")
     await user.type(within(dialog).getByLabelText("Number of extra beds"), "-1")
     await user.click(within(dialog).getByRole("button", { name: "Save extra beds" }))
@@ -243,7 +273,9 @@ describe("accommodation by term", () => {
     patch.mockResolvedValue(undefined)
     const { user } = renderRooms("t1")
     const table = await screen.findByRole("table")
-    await user.click(within(table).getByRole("button", { name: "Edit extra beds" }))
+    await user.click(
+      within(table).getByRole("button", { name: "Edit extra beds (2) – Gendered room" }),
+    )
     const dialog = await screen.findByRole("dialog")
     expect(within(dialog).getByLabelText("Number of extra beds")).toHaveValue(2)
     expect(within(dialog).getByText("5002")).toBeInTheDocument()
@@ -259,7 +291,9 @@ describe("accommodation by term", () => {
     renderRooms("t1")
     await screen.findByRole("table")
     expect(screen.getAllByText(/Extra bed \+2/).length).toBeGreaterThan(0)
-    expect(screen.getAllByRole("button", { name: "Edit extra beds" }).length).toBe(2)
+    expect(
+      screen.getAllByRole("button", { name: "Edit extra beds (2) – Gendered room" }).length,
+    ).toBe(2)
   })
 
   it("shows a shared term with its shared capacity and no gender in the room title", async () => {
