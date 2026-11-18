@@ -2,7 +2,7 @@
 
 > Generováno z [`rozhodnuti.yaml`](rozhodnuti.yaml) (`python generate.py`). Needituj, měň YAML.
 
-**161 platných**, 0 návrhů, 4 nahrazených nebo zrušených.
+**163 platných**, 0 návrhů, 4 nahrazených nebo zrušených.
 
 ## Návrhy čekající na PM
 
@@ -37,6 +37,8 @@ _Nic._
 | [D-147](#d-147) | Jazyk a vzhled se přepínají v Nastavení účtu | 2026-11-08 | mění [D-042](#d-042) |
 | [D-154](#d-154) | Seznam přihlášek: pátá volba filtru úhrady a jeden sloupec Dluh | 2026-11-08 | mění [D-044](#d-044) |
 | [D-155](#d-155) | Kopírování programu mezi termíny | 2026-11-14 | mění [D-123](#d-123) |
+| [D-166](#d-166) | Telefon účastníka v přihlášce je nepovinný, vyplněný se kontroluje | 2026-11-17 | mění [D-079](#d-079), mění [D-153](#d-153) |
+| [D-167](#d-167) | Úprava údajů přihlášky organizátorem nikomu neposílá upozornění | 2026-11-18 | mění [D-141](#d-141) |
 
 ## Platná rozhodnutí podle oblasti
 
@@ -151,7 +153,9 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-167](#d-167) | Úprava údajů přihlášky organizátorem nikomu neposílá upozornění | 2026-11-18 | `pm` | produkt |
 | [D-163](#d-163) | Přehled kroků po registraci: pořadí a potvrzení bez omezení | 2026-11-18 | `pm` | produkt |
+| [D-166](#d-166) | Telefon účastníka v přihlášce je nepovinný, vyplněný se kontroluje | 2026-11-17 | `pm` | produkt |
 | [D-158](#d-158) | Storno podmínky vidí přihlašovatel před odhláškou a změnou termínu | 2026-11-14 | `pm` | produkt |
 | [D-157](#d-157) | Vyhodnocení vybraných přihlášek jedním krokem | 2026-11-14 | `pm` | produkt |
 | [D-110](#d-110) | Archivace přihlášky v termínu první den po konci jejího termínu | 2026-11-14 | `pm` | produkt |
@@ -1098,6 +1102,7 @@ _Nic._
 - **Datum:** 2026-10-31 · **Rozhodl:** `pm`
 - **Text:** Telefon je ve formuláři přihlášky povinný. Telefon u nezletilých (zákonného zástupce) se zatím neřeší. Právní základ (GDPR) PM nezodpověděl.
 - **Zdroj:** [odpověď PM v chatu k návrhům ticketů (PM rutina, krok 3)](https://github.com/applifting-vsecourse/team-1/pull/242)
+- **Změněno v:** [D-166](#d-166)
 - **Z otázek:** `Q-PRI-19`
 - **Dokumentace:** `docs/PROJEKT.md`: hotovo (c8c2f0a), formulář přihlášky a datový model: povinný telefon účastníka
 - **Poznámka:** Otevřené: právní základ sběru telefonu (GDPR) a telefon zástupce u nezletilých (US-07).
@@ -1835,6 +1840,7 @@ _Nic._
 - **Text:** Přihlašovatel i organizátor upraví jméno, příjmení, datum narození, telefon a požadavek na individuální ubytování; pohlaví a e-mail přihlášky se nemění. Úprava jde, dokud má přihláška aktivní termín, který neskončil. Každá změna se zapíše do historie a organizátorům přijde upozornění v aplikaci; přihlašovateli se e-mail neposílá (D-104).
 - **Dotčené US:** [US-34](https://github.com/applifting-vsecourse/team-1/issues/34), [US-53](https://github.com/applifting-vsecourse/team-1/issues/53)
 - **Zdroj:** [PR #352 (US-34)](https://github.com/applifting-vsecourse/team-1/pull/352); [PR #390 (US-53), dotazy bez odpovědi](https://github.com/applifting-vsecourse/team-1/pull/390)
+- **Změněno v:** [D-167](#d-167)
 - **Poznámka:** Doporučení: schválit a kritérium „údaje přihlašovatele“ v US-53 zúžit na e-mail přihlášky.
 
 <a id="d-142"></a>
@@ -1965,6 +1971,7 @@ _Nic._
 - **Text:** Organizátor při ručním přidání přihlášky vybere aspoň jeden aktivní termín, u každého určí stav (Potvrzená s dluhem, nebo Náhradník, v obou režimech vyhodnocování) a potvrdí, že má od přihlašovatele souhlas se zpracováním údajů. Telefon je povinný (D-079), potvrzení nad kapacitu je vědomé.
 - **Dotčené US:** [US-83](https://github.com/applifting-vsecourse/team-1/issues/83)
 - **Zdroj:** [PR #344 (US-83)](https://github.com/applifting-vsecourse/team-1/pull/344)
+- **Změněno v:** [D-166](#d-166)
 - **Z otázek:** `Q-PRI-24`
 - **Poznámka:** Doporučení: schválit; právní stránku souhlasu potvrdí PO (Q-PRI-24).
 
@@ -2106,3 +2113,29 @@ _Nic._
 - **Zdroj:** [PR #569 (issue #534), rozhodnutí PM 18. 11.](https://github.com/applifting-vsecourse/team-1/pull/569#issuecomment-6977276531)
 - **Z otázek:** `Q-UBY-08`
 - **Poznámka:** Rozhodl PM 18. 11.
+
+<a id="d-166"></a>
+
+### D-166 – Telefon účastníka v přihlášce je nepovinný, vyplněný se kontroluje
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** přihlašování na akce
+- **Datum:** 2026-11-17 · **Rozhodl:** `pm`
+- **Text:** Telefon účastníka je nepovinný všude, kde se u přihlášky sbírá nebo mění: při úpravě přihlášky přihlašovatelem a při ručním přidání organizátorem; veřejný formulář ho zatím nesbírá a až ho sbírat bude (US-130), bude nepovinný také. Prázdná hodnota se neuloží (`null`). Vyplněný telefon musí být platné číslo: volitelné „+“ a 7–15 číslic (E.164); mezery, závorky, pomlčky a tečky se před kontrolou odstraní. Pravidlo má jednu sdílenou definici a na frontendu i backendu vrací lokalizovanou chybu. Popisek pole je jen „Telefon“ bez „(nepovinné)“ (povinná pole se značí „*“); chyba zní „Zadejte platné telefonní číslo, například +420 777 123 456.“ (en: „Enter a valid phone number, for example +420 777 123 456.“). Telefon kontaktu organizace se nemění. Nastavení „telefon povinný“ organizátorem u akce je případná budoucí story, teď se nedělá.
+- **Dotčené US:** [#543](https://github.com/applifting-vsecourse/team-1/issues/543), [US-130](https://github.com/applifting-vsecourse/team-1/issues/245)
+- **Zdroj:** [PM 17. 11.: oprava rozhodnutí (telefon je nepovinný; formát E.164 zůstává)](https://github.com/applifting-vsecourse/team-1/pull/559#issuecomment-6962163883); [PM 18. 11.: texty telefonu (popisek, chyba)](https://github.com/applifting-vsecourse/team-1/pull/559#issuecomment-6976599878); [PM 17. 11.: schválení formátu (komentář, který bod o povinnosti nahradila oprava výše)](https://github.com/applifting-vsecourse/team-1/pull/559#issuecomment-6960844208)
+- **Mění:** [D-079](#d-079), [D-153](#d-153)
+- **Dokumentace:** `docs/PROJEKT.md`: hotovo (8d030480), pravidla (sekce 5) a datový model: telefon je nepovinný
+- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/rucni-vyhodnocovani/zpracovani-prihlasky.yaml`: hotovo (8d030480), poznámka k ručnímu přidání: telefon je nepovinný (totéž v automaticke-vyhodnocovani)
+- **Poznámka:** Mění D-079 (telefon povinný) a větu o telefonu v D-153; věta D-079 o telefonu zákonného zástupce u nezletilých a právní základ sběru zůstávají. Veřejný formulář přihlášky telefon dnes nesbírá (není v DTO ani ve formuláři); sběr je v US-130 (#245), jehož kritérium „pole je povinné“ tímto rozhodnutím neplatí. Dřívější komentář PM z 17. 11. (telefon zůstává povinný) nahradila oprava téhož dne.
+
+<a id="d-167"></a>
+
+### D-167 – Úprava údajů přihlášky organizátorem nikomu neposílá upozornění
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** přihlašování na akce
+- **Datum:** 2026-11-18 · **Rozhodl:** `pm`
+- **Text:** Upozornění organizátorům v aplikaci o úpravě údajů přihlášky (D-141) platí jen pro úpravu přihlašovatelem. Úprava organizátorem neposílá upozornění nikomu (ani ostatním organizátorům, ani přihlašovateli; e-mail se neposílá podle D-104). Úprava se zapíše do historie přihlášky ve tvaru „Pole: původní → nová hodnota“; prázdná hodnota se zapíše jako „—“, individuální ubytování jako ano/ne. U poznámky k ubytování historie hodnoty nevypisuje, jen „Poznámka k ubytování: změněna“; původní i nová hodnota zůstávají uložené v datech.
+- **Dotčené US:** [#515](https://github.com/applifting-vsecourse/team-1/issues/515)
+- **Zdroj:** [PM 18. 11.: nejasnosti k byznys pravidlům v PR #564 (US #515), body 1 a 2](https://github.com/applifting-vsecourse/team-1/pull/564#issuecomment-6976599162)
+- **Mění:** [D-141](#d-141)
+- **Poznámka:** Zpřesňuje D-141: věta „Každá změna se zapíše do historie a organizátorům přijde upozornění“ platí pro upozornění jen u úpravy přihlašovatelem, historie se zapisuje u obou. Neřeší, jak se upozornění u úpravy přihlašovatelem zobrazuje.
