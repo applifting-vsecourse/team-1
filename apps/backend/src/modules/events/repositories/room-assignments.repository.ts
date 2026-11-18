@@ -310,11 +310,13 @@ export class RoomAssignmentsRepository {
         const room = rooms.find((row) => row.id === item.roomId)
         if (!application || !room) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
         if (room.termId !== termId) throw new AppException(HttpStatus.CONFLICT, "ROOM_NOT_IN_TERM")
-        const isWrongGender =
-          room.gender !== null &&
-          room.gender !== application.application.gender &&
-          !application.application.individualAccommodation
-        if (application.roomAssignment || isWrongGender) {
+        // A proposal never contains people with individual accommodation (US-38, US-147).
+        const isWrongGender = room.gender !== null && room.gender !== application.application.gender
+        if (
+          application.roomAssignment ||
+          application.application.individualAccommodation ||
+          isWrongGender
+        ) {
           throw new AppException(HttpStatus.CONFLICT, "ROOM_PROPOSAL_OUTDATED")
         }
         const rejection = rejectAssignment({

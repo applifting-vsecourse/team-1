@@ -180,6 +180,12 @@ describe("room proposal (integration)", () => {
       assignments: [{ applicationTermId: boy, roomId: girlsRoom }],
     })
     expect(wrongGender.status).toBe(409)
+    const solo = await makePerson("Sam", "Solo", "MALE", { individualAccommodation: true })
+    const individual = await call(`${base()}/bulk`, "POST", {
+      assignments: [{ applicationTermId: solo, roomId: boysRoom }],
+    })
+    expect(individual.status).toBe(409)
+    expect(((await individual.json()) as { code: string }).code).toBe("ROOM_PROPOSAL_OUTDATED")
     const full = await call(`${base()}/bulk`, "POST", {
       assignments: [
         { applicationTermId: boy, roomId: boysRoom },
