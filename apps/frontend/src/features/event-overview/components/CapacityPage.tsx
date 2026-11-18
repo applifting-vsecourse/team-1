@@ -434,15 +434,11 @@ function MetricCard({
   figures: OccupancyFigures
   helper: string
 }) {
+  const { t } = useTranslation("eventOverview")
   const isOver = figures.confirmed > figures.capacity
 
   return (
-    <CardLink
-      to={ROUTES.organizer.eventApplications}
-      params={{ eventId }}
-      search={search}
-      className={cn("gap-2 px-6", isOver && "border-destructive bg-destructive/8")}
-    >
+    <Card className={cn("gap-2 px-6", isOver && "border-destructive bg-destructive/8")}>
       <h3 className="text-xs font-medium text-muted-foreground">{label}</h3>
       <p
         className={cn(
@@ -458,6 +454,34 @@ function MetricCard({
         label={label}
       />
       <p className="text-sm text-muted-foreground">{helper}</p>
-    </CardLink>
+      <div className="mt-auto flex flex-wrap gap-2">
+        <Button
+          asChild
+          variant="outline"
+        >
+          <Link
+            to={ROUTES.organizer.eventApplications}
+            params={{ eventId }}
+            search={search}
+            aria-label={label + " · " + t("capacity.openApplications")}
+          >
+            {t("capacity.openApplications")}
+          </Link>
+        </Button>
+        <Button
+          asChild
+          variant="ghost"
+        >
+          <Link
+            to={ROUTES.organizer.eventApplications}
+            params={{ eventId }}
+            search={{ ...search, status: "WAITLISTED" }}
+            aria-label={label + " · " + t("capacity.waitlistedColumn")}
+          >
+            {t("capacity.waitlistedColumn")} ({figures.waitlisted})
+          </Link>
+        </Button>
+      </div>
+    </Card>
   )
 }

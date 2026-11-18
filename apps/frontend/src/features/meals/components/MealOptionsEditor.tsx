@@ -9,6 +9,7 @@ import { PageHeader } from "@/components/molecules/PageHeader"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 
 import {
@@ -79,42 +80,61 @@ function OptionsForm({ eventId, options }: { eventId: string; options: MealOptio
       }}
     >
       <PageHeader title={t("options.title")} />
-      <Card className="gap-4 p-4">
-        <h2 className="text-2xl font-bold">{t("options.cardTitle")}</h2>
-        {rows.map((row) => (
-          <div
-            key={row.key}
-            className="flex items-center gap-2"
-          >
-            <Input
-              aria-label={t("options.nameLabel")}
-              maxLength={NAME_MAX_LENGTH}
-              value={row.name}
-              onChange={(event) => rename(row.key, event.target.value)}
-            />
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-lg"
-              aria-label={t("options.remove", { name: row.name })}
-              onClick={() => setRows((current) => current.filter((item) => item.key !== row.key))}
+      <div className="grid items-start gap-4 md:grid-cols-2">
+        <Card className="gap-4 p-4">
+          <h2 className="text-2xl font-bold">{t("options.cardTitle")}</h2>
+          {rows.map((row) => (
+            <div
+              key={row.key}
+              className="flex items-center gap-2"
             >
-              <X aria-hidden />
-            </Button>
-          </div>
-        ))}
-        <Button
-          type="button"
-          variant="ghost"
-          size="lg"
-          className="w-full"
-          onClick={() =>
-            setRows((current) => [...current, { key: `new-${crypto.randomUUID()}`, name: "" }])
-          }
-        >
-          {t("options.add")}
-        </Button>
-      </Card>
+              <Input
+                aria-label={t("options.nameLabel")}
+                maxLength={NAME_MAX_LENGTH}
+                value={row.name}
+                onChange={(event) => rename(row.key, event.target.value)}
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-lg"
+                aria-label={t("options.remove", { name: row.name })}
+                onClick={() => setRows((current) => current.filter((item) => item.key !== row.key))}
+              >
+                <X aria-hidden />
+              </Button>
+            </div>
+          ))}
+          <Button
+            type="button"
+            variant="ghost"
+            size="lg"
+            className="w-full"
+            onClick={() =>
+              setRows((current) => [...current, { key: `new-${crypto.randomUUID()}`, name: "" }])
+            }
+          >
+            {t("options.add")}
+          </Button>
+        </Card>
+        <Card className="gap-4 p-4">
+          <h2 className="text-xl font-semibold">{t("options.preview")}</h2>
+          {rows
+            .filter((row) => row.name.trim())
+            .map((row) => (
+              <label
+                key={row.key}
+                className="flex items-center gap-3 break-all"
+              >
+                <Checkbox disabled />
+                {row.name}
+              </label>
+            ))}
+          {!rows.some((row) => row.name.trim()) && (
+            <p className="text-muted-foreground">{t("options.emptyPreview")}</p>
+          )}
+        </Card>
+      </div>
       {mutation.error ? (
         <Alert variant="destructive">
           <AlertDescription>{mutation.error.message}</AlertDescription>
@@ -123,7 +143,7 @@ function OptionsForm({ eventId, options }: { eventId: string; options: MealOptio
       <Button
         type="submit"
         size="lg"
-        className="w-full"
+        className="w-full sm:w-auto sm:self-end"
         disabled={mutation.isPending}
       >
         {t("options.save")}

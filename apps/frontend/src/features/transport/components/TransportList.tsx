@@ -21,14 +21,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
 import { termDatesLine } from "@/lib/term-label"
 
 import {
@@ -87,19 +79,6 @@ export function TransportList({ eventId }: { eventId: string }) {
 
   const actions = (item: TransportSummary) => (
     <div className="flex justify-end gap-1">
-      <Button
-        asChild
-        variant="ghost"
-        size="icon-lg"
-      >
-        <Link
-          to={ROUTES.organizer.eventTransportParticipants}
-          params={{ eventId, transportId: item.id }}
-          aria-label={t("showParticipantsOf", { name: nameOf(item) })}
-        >
-          <Users />
-        </Link>
-      </Button>
       <Button
         variant="ghost"
         size="icon-lg"
@@ -173,66 +152,52 @@ export function TransportList({ eventId }: { eventId: string }) {
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           {term.transports.length ? (
-            <>
-              {/* A table from md up, like the rooms; on a phone a list of rows. */}
-              <div className="hidden md:block">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>{t("nameColumn")}</TableHead>
-                      <TableHead>{t("departureColumn")}</TableHead>
-                      <TableHead>{t("placeColumn")}</TableHead>
-                      <TableHead className="text-right">{t("participantsColumn")}</TableHead>
-                      <TableHead>
-                        <span className="sr-only">{t("actionsColumn")}</span>
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {term.transports.map((item) => (
-                      <TableRow key={item.id}>
-                        <TableCell className="font-medium break-words whitespace-normal">
-                          {nameOf(item)}
-                          {item.kind === "OWN" ? (
-                            <Badge
-                              variant="secondary"
-                              className="ml-2"
-                            >
-                              {t("ownBadge")}
-                            </Badge>
-                          ) : null}
-                        </TableCell>
-                        <TableCell>{whenOf(item) ?? "–"}</TableCell>
-                        <TableCell className="break-words whitespace-normal">
-                          {item.departurePlace ?? "–"}
-                        </TableCell>
-                        <TableCell className="text-right">{item.participantsCount}</TableCell>
-                        <TableCell>{actions(item)}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-              <ul className="divide-y md:hidden">
-                {term.transports.map((item) => (
-                  <li
-                    key={item.id}
-                    className="flex items-center gap-4 py-3"
-                  >
-                    <div className="flex min-w-0 flex-1 flex-col gap-1">
-                      <span className="font-medium break-words">{nameOf(item)}</span>
-                      <span className="text-sm text-muted-foreground">
-                        {[whenOf(item), item.departurePlace].filter(Boolean).join(" · ")}
-                      </span>
-                      <span className="text-sm text-muted-foreground">
-                        {t("participants", { count: item.participantsCount })}
-                      </span>
-                    </div>
+            <ul className="grid gap-4 md:grid-cols-2">
+              {term.transports.map((item) => (
+                <li
+                  key={item.id}
+                  className="flex min-w-0 flex-col gap-3 rounded-xl border bg-card p-4"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <h4 className="min-w-0 text-lg font-semibold break-words">{nameOf(item)}</h4>
                     {actions(item)}
-                  </li>
-                ))}
-              </ul>
-            </>
+                  </div>
+                  {item.kind === "OWN" && <Badge variant="secondary">{t("ownBadge")}</Badge>}
+                  <dl className="grid gap-2">
+                    {item.departureAt && (
+                      <div>
+                        <dt className="text-sm text-muted-foreground">{t("departureColumn")}</dt>
+                        <dd>{whenOf(item)}</dd>
+                      </div>
+                    )}
+                    {item.departurePlace && (
+                      <div>
+                        <dt className="text-sm text-muted-foreground">{t("placeColumn")}</dt>
+                        <dd className="break-words">{item.departurePlace}</dd>
+                      </div>
+                    )}
+                    <div>
+                      <dt className="text-sm text-muted-foreground">{t("participantsColumn")}</dt>
+                      <dd className="font-semibold tabular-nums">{item.participantsCount}</dd>
+                    </div>
+                  </dl>{" "}
+                  <Button
+                    asChild
+                    variant="outline"
+                    className="mt-auto self-start"
+                  >
+                    <Link
+                      to={ROUTES.organizer.eventTransportParticipants}
+                      params={{ eventId, transportId: item.id }}
+                      aria-label={t("showParticipantsOf", { name: nameOf(item) })}
+                    >
+                      <Users aria-hidden />
+                      {t("participantsColumn")}
+                    </Link>
+                  </Button>
+                </li>
+              ))}
+            </ul>
           ) : (
             <EmptyState message={t("empty")} />
           )}

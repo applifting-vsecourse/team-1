@@ -28,7 +28,8 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
         <div className="flex items-center justify-between gap-6">
           <h3 className="text-lg font-semibold">
             {application.firstName} {application.lastName}
-            <span className="text-sm font-normal text-muted-foreground"> · {application.code}</span>
+            {" · "}
+            <span className="text-sm font-normal text-muted-foreground">{application.code}</span>
           </h3>
           <ChevronRight
             aria-hidden

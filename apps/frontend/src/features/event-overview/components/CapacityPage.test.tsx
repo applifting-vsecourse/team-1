@@ -131,13 +131,24 @@ describe("CapacityPage", () => {
     expect(screen.getByRole("link", { name: "All terms" }).getAttribute("href")).not.toContain(
       "termId",
     )
-    const women = screen.getByRole("link", { name: /Women · capacity 5 beds/ })
-    expect(women).toHaveTextContent("2 / 5")
-    expect(women).toHaveTextContent("3 free places · 1 women’s room of 5 beds")
+    const women = screen.getByRole("link", { name: /Women · capacity 5 beds.*View applications/ })
+    expect(
+      screen.getByRole("heading", { name: /Women · capacity 5 beds/ }).parentElement,
+    ).toHaveTextContent("2 / 5")
+    expect(
+      screen.getByRole("heading", { name: /Women · capacity 5 beds/ }).parentElement,
+    ).toHaveTextContent("3 free places · 1 women’s room of 5 beds")
     for (const part of ["term=t1", "status=CONFIRMED", "gender=FEMALE"]) {
       expect(women.getAttribute("href")).toContain(part)
     }
-    expect(screen.getByRole("link", { name: /Total term capacity/ })).toHaveTextContent("7 / 10")
+    expect(
+      screen
+        .getByRole("link", { name: /Women · capacity 5 beds.*Waitlisted/ })
+        .getAttribute("href"),
+    ).toContain("status=WAITLISTED")
+    expect(
+      screen.getByRole("heading", { name: /Total term capacity/ }).parentElement,
+    ).toHaveTextContent("7 / 10")
     expect(screen.getByText("Free places for women cannot be used for men.")).toBeVisible()
     expect(screen.getByText(/3 places left in total, all for women/)).toBeVisible()
   })

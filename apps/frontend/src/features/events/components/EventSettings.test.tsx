@@ -161,7 +161,8 @@ describe("EventSettings", () => {
     expect(
       screen.getByText("Applications are open, so the mode can no longer be changed."),
     ).toBeInTheDocument()
-    expect(screen.queryByRole("radio")).not.toBeInTheDocument()
+    expect(screen.getByRole("radio", { name: "Automatic" })).toBeChecked()
+    for (const radio of screen.getAllByRole("radio")) expect(radio).toBeDisabled()
     expect(screen.queryByRole("button", { name: "Save mode" })).not.toBeInTheDocument()
   })
 

@@ -185,8 +185,8 @@ function TermRow({
   const { t } = useTranslation("events")
 
   return (
-    <div className="flex flex-wrap items-center gap-4">
-      <div className="flex min-w-48 flex-1 flex-col gap-1">
+    <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]">
+      <div className="flex min-w-0 flex-col gap-1">
         <span className="text-sm font-medium tabular-nums">
           {formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })}
         </span>
@@ -197,30 +197,36 @@ function TermRow({
         </span>
       </div>
       <TermOccupancy term={term} />
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon-lg"
-            aria-label={t("terms.actions", { name: termTitle(term) })}
-          >
-            <MoreHorizontal />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem onSelect={onEdit}>
-            <Pencil />
-            {t("terms.edit")}
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            variant="destructive"
-            onSelect={onCancel}
-          >
-            <Ban />
-            {t("terms.cancel")}
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <div className="col-start-2 row-start-1 flex items-center md:col-start-3">
+        <Button
+          variant="ghost"
+          size="icon-lg"
+          aria-label={t("terms.edit") + " · " + termTitle(term)}
+          onClick={onEdit}
+        >
+          <Pencil aria-hidden />
+        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon-lg"
+              aria-label={t("terms.actions", { name: termTitle(term) })}
+            >
+              <MoreHorizontal />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem
+              variant="destructive"
+              onSelect={onCancel}
+            >
+              <Ban />
+              {t("terms.cancel")}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
     </div>
   )
 }
@@ -234,7 +240,7 @@ function TermOccupancy({ term }: { term: EventTerm }) {
       : t("list.noCapacity")
 
   return (
-    <div className="flex w-full items-center gap-3 sm:w-70">
+    <div className="col-span-2 flex w-full flex-col items-start gap-1 md:col-span-1 md:col-start-2 md:row-start-1">
       <span
         className={cn(
           "shrink-0 text-sm font-medium tabular-nums",
@@ -248,7 +254,7 @@ function TermOccupancy({ term }: { term: EventTerm }) {
           confirmed={term.confirmedCount}
           capacity={term.capacity}
           label={label}
-          className="flex-1"
+          className="w-full"
         />
       ) : null}
     </div>

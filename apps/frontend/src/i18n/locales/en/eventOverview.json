@@ -217,6 +217,7 @@
     "missingBeds_many": "{{count}} beds missing",
     "missingBeds_one": "{{count}} bed missing",
     "missingBeds_other": "{{count}} beds missing",
+    "openApplications": "View applications",
     "overCapacity": "{{gender}}: {{confirmed}} confirmed for {{capacity}} beds. Capacity exceeded by {{excess}}.",
     "overCapacityTitle": "Term capacity exceeded",
     "remainingMen_few": "{{count}} places left in total, all for men.",
@@ -484,6 +485,7 @@
     "overdueCount_other": "{{count}} past due",
     "overpayment": "Overpayment",
     "participant": "Participant",
+    "remindedDebt": "After reminder",
     "reminderFilter": "Payment reminders",
     "reminders": {
       "ALL": "All",
@@ -492,6 +494,7 @@
     },
     "remindersLast": "Reminders: {{count}} · last {{date}}",
     "remindersLine": "Reminders: {{count}}",
+    "selectionDebt": "Debt in selection",
     "statusFilter": "Payment status",
     "statuses": {
       "ALL": "All",

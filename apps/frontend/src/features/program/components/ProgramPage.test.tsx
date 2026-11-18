@@ -6,7 +6,7 @@ import {
   createRouter,
   RouterProvider,
 } from "@tanstack/react-router"
-import { render, screen, waitFor, within } from "@testing-library/react"
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { afterEach, describe, expect, it, vi } from "vitest"
 
@@ -98,8 +98,7 @@ describe("ProgramPage", () => {
     await userEvent.click(await screen.findByRole("button", { name: "Add block" }))
     const dialog = await screen.findByRole("dialog")
     expect(within(dialog).queryByRole("alert")).not.toBeInTheDocument()
-    await userEvent.click(within(dialog).getByRole("combobox", { name: /^From/ }))
-    await userEvent.click(await screen.findByRole("option", { name: "10" }))
+    fireEvent.change(within(dialog).getByLabelText(/^From/), { target: { value: "10:00" } })
     expect(await within(dialog).findByRole("alert")).toHaveTextContent(/Dílny \(10:00–12:00\)/)
   })
 
@@ -119,12 +118,10 @@ describe("ProgramPage", () => {
     await userEvent.click(await screen.findByRole("button", { name: "Add block" }))
     const dialog = await screen.findByRole("dialog")
     // The block starts at 09:00 with minutes on 00; moving the start to 11:00 pushes the end along.
-    await userEvent.click(within(dialog).getByRole("combobox", { name: /^From/ }))
-    await userEvent.click(await screen.findByRole("option", { name: "11" }))
-    const [, , , endHours] = within(dialog).getAllByRole("combobox")
-    expect(endHours).toHaveTextContent("12")
-    await userEvent.click(endHours!)
-    await userEvent.click(await screen.findByRole("option", { name: "10" }))
+    fireEvent.change(within(dialog).getByLabelText(/^From/), { target: { value: "11:00" } })
+    const endTime = within(dialog).getByLabelText(/^To/)
+    expect(endTime).toHaveValue("12:00")
+    fireEvent.change(endTime, { target: { value: "10:00" } })
     await userEvent.click(within(dialog).getByRole("button", { name: "Add block" }))
     expect(await within(dialog).findByText("Enter the block name.")).toBeInTheDocument()
     expect(within(dialog).getByText("The end must be after the start.")).toBeInTheDocument()

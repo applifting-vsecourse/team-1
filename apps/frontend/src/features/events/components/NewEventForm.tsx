@@ -1,7 +1,7 @@
 import { useMemo } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useQuery } from "@tanstack/react-query"
-import { Link, useNavigate } from "@tanstack/react-router"
+import { useNavigate } from "@tanstack/react-router"
 import type { TFunction } from "i18next"
 import { CircleAlert } from "lucide-react"
 import { useForm } from "react-hook-form"
@@ -9,13 +9,18 @@ import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
 import { ROUTES } from "@/app/routes"
-import { BackLink } from "@/components/atoms/BackLink"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
-import { PageHeader } from "@/components/molecules/PageHeader"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import {
   Form,
   FormControl,
@@ -60,33 +65,52 @@ type FormValues = z.infer<ReturnType<typeof createSchema>>
 // Figma (Design system): O03a Validace povinného názvu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12264-1129
 export function NewEventPage() {
   const { t } = useTranslation("events")
+  const navigate = useNavigate()
+  const create = useCreateEvent()
   const { data, error, isPending, refetch } = useQuery(myOrganizationsQueryOptions())
 
   return (
-    <div className="flex w-full max-w-196 flex-col gap-6">
-      <div className="flex flex-col gap-2">
-        <BackLink to={ROUTES.organizer.events}>{t("new.back")}</BackLink>
-        <PageHeader
-          hasBand
-          motif="forms"
-          title={t("new.title")}
-          description={t("new.description")}
-        />
-      </div>
-      {isPending ? <LoadingState /> : null}
-      {error ? (
-        <ErrorState
-          title={t("list.errorTitle")}
-          error={error}
-          onRetry={() => void refetch()}
-        />
-      ) : null}
-      {data ? <NewEventCard organizations={data} /> : null}
-    </div>
+    <Dialog
+      open
+      onOpenChange={(open) => {
+        if (!open && !create.isPending)
+          void navigate({ to: ROUTES.organizer.events, replace: true })
+      }}
+    >
+      <DialogContent
+        showCloseButton={!create.isPending}
+        className="max-h-[90dvh] overflow-y-auto sm:max-w-xl"
+      >
+        <DialogHeader>
+          <DialogTitle>{t("new.title")}</DialogTitle>
+          <DialogDescription>{t("new.description")}</DialogDescription>
+        </DialogHeader>
+        {isPending ? <LoadingState /> : null}
+        {error ? (
+          <ErrorState
+            title={t("list.errorTitle")}
+            error={error}
+            onRetry={() => void refetch()}
+          />
+        ) : null}
+        {data ? (
+          <NewEventCard
+            organizations={data}
+            create={create}
+          />
+        ) : null}
+      </DialogContent>
+    </Dialog>
   )
 }
 
-function NewEventCard({ organizations }: { organizations: OrganizationSummary[] }) {
+function NewEventCard({
+  organizations,
+  create,
+}: {
+  organizations: OrganizationSummary[]
+  create: ReturnType<typeof useCreateEvent>
+}) {
   const { t } = useTranslation("events")
   const navigate = useNavigate()
   const schema = useMemo(() => createSchema(t), [t])
@@ -99,7 +123,6 @@ function NewEventCard({ organizations }: { organizations: OrganizationSummary[] 
       description: "",
     },
   })
-  const create = useCreateEvent()
 
   const onSubmit = (values: FormValues) =>
     create.mutate(
@@ -118,133 +141,129 @@ function NewEventCard({ organizations }: { organizations: OrganizationSummary[] 
     )
 
   return (
-    <Card>
-      <CardHeader>
-        <h2 className="text-lg font-semibold tracking-tight">{t("new.form.heading")}</h2>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form
-            noValidate
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="flex flex-col gap-4"
+    <Form {...form}>
+      <form
+        noValidate
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="flex flex-col gap-4"
+      >
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="data-[error=true]:text-foreground">
+                {t("new.form.name")}
+              </FormLabel>
+              <FormControl>
+                <Input
+                  autoComplete="off"
+                  {...field}
+                />
+              </FormControl>
+              {form.formState.errors.name ? (
+                <FormMessage className="text-xs font-medium" />
+              ) : (
+                <FormDescription className="text-xs font-medium">
+                  {t("new.form.nameHelper")}
+                </FormDescription>
+              )}
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="organizationId"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>{t("new.form.organization")}</FormLabel>
+              <Select
+                value={field.value}
+                onValueChange={field.onChange}
+              >
+                <FormControl>
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {organizations.map((organization) => (
+                    <SelectItem
+                      key={organization.id}
+                      value={organization.id}
+                    >
+                      {organization.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormDescription className="text-xs font-medium">
+                {t("new.form.organizationHelper")}
+              </FormDescription>
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="location"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>{t("new.form.location")}</FormLabel>
+              <FormControl>
+                <Input
+                  autoComplete="off"
+                  {...field}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>{t("new.form.description")}</FormLabel>
+              <FormControl>
+                <Textarea
+                  className="min-h-22"
+                  {...field}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+        <p className="text-xs font-medium text-muted-foreground">{t("new.form.required")}</p>
+
+        {create.isError ? (
+          <Alert variant="destructive">
+            <CircleAlert />
+            <AlertDescription>{create.error.message}</AlertDescription>
+          </Alert>
+        ) : null}
+
+        <div className="flex flex-col gap-3 border-t pt-4 sm:flex-row sm:items-center">
+          <p className="text-sm text-muted-foreground sm:flex-1">{t("new.next")}</p>
+          <DialogClose asChild>
+            <Button
+              type="button"
+              variant="outline"
+              size="lg"
+              disabled={create.isPending}
+            >
+              {t("new.cancel")}
+            </Button>
+          </DialogClose>
+          <Button
+            type="submit"
+            size="lg"
+            aria-busy={create.isPending}
+            disabled={create.isPending}
           >
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="data-[error=true]:text-foreground">
-                    {t("new.form.name")}
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      autoComplete="off"
-                      {...field}
-                    />
-                  </FormControl>
-                  {form.formState.errors.name ? (
-                    <FormMessage className="text-xs font-medium" />
-                  ) : (
-                    <FormDescription className="text-xs font-medium">
-                      {t("new.form.nameHelper")}
-                    </FormDescription>
-                  )}
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="organizationId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("new.form.organization")}</FormLabel>
-                  <Select
-                    value={field.value}
-                    onValueChange={field.onChange}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="w-full">
-                        <SelectValue />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {organizations.map((organization) => (
-                        <SelectItem
-                          key={organization.id}
-                          value={organization.id}
-                        >
-                          {organization.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormDescription className="text-xs font-medium">
-                    {t("new.form.organizationHelper")}
-                  </FormDescription>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="location"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("new.form.location")}</FormLabel>
-                  <FormControl>
-                    <Input
-                      autoComplete="off"
-                      {...field}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("new.form.description")}</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      className="min-h-22"
-                      {...field}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <p className="text-xs font-medium text-muted-foreground">{t("new.form.required")}</p>
-
-            {create.isError ? (
-              <Alert variant="destructive">
-                <CircleAlert />
-                <AlertDescription>{create.error.message}</AlertDescription>
-              </Alert>
-            ) : null}
-
-            <div className="flex flex-col gap-3 border-t pt-4 sm:flex-row sm:items-center">
-              <p className="text-sm text-muted-foreground sm:flex-1">{t("new.next")}</p>
-              <Button
-                asChild
-                variant="outline"
-                size="lg"
-              >
-                <Link to={ROUTES.organizer.events}>{t("new.cancel")}</Link>
-              </Button>
-              <Button
-                type="submit"
-                size="lg"
-                aria-busy={create.isPending}
-                disabled={create.isPending}
-              >
-                {t("new.form.submit")}
-              </Button>
-            </div>
-          </form>
-        </Form>
-      </CardContent>
-    </Card>
+            {t("new.form.submit")}
+          </Button>
+        </div>
+      </form>
+    </Form>
   )
 }

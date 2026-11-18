@@ -217,6 +217,7 @@
     "missingBeds_many": "Chybí {{count}} lůžka",
     "missingBeds_one": "Chybí {{count}} lůžko",
     "missingBeds_other": "Chybí {{count}} lůžek",
+    "openApplications": "Zobrazit přihlášky",
     "overCapacity": "{{gender}}: {{confirmed}} potvrzených na {{capacity}} lůžek. Kapacita je překročena o {{excess}}.",
     "overCapacityTitle": "Kapacita termínu je překročena",
     "remainingMen_few": "Celkem zbývají {{count}} místa, všechna pro muže.",
@@ -484,6 +485,7 @@
     "overdueCount_other": "z toho {{count}} po lhůtě",
     "overpayment": "Přeplatek",
     "participant": "Účastník",
+    "remindedDebt": "Po odeslané výzvě",
     "reminderFilter": "Výzvy k zaplacení",
     "reminders": {
       "ALL": "Všichni",
@@ -492,6 +494,7 @@
     },
     "remindersLast": "Výzvy: {{count}} · poslední {{date}}",
     "remindersLine": "Výzvy: {{count}}",
+    "selectionDebt": "Dluh ve výběru",
     "statusFilter": "Stav platby",
     "statuses": {
       "ALL": "Všichni",

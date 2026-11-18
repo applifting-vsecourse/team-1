@@ -112,7 +112,9 @@ describe("PaymentsOverviewPage", () => {
   it("shows the unfiltered debt total and opens the existing payment history", async () => {
     renderPage()
     expect(await screen.findByText("Summer camp")).toBeVisible()
-    expect(screen.getByText(/7,800/)).toBeVisible()
+    expect(screen.getByRole("heading", { name: "Total debt" }).parentElement).toHaveTextContent(
+      /7,800/,
+    )
     expect(screen.getAllByRole("link", { name: /^Detail/ })).toHaveLength(3)
     expect(screen.getByRole("link", { name: "Detail Adam Dvořák" }).getAttribute("href")).toContain(
       "/organizer/events/e1/applications/a1",

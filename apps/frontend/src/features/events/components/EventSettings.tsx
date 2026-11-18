@@ -1,11 +1,12 @@
 import { useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { Loader2 } from "lucide-react"
+import { Info, Loader2 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { SettingsCard } from "@/components/molecules/SettingsCard"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
@@ -76,7 +77,44 @@ function LockedMode({ mode }: { mode: EvaluationMode }) {
           mode: t(`evaluationMode.${mode === "AUTOMATIC" ? "automatic" : "manual"}`),
         })}
       </p>
-      <p>{t("evaluationMode.lockedReason")}</p>
+      <RadioGroup
+        disabled
+        value={mode}
+        aria-label={t("evaluationMode.legend")}
+        className="grid gap-3 sm:grid-cols-2"
+      >
+        {MODES.map((value) => (
+          <div
+            key={value}
+            className={
+              value === mode
+                ? "rounded-lg border border-primary bg-secondary p-4"
+                : "rounded-lg border p-4"
+            }
+          >
+            <div className="flex items-center gap-2">
+              <RadioGroupItem
+                id={"locked-" + value}
+                value={value}
+              />
+              <Label htmlFor={"locked-" + value}>
+                {t(value === "AUTOMATIC" ? "evaluationMode.automatic" : "evaluationMode.manual")}
+              </Label>
+            </div>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {t(
+                value === "AUTOMATIC"
+                  ? "evaluationMode.automaticHint"
+                  : "evaluationMode.manualHint",
+              )}
+            </p>
+          </div>
+        ))}
+      </RadioGroup>
+      <Alert role="note">
+        <Info aria-hidden />
+        <AlertDescription>{t("evaluationMode.lockedReason")}</AlertDescription>
+      </Alert>
     </SettingsCard>
   )
 }

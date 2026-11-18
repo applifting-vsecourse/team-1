@@ -517,7 +517,7 @@ describe("ApplicationsPage", () => {
       expect(within(row).getByText(/jana@example.com/)).toBeInTheDocument()
       expect(within(row).getByText("Awaiting evaluation")).toBeInTheDocument()
       expect(screen.getByText("Sorted: in order of receipt, oldest first")).toBeInTheDocument()
-      expect(screen.queryByRole("heading", { name: "Applications" })).toBeNull()
+      expect(screen.getByRole("heading", { name: "Applications", level: 2 })).toBeVisible()
       const calls = get.mock.calls as [string, { searchParams: URLSearchParams }][]
       const search = calls.find(([path]) => path.endsWith("applications"))![1].searchParams
       expect(search.get("status")).toBe("TO_EVALUATE")

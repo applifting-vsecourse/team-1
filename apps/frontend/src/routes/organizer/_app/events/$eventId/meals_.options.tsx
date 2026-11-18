@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
+import { ROUTES } from "@/app/routes"
+import { BackLink } from "@/components/atoms/BackLink"
 import { Seo } from "@/components/atoms/Seo"
 
 import { MealOptionsEditor } from "@/features/meals/components/MealOptionsEditor"
@@ -18,6 +20,12 @@ function EventMealOptionsPage() {
   return (
     <>
       <Seo title={t("options.title")} />
+      <BackLink
+        to={ROUTES.organizer.eventMeals}
+        params={{ eventId }}
+      >
+        {t("kitchen.title")}
+      </BackLink>
       <MealOptionsEditor eventId={eventId} />
     </>
   )

@@ -55,53 +55,68 @@ export function KitchenSummary({ eventId, eventName }: { eventId: string; eventN
       />
       {term ? (
         <>
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="meal-term">{t("kitchen.termLabel")}</Label>
-            <Select
-              value={term.termId}
-              onValueChange={setTermId}
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+            <div className="flex flex-1 flex-col gap-2">
+              <Label htmlFor="meal-term">{t("kitchen.termLabel")}</Label>
+              <Select
+                value={term.termId}
+                onValueChange={setTermId}
+              >
+                <SelectTrigger
+                  id="meal-term"
+                  className="w-full"
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {data.map((entry) => (
+                    <SelectItem
+                      key={entry.termId}
+                      value={entry.termId}
+                    >
+                      {termLine(entry)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>{" "}
+            <Button
+              size="lg"
+              className="w-full shrink-0 sm:w-auto print:hidden"
+              onClick={() => window.print()}
             >
-              <SelectTrigger
-                id="meal-term"
-                className="w-full"
-              >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {data.map((entry) => (
-                  <SelectItem
-                    key={entry.termId}
-                    value={entry.termId}
-                  >
-                    {termLine(entry)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              {t("kitchen.print")}
+            </Button>
           </div>
-          <Card className="gap-4 p-4">
-            <h2 className="text-2xl font-bold">{t("kitchen.countsTitle")}</h2>
-            <p>
-              {t("kitchen.regular")} · {term.regular}
-            </p>
-            {term.options.map((option) => (
-              <p key={option.id}>
-                {option.name} · {option.count}
-              </p>
-            ))}
-            <p>{t("kitchen.overlapNote")}</p>
+          <Card className="gap-1 bg-secondary p-4">
+            <h2 className="text-sm font-medium">{t("kitchen.confirmed")}</h2>
+            <p className="text-3xl font-semibold tabular-nums">{term.total}</p>
           </Card>
-          <Card className="gap-4 p-4">
-            <h2 className="text-2xl font-bold">{t("kitchen.allergiesTitle")}</h2>
-            {term.allergies.map((entry) => (
-              <p
-                key={entry.applicationId}
-                className="break-words whitespace-pre-line"
-              >
-                {entry.firstName} {entry.lastName} · {entry.allergies}
+          <div className="grid items-start gap-4 md:grid-cols-2">
+            <Card className="gap-4 p-4">
+              <h2 className="text-2xl font-bold">{t("kitchen.countsTitle")}</h2>
+              <p>
+                {t("kitchen.regular")} · {term.regular}
               </p>
-            ))}
-          </Card>
+              {term.options.map((option) => (
+                <p key={option.id}>
+                  {option.name} · {option.count}
+                </p>
+              ))}
+              <p>{t("kitchen.overlapNote")}</p>
+            </Card>
+            <Card className="gap-4 p-4">
+              <h2 className="text-2xl font-bold">{t("kitchen.allergiesTitle")}</h2>
+              {term.allergies.map((entry) => (
+                <p
+                  key={entry.applicationId}
+                  className="break-words whitespace-pre-line"
+                >
+                  {entry.firstName} {entry.lastName} · {entry.allergies}
+                </p>
+              ))}
+            </Card>
+          </div>
           {term.specialRequests.length > 0 ? (
             <Card className="gap-4 p-4">
               <h2 className="text-2xl font-bold">{t("kitchen.specialRequestsTitle")}</h2>
@@ -115,13 +130,6 @@ export function KitchenSummary({ eventId, eventName }: { eventId: string; eventN
               ))}
             </Card>
           ) : null}
-          <Button
-            size="lg"
-            className="w-full print:hidden"
-            onClick={() => window.print()}
-          >
-            {t("kitchen.print")}
-          </Button>
         </>
       ) : null}
       <Button

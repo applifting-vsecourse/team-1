@@ -136,20 +136,15 @@ export function RoomsPage({
         <TooltipTrigger asChild>
           <Button
             variant="ghost"
-            size="icon-lg"
-            className="relative"
+            size="sm"
+            className="max-w-full"
             aria-label={label}
             onClick={() => setExtraBedsRoom(room)}
           >
-            <BedSingle />
-            {room.extraBeds ? (
-              <span
-                aria-hidden
-                className="absolute top-1 right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-xs leading-4 font-semibold text-primary-foreground"
-              >
-                {room.extraBeds}
-              </span>
-            ) : null}
+            <BedSingle aria-hidden />
+            {room.extraBeds
+              ? t("rooms.editExtraBedsShort", { count: room.extraBeds })
+              : t("rooms.addExtraBedShort")}
           </Button>
         </TooltipTrigger>
         <TooltipContent>{label}</TooltipContent>

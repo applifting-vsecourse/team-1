@@ -1,6 +1,7 @@
 {
   "kitchen": {
     "allergiesTitle": "Alergie",
+    "confirmed": "Potvrzení účastníci",
     "countsTitle": "Počty stravování",
     "description": "{{event}} · Stravování",
     "overlapNote": "Omezení se mohou překrývat.",
@@ -14,7 +15,9 @@
   "options": {
     "add": "Přidat omezení",
     "cardTitle": "Nabízená omezení",
+    "emptyPreview": "Žádná nabízená omezení",
     "nameLabel": "Název omezení",
+    "preview": "Náhled v přihlášce",
     "remove": "Odebrat {{name}}",
     "save": "Uložit varianty",
     "title": "Varianty stravování"
