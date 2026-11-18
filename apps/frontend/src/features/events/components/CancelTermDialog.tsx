@@ -48,7 +48,6 @@ export function CancelTermDialog({
   const { t } = useTranslation("events")
   const queryClient = useQueryClient()
   const [reason, setReason] = useState("")
-  const [isInvalid, setIsInvalid] = useState(false)
   // The number the organizer agreed to; a different one (applications came meanwhile) voids it.
   const [agreedCount, setAgreedCount] = useState<number | null>(null)
   const [isVerifying, setIsVerifying] = useState(false)
@@ -63,11 +62,8 @@ export function CancelTermDialog({
   const isUnverified = cancel.isError && !(cancel.error instanceof HTTPError)
 
   const submit = () => {
-    if (!reason.trim()) {
-      setIsInvalid(true)
-      return
-    }
-    cancel.mutate(reason.trim(), {
+    // The reason is optional: blank is sent as no reason.
+    cancel.mutate(reason.trim() || undefined, {
       onSuccess: ({ cancelledApplications, ...cancelled }) =>
         onCancelled(cancelled, cancelledApplications),
     })
@@ -136,21 +132,11 @@ export function CancelTermDialog({
               <Textarea
                 id="cancel-reason"
                 value={reason}
-                aria-invalid={isInvalid}
                 className="min-h-22"
-                onChange={(event) => {
-                  setReason(event.target.value)
-                  setIsInvalid(false)
-                }}
+                onChange={(event) => setReason(event.target.value)}
               />
-              <p
-                className={
-                  isInvalid
-                    ? "text-xs font-medium text-destructive"
-                    : "text-xs font-medium text-muted-foreground"
-                }
-              >
-                {isInvalid ? t("terms.form.fieldRequired") : t("terms.cancelDialog.reasonHelper")}
+              <p className="text-xs font-medium text-muted-foreground">
+                {t("terms.cancelDialog.reasonHelper")}
               </p>
             </div>
             <div className="flex min-h-11 items-center gap-3">

@@ -44,15 +44,15 @@ export class TermsService {
     return this.repository.update(termId, this.validated(input))
   }
 
-  /** US-131: cancels the term and the applications in it; returns the term and their count. */
+  /** US-131: cancels the term (the reason is optional) and the applications in it; returns the term and their count. */
   async cancel(
     user: Identity,
     eventId: string,
     termId: string,
-    reason: string,
+    reason?: string,
   ): Promise<{ term: EventTerm; cancelledApplications: number }> {
-    const trimmed = reason.trim()
-    if (!trimmed) throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
+    // The reason is optional; blank is no reason, stored as null.
+    const trimmed = reason?.trim() || null
     await this.activeTerm(user, eventId, termId)
     const cancelledApplications = await this.termStatus.cancelTerm(user, eventId, termId, trimmed)
     const term = await this.repository.findById(termId)

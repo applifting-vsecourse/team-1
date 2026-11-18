@@ -482,7 +482,7 @@
       "consent_one": "Souhlasím se zrušením termínu a {{count}} přihlášky v něm.",
       "consent_other": "Souhlasím se zrušením termínu a {{count}} přihlášek v něm.",
       "emails": "Přihlašovatelům odešleme jeden e-mail za každou dotčenou přihlášku.",
-      "reason": "Důvod zrušení *",
+      "reason": "Důvod zrušení",
       "reasonHelper": "Důvod bude uložen pro organizátory.",
       "refunds": "Případné vratky zpracujete ručně v Platbách.",
       "summary_few": "{{count}} přihlášky v tomto termínu",

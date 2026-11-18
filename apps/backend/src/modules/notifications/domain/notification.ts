@@ -27,6 +27,8 @@ export type NotificationKind =
   /** Prepared for US-114 (requests for a change); nothing raises it yet. */
   | "REQUEST_APPROVED"
   | "APPLICATION_EDITED"
+  /** US-131: the organizer cancelled the term and the application in it (e-mail no. 15). */
+  | "TERM_CANCELLED"
 
 /** The data the copy is composed from. Dates are ISO days, amounts whole CZK. */
 export type NotificationParams = {

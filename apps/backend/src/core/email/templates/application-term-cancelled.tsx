@@ -12,6 +12,7 @@ const copy: Record<
   {
     subject: (event: string) => string;
     heading: string;
+    preview: string;
     text: (name: string, term: string, gender: Gender) => string;
     badge: string;
     button: string;
@@ -19,19 +20,21 @@ const copy: Record<
   }
 > = {
   en: {
-    subject: (event) => `Change in your application: ${event}`,
-    heading: 'The term has been cancelled',
+    subject: (event) => `Event term cancelled: ${event}`,
+    heading: 'The event term has been cancelled',
+    preview: 'The organiser has cancelled the event term and the application for it.',
     text: (name, term) =>
-      `The organiser cancelled ${term}. The application of ${name} in this term is cancelled. Paid payments are being refunded; the organisation will tell you what happens next.`,
+      `The organiser has cancelled the event term shown below (${term}). The application of ${name} for this term has therefore been cancelled. Any payments already made for the cancelled term are to be refunded. The organisation will let you know the next steps.`,
     badge: 'Cancelled',
     button: 'Open my applications',
     footer: (organization) => `${organization} · via Togena`,
   },
   cs: {
-    subject: (event) => `Změna ve vaší přihlášce: ${event}`,
+    subject: (event) => `Termín akce zrušen: ${event}`,
     heading: 'Termín akce byl zrušen',
+    preview: 'Organizátor zrušil termín akce a přihlášku v tomto termínu.',
     text: (name, term) =>
-      `Organizátor zrušil termín ${term}. Přihláška (${name}) v tomto termínu je zrušená. Zaplacené platby se vrací; další postup sdělí organizace.`,
+      `Organizátor zrušil uvedený termín akce (${term}). Přihláška (${name}) v tomto termínu je proto zrušená. Případné zaplacené platby za zrušený termín se vrací. Další postup vám sdělí organizace.`,
     badge: 'Zrušená',
     button: 'Otevřít moje přihlášky',
     footer: (organization) => `${organization} · přes Togenu`,
@@ -67,7 +70,7 @@ export const TermCancelled = ({
   return (
     <ChangeLayout
       locale={locale}
-      preview={text.heading}
+      preview={text.preview}
       heading={text.heading}
       eventName={eventName}
       text={text.text(name, term, gender)}

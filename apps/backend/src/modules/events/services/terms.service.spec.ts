@@ -105,10 +105,10 @@ describe("TermsService", () => {
     expect(result.cancelledApplications).toBe(3)
   })
 
-  it("does not cancel without a reason", async () => {
-    await expect(service.cancel(organizer, "e1", "t1", "  ")).rejects.toMatchObject({
-      response: { code: "VALIDATION_FAILED" },
-    })
-    expect(termStatus.cancelTerm).not.toHaveBeenCalled()
+  it.each([undefined, "  "])("cancels without a reason (%j), stored as none", async (reason) => {
+    repository.findById.mockResolvedValue(term({}))
+    termStatus.cancelTerm.mockResolvedValue(0)
+    await service.cancel(organizer, "e1", "t1", reason)
+    expect(termStatus.cancelTerm).toHaveBeenCalledWith(organizer, "e1", "t1", null)
   })
 })

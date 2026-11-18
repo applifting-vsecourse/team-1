@@ -1008,7 +1008,7 @@ export class TermStatusRepository {
     organizationId: string,
     eventId: string,
     termId: string,
-    reason: string,
+    reason: string | null,
     actorId: string,
   ): Promise<{ notices: TermCancelledNotice[] } | null> {
     return this.prisma.$transaction(async (tx) => {
@@ -1050,7 +1050,7 @@ export class TermStatusRepository {
       })
 
       const notices: TermCancelledNotice[] = []
-      for (const { application } of affected) {
+      for (const { application, status } of affected) {
         // D-078: the user's preferred language, else the language of their first application.
         const [user, first] = application.userId
           ? await Promise.all([
@@ -1066,6 +1066,23 @@ export class TermStatusRepository {
           userLocale: user?.locale ?? null,
           firstApplicationLocale: first?.locale ?? application.locale,
         })
+        // The bell of the applicant: the same event as e-mail no. 15, in this transaction.
+        await this.notifications.create(
+          tx,
+          buildNotification({
+            userId: application.userId,
+            applicationId: application.id,
+            kind: "TERM_CANCELLED",
+            params: {
+              eventName: locked.event.name,
+              participantName: `${application.firstName} ${application.lastName}`,
+              termStartsOn: isoDay(locked.startsOn),
+              termEndsOn: isoDay(locked.endsOn),
+              fromStatus: status,
+              toStatus: "CANCELLED",
+            },
+          }),
+        )
         notices.push({
           email: application.email,
           locale,

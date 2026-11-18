@@ -288,7 +288,7 @@ describe("EventTerms", () => {
   }
 
   it("warns the cancellation is irreversible and needs the agreement before it can be sent", async () => {
-    const fetchMock = renderTerms()
+    renderTerms()
     const dialog = await openCancelDialog()
 
     expect(within(dialog).getByText("This cannot be undone")).toBeInTheDocument()
@@ -305,10 +305,23 @@ describe("EventTerms", () => {
       }),
     )
     expect(confirm).toBeEnabled()
-    await userEvent.click(confirm)
+    // The reason is optional: the field carries no required mark.
+    expect(within(dialog).queryByText("Fill in this field.")).not.toBeInTheDocument()
+  })
 
-    expect(await within(dialog).findByText("Fill in this field.")).toBeInTheDocument()
-    expect(posts(fetchMock)).toHaveLength(0)
+  it("cancels without a reason", async () => {
+    renderTerms(terms, {
+      ...terms[1],
+      cancelledAt: "2027-03-01T10:00:00.000Z",
+      cancelledApplications: 19,
+    })
+    const dialog = await openCancelDialog()
+
+    await userEvent.click(within(dialog).getByRole("checkbox"))
+    await userEvent.click(within(dialog).getByRole("button", { name: "Cancel term" }))
+
+    await screen.findByText("19 applications in this term were cancelled.")
+    expect(sentBodies).toEqual([{}])
   })
 
   it("cancels after the agreement and shows how many applications it cancelled", async () => {
@@ -320,7 +333,7 @@ describe("EventTerms", () => {
     })
     const dialog = await openCancelDialog()
 
-    await userEvent.type(within(dialog).getByLabelText("Reason for cancelling *"), "Areál")
+    await userEvent.type(within(dialog).getByLabelText("Reason for cancelling"), "Areál")
     await userEvent.click(within(dialog).getByRole("checkbox"))
     await userEvent.click(within(dialog).getByRole("button", { name: "Cancel term" }))
 
@@ -350,7 +363,7 @@ describe("EventTerms", () => {
           ),
     )
 
-    await userEvent.type(within(dialog).getByLabelText("Reason for cancelling *"), "Areál")
+    await userEvent.type(within(dialog).getByLabelText("Reason for cancelling"), "Areál")
     await userEvent.click(within(dialog).getByRole("checkbox"))
     await userEvent.click(within(dialog).getByRole("button", { name: "Cancel term" }))
 

@@ -74,7 +74,7 @@ export async function updateTerm(
 export async function cancelTerm(
   eventId: string,
   termId: string,
-  reason: string,
+  reason?: string,
 ): Promise<CancelledTerm> {
   return cancelledTermSchema.parse(
     await api

@@ -23,17 +23,22 @@ describe("cancelling a term cancels its applications (US-131, integration)", () 
   let secondId: string
   let counter = 0
 
-  const cancel = (auth: string | null, termId = firstId): Promise<Response> =>
+  const cancel = (
+    auth: string | null,
+    termId = firstId,
+    body: object = { reason: "Areál není k dispozici" },
+  ): Promise<Response> =>
     fetch(api(`/organizer/events/${eventId}/terms/${termId}/cancel`), {
       method: "POST",
       headers: { "Content-Type": "application/json", ...(auth ? { Cookie: auth } : {}) },
-      body: JSON.stringify({ reason: "Areál není k dispozici" }),
+      body: JSON.stringify(body),
     })
 
   /** One application with a row in the first term and, optionally, in the second. */
   const createApplication = async (
     status: Status,
     secondStatus?: Status,
+    userId: string | null = null,
   ): Promise<{ id: string; email: string }> => {
     counter += 1
     const email = `us131-${counter}-${randomUUID()}@example.com`
@@ -42,6 +47,7 @@ describe("cancelling a term cancels its applications (US-131, integration)", () 
         organizationId,
         eventId,
         accessToken: randomUUID(),
+        userId,
         firstName: `Adam${counter}`,
         lastName: "Zrušený",
         birthDate: new Date(`2010-02-${String(counter).padStart(2, "0")}`),
@@ -112,7 +118,7 @@ describe("cancelling a term cancels its applications (US-131, integration)", () 
   })
 
   it("cancels every status but archived, logs each and sends one e-mail per application", async () => {
-    const confirmed = await createApplication("CONFIRMED", "CONFIRMED")
+    const confirmed = await createApplication("CONFIRMED", "CONFIRMED", organizerId)
     const waitlisted = await createApplication("WAITLISTED")
     const toEvaluate = await createApplication("TO_EVALUATE")
     const alreadyCancelled = await createApplication("CANCELLED")
@@ -143,17 +149,41 @@ describe("cancelling a term cancels its applications (US-131, integration)", () 
 
     for (const { email } of [confirmed, waitlisted, toEvaluate]) {
       const mail = await latestEmailTo(email)
-      expect(mail?.subject).toBe("Změna ve vaší přihlášce: US-131 cancellation")
+      expect(mail?.subject).toBe("Termín akce zrušen: US-131 cancellation")
       expect(allEmailsTo(email)).toHaveLength(1)
     }
     expect(await hasSentNothingTo(alreadyCancelled.email)).toBe(true)
     expect(await hasSentNothingTo(archived.email)).toBe(true)
+
+    // The applicant with an account gets a bell notification; the one without has nobody to tell.
+    const bell = await prisma.notification.findMany({ where: { applicationId: confirmed.id } })
+    expect(bell).toHaveLength(1)
+    expect(bell[0]).toMatchObject({
+      userId: organizerId,
+      type: "STATUS_CHANGED",
+      kind: "TERM_CANCELLED",
+      params: expect.objectContaining({
+        eventName: "US-131 cancellation",
+        termStartsOn: "2027-07-12",
+        fromStatus: "CONFIRMED",
+        toStatus: "CANCELLED",
+      }),
+    })
+    expect(await prisma.notification.count({ where: { applicationId: waitlisted.id } })).toBe(0)
   })
 
   it("does not cancel the term twice", async () => {
     const again = await cancel(cookie)
     expect(again.status).toBe(409)
     expect(await again.json()).toMatchObject({ code: "TERM_CANCELLED" })
+  })
+
+  it("cancels a term without a reason", async () => {
+    const empty = await cancel(cookie, secondId, {})
+    expect(empty.status).toBe(201)
+    expect(await prisma.term.findUniqueOrThrow({ where: { id: secondId } })).toMatchObject({
+      cancelReason: null,
+    })
   })
 
   it("counts the applications waiting for a decision in the term list", async () => {

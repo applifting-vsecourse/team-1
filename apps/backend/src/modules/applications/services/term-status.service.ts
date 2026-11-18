@@ -157,7 +157,7 @@ export class TermStatusService {
     user: Identity,
     eventId: string,
     termId: string,
-    reason: string,
+    reason: string | null,
   ): Promise<number> {
     const { organizationId } = await this.access.assertCanAccessEvent(user, eventId)
     const result = await this.repository.cancelTerm(
