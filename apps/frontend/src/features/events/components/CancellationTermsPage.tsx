@@ -94,7 +94,7 @@ function CancellationTermsForm({ event, onSaved }: { event: OrganizerEvent; onSa
   return (
     <form
       noValidate
-      className="flex max-w-196 flex-col gap-6"
+      className="mx-auto flex w-full max-w-196 flex-col gap-6"
       onSubmit={submit}
     >
       <SectionHeader
@@ -149,7 +149,7 @@ function CancellationTermsPreview({ text, onEdit }: { text: string; onEdit: () =
   const paragraphs = text.split("\n").filter((line) => line.trim() !== "")
 
   return (
-    <div className="flex max-w-196 flex-col gap-6">
+    <div className="mx-auto flex w-full max-w-196 flex-col gap-6">
       <SectionHeader title={t("cancellationTerms.previewTitle")} />
       <Card className="gap-4 p-4">
         <h3 className="text-2xl font-bold tracking-tight">{t("cancellationTerms.label")}</h3>
