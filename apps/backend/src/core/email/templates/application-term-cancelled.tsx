@@ -6,7 +6,7 @@ import * as React from 'react';
 // Figma (Design system): US-116 E-mailová šablona · E-mail 15 (Termín akce byl zrušen) · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15981-806 (360 px: node-id=15981-836)
 // E-mail no. 15 (EMAILY.md, D-065, D-076, D-080): the organizer cancelled the term and the
 // application in it is cancelled; paid payments are refunded. One e-mail per application.
-// The cancellation of a term (US-131) sends it; this story only provides the template.
+// The cancellation of a term (US-131) sends it, see ApplicationConfirmationMailer.sendTermCancelled.
 const copy: Record<
   Locale,
   {

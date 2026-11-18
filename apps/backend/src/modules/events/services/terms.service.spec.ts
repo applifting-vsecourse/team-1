@@ -1,3 +1,4 @@
+import { TermStatusService } from "@/modules/applications/services/term-status.service"
 import { EventTerm } from "@/modules/events/domain/event-term"
 import { TermsRepository } from "@/modules/events/repositories/terms.repository"
 import { Identity } from "@/shared/auth/domain/identity"
@@ -18,6 +19,7 @@ const term = (overrides: Partial<EventTerm>): EventTerm => ({
   capacity: 0,
   confirmedCount: 0,
   waitlistedCount: 0,
+  toEvaluateCount: 0,
   cancelledAt: null,
   cancelReason: null,
   ...overrides,
@@ -27,13 +29,15 @@ const input = { name: " Turnus ", startsOn: "2027-07-12", endsOn: "2027-07-18", 
 describe("TermsService", () => {
   let repository: MockProxy<TermsRepository>
   let access: MockProxy<OrganizationAccessService>
+  let termStatus: MockProxy<TermStatusService>
   let service: TermsService
 
   beforeEach(() => {
     repository = mock<TermsRepository>()
     access = mock<OrganizationAccessService>()
     access.assertCanAccessEvent.mockResolvedValue({ organizationId: "org-a" })
-    service = new TermsService(repository, access)
+    termStatus = mock<TermStatusService>()
+    service = new TermsService(repository, access, termStatus)
   })
 
   it("lists active terms by date, then cancelled ones", async () => {
@@ -91,5 +95,20 @@ describe("TermsService", () => {
     await expect(service.cancel(organizer, "e1", "t1", "důvod")).rejects.toMatchObject({
       response: { code: "TERM_CANCELLED" },
     })
+  })
+
+  it("cancels the term with its applications and trims the reason", async () => {
+    repository.findById.mockResolvedValue(term({}))
+    termStatus.cancelTerm.mockResolvedValue(3)
+    const result = await service.cancel(organizer, "e1", "t1", "  Areál nedostupný ")
+    expect(termStatus.cancelTerm).toHaveBeenCalledWith(organizer, "e1", "t1", "Areál nedostupný")
+    expect(result.cancelledApplications).toBe(3)
+  })
+
+  it("does not cancel without a reason", async () => {
+    await expect(service.cancel(organizer, "e1", "t1", "  ")).rejects.toMatchObject({
+      response: { code: "VALIDATION_FAILED" },
+    })
+    expect(termStatus.cancelTerm).not.toHaveBeenCalled()
   })
 })

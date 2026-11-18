@@ -19,10 +19,18 @@ export const termSchema = z.object({
   capacity: z.number().int(),
   confirmedCount: z.number().int(),
   waitlistedCount: z.number().int(),
+  /** Applications waiting for the organizer's decision (manual evaluation mode). */
+  toEvaluateCount: z.number().int(),
   cancelledAt: z.string().nullable(),
   cancelReason: z.string().nullable(),
 })
 export type EventTerm = z.infer<typeof termSchema>
+
+const cancelledTermSchema = termSchema.extend({
+  /** Applications cancelled with the term: every status but archived. */
+  cancelledApplications: z.number().int(),
+})
+export type CancelledTerm = z.infer<typeof cancelledTermSchema>
 
 export type TermInput = {
   /** Blank means no name (D-053). */
@@ -62,13 +70,13 @@ export async function updateTerm(
   )
 }
 
-/** `POST /api/organizer/events/:eventId/terms/:termId/cancel`. */
+/** `POST /api/organizer/events/:eventId/terms/:termId/cancel` — also cancels the applications (US-131). */
 export async function cancelTerm(
   eventId: string,
   termId: string,
   reason: string,
-): Promise<EventTerm> {
-  return termSchema.parse(
+): Promise<CancelledTerm> {
+  return cancelledTermSchema.parse(
     await api
       .post(`${termsPath(eventId)}/${encodeURIComponent(termId)}/cancel`, { json: { reason } })
       .json(),

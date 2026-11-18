@@ -77,7 +77,7 @@ describe("application e-mail previews", () => {
     expect(html).not.toContain("Variabilní symbol")
   })
 
-  it("renders e-mail no. 15, the cancelled term, in both languages (template only, US-131 sends it)", async () => {
+  it("renders e-mail no. 15, the cancelled term, in both languages", async () => {
     const cs = await render(React.createElement(TermCancelled, TermCancelled.PreviewProps))
     const en = await render(
       React.createElement(TermCancelled, { ...TermCancelled.PreviewProps, locale: "en" }),

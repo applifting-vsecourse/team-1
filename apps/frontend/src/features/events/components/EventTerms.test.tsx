@@ -52,6 +52,7 @@ const term = (overrides: object) => ({
   capacity: 60,
   confirmedCount: 0,
   waitlistedCount: 0,
+  toEvaluateCount: 0,
   cancelledAt: null,
   cancelReason: null,
   ...overrides,
@@ -279,19 +280,84 @@ describe("EventTerms", () => {
     expect(sentBodies[0]).toMatchObject({ priceCzk: 0 })
   })
 
-  it("asks for a reason and shows what the cancellation affects", async () => {
-    const fetchMock = renderTerms()
+  const openCancelDialog = async () => {
     const row = (await screen.findByText(/^Srpnový turnus · /)).closest("li") as HTMLElement
     await userEvent.click(within(row).getByRole("button", { name: "Actions for Srpnový turnus" }))
     await userEvent.click(await screen.findByRole("menuitem", { name: "Cancel term" }))
-    const dialog = await screen.findByRole("dialog")
+    return screen.findByRole("dialog")
+  }
 
+  it("warns the cancellation is irreversible and needs the agreement before it can be sent", async () => {
+    const fetchMock = renderTerms()
+    const dialog = await openCancelDialog()
+
+    expect(within(dialog).getByText("This cannot be undone")).toBeInTheDocument()
+    expect(within(dialog).getByText("19 applications in this term")).toBeInTheDocument()
     expect(
-      within(dialog).getByText("18 confirmed applications and 1 waitlisted"),
+      within(dialog).getByText("18 confirmed · 1 waitlisted · 0 to evaluate"),
     ).toBeInTheDocument()
-    await userEvent.click(within(dialog).getByRole("button", { name: "Confirm cancellation" }))
+    const confirm = within(dialog).getByRole("button", { name: "Cancel term" })
+    expect(confirm).toBeDisabled()
+
+    await userEvent.click(
+      within(dialog).getByRole("checkbox", {
+        name: "I agree to cancel the term and 19 applications in it.",
+      }),
+    )
+    expect(confirm).toBeEnabled()
+    await userEvent.click(confirm)
 
     expect(await within(dialog).findByText("Fill in this field.")).toBeInTheDocument()
     expect(posts(fetchMock)).toHaveLength(0)
+  })
+
+  it("cancels after the agreement and shows how many applications it cancelled", async () => {
+    renderTerms(terms, {
+      ...terms[1],
+      cancelledAt: "2027-03-01T10:00:00.000Z",
+      cancelReason: "Areál",
+      cancelledApplications: 19,
+    })
+    const dialog = await openCancelDialog()
+
+    await userEvent.type(within(dialog).getByLabelText("Reason for cancelling *"), "Areál")
+    await userEvent.click(within(dialog).getByRole("checkbox"))
+    await userEvent.click(within(dialog).getByRole("button", { name: "Cancel term" }))
+
+    expect(sentBodies).toEqual([{ reason: "Areál" }])
+    expect(
+      await screen.findByText("19 applications in this term were cancelled."),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText("We sent one e-mail for each affected application."),
+    ).toBeInTheDocument()
+    expect(screen.getByRole("link", { name: "Go to term payments" })).toHaveAttribute(
+      "href",
+      expect.stringContaining("/payments"),
+    )
+  })
+
+  it("says the result cannot be verified when no answer comes", async () => {
+    const fetchMock = renderTerms()
+    const dialog = await openCancelDialog()
+    fetchMock.mockImplementation((input) =>
+      (input as Request).method === "POST"
+        ? Promise.reject(new TypeError("Failed to fetch"))
+        : Promise.resolve(
+            new Response(JSON.stringify(terms), {
+              headers: { "Content-Type": "application/json" },
+            }),
+          ),
+    )
+
+    await userEvent.type(within(dialog).getByLabelText("Reason for cancelling *"), "Areál")
+    await userEvent.click(within(dialog).getByRole("checkbox"))
+    await userEvent.click(within(dialog).getByRole("button", { name: "Cancel term" }))
+
+    expect(
+      await within(dialog).findByText("The result of the cancellation cannot be verified"),
+    ).toBeInTheDocument()
+    expect(within(dialog).getByText("Check the term status.")).toBeInTheDocument()
+    expect(within(dialog).getByRole("button", { name: "Check term status" })).toBeInTheDocument()
   })
 })
