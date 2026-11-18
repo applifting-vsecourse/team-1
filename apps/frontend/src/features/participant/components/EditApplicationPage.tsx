@@ -167,7 +167,7 @@ function EditForm({
         ? t("edit.historyContactAccommodation")
         : t("edit.historyOther", { fields: kinds.join(", ") })
     return (
-      <div className="mx-auto flex w-full max-w-[805px] flex-col gap-6">
+      <div className="mx-auto flex w-full max-w-[720px] flex-col gap-6">
         <h1 className="text-2xl font-bold">{t("edit.successTitle")}</h1>
         <Card className="gap-4 p-4 md:p-5">
           <h2 className="text-xl font-semibold">
@@ -207,7 +207,7 @@ function EditForm({
 
   return (
     <form
-      className="mx-auto flex w-full max-w-[805px] flex-col gap-6"
+      className="mx-auto flex w-full max-w-[720px] flex-col gap-6"
       onSubmit={(event) => {
         event.preventDefault()
         if (isNoteTooLong) return
@@ -236,32 +236,34 @@ function EditForm({
       {shouldShowPersonalCard ? (
         <Card className="gap-5 p-4 md:p-5">
           <h2 className="text-xl font-semibold">{t("edit.participant")}</h2>
-          {!mutation.isError || visibleFields.firstName ? (
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="edit-first-name">{t("edit.firstName")}</Label>
-              <Input
-                id="edit-first-name"
-                required
-                maxLength={100}
-                value={values.firstName}
-                onChange={(event) => set("firstName", event.target.value)}
-                className="h-12"
-              />
-            </div>
-          ) : null}
-          {!mutation.isError || visibleFields.lastName ? (
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="edit-last-name">{t("edit.lastName")}</Label>
-              <Input
-                id="edit-last-name"
-                required
-                maxLength={100}
-                value={values.lastName}
-                onChange={(event) => set("lastName", event.target.value)}
-                className="h-12"
-              />
-            </div>
-          ) : null}
+          <div className="grid gap-4 sm:grid-cols-2">
+            {!mutation.isError || visibleFields.firstName ? (
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="edit-first-name">{t("edit.firstName")}</Label>
+                <Input
+                  id="edit-first-name"
+                  required
+                  maxLength={100}
+                  value={values.firstName}
+                  onChange={(event) => set("firstName", event.target.value)}
+                  className="h-12"
+                />
+              </div>
+            ) : null}
+            {!mutation.isError || visibleFields.lastName ? (
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="edit-last-name">{t("edit.lastName")}</Label>
+                <Input
+                  id="edit-last-name"
+                  required
+                  maxLength={100}
+                  value={values.lastName}
+                  onChange={(event) => set("lastName", event.target.value)}
+                  className="h-12"
+                />
+              </div>
+            ) : null}
+          </div>
           {!mutation.isError || visibleFields.birthDate ? (
             <div className="flex flex-col gap-2">
               <Label htmlFor="edit-birth-date">{t("edit.birthDate")}</Label>
@@ -277,12 +279,17 @@ function EditForm({
               />
             </div>
           ) : null}
-          {!mutation.isError ? phoneField : null}
         </Card>
       ) : null}
-      {mutation.isError && (visibleFields.phone || !initial.phone) ? phoneField : null}
+      {!mutation.isError || visibleFields.phone || !initial.phone ? (
+        <Card className="gap-4 p-4">
+          <h2 className="text-xl font-semibold">{t("edit.contactHeading")}</h2>
+          {phoneField}
+        </Card>
+      ) : null}
       {!mutation.isError || visibleFields.accommodationRequest ? (
-        <div className="flex flex-col gap-4 border-t border-border pt-4">
+        <Card className="gap-4 p-4">
+          <h2 className="text-xl font-semibold">{t("edit.individualAccommodation")}</h2>
           <div className="flex flex-col gap-1">
             <div className="flex min-h-11 items-center gap-3">
               <Checkbox
@@ -329,25 +336,27 @@ function EditForm({
               </div>
             </div>
           ) : null}
-        </div>
+        </Card>
       ) : null}
-      <Button
-        type="submit"
-        size="lg"
-        className="w-full"
-        disabled={mutation.isPending || !isChanged}
-      >
-        {t(mutation.isError ? "edit.retry" : "edit.save")}
-      </Button>
-      {!mutation.isError ? (
+      <div className="grid gap-3 sm:grid-cols-2">
         <Button
-          asChild
-          variant="ghost"
+          type="submit"
+          size="lg"
           className="w-full"
+          disabled={mutation.isPending || !isChanged}
         >
-          <Link {...detail}>{t("edit.cancel")}</Link>
+          {t(mutation.isError ? "edit.retry" : "edit.save")}
         </Button>
-      ) : null}
+        {!mutation.isError ? (
+          <Button
+            asChild
+            variant="ghost"
+            className="w-full"
+          >
+            <Link {...detail}>{t("edit.cancel")}</Link>
+          </Button>
+        ) : null}
+      </div>
     </form>
   )
 }

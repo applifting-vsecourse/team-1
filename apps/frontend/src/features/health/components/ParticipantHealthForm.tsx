@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { useNavigate } from "@tanstack/react-router"
+import { Link, useNavigate } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
@@ -10,6 +10,7 @@ import { LoadingState } from "@/components/molecules/LoadingState"
 import { PageHeader } from "@/components/molecules/PageHeader"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -100,7 +101,7 @@ function HealthFields({ applicationId, health }: { applicationId: string; health
 
   return (
     <form
-      className="flex max-w-196 flex-col gap-6"
+      className="flex flex-col gap-6"
       onSubmit={(event) => {
         event.preventDefault()
         mutation.mutate()
@@ -118,72 +119,103 @@ function HealthFields({ applicationId, health }: { applicationId: string; health
         title={t("title")}
         description={`${health.firstName} ${health.lastName} · ${health.eventName}`}
       />
-      <div className="flex flex-col gap-2">
-        <Label htmlFor={noteId}>{t("noteLabel")}</Label>
-        <Textarea
-          id={noteId}
-          className="min-h-32"
-          maxLength={NOTE_MAX_LENGTH}
-          readOnly={isLocked}
-          value={isLocked ? (health.note ?? "") : note}
-          onChange={(event) => setNote(event.target.value)}
-        />
-      </div>
-      <Alert>
-        <AlertTitle>{t("audienceTitle")}</AlertTitle>
-        <AlertDescription>{t("audienceText")}</AlertDescription>
-      </Alert>
-      <div className="flex min-h-11 items-center gap-3">
-        <Checkbox
-          id="health-consent"
-          className="size-5"
-          checked={hasConsent}
-          disabled={isLocked}
-          onCheckedChange={(isChecked) => setHasConsent(isChecked === true)}
-        />
-        <Label
-          htmlFor="health-consent"
-          className="flex-1 cursor-pointer leading-5 font-normal"
-        >
-          {t("consent")}
-        </Label>
-      </div>
-      {isStored && pending ? (
+      <Card className="mx-auto w-full max-w-[720px] gap-4 p-4">
+        {" "}
         <Alert>
-          <AlertTitle>{t("pendingTitle")}</AlertTitle>
-          <AlertDescription>{t("pendingText")}</AlertDescription>
+          <AlertTitle>{t("audienceTitle")}</AlertTitle>
+          <AlertDescription>{t("audienceText")}</AlertDescription>
         </Alert>
-      ) : null}
-      {mutation.error ? (
-        <Alert variant="destructive">
-          <AlertDescription>{mutation.error.message}</AlertDescription>
-        </Alert>
-      ) : null}
-      {isLocked ? (
         <Button
-          type="button"
-          size="lg"
-          variant="outline"
-          className="w-full"
-          disabled={pending !== null}
-          onClick={() => {
-            setIsEditing(true)
-            setNote(health.note ?? "")
-            setHasConsent(false)
-          }}
+          asChild
+          variant="ghost"
+          className="self-start"
         >
-          {t("requestChange")}
+          <Link
+            to={ROUTES.participant.applicationMeals}
+            params={{ applicationId }}
+          >
+            {t("goMeals")}
+          </Link>
         </Button>
-      ) : (
-        <Button
-          type="submit"
-          size="lg"
-          className="w-full"
-          disabled={!canSave || mutation.isPending}
-        >
-          {t(isStored ? "requestSubmit" : "save")}
-        </Button>
-      )}
+        <div className="flex flex-col gap-2">
+          <Label htmlFor={noteId}>{t("noteLabel")}</Label>
+          <Textarea
+            id={noteId}
+            className="min-h-32"
+            maxLength={NOTE_MAX_LENGTH}
+            readOnly={isLocked}
+            value={isLocked ? (health.note ?? "") : note}
+            onChange={(event) => setNote(event.target.value)}
+          />
+        </div>
+        <div className="flex min-h-11 items-center gap-3">
+          <Checkbox
+            id="health-consent"
+            className="size-5"
+            checked={hasConsent}
+            disabled={isLocked}
+            onCheckedChange={(isChecked) => setHasConsent(isChecked === true)}
+          />
+          <Label
+            htmlFor="health-consent"
+            className="flex-1 cursor-pointer leading-5 font-normal"
+          >
+            {t("consent")}
+          </Label>
+        </div>
+        {isStored && pending ? (
+          <Alert>
+            <AlertTitle>{t("pendingTitle")}</AlertTitle>
+            <AlertDescription>{t("pendingText")}</AlertDescription>
+          </Alert>
+        ) : null}
+        {mutation.error ? (
+          <Alert variant="destructive">
+            <AlertDescription>{mutation.error.message}</AlertDescription>
+          </Alert>
+        ) : null}
+        {!hasConsent && !isLocked && (
+          <p className="text-sm text-muted-foreground">{t("consentHint")}</p>
+        )}
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          {isLocked ? (
+            <Button
+              type="button"
+              size="lg"
+              variant="outline"
+              className="w-full sm:w-auto"
+              disabled={pending !== null}
+              onClick={() => {
+                setIsEditing(true)
+                setNote(health.note ?? "")
+                setHasConsent(false)
+              }}
+            >
+              {t("requestChange")}
+            </Button>
+          ) : (
+            <Button
+              type="submit"
+              size="lg"
+              className="w-full sm:w-auto"
+              disabled={!canSave || mutation.isPending}
+            >
+              {t(isStored ? "requestSubmit" : "save")}
+            </Button>
+          )}
+          <Button
+            asChild
+            variant="ghost"
+          >
+            <Link
+              to={ROUTES.participant.application}
+              params={{ applicationId }}
+            >
+              {t("cancelChanges")}
+            </Link>
+          </Button>
+        </div>
+      </Card>
     </form>
   )
 }

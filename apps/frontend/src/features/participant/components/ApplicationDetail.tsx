@@ -89,111 +89,117 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
           }
         />
       </div>
-      <section
-        aria-labelledby="application-terms"
-        className="flex flex-col gap-6"
-      >
-        <h2
-          id="application-terms"
-          className="text-2xl font-semibold tracking-tight"
+      <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,380px)]">
+        <section
+          aria-labelledby="application-terms"
+          className="flex flex-col gap-6"
         >
-          {t("detail.sections.terms")}
-        </h2>
-        <p className="text-sm text-muted-foreground tabular-nums">{data.code}</p>
-        <TermSteps application={data} />
-        <ParticipantTermActions
-          application={data}
-          onStart={setChangeMode}
-        />
-        {otherTerms.length > 0 ? (
-          <Card className="gap-0 p-6">
-            <h2 className="pb-4 text-lg font-semibold">{t("detail.termsTitle")}</h2>
-            <ul>
-              {otherTerms.map((term) => (
-                <li
-                  key={term.termId}
-                  className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t py-4 last:pb-0"
+          <h2
+            id="application-terms"
+            className="text-2xl font-semibold tracking-tight"
+          >
+            {t("detail.sections.terms")}
+          </h2>
+          <p className="text-sm text-muted-foreground tabular-nums">{data.code}</p>
+          <TermSteps application={data} />
+          <ParticipantTermActions
+            application={data}
+            onStart={setChangeMode}
+          />
+          {otherTerms.length > 0 ? (
+            <Card className="gap-0 p-6">
+              <h2 className="pb-4 text-lg font-semibold">{t("detail.termsTitle")}</h2>
+              <ul>
+                {otherTerms.map((term) => (
+                  <li
+                    key={term.termId}
+                    className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t py-4 last:pb-0"
+                  >
+                    <TermLabel term={term} />
+                    <TermStatusBadge term={term} />
+                    <span className="w-full sm:w-50 sm:text-right">
+                      {term.status === "TO_EVALUATE" ? null : (
+                        <>
+                          {term.archivedOverpaymentCzk ? `${t("paymentStatus.OVERPAID")} · ` : null}
+                          <MoneyAmount amountCzk={term.archivedOverpaymentCzk ?? 0} />
+                        </>
+                      )}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              {hasToEvaluate ? <p className="pt-4">{t("detail.toEvaluate.note")}</p> : null}
+            </Card>
+          ) : null}
+          <ChangeRequestNotice
+            applicationId={applicationId}
+            terms={data.terms}
+          />
+          {hasToEvaluate ? (
+            // Figma (Design system): Togena / Alert · node-id=15751-1777 (360 px: 15751-1810)
+            <Alert>
+              <TriangleAlert aria-hidden />
+              <AlertTitle>{t("detail.toEvaluate.alertTitle")}</AlertTitle>
+              <AlertDescription>{t("detail.toEvaluate.alertText")}</AlertDescription>
+            </Alert>
+          ) : null}
+        </section>
+        <aside className="grid min-w-0 gap-4">
+          <RoomWishesSection
+            applicationId={applicationId}
+            terms={data.terms}
+          />
+          <RoomSection terms={data.terms} />
+          {hasSteps ? (
+            <div>
+              <Button
+                asChild
+                variant="secondary"
+                size="lg"
+              >
+                <Link
+                  to={ROUTES.participant.applicationProgram}
+                  params={{ applicationId }}
                 >
-                  <TermLabel term={term} />
-                  <TermStatusBadge term={term} />
-                  <span className="w-full sm:w-50 sm:text-right">
-                    {term.status === "TO_EVALUATE" ? null : (
-                      <>
-                        {term.archivedOverpaymentCzk ? `${t("paymentStatus.OVERPAID")} · ` : null}
-                        <MoneyAmount amountCzk={term.archivedOverpaymentCzk ?? 0} />
-                      </>
-                    )}
-                  </span>
-                </li>
-              ))}
-            </ul>
-            {hasToEvaluate ? <p className="pt-4">{t("detail.toEvaluate.note")}</p> : null}
-          </Card>
-        ) : null}
-        <ChangeRequestNotice
-          applicationId={applicationId}
-          terms={data.terms}
-        />
-        {hasToEvaluate ? (
-          // Figma (Design system): Togena / Alert · node-id=15751-1777 (360 px: 15751-1810)
-          <Alert>
-            <TriangleAlert aria-hidden />
-            <AlertTitle>{t("detail.toEvaluate.alertTitle")}</AlertTitle>
-            <AlertDescription>{t("detail.toEvaluate.alertText")}</AlertDescription>
-          </Alert>
-        ) : null}
+                  {t("detail.program")}
+                </Link>
+              </Button>
+            </div>
+          ) : null}
+          {hasSteps ? null : (
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              <Button
+                asChild
+                variant="secondary"
+                size="lg"
+              >
+                <Link
+                  to={ROUTES.participant.applicationMeals}
+                  params={{ applicationId }}
+                >
+                  {t("detail.meals")}
+                </Link>
+              </Button>
+              <Button
+                asChild
+                variant="secondary"
+                size="lg"
+              >
+                <Link
+                  to={ROUTES.participant.applicationHealth}
+                  params={{ applicationId }}
+                >
+                  {t("detail.health")}
+                </Link>
+              </Button>
+            </div>
+          )}
+          <OrganizationContact contact={data.organizationContact} />
+        </aside>
+      </div>
+      <div className="mx-auto w-full max-w-[944px]">
         <PaymentSummary application={data} />
-      </section>
-      <RoomWishesSection
-        applicationId={applicationId}
-        terms={data.terms}
-      />
-      <RoomSection terms={data.terms} />
-      {hasSteps ? (
-        <div>
-          <Button
-            asChild
-            variant="secondary"
-            size="lg"
-          >
-            <Link
-              to={ROUTES.participant.applicationProgram}
-              params={{ applicationId }}
-            >
-              {t("detail.program")}
-            </Link>
-          </Button>
-        </div>
-      ) : null}
-      {hasSteps ? null : (
-        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-          <Button
-            asChild
-            variant="secondary"
-            size="lg"
-          >
-            <Link
-              to={ROUTES.participant.applicationMeals}
-              params={{ applicationId }}
-            >
-              {t("detail.meals")}
-            </Link>
-          </Button>
-          <Button
-            asChild
-            variant="secondary"
-            size="lg"
-          >
-            <Link
-              to={ROUTES.participant.applicationHealth}
-              params={{ applicationId }}
-            >
-              {t("detail.health")}
-            </Link>
-          </Button>
-        </div>
-      )}
-      <OrganizationContact contact={data.organizationContact} />
+      </div>
       {changeMode ? (
         <ParticipantTermChange
           application={data}

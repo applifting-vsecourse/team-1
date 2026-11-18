@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next"
 import { ActiveCorners } from "@/components/atoms/ActiveCorners"
 import { PageHeader } from "@/components/molecules/PageHeader"
 import { Card } from "@/components/ui/card"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 import { ChangeEmailSection } from "@/features/auth/components/ChangeEmailSection"
 import { ChangePasswordForm } from "@/features/auth/components/ChangePasswordForm"
@@ -13,7 +13,7 @@ import { ProfileForm } from "@/features/auth/components/ProfileForm"
 import { useEmailChangedNotice } from "@/features/auth/hooks/useEmailChangedNotice"
 import { useSession } from "@/features/auth/hooks/useSession"
 
-const SECTIONS = ["profile", "preferences", "security"] as const
+const SECTIONS = ["profile", "security"] as const
 type Section = (typeof SECTIONS)[number]
 
 /**
@@ -66,24 +66,27 @@ export function AccountPage({ isEmailChanged = false }: { isEmailChanged?: boole
             </TabsTrigger>
           ))}
         </TabsList>
-      </Tabs>
-
-      {section === "profile" ? (
-        <div className="grid gap-6 md:grid-cols-2">
+        <TabsContent
+          value="profile"
+          className="mx-auto grid w-full max-w-[560px] gap-4"
+        >
           <Card className="gap-4 p-4">
             <h2 className="text-2xl font-bold">{t("profile.title")}</h2>
             <ProfileForm user={user} />
           </Card>
+          <PreferencesCard user={user} />
           <ChangeEmailSection user={user} />
-        </div>
-      ) : section === "preferences" ? (
-        <PreferencesCard user={user} />
-      ) : (
-        <Card className="gap-4 p-4">
-          <h2 className="text-2xl font-bold">{t("changePassword.title")}</h2>
-          <ChangePasswordForm />
-        </Card>
-      )}
+        </TabsContent>
+        <TabsContent
+          value="security"
+          className="mx-auto w-full max-w-[560px]"
+        >
+          <Card className="gap-4 p-4">
+            <h2 className="text-2xl font-bold">{t("changePassword.title")}</h2>
+            <ChangePasswordForm />
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }

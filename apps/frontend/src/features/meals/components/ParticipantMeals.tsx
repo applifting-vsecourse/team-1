@@ -9,6 +9,7 @@ import { LoadingState } from "@/components/molecules/LoadingState"
 import { PageHeader } from "@/components/molecules/PageHeader"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -93,63 +94,68 @@ function MealsForm({ applicationId, meals }: { applicationId: string; meals: Own
         title={t("own.title", { name: `${meals.firstName} ${meals.lastName}` })}
         description={meals.eventName}
       />
-      {meals.options.length > 0 ? (
-        <div className="flex flex-col gap-6">
-          {meals.options.map((option) => (
-            <div
-              key={option.id}
-              className="flex items-center gap-3 py-2"
-            >
-              <Checkbox
-                id={`meal-${option.id}`}
-                className="size-6"
-                checked={optionIds.has(option.id)}
-                onCheckedChange={(isChecked) => toggle(option.id, isChecked === true)}
-              />
-              <Label
-                htmlFor={`meal-${option.id}`}
-                className="flex-1 cursor-pointer leading-5 font-normal"
+      <Card className="mx-auto w-full max-w-[720px] gap-4 p-4">
+        <h2 className="text-lg font-semibold">{t("own.restrictions")}</h2>
+        {meals.options.length > 0 ? (
+          <div className="flex flex-col gap-2">
+            <p className="text-sm text-muted-foreground">{t("own.multiple")}</p>
+            {meals.options.map((option) => (
+              <div
+                key={option.id}
+                className="flex items-center gap-3 py-2"
               >
-                {option.name}
-              </Label>
-            </div>
-          ))}
+                <Checkbox
+                  id={`meal-${option.id}`}
+                  className="size-6"
+                  checked={optionIds.has(option.id)}
+                  onCheckedChange={(isChecked) => toggle(option.id, isChecked === true)}
+                />
+                <Label
+                  htmlFor={`meal-${option.id}`}
+                  className="flex-1 cursor-pointer leading-5 font-normal"
+                >
+                  {option.name}
+                </Label>
+              </div>
+            ))}
+          </div>
+        ) : null}
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="meal-allergies">{t("own.allergiesLabel")}</Label>
+          <Textarea
+            id="meal-allergies"
+            className="min-h-32"
+            maxLength={ALLERGIES_MAX_LENGTH}
+            value={allergies}
+            onChange={(event) => setAllergies(event.target.value)}
+          />
         </div>
-      ) : null}
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="meal-allergies">{t("own.allergiesLabel")}</Label>
-        <Textarea
-          id="meal-allergies"
-          className="min-h-32"
-          maxLength={ALLERGIES_MAX_LENGTH}
-          value={allergies}
-          onChange={(event) => setAllergies(event.target.value)}
-        />
-      </div>
-      {/* PM-requested addition (US-64), not drawn in Figma. */}
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="meal-special-request">{t("own.specialRequestLabel")}</Label>
-        <Textarea
-          id="meal-special-request"
-          className="min-h-32"
-          maxLength={SPECIAL_REQUEST_MAX_LENGTH}
-          value={specialRequest}
-          onChange={(event) => setSpecialRequest(event.target.value)}
-        />
-      </div>
-      {mutation.error ? (
-        <Alert variant="destructive">
-          <AlertDescription>{mutation.error.message}</AlertDescription>
-        </Alert>
-      ) : null}
-      <Button
-        type="submit"
-        size="lg"
-        className="w-full"
-        disabled={mutation.isPending}
-      >
-        {t("own.save")}
-      </Button>
+        {/* PM-requested addition (US-64), not drawn in Figma. */}
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="meal-special-request">{t("own.specialRequestLabel")}</Label>
+          <Textarea
+            id="meal-special-request"
+            className="min-h-32"
+            maxLength={SPECIAL_REQUEST_MAX_LENGTH}
+            value={specialRequest}
+            onChange={(event) => setSpecialRequest(event.target.value)}
+          />
+        </div>
+        <p className="text-sm text-muted-foreground">{t("own.optional")}</p>
+        {mutation.error ? (
+          <Alert variant="destructive">
+            <AlertDescription>{mutation.error.message}</AlertDescription>
+          </Alert>
+        ) : null}
+        <Button
+          type="submit"
+          size="lg"
+          className="w-full sm:w-auto sm:self-start"
+          disabled={mutation.isPending}
+        >
+          {t("own.save")}
+        </Button>
+      </Card>
     </form>
   )
 }

@@ -20,13 +20,13 @@ export function OrganizationContact({ contact }: OrganizationContactProps) {
   return (
     <Card className="gap-2 p-4">
       <h2 className="text-2xl/8 font-bold tracking-tight">{t("contact.title")}</h2>
-      <div className="flex flex-col gap-2 md:flex-row md:items-center">
-        <p className="text-xl/7 font-bold tracking-tight md:flex-1">{contact.name}</p>
+      <div className="flex flex-col gap-3">
+        <p className="text-xl/7 font-bold tracking-tight">{contact.name}</p>
         {!contact.email && !contact.phone ? (
-          <p className="text-sm text-muted-foreground md:flex-[2]">{t("contact.none")}</p>
+          <p className="text-sm text-muted-foreground">{t("contact.none")}</p>
         ) : null}
         {contact.email ? (
-          <div className="flex min-w-0 flex-col gap-1 md:flex-1">
+          <div className="flex min-w-0 flex-col gap-1">
             <span className="text-sm text-muted-foreground">{t("contact.email")}</span>
             <a
               className={`${linkClass} break-all`}
@@ -37,7 +37,7 @@ export function OrganizationContact({ contact }: OrganizationContactProps) {
           </div>
         ) : null}
         {contact.phone ? (
-          <div className="flex min-w-0 flex-col gap-1 md:flex-1">
+          <div className="flex min-w-0 flex-col gap-1">
             <span className="text-sm text-muted-foreground">{t("contact.phone")}</span>
             <a
               className={linkClass}
