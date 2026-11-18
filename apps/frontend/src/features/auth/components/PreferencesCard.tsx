@@ -65,8 +65,8 @@ export function PreferencesCard({ user }: { user: SessionUser }) {
     const parsed = localeSchema.safeParse(value)
     if (!parsed.success || parsed.data === user.locale) return
     try {
-      const saved = await update.mutateAsync({ locale: parsed.data })
-      notify.success(t("profile.saved.title"), t(`profile.saved.description.${saved.locale}`))
+      await update.mutateAsync({ locale: parsed.data })
+      notify.success(t("profile.saved.title"), t(`profile.saved.description.${parsed.data}`))
     } catch {
       notify.error(t("appearance.languageFailed"))
     }
@@ -81,7 +81,7 @@ export function PreferencesCard({ user }: { user: SessionUser }) {
         description={t("profile.languageHint")}
       >
         <Select
-          value={user.locale}
+          value={user.locale ?? ""}
           onValueChange={(value) => void changeLanguage(value)}
           disabled={update.isPending}
         >
@@ -89,7 +89,7 @@ export function PreferencesCard({ user }: { user: SessionUser }) {
             id="preference-language"
             className={CONTROL}
           >
-            <SelectValue />
+            <SelectValue placeholder={t("profile.languageUnset")} />
           </SelectTrigger>
           <SelectContent>
             {LANGUAGES.map((language) => (

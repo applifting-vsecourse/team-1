@@ -50,6 +50,13 @@ export class MyApplicationTermDto {
   })
   room?: { name: string | null }
 
+  @ApiPropertyOptional({
+    type: [String],
+    description:
+      "Names the participant wishes to room with (US-146). Present only for a confirmed, not cancelled term; empty while none are written.",
+  })
+  roomWishes?: string[]
+
   static fromDomain(term: MyApplicationTerm): MyApplicationTermDto {
     return Object.assign(new MyApplicationTermDto(), term)
   }
@@ -123,6 +130,12 @@ export class MyApplicationResponseDto {
 
   @ApiProperty({ type: [MyApplicationTermDto] })
   terms!: MyApplicationTermDto[]
+
+  @ApiProperty({ description: "Meal restrictions entered; the same in every term." })
+  mealsDecided!: boolean
+
+  @ApiProperty({ description: "Health restriction entered; the same in every term." })
+  healthDecided!: boolean
 
   @ApiProperty({ example: 9400, description: "Sum of the confirmed terms, whole CZK." })
   amountDueCzk!: number

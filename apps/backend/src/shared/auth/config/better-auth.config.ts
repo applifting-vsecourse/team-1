@@ -26,8 +26,8 @@ export const betterAuthCoreConfig: BetterAuthOptions = {
       },
       locale: {
         type: "string",
-        required: true,
-        defaultValue: "en",
+        // Null until the user chooses a language (D-069, D-078).
+        required: false,
         input: false,
       },
     },

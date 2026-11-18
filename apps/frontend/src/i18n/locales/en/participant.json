@@ -65,8 +65,24 @@
     "roomNotAssigned": "You have no room assigned yet.",
     "sections": {
       "room": "Room",
-      "terms": "Terms and payments",
-      "transport": "Transport"
+      "terms": "Terms and payments"
+    },
+    "steps": {
+      "done": "Done",
+      "health": "Health restriction",
+      "healthFill": "Fill in details",
+      "healthView": "View details",
+      "meals": "Meals",
+      "mealsFill": "Fill in meals",
+      "mealsView": "View meals",
+      "payment": "Payment",
+      "paymentPay": "Pay {{amount}}",
+      "paymentView": "View payment",
+      "title": "Steps before the event",
+      "todo": "To do",
+      "transport": "Transport",
+      "transportChoose": "Choose transport",
+      "transportView": "View transport"
     },
     "termsTitle": "Status by term",
     "title": "My application",
@@ -74,19 +90,7 @@
       "alertText": "You will get the payment details once your participation is confirmed.",
       "alertTitle": "Don't pay yet.",
       "note": "The organizer will review the application in each term separately. It is not a confirmed place or a waitlist spot yet."
-    },
-    "todo": {
-      "change": "Change transport",
-      "choose": "Choose transport",
-      "intro": "The organizer needs this from you to plan the event.",
-      "progress": "{{done}} of {{total}} done",
-      "statusDone": "Done",
-      "statusOpen": "To do",
-      "title": "What is left to arrange",
-      "transportBody": "Choose how the participant gets to the event.",
-      "transportTitle": "Transport · {{term}}"
-    },
-    "transportIntro": "Choose how the participant gets to each term, and see where and when the transport leaves."
+    }
   },
   "edit": {
     "accommodationIndividual": "Individual arrangement",
@@ -203,6 +207,21 @@
       "REJECTED": "Declined"
     },
     "wholeApplication": "Whole application · all terms ({{count}})"
+  },
+  "roomWishes": {
+    "add": "Enter wishes",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "deleteBody": "All names for this term will be deleted.",
+    "deleteConfirm": "Delete wishes",
+    "deleteTitle": "Delete roommate wishes?",
+    "edit": "Edit wishes",
+    "empty": "You haven't entered any wishes for this term yet.",
+    "hint": "Enter up to 3 names. The organizer will take them into account when assigning rooms, where possible.",
+    "nameLabel": "Name {{n}}",
+    "placeholder": "E.g. Eva Černá",
+    "save": "Save wishes",
+    "title": "Roommate wishes"
   },
   "status": {
     "archived": "Archived",

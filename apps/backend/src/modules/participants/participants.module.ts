@@ -6,14 +6,17 @@ import { Module } from "@nestjs/common"
 import { MyApplicationsController } from "./controllers/my-applications.controller"
 import { OrganizerApplicationEditController } from "./controllers/organizer-application-edit.controller"
 import { ParticipantPasswordController } from "./controllers/participant-password.controller"
+import { RoomWishesController } from "./controllers/room-wishes.controller"
 import { ApplicationEditRepository } from "./repositories/application-edit.repository"
 import { MyApplicationsRepository } from "./repositories/my-applications.repository"
 import { ParticipantAccountsRepository } from "./repositories/participant-accounts.repository"
+import { RoomWishesRepository } from "./repositories/room-wishes.repository"
 import { ApplicationConfirmationMailer } from "./services/application-confirmation-mailer.service"
 import { ApplicationEditService } from "./services/application-edit.service"
 import { MyApplicationsService } from "./services/my-applications.service"
 import { ParticipantAccountsService } from "./services/participant-accounts.service"
 import { ParticipantPasswordService } from "./services/participant-password.service"
+import { RoomWishesService } from "./services/room-wishes.service"
 
 /** Imported by the applications module. */
 @Module({
@@ -22,6 +25,7 @@ import { ParticipantPasswordService } from "./services/participant-password.serv
     ParticipantPasswordController,
     MyApplicationsController,
     OrganizerApplicationEditController,
+    RoomWishesController,
   ],
   providers: [
     ParticipantAccountsService,
@@ -32,6 +36,8 @@ import { ParticipantPasswordService } from "./services/participant-password.serv
     ApplicationEditRepository,
     ParticipantAccountsRepository,
     ApplicationConfirmationMailer,
+    RoomWishesService,
+    RoomWishesRepository,
   ],
   exports: [ParticipantAccountsService, ApplicationConfirmationMailer],
 })

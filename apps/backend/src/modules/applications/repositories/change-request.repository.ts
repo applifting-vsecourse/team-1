@@ -356,7 +356,7 @@ export class ChangeRequestRepository {
       terms: { termId: string; priceCzk: number }[]
       health: { note: string } | null
     }
-    applicant: { locale: "en" | "cs"; applications: { locale: "en" | "cs" }[] }
+    applicant: { locale: "en" | "cs" | null; applications: { locale: "en" | "cs" }[] }
     event: {
       name: string
       terms: { id: string; name: string | null; startsOn: Date; endsOn: Date; priceCzk: number }[]

@@ -4,6 +4,8 @@ import { MyApplicationRecord } from "@/modules/participants/domain/my-applicatio
 import { Injectable } from "@nestjs/common"
 
 const include = {
+  _count: { select: { mealOptions: true } },
+  health: { select: { id: true } },
   event: {
     select: { name: true, contactEmail: true, contactPhone: true, paymentPeriodDays: true },
   },
@@ -68,6 +70,11 @@ function toRecord(row: Row): MyApplicationRecord {
     organizationName: row.organization.name,
     contactEmail: row.event.contactEmail,
     contactPhone: row.event.contactPhone,
+    mealsFilled:
+      row._count.mealOptions > 0 ||
+      Boolean(row.allergies?.trim()) ||
+      Boolean(row.specialRequest?.trim()),
+    healthFilled: row.health !== null,
     terms: row.terms.map(
       ({
         term,
@@ -79,6 +86,7 @@ function toRecord(row: Row): MyApplicationRecord {
         paymentPeriodStartedAt,
         transportId,
         roomAssignment,
+        roomWishes,
       }) => ({
         termId: term.id,
         termNumber: term.number,
@@ -96,6 +104,8 @@ function toRecord(row: Row): MyApplicationRecord {
         transportDecided: transportId !== null,
         roomsPublished: term.roomsPublishedAt !== null,
         roomName: roomAssignment?.room.name ?? null,
+        termCancelled: term.cancelledAt !== null,
+        roomWishes,
       }),
     ),
   }

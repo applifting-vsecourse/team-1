@@ -690,6 +690,8 @@
     "submit": "Withdraw participant",
     "submitWholeAll": "Withdraw from all terms",
     "submitWholeTwo": "Withdraw from both terms",
+    "substituteDescription": "After the withdrawal the freed bed in the term {{term}} is confirmed automatically to the substitute {{name}}. The substitute gets an e-mail about the change of the application with payment details.",
+    "substituteTitle": "A substitute fills the bed automatically",
     "title": "Withdraw participant",
     "trigger": "Withdraw",
     "triggerWhole": "Withdraw the whole application",

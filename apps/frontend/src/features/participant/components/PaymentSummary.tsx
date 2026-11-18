@@ -12,6 +12,7 @@ import type { MyApplication } from "@/features/participant/api/applications"
 import { SimulatePaymentButton } from "@/features/participant/components/SimulatePaymentButton"
 import { SummaryPaymentDialog } from "@/features/participant/components/SummaryPaymentDialog"
 import { TermPaymentQr } from "@/features/participant/components/TermPaymentQr"
+import { PAYMENT_SECTION_ID } from "@/features/participant/components/TermSteps"
 import { summaryPaymentSpayd } from "@/features/participant/lib/payment-qr"
 
 type PaymentSummaryProps = {
@@ -68,7 +69,10 @@ export function PaymentSummary({ application }: PaymentSummaryProps) {
   const simulatedPayments = application.simulatedPayments
 
   return (
-    <div className="flex flex-col gap-6">
+    <div
+      id={PAYMENT_SECTION_ID}
+      className="flex scroll-mt-6 flex-col gap-6"
+    >
       {confirmed.length > 1 && payableCzk > 0 ? (
         <Card className="gap-2 p-6">
           <h2 className="text-lg font-semibold">{t("payment.totalOwed")}</h2>

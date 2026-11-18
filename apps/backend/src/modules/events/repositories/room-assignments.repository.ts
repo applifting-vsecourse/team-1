@@ -13,11 +13,13 @@ import {
   rejectAssignment,
   TermAssignments,
 } from "@/modules/events/domain/room-assignment"
+import { proposeRoomAssignments, RoomProposal } from "@/modules/events/domain/room-proposal"
 import { RoomWarningKind } from "@/modules/events/domain/room-warnings"
 import {
   loadRoomWarnings,
   pruneAcknowledgements,
 } from "@/modules/events/repositories/room-warnings.queries"
+import { evaluateRoomWishes } from "@/shared/domain/room-wishes"
 import { AppException } from "@/shared/errors/app.exception"
 import { releaseAssignments } from "@/shared/room-assignments/release-assignments"
 import { HttpStatus, Injectable } from "@nestjs/common"
@@ -86,6 +88,8 @@ export class RoomAssignmentsRepository {
       gender: row.application.gender,
       individualAccommodation: row.application.individualAccommodation,
       status: row.status,
+      // Nobody is in the room of an unassigned participant, so no wish of theirs is fulfilled yet.
+      wishes: row.application.individualAccommodation ? [] : evaluateRoomWishes(row.roomWishes, []),
     })
 
     const rooms: AssignmentRoom[] = term.rooms.map((room) => ({
@@ -95,7 +99,18 @@ export class RoomAssignmentsRepository {
       extraBeds: room.extraBeds,
       beds: computeRoomBeds(room),
       gender: room.gender,
-      participants: room.assignments.map((assignment) => toParticipant(assignment.applicationTerm)),
+      participants: room.assignments.map((assignment) => ({
+        ...toParticipant(assignment.applicationTerm),
+        // Individual accommodation has no wishes, even when some were saved before the switch.
+        wishes: assignment.applicationTerm.application.individualAccommodation
+          ? []
+          : evaluateRoomWishes(
+              assignment.applicationTerm.roomWishes,
+              room.assignments
+                .filter((other) => other.id !== assignment.id)
+                .map((other) => other.applicationTerm.application),
+            ),
+      })),
     }))
 
     const unassigned = waiting.map((row) => ({
@@ -211,6 +226,115 @@ export class RoomAssignmentsRepository {
         }
         await this.place(tx, other, match, organizationId, confirmExtraBed)
       }
+    })
+  }
+
+  /**
+   * The proposal of rooms for the confirmed participants of the term without one (US-147). It reads
+   * only and saves nothing: the organizer keeps it as a draft and saves it with `assignMany`.
+   */
+  async propose({ eventId, termId, organizationId }: TermScope): Promise<RoomProposal> {
+    const term = await this.prisma.term.findFirst({
+      where: { id: termId, eventId, organizationId },
+      include: {
+        rooms: {
+          orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+          include: {
+            assignments: {
+              orderBy: { createdAt: "asc" },
+              include: { applicationTerm: { include: { application: true } } },
+            },
+          },
+        },
+      },
+    })
+    if (!term) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
+    if (term.cancelledAt) throw new AppException(HttpStatus.CONFLICT, "TERM_CANCELLED")
+    const waiting = await this.prisma.applicationTerm.findMany({
+      where: { termId, organizationId, status: "CONFIRMED", roomAssignment: null },
+      include: { application: true },
+      orderBy: { id: "asc" },
+    })
+    return proposeRoomAssignments({
+      rooms: term.rooms.map((room) => ({
+        id: room.id,
+        gender: room.gender,
+        freeBeds: Math.max(0, computeFreeRoomBeds(room, room.assignments.length)),
+        occupants: room.assignments.map(({ applicationTerm }) => ({
+          applicationTermId: applicationTerm.id,
+          firstName: applicationTerm.application.firstName,
+          lastName: applicationTerm.application.lastName,
+        })),
+      })),
+      participants: waiting.map((row) => ({
+        applicationTermId: row.id,
+        firstName: row.application.firstName,
+        lastName: row.application.lastName,
+        gender: row.application.gender,
+        individualAccommodation: row.application.individualAccommodation,
+        wishes: row.application.individualAccommodation ? [] : row.roomWishes,
+      })),
+    })
+  }
+
+  /**
+   * Saves a confirmed proposal (US-147): everybody is placed in one transaction under the event
+   * lock, or nobody is. The rules are checked again against the current state, so a proposal that
+   * went stale (somebody was placed meanwhile, a room filled up or changed gender) is a 409 and
+   * nothing is saved. No extra bed is ever added here.
+   */
+  async assignMany(
+    scope: TermScope,
+    items: { applicationTermId: string; roomId: string }[],
+  ): Promise<void> {
+    const { termId, organizationId } = scope
+    await this.write(scope, async (tx) => {
+      const ids = items.map((item) => item.applicationTermId)
+      if (new Set(ids).size !== ids.length) {
+        throw new AppException(HttpStatus.CONFLICT, "ROOM_PROPOSAL_OUTDATED")
+      }
+      const applications = await tx.applicationTerm.findMany({
+        where: { id: { in: ids }, termId, organizationId },
+        include: { application: true, roomAssignment: true },
+      })
+      if (applications.length !== ids.length) {
+        throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
+      }
+      const rooms = await tx.room.findMany({
+        where: { id: { in: items.map((item) => item.roomId) }, organizationId },
+        include: { _count: { select: { assignments: true } } },
+      })
+      const placed = new Map<string, number>()
+      for (const item of items) {
+        const application = applications.find((row) => row.id === item.applicationTermId)
+        const room = rooms.find((row) => row.id === item.roomId)
+        if (!application || !room) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
+        if (room.termId !== termId) throw new AppException(HttpStatus.CONFLICT, "ROOM_NOT_IN_TERM")
+        // A proposal never contains people with individual accommodation (US-38, US-147).
+        const isWrongGender = room.gender !== null && room.gender !== application.application.gender
+        if (
+          application.roomAssignment ||
+          application.application.individualAccommodation ||
+          isWrongGender
+        ) {
+          throw new AppException(HttpStatus.CONFLICT, "ROOM_PROPOSAL_OUTDATED")
+        }
+        const rejection = rejectAssignment({
+          status: application.status,
+          room,
+          assignedCount: room._count.assignments + (placed.get(room.id) ?? 0),
+          alreadyInRoom: false,
+        })
+        if (rejection) throw new AppException(HttpStatus.CONFLICT, rejection)
+        placed.set(room.id, (placed.get(room.id) ?? 0) + 1)
+      }
+      await tx.roomAssignment.createMany({
+        data: items.map((item) => ({
+          organizationId,
+          applicationTermId: item.applicationTermId,
+          roomId: item.roomId,
+        })),
+      })
     })
   }
 

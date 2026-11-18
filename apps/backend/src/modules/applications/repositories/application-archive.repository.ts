@@ -45,7 +45,7 @@ export class ApplicationArchiveRepository {
         for (const term of paid) {
           await tx.applicationTerm.update({
             where: { id: term.id, organizationId: event.organizationId },
-            data: { status: "ARCHIVED" },
+            data: { status: "ARCHIVED", roomWishes: [] },
           })
           await releaseAssignments(tx, { applicationTermId: term.id })
           await tx.applicationTermStatusChange.create({

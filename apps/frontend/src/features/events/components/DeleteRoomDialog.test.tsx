@@ -26,6 +26,7 @@ function renderDialog(
     startsOn: "2027-07-12",
     endsOn: "2027-07-18",
     roomMode,
+    roomsPublished: false,
     rooms: [room],
     capacity: { FEMALE: before, MALE: before, total: before },
   }

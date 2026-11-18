@@ -176,7 +176,7 @@ export function UnassignedRow({
   return (
     <li
       className={cn(
-        "flex items-center gap-2.5 px-3 py-2.5",
+        "flex items-center gap-3 px-3 py-2",
         !isFirst && "border-t border-border",
         isDragging && "opacity-40",
       )}
@@ -185,25 +185,25 @@ export function UnassignedRow({
         {...attributes}
         {...listeners}
         ref={setNodeRef}
-        className={cn("flex min-w-0 flex-1 items-center gap-2.5", !isDisabled && "cursor-grab")}
+        className={cn("flex min-w-0 flex-1 items-center gap-2", !isDisabled && "cursor-grab")}
       >
         <GripVertical
           className="size-3.5 shrink-0 text-muted-foreground"
           aria-hidden
         />
-        <div
-          className={cn(
-            "flex min-w-0 flex-col gap-0.5",
-            participant.individualAccommodation && "gap-2",
-          )}
-        >
+        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
           <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <span className="truncate text-sm font-medium">{name}</span>
+            <span className="text-sm font-medium break-words">{name}</span>
             {participant.individualAccommodation ? (
-              <Badge variant="secondary">{t("roomAssignments.individual")}</Badge>
+              <Badge
+                variant="secondary"
+                className="max-w-full shrink whitespace-normal"
+              >
+                {t("roomAssignments.individual")}
+              </Badge>
             ) : null}
           </span>
-          <span className="truncate text-sm text-muted-foreground">
+          <span className="text-sm text-muted-foreground">
             {genderLabel(participant.gender)} ·{" "}
             {statusLabel(participant.status, participant.gender)}
           </span>
@@ -212,6 +212,8 @@ export function UnassignedRow({
       <Button
         type="button"
         variant="outline"
+        size="sm"
+        className="shrink-0"
         disabled={isDisabled}
         aria-label={t("roomAssignments.assignAria", { name })}
         onClick={onAssign}
@@ -408,7 +410,7 @@ export function RoomTableRow({
         <TableCell
           aria-label={room.name}
           className={cn(
-            "align-top whitespace-normal",
+            "whitespace-normal",
             isWarned && "shadow-[inset_4px_0_0_0_var(--color-status-warning)]",
           )}
         >
@@ -418,7 +420,7 @@ export function RoomTableRow({
             <WarningLabels kinds={openKinds(warnings)} />
           </div>
         </TableCell>
-        <TableCell className="min-w-64 align-top whitespace-normal">
+        <TableCell className="min-w-40 whitespace-normal">
           <Chips
             room={room}
             scope="row"
@@ -426,14 +428,14 @@ export function RoomTableRow({
             onRemoveParticipant={onRemoveParticipant}
           />
         </TableCell>
-        <TableCell className="w-36 align-top">
+        <TableCell className="w-32">
           <Occupancy
             room={room}
             warnings={warnings}
             isDropping={isDropping}
           />
         </TableCell>
-        <TableCell className="w-48 align-top">
+        <TableCell className="w-px pr-4">
           <div className="flex items-center justify-end gap-1">{actions}</div>
         </TableCell>
       </TableRow>

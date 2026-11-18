@@ -19,8 +19,9 @@ export const sessionUserSchema = z.object({
   name: z.string(),
   accountType: accountTypeSchema,
   mustSetPassword: z.boolean(),
-  // Preferred language of the account (UI and e-mails); BetterAuth additional field.
-  locale: localeSchema.catch("en"),
+  // Preferred language of the account (UI and e-mails); null until the user chooses one
+  // (BetterAuth additional field, D-069).
+  locale: localeSchema.nullable().catch(null),
 })
 export type SessionUser = z.infer<typeof sessionUserSchema>
 
