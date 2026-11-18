@@ -23,6 +23,7 @@
   "HEALTH_REQUEST_NOT_NEEDED": "There is nothing to change yet. Fill in the health restriction directly.",
   "INTERNAL": "Something went wrong on the server. Please try again.",
   "INVALID_EMAIL_OR_PASSWORD": "Wrong e-mail or password.",
+  "INVALID_PHONE": "Enter a valid phone number, for example +420 777 123 456.",
   "INVALID_RESPONSE": "The server response could not be read. Please try again.",
   "INVALID_STATUS_TRANSITION": "This change is not possible from the current status of the application in the term.",
   "NOT_FOUND": "Not found.",

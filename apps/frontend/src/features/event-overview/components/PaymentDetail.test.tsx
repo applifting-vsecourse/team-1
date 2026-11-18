@@ -111,6 +111,8 @@ const application = (
     birthDate: "2011-05-04",
     gender: "MALE",
     email: "eva.mala@example.cz",
+    phone: "+420777123456",
+    isEditable: true,
     bankAccount: "123456789/0000",
     amountDueCzk,
     amountPaidCzk,
@@ -208,8 +210,31 @@ describe("PaymentDetail", () => {
     expect(within(details).getByText("Adam Test")).toBeInTheDocument()
     expect(within(details).getByText("Date of birth and gender")).toBeInTheDocument()
     expect(within(details).getByText(/^4 May 2011 · man$/)).toBeInTheDocument()
-    expect(within(details).getByText("Applicant contact")).toBeInTheDocument()
-    expect(within(details).getByText("eva.mala@example.cz")).toBeInTheDocument()
+    expect(within(details).getByText("Contact")).toBeInTheDocument()
+    expect(within(details).getByText(/eva\.mala@example\.cz/)).toBeInTheDocument()
+    expect(within(details).getByText(/\+420777123456/)).toBeInTheDocument()
+  })
+
+  it("says the phone is not provided when the application has none (#515)", async () => {
+    respondWith(() => ({ ...application([first]), phone: null }))
+    setup()
+
+    const details = await screen.findByRole("group", { name: "Participant details" })
+    expect(within(details).getByText(/No phone provided/)).toBeInTheDocument()
+  })
+
+  it("offers the edit button only while the application can be edited (#515)", async () => {
+    respondWith(() => application([first]))
+    setup()
+    const details = await screen.findByRole("group", { name: "Participant details" })
+    expect(within(details).getByRole("button", { name: "Edit" })).toBeVisible()
+  })
+
+  it("hides the edit button when the application can no longer be edited (#515)", async () => {
+    respondWith(() => ({ ...application([first]), isEditable: false }))
+    setup()
+    const details = await screen.findByRole("group", { name: "Participant details" })
+    expect(within(details).queryByRole("button", { name: "Edit" })).not.toBeInTheDocument()
   })
 
   it("prefills a payment correction and submits the replacement for a different term", async () => {
