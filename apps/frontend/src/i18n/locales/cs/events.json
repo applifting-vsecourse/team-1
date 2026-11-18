@@ -289,7 +289,6 @@
     "editCancel": "Zrušit",
     "editDescription": "Přesuňte {{name}} na volné lůžko. Změna zůstane v návrhu.",
     "editFor": "Upravit přiřazení: {{name}}",
-    "editNoBeds": "Ve vhodných pokojích není volné lůžko.",
     "editTitle": "Upravit přiřazení",
     "failedDescription": "Přiřazení v termínu zůstala stejná. Zkuste návrh spustit znovu.",
     "failedTitle": "Návrh se nepodařilo vytvořit",

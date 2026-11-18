@@ -55,9 +55,7 @@ export function EditProposalDialog({
         <DialogDescription className="text-base">
           {t("roomProposal.editDescription", { name })}
         </DialogDescription>
-        {groups.length === 0 ? (
-          <p className="text-sm text-muted-foreground">{t("roomProposal.editNoBeds")}</p>
-        ) : (
+        {groups.length > 0 ? (
           <RadioGroup
             value={bedKey ?? ""}
             onValueChange={setBedKey}
@@ -86,7 +84,7 @@ export function EditProposalDialog({
               </div>
             ))}
           </RadioGroup>
-        )}
+        ) : null}
         <DialogFooter className="gap-4">
           <DialogClose asChild>
             <Button

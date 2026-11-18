@@ -289,7 +289,6 @@
     "editCancel": "Cancel",
     "editDescription": "Move {{name}} to a free bed. The change stays in the proposal.",
     "editFor": "Edit assignment: {{name}}",
-    "editNoBeds": "There is no free bed in a suitable room.",
     "editTitle": "Edit assignment",
     "failedDescription": "The assignments in the term stayed the same. Try running the proposal again.",
     "failedTitle": "The proposal could not be created",
