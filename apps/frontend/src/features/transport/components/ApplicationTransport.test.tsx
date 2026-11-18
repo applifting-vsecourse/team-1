@@ -83,6 +83,16 @@ function renderPage() {
 afterEach(() => vi.restoreAllMocks())
 
 describe("ApplicationTransport", () => {
+  it("closes with Escape without saving the selection", async () => {
+    const fetchMock = renderPage()
+    await screen.findByRole("dialog", { name: "Choose transport" })
+    await userEvent.keyboard("{Escape}")
+    expect(await screen.findByText("Application detail")).toBeInTheDocument()
+    expect(
+      fetchMock.mock.calls.some(([input]) => input instanceof Request && input.method === "PUT"),
+    ).toBe(false)
+  })
+
   it("returns to the application once the choice is saved", async () => {
     renderPage()
     await userEvent.click(await screen.findByRole("combobox", { name: "Transport" }))

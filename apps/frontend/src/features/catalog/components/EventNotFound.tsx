@@ -3,6 +3,7 @@ import { CalendarX2, House } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
+import { BrandDivider } from "@/components/atoms/BrandDivider"
 import { Seo } from "@/components/atoms/Seo"
 import { PublicLayout } from "@/components/templates/PublicLayout"
 import { Button } from "@/components/ui/button"
@@ -30,6 +31,7 @@ export function EventNotFound() {
             <h1 className="text-3xl font-bold tracking-tight md:text-4xl">{t("notFound.title")}</h1>
             <p className="text-muted-foreground">{t("notFound.description")}</p>
           </div>
+          <BrandDivider />
           <Button
             asChild
             size="lg"

@@ -57,7 +57,7 @@
     "title": "Organization contact"
   },
   "detail": {
-    "back": "← All applications",
+    "back": "Back to my applications",
     "errorTitle": "Couldn't load the application",
     "health": "Health restriction",
     "meals": "Meals",
@@ -85,7 +85,7 @@
       "transportView": "View transport"
     },
     "termsTitle": "Status by term",
-    "title": "My application",
+    "title": "Application details",
     "toEvaluate": {
       "alertText": "You will get the payment details once your participation is confirmed.",
       "alertTitle": "Don't pay yet.",

@@ -59,6 +59,7 @@ export function termSteps(
       link: (
         <Link
           to={ROUTES.participant.applicationTransport}
+          hash={`transport-${term.termId}`}
           params={{ applicationId }}
           className="text-sm font-medium text-primary hover:underline"
         >

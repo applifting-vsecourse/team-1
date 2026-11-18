@@ -57,7 +57,7 @@
     "title": "Kontakt organizace"
   },
   "detail": {
-    "back": "← Všechny přihlášky",
+    "back": "Zpět na Moje přihlášky",
     "errorTitle": "Přihlášku se nepodařilo načíst",
     "health": "Zdravotní omezení",
     "meals": "Stravování",
@@ -85,7 +85,7 @@
       "transportView": "Zobrazit dopravu"
     },
     "termsTitle": "Stav podle termínů",
-    "title": "Moje přihláška",
+    "title": "Detail přihlášky",
     "toEvaluate": {
       "alertText": "Platební údaje dostanete po potvrzení účasti.",
       "alertTitle": "Zatím nic neplaťte.",

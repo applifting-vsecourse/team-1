@@ -5,6 +5,7 @@ import { TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
+import { BackLink } from "@/components/atoms/BackLink"
 import { MoneyAmount } from "@/components/atoms/MoneyAmount"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
@@ -39,17 +40,7 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
   const { data, isPending, error, refetch } = useQuery(myApplicationQueryOptions(applicationId))
   const [changeMode, setChangeMode] = useState<ChangeMode | null>(null)
 
-  // Figma DS / Button Style=Quiet, aligned with the page title (no left padding).
-  const back = (
-    <Button
-      asChild
-      variant="ghost"
-      size="lg"
-      className="self-start px-0 hover:bg-transparent hover:underline dark:hover:bg-transparent"
-    >
-      <Link to={ROUTES.participant.applications}>{t("detail.back")}</Link>
-    </Button>
-  )
+  const back = <BackLink to={ROUTES.participant.applications}>{t("detail.back")}</BackLink>
 
   if (isPending) return <LoadingState />
   if (error) {

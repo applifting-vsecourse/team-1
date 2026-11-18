@@ -482,7 +482,7 @@ describe("ApplicationDetail", () => {
     renderDetail(application())
 
     expect(
-      await screen.findByRole("heading", { level: 1, name: "Letní kemp 2027" }),
+      await screen.findByRole("heading", { level: 1, name: "Application details" }),
     ).toBeInTheDocument()
     await openAll()
     expect(screen.getByText("Partly paid")).toBeInTheDocument()
@@ -494,7 +494,7 @@ describe("ApplicationDetail", () => {
     // The summary symbol and the total are for the whole application, not for one term.
     expect(screen.queryByText("48000")).not.toBeInTheDocument()
     expect(screen.queryByText("Left to pay in total")).not.toBeInTheDocument()
-    expect(screen.getByRole("link", { name: "← All applications" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Back to my applications" })).toHaveAttribute(
       "href",
       "/participant",
     )
@@ -515,7 +515,7 @@ describe("ApplicationDetail", () => {
     renderDetail(application())
 
     expect(
-      await screen.findByRole("heading", { level: 1, name: "Letní kemp 2027" }),
+      await screen.findByRole("heading", { level: 1, name: "Application details" }),
     ).toBeInTheDocument()
     expect(screen.getByText("Jana Nováková · LKL-0048")).toBeInTheDocument()
     expect(screen.queryByText("My application")).not.toBeInTheDocument()
@@ -848,7 +848,7 @@ describe("ApplicationDetail", () => {
       expect(within(transport).getByText("To do")).toBeVisible()
       expect(within(transport).getByRole("link", { name: "Choose transport" })).toHaveAttribute(
         "href",
-        "/participant/applications/a1/transport",
+        `/participant/applications/a1/transport#transport-${confirmed.termId}`,
       )
       const meals = await stepRow(/^1\. týden$/, "Meals")
       expect(within(meals).getByText("Done")).toBeVisible()
