@@ -252,6 +252,7 @@
   "roomOverview": {
     "beds": "Lůžka",
     "born": "nar. {{year}}",
+    "continued": "pokračování",
     "emptyAction": "Přejít na rozdělení do pokojů",
     "extraBed": "Přistýlka",
     "free": "Volná lůžka",
