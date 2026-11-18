@@ -4,6 +4,8 @@ import {
   isDayWithinTerm,
   isEndAfterStart,
   normalizeInput,
+  ProgramCopyPlan,
+  ProgramCopyStrategy,
   ProgramInput,
 } from "@/modules/program/domain/program"
 import { ProgramRepository } from "@/modules/program/repositories/program.repository"
@@ -78,6 +80,19 @@ export class ProgramService {
       throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
     }
     await this.repository.remove(scope, id)
+  }
+
+  async copy(
+    user: Identity,
+    eventId: string,
+    termId: string,
+    sourceTermId: string,
+    strategy: ProgramCopyStrategy,
+  ): Promise<ProgramCopyPlan> {
+    const scope = await this.scope(user, eventId)
+    const plan = await this.repository.copy(scope, termId, sourceTermId, strategy)
+    if (!plan) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
+    return plan
   }
 
   /** Someone else's application and a missing one look the same: 403 with no content. */
