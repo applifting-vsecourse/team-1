@@ -79,8 +79,8 @@ export function ParticipantEditDialog({ application, onClose }: ParticipantEditD
         // The note belongs to the request: without it none is sent.
         accommodationRequest: hasAccommodation ? note.trim() || null : null,
       }),
-    onSuccess: async () => {
-      await client.invalidateQueries({ queryKey: ["eventOverview"] })
+    onSuccess: () => {
+      void client.invalidateQueries({ queryKey: ["eventOverview"] })
       notify.success(t("editDetails.saved"))
       onClose()
     },

@@ -57,7 +57,7 @@ const DEFAULT_END = "10:00"
 
 /** One hour after `time`, kept within the day. */
 function hourAfter(time: string): string {
-  const minutes = Math.min(toMinutes(time) + 60, 23 * 60 + 55)
+  const minutes = Math.min(toMinutes(time) + 60, 23 * 60 + 59)
   return `${String(Math.floor(minutes / 60)).padStart(2, "0")}:${String(minutes % 60).padStart(2, "0")}`
 }
 
@@ -152,20 +152,20 @@ export function ProgramBlockDialog({
         if (!isOpen && !isPending) onClose()
       }}
     >
-      <DialogContent className="max-h-[90dvh] overflow-y-auto bg-card shadow-md sm:max-w-140">
+      <DialogContent className="flex max-h-[92dvh] flex-col overflow-hidden bg-card p-4 shadow-md sm:max-w-140 sm:p-6 [@media(max-height:480px)]:overflow-y-auto">
         <DialogTitle className="pr-8">{t(block ? "editTitle" : "addTitle")}</DialogTitle>
         <DialogDescription>{t(block ? "hintEdit" : "hintAdd")}</DialogDescription>
         <Form {...form}>
           <form
             noValidate
-            className="flex flex-col gap-4"
+            className="flex min-h-0 flex-col gap-3 [@media(max-height:480px)]:shrink-0"
             onSubmit={(event) => {
               void submit(event)
             }}
           >
             <fieldset
               disabled={isPending}
-              className="flex flex-col gap-4"
+              className="flex min-h-0 min-w-0 flex-col gap-3 overflow-y-auto overscroll-contain px-1 py-1 [@media(max-height:480px)]:overflow-visible"
             >
               <FormField
                 control={form.control}
@@ -285,9 +285,13 @@ export function ProgramBlockDialog({
                   </FormItem>
                 )}
               />
+              <p className="text-xs text-muted-foreground">* {t("required")}</p>
             </fieldset>
             {clashes.length ? (
-              <Alert variant="warning">
+              <Alert
+                variant="warning"
+                className="max-h-32 shrink-0 overflow-y-auto"
+              >
                 <TriangleAlert />
                 <AlertDescription>
                   {t("overlapWarning", {
@@ -296,14 +300,13 @@ export function ProgramBlockDialog({
                 </AlertDescription>
               </Alert>
             ) : null}
-            <p className="text-xs text-muted-foreground">* {t("required")}</p>
             {mutation.isError ? (
               <ErrorState
                 title={t("saveFailed")}
                 error={mutation.error}
               />
             ) : null}
-            <DialogFooter className="sticky bottom-0 z-10 gap-2 border-t bg-card py-2 max-sm:flex-col-reverse sm:static sm:items-center sm:justify-end">
+            <DialogFooter className="shrink-0 gap-2 border-t bg-card pt-3 max-sm:flex-col-reverse sm:items-center sm:justify-end">
               <DialogClose asChild>
                 <Button
                   type="button"
