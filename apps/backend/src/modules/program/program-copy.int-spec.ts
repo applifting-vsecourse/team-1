@@ -226,6 +226,23 @@ describe("copying the program between terms (integration)", () => {
     expect((await copy(cancelled.id, source, "ADD")).status).toBe(400)
   })
 
+  it("keeps the target when no block fits into it", async () => {
+    const lateOnly = await prisma.term.create({
+      data: {
+        organizationId,
+        eventId,
+        number: await nextTermNumber(prisma, eventId),
+        startsOn: new Date("2027-08-01"),
+        endsOn: new Date("2027-08-05"),
+        priceCzk: 1000,
+      },
+    })
+    await prisma.programBlock.create({ data: block(lateOnly.id, "2027-08-05", "Pátý den") })
+    const before = (await blocks(target)).map((item) => item.id)
+    expect((await copy(target, lateOnly.id, "REPLACE")).status).toBe(400)
+    expect((await blocks(target)).map((item) => item.id)).toEqual(before)
+  })
+
   it("copies every block into a longer term", async () => {
     expect(((await (await copy(longTarget, source, "ADD")).json()) as Result).copied).toBe(4)
   })

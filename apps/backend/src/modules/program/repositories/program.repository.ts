@@ -179,6 +179,8 @@ export class ProgramRepository {
         { startsOn: isoDay(target.startsOn), endsOn: isoDay(target.endsOn) },
         strategy === "REPLACE" ? [] : target.programBlocks.map(toInput),
       )
+      // Nothing fits into the target: refuse, so a replace never wipes the program for no copy.
+      if (!plan.blocks.length) throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
       if (strategy === "REPLACE")
         await tx.programBlock.deleteMany({ where: { termId, organizationId } })
       await tx.programBlock.createMany({
