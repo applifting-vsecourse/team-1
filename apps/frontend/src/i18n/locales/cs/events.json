@@ -252,6 +252,7 @@
   "roomOverview": {
     "beds": "Lůžka",
     "born": "nar. {{year}}",
+    "continued": "pokračování",
     "emptyAction": "Přejít na rozdělení do pokojů",
     "extraBed": "Přistýlka",
     "free": "Volná lůžka",
@@ -460,6 +461,12 @@
     "totalCapacity": "Kapacita pokojů",
     "totalRooms": "Celkem pokojů"
   },
+  "roomsPublication": {
+    "failed": "Nastavení se nepodařilo uložit.",
+    "hintOff": "Potvrzení účastníci rozdělení zatím nevidí.",
+    "switch": "Zveřejnit rozdělení pokojů",
+    "title": "Zveřejnění rozdělení"
+  },
   "terms": {
     "actions": "Akce termínu {{name}}",
     "add": "Přidat termín",
@@ -498,7 +505,7 @@
       "endBeforeStart": "Konec musí být po začátku.",
       "endsOn": "Datum konce *",
       "fieldRequired": "Vyplňte toto pole.",
-      "name": "Název termínu (nepovinné)",
+      "name": "Název termínu",
       "namePlaceholder": "např. 1. turnus, 5. třída, věk 8–10",
       "price": "Cena termínu (Kč) *",
       "priceHelper": "Celá cena za termín; bez zálohy.",

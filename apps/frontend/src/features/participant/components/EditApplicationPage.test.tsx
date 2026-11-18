@@ -76,7 +76,7 @@ describe("EditApplicationPage", () => {
     renderPage()
     await user.type(await screen.findByRole("textbox", { name: "Phone" }), "+420 777 123 456")
     await user.type(
-      screen.getByRole("textbox", { name: "Note for the organizer (optional)" }),
+      screen.getByRole("textbox", { name: "Note for the organizer" }),
       "Ground floor, please.",
     )
     await user.click(screen.getByRole("button", { name: "Save changes" }))
@@ -207,7 +207,7 @@ describe("EditApplicationPage", () => {
     put.mockReturnValue({ json: () => Promise.resolve(initial) })
     const client = renderPage()
     const accommodation = await screen.findByRole("textbox", {
-      name: "Note for the organizer (optional)",
+      name: "Note for the organizer",
     })
     await user.type(accommodation, "Ground floor, please.")
     const refreshed = {
@@ -229,9 +229,7 @@ describe("EditApplicationPage", () => {
     expect(screen.getByRole("textbox", { name: "Last name *" })).toHaveValue("Nová")
     expect(screen.getByLabelText("Date of birth *")).toHaveValue("2001-02-03")
     expect(screen.getByRole("textbox", { name: "Phone" })).toHaveValue(refreshed.phone)
-    expect(screen.getByRole("textbox", { name: "Note for the organizer (optional)" })).toBe(
-      accommodation,
-    )
+    expect(screen.getByRole("textbox", { name: "Note for the organizer" })).toBe(accommodation)
     expect(accommodation).toHaveValue("Ground floor, please.")
     await user.click(screen.getByRole("button", { name: "Save changes" }))
     expect(put).toHaveBeenCalledWith("participant/applications/a1/edit", {
@@ -257,9 +255,9 @@ describe("EditApplicationPage", () => {
     })
 
     await waitFor(() =>
-      expect(
-        screen.getByRole("textbox", { name: "Note for the organizer (optional)" }),
-      ).toHaveValue("Ground floor"),
+      expect(screen.getByRole("textbox", { name: "Note for the organizer" })).toHaveValue(
+        "Ground floor",
+      ),
     )
     expect(screen.getByRole("button", { name: "Save changes" })).toBeDisabled()
   })
@@ -268,7 +266,7 @@ describe("EditApplicationPage", () => {
     const user = userEvent.setup()
     const client = renderPage()
     const firstName = await screen.findByRole("textbox", { name: "First name *" })
-    const accommodation = screen.getByRole("textbox", { name: "Note for the organizer (optional)" })
+    const accommodation = screen.getByRole("textbox", { name: "Note for the organizer" })
     get.mockReturnValue({
       json: () => Promise.resolve({ ...initial, accommodationRequest: "Ground floor" }),
     })
@@ -316,7 +314,7 @@ describe("EditApplicationPage", () => {
     }
     const box = () =>
       screen.findByRole("checkbox", { name: "I want to arrange the accommodation individually" })
-    const note = () => screen.queryByRole("textbox", { name: "Note for the organizer (optional)" })
+    const note = () => screen.queryByRole("textbox", { name: "Note for the organizer" })
 
     it("asks for the note only once the box is ticked and says who sees it", async () => {
       const user = userEvent.setup()

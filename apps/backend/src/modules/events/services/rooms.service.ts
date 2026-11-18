@@ -38,6 +38,15 @@ export class RoomsService {
     await this.repository.setMode(await this.scope(user, eventId, termId), mode, assignments)
   }
 
+  async setPublished(
+    user: Identity,
+    eventId: string,
+    termId: string,
+    published: boolean,
+  ): Promise<void> {
+    await this.repository.setPublished(await this.scope(user, eventId, termId), published)
+  }
+
   async save(
     user: Identity,
     eventId: string,

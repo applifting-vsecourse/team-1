@@ -27,6 +27,7 @@
     "title": "Upozornění"
   },
   "status": {
+    "ARCHIVED": "Archivovaná",
     "CANCELLED": "Zrušeno",
     "CONFIRMED": "Potvrzeno",
     "TO_EVALUATE": "Čeká na vyhodnocení",

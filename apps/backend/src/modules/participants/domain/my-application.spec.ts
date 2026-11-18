@@ -9,6 +9,7 @@ const record = (overrides: Partial<MyApplicationRecord> = {}): MyApplicationReco
   submittedAt: at(5),
   firstName: "Jana",
   lastName: "Nováková",
+  individualAccommodation: false,
   eventName: "Letní kemp 2027",
   bankAccount: "2900123456/2010",
   paymentPeriodDays: 10,
@@ -29,6 +30,8 @@ const record = (overrides: Partial<MyApplicationRecord> = {}): MyApplicationReco
       paymentPeriodStartedAt: null,
       transportOffered: false,
       transportDecided: false,
+      roomsPublished: false,
+      roomName: null,
     },
     {
       termId: "t1",
@@ -43,6 +46,8 @@ const record = (overrides: Partial<MyApplicationRecord> = {}): MyApplicationReco
       paymentPeriodStartedAt: null,
       transportOffered: false,
       transportDecided: false,
+      roomsPublished: false,
+      roomName: null,
     },
   ],
   ...overrides,
@@ -77,6 +82,27 @@ describe("buildMyApplication", () => {
         ["t2", "48002", 4900],
       ],
     )
+  })
+
+  it("reports an archived overpayment separately from active payment details", () => {
+    const [upcoming, first] = record().terms
+    const result = buildMyApplication(
+      record({
+        terms: [
+          upcoming,
+          {
+            ...first,
+            status: "ARCHIVED",
+            payments: [{ amountCzk: 5100, source: "MANUAL", createdAt: at(10) }],
+          },
+        ],
+      }),
+    )
+
+    expect(result.terms[0]).toMatchObject({ termId: "t1", archivedOverpaymentCzk: 600 })
+    expect(result.terms[1]).not.toHaveProperty("archivedOverpaymentCzk")
+    expect(result.paymentDetails?.summary.payableCzk).toBe(4900)
+    expect(result.paymentDetails?.terms.map((term) => term.termId)).toEqual(["t2"])
   })
 
   it("carries the organization name with the contact of the event, as typed", () => {
@@ -211,6 +237,46 @@ describe("buildMyApplication", () => {
         { termId: "t1", amountCzk: 2000, createdAt: "2027-05-03T00:00:00.000Z" },
         { termId: "t1", amountCzk: 500, createdAt: "2027-05-02T00:00:00.000Z" },
       ])
+    })
+  })
+
+  describe("room (US-144)", () => {
+    const withRoom = (
+      term: Partial<MyApplicationRecord["terms"][number]>,
+      overrides: Partial<MyApplicationRecord> = {},
+    ) => {
+      const base = record()
+      return buildMyApplication({
+        ...base,
+        ...overrides,
+        terms: [{ ...base.terms[1], ...term }],
+      })
+    }
+
+    it("shows nothing until the organizer publishes the assignment", () => {
+      expect(withRoom({ roomName: "Bříza 204" }).terms[0].room).toBeUndefined()
+    })
+
+    it("shows the room name of a confirmed term once published", () => {
+      const result = withRoom({ roomsPublished: true, roomName: "Bříza 204" })
+      expect(result.terms[0].room).toEqual({ name: "Bříza 204" })
+    })
+
+    it("tells a published term without a room that none is assigned yet", () => {
+      expect(withRoom({ roomsPublished: true }).terms[0].room).toEqual({ name: null })
+    })
+
+    it("shows no room for a term that is not confirmed", () => {
+      const result = withRoom({ status: "WAITLISTED", roomsPublished: true, roomName: "Bříza 204" })
+      expect(result.terms[0].room).toBeUndefined()
+    })
+
+    it("never mentions a room to an individually accommodated participant", () => {
+      const result = withRoom(
+        { roomsPublished: true, roomName: "Bříza 204" },
+        { individualAccommodation: true },
+      )
+      expect(result.terms[0].room).toBeUndefined()
     })
   })
 })

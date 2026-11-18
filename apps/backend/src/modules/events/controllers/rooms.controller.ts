@@ -3,6 +3,7 @@ import {
   RoomExtraBedsRequestDto,
   RoomModeRequestDto,
   RoomRequestDto,
+  RoomsPublishedRequestDto,
 } from "@/modules/events/controllers/dto/room.request.dto"
 import { RoomsResponseDto } from "@/modules/events/controllers/dto/rooms.response.dto"
 import { RoomsService } from "@/modules/events/services/rooms.service"
@@ -59,6 +60,21 @@ export class RoomsController {
     @Body() body: RoomModeRequestDto,
   ): Promise<void> {
     await this.rooms.setMode(user, eventId, termId, body.roomMode, body.rooms ?? [])
+  }
+
+  @Patch("rooms-published")
+  @HttpCode(204)
+  @ApiOperation({
+    summary: "Publish the room assignment of the term to participants, or take it back",
+  })
+  @ApiResponse({ status: 204 })
+  async publish(
+    @User() user: Identity,
+    @Param("eventId") eventId: string,
+    @Param("termId") termId: string,
+    @Body() body: RoomsPublishedRequestDto,
+  ): Promise<void> {
+    await this.rooms.setPublished(user, eventId, termId, body.published)
   }
 
   @Post("rooms")

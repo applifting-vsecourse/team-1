@@ -24,7 +24,7 @@ nodes:
   - {
       id: n_rucni,
       type: note,
-      label: "Organizátor vybere neprázdnou podmnožinu aktivních termínů a potvrdí souhlas přihlašovatele (D-153; právní stránka je otevřená, Q-PRI-24). Telefon je povinný (D-079). Nad kapacitu jen vědomě.",
+      label: "Organizátor vybere neprázdnou podmnožinu aktivních termínů a potvrdí souhlas přihlašovatele (D-153; právní stránka je otevřená, Q-PRI-24). Telefon je nepovinný (D-162). Nad kapacitu jen vědomě.",
     }
   - { id: e_pridani_terminu, type: event, label: Přidá se termín k existující přihlášce }
   - { id: g_pridani, type: gateway, kind: x }

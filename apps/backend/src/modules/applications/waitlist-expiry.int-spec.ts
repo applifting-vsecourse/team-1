@@ -3,7 +3,7 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { connectTestPrisma, nextTermNumber, resetAndSeed } from "@/test/integration/test-api"
 
-type Status = "TO_EVALUATE" | "CONFIRMED" | "WAITLISTED" | "CANCELLED"
+type Status = "TO_EVALUATE" | "CONFIRMED" | "WAITLISTED" | "CANCELLED" | "ARCHIVED"
 
 const pragueToday = (offsetDays = 0): Date => {
   const date = new Date(

@@ -4,6 +4,7 @@ import { ApiProperty } from "@nestjs/swagger"
 import { Transform, Type } from "class-transformer"
 import {
   IsArray,
+  IsBoolean,
   IsIn,
   IsInt,
   IsOptional,
@@ -54,6 +55,14 @@ export class RoomGenderDto {
   @ApiProperty({ enum: ["FEMALE", "MALE"] })
   @IsIn(["FEMALE", "MALE"])
   gender!: Gender
+}
+
+export class RoomsPublishedRequestDto {
+  @ApiProperty({
+    description: "true publishes the room assignment of the term, false takes it back",
+  })
+  @IsBoolean()
+  published!: boolean
 }
 
 export class RoomModeRequestDto {
