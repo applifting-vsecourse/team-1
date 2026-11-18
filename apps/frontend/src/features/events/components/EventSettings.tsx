@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { Loader2 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { CardGrid } from "@/components/molecules/CardGrid"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { SettingsCard } from "@/components/molecules/SettingsCard"
@@ -48,7 +49,7 @@ export function EventSettings({ eventId }: { eventId: string }) {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <CardGrid>
       {event.evaluationModeLocked ? (
         <LockedMode mode={event.evaluationMode} />
       ) : (
@@ -63,7 +64,7 @@ export function EventSettings({ eventId }: { eventId: string }) {
       />
       <PublicPageForm event={event} />
       <DeleteEventSection event={event} />
-    </div>
+    </CardGrid>
   )
 }
 

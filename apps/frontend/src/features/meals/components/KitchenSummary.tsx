@@ -4,6 +4,7 @@ import { Link } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
+import { CardGrid } from "@/components/molecules/CardGrid"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { PageHeader } from "@/components/molecules/PageHeader"
@@ -55,7 +56,7 @@ export function KitchenSummary({ eventId, eventName }: { eventId: string; eventN
       />
       {term ? (
         <>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 sm:max-w-96">
             <Label htmlFor="meal-term">{t("kitchen.termLabel")}</Label>
             <Select
               value={term.termId}
@@ -79,64 +80,71 @@ export function KitchenSummary({ eventId, eventName }: { eventId: string; eventN
               </SelectContent>
             </Select>
           </div>
-          <Card className="gap-4 p-4">
-            <h2 className="text-2xl font-bold">{t("kitchen.countsTitle")}</h2>
-            <p>
-              {t("kitchen.regular")} · {term.regular}
-            </p>
-            {term.options.map((option) => (
-              <p key={option.id}>
-                {option.name} · {option.count}
-              </p>
-            ))}
-            <p>{t("kitchen.overlapNote")}</p>
-          </Card>
-          <Card className="gap-4 p-4">
-            <h2 className="text-2xl font-bold">{t("kitchen.allergiesTitle")}</h2>
-            {term.allergies.map((entry) => (
-              <p
-                key={entry.applicationId}
-                className="break-words whitespace-pre-line"
-              >
-                {entry.firstName} {entry.lastName} · {entry.allergies}
-              </p>
-            ))}
-          </Card>
-          {term.specialRequests.length > 0 ? (
+          <CardGrid>
             <Card className="gap-4 p-4">
-              <h2 className="text-2xl font-bold">{t("kitchen.specialRequestsTitle")}</h2>
-              {term.specialRequests.map((entry) => (
+              <h2 className="text-2xl font-bold">{t("kitchen.countsTitle")}</h2>
+              <p>
+                {t("kitchen.regular")} · {term.regular}
+              </p>
+              {term.options.map((option) => (
+                <p key={option.id}>
+                  {option.name} · {option.count}
+                </p>
+              ))}
+              <p>{t("kitchen.overlapNote")}</p>
+            </Card>
+            {/* The allergies are the long list: right column, as tall as counts and requests together. */}
+            <Card className="gap-4 p-4 lg:row-span-2">
+              <h2 className="text-2xl font-bold">{t("kitchen.allergiesTitle")}</h2>
+              {term.allergies.map((entry) => (
                 <p
                   key={entry.applicationId}
                   className="break-words whitespace-pre-line"
                 >
-                  {entry.firstName} {entry.lastName} · {entry.specialRequest}
+                  {entry.firstName} {entry.lastName} · {entry.allergies}
                 </p>
               ))}
             </Card>
-          ) : null}
+            {term.specialRequests.length > 0 ? (
+              <Card className="gap-4 p-4">
+                <h2 className="text-2xl font-bold">{t("kitchen.specialRequestsTitle")}</h2>
+                {term.specialRequests.map((entry) => (
+                  <p
+                    key={entry.applicationId}
+                    className="break-words whitespace-pre-line"
+                  >
+                    {entry.firstName} {entry.lastName} · {entry.specialRequest}
+                  </p>
+                ))}
+              </Card>
+            ) : null}
+          </CardGrid>
+        </>
+      ) : null}
+      <div className="flex flex-col gap-3 sm:flex-row print:hidden">
+        {term ? (
           <Button
             size="lg"
-            className="w-full print:hidden"
+            className="w-full sm:w-auto"
             onClick={() => window.print()}
           >
             {t("kitchen.print")}
           </Button>
-        </>
-      ) : null}
-      <Button
-        asChild
-        variant="ghost"
-        size="lg"
-        className="w-full print:hidden"
-      >
-        <Link
-          to={ROUTES.organizer.eventMealOptions}
-          params={{ eventId }}
+        ) : null}
+        <Button
+          asChild
+          variant="ghost"
+          size="lg"
+          className="w-full sm:w-auto"
         >
-          {t("kitchen.setUpOptions")}
-        </Link>
-      </Button>
+          <Link
+            to={ROUTES.organizer.eventMealOptions}
+            params={{ eventId }}
+          >
+            {t("kitchen.setUpOptions")}
+          </Link>
+        </Button>
+      </div>
     </section>
   )
 }

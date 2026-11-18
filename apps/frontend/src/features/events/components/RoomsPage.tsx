@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
 import { Seo } from "@/components/atoms/Seo"
+import { CardGrid } from "@/components/molecules/CardGrid"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { SectionHeader } from "@/components/molecules/SectionHeader"
@@ -217,7 +218,7 @@ export function RoomsPage({
   )
   // The view picker sits left of the term picker, in both views.
   const selectors = (
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+    <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
       <Select
         value={view}
         onValueChange={(next) => onSelectView(next === "overview" ? "overview" : "assignment")}
@@ -260,33 +261,38 @@ export function RoomsPage({
         />
       ) : (
         <>
-          {selectors}
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
-            <Label htmlFor="room-mode">{t("rooms.mode")}</Label>
-            <Select
-              value={term.roomMode}
-              onValueChange={(value) => {
-                const targetMode = roomModeSchema.parse(value)
-                if (targetMode !== term.roomMode) setPendingMode(targetMode)
-              }}
-            >
-              <SelectTrigger
-                id="room-mode"
-                className="w-full bg-card sm:w-60"
-              >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="GENDERED">{t("rooms.genderedMode")}</SelectItem>
-                <SelectItem value="SHARED">{t("rooms.sharedMode")}</SelectItem>
-              </SelectContent>
-            </Select>
-            <p className="text-xs text-muted-foreground">{t("rooms.modeHint")}</p>
-          </div>
-          <RoomsPublicationCard
-            term={term}
-            onChanged={refresh}
-          />
+          {/* Controls left, the publication switch in the otherwise empty right half. */}
+          <CardGrid className="lg:grid-cols-1 xl:grid-cols-2">
+            <div className="flex flex-col gap-6">
+              {selectors}
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+                <Label htmlFor="room-mode">{t("rooms.mode")}</Label>
+                <Select
+                  value={term.roomMode}
+                  onValueChange={(value) => {
+                    const targetMode = roomModeSchema.parse(value)
+                    if (targetMode !== term.roomMode) setPendingMode(targetMode)
+                  }}
+                >
+                  <SelectTrigger
+                    id="room-mode"
+                    className="w-full bg-card sm:w-60"
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="GENDERED">{t("rooms.genderedMode")}</SelectItem>
+                    <SelectItem value="SHARED">{t("rooms.sharedMode")}</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">{t("rooms.modeHint")}</p>
+              </div>
+            </div>
+            <RoomsPublicationCard
+              term={term}
+              onChanged={refresh}
+            />
+          </CardGrid>
           <div className={cn("grid gap-4", isGendered ? "md:grid-cols-3" : "md:grid-cols-2")}>
             {metrics.map((metric) => (
               <Card
