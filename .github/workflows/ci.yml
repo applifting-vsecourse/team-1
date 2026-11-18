@@ -124,6 +124,10 @@ jobs:
 
       - uses: ./.github/actions/setup
 
+      # globalSetup imports the generated client before it runs `prisma generate`.
+      - name: Generate Prisma client
+        run: pnpm backend prisma:generate
+
       - name: Integration tests backend (shard ${{ matrix.shard }}/2)
         run: pnpm backend test:int --shard=${{ matrix.shard }}/2
 
