@@ -652,6 +652,8 @@
     "submit": "Odhlásit účastníka",
     "submitWholeAll": "Odhlásit ze všech termínů",
     "submitWholeTwo": "Odhlásit oba termíny",
+    "substituteDescription": "Po odhlášení se uvolněné lůžko v termínu {{term}} automaticky potvrdí náhradníkovi {{name}}. Náhradník dostane e-mail o změně přihlášky s platebními údaji.",
+    "substituteTitle": "Lůžko automaticky zaplní náhradník",
     "title": "Odhlásit účastníka",
     "trigger": "Odhlásit",
     "triggerWhole": "Odhlásit celou přihlášku",
