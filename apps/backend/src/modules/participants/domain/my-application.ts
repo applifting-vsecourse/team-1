@@ -221,7 +221,7 @@ export function buildMyApplication(
         ...(term.status === "CONFIRMED" && !term.termCancelled && !record.individualAccommodation
           ? { roomWishes: term.roomWishes }
           : {}),
-        ...(term.status !== "CANCELLED" && term.status !== "ARCHIVED"
+        ...(term.status !== "CANCELLED" && term.status !== "ARCHIVED" && !term.termCancelled
           ? { stay: { lateArrival: term.lateArrival, earlyDeparture: term.earlyDeparture } }
           : {}),
       })),

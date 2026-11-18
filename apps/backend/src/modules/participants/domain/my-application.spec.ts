@@ -353,6 +353,7 @@ describe("buildMyApplication", () => {
       expect(stay({ status: "WAITLISTED" })).toBeDefined()
       expect(stay({ status: "CANCELLED" })).toBeUndefined()
       expect(stay({ status: "ARCHIVED" })).toBeUndefined()
+      expect(stay({ termCancelled: true })).toBeUndefined()
     })
   })
 })
