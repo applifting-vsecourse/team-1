@@ -511,14 +511,14 @@ describe("ApplicationDetail", () => {
     )
   })
 
-  it("names the event prominently with the application code", async () => {
+  it("shows the participant and event in the heading area and the application code with the terms", async () => {
     renderDetail(application())
 
     expect(
       await screen.findByRole("heading", { level: 1, name: "Application details" }),
     ).toBeInTheDocument()
-    expect(screen.getByText("Jana Nováková · LKL-0048")).toBeInTheDocument()
-    expect(screen.queryByText("My application")).not.toBeInTheDocument()
+    expect(screen.getByText("Jana Nováková · Letní kemp 2027")).toBeInTheDocument()
+    expect(screen.getByText("LKL-0048")).toBeInTheDocument()
   })
 
   it("shows the debt of each confirmed term separately and the total (500 + 700 CZK)", async () => {

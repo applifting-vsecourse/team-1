@@ -94,8 +94,8 @@ export function ApplicationTransport({ applicationId }: { applicationId: string 
   return (
     <Dialog
       open
-      onOpenChange={(open) => {
-        if (!open && !mutation.isPending) void close()
+      onOpenChange={(isOpen) => {
+        if (!isOpen && !mutation.isPending) void close()
       }}
     >
       <DialogContent
