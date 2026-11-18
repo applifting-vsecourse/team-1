@@ -50,7 +50,7 @@ export function KitchenSummary({ eventId, eventName }: { eventId: string; eventN
 
   return (
     <section
-      className="flex flex-col gap-6"
+      className="flex flex-col gap-6 sm:max-w-190"
       data-print-area
     >
       <PageHeader
@@ -121,7 +121,7 @@ export function KitchenSummary({ eventId, eventName }: { eventId: string; eventN
           ) : null}
           {term.stays.length > 0 ? (
             // Figma (Design system v2): US-143 Organizátor · Souhrn pro kuchyni · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=24969-10806 (mobile 24969-12256)
-            <Card className="gap-4 p-4 sm:max-w-190">
+            <Card className="gap-4 p-4">
               <h2 className="text-2xl font-bold">{t("kitchen.staysTitle")}</h2>
               {term.stays.map((entry) => (
                 <div
