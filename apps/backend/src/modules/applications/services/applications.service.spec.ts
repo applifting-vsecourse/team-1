@@ -111,7 +111,7 @@ describe("ApplicationsService", () => {
     await service.submit("link", { email: "A@Example.com", participants: [participant] }, "cs")
 
     expect(accounts.ensureAccount).toHaveBeenCalledWith(
-      expect.objectContaining({ email: "A@Example.com", locale: "cs" }),
+      expect.objectContaining({ email: "A@Example.com" }),
     )
     expect(mailer.sendSubmissionConfirmation).toHaveBeenCalledTimes(1)
     expect(mailer.sendSubmissionConfirmation).toHaveBeenCalledWith(

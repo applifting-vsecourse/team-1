@@ -116,7 +116,6 @@ export class ApplicationsService {
           const account = await this.accounts.ensureAccount({
             email,
             name: `${input.firstName} ${input.lastName}`,
-            locale,
           })
           mustSetPassword = account.mustSetPassword
           return account.userId
@@ -194,7 +193,6 @@ export class ApplicationsService {
       const account = await this.accounts.ensureAccount({
         email: input.email,
         name: `${first.firstName} ${first.lastName}`,
-        locale,
       })
 
       const consentAt = new Date()

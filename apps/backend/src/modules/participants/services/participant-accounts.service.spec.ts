@@ -39,7 +39,6 @@ describe("ParticipantAccountsService.ensureAccount", () => {
     const result = await service.ensureAccount({
       email: "  Petra.Novakova@Example.cz ",
       name: " Petra Nováková ",
-      locale: "cs",
     })
 
     expect(result).toEqual({
@@ -50,20 +49,17 @@ describe("ParticipantAccountsService.ensureAccount", () => {
     expect(repository.createParticipant).toHaveBeenCalledWith({
       email: "petra.novakova@example.cz",
       name: "Petra Nováková",
-      locale: "cs",
     })
   })
 
-  it("defaults the account language to English", async () => {
+  it("leaves the preferred language unset: the account is created from an application", async () => {
     const { service, repository } = setup({
       created: { id: "u1", accountType: "PARTICIPANT", mustSetPassword: true },
     })
 
     await service.ensureAccount({ email: "a@example.com", name: "A" })
 
-    expect(repository.createParticipant).toHaveBeenCalledWith(
-      expect.objectContaining({ locale: "en" }),
-    )
+    expect(repository.createParticipant).toHaveBeenCalledWith({ email: "a@example.com", name: "A" })
   })
 
   it("attaches to an existing participant who already chose a password", async () => {

@@ -133,8 +133,9 @@ model User {
   // Set for participant accounts created from an application: the first
   // sign-in via magic link forces choosing a password (US-04).
   mustSetPassword Boolean     @default(false)
-  // Language of e-mails sent to the account (password reset, verification).
-  locale          Locale      @default(en)
+  // Preferred language of the user (UI and e-mails, D-069). Null = never chosen: e-mails about
+  // an application change then follow the language of the first application (D-078).
+  locale          Locale?
 
   memberships      OrganizationMember[]
   applications     Application[]

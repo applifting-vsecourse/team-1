@@ -43,7 +43,7 @@ export class MeController {
 
   @Patch()
   @ApiOperation({
-    summary: "The signed-in user changes their name and preferred language (US-124)",
+    summary: "The signed-in user changes their name and/or preferred language (US-124, US-128)",
   })
   @ApiResponse({ status: 200, type: MeResponseDto })
   @ApiResponse({ status: 400, description: "VALIDATION_FAILED — empty name or unknown language" })
