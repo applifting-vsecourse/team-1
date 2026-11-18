@@ -55,8 +55,9 @@ export function CatalogPage({ organizationId, onOrganizationChange }: CatalogPag
   const { pageItems, ...pagination } = usePagination(events, organization ?? ALL, 18)
 
   const totals = new Map<string, number>()
-  for (const event of events)
+  for (const event of events) {
     totals.set(event.organizationId, (totals.get(event.organizationId) ?? 0) + 1)
+  }
   const groups = (data?.organizations ?? [])
     .map((org) => ({
       ...org,
