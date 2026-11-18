@@ -33,10 +33,9 @@ function EventLayout() {
   const { eventId } = Route.useParams()
 
   return (
-    // One centred column for the header, the tab bar and every tab.
-    <div className="mx-auto flex w-full max-w-300 flex-col gap-6">
+    <>
       <EventHeader eventId={eventId} />
       <Outlet />
-    </div>
+    </>
   )
 }
