@@ -1,0 +1,266 @@
+name: Capture baseline screens and email previews for PR 577
+on:
+  push:
+    branches: [tmp/pr-577-v2-before-cbf0d0c]
+concurrency:
+  group: pr-577-v2-baseline
+  cancel-in-progress: true
+permissions:
+  contents: read
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: togena
+          POSTGRES_PASSWORD: togena
+          POSTGRES_DB: togena
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U togena -d togena"
+          --health-interval 3s
+          --health-timeout 3s
+          --health-retries 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: cbf0d0c097c069a2987e3742ab8681a5817b5de9
+          persist-credentials: false
+
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Create env files
+        run: pnpm env:check
+
+      - name: Install Chromium for Playwright
+        run: pnpm e2e exec playwright install --with-deps chromium
+
+      - name: Render existing email templates with preview data
+        working-directory: apps/backend
+        env:
+          FRONTEND_URL: http://localhost:3190
+        run: |
+          cat > preview-pr-577.cjs <<'JS'
+          const fs = require("node:fs")
+          const { render } = require("react-email")
+          const React = require("react")
+          const dest = "../frontend/public/test-email"
+          fs.mkdirSync(dest, { recursive: true })
+          async function main() {
+            for (const name of ["application-change-confirmation-withdrawn","application-change","application-confirmation-two-applicants","application-confirmation-waitlisted","application-confirmation","application-term-cancelled","change-email-notice","change-email","change-request-status","magic-link","payment-correction","payment-received","reset-password","verify-email"]) {
+              let Template = require("./src/core/email/templates/" + name).default
+              let props = Template.PreviewProps ?? { locale: "cs", status: "REJECTED", eventName: "Letní kemp", participantName: "Jana Nováková", reason: "Termín je obsazený." }
+              if (Object.keys(props).length === 0) {
+                const preview = Template(props)
+                props = preview.props
+                Template = preview.type
+              }
+              async function write(example, data) {
+                fs.writeFileSync(dest + "/" + example + ".html", await render(React.createElement(Template, data)))
+              }
+              await write(name, props)
+              await write(name + "-en", { ...props, locale: "en" })
+              for (const locale of ["cs", "en"]) {
+                if (name === "application-change") for (const kind of ["WAITLISTED","CONFIRMED_FROM_WAITLIST","REJECTED","CANCELLED","NO_BED_FREED","CANCELLED_BY_ORGANIZER"]) {
+                  await write(name + "-" + kind.toLowerCase().replaceAll("_","-") + "-" + locale, {
+                    ...props, locale, kind, payment: kind === "CONFIRMED_FROM_WAITLIST" ? props.payment : undefined
+                  })
+                }
+                if (name === "change-request-status") await write("change-request-pending-" + locale, { ...props, locale, status: "PENDING", reason: undefined })
+              }
+            }
+          }
+          main().catch(error => { console.error(error); process.exitCode = 1 })
+          JS
+          pnpm exec node -r ts-node/register/transpile-only -r tsconfig-paths/register preview-pr-577.cjs
+      - name: Capture seeded screenshots
+        run: |
+          cat > apps/e2e/tests/zz-screenshots.spec.ts <<'TS'
+          import { expect, test } from "@playwright/test"
+          import { ORGANIZER, PARTICIPANT, SUMMER_CAMP_LINK } from "./support/accounts"
+          import { latestMagicLinkToken } from "./support/magic-link"
+          import { openEventList, signIn } from "./support/auth"
+          import { eventIdByPublicToken } from "./support/events"
+          
+          for (const width of [1440, 360]) {
+            test.describe(String(width), () => {
+              test.use({ viewport: { width, height: width === 360 ? 800 : 900 } })
+              test("public flows and organizer workspace", async ({ page }) => {
+                test.setTimeout(180000)
+                const capture = async (screen: string) => {
+                  await expect(page.getByRole("heading", { level: 1 }).first()).toBeVisible()
+                  await page.waitForLoadState("networkidle")
+                  await page.evaluate(() => document.fonts.ready)
+                  await page.screenshot({ path: "test-results/screenshots/" + screen + "-" + width + ".png", fullPage: true, animations: "disabled" })
+                }
+                for (const [screen, route] of [["landing","/"], ["request-link","/participant/magic-link"], ["expired-link","/participant/magic-link?error=invalid"], ["participant-login","/participant/login"], ["event-not-found","/events/does-not-exist"], ["catalog","/catalog"], ["event","/events/demo-letni-kemp-2027"], ["register","/organizer/register"], ["not-found","/unknown-seeded-route"]]) {
+                  await page.goto(route)
+                  await capture(screen)
+                }
+                await page.goto("/organizer/login")
+                await capture("login")
+                await page.goto(SUMMER_CAMP_LINK)
+                await capture("apply")
+                await signIn(page, "organizer", ORGANIZER)
+                await openEventList(page)
+                await capture("events")
+                const id = await eventIdByPublicToken("demo-letni-kemp-2027")
+                for (const [screen, route] of [["new-event","/organizer/events/new"], ["organizer-account","/organizer/account"], ["overview","/organizer/events/" + id], ["organizer-transport","/organizer/events/"+id+"/transport"], ["organizer-meals","/organizer/events/"+id+"/meals"], ["meal-options","/organizer/events/"+id+"/meals/options"], ["payment-import","/organizer/events/"+id+"/payments/import"], ["cancellation","/organizer/events/"+id+"/payments/cancellation"], ["new-application","/organizer/events/"+id+"/applications/new"]]) {
+                  await page.goto(route)
+                  await capture(screen)
+                }
+                const programEndpoint = "http://localhost:4190/api/organizer/events/" + id + "/program"
+                const program = await (await page.request.get(programEndpoint)).json()
+                const term = program.terms[0]
+                if (!term.blocks.length) {
+                  for (const [name, startTime, endTime] of [["Příjezd","09:00","09:15"], ["Registrace účastníků","09:15","09:30"], ["Prohlídka areálu","09:15","10:00"]]) {
+                    const result = await page.request.post(programEndpoint+"/terms/"+term.termId+"/blocks", { headers: {Origin:"http://localhost:3190"}, data: { date:term.startsOn, startTime, endTime, name, place:"Recepce", description:"" } })
+                    expect(result.ok()).toBeTruthy()
+                  }
+                }
+                const endpoint = "http://localhost:4190/api/organizer/events/" + id + "/transport"
+                const offer = await page.request.get(endpoint)
+                expect(offer.ok()).toBeTruthy()
+                for (const term of (await offer.json()).terms) {
+                  if (!term.transports.length) {
+                    const created = await page.request.post(endpoint, { headers: { Origin: "http://localhost:3190" }, data: {
+                      termId: term.termId, kind: "SCHEDULED", name: "Autobus z Prahy", departurePlace: "Praha, Florenc",
+                      departureAt: term.startsOn + "T08:00:00+02:00"
+                    } })
+                    expect(created.ok()).toBeTruthy()
+                  }
+                }
+                for (const section of ["settings", "terms", "capacity", "applications", "payments", "rooms", "program"]) {
+                  await page.goto("/organizer/events/" + id + "/" + section)
+                  await expect(page.getByRole("navigation", { name: "Event sections" })).toBeVisible()
+                  await capture(section)
+                }
+                await page.getByRole("button", { name: "Add block" }).click()
+                await expect(page.getByRole("dialog", { name: "Add block" })).toBeVisible()
+                await page.screenshot({ path: "test-results/screenshots/program-dialog-" + width + ".png", fullPage: true, animations: "disabled" })
+              })
+              test("participant workspace", async ({ page }) => {
+                test.setTimeout(120000)
+                await signIn(page, "participant", PARTICIPANT)
+                await expect(page.getByRole("heading", { name: "Your applications" })).toBeVisible()
+                await page.waitForLoadState("networkidle")
+                await page.evaluate(() => document.fonts.ready)
+                await page.screenshot({ path: "test-results/screenshots/participant-" + width + ".png", fullPage: true, animations: "disabled" })
+                const response = await page.request.get("http://localhost:4190/api/participant/applications")
+                expect(response.ok()).toBeTruthy()
+                const data = await response.json()
+                const application = data.find(a => a.terms.some(term => term.status === "CONFIRMED" && term.transportOffered))
+                expect(application).toBeTruthy()
+                await page.goto("/participant/applications/" + application.id)
+                await expect(page.locator('a[href$="/edit"]')).toBeVisible()
+                await page.screenshot({ path: "test-results/screenshots/participant-detail-" + width + ".png", fullPage: true, animations: "disabled" })
+                const detailURL = page.url()
+                for (const route of ["meals","health","program","account"]) {
+                  await page.goto(route==="account"?"/participant/account":detailURL+"/"+route)
+                  await expect(page.getByRole("heading").first()).toBeVisible()
+                  await page.waitForLoadState("networkidle")
+                  await page.screenshot({path:"test-results/screenshots/participant-"+route+"-"+width+".png",fullPage:true,animations:"disabled"})
+                }
+                await page.goto(detailURL)
+                const transport = page.locator('a[href$="/transport"]').first()
+                await transport.click()
+                await expect(page.getByRole("combobox").first()).toBeVisible()
+                await page.getByRole("combobox").first().click()
+                await page.getByRole("option").first().click()
+                await page.screenshot({ path: "test-results/screenshots/participant-transport-" + width + ".png", fullPage: true, animations: "disabled" })
+                await page.goto(detailURL)
+                await page.locator('a[href$="/edit"]').click()
+                await expect(page.getByRole("heading", {level: 1})).toBeVisible()
+                await page.screenshot({ path: "test-results/screenshots/participant-edit-" + width + ".png", fullPage: true, animations: "disabled" })
+              })
+              test("transactional email previews", async ({ page }) => {
+                test.setTimeout(120000)
+                for (const name of ["application-change-confirmation-withdrawn","application-change","application-confirmation-two-applicants","application-confirmation-waitlisted","application-confirmation","application-term-cancelled","change-email-notice","change-email","change-request-status","magic-link","payment-correction","payment-received","reset-password","verify-email","application-change-confirmation-withdrawn-en","application-change-en","application-confirmation-two-applicants-en","application-confirmation-waitlisted-en","application-confirmation-en","application-term-cancelled-en","change-email-notice-en","change-email-en","change-request-status-en","magic-link-en","payment-correction-en","payment-received-en","reset-password-en","verify-email-en","application-change-waitlisted-cs","application-change-waitlisted-en","application-change-confirmed-from-waitlist-cs","application-change-confirmed-from-waitlist-en","application-change-rejected-cs","application-change-rejected-en","application-change-cancelled-cs","application-change-cancelled-en","application-change-no-bed-freed-cs","application-change-no-bed-freed-en","application-change-cancelled-by-organizer-cs","application-change-cancelled-by-organizer-en","change-request-pending-cs","change-request-pending-en"]) {
+                  await page.goto("/test-email/" + name + ".html")
+                  await expect.poll(() => page.locator("body").innerText()).toMatch(/\S{3}/)
+                  await page.screenshot({ path: "test-results/screenshots/mail-" + name + "-" + width + ".png", fullPage: true })
+                }
+              })
+              test("capture link verification and follow the one-time link", async ({ page }) => {
+                await page.goto("/participant/magic-link")
+                await page.getByLabel("E-mail").fill(PARTICIPANT.email)
+                await page.getByRole("button", { name: "Send me a link" }).click()
+                await expect(page.getByRole("status")).toContainText("Check your e-mail")
+                const token = await latestMagicLinkToken()
+                await page.goto("/participant/magic-link?token=" + encodeURIComponent(token))
+                const proceed = page.getByRole("button", { name: "Continue" })
+                await expect(proceed).toBeVisible()
+                await page.screenshot({ path: "test-results/screenshots/verification-" + width + ".png", fullPage: true, animations: "disabled" })
+                await proceed.click()
+                await expect(page.getByRole("heading", { name: "Your applications" })).toBeVisible()
+              })
+          
+            })
+          }
+          TS
+          pnpm e2e test tests/zz-screenshots.spec.ts --project=desktop
+      - name: Archive screenshots
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: pr-577-seeded-screenshots
+          path: apps/e2e/test-results/screenshots/*.png
+          retention-days: 2
+
+  publish:
+    needs: e2e
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      actions: read
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: pr-screenshots
+          sparse-checkout: "577"
+      - name: Retrieve seed-only screenshot artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh run download "${{ github.run_id }}" --repo applifting-vsecourse/team-1 --name pr-577-seeded-screenshots --dir "$RUNNER_TEMP/screenshots"
+      - name: Verify dimensions, filenames and publish in the PR folder
+        run: |
+          mkdir -p 577
+          python - <<'PY'
+          from pathlib import Path
+          import os, shutil, struct
+          source = Path(os.environ["RUNNER_TEMP"]) / "screenshots"
+          for width in (1440, 360):
+              for screen in ("participant-login", "event-not-found", "participant-transport", "catalog", "event", "register", "not-found", "login", "apply", "events", "settings", "terms", "capacity", "applications", "payments", "rooms", "program", "program-dialog", "participant", "participant-detail", "participant-edit", "verification", "mail-application-change-confirmation-withdrawn", "mail-application-change", "mail-application-confirmation-two-applicants", "mail-application-confirmation-waitlisted", "mail-application-confirmation", "mail-application-term-cancelled", "mail-change-email-notice", "mail-change-email", "mail-change-request-status", "mail-magic-link", "mail-payment-correction", "mail-payment-received", "mail-reset-password", "mail-verify-email", "landing", "request-link", "expired-link", "new-event", "organizer-account", "overview", "organizer-transport", "organizer-meals", "meal-options", "payment-import", "cancellation", "new-application", "participant-meals", "participant-health", "participant-program", "participant-account", "mail-application-change-confirmation-withdrawn-en", "mail-application-change-en", "mail-application-confirmation-two-applicants-en", "mail-application-confirmation-waitlisted-en", "mail-application-confirmation-en", "mail-application-term-cancelled-en", "mail-change-email-notice-en", "mail-change-email-en", "mail-change-request-status-en", "mail-magic-link-en", "mail-payment-correction-en", "mail-payment-received-en", "mail-reset-password-en", "mail-verify-email-en", "mail-application-change-waitlisted-cs", "mail-application-change-waitlisted-en", "mail-application-change-confirmed-from-waitlist-cs", "mail-application-change-confirmed-from-waitlist-en", "mail-application-change-rejected-cs", "mail-application-change-rejected-en", "mail-application-change-cancelled-cs", "mail-application-change-cancelled-en", "mail-application-change-no-bed-freed-cs", "mail-application-change-no-bed-freed-en", "mail-application-change-cancelled-by-organizer-cs", "mail-application-change-cancelled-by-organizer-en", "mail-change-request-pending-cs", "mail-change-request-pending-en"):
+                  name = f"{screen}-{width}.png"
+                  p = source / name
+                  header = p.read_bytes()[:24]
+                  assert header[:8] == bytes.fromhex("89504e470d0a1a0a")
+                  w, h = struct.unpack(">II", header[16:24])
+                  assert w >= width and h > 0, (name, w, h)
+                  if w != width:
+                      print(f"::warning::{name}: page overflows viewport ({w}px)")
+                  dest = Path("577") / f"{screen}-{width}-cbf0d0c.png"
+                  if dest.exists():
+                      assert dest.read_bytes() == p.read_bytes(), dest
+                      continue
+                  shutil.copyfile(p, dest)
+                  print(f"{name} {w}x{h}")
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- 577
+          git commit -m "Screenshots for #577 (seeded desktop and 360 px)"
+          git push origin HEAD:refs/heads/pr-screenshots
