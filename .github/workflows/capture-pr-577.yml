@@ -25,7 +25,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: e20b6067046123e32beb413db3908ff6e47db68d
+          ref: a51e3a8cf38c9ddfecf68f207d05730cfaee23bf
           persist-credentials: false
 
       - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
@@ -57,9 +57,26 @@ jobs:
           fs.mkdirSync(dest, { recursive: true })
           async function main() {
             for (const name of ["application-change-confirmation-withdrawn","application-change","application-confirmation-two-applicants","application-confirmation-waitlisted","application-confirmation","application-term-cancelled","change-email-notice","change-email","change-request-status","magic-link","payment-correction","payment-received","reset-password","verify-email"]) {
-              const Template = require("./src/core/email/templates/" + name).default
-              const props = Template.PreviewProps ?? { locale: "cs", status: "REJECTED", eventName: "Letní kemp", participantName: "Jana Nováková", reason: "Termín je obsazený." }
-              fs.writeFileSync(dest + "/" + name + ".html", await render(React.createElement(Template, props)))
+              let Template = require("./src/core/email/templates/" + name).default
+              let props = Template.PreviewProps ?? { locale: "cs", status: "REJECTED", eventName: "Letní kemp", participantName: "Jana Nováková", reason: "Termín je obsazený." }
+              if (Object.keys(props).length === 0) {
+                const preview = Template(props)
+                props = preview.props
+                Template = preview.type
+              }
+              async function write(example, data) {
+                fs.writeFileSync(dest + "/" + example + ".html", await render(React.createElement(Template, data)))
+              }
+              await write(name, props)
+              await write(name + "-en", { ...props, locale: "en" })
+              for (const locale of ["cs", "en"]) {
+                if (name === "application-change") for (const kind of ["WAITLISTED","CONFIRMED_FROM_WAITLIST","REJECTED","CANCELLED","NO_BED_FREED","CANCELLED_BY_ORGANIZER"]) {
+                  await write(name + "-" + kind.toLowerCase().replaceAll("_","-") + "-" + locale, {
+                    ...props, locale, kind, payment: kind === "CONFIRMED_FROM_WAITLIST" ? props.payment : undefined
+                  })
+                }
+                if (name === "change-request-status") await write("change-request-pending-" + locale, { ...props, locale, status: "PENDING", reason: undefined })
+              }
             }
           }
           main().catch(error => { console.error(error); process.exitCode = 1 })
@@ -78,14 +95,14 @@ jobs:
             test.describe(String(width), () => {
               test.use({ viewport: { width, height: width === 360 ? 800 : 900 } })
               test("public flows and organizer workspace", async ({ page }) => {
-                test.setTimeout(120000)
+                test.setTimeout(180000)
                 const capture = async (screen: string) => {
                   await expect(page.getByRole("heading", { level: 1 }).first()).toBeVisible()
                   await page.waitForLoadState("networkidle")
                   await page.evaluate(() => document.fonts.ready)
                   await page.screenshot({ path: "test-results/screenshots/" + screen + "-" + width + ".png", fullPage: true, animations: "disabled" })
                 }
-                for (const [screen, route] of [["participant-login","/participant/login"], ["event-not-found","/events/does-not-exist"], ["catalog","/catalog"], ["event","/events/demo-letni-kemp-2027"], ["register","/organizer/register"], ["not-found","/unknown-seeded-route"]]) {
+                for (const [screen, route] of [["landing","/"], ["request-link","/participant/magic-link"], ["expired-link","/participant/magic-link?error=invalid"], ["participant-login","/participant/login"], ["event-not-found","/events/does-not-exist"], ["catalog","/catalog"], ["event","/events/demo-letni-kemp-2027"], ["register","/organizer/register"], ["not-found","/unknown-seeded-route"]]) {
                   await page.goto(route)
                   await capture(screen)
                 }
@@ -97,6 +114,19 @@ jobs:
                 await openEventList(page)
                 await capture("events")
                 const id = await eventIdByPublicToken("demo-letni-kemp-2027")
+                for (const [screen, route] of [["new-event","/organizer/events/new"], ["organizer-account","/organizer/account"], ["overview","/organizer/events/" + id], ["organizer-transport","/organizer/events/"+id+"/transport"], ["organizer-meals","/organizer/events/"+id+"/meals"], ["meal-options","/organizer/events/"+id+"/meals/options"], ["payment-import","/organizer/events/"+id+"/payments/import"], ["cancellation","/organizer/events/"+id+"/payments/cancellation"], ["new-application","/organizer/events/"+id+"/applications/new"]]) {
+                  await page.goto(route)
+                  await capture(screen)
+                }
+                const programEndpoint = "http://localhost:4190/api/organizer/events/" + id + "/program"
+                const program = await (await page.request.get(programEndpoint)).json()
+                const term = program.terms[0]
+                if (!term.blocks.length) {
+                  for (const [name, startTime, endTime] of [["Příjezd","09:00","09:15"], ["Registrace účastníků","09:15","09:30"], ["Prohlídka areálu","09:15","10:00"]]) {
+                    const result = await page.request.post(programEndpoint+"/terms/"+term.termId+"/blocks", { headers: {Origin:"http://localhost:3190"}, data: { date:term.startsOn, startTime, endTime, name, place:"Recepce", description:"" } })
+                    expect(result.ok()).toBeTruthy()
+                  }
+                }
                 const endpoint = "http://localhost:4190/api/organizer/events/" + id + "/transport"
                 const offer = await page.request.get(endpoint)
                 expect(offer.ok()).toBeTruthy()
@@ -119,6 +149,7 @@ jobs:
                 await page.screenshot({ path: "test-results/screenshots/program-dialog-" + width + ".png", fullPage: true, animations: "disabled" })
               })
               test("participant workspace", async ({ page }) => {
+                test.setTimeout(120000)
                 await signIn(page, "participant", PARTICIPANT)
                 await expect(page.getByRole("heading", { name: "Your applications" })).toBeVisible()
                 await page.waitForLoadState("networkidle")
@@ -132,6 +163,14 @@ jobs:
                 await page.goto("/participant/applications/" + application.id)
                 await expect(page.locator('a[href$="/edit"]')).toBeVisible()
                 await page.screenshot({ path: "test-results/screenshots/participant-detail-" + width + ".png", fullPage: true, animations: "disabled" })
+                const detailURL = page.url()
+                for (const route of ["meals","health","program","account"]) {
+                  await page.goto(route==="account"?"/participant/account":detailURL+"/"+route)
+                  await expect(page.getByRole("heading").first()).toBeVisible()
+                  await page.waitForLoadState("networkidle")
+                  await page.screenshot({path:"test-results/screenshots/participant-"+route+"-"+width+".png",fullPage:true,animations:"disabled"})
+                }
+                await page.goto(detailURL)
                 const transport = page.locator('a[href*="/transport#"]').first()
                 await transport.click()
                 const dialog = page.getByRole("dialog", {name:"Choose transport"})
@@ -147,7 +186,8 @@ jobs:
                 await page.screenshot({ path: "test-results/screenshots/participant-edit-" + width + ".png", fullPage: true, animations: "disabled" })
               })
               test("transactional email previews", async ({ page }) => {
-                for (const name of ["application-change-confirmation-withdrawn","application-change","application-confirmation-two-applicants","application-confirmation-waitlisted","application-confirmation","application-term-cancelled","change-email-notice","change-email","change-request-status","magic-link","payment-correction","payment-received","reset-password","verify-email"]) {
+                test.setTimeout(120000)
+                for (const name of ["application-change-confirmation-withdrawn","application-change","application-confirmation-two-applicants","application-confirmation-waitlisted","application-confirmation","application-term-cancelled","change-email-notice","change-email","change-request-status","magic-link","payment-correction","payment-received","reset-password","verify-email","application-change-confirmation-withdrawn-en","application-change-en","application-confirmation-two-applicants-en","application-confirmation-waitlisted-en","application-confirmation-en","application-term-cancelled-en","change-email-notice-en","change-email-en","change-request-status-en","magic-link-en","payment-correction-en","payment-received-en","reset-password-en","verify-email-en","application-change-waitlisted-cs","application-change-waitlisted-en","application-change-confirmed-from-waitlist-cs","application-change-confirmed-from-waitlist-en","application-change-rejected-cs","application-change-rejected-en","application-change-cancelled-cs","application-change-cancelled-en","application-change-no-bed-freed-cs","application-change-no-bed-freed-en","application-change-cancelled-by-organizer-cs","application-change-cancelled-by-organizer-en","change-request-pending-cs","change-request-pending-en"]) {
                   await page.goto("/test-email/" + name + ".html")
                   await expect(page.getByRole("heading").first()).toBeVisible()
                   const image = page.locator('img[alt="Togena"]')
@@ -205,7 +245,7 @@ jobs:
           import os, shutil, struct
           source = Path(os.environ["RUNNER_TEMP"]) / "screenshots"
           for width in (1440, 360):
-              for screen in ("participant-login", "event-not-found", "participant-transport", "catalog", "event", "register", "not-found", "login", "apply", "events", "settings", "terms", "capacity", "applications", "payments", "rooms", "program", "program-dialog", "participant", "participant-detail", "participant-edit", "verification", "mail-application-change-confirmation-withdrawn", "mail-application-change", "mail-application-confirmation-two-applicants", "mail-application-confirmation-waitlisted", "mail-application-confirmation", "mail-application-term-cancelled", "mail-change-email-notice", "mail-change-email", "mail-change-request-status", "mail-magic-link", "mail-payment-correction", "mail-payment-received", "mail-reset-password", "mail-verify-email"):
+              for screen in ("participant-login", "event-not-found", "participant-transport", "catalog", "event", "register", "not-found", "login", "apply", "events", "settings", "terms", "capacity", "applications", "payments", "rooms", "program", "program-dialog", "participant", "participant-detail", "participant-edit", "verification", "mail-application-change-confirmation-withdrawn", "mail-application-change", "mail-application-confirmation-two-applicants", "mail-application-confirmation-waitlisted", "mail-application-confirmation", "mail-application-term-cancelled", "mail-change-email-notice", "mail-change-email", "mail-change-request-status", "mail-magic-link", "mail-payment-correction", "mail-payment-received", "mail-reset-password", "mail-verify-email", "landing", "request-link", "expired-link", "new-event", "organizer-account", "overview", "organizer-transport", "organizer-meals", "meal-options", "payment-import", "cancellation", "new-application", "participant-meals", "participant-health", "participant-program", "participant-account", "mail-application-change-confirmation-withdrawn-en", "mail-application-change-en", "mail-application-confirmation-two-applicants-en", "mail-application-confirmation-waitlisted-en", "mail-application-confirmation-en", "mail-application-term-cancelled-en", "mail-change-email-notice-en", "mail-change-email-en", "mail-change-request-status-en", "mail-magic-link-en", "mail-payment-correction-en", "mail-payment-received-en", "mail-reset-password-en", "mail-verify-email-en", "mail-application-change-waitlisted-cs", "mail-application-change-waitlisted-en", "mail-application-change-confirmed-from-waitlist-cs", "mail-application-change-confirmed-from-waitlist-en", "mail-application-change-rejected-cs", "mail-application-change-rejected-en", "mail-application-change-cancelled-cs", "mail-application-change-cancelled-en", "mail-application-change-no-bed-freed-cs", "mail-application-change-no-bed-freed-en", "mail-application-change-cancelled-by-organizer-cs", "mail-application-change-cancelled-by-organizer-en", "mail-change-request-pending-cs", "mail-change-request-pending-en"):
                   name = f"{screen}-{width}.png"
                   p = source / name
                   header = p.read_bytes()[:24]
@@ -214,7 +254,7 @@ jobs:
                   assert w >= width and h > 0, (name, w, h)
                   if w != width:
                       print(f"::warning::{name}: page overflows viewport ({w}px)")
-                  dest = Path("577") / f"{screen}-{width}-e20b606.png"
+                  dest = Path("577") / f"{screen}-{width}-a51e3a8.png"
                   if dest.exists():
                       assert dest.read_bytes() == p.read_bytes(), dest
                       continue
