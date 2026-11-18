@@ -63,8 +63,24 @@
     "meals": "Stravování",
     "program": "Program",
     "sections": {
-      "terms": "Termíny a platby",
-      "transport": "Doprava"
+      "terms": "Termíny a platby"
+    },
+    "steps": {
+      "done": "Hotovo",
+      "health": "Zdravotní omezení",
+      "healthFill": "Doplnit údaje",
+      "healthView": "Zobrazit údaje",
+      "meals": "Stravování",
+      "mealsFill": "Doplnit stravování",
+      "mealsView": "Zobrazit stravování",
+      "payment": "Zaplacení",
+      "paymentPay": "Zaplatit {{amount}}",
+      "paymentView": "Zobrazit platbu",
+      "title": "Kroky před akcí",
+      "todo": "Zbývá",
+      "transport": "Doprava",
+      "transportChoose": "Vybrat dopravu",
+      "transportView": "Zobrazit dopravu"
     },
     "termsTitle": "Stav podle termínů",
     "title": "Moje přihláška",
@@ -72,19 +88,7 @@
       "alertText": "Platební údaje dostanete po potvrzení účasti.",
       "alertTitle": "Zatím nic neplaťte.",
       "note": "Organizátor přihlášku posoudí v každém termínu zvlášť. Zatím nejde o potvrzenou účast ani o zařazení mezi náhradníky."
-    },
-    "todo": {
-      "change": "Změnit dopravu",
-      "choose": "Vybrat dopravu",
-      "intro": "Organizátor to od vás potřebuje k naplánování akce.",
-      "progress": "Hotovo {{done}} z {{total}}",
-      "statusDone": "Hotovo",
-      "statusOpen": "K vyřízení",
-      "title": "Co zbývá zařídit",
-      "transportBody": "Vyberte, jak se účastník dostane na akci.",
-      "transportTitle": "Doprava · {{term}}"
-    },
-    "transportIntro": "Vyberte, jak se účastník dostane na jednotlivé termíny, a zjistěte, kde a kdy doprava odjíždí."
+    }
   },
   "edit": {
     "accommodationIndividual": "Individuální řešení",
