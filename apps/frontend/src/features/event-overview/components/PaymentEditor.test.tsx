@@ -25,6 +25,8 @@ const application: PaymentApplication = {
   birthDate: "2011-05-04",
   gender: "MALE",
   email: "eva.mala@example.cz",
+  phone: "+420777123456",
+  isEditable: true,
   terms: [
     {
       termId: "t1",
