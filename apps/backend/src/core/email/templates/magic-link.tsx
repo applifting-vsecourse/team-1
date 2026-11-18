@@ -1,6 +1,6 @@
 import { Locale } from "@/core/email/locale"
-import { Button, Hr, Section, Text } from "react-email"
-import { emailButton, EmailLayout } from "@/core/email/email-kit"
+import { Button, Section, Text } from "react-email"
+import { emailButton, EmailLayout, EmailLinkHelp } from "@/core/email/email-kit"
 import * as React from "react"
 
 // Copy for all locales side by side — a missing translation is a type error.
@@ -52,7 +52,7 @@ export const MagicLink = ({ url, locale }: MagicLinkProps): React.JSX.Element =>
       heading={text.heading}
       introduction={<Text className="text-ink text-base leading-6 mt-4">{text.body}</Text>}
     >
-      <Section className="text-center my-8">
+      <Section className="my-6 text-center">
         <Button
           href={url}
           className={emailButton}
@@ -60,10 +60,11 @@ export const MagicLink = ({ url, locale }: MagicLinkProps): React.JSX.Element =>
           {text.button}
         </Button>
       </Section>
-      <Text className="text-muted text-sm leading-5">{text.fallback}</Text>
-      <Text className="text-accent text-sm break-all">{url}</Text>
-      <Hr className="border-line my-6" />
-      <Text className="text-muted text-xs">{text.ignore}</Text>
+      <EmailLinkHelp
+        url={url}
+        fallback={text.fallback}
+        warning={text.ignore}
+      />
     </EmailLayout>
   )
 }

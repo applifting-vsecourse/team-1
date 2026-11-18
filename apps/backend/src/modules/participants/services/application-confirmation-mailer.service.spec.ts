@@ -368,17 +368,22 @@ describe("ApplicationConfirmationMailer.sendApplicationChange", () => {
     },
   )
 
-  it("is responsive: 16 px gutters, 24/32 px heading and a 44 px button at 360 px", async () => {
+  it("renders the v2 mobile card, heading and 44 px button in the confirmation email", async () => {
     const { mailer, sendEmail } = setup()
 
     await mailer.sendApplicationChange(change())
 
     const { html } = sent(sendEmail)
     expect(html).toMatch(/@media[^{]*max-width:\s*480px/)
-    expect(html).toContain(".tg-card>tbody>tr>td{padding-left:16px !important")
-    expect(html).toContain(".tg-body>table>tbody>tr>td{padding:16px !important}")
-    expect(html).toContain("max-480px_text-2xl")
-    expect(html).toContain("max-480px_py-3")
+    expect(html).toContain('class="email-gutter"')
+    expect(html).toContain(".email-gutter{padding:16px!important}")
+    expect(html).toContain('class="email-content"')
+    expect(html).toContain(".email-content{padding:24px!important}")
+    expect(html).toContain(".email-heading{font-size:24px!important;line-height:32px!important}")
+    const buttonStyle = html.match(/<a\b[^>]*style="([^"]*)"/)?.[1]
+    expect(buttonStyle).toContain("line-height:1.25rem")
+    expect(buttonStyle).toContain("padding-top:12px")
+    expect(buttonStyle).toContain("padding-bottom:12px")
   })
 
   it("keeps TERMS_CHANGED for the term-change stories: the old sentence, payment details when the amount changed", async () => {

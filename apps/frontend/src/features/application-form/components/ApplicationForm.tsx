@@ -143,6 +143,7 @@ export function ApplicationForm({
           () => setInvalidSubmitCount((count) => count + 1),
         )}
         className="flex flex-col gap-6 [&_[data-slot=form-item]]:scroll-mt-24"
+        data-invalid-submit={invalidSubmitCount > 0 || undefined}
         data-restored={restoredDraft ? true : undefined}
       >
         {fields.map((field, index) => (

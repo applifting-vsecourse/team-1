@@ -14,6 +14,8 @@ type UploadFieldProps = {
   removeLabel?: string
   onRemove?: () => void
   /** The chosen image; shown above the title once there is one. */
+  uploadLabel?: string
+  uploadFraction?: number
   previewUrl?: string | null
   /** What went wrong with the last file, under the frame. */
   error?: string | null
@@ -37,6 +39,8 @@ export function UploadField({
   removeLabel,
   onRemove,
   previewUrl,
+  uploadLabel,
+  uploadFraction,
   error,
   accept,
   isDisabled = false,
@@ -47,7 +51,22 @@ export function UploadField({
   return (
     <div className="flex flex-col gap-2">
       <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed border-border p-6 text-center">
-        {previewUrl ? (
+        {uploadLabel ? (
+          <div
+            role="progressbar"
+            aria-label={uploadLabel}
+            aria-valuenow={
+              uploadFraction === undefined ? undefined : Math.round(uploadFraction * 100)
+            }
+            className="flex flex-col items-center gap-2 text-primary"
+          >
+            <LogoSymbol
+              className="upload-symbol size-13"
+              fraction={uploadFraction}
+            />
+            <span className="text-sm text-muted-foreground">{uploadLabel}</span>
+          </div>
+        ) : previewUrl ? (
           <img
             src={previewUrl}
             alt=""

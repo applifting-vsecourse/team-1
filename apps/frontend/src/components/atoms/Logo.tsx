@@ -3,7 +3,7 @@ import { Link } from "@tanstack/react-router"
 import { ROUTES } from "@/app/routes"
 
 /** Togena symbol (Figma DS / Brand / Togena symbol), drawn in the primary colour. */
-export function LogoSymbol({ className }: { className?: string }) {
+export function LogoSymbol({ className, fraction }: { className?: string; fraction?: number }) {
   return (
     <svg
       viewBox="0 0 32 32"
@@ -13,6 +13,9 @@ export function LogoSymbol({ className }: { className?: string }) {
     >
       <path
         d="M6.667 18.667V10c0-2.222 1.111-3.333 3.333-3.333h6.667M25.333 13.333V22c0 2.222-1.111 3.333-3.333 3.333h-6.667"
+        pathLength={fraction === undefined ? undefined : 1}
+        strokeDasharray={fraction === undefined ? undefined : 1}
+        strokeDashoffset={fraction === undefined ? undefined : 1 - fraction}
         stroke="currentColor"
         strokeWidth="2.667"
         strokeLinecap="round"

@@ -1,6 +1,6 @@
 import { Locale } from "@/core/email/locale"
-import { Button, Hr, Section, Text } from "react-email"
-import { emailButton, EmailLayout } from "@/core/email/email-kit"
+import { Button, Section, Text } from "react-email"
+import { emailButton, EmailLayout, EmailLinkHelp } from "@/core/email/email-kit"
 import * as React from "react"
 
 // Every template keeps its copy for all locales side by side, so a missing
@@ -59,7 +59,7 @@ export const ResetPassword = ({ username, url, locale }: ResetPasswordProps): Re
         <Text className="text-ink text-base leading-6 mt-4">{text.body(username)}</Text>
       }
     >
-      <Section className="text-center my-8">
+      <Section className="my-6 text-center">
         <Button
           href={url}
           className={emailButton}
@@ -67,10 +67,11 @@ export const ResetPassword = ({ username, url, locale }: ResetPasswordProps): Re
           {text.button}
         </Button>
       </Section>
-      <Text className="text-muted text-sm leading-5">{text.fallback}</Text>
-      <Text className="text-accent text-sm break-all">{url}</Text>
-      <Hr className="border-line my-6" />
-      <Text className="text-muted text-xs">{text.ignore}</Text>
+      <EmailLinkHelp
+        url={url}
+        fallback={text.fallback}
+        warning={text.ignore}
+      />
     </EmailLayout>
   )
 }

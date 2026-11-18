@@ -90,7 +90,12 @@ export function CatalogPage({ organizationId, onOrganizationChange }: CatalogPag
 
   return (
     <>
-      <section className={cn(CONTENT, "pt-4 md:pt-8")}>
+      <section
+        className={cn(
+          CONTENT,
+          "pt-4 [--workspace-inset:1rem] md:pt-8 md:[--workspace-inset:1.5rem]",
+        )}
+      >
         <HeadingBand>
           <BackLink to={ROUTES.home}>{t("list.backHome")}</BackLink>
           <h1 className="mt-6 text-3xl font-bold tracking-tight md:text-4xl">{t("list.title")}</h1>

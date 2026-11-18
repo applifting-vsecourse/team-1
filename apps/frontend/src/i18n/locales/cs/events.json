@@ -191,7 +191,8 @@
       "limit": "JPG, JPEG nebo PNG, maximálně 2 MB.",
       "remove": "Odstranit fotografii",
       "removed": "Fotografie je odstraněná",
-      "tooLarge": "Fotografie je příliš velká. Vyberte fotografii do 2 MB."
+      "tooLarge": "Fotografie je příliš velká. Vyberte fotografii do 2 MB.",
+      "uploading": "Nahrávám fotografii…"
     }
   },
   "roomAssignments": {

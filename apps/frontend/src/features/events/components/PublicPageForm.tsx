@@ -72,6 +72,7 @@ export function PublicPageForm({ event }: { event: OrganizerEvent }) {
   const [openSection, setOpenSection] = useState("")
   const [values, setValues] = useState<PublicPageInput>(() => valuesOf(event))
   const [hasSubmitted, setHasSubmitted] = useState(false)
+  const [uploadFraction, setUploadFraction] = useState<number | undefined>(undefined)
   const [photoError, setPhotoError] = useState<string | null>(null)
   const { data: terms } = useQuery(termsQueryOptions(event.id))
   const { data: photo } = useQuery(eventPhotoQueryOptions(event.id, event.photoFileName !== null))
@@ -99,7 +100,8 @@ export function PublicPageForm({ event }: { event: OrganizerEvent }) {
     },
   })
   const upload = useMutation({
-    mutationFn: (file: File) => uploadEventPhoto(event.id, file),
+    mutationFn: (file: File) => uploadEventPhoto(event.id, file, setUploadFraction),
+    onMutate: () => setUploadFraction(undefined),
     onSuccess: async () => {
       setPhotoError(null)
       notify.success(t("publicPage.upload.doneTitle"))
@@ -202,6 +204,8 @@ export function PublicPageForm({ event }: { event: OrganizerEvent }) {
               removeLabel={event.photoFileName ? t("publicPage.upload.remove") : undefined}
               onRemove={event.photoFileName ? () => remove.mutate() : undefined}
               previewUrl={photoUrl}
+              uploadLabel={upload.isPending ? t("publicPage.upload.uploading") : undefined}
+              uploadFraction={uploadFraction}
               error={photoError}
               accept={EVENT_PHOTO.types.join(",")}
               isDisabled={upload.isPending || remove.isPending}

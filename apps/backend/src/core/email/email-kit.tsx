@@ -1,4 +1,16 @@
-import { Body, Container, Head, Heading, Hr, Html, Img, Preview, Tailwind, Text } from "react-email"
+import {
+  Body,
+  Container,
+  Head,
+  Heading,
+  Hr,
+  Html,
+  Img,
+  Link,
+  Preview,
+  Tailwind,
+  Text,
+} from "react-email"
 import type { ReactNode } from "react"
 
 import type { Locale } from "@/core/email/locale"
@@ -9,13 +21,44 @@ const colors = {
   ink: "#031a1e",
   muted: "#50686d",
   accent: "#007f72",
-  line: "#d7e2e4",
+  line: "#dae3e4",
   surface: "#f4f8f9",
+  link: "#006363",
+  warning: "#8a4b0e",
+  warningSurface: "#fff5e6",
   positive: "#e8f5ee",
 }
 
 export const emailButton =
   "block box-border w-full rounded-lg bg-accent px-4 py-3 text-center text-sm font-semibold leading-5 text-white"
+
+export function EmailLinkHelp({
+  url,
+  fallback,
+  warning,
+}: {
+  url: string
+  fallback: string
+  warning: string
+}) {
+  return (
+    <>
+      <Text className="mt-6 rounded-lg border border-solid border-warning bg-warningSurface p-4 text-sm leading-5 text-warning">
+        {warning}
+      </Text>
+      <Text className="mb-0 mt-6 text-xs leading-[18px] text-muted">{fallback}</Text>
+      <Link
+        href={url}
+        className="text-xs leading-[18px] text-link underline"
+        style={{ wordBreak: "break-all" }}
+      >
+        {url}
+      </Link>
+      <Hr className="my-4 border-line" />
+      <Text className="m-0 text-xs leading-[18px] text-muted">Togena</Text>
+    </>
+  )
+}
 
 export function EmailLayout({
   locale,
@@ -39,6 +82,7 @@ export function EmailLayout({
         </Head>
         <Preview>{preview}</Preview>
         <Body
+          lang={locale}
           style={{
             margin: 0,
             backgroundColor: colors.canvas,
@@ -90,7 +134,7 @@ export function EmailLayout({
                             ) : (
                               <Text className="m-0 text-3xl font-semibold text-ink">togena</Text>
                             )}
-                            <Heading className="email-heading mb-0 mt-6 text-[32px] font-bold leading-10 text-ink">
+                            <Heading className="email-heading mb-0 mt-6 text-[32px] font-semibold leading-10 text-ink">
                               {heading}
                             </Heading>
                             {introduction}

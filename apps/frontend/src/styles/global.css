@@ -361,3 +361,57 @@
     }
   }
 }
+
+@media (prefers-reduced-motion: no-preference) {
+  .upload-symbol path {
+    transition: stroke-dashoffset 100ms linear;
+  }
+  form[data-invalid-submit] [aria-invalid="true"]:focus {
+    animation: invalid-field 180ms ease-out;
+  }
+  @keyframes invalid-field {
+    50% {
+      transform: translateX(2px);
+    }
+  }
+}
+
+/* M21 keeps the selected range readable throughout the corner movement. */
+[data-slot="calendar"] :is([data-range-start="true"], [data-range-end="true"]) {
+  position: relative;
+}
+[data-slot="calendar"] [data-range-start="true"]::before,
+[data-slot="calendar"] [data-range-end="true"]::after {
+  content: "";
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  pointer-events: none;
+  border-color: currentColor;
+}
+[data-slot="calendar"] [data-range-start="true"]::before {
+  inset: 3px auto auto 3px;
+  border-top-width: 1.5px;
+  border-left-width: 1.5px;
+  border-top-left-radius: 2px;
+}
+[data-slot="calendar"] [data-range-end="true"]::after {
+  inset: auto 3px 3px auto;
+  border-bottom-width: 1.5px;
+  border-right-width: 1.5px;
+  border-bottom-right-radius: 2px;
+}
+@media (prefers-reduced-motion: no-preference) {
+  [data-slot="calendar"] [data-range-start="true"]::before,
+  [data-slot="calendar"] [data-range-end="true"]::after {
+    animation: range-corner 400ms cubic-bezier(0.22, 0.8, 0.2, 1);
+  }
+  @keyframes range-corner {
+    from {
+      transform: scale(0.55);
+    }
+    to {
+      transform: scale(1);
+    }
+  }
+}

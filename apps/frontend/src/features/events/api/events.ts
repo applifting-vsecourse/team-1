@@ -1,6 +1,7 @@
 import { queryOptions } from "@tanstack/react-query"
 import { z } from "zod"
 
+import { env } from "@/config/env"
 import { api } from "@/lib/api-client"
 
 export const eventTermSummarySchema = z.object({
@@ -163,11 +164,28 @@ export async function savePublicPage(
 }
 
 /** `PUT /api/organizer/events/:eventId/photo` — the image itself is the body (JPEG / PNG, up to 2 MB). */
-export async function uploadEventPhoto(eventId: string, file: File): Promise<OrganizerEvent> {
+export async function uploadEventPhoto(
+  eventId: string,
+  file: File,
+  onProgress?: (fraction: number) => void,
+): Promise<OrganizerEvent> {
+  // Chromium rejects streaming request bodies over HTTP/1. Keep the normal File
+  // request when the API connection hasn't advertised HTTP/2 or HTTP/3.
+  const apiOrigin = new URL(env.VITE_API_URL).origin
+  const canStream =
+    onProgress &&
+    performance
+      .getEntriesByType?.("resource")
+      .some(
+        (entry) =>
+          entry.name.startsWith(apiOrigin + "/") &&
+          ["h2", "h3"].includes((entry as PerformanceResourceTiming).nextHopProtocol),
+      )
   return organizerEventSchema.parse(
     await api
       .put(`organizer/events/${encodeURIComponent(eventId)}/photo`, {
         body: file,
+        onUploadProgress: canStream ? ({ percent }) => onProgress(percent) : undefined,
         headers: { "Content-Type": file.type, "X-File-Name": encodeURIComponent(file.name) },
       })
       .json(),
