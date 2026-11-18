@@ -25,6 +25,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          ref: c3b7fe03405dd45e09ac40b8277b4722a0808e7d
           persist-credentials: false
 
       - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
@@ -134,19 +135,10 @@ jobs:
                 await expect(page.getByRole("status")).toContainText("Check your e-mail")
                 const token = await latestMagicLinkToken()
                 await page.goto("/participant/magic-link?token=" + encodeURIComponent(token))
-                // A 204 leaves Chromium on the current document. Freeze this transient UI for
-                // the screenshot, then continue the same one-time link against the seeded server.
-                let destination = ""
-                const verify = "**/api/auth/magic-link/verify?**"
-                await page.route(verify, async (route) => {
-                  destination = route.request().url()
-                  await route.fulfill({ status: 204 })
-                }, { times: 1 })
-                await page.getByRole("button", { name: "Continue" }).click()
-                await expect.poll(() => destination.length).toBeGreaterThan(0)
-                await expect(page.getByRole("status")).toContainText("Verifying your link")
+                const proceed = page.getByRole("button", { name: "Continue" })
+                await expect(proceed).toBeVisible()
                 await page.screenshot({ path: "test-results/screenshots/verification-" + width + ".png", fullPage: true, animations: "disabled" })
-                await page.goto(destination)
+                await proceed.click()
                 await expect(page.getByRole("heading", { name: "Your applications" })).toBeVisible()
               })
           
@@ -161,3 +153,49 @@ jobs:
           name: pr-577-seeded-screenshots
           path: apps/e2e/test-results/screenshots/*.png
           retention-days: 2
+
+  publish:
+    needs: e2e
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      actions: read
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: pr-screenshots
+          sparse-checkout: "577"
+      - name: Retrieve seed-only screenshot artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh run download "${{ github.run_id }}" --repo applifting-vsecourse/team-1 --name pr-577-seeded-screenshots --dir "$RUNNER_TEMP/screenshots"
+      - name: Verify dimensions, filenames and publish in the PR folder
+        run: |
+          mkdir -p 577
+          python - <<'PY'
+          from pathlib import Path
+          import os, shutil, struct
+          source = Path(os.environ["RUNNER_TEMP"]) / "screenshots"
+          for width in (1440, 360):
+              for screen in ("catalog", "event", "register", "not-found", "login", "apply", "events", "settings", "terms", "capacity", "applications", "payments", "rooms", "program", "program-dialog", "participant", "participant-detail", "participant-edit", "verification", "mail-application-change-confirmation-withdrawn", "mail-application-change", "mail-application-confirmation-two-applicants", "mail-application-confirmation-waitlisted", "mail-application-confirmation", "mail-application-term-cancelled", "mail-change-email-notice", "mail-change-email", "mail-change-request-status", "mail-magic-link", "mail-payment-correction", "mail-payment-received", "mail-reset-password", "mail-verify-email"):
+                  name = f"{screen}-{width}.png"
+                  p = source / name
+                  header = p.read_bytes()[:24]
+                  assert header[:8] == bytes.fromhex("89504e470d0a1a0a")
+                  w, h = struct.unpack(">II", header[16:24])
+                  assert w >= width and h > 0, (name, w, h)
+                  if w != width:
+                      print(f"::warning::{name}: page overflows viewport ({w}px)")
+                  dest = Path("577") / f"{screen}-{width}-c3b7fe0.png"
+                  if dest.exists():
+                      assert dest.read_bytes() == p.read_bytes(), dest
+                      continue
+                  shutil.copyfile(p, dest)
+                  print(f"{name} {w}x{h}")
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- 577
+          git commit -m "Screenshots for #577 (seeded desktop and 360 px)"
+          git push origin HEAD:refs/heads/pr-screenshots
