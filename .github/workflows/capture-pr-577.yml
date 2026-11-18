@@ -25,7 +25,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: c3b7fe03405dd45e09ac40b8277b4722a0808e7d
+          ref: e20b6067046123e32beb413db3908ff6e47db68d
           persist-credentials: false
 
       - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
@@ -85,7 +85,7 @@ jobs:
                   await page.evaluate(() => document.fonts.ready)
                   await page.screenshot({ path: "test-results/screenshots/" + screen + "-" + width + ".png", fullPage: true, animations: "disabled" })
                 }
-                for (const [screen, route] of [["catalog","/catalog"], ["event","/events/demo-letni-kemp-2027"], ["register","/organizer/register"], ["not-found","/unknown-seeded-route"]]) {
+                for (const [screen, route] of [["participant-login","/participant/login"], ["event-not-found","/events/does-not-exist"], ["catalog","/catalog"], ["event","/events/demo-letni-kemp-2027"], ["register","/organizer/register"], ["not-found","/unknown-seeded-route"]]) {
                   await page.goto(route)
                   await capture(screen)
                 }
@@ -97,6 +97,18 @@ jobs:
                 await openEventList(page)
                 await capture("events")
                 const id = await eventIdByPublicToken("demo-letni-kemp-2027")
+                const endpoint = "http://localhost:4190/api/organizer/events/" + id + "/transport"
+                const offer = await page.request.get(endpoint)
+                expect(offer.ok()).toBeTruthy()
+                for (const term of (await offer.json()).terms) {
+                  if (!term.transports.length) {
+                    const created = await page.request.post(endpoint, { headers: { Origin: "http://localhost:3190" }, data: {
+                      termId: term.termId, kind: "SCHEDULED", name: "Autobus z Prahy", departurePlace: "Praha, Florenc",
+                      departureAt: term.startsOn + "T08:00:00+02:00"
+                    } })
+                    expect(created.ok()).toBeTruthy()
+                  }
+                }
                 for (const section of ["settings", "terms", "capacity", "applications", "payments", "rooms", "program"]) {
                   await page.goto("/organizer/events/" + id + "/" + section)
                   await expect(page.getByRole("navigation", { name: "Event sections" })).toBeVisible()
@@ -112,9 +124,24 @@ jobs:
                 await page.waitForLoadState("networkidle")
                 await page.evaluate(() => document.fonts.ready)
                 await page.screenshot({ path: "test-results/screenshots/participant-" + width + ".png", fullPage: true, animations: "disabled" })
-                await page.locator('a[href^="/participant/applications/"]').first().click()
+                const response = await page.request.get("http://localhost:4190/api/participant/applications")
+                expect(response.ok()).toBeTruthy()
+                const data = await response.json()
+                const application = data.find(a => a.terms.some(term => term.status === "CONFIRMED" && term.transportOffered))
+                expect(application).toBeTruthy()
+                await page.goto("/participant/applications/" + application.id)
                 await expect(page.locator('a[href$="/edit"]')).toBeVisible()
                 await page.screenshot({ path: "test-results/screenshots/participant-detail-" + width + ".png", fullPage: true, animations: "disabled" })
+                const transport = page.locator('a[href*="/transport#"]').first()
+                await transport.click()
+                const dialog = page.getByRole("dialog", {name:"Choose transport"})
+                await expect(dialog).toBeVisible()
+                await dialog.getByRole("combobox").first().click()
+                await page.getByRole("option").first().click()
+                await page.screenshot({ path: "test-results/screenshots/participant-transport-" + width + ".png", fullPage: true, animations: "disabled" })
+                await page.keyboard.press("Escape")
+                await expect(dialog).toHaveCount(0)
+                await expect(transport).toBeFocused()
                 await page.locator('a[href$="/edit"]').click()
                 await expect(page.getByRole("heading", {level: 1})).toBeVisible()
                 await page.screenshot({ path: "test-results/screenshots/participant-edit-" + width + ".png", fullPage: true, animations: "disabled" })
@@ -178,7 +205,7 @@ jobs:
           import os, shutil, struct
           source = Path(os.environ["RUNNER_TEMP"]) / "screenshots"
           for width in (1440, 360):
-              for screen in ("catalog", "event", "register", "not-found", "login", "apply", "events", "settings", "terms", "capacity", "applications", "payments", "rooms", "program", "program-dialog", "participant", "participant-detail", "participant-edit", "verification", "mail-application-change-confirmation-withdrawn", "mail-application-change", "mail-application-confirmation-two-applicants", "mail-application-confirmation-waitlisted", "mail-application-confirmation", "mail-application-term-cancelled", "mail-change-email-notice", "mail-change-email", "mail-change-request-status", "mail-magic-link", "mail-payment-correction", "mail-payment-received", "mail-reset-password", "mail-verify-email"):
+              for screen in ("participant-login", "event-not-found", "participant-transport", "catalog", "event", "register", "not-found", "login", "apply", "events", "settings", "terms", "capacity", "applications", "payments", "rooms", "program", "program-dialog", "participant", "participant-detail", "participant-edit", "verification", "mail-application-change-confirmation-withdrawn", "mail-application-change", "mail-application-confirmation-two-applicants", "mail-application-confirmation-waitlisted", "mail-application-confirmation", "mail-application-term-cancelled", "mail-change-email-notice", "mail-change-email", "mail-change-request-status", "mail-magic-link", "mail-payment-correction", "mail-payment-received", "mail-reset-password", "mail-verify-email"):
                   name = f"{screen}-{width}.png"
                   p = source / name
                   header = p.read_bytes()[:24]
@@ -187,7 +214,7 @@ jobs:
                   assert w >= width and h > 0, (name, w, h)
                   if w != width:
                       print(f"::warning::{name}: page overflows viewport ({w}px)")
-                  dest = Path("577") / f"{screen}-{width}-c3b7fe0.png"
+                  dest = Path("577") / f"{screen}-{width}-e20b606.png"
                   if dest.exists():
                       assert dest.read_bytes() == p.read_bytes(), dest
                       continue
