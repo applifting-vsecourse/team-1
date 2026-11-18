@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { render, screen } from "@testing-library/react"
+import { fireEvent, render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { afterEach, describe, expect, it, vi } from "vitest"
 
@@ -16,6 +16,7 @@ vi.mock("@/components/templates/AuthLayout", () => ({
     </main>
   ),
 }))
+vi.mock("@/components/organisms/Header", () => ({ Header: () => <header /> }))
 vi.mock("@/components/atoms/Seo", () => ({ Seo: () => null }))
 
 const renderLanding = (props: { token?: string; error?: string }) =>
@@ -52,6 +53,11 @@ describe("MagicLinkLanding", () => {
     renderLanding({ token: "abc" })
 
     await userEvent.click(screen.getByRole("button", { name: "Continue" }))
+
+    expect(screen.getByRole("status")).toHaveTextContent("Verifying your link")
+    expect(screen.queryByRole("button", { name: "Continue" })).not.toBeInTheDocument()
+    fireEvent(window, new Event("pageshow"))
+    expect(screen.getByRole("button", { name: "Continue" })).toBeInTheDocument()
 
     const [target] = assign.mock.calls[0] as [string]
     const url = new URL(target)

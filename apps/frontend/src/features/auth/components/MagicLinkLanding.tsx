@@ -2,8 +2,10 @@ import { useEffect, useState } from "react"
 import { CircleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { HeadingBand } from "@/components/atoms/HeadingBand"
 import { LogoSymbol } from "@/components/atoms/Logo"
 import { Seo } from "@/components/atoms/Seo"
+import { Header } from "@/components/organisms/Header"
 import { AuthLayout } from "@/components/templates/AuthLayout"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -39,6 +41,32 @@ export function MagicLinkLanding({ token, error }: MagicLinkLandingProps) {
   // A link that cannot be used must not promise "Open your application".
   const title = t(canContinue ? "magicLink.title" : "magicLink.requestTitle")
 
+  // Figma: US-01 waiting for the verification response, Motion M01.
+  // Desktop https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15315-213
+  // Mobile https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15315-236
+  if (canContinue && isVerifying) {
+    return (
+      <div className="flex min-h-svh flex-col">
+        <Seo title={t("magicLink.verifying")} />
+        <Header />
+        <main className="grid flex-1 place-items-center px-6 py-8 md:py-12">
+          <Card className="w-full max-w-160 rounded-2xl p-8 [--workspace-inset:0px]">
+            <HeadingBand>
+              <div
+                role="status"
+                className="flex flex-col items-center gap-4 text-center"
+              >
+                <LogoSymbol className="verifying-mark size-12 text-primary" />
+                <p className="text-sm text-muted-foreground">{t("magicLink.checkingAccess")}</p>
+                <h1 className="text-2xl font-bold">{t("magicLink.verifying")}</h1>
+              </div>
+            </HeadingBand>
+          </Card>
+        </main>
+      </div>
+    )
+  }
+
   return (
     <>
       <Seo title={title} />
@@ -56,7 +84,6 @@ export function MagicLinkLanding({ token, error }: MagicLinkLandingProps) {
               <p>{t("magicLink.body")}</p>
               <Button
                 size="lg"
-                disabled={isVerifying}
                 onClick={() => {
                   setIsVerifying(true)
                   window.location.assign(magicLinkVerifyUrl(token, window.location.origin))
@@ -64,15 +91,6 @@ export function MagicLinkLanding({ token, error }: MagicLinkLandingProps) {
               >
                 {t("magicLink.continue")}
               </Button>
-              {isVerifying && (
-                <div
-                  role="status"
-                  className="flex items-center gap-2"
-                >
-                  <LogoSymbol className="verifying-mark size-8 text-primary" />
-                  {t("magicLink.verifying")}
-                </div>
-              )}
             </CardContent>
           </Card>
         ) : (
