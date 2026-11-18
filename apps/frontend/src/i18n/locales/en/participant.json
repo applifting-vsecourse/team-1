@@ -22,7 +22,7 @@
     "confirmChange": "Confirm change",
     "discard": "Cancel",
     "impact": "Change impact",
-    "impactNew": "New term · new amount due",
+    "impactNew": "New term · new payment",
     "impactOriginal": "Original term · refund",
     "impactOriginalRequest": "Original term",
     "loadError": "Couldn't load available terms",
