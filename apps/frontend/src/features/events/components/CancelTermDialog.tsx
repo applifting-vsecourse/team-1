@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useQueryClient } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { CircleAlert, Loader2 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
@@ -41,7 +41,7 @@ type CancelTermDialogProps = {
 export function CancelTermDialog({
   eventId,
   eventName,
-  term,
+  term: listedTerm,
   onClose,
   onCancelled,
 }: CancelTermDialogProps) {
@@ -49,11 +49,16 @@ export function CancelTermDialog({
   const queryClient = useQueryClient()
   const [reason, setReason] = useState("")
   const [isInvalid, setIsInvalid] = useState(false)
-  const [isAgreed, setIsAgreed] = useState(false)
+  // The number the organizer agreed to; a different one (applications came meanwhile) voids it.
+  const [agreedCount, setAgreedCount] = useState<number | null>(null)
   const [isVerifying, setIsVerifying] = useState(false)
-  const cancel = useCancelTerm(eventId, term.id)
+  const cancel = useCancelTerm(eventId, listedTerm.id)
 
+  // The counts are read again on open: they are what the irreversible action will cancel.
+  const terms = useQuery({ ...termsQueryOptions(eventId), refetchOnMount: "always" })
+  const term = terms.data?.find(({ id }) => id === listedTerm.id) ?? listedTerm
   const affected = term.confirmedCount + term.waitlistedCount + term.toEvaluateCount
+  const isAgreed = agreedCount === affected
   // No answer at all (network, timeout): the term may have been cancelled all the same.
   const isUnverified = cancel.isError && !(cancel.error instanceof HTTPError)
 
@@ -153,7 +158,9 @@ export function CancelTermDialog({
                 id="cancel-consent"
                 className="size-5"
                 checked={isAgreed}
-                onCheckedChange={(isChecked) => setIsAgreed(isChecked === true)}
+                onCheckedChange={(isChecked) =>
+                  setAgreedCount(isChecked === true ? affected : null)
+                }
               />
               <Label
                 htmlFor="cancel-consent"
@@ -195,7 +202,7 @@ export function CancelTermDialog({
               type="button"
               variant="destructive"
               size="lg"
-              disabled={!isAgreed || cancel.isPending}
+              disabled={!isAgreed || cancel.isPending || terms.isFetching}
               onClick={submit}
             >
               {cancel.isPending ? <Loader2 className="size-4 animate-spin" /> : null}
