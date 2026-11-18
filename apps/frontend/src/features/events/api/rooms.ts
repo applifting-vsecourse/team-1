@@ -24,6 +24,8 @@ const termRoomsSchema = z.object({
   startsOn: z.string(),
   endsOn: z.string(),
   roomMode: roomModeSchema,
+  /** Confirmed participants see their room (US-144). */
+  roomsPublished: z.boolean(),
   rooms: z.array(roomSchema),
   capacity: z.object({ FEMALE: z.number().int(), MALE: z.number().int(), total: z.number().int() }),
 })
@@ -67,6 +69,16 @@ export async function setExtraBeds(
 }
 export async function deleteRoom(eventId: string, termId: string, id: string): Promise<void> {
   await api.delete(`${base(eventId, termId)}/rooms/${encodeURIComponent(id)}`)
+}
+/** Publishes the room assignment of the term to the confirmed participants, or takes it back (US-144). */
+export async function setRoomsPublished(
+  eventId: string,
+  termId: string,
+  isPublished: boolean,
+): Promise<void> {
+  await api.patch(`${base(eventId, termId)}/rooms-published`, {
+    json: { published: isPublished },
+  })
 }
 /** `rooms` carries a gender for every existing room when switching to gendered rooms. */
 export async function setRoomMode(

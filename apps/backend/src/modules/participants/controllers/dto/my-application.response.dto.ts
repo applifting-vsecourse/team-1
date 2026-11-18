@@ -42,6 +42,14 @@ export class MyApplicationTermDto {
   @ApiProperty({ description: "The participant chose a transport or their own transport." })
   transportDecided!: boolean
 
+  @ApiPropertyOptional({
+    type: "object",
+    properties: { name: { type: "string", nullable: true } },
+    description:
+      "Room of a confirmed term after the organizer published the assignment (US-144); name is null while not assigned. Absent otherwise.",
+  })
+  room?: { name: string | null }
+
   static fromDomain(term: MyApplicationTerm): MyApplicationTermDto {
     return Object.assign(new MyApplicationTermDto(), term)
   }

@@ -62,7 +62,9 @@
     "health": "Zdravotní omezení",
     "meals": "Stravování",
     "program": "Program",
+    "roomNotAssigned": "Zatím nemáte přiřazený pokoj.",
     "sections": {
+      "room": "Pokoj",
       "terms": "Termíny a platby",
       "transport": "Doprava"
     },

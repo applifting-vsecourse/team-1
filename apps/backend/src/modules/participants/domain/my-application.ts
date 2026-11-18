@@ -32,6 +32,8 @@ export type MyApplicationRecord = {
   /** Public contact of the event (US-122); optional unless the event is in the catalog. */
   contactEmail: string | null
   contactPhone: string | null
+  /** The applicant settles the accommodation individually (US-38); no room is shown to them. */
+  individualAccommodation: boolean
   terms: {
     termId: string
     /** `Term.number`, part of the term's variable symbol. */
@@ -56,6 +58,10 @@ export type MyApplicationRecord = {
     transportOffered: boolean
     /** The participant chose a transport or their own transport for this term. */
     transportDecided: boolean
+    /** The organizer published the room assignment of this term (US-144). */
+    roomsPublished: boolean
+    /** Name of the assigned room, `null` while not assigned. */
+    roomName: string | null
   }[]
 }
 
@@ -72,6 +78,11 @@ export type MyApplicationTerm = {
   transportOffered: boolean
   /** The participant has told how they get there. */
   transportDecided: boolean
+  /**
+   * Present only for a confirmed term whose room assignment is published, and never for a
+   * participant with individual accommodation. `name` is `null` while no room is assigned (US-144).
+   */
+  room?: { name: string | null }
 }
 
 /** Where and how much to pay — only when at least one term is confirmed (US-25). */
@@ -179,6 +190,9 @@ export function buildMyApplication(
           : {}),
         transportOffered: term.transportOffered,
         transportDecided: term.transportDecided,
+        ...(term.status === "CONFIRMED" && term.roomsPublished && !record.individualAccommodation
+          ? { room: { name: term.roomName } }
+          : {}),
       })),
     amountDueCzk,
     amountPaidCzk,

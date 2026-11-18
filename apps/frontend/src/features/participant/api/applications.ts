@@ -16,6 +16,11 @@ const termSchema = z.object({
   transportOffered: z.boolean(),
   /** The participant chose a transport or their own transport for this term. */
   transportDecided: z.boolean(),
+  /**
+   * Only for a confirmed term whose room assignment is published; `name` is `null` while the
+   * participant has no room yet (US-144).
+   */
+  room: z.object({ name: z.string().nullable() }).optional(),
 })
 export type MyApplicationTerm = z.infer<typeof termSchema>
 
