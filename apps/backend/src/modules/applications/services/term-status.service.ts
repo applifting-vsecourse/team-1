@@ -278,6 +278,8 @@ export class TermStatusService {
   /** Stores the change with its log entry and tells the applicant. */
   async applyChange(command: StatusChangeCommand): Promise<StatusChangeResult> {
     const result = await this.repository.changeStatus(command, (snapshot) => {
+      if (command.expectedFrom && snapshot.status !== command.expectedFrom)
+        throw new AppException(HttpStatus.CONFLICT, "INVALID_STATUS_TRANSITION")
       const actor = command.actorId === null ? "SYSTEM" : "ORGANIZER"
       const rejection = rejectStatusChange(
         snapshot,

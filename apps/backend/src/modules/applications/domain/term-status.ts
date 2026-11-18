@@ -61,6 +61,12 @@ export type StatusChangeCommand = {
   actorId: string | null
   /** The organizer knowingly confirms beyond the free beds. */
   isOverCapacityConfirmed: boolean
+  /**
+   * Bulk actions only: the change applies only while the application still has this status,
+   * checked under the event lock; otherwise it is refused as an invalid transition, so somebody
+   * else's decision made meanwhile is never overwritten.
+   */
+  expectedFrom?: ApplicationTermStatus
 }
 
 /** What a stored change leaves behind: enough to e-mail the applicant. */

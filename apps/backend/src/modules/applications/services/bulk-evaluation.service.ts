@@ -84,6 +84,8 @@ export class BulkEvaluationService {
           to,
           actorId: user.id,
           isOverCapacityConfirmed: false,
+          // Somebody may have decided the application meanwhile: that decision stays.
+          expectedFrom: "TO_EVALUATE",
         })
       try {
         if (toConfirm.has(candidate.applicationId)) {
