@@ -2028,7 +2028,8 @@ rozhodnuti:
   dokumentace:
   - soubor: docs/SLOVNIK.md
     popis: 'pojem Schvalování požadavků účastníků (dříve „začátek storna“)'
-    stav: ceka
+    stav: hotovo
+    commit: 366191f0
   poznamka: 'Rozhodl PM, PO potvrdil 4. 11. Celý den cancellationStartsOn (Europe/Prague) už vyžaduje schválení (PR #325). Storno podmínky jako text: D-113 (návrh).'
 - id: D-101
   nazev: 'Oprava platby vrací zaplacenou přihlášku k dluhu'
@@ -3387,3 +3388,90 @@ rozhodnuti:
   - popis: 'Karta Ubytování: seznam individuálních požadavků'
     url: https://github.com/applifting-vsecourse/team-1/issues/514
   poznamka: 'Rozhodl PM 15. 11.'
+- id: D-162
+  nazev: 'Spolubydlící v Moje přihláška se zatím neukazují'
+  text: 'V Moje přihláška se spolubydlící zatím neukazují; zobrazení (jména, GDPR, individuální ubytování) se promyslí v samostatném ticketu. Jméno účastníka s individuálním ubytováním se mezi spolubydlícími neukazuje i nadále (kritérium US-144).'
+  typ: produkt
+  oblast: ubytování
+  datum: '2026-11-18'
+  zdroj:
+  - popis: 'PR #575 (US-144), rozhodnutí PM 18. 11.'
+    url: https://github.com/applifting-vsecourse/team-1/pull/575#issuecomment-6977273409
+  us:
+  - label: US-144
+    url: https://github.com/applifting-vsecourse/team-1/issues/504
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek:
+  - Q-UBY-07
+  dokumentace: []
+  navazne_tickety:
+  - popis: 'Promyslet zobrazení spolubydlících v Moje přihláška'
+    url: https://github.com/applifting-vsecourse/team-1/issues/580
+  poznamka: 'Rozhodl PM 18. 11.'
+- id: D-163
+  nazev: 'Přehled kroků po registraci: pořadí a potvrzení bez omezení'
+  text: 'Přehled kroků v Moje přihláška má pořadí zaplacení (je-li dluh), doprava (nabízí-li se), stravování, zdravotní omezení. Potvrzení „nemám žádné omezení“ u stravování a zdraví řeší samostatná US-150 (mění schéma), US-149 na ni nečeká. Archivovaná přihláška se v US-149 neřeší, její zobrazení je navazující ticket.'
+  typ: produkt
+  oblast: přihlašování na akce
+  datum: '2026-11-18'
+  zdroj:
+  - popis: 'PR #574 (US-149), rozhodnutí PM 18. 11.'
+    url: https://github.com/applifting-vsecourse/team-1/pull/574#issuecomment-6977274059
+  us:
+  - label: US-149
+    url: https://github.com/applifting-vsecourse/team-1/issues/509
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek:
+  - Q-PRI-26
+  dokumentace: []
+  navazne_tickety:
+  - popis: 'US-150 Potvrzení „nemám žádné omezení“ u stravování a zdraví'
+    url: https://github.com/applifting-vsecourse/team-1/issues/582
+  - popis: 'Přehled kroků: archivovaná přihláška'
+    url: https://github.com/applifting-vsecourse/team-1/issues/584
+  poznamka: 'Rozhodl PM 18. 11.'
+- id: D-164
+  nazev: 'Dialog změny termínu: částka k úhradě místo platby'
+  text: 'V dialogu „Změnit termín“ zůstává „nová částka k úhradě“. Platba je v aplikaci pouze ručně zapsaný příjem (SLOVNIK.md); blok ukazuje částku k úhradě. Používání pojmů „úhrada“ a „platba“ se prověří v samostatném ticketu.'
+  typ: produkt
+  oblast: platby
+  datum: '2026-11-18'
+  zdroj:
+  - popis: 'PR #573 (issue #550), rozhodnutí PM 18. 11.'
+    url: https://github.com/applifting-vsecourse/team-1/pull/573#issuecomment-6977275180
+  us:
+  - label: '#550'
+    url: https://github.com/applifting-vsecourse/team-1/issues/550
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+  navazne_tickety:
+  - popis: 'Sjednotit pojmy „úhrada“ a „platba“ v aplikaci'
+    url: https://github.com/applifting-vsecourse/team-1/issues/581
+  poznamka: 'Rozhodl PM 18. 11.'
+- id: D-165
+  nazev: 'Řazení nabídky pokojů při přiřazení'
+  text: 'Nabídka pokojů se řadí do skupin: pokoje shodného pohlaví s účastníkem, pokoje bez pohlaví nebo smíšené, pokoje opačného pohlaví. Uvnitř skupiny nejvíc volných lůžek nahoře, plné na konci, při shodě podle názvu.'
+  typ: produkt
+  oblast: ubytování
+  datum: '2026-11-18'
+  zdroj:
+  - popis: 'PR #569 (issue #534), rozhodnutí PM 18. 11.'
+    url: https://github.com/applifting-vsecourse/team-1/pull/569#issuecomment-6977276531
+  us:
+  - label: '#534'
+    url: https://github.com/applifting-vsecourse/team-1/issues/534
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek:
+  - Q-UBY-08
+  dokumentace: []
+  navazne_tickety: []
+  poznamka: 'Rozhodl PM 18. 11.'
