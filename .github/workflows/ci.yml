@@ -8,9 +8,15 @@ on:
 permissions:
   contents: read
 
+# A new push to a PR cancels the run still going for the previous one. Runs on
+# main are never cancelled: every merge gets its own full check.
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
-  # A PR that touches only docs/ skips `verify` and `e2e` entirely. `verify` and
-  # `e2e` are required checks on main, so they can't be left out with
+  # A PR that touches only docs/ skips the check jobs and `e2e` entirely.
+  # `verify` and `e2e` are required checks on main, so they can't be left out with
   # `paths-ignore` (the PR would wait for them forever); a skipped job counts
   # as passed. Pushes to main always run everything.
   changes:
@@ -45,13 +51,60 @@ jobs:
             echo "code=false" >> "$GITHUB_OUTPUT"
           fi
 
-  verify:
+  # `verify` used to run every check in one job, one after another (~7 min).
+  # The checks now run in parallel jobs and `verify` only collects their
+  # results: it stays the required check on main, and it passes when the jobs
+  # were skipped (a docs-only PR).
+  static:
     needs: changes
     if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
-    # Integration tests (pnpm backend test:int) need a real Postgres. Same
-    # port and credentials as the local docker-compose, so the .env created
-    # from .env.example works unchanged; the tests create `togena_test` themselves.
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: ./.github/actions/setup
+
+      - name: Generate Prisma client
+        run: pnpm backend prisma:generate
+
+      - name: Format check
+        run: pnpm format:check
+
+      - name: Test scripts
+        run: pnpm test:scripts
+
+      # No `eslint --cache`: the type-aware rules depend on other files than
+      # the one cached, so a cached "clean" result can hide a new error.
+      - name: Lint backend
+        run: pnpm backend lint:check
+
+      - name: Lint frontend
+        run: pnpm frontend lint:check
+
+      - name: Type-check frontend
+        run: pnpm frontend type-check
+
+      - name: Test backend
+        run: pnpm backend test
+
+      # The backend build (`prisma generate && nest build`) runs in every
+      # `backend-int` shard — the tests run against the built server.
+      - name: Build frontend
+        run: pnpm frontend build
+
+  # Integration tests (pnpm backend test:int) need a real Postgres. Same
+  # port and credentials as the local docker-compose, so the .env created
+  # from .env.example works unchanged; the tests create `togena_test` themselves.
+  # The test files run one after another against one database, so they are
+  # split into shards, each with its own Postgres and its own built server.
+  backend-int:
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2]
     services:
       postgres:
         image: postgres:17-alpine
@@ -69,51 +122,43 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+      - uses: ./.github/actions/setup
 
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version-file: .nvmrc
-          cache: pnpm
+      - name: Integration tests backend (shard ${{ matrix.shard }}/2)
+        run: pnpm backend test:int --shard=${{ matrix.shard }}/2
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+  frontend-test:
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Create env files
-        run: pnpm env:check
+      - uses: ./.github/actions/setup
 
-      - name: Generate Prisma client
-        run: pnpm backend prisma:generate
+      - name: Test frontend (shard ${{ matrix.shard }}/2)
+        run: pnpm frontend test:ci --shard=${{ matrix.shard }}/2
 
-      - name: Format check
-        run: pnpm format:check
-
-      - name: Test scripts
-        run: pnpm test:scripts
-
-      - name: Lint backend
-        run: pnpm backend lint:check
-
-      - name: Lint frontend
-        run: pnpm frontend lint:check
-
-      - name: Type-check frontend
-        run: pnpm frontend type-check
-
-      - name: Test backend
-        run: pnpm backend test
-
-      - name: Integration tests backend
-        run: pnpm backend test:int
-
-      - name: Test frontend
-        run: pnpm frontend test:ci
-
-      - name: Build backend
-        run: pnpm backend build
-
-      - name: Build frontend
-        run: pnpm frontend build
+  verify:
+    needs: [changes, static, backend-int, frontend-test]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: All checks passed
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "Results: $RESULTS"
+          for result in $RESULTS; do
+            if [ "$result" != "success" ] && [ "$result" != "skipped" ]; then
+              echo "A check job ended with: $result"
+              exit 1
+            fi
+          done
 
   # E2E (Playwright, docs/E2E.md): the core journeys in a real browser against a
   # built backend + frontend and a freshly seeded `togena_e2e` database.
@@ -139,21 +184,28 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+      - uses: ./.github/actions/setup
 
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+      # The browser download is cached per Playwright version; the system
+      # libraries it needs are installed every time (they live outside the cache).
+      - name: Playwright version
+        id: playwright
+        working-directory: apps/e2e
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: playwright-cache
         with:
-          node-version-file: .nvmrc
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Create env files
-        run: pnpm env:check
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}-chromium
 
       - name: Install Chromium for Playwright
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: pnpm e2e exec playwright install --with-deps chromium
+
+      - name: Install Chromium system dependencies
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: pnpm e2e exec playwright install-deps chromium
 
       - name: E2E tests
         run: pnpm e2e test
