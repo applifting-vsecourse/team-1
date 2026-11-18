@@ -381,20 +381,31 @@ function StayFields({
     timeInput.current?.focus()
   }
   return (
-    <fieldset className="flex flex-col gap-2">
-      <legend className="float-left pb-2 font-semibold">{legend}</legend>
-      {hasValue ? (
-        <Button
-          type="button"
-          variant="link"
-          size="sm"
-          className="float-right h-auto p-0 pb-2"
-          onClick={onRemove}
+    <div
+      role="group"
+      aria-labelledby={`${id}-legend`}
+      className="flex flex-col gap-2"
+    >
+      <div className="flex items-center justify-between gap-2 pb-2">
+        <span
+          id={`${id}-legend`}
+          className="font-semibold"
         >
-          {removeLabel}
-        </Button>
-      ) : null}
-      <div className="clear-both grid grid-cols-2 gap-2 sm:gap-3">
+          {legend}
+        </span>
+        {hasValue ? (
+          <Button
+            type="button"
+            variant="link"
+            size="sm"
+            className="h-auto p-0"
+            onClick={onRemove}
+          >
+            {removeLabel}
+          </Button>
+        ) : null}
+      </div>
+      <div className="grid grid-cols-2 gap-2 sm:gap-3">
         <div className="flex flex-col gap-2">
           <Label htmlFor={`${id}-date`}>{t("stay.dateLabel")}</Label>
           <DateField
@@ -404,6 +415,7 @@ function StayFields({
             min={term.startsOn}
             max={term.endsOn}
             openOn={term.startsOn}
+            className="pr-9 pl-2 sm:pr-12 sm:pl-3"
             aria-invalid={error ? true : undefined}
             aria-describedby={error ? `${id}-error` : undefined}
           />
@@ -417,7 +429,7 @@ function StayFields({
               inputMode="numeric"
               autoComplete="off"
               placeholder={t("stay.timePlaceholder")}
-              className="pr-12"
+              className="pr-9 pl-2 sm:pr-12 sm:pl-3"
               value={time}
               aria-invalid={error ? true : undefined}
               aria-describedby={error ? `${id}-error` : undefined}
@@ -459,6 +471,6 @@ function StayFields({
           {error}
         </p>
       ) : null}
-    </fieldset>
+    </div>
   )
 }
