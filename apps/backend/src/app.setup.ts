@@ -44,6 +44,12 @@ export function configureApp(app: INestApplication): void {
     express.raw({ type: ["image/jpeg", "image/png"], limit: "4mb" }),
   )
 
+  // A bank statement (US-42) is sent as the raw CSV text; a month of transactions is far below 2 MB.
+  appInstance.use(
+    "/api/organizer/events/:eventId/bank-statements",
+    express.raw({ type: ["text/csv", "text/plain"], limit: "2mb" }),
+  )
+
   // Configure API prefix for all routes
   app.setGlobalPrefix("api")
 

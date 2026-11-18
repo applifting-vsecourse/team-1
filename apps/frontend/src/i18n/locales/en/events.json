@@ -252,6 +252,7 @@
   "roomOverview": {
     "beds": "Beds",
     "born": "b. {{year}}",
+    "continued": "continued",
     "emptyAction": "Go to the room assignment",
     "extraBed": "Extra bed",
     "free": "Free beds",
@@ -460,6 +461,12 @@
     "totalCapacity": "Room capacity",
     "totalRooms": "Total rooms"
   },
+  "roomsPublication": {
+    "failed": "The setting could not be saved.",
+    "hintOff": "Confirmed participants do not see the assignment yet.",
+    "switch": "Publish the room assignment",
+    "title": "Publishing the assignment"
+  },
   "terms": {
     "actions": "Actions for {{name}}",
     "add": "Add term",
@@ -498,7 +505,7 @@
       "endBeforeStart": "The end must be after the start.",
       "endsOn": "End date *",
       "fieldRequired": "Fill in this field.",
-      "name": "Term name (optional)",
+      "name": "Term name",
       "namePlaceholder": "e.g. 1st turn, class 5, ages 8–10",
       "price": "Term price (CZK) *",
       "priceHelper": "The whole price of the term; no deposit.",

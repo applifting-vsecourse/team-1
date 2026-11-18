@@ -13,6 +13,7 @@ const include = {
   terms: {
     include: {
       term: { include: { _count: { select: { transports: true } } } },
+      roomAssignment: { select: { room: { select: { name: true } } } },
       payments: {
         where: { cancelledAt: null },
         select: { amountCzk: true, source: true, createdAt: true },
@@ -62,6 +63,7 @@ function toRecord(row: Row): MyApplicationRecord {
     submittedAt: row.submittedAt,
     firstName: row.firstName,
     lastName: row.lastName,
+    individualAccommodation: row.individualAccommodation,
     eventName: row.event.name,
     bankAccount: row.organization.bankAccount,
     paymentPeriodDays: row.event.paymentPeriodDays,
@@ -83,6 +85,7 @@ function toRecord(row: Row): MyApplicationRecord {
         evaluatedAt,
         paymentPeriodStartedAt,
         transportId,
+        roomAssignment,
       }) => ({
         termId: term.id,
         termNumber: term.number,
@@ -98,6 +101,8 @@ function toRecord(row: Row): MyApplicationRecord {
         // A cancelled term keeps the status of its applications, but nothing is arranged for it.
         transportOffered: term.cancelledAt === null && term._count.transports > 0,
         transportDecided: transportId !== null,
+        roomsPublished: term.roomsPublishedAt !== null,
+        roomName: roomAssignment?.room.name ?? null,
       }),
     ),
   }

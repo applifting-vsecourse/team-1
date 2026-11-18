@@ -8,6 +8,9 @@ import {
 import {
   computeAmountOwed,
   computePaymentStatus,
+  computeRefundableAmount,
+  computeTermDue,
+  computeTermPaid,
   PaymentStatus,
 } from "@/modules/applications/domain/pricing"
 import { variableSymbol as toVariableSymbol } from "@/modules/applications/domain/variable-symbol"
@@ -33,6 +36,8 @@ export type MyApplicationRecord = {
   mealsFilled: boolean
   /** The participant has saved a health restriction (US-68); a row exists only with consent. */
   healthFilled: boolean
+  /** The applicant settles the accommodation individually (US-38); no room is shown to them. */
+  individualAccommodation: boolean
   terms: {
     termId: string
     /** `Term.number`, part of the term's variable symbol. */
@@ -44,7 +49,11 @@ export type MyApplicationRecord = {
     /** Price frozen at evaluation. */
     priceCzk: number
     /** Non-cancelled payment rows of this application in this term. */
-    payments: { amountCzk: number; source: "MANUAL" | "SIMULATION"; createdAt: Date }[]
+    payments: {
+      amountCzk: number
+      source: "MANUAL" | "SIMULATION" | "BANK_IMPORT"
+      createdAt: Date
+    }[]
     /** Latest confirmation; the payment deadline counts from it. */
     confirmedAt: Date | null
     /** Restart of the payment period after a correction (US-112). */
@@ -53,6 +62,10 @@ export type MyApplicationRecord = {
     transportOffered: boolean
     /** The participant chose a transport or their own transport for this term. */
     transportDecided: boolean
+    /** The organizer published the room assignment of this term (US-144). */
+    roomsPublished: boolean
+    /** Name of the assigned room, `null` while not assigned. */
+    roomName: string | null
   }[]
 }
 
@@ -64,10 +77,16 @@ export type MyApplicationTerm = {
   endsOn: string
   status: ApplicationTermStatus
   priceCzk: number
+  archivedOverpaymentCzk?: number
   /** Transport is offered in this term (US-65). */
   transportOffered: boolean
   /** The participant has told how they get there. */
   transportDecided: boolean
+  /**
+   * Present only for a confirmed term whose room assignment is published, and never for a
+   * participant with individual accommodation. `name` is `null` while no room is assigned (US-144).
+   */
+  room?: { name: string | null }
 }
 
 /** Where and how much to pay — only when at least one term is confirmed (US-25). */
@@ -169,8 +188,19 @@ export function buildMyApplication(
         endsOn: toIsoDate(term.endsOn),
         status: term.status,
         priceCzk: term.priceCzk,
+        ...(term.status === "ARCHIVED"
+          ? {
+              archivedOverpaymentCzk: computeRefundableAmount(
+                computeTermDue(term),
+                computeTermPaid(term.payments),
+              ),
+            }
+          : {}),
         transportOffered: term.transportOffered,
         transportDecided: term.transportDecided,
+        ...(term.status === "CONFIRMED" && term.roomsPublished && !record.individualAccommodation
+          ? { room: { name: term.roomName } }
+          : {}),
       })),
     mealsDecided: record.mealsFilled,
     healthDecided: record.healthFilled,

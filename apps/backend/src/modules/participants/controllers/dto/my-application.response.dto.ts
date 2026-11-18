@@ -9,7 +9,7 @@ import {
   OrganizationContact,
   PaymentDetails,
 } from "@/modules/participants/domain/my-application"
-import { ApiProperty } from "@nestjs/swagger"
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger"
 
 export class MyApplicationTermDto {
   @ApiProperty()
@@ -25,19 +25,30 @@ export class MyApplicationTermDto {
   endsOn!: string
 
   @ApiProperty({
-    enum: ["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED"],
+    enum: ["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED", "ARCHIVED"],
     description: "WAITLISTED is shown to the participant as waitlisted, without a place in line.",
   })
-  status!: "TO_EVALUATE" | "CONFIRMED" | "WAITLISTED" | "CANCELLED"
+  status!: "TO_EVALUATE" | "CONFIRMED" | "WAITLISTED" | "CANCELLED" | "ARCHIVED"
 
   @ApiProperty({ example: 4500, description: "Price frozen at evaluation, whole CZK." })
   priceCzk!: number
+
+  @ApiPropertyOptional({ description: "Overpayment retained on an archived term, whole CZK." })
+  archivedOverpaymentCzk?: number
 
   @ApiProperty({ description: "The organizer offers transport to this term (US-65)." })
   transportOffered!: boolean
 
   @ApiProperty({ description: "The participant chose a transport or their own transport." })
   transportDecided!: boolean
+
+  @ApiPropertyOptional({
+    type: "object",
+    properties: { name: { type: "string", nullable: true } },
+    description:
+      "Room of a confirmed term after the organizer published the assignment (US-144); name is null while not assigned. Absent otherwise.",
+  })
+  room?: { name: string | null }
 
   static fromDomain(term: MyApplicationTerm): MyApplicationTermDto {
     return Object.assign(new MyApplicationTermDto(), term)

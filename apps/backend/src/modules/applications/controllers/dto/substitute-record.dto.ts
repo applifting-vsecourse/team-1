@@ -5,10 +5,10 @@ class SubstitutePersonDto {
   @ApiProperty() applicationId!: string
   @ApiProperty() name!: string
   @ApiProperty({
-    enum: ["CONFIRMED", "WAITLISTED", "CANCELLED", "TO_EVALUATE"],
+    enum: ["CONFIRMED", "WAITLISTED", "CANCELLED", "TO_EVALUATE", "ARCHIVED"],
     description: "Status in the term now, not when the record was written",
   })
-  status!: "CONFIRMED" | "WAITLISTED" | "CANCELLED" | "TO_EVALUATE"
+  status!: "CONFIRMED" | "WAITLISTED" | "CANCELLED" | "TO_EVALUATE" | "ARCHIVED"
 }
 
 /** System record of one confirmation from the waitlist (US-105). Read-only. */

@@ -62,7 +62,9 @@
     "health": "Health restriction",
     "meals": "Meals",
     "program": "Program",
+    "roomNotAssigned": "You have no room assigned yet.",
     "sections": {
+      "room": "Room",
       "terms": "Terms and payments"
     },
     "steps": {
@@ -92,7 +94,7 @@
   },
   "edit": {
     "accommodationIndividual": "Individual arrangement",
-    "accommodationRequest": "Note for the organizer (optional)",
+    "accommodationRequest": "Note for the organizer",
     "accommodationRequestTooLong": "The note can have at most 2,000 characters.",
     "accommodationSummary": "Accommodation · {{request}}",
     "backToApplication": "Back to application",
@@ -205,6 +207,7 @@
     "wholeApplication": "Whole application · all terms ({{count}})"
   },
   "status": {
+    "archived": "Archived",
     "cancelled": "Cancelled",
     "confirmed": "Confirmed",
     "toEvaluate": "Awaiting evaluation",

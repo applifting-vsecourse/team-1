@@ -214,6 +214,22 @@ const renderDetail = (
 describe("ApplicationDetail", () => {
   beforeEach(() => get.mockReset())
 
+  it("shows an archived overpayment without payment or term change actions", async () => {
+    renderDetail(
+      application({
+        terms: [{ ...confirmed, status: "ARCHIVED", archivedOverpaymentCzk: 600 }],
+        amountPaidCzk: 5100,
+        amountOwedCzk: -600,
+        paymentStatus: "OVERPAID",
+        paymentDetails: null,
+      }),
+    )
+    expect(await screen.findByText("Archived")).toBeInTheDocument()
+    expect(screen.getByText(/Overpaid/)).toHaveTextContent("600")
+    expect(screen.queryByRole("button", { name: "Change terms" })).not.toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: /Show payment QR/ })).not.toBeInTheDocument()
+  })
+
   it("copies the account, the variable symbol of the term and the amount to pay", async () => {
     const user = userEvent.setup()
     const write = vi.spyOn(navigator.clipboard, "writeText")
@@ -412,6 +428,22 @@ describe("ApplicationDetail", () => {
       json: { termIds: [] },
     })
     await waitFor(() => expect(notify.success).toHaveBeenCalledWith("Cancellation request sent"))
+  })
+
+  it("cancels active terms while retaining the archived selection", async () => {
+    const user = userEvent.setup()
+    put.mockReturnValue({ json: () => Promise.resolve({ addedTerms: [] }) })
+    renderDetail(
+      application({
+        terms: [{ ...confirmed, status: "ARCHIVED" }, secondConfirmed],
+        paymentDetails: null,
+      }),
+    )
+    await user.click(await screen.findByRole("button", { name: "Cancel participation" }))
+    await user.click(screen.getByRole("button", { name: "Confirm cancellation" }))
+    expect(put).toHaveBeenCalledWith("participant/applications/a1/terms", {
+      json: { termIds: ["t1"] },
+    })
   })
 
   it("cancels one term and shows its payment and bed impact before confirmation", async () => {

@@ -76,6 +76,7 @@ export class PaymentsService {
     requestId: string,
     amountCzk?: number,
     termId?: string,
+    source?: "MANUAL" | "BANK_IMPORT",
   ): Promise<void> {
     const { organizationId } = await this.access.assertCanAccessApplication(user, applicationId)
     const paid = await this.repository.record({
@@ -85,6 +86,7 @@ export class PaymentsService {
       requestId,
       amountCzk,
       termId,
+      source,
     })
     await this.sendPaymentReceived(applicationId, organizationId, paid)
   }

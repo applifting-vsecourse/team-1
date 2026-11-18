@@ -24,7 +24,7 @@ export const NOTIFICATION_KINDS = [
 ] as const
 export type NotificationKind = (typeof NOTIFICATION_KINDS)[number]
 
-const termStatusSchema = z.enum(["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED"])
+const termStatusSchema = z.enum(["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED", "ARCHIVED"])
 
 const notificationSchema = z.object({
   id: z.string(),

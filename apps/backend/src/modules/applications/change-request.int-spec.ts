@@ -124,6 +124,19 @@ describe("change requests after cancellation starts (integration)", () => {
     await prisma?.$disconnect()
   })
 
+  it("rejects a request that would remove an archived term", async () => {
+    const where = { applicationId, termId: firstId }
+    await prisma.applicationTerm.updateMany({ where, data: { status: "ARCHIVED" } })
+    try {
+      const response = await postRequest([secondId])
+      expect(response.status).toBe(409)
+      expect(await response.json()).toMatchObject({ code: "INVALID_STATUS_TRANSITION" })
+      expect(await prisma.changeRequest.count({ where: { applicationId } })).toBe(0)
+    } finally {
+      await prisma.applicationTerm.updateMany({ where, data: { status: "CONFIRMED" } })
+    }
+  })
+
   it("stores a pending request and keeps the application unchanged", async () => {
     const response = await postRequest([secondId])
     expect(response.status).toBe(201)

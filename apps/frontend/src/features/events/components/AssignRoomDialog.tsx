@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { useMutation } from "@tanstack/react-query"
 import { Loader2 } from "lucide-react"
 import { useTranslation } from "react-i18next"
@@ -28,6 +28,7 @@ import {
 import {
   freeBedCount,
   sameRoomName,
+  sortRoomsForAssignment,
   useAssignmentLabels,
 } from "@/features/events/components/room-assignment-labels"
 
@@ -80,6 +81,11 @@ export function AssignRoomDialog({
   const mutation = useMutation({
     mutationFn: () => assignRoom(eventId, term.termId, target.applicationTermId, roomId, alsoIds),
   })
+  // Best place first; the overview and the table keep their own order.
+  const offered = useMemo(
+    () => sortRoomsForAssignment(rooms, target.gender),
+    [rooms, target.gender],
+  )
   const selected = rooms.find((room) => room.id === roomId)
   const current = rooms.find((room) => room.id === target.currentRoomId)
   // Other terms that have a room of the same name as the one picked (AC3).
@@ -172,7 +178,7 @@ export function AssignRoomDialog({
               }}
               className="gap-2"
             >
-              {rooms.map((room) => {
+              {offered.map((room) => {
                 const isCurrent = room.id === target.currentRoomId
                 const isFull = freeBedCount(room) === 0
                 const isDisabled = isCurrent

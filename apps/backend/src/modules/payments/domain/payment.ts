@@ -6,8 +6,8 @@ import {
 } from "@/modules/applications/domain/payment-details"
 import {
   computeAmountOwed,
-  computePayableAmount,
   computeRefundableAmount,
+  computeSummaryPayableAmount,
   computeTermDue,
   computeTermOwed,
   computeTermPaid,
@@ -179,7 +179,7 @@ export function paymentSummary(application: PaymentApplication): PaymentSummary 
     amountDueCzk,
     amountPaidCzk,
     amountOwedCzk: computeAmountOwed(amountDueCzk, amountPaidCzk),
-    payableCzk: computePayableAmount(terms.map((term) => term.owedCzk)),
+    payableCzk: computeSummaryPayableAmount(terms),
     refundableTermId:
       terms.reduce<PaymentTermSummary | null>(
         (best, term) => (term.refundableCzk > (best?.refundableCzk ?? 0) ? term : best),

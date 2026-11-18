@@ -29,10 +29,10 @@ function paymentOf(
   bankAccount: string,
   locale: SubmissionConfirmation["locale"],
 ): Payment | null {
-  if (!application.terms.some((term) => term.status === "CONFIRMED")) return null
   const confirmed = application.terms.filter((term) => term.status === "CONFIRMED")
+  if (confirmed.length === 0) return null
   return {
-    amount: formatCzk(computeAmountDue(application.terms), locale),
+    amount: formatCzk(computeAmountDue(confirmed), locale),
     bankAccount,
     variableSymbol: variableSymbol(application.number),
     terms:
@@ -49,7 +49,7 @@ function paymentOf(
 /** A submission only knows evaluated terms; a cancelled one never appears in the summary. */
 const termsOf = (application: SubmittedApplication): ConfirmationApplicationProps["terms"] =>
   application.terms.flatMap(({ name, status }) =>
-    status === "CANCELLED" ? [] : [{ name, status }],
+    status === "CANCELLED" || status === "ARCHIVED" ? [] : [{ name, status }],
   )
 
 export function buildConfirmationApplications(
@@ -91,7 +91,9 @@ export function buildChangeProps(
     kind: change.kind,
     terms:
       change.kind === "TERMS_CHANGED"
-        ? application.terms.map(({ name, status }) => ({ name, status }))
+        ? application.terms.flatMap(({ name, status }) =>
+            status === "ARCHIVED" ? [] : [{ name, status }],
+          )
         : [],
     payment:
       change.isAmountChanged && PAYING_KINDS.includes(change.kind)

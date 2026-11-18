@@ -86,6 +86,28 @@ describe("computePaymentCorrectionPreview", () => {
     ).toEqual({ ok: false, errorCode: "REFUND_EXCEEDS_OVERPAYMENT" })
   })
 
+  it("allows targeted corrections when the only term is archived", () => {
+    const input = {
+      terms: [
+        {
+          ...term("1", [{ receiptId: "original", amountCzk: 1000 }]),
+          status: "ARCHIVED" as const,
+        },
+      ],
+      receiptId: "original",
+      amountCzk: 800,
+      isRefund: false,
+    }
+    expect(computePaymentCorrectionPreview(input)).toEqual({
+      ok: false,
+      errorCode: "VALIDATION_FAILED",
+    })
+    expect(computePaymentCorrectionPreview({ ...input, termId: "1" })).toEqual({
+      ok: true,
+      preview: { amountOwedCzk: 200, terms: [{ termId: "1", owedCzk: 200, changeCzk: 200 }] },
+    })
+  })
+
   it("rejects an unknown term and a refund without a term", () => {
     const input = { terms: [term("1", [])], receiptId: "original", amountCzk: 100 }
     expect(

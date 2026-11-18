@@ -9,12 +9,18 @@ const termSchema = z.object({
   /** ISO date, `2027-07-04`. */
   startsOn: z.string(),
   endsOn: z.string(),
-  status: z.enum(["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED"]),
+  status: z.enum(["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED", "ARCHIVED"]),
   priceCzk: z.number().int(),
+  archivedOverpaymentCzk: z.number().int().nonnegative().optional(),
   /** The organizer offers transport to this term (US-65). */
   transportOffered: z.boolean(),
   /** The participant chose a transport or their own transport for this term. */
   transportDecided: z.boolean(),
+  /**
+   * Only for a confirmed term whose room assignment is published; `name` is `null` while the
+   * participant has no room yet (US-144).
+   */
+  room: z.object({ name: z.string().nullable() }).optional(),
 })
 export type MyApplicationTerm = z.infer<typeof termSchema>
 
