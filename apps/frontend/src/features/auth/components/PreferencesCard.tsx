@@ -69,7 +69,7 @@ export function PreferencesCard({ user }: { user: SessionUser }) {
         description={t("profile.languageHint")}
       >
         <Select
-          value={user.locale}
+          value={user.locale ?? ""}
           onValueChange={(value) => void changeLanguage(value)}
           disabled={isPending}
         >
@@ -77,7 +77,7 @@ export function PreferencesCard({ user }: { user: SessionUser }) {
             id="preference-language"
             className={CONTROL}
           >
-            <SelectValue />
+            <SelectValue placeholder={t("profile.languageUnset")} />
           </SelectTrigger>
           <SelectContent>
             {LANGUAGES.map((language) => (

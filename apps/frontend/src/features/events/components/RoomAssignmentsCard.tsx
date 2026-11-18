@@ -423,7 +423,7 @@ export function RoomAssignmentsCard({
                         <TableHead>{t("roomAssignments.roomColumn")}</TableHead>
                         <TableHead>{t("roomAssignments.participantsColumn")}</TableHead>
                         <TableHead>{t("roomAssignments.occupancyColumn")}</TableHead>
-                        <TableHead>
+                        <TableHead className="w-px pr-4">
                           <span className="sr-only">{t("rooms.actionsColumn")}</span>
                         </TableHead>
                       </TableRow>

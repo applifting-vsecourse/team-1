@@ -58,4 +58,17 @@ describe("PreferencesCard", () => {
     expect(mutateAsync).toHaveBeenCalledWith({ locale: "en" })
     expect(notify.success).toHaveBeenCalled()
   })
+
+  it("shows an unset language and saves the first choice even when it matches the UI language", async () => {
+    mutateAsync.mockResolvedValue({ locale: "en" })
+    render(<PreferencesCard user={{ ...user, locale: null }} />)
+
+    const select = screen.getByRole("combobox", { name: "Language" })
+    expect(select).toHaveTextContent("Not set")
+
+    await userEvent.click(select)
+    await userEvent.click(await screen.findByRole("option", { name: "English" }))
+
+    expect(mutateAsync).toHaveBeenCalledWith({ locale: "en" })
+  })
 })

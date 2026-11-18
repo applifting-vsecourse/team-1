@@ -38,6 +38,7 @@ import { RoomAssignmentsCard } from "@/features/events/components/RoomAssignment
 import { RoomDialog } from "@/features/events/components/RoomDialog"
 import { RoomExtraBedsDialog } from "@/features/events/components/RoomExtraBedsDialog"
 import { RoomModeDialog } from "@/features/events/components/RoomModeDialog"
+import { RoomProposal } from "@/features/events/components/RoomProposal"
 import { RoomsOverview } from "@/features/events/components/RoomsOverview"
 import { RoomsPublicationCard } from "@/features/events/components/RoomsPublicationCard"
 import { RoomWishesOverview } from "@/features/events/components/RoomWishesOverview"
@@ -310,78 +311,87 @@ export function RoomsPage({
               </Card>
             ))}
           </div>
-          <Card>
-            <CardHeader className="flex flex-col gap-3 max-md:order-last max-sm:items-stretch sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-              <CardTitle>
-                <h3>{t("roomAssignments.cardTitle")}</h3>
-              </CardTitle>
-              <div className="flex flex-col-reverse gap-2 sm:flex-row sm:flex-wrap sm:items-center">
-                <Button
-                  asChild
-                  variant="ghost"
-                  size="lg"
-                  className="text-link max-sm:w-full"
-                >
-                  <Link
-                    to={ROUTES.organizer.eventTerms}
-                    params={{ eventId }}
-                  >
-                    {t("rooms.showTerms")}
-                  </Link>
-                </Button>
-                {terms.length > 1 ? (
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    className="max-sm:w-full"
-                    onClick={() => setIsCopying(true)}
-                  >
-                    {t("rooms.copy.open")}
-                  </Button>
-                ) : null}
-                <Button
-                  size="lg"
-                  className="max-sm:w-full"
-                  onClick={() => setEditor("new")}
-                >
-                  {t("rooms.add")}
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <TooltipProvider>
-                <RoomAssignmentsCard
-                  term={term}
-                  onAddRoom={() => setEditor("new")}
-                  roomActions={(roomId) => {
-                    const room = term.rooms.find((item) => item.id === roomId)
-                    if (!room) return null
-                    return (
-                      <>
-                        {extraBedsButton(room)}
-                        <Button
-                          variant="ghost"
-                          size="icon-lg"
-                          aria-label={t("rooms.editRoom", { name: room.name })}
-                          onClick={() => setEditor(room)}
-                        >
-                          <Pencil />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon-lg"
-                          aria-label={t("rooms.deleteRoom", { name: room.name })}
-                          onClick={() => setDeleting(room)}
-                        >
-                          <Trash2 />
-                        </Button>
-                      </>
-                    )
-                  }}
-                />
-              </TooltipProvider>
-            </CardContent>
-          </Card>
+          <RoomProposal
+            key={term.termId}
+            term={term}
+          >
+            {({ action, notices }) => (
+              <Card>
+                <CardHeader className="flex flex-col gap-3 max-md:order-last max-sm:items-stretch sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+                  <CardTitle>
+                    <h3>{t("roomAssignments.cardTitle")}</h3>
+                  </CardTitle>
+                  <div className="flex flex-col-reverse gap-2 sm:flex-row sm:flex-wrap sm:items-center">
+                    <Button
+                      asChild
+                      variant="ghost"
+                      size="lg"
+                      className="text-link max-sm:w-full"
+                    >
+                      <Link
+                        to={ROUTES.organizer.eventTerms}
+                        params={{ eventId }}
+                      >
+                        {t("rooms.showTerms")}
+                      </Link>
+                    </Button>
+                    {terms.length > 1 ? (
+                      <Button
+                        variant="outline"
+                        size="lg"
+                        className="max-sm:w-full"
+                        onClick={() => setIsCopying(true)}
+                      >
+                        {t("rooms.copy.open")}
+                      </Button>
+                    ) : null}
+                    {action}
+                    <Button
+                      size="lg"
+                      className="max-sm:w-full"
+                      onClick={() => setEditor("new")}
+                    >
+                      {t("rooms.add")}
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {notices}
+                  <TooltipProvider>
+                    <RoomAssignmentsCard
+                      term={term}
+                      onAddRoom={() => setEditor("new")}
+                      roomActions={(roomId) => {
+                        const room = term.rooms.find((item) => item.id === roomId)
+                        if (!room) return null
+                        return (
+                          <>
+                            {extraBedsButton(room)}
+                            <Button
+                              variant="ghost"
+                              size="icon-lg"
+                              aria-label={t("rooms.editRoom", { name: room.name })}
+                              onClick={() => setEditor(room)}
+                            >
+                              <Pencil />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon-lg"
+                              aria-label={t("rooms.deleteRoom", { name: room.name })}
+                              onClick={() => setDeleting(room)}
+                            >
+                              <Trash2 />
+                            </Button>
+                          </>
+                        )
+                      }}
+                    />
+                  </TooltipProvider>
+                </CardContent>
+              </Card>
+            )}
+          </RoomProposal>
           <RoomWishesOverview
             eventId={term.eventId}
             termId={term.termId}

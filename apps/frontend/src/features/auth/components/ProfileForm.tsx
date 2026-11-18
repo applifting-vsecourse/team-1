@@ -54,7 +54,7 @@ export function ProfileForm({ user }: { user: SessionUser }) {
 
   const onSubmit = async (values: FormValues) => {
     try {
-      const saved = await update.mutateAsync({ name: values.name, locale: user.locale })
+      const saved = await update.mutateAsync({ name: values.name })
       form.reset({ name: saved.name ?? "" })
       notify.success(t("profile.savedDetails"))
     } catch {

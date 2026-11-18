@@ -17,8 +17,8 @@ export function useAccountLanguage(locale: SessionUser["locale"] | undefined) {
       return
     }
     try {
-      const saved = await update.mutateAsync({ locale: parsed.data })
-      notify.success(t("profile.saved.title"), t(`profile.saved.description.${saved.locale}`))
+      await update.mutateAsync({ locale: parsed.data })
+      notify.success(t("profile.saved.title"), t(`profile.saved.description.${parsed.data}`))
     } catch {
       notify.error(t("appearance.languageFailed"))
     }

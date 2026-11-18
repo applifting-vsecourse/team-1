@@ -141,3 +141,41 @@ export async function unassignRoom(
 ): Promise<void> {
   await api.delete(`${base(eventId, termId)}/${encodeURIComponent(applicationTermId)}`)
 }
+
+const proposalSchema = z.object({
+  /** Proposed rooms for confirmed participants without one; nothing is saved by the API. */
+  placements: z.array(z.object({ applicationTermId: z.string(), roomId: z.string() })),
+  /** Confirmed participants without a room who got none (US-147). */
+  unplaced: z.array(
+    z.object({
+      applicationTermId: z.string(),
+      reason: z.enum(["INDIVIDUAL_ACCOMMODATION", "NO_FREE_BED"]),
+    }),
+  ),
+  /** Wishes of the people given a bed; `matches` are the people the name stands for. */
+  wishes: z.array(
+    z.object({
+      applicationTermId: z.string(),
+      name: z.string(),
+      matches: z.array(z.string()),
+      fulfilled: z.boolean(),
+    }),
+  ),
+})
+
+export type RoomProposal = z.infer<typeof proposalSchema>
+export type RoomProposalWish = RoomProposal["wishes"][number]
+
+/** Asks for a proposal of rooms for the unassigned confirmed participants; saves nothing (US-147). */
+export async function proposeRooms(eventId: string, termId: string): Promise<RoomProposal> {
+  return proposalSchema.parse(await api.post(`${base(eventId, termId)}/proposal`).json())
+}
+
+/** Saves a confirmed proposal: every assignment in one transaction, or none (US-147). */
+export async function saveRoomProposal(
+  eventId: string,
+  termId: string,
+  placements: { applicationTermId: string; roomId: string }[],
+): Promise<void> {
+  await api.post(`${base(eventId, termId)}/bulk`, { json: { assignments: placements } })
+}
