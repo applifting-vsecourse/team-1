@@ -38,6 +38,7 @@ export interface ChangeEmailNoticeProps {
   newEmail: string
 }
 
+// Figma: E20 · Upozornění na změnu adresy · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=19681-1629
 export const ChangeEmailNotice = ({
   locale,
   newEmail,

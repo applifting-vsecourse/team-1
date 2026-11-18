@@ -3,7 +3,7 @@ import { ChangeLayout } from "@/core/email/templates/application-change-layout"
 import * as React from "react"
 
 // E-mail no. 8 (US-117): the debt of a confirmed term was paid. A plain confirmation of receipt,
-// no amount, one per term. Figma: Potvrzení přijetí platby · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19681-1333
+// no amount, one per term.
 const copy: Record<
   Locale,
   {
@@ -45,6 +45,7 @@ export interface PaymentReceivedEmailProps {
   confirmationUrl: string
 }
 
+// Figma: E15 · Přijetí platby · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=19681-1333
 export const PaymentReceivedEmail = ({
   locale,
   eventName,

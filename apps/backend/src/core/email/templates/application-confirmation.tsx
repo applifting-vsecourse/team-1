@@ -3,7 +3,6 @@ import { Button, Heading, Hr, Section, Text } from "react-email"
 import { emailButton, EmailLayout } from "@/core/email/email-kit"
 import * as React from "react"
 
-// Figma (Design system): US-102 E-mailová šablona · Souhrnný e-mail (K vyhodnocení) · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15751-2063 (360 px: node-id=15751-2100)
 // Copy for all locales side by side — a missing translation is a type error.
 const copy: Record<
   Locale,
@@ -130,6 +129,7 @@ export interface ApplicationConfirmationProps {
   applications: ConfirmationApplicationProps[]
 }
 
+// Figma: E01–E04 · Přijetí přihlášky · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=19680-512
 export const ApplicationConfirmation = ({
   locale,
   eventName,

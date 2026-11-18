@@ -5,7 +5,6 @@ import * as React from "react"
 
 // Every template keeps its copy for all locales side by side, so a missing
 // translation is a type error, not a silent English e-mail.
-// Figma (Design system): US-125 / E-mailová šablona · Ověřovací e-mail · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16244-3444
 const copy: Record<
   Locale,
   {
@@ -46,6 +45,7 @@ export interface ChangeEmailProps {
   newEmail: string
 }
 
+// Figma: E19 · Ověření nové adresy · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=19681-1573
 export const ChangeEmail = ({
   url,
   locale,

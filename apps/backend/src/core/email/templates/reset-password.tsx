@@ -48,6 +48,7 @@ export interface ResetPasswordProps {
   locale: Locale
 }
 
+// Figma: E18 · Obnova hesla · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=19681-1519
 export const ResetPassword = ({ username, url, locale }: ResetPasswordProps): React.JSX.Element => {
   const text = copy[locale]
   return (

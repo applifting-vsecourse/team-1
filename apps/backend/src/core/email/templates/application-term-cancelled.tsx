@@ -3,7 +3,6 @@ import { ChangeLayout } from '@/core/email/templates/application-change-layout';
 import { Gender } from '@/shared/domain/gender';
 import * as React from 'react';
 
-// Figma (Design system): US-116 E-mailová šablona · E-mail 15 (Termín akce byl zrušen) · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15981-806 (360 px: node-id=15981-836)
 // E-mail no. 15 (EMAILY.md, D-065, D-076, D-080): the organizer cancelled the term and the
 // application in it is cancelled; paid payments are refunded. One e-mail per application.
 // The cancellation of a term (US-131) sends it, see ApplicationConfirmationMailer.sendTermCancelled.
@@ -57,6 +56,7 @@ export interface TermCancelledProps {
   confirmationUrl: string;
 }
 
+// Figma: E12 · Zrušení termínu · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=19681-1067
 export const TermCancelled = ({
   locale,
   eventName,

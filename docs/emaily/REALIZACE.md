@@ -2,6 +2,10 @@
 
 Krok 5 plánu ([PLAN.md](PLAN.md)), zahájeno 5. 11. 2026. Podklady: schválený [katalog](KATALOG.md) (včetně sekce „Figma a místo v kódu“), [texty](TEXTY.md) a design ve Figmě (stránka „HF / 09 E-maily · nový design“). Dělení práce schválil Adam 5. 11. 2026. Tickety na GitHubu se nezakládají; úkoly se vedou v této větvi a v plánu. Technické řešení určuje vývoj, nepotvrzené business otázky neřeší odhadem.
 
+## Aktualizace pro Design system v2 (18. 11. 2026)
+
+Aktuální mapu rámců E01–E20, šablon a odesílatelů uvádí [katalog](KATALOG.md#figma-a-místo-v-kódu). Společný vzhled je v [`email-kit.tsx`](../../apps/backend/src/core/email/email-kit.tsx). Potvrzení platby E15 odesílá `PaymentsService` a oznámení o zrušeném termínu E12 odesílá `TermStatusService`. Upomínka E14 čeká na [#46](https://github.com/applifting-vsecourse/team-1/issues/46). Následující plán zachycuje stav původní realizace z 5. 11.
+
 ## Vývojové úkoly
 
 | #   | Úkol                                                        | Rozsah                                                                                                                                                                                                                                                                                                                                                                                                     | Hotovo, když                                                                                                    | Návaznost                                                                                                                                                            |

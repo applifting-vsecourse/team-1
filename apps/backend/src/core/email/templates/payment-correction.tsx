@@ -66,6 +66,7 @@ export interface PaymentCorrectionEmailProps {
   confirmationUrl: string
 }
 
+// Figma: E16 · Oprava platby · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=19681-1387
 export const PaymentCorrectionEmail = ({
   locale,
   eventName,

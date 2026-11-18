@@ -63,7 +63,7 @@ const copy: Record<
       CANCELLED: 'Cancelled',
     },
     kinds: {
-      // Figma: E-mail 02 EN
+      // Figma: E05 EN
       CONFIRMED: {
         heading: 'Your place is confirmed',
         text: (name, term) => `The organiser has confirmed ${name}’s place for ${term}.`,
@@ -210,6 +210,7 @@ export interface ApplicationChangeProps {
   confirmationUrl: string;
 }
 
+// Figma: E05–E08, E10, E11, E13 · Změny přihlášky · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=19681-665
 export const ApplicationChange = ({
   locale,
   eventName,
@@ -257,15 +258,6 @@ export const ApplicationChange = ({
     />
   );
 };
-
-// Figma (Design system): US-116 E-mailová šablona · E-mail 02 (Účast je potvrzená) · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15981-290 (360 px: 15981-329; EN: 15981-866 / 15981-905)
-// Figma (Design system): US-116 E-mail 03 (Jste náhradník) · node-id=15981-368 (360 px: 15981-398)
-// Figma (Design system): US-116 E-mail 04 / 09 / 10 (Přihláška byla zamítnuta) · node-id=15981-428 (360 px: 15981-458)
-// Figma (Design system): US-116 E-mail 05 (Uvolnilo se lůžko) · node-id=15981-488 (360 px: 15981-527)
-// Figma (Design system): US-116 E-mail 06 (Termín začal, lůžko se neuvolnilo) · node-id=15981-566 (360 px: 15981-596)
-// Figma (Design system): US-116 E-mail 11 (Odhlášení je potvrzené) · node-id=15981-626 (360 px: 15981-656)
-// Figma (Design system): US-116 E-mail 14 (Přihláška zrušená organizátorem) · node-id=15981-746 (360 px: 15981-776)
-// All under https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=<id>
 
 // Preview data for `pnpm backend email:dev`: a term was confirmed, payment details follow.
 ApplicationChange.PreviewProps = {

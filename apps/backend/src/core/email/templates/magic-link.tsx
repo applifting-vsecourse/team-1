@@ -43,6 +43,7 @@ export interface MagicLinkProps {
   locale: Locale
 }
 
+// Figma: E17 · Přihlašovací odkaz · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=19681-1461
 export const MagicLink = ({ url, locale }: MagicLinkProps): React.JSX.Element => {
   const text = copy[locale]
   return (

@@ -3,7 +3,6 @@ import { ChangeLayout } from '@/core/email/templates/application-change-layout';
 import { Gender } from '@/shared/domain/gender';
 import * as React from 'react';
 
-// Figma (Design system): US-116 E-mailová šablona · E-mail 13 (Potvrzení bylo odvoláno. Jste náhradník) · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15981-686 (360 px: node-id=15981-716)
 // E-mail no. 13 (EMAILY.md, D-074): Potvrzená s dluhem → Náhradník, the organizer moves the
 // application among the substitutes. Own template, not the one of no. 3 (K vyhodnocení → Náhradník).
 // The waiting order is never told. Copy for both locales side by side.
@@ -54,6 +53,7 @@ export interface ConfirmationWithdrawnProps {
   confirmationUrl: string;
 }
 
+// Figma: E09 · Odvolání potvrzení · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=19681-903
 export const ConfirmationWithdrawn = ({
   locale,
   eventName,
