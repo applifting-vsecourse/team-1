@@ -9,8 +9,10 @@ import { occupancyQueryOptions } from "@/features/event-overview/api/occupancy"
 import { RoomsPage } from "@/features/events/components/RoomsPage"
 
 export const Route = createFileRoute("/organizer/_app/events/$eventId/rooms")({
-  validateSearch: (search: Record<string, unknown>): { termId?: string } => ({
+  validateSearch: (search: Record<string, unknown>): { termId?: string; view?: "overview" } => ({
     termId: typeof search.termId === "string" ? search.termId : undefined,
+    // The room assignment is the page itself; only the overview (US-36) is named in the link.
+    view: search.view === "overview" ? "overview" : undefined,
   }),
   component: EventRoomsPage,
 })
@@ -18,7 +20,7 @@ export const Route = createFileRoute("/organizer/_app/events/$eventId/rooms")({
 function EventRoomsPage() {
   const { t } = useTranslation("events")
   const { eventId } = Route.useParams()
-  const { termId } = Route.useSearch()
+  const { termId, view } = Route.useSearch()
   const navigate = Route.useNavigate()
   // The occupancy lists every active term with its own room mode, room count and capacity.
   const occupancy = useQuery(occupancyQueryOptions(eventId))
@@ -39,9 +41,16 @@ function EventRoomsPage() {
     <RoomsPage
       eventId={eventId}
       termId={termId}
+      view={view === "overview" ? "overview" : "assignment"}
       terms={occupancy.data.terms}
       onSelectTerm={(next) => {
-        void navigate({ search: { termId: next }, replace: true })
+        void navigate({ search: (prev) => ({ ...prev, termId: next }), replace: true })
+      }}
+      onSelectView={(next) => {
+        void navigate({
+          search: (prev) => ({ ...prev, view: next === "overview" ? "overview" : undefined }),
+          replace: true,
+        })
       }}
     />
   )

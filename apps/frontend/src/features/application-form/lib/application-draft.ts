@@ -20,6 +20,9 @@ const storedDraft = z.object({
         lastName: z.string(),
         birthDate: z.string(),
         gender: z.enum(GENDERS).optional(),
+        // Drafts saved before US-38 have none of the two.
+        individualAccommodation: z.boolean().default(false),
+        accommodationRequest: z.string().default(""),
         termIds: z.array(z.string()),
       }),
     )
@@ -29,7 +32,16 @@ const storedDraft = z.object({
 export const emptyApplicationDraft = (): ApplicationFormDraft => ({
   email: "",
   consent: false,
-  participants: [{ firstName: "", lastName: "", birthDate: "", termIds: [] }],
+  participants: [
+    {
+      firstName: "",
+      lastName: "",
+      birthDate: "",
+      individualAccommodation: false,
+      accommodationRequest: "",
+      termIds: [],
+    },
+  ],
 })
 
 const storageKey = (token: string) => `${KEY_PREFIX}${token}`
@@ -52,6 +64,8 @@ const isEmpty = (draft: ApplicationFormDraft) =>
       participant.lastName === "" &&
       participant.birthDate === "" &&
       participant.gender === undefined &&
+      !participant.individualAccommodation &&
+      participant.accommodationRequest === "" &&
       participant.termIds.length === 0,
   )
 

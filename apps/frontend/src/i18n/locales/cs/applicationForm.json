@@ -23,6 +23,7 @@
       "variableSymbolOf": "{{name}} · {{amount}} · variabilní symbol"
     },
     "status": {
+      "archived": "Archivovaná",
       "cancelled": "Zrušená",
       "confirmed": "Potvrzeno",
       "toEvaluate": "Čeká na vyhodnocení",
@@ -41,6 +42,7 @@
     }
   },
   "form": {
+    "accommodationRequest": "Poznámka pro organizátora (nepovinné)",
     "addParticipant": "Přidat dalšího účastníka",
     "birthDate": "Datum narození *",
     "birthDateHint": "Datum napište nebo vyberte z kalendáře. Např. 25.10.1990.",
@@ -54,6 +56,7 @@
     "email": "Kontaktní e-mail *",
     "emailHint": "Na tento e-mail přijde potvrzení celé přihlášky.",
     "errors": {
+      "accommodationRequestTooLong": "Poznámka může mít nejvýše 2 000 znaků.",
       "birthDateInvalid": "Zadejte platné datum narození.",
       "consentRequired": "Pro odeslání je nutný souhlas se zpracováním údajů.",
       "dateFormat": "Zadejte datum ve tvaru D. M. RRRR.",
@@ -70,6 +73,8 @@
     "genderMale": "Muž",
     "genderPlaceholder": "Vyberte pohlaví",
     "heading": "Přihláška na {{event}}",
+    "individualAccommodation": "Chci ubytování řešit individuálně",
+    "individualAccommodationHint": "Tuto informaci uvidí jen organizátor akce.",
     "intro": "Přihlášku vyplníte bez účtu. Každému účastníkovi vyberte jeden nebo více termínů.",
     "lastName": "Příjmení *",
     "participantTitle": "Účastník {{number}}",

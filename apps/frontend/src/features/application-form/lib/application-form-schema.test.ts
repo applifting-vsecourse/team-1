@@ -14,6 +14,8 @@ const participant = {
   lastName: "Nováková",
   birthDate: "17. 5. 2010",
   gender: "FEMALE",
+  individualAccommodation: false,
+  accommodationRequest: "",
   termIds: ["t1"],
 }
 const valid = { email: "anna@example.com", consent: true, participants: [participant] }
@@ -26,6 +28,22 @@ const messagesFor = (input: unknown) => {
 describe("application form schema", () => {
   it("accepts a complete application", () => {
     expect(schema.safeParse(valid).success).toBe(true)
+  })
+
+  it("accepts the request for individual accommodation with a note of up to 2,000 characters", () => {
+    const individual = { ...participant, individualAccommodation: true }
+    expect(
+      schema.safeParse({
+        ...valid,
+        participants: [{ ...individual, accommodationRequest: "x".repeat(2000) }],
+      }).success,
+    ).toBe(true)
+    expect(
+      messagesFor({
+        ...valid,
+        participants: [{ ...individual, accommodationRequest: "x".repeat(2001) }],
+      }),
+    ).toEqual(["The note can have at most 2,000 characters."])
   })
 
   it("accepts several participants, each with their own terms", () => {
@@ -54,7 +72,15 @@ describe("application form schema", () => {
     const messages = messagesFor({
       ...valid,
       participants: [
-        { firstName: " ", lastName: "", birthDate: "17. 5. 2010", gender: undefined, termIds: [] },
+        {
+          firstName: " ",
+          lastName: "",
+          birthDate: "17. 5. 2010",
+          gender: undefined,
+          individualAccommodation: false,
+          accommodationRequest: "",
+          termIds: [],
+        },
       ],
     })
     expect(messages).toEqual(

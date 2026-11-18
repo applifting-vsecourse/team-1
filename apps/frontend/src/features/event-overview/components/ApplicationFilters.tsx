@@ -24,7 +24,7 @@ import { cn } from "@/lib/utils"
 
 import type { ApplicationsSearch } from "@/features/event-overview/lib/applications-search"
 
-type FilterKey = "status" | "waitlist" | "payment" | "term"
+type FilterKey = "status" | "waitlist" | "payment" | "term" | "accommodation"
 type FilterOption = {
   key: FilterKey
   label: string
@@ -34,6 +34,7 @@ type FilterOption = {
   isLocked?: boolean
 }
 
+// Figma (Design system): US-38 filter "Ubytování" · desktop https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=25587-109948 (mobile: 25587-110135)
 // Figma (Design system): M12 / M12a · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14182-3993
 export function ApplicationFilters({
   filters,
@@ -93,6 +94,13 @@ export function ApplicationFilters({
       ],
     },
     { key: "term", label: t("applications.term"), all: t("applications.allTerms"), values: terms },
+    // US-38: who asked to settle the accommodation individually.
+    {
+      key: "accommodation",
+      label: t("applications.accommodation"),
+      all: t("applications.allAccommodation"),
+      values: [{ id: "INDIVIDUAL", name: t("applications.accommodationIndividual") }],
+    },
   ]
   const active = options.flatMap((option) => {
     const value = filters[option.key]

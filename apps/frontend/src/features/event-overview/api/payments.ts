@@ -9,6 +9,7 @@ export const paymentApplicationSchema = z.object({
   eventName: z.string(),
   firstName: z.string(),
   lastName: z.string(),
+  individualAccommodation: z.boolean(),
   accommodationRequest: z.string().nullable(),
   code: z.string(),
   /** Participant date of birth, `YYYY-MM-DD`. */
@@ -33,7 +34,7 @@ export const paymentApplicationSchema = z.object({
       name: z.string().nullable(),
       /** Application number × 1000 + term number: pays this term only. */
       variableSymbol: z.string(),
-      status: z.enum(["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED"]),
+      status: z.enum(["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED", "ARCHIVED"]),
       priceCzk: z.number().int(),
       startsOn: z.string(),
       endsOn: z.string(),

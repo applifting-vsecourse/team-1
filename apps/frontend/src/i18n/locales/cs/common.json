@@ -8,6 +8,7 @@
     "organizer": "Organizátor",
     "participant": "Moje přihláška"
   },
+  "characterCounter": "{{count}} / {{max}}",
   "clipboard": {
     "copied": "Zkopírováno do schránky",
     "copyAccount": "Zkopírovat číslo účtu",

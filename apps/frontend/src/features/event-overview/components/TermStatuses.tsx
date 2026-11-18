@@ -39,7 +39,7 @@ export function TermStatuses({ applicationId }: { applicationId: string }) {
       />
     )
   }
-  const active = data.filter((term) => term.status !== "CANCELLED")
+  const active = data.filter((term) => term.status !== "CANCELLED" && term.status !== "ARCHIVED")
   return (
     <section
       className="flex flex-col gap-6"
@@ -117,7 +117,7 @@ export function TermStatuses({ applicationId }: { applicationId: string }) {
                   {t("termStatus.change")}
                 </Button>
               ) : null}
-              {term.status !== "CANCELLED" ? (
+              {term.status !== "CANCELLED" && term.status !== "ARCHIVED" ? (
                 <div className="flex w-full flex-col gap-2 *:w-full sm:w-auto sm:flex-row sm:flex-wrap sm:*:w-auto">
                   <OrganizerTermChange
                     applicationId={applicationId}

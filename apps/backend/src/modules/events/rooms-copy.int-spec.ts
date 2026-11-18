@@ -185,4 +185,73 @@ describe("copying rooms between terms (integration)", () => {
     ])
     expect(copied.capacity.total).toBe(3)
   })
+
+  it("does not copy extra beds: the beds the dialog announces match the term after an add and a replace (#533)", async () => {
+    const makeTerm = async (name: string, startsOn: string) =>
+      (
+        await prisma.term.create({
+          data: {
+            organizationId,
+            eventId,
+            number: await nextTermNumber(prisma, eventId),
+            name,
+            roomMode: "GENDERED",
+            startsOn: new Date(startsOn),
+            endsOn: new Date(`${startsOn.slice(0, 8)}${Number(startsOn.slice(8)) + 5}`),
+            priceCzk: 1000,
+          },
+        })
+      ).id
+    const withExtras = await makeTerm("Source with extra beds", "2027-09-01")
+    const own = await makeTerm("Target with own extra beds", "2027-09-10")
+    await prisma.room.createMany({
+      data: [
+        {
+          organizationId,
+          termId: withExtras,
+          name: "X1",
+          capacity: 4,
+          extraBeds: 2,
+          gender: "FEMALE",
+        },
+        {
+          organizationId,
+          termId: withExtras,
+          name: "X2",
+          capacity: 6,
+          extraBeds: 1,
+          gender: "MALE",
+        },
+        { organizationId, termId: own, name: "Own", capacity: 3, extraBeds: 2, gender: "MALE" },
+      ],
+    })
+    // What the dialog computes from the API data: Σ capacity of the source, `capacity.total` of the target.
+    const src = await rooms(withExtras)
+    const dialogSourceBeds = src.rooms.reduce((sum, room) => sum + room.capacity, 0)
+    expect(dialogSourceBeds).toBe(10)
+    expect(src.capacity.total).toBe(13)
+    const before = await rooms(own)
+    expect(before.capacity.total).toBe(5)
+    const dialogAdd = before.capacity.total + dialogSourceBeds
+
+    expect((await copy(own, withExtras, "ADD")).status).toBe(204)
+    const added = await rooms(own)
+    expect(added.rooms.map((room) => room.name).sort()).toEqual(["Own", "X1", "X2"])
+    expect(added.capacity.total).toBe(dialogAdd)
+    expect(added.capacity.total).toBe(15)
+    // The copies carry no extra beds, the existing room keeps its own.
+    expect(Object.fromEntries(added.rooms.map((room) => [room.name, room.extraBeds]))).toEqual({
+      Own: 2,
+      X1: 0,
+      X2: 0,
+    })
+
+    expect((await copy(own, withExtras, "REPLACE")).status).toBe(204)
+    const replaced = await rooms(own)
+    expect(replaced.rooms.map((room) => room.name)).toEqual(["X1", "X2"])
+    expect(replaced.rooms.every((room) => room.extraBeds === 0)).toBe(true)
+    expect(replaced.capacity.total).toBe(dialogSourceBeds)
+    // The source keeps its extra beds.
+    expect((await rooms(withExtras)).capacity.total).toBe(13)
+  })
 })

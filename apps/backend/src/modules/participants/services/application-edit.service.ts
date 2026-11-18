@@ -5,6 +5,7 @@ import {
   EditInput,
 } from "@/modules/participants/repositories/application-edit.repository"
 import { Identity } from "@/shared/auth/domain/identity"
+import { normalizeAccommodation } from "@/shared/domain/accommodation"
 import { AppException } from "@/shared/errors/app.exception"
 import { HttpStatus, Injectable } from "@nestjs/common"
 
@@ -28,7 +29,7 @@ export class ApplicationEditService {
       lastName: input.lastName.trim(),
       birthDate: input.birthDate,
       phone: input.phone?.trim().replace(/[ ()-]/g, "") ?? null,
-      accommodationRequest: input.accommodationRequest?.trim() || null,
+      ...normalizeAccommodation(input.individualAccommodation, input.accommodationRequest),
     }
     if (
       !normalized.firstName ||

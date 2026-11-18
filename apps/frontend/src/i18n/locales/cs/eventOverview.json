@@ -1,11 +1,15 @@
 {
   "applications": {
+    "accommodation": "Ubytování",
+    "accommodationIndividual": "Individuální",
     "actions": "Akce",
     "activeFilters": "Aktivní filtry",
+    "allAccommodation": "Všechny",
     "allPayments": "Všechny platby",
     "allStatuses": "Všechny stavy v termínu",
     "allTerms": "Všechny termíny",
     "allWaitlisted": "Všichni náhradníci",
+    "archived": "Archivovaná",
     "cancelled": "Zrušená",
     "clear": "Vymazat filtry",
     "clearSearchAndFilters": "Vymazat hledání a filtry",
@@ -17,11 +21,14 @@
     "debt": "S dluhem",
     "detail": "Detail",
     "empty": "Pro tento výběr jsme nenašli žádné přihlášky.",
+    "emptyIndividualHint": "Přihlášky s tímto požadavkem se tu objeví, jakmile ho některý přihlašovatel uvede. Můžete také zrušit filtry.",
+    "emptyIndividualTitle": "Nikdo zatím nežádá o individuální ubytování",
     "error": "Přihlášky se nepodařilo načíst",
     "female": "žena",
     "filters": "Filtry",
     "filtersImmediate": "Změny filtrů se projeví okamžitě.",
     "hint": "Filtry lze kombinovat: termín, stav přihlášky v termínu a úhrada. Nezaplaceno = dluh větší než 0 Kč. Jedna přihláška může mít více termínů s různým stavem. Dluh je součet za celou přihlášku; náhradník za daný termín nic neplatí.",
+    "individualAccommodation": "Individuální ubytování",
     "male": "muž",
     "noApplications": "Zatím nebyla přijata žádná přihláška.",
     "nothingDue": "Bez částky k úhradě",
@@ -80,6 +87,54 @@
     "bodyFemale": "{{name}} obsadila první dostupné {{bed}} v termínu {{range}}. Přihlašovateli jsme poslali e-mail s platebními údaji.",
     "bodyMale": "{{name}} obsadil první dostupné {{bed}} v termínu {{range}}. Přihlašovateli jsme poslali e-mail s platebními údaji.",
     "title": "Účast byla potvrzena automaticky"
+  },
+  "bankStatement": {
+    "back": "Zpět na platby",
+    "description": "Nahrajte výpis z Fio banky ve formátu CSV. Platby se k přihláškám spárují podle variabilního symbolu.",
+    "done": "Výpis byl zpracován",
+    "result": {
+      "duplicates_few": "{{count}} transakce už byly nahrané dříve a nezapočítaly se znovu.",
+      "duplicates_one": "{{count}} transakce už byla nahraná dříve a nezapočítala se znovu.",
+      "duplicates_other": "{{count}} transakcí už bylo nahraných dříve a nezapočítaly se znovu.",
+      "ignored_few": "{{count}} odchozí transakce byly přeskočeny.",
+      "ignored_one": "{{count}} odchozí transakce byla přeskočena.",
+      "ignored_other": "{{count}} odchozích transakcí bylo přeskočeno.",
+      "matched": "Spárováno",
+      "overpaid": "Přeplatky",
+      "payments_few": "{{count}} platby",
+      "payments_one": "{{count}} platba",
+      "payments_other": "{{count}} plateb",
+      "unmatched": "Nespárováno"
+    },
+    "title": "Nahrání výpisu",
+    "unmatchedList": {
+      "amount": "Částka",
+      "application": "Přihláška",
+      "date": "Datum",
+      "detail": "Detail",
+      "empty": "Žádné nespárované platby.",
+      "error": "Nespárované platby se nepodařilo načíst",
+      "hint": "Otevřete přihlášku a zapište platbu u ní.",
+      "list": "Nespárované platby z bankovních výpisů",
+      "payer": "Plátce a zpráva",
+      "reason": "Důvod",
+      "reasons": {
+        "AMOUNT_NOT_WHOLE": "Částka není v celých korunách",
+        "NO_VARIABLE_SYMBOL": "Chybí variabilní symbol",
+        "UNKNOWN_VARIABLE_SYMBOL": "Žádná přihláška s tímto variabilním symbolem",
+        "UNSUPPORTED_CURRENCY": "Měna není CZK"
+      },
+      "title": "Platby k ručnímu přiřazení",
+      "variableSymbol": "Variabilní symbol"
+    },
+    "upload": {
+      "button": "Vybrat soubor",
+      "description": "Soubor se nemění, čtou se jen příchozí platby.",
+      "note": "CSV, nejvýše 2 MB",
+      "sending": "Zpracovávám výpis…",
+      "title": "Vyberte výpis z banky",
+      "tooLarge": "Výpis je příliš velký"
+    }
   },
   "bulk": {
     "alertTitle": "Potvrdí se {{confirmed}} ze {{selected}} přihlášek.",
@@ -292,7 +347,6 @@
     "title": "Přehled akce"
   },
   "payment": {
-    "accommodationRequest": "Požadavek na individuální řešení ubytování",
     "afterCorrection": "Po uložení",
     "amountChoice": "Výše platby",
     "amountRequired": "Částka *",
@@ -346,6 +400,10 @@
     "health": "Zdravotní omezení",
     "history": "Historie plateb",
     "historyAmount": "Částka",
+    "individualAccommodation": "Individuální ubytování",
+    "individualAccommodationNoNote": "Bez poznámky",
+    "individualAccommodationNone": "Účastník nemá požadavek na individuální ubytování.",
+    "individualAccommodationNote": "Poznámka",
     "invalidAmount": "Zadejte celé kladné číslo v Kč.",
     "invalidRefund": "Zadejte kladnou celou částku v Kč, nejvýše {{amount}}.",
     "keep": "Zpět",
@@ -440,7 +498,8 @@
     },
     "term": "Termín",
     "title": "Platby",
-    "totalDebt": "Součet dluhů"
+    "totalDebt": "Součet dluhů",
+    "uploadStatement": "Nahrát výpis"
   },
   "queue": {
     "empty": "Všechny přihlášky jsou vyhodnocené.",
@@ -596,6 +655,7 @@
     "saving": "Ukládání…",
     "savingTitle": "Změna stavu se ukládá",
     "state": {
+      "ARCHIVED": "Archivovaná",
       "CANCELLED": "Zrušená",
       "CONFIRMED": "Potvrzená",
       "TO_EVALUATE": "Čeká na vyhodnocení",

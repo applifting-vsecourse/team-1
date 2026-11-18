@@ -6,7 +6,8 @@ class ApplicationListTermDto {
   @ApiProperty({ nullable: true, type: String }) name!: string | null
   @ApiProperty() startsOn!: string
   @ApiProperty() endsOn!: string
-  @ApiProperty({ enum: ["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED"] }) status!: string
+  @ApiProperty({ enum: ["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED", "ARCHIVED"] })
+  status!: string
   @ApiProperty() priceCzk!: number
   @ApiProperty({
     nullable: true,
@@ -22,6 +23,7 @@ export class ApplicationListResponseDto {
   @ApiProperty() lastName!: string
   @ApiProperty() birthDate!: string
   @ApiProperty({ enum: ["FEMALE", "MALE"] }) gender!: string
+  @ApiProperty() individualAccommodation!: boolean
   @ApiProperty() email!: string
   @ApiProperty() submittedAt!: string
   @ApiProperty() amountDueCzk!: number

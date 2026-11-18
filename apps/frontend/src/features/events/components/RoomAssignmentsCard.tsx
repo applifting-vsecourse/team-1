@@ -32,8 +32,10 @@ import {
   unassignRoom,
   type AssignmentParticipant,
   type AssignmentRoom,
+  type RoomWarning,
   type UnassignedParticipant,
 } from "@/features/events/api/room-assignments"
+import { AcknowledgeWarningDialog } from "@/features/events/components/AcknowledgeWarningDialog"
 import {
   ParticipantGhost,
   RoomCard,
@@ -43,10 +45,15 @@ import {
 } from "@/features/events/components/AssignmentParts"
 import { AssignRoomDialog, type AssignTarget } from "@/features/events/components/AssignRoomDialog"
 import {
+  ExtraBedConfirmDialog,
+  type ExtraBedRequest,
+} from "@/features/events/components/ExtraBedConfirmDialog"
+import {
   freeBedCount,
   participantName,
   useAssignmentLabels,
 } from "@/features/events/components/room-assignment-labels"
+import { RoomWarningsSummary, warningsOfRoom } from "@/features/events/components/RoomWarnings"
 
 type Term = { eventId: string; termId: string; startsOn: string; endsOn: string }
 
@@ -103,6 +110,11 @@ export function RoomAssignmentsCard({
   const { roomTitle } = useAssignmentLabels()
   const query = useQuery(roomAssignmentsQueryOptions(term.eventId, term.termId))
   const [dialog, setDialog] = useState<{ target: AssignTarget } | null>(null)
+  const [extraBed, setExtraBed] = useState<ExtraBedRequest | null>(null)
+  const [acknowledging, setAcknowledging] = useState<{
+    warning: RoomWarning
+    room: AssignmentRoom
+  } | null>(null)
   const [dragged, setDragged] = useState<DragData | null>(null)
   const [search, setSearch] = useState("")
   const [peopleSearch, setPeopleSearch] = useState("")
@@ -169,11 +181,20 @@ export function RoomAssignmentsCard({
     alsoInTerms: "alsoInTerms" in participant ? participant.alsoInTerms : [],
   })
   const notifyFailure = (error: Error) => notify.error(t("roomAssignments.failed"), error.message)
-  const isEligible = (room: AssignmentRoom) =>
-    dragged !== null && dragged.fromRoomId !== room.id && freeBedCount(room) > 0
+  // A full room is a target too: the organizer confirms an extra bed for the one dropped on it.
+  const isEligible = (room: AssignmentRoom) => dragged !== null && dragged.fromRoomId !== room.id
 
   const dropOn = (drag: DragData, room: AssignmentRoom) => {
-    if (drag.fromRoomId === room.id || freeBedCount(room) === 0) return
+    if (drag.fromRoomId === room.id) return
+    if (freeBedCount(room) === 0) {
+      setExtraBed({
+        applicationTermId: drag.applicationTermId,
+        name: drag.name,
+        isMove: drag.fromRoomId !== null,
+        room,
+      })
+      return
+    }
     assign.mutate(
       { applicationTermId: drag.applicationTermId, roomId: room.id },
       {
@@ -213,6 +234,9 @@ export function RoomAssignmentsCard({
   const roomProps = (room: AssignmentRoom) => ({
     room,
     isEligible: isEligible(room),
+    warnings: warningsOfRoom(data.warnings, room.id),
+    onAcknowledge: (warning: RoomWarning, target: AssignmentRoom) =>
+      setAcknowledging({ warning, room: target }),
     isDragActive: dragged !== null,
     actions: roomActions(room.id),
     onMoveParticipant: (participant: AssignmentParticipant) =>
@@ -241,6 +265,10 @@ export function RoomAssignmentsCard({
       onDragCancel={() => setDragged(null)}
     >
       <div className="flex flex-col gap-4">
+        <RoomWarningsSummary
+          data={data}
+          isSharedMode={hasRooms && data.rooms.every((room) => room.gender === null)}
+        />
         {/* On a phone the count of the unassigned stays under the top bar while the rooms scroll. */}
         {isPanelScrolledOut ? (
           <div
@@ -418,6 +446,14 @@ export function RoomAssignmentsCard({
             rooms={data.rooms}
             target={dialog.target}
             onClose={() => setDialog(null)}
+            onNeedsExtraBed={(room) =>
+              setExtraBed({
+                applicationTermId: dialog.target.applicationTermId,
+                name: dialog.target.name,
+                isMove: dialog.target.currentRoomId !== null,
+                room,
+              })
+            }
             onDone={async ({ roomTitle: title, isMoved }) => {
               await refresh()
               notify.success(
@@ -427,6 +463,35 @@ export function RoomAssignmentsCard({
                   room: title,
                 }),
               )
+            }}
+          />
+        ) : null}
+        {extraBed ? (
+          <ExtraBedConfirmDialog
+            key={extraBed.applicationTermId}
+            eventId={term.eventId}
+            term={term}
+            request={extraBed}
+            onClose={() => setExtraBed(null)}
+            onDone={async ({ roomTitle: title, isMoved }) => {
+              await refresh()
+              notify.success(
+                t(isMoved ? "roomAssignments.moved" : "roomAssignments.assigned"),
+                t("roomAssignments.assignedDescription", { name: extraBed.name, room: title }),
+              )
+            }}
+          />
+        ) : null}
+        {acknowledging ? (
+          <AcknowledgeWarningDialog
+            eventId={term.eventId}
+            termId={term.termId}
+            warning={acknowledging.warning}
+            room={acknowledging.room}
+            onClose={() => setAcknowledging(null)}
+            onDone={async () => {
+              await refresh()
+              notify.success(t("acknowledgeDialog.done"))
             }}
           />
         ) : null}

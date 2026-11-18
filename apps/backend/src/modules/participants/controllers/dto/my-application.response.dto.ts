@@ -9,7 +9,7 @@ import {
   OrganizationContact,
   PaymentDetails,
 } from "@/modules/participants/domain/my-application"
-import { ApiProperty } from "@nestjs/swagger"
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger"
 
 export class MyApplicationTermDto {
   @ApiProperty()
@@ -25,13 +25,16 @@ export class MyApplicationTermDto {
   endsOn!: string
 
   @ApiProperty({
-    enum: ["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED"],
+    enum: ["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED", "ARCHIVED"],
     description: "WAITLISTED is shown to the participant as waitlisted, without a place in line.",
   })
-  status!: "TO_EVALUATE" | "CONFIRMED" | "WAITLISTED" | "CANCELLED"
+  status!: "TO_EVALUATE" | "CONFIRMED" | "WAITLISTED" | "CANCELLED" | "ARCHIVED"
 
   @ApiProperty({ example: 4500, description: "Price frozen at evaluation, whole CZK." })
   priceCzk!: number
+
+  @ApiPropertyOptional({ description: "Overpayment retained on an archived term, whole CZK." })
+  archivedOverpaymentCzk?: number
 
   @ApiProperty({ description: "The organizer offers transport to this term (US-65)." })
   transportOffered!: boolean
