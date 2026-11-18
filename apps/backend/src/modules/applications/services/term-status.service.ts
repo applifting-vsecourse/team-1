@@ -182,23 +182,30 @@ export class TermStatusService {
     expectedSubstitutes?: { termId: string; applicationId: string | null }[],
   ): Promise<{ changedAt: Date; changedByName: string | null }> {
     const { organizationId } = await this.access.assertCanAccessApplication(user, applicationId)
-    if (expectedSubstitutes) {
-      // The waitlist may have changed since the preview the organizer confirmed; nothing is written
-      // until the warning he saw is true again (US-546).
-      const current = await this.previewWithdrawalByOrganizer(user, applicationId, termIds)
-      const isChanged = current.terms.some(
-        (term) =>
-          term.isWithdrawn &&
-          (term.substitute?.applicationId ?? null) !==
-            (expectedSubstitutes.find((row) => row.termId === term.termId)?.applicationId ?? null),
-      )
-      if (isChanged) throw new AppException(HttpStatus.CONFLICT, "WITHDRAWAL_SUBSTITUTE_CHANGED")
-    }
+    // The waitlist may have changed since the preview the organizer confirmed. The check runs under
+    // the event lock, where nobody else can change the waitlist, so the substitute the warning
+    // named is the one `fillFreedBeds` picks next; nothing is written when it differs (US-546).
+    const assertPreviewHolds = expectedSubstitutes
+      ? async () => {
+          const current = await this.previewWithdrawalByOrganizer(user, applicationId, termIds)
+          const isChanged = current.terms.some(
+            (term) =>
+              term.isWithdrawn &&
+              (term.substitute?.applicationId ?? null) !==
+                (expectedSubstitutes.find((row) => row.termId === term.termId)?.applicationId ??
+                  null),
+          )
+          if (isChanged) {
+            throw new AppException(HttpStatus.CONFLICT, "WITHDRAWAL_SUBSTITUTE_CHANGED")
+          }
+        }
+      : undefined
     const change = await this.repository.withdrawTermsByOrganizer(
       organizationId,
       applicationId,
       termIds,
       user.id,
+      assertPreviewHolds,
     )
     if (change === undefined) throw new AppException(HttpStatus.NOT_FOUND, "NOT_FOUND")
     // The mailer logs a failed delivery itself and never throws.
