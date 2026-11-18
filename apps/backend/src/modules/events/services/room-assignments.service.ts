@@ -1,4 +1,5 @@
 import { TermAssignments } from "@/modules/events/domain/room-assignment"
+import { RoomProposal } from "@/modules/events/domain/room-proposal"
 import { RoomWarningKind } from "@/modules/events/domain/room-warnings"
 import { RoomAssignmentsRepository } from "@/modules/events/repositories/room-assignments.repository"
 import { Identity } from "@/shared/auth/domain/identity"
@@ -37,6 +38,19 @@ export class RoomAssignmentsService {
       alsoTermIds,
       confirmExtraBed,
     )
+  }
+
+  async propose(user: Identity, eventId: string, termId: string): Promise<RoomProposal> {
+    return this.repository.propose(await this.scope(user, eventId, termId))
+  }
+
+  async assignMany(
+    user: Identity,
+    eventId: string,
+    termId: string,
+    items: { applicationTermId: string; roomId: string }[],
+  ): Promise<void> {
+    await this.repository.assignMany(await this.scope(user, eventId, termId), items)
   }
 
   async unassign(

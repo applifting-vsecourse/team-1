@@ -1,4 +1,5 @@
 import { TermAssignments } from "@/modules/events/domain/room-assignment"
+import { RoomProposal } from "@/modules/events/domain/room-proposal"
 import { Gender } from "@/shared/domain/gender"
 import { ApiProperty } from "@nestjs/swagger"
 
@@ -92,5 +93,39 @@ export class RoomAssignmentsResponseDto {
 
   static fromDomain(assignments: TermAssignments): RoomAssignmentsResponseDto {
     return Object.assign(new RoomAssignmentsResponseDto(), assignments)
+  }
+}
+
+class ProposalPlacementDto {
+  @ApiProperty() applicationTermId!: string
+  @ApiProperty() roomId!: string
+}
+class ProposalUnplacedDto {
+  @ApiProperty() applicationTermId!: string
+  @ApiProperty({ enum: ["INDIVIDUAL_ACCOMMODATION", "NO_FREE_BED"] }) reason!: string
+}
+class ProposalWishDto {
+  @ApiProperty({ description: "Who wished it; somebody the proposal gave a bed" })
+  applicationTermId!: string
+  @ApiProperty() name!: string
+  @ApiProperty({ type: [String], description: "People of the term the name stands for" })
+  matches!: string[]
+  @ApiProperty({ description: "The named person sleeps in the same room in the proposal" })
+  fulfilled!: boolean
+}
+
+export class RoomProposalResponseDto {
+  @ApiProperty({ type: [ProposalPlacementDto], description: "Proposed rooms; nothing is saved" })
+  placements!: ProposalPlacementDto[]
+  @ApiProperty({
+    type: [ProposalUnplacedDto],
+    description: "Confirmed participants without a room who got none in the proposal",
+  })
+  unplaced!: ProposalUnplacedDto[]
+  @ApiProperty({ type: [ProposalWishDto], description: "Wishes of the people given a bed" })
+  wishes!: ProposalWishDto[]
+
+  static fromDomain(proposal: RoomProposal): RoomProposalResponseDto {
+    return Object.assign(new RoomProposalResponseDto(), proposal)
   }
 }

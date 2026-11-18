@@ -45,6 +45,7 @@
   "ROOM_FULL": "This room has no free bed.",
   "ROOM_NAME_TAKEN": "A room with this name already exists in the event.",
   "ROOM_NOT_IN_TERM": "The room does not belong to this term.",
+  "ROOM_PROPOSAL_OUTDATED": "The proposal is out of date, the assignments in the term changed meanwhile. Propose the distribution again.",
   "ROOM_WARNING_NOT_FOUND": "This warning no longer applies.",
   "ROOM_WISHES_NOT_AVAILABLE": "Roommate wishes can't be written for this term.",
   "TERM_CANCELLED": "This term was cancelled and can't be changed.",
