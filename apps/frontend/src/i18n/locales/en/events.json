@@ -496,6 +496,7 @@
       "emails": "We will send the applicant one e-mail for each affected application.",
       "reason": "Reason for cancelling",
       "reasonHelper": "The reason is saved for the organizers.",
+      "refreshFailedTitle": "Could not refresh the application counts",
       "refunds": "You process any refunds manually in Payments.",
       "summary_few": "{{count}} applications in this term",
       "summary_one": "{{count}} application in this term",

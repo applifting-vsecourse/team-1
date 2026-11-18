@@ -496,6 +496,7 @@
       "emails": "Přihlašovatelům odešleme jeden e-mail za každou dotčenou přihlášku.",
       "reason": "Důvod zrušení",
       "reasonHelper": "Důvod bude uložen pro organizátory.",
+      "refreshFailedTitle": "Nepodařilo se obnovit počty přihlášek",
       "refunds": "Případné vratky zpracujete ručně v Platbách.",
       "summary_few": "{{count}} přihlášky v tomto termínu",
       "summary_one": "{{count}} přihláška v tomto termínu",
