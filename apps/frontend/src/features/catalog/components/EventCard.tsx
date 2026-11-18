@@ -2,7 +2,6 @@ import { Link } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
-import { LogoSymbol } from "@/components/atoms/Logo"
 import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
 import { formatDateRange } from "@/lib/date"
@@ -32,14 +31,10 @@ export function EventCard({ event }: { event: CatalogEvent }) {
             loading="lazy"
             className="h-44 w-full border-b border-border object-cover"
           />
-        ) : (
-          <div className="flex h-44 items-center justify-center border-b border-border bg-accent">
-            <LogoSymbol className="size-14 text-primary" />
-          </div>
-        )}
+        ) : null}
         <div className="flex flex-1 flex-col gap-3 p-5">
-          <p className="text-sm text-muted-foreground">{event.organizationName}</p>
-          <h2 className="text-2xl/8 font-bold tracking-tight">{event.name}</h2>
+          <span className="sr-only">{event.organizationName}</span>
+          <h3 className="text-2xl/8 font-semibold tracking-tight">{event.name}</h3>
           {event.terms.length > 0 ? (
             <ul>
               {event.terms.map((term) => (

@@ -19,13 +19,13 @@ export function NavLink({ children, className, ...props }: NavLinkProps) {
       // `activeProps`: those classes would collide with the base ones and
       // Tailwind resolves such conflicts by stylesheet order, not by class order.
       className={cn(
-        "group relative flex min-h-12 shrink-0 items-center rounded-control px-3 text-base whitespace-nowrap text-muted-foreground transition-colors hover:bg-accent/60 hover:text-foreground",
+        "group relative flex min-h-12 shrink-0 items-center rounded-control px-3 text-base whitespace-nowrap text-muted-foreground transition-colors hover:bg-accent/60 hover:text-foreground focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring motion-safe:duration-400",
         "data-[status=active]:bg-accent data-[status=active]:text-foreground",
         className,
       )}
     >
       {children}
-      <ActiveCorners className="group-focus-visible:hidden" />
+      <ActiveCorners />
     </Link>
   )
 }

@@ -10,6 +10,7 @@ import { BackLink } from "@/components/molecules/BackLink"
 import { ListSkeleton } from "@/components/molecules/ListSkeleton"
 import { Pagination } from "@/components/molecules/Pagination"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import {
@@ -53,6 +54,9 @@ export function CatalogPage({ organizationId, onOrganizationChange }: CatalogPag
   const isEmpty = data?.events.length === 0
   const { pageItems, ...pagination } = usePagination(events, organization ?? ALL, 18)
 
+  const totals = new Map<string, number>()
+  for (const event of events)
+    totals.set(event.organizationId, (totals.get(event.organizationId) ?? 0) + 1)
   const groups = (data?.organizations ?? [])
     .map((org) => ({
       ...org,
@@ -141,7 +145,12 @@ export function CatalogPage({ organizationId, onOrganizationChange }: CatalogPag
                 key={org.id}
                 className="flex flex-col gap-4"
               >
-                <h2 className="text-xl font-semibold">{org.name}</h2>
+                <div className="flex items-center justify-between gap-3 px-4">
+                  <h2 className="text-sm font-medium">{org.name}</h2>
+                  <Badge className="bg-muted-foreground text-background tabular-nums">
+                    {t("list.eventCount", { count: totals.get(org.id) ?? 0 })}
+                  </Badge>
+                </div>
                 <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                   {org.events.map((event) => (
                     <li key={event.publicToken}>
