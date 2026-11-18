@@ -1,6 +1,6 @@
-import { cleanRoomWishes } from "@/modules/events/domain/room-wishes"
 import { RoomWishesRepository } from "@/modules/participants/repositories/room-wishes.repository"
 import { Identity } from "@/shared/auth/domain/identity"
+import { cleanRoomWishes } from "@/shared/domain/room-wishes"
 import { AppException } from "@/shared/errors/app.exception"
 import { HttpStatus, Injectable } from "@nestjs/common"
 

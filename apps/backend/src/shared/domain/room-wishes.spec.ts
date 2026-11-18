@@ -1,4 +1,4 @@
-import { cleanRoomWishes, evaluateRoomWishes } from "@/modules/events/domain/room-wishes"
+import { cleanRoomWishes, evaluateRoomWishes } from "@/shared/domain/room-wishes"
 
 describe("cleanRoomWishes", () => {
   it("trims, drops blanks and repeats and keeps three", () => {

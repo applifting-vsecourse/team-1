@@ -1,4 +1,4 @@
-import { MAX_ROOM_WISH_LENGTH, MAX_ROOM_WISHES } from "@/modules/events/domain/room-wishes"
+import { MAX_ROOM_WISH_LENGTH, MAX_ROOM_WISHES } from "@/shared/domain/room-wishes"
 import { ApiProperty } from "@nestjs/swagger"
 import { ArrayMaxSize, IsArray, IsString, MaxLength } from "class-validator"
 

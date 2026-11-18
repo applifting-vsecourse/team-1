@@ -14,11 +14,11 @@ import {
   TermAssignments,
 } from "@/modules/events/domain/room-assignment"
 import { RoomWarningKind } from "@/modules/events/domain/room-warnings"
-import { evaluateRoomWishes } from "@/modules/events/domain/room-wishes"
 import {
   loadRoomWarnings,
   pruneAcknowledgements,
 } from "@/modules/events/repositories/room-warnings.queries"
+import { evaluateRoomWishes } from "@/shared/domain/room-wishes"
 import { AppException } from "@/shared/errors/app.exception"
 import { releaseAssignments } from "@/shared/room-assignments/release-assignments"
 import { HttpStatus, Injectable } from "@nestjs/common"

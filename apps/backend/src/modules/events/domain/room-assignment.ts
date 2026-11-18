@@ -1,8 +1,8 @@
 import { computeFreeRoomBeds } from "@/modules/applications/domain/capacity"
 import { ApplicationTermStatus, isAssignable } from "@/modules/applications/domain/evaluation"
 import { RoomWarning, RoomWarningsSummary } from "@/modules/events/domain/room-warnings"
-import { RoomWish } from "@/modules/events/domain/room-wishes"
 import { Gender } from "@/shared/domain/gender"
+import { RoomWish } from "@/shared/domain/room-wishes"
 
 export type AssignmentRejection = "ROOM_ASSIGNMENT_STATUS_INVALID" | "ROOM_FULL"
 
