@@ -23,10 +23,6 @@ import {
 } from "@/features/event-overview/api/bulkEvaluation"
 import { BulkActionDialog } from "@/features/event-overview/components/BulkActionDialog"
 
-const ALERT_CLASS =
-  "items-center rounded-xl bg-secondary px-4 py-4 has-[>svg]:grid-cols-[calc(var(--spacing)*5)_1fr] [&>svg]:size-5 [&>svg]:translate-y-0 [&>svg]:self-center"
-const ALERT_TITLE_CLASS = "line-clamp-none font-medium tracking-normal text-foreground"
-
 // Figma (Design system v2): US-140 Více než se vejde, nic nevybráno · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27137-114904 (mobile 27137-115190)
 // Figma (Design system v2): US-140 Více než se vejde, Zamítnout · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27137-115342 (mobile 27137-115627)
 // Figma (Design system v2): US-140 Více než se vejde, lůžka podle pohlaví · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27137-115778 (mobile 27137-116064)
@@ -100,9 +96,9 @@ export function BulkEvaluateDialog({
       ) : (
         <>
           {isChanged && (
-            <Alert className={ALERT_CLASS}>
+            <Alert>
               <TriangleAlert aria-hidden="true" />
-              <AlertTitle className={ALERT_TITLE_CLASS}>
+              <AlertTitle className="line-clamp-none">
                 {t("bulkEvaluation.changedAlert")}
               </AlertTitle>
               <AlertDescription>
@@ -164,9 +160,9 @@ function RestWarning({ data }: { data: BulkEvaluationPreview }) {
     })
   }
   return (
-    <Alert className={ALERT_CLASS}>
+    <Alert>
       <TriangleAlert aria-hidden="true" />
-      <AlertTitle className={ALERT_TITLE_CLASS}>
+      <AlertTitle className="line-clamp-none">
         {t("bulkEvaluation.restWarning", { count: selected.total, free: freeBedsTotal(data) })}
       </AlertTitle>
       <AlertDescription>{description()}</AlertDescription>
