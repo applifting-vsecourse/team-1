@@ -123,6 +123,8 @@ describe("accounts (integration)", () => {
       { name: "", locale: "cs" },
       { name: "   ", locale: "cs" },
       { name: "Eva", locale: "de" },
+      { name: null, locale: "cs" },
+      { locale: null },
       { name: "Eva", locale: "cs", accountType: "ORGANIZER" },
     ])("rejects an invalid profile %j", async (body) => {
       const cookie = await signIn("ucastnik@example.com", "password4")
