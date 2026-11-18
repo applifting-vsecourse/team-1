@@ -90,7 +90,7 @@
   },
   "edit": {
     "accommodationIndividual": "Individuální řešení",
-    "accommodationRequest": "Poznámka pro organizátora (nepovinné)",
+    "accommodationRequest": "Poznámka pro organizátora",
     "accommodationRequestTooLong": "Poznámka může mít nejvýše 2 000 znaků.",
     "accommodationSummary": "Ubytování · {{request}}",
     "backToApplication": "Zpět na přihlášku",

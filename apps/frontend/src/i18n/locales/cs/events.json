@@ -505,7 +505,7 @@
       "endBeforeStart": "Konec musí být po začátku.",
       "endsOn": "Datum konce *",
       "fieldRequired": "Vyplňte toto pole.",
-      "name": "Název termínu (nepovinné)",
+      "name": "Název termínu",
       "namePlaceholder": "např. 1. turnus, 5. třída, věk 8–10",
       "price": "Cena termínu (Kč) *",
       "priceHelper": "Celá cena za termín; bez zálohy.",

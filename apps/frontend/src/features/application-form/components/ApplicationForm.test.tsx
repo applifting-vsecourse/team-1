@@ -302,7 +302,7 @@ describe("ApplicationForm", () => {
   })
 
   describe("individual accommodation (US-38)", () => {
-    const note = () => screen.queryByLabelText("Note for the organizer (optional)")
+    const note = () => screen.queryByLabelText("Note for the organizer")
 
     it("asks for a note only after the box is ticked and says who sees it", async () => {
       render(
