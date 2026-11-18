@@ -22,7 +22,7 @@
     "confirmChange": "Potvrdit změnu",
     "discard": "Zrušit",
     "impact": "Dopad změny",
-    "impactNew": "Nový termín · nová platba",
+    "impactNew": "Nový termín · nová částka k úhradě",
     "impactOriginal": "Původní termín · vratka",
     "impactOriginalRequest": "Původní termín",
     "loadError": "Dostupné termíny se nepodařilo načíst",
