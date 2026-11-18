@@ -88,7 +88,12 @@
   },
   "header": {
     "allEvents": "Všechny akce",
-    "applicationsOpen": "Přihláška otevřená"
+    "applicationsOpen": "Přihláška otevřená",
+    "manyTerms_few": "{{count}} termíny · {{months}}",
+    "manyTerms_one": "{{count}} termín · {{months}}",
+    "manyTerms_other": "{{count}} termínů · {{months}}",
+    "noTerms": "Zatím bez termínu",
+    "oneTerm": "{{dates}}"
   },
   "list": {
     "count_few": "{{count}} akce",

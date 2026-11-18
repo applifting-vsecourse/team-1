@@ -6,12 +6,16 @@ import { localeSchema, type SessionUser } from "@/features/auth/api/authSessionQ
 import { useUpdateProfile } from "@/features/auth/hooks/useUpdateProfile"
 
 export function useAccountLanguage(locale: SessionUser["locale"] | undefined) {
-  const { t } = useTranslation("auth")
+  const { t, i18n } = useTranslation("auth")
   const update = useUpdateProfile()
 
   const changeLanguage = async (value: string) => {
     const parsed = localeSchema.safeParse(value)
-    if (!parsed.success || parsed.data === locale) return
+    if (!parsed.success) return
+    if (parsed.data === locale) {
+      await i18n.changeLanguage(parsed.data)
+      return
+    }
     try {
       const saved = await update.mutateAsync({ locale: parsed.data })
       notify.success(t("profile.saved.title"), t(`profile.saved.description.${saved.locale}`))

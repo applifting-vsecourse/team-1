@@ -13,6 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { currentLanguage } from "@/i18n"
 
 import { useAccountLanguage } from "@/features/auth/hooks/useAccountLanguage"
 import { useSession } from "@/features/auth/hooks/useSession"
@@ -41,7 +42,7 @@ export function SidebarAccount() {
     <div className="flex flex-col gap-2">
       <div className="flex flex-col gap-2 border-b border-sidebar-border pb-2">
         <LanguageSwitcher
-          value={user.locale}
+          value={currentLanguage()}
           disabled={isPending}
           onChange={(language) => void changeLanguage(language)}
         />

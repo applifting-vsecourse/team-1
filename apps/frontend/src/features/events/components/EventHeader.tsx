@@ -75,7 +75,9 @@ export function EventHeader({ eventId }: { eventId: string }) {
               {event.applicationsOpen ? t("header.applicationsOpen") : t("list.statusClosed")}
             </Badge>
           </div>
-          <p className="text-sm text-muted-foreground md:text-base">{termsSummary(event, t)}</p>
+          <p className="text-sm text-muted-foreground md:text-base">
+            {termsSummary(event, t, "header")}
+          </p>
         </div>
       ) : (
         // Keeps the tabs from jumping while the event loads.

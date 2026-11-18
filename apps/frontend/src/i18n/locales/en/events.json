@@ -88,7 +88,12 @@
   },
   "header": {
     "allEvents": "All events",
-    "applicationsOpen": "Applications open"
+    "applicationsOpen": "Applications open",
+    "manyTerms_few": "{{count}} terms · {{months}}",
+    "manyTerms_one": "{{count}} term · {{months}}",
+    "manyTerms_other": "{{count}} terms · {{months}}",
+    "noTerms": "No term yet",
+    "oneTerm": "{{dates}}"
   },
   "list": {
     "count_few": "{{count}} events",
