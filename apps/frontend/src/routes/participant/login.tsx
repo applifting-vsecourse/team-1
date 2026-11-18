@@ -60,7 +60,7 @@ function ParticipantLoginPage() {
             <Link to={ROUTES.participant.magicLink}>{t("participantLogin.requestLink")}</Link>
           </Button>
         </div>
-        <div className="flex flex-wrap items-center gap-x-3">
+        <div className="flex flex-col items-start gap-4">
           <p className="text-muted-foreground">{t("participantLogin.otherAccount")}</p>
           <Button
             asChild
