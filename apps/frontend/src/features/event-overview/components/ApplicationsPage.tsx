@@ -27,6 +27,7 @@ import {
 import { PAGE_SIZE } from "@/hooks/usePagination"
 import { formatDate, formatDateRange, formatDateTime } from "@/lib/date"
 import { notify } from "@/lib/notify"
+import { termDates } from "@/lib/term-label"
 import { cn } from "@/lib/utils"
 
 import {
@@ -34,11 +35,13 @@ import {
   type ListedApplication,
 } from "@/features/event-overview/api/applications"
 import type { BulkDecision } from "@/features/event-overview/api/bulkDecision"
+import type { BulkEvaluationResult } from "@/features/event-overview/api/bulkEvaluation"
 import { occupancyQueryOptions } from "@/features/event-overview/api/occupancy"
 import { ApplicationFilters } from "@/features/event-overview/components/ApplicationFilters"
 import { ApplicationViews } from "@/features/event-overview/components/ApplicationViews"
 import { BulkConfirmDialog } from "@/features/event-overview/components/BulkConfirmDialog"
 import { BulkDecisionDialog } from "@/features/event-overview/components/BulkDecisionDialog"
+import { BulkEvaluateDialog } from "@/features/event-overview/components/BulkEvaluateDialog"
 import { BulkSelectionBar } from "@/features/event-overview/components/BulkSelectionBar"
 import { ChangeRequestsPanel } from "@/features/event-overview/components/ChangeRequestsPanel"
 import { SubstituteHistory } from "@/features/event-overview/components/SubstituteHistory"
@@ -87,7 +90,7 @@ export function ApplicationsPage({
         : undefined
     : undefined
   const [selectedIds, setSelectedIds] = useState<ReadonlySet<string>>(new Set())
-  const [dialog, setDialog] = useState<"CONFIRM" | BulkDecision | null>(null)
+  const [dialog, setDialog] = useState<"CONFIRM" | "EVALUATE" | BulkDecision | null>(null)
   // Filling a freed bed (US-104) works on one term of the waitlist, like deciding in bulk.
   const [taken, setTaken] = useState<SubstituteTakenData | null>(null)
   const pageCount = Math.max(1, Math.ceil((query.data?.length ?? 0) / PAGE_SIZE))
@@ -97,16 +100,10 @@ export function ApplicationsPage({
   // Only what the filter shows counts, so narrowing the filter never decides on a hidden row.
   const selected = bulkTerm ? (query.data ?? []).filter((row) => selectedIds.has(row.id)) : []
   const isAllSelected = (query.data?.length ?? 0) > 0 && selected.length === query.data?.length
-  const finishBulk = (
-    message: "doneConfirmed" | "doneWaitlisted" | "doneRejected",
-    { changed, unchanged }: BulkDone,
-  ) => {
+  const leaveBulk = (title: string, description?: string) => {
     setDialog(null)
     setSelectedIds(new Set())
-    notify.success(
-      t(`bulk.${message}`, { count: changed }),
-      unchanged > 0 ? t("bulk.doneUnchanged", { count: unchanged }) : undefined,
-    )
+    notify.success(title, description)
     void client.invalidateQueries({ queryKey: ["eventOverview"] })
     // Back to the list of all applications, where the new statuses show.
     const next = { ...filters }
@@ -114,6 +111,22 @@ export function ApplicationsPage({
     setPage(0)
     onFiltersChange(next)
   }
+  const finishBulk = (
+    message: "doneConfirmed" | "doneWaitlisted" | "doneRejected",
+    { changed, unchanged }: BulkDone,
+  ) =>
+    leaveBulk(
+      t(`bulk.${message}`, { count: changed }),
+      unchanged > 0 ? t("bulk.doneUnchanged", { count: unchanged }) : undefined,
+    )
+  const finishEvaluation = ({ confirmed, waitlisted }: BulkEvaluationResult) =>
+    leaveBulk(
+      t("bulkEvaluation.doneTitle", { count: confirmed.length + waitlisted.length }),
+      t("bulkEvaluation.doneSplit", {
+        confirmed: t("bulkEvaluation.doneConfirmed", { count: confirmed.length }),
+        waitlisted: t("bulkEvaluation.doneSubstitutes", { count: waitlisted.length }),
+      }),
+    )
   const hasFilters = Object.values(filters).some(Boolean)
   // Only the filter of individual accommodation is set: nobody has asked for it (US-38).
   const isOnlyIndividual =
@@ -542,6 +555,7 @@ export function ApplicationsPage({
                 {bulkTerm && selected.length > 0 && (
                   <BulkSelectionBar
                     count={selected.length}
+                    onEvaluate={() => setDialog("EVALUATE")}
                     onConfirm={() => setDialog("CONFIRM")}
                     onDecide={setDialog}
                   />
@@ -560,6 +574,16 @@ export function ApplicationsPage({
         )}
         <p className="text-sm text-muted-foreground">{t("applications.hint")}</p>
       </>
+      {bulkTerm && dialog === "EVALUATE" && (
+        <BulkEvaluateDialog
+          eventId={eventId}
+          termId={bulkTerm.id}
+          termLabel={termDates(bulkTerm)}
+          applications={selected}
+          onClose={() => setDialog(null)}
+          onDone={finishEvaluation}
+        />
+      )}
       {bulkTerm && dialog === "CONFIRM" && (
         <BulkConfirmDialog
           eventId={eventId}

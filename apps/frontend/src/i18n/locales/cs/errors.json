@@ -16,6 +16,7 @@
   "EMAIL_VERIFICATION_BYPASS_NOT_ALLOWED": "Tento účet nelze ověřit bez odkazu z e-mailu.",
   "EMAIL_VERIFICATION_REQUIRED": "Než budete pokračovat, ověřte svůj e-mail.",
   "EVALUATION_MODE_LOCKED": "Akce už má přihlášku, proto už režim vyhodnocování nelze změnit.",
+  "EVALUATION_PLAN_CHANGED": "Kapacita termínu se od zobrazení výsledku změnila. Zkontrolujte nové počty a potvrďte je.",
   "EVENT_HAS_APPLICATIONS": "Akci s přihláškami nejde smazat.",
   "FORBIDDEN": "K tomu nemáte přístup.",
   "HEALTH_CHANGE_REQUEST_REQUIRED": "Zdravotní omezení už je vyplněné. Změnu pošlete organizátorovi jako žádost.",
