@@ -58,7 +58,7 @@ describe("ParticipantEditDialog", () => {
   it("saves the changes, refreshes the detail, shows a toast and closes", async () => {
     const { user, onClose, invalidate } = setup()
     // A successful write releases the dialog while the overview is still refreshing.
-    invalidate.mockImplementationOnce(() => new Promise<void>(() => {}))
+    invalidate.mockImplementationOnce(() => new Promise<void>(() => undefined))
     const lastName = screen.getByLabelText("Last name *")
     await user.clear(lastName)
     await user.type(lastName, "Novák")
