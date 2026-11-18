@@ -42,7 +42,7 @@
     }
   },
   "form": {
-    "accommodationRequest": "Poznámka pro organizátora (nepovinné)",
+    "accommodationRequest": "Poznámka pro organizátora",
     "addParticipant": "Přidat dalšího účastníka",
     "birthDate": "Datum narození *",
     "birthDateHint": "Datum napište nebo vyberte z kalendáře. Např. 25.10.1990.",

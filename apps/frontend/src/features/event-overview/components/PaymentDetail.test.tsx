@@ -186,16 +186,18 @@ describe("PaymentDetail", () => {
     expect(card.getByText("Ground floor, please.")).toBeVisible()
   })
 
-  it("says so when there is no request for individual accommodation (US-38)", async () => {
+  it("hides the individual accommodation block when there is no request (#544)", async () => {
     respondWith(() => application([first]))
     setup()
 
-    expect(await screen.findByRole("heading", { name: "Individual accommodation" })).toBeVisible()
-    const card = within(screen.getByRole("group", { name: "Individual accommodation" }))
+    expect(await screen.findByRole("group", { name: "Participant details" })).toBeVisible()
     expect(
-      card.getByText("The participant has no request for individual accommodation."),
-    ).toBeVisible()
-    expect(card.queryByText("Note")).not.toBeInTheDocument()
+      screen.queryByRole("heading", { name: "Individual accommodation" }),
+    ).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole("group", { name: "Individual accommodation" }),
+    ).not.toBeInTheDocument()
+    expect(screen.queryByText(/no request for individual accommodation/)).not.toBeInTheDocument()
   })
 
   it("shows the participant's date of birth, gender and the applicant's contact", async () => {

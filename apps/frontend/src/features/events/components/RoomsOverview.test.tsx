@@ -290,11 +290,31 @@ describe("RoomsOverview (US-36)", () => {
       expect(area.textContent).toMatch(/Printed /)
     })
 
-    it("keeps a room on one page and in two columns", async () => {
+    it("keeps a room on one page, in two columns", async () => {
       renderOverview()
-      const card = await roomCard("Room A")
-      expect(card).toHaveClass("print:break-inside-avoid")
-      expect(card.parentElement).toHaveClass("print:columns-2")
+      const item = await roomCard("Room A")
+      expect(item).toHaveClass("print:break-inside-avoid")
+      expect(item.parentElement).toHaveClass("print:columns-2")
+      expect(item.parentElement).not.toHaveClass("print:grid-cols-2")
+    })
+
+    it("splits a room longer than a page only between bed rows, with the header repeated", async () => {
+      data.rooms[0]!.beds = 45
+      data.rooms[0]!.capacity = 45
+      renderOverview()
+      const item = await roomCard("Room A")
+      // The room takes the whole width and has no page-avoid of its own, its pieces have.
+      expect(item).toHaveClass("print:[column-span:all]")
+      expect(item).not.toHaveClass("print:break-inside-avoid")
+      const pieces = [...item.firstElementChild!.children].filter((child) =>
+        child.classList.contains("print:break-inside-avoid"),
+      )
+      expect(pieces).toHaveLength(3)
+      // The 20 + 20 + 5 beds; every piece after the first starts with the repeated header.
+      expect(pieces.map((piece) => piece.querySelectorAll("li").length)).toEqual([20, 20, 5])
+      expect(pieces[1]!.firstElementChild).toHaveClass("print:flex")
+      expect(pieces[1]!.firstElementChild).toHaveTextContent("Room A · continued")
+      expect(pieces[2]!.firstElementChild).toHaveTextContent("Room A · continued")
     })
 
     it("wraps a long name instead of cutting it", async () => {
