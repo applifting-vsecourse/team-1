@@ -373,4 +373,57 @@ describe("EventTerms", () => {
     expect(within(dialog).getByText("Check the term status.")).toBeInTheDocument()
     expect(within(dialog).getByRole("button", { name: "Check term status" })).toBeInTheDocument()
   })
+
+  const answerWith = (fetchMock: ReturnType<typeof renderTerms>, post: () => Promise<Response>) =>
+    fetchMock.mockImplementation((input) =>
+      (input as Request).method === "POST"
+        ? post()
+        : Promise.resolve(
+            new Response(JSON.stringify(terms), {
+              headers: { "Content-Type": "application/json" },
+            }),
+          ),
+    )
+
+  const confirmCancellation = async (dialog: HTMLElement) => {
+    await userEvent.click(within(dialog).getByRole("checkbox"))
+    await userEvent.click(within(dialog).getByRole("button", { name: "Cancel term" }))
+  }
+
+  it("says the result cannot be verified after a server error", async () => {
+    const fetchMock = renderTerms()
+    const dialog = await openCancelDialog()
+    answerWith(fetchMock, () => Promise.resolve(new Response("{}", { status: 500 })))
+
+    await confirmCancellation(dialog)
+
+    expect(
+      await within(dialog).findByText("The result of the cancellation cannot be verified"),
+    ).toBeInTheDocument()
+    expect(within(dialog).getByRole("button", { name: "Check term status" })).toBeInTheDocument()
+  })
+
+  it("keeps a client error as a plain failure", async () => {
+    const fetchMock = renderTerms()
+    const dialog = await openCancelDialog()
+    answerWith(fetchMock, () =>
+      Promise.resolve(
+        new Response(JSON.stringify({ statusCode: 409, code: "TERM_CANCELLED", message: "x" }), {
+          status: 409,
+          headers: { "Content-Type": "application/json" },
+        }),
+      ),
+    )
+
+    await confirmCancellation(dialog)
+
+    await waitFor(() => expect(posts(fetchMock)).toHaveLength(1))
+    await waitFor(() =>
+      expect(within(dialog).getByRole("button", { name: "Cancel term" })).toBeEnabled(),
+    )
+    expect(
+      within(dialog).queryByText("The result of the cancellation cannot be verified"),
+    ).not.toBeInTheDocument()
+    expect(within(dialog).queryByRole("button", { name: "Check term status" })).toBeNull()
+  })
 })

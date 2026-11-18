@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { CircleAlert, Loader2 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { ErrorState } from "@/components/molecules/ErrorState"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -58,8 +59,12 @@ export function CancelTermDialog({
   const term = terms.data?.find(({ id }) => id === listedTerm.id) ?? listedTerm
   const affected = term.confirmedCount + term.waitlistedCount + term.toEvaluateCount
   const isAgreed = agreedCount === affected
-  // No answer at all (network, timeout): the term may have been cancelled all the same.
-  const isUnverified = cancel.isError && !(cancel.error instanceof HTTPError)
+  // The counts could not be refreshed: confirming would rest on numbers that may be stale.
+  const isStale = terms.isError
+  // No answer at all (network, timeout) or a server error: the transaction may have committed
+  // before the response failed, so the term may be cancelled all the same. A 4xx is definite.
+  const isUnverified =
+    cancel.isError && !(cancel.error instanceof HTTPError && cancel.error.response.status < 500)
 
   const submit = () => {
     // The reason is optional: blank is sent as no reason.
@@ -105,6 +110,12 @@ export function CancelTermDialog({
             <AlertTitle>{t("terms.cancelDialog.unverifiedAlertTitle")}</AlertTitle>
             <AlertDescription>{t("terms.cancelDialog.unverifiedAlertText")}</AlertDescription>
           </Alert>
+        ) : isStale ? (
+          <ErrorState
+            title={t("terms.cancelDialog.refreshFailedTitle")}
+            error={terms.error}
+            onRetry={() => void terms.refetch()}
+          />
         ) : (
           <>
             <Alert variant="destructive">
@@ -188,7 +199,7 @@ export function CancelTermDialog({
               type="button"
               variant="destructive"
               size="lg"
-              disabled={!isAgreed || cancel.isPending || terms.isFetching}
+              disabled={!isAgreed || cancel.isPending || terms.isFetching || isStale}
               onClick={submit}
             >
               {cancel.isPending ? <Loader2 className="size-4 animate-spin" /> : null}
