@@ -2028,7 +2028,7 @@ rozhodnuti:
   dokumentace:
   - soubor: docs/SLOVNIK.md
     popis: 'pojem Schvalování požadavků účastníků (dříve „začátek storna“)'
-    stav: ceka
+    stav: hotovo
   poznamka: 'Rozhodl PM, PO potvrdil 4. 11. Celý den cancellationStartsOn (Europe/Prague) už vyžaduje schválení (PR #325). Storno podmínky jako text: D-113 (návrh).'
 - id: D-101
   nazev: 'Oprava platby vrací zaplacenou přihlášku k dluhu'
