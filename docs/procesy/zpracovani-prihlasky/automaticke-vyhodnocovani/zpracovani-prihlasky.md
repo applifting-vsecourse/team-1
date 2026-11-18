@@ -19,7 +19,7 @@ flowchart TD
   n_g_vysledek{"XOR"}
   n_e_rucni_pridani(("Organizátor přidá<br/>přihlášku ručně a určí<br/>stav každého termínu"))
   n_g_rucni{"XOR"}
-  n_n_rucni["Organizátor vybere<br/>neprázdnou podmnožinu<br/>aktivních termínů a<br/>potvrdí souhlas<br/>přihlašovatele (D-153;<br/>právní stránka je<br/>otevřená, Q-PRI-24).<br/>Telefon je povinný<br/>(D-079). Nad kapacitu<br/>jen vědomě."]
+  n_n_rucni["Organizátor vybere<br/>neprázdnou podmnožinu<br/>aktivních termínů a<br/>potvrdí souhlas<br/>přihlašovatele (D-153;<br/>právní stránka je<br/>otevřená, Q-PRI-24).<br/>Telefon je nepovinný<br/>(D-162). Nad kapacitu<br/>jen vědomě."]
   n_e_pridani_terminu(("Přidá se termín k<br/>existující přihlášce"))
   n_g_pridani{"XOR"}
   n_n_pridani["Od data schvalování<br/>požadavků účastníků<br/>přidá termín<br/>přihlašovatel žádostí<br/>(zadost-o-zmenu).<br/>Platby se při změně<br/>termínu nepřevádějí<br/>(D-051, D-088), vratka<br/>se nevytváří (D-134)."]
