@@ -4,7 +4,9 @@ import { TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
+import { BrandDivider } from "@/components/atoms/BrandDivider"
 import { CopyButton } from "@/components/atoms/CopyButton"
+import { LogoSymbol } from "@/components/atoms/Logo"
 import { MoneyAmount } from "@/components/atoms/MoneyAmount"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
@@ -71,9 +73,11 @@ export function SubmissionStatus({
       <h1 className="text-2xl font-semibold tracking-tight sm:text-4xl/11 sm:font-bold">
         {t("confirmation.title")}
       </h1>
+      <BrandDivider />
 
       <section className="flex flex-col gap-4 rounded-lg border bg-status-success-bg p-4 sm:p-6">
-        <h2 className="text-lg font-semibold text-status-success">
+        <h2 className="flex items-center gap-2 text-lg font-semibold text-status-success">
+          <LogoSymbol className="saved-mark size-8 shrink-0" />
           {firstApplication.code} · {data.eventName}
         </h2>
         <p>

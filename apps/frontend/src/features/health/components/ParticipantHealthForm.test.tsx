@@ -69,7 +69,7 @@ describe("ParticipantHealthForm", () => {
 
   it("links back to the application", async () => {
     setup()
-    expect(await screen.findByRole("link", { name: "← Application" })).toHaveAttribute(
+    expect(await screen.findByRole("link", { name: "Application" })).toHaveAttribute(
       "href",
       "/participant/applications/$applicationId",
     )

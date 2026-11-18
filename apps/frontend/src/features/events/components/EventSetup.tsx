@@ -1,15 +1,14 @@
 import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
-import { Copy } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
+import { CopyButton } from "@/components/atoms/CopyButton"
 import { Checklist } from "@/components/molecules/Checklist"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { notify } from "@/lib/notify"
 
 import { eventQueryOptions, type OrganizerEvent } from "@/features/events/api/events"
 import { applicationLink } from "@/features/events/lib/application-link"
@@ -24,7 +23,6 @@ import { applicationLink } from "@/features/events/lib/application-link"
 // Figma (Design system): O04b Potvrzení zkopírování odkazu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12265-1107
 export function EventSetup({ eventId }: { eventId: string }) {
   const { t } = useTranslation("events")
-  const { t: tCommon } = useTranslation()
   const { data: event, isPending, error, refetch } = useQuery(eventQueryOptions(eventId))
 
   if (isPending) return <LoadingState />
@@ -39,14 +37,6 @@ export function EventSetup({ eventId }: { eventId: string }) {
   }
 
   const link = applicationLink(event.publicToken)
-  const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(link)
-      notify.success(t("overview.copied"))
-    } catch {
-      notify.error(tCommon("clipboard.failedTitle"), tCommon("clipboard.failedDescription"))
-    }
-  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -68,19 +58,12 @@ export function EventSetup({ eventId }: { eventId: string }) {
           </>
         )}
       </p>
-      {event.applicationsOpen ? (
-        <ShareLink
-          link={link}
-          onCopy={() => void copy()}
-        />
-      ) : (
-        <MissingSteps event={event} />
-      )}
+      {event.applicationsOpen ? <ShareLink link={link} /> : <MissingSteps event={event} />}
     </div>
   )
 }
 
-function ShareLink({ link, onCopy }: { link: string; onCopy: () => void }) {
+function ShareLink({ link }: { link: string }) {
   const { t } = useTranslation("events")
 
   return (
@@ -93,18 +76,11 @@ function ShareLink({ link, onCopy }: { link: string; onCopy: () => void }) {
         >
           {link}
         </a>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-lg"
-          aria-label={t("overview.copyLink")}
-          onClick={onCopy}
-        >
-          <Copy
-            className="size-5"
-            aria-hidden="true"
-          />
-        </Button>
+        <CopyButton
+          value={link}
+          label={t("overview.copyLink")}
+          successMessage={t("overview.copied")}
+        />
       </div>
     </Card>
   )

@@ -8,9 +8,17 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { LANGUAGES } from "@/i18n"
+import { currentLanguage, LANGUAGES, type Language } from "@/i18n"
 
-export function LanguageSwitcher() {
+export function LanguageSwitcher({
+  value,
+  onChange,
+  disabled = false,
+}: {
+  value?: Language
+  onChange?: (language: Language) => void
+  disabled?: boolean
+}) {
   const { t, i18n } = useTranslation()
 
   return (
@@ -19,11 +27,16 @@ export function LanguageSwitcher() {
         <Button
           variant="ghost"
           size="lg"
-          className="px-3"
+          className={value ? "w-full justify-start gap-4 px-3 text-base font-normal" : "px-3"}
+          disabled={disabled}
           aria-label={t("language.toggle")}
         >
-          <Globe className="size-4" />
-          <span className="uppercase">{i18n.resolvedLanguage}</span>
+          <Globe className={value ? "size-5" : "size-4"} />
+          {value ? (
+            <span className="flex-1 text-left">{t(`language.${value}`)}</span>
+          ) : (
+            <span className="uppercase">{currentLanguage()}</span>
+          )}
           <ChevronDown className="size-4" />
         </Button>
       </DropdownMenuTrigger>
@@ -34,7 +47,10 @@ export function LanguageSwitcher() {
             // The language names stay in their own language, so a visitor
             // who can't read the current one still finds theirs.
             lang={language}
-            onClick={() => void i18n.changeLanguage(language)}
+            onClick={() => {
+              if (onChange) onChange(language)
+              else void i18n.changeLanguage(language)
+            }}
           >
             {t(`language.${language}`)}
           </DropdownMenuItem>

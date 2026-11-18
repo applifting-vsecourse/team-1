@@ -38,7 +38,7 @@ import { priceOfSelection, totalPrice } from "@/features/application-form/lib/se
 
 // Figma (Design system): the form part of V07 / V07a (desktop) and M02 / M02a (360 px);
 // errors M03, sending M04.
-// https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12666-18899
+// https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15507-914 (mobile 15507-1033)
 
 const emptyParticipant: ParticipantDraft = {
   firstName: "",
@@ -72,20 +72,19 @@ export function ApplicationForm({
   const { t } = useTranslation("applicationForm")
   const schema = useMemo(() => createApplicationFormSchema(t), [t])
   // Read once: what was typed before a reload comes back, the consent never does.
-  const [initialValues] = useState<ApplicationFormDraft>(
-    () =>
-      (draftKey
-        ? loadApplicationDraft(
-            draftKey,
-            event.terms.map((term) => term.id),
-          )
-        : null) ?? emptyApplicationDraft(),
+  const [restoredDraft] = useState(() =>
+    draftKey
+      ? loadApplicationDraft(
+          draftKey,
+          event.terms.map((term) => term.id),
+        )
+      : null,
   )
   const [isClearing, setIsClearing] = useState(false)
   const form = useForm<ApplicationFormDraft, unknown, ApplicationFormValues>({
     // The schema is the stricter twin of the draft: it also demands a gender.
     resolver: zodResolver(schema) as Resolver<ApplicationFormDraft, unknown, ApplicationFormValues>,
-    defaultValues: initialValues,
+    defaultValues: restoredDraft ?? emptyApplicationDraft(),
   })
   const { fields, append, remove } = useFieldArray({
     control: form.control,
@@ -131,6 +130,7 @@ export function ApplicationForm({
           await onSubmit(values)
         })}
         className="flex flex-col gap-6"
+        data-restored={restoredDraft ? true : undefined}
       >
         {fields.map((field, index) => (
           <ParticipantFields

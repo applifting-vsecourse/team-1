@@ -223,6 +223,7 @@ export function UnassignedRow({
 }
 
 type RoomProps = {
+  placementSequence?: number
   room: AssignmentRoom
   /** Something is being dragged and this room can take them (a full one as an extra bed) and is not the dragged one's own. */
   isEligible: boolean
@@ -271,21 +272,37 @@ export function ExtraBeds({ room }: { room: AssignmentRoom }) {
 const openKinds = (warnings: RoomWarning[]): RoomWarning["kind"][] =>
   warnings.filter((warning) => !warning.acknowledged).map((warning) => warning.kind)
 
+/** Decorative M28 feedback. Only a successful placement issues a new sequence. */
+function PlacementMark({ sequence }: { sequence?: number }) {
+  return sequence ? (
+    <span
+      key={sequence}
+      aria-hidden="true"
+      className="placement-mark"
+    >
+      <span />
+    </span>
+  ) : null
+}
+
 function Occupancy({
   room,
+  placementSequence,
   warnings,
   isDropping,
 }: {
   room: AssignmentRoom
   warnings: RoomWarning[]
   isDropping: boolean
+  placementSequence?: number
 }) {
   const { t } = useTranslation("events")
   const { freeBedsLabel } = useAssignmentLabels()
   const kinds = openKinds(warnings)
   return (
     <div className="flex flex-col items-start gap-1 text-sm">
-      <span className="font-medium">
+      <span className="relative px-2 py-1 font-medium tabular-nums">
+        <PlacementMark sequence={placementSequence} />
         {room.participants.length} / {room.beds}
       </span>
       {kinds.includes("OVERCROWDED") ? null : (
@@ -343,6 +360,7 @@ function Strips({
 export function RoomTableRow({
   room,
   isEligible,
+  placementSequence,
   warnings,
   onAcknowledge,
   isDragActive,
@@ -393,6 +411,7 @@ export function RoomTableRow({
         </TableCell>
         <TableCell className="w-36 align-top">
           <Occupancy
+            placementSequence={placementSequence}
             room={room}
             warnings={warnings}
             isDropping={isDropping}
@@ -427,6 +446,7 @@ export function RoomTableRow({
 export function RoomCard({
   room,
   isEligible,
+  placementSequence,
   warnings,
   onAcknowledge,
   isDragActive,
@@ -462,7 +482,8 @@ export function RoomCard({
           <WarningLabels kinds={kinds} />
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-sm font-semibold whitespace-nowrap">
+          <span className="relative px-2 py-1 text-sm font-semibold whitespace-nowrap tabular-nums">
+            <PlacementMark sequence={placementSequence} />
             {room.participants.length} / {room.beds}
           </span>
           <div

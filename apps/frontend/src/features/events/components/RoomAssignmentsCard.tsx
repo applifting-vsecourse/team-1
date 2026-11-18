@@ -115,6 +115,7 @@ export function RoomAssignmentsCard({
     warning: RoomWarning
     room: AssignmentRoom
   } | null>(null)
+  const [placement, setPlacement] = useState<{ roomId: string; termId: string; sequence: number }>()
   const [dragged, setDragged] = useState<DragData | null>(null)
   const [search, setSearch] = useState("")
   const [peopleSearch, setPeopleSearch] = useState("")
@@ -184,6 +185,19 @@ export function RoomAssignmentsCard({
   // A full room is a target too: the organizer confirms an extra bed for the one dropped on it.
   const isEligible = (room: AssignmentRoom) => dragged !== null && dragged.fromRoomId !== room.id
 
+  const confirmPlacement = (room: AssignmentRoom, name: string, isMove: boolean) => {
+    setPlacement((previous) => ({
+      roomId: room.id,
+      termId: term.termId,
+      sequence: (previous?.sequence ?? 0) + 1,
+    }))
+    notify.success(
+      t(isMove ? "roomAssignments.moved" : "roomAssignments.assigned"),
+      t("roomAssignments.assignedDescription", { name, room: roomTitle(room) }),
+    )
+    void refresh()
+  }
+
   const dropOn = (drag: DragData, room: AssignmentRoom) => {
     if (drag.fromRoomId === room.id) return
     if (freeBedCount(room) === 0) {
@@ -198,17 +212,7 @@ export function RoomAssignmentsCard({
     assign.mutate(
       { applicationTermId: drag.applicationTermId, roomId: room.id },
       {
-        onSuccess: () => {
-          void refresh().then(() =>
-            notify.success(
-              t(drag.fromRoomId ? "roomAssignments.moved" : "roomAssignments.assigned"),
-              t("roomAssignments.assignedDescription", {
-                name: drag.name,
-                room: roomTitle(room),
-              }),
-            ),
-          )
-        },
+        onSuccess: () => confirmPlacement(room, drag.name, drag.fromRoomId !== null),
         onError: notifyFailure,
       },
     )
@@ -233,6 +237,10 @@ export function RoomAssignmentsCard({
     })
   const roomProps = (room: AssignmentRoom) => ({
     room,
+    placementSequence:
+      placement?.roomId === room.id && placement.termId === term.termId
+        ? placement.sequence
+        : undefined,
     isEligible: isEligible(room),
     warnings: warningsOfRoom(data.warnings, room.id),
     onAcknowledge: (warning: RoomWarning, target: AssignmentRoom) =>
@@ -454,16 +462,7 @@ export function RoomAssignmentsCard({
                 room,
               })
             }
-            onDone={async ({ roomTitle: title, isMoved }) => {
-              await refresh()
-              notify.success(
-                t(isMoved ? "roomAssignments.moved" : "roomAssignments.assigned"),
-                t("roomAssignments.assignedDescription", {
-                  name: dialog.target.name,
-                  room: title,
-                }),
-              )
-            }}
+            onDone={({ room, isMoved }) => confirmPlacement(room, dialog.target.name, isMoved)}
           />
         ) : null}
         {extraBed ? (
@@ -473,13 +472,7 @@ export function RoomAssignmentsCard({
             term={term}
             request={extraBed}
             onClose={() => setExtraBed(null)}
-            onDone={async ({ roomTitle: title, isMoved }) => {
-              await refresh()
-              notify.success(
-                t(isMoved ? "roomAssignments.moved" : "roomAssignments.assigned"),
-                t("roomAssignments.assignedDescription", { name: extraBed.name, room: title }),
-              )
-            }}
+            onDone={({ room, isMoved }) => confirmPlacement(room, extraBed.name, isMoved)}
           />
         ) : null}
         {acknowledging ? (

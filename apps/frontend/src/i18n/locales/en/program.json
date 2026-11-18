@@ -30,7 +30,7 @@
   "noTermsAction": "Go to terms",
   "overlapWarning": "There is already another block at this time: {{blocks}}. You can still save this one.",
   "own": {
-    "back": "← Back to application",
+    "back": "Back to application",
     "empty": "The program is not published yet.",
     "pageTitle": "Program",
     "title": "Program"

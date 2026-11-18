@@ -8,8 +8,8 @@ import { termName } from "@/lib/term-label"
 import type { PublicEvent } from "@/features/application-form/api/publicEvent"
 
 // Figma (Design system): "Akce a ceny termínů" in
-// V07 https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12666-2538
-// M02 https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12666-18727
+// V07 https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15507-914
+// M02 https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15507-1033
 
 /** The event with the dates and prices of its terms — what the applicant chooses from. */
 export function EventSummary({ event }: { event: PublicEvent }) {
@@ -31,6 +31,7 @@ export function EventSummary({ event }: { event: PublicEvent }) {
       <h2 className="text-lg font-bold tracking-tight">{event.name}</h2>
       {where ? <p className="text-sm text-muted-foreground">{where}</p> : null}
       {/* Rows: "DS / Event term row" https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=13196-777 */}
+      <BrandDivider className="my-2" />
       <ul className="flex flex-col">
         {event.terms.map((term) => (
           <li
@@ -56,7 +57,6 @@ export function EventSummary({ event }: { event: PublicEvent }) {
           </li>
         ))}
       </ul>
-      <BrandDivider />
     </section>
   )
 }

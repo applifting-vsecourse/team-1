@@ -1,5 +1,6 @@
 import type { ReactNode } from "react"
 import { Link, type LinkProps } from "@tanstack/react-router"
+import { ArrowLeft } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 
@@ -10,9 +11,12 @@ export function BackLink({ children, ...props }: LinkProps & { children: ReactNo
       asChild
       variant="ghost"
       size="lg"
-      className="self-start px-0 hover:bg-transparent hover:underline dark:hover:bg-transparent"
+      className="self-start rounded-full bg-accent px-4 text-link hover:bg-accent/80 has-[>svg]:px-4"
     >
-      <Link {...props}>{children}</Link>
+      <Link {...props}>
+        <ArrowLeft aria-hidden="true" />
+        {children}
+      </Link>
     </Button>
   )
 }

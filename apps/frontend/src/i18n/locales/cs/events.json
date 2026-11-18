@@ -87,7 +87,7 @@
     "title": "{{room}} je plný"
   },
   "header": {
-    "allEvents": "← Všechny akce",
+    "allEvents": "Všechny akce",
     "applicationsOpen": "Přihláška otevřená"
   },
   "list": {
@@ -118,7 +118,7 @@
     "title": "Seznam akcí"
   },
   "new": {
-    "back": "← Zpět na seznam",
+    "back": "Zpět na seznam",
     "cancel": "Zrušit",
     "description": "Založte akci. Termíny, ceny a pokoje doplníte následně.",
     "form": {

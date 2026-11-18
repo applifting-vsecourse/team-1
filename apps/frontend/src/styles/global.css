@@ -1,5 +1,4 @@
 @import "@fontsource-variable/inter";
-@import "@fontsource-variable/jetbrains-mono";
 @import "tailwindcss";
 @plugin "tailwindcss-animate";
 
@@ -13,6 +12,8 @@
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-pressed: var(--primary-pressed);
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
@@ -41,7 +42,6 @@
   --color-sidebar-border: var(--sidebar-border);
 
   --font-sans: var(--font-sans);
-  --font-mono: var(--font-mono);
 
   --shadow-2xs: var(--shadow-2xs);
   --shadow-xs: var(--shadow-xs);
@@ -55,6 +55,7 @@
   /* Figma DS / Metrics radius/* */
   --radius-sm: 4px;
   --radius-md: 8px;
+  --radius-control: 10px;
   --radius-lg: 12px;
   --radius-xl: 20px;
 }
@@ -68,7 +69,6 @@
  */
 :root {
   --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono Variable", ui-monospace, SFMono-Regular, Menlo, monospace;
   --background: #f9fdff; /* color/bg/canvas */
   --foreground: #031a1e; /* color/text/primary */
   --card: #ffffff; /* color/bg/surface */
@@ -76,6 +76,8 @@
   --popover: #ffffff; /* color/bg/surface */
   --popover-foreground: #031a1e; /* color/text/primary */
   --primary: #007f72; /* color/bg/accent */
+  --primary-hover: #006f63;
+  --primary-pressed: #005f55;
   --primary-foreground: #ffffff; /* color/text/inverse */
   --secondary: #f5f9fa; /* color/bg/subtle */
   --secondary-foreground: #031a1e; /* color/text/primary */
@@ -154,6 +156,14 @@
 }
 
 @layer base {
+  :root {
+    --workspace-inset: 18px;
+  }
+  @media (min-width: 48rem) {
+    :root {
+      --workspace-inset: 42px;
+    }
+  }
   * {
     @apply border-border outline-ring/50;
   }
@@ -185,5 +195,152 @@
     position: absolute;
     inset-inline: 0;
     top: 0;
+  }
+}
+
+/* Keep status text and controls available while honoring the OS motion setting. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .placement-mark {
+    position: absolute;
+    pointer-events: none;
+    inset: 0;
+  }
+
+  .placement-mark::before,
+  .placement-mark::after {
+    content: "";
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border: solid var(--primary);
+    animation: placement-corners 900ms ease-out both;
+  }
+
+  .placement-mark::before {
+    inset: 1px auto auto 1px;
+    border-width: 2px 0 0 2px;
+    border-top-left-radius: var(--radius-sm);
+  }
+
+  .placement-mark::after {
+    inset: auto 1px 1px auto;
+    border-width: 0 2px 2px 0;
+    border-bottom-right-radius: var(--radius-sm);
+  }
+
+  .placement-mark > span {
+    position: absolute;
+    inset: 3px 3px auto auto;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--primary);
+    animation: placement-dot 520ms ease-out both;
+  }
+
+  @keyframes placement-corners {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+
+  @keyframes placement-dot {
+    from {
+      opacity: 1;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(0);
+    }
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  form[data-restored] > :first-child {
+    animation: restored-draft 600ms ease-out;
+  }
+
+  @keyframes restored-draft {
+    from {
+      outline: 2px solid var(--ring);
+    }
+    to {
+      outline: 2px solid transparent;
+    }
+  }
+}
+
+.heading-band::before {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 30px;
+  background: url("../assets/headers/band-mobile.svg") center bottom / 100% 100% no-repeat;
+}
+
+@media (min-width: 48rem) {
+  .heading-band::before {
+    height: 70px;
+    background-image: url("../assets/headers/band.svg");
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .copy-confirmation {
+    position: absolute;
+    right: 8px;
+    top: 8px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--status-success);
+    pointer-events: none;
+    animation: placement-dot 480ms ease-out both;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .verifying-mark path {
+    stroke-dasharray: 32;
+    animation: verify-link 1600ms ease-in-out infinite;
+  }
+  @keyframes verify-link {
+    0%,
+    100% {
+      stroke-dashoffset: 0;
+    }
+    50% {
+      stroke-dashoffset: 16;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .saved-mark path {
+    stroke-dasharray: 32;
+    animation: saved-mark 650ms ease-out;
+  }
+  @keyframes saved-mark {
+    from {
+      stroke-dashoffset: 32;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
   }
 }

@@ -87,7 +87,7 @@
     "title": "{{room}} is full"
   },
   "header": {
-    "allEvents": "← All events",
+    "allEvents": "All events",
     "applicationsOpen": "Applications open"
   },
   "list": {
@@ -118,7 +118,7 @@
     "title": "Event list"
   },
   "new": {
-    "back": "← Back to the list",
+    "back": "Back to the list",
     "cancel": "Cancel",
     "description": "Create the event. You add terms, prices and rooms afterwards.",
     "form": {

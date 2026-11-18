@@ -66,7 +66,7 @@ export function AssignRoomDialog({
   rooms: AssignmentRoom[]
   target: AssignTarget
   onClose: () => void
-  onDone: (result: { roomTitle: string; isMoved: boolean }) => Promise<void>
+  onDone: (result: { room: AssignmentRoom; isMoved: boolean }) => void
   /** The picked room is full: the extra bed dialog takes over (US-37). */
   onNeedsExtraBed: (room: AssignmentRoom) => void
 }) {
@@ -109,7 +109,7 @@ export function AssignRoomDialog({
     } catch {
       return
     }
-    await onDone({ roomTitle: roomTitle(selected), isMoved: isMove })
+    onDone({ room: selected, isMoved: isMove })
     onClose()
   }
   const name = target.name

@@ -1,7 +1,7 @@
 {
   "audienceText": "Zdravotní omezení uvidí pouze organizátor akce. Alergie na potraviny vyplňte ve stravování.",
   "audienceTitle": "Údaje pro organizátora",
-  "backToApplication": "← Přihláška",
+  "backToApplication": "Přihláška",
   "consent": "Výslovně souhlasím se zpracováním uvedených údajů pro zajištění účasti na akci.",
   "consentGiven": "Výslovný souhlas udělen · {{at}}",
   "errorTitle": "Zdravotní omezení se nepodařilo načíst",

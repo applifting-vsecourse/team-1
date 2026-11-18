@@ -8,7 +8,7 @@ import { ROUTES } from "@/app/routes"
 import { MoneyAmount } from "@/components/atoms/MoneyAmount"
 import { Seo } from "@/components/atoms/Seo"
 import { ErrorState } from "@/components/molecules/ErrorState"
-import { LoadingState } from "@/components/molecules/LoadingState"
+import { ListSkeleton } from "@/components/molecules/ListSkeleton"
 import { Pagination } from "@/components/molecules/Pagination"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
@@ -255,7 +255,7 @@ export function ApplicationsPage({
           />
         </div>
         {query.isPending ? (
-          <LoadingState />
+          <ListSkeleton />
         ) : query.isError ? (
           <ErrorState
             title={t("applications.error")}

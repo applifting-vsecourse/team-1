@@ -2,7 +2,7 @@ export function ImpactFigure({ label, children }: { label: string; children: Rea
   return (
     <div className="flex flex-col gap-1">
       <dt className="text-sm text-muted-foreground">{label}</dt>
-      <dd className="font-mono text-base font-medium">{children}</dd>
+      <dd className="text-base font-medium tabular-nums">{children}</dd>
     </div>
   )
 }

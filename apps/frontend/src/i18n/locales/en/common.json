@@ -48,11 +48,8 @@
   },
   "nav": {
     "applications": "Applications",
-    "collapsePanel": "Collapse panel",
-    "collapseShortcut": "Ctrl B",
     "eventSections": "Event sections",
     "events": "Events",
-    "expandPanel": "Expand panel",
     "main": "Main navigation",
     "openMenu": "Open navigation",
     "overview": "Overview"

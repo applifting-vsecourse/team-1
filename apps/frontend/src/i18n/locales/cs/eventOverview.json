@@ -199,7 +199,7 @@
   "capacity": {
     "addRoom": "Přidat pokoj",
     "addTerm": "Přidat termín a cenu",
-    "backToTerms": "← Všechny termíny",
+    "backToTerms": "Všechny termíny",
     "confirmedColumn": "Potvrzeno / kapacita",
     "confirmedOnly": "Volno se počítá pouze z potvrzených přihlášek.",
     "footnote": "Kapacita vychází z lůžek v pokojích daného termínu. Volno se počítá jen z potvrzených přihlášek v tomto termínu.",

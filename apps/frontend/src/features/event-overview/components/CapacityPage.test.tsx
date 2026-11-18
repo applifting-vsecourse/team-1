@@ -128,7 +128,7 @@ describe("CapacityPage", () => {
     })
 
     expect(await screen.findByRole("heading", { name: "Letní turnus 1" })).toBeVisible()
-    expect(screen.getByRole("link", { name: "← All terms" }).getAttribute("href")).not.toContain(
+    expect(screen.getByRole("link", { name: "All terms" }).getAttribute("href")).not.toContain(
       "termId",
     )
     const women = screen.getByRole("link", { name: /Women · capacity 5 beds/ })

@@ -40,7 +40,7 @@ export function ExtraBedConfirmDialog({
   term: { termId: string; startsOn: string; endsOn: string }
   request: ExtraBedRequest
   onClose: () => void
-  onDone: (result: { roomTitle: string; isMoved: boolean }) => Promise<void>
+  onDone: (result: { room: AssignmentRoom; isMoved: boolean }) => void
 }) {
   const { t } = useTranslation("events")
   const { roomTitle } = useAssignmentLabels()
@@ -57,7 +57,7 @@ export function ExtraBedConfirmDialog({
     } catch {
       return
     }
-    await onDone({ roomTitle: roomTitle(room), isMoved: request.isMove })
+    onDone({ room, isMoved: request.isMove })
     onClose()
   }
   const rows: [string, string, boolean?][] = [

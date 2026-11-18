@@ -63,9 +63,9 @@ function hourAfter(time: string): string {
 
 // Add or edit a block of the program of a term: day (only the days of the term), time from–to, name
 // (required), place and description. A change shows to the participants at once.
-// Overlap warning: X25e · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=23390-121032
+// Overlap warning: X25e · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=23390-121032
 // Design: Figma (Design system) US-66 · X25 Přidat blok / X25a Upravit blok / X25b Chyby u polí /
-// X25c Den mimo termín · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=23264-91877
+// X25c Den mimo termín · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=23264-91877
 export function ProgramBlockDialog({
   eventId,
   term,
@@ -125,7 +125,9 @@ export function ProgramBlockDialog({
   const mutation = useMutation({
     mutationFn: (values: Values) =>
       saveProgramBlock(eventId, values, block ? { id: block.id } : { termId: term.termId }),
-    onSuccess: () => client.invalidateQueries({ queryKey: programKeys.event(eventId) }),
+    onSuccess: () => {
+      void client.invalidateQueries({ queryKey: programKeys.event(eventId) })
+    },
   })
   const submit = form.handleSubmit(async (values) => {
     try {
@@ -285,7 +287,7 @@ export function ProgramBlockDialog({
               />
             </fieldset>
             {clashes.length ? (
-              <Alert className="border-status-warning/30 bg-status-warning-bg text-status-warning *:data-[slot=alert-description]:text-status-warning">
+              <Alert variant="warning">
                 <TriangleAlert />
                 <AlertDescription>
                   {t("overlapWarning", {

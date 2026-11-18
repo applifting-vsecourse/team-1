@@ -10,7 +10,7 @@ import { calendarDays, formatDayHeader } from "@/features/program/lib/days"
 const GUTTER = "3.5rem"
 const DAY_MIN = "9.5rem"
 
-// Design: Figma (Design system) US-66 · O35 Program termínu (calendar) · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=23263-91745
+// Design: Figma (Design system) US-66 · O35 Program termínu (calendar) · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=23263-91745
 /**
  * The program of a term as a calendar: a column per day of the term, hours down the side and every
  * block drawn over its time span with its full name. A click on a block opens its details (`onSelect`).
@@ -79,7 +79,7 @@ export function ProgramCalendar({
               {hours.map((hour, index) => (
                 <span
                   key={hour}
-                  className="absolute left-0 w-full pr-2 text-right text-xs font-medium text-muted-foreground"
+                  className="absolute left-0 w-full pr-2 text-right text-xs font-medium text-muted-foreground tabular-nums"
                   style={{ top: index * HOUR_HEIGHT + (index > 0 ? 4 : 0) }}
                 >
                   {String(hour).padStart(2, "0")}:00
@@ -128,7 +128,7 @@ function CalendarBlock({
   const minutes = Math.max(toMinutes(block.endTime) - start, 30)
   return (
     <article
-      className="absolute rounded-md border-l-4 border-l-primary bg-accent text-accent-foreground transition hover:brightness-95"
+      className="absolute rounded-md border-l-4 border-l-primary bg-accent text-accent-foreground transition-colors hover:bg-accent/80"
       style={{
         top: ((start - from * 60) / 60) * HOUR_HEIGHT + 1,
         // The block is at least as tall as its time span and grows so the whole name always shows.

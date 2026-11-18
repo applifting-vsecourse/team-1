@@ -30,7 +30,7 @@
   "noTermsAction": "Přejít na termíny",
   "overlapWarning": "V tomto čase už je v programu jiný blok: {{blocks}}. Blok můžete přesto uložit.",
   "own": {
-    "back": "← Zpět na přihlášku",
+    "back": "Zpět na přihlášku",
     "empty": "Program zatím není zveřejněný.",
     "pageTitle": "Program",
     "title": "Program"

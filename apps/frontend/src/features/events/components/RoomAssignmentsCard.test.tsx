@@ -279,6 +279,23 @@ describe("room assignment", () => {
     })
   })
 
+  it("confirms a drop only after the write succeeds", async () => {
+    let finish!: () => void
+    put.mockReturnValueOnce(
+      new Promise<void>((resolve) => {
+        finish = resolve
+      }),
+    )
+    renderCard()
+    await screen.findByText("Barbora Šimková")
+    drop(dragFrom("p3", "Barbora Šimková", null), "r3")
+    await waitFor(() => expect(put).toHaveBeenCalled())
+    expect(success).not.toHaveBeenCalled()
+    expect(screen.getByLabelText("Unassigned participants: 2")).toHaveTextContent("2")
+    await act(async () => finish())
+    await waitFor(() => expect(success).toHaveBeenCalledTimes(1))
+  })
+
   it("asks before a full room takes someone as an extra bed, and cancelling changes nothing", async () => {
     const user = renderCard()
     await screen.findByText("Barbora Šimková")

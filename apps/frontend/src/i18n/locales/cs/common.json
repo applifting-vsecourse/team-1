@@ -48,11 +48,8 @@
   },
   "nav": {
     "applications": "Přihlášky",
-    "collapsePanel": "Sbalit panel",
-    "collapseShortcut": "Ctrl B",
     "eventSections": "Části akce",
     "events": "Akce",
-    "expandPanel": "Rozbalit panel",
     "main": "Hlavní navigace",
     "openMenu": "Otevřít navigaci",
     "overview": "Přehled"

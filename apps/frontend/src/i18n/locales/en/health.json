@@ -1,7 +1,7 @@
 {
   "audienceText": "Only the event organiser will see the health restriction. Enter food allergies under meals.",
   "audienceTitle": "Information for the organiser",
-  "backToApplication": "← Application",
+  "backToApplication": "Application",
   "consent": "I explicitly consent to the processing of the data above to ensure participation in the event.",
   "consentGiven": "Explicit consent given · {{at}}",
   "errorTitle": "The health restriction could not be loaded",

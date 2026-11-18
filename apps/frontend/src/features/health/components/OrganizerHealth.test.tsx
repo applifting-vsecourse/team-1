@@ -61,7 +61,7 @@ describe("OrganizerHealth", () => {
 
   it("links back to the application", async () => {
     setup(health)
-    expect(await screen.findByRole("link", { name: "← Application" })).toBeInTheDocument()
+    expect(await screen.findByRole("link", { name: "Application" })).toBeInTheDocument()
   })
 
   it("says so when nothing was entered", async () => {

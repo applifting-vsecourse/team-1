@@ -8,10 +8,10 @@ import CampIllustration from "@/assets/illustrations/camp.svg?react"
 import { BandBackdrop } from "@/components/atoms/BandBackdrop"
 import { LogoSymbol } from "@/components/atoms/Logo"
 import { BackLink } from "@/components/molecules/BackLink"
+import { ListSkeleton } from "@/components/molecules/ListSkeleton"
 import { Pagination } from "@/components/molecules/Pagination"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import {
   Select,
@@ -20,7 +20,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Skeleton } from "@/components/ui/skeleton"
 import { usePagination } from "@/hooks/usePagination"
 import { cn } from "@/lib/utils"
 
@@ -104,26 +103,7 @@ export function CatalogPage({ organizationId, onOrganizationChange }: CatalogPag
       </section>
 
       <div className={cn(CONTENT, "flex flex-col gap-6 pt-8 pb-12 md:pt-12 md:pb-20")}>
-        {isPending ? (
-          <Card
-            role="status"
-            className="max-w-160 gap-4 p-6 shadow-none"
-          >
-            {[0, 1, 2].map((row) => (
-              <div
-                key={row}
-                className="flex items-center gap-3"
-              >
-                <Skeleton className="size-10 shrink-0 rounded-full" />
-                <div className="flex flex-1 flex-col gap-1.5">
-                  <Skeleton className="h-4 w-full rounded-lg" />
-                  <Skeleton className="h-3 w-full rounded-lg" />
-                </div>
-              </div>
-            ))}
-            <p className="text-sm text-muted-foreground">{t("list.loading")}</p>
-          </Card>
-        ) : null}
+        {isPending ? <ListSkeleton label={t("list.loading")} /> : null}
 
         {isError ? (
           <Alert variant="destructive">

@@ -100,7 +100,7 @@ function HeroVisual() {
       <div className="rounded-lg border border-border bg-card p-4 shadow-sm lg:absolute lg:-bottom-6 lg:left-0 lg:w-80 lg:rotate-6">
         <div className="flex items-center justify-between gap-2 text-sm font-semibold">
           <span>{t("preview.event")}</span>
-          <span className="font-mono whitespace-nowrap">51 / 64</span>
+          <span className="whitespace-nowrap tabular-nums">51 / 64</span>
         </div>
         <Progress
           value={80}
@@ -115,7 +115,7 @@ function HeroVisual() {
       </div>
       <div className="hidden w-48 rounded-lg border border-border bg-card p-4 shadow-sm lg:absolute lg:top-4 lg:right-0 lg:block lg:-rotate-6">
         <p className="text-xs text-muted-foreground">{t("preview.paid")}</p>
-        <p className="font-mono text-3xl font-semibold text-link">93 %</p>
+        <p className="text-3xl font-semibold text-link">93 %</p>
       </div>
     </div>
   )
@@ -130,8 +130,8 @@ function Heading({ children, className }: { children: ReactNode; className?: str
 }
 
 // Landing of the product: hero with the two entries and the catalog, event types, what Togena does, participants.
-// Figma (Togena – Landing, návrh podle Waitlyst): Landing v2 Desktop 1440 · https://www.figma.com/design/g7XqI8jbKRumGK6LhIrEut?node-id=10-2
-// Figma (Togena – Landing, návrh podle Waitlyst): Landing v2 Mobile 360 · https://www.figma.com/design/g7XqI8jbKRumGK6LhIrEut?node-id=12-2
+// Figma (Togena – Landing, návrh podle Waitlyst): Landing v2 Desktop 1440 · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22640-10977
+// Figma (Togena – Landing, návrh podle Waitlyst): Landing v2 Mobile 360 · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22640-11536
 function LandingPage() {
   const { t } = useTranslation("landing")
 

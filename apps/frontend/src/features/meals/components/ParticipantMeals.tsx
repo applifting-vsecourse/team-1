@@ -86,6 +86,8 @@ function MealsForm({ applicationId, meals }: { applicationId: string; meals: Own
       }}
     >
       <PageHeader
+        band
+        motif="planning"
         title={t("own.title", { name: `${meals.firstName} ${meals.lastName}` })}
         description={meals.eventName}
       />

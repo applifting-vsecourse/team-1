@@ -199,7 +199,7 @@
   "capacity": {
     "addRoom": "Add room",
     "addTerm": "Add term and price",
-    "backToTerms": "← All terms",
+    "backToTerms": "All terms",
     "confirmedColumn": "Confirmed / capacity",
     "confirmedOnly": "Free places are counted from confirmed applications only.",
     "footnote": "Capacity comes from the beds in this term’s rooms. Free places are counted from confirmed applications in this term only.",

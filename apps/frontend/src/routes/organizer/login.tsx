@@ -38,14 +38,14 @@ function OrganizerLoginPage() {
         title={t("organizerLogin.title")}
         back={<BackLink to={ROUTES.home}>{t("backHome")}</BackLink>}
         description={t("organizerLogin.description")}
-        cardTitle={t("organizerLogin.cardTitle")}
+        singleCard
         footer={
           <div className="flex flex-col gap-4">
             <Button
               asChild
               variant="outline"
               size="lg"
-              className="h-12 w-full"
+              className="w-full"
             >
               <Link to={ROUTES.organizer.register}>{t("organizerLogin.createAccount")}</Link>
             </Button>
