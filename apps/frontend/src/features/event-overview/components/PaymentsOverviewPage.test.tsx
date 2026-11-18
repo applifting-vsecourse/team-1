@@ -72,6 +72,14 @@ function renderPage(visibleEntries = entries) {
     new Response(
       JSON.stringify({
         totalDebtCzk: 7800,
+        remindedDebtorCount: 1,
+        debtByFilter: {
+          ALL: { ALL: 7800, SENT: 2900, NOT_SENT: 4900 },
+          UNPAID: { ALL: 4900, SENT: 0, NOT_SENT: 4900 },
+          PARTIALLY_PAID: { ALL: 2900, SENT: 2900, NOT_SENT: 0 },
+          PAID: { ALL: 0, SENT: 0, NOT_SENT: 0 },
+          OVERDUE: { ALL: 2900, SENT: 2900, NOT_SENT: 0 },
+        },
         debtorCount: 2,
         overdueCount: 1,
         entries: visibleEntries,
@@ -141,6 +149,7 @@ describe("PaymentsOverviewPage", () => {
     expect(screen.getByText("Adam Dvořák")).toBeVisible()
     expect(screen.queryByText("Jana Nováková")).not.toBeInTheDocument()
     expect(screen.queryByText("Petr Černý")).not.toBeInTheDocument()
+    expect(screen.getByText(/Debt in selection/)).toHaveTextContent(/2,900/)
   })
 
   it("labels a negative balance as an overpayment", async () => {

@@ -20,7 +20,21 @@ class PaymentOverviewEntryDto {
   @ApiProperty({ nullable: true, type: String }) lastReminderAt!: string | null
 }
 
+class DebtByReminderDto {
+  @ApiProperty() ALL!: number
+  @ApiProperty() SENT!: number
+  @ApiProperty() NOT_SENT!: number
+}
+class DebtByFilterDto {
+  @ApiProperty({ type: DebtByReminderDto }) ALL!: DebtByReminderDto
+  @ApiProperty({ type: DebtByReminderDto }) UNPAID!: DebtByReminderDto
+  @ApiProperty({ type: DebtByReminderDto }) PARTIALLY_PAID!: DebtByReminderDto
+  @ApiProperty({ type: DebtByReminderDto }) OVERDUE!: DebtByReminderDto
+  @ApiProperty({ type: DebtByReminderDto }) PAID!: DebtByReminderDto
+}
 export class PaymentOverviewResponseDto {
+  @ApiProperty({ type: DebtByFilterDto }) debtByFilter!: DebtByFilterDto
+  @ApiProperty() remindedDebtorCount!: number
   @ApiProperty() totalDebtCzk!: number
   @ApiProperty() debtorCount!: number
   @ApiProperty() overdueCount!: number
@@ -29,6 +43,8 @@ export class PaymentOverviewResponseDto {
   static fromDomain(data: PaymentOverview): PaymentOverviewResponseDto {
     return {
       totalDebtCzk: data.totalDebtCzk,
+      debtByFilter: data.debtByFilter,
+      remindedDebtorCount: data.remindedDebtorCount,
       debtorCount: data.debtorCount,
       overdueCount: data.overdueCount,
       entries: data.entries.map((entry) => ({

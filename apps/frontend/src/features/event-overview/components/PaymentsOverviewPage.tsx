@@ -40,10 +40,6 @@ import {
 type StatusFilter = "ALL" | "UNPAID" | "PARTIALLY_PAID" | "PAID" | "OVERDUE"
 type ReminderFilter = "ALL" | "SENT" | "NOT_SENT"
 
-function sumDebt(entries: PaymentOverviewEntry[]) {
-  return entries.reduce((total, entry) => total + Math.max(0, entry.amountOwedCzk), 0)
-}
-
 function matches(entry: PaymentOverviewEntry, status: StatusFilter, reminder: ReminderFilter) {
   const isPaymentMatch =
     status === "ALL" ||
@@ -88,10 +84,6 @@ export function PaymentsOverviewPage({
   }
 
   const entries = data.entries.filter((entry) => matches(entry, status, reminder))
-  const overdue = data.entries.filter((entry) => entry.overdue && entry.amountOwedCzk > 0)
-  const reminded = data.entries.filter(
-    (entry) => entry.reminderCount > 0 && entry.amountOwedCzk > 0,
-  )
   const clearFilters = () => {
     setStatus("ALL")
     setReminder("ALL")
@@ -137,14 +129,14 @@ export function PaymentsOverviewPage({
           },
           {
             title: t("paymentsOverview.statuses.OVERDUE"),
-            amount: sumDebt(overdue),
+            amount: data.debtByFilter.OVERDUE.ALL,
             detail: t("paymentsOverview.overdueCount", { count: data.overdueCount }),
           },
           {
             title: t("paymentsOverview.remindedDebt"),
-            amount: sumDebt(reminded),
+            amount: data.debtByFilter.ALL.SENT,
             detail: t("paymentsOverview.debtors", {
-              count: new Set(reminded.map((row) => row.applicationId)).size,
+              count: data.remindedDebtorCount,
             }),
           },
         ].map((metric) => (
@@ -211,7 +203,8 @@ export function PaymentsOverviewPage({
         </div>
       </div>
       <p className="text-sm font-medium">
-        {t("paymentsOverview.selectionDebt")} · <MoneyAmount amountCzk={sumDebt(entries)} />
+        {t("paymentsOverview.selectionDebt")} ·{" "}
+        <MoneyAmount amountCzk={data.debtByFilter[status][reminder]} />
       </p>
       {entries.length === 0 ? (
         <div className="flex flex-col items-center gap-6 py-4">

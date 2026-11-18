@@ -28,6 +28,11 @@ describe("payment overview", () => {
       totalDebtCzk: 2900,
       debtorCount: 1,
       overdueCount: 1,
+      remindedDebtorCount: 1,
+      debtByFilter: {
+        OVERDUE: { ALL: 2900, SENT: 2900, NOT_SENT: 0 },
+        PARTIALLY_PAID: { ALL: 2900, SENT: 2900, NOT_SENT: 0 },
+      },
       entries: [
         {
           paymentStatus: "PARTIALLY_PAID",
@@ -55,6 +60,8 @@ describe("payment overview", () => {
       10,
       now,
     )
+    expect(result.debtByFilter.ALL.NOT_SENT).toBe(2900)
+    expect(result.debtByFilter.PAID.ALL).toBe(0)
     expect(result.totalDebtCzk).toBe(2900)
     expect(result.debtorCount).toBe(1)
     expect(result.entries.find((entry) => entry.termId === "t2")).toMatchObject({

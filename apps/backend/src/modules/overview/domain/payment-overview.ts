@@ -42,7 +42,22 @@ export type PaymentOverviewEntry = {
   lastReminderAt: Date | null
 }
 
+type DebtByReminder = { ALL: number; SENT: number; NOT_SENT: number }
+type StatusFilter = "ALL" | "OVERDUE" | "UNPAID" | "PARTIALLY_PAID" | "PAID"
+
+function debtByReminder(entries: PaymentOverviewEntry[]): DebtByReminder {
+  const amounts = (rows: PaymentOverviewEntry[]): number =>
+    computePayableAmount(rows.map((row) => row.amountOwedCzk))
+  return {
+    ALL: amounts(entries),
+    SENT: amounts(entries.filter((row) => row.reminderCount > 0)),
+    NOT_SENT: amounts(entries.filter((row) => row.reminderCount === 0)),
+  }
+}
+
 export type PaymentOverview = {
+  debtByFilter: Record<StatusFilter, DebtByReminder>
+  remindedDebtorCount: number
   totalDebtCzk: number
   debtorCount: number
   overdueCount: number
@@ -100,8 +115,26 @@ export function paymentOverview(
   const overdue = new Set(
     entries.filter((entry) => entry.overdue).map((entry) => entry.applicationId),
   )
+  const debtByFilter = {
+    ALL: debtByReminder(entries),
+    OVERDUE: debtByReminder(entries.filter((entry) => entry.overdue)),
+    UNPAID: debtByReminder(entries.filter((entry) => entry.paymentStatus === "UNPAID")),
+    PARTIALLY_PAID: debtByReminder(
+      entries.filter((entry) => entry.paymentStatus === "PARTIALLY_PAID"),
+    ),
+    PAID: debtByReminder(
+      entries.filter((entry) => ["PAID", "OVERPAID", "NOTHING_DUE"].includes(entry.paymentStatus)),
+    ),
+  }
+  const remindedDebtors = new Set(
+    entries
+      .filter((entry) => entry.reminderCount > 0 && entry.amountOwedCzk > 0)
+      .map((entry) => entry.applicationId),
+  )
   return {
-    totalDebtCzk: computePayableAmount(entries.map((entry) => entry.amountOwedCzk)),
+    totalDebtCzk: debtByFilter.ALL.ALL,
+    debtByFilter,
+    remindedDebtorCount: remindedDebtors.size,
     debtorCount: debtors.size,
     overdueCount: overdue.size,
     entries,
