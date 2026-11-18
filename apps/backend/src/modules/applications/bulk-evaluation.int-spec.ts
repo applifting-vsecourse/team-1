@@ -270,6 +270,11 @@ describe("bulk evaluation of applications in a term (integration)", () => {
     expect(await latestEmailTo(rejected.email)).toBeDefined()
   })
 
+  it("answers 400 when the expected counts are missing", async () => {
+    const response = await post(genderedTermId, "", { applicationIds: ["x"] })
+    expect(response.status).toBe(400)
+  })
+
   it("answers 404 for a term of another event", async () => {
     expect(
       (

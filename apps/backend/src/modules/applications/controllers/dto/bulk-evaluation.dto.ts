@@ -12,6 +12,7 @@ import {
   IsArray,
   IsIn,
   IsInt,
+  IsObject,
   IsOptional,
   IsString,
   Min,
@@ -38,6 +39,7 @@ export class BulkEvaluationRequestDto {
       "How many applications of each gender the organizer saw confirmed in the preview; another number now means the capacity changed and nothing is evaluated (409 EVALUATION_PLAN_CHANGED)",
     type: ExpectedConfirmedDto,
   })
+  @IsObject()
   @ValidateNested()
   @Type(() => ExpectedConfirmedDto)
   expectedConfirmed!: ExpectedConfirmedDto
