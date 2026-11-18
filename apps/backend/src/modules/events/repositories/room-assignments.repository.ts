@@ -18,6 +18,7 @@ import {
   loadRoomWarnings,
   pruneAcknowledgements,
 } from "@/modules/events/repositories/room-warnings.queries"
+import { evaluateRoomWishes } from "@/shared/domain/room-wishes"
 import { AppException } from "@/shared/errors/app.exception"
 import { releaseAssignments } from "@/shared/room-assignments/release-assignments"
 import { HttpStatus, Injectable } from "@nestjs/common"
@@ -86,6 +87,8 @@ export class RoomAssignmentsRepository {
       gender: row.application.gender,
       individualAccommodation: row.application.individualAccommodation,
       status: row.status,
+      // Nobody is in the room of an unassigned participant, so no wish of theirs is fulfilled yet.
+      wishes: row.application.individualAccommodation ? [] : evaluateRoomWishes(row.roomWishes, []),
     })
 
     const rooms: AssignmentRoom[] = term.rooms.map((room) => ({
@@ -95,7 +98,18 @@ export class RoomAssignmentsRepository {
       extraBeds: room.extraBeds,
       beds: computeRoomBeds(room),
       gender: room.gender,
-      participants: room.assignments.map((assignment) => toParticipant(assignment.applicationTerm)),
+      participants: room.assignments.map((assignment) => ({
+        ...toParticipant(assignment.applicationTerm),
+        // Individual accommodation has no wishes, even when some were saved before the switch.
+        wishes: assignment.applicationTerm.application.individualAccommodation
+          ? []
+          : evaluateRoomWishes(
+              assignment.applicationTerm.roomWishes,
+              room.assignments
+                .filter((other) => other.id !== assignment.id)
+                .map((other) => other.applicationTerm.application),
+            ),
+      })),
     }))
 
     const unassigned = waiting.map((row) => ({

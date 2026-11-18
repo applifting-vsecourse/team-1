@@ -40,6 +40,7 @@ import {
   ParticipantGhost,
   RoomCard,
   RoomTableRow,
+  UnassignedDropZone,
   UnassignedRow,
   type DragData,
 } from "@/features/events/components/AssignmentParts"
@@ -221,17 +222,20 @@ export function RoomAssignmentsCard({
     setDragged((event.active.data.current as DragData | undefined) ?? null)
   const onDragEnd = (event: DragEndEvent) => {
     const drag = event.active.data.current as DragData | undefined
-    const roomId = (event.over?.data.current as { roomId?: string } | undefined)?.roomId
+    const over = event.over?.data.current as { roomId?: string; isUnassigned?: boolean } | undefined
+    const roomId = over?.roomId
     setDragged(null)
+    if (drag && over?.isUnassigned) {
+      if (drag.fromRoomId !== null) removeFromRoom(drag.applicationTermId, drag.name)
+      return
+    }
     const room = data.rooms.find((item) => item.id === roomId)
     if (drag && room) dropOn(drag, room)
   }
-  const remove = (participant: AssignmentParticipant) =>
-    unassign.mutate(participant.applicationTermId, {
+  const removeFromRoom = (applicationTermId: string, name: string) =>
+    unassign.mutate(applicationTermId, {
       onSuccess: () => {
-        void refresh().then(() =>
-          notify.success(t("roomAssignments.removed"), participantName(participant)),
-        )
+        void refresh().then(() => notify.success(t("roomAssignments.removed"), name))
       },
       onError: notifyFailure,
     })
@@ -249,7 +253,8 @@ export function RoomAssignmentsCard({
     actions: roomActions(room.id),
     onMoveParticipant: (participant: AssignmentParticipant) =>
       setDialog({ target: toTarget(participant, room.id) }),
-    onRemoveParticipant: remove,
+    onRemoveParticipant: (participant: AssignmentParticipant) =>
+      removeFromRoom(participant.applicationTermId, participantName(participant)),
   })
 
   const roomsEmpty = (
@@ -294,8 +299,9 @@ export function RoomAssignmentsCard({
           </div>
         ) : null}
         <div className="flex flex-col gap-4 md:flex-row md:items-start">
-          <div
-            ref={setPanel}
+          <UnassignedDropZone
+            panelRef={setPanel}
+            isDragActive={dragged !== null && dragged.fromRoomId !== null}
             className="flex shrink-0 flex-col rounded-lg border border-border bg-card md:sticky md:top-20 md:w-85"
           >
             <div className="flex flex-col gap-1 px-3 pt-3 pb-2.5">
@@ -389,7 +395,7 @@ export function RoomAssignmentsCard({
                 ) : null}
               </>
             )}
-          </div>
+          </UnassignedDropZone>
           <div className="flex min-w-0 flex-1 flex-col gap-3">
             {hasRooms ? (
               <>

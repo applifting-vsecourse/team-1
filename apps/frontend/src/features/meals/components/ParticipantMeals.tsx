@@ -63,6 +63,8 @@ function MealsForm({ applicationId, meals }: { applicationId: string; meals: Own
       }),
     onSuccess: async (saved) => {
       client.setQueryData(ownMealsQueryOptions(applicationId).queryKey, saved)
+      // The overview of the application shows the meals step as done (US-149).
+      void client.invalidateQueries({ queryKey: ["participant", "applications", applicationId] })
       void client.invalidateQueries({ queryKey: ["organizer", "events"] })
       notify.success(t("own.saved"))
       await navigate({ to: ROUTES.participant.application, params: { applicationId } })

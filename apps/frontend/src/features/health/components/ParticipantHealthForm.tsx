@@ -77,6 +77,8 @@ function HealthFields({ applicationId, health }: { applicationId: string; health
         await client.invalidateQueries({ queryKey: ownHealthQueryOptions(applicationId).queryKey })
         setIsEditing(false)
       }
+      // The overview of the application shows the health step as done (US-149).
+      void client.invalidateQueries({ queryKey: ["participant", "applications", applicationId] })
       void client.invalidateQueries({
         queryKey: ["organizer", "applications", applicationId, "health"],
       })

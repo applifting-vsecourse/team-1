@@ -9,12 +9,15 @@ const record = (overrides: Partial<MyApplicationRecord> = {}): MyApplicationReco
   submittedAt: at(5),
   firstName: "Jana",
   lastName: "Nováková",
+  individualAccommodation: false,
   eventName: "Letní kemp 2027",
   bankAccount: "2900123456/2010",
   paymentPeriodDays: 10,
   organizationName: "Letní kemp z. s.",
   contactEmail: "info@letni-kemp.example",
   contactPhone: "+420 777 000 003",
+  mealsFilled: false,
+  healthFilled: false,
   terms: [
     {
       termId: "t2",
@@ -29,6 +32,10 @@ const record = (overrides: Partial<MyApplicationRecord> = {}): MyApplicationReco
       paymentPeriodStartedAt: null,
       transportOffered: false,
       transportDecided: false,
+      roomsPublished: false,
+      roomName: null,
+      termCancelled: false,
+      roomWishes: [],
     },
     {
       termId: "t1",
@@ -43,6 +50,10 @@ const record = (overrides: Partial<MyApplicationRecord> = {}): MyApplicationReco
       paymentPeriodStartedAt: null,
       transportOffered: false,
       transportDecided: false,
+      roomsPublished: false,
+      roomName: null,
+      termCancelled: false,
+      roomWishes: [],
     },
   ],
   ...overrides,
@@ -61,6 +72,17 @@ describe("toApplicationCode", () => {
 })
 
 describe("buildMyApplication", () => {
+  it("passes on whether meals and health were entered", () => {
+    expect(buildMyApplication(record())).toMatchObject({
+      mealsDecided: false,
+      healthDecided: false,
+    })
+    expect(buildMyApplication(record({ mealsFilled: true, healthFilled: true }))).toMatchObject({
+      mealsDecided: true,
+      healthDecided: true,
+    })
+  })
+
   it("sorts terms by date and sums only confirmed terms as amount due", () => {
     const result = buildMyApplication(record())
 
@@ -232,6 +254,76 @@ describe("buildMyApplication", () => {
         { termId: "t1", amountCzk: 2000, createdAt: "2027-05-03T00:00:00.000Z" },
         { termId: "t1", amountCzk: 500, createdAt: "2027-05-02T00:00:00.000Z" },
       ])
+    })
+  })
+
+  describe("room (US-144)", () => {
+    const withRoom = (
+      term: Partial<MyApplicationRecord["terms"][number]>,
+      overrides: Partial<MyApplicationRecord> = {},
+    ) => {
+      const base = record()
+      return buildMyApplication({
+        ...base,
+        ...overrides,
+        terms: [{ ...base.terms[1], ...term }],
+      })
+    }
+
+    it("shows nothing until the organizer publishes the assignment", () => {
+      expect(withRoom({ roomName: "Bříza 204" }).terms[0].room).toBeUndefined()
+    })
+
+    it("shows the room name of a confirmed term once published", () => {
+      const result = withRoom({ roomsPublished: true, roomName: "Bříza 204" })
+      expect(result.terms[0].room).toEqual({ name: "Bříza 204" })
+    })
+
+    it("tells a published term without a room that none is assigned yet", () => {
+      expect(withRoom({ roomsPublished: true }).terms[0].room).toEqual({ name: null })
+    })
+
+    it("shows no room for a term that is not confirmed", () => {
+      const result = withRoom({ status: "WAITLISTED", roomsPublished: true, roomName: "Bříza 204" })
+      expect(result.terms[0].room).toBeUndefined()
+    })
+
+    it("never mentions a room to an individually accommodated participant", () => {
+      const result = withRoom(
+        { roomsPublished: true, roomName: "Bříza 204" },
+        { individualAccommodation: true },
+      )
+      expect(result.terms[0].room).toBeUndefined()
+    })
+  })
+
+  describe("roommate wishes (US-146)", () => {
+    const wishes = (
+      term: Partial<MyApplicationRecord["terms"][number]>,
+      overrides: Partial<MyApplicationRecord> = {},
+    ) => {
+      const base = record()
+      return buildMyApplication({
+        ...base,
+        ...overrides,
+        terms: [{ ...base.terms[1], roomWishes: ["Eva Černá"], ...term }],
+      }).terms[0].roomWishes
+    }
+
+    it("gives a confirmed term its wishes", () => {
+      expect(wishes({})).toEqual(["Eva Černá"])
+      expect(wishes({ roomWishes: [] })).toEqual([])
+    })
+
+    it("hides the field for a term that is not confirmed", () => {
+      expect(wishes({ status: "WAITLISTED" })).toBeUndefined()
+      expect(wishes({ status: "TO_EVALUATE" })).toBeUndefined()
+      expect(wishes({ status: "CANCELLED" })).toBeUndefined()
+    })
+
+    it("hides the field for a cancelled term and for individual accommodation", () => {
+      expect(wishes({ termCancelled: true })).toBeUndefined()
+      expect(wishes({}, { individualAccommodation: true })).toBeUndefined()
     })
   })
 })

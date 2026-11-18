@@ -35,6 +35,9 @@ export class TermResponseDto {
   @ApiProperty()
   waitlistedCount!: number
 
+  @ApiProperty({ description: "Applications waiting for the organizer's decision." })
+  toEvaluateCount!: number
+
   @ApiProperty({ type: String, nullable: true, description: "Set once the term is cancelled." })
   cancelledAt!: string | null
 
@@ -54,8 +57,21 @@ export class TermResponseDto {
       capacity: term.capacity,
       confirmedCount: term.confirmedCount,
       waitlistedCount: term.waitlistedCount,
+      toEvaluateCount: term.toEvaluateCount,
       cancelledAt: term.cancelledAt?.toISOString() ?? null,
       cancelReason: term.cancelReason,
     }
+  }
+}
+
+export class CancelTermResponseDto extends TermResponseDto {
+  @ApiProperty({
+    description:
+      "Applications cancelled with the term: every status except archived (and already cancelled).",
+  })
+  cancelledApplications!: number
+
+  static fromCancellation(term: EventTerm, cancelledApplications: number): CancelTermResponseDto {
+    return { ...TermResponseDto.fromDomain(term), cancelledApplications }
   }
 }

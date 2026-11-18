@@ -4,6 +4,11 @@ import { ApiProperty } from "@nestjs/swagger"
 
 const STATUSES = ["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED"]
 
+class RoomWishDto {
+  @ApiProperty({ description: "Name as the participant wrote it (free text)" }) name!: string
+  @ApiProperty({ description: "The named person is in the same room of the same term" })
+  fulfilled!: boolean
+}
 class ParticipantDto {
   @ApiProperty({ description: "Application in the term; the id the assignment endpoints take" })
   applicationTermId!: string
@@ -15,6 +20,8 @@ class ParticipantDto {
   @ApiProperty({ enum: ["FEMALE", "MALE"] }) gender!: Gender
   @ApiProperty() individualAccommodation!: boolean
   @ApiProperty({ enum: STATUSES }) status!: string
+  @ApiProperty({ type: [RoomWishDto], description: "Roommate wishes, at most 3 (US-146)" })
+  wishes!: RoomWishDto[]
 }
 class OtherTermRoomDto {
   @ApiProperty() id!: string

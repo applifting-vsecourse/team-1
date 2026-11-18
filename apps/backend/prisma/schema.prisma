@@ -303,6 +303,9 @@ model Term {
   priceCzk       Int
   // Rooms are divided by gender or shared; each term has its own mode (US-99, D-062).
   roomMode       RoomMode     @default(GENDERED)
+  // US-144: when the organizer published the room assignment to the confirmed participants;
+  // null = not published (default).
+  roomsPublishedAt DateTime?
   // Cancelled terms stay for the history of applications but are no longer offered (US-13).
   cancelledAt    DateTime?
   cancelReason   String?      @db.Text
@@ -597,6 +600,9 @@ model ApplicationTerm {
   // is a Transport of kind OWN.
   transport              Transport?            @relation(fields: [transportId], references: [id], onDelete: SetNull)
   transportId            String?
+  // Names the participant wants to room with (US-146, D-131): free text, at most 3, written by the
+  // participant once the term is confirmed. No effect on status, capacity or evaluation.
+  roomWishes             String[]              @default([])
 
   statusChanges ApplicationTermStatusChange[]
   payments      Payment[]

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useFieldArray, useForm, useWatch, type Resolver } from "react-hook-form"
 import { useTranslation } from "react-i18next"
@@ -34,6 +34,7 @@ import {
   type ApplicationFormValues,
   type ParticipantDraft,
 } from "@/features/application-form/lib/application-form-schema"
+import { focusFirstInvalidField } from "@/features/application-form/lib/focus-first-invalid"
 import { priceOfSelection, totalPrice } from "@/features/application-form/lib/selection-price"
 
 // Figma (Design system): the form part of V07 / V07a (desktop) and M02 / M02a (360 px);
@@ -85,7 +86,15 @@ export function ApplicationForm({
     // The schema is the stricter twin of the draft: it also demands a gender.
     resolver: zodResolver(schema) as Resolver<ApplicationFormDraft, unknown, ApplicationFormValues>,
     defaultValues: restoredDraft ?? emptyApplicationDraft(),
+    // Our own handler below: it also reaches selects and checkbox tiles and clears the sticky header.
+    shouldFocusError: false,
   })
+  const formRef = useRef<HTMLFormElement>(null)
+  const [invalidSubmitCount, setInvalidSubmitCount] = useState(0)
+  // After the failed submission has rendered its errors, the first invalid control is in the DOM.
+  useEffect(() => {
+    if (invalidSubmitCount > 0 && formRef.current) focusFirstInvalidField(formRef.current)
+  }, [invalidSubmitCount])
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: "participants",
@@ -123,13 +132,17 @@ export function ApplicationForm({
   return (
     <Form {...form}>
       <form
+        ref={formRef}
         noValidate
-        onSubmit={form.handleSubmit(async (values) => {
-          // A second press while the first is in flight must not create a second application.
-          if (isSubmitting) return
-          await onSubmit(values)
-        })}
-        className="flex flex-col gap-6"
+        onSubmit={form.handleSubmit(
+          async (values) => {
+            // A second press while the first is in flight must not create a second application.
+            if (isSubmitting) return
+            await onSubmit(values)
+          },
+          () => setInvalidSubmitCount((count) => count + 1),
+        )}
+        className="flex flex-col gap-6 [&_[data-slot=form-item]]:scroll-mt-24"
         data-restored={restoredDraft ? true : undefined}
       >
         {fields.map((field, index) => (

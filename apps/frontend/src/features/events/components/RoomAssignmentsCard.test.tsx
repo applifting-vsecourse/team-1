@@ -65,6 +65,7 @@ const person = (
   gender: "FEMALE" as const,
   individualAccommodation: isIndividual,
   status: status as "CONFIRMED" | "TO_EVALUATE",
+  wishes: [],
 })
 const room = (
   id: string,
@@ -146,6 +147,26 @@ describe("room assignment", () => {
     for (const mock of [get, put, post, del, success, error]) mock.mockReset()
     put.mockResolvedValue(undefined)
     del.mockResolvedValue(undefined)
+  })
+
+  it("offers rooms of the participant's gender with the most free beds first in the dialog", async () => {
+    data = {
+      ...base(),
+      rooms: [
+        { ...room("r1", "Room A", 2, [person("p1", "Jana", "Nováková")]), gender: "MALE" as const },
+        { ...room("r2", "Room B", 1, [person("p2", "Eva", "Horká")]), gender: "FEMALE" as const },
+        { ...room("r3", "Room C", 3), gender: "FEMALE" as const },
+        { ...room("r4", "Room D", 4), gender: "MALE" as const },
+        { ...room("r5", "Room E", 5), gender: "FEMALE" as const },
+      ],
+    }
+    const user = renderCard()
+    await user.click(await screen.findByRole("button", { name: "Assign Nikola Králová to a room" }))
+    const dialog = await screen.findByRole("dialog")
+    const names = within(dialog)
+      .getAllByRole("radio")
+      .map((radio) => /Room [A-E]/.exec(radio.closest("label")?.textContent ?? "")?.[0])
+    expect(names).toEqual(["Room E", "Room C", "Room B", "Room D", "Room A"])
   })
 
   it("lists the unassigned with their status, the rooms with people and free beds, and the count", async () => {
@@ -492,6 +513,33 @@ describe("room assignment", () => {
         "Jana Nováková · Room C · Women's",
       ),
     )
+  })
+
+  it("removes a person from the room by dropping their chip on the unassigned panel", async () => {
+    renderCard()
+    await screen.findByText("Barbora Šimková")
+    const from = dragFrom("p1", "Jana Nováková", "r1")
+    act(() => dnd.props?.onDragStart(from))
+    act(() =>
+      dnd.props?.onDragEnd({ ...from, over: { data: { current: { isUnassigned: true } } } }),
+    )
+    await waitFor(() =>
+      expect(del).toHaveBeenCalledWith("organizer/events/e1/terms/t1/room-assignments/p1"),
+    )
+    await waitFor(() =>
+      expect(success).toHaveBeenCalledWith("Participant has no room again", "Jana Nováková"),
+    )
+  })
+
+  it("ignores an unassigned person dropped back on the unassigned panel", async () => {
+    renderCard()
+    await screen.findByText("Barbora Šimková")
+    const from = dragFrom("p3", "Barbora Šimková", null)
+    act(() => dnd.props?.onDragStart(from))
+    act(() =>
+      dnd.props?.onDragEnd({ ...from, over: { data: { current: { isUnassigned: true } } } }),
+    )
+    expect(del).not.toHaveBeenCalled()
   })
 
   it("does nothing when a chip is dropped on its own room", async () => {

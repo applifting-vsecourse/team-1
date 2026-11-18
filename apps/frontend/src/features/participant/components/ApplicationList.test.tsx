@@ -46,6 +46,8 @@ const application = (overrides: Partial<MyApplication> = {}): MyApplication => (
       transportDecided: false,
     },
   ],
+  mealsDecided: false,
+  healthDecided: false,
   amountDueCzk: 4500,
   amountPaidCzk: 0,
   amountOwedCzk: 4500,

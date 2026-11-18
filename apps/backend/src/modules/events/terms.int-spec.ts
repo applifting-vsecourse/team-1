@@ -196,9 +196,11 @@ describe("organizer terms (integration)", () => {
     expect(again.status).toBe(409)
   })
 
-  it("requires a cancellation reason", async () => {
+  it("refuses a cancellation reason that is too long (the reason itself is optional)", async () => {
     const [active] = await list()
-    const response = await send(cookieA, "POST", `${termsPath()}/${active.id}/cancel`, {})
+    const response = await send(cookieA, "POST", `${termsPath()}/${active.id}/cancel`, {
+      reason: "x".repeat(2001),
+    })
     expect(response.status).toBe(400)
   })
 
