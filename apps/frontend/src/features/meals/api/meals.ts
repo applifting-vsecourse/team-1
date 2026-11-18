@@ -48,6 +48,16 @@ const kitchenTermSchema = z.object({
       specialRequest: z.string(),
     }),
   ),
+  /** Later arrival / earlier departure, Prague wall time `yyyy-MM-ddTHH:mm` (US-143). */
+  stays: z.array(
+    z.object({
+      applicationId: z.string(),
+      firstName: z.string(),
+      lastName: z.string(),
+      lateArrival: z.string().nullable(),
+      earlyDeparture: z.string().nullable(),
+    }),
+  ),
 })
 export type KitchenTerm = z.infer<typeof kitchenTermSchema>
 

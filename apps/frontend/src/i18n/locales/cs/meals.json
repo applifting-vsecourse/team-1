@@ -1,13 +1,16 @@
 {
   "kitchen": {
     "allergiesTitle": "Alergie",
+    "arrival": "Příjezd {{when}}",
     "countsTitle": "Počty stravování",
+    "departure": "Odjezd {{when}}",
     "description": "{{event}} · Stravování",
     "overlapNote": "Omezení se mohou překrývat.",
     "print": "Vytisknout souhrn",
     "regular": "Běžná strava",
     "setUpOptions": "Nastavit varianty stravy",
     "specialRequestsTitle": "Speciální požadavky",
+    "staysTitle": "Příjezdy a odjezdy",
     "termLabel": "Termín",
     "title": "Souhrn pro kuchyni"
   },

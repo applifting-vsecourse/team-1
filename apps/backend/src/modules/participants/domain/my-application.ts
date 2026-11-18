@@ -70,6 +70,9 @@ export type MyApplicationRecord = {
     termCancelled: boolean
     /** Names the participant wishes to room with (US-146). */
     roomWishes: string[]
+    /** Later arrival / earlier departure, Prague wall time `yyyy-MM-ddTHH:mm` (US-143). */
+    lateArrival: string | null
+    earlyDeparture: string | null
   }[]
 }
 
@@ -96,6 +99,11 @@ export type MyApplicationTerm = {
    * individual accommodation — the only case they can write wishes (US-146); empty = none yet.
    */
   roomWishes?: string[]
+  /**
+   * Present while the application in the term is not cancelled or archived — the only case the
+   * participant can set them (US-143). Both `null` when nothing is given.
+   */
+  stay?: { lateArrival: string | null; earlyDeparture: string | null }
 }
 
 /** Where and how much to pay — only when at least one term is confirmed (US-25). */
@@ -212,6 +220,9 @@ export function buildMyApplication(
           : {}),
         ...(term.status === "CONFIRMED" && !term.termCancelled && !record.individualAccommodation
           ? { roomWishes: term.roomWishes }
+          : {}),
+        ...(term.status !== "CANCELLED" && term.status !== "ARCHIVED"
+          ? { stay: { lateArrival: term.lateArrival, earlyDeparture: term.earlyDeparture } }
           : {}),
       })),
     mealsDecided: record.mealsFilled,

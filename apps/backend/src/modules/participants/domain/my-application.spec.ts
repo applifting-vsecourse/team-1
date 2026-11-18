@@ -36,6 +36,8 @@ const record = (overrides: Partial<MyApplicationRecord> = {}): MyApplicationReco
       roomName: null,
       termCancelled: false,
       roomWishes: [],
+      lateArrival: null,
+      earlyDeparture: null,
     },
     {
       termId: "t1",
@@ -54,6 +56,8 @@ const record = (overrides: Partial<MyApplicationRecord> = {}): MyApplicationReco
       roomName: null,
       termCancelled: false,
       roomWishes: [],
+      lateArrival: null,
+      earlyDeparture: null,
     },
   ],
   ...overrides,
@@ -324,6 +328,31 @@ describe("buildMyApplication", () => {
     it("hides the field for a cancelled term and for individual accommodation", () => {
       expect(wishes({ termCancelled: true })).toBeUndefined()
       expect(wishes({}, { individualAccommodation: true })).toBeUndefined()
+    })
+  })
+
+  describe("later arrival and earlier departure (US-143)", () => {
+    const stay = (term: Partial<MyApplicationRecord["terms"][number]>) => {
+      const base = record()
+      return buildMyApplication({ ...base, terms: [{ ...base.terms[1], ...term }] }).terms[0].stay
+    }
+
+    it("gives the values, or nulls when nothing is given", () => {
+      expect(stay({})).toEqual({ lateArrival: null, earlyDeparture: null })
+      expect(stay({ lateArrival: "2027-07-13T10:30", earlyDeparture: "2027-07-18T16:00" })).toEqual(
+        {
+          lateArrival: "2027-07-13T10:30",
+          earlyDeparture: "2027-07-18T16:00",
+        },
+      )
+    })
+
+    it("is offered for a term to evaluate, confirmed or waitlisted, not a cancelled or archived one", () => {
+      expect(stay({ status: "TO_EVALUATE" })).toBeDefined()
+      expect(stay({ status: "CONFIRMED" })).toBeDefined()
+      expect(stay({ status: "WAITLISTED" })).toBeDefined()
+      expect(stay({ status: "CANCELLED" })).toBeUndefined()
+      expect(stay({ status: "ARCHIVED" })).toBeUndefined()
     })
   })
 })
