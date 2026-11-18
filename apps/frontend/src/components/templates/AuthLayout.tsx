@@ -1,4 +1,5 @@
 import type { ReactNode } from "react"
+import { useTranslation } from "react-i18next"
 
 import { BrandDivider } from "@/components/atoms/BrandDivider"
 import { useIsEmbeddedPage } from "@/components/atoms/EmbeddedPage"
@@ -13,6 +14,7 @@ type AuthLayoutProps = {
   /** Round icon above the heading (403). */
   isSingleCard?: boolean
   hasBand?: boolean
+  showDivider?: boolean
   icon?: ReactNode
   /** Heading of the form card. Without it the children sit directly on the page. */
   cardTitle?: string
@@ -36,15 +38,17 @@ export function AuthLayout({
   cardTitle,
   isSingleCard = false,
   hasBand = false,
+  showDivider = true,
   back,
   children,
   footer,
 }: AuthLayoutProps) {
+  const { t } = useTranslation("auth")
   const isEmbedded = useIsEmbeddedPage()
   const heading = (
     <div className="flex flex-col items-start gap-2">
       {icon}
-      <h1 className="text-2xl font-bold md:text-[32px]/10">{title}</h1>
+      <h1 className="text-2xl font-bold">{title}</h1>
       <p className="text-muted-foreground">{description}</p>
     </div>
   )
@@ -54,16 +58,16 @@ export function AuthLayout({
         isEmbedded
           ? "mx-auto flex w-full max-w-128 flex-col gap-6 pt-10 pb-12"
           : cn(
-              "mx-auto flex w-full max-w-128 flex-col gap-6 px-4 pb-12 md:pb-28",
-              back ? "pt-4 md:pt-8" : "pt-10 md:pt-20",
+              "mx-auto flex w-full max-w-[528px] flex-col gap-6 px-6 pb-12",
+              back ? "pt-4 md:pt-8" : "pt-8",
             )
       }
     >
       {back}
       {isSingleCard ? (
-        <Card className="gap-6 rounded-2xl p-6">
+        <Card className="gap-4 rounded-2xl p-6 shadow-none md:p-8">
           {heading}
-          <BrandDivider />
+          {showDivider ? <BrandDivider /> : null}
           {children}
           {footer}
         </Card>
@@ -92,11 +96,14 @@ export function AuthLayout({
   if (isEmbedded) return content
 
   return (
-    <>
+    <div className="flex min-h-svh flex-col">
       <Header />
-      <main className="relative min-h-svh overflow-hidden">
+      <main className="relative flex-1">
         <div className="relative">{content}</div>
       </main>
-    </>
+      {isSingleCard ? (
+        <footer className="p-4 text-center text-sm text-muted-foreground">{t("signature")}</footer>
+      ) : null}
+    </div>
   )
 }

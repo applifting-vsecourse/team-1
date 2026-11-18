@@ -24,6 +24,9 @@ export type MyApplicationRecord = {
   firstName: string
   lastName: string
   eventName: string
+  eventId?: string
+  birthDate?: string
+  gender?: "FEMALE" | "MALE"
   /** Account number of the organization that runs the event. */
   bankAccount: string
   /** Event's payment period in days (D-099). */
@@ -119,6 +122,9 @@ export type SimulatedPayment = {
 export type MyApplication = {
   id: string
   eventName: string
+  eventId?: string
+  birthDate?: string
+  gender?: "FEMALE" | "MALE"
   firstName: string
   lastName: string
   /** Reference for people: initials of the event and the number, "LKL-0048". */
@@ -184,6 +190,9 @@ export function buildMyApplication(
   return {
     id: record.id,
     eventName: record.eventName,
+    eventId: record.eventId,
+    birthDate: record.birthDate,
+    gender: record.gender,
     firstName: record.firstName,
     lastName: record.lastName,
     code: toApplicationCode(record.eventName, record.number),

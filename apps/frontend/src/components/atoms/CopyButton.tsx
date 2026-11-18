@@ -9,9 +9,11 @@ export function CopyButton({
   value,
   label,
   successMessage,
+  showLabel = false,
 }: {
   value: string
   label: string
+  showLabel?: boolean
   successMessage?: string
 }) {
   const [copyCount, setCopyCount] = useState(0)
@@ -30,7 +32,7 @@ export function CopyButton({
     <Button
       type="button"
       variant="ghost"
-      size="icon-lg"
+      size={showLabel ? "default" : "icon-lg"}
       className="relative"
       aria-label={label}
       onClick={() => void copy()}
@@ -46,6 +48,7 @@ export function CopyButton({
         className="size-5"
         aria-hidden="true"
       />
+      {showLabel ? label : null}
     </Button>
   )
 }

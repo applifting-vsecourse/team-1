@@ -127,8 +127,8 @@ describe("ApplicationList", () => {
 
     expect(await screen.findByRole("heading", { name: "Letní kemp 2027" })).toBeInTheDocument()
     expect(screen.getByRole("heading", { name: "Horský víkend 2027" })).toBeInTheDocument()
-    expect(screen.getAllByText(/Jana Nováková · LKL-0048/)).toHaveLength(1)
-    expect(screen.getByText(/Jana Nováková · HV-0051/)).toBeInTheDocument()
+    expect(screen.getByRole("heading", { name: /Jana Nováková · LKL-0048/ })).toBeVisible()
+    expect(screen.getByRole("heading", { name: /Jana Nováková · HV-0051/ })).toBeVisible()
     expect(screen.getAllByText("4–10 Jul 2027")).toHaveLength(2)
     expect(screen.getAllByText("1. týden")).toHaveLength(2)
     expect(screen.getAllByText("Confirmed")).toHaveLength(2)

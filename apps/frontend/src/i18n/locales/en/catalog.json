@@ -1,10 +1,16 @@
 {
   "event": {
     "about": "About the event",
+    "applicationHint": "Apply without creating an account. You can register several participants and choose their terms individually.",
     "apply": "Submit application",
+    "back": "Back to catalog",
+    "call": "Call",
     "contact": "Organization contact",
+    "copyLink": "Copy link",
     "perPerson": "/ person",
-    "terms": "Terms and prices"
+    "priceNote": "Prices are per participant.",
+    "terms": "Terms and prices",
+    "write": "Send an e-mail"
   },
   "list": {
     "allOrganizations": "All organizations",

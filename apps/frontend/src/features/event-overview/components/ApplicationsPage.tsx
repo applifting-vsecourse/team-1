@@ -145,16 +145,19 @@ export function ApplicationsPage({
     )
   }
   const views = (
-    <ApplicationViews
-      eventId={eventId}
-      filters={filters}
-      onChange={(next) => {
-        setPage(0)
-        setSelectedIds(new Set())
-        setTaken(null)
-        onFiltersChange(next)
-      }}
-    />
+    <div className="flex flex-col gap-4">
+      <h2 className="text-2xl font-bold">{t("applications.title")}</h2>
+      <ApplicationViews
+        eventId={eventId}
+        filters={filters}
+        onChange={(next) => {
+          setPage(0)
+          setSelectedIds(new Set())
+          setTaken(null)
+          onFiltersChange(next)
+        }}
+      />
+    </div>
   )
   if (filters.view === "CHANGE_REQUESTS") {
     return (
@@ -265,7 +268,7 @@ export function ApplicationsPage({
         ) : (
           <section
             aria-busy={query.isFetching}
-            className="flex flex-col gap-4 rounded-lg border bg-card p-4 shadow-sm md:p-6"
+            className="flex flex-col gap-4 md:rounded-lg md:border md:bg-card md:p-6"
           >
             <div className="flex flex-wrap justify-between gap-2">
               <h2 className="text-lg font-semibold">
@@ -482,11 +485,11 @@ export function ApplicationsPage({
                     </TableBody>
                   </Table>
                 </div>
-                <div className="divide-y md:hidden">
+                <div className="flex flex-col gap-4 md:hidden">
                   {visibleRows.map((row) => (
                     <div
                       key={row.id}
-                      className="flex items-start gap-3"
+                      className="flex items-start gap-3 rounded-xl border bg-card px-4"
                     >
                       {bulkTerm && (
                         <div className="pt-3">
@@ -527,6 +530,12 @@ export function ApplicationsPage({
                         <PaymentStatus application={row} />
                         <span className="text-sm">
                           {t("applications.owed")}: <MoneyAmount amountCzk={row.amountOwedCzk} />
+                        </span>
+                        <span className="text-sm text-muted-foreground">
+                          {t("applications.submitted")} · {formatDateTime(row.submittedAt)}
+                        </span>
+                        <span className="mt-2 text-sm font-medium text-link">
+                          {t(row.amountOwedCzk > 0 ? "payment.record" : "applications.detail")}
                         </span>
                       </Link>
                     </div>

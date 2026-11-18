@@ -4,7 +4,6 @@ import { z } from "zod"
 
 import { ROUTES } from "@/app/routes"
 import { Seo } from "@/components/atoms/Seo"
-import { BackLink } from "@/components/molecules/BackLink"
 import { AuthLayout } from "@/components/templates/AuthLayout"
 import { Button } from "@/components/ui/button"
 
@@ -36,11 +35,10 @@ function OrganizerLoginPage() {
       <Seo title={t("organizerLogin.title")} />
       <AuthLayout
         title={t("organizerLogin.title")}
-        back={<BackLink to={ROUTES.home}>{t("backHome")}</BackLink>}
         description={t("organizerLogin.description")}
         isSingleCard
         footer={
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 border-t pt-4">
             <Button
               asChild
               variant="outline"
@@ -65,7 +63,6 @@ function OrganizerLoginPage() {
           from={from}
           accountType="ORGANIZER"
           fallback={ROUTES.organizer.home}
-          emailHint={t("organizerLogin.emailHint")}
         />
       </AuthLayout>
     </>

@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import { useTranslation } from "react-i18next"
 
 import { MoneyAmount } from "@/components/atoms/MoneyAmount"
@@ -16,12 +17,13 @@ export type PriceSummaryRow = ParticipantPrice & {
 }
 
 type PriceSummaryProps = {
+  children?: ReactNode
   rows: PriceSummaryRow[]
   totalCzk: number
 }
 
 /** Price of the ticked terms, per participant and in total; updates with every tick. */
-export function PriceSummary({ rows, totalCzk }: PriceSummaryProps) {
+export function PriceSummary({ rows, totalCzk, children }: PriceSummaryProps) {
   const { t } = useTranslation("applicationForm")
 
   return (
@@ -59,6 +61,7 @@ export function PriceSummary({ rows, totalCzk }: PriceSummaryProps) {
         />
       </p>
       <p className="text-sm text-muted-foreground">{t("price.note")}</p>
+      {children}
     </Card>
   )
 }

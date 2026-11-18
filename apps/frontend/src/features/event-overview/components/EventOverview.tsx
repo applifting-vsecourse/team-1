@@ -1,13 +1,24 @@
 import type { ReactNode } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
+import {
+  ChevronRight,
+  ClipboardList,
+  Clock,
+  CreditCard,
+  RefreshCw,
+  type LucideIcon,
+} from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
+import { TermLabel } from "@/components/molecules/TermLabel"
+import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
+import { Progress } from "@/components/ui/progress"
 import {
   Select,
   SelectContent,
@@ -19,7 +30,6 @@ import { formatCzk } from "@/lib/money"
 
 import { attentionQueryOptions, type Attention } from "@/features/event-overview/api/attention"
 import { occupancyQueryOptions } from "@/features/event-overview/api/occupancy"
-import { TermList } from "@/features/event-overview/components/CapacityPage"
 import { FreedBedBanner } from "@/features/event-overview/components/FreedBedBanner"
 import type { ApplicationsSearch } from "@/features/event-overview/lib/applications-search"
 
@@ -31,10 +41,7 @@ type Translate = ReturnType<typeof useTranslation<"eventOverview">>["t"]
  * occupancy of the terms (the list of US-29). "Náhradníci k vyřešení" counts waitlisted applicants
  * the organizer can approve now: a free bed for them, in both evaluation modes (PO, 2026-11-07; US-31).
  */
-// Figma (Design system): #51 Letní kemp Lipno 2027 / Desktop · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19798-36893
-// Figma (Design system): #51 Letní kemp Lipno 2027 / Mobile · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19798-37048
-// Figma (Design system): #51 Přehled · Vše vyřízeno / Desktop · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19798-37131
-// Figma (Design system): #51 Přehled · Vše vyřízeno / Mobile · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19798-37270
+// Figma v2: Needs your attention and occupancy by term · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=20580-45007 (mobile 20580-45260).
 export function EventOverview({
   eventId,
   events,
@@ -101,18 +108,22 @@ function AttentionCards({ eventId }: { eventId: string }) {
   }
   const cards = attentionCards(data, t)
   return (
-    <div className="grid gap-6 md:grid-cols-2">
-      {cards.map((card) => (
-        <AttentionCard
-          key={card.key}
-          eventId={eventId}
-          title={card.title}
-          search={card.search}
-        >
-          {card.body}
-        </AttentionCard>
-      ))}
-    </div>
+    <section className="flex flex-col gap-4">
+      <h2 className="text-2xl font-semibold">{t("attention.heading")}</h2>
+      <div className="grid grid-cols-2 items-start gap-3 md:grid-cols-2 xl:grid-cols-4">
+        {cards.map((card) => (
+          <AttentionCard
+            key={card.key}
+            eventId={eventId}
+            icon={card.icon}
+            title={card.title}
+            search={card.search}
+          >
+            {card.body}
+          </AttentionCard>
+        ))}
+      </div>
+    </section>
   )
 }
 
@@ -120,6 +131,7 @@ function attentionCards(data: Attention, t: Translate) {
   return [
     {
       key: "toEvaluate",
+      icon: ClipboardList,
       count: data.toEvaluateCount,
       title: t("attention.toEvaluate.title", { count: data.toEvaluateCount }),
       body: t("attention.toEvaluate.body"),
@@ -127,6 +139,7 @@ function attentionCards(data: Attention, t: Translate) {
     },
     {
       key: "substitutes",
+      icon: Clock,
       count: data.substituteCount,
       title: t("attention.substitutes.title", { count: data.substituteCount }),
       body: t("attention.substitutes.body"),
@@ -136,6 +149,7 @@ function attentionCards(data: Attention, t: Translate) {
     },
     {
       key: "debt",
+      icon: CreditCard,
       count: data.debt.debtorCount,
       title: t("attention.debt.title", { count: data.debt.debtorCount }),
       body: t("attention.debt.body", {
@@ -146,12 +160,14 @@ function attentionCards(data: Attention, t: Translate) {
     },
     {
       key: "requests",
+      icon: RefreshCw,
       count: data.changeRequestCount,
       title: t("attention.requests.title", { count: data.changeRequestCount }),
       body: t("attention.requests.body"),
       search: { view: "CHANGE_REQUESTS" },
     },
   ] satisfies {
+    icon: LucideIcon
     key: string
     count: number
     title: string
@@ -162,12 +178,14 @@ function attentionCards(data: Attention, t: Translate) {
 
 /** The whole card is the link to the applications list filtered by it. */
 function AttentionCard({
+  icon: Icon,
   eventId,
   title,
   search,
   children,
 }: {
   eventId: string
+  icon: LucideIcon
   title: string
   search: ApplicationsSearch
   children: ReactNode
@@ -179,9 +197,19 @@ function AttentionCard({
       search={search}
       className="group block rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
     >
-      <Card className="h-full gap-4 p-6 transition-colors group-hover:border-primary group-hover:bg-muted">
-        <h2 className="text-2xl font-semibold tracking-tight">{title}</h2>
-        <p>{children}</p>
+      <Card className="gap-3 rounded-xl p-3 shadow-none transition-colors group-hover:border-primary group-hover:bg-muted md:p-4">
+        <div className="flex items-center gap-2">
+          <Icon
+            aria-hidden
+            className="size-5 shrink-0 text-link"
+          />
+          <h3 className="min-w-0 flex-1 font-semibold break-words">{title}</h3>
+          <ChevronRight
+            aria-hidden
+            className="size-4 shrink-0 text-muted-foreground"
+          />
+        </div>
+        <p className="text-sm text-muted-foreground">{children}</p>
       </Card>
     </Link>
   )
@@ -204,9 +232,64 @@ function Occupancy({ eventId }: { eventId: string }) {
   // An event without rooms has nothing to occupy; the setup block below says what is missing.
   if (data.terms.every((term) => term.roomCount === 0)) return null
   return (
-    <TermList
-      eventId={eventId}
-      terms={data.terms}
-    />
+    <section className="flex flex-col gap-4">
+      <h2 className="text-2xl font-semibold">{t("overview.occupancy")}</h2>
+      <div className="grid gap-4 lg:grid-cols-2">
+        {data.terms.map((term) => (
+          <Card
+            key={term.id}
+            className="gap-4 rounded-xl p-4 shadow-none"
+          >
+            <TermLabel term={term} />
+            <div className="flex flex-col gap-2">
+              <span className="text-sm font-medium">{t("overview.occupied")}</span>
+              <Progress
+                value={term.capacity ? Math.min(100, (term.confirmed / term.capacity) * 100) : 0}
+                aria-label={t("overview.occupied")}
+              />
+              <span className="text-sm text-muted-foreground tabular-nums">
+                {term.confirmed}/{term.capacity}
+              </span>
+            </div>
+            <dl className="grid grid-cols-2 gap-3">
+              <div>
+                <dt className="text-sm text-muted-foreground">{t("capacity.freeColumn")}</dt>
+                <dd className="tabular-nums">{term.free}</dd>
+              </div>
+              <div>
+                <dt className="text-sm text-muted-foreground">{t("capacity.waitlistedColumn")}</dt>
+                <dd className="tabular-nums">{term.waitlisted}</dd>
+              </div>
+            </dl>
+            <div className="flex flex-col gap-1 sm:flex-row">
+              <Button
+                asChild
+                variant="ghost"
+              >
+                <Link
+                  to={ROUTES.organizer.eventApplications}
+                  params={{ eventId }}
+                  search={{ term: term.id }}
+                >
+                  {t("overview.viewApplications")}
+                </Link>
+              </Button>
+              <Button
+                asChild
+                variant="ghost"
+              >
+                <Link
+                  to={ROUTES.organizer.eventApplications}
+                  params={{ eventId }}
+                  search={{ term: term.id, status: "WAITLISTED" }}
+                >
+                  {t("overview.viewWaitlist")}
+                </Link>
+              </Button>
+            </div>
+          </Card>
+        ))}
+      </div>
+    </section>
   )
 }

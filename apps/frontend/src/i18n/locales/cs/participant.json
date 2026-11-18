@@ -126,7 +126,12 @@
   },
   "list": {
     "empty": "Zatím tu nemáte žádnou přihlášku. Až se přihlásíte na akci, objeví se tady.",
-    "errorTitle": "Přihlášky se nepodařilo načíst"
+    "errorTitle": "Přihlášky se nepodařilo načíst",
+    "female": "žena",
+    "male": "muž",
+    "paymentNote": "Platí se pouze za potvrzené termíny.",
+    "remaining": "Zbývá zaplatit",
+    "termPrice": "Cena termínů"
   },
   "notifications": {
     "empty": "Zatím nemáte žádná upozornění.",

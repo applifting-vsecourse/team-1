@@ -110,6 +110,15 @@ export class MyApplicationResponseDto {
   @ApiProperty({ example: "Letní kemp 2027" })
   eventName!: string
 
+  @ApiProperty()
+  eventId!: string
+
+  @ApiProperty({ format: "date" })
+  birthDate!: string
+
+  @ApiProperty({ enum: ["FEMALE", "MALE"] })
+  gender!: "FEMALE" | "MALE"
+
   @ApiProperty({ example: "Jana" })
   firstName!: string
 

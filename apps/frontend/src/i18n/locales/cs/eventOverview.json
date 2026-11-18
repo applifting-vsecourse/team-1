@@ -66,6 +66,7 @@
       "body": "Z toho {{overdue}} po lhůtě · Součet dluhů {{total}}",
       "title": "Účastníci s dluhem · {{count}}"
     },
+    "heading": "K vyřízení",
     "loadFailed": "Nepodařilo se načíst, co vyžaduje pozornost",
     "requests": {
       "body": "Požadavky účastníků od začátku schvalování",
@@ -344,7 +345,11 @@
     "title": "Přidat přihlášku"
   },
   "overview": {
-    "title": "Přehled akce"
+    "occupancy": "Obsazenost podle termínu",
+    "occupied": "Obsazeno",
+    "title": "Přehled akce",
+    "viewApplications": "Zobrazit přihlášky",
+    "viewWaitlist": "Zobrazit náhradníky"
   },
   "payment": {
     "afterCorrection": "Po uložení",

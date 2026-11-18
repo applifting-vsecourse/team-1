@@ -4,7 +4,6 @@ import { z } from "zod"
 
 import { ROUTES } from "@/app/routes"
 import { Seo } from "@/components/atoms/Seo"
-import { BackLink } from "@/components/molecules/BackLink"
 import { AuthLayout } from "@/components/templates/AuthLayout"
 import { Button } from "@/components/ui/button"
 
@@ -38,24 +37,21 @@ function ParticipantLoginPage() {
       <Seo title={t("participantLogin.title")} />
       <AuthLayout
         isSingleCard
+        showDivider={false}
         title={t("participantLogin.title")}
-        back={<BackLink to={ROUTES.home}>{t("backHome")}</BackLink>}
         description={t("participantLogin.description")}
       >
         <SignInWithRedirect
           from={from}
           accountType="PARTICIPANT"
           fallback={ROUTES.participant.applications}
-          emailHint={t("participantLogin.emailHint")}
-          passwordHint={t("participantLogin.passwordHint")}
         />
-        <div className="flex flex-col items-start gap-1 border-t pt-4">
+        <div className="flex flex-col items-start gap-1">
           <p>{t("requestLink.cardTitle")}</p>
           <Button
             asChild
             variant="ghost"
             size="lg"
-            className="px-0"
           >
             <Link to={ROUTES.participant.magicLink}>{t("participantLogin.requestLink")}</Link>
           </Button>
@@ -66,7 +62,6 @@ function ParticipantLoginPage() {
             asChild
             variant="ghost"
             size="lg"
-            className="px-0"
           >
             <Link to={ROUTES.organizer.login}>{t("organizerLogin.title")}</Link>
           </Button>

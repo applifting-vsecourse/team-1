@@ -66,6 +66,7 @@
       "body": "{{overdue}} overdue · Total balance due {{total}}",
       "title": "Participants with a balance due · {{count}}"
     },
+    "heading": "Needs your attention",
     "loadFailed": "Could not load what needs your attention",
     "requests": {
       "body": "Participant requests since approval began",
@@ -344,7 +345,11 @@
     "title": "Add application"
   },
   "overview": {
-    "title": "Event overview"
+    "occupancy": "Occupancy by term",
+    "occupied": "Occupied",
+    "title": "Event overview",
+    "viewApplications": "View applications",
+    "viewWaitlist": "View waitlist"
   },
   "payment": {
     "afterCorrection": "After saving",

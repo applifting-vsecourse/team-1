@@ -22,15 +22,15 @@ export function Header({ nav, userMenu, isWide = false }: HeaderProps) {
     <header className="sticky top-0 z-40 w-full border-b border-border bg-card">
       <div
         className={cn(
-          "mx-auto flex w-full items-center gap-4 px-4 py-4",
-          isWide ? "max-w-300" : "max-w-224",
+          "mx-auto flex w-full items-center gap-4 px-4 py-4 md:px-8",
+          isWide && nav && "max-w-320",
         )}
       >
         <Logo />
         {nav ? <nav className="flex items-center gap-1">{nav}</nav> : null}
         <div className="ml-auto flex items-center gap-1">
-          <PublicPreferences />
           {userMenu}
+          <PublicPreferences />
         </div>
       </div>
     </header>

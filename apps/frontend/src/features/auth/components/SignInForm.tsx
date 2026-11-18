@@ -36,7 +36,7 @@ const defaultValues: FormValues = { email: "", password: "" }
 
 type SignInFormProps = {
   /** Hints under the fields; they differ for organizers and participants. */
-  emailHint: string
+  emailHint?: string
   passwordHint?: string
   isLoading: boolean
   errorMessage?: string | null
@@ -86,7 +86,7 @@ export function SignInForm({
       <form
         noValidate
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col gap-5"
+        className="flex flex-col gap-4"
       >
         <FormField
           control={form.control}
@@ -103,7 +103,9 @@ export function SignInForm({
                 />
               </FormControl>
               <FormMessage />
-              <FormDescription className="text-xs font-medium">{emailHint}</FormDescription>
+              {emailHint ? (
+                <FormDescription className="text-xs font-medium">{emailHint}</FormDescription>
+              ) : null}
             </FormItem>
           )}
         />
@@ -119,6 +121,7 @@ export function SignInForm({
                 <FormControl>
                   <Input
                     type={isPasswordVisible ? "text" : "password"}
+                    placeholder={t("form.passwordPlaceholder")}
                     autoComplete="current-password"
                     className="pr-12"
                     {...field}

@@ -1,6 +1,5 @@
 import { useTranslation } from "react-i18next"
 
-import { BrandDivider } from "@/components/atoms/BrandDivider"
 import { TermPrice } from "@/components/atoms/MoneyAmount"
 import { formatDateRange, formatMonthRange } from "@/lib/date"
 import { termName } from "@/lib/term-label"
@@ -26,17 +25,16 @@ export function EventSummary({ event }: { event: PublicEvent }) {
   return (
     <section
       aria-label={t("form.heading", { event: event.name })}
-      className="flex flex-col gap-2 rounded-lg border border-border bg-secondary p-4 sm:p-6"
+      className="flex flex-col gap-2 rounded-xl border border-border bg-secondary p-4"
     >
       <h2 className="text-lg font-bold tracking-tight">{event.name}</h2>
       {where ? <p className="text-sm text-muted-foreground">{where}</p> : null}
       {/* Rows: "DS / Event term row" https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=13196-777 */}
-      <BrandDivider className="my-2" />
       <ul className="flex flex-col">
         {event.terms.map((term) => (
           <li
             key={term.id}
-            className="flex items-center justify-between gap-4 border-t border-border py-3"
+            className="flex items-center justify-between gap-4 py-1"
           >
             <span className="flex flex-col">
               <span className="font-semibold">

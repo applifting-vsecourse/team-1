@@ -3,6 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useFieldArray, useForm, useWatch, type Resolver } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import { BrandDivider } from "@/components/atoms/BrandDivider"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -20,6 +21,7 @@ import { Input } from "@/components/ui/input"
 
 import type { PublicEvent } from "@/features/application-form/api/publicEvent"
 import { ClearFormDialog } from "@/features/application-form/components/ClearFormDialog"
+import { EventSummary } from "@/features/application-form/components/EventSummary"
 import { ParticipantFields } from "@/features/application-form/components/ParticipantFields"
 import { PriceSummary } from "@/features/application-form/components/PriceSummary"
 import {
@@ -142,118 +144,127 @@ export function ApplicationForm({
           },
           () => setInvalidSubmitCount((count) => count + 1),
         )}
-        className="flex flex-col gap-6 [&_[data-slot=form-item]]:scroll-mt-24"
+        className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] [&_[data-slot=form-item]]:scroll-mt-24"
         data-invalid-submit={invalidSubmitCount > 0 || undefined}
         data-restored={restoredDraft ? true : undefined}
       >
-        {fields.map((field, index) => (
-          <ParticipantFields
-            key={field.id}
-            index={index}
-            terms={event.terms}
-            isDisabled={isSubmitting}
-            onRemove={index > 0 ? () => remove(index) : undefined}
-          />
-        ))}
-
-        <Button
-          type="button"
-          variant="outline"
-          size="lg"
-          className="w-full sm:w-auto sm:self-start"
-          disabled={isSubmitting}
-          onClick={() => append({ ...emptyParticipant })}
-        >
-          {t("form.addParticipant")}
-        </Button>
-
-        <PriceSummary
-          rows={priceRows}
-          totalCzk={totalPrice(prices)}
-        />
-
-        <Card className="gap-4 p-4 sm:p-6">
-          <h2 className="text-lg font-bold">{t("form.contactHeading")}</h2>
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t("form.email")}</FormLabel>
-                <FormControl>
-                  <Input
-                    type="email"
-                    autoComplete="email"
-                    {...field}
-                  />
-                </FormControl>
-                <FormDescription className="text-xs font-medium">
-                  {t("form.emailHint")}
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="consent"
-            render={({ field }) => (
-              <FormItem>
-                <div className="flex min-h-11 items-center gap-3">
-                  <FormControl>
-                    <Checkbox
-                      className="size-5"
-                      checked={field.value}
-                      onCheckedChange={(isChecked) => field.onChange(isChecked === true)}
-                      onBlur={field.onBlur}
-                    />
-                  </FormControl>
-                  <FormLabel className="flex-1 cursor-pointer self-stretch leading-5 font-normal">
-                    {t("form.consent")}
-                  </FormLabel>
-                </div>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {errorMessage ? (
-            <Alert variant="destructive">
-              <AlertDescription>{errorMessage}</AlertDescription>
-            </Alert>
-          ) : null}
+        <div className="flex min-w-0 flex-col gap-6">
+          <h1 className="text-2xl font-bold tracking-tight md:text-[32px]/10">
+            {t("form.heading", { event: event.name })}
+          </h1>
+          <p>{t("form.intro")}</p>
+          <BrandDivider />
+          <EventSummary event={event} />
+          {fields.map((field, index) => (
+            <ParticipantFields
+              key={field.id}
+              index={index}
+              terms={event.terms}
+              isDisabled={isSubmitting}
+              onRemove={index > 0 ? () => remove(index) : undefined}
+            />
+          ))}
 
           <Button
-            type="submit"
-            aria-busy={form.formState.isSubmitting}
+            type="button"
+            variant="outline"
             size="lg"
             className="w-full sm:w-auto sm:self-start"
             disabled={isSubmitting}
+            onClick={() => append({ ...emptyParticipant })}
           >
-            {isSubmitting ? t("form.submitting") : t("form.submit")}
+            {t("form.addParticipant")}
           </Button>
-          {isSubmitting ? (
-            <p
-              role="status"
-              className="text-xs font-medium text-muted-foreground"
-            >
-              {t("form.submittingHint")}
-            </p>
-          ) : null}
-        </Card>
 
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <p className="text-xs font-medium text-muted-foreground">{t("form.requiredNote")}</p>
-          <Button
-            type="button"
-            variant="ghost"
-            disabled={isSubmitting}
-            onClick={() => setIsClearing(true)}
-          >
-            {t("form.clear")}
-          </Button>
+          <Card className="gap-4 p-4 sm:p-6">
+            <h2 className="text-lg font-bold">{t("form.contactHeading")}</h2>
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("form.email")}</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="email"
+                      autoComplete="email"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription className="text-xs font-medium">
+                    {t("form.emailHint")}
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="consent"
+              render={({ field }) => (
+                <FormItem>
+                  <div className="flex min-h-11 items-center gap-3">
+                    <FormControl>
+                      <Checkbox
+                        className="size-5"
+                        checked={field.value}
+                        onCheckedChange={(isChecked) => field.onChange(isChecked === true)}
+                        onBlur={field.onBlur}
+                      />
+                    </FormControl>
+                    <FormLabel className="flex-1 cursor-pointer self-stretch leading-5 font-normal">
+                      {t("form.consent")}
+                    </FormLabel>
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </Card>
+
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="text-xs font-medium text-muted-foreground">{t("form.requiredNote")}</p>
+            <Button
+              type="button"
+              variant="ghost"
+              disabled={isSubmitting}
+              onClick={() => setIsClearing(true)}
+            >
+              {t("form.clear")}
+            </Button>
+          </div>
         </div>
+        <aside className="min-w-0 lg:sticky lg:top-24">
+          <PriceSummary
+            rows={priceRows}
+            totalCzk={totalPrice(prices)}
+          >
+            {" "}
+            {errorMessage ? (
+              <Alert variant="destructive">
+                <AlertDescription>{errorMessage}</AlertDescription>
+              </Alert>
+            ) : null}
+            <Button
+              type="submit"
+              aria-busy={form.formState.isSubmitting}
+              size="lg"
+              className="w-full"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? t("form.submitting") : t("form.submit")}
+            </Button>
+            {isSubmitting ? (
+              <p
+                role="status"
+                className="text-xs font-medium text-muted-foreground"
+              >
+                {t("form.submittingHint")}
+              </p>
+            ) : null}
+          </PriceSummary>
+        </aside>
       </form>
       <ClearFormDialog
         isOpen={isClearing}

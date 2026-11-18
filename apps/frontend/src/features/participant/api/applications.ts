@@ -57,6 +57,9 @@ export type OrganizationContact = z.infer<typeof organizationContactSchema>
 export const myApplicationSchema = z.object({
   id: z.string(),
   eventName: z.string(),
+  eventId: z.string().optional(),
+  birthDate: z.string().optional(),
+  gender: z.enum(["FEMALE", "MALE"]).optional(),
   firstName: z.string(),
   lastName: z.string(),
   /** Reference for people: initials of the event and the number, `LKL-0048`. */
