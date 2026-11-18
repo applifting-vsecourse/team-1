@@ -7,9 +7,11 @@ import {
   createRouter,
   RouterProvider,
 } from "@tanstack/react-router"
-import { configure, render, screen, waitFor, within } from "@testing-library/react"
+import { act, configure, render, screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import { beforeEach, describe, expect, it, vi } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
+
+import { i18n } from "@/i18n"
 
 import { ApplicationsPage } from "@/features/event-overview/components/ApplicationsPage"
 import type { ApplicationsSearch } from "@/features/event-overview/lib/applications-search"
@@ -197,7 +199,9 @@ describe("evaluating the selected applications in one step (US-140)", () => {
     expect(
       await within(dialog).findByText("You selected 3 applications, 2 beds are free."),
     ).toBeInTheDocument()
-    expect(within(dialog).getByText("2 will be confirmed in order of receipt.")).toBeInTheDocument()
+    expect(
+      within(dialog).getByText("2 will be confirmed in order of application receipt."),
+    ).toBeInTheDocument()
     expect(within(dialog).getByText("What about the remaining 1?")).toBeInTheDocument()
     expect(within(dialog).getByRole("radio", { name: "Move to waitlist" })).not.toBeChecked()
     expect(within(dialog).getByRole("radio", { name: "Reject" })).not.toBeChecked()
@@ -240,7 +244,7 @@ describe("evaluating the selected applications in one step (US-140)", () => {
     },
   )
 
-  it("keeps the per-group line when the beds are split by gender", async () => {
+  it("lists a row per bed group when the beds are split by gender", async () => {
     post.mockImplementation(() =>
       json({
         selected: breakdown(20, 6, 14),
@@ -256,8 +260,12 @@ describe("evaluating the selected applications in one step (US-140)", () => {
     expect(
       await within(dialog).findByText("You selected 20 applications, 8 beds are free."),
     ).toBeInTheDocument()
+    const rows = within(within(dialog).getByRole("list"))
+      .getAllByRole("listitem")
+      .map((li) => li.textContent)
+    expect(rows).toEqual(["Women: 4 of 6 will be confirmed", "Men: 4 of 14 will be confirmed"])
     expect(
-      within(dialog).getByText("Women 4 of 6 · men 4 of 14. Confirmed in order of receipt."),
+      within(dialog).getByText("Confirmed in order of application receipt."),
     ).toBeInTheDocument()
     expect(within(dialog).getByText("What about the remaining 12?")).toBeInTheDocument()
   })
@@ -318,5 +326,137 @@ describe("evaluating the selected applications in one step (US-140)", () => {
     await user.click(await within(dialog).findByRole("button", { name: "Cancel" }))
     expect(screen.queryByRole("dialog")).toBeNull()
     expect(post).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe("the warning declines both numbers (US-140)", () => {
+  afterEach(async () => {
+    await act(() => i18n.changeLanguage("en"))
+  })
+
+  // The number before the noun is what the noun agrees with.
+  const cases = [
+    {
+      selected: 1,
+      free: 1,
+      cs: "Vybrali jste 1 přihlášku, volné lůžko je 1.",
+      en: "You selected 1 application, 1 bed is free.",
+    },
+    {
+      selected: 2,
+      free: 2,
+      cs: "Vybrali jste 2 přihlášky, volná lůžka jsou 2.",
+      en: "You selected 2 applications, 2 beds are free.",
+    },
+    {
+      selected: 4,
+      free: 4,
+      cs: "Vybrali jste 4 přihlášky, volná lůžka jsou 4.",
+      en: "You selected 4 applications, 4 beds are free.",
+    },
+    {
+      selected: 5,
+      free: 5,
+      cs: "Vybrali jste 5 přihlášek, volných lůžek je 5.",
+      en: "You selected 5 applications, 5 beds are free.",
+    },
+    {
+      selected: 12,
+      free: 2,
+      cs: "Vybrali jste 12 přihlášek, volná lůžka jsou 2.",
+      en: "You selected 12 applications, 2 beds are free.",
+    },
+    {
+      selected: 21,
+      free: 0,
+      cs: "Vybrali jste 21 přihlášek, volných lůžek je 0.",
+      en: "You selected 21 applications, 0 beds are free.",
+    },
+  ]
+
+  it.each(cases)("selected $selected, free $free", async ({ selected, free, cs, en }) => {
+    post.mockImplementation(() =>
+      json({
+        selected: breakdown(selected, 0, selected),
+        confirm: breakdown(1, 0, 1),
+        rest: breakdown(1, 0, 1),
+        freePlaces: { FEMALE: free, MALE: free },
+        isShared: true,
+      }),
+    )
+    setup()
+    const dialog = await openDialog(userEvent.setup())
+    expect(await within(dialog).findByText(en)).toBeInTheDocument()
+    await act(() => i18n.changeLanguage("cs"))
+    expect(within(dialog).getByText(cs)).toBeInTheDocument()
+  })
+
+  it("agrees the row of a bed group and the description in Czech", async () => {
+    post.mockImplementation(() =>
+      json({
+        selected: breakdown(12, 6, 6),
+        confirm: breakdown(2, 1, 1),
+        rest: breakdown(10, 5, 5),
+        freePlaces: { FEMALE: 1, MALE: 1 },
+        isShared: false,
+      }),
+    )
+    setup()
+    const dialog = await openDialog(userEvent.setup())
+    await within(dialog).findByText("You selected 12 applications, 2 beds are free.")
+    await act(() => i18n.changeLanguage("cs"))
+    const rows = within(within(dialog).getByRole("list"))
+      .getAllByRole("listitem")
+      .map((li) => li.textContent)
+    expect(rows).toEqual(["Ženy: potvrdí se 1 z 6", "Muži: potvrdí se 1 z 6"])
+    expect(
+      within(dialog).getByText("Potvrdí se podle pořadí přijetí přihlášky."),
+    ).toBeInTheDocument()
+  })
+
+  it("says in Czech that the confirmed ones follow the order of receipt of the application", async () => {
+    post.mockImplementation(() => json(sharedPreview(2, 1, 2)))
+    setup()
+    const dialog = await openDialog(userEvent.setup())
+    await within(dialog).findByText("2 will be confirmed in order of application receipt.")
+    await act(() => i18n.changeLanguage("cs"))
+    expect(
+      within(dialog).getByText("Potvrdí se 2 podle pořadí přijetí přihlášky."),
+    ).toBeInTheDocument()
+  })
+
+  it.each([
+    {
+      count: 1,
+      title: "Vyhodnocena 1 přihláška",
+      confirmed: "1 potvrzená",
+      rejected: "1 zamítnutá",
+      substitutes: "1 náhradník",
+      question: "Co se zbylou 1?",
+    },
+    {
+      count: 2,
+      title: "Vyhodnoceny 2 přihlášky",
+      confirmed: "2 potvrzené",
+      rejected: "2 zamítnuté",
+      substitutes: "2 náhradníci",
+      question: "Co se zbylými 2?",
+    },
+    {
+      count: 5,
+      title: "Vyhodnoceno 5 přihlášek",
+      confirmed: "5 potvrzených",
+      rejected: "5 zamítnutých",
+      substitutes: "5 náhradníků",
+      question: "Co se zbylými 5?",
+    },
+  ])("declines the result and the question for $count in Czech", async ({ count, ...expected }) => {
+    await act(() => i18n.changeLanguage("cs"))
+    const t = i18n.getFixedT("cs", "eventOverview")
+    expect(t("bulkEvaluation.doneTitle", { count })).toBe(expected.title)
+    expect(t("bulkEvaluation.doneConfirmed", { count })).toBe(expected.confirmed)
+    expect(t("bulkEvaluation.doneRejected", { count })).toBe(expected.rejected)
+    expect(t("bulkEvaluation.doneSubstitutes", { count })).toBe(expected.substitutes)
+    expect(t("bulkEvaluation.restQuestion", { count })).toBe(expected.question)
   })
 })

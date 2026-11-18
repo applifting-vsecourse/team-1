@@ -145,27 +145,40 @@ const changedKey = (before: number, after: number) =>
 function RestWarning({ data }: { data: BulkEvaluationPreview }) {
   const { t } = useTranslation("eventOverview")
   const { confirm, selected } = data
-  const description = (): string => {
-    if (confirm.total === 0) return t("bulkEvaluation.restWarningNone")
-    if (data.isShared) return t("bulkEvaluation.restWarningBody", { count: confirm.total })
-    return t("bulkEvaluation.restWarningGendered", {
-      women: t("bulkEvaluation.confirmWomen", {
-        count: confirm.byGender.FEMALE,
-        of: selected.byGender.FEMALE,
-      }),
-      men: t("bulkEvaluation.confirmMen", {
-        count: confirm.byGender.MALE,
-        of: selected.byGender.MALE,
-      }),
-    })
-  }
+  // Each number declines on its own, so the title is put together from two counted parts.
+  const title = t("bulkEvaluation.restWarning", {
+    selected: t("bulkEvaluation.restSelected", { count: selected.total }),
+    free: t("bulkEvaluation.restFree", { count: freeBedsTotal(data) }),
+  })
   return (
     <Alert>
       <TriangleAlert aria-hidden="true" />
-      <AlertTitle className="line-clamp-none">
-        {t("bulkEvaluation.restWarning", { count: selected.total, free: freeBedsTotal(data) })}
-      </AlertTitle>
-      <AlertDescription>{description()}</AlertDescription>
+      <AlertTitle className="line-clamp-none">{title}</AlertTitle>
+      <AlertDescription>
+        {confirm.total === 0 ? (
+          t("bulkEvaluation.restWarningNone")
+        ) : data.isShared ? (
+          t("bulkEvaluation.restWarningBody", { count: confirm.total })
+        ) : (
+          <>
+            <ul className="flex flex-col gap-1">
+              <li>
+                {t("bulkEvaluation.restGroupWomen", {
+                  count: confirm.byGender.FEMALE,
+                  of: selected.byGender.FEMALE,
+                })}
+              </li>
+              <li>
+                {t("bulkEvaluation.restGroupMen", {
+                  count: confirm.byGender.MALE,
+                  of: selected.byGender.MALE,
+                })}
+              </li>
+            </ul>
+            <p>{t("bulkEvaluation.restOrder")}</p>
+          </>
+        )}
+      </AlertDescription>
     </Alert>
   )
 }
