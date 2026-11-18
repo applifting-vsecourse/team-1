@@ -28,7 +28,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ab96f881115658b9dc47fdde1e5ed6d69b3bd482
+          ref: fc743b2ea970091e6e1f10239ee2f2a26db3bb80
           persist-credentials: false
 
       - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
@@ -163,6 +163,12 @@ jobs:
                 }
                 await page.getByRole("button", { name: "Add block" }).click()
                 await expect(page.getByRole("dialog", { name: "Add block" })).toBeVisible()
+                const warning = page.getByRole("dialog").getByRole("alert").first()
+                const save = page.getByRole("dialog").getByRole("button",{name:"Add block"})
+                await expect(warning).toBeInViewport()
+                await expect(save).toBeInViewport()
+                const warningBox=await warning.boundingBox(),saveBox=await save.boundingBox()
+                expect(warningBox!.y+warningBox!.height).toBeLessThanOrEqual(saveBox!.y+1)
                 await page.screenshot({ path: "test-results/screenshots/program-dialog-" + width + ".png", fullPage: false, animations: "disabled" })
               })
               test("participant workspace", async ({ page }) => {
@@ -269,7 +275,7 @@ jobs:
                   assert header[:8] == bytes.fromhex("89504e470d0a1a0a")
                   w, h = struct.unpack(">II", header[16:24])
                   assert w == width and h > 0, (name, w, h)
-                  dest = Path("577") / f"{screen}-{width}-ab96f88.png"
+                  dest = Path("577") / f"{screen}-{width}-fc743b2.png"
                   if dest.exists():
                       assert dest.read_bytes() == p.read_bytes(), dest
                       continue
