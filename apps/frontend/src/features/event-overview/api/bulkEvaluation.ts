@@ -62,7 +62,3 @@ export async function evaluateSelected(
       .json(),
   )
 }
-
-/** Free beds of the term in total, whichever way they are split. */
-export const freeBedsTotal = (preview: BulkEvaluationPreview): number =>
-  preview.isShared ? preview.freePlaces.MALE : preview.freePlaces.FEMALE + preview.freePlaces.MALE

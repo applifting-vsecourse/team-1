@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next"
 
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Alert, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
@@ -17,17 +17,14 @@ import {
   bulkEvaluationPreviewQueryOptions,
   evaluateSelected,
   EVALUATION_PLAN_CHANGED,
-  freeBedsTotal,
   type BulkEvaluationPreview,
   type BulkEvaluationResult,
 } from "@/features/event-overview/api/bulkEvaluation"
 import { BulkActionDialog } from "@/features/event-overview/components/BulkActionDialog"
 
-// Figma (Design system v2): US-140 Více než se vejde, nic nevybráno · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27137-114904 (mobile 27137-115190)
-// Figma (Design system v2): US-140 Více než se vejde, Zamítnout · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27137-115342 (mobile 27137-115627)
-// Figma (Design system v2): US-140 Více než se vejde, lůžka podle pohlaví · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27137-115778 (mobile 27137-116064)
+// Figma (Design system v2): US-140 Volba pro zbylé · nic nevybráno · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27137-114904 (mobile 27137-115190)
+// Figma (Design system v2): US-140 Volba pro zbylé · Zamítnout vybráno · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27137-115342 (mobile 27137-115627)
 // Figma (Design system v2): US-140 Vše se vejde · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27137-116216 (mobile 27137-116491)
-// Figma (Design system v2): US-140 Změna kapacity · nové potvrzení · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=24909-149262 (mobile 24909-149528)
 /**
  * Evaluates the selected applications in one step (US-140): shows how many are confirmed and, when
  * some do not fit, asks what happens to the rest (waitlist or reject, no default). When the
@@ -52,7 +49,7 @@ export function BulkEvaluateDialog({
   const preview = useQuery(bulkEvaluationPreviewQueryOptions(eventId, termId, ids))
   // The numbers the organizer is shown and confirms; replaced when the server says they are stale.
   const [shown, setShown] = useState<BulkEvaluationPreview | null>(null)
-  const [staleFreeBeds, setStaleFreeBeds] = useState<number | null>(null)
+  const [isChanged, setIsChanged] = useState(false)
   // No default: the organizer chooses what happens to those who do not fit.
   const [rest, setRest] = useState<BulkDecision | undefined>(undefined)
   const data = shown ?? preview.data
@@ -63,16 +60,16 @@ export function BulkEvaluateDialog({
     onSuccess: onDone,
     onError: async (error) => {
       if (apiErrorCode(error) !== EVALUATION_PLAN_CHANGED || !data) return
-      setStaleFreeBeds(freeBedsTotal(data))
+      setIsChanged(true)
       const fresh = await preview.refetch()
       if (fresh.data) setShown(fresh.data)
     },
   })
-  const isChanged = staleFreeBeds !== null && data !== undefined
   const isStaleError = apiErrorCode(evaluate.error) === EVALUATION_PLAN_CHANGED
   return (
     <BulkActionDialog
-      title={t(isChanged ? "bulkEvaluation.changedTitle" : "bulkEvaluation.title")}
+      title={t("bulkEvaluation.title", { count: data?.selected.total ?? applications.length })}
+      isFullScreenOnMobile={false}
       isBusy={evaluate.isPending}
       onClose={onClose}
       submit={
@@ -82,7 +79,7 @@ export function BulkEvaluateDialog({
           disabled={!data || evaluate.isPending || preview.isFetching || (hasRest && !rest)}
           onClick={() => data && evaluate.mutate(data.confirm.byGender)}
         >
-          {t(isChanged ? "bulkEvaluation.submitChanged" : "bulkEvaluation.submit")}
+          {t("bulkEvaluation.submit")}
         </Button>
       }
     >
@@ -90,7 +87,7 @@ export function BulkEvaluateDialog({
         <LoadingState label={t("queue.loading")} />
       ) : !data ? (
         <ErrorState
-          title={t("bulkEvaluation.title")}
+          title={t("bulkEvaluation.action")}
           error={preview.error ?? new Error()}
         />
       ) : (
@@ -98,15 +95,7 @@ export function BulkEvaluateDialog({
           {isChanged && (
             <Alert>
               <TriangleAlert aria-hidden="true" />
-              <AlertTitle className="line-clamp-none">
-                {t("bulkEvaluation.changedAlert")}
-              </AlertTitle>
-              <AlertDescription>
-                {t(changedKey(staleFreeBeds, freeBedsTotal(data)), {
-                  before: staleFreeBeds,
-                  after: freeBedsTotal(data),
-                })}
-              </AlertDescription>
+              <AlertTitle className="line-clamp-none">{t("bulkEvaluation.changed")}</AlertTitle>
             </Alert>
           )}
           {hasRest ? (
@@ -120,13 +109,13 @@ export function BulkEvaluateDialog({
               />
             </>
           ) : (
-            <p>{t("bulkEvaluation.confirmSentence", { count: data.confirm.total })}</p>
+            <p>{t("bulkEvaluation.confirmAll", { count: data.confirm.total })}</p>
           )}
         </>
       )}
       {evaluate.error && !isStaleError && (
         <ErrorState
-          title={t("bulkEvaluation.title")}
+          title={t("bulkEvaluation.action")}
           error={evaluate.error}
         />
       )}
@@ -134,51 +123,18 @@ export function BulkEvaluateDialog({
   )
 }
 
-const changedKey = (before: number, after: number) =>
-  before > after
-    ? "bulkEvaluation.changedLess"
-    : before < after
-      ? "bulkEvaluation.changedMore"
-      : "bulkEvaluation.changedSame"
-
-/** Some selected applications do not fit: how many were selected, how many beds are free. */
+/** Some selected applications do not fit: how many of them are confirmed. */
 function RestWarning({ data }: { data: BulkEvaluationPreview }) {
   const { t } = useTranslation("eventOverview")
   const { confirm, selected } = data
-  // Each number declines on its own, so the title is put together from two counted parts.
-  const title = t("bulkEvaluation.restWarning", {
-    selected: t("bulkEvaluation.restSelected", { count: selected.total }),
-    free: t("bulkEvaluation.restFree", { count: freeBedsTotal(data) }),
-  })
   return (
     <Alert>
       <TriangleAlert aria-hidden="true" />
-      <AlertTitle className="line-clamp-none">{title}</AlertTitle>
-      <AlertDescription>
-        {confirm.total === 0 ? (
-          t("bulkEvaluation.restWarningNone")
-        ) : data.isShared ? (
-          t("bulkEvaluation.restWarningBody", { count: confirm.total })
-        ) : (
-          <>
-            <ul className="flex flex-col gap-1">
-              <li>
-                {t("bulkEvaluation.restGroupWomen", {
-                  count: confirm.byGender.FEMALE,
-                  of: selected.byGender.FEMALE,
-                })}
-              </li>
-              <li>
-                {t("bulkEvaluation.restGroupMen", {
-                  count: confirm.byGender.MALE,
-                  of: selected.byGender.MALE,
-                })}
-              </li>
-            </ul>
-            <p>{t("bulkEvaluation.restOrder")}</p>
-          </>
-        )}
-      </AlertDescription>
+      <AlertTitle className="line-clamp-none">
+        {confirm.total === 0
+          ? t("bulkEvaluation.confirmNone", { of: selected.total })
+          : t("bulkEvaluation.restWarning", { count: confirm.total, of: selected.total })}
+      </AlertTitle>
     </Alert>
   )
 }
@@ -220,7 +176,7 @@ function RestChoice({
               value={option}
             />
             <Label htmlFor={`bulk-evaluation-rest-${option}`}>
-              {t(option === "WAITLIST" ? "bulkDecision.waitlist" : "bulkDecision.reject")}
+              {t(option === "WAITLIST" ? "bulkEvaluation.restWaitlist" : "bulkDecision.reject")}
             </Label>
           </div>
         ))}

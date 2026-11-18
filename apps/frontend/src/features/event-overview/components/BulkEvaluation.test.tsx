@@ -140,7 +140,7 @@ const selectAll = async (user: ReturnType<typeof userEvent.setup>) =>
 const openDialog = async (user: ReturnType<typeof userEvent.setup>) => {
   await selectAll(user)
   await user.click(screen.getByRole("button", { name: "Evaluate applications" }))
-  return screen.findByRole("dialog", { name: "Evaluate selected applications" })
+  return screen.findByRole("dialog", { name: /^Evaluate \d+ applications?$/ })
 }
 
 const result = (overrides = {}) => ({
@@ -173,9 +173,9 @@ describe("evaluating the selected applications in one step (US-140)", () => {
     const user = userEvent.setup()
     const dialog = await openDialog(user)
 
-    expect(await within(dialog).findByText("3 applications will be confirmed.")).toBeInTheDocument()
+    expect(await within(dialog).findByText("All 3 will be confirmed.")).toBeInTheDocument()
     expect(within(dialog).queryByRole("radio")).toBeNull()
-    expect(within(dialog).queryByText(/beds are free/)).toBeNull()
+    expect(within(dialog).queryByRole("alert")).toBeNull()
     const submit = within(dialog).getByRole("button", { name: "Evaluate" })
     expect(submit).toBeEnabled()
 
@@ -188,7 +188,7 @@ describe("evaluating the selected applications in one step (US-140)", () => {
     expect(onFiltersChange).toHaveBeenLastCalledWith({ term: "t1" })
   })
 
-  it("warns that not all fit and requires a choice for the rest, with nothing selected beforehand", async () => {
+  it("says how many of the selected are confirmed and requires a choice for the rest, with nothing selected beforehand", async () => {
     post.mockImplementation((path: string) =>
       json(path.endsWith("preview") ? sharedPreview(2, 1, 2) : result()),
     )
@@ -197,20 +197,17 @@ describe("evaluating the selected applications in one step (US-140)", () => {
     const dialog = await openDialog(user)
 
     expect(
-      await within(dialog).findByText("You selected 3 applications, 2 beds are free."),
+      await within(dialog).findByText("2 of 3 will be confirmed in order of application receipt."),
     ).toBeInTheDocument()
-    expect(
-      within(dialog).getByText("2 will be confirmed in order of application receipt."),
-    ).toBeInTheDocument()
-    expect(within(dialog).getByText("What about the remaining 1?")).toBeInTheDocument()
-    expect(within(dialog).getByRole("radio", { name: "Move to waitlist" })).not.toBeChecked()
+    expect(within(dialog).getByText("Remaining 1:")).toBeInTheDocument()
+    expect(within(dialog).getByRole("radio", { name: "Waitlist" })).not.toBeChecked()
     expect(within(dialog).getByRole("radio", { name: "Reject" })).not.toBeChecked()
     expect(within(dialog).getByRole("button", { name: "Evaluate" })).toBeDisabled()
     expect(post).toHaveBeenCalledTimes(1)
   })
 
   it.each([
-    ["Move to waitlist", "WAITLIST", { waitlisted: ["a3"] }, "1 substitute"],
+    ["Waitlist", "WAITLIST", { waitlisted: ["a3"] }, "1 substitute"],
     ["Reject", "REJECT", { rejected: ["a3"] }, "1 rejected"],
   ])(
     "evaluates after choosing %s for the rest and tells the split",
@@ -244,7 +241,7 @@ describe("evaluating the selected applications in one step (US-140)", () => {
     },
   )
 
-  it("lists a row per bed group when the beds are split by gender", async () => {
+  it("shows the same totals when the beds are split by gender", async () => {
     post.mockImplementation(() =>
       json({
         selected: breakdown(20, 6, 14),
@@ -258,19 +255,21 @@ describe("evaluating the selected applications in one step (US-140)", () => {
     const dialog = await openDialog(userEvent.setup())
 
     expect(
-      await within(dialog).findByText("You selected 20 applications, 8 beds are free."),
+      await within(dialog).findByText("8 of 20 will be confirmed in order of application receipt."),
     ).toBeInTheDocument()
-    const rows = within(within(dialog).getByRole("list"))
-      .getAllByRole("listitem")
-      .map((li) => li.textContent)
-    expect(rows).toEqual(["Women: 4 of 6 will be confirmed", "Men: 4 of 14 will be confirmed"])
-    expect(
-      within(dialog).getByText("Confirmed in order of application receipt."),
-    ).toBeInTheDocument()
-    expect(within(dialog).getByText("What about the remaining 12?")).toBeInTheDocument()
+    expect(within(dialog).queryByRole("list")).toBeNull()
+    expect(within(dialog).queryByText(/Women|Men/)).toBeNull()
+    expect(within(dialog).getByText("Remaining 12:")).toBeInTheDocument()
   })
 
-  it("shows the new result to be confirmed again when the capacity changed meanwhile, and changes nothing before", async () => {
+  it("says when none of the selected is confirmed", async () => {
+    post.mockImplementation(() => json(sharedPreview(0, 3, 0)))
+    setup()
+    const dialog = await openDialog(userEvent.setup())
+    expect(await within(dialog).findByText("None of 3 will be confirmed.")).toBeInTheDocument()
+  })
+
+  it("shows one sentence and the new result when the capacity changed meanwhile, and changes nothing before", async () => {
     let previews = 0
     post.mockImplementation(
       (path: string, options: { json: { expectedConfirmed?: { MALE: number } } }) => {
@@ -291,23 +290,20 @@ describe("evaluating the selected applications in one step (US-140)", () => {
     setup()
     const user = userEvent.setup()
     const dialog = await openDialog(user)
-    await user.click(await within(dialog).findByRole("radio", { name: "Move to waitlist" }))
+    await user.click(await within(dialog).findByRole("radio", { name: "Waitlist" }))
     await user.click(within(dialog).getByRole("button", { name: "Evaluate" }))
 
-    const changed = await screen.findByRole("dialog", { name: "Capacity changed" })
     expect(
-      await within(changed).findByText("The applications have not been changed yet."),
+      await within(dialog).findByText("The free beds changed meanwhile. Check the new numbers."),
     ).toBeInTheDocument()
     expect(
-      within(changed).getByText(
-        "Free beds decreased from 10 to 8. Check the new numbers and confirm them.",
-      ),
+      await within(dialog).findByText("8 of 20 will be confirmed in order of application receipt."),
     ).toBeInTheDocument()
     expect(onFiltersChange).not.toHaveBeenCalled()
 
     // The choice for the rest stays.
-    expect(within(changed).getByRole("radio", { name: "Move to waitlist" })).toBeChecked()
-    await user.click(within(changed).getByRole("button", { name: "Confirm new result" }))
+    expect(within(dialog).getByRole("radio", { name: "Waitlist" })).toBeChecked()
+    await user.click(within(dialog).getByRole("button", { name: "Evaluate" }))
     await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull())
     expect(lastEvaluation()).toEqual({
       json: {
@@ -329,7 +325,7 @@ describe("evaluating the selected applications in one step (US-140)", () => {
   })
 })
 
-describe("the warning declines both numbers (US-140)", () => {
+describe("the dialog declines its counts (US-140)", () => {
   afterEach(async () => {
     await act(() => i18n.changeLanguage("en"))
   })
@@ -337,126 +333,71 @@ describe("the warning declines both numbers (US-140)", () => {
   // The number before the noun is what the noun agrees with.
   const cases = [
     {
-      selected: 1,
-      free: 1,
-      cs: "Vybrali jste 1 přihlášku, volné lůžko je 1.",
-      en: "You selected 1 application, 1 bed is free.",
-    },
-    {
-      selected: 2,
-      free: 2,
-      cs: "Vybrali jste 2 přihlášky, volná lůžka jsou 2.",
-      en: "You selected 2 applications, 2 beds are free.",
-    },
-    {
-      selected: 4,
-      free: 4,
-      cs: "Vybrali jste 4 přihlášky, volná lůžka jsou 4.",
-      en: "You selected 4 applications, 4 beds are free.",
-    },
-    {
-      selected: 5,
-      free: 5,
-      cs: "Vybrali jste 5 přihlášek, volných lůžek je 5.",
-      en: "You selected 5 applications, 5 beds are free.",
-    },
-    {
-      selected: 12,
-      free: 2,
-      cs: "Vybrali jste 12 přihlášek, volná lůžka jsou 2.",
-      en: "You selected 12 applications, 2 beds are free.",
-    },
-    {
-      selected: 21,
-      free: 0,
-      cs: "Vybrali jste 21 přihlášek, volných lůžek je 0.",
-      en: "You selected 21 applications, 0 beds are free.",
-    },
-  ]
-
-  it.each(cases)("selected $selected, free $free", async ({ selected, free, cs, en }) => {
-    post.mockImplementation(() =>
-      json({
-        selected: breakdown(selected, 0, selected),
-        confirm: breakdown(1, 0, 1),
-        rest: breakdown(1, 0, 1),
-        freePlaces: { FEMALE: free, MALE: free },
-        isShared: true,
-      }),
-    )
-    setup()
-    const dialog = await openDialog(userEvent.setup())
-    expect(await within(dialog).findByText(en)).toBeInTheDocument()
-    await act(() => i18n.changeLanguage("cs"))
-    expect(within(dialog).getByText(cs)).toBeInTheDocument()
-  })
-
-  it("agrees the row of a bed group and the description in Czech", async () => {
-    post.mockImplementation(() =>
-      json({
-        selected: breakdown(12, 6, 6),
-        confirm: breakdown(2, 1, 1),
-        rest: breakdown(10, 5, 5),
-        freePlaces: { FEMALE: 1, MALE: 1 },
-        isShared: false,
-      }),
-    )
-    setup()
-    const dialog = await openDialog(userEvent.setup())
-    await within(dialog).findByText("You selected 12 applications, 2 beds are free.")
-    await act(() => i18n.changeLanguage("cs"))
-    const rows = within(within(dialog).getByRole("list"))
-      .getAllByRole("listitem")
-      .map((li) => li.textContent)
-    expect(rows).toEqual(["Ženy: potvrdí se 1 z 6", "Muži: potvrdí se 1 z 6"])
-    expect(
-      within(dialog).getByText("Potvrdí se podle pořadí přijetí přihlášky."),
-    ).toBeInTheDocument()
-  })
-
-  it("says in Czech that the confirmed ones follow the order of receipt of the application", async () => {
-    post.mockImplementation(() => json(sharedPreview(2, 1, 2)))
-    setup()
-    const dialog = await openDialog(userEvent.setup())
-    await within(dialog).findByText("2 will be confirmed in order of application receipt.")
-    await act(() => i18n.changeLanguage("cs"))
-    expect(
-      within(dialog).getByText("Potvrdí se 2 podle pořadí přijetí přihlášky."),
-    ).toBeInTheDocument()
-  })
-
-  it.each([
-    {
       count: 1,
-      title: "Vyhodnocena 1 přihláška",
+      title: "Vyhodnotit 1 přihlášku",
+      rest: "Zbývá 1:",
+      all: "Potvrdí se 1.",
+      doneTitle: "Vyhodnocena 1 přihláška",
       confirmed: "1 potvrzená",
       rejected: "1 zamítnutá",
       substitutes: "1 náhradník",
-      question: "Co se zbylou 1?",
     },
     {
       count: 2,
-      title: "Vyhodnoceny 2 přihlášky",
+      title: "Vyhodnotit 2 přihlášky",
+      rest: "Zbylé 2:",
+      all: "Potvrdí se všech 2.",
+      doneTitle: "Vyhodnoceny 2 přihlášky",
       confirmed: "2 potvrzené",
       rejected: "2 zamítnuté",
       substitutes: "2 náhradníci",
-      question: "Co se zbylými 2?",
     },
     {
       count: 5,
-      title: "Vyhodnoceno 5 přihlášek",
+      title: "Vyhodnotit 5 přihlášek",
+      rest: "Zbylých 5:",
+      all: "Potvrdí se všech 5.",
+      doneTitle: "Vyhodnoceno 5 přihlášek",
       confirmed: "5 potvrzených",
       rejected: "5 zamítnutých",
       substitutes: "5 náhradníků",
-      question: "Co se zbylými 5?",
     },
-  ])("declines the result and the question for $count in Czech", async ({ count, ...expected }) => {
+    {
+      count: 8,
+      title: "Vyhodnotit 8 přihlášek",
+      rest: "Zbylých 8:",
+      all: "Potvrdí se všech 8.",
+      doneTitle: "Vyhodnoceno 8 přihlášek",
+      confirmed: "8 potvrzených",
+      rejected: "8 zamítnutých",
+      substitutes: "8 náhradníků",
+    },
+  ]
+
+  it.each(cases)("in Czech for $count", async ({ count, ...expected }) => {
     await act(() => i18n.changeLanguage("cs"))
     const t = i18n.getFixedT("cs", "eventOverview")
-    expect(t("bulkEvaluation.doneTitle", { count })).toBe(expected.title)
+    expect(t("bulkEvaluation.title", { count })).toBe(expected.title)
+    expect(t("bulkEvaluation.restQuestion", { count })).toBe(expected.rest)
+    expect(t("bulkEvaluation.confirmAll", { count })).toBe(expected.all)
+    expect(t("bulkEvaluation.doneTitle", { count })).toBe(expected.doneTitle)
     expect(t("bulkEvaluation.doneConfirmed", { count })).toBe(expected.confirmed)
     expect(t("bulkEvaluation.doneRejected", { count })).toBe(expected.rejected)
     expect(t("bulkEvaluation.doneSubstitutes", { count })).toBe(expected.substitutes)
-    expect(t("bulkEvaluation.restQuestion", { count })).toBe(expected.question)
+  })
+
+  it("shows the Czech title, warning and choice on screen", async () => {
+    post.mockImplementation(() => json(sharedPreview(10, 10, 10)))
+    setup()
+    const dialog = await openDialog(userEvent.setup())
+    await within(dialog).findByText("10 of 20 will be confirmed in order of application receipt.")
+    await act(() => i18n.changeLanguage("cs"))
+    expect(screen.getByRole("dialog", { name: "Vyhodnotit 20 přihlášek" })).toBeInTheDocument()
+    expect(
+      within(dialog).getByText("Potvrdí se 10 z 20 podle pořadí přijetí přihlášky."),
+    ).toBeInTheDocument()
+    expect(within(dialog).getByText("Zbylých 10:")).toBeInTheDocument()
+    expect(within(dialog).getByRole("radio", { name: "Mezi náhradníky" })).toBeInTheDocument()
+    expect(within(dialog).getByRole("radio", { name: "Zamítnout" })).toBeInTheDocument()
   })
 })
