@@ -132,7 +132,7 @@ Nové feature tickety vznikají jako návrhy, ne rovnou jako issues:
 
 - **Sonnet** napíše návrhy do `$OUT/US-NAVRHY.md`: titulek ve formátu boardu `US-<další číslo za nejvyšším US na boardu> <Krátký název>`, v těle věta „Jako <role> chci <akce s objektem>, abych <přínos>“, Kontext, Akceptační kritéria, Mimo rozsah, Závislosti, Dokumenty. Kontrola pravidly 1–7 (unikátnost, atomicita, minimalita, bezkonfliktnost, nezávislost, testovatelnost, vlastnictví entity) podle skillu `user-story-check`, u každého návrhu self-check a případné úpravy souvisejících issues („Mimo rozsah“ odkazy).
 - PM prochází nedokončené návrhy **po jednom**: u každého jedna karta „problém → navržené řešení“, PM odpoví, jde se na další. Návazná vylepšení, která PM zmíní, jdou jako samostatné enhancement tickety s nižší prioritou.
-- Po schválení **Haiku** založí nebo upraví issues doslova podle souboru, nastaví board (Status, Sprint, Sprint Priority dle PM) a ověří.
+- Po schválení **Haiku** založí nebo upraví issues doslova podle souboru, nastaví board (Status, Sprint, Sprint Priority dle PM) a milník jako prioritu; štítky `priority: …` a `sprint …` se nepoužívají (viz „Issues: labels, milestone, board“ v `CLAUDE.md`) a ověří.
 
 ## Uzávěrka běhu
 

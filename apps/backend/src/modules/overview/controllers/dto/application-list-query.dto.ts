@@ -1,6 +1,8 @@
 import {
+  ACCOMMODATION_FILTERS,
   FILTERABLE_PAYMENT_STATUSES,
   WAITLIST_FILTERS,
+  type AccommodationFilter,
   type FilterablePaymentStatus,
   type WaitlistFilter,
 } from "@/modules/overview/domain/application-list"
@@ -14,10 +16,12 @@ export class ApplicationListQueryDto {
   @MaxLength(100)
   q?: string
   @ApiPropertyOptional() @IsOptional() @IsString() termId?: string
-  @ApiPropertyOptional({ enum: ["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED"] })
+  @ApiPropertyOptional({
+    enum: ["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED", "ARCHIVED"],
+  })
   @IsOptional()
-  @IsIn(["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED"])
-  status?: "TO_EVALUATE" | "CONFIRMED" | "WAITLISTED" | "CANCELLED"
+  @IsIn(["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED", "ARCHIVED"])
+  status?: "TO_EVALUATE" | "CONFIRMED" | "WAITLISTED" | "CANCELLED" | "ARCHIVED"
   @ApiPropertyOptional({ enum: ["FEMALE", "MALE"] })
   @IsOptional()
   @IsIn(["FEMALE", "MALE"])
@@ -33,4 +37,11 @@ export class ApplicationListQueryDto {
   @IsOptional()
   @IsIn(WAITLIST_FILTERS)
   waitlist?: WaitlistFilter
+  @ApiPropertyOptional({
+    enum: ACCOMMODATION_FILTERS,
+    description: "INDIVIDUAL: the applicant asked to settle the accommodation individually (US-38)",
+  })
+  @IsOptional()
+  @IsIn(ACCOMMODATION_FILTERS)
+  accommodation?: AccommodationFilter
 }

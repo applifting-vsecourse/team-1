@@ -59,6 +59,7 @@ export function AssignRoomDialog({
   target,
   onClose,
   onDone,
+  onNeedsExtraBed,
 }: {
   eventId: string
   term: { termId: string; startsOn: string; endsOn: string }
@@ -66,6 +67,8 @@ export function AssignRoomDialog({
   target: AssignTarget
   onClose: () => void
   onDone: (result: { roomTitle: string; isMoved: boolean }) => Promise<void>
+  /** The picked room is full: the extra bed dialog takes over (US-37). */
+  onNeedsExtraBed: (room: AssignmentRoom) => void
 }) {
   const { t } = useTranslation("events")
   const { genderLabel, roomGenderLabel, statusLabel, roomTitle, freeBedsLabel } =
@@ -80,18 +83,25 @@ export function AssignRoomDialog({
   const selected = rooms.find((room) => room.id === roomId)
   const current = rooms.find((room) => room.id === target.currentRoomId)
   // Other terms that have a room of the same name as the one picked (AC3).
-  const offers = selected
-    ? target.alsoInTerms.flatMap((other) => {
-        const match = other.rooms.find((room) => sameRoomName(room.name, selected.name))
-        return match && !isMove ? [{ other, match }] : []
-      })
-    : []
+  const isSelectedFull = selected !== undefined && freeBedCount(selected) === 0
+  const offers =
+    selected && !isSelectedFull
+      ? target.alsoInTerms.flatMap((other) => {
+          const match = other.rooms.find((room) => sameRoomName(room.name, selected.name))
+          return match && !isMove ? [{ other, match }] : []
+        })
+      : []
   const checked = offers.filter(({ other }) => alsoIds.includes(other.termId))
   const isPending = mutation.isPending
   const submit = async () => {
     if (isPending) return
     if (!selected) {
       setHasMissingRoom(true)
+      return
+    }
+    if (isSelectedFull) {
+      onNeedsExtraBed(selected)
+      onClose()
       return
     }
     try {
@@ -103,21 +113,22 @@ export function AssignRoomDialog({
     onClose()
   }
   const name = target.name
-  const result = !selected
-    ? null
-    : isMove
-      ? t("roomAssignments.moveResult", {
-          name,
-          room: selected.name,
-          from: current ? current.name : "",
-        })
-      : checked.length
-        ? t("roomAssignments.alsoResult", {
+  const result =
+    !selected || isSelectedFull
+      ? null
+      : isMove
+        ? t("roomAssignments.moveResult", {
             name,
             room: selected.name,
-            terms: [termLine(term), ...checked.map(({ other }) => termLine(other))].join(" a "),
+            from: current ? current.name : "",
           })
-        : t("roomAssignments.assignResult", { name, room: selected.name })
+        : checked.length
+          ? t("roomAssignments.alsoResult", {
+              name,
+              room: selected.name,
+              terms: [termLine(term), ...checked.map(({ other }) => termLine(other))].join(" a "),
+            })
+          : t("roomAssignments.assignResult", { name, room: selected.name })
   return (
     <Dialog
       open
@@ -164,7 +175,7 @@ export function AssignRoomDialog({
               {rooms.map((room) => {
                 const isCurrent = room.id === target.currentRoomId
                 const isFull = freeBedCount(room) === 0
-                const isDisabled = isCurrent || isFull
+                const isDisabled = isCurrent
                 return (
                   <Label
                     key={room.id}
@@ -172,7 +183,7 @@ export function AssignRoomDialog({
                     className={cn(
                       "flex items-center gap-3 rounded-lg border border-border px-3 py-2.5 text-base font-normal",
                       room.id === roomId && "border-primary bg-accent",
-                      isDisabled && "bg-muted text-muted-foreground",
+                      (isDisabled || isFull) && "bg-muted text-muted-foreground",
                     )}
                   >
                     <RadioGroupItem

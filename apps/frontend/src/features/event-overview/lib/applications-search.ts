@@ -8,12 +8,14 @@ export const applicationsSearchSchema = z.object({
   view: z.enum(["CHANGE_REQUESTS"]).optional(),
   q: z.string().trim().max(100).optional().catch(undefined),
   term: z.string().optional(),
-  status: z.enum(["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED"]).optional(),
+  status: z.enum(["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED", "ARCHIVED"]).optional(),
   gender: z.enum(["FEMALE", "MALE"]).optional(),
   payment: z
     .enum(["DEBT", "NOTHING_DUE", "UNPAID", "PARTIALLY_PAID", "PAID", "OVERPAID"])
     .optional(),
   /** Waitlisted with a free bed in a manually evaluated term: the card "Náhradníci k vyřešení". */
   waitlist: z.enum(["FREE_BED"]).optional(),
+  /** Applicants who asked to settle the accommodation individually (US-38). */
+  accommodation: z.enum(["INDIVIDUAL"]).optional(),
 })
 export type ApplicationsSearch = z.infer<typeof applicationsSearchSchema>

@@ -1,5 +1,6 @@
 import { computeFreeRoomBeds } from "@/modules/applications/domain/capacity"
 import { ApplicationTermStatus, isAssignable } from "@/modules/applications/domain/evaluation"
+import { RoomWarning, RoomWarningsSummary } from "@/modules/events/domain/room-warnings"
 import { Gender } from "@/shared/domain/gender"
 
 export type AssignmentRejection = "ROOM_ASSIGNMENT_STATUS_INVALID" | "ROOM_FULL"
@@ -38,7 +39,11 @@ export type AssignmentParticipant = {
   applicationId: string
   firstName: string
   lastName: string
+  /** Year only, enough to tell namesakes apart in the overview (US-36); never the full date. */
+  birthYear: number
   gender: Gender
+  /** The applicant asked to settle the accommodation individually (US-38). */
+  individualAccommodation: boolean
   status: ApplicationTermStatus
 }
 
@@ -73,4 +78,7 @@ export type TermAssignments = {
   termId: string
   rooms: AssignmentRoom[]
   unassigned: UnassignedParticipant[]
+  /** Rule warnings of the rooms (US-37); only organizers get them. */
+  warnings: RoomWarning[]
+  summary: RoomWarningsSummary
 }

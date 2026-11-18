@@ -10,7 +10,10 @@ class ParticipantDto {
   @ApiProperty() applicationId!: string
   @ApiProperty() firstName!: string
   @ApiProperty() lastName!: string
+  @ApiProperty({ example: 2011, description: "Birth year only, not the full date" })
+  birthYear!: number
   @ApiProperty({ enum: ["FEMALE", "MALE"] }) gender!: Gender
+  @ApiProperty() individualAccommodation!: boolean
   @ApiProperty({ enum: STATUSES }) status!: string
 }
 class OtherTermRoomDto {
@@ -43,6 +46,30 @@ class AssignmentRoomDto {
   @ApiProperty({ type: [ParticipantDto] }) participants!: ParticipantDto[]
 }
 
+const WARNING_KINDS = ["OVERCROWDED", "MIXED_GENDER", "CONFIRMED_WITHOUT_BED"]
+
+class RoomWarningDto {
+  @ApiProperty({ enum: WARNING_KINDS }) kind!: string
+  @ApiProperty({ nullable: true, type: String, description: "Room of the first two kinds" })
+  roomId!: string | null
+  @ApiProperty({
+    nullable: true,
+    type: String,
+    description: "Application of CONFIRMED_WITHOUT_BED",
+  })
+  applicationTermId!: string | null
+  @ApiProperty({ description: "Knowingly confirmed by an organizer: muted, not counted" })
+  acknowledged!: boolean
+  @ApiProperty({ nullable: true, type: String }) note!: string | null
+  @ApiProperty({ nullable: true, type: Date }) acknowledgedAt!: Date | null
+  @ApiProperty({ nullable: true, type: String }) acknowledgedBy!: string | null
+}
+class RoomWarningsSummaryDto {
+  @ApiProperty({ description: "Broken room rules nobody confirmed" }) violations!: number
+  @ApiProperty({ description: "Confirmed warnings of any kind" }) acknowledged!: number
+  @ApiProperty({ description: "Confirmed applications without a bed" }) confirmedWithoutBed!: number
+}
+
 export class RoomAssignmentsResponseDto {
   @ApiProperty() eventId!: string
   @ApiProperty() termId!: string
@@ -52,6 +79,9 @@ export class RoomAssignmentsResponseDto {
     description: "Confirmed and to-evaluate applications of the term without a room",
   })
   unassigned!: UnassignedDto[]
+  @ApiProperty({ type: [RoomWarningDto], description: "Rule warnings; they block nothing" })
+  warnings!: RoomWarningDto[]
+  @ApiProperty({ type: RoomWarningsSummaryDto }) summary!: RoomWarningsSummaryDto
 
   static fromDomain(assignments: TermAssignments): RoomAssignmentsResponseDto {
     return Object.assign(new RoomAssignmentsResponseDto(), assignments)

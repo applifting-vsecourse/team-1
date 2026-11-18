@@ -4,10 +4,15 @@ import { api, connectTestPrisma, resetAndSeed, signIn } from "@/test/integration
 
 type Status = "CONFIRMED" | "TO_EVALUATE" | "WAITLISTED"
 type Listing = {
-  rooms: { id: string; name: string; participants: { applicationTermId: string }[] }[]
+  rooms: {
+    id: string
+    name: string
+    participants: { applicationTermId: string; birthYear: number }[]
+  }[]
   unassigned: {
     applicationTermId: string
     lastName: string
+    birthYear: number
     alsoInTerms: { termId: string; rooms: { name: string; freeBeds: number }[] }[]
   }[]
 }
@@ -43,7 +48,9 @@ describe("room assignments (integration)", () => {
     roomId: string,
     alsoTermIds?: string[],
     term = term1,
-  ): Promise<Response> => call(`${base(term)}/${applicationTermId}`, "PUT", { roomId, alsoTermIds })
+    confirmExtraBed?: boolean,
+  ): Promise<Response> =>
+    call(`${base(term)}/${applicationTermId}`, "PUT", { roomId, alsoTermIds, confirmExtraBed })
   const list = async (term = term1): Promise<Listing> =>
     (await call(base(term))).json() as Promise<Listing>
   const roomOf = async (applicationTermId: string): Promise<string | undefined> =>
@@ -161,6 +168,25 @@ describe("room assignments (integration)", () => {
     )
   })
 
+  it("gives the birth year, never the full birth date, of assigned and unassigned people (US-36)", async () => {
+    const assigned = await makeApplication("Rok přiřazený", [
+      { termId: term1, status: "CONFIRMED" },
+    ])
+    const waiting = await makeApplication("Rok nepřiřazený", [
+      { termId: term1, status: "CONFIRMED" },
+    ])
+    expect((await assign(assigned.rows[term1], rooms.b1)).status).toBe(204)
+    const body = await list()
+    const inRoom = body.rooms
+      .flatMap((room) => room.participants)
+      .find((person) => person.applicationTermId === assigned.rows[term1])
+    const without = body.unassigned.find((row) => row.applicationTermId === waiting.rows[term1])
+    expect(inRoom?.birthYear).toBe(2010)
+    expect(without?.birthYear).toBe(2010)
+    expect(JSON.stringify(body)).not.toContain("2010-01-01")
+    await call(`${base()}/${assigned.rows[term1]}`, "DELETE")
+  })
+
   it("assigns, moves and unassigns, and never overfills a room", async () => {
     const [x, y, z] = await Promise.all(
       ["X", "Y", "Z"].map((name) =>
@@ -255,6 +281,283 @@ describe("room assignments (integration)", () => {
     ])
     expect(results.map((response) => response.status).sort()).toEqual([204, 409])
     expect(await prisma.roomAssignment.count({ where: { roomId: lastRoom } })).toBe(1)
+  })
+
+  describe("a full room takes one more person as a confirmed extra bed (US-37, D-112)", () => {
+    const extraBedsOf = async (roomId: string): Promise<number> =>
+      (await prisma.room.findUniqueOrThrow({ where: { id: roomId } })).extraBeds
+
+    it("answers 409 without the confirmation and adds an extra bed with it", async () => {
+      const room = await makeRoom(term1, "Přeplněný", 1)
+      const [p, q] = await Promise.all(
+        ["P", "Q"].map((name) =>
+          makeApplication(`Přistýlka ${name}`, [{ termId: term1, status: "CONFIRMED" }]),
+        ),
+      )
+      expect((await assign(p.rows[term1], room)).status).toBe(204)
+      expect((await assign(q.rows[term1], room)).status).toBe(409)
+      expect(await extraBedsOf(room)).toBe(0)
+
+      expect((await assign(q.rows[term1], room, undefined, term1, true)).status).toBe(204)
+      expect(await extraBedsOf(room)).toBe(1)
+      expect(await roomOf(q.rows[term1])).toBe(room)
+      // a room with a free bed gets no extra bed from the confirmation
+      const free = await makeRoom(term1, "Volný", 2)
+      const another = await makeApplication("Přesun", [{ termId: term1, status: "CONFIRMED" }])
+      expect((await assign(another.rows[term1], free, undefined, term1, true)).status).toBe(204)
+      expect(await extraBedsOf(free)).toBe(0)
+      // moving into a full room works the same way
+      expect((await assign(another.rows[term1], room, undefined, term1, true)).status).toBe(204)
+      expect(await extraBedsOf(room)).toBe(2)
+    })
+
+    it("does not evaluate the term: a waitlisted person stays waitlisted (D-108)", async () => {
+      const room = await makeRoom(term1, "Náhradník", 1)
+      const waiting = await makeApplication("Náhradník", [{ termId: term1, status: "WAITLISTED" }])
+      const [p, q] = await Promise.all(
+        ["P", "Q"].map((name) =>
+          makeApplication(`D108 ${name}`, [{ termId: term1, status: "CONFIRMED" }]),
+        ),
+      )
+      expect((await assign(p.rows[term1], room)).status).toBe(204)
+      expect((await assign(q.rows[term1], room, undefined, term1, true)).status).toBe(204)
+      const row = await prisma.applicationTerm.findUniqueOrThrow({
+        where: { id: waiting.rows[term1] },
+      })
+      expect(row.status).toBe("WAITLISTED")
+    })
+
+    it("adds an extra bed in every term of an all-or-nothing assignment (AC3)", async () => {
+      const room1 = await makeRoom(term1, "Dvojí přeplnění", 1)
+      const room2 = await makeRoom(term2, "Dvojí přeplnění", 1)
+      const holders = await Promise.all([
+        makeApplication("Drží 1", [{ termId: term1, status: "CONFIRMED" }]),
+        makeApplication("Drží 2", [{ termId: term2, status: "CONFIRMED" }]),
+      ])
+      await prisma.roomAssignment.createMany({
+        data: [
+          { organizationId, applicationTermId: holders[0].rows[term1], roomId: room1 },
+          { organizationId, applicationTermId: holders[1].rows[term2], roomId: room2 },
+        ],
+      })
+      const { rows } = await makeApplication("Dva plné", [
+        { termId: term1, status: "CONFIRMED" },
+        { termId: term2, status: "CONFIRMED" },
+      ])
+      expect((await assign(rows[term1], room1, [term2], term1, true)).status).toBe(204)
+      expect(await extraBedsOf(room1)).toBe(1)
+      expect(await extraBedsOf(room2)).toBe(1)
+      expect(await roomOf(rows[term2])).toBe(room2)
+
+      // all or nothing: when the other term has no room of that name nothing changes, not even the extra bed
+      const lone = await makeRoom(term1, "Jen v prvním", 1)
+      const filler = await makeApplication("Plní", [{ termId: term1, status: "CONFIRMED" }])
+      await prisma.roomAssignment.create({
+        data: { organizationId, applicationTermId: filler.rows[term1], roomId: lone },
+      })
+      const other = await makeApplication("Vrácení", [
+        { termId: term1, status: "CONFIRMED" },
+        { termId: term2, status: "CONFIRMED" },
+      ])
+      const rejected = await assign(other.rows[term1], lone, [term2], term1, true)
+      expect(rejected.status).toBe(409)
+      expect(await extraBedsOf(lone)).toBe(0)
+      expect(await roomOf(other.rows[term1])).toBeUndefined()
+    })
+
+    it("lists the warnings of the term for organizers (AC1, AC2, AC3)", async () => {
+      const lonely = await prisma.term.create({
+        data: {
+          organizationId,
+          eventId,
+          number: 9,
+          name: "T9",
+          startsOn: new Date("2027-08-01"),
+          endsOn: new Date("2027-08-01"),
+          priceCzk: 1000,
+        },
+      })
+      const t = lonely.id
+      type Warned = {
+        warnings: { kind: string; roomId: string | null; applicationTermId: string | null }[]
+        summary: { violations: number; confirmedWithoutBed: number }
+      }
+      const warned = async (): Promise<Warned> => (await list(t)) as unknown as Warned
+      const makeMale = async (name: string, status: Status) => {
+        const application = await makeApplication(name, [{ termId: t, status }])
+        await prisma.application.update({
+          where: { id: application.applicationId },
+          data: { gender: "MALE" },
+        })
+        return application.rows[t]
+      }
+      const women = await makeRoom(t, "Dámský", 2)
+      const [m1, m2, m3] = await Promise.all(
+        ["M1", "M2", "M3"].map((name) => makeMale(name, "CONFIRMED")),
+      )
+      const toEvaluate = await makeMale("K vyhodnocení", "TO_EVALUATE")
+
+      // nobody assigned yet: no warnings at all
+      expect((await warned()).warnings).toEqual([])
+      // the first assignment: a man in a women's room, and two confirmed men without a bed
+      expect((await assign(m1, women, undefined, t)).status).toBe(204)
+      const afterFirst = await warned()
+      expect(afterFirst.warnings.map((warning) => warning.kind).sort()).toEqual([
+        "CONFIRMED_WITHOUT_BED",
+        "CONFIRMED_WITHOUT_BED",
+        "MIXED_GENDER",
+      ])
+      expect(afterFirst.summary).toMatchObject({ violations: 1, confirmedWithoutBed: 2 })
+      expect(afterFirst.warnings.map((warning) => warning.applicationTermId)).not.toContain(
+        toEvaluate,
+      )
+      // over capacity needs the confirmation, then the room is a bed bigger and nothing is overcrowded
+      expect((await assign(m2, women, undefined, t)).status).toBe(204)
+      expect((await assign(m3, women, undefined, t)).status).toBe(409)
+      expect((await assign(m3, women, undefined, t, true)).status).toBe(204)
+      const afterAll = await warned()
+      expect(afterAll.warnings.map((warning) => warning.kind)).toEqual(["MIXED_GENDER"])
+      // taking the extra bed away makes the room overcrowded (D-138)
+      await prisma.room.update({ where: { id: women }, data: { extraBeds: 0 } })
+      expect((await warned()).warnings.map((warning) => warning.kind).sort()).toEqual([
+        "MIXED_GENDER",
+        "OVERCROWDED",
+      ])
+      // a participant sees none of it
+      expect((await call(base(t), "GET", undefined, participantCookie)).status).toBe(403)
+    })
+
+    it("does not count a person with a request for individual accommodation as mixed gender (US-38)", async () => {
+      const term = await prisma.term.create({
+        data: {
+          organizationId,
+          eventId,
+          number: 11,
+          name: "T11",
+          startsOn: new Date("2027-09-01"),
+          endsOn: new Date("2027-09-01"),
+          priceCzk: 1000,
+        },
+      })
+      const t = term.id
+      type Warned = {
+        warnings: { kind: string; roomId: string | null }[]
+        rooms: {
+          id: string
+          participants: { applicationTermId: string; individualAccommodation: boolean }[]
+        }[]
+        unassigned: { applicationTermId: string; individualAccommodation: boolean }[]
+      }
+      const warned = async (): Promise<Warned> => (await list(t)) as unknown as Warned
+      const makeMale = async (name: string, individual: boolean) => {
+        const application = await makeApplication(name, [{ termId: t, status: "CONFIRMED" }])
+        await prisma.application.update({
+          where: { id: application.applicationId },
+          data: { gender: "MALE", individualAccommodation: individual },
+        })
+        return application.rows[t]
+      }
+      const women = await makeRoom(t, "Dámský", 3)
+      const [partner, other] = await Promise.all([
+        makeMale("Partner", true),
+        makeMale("Cizí", false),
+      ])
+
+      expect(
+        (await warned()).unassigned.find((row) => row.applicationTermId === partner),
+      ).toMatchObject({
+        individualAccommodation: true,
+      })
+      expect((await assign(partner, women, undefined, t)).status).toBe(204)
+      const afterPartner = await warned()
+      expect(afterPartner.warnings.filter((warning) => warning.kind === "MIXED_GENDER")).toEqual([])
+      expect(afterPartner.rooms.find((room) => room.id === women)?.participants).toMatchObject([
+        { applicationTermId: partner, individualAccommodation: true },
+      ])
+      // a man without the request in the same women's room is still a warning
+      expect((await assign(other, women, undefined, t)).status).toBe(204)
+      expect((await warned()).warnings.map((warning) => warning.kind)).toContain("MIXED_GENDER")
+    })
+
+    it("confirms a warning knowingly, keeps it muted, forgets it when it no longer holds", async () => {
+      const t = (
+        await prisma.term.create({
+          data: {
+            organizationId,
+            eventId,
+            number: 10,
+            name: "T10",
+            startsOn: new Date("2027-09-01"),
+            endsOn: new Date("2027-09-01"),
+            priceCzk: 1000,
+          },
+        })
+      ).id
+      type Listed = {
+        warnings: {
+          kind: string
+          roomId: string | null
+          acknowledged: boolean
+          note: string | null
+          acknowledgedBy: string | null
+        }[]
+        summary: { violations: number; acknowledged: number; confirmedWithoutBed: number }
+      }
+      const listed = async (): Promise<Listed> => (await list(t)) as unknown as Listed
+      const acknowledge = (body: unknown, session = cookie): Promise<Response> =>
+        call(
+          `/organizer/events/${eventId}/terms/${t}/room-warnings/acknowledgements`,
+          "POST",
+          body,
+          session,
+        )
+      const tight = await makeRoom(t, "Těsný", 1)
+      const [a, b] = await Promise.all(
+        ["A", "B"].map((name) =>
+          makeApplication(`Potvrzení ${name}`, [{ termId: t, status: "CONFIRMED" }]),
+        ),
+      )
+      expect((await assign(a.rows[t], tight, undefined, t)).status).toBe(204)
+      expect((await assign(b.rows[t], tight, undefined, t, true)).status).toBe(204)
+      // taking the extra bed away overfills the room
+      await prisma.room.update({ where: { id: tight }, data: { extraBeds: 0 } })
+      expect((await listed()).summary).toMatchObject({ violations: 1, acknowledged: 0 })
+
+      // nothing to confirm: a mixed-gender warning does not hold in a room of the same gender
+      const missing = await acknowledge({ kind: "MIXED_GENDER", roomId: tight, note: "x" })
+      expect(missing.status).toBe(409)
+      expect(((await missing.json()) as { code: string }).code).toBe("ROOM_WARNING_NOT_FOUND")
+      // a foreign organization and a participant get 403
+      expect(
+        (await acknowledge({ kind: "OVERCROWDED", roomId: tight, note: "x" }, foreignCookie))
+          .status,
+      ).toBe(403)
+      expect(
+        (await acknowledge({ kind: "OVERCROWDED", roomId: tight }, participantCookie)).status,
+      ).toBe(403)
+
+      const ok = await acknowledge({
+        kind: "OVERCROWDED",
+        roomId: tight,
+        note: "  Rodina s dítětem  ",
+      })
+      expect(ok.status).toBe(204)
+      const after = await listed()
+      expect(after.summary).toMatchObject({ violations: 0, acknowledged: 1 })
+      expect(after.warnings[0]).toMatchObject({
+        acknowledged: true,
+        note: "Rodina s dítětem",
+        acknowledgedBy: expect.any(String),
+      })
+
+      // the situation changes: the room is not overcrowded any more, the confirmation is forgotten
+      expect((await call(`${base(t)}/${b.rows[t]}`, "DELETE")).status).toBe(204)
+      expect(await prisma.roomWarningAcknowledgement.count({ where: { termId: t } })).toBe(0)
+      // and when it is overcrowded again it is a new, unconfirmed warning
+      expect((await assign(b.rows[t], tight, undefined, t, true)).status).toBe(204)
+      await prisma.room.update({ where: { id: tight }, data: { extraBeds: 0 } })
+      expect((await listed()).summary).toMatchObject({ violations: 1, acknowledged: 0 })
+    })
   })
 
   describe("releases the bed when the application leaves confirmed / to evaluate", () => {

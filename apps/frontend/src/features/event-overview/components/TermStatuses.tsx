@@ -26,6 +26,7 @@ const BADGE = {
   CONFIRMED: "success",
   WAITLISTED: "secondary",
   CANCELLED: "secondary",
+  ARCHIVED: "secondary",
 } as const
 const ACTION_KEY = {
   CONFIRMED: "confirm",
@@ -60,7 +61,7 @@ export function TermStatuses({ applicationId }: { applicationId: string }) {
       />
     )
   }
-  const active = data.filter((term) => term.status !== "CANCELLED")
+  const active = data.filter((term) => term.status !== "CANCELLED" && term.status !== "ARCHIVED")
   return (
     <Card className="gap-4 p-4 md:p-6">
       <div className="flex flex-col gap-1">
@@ -95,7 +96,7 @@ export function TermStatuses({ applicationId }: { applicationId: string }) {
                   </span>
                 ) : null}
               </div>
-              {term.status === "CANCELLED" ? null : (
+              {term.status === "CANCELLED" || term.status === "ARCHIVED" ? null : (
                 <div
                   className={cn(
                     "grid w-full gap-2 sm:ml-auto sm:flex sm:w-auto sm:flex-wrap",

@@ -29,7 +29,11 @@ export type ApplicationFilters = {
   payment?: FilterablePaymentStatus
   /** `FREE_BED`: waitlisted in a term with a free bed for them (US-51, US-104, US-31). */
   waitlist?: WaitlistFilter
+  /** `INDIVIDUAL`: the applicant asked to settle the accommodation individually (US-38). */
+  accommodation?: AccommodationFilter
 }
+export const ACCOMMODATION_FILTERS = ["INDIVIDUAL"] as const
+export type AccommodationFilter = (typeof ACCOMMODATION_FILTERS)[number]
 export const WAITLIST_FILTERS = ["FREE_BED"] as const
 export type WaitlistFilter = (typeof WAITLIST_FILTERS)[number]
 /**
@@ -53,6 +57,7 @@ export type ListedApplication = {
   lastName: string
   birthDate: Date
   gender: Gender
+  individualAccommodation: boolean
   email: string
   submittedAt: Date
   /** How the event evaluates applications (US-101). */
@@ -174,6 +179,7 @@ export function applicationList(
           ).includes(word),
         ) &&
         (!filters.gender || row.gender === filters.gender) &&
+        (filters.accommodation !== "INDIVIDUAL" || row.individualAccommodation) &&
         (filters.payment !== "DEBT" ||
           row.terms.some((term) =>
             termHasDebt({ status: term.status, priceCzk: term.priceCzk }, term.payments),
@@ -194,6 +200,7 @@ export function applicationList(
         lastName: row.lastName,
         birthDate: row.birthDate,
         gender: row.gender,
+        individualAccommodation: row.individualAccommodation,
         email: row.email,
         submittedAt: row.submittedAt,
         terms: row.terms.map((term) => ({

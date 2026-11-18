@@ -1,11 +1,15 @@
 {
   "applications": {
+    "accommodation": "Accommodation",
+    "accommodationIndividual": "Individual",
     "actions": "Actions",
     "activeFilters": "Active filters",
+    "allAccommodation": "All",
     "allPayments": "All payments",
     "allStatuses": "All term statuses",
     "allTerms": "All terms",
     "allWaitlisted": "All waitlisted",
+    "archived": "Archived",
     "cancelled": "Cancelled",
     "clear": "Clear filters",
     "clearSearchAndFilters": "Clear search and filters",
@@ -17,11 +21,14 @@
     "debt": "With a balance due",
     "detail": "Detail",
     "empty": "We found no applications matching this selection.",
+    "emptyIndividualHint": "Applications with this request will show up here as soon as an applicant makes it. You can also clear the filters.",
+    "emptyIndividualTitle": "Nobody has asked for individual accommodation yet",
     "error": "Could not load applications",
     "female": "woman",
     "filters": "Filters",
     "filtersImmediate": "Filter changes take effect immediately.",
     "hint": "Combine term, application status in term and payment filters. Unpaid means a debt greater than CZK 0. One application can have multiple terms with different statuses. The balance due is a total for the whole application; nothing is due for waitlisted terms.",
+    "individualAccommodation": "Individual accommodation",
     "male": "man",
     "noApplications": "No applications have been received yet.",
     "nothingDue": "No amount due",
@@ -80,6 +87,54 @@
     "bodyFemale": "{{name}} took the first available {{bed}} in the term {{range}}. We have e-mailed the applicant the payment details.",
     "bodyMale": "{{name}} took the first available {{bed}} in the term {{range}}. We have e-mailed the applicant the payment details.",
     "title": "Attendance was confirmed automatically"
+  },
+  "bankStatement": {
+    "back": "Back to payments",
+    "description": "Upload a CSV statement from Fio. Payments are matched to applications by variable symbol.",
+    "done": "The statement was processed",
+    "result": {
+      "duplicates_few": "{{count}} transactions were already imported and were not counted again.",
+      "duplicates_one": "{{count}} transaction was already imported and was not counted again.",
+      "duplicates_other": "{{count}} transactions were already imported and were not counted again.",
+      "ignored_few": "{{count}} outgoing transactions were skipped.",
+      "ignored_one": "{{count}} outgoing transaction was skipped.",
+      "ignored_other": "{{count}} outgoing transactions were skipped.",
+      "matched": "Matched",
+      "overpaid": "Overpayments",
+      "payments_few": "{{count}} payments",
+      "payments_one": "{{count}} payment",
+      "payments_other": "{{count}} payments",
+      "unmatched": "Unmatched"
+    },
+    "title": "Bank statement upload",
+    "unmatchedList": {
+      "amount": "Amount",
+      "application": "Application",
+      "date": "Date",
+      "detail": "Detail",
+      "empty": "No unmatched payments.",
+      "error": "Unmatched payments could not be loaded",
+      "hint": "Open the application and record the payment there.",
+      "list": "Unmatched payments from bank statements",
+      "payer": "Payer and message",
+      "reason": "Reason",
+      "reasons": {
+        "AMOUNT_NOT_WHOLE": "The amount is not in whole crowns",
+        "NO_VARIABLE_SYMBOL": "No variable symbol",
+        "UNKNOWN_VARIABLE_SYMBOL": "No application with this variable symbol",
+        "UNSUPPORTED_CURRENCY": "The currency is not CZK"
+      },
+      "title": "Payments to assign manually",
+      "variableSymbol": "Variable symbol"
+    },
+    "upload": {
+      "button": "Choose file",
+      "description": "The file stays unchanged; only incoming payments are read.",
+      "note": "CSV, up to 2 MB",
+      "sending": "Processing the statement…",
+      "title": "Choose a bank statement",
+      "tooLarge": "Bank statement is too large"
+    }
   },
   "bulk": {
     "alertTitle": "{{confirmed}} of {{selected}} applications will be confirmed.",
@@ -292,7 +347,6 @@
     "title": "Event overview"
   },
   "payment": {
-    "accommodationRequest": "Individual accommodation request",
     "afterCorrection": "After saving",
     "amountChoice": "Payment amount",
     "amountRequired": "Amount *",
@@ -346,6 +400,10 @@
     "health": "Health restriction",
     "history": "Payment history",
     "historyAmount": "Amount",
+    "individualAccommodation": "Individual accommodation",
+    "individualAccommodationNoNote": "No note",
+    "individualAccommodationNone": "The participant has no request for individual accommodation.",
+    "individualAccommodationNote": "Note",
     "invalidAmount": "Enter a positive whole amount in CZK.",
     "invalidRefund": "Enter a positive whole amount in CZK, up to {{amount}}.",
     "keep": "Back",
@@ -440,7 +498,8 @@
     },
     "term": "Term",
     "title": "Payments",
-    "totalDebt": "Total debt"
+    "totalDebt": "Total debt",
+    "uploadStatement": "Upload bank statement"
   },
   "queue": {
     "empty": "All applications are evaluated.",
@@ -569,6 +628,7 @@
     "overCapacityDescription": "Confirming exceeds the capacity of the term. Confirm only if you knowingly accept it.",
     "overCapacityTitle": "No free bed for this gender",
     "state": {
+      "ARCHIVED": "Archived",
       "CANCELLED": "Cancelled",
       "CONFIRMED": "Confirmed",
       "TO_EVALUATE": "Awaiting evaluation",

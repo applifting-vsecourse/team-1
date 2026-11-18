@@ -167,8 +167,13 @@
   }
 }
 
-/* A page with a block marked `data-print-area` (the kitchen summary, US-64) prints only that block. */
+/* A page with a block marked `data-print-area` (the kitchen summary, US-64, the accommodation
+   overview, US-36) prints only that block, on A4 with 15 mm margins. */
 @media print {
+  @page {
+    size: A4;
+    margin: 15mm;
+  }
   body:has([data-print-area]) * {
     visibility: hidden;
   }

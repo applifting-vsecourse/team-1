@@ -30,5 +30,5 @@ If the thought lacks something essential (who it is for, what problem it solves)
 ## Rules
 
 - Business documents change only when asked; if the idea needs a change in `docs/`, say so under the conflicts.
-- Don't create an issue, edit docs or write code on your own. After the output, offer: „Založit jako issue?“. On a yes, create it through `team1-github` with the idea label (check which labels exist), a Czech body in the structure above, and no `Closes`.
+- Don't create an issue, edit docs or write code on your own. After the output, offer: „Založit jako issue?“. On a yes, create it through `team1-github` with the idea label (check which labels exist; never a `priority:` or `sprint` label), a Czech body in the structure above, and no `Closes`. Then add it to the project with the current sprint, as in „Issues: labels, milestone, board“ in `CLAUDE.md`.
 - Stay honest about certainty: separate what you verified in the sources from what you infer.

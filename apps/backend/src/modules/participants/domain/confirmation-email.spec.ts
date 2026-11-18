@@ -99,6 +99,31 @@ describe("buildChangeProps", () => {
     expect(buildChangeProps(change(), "https://app").terms).toEqual([])
   })
 
+  it("excludes archived terms and their prices from the term change email", () => {
+    const props = buildChangeProps(
+      change({
+        isAmountChanged: true,
+        kind: "TERMS_CHANGED",
+        application: {
+          ...application,
+          terms: [
+            { name: "First term", termNumber: 1, status: "ARCHIVED", priceCzk: 9900 },
+            { name: "Second term", termNumber: 2, status: "CONFIRMED", priceCzk: 4500 },
+          ],
+        },
+      }),
+      "https://app",
+    )
+
+    const confirmedOnly = buildChangeProps(
+      change({ isAmountChanged: true, kind: "TERMS_CHANGED" }),
+      "https://app",
+    )
+    expect(props.terms).toEqual([{ name: "Second term", status: "CONFIRMED" }])
+    expect(props.payment).not.toBeNull()
+    expect(props.payment?.amount).toBe(confirmedOnly.payment?.amount)
+  })
+
   it("adds payment details only when the amount changed because the application became confirmed", () => {
     expect(buildChangeProps(change(), "https://app").payment).toBeNull()
     expect(

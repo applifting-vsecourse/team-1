@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next"
 import { ROUTES } from "@/app/routes"
 import { MoneyAmount } from "@/components/atoms/MoneyAmount"
 import { Seo } from "@/components/atoms/Seo"
+import { DetailItem } from "@/components/molecules/DetailItem"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { TermPaymentCard, TermPaymentCards } from "@/components/molecules/TermPaymentCard"
@@ -53,6 +54,7 @@ const isShown = (term: PaymentTerm): boolean =>
 // Figma (Design system): US-112 · Částka platby opravená · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15883-7820 (mobile: 15883-7897)
 // Figma (Design system): US-112 · Platba přesunutá · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15883-7947 (mobile: 15883-8027)
 // Figma (Design system): US-112 · Vratka opravená · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15883-8080 (mobile: 15883-8157)
+// Figma (Design system): US-38 card "Individuální ubytování" · with request desktop https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=25587-110703 (mobile: 25587-110821); without 25587-110890 (mobile: 25587-111008)
 export function PaymentDetail({ applicationId }: { applicationId: string }) {
   const { t } = useTranslation("eventOverview")
   const { data, isPending, error, refetch } = useQuery(paymentQueryOptions(applicationId))
@@ -135,13 +137,25 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
         firstName={data.firstName}
         gender={data.gender}
       />
-      {data.accommodationRequest ? (
-        <Card className="gap-2 p-4 md:p-6">
-          <h3 className="text-lg font-semibold">{t("payment.accommodationRequest")}</h3>
-          <p className="break-words whitespace-pre-wrap">{data.accommodationRequest}</p>
-        </Card>
-      ) : null}
       <ParticipantDetails application={data} />
+      {/* US-38: who asked to settle the accommodation individually, with the note; only for organizers. */}
+      <Card
+        role="group"
+        aria-label={t("payment.individualAccommodation")}
+        className="gap-4 p-4 md:p-6"
+      >
+        <h3 className="text-lg font-semibold">{t("payment.individualAccommodation")}</h3>
+        {data.individualAccommodation ? (
+          <DetailItem
+            label={t("payment.individualAccommodationNote")}
+            className="whitespace-pre-wrap"
+          >
+            {data.accommodationRequest ?? t("payment.individualAccommodationNoNote")}
+          </DetailItem>
+        ) : (
+          <p className="text-muted-foreground">{t("payment.individualAccommodationNone")}</p>
+        )}
+      </Card>
       {/* Nothing to pay without a confirmed term (US-25): record a payment once a place is confirmed. */}
       {hasConfirmedTerm ? null : (
         <Alert className="border-status-info bg-status-info-bg">

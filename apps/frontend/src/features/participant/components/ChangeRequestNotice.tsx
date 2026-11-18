@@ -1,15 +1,27 @@
 import { useQuery } from "@tanstack/react-query"
+import { TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { DetailItem } from "@/components/molecules/DetailItem"
 import { ErrorState } from "@/components/molecules/ErrorState"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
-import { formatDateRange } from "@/lib/date"
+import { formatDateTime } from "@/lib/date"
+import { termLine } from "@/lib/term-label"
 
+import type { MyApplicationTerm } from "@/features/participant/api/applications"
 import { participantChangeRequestsQueryOptions } from "@/features/participant/api/changeRequests"
 
+// Figma (Design system): #408 Detail · žádost odeslána · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=22640-39109 (mobile: 22640-39243)
 // Figma (Design system): US-114 Detail přihlášky · Žádost čeká / Změna schválená / Žádost zamítnutá · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15928-9271 (mobile: 15928-9331)
-export function ChangeRequestNotice({ applicationId }: { applicationId: string }) {
+export function ChangeRequestNotice({
+  applicationId,
+  terms,
+}: {
+  applicationId: string
+  terms: Pick<MyApplicationTerm, "termId" | "status">[]
+}) {
   const { t } = useTranslation("participant")
   const query = useQuery(participantChangeRequestsQueryOptions(applicationId))
   if (query.isPending) return null
@@ -28,42 +40,74 @@ export function ChangeRequestNotice({ applicationId }: { applicationId: string }
     ids
       .map((id) => {
         const term = request.terms.find((term) => term.id === id)
-        return term ? formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true }) : ""
+        return term ? termLine(term) : ""
       })
       .filter(Boolean)
       .join(", ")
+  // The kind of the request follows from what it adds and removes: no new term is a cancellation
+  // (of the whole application or of some terms), a new term is a change.
+  const removedIds = request.currentTermIds.filter((id) => !request.requestedTermIds.includes(id))
+  const addedIds = request.requestedTermIds.filter((id) => !request.currentTermIds.includes(id))
+  const isCancel = addedIds.length === 0
+  const isWholeApplication = request.requestedTermIds.length === 0
+  const isPending = request.status === "PENDING"
+  const hasRemovedBed = removedIds.some((id) =>
+    terms.some((term) => term.termId === id && term.status === "CONFIRMED"),
+  )
+  const messageKey =
+    isPending && !hasRemovedBed
+      ? (`request.message.PENDING.${isCancel ? "cancelWithoutBed" : "changeWithoutBed"}` as const)
+      : (`request.message.${request.status}.${isCancel ? "cancel" : "change"}` as const)
   return (
-    <Card
-      className="gap-4 p-4 sm:p-6"
-      aria-live="polite"
-    >
-      <h2 className="text-lg font-semibold">
-        {t(request.requestedTermIds.length === 0 ? "request.cancelTitle" : "request.changeTitle")}
-      </h2>
-      <Badge
-        variant="secondary"
-        className="self-start"
-      >
-        {t(`request.status.${request.status}`)}
-      </Badge>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div>
-          <p className="text-sm text-muted-foreground">{t("request.current")}</p>
-          <p>{labels(request.currentTermIds)}</p>
-        </div>
-        <div>
-          <p className="text-sm text-muted-foreground">{t("request.requested")}</p>
-          <p>
-            {request.requestedTermIds.length
-              ? labels(request.requestedTermIds)
-              : t("request.cancelAll")}
-          </p>
-        </div>
-      </div>
-      <p>{t(`request.message.${request.status}`)}</p>
-      {request.rejectionReason ? (
-        <p>{t("request.reason", { reason: request.rejectionReason })}</p>
+    <>
+      {isPending ? (
+        <Alert aria-live="polite">
+          <TriangleAlert aria-hidden />
+          <AlertTitle className="line-clamp-none">{t("request.pendingTitle")}</AlertTitle>
+          <AlertDescription>
+            {t(
+              hasRemovedBed ? "request.pendingDescription" : "request.pendingDescriptionWithoutBed",
+              {
+                date: formatDateTime(request.createdAt),
+              },
+            )}
+          </AlertDescription>
+        </Alert>
       ) : null}
-    </Card>
+      <Card
+        className="gap-4 p-4 sm:p-6"
+        aria-live="polite"
+      >
+        <h2 className="text-xl font-semibold tracking-tight">
+          {t(isCancel ? "request.cancelTitle" : "request.changeTitle")}
+        </h2>
+        {isPending ? null : (
+          <Badge
+            variant="secondary"
+            className="self-start"
+          >
+            {t(`request.status.${request.status}`)}
+          </Badge>
+        )}
+        {isCancel ? (
+          <DetailItem label={t("request.request")}>
+            {isWholeApplication
+              ? t("request.wholeApplication", { count: request.currentTermIds.length })
+              : t("request.onlyTerms", { terms: labels(removedIds) })}
+          </DetailItem>
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2">
+            {removedIds.length > 0 ? (
+              <DetailItem label={t("request.current")}>{labels(removedIds)}</DetailItem>
+            ) : null}
+            <DetailItem label={t("request.requested")}>{labels(addedIds)}</DetailItem>
+          </div>
+        )}
+        <p>{t(messageKey)}</p>
+        {request.rejectionReason ? (
+          <p>{t("request.reason", { reason: request.rejectionReason })}</p>
+        ) : null}
+      </Card>
+    </>
   )
 }

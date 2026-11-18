@@ -1,5 +1,13 @@
 import { ApiProperty } from "@nestjs/swagger"
-import { ArrayMaxSize, IsArray, IsOptional, IsString, MaxLength, MinLength } from "class-validator"
+import {
+  ArrayMaxSize,
+  IsArray,
+  IsBoolean,
+  IsOptional,
+  IsString,
+  MaxLength,
+  MinLength,
+} from "class-validator"
 
 export class RoomAssignmentRequestDto {
   @ApiProperty({ description: "Room of this term the participant goes to" })
@@ -19,4 +27,13 @@ export class RoomAssignmentRequestDto {
   @ArrayMaxSize(999)
   @IsString({ each: true })
   alsoTermIds?: string[]
+
+  @ApiProperty({
+    required: false,
+    description:
+      "Knowingly confirmed: a full room gets one extra bed for the participant (in every room of alsoTermIds too) instead of a 409",
+  })
+  @IsOptional()
+  @IsBoolean()
+  confirmExtraBed?: boolean
 }

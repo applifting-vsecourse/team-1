@@ -139,6 +139,24 @@ describe("organizer changes the terms of an application (integration)", () => {
     expect(await prisma.applicationTerm.count({ where: { applicationId } })).toBe(1)
   })
 
+  it("rejects replacing an archived term and allows retaining it in a preview", async () => {
+    const where = { applicationId, termId: firstId }
+    await prisma.applicationTerm.updateMany({ where, data: { status: "ARCHIVED" } })
+    try {
+      const archivedPreview = await preview([secondId])
+      expect(archivedPreview.status).toBe(409)
+      expect(await archivedPreview.json()).toMatchObject({ code: "INVALID_STATUS_TRANSITION" })
+
+      const archivedChange = await change([secondId])
+      expect(archivedChange.status).toBe(409)
+      expect(await archivedChange.json()).toMatchObject({ code: "INVALID_STATUS_TRANSITION" })
+
+      expect((await preview([firstId, secondId])).status).toBe(200)
+    } finally {
+      await prisma.applicationTerm.updateMany({ where, data: { status: "CONFIRMED" } })
+    }
+  })
+
   it("does not confirm a full term without the conscious confirmation", async () => {
     expect((await (await preview([fullId])).json()).added[0]).toMatchObject({ fits: false })
     const refused = await change([fullId])

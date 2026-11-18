@@ -268,6 +268,10 @@ export class TermStatusRepository {
       include: { payments: { where: { cancelledAt: null }, select: { amountCzk: true } } },
     })
     const active = current.filter((row) => row.status !== "CANCELLED")
+    const selected = new Set(selectedIds)
+    if (active.some((row) => row.status === "ARCHIVED" && !selected.has(row.termId))) {
+      throw new AppException(HttpStatus.CONFLICT, "INVALID_STATUS_TRANSITION")
+    }
     const activeIds = new Set(active.map((row) => row.termId))
     const addedIds = selectedIds.filter((id) => !activeIds.has(id))
     const offered = await this.prisma.term.findMany({
@@ -375,7 +379,7 @@ export class TermStatusRepository {
     })
     if (!application) return null
     const current = await this.prisma.applicationTerm.findMany({
-      where: { applicationId, organizationId, status: { not: "CANCELLED" } },
+      where: { applicationId, organizationId, status: { notIn: ["CANCELLED", "ARCHIVED"] } },
       include: { payments: { where: { cancelledAt: null }, select: { amountCzk: true } } },
     })
     const rejection = rejectWithdrawal(
@@ -472,6 +476,9 @@ export class TermStatusRepository {
         : selectedIds
       const desired = new Set(keptIds)
       const removed = active.filter((row) => !desired.has(row.termId))
+      if (removed.some((row) => row.status === "ARCHIVED")) {
+        throw new AppException(HttpStatus.CONFLICT, "INVALID_STATUS_TRANSITION")
+      }
       const addedIds = keptIds.filter((id) => !activeIds.has(id))
       if (removed.length === 0 && addedIds.length === 0) return null
 
