@@ -57,5 +57,6 @@
   "TRANSPORT_UNAVAILABLE": "This transport is no longer available. The offer has been refreshed.",
   "UNAUTHORIZED": "Please sign in.",
   "UNKNOWN": "Something went wrong.",
-  "VALIDATION_FAILED": "Some fields are not filled in correctly."
+  "VALIDATION_FAILED": "Some fields are not filled in correctly.",
+  "WITHDRAWAL_SUBSTITUTE_CHANGED": "The waitlist has changed since the preview. Check who takes the freed bed and confirm again."
 }

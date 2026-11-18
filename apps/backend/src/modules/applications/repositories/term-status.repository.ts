@@ -55,6 +55,7 @@ import {
   ApplicationChange,
   TermCancelledNotice,
 } from "@/modules/participants/domain/submission-confirmation"
+import { Gender } from "@/shared/domain/gender"
 import { AppException } from "@/shared/errors/app.exception"
 import { releaseAssignments } from "@/shared/room-assignments/release-assignments"
 import { HttpStatus, Injectable } from "@nestjs/common"
@@ -353,12 +354,13 @@ export class TermStatusRepository {
     applicationId: string,
     withdrawnIds: string[],
     actorId: string,
+    beforeWrite?: () => Promise<void>,
   ): Promise<TermsChange | null | undefined> {
     return this.changeTerms({
       where: { id: applicationId, organizationId },
       applicationId,
       selectedIds: [],
-      organizer: { actorId, isOverCapacityConfirmed: false, withdrawnIds },
+      organizer: { actorId, isOverCapacityConfirmed: false, withdrawnIds, beforeWrite },
     })
   }
 
@@ -370,10 +372,10 @@ export class TermStatusRepository {
     organizationId: string,
     applicationId: string,
     withdrawnIds: string[],
-  ): Promise<WithdrawalImpact | null> {
+  ): Promise<{ impact: WithdrawalImpact; gender: Gender } | null> {
     const application = await this.prisma.application.findFirst({
       where: { id: applicationId, organizationId },
-      select: { id: true },
+      select: { id: true, gender: true },
     })
     if (!application) return null
     const current = await this.prisma.applicationTerm.findMany({
@@ -388,7 +390,7 @@ export class TermStatusRepository {
       throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
     }
     if (rejection) throw new AppException(HttpStatus.CONFLICT, "INVALID_STATUS_TRANSITION")
-    return previewWithdrawal({
+    const impact = previewWithdrawal({
       current: current.map((row) => ({
         termId: row.termId,
         status: row.status,
@@ -397,6 +399,7 @@ export class TermStatusRepository {
       })),
       withdrawnIds,
     })
+    return { impact, gender: application.gender }
   }
 
   private async changeTerms({
@@ -410,7 +413,13 @@ export class TermStatusRepository {
     applicationId: string
     selectedIds: string[]
     approvedRequest?: { id: string; reviewerId: string }
-    organizer?: { actorId: string; isOverCapacityConfirmed: boolean; withdrawnIds?: string[] }
+    organizer?: {
+      actorId: string
+      isOverCapacityConfirmed: boolean
+      withdrawnIds?: string[]
+      /** Runs under the event lock before anything is written; throws to abort the withdrawal. */
+      beforeWrite?: () => Promise<void>
+    }
   }): Promise<TermsChange | null | undefined> {
     return this.prisma.$transaction(async (tx) => {
       const target = await tx.application.findFirst({
@@ -468,6 +477,7 @@ export class TermStatusRepository {
           throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
         }
         if (rejection) throw new AppException(HttpStatus.CONFLICT, "INVALID_STATUS_TRANSITION")
+        await organizer.beforeWrite?.()
       }
       const keptIds = organizer?.withdrawnIds
         ? active.map((row) => row.termId).filter((id) => !organizer.withdrawnIds?.includes(id))
