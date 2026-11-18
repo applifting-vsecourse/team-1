@@ -1,11 +1,12 @@
-import { createFileRoute, Outlet, redirect } from "@tanstack/react-router"
-import { Calendar } from "lucide-react"
+import { createFileRoute, Link, Outlet, redirect } from "@tanstack/react-router"
+import { Calendar, Plus } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
 import { Seo } from "@/components/atoms/Seo"
 import { SidebarLink } from "@/components/atoms/SidebarLink"
 import { AreaLayout } from "@/components/templates/AreaLayout"
+import { Button } from "@/components/ui/button"
 
 import {
   myOnboardingOrganizationsQueryOptions,
@@ -41,6 +42,7 @@ export const Route = createFileRoute("/organizer/_app")({
 
 function OrganizerLayout() {
   const { t } = useTranslation()
+  const { t: tEvents } = useTranslation("events")
 
   return (
     <>
@@ -60,6 +62,19 @@ function OrganizerLayout() {
             >
               {t("nav.events")}
             </SidebarLink>
+            <Button
+              asChild
+              variant="ghost"
+              className="min-h-12 justify-start gap-4 px-3 text-base font-normal"
+            >
+              <Link to={ROUTES.organizer.newEvent}>
+                <Plus
+                  aria-hidden
+                  className="size-5"
+                />
+                {tEvents("new.title")}
+              </Link>
+            </Button>
           </>
         }
         account={<SidebarAccount />}
