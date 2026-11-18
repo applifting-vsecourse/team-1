@@ -218,7 +218,7 @@ describe("PaymentDetail", () => {
     setup()
 
     const details = await screen.findByRole("group", { name: "Participant details" })
-    expect(within(details).getByText(/Not provided/)).toBeInTheDocument()
+    expect(within(details).getByText(/No phone provided/)).toBeInTheDocument()
   })
 
   it("offers the edit button only while the application can be edited (#515)", async () => {

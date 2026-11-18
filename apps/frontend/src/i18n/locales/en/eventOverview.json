@@ -416,7 +416,7 @@
     "participantContact": "Contact",
     "participantName": "Name",
     "payRemaining": "Settle the remaining {{amount}}",
-    "phoneNone": "Not provided",
+    "phoneNone": "No phone provided",
     "placeholder": "E.g. 3,000",
     "preview": "After saving, amount owed",
     "receivedHint": "Enter the amount actually received.",
