@@ -178,6 +178,20 @@ describe("room wishes (integration)", () => {
     expect(participants.find((p) => p.lastName === "Černá")?.wishes).toEqual([])
   })
 
+  it("hides saved wishes of a participant who switched to individual accommodation", async () => {
+    const jana = await makeApplication("CONFIRMED", { firstName: "Ida", lastName: "Individuální" })
+    await prisma.roomAssignment.create({
+      data: { organizationId, applicationTermId: jana.applicationTermId, roomId },
+    })
+    expect((await save(jana.applicationId, ["Eva Černá"])).status).toBe(204)
+    await prisma.application.update({
+      where: { id: jana.applicationId },
+      data: { individualAccommodation: true },
+    })
+    const participants = (await overview()).rooms.flatMap((room) => room.participants)
+    expect(participants.find((p) => p.lastName === "Individuální")?.wishes).toEqual([])
+  })
+
   describe("deletes the wishes when the confirmation lapses", () => {
     const setStatus = (applicationId: string, status: string): Promise<Response> =>
       fetch(api(`/organizer/applications/${applicationId}/terms/${termId}/status`), {
