@@ -1,6 +1,6 @@
 import { MAX_ACCOMMODATION_NOTE_LENGTH } from "@/shared/domain/accommodation"
+import { MAX_PHONE_INPUT_LENGTH } from "@/shared/domain/phone"
 import { ApiProperty } from "@nestjs/swagger"
-import { Transform } from "class-transformer"
 import { IsBoolean, IsNotEmpty, IsOptional, IsString, Matches, MaxLength } from "class-validator"
 
 export class EditApplicationRequestDto {
@@ -20,12 +20,16 @@ export class EditApplicationRequestDto {
   @Matches(/^\d{4}-\d{2}-\d{2}$/)
   birthDate!: string
 
-  @ApiProperty({ example: "+420 777 123 456" })
-  @Transform(({ value }: { value: unknown }) =>
-    typeof value === "string" ? value.trim().replace(/[ ()-]/g, "") : value,
-  )
-  @Matches(/^\+?[0-9]{7,30}$/)
-  phone!: string
+  @ApiProperty({
+    example: "+420 777 123 456",
+    nullable: true,
+    required: false,
+    description: "Optional; empty means no phone. A filled-in one is checked in the service.",
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(MAX_PHONE_INPUT_LENGTH)
+  phone?: string | null
 
   @ApiProperty()
   @IsBoolean()

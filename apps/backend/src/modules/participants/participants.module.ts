@@ -1,8 +1,10 @@
 import { PrismaModule } from "@/core/prisma/prisma.module"
 import { NotificationsModule } from "@/modules/notifications/notifications.module"
 import { AuthModule } from "@/shared/auth/auth.module"
+import { OrganizationAccessModule } from "@/shared/organization-access/organization-access.module"
 import { Module } from "@nestjs/common"
 import { MyApplicationsController } from "./controllers/my-applications.controller"
+import { OrganizerApplicationEditController } from "./controllers/organizer-application-edit.controller"
 import { ParticipantPasswordController } from "./controllers/participant-password.controller"
 import { RoomWishesController } from "./controllers/room-wishes.controller"
 import { StayController } from "./controllers/stay.controller"
@@ -21,10 +23,11 @@ import { StayService } from "./services/stay.service"
 
 /** Imported by the applications module. */
 @Module({
-  imports: [AuthModule, PrismaModule, NotificationsModule],
+  imports: [AuthModule, PrismaModule, NotificationsModule, OrganizationAccessModule],
   controllers: [
     ParticipantPasswordController,
     MyApplicationsController,
+    OrganizerApplicationEditController,
     RoomWishesController,
     StayController,
   ],

@@ -40,7 +40,22 @@ const application = (terms: PaymentTerm[]): PaymentApplication => ({
   birthDate: new Date("2011-05-04"),
   gender: "MALE",
   email: "eva.mala@example.cz",
+  phone: "+420777123456",
   terms,
+})
+
+describe("paymentSummary editing", () => {
+  it("is editable while a term that is not cancelled has not ended", () => {
+    // `term` ends on 2027-07-23 and later.
+    const input = application([term("t1", 1, 4900, 0)])
+    expect(paymentSummary(input, new Date("2027-07-23T10:00:00Z")).isEditable).toBe(true)
+    expect(paymentSummary(input, new Date("2027-07-24T10:00:00Z")).isEditable).toBe(false)
+  })
+
+  it("is not editable when the only term is cancelled", () => {
+    const cancelled = { ...term("t1", 1, 4900, 0), status: "CANCELLED" as const }
+    expect(paymentSummary(application([cancelled]), new Date("2027-07-01")).isEditable).toBe(false)
+  })
 })
 
 describe("paymentSummary refund", () => {
