@@ -61,7 +61,7 @@ export function DeleteRoomDialog({
                 : room.gender === "FEMALE"
                   ? "rooms.deleteFemaleImpact"
                   : "rooms.deleteMaleImpact",
-              { before, after: before - room.beds },
+              { before, count: before - room.beds },
             )}
           </AlertTitle>
           <AlertDescription>
