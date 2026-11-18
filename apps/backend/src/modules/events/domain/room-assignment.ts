@@ -1,6 +1,7 @@
 import { computeFreeRoomBeds } from "@/modules/applications/domain/capacity"
 import { ApplicationTermStatus, isAssignable } from "@/modules/applications/domain/evaluation"
 import { RoomWarning, RoomWarningsSummary } from "@/modules/events/domain/room-warnings"
+import { RoomWish } from "@/modules/events/domain/room-wishes"
 import { Gender } from "@/shared/domain/gender"
 
 export type AssignmentRejection = "ROOM_ASSIGNMENT_STATUS_INVALID" | "ROOM_FULL"
@@ -45,6 +46,8 @@ export type AssignmentParticipant = {
   /** The applicant asked to settle the accommodation individually (US-38). */
   individualAccommodation: boolean
   status: ApplicationTermStatus
+  /** Who they wish to room with and whether that person is in their room (US-146); free text. */
+  wishes: RoomWish[]
 }
 
 /**

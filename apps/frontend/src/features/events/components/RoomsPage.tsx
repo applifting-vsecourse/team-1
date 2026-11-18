@@ -40,6 +40,7 @@ import { RoomExtraBedsDialog } from "@/features/events/components/RoomExtraBedsD
 import { RoomModeDialog } from "@/features/events/components/RoomModeDialog"
 import { RoomsOverview } from "@/features/events/components/RoomsOverview"
 import { RoomsPublicationCard } from "@/features/events/components/RoomsPublicationCard"
+import { RoomWishesOverview } from "@/features/events/components/RoomWishesOverview"
 
 /** The two views of the accommodation: who is placed how (US-35) and the printable overview (US-36). */
 export type RoomsView = "assignment" | "overview"
@@ -381,6 +382,10 @@ export function RoomsPage({
               </TooltipProvider>
             </CardContent>
           </Card>
+          <RoomWishesOverview
+            eventId={term.eventId}
+            termId={term.termId}
+          />
         </>
       )}
       {pendingMode ? (

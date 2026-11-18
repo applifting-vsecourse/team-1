@@ -62,6 +62,10 @@ export type MyApplicationRecord = {
     roomsPublished: boolean
     /** Name of the assigned room, `null` while not assigned. */
     roomName: string | null
+    /** The term is cancelled by the organizer; nothing is arranged for it. */
+    termCancelled: boolean
+    /** Names the participant wishes to room with (US-146). */
+    roomWishes: string[]
   }[]
 }
 
@@ -83,6 +87,11 @@ export type MyApplicationTerm = {
    * participant with individual accommodation. `name` is `null` while no room is assigned (US-144).
    */
   room?: { name: string | null }
+  /**
+   * Present only for a confirmed term that is not cancelled, and never for a participant with
+   * individual accommodation — the only case they can write wishes (US-146); empty = none yet.
+   */
+  roomWishes?: string[]
 }
 
 /** Where and how much to pay — only when at least one term is confirmed (US-25). */
@@ -192,6 +201,9 @@ export function buildMyApplication(
         transportDecided: term.transportDecided,
         ...(term.status === "CONFIRMED" && term.roomsPublished && !record.individualAccommodation
           ? { room: { name: term.roomName } }
+          : {}),
+        ...(term.status === "CONFIRMED" && !term.termCancelled && !record.individualAccommodation
+          ? { roomWishes: term.roomWishes }
           : {}),
       })),
     amountDueCzk,

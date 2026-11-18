@@ -50,6 +50,13 @@ export class MyApplicationTermDto {
   })
   room?: { name: string | null }
 
+  @ApiPropertyOptional({
+    type: [String],
+    description:
+      "Names the participant wishes to room with (US-146). Present only for a confirmed, not cancelled term; empty while none are written.",
+  })
+  roomWishes?: string[]
+
   static fromDomain(term: MyApplicationTerm): MyApplicationTermDto {
     return Object.assign(new MyApplicationTermDto(), term)
   }

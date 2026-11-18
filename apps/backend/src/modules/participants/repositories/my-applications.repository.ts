@@ -79,6 +79,7 @@ function toRecord(row: Row): MyApplicationRecord {
         paymentPeriodStartedAt,
         transportId,
         roomAssignment,
+        roomWishes,
       }) => ({
         termId: term.id,
         termNumber: term.number,
@@ -96,6 +97,8 @@ function toRecord(row: Row): MyApplicationRecord {
         transportDecided: transportId !== null,
         roomsPublished: term.roomsPublishedAt !== null,
         roomName: roomAssignment?.room.name ?? null,
+        termCancelled: term.cancelledAt !== null,
+        roomWishes,
       }),
     ),
   }

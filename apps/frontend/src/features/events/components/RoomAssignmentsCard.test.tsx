@@ -65,6 +65,7 @@ const person = (
   gender: "FEMALE" as const,
   individualAccommodation: isIndividual,
   status: status as "CONFIRMED" | "TO_EVALUATE",
+  wishes: [],
 })
 const room = (
   id: string,

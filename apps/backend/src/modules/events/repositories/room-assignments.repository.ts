@@ -14,6 +14,7 @@ import {
   TermAssignments,
 } from "@/modules/events/domain/room-assignment"
 import { RoomWarningKind } from "@/modules/events/domain/room-warnings"
+import { evaluateRoomWishes } from "@/modules/events/domain/room-wishes"
 import {
   loadRoomWarnings,
   pruneAcknowledgements,
@@ -86,6 +87,8 @@ export class RoomAssignmentsRepository {
       gender: row.application.gender,
       individualAccommodation: row.application.individualAccommodation,
       status: row.status,
+      // Nobody is in the room of an unassigned participant, so no wish of theirs is fulfilled yet.
+      wishes: evaluateRoomWishes(row.roomWishes, []),
     })
 
     const rooms: AssignmentRoom[] = term.rooms.map((room) => ({
@@ -95,7 +98,15 @@ export class RoomAssignmentsRepository {
       extraBeds: room.extraBeds,
       beds: computeRoomBeds(room),
       gender: room.gender,
-      participants: room.assignments.map((assignment) => toParticipant(assignment.applicationTerm)),
+      participants: room.assignments.map((assignment) => ({
+        ...toParticipant(assignment.applicationTerm),
+        wishes: evaluateRoomWishes(
+          assignment.applicationTerm.roomWishes,
+          room.assignments
+            .filter((other) => other.id !== assignment.id)
+            .map((other) => other.applicationTerm.application),
+        ),
+      })),
     }))
 
     const unassigned = waiting.map((row) => ({

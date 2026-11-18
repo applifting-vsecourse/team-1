@@ -202,6 +202,24 @@
     },
     "wholeApplication": "Celá přihláška · všechny termíny ({{count}})"
   },
+  "roomWishes": {
+    "add": "Zadat přání",
+    "cancel": "Zrušit",
+    "delete": "Smazat",
+    "deleteBody": "Smažou se všechna jména pro tento termín.",
+    "deleteConfirm": "Smazat přání",
+    "deleteTitle": "Smazat přání spolubydlení?",
+    "deleted": "Přání smazána",
+    "edit": "Upravit přání",
+    "empty": "Pro tento termín zatím nemáte zadané přání.",
+    "failed": "Přání se nepodařilo uložit",
+    "hint": "Zadejte až 3 jména. Organizátor je při rozdělování zohlední podle možností.",
+    "nameLabel": "Jméno {{n}}",
+    "placeholder": "Např. Eva Černá",
+    "save": "Uložit přání",
+    "saved": "Přání uložena",
+    "title": "Přání spolubydlení"
+  },
   "status": {
     "archived": "Archivovaná",
     "cancelled": "Zrušená",
