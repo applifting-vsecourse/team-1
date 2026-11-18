@@ -13,6 +13,8 @@ export type EventTerm = {
   capacity: number
   confirmedCount: number
   waitlistedCount: number
+  /** Applications waiting for the organizer's decision (manual evaluation mode, US-102). */
+  toEvaluateCount: number
   cancelledAt: Date | null
   cancelReason: string | null
 }

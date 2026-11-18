@@ -51,7 +51,10 @@ import { bedGroup, WaitlistCandidate } from "@/modules/applications/domain/waitl
 import { buildNotification, isoDay } from "@/modules/notifications/domain/notification"
 import { NotificationsRepository } from "@/modules/notifications/repositories/notifications.repository"
 import { resolveChangeEmailLocale } from "@/modules/participants/domain/change-email-locale"
-import { ApplicationChange } from "@/modules/participants/domain/submission-confirmation"
+import {
+  ApplicationChange,
+  TermCancelledNotice,
+} from "@/modules/participants/domain/submission-confirmation"
 import { Gender } from "@/shared/domain/gender"
 import { AppException } from "@/shared/errors/app.exception"
 import { releaseAssignments } from "@/shared/room-assignments/release-assignments"
@@ -1002,6 +1005,107 @@ export class TermStatusRepository {
           })),
         },
       }
+    })
+  }
+
+  /**
+   * US-131: cancels the term and, in the same transaction, the application in it in every status
+   * except archived (already cancelled ones stay as they are). Each one is a status change in the
+   * log of US-28 by the organizer and leaves a notice for e-mail no. 15. The event is locked like
+   * in every other change, so no application lands in the term after the cancellation.
+   */
+  async cancelTerm(
+    organizationId: string,
+    eventId: string,
+    termId: string,
+    reason: string | null,
+    actorId: string,
+  ): Promise<{ notices: TermCancelledNotice[] } | null> {
+    return this.prisma.$transaction(async (tx) => {
+      const term = await tx.term.findFirst({
+        where: { id: termId, eventId, organizationId },
+        select: { eventId: true },
+      })
+      if (!term) return null
+      await tx.$queryRaw`SELECT id FROM event WHERE id = ${term.eventId} FOR UPDATE`
+      const locked = await tx.term.findUniqueOrThrow({
+        where: { id: termId },
+        include: { event: { include: { organization: { select: { name: true } } } } },
+      })
+      if (locked.cancelledAt) throw new AppException(HttpStatus.CONFLICT, "TERM_CANCELLED")
+
+      const affected = await tx.applicationTerm.findMany({
+        where: { termId, organizationId, status: { notIn: ["CANCELLED", "ARCHIVED"] } },
+        include: { application: true },
+        orderBy: { application: { number: "asc" } },
+      })
+      // Nobody sleeps in the rooms of a cancelled term.
+      await releaseAssignments(tx, { termId })
+      await tx.term.update({
+        where: { id: termId },
+        data: { cancelledAt: new Date(), cancelReason: reason },
+      })
+      await tx.applicationTerm.updateMany({
+        where: { id: { in: affected.map((row) => row.id) } },
+        data: { status: "CANCELLED" },
+      })
+      await tx.applicationTermStatusChange.createMany({
+        data: affected.map((row) => ({
+          organizationId,
+          applicationTermId: row.id,
+          fromStatus: row.status,
+          toStatus: "CANCELLED" as const,
+          changedById: actorId,
+        })),
+      })
+
+      const notices: TermCancelledNotice[] = []
+      for (const { application, status } of affected) {
+        // D-078: the user's preferred language, else the language of their first application.
+        const [user, first] = application.userId
+          ? await Promise.all([
+              tx.user.findUnique({ where: { id: application.userId }, select: { locale: true } }),
+              tx.application.findFirst({
+                where: { userId: application.userId },
+                orderBy: [{ submittedAt: "asc" }, { id: "asc" }],
+                select: { locale: true },
+              }),
+            ])
+          : [null, null]
+        const locale = resolveChangeEmailLocale({
+          userLocale: user?.locale ?? null,
+          firstApplicationLocale: first?.locale ?? application.locale,
+        })
+        // The bell of the applicant: the same event as e-mail no. 15, in this transaction.
+        await this.notifications.create(
+          tx,
+          buildNotification({
+            userId: application.userId,
+            applicationId: application.id,
+            kind: "TERM_CANCELLED",
+            params: {
+              eventName: locked.event.name,
+              participantName: `${application.firstName} ${application.lastName}`,
+              termStartsOn: isoDay(locked.startsOn),
+              termEndsOn: isoDay(locked.endsOn),
+              fromStatus: status,
+              toStatus: "CANCELLED",
+            },
+          }),
+        )
+        notices.push({
+          email: application.email,
+          locale,
+          eventName: locked.event.name,
+          organizationName: locked.event.organization.name,
+          termName: termLabel(locked, locale),
+          gender: application.gender,
+          firstName: application.firstName,
+          lastName: application.lastName,
+          accessToken: application.accessToken,
+        })
+      }
+      return { notices }
     })
   }
 

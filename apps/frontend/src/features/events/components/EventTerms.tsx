@@ -1,8 +1,10 @@
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
+import { Link } from "@tanstack/react-router"
 import { Ban, MoreHorizontal, Pencil } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { ROUTES } from "@/app/routes"
 import { CapacityProgress } from "@/components/atoms/CapacityProgress"
 import { EmptyState } from "@/components/molecules/EmptyState"
 import { ErrorState } from "@/components/molecules/ErrorState"
@@ -30,7 +32,10 @@ import { TermFormDialog } from "@/features/events/components/TermFormDialog"
 type Dialog =
   { kind: "add" } | { kind: "edit"; term: EventTerm } | { kind: "cancel"; term: EventTerm }
 
-type Change = { kind: "added" | "edited" | "cancelled"; term: EventTerm }
+type Change = { kind: "added" | "edited"; term: EventTerm }
+
+/** What the cancellation of a term just did (US-131). */
+type CancelResult = { term: EventTerm; cancelledApplications: number }
 
 /**
  * O24 / O24a / O24b / O24c: the terms of an event sorted by date, with add, and edit or
@@ -46,6 +51,7 @@ export function EventTerms({ eventId }: { eventId: string }) {
   const terms = useQuery(termsQueryOptions(eventId))
   const [dialog, setDialog] = useState<Dialog | null>(null)
   const [changedId, setChangedId] = useState<string | null>(null)
+  const [cancelResult, setCancelResult] = useState<CancelResult | null>(null)
 
   const error = event.error ?? terms.error
   if (error) {
@@ -68,7 +74,13 @@ export function EventTerms({ eventId }: { eventId: string }) {
   const close = () => setDialog(null)
   const finish = ({ kind, term }: Change) => {
     notify.success(t(`terms.notice.${kind}`, { name: termTitle(term) }))
-    setChangedId(kind === "cancelled" ? null : term.id)
+    setChangedId(term.id)
+    setCancelResult(null)
+    close()
+  }
+  const finishCancel = (result: CancelResult) => {
+    setChangedId(null)
+    setCancelResult(result)
     close()
   }
 
@@ -86,6 +98,12 @@ export function EventTerms({ eventId }: { eventId: string }) {
           </Button>
         }
       />
+      {cancelResult ? (
+        <CancelledResult
+          eventId={eventId}
+          result={cancelResult}
+        />
+      ) : null}
       <Card className="gap-4 p-6">
         <h3 className="text-lg font-semibold tracking-tight">
           {t("terms.listTitle", { count: active.length })}
@@ -146,7 +164,9 @@ export function EventTerms({ eventId }: { eventId: string }) {
           eventName={eventName}
           term={dialog.term}
           onClose={close}
-          onCancelled={(term) => finish({ kind: "cancelled", term })}
+          onCancelled={(term, cancelledApplications) =>
+            finishCancel({ term, cancelledApplications })
+          }
         />
       ) : null}
     </div>
@@ -232,5 +252,36 @@ function TermOccupancy({ term }: { term: EventTerm }) {
         />
       ) : null}
     </div>
+  )
+}
+
+/** US-131: what the cancellation did, and the way to the payments the organizer refunds by hand. */
+// Figma (Design system v2): US-131 Termín byl zrušen · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22437-88251 (mobile 22437-88328)
+function CancelledResult({ eventId, result }: { eventId: string; result: CancelResult }) {
+  const { t } = useTranslation("events")
+  return (
+    <section
+      role="status"
+      className="flex flex-col items-start gap-3 rounded-lg border bg-card p-4"
+    >
+      <h3 className="text-2xl font-bold tracking-tight">{t("terms.cancelledResult.title")}</h3>
+      <p className="text-lg font-semibold tracking-tight">{termLine(result.term)}</p>
+      <p>{t("terms.cancelledResult.applications", { count: result.cancelledApplications })}</p>
+      <p>{t("terms.cancelledResult.emails")}</p>
+      <p className="text-sm text-muted-foreground">{t("terms.cancelledResult.unchanged")}</p>
+      <p className="text-sm text-muted-foreground">{t("terms.cancelledResult.refunds")}</p>
+      <Button
+        asChild
+        variant="outline"
+        size="lg"
+      >
+        <Link
+          to={ROUTES.organizer.eventPayments}
+          params={{ eventId }}
+        >
+          {t("terms.cancelledResult.payments")}
+        </Link>
+      </Button>
+    </section>
   )
 }

@@ -214,6 +214,31 @@ export class TermStatusService {
     return { changedAt: new Date(), changedByName: user.name }
   }
 
+  /**
+   * US-131: cancels the term with every application in it that is not archived, logs each as the
+   * organizer's change and sends each applicant one e-mail (no. 15). Returns how many applications
+   * were cancelled; null when the term is not of the organization. A failed delivery never fails
+   * the cancellation, the mailer logs it. Refunds are the organizer's own work (D-080).
+   */
+  async cancelTerm(
+    user: Identity,
+    eventId: string,
+    termId: string,
+    reason: string | null,
+  ): Promise<number> {
+    const { organizationId } = await this.access.assertCanAccessEvent(user, eventId)
+    const result = await this.repository.cancelTerm(
+      organizationId,
+      eventId,
+      termId,
+      reason,
+      user.id,
+    )
+    if (!result) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
+    for (const notice of result.notices) await this.mailer.sendTermCancelled(notice)
+    return result.notices.length
+  }
+
   async getTerms(user: Identity, applicationId: string): Promise<TermStatusDetail[]> {
     const { organizationId } = await this.access.assertCanAccessApplication(user, applicationId)
     return this.repository.findTerms(applicationId, organizationId)
