@@ -28,7 +28,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: cc59ef35644758acc5d4fe3eff0b306217e0a618
+          ref: 87c6779428280afdd2c616792ed6b77a1ba1e1a0
           persist-credentials: false
 
       - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
@@ -257,7 +257,7 @@ jobs:
                   assert w >= width and h > 0, (name, w, h)
                   if w != width:
                       print(f"::warning::{name}: page overflows viewport ({w}px)")
-                  dest = Path("577") / f"{screen}-{width}-cc59ef3.png"
+                  dest = Path("577") / f"{screen}-{width}-87c6779.png"
                   if dest.exists():
                       assert dest.read_bytes() == p.read_bytes(), dest
                       continue
