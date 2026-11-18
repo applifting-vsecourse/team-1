@@ -95,11 +95,34 @@ describe("accounts (integration)", () => {
       expect(switched.locale).toBe("en")
     })
 
+    it("keeps the language unset until the user chooses one (US-128)", async () => {
+      const cookie = await signIn("ucastnik@example.com", "password4")
+      await prisma.user.update({ where: { email: "ucastnik@example.com" }, data: { locale: null } })
+      const readLocale = async (): Promise<unknown> =>
+        (
+          (await (await fetch(api("/me"), { headers: { Cookie: cookie } })).json()) as {
+            locale: unknown
+          }
+        ).locale
+
+      expect(await readLocale()).toBeNull()
+
+      const renamed = await patchMe(cookie, { name: "Eva Nová" })
+      expect(renamed.status).toBe(200)
+      expect(await readLocale()).toBeNull()
+
+      const chosen = await patchMe(cookie, { locale: "en" })
+      expect(chosen.status).toBe(200)
+      expect(await readLocale()).toBe("en")
+      expect(
+        await prisma.user.findUniqueOrThrow({ where: { email: "ucastnik@example.com" } }),
+      ).toMatchObject({ name: "Eva Nová", locale: "en" })
+    })
+
     it.each([
       { name: "", locale: "cs" },
       { name: "   ", locale: "cs" },
       { name: "Eva", locale: "de" },
-      { name: "Eva" },
       { name: "Eva", locale: "cs", accountType: "ORGANIZER" },
     ])("rejects an invalid profile %j", async (body) => {
       const cookie = await signIn("ucastnik@example.com", "password4")

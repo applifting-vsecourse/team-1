@@ -5,6 +5,8 @@ import "@/styles/global.css"
 
 import { Toaster } from "@/components/ui/sonner"
 
+import { useApplyPreferredLanguage } from "@/features/auth/hooks/useApplyPreferredLanguage"
+
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
 }>()({
@@ -12,6 +14,8 @@ export const Route = createRootRouteWithContext<{
 })
 
 function RootComponent() {
+  useApplyPreferredLanguage()
+
   return (
     <>
       <Outlet />

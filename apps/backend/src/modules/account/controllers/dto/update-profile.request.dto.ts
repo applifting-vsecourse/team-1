@@ -1,22 +1,25 @@
 import { Locale, LOCALES } from "@/core/email/locale"
-import { ApiProperty } from "@nestjs/swagger"
+import { ApiPropertyOptional } from "@nestjs/swagger"
 import { Transform } from "class-transformer"
-import { IsIn, IsString, MaxLength, MinLength } from "class-validator"
+import { IsIn, IsOptional, IsString, MaxLength, MinLength } from "class-validator"
 
 export const MAX_NAME_LENGTH = 200
 
 export class UpdateProfileRequestDto {
-  @ApiProperty({ example: "Eva Malá", maxLength: MAX_NAME_LENGTH })
+  @ApiPropertyOptional({ example: "Eva Malá", maxLength: MAX_NAME_LENGTH })
+  @IsOptional()
   @Transform(({ value }: { value: unknown }) => (typeof value === "string" ? value.trim() : value))
   @IsString()
   @MinLength(1)
   @MaxLength(MAX_NAME_LENGTH)
-  name!: string
+  name?: string
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     enum: ["en", "cs"],
-    description: "Preferred language: the UI and e-mails to this account (D-069).",
+    description:
+      "Preferred language: the UI and e-mails to this account (D-069). Left out, it stays as it is (possibly unset).",
   })
+  @IsOptional()
   @IsIn(LOCALES)
-  locale!: Locale
+  locale?: Locale
 }
