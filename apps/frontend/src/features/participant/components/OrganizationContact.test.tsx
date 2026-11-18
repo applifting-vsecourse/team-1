@@ -59,11 +59,11 @@ describe("OrganizationContact", () => {
     expect(screen.queryByText(/hasn't published a contact/)).not.toBeInTheDocument()
   })
 
-  it("stacks the lines in one column below the md breakpoint (360 px)", () => {
+  it("keeps contact actions stacked in the narrow detail column and on mobile", () => {
     render(<OrganizationContact contact={contact()} />)
 
     const row = screen.getByText("Alpine Collective").parentElement!
-    // flex-col applies until `md:flex-row` takes over at 768 px, so a 360 px phone gets one column.
-    expect(row).toHaveClass("flex-col", "md:flex-row")
+    expect(row).toHaveClass("flex-col")
+    expect(row).not.toHaveClass("md:flex-row")
   })
 })

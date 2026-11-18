@@ -24,7 +24,6 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -162,13 +161,7 @@ function NewEventCard({
                   {...field}
                 />
               </FormControl>
-              {form.formState.errors.name ? (
-                <FormMessage className="text-xs font-medium" />
-              ) : (
-                <FormDescription className="text-xs font-medium">
-                  {t("new.form.nameHelper")}
-                </FormDescription>
-              )}
+              <FormMessage className="text-xs font-medium" />
             </FormItem>
           )}
         />
@@ -198,9 +191,6 @@ function NewEventCard({
                   ))}
                 </SelectContent>
               </Select>
-              <FormDescription className="text-xs font-medium">
-                {t("new.form.organizationHelper")}
-              </FormDescription>
             </FormItem>
           )}
         />
@@ -234,7 +224,9 @@ function NewEventCard({
             </FormItem>
           )}
         />
-        <p className="text-xs font-medium text-muted-foreground">{t("new.form.required")}</p>
+        <p className="text-xs font-medium text-muted-foreground">
+          {t("new.form.required")} {t("new.next")}
+        </p>
 
         {create.isError ? (
           <Alert variant="destructive">
@@ -243,8 +235,7 @@ function NewEventCard({
           </Alert>
         ) : null}
 
-        <div className="flex flex-col gap-3 border-t pt-4 sm:flex-row sm:items-center">
-          <p className="text-sm text-muted-foreground sm:flex-1">{t("new.next")}</p>
+        <div className="flex flex-col-reverse gap-2 border-t pt-3 sm:flex-row sm:justify-end">
           <DialogClose asChild>
             <Button
               type="button"

@@ -66,7 +66,7 @@ test.describe("Application from a link", { tag: "@mobile" }, () => {
     await page.getByRole("button", { name: "Set password and open application" }).click()
 
     await expect(page.getByRole("heading", { level: 1, name: "Your applications" })).toBeVisible()
-    await expect(page.getByText("Letní kemp 2027")).toBeVisible()
+    await expect(page.getByRole("heading", { name: "Letní kemp 2027", level: 2 })).toBeVisible()
     await expect(page.getByText(/Confirmed|Waitlisted/).first()).toBeVisible()
 
     // US-121: the detail ends with who to call or write to; one tap dials or opens the mail.

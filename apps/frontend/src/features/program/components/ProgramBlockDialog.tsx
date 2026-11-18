@@ -303,7 +303,7 @@ export function ProgramBlockDialog({
                 error={mutation.error}
               />
             ) : null}
-            <DialogFooter className="gap-4 max-sm:flex-col-reverse sm:items-center sm:justify-end">
+            <DialogFooter className="sticky bottom-0 z-10 gap-2 border-t bg-card py-2 max-sm:flex-col-reverse sm:static sm:items-center sm:justify-end">
               <DialogClose asChild>
                 <Button
                   type="button"

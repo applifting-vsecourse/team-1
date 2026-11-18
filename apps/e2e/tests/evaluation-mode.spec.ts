@@ -35,6 +35,7 @@ test.describe("Evaluation mode", () => {
     await expect(
       page.getByText("Applications are open, so the mode can no longer be changed."),
     ).toBeVisible()
-    await expect(page.getByRole("radio")).toHaveCount(0)
+    await expect(page.getByRole("radio", { name: "Automatic" })).toBeDisabled()
+    await expect(page.getByRole("radio", { name: "Manual" })).toBeDisabled()
   })
 })
