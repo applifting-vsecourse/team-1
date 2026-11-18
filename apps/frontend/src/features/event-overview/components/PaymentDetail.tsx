@@ -138,24 +138,22 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
         gender={data.gender}
       />
       <ParticipantDetails application={data} />
-      {/* US-38: who asked to settle the accommodation individually, with the note; only for organizers. */}
-      <Card
-        role="group"
-        aria-label={t("payment.individualAccommodation")}
-        className="gap-4 p-4 md:p-6"
-      >
-        <h3 className="text-lg font-semibold">{t("payment.individualAccommodation")}</h3>
-        {data.individualAccommodation ? (
+      {/* US-38: who asked to settle the accommodation individually, with the note; only for organizers. Hidden when nobody asked (#544). */}
+      {data.individualAccommodation ? (
+        <Card
+          role="group"
+          aria-label={t("payment.individualAccommodation")}
+          className="gap-4 p-4 md:p-6"
+        >
+          <h3 className="text-lg font-semibold">{t("payment.individualAccommodation")}</h3>
           <DetailItem
             label={t("payment.individualAccommodationNote")}
             className="whitespace-pre-wrap"
           >
             {data.accommodationRequest ?? t("payment.individualAccommodationNoNote")}
           </DetailItem>
-        ) : (
-          <p className="text-muted-foreground">{t("payment.individualAccommodationNone")}</p>
-        )}
-      </Card>
+        </Card>
+      ) : null}
       {/* Nothing to pay without a confirmed term (US-25): record a payment once a place is confirmed. */}
       {hasConfirmedTerm ? null : (
         <Alert className="border-status-info bg-status-info-bg">
