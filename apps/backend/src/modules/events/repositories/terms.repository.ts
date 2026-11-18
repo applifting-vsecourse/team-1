@@ -79,6 +79,8 @@ export class TermsRepository {
       await tx.$queryRaw`SELECT e.id FROM event e JOIN term t ON t."eventId" = e.id WHERE t.id = ${termId} FOR UPDATE OF e`
       // Nobody sleeps in the rooms of a cancelled term.
       await releaseAssignments(tx, { termId })
+      // US-146: room wishes of a cancelled term are deleted.
+      await tx.applicationTerm.updateMany({ where: { termId }, data: { roomWishes: [] } })
       return tx.term.update({
         where: { id: termId },
         data: { cancelledAt: new Date(), cancelReason: reason },

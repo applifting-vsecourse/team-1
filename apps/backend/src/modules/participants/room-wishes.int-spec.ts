@@ -177,4 +177,54 @@ describe("room wishes (integration)", () => {
     ])
     expect(participants.find((p) => p.lastName === "Černá")?.wishes).toEqual([])
   })
+
+  describe("deletes the wishes when the confirmation lapses", () => {
+    const setStatus = (applicationId: string, status: string): Promise<Response> =>
+      fetch(api(`/organizer/applications/${applicationId}/terms/${termId}/status`), {
+        method: "PATCH",
+        headers: { Cookie: organizerCookie, "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      })
+    const stored = async (applicationTermId: string): Promise<string[]> =>
+      (await prisma.applicationTerm.findUniqueOrThrow({ where: { id: applicationTermId } }))
+        .roomWishes
+
+    it.each(["CANCELLED", "WAITLISTED"])("when the organizer sets %s", async (status) => {
+      const row = await makeApplication("CONFIRMED")
+      expect((await save(row.applicationId, ["Eva Černá"])).status).toBe(204)
+      expect(await stored(row.applicationTermId)).toEqual(["Eva Černá"])
+      expect((await setStatus(row.applicationId, status)).status).toBeLessThan(300)
+      expect(await stored(row.applicationTermId)).toEqual([])
+    })
+
+    it("when the organizer cancels the term", async () => {
+      const otherTermId = (
+        await prisma.term.create({
+          data: {
+            organizationId,
+            eventId,
+            number: 2,
+            startsOn: new Date("2027-08-01"),
+            endsOn: new Date("2027-08-07"),
+            priceCzk: 1000,
+          },
+        })
+      ).id
+      const row = await makeApplication("CONFIRMED")
+      await prisma.applicationTerm.update({
+        where: { id: row.applicationTermId },
+        data: { termId: otherTermId, roomWishes: ["Eva Černá"] },
+      })
+      const response = await fetch(
+        api(`/organizer/events/${eventId}/terms/${otherTermId}/cancel`),
+        {
+          method: "POST",
+          headers: { Cookie: organizerCookie, "Content-Type": "application/json" },
+          body: JSON.stringify({ reason: "Test" }),
+        },
+      )
+      expect(response.status).toBe(201)
+      expect(await stored(row.applicationTermId)).toEqual([])
+    })
+  })
 })
