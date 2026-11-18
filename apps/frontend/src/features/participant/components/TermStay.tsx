@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Clock } from "lucide-react"
 import { useTranslation } from "react-i18next"
@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { formatDate, formatTime } from "@/lib/date"
+import { formatDate, formatDateRange, formatTime } from "@/lib/date"
 import { isIsoDate, parseTimeInput, splitDateTime } from "@/lib/date-input"
 import { notify } from "@/lib/notify"
 import { termLine } from "@/lib/term-label"
@@ -182,7 +182,12 @@ function StayDialog({
   const submit = () => {
     const arrival = combine(fields.arrivalDate, fields.arrivalTime)
     const departure = combine(fields.departureDate, fields.departureTime)
-    const range = { from: formatDate(term.startsOn), to: formatDate(term.endsOn) }
+    const range = {
+      range: formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true }).replace(
+        /\s?–\s?/,
+        ` ${t("stay.and")} `,
+      ),
+    }
     const outside = (value: string | null) =>
       value !== null && (value.slice(0, 10) < term.startsOn || value.slice(0, 10) > term.endsOn)
     const next: Errors = {}
@@ -273,6 +278,8 @@ function StayDialog({
               time={fields.arrivalTime}
               error={errors.arrival}
               term={term}
+              removeLabel={t("stay.removeArrival")}
+              onRemove={() => set({ arrivalDate: "", arrivalTime: "" })}
               onDate={(arrivalDate) => set({ arrivalDate })}
               onTime={(arrivalTime) => set({ arrivalTime })}
             />
@@ -283,6 +290,8 @@ function StayDialog({
               time={fields.departureTime}
               error={errors.departure}
               term={term}
+              removeLabel={t("stay.removeDeparture")}
+              onRemove={() => set({ departureDate: "", departureTime: "" })}
               onDate={(departureDate) => set({ departureDate })}
               onTime={(departureTime) => set({ departureTime })}
             />
@@ -337,6 +346,8 @@ function StayFields({
   time,
   error,
   term,
+  removeLabel,
+  onRemove,
   onDate,
   onTime,
 }: {
@@ -346,14 +357,44 @@ function StayFields({
   time: string
   error?: string
   term: MyApplicationTerm
+  removeLabel: string
+  onRemove: () => void
   onDate: (value: string) => void
   onTime: (value: string) => void
 }) {
   const { t } = useTranslation("participant")
+  const picker = useRef<HTMLInputElement>(null)
+  const timeInput = useRef<HTMLInputElement>(null)
+  const hasValue = date.trim() !== "" || time.trim() !== ""
+  /** The browser's own time picker; without `showPicker` the field itself gets the focus. */
+  const pickTime = () => {
+    const native = picker.current
+    if (native && typeof native.showPicker === "function") {
+      native.value = parseTimeInput(time) ?? ""
+      try {
+        native.showPicker()
+        return
+      } catch {
+        // not allowed here: fall through to the text field
+      }
+    }
+    timeInput.current?.focus()
+  }
   return (
     <fieldset className="flex flex-col gap-2">
-      <legend className="pb-2 font-semibold">{legend}</legend>
-      <div className="grid grid-cols-[minmax(0,1fr)_6.5rem] gap-2 sm:grid-cols-2 sm:gap-3">
+      <legend className="float-left pb-2 font-semibold">{legend}</legend>
+      {hasValue ? (
+        <Button
+          type="button"
+          variant="link"
+          size="sm"
+          className="float-right h-auto p-0 pb-2"
+          onClick={onRemove}
+        >
+          {removeLabel}
+        </Button>
+      ) : null}
+      <div className="clear-both grid grid-cols-2 gap-2 sm:gap-3">
         <div className="flex flex-col gap-2">
           <Label htmlFor={`${id}-date`}>{t("stay.dateLabel")}</Label>
           <DateField
@@ -372,11 +413,13 @@ function StayFields({
           <div className="relative">
             <Input
               id={`${id}-time`}
+              ref={timeInput}
               inputMode="numeric"
               autoComplete="off"
               placeholder={t("stay.timePlaceholder")}
-              className="pr-8"
+              className="pr-12"
               value={time}
+              aria-invalid={error ? true : undefined}
               aria-describedby={error ? `${id}-error` : undefined}
               onChange={(event) => onTime(event.target.value)}
               onBlur={() => {
@@ -384,9 +427,25 @@ function StayFields({
                 if (parsed) onTime(parsed)
               }}
             />
-            <Clock
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              aria-label={t("stay.pickTime")}
+              className="absolute top-1/2 right-1 size-9 -translate-y-1/2 text-muted-foreground"
+              onClick={pickTime}
+            >
+              <Clock className="size-5" />
+            </Button>
+            <input
+              ref={picker}
+              type="time"
+              tabIndex={-1}
               aria-hidden
-              className="pointer-events-none absolute top-1/2 right-2.5 size-4 -translate-y-1/2 text-muted-foreground"
+              className="pointer-events-none absolute right-0 bottom-0 size-0 opacity-0"
+              onChange={(event) => {
+                if (event.target.value) onTime(event.target.value)
+              }}
             />
           </div>
         </div>

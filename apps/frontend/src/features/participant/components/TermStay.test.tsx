@@ -118,4 +118,18 @@ describe("TermStaySection", () => {
       }),
     )
   })
+
+  it("removes only the arrival", async () => {
+    renderSection([
+      term({ stay: { lateArrival: "2027-07-13T10:30", earlyDeparture: "2027-07-18T16:00" } }),
+    ])
+    await userEvent.click(screen.getByRole("button", { name: "Edit arrival or departure" }))
+    await userEvent.click(screen.getByRole("button", { name: "Remove arrival" }))
+    await userEvent.click(screen.getByRole("button", { name: "Save" }))
+    await waitFor(() =>
+      expect(put).toHaveBeenCalledWith("participant/applications/a1/terms/t1/stay", {
+        json: { lateArrival: null, earlyDeparture: "2027-07-18T16:00" },
+      }),
+    )
+  })
 })
