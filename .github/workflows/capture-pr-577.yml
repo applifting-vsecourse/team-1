@@ -28,7 +28,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: 864090cfb2a9631eaf098029984af228b96cd182
+          ref: bba5dd0e3172b474dc49ef1eeb6d59d16d71cce7
           persist-credentials: false
 
       - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
@@ -105,7 +105,7 @@ jobs:
                   await expect(screen === "new-event" ? page.getByRole("dialog") : page.getByRole("heading", { level: 1 }).first()).toBeVisible()
                   await page.waitForLoadState("networkidle")
                   await page.evaluate(() => document.fonts.ready)
-                  await page.screenshot({ path: "test-results/screenshots/" + screen + "-" + width + ".png", fullPage: true, animations: "disabled" })
+                  await page.screenshot({ path: "test-results/screenshots/" + screen + "-" + width + ".png", fullPage: screen !== "new-event", animations: "disabled" })
                 }
                 for (const [screen, route] of [["landing","/"], ["request-link","/participant/magic-link"], ["expired-link","/participant/magic-link?error=invalid"], ["participant-login","/participant/login"], ["event-not-found","/events/does-not-exist"], ["catalog","/catalog"], ["event","/events/demo-letni-kemp-2027"], ["register","/organizer/register"], ["not-found","/unknown-seeded-route"]]) {
                   await page.goto(route)
@@ -154,7 +154,7 @@ jobs:
                 }
                 await page.getByRole("button", { name: "Add block" }).click()
                 await expect(page.getByRole("dialog", { name: "Add block" })).toBeVisible()
-                await page.screenshot({ path: "test-results/screenshots/program-dialog-" + width + ".png", fullPage: true, animations: "disabled" })
+                await page.screenshot({ path: "test-results/screenshots/program-dialog-" + width + ".png", fullPage: false, animations: "disabled" })
               })
               test("participant workspace", async ({ page }) => {
                 test.setTimeout(120000)
@@ -185,7 +185,7 @@ jobs:
                 await expect(dialog).toBeVisible()
                 await dialog.getByRole("combobox").first().click()
                 await page.getByRole("option").first().click()
-                await page.screenshot({ path: "test-results/screenshots/participant-transport-" + width + ".png", fullPage: true, animations: "disabled" })
+                await page.screenshot({ path: "test-results/screenshots/participant-transport-" + width + ".png", fullPage: false, animations: "disabled" })
                 await page.keyboard.press("Escape")
                 await expect(dialog).toHaveCount(0)
                 await expect(transport).toBeFocused()
@@ -262,7 +262,7 @@ jobs:
                   assert w >= width and h > 0, (name, w, h)
                   if w != width:
                       print(f"::warning::{name}: page overflows viewport ({w}px)")
-                  dest = Path("577") / f"{screen}-{width}-864090c.png"
+                  dest = Path("577") / f"{screen}-{width}-bba5dd0.png"
                   if dest.exists():
                       assert dest.read_bytes() == p.read_bytes(), dest
                       continue
