@@ -353,7 +353,7 @@ function StayFields({
   return (
     <fieldset className="flex flex-col gap-2">
       <legend className="pb-2 font-semibold">{legend}</legend>
-      <div className="grid grid-cols-[minmax(0,1fr)_6.5rem] gap-2 sm:gap-3">
+      <div className="grid grid-cols-[minmax(0,1fr)_6.5rem] gap-2 sm:grid-cols-2 sm:gap-3">
         <div className="flex flex-col gap-2">
           <Label htmlFor={`${id}-date`}>{t("stay.dateLabel")}</Label>
           <DateField
@@ -377,7 +377,6 @@ function StayFields({
               placeholder={t("stay.timePlaceholder")}
               className="pr-8"
               value={time}
-              aria-invalid={error ? true : undefined}
               aria-describedby={error ? `${id}-error` : undefined}
               onChange={(event) => onTime(event.target.value)}
               onBlur={() => {
@@ -396,7 +395,7 @@ function StayFields({
         <p
           id={`${id}-error`}
           role="alert"
-          className="text-sm text-destructive"
+          className="text-[13px] font-medium text-destructive"
         >
           {error}
         </p>
