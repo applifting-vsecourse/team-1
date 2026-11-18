@@ -1,12 +1,34 @@
-import { HistoryEntry } from "@/modules/applications/domain/application-history"
+import {
+  EDITABLE_FIELDS,
+  HistoryEntry,
+  HistoryFieldChange,
+} from "@/modules/applications/domain/application-history"
 import { ApiProperty } from "@nestjs/swagger"
+
+export class HistoryFieldChangeDto {
+  @ApiProperty({ enum: EDITABLE_FIELDS }) field!: HistoryFieldChange["field"]
+  @ApiProperty({
+    required: false,
+    nullable: true,
+    type: String,
+    description: "Null: the field was empty. Not sent for the accommodation note.",
+  })
+  from?: string | null
+  @ApiProperty({
+    required: false,
+    nullable: true,
+    type: String,
+    description: "Null: the field is empty now. Not sent for the accommodation note.",
+  })
+  to?: string | null
+}
 
 const STATUSES = ["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED"]
 
 /** One change of an application: when, by whom and what. The fields after `author` depend on `kind`. */
 export class HistoryEntryDto {
   @ApiProperty() id!: string
-  @ApiProperty({ enum: ["APPLICATION_CREATED", "STATUS_CHANGE", "PAYMENT"] })
+  @ApiProperty({ enum: ["APPLICATION_CREATED", "STATUS_CHANGE", "PAYMENT", "EDIT"] })
   kind!: HistoryEntry["kind"]
   @ApiProperty() at!: string
   @ApiProperty({ nullable: true, type: String, description: "Null: the system made the change" })
@@ -31,6 +53,13 @@ export class HistoryEntryDto {
   @ApiProperty({ required: false, description: "PAYMENT: the receipt was cancelled since" })
   isCancelled?: boolean
 
+  @ApiProperty({
+    required: false,
+    type: [HistoryFieldChangeDto],
+    description: "EDIT: the changed details; a flag is the text true or false",
+  })
+  changes?: HistoryFieldChangeDto[]
+
   static fromDomain(entry: HistoryEntry): HistoryEntryDto {
     const base = {
       id: entry.id,
@@ -48,6 +77,7 @@ export class HistoryEntryDto {
         toStatus: entry.toStatus,
       }
     }
+    if (entry.kind === "EDIT") return { ...base, changes: entry.changes }
     if (entry.kind === "PAYMENT") {
       return {
         ...base,
