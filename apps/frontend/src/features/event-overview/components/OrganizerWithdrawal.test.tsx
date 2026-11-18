@@ -40,7 +40,9 @@ const row = (termId: string, isWithdrawn: boolean, paidCzk: number, overpaymentC
   substitute: null,
 })
 
-function mockApi(substitute: { firstName: string; lastName: string } | null = null) {
+function mockApi(
+  substitute: { applicationId: string; firstName: string; lastName: string } | null = null,
+) {
   get.mockImplementation((path: string, options?: { searchParams?: { termIds: string } }) => ({
     json: () => {
       if (!path.endsWith("withdraw-preview")) return Promise.resolve(application)
@@ -103,7 +105,7 @@ describe("OrganizerWithdrawal", () => {
 
     await waitFor(() => expect(onClose).toHaveBeenCalled())
     expect(post).toHaveBeenCalledWith("organizer/applications/a1/terms/withdraw", {
-      json: { termIds: ["t1"] },
+      json: { termIds: ["t1"], expectedSubstitutes: [{ termId: "t1", applicationId: null }] },
     })
   })
 
@@ -125,7 +127,13 @@ describe("OrganizerWithdrawal", () => {
 
     await waitFor(() => expect(onClose).toHaveBeenCalled())
     expect(post).toHaveBeenCalledWith("organizer/applications/a1/terms/withdraw", {
-      json: { termIds: ["t1", "t2"] },
+      json: {
+        termIds: ["t1", "t2"],
+        expectedSubstitutes: [
+          { termId: "t1", applicationId: null },
+          { termId: "t2", applicationId: null },
+        ],
+      },
     })
   })
 
@@ -143,7 +151,7 @@ describe("OrganizerWithdrawal substitute warning (US-546)", () => {
   })
 
   it("names the substitute who fills the bed automatically", async () => {
-    mockApi({ firstName: "Petr", lastName: "Novák" })
+    mockApi({ applicationId: "a2", firstName: "Petr", lastName: "Novák" })
     setup("t1")
 
     expect(await screen.findByText("A substitute fills the bed automatically")).toBeInTheDocument()
@@ -156,5 +164,24 @@ describe("OrganizerWithdrawal substitute warning (US-546)", () => {
 
     await screen.findByText("Impact of the withdrawal")
     expect(screen.queryByText("A substitute fills the bed automatically")).not.toBeInTheDocument()
+  })
+
+  it("sends the previewed substitute and reloads the preview when the server refuses it", async () => {
+    mockApi({ applicationId: "a2", firstName: "Petr", lastName: "Novák" })
+    post.mockReturnValue({ json: () => Promise.reject(new Error("changed")) })
+    const user = userEvent.setup()
+    setup("t1")
+
+    const button = await screen.findByRole("button", { name: "Withdraw participant" })
+    await screen.findByText(/Petr Novák/)
+    const previews = () =>
+      get.mock.calls.filter(([path]) => String(path).endsWith("withdraw-preview")).length
+    const before = previews()
+    await user.click(button)
+
+    await waitFor(() => expect(previews()).toBeGreaterThan(before))
+    expect(post).toHaveBeenCalledWith("organizer/applications/a1/terms/withdraw", {
+      json: { termIds: ["t1"], expectedSubstitutes: [{ termId: "t1", applicationId: "a2" }] },
+    })
   })
 })

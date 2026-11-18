@@ -2,7 +2,7 @@ import { ApplicationTermStatus } from "@/modules/applications/domain/evaluation"
 import { TermChangeImpact } from "@/modules/applications/domain/organizer-term-change"
 import { WithdrawalImpact } from "@/modules/applications/domain/organizer-withdrawal"
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger"
-import { Transform } from "class-transformer"
+import { Transform, Type } from "class-transformer"
 import {
   ArrayMaxSize,
   ArrayMinSize,
@@ -11,6 +11,8 @@ import {
   IsBoolean,
   IsOptional,
   IsString,
+  ValidateIf,
+  ValidateNested,
 } from "class-validator"
 
 export class OrganizerTermChangeRequestDto {
@@ -89,6 +91,14 @@ export class OrganizerTermOptionDto {
   @ApiProperty({ description: "The application is in the term now" }) selected!: boolean
 }
 
+class ExpectedSubstituteDto {
+  @ApiProperty() @IsString() termId!: string
+  @ApiProperty({ nullable: true, type: String })
+  @ValidateIf((_, v) => v !== null)
+  @IsString()
+  applicationId!: string | null
+}
+
 export class OrganizerWithdrawalRequestDto {
   @ApiProperty({ type: [String], description: "Terms the participant is withdrawn from (US-32)" })
   @IsArray()
@@ -97,9 +107,22 @@ export class OrganizerWithdrawalRequestDto {
   @ArrayUnique()
   @IsString({ each: true })
   termIds!: string[]
+
+  @ApiPropertyOptional({
+    type: [ExpectedSubstituteDto],
+    description:
+      "Substitute per term the organizer saw in the preview (null: nobody). When the waitlist has changed since, the withdrawal is refused with 409 WITHDRAWAL_SUBSTITUTE_CHANGED.",
+  })
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(999)
+  @ValidateNested({ each: true })
+  @Type(() => ExpectedSubstituteDto)
+  expectedSubstitutes?: ExpectedSubstituteDto[]
 }
 
 class WithdrawalSubstituteDto {
+  @ApiProperty() applicationId!: string
   @ApiProperty() firstName!: string
   @ApiProperty() lastName!: string
 }

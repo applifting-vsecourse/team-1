@@ -16,7 +16,9 @@ const previewSchema = z.object({
       debtCzk: z.number().int(),
       overpaymentCzk: z.number().int(),
       /** Waitlisted applicant the system confirms into the freed bed (automatic mode only). */
-      substitute: z.object({ firstName: z.string(), lastName: z.string() }).nullable(),
+      substitute: z
+        .object({ applicationId: z.string(), firstName: z.string(), lastName: z.string() })
+        .nullable(),
     }),
   ),
   overpaymentCzk: z.number().int(),
@@ -48,8 +50,12 @@ export const withdrawalPreviewQueryOptions = (applicationId: string, termIds: st
 export async function withdrawTerms(
   applicationId: string,
   termIds: string[],
+  /** The substitute per term the organizer saw in the preview; the server refuses when it changed. */
+  expectedSubstitutes: { termId: string; applicationId: string | null }[],
 ): Promise<WithdrawalResult> {
   return resultSchema.parse(
-    await api.post(`${path(applicationId)}/withdraw`, { json: { termIds } }).json(),
+    await api
+      .post(`${path(applicationId)}/withdraw`, { json: { termIds, expectedSubstitutes } })
+      .json(),
   )
 }

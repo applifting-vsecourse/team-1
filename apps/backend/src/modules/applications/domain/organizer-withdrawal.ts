@@ -36,7 +36,7 @@ export type WithdrawalTermImpact = {
    * The waitlisted applicant the system confirms into the freed bed (US-546); null when nobody
    * takes it (manual evaluation mode, no eligible substitute, expired waitlist).
    */
-  substitute: { firstName: string; lastName: string } | null
+  substitute: { applicationId: string; firstName: string; lastName: string } | null
 }
 
 export type WithdrawalImpact = {

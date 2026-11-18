@@ -57,5 +57,6 @@
   "TRANSPORT_UNAVAILABLE": "Tato doprava už není dostupná. Nabídka byla obnovena.",
   "UNAUTHORIZED": "Přihlaste se prosím.",
   "UNKNOWN": "Něco se pokazilo.",
-  "VALIDATION_FAILED": "Některá pole nejsou vyplněná správně."
+  "VALIDATION_FAILED": "Některá pole nejsou vyplněná správně.",
+  "WITHDRAWAL_SUBSTITUTE_CHANGED": "Pořadník se od zobrazení náhledu změnil. Zkontrolujte, kdo obsadí uvolněné lůžko, a potvrďte znovu."
 }

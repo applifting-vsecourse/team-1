@@ -158,7 +158,11 @@ export class TermStatusService {
         return {
           ...term,
           substitute: substitute
-            ? { firstName: substitute.firstName, lastName: substitute.lastName }
+            ? {
+                applicationId: substitute.applicationId,
+                firstName: substitute.firstName,
+                lastName: substitute.lastName,
+              }
             : null,
         }
       }),
@@ -168,14 +172,28 @@ export class TermStatusService {
 
   /**
    * An organizer withdraws the participant from the given terms (US-32): the terms become
-   * cancelled, the change is logged with the organizer and the applicant gets one e-mail.
+   * cancelled, the change is logged with the organizer and the applicant gets one e-mail. With
+   * `expectedSubstitutes` (what the preview showed) it is refused when the substitute differs now.
    */
   async withdrawByOrganizer(
     user: Identity,
     applicationId: string,
     termIds: string[],
+    expectedSubstitutes?: { termId: string; applicationId: string | null }[],
   ): Promise<{ changedAt: Date; changedByName: string | null }> {
     const { organizationId } = await this.access.assertCanAccessApplication(user, applicationId)
+    if (expectedSubstitutes) {
+      // The waitlist may have changed since the preview the organizer confirmed; nothing is written
+      // until the warning he saw is true again (US-546).
+      const current = await this.previewWithdrawalByOrganizer(user, applicationId, termIds)
+      const isChanged = current.terms.some(
+        (term) =>
+          term.isWithdrawn &&
+          (term.substitute?.applicationId ?? null) !==
+            (expectedSubstitutes.find((row) => row.termId === term.termId)?.applicationId ?? null),
+      )
+      if (isChanged) throw new AppException(HttpStatus.CONFLICT, "WITHDRAWAL_SUBSTITUTE_CHANGED")
+    }
     const change = await this.repository.withdrawTermsByOrganizer(
       organizationId,
       applicationId,

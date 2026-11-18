@@ -64,7 +64,19 @@ export function OrganizerWithdrawal({
   const termIds = isWhole ? terms.map((term) => term.termId) : [scope]
   const preview = useQuery(withdrawalPreviewQueryOptions(applicationId, termIds))
   const mutation = useMutation({
-    mutationFn: () => withdrawTerms(applicationId, termIds),
+    mutationFn: () =>
+      withdrawTerms(
+        applicationId,
+        termIds,
+        (preview.data?.terms ?? [])
+          .filter((row) => row.isWithdrawn)
+          .map((row) => ({
+            termId: row.termId,
+            applicationId: row.substitute?.applicationId ?? null,
+          })),
+      ),
+    // The waitlist may have changed since the preview (409): show the current substitute again.
+    onError: () => client.invalidateQueries({ queryKey: ["eventOverview", "withdrawalPreview"] }),
     onSuccess: async () => {
       onClose()
       notify.success(t("withdrawal.done"))

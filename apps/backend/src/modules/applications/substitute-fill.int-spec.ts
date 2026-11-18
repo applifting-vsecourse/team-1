@@ -476,14 +476,17 @@ describe("filling a freed bed with a substitute (integration)", () => {
     const previewSubstitute = async (
       applicationId: string,
       termId: string,
-    ): Promise<{ firstName: string; lastName: string } | null> => {
+    ): Promise<{ applicationId: string; firstName: string; lastName: string } | null> => {
       const response = await fetch(
         api(`/organizer/applications/${applicationId}/terms/withdraw-preview?termIds=${termId}`),
         { headers: { Cookie: cookie } },
       )
       expect(response.status).toBe(200)
       const body = (await response.json()) as {
-        terms: { termId: string; substitute: { firstName: string; lastName: string } | null }[]
+        terms: {
+          termId: string
+          substitute: { applicationId: string; firstName: string; lastName: string } | null
+        }[]
       }
       return body.terms.find((row) => row.termId === termId)!.substitute
     }
@@ -497,7 +500,11 @@ describe("filling a freed bed with a substitute (integration)", () => {
 
       const substitute = await previewSubstitute(confirmed.id, event.termId)
       const firstName = await prisma.application.findUniqueOrThrow({ where: { id: first.id } })
-      expect(substitute).toEqual({ firstName: firstName.firstName, lastName: firstName.lastName })
+      expect(substitute).toEqual({
+        applicationId: first.id,
+        firstName: firstName.firstName,
+        lastName: firstName.lastName,
+      })
       expect(await statusOf(first.id)).toBe("WAITLISTED")
 
       await cancel(confirmed.id, event.termId)
@@ -518,6 +525,51 @@ describe("filling a freed bed with a substitute (integration)", () => {
       await addApplication(event, "MALE", 1, "WAITLISTED")
 
       expect(await previewSubstitute(confirmed.id, event.termId)).toBeNull()
+    })
+
+    describe("withdrawal with the previewed substitute", () => {
+      const withdrawExpecting = (
+        applicationId: string,
+        termId: string,
+        substituteId: string | null,
+      ): Promise<Response> =>
+        fetch(api(`/organizer/applications/${applicationId}/terms/withdraw`), {
+          method: "POST",
+          headers: { Cookie: cookie, "Content-Type": "application/json" },
+          body: JSON.stringify({
+            termIds: [termId],
+            expectedSubstitutes: [{ termId, applicationId: substituteId }],
+          }),
+        })
+
+      it("withdraws and confirms the substitute when the preview still holds", async () => {
+        const event = await createEvent("AUTOMATIC")
+        const confirmed = await addApplication(event, "MALE", 0, "CONFIRMED")
+        const first = await addApplication(event, "MALE", 1, "WAITLISTED")
+
+        expect((await withdrawExpecting(confirmed.id, event.termId, first.id)).status).toBe(200)
+        expect(await statusOf(confirmed.id)).toBe("CANCELLED")
+        expect(await statusOf(first.id)).toBe("CONFIRMED")
+      })
+
+      it("refuses with 409 and changes nothing when the waitlist changed after the preview", async () => {
+        const event = await createEvent("AUTOMATIC")
+        const confirmed = await addApplication(event, "MALE", 0, "CONFIRMED")
+        const first = await addApplication(event, "MALE", 1, "WAITLISTED")
+        const second = await addApplication(event, "MALE", 2, "WAITLISTED")
+        await prisma.applicationTerm.updateMany({
+          where: { applicationId: first.id },
+          data: { status: "CANCELLED" },
+        })
+
+        const response = await withdrawExpecting(confirmed.id, event.termId, first.id)
+        expect(response.status).toBe(409)
+        expect(((await response.json()) as { code: string }).code).toBe(
+          "WITHDRAWAL_SUBSTITUTE_CHANGED",
+        )
+        expect(await statusOf(confirmed.id)).toBe("CONFIRMED")
+        expect(await statusOf(second.id)).toBe("WAITLISTED")
+      })
     })
   })
 })
