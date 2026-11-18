@@ -34,7 +34,7 @@ describe("CopyButton", () => {
     )
     await user.click(screen.getByRole("button", { name: "Copy" }))
     expect(await screen.findByRole("dialog", { name: "Copying failed" })).toBeVisible()
-    const field = screen.getByRole("textbox", { name: "Copy" }) as HTMLInputElement
+    const field = screen.getByRole<HTMLInputElement>("textbox", { name: "Copy" })
     expect(field).toHaveValue("abc")
     expect(field.selectionStart).toBe(0)
     expect(field.selectionEnd).toBe(3)
