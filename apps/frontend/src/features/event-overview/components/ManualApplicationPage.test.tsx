@@ -60,7 +60,7 @@ async function fillForm(
   })
   await user.click(screen.getByRole("combobox", { name: "Gender for room assignment *" }))
   await user.click(screen.getByRole("option", { name: "Female" }))
-  if (phone) await user.type(screen.getByLabelText("Phone (optional)"), phone)
+  if (phone) await user.type(screen.getByLabelText("Phone"), phone)
   await user.type(screen.getByLabelText("E-mail *"), "eva@example.com")
   await user.click(screen.getByRole("combobox", { name: /First/ }))
   await user.click(screen.getByRole("option", { name: status }))
@@ -214,11 +214,11 @@ describe("ManualApplicationPage", () => {
       await user.click(screen.getByRole("button", { name: "Create application" }))
       expect(post).not.toHaveBeenCalled()
       expect(
-        screen.getByLabelText("Phone (optional)").parentElement?.querySelector('[role="alert"]'),
+        screen.getByLabelText("Phone").parentElement?.querySelector('[role="alert"]'),
       ).not.toBeNull()
 
-      await user.clear(screen.getByLabelText("Phone (optional)"))
-      await user.type(screen.getByLabelText("Phone (optional)"), " +420 (777) 123-456 ")
+      await user.clear(screen.getByLabelText("Phone"))
+      await user.type(screen.getByLabelText("Phone"), " +420 (777) 123-456 ")
       await user.click(screen.getByRole("button", { name: "Create application" }))
 
       expect(await screen.findByText("Application created")).toBeInTheDocument()
