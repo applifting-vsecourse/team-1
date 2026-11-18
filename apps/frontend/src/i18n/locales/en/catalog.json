@@ -16,6 +16,7 @@
     "emptyTitle": "No published events yet",
     "errorDescription": "Please try again.",
     "errorTitle": "The catalog couldn't be loaded.",
+    "eventCount_few": "{{count}} events",
     "eventCount_one": "{{count}} event",
     "eventCount_other": "{{count}} events",
     "loading": "Loading…",
