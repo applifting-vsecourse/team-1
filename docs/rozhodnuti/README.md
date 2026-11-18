@@ -12,7 +12,6 @@ _Nic._
 
 | ID | Rozhodnutí | Soubor | Co zapsat |
 | --- | --- | --- | --- |
-| [D-100](#d-100) | Před začátkem storno podmínek si účastník mění přihlášku a termíny bez schválení | `docs/SLOVNIK.md` | pojem Schvalování požadavků účastníků (dříve „začátek storna“) |
 | [D-140](#d-140) | E-maily o přijetí a zamítnutí žádosti o změnu | `docs/emaily/TEXTY.md` | texty obou zpráv CS/EN |
 
 ## Změny dřívějších rozhodnutí
@@ -1355,7 +1354,7 @@ _Nic._
 - **Dotčené US:** [US-84](https://github.com/applifting-vsecourse/team-1/issues/84), [US-114](https://github.com/applifting-vsecourse/team-1/issues/207)
 - **Zdroj:** [rozhodnutí PM při přípravě statusu s PO 2026-11-05](https://github.com/applifting-vsecourse/team-1/issues/84); [async status s PO 4. 11. (A3): „Změny a odhlášení: OK.“](../../docs/zapisy/2026-11-04-async-status-s-po.md); [PR #325: hranice dne cancellationStartsOn](https://github.com/applifting-vsecourse/team-1/pull/325#issuecomment-6660278716)
 - **Z otázek:** `Q-PRI-07`
-- **Dokumentace:** `docs/SLOVNIK.md`: ceka, pojem Schvalování požadavků účastníků (dříve „začátek storna“)
+- **Dokumentace:** `docs/SLOVNIK.md`: hotovo (366191f0), pojem Schvalování požadavků účastníků (dříve „začátek storna“)
 - **Poznámka:** Rozhodl PM, PO potvrdil 4. 11. Celý den cancellationStartsOn (Europe/Prague) už vyžaduje schválení (PR #325). Storno podmínky jako text: D-113 (návrh).
 
 <a id="d-101"></a>
