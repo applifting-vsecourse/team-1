@@ -45,8 +45,18 @@ export type HistoryEdit = {
   changedAt: Date
 }
 
-/** A changed field with its value before and after; a flag is `"true"` / `"false"`. */
-export type HistoryFieldChange = { field: EditableField; from: string | null; to: string | null }
+/**
+ * A changed field with its value before and after; a flag is `"true"` / `"false"`. The note about
+ * the accommodation is long free text: its history says only that it changed (values stay stored
+ * in the edit, they are not listed).
+ */
+export type HistoryFieldChange =
+  | {
+      field: Exclude<EditableField, "accommodationRequest">
+      from: string | null
+      to: string | null
+    }
+  | { field: "accommodationRequest"; from?: undefined; to?: undefined }
 
 export type ApplicationHistorySource = {
   /** E-mail of the applicant who submitted the application. */
@@ -139,11 +149,10 @@ export function buildApplicationHistory(source: ApplicationHistorySource): Histo
       at: edit.changedAt,
       author: edit.authorName,
       changes: EDITABLE_FIELDS.filter((field) => edit.changedFields.includes(field)).map(
-        (field) => ({
-          field,
-          from: asText(edit.before[field]),
-          to: asText(edit.after[field]),
-        }),
+        (field): HistoryFieldChange =>
+          field === "accommodationRequest"
+            ? { field }
+            : { field, from: asText(edit.before[field]), to: asText(edit.after[field]) },
       ),
     })
   }

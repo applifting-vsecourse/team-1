@@ -248,7 +248,7 @@
     "note": "Poznámka (max. 2 000 znaků)",
     "noteTooLong": "Poznámka může mít nejvýše 2 000 znaků.",
     "phone": "Telefon",
-    "phoneInvalid": "Zadejte platné telefonní číslo, například +420 777 123 456 (7 až 15 číslic, případně začínající +).",
+    "phoneInvalid": "Zadejte platné telefonní číslo, například +420 777 123 456.",
     "save": "Uložit změny",
     "saveError": "Změny se nepodařilo uložit",
     "saved": "Údaje účastníka uloženy.",
@@ -272,7 +272,6 @@
     "entry": "{{date}} · {{who}} · {{change}}",
     "errorTitle": "Historii změn se nepodařilo načíst",
     "field": {
-      "accommodationRequest": "Poznámka k ubytování",
       "birthDate": "Datum narození",
       "firstName": "Jméno",
       "individualAccommodation": "Individuální ubytování",
@@ -280,6 +279,7 @@
       "phone": "Telefon"
     },
     "no": "ne",
+    "noteChanged": "Poznámka k ubytování: změněna",
     "payment": "Platba {{amount}}",
     "refund": "Vratka {{amount}}",
     "status": "{{term}}: {{from}} → {{to}}",

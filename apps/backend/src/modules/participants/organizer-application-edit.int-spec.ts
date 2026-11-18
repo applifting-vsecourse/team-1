@@ -142,9 +142,14 @@ describe("organizer edit of an application (integration)", () => {
         { field: "birthDate", to: "2000-05-15" },
         { field: "phone", from: null, to: "+420777123456" },
         { field: "individualAccommodation", from: "false", to: "true" },
-        { field: "accommodationRequest", from: null, to: input.accommodationRequest },
+        // The note's values are stored in the edit but not listed in the history.
+        { field: "accommodationRequest" },
       ],
     })
+    expect(JSON.stringify(entries[0])).not.toContain(input.accommodationRequest)
+    // …while the edit itself still holds both values.
+    const record = await prisma.applicationEdit.findFirstOrThrow({ where: { applicationId } })
+    expect(record.after).toMatchObject({ accommodationRequest: input.accommodationRequest })
   })
 
   it("does not e-mail the applicant", async () => {
@@ -153,21 +158,12 @@ describe("organizer edit of an application (integration)", () => {
     expect(allEmailsTo(applicantEmail)).toHaveLength(mailsBefore)
   })
 
-  it("notifies the other organizers of the organization but not the author", async () => {
-    const notices = await prisma.notification.findMany({
-      where: { applicationId, kind: "APPLICATION_EDITED_BY_ORGANIZER" },
-    })
-    const members = await prisma.organizationMember.findMany({
-      where: { organizationId, user: { accountType: "ORGANIZER" } },
-    })
-    expect(members.some((member) => member.userId === organizerId)).toBe(true)
-    expect(notices.map((notice) => notice.userId).sort()).toEqual(
-      members
-        .map((member) => member.userId)
-        .filter((id) => id !== organizerId)
-        .sort(),
-    )
-    expect(notices.every((notice) => notice.type === "REQUEST")).toBe(true)
+  it("sends no notification to anyone (D-141 applies to the applicant's own edit only)", async () => {
+    expect(
+      await prisma.notification.count({
+        where: { applicationId, kind: { startsWith: "APPLICATION_EDITED" } },
+      }),
+    ).toBe(0)
   })
 
   it("writes nothing for a save that changes nothing", async () => {

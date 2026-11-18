@@ -27,7 +27,6 @@ export type NotificationKind =
   /** Prepared for US-114 (requests for a change); nothing raises it yet. */
   | "REQUEST_APPROVED"
   | "APPLICATION_EDITED"
-  | "APPLICATION_EDITED_BY_ORGANIZER"
 
 /** The data the copy is composed from. Dates are ISO days, amounts whole CZK. */
 export type NotificationParams = {
@@ -69,7 +68,7 @@ export type NewNotification = {
 export const typeOfKind = (kind: NotificationKind): NotificationType =>
   kind.startsWith("PAYMENT_")
     ? "PAYMENT"
-    : kind.startsWith("REQUEST_") || kind.startsWith("APPLICATION_EDITED")
+    : kind.startsWith("REQUEST_") || kind === "APPLICATION_EDITED"
       ? "REQUEST"
       : "STATUS_CHANGED"
 

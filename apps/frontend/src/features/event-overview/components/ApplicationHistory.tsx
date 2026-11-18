@@ -38,8 +38,8 @@ export function ApplicationHistory({ applicationId }: { applicationId: string })
   const describe = (entry: HistoryEntry): string => {
     if (entry.kind === "APPLICATION_CREATED") return t("history.created")
     if (entry.kind === "EDIT") {
-      const value = (field: string, text: string | null): string => {
-        if (text === null) return t("history.emptyValue")
+      const value = (field: string, text: string | null | undefined): string => {
+        if (text === null || text === undefined) return t("history.emptyValue")
         if (field === "birthDate") return formatDate(text)
         if (field === "individualAccommodation") {
           return t(text === "true" ? "history.yes" : "history.no")
@@ -49,11 +49,14 @@ export function ApplicationHistory({ applicationId }: { applicationId: string })
       return t("history.edit", {
         changes: entry.changes
           .map(({ field, from, to }) =>
-            t("history.change", {
-              field: t(`history.field.${field}`),
-              from: value(field, from),
-              to: value(field, to),
-            }),
+            // The note is long free text: the history only says that it changed.
+            field === "accommodationRequest"
+              ? t("history.noteChanged")
+              : t("history.change", {
+                  field: t(`history.field.${field}`),
+                  from: value(field, from),
+                  to: value(field, to),
+                }),
           )
           .join("; "),
       })

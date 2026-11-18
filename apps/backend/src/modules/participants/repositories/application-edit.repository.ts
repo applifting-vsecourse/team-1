@@ -33,7 +33,7 @@ export type EditInput = Pick<
 /** Whose application it is: the applicant's own, or any application of the organizer's organization. */
 export type EditScope = { userId: string } | { organizationId: string }
 
-/** Who saves the edit; the audit record and the organizers' notification carry the name. */
+/** Who saves the edit; the audit record carries the name. */
 export type Editor = { id: string; name: string }
 
 const include = {
@@ -194,15 +194,16 @@ export class ApplicationEditRepository {
           after: input as Prisma.InputJsonObject,
         },
       })
-      await this.notifications.notifyOrganizersOfApplicationEdit(tx, {
-        organizationId: row.organizationId,
-        applicationId: id,
-        eventId: row.eventId,
-        eventName: row.event.name,
-        participantName: `${input.firstName} ${input.lastName}`,
-        // An organizer's own change is not news to them; the applicant is no organizer anyway.
-        editedBy: "organizationId" in scope ? { userId: editor.id } : undefined,
-      })
+      // Only an applicant's edit notifies the organizers (D-141); an organizer's own change tells nobody.
+      if ("userId" in scope) {
+        await this.notifications.notifyOrganizersOfApplicationEdit(tx, {
+          organizationId: row.organizationId,
+          applicationId: id,
+          eventId: row.eventId,
+          eventName: row.event.name,
+          participantName: `${input.firstName} ${input.lastName}`,
+        })
+      }
       const updated = toDto((await tx.application.findFirst({ where: { id, ...scope }, include }))!)
       // Two edits can share a millisecond; the response must show this save first.
       updated.history.sort((a, b) => (a.id === edit.id ? -1 : b.id === edit.id ? 1 : 0))

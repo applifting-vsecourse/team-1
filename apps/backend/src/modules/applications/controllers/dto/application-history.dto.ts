@@ -7,10 +7,20 @@ import { ApiProperty } from "@nestjs/swagger"
 
 export class HistoryFieldChangeDto {
   @ApiProperty({ enum: EDITABLE_FIELDS }) field!: HistoryFieldChange["field"]
-  @ApiProperty({ nullable: true, type: String, description: "Null: the field was empty" })
-  from!: string | null
-  @ApiProperty({ nullable: true, type: String, description: "Null: the field is empty now" })
-  to!: string | null
+  @ApiProperty({
+    required: false,
+    nullable: true,
+    type: String,
+    description: "Null: the field was empty. Not sent for the accommodation note.",
+  })
+  from?: string | null
+  @ApiProperty({
+    required: false,
+    nullable: true,
+    type: String,
+    description: "Null: the field is empty now. Not sent for the accommodation note.",
+  })
+  to?: string | null
 }
 
 const STATUSES = ["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED"]

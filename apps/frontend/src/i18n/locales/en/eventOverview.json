@@ -248,7 +248,7 @@
     "note": "Note (max. 2,000 characters)",
     "noteTooLong": "The note can be at most 2,000 characters long.",
     "phone": "Phone",
-    "phoneInvalid": "Enter a valid phone number, for example +420 777 123 456 (7 to 15 digits, optionally starting with +).",
+    "phoneInvalid": "Enter a valid phone number, for example +420 777 123 456.",
     "save": "Save changes",
     "saveError": "The changes could not be saved",
     "saved": "Participant details saved.",
@@ -272,7 +272,6 @@
     "entry": "{{date}} · {{who}} · {{change}}",
     "errorTitle": "Could not load the history of changes",
     "field": {
-      "accommodationRequest": "Accommodation note",
       "birthDate": "Date of birth",
       "firstName": "First name",
       "individualAccommodation": "Individual accommodation",
@@ -280,6 +279,7 @@
       "phone": "Phone"
     },
     "no": "no",
+    "noteChanged": "Accommodation note: changed",
     "payment": "Payment {{amount}}",
     "refund": "Refund {{amount}}",
     "status": "{{term}}: {{from}} → {{to}}",

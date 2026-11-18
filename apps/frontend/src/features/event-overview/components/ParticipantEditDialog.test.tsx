@@ -129,7 +129,9 @@ describe("ParticipantEditDialog", () => {
     await user.paste("x".repeat(2001))
     await user.click(screen.getByRole("button", { name: "Save changes" }))
 
-    expect(await screen.findByText(/Enter a valid phone number/)).toBeVisible()
+    expect(
+      await screen.findByText("Enter a valid phone number, for example +420 777 123 456."),
+    ).toBeVisible()
     expect(screen.getByText("The note can be at most 2,000 characters long.")).toBeVisible()
     expect(put).not.toHaveBeenCalled()
   })

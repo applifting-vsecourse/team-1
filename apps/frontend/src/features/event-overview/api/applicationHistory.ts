@@ -29,12 +29,15 @@ const historyEntrySchema = z.discriminatedUnion("kind", [
   z.object({
     ...base,
     kind: z.literal("EDIT"),
-    /** The changed details; a flag is the text `true` or `false`, an empty value is null. */
+    /**
+     * The changed details; a flag is the text `true` or `false`, an empty value is null. The
+     * accommodation note comes without values: its history only says that it changed.
+     */
     changes: z.array(
       z.object({
         field: z.enum(EDITABLE_FIELDS),
-        from: z.string().nullable(),
-        to: z.string().nullable(),
+        from: z.string().nullable().optional(),
+        to: z.string().nullable().optional(),
       }),
     ),
   }),

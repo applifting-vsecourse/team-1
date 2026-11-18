@@ -103,4 +103,27 @@ describe("buildApplicationHistory", () => {
       ],
     })
   })
+
+  it("lists no values of the accommodation note, only that it changed", () => {
+    const history = buildApplicationHistory({
+      ...source,
+      edits: [
+        {
+          id: "e2",
+          authorName: "Eva Malá",
+          changedFields: ["accommodationRequest"],
+          before: { accommodationRequest: "Old secret note" },
+          after: { accommodationRequest: "New note" },
+          changedAt: day("2026-11-18"),
+        },
+      ],
+    })
+    expect(history[0]).toEqual({
+      kind: "EDIT",
+      id: "edit-e2",
+      at: day("2026-11-18"),
+      author: "Eva Malá",
+      changes: [{ field: "accommodationRequest" }],
+    })
+  })
 })

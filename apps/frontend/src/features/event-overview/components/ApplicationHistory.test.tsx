@@ -74,6 +74,7 @@ describe("ApplicationHistory", () => {
               { field: "phone", from: null, to: "+420777123456" },
               { field: "birthDate", from: "2014-05-04", to: "2014-05-05" },
               { field: "individualAccommodation", from: "false", to: "true" },
+              { field: "accommodationRequest" },
             ],
           },
           entries[3],
@@ -87,6 +88,8 @@ describe("ApplicationHistory", () => {
     expect(edit).toHaveTextContent("Phone: — → +420777123456")
     expect(edit).toHaveTextContent("Date of birth: 4 May 2014 → 5 May 2014")
     expect(edit).toHaveTextContent("Individual accommodation: no → yes")
+    // The note's values are not listed, only that it changed.
+    expect(edit).toHaveTextContent("Accommodation note: changed")
   })
 
   it("lists every change with its time, author and change", async () => {
