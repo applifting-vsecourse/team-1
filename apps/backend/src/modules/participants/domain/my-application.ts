@@ -8,6 +8,9 @@ import {
 import {
   computeAmountOwed,
   computePaymentStatus,
+  computeRefundableAmount,
+  computeTermDue,
+  computeTermPaid,
   PaymentStatus,
 } from "@/modules/applications/domain/pricing"
 import { variableSymbol as toVariableSymbol } from "@/modules/applications/domain/variable-symbol"
@@ -60,6 +63,7 @@ export type MyApplicationTerm = {
   endsOn: string
   status: ApplicationTermStatus
   priceCzk: number
+  archivedOverpaymentCzk?: number
   /** Transport is offered in this term (US-65). */
   transportOffered: boolean
   /** The participant has told how they get there. */
@@ -161,6 +165,14 @@ export function buildMyApplication(
         endsOn: toIsoDate(term.endsOn),
         status: term.status,
         priceCzk: term.priceCzk,
+        ...(term.status === "ARCHIVED"
+          ? {
+              archivedOverpaymentCzk: computeRefundableAmount(
+                computeTermDue(term),
+                computeTermPaid(term.payments),
+              ),
+            }
+          : {}),
         transportOffered: term.transportOffered,
         transportDecided: term.transportDecided,
       })),

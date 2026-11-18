@@ -10,7 +10,7 @@ const termSchema = z.object({
   startsOn: z.string(),
   endsOn: z.string(),
   /** `WAITLISTED` is shown as waitlisted — never as a place in line. */
-  status: z.enum(["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED"]),
+  status: z.enum(["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED", "ARCHIVED"]),
   priceCzk: z.number().int(),
 })
 

@@ -201,6 +201,7 @@
     "wholeApplication": "Whole application · all terms ({{count}})"
   },
   "status": {
+    "archived": "Archived",
     "cancelled": "Cancelled",
     "confirmed": "Confirmed",
     "toEvaluate": "Awaiting evaluation",

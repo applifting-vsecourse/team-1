@@ -8,7 +8,7 @@ export const applicationsSearchSchema = z.object({
   view: z.enum(["CHANGE_REQUESTS"]).optional(),
   q: z.string().trim().max(100).optional().catch(undefined),
   term: z.string().optional(),
-  status: z.enum(["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED"]).optional(),
+  status: z.enum(["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED", "ARCHIVED"]).optional(),
   gender: z.enum(["FEMALE", "MALE"]).optional(),
   payment: z
     .enum(["DEBT", "NOTHING_DUE", "UNPAID", "PARTIALLY_PAID", "PAID", "OVERPAID"])

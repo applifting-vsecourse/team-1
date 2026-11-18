@@ -67,7 +67,8 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
   const hasToEvaluate = data.terms.some((term) => term.status === "TO_EVALUATE")
   // Confirmed and waitlisted terms are shown with their payment below (US-110).
   const otherTerms = data.terms.filter(
-    (term) => term.status === "TO_EVALUATE" || term.status === "CANCELLED",
+    (term) =>
+      term.status === "TO_EVALUATE" || term.status === "CANCELLED" || term.status === "ARCHIVED",
   )
 
   // Transport is asked for every confirmed term the organizer offers it to.
@@ -157,7 +158,12 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
                   <TermLabel term={term} />
                   <TermStatusBadge term={term} />
                   <span className="w-full sm:w-50 sm:text-right">
-                    {term.status === "TO_EVALUATE" ? null : <MoneyAmount amountCzk={0} />}
+                    {term.status === "TO_EVALUATE" ? null : (
+                      <>
+                        {term.archivedOverpaymentCzk ? `${t("paymentStatus.OVERPAID")} · ` : null}
+                        <MoneyAmount amountCzk={term.archivedOverpaymentCzk ?? 0} />
+                      </>
+                    )}
                   </span>
                 </li>
               ))}
