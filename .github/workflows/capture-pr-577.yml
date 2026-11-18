@@ -1,0 +1,163 @@
+name: Verify v2 screens and email previews for PR 577
+on:
+  push:
+    branches: [tmp/pr-577-v2-wireframes-971f167]
+permissions:
+  contents: read
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: togena
+          POSTGRES_PASSWORD: togena
+          POSTGRES_DB: togena
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U togena -d togena"
+          --health-interval 3s
+          --health-timeout 3s
+          --health-retries 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Create env files
+        run: pnpm env:check
+
+      - name: Install Chromium for Playwright
+        run: pnpm e2e exec playwright install --with-deps chromium
+
+      - name: Render existing email templates with preview data
+        working-directory: apps/backend
+        env:
+          FRONTEND_URL: http://localhost:3190
+        run: |
+          cat > preview-pr-577.cjs <<'JS'
+          const fs = require("node:fs")
+          const { render } = require("react-email")
+          const React = require("react")
+          const dest = "../frontend/public/test-email"
+          fs.mkdirSync(dest, { recursive: true })
+          async function main() {
+            for (const name of ["application-change-confirmation-withdrawn","application-change","application-confirmation-two-applicants","application-confirmation-waitlisted","application-confirmation","application-term-cancelled","change-email-notice","change-email","change-request-status","magic-link","payment-correction","payment-received","reset-password","verify-email"]) {
+              const Template = require("./src/core/email/templates/" + name).default
+              const props = Template.PreviewProps ?? { locale: "cs", status: "REJECTED", eventName: "Letní kemp", participantName: "Jana Nováková", reason: "Termín je obsazený." }
+              fs.writeFileSync(dest + "/" + name + ".html", await render(React.createElement(Template, props)))
+            }
+          }
+          main().catch(error => { console.error(error); process.exitCode = 1 })
+          JS
+          pnpm exec node -r ts-node/register/transpile-only -r tsconfig-paths/register preview-pr-577.cjs
+      - name: Capture seeded screenshots
+        run: |
+          cat > apps/e2e/tests/zz-screenshots.spec.ts <<'TS'
+          import { expect, test } from "@playwright/test"
+          import { ORGANIZER, PARTICIPANT, SUMMER_CAMP_LINK } from "./support/accounts"
+          import { latestMagicLinkToken } from "./support/magic-link"
+          import { openEventList, signIn } from "./support/auth"
+          import { eventIdByPublicToken } from "./support/events"
+          
+          for (const width of [1440, 360]) {
+            test.describe(String(width), () => {
+              test.use({ viewport: { width, height: width === 360 ? 800 : 900 } })
+              test("public flows and organizer workspace", async ({ page }) => {
+                test.setTimeout(120000)
+                const capture = async (screen: string) => {
+                  await expect(page.getByRole("heading", { level: 1 }).first()).toBeVisible()
+                  await page.waitForLoadState("networkidle")
+                  await page.evaluate(() => document.fonts.ready)
+                  await page.screenshot({ path: "test-results/screenshots/" + screen + "-" + width + ".png", fullPage: true, animations: "disabled" })
+                }
+                for (const [screen, route] of [["catalog","/catalog"], ["event","/events/demo-letni-kemp-2027"], ["register","/organizer/register"], ["not-found","/unknown-seeded-route"]]) {
+                  await page.goto(route)
+                  await capture(screen)
+                }
+                await page.goto("/organizer/login")
+                await capture("login")
+                await page.goto(SUMMER_CAMP_LINK)
+                await capture("apply")
+                await signIn(page, "organizer", ORGANIZER)
+                await openEventList(page)
+                await capture("events")
+                const id = await eventIdByPublicToken("demo-letni-kemp-2027")
+                for (const section of ["settings", "terms", "capacity", "applications", "payments", "rooms", "program"]) {
+                  await page.goto("/organizer/events/" + id + "/" + section)
+                  await expect(page.getByRole("navigation", { name: "Event sections" })).toBeVisible()
+                  await capture(section)
+                }
+                await page.getByRole("button", { name: "Add block" }).click()
+                await expect(page.getByRole("dialog", { name: "Add block" })).toBeVisible()
+                await page.screenshot({ path: "test-results/screenshots/program-dialog-" + width + ".png", fullPage: true, animations: "disabled" })
+              })
+              test("participant workspace", async ({ page }) => {
+                await signIn(page, "participant", PARTICIPANT)
+                await expect(page.getByRole("heading", { name: "Your applications" })).toBeVisible()
+                await page.waitForLoadState("networkidle")
+                await page.evaluate(() => document.fonts.ready)
+                await page.screenshot({ path: "test-results/screenshots/participant-" + width + ".png", fullPage: true, animations: "disabled" })
+                await page.locator('a[href^="/participant/applications/"]').first().click()
+                await expect(page.locator('a[href$="/edit"]')).toBeVisible()
+                await page.screenshot({ path: "test-results/screenshots/participant-detail-" + width + ".png", fullPage: true, animations: "disabled" })
+                await page.locator('a[href$="/edit"]').click()
+                await expect(page.getByRole("heading", {level: 1})).toBeVisible()
+                await page.screenshot({ path: "test-results/screenshots/participant-edit-" + width + ".png", fullPage: true, animations: "disabled" })
+              })
+              test("transactional email previews", async ({ page }) => {
+                for (const name of ["application-change-confirmation-withdrawn","application-change","application-confirmation-two-applicants","application-confirmation-waitlisted","application-confirmation","application-term-cancelled","change-email-notice","change-email","change-request-status","magic-link","payment-correction","payment-received","reset-password","verify-email"]) {
+                  await page.goto("/test-email/" + name + ".html")
+                  await expect(page.getByRole("heading").first()).toBeVisible()
+                  const image = page.locator('img[alt="Togena"]')
+                  await expect.poll(() => image.evaluate(el => (el as HTMLImageElement).naturalWidth)).toBeGreaterThan(0)
+                  await page.screenshot({ path: "test-results/screenshots/mail-" + name + "-" + width + ".png", fullPage: true })
+                }
+              })
+              test("capture link verification and follow the one-time link", async ({ page }) => {
+                await page.goto("/participant/magic-link")
+                await page.getByLabel("E-mail").fill(PARTICIPANT.email)
+                await page.getByRole("button", { name: "Send me a link" }).click()
+                await expect(page.getByRole("status")).toContainText("Check your e-mail")
+                const token = await latestMagicLinkToken()
+                await page.goto("/participant/magic-link?token=" + encodeURIComponent(token))
+                // A 204 leaves Chromium on the current document. Freeze this transient UI for
+                // the screenshot, then continue the same one-time link against the seeded server.
+                let destination = ""
+                const verify = "**/api/auth/magic-link/verify?**"
+                await page.route(verify, async (route) => {
+                  destination = route.request().url()
+                  await route.fulfill({ status: 204 })
+                }, { times: 1 })
+                await page.getByRole("button", { name: "Continue" }).click()
+                await expect.poll(() => destination.length).toBeGreaterThan(0)
+                await expect(page.getByRole("status")).toContainText("Verifying your link")
+                await page.screenshot({ path: "test-results/screenshots/verification-" + width + ".png", fullPage: true, animations: "disabled" })
+                await page.goto(destination)
+                await expect(page.getByRole("heading", { name: "Your applications" })).toBeVisible()
+              })
+          
+            })
+          }
+          TS
+          pnpm e2e test tests/zz-screenshots.spec.ts --project=desktop
+      - name: Archive screenshots
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: pr-577-seeded-screenshots
+          path: apps/e2e/test-results/screenshots/*.png
+          retention-days: 2
