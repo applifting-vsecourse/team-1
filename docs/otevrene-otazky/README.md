@@ -2,7 +2,7 @@
 
 > Generováno z [`otazky.yaml`](otazky.yaml) (`python generate.py`). Needituj, měň YAML.
 
-**41 neuzavřených** otázek, **90 uzavřených**.
+**44 neuzavřených** otázek, **90 uzavřených**.
 
 ## Role
 
@@ -85,6 +85,9 @@ _Nic._
 | --- | --- | --- | --- | --- |
 | [Q-PRI-07](#q-pri-07) | Ověřit u PO rozhodnutí D-100: dokud neběží storno podmínky, účastník si mění přihlášku, termíny i odhlášku bez schválení; schvaluje až organizátor po začátku storno podmínek. Platí, nebo má být jinak? (Rozhodl PM, jde o ověření.) | [US-84](https://github.com/applifting-vsecourse/team-1/issues/84) | [D-100](../rozhodnuti/README.md#d-100): Před začátkem storno podmínek si účastník mění přihlášku a termíny bez schválení | `docs/SLOVNIK.md` |
 | [Q-UBY-03](#q-uby-03) | Mají být zájmena v přihlášce jako nepovinné pole? Organizátor LARP tábora je plánuje do přihlášek přidat. | [US-38](https://github.com/applifting-vsecourse/team-1/issues/38) | [D-161](../rozhodnuti/README.md#d-161): Individuální ubytování: zobrazení, viditelnost a navazující story | – |
+| [Q-UBY-07](#q-uby-07) | Ukazovat spolubydlícům v Moje přihláška celá jména, nebo jen křestní (GDPR)? | [US-144](https://github.com/applifting-vsecourse/team-1/issues/504) | [D-162](../rozhodnuti/README.md#d-162): Spolubydlící v Moje přihláška se zatím neukazují | – |
+| [Q-PRI-26](#q-pri-26) | Které kroky a v jakém pořadí má přehled kroků po registraci ukazovat, kdy je „hotovo“ u stravování a zdraví a co s archivovanou přihláškou? | [US-149](https://github.com/applifting-vsecourse/team-1/issues/509) | [D-163](../rozhodnuti/README.md#d-163): Přehled kroků po registraci: pořadí a potvrzení bez omezení | – |
+| [Q-UBY-08](#q-uby-08) | V jakém pořadí nabízet pokoje při přiřazení účastníka (pohlaví, volná lůžka)? | [#534](https://github.com/applifting-vsecourse/team-1/issues/534) | [D-165](../rozhodnuti/README.md#d-165): Řazení nabídky pokojů při přiřazení | – |
 
 ## Tickety k založení
 
@@ -162,6 +165,7 @@ _Nic._
 | ID | Otázka | Dotčené US | Stav | Priorita | Čeká na |
 | --- | --- | --- | --- | --- | --- |
 | [Q-PRI-07](#q-pri-07) | Ověřit u PO rozhodnutí D-100: dokud neběží storno podmínky, účastník si mění přihlášku, termíny i odhlášku bez schválení; schvaluje až organizátor po začátku storno podmínek. Platí, nebo má být jinak? (Rozhodl PM, jde o ověření.) | [US-84](https://github.com/applifting-vsecourse/team-1/issues/84) | rozhodnuto, nezapsáno | P2 | `pm` |
+| [Q-PRI-26](#q-pri-26) | Které kroky a v jakém pořadí má přehled kroků po registraci ukazovat, kdy je „hotovo“ u stravování a zdraví a co s archivovanou přihláškou? | [US-149](https://github.com/applifting-vsecourse/team-1/issues/509) | rozhodnuto, nezapsáno | P2 | `pm` |
 | [Q-PRI-01](#q-pri-01) | Jaké výjimky dnes děláš (stálí účastníci, tým, sourozenci)? | [US-28](https://github.com/applifting-vsecourse/team-1/issues/28) | otevřeno | P3 | `po` |
 | [Q-PRI-09](#q-pri-09) | Používáš okna pro podání přihlášek podle věku či jiných údajů? | [US-87](https://github.com/applifting-vsecourse/team-1/issues/87) | otevřeno | P3 | `po` |
 | [Q-PRI-10](#q-pri-10) | Kdo je smí vidět, jak dlouho se uchovávají a má o záznamu účastník vědět? Potřebuješ to na kempu? | [US-88](https://github.com/applifting-vsecourse/team-1/issues/88) | otevřeno | P3 | `po` |
@@ -181,6 +185,8 @@ _Nic._
 
 | ID | Otázka | Dotčené US | Stav | Priorita | Čeká na |
 | --- | --- | --- | --- | --- | --- |
+| [Q-UBY-07](#q-uby-07) | Ukazovat spolubydlícům v Moje přihláška celá jména, nebo jen křestní (GDPR)? | [US-144](https://github.com/applifting-vsecourse/team-1/issues/504) | rozhodnuto, nezapsáno | P2 | `pm` |
+| [Q-UBY-08](#q-uby-08) | V jakém pořadí nabízet pokoje při přiřazení účastníka (pohlaví, volná lůžka)? | [#534](https://github.com/applifting-vsecourse/team-1/issues/534) | rozhodnuto, nezapsáno | P2 | `pm` |
 | [Q-UBY-03](#q-uby-03) | Mají být zájmena v přihlášce jako nepovinné pole? Organizátor LARP tábora je plánuje do přihlášek přidat. | [US-38](https://github.com/applifting-vsecourse/team-1/issues/38) | rozhodnuto, nezapsáno | P3 | `pm` |
 | [Q-UBY-06](#q-uby-06) | Jak má organizátor před spuštěním přihlášek předem připravit pokoje nebo konkrétní osoby (páry, rodiny), aby to nenarušilo vyhodnocení? | [US-38](https://github.com/applifting-vsecourse/team-1/issues/38) | otevřeno | P3 | `pm` |
 
@@ -1410,6 +1416,16 @@ _Nic._
   - [PR #464 (US-113)](https://github.com/applifting-vsecourse/team-1/pull/464)
 - **Priorita:** P3 – Vznikne až s PR #464 (D-107); okrajový případ.
 
+<a id="q-pri-26"></a>
+
+### Q-PRI-26 – Které kroky a v jakém pořadí má přehled kroků po registraci ukazovat, kdy je „hotovo“ u stravování a zdraví a co s archivovanou přihláškou?
+
+- **Epic:** přihlašování na akce · **Dotčené US:** [US-149](https://github.com/applifting-vsecourse/team-1/issues/509) · **Stav:** rozhodnuto, nezapsáno · **Čeká na:** `pm`
+- **Zdroje:**
+  - [PR #574 (US-149)](https://github.com/applifting-vsecourse/team-1/pull/574)
+- **Priorita:** P2 – Blokovalo dokončení PR #574.
+- **Rozhodnutí:** [D-163](../rozhodnuti/README.md#d-163): Přehled kroků v Moje přihláška má pořadí zaplacení (je-li dluh), doprava (nabízí-li se), stravování, zdravotní omezení. Potvrzení „nemám žádné omezení“ u stravování a zdraví řeší samostatná US-150 (mění schéma), US-149 na ni nečeká. Archivovaná přihláška se v US-149 neřeší, její zobrazení je navazující ticket.
+
 <a id="q-tec-01"></a>
 
 ### Q-TEC-01 – Kolik lidí loni podalo přihlášku v první hodině? Jak předejít selhání systému ten večer?
@@ -1550,6 +1566,26 @@ _Nic._
 - **Zdroje:**
   - [status s PO 11. 11., §2.1](https://github.com/applifting-vsecourse/team-1/blob/7e88428b276a2b1cabd4f95a48456856b04c60d4/docs/zapisy/2026-11-11-status-s-po.md): „Ano, tento use case existuje, ale konkrétní řešení nechává PO na týmu.“
 - **Priorita:** P3 – PO řešení nechal na týmu; pro Sprint 4 stačí přiřazení při ručním vyhodnocení.
+
+<a id="q-uby-07"></a>
+
+### Q-UBY-07 – Ukazovat spolubydlícům v Moje přihláška celá jména, nebo jen křestní (GDPR)?
+
+- **Epic:** ubytování · **Dotčené US:** [US-144](https://github.com/applifting-vsecourse/team-1/issues/504) · **Stav:** rozhodnuto, nezapsáno · **Čeká na:** `pm`
+- **Zdroje:**
+  - [PR #575 (US-144)](https://github.com/applifting-vsecourse/team-1/pull/575)
+- **Priorita:** P2 – Blokovalo dokončení PR #575.
+- **Rozhodnutí:** [D-162](../rozhodnuti/README.md#d-162): V Moje přihláška se spolubydlící zatím neukazují; zobrazení (jména, GDPR, individuální ubytování) se promyslí v samostatném ticketu. Jméno účastníka s individuálním ubytováním se mezi spolubydlícími neukazuje i nadále (kritérium US-144).
+
+<a id="q-uby-08"></a>
+
+### Q-UBY-08 – V jakém pořadí nabízet pokoje při přiřazení účastníka (pohlaví, volná lůžka)?
+
+- **Epic:** ubytování · **Dotčené US:** [#534](https://github.com/applifting-vsecourse/team-1/issues/534) · **Stav:** rozhodnuto, nezapsáno · **Čeká na:** `pm`
+- **Zdroje:**
+  - [PR #569 (issue #534)](https://github.com/applifting-vsecourse/team-1/pull/569)
+- **Priorita:** P2 – Blokovalo dokončení PR #569.
+- **Rozhodnutí:** [D-165](../rozhodnuti/README.md#d-165): Nabídka pokojů se řadí do skupin: pokoje shodného pohlaví s účastníkem, pokoje bez pohlaví nebo smíšené, pokoje opačného pohlaví. Uvnitř skupiny nejvíc volných lůžek nahoře, plné na konci, při shodě podle názvu.
 
 <a id="q-uct-01"></a>
 

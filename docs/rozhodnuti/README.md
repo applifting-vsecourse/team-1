@@ -2,7 +2,7 @@
 
 > Generováno z [`rozhodnuti.yaml`](rozhodnuti.yaml) (`python generate.py`). Needituj, měň YAML.
 
-**157 platných**, 0 návrhů, 4 nahrazených nebo zrušených.
+**161 platných**, 0 návrhů, 4 nahrazených nebo zrušených.
 
 ## Návrhy čekající na PM
 
@@ -107,6 +107,7 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-164](#d-164) | Dialog změny termínu: částka k úhradě místo platby | 2026-11-18 | `pm` | produkt |
 | [D-156](#d-156) | Lhůta na zaplacení: 1–60 dní, změna platí jen pro nově potvrzené | 2026-11-14 | `pm` | produkt |
 | [D-125](#d-125) | Import plateb: CSV z jedné banky nebo jednoduchý generický formát | 2026-11-11 | `pm` | produkt |
 | [D-107](#d-107) | Schvalování požadavků účastníků nelze zapnout zpětně | 2026-11-11 | `pm` | produkt |
@@ -151,6 +152,7 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-163](#d-163) | Přehled kroků po registraci: pořadí a potvrzení bez omezení | 2026-11-18 | `pm` | produkt |
 | [D-158](#d-158) | Storno podmínky vidí přihlašovatel před odhláškou a změnou termínu | 2026-11-14 | `pm` | produkt |
 | [D-157](#d-157) | Vyhodnocení vybraných přihlášek jedním krokem | 2026-11-14 | `pm` | produkt |
 | [D-110](#d-110) | Archivace přihlášky v termínu první den po konci jejího termínu | 2026-11-14 | `pm` | produkt |
@@ -227,6 +229,8 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-165](#d-165) | Řazení nabídky pokojů při přiřazení | 2026-11-18 | `pm` | produkt |
+| [D-162](#d-162) | Spolubydlící v Moje přihláška se zatím neukazují | 2026-11-18 | `pm` | produkt |
 | [D-161](#d-161) | Individuální ubytování: zobrazení, viditelnost a navazující story | 2026-11-15 | `pm` | produkt |
 | [D-160](#d-160) | Potvrzení varování pokoje, poznámka a přistýlka po termínech | 2026-11-15 | `pm` | produkt |
 | [D-159](#d-159) | Pozdější příjezd a dřívější odjezd jen jako informace pro kuchyni | 2026-11-14 | `pm` | produkt |
@@ -2056,3 +2060,50 @@ _Nic._
 - **Zdroj:** [US-38, rozhodnutí PM 15. 11.](https://github.com/applifting-vsecourse/team-1/issues/38#issuecomment-6897230967)
 - **Z otázek:** `Q-UBY-03`
 - **Poznámka:** Rozhodl PM 15. 11.
+
+<a id="d-162"></a>
+
+### D-162 – Spolubydlící v Moje přihláška se zatím neukazují
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** ubytování
+- **Datum:** 2026-11-18 · **Rozhodl:** `pm`
+- **Text:** V Moje přihláška se spolubydlící zatím neukazují; zobrazení (jména, GDPR, individuální ubytování) se promyslí v samostatném ticketu. Jméno účastníka s individuálním ubytováním se mezi spolubydlícími neukazuje i nadále (kritérium US-144).
+- **Dotčené US:** [US-144](https://github.com/applifting-vsecourse/team-1/issues/504)
+- **Zdroj:** [PR #575 (US-144), rozhodnutí PM 18. 11.](https://github.com/applifting-vsecourse/team-1/pull/575#issuecomment-6977273409)
+- **Z otázek:** `Q-UBY-07`
+- **Poznámka:** Rozhodl PM 18. 11.
+
+<a id="d-163"></a>
+
+### D-163 – Přehled kroků po registraci: pořadí a potvrzení bez omezení
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** přihlašování na akce
+- **Datum:** 2026-11-18 · **Rozhodl:** `pm`
+- **Text:** Přehled kroků v Moje přihláška má pořadí zaplacení (je-li dluh), doprava (nabízí-li se), stravování, zdravotní omezení. Potvrzení „nemám žádné omezení“ u stravování a zdraví řeší samostatná US-150 (mění schéma), US-149 na ni nečeká. Archivovaná přihláška se v US-149 neřeší, její zobrazení je navazující ticket.
+- **Dotčené US:** [US-149](https://github.com/applifting-vsecourse/team-1/issues/509)
+- **Zdroj:** [PR #574 (US-149), rozhodnutí PM 18. 11.](https://github.com/applifting-vsecourse/team-1/pull/574#issuecomment-6977274059)
+- **Z otázek:** `Q-PRI-26`
+- **Poznámka:** Rozhodl PM 18. 11.
+
+<a id="d-164"></a>
+
+### D-164 – Dialog změny termínu: částka k úhradě místo platby
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** platby
+- **Datum:** 2026-11-18 · **Rozhodl:** `pm`
+- **Text:** V dialogu „Změnit termín“ zůstává „nová částka k úhradě“. Platba je v aplikaci pouze ručně zapsaný příjem (SLOVNIK.md); blok ukazuje částku k úhradě. Používání pojmů „úhrada“ a „platba“ se prověří v samostatném ticketu.
+- **Dotčené US:** [#550](https://github.com/applifting-vsecourse/team-1/issues/550)
+- **Zdroj:** [PR #573 (issue #550), rozhodnutí PM 18. 11.](https://github.com/applifting-vsecourse/team-1/pull/573#issuecomment-6977275180)
+- **Poznámka:** Rozhodl PM 18. 11.
+
+<a id="d-165"></a>
+
+### D-165 – Řazení nabídky pokojů při přiřazení
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** ubytování
+- **Datum:** 2026-11-18 · **Rozhodl:** `pm`
+- **Text:** Nabídka pokojů se řadí do skupin: pokoje shodného pohlaví s účastníkem, pokoje bez pohlaví nebo smíšené, pokoje opačného pohlaví. Uvnitř skupiny nejvíc volných lůžek nahoře, plné na konci, při shodě podle názvu.
+- **Dotčené US:** [#534](https://github.com/applifting-vsecourse/team-1/issues/534)
+- **Zdroj:** [PR #569 (issue #534), rozhodnutí PM 18. 11.](https://github.com/applifting-vsecourse/team-1/pull/569#issuecomment-6977276531)
+- **Z otázek:** `Q-UBY-08`
+- **Poznámka:** Rozhodl PM 18. 11.
