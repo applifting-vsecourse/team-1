@@ -40,6 +40,8 @@ describe("BulkEvaluationService", () => {
   let statuses: { applyChange: jest.Mock }
   let service: BulkEvaluationService
 
+  // One man and one woman fit into the free beds.
+  const BOTH = { FEMALE: 1, MALE: 1 }
   const calls = () =>
     statuses.applyChange.mock.calls.map(([command]) => [command.applicationId, command.to])
 
@@ -71,7 +73,7 @@ describe("BulkEvaluationService", () => {
       "e1",
       "t1",
       ["adam", "petr", "jana", "eva", "gone"],
-      2,
+      BOTH,
       "WAITLIST",
     )
 
@@ -104,7 +106,7 @@ describe("BulkEvaluationService", () => {
       "e1",
       "t1",
       ["adam", "petr", "jana", "eva"],
-      2,
+      BOTH,
       "REJECT",
     )
 
@@ -131,7 +133,7 @@ describe("BulkEvaluationService", () => {
 
   it("changes nothing and answers 400 when some do not fit and the organizer did not choose", async () => {
     await expect(
-      service.evaluate(user, "e1", "t1", ["adam", "petr", "jana", "eva"], 2),
+      service.evaluate(user, "e1", "t1", ["adam", "petr", "jana", "eva"], BOTH),
     ).rejects.toMatchObject({
       status: HttpStatus.BAD_REQUEST,
       code: "EVALUATION_REST_REQUIRED",
@@ -144,7 +146,7 @@ describe("BulkEvaluationService", () => {
       ...state,
       candidates: [person("adam", "MALE", 1), person("jana", "FEMALE", 3)],
     })
-    const result = await service.evaluate(user, "e1", "t1", ["adam", "jana"], 2)
+    const result = await service.evaluate(user, "e1", "t1", ["adam", "jana"], BOTH)
     expect(calls()).toEqual([
       ["adam", "CONFIRMED"],
       ["jana", "CONFIRMED"],
@@ -153,10 +155,26 @@ describe("BulkEvaluationService", () => {
   })
 
   it("changes nothing and answers 409 when the capacity changed since the preview", async () => {
-    await expect(service.evaluate(user, "e1", "t1", ["adam"], 3)).rejects.toMatchObject({
+    await expect(
+      service.evaluate(user, "e1", "t1", ["adam"], { FEMALE: 2, MALE: 2 }),
+    ).rejects.toMatchObject({
       status: HttpStatus.CONFLICT,
       code: "EVALUATION_PLAN_CHANGED",
     })
+    expect(statuses.applyChange).not.toHaveBeenCalled()
+  })
+
+  it("answers 409 when the total is the same but the split by gender changed since the preview", async () => {
+    await expect(
+      service.evaluate(
+        user,
+        "e1",
+        "t1",
+        ["adam", "petr", "jana", "eva"],
+        { FEMALE: 2, MALE: 0 },
+        "WAITLIST",
+      ),
+    ).rejects.toMatchObject({ status: HttpStatus.CONFLICT, code: "EVALUATION_PLAN_CHANGED" })
     expect(statuses.applyChange).not.toHaveBeenCalled()
   })
 
@@ -175,7 +193,7 @@ describe("BulkEvaluationService", () => {
       "e1",
       "t1",
       ["adam", "petr", "jana", "eva"],
-      2,
+      BOTH,
       "WAITLIST",
     )
 
@@ -189,7 +207,7 @@ describe("BulkEvaluationService", () => {
 
   it("does not swallow errors other than a refused change", async () => {
     statuses.applyChange.mockRejectedValue(new Error("db down"))
-    await expect(service.evaluate(user, "e1", "t1", ["adam"], 2, "WAITLIST")).rejects.toThrow(
+    await expect(service.evaluate(user, "e1", "t1", ["adam"], BOTH, "WAITLIST")).rejects.toThrow(
       "db down",
     )
   })
@@ -201,7 +219,9 @@ describe("BulkEvaluationService", () => {
     )
     access.assertCanAccessEvent.mockResolvedValue({ organizationId: "org" })
     repository.findTermState.mockResolvedValue(null)
-    await expect(service.evaluate(user, "e1", "t9", ["adam"], 0)).rejects.toMatchObject({
+    await expect(
+      service.evaluate(user, "e1", "t9", ["adam"], { FEMALE: 0, MALE: 0 }),
+    ).rejects.toMatchObject({
       status: HttpStatus.NOT_FOUND,
     })
   })

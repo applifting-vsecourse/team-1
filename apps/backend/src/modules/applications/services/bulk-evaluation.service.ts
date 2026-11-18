@@ -67,13 +67,15 @@ export class BulkEvaluationService {
     eventId: string,
     termId: string,
     applicationIds: string[],
-    expectedConfirmedCount: number,
+    expectedConfirmed: GenderCounts,
     rest?: BulkDecision,
   ): Promise<BulkEvaluationResult> {
     const { organizationId, state } = await this.load(user, eventId, termId, applicationIds)
     const plan = planBulkEvaluation(state.rooms, state.confirmedGenders, state.candidates)
+    const byId = new Map(state.candidates.map((row) => [row.applicationId, row]))
+    const confirmed = countByGender(plan.confirm.map((id) => byId.get(id)!))
     // The organizer saw another result (capacity changed since the preview): nothing is changed.
-    if (plan.confirm.length !== expectedConfirmedCount)
+    if (confirmed.FEMALE !== expectedConfirmed.FEMALE || confirmed.MALE !== expectedConfirmed.MALE)
       throw new AppException(HttpStatus.CONFLICT, "EVALUATION_PLAN_CHANGED")
     // Whoever does not fit must be decided on knowingly: no choice, no evaluation.
     if (plan.rest.length > 0 && !rest)

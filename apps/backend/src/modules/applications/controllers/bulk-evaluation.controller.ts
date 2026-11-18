@@ -67,7 +67,7 @@ export class BulkEvaluationController {
         eventId,
         termId,
         body.applicationIds,
-        body.expectedConfirmedCount,
+        body.expectedConfirmed,
         body.rest,
       ),
     )

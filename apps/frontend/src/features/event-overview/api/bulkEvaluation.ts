@@ -53,12 +53,12 @@ export async function evaluateSelected(
   eventId: string,
   termId: string,
   applicationIds: string[],
-  expectedConfirmedCount: number,
+  expectedConfirmed: BulkEvaluationPreview["confirm"]["byGender"],
   rest: BulkDecision | undefined,
 ): Promise<BulkEvaluationResult> {
   return resultSchema.parse(
     await api
-      .post(path(eventId, termId), { json: { applicationIds, expectedConfirmedCount, rest } })
+      .post(path(eventId, termId), { json: { applicationIds, expectedConfirmed, rest } })
       .json(),
   )
 }

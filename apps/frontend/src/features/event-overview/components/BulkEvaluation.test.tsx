@@ -180,7 +180,7 @@ describe("evaluating the selected applications in one step (US-140)", () => {
     await user.click(submit)
     await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull())
     expect(lastEvaluation()).toEqual({
-      json: { applicationIds: ["a1", "a2", "a3"], expectedConfirmedCount: 3 },
+      json: { applicationIds: ["a1", "a2", "a3"], expectedConfirmed: { FEMALE: 0, MALE: 3 } },
     })
     // Back on the list of all applications.
     expect(onFiltersChange).toHaveBeenLastCalledWith({ term: "t1" })
@@ -226,7 +226,11 @@ describe("evaluating the selected applications in one step (US-140)", () => {
 
       await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull())
       expect(lastEvaluation()).toEqual({
-        json: { applicationIds: ["a1", "a2", "a3"], expectedConfirmedCount: 2, rest },
+        json: {
+          applicationIds: ["a1", "a2", "a3"],
+          expectedConfirmed: { FEMALE: 0, MALE: 2 },
+          rest,
+        },
       })
       expect(onFiltersChange).toHaveBeenLastCalledWith({ term: "t1" })
       expect(notifySuccess).toHaveBeenCalledWith(
@@ -261,11 +265,11 @@ describe("evaluating the selected applications in one step (US-140)", () => {
   it("shows the new result to be confirmed again when the capacity changed meanwhile, and changes nothing before", async () => {
     let previews = 0
     post.mockImplementation(
-      (path: string, options: { json: { expectedConfirmedCount?: number } }) => {
+      (path: string, options: { json: { expectedConfirmed?: { MALE: number } } }) => {
         if (path.endsWith("preview")) {
           return json(previews++ === 0 ? sharedPreview(10, 10, 10) : sharedPreview(8, 12, 8))
         }
-        if (options.json.expectedConfirmedCount === 10) {
+        if (options.json.expectedConfirmed?.MALE === 10) {
           return {
             json: () =>
               Promise.reject(
@@ -300,7 +304,7 @@ describe("evaluating the selected applications in one step (US-140)", () => {
     expect(lastEvaluation()).toEqual({
       json: {
         applicationIds: ["a1", "a2", "a3"],
-        expectedConfirmedCount: 8,
+        expectedConfirmed: { FEMALE: 0, MALE: 8 },
         rest: "WAITLIST",
       },
     })

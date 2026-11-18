@@ -58,7 +58,7 @@ export function BulkEvaluateDialog({
   const data = shown ?? preview.data
   const hasRest = (data?.rest.total ?? 0) > 0
   const evaluate = useMutation({
-    mutationFn: (expected: number) =>
+    mutationFn: (expected: BulkEvaluationPreview["confirm"]["byGender"]) =>
       evaluateSelected(eventId, termId, ids, expected, hasRest ? rest : undefined),
     onSuccess: onDone,
     onError: async (error) => {
@@ -80,7 +80,7 @@ export function BulkEvaluateDialog({
           size="lg"
           className="h-12 md:min-w-40"
           disabled={!data || evaluate.isPending || preview.isFetching || (hasRest && !rest)}
-          onClick={() => data && evaluate.mutate(data.confirm.total)}
+          onClick={() => data && evaluate.mutate(data.confirm.byGender)}
         >
           {t(isChanged ? "bulkEvaluation.submitChanged" : "bulkEvaluation.submit")}
         </Button>

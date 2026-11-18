@@ -4,6 +4,7 @@ import {
   GenderBreakdown,
 } from "@/modules/applications/services/bulk-evaluation.service"
 import { ApiProperty } from "@nestjs/swagger"
+import { Type } from "class-transformer"
 import {
   ArrayMaxSize,
   ArrayMinSize,
@@ -14,8 +15,14 @@ import {
   IsOptional,
   IsString,
   Min,
+  ValidateNested,
 } from "class-validator"
 import { GenderCapacityDto } from "./term-capacity.response.dto"
+
+class ExpectedConfirmedDto {
+  @ApiProperty() @IsInt() @Min(0) FEMALE!: number
+  @ApiProperty() @IsInt() @Min(0) MALE!: number
+}
 
 export class BulkEvaluationRequestDto {
   @ApiProperty({ type: [String], description: "Applications selected in the term" })
@@ -28,11 +35,12 @@ export class BulkEvaluationRequestDto {
 
   @ApiProperty({
     description:
-      "How many applications the organizer saw confirmed in the preview; another number now means the capacity changed and nothing is evaluated (409 EVALUATION_PLAN_CHANGED)",
+      "How many applications of each gender the organizer saw confirmed in the preview; another number now means the capacity changed and nothing is evaluated (409 EVALUATION_PLAN_CHANGED)",
+    type: ExpectedConfirmedDto,
   })
-  @IsInt()
-  @Min(0)
-  expectedConfirmedCount!: number
+  @ValidateNested()
+  @Type(() => ExpectedConfirmedDto)
+  expectedConfirmed!: ExpectedConfirmedDto
 
   @ApiProperty({
     enum: ["WAITLIST", "REJECT"],

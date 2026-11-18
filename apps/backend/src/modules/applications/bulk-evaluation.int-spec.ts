@@ -127,7 +127,7 @@ describe("bulk evaluation of applications in a term (integration)", () => {
 
   it("is for organizers of the event only, and changes nothing in a foreign one", async () => {
     const victim = await addApplication(genderedTermId, "MALE", 50)
-    const body = { applicationIds: [victim.id], expectedConfirmedCount: 1 }
+    const body = { applicationIds: [victim.id], expectedConfirmed: { FEMALE: 0, MALE: 1 } }
     expect((await post(genderedTermId, "", body, null)).status).toBe(401)
     expect((await post(genderedTermId, "", body, participantCookie)).status).toBe(403)
     expect(
@@ -162,7 +162,7 @@ describe("bulk evaluation of applications in a term (integration)", () => {
 
     const response = await post(genderedTermId, "", {
       applicationIds: ids,
-      expectedConfirmedCount: 3,
+      expectedConfirmed: { FEMALE: 1, MALE: 2 },
       rest: "WAITLIST",
     })
     expect(response.status).toBe(200)
@@ -201,7 +201,7 @@ describe("bulk evaluation of applications in a term (integration)", () => {
     const late = await addApplication(genderedTermId, "MALE", 60)
     const response = await post(genderedTermId, "", {
       applicationIds: [late.id],
-      expectedConfirmedCount: 1,
+      expectedConfirmed: { FEMALE: 0, MALE: 1 },
       rest: "WAITLIST",
     })
     expect(response.status).toBe(409)
@@ -210,7 +210,7 @@ describe("bulk evaluation of applications in a term (integration)", () => {
 
     const again = await post(genderedTermId, "", {
       applicationIds: [late.id],
-      expectedConfirmedCount: 0,
+      expectedConfirmed: { FEMALE: 0, MALE: 0 },
       rest: "WAITLIST",
     })
     expect(again.status).toBe(200)
@@ -230,7 +230,7 @@ describe("bulk evaluation of applications in a term (integration)", () => {
     // Without the choice nothing is evaluated.
     const missing = await post(sharedTermId, "", {
       applicationIds: ids,
-      expectedConfirmedCount: 10,
+      expectedConfirmed: { FEMALE: 5, MALE: 5 },
     })
     expect(missing.status).toBe(400)
     expect(await missing.json()).toMatchObject({ code: "EVALUATION_REST_REQUIRED" })
@@ -239,7 +239,7 @@ describe("bulk evaluation of applications in a term (integration)", () => {
     const result = (await (
       await post(sharedTermId, "", {
         applicationIds: ids,
-        expectedConfirmedCount: 10,
+        expectedConfirmed: { FEMALE: 5, MALE: 5 },
         rest: "REJECT",
       })
     ).json()) as Result
@@ -272,7 +272,12 @@ describe("bulk evaluation of applications in a term (integration)", () => {
 
   it("answers 404 for a term of another event", async () => {
     expect(
-      (await post("unknown-term", "", { applicationIds: ["x"], expectedConfirmedCount: 0 })).status,
+      (
+        await post("unknown-term", "", {
+          applicationIds: ["x"],
+          expectedConfirmed: { FEMALE: 0, MALE: 0 },
+        })
+      ).status,
     ).toBe(404)
   })
 })
