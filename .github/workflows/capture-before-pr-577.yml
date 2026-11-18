@@ -28,7 +28,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: cbf0d0c097c069a2987e3742ab8681a5817b5de9
+          ref: 2ea1a4f9659a11104012744b71a416701ea4c742
           persist-credentials: false
 
       - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
@@ -117,7 +117,7 @@ jobs:
                 await openEventList(page)
                 await capture("events")
                 const id = await eventIdByPublicToken("demo-letni-kemp-2027")
-                for (const [screen, route] of [["new-event","/organizer/events/new"], ["organizer-account","/organizer/account"], ["overview","/organizer/events/" + id], ["organizer-transport","/organizer/events/"+id+"/transport"], ["organizer-meals","/organizer/events/"+id+"/meals"], ["meal-options","/organizer/events/"+id+"/meals/options"], ["payment-import","/organizer/events/"+id+"/payments/import"], ["cancellation","/organizer/events/"+id+"/payments/cancellation"], ["new-application","/organizer/events/"+id+"/applications/new"]]) {
+                for (const [screen, route] of [["new-event","/organizer/events/new"], ["organizer-account","/organizer/account"], ["overview","/organizer/events/" + id], ["organizer-meals","/organizer/events/"+id+"/meals"], ["meal-options","/organizer/events/"+id+"/meals/options"], ["payment-import","/organizer/events/"+id+"/payments/import"], ["cancellation","/organizer/events/"+id+"/payments/cancellation"], ["new-application","/organizer/events/"+id+"/applications/new"]]) {
                   await page.goto(route)
                   await capture(screen)
                 }
@@ -142,6 +142,17 @@ jobs:
                     expect(created.ok()).toBeTruthy()
                   }
                 }
+                await page.goto("/organizer/events/"+id+"/transport")
+                await capture("organizer-transport")
+                await page.goto("/organizer/events/"+id+"/capacity?termId="+term.termId)
+                await expect(page.getByRole("link",{name:"All terms"})).toBeVisible()
+                await capture("capacity-term")
+                const paymentsResponse = await page.request.get("http://localhost:4190/api/organizer/events/"+id+"/payments")
+                expect(paymentsResponse.ok()).toBeTruthy()
+                const entry = (await paymentsResponse.json()).entries[0]
+                await page.goto("/organizer/events/"+id+"/applications/"+entry.applicationId)
+                await expect(page.getByRole("group",{name:"Participant details"})).toBeVisible()
+                await capture("organizer-application-detail")
                 for (const section of ["settings", "terms", "capacity", "applications", "payments", "rooms", "program"]) {
                   await page.goto("/organizer/events/" + id + "/" + section)
                   await expect(page.getByRole("navigation", { name: "Event sections" })).toBeVisible()
@@ -243,7 +254,7 @@ jobs:
           import os, shutil, struct
           source = Path(os.environ["RUNNER_TEMP"]) / "screenshots"
           for width in (1440, 360):
-              for screen in ("participant-login", "event-not-found", "participant-transport", "catalog", "event", "register", "not-found", "login", "apply", "events", "settings", "terms", "capacity", "applications", "payments", "rooms", "program", "program-dialog", "participant", "participant-detail", "participant-edit", "verification", "mail-application-change-confirmation-withdrawn", "mail-application-change", "mail-application-confirmation-two-applicants", "mail-application-confirmation-waitlisted", "mail-application-confirmation", "mail-application-term-cancelled", "mail-change-email-notice", "mail-change-email", "mail-change-request-status", "mail-magic-link", "mail-payment-correction", "mail-payment-received", "mail-reset-password", "mail-verify-email", "landing", "request-link", "expired-link", "new-event", "organizer-account", "overview", "organizer-transport", "organizer-meals", "meal-options", "payment-import", "cancellation", "new-application", "participant-meals", "participant-health", "participant-program", "participant-account", "mail-application-change-confirmation-withdrawn-en", "mail-application-change-en", "mail-application-confirmation-two-applicants-en", "mail-application-confirmation-waitlisted-en", "mail-application-confirmation-en", "mail-application-term-cancelled-en", "mail-change-email-notice-en", "mail-change-email-en", "mail-change-request-status-en", "mail-magic-link-en", "mail-payment-correction-en", "mail-payment-received-en", "mail-reset-password-en", "mail-verify-email-en", "mail-application-change-waitlisted-cs", "mail-application-change-waitlisted-en", "mail-application-change-confirmed-from-waitlist-cs", "mail-application-change-confirmed-from-waitlist-en", "mail-application-change-rejected-cs", "mail-application-change-rejected-en", "mail-application-change-cancelled-cs", "mail-application-change-cancelled-en", "mail-application-change-no-bed-freed-cs", "mail-application-change-no-bed-freed-en", "mail-application-change-cancelled-by-organizer-cs", "mail-application-change-cancelled-by-organizer-en", "mail-change-request-pending-cs", "mail-change-request-pending-en"):
+              for screen in ("capacity-term", "organizer-application-detail", "participant-login", "event-not-found", "participant-transport", "catalog", "event", "register", "not-found", "login", "apply", "events", "settings", "terms", "capacity", "applications", "payments", "rooms", "program", "program-dialog", "participant", "participant-detail", "participant-edit", "verification", "mail-application-change-confirmation-withdrawn", "mail-application-change", "mail-application-confirmation-two-applicants", "mail-application-confirmation-waitlisted", "mail-application-confirmation", "mail-application-term-cancelled", "mail-change-email-notice", "mail-change-email", "mail-change-request-status", "mail-magic-link", "mail-payment-correction", "mail-payment-received", "mail-reset-password", "mail-verify-email", "landing", "request-link", "expired-link", "new-event", "organizer-account", "overview", "organizer-transport", "organizer-meals", "meal-options", "payment-import", "cancellation", "new-application", "participant-meals", "participant-health", "participant-program", "participant-account", "mail-application-change-confirmation-withdrawn-en", "mail-application-change-en", "mail-application-confirmation-two-applicants-en", "mail-application-confirmation-waitlisted-en", "mail-application-confirmation-en", "mail-application-term-cancelled-en", "mail-change-email-notice-en", "mail-change-email-en", "mail-change-request-status-en", "mail-magic-link-en", "mail-payment-correction-en", "mail-payment-received-en", "mail-reset-password-en", "mail-verify-email-en", "mail-application-change-waitlisted-cs", "mail-application-change-waitlisted-en", "mail-application-change-confirmed-from-waitlist-cs", "mail-application-change-confirmed-from-waitlist-en", "mail-application-change-rejected-cs", "mail-application-change-rejected-en", "mail-application-change-cancelled-cs", "mail-application-change-cancelled-en", "mail-application-change-no-bed-freed-cs", "mail-application-change-no-bed-freed-en", "mail-application-change-cancelled-by-organizer-cs", "mail-application-change-cancelled-by-organizer-en", "mail-change-request-pending-cs", "mail-change-request-pending-en"):
                   name = f"{screen}-{width}.png"
                   p = source / name
                   header = p.read_bytes()[:24]
@@ -252,7 +263,7 @@ jobs:
                   assert w >= width and h > 0, (name, w, h)
                   if w != width:
                       print(f"::warning::{name}: page overflows viewport ({w}px)")
-                  dest = Path("577") / f"{screen}-{width}-cbf0d0c.png"
+                  dest = Path("577") / f"{screen}-{width}-2ea1a4f.png"
                   if dest.exists():
                       assert dest.read_bytes() == p.read_bytes(), dest
                       continue
@@ -263,4 +274,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -- 577
           git commit -m "Screenshots for #577 (seeded desktop and 360 px)"
-          git push origin HEAD:refs/heads/pr-screenshots
+          for attempt in 1 2 3; do
+            git fetch origin pr-screenshots && git rebase FETCH_HEAD && git push origin HEAD:refs/heads/pr-screenshots && exit 0
+          done
+          exit 1
