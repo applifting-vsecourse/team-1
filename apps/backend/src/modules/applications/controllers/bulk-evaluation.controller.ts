@@ -22,7 +22,7 @@ export class BulkEvaluationController {
   @HttpCode(200)
   @ApiOperation({
     summary:
-      "How many of the selected applications would be confirmed and how many would become substitutes (US-140)",
+      "How many of the selected applications would be confirmed and how many do not fit (US-140)",
   })
   @ApiResponse({ status: 200, type: BulkEvaluationPreviewResponseDto })
   @ApiResponse({ status: 403, description: "Wrong account type or foreign event" })
@@ -42,11 +42,15 @@ export class BulkEvaluationController {
   @HttpCode(200)
   @ApiOperation({
     summary:
-      "Evaluate the selected applications waiting for evaluation: confirm those that fit into the free beds, the others become substitutes, in order of receipt (US-140)",
+      "Evaluate the selected applications waiting for evaluation: confirm those that fit into the free beds, in order of receipt; the others are put on the waitlist or rejected as chosen (US-140)",
   })
   @ApiResponse({ status: 200, type: BulkEvaluationResponseDto })
   @ApiResponse({ status: 403, description: "Wrong account type or foreign event" })
   @ApiResponse({ status: 404, description: "The term is not a term of the event" })
+  @ApiResponse({
+    status: 400,
+    description: "EVALUATION_REST_REQUIRED: some applications do not fit and `rest` is missing",
+  })
   @ApiResponse({
     status: 409,
     description: "EVALUATION_PLAN_CHANGED: the capacity changed since the preview, nothing changed",
@@ -64,6 +68,7 @@ export class BulkEvaluationController {
         termId,
         body.applicationIds,
         body.expectedConfirmedCount,
+        body.rest,
       ),
     )
   }

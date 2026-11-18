@@ -7,9 +7,12 @@ import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
+import { Label } from "@/components/ui/label"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { apiErrorCode } from "@/lib/api-client"
 
 import type { ListedApplication } from "@/features/event-overview/api/applications"
+import type { BulkDecision } from "@/features/event-overview/api/bulkDecision"
 import {
   bulkEvaluationPreviewQueryOptions,
   evaluateSelected,
@@ -18,31 +21,32 @@ import {
   type BulkEvaluationPreview,
   type BulkEvaluationResult,
 } from "@/features/event-overview/api/bulkEvaluation"
-import { BulkActionDialog, BulkDetail } from "@/features/event-overview/components/BulkActionDialog"
+import { BulkActionDialog } from "@/features/event-overview/components/BulkActionDialog"
 
 const ALERT_CLASS =
   "items-center rounded-xl bg-secondary px-4 py-4 has-[>svg]:grid-cols-[calc(var(--spacing)*5)_1fr] [&>svg]:size-5 [&>svg]:translate-y-0 [&>svg]:self-center"
 const ALERT_TITLE_CLASS = "line-clamp-none font-medium tracking-normal text-foreground"
 
-// Figma (Design system v2): US-140 Potvrzení · 20 → 10 + 10 · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=24909-147946 (mobile 24909-148212)
-// Figma (Design system v2): US-140 Potvrzení · lůžka podle pohlaví · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=24909-148413 (mobile 24909-148679)
+// Figma (Design system v2): US-140 Více než se vejde, nic nevybráno · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27137-114904 (mobile 27137-115190)
+// Figma (Design system v2): US-140 Více než se vejde, Zamítnout · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27137-115342 (mobile 27137-115627)
+// Figma (Design system v2): US-140 Více než se vejde, lůžka podle pohlaví · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27137-115778 (mobile 27137-116064)
+// Figma (Design system v2): US-140 Vše se vejde · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27137-116216 (mobile 27137-116491)
 // Figma (Design system v2): US-140 Změna kapacity · nové potvrzení · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=24909-149262 (mobile 24909-149528)
 /**
- * Evaluates the selected applications in one step (US-140): shows how many are confirmed and how
- * many become substitutes, and does it on confirmation. When the capacity changed meanwhile the
- * server changes nothing, and the dialog shows the new result to be confirmed again.
+ * Evaluates the selected applications in one step (US-140): shows how many are confirmed and, when
+ * some do not fit, asks what happens to the rest (waitlist or reject, no default). When the
+ * capacity changed meanwhile the server changes nothing, and the dialog shows the new result to be
+ * confirmed again.
  */
 export function BulkEvaluateDialog({
   eventId,
   termId,
-  termLabel,
   applications,
   onClose,
   onDone,
 }: {
   eventId: string
   termId: string
-  termLabel: string
   applications: ListedApplication[]
   onClose: () => void
   onDone: (result: BulkEvaluationResult) => void
@@ -53,9 +57,13 @@ export function BulkEvaluateDialog({
   // The numbers the organizer is shown and confirms; replaced when the server says they are stale.
   const [shown, setShown] = useState<BulkEvaluationPreview | null>(null)
   const [staleFreeBeds, setStaleFreeBeds] = useState<number | null>(null)
+  // No default: the organizer chooses what happens to those who do not fit.
+  const [rest, setRest] = useState<BulkDecision | undefined>(undefined)
   const data = shown ?? preview.data
+  const hasRest = (data?.rest.total ?? 0) > 0
   const evaluate = useMutation({
-    mutationFn: (expected: number) => evaluateSelected(eventId, termId, ids, expected),
+    mutationFn: (expected: number) =>
+      evaluateSelected(eventId, termId, ids, expected, hasRest ? rest : undefined),
     onSuccess: onDone,
     onError: async (error) => {
       if (apiErrorCode(error) !== EVALUATION_PLAN_CHANGED || !data) return
@@ -75,7 +83,7 @@ export function BulkEvaluateDialog({
         <Button
           size="lg"
           className="h-12 md:min-w-40"
-          disabled={!data || evaluate.isPending || preview.isFetching}
+          disabled={!data || evaluate.isPending || preview.isFetching || (hasRest && !rest)}
           onClick={() => data && evaluate.mutate(data.confirm.total)}
         >
           {t(isChanged ? "bulkEvaluation.submitChanged" : "bulkEvaluation.submit")}
@@ -105,22 +113,19 @@ export function BulkEvaluateDialog({
               </AlertDescription>
             </Alert>
           )}
-          <BulkDetail
-            label={t("bulkEvaluation.termAndSelection")}
-            value={t("bulkEvaluation.termAndSelectionValue", {
-              term: termLabel,
-              count: data.selected.total,
-            })}
-          />
-          <Breakdown
-            data={data}
-            kind="confirm"
-          />
-          <Breakdown
-            data={data}
-            kind="waitlist"
-          />
-          {!isChanged && <BedsAlert data={data} />}
+          {hasRest ? (
+            <>
+              <RestWarning data={data} />
+              <RestChoice
+                count={data.rest.total}
+                rest={rest}
+                onChange={setRest}
+                isDisabled={evaluate.isPending}
+              />
+            </>
+          ) : (
+            <p>{t("bulkEvaluation.confirmSentence", { count: data.confirm.total })}</p>
+          )}
         </>
       )}
       {evaluate.error && !isStaleError && (
@@ -140,47 +145,77 @@ const changedKey = (before: number, after: number) =>
       ? "bulkEvaluation.changedMore"
       : "bulkEvaluation.changedSame"
 
-/** "Will be confirmed" / "Will become substitutes": the count, and per gender with split beds. */
-function Breakdown({ data, kind }: { data: BulkEvaluationPreview; kind: "confirm" | "waitlist" }) {
+/** Some selected applications do not fit: how many were selected, how many beds are free. */
+function RestWarning({ data }: { data: BulkEvaluationPreview }) {
   const { t } = useTranslation("eventOverview")
-  const part = data[kind]
-  if (data.isShared) {
-    return (
-      <BulkDetail
-        label={t(`bulkEvaluation.${kind}Label`)}
-        value={t("bulk.selectedApplications", { count: part.total })}
-      />
-    )
+  const { confirm, selected } = data
+  const description = (): string => {
+    if (confirm.total === 0) return t("bulkEvaluation.restWarningNone")
+    if (data.isShared) return t("bulkEvaluation.restWarningBody", { count: confirm.total })
+    return t("bulkEvaluation.restWarningGendered", {
+      women: t("bulkEvaluation.confirmWomen", {
+        count: confirm.byGender.FEMALE,
+        of: selected.byGender.FEMALE,
+      }),
+      men: t("bulkEvaluation.confirmMen", {
+        count: confirm.byGender.MALE,
+        of: selected.byGender.MALE,
+      }),
+    })
   }
-  const women = kind === "confirm" ? "confirmWomen" : "waitlistWomen"
-  const men = kind === "confirm" ? "confirmMen" : "waitlistMen"
-  return (
-    <BulkDetail
-      label={t(`bulkEvaluation.${kind}LabelCount`, { count: part.total })}
-      value={`${t(`bulkEvaluation.${women}`, { count: part.byGender.FEMALE, of: data.selected.byGender.FEMALE })} · ${t(`bulkEvaluation.${men}`, { count: part.byGender.MALE, of: data.selected.byGender.MALE })}`}
-    />
-  )
-}
-
-function BedsAlert({ data }: { data: BulkEvaluationPreview }) {
-  const { t } = useTranslation("eventOverview")
-  const total = freeBedsTotal(data)
   return (
     <Alert className={ALERT_CLASS}>
       <TriangleAlert aria-hidden="true" />
       <AlertTitle className={ALERT_TITLE_CLASS}>
-        {t(data.isShared ? "bulkEvaluation.freeBedsShared" : "bulkEvaluation.freeBedsGendered", {
-          count: total,
-        })}
+        {t("bulkEvaluation.restWarning", { count: selected.total, free: freeBedsTotal(data) })}
       </AlertTitle>
-      <AlertDescription>
-        {data.isShared
-          ? t("bulkEvaluation.orderNote")
-          : t("bulkEvaluation.freeBedsSplit", {
-              women: t("bulkEvaluation.freeWomenBeds", { count: data.freePlaces.FEMALE }),
-              men: t("bulkEvaluation.freeMenBeds", { count: data.freePlaces.MALE }),
-            })}
-      </AlertDescription>
+      <AlertDescription>{description()}</AlertDescription>
     </Alert>
+  )
+}
+
+/** What happens to those who do not fit; no default, the organizer chooses. */
+function RestChoice({
+  count,
+  rest,
+  onChange,
+  isDisabled,
+}: {
+  count: number
+  rest: BulkDecision | undefined
+  onChange: (rest: BulkDecision) => void
+  isDisabled: boolean
+}) {
+  const { t } = useTranslation("eventOverview")
+  return (
+    <div className="flex flex-col gap-3">
+      <p
+        id="bulk-evaluation-rest-question"
+        className="text-sm font-medium"
+      >
+        {t("bulkEvaluation.restQuestion", { count })}
+      </p>
+      <RadioGroup
+        value={rest ?? ""}
+        onValueChange={(value) => onChange(value as BulkDecision)}
+        aria-labelledby="bulk-evaluation-rest-question"
+        disabled={isDisabled}
+      >
+        {(["WAITLIST", "REJECT"] as const).map((option) => (
+          <div
+            key={option}
+            className="flex items-center gap-3"
+          >
+            <RadioGroupItem
+              id={`bulk-evaluation-rest-${option}`}
+              value={option}
+            />
+            <Label htmlFor={`bulk-evaluation-rest-${option}`}>
+              {t(option === "WAITLIST" ? "bulkDecision.waitlist" : "bulkDecision.reject")}
+            </Label>
+          </div>
+        ))}
+      </RadioGroup>
+    </div>
   )
 }

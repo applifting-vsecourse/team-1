@@ -59,7 +59,7 @@ describe("BulkEvaluationService", () => {
 
     expect(preview.selected).toEqual({ total: 4, byGender: { FEMALE: 2, MALE: 2 } })
     expect(preview.confirm).toEqual({ total: 2, byGender: { FEMALE: 1, MALE: 1 } })
-    expect(preview.waitlist).toEqual({ total: 2, byGender: { FEMALE: 1, MALE: 1 } })
+    expect(preview.rest).toEqual({ total: 2, byGender: { FEMALE: 1, MALE: 1 } })
     expect(preview.freePlaces).toEqual({ FEMALE: 1, MALE: 1 })
     expect(preview.isShared).toBe(false)
     expect(statuses.applyChange).not.toHaveBeenCalled()
@@ -72,6 +72,7 @@ describe("BulkEvaluationService", () => {
       "t1",
       ["adam", "petr", "jana", "eva", "gone"],
       2,
+      "WAITLIST",
     )
 
     expect(calls()).toEqual([
@@ -92,8 +93,63 @@ describe("BulkEvaluationService", () => {
     expect(result).toEqual({
       confirmed: ["adam", "jana"],
       waitlisted: ["petr", "eva"],
+      rejected: [],
       unchanged: ["gone"],
     })
+  })
+
+  it("rejects the rest through the same status change as a single rejection when the organizer chose so", async () => {
+    const result = await service.evaluate(
+      user,
+      "e1",
+      "t1",
+      ["adam", "petr", "jana", "eva"],
+      2,
+      "REJECT",
+    )
+
+    expect(calls()).toEqual([
+      ["adam", "CONFIRMED"],
+      ["petr", "CANCELLED"],
+      ["jana", "CONFIRMED"],
+      ["eva", "CANCELLED"],
+    ])
+    expect(statuses.applyChange).toHaveBeenCalledWith(
+      expect.objectContaining({
+        applicationId: "petr",
+        actorId: "u1",
+        expectedFrom: "TO_EVALUATE",
+      }),
+    )
+    expect(result).toEqual({
+      confirmed: ["adam", "jana"],
+      waitlisted: [],
+      rejected: ["petr", "eva"],
+      unchanged: [],
+    })
+  })
+
+  it("changes nothing and answers 400 when some do not fit and the organizer did not choose", async () => {
+    await expect(
+      service.evaluate(user, "e1", "t1", ["adam", "petr", "jana", "eva"], 2),
+    ).rejects.toMatchObject({
+      status: HttpStatus.BAD_REQUEST,
+      code: "EVALUATION_REST_REQUIRED",
+    })
+    expect(statuses.applyChange).not.toHaveBeenCalled()
+  })
+
+  it("needs no choice when everybody fits", async () => {
+    repository.findTermState.mockResolvedValue({
+      ...state,
+      candidates: [person("adam", "MALE", 1), person("jana", "FEMALE", 3)],
+    })
+    const result = await service.evaluate(user, "e1", "t1", ["adam", "jana"], 2)
+    expect(calls()).toEqual([
+      ["adam", "CONFIRMED"],
+      ["jana", "CONFIRMED"],
+    ])
+    expect(result.confirmed).toEqual(["adam", "jana"])
   })
 
   it("changes nothing and answers 409 when the capacity changed since the preview", async () => {
@@ -114,18 +170,28 @@ describe("BulkEvaluationService", () => {
       },
     )
 
-    const result = await service.evaluate(user, "e1", "t1", ["adam", "petr", "jana", "eva"], 2)
+    const result = await service.evaluate(
+      user,
+      "e1",
+      "t1",
+      ["adam", "petr", "jana", "eva"],
+      2,
+      "WAITLIST",
+    )
 
     expect(result).toEqual({
       confirmed: ["jana"],
       waitlisted: ["adam", "eva"],
+      rejected: [],
       unchanged: ["petr"],
     })
   })
 
   it("does not swallow errors other than a refused change", async () => {
     statuses.applyChange.mockRejectedValue(new Error("db down"))
-    await expect(service.evaluate(user, "e1", "t1", ["adam"], 2)).rejects.toThrow("db down")
+    await expect(service.evaluate(user, "e1", "t1", ["adam"], 2, "WAITLIST")).rejects.toThrow(
+      "db down",
+    )
   })
 
   it("answers 403 for a foreign event and 404 for a term of another event", async () => {

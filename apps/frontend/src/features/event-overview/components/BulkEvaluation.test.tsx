@@ -14,7 +14,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import { ApplicationsPage } from "@/features/event-overview/components/ApplicationsPage"
 import type { ApplicationsSearch } from "@/features/event-overview/lib/applications-search"
 
-const { get, post } = vi.hoisted(() => ({ get: vi.fn(), post: vi.fn() }))
+const { get, post, notifySuccess } = vi.hoisted(() => ({
+  get: vi.fn(),
+  post: vi.fn(),
+  notifySuccess: vi.fn(),
+}))
+vi.mock("@/lib/notify", () => ({ notify: { success: notifySuccess } }))
 vi.mock("@/lib/api-client", () => ({
   api: { get, post },
   apiErrorCode: (error: { code?: string }) => error?.code,
@@ -113,10 +118,10 @@ const breakdown = (total: number, FEMALE: number, MALE: number) => ({
   total,
   byGender: { FEMALE, MALE },
 })
-const sharedPreview = (confirm: number, waitlist: number, free: number) => ({
-  selected: breakdown(confirm + waitlist, 0, confirm + waitlist),
+const sharedPreview = (confirm: number, rest: number, free: number) => ({
+  selected: breakdown(confirm + rest, 0, confirm + rest),
   confirm: breakdown(confirm, 0, confirm),
-  waitlist: breakdown(waitlist, 0, waitlist),
+  rest: breakdown(rest, 0, rest),
   freePlaces: { FEMALE: free, MALE: free },
   isShared: true,
 })
@@ -136,6 +141,14 @@ const openDialog = async (user: ReturnType<typeof userEvent.setup>) => {
   return screen.findByRole("dialog", { name: "Evaluate selected applications" })
 }
 
+const result = (overrides = {}) => ({
+  confirmed: [],
+  waitlisted: [],
+  rejected: [],
+  unchanged: [],
+  ...overrides,
+})
+
 describe("evaluating the selected applications in one step (US-140)", () => {
   it("offers the action next to the two-step ones", async () => {
     setup()
@@ -146,45 +159,90 @@ describe("evaluating the selected applications in one step (US-140)", () => {
     expect(screen.getByRole("button", { name: "Move to waitlist" })).toBeInTheDocument()
   })
 
-  it("shows how many are confirmed and how many become substitutes before anything changes, then evaluates", async () => {
+  it("offers no choice when everybody fits, and evaluates straight away", async () => {
     post.mockImplementation((path: string) =>
       json(
         path.endsWith("preview")
-          ? sharedPreview(2, 1, 2)
-          : { confirmed: ["a1", "a2"], waitlisted: ["a3"], unchanged: [] },
+          ? sharedPreview(3, 0, 5)
+          : result({ confirmed: ["a1", "a2", "a3"] }),
       ),
     )
     setup()
     const user = userEvent.setup()
     const dialog = await openDialog(user)
 
-    expect(await within(dialog).findByText("Will be confirmed")).toBeInTheDocument()
-    expect(within(dialog).getByText(/ · 3 applications$/)).toBeInTheDocument()
-    expect(within(dialog).getByText("Will become substitutes")).toBeInTheDocument()
-    expect(within(dialog).getByText("2 free beds")).toBeInTheDocument()
-    expect(
-      within(dialog).getByText(
-        "Confirmation and the order of substitutes follow the time of receipt.",
-      ),
-    ).toBeInTheDocument()
-    expect(post).toHaveBeenCalledTimes(1)
+    expect(await within(dialog).findByText("3 applications will be confirmed.")).toBeInTheDocument()
+    expect(within(dialog).queryByRole("radio")).toBeNull()
+    expect(within(dialog).queryByText(/beds are free/)).toBeNull()
+    const submit = within(dialog).getByRole("button", { name: "Evaluate" })
+    expect(submit).toBeEnabled()
 
-    await user.click(within(dialog).getByRole("button", { name: "Confirm evaluation" }))
+    await user.click(submit)
     await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull())
     expect(lastEvaluation()).toEqual({
-      json: { applicationIds: ["a1", "a2", "a3"], expectedConfirmedCount: 2 },
+      json: { applicationIds: ["a1", "a2", "a3"], expectedConfirmedCount: 3 },
     })
     // Back on the list of all applications.
     expect(onFiltersChange).toHaveBeenLastCalledWith({ term: "t1" })
   })
 
-  it("splits the counts by gender when the beds are split by gender", async () => {
+  it("warns that not all fit and requires a choice for the rest, with nothing selected beforehand", async () => {
+    post.mockImplementation((path: string) =>
+      json(path.endsWith("preview") ? sharedPreview(2, 1, 2) : result()),
+    )
+    setup()
+    const user = userEvent.setup()
+    const dialog = await openDialog(user)
+
+    expect(
+      await within(dialog).findByText("You selected 3 applications, 2 beds are free."),
+    ).toBeInTheDocument()
+    expect(within(dialog).getByText("2 will be confirmed in order of receipt.")).toBeInTheDocument()
+    expect(within(dialog).getByText("What about the remaining 1?")).toBeInTheDocument()
+    expect(within(dialog).getByRole("radio", { name: "Move to waitlist" })).not.toBeChecked()
+    expect(within(dialog).getByRole("radio", { name: "Reject" })).not.toBeChecked()
+    expect(within(dialog).getByRole("button", { name: "Evaluate" })).toBeDisabled()
+    expect(post).toHaveBeenCalledTimes(1)
+  })
+
+  it.each([
+    ["Move to waitlist", "WAITLIST", { waitlisted: ["a3"] }, "1 substitute"],
+    ["Reject", "REJECT", { rejected: ["a3"] }, "1 rejected"],
+  ])(
+    "evaluates after choosing %s for the rest and tells the split",
+    async (option, rest, overrides, restText) => {
+      post.mockImplementation((path: string) =>
+        json(
+          path.endsWith("preview")
+            ? sharedPreview(2, 1, 2)
+            : result({ confirmed: ["a1", "a2"], ...overrides }),
+        ),
+      )
+      setup()
+      const user = userEvent.setup()
+      const dialog = await openDialog(user)
+      await user.click(await within(dialog).findByRole("radio", { name: option }))
+      await user.click(within(dialog).getByRole("button", { name: "Evaluate" }))
+
+      await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull())
+      expect(lastEvaluation()).toEqual({
+        json: { applicationIds: ["a1", "a2", "a3"], expectedConfirmedCount: 2, rest },
+      })
+      expect(onFiltersChange).toHaveBeenLastCalledWith({ term: "t1" })
+      expect(notifySuccess).toHaveBeenCalledWith(
+        "3 applications evaluated",
+        `2 confirmed · ${restText}`,
+      )
+    },
+  )
+
+  it("keeps the per-group line when the beds are split by gender", async () => {
     post.mockImplementation(() =>
       json({
         selected: breakdown(20, 6, 14),
-        confirm: breakdown(10, 4, 6),
-        waitlist: breakdown(10, 2, 8),
-        freePlaces: { FEMALE: 4, MALE: 6 },
+        confirm: breakdown(8, 4, 4),
+        rest: breakdown(12, 2, 10),
+        freePlaces: { FEMALE: 4, MALE: 4 },
         isShared: false,
       }),
     )
@@ -192,17 +250,12 @@ describe("evaluating the selected applications in one step (US-140)", () => {
     const dialog = await openDialog(userEvent.setup())
 
     expect(
-      await within(dialog).findByText("Will be confirmed: 10 applications"),
+      await within(dialog).findByText("You selected 20 applications, 8 beds are free."),
     ).toBeInTheDocument()
-    expect(within(dialog).getByText("Women 4 of 6 · men 6 of 14")).toBeInTheDocument()
-    expect(within(dialog).getByText("Will become substitutes: 10 applications")).toBeInTheDocument()
-    expect(within(dialog).getByText("Women 2 · men 8")).toBeInTheDocument()
-    expect(within(dialog).getByText("10 free beds by group")).toBeInTheDocument()
     expect(
-      within(dialog).getByText(
-        "4 women's beds and 6 men's beds. Both groups are evaluated in order of receipt.",
-      ),
+      within(dialog).getByText("Women 4 of 6 · men 4 of 14. Confirmed in order of receipt."),
     ).toBeInTheDocument()
+    expect(within(dialog).getByText("What about the remaining 12?")).toBeInTheDocument()
   })
 
   it("shows the new result to be confirmed again when the capacity changed meanwhile, and changes nothing before", async () => {
@@ -220,13 +273,14 @@ describe("evaluating the selected applications in one step (US-140)", () => {
               ),
           }
         }
-        return json({ confirmed: ["a1"], waitlisted: ["a2", "a3"], unchanged: [] })
+        return json(result({ confirmed: ["a1"], waitlisted: ["a2", "a3"] }))
       },
     )
     setup()
     const user = userEvent.setup()
     const dialog = await openDialog(user)
-    await user.click(await within(dialog).findByRole("button", { name: "Confirm evaluation" }))
+    await user.click(await within(dialog).findByRole("radio", { name: "Move to waitlist" }))
+    await user.click(within(dialog).getByRole("button", { name: "Evaluate" }))
 
     const changed = await screen.findByRole("dialog", { name: "Capacity changed" })
     expect(
@@ -239,10 +293,16 @@ describe("evaluating the selected applications in one step (US-140)", () => {
     ).toBeInTheDocument()
     expect(onFiltersChange).not.toHaveBeenCalled()
 
+    // The choice for the rest stays.
+    expect(within(changed).getByRole("radio", { name: "Move to waitlist" })).toBeChecked()
     await user.click(within(changed).getByRole("button", { name: "Confirm new result" }))
     await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull())
     expect(lastEvaluation()).toEqual({
-      json: { applicationIds: ["a1", "a2", "a3"], expectedConfirmedCount: 8 },
+      json: {
+        applicationIds: ["a1", "a2", "a3"],
+        expectedConfirmedCount: 8,
+        rest: "WAITLIST",
+      },
     })
   })
 

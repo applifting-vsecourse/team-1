@@ -17,6 +17,7 @@
   "EMAIL_VERIFICATION_REQUIRED": "Verify your e-mail address before continuing.",
   "EVALUATION_MODE_LOCKED": "This event already has an application, so the evaluation mode can no longer be changed.",
   "EVALUATION_PLAN_CHANGED": "The capacity of the term changed since the result was shown. Check the new numbers and confirm them.",
+  "EVALUATION_REST_REQUIRED": "Choose what happens to the applications that do not fit: put them on the waitlist or reject them.",
   "EVENT_HAS_APPLICATIONS": "An event with applications cannot be deleted.",
   "FORBIDDEN": "You don't have access to this.",
   "HEALTH_CHANGE_REQUEST_REQUIRED": "The health restriction has already been filled in. Send a change request to the organiser instead.",

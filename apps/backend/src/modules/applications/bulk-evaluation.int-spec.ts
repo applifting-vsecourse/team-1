@@ -15,11 +15,16 @@ type Gender = "FEMALE" | "MALE"
 type Preview = {
   selected: { total: number; byGender: Record<Gender, number> }
   confirm: { total: number; byGender: Record<Gender, number> }
-  waitlist: { total: number; byGender: Record<Gender, number> }
+  rest: { total: number; byGender: Record<Gender, number> }
   freePlaces: Record<Gender, number>
   isShared: boolean
 }
-type Result = { confirmed: string[]; waitlisted: string[]; unchanged: string[] }
+type Result = {
+  confirmed: string[]
+  waitlisted: string[]
+  rejected: string[]
+  unchanged: string[]
+}
 
 describe("bulk evaluation of applications in a term (integration)", () => {
   let prisma: PrismaService
@@ -151,13 +156,14 @@ describe("bulk evaluation of applications in a term (integration)", () => {
     ).json()) as Preview
     expect(preview.selected).toEqual({ total: 5, byGender: { FEMALE: 2, MALE: 3 } })
     expect(preview.confirm).toEqual({ total: 3, byGender: { FEMALE: 1, MALE: 2 } })
-    expect(preview.waitlist).toEqual({ total: 2, byGender: { FEMALE: 1, MALE: 1 } })
+    expect(preview.rest).toEqual({ total: 2, byGender: { FEMALE: 1, MALE: 1 } })
     expect(preview.freePlaces).toEqual({ FEMALE: 1, MALE: 2 })
     expect(await statusOf(m1.id)).toBe("TO_EVALUATE")
 
     const response = await post(genderedTermId, "", {
       applicationIds: ids,
       expectedConfirmedCount: 3,
+      rest: "WAITLIST",
     })
     expect(response.status).toBe(200)
     const result = (await response.json()) as Result
@@ -196,6 +202,7 @@ describe("bulk evaluation of applications in a term (integration)", () => {
     const response = await post(genderedTermId, "", {
       applicationIds: [late.id],
       expectedConfirmedCount: 1,
+      rest: "WAITLIST",
     })
     expect(response.status).toBe(409)
     expect(await response.json()).toMatchObject({ code: "EVALUATION_PLAN_CHANGED" })
@@ -204,12 +211,13 @@ describe("bulk evaluation of applications in a term (integration)", () => {
     const again = await post(genderedTermId, "", {
       applicationIds: [late.id],
       expectedConfirmedCount: 0,
+      rest: "WAITLIST",
     })
     expect(again.status).toBe(200)
     expect(((await again.json()) as Result).waitlisted).toEqual([late.id])
   })
 
-  it("turns 20 selected applications into 10 confirmed and 10 substitutes for 10 free beds", async () => {
+  it("asks for a choice when some do not fit, then confirms 10 of 20 and rejects the other 10 like a single rejection", async () => {
     const ids: string[] = []
     for (let index = 0; index < 20; index++)
       ids.push((await addApplication(sharedTermId, index % 2 ? "FEMALE" : "MALE", index)).id)
@@ -217,22 +225,49 @@ describe("bulk evaluation of applications in a term (integration)", () => {
     const preview = (await (
       await post(sharedTermId, "/preview", { applicationIds: ids })
     ).json()) as Preview
-    expect(preview).toMatchObject({
-      isShared: true,
-      confirm: { total: 10 },
-      waitlist: { total: 10 },
+    expect(preview).toMatchObject({ isShared: true, confirm: { total: 10 }, rest: { total: 10 } })
+
+    // Without the choice nothing is evaluated.
+    const missing = await post(sharedTermId, "", {
+      applicationIds: ids,
+      expectedConfirmedCount: 10,
     })
+    expect(missing.status).toBe(400)
+    expect(await missing.json()).toMatchObject({ code: "EVALUATION_REST_REQUIRED" })
+    expect(await statusOf(ids[0])).toBe("TO_EVALUATE")
 
     const result = (await (
-      await post(sharedTermId, "", { applicationIds: ids, expectedConfirmedCount: 10 })
+      await post(sharedTermId, "", {
+        applicationIds: ids,
+        expectedConfirmedCount: 10,
+        rest: "REJECT",
+      })
     ).json()) as Result
     expect(result.confirmed).toEqual(ids.slice(0, 10))
-    expect(result.waitlisted).toEqual(ids.slice(10))
+    expect(result.rejected).toEqual(ids.slice(10))
+    expect(result.waitlisted).toEqual([])
     expect(
       await prisma.applicationTerm.count({
         where: { termId: sharedTermId, status: "TO_EVALUATE" },
       }),
     ).toBe(0)
+    expect(await statusOf(ids[10])).toBe("CANCELLED")
+
+    // A rejection like US-108: a log entry by the organizer and the rejection e-mail.
+    const organizer = await prisma.user.findUniqueOrThrow({
+      where: { email: "organizator@example.com" },
+    })
+    const log = await prisma.applicationTermStatusChange.findMany({
+      where: { applicationTerm: { applicationId: ids[10] } },
+    })
+    expect(log).toHaveLength(1)
+    expect(log[0]).toMatchObject({
+      fromStatus: "TO_EVALUATE",
+      toStatus: "CANCELLED",
+      changedById: organizer.id,
+    })
+    const rejected = await prisma.application.findUniqueOrThrow({ where: { id: ids[10] } })
+    expect(await latestEmailTo(rejected.email)).toBeDefined()
   })
 
   it("answers 404 for a term of another event", async () => {

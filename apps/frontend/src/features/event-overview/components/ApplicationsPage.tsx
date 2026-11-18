@@ -27,7 +27,6 @@ import {
 import { PAGE_SIZE } from "@/hooks/usePagination"
 import { formatDate, formatDateRange, formatDateTime } from "@/lib/date"
 import { notify } from "@/lib/notify"
-import { termDates } from "@/lib/term-label"
 import { cn } from "@/lib/utils"
 
 import {
@@ -119,14 +118,20 @@ export function ApplicationsPage({
       t(`bulk.${message}`, { count: changed }),
       unchanged > 0 ? t("bulk.doneUnchanged", { count: unchanged }) : undefined,
     )
-  const finishEvaluation = ({ confirmed, waitlisted }: BulkEvaluationResult) =>
+  const finishEvaluation = ({ confirmed, waitlisted, rejected }: BulkEvaluationResult) => {
+    const restCount = waitlisted.length + rejected.length
+    const confirmedText = t("bulkEvaluation.doneConfirmed", { count: confirmed.length })
+    const restText =
+      rejected.length > 0
+        ? t("bulkEvaluation.doneRejected", { count: rejected.length })
+        : t("bulkEvaluation.doneSubstitutes", { count: waitlisted.length })
     leaveBulk(
-      t("bulkEvaluation.doneTitle", { count: confirmed.length + waitlisted.length }),
-      t("bulkEvaluation.doneSplit", {
-        confirmed: t("bulkEvaluation.doneConfirmed", { count: confirmed.length }),
-        waitlisted: t("bulkEvaluation.doneSubstitutes", { count: waitlisted.length }),
-      }),
+      t("bulkEvaluation.doneTitle", { count: confirmed.length + restCount }),
+      restCount > 0
+        ? t("bulkEvaluation.doneSplit", { confirmed: confirmedText, rest: restText })
+        : confirmedText,
     )
+  }
   const hasFilters = Object.values(filters).some(Boolean)
   // Only the filter of individual accommodation is set: nobody has asked for it (US-38).
   const isOnlyIndividual =
@@ -578,7 +583,6 @@ export function ApplicationsPage({
         <BulkEvaluateDialog
           eventId={eventId}
           termId={bulkTerm.id}
-          termLabel={termDates(bulkTerm)}
           applications={selected}
           onClose={() => setDialog(null)}
           onDone={finishEvaluation}

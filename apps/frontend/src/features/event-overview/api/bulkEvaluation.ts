@@ -3,13 +3,16 @@ import { z } from "zod"
 
 import { api } from "@/lib/api-client"
 
+import type { BulkDecision } from "@/features/event-overview/api/bulkDecision"
+
 const genderCountsSchema = z.object({ FEMALE: z.number().int(), MALE: z.number().int() })
 const breakdownSchema = z.object({ total: z.number().int(), byGender: genderCountsSchema })
 const previewSchema = z.object({
   /** Selected applications still waiting for evaluation. */
   selected: breakdownSchema,
   confirm: breakdownSchema,
-  waitlist: breakdownSchema,
+  /** Do not fit: the organizer chooses what happens to them. */
+  rest: breakdownSchema,
   freePlaces: genderCountsSchema,
   isShared: z.boolean(),
 })
@@ -18,6 +21,7 @@ export type BulkEvaluationPreview = z.infer<typeof previewSchema>
 const resultSchema = z.object({
   confirmed: z.array(z.string()),
   waitlisted: z.array(z.string()),
+  rejected: z.array(z.string()),
   unchanged: z.array(z.string()),
 })
 export type BulkEvaluationResult = z.infer<typeof resultSchema>
@@ -50,10 +54,11 @@ export async function evaluateSelected(
   termId: string,
   applicationIds: string[],
   expectedConfirmedCount: number,
+  rest: BulkDecision | undefined,
 ): Promise<BulkEvaluationResult> {
   return resultSchema.parse(
     await api
-      .post(path(eventId, termId), { json: { applicationIds, expectedConfirmedCount } })
+      .post(path(eventId, termId), { json: { applicationIds, expectedConfirmedCount, rest } })
       .json(),
   )
 }

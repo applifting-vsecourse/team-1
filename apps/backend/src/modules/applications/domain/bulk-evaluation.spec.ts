@@ -8,7 +8,7 @@ const candidate = (id: string, gender: "FEMALE" | "MALE", minute: number) => ({
 })
 
 describe("planBulkEvaluation", () => {
-  it("confirms 10 and waitlists 10 of 20 selected applications for 10 free beds, in order of receipt", () => {
+  it("confirms 10 and leaves 10 of 20 as the rest selected applications for 10 free beds, in order of receipt", () => {
     const rooms = [{ capacity: 10, extraBeds: 0, gender: null }]
     // Selected in reverse order: the receipt order decides, not the selection.
     const candidates = Array.from({ length: 20 }, (_, index) =>
@@ -16,10 +16,10 @@ describe("planBulkEvaluation", () => {
     ).reverse()
     const plan = planBulkEvaluation(rooms, [], candidates)
     expect(plan.confirm).toEqual(Array.from({ length: 10 }, (_, index) => `a${index}`))
-    expect(plan.waitlist).toEqual(Array.from({ length: 10 }, (_, index) => `a${index + 10}`))
+    expect(plan.rest).toEqual(Array.from({ length: 10 }, (_, index) => `a${index + 10}`))
   })
 
-  it("confirms into the free beds of the applicant's gender only; a full group goes to the waitlist", () => {
+  it("confirms into the free beds of the applicant's gender only; a full group belongs to the rest", () => {
     // One free woman's bed and one free man's bed.
     const rooms = [
       { capacity: 1, extraBeds: 0, gender: "FEMALE" as const },
@@ -35,17 +35,17 @@ describe("planBulkEvaluation", () => {
         candidate("eva", "FEMALE", 4),
       ],
     )
-    expect(plan).toEqual({ confirm: ["adam", "jana"], waitlist: ["petr", "eva"] })
+    expect(plan).toEqual({ confirm: ["adam", "jana"], rest: ["petr", "eva"] })
   })
 
-  it("waitlists everybody when no bed is free and confirms everybody when all fit", () => {
+  it("leaves everybody as the rest when no bed is free and confirms everybody when all fit", () => {
     const rooms = [{ capacity: 2, extraBeds: 0, gender: null }]
     expect(planBulkEvaluation(rooms, ["MALE", "MALE"], [candidate("a", "MALE", 1)])).toEqual({
       confirm: [],
-      waitlist: ["a"],
+      rest: ["a"],
     })
     expect(
       planBulkEvaluation(rooms, [], [candidate("b", "MALE", 2), candidate("a", "FEMALE", 1)]),
-    ).toEqual({ confirm: ["a", "b"], waitlist: [] })
+    ).toEqual({ confirm: ["a", "b"], rest: [] })
   })
 })
