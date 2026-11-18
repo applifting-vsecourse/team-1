@@ -59,6 +59,10 @@ export const myApplicationSchema = z.object({
   /** The summary variable symbol of the application (number × 1000), `48000`. */
   variableSymbol: z.string(),
   terms: z.array(termSchema),
+  /** Meal restrictions entered; application-wide. */
+  mealsDecided: z.boolean(),
+  /** Health restriction entered; application-wide. */
+  healthDecided: z.boolean(),
   amountDueCzk: z.number().int(),
   amountPaidCzk: z.number().int(),
   /** Due − paid; negative is an overpayment. */

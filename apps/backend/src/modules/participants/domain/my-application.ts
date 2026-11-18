@@ -32,6 +32,10 @@ export type MyApplicationRecord = {
   /** Public contact of the event (US-122); optional unless the event is in the catalog. */
   contactEmail: string | null
   contactPhone: string | null
+  /** The participant has entered a meal restriction: an option, an allergy or a request (US-64). */
+  mealsFilled: boolean
+  /** The participant has saved a health restriction (US-68); a row exists only with consent. */
+  healthFilled: boolean
   /** The applicant settles the accommodation individually (US-38); no room is shown to them. */
   individualAccommodation: boolean
   terms: {
@@ -113,6 +117,10 @@ export type MyApplication = {
   /** The summary variable symbol: application number × 1000, 48 → "48000". */
   variableSymbol: string
   terms: MyApplicationTerm[]
+  /** Meal restrictions entered (application-wide, so the same in every term). */
+  mealsDecided: boolean
+  /** Health restriction entered (application-wide). */
+  healthDecided: boolean
   amountDueCzk: number
   amountPaidCzk: number
   /** Due − paid; negative is an overpayment and is shown as such. */
@@ -194,6 +202,8 @@ export function buildMyApplication(
           ? { room: { name: term.roomName } }
           : {}),
       })),
+    mealsDecided: record.mealsFilled,
+    healthDecided: record.healthFilled,
     amountDueCzk,
     amountPaidCzk,
     amountOwedCzk: computeAmountOwed(amountDueCzk, amountPaidCzk),

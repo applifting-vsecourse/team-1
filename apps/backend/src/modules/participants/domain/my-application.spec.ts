@@ -16,6 +16,8 @@ const record = (overrides: Partial<MyApplicationRecord> = {}): MyApplicationReco
   organizationName: "Letní kemp z. s.",
   contactEmail: "info@letni-kemp.example",
   contactPhone: "+420 777 000 003",
+  mealsFilled: false,
+  healthFilled: false,
   terms: [
     {
       termId: "t2",
@@ -66,6 +68,17 @@ describe("toApplicationCode", () => {
 })
 
 describe("buildMyApplication", () => {
+  it("passes on whether meals and health were entered", () => {
+    expect(buildMyApplication(record())).toMatchObject({
+      mealsDecided: false,
+      healthDecided: false,
+    })
+    expect(buildMyApplication(record({ mealsFilled: true, healthFilled: true }))).toMatchObject({
+      mealsDecided: true,
+      healthDecided: true,
+    })
+  })
+
   it("sorts terms by date and sums only confirmed terms as amount due", () => {
     const result = buildMyApplication(record())
 
