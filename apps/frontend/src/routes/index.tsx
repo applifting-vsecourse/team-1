@@ -100,10 +100,10 @@ function HeroVisual() {
       <div className="rounded-lg border border-border bg-card p-4 shadow-sm lg:absolute lg:-bottom-6 lg:left-0 lg:w-80 lg:rotate-6">
         <div className="flex items-center justify-between gap-2 text-sm font-semibold">
           <span>{t("preview.event")}</span>
-          <span className="whitespace-nowrap tabular-nums">51 / 64</span>
+          <span className="whitespace-nowrap tabular-nums">148 / 180</span>
         </div>
         <Progress
-          value={80}
+          value={(148 / 180) * 100}
           className="mt-3"
         />
         <div className="mt-3 flex flex-wrap gap-2">
@@ -115,7 +115,7 @@ function HeroVisual() {
       </div>
       <div className="hidden w-48 rounded-lg border border-border bg-card p-4 shadow-sm lg:absolute lg:top-4 lg:right-0 lg:block lg:-rotate-6">
         <p className="text-xs text-muted-foreground">{t("preview.paid")}</p>
-        <p className="text-3xl font-semibold text-link">93 %</p>
+        <p className="text-3xl font-semibold text-link">87 %</p>
       </div>
     </div>
   )

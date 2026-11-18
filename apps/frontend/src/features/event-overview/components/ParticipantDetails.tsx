@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { Pencil } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { DetailItem } from "@/components/molecules/DetailItem"
@@ -38,42 +39,54 @@ export function ParticipantDetails({ application }: ParticipantDetailsProps) {
   const gender = t(application.gender === "FEMALE" ? "payment.genderFemale" : "payment.genderMale")
 
   return (
-    <Card
+    <div
       role="group"
       aria-label={t("payment.participantCard")}
-      className="gap-4 rounded-2xl p-4 shadow-none md:p-5"
+      className="grid min-w-0 gap-4 md:grid-cols-2"
     >
-      <div className="flex items-center justify-between gap-4">
-        <h3 className="text-lg font-semibold">{t("payment.participantCard")}</h3>
-        {application.isEditable ? (
-          <Button
-            variant="outline"
-            size="lg"
-            onClick={() => setIsEditing(true)}
-          >
-            {t("payment.editParticipant")}
-          </Button>
-        ) : null}
-      </div>
-      <div className="flex flex-col gap-4 md:grid md:grid-cols-3 md:gap-4">
-        <DetailItem label={t("payment.participantName")}>
-          {application.firstName} {application.lastName}
-        </DetailItem>
-        <DetailItem label={t("payment.participantBirthGender")}>
-          {formatDate(application.birthDate)} · {gender}
-        </DetailItem>
+      <Card className="min-w-0 gap-3 p-4">
+        <div className="flex items-center justify-between gap-4">
+          <h3 className="text-lg font-semibold">{t("payment.participantCard")}</h3>
+          {application.isEditable ? (
+            <Button
+              variant="ghost"
+              size="icon-lg"
+              aria-label={t("payment.editParticipant")}
+              onClick={() => setIsEditing(true)}
+            >
+              <Pencil aria-hidden />
+            </Button>
+          ) : null}
+        </div>
+        <div className="flex flex-col gap-3">
+          <DetailItem label={t("payment.participantName")}>
+            {application.firstName} {application.lastName}
+          </DetailItem>
+          <DetailItem label={t("payment.participantBirthGender")}>
+            {formatDate(application.birthDate)} · {gender}
+          </DetailItem>
+          <DetailItem label={t("payment.phoneLabel")}>
+            {application.phone ?? t("payment.phoneNone")}
+          </DetailItem>
+        </div>
+      </Card>
+      <Card className="min-w-0 gap-3 p-4">
+        <h3 className="text-lg font-semibold">{t("payment.applicant")}</h3>
         <DetailItem label={t("payment.participantContact")}>
-          {application.email}
-          <br />
-          {application.phone ?? t("payment.phoneNone")}
+          <a
+            className="break-all text-link underline"
+            href={`mailto:${application.email}`}
+          >
+            {application.email}
+          </a>
         </DetailItem>
-      </div>
+      </Card>
       {isEditing ? (
         <ParticipantEditDialog
           application={application}
           onClose={() => setIsEditing(false)}
         />
       ) : null}
-    </Card>
+    </div>
   )
 }

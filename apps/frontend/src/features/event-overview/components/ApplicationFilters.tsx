@@ -57,6 +57,7 @@ export function ApplicationFilters({
     return () => desktop.removeEventListener("change", closeOnDesktop)
   }, [])
   const options: FilterOption[] = [
+    { key: "term", label: t("applications.term"), all: t("applications.allTerms"), values: terms },
     {
       key: "status",
       label: t("applications.status"),
@@ -93,7 +94,6 @@ export function ApplicationFilters({
         { id: "OVERPAID", name: t("applications.overpaid") },
       ],
     },
-    { key: "term", label: t("applications.term"), all: t("applications.allTerms"), values: terms },
     // US-38: who asked to settle the accommodation individually.
     {
       key: "accommodation",
