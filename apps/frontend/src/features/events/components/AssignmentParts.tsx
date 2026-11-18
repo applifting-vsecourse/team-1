@@ -339,6 +339,41 @@ function Strips({
   ))
 }
 
+/** The panel of the unassigned: dropping a person from a room on it removes them from the room. */
+export function UnassignedDropZone({
+  isDragActive,
+  panelRef,
+  className,
+  children,
+}: {
+  /** A person sitting in a room is being dragged, so the panel is a valid target. */
+  isDragActive: boolean
+  panelRef: (element: HTMLDivElement | null) => void
+  className?: string
+  children: ReactNode
+}) {
+  const { setNodeRef, isOver } = useDroppable({ id: "unassigned", data: { isUnassigned: true } })
+  const setRefs = useCallback(
+    (element: HTMLDivElement | null) => {
+      setNodeRef(element)
+      panelRef(element)
+    },
+    [setNodeRef, panelRef],
+  )
+  return (
+    <div
+      ref={setRefs}
+      className={cn(
+        className,
+        isDragActive &&
+          (isOver ? "bg-accent outline-2 -outline-offset-2 outline-ring" : "bg-muted"),
+      )}
+    >
+      {children}
+    </div>
+  )
+}
+
 /** Desktop row of a room: name with its gender, people as chips, occupancy and the room actions. */
 export function RoomTableRow({
   room,
