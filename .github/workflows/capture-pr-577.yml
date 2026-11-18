@@ -28,7 +28,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: 043bbfe07794002c56bb2139f5fe7101a1c903b3
+          ref: 4215b8bc2173295648ea6bcc87fe5296b099fa3e
           persist-credentials: false
 
       - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
@@ -85,6 +85,8 @@ jobs:
           main().catch(error => { console.error(error); process.exitCode = 1 })
           JS
           pnpm exec node -r ts-node/register/transpile-only -r tsconfig-paths/register preview-pr-577.cjs
+      - name: Check frontend production compilation
+        run: pnpm --filter frontend exec vite build --outDir build-e2e
       - name: Capture seeded screenshots
         run: |
           cat > apps/e2e/tests/zz-screenshots.spec.ts <<'TS'
@@ -100,7 +102,7 @@ jobs:
               test("public flows and organizer workspace", async ({ page }) => {
                 test.setTimeout(180000)
                 const capture = async (screen: string) => {
-                  await expect(page.getByRole("heading", { level: 1 }).first()).toBeVisible()
+                  await expect(screen === "new-event" ? page.getByRole("dialog") : page.getByRole("heading", { level: 1 }).first()).toBeVisible()
                   await page.waitForLoadState("networkidle")
                   await page.evaluate(() => document.fonts.ready)
                   await page.screenshot({ path: "test-results/screenshots/" + screen + "-" + width + ".png", fullPage: true, animations: "disabled" })
@@ -117,7 +119,7 @@ jobs:
                 await openEventList(page)
                 await capture("events")
                 const id = await eventIdByPublicToken("demo-letni-kemp-2027")
-                for (const [screen, route] of [["new-event","/organizer/events/new"], ["organizer-account","/organizer/account"], ["overview","/organizer/events/" + id], ["organizer-transport","/organizer/events/"+id+"/transport"], ["organizer-meals","/organizer/events/"+id+"/meals"], ["meal-options","/organizer/events/"+id+"/meals/options"], ["payment-import","/organizer/events/"+id+"/payments/import"], ["cancellation","/organizer/events/"+id+"/payments/cancellation"], ["new-application","/organizer/events/"+id+"/applications/new"]]) {
+                for (const [screen, route] of [["new-event","/organizer/events/new"], ["organizer-account","/organizer/account"], ["overview","/organizer/events/" + id], ["organizer-meals","/organizer/events/"+id+"/meals"], ["meal-options","/organizer/events/"+id+"/meals/options"], ["payment-import","/organizer/events/"+id+"/payments/import"], ["cancellation","/organizer/events/"+id+"/payments/cancellation"], ["new-application","/organizer/events/"+id+"/applications/new"]]) {
                   await page.goto(route)
                   await capture(screen)
                 }
@@ -142,6 +144,9 @@ jobs:
                     expect(created.ok()).toBeTruthy()
                   }
                 }
+                await page.goto("/organizer/events/"+id+"/transport")
+                await expect(page.getByRole("link", {name:/participants/i}).first()).toBeVisible()
+                await capture("organizer-transport")
                 for (const section of ["settings", "terms", "capacity", "applications", "payments", "rooms", "program"]) {
                   await page.goto("/organizer/events/" + id + "/" + section)
                   await expect(page.getByRole("navigation", { name: "Event sections" })).toBeVisible()
@@ -257,7 +262,7 @@ jobs:
                   assert w >= width and h > 0, (name, w, h)
                   if w != width:
                       print(f"::warning::{name}: page overflows viewport ({w}px)")
-                  dest = Path("577") / f"{screen}-{width}-043bbfe.png"
+                  dest = Path("577") / f"{screen}-{width}-4215b8b.png"
                   if dest.exists():
                       assert dest.read_bytes() == p.read_bytes(), dest
                       continue
