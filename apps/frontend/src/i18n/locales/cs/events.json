@@ -460,6 +460,12 @@
     "totalCapacity": "Kapacita pokojů",
     "totalRooms": "Celkem pokojů"
   },
+  "roomsPublication": {
+    "failed": "Nastavení se nepodařilo uložit.",
+    "hintOff": "Potvrzení účastníci rozdělení zatím nevidí.",
+    "switch": "Zveřejnit rozdělení pokojů",
+    "title": "Zveřejnění rozdělení"
+  },
   "terms": {
     "actions": "Akce termínu {{name}}",
     "add": "Přidat termín",

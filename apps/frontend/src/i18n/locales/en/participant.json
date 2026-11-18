@@ -62,7 +62,9 @@
     "health": "Health restriction",
     "meals": "Meals",
     "program": "Program",
+    "roomNotAssigned": "You have no room assigned yet.",
     "sections": {
+      "room": "Room",
       "terms": "Terms and payments",
       "transport": "Transport"
     },

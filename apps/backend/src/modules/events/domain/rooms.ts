@@ -21,6 +21,8 @@ export type TermRooms = {
   startsOn: string
   endsOn: string
   roomMode: RoomMode
+  /** The room assignment is visible to the confirmed participants (US-144). */
+  roomsPublished: boolean
   rooms: Room[]
   capacity: { FEMALE: number; MALE: number; total: number }
 }

@@ -72,6 +72,7 @@ const termRooms = (termId: string, rooms: TermRooms["rooms"], roomMode: TermRoom
   startsOn: "2027-07-12",
   endsOn: "2027-07-18",
   roomMode,
+  roomsPublished: false,
   rooms,
   capacity: {
     FEMALE: rooms.filter((room) => room.gender === "FEMALE").reduce((n, r) => n + r.beds, 0),

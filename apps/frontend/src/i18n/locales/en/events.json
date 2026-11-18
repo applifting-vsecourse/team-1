@@ -460,6 +460,12 @@
     "totalCapacity": "Room capacity",
     "totalRooms": "Total rooms"
   },
+  "roomsPublication": {
+    "failed": "The setting could not be saved.",
+    "hintOff": "Confirmed participants do not see the assignment yet.",
+    "switch": "Publish the room assignment",
+    "title": "Publishing the assignment"
+  },
   "terms": {
     "actions": "Actions for {{name}}",
     "add": "Add term",

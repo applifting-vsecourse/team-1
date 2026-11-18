@@ -28,6 +28,7 @@ const event: TermRooms = {
   startsOn: "2027-07-19",
   endsOn: "2027-07-25",
   roomMode: "GENDERED",
+  roomsPublished: false,
   rooms: [],
   capacity: { FEMALE: 0, MALE: 0, total: 0 },
 }
