@@ -16,6 +16,8 @@ const participantSchema = z.object({
   /** Asked to settle the accommodation individually (US-38). */
   individualAccommodation: z.boolean(),
   status: z.enum(["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED"]),
+  /** Roommate wishes (US-146): free text; fulfilled when the named person is in the same room. */
+  wishes: z.array(z.object({ name: z.string(), fulfilled: z.boolean() })),
 })
 const otherTermSchema = z.object({
   termId: z.string(),

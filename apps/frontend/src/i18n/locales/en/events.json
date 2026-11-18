@@ -312,6 +312,14 @@
     "women_one": "{{count}} woman",
     "women_other": "{{count}} women"
   },
+  "roomWishes": {
+    "fulfilled": "Fulfilled",
+    "list": "Roommate wishes",
+    "loadFailed": "Couldn't load the wishes",
+    "none": "No roommate wishes",
+    "title": "Roommate wishes",
+    "unfulfilled": "Not fulfilled"
+  },
   "rooms": {
     "actionsColumn": "Actions",
     "add": "Add room",

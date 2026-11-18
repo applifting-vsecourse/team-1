@@ -206,6 +206,21 @@
     },
     "wholeApplication": "Whole application · all terms ({{count}})"
   },
+  "roomWishes": {
+    "add": "Enter wishes",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "deleteBody": "All names for this term will be deleted.",
+    "deleteConfirm": "Delete wishes",
+    "deleteTitle": "Delete roommate wishes?",
+    "edit": "Edit wishes",
+    "empty": "You haven't entered any wishes for this term yet.",
+    "hint": "Enter up to 3 names. The organizer will take them into account when assigning rooms, where possible.",
+    "nameLabel": "Name {{n}}",
+    "placeholder": "E.g. Eva Černá",
+    "save": "Save wishes",
+    "title": "Roommate wishes"
+  },
   "status": {
     "archived": "Archived",
     "cancelled": "Cancelled",

@@ -34,6 +34,8 @@ const record = (overrides: Partial<MyApplicationRecord> = {}): MyApplicationReco
       transportDecided: false,
       roomsPublished: false,
       roomName: null,
+      termCancelled: false,
+      roomWishes: [],
     },
     {
       termId: "t1",
@@ -50,6 +52,8 @@ const record = (overrides: Partial<MyApplicationRecord> = {}): MyApplicationReco
       transportDecided: false,
       roomsPublished: false,
       roomName: null,
+      termCancelled: false,
+      roomWishes: [],
     },
   ],
   ...overrides,
@@ -290,6 +294,36 @@ describe("buildMyApplication", () => {
         { individualAccommodation: true },
       )
       expect(result.terms[0].room).toBeUndefined()
+    })
+  })
+
+  describe("roommate wishes (US-146)", () => {
+    const wishes = (
+      term: Partial<MyApplicationRecord["terms"][number]>,
+      overrides: Partial<MyApplicationRecord> = {},
+    ) => {
+      const base = record()
+      return buildMyApplication({
+        ...base,
+        ...overrides,
+        terms: [{ ...base.terms[1], roomWishes: ["Eva Černá"], ...term }],
+      }).terms[0].roomWishes
+    }
+
+    it("gives a confirmed term its wishes", () => {
+      expect(wishes({})).toEqual(["Eva Černá"])
+      expect(wishes({ roomWishes: [] })).toEqual([])
+    })
+
+    it("hides the field for a term that is not confirmed", () => {
+      expect(wishes({ status: "WAITLISTED" })).toBeUndefined()
+      expect(wishes({ status: "TO_EVALUATE" })).toBeUndefined()
+      expect(wishes({ status: "CANCELLED" })).toBeUndefined()
+    })
+
+    it("hides the field for a cancelled term and for individual accommodation", () => {
+      expect(wishes({ termCancelled: true })).toBeUndefined()
+      expect(wishes({}, { individualAccommodation: true })).toBeUndefined()
     })
   })
 })

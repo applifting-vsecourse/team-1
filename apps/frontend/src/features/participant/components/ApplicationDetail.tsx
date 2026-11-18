@@ -24,6 +24,7 @@ import {
 } from "@/features/participant/components/ParticipantTermChange"
 import { PaymentSummary } from "@/features/participant/components/PaymentSummary"
 import { RoomSection } from "@/features/participant/components/RoomSection"
+import { RoomWishesSection } from "@/features/participant/components/RoomWishes"
 import { TermSteps } from "@/features/participant/components/TermSteps"
 import { TermStatusBadge } from "@/features/participant/components/TermSummary"
 
@@ -149,6 +150,10 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
         ) : null}
         <PaymentSummary application={data} />
       </section>
+      <RoomWishesSection
+        applicationId={applicationId}
+        terms={data.terms}
+      />
       <RoomSection terms={data.terms} />
       {hasSteps ? (
         <div>

@@ -26,6 +26,7 @@ const person = (
   gender: "FEMALE" as const,
   individualAccommodation: over.individual ?? false,
   status: over.status ?? ("CONFIRMED" as const),
+  wishes: [],
 })
 const room = (
   id: string,

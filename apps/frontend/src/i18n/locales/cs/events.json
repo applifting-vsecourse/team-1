@@ -312,6 +312,14 @@
     "women_one": "{{count}} žena",
     "women_other": "{{count}} žen"
   },
+  "roomWishes": {
+    "fulfilled": "Splněno",
+    "list": "Přání spolubydlení",
+    "loadFailed": "Přání se nepodařilo načíst",
+    "none": "Bez přání spolubydlení",
+    "title": "Přání spolubydlení",
+    "unfulfilled": "Nesplněno"
+  },
   "rooms": {
     "actionsColumn": "Akce",
     "add": "Přidat pokoj",
