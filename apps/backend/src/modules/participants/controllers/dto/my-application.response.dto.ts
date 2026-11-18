@@ -131,6 +131,12 @@ export class MyApplicationResponseDto {
   @ApiProperty({ type: [MyApplicationTermDto] })
   terms!: MyApplicationTermDto[]
 
+  @ApiProperty({ description: "Meal restrictions entered; the same in every term." })
+  mealsDecided!: boolean
+
+  @ApiProperty({ description: "Health restriction entered; the same in every term." })
+  healthDecided!: boolean
+
   @ApiProperty({ example: 9400, description: "Sum of the confirmed terms, whole CZK." })
   amountDueCzk!: number
 
