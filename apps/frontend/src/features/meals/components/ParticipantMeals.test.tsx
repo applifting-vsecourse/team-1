@@ -37,13 +37,14 @@ const meals: OwnMeals = {
   specialRequest: "Early dinner",
 }
 
-function setup(value: OwnMeals = meals) {
+function setup(
+  value: OwnMeals = meals,
+  client = new QueryClient({ defaultOptions: { queries: { retry: false } } }),
+) {
   getMeals.mockResolvedValue(value)
   saveOwnMeals.mockResolvedValue(value)
   render(
-    <QueryClientProvider
-      client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
-    >
+    <QueryClientProvider client={client}>
       <ParticipantMeals applicationId="a1" />
     </QueryClientProvider>,
   )
@@ -95,6 +96,17 @@ describe("ParticipantMeals", () => {
       }),
     )
     expect(success).toHaveBeenCalledWith("Meals saved")
+  })
+
+  it("refreshes the overview of the application so its meals step turns done (US-149)", async () => {
+    const user = userEvent.setup()
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+    const invalidate = vi.spyOn(client, "invalidateQueries")
+    setup(meals, client)
+    await user.click(await screen.findByRole("button", { name: "Save meals" }))
+    await waitFor(() =>
+      expect(invalidate).toHaveBeenCalledWith({ queryKey: ["participant", "applications", "a1"] }),
+    )
   })
 
   it("shows the error and stays on the form when saving fails", async () => {
