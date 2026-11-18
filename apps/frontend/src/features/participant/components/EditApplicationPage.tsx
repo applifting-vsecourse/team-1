@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { formatDateTime } from "@/lib/date"
+import { isValidPhone, MAX_PHONE_INPUT_LENGTH, normalizePhone } from "@/lib/phone"
 
 import {
   applicationEditQueryOptions,
@@ -96,6 +97,7 @@ function EditForm({
     mutationFn: () =>
       saveApplicationEdit(applicationId, {
         ...values,
+        phone: normalizePhone(values.phone) === null ? null : (values.phone ?? "").trim(),
         // The note belongs to the request: without it none is sent.
         accommodationRequest: values.individualAccommodation ? values.accommodationRequest : null,
       }),
@@ -108,6 +110,9 @@ function EditForm({
     const trimmed = value?.trim()
     return trimmed?.length ? trimmed : null
   }
+  const isPhoneInvalid = !isValidPhone(normalizePhone(values.phone))
+  const [isPhoneChecked, setIsPhoneChecked] = useState(false)
+  const shouldShowPhoneError = isPhoneInvalid && isPhoneChecked
   const isNoteTooLong =
     values.individualAccommodation &&
     (values.accommodationRequest ?? "").length > MAX_ACCOMMODATION_NOTE_LENGTH
@@ -119,13 +124,13 @@ function EditForm({
     values.firstName.trim() !== initial.firstName ||
     values.lastName.trim() !== initial.lastName ||
     values.birthDate !== initial.birthDate ||
-    nullableTrimmed(values.phone) !== initial.phone ||
+    normalizePhone(values.phone) !== normalizePhone(initial.phone) ||
     isAccommodationChanged
   const changed = {
     firstName: values.firstName.trim() !== initial.firstName,
     lastName: values.lastName.trim() !== initial.lastName,
     birthDate: values.birthDate !== initial.birthDate,
-    phone: nullableTrimmed(values.phone) !== initial.phone,
+    phone: normalizePhone(values.phone) !== normalizePhone(initial.phone),
     accommodationRequest: isAccommodationChanged,
   }
   const visibleFields = mutation.isError && failedFields ? failedFields : changed
@@ -139,14 +144,23 @@ function EditForm({
       <Label htmlFor="edit-phone">{t("edit.phone")}</Label>
       <Input
         id="edit-phone"
-        required
         type="tel"
-        maxLength={30}
-        pattern={String.raw`\+?[0-9 \(\)\-]{7,30}`}
+        maxLength={MAX_PHONE_INPUT_LENGTH}
         value={values.phone ?? ""}
         onChange={(event) => set("phone", event.target.value)}
+        aria-invalid={shouldShowPhoneError}
+        aria-describedby={shouldShowPhoneError ? "edit-phone-error" : undefined}
         className="h-12"
       />
+      {shouldShowPhoneError ? (
+        <p
+          id="edit-phone-error"
+          role="alert"
+          className="text-sm text-destructive"
+        >
+          {t("edit.phoneInvalid")}
+        </p>
+      ) : null}
     </div>
   )
 
@@ -173,7 +187,11 @@ function EditForm({
           <h2 className="text-xl font-semibold">
             {saved.firstName} {saved.lastName}
           </h2>
-          <p>{t("edit.phoneSummary", { phone: saved.phone })}</p>
+          <p>
+            {saved.phone
+              ? t("edit.phoneSummary", { phone: saved.phone })
+              : t("edit.phoneSummaryNone")}
+          </p>
           <p>
             {t("edit.accommodationSummary", {
               request: saved.individualAccommodation
@@ -210,7 +228,8 @@ function EditForm({
       className="mx-auto flex w-full max-w-[720px] flex-col gap-6"
       onSubmit={(event) => {
         event.preventDefault()
-        if (isNoteTooLong) return
+        setIsPhoneChecked(true)
+        if (isNoteTooLong || isPhoneInvalid) return
         setFailedFields(changed)
         mutation.mutate()
       }}
@@ -281,7 +300,7 @@ function EditForm({
           ) : null}
         </Card>
       ) : null}
-      {!mutation.isError || visibleFields.phone || !initial.phone ? (
+      {!mutation.isError || visibleFields.phone ? (
         <Card className="gap-4 p-4">
           <h2 className="text-xl font-semibold">{t("edit.contactHeading")}</h2>
           {phoneField}

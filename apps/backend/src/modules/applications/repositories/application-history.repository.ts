@@ -1,5 +1,8 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
-import { ApplicationHistorySource } from "@/modules/applications/domain/application-history"
+import {
+  ApplicationHistorySource,
+  HistoryEdit,
+} from "@/modules/applications/domain/application-history"
 import { Injectable } from "@nestjs/common"
 
 @Injectable()
@@ -15,6 +18,16 @@ export class ApplicationHistoryRepository {
       select: {
         email: true,
         submittedAt: true,
+        edits: {
+          select: {
+            id: true,
+            authorName: true,
+            changedFields: true,
+            before: true,
+            after: true,
+            createdAt: true,
+          },
+        },
         terms: {
           select: {
             term: { select: { id: true, name: true, startsOn: true, endsOn: true } },
@@ -25,6 +38,10 @@ export class ApplicationHistoryRepository {
       },
     })
     if (!application) return null
+
+    // The values are written by the edit itself, a flat object of the edited fields.
+    const values = (json: unknown): HistoryEdit["before"] =>
+      json !== null && typeof json === "object" ? (json as HistoryEdit["before"]) : {}
 
     return {
       applicantEmail: application.email,
@@ -42,6 +59,14 @@ export class ApplicationHistoryRepository {
           changedAt: change.createdAt,
         })),
       ),
+      edits: application.edits.map((edit) => ({
+        id: edit.id,
+        authorName: edit.authorName,
+        changedFields: edit.changedFields,
+        before: values(edit.before),
+        after: values(edit.after),
+        changedAt: edit.createdAt,
+      })),
       paymentRows: application.terms.flatMap(({ payments }) =>
         payments.map((payment) => ({
           receiptId: payment.receiptId,
