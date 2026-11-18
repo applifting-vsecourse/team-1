@@ -158,7 +158,8 @@ export class ProgramRepository {
         ),
       )
       if (!source || !target) return null
-      if (target.cancelledAt) throw new AppException(HttpStatus.BAD_REQUEST, "TERM_CANCELLED")
+      if (target.cancelledAt || source.cancelledAt)
+        throw new AppException(HttpStatus.BAD_REQUEST, "TERM_CANCELLED")
       if (source.id === target.id || !source.programBlocks.length) {
         throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
       }
