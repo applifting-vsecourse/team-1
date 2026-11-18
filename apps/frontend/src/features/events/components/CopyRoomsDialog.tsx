@@ -43,6 +43,10 @@ export type CopyTerm = { id: string; name: string | null; startsOn: string; ends
 // Náhled kopie do prázdného termínu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15728-4416
 // Návrh A · přidat k existujícím · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15728-4640
 // Návrh B · nahradit existující · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15728-4765
+// #533 · přistýlky (bez přistýlek ve zdroji, co se zkopíruje / nezkopíruje):
+// Prázdný cíl · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=26009-112219 (mobil 26009-112748)
+// Přidat ke stávajícím · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=26009-112385 (mobil 26009-112847)
+// Nahradit · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=26009-112566 (mobil 26009-112961)
 export function CopyRoomsDialog({
   target,
   sourceTerms,
@@ -66,8 +70,11 @@ export function CopyRoomsDialog({
   const sourceRooms = source.data?.rooms ?? []
   const hasTargetRooms = target.rooms.length > 0
   const isReplacing = hasTargetRooms && strategy === "REPLACE"
-  // Capacities are the server's (`capacity.total`); the dialog only combines them for the preview.
-  const sourceBeds = source.data?.capacity.total ?? 0
+  // Extra beds (přistýlky) belong to one term and are never copied (D-139), so the source counts only its own beds:
+  // Σ capacity, not `capacity.total`. The target keeps its extra beds on an add (`capacity.total`) and loses them on a replace.
+  const sourceBeds = sourceRooms.reduce((sum, room) => sum + room.capacity, 0)
+  const sourceExtraBeds = sourceRooms.reduce((sum, room) => sum + room.extraBeds, 0)
+  const targetExtraBeds = target.rooms.reduce((sum, room) => sum + room.extraBeds, 0)
   const resultRooms = (isReplacing ? 0 : target.rooms.length) + sourceRooms.length
   const resultBeds = (isReplacing ? 0 : target.capacity.total) + sourceBeds
   // The server compares names case-insensitively and refuses an ADD with a collision.
@@ -79,7 +86,27 @@ export function CopyRoomsDialog({
           .map((room) => room.name)
       : []
   const rooms = (count: number) => t("rooms.roomCount", { count })
-  const beds = (count: number) => t("rooms.beds", { count })
+  const beds = (count: number) => t("rooms.copy.beds", { count })
+  const sourceNote =
+    sourceExtraBeds > 0 ? t("rooms.copy.sourceExtraBeds", { count: sourceExtraBeds }) : null
+  const targetNote =
+    targetExtraBeds > 0 ? t("rooms.copy.targetExtraBeds", { count: targetExtraBeds }) : null
+  const copiedBox = (
+    <dl className="flex min-w-0 flex-col gap-3 rounded-lg border bg-muted p-4">
+      <div className="flex min-w-0 flex-col gap-2">
+        <dt className="text-sm text-muted-foreground">{t("rooms.copy.copiedHeading")}</dt>
+        <dd>
+          {t(
+            target.roomMode === "SHARED" ? "rooms.copy.copiedBodyShared" : "rooms.copy.copiedBody",
+          )}
+        </dd>
+      </div>
+      <div className="flex min-w-0 flex-col gap-2">
+        <dt className="text-sm text-muted-foreground">{t("rooms.copy.notCopiedHeading")}</dt>
+        <dd>{t("rooms.copy.notCopiedBody")}</dd>
+      </div>
+    </dl>
+  )
   const mutation = useMutation({
     mutationFn: () =>
       copyRooms(target.eventId, target.termId, sourceId, hasTargetRooms ? strategy : "ADD"),
@@ -158,6 +185,9 @@ export function CopyRoomsDialog({
                           rooms: rooms(sourceRooms.length),
                           beds: beds(sourceBeds),
                         })}
+                        {sourceNote ? (
+                          <span className="block text-sm text-muted-foreground">{sourceNote}</span>
+                        ) : null}
                       </dd>
                     </div>
                     <div className="flex min-w-0 flex-col gap-2">
@@ -169,9 +199,13 @@ export function CopyRoomsDialog({
                           rooms: rooms(target.rooms.length),
                           beds: beds(target.capacity.total),
                         })}
+                        {targetNote ? (
+                          <span className="block text-sm text-muted-foreground">{targetNote}</span>
+                        ) : null}
                       </dd>
                     </div>
                   </dl>
+                  {copiedBox}
                   <RadioGroup
                     value={strategy}
                     onValueChange={(value) => setStrategy(value as RoomCopyStrategy)}
@@ -202,11 +236,19 @@ export function CopyRoomsDialog({
                       {t(isReplacing ? "rooms.copy.replaceHeading" : "rooms.copy.addHeading")}
                     </AlertTitle>
                     <AlertDescription className={isReplacing ? undefined : "text-foreground"}>
-                      {t(isReplacing ? "rooms.copy.replaceBody" : "rooms.copy.addBody", {
-                        count: target.rooms.length,
-                        rooms: rooms(resultRooms),
-                        beds: beds(resultBeds),
-                      })}
+                      {t(
+                        isReplacing
+                          ? "rooms.copy.replaceBody"
+                          : targetNote
+                            ? "rooms.copy.addBodyExtraBeds"
+                            : "rooms.copy.addBody",
+                        {
+                          count: target.rooms.length,
+                          rooms: rooms(resultRooms),
+                          beds: beds(resultBeds),
+                          extra: t("rooms.copy.extraBedsCount", { count: targetExtraBeds }),
+                        },
+                      )}
                     </AlertDescription>
                   </Alert>
                   {collidingNames.length ? (
@@ -225,6 +267,9 @@ export function CopyRoomsDialog({
                       <dt className="text-sm text-muted-foreground">{t("rooms.copy.source")}</dt>
                       <dd>
                         {termDates(sourceTerm)} · {rooms(sourceRooms.length)}, {beds(sourceBeds)}
+                        {sourceNote ? (
+                          <span className="block text-sm text-muted-foreground">{sourceNote}</span>
+                        ) : null}
                       </dd>
                     </div>
                     <div className="flex min-w-0 flex-col gap-2">
@@ -234,6 +279,7 @@ export function CopyRoomsDialog({
                       </dd>
                     </div>
                   </dl>
+                  {copiedBox}
                   <p>
                     {t("rooms.copy.emptyBody", {
                       rooms: rooms(sourceRooms.length),

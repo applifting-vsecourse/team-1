@@ -617,6 +617,7 @@ const STATUS_BADGE = {
   TO_EVALUATE: { variant: "warning", className: undefined },
   CONFIRMED: { variant: "success", className: undefined },
   WAITLISTED: { variant: "secondary", className: "bg-status-waitlist-bg text-status-waitlist" },
+  ARCHIVED: { variant: "secondary", className: undefined },
   CANCELLED: { variant: "secondary", className: "bg-destructive/10 text-destructive" },
 } as const
 
@@ -625,6 +626,7 @@ const STATUS_LABEL = {
   CONFIRMED: "confirmed",
   WAITLISTED: "waitlisted",
   CANCELLED: "cancelled",
+  ARCHIVED: "archived",
 } as const
 
 function Terms({ application }: { application: ListedApplication }) {

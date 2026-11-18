@@ -66,6 +66,10 @@ export class ChangeRequestRepository {
         where: { applicationId, organizationId: application.organizationId },
         select: { termId: true, status: true },
       })
+      const requestedIds = new Set(requestedTermIds)
+      if (current.some((row) => row.status === "ARCHIVED" && !requestedIds.has(row.termId))) {
+        throw new AppException(HttpStatus.CONFLICT, "INVALID_STATUS_TRANSITION")
+      }
       const activeIds = current.filter((row) => row.status !== "CANCELLED").map((row) => row.termId)
       if (activeIds.length === 0 || sameSelection(activeIds, requestedTermIds)) {
         throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")

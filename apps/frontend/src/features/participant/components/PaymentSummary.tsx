@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next"
 
+import { MoneyAmount } from "@/components/atoms/MoneyAmount"
 import { TermPaymentCard, TermPaymentCards } from "@/components/molecules/TermPaymentCard"
 import { Card } from "@/components/ui/card"
 import { formatCzk } from "@/lib/money"
@@ -9,6 +10,7 @@ import type { MyApplication } from "@/features/participant/api/applications"
 import { SimulatePaymentButton } from "@/features/participant/components/SimulatePaymentButton"
 import { SummaryPaymentDetails } from "@/features/participant/components/SummaryPaymentDetails"
 import { TermPaymentQr } from "@/features/participant/components/TermPaymentQr"
+import { TermStatusBadge } from "@/features/participant/components/TermSummary"
 
 type PaymentSummaryProps = {
   application: MyApplication
@@ -85,19 +87,35 @@ export function PaymentSummary({ application }: PaymentSummaryProps) {
             ) : null}
           </div>
         ))}
-        {otherTerms.map((term) => (
-          <TermPaymentCard
-            key={term.termId}
-            title={termDatesLine(term)}
-            isStatusSeparate
-            status={term.status === "CONFIRMED" ? "NOTHING_DUE" : term.status}
-            dueCzk={0}
-            paidCzk={0}
-            owedCzk={0}
-            bankAccount=""
-            variableSymbol=""
-          />
-        ))}
+        {otherTerms.map((term) =>
+          term.status === "ARCHIVED" ? (
+            <Card
+              key={term.termId}
+              className="gap-2 p-6"
+            >
+              <h3 className="text-lg font-semibold">{termDatesLine(term)}</h3>
+              <div>
+                <TermStatusBadge term={term} />
+              </div>
+              <p className="text-sm">
+                {term.archivedOverpaymentCzk ? `${t("paymentStatus.OVERPAID")} · ` : null}
+                <MoneyAmount amountCzk={term.archivedOverpaymentCzk ?? 0} />
+              </p>
+            </Card>
+          ) : (
+            <TermPaymentCard
+              key={term.termId}
+              title={termDatesLine(term)}
+              isStatusSeparate
+              status={term.status === "CONFIRMED" ? "NOTHING_DUE" : term.status}
+              dueCzk={0}
+              paidCzk={0}
+              owedCzk={0}
+              bankAccount=""
+              variableSymbol=""
+            />
+          ),
+        )}
       </TermPaymentCards>
       {simulatedPayments.length > 0 ? (
         <Card className="gap-2 p-6">

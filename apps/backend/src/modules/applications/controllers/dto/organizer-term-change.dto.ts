@@ -101,7 +101,7 @@ export class OrganizerWithdrawalRequestDto {
 
 class WithdrawalTermImpactDto {
   @ApiProperty() termId!: string
-  @ApiProperty({ enum: ["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED"] })
+  @ApiProperty({ enum: ["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED", "ARCHIVED"] })
   status!: ApplicationTermStatus
   @ApiProperty() isWithdrawn!: boolean
   @ApiProperty({ description: "False for a waitlisted or not yet evaluated term" })

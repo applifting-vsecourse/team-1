@@ -15,6 +15,7 @@ export function TermStatusBadge({ term }: { term: MyApplicationTerm }) {
       CONFIRMED: "confirmed",
       WAITLISTED: "waitlisted",
       CANCELLED: "cancelled",
+      ARCHIVED: "archived",
     } as const
   )[term.status]
 

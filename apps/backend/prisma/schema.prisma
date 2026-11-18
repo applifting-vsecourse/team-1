@@ -42,6 +42,8 @@ enum Locale {
 }
 
 enum ApplicationTermStatus {
+  // Terminal: confirmed and paid after the term ends (US-109).
+  ARCHIVED
   CONFIRMED
   WAITLISTED
   // Terminal (US-28): rejected, cancelled or not obtained a bed. Does not block a new application.
@@ -144,6 +146,7 @@ model User {
   applicationEdits ApplicationEdit[]
   lastOpenedEvent  LastOpenedEvent?
 
+  bankTransactions BankTransaction[]
   @@unique([email])
   @@map("user")
 }
@@ -181,6 +184,7 @@ model Organization {
   transports       Transport[]
   programBlocks    ProgramBlock[]
 
+  bankTransactions BankTransaction[]
   @@map("organization")
 }
 
@@ -245,6 +249,7 @@ model Event {
   mealOptions  MealOption[]
   lastOpenedBy LastOpenedEvent[]
 
+  bankTransactions BankTransaction[]
   @@index([organizationId])
   @@map("event")
 }
@@ -496,6 +501,7 @@ model Application {
   edits ApplicationEdit[]
   health        ApplicationHealth?
 
+  bankTransactions BankTransaction[]
   @@index([organizationId])
   @@index([eventId, submittedAt])
   @@index([userId])
@@ -605,7 +611,7 @@ model ApplicationTerm {
 }
 
 // System log of every status change of an application in a term (US-28): who, when, from which
-// status to which. Written by the one status service, so later stories (waitlist, cancellation,
+// status to which. Written by the status service or the atomic archival job, so later stories (waitlist, cancellation,
 // manual add) reuse it. `changedBy` is null when the system itself changed the status.
 model ApplicationTermStatusChange {
   id                String                @id @default(cuid())
@@ -650,6 +656,53 @@ model ApplicationTermSkip {
 enum PaymentSource {
   MANUAL
   SIMULATION
+  // Matched automatically from an uploaded bank statement (US-42).
+  BANK_IMPORT
+}
+
+enum BankTransactionStatus {
+  MATCHED
+  UNMATCHED
+}
+
+// Why an imported incoming transaction was not matched; the organizer resolves it by hand (US-44).
+enum BankTransactionReason {
+  NO_VARIABLE_SYMBOL
+  UNKNOWN_VARIABLE_SYMBOL
+  UNSUPPORTED_CURRENCY
+  AMOUNT_NOT_WHOLE
+}
+
+// One incoming transaction of an uploaded bank statement (US-42). `externalId` is the bank's id of
+// the operation (or a hash for the generic format), so the same statement uploaded twice adds
+// nothing. A matched one points to the receipt it created.
+model BankTransaction {
+  id               String                 @id @default(cuid())
+  organization     Organization           @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId   String
+  event            Event                  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId          String
+  externalId       String
+  bookedOn         DateTime               @db.Date
+  // Hundredths of CZK, as in the statement.
+  amountCents      Int
+  // ISO code of the statement row; only CZK is ever matched.
+  currency         String                 @default("CZK")
+  variableSymbol   String?
+  counterpartyName String?
+  message          String?
+  status           BankTransactionStatus
+  reason           BankTransactionReason?
+  receiptId        String?
+  application      Application?           @relation(fields: [applicationId], references: [id], onDelete: SetNull)
+  applicationId    String?
+  importedBy       User                   @relation(fields: [importedById], references: [id])
+  importedById     String
+  createdAt        DateTime               @default(now())
+
+  @@unique([organizationId, externalId])
+  @@index([eventId, status])
+  @@map("bank_transaction")
 }
 
 // Manually recorded payment (US-44) of one application in a term (US-137, D-051). Rows rather

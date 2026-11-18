@@ -50,7 +50,11 @@ export function ParticipantTermActions({
 }) {
   const { t } = useTranslation("participant")
   const requests = useQuery(participantChangeRequestsQueryOptions(application.id))
-  if (!application.terms.some((term) => term.status !== "CANCELLED")) return null
+  if (
+    !application.terms.some((term) => term.status !== "CANCELLED" && term.status !== "ARCHIVED")
+  ) {
+    return null
+  }
   const isPendingRequest = requests.data?.some((request) => request.status === "PENDING") ?? false
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
@@ -98,7 +102,11 @@ export function ParticipantTermChange({
   const [targetId, setTargetId] = useState<string>()
   const [cancelId, setCancelId] = useState("all")
 
-  const active = options.data?.terms.filter((term) => term.selected) ?? []
+  const archivedIds = application.terms
+    .filter((term) => term.status === "ARCHIVED")
+    .map((term) => term.termId)
+  const active =
+    options.data?.terms.filter((term) => term.selected && !archivedIds.includes(term.id)) ?? []
   const available = options.data?.terms.filter((term) => !term.selected) ?? []
   const source = active.find((term) => term.id === sourceId) ?? active[0]
   const target = available.find((term) => term.id === targetId) ?? available[0]
@@ -114,13 +122,15 @@ export function ParticipantTermChange({
     application.terms.some((item) => item.termId === term.id && item.status === "CONFIRMED"),
   )
   const kept = active.filter((term) => !removed.includes(term))
-  const selectedIds =
-    mode === "cancel"
+  const selectedIds = [
+    ...archivedIds,
+    ...(mode === "cancel"
       ? kept.map((term) => term.id)
       : [
           ...active.filter((term) => term.id !== source?.id).map((term) => term.id),
           ...(target ? [target.id] : []),
-        ]
+        ]),
+  ]
   const canSubmit = removed.length > 0 && (mode === "cancel" || Boolean(target))
   const isImmediate = options.data?.canChangeImmediately ?? true
   const overpaidCzk = removed.reduce((sum, term) => sum + term.overpaymentAfterCancellationCzk, 0)

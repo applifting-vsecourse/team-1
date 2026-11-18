@@ -21,6 +21,10 @@ import { notify } from "@/lib/notify"
 
 import { setExtraBeds, type Room, type TermRooms } from "@/features/events/api/rooms"
 
+const MAX_EXTRA_BEDS = 2147483647
+// Characters a number input accepts besides digits that never make a valid count here.
+const BLOCKED_KEYS = ["-", "+", "e", "E"]
+
 // Extra beds (přistýlky) of one room in one term, in a dialog over the list of rooms (approved
 // improvement of the separate screen drawn in Figma: it saves and closes in place).
 // Figma (Design system): Přistýlky v pokoji · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19786-36832 (mobile 19786-36991)
@@ -52,7 +56,7 @@ export function RoomExtraBedsDialog({
     onClose()
   }
   const submit = () => {
-    if (!/^\d+$/.test(value.trim()) || Number(value) < 1 || Number(value) > 2147483647) {
+    if (!/^\d+$/.test(value.trim()) || Number(value) < 1 || Number(value) > MAX_EXTRA_BEDS) {
       setError(t("rooms.extraBedsError"))
       return
     }
@@ -107,10 +111,20 @@ export function RoomExtraBedsDialog({
               id="extra-beds"
               type="number"
               inputMode="numeric"
+              min={1}
+              max={MAX_EXTRA_BEDS}
               step={1}
               value={value}
               aria-invalid={error ? true : undefined}
               aria-describedby={error ? "extra-beds-error" : undefined}
+              onKeyDown={(event) => {
+                if (BLOCKED_KEYS.includes(event.key)) event.preventDefault()
+              }}
+              onPaste={(event) => {
+                if (!/^\d+$/.test(event.clipboardData.getData("text").trim())) {
+                  event.preventDefault()
+                }
+              }}
               onChange={(event) => {
                 setValue(event.target.value)
                 setError(null)
