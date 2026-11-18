@@ -155,14 +155,23 @@ export function OrganizerWithdrawal({
                     className="flex flex-col gap-3 border-t pt-4"
                   >
                     <p className="font-medium">{termTitle(term)}</p>
-                    <dl className="grid grid-cols-3 gap-3">
-                      <ImpactFigure label={t("withdrawal.paid")}>
+                    <dl className="flex flex-col gap-2 sm:grid sm:grid-cols-3 sm:gap-3">
+                      <ImpactFigure
+                        label={t("withdrawal.paid")}
+                        className="flex-row items-baseline justify-between gap-3 sm:flex-col sm:items-stretch sm:justify-start sm:gap-1"
+                      >
                         <MoneyAmount amountCzk={row.paidCzk} />
                       </ImpactFigure>
-                      <ImpactFigure label={t("withdrawal.debt")}>
+                      <ImpactFigure
+                        label={t("withdrawal.debt")}
+                        className="flex-row items-baseline justify-between gap-3 sm:flex-col sm:items-stretch sm:justify-start sm:gap-1"
+                      >
                         <MoneyAmount amountCzk={row.debtCzk} />
                       </ImpactFigure>
-                      <ImpactFigure label={t("withdrawal.overpaymentLabel")}>
+                      <ImpactFigure
+                        label={t("withdrawal.overpaymentLabel")}
+                        className="flex-row items-baseline justify-between gap-3 sm:flex-col sm:items-stretch sm:justify-start sm:gap-1"
+                      >
                         <MoneyAmount amountCzk={row.overpaymentCzk} />
                       </ImpactFigure>
                     </dl>
