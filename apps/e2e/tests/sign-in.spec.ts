@@ -6,6 +6,13 @@ import { eventIdByPublicToken } from "./support/events"
 // US-96 landing → US-02 sign-in and sign-out, and the boundary between the two account types.
 // Edge cases (wrong password, 401/403 of the API) live in Vitest and *.int-spec.ts (docs/E2E.md).
 test.describe("Sign-in", () => {
+  test("participant can request a new sign-in link", { tag: "@mobile" }, async ({ page }) => {
+    await page.goto("/participant/login")
+    await page.getByRole("link", { name: "Get a new link" }).click()
+    await expect(page).toHaveURL(/\/participant\/magic-link$/)
+    await expect(page.getByRole("button", { name: "Send me a link" })).toBeVisible()
+  })
+
   test("organizer gets from the landing page to the events list and signs out", async ({
     page,
   }) => {
