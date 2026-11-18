@@ -16,6 +16,23 @@ export const participantInitials = (
   participant: Pick<AssignmentParticipant, "firstName" | "lastName">,
 ): string => `${participant.firstName.charAt(0)}${participant.lastName.charAt(0)}`.toUpperCase()
 
+/**
+ * Rooms in the order the assignment dialog offers them: rooms of the participant's gender first,
+ * then rooms without a gender, then rooms of the other gender; within a group the most free beds
+ * first (full rooms last), ties by room name.
+ */
+export function sortRoomsForAssignment<
+  T extends Pick<AssignmentRoom, "name" | "gender" | "beds" | "participants">,
+>(rooms: readonly T[], gender: Gender): T[] {
+  const group = (room: T): number => (room.gender === gender ? 0 : room.gender === null ? 1 : 2)
+  return [...rooms].sort(
+    (a, b) =>
+      group(a) - group(b) ||
+      freeBedCount(b) - freeBedCount(a) ||
+      a.name.localeCompare(b.name, "cs", { numeric: true }),
+  )
+}
+
 const normalize = (name: string): string => name.trim().toLocaleLowerCase("cs")
 export const sameRoomName = (a: string, b: string): boolean => normalize(a) === normalize(b)
 

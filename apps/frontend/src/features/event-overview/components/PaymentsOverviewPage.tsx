@@ -107,6 +107,18 @@ export function PaymentsOverviewPage({
             {t("paymentsOverview.cancellationTerms")}
           </Link>
         </Button>
+        <Button
+          asChild
+          size="lg"
+          className="self-start"
+        >
+          <Link
+            to={ROUTES.organizer.eventPaymentsImport}
+            params={{ eventId }}
+          >
+            {t("paymentsOverview.uploadStatement")}
+          </Link>
+        </Button>
       </div>
       <Card className="gap-4 p-4">
         <h3 className="text-xl font-bold tracking-tight">

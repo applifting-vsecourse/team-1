@@ -36,6 +36,7 @@ export class RoomsRepository {
       startsOn: term.startsOn.toISOString().slice(0, 10),
       endsOn: term.endsOn.toISOString().slice(0, 10),
       roomMode: term.roomMode,
+      roomsPublished: term.roomsPublishedAt !== null,
       rooms: term.rooms.map(({ id, name, capacity, extraBeds, gender }) => ({
         id,
         name,
@@ -87,6 +88,22 @@ export class RoomsRepository {
         await tx.room.updateMany({ where: { termId, organizationId }, data: { gender: null } })
       }
       await tx.term.update({ where: { id: termId }, data: { roomMode } })
+    })
+  }
+
+  /** Publishes the room assignment of the term or takes it back; publishing again keeps the first time. */
+  async setPublished(
+    { eventId, termId, organizationId }: TermScope,
+    published: boolean,
+  ): Promise<void> {
+    const term = await this.prisma.term.findFirst({
+      where: { id: termId, eventId, organizationId },
+    })
+    if (!term) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
+    if ((term.roomsPublishedAt !== null) === published) return
+    await this.prisma.term.update({
+      where: { id: termId },
+      data: { roomsPublishedAt: published ? new Date() : null },
     })
   }
 

@@ -22,7 +22,7 @@
     "confirmChange": "Potvrdit změnu",
     "discard": "Zrušit",
     "impact": "Dopad změny",
-    "impactNew": "Nový termín · nová úhrada",
+    "impactNew": "Nový termín · nová částka k úhradě",
     "impactOriginal": "Původní termín · vratka",
     "impactOriginalRequest": "Původní termín",
     "loadError": "Dostupné termíny se nepodařilo načíst",
@@ -62,7 +62,9 @@
     "health": "Zdravotní omezení",
     "meals": "Stravování",
     "program": "Program",
+    "roomNotAssigned": "Zatím nemáte přiřazený pokoj.",
     "sections": {
+      "room": "Pokoj",
       "terms": "Termíny a platby",
       "transport": "Doprava"
     },
@@ -88,7 +90,7 @@
   },
   "edit": {
     "accommodationIndividual": "Individuální řešení",
-    "accommodationRequest": "Poznámka pro organizátora (nepovinné)",
+    "accommodationRequest": "Poznámka pro organizátora",
     "accommodationRequestTooLong": "Poznámka může mít nejvýše 2 000 znaků.",
     "accommodationSummary": "Ubytování · {{request}}",
     "backToApplication": "Zpět na přihlášku",
@@ -201,6 +203,7 @@
     "wholeApplication": "Celá přihláška · všechny termíny ({{count}})"
   },
   "status": {
+    "archived": "Archivovaná",
     "cancelled": "Zrušená",
     "confirmed": "Potvrzeno",
     "toEvaluate": "Čeká na vyhodnocení",

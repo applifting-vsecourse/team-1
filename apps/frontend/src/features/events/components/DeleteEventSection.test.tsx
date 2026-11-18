@@ -124,7 +124,11 @@ describe("DeleteEventSection", () => {
     expect(dialog).toHaveTextContent("A new application was submitted in the meantime.")
     expect(within(dialog).queryByRole("button", { name: "Delete event" })).not.toBeInTheDocument()
     // The footer button and the corner X of the dialog both close it.
-    expect(within(dialog).getAllByRole("button", { name: "Close" })).toHaveLength(2)
+    const closeButtons = within(dialog).getAllByRole("button", { name: "Close" })
+    expect(closeButtons).toHaveLength(2)
+    // The footer button is grey (secondary), not the green primary: the dialog only informs.
+    expect(closeButtons.some((b) => b.dataset.variant === "secondary")).toBe(true)
+    expect(closeButtons.some((b) => b.dataset.variant === "default")).toBe(false)
     expect(screen.queryByText("Events list")).not.toBeInTheDocument()
   })
 
