@@ -13,10 +13,11 @@ export interface ChangeLayoutProps {
   preview: string
   heading: string
   eventName: string
+  termLabel?: string
   /** The sentence about the change. */
   text: string
   /** The status of the application in the term; null where no frame draws one. */
-  badge: { label: string; tone: "positive" | "neutral" } | null
+  badge: { label: string; tone: "positive" | "neutral" | "warning" } | null
   /** Label–value pairs under the badge (payment details); empty when there are none. */
   details: { label: string; value: string }[]
   buttonLabel: string
@@ -25,11 +26,18 @@ export interface ChangeLayoutProps {
   footer: string
 }
 
+const badgeColors = {
+  positive: "bg-accent text-white",
+  neutral: "bg-muted text-white",
+  warning: "bg-warningSurface text-warning",
+} as const
+
 export const ChangeLayout = ({
   locale,
   preview,
   heading,
   eventName,
+  termLabel,
   text,
   badge,
   details,
@@ -43,29 +51,31 @@ export const ChangeLayout = ({
     heading={heading}
     introduction={<Text className="text-ink text-base leading-6 mt-6 mb-0">{eventName}</Text>}
   >
-    <Text className="text-ink text-base leading-6 mt-6 mb-0">{text}</Text>
-    {badge ? (
-      <Section className="mt-6">
-        <span
-          className={
-            badge.tone === "positive"
-              ? "bg-positive text-accent text-sm font-medium rounded-full px-2 py-1"
-              : "bg-surface text-muted text-sm font-medium rounded-full px-2 py-1"
-          }
+    <Section className="box-border w-full rounded-xl border border-solid border-line bg-white p-4">
+      {termLabel ? <Text className="m-0 text-base leading-6 text-ink">{termLabel}</Text> : null}
+      {badge ? (
+        <Text className="mb-0 mt-2">
+          <span className={`rounded-full px-2 py-1 text-sm font-medium ${badgeColors[badge.tone]}`}>
+            {badge.label}
+          </span>
+        </Text>
+      ) : null}
+      <Text className="mb-0 mt-4 text-sm leading-5 text-muted">{text}</Text>
+      {details.map((detail) => (
+        <Section
+          key={`${detail.label}-${detail.value}`}
+          className="mt-4"
         >
-          {badge.label}
-        </span>
-      </Section>
-    ) : null}
-    {details.map((detail) => (
-      <Section
-        key={`${detail.label}-${detail.value}`}
-        className="mt-6"
-      >
-        <Text className="text-muted text-sm leading-5 m-0">{detail.label}</Text>
-        <Text className="text-ink text-base leading-6 mt-2 mb-0">{detail.value}</Text>
-      </Section>
-    ))}
+          <Text className="m-0 text-sm leading-5 text-muted">{detail.label}</Text>
+          <Text
+            className="mb-0 mt-1 text-base font-medium leading-6 text-ink"
+            style={{ fontVariantNumeric: "tabular-nums" }}
+          >
+            {detail.value}
+          </Text>
+        </Section>
+      ))}
+    </Section>
     <Section className="mt-6">
       <Button
         href={buttonUrl}

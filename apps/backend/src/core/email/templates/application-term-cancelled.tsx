@@ -73,6 +73,7 @@ export const TermCancelled = ({
       preview={text.preview}
       heading={text.heading}
       eventName={eventName}
+      termLabel={term}
       text={text.text(name, term, gender)}
       badge={{ label: text.badge, tone: 'neutral' }}
       details={[]}

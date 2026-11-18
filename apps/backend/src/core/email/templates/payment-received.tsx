@@ -9,6 +9,7 @@ const copy: Record<
   {
     subject: (term: string) => string
     text: (name: string, term: string, event: string) => string
+    badge: string
     button: string
     footer: (organization: string) => string
   }
@@ -17,6 +18,7 @@ const copy: Record<
     subject: (term) => `Payment for ${term} received`,
     text: (name, term, event) =>
       `Hello ${name}, we have received your payment for ${term} at ${event}. You are all paid up and don't need to do anything else. You can check your application on the My application page:`,
+    badge: "Paid",
     button: "My application",
     footer: (organization) => `${organization} · via Togena`,
   },
@@ -24,6 +26,7 @@ const copy: Record<
     subject: (term) => `Platba za termín ${term} byla přijata`,
     text: (name, term, event) =>
       `Dobrý den, ${name}, platbu za termín ${term} akce ${event} jsme přijali. Máte zaplaceno a nemusíte nic dalšího řešit. Stav přihlášky najdete na stránce Moje přihláška:`,
+    badge: "Zaplaceno",
     button: "Moje přihláška",
     footer: (organization) => `${organization} · přes Togenu`,
   },
@@ -58,8 +61,9 @@ export const PaymentReceivedEmail = ({
       preview={subject}
       heading={subject}
       eventName={eventName}
+      termLabel={termName}
       text={text.text(firstName, termName, eventName)}
-      badge={null}
+      badge={{ label: text.badge, tone: "positive" }}
       details={[]}
       buttonLabel={text.button}
       buttonUrl={confirmationUrl}

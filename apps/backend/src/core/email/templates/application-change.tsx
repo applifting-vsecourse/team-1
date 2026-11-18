@@ -34,7 +34,7 @@ type KindCopy = {
   heading: string;
   /** `name` is the participant (nominative), `term` the term's name or dates. */
   text: (name: string, term: string, gender: Gender) => string;
-  badge: { label: string; tone: 'positive' | 'neutral' } | null;
+  badge: ChangeLayoutProps['badge'];
 };
 
 // Copy for all locales side by side — a missing translation is a type error.
@@ -79,7 +79,7 @@ const copy: Record<
         heading: 'You are a substitute',
         text: (name, term) =>
           `${name} has been placed among the substitutes for ${term}. Please do not pay anything yet.`,
-        badge: { label: 'Substitute', tone: 'neutral' },
+        badge: { label: 'Substitute', tone: 'warning' },
       },
       REJECTED: {
         heading: 'Your application was rejected',
@@ -141,7 +141,7 @@ const copy: Record<
         heading: 'Jste náhradník',
         text: (name, term, gender) =>
           `${name} je v termínu ${term} zařazen${gender === 'FEMALE' ? 'á' : 'ý'} mezi náhradníky. Zatím nic neplaťte.`,
-        badge: { label: 'Náhradník', tone: 'neutral' },
+        badge: { label: 'Náhradník', tone: 'warning' },
       },
       REJECTED: {
         heading: 'Přihláška byla zamítnuta',
@@ -247,6 +247,7 @@ export const ApplicationChange = ({
       preview={kindCopy.heading}
       heading={kindCopy.heading}
       eventName={eventName}
+      termLabel={kind === 'TERMS_CHANGED' ? undefined : term}
       text={kindCopy.text(name, term, gender)}
       badge={kindCopy.badge}
       details={details}
