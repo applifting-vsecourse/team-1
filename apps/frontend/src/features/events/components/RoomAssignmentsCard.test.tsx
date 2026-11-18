@@ -495,6 +495,33 @@ describe("room assignment", () => {
     )
   })
 
+  it("removes a person from the room by dropping their chip on the unassigned panel", async () => {
+    renderCard()
+    await screen.findByText("Barbora Šimková")
+    const from = dragFrom("p1", "Jana Nováková", "r1")
+    act(() => dnd.props?.onDragStart(from))
+    act(() =>
+      dnd.props?.onDragEnd({ ...from, over: { data: { current: { isUnassigned: true } } } }),
+    )
+    await waitFor(() =>
+      expect(del).toHaveBeenCalledWith("organizer/events/e1/terms/t1/room-assignments/p1"),
+    )
+    await waitFor(() =>
+      expect(success).toHaveBeenCalledWith("Participant has no room again", "Jana Nováková"),
+    )
+  })
+
+  it("ignores an unassigned person dropped back on the unassigned panel", async () => {
+    renderCard()
+    await screen.findByText("Barbora Šimková")
+    const from = dragFrom("p3", "Barbora Šimková", null)
+    act(() => dnd.props?.onDragStart(from))
+    act(() =>
+      dnd.props?.onDragEnd({ ...from, over: { data: { current: { isUnassigned: true } } } }),
+    )
+    expect(del).not.toHaveBeenCalled()
+  })
+
   it("does nothing when a chip is dropped on its own room", async () => {
     renderCard()
     await screen.findByText("Barbora Šimková")
