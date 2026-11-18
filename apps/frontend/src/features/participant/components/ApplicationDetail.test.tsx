@@ -859,6 +859,12 @@ describe("ApplicationDetail", () => {
       ).toBeVisible()
     })
 
+    it("keeps the program link next to the steps of a confirmed term", async () => {
+      renderDetail(application())
+
+      expect(await screen.findByRole("link", { name: "Program" })).toBeVisible()
+    })
+
     it("leaves out the transport step when no transport is offered", async () => {
       renderDetail(application())
 
