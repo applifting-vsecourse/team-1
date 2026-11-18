@@ -17,7 +17,7 @@ import { catalogEventPhotoUrl, type CatalogEventDetail } from "@/features/catalo
 export function EventPage({ event }: { event: CatalogEventDetail }) {
   const { t } = useTranslation("catalog")
   const paragraphs = event.description?.split(/\n{2,}/).filter(Boolean) ?? []
-  const hasContact = Boolean(event.contactEmail || event.contactPhone)
+  const hasContact = Boolean(event.contactEmail) || Boolean(event.contactPhone)
 
   return (
     <article className="flex flex-col gap-6">
@@ -28,7 +28,7 @@ export function EventPage({ event }: { event: CatalogEventDetail }) {
           <BrandDivider />
         </div>
         <CopyButton
-          value={window.location.href}
+          value={new URL(window.location.pathname, window.location.origin).href}
           label={t("event.copyLink")}
           showLabel
         />

@@ -72,9 +72,10 @@ export function NewEventPage() {
   return (
     <Dialog
       open
-      onOpenChange={(open) => {
-        if (!open && !create.isPending)
+      onOpenChange={(isOpen) => {
+        if (!isOpen && !create.isPending) {
           void navigate({ to: ROUTES.organizer.events, replace: true })
+        }
       }}
     >
       <DialogContent

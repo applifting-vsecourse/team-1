@@ -38,7 +38,7 @@ export function AuthLayout({
   cardTitle,
   isSingleCard = false,
   hasBand = false,
-  showDivider = true,
+  showDivider: shouldShowDivider = true,
   back,
   children,
   footer,
@@ -67,7 +67,7 @@ export function AuthLayout({
       {isSingleCard ? (
         <Card className="gap-4 rounded-2xl p-6 shadow-none md:p-8">
           {heading}
-          {showDivider ? <BrandDivider /> : null}
+          {shouldShowDivider ? <BrandDivider /> : null}
           {children}
           {footer}
         </Card>

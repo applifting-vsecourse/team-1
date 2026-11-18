@@ -40,7 +40,7 @@ export function ApplicationList() {
 function Applications({ applications }: { applications: MyApplication[] }) {
   const { t } = useTranslation("participant")
   const { pageItems, ...pagination } = usePagination(applications)
-  const groups = new Map<string, MyApplication[]>()
+  const groups = new Map<string, [MyApplication, ...MyApplication[]]>()
   for (const application of pageItems) {
     const key = application.eventId ?? application.id
     const group = groups.get(key)

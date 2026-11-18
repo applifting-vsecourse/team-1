@@ -62,6 +62,7 @@ export const PaymentReceivedEmail = ({
       preview={subject}
       heading={subject}
       eventName={eventName}
+      participant={firstName}
       termLabel={termName}
       text={text.text(firstName, termName, eventName)}
       badge={{ label: text.badge, tone: "positive" }}

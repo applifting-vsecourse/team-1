@@ -8,6 +8,7 @@ import {
   Img,
   Link,
   Preview,
+  Section,
   Tailwind,
   Text,
 } from "react-email"
@@ -32,6 +33,44 @@ const colors = {
 export const emailButton =
   "block box-border w-full rounded-lg bg-accent px-4 py-3 text-center text-sm font-semibold leading-5 text-white"
 
+/** E05–E16 identification rows between the introduction and the action. */
+export function EmailIdentification({
+  locale,
+  eventName,
+  participant,
+  term,
+}: {
+  locale: Locale
+  eventName: string
+  participant?: string
+  term?: string
+}) {
+  const labels = locale === "cs" ? ["Akce", "Účastník", "Termín"] : ["Event", "Participant", "Term"]
+  return (
+    <Section className="border-y border-solid border-line py-4">
+      {[eventName, participant, term].map((value, index) =>
+        value ? (
+          <Section
+            key={labels[index]}
+            className={index === 0 ? "" : "mt-3"}
+          >
+            <Text className="m-0 text-xs font-medium leading-[18px] text-muted">
+              {labels[index]}
+            </Text>
+            <Text className="mb-0 mt-0.5 text-base leading-6 text-ink">{value}</Text>
+          </Section>
+        ) : null,
+      )}
+    </Section>
+  )
+}
+export function EmailFooter({ children }: { children: ReactNode }) {
+  return (
+    <Section className="mt-6 border-t border-solid border-line pt-4">
+      <Text className="m-0 text-xs font-medium leading-[18px] text-muted">{children}</Text>
+    </Section>
+  )
+}
 export function EmailLinkHelp({
   url,
   fallback,
@@ -54,8 +93,7 @@ export function EmailLinkHelp({
       >
         {url}
       </Link>
-      <Hr className="my-4 border-line" />
-      <Text className="m-0 text-xs leading-[18px] text-muted">Togena</Text>
+      <EmailFooter>Togena</EmailFooter>
     </>
   )
 }
@@ -134,7 +172,7 @@ export function EmailLayout({
                             ) : (
                               <Text className="m-0 text-3xl font-semibold text-ink">togena</Text>
                             )}
-                            <Heading className="email-heading mb-0 mt-6 text-[32px] font-semibold leading-10 text-ink">
+                            <Heading className="email-heading mb-0 mt-6 text-[24px] font-semibold leading-8 text-ink">
                               {heading}
                             </Heading>
                             {introduction}

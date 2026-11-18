@@ -1,7 +1,7 @@
-import { Locale } from '@/core/email/locale';
-import { ChangeLayout } from '@/core/email/templates/application-change-layout';
-import { Gender } from '@/shared/domain/gender';
-import * as React from 'react';
+import { Locale } from "@/core/email/locale"
+import { ChangeLayout } from "@/core/email/templates/application-change-layout"
+import { Gender } from "@/shared/domain/gender"
+import * as React from "react"
 
 // E-mail no. 13 (EMAILY.md, D-074): Potvrzená s dluhem → Náhradník, the organizer moves the
 // application among the substitutes. Own template, not the one of no. 3 (K vyhodnocení → Náhradník).
@@ -9,48 +9,48 @@ import * as React from 'react';
 const copy: Record<
   Locale,
   {
-    subject: (event: string) => string;
-    heading: string;
-    text: (name: string, term: string, gender: Gender) => string;
-    badge: string;
-    button: string;
-    footer: (organization: string) => string;
+    subject: (event: string) => string
+    heading: string
+    text: (name: string, term: string, gender: Gender) => string
+    badge: string
+    button: string
+    footer: (organization: string) => string
   }
 > = {
   en: {
     subject: (event) => `Change in your application: ${event}`,
-    heading: 'Your confirmation was withdrawn. You are a substitute',
+    heading: "Your confirmation was withdrawn. You are a substitute",
     text: (name, term, gender) =>
       `The organiser withdrew the confirmation of ${name}’s place for ${term} and moved them among the substitutes. This is not waiting for the first evaluation.`,
-    badge: 'Substitute',
-    button: 'Open my applications',
+    badge: "Substitute",
+    button: "Open my applications",
     footer: (organization) => `${organization} · via Togena`,
   },
   cs: {
     subject: (event) => `Změna ve vaší přihlášce: ${event}`,
-    heading: 'Potvrzení bylo odvoláno. Jste náhradník',
+    heading: "Potvrzení bylo odvoláno. Jste náhradník",
     text: (name, term, gender) =>
-      `Organizátor odvolal potvrzení účasti (${name}) v termínu ${term} a zařadil ${gender === 'FEMALE' ? 'ji' : 'ho'} mezi náhradníky. Nejde o čekání na první vyhodnocení.`,
-    badge: 'Náhradník',
-    button: 'Otevřít moje přihlášky',
+      `Organizátor odvolal potvrzení účasti (${name}) v termínu ${term} a zařadil ${gender === "FEMALE" ? "ji" : "ho"} mezi náhradníky. Nejde o čekání na první vyhodnocení.`,
+    badge: "Náhradník",
+    button: "Otevřít moje přihlášky",
     footer: (organization) => `${organization} · přes Togenu`,
   },
-};
+}
 
 export const confirmationWithdrawnSubject = (locale: Locale, eventName: string): string =>
-  copy[locale].subject(eventName);
+  copy[locale].subject(eventName)
 
 export interface ConfirmationWithdrawnProps {
-  locale: Locale;
-  eventName: string;
-  organizationName: string;
+  locale: Locale
+  eventName: string
+  organizationName: string
   /** First and last name of the participant. */
-  name: string;
+  name: string
   /** Of the participant: the Czech copy is gendered. */
-  gender: Gender;
+  gender: Gender
   /** The changed term: its name, or its dates. */
-  term: string;
-  confirmationUrl: string;
+  term: string
+  confirmationUrl: string
 }
 
 // Figma: E09 · Odvolání potvrzení · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=19681-903
@@ -63,32 +63,33 @@ export const ConfirmationWithdrawn = ({
   term,
   confirmationUrl,
 }: ConfirmationWithdrawnProps): React.JSX.Element => {
-  const text = copy[locale];
+  const text = copy[locale]
   return (
     <ChangeLayout
       locale={locale}
       preview={text.heading}
       heading={text.heading}
       eventName={eventName}
+      participant={name}
       termLabel={term}
       text={text.text(name, term, gender)}
-      badge={{ label: text.badge, tone: 'warning' }}
+      badge={{ label: text.badge, tone: "warning" }}
       details={[]}
       buttonLabel={text.button}
       buttonUrl={confirmationUrl}
       footer={text.footer(organizationName)}
     />
-  );
-};
+  )
+}
 
 ConfirmationWithdrawn.PreviewProps = {
-  locale: 'cs',
-  eventName: 'Letní kemp Lipno 2027',
-  organizationName: 'Alpine Collective',
-  name: 'Adam Dvořák',
-  gender: 'MALE',
-  term: '12.–18. 7. 2027',
-  confirmationUrl: 'https://team-1.vsepractical.applifting.dev/apply/confirmation/preview-2',
-} satisfies ConfirmationWithdrawnProps;
+  locale: "cs",
+  eventName: "Letní kemp Lipno 2027",
+  organizationName: "Alpine Collective",
+  name: "Adam Dvořák",
+  gender: "MALE",
+  term: "12.–18. 7. 2027",
+  confirmationUrl: "https://team-1.vsepractical.applifting.dev/apply/confirmation/preview-2",
+} satisfies ConfirmationWithdrawnProps
 
-export default ConfirmationWithdrawn;
+export default ConfirmationWithdrawn

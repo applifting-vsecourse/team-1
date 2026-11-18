@@ -9,7 +9,7 @@ export function CopyButton({
   value,
   label,
   successMessage,
-  showLabel = false,
+  showLabel: shouldShowLabel = false,
 }: {
   value: string
   label: string
@@ -32,7 +32,7 @@ export function CopyButton({
     <Button
       type="button"
       variant="ghost"
-      size={showLabel ? "default" : "icon-lg"}
+      size={shouldShowLabel ? "default" : "icon-lg"}
       className="relative"
       aria-label={label}
       onClick={() => void copy()}
@@ -48,7 +48,7 @@ export function CopyButton({
         className="size-5"
         aria-hidden="true"
       />
-      {showLabel ? label : null}
+      {shouldShowLabel ? label : null}
     </Button>
   )
 }

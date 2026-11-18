@@ -212,13 +212,13 @@ describe("accommodation by term", () => {
     ).toBeInTheDocument()
   })
 
-  it("shows the extra beds action as an icon with the room name and a count badge only when there are some", async () => {
+  it("labels the extra bed actions with the room and includes the existing extra bed count", async () => {
     renderRooms("t1")
     const table = await screen.findByRole("table")
     const edit = within(table).getByRole("button", { name: "Edit extra beds (2) – Gendered room" })
     const add = within(table).getByRole("button", { name: "Add an extra bed – Men's room" })
-    expect(edit).toHaveTextContent("2")
-    expect(add).toHaveTextContent("")
+    expect(edit).toHaveTextContent("Edit extra beds (2)")
+    expect(add).toHaveTextContent("Add extra bed")
     expect(edit.querySelector("svg")).not.toBeNull()
     expect(add.querySelector("svg")).not.toBeNull()
   })

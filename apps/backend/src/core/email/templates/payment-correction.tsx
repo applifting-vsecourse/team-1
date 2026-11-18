@@ -84,6 +84,7 @@ export const PaymentCorrectionEmail = ({
       preview={text.heading}
       heading={text.heading}
       eventName={eventName}
+      participant={name}
       text={text.text(name)}
       badge={{ label: text.amount, tone: "neutral" }}
       details={[

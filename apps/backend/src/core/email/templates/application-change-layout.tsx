@@ -1,5 +1,5 @@
 import { Button, Section, Text } from "react-email"
-import { emailButton, EmailLayout } from "@/core/email/email-kit"
+import { emailButton, EmailIdentification, EmailFooter, EmailLayout } from "@/core/email/email-kit"
 import * as React from "react"
 import { Locale } from "@/core/email/locale"
 
@@ -13,6 +13,7 @@ export interface ChangeLayoutProps {
   preview: string
   heading: string
   eventName: string
+  participant?: string
   termLabel?: string
   /** The sentence about the change. */
   text: string
@@ -38,6 +39,7 @@ export const ChangeLayout = ({
   heading,
   eventName,
   termLabel,
+  participant,
   text,
   badge,
   details,
@@ -49,10 +51,15 @@ export const ChangeLayout = ({
     locale={locale}
     preview={preview}
     heading={heading}
-    introduction={<Text className="text-ink text-base leading-6 mt-6 mb-0">{eventName}</Text>}
+    introduction={<Text className="text-ink text-base leading-6 mt-6 mb-0">{text}</Text>}
   >
-    <Section className="box-border w-full rounded-xl border border-solid border-line bg-white p-4">
-      {termLabel ? <Text className="m-0 text-base leading-6 text-ink">{termLabel}</Text> : null}
+    <EmailIdentification
+      locale={locale}
+      eventName={eventName}
+      participant={participant}
+      term={termLabel}
+    />
+    <Section>
       {badge ? (
         <Text className="mb-0 mt-2">
           <span className={`rounded-full px-2 py-1 text-sm font-medium ${badgeColors[badge.tone]}`}>
@@ -60,7 +67,6 @@ export const ChangeLayout = ({
           </span>
         </Text>
       ) : null}
-      <Text className="mb-0 mt-4 text-sm leading-5 text-muted">{text}</Text>
       {details.map((detail) => (
         <Section
           key={`${detail.label}-${detail.value}`}
@@ -84,7 +90,7 @@ export const ChangeLayout = ({
         {buttonLabel}
       </Button>
     </Section>
-    <Text className="text-muted text-sm leading-5 mt-6 mb-0">{footer}</Text>
+    <EmailFooter>{footer}</EmailFooter>
   </EmailLayout>
 )
 

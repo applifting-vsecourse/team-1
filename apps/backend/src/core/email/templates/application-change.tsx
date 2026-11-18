@@ -1,8 +1,8 @@
-import { Locale } from '@/core/email/locale';
-import { ChangeLayout, ChangeLayoutProps } from '@/core/email/templates/application-change-layout';
-import { ApplicationTermStatus } from '@/modules/applications/domain/evaluation';
-import { Gender } from '@/shared/domain/gender';
-import * as React from 'react';
+import { Locale } from "@/core/email/locale"
+import { ChangeLayout, ChangeLayoutProps } from "@/core/email/templates/application-change-layout"
+import { ApplicationTermStatus } from "@/modules/applications/domain/evaluation"
+import { Gender } from "@/shared/domain/gender"
+import * as React from "react"
 
 /**
  * What happened to the application in one term (docs/procesy/zpracovani-prihlasky/EMAILY.md):
@@ -20,22 +20,22 @@ import * as React from 'react';
  * No. 13 (Potvrzená s dluhem → Náhradník) and no. 15 (term cancelled) have their own templates.
  */
 export type ChangeKind =
-  | 'CONFIRMED'
-  | 'CONFIRMED_FROM_WAITLIST'
-  | 'WAITLISTED'
-  | 'REJECTED'
-  | 'CANCELLED'
-  | 'NO_BED_FREED'
-  | 'CANCELLED_BY_ORGANIZER'
+  | "CONFIRMED"
+  | "CONFIRMED_FROM_WAITLIST"
+  | "WAITLISTED"
+  | "REJECTED"
+  | "CANCELLED"
+  | "NO_BED_FREED"
+  | "CANCELLED_BY_ORGANIZER"
   /** US-33 / US-84: no trigger yet, no frame. */
-  | 'TERMS_CHANGED';
+  | "TERMS_CHANGED"
 
 type KindCopy = {
-  heading: string;
+  heading: string
   /** `name` is the participant (nominative), `term` the term's name or dates. */
-  text: (name: string, term: string, gender: Gender) => string;
-  badge: ChangeLayoutProps['badge'];
-};
+  text: (name: string, term: string, gender: Gender) => string
+  badge: ChangeLayoutProps["badge"]
+}
 
 // Copy for all locales side by side — a missing translation is a type error.
 // Czech: where a frame names the participant in the nominative the sentence is verbatim, with the
@@ -44,170 +44,170 @@ type KindCopy = {
 const copy: Record<
   Locale,
   {
-    subject: (event: string) => string;
-    kinds: Record<ChangeKind, KindCopy>;
-    statuses: Record<Exclude<ApplicationTermStatus, 'ARCHIVED'>, string>;
-    amountDue: string;
-    account: string;
-    variableSymbol: string;
-    button: string;
-    footer: (organization: string) => string;
+    subject: (event: string) => string
+    kinds: Record<ChangeKind, KindCopy>
+    statuses: Record<Exclude<ApplicationTermStatus, "ARCHIVED">, string>
+    amountDue: string
+    account: string
+    variableSymbol: string
+    button: string
+    footer: (organization: string) => string
   }
 > = {
   en: {
     subject: (event) => `Change in your application: ${event}`,
     statuses: {
-      TO_EVALUATE: 'Awaiting evaluation · do not pay yet',
-      CONFIRMED: 'Confirmed',
-      WAITLISTED: 'Substitute · do not pay yet',
-      CANCELLED: 'Cancelled',
+      TO_EVALUATE: "Awaiting evaluation · do not pay yet",
+      CONFIRMED: "Confirmed",
+      WAITLISTED: "Substitute · do not pay yet",
+      CANCELLED: "Cancelled",
     },
     kinds: {
       // Figma: E05 EN
       CONFIRMED: {
-        heading: 'Your place is confirmed',
+        heading: "Your place is confirmed",
         text: (name, term) => `The organiser has confirmed ${name}’s place for ${term}.`,
-        badge: { label: 'Confirmed · payment due', tone: 'positive' },
+        badge: { label: "Confirmed · payment due", tone: "positive" },
       },
       CONFIRMED_FROM_WAITLIST: {
-        heading: 'A bed has become free. Your place is confirmed',
+        heading: "A bed has become free. Your place is confirmed",
         text: (name, term) =>
           `${name} is no longer a substitute. Their place for ${term} has been confirmed.`,
-        badge: { label: 'Confirmed · payment due', tone: 'positive' },
+        badge: { label: "Confirmed · payment due", tone: "positive" },
       },
       WAITLISTED: {
-        heading: 'You are a substitute',
+        heading: "You are a substitute",
         text: (name, term) =>
           `${name} has been placed among the substitutes for ${term}. Please do not pay anything yet.`,
-        badge: { label: 'Substitute', tone: 'warning' },
+        badge: { label: "Substitute", tone: "warning" },
       },
       REJECTED: {
-        heading: 'Your application was rejected',
+        heading: "Your application was rejected",
         text: (name, term) =>
           `The organiser rejected ${name}’s place for ${term}. The status of the application in this term is Cancelled.`,
-        badge: { label: 'Cancelled', tone: 'neutral' },
+        badge: { label: "Cancelled", tone: "neutral" },
       },
       CANCELLED: {
-        heading: 'Your cancellation is confirmed',
+        heading: "Your cancellation is confirmed",
         text: (name, term) =>
           `${name} has been cancelled from ${term}. The other terms of the application stay unchanged.`,
-        badge: { label: 'Cancelled', tone: 'neutral' },
+        badge: { label: "Cancelled", tone: "neutral" },
       },
       NO_BED_FREED: {
-        heading: 'The term has started, no bed became free',
+        heading: "The term has started, no bed became free",
         text: (name, term) =>
           `No bed became free for ${name} before ${term} started. The application in this term is therefore cancelled.`,
-        badge: { label: 'Cancelled', tone: 'neutral' },
+        badge: { label: "Cancelled", tone: "neutral" },
       },
       CANCELLED_BY_ORGANIZER: {
-        heading: 'Application cancelled by the organiser',
+        heading: "Application cancelled by the organiser",
         text: (name, term) =>
           `The organiser cancelled the application of ${name}, who was a substitute for ${term}.`,
-        badge: { label: 'Cancelled', tone: 'neutral' },
+        badge: { label: "Cancelled", tone: "neutral" },
       },
       TERMS_CHANGED: {
-        heading: 'Your application changed',
-        text: () => 'The terms of the application changed.',
+        heading: "Your application changed",
+        text: () => "The terms of the application changed.",
         badge: null,
       },
     },
-    amountDue: 'Amount due',
-    account: 'Bank account',
-    variableSymbol: 'Reference number',
-    button: 'Open my applications',
+    amountDue: "Amount due",
+    account: "Bank account",
+    variableSymbol: "Reference number",
+    button: "Open my applications",
     footer: (organization) => `${organization} · via Togena`,
   },
   cs: {
     subject: (event) => `Změna ve vaší přihlášce: ${event}`,
     statuses: {
-      TO_EVALUATE: 'Čeká na vyhodnocení · zatím neplaťte',
-      CONFIRMED: 'Účast potvrzena',
-      WAITLISTED: 'Náhradník · zatím neplaťte',
-      CANCELLED: 'Zrušená',
+      TO_EVALUATE: "Čeká na vyhodnocení · zatím neplaťte",
+      CONFIRMED: "Účast potvrzena",
+      WAITLISTED: "Náhradník · zatím neplaťte",
+      CANCELLED: "Zrušená",
     },
     kinds: {
       CONFIRMED: {
-        heading: 'Účast je potvrzená',
+        heading: "Účast je potvrzená",
         text: (name, term) => `Organizátor potvrdil účast (${name}) v termínu ${term}.`,
-        badge: { label: 'Účast potvrzena', tone: 'positive' },
+        badge: { label: "Účast potvrzena", tone: "positive" },
       },
       CONFIRMED_FROM_WAITLIST: {
-        heading: 'Uvolnilo se lůžko. Účast je potvrzená',
+        heading: "Uvolnilo se lůžko. Účast je potvrzená",
         text: (name, term, gender) =>
-          `${name} už není ${gender === 'FEMALE' ? 'náhradnice' : 'náhradník'}. ${gender === 'FEMALE' ? 'Její' : 'Jeho'} účast v termínu ${term} byla potvrzená.`,
-        badge: { label: 'Účast potvrzena', tone: 'positive' },
+          `${name} už není ${gender === "FEMALE" ? "náhradnice" : "náhradník"}. ${gender === "FEMALE" ? "Její" : "Jeho"} účast v termínu ${term} byla potvrzená.`,
+        badge: { label: "Účast potvrzena", tone: "positive" },
       },
       WAITLISTED: {
-        heading: 'Jste náhradník',
+        heading: "Jste náhradník",
         text: (name, term, gender) =>
-          `${name} je v termínu ${term} zařazen${gender === 'FEMALE' ? 'á' : 'ý'} mezi náhradníky. Zatím nic neplaťte.`,
-        badge: { label: 'Náhradník', tone: 'warning' },
+          `${name} je v termínu ${term} zařazen${gender === "FEMALE" ? "á" : "ý"} mezi náhradníky. Zatím nic neplaťte.`,
+        badge: { label: "Náhradník", tone: "warning" },
       },
       REJECTED: {
-        heading: 'Přihláška byla zamítnuta',
+        heading: "Přihláška byla zamítnuta",
         text: (name, term) =>
           `Organizátor zamítl účast (${name}) v termínu ${term}. Stav přihlášky v tomto termínu je Zrušená.`,
-        badge: { label: 'Zrušená', tone: 'neutral' },
+        badge: { label: "Zrušená", tone: "neutral" },
       },
       CANCELLED: {
-        heading: 'Odhlášení je potvrzené',
+        heading: "Odhlášení je potvrzené",
         text: (name, term, gender) =>
-          `${name} je odhlášen${gender === 'FEMALE' ? 'á' : 'ý'} z termínu ${term}. Ostatní termíny přihlášky zůstávají beze změny.`,
-        badge: { label: 'Zrušená', tone: 'neutral' },
+          `${name} je odhlášen${gender === "FEMALE" ? "á" : "ý"} z termínu ${term}. Ostatní termíny přihlášky zůstávají beze změny.`,
+        badge: { label: "Zrušená", tone: "neutral" },
       },
       NO_BED_FREED: {
-        heading: 'Termín začal, lůžko se neuvolnilo',
+        heading: "Termín začal, lůžko se neuvolnilo",
         text: (name, term) =>
           `Do začátku termínu ${term} se pro (${name}) neuvolnilo lůžko. Přihláška v tomto termínu je proto zrušená.`,
-        badge: { label: 'Zrušená', tone: 'neutral' },
+        badge: { label: "Zrušená", tone: "neutral" },
       },
       CANCELLED_BY_ORGANIZER: {
-        heading: 'Přihláška zrušená organizátorem',
+        heading: "Přihláška zrušená organizátorem",
         text: (name, term, gender) =>
-          `Organizátor zrušil přihlášku (${name}), ${gender === 'FEMALE' ? 'která byla náhradnicí' : 'který byl náhradníkem'} v termínu ${term}.`,
-        badge: { label: 'Zrušená', tone: 'neutral' },
+          `Organizátor zrušil přihlášku (${name}), ${gender === "FEMALE" ? "která byla náhradnicí" : "který byl náhradníkem"} v termínu ${term}.`,
+        badge: { label: "Zrušená", tone: "neutral" },
       },
       TERMS_CHANGED: {
-        heading: 'Změna přihlášky',
-        text: () => 'Změnily se termíny přihlášky.',
+        heading: "Změna přihlášky",
+        text: () => "Změnily se termíny přihlášky.",
         badge: null,
       },
     },
-    amountDue: 'K úhradě',
-    account: 'Bankovní účet',
-    variableSymbol: 'Variabilní symbol',
-    button: 'Otevřít moje přihlášky',
+    amountDue: "K úhradě",
+    account: "Bankovní účet",
+    variableSymbol: "Variabilní symbol",
+    button: "Otevřít moje přihlášky",
     footer: (organization) => `${organization} · přes Togenu`,
   },
-};
+}
 
 export const applicationChangeSubject = (locale: Locale, eventName: string): string =>
-  copy[locale].subject(eventName);
+  copy[locale].subject(eventName)
 
 export interface ApplicationChangeProps {
-  locale: Locale;
-  eventName: string;
+  locale: Locale
+  eventName: string
   /** Name of the organization that runs the event, for the footer. */
-  organizationName: string;
+  organizationName: string
   /** First and last name of the participant. */
-  name: string;
+  name: string
   /** Of the participant: the Czech copy is gendered. */
-  gender: Gender;
+  gender: Gender
   /** The changed term: its name, or its dates. */
-  term: string;
-  kind: ChangeKind;
+  term: string
+  kind: ChangeKind
   /** Result of each term when several terms changed in one request. */
-  terms: { name: string; status: Exclude<ApplicationTermStatus, 'ARCHIVED'> }[];
+  terms: { name: string; status: Exclude<ApplicationTermStatus, "ARCHIVED"> }[]
   /** Only when the application became confirmed; amounts are already formatted. */
   payment: {
     /** Everything due now, paid under the summary variable symbol (`…000`). */
-    amount: string;
-    bankAccount: string;
-    variableSymbol: string;
+    amount: string
+    bankAccount: string
+    variableSymbol: string
     /** One line per confirmed term with its own symbol; empty with a single confirmed term. */
-    terms: { name: string; amount: string; variableSymbol: string }[];
-  } | null;
-  confirmationUrl: string;
+    terms: { name: string; amount: string; variableSymbol: string }[]
+  } | null
+  confirmationUrl: string
 }
 
 // Figma: E05–E08, E10, E11, E13 · Změny přihlášky · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=19681-665
@@ -223,10 +223,10 @@ export const ApplicationChange = ({
   payment,
   confirmationUrl,
 }: ApplicationChangeProps): React.JSX.Element => {
-  const text = copy[locale];
-  const kindCopy = text.kinds[kind];
+  const text = copy[locale]
+  const kindCopy = text.kinds[kind]
   const details = [
-    ...(kind === 'TERMS_CHANGED'
+    ...(kind === "TERMS_CHANGED"
       ? terms.map(({ name, status }) => ({ label: name, value: text.statuses[status] }))
       : []),
     ...(payment
@@ -241,14 +241,15 @@ export const ApplicationChange = ({
           })),
         ]
       : []),
-  ];
+  ]
   return (
     <ChangeLayout
       locale={locale}
       preview={kindCopy.heading}
       heading={kindCopy.heading}
       eventName={eventName}
-      termLabel={kind === 'TERMS_CHANGED' ? undefined : term}
+      participant={name}
+      termLabel={kind === "TERMS_CHANGED" ? undefined : term}
       text={kindCopy.text(name, term, gender)}
       badge={kindCopy.badge}
       details={details}
@@ -256,26 +257,26 @@ export const ApplicationChange = ({
       buttonUrl={confirmationUrl}
       footer={text.footer(organizationName)}
     />
-  );
-};
+  )
+}
 
 // Preview data for `pnpm backend email:dev`: a term was confirmed, payment details follow.
 ApplicationChange.PreviewProps = {
-  locale: 'cs',
-  eventName: 'Letní kemp Lipno 2027',
-  organizationName: 'Alpine Collective',
-  name: 'Adam Dvořák',
-  gender: 'MALE',
-  term: '12.–18. 7. 2027',
-  kind: 'CONFIRMED',
+  locale: "cs",
+  eventName: "Letní kemp Lipno 2027",
+  organizationName: "Alpine Collective",
+  name: "Adam Dvořák",
+  gender: "MALE",
+  term: "12.–18. 7. 2027",
+  kind: "CONFIRMED",
   terms: [],
   payment: {
-    amount: '4 900 Kč',
-    bankAccount: '123456789 / 0000',
-    variableSymbol: '2027001000',
+    amount: "4 900 Kč",
+    bankAccount: "123456789 / 0000",
+    variableSymbol: "2027001000",
     terms: [],
   },
-  confirmationUrl: 'https://team-1.vsepractical.applifting.dev/apply/confirmation/preview-2',
-} satisfies ApplicationChangeProps;
+  confirmationUrl: "https://team-1.vsepractical.applifting.dev/apply/confirmation/preview-2",
+} satisfies ApplicationChangeProps
 
-export default ApplicationChange;
+export default ApplicationChange
