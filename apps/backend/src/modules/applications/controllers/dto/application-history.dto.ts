@@ -23,24 +23,6 @@ export class HistoryFieldChangeDto {
   to?: string | null
 }
 
-export class HistoryFieldChangeDto {
-  @ApiProperty({ enum: EDITABLE_FIELDS }) field!: HistoryFieldChange["field"]
-  @ApiProperty({
-    required: false,
-    nullable: true,
-    type: String,
-    description: "Null: the field was empty. Not sent for the accommodation note.",
-  })
-  from?: string | null
-  @ApiProperty({
-    required: false,
-    nullable: true,
-    type: String,
-    description: "Null: the field is empty now. Not sent for the accommodation note.",
-  })
-  to?: string | null
-}
-
 const STATUSES = ["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED", "ARCHIVED"]
 
 /** One change of an application: when, by whom and what. The fields after `author` depend on `kind`. */
