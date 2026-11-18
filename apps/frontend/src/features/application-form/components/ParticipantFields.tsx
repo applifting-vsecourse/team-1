@@ -71,6 +71,7 @@ export function ParticipantFields({ index, terms, onRemove, isDisabled }: Partic
     name: `participants.${index}.individualAccommodation`,
   })
   const number = index + 1
+  const termsMessageId = `participant-${index}-terms-message`
   const name = [firstName, lastName].filter(Boolean).join(" ").trim()
 
   return (
@@ -224,6 +225,8 @@ export function ParticipantFields({ index, terms, onRemove, isDisabled }: Partic
                         )
                       }
                       onBlur={field.onBlur}
+                      aria-invalid={fieldState.invalid}
+                      aria-describedby={fieldState.invalid ? termsMessageId : undefined}
                     />
                     <span className="flex flex-1 flex-col">
                       <span className="font-semibold">
@@ -245,7 +248,7 @@ export function ParticipantFields({ index, terms, onRemove, isDisabled }: Partic
                 )
               })}
             </fieldset>
-            <FormMessage />
+            <FormMessage id={termsMessageId} />
           </FormItem>
         )}
       />
