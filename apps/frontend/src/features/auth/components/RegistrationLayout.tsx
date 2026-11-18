@@ -1,35 +1,18 @@
 import type { ReactNode } from "react"
 import { Link } from "@tanstack/react-router"
-import { Globe, Menu, Sun } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
 import { BandBackdrop } from "@/components/atoms/BandBackdrop"
 import { Logo } from "@/components/atoms/Logo"
-import { LanguageSwitcher } from "@/components/molecules/LanguageSwitcher"
-import { ThemeSwitcher } from "@/components/molecules/ThemeSwitcher"
-import { Button } from "@/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { useTheme } from "@/hooks/useTheme"
-import { LANGUAGES } from "@/i18n"
+import { PublicPreferences } from "@/components/molecules/PublicPreferences"
 
 type Props = { children: ReactNode }
 
 // Figma (Design system): #69 / Vytvořit účet organizátora · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19795-22977
 // Figma (Design system): #69 / Vytvořit účet organizátora / Mobile · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19795-23052
 export function RegistrationLayout({ children }: Props) {
-  const { t, i18n } = useTranslation("auth")
-  const { t: tCommon } = useTranslation("common")
-  const { theme, setTheme } = useTheme()
+  const { t } = useTranslation("auth")
 
   return (
     <>
@@ -43,71 +26,7 @@ export function RegistrationLayout({ children }: Props) {
         >
           {t("registration.signIn")}
         </Link>
-        <div className="hidden items-center gap-4 md:flex">
-          <LanguageSwitcher />
-          <ThemeSwitcher />
-        </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-lg"
-              className="md:hidden"
-              aria-label={t("registration.preferences")}
-            >
-              <Menu aria-hidden="true" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            align="end"
-            className="md:hidden"
-          >
-            <DropdownMenuSub>
-              <DropdownMenuSubTrigger>
-                <Globe aria-hidden="true" />
-                {tCommon("language.toggle")}
-              </DropdownMenuSubTrigger>
-              <DropdownMenuSubContent>
-                <DropdownMenuRadioGroup
-                  value={i18n.resolvedLanguage ?? "en"}
-                  onValueChange={(language) => void i18n.changeLanguage(language)}
-                >
-                  {LANGUAGES.map((language) => (
-                    <DropdownMenuRadioItem
-                      key={language}
-                      value={language}
-                      lang={language}
-                    >
-                      {tCommon(`language.${language}`)}
-                    </DropdownMenuRadioItem>
-                  ))}
-                </DropdownMenuRadioGroup>
-              </DropdownMenuSubContent>
-            </DropdownMenuSub>
-            <DropdownMenuSub>
-              <DropdownMenuSubTrigger>
-                <Sun aria-hidden="true" />
-                {tCommon("theme.toggle")}
-              </DropdownMenuSubTrigger>
-              <DropdownMenuSubContent>
-                <DropdownMenuRadioGroup
-                  value={theme ?? "system"}
-                  onValueChange={setTheme}
-                >
-                  {(["light", "dark", "system"] as const).map((mode) => (
-                    <DropdownMenuRadioItem
-                      key={mode}
-                      value={mode}
-                    >
-                      {tCommon(`theme.${mode}`)}
-                    </DropdownMenuRadioItem>
-                  ))}
-                </DropdownMenuRadioGroup>
-              </DropdownMenuSubContent>
-            </DropdownMenuSub>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <PublicPreferences />
       </header>
       <main className="relative min-h-[calc(100svh-5rem)] overflow-hidden bg-background p-4 md:p-12">
         <BandBackdrop className="h-40 lg:h-56" />

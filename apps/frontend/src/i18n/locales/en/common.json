@@ -54,6 +54,7 @@
     "openMenu": "Open navigation",
     "overview": "Overview"
   },
+  "navigationPreferences": "Language and appearance",
   "pages": {
     "error": {
       "action": "Reload",

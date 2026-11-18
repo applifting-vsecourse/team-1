@@ -38,7 +38,7 @@ function OrganizerLoginPage() {
         title={t("organizerLogin.title")}
         back={<BackLink to={ROUTES.home}>{t("backHome")}</BackLink>}
         description={t("organizerLogin.description")}
-        singleCard
+        isSingleCard
         footer={
           <div className="flex flex-col gap-4">
             <Button

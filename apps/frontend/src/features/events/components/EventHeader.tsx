@@ -52,11 +52,11 @@ export function EventHeader({ eventId }: { eventId: string }) {
   const match = useMatchRoute()
   const matches = (to: (typeof ROUTES.organizer)[keyof typeof ROUTES.organizer]) =>
     Boolean(match({ to, params: { eventId }, fuzzy: true }))
-  const compact =
+  const isCompact =
     matches(ROUTES.organizer.eventTransport) ||
     matches(ROUTES.organizer.eventCancellationTerms) ||
     matches(ROUTES.organizer.newApplication)
-  const program = matches(ROUTES.organizer.eventProgram)
+  const isProgram = matches(ROUTES.organizer.eventProgram)
   const { data: event } = useQuery(eventQueryOptions(eventId))
 
   const heading = (
@@ -85,7 +85,7 @@ export function EventHeader({ eventId }: { eventId: string }) {
   )
   return (
     <header className="flex min-w-0 flex-col gap-4">
-      {compact || program ? (
+      {isCompact || isProgram ? (
         heading
       ) : (
         <HeadingBand
@@ -100,7 +100,7 @@ export function EventHeader({ eventId }: { eventId: string }) {
           {heading}
         </HeadingBand>
       )}
-      {compact && <BrandDivider />}
+      {isCompact && <BrandDivider />}
       <EventTabs eventId={eventId} />
     </header>
   )

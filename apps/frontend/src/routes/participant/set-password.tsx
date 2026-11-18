@@ -23,7 +23,7 @@ function SetPasswordPage() {
     <>
       <Seo title={t("setPassword.title")} />
       <AuthLayout
-        band
+        hasBand
         title={t("setPassword.title")}
         description={t("setPassword.description")}
         cardTitle={t("setPassword.cardTitle")}

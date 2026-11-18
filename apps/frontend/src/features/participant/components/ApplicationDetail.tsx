@@ -96,7 +96,7 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
       <div className="flex flex-col gap-6">
         {back}
         <PageHeader
-          band
+          hasBand
           motif="forms"
           title={data.eventName}
           description={`${data.firstName} ${data.lastName} · ${data.code}`}

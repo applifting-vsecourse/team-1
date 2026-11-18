@@ -83,3 +83,31 @@ test.describe("Sign-in", () => {
     await expect(page).toHaveURL(/\/organizer\/events$/)
   })
 })
+
+test.describe("Organizer workspace at 360 px", () => {
+  test.use({ viewport: { width: 360, height: 800 } })
+
+  test("opens the account drawer and the program editor from the mobile workspace", async ({
+    page,
+  }) => {
+    await signIn(page, "organizer", ORGANIZER)
+    await openEventList(page)
+    const openMenu = page.getByRole("button", { name: "Open navigation" })
+    await openMenu.click()
+    const drawer = page.getByRole("dialog")
+    await expect(drawer.getByRole("button", { name: /organizator@example\.com/ })).toBeVisible()
+    await page.keyboard.press("Escape")
+    await expect(drawer).toBeHidden()
+
+    const eventId = await eventIdByPublicToken("demo-letni-kemp-2027")
+    await page.goto(`/organizer/events/${eventId}/program`)
+    await page.getByRole("button", { name: "Add block" }).click()
+    const dialog = page.getByRole("dialog", { name: "Add block" })
+    await expect(dialog).toBeVisible()
+    await expect(dialog.getByLabel("Block name")).toBeVisible()
+    await page.keyboard.press("Escape")
+    await expect(dialog).toBeHidden()
+    await expect(openMenu).toBeVisible()
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(360)
+  })
+})

@@ -41,7 +41,7 @@ export function EventList({ createdEventId }: { createdEventId?: string }) {
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
-        band
+        hasBand
         motif="planning"
         title={t("list.title")}
         description={t("list.description")}

@@ -45,7 +45,7 @@ export function SidebarAccount() {
           disabled={isPending}
           onChange={(language) => void changeLanguage(language)}
         />
-        <ThemeSwitcher labeled />
+        <ThemeSwitcher isLabeled />
       </div>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>

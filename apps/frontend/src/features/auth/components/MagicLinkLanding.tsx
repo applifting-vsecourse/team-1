@@ -43,7 +43,7 @@ export function MagicLinkLanding({ token, error }: MagicLinkLandingProps) {
     <>
       <Seo title={title} />
       <AuthLayout
-        band
+        hasBand
         title={title}
         description={t(canContinue ? "magicLink.description" : "magicLink.requestDescription")}
       >

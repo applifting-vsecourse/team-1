@@ -13,7 +13,7 @@ import { currentLanguage, LANGUAGES, type Language } from "@/i18n"
 export function LanguageSwitcher({
   value,
   onChange,
-  disabled = false,
+  disabled: isDisabled = false,
 }: {
   value?: Language
   onChange?: (language: Language) => void
@@ -28,7 +28,7 @@ export function LanguageSwitcher({
           variant="ghost"
           size="lg"
           className={value ? "w-full justify-start gap-4 px-3 text-base font-normal" : "px-3"}
-          disabled={disabled}
+          disabled={isDisabled}
           aria-label={t("language.toggle")}
         >
           <Globe className={value ? "size-5" : "size-4"} />

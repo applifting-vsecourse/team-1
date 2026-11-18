@@ -54,6 +54,7 @@
     "openMenu": "Otevřít navigaci",
     "overview": "Přehled"
   },
+  "navigationPreferences": "Jazyk a vzhled",
   "pages": {
     "error": {
       "action": "Načíst znovu",

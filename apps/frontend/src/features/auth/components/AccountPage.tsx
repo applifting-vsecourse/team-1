@@ -34,7 +34,7 @@ export function AccountPage({ isEmailChanged = false }: { isEmailChanged?: boole
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
-        band
+        hasBand
         title={t("account.title")}
         description={t("account.description")}
       />

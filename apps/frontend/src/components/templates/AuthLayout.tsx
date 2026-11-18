@@ -11,8 +11,8 @@ type AuthLayoutProps = {
   title: string
   description: string
   /** Round icon above the heading (403). */
-  singleCard?: boolean
-  band?: boolean
+  isSingleCard?: boolean
+  hasBand?: boolean
   icon?: ReactNode
   /** Heading of the form card. Without it the children sit directly on the page. */
   cardTitle?: string
@@ -34,8 +34,8 @@ export function AuthLayout({
   description,
   icon,
   cardTitle,
-  singleCard = false,
-  band = false,
+  isSingleCard = false,
+  hasBand = false,
   back,
   children,
   footer,
@@ -60,7 +60,7 @@ export function AuthLayout({
       }
     >
       {back}
-      {singleCard ? (
+      {isSingleCard ? (
         <Card className="gap-6 rounded-2xl p-6">
           {heading}
           <BrandDivider />
@@ -69,7 +69,7 @@ export function AuthLayout({
         </Card>
       ) : (
         <>
-          {band ? <HeadingBand>{heading}</HeadingBand> : heading}
+          {hasBand ? <HeadingBand>{heading}</HeadingBand> : heading}
 
           {cardTitle ? (
             <Card className="gap-5 p-6">

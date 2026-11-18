@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useTheme } from "@/hooks/useTheme"
 
-export function ThemeSwitcher({ labeled = false }: { labeled?: boolean }) {
+export function ThemeSwitcher({ isLabeled = false }: { isLabeled?: boolean }) {
   const { t } = useTranslation()
   const { theme, setTheme } = useTheme()
   const mode = theme === "light" || theme === "dark" ? theme : "system"
@@ -21,11 +21,13 @@ export function ThemeSwitcher({ labeled = false }: { labeled?: boolean }) {
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          size={labeled ? "lg" : "icon-lg"}
-          className={labeled ? "w-full justify-start gap-4 px-3 text-base font-normal" : undefined}
+          size={isLabeled ? "lg" : "icon-lg"}
+          className={
+            isLabeled ? "w-full justify-start gap-4 px-3 text-base font-normal" : undefined
+          }
           aria-label={t("theme.toggle")}
         >
-          {labeled ? (
+          {isLabeled ? (
             <>
               <ModeIcon className="size-5" />
               <span className="flex-1 text-left">{t(`theme.${mode}`)}</span>

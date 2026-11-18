@@ -1,8 +1,7 @@
 import type { ReactNode } from "react"
 
 import { Logo } from "@/components/atoms/Logo"
-import { LanguageSwitcher } from "@/components/molecules/LanguageSwitcher"
-import { ThemeSwitcher } from "@/components/molecules/ThemeSwitcher"
+import { PublicPreferences } from "@/components/molecules/PublicPreferences"
 import { cn } from "@/lib/utils"
 
 type HeaderProps = {
@@ -16,6 +15,7 @@ type HeaderProps = {
 }
 
 /** Public header: logo on the left, language and theme switchers on the right. */
+// Figma v2: organizer sign-in (desktop and mobile) — https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22456-10919
 // Figma (Design system): V08 Veřejná hlavička · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12734-1365
 export function Header({ nav, userMenu, isWide = false }: HeaderProps) {
   return (
@@ -29,8 +29,7 @@ export function Header({ nav, userMenu, isWide = false }: HeaderProps) {
         <Logo />
         {nav ? <nav className="flex items-center gap-1">{nav}</nav> : null}
         <div className="ml-auto flex items-center gap-1">
-          <LanguageSwitcher />
-          <ThemeSwitcher />
+          <PublicPreferences />
           {userMenu}
         </div>
       </div>

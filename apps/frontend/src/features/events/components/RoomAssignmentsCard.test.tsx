@@ -292,7 +292,7 @@ describe("room assignment", () => {
     await waitFor(() => expect(put).toHaveBeenCalled())
     expect(success).not.toHaveBeenCalled()
     expect(screen.getByLabelText("Unassigned participants: 2")).toHaveTextContent("2")
-    await act(async () => finish())
+    await act(() => finish())
     await waitFor(() => expect(success).toHaveBeenCalledTimes(1))
   })
 

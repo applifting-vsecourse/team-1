@@ -67,7 +67,7 @@ export function NewEventPage() {
       <div className="flex flex-col gap-2">
         <BackLink to={ROUTES.organizer.events}>{t("new.back")}</BackLink>
         <PageHeader
-          band
+          hasBand
           motif="forms"
           title={t("new.title")}
           description={t("new.description")}

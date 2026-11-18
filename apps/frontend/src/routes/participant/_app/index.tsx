@@ -21,7 +21,7 @@ function ParticipantApplicationsPage() {
     <div className="flex flex-col gap-6">
       <Seo title={t("applications.title")} />
       <PageHeader
-        band
+        hasBand
         motif="forms"
         title={t("applications.title")}
         description={user ? t("applications.description", { name: user.name }) : undefined}

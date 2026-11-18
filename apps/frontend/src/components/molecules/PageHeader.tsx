@@ -6,13 +6,13 @@ type PageHeaderProps = {
   title: string
   description?: ReactNode
   /** Page-level actions, e.g. the one primary button of the view. */
-  band?: boolean
+  hasBand?: boolean
   motif?: HeadingMotif
   actions?: ReactNode
 }
 
 /** The single `h1` of a page (Figma: DS / H1) with optional supporting text and actions on the right. */
-export function PageHeader({ title, description, actions, band, motif }: PageHeaderProps) {
+export function PageHeader({ title, description, actions, hasBand, motif }: PageHeaderProps) {
   const content = (
     <div className="flex flex-col gap-x-6 gap-y-4 sm:flex-row sm:items-end sm:justify-between">
       <div className="flex min-w-0 flex-1 flex-col gap-1.5">
@@ -24,5 +24,5 @@ export function PageHeader({ title, description, actions, band, motif }: PageHea
       ) : null}
     </div>
   )
-  return band ? <HeadingBand motif={motif}>{content}</HeadingBand> : content
+  return hasBand ? <HeadingBand motif={motif}>{content}</HeadingBand> : content
 }

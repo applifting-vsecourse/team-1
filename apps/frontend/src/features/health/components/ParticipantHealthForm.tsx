@@ -111,7 +111,7 @@ function HealthFields({ applicationId, health }: { applicationId: string; health
         {t("backToApplication")}
       </BackLink>
       <PageHeader
-        band
+        hasBand
         motif="forms"
         title={t("title")}
         description={`${health.firstName} ${health.lastName} · ${health.eventName}`}
