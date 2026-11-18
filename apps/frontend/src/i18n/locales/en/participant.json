@@ -209,15 +209,12 @@
     "deleteBody": "All names for this term will be deleted.",
     "deleteConfirm": "Delete wishes",
     "deleteTitle": "Delete roommate wishes?",
-    "deleted": "Wishes deleted",
     "edit": "Edit wishes",
     "empty": "You haven't entered any wishes for this term yet.",
-    "failed": "Couldn't save the wishes",
     "hint": "Enter up to 3 names. The organizer will take them into account when assigning rooms, where possible.",
     "nameLabel": "Name {{n}}",
     "placeholder": "E.g. Eva Černá",
     "save": "Save wishes",
-    "saved": "Wishes saved",
     "title": "Roommate wishes"
   },
   "status": {

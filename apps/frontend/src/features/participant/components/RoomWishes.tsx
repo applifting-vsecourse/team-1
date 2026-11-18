@@ -7,7 +7,6 @@ import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
-import { notify } from "@/lib/notify"
 import { termLine } from "@/lib/term-label"
 
 import { saveRoomWishes, type MyApplicationTerm } from "@/features/participant/api/applications"
@@ -61,12 +60,10 @@ function RoomWishesCard({
 
   const mutation = useMutation({
     mutationFn: (next: string[]) => saveRoomWishes(applicationId, term.termId, next),
-    onSuccess: async (_, next) => {
+    onSuccess: async () => {
       await client.invalidateQueries({ queryKey: ["participant", "applications"] })
-      notify.success(t(next.length === 0 ? "roomWishes.deleted" : "roomWishes.saved"))
       setMode("view")
     },
-    onError: (error) => notify.error(t("roomWishes.failed"), error.message),
   })
 
   const startEdit = () => {

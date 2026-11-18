@@ -6,13 +6,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import type { MyApplicationTerm } from "@/features/participant/api/applications"
 import { RoomWishesSection } from "@/features/participant/components/RoomWishes"
 
-const { put, success, error } = vi.hoisted(() => ({
-  put: vi.fn(),
-  success: vi.fn(),
-  error: vi.fn(),
-}))
+const { put } = vi.hoisted(() => ({ put: vi.fn() }))
 vi.mock("@/lib/api-client", () => ({ api: { put } }))
-vi.mock("@/lib/notify", () => ({ notify: { success, error } }))
 
 const term = (overrides: Partial<MyApplicationTerm> = {}): MyApplicationTerm => ({
   termId: "t1",
@@ -40,8 +35,6 @@ const renderSection = (terms: MyApplicationTerm[]) =>
 describe("RoomWishesSection", () => {
   beforeEach(() => {
     put.mockReset().mockResolvedValue(undefined)
-    success.mockReset()
-    error.mockReset()
   })
 
   it("shows nothing for a term without wishes field (not confirmed)", () => {
@@ -66,7 +59,7 @@ describe("RoomWishesSection", () => {
         json: { names: ["Eva Černá", "Tereza Malá"] },
       }),
     )
-    await waitFor(() => expect(success).toHaveBeenCalledWith("Wishes saved"))
+    await waitFor(() => expect(screen.queryByLabelText("Name 1")).not.toBeInTheDocument())
   })
 
   it("shows saved names, edits them with the current values", async () => {
@@ -90,13 +83,5 @@ describe("RoomWishesSection", () => {
         json: { names: [] },
       }),
     )
-  })
-
-  it("tells when saving fails", async () => {
-    put.mockRejectedValue(new Error("nope"))
-    renderSection([term({ roomWishes: ["Eva Černá"] })])
-    await userEvent.click(screen.getByRole("button", { name: "Edit wishes" }))
-    await userEvent.click(screen.getByRole("button", { name: "Save wishes" }))
-    await waitFor(() => expect(error).toHaveBeenCalledWith("Couldn't save the wishes", "nope"))
   })
 })
