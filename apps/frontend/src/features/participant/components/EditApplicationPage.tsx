@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
 import { CharacterCounter } from "@/components/atoms/CharacterCounter"
+import { HeadingBand } from "@/components/atoms/HeadingBand"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -214,20 +215,23 @@ function EditForm({
         mutation.mutate()
       }}
     >
-      <h1 className="text-2xl font-bold">
-        {t(mutation.isError ? "edit.saveErrorTitle" : "edit.title")}
-      </h1>
+      {/* Figma v2: edit application · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=20491-16159 (mobile 20491-16398). */}
+      <HeadingBand motif="forms">
+        <h1 className="text-2xl font-bold">
+          {t(mutation.isError ? "edit.saveErrorTitle" : "edit.title")}
+        </h1>
+        {!mutation.isError && (
+          <p className="mt-2 text-muted-foreground">
+            {initial.firstName} {initial.lastName} · {initial.eventName}
+          </p>
+        )}
+      </HeadingBand>
       {mutation.isError ? (
         <Alert variant="destructive">
           <TriangleAlert aria-hidden="true" />
           <AlertTitle>{t("edit.saveError")}</AlertTitle>
           <AlertDescription>{t("edit.valuesPreserved")}</AlertDescription>
         </Alert>
-      ) : null}
-      {!mutation.isError ? (
-        <p>
-          {initial.firstName} {initial.lastName} · {initial.eventName}
-        </p>
       ) : null}
       {shouldShowPersonalCard ? (
         <Card className="gap-5 p-4 md:p-5">

@@ -129,7 +129,7 @@ export function PaymentsOverviewPage({
           {t("paymentsOverview.overdueCount", { count: data.overdueCount })}
         </p>
       </Card>
-      <div className="flex flex-col gap-4">
+      <div className="grid gap-4 md:grid-cols-2">
         <div className="flex flex-col gap-2">
           <Label htmlFor="payment-status">{t("paymentsOverview.statusFilter")}</Label>
           <Select
@@ -221,11 +221,11 @@ function PaymentEntries({
   const { pageItems, ...pagination } = usePagination(entries, resetKey)
   return (
     <div className="flex flex-col gap-4">
-      {/* On a phone the table scrolls sideways (Togena / Application list table). */}
-      <div className="rounded-lg border bg-card">
-        <Table className="min-w-190">
+      {/* Figma v2: US-45 payment cards · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=20544-42849 (desktop 20544-42470). */}
+      <div className="md:rounded-lg md:border md:bg-card">
+        <Table className="block w-full md:table">
           <caption className="sr-only">{t("paymentsOverview.list")}</caption>
-          <TableHeader className="bg-muted">
+          <TableHeader className="sr-only bg-muted md:not-sr-only md:table-header-group">
             <TableRow>
               <TableHead className="h-12 px-4">{t("paymentsOverview.participant")}</TableHead>
               <TableHead className="px-4">{t("paymentsOverview.term")}</TableHead>
@@ -237,7 +237,7 @@ function PaymentEntries({
               </TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody>
+          <TableBody className="grid gap-4 md:table-row-group">
             {pageItems.map((entry) => (
               <PaymentOverviewRow
                 key={entry.termId + entry.applicationId}
@@ -263,14 +263,14 @@ function PaymentOverviewRow({ entry, eventId }: { entry: PaymentOverviewEntry; e
       ? "PAID"
       : entry.paymentStatus
   return (
-    <TableRow>
-      <TableCell className="px-4 py-4 whitespace-normal">
+    <TableRow className="grid gap-2 rounded-lg border bg-card p-4 max-md:last:border-b md:table-row md:rounded-none md:border-x-0 md:border-t-0 md:p-0">
+      <TableCell className="p-0 font-semibold whitespace-normal md:px-4 md:py-4 md:font-normal">
         {entry.firstName} {entry.lastName}
       </TableCell>
-      <TableCell className="px-4 py-4 whitespace-normal">
+      <TableCell className="p-0 whitespace-normal text-muted-foreground md:px-4 md:py-4 md:text-foreground">
         {termTitle({ name: entry.termName, startsOn: entry.startsOn, endsOn: entry.endsOn })}
       </TableCell>
-      <TableCell className="px-4 py-4">
+      <TableCell className="p-0 whitespace-normal md:px-4 md:py-4">
         <Badge
           variant={
             status === "PAID" ? "success" : status === "PARTIALLY_PAID" ? "warning" : "secondary"
@@ -279,7 +279,10 @@ function PaymentOverviewRow({ entry, eventId }: { entry: PaymentOverviewEntry; e
           {t(`paymentsOverview.statuses.${status}`)}
         </Badge>
       </TableCell>
-      <TableCell className="px-4 py-4">
+      <TableCell className="p-0 whitespace-normal md:px-4 md:py-4">
+        {entry.amountOwedCzk >= 0 && (
+          <span className="mr-2 font-medium md:hidden">{t("paymentsOverview.debt")}</span>
+        )}
         {entry.amountOwedCzk < 0 ? (
           <span>
             {t("paymentsOverview.overpayment")} <MoneyAmount amountCzk={-entry.amountOwedCzk} />
@@ -288,7 +291,7 @@ function PaymentOverviewRow({ entry, eventId }: { entry: PaymentOverviewEntry; e
           <MoneyAmount amountCzk={entry.amountOwedCzk} />
         )}
       </TableCell>
-      <TableCell className="px-4 py-4">
+      <TableCell className="p-0 whitespace-normal md:px-4 md:py-4">
         <span className={entry.overdue ? "text-destructive" : undefined}>
           {formatDate(entry.paymentDueAt)}
           {entry.overdue ? ` · ${t("paymentsOverview.statuses.OVERDUE").toLowerCase()}` : null}
@@ -303,7 +306,7 @@ function PaymentOverviewRow({ entry, eventId }: { entry: PaymentOverviewEntry; e
             : t("paymentsOverview.remindersLine", { count: entry.reminderCount })}
         </span>
       </TableCell>
-      <TableCell className="px-4 py-2">
+      <TableCell className="p-0 md:px-4 md:py-2">
         <Button
           asChild
           variant="ghost"

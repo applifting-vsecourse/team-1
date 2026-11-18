@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
 import { ROUTES } from "@/app/routes"
+import { BrandDivider } from "@/components/atoms/BrandDivider"
 import { Seo } from "@/components/atoms/Seo"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -111,6 +112,7 @@ function CreateOrganizationForm({
       <h1 className="text-2xl font-bold tracking-tight">
         {t("registration.createOrganizationTitle")}
       </h1>
+      <BrandDivider />
       <form
         noValidate
         onSubmit={(event) => void submit(event)}
@@ -196,6 +198,7 @@ function OrganizationProfileForm({
     <RegistrationLayout>
       <Seo title={t("registration.profileTitle")} />
       <h1 className="text-2xl font-bold tracking-tight">{t("registration.profileTitle")}</h1>
+      <BrandDivider />
       <form
         noValidate
         onSubmit={(event) => void submit(event)}
@@ -280,6 +283,7 @@ function OrganizationReady({ profile }: { profile: OrganizationProfile }) {
     <RegistrationLayout>
       <Seo title={t("registration.readyTitle")} />
       <h1 className="text-2xl font-bold tracking-tight">{t("registration.readyTitle")}</h1>
+      <BrandDivider />
       <Card className="gap-4 p-4 shadow-none">
         <h2 className="text-2xl font-bold tracking-tight">{profile.name}</h2>
         <p>{t("registration.readyDescription")}</p>

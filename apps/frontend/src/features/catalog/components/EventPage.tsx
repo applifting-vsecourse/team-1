@@ -3,6 +3,7 @@ import { Building2, CalendarDays, Mail, MapPin, Phone } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
+import { BrandDivider } from "@/components/atoms/BrandDivider"
 import { TermPrice } from "@/components/atoms/MoneyAmount"
 import { TermLabel } from "@/components/molecules/TermLabel"
 import { Button } from "@/components/ui/button"
@@ -17,10 +18,7 @@ const panelClass = "overflow-hidden rounded-lg border border-border bg-secondary
 const sectionTitleClass = "text-xl font-semibold tracking-tight md:text-2xl"
 
 // US-22. The one shared page of an event at its permanent address; the catalog (US-123) links to it.
-// Figma (Design system): #22 Letní kemp Lipno 2027 · Desktop · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19795-23920
-// Mobil · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19795-23995
-// Built on the order of the frames, with the photo, icons, term rows and the apply button at the end added
-// on request (see the PR, "Odchylky od Figmy"). No capacity, occupancy or free beds on the page (D-094).
+// Figma v2: public event · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=20188-6594 (mobile 20188-6692).
 export function EventPage({ event }: { event: CatalogEventDetail }) {
   const { t } = useTranslation("catalog")
   const paragraphs = event.description?.split(/\n{2,}/).filter(Boolean) ?? []
@@ -41,6 +39,7 @@ export function EventPage({ event }: { event: CatalogEventDetail }) {
           </p>
           <h1 className="text-3xl/10 font-bold tracking-tight md:text-4xl/11">{event.name}</h1>
         </div>
+        <BrandDivider />
         <ul className="flex flex-col gap-2 text-muted-foreground md:flex-row md:flex-wrap md:gap-x-6">
           {event.location ? (
             <li className="flex items-center gap-2">
@@ -106,6 +105,21 @@ export function EventPage({ event }: { event: CatalogEventDetail }) {
         </div>
       </section>
 
+      <div className="flex justify-center border-t border-border pt-8">
+        <Button
+          asChild
+          size="lg"
+          className="w-full text-base md:w-auto md:min-w-80"
+        >
+          <Link
+            to={ROUTES.applicationForm}
+            params={{ token: event.publicToken }}
+          >
+            {t("event.apply")}
+          </Link>
+        </Button>
+      </div>
+
       {hasContact ? (
         <section className={sectionClass}>
           <h2 className={sectionTitleClass}>{t("event.contact")}</h2>
@@ -150,21 +164,6 @@ export function EventPage({ event }: { event: CatalogEventDetail }) {
           </div>
         </section>
       ) : null}
-
-      <div className="flex justify-center border-t border-border pt-8">
-        <Button
-          asChild
-          size="lg"
-          className="w-full text-base md:w-auto md:min-w-80"
-        >
-          <Link
-            to={ROUTES.applicationForm}
-            params={{ token: event.publicToken }}
-          >
-            {t("event.apply")}
-          </Link>
-        </Button>
-      </div>
     </Card>
   )
 }

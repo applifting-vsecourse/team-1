@@ -18,7 +18,18 @@ export function BulkSelectionBar({
   const { t } = useTranslation("eventOverview")
   return (
     <div className="sticky bottom-0 z-20 -mx-4 flex flex-col gap-3 border-t bg-card px-4 py-4 md:static md:mx-0 md:flex-row md:items-center md:justify-between md:rounded-lg md:border md:px-4">
-      <p className="font-medium">{t("bulk.selectedApplications", { count })}</p>
+      <p
+        role="status"
+        aria-atomic="true"
+        className="inline-flex items-center gap-2 font-medium tabular-nums"
+      >
+        <span
+          key={count}
+          aria-hidden="true"
+          className="selection-count-dot size-2 rounded-full bg-primary"
+        />
+        {t("bulk.selectedApplications", { count })}
+      </p>
       <div className="grid grid-cols-2 gap-2 md:flex md:gap-3">
         <Button
           size="lg"

@@ -17,6 +17,7 @@
     "failedDescription": "Zkopírujte údaj ručně.",
     "failedTitle": "Kopírování se nepodařilo"
   },
+  "close": "Zavřít",
   "comingSoon": "Připravuje se — {{story}}.",
   "dateField": {
     "done": "Hotovo",

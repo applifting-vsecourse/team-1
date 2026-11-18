@@ -1,5 +1,6 @@
 import { Locale } from "@/core/email/locale"
-import { Body, Container, Head, Heading, Html, Preview, Tailwind, Text } from "react-email"
+import { Text } from "react-email"
+import { EmailLayout } from "@/core/email/email-kit"
 import * as React from "react"
 
 // Every template keeps its copy for all locales side by side, so a missing
@@ -43,19 +44,16 @@ export const ChangeEmailNotice = ({
 }: ChangeEmailNoticeProps): React.JSX.Element => {
   const text = copy[locale]
   return (
-    <Html lang={locale}>
-      <Head />
-      <Preview>{text.heading}</Preview>
-      <Tailwind>
-        <Body className="bg-gray-50 font-sans py-10">
-          <Container className="bg-white rounded-lg mx-auto p-8 max-w-xl">
-            <Heading className="text-2xl font-bold text-gray-900 m-0">{text.heading}</Heading>
-            <Text className="text-gray-700 text-base leading-6 mt-4">{text.body(newEmail)}</Text>
-            <Text className="text-gray-700 text-sm leading-5">{text.ignore}</Text>
-          </Container>
-        </Body>
-      </Tailwind>
-    </Html>
+    <EmailLayout
+      locale={locale}
+      preview={text.heading}
+      heading={text.heading}
+      introduction={
+        <Text className="text-ink text-base leading-6 mt-4">{text.body(newEmail)}</Text>
+      }
+    >
+      <Text className="text-ink text-sm leading-5">{text.ignore}</Text>
+    </EmailLayout>
   )
 }
 

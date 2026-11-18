@@ -3,12 +3,13 @@ import { Link } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
-import { BandBackdrop } from "@/components/atoms/BandBackdrop"
 import { Logo } from "@/components/atoms/Logo"
 import { PublicPreferences } from "@/components/molecules/PublicPreferences"
+import { Card } from "@/components/ui/card"
 
 type Props = { children: ReactNode }
 
+// Figma v2: registration · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22456-10994 (mobile 22456-11097).
 // Figma (Design system): #69 / Vytvořit účet organizátora · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19795-22977
 // Figma (Design system): #69 / Vytvořit účet organizátora / Mobile · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19795-23052
 export function RegistrationLayout({ children }: Props) {
@@ -29,8 +30,7 @@ export function RegistrationLayout({ children }: Props) {
         <PublicPreferences />
       </header>
       <main className="relative min-h-[calc(100svh-5rem)] overflow-hidden bg-background p-4 md:p-12">
-        <BandBackdrop className="h-40 lg:h-56" />
-        <div className="relative mx-auto flex w-full max-w-110 flex-col gap-4">{children}</div>
+        <Card className="mx-auto w-full max-w-110 gap-4 p-4 md:p-6">{children}</Card>
       </main>
     </>
   )

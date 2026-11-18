@@ -329,3 +329,35 @@
     }
   }
 }
+
+/* M02 follows the form request. M13 acknowledges the updated selection count. */
+[data-slot="button"][aria-busy="true"]::after {
+  content: "";
+  inline-size: 0.875rem;
+  block-size: 0.875rem;
+  border: 2px solid currentColor;
+  border-inline-end-color: transparent;
+  border-radius: 50%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  [data-slot="button"][aria-busy="true"]::after {
+    animation: submit-pending 800ms linear infinite;
+  }
+  .selection-count-dot {
+    animation: selection-arrival 440ms ease-out;
+  }
+  @keyframes submit-pending {
+    to {
+      transform: rotate(1turn);
+    }
+  }
+  @keyframes selection-arrival {
+    from {
+      transform: translateX(-0.5rem) scale(0.6);
+    }
+    to {
+      transform: translateX(0) scale(1);
+    }
+  }
+}

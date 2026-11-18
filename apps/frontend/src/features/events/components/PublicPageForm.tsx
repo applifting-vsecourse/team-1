@@ -281,6 +281,7 @@ export function PublicPageForm({ event }: { event: OrganizerEvent }) {
                 type="submit"
                 size="lg"
                 className="md:flex-1"
+                aria-busy={save.isPending}
                 disabled={save.isPending}
               >
                 {t("publicPage.save")}

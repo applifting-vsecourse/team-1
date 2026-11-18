@@ -15,6 +15,7 @@ type ErrorPageProps = {
  * "Something went wrong". Also the fallback of the top-level error boundary, so it must render
  * without router context: the home action is a plain link (a full page load, which is fine here).
  */
+// Figma v2: system error · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=20125-1830
 // Figma (Design system): S19 Něco se pokazilo · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14478-2158
 export function ErrorPage({ error }: ErrorPageProps) {
   const { t } = useTranslation()
@@ -25,6 +26,7 @@ export function ErrorPage({ error }: ErrorPageProps) {
 
   return (
     <AuthLayout
+      hasBand
       icon={
         <div className="flex size-14 items-center justify-center rounded-full bg-accent text-link">
           <TriangleAlert

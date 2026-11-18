@@ -17,6 +17,7 @@
     "failedDescription": "Copy it manually.",
     "failedTitle": "Copying failed"
   },
+  "close": "Close",
   "comingSoon": "Coming soon — {{story}}.",
   "dateField": {
     "done": "Done",

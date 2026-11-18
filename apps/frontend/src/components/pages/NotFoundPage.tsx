@@ -7,12 +7,14 @@ import { AuthLayout } from "@/components/templates/AuthLayout"
 import { Button } from "@/components/ui/button"
 
 /** 404 — a path that matches no route. */
+// Figma v2: system error · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=20125-1914
 // Figma (Design system): S20 Stránka nenalezena · 404 · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14478-2208
 export function NotFoundPage() {
   const { t } = useTranslation()
 
   return (
     <AuthLayout
+      hasBand
       icon={
         <div className="flex size-14 items-center justify-center rounded-full bg-accent text-link">
           <Search

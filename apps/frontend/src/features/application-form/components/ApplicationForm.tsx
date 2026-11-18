@@ -212,6 +212,7 @@ export function ApplicationForm({
 
           <Button
             type="submit"
+            aria-busy={form.formState.isSubmitting}
             size="lg"
             className="w-full sm:w-auto sm:self-start"
             disabled={isSubmitting}

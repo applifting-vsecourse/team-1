@@ -110,7 +110,7 @@ function FilteredEvents({
           aria-label={t("list.search")}
           className="md:w-80"
         />
-        <div className="grid grid-cols-2 gap-3 md:flex">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:flex">
           <Select
             value={status}
             onValueChange={(value) => setStatus(value as StatusFilter)}

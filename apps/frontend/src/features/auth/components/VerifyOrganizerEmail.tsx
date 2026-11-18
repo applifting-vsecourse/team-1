@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
 import { ROUTES } from "@/app/routes"
+import { BrandDivider } from "@/components/atoms/BrandDivider"
 import { Seo } from "@/components/atoms/Seo"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -102,6 +103,7 @@ export function VerifyOrganizerEmail({ email, error }: Props) {
     <RegistrationLayout>
       <Seo title={title} />
       <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
+      <BrandDivider />
       {isExpired ? (
         <Alert
           variant="destructive"

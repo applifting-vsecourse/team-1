@@ -98,8 +98,8 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
         <PageHeader
           hasBand
           motif="forms"
-          title={data.eventName}
-          description={`${data.firstName} ${data.lastName} · ${data.code}`}
+          title={t("detail.title")}
+          description={`${data.firstName} ${data.lastName} · ${data.eventName}`}
           actions={
             <Button
               asChild
@@ -134,59 +134,6 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
           }))}
         />
       ) : null}
-      <section
-        aria-labelledby="application-terms"
-        className="flex flex-col gap-6"
-      >
-        <h2
-          id="application-terms"
-          className="text-2xl font-semibold tracking-tight"
-        >
-          {t("detail.sections.terms")}
-        </h2>
-        <ParticipantTermActions
-          application={data}
-          onStart={setChangeMode}
-        />
-        {otherTerms.length > 0 ? (
-          <Card className="gap-0 p-6">
-            <h2 className="pb-4 text-lg font-semibold">{t("detail.termsTitle")}</h2>
-            <ul>
-              {otherTerms.map((term) => (
-                <li
-                  key={term.termId}
-                  className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t py-4 last:pb-0"
-                >
-                  <TermLabel term={term} />
-                  <TermStatusBadge term={term} />
-                  <span className="w-full sm:w-50 sm:text-right">
-                    {term.status === "TO_EVALUATE" ? null : (
-                      <>
-                        {term.archivedOverpaymentCzk ? `${t("paymentStatus.OVERPAID")} · ` : null}
-                        <MoneyAmount amountCzk={term.archivedOverpaymentCzk ?? 0} />
-                      </>
-                    )}
-                  </span>
-                </li>
-              ))}
-            </ul>
-            {hasToEvaluate ? <p className="pt-4">{t("detail.toEvaluate.note")}</p> : null}
-          </Card>
-        ) : null}
-        <ChangeRequestNotice
-          applicationId={applicationId}
-          terms={data.terms}
-        />
-        {hasToEvaluate ? (
-          // Figma (Design system): Togena / Alert · node-id=15751-1777 (360 px: 15751-1810)
-          <Alert>
-            <TriangleAlert aria-hidden />
-            <AlertTitle>{t("detail.toEvaluate.alertTitle")}</AlertTitle>
-            <AlertDescription>{t("detail.toEvaluate.alertText")}</AlertDescription>
-          </Alert>
-        ) : null}
-        <PaymentSummary application={data} />
-      </section>
       {transportTerms.length > 0 ? (
         <section
           aria-labelledby="application-transport"
@@ -244,6 +191,60 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
           </Link>
         </Button>
       </div>
+      <section
+        aria-labelledby="application-terms"
+        className="flex flex-col gap-6"
+      >
+        <h2
+          id="application-terms"
+          className="text-2xl font-semibold tracking-tight"
+        >
+          {t("detail.sections.terms")}
+        </h2>
+        <p className="text-sm text-muted-foreground tabular-nums">{data.code}</p>
+        <ParticipantTermActions
+          application={data}
+          onStart={setChangeMode}
+        />
+        {otherTerms.length > 0 ? (
+          <Card className="gap-0 p-6">
+            <h2 className="pb-4 text-lg font-semibold">{t("detail.termsTitle")}</h2>
+            <ul>
+              {otherTerms.map((term) => (
+                <li
+                  key={term.termId}
+                  className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t py-4 last:pb-0"
+                >
+                  <TermLabel term={term} />
+                  <TermStatusBadge term={term} />
+                  <span className="w-full sm:w-50 sm:text-right">
+                    {term.status === "TO_EVALUATE" ? null : (
+                      <>
+                        {term.archivedOverpaymentCzk ? `${t("paymentStatus.OVERPAID")} · ` : null}
+                        <MoneyAmount amountCzk={term.archivedOverpaymentCzk ?? 0} />
+                      </>
+                    )}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            {hasToEvaluate ? <p className="pt-4">{t("detail.toEvaluate.note")}</p> : null}
+          </Card>
+        ) : null}
+        <ChangeRequestNotice
+          applicationId={applicationId}
+          terms={data.terms}
+        />
+        {hasToEvaluate ? (
+          // Figma (Design system): Togena / Alert · node-id=15751-1777 (360 px: 15751-1810)
+          <Alert>
+            <TriangleAlert aria-hidden />
+            <AlertTitle>{t("detail.toEvaluate.alertTitle")}</AlertTitle>
+            <AlertDescription>{t("detail.toEvaluate.alertText")}</AlertDescription>
+          </Alert>
+        ) : null}
+        <PaymentSummary application={data} />
+      </section>
       <OrganizationContact contact={data.organizationContact} />
       {changeMode ? (
         <ParticipantTermChange

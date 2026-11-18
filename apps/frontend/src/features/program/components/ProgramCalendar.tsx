@@ -1,8 +1,6 @@
 import { MapPin } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
-import { cn } from "@/lib/utils"
-
 import type { ProgramBlock } from "@/features/program/api/program"
 import { HOUR_HEIGHT, hourRange, placeBlocks, toMinutes } from "@/features/program/lib/calendar"
 import { calendarDays, formatDayHeader } from "@/features/program/lib/days"
@@ -28,6 +26,19 @@ export function ProgramCalendar({
   const hours = Array.from({ length: to - from }, (_, index) => from + index)
   const columns = `${GUTTER} repeat(${String(days.length)}, minmax(${DAY_MIN}, 1fr))`
 
+  // Shared time tracks can grow to fit a short block's name and touch target on every day.
+  const boundaries = [
+    ...new Set([
+      ...hours.map((hour) => hour * 60),
+      to * 60,
+      ...term.blocks.flatMap((block) => [toMinutes(block.startTime), toMinutes(block.endTime)]),
+    ]),
+  ].sort((a, b) => a - b)
+  const line = (minutes: number) => boundaries.indexOf(minutes) + 1
+  const rows = boundaries
+    .slice(1)
+    .map((end, i) => `minmax(${((end - boundaries[i]!) * HOUR_HEIGHT) / 60}px, auto)`)
+    .join(" ")
   return (
     <section
       aria-label={t("calendarLabel")}
@@ -53,57 +64,48 @@ export function ProgramCalendar({
           })}
         </div>
         <div
-          className="relative"
-          style={{ height: hours.length * HOUR_HEIGHT }}
+          className="grid"
+          style={{ gridTemplateColumns: columns, gridTemplateRows: rows }}
         >
+          {hours.map((hour) => (
+            <div
+              key={hour}
+              aria-hidden
+              className="pointer-events-none col-span-full border-t border-border"
+              style={{ gridRow: line(hour * 60) }}
+            />
+          ))}
           <div
             aria-hidden
-            className="absolute inset-0"
-          >
-            {hours.map((hour, index) => (
-              <div
-                key={hour}
-                className={cn("absolute inset-x-0 border-border", index > 0 && "border-t")}
-                style={{ top: index * HOUR_HEIGHT }}
-              />
-            ))}
-          </div>
-          <div
-            className="relative grid h-full"
-            style={{ gridTemplateColumns: columns }}
-          >
-            <div
+            className="sticky left-0 z-10 col-start-1 bg-card"
+            style={{ gridRow: "1 / -1" }}
+          />
+          {hours.map((hour) => (
+            <span
+              key={hour}
               aria-hidden
-              className="sticky left-0 z-20 bg-card"
+              className="sticky left-0 z-20 col-start-1 self-start bg-card pr-2 text-right text-xs font-medium text-muted-foreground tabular-nums"
+              style={{ gridRow: line(hour * 60) }}
             >
-              {hours.map((hour, index) => (
-                <span
-                  key={hour}
-                  className="absolute left-0 w-full pr-2 text-right text-xs font-medium text-muted-foreground tabular-nums"
-                  style={{ top: index * HOUR_HEIGHT + (index > 0 ? 4 : 0) }}
-                >
-                  {String(hour).padStart(2, "0")}:00
-                </span>
+              {String(hour).padStart(2, "0")}:00
+            </span>
+          ))}
+          {days.map((day, index) => (
+            <div
+              key={day}
+              className="grid min-w-0 grid-rows-subgrid border-l"
+              style={{ gridColumn: index + 2, gridRow: "1 / -1" }}
+            >
+              {placeBlocks(term.blocks.filter((block) => block.date === day)).map((item) => (
+                <CalendarBlock
+                  key={item.block.id}
+                  {...item}
+                  gridRow={`${line(toMinutes(item.block.startTime))} / ${line(toMinutes(item.block.endTime))}`}
+                  onSelect={onSelect}
+                />
               ))}
             </div>
-            {days.map((day) => (
-              <div
-                key={day}
-                className="relative border-l"
-              >
-                {placeBlocks(term.blocks.filter((block) => block.date === day)).map((item) => (
-                  <CalendarBlock
-                    key={item.block.id}
-                    block={item.block}
-                    column={item.column}
-                    columns={item.columns}
-                    from={from}
-                    onSelect={onSelect}
-                  />
-                ))}
-              </div>
-            ))}
-          </div>
+          ))}
         </div>
       </div>
     </section>
@@ -114,26 +116,24 @@ function CalendarBlock({
   block,
   column,
   columns,
-  from,
+  gridRow,
   onSelect,
 }: {
   block: ProgramBlock
   column: number
   columns: number
-  from: number
+  gridRow: string
   onSelect: (block: ProgramBlock) => void
 }) {
   const { t } = useTranslation("program")
   const start = toMinutes(block.startTime)
-  const minutes = Math.max(toMinutes(block.endTime) - start, 30)
+  const minutes = toMinutes(block.endTime) - start
   return (
     <article
-      className="absolute rounded-md border-l-4 border-l-primary bg-accent text-accent-foreground transition-colors hover:bg-accent/80"
+      className="relative col-start-1 my-px min-h-11 min-w-0 rounded-md border-l-4 border-l-primary bg-accent text-accent-foreground transition-colors hover:bg-accent/80"
       style={{
-        top: ((start - from * 60) / 60) * HOUR_HEIGHT + 1,
-        // The block is at least as tall as its time span and grows so the whole name always shows.
-        minHeight: (minutes / 60) * HOUR_HEIGHT - 2,
-        left: `calc(${String((column * 100) / columns)}% + 2px)`,
+        gridRow,
+        marginLeft: `calc(${String((column * 100) / columns)}% + 2px)`,
         width: `calc(${String(100 / columns)}% - 4px)`,
       }}
     >

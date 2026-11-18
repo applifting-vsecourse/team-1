@@ -4,8 +4,7 @@ import { TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
-import CampIllustration from "@/assets/illustrations/camp.svg?react"
-import { BandBackdrop } from "@/components/atoms/BandBackdrop"
+import { HeadingBand } from "@/components/atoms/HeadingBand"
 import { LogoSymbol } from "@/components/atoms/Logo"
 import { BackLink } from "@/components/molecules/BackLink"
 import { ListSkeleton } from "@/components/molecules/ListSkeleton"
@@ -36,6 +35,7 @@ type CatalogPageProps = {
   onOrganizationChange: (organizationId: string | undefined) => void
 }
 
+// Figma v2 · public catalog · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22640-12072 (mobile 22640-12173).
 // US-123. Organization and event are a step-by-step choice on one page: the select narrows the cards.
 // Figma (Design system): Katalog akcí · Katalog organizací · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16146-10083
 // Akce organizace · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16146-10135
@@ -52,6 +52,13 @@ export function CatalogPage({ organizationId, onOrganizationChange }: CatalogPag
   const events = data ? eventsOf(data, organization) : []
   const isEmpty = data?.events.length === 0
   const { pageItems, ...pagination } = usePagination(events, organization ?? ALL, 18)
+
+  const groups = (data?.organizations ?? [])
+    .map((org) => ({
+      ...org,
+      events: pageItems.filter((event) => event.organizationId === org.id),
+    }))
+    .filter((org) => org.events.length > 0)
 
   const select = (
     <div className="flex w-full flex-col gap-2 md:w-82">
@@ -83,23 +90,12 @@ export function CatalogPage({ organizationId, onOrganizationChange }: CatalogPag
 
   return (
     <>
-      <section className="relative overflow-hidden">
-        <BandBackdrop />
-        <div className={cn(CONTENT, "relative flex flex-col gap-6 pt-4 pb-16 md:pt-8 lg:pb-24")}>
+      <section className={cn(CONTENT, "pt-4 md:pt-8")}>
+        <HeadingBand>
           <BackLink to={ROUTES.home}>{t("list.backHome")}</BackLink>
-          <div className="grid items-center gap-6 lg:grid-cols-[1fr_auto] lg:gap-12">
-            <div className="flex flex-col gap-3">
-              <h1 className="text-4xl/11 font-bold tracking-tight md:text-5xl/14">
-                {t("list.title")}
-              </h1>
-              <p className="max-w-lg text-muted-foreground md:text-lg">{t("list.description")}</p>
-            </div>
-            <CampIllustration
-              aria-hidden
-              className="hidden h-44 w-auto lg:block"
-            />
-          </div>
-        </div>
+          <h1 className="mt-6 text-3xl font-bold tracking-tight md:text-4xl">{t("list.title")}</h1>
+          <p className="mt-3 text-muted-foreground">{t("list.description")}</p>
+        </HeadingBand>
       </section>
 
       <div className={cn(CONTENT, "flex flex-col gap-6 pt-8 pb-12 md:pt-12 md:pb-20")}>
@@ -135,13 +131,21 @@ export function CatalogPage({ organizationId, onOrganizationChange }: CatalogPag
 
         {data && !isEmpty ? (
           <>
-            <ul className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {pageItems.map((event) => (
-                <li key={event.publicToken}>
-                  <EventCard event={event} />
-                </li>
-              ))}
-            </ul>
+            {groups.map((org) => (
+              <section
+                key={org.id}
+                className="flex flex-col gap-4"
+              >
+                <h2 className="text-xl font-semibold">{org.name}</h2>
+                <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {org.events.map((event) => (
+                    <li key={event.publicToken}>
+                      <EventCard event={event} />
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            ))}
             <Pagination
               {...pagination}
               onPageChange={pagination.setPage}

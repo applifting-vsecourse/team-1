@@ -3,7 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useQuery } from "@tanstack/react-query"
 import { Link, useNavigate } from "@tanstack/react-router"
 import type { TFunction } from "i18next"
-import { CircleAlert, Loader2 } from "lucide-react"
+import { CircleAlert } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
@@ -236,9 +236,9 @@ function NewEventCard({ organizations }: { organizations: OrganizationSummary[] 
               <Button
                 type="submit"
                 size="lg"
+                aria-busy={create.isPending}
                 disabled={create.isPending}
               >
-                {create.isPending ? <Loader2 className="size-4 animate-spin" /> : null}
                 {t("new.form.submit")}
               </Button>
             </div>

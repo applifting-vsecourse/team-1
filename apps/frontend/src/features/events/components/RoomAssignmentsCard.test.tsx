@@ -576,7 +576,9 @@ describe("room assignment", () => {
 
   it("shows the rooms as cards at 360 px and keeps the count in a bar once the list is scrolled away", async () => {
     window.innerWidth = 360
-    let notify: (entries: { isIntersecting: boolean }[]) => void = () => undefined
+    let notify: (
+      entries: { isIntersecting: boolean; boundingClientRect: { bottom: number } }[],
+    ) => void = () => undefined
     vi.stubGlobal(
       "IntersectionObserver",
       class {
@@ -595,7 +597,7 @@ describe("room assignment", () => {
     expect(
       screen.queryByRole("status", { name: "Unassigned participants" }),
     ).not.toBeInTheDocument()
-    act(() => notify([{ isIntersecting: false }]))
+    act(() => notify([{ isIntersecting: false, boundingClientRect: { bottom: -10 } }]))
     expect(
       await screen.findByRole("status", { name: "Unassigned participants" }),
     ).toHaveTextContent("Unassigned participants2")

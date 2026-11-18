@@ -280,13 +280,13 @@ export function RoomsPage({
             </Select>
             <p className="text-xs text-muted-foreground">{t("rooms.modeHint")}</p>
           </div>
-          <div className={cn("grid gap-4", isGendered ? "md:grid-cols-3" : "md:grid-cols-2")}>
+          <div className={cn("grid grid-cols-2 gap-2 md:gap-4", isGendered && "md:grid-cols-3")}>
             {metrics.map((metric) => (
               <Card
                 key={metric.label}
-                className="gap-1 py-4"
+                className="gap-1 py-2 md:py-4"
               >
-                <CardContent className="flex flex-col gap-1 px-4">
+                <CardContent className="flex flex-col gap-1 px-3 md:px-4">
                   <h3 className="text-sm text-muted-foreground">{metric.label}</h3>
                   <p className="text-2xl font-semibold tracking-tight">{metric.value}</p>
                   {metric.helper ? (
@@ -305,7 +305,7 @@ export function RoomsPage({
             ))}
           </div>
           <Card>
-            <CardHeader className="flex flex-col gap-3 max-sm:items-stretch sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+            <CardHeader className="flex flex-col gap-3 max-md:order-last max-sm:items-stretch sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
               <CardTitle>
                 <h3>{t("roomAssignments.cardTitle")}</h3>
               </CardTitle>

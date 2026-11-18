@@ -66,7 +66,7 @@ function useScrolledOut(element: HTMLElement | null): boolean {
   useEffect(() => {
     if (!element || typeof IntersectionObserver === "undefined") return
     const observer = new IntersectionObserver(([entry]) =>
-      setIsOut(entry ? !entry.isIntersecting : false),
+      setIsOut(entry ? !entry.isIntersecting && entry.boundingClientRect.bottom <= 0 : false),
     )
     observer.observe(element)
     return () => observer.disconnect()
@@ -282,7 +282,7 @@ export function RoomAssignmentsCard({
           <div
             role="status"
             aria-label={t("roomAssignments.unassignedTitle")}
-            className="sticky top-14 z-20 -mx-4 flex items-center gap-2 border-b border-border bg-card px-4 py-2.5 shadow-sm md:hidden"
+            className="sticky top-29 z-10 -mx-4 flex items-center gap-2 border-b border-border bg-card px-4 py-2.5 shadow-sm md:hidden"
           >
             <span className="flex-1 text-sm font-medium">
               {t("roomAssignments.unassignedTitle")}
