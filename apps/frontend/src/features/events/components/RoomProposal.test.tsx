@@ -66,7 +66,13 @@ function renderProposal() {
   render(
     <QueryClientProvider client={client}>
       <RoomProposal term={term}>
-        <p>Regular assignment</p>
+        {({ action, notices }) => (
+          <>
+            {action}
+            {notices}
+            <p>Regular assignment</p>
+          </>
+        )}
       </RoomProposal>
     </QueryClientProvider>,
   )

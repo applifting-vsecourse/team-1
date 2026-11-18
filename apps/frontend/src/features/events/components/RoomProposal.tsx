@@ -37,7 +37,14 @@ type Term = { eventId: string; termId: string; startsOn: string; endsOn: string 
 // Figma (Design system v2): Rozdělení uloženo · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=24910-11325 (mobile 24910-11747)
 // Figma (Design system v2): Není koho navrhnout · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=24910-12092 (mobile 24910-12502)
 // Figma (Design system v2): Chyba návrhu · opakovat · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=24910-12835 (mobile 24910-13263)
-export function RoomProposal({ term, children }: { term: Term; children: ReactNode }) {
+export function RoomProposal({
+  term,
+  children,
+}: {
+  term: Term
+  /** The room assignment; gets the "propose" button for its header and the notices to show above it. */
+  children: (parts: { action: ReactNode; notices: ReactNode }) => ReactNode
+}) {
   const { t } = useTranslation("events")
   const client = useQueryClient()
   const query = useQuery(roomAssignmentsQueryOptions(term.eventId, term.termId))
@@ -53,7 +60,7 @@ export function RoomProposal({ term, children }: { term: Term; children: ReactNo
       saveRoomProposal(term.eventId, term.termId, placements),
   })
   const data = query.data
-  if (!data) return <>{children}</>
+  if (!data) return <>{children({ action: null, notices: null })}</>
 
   const confirmedWaiting = data.unassigned.filter((person) => person.status === "CONFIRMED")
   const canPropose =
@@ -154,42 +161,44 @@ export function RoomProposal({ term, children }: { term: Term; children: ReactNo
     )
   }
 
-  return (
-    <div className="flex flex-col gap-4">
-      {propose.isPending ? (
-        <Alert>
-          <TriangleAlert aria-hidden />
-          <AlertTitle>{t("roomProposal.creatingTitle")}</AlertTitle>
-          <AlertDescription>{t("roomProposal.creatingDescription")}</AlertDescription>
-        </Alert>
-      ) : null}
-      {propose.isError ? (
-        <Alert variant="destructive">
-          <TriangleAlert aria-hidden />
-          <AlertTitle>{t("roomProposal.failedTitle")}</AlertTitle>
-          <AlertDescription>{t("roomProposal.failedDescription")}</AlertDescription>
-        </Alert>
-      ) : null}
-      {hasOnlyIndividual ? (
-        <Alert>
-          <TriangleAlert aria-hidden />
-          <AlertTitle>{t("roomProposal.nobodyTitle")}</AlertTitle>
-          <AlertDescription>{t("roomProposal.nobodyDescription")}</AlertDescription>
-        </Alert>
-      ) : null}
-      {canPropose ? (
-        <Button
-          type="button"
-          size="lg"
-          className="self-start max-sm:w-full"
-          disabled={propose.isPending}
-          onClick={() => propose.mutate()}
-        >
-          {propose.isPending ? <Loader2 className="animate-spin" /> : null}
-          {t(propose.isPending ? "roomProposal.creating" : "roomProposal.start")}
-        </Button>
-      ) : null}
-      {children}
-    </div>
-  )
+  const action = canPropose ? (
+    <Button
+      type="button"
+      variant="outline"
+      size="lg"
+      className="max-sm:w-full"
+      disabled={propose.isPending}
+      onClick={() => propose.mutate()}
+    >
+      {propose.isPending ? <Loader2 className="animate-spin" /> : null}
+      {t(propose.isPending ? "roomProposal.creating" : "roomProposal.start")}
+    </Button>
+  ) : null
+  const notices =
+    propose.isPending || propose.isError || hasOnlyIndividual ? (
+      <div className="mb-4 flex flex-col gap-4">
+        {propose.isPending ? (
+          <Alert>
+            <TriangleAlert aria-hidden />
+            <AlertTitle>{t("roomProposal.creatingTitle")}</AlertTitle>
+            <AlertDescription>{t("roomProposal.creatingDescription")}</AlertDescription>
+          </Alert>
+        ) : null}
+        {propose.isError ? (
+          <Alert variant="destructive">
+            <TriangleAlert aria-hidden />
+            <AlertTitle>{t("roomProposal.failedTitle")}</AlertTitle>
+            <AlertDescription>{t("roomProposal.failedDescription")}</AlertDescription>
+          </Alert>
+        ) : null}
+        {hasOnlyIndividual ? (
+          <Alert>
+            <TriangleAlert aria-hidden />
+            <AlertTitle>{t("roomProposal.nobodyTitle")}</AlertTitle>
+            <AlertDescription>{t("roomProposal.nobodyDescription")}</AlertDescription>
+          </Alert>
+        ) : null}
+      </div>
+    ) : null
+  return <>{children({ action, notices })}</>
 }

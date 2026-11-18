@@ -44,43 +44,38 @@ export function RoomProposalDraftView({
   }
   return (
     <div className="flex flex-col gap-4">
-      <h3 className="text-xl font-semibold">{t("roomProposal.title")}</h3>
-      <Alert>
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+        <h3 className="text-xl font-semibold">{t("roomProposal.title")}</h3>
+        <Badge variant="secondary">{t("roomProposal.newAssignments", { count })}</Badge>
+        {failedWishes.length > 0 ? (
+          <Badge variant="warning">
+            {t("roomProposal.unfulfilledWishes", { count: failedWishes.length })}
+          </Badge>
+        ) : null}
+        {data.summary.violations > 0 ? (
+          <Badge variant="warning">
+            {t("roomProposal.violations", { count: data.summary.violations })}
+          </Badge>
+        ) : null}
+      </div>
+      <Alert className="py-3">
         <TriangleAlert aria-hidden />
         <AlertTitle>{t("roomProposal.unsavedTitle")}</AlertTitle>
         <AlertDescription>{t("roomProposal.unsavedDescription")}</AlertDescription>
       </Alert>
-      <div className="flex flex-wrap gap-2">
-        <Badge className="bg-primary text-primary-foreground">
-          {t("roomProposal.newAssignments", { count })}
-        </Badge>
-        <Badge variant={failedWishes.length > 0 ? "warning" : "success"}>
-          {t("roomProposal.unfulfilledWishes", { count: failedWishes.length })}
-        </Badge>
-        <Badge className="bg-primary text-primary-foreground">
-          {t("roomProposal.violations", { count: data.summary.violations })}
-        </Badge>
-      </div>
       <ul className="grid gap-4 md:grid-cols-2">
         {data.rooms.map((room) => {
           const proposed = proposedIn(draft, room.id)
           return (
             <li key={room.id}>
-              <Card>
-                <CardHeader>
-                  <CardTitle>
+              <Card className="h-full gap-3 py-4">
+                <CardHeader className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+                  <CardTitle className="flex flex-wrap items-center gap-2">
                     <h4>{room.name}</h4>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="flex flex-col gap-3">
-                  <div className="flex flex-wrap gap-2">
                     {room.gender ? (
                       <Badge variant="secondary">{roomGenderLabel(room.gender)}</Badge>
                     ) : null}
-                    {proposed.length > 0 ? (
-                      <Badge variant="secondary">{t("roomProposal.proposedBadge")}</Badge>
-                    ) : null}
-                  </div>
+                  </CardTitle>
                   <p className="text-sm text-muted-foreground">
                     {[
                       t("roomProposal.occupancy", {
@@ -94,86 +89,88 @@ export function RoomProposalDraftView({
                       .filter(Boolean)
                       .join(" · ")}
                   </p>
-                  <ul className="flex flex-wrap gap-2">
-                    {room.participants.map((person) => (
-                      <li
-                        key={person.applicationTermId}
-                        className="rounded-lg border border-border bg-secondary px-2 py-1 text-sm"
-                      >
-                        {participantName(person)}
-                      </li>
-                    ))}
-                    {proposed.map((id) => (
-                      <li key={id}>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          className="border-primary bg-accent"
-                          aria-label={t("roomProposal.editFor", { name: nameOf(id) })}
-                          onClick={() => onEdit(id)}
+                </CardHeader>
+                {room.participants.length + proposed.length > 0 ? (
+                  <CardContent>
+                    <ul className="flex flex-wrap gap-2">
+                      {room.participants.map((person) => (
+                        <li
+                          key={person.applicationTermId}
+                          className="inline-flex h-8 items-center rounded-sm border border-border bg-secondary px-3 text-sm"
                         >
-                          {nameOf(id)}
-                        </Button>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
+                          {participantName(person)}
+                        </li>
+                      ))}
+                      {proposed.map((id) => (
+                        <li key={id}>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="border-primary bg-accent"
+                            aria-label={t("roomProposal.editFor", { name: nameOf(id) })}
+                            onClick={() => onEdit(id)}
+                          >
+                            {nameOf(id)}
+                          </Button>
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                ) : null}
               </Card>
             </li>
           )
         })}
       </ul>
-      {draft.unplaced.length > 0 ? (
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              <h4>{t("roomProposal.noBedTitle", { count: draft.unplaced.length })}</h4>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="flex flex-col gap-2 text-sm text-muted-foreground">
-              {draft.unplaced.map((item) => {
-                const person = people.get(item.applicationTermId)
-                const reason =
-                  item.reason === "INDIVIDUAL_ACCOMMODATION"
-                    ? t("roomProposal.individual")
-                    : hasSharedRooms
-                      ? t("roomProposal.noBedAny")
-                      : t(
-                          person?.gender === "MALE"
-                            ? "roomProposal.noBedMale"
-                            : "roomProposal.noBedFemale",
-                        )
-                return (
-                  <li key={item.applicationTermId}>
-                    {nameOf(item.applicationTermId)} · {reason}
+      {draft.unplaced.length > 0 || failedWishes.length > 0 ? (
+        <Card className="gap-4 py-4">
+          {draft.unplaced.length > 0 ? (
+            <section className="flex flex-col gap-2 px-6">
+              <h4 className="text-sm font-semibold">
+                {t("roomProposal.noBedTitle", { count: draft.unplaced.length })}
+              </h4>
+              <ul className="flex flex-col gap-1 text-sm text-muted-foreground">
+                {draft.unplaced.map((item) => {
+                  const person = people.get(item.applicationTermId)
+                  const reason =
+                    item.reason === "INDIVIDUAL_ACCOMMODATION"
+                      ? t("roomProposal.individual")
+                      : hasSharedRooms
+                        ? t("roomProposal.noBedAny")
+                        : t(
+                            person?.gender === "MALE"
+                              ? "roomProposal.noBedMale"
+                              : "roomProposal.noBedFemale",
+                          )
+                  return (
+                    <li key={item.applicationTermId}>
+                      {nameOf(item.applicationTermId)} · {reason}
+                    </li>
+                  )
+                })}
+              </ul>
+            </section>
+          ) : null}
+          {failedWishes.length > 0 ? (
+            <section
+              className={`flex flex-col gap-2 px-6 ${draft.unplaced.length > 0 ? "border-t border-border pt-4" : ""}`}
+            >
+              <h4 className="text-sm font-semibold">
+                {t("roomProposal.wishesTitle", { count: failedWishes.length })}
+              </h4>
+              <ul className="flex flex-col gap-1 text-sm text-muted-foreground">
+                {failedWishes.map((wish) => (
+                  <li key={`${wish.applicationTermId}:${wish.name}`}>
+                    {t("roomProposal.wishLine", {
+                      name: nameOf(wish.applicationTermId),
+                      wish: wish.name,
+                    })}
                   </li>
-                )
-              })}
-            </ul>
-          </CardContent>
-        </Card>
-      ) : null}
-      {failedWishes.length > 0 ? (
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              <h4>{t("roomProposal.wishesTitle", { count: failedWishes.length })}</h4>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="flex flex-col gap-2 text-sm text-muted-foreground">
-              {failedWishes.map((wish) => (
-                <li key={`${wish.applicationTermId}:${wish.name}`}>
-                  {t("roomProposal.wishLine", {
-                    name: nameOf(wish.applicationTermId),
-                    wish: wish.name,
-                  })}
-                </li>
-              ))}
-            </ul>
-          </CardContent>
+                ))}
+              </ul>
+            </section>
+          ) : null}
         </Card>
       ) : null}
       <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end sm:gap-4">
