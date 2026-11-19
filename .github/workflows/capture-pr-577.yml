@@ -28,7 +28,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: 14d995e2605f213ace47b769b8bed81a7352b7ac
+          ref: e970057292c4e04b837871c1b3e2526762589089
           persist-credentials: false
 
       - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
@@ -120,6 +120,14 @@ jobs:
                 await signIn(page, "organizer", ORGANIZER)
                 await openEventList(page)
                 await capture("events")
+                const orgFilter=page.getByRole("combobox",{name:"Organization"})
+                await orgFilter.click()
+                const chosen=page.getByRole("option").nth(1)
+                const orgName=(await chosen.innerText()).trim()
+                await chosen.click()
+                const clear=page.getByRole("button",{name:"Clear filter"}); await expect(clear).toBeVisible(); const nameInSummary=page.getByRole("heading",{level:2}).getByText(orgName,{exact:false}); if(width===360){await expect(nameInSummary).toBeHidden()}else{await expect(nameInSummary).toBeVisible()}
+                await capture("events-filtered")
+                await clear.click(); await expect(clear).toHaveCount(0)
                 const id = await eventIdByPublicToken("demo-letni-kemp-2027")
                 const db = new pg.Client({connectionString:e2eDatabaseUrl()})
                 await db.connect()
@@ -298,14 +306,14 @@ jobs:
           import os, shutil, struct
           source = Path(os.environ["RUNNER_TEMP"]) / "screenshots"
           for width in (1440, 360):
-              for screen in ("capacity-term", "organizer-application-detail", "participant-login", "event-not-found", "participant-transport", "catalog", "event", "register", "not-found", "login", "apply", "events", "settings", "terms", "capacity", "applications", "payments", "rooms", "program", "program-dialog", "participant", "participant-detail", "participant-edit", "verification", "mail-application-change-confirmation-withdrawn", "mail-application-change", "mail-application-confirmation-two-applicants", "mail-application-confirmation-waitlisted", "mail-application-confirmation", "mail-application-term-cancelled", "mail-change-email-notice", "mail-change-email", "mail-change-request-status", "mail-magic-link", "mail-payment-correction", "mail-payment-received", "mail-reset-password", "mail-verify-email", "landing", "request-link", "expired-link", "new-event", "organizer-account", "overview", "organizer-transport", "organizer-meals", "meal-options", "payment-import", "cancellation", "new-application", "participant-meals", "participant-health", "participant-program", "participant-account", "mail-application-change-confirmation-withdrawn-en", "mail-application-change-en", "mail-application-confirmation-two-applicants-en", "mail-application-confirmation-waitlisted-en", "mail-application-confirmation-en", "mail-application-term-cancelled-en", "mail-change-email-notice-en", "mail-change-email-en", "mail-change-request-status-en", "mail-magic-link-en", "mail-payment-correction-en", "mail-payment-received-en", "mail-reset-password-en", "mail-verify-email-en", "mail-application-change-waitlisted-cs", "mail-application-change-waitlisted-en", "mail-application-change-confirmed-from-waitlist-cs", "mail-application-change-confirmed-from-waitlist-en", "mail-application-change-rejected-cs", "mail-application-change-rejected-en", "mail-application-change-cancelled-cs", "mail-application-change-cancelled-en", "mail-application-change-no-bed-freed-cs", "mail-application-change-no-bed-freed-en", "mail-application-change-cancelled-by-organizer-cs", "mail-application-change-cancelled-by-organizer-en", "mail-change-request-pending-cs", "mail-change-request-pending-en"):
+              for screen in ("events-filtered", "capacity-term", "organizer-application-detail", "participant-login", "event-not-found", "participant-transport", "catalog", "event", "register", "not-found", "login", "apply", "events", "settings", "terms", "capacity", "applications", "payments", "rooms", "program", "program-dialog", "participant", "participant-detail", "participant-edit", "verification", "mail-application-change-confirmation-withdrawn", "mail-application-change", "mail-application-confirmation-two-applicants", "mail-application-confirmation-waitlisted", "mail-application-confirmation", "mail-application-term-cancelled", "mail-change-email-notice", "mail-change-email", "mail-change-request-status", "mail-magic-link", "mail-payment-correction", "mail-payment-received", "mail-reset-password", "mail-verify-email", "landing", "request-link", "expired-link", "new-event", "organizer-account", "overview", "organizer-transport", "organizer-meals", "meal-options", "payment-import", "cancellation", "new-application", "participant-meals", "participant-health", "participant-program", "participant-account", "mail-application-change-confirmation-withdrawn-en", "mail-application-change-en", "mail-application-confirmation-two-applicants-en", "mail-application-confirmation-waitlisted-en", "mail-application-confirmation-en", "mail-application-term-cancelled-en", "mail-change-email-notice-en", "mail-change-email-en", "mail-change-request-status-en", "mail-magic-link-en", "mail-payment-correction-en", "mail-payment-received-en", "mail-reset-password-en", "mail-verify-email-en", "mail-application-change-waitlisted-cs", "mail-application-change-waitlisted-en", "mail-application-change-confirmed-from-waitlist-cs", "mail-application-change-confirmed-from-waitlist-en", "mail-application-change-rejected-cs", "mail-application-change-rejected-en", "mail-application-change-cancelled-cs", "mail-application-change-cancelled-en", "mail-application-change-no-bed-freed-cs", "mail-application-change-no-bed-freed-en", "mail-application-change-cancelled-by-organizer-cs", "mail-application-change-cancelled-by-organizer-en", "mail-change-request-pending-cs", "mail-change-request-pending-en"):
                   name = f"{screen}-{width}.png"
                   p = source / name
                   header = p.read_bytes()[:24]
                   assert header[:8] == bytes.fromhex("89504e470d0a1a0a")
                   w, h = struct.unpack(">II", header[16:24])
                   assert w == width and h > 0, (name, w, h)
-                  dest = Path("577") / f"{screen}-{width}-14d995e.png"
+                  dest = Path("577") / f"{screen}-{width}-e970057.png"
                   if dest.exists():
                       assert dest.read_bytes() == p.read_bytes(), dest
                       continue
