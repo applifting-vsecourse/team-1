@@ -2986,6 +2986,8 @@ rozhodnuti:
   rozhodl:
   - pm
   stav: platne
+  zmeneno_v:
+  - D-168
   z_otazek: []
   dokumentace: []
   poznamka: 'Doporučení: schválit, ukázat dvoukrokovou variantu PO na stagingu a jednokrokovou akci založit jako ticket Sprintu 4.'
@@ -3541,3 +3543,23 @@ rozhodnuti:
   z_otazek: []
   dokumentace: []
   poznamka: 'Zpřesňuje D-141: věta „Každá změna se zapíše do historie a organizátorům přijde upozornění“ platí pro upozornění jen u úpravy přihlašovatelem, historie se zapisuje u obou. Neřeší, jak se upozornění u úpravy přihlašovatelem zobrazuje.'
+- id: D-168
+  nazev: 'Jednokrokové vyhodnocení: o přihláškách, které se nevejdou, rozhoduje organizátor'
+  text: 'Při vyhodnocení vybraných přihlášek jedním krokem (US-140) organizátor, když vybral víc přihlášek, než se jich vejde, uvidí upozornění (kolik se z vybraných potvrdí podle pořadí přijetí přihlášky, kolik zbývá) a musí zvolit, co se zbylými: zařadit je mezi náhradníky, nebo je zamítnout (stav Zrušená, stejně jako zamítnutí podle US-108). Volba platí pro všechny zbylé najednou; kdo chce rozhodnout o každé zvlášť, použije dvoukrokovou variantu (US-107 potvrzení, US-108 náhradníci nebo zamítnutí). Žádná možnost není předvybraná, bez volby se vyhodnocení neprovede. Dialog neukazuje rozpis podle pohlaví (potvrzování do lůžek skupiny podle D-063 zůstává, ukazují se jen součty). Když se vejdou všechny, volba se nenabízí. Zamítnutí je stejná změna stavu K vyhodnocení → Zrušená jako u jednotlivého zamítnutí, se stejným e-mailem a záznamem v historii.'
+  typ: produkt
+  oblast: přihlašování na akce
+  datum: '2026-11-18'
+  zdroj:
+  - popis: 'issue #484 (US-140), sekce „Změna rozsahu 18. 11. 2026 (PM)“ a poznámka PM 19. 11. po review PR #591'
+    url: https://github.com/applifting-vsecourse/team-1/issues/484
+  us:
+  - label: US-140
+    url: https://github.com/applifting-vsecourse/team-1/issues/484
+  rozhodl:
+  - pm
+  stav: platne
+  meni:
+  - D-142
+  z_otazek: []
+  dokumentace: []
+  poznamka: 'Mění větu D-142 „Zbytek organizátor zařadí mezi náhradníky druhou hromadnou akcí; jeden krok „potvrdit, kdo se vejde, zbytek mezi náhradníky“ je požadavek PO pro Sprint 4“: v jednom kroku se zbylé podle volby organizátora zařadí mezi náhradníky, nebo zamítnou. Zbytek D-142 (jeden termín, potvrzení v pořadí přijetí jen těch, kdo se vejdou, nad kapacitu jen jednotlivě podle D-059, dvoukroková varianta US-107/US-108 zůstává) platí. Procesní a stavový diagram ručního vyhodnocování už přechod K vyhodnocení → Zrušená zamítnutím obsahují, beze změny.'

@@ -1,6 +1,6 @@
 import { useId, useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { Loader2, TriangleAlert } from "lucide-react"
+import { Info, Loader2, TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ErrorState } from "@/components/molecules/ErrorState"
@@ -10,6 +10,7 @@ import { SettingsCard } from "@/components/molecules/SettingsCard"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { notify } from "@/lib/notify"
 import { cn } from "@/lib/utils"
@@ -29,7 +30,7 @@ const MODES = ["AUTOMATIC", "MANUAL"] as const
 
 /**
  * Settings of an event under the event header (US-101): the evaluation mode,
- * chosen before applications open and shown locked with the reason afterwards,
+ * editable until the first application arrives and shown locked with the reason afterwards,
  * and the public page content (US-122).
  */
 // Figma v2: US-101 evaluation settings before opening, desktop and mobile · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15741-4669 (mobile 15741-4746)
@@ -73,23 +74,14 @@ export function EventSettings({ eventId }: { eventId: string }) {
   )
 }
 
-function ModeChoices({
-  selected,
-  isDisabled,
-  onChange,
-}: {
-  selected: EvaluationMode
-  isDisabled?: boolean
-  onChange?: (mode: EvaluationMode) => void
-}) {
+function LockedChoices({ selected }: { selected: EvaluationMode }) {
   const { t } = useTranslation("events")
   const groupId = useId()
   return (
     <RadioGroup
-      disabled={isDisabled}
+      disabled
       value={selected}
       aria-label={t("evaluationMode.legend")}
-      onValueChange={(value) => onChange?.(evaluationModeSchema.parse(value))}
       className="grid gap-4"
     >
       {MODES.map((mode) => {
@@ -102,7 +94,6 @@ function ModeChoices({
             className={cn(
               "flex-col items-start gap-1 rounded-lg border px-4 py-3",
               selected === mode && "bg-accent",
-              !isDisabled && "cursor-pointer",
             )}
           >
             <span className="flex items-center gap-3 py-2">
@@ -133,10 +124,7 @@ function LockedMode({ mode }: { mode: EvaluationMode }) {
   const { t } = useTranslation("events")
   return (
     <SettingsCard title={t("evaluationMode.title")}>
-      <ModeChoices
-        selected={mode}
-        isDisabled
-      />
+      <LockedChoices selected={mode} />
       <Alert
         role="note"
         className="bg-secondary"
@@ -174,19 +162,49 @@ function ChooseMode({ eventId, saved }: { eventId: string; saved: EvaluationMode
           mutation.mutate()
         }}
       >
-        <ModeChoices
-          selected={mode}
-          isDisabled={mutation.isPending}
-          onChange={setMode}
-        />
-        <Alert
-          role="note"
-          className="bg-secondary"
+        <RadioGroup
+          aria-label={t("evaluationMode.legend")}
+          value={mode}
+          onValueChange={(value) => setMode(evaluationModeSchema.parse(value))}
+          disabled={mutation.isPending}
+          className="grid gap-4"
         >
-          <TriangleAlert aria-hidden />
-          <AlertTitle>{t("evaluationMode.beforeOpenTitle")}</AlertTitle>
-          <AlertDescription>{t("evaluationMode.afterOpenLocked")}</AlertDescription>
-        </Alert>
+          {MODES.map((value) => {
+            const name = t(`evaluationMode.${value === "AUTOMATIC" ? "automatic" : "manual"}`)
+            return (
+              <div
+                key={value}
+                className={cn(
+                  "flex items-center gap-3 rounded-lg border px-4 py-3",
+                  value === mode && "bg-accent",
+                )}
+              >
+                <RadioGroupItem
+                  id={`evaluation-mode-${value}`}
+                  value={value}
+                />
+                <Label htmlFor={`evaluation-mode-${value}`}>{name}</Label>
+                {/* A popover, not a tooltip: it opens on tap and on Enter / Space too. */}
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-sm"
+                      aria-label={t("evaluationMode.infoLabel", { mode: name })}
+                    >
+                      <Info />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="text-sm">
+                    {t(`evaluationMode.${value === "AUTOMATIC" ? "automaticInfo" : "manualInfo"}`)}
+                  </PopoverContent>
+                </Popover>
+              </div>
+            )
+          })}
+        </RadioGroup>
+        <p className="text-sm text-muted-foreground">{t("evaluationMode.afterOpenLocked")}</p>
         {mutation.isError ? (
           <ErrorState
             title={t("evaluationMode.saveFailed")}

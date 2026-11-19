@@ -215,7 +215,7 @@ export class ApplicationsService {
         accessToken: generateToken(),
       }))
 
-      const saved = await this.repository.saveEvaluated(event, applications, (snapshot) =>
+      const saved = await this.repository.saveEvaluated(event, applications, (snapshot, mode) =>
         evaluateSubmission(
           applications.map((application) => ({
             gender: application.gender,
@@ -225,7 +225,7 @@ export class ApplicationsService {
             })),
           })),
           snapshot,
-          event.evaluationMode,
+          mode,
         ),
       )
       return { account, applications, saved }
