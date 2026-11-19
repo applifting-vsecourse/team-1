@@ -82,7 +82,6 @@ export function OrganizerWithdrawal({
     : terms.length === 2
       ? t("withdrawal.submitWholeTwo")
       : t("withdrawal.submitWholeAll")
-  const hasOthers = !isWhole && terms.length > 1
   const impactRows = preview.data?.terms.filter((row) => row.isWithdrawn) ?? []
 
   return (
@@ -165,11 +164,6 @@ export function OrganizerWithdrawal({
                   </div>
                 )
               })}
-              {hasOthers ? (
-                <p className="border-t pt-4 text-sm text-muted-foreground">
-                  {t("withdrawal.othersUnchanged")}
-                </p>
-              ) : null}
             </section>
           ) : null}
           <Alert>
