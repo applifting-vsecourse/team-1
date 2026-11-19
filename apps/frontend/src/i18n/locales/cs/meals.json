@@ -24,10 +24,12 @@
   },
   "options": {
     "add": "Přidat omezení",
-    "cardTitle": "Nabízená omezení",
-    "emptyPreview": "Žádná nabízená omezení",
-    "nameLabel": "Název omezení",
-    "preview": "Náhled v přihlášce",
+    "back": "Zpět na souhrn",
+    "cardTitle": "Nabízené možnosti",
+    "instructions": "Přihlašovatel může vybrat více možností. Alergie doplní do textového pole.",
+    "nameLabel": "Možnost {{number}}",
+    "preview": "Náhled výběru",
+    "previewHint": "Alergie a další požadavky se vyplňují zvlášť.",
     "remove": "Odebrat {{name}}",
     "save": "Uložit varianty",
     "title": "Varianty stravování"

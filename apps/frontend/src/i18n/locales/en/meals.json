@@ -24,10 +24,12 @@
   },
   "options": {
     "add": "Add restriction",
-    "cardTitle": "Offered restrictions",
-    "emptyPreview": "No restrictions offered",
-    "nameLabel": "Restriction name",
-    "preview": "Application preview",
+    "back": "Back to summary",
+    "cardTitle": "Available options",
+    "instructions": "Applicants can select several options and enter allergies in the text field.",
+    "nameLabel": "Option {{number}}",
+    "preview": "Selection preview",
+    "previewHint": "Allergies and other requests are entered separately.",
     "remove": "Remove {{name}}",
     "save": "Save options",
     "title": "Meal options"

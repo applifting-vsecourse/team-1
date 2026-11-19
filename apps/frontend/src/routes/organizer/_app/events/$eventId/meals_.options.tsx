@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query"
 import { createFileRoute } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
@@ -5,9 +6,9 @@ import { ROUTES } from "@/app/routes"
 import { BackLink } from "@/components/atoms/BackLink"
 import { Seo } from "@/components/atoms/Seo"
 
+import { eventQueryOptions } from "@/features/events/api/events"
 import { MealOptionsEditor } from "@/features/meals/components/MealOptionsEditor"
 
-// Beside `meals` (not under it), so the event header stays and Meals stays the active section.
 export const Route = createFileRoute("/organizer/_app/events/$eventId/meals_/options")({
   component: EventMealOptionsPage,
 })
@@ -16,6 +17,7 @@ export const Route = createFileRoute("/organizer/_app/events/$eventId/meals_/opt
 function EventMealOptionsPage() {
   const { t } = useTranslation("meals")
   const { eventId } = Route.useParams()
+  const { data: event } = useQuery(eventQueryOptions(eventId))
 
   return (
     <>
@@ -24,9 +26,12 @@ function EventMealOptionsPage() {
         to={ROUTES.organizer.eventMeals}
         params={{ eventId }}
       >
-        {t("kitchen.title")}
+        {t("options.back")}
       </BackLink>
-      <MealOptionsEditor eventId={eventId} />
+      <MealOptionsEditor
+        eventId={eventId}
+        eventName={event?.name}
+      />
     </>
   )
 }
