@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, type ReactNode } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
@@ -8,6 +8,12 @@ import { CardColumns } from "@/components/molecules/CardGrid"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { PageHeader } from "@/components/molecules/PageHeader"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
@@ -18,8 +24,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 import { formatDate, formatTime } from "@/lib/date"
 import { termLine } from "@/lib/term-label"
+import { cn } from "@/lib/utils"
 
 import { kitchenSummaryQueryOptions } from "@/features/meals/api/meals"
 
@@ -30,6 +45,69 @@ import { kitchenSummaryQueryOptions } from "@/features/meals/api/meals"
 // Figma (Design system): #64 / Souhrn pro kuchyni / Desktop · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19795-12002 (360 px: node-id=19795-12163)
 /** `13. 7. 2027 10:30` — the wall time as the participant entered it. */
 const when = (wall: string) => `${formatDate(wall)} ${formatTime(wall)}`
+
+/** A small table inside a section: the header row names the columns, the cells wrap on a phone. */
+function KitchenTable({ head, children }: { head: string[]; children: ReactNode }) {
+  return (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          {head.map((label) => (
+            <TableHead key={label}>{label}</TableHead>
+          ))}
+        </TableRow>
+      </TableHeader>
+      <TableBody>{children}</TableBody>
+    </Table>
+  )
+}
+
+/**
+ * One collapsible section of the summary: open by default, collapsed per view only. In print it is
+ * always open and has no chevron (the closed content is hidden by a class, so print can undo it).
+ */
+function KitchenSection({
+  title,
+  count,
+  className,
+  children,
+}: {
+  title: string
+  count?: number
+  className?: string
+  children: ReactNode
+}) {
+  const { t } = useTranslation("meals")
+
+  return (
+    <Card
+      className={cn(
+        "gap-0 p-0 [&_[data-slot=accordion-content][data-state=closed]]:hidden print:[&_[data-slot=accordion-content][data-state=closed]]:block print:[&_[data-slot=accordion-trigger]>svg]:hidden",
+        className,
+      )}
+    >
+      <Accordion
+        type="multiple"
+        defaultValue={["section"]}
+      >
+        <AccordionItem
+          value="section"
+          className="border-b-0"
+        >
+          <AccordionTrigger className="min-h-11 items-center px-4 text-2xl font-bold hover:no-underline [&>svg]:size-5 [&>svg]:translate-y-0 [&>svg]:text-foreground">
+            {count === undefined ? title : t("kitchen.sectionTitle", { title, count })}
+          </AccordionTrigger>
+          <AccordionContent
+            className="flex flex-col gap-4 px-4 text-base"
+            forceMount
+          >
+            {children}
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+    </Card>
+  )
+}
 
 export function KitchenSummary({ eventId, eventName }: { eventId: string; eventName?: string }) {
   const { t } = useTranslation("meals")
@@ -88,71 +166,100 @@ export function KitchenSummary({ eventId, eventName }: { eventId: string; eventN
           <CardColumns
             left={
               <>
-                <Card className="order-1 gap-4 p-4 lg:order-none print:order-1">
-                  <h2 className="text-2xl font-bold">{t("kitchen.countsTitle")}</h2>
-                  <p>
-                    {t("kitchen.regular")} · {term.regular}
-                  </p>
-                  {term.options.map((option) => (
-                    <p key={option.id}>
-                      {option.name} · {option.count}
-                    </p>
-                  ))}
-                  <p>{t("kitchen.overlapNote")}</p>
-                </Card>
-                {term.specialRequests.length > 0 ? (
-                  <Card className="order-3 gap-4 p-4 lg:order-none print:order-3">
-                    <h2 className="text-2xl font-bold">{t("kitchen.specialRequestsTitle")}</h2>
-                    {term.specialRequests.map((entry) => (
-                      <p
-                        key={entry.applicationId}
-                        className="break-words whitespace-pre-line"
-                      >
-                        {entry.firstName} {entry.lastName} · {entry.specialRequest}
-                      </p>
+                <KitchenSection
+                  title={t("kitchen.countsTitle")}
+                  count={term.total}
+                  className="order-1 lg:order-none print:order-1"
+                >
+                  <KitchenTable head={[t("kitchen.optionColumn"), t("kitchen.countColumn")]}>
+                    <TableRow>
+                      <TableCell>{t("kitchen.regular")}</TableCell>
+                      <TableCell>{term.regular}</TableCell>
+                    </TableRow>
+                    {term.options.map((option) => (
+                      <TableRow key={option.id}>
+                        <TableCell className="break-words whitespace-normal">
+                          {option.name}
+                        </TableCell>
+                        <TableCell>{option.count}</TableCell>
+                      </TableRow>
                     ))}
-                  </Card>
+                  </KitchenTable>
+                  <p className="text-muted-foreground">{t("kitchen.overlapNote")}</p>
+                </KitchenSection>
+                {term.specialRequests.length > 0 ? (
+                  <KitchenSection
+                    title={t("kitchen.specialRequestsTitle")}
+                    count={term.specialRequests.length}
+                    className="order-3 lg:order-none print:order-3"
+                  >
+                    <KitchenTable head={[t("kitchen.nameColumn"), t("kitchen.requestColumn")]}>
+                      {term.specialRequests.map((entry) => (
+                        <TableRow key={entry.applicationId}>
+                          <TableCell className="whitespace-normal">
+                            {entry.firstName} {entry.lastName}
+                          </TableCell>
+                          <TableCell className="break-words whitespace-pre-line">
+                            {entry.specialRequest}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </KitchenTable>
+                  </KitchenSection>
                 ) : null}
               </>
             }
             right={
               <>
-                <Card className="order-2 gap-4 p-4 lg:order-none print:order-2">
-                  <h2 className="text-2xl font-bold">{t("kitchen.allergiesTitle")}</h2>
-                  {term.allergies.map((entry) => (
-                    <p
-                      key={entry.applicationId}
-                      className="break-words whitespace-pre-line"
-                    >
-                      {entry.firstName} {entry.lastName} · {entry.allergies}
-                    </p>
-                  ))}
-                </Card>
+                <KitchenSection
+                  title={t("kitchen.allergiesTitle")}
+                  count={term.allergies.length}
+                  className="order-2 lg:order-none print:order-2"
+                >
+                  {term.allergies.length > 0 ? (
+                    <KitchenTable head={[t("kitchen.nameColumn"), t("kitchen.allergiesColumn")]}>
+                      {term.allergies.map((entry) => (
+                        <TableRow key={entry.applicationId}>
+                          <TableCell className="whitespace-normal">
+                            {entry.firstName} {entry.lastName}
+                          </TableCell>
+                          <TableCell className="break-words whitespace-pre-line">
+                            {entry.allergies}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </KitchenTable>
+                  ) : null}
+                </KitchenSection>
                 {term.stays.length > 0 ? (
                   // Figma (Design system v2): US-143 Organizátor · Souhrn pro kuchyni · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=24969-10806 (mobile 24969-12256)
-                  <Card className="order-4 gap-4 p-4 lg:order-none print:order-4">
-                    <h2 className="text-2xl font-bold">{t("kitchen.staysTitle")}</h2>
-                    {term.stays.map((entry) => (
-                      <div
-                        key={entry.applicationId}
-                        className="flex flex-col"
-                      >
-                        <p>
-                          {entry.firstName} {entry.lastName}
-                        </p>
-                        {entry.lateArrival ? (
-                          <p className="text-sm text-muted-foreground">
-                            {t("kitchen.arrival", { when: when(entry.lateArrival) })}
-                          </p>
-                        ) : null}
-                        {entry.earlyDeparture ? (
-                          <p className="text-sm text-muted-foreground">
-                            {t("kitchen.departure", { when: when(entry.earlyDeparture) })}
-                          </p>
-                        ) : null}
-                      </div>
-                    ))}
-                  </Card>
+                  <KitchenSection
+                    title={t("kitchen.staysTitle")}
+                    count={term.stays.length}
+                    className="order-4 lg:order-none print:order-4"
+                  >
+                    <KitchenTable
+                      head={[
+                        t("kitchen.nameColumn"),
+                        t("kitchen.arrivalColumn"),
+                        t("kitchen.departureColumn"),
+                      ]}
+                    >
+                      {term.stays.map((entry) => (
+                        <TableRow key={entry.applicationId}>
+                          <TableCell className="whitespace-normal">
+                            {entry.firstName} {entry.lastName}
+                          </TableCell>
+                          <TableCell className="whitespace-normal">
+                            {entry.lateArrival ? when(entry.lateArrival) : "–"}
+                          </TableCell>
+                          <TableCell className="whitespace-normal">
+                            {entry.earlyDeparture ? when(entry.earlyDeparture) : "–"}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </KitchenTable>
+                  </KitchenSection>
                 ) : null}
               </>
             }
