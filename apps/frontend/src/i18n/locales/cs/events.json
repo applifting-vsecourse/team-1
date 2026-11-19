@@ -648,7 +648,7 @@
       "priceRequired": "Vyplňte cenu za osobu v Kč.",
       "rangeHint": "Kliknutím zvol začátek a potom konec termínu.",
       "rangeLabel": "Termín konání *",
-      "rangeStart": "{{date}} · vyber konec",
+      "rangeStart": "{{date}} · vyberte konec",
       "required": "* Povinná pole",
       "save": "Uložit změny",
       "saving": "Ukládám…",

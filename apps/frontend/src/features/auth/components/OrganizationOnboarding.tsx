@@ -107,7 +107,7 @@ function CreateOrganizationForm({
   }
 
   return (
-    <RegistrationLayout>
+    <RegistrationLayout step="organizationStep">
       <Seo title={t("registration.createOrganizationTitle")} />
       <h1 className="text-2xl font-bold tracking-tight">
         {t("registration.createOrganizationTitle")}
@@ -195,7 +195,7 @@ function OrganizationProfileForm({
   }
 
   return (
-    <RegistrationLayout>
+    <RegistrationLayout step="profileStep">
       <Seo title={t("registration.profileTitle")} />
       <h1 className="text-2xl font-bold tracking-tight">{t("registration.profileTitle")}</h1>
       <BrandDivider />
@@ -280,7 +280,7 @@ function OrganizationProfileForm({
 function OrganizationReady({ profile }: { profile: OrganizationProfile }) {
   const { t } = useTranslation("auth")
   return (
-    <RegistrationLayout>
+    <RegistrationLayout step="profileStep">
       <Seo title={t("registration.readyTitle")} />
       <h1 className="text-2xl font-bold tracking-tight">{t("registration.readyTitle")}</h1>
       <BrandDivider />

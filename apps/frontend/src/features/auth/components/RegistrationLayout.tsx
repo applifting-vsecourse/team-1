@@ -3,34 +3,57 @@ import { Link } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
+import { BackLink } from "@/components/atoms/BackLink"
 import { Logo } from "@/components/atoms/Logo"
 import { PublicPreferences } from "@/components/molecules/PublicPreferences"
 import { Card } from "@/components/ui/card"
+import { cn } from "@/lib/utils"
 
-type Props = { children: ReactNode }
+const steps = ["accountStep", "organizationStep", "profileStep"] as const
+
+type Props = { children: ReactNode; step?: (typeof steps)[number] }
 
 // Figma v2: registration · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22456-10994 (mobile 22456-11097).
 // Figma (Design system): #69 / Vytvořit účet organizátora · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19795-22977
 // Figma (Design system): #69 / Vytvořit účet organizátora / Mobile · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19795-23052
-export function RegistrationLayout({ children }: Props) {
+export function RegistrationLayout({ children, step = "accountStep" }: Props) {
   const { t } = useTranslation("auth")
 
   return (
     <>
-      <header className="flex h-20 items-center gap-4 bg-card px-4 md:h-28 md:px-8">
+      <header className="flex h-[76px] items-center gap-4 bg-card px-4 md:h-[116px] md:px-8">
         <div className="[&_svg]:size-6 md:[&_svg]:size-10">
           <Logo />
         </div>
         <Link
           to={ROUTES.organizer.login}
-          className="ml-auto text-sm font-medium text-foreground hover:underline md:mr-4"
+          className="ml-auto hidden text-sm font-medium text-foreground hover:underline md:mr-4 md:inline-flex"
         >
           {t("registration.signIn")}
         </Link>
-        <PublicPreferences />
+        <div className="ml-auto md:ml-0">
+          <PublicPreferences />
+        </div>
       </header>
-      <main className="relative min-h-[calc(100svh-5rem)] overflow-hidden bg-background p-4 md:p-12">
-        <Card className="mx-auto w-full max-w-110 gap-4 p-4 md:p-6">{children}</Card>
+      <main className="min-h-[calc(100svh-76px)] bg-background px-4 py-6 md:py-10">
+        <div className="mx-auto flex w-full max-w-140 flex-col gap-4">
+          <BackLink to={ROUTES.home}>{t("registration.homeLink")}</BackLink>
+          <ol className="flex min-h-11 items-center gap-2 rounded-lg border bg-card p-0.5 text-sm">
+            {steps.map((item, index) => (
+              <li
+                key={item}
+                aria-current={step === item ? "step" : undefined}
+                className={cn(
+                  "flex min-h-10 flex-1 items-center justify-center rounded-md px-1 whitespace-nowrap",
+                  step === item && "bg-accent font-semibold text-accent-foreground",
+                )}
+              >
+                {index + 1}. {t(`registration.${item}`)}
+              </li>
+            ))}
+          </ol>
+          <Card className="gap-4 p-4 md:p-8">{children}</Card>
+        </div>
       </main>
     </>
   )
