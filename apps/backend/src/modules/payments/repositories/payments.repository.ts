@@ -102,7 +102,11 @@ export type RecordPaymentInput = {
 
 export type PaymentDebtNotice = {
   amountOwedCzk: number
-  terms: { termNumber: number; amountOwedCzk: number; paymentDueAt: Date | null }[]
+  terms: (PaidTermNotice & {
+    termNumber: number
+    amountOwedCzk: number
+    paymentDueAt: Date | null
+  })[]
 }
 
 /** A confirmed term whose debt a payment closed (e-mail no. 8, US-117). */
@@ -309,6 +313,9 @@ export class PaymentsRepository {
       data: { paymentPeriodStartedAt: restartedAt },
     })
     const terms = renewal.indebtedTerms.map((term) => ({
+      name: term.name,
+      startsOn: term.startsOn,
+      endsOn: term.endsOn,
       termNumber: term.termNumber,
       amountOwedCzk: term.owedCzk,
       paymentDueAt: computePaymentDeadline({

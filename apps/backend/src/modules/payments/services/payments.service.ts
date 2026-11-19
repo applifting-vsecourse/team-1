@@ -182,7 +182,7 @@ export class PaymentsService {
       locale: context.locale,
       eventName: context.eventName,
       organizationName: context.organizationName,
-      firstName: context.firstName,
+      participant: `${context.firstName} ${context.lastName}`,
       termName: terms.map((term) => termLabel(term, context.locale)).join(", "),
     })
   }
@@ -199,6 +199,7 @@ export class PaymentsService {
       name: `${context.firstName} ${context.lastName}`,
       amountOwedCzk: notice.amountOwedCzk,
       debts: notice.terms.map((term) => ({
+        termLabel: termLabel(term, context.locale),
         termNumber: term.termNumber,
         amountCzk: term.amountOwedCzk,
         variableSymbol: variableSymbol(context.number, term.termNumber),

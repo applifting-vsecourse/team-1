@@ -1,24 +1,11 @@
-import { Locale } from "@/core/email/locale"
-import { ChangeLayout, ChangeLayoutProps } from "@/core/email/templates/application-change-layout"
-import { ApplicationTermStatus } from "@/modules/applications/domain/evaluation"
-import { Gender } from "@/shared/domain/gender"
-import * as React from "react"
+import { Section } from "react-email"
+import { changeMessages } from "@/core/email/change-messages"
+import { EmailTerm } from "@/core/email/email-kit"
+import type { Locale } from "@/core/email/locale"
+import { ChangeLayout } from "@/core/email/templates/application-change-layout"
+import type { ApplicationTermStatus } from "@/modules/applications/domain/evaluation"
+import type { Gender } from "@/shared/domain/gender"
 
-/**
- * What happened to the application in one term (docs/procesy/zpracovani-prihlasky/EMAILY.md):
- *
- * - `CONFIRMED`: K vyhodnocení → Potvrzená s dluhem (no. 2)
- * - `WAITLISTED`: K vyhodnocení → Náhradník (no. 3)
- * - `REJECTED`: → Zrušená by the organizer's decision (no. 4, 9, 10)
- * - `CONFIRMED_FROM_WAITLIST`: Náhradník → Potvrzená s dluhem (no. 5)
- * - `NO_BED_FREED`: Náhradník → Zrušená at midnight of the first day of the term (no. 6)
- * - `CANCELLED`: the applicant cancelled (no. 11)
- * - `CANCELLED_BY_ORGANIZER`: Náhradník → Zrušená by the organizer (no. 14)
- *
- * `TERMS_CHANGED` summarizes all resulting term statuses after a participant's change.
- *
- * No. 13 (Potvrzená s dluhem → Náhradník) and no. 15 (term cancelled) have their own templates.
- */
 export type ChangeKind =
   | "CONFIRMED"
   | "CONFIRMED_FROM_WAITLIST"
@@ -27,162 +14,14 @@ export type ChangeKind =
   | "CANCELLED"
   | "NO_BED_FREED"
   | "CANCELLED_BY_ORGANIZER"
-  /** US-33 / US-84: no trigger yet, no frame. */
   | "TERMS_CHANGED"
-
-type KindCopy = {
-  heading: string
-  /** `name` is the participant (nominative), `term` the term's name or dates. */
-  text: (name: string, term: string, gender: Gender) => string
-  badge: ChangeLayoutProps["badge"]
-}
-
-// Copy for all locales side by side — a missing translation is a type error.
-// Czech: where a frame names the participant in the nominative the sentence is verbatim, with the
-// gendered forms picked by `gender`. Where a frame declines the name ("účast Adama Dvořáka") code
-// cannot do that, so the name stands in its place in brackets, the rest verbatim.
-const copy: Record<
-  Locale,
-  {
-    subject: (event: string) => string
-    kinds: Record<ChangeKind, KindCopy>
-    statuses: Record<Exclude<ApplicationTermStatus, "ARCHIVED">, string>
-    amountDue: string
-    account: string
-    variableSymbol: string
-    button: string
-    footer: (organization: string) => string
-  }
-> = {
-  en: {
-    subject: (event) => `Change in your application: ${event}`,
-    statuses: {
-      TO_EVALUATE: "Awaiting evaluation · do not pay yet",
-      CONFIRMED: "Confirmed",
-      WAITLISTED: "Substitute · do not pay yet",
-      CANCELLED: "Cancelled",
-    },
-    kinds: {
-      // Figma: E05 EN
-      CONFIRMED: {
-        heading: "Your place is confirmed",
-        text: (name, term) => `The organiser has confirmed ${name}’s place for ${term}.`,
-        badge: { label: "Confirmed · payment due", tone: "positive" },
-      },
-      CONFIRMED_FROM_WAITLIST: {
-        heading: "A bed has become free. Your place is confirmed",
-        text: (name, term) =>
-          `${name} is no longer a substitute. Their place for ${term} has been confirmed.`,
-        badge: { label: "Confirmed · payment due", tone: "positive" },
-      },
-      WAITLISTED: {
-        heading: "You are a substitute",
-        text: (name, term) =>
-          `${name} has been placed among the substitutes for ${term}. Please do not pay anything yet.`,
-        badge: { label: "Substitute", tone: "warning" },
-      },
-      REJECTED: {
-        heading: "Your application was rejected",
-        text: (name, term) =>
-          `The organiser rejected ${name}’s place for ${term}. The status of the application in this term is Cancelled.`,
-        badge: { label: "Cancelled", tone: "neutral" },
-      },
-      CANCELLED: {
-        heading: "Your cancellation is confirmed",
-        text: (name, term) =>
-          `${name} has been cancelled from ${term}. The other terms of the application stay unchanged.`,
-        badge: { label: "Cancelled", tone: "neutral" },
-      },
-      NO_BED_FREED: {
-        heading: "The term has started, no bed became free",
-        text: (name, term) =>
-          `No bed became free for ${name} before ${term} started. The application in this term is therefore cancelled.`,
-        badge: { label: "Cancelled", tone: "neutral" },
-      },
-      CANCELLED_BY_ORGANIZER: {
-        heading: "Application cancelled by the organiser",
-        text: (name, term) =>
-          `The organiser cancelled the application of ${name}, who was a substitute for ${term}.`,
-        badge: { label: "Cancelled", tone: "neutral" },
-      },
-      TERMS_CHANGED: {
-        heading: "Your application changed",
-        text: () => "The terms of the application changed.",
-        badge: null,
-      },
-    },
-    amountDue: "Amount due",
-    account: "Bank account",
-    variableSymbol: "Reference number",
-    button: "Open my applications",
-    footer: (organization) => `${organization} · via Togena`,
-  },
-  cs: {
-    subject: (event) => `Změna ve vaší přihlášce: ${event}`,
-    statuses: {
-      TO_EVALUATE: "Čeká na vyhodnocení · zatím neplaťte",
-      CONFIRMED: "Účast potvrzena",
-      WAITLISTED: "Náhradník · zatím neplaťte",
-      CANCELLED: "Zrušená",
-    },
-    kinds: {
-      CONFIRMED: {
-        heading: "Účast je potvrzená",
-        text: (name, term) => `Organizátor potvrdil účast (${name}) v termínu ${term}.`,
-        badge: { label: "Účast potvrzena", tone: "positive" },
-      },
-      CONFIRMED_FROM_WAITLIST: {
-        heading: "Uvolnilo se lůžko. Účast je potvrzená",
-        text: (name, term, gender) =>
-          `${name} už není ${gender === "FEMALE" ? "náhradnice" : "náhradník"}. ${gender === "FEMALE" ? "Její" : "Jeho"} účast v termínu ${term} byla potvrzená.`,
-        badge: { label: "Účast potvrzena", tone: "positive" },
-      },
-      WAITLISTED: {
-        heading: "Jste náhradník",
-        text: (name, term, gender) =>
-          `${name} je v termínu ${term} zařazen${gender === "FEMALE" ? "á" : "ý"} mezi náhradníky. Zatím nic neplaťte.`,
-        badge: { label: "Náhradník", tone: "warning" },
-      },
-      REJECTED: {
-        heading: "Přihláška byla zamítnuta",
-        text: (name, term) =>
-          `Organizátor zamítl účast (${name}) v termínu ${term}. Stav přihlášky v tomto termínu je Zrušená.`,
-        badge: { label: "Zrušená", tone: "neutral" },
-      },
-      CANCELLED: {
-        heading: "Odhlášení je potvrzené",
-        text: (name, term, gender) =>
-          `${name} je odhlášen${gender === "FEMALE" ? "á" : "ý"} z termínu ${term}. Ostatní termíny přihlášky zůstávají beze změny.`,
-        badge: { label: "Zrušená", tone: "neutral" },
-      },
-      NO_BED_FREED: {
-        heading: "Termín začal, lůžko se neuvolnilo",
-        text: (name, term) =>
-          `Do začátku termínu ${term} se pro (${name}) neuvolnilo lůžko. Přihláška v tomto termínu je proto zrušená.`,
-        badge: { label: "Zrušená", tone: "neutral" },
-      },
-      CANCELLED_BY_ORGANIZER: {
-        heading: "Přihláška zrušená organizátorem",
-        text: (name, term, gender) =>
-          `Organizátor zrušil přihlášku (${name}), ${gender === "FEMALE" ? "která byla náhradnicí" : "který byl náhradníkem"} v termínu ${term}.`,
-        badge: { label: "Zrušená", tone: "neutral" },
-      },
-      TERMS_CHANGED: {
-        heading: "Změna přihlášky",
-        text: () => "Změnily se termíny přihlášky.",
-        badge: null,
-      },
-    },
-    amountDue: "K úhradě",
-    account: "Bankovní účet",
-    variableSymbol: "Variabilní symbol",
-    button: "Otevřít moje přihlášky",
-    footer: (organization) => `${organization} · přes Togenu`,
-  },
-}
-
-export const applicationChangeSubject = (locale: Locale, eventName: string): string =>
-  copy[locale].subject(eventName)
+const messageOf = (locale: Locale, kind: ChangeKind) =>
+  changeMessages[locale][kind === "CONFIRMED_FROM_WAITLIST" ? "CONFIRMED" : kind]
+export const applicationChangeSubject = (
+  locale: Locale,
+  eventName: string,
+  kind: ChangeKind,
+): string => messageOf(locale, kind).subject(eventName)
 
 export interface ApplicationChangeProps {
   locale: Locale
@@ -191,13 +30,14 @@ export interface ApplicationChangeProps {
   organizationName: string
   /** First and last name of the participant. */
   name: string
-  /** Of the participant: the Czech copy is gendered. */
+  /** Participant gender carried by the change notification. */
   gender: Gender
   /** The changed term: its name, or its dates. */
   term: string
+  hadPayment?: boolean
   kind: ChangeKind
   /** Result of each term when several terms changed in one request. */
-  terms: { name: string; status: Exclude<ApplicationTermStatus, "ARCHIVED"> }[]
+  terms: { name: string; dates?: string; status: Exclude<ApplicationTermStatus, "ARCHIVED"> }[]
   /** Only when the application became confirmed; amounts are already formatted. */
   payment: {
     /** Everything due now, paid under the summary variable symbol (`…000`). */
@@ -210,56 +50,107 @@ export interface ApplicationChangeProps {
   confirmationUrl: string
 }
 
-// Figma: E05–E08, E10, E11, E13 · Změny přihlášky · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=19681-665
-export const ApplicationChange = ({
+const statusLabel = {
+  cs: {
+    TO_EVALUATE: "Čeká na vyhodnocení",
+    CONFIRMED: "Účast potvrzena",
+    WAITLISTED: "Náhradník",
+    CANCELLED: "Zrušeno",
+  },
+  en: {
+    TO_EVALUATE: "Awaiting review",
+    CONFIRMED: "Place confirmed",
+    WAITLISTED: "Waitlisted",
+    CANCELLED: "Cancelled",
+  },
+}
+const tones = {
+  TO_EVALUATE: "neutral",
+  CONFIRMED: "confirmed",
+  WAITLISTED: "waitlisted",
+  CANCELLED: "neutral",
+} as const
+
+// Figma: E05–E08, E10, E11 a E13 · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=19681-665
+export function ApplicationChange({
   locale,
   eventName,
   organizationName,
   name,
-  gender,
   term,
   kind,
   terms,
   payment,
   confirmationUrl,
-}: ApplicationChangeProps): React.JSX.Element => {
-  const text = copy[locale]
-  const kindCopy = text.kinds[kind]
-  const details = [
-    ...(kind === "TERMS_CHANGED"
-      ? terms.map(({ name, status }) => ({ label: name, value: text.statuses[status] }))
-      : []),
-    ...(payment
-      ? [
-          { label: text.amountDue, value: payment.amount },
-          { label: text.account, value: payment.bankAccount },
-          { label: text.variableSymbol, value: payment.variableSymbol },
-          // Not drawn in Figma: kept from US-137, each confirmed term can be paid on its own.
-          ...payment.terms.map((paid) => ({
-            label: paid.name,
-            value: `${paid.amount} · ${text.variableSymbol} ${paid.variableSymbol}`,
-          })),
-        ]
-      : []),
-  ]
+  hadPayment,
+}: ApplicationChangeProps) {
+  const cs = locale === "cs"
+  const message = messageOf(locale, kind)
+  const symbol = cs ? "Variabilní symbol" : "Variable symbol"
+  const refundNote = cs
+    ? "Informace o případném vrácení platby vám sdělí organizátor."
+    : "The organiser will let you know about any possible refund."
+  const descriptions = {
+    CONFIRMED: payment
+      ? changeMessages[locale].CONFIRMED.body
+      : cs
+        ? "Účast v uvedeném termínu byla potvrzena."
+        : "The place in the term shown below has been confirmed.",
+    WAITLISTED: changeMessages[locale].WAITLISTED.body,
+    CANCELLED: changeMessages[locale].CANCELLED.body,
+    TO_EVALUATE: cs
+      ? "Čeká na vyhodnocení. O výsledku vás informujeme e-mailem. Zatím nic neplaťte."
+      : "Awaiting review. We will let you know the result by e-mail. Please do not pay yet.",
+  }
   return (
     <ChangeLayout
       locale={locale}
-      preview={kindCopy.heading}
-      heading={kindCopy.heading}
       eventName={eventName}
       participant={name}
       termLabel={kind === "TERMS_CHANGED" ? undefined : term}
-      text={kindCopy.text(name, term, gender)}
-      badge={kindCopy.badge}
-      details={details}
-      buttonLabel={text.button}
+      message={message}
+      organizationName={organizationName}
       buttonUrl={confirmationUrl}
-      footer={text.footer(organizationName)}
-    />
+      note={hadPayment && (kind === "REJECTED" || kind === "CANCELLED") ? refundNote : undefined}
+      details={
+        payment
+          ? [
+              { label: cs ? "K úhradě" : "Amount due", value: payment.amount },
+              { label: cs ? "Bankovní účet" : "Bank account", value: payment.bankAccount },
+              {
+                label: payment.terms.length
+                  ? cs
+                    ? "VS celé přihlášky"
+                    : "Variable symbol of the whole application"
+                  : symbol,
+                value: payment.variableSymbol,
+              },
+              ...payment.terms.map((item) => ({
+                label: `${symbol} · ${item.name}`,
+                value: `${item.amount} · ${item.variableSymbol}`,
+              })),
+            ]
+          : undefined
+      }
+    >
+      {kind === "TERMS_CHANGED" && (
+        <Section className="mt-6">
+          {terms.map((item, index) => (
+            <EmailTerm
+              key={index}
+              dates={item.dates ?? item.name}
+              name={item.dates && item.dates !== item.name ? item.name : undefined}
+              badge={statusLabel[locale][item.status]}
+              tone={tones[item.status]}
+              description={descriptions[item.status]}
+              last={index === terms.length - 1}
+            />
+          ))}
+        </Section>
+      )}
+    </ChangeLayout>
   )
 }
-
 // Preview data for `pnpm backend email:dev`: a term was confirmed, payment details follow.
 ApplicationChange.PreviewProps = {
   locale: "cs",

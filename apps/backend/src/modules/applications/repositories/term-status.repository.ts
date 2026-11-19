@@ -32,14 +32,14 @@ import {
   ParticipantChangeOptions,
   ParticipantTermChangeResult,
 } from "@/modules/applications/domain/participant-term-change"
-import { computeTermDue } from "@/modules/applications/domain/pricing"
+import { computeTermDue, computeTermPaid } from "@/modules/applications/domain/pricing"
 import {
   changeEmailKind,
   StatusChangeSnapshot,
 } from "@/modules/applications/domain/status-transition"
 import { skippedSubstitutes } from "@/modules/applications/domain/substitute-skips"
 import { FreedBed } from "@/modules/applications/domain/substitutes"
-import { termLabel } from "@/modules/applications/domain/term-label"
+import { formatTermDates, termLabel } from "@/modules/applications/domain/term-label"
 import {
   ExpiredWaitlistEntry,
   StatusChangeCommand,
@@ -450,6 +450,7 @@ export class TermStatusRepository {
 
       const current = await tx.applicationTerm.findMany({
         where: { applicationId, organizationId: application.organizationId },
+        include: { payments: { where: { cancelledAt: null }, select: { amountCzk: true } } },
       })
       const active = current.filter((row) => row.status !== "CANCELLED")
       const activeIds = new Set(active.map((row) => row.termId))
@@ -687,6 +688,7 @@ export class TermStatusRepository {
         firstApplicationLocale: first?.locale ?? application.locale,
       })
       const oneCancelled = removed.length === 1 && addedIds.length === 0
+      const changedIds = new Set([...addedIds, ...removed.map((row) => row.termId)])
       const changedTerm = oneCancelled
         ? terms.find((row) => row.termId === removed[0].termId)
         : null
@@ -747,6 +749,7 @@ export class TermStatusRepository {
         bankAccount: application.event.organization.bankAccount,
         gender: application.gender,
         termName: changedTerm ? termLabel(changedTerm.term, locale) : "",
+        hadPayment: oneCancelled && computeTermPaid(removed[0].payments) > 0,
         kind: oneCancelled && !organizer ? "CANCELLED" : "TERMS_CHANGED",
         isAmountChanged: hasNewConfirmation,
         application: {
@@ -761,6 +764,8 @@ export class TermStatusRepository {
             )
             .map((row) => ({
               name: termLabel(row.term, locale),
+              dates: formatTermDates(row.term.startsOn, row.term.endsOn, locale),
+              includedInChange: changedIds.has(row.termId),
               termNumber: row.term.number,
               status: row.status,
               priceCzk: row.priceCzk,
@@ -884,7 +889,10 @@ export class TermStatusRepository {
         where: {
           applicationId_termId: { applicationId: application.id, termId: command.termId },
         },
-        include: { term: { select: { name: true, startsOn: true, endsOn: true } } },
+        include: {
+          term: { select: { name: true, startsOn: true, endsOn: true } },
+          payments: { where: { cancelledAt: null }, select: { amountCzk: true } },
+        },
       })
       if (!current) return null
 
@@ -999,6 +1007,7 @@ export class TermStatusRepository {
         bankAccount: application.event.organization.bankAccount,
         gender: application.gender,
         termName: termLabel(current.term, locale),
+        hadPayment: command.to === "CANCELLED" && computeTermPaid(current.payments) > 0,
         application: {
           number: application.number,
           firstName: application.firstName,

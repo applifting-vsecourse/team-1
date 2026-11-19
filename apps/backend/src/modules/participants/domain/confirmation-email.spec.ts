@@ -101,6 +101,44 @@ describe("buildChangeProps", () => {
     expect(buildChangeProps(change(), "https://app").terms).toEqual([])
   })
 
+  it("summarizes only changed terms while preserving the application payment breakdown", () => {
+    const props = buildChangeProps(
+      change({
+        kind: "TERMS_CHANGED",
+        isAmountChanged: true,
+        application: {
+          ...application,
+          terms: [
+            {
+              name: "Unchanged",
+              termNumber: 1,
+              status: "CONFIRMED",
+              priceCzk: 4000,
+              includedInChange: false,
+            },
+            {
+              name: "New term",
+              termNumber: 2,
+              status: "CONFIRMED",
+              priceCzk: 2500,
+              includedInChange: true,
+            },
+            {
+              name: "Removed",
+              termNumber: 3,
+              status: "CANCELLED",
+              priceCzk: 800,
+              includedInChange: true,
+            },
+          ],
+        },
+      }),
+      "https://app",
+    )
+    expect(props.terms.map((term) => term.name)).toEqual(["New term", "Removed"])
+    expect(props.payment?.terms.map((term) => term.variableSymbol)).toEqual(["49001", "49002"])
+  })
+
   it("excludes archived terms and their prices from the term change email", () => {
     const props = buildChangeProps(
       change({
@@ -203,7 +241,6 @@ describe("payment details of the e-mails (US-137)", () => {
         organizationName: "Alpine Collective",
         bankAccount: "2900123456/2010",
         kind: "CONFIRMED",
-        organizationName: "Alpine Collective",
         termName: "1. týden",
         gender: "MALE",
         application: { ...application, number: 12345 },

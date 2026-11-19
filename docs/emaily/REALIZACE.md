@@ -4,7 +4,7 @@ Krok 5 plánu ([PLAN.md](PLAN.md)), zahájeno 5. 11. 2026. Podklady: schválený
 
 ## Aktualizace pro Design system v2 (18. 11. 2026)
 
-Aktuální mapu rámců E01–E20, šablon a odesílatelů uvádí [katalog](KATALOG.md#figma-a-místo-v-kódu). Společný vzhled je v [`email-kit.tsx`](../../apps/backend/src/core/email/email-kit.tsx). Potvrzení platby E15 odesílá `PaymentsService` a oznámení o zrušeném termínu E12 odesílá `TermStatusService`. Šablona E14 je dostupná v náhledu jako [`payment-overdue.tsx`](../../apps/backend/src/core/email/templates/payment-overdue.tsx). Odesílání čeká na [#46](https://github.com/applifting-vsecourse/team-1/issues/46). Následující plán zachycuje stav původní realizace z 5. 11.
+Aktuální mapu rámců E01–E20, šablon a odesílatelů uvádí [katalog](KATALOG.md#figma-a-místo-v-kódu). Společný vzhled je v [`email-kit.tsx`](../../apps/backend/src/core/email/email-kit.tsx). Potvrzení platby E15 odesílá `PaymentsService` a oznámení o zrušeném termínu E12 odesílá `TermStatusService`. Šablona E14 je dostupná v náhledu jako [`payment-overdue.tsx`](../../apps/backend/src/core/email/templates/payment-overdue.tsx). Odesílání čeká na [#46](https://github.com/applifting-vsecourse/team-1/issues/46). E07 a E11 používají evidované platby zrušeného termínu pro podmíněnou zprávu o vrácení. Souhrn E13 uvádí stavy dotčených termínů a u potvrzení podle platebních pravidel také celkovou částku přihlášky. Následující plán zachycuje stav původní realizace z 5. 11.
 
 ## Vývojové úkoly
 

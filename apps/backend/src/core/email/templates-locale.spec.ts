@@ -36,7 +36,7 @@ const templates: Record<
     }),
   }),
   "application-change": (locale) => ({
-    subject: applicationChangeSubject(locale, "Camp"),
+    subject: applicationChangeSubject(locale, "Camp", "CONFIRMED"),
     element: React.createElement(ApplicationChange, { ...ApplicationChange.PreviewProps, locale }),
   }),
   "application-change-confirmation-withdrawn": (locale) => ({
@@ -131,7 +131,7 @@ it("includes the corrected debt and transfer details in e-mail 16", async () => 
       ],
     }),
   )
-  expect(html).toContain("Aktuální nedoplatek")
+  expect(html).toContain("K úhradě")
   expect(html).toMatch(/1[\s\u00a0\u202f]200/)
   expect(html).toContain("123456789/2010")
   expect(html).toContain("12345001")
@@ -162,15 +162,39 @@ it("tells the participant the confirmed, substitute and awaiting-evaluation resu
   for (const html of [en, cs]) {
     for (const term of terms) expect(html).toContain(term.name)
   }
-  expect(en).toContain("Substitute · do not pay yet")
-  expect(en).toContain("Confirmed")
+  expect(en).toContain("Waitlisted")
+  expect(en).toContain("Place confirmed")
   expect(en).not.toContain("payment due")
-  expect(en).toContain("Awaiting evaluation · do not pay yet")
+  expect(en).toContain("Awaiting review")
   expect(cs).toContain("Účast potvrzena")
   expect(cs).not.toContain("k úhradě")
-  expect(cs).toContain("Náhradník · zatím neplaťte")
-  expect(cs).toContain("Čeká na vyhodnocení · zatím neplaťte")
+  expect(cs).toContain("Náhradník")
+  expect(cs).toContain("Čeká na vyhodnocení")
 })
+
+it.each(["REJECTED", "CANCELLED"] as const)(
+  "gives refund advice for %s only when the term has a payment",
+  async (kind) => {
+    for (const locale of LOCALES) {
+      const mail = (hadPayment: boolean): Promise<string> =>
+        render(
+          React.createElement(ApplicationChange, {
+            ...ApplicationChange.PreviewProps,
+            kind,
+            locale,
+            hadPayment,
+            payment: null,
+          }),
+        )
+      const expected =
+        locale === "cs"
+          ? "Informace o případném vrácení platby vám sdělí organizátor."
+          : "The organiser will let you know about any possible refund."
+      expect(await mail(true)).toContain(expected)
+      expect(await mail(false)).not.toContain(expected)
+    }
+  },
+)
 
 it("renders one overdue notice with the supplied application balance and each confirmed term reference", async () => {
   const html = await render(

@@ -1,6 +1,6 @@
 import {
-  emailButton,
   ApplicationEmailFooter,
+  emailButton,
   EmailIdentification,
   EmailLayout,
   EmailRows,
@@ -107,7 +107,11 @@ export function PaymentOverdue(props: PaymentOverdueProps) {
           {text.button}
         </Button>
       </Section>
-      <ApplicationEmailFooter locale={locale} organization={organizationName} contact={organizerEmail} />
+      <ApplicationEmailFooter
+        locale={locale}
+        organization={organizationName}
+        contact={organizerEmail}
+      />
     </EmailLayout>
   )
 }

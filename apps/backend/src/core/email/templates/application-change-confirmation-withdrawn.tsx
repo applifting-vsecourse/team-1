@@ -1,44 +1,10 @@
-import { Locale } from "@/core/email/locale"
+import type { Locale } from "@/core/email/locale"
+import { changeMessages } from "@/core/email/change-messages"
 import { ChangeLayout } from "@/core/email/templates/application-change-layout"
-import { Gender } from "@/shared/domain/gender"
-import * as React from "react"
-
-// E-mail no. 13 (EMAILY.md, D-074): Potvrzená s dluhem → Náhradník, the organizer moves the
-// application among the substitutes. Own template, not the one of no. 3 (K vyhodnocení → Náhradník).
-// The waiting order is never told. Copy for both locales side by side.
-const copy: Record<
-  Locale,
-  {
-    subject: (event: string) => string
-    heading: string
-    text: (name: string, term: string, gender: Gender) => string
-    badge: string
-    button: string
-    footer: (organization: string) => string
-  }
-> = {
-  en: {
-    subject: (event) => `Change in your application: ${event}`,
-    heading: "Your confirmation was withdrawn. You are a substitute",
-    text: (name, term, gender) =>
-      `The organiser withdrew the confirmation of ${name}’s place for ${term} and moved them among the substitutes. This is not waiting for the first evaluation.`,
-    badge: "Substitute",
-    button: "Open my applications",
-    footer: (organization) => `${organization} · via Togena`,
-  },
-  cs: {
-    subject: (event) => `Změna ve vaší přihlášce: ${event}`,
-    heading: "Potvrzení bylo odvoláno. Jste náhradník",
-    text: (name, term, gender) =>
-      `Organizátor odvolal potvrzení účasti (${name}) v termínu ${term} a zařadil ${gender === "FEMALE" ? "ji" : "ho"} mezi náhradníky. Nejde o čekání na první vyhodnocení.`,
-    badge: "Náhradník",
-    button: "Otevřít moje přihlášky",
-    footer: (organization) => `${organization} · přes Togenu`,
-  },
-}
+import type { Gender } from "@/shared/domain/gender"
 
 export const confirmationWithdrawnSubject = (locale: Locale, eventName: string): string =>
-  copy[locale].subject(eventName)
+  changeMessages[locale].WITHDRAWN.subject(eventName)
 
 export interface ConfirmationWithdrawnProps {
   locale: Locale
@@ -46,7 +12,6 @@ export interface ConfirmationWithdrawnProps {
   organizationName: string
   /** First and last name of the participant. */
   name: string
-  /** Of the participant: the Czech copy is gendered. */
   gender: Gender
   /** The changed term: its name, or its dates. */
   term: string
@@ -54,30 +19,23 @@ export interface ConfirmationWithdrawnProps {
 }
 
 // Figma: E09 · Odvolání potvrzení · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=19681-903
-export const ConfirmationWithdrawn = ({
+export function ConfirmationWithdrawn({
   locale,
   eventName,
   organizationName,
   name,
-  gender,
   term,
   confirmationUrl,
-}: ConfirmationWithdrawnProps): React.JSX.Element => {
-  const text = copy[locale]
+}: ConfirmationWithdrawnProps) {
   return (
     <ChangeLayout
       locale={locale}
-      preview={text.heading}
-      heading={text.heading}
+      message={changeMessages[locale].WITHDRAWN}
       eventName={eventName}
       participant={name}
       termLabel={term}
-      text={text.text(name, term, gender)}
-      badge={{ label: text.badge, tone: "warning" }}
-      details={[]}
-      buttonLabel={text.button}
+      organizationName={organizationName}
       buttonUrl={confirmationUrl}
-      footer={text.footer(organizationName)}
     />
   )
 }

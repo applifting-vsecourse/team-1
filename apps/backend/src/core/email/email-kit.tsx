@@ -35,34 +35,102 @@ const colors = {
 export const emailButton =
   "block box-border min-h-[44px] w-full rounded-lg bg-accent px-4 py-3 text-center text-sm font-medium leading-5 text-white"
 
-export function EmailAction({ children, href, secondary=false, first=false }: { children: string; href: string; secondary?: boolean; first?: boolean }) {
-  const secondaryButton = "block box-border min-h-[44px] w-full rounded-lg border border-solid border-[#759398] bg-white px-4 py-3 text-center text-sm font-medium leading-5 text-ink"
-  return <Section className={first ? undefined : "mt-6"}><Button href={href} className={secondary ? secondaryButton : emailButton}>{children}</Button></Section>
+export function EmailAction({
+  children,
+  href,
+  secondary = false,
+  first = false,
+}: {
+  children: string
+  href: string
+  secondary?: boolean
+  first?: boolean
+}) {
+  const secondaryButton =
+    "block box-border min-h-[44px] w-full rounded-lg border border-solid border-[#759398] bg-white px-4 py-3 text-center text-sm font-medium leading-5 text-ink"
+  return (
+    <Section className={first ? undefined : "mt-6"}>
+      <Button
+        href={href}
+        className={secondary ? secondaryButton : emailButton}
+      >
+        {children}
+      </Button>
+    </Section>
+  )
 }
 
-export function ApplicationEmailFooter({locale, organization, contact="organizator@togena.com"}: {locale: Locale; organization:string; contact?:string}) {
-  return <EmailFooter contact={locale === "cs" ? `Dotazy k přihlášce, účasti nebo platbě: ${contact}` : `Questions about your application, attendance or payment: ${contact}`}>
-    {locale === "cs" ? `${organization} · prostřednictvím Togeny` : `${organization} · via Togena`}
-  </EmailFooter>
+export function ApplicationEmailFooter({
+  locale,
+  organization,
+  contact = "organizator@togena.com",
+}: {
+  locale: Locale
+  organization: string
+  contact?: string
+}) {
+  return (
+    <EmailFooter
+      contact={
+        locale === "cs"
+          ? `Dotazy k přihlášce, účasti nebo platbě: ${contact}`
+          : `Questions about your application, attendance or payment: ${contact}`
+      }
+    >
+      {locale === "cs"
+        ? `${organization} · prostřednictvím Togeny`
+        : `${organization} · via Togena`}
+    </EmailFooter>
+  )
 }
 
-export function EmailTerm({ dates, name, tone, badge, description, last }: {
-  dates: string; name?: string; tone: "neutral" | "confirmed" | "waitlisted"; badge:string; description:string; last:boolean
+export function EmailTerm({
+  dates,
+  name,
+  tone,
+  badge,
+  description,
+  last,
+}: {
+  dates: string
+  name?: string
+  tone: "neutral" | "confirmed" | "waitlisted"
+  badge: string
+  description: string
+  last: boolean
 }) {
   const tones = {
     neutral: "bg-[#f5f9fa] text-muted",
     confirmed: "bg-[#eaf6f0] text-[#16634a]",
     waitlisted: "bg-[#f4efff] text-[#6941a5]",
   }
-  return <Section className={`py-4 ${last ? "" : "border-b border-solid border-line"}`}>
-    <Row><Column className="email-term-name">
-      <Text className="m-0 text-[18px] font-semibold leading-[26px] tracking-[-0.18px] text-ink">{dates}</Text>
-      {name ? <Text className="mb-0 mt-0.5 text-xs font-medium leading-[18px] text-muted">{name}</Text> : null}
-    </Column>
-    <Column align="right" className="email-term-badge"><span className={`inline-block whitespace-nowrap rounded-full px-2 py-[5px] text-xs font-medium leading-[18px] ${tones[tone]}`}>{badge}</span></Column>
-    </Row>
-    <Text className="mb-0 mt-2 text-sm leading-5 text-muted">{description}</Text>
-  </Section>
+  return (
+    <Section className={`py-4 ${last ? "" : "border-b border-solid border-line"}`}>
+      <Row>
+        <Column className="email-term-name">
+          <Text className="m-0 text-[18px] font-semibold leading-[26px] tracking-[-0.18px] text-ink">
+            {dates}
+          </Text>
+          {name ? (
+            <Text className="mb-0 mt-0.5 text-xs font-medium leading-[18px] text-muted">
+              {name}
+            </Text>
+          ) : null}
+        </Column>
+        <Column
+          align="right"
+          className="email-term-badge"
+        >
+          <span
+            className={`inline-block whitespace-nowrap rounded-full px-2 py-[5px] text-xs font-medium leading-[18px] ${tones[tone]}`}
+          >
+            {badge}
+          </span>
+        </Column>
+      </Row>
+      <Text className="mb-0 mt-2 text-sm leading-5 text-muted">{description}</Text>
+    </Section>
+  )
 }
 
 /** E05–E16 identification rows between the introduction and the action. */
@@ -135,9 +203,7 @@ function EmailWarning({ title, children }: { title: string; children: string }) 
         ) : null}
         <Column>
           <Text className="m-0 text-sm font-semibold leading-5 text-warning">{title}</Text>
-          <Text className="mb-0 mt-1 text-sm leading-5 text-warning">
-            {children}
-          </Text>
+          <Text className="mb-0 mt-1 text-sm leading-5 text-warning">{children}</Text>
         </Column>
       </Row>
     </Section>
