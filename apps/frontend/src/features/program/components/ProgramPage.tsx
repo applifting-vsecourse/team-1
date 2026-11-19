@@ -34,6 +34,7 @@ import { DeleteProgramBlockDialog } from "@/features/program/components/DeletePr
 import { ProgramBlockDetailDialog } from "@/features/program/components/ProgramBlockDetailDialog"
 import { ProgramBlockDialog } from "@/features/program/components/ProgramBlockDialog"
 import { ProgramCalendar } from "@/features/program/components/ProgramCalendar"
+import { remainingOverlaps } from "@/features/program/lib/calendar"
 
 type Editor = { block?: ProgramBlock; date: string }
 
@@ -92,6 +93,10 @@ export function ProgramPage({ eventId }: { eventId: string }) {
     )
   }
 
+  // The copy result is a snapshot; the overlaps it reported are re-checked against the current blocks.
+  const copiedOverlaps =
+    copied?.termId === term.termId ? remainingOverlaps(copied.result.overlaps, term.blocks) : []
+
   return (
     <div className="flex flex-col gap-6">
       <Seo title={t("title")} />
@@ -149,17 +154,17 @@ export function ProgramPage({ eventId }: { eventId: string }) {
         </div>
       </div>
       {copied?.termId === term.termId ? (
-        <Alert variant={copied.result.overlaps.length > 0 ? "warning" : "default"}>
+        <Alert variant={copiedOverlaps.length > 0 ? "warning" : "default"}>
           <AlertTitle>
             {t("copy.resultTitle", { count: copied.result.copied, copied: copied.result.copied })}
             {copied.result.skipped > 0
               ? ` · ${t("copy.resultSkipped", { count: copied.result.skipped })}`
               : ""}
           </AlertTitle>
-          {copied.result.overlaps.length > 0 ? (
+          {copiedOverlaps.length > 0 ? (
             <AlertDescription className="text-foreground">
-              <strong>{t("copy.overlapHeading", { count: copied.result.overlaps.length })}</strong>{" "}
-              {copied.result.overlaps
+              <strong>{t("copy.overlapHeading", { count: copiedOverlaps.length })}</strong>{" "}
+              {copiedOverlaps
                 .map((item) =>
                   t("copy.overlapResultItem", {
                     first: item.first,

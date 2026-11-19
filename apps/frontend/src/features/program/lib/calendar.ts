@@ -79,3 +79,27 @@ export function overlapping<T extends Timed & { id: string; date: string }>(
       start < toMinutes(block.endTime),
   )
 }
+
+/**
+ * Of the overlaps a copy reported (pairs of block names on a day), the ones that still exist in the
+ * current blocks. The copy result is a snapshot, so the warning is re-checked after every block change.
+ */
+export function remainingOverlaps<
+  T extends Timed & { date: string; name: string },
+  O extends { date: string; first: string; second: string },
+>(reported: O[], blocks: T[]): O[] {
+  return reported.filter((item) => {
+    const day = blocks.filter((block) => block.date === item.date)
+    return day.some(
+      (first) =>
+        first.name === item.first &&
+        day.some(
+          (second) =>
+            second !== first &&
+            second.name === item.second &&
+            toMinutes(first.startTime) < toMinutes(second.endTime) &&
+            toMinutes(second.startTime) < toMinutes(first.endTime),
+        ),
+    )
+  })
+}

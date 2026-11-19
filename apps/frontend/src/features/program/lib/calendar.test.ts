@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest"
 
-import { hourRange, overlapping, placeBlocks, toMinutes } from "@/features/program/lib/calendar"
+import {
+  hourRange,
+  overlapping,
+  placeBlocks,
+  remainingOverlaps,
+  toMinutes,
+} from "@/features/program/lib/calendar"
 
 const block = (id: string, startTime: string, endTime: string) => ({ id, startTime, endTime })
 
@@ -47,5 +53,25 @@ describe("program calendar", () => {
       ["c", 1, 2],
       ["d", 0, 1],
     ])
+  })
+
+  it("keeps only the reported overlaps that still exist in the blocks", () => {
+    const block = (id: string, name: string, startTime: string, endTime: string, date = "d1") => ({
+      id,
+      date,
+      name,
+      startTime,
+      endTime,
+    })
+    const reported = [{ date: "d1", first: "Dílny", second: "Hry" }]
+    const clash = [block("a", "Dílny", "10:00", "11:00"), block("b", "Hry", "10:30", "12:00")]
+    expect(remainingOverlaps(reported, clash)).toEqual(reported)
+    expect(remainingOverlaps(reported, [clash[0]!])).toEqual([])
+    expect(remainingOverlaps(reported, [clash[0]!, block("b", "Hry", "11:00", "12:00")])).toEqual(
+      [],
+    )
+    expect(
+      remainingOverlaps(reported, [clash[0]!, block("b", "Hry", "10:30", "12:00", "d2")]),
+    ).toEqual([])
   })
 })
