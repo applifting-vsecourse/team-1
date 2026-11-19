@@ -664,6 +664,7 @@
     "occupancy_few": "{{confirmed}} / {{count}} místa",
     "occupancy_one": "{{confirmed}} / {{count}} místo",
     "occupancy_other": "{{confirmed}} / {{count}} míst",
+    "priceLabel": "Cena:",
     "title": "Termíny"
   }
 }

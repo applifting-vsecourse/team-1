@@ -114,7 +114,7 @@ describe("EventTerms", () => {
       await screen.findByRole("heading", { name: "Terms, prices and occupancy" }),
     ).toBeInTheDocument()
     expect(screen.getByText("12–18 Jul 2027")).toBeInTheDocument()
-    expect(screen.getByText(/^Letní turnus 1 · /)).toBeInTheDocument()
+    expect(screen.getByText("Letní turnus 1", { exact: true })).toBeInTheDocument()
     expect(screen.getByText("0 / 60 places")).toBeInTheDocument()
     expect(screen.getByRole("progressbar", { name: "18 / 60 places" })).toBeInTheDocument()
     expect(screen.getByText("Cancelled term")).toBeInTheDocument()
@@ -312,7 +312,9 @@ describe("EventTerms", () => {
   })
 
   const openCancelDialog = async () => {
-    const row = (await screen.findByText(/^Srpnový turnus · /)).closest("li") as HTMLElement
+    const row = (await screen.findByText("Srpnový turnus", { exact: true })).closest(
+      "li",
+    ) as HTMLElement
     await userEvent.click(within(row).getByRole("button", { name: "Actions for Srpnový turnus" }))
     await userEvent.click(await screen.findByRole("menuitem", { name: "Cancel term" }))
     return screen.findByRole("dialog")

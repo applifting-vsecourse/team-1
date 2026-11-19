@@ -112,6 +112,7 @@ function TermStayCard({ applicationId, term }: { applicationId: string; term: My
             type="button"
             variant="outline"
             size="lg"
+            className="h-auto min-h-12 max-w-full whitespace-normal"
             ref={actionRef}
             onClick={() => setMode("edit")}
           >

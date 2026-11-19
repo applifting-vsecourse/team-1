@@ -125,18 +125,6 @@ export function ProgramPage({ eventId }: { eventId: string }) {
           </Select>
         </div>
         <div className="flex flex-col gap-4 sm:flex-row">
-          {terms.length > 1 ? (
-            <Button
-              variant="outline"
-              size="lg"
-              className="max-sm:w-full"
-              onClick={() => {
-                setIsCopying(true)
-              }}
-            >
-              {t("copy.open")}
-            </Button>
-          ) : null}
           <Button
             size="lg"
             className="max-sm:w-full"
@@ -146,6 +134,18 @@ export function ProgramPage({ eventId }: { eventId: string }) {
           >
             {t("add")}
           </Button>
+          {terms.length > 1 ? (
+            <Button
+              variant="outline"
+              size="lg"
+              className="max-sm:w-full sm:order-first"
+              onClick={() => {
+                setIsCopying(true)
+              }}
+            >
+              {t("copy.open")}
+            </Button>
+          ) : null}
         </div>
       </div>
       {copied?.termId === term.termId ? (

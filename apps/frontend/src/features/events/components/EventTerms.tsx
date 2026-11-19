@@ -188,7 +188,19 @@ function TermRow({
         </span>
         <span className="sr-only"> · </span>
         <span className="text-base/6">
-          {termName(term) ? `${termName(term)} · ` : ""}
+          {termName(term) ? (
+            <>
+              <span className="block md:inline">{termName(term)}</span>
+              <span
+                aria-hidden
+                className="hidden md:inline"
+              >
+                {" "}
+                ·{" "}
+              </span>
+            </>
+          ) : null}
+          <span className="md:hidden">{t("terms.priceLabel")} </span>
           {formatTermPrice(term.priceCzk)}
         </span>
       </div>

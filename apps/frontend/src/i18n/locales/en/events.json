@@ -664,6 +664,7 @@
     "occupancy_few": "{{confirmed}} / {{count}} places",
     "occupancy_one": "{{confirmed}} / {{count}} place",
     "occupancy_other": "{{confirmed}} / {{count}} places",
+    "priceLabel": "Price:",
     "title": "Terms"
   }
 }
