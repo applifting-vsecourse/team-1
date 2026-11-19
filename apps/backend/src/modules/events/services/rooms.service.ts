@@ -1,4 +1,5 @@
 import { computeRoomCapacity } from "@/modules/applications/domain/capacity"
+import { BulkRoomsPlan, BulkRoomsResult } from "@/modules/events/domain/bulk-rooms"
 import {
   RoomCopyStrategy,
   RoomGenderAssignment,
@@ -55,6 +56,15 @@ export class RoomsService {
     id?: string,
   ): Promise<void> {
     await this.repository.save(await this.scope(user, eventId, termId), input, id)
+  }
+
+  async createBulk(
+    user: Identity,
+    eventId: string,
+    termId: string,
+    plan: BulkRoomsPlan,
+  ): Promise<BulkRoomsResult> {
+    return this.repository.createMany(await this.scope(user, eventId, termId), plan)
   }
 
   async setExtraBeds(

@@ -1,6 +1,7 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { Prisma } from "@/generated/prisma/client"
 import { computeRoomBeds } from "@/modules/applications/domain/capacity"
+import { BulkRoomsPlan, BulkRoomsResult, planBulkRooms } from "@/modules/events/domain/bulk-rooms"
 import {
   RoomCopyStrategy,
   RoomGenderAssignment,
@@ -127,6 +128,31 @@ export class RoomsRepository {
       if (duplicate) throw new AppException(HttpStatus.CONFLICT, "ROOM_NAME_TAKEN")
       if (id) await tx.room.update({ where: { id }, data: input })
       else await tx.room.create({ data: { ...input, termId, organizationId } })
+    })
+  }
+
+  /**
+   * Creates the rooms of one bulk request in one transaction. A room whose name the term already
+   * has is skipped, the rest is created; the result lists both.
+   */
+  async createMany(scope: TermScope, plan: BulkRoomsPlan): Promise<BulkRoomsResult> {
+    const { termId, organizationId } = scope
+    return this.write(scope, async (tx, mode) => {
+      const inputs = planBulkRooms(plan, mode)
+      if (!inputs) throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
+      const taken = new Set(
+        (await tx.room.findMany({ where: { termId, organizationId } })).map((room) =>
+          room.name.toLowerCase(),
+        ),
+      )
+      const free = inputs.filter((input) => !taken.has(input.name.toLowerCase()))
+      await tx.room.createMany({
+        data: free.map((input) => ({ ...input, termId, organizationId })),
+      })
+      return {
+        created: free.map((input) => input.name),
+        skipped: inputs.filter((input) => taken.has(input.name.toLowerCase())).map((i) => i.name),
+      }
     })
   }
 
