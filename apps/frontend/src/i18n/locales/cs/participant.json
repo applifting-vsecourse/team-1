@@ -57,6 +57,7 @@
     "title": "Kontakt organizace"
   },
   "detail": {
+    "archivedTitle": "Archivovaná přihláška",
     "back": "← Všechny přihlášky",
     "errorTitle": "Přihlášku se nepodařilo načíst",
     "health": "Zdravotní omezení",

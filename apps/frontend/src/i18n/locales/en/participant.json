@@ -57,6 +57,7 @@
     "title": "Organization contact"
   },
   "detail": {
+    "archivedTitle": "Archived application",
     "back": "← All applications",
     "errorTitle": "Couldn't load the application",
     "health": "Health restriction",

@@ -19,7 +19,8 @@ type Step = { key: string; title: string; isDone: boolean; link: ReactNode }
 
 /**
  * The steps of one term, by its status. Only a confirmed term has steps: a term still to be
- * evaluated, a waitlisted one or a cancelled one has nothing to arrange yet (US-149). Meals and
+ * evaluated, a waitlisted one, a cancelled one or an archived one has nothing to arrange
+ * (US-149, US-584). Meals and
  * health are entered once for the whole application, so they read the same in every term.
  */
 export function termSteps(
@@ -99,6 +100,24 @@ export function termSteps(
     },
   )
   return steps
+}
+
+/** An application whose every term is archived: over, so nothing is left to arrange. */
+export function isFullyArchived(application: MyApplication): boolean {
+  return (
+    application.terms.length > 0 && application.terms.every(({ status }) => status === "ARCHIVED")
+  )
+}
+
+/** Stands where the steps would be once every term of the application is archived: no steps, just the state. */
+// Figma (Design system): US-149 Archivovaná přihláška · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=24910-15353 (360 px: node-id=24910-15443)
+export function ArchivedApplicationCard() {
+  const { t } = useTranslation("participant")
+  return (
+    <Card className="p-6">
+      <h3 className="text-lg font-semibold tracking-tight">{t("detail.archivedTitle")}</h3>
+    </Card>
+  )
 }
 
 /** One card per confirmed term with what the participant has to arrange before the event. */
