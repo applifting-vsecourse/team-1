@@ -1,6 +1,7 @@
 import {
   decideOptions,
   decideSelection,
+  isMealsDecided,
   KitchenPerson,
   kitchenSummary,
   MEAL_OPTIONS_MAX,
@@ -177,5 +178,22 @@ describe("kitchenSummary", () => {
       specialRequests: [],
       stays: [],
     })
+  })
+})
+
+describe("isMealsDecided", () => {
+  const base = { optionIds: [], allergies: null, specialRequest: null, noRestrictions: false }
+
+  it("is false when nothing was entered or confirmed", () => {
+    expect(isMealsDecided(base)).toBe(false)
+  })
+
+  it.each([
+    ["confirmed no restriction", { noRestrictions: true }],
+    ["an option", { optionIds: ["veg"] }],
+    ["allergies", { allergies: "Peanuts" }],
+    ["a special request", { specialRequest: "Early dinner" }],
+  ])("is true with %s", (_name, over) => {
+    expect(isMealsDecided({ ...base, ...over })).toBe(true)
   })
 })
