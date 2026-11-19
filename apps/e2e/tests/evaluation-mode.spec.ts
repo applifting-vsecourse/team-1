@@ -60,7 +60,8 @@ test.describe("Evaluation mode", () => {
     await page.goto("/organizer/events")
     await page.getByRole("link", { name: new RegExp(`E2E zámek ${unique}`) }).click()
     await sections(page).getByRole("link", { name: "Settings" }).click()
-    await expect(page.getByText("Manual · locked")).toBeVisible()
+    await expect(page.getByText("Manual", { exact: true })).toBeVisible()
+    await expect(page.getByText("Locked", { exact: true })).toBeVisible()
     await expect(
       page.getByText("The event already has an application, so the mode can no longer be changed."),
     ).toBeVisible()
@@ -73,7 +74,8 @@ test.describe("Evaluation mode", () => {
     await page.getByRole("link", { name: /Letní kemp 2027(?! – demo)/ }).click()
 
     await sections(page).getByRole("link", { name: "Settings" }).click()
-    await expect(page.getByText("Automatic · locked")).toBeVisible()
+    await expect(page.getByText("Automatic", { exact: true })).toBeVisible()
+    await expect(page.getByText("Locked", { exact: true })).toBeVisible()
     await expect(
       page.getByText("The event already has an application, so the mode can no longer be changed."),
     ).toBeVisible()
