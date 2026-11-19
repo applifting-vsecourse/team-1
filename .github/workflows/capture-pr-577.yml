@@ -28,7 +28,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: e970057292c4e04b837871c1b3e2526762589089
+          ref: 211917403bfa0a3c2d79520d171cdfca3b291ac5
           persist-credentials: false
 
       - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
@@ -313,7 +313,7 @@ jobs:
                   assert header[:8] == bytes.fromhex("89504e470d0a1a0a")
                   w, h = struct.unpack(">II", header[16:24])
                   assert w == width and h > 0, (name, w, h)
-                  dest = Path("577") / f"{screen}-{width}-e970057.png"
+                  dest = Path("577") / f"{screen}-{width}-2119174.png"
                   if dest.exists():
                       assert dest.read_bytes() == p.read_bytes(), dest
                       continue
