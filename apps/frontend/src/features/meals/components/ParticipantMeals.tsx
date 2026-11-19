@@ -4,13 +4,13 @@ import { useNavigate } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
+import { CheckboxRow } from "@/components/molecules/CheckboxRow"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { PageHeader } from "@/components/molecules/PageHeader"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { notify } from "@/lib/notify"
@@ -53,15 +53,22 @@ function MealsForm({ applicationId, meals }: { applicationId: string; meals: Own
   const [optionIds, setOptionIds] = useState(new Set(meals.selectedOptionIds))
   const [allergies, setAllergies] = useState(meals.allergies ?? "")
   const [specialRequest, setSpecialRequest] = useState(meals.specialRequest ?? "")
+  const [hasNone, setHasNone] = useState(meals.noRestrictions)
 
   const mutation = useMutation({
     // An option the organizer removed meanwhile is no longer offered, so it is not sent either.
     mutationFn: () =>
-      saveOwnMeals(applicationId, {
-        optionIds: meals.options.map((option) => option.id).filter((id) => optionIds.has(id)),
-        allergies,
-        specialRequest,
-      }),
+      saveOwnMeals(
+        applicationId,
+        hasNone
+          ? { optionIds: [], allergies: "", specialRequest: "", noRestrictions: true }
+          : {
+              optionIds: meals.options.map((option) => option.id).filter((id) => optionIds.has(id)),
+              allergies,
+              specialRequest,
+              noRestrictions: false,
+            },
+      ),
     onSuccess: async (saved) => {
       client.setQueryData(ownMealsQueryOptions(applicationId).queryKey, saved)
       // The overview of the application shows the meals step as done (US-149).
@@ -96,27 +103,25 @@ function MealsForm({ applicationId, meals }: { applicationId: string; meals: Own
       />
       <Card className="mx-auto w-full max-w-[720px] gap-4 p-4">
         <h2 className="text-lg font-semibold">{t("own.restrictions")}</h2>
+        {/* US-150: confirms the step without any restriction; not drawn in Figma. */}
+        <CheckboxRow
+          id="meal-none"
+          label={t("own.noRestrictions")}
+          checked={hasNone}
+          onCheckedChange={(isChecked) => setHasNone(isChecked === true)}
+        />
         {meals.options.length > 0 ? (
           <div className="flex flex-col gap-2">
             <p className="text-sm text-muted-foreground">{t("own.multiple")}</p>
             {meals.options.map((option) => (
-              <div
+              <CheckboxRow
                 key={option.id}
-                className="flex items-center gap-3 py-2"
-              >
-                <Checkbox
-                  id={`meal-${option.id}`}
-                  className="size-6"
-                  checked={optionIds.has(option.id)}
-                  onCheckedChange={(isChecked) => toggle(option.id, isChecked === true)}
-                />
-                <Label
-                  htmlFor={`meal-${option.id}`}
-                  className="flex-1 cursor-pointer leading-5 font-normal"
-                >
-                  {option.name}
-                </Label>
-              </div>
+                id={`meal-${option.id}`}
+                label={option.name}
+                checked={optionIds.has(option.id)}
+                disabled={hasNone}
+                onCheckedChange={(isChecked) => toggle(option.id, isChecked === true)}
+              />
             ))}
           </div>
         ) : null}
@@ -126,6 +131,7 @@ function MealsForm({ applicationId, meals }: { applicationId: string; meals: Own
             id="meal-allergies"
             className="min-h-32"
             maxLength={ALLERGIES_MAX_LENGTH}
+            disabled={hasNone}
             value={allergies}
             onChange={(event) => setAllergies(event.target.value)}
           />
@@ -137,6 +143,7 @@ function MealsForm({ applicationId, meals }: { applicationId: string; meals: Own
             id="meal-special-request"
             className="min-h-32"
             maxLength={SPECIAL_REQUEST_MAX_LENGTH}
+            disabled={hasNone}
             value={specialRequest}
             onChange={(event) => setSpecialRequest(event.target.value)}
           />

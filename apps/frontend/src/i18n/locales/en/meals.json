@@ -52,6 +52,7 @@
     "allergiesLabel": "Allergies and other dietary restrictions",
     "back": "Back to application",
     "multiple": "You can select more than one option.",
+    "noRestrictions": "I have no dietary restriction",
     "optional": "If you have no dietary requirements, leave the options unchecked and the fields blank.",
     "pageTitle": "Meals",
     "restrictions": "Dietary restrictions",

@@ -35,6 +35,7 @@ import {
   type Room,
   type RoomMode,
 } from "@/features/events/api/rooms"
+import { BulkRoomsDialog } from "@/features/events/components/BulkRoomsDialog"
 import { CopyRoomsDialog } from "@/features/events/components/CopyRoomsDialog"
 import { DeleteRoomDialog } from "@/features/events/components/DeleteRoomDialog"
 import { RoomAssignmentsCard } from "@/features/events/components/RoomAssignmentsCard"
@@ -97,6 +98,7 @@ export function RoomsPage({
   const [extraBedsRoom, setExtraBedsRoom] = useState<Room | null>(null)
   const [pendingMode, setPendingMode] = useState<RoomMode | null>(null)
   const [isCopying, setIsCopying] = useState(false)
+  const [isBulk, setIsBulk] = useState(false)
   const refresh = async () => {
     if (selected) client.removeQueries({ queryKey: roomCapacityIncreaseKey(eventId, selected.id) })
     await Promise.all([
@@ -364,6 +366,14 @@ export function RoomsPage({
                         {t("rooms.copy.open")}
                       </Button>
                     ) : null}
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      className="max-sm:w-full"
+                      onClick={() => setIsBulk(true)}
+                    >
+                      {t("rooms.bulk.open")}
+                    </Button>
                     {action}
                     <Button
                       size="lg"
@@ -442,6 +452,13 @@ export function RoomsPage({
                 : t("rooms.copy.done"),
             )
           }}
+        />
+      ) : null}
+      {isBulk ? (
+        <BulkRoomsDialog
+          term={term}
+          onClose={() => setIsBulk(false)}
+          onSaved={refresh}
         />
       ) : null}
       {editor ? (

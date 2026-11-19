@@ -498,6 +498,10 @@ model Application {
   mealOptions   MealOption[]
   allergies     String?      @db.Text
   specialRequest String?     @db.Text
+  // US-150: the participant confirmed having no meal / health restriction. Set only while nothing
+  // is entered — entering a restriction resets it. Health data itself stays in ApplicationHealth.
+  noMealRestrictions   Boolean @default(false)
+  noHealthRestriction  Boolean @default(false)
 
   terms         ApplicationTerm[]
   notifications Notification[]

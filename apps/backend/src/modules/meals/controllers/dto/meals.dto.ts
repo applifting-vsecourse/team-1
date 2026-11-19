@@ -12,6 +12,7 @@ import { Type } from "class-transformer"
 import {
   ArrayMaxSize,
   IsArray,
+  IsBoolean,
   IsOptional,
   IsString,
   MaxLength,
@@ -66,6 +67,14 @@ export class SaveMealsRequestDto {
   @IsString()
   @MaxLength(SPECIAL_REQUEST_MAX_LENGTH)
   specialRequest!: string
+
+  @ApiProperty({
+    required: false,
+    description: "Confirms having no meal restriction (US-150); refused with anything entered.",
+  })
+  @IsOptional()
+  @IsBoolean()
+  noRestrictions?: boolean
 }
 
 export class OwnMealsResponseDto {
@@ -77,6 +86,8 @@ export class OwnMealsResponseDto {
   @ApiProperty({ type: [String] }) selectedOptionIds!: string[]
   @ApiProperty({ type: String, nullable: true }) allergies!: string | null
   @ApiProperty({ type: String, nullable: true }) specialRequest!: string | null
+  @ApiProperty({ description: "The participant confirmed having no meal restriction." })
+  noRestrictions!: boolean
 
   static fromDomain(meals: OwnMeals): OwnMealsResponseDto {
     return { ...meals, options: meals.options.map((option) => MealOptionDto.fromDomain(option)) }
@@ -117,7 +128,10 @@ export class KitchenTermSummaryDto {
   @ApiProperty() startsOn!: string
   @ApiProperty() endsOn!: string
   @ApiProperty() total!: number
-  @ApiProperty({ description: "Confirmed participants without any ticked restriction." })
+  @ApiProperty({
+    description:
+      "Confirmed participants without any ticked restriction (includes those who did not fill meals in).",
+  })
   regular!: number
   @ApiProperty({ type: [KitchenOptionCountDto], description: "Counts may overlap." })
   options!: KitchenOptionCountDto[]
