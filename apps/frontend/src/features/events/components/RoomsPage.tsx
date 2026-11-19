@@ -431,10 +431,7 @@ export function RoomsPage({
         <BulkRoomsDialog
           term={term}
           onClose={() => setIsBulk(false)}
-          onSaved={async () => {
-            await refresh()
-            notify.success(t("rooms.bulk.done"))
-          }}
+          onSaved={refresh}
         />
       ) : null}
       {editor ? (

@@ -1,5 +1,5 @@
 import { computeRoomCapacity } from "@/modules/applications/domain/capacity"
-import { BulkRoomsPlan, planBulkRooms } from "@/modules/events/domain/bulk-rooms"
+import { BulkRoomsPlan, BulkRoomsResult } from "@/modules/events/domain/bulk-rooms"
 import {
   RoomCopyStrategy,
   RoomGenderAssignment,
@@ -9,7 +9,6 @@ import {
 } from "@/modules/events/domain/rooms"
 import { RoomsRepository } from "@/modules/events/repositories/rooms.repository"
 import { Identity } from "@/shared/auth/domain/identity"
-import { Gender } from "@/shared/domain/gender"
 import { OrganizationAccessService } from "@/shared/organization-access/organization-access.service"
 import { Injectable } from "@nestjs/common"
 
@@ -64,12 +63,8 @@ export class RoomsService {
     eventId: string,
     termId: string,
     plan: BulkRoomsPlan,
-    gender: Gender | null,
-  ): Promise<void> {
-    await this.repository.createMany(
-      await this.scope(user, eventId, termId),
-      planBulkRooms(plan, gender),
-    )
+  ): Promise<BulkRoomsResult> {
+    return this.repository.createMany(await this.scope(user, eventId, termId), plan)
   }
 
   async setExtraBeds(

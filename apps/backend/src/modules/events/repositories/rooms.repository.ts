@@ -1,6 +1,7 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { Prisma } from "@/generated/prisma/client"
 import { computeRoomBeds } from "@/modules/applications/domain/capacity"
+import { BulkRoomsPlan, BulkRoomsResult, planBulkRooms } from "@/modules/events/domain/bulk-rooms"
 import {
   RoomCopyStrategy,
   RoomGenderAssignment,
@@ -130,30 +131,28 @@ export class RoomsRepository {
     })
   }
 
-  /** Creates all rooms or none: the mode must match their gender and no name may already be used in the term. */
-  async createMany(scope: TermScope, inputs: RoomInput[]): Promise<void> {
+  /**
+   * Creates the rooms of one bulk request in one transaction. A room whose name the term already
+   * has is skipped, the rest is created; the result lists both.
+   */
+  async createMany(scope: TermScope, plan: BulkRoomsPlan): Promise<BulkRoomsResult> {
     const { termId, organizationId } = scope
-    await this.write(scope, async (tx, mode) => {
-      if (inputs.some((input) => (mode === "GENDERED") !== (input.gender !== null))) {
-        throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
-      }
+    return this.write(scope, async (tx, mode) => {
+      const inputs = planBulkRooms(plan, mode)
+      if (!inputs) throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
       const taken = new Set(
         (await tx.room.findMany({ where: { termId, organizationId } })).map((room) =>
           room.name.toLowerCase(),
         ),
       )
-      const colliding = inputs.filter((input) => taken.has(input.name.toLowerCase()))
-      if (colliding.length) {
-        throw new AppException(
-          HttpStatus.CONFLICT,
-          "ROOM_BULK_NAMES_TAKEN",
-          "Rooms with these names already exist in the term",
-          { names: colliding.map((input) => input.name).join(", ") },
-        )
-      }
+      const free = inputs.filter((input) => !taken.has(input.name.toLowerCase()))
       await tx.room.createMany({
-        data: inputs.map((input) => ({ ...input, termId, organizationId })),
+        data: free.map((input) => ({ ...input, termId, organizationId })),
       })
+      return {
+        created: free.map((input) => input.name),
+        skipped: inputs.filter((input) => taken.has(input.name.toLowerCase())).map((i) => i.name),
+      }
     })
   }
 

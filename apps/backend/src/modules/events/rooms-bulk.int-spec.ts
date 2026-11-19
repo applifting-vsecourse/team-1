@@ -67,7 +67,7 @@ describe("bulk room creation (integration)", () => {
   })
 
   it("protects the endpoint by session, role and organization", async () => {
-    const body = { count: 2, capacity: 4, firstNumber: 1, gender: "FEMALE" }
+    const body = { countFemale: 2, countMale: 1, capacity: 4, firstNumber: 1 }
     expect((await bulk(gendered, body, "")).status).toBe(401)
     expect((await bulk(gendered, body, participantCookie)).status).toBe(403)
     const otherCookie = await signIn("organizator2@example.com", "password2")
@@ -76,40 +76,60 @@ describe("bulk room creation (integration)", () => {
     expect((await rooms(gendered)).rooms).toEqual([])
   })
 
-  it("rejects invalid input and a gender that does not match the room mode", async () => {
-    const valid = { count: 2, capacity: 4, firstNumber: 1, gender: "FEMALE" }
+  it("rejects invalid input and counts that do not fit the room mode", async () => {
+    const valid = { countFemale: 2, countMale: 1, capacity: 4, firstNumber: 1 }
     for (const patch of [
-      { count: 0 },
-      { count: 201 },
-      { count: 1.5 },
+      { countFemale: 0, countMale: 0 },
+      { countFemale: 150, countMale: 51 },
+      { countFemale: 201 },
+      { countFemale: -1 },
+      { countMale: 1.5 },
+      { count: 2 },
       { capacity: 0 },
       { firstNumber: 0 },
       { firstNumber: 1_000_000 },
-      { gender: "OTHER" },
+      { gender: "FEMALE" },
       { extra: true },
     ]) {
       expect((await bulk(gendered, { ...valid, ...patch })).status).toBe(400)
     }
-    expect((await bulk(gendered, { count: 2, capacity: 4, firstNumber: 1 })).status).toBe(400)
-    expect((await bulk(shared, valid)).status).toBe(400)
+    for (const body of [
+      valid,
+      { capacity: 4, firstNumber: 1 },
+      { count: 0, capacity: 4, firstNumber: 1 },
+      { count: 201, capacity: 4, firstNumber: 1 },
+    ]) {
+      expect((await bulk(shared, body)).status).toBe(400)
+    }
     expect((await rooms(gendered)).rooms).toEqual([])
     expect((await rooms(shared)).rooms).toEqual([])
   })
 
-  it("creates numbered gendered rooms and recalculates the capacity", async () => {
-    expect(
-      (await bulk(gendered, { count: 10, capacity: 5, firstNumber: 101, gender: "FEMALE" })).status,
-    ).toBe(204)
+  it("creates gendered rooms numbered across genders and recalculates the capacity", async () => {
+    const response = await bulk(gendered, {
+      countFemale: 6,
+      countMale: 4,
+      capacity: 5,
+      firstNumber: 101,
+    })
+    expect(response.status).toBe(201)
+    expect(await response.json()).toEqual({
+      created: Array.from({ length: 10 }, (_, index) => String(101 + index)),
+      skipped: [],
+    })
     const result = await rooms(gendered)
-    expect(result.rooms.map((room) => room.name)).toEqual(
-      Array.from({ length: 10 }, (_, index) => String(101 + index)),
-    )
-    expect(result.rooms.every((room) => room.capacity === 5 && room.gender === "FEMALE")).toBe(true)
-    expect(result.capacity).toEqual({ FEMALE: 50, MALE: 0, total: 50 })
+    expect(result.rooms.map(({ name, gender }) => `${name}:${gender}`)).toEqual([
+      ...[101, 102, 103, 104, 105, 106].map((number) => `${number}:FEMALE`),
+      ...[107, 108, 109, 110].map((number) => `${number}:MALE`),
+    ])
+    expect(result.rooms.every((room) => room.capacity === 5)).toBe(true)
+    expect(result.capacity).toEqual({ FEMALE: 30, MALE: 20, total: 50 })
   })
 
   it("creates shared rooms without a gender", async () => {
-    expect((await bulk(shared, { count: 3, capacity: 6, firstNumber: 1 })).status).toBe(204)
+    const response = await bulk(shared, { count: 3, capacity: 6, firstNumber: 1 })
+    expect(response.status).toBe(201)
+    expect(await response.json()).toEqual({ created: ["1", "2", "3"], skipped: [] })
     const result = await rooms(shared)
     expect(result.rooms.map(({ name, gender }) => ({ name, gender }))).toEqual([
       { name: "1", gender: null },
@@ -119,19 +139,31 @@ describe("bulk room creation (integration)", () => {
     expect(result.capacity.total).toBe(18)
   })
 
-  it("refuses numbers already used in the term and creates nothing", async () => {
+  it("skips the numbers the term already uses and creates the rest", async () => {
     const response = await bulk(gendered, {
-      count: 4,
+      countFemale: 1,
+      countMale: 3,
       capacity: 2,
       firstNumber: 109,
-      gender: "MALE",
     })
-    expect(response.status).toBe(409)
-    expect(await response.json()).toMatchObject({
-      code: "ROOM_BULK_NAMES_TAKEN",
-      params: { names: "109, 110" },
-    })
-    expect((await rooms(gendered)).rooms).toHaveLength(10)
+    expect(response.status).toBe(201)
+    expect(await response.json()).toEqual({ created: ["111", "112"], skipped: ["109", "110"] })
+    const result = await rooms(gendered)
+    expect(result.rooms).toHaveLength(12)
+    // The skipped numbers keep their original rooms and gender.
+    expect(result.rooms.find((room) => room.name === "109")?.gender).toBe("MALE")
+    expect(result.rooms.filter((room) => room.name === "111" || room.name === "112")).toEqual([
+      expect.objectContaining({ gender: "MALE", capacity: 2 }),
+      expect.objectContaining({ gender: "MALE", capacity: 2 }),
+    ])
+  })
+
+  it("accepts the full cap of 200 rooms in one request", async () => {
+    const response = await bulk(shared, { count: 200, capacity: 1, firstNumber: 1000 })
+    expect(response.status).toBe(201)
+    const { created } = (await response.json()) as { created: string[] }
+    expect(created).toHaveLength(200)
+    await prisma.room.deleteMany({ where: { termId: shared, name: { in: created } } })
   })
 
   it("lets the created rooms be edited one by one as in US-14", async () => {
@@ -147,7 +179,7 @@ describe("bulk room creation (integration)", () => {
     ).toBe(204)
     expect((await call(gendered, `/rooms/${first.id}`, "DELETE")).status).toBe(204)
     const result = await rooms(gendered)
-    expect(result.rooms).toHaveLength(9)
-    expect(result.capacity.total).toBe(45)
+    expect(result.rooms).toHaveLength(11)
+    expect(result.capacity.total).toBe(49)
   })
 })

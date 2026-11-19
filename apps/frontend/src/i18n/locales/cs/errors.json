@@ -44,7 +44,6 @@
   "REFUND_TERM_REQUIRED": "Vratka musí být vedená u konkrétního termínu.",
   "ROOM_ASSIGNMENT_NO_MATCHING_ROOM": "V druhém termínu není pokoj se stejným názvem.",
   "ROOM_ASSIGNMENT_STATUS_INVALID": "Do pokoje jde přiřadit jen potvrzeného účastníka nebo účastníka, který čeká na vyhodnocení.",
-  "ROOM_BULK_NAMES_TAKEN": "Termín už má pokoje s čísly {{names}}. Zvolte jiné číslo prvního pokoje, nebo je nejdřív přejmenujte či smažte.",
   "ROOM_COPY_NAMES_TAKEN": "Termín už má pokoje s názvy {{names}}. Nejdřív je přejmenujte nebo smažte, případně stávající pokoje nahraďte.",
   "ROOM_FULL": "V tomto pokoji není volné lůžko.",
   "ROOM_NAME_TAKEN": "Pokoj s tímto názvem už v akci existuje.",

@@ -5,6 +5,7 @@ import {
   RoomRequestDto,
   RoomsPublishedRequestDto,
   RoomsBulkRequestDto,
+  RoomsBulkResponseDto,
 } from "@/modules/events/controllers/dto/room.request.dto"
 import { RoomsResponseDto } from "@/modules/events/controllers/dto/rooms.response.dto"
 import { RoomsService } from "@/modules/events/services/rooms.service"
@@ -94,29 +95,24 @@ export class RoomsController {
   }
 
   @Post("rooms/bulk")
-  @HttpCode(204)
   @ApiOperation({
     summary: "Create several identical rooms at once with consecutive numbers",
     description:
-      "Creates `count` rooms with `capacity` beds named firstNumber, firstNumber + 1, … All or nothing. The preview (rooms = count, beds = count × capacity) is computed by the client. The rooms are ordinary rooms, edited one by one as in US-14.",
+      "Shared term: `count` rooms. Gendered term: `countFemale` women's and `countMale` men's rooms. Every room has `capacity` beds and is named by its number, counted from firstNumber (women's rooms first). Rooms whose name the term already has are skipped, the others are created; the response lists both. The cap of 200 rooms applies to one request; the client splits bigger batches. The rooms are ordinary rooms, edited one by one as in US-14.",
   })
-  @ApiResponse({ status: 204 })
+  @ApiResponse({ status: 201, type: RoomsBulkResponseDto })
   @ApiResponse({
     status: 400,
-    description: "Invalid count, capacity or first number, or gender not matching the room mode",
-  })
-  @ApiResponse({
-    status: 409,
     description:
-      "ROOM_BULK_NAMES_TAKEN: some of the numbers are already used as room names in this term, listed in params.names",
+      "Invalid capacity or first number, or counts not matching the room mode or not 1 to 200 in sum",
   })
   async bulk(
     @User() user: Identity,
     @Param("eventId") eventId: string,
     @Param("termId") termId: string,
     @Body() body: RoomsBulkRequestDto,
-  ): Promise<void> {
-    await this.rooms.createBulk(user, eventId, termId, body, body.gender ?? null)
+  ): Promise<RoomsBulkResponseDto> {
+    return this.rooms.createBulk(user, eventId, termId, body)
   }
 
   @Post("rooms/copy")

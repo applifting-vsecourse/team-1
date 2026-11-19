@@ -104,12 +104,39 @@ export class RoomsBulkRequestDto {
   @ApiProperty({
     minimum: 1,
     maximum: BULK_ROOMS_MAX_COUNT,
-    description: "How many rooms to create",
+    required: false,
+    description: "Shared room mode: how many rooms to create",
   })
+  @IsOptional()
   @IsInt()
   @Min(1)
   @Max(BULK_ROOMS_MAX_COUNT)
-  count!: number
+  count?: number
+
+  @ApiProperty({
+    minimum: 0,
+    maximum: BULK_ROOMS_MAX_COUNT,
+    required: false,
+    description:
+      "Gendered room mode: how many women's rooms. countFemale + countMale is 1 to 200 per request; a bigger batch is sent as several requests",
+  })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Max(BULK_ROOMS_MAX_COUNT)
+  countFemale?: number
+
+  @ApiProperty({
+    minimum: 0,
+    maximum: BULK_ROOMS_MAX_COUNT,
+    required: false,
+    description: "Gendered room mode: how many men's rooms",
+  })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Max(BULK_ROOMS_MAX_COUNT)
+  countMale?: number
 
   @ApiProperty({
     minimum: 1,
@@ -125,20 +152,23 @@ export class RoomsBulkRequestDto {
     minimum: 1,
     maximum: BULK_ROOMS_MAX_FIRST_NUMBER,
     example: 101,
-    description: "Number of the first room; the others follow one by one, the name is the number",
+    description:
+      "Number of the first room; the others follow one by one (women's rooms first), the name is the number",
   })
   @IsInt()
   @Min(1)
   @Max(BULK_ROOMS_MAX_FIRST_NUMBER)
   firstNumber!: number
+}
+
+export class RoomsBulkResponseDto {
+  @ApiProperty({ type: [String], example: ["101", "102"] })
+  created!: string[]
 
   @ApiProperty({
-    enum: ["FEMALE", "MALE"],
-    nullable: true,
-    required: false,
-    description: "Required in gendered room mode, must be empty in shared room mode",
+    type: [String],
+    example: ["103"],
+    description: "Numbers skipped because the term already has a room with that name",
   })
-  @ValidateIf((_object, value: unknown) => value !== null && value !== undefined)
-  @IsIn(["FEMALE", "MALE"])
-  gender?: Gender | null
+  skipped!: string[]
 }

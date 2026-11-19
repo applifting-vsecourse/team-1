@@ -100,19 +100,27 @@ export async function copyRooms(
 ): Promise<void> {
   await api.post(`${base(eventId, termId)}/rooms/copy`, { json: { sourceTermId, strategy } })
 }
-/** Rooms created in one go: `count` rooms of `capacity` beds, numbered from `firstNumber`. */
+/** One bulk request: `count` shared rooms, or `countFemale` + `countMale` in a gendered term; at most 200 in sum. */
 export type BulkRoomsInput = {
-  count: number
   capacity: number
   firstNumber: number
-  /** Required in gendered terms, omitted in shared ones. */
-  gender?: "FEMALE" | "MALE"
+  count?: number
+  countFemale?: number
+  countMale?: number
 }
-/** Creates all rooms or none (409 `ROOM_BULK_NAMES_TAKEN` when a number is already a room name). */
+const bulkRoomsResultSchema = z.object({
+  created: z.array(z.string()),
+  skipped: z.array(z.string()),
+})
+/** Names created, and names skipped because the term already has a room with that name. */
+export type BulkRoomsResult = z.infer<typeof bulkRoomsResultSchema>
+/** Creates the rooms of one request; rooms whose name already exists are skipped, not refused. */
 export async function createRoomsBulk(
   eventId: string,
   termId: string,
   input: BulkRoomsInput,
-): Promise<void> {
-  await api.post(`${base(eventId, termId)}/rooms/bulk`, { json: input })
+): Promise<BulkRoomsResult> {
+  return bulkRoomsResultSchema.parse(
+    await api.post(`${base(eventId, termId)}/rooms/bulk`, { json: input }).json(),
+  )
 }
