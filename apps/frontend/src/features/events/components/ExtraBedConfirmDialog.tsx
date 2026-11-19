@@ -111,16 +111,15 @@ export function ExtraBedConfirmDialog({
       : t(placed.length === 1 ? "extraBedDialog.whereOne" : "extraBedDialog.whereMany", {
           terms: joinList(placed, and),
         })
+  // "In both" only says it all when the participant is placed in exactly those two terms.
   const beds =
     withBed.length === 0
       ? null
-      : withBed.length === 2
-        ? t("extraBedDialog.bedsBoth")
-        : withBed.length === 1
-          ? t("extraBedDialog.bedsOne", { terms: withBed[0] })
-          : withBed.length === placed.length
-            ? t("extraBedDialog.bedsAll")
-            : t("extraBedDialog.bedsMany", { terms: joinList(withBed, and) })
+      : withBed.length === 1
+        ? t("extraBedDialog.bedsOne", { terms: withBed[0] })
+        : withBed.length === placed.length
+          ? t(withBed.length === 2 ? "extraBedDialog.bedsBoth" : "extraBedDialog.bedsAll")
+          : t("extraBedDialog.bedsMany", { terms: joinList(withBed, and) })
   const result = beds
     ? t("extraBedDialog.resultBed", { name, room: room.name, where, beds })
     : t("extraBedDialog.resultNoBed", { name, room: room.name, where })

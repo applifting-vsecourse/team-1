@@ -410,6 +410,44 @@ describe("room assignment", () => {
       })
     })
 
+    it("names the terms with an extra bed when only some of three placed terms get one", async () => {
+      const third = {
+        ...otherTerm,
+        termId: "t3",
+        startsOn: "2027-07-26",
+        endsOn: "2027-08-01",
+      }
+      data = {
+        ...base(),
+        unassigned: [
+          {
+            ...person("p3", "Barbora", "Šimková"),
+            alsoInTerms: [
+              {
+                ...otherTerm,
+                rooms: [{ id: "b-t2", name: "Room B", gender: "FEMALE", beds: 3, freeBeds: 2 }],
+              },
+              {
+                ...third,
+                rooms: [{ id: "b-t3", name: "Room B", gender: "FEMALE", beds: 1, freeBeds: 0 }],
+              },
+            ],
+          },
+        ],
+      }
+      const user = renderCard()
+      await screen.findByText("Barbora Šimková")
+      drop(dragFrom("p3", "Barbora Šimková", null), "r2")
+      const dialog = await screen.findByRole("dialog", { name: "Room B: add an extra bed" })
+      expect(within(dialog).getByText(/with an extra bed in the terms .* and /)).toBeInTheDocument()
+      expect(within(dialog).queryByText(/extra bed in both/)).not.toBeInTheDocument()
+      await user.click(within(dialog).getByRole("button", { name: "Assign as an extra bed" }))
+      await waitFor(() => expect(put).toHaveBeenCalled())
+      expect(put).toHaveBeenCalledWith("organizer/events/e1/terms/t1/room-assignments/p3", {
+        json: { roomId: "r2", alsoTermIds: ["t2", "t3"], confirmExtraBed: true },
+      })
+    })
+
     it("only assigns in the term where the room has a free bed", async () => {
       fullEverywhere([{ name: "Room B", beds: 3, freeBeds: 2 }])
       const { user, dialog } = await dropOnRoomB()
