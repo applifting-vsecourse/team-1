@@ -107,7 +107,7 @@ ChangeLayout.PreviewProps = {
   heading: 'Změna přihlášky',
   eventName: 'Letní kemp Lipno 2027',
   text: 'Text o změně.',
-  badge: { label: 'Zrušená', tone: 'neutral' },
+  badge: { label: 'Zrušeno', tone: 'neutral' },
   details: [],
   buttonLabel: 'Otevřít moje přihlášky',
   buttonUrl: 'https://team-1.vsepractical.applifting.dev/apply/confirmation/preview',

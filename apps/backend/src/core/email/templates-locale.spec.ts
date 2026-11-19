@@ -157,7 +157,7 @@ it("tells the participant the confirmed, substitute and awaiting-evaluation resu
   for (const html of [en, cs]) {
     for (const term of terms) expect(html).toContain(term.name)
   }
-  expect(en).toContain("Substitute · do not pay yet")
+  expect(en).toContain("Waitlisted · do not pay yet")
   expect(en).toContain("Confirmed")
   expect(en).not.toContain("payment due")
   expect(en).toContain("Awaiting evaluation · do not pay yet")

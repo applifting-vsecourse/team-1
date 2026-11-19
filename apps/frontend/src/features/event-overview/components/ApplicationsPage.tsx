@@ -642,12 +642,7 @@ function Terms({ application }: { application: ListedApplication }) {
             className={STATUS_BADGE[term.status].className}
           >
             {term.status === "WAITLISTED" && term.waitlistPosition !== null
-              ? t(
-                  application.gender === "FEMALE"
-                    ? "applications.waitlistedPositionFemale"
-                    : "applications.waitlistedPositionMale",
-                  { position: term.waitlistPosition },
-                )
+              ? t("applications.waitlistedPosition", { position: term.waitlistPosition })
               : t(`applications.${STATUS_LABEL[term.status]}`)}
           </Badge>
         </div>

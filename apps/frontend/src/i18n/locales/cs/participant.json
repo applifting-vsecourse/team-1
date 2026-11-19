@@ -201,7 +201,7 @@
     "wholeApplication": "Celá přihláška · všechny termíny ({{count}})"
   },
   "status": {
-    "cancelled": "Zrušená",
+    "cancelled": "Zrušeno",
     "confirmed": "Potvrzeno",
     "toEvaluate": "Čeká na vyhodnocení",
     "waitlisted": "Náhradník"

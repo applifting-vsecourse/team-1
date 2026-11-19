@@ -348,7 +348,7 @@ function WithoutRoomCard({ people }: { people: UnassignedParticipant[] }) {
             <span className="flex min-w-0 flex-col gap-0.5">
               <span className="font-medium break-words">{participantName(person)}</span>
               <span className="text-sm text-muted-foreground print:hidden">
-                {genderLabel(person.gender)} · {statusLabel(person.status, person.gender)}
+                {genderLabel(person.gender)} · {statusLabel(person.status)}
               </span>
             </span>
             <BirthYear year={person.birthYear} />

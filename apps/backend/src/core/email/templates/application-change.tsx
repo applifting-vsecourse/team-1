@@ -59,7 +59,7 @@ const copy: Record<
     statuses: {
       TO_EVALUATE: 'Awaiting evaluation · do not pay yet',
       CONFIRMED: 'Confirmed',
-      WAITLISTED: 'Substitute · do not pay yet',
+      WAITLISTED: 'Waitlisted · do not pay yet',
       CANCELLED: 'Cancelled',
     },
     kinds: {
@@ -79,7 +79,7 @@ const copy: Record<
         heading: 'You are a substitute',
         text: (name, term) =>
           `${name} has been placed among the substitutes for ${term}. Please do not pay anything yet.`,
-        badge: { label: 'Substitute', tone: 'neutral' },
+        badge: { label: 'Waitlisted', tone: 'neutral' },
       },
       REJECTED: {
         heading: 'Your application was rejected',
@@ -123,7 +123,7 @@ const copy: Record<
       TO_EVALUATE: 'Čeká na vyhodnocení · zatím neplaťte',
       CONFIRMED: 'Účast potvrzena',
       WAITLISTED: 'Náhradník · zatím neplaťte',
-      CANCELLED: 'Zrušená',
+      CANCELLED: 'Zrušeno',
     },
     kinds: {
       CONFIRMED: {
@@ -147,25 +147,25 @@ const copy: Record<
         heading: 'Přihláška byla zamítnuta',
         text: (name, term) =>
           `Organizátor zamítl účast (${name}) v termínu ${term}. Stav přihlášky v tomto termínu je Zrušená.`,
-        badge: { label: 'Zrušená', tone: 'neutral' },
+        badge: { label: 'Zrušeno', tone: 'neutral' },
       },
       CANCELLED: {
         heading: 'Odhlášení je potvrzené',
         text: (name, term, gender) =>
           `${name} je odhlášen${gender === 'FEMALE' ? 'á' : 'ý'} z termínu ${term}. Ostatní termíny přihlášky zůstávají beze změny.`,
-        badge: { label: 'Zrušená', tone: 'neutral' },
+        badge: { label: 'Zrušeno', tone: 'neutral' },
       },
       NO_BED_FREED: {
         heading: 'Termín začal, lůžko se neuvolnilo',
         text: (name, term) =>
           `Do začátku termínu ${term} se pro (${name}) neuvolnilo lůžko. Přihláška v tomto termínu je proto zrušená.`,
-        badge: { label: 'Zrušená', tone: 'neutral' },
+        badge: { label: 'Zrušeno', tone: 'neutral' },
       },
       CANCELLED_BY_ORGANIZER: {
         heading: 'Přihláška zrušená organizátorem',
         text: (name, term, gender) =>
           `Organizátor zrušil přihlášku (${name}), ${gender === 'FEMALE' ? 'která byla náhradnicí' : 'který byl náhradníkem'} v termínu ${term}.`,
-        badge: { label: 'Zrušená', tone: 'neutral' },
+        badge: { label: 'Zrušeno', tone: 'neutral' },
       },
       TERMS_CHANGED: {
         heading: 'Změna přihlášky',

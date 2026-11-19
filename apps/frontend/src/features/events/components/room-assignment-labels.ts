@@ -38,14 +38,11 @@ export function useAssignmentLabels() {
     genderLabel,
     roomGenderLabel,
     roomTitle,
-    /** The application is feminine in Czech; a man's one reads "Potvrzen" like the participant. */
-    statusLabel: (status: AssignmentParticipant["status"], gender: Gender): string =>
+    statusLabel: (status: AssignmentParticipant["status"]): string =>
       t(
         status === "TO_EVALUATE"
           ? "roomAssignments.statusToEvaluate"
-          : gender === "MALE"
-            ? "roomAssignments.statusConfirmedMale"
-            : "roomAssignments.statusConfirmed",
+          : "roomAssignments.statusConfirmed",
       ),
     freeBedsLabel: (room: Pick<AssignmentRoom, "beds" | "participants">): string => {
       const free = freeBedCount(room)

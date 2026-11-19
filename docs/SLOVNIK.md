@@ -92,6 +92,16 @@ Stav nese Přihláška v termínu (`ApplicationTerm.status`), ne Přihláška. S
 | Zrušená               | Koncový: zamítnutí při vyhodnocení (jen ručně), okolnosti pro zamítnutí, odhlášení účastníka, zrušení náhradníka organizátorem, půlnoc Europe/Prague prvního dne termínu u náhradníka nebo zrušení termínu. | `CANCELLED`      | Není to logout.                                                                                                                                                      |
 | Archivovaná           | Koncový: první den po posledním dni termínu přihlášky v termínu (Europe/Prague) ([D-110](rozhodnuti/README.md#d-110)); souhrnná platba se jí nepřidělí, oprava platby zůstává povolená.                     | zatím není       | –                                                                                                                                                                    |
 
+Pojmy v tabulce jsou názvy stavů (v textu se skloňují podle věty). Štítek stavu v UI, v notifikacích a v e-mailech je ve všech místech stejný, v cs ve středním rodě ([#608](https://github.com/applifting-vsecourse/team-1/issues/608)):
+
+| Stav          | Štítek v UI (cs)    | Štítek v UI (en)    |
+| ------------- | ------------------- | ------------------- |
+| K vyhodnocení | Čeká na vyhodnocení | Awaiting evaluation |
+| Náhradník     | Náhradník           | Waitlisted          |
+| Potvrzená     | Potvrzeno           | Confirmed           |
+| Zrušená       | Zrušeno             | Cancelled           |
+| Archivovaná   | Archivováno         | Archived            |
+
 ## Atributy a výpočty
 
 | Pojem                       | Patří k                | Vzorec / význam                                                                                                                                                                                                                                                                                                                                                                                                   | V kódu                                                                                                              | Pozor                                                                                                                                                                            |

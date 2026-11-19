@@ -32,7 +32,7 @@ const copy: Record<
     heading: 'Termín akce byl zrušen',
     text: (name, term) =>
       `Organizátor zrušil termín ${term}. Přihláška (${name}) v tomto termínu je zrušená. Zaplacené platby se vrací; další postup sdělí organizace.`,
-    badge: 'Zrušená',
+    badge: 'Zrušeno',
     button: 'Otevřít moje přihlášky',
     footer: (organization) => `${organization} · přes Togenu`,
   },

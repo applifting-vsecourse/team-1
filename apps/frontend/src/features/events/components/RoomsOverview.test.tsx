@@ -121,7 +121,7 @@ describe("RoomsOverview (US-36)", () => {
     expect(a.getByText("b. 2011")).toBeInTheDocument()
     expect(a.getAllByText("Free bed")).toHaveLength(2)
     // The one still to evaluate is marked.
-    expect(a.getAllByText("To evaluate")).toHaveLength(1)
+    expect(a.getAllByText("Awaiting evaluation")).toHaveLength(1)
 
     const b = within(await roomCard("Room B"))
     expect(b.getByText("1 / 3")).toBeInTheDocument()
@@ -237,7 +237,7 @@ describe("RoomsOverview (US-36)", () => {
   it("puts the to-evaluate label next to the name, not into the year of birth", async () => {
     renderOverview()
     const card = within(await roomCard("Room A"))
-    const label = card.getByText("To evaluate")
+    const label = card.getByText("Awaiting evaluation")
     const name = card.getByText("Eva Horká")
     expect(label.parentElement).toBe(name.parentElement)
     expect(label.parentElement).not.toContainElement(card.getByText("b. 2010"))
