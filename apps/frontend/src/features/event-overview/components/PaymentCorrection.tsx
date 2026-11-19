@@ -23,6 +23,7 @@ import {
 import { formatDateRange } from "@/lib/date"
 import { formatCzk } from "@/lib/money"
 import { termDates } from "@/lib/term-label"
+import { cn } from "@/lib/utils"
 
 import {
   correctionPreviewQueryOptions,
@@ -114,7 +115,12 @@ export function PaymentCorrection({
         if (!isOpen && !mutation.isPending) onClose()
       }}
     >
-      <DialogContent className="flex max-h-[calc(100dvh-2rem)] flex-col overflow-y-auto bg-card p-4 sm:max-w-160 sm:p-6">
+      <DialogContent
+        className={cn(
+          "flex max-h-[calc(100dvh-2rem)] flex-col overflow-y-auto bg-card p-4 sm:max-w-160 sm:p-6",
+          isRefund && !isUncertain && "sm:max-w-130",
+        )}
+      >
         <DialogHeader className="pr-10 text-left">
           <DialogTitle className="max-w-64 text-2xl leading-8 sm:max-w-none sm:text-xl sm:leading-7">
             {t("payment.correctTitle")}

@@ -45,13 +45,16 @@ export function ChangeRequestsPanel({ eventId }: { eventId: string }) {
   const occupancy = useQuery(occupancyQueryOptions(eventId))
   const client = useQueryClient()
   const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [isDeclining, setDeclining] = useState(false)
   const [reason, setReason] = useState("")
   const mutation = useMutation({
     mutationFn: ({ id, decision }: { id: string; decision: "approve" | "reject" }) =>
       decideChangeRequest(eventId, id, decision, reason),
+    onError: () => setDeclining(false),
     onSuccess: async (_data, variables) => {
       await client.invalidateQueries({ queryKey: ["eventOverview"] })
       await client.invalidateQueries({ queryKey: ["events", eventId, "occupancy"] })
+      setDeclining(false)
       setSelectedId(null)
       setReason("")
       notify.success(
@@ -86,6 +89,19 @@ export function ChangeRequestsPanel({ eventId }: { eventId: string }) {
     const term = occupancy.data?.terms.find((term) => term.id === termId)
     return term?.byGender ? term.byGender[item.participantGender].free : term?.free
   }
+  const reasonField = (
+    <div className="flex flex-col gap-2">
+      <Label htmlFor="change-request-reason">{t("changeRequests.reason")}</Label>
+      <Textarea
+        id="change-request-reason"
+        className="min-h-32 rounded-xl shadow-none"
+        value={reason}
+        maxLength={1000}
+        placeholder={t("changeRequests.reasonPlaceholder")}
+        onChange={(event) => setReason(event.target.value)}
+      />
+    </div>
+  )
   return (
     <section className="flex min-w-0 flex-col gap-4">
       <h2 className="text-2xl font-semibold tracking-tight">{t("changeRequests.title")}</h2>
@@ -115,6 +131,7 @@ export function ChangeRequestsPanel({ eventId }: { eventId: string }) {
               className="w-full sm:w-auto"
               onClick={() => {
                 mutation.reset()
+                setDeclining(false)
                 setSelectedId(item.id)
                 setReason("")
               }}
@@ -205,17 +222,7 @@ export function ChangeRequestsPanel({ eventId }: { eventId: string }) {
                 </p>
               </>
             )}
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="change-request-reason">{t("changeRequests.reason")}</Label>
-              <Textarea
-                id="change-request-reason"
-                className="min-h-32 rounded-xl shadow-none"
-                value={reason}
-                maxLength={1000}
-                placeholder={t("changeRequests.reasonPlaceholder")}
-                onChange={(event) => setReason(event.target.value)}
-              />
-            </div>
+            {request.kind === "HEALTH" && reasonField}
             {mutation.error ? (
               <Alert variant="destructive">
                 <AlertDescription>{mutation.error.message}</AlertDescription>
@@ -233,7 +240,11 @@ export function ChangeRequestsPanel({ eventId }: { eventId: string }) {
                   <Button
                     variant="destructive"
                     disabled={mutation.isPending}
-                    onClick={() => mutation.mutate({ id: request.id, decision: "reject" })}
+                    onClick={() =>
+                      request.kind === "HEALTH"
+                        ? mutation.mutate({ id: request.id, decision: "reject" })
+                        : setDeclining(true)
+                    }
                   >
                     {t("changeRequests.reject")}
                   </Button>
@@ -263,6 +274,44 @@ export function ChangeRequestsPanel({ eventId }: { eventId: string }) {
                 {t("changeRequests.back")}
               </Button>
             </div>
+            {request.kind !== "HEALTH" && (
+              <Dialog
+                open={isDeclining}
+                onOpenChange={(isOpen) => {
+                  if (!mutation.isPending) setDeclining(isOpen)
+                }}
+              >
+                <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto p-4 sm:max-w-160 sm:p-6">
+                  <DialogHeader className="text-left">
+                    <DialogTitle>{t("changeRequests.reject")}</DialogTitle>
+                    <DialogDescription>
+                      {request.participantName} · {summary(request)}
+                    </DialogDescription>
+                  </DialogHeader>
+                  <p>
+                    {t("changeRequests.declineKeepsTerms", {
+                      terms: termLabels(request, request.currentTermIds),
+                    })}
+                  </p>
+                  {reasonField}
+                  <p className="text-sm text-muted-foreground">{t("changeRequests.reasonHint")}</p>
+                  <Button
+                    variant="destructive"
+                    disabled={mutation.isPending}
+                    onClick={() => mutation.mutate({ id: request.id, decision: "reject" })}
+                  >
+                    {t("changeRequests.reject")}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    disabled={mutation.isPending}
+                    onClick={() => setDeclining(false)}
+                  >
+                    {t("changeRequests.backToRequest")}
+                  </Button>
+                </DialogContent>
+              </Dialog>
+            )}
           </DialogContent>
         ) : null}
       </Dialog>

@@ -109,11 +109,14 @@ describe("ChangeRequestsPanel", () => {
     const user = userEvent.setup()
     await user.click(await screen.findByRole("button", { name: "Review request" }))
     const dialog = screen.getByRole("dialog", { name: "Review request" })
+    await user.click(within(dialog).getByRole("button", { name: "Decline request" }))
+    const confirmation = screen.getByRole("dialog", { name: "Decline request" })
+    expect(patch).not.toHaveBeenCalled()
     await user.type(
-      within(dialog).getByRole("textbox", { name: "Reason for declining" }),
+      within(confirmation).getByRole("textbox", { name: "Reason for declining" }),
       "Please contact us",
     )
-    await user.click(within(dialog).getByRole("button", { name: "Decline request" }))
+    await user.click(within(confirmation).getByRole("button", { name: "Decline request" }))
     expect(patch).toHaveBeenCalledWith("organizer/events/e1/change-requests/r1/reject", {
       json: { reason: "Please contact us" },
     })
@@ -173,11 +176,20 @@ describe("ChangeRequestsPanel", () => {
       renderPanel()
       const user = userEvent.setup()
       await user.click(await screen.findByRole("button", { name: "Review request" }))
+      if (_kind === "TERMS") {
+        await user.click(screen.getByRole("button", { name: "Decline request" }))
+      }
       await user.type(screen.getByRole("textbox", { name: "Reason for declining" }), "draft")
+      if (_kind === "TERMS") {
+        await user.click(screen.getByRole("button", { name: /^Back to request$/ }))
+      }
       await user.click(screen.getByRole("button", { name: "Back to requests" }))
       expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
       expect(patch).not.toHaveBeenCalled()
       await user.click(screen.getByRole("button", { name: "Review request" }))
+      if (_kind === "TERMS") {
+        await user.click(screen.getByRole("button", { name: "Decline request" }))
+      }
       expect(screen.getByRole("textbox", { name: "Reason for declining" })).toHaveValue("")
     })
 
