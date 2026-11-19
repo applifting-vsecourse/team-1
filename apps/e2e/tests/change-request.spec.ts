@@ -20,7 +20,7 @@ test("participant submits a cancellation request and organizer declines it at 36
     .getByRole("navigation", { name: "Event sections" })
     .getByRole("link", { name: "Settings" })
     .click()
-  await page.getByRole("switch", { name: "Turn on approval" }).check()
+  await page.getByRole("switch", { name: "Turn on approval" }).click()
   const cancellationDate = page.getByRole("textbox", { name: "Approve requests from" })
   await cancellationDate.clear()
   await cancellationDate.fill(today)

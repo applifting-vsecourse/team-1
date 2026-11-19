@@ -22,7 +22,7 @@ test("organizer sets the cancellation start date in a usable 360 px settings scr
       "Approval is off. New term changes and cancellations are carried out immediately.",
     ),
   ).toBeVisible()
-  await page.getByRole("switch", { name: "Turn on approval" }).check()
+  await page.getByRole("switch", { name: "Turn on approval" }).click()
   await page.getByRole("textbox", { name: "Approve requests from" }).fill("01/07/2035")
   await page.getByRole("button", { name: "Save settings" }).scrollIntoViewIfNeeded()
   await expect(page.getByRole("button", { name: "Save settings" })).toBeInViewport()
