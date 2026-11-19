@@ -97,8 +97,8 @@ export function KitchenSummary({ eventId, eventName }: { eventId: string; eventN
               ))}
               <p>{t("kitchen.overlapNote")}</p>
             </Card>
-            {/* The allergies are the long list: right column, as tall as the cards on the left. */}
-            <Card className="gap-4 p-4 lg:row-span-3">
+            {/* The allergies are the long list: right column, beside counts and requests; arrivals and departures below it. */}
+            <Card className="gap-4 p-4 lg:row-span-2">
               <h2 className="text-2xl font-bold">{t("kitchen.allergiesTitle")}</h2>
               {term.allergies.map((entry) => (
                 <p
@@ -124,7 +124,7 @@ export function KitchenSummary({ eventId, eventName }: { eventId: string; eventN
             ) : null}
             {term.stays.length > 0 ? (
               // Figma (Design system v2): US-143 Organizátor · Souhrn pro kuchyni · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=24969-10806 (mobile 24969-12256)
-              <Card className="gap-4 p-4">
+              <Card className="gap-4 p-4 lg:col-start-2">
                 <h2 className="text-2xl font-bold">{t("kitchen.staysTitle")}</h2>
                 {term.stays.map((entry) => (
                   <div
