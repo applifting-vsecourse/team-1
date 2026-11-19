@@ -18,9 +18,12 @@
     "clearedTitle": "Approval is off.",
     "dateInPast": "The approval start date must not be in the past.",
     "dateLabel": "Approve requests from",
+    "description": "Whether term changes and cancellations wait for your approval.",
     "enable": "Turn on approval",
     "invalidDate": "Enter a valid calendar date.",
     "noDate": "Approval is off. New term changes and cancellations are carried out immediately.",
+    "off": "Off",
+    "on": "On",
     "save": "Save settings",
     "saveFailed": "Could not save the approval setting",
     "savedDate": "Term changes and cancellations need approval from {{date}}.",
@@ -58,21 +61,21 @@
     "title": "Delete event?"
   },
   "evaluationMode": {
-    "afterOpenLocked": "The mode will be locked and can no longer be changed.",
-    "afterOpenVisible": "The chosen mode will be shown in the event overview.",
+    "afterOpenLocked": "You can change the mode until the first application is received.",
     "automatic": "Automatic",
+    "automaticInfo": "The app confirms an application when a bed is free, otherwise it adds it to the substitutes. A freed bed goes to the first substitute.",
     "change": "Change",
+    "description": "How new applications are processed in every term.",
+    "infoLabel": "Explanation: {{mode}}",
     "legend": "Evaluation mode",
-    "lockedReason": "Applications are open, so the mode can no longer be changed.",
-    "lockedTitle": "Evaluation mode",
-    "lockedValue": "{{mode}} · locked",
+    "locked": "Locked",
+    "lockedReason": "The event already has an application, so the mode can no longer be changed.",
     "manual": "Manual",
-    "manualHint": "In manual mode the organizer evaluates applications and substitutes.",
+    "manualInfo": "You decide on every application: confirm it, add it to the substitutes or reject it.",
     "overviewLabel": "Evaluation mode",
     "save": "Save mode",
     "saveFailed": "Could not save the change",
     "saved": "Evaluation mode saved.",
-    "subtitle": "Choose the rule before applications open.",
     "title": "Application evaluation mode"
   },
   "extraBedDialog": {
@@ -165,8 +168,10 @@
       "phoneInvalid": "Enter a valid phone number, e.g. +420 777 000 001.",
       "requiredForCatalog": "Fill this in before listing the event in the catalog."
     },
+    "listed": "Listed in the catalog",
     "location": "Venue",
     "name": "Event name",
+    "notListed": "Not listed",
     "photoTitle": "Event photo",
     "publish": "List the event in the catalog",
     "publishHint": "Without the tick the event is not listed in the catalog.",
@@ -174,6 +179,7 @@
     "saveFailed": "The public details could not be saved",
     "saved": "Public details are saved.",
     "savedPublished": "The event is listed in the catalog.",
+    "sectionDescription": "Name, description, venue, photo and contacts shown on the event page.",
     "termsHint": "You can change the prices in the event overview, under Terms and prices.",
     "termsTitle": "Terms and prices shown",
     "title": "Public details",
@@ -550,6 +556,10 @@
     "hintOff": "Confirmed participants do not see the assignment yet.",
     "switch": "Publish the room assignment",
     "title": "Publishing the assignment"
+  },
+  "settings": {
+    "description": "How applications are evaluated and approved, what the public page shows and whether the event can be deleted.",
+    "title": "Settings"
   },
   "terms": {
     "actions": "Actions for {{name}}",

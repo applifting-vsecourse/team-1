@@ -1,14 +1,17 @@
 import { useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { Loader2 } from "lucide-react"
+import { Info, ListChecks, Loader2, Lock } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
-import { CardGrid } from "@/components/molecules/CardGrid"
+import { CardColumns } from "@/components/molecules/CardGrid"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
+import { SectionHeader } from "@/components/molecules/SectionHeader"
 import { SettingsCard } from "@/components/molecules/SettingsCard"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { notify } from "@/lib/notify"
 
@@ -48,36 +51,72 @@ export function EventSettings({ eventId }: { eventId: string }) {
     )
   }
 
+  // Two stacks (no row gaps between cards of different height); on one column the order is
+  // evaluation, approval, public details, delete.
   return (
-    <CardGrid>
-      {event.evaluationModeLocked ? (
-        <LockedMode mode={event.evaluationMode} />
-      ) : (
-        <ChooseMode
-          eventId={eventId}
-          saved={event.evaluationMode}
-        />
-      )}
-      <CancellationStartForm
-        key={event.id}
-        event={event}
+    <div className="flex flex-col gap-6">
+      <SectionHeader
+        title={t("settings.title")}
+        description={t("settings.description")}
       />
-      <PublicPageForm event={event} />
-      <DeleteEventSection event={event} />
-    </CardGrid>
+      <CardColumns
+        left={
+          <>
+            <div className="order-1 lg:order-none">
+              {event.evaluationModeLocked ? (
+                <LockedMode mode={event.evaluationMode} />
+              ) : (
+                <ChooseMode
+                  eventId={eventId}
+                  saved={event.evaluationMode}
+                />
+              )}
+            </div>
+            <div className="order-3 lg:order-none">
+              <PublicPageForm event={event} />
+            </div>
+          </>
+        }
+        right={
+          <>
+            <div className="order-2 lg:order-none">
+              <CancellationStartForm
+                key={event.id}
+                event={event}
+              />
+            </div>
+            <div className="order-4 lg:order-none">
+              <DeleteEventSection event={event} />
+            </div>
+          </>
+        }
+      />
+    </div>
   )
 }
 
 function LockedMode({ mode }: { mode: EvaluationMode }) {
   const { t } = useTranslation("events")
   return (
-    <SettingsCard title={t("evaluationMode.lockedTitle")}>
-      <p>
-        {t("evaluationMode.lockedValue", {
-          mode: t(`evaluationMode.${mode === "AUTOMATIC" ? "automatic" : "manual"}`),
-        })}
+    <SettingsCard
+      icon={ListChecks}
+      title={t("evaluationMode.title")}
+      description={t("evaluationMode.description")}
+    >
+      <div className="flex flex-wrap items-center gap-2">
+        <Badge>{t(`evaluationMode.${mode === "AUTOMATIC" ? "automatic" : "manual"}`)}</Badge>
+        <Badge variant="secondary">
+          <Lock aria-hidden="true" />
+          {t("evaluationMode.locked")}
+        </Badge>
+      </div>
+      <p className="flex items-start gap-2 text-sm text-muted-foreground">
+        <Lock
+          className="mt-0.5 size-4 shrink-0"
+          aria-hidden="true"
+        />
+        {t("evaluationMode.lockedReason")}
       </p>
-      <p>{t("evaluationMode.lockedReason")}</p>
     </SettingsCard>
   )
 }
@@ -99,7 +138,11 @@ function ChooseMode({ eventId, saved }: { eventId: string; saved: EvaluationMode
   })
 
   return (
-    <SettingsCard title={t("evaluationMode.title")}>
+    <SettingsCard
+      icon={ListChecks}
+      title={t("evaluationMode.title")}
+      description={t("evaluationMode.description")}
+    >
       <form
         className="flex flex-col gap-4"
         onSubmit={(e) => {
@@ -107,31 +150,45 @@ function ChooseMode({ eventId, saved }: { eventId: string; saved: EvaluationMode
           mutation.mutate()
         }}
       >
-        <p>{t("evaluationMode.subtitle")}</p>
         <RadioGroup
           aria-label={t("evaluationMode.legend")}
           value={mode}
           onValueChange={(value) => setMode(evaluationModeSchema.parse(value))}
           className="flex flex-col gap-3 sm:flex-row sm:gap-6"
         >
-          {MODES.map((value) => (
-            <div
-              key={value}
-              className="flex items-center gap-2"
-            >
-              <RadioGroupItem
-                id={`evaluation-mode-${value}`}
-                value={value}
-              />
-              <Label htmlFor={`evaluation-mode-${value}`}>
-                {t(`evaluationMode.${value === "AUTOMATIC" ? "automatic" : "manual"}`)}
-              </Label>
-            </div>
-          ))}
+          {MODES.map((value) => {
+            const name = t(`evaluationMode.${value === "AUTOMATIC" ? "automatic" : "manual"}`)
+            return (
+              <div
+                key={value}
+                className="flex items-center gap-2"
+              >
+                <RadioGroupItem
+                  id={`evaluation-mode-${value}`}
+                  value={value}
+                />
+                <Label htmlFor={`evaluation-mode-${value}`}>{name}</Label>
+                {/* A popover, not a tooltip: it opens on tap and on Enter / Space too. */}
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-sm"
+                      aria-label={t("evaluationMode.infoLabel", { mode: name })}
+                    >
+                      <Info />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="text-sm">
+                    {t(`evaluationMode.${value === "AUTOMATIC" ? "automaticInfo" : "manualInfo"}`)}
+                  </PopoverContent>
+                </Popover>
+              </div>
+            )
+          })}
         </RadioGroup>
-        <p>{t("evaluationMode.manualHint")}</p>
-        <p>{t("evaluationMode.afterOpenVisible")}</p>
-        <p>{t("evaluationMode.afterOpenLocked")}</p>
+        <p className="text-sm text-muted-foreground">{t("evaluationMode.afterOpenLocked")}</p>
         {mutation.isError ? (
           <ErrorState
             title={t("evaluationMode.saveFailed")}

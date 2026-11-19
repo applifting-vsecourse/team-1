@@ -18,9 +18,12 @@
     "clearedTitle": "Schvalování je vypnuté.",
     "dateInPast": "Datum začátku schvalování nesmí být v minulosti.",
     "dateLabel": "Schvalovat od",
+    "description": "Zda změny termínů a storna čekají na Vaše schválení.",
     "enable": "Zapnout schvalování",
     "invalidDate": "Zadejte platné kalendářní datum.",
     "noDate": "Schvalování je vypnuté. Nové změny termínů a odhlášky se provádějí ihned.",
+    "off": "Vypnuto",
+    "on": "Zapnuto",
     "save": "Uložit nastavení",
     "saveFailed": "Schvalování se nepodařilo uložit",
     "savedDate": "Změny termínů a odhlášky se schvalují od {{date}}.",
@@ -58,21 +61,21 @@
     "title": "Smazat akci?"
   },
   "evaluationMode": {
-    "afterOpenLocked": "Režim se uzamkne a nebude možné jej změnit.",
-    "afterOpenVisible": "Zvolený režim bude vidět v přehledu akce.",
+    "afterOpenLocked": "Režim můžete měnit do první přijaté přihlášky.",
     "automatic": "Automaticky",
+    "automaticInfo": "Aplikace přihlášku potvrdí, když je volné lůžko, jinak ji zařadí mezi náhradníky. Uvolněné lůžko obsadí první náhradník.",
     "change": "Změnit",
+    "description": "Jak se nové přihlášky zpracují v každém termínu.",
+    "infoLabel": "Vysvětlení: {{mode}}",
     "legend": "Režim vyhodnocování",
-    "lockedReason": "Přihlášky jsou otevřené, proto už režim nelze změnit.",
-    "lockedTitle": "Režim vyhodnocování",
-    "lockedValue": "{{mode}} · uzamčeno",
+    "locked": "Zamčeno",
+    "lockedReason": "Akce už má přihlášku, proto už režim nelze změnit.",
     "manual": "Ručně",
-    "manualHint": "V ručním režimu organizátor vyhodnotí přihlášky i náhradníky.",
+    "manualInfo": "O každé přihlášce rozhodujete sami: potvrdíte ji, zařadíte mezi náhradníky, nebo ji zamítnete.",
     "overviewLabel": "Režim vyhodnocování",
     "save": "Uložit režim",
     "saveFailed": "Změnu se nepodařilo uložit",
     "saved": "Režim vyhodnocování byl uložen.",
-    "subtitle": "Zvolte pravidlo před otevřením přihlášek.",
     "title": "Režim vyhodnocování přihlášek"
   },
   "extraBedDialog": {
@@ -165,8 +168,10 @@
       "phoneInvalid": "Zadejte platné telefonní číslo, např. +420 777 000 001.",
       "requiredForCatalog": "Před zveřejněním v katalogu toto pole vyplňte."
     },
+    "listed": "V katalogu",
     "location": "Místo konání",
     "name": "Název akce",
+    "notListed": "Mimo katalog",
     "photoTitle": "Fotografie akce",
     "publish": "Zveřejnit akci v katalogu",
     "publishHint": "Bez zaškrtnutí není akce v katalogu uvedená.",
@@ -174,6 +179,7 @@
     "saveFailed": "Veřejné údaje se nepodařilo uložit",
     "saved": "Veřejné údaje jsou uložené.",
     "savedPublished": "Akce je zveřejněná v katalogu.",
+    "sectionDescription": "Název, popis, místo, fotografie a kontakty zobrazené na stránce akce.",
     "termsHint": "Ceny upravíte v přehledu akce v části Termíny a ceny.",
     "termsTitle": "Zobrazené termíny a ceny",
     "title": "Veřejné údaje",
@@ -550,6 +556,10 @@
     "hintOff": "Potvrzení účastníci rozdělení zatím nevidí.",
     "switch": "Zveřejnit rozdělení pokojů",
     "title": "Zveřejnění rozdělení"
+  },
+  "settings": {
+    "description": "Jak se přihlášky vyhodnocují a schvalují, co ukazuje veřejná stránka a zda lze akci smazat.",
+    "title": "Nastavení"
   },
   "terms": {
     "actions": "Akce termínu {{name}}",
