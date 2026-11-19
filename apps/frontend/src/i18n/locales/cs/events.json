@@ -61,14 +61,14 @@
     "afterOpenLocked": "Režim se uzamkne a nebude možné jej změnit.",
     "afterOpenVisible": "Zvolený režim bude vidět v přehledu akce.",
     "automatic": "Automaticky",
-    "automaticHint": "Přihlášky se vyhodnocují automaticky podle volné kapacity.",
+    "automaticHint": "Při přijetí přihlášky systém rozhodne podle kapacity termínu: potvrdí ji, nebo ji zařadí mezi náhradníky.",
     "change": "Změnit",
     "legend": "Režim vyhodnocování",
-    "lockedReason": "Přihlášky jsou otevřené, proto už režim nelze změnit.",
-    "lockedTitle": "Režim vyhodnocování",
-    "lockedValue": "{{mode}} · uzamčeno",
+    "lockNotice": "Režim je uzamčený",
+    "lockedReason": "Přihlášky už byly otevřeny. Režim proto nelze změnit, ani když přihlášky později zavřeš.",
+    "lockedTitle": "Vyhodnocování přihlášek",
     "manual": "Ručně",
-    "manualHint": "V ručním režimu organizátor vyhodnotí přihlášky i náhradníky.",
+    "manualHint": "Každou přihlášku vyhodnotíš ty. Ručně rozhoduješ také o náhradnících.",
     "overviewLabel": "Režim vyhodnocování",
     "save": "Uložit režim",
     "saveFailed": "Změnu se nepodařilo uložit",
@@ -565,6 +565,10 @@
     "hintOff": "Potvrzení účastníci rozdělení zatím nevidí.",
     "switch": "Zveřejnit rozdělení pokojů",
     "title": "Zveřejnění rozdělení"
+  },
+  "settings": {
+    "description": "Společná nastavení akce a jejího veřejného webu.",
+    "title": "Nastavení akce"
   },
   "terms": {
     "actions": "Akce termínu {{name}}",

@@ -157,12 +157,16 @@ describe("EventSettings", () => {
   it("explains why a locked mode cannot be changed", async () => {
     renderSettings({ ...event, applicationsOpen: true, evaluationModeLocked: true })
 
-    expect(await screen.findByText("Automatic · locked")).toBeInTheDocument()
+    expect(await screen.findByText("The mode is locked")).toBeVisible()
     expect(
-      screen.getByText("Applications are open, so the mode can no longer be changed."),
+      screen.getByText(
+        "Applications have already opened. The mode stays locked even if you close applications later.",
+      ),
     ).toBeInTheDocument()
     expect(screen.getByRole("radio", { name: "Automatic" })).toBeChecked()
     for (const radio of screen.getAllByRole("radio")) expect(radio).toBeDisabled()
+    expect(screen.getByRole("radio", { name: "Automatic" })).toBeDisabled()
+    expect(screen.getByRole("radio", { name: "Manual" })).toBeDisabled()
     expect(screen.queryByRole("button", { name: "Save mode" })).not.toBeInTheDocument()
   })
 

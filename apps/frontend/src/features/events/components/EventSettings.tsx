@@ -1,12 +1,13 @@
 import { useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { Info, Loader2 } from "lucide-react"
+import { Loader2, TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
+import { PageHeader } from "@/components/molecules/PageHeader"
 import { SettingsCard } from "@/components/molecules/SettingsCard"
-import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
@@ -31,7 +32,7 @@ const MODES = ["AUTOMATIC", "MANUAL"] as const
  * and the public page content (US-122).
  */
 // Figma (Design system): US-101 Volba režimu před otevřením přihlášek · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14825-13299
-// Figma (Design system): O24 Nastavení akce · uzamčený režim · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12282-1018
+// US-101 locked · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15741-4923 (mobile 15741-5004)
 // Figma (Design system): US-101 Režim vyhodnocování · Mobil 360 · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14840-3513
 export function EventSettings({ eventId }: { eventId: string }) {
   const { t } = useTranslation("events")
@@ -49,7 +50,11 @@ export function EventSettings({ eventId }: { eventId: string }) {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="mx-auto flex w-full max-w-196 flex-col gap-6">
+      <PageHeader
+        title={t("settings.title")}
+        description={t("settings.description")}
+      />
       {event.evaluationModeLocked ? (
         <LockedMode mode={event.evaluationMode} />
       ) : (
@@ -72,25 +77,16 @@ function LockedMode({ mode }: { mode: EvaluationMode }) {
   const { t } = useTranslation("events")
   return (
     <SettingsCard title={t("evaluationMode.lockedTitle")}>
-      <p>
-        {t("evaluationMode.lockedValue", {
-          mode: t(`evaluationMode.${mode === "AUTOMATIC" ? "automatic" : "manual"}`),
-        })}
-      </p>
       <RadioGroup
         disabled
         value={mode}
         aria-label={t("evaluationMode.legend")}
-        className="grid gap-3 sm:grid-cols-2"
+        className="grid gap-3"
       >
         {MODES.map((value) => (
           <div
             key={value}
-            className={
-              value === mode
-                ? "rounded-lg border border-primary bg-secondary p-4"
-                : "rounded-lg border p-4"
-            }
+            className={value === mode ? "rounded-lg border bg-accent p-4" : "rounded-lg border p-4"}
           >
             <div className="flex items-center gap-2">
               <RadioGroupItem
@@ -111,8 +107,12 @@ function LockedMode({ mode }: { mode: EvaluationMode }) {
           </div>
         ))}
       </RadioGroup>
-      <Alert role="note">
-        <Info aria-hidden />
+      <Alert
+        role="note"
+        className="bg-secondary"
+      >
+        <TriangleAlert aria-hidden />
+        <AlertTitle>{t("evaluationMode.lockNotice")}</AlertTitle>
         <AlertDescription>{t("evaluationMode.lockedReason")}</AlertDescription>
       </Alert>
     </SettingsCard>
