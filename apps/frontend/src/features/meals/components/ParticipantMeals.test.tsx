@@ -7,7 +7,12 @@ import type { OwnMeals } from "@/features/meals/api/meals"
 import { ParticipantMeals } from "@/features/meals/components/ParticipantMeals"
 
 const { navigate, success } = vi.hoisted(() => ({ navigate: vi.fn(), success: vi.fn() }))
-vi.mock("@tanstack/react-router", () => ({ useNavigate: () => navigate }))
+vi.mock("@tanstack/react-router", () => ({
+  useNavigate: () => navigate,
+  Link: ({ to, children }: { to: string; children: React.ReactNode }) => (
+    <a href={to}>{children}</a>
+  ),
+}))
 vi.mock("@/lib/notify", () => ({ notify: { success } }))
 
 const { getMeals, saveOwnMeals } = vi.hoisted(() => ({ getMeals: vi.fn(), saveOwnMeals: vi.fn() }))
@@ -56,8 +61,9 @@ describe("ParticipantMeals", () => {
 
   it("shows the participant, the event, the offered options and the saved values", async () => {
     setup()
-    expect(await screen.findByRole("heading", { name: "Meals · Adam Dvořák" })).toBeVisible()
-    expect(screen.getByText("Letní kemp Lipno 2027")).toBeVisible()
+    expect(await screen.findByRole("heading", { name: "Meals" })).toBeVisible()
+    expect(screen.getByText("Adam Dvořák · Letní kemp Lipno 2027")).toBeVisible()
+    expect(screen.getByRole("link", { name: "← Application" })).toBeVisible()
     expect(screen.getByRole("checkbox", { name: "Vegetarian" })).not.toBeChecked()
     expect(screen.getByRole("checkbox", { name: "Gluten-free" })).toBeChecked()
     expect(screen.getByLabelText("Allergies and other dietary restrictions")).toHaveValue("Peanuts")

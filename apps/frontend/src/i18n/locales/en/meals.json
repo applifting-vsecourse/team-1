@@ -24,11 +24,11 @@
   },
   "own": {
     "allergiesLabel": "Allergies and other dietary restrictions",
+    "backToApplication": "← Application",
     "noRestrictions": "I have no dietary restriction",
     "pageTitle": "Meals",
     "save": "Save meals",
     "saved": "Meals saved",
-    "specialRequestLabel": "Special request",
-    "title": "Meals · {{name}}"
+    "specialRequestLabel": "Special request"
   }
 }

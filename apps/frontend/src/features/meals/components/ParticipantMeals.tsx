@@ -4,12 +4,13 @@ import { useNavigate } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
+import { BackLink } from "@/components/atoms/BackLink"
+import { CheckboxRow } from "@/components/molecules/CheckboxRow"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { PageHeader } from "@/components/molecules/PageHeader"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { notify } from "@/lib/notify"
@@ -88,55 +89,39 @@ function MealsForm({ applicationId, meals }: { applicationId: string; meals: Own
 
   return (
     <form
-      className="flex flex-col gap-6"
+      className="flex max-w-196 flex-col gap-6"
       onSubmit={(event) => {
         event.preventDefault()
         mutation.mutate()
       }}
     >
+      <BackLink
+        to={ROUTES.participant.application}
+        params={{ applicationId }}
+      >
+        {t("own.backToApplication")}
+      </BackLink>
       <PageHeader
-        title={t("own.title", { name: `${meals.firstName} ${meals.lastName}` })}
-        description={meals.eventName}
+        title={t("own.pageTitle")}
+        description={`${meals.firstName} ${meals.lastName} · ${meals.eventName}`}
       />
       {/* US-150: confirms the step without any restriction; not drawn in Figma. */}
-      <div className="flex items-center gap-3 py-2">
-        <Checkbox
-          id="meal-none"
-          className="size-6"
-          checked={hasNone}
-          onCheckedChange={(isChecked) => setHasNone(isChecked === true)}
+      <CheckboxRow
+        id="meal-none"
+        label={t("own.noRestrictions")}
+        checked={hasNone}
+        onCheckedChange={(isChecked) => setHasNone(isChecked === true)}
+      />
+      {meals.options.map((option) => (
+        <CheckboxRow
+          key={option.id}
+          id={`meal-${option.id}`}
+          label={option.name}
+          checked={optionIds.has(option.id)}
+          disabled={hasNone}
+          onCheckedChange={(isChecked) => toggle(option.id, isChecked === true)}
         />
-        <Label
-          htmlFor="meal-none"
-          className="flex-1 cursor-pointer leading-5 font-normal"
-        >
-          {t("own.noRestrictions")}
-        </Label>
-      </div>
-      {meals.options.length > 0 ? (
-        <div className="flex flex-col gap-6">
-          {meals.options.map((option) => (
-            <div
-              key={option.id}
-              className="flex items-center gap-3 py-2"
-            >
-              <Checkbox
-                id={`meal-${option.id}`}
-                className="size-6"
-                checked={optionIds.has(option.id)}
-                disabled={hasNone}
-                onCheckedChange={(isChecked) => toggle(option.id, isChecked === true)}
-              />
-              <Label
-                htmlFor={`meal-${option.id}`}
-                className="flex-1 cursor-pointer leading-5 font-normal"
-              >
-                {option.name}
-              </Label>
-            </div>
-          ))}
-        </div>
-      ) : null}
+      ))}
       <div className="flex flex-col gap-2">
         <Label htmlFor="meal-allergies">{t("own.allergiesLabel")}</Label>
         <Textarea
