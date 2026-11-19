@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { LoaderCircle } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { Alert, AlertTitle } from "@/components/ui/alert"
@@ -41,8 +42,15 @@ export function SimulatePaymentButton({
         size="lg"
         className="w-full"
         disabled={mutation.isPending}
+        aria-busy={mutation.isPending}
         onClick={() => mutation.mutate()}
       >
+        {mutation.isPending && (
+          <LoaderCircle
+            className="size-5 motion-safe:animate-spin"
+            aria-hidden
+          />
+        )}
         {mutation.isError ? t("common:state.retry") : t("payment.simulation.paid")}
       </Button>
     </div>

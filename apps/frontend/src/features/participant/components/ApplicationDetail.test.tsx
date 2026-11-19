@@ -885,6 +885,16 @@ describe("ApplicationDetail", () => {
       })
     })
 
+    it("marks the term button busy while its simulated payment is pending", async () => {
+      post.mockReturnValue(new Promise(() => undefined))
+      const user = userEvent.setup()
+      renderDetail(application({ canSimulatePayment: true }))
+      const button = await screen.findByRole("button", { name: "I paid" })
+      await user.click(button)
+      expect(button).toBeDisabled()
+      expect(button).toHaveAttribute("aria-busy", "true")
+    })
+
     it("reports a failed simulation and retries only that term", async () => {
       post.mockRejectedValueOnce(new Error("Request failed")).mockResolvedValueOnce({})
       const user = userEvent.setup()

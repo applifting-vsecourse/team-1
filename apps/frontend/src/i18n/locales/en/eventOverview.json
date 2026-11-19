@@ -101,6 +101,7 @@
     "receipt": "Applications are evaluated in the order the server receives them. Applications are saved even when the term is full.",
     "sharedFull": "The shared capacity is full. The next application joins the waitlist. Each term is evaluated separately.",
     "sharedRule": "Confirmation depends on a free bed in the shared capacity. Each term is evaluated separately.",
+    "sharedTitle_few": "Shared capacity: {{confirmed}}/{{beds}} beds",
     "sharedTitle_one": "Shared capacity: {{confirmed}}/{{beds}} bed",
     "sharedTitle_other": "Shared capacity: {{confirmed}}/{{beds}} beds",
     "womenFull": "The women’s beds are full. The next woman joins the waitlist. A man can still take a free men’s bed. Each term is evaluated separately."

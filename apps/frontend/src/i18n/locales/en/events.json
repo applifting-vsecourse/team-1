@@ -543,6 +543,7 @@
     "deleteMaleImpact_many": "Men's capacity will decrease from {{before}} to {{count}} beds",
     "deleteMaleImpact_one": "Men's capacity will decrease from {{before}} to {{count}} bed",
     "deleteMaleImpact_other": "Men's capacity will decrease from {{before}} to {{count}} beds",
+    "deletePeople_few": "{{count}} people",
     "deletePeople_one": "{{count}} person",
     "deletePeople_other": "{{count}} people",
     "deleteRoom": "Delete room {{name}}",
