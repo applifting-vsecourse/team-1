@@ -28,7 +28,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ad0060397a354610c78aaf9c7ff170f311e5916c
+          ref: f639712a14c5870be64bcf5775a14a0cfce12902
           persist-credentials: false
 
       - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
@@ -121,6 +121,10 @@ jobs:
                 const id = await eventIdByPublicToken("demo-letni-kemp-2027")
                 for (const [screen, route] of [["new-event","/organizer/events/new"], ["organizer-account","/organizer/account"], ["overview","/organizer/events/" + id], ["organizer-meals","/organizer/events/"+id+"/meals"], ["meal-options","/organizer/events/"+id+"/meals/options"], ["payment-import","/organizer/events/"+id+"/payments/import"], ["cancellation","/organizer/events/"+id+"/payments/cancellation"], ["new-application","/organizer/events/"+id+"/applications/new"]]) {
                   await page.goto(route)
+                  if (screen === "organizer-meals") {
+                    await expect(page.getByRole("link",{name:"Back to event overview"})).toBeVisible()
+                    await expect(page.getByRole("table",{name:"Portions by diet"})).toBeVisible()
+                  }
                   await capture(screen)
                 }
                 const programEndpoint = "http://localhost:4190/api/organizer/events/" + id + "/program"
@@ -186,6 +190,11 @@ jobs:
                 await page.goto("/participant/applications/" + application.id)
                 await expect(page.locator('a[href$="/edit"]')).toBeVisible()
                 await page.screenshot({ path: "test-results/screenshots/participant-detail-" + width + ".png", fullPage: true, animations: "disabled" })
+                const stayAction=page.getByRole("button",{name:/^(Add late arrival or early departure|Edit arrival or departure)$/}).first()
+                await stayAction.click()
+                await expect(page.getByRole("dialog")).toBeVisible()
+                await page.keyboard.press("Escape")
+                await expect(stayAction).toBeFocused()
                 const detailURL = page.url()
                 for (const route of ["meals","health","program","account"]) {
                   await page.goto(route==="account"?"/participant/account":detailURL+"/"+route)
@@ -275,7 +284,7 @@ jobs:
                   assert header[:8] == bytes.fromhex("89504e470d0a1a0a")
                   w, h = struct.unpack(">II", header[16:24])
                   assert w == width and h > 0, (name, w, h)
-                  dest = Path("577") / f"{screen}-{width}-ad00603.png"
+                  dest = Path("577") / f"{screen}-{width}-f639712.png"
                   if dest.exists():
                       assert dest.read_bytes() == p.read_bytes(), dest
                       continue
