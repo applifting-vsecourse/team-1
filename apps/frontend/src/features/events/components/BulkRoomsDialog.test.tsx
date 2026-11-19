@@ -35,6 +35,7 @@ const term: TermRooms = {
   startsOn: "2027-07-19",
   endsOn: "2027-07-25",
   roomMode: "SHARED",
+  roomsPublished: false,
   rooms: [
     { id: "a", name: "7", capacity: 4, extraBeds: 0, beds: 4, gender: null },
     { id: "b", name: "Hall", capacity: 4, extraBeds: 0, beds: 4, gender: null },
