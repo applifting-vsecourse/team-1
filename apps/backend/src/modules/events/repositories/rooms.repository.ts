@@ -130,6 +130,33 @@ export class RoomsRepository {
     })
   }
 
+  /** Creates all rooms or none: the mode must match their gender and no name may already be used in the term. */
+  async createMany(scope: TermScope, inputs: RoomInput[]): Promise<void> {
+    const { termId, organizationId } = scope
+    await this.write(scope, async (tx, mode) => {
+      if (inputs.some((input) => (mode === "GENDERED") !== (input.gender !== null))) {
+        throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
+      }
+      const taken = new Set(
+        (await tx.room.findMany({ where: { termId, organizationId } })).map((room) =>
+          room.name.toLowerCase(),
+        ),
+      )
+      const colliding = inputs.filter((input) => taken.has(input.name.toLowerCase()))
+      if (colliding.length) {
+        throw new AppException(
+          HttpStatus.CONFLICT,
+          "ROOM_BULK_NAMES_TAKEN",
+          "Rooms with these names already exist in the term",
+          { names: colliding.map((input) => input.name).join(", ") },
+        )
+      }
+      await tx.room.createMany({
+        data: inputs.map((input) => ({ ...input, termId, organizationId })),
+      })
+    })
+  }
+
   /** Sets the number of extra beds of a room; under the event lock like every room write. Never blocked by occupancy. */
   async setExtraBeds(scope: TermScope, id: string, extraBeds: number): Promise<void> {
     const { termId, organizationId } = scope

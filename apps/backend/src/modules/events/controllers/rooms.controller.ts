@@ -4,6 +4,7 @@ import {
   RoomModeRequestDto,
   RoomRequestDto,
   RoomsPublishedRequestDto,
+  RoomsBulkRequestDto,
 } from "@/modules/events/controllers/dto/room.request.dto"
 import { RoomsResponseDto } from "@/modules/events/controllers/dto/rooms.response.dto"
 import { RoomsService } from "@/modules/events/services/rooms.service"
@@ -90,6 +91,32 @@ export class RoomsController {
     @Body() body: RoomRequestDto,
   ): Promise<void> {
     await this.rooms.save(user, eventId, termId, { ...body, gender: body.gender ?? null })
+  }
+
+  @Post("rooms/bulk")
+  @HttpCode(204)
+  @ApiOperation({
+    summary: "Create several identical rooms at once with consecutive numbers",
+    description:
+      "Creates `count` rooms with `capacity` beds named firstNumber, firstNumber + 1, … All or nothing. The preview (rooms = count, beds = count × capacity) is computed by the client. The rooms are ordinary rooms, edited one by one as in US-14.",
+  })
+  @ApiResponse({ status: 204 })
+  @ApiResponse({
+    status: 400,
+    description: "Invalid count, capacity or first number, or gender not matching the room mode",
+  })
+  @ApiResponse({
+    status: 409,
+    description:
+      "ROOM_BULK_NAMES_TAKEN: some of the numbers are already used as room names in this term, listed in params.names",
+  })
+  async bulk(
+    @User() user: Identity,
+    @Param("eventId") eventId: string,
+    @Param("termId") termId: string,
+    @Body() body: RoomsBulkRequestDto,
+  ): Promise<void> {
+    await this.rooms.createBulk(user, eventId, termId, body, body.gender ?? null)
   }
 
   @Post("rooms/copy")

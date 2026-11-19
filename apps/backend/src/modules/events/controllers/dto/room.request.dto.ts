@@ -1,3 +1,7 @@
+import {
+  BULK_ROOMS_MAX_COUNT,
+  BULK_ROOMS_MAX_FIRST_NUMBER,
+} from "@/modules/events/domain/bulk-rooms"
 import { RoomCopyStrategy, RoomMode } from "@/modules/events/domain/rooms"
 import { Gender } from "@/shared/domain/gender"
 import { ApiProperty } from "@nestjs/swagger"
@@ -94,4 +98,47 @@ export class RoomCopyRequestDto {
   })
   @IsIn(["ADD", "REPLACE"])
   strategy!: RoomCopyStrategy
+}
+
+export class RoomsBulkRequestDto {
+  @ApiProperty({
+    minimum: 1,
+    maximum: BULK_ROOMS_MAX_COUNT,
+    description: "How many rooms to create",
+  })
+  @IsInt()
+  @Min(1)
+  @Max(BULK_ROOMS_MAX_COUNT)
+  count!: number
+
+  @ApiProperty({
+    minimum: 1,
+    maximum: 2147483647,
+    description: "Beds (capacity) of every created room",
+  })
+  @IsInt()
+  @Min(1)
+  @Max(2147483647)
+  capacity!: number
+
+  @ApiProperty({
+    minimum: 1,
+    maximum: BULK_ROOMS_MAX_FIRST_NUMBER,
+    example: 101,
+    description: "Number of the first room; the others follow one by one, the name is the number",
+  })
+  @IsInt()
+  @Min(1)
+  @Max(BULK_ROOMS_MAX_FIRST_NUMBER)
+  firstNumber!: number
+
+  @ApiProperty({
+    enum: ["FEMALE", "MALE"],
+    nullable: true,
+    required: false,
+    description: "Required in gendered room mode, must be empty in shared room mode",
+  })
+  @ValidateIf((_object, value: unknown) => value !== null && value !== undefined)
+  @IsIn(["FEMALE", "MALE"])
+  gender?: Gender | null
 }

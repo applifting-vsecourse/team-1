@@ -44,6 +44,7 @@
   "REFUND_TERM_REQUIRED": "A refund must be recorded for a specific term.",
   "ROOM_ASSIGNMENT_NO_MATCHING_ROOM": "The other term has no room with the same name.",
   "ROOM_ASSIGNMENT_STATUS_INVALID": "Only confirmed participants and those waiting for evaluation can be assigned to a room.",
+  "ROOM_BULK_NAMES_TAKEN": "The term already has rooms numbered {{names}}. Choose another first room number, or rename or delete them first.",
   "ROOM_COPY_NAMES_TAKEN": "The term already has rooms named {{names}}. Rename or delete them first, or replace the existing rooms instead.",
   "ROOM_FULL": "This room has no free bed.",
   "ROOM_NAME_TAKEN": "A room with this name already exists in the event.",
