@@ -10,6 +10,8 @@ export const healthSchema = z.object({
   lastName: z.string(),
   /** `null` while the participant has not filled it in. */
   note: z.string().nullable(),
+  /** The participant confirmed having no health restriction (US-150); never with a note. */
+  noRestriction: z.boolean(),
   /** When the explicit consent was given (ISO datetime); `null` together with the note. */
   consentAt: z.string().datetime().nullable(),
   /** The participant's change request awaiting the organizer; empty note = removal. */
@@ -31,7 +33,7 @@ export const ownHealthQueryOptions = (applicationId: string) =>
 /** `PUT /api/participant/applications/:id/health` — an empty note removes it. */
 export async function saveHealth(
   applicationId: string,
-  values: { note: string; consent: boolean },
+  values: { note: string; consent: boolean; noRestriction?: boolean },
 ): Promise<Health> {
   return healthSchema.parse(await api.put(ownPath(applicationId), { json: values }).json())
 }

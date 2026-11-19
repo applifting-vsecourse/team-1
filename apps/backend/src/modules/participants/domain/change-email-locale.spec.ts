@@ -6,8 +6,12 @@ describe("resolveChangeEmailLocale (D-078)", () => {
   })
 
   it("takes the language of the first application when the user has set none", () => {
-    expect(resolveChangeEmailLocale({ userLocale: "en", firstApplicationLocale: "cs" })).toBe("cs")
-    expect(resolveChangeEmailLocale({ userLocale: "en", firstApplicationLocale: "en" })).toBe("en")
+    expect(resolveChangeEmailLocale({ userLocale: null, firstApplicationLocale: "cs" })).toBe("cs")
+    expect(resolveChangeEmailLocale({ userLocale: null, firstApplicationLocale: "en" })).toBe("en")
+  })
+
+  it("keeps a deliberately chosen English, even when the first application was Czech", () => {
+    expect(resolveChangeEmailLocale({ userLocale: "en", firstApplicationLocale: "cs" })).toBe("en")
   })
 
   it("takes the language of the application when there is no account", () => {

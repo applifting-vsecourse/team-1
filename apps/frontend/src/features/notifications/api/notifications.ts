@@ -14,6 +14,7 @@ export const NOTIFICATION_KINDS = [
   "NO_BED_FREED",
   "CANCELLED_BY_ORGANIZER",
   "CANCELLED",
+  "TERM_CANCELLED",
   // PAYMENT
   "PAYMENT_RECORDED",
   "PAYMENT_CANCELLED",
@@ -24,7 +25,7 @@ export const NOTIFICATION_KINDS = [
 ] as const
 export type NotificationKind = (typeof NOTIFICATION_KINDS)[number]
 
-const termStatusSchema = z.enum(["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED"])
+const termStatusSchema = z.enum(["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED", "ARCHIVED"])
 
 const notificationSchema = z.object({
   id: z.string(),

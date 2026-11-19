@@ -30,6 +30,7 @@ run("pnpm build")
 await recreateDatabase(databaseUrl)
 run("npx prisma migrate deploy")
 run("node dist/scripts/seed/seed.script.js")
+await clearSeedLanguages(databaseUrl)
 
 // E-mails go to the backend console (console mailer); a copy of the output is
 // kept in `mailLogPath` so tests can read subjects (tests/support/mail.ts).
@@ -50,6 +51,20 @@ for (const [stream, target] of [
 }
 for (const signal of ["SIGINT", "SIGTERM"]) process.on(signal, () => server.kill(signal))
 server.on("exit", (code) => process.exit(code ?? 0))
+
+/**
+ * The seeded accounts have a preferred language (Czech), which the app applies after sign-in (US-128).
+ * The journeys use English texts, so the seeded accounts get none: the browser language (en-GB) decides.
+ */
+async function clearSeedLanguages(url) {
+  const client = new pg.Client({ connectionString: url })
+  await client.connect()
+  try {
+    await client.query(`UPDATE "user" SET locale = NULL`)
+  } finally {
+    await client.end()
+  }
+}
 
 /** Every run starts from an empty database, so tests never depend on leftovers. */
 async function recreateDatabase(url) {

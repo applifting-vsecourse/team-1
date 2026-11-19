@@ -73,8 +73,9 @@ export class EmailChangeService {
   /** A failed notice must not fail the change: the link to the new address is already out. */
   private async notifyOldAddress(user: Identity, newEmail: string): Promise<void> {
     try {
-      const html = await renderEmail(ChangeEmailNotice, { locale: user.locale, newEmail })
-      await this.email.sendEmail(user.email, changeEmailNoticeSubject(user.locale), html)
+      const locale = user.locale ?? (await this.repository.findEmailLocale(user.id))
+      const html = await renderEmail(ChangeEmailNotice, { locale, newEmail })
+      await this.email.sendEmail(user.email, changeEmailNoticeSubject(locale), html)
     } catch (error) {
       this.logger.warn(
         `Notice about an e-mail change to ${user.email} was not sent: ${String(error)}`,

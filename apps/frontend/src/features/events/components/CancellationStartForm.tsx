@@ -1,14 +1,15 @@
 import { useState, type FormEvent } from "react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { Loader2 } from "lucide-react"
+import { Loader2, ShieldCheck } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { DateField } from "@/components/molecules/DateField"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { SettingsCard } from "@/components/molecules/SettingsCard"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
 import { formatDate } from "@/lib/date"
 import { isIsoDate, todayIsoInAppZone } from "@/lib/date-input"
 import { notify } from "@/lib/notify"
@@ -76,19 +77,23 @@ export function CancellationStartForm({ event }: { event: OrganizerEvent }) {
   }
 
   return (
-    <SettingsCard title={t("cancellationStart.title")}>
+    <SettingsCard
+      icon={ShieldCheck}
+      title={t("cancellationStart.title")}
+      description={t("cancellationStart.description")}
+    >
       <form
         noValidate
-        className="flex flex-col gap-4"
+        className="flex flex-1 flex-col gap-4"
         onSubmit={submit}
       >
         <div className="flex min-h-10 items-center gap-3">
-          <Checkbox
+          <Switch
             id="cancellation-start-enabled"
             checked={isEnabled}
             disabled={mutation.isPending}
-            onCheckedChange={(checked) => {
-              updateDraft({ isEnabled: checked === true, date })
+            onCheckedChange={(isChecked) => {
+              updateDraft({ isEnabled: isChecked, date })
               setHasAttempted(false)
               mutation.reset()
             }}
@@ -99,6 +104,12 @@ export function CancellationStartForm({ event }: { event: OrganizerEvent }) {
           >
             {t("cancellationStart.enable")}
           </Label>
+          <Badge
+            variant={isEnabled ? "success" : "secondary"}
+            className="ml-auto"
+          >
+            {t(isEnabled ? "cancellationStart.on" : "cancellationStart.off")}
+          </Badge>
         </div>
         {isEnabled ? (
           <div className="flex flex-col gap-2">
@@ -125,7 +136,9 @@ export function CancellationStartForm({ event }: { event: OrganizerEvent }) {
             ) : null}
           </div>
         ) : null}
-        <p>{t(isEnabled ? "cancellationStart.afterDate" : "cancellationStart.noDate")}</p>
+        <p className="mt-auto text-sm text-muted-foreground">
+          {t(isEnabled ? "cancellationStart.afterDate" : "cancellationStart.noDate")}
+        </p>
         {mutation.isError ? (
           <ErrorState
             title={t("cancellationStart.saveFailed")}

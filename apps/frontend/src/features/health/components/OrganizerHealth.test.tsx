@@ -29,6 +29,7 @@ const health: Health = {
   firstName: "Adam",
   lastName: "Dvořák",
   note: "Astma · inhalátor u sebe.",
+  noRestriction: false,
   consentAt: "2026-11-05T13:30:00.000Z",
   pendingRequest: null,
 }
@@ -62,6 +63,13 @@ describe("OrganizerHealth", () => {
   it("links back to the application", async () => {
     setup(health)
     expect(await screen.findByRole("link", { name: "← Application" })).toBeInTheDocument()
+  })
+
+  it("tells a confirmed absence of a restriction from an unfilled one (US-150)", async () => {
+    setup({ ...health, note: null, consentAt: null, noRestriction: true })
+    expect(
+      await screen.findByText("The participant confirmed having no health restriction."),
+    ).toBeInTheDocument()
   })
 
   it("says so when nothing was entered", async () => {

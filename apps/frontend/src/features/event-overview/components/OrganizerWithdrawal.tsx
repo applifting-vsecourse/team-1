@@ -50,7 +50,7 @@ export function OrganizerWithdrawal({
   onClose,
 }: {
   applicationId: string
-  /** Terms the application is in now (not cancelled). */
+  /** Active terms only (neither cancelled nor archived). */
   terms: TermStatusDetail[]
   /** The term the dialog opens on; null withdraws from the whole application. */
   initialTermId: string | null
@@ -64,7 +64,19 @@ export function OrganizerWithdrawal({
   const termIds = isWhole ? terms.map((term) => term.termId) : [scope]
   const preview = useQuery(withdrawalPreviewQueryOptions(applicationId, termIds))
   const mutation = useMutation({
-    mutationFn: () => withdrawTerms(applicationId, termIds),
+    mutationFn: () =>
+      withdrawTerms(
+        applicationId,
+        termIds,
+        (preview.data?.terms ?? [])
+          .filter((row) => row.isWithdrawn)
+          .map((row) => ({
+            termId: row.termId,
+            applicationId: row.substitute?.applicationId ?? null,
+          })),
+      ),
+    // The waitlist may have changed since the preview (409): show the current substitute again.
+    onError: () => client.invalidateQueries({ queryKey: ["eventOverview", "withdrawalPreview"] }),
     onSuccess: async () => {
       onClose()
       notify.success(t("withdrawal.done"))
@@ -84,6 +96,10 @@ export function OrganizerWithdrawal({
       : t("withdrawal.submitWholeAll")
   const hasOthers = !isWhole && terms.length > 1
   const impactRows = preview.data?.terms.filter((row) => row.isWithdrawn) ?? []
+  const substituteRows = impactRows.flatMap((row) => {
+    const term = terms.find((candidate) => candidate.termId === row.termId)
+    return row.substitute && term ? [{ row, term }] : []
+  })
 
   return (
     <Dialog
@@ -151,14 +167,23 @@ export function OrganizerWithdrawal({
                     className="flex flex-col gap-3 border-t pt-4"
                   >
                     <p className="font-medium">{termTitle(term)}</p>
-                    <dl className="grid grid-cols-3 gap-3">
-                      <ImpactFigure label={t("withdrawal.paid")}>
+                    <dl className="flex flex-col gap-2 sm:grid sm:grid-cols-3 sm:gap-3">
+                      <ImpactFigure
+                        label={t("withdrawal.paid")}
+                        className="flex-row items-baseline justify-between gap-3 sm:flex-col sm:items-stretch sm:justify-start sm:gap-1"
+                      >
                         <MoneyAmount amountCzk={row.paidCzk} />
                       </ImpactFigure>
-                      <ImpactFigure label={t("withdrawal.debt")}>
+                      <ImpactFigure
+                        label={t("withdrawal.debt")}
+                        className="flex-row items-baseline justify-between gap-3 sm:flex-col sm:items-stretch sm:justify-start sm:gap-1"
+                      >
                         <MoneyAmount amountCzk={row.debtCzk} />
                       </ImpactFigure>
-                      <ImpactFigure label={t("withdrawal.overpaymentLabel")}>
+                      <ImpactFigure
+                        label={t("withdrawal.overpaymentLabel")}
+                        className="flex-row items-baseline justify-between gap-3 sm:flex-col sm:items-stretch sm:justify-start sm:gap-1"
+                      >
                         <MoneyAmount amountCzk={row.overpaymentCzk} />
                       </ImpactFigure>
                     </dl>
@@ -172,6 +197,20 @@ export function OrganizerWithdrawal({
               ) : null}
             </section>
           ) : null}
+          {/* US-546: the freed bed is filled by the system, so say who gets it before confirming.
+              Figma: no frame yet (issue #546 is `design: needed`), built from the kit's Alert. */}
+          {substituteRows.map(({ row, term }) => (
+            <Alert key={row.termId}>
+              <TriangleAlert aria-hidden />
+              <AlertTitle className="line-clamp-none">{t("withdrawal.substituteTitle")}</AlertTitle>
+              <AlertDescription>
+                {t("withdrawal.substituteDescription", {
+                  term: termDates(term),
+                  name: `${row.substitute?.firstName} ${row.substitute?.lastName}`,
+                })}
+              </AlertDescription>
+            </Alert>
+          ))}
           <Alert>
             <TriangleAlert aria-hidden />
             <AlertTitle className="line-clamp-none">{t("withdrawal.noRefundTitle")}</AlertTitle>

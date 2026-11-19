@@ -121,6 +121,46 @@ describe("meals (integration)", () => {
     })
   })
 
+  it("confirms having no restriction, shows it to the organizer and cancels it on a later entry", async () => {
+    const decided = async (): Promise<boolean> =>
+      (
+        await (
+          await request("GET", `/participant/applications/${applicationId}`, participant)
+        ).json()
+      ).mealsDecided
+    const own = await (await request("GET", ownPath(), participant)).json()
+    const [first] = own.options as Option[]
+    const clear = { optionIds: [], allergies: "", specialRequest: "" }
+
+    await request("PUT", ownPath(), participant, clear)
+    expect(await decided()).toBe(false)
+
+    const confirmed = await request("PUT", ownPath(), participant, {
+      ...clear,
+      noRestrictions: true,
+    })
+    expect(confirmed.status).toBe(200)
+    expect(await confirmed.json()).toMatchObject({ noRestrictions: true })
+    expect(await decided()).toBe(true)
+
+    const contradiction = await request("PUT", ownPath(), participant, {
+      ...clear,
+      allergies: "Peanuts",
+      noRestrictions: true,
+    })
+    expect(contradiction.status).toBe(400)
+
+    const later = await request("PUT", ownPath(), participant, { ...clear, optionIds: [first!.id] })
+    expect(await later.json()).toMatchObject({ noRestrictions: false })
+    expect(await decided()).toBe(true)
+    // Put back what the other tests expect.
+    await request("PUT", ownPath(), participant, {
+      optionIds: own.selectedOptionIds,
+      allergies: own.allergies ?? "",
+      specialRequest: own.specialRequest ?? "",
+    })
+  })
+
   it("refuses an unknown option and someone else's application", async () => {
     expect(
       (

@@ -7,6 +7,7 @@ import {
   allocatePayment,
   computePayableAmount,
   computeRefundableAmount,
+  computeSummaryPayableAmount,
   computeTermDue,
   computeTermOwed,
   computeTermPaid,
@@ -48,6 +49,7 @@ const toDomain = (row: Row): PaymentApplication => ({
   birthDate: row.birthDate,
   gender: row.gender,
   email: row.email,
+  phone: row.phone,
   terms: row.terms.map((applicationTerm) => ({
     applicationTermId: applicationTerm.id,
     termId: applicationTerm.term.id,
@@ -95,7 +97,7 @@ export type RecordPaymentInput = {
   isRefund?: boolean
   correctsReceiptId?: string
   /** Defaults to a manually recorded payment. */
-  source?: "MANUAL" | "SIMULATION"
+  source?: "MANUAL" | "SIMULATION" | "BANK_IMPORT"
 }
 
 export type PaymentDebtNotice = {
@@ -410,12 +412,10 @@ export class PaymentsRepository {
         throw new AppException(HttpStatus.CONFLICT, "REFUND_EXCEEDS_OVERPAYMENT")
       rows = [{ applicationTermId: term.applicationTermId, amountCzk: isRefund ? -amount : amount }]
     } else {
-      const amount = resolvePaymentAmount(
-        input.amountCzk,
-        computePayableAmount(terms.map((term) => term.owedCzk)),
-      )
+      const amount = resolvePaymentAmount(input.amountCzk, computeSummaryPayableAmount(terms))
       assertAmount(amount)
       rows = allocatePayment(amount, terms)
+      if (rows.length === 0) throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
     }
 
     await tx.payment.createMany({

@@ -4,6 +4,7 @@ import { Copy } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
+import { CARD_GRID_WIDE, CardGrid } from "@/components/molecules/CardGrid"
 import { Checklist } from "@/components/molecules/Checklist"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
@@ -49,8 +50,8 @@ export function EventSetup({ eventId }: { eventId: string }) {
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <p className="text-sm">
+    <CardGrid>
+      <p className={`${CARD_GRID_WIDE} text-sm`}>
         <span className="text-muted-foreground">{t("evaluationMode.overviewLabel")}: </span>
         <span className="font-medium">
           {t(`evaluationMode.${event.evaluationMode === "AUTOMATIC" ? "automatic" : "manual"}`)}
@@ -76,7 +77,7 @@ export function EventSetup({ eventId }: { eventId: string }) {
       ) : (
         <MissingSteps event={event} />
       )}
-    </div>
+    </CardGrid>
   )
 }
 

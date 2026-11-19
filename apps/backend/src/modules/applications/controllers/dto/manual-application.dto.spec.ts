@@ -2,21 +2,25 @@ import { plainToInstance } from "class-transformer"
 import { validate } from "class-validator"
 import { ManualApplicationRequestDto } from "./manual-application.dto"
 
+const hasPhoneError = async (phone: unknown): Promise<boolean> =>
+  (await validate(plainToInstance(ManualApplicationRequestDto, { phone }))).some(
+    (error) => error.property === "phone",
+  )
+
+// The format of a filled-in phone is checked in the service (phone.spec.ts, the int specs), so
+// that the error is the localized INVALID_PHONE; the DTO only keeps out what is not text.
 describe("ManualApplicationRequestDto phone", () => {
-  it.each(["       ", "-------", "( ) - ( )", "123 456", "+", "123456x", 777123456])(
-    "rejects a phone without seven real digits or with invalid characters: %j",
+  it.each([777123456, true, {}, "1".repeat(41)])(
+    "rejects a phone that is not usable text: %j",
     async (phone) => {
-      const dto = plainToInstance(ManualApplicationRequestDto, { phone })
-      expect((await validate(dto)).some((error) => error.property === "phone")).toBe(true)
+      expect(await hasPhoneError(phone)).toBe(true)
     },
   )
 
-  it.each([
-    [" +420 (777) 123-456 ", "+420777123456"],
-    ["1234567", "1234567"],
-  ])("normalizes a valid formatted phone %j before validation", async (phone, normalized) => {
-    const dto = plainToInstance(ManualApplicationRequestDto, { phone })
-    expect(dto.phone).toBe(normalized)
-    expect((await validate(dto)).some((error) => error.property === "phone")).toBe(false)
-  })
+  it.each([undefined, null, "", "+420 777 123 456"])(
+    "lets %j through to the service",
+    async (phone) => {
+      expect(await hasPhoneError(phone)).toBe(false)
+    },
+  )
 })

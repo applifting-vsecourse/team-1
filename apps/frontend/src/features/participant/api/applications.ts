@@ -9,12 +9,30 @@ const termSchema = z.object({
   /** ISO date, `2027-07-04`. */
   startsOn: z.string(),
   endsOn: z.string(),
-  status: z.enum(["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED"]),
+  status: z.enum(["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED", "ARCHIVED"]),
   priceCzk: z.number().int(),
+  archivedOverpaymentCzk: z.number().int().nonnegative().optional(),
   /** The organizer offers transport to this term (US-65). */
   transportOffered: z.boolean(),
   /** The participant chose a transport or their own transport for this term. */
   transportDecided: z.boolean(),
+  /**
+   * Only for a confirmed term whose room assignment is published; `name` is `null` while the
+   * participant has no room yet (US-144).
+   */
+  room: z.object({ name: z.string().nullable() }).optional(),
+  /**
+   * Names the participant wishes to room with; only for a confirmed term (US-146). Absent for any
+   * other term, so there is nothing to show or write.
+   */
+  roomWishes: z.array(z.string()).optional(),
+  /**
+   * Later arrival and earlier departure, Prague wall time `yyyy-MM-ddTHH:mm` or `null` (US-143).
+   * Absent for a cancelled or archived term, so there is nothing to show or write.
+   */
+  stay: z
+    .object({ lateArrival: z.string().nullable(), earlyDeparture: z.string().nullable() })
+    .optional(),
 })
 export type MyApplicationTerm = z.infer<typeof termSchema>
 
@@ -53,6 +71,10 @@ export const myApplicationSchema = z.object({
   /** The summary variable symbol of the application (number × 1000), `48000`. */
   variableSymbol: z.string(),
   terms: z.array(termSchema),
+  /** Meal restrictions entered; application-wide. */
+  mealsDecided: z.boolean(),
+  /** Health restriction entered; application-wide. */
+  healthDecided: z.boolean(),
   amountDueCzk: z.number().int(),
   amountPaidCzk: z.number().int(),
   /** Due − paid; negative is an overpayment. */
@@ -149,4 +171,22 @@ export async function changeParticipantTerms(id: string, termIds: string[]) {
       })
       .json(),
   )
+}
+
+/** `PUT …/terms/:termId/room-wishes` — writes the wishes of a confirmed term; no names delete them (US-146). */
+export async function saveRoomWishes(
+  applicationId: string,
+  termId: string,
+  names: string[],
+): Promise<void> {
+  await api.put(`participant/applications/${applicationId}/terms/${termId}/room-wishes`, {
+    json: { names },
+  })
+}
+
+export type Stay = NonNullable<MyApplicationTerm["stay"]>
+
+/** `PUT …/terms/:termId/stay` — sets, changes or (both `null`) deletes arrival and departure (US-143). */
+export async function saveStay(applicationId: string, termId: string, stay: Stay): Promise<void> {
+  await api.put(`participant/applications/${applicationId}/terms/${termId}/stay`, { json: stay })
 }

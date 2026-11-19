@@ -52,6 +52,7 @@ const term = (overrides: object) => ({
   capacity: 60,
   confirmedCount: 0,
   waitlistedCount: 0,
+  toEvaluateCount: 0,
   cancelledAt: null,
   cancelReason: null,
   ...overrides,
@@ -171,7 +172,7 @@ describe("EventTerms", () => {
     const dialog = await screen.findByRole("dialog")
 
     const dates = within(dialog).getByLabelText("Start date *")
-    const name = within(dialog).getByLabelText("Term name (optional)")
+    const name = within(dialog).getByLabelText("Term name")
     const price = within(dialog).getByLabelText("Term price (CZK) *")
     expect(name).toHaveAttribute("placeholder", "e.g. 1st turn, class 5, ages 8–10")
     expect(name).not.toBeRequired()
@@ -193,7 +194,7 @@ describe("EventTerms", () => {
     await userEvent.click(await screen.findByRole("button", { name: "Add term" }))
     const dialog = await screen.findByRole("dialog")
 
-    await userEvent.type(within(dialog).getByLabelText("Term name (optional)"), "Letní turnus 3")
+    await userEvent.type(within(dialog).getByLabelText("Term name"), "Letní turnus 3")
     await userEvent.type(within(dialog).getByLabelText("Start date *"), "09/08/2027")
     await userEvent.type(within(dialog).getByLabelText("End date *"), "08/08/2027")
     await userEvent.type(within(dialog).getByLabelText("Term price (CZK) *"), "7600")
@@ -209,7 +210,7 @@ describe("EventTerms", () => {
     await userEvent.click(await screen.findByRole("button", { name: "Add term" }))
     const dialog = await screen.findByRole("dialog")
 
-    await userEvent.type(within(dialog).getByLabelText("Term name (optional)"), "Letní turnus 3")
+    await userEvent.type(within(dialog).getByLabelText("Term name"), "Letní turnus 3")
     await userEvent.type(within(dialog).getByLabelText("Start date *"), "31/02/2027")
     await userEvent.type(within(dialog).getByLabelText("End date *"), "15/08/2027")
     await userEvent.type(within(dialog).getByLabelText("Term price (CZK) *"), "7600")
@@ -226,7 +227,7 @@ describe("EventTerms", () => {
     await userEvent.click(await screen.findByRole("button", { name: "Add term" }))
     const dialog = await screen.findByRole("dialog")
 
-    await userEvent.type(within(dialog).getByLabelText("Term name (optional)"), "Letní turnus 3")
+    await userEvent.type(within(dialog).getByLabelText("Term name"), "Letní turnus 3")
     await userEvent.type(within(dialog).getByLabelText("Start date *"), "09/08/2027")
     await userEvent.type(within(dialog).getByLabelText("End date *"), "15/08/2027")
     await userEvent.click(within(dialog).getByRole("button", { name: "Add term" }))
@@ -247,7 +248,7 @@ describe("EventTerms", () => {
     await userEvent.click(await screen.findByRole("button", { name: "Add term" }))
     const dialog = await screen.findByRole("dialog")
 
-    await userEvent.type(within(dialog).getByLabelText("Term name (optional)"), "Letní turnus 1")
+    await userEvent.type(within(dialog).getByLabelText("Term name"), "Letní turnus 1")
     await userEvent.type(within(dialog).getByLabelText("Start date *"), "12/07/2027")
     await userEvent.type(within(dialog).getByLabelText("End date *"), "18/07/2027")
     await userEvent.type(within(dialog).getByLabelText("Term price (CZK) *"), "6900")
@@ -269,7 +270,7 @@ describe("EventTerms", () => {
     await userEvent.click(await screen.findByRole("button", { name: "Add term" }))
     const dialog = await screen.findByRole("dialog")
 
-    await userEvent.type(within(dialog).getByLabelText("Term name (optional)"), "Zdarma")
+    await userEvent.type(within(dialog).getByLabelText("Term name"), "Zdarma")
     await userEvent.type(within(dialog).getByLabelText("Start date *"), "12/07/2027")
     await userEvent.type(within(dialog).getByLabelText("End date *"), "18/07/2027")
     await userEvent.type(within(dialog).getByLabelText("Term price (CZK) *"), "0")
@@ -279,19 +280,150 @@ describe("EventTerms", () => {
     expect(sentBodies[0]).toMatchObject({ priceCzk: 0 })
   })
 
-  it("asks for a reason and shows what the cancellation affects", async () => {
-    const fetchMock = renderTerms()
+  const openCancelDialog = async () => {
     const row = (await screen.findByText(/^Srpnový turnus · /)).closest("li") as HTMLElement
     await userEvent.click(within(row).getByRole("button", { name: "Actions for Srpnový turnus" }))
     await userEvent.click(await screen.findByRole("menuitem", { name: "Cancel term" }))
-    const dialog = await screen.findByRole("dialog")
+    return screen.findByRole("dialog")
+  }
+
+  it("warns the cancellation is irreversible and needs the agreement before it can be sent", async () => {
+    renderTerms()
+    const dialog = await openCancelDialog()
+
+    expect(within(dialog).getByText("This cannot be undone")).toBeInTheDocument()
+    expect(within(dialog).getByText("19 applications in this term")).toBeInTheDocument()
+    expect(
+      within(dialog).getByText("18 confirmed · 1 waitlisted · 0 to evaluate"),
+    ).toBeInTheDocument()
+    const confirm = within(dialog).getByRole("button", { name: "Cancel term" })
+    expect(confirm).toBeDisabled()
+
+    await userEvent.click(
+      within(dialog).getByRole("checkbox", {
+        name: "I agree to cancel the term and 19 applications in it.",
+      }),
+    )
+    expect(confirm).toBeEnabled()
+    // The reason is optional: the field carries no required mark.
+    expect(within(dialog).queryByText("Fill in this field.")).not.toBeInTheDocument()
+  })
+
+  it("cancels without a reason", async () => {
+    renderTerms(terms, {
+      ...terms[1],
+      cancelledAt: "2027-03-01T10:00:00.000Z",
+      cancelledApplications: 19,
+    })
+    const dialog = await openCancelDialog()
+
+    await userEvent.click(within(dialog).getByRole("checkbox"))
+    await userEvent.click(within(dialog).getByRole("button", { name: "Cancel term" }))
+
+    await screen.findByText("19 applications in this term were cancelled.")
+    expect(sentBodies).toEqual([{}])
+  })
+
+  it("cancels after the agreement and shows how many applications it cancelled", async () => {
+    renderTerms(terms, {
+      ...terms[1],
+      cancelledAt: "2027-03-01T10:00:00.000Z",
+      cancelReason: "Areál",
+      cancelledApplications: 19,
+    })
+    const dialog = await openCancelDialog()
+
+    await userEvent.type(within(dialog).getByLabelText("Reason for cancelling"), "Areál")
+    await userEvent.click(within(dialog).getByRole("checkbox"))
+    await userEvent.click(within(dialog).getByRole("button", { name: "Cancel term" }))
+
+    expect(sentBodies).toEqual([{ reason: "Areál" }])
+    expect(
+      await screen.findByText("19 applications in this term were cancelled."),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText("We sent one e-mail for each affected application."),
+    ).toBeInTheDocument()
+    expect(screen.getByRole("link", { name: "Go to term payments" })).toHaveAttribute(
+      "href",
+      expect.stringContaining("/payments"),
+    )
+  })
+
+  it("says the result cannot be verified when no answer comes", async () => {
+    const fetchMock = renderTerms()
+    const dialog = await openCancelDialog()
+    fetchMock.mockImplementation((input) =>
+      (input as Request).method === "POST"
+        ? Promise.reject(new TypeError("Failed to fetch"))
+        : Promise.resolve(
+            new Response(JSON.stringify(terms), {
+              headers: { "Content-Type": "application/json" },
+            }),
+          ),
+    )
+
+    await userEvent.type(within(dialog).getByLabelText("Reason for cancelling"), "Areál")
+    await userEvent.click(within(dialog).getByRole("checkbox"))
+    await userEvent.click(within(dialog).getByRole("button", { name: "Cancel term" }))
 
     expect(
-      within(dialog).getByText("18 confirmed applications and 1 waitlisted"),
+      await within(dialog).findByText("The result of the cancellation cannot be verified"),
     ).toBeInTheDocument()
-    await userEvent.click(within(dialog).getByRole("button", { name: "Confirm cancellation" }))
+    expect(within(dialog).getByText("Check the term status.")).toBeInTheDocument()
+    expect(within(dialog).getByRole("button", { name: "Check term status" })).toBeInTheDocument()
+  })
 
-    expect(await within(dialog).findByText("Fill in this field.")).toBeInTheDocument()
-    expect(posts(fetchMock)).toHaveLength(0)
+  const answerWith = (fetchMock: ReturnType<typeof renderTerms>, post: () => Promise<Response>) =>
+    fetchMock.mockImplementation((input) =>
+      (input as Request).method === "POST"
+        ? post()
+        : Promise.resolve(
+            new Response(JSON.stringify(terms), {
+              headers: { "Content-Type": "application/json" },
+            }),
+          ),
+    )
+
+  const confirmCancellation = async (dialog: HTMLElement) => {
+    await userEvent.click(within(dialog).getByRole("checkbox"))
+    await userEvent.click(within(dialog).getByRole("button", { name: "Cancel term" }))
+  }
+
+  it("says the result cannot be verified after a server error", async () => {
+    const fetchMock = renderTerms()
+    const dialog = await openCancelDialog()
+    answerWith(fetchMock, () => Promise.resolve(new Response("{}", { status: 500 })))
+
+    await confirmCancellation(dialog)
+
+    expect(
+      await within(dialog).findByText("The result of the cancellation cannot be verified"),
+    ).toBeInTheDocument()
+    expect(within(dialog).getByRole("button", { name: "Check term status" })).toBeInTheDocument()
+  })
+
+  it("keeps a client error as a plain failure", async () => {
+    const fetchMock = renderTerms()
+    const dialog = await openCancelDialog()
+    answerWith(fetchMock, () =>
+      Promise.resolve(
+        new Response(JSON.stringify({ statusCode: 409, code: "TERM_CANCELLED", message: "x" }), {
+          status: 409,
+          headers: { "Content-Type": "application/json" },
+        }),
+      ),
+    )
+
+    await confirmCancellation(dialog)
+
+    await waitFor(() => expect(posts(fetchMock)).toHaveLength(1))
+    await waitFor(() =>
+      expect(within(dialog).getByRole("button", { name: "Cancel term" })).toBeEnabled(),
+    )
+    expect(
+      within(dialog).queryByText("The result of the cancellation cannot be verified"),
+    ).not.toBeInTheDocument()
+    expect(within(dialog).queryByRole("button", { name: "Check term status" })).toBeNull()
   })
 })

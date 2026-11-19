@@ -129,6 +129,20 @@ describe("organization isolation of organizer endpoints (integration)", () => {
         path: `${t}/bulk-decision`,
         body: { decision: "WAITLIST", applicationIds: [application] },
       },
+      {
+        method: "POST",
+        path: `${t}/bulk-evaluation/preview`,
+        body: { applicationIds: [application] },
+      },
+      {
+        method: "POST",
+        path: `${t}/bulk-evaluation`,
+        body: {
+          applicationIds: [application],
+          expectedConfirmed: { FEMALE: 0, MALE: 0 },
+          rest: "REJECT",
+        },
+      },
       { method: "GET", path: `${t}/substitutes` },
       { method: "GET", path: `${t}/substitutes/history` },
       { method: "POST", path: `${t}/substitutes/${application}/confirm` },
@@ -295,6 +309,14 @@ describe("organization isolation of organizer endpoints (integration)", () => {
       for (const [path, body] of [
         [`${t}/bulk-confirmation`, { applicationIds: [ids.application] }],
         [`${t}/bulk-decision`, { decision: "WAITLIST", applicationIds: [ids.application] }],
+        [
+          `${t}/bulk-evaluation`,
+          {
+            applicationIds: [ids.application],
+            expectedConfirmed: { FEMALE: 0, MALE: 0 },
+            rest: "REJECT",
+          },
+        ],
       ] as const) {
         const response = await send(foreignCookie, { method: "POST", path, body })
         if (response.ok) expect((await response.json()).unchanged).toEqual([ids.application])

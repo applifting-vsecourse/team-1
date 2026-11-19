@@ -40,7 +40,6 @@ export class ParticipantAccountsRepository {
           emailVerified: true,
           accountType: "PARTICIPANT",
           mustSetPassword: true,
-          locale: account.locale,
         },
         { method: "application" },
       )

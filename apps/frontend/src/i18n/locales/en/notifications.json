@@ -13,7 +13,7 @@
     "read": "Read"
   },
   "note": {
-    "owed": "Still to pay: {{owed}}"
+    "owed": "Left to pay: {{owed}}"
   },
   "panel": {
     "close": "Close",
@@ -27,6 +27,7 @@
     "title": "Notifications"
   },
   "status": {
+    "ARCHIVED": "Archived",
     "CANCELLED": "Cancelled",
     "CONFIRMED": "Confirmed",
     "TO_EVALUATE": "Awaiting evaluation",
@@ -44,6 +45,7 @@
     "PAYMENT_REFUNDED": "Refund of {{amount}}",
     "REJECTED": "Application rejected",
     "REQUEST_APPROVED": "Change request approved",
+    "TERM_CANCELLED": "The organizer cancelled the event term, the application for it is cancelled",
     "WAITLISTED": "You are a substitute",
     "WAITLISTED_AFTER_CONFIRMED": "Confirmation withdrawn, you are a substitute"
   }

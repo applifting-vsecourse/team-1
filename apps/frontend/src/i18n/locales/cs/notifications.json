@@ -27,6 +27,7 @@
     "title": "Upozornění"
   },
   "status": {
+    "ARCHIVED": "Archivovaná",
     "CANCELLED": "Zrušeno",
     "CONFIRMED": "Potvrzeno",
     "TO_EVALUATE": "Čeká na vyhodnocení",
@@ -41,9 +42,10 @@
     "NO_BED_FREED": "Přihláška byla zrušena, protože se neuvolnilo lůžko",
     "PAYMENT_CANCELLED": "Platba {{amount}} byla zrušena",
     "PAYMENT_RECORDED": "Přijatá platba {{amount}}",
-    "PAYMENT_REFUNDED": "Vrácená platba {{amount}}",
+    "PAYMENT_REFUNDED": "Vratka {{amount}}",
     "REJECTED": "Přihláška byla zamítnuta",
     "REQUEST_APPROVED": "Žádost o změnu byla schválená",
+    "TERM_CANCELLED": "Organizátor zrušil termín akce, přihláška v něm je zrušená",
     "WAITLISTED": "Jste náhradník",
     "WAITLISTED_AFTER_CONFIRMED": "Potvrzení bylo odvoláno, jste náhradník"
   }

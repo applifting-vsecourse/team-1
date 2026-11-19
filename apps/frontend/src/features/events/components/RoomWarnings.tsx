@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { formatDate } from "@/lib/date"
-import { cn } from "@/lib/utils"
 
 import type {
   AssignmentRoom,
@@ -82,18 +81,22 @@ export function RoomWarningStrip({
     )
   }
   return (
-    <div className="flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-status-warning/40 bg-status-warning-bg px-3 py-2.5">
-      <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-status-warning/15 text-status-warning">
-        <AlertTriangle
-          className="size-4"
-          aria-hidden
-        />
-      </span>
-      <p className="min-w-0 flex-1 text-sm font-medium break-words">{warningText(warning, room)}</p>
+    <div className="flex flex-col gap-3 border-t border-status-warning/40 bg-status-warning-bg px-3 py-2.5 sm:flex-row sm:items-center">
+      <div className="flex min-w-0 flex-1 items-center gap-3">
+        <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-status-warning/15 text-status-warning">
+          <AlertTriangle
+            className="size-4"
+            aria-hidden
+          />
+        </span>
+        <p className="min-w-0 flex-1 text-sm font-medium break-words">
+          {warningText(warning, room)}
+        </p>
+      </div>
       <Button
         type="button"
         size="sm"
-        className="bg-status-warning text-status-warning-bg hover:bg-status-warning/90"
+        className="w-full bg-status-warning text-status-warning-bg hover:bg-status-warning/90 sm:w-auto"
         onClick={() => onAcknowledge(warning, room)}
       >
         {t("roomWarnings.acknowledge")}
@@ -102,9 +105,8 @@ export function RoomWarningStrip({
   )
 }
 
-// Above the rooms: a small summary of broken room rules and confirmed people without a bed. Green
-// while no rule is broken (people without a bed are only counted), the warning colour once one is. Before anyone is assigned
-// there is nothing to check, so it says so.
+// Above the rooms: a small summary of the room rules: a quiet green line while none is broken, the
+// warning bar with the count once one is. Before anyone is assigned there is nothing to check, so it says so.
 // Figma (Design system): Souhrn a upozornění v rozdělení do pokojů · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=23410-94640 (mobile 23410-95377; improved after review: compact, no jump buttons)
 // Figma (Design system): Bez porušení pravidel · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=23412-95922 (mobile 23412-96515)
 // Figma (Design system): Termín bez rozdělení · žádná upozornění · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=23412-96655 (mobile 23412-97243)
@@ -128,63 +130,38 @@ export function RoomWarningsSummary({
       </Alert>
     )
   }
-  if (summary.violations + summary.confirmedWithoutBed === 0) {
+  // Confirmed people without a bed are not repeated here: the unassigned block shows them.
+  if (summary.violations === 0) {
     return (
-      <Alert className="bg-accent">
-        <CheckCircle2 aria-hidden />
-        <AlertTitle>{t("roomWarnings.noneTitle")}</AlertTitle>
-        <AlertDescription>
-          {t("roomWarnings.noneBody", {
-            count: assigned.filter((person) => person.status === "CONFIRMED").length,
-          })}
-        </AlertDescription>
-      </Alert>
+      <p
+        role="status"
+        className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground"
+      >
+        <span className="flex items-center gap-2">
+          <CheckCircle2
+            className="size-4 shrink-0 text-status-success"
+            aria-hidden
+          />
+          {t("roomWarnings.noneTitle")}
+        </span>
+        {isSharedMode ? <span className="text-xs">{t("roomWarnings.sharedNote")}</span> : null}
+      </p>
     )
   }
-  const counts = [
-    {
-      key: "violations",
-      count: summary.violations,
-      label: t("roomWarnings.violations", { count: summary.violations }),
-    },
-    {
-      key: "withoutBed",
-      count: summary.confirmedWithoutBed,
-      label: t("roomWarnings.withoutBed", { count: summary.confirmedWithoutBed }),
-    },
-  ]
   return (
     <div
       role="status"
       aria-label={t("roomWarnings.summaryTitle")}
-      className={cn(
-        "flex flex-wrap items-center justify-center gap-x-12 gap-y-2 rounded-lg border px-4 py-2.5 text-center text-sm",
-        summary.violations > 0
-          ? "border-status-warning/30 bg-status-warning-bg"
-          : "border-border bg-accent",
-      )}
+      className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 rounded-lg border border-status-warning/30 bg-status-warning-bg px-4 py-2.5 text-center text-sm"
     >
       <span className="flex items-center gap-2 font-medium">
         <AlertTriangle
-          className={cn(
-            "size-4",
-            summary.violations > 0 ? "text-status-warning" : "text-muted-foreground",
-          )}
+          className="size-4 text-status-warning"
           aria-hidden
         />
-        {t("roomWarnings.summaryTitle")}
+        <span className="font-bold">{summary.violations}</span>
+        {t("roomWarnings.violations", { count: summary.violations })}
       </span>
-      <ul className="flex flex-wrap items-center justify-center gap-x-12 gap-y-1">
-        {counts.map(({ key, count, label }) => (
-          <li
-            key={key}
-            className="flex items-baseline gap-1.5"
-          >
-            <span className="font-bold">{count}</span>
-            <span>{label}</span>
-          </li>
-        ))}
-      </ul>
       {isSharedMode ? (
         <span className="text-xs text-muted-foreground">{t("roomWarnings.sharedNote")}</span>
       ) : null}

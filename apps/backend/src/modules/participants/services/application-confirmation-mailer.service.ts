@@ -13,6 +13,10 @@ import {
   applicationConfirmationSubject,
 } from "@/core/email/templates/application-confirmation"
 import {
+  TermCancelled,
+  termCancelledSubject,
+} from "@/core/email/templates/application-term-cancelled"
+import {
   ChangeRequestStatus,
   ChangeRequestStatusProps,
   changeRequestStatusSubject,
@@ -31,11 +35,13 @@ import {
   buildChangeProps,
   buildConfirmationApplications,
   buildTermNoticeProps,
+  confirmationUrl,
   loginUrl,
 } from "@/modules/participants/domain/confirmation-email"
 import {
   ApplicationChange,
   SubmissionConfirmation,
+  TermCancelledNotice,
 } from "@/modules/participants/domain/submission-confirmation"
 import { MagicLinkService } from "@/shared/auth/services/magic-link.service"
 import { Config } from "@/shared/config/config.service"
@@ -106,6 +112,28 @@ export class ApplicationConfirmationMailer {
       await this.email.sendEmail(change.email, subject, html)
     } catch (error) {
       this.logFailure("change", change.email, error)
+    }
+  }
+
+  /** E-mail no. 15 (US-131): one per application cancelled with its term, without payment details. */
+  async sendTermCancelled(notice: TermCancelledNotice): Promise<void> {
+    try {
+      const html = await renderEmail(TermCancelled, {
+        locale: notice.locale,
+        eventName: notice.eventName,
+        organizationName: notice.organizationName,
+        name: `${notice.firstName} ${notice.lastName}`,
+        gender: notice.gender,
+        term: notice.termName,
+        confirmationUrl: confirmationUrl(this.config.frontendUrl, notice.accessToken),
+      })
+      await this.email.sendEmail(
+        notice.email,
+        termCancelledSubject(notice.locale, notice.eventName),
+        html,
+      )
+    } catch (error) {
+      this.logFailure("term cancelled", notice.email, error)
     }
   }
 

@@ -4,6 +4,7 @@ import { Link } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
+import { CardGrid } from "@/components/molecules/CardGrid"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { Card } from "@/components/ui/card"
@@ -52,7 +53,7 @@ export function EventOverview({
   return (
     <div className="flex flex-col gap-6">
       {events.length > 0 ? (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 sm:max-w-96">
           <Label htmlFor="event-switcher">{t("switcher.label")}</Label>
           <Select
             value={eventId}
@@ -101,7 +102,7 @@ function AttentionCards({ eventId }: { eventId: string }) {
   }
   const cards = attentionCards(data, t)
   return (
-    <div className="grid gap-6 md:grid-cols-2">
+    <CardGrid className="items-stretch">
       {cards.map((card) => (
         <AttentionCard
           key={card.key}
@@ -112,7 +113,7 @@ function AttentionCards({ eventId }: { eventId: string }) {
           {card.body}
         </AttentionCard>
       ))}
-    </div>
+    </CardGrid>
   )
 }
 
