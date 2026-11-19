@@ -74,6 +74,7 @@ export function EvaluationModeStep({
                 id={`step-evaluation-mode-${value}`}
                 value={value}
                 aria-describedby={`step-evaluation-mode-${value}-info`}
+                className="relative z-10"
               />
               <Label
                 htmlFor={`step-evaluation-mode-${value}`}

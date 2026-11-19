@@ -4,7 +4,7 @@ import { Copy } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
-import { CardGrid } from "@/components/molecules/CardGrid"
+import { CARD_GRID_WIDE, CardGrid } from "@/components/molecules/CardGrid"
 import { Checklist, type ChecklistItem } from "@/components/molecules/Checklist"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
@@ -61,7 +61,10 @@ export function EventSetup({ eventId }: { eventId: string }) {
           onCopy={() => void copy()}
         />
       ) : (
-        <MissingSteps event={event} />
+        // Full width, as drawn: the mode step holds two side-by-side choices.
+        <div className={CARD_GRID_WIDE}>
+          <MissingSteps event={event} />
+        </div>
       )}
     </CardGrid>
   )

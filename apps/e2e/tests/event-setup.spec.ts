@@ -16,7 +16,7 @@ test.describe("Event setup", () => {
     await expect(
       page.getByRole("heading", { name: "What is missing to open applications" }),
     ).toBeVisible()
-    await expect(page.getByText("0 of 3 done")).toBeVisible()
+    await expect(page.getByText("1 of 3 done")).toBeVisible()
     await expect(page.getByRole("button", { name: /Copy/ })).toHaveCount(0)
   })
 
