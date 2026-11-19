@@ -3,9 +3,9 @@ import {
   RoomExtraBedsRequestDto,
   RoomModeRequestDto,
   RoomRequestDto,
-  RoomsPublishedRequestDto,
   RoomsBulkRequestDto,
   RoomsBulkResponseDto,
+  RoomsPublishedRequestDto,
 } from "@/modules/events/controllers/dto/room.request.dto"
 import { RoomsResponseDto } from "@/modules/events/controllers/dto/rooms.response.dto"
 import { RoomsService } from "@/modules/events/services/rooms.service"
