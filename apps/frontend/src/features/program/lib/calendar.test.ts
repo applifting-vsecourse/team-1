@@ -4,8 +4,8 @@ import {
   hourRange,
   overlapping,
   placeBlocks,
-  remainingOverlaps,
   toMinutes,
+  trackedOverlaps,
 } from "@/features/program/lib/calendar"
 
 const block = (id: string, startTime: string, endTime: string) => ({ id, startTime, endTime })
@@ -55,7 +55,7 @@ describe("program calendar", () => {
     ])
   })
 
-  it("keeps only the reported overlaps that still exist in the blocks", () => {
+  it("recomputes the overlaps of the tracked blocks from the current blocks", () => {
     const block = (id: string, name: string, startTime: string, endTime: string, date = "d1") => ({
       id,
       date,
@@ -63,15 +63,21 @@ describe("program calendar", () => {
       startTime,
       endTime,
     })
-    const reported = [{ date: "d1", first: "Dílny", second: "Hry" }]
-    const clash = [block("a", "Dílny", "10:00", "11:00"), block("b", "Hry", "10:30", "12:00")]
-    expect(remainingOverlaps(reported, clash)).toEqual(reported)
-    expect(remainingOverlaps(reported, [clash[0]!])).toEqual([])
-    expect(remainingOverlaps(reported, [clash[0]!, block("b", "Hry", "11:00", "12:00")])).toEqual(
-      [],
-    )
-    expect(
-      remainingOverlaps(reported, [clash[0]!, block("b", "Hry", "10:30", "12:00", "d2")]),
-    ).toEqual([])
+    const tracked = new Set(["a"])
+    const a = block("a", "Dílny", "10:00", "11:00")
+    const hry = block("b", "Hry", "10:30", "12:00")
+    expect(trackedOverlaps([a, hry], tracked)).toEqual([
+      { date: "d1", first: "Dílny", second: "Hry" },
+    ])
+    // Renaming does not hide an overlap that is still there.
+    expect(trackedOverlaps([a, { ...hry, name: "Soutěž" }], tracked)).toEqual([
+      { date: "d1", first: "Dílny", second: "Soutěž" },
+    ])
+    expect(trackedOverlaps([a], tracked)).toEqual([])
+    expect(trackedOverlaps([a, { ...hry, startTime: "11:00" }], tracked)).toEqual([])
+    expect(trackedOverlaps([a, { ...hry, date: "d2" }], tracked)).toEqual([])
+    // Overlaps between blocks the copy did not create are not reported; two tracked ones once.
+    expect(trackedOverlaps([a, hry], new Set())).toEqual([])
+    expect(trackedOverlaps([a, hry], new Set(["a", "b"]))).toHaveLength(1)
   })
 })

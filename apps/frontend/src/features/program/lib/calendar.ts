@@ -81,25 +81,22 @@ export function overlapping<T extends Timed & { id: string; date: string }>(
 }
 
 /**
- * Of the overlaps a copy reported (pairs of block names on a day), the ones that still exist in the
- * current blocks. The copy result is a snapshot, so the warning is re-checked after every block change.
+ * Overlaps of same-day blocks in which at least one block is in `trackedIds` (the blocks a copy
+ * created), computed from the current blocks, so the warning follows every edit and delete.
+ * `first` is the tracked block, `second` the other one.
  */
-export function remainingOverlaps<
-  T extends Timed & { date: string; name: string },
-  O extends { date: string; first: string; second: string },
->(reported: O[], blocks: T[]): O[] {
-  return reported.filter((item) => {
-    const day = blocks.filter((block) => block.date === item.date)
-    return day.some(
-      (first) =>
-        first.name === item.first &&
-        day.some(
-          (second) =>
-            second !== first &&
-            second.name === item.second &&
-            toMinutes(first.startTime) < toMinutes(second.endTime) &&
-            toMinutes(second.startTime) < toMinutes(first.endTime),
-        ),
-    )
+export function trackedOverlaps<T extends Timed & { id: string; date: string; name: string }>(
+  blocks: T[],
+  trackedIds: ReadonlySet<string>,
+): { date: string; first: string; second: string }[] {
+  const found: { date: string; first: string; second: string }[] = []
+  blocks.forEach((block, index) => {
+    if (!trackedIds.has(block.id)) return
+    for (const other of overlapping(blocks, block, block.id)) {
+      // A pair of tracked blocks is reported once, from the earlier one.
+      if (trackedIds.has(other.id) && blocks.indexOf(other) < index) continue
+      found.push({ date: block.date, first: block.name, second: other.name })
+    }
   })
+  return found
 }

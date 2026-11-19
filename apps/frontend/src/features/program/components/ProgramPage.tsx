@@ -34,7 +34,7 @@ import { DeleteProgramBlockDialog } from "@/features/program/components/DeletePr
 import { ProgramBlockDetailDialog } from "@/features/program/components/ProgramBlockDetailDialog"
 import { ProgramBlockDialog } from "@/features/program/components/ProgramBlockDialog"
 import { ProgramCalendar } from "@/features/program/components/ProgramCalendar"
-import { remainingOverlaps } from "@/features/program/lib/calendar"
+import { trackedOverlaps } from "@/features/program/lib/calendar"
 
 type Editor = { block?: ProgramBlock; date: string }
 
@@ -50,7 +50,13 @@ export function ProgramPage({ eventId }: { eventId: string }) {
   const [editor, setEditor] = useState<Editor | null>(null)
   const [deleting, setDeleting] = useState<ProgramBlock | null>(null)
   const [isCopying, setIsCopying] = useState(false)
-  const [copied, setCopied] = useState<{ termId: string; result: ProgramCopyResult } | null>(null)
+  // The copy result is a snapshot; `blockIds` are the blocks the copy created, so the overlaps are
+  // recomputed from the current blocks after every change.
+  const [copied, setCopied] = useState<{
+    termId: string
+    result: ProgramCopyResult
+    blockIds: ReadonlySet<string>
+  } | null>(null)
   const queryClient = useQueryClient()
 
   if (!query.data) {
@@ -93,9 +99,8 @@ export function ProgramPage({ eventId }: { eventId: string }) {
     )
   }
 
-  // The copy result is a snapshot; the overlaps it reported are re-checked against the current blocks.
   const copiedOverlaps =
-    copied?.termId === term.termId ? remainingOverlaps(copied.result.overlaps, term.blocks) : []
+    copied?.termId === term.termId ? trackedOverlaps(term.blocks, copied.blockIds) : []
 
   return (
     <div className="flex flex-col gap-6">
@@ -193,8 +198,18 @@ export function ProgramPage({ eventId }: { eventId: string }) {
             setIsCopying(false)
           }}
           onCopied={async (result, strategy) => {
+            const before = new Set(term.blocks.map((block) => block.id))
             await queryClient.invalidateQueries({ queryKey: programKeys.event(eventId) })
-            setCopied({ termId: term.termId, result })
+            const after = queryClient
+              .getQueryData(eventProgramQueryOptions(eventId).queryKey)
+              ?.terms.find((item) => item.termId === term.termId)
+            // An add keeps the old blocks; a replace deletes them all, so everything is new.
+            const blockIds = new Set(
+              (after?.blocks ?? [])
+                .filter((block) => strategy === "REPLACE" || !before.has(block.id))
+                .map((block) => block.id),
+            )
+            setCopied({ termId: term.termId, result, blockIds })
             notify.success(t(strategy === "REPLACE" ? "copy.replaced" : "copy.done"))
           }}
         />
