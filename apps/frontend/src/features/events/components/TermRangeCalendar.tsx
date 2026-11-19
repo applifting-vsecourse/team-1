@@ -36,7 +36,7 @@ function RangeMonthGrid(props: ComponentProps<typeof MonthGrid>) {
 }
 
 const boundaryClass =
-  "pointer-events-none absolute top-0 left-0 motion-safe:transition-[translate] motion-safe:duration-400 motion-safe:ease-[cubic-bezier(.22,.8,.2,1)]"
+  "pointer-events-none absolute top-0 left-0 transition-none motion-safe:transition-[translate] motion-safe:duration-400 motion-safe:ease-[cubic-bezier(.22,.8,.2,1)]"
 
 // Figma v2: US-13 / Přidat termín · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15409-10617
 // Mobile 15409-10704. M21 moves the two boundaries while the dates change immediately.
@@ -68,9 +68,15 @@ export function TermRangeCalendar({ startsOn, endsOn, onChange }: Props) {
       if (!day) return
       const cell = day.getBoundingClientRect()
       const box = root.getBoundingClientRect()
-      const x = (isEnd ? cell.right - corner.width - 2 : cell.left + 2) - box.left
-      const y = (isEnd ? cell.bottom - corner.height - 2 : cell.top + 2) - box.top
-      corner.style.translate = `${x}px ${y}px`
+      // The dialog scales as it opens. Convert the viewport measurements back to
+      // local coordinates before positioning the corner inside the panel border.
+      const scaleX = box.width / root.offsetWidth || 1
+      const scaleY = box.height / root.offsetHeight || 1
+      const x = ((isEnd ? cell.right : cell.left) - box.left) / scaleX - root.clientLeft
+      const y = ((isEnd ? cell.bottom : cell.top) - box.top) / scaleY - root.clientTop
+      const insetX = isEnd ? -corner.width - 2 : 2
+      const insetY = isEnd ? -corner.height - 2 : 2
+      corner.style.translate = `${x + insetX}px ${y + insetY}px`
     }
     const position = () => {
       place(first.current, startKey, false)

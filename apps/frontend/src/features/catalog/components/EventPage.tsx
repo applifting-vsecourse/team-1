@@ -73,9 +73,12 @@ export function EventPage({ event }: { event: CatalogEventDetail }) {
                   key={term.id}
                   className="flex flex-col items-start gap-1"
                 >
-                  <TermLabel term={term} />
+                  <TermLabel
+                    term={term}
+                    isProminent
+                  />
                   <TermPrice
-                    className="font-semibold tabular-nums"
+                    className="text-base/5.5 font-bold tabular-nums"
                     amountCzk={term.priceCzk}
                   />
                 </li>

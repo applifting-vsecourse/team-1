@@ -110,7 +110,9 @@ describe("EventTerms", () => {
   it("lists active terms with period, price and occupancy, and the cancelled ones apart", async () => {
     renderTerms()
 
-    expect(await screen.findByRole("heading", { name: "Event terms · 2" })).toBeInTheDocument()
+    expect(
+      await screen.findByRole("heading", { name: "Terms, prices and occupancy" }),
+    ).toBeInTheDocument()
     expect(screen.getByText("12–18 Jul 2027")).toBeInTheDocument()
     expect(screen.getByText(/^Letní turnus 1 · /)).toBeInTheDocument()
     expect(screen.getByText("0 / 60 places")).toBeInTheDocument()

@@ -107,7 +107,7 @@ export function CatalogPage({ organizationId, onOrganizationChange }: CatalogPag
           <BackLink to={selectedOrganization ? ROUTES.catalog : ROUTES.home}>
             {t(selectedOrganization ? "event.back" : "list.backHome")}
           </BackLink>
-          <h1 className="mt-6 text-3xl font-bold tracking-tight md:text-4xl">
+          <h1 className="mt-6 text-2xl/8 font-bold tracking-tight md:text-4xl">
             {selectedOrganization?.name ?? t("list.title")}
           </h1>
           {selectedOrganization ? null : (

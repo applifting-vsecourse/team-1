@@ -62,6 +62,10 @@
     "waitlistedPositionMale": "Waitlisted · {{position}}"
   },
   "attention": {
+    "clear": {
+      "body": "No applications, waitlisted applicants, outstanding payments or requests need attention.",
+      "title": "Everything is up to date"
+    },
     "debt": {
       "body": "{{overdue}} overdue · Total balance due {{total}}",
       "title": "Participants with a balance due · {{count}}"

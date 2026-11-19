@@ -651,7 +651,7 @@
       "submitAdd": "Přidat termín"
     },
     "listHelper": "Seřazeno podle data začátku. Každý termín se vyhodnocuje samostatně.",
-    "listTitle": "Termíny akce · {{count}}",
+    "listTitle": "Termíny, ceny a obsazenost",
     "notice": {
       "added": "Termín {{name}} byl přidán.",
       "edited": "Změny termínu {{name}} byly uloženy."

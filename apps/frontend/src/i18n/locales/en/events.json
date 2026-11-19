@@ -651,7 +651,7 @@
       "submitAdd": "Add term"
     },
     "listHelper": "Sorted by start date. Each term is evaluated separately.",
-    "listTitle": "Event terms · {{count}}",
+    "listTitle": "Terms, prices and occupancy",
     "notice": {
       "added": "The term {{name}} was added.",
       "edited": "Changes to the term {{name}} were saved."

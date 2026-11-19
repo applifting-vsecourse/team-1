@@ -2,6 +2,7 @@ import type { ReactNode } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
 import {
+  CheckCircle2,
   ChevronRight,
   ClipboardList,
   Clock,
@@ -15,6 +16,7 @@ import { ROUTES } from "@/app/routes"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { TermLabel } from "@/components/molecules/TermLabel"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
@@ -107,10 +109,27 @@ function AttentionCards({ eventId }: { eventId: string }) {
     )
   }
   const cards = attentionCards(data, t)
+  const isClear = cards.every((card) => card.count === 0)
   return (
     <section className="flex flex-col gap-4">
       <h2 className="text-2xl font-semibold">{t("attention.heading")}</h2>
-      <div className="grid grid-cols-2 items-start gap-3 md:grid-cols-2 xl:grid-cols-4">
+      {isClear && (
+        <Alert
+          role="status"
+          className="border-border bg-status-success-bg"
+        >
+          <CheckCircle2
+            aria-hidden
+            className="text-status-success"
+          />
+          <AlertTitle>{t("attention.clear.title")}</AlertTitle>
+          <AlertDescription>{t("attention.clear.body")}</AlertDescription>
+        </Alert>
+      )}
+      <div
+        className="grid grid-cols-2 items-start gap-3 data-[clear=true]:opacity-72 xl:grid-cols-4"
+        data-clear={isClear}
+      >
         {cards.map((card) => (
           <AttentionCard
             key={card.key}
@@ -274,18 +293,27 @@ function Occupancy({ eventId }: { eventId: string }) {
                   {t("overview.viewApplications")}
                 </Link>
               </Button>
-              <Button
-                asChild
-                variant="ghost"
-              >
-                <Link
-                  to={ROUTES.organizer.eventApplications}
-                  params={{ eventId }}
-                  search={{ term: term.id, status: "WAITLISTED" }}
+              {term.waitlisted > 0 ? (
+                <Button
+                  asChild
+                  variant="ghost"
+                >
+                  <Link
+                    to={ROUTES.organizer.eventApplications}
+                    params={{ eventId }}
+                    search={{ term: term.id, status: "WAITLISTED" }}
+                  >
+                    {t("overview.viewWaitlist")}
+                  </Link>
+                </Button>
+              ) : (
+                <Button
+                  variant="ghost"
+                  disabled
                 >
                   {t("overview.viewWaitlist")}
-                </Link>
-              </Button>
+                </Button>
+              )}
             </div>
           </Card>
         ))}

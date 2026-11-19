@@ -62,6 +62,10 @@
     "waitlistedPositionMale": "Náhradník · {{position}}"
   },
   "attention": {
+    "clear": {
+      "body": "Žádné přihlášky, náhradníci, nezaplacené částky ani žádosti teď nečekají na vyřízení.",
+      "title": "Teď nic nevyžaduje pozornost"
+    },
     "debt": {
       "body": "Z toho {{overdue}} po lhůtě · Součet dluhů {{total}}",
       "title": "Účastníci s dluhem · {{count}}"

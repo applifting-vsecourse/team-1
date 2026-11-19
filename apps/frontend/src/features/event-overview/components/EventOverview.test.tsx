@@ -56,7 +56,13 @@ function renderOverview(attention: Attention, setup?: ReactNode, proposals: obje
       ? attention
       : url.endsWith("/substitute-proposals")
         ? proposals
-        : occupancy
+        : {
+            ...occupancy,
+            terms: [
+              ...occupancy.terms,
+              { ...occupancy.terms[0], id: "t2", name: "Autumn week", waitlisted: 0 },
+            ],
+          }
     return Promise.resolve(
       new Response(JSON.stringify(body), {
         status: 200,
@@ -113,6 +119,11 @@ describe("EventOverview", () => {
     const requests = screen.getByRole("link", { name: /Requests awaiting approval · 2/ })
     expect(requests.getAttribute("href")).toContain("view=CHANGE_REQUESTS")
     expect(await screen.findByText("Summer week")).toBeVisible()
+    expect(screen.getByRole("link", { name: "View waitlist" })).toHaveAttribute(
+      "href",
+      expect.stringContaining("term=t1"),
+    )
+    expect(screen.getByRole("button", { name: "View waitlist" })).toBeDisabled()
     expect(screen.getByRole("combobox", { name: "Event" })).toBeVisible()
   })
 
@@ -125,7 +136,7 @@ describe("EventOverview", () => {
     })
     expect(await screen.findByRole("link", { name: /Awaiting review · 0/ })).toBeVisible()
     expect(screen.getByRole("link", { name: /Substitutes to resolve · 0/ })).toBeVisible()
-    expect(screen.queryByText("Nothing needs your attention")).not.toBeInTheDocument()
+    expect(screen.getByRole("status")).toHaveTextContent("Everything is up to date")
     expect(await screen.findByText("Summer week")).toBeVisible()
   })
 

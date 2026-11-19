@@ -41,10 +41,7 @@ type CancelResult = { term: EventTerm; cancelledApplications: number }
  * O24 / O24a / O24b / O24c: the terms of an event sorted by date, with add, and edit or
  * cancel in each row's menu; a toast confirms what just happened.
  */
-// Figma (Design system): O24 Nastavení akce a seznam termínů · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12282-1018
-// Figma (Design system): O24a Seznam po přidání · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12282-1888
-// Figma (Design system): O24b Seznam po úpravě · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12282-2509
-// Figma (Design system): O24c Seznam po zrušení · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12282-3036
+// Figma v2: US-13 · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15409-10508 (mobile 15409-10575).
 export function EventTerms({ eventId }: { eventId: string }) {
   const { t } = useTranslation("events")
   const event = useQuery(eventQueryOptions(eventId))
@@ -89,14 +86,6 @@ export function EventTerms({ eventId }: { eventId: string }) {
       <SectionHeader
         title={t("terms.title")}
         description={t("terms.description")}
-        actions={
-          <Button
-            size="lg"
-            onClick={() => setDialog({ kind: "add" })}
-          >
-            {t("terms.add")}
-          </Button>
-        }
       />
       {cancelResult ? (
         <CancelledResult
@@ -104,16 +93,15 @@ export function EventTerms({ eventId }: { eventId: string }) {
           result={cancelResult}
         />
       ) : null}
-      <Card className="gap-4 p-6">
-        <h3 className="text-lg font-semibold tracking-tight">
-          {t("terms.listTitle", { count: active.length })}
-        </h3>
-        <p className="text-sm text-muted-foreground">{t("terms.listHelper")}</p>
+      <Card className="grid grid-cols-1 items-center gap-4 rounded-xl p-4 md:grid-cols-[minmax(0,1fr)_auto] md:p-6">
+        <h3 className="text-lg font-semibold tracking-tight">{t("terms.listTitle")}</h3>
+        <p className="col-span-full text-sm text-muted-foreground">{t("terms.listHelper")}</p>
         {active.length === 0 ? (
-          <EmptyState message={t("terms.empty")} />
+          <div className="col-span-full">
+            <EmptyState message={t("terms.empty")} />
+          </div>
         ) : (
-          // Rows: "DS / Term row" https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12279-965
-          <ul className="pt-2">
+          <ul className="col-span-full">
             {active.map((term) => (
               // The term just added or edited keeps the selected surface, as in O24a / O24b.
               <li
@@ -129,6 +117,14 @@ export function EventTerms({ eventId }: { eventId: string }) {
             ))}
           </ul>
         )}
+        <Button
+          size="lg"
+          variant="ghost"
+          className="w-full md:col-start-2 md:row-start-1 md:w-auto md:min-w-[119px]"
+          onClick={() => setDialog({ kind: "add" })}
+        >
+          {t("terms.add")}
+        </Button>
       </Card>
       {cancelled.length > 0 ? (
         <section className="flex flex-col gap-3 rounded-lg border bg-muted p-6">
@@ -186,12 +182,12 @@ function TermRow({
 
   return (
     <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]">
-      <div className="flex min-w-0 flex-col gap-1">
-        <span className="text-sm font-medium tabular-nums">
+      <div className="flex min-w-0 flex-col gap-2">
+        <span className="text-sm/5 text-muted-foreground tabular-nums">
           {formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })}
         </span>
         <span className="sr-only"> · </span>
-        <span className="text-sm text-muted-foreground">
+        <span className="text-base/6">
           {termName(term) ? `${termName(term)} · ` : ""}
           {formatTermPrice(term.priceCzk)}
         </span>

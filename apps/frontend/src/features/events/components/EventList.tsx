@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
-import { ChevronRight, Plus } from "lucide-react"
+import { ChevronRight, Plus, Search } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
@@ -106,14 +106,20 @@ function FilteredEvents({
   return (
     <section className="flex flex-col gap-4">
       <div className="grid items-end gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)]">
-        <Input
-          type="search"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder={t("list.search")}
-          aria-label={t("list.search")}
-          className="w-full"
-        />
+        <div className="relative">
+          <Search
+            aria-hidden
+            className="pointer-events-none absolute start-3 top-1/2 size-5 -translate-y-1/2 text-muted-foreground"
+          />
+          <Input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={t("list.search")}
+            aria-label={t("list.search")}
+            className="w-full ps-10"
+          />
+        </div>
         <div className="flex min-w-0 flex-col gap-2">
           <Label htmlFor="event-organization">{t("list.organizationFilter")}</Label>{" "}
           <Select
@@ -232,7 +238,7 @@ function EventRow({ event }: { event: OrganizerEvent }) {
     <Link
       to={ROUTES.organizer.event}
       params={{ eventId: event.id }}
-      className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 p-4 transition-colors hover:bg-accent/40 focus-visible:outline-2 focus-visible:outline-ring lg:grid-cols-[minmax(0,1fr)_9rem_minmax(8rem,1fr)_1.25rem]"
+      className="grid grid-cols-1 items-center gap-3 p-4 transition-colors hover:bg-accent/40 focus-visible:outline-2 focus-visible:outline-ring lg:grid-cols-[minmax(0,1fr)_9rem_minmax(8rem,1fr)_1.25rem]"
     >
       <div className="flex min-w-0 flex-col gap-0.5">
         <p className="text-sm text-muted-foreground">{event.organizationName}</p>
@@ -242,10 +248,13 @@ function EventRow({ event }: { event: OrganizerEvent }) {
       </div>
       <ChevronRight
         aria-hidden
-        className="col-start-2 row-span-3 row-start-1 size-5 text-muted-foreground lg:col-start-4 lg:row-span-1"
+        className="hidden size-5 text-muted-foreground lg:col-start-4 lg:row-start-1 lg:block"
       />
       <div className="lg:col-start-2 lg:row-start-1">
-        <Badge variant={event.applicationsOpen ? "info" : "warning"}>
+        <Badge
+          variant={event.applicationsOpen ? "default" : "warning"}
+          className={event.applicationsOpen ? "bg-primary text-primary-foreground" : undefined}
+        >
           {event.applicationsOpen ? t("list.statusOpen") : t("list.statusClosed")}
         </Badge>
       </div>
@@ -272,12 +281,12 @@ function Occupancy({ event }: { event: OrganizerEvent }) {
 
   return (
     <>
+      <span className="text-sm font-medium tabular-nums">{label}</span>
       <Progress
         value={(confirmed / capacity) * 100}
         aria-label={label}
-        className="order-last w-full"
+        className="w-full"
       />
-      <span className="text-sm font-medium tabular-nums">{label}</span>
     </>
   )
 }
