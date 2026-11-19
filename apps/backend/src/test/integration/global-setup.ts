@@ -32,8 +32,7 @@ export default async function globalSetup(): Promise<void> {
   await ensureDatabase(testUrl)
   run("npx prisma migrate deploy", testUrl)
   run("npx prisma generate && npx nest build", testUrl)
-  run("node dist/scripts/seed/seed.script.js", testUrl)
-  await snapshotSeed(testUrl)
+  await seedAndSnapshot(testUrl)
 
   const port = await freePort()
   const baseUrl = `http://127.0.0.1:${port}`
@@ -109,9 +108,15 @@ async function ensureDatabase(testUrl: string): Promise<void> {
   }
 }
 
-async function snapshotSeed(testUrl: string): Promise<void> {
+async function seedAndSnapshot(testUrl: string): Promise<void> {
   const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString: testUrl }) })
   try {
+    // The seed skips a database that already has an organization — the state a
+    // previous local run left behind — so empty it first.
+    await prisma.$executeRawUnsafe(
+      'TRUNCATE TABLE "organization", "session", "account", "verification", "user" RESTART IDENTITY CASCADE;',
+    )
+    run("node dist/scripts/seed/seed.script.js", testUrl)
     await takeSeedSnapshot(prisma)
   } finally {
     await prisma.$disconnect()
