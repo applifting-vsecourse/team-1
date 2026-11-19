@@ -6,7 +6,7 @@ import {
   createRouter,
   RouterProvider,
 } from "@tanstack/react-router"
-import { render, screen } from "@testing-library/react"
+import { render, screen, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { afterEach, describe, expect, it, vi } from "vitest"
 
@@ -37,6 +37,22 @@ const terms: KitchenTerm[] = [
         specialRequest: "Early dinner",
       },
     ],
+    stays: [
+      {
+        applicationId: "a1",
+        firstName: "Adam",
+        lastName: "Dvořák",
+        lateArrival: "2027-07-13T10:30",
+        earlyDeparture: "2027-07-18T16:00",
+      },
+      {
+        applicationId: "a3",
+        firstName: "Petr",
+        lastName: "Svoboda",
+        lateArrival: null,
+        earlyDeparture: "2027-07-17T15:00",
+      },
+    ],
   },
   {
     termId: "t2",
@@ -51,6 +67,7 @@ const terms: KitchenTerm[] = [
     ],
     allergies: [],
     specialRequests: [],
+    stays: [],
   },
 ]
 
@@ -92,14 +109,25 @@ describe("KitchenSummary", () => {
     renderPage()
     expect(await screen.findByRole("heading", { name: "Kitchen summary" })).toBeVisible()
     expect(screen.getByText("Summer camp · Meals")).toBeVisible()
-    expect(screen.getByText("Regular meal · 6")).toBeVisible()
-    expect(screen.getByText("Vegetarian · 3")).toBeVisible()
-    expect(screen.getByText("Gluten-free · 2")).toBeVisible()
+    expect(screen.getByRole("row", { name: "Regular meal 6" })).toBeVisible()
+    expect(screen.getByRole("row", { name: "Vegetarian 3" })).toBeVisible()
+    expect(screen.getByRole("row", { name: "Gluten-free 2" })).toBeVisible()
     expect(screen.getByText("Restrictions may overlap.")).toBeVisible()
-    expect(screen.getByText("Adam Dvořák · Peanuts")).toBeVisible()
-    expect(screen.getByText("Jana Nováková · Milk protein")).toBeVisible()
-    expect(screen.getByRole("heading", { name: "Special requests" })).toBeVisible()
-    expect(screen.getByText("Adam Dvořák · Early dinner")).toBeVisible()
+    const adam = within(screen.getByRole("row", { name: /Adam Dvořák/ }))
+    expect(adam.getByText("Peanuts")).toBeVisible()
+    expect(adam.getByText("Early dinner")).toBeVisible()
+    expect(screen.getByRole("row", { name: /Jana Nováková.*Milk protein/ })).toBeVisible()
+  })
+
+  it("shows the arrival and departure of the participants who gave them (US-143)", async () => {
+    renderPage()
+    expect(
+      await screen.findByRole("heading", { name: "Allergies and other requests" }),
+    ).toBeVisible()
+    expect(screen.getByText("Arrival 13 Jul 2027 10:30")).toBeVisible()
+    expect(screen.getByText("Departure 18 Jul 2027 16:00")).toBeVisible()
+    expect(screen.getByText("Departure 17 Jul 2027 15:00")).toBeVisible()
+    expect(screen.getAllByText(/^Arrival /)).toHaveLength(1)
   })
 
   it("switches the term", async () => {
@@ -107,9 +135,10 @@ describe("KitchenSummary", () => {
     renderPage()
     await user.click(await screen.findByRole("combobox", { name: "Term" }))
     await user.click(await screen.findByRole("option", { name: /Aug 2027/ }))
-    expect(screen.getByText("Regular meal · 1")).toBeVisible()
-    expect(screen.queryByText("Adam Dvořák · Peanuts")).not.toBeInTheDocument()
-    expect(screen.queryByRole("heading", { name: "Special requests" })).not.toBeInTheDocument()
+    expect(screen.getByRole("row", { name: "Regular meal 1" })).toBeVisible()
+    expect(screen.queryByText("Peanuts")).not.toBeInTheDocument()
+    expect(screen.queryByText("Early dinner")).not.toBeInTheDocument()
+    expect(screen.queryByText(/^Departure /)).not.toBeInTheDocument()
   })
 
   it("prints the summary and links to the options", async () => {

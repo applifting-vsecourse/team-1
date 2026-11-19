@@ -235,5 +235,37 @@
     "confirmed": "Potvrzeno",
     "toEvaluate": "Čeká na vyhodnocení",
     "waitlisted": "Náhradník"
+  },
+  "stay": {
+    "add": "Zadat pozdější příjezd nebo dřívější odjezd",
+    "and": "a",
+    "arrival": "Příjezd",
+    "arrivalLabel": "Pozdější příjezd",
+    "arrivalOutside": "Datum příjezdu musí být mezi {{range}}.",
+    "at": "v",
+    "cancel": "Zrušit",
+    "dateLabel": "Datum",
+    "delete": "Smazat všechny údaje",
+    "deleteBody": "Smažou se oba zadané údaje o pobytu účastníka v tomto termínu.",
+    "deleteConfirm": "Smazat údaje",
+    "deleteTitle": "Smazat příjezd a odjezd?",
+    "departure": "Odjezd",
+    "departureBeforeArrival": "Odjezd musí být později než příjezd.",
+    "departureLabel": "Dřívější odjezd",
+    "departureOutside": "Datum odjezdu musí být mezi {{range}}.",
+    "edit": "Upravit příjezd nebo odjezd",
+    "hint": "Vyplňte jen tehdy, když účastník nebude na akci celou dobu termínu.",
+    "invalid": "Zadejte platné datum a čas.",
+    "pickTime": "Vybrat čas",
+    "removeArrival": "Odebrat příjezd",
+    "removeDeparture": "Odebrat odjezd",
+    "save": "Uložit údaje",
+    "timeLabel": "Čas",
+    "timePlaceholder": "HH:MM",
+    "title": "Pozdější příjezd nebo dřívější odjezd",
+    "toast": {
+      "deleted": "Údaje o příjezdu a odjezdu byly smazány.",
+      "saved": "Příjezd a odjezd byly uloženy."
+    }
   }
 }

@@ -1,5 +1,6 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { KitchenTermInput, MealOption, OwnMeals } from "@/modules/meals/domain/meals"
+import { toPragueWallTime } from "@/shared/domain/prague-wall-time"
 import { Injectable } from "@nestjs/common"
 
 const ownSelect = {
@@ -112,6 +113,8 @@ export class MealsRepository {
         applicationTerms: {
           where: { status: "CONFIRMED" },
           select: {
+            lateArrivalAt: true,
+            earlyDepartureAt: true,
             application: {
               select: {
                 id: true,
@@ -131,13 +134,15 @@ export class MealsRepository {
       name: term.name,
       startsOn: term.startsOn,
       endsOn: term.endsOn,
-      people: term.applicationTerms.map(({ application }) => ({
+      people: term.applicationTerms.map(({ application, lateArrivalAt, earlyDepartureAt }) => ({
         applicationId: application.id,
         firstName: application.firstName,
         lastName: application.lastName,
         allergies: application.allergies,
         specialRequest: application.specialRequest,
         optionIds: application.mealOptions.map((option) => option.id),
+        lateArrival: lateArrivalAt && toPragueWallTime(lateArrivalAt),
+        earlyDeparture: earlyDepartureAt && toPragueWallTime(earlyDepartureAt),
       })),
     }))
   }

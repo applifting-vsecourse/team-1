@@ -26,6 +26,13 @@ const termSchema = z.object({
    * other term, so there is nothing to show or write.
    */
   roomWishes: z.array(z.string()).optional(),
+  /**
+   * Later arrival and earlier departure, Prague wall time `yyyy-MM-ddTHH:mm` or `null` (US-143).
+   * Absent for a cancelled or archived term, so there is nothing to show or write.
+   */
+  stay: z
+    .object({ lateArrival: z.string().nullable(), earlyDeparture: z.string().nullable() })
+    .optional(),
 })
 export type MyApplicationTerm = z.infer<typeof termSchema>
 
@@ -178,4 +185,11 @@ export async function saveRoomWishes(
   await api.put(`participant/applications/${applicationId}/terms/${termId}/room-wishes`, {
     json: { names },
   })
+}
+
+export type Stay = NonNullable<MyApplicationTerm["stay"]>
+
+/** `PUT …/terms/:termId/stay` — sets, changes or (both `null`) deletes arrival and departure (US-143). */
+export async function saveStay(applicationId: string, termId: string, stay: Stay): Promise<void> {
+  await api.put(`participant/applications/${applicationId}/terms/${termId}/stay`, { json: stay })
 }

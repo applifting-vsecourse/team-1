@@ -1,6 +1,7 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { Prisma } from "@/generated/prisma/client"
 import { MyApplicationRecord } from "@/modules/participants/domain/my-application"
+import { toPragueWallTime } from "@/shared/domain/prague-wall-time"
 import { Injectable } from "@nestjs/common"
 
 const include = {
@@ -90,6 +91,8 @@ function toRecord(row: Row): MyApplicationRecord {
         transportId,
         roomAssignment,
         roomWishes,
+        lateArrivalAt,
+        earlyDepartureAt,
       }) => ({
         termId: term.id,
         termNumber: term.number,
@@ -109,6 +112,8 @@ function toRecord(row: Row): MyApplicationRecord {
         roomName: roomAssignment?.room.name ?? null,
         termCancelled: term.cancelledAt !== null,
         roomWishes,
+        lateArrival: lateArrivalAt && toPragueWallTime(lateArrivalAt),
+        earlyDeparture: earlyDepartureAt && toPragueWallTime(earlyDepartureAt),
       }),
     ),
   }

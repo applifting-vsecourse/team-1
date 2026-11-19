@@ -1,5 +1,6 @@
-import { createFileRoute, Outlet } from "@tanstack/react-router"
+import { createFileRoute, Outlet, useMatchRoute } from "@tanstack/react-router"
 
+import { ROUTES } from "@/app/routes"
 import { ErrorPage } from "@/components/pages/ErrorPage"
 import { HTTPError } from "@/lib/api-client"
 import { ForbiddenError } from "@/lib/errors"
@@ -32,9 +33,12 @@ export const Route = createFileRoute("/organizer/_app/events/$eventId")({
 function EventLayout() {
   const { eventId } = Route.useParams()
 
+  const matchRoute = useMatchRoute()
+  const hasKitchenHeader = matchRoute({ to: ROUTES.organizer.eventMeals, params: { eventId } })
+
   return (
     <>
-      <EventHeader eventId={eventId} />
+      {hasKitchenHeader ? null : <EventHeader eventId={eventId} />}
       <Outlet />
     </>
   )

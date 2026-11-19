@@ -26,6 +26,7 @@ import {
 import { PaymentSummary } from "@/features/participant/components/PaymentSummary"
 import { RoomSection } from "@/features/participant/components/RoomSection"
 import { RoomWishesSection } from "@/features/participant/components/RoomWishes"
+import { TermStaySection } from "@/features/participant/components/TermStay"
 import { TermSteps } from "@/features/participant/components/TermSteps"
 import { TermStatusBadge } from "@/features/participant/components/TermSummary"
 
@@ -102,6 +103,10 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
           </h2>
           <p className="text-sm text-muted-foreground tabular-nums">{data.code}</p>
           <TermSteps application={data} />
+          <TermStaySection
+            applicationId={applicationId}
+            terms={data.terms}
+          />
           <ParticipantTermActions
             application={data}
             onStart={setChangeMode}

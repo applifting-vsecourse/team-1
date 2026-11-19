@@ -70,6 +70,9 @@ export type KitchenPerson = {
   optionIds: string[]
   allergies: string | null
   specialRequest: string | null
+  /** Later arrival / earlier departure, Prague wall time `yyyy-MM-ddTHH:mm` (US-143). */
+  lateArrival: string | null
+  earlyDeparture: string | null
 }
 
 export type KitchenTermInput = {
@@ -97,6 +100,14 @@ export type KitchenTermSummary = {
     firstName: string
     lastName: string
     specialRequest: string
+  }[]
+  /** Participants who give a later arrival or an earlier departure; information only (US-143). */
+  stays: {
+    applicationId: string
+    firstName: string
+    lastName: string
+    lateArrival: string | null
+    earlyDeparture: string | null
   }[]
 }
 
@@ -126,6 +137,19 @@ export function kitchenSummary(
         person.specialRequest === null
           ? []
           : [{ ...identify(person), specialRequest: person.specialRequest }],
+      )
+      .sort(byName),
+    stays: term.people
+      .flatMap((person) =>
+        person.lateArrival === null && person.earlyDeparture === null
+          ? []
+          : [
+              {
+                ...identify(person),
+                lateArrival: person.lateArrival,
+                earlyDeparture: person.earlyDeparture,
+              },
+            ],
       )
       .sort(byName),
   }))

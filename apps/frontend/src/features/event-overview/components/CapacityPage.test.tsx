@@ -6,8 +6,10 @@ import {
   createRouter,
   RouterProvider,
 } from "@tanstack/react-router"
-import { render, screen } from "@testing-library/react"
+import { act, cleanup, render, screen } from "@testing-library/react"
 import { afterEach, describe, expect, it, vi } from "vitest"
+
+import { i18n } from "@/i18n"
 
 import { CapacityPage } from "@/features/event-overview/components/CapacityPage"
 
@@ -88,7 +90,10 @@ function renderPage(
   )
 }
 
-afterEach(() => vi.restoreAllMocks())
+afterEach(async () => {
+  vi.restoreAllMocks()
+  await act(() => i18n.changeLanguage("en"))
+})
 
 describe("CapacityPage", () => {
   it("lists every term with bars for women and men and no percent text", async () => {
@@ -160,6 +165,67 @@ describe("CapacityPage", () => {
 
     expect(await screen.findByText("Term capacity exceeded")).toBeVisible()
     expect(screen.getByText(/Men: 6 confirmed for 5 beds/)).toBeVisible()
+  })
+
+  describe("bed counts agree with the number", () => {
+    const womenBeds = [
+      { beds: 1, cs: "lůžko", en: "bed" },
+      { beds: 2, cs: "lůžka", en: "beds" },
+      { beds: 4, cs: "lůžka", en: "beds" },
+      { beds: 0, cs: "lůžek", en: "beds" },
+      { beds: 5, cs: "lůžek", en: "beds" },
+      { beds: 22, cs: "lůžek", en: "beds" },
+    ]
+    const withWomenBeds = (beds: number) => {
+      const body = structuredClone(gendered)
+      body.terms[0]!.byGender.FEMALE = figures({ capacity: beds, free: beds })
+      return body
+    }
+
+    it.each(womenBeds)("in Czech for $beds women's beds", async ({ beds, cs }) => {
+      await act(() => i18n.changeLanguage("cs"))
+      renderPage(withWomenBeds(beds), 200, { termId: "t1" })
+
+      expect(await screen.findByText(`${beds} ${cs} pro ženy · 5 pro muže`)).toBeVisible()
+      expect(
+        screen.getByRole("link", { name: new RegExp(`Ženy · kapacita ${beds} ${cs}\\b`) }),
+      ).toBeVisible()
+    })
+
+    it.each(womenBeds)("in English for $beds women's beds", async ({ beds, en }) => {
+      renderPage(withWomenBeds(beds), 200, { termId: "t1" })
+
+      expect(await screen.findByText(`${beds} ${en} for women · 5 for men`)).toBeVisible()
+      expect(
+        screen.getByRole("link", { name: new RegExp(`Women · capacity ${beds} ${en}\\b`) }),
+      ).toBeVisible()
+    })
+
+    it.each([
+      { beds: 1, cs: "lůžko", en: "bed" },
+      { beds: 3, cs: "lůžka", en: "beds" },
+      { beds: 8, cs: "lůžek", en: "beds" },
+    ])("in the over-capacity warning for $beds beds", async ({ beds, cs, en }) => {
+      const over = structuredClone(gendered)
+      over.terms[0]!.byGender.MALE = figures({ capacity: beds, confirmed: beds + 1, free: -1 })
+
+      await act(() => i18n.changeLanguage("cs"))
+      renderPage(over, 200, { termId: "t1" })
+      expect(
+        await screen.findByText(
+          `Muži: potvrzeno ${beds + 1} na ${beds} ${cs}. Kapacita je překročena o 1.`,
+        ),
+      ).toBeVisible()
+      cleanup()
+
+      await act(() => i18n.changeLanguage("en"))
+      renderPage(over, 200, { termId: "t1" })
+      expect(
+        await screen.findByText(
+          `Men: ${beds + 1} confirmed for ${beds} ${en}. Capacity exceeded by 1.`,
+        ),
+      ).toBeVisible()
+    })
   })
 
   it("explains an unfinished event without terms and offers to add one", async () => {
