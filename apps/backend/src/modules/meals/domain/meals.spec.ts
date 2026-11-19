@@ -126,7 +126,7 @@ describe("kitchenSummary", () => {
     expect(summary!.specialRequests.map((entry) => entry.applicationId)).toEqual(["5"])
   })
 
-  it("tells participants who confirmed having no restriction from those who did not answer", () => {
+  it("counts participants who confirmed having no restriction or did not answer as regular meal", () => {
     const [summary] = kitchenSummary(
       [
         term([
@@ -138,7 +138,7 @@ describe("kitchenSummary", () => {
       ],
       [veg],
     )
-    expect(summary).toMatchObject({ total: 4, undecided: 1 })
+    expect(summary).toMatchObject({ total: 4, regular: 3 })
   })
 
   it("lists participants with a later arrival or earlier departure by name, without counting them", () => {

@@ -68,6 +68,12 @@ describe("ParticipantHealthForm", () => {
     expect(await screen.findByText("Adam Dvořák · Letní kemp Lipno 2027")).toBeInTheDocument()
   })
 
+  it("keeps a stored note editable even when a stale confirmation comes with it (US-150)", async () => {
+    setup({ ...empty, note: "Astma", noRestriction: true, consentAt: "2026-11-05T13:30:00.000Z" })
+    expect(await screen.findByLabelText("Participant's health restriction")).not.toBeDisabled()
+    expect(screen.getByRole("button", { name: "Request a change" })).toBeEnabled()
+  })
+
   it("links back to the application", async () => {
     setup()
     expect(await screen.findByRole("link", { name: "← Application" })).toHaveAttribute(

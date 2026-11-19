@@ -62,7 +62,7 @@ function HealthFields({ applicationId, health }: { applicationId: string; health
   const [isEditing, setIsEditing] = useState(false)
   const [note, setNote] = useState(health.note ?? "")
   const [hasConsent, setHasConsent] = useState(health.consentAt !== null)
-  const [hasNone, setHasNone] = useState(health.noRestriction)
+  const [hasNone, setHasNone] = useState(health.noRestriction && !isStored)
 
   const mutation = useMutation({
     mutationFn: async () => {

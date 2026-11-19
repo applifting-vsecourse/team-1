@@ -33,8 +33,6 @@ const kitchenTermSchema = z.object({
   total: z.number().int(),
   /** Confirmed participants without any ticked restriction. */
   regular: z.number().int(),
-  /** Confirmed participants who neither entered a restriction nor confirmed having none. */
-  undecided: z.number().int(),
   options: z.array(optionSchema.extend({ count: z.number().int() })),
   allergies: z.array(
     z.object({

@@ -128,13 +128,11 @@ export class KitchenTermSummaryDto {
   @ApiProperty() startsOn!: string
   @ApiProperty() endsOn!: string
   @ApiProperty() total!: number
-  @ApiProperty({ description: "Confirmed participants without any ticked restriction." })
-  regular!: number
   @ApiProperty({
     description:
-      "Confirmed participants who neither entered a restriction nor confirmed having none.",
+      "Confirmed participants without any ticked restriction (includes those who did not fill meals in).",
   })
-  undecided!: number
+  regular!: number
   @ApiProperty({ type: [KitchenOptionCountDto], description: "Counts may overlap." })
   options!: KitchenOptionCountDto[]
   @ApiProperty({ type: [KitchenAllergyDto] }) allergies!: KitchenAllergyDto[]

@@ -95,6 +95,25 @@ describe("health restriction (integration)", () => {
     expect(await decided()).toBe(false)
   })
 
+  it("never keeps the confirmation next to a note, even when both are sent at once", async () => {
+    await prisma.applicationHealth.deleteMany({ where: { applicationId } })
+    await prisma.application.update({
+      where: { id: applicationId },
+      data: { noHealthRestriction: false },
+    })
+    const [confirm, note] = await Promise.all([
+      save(participant, { note: "", consent: false, noRestriction: true }),
+      save(participant, { note: NOTE, consent: true }),
+    ])
+    expect([200, 409]).toContain(confirm.status)
+    expect(note.status).toBe(200)
+    // The note always wins: whichever order the two ran in, no confirmation is left beside it.
+    const row = await prisma.application.findUniqueOrThrow({ where: { id: applicationId } })
+    expect(row.noHealthRestriction).toBe(false)
+    expect(await prisma.applicationHealth.count({ where: { applicationId } })).toBe(1)
+    await prisma.applicationHealth.deleteMany({ where: { applicationId } })
+  })
+
   it("saves the note with the time of the consent and shows it to the organizer", async () => {
     const saved = await save(participant, { note: `  ${NOTE}  `, consent: true })
     expect(saved.status).toBe(200)

@@ -7,7 +7,6 @@ type KitchenTerm = {
   termId: string
   total: number
   regular: number
-  undecided: number
   options: (Option & { count: number })[]
   allergies: { firstName: string; lastName: string; allergies: string }[]
   specialRequests: { lastName: string; specialRequest: string }[]
@@ -132,12 +131,9 @@ describe("meals (integration)", () => {
     const own = await (await request("GET", ownPath(), participant)).json()
     const [first] = own.options as Option[]
     const clear = { optionIds: [], allergies: "", specialRequest: "" }
-    const undecidedCount = async () =>
-      (await summary()).reduce((sum, term) => sum + term.undecided, 0)
 
     await request("PUT", ownPath(), participant, clear)
     expect(await decided()).toBe(false)
-    const before = await undecidedCount()
 
     const confirmed = await request("PUT", ownPath(), participant, {
       ...clear,
@@ -146,7 +142,6 @@ describe("meals (integration)", () => {
     expect(confirmed.status).toBe(200)
     expect(await confirmed.json()).toMatchObject({ noRestrictions: true })
     expect(await decided()).toBe(true)
-    expect(await undecidedCount()).toBeLessThan(before)
 
     const contradiction = await request("PUT", ownPath(), participant, {
       ...clear,

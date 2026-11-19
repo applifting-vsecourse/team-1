@@ -55,8 +55,7 @@ export class HealthService {
     }
     if (decision.kind === "clear") {
       await this.health.clear(applicationId)
-      await this.health.setNoRestriction(applicationId, false)
-    } else if (decision.kind === "none") await this.health.setNoRestriction(applicationId, true)
+    } else if (decision.kind === "none") await this.health.confirmNoRestriction(applicationId)
     else await this.health.save(organizationId, applicationId, decision.note, new Date())
     return this.getOwn(user, applicationId)
   }

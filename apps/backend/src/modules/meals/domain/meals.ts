@@ -126,10 +126,8 @@ export type KitchenTermSummary = {
   startsOn: Date
   endsOn: Date
   total: number
-  /** Confirmed participants without any ticked restriction. */
+  /** Confirmed participants without any ticked restriction (includes those who did not fill meals in). */
   regular: number
-  /** Confirmed participants who neither entered a restriction nor confirmed having none. */
-  undecided: number
   /** Participants may tick several options, so the counts can overlap. */
   options: (MealOption & { count: number })[]
   allergies: { applicationId: string; firstName: string; lastName: string; allergies: string }[]
@@ -161,7 +159,6 @@ export function kitchenSummary(
     endsOn: term.endsOn,
     total: term.people.length,
     regular: term.people.filter((person) => person.optionIds.length === 0).length,
-    undecided: term.people.filter((person) => !isMealsDecided(person)).length,
     options: options.map((option) => ({
       ...option,
       count: term.people.filter((person) => person.optionIds.includes(option.id)).length,
