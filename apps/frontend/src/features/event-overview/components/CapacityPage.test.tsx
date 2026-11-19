@@ -10,6 +10,7 @@ import { act, cleanup, render, screen } from "@testing-library/react"
 import { afterEach, describe, expect, it, vi } from "vitest"
 
 import { i18n } from "@/i18n"
+import { roomCapacityIncreaseKey } from "@/lib/room-capacity-increase"
 
 import { CapacityPage } from "@/features/event-overview/components/CapacityPage"
 
@@ -57,6 +58,7 @@ function renderPage(
     termId?: string
     rooms?: { gender: "FEMALE" | "MALE" | null; beds: number }[]
   } = {},
+  client = new QueryClient({ defaultOptions: { queries: { retry: false } } }),
 ) {
   vi.spyOn(globalThis, "fetch").mockImplementation(() =>
     Promise.resolve(
@@ -82,9 +84,7 @@ function renderPage(
     history: createMemoryHistory({ initialEntries: ["/"] }),
   })
   render(
-    <QueryClientProvider
-      client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
-    >
+    <QueryClientProvider client={client}>
       <RouterProvider router={router} />
     </QueryClientProvider>,
   )
@@ -96,6 +96,25 @@ afterEach(async () => {
 })
 
 describe("CapacityPage", () => {
+  it.each([
+    ["t1", 5, true],
+    ["other-term", 5, false],
+    ["t1", 99, false],
+  ] as const)(
+    "shows the room increase only for the saved term and matching totals (%s, %i)",
+    async (id, femaleBeds, isShown) => {
+      const client = new QueryClient()
+      client.setQueryData(roomCapacityIncreaseKey("e1", id), {
+        gender: "FEMALE",
+        addedBeds: 2,
+        capacity: { FEMALE: femaleBeds, MALE: 5, total: femaleBeds + 5 },
+      })
+      renderPage(gendered, 200, { termId: "t1" }, client)
+      await screen.findByText("2 / 5")
+      expect(Boolean(screen.queryByText("Women's capacity increased by 2 beds"))).toBe(isShown)
+    },
+  )
+
   it("lists every term with bars for women and men and no percent text", async () => {
     renderPage(gendered)
 

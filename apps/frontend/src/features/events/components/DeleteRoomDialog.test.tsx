@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest"
 
 import { i18n } from "@/i18n"
 
+import { roomAssignmentsKey } from "@/features/events/api/room-assignments"
 import type { Room, TermRooms } from "@/features/events/api/rooms"
 import { DeleteRoomDialog } from "@/features/events/components/DeleteRoomDialog"
 
@@ -15,6 +16,7 @@ function renderDialog(
   gender: Room["gender"],
   before: number,
   beds: number,
+  isOccupied = false,
 ) {
   const room: Room = { id: "r1", name: "Room 1", capacity: beds, extraBeds: 0, beds, gender }
   const term: TermRooms = {
@@ -30,8 +32,13 @@ function renderDialog(
     rooms: [room],
     capacity: { FEMALE: before, MALE: before, total: before },
   }
+  const client = new QueryClient({ defaultOptions: { queries: { staleTime: Infinity } } })
+  client.setQueryData(roomAssignmentsKey(term.eventId, term.termId), {
+    rooms: [{ id: room.id, participants: isOccupied ? [{ status: "CONFIRMED" }] : [] }],
+    unassigned: [],
+  })
   render(
-    <QueryClientProvider client={new QueryClient()}>
+    <QueryClientProvider client={client}>
       <DeleteRoomDialog
         term={term}
         room={room}
@@ -115,4 +122,11 @@ describe("DeleteRoomDialog capacity impact", () => {
       screen.getByText(`Room 1 má ${beds} ${cs}. Smazání přepočítá kapacitu pouze tohoto termínu.`),
     ).toBeVisible()
   })
+})
+
+it("explains how to empty an occupied room and disables deletion", () => {
+  renderDialog("SHARED", null, 3, 1, true)
+  expect(screen.getByText("Move the participants assigned to this room first.")).toBeVisible()
+  expect(screen.getByRole("button", { name: "Delete" })).toBeDisabled()
+  expect(screen.getByRole("button", { name: "Cancel" })).toBeEnabled()
 })

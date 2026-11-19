@@ -253,7 +253,7 @@ describe("PublicPageForm", () => {
     await vi.waitFor(() =>
       expect(notify.success).toHaveBeenCalledWith(
         "Public details are saved.",
-        "The event is listed in the catalog.",
+        "The event is listed in the catalog. The public event page shows the same details.",
       ),
     )
     expect(screen.getByRole("button", { name: "Public details" })).toHaveAttribute(

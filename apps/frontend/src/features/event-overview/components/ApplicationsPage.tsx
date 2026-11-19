@@ -36,7 +36,7 @@ import {
 } from "@/features/event-overview/api/applications"
 import type { BulkDecision } from "@/features/event-overview/api/bulkDecision"
 import type { BulkEvaluationResult } from "@/features/event-overview/api/bulkEvaluation"
-import { occupancyQueryOptions } from "@/features/event-overview/api/occupancy"
+import { occupancyQueryOptions, type TermOccupancy } from "@/features/event-overview/api/occupancy"
 import { ApplicationFilters } from "@/features/event-overview/components/ApplicationFilters"
 import { ApplicationViews } from "@/features/event-overview/components/ApplicationViews"
 import { BulkConfirmDialog } from "@/features/event-overview/components/BulkConfirmDialog"
@@ -61,10 +61,12 @@ import type { ApplicationsSearch } from "@/features/event-overview/lib/applicati
 // Figma (Design system): M12b / Empty results · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14189-43641
 export function ApplicationsPage({
   eventId,
+  isAutomatic = false,
   filters,
   onFiltersChange,
 }: {
   eventId: string
+  isAutomatic?: boolean
   filters: ApplicationsSearch
   onFiltersChange: (filters: ApplicationsSearch) => void
 }) {
@@ -83,6 +85,11 @@ export function ApplicationsPage({
   // Deciding in bulk (US-107, US-108) works on one term: the free beds belong to a term. With a
   // single term there is no choice to make, so the filter "all terms" is that term.
   const terms = occupancy.data?.terms ?? []
+  // US-27 / 19088:23988, 19088:24305, 19088:24704, 19088:25013.
+  const automaticTerm =
+    isAutomatic && !filters.status && !filters.view
+      ? terms.find((term) => term.id === filters.term)
+      : undefined
   const bulkTerm = isQueue
     ? filters.term
       ? terms.find((term) => term.id === filters.term)
@@ -96,8 +103,10 @@ export function ApplicationsPage({
   const [taken, setTaken] = useState<SubstituteTakenData | null>(null)
   const pageCount = Math.max(1, Math.ceil((query.data?.length ?? 0) / PAGE_SIZE))
   const currentPage = Math.min(page, pageCount - 1)
+  // The general list arrives newest first, with the application number breaking ties.
+  const orderedRows = automaticTerm ? query.data?.toReversed() : query.data
   const visibleRows =
-    query.data?.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE) ?? []
+    orderedRows?.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE) ?? []
   // Only what the filter shows counts, so narrowing the filter never decides on a hidden row.
   const selected = bulkTerm ? (query.data ?? []).filter((row) => selectedIds.has(row.id)) : []
   const isAllSelected = (query.data?.length ?? 0) > 0 && selected.length === query.data?.length
@@ -166,7 +175,9 @@ export function ApplicationsPage({
   }
   const views = (
     <div className="flex flex-col gap-4">
-      <h2 className="text-2xl font-bold">{t("applications.title")}</h2>
+      <h2 className="text-2xl font-bold">
+        {t(automaticTerm ? "automaticCapacity.heading" : "applications.title")}
+      </h2>
       <ApplicationViews
         eventId={eventId}
         filters={filters}
@@ -204,6 +215,7 @@ export function ApplicationsPage({
     <div className="flex flex-col gap-6">
       <Seo title={t("applications.title")} />
       {views}
+      {automaticTerm ? <AutomaticCapacity term={automaticTerm} /> : null}
       <Button
         asChild
         size="lg"
@@ -219,6 +231,7 @@ export function ApplicationsPage({
       </Button>
       {substituteTerm && (
         <SubstitutesPanel
+          hasWaitlistedParticipants={(query.data?.length ?? 0) > 0}
           eventId={eventId}
           term={substituteTerm}
           onTaken={setTaken}
@@ -238,6 +251,7 @@ export function ApplicationsPage({
       <>
         <div className="flex flex-wrap items-end gap-2">
           <form
+            id="term-waitlist"
             role="search"
             aria-label={t("applications.search")}
             className="w-full md:w-auto"
@@ -296,7 +310,7 @@ export function ApplicationsPage({
               </h2>
               <p className="text-sm text-muted-foreground">
                 {t(
-                  isQueue
+                  isQueue || automaticTerm
                     ? "applications.sortQueue"
                     : isWaitlist && filters.term
                       ? "applications.sortWaitlist"
@@ -719,5 +733,42 @@ function PaymentStatus({ application }: { application: ListedApplication }) {
     >
       {t(`applications.${labels[application.paymentStatus]}`)}
     </Badge>
+  )
+}
+
+// Figma: Automatické vyhodnocení · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK?node-id=19088-23988 (shared capacity 19088-24704)
+function AutomaticCapacity({ term }: { term: TermOccupancy }) {
+  const { t } = useTranslation("eventOverview")
+  const groups = term.byGender
+  const description = groups
+    ? groups.FEMALE.free <= 0 && groups.MALE.free > 0
+      ? "womenFull"
+      : groups.MALE.free <= 0 && groups.FEMALE.free > 0
+        ? "menFull"
+        : "genderRule"
+    : term.free <= 0
+      ? "sharedFull"
+      : "sharedRule"
+  return (
+    <div className="flex flex-col gap-3">
+      <Alert>
+        <AlertTitle>
+          {groups
+            ? t("automaticCapacity.genderTitle", {
+                women: groups.FEMALE.confirmed,
+                womenBeds: groups.FEMALE.capacity,
+                men: groups.MALE.confirmed,
+                menBeds: groups.MALE.capacity,
+              })
+            : t("automaticCapacity.sharedTitle", {
+                confirmed: term.confirmed,
+                beds: term.capacity,
+                count: term.capacity,
+              })}
+        </AlertTitle>
+        <AlertDescription>{t(`automaticCapacity.${description}`)}</AlertDescription>
+      </Alert>
+      <p className="text-sm text-muted-foreground">{t("automaticCapacity.receipt")}</p>
+    </div>
   )
 }

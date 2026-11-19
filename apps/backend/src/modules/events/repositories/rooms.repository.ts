@@ -145,8 +145,15 @@ export class RoomsRepository {
   async remove(scope: TermScope, id: string): Promise<void> {
     const { termId, organizationId } = scope
     await this.write(scope, async (tx) => {
-      const result = await tx.room.deleteMany({ where: { id, termId, organizationId } })
-      if (!result.count) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
+      const room = await tx.room.findFirst({
+        where: { id, termId, organizationId },
+        select: { _count: { select: { assignments: true } } },
+      })
+      if (!room) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
+      if (room._count.assignments > 0) {
+        throw new AppException(HttpStatus.CONFLICT, "ROOM_HAS_ASSIGNMENTS")
+      }
+      await tx.room.delete({ where: { id } })
     })
   }
 

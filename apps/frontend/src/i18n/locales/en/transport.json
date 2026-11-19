@@ -31,6 +31,7 @@
   "departureColumn": "Departure",
   "departureTitle": "Departure",
   "description": "The ways participants get to each term. Own transport is only offered when you add it yourself.",
+  "detailsSaved": "Transport details saved.",
   "editOf": "Edit transport {{name}}",
   "editOwnTitle": "Edit own transport",
   "editTitle": "Edit transport",

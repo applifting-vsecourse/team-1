@@ -17,7 +17,9 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { formatDate } from "@/lib/date"
 
+import { applicationEditQueryOptions } from "@/features/participant/api/applicationEdit"
 import { myApplicationQueryOptions } from "@/features/participant/api/applications"
+import { ApplicationEditHistory } from "@/features/participant/components/ApplicationEditHistory"
 import { ChangeRequestNotice } from "@/features/participant/components/ChangeRequestNotice"
 import { OrganizationContact } from "@/features/participant/components/OrganizationContact"
 import {
@@ -45,6 +47,7 @@ type ApplicationDetailProps = { applicationId: string }
 export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
   const { t } = useTranslation("participant")
   const { data, isPending, error, refetch } = useQuery(myApplicationQueryOptions(applicationId))
+  const edit = useQuery({ ...applicationEditQueryOptions(applicationId), enabled: Boolean(data) })
   const [changeMode, setChangeMode] = useState<ChangeMode | null>(null)
 
   const back = <BackLink to={ROUTES.participant.applications}>{t("detail.back")}</BackLink>
@@ -211,7 +214,8 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
               </Button>
             </div>
           )}
-          {(data.applicantEmail !== undefined ||
+          {(Boolean(edit.data?.phone) ||
+            data.applicantEmail !== undefined ||
             (data.birthDate !== undefined && data.gender !== undefined)) && (
             <Card className="min-w-0 gap-4 p-4 sm:p-6">
               <h2 className="text-xl font-semibold">{t("detail.participantCard")}</h2>
@@ -220,6 +224,9 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
                   {formatDate(data.birthDate)} ·{" "}
                   {t(data.gender === "MALE" ? "detail.male" : "detail.female")}
                 </DetailItem>
+              )}
+              {edit.data?.phone && (
+                <DetailItem label={t("edit.phone")}>{edit.data.phone}</DetailItem>
               )}
               {data.applicantEmail && (
                 <DetailItem label={t("detail.applicantContact")}>
@@ -239,6 +246,15 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
       <div className="mx-auto w-full max-w-[944px]">
         <PaymentSummary application={data} />
       </div>
+      {edit.error ? (
+        <ErrorState
+          title={t("edit.historyLoadFailed")}
+          error={edit.error}
+          onRetry={() => void edit.refetch()}
+        />
+      ) : edit.data?.history.length ? (
+        <ApplicationEditHistory saved={edit.data} />
+      ) : null}
       {changeMode ? (
         <ParticipantTermChange
           application={data}

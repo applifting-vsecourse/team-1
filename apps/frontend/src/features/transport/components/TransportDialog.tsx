@@ -36,6 +36,7 @@ import {
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { formatDate } from "@/lib/date"
+import { notify } from "@/lib/notify"
 import { termTitle } from "@/lib/term-label"
 import { cn } from "@/lib/utils"
 
@@ -133,6 +134,7 @@ export function TransportDialog({
     } catch {
       return
     }
+    notify.success(t("detailsSaved"))
     onClose()
   })
   const isPending = mutation.isPending || form.formState.isSubmitting

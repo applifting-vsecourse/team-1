@@ -158,10 +158,18 @@ describe("PaymentEditor", () => {
     expect(recordRefund).not.toHaveBeenCalled()
   })
 
-  it("disables the refund while no term has an overpayment", () => {
-    setup(3000)
-    expect(screen.getByRole("radio", { name: "Refund" })).toBeDisabled()
-    expect(screen.getByRole("radio", { name: "Payment" })).toBeChecked()
+  it("explains an unavailable refund and prevents submission while the payment remains available", async () => {
+    const { user } = setup(3000)
+    await user.click(screen.getByRole("radio", { name: "Refund" }))
+    expect(screen.getByRole("status")).toHaveTextContent("No term has an overpayment.")
+    expect(screen.queryByRole("combobox")).toBeNull()
+    expect(screen.queryByRole("textbox")).toBeNull()
+    const submit = screen.getByRole("button", { name: "Confirm" })
+    expect(submit).toBeDisabled()
+    await user.click(submit)
+    expect(recordRefund).not.toHaveBeenCalled()
+    await user.click(screen.getByRole("radio", { name: "Payment" }))
+    expect(screen.getByRole("button", { name: /Record payment/ })).toBeEnabled()
   })
 
   it("offers the refund for the term the backend names, with its overpayment as the limit", async () => {

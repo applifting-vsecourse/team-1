@@ -632,7 +632,9 @@ describe("room assignment", () => {
       }
       renderCard()
       // The text is on the page twice (desktop table and mobile card); both count the same.
-      const texts = await screen.findAllByText("Mixed genders: 1 woman and 1 man.")
+      const texts = await screen.findAllByText(
+        "Mixed genders: 1 woman and 1 man. Lucie Veselá has individual accommodation and is excluded from the count.",
+      )
       expect(texts.length).toBeGreaterThan(0)
       expect(screen.queryByText("Mixed genders: 2 women and 1 man.")).not.toBeInTheDocument()
     })

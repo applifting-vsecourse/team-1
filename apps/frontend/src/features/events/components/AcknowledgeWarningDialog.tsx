@@ -69,8 +69,10 @@ export function AcknowledgeWarningDialog({
         if (!isOpen && !isPending) onClose()
       }}
     >
-      <DialogContent className="max-h-[90dvh] overflow-y-auto bg-card shadow-md sm:max-w-160">
-        <DialogTitle>{t("acknowledgeDialog.title")}</DialogTitle>
+      <DialogContent className="max-h-[calc(100dvh-2rem)] min-h-[min(717px,calc(100dvh-2rem))] overflow-y-auto bg-card shadow-md max-sm:top-4 max-sm:translate-y-0 sm:min-h-[min(497px,calc(100dvh-2rem))] sm:max-w-160">
+        <DialogTitle className="pr-14 text-2xl leading-8 font-bold">
+          {t("acknowledgeDialog.title")}
+        </DialogTitle>
         <DialogDescription className="text-base">
           {t("acknowledgeDialog.description")}
         </DialogDescription>
@@ -106,6 +108,7 @@ export function AcknowledgeWarningDialog({
             <Label htmlFor="warning-note">{t("acknowledgeDialog.noteLabel")}</Label>
             <Textarea
               id="warning-note"
+              className="min-h-28 px-4 py-3 text-base"
               value={note}
               maxLength={WARNING_NOTE_MAX_LENGTH}
               rows={4}
@@ -125,11 +128,12 @@ export function AcknowledgeWarningDialog({
               error={mutation.error}
             />
           ) : null}
-          <DialogFooter className="gap-4">
+          <DialogFooter className="gap-4 sm:gap-2">
             <DialogClose asChild>
               <Button
                 type="button"
-                variant="ghost"
+                className="sm:w-55"
+                variant="outline"
                 size="lg"
                 disabled={isPending}
               >
@@ -138,6 +142,7 @@ export function AcknowledgeWarningDialog({
             </DialogClose>
             <Button
               type="submit"
+              className="sm:w-55"
               size="lg"
               disabled={isPending}
             >

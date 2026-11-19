@@ -10,6 +10,8 @@ import { act, render, screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
+import { roomCapacityIncreaseKey } from "@/lib/room-capacity-increase"
+
 import type { TermRooms } from "@/features/events/api/rooms"
 import { RoomsPage, type AccommodationTerm } from "@/features/events/components/RoomsPage"
 
@@ -151,7 +153,7 @@ function renderRooms(termId: string, view: "assignment" | "overview" = "assignme
     history: createMemoryHistory({ initialEntries: ["/"] }),
   })
   render(<RouterProvider router={router} />)
-  return { onSelectTerm, onSelectView, user: userEvent.setup() }
+  return { client, onSelectTerm, onSelectView, user: userEvent.setup() }
 }
 
 describe("accommodation by term", () => {
@@ -336,8 +338,47 @@ describe("accommodation by term", () => {
     expect(onSelectTerm).toHaveBeenCalledWith("t2")
   })
 
-  it("copies rooms from another term, closes the dialog and confirms with a toast", async () => {
-    post.mockResolvedValue(undefined)
+  it("records only the observed increase after adding a gendered room", async () => {
+    const original = byTerm.t1!
+    post.mockImplementationOnce(() => {
+      byTerm.t1 = termRooms(
+        "t1",
+        [
+          ...original.rooms,
+          { id: "added", name: "New", gender: "FEMALE", capacity: 5, extraBeds: 0, beds: 5 },
+        ],
+        "GENDERED",
+      )
+      return Promise.resolve()
+    })
+    const { client, user } = renderRooms("t1")
+    try {
+      await user.click(await screen.findByRole("button", { name: "Add room" }))
+      const dialog = await screen.findByRole("dialog")
+      await user.type(within(dialog).getByLabelText("Room name *"), "New")
+      await user.type(within(dialog).getByLabelText("Capacity *"), "5")
+      await user.click(within(dialog).getByRole("button", { name: "Add room" }))
+      await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument())
+      expect(client.getQueryData(roomCapacityIncreaseKey("e1", "t1"))).toMatchObject({
+        gender: "FEMALE",
+        addedBeds: 5,
+        capacity: { FEMALE: 5007, MALE: 4 },
+      })
+    } finally {
+      byTerm.t1 = original
+    }
+  })
+
+  it("reports newly copied rooms, excluding rooms already in the target", async () => {
+    const original = byTerm.t1!
+    post.mockImplementationOnce(() => {
+      byTerm.t1 = termRooms(
+        "t1",
+        [...original.rooms, { ...byTerm.t3!.rooms[0]!, id: "new-copy" }],
+        "GENDERED",
+      )
+      return Promise.resolve()
+    })
     byTerm.t3 = termRooms(
       "t3",
       [{ id: "x", name: "Other", gender: "MALE", capacity: 4, extraBeds: 0, beds: 4 }],
@@ -355,7 +396,8 @@ describe("accommodation by term", () => {
     expect(post).toHaveBeenCalledWith("organizer/events/e1/terms/t1/rooms/copy", {
       json: { sourceTermId: "t3", strategy: "ADD" },
     })
-    expect(success).toHaveBeenCalledWith("Rooms copied")
+    expect(success).toHaveBeenCalledWith("1 room copied")
+    byTerm.t1 = original
     expect(screen.queryByText("The copy is done.")).not.toBeInTheDocument()
   })
 })

@@ -48,6 +48,7 @@
   "ROOM_ASSIGNMENT_STATUS_INVALID": "Do pokoje jde přiřadit jen potvrzeného účastníka nebo účastníka, který čeká na vyhodnocení.",
   "ROOM_COPY_NAMES_TAKEN": "Termín už má pokoje s názvy {{names}}. Nejdřív je přejmenujte nebo smažte, případně stávající pokoje nahraďte.",
   "ROOM_FULL": "V tomto pokoji není volné lůžko.",
+  "ROOM_HAS_ASSIGNMENTS": "Nejprve přesuňte účastníky, kteří jsou v tomto pokoji.",
   "ROOM_NAME_TAKEN": "Pokoj s tímto názvem už v akci existuje.",
   "ROOM_NOT_IN_TERM": "Pokoj nepatří do tohoto termínu.",
   "ROOM_PROPOSAL_OUTDATED": "Návrh už neplatí, přiřazení v termínu se mezitím změnilo. Navrhněte rozdělení znovu.",

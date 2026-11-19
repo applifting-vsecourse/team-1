@@ -49,7 +49,7 @@ export function RoomDialog({
   term: TermRooms
   room?: Room
   onClose: () => void
-  onSaved: () => Promise<void>
+  onSaved: (addedName?: string) => Promise<void>
   onDelete: (room: Room) => void
 }) {
   const { t } = useTranslation(["events", "common"])
@@ -91,7 +91,7 @@ export function RoomDialog({
       }
       return
     }
-    await onSaved()
+    await onSaved(room ? undefined : values.name)
     onClose()
   })
   const isPending = mutation.isPending || form.formState.isSubmitting

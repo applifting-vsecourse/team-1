@@ -42,9 +42,11 @@ export function SubstitutesPanel({
   term,
   onConfirmed,
   onTaken,
+  hasWaitlistedParticipants = false,
 }: {
   eventId: string
   term: SubstituteTerm
+  hasWaitlistedParticipants?: boolean
   onConfirmed: (applicationId: string) => void
   onTaken: (taken: SubstituteTaken) => void
 }) {
@@ -52,7 +54,40 @@ export function SubstitutesPanel({
   const query = useQuery(substitutesQueryOptions(eventId, term.id))
   const [chosen, setChosen] = useState<Substitute | null>(null)
   const list = query.data
-  if (!list || list.items.length === 0) return null
+  if (!list) return null
+  if (list.items.length === 0) {
+    if (list.evaluationMode !== "MANUAL") return null
+    const free = list.freeBeds
+    const hasFreeBeds = free.MALE > 0 || free.FEMALE > 0
+    if (!hasFreeBeds && !hasWaitlistedParticipants) return null
+    return (
+      <section className="flex flex-col gap-3 rounded-lg border bg-card p-4 md:p-6">
+        <h2 className="text-lg font-semibold">
+          {t(hasFreeBeds ? "substitutes.emptyTitle" : "substitutes.fullTitle")}
+        </h2>
+        {hasFreeBeds ? (
+          <div className="text-sm">
+            {list.roomMode === "SHARED" ? (
+              <p>{t("substitutes.freeShared", { count: free.MALE })}</p>
+            ) : (
+              <>
+                {free.MALE > 0 && <p>{t("substitutes.freeMale", { count: free.MALE })}</p>}
+                {free.FEMALE > 0 && <p>{t("substitutes.freeFemale", { count: free.FEMALE })}</p>}
+              </>
+            )}
+          </div>
+        ) : (
+          <p>{t("substitutes.fullDetail")}</p>
+        )}
+        <a
+          href="#term-waitlist"
+          className="self-start text-sm text-link underline"
+        >
+          {t("substitutes.openWaitlist")}
+        </a>
+      </section>
+    )
+  }
   const range = formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })
   // Men and women wait for different beds, so each queue is a card of its own; shared rooms have
   // one queue.

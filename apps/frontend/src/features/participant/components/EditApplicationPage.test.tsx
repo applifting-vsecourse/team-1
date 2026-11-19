@@ -382,7 +382,20 @@ describe("EditApplicationPage", () => {
         json: () =>
           Promise.resolve({ ...initial, accommodationRequest: "Ground floor", history: [] }),
       })
-      put.mockReturnValue({ json: () => Promise.resolve(withoutRequest) })
+      put.mockReturnValue({
+        json: () =>
+          Promise.resolve({
+            ...withoutRequest,
+            history: [
+              {
+                id: "h1",
+                createdAt: "2026-11-05T13:30:00Z",
+                authorName: "Jana Nováková",
+                changedFields: ["phone", "individualAccommodation", "accommodationRequest"],
+              },
+            ],
+          }),
+      })
       renderPage()
       get.mockReturnValue({
         json: () =>
@@ -401,6 +414,10 @@ describe("EditApplicationPage", () => {
           accommodationRequest: null,
         },
       })
+      expect(await screen.findByText("No individual accommodation requested.")).toBeVisible()
+      expect(
+        screen.getByText("The organizer was notified that the request was withdrawn."),
+      ).toBeVisible()
     })
 
     it("shows an error under a note over 2,000 characters and does not save it", async () => {

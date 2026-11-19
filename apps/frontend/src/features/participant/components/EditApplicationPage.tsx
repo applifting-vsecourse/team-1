@@ -24,7 +24,6 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { formatDateTime } from "@/lib/date"
 import { isValidPhone, MAX_PHONE_INPUT_LENGTH, normalizePhone } from "@/lib/phone"
 
 import {
@@ -33,6 +32,7 @@ import {
   type EditableApplication,
   type EditApplicationInput,
 } from "@/features/participant/api/applicationEdit"
+import { EditDetails } from "@/features/participant/components/ApplicationEditHistory"
 
 // Figma (Design system): Upravit přihlášku · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19795-13915 (mobile: 19795-14057)
 // Figma (Design system): US-38 individuální řešení ubytování v úpravě údajů · nezaškrtnuto node-id=25586-32206 (mobile: 25586-32330); zaškrtnuto s poznámkou 25586-32411 (mobile: 25586-32543); chyba 25586-32632 (mobile: 25586-32768)
@@ -67,10 +67,6 @@ export function EditApplicationPage({ applicationId }: { applicationId: string }
 }
 
 const MAX_ACCOMMODATION_NOTE_LENGTH = 2000
-
-/** The request for individual accommodation and its note are one change in the history (US-38). */
-const isAccommodation = (fields: string[]): boolean =>
-  fields.some((field) => field === "accommodationRequest" || field === "individualAccommodation")
 
 function EditForm({
   applicationId,
@@ -180,20 +176,6 @@ function EditForm({
 
   if (mutation.isSuccess) {
     const saved = mutation.data
-    const change = saved.history[0]
-    const fields = change?.changedFields ?? []
-    const kinds = [
-      fields.some((field) => ["firstName", "lastName", "birthDate"].includes(field))
-        ? t("edit.historyPersonal")
-        : null,
-      fields.includes("phone") ? t("edit.historyContact") : null,
-      isAccommodation(fields) ? t("edit.historyAccommodation") : null,
-    ].filter(Boolean)
-    const historyDescription =
-      isAccommodation(fields) &&
-      fields.filter((field) => !isAccommodation([field])).join() === "phone"
-        ? t("edit.historyContactAccommodation")
-        : t("edit.historyOther", { fields: kinds.join(", ") })
     return (
       <div className="mx-auto flex w-full max-w-[720px] flex-col gap-6">
         <h1 className="text-2xl font-bold">{t("edit.successTitle")}</h1>
@@ -201,30 +183,10 @@ function EditForm({
           <h2 className="text-xl font-semibold">
             {saved.firstName} {saved.lastName}
           </h2>
-          <p>
-            {saved.phone
-              ? t("edit.phoneSummary", { phone: saved.phone })
-              : t("edit.phoneSummaryNone")}
-          </p>
-          <p>
-            {t("edit.accommodationSummary", {
-              request: saved.individualAccommodation
-                ? [t("edit.accommodationIndividual"), saved.accommodationRequest]
-                    .filter(Boolean)
-                    .join(" · ")
-                : "—",
-            })}
-          </p>
-          <p>{t("edit.organizerNotified")}</p>
-          {change ? (
-            <p>
-              {t("edit.historyLine", {
-                date: formatDateTime(change.createdAt),
-                author: change.authorName,
-                description: historyDescription,
-              })}
-            </p>
-          ) : null}
+          <EditDetails
+            saved={saved}
+            hasJustSaved
+          />
         </Card>
         <Button
           asChild

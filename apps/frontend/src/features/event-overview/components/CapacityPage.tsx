@@ -1,7 +1,7 @@
 import type { ReactNode } from "react"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
-import { ChevronRight, TriangleAlert } from "lucide-react"
+import { CheckCircle2, ChevronRight, TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
@@ -15,6 +15,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { formatDateRange } from "@/lib/date"
+import { roomCapacityIncreaseKey, type RoomCapacityIncrease } from "@/lib/room-capacity-increase"
 import { termName, termTitle } from "@/lib/term-label"
 import { cn } from "@/lib/utils"
 
@@ -303,8 +304,18 @@ function TermDetail({
   term: TermOccupancy
   rooms: readonly Room[]
 }) {
-  const { t } = useTranslation("eventOverview")
+  const { t } = useTranslation(["eventOverview", "events"])
   const byGender = term.byGender
+  const storedIncrease = useQueryClient().getQueryData<RoomCapacityIncrease>(
+    roomCapacityIncreaseKey(eventId, term.id),
+  )
+  const increase =
+    storedIncrease &&
+    byGender &&
+    GENDERS.every((gender) => byGender[gender].capacity === storedIncrease.capacity[gender])
+      ? storedIncrease
+      : undefined
+  const changedFigures = increase && byGender?.[increase.gender]
   const isGendered = byGender !== null
   const overCapacity = byGender ? GENDERS.filter((gender) => byGender[gender].free < 0) : []
   const isWomenOnly = byGender !== null && byGender.FEMALE.free > 0 && byGender.MALE.free <= 0
@@ -371,6 +382,36 @@ function TermDetail({
             ))
           : null}
       </div>
+      {increase && changedFigures ? (
+        <Alert
+          role="status"
+          className="border-border bg-status-success-bg"
+        >
+          <CheckCircle2 aria-hidden="true" />
+          <AlertTitle className="line-clamp-none">
+            {t(increase.gender === "FEMALE" ? "capacity.increasedWomen" : "capacity.increasedMen", {
+              count: increase.addedBeds,
+            })}
+          </AlertTitle>
+          <AlertDescription>
+            {t(
+              increase.gender === "FEMALE"
+                ? "capacity.increaseWomenDetail"
+                : "capacity.increaseMenDetail",
+              {
+                confirmed: t("events:terms.cancelDialog.confirmed", {
+                  count: changedFigures.confirmed,
+                }),
+                beds: t("capacity.increaseBedTotal", { count: changedFigures.capacity }),
+                free:
+                  changedFigures.free < 0
+                    ? t("capacity.missingBeds", { count: -changedFigures.free })
+                    : t("capacity.increaseFree", { count: changedFigures.free }),
+              },
+            )}
+          </AlertDescription>
+        </Alert>
+      ) : null}
       {overCapacity.length > 0 && byGender ? (
         <Alert variant="destructive">
           <TriangleAlert aria-hidden="true" />

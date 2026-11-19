@@ -7,6 +7,7 @@
  * shows the generic message for codes it doesn't know.
  */
 export const ERROR_CODES = [
+  "ROOM_HAS_ASSIGNMENTS",
   "ROOM_NAME_TAKEN",
   "ROOM_WISHES_NOT_AVAILABLE",
   "STAY_NOT_AVAILABLE",

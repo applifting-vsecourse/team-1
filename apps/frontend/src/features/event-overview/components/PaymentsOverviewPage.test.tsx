@@ -140,6 +140,21 @@ describe("PaymentsOverviewPage", () => {
     expect(screen.getByRole("link", { name: "Cancellation terms" })).toBeVisible()
   })
 
+  it("filters outstanding balances across payment states and keeps the reminder filter", async () => {
+    const user = userEvent.setup()
+    renderPage()
+    await user.click(await screen.findByRole("combobox", { name: "Payment status" }))
+    await user.click(await screen.findByRole("option", { name: "With debt" }))
+    expect(screen.getByText("Adam Dvořák")).toBeVisible()
+    expect(screen.getByText("Jana Nováková")).toBeVisible()
+    expect(screen.queryByText("Petr Černý")).not.toBeInTheDocument()
+    expect(screen.getByText(/Debt in selection/)).toHaveTextContent(/7,800/)
+    await user.click(screen.getByRole("combobox", { name: "Payment reminders" }))
+    await user.click(await screen.findByRole("option", { name: "Sent, still unpaid" }))
+    expect(screen.queryByText("Jana Nováková")).not.toBeInTheDocument()
+    expect(screen.getByText(/Debt in selection/)).toHaveTextContent(/2,900/)
+  })
+
   it("shows only still-indebted participants when filtering sent reminders", async () => {
     const user = userEvent.setup()
     renderPage()

@@ -12,6 +12,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { notify } from "@/lib/notify"
 
+import type { EditableApplication } from "@/features/participant/api/applicationEdit"
 import type { MyApplication } from "@/features/participant/api/applications"
 import { ApplicationDetail } from "@/features/participant/components/ApplicationDetail"
 
@@ -138,6 +139,7 @@ const renderDetail = (
   canChangeImmediately = true,
   owedAfterChangeCzk = 4900,
   optionsState?: "loading" | "error",
+  edits: EditableApplication["history"] = [],
 ) => {
   const paid = (termId: string) =>
     data.paymentDetails?.terms.find((payment) => payment.termId === termId)?.paidCzk ?? 0
@@ -147,6 +149,19 @@ const renderDetail = (
   }
   get.mockImplementation((path: string) => ({
     json: () => {
+      if (path.endsWith("/edit")) {
+        return Promise.resolve({
+          id: data.id,
+          eventName: data.eventName,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          birthDate: data.birthDate ?? "2011-05-04",
+          phone: "+420 777 123 456",
+          individualAccommodation: false,
+          accommodationRequest: null,
+          history: edits,
+        })
+      }
       if (path.endsWith("change-options")) {
         if (optionsState === "loading") return new Promise(() => undefined)
         if (optionsState === "error") return Promise.reject(new Error("Options unavailable"))
@@ -813,6 +828,24 @@ describe("ApplicationDetail", () => {
     })
   })
 
+  it("shows the persisted phone, accommodation and author on a fresh detail visit", async () => {
+    renderDetail(application(), true, 4900, undefined, [
+      {
+        id: "change1",
+        authorName: "Eva Malá",
+        createdAt: "2026-11-05T13:30:00Z",
+        changedFields: ["phone", "individualAccommodation"],
+      },
+    ])
+    expect(await screen.findByRole("heading", { name: "Change history" })).toBeVisible()
+    expect(screen.getByText("+420 777 123 456")).toBeVisible()
+    expect(screen.getByRole("heading", { name: "Accommodation request" })).toBeVisible()
+    expect(screen.getByText("No individual accommodation requested.")).toBeVisible()
+    expect(screen.getByText(/Eva Malá/)).toBeVisible()
+    expect(screen.getByText("Updated contact and accommodation request.")).toBeVisible()
+    expect(screen.queryByText(/organizer was notified/i)).not.toBeInTheDocument()
+  })
+
   describe("payment simulation (US-115)", () => {
     it("shows no simulation where the backend does not offer it (production)", async () => {
       renderDetail(application())
@@ -849,6 +882,24 @@ describe("ApplicationDetail", () => {
 
       expect(post).toHaveBeenCalledWith("participant/applications/a1/payments/simulation", {
         json: { termId: "t1" },
+      })
+    })
+
+    it("reports a failed simulation and retries only that term", async () => {
+      post.mockRejectedValueOnce(new Error("Request failed")).mockResolvedValueOnce({})
+      const user = userEvent.setup()
+      renderDetail(application({ canSimulatePayment: true }))
+
+      await user.click(await screen.findByRole("button", { name: "I paid" }))
+      expect(await screen.findByText("The simulated payment could not be recorded.")).toBeVisible()
+      await user.click(screen.getByRole("button", { name: "Try again" }))
+
+      expect(post).toHaveBeenCalledTimes(2)
+      expect(post).toHaveBeenNthCalledWith(2, "participant/applications/a1/payments/simulation", {
+        json: { termId: "t1" },
+      })
+      await waitFor(() => {
+        expect(screen.queryByText("The simulated payment could not be recorded.")).toBeNull()
       })
     })
 

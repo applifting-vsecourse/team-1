@@ -56,7 +56,7 @@ export function CopyRoomsDialog({
   /** The other terms of the event with their room mode. */
   sourceTerms: (CopyTerm & { roomMode: RoomMode; roomCount: number })[]
   onClose: () => void
-  onCopied: () => Promise<void>
+  onCopied: (sourceNames: string[]) => Promise<void>
 }) {
   const { t } = useTranslation("events")
   const cancelRef = useRef<HTMLButtonElement>(null)
@@ -111,7 +111,7 @@ export function CopyRoomsDialog({
     mutationFn: () =>
       copyRooms(target.eventId, target.termId, sourceId, hasTargetRooms ? strategy : "ADD"),
     onSuccess: async () => {
-      await onCopied()
+      await onCopied(sourceRooms.map((room) => room.name))
       onClose()
     },
   })

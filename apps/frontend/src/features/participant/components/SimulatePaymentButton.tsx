@@ -1,9 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
+import { Alert, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { formatCzk } from "@/lib/money"
-import { notify } from "@/lib/notify"
 
 import { simulatePayment } from "@/features/participant/api/applications"
 
@@ -19,12 +19,11 @@ export function SimulatePaymentButton({
   termId,
   amountCzk,
 }: SimulatePaymentButtonProps) {
-  const { t } = useTranslation("participant")
+  const { t } = useTranslation(["participant", "common"])
   const client = useQueryClient()
   const mutation = useMutation({
     mutationFn: () => simulatePayment(applicationId, termId),
     onSuccess: () => client.invalidateQueries({ queryKey: ["participant", "applications"] }),
-    onError: (error) => notify.error(error.message),
   })
 
   return (
@@ -32,6 +31,11 @@ export function SimulatePaymentButton({
       <p className="text-sm text-muted-foreground">
         {t("payment.simulation.termAmount", { amount: formatCzk(amountCzk) })}
       </p>
+      {mutation.isError && (
+        <Alert variant="destructive">
+          <AlertTitle>{t("payment.simulation.failed")}</AlertTitle>
+        </Alert>
+      )}
       <Button
         type="button"
         size="lg"
@@ -39,7 +43,7 @@ export function SimulatePaymentButton({
         disabled={mutation.isPending}
         onClick={() => mutation.mutate()}
       >
-        {t("payment.simulation.paid")}
+        {mutation.isError ? t("common:state.retry") : t("payment.simulation.paid")}
       </Button>
     </div>
   )

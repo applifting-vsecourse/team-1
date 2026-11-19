@@ -37,12 +37,13 @@ import {
   type PaymentOverviewEntry,
 } from "@/features/event-overview/api/paymentOverview"
 
-type StatusFilter = "ALL" | "UNPAID" | "PARTIALLY_PAID" | "PAID" | "OVERDUE"
+type StatusFilter = "ALL" | "DEBT" | "UNPAID" | "PARTIALLY_PAID" | "PAID" | "OVERDUE"
 type ReminderFilter = "ALL" | "SENT" | "NOT_SENT"
 
 function matches(entry: PaymentOverviewEntry, status: StatusFilter, reminder: ReminderFilter) {
   const isPaymentMatch =
     status === "ALL" ||
+    (status === "DEBT" && entry.amountOwedCzk > 0) ||
     (status === "OVERDUE"
       ? entry.overdue
       : status === "PAID"
@@ -166,14 +167,16 @@ export function PaymentsOverviewPage({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {(["ALL", "UNPAID", "PARTIALLY_PAID", "PAID", "OVERDUE"] as const).map((value) => (
-                <SelectItem
-                  key={value}
-                  value={value}
-                >
-                  {t(`paymentsOverview.statuses.${value}`)}
-                </SelectItem>
-              ))}
+              {(["ALL", "DEBT", "UNPAID", "PARTIALLY_PAID", "PAID", "OVERDUE"] as const).map(
+                (value) => (
+                  <SelectItem
+                    key={value}
+                    value={value}
+                  >
+                    {t(`paymentsOverview.statuses.${value}`)}
+                  </SelectItem>
+                ),
+              )}
             </SelectContent>
           </Select>
         </div>
@@ -204,7 +207,7 @@ export function PaymentsOverviewPage({
       </div>
       <p className="text-sm font-medium">
         {t("paymentsOverview.selectionDebt")} ·{" "}
-        <MoneyAmount amountCzk={data.debtByFilter[status][reminder]} />
+        <MoneyAmount amountCzk={data.debtByFilter[status === "DEBT" ? "ALL" : status][reminder]} />
       </p>
       {entries.length === 0 ? (
         <div className="flex flex-col items-center gap-6 py-4">

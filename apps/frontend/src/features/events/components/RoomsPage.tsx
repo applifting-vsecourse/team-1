@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/select"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { notify } from "@/lib/notify"
+import { roomCapacityIncreaseKey, type RoomCapacityIncrease } from "@/lib/room-capacity-increase"
 import { termDatesLine } from "@/lib/term-label"
 import { cn } from "@/lib/utils"
 
@@ -96,6 +97,7 @@ export function RoomsPage({
   const [pendingMode, setPendingMode] = useState<RoomMode | null>(null)
   const [isCopying, setIsCopying] = useState(false)
   const refresh = async () => {
+    if (selected) client.removeQueries({ queryKey: roomCapacityIncreaseKey(eventId, selected.id) })
     await Promise.all([
       client.invalidateQueries({ queryKey: ["events", eventId] }),
       client.invalidateQueries({ queryKey: eventKeys.detail(eventId) }),
@@ -128,6 +130,8 @@ export function RoomsPage({
       <LoadingState />
     )
   }
+  const previousIds = new Set(term.rooms.map((room) => room.id))
+  const refreshedTerm = () => client.getQueryData(roomsQueryOptions(eventId, term.termId).queryKey)
   const isGendered = term.roomMode === "GENDERED"
   const extraBedsButton = (room: Room) => {
     const label = room.extraBeds
@@ -414,9 +418,17 @@ export function RoomsPage({
           target={term}
           sourceTerms={terms.filter((item) => item.id !== selected.id)}
           onClose={() => setIsCopying(false)}
-          onCopied={async () => {
+          onCopied={async (sourceNames) => {
             await refresh()
-            notify.success(t("rooms.copy.done"))
+            const added = refreshedTerm()?.rooms.filter((room) => !previousIds.has(room.id)) ?? []
+            const names = new Set(sourceNames)
+            const isVerified =
+              added.length === names.size && added.every((room) => names.has(room.name))
+            notify.success(
+              isVerified
+                ? t("rooms.copy.doneCount", { count: added.length })
+                : t("rooms.copy.done"),
+            )
           }}
         />
       ) : null}
@@ -426,7 +438,25 @@ export function RoomsPage({
           term={term}
           room={editor === "new" ? undefined : editor}
           onClose={() => setEditor(null)}
-          onSaved={refresh}
+          onSaved={async (addedName) => {
+            await refresh()
+            const current = refreshedTerm()
+            const added = current?.rooms.find(
+              (room) => room.name === addedName && !previousIds.has(room.id),
+            )
+            if (current?.roomMode !== "GENDERED" || !added?.gender) return
+            const gain = current.capacity[added.gender] - term.capacity[added.gender]
+            if (gain === added.beds && current.capacity.total - term.capacity.total === gain) {
+              client.setQueryData<RoomCapacityIncrease>(
+                roomCapacityIncreaseKey(eventId, term.termId),
+                {
+                  gender: added.gender,
+                  addedBeds: gain,
+                  capacity: current.capacity,
+                },
+              )
+            }
+          }}
           onDelete={(room) => {
             setEditor(null)
             setDeleting(room)

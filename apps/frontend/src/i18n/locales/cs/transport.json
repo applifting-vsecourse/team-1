@@ -31,6 +31,7 @@
   "departureColumn": "Odjezd",
   "departureTitle": "Odjezd",
   "description": "Způsoby, jak se účastníci dostanou na jednotlivé termíny. Vlastní dopravu nabízíte jen tehdy, když ji sami přidáte.",
+  "detailsSaved": "Údaje o dopravě byly uloženy.",
   "editOf": "Upravit dopravu {{name}}",
   "editOwnTitle": "Upravit vlastní dopravu",
   "editTitle": "Upravit dopravu",

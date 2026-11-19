@@ -91,6 +91,7 @@ export function PaymentEditor({
       : undefined
   const [type, setType] = useState<RecordType>(initialRefundTerm ? "refund" : "payment")
   const isRefund = type === "refund"
+  const isRefundUnavailable = isRefund && application.refundableTermId === null
   const [termChoice, setTermChoice] = useState(
     initialRefundTerm?.termId ?? initialTerm?.termId ?? WHOLE_APPLICATION,
   )
@@ -179,6 +180,7 @@ export function PaymentEditor({
           "max-h-[calc(100dvh-2rem)] gap-4 overflow-y-auto p-6 sm:max-w-[370px]",
           (isRefund ? refundTerms.length === 0 : scope.owed === 0) && "sm:max-w-160",
           initialRefundTerm && "sm:max-w-130",
+          isRefundUnavailable && "sm:gap-6",
           !isRefund && scope.owed === 0 && !isUncertain && "max-sm:max-w-full",
           isUncertain && "sm:max-w-[370px]",
         )}
@@ -197,7 +199,7 @@ export function PaymentEditor({
           noValidate
           onSubmit={(event) => {
             event.preventDefault()
-            if (isUncertain || mutation.isPending) return
+            if (isRefundUnavailable || isUncertain || mutation.isPending) return
             if (!isValid) {
               setIsInvalid(true)
               return
@@ -240,17 +242,15 @@ export function PaymentEditor({
                 value="refund"
                 id="payment-type-refund"
                 className="size-5"
-                disabled={application.refundableTermId === null}
               />
-              <Label
-                htmlFor="payment-type-refund"
-                className={application.refundableTermId === null ? "opacity-55" : undefined}
-              >
-                {t("payment.typeRefund")}
-              </Label>
+              <Label htmlFor="payment-type-refund">{t("payment.typeRefund")}</Label>
             </div>
           </RadioGroup>
-          <div className="flex flex-col gap-2">
+          {isRefundUnavailable && <p role="status">{t("payment.refundUnavailable")}</p>}
+          <div
+            hidden={isRefundUnavailable}
+            className="flex flex-col gap-2"
+          >
             <Label htmlFor="payment-term">
               {t(isRefund ? "payment.termRequired" : "payment.termLabel")}
             </Label>
@@ -347,7 +347,7 @@ export function PaymentEditor({
               </div>
             </RadioGroup>
           ) : null}
-          {isCustomAmount ? (
+          {isCustomAmount && !isRefundUnavailable ? (
             <div className="flex flex-col gap-2">
               <Label htmlFor="payment-amount">
                 {t(isRefund ? "payment.amountRequired" : "payment.requiredAmount")}
@@ -479,12 +479,12 @@ export function PaymentEditor({
                 size="lg"
                 className="sm:flex-1"
                 aria-busy={mutation.isPending}
-                disabled={mutation.isPending}
+                disabled={isRefundUnavailable || mutation.isPending}
               >
                 {mutation.isPending
                   ? t("payment.saving")
                   : isRefund
-                    ? t("payment.refund")
+                    ? t(isRefundUnavailable ? "payment.confirm" : "payment.refund")
                     : isValid && receipt !== undefined
                       ? t("payment.recordAmount", { amount: formatCzk(receipt) })
                       : t("payment.record")}

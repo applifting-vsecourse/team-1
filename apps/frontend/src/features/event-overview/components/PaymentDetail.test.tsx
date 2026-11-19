@@ -483,7 +483,9 @@ describe("PaymentDetail", () => {
     expect(screen.getByRole("combobox", { name: "Term" })).toHaveTextContent(
       "Whole application (summary)",
     )
-    expect(screen.getByRole("radio", { name: "Refund" })).toBeDisabled()
+    await user.click(screen.getByRole("radio", { name: "Refund" }))
+    expect(screen.getByRole("button", { name: "Confirm" })).toBeDisabled()
+    await user.click(screen.getByRole("radio", { name: "Payment" }))
     await user.click(screen.getByRole("button", { name: /Record payment.*10,500/ }))
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument())
     expect(post).toHaveBeenCalledWith("organizer/applications/a1/payments", {
@@ -529,6 +531,38 @@ describe("PaymentDetail", () => {
     expect(rows[2]).toHaveTextContent(/4,900/)
     expect(rows[3]).toHaveTextContent(/2,000/)
     expect(within(rows[3]!).getByRole("cell", { name: "Eva" })).toBeInTheDocument()
+  })
+
+  it("shows the date and every affected term before cancelling a split receipt", async () => {
+    const split = receipt("split", "2027-03-12T12:00:00Z", [
+      { termId: "t1", amountCzk: 400 },
+      { termId: "t2", amountCzk: 800 },
+    ])
+    respondWith(() =>
+      application(
+        [
+          { ...first, paidCzk: 400 },
+          { ...second, paidCzk: 800 },
+        ],
+        [split],
+      ),
+    )
+    setup()
+    const user = userEvent.setup()
+    const row = await screen.findByRole("row", { name: /400/ })
+    await user.click(within(row).getByRole("button", { name: "Cancel record" }))
+    const dialog = screen.getByRole("dialog")
+    expect(
+      within(dialog).getByRole("heading", { name: /Receipt dated.*12 Mar 2027/ }),
+    ).toBeVisible()
+    const parts = within(dialog).getAllByRole("listitem")
+    expect(parts).toHaveLength(2)
+    expect(parts[0]).toHaveTextContent(/400/)
+    expect(parts[1]).toHaveTextContent(/800/)
+    expect(
+      within(dialog).getByText("Cancelling applies to all terms of this receipt."),
+    ).toBeVisible()
+    expect(remove).not.toHaveBeenCalled()
   })
 
   it("confirms cancellation of one receipt and preserves the other receipts", async () => {

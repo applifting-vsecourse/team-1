@@ -10,7 +10,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { formatDate } from "@/lib/date"
 import { formatCzk } from "@/lib/money"
+import { termLine } from "@/lib/term-label"
 
 import {
   cancelPayment,
@@ -62,6 +64,25 @@ export function PaymentCancellation({
             {application.eventName}
           </DialogDescription>
         </DialogHeader>
+        <section className="flex flex-col gap-2">
+          <h3 className="font-semibold">
+            {t("payment.cancelReceiptDate", { date: formatDate(payment.createdAt) })}
+          </h3>
+          <ul className="space-y-1 text-sm">
+            {payment.rows.map((row) => {
+              const term = application.terms.find((item) => item.termId === row.termId)
+              return (
+                <li key={row.termId}>
+                  {term ? termLine(term) + " · " : ""}
+                  {formatCzk(row.amountCzk)}
+                </li>
+              )
+            })}
+          </ul>
+          {payment.rows.length > 1 && (
+            <p className="text-sm text-muted-foreground">{t("payment.cancelAllAllocations")}</p>
+          )}
+        </section>
         <SummaryBox
           rows={[
             [t("payment.editorDue"), formatCzk(application.amountDueCzk)],

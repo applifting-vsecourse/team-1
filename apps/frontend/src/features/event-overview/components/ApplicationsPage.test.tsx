@@ -66,6 +66,7 @@ function setup(
   q?: string,
   occupancy: { terms: unknown[] } | null = null,
   initial?: ApplicationsSearch,
+  isAutomatic = false,
 ) {
   get.mockImplementation((path: string) => ({
     json: () =>
@@ -109,6 +110,7 @@ function setup(
         <Outlet />
         <ApplicationsPage
           eventId="e1"
+          isAutomatic={isAutomatic}
           filters={filters}
           onFiltersChange={(next) => {
             onFiltersChange(next)
@@ -142,6 +144,57 @@ function setup(
 }
 beforeEach(() => vi.clearAllMocks())
 describe("ApplicationsPage", () => {
+  describe("automatic capacity for a selected term (US-27)", () => {
+    const figures = (capacity: number, confirmed: number) => ({
+      capacity,
+      confirmed,
+      free: capacity - confirmed,
+      waitlisted: 0,
+    })
+    const shared = {
+      id: "t1",
+      name: "First",
+      startsOn: "2027-07-12",
+      endsOn: "2027-07-18",
+      roomMode: "SHARED",
+      roomCount: 1,
+      ...figures(2, 2),
+      byGender: null,
+    }
+
+    it("shows the shared capacity and lists the oldest receipt before the newest", async () => {
+      const older = {
+        ...application,
+        id: "a2",
+        firstName: "Eva",
+        submittedAt: "2026-11-17T12:00:00Z",
+      }
+      setup([application, older], false, undefined, { terms: [shared] }, { term: "t1" }, true)
+      expect(await screen.findByText("Shared capacity: 2/2 beds")).toBeVisible()
+      const rows = within(screen.getByRole("table")).getAllByRole("row")
+      expect(rows[1]).toHaveTextContent("Eva Test")
+      expect(rows[2]).toHaveTextContent("Jana Test")
+    })
+
+    it("keeps separate pools for women and men", async () => {
+      const term = {
+        ...shared,
+        roomMode: "GENDERED",
+        ...figures(100, 98),
+        byGender: { FEMALE: figures(50, 50), MALE: figures(50, 48) },
+      }
+      setup([application], false, undefined, { terms: [term] }, { term: "t1" }, true)
+      expect(await screen.findByText("Capacity by gender: women 50/50 · men 48/50")).toBeVisible()
+      expect(screen.getByText(/The women’s beds are full/)).toBeVisible()
+    })
+
+    it("leaves a manual event’s order and heading in place", async () => {
+      setup([application], false, undefined, { terms: [shared] }, { term: "t1" })
+      await screen.findAllByText("Jana Test")
+      expect(screen.queryByText("Shared capacity: 2/2 beds")).not.toBeInTheDocument()
+      expect(screen.getByText("Sorted: newest received first")).toBeVisible()
+    })
+  })
   describe("individual accommodation (US-38)", () => {
     it("marks who asked for it in the table and the mobile cards, and nobody else", async () => {
       setup([
