@@ -118,6 +118,14 @@ jobs:
                 await signIn(page, "organizer", ORGANIZER)
                 await openEventList(page)
                 await capture("events")
+                const orgFilter=page.getByRole("combobox",{name:"Organization"})
+                await orgFilter.click()
+                const chosen=page.getByRole("option").nth(1)
+                const orgName=(await chosen.innerText()).trim()
+                await chosen.click()
+                
+                await capture("events-filtered")
+                await orgFilter.click(); await page.getByRole("option").first().click()
                 const id = await eventIdByPublicToken("demo-letni-kemp-2027")
                 const db = new pg.Client({connectionString:e2eDatabaseUrl()})
                 await db.connect()
@@ -270,7 +278,7 @@ jobs:
           import os, shutil, struct
           source = Path(os.environ["RUNNER_TEMP"]) / "screenshots"
           for width in (1440, 360):
-              for screen in ("capacity-term", "organizer-application-detail", "participant-login", "event-not-found", "participant-transport", "catalog", "event", "register", "not-found", "login", "apply", "events", "settings", "terms", "capacity", "applications", "payments", "rooms", "program", "program-dialog", "participant", "participant-detail", "participant-edit", "verification", "mail-application-change-confirmation-withdrawn", "mail-application-change", "mail-application-confirmation-two-applicants", "mail-application-confirmation-waitlisted", "mail-application-confirmation", "mail-application-term-cancelled", "mail-change-email-notice", "mail-change-email", "mail-change-request-status", "mail-magic-link", "mail-payment-correction", "mail-payment-received", "mail-reset-password", "mail-verify-email", "landing", "request-link", "expired-link", "new-event", "organizer-account", "overview", "organizer-transport", "organizer-meals", "meal-options", "payment-import", "cancellation", "new-application", "participant-meals", "participant-health", "participant-program", "participant-account", "mail-application-change-confirmation-withdrawn-en", "mail-application-change-en", "mail-application-confirmation-two-applicants-en", "mail-application-confirmation-waitlisted-en", "mail-application-confirmation-en", "mail-application-term-cancelled-en", "mail-change-email-notice-en", "mail-change-email-en", "mail-change-request-status-en", "mail-magic-link-en", "mail-payment-correction-en", "mail-payment-received-en", "mail-reset-password-en", "mail-verify-email-en", "mail-application-change-waitlisted-cs", "mail-application-change-waitlisted-en", "mail-application-change-confirmed-from-waitlist-cs", "mail-application-change-confirmed-from-waitlist-en", "mail-application-change-rejected-cs", "mail-application-change-rejected-en", "mail-application-change-cancelled-cs", "mail-application-change-cancelled-en", "mail-application-change-no-bed-freed-cs", "mail-application-change-no-bed-freed-en", "mail-application-change-cancelled-by-organizer-cs", "mail-application-change-cancelled-by-organizer-en", "mail-change-request-pending-cs", "mail-change-request-pending-en"):
+              for screen in ("events-filtered",):
                   name = f"{screen}-{width}.png"
                   p = source / name
                   header = p.read_bytes()[:24]
