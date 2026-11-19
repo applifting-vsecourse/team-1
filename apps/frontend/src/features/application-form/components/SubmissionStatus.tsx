@@ -16,6 +16,7 @@ import { currentLanguage } from "@/i18n"
 import { formatDateRange } from "@/lib/date"
 import { formatCzk } from "@/lib/money"
 import { termName } from "@/lib/term-label"
+import { cn } from "@/lib/utils"
 
 import {
   submissionStatusQueryOptions,
@@ -69,41 +70,49 @@ export function SubmissionStatus({
   )
 
   return (
-    <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-semibold tracking-tight sm:text-4xl/11 sm:font-bold">
-        {t("confirmation.title")}
-      </h1>
-      <BrandDivider />
+    <div
+      className={cn(
+        "mx-auto grid w-full grid-cols-1 items-start gap-6 px-4 py-6 md:px-6",
+        payers.length ? "max-w-300 lg:grid-cols-[minmax(0,1fr)_20rem]" : "max-w-[1008px]",
+      )}
+    >
+      <div className="flex min-w-0 flex-col gap-4">
+        <h1 className="text-2xl font-semibold tracking-tight sm:text-4xl/11 sm:font-bold">
+          {t("confirmation.title")}
+        </h1>
+        <BrandDivider />
 
-      <section className="flex flex-col gap-4 rounded-lg border bg-status-success-bg p-4 sm:p-6">
-        <h2 className="flex items-center gap-2 text-lg font-semibold text-status-success">
-          <LogoSymbol className="saved-mark size-8 shrink-0" />
-          {firstApplication.code} · {data.eventName}
-        </h2>
-        <p>
-          {t(termCount === 1 ? "confirmation.introOneTerm" : "confirmation.intro", {
-            names: listNames(data.applications),
-          })}
-        </p>
-      </section>
+        <section className="flex flex-col gap-4 rounded-lg border bg-status-success-bg p-4 sm:p-6">
+          <h2 className="flex items-center gap-2 text-lg font-semibold text-status-success">
+            <LogoSymbol className="saved-mark size-8 shrink-0" />
+            {firstApplication.code} · {data.eventName}
+          </h2>
+          <p>
+            {t(termCount === 1 ? "confirmation.introOneTerm" : "confirmation.intro", {
+              names: listNames(data.applications),
+            })}
+          </p>
+        </section>
 
-      <section className="flex flex-col gap-3">
-        <h2 className="text-2xl font-semibold">{t("confirmation.termsHeading")}</h2>
-        <ul className="flex flex-col gap-3">
-          {data.applications.flatMap((application) =>
-            application.terms.map((term) => (
-              <TermStatusCard
-                key={`${application.variableSymbol}-${term.termId}`}
-                application={application}
-                term={term}
-              />
-            )),
-          )}
-        </ul>
-      </section>
-
+        <section className="flex flex-col gap-3">
+          <h2 className="text-2xl font-semibold">{t("confirmation.termsHeading")}</h2>
+          <ul className="flex flex-col gap-3">
+            {data.applications.flatMap((application) =>
+              application.terms.map((term) => (
+                <TermStatusCard
+                  key={`${application.variableSymbol}-${term.termId}`}
+                  application={application}
+                  term={term}
+                />
+              )),
+            )}
+          </ul>
+        </section>
+      </div>
       {payers.length > 0 ? (
-        <PaymentCard payers={payers} />
+        <aside className="min-w-0 lg:col-start-2 lg:row-span-2 lg:row-start-1">
+          <PaymentCard payers={payers} />
+        </aside>
       ) : isAwaitingEvaluation ? (
         // Figma (Design system): Togena / Alert · node-id=15751-1290 (360 px: 15751-1320)
         <Alert>
@@ -205,7 +214,7 @@ function PaymentCard({ payers }: { payers: SubmittedApplication[] }) {
 
   return (
     <Card className="gap-4 p-4 sm:p-6">
-      <h2 className="text-2xl font-semibold sm:text-lg">{t("confirmation.payment.title")}</h2>
+      <h2 className="text-2xl font-semibold">{t("confirmation.payment.title")}</h2>
       <p className="text-4xl/11 font-bold text-link">
         <MoneyAmount amountCzk={total} />
       </p>

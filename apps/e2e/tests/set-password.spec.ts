@@ -18,9 +18,7 @@ test(
     await page.goto(`/participant/magic-link?token=${await latestMagicLinkToken()}`)
     await page.getByRole("button", { name: "Continue" }).click()
 
-    await expect(
-      page.getByRole("heading", { level: 1, name: "Set your password" }),
-    ).toBeVisible()
+    await expect(page.getByRole("heading", { level: 1, name: "Set your password" })).toBeVisible()
     await page.getByLabel("New password", { exact: true }).fill(password)
     await page.getByLabel("Repeat new password").fill(password)
     await page.getByRole("button", { name: "Set password and open application" }).click()
