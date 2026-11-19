@@ -90,6 +90,7 @@ export function PaymentCorrection({
       onClose()
     },
   })
+  const isUncertain = hasUncertainOutcome(mutation.error)
   const preview = useQuery({
     ...correctionPreviewQueryOptions(
       application.id,
@@ -97,7 +98,7 @@ export function PaymentCorrection({
       parsed,
       termChoice === WHOLE_APPLICATION ? undefined : termChoice,
     ),
-    enabled: isValid && !mutation.isPending,
+    enabled: isValid && !mutation.isPending && !isUncertain,
   })
   const originalPreview = preview.data?.terms.find((term) => term.termId === originalTerm?.termId)
   const targetPreview = preview.data?.terms.find((term) => term.termId === targetTerm?.termId)
@@ -105,7 +106,6 @@ export function PaymentCorrection({
   const previewOwed =
     isSameTerm && originalPreview ? originalPreview.owedCzk : (preview.data?.amountOwedCzk ?? 0)
   const balanceChange = originalPreview?.changeCzk ?? 0
-  const isUncertain = hasUncertainOutcome(mutation.error)
   const formError = mutation.error ?? preview.error
 
   return (

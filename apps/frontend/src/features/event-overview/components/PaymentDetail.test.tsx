@@ -8,6 +8,7 @@ import {
 } from "@tanstack/react-router"
 import { render, screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
+import { NetworkError } from "ky"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import type { PaymentApplication } from "@/features/event-overview/api/payments"
@@ -275,6 +276,49 @@ describe("PaymentDetail", () => {
     expect(screen.getByRole("heading", { name: "System record" })).toBeInTheDocument()
     await user.click(screen.getByRole("button", { name: "Back to payments" }))
     expect(screen.getByRole("table")).toBeInTheDocument()
+  })
+
+  it("reloads payment history without previewing the cancelled original after a lost correction response", async () => {
+    const original = receipt("p1", "2027-03-10T12:00:00Z", [{ termId: "t1", amountCzk: 500 }])
+    const data = application([{ ...first, paidCzk: 500 }], [original])
+    let isCommitted = false
+    get.mockImplementation((path: string) => ({
+      json: () => {
+        if (!path.endsWith("/payments")) return Promise.resolve([])
+        return Promise.resolve(
+          isCommitted
+            ? { ...data, payments: [{ ...original, cancelledAt: "2027-03-11T08:00:00Z" }] }
+            : data,
+        )
+      },
+    }))
+    post.mockImplementation(() => ({
+      json: () =>
+        isCommitted
+          ? Promise.reject(new Error("Cannot preview a cancelled receipt"))
+          : Promise.resolve({
+              amountOwedCzk: 4400,
+              terms: [{ termId: "t1", owedCzk: 4400, changeCzk: 0 }],
+            }),
+    }))
+    patch.mockImplementation(() => {
+      isCommitted = true
+      return Promise.reject(new NetworkError(new Request("https://example.test/payment")))
+    })
+    setup()
+    const user = userEvent.setup()
+    await user.click(await screen.findByRole("button", { name: "Edit record" }))
+    const dialog = within(screen.getByRole("dialog"))
+    const save = dialog.getByRole("button", { name: "Save correction" })
+    await waitFor(() => expect(save).toBeEnabled())
+    await user.click(save)
+    await user.click(await dialog.findByRole("button", { name: "Refresh history" }))
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument())
+    expect(patch).toHaveBeenCalledOnce()
+    expect(post).toHaveBeenCalledOnce()
+    expect(
+      get.mock.calls.filter(([path]) => path === "organizer/applications/a1/payments"),
+    ).toHaveLength(2)
   })
 
   it("previews the remaining overpayment when correcting a refund", async () => {
