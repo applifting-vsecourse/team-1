@@ -5,12 +5,12 @@ import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
 import { BackLink } from "@/components/atoms/BackLink"
+import { CheckboxRow } from "@/components/molecules/CheckboxRow"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { PageHeader } from "@/components/molecules/PageHeader"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { notify } from "@/lib/notify"
@@ -62,6 +62,7 @@ function HealthFields({ applicationId, health }: { applicationId: string; health
   const [isEditing, setIsEditing] = useState(false)
   const [note, setNote] = useState(health.note ?? "")
   const [hasConsent, setHasConsent] = useState(health.consentAt !== null)
+  const [hasNone, setHasNone] = useState(health.noRestriction && !isStored)
 
   const mutation = useMutation({
     mutationFn: async () => {
@@ -69,7 +70,12 @@ function HealthFields({ applicationId, health }: { applicationId: string; health
         await requestHealthChange(applicationId, { note, consent: hasConsent })
         return null
       }
-      return saveHealth(applicationId, { note, consent: hasConsent })
+      return saveHealth(
+        applicationId,
+        hasNone
+          ? { note: "", consent: false, noRestriction: true }
+          : { note, consent: hasConsent, noRestriction: false },
+      )
     },
     onSuccess: async (saved) => {
       if (saved) client.setQueryData(ownHealthQueryOptions(applicationId).queryKey, saved)
@@ -91,9 +97,11 @@ function HealthFields({ applicationId, health }: { applicationId: string; health
   // Filling it in needs the consent; clearing a stored note does not.
   const canSave = isStored
     ? isEditing && note.trim() !== health.note?.trim() && (hasNote ? hasConsent : true)
-    : hasNote
-      ? hasConsent
-      : false
+    : hasNone
+      ? !health.noRestriction
+      : hasNote
+        ? hasConsent
+        : health.noRestriction
   const isLocked = isStored && !isEditing
   const pending = health.pendingRequest
   const noteId = "health-note"
@@ -116,6 +124,15 @@ function HealthFields({ applicationId, health }: { applicationId: string; health
         title={t("title")}
         description={`${health.firstName} ${health.lastName} · ${health.eventName}`}
       />
+      {/* US-150: confirms the step without any restriction; not drawn in Figma. */}
+      {isStored ? null : (
+        <CheckboxRow
+          id="health-none"
+          label={t("noRestriction")}
+          checked={hasNone}
+          onCheckedChange={(isChecked) => setHasNone(isChecked === true)}
+        />
+      )}
       <div className="flex flex-col gap-2">
         <Label htmlFor={noteId}>{t("noteLabel")}</Label>
         <Textarea
@@ -123,6 +140,7 @@ function HealthFields({ applicationId, health }: { applicationId: string; health
           className="min-h-32"
           maxLength={NOTE_MAX_LENGTH}
           readOnly={isLocked}
+          disabled={hasNone}
           value={isLocked ? (health.note ?? "") : note}
           onChange={(event) => setNote(event.target.value)}
         />
@@ -131,21 +149,13 @@ function HealthFields({ applicationId, health }: { applicationId: string; health
         <AlertTitle>{t("audienceTitle")}</AlertTitle>
         <AlertDescription>{t("audienceText")}</AlertDescription>
       </Alert>
-      <div className="flex min-h-11 items-center gap-3">
-        <Checkbox
-          id="health-consent"
-          className="size-5"
-          checked={hasConsent}
-          disabled={isLocked}
-          onCheckedChange={(isChecked) => setHasConsent(isChecked === true)}
-        />
-        <Label
-          htmlFor="health-consent"
-          className="flex-1 cursor-pointer leading-5 font-normal"
-        >
-          {t("consent")}
-        </Label>
-      </div>
+      <CheckboxRow
+        id="health-consent"
+        label={t("consent")}
+        checked={hasConsent}
+        disabled={isLocked || hasNone}
+        onCheckedChange={(isChecked) => setHasConsent(isChecked === true)}
+      />
       {isStored && pending ? (
         <Alert>
           <AlertTitle>{t("pendingTitle")}</AlertTitle>
