@@ -58,25 +58,20 @@ afterEach(async () => {
 })
 
 // The number before the noun is what the noun agrees with: what is left after the deletion.
+// `from` is the Czech "from" with the number it stands before: "ze 6" but "z 9" (5 beds removed).
 const left = [
-  { after: 1, cs: "místo", en: "bed" },
-  { after: 2, cs: "místa", en: "beds" },
-  { after: 4, cs: "místa", en: "beds" },
-  { after: 0, cs: "míst", en: "beds" },
-  { after: 5, cs: "míst", en: "beds" },
-  { after: 22, cs: "míst", en: "beds" },
+  { after: 1, cs: "místo", en: "bed", from: "ze 6" },
+  { after: 2, cs: "místa", en: "beds", from: "ze 7" },
+  { after: 4, cs: "místa", en: "beds", from: "z 9" },
+  { after: 0, cs: "míst", en: "beds", from: "z 5" },
+  { after: 5, cs: "míst", en: "beds", from: "z 10" },
+  { after: 22, cs: "míst", en: "beds", from: "ze 27" },
 ]
-const removed = [
-  { beds: 1, cs: "místo", en: "bed" },
-  { beds: 3, cs: "místa", en: "beds" },
-  { beds: 8, cs: "míst", en: "beds" },
-]
-
 describe("DeleteRoomDialog capacity impact", () => {
-  it.each(left)("in Czech with $after beds left", async ({ after, cs }) => {
+  it.each(left)("in Czech with $after beds left", async ({ after, cs, from }) => {
     await act(() => i18n.changeLanguage("cs"))
     renderDialog("SHARED", null, 5 + after, 5)
-    expect(screen.getByText(`Kapacita klesne z ${5 + after} na ${after} ${cs}`)).toBeVisible()
+    expect(screen.getByText(`Kapacita klesne ${from} na ${after} ${cs}`)).toBeVisible()
   })
 
   it.each(left)("in English with $after beds left", ({ after, en }) => {
@@ -88,43 +83,35 @@ describe("DeleteRoomDialog capacity impact", () => {
 
   it.each(left)(
     "for women's rooms in Czech and English with $after beds left",
-    async ({ after, cs, en }) => {
+    async ({ after, cs, en, from }) => {
       renderDialog("GENDERED", "FEMALE", 5 + after, 5)
       expect(
         screen.getByText(`Women's capacity will decrease from ${5 + after} to ${after} ${en}`),
       ).toBeVisible()
       await act(() => i18n.changeLanguage("cs"))
-      expect(
-        screen.getByText(`Dámská kapacita klesne z ${5 + after} na ${after} ${cs}`),
-      ).toBeVisible()
+      expect(screen.getByText(`Dámská kapacita klesne ${from} na ${after} ${cs}`)).toBeVisible()
     },
   )
 
   it.each(left)(
     "for men's rooms in Czech and English with $after beds left",
-    async ({ after, cs, en }) => {
+    async ({ after, cs, en, from }) => {
       renderDialog("GENDERED", "MALE", 5 + after, 5)
       expect(
         screen.getByText(`Men's capacity will decrease from ${5 + after} to ${after} ${en}`),
       ).toBeVisible()
       await act(() => i18n.changeLanguage("cs"))
-      expect(
-        screen.getByText(`Pánská kapacita klesne z ${5 + after} na ${after} ${cs}`),
-      ).toBeVisible()
+      expect(screen.getByText(`Pánská kapacita klesne ${from} na ${after} ${cs}`)).toBeVisible()
     },
   )
 
-  it.each(removed)("agrees the hint with a room of $beds beds", async ({ beds, cs, en }) => {
-    renderDialog("SHARED", null, 20, beds)
-    expect(
-      screen.getByText(
-        `Room 1 has ${beds} ${en}. Deleting it recalculates the capacity of this term only.`,
-      ),
-    ).toBeVisible()
+  it("keeps only the capacity warning, without repeated rows", async () => {
     await act(() => i18n.changeLanguage("cs"))
-    expect(
-      screen.getByText(`Room 1 má ${beds} ${cs}. Smazání přepočítá kapacitu pouze tohoto termínu.`),
-    ).toBeVisible()
+    renderDialog("GENDERED", "FEMALE", 7, 5)
+    expect(screen.getByText("Dámská kapacita klesne ze 7 na 2 místa")).toBeVisible()
+    expect(screen.queryByText(/má 5 míst/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/Room 1 · Dámský/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/Pokoj zmizí/)).not.toBeInTheDocument()
   })
 
   // US-145: the beds of an individual room are in the capacity only while occupied.

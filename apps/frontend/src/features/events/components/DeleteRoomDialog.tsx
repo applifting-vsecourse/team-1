@@ -9,7 +9,6 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogTitle,
 } from "@/components/ui/dialog"
@@ -48,7 +47,10 @@ export function DeleteRoomDialog({
         if (!isOpen && !mutation.isPending) onClose()
       }}
     >
-      <DialogContent className="bg-card shadow-md sm:max-w-170">
+      <DialogContent
+        className="bg-card shadow-md sm:max-w-170"
+        aria-describedby={undefined}
+      >
         <p className="text-xs font-medium text-muted-foreground uppercase">
           {term.eventName} · {formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })}
         </p>
@@ -56,7 +58,7 @@ export function DeleteRoomDialog({
           <DialogTitle>{t("rooms.deleteTitle", { name: room.name })}</DialogTitle>
         </div>
         <Alert className="border-status-warning bg-status-warning-bg p-6">
-          <AlertTitle className="text-lg text-status-warning">
+          <AlertTitle className="line-clamp-none text-lg text-status-warning">
             {room.individual
               ? t(occupied > 0 ? "rooms.deleteIndividualImpact" : "rooms.deleteIndividualEmpty", {
                   femaleBefore: term.capacity.FEMALE,
@@ -73,29 +75,13 @@ export function DeleteRoomDialog({
                   { before, count: before - room.beds },
                 )}
           </AlertTitle>
-          {room.individual ? (
+          {room.individual && occupied > 0 ? (
             // Its beds count into the capacity only while occupied (US-145).
-            occupied > 0 ? (
-              <AlertDescription>
-                {t("rooms.deleteIndividualHint", { count: occupied })}
-              </AlertDescription>
-            ) : null
-          ) : (
             <AlertDescription>
-              {t("rooms.deleteImpactHint", { name: room.name, count: room.beds })}
+              {t("rooms.deleteIndividualHint", { count: occupied })}
             </AlertDescription>
-          )}
+          ) : null}
         </Alert>
-        <DialogDescription className="text-base text-foreground">
-          {room.name}
-          {room.gender
-            ? ` · ${t(room.gender === "FEMALE" ? "rooms.female" : "rooms.male")}`
-            : room.individual
-              ? ` · ${t("rooms.individual")}`
-              : ""}{" "}
-          · {t("rooms.beds", { count: room.beds })}
-        </DialogDescription>
-        <p className="text-sm text-muted-foreground">{t("rooms.deleteHint")}</p>
         {mutation.isError ? (
           <ErrorState
             title={t("rooms.saveFailed")}
