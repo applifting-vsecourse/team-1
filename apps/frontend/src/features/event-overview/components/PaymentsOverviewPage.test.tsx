@@ -16,6 +16,9 @@ import { PaymentsOverviewPage } from "@/features/event-overview/components/Payme
 const entries: PaymentOverviewEntry[] = [
   {
     applicationId: "a1",
+    variableSymbol: "23001",
+    summaryVariableSymbol: "23000",
+    payableCzk: 2900,
     firstName: "Adam",
     lastName: "Dvořák",
     termId: "t1",
@@ -33,6 +36,9 @@ const entries: PaymentOverviewEntry[] = [
   },
   {
     applicationId: "a2",
+    variableSymbol: "41001",
+    summaryVariableSymbol: "41000",
+    payableCzk: 4900,
     firstName: "Jana",
     lastName: "Nováková",
     termId: "t1",
@@ -50,6 +56,9 @@ const entries: PaymentOverviewEntry[] = [
   },
   {
     applicationId: "a3",
+    variableSymbol: "32001",
+    summaryVariableSymbol: "32000",
+    payableCzk: 0,
     firstName: "Petr",
     lastName: "Černý",
     termId: "t1",
@@ -98,6 +107,10 @@ function renderPage(visibleEntries = entries) {
       <PaymentsOverviewPage
         eventId="e1"
         eventName="Summer camp"
+        terms={[
+          { id: "t1", name: "Summer week", startsOn: "2027-07-01", endsOn: "2027-07-07" },
+          { id: "t2", name: "Second week", startsOn: "2027-07-12", endsOn: "2027-07-18" },
+        ]}
       />
     ),
   })
@@ -165,6 +178,46 @@ describe("PaymentsOverviewPage", () => {
     expect(screen.queryByText("Jana Nováková")).not.toBeInTheDocument()
     expect(screen.queryByText("Petr Černý")).not.toBeInTheDocument()
     expect(screen.getByText(/Debt in selection/)).toHaveTextContent(/2,900/)
+  })
+
+  it("intersects the search, term, status and reminder across the whole selection", async () => {
+    const user = userEvent.setup()
+    renderPage([
+      ...entries,
+      {
+        ...entries[0]!,
+        termId: "t2",
+        termName: "Second week",
+        variableSymbol: "23002",
+        amountPaidCzk: 4200,
+        amountOwedCzk: 700,
+        payableCzk: 700,
+      },
+    ])
+    const search = await screen.findByRole("searchbox")
+    const debt = () => screen.getByText(/Debt in selection/)
+    await user.type(search, "dvorak Adam")
+    expect(debt()).toHaveTextContent(/3,600/)
+    await user.clear(search)
+    await user.type(search, "23002")
+    expect(debt()).toHaveTextContent(/700/)
+    await user.clear(search)
+    await user.type(search, "23000")
+    expect(debt()).toHaveTextContent(/3,600/)
+    await user.click(screen.getByRole("combobox", { name: "Term" }))
+    await user.click(await screen.findByRole("option", { name: "Second week" }))
+    await user.click(screen.getByRole("combobox", { name: "Payment status" }))
+    await user.click(await screen.findByRole("option", { name: "With debt" }))
+    await user.click(screen.getByRole("combobox", { name: "Payment reminders" }))
+    await user.click(await screen.findByRole("option", { name: "Sent, still unpaid" }))
+    expect(debt()).toHaveTextContent(/700/)
+    expect(screen.getAllByRole("link", { name: /^Detail/ })).toHaveLength(1)
+    await user.clear(search)
+    await user.type(search, "Jana")
+    expect(debt()).toHaveTextContent(/CZK 0/)
+    await user.click(screen.getByRole("button", { name: /Clear filters/ }))
+    expect(search).toHaveValue("")
+    expect(screen.getAllByRole("link", { name: /^Detail/ })).toHaveLength(4)
   })
 
   it("labels a negative balance as an overpayment", async () => {

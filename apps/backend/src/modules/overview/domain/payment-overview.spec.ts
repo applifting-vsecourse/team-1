@@ -3,6 +3,8 @@ import { paymentOverview, PaymentOverviewTerm } from "./payment-overview"
 const now = new Date("2026-11-06T12:00:00Z")
 const term: PaymentOverviewTerm = {
   applicationId: "a1",
+  applicationNumber: 246,
+  termNumber: 3,
   firstName: "Adam",
   lastName: "Dvořák",
   termId: "t1",
@@ -36,6 +38,9 @@ describe("payment overview", () => {
       entries: [
         {
           paymentStatus: "PARTIALLY_PAID",
+          payableCzk: 2900,
+          variableSymbol: "246003",
+          summaryVariableSymbol: "246000",
           amountPaidCzk: 2000,
           amountOwedCzk: 2900,
           reminderCount: 1,

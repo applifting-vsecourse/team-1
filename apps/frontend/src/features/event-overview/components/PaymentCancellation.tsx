@@ -87,7 +87,10 @@ export function PaymentCancellation({
           rows={[
             [t("payment.editorDue"), formatCzk(application.amountDueCzk)],
             [t("payment.paidNow"), formatCzk(application.amountPaidCzk)],
-            [t("payment.cancelledRecord"), formatCzk(Math.abs(payment.amountCzk))],
+            [
+              t(payment.amountCzk < 0 ? "payment.cancelledRecord" : "payment.receiptTotal"),
+              formatCzk(Math.abs(payment.amountCzk)),
+            ],
           ]}
         />
         <p>

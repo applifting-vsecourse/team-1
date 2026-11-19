@@ -2,6 +2,9 @@ import { PaymentOverview } from "@/modules/overview/domain/payment-overview"
 import { ApiProperty } from "@nestjs/swagger"
 
 class PaymentOverviewEntryDto {
+  @ApiProperty() variableSymbol!: string
+  @ApiProperty() summaryVariableSymbol!: string
+  @ApiProperty() payableCzk!: number
   @ApiProperty() applicationId!: string
   @ApiProperty() firstName!: string
   @ApiProperty() lastName!: string

@@ -496,7 +496,7 @@
     "backToPayments": "Back to payments",
     "cancelAllAllocations": "Cancelling applies to all terms of this receipt.",
     "cancelCorrection": "Cancel",
-    "cancelDescription": "The payment record of {{amount}} will be removed. Other payments will be kept.",
+    "cancelDescription": "Cancelling reverses the payment of {{amount}}. The original record remains visible in the history. Other payments are kept.",
     "cancelOverpaidPreview": "After cancellation, overpayment remaining: {{amount}}",
     "cancelPreview": "After cancellation, debt: {{amount}}",
     "cancelReceiptDate": "Receipt dated {{date}}",
@@ -578,6 +578,7 @@
     "phoneNone": "No phone provided",
     "placeholder": "E.g. 3,000",
     "preview": "After saving, debt",
+    "receiptTotal": "Receipt total",
     "receivedHint": "Enter the amount actually received.",
     "record": "Record payment",
     "recordAmount": "Record payment {{amount}}",
@@ -642,6 +643,7 @@
     },
     "remindersLast": "Reminders: {{count}} · last {{date}}",
     "remindersLine": "Reminders: {{count}}",
+    "search": "Search by name or variable symbol",
     "selectionDebt": "Debt in selection",
     "statusFilter": "Payment status",
     "statuses": {
@@ -709,6 +711,7 @@
     "groupShared": "Shared rooms",
     "intro": "The system proposed the first substitute by order and available bed.",
     "list": "Suitable substitutes",
+    "occupied": "Occupied {{confirmed}}/{{capacity}}",
     "openWaitlist": "Show the whole waitlist",
     "proposal": {
       "bodyFemale": "{{range}} · {{name}} is the first suitable substitute.",

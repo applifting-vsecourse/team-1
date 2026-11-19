@@ -31,7 +31,22 @@ const item = (id: string, firstName: string, position: number) => ({
   priceCzk: 4900,
   isProposed: position === 1,
 })
-const term = { id: "t1", startsOn: "2027-07-12", endsOn: "2027-07-18" }
+const term = {
+  id: "t1",
+  name: null,
+  startsOn: "2027-07-12",
+  endsOn: "2027-07-18",
+  confirmed: 52,
+  capacity: 53,
+  free: 1,
+  waitlisted: 0,
+  roomCount: 2,
+  roomMode: "GENDERED" as const,
+  byGender: {
+    MALE: { confirmed: 49, capacity: 50, free: 1, waitlisted: 0 },
+    FEMALE: { confirmed: 3, capacity: 3, free: 0, waitlisted: 0 },
+  },
+}
 const list = (overrides = {}) => ({
   termId: "t1",
   evaluationMode: "MANUAL",
@@ -53,7 +68,19 @@ function Harness({ hasWaitlistedParticipants = false }: { hasWaitlistedParticipa
   ) : (
     <SubstitutesPanel
       eventId="e1"
-      term={term}
+      term={
+        hasWaitlistedParticipants
+          ? {
+              ...term,
+              confirmed: 53,
+              free: 0,
+              byGender: {
+                ...term.byGender,
+                MALE: { ...term.byGender.MALE, confirmed: 50, free: 0 },
+              },
+            }
+          : term
+      }
       onConfirmed={onConfirmed}
       hasWaitlistedParticipants={hasWaitlistedParticipants}
       onTaken={setTaken}
@@ -169,6 +196,8 @@ describe("suitable substitutes (US-104)", () => {
     expect(
       await screen.findByRole("heading", { name: "No suitable substitutes are waiting" }),
     ).toBeVisible()
+    expect(screen.getByText("Men · Occupied 49/50")).toBeVisible()
+    expect(screen.queryByText(/Occupied 52\/53/)).toBeNull()
     expect(screen.getByText(/1 free men's bed/)).toBeVisible()
     expect(screen.getByRole("link", { name: "Show the whole waitlist" })).toHaveAttribute(
       "href",
@@ -180,6 +209,8 @@ describe("suitable substitutes (US-104)", () => {
   it("shows that capacity is full while applicants remain on the manual waitlist", async () => {
     setup(list({ freeBeds: { MALE: 0, FEMALE: 0 }, items: [] }), true)
     expect(await screen.findByRole("heading", { name: "Capacity is full" })).toBeVisible()
+    expect(screen.getByText("Men · Occupied 50/50")).toBeVisible()
+    expect(screen.getByText("Women · Occupied 3/3")).toBeVisible()
     expect(screen.getByText("The remaining substitutes stay on the waitlist.")).toBeVisible()
     expect(screen.queryByRole("button", { name: /Confirm/ })).toBeNull()
   })

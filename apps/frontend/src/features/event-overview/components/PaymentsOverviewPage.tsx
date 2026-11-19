@@ -12,6 +12,7 @@ import { Pagination } from "@/components/molecules/Pagination"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
   Select,
@@ -40,6 +41,10 @@ import {
 type StatusFilter = "ALL" | "DEBT" | "UNPAID" | "PARTIALLY_PAID" | "PAID" | "OVERDUE"
 type ReminderFilter = "ALL" | "SENT" | "NOT_SENT"
 
+function searchText(text: string) {
+  return text.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase()
+}
+
 function matches(entry: PaymentOverviewEntry, status: StatusFilter, reminder: ReminderFilter) {
   const isPaymentMatch =
     status === "ALL" ||
@@ -64,14 +69,19 @@ function matches(entry: PaymentOverviewEntry, status: StatusFilter, reminder: Re
 export function PaymentsOverviewPage({
   eventId,
   eventName,
+  terms,
 }: {
   eventId: string
   eventName?: string
+  terms: { id: string; name: string | null; startsOn: string; endsOn: string }[]
 }) {
   const { t } = useTranslation("eventOverview")
   const { data, isPending, error, refetch } = useQuery(paymentOverviewQueryOptions(eventId))
   const [status, setStatus] = useState<StatusFilter>("ALL")
   const [reminder, setReminder] = useState<ReminderFilter>("ALL")
+
+  const [search, setSearch] = useState("")
+  const [termId, setTermId] = useState("ALL")
 
   if (isPending) return <LoadingState />
   if (error) {
@@ -84,8 +94,22 @@ export function PaymentsOverviewPage({
     )
   }
 
-  const entries = data.entries.filter((entry) => matches(entry, status, reminder))
+  const words = searchText(search).trim().split(/\s+/).filter(Boolean)
+  const entries = data.entries.filter((entry) => {
+    if (!matches(entry, status, reminder) || (termId !== "ALL" && entry.termId !== termId)) {
+      return false
+    }
+    const text = searchText(
+      [entry.firstName, entry.lastName, entry.variableSymbol, entry.summaryVariableSymbol].join(
+        " ",
+      ),
+    )
+    return words.every((word) => text.includes(word))
+  })
+  const selectionDebt = entries.reduce((sum, entry) => sum + entry.payableCzk, 0)
   const clearFilters = () => {
+    setSearch("")
+    setTermId("ALL")
     setStatus("ALL")
     setReminder("ALL")
   }
@@ -153,7 +177,41 @@ export function PaymentsOverviewPage({
           </Card>
         ))}
       </div>
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="payment-search">{t("paymentsOverview.search")}</Label>
+          <Input
+            id="payment-search"
+            type="search"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+          />
+        </div>
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="payment-term">{t("paymentsOverview.term")}</Label>
+          <Select
+            value={termId}
+            onValueChange={setTermId}
+          >
+            <SelectTrigger
+              id="payment-term"
+              className="w-full"
+            >
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ALL">{t("applications.allTerms")}</SelectItem>
+              {terms.map((term) => (
+                <SelectItem
+                  key={term.id}
+                  value={term.id}
+                >
+                  {termTitle(term)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
         <div className="flex flex-col gap-2">
           <Label htmlFor="payment-status">{t("paymentsOverview.statusFilter")}</Label>
           <Select
@@ -206,8 +264,7 @@ export function PaymentsOverviewPage({
         </div>
       </div>
       <p className="text-sm font-medium">
-        {t("paymentsOverview.selectionDebt")} ·{" "}
-        <MoneyAmount amountCzk={data.debtByFilter[status === "DEBT" ? "ALL" : status][reminder]} />
+        {t("paymentsOverview.selectionDebt")} · <MoneyAmount amountCzk={selectionDebt} />
       </p>
       {entries.length === 0 ? (
         <div className="flex flex-col items-center gap-6 py-4">
@@ -231,7 +288,7 @@ export function PaymentsOverviewPage({
         <PaymentEntries
           entries={entries}
           eventId={eventId}
-          resetKey={`${status}|${reminder}`}
+          resetKey={JSON.stringify([search, termId, status, reminder])}
         />
       )}
     </section>

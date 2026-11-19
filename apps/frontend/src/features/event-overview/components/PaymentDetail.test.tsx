@@ -555,6 +555,8 @@ describe("PaymentDetail", () => {
     expect(
       within(dialog).getByRole("heading", { name: /Receipt dated.*12 Mar 2027/ }),
     ).toBeVisible()
+    expect(within(dialog).getByText("Receipt total").parentElement).toHaveTextContent(/1,200/)
+    expect(within(dialog).getByText(/original record remains visible in the history/)).toBeVisible()
     const parts = within(dialog).getAllByRole("listitem")
     expect(parts).toHaveLength(2)
     expect(parts[0]).toHaveTextContent(/400/)

@@ -206,7 +206,10 @@ export function ApplicationsPage({
         {views}
         <SubstituteTaken
           {...taken}
-          onRefresh={() => setTaken(null)}
+          onRefresh={() => {
+            void occupancy.refetch()
+            setTaken(null)
+          }}
         />
       </div>
     )
@@ -236,6 +239,7 @@ export function ApplicationsPage({
           term={substituteTerm}
           onTaken={setTaken}
           onConfirmed={(applicationId) => {
+            void client.invalidateQueries({ queryKey: occupancyQueryOptions(eventId).queryKey })
             notify.success(t("substitutes.confirmed"))
             // The application of the confirmed participant, where the payment details are.
             void navigate({ to: ROUTES.organizer.application, params: { eventId, applicationId } })

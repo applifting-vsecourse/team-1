@@ -17,6 +17,7 @@ import { apiErrorCode } from "@/lib/api-client"
 import { formatDate, formatDateRange, formatDateTime } from "@/lib/date"
 import { formatCzk } from "@/lib/money"
 
+import type { TermOccupancy } from "@/features/event-overview/api/occupancy"
 import {
   confirmSubstitute,
   substitutesQueryOptions,
@@ -45,7 +46,7 @@ export function SubstitutesPanel({
   hasWaitlistedParticipants = false,
 }: {
   eventId: string
-  term: SubstituteTerm
+  term: TermOccupancy
   hasWaitlistedParticipants?: boolean
   onConfirmed: (applicationId: string) => void
   onTaken: (taken: SubstituteTaken) => void
@@ -65,6 +66,27 @@ export function SubstitutesPanel({
         <h2 className="text-lg font-semibold">
           {t(hasFreeBeds ? "substitutes.emptyTitle" : "substitutes.fullTitle")}
         </h2>
+        {list.roomMode === "SHARED" ? (
+          <p>{t("substitutes.occupied", { confirmed: term.confirmed, capacity: term.capacity })}</p>
+        ) : term.byGender ? (
+          <div className="text-sm">
+            {(["MALE", "FEMALE"] as const).map((gender) => {
+              const group = term.byGender![gender]
+              if (hasFreeBeds ? free[gender] <= 0 : group.capacity === 0 && group.confirmed === 0) {
+                return null
+              }
+              return (
+                <p key={gender}>
+                  {t(gender === "MALE" ? "substitutes.groupMale" : "substitutes.groupFemale")} ·{" "}
+                  {t("substitutes.occupied", {
+                    confirmed: group.confirmed,
+                    capacity: group.capacity,
+                  })}
+                </p>
+              )
+            })}
+          </div>
+        ) : null}
         {hasFreeBeds ? (
           <div className="text-sm">
             {list.roomMode === "SHARED" ? (

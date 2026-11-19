@@ -7,8 +7,11 @@ import {
   PaymentStatus,
   termHasDebt,
 } from "@/modules/applications/domain/pricing"
+import { variableSymbol } from "@/modules/applications/domain/variable-symbol"
 
 export type PaymentOverviewTerm = {
+  applicationNumber: number
+  termNumber: number
   applicationId: string
   firstName: string
   lastName: string
@@ -25,6 +28,9 @@ export type PaymentOverviewTerm = {
 }
 
 export type PaymentOverviewEntry = {
+  variableSymbol: string
+  summaryVariableSymbol: string
+  payableCzk: number
   applicationId: string
   firstName: string
   lastName: string
@@ -82,6 +88,9 @@ export function paymentOverview(
     })
     return {
       applicationId: term.applicationId,
+      variableSymbol: variableSymbol(term.applicationNumber, term.termNumber),
+      summaryVariableSymbol: variableSymbol(term.applicationNumber),
+      payableCzk: computePayableAmount([amountOwedCzk]),
       firstName: term.firstName,
       lastName: term.lastName,
       termId: term.termId,

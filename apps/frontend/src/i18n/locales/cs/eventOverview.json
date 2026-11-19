@@ -496,7 +496,7 @@
     "backToPayments": "Zpět na platby",
     "cancelAllAllocations": "Zrušení se vztahuje na všechny termíny tohoto příjmu.",
     "cancelCorrection": "Zrušit",
-    "cancelDescription": "Zápis platby {{amount}} bude odstraněn. Ostatní platby zůstanou zachované.",
+    "cancelDescription": "Zruší se platba {{amount}}. Původní zápis zůstane viditelný v historii. Ostatní platby zůstanou zachované.",
     "cancelOverpaidPreview": "Po zrušení zůstane přeplatek: {{amount}}",
     "cancelPreview": "Po zrušení bude dlužit: {{amount}}",
     "cancelReceiptDate": "Zápis ze dne {{date}}",
@@ -578,6 +578,7 @@
     "phoneNone": "Telefon neuveden",
     "placeholder": "Např. 3 000",
     "preview": "Po uložení bude dlužit",
+    "receiptTotal": "Celkový příjem",
     "receivedHint": "Zadejte částku skutečně přijaté platby.",
     "record": "Zapsat platbu",
     "recordAmount": "Zapsat platbu {{amount}}",
@@ -642,6 +643,7 @@
     },
     "remindersLast": "Výzvy: {{count}} · poslední {{date}}",
     "remindersLine": "Výzvy: {{count}}",
+    "search": "Hledat jméno nebo VS",
     "selectionDebt": "Dluh ve výběru",
     "statusFilter": "Stav platby",
     "statuses": {
@@ -709,6 +711,7 @@
     "groupShared": "Společné pokoje",
     "intro": "Systém navrhl prvního náhradníka podle pořadí a dostupného lůžka.",
     "list": "Vhodní náhradníci",
+    "occupied": "Obsazeno {{confirmed}}/{{capacity}}",
     "openWaitlist": "Zobrazit celý pořadník",
     "proposal": {
       "bodyFemale": "{{range}} · {{name}} je první vhodná náhradnice.",
