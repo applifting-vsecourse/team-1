@@ -101,6 +101,10 @@ export class Config {
   @IsBoolean()
   readonly rateLimitEnabled!: boolean
 
+  // How often paid applications of finished terms are archived (US-109); 0 = off.
+  @Env("APPLICATION_ARCHIVE_INTERVAL_MS", { expose: true, defaultValue: 3_600_000 })
+  readonly applicationArchiveIntervalMs!: number
+
   // How often waitlisted applications of started terms are cancelled (US-106); 0 = off.
   @Env("WAITLIST_EXPIRY_INTERVAL_MS", { expose: true, defaultValue: 3_600_000 })
   readonly waitlistExpiryIntervalMs!: number

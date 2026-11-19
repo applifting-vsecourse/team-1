@@ -18,6 +18,7 @@ const source: ApplicationHistorySource = {
       changedAt: day("2026-11-03"),
     },
   ],
+  edits: [],
   paymentRows: [
     {
       receiptId: "r1",
@@ -75,5 +76,54 @@ describe("buildApplicationHistory", () => {
     expect(history.find((entry) => entry.kind === "APPLICATION_CREATED")?.author).toBe(
       "jana@example.com",
     )
+  })
+
+  it("shows an edit with the changed fields, in a fixed order, before and after", () => {
+    const history = buildApplicationHistory({
+      ...source,
+      edits: [
+        {
+          id: "e1",
+          authorName: "Eva Malá",
+          changedFields: ["phone", "lastName", "individualAccommodation"],
+          before: { lastName: "Nowak", phone: null, individualAccommodation: false },
+          after: { lastName: "Novák", phone: "+420777123456", individualAccommodation: true },
+          changedAt: day("2026-11-17"),
+        },
+      ],
+    })
+    expect(history[0]).toMatchObject({
+      kind: "EDIT",
+      id: "edit-e1",
+      author: "Eva Malá",
+      changes: [
+        { field: "lastName", from: "Nowak", to: "Novák" },
+        { field: "phone", from: null, to: "+420777123456" },
+        { field: "individualAccommodation", from: "false", to: "true" },
+      ],
+    })
+  })
+
+  it("lists no values of the accommodation note, only that it changed", () => {
+    const history = buildApplicationHistory({
+      ...source,
+      edits: [
+        {
+          id: "e2",
+          authorName: "Eva Malá",
+          changedFields: ["accommodationRequest"],
+          before: { accommodationRequest: "Old secret note" },
+          after: { accommodationRequest: "New note" },
+          changedAt: day("2026-11-18"),
+        },
+      ],
+    })
+    expect(history[0]).toEqual({
+      kind: "EDIT",
+      id: "edit-e2",
+      at: day("2026-11-18"),
+      author: "Eva Malá",
+      changes: [{ field: "accommodationRequest" }],
+    })
   })
 })

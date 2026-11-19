@@ -60,6 +60,38 @@ beforeEach(() => {
 })
 
 describe("ApplicationHistory", () => {
+  it("shows an edit of the details as field: before → after, with its author (#515)", async () => {
+    get.mockReturnValue({
+      json: () =>
+        Promise.resolve([
+          {
+            id: "edit-e1",
+            kind: "EDIT",
+            at: "2026-11-17T13:02:00Z",
+            author: "Jana Svobodová",
+            changes: [
+              { field: "lastName", from: "Nowak", to: "Novák" },
+              { field: "phone", from: null, to: "+420777123456" },
+              { field: "birthDate", from: "2014-05-04", to: "2014-05-05" },
+              { field: "individualAccommodation", from: "false", to: "true" },
+              { field: "accommodationRequest" },
+            ],
+          },
+          entries[3],
+        ]),
+    })
+    setup()
+
+    const [edit] = within(await screen.findByRole("list")).getAllByRole("listitem")
+    expect(edit).toHaveTextContent("Jana Svobodová")
+    expect(edit).toHaveTextContent("Last name: Nowak → Novák")
+    expect(edit).toHaveTextContent("Phone: — → +420777123456")
+    expect(edit).toHaveTextContent("Date of birth: 4 May 2014 → 5 May 2014")
+    expect(edit).toHaveTextContent("Individual accommodation: no → yes")
+    // The note's values are not listed, only that it changed.
+    expect(edit).toHaveTextContent("Accommodation note: changed")
+  })
+
   it("lists every change with its time, author and change", async () => {
     get.mockReturnValue({ json: () => Promise.resolve(entries) })
     setup()

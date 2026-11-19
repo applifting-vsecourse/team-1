@@ -1,14 +1,5 @@
-import { ApiProperty } from "@nestjs/swagger"
-import {
-  IsInt,
-  IsOptional,
-  IsString,
-  Matches,
-  Max,
-  MaxLength,
-  Min,
-  MinLength,
-} from "class-validator"
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger"
+import { IsInt, IsOptional, IsString, Matches, Max, MaxLength, Min } from "class-validator"
 
 export class TermDto {
   @ApiProperty({
@@ -38,9 +29,9 @@ export class TermDto {
 }
 
 export class CancelTermDto {
-  @ApiProperty({ example: "Areál není v srpnovém termínu k dispozici" })
+  @ApiPropertyOptional({ example: "Areál není v srpnovém termínu k dispozici" })
+  @IsOptional()
   @IsString()
-  @MinLength(1)
   @MaxLength(2000)
-  reason!: string
+  reason?: string
 }

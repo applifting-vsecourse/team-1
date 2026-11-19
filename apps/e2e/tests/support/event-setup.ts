@@ -25,3 +25,18 @@ export async function createEventWithTerm(page: Page, name: string) {
   await dialog.getByRole("button", { name: "Add term" }).click()
   await expect(page.getByText("The term 1. týden was added.")).toBeVisible()
 }
+
+/** Adds one room of `capacity` beds to the event's only term, which opens the application link. */
+export async function addRoom(page: Page, name = "Pokoj E2E", capacity = "5") {
+  await page
+    .getByRole("navigation", { name: "Event sections" })
+    .getByRole("link", { name: "Overview" })
+    .click()
+  await page.getByRole("link", { name: "Add a room" }).click()
+  await page.getByRole("button", { name: "Add room" }).first().click()
+  const dialog = page.getByRole("dialog")
+  await dialog.getByLabel("Room name").fill(name)
+  await dialog.getByLabel("Capacity").fill(capacity)
+  await dialog.getByRole("button", { name: "Add room" }).click()
+  await expect(page.getByRole("cell", { name, exact: true })).toBeVisible()
+}

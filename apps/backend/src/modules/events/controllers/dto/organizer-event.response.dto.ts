@@ -106,7 +106,8 @@ export class OrganizerEventResponseDto {
   cancellationTerms!: string | null
 
   @ApiProperty({
-    description: "Applications are open, so the evaluation mode can no longer change.",
+    description:
+      "The event has at least one received application (cancelled ones too), so the evaluation mode can no longer change (D-083).",
   })
   evaluationModeLocked!: boolean
 

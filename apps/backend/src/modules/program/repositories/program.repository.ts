@@ -2,7 +2,10 @@ import { PrismaService } from "@/core/prisma/prisma.service"
 import {
   ApplicationProgram,
   EventProgram,
+  planProgramCopy,
   ProgramBlock,
+  ProgramCopyPlan,
+  ProgramCopyStrategy,
   ProgramInput,
   TermInfo,
   TermProgram,
@@ -132,6 +135,59 @@ export class ProgramRepository {
 
   async remove({ organizationId }: Scope, id: string): Promise<void> {
     await this.prisma.programBlock.deleteMany({ where: { id, organizationId } })
+  }
+
+  /**
+   * One-off copy of the blocks of another term of the event (US-142); the copies are independent rows
+   * and nobody is notified. In one transaction, so a failed replace leaves the program as it was.
+   * `null` when a term is not the event's.
+   */
+  async copy(
+    { eventId, organizationId }: Scope,
+    termId: string,
+    sourceTermId: string,
+    strategy: ProgramCopyStrategy,
+  ): Promise<ProgramCopyPlan | null> {
+    return this.prisma.$transaction(async (tx) => {
+      const [source, target] = await Promise.all(
+        [sourceTermId, termId].map((id) =>
+          tx.term.findFirst({
+            where: { id, eventId, organizationId },
+            include: { programBlocks: { orderBy: blockOrder } },
+          }),
+        ),
+      )
+      if (!source || !target) return null
+      if (target.cancelledAt || source.cancelledAt)
+        throw new AppException(HttpStatus.BAD_REQUEST, "TERM_CANCELLED")
+      if (source.id === target.id || !source.programBlocks.length) {
+        throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
+      }
+      const toInput = (block: (typeof source.programBlocks)[number]): ProgramInput => ({
+        date: isoDay(block.date),
+        startTime: block.startTime,
+        endTime: block.endTime,
+        name: block.name,
+        place: block.place,
+        description: block.description,
+      })
+      const plan = planProgramCopy(
+        {
+          term: { startsOn: isoDay(source.startsOn), endsOn: isoDay(source.endsOn) },
+          blocks: source.programBlocks.map(toInput),
+        },
+        { startsOn: isoDay(target.startsOn), endsOn: isoDay(target.endsOn) },
+        strategy === "REPLACE" ? [] : target.programBlocks.map(toInput),
+      )
+      // Nothing fits into the target: refuse, so a replace never wipes the program for no copy.
+      if (!plan.blocks.length) throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
+      if (strategy === "REPLACE")
+        await tx.programBlock.deleteMany({ where: { termId, organizationId } })
+      await tx.programBlock.createMany({
+        data: plan.blocks.map((input) => ({ organizationId, termId, ...toData(input) })),
+      })
+      return plan
+    })
   }
 
   /**

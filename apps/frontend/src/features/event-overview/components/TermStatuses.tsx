@@ -25,6 +25,7 @@ const BADGE = {
   CONFIRMED: "success",
   WAITLISTED: "secondary",
   CANCELLED: "secondary",
+  ARCHIVED: "secondary",
 } as const
 const ACTION_KEY = {
   CONFIRMED: "confirm",
@@ -58,7 +59,7 @@ export function TermStatuses({ applicationId }: { applicationId: string }) {
       />
     )
   }
-  const active = data.filter((term) => term.status !== "CANCELLED")
+  const active = data.filter((term) => term.status !== "CANCELLED" && term.status !== "ARCHIVED")
   return (
     <Card className="gap-4 p-4 md:p-6">
       <div className="flex flex-col gap-1">
@@ -87,7 +88,7 @@ export function TermStatuses({ applicationId }: { applicationId: string }) {
               <span className="font-medium">{termDatesLine(term)}</span>
               <Badge variant={BADGE[term.status]}>{t(`termStatus.state.${term.status}`)}</Badge>
               {/* On a phone the actions stack at full width; from sm up they wrap in a row. */}
-              {term.status === "CANCELLED" ? null : (
+              {term.status === "CANCELLED" || term.status === "ARCHIVED" ? null : (
                 <div className="flex w-full flex-col gap-2 *:w-full sm:ml-auto sm:w-auto sm:flex-row sm:flex-wrap sm:*:w-auto">
                   <OrganizerTermChange
                     applicationId={applicationId}

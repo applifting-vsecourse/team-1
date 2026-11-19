@@ -1,3 +1,4 @@
+import { TermStatusService } from "@/modules/applications/services/term-status.service"
 import {
   EventTerm,
   isValidTermPeriod,
@@ -15,6 +16,7 @@ export class TermsService {
   constructor(
     private readonly repository: TermsRepository,
     private readonly organizationAccess: OrganizationAccessService,
+    private readonly termStatus: TermStatusService,
   ) {}
 
   /** Active terms by date first, then the cancelled ones by date. */
@@ -42,16 +44,19 @@ export class TermsService {
     return this.repository.update(termId, this.validated(input))
   }
 
+  /** US-131: cancels the term (the reason is optional) and the applications in it; returns the term and their count. */
   async cancel(
     user: Identity,
     eventId: string,
     termId: string,
-    reason: string,
-  ): Promise<EventTerm> {
-    const trimmed = reason.trim()
-    if (!trimmed) throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
+    reason?: string,
+  ): Promise<{ term: EventTerm; cancelledApplications: number }> {
+    // The reason is optional; blank is no reason, stored as null.
+    const trimmed = reason?.trim() || null
     await this.activeTerm(user, eventId, termId)
-    return this.repository.cancel(termId, trimmed)
+    const cancelledApplications = await this.termStatus.cancelTerm(user, eventId, termId, trimmed)
+    const term = await this.repository.findById(termId)
+    return { term: term!, cancelledApplications }
   }
 
   private validated(input: TermInput): TermInput {

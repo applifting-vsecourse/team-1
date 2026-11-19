@@ -1,4 +1,3 @@
-import { DEFAULT_LOCALE, Locale } from "@/core/email/locale"
 import { ParticipantAccountsRepository } from "@/modules/participants/repositories/participant-accounts.repository"
 import { AppException } from "@/shared/errors/app.exception"
 import { HttpStatus, Injectable } from "@nestjs/common"
@@ -6,8 +5,6 @@ import { HttpStatus, Injectable } from "@nestjs/common"
 export type EnsureAccountInput = {
   email: string
   name: string
-  /** Language of the application; becomes the account's e-mail language. */
-  locale?: Locale
 }
 
 export type EnsureAccountResult = {
@@ -46,7 +43,6 @@ export class ParticipantAccountsService {
     const created = await this.accounts.createParticipant({
       email,
       name: input.name.trim(),
-      locale: input.locale ?? DEFAULT_LOCALE,
     })
     if (created) {
       return { userId: created.id, isNew: true, mustSetPassword: true }

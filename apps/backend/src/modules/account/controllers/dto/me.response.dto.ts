@@ -31,9 +31,10 @@ export class MeResponseDto {
 
   @ApiProperty({
     enum: ["en", "cs"],
-    description: "Language of e-mails to this account.",
+    nullable: true,
+    description: "Preferred language (UI and e-mails); null until the user chooses one (D-069).",
   })
-  locale!: Locale
+  locale!: Locale | null
 
   @ApiProperty({ type: [OrganizationSummaryDto] })
   organizations!: OrganizationSummaryDto[]

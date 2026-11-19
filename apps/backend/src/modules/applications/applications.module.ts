@@ -9,6 +9,7 @@ import { ApplicationHistoryController } from "./controllers/application-history.
 import { ApplicationsController } from "./controllers/applications.controller"
 import { BulkConfirmationController } from "./controllers/bulk-confirmation.controller"
 import { BulkDecisionController } from "./controllers/bulk-decision.controller"
+import { BulkEvaluationController } from "./controllers/bulk-evaluation.controller"
 import { CapacityController } from "./controllers/capacity.controller"
 import {
   OrganizerChangeRequestController,
@@ -25,6 +26,7 @@ import { SubmissionStatusController } from "./controllers/submission-status.cont
 import { SubstituteProposalsController } from "./controllers/substitute-proposals.controller"
 import { SubstitutesController } from "./controllers/substitutes.controller"
 import { TermStatusController } from "./controllers/term-status.controller"
+import { ApplicationArchiveRepository } from "./repositories/application-archive.repository"
 import { ApplicationHistoryRepository } from "./repositories/application-history.repository"
 import { ApplicationsRepository } from "./repositories/applications.repository"
 import { BulkConfirmationRepository } from "./repositories/bulk-confirmation.repository"
@@ -36,10 +38,13 @@ import { PublicEventsRepository } from "./repositories/public-events.repository"
 import { SubmissionStatusRepository } from "./repositories/submission-status.repository"
 import { SubstitutesRepository } from "./repositories/substitutes.repository"
 import { TermStatusRepository } from "./repositories/term-status.repository"
+import { ApplicationArchiveScheduler } from "./services/application-archive.scheduler"
+import { ApplicationArchiveService } from "./services/application-archive.service"
 import { ApplicationHistoryService } from "./services/application-history.service"
 import { ApplicationsService } from "./services/applications.service"
 import { BulkConfirmationService } from "./services/bulk-confirmation.service"
 import { BulkDecisionService } from "./services/bulk-decision.service"
+import { BulkEvaluationService } from "./services/bulk-evaluation.service"
 import { CapacityService } from "./services/capacity.service"
 import { ChangeRequestService } from "./services/change-request.service"
 import { ContactEmailSyncService } from "./services/contact-email-sync.service"
@@ -77,10 +82,14 @@ import { WaitlistExpiryService } from "./services/waitlist-expiry.service"
     OrganizerTermChangeController,
     BulkConfirmationController,
     BulkDecisionController,
+    BulkEvaluationController,
     SubstitutesController,
     SubstituteProposalsController,
   ],
   providers: [
+    ApplicationArchiveRepository,
+    ApplicationArchiveService,
+    ApplicationArchiveScheduler,
     CapacityRepository,
     ChangeRequestRepository,
     ChangeRequestService,
@@ -102,6 +111,7 @@ import { WaitlistExpiryService } from "./services/waitlist-expiry.service"
     BulkConfirmationService,
     BulkDecisionRepository,
     BulkDecisionService,
+    BulkEvaluationService,
     SubstitutesRepository,
     SubstitutesService,
     WaitlistExpiryService,

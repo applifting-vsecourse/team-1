@@ -5,12 +5,12 @@ export function computeSelectionPrice(termPricesCzk: number[]): number {
   return termPricesCzk.reduce((sum, price) => sum + price, 0)
 }
 
-/** Amount due = sum of frozen prices of CONFIRMED terms only (US-40). */
+/** Amount due = sum of frozen prices of confirmed and archived terms (US-40). */
 export function computeAmountDue(
   terms: { status: ApplicationTermStatus; priceCzk: number }[],
 ): number {
   return terms
-    .filter((term) => term.status === "CONFIRMED")
+    .filter((term) => term.status === "CONFIRMED" || term.status === "ARCHIVED")
     .reduce((sum, term) => sum + term.priceCzk, 0)
 }
 
@@ -58,9 +58,9 @@ export function resolvePaymentAmount(
 // stay as thin wrappers with unchanged values.
 // ---------------------------------------------------------------------------
 
-/** Due of one term: its frozen price when CONFIRMED, otherwise nothing (waitlist, cancelled). */
+/** Due of one term: confirmed and archived terms retain their frozen price. */
 export function computeTermDue(term: { status: ApplicationTermStatus; priceCzk: number }): number {
-  return term.status === "CONFIRMED" ? term.priceCzk : 0
+  return term.status === "CONFIRMED" || term.status === "ARCHIVED" ? term.priceCzk : 0
 }
 
 /** Paid of one term = sum of its non-cancelled rows (refunds are negative rows). */
@@ -90,13 +90,18 @@ export function termHasDebt(
   return computeTermOwed(term, payments) > 0
 }
 
-/**
- * What a summary payment (`…000`) settles right now: the debt of terms that have
- * one. An overpayment of one term is not set off against another term's debt
- * (D-088), so this differs from `due − paid` of the whole application.
- */
+/** Sum of positive term balances without offsetting each term's overpayments (D-088). */
 export function computePayableAmount(termsOwedCzk: number[]): number {
   return termsOwedCzk.reduce((sum, owed) => sum + Math.max(0, owed), 0)
+}
+
+/** A summary payment settles confirmed debt (D-087), independently of historical balances. */
+export function computeSummaryPayableAmount(
+  terms: { status: ApplicationTermStatus; owedCzk: number }[],
+): number {
+  return computePayableAmount(
+    terms.filter((term) => term.status === "CONFIRMED").map((term) => term.owedCzk),
+  )
 }
 
 export type AllocationTerm = {
@@ -114,15 +119,16 @@ export type AllocatedPayment = { applicationTermId: string; amountCzk: number }
  * Splits a summary payment into rows per term. Order: earliest term first (by
  * start date, tie → term number), only CONFIRMED terms with a debt, each up to
  * its debt. What is left is an overpayment on the last CONFIRMED term in that
- * order — or, with no confirmed term, on the last term of the list. Shortfall
+ * order — or, with no confirmed term, on the last nonarchived term. Shortfall
  * therefore stays on the latest terms. Knows nothing about application borders,
  * so it can later run over the terms of a whole submission.
  */
 export function allocatePayment(amountCzk: number, terms: AllocationTerm[]): AllocatedPayment[] {
-  if (terms.length === 0 || amountCzk <= 0) return []
-  const ordered = [...terms].sort(
-    (a, b) => a.startsOn.getTime() - b.startsOn.getTime() || a.termNumber - b.termNumber,
-  )
+  if (amountCzk <= 0) return []
+  const ordered = terms
+    .filter((term) => term.status !== "ARCHIVED")
+    .sort((a, b) => a.startsOn.getTime() - b.startsOn.getTime() || a.termNumber - b.termNumber)
+  if (ordered.length === 0) return []
   const confirmed = ordered.filter((term) => term.status === "CONFIRMED")
   const rows: AllocatedPayment[] = []
   let left = amountCzk

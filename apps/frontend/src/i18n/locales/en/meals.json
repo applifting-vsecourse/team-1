@@ -1,13 +1,22 @@
 {
   "kitchen": {
+    "allergiesColumn": "Allergies",
     "allergiesTitle": "Allergies",
+    "arrivalColumn": "Arrival",
+    "countColumn": "Count",
     "countsTitle": "Meal counts",
+    "departureColumn": "Departure",
     "description": "{{event}} · Meals",
+    "nameColumn": "Name",
+    "optionColumn": "Meal",
     "overlapNote": "Restrictions may overlap.",
     "print": "Print summary",
     "regular": "Regular meal",
+    "requestColumn": "Request",
+    "sectionTitle": "{{title}} · {{count}}",
     "setUpOptions": "Set up meal options",
     "specialRequestsTitle": "Special requests",
+    "staysTitle": "Arrivals and departures",
     "termLabel": "Term",
     "title": "Kitchen summary"
   },
@@ -21,10 +30,11 @@
   },
   "own": {
     "allergiesLabel": "Allergies and other dietary restrictions",
+    "backToApplication": "← Application",
+    "noRestrictions": "I have no dietary restriction",
     "pageTitle": "Meals",
     "save": "Save meals",
     "saved": "Meals saved",
-    "specialRequestLabel": "Special request",
-    "title": "Meals · {{name}}"
+    "specialRequestLabel": "Special request"
   }
 }

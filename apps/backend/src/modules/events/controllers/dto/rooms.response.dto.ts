@@ -24,6 +24,8 @@ export class RoomsResponseDto {
   @ApiProperty({ example: "2027-07-04" }) startsOn!: string
   @ApiProperty({ example: "2027-07-10" }) endsOn!: string
   @ApiProperty({ enum: ["GENDERED", "SHARED"] }) roomMode!: RoomMode
+  @ApiProperty({ description: "Confirmed participants see their room (US-144)" })
+  roomsPublished!: boolean
   @ApiProperty({ type: [RoomResponseDto] }) rooms!: RoomResponseDto[]
   @ApiProperty({ type: RoomCapacityDto }) capacity!: RoomCapacityDto
 

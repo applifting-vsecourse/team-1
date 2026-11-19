@@ -1,6 +1,7 @@
 import {
   eligibleSubstitutes,
   proposedSubstitutes,
+  substituteAfterWithdrawal,
   substituteForFreedBed,
 } from "@/modules/applications/domain/substitutes"
 import { WaitlistCandidate } from "@/modules/applications/domain/waitlist"
@@ -168,5 +169,30 @@ describe("substituteForFreedBed (US-31)", () => {
       "SHARED",
     )
     expect(result?.applicationId).toBe("jana")
+  })
+})
+
+describe("substituteAfterWithdrawal", () => {
+  const rooms = [{ capacity: 1, extraBeds: 0, gender: "MALE" as const }]
+
+  it("names the first waitlisted of the gender of the bed that is given up", () => {
+    const next = substituteAfterWithdrawal(
+      { rooms, confirmedGenders: ["MALE"] },
+      [candidate("jana", "FEMALE", 0), candidate("adam", "MALE", 1), candidate("petr", "MALE", 2)],
+      "MALE",
+      "GENDERED",
+    )
+    expect(next?.applicationId).toBe("adam")
+  })
+
+  it("names nobody when only the other gender waits", () => {
+    expect(
+      substituteAfterWithdrawal(
+        { rooms, confirmedGenders: ["MALE"] },
+        [candidate("jana", "FEMALE", 0)],
+        "MALE",
+        "GENDERED",
+      ),
+    ).toBeUndefined()
   })
 })

@@ -10,7 +10,7 @@ export class Identity {
     public readonly name: string | null,
     public readonly accountType: AccountType,
     public readonly mustSetPassword: boolean,
-    public readonly locale: Locale = "en",
+    public readonly locale: Locale | null = null,
     public readonly emailVerified: boolean = true,
   ) {}
 }

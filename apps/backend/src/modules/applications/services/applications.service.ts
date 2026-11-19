@@ -18,6 +18,7 @@ import { ParticipantAccountsService } from "@/modules/participants/services/part
 import { Identity } from "@/shared/auth/domain/identity"
 import { normalizeAccommodation } from "@/shared/domain/accommodation"
 import { Gender } from "@/shared/domain/gender"
+import { isValidPhone, normalizePhone } from "@/shared/domain/phone"
 import { AppException } from "@/shared/errors/app.exception"
 import { OrganizationAccessService } from "@/shared/organization-access/organization-access.service"
 import { KeyedMutex } from "@/shared/utils/keyed-mutex"
@@ -39,7 +40,7 @@ export type SubmitApplicationInput = {
 
 export type ManualApplicationInput = {
   email: string
-  phone: string
+  phone?: string | null
   consent: true
   firstName: string
   lastName: string
@@ -79,6 +80,11 @@ export class ApplicationsService {
     ) {
       throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
     }
+    // The phone is optional; a filled-in one has to be a phone.
+    const phone = normalizePhone(input.phone)
+    if (!isValidPhone(phone)) {
+      throw new AppException(HttpStatus.BAD_REQUEST, "INVALID_PHONE")
+    }
     const prices = new Map(event.terms.map(({ id, priceCzk }) => [id, priceCzk]))
     const requestedIds = input.terms.map(({ termId }) => termId)
     if (
@@ -109,14 +115,13 @@ export class ApplicationsService {
         ...participant,
         gender: input.gender,
         email,
-        phone: input.phone.trim(),
+        phone: phone ?? undefined,
         locale,
         userId: async () => {
           // Called only after capacity and duplicate validation under the database lock.
           const account = await this.accounts.ensureAccount({
             email,
             name: `${input.firstName} ${input.lastName}`,
-            locale,
           })
           mustSetPassword = account.mustSetPassword
           return account.userId
@@ -194,7 +199,6 @@ export class ApplicationsService {
       const account = await this.accounts.ensureAccount({
         email: input.email,
         name: `${first.firstName} ${first.lastName}`,
-        locale,
       })
 
       const consentAt = new Date()
@@ -211,7 +215,7 @@ export class ApplicationsService {
         accessToken: generateToken(),
       }))
 
-      const saved = await this.repository.saveEvaluated(event, applications, (snapshot) =>
+      const saved = await this.repository.saveEvaluated(event, applications, (snapshot, mode) =>
         evaluateSubmission(
           applications.map((application) => ({
             gender: application.gender,
@@ -221,7 +225,7 @@ export class ApplicationsService {
             })),
           })),
           snapshot,
-          event.evaluationMode,
+          mode,
         ),
       )
       return { account, applications, saved }

@@ -25,8 +25,9 @@ describe("TermPaymentCard", () => {
     expect(screen.getByText("Partly paid")).toBeInTheDocument()
     expect(screen.getByText("Amount due").nextSibling).toHaveTextContent("4,900")
     expect(screen.getByText("Paid").nextSibling).toHaveTextContent("4,400")
-    expect(screen.getByText("Left to pay").nextSibling).toHaveTextContent("500")
-    expect(screen.getByText("Amount to pay")).toBeInTheDocument()
+    // The remaining amount is also the row to copy in the payment details.
+    expect(screen.getAllByText("Left to pay")).toHaveLength(2)
+    expect(screen.getAllByText("Left to pay")[0]?.nextSibling).toHaveTextContent("500")
     expect(screen.getByText("123456789/0000")).toBeInTheDocument()
     expect(screen.getByText("2027001201")).toBeInTheDocument()
   })
@@ -46,7 +47,7 @@ describe("TermPaymentCard", () => {
     const toggle = screen.getByRole("button", { name: /^12–18 Jul 2027,\s?Paid$/ })
     expect(toggle).toHaveAttribute("aria-expanded", "false")
     expect(screen.queryByText("Amount due")).not.toBeInTheDocument()
-    expect(screen.queryByText("Amount to pay")).not.toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: "Copy amount" })).not.toBeInTheDocument()
 
     await user.click(toggle)
 
@@ -55,7 +56,7 @@ describe("TermPaymentCard", () => {
     expect(screen.getByText("Paid", { selector: "dt" })).toBeInTheDocument()
     expect(screen.getByText("2027001201")).toBeInTheDocument()
     // Nothing is left to pay, so there is no amount to send.
-    expect(screen.queryByText("Amount to pay")).not.toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: "Copy amount" })).not.toBeInTheDocument()
   })
 
   it("opens and closes a paid term from the keyboard", async () => {

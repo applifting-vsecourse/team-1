@@ -30,7 +30,10 @@ type PreviewResult =
   | {
       ok: false
       errorCode:
-        "REFUND_TERM_REQUIRED" | "PAYMENT_TERM_NOT_IN_APPLICATION" | "REFUND_EXCEEDS_OVERPAYMENT"
+        | "REFUND_TERM_REQUIRED"
+        | "PAYMENT_TERM_NOT_IN_APPLICATION"
+        | "REFUND_EXCEEDS_OVERPAYMENT"
+        | "VALIDATION_FAILED"
     }
 
 /** Simulates the same whole-receipt cancellation and allocation as a saved correction. */
@@ -69,6 +72,7 @@ export function computePaymentCorrectionPreview(input: {
         input.amountCzk,
         remaining.map((term) => ({ ...term, owedCzk: computeTermOwed(term, term.payments) })),
       )
+  if (rows.length === 0) return { ok: false, errorCode: "VALIDATION_FAILED" }
   const terms = remaining.map((term, index) => {
     const payments = [
       ...term.payments,

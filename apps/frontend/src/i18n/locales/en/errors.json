@@ -1,6 +1,7 @@
 {
   "APPLICATION_DUPLICATE": "{{participant}} is already registered for the term “{{term}}” (same name and date of birth).",
   "APPLICATION_NOT_EDITABLE": "This application can no longer be edited: it has no active term, or all its terms are over.",
+  "BANK_STATEMENT_INVALID": "The file is not a supported bank statement. Upload a CSV export from Fio.",
   "BED_ALREADY_TAKEN": "The bed has meanwhile been taken by someone else.",
   "CANCELLATION_APPROVAL_REQUIRED": "Changes now require the organizer's approval. Contact the organizer.",
   "CANCELLATION_START_IN_PAST": "The approval start date must not be in the past.",
@@ -14,7 +15,9 @@
   "EMAIL_VERIFICATION_BYPASS_DISABLED": "Skipping e-mail verification is not available here.",
   "EMAIL_VERIFICATION_BYPASS_NOT_ALLOWED": "This account can't be verified without the e-mail link.",
   "EMAIL_VERIFICATION_REQUIRED": "Verify your e-mail address before continuing.",
-  "EVALUATION_MODE_LOCKED": "This event already accepts applications, so the evaluation mode can no longer be changed.",
+  "EVALUATION_MODE_LOCKED": "This event already has an application, so the evaluation mode can no longer be changed.",
+  "EVALUATION_PLAN_CHANGED": "The capacity of the term changed since the result was shown. Check the new numbers and confirm them.",
+  "EVALUATION_REST_REQUIRED": "Choose what happens to the applications that do not fit: put them on the waitlist or reject them.",
   "EVENT_HAS_APPLICATIONS": "An event with applications cannot be deleted.",
   "FORBIDDEN": "You don't have access to this.",
   "HEALTH_CHANGE_REQUEST_REQUIRED": "The health restriction has already been filled in. Send a change request to the organiser instead.",
@@ -22,6 +25,7 @@
   "HEALTH_REQUEST_NOT_NEEDED": "There is nothing to change yet. Fill in the health restriction directly.",
   "INTERNAL": "Something went wrong on the server. Please try again.",
   "INVALID_EMAIL_OR_PASSWORD": "Wrong e-mail or password.",
+  "INVALID_PHONE": "Enter a valid phone number, for example +420 777 123 456.",
   "INVALID_RESPONSE": "The server response could not be read. Please try again.",
   "INVALID_STATUS_TRANSITION": "This change is not possible from the current status of the application in the term.",
   "NOT_FOUND": "Not found.",
@@ -44,7 +48,13 @@
   "ROOM_FULL": "This room has no free bed.",
   "ROOM_NAME_TAKEN": "A room with this name already exists in the event.",
   "ROOM_NOT_IN_TERM": "The room does not belong to this term.",
+  "ROOM_PROPOSAL_OUTDATED": "The proposal is out of date, the assignments in the term changed meanwhile. Propose the distribution again.",
   "ROOM_WARNING_NOT_FOUND": "This warning no longer applies.",
+  "ROOM_WISHES_NOT_AVAILABLE": "Roommate wishes can't be written for this term.",
+  "STAY_ARRIVAL_OUTSIDE_TERM": "The arrival must be on a day of the term.",
+  "STAY_DEPARTURE_NOT_AFTER_ARRIVAL": "The departure must be later than the arrival.",
+  "STAY_DEPARTURE_OUTSIDE_TERM": "The departure must be on a day of the term.",
+  "STAY_NOT_AVAILABLE": "Arrival and departure can't be set for this term.",
   "TERM_CANCELLED": "This term was cancelled and can't be changed.",
   "TERM_ENDED": "This term is already over, so it can no longer take applications.",
   "TERM_END_BEFORE_START": "Enter an end date that is not before the start date.",
@@ -56,5 +66,6 @@
   "TRANSPORT_UNAVAILABLE": "This transport is no longer available. The offer has been refreshed.",
   "UNAUTHORIZED": "Please sign in.",
   "UNKNOWN": "Something went wrong.",
-  "VALIDATION_FAILED": "Some fields are not filled in correctly."
+  "VALIDATION_FAILED": "Some fields are not filled in correctly.",
+  "WITHDRAWAL_SUBSTITUTE_CHANGED": "The waitlist has changed since the preview. Check who takes the freed bed and confirm again."
 }

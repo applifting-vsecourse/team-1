@@ -6,7 +6,7 @@ import {
   createRouter,
   RouterProvider,
 } from "@tanstack/react-router"
-import { render, screen } from "@testing-library/react"
+import { render, screen, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { afterEach, describe, expect, it, vi } from "vitest"
 
@@ -37,6 +37,22 @@ const terms: KitchenTerm[] = [
         specialRequest: "Early dinner",
       },
     ],
+    stays: [
+      {
+        applicationId: "a1",
+        firstName: "Adam",
+        lastName: "Dvořák",
+        lateArrival: "2027-07-13T10:30",
+        earlyDeparture: "2027-07-18T16:00",
+      },
+      {
+        applicationId: "a3",
+        firstName: "Petr",
+        lastName: "Svoboda",
+        lateArrival: null,
+        earlyDeparture: "2027-07-17T15:00",
+      },
+    ],
   },
   {
     termId: "t2",
@@ -51,6 +67,7 @@ const terms: KitchenTerm[] = [
     ],
     allergies: [],
     specialRequests: [],
+    stays: [],
   },
 ]
 
@@ -85,6 +102,18 @@ function renderPage(data: KitchenTerm[] = terms) {
   )
 }
 
+/** A table row with exactly these cells. */
+function expectRow(...cells: string[]) {
+  const rows = screen.getAllByRole("row").filter(
+    (row) =>
+      within(row)
+        .queryAllByRole("cell")
+        .map((cell) => cell.textContent)
+        .join("|") === cells.join("|"),
+  )
+  expect(rows).toHaveLength(1)
+}
+
 afterEach(() => vi.restoreAllMocks())
 
 describe("KitchenSummary", () => {
@@ -92,14 +121,52 @@ describe("KitchenSummary", () => {
     renderPage()
     expect(await screen.findByRole("heading", { name: "Kitchen summary" })).toBeVisible()
     expect(screen.getByText("Summer camp · Meals")).toBeVisible()
-    expect(screen.getByText("Regular meal · 6")).toBeVisible()
-    expect(screen.getByText("Vegetarian · 3")).toBeVisible()
-    expect(screen.getByText("Gluten-free · 2")).toBeVisible()
+    expectRow("Regular meal", "6")
+    expectRow("Vegetarian", "3")
+    expectRow("Gluten-free", "2")
     expect(screen.getByText("Restrictions may overlap.")).toBeVisible()
-    expect(screen.getByText("Adam Dvořák · Peanuts")).toBeVisible()
-    expect(screen.getByText("Jana Nováková · Milk protein")).toBeVisible()
-    expect(screen.getByRole("heading", { name: "Special requests" })).toBeVisible()
-    expect(screen.getByText("Adam Dvořák · Early dinner")).toBeVisible()
+    expectRow("Adam Dvořák", "Peanuts")
+    expectRow("Jana Nováková", "Milk protein")
+    expect(screen.getByRole("button", { name: "Special requests · 1" })).toBeVisible()
+    expectRow("Adam Dvořák", "Early dinner")
+  })
+
+  it("shows the arrival and departure of the participants who gave them (US-143)", async () => {
+    renderPage()
+    expect(await screen.findByRole("button", { name: "Arrivals and departures · 2" })).toBeVisible()
+    expectRow("Adam Dvořák", "13 Jul 2027 10:30", "18 Jul 2027 16:00")
+    expectRow("Petr Svoboda", "–", "17 Jul 2027 15:00")
+  })
+
+  it("shows the item count in each section header and starts expanded", async () => {
+    renderPage()
+    for (const name of [
+      "Meal counts · 10",
+      "Allergies · 2",
+      "Special requests · 1",
+      "Arrivals and departures · 2",
+    ]) {
+      expect(await screen.findByRole("button", { name })).toHaveAttribute("aria-expanded", "true")
+    }
+  })
+
+  it("collapses and expands a section on its own", async () => {
+    const user = userEvent.setup()
+    renderPage()
+    const allergies = await screen.findByRole("button", { name: "Allergies · 2" })
+    await user.click(allergies)
+    expect(allergies).toHaveAttribute("aria-expanded", "false")
+    expect(screen.getByRole("button", { name: "Special requests · 1" })).toHaveAttribute(
+      "aria-expanded",
+      "true",
+    )
+    // Closed content stays in the DOM (hidden by a class that print undoes), so print shows it all.
+    expect(screen.getByText("Peanuts").closest("[data-slot=accordion-content]")).toHaveAttribute(
+      "data-state",
+      "closed",
+    )
+    await user.click(allergies)
+    expect(allergies).toHaveAttribute("aria-expanded", "true")
   })
 
   it("switches the term", async () => {
@@ -107,9 +174,12 @@ describe("KitchenSummary", () => {
     renderPage()
     await user.click(await screen.findByRole("combobox", { name: "Term" }))
     await user.click(await screen.findByRole("option", { name: /Aug 2027/ }))
-    expect(screen.getByText("Regular meal · 1")).toBeVisible()
-    expect(screen.queryByText("Adam Dvořák · Peanuts")).not.toBeInTheDocument()
-    expect(screen.queryByRole("heading", { name: "Special requests" })).not.toBeInTheDocument()
+    expectRow("Regular meal", "1")
+    expect(screen.queryByText("Peanuts")).not.toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: /^Special requests/ })).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole("button", { name: /^Arrivals and departures/ }),
+    ).not.toBeInTheDocument()
   })
 
   it("prints the summary and links to the options", async () => {

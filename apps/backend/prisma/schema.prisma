@@ -42,6 +42,8 @@ enum Locale {
 }
 
 enum ApplicationTermStatus {
+  // Terminal: confirmed and paid after the term ends (US-109).
+  ARCHIVED
   CONFIRMED
   WAITLISTED
   // Terminal (US-28): rejected, cancelled or not obtained a bed. Does not block a new application.
@@ -131,8 +133,9 @@ model User {
   // Set for participant accounts created from an application: the first
   // sign-in via magic link forces choosing a password (US-04).
   mustSetPassword Boolean     @default(false)
-  // Language of e-mails sent to the account (password reset, verification).
-  locale          Locale      @default(en)
+  // Preferred language of the user (UI and e-mails, D-069). Null = never chosen: e-mails about
+  // an application change then follow the language of the first application (D-078).
+  locale          Locale?
 
   memberships      OrganizationMember[]
   applications     Application[]
@@ -144,6 +147,7 @@ model User {
   applicationEdits ApplicationEdit[]
   lastOpenedEvent  LastOpenedEvent?
 
+  bankTransactions BankTransaction[]
   @@unique([email])
   @@map("user")
 }
@@ -181,6 +185,7 @@ model Organization {
   transports       Transport[]
   programBlocks    ProgramBlock[]
 
+  bankTransactions BankTransaction[]
   @@map("organization")
 }
 
@@ -245,6 +250,7 @@ model Event {
   mealOptions  MealOption[]
   lastOpenedBy LastOpenedEvent[]
 
+  bankTransactions BankTransaction[]
   @@index([organizationId])
   @@map("event")
 }
@@ -298,6 +304,9 @@ model Term {
   priceCzk       Int
   // Rooms are divided by gender or shared; each term has its own mode (US-99, D-062).
   roomMode       RoomMode     @default(GENDERED)
+  // US-144: when the organizer published the room assignment to the confirmed participants;
+  // null = not published (default).
+  roomsPublishedAt DateTime?
   // Cancelled terms stay for the history of applications but are no longer offered (US-13).
   cancelledAt    DateTime?
   cancelReason   String?      @db.Text
@@ -489,6 +498,10 @@ model Application {
   mealOptions   MealOption[]
   allergies     String?      @db.Text
   specialRequest String?     @db.Text
+  // US-150: the participant confirmed having no meal / health restriction. Set only while nothing
+  // is entered — entering a restriction resets it. Health data itself stays in ApplicationHealth.
+  noMealRestrictions   Boolean @default(false)
+  noHealthRestriction  Boolean @default(false)
 
   terms         ApplicationTerm[]
   notifications Notification[]
@@ -496,6 +509,7 @@ model Application {
   edits ApplicationEdit[]
   health        ApplicationHealth?
 
+  bankTransactions BankTransaction[]
   @@index([organizationId])
   @@index([eventId, submittedAt])
   @@index([userId])
@@ -591,6 +605,14 @@ model ApplicationTerm {
   // is a Transport of kind OWN.
   transport              Transport?            @relation(fields: [transportId], references: [id], onDelete: SetNull)
   transportId            String?
+  // Names the participant wants to room with (US-146, D-131): free text, at most 3, written by the
+  // participant once the term is confirmed. No effect on status, capacity or evaluation.
+  roomWishes             String[]              @default([])
+  // Later arrival / earlier departure of the participant in this term (US-143, D-159): optional
+  // instants (Europe/Prague wall time entered by the participant), shown only in the kitchen
+  // summary. Nothing is computed from them: no price, capacity, status or count.
+  lateArrivalAt          DateTime?
+  earlyDepartureAt       DateTime?
 
   statusChanges ApplicationTermStatusChange[]
   payments      Payment[]
@@ -605,7 +627,7 @@ model ApplicationTerm {
 }
 
 // System log of every status change of an application in a term (US-28): who, when, from which
-// status to which. Written by the one status service, so later stories (waitlist, cancellation,
+// status to which. Written by the status service or the atomic archival job, so later stories (waitlist, cancellation,
 // manual add) reuse it. `changedBy` is null when the system itself changed the status.
 model ApplicationTermStatusChange {
   id                String                @id @default(cuid())
@@ -650,6 +672,53 @@ model ApplicationTermSkip {
 enum PaymentSource {
   MANUAL
   SIMULATION
+  // Matched automatically from an uploaded bank statement (US-42).
+  BANK_IMPORT
+}
+
+enum BankTransactionStatus {
+  MATCHED
+  UNMATCHED
+}
+
+// Why an imported incoming transaction was not matched; the organizer resolves it by hand (US-44).
+enum BankTransactionReason {
+  NO_VARIABLE_SYMBOL
+  UNKNOWN_VARIABLE_SYMBOL
+  UNSUPPORTED_CURRENCY
+  AMOUNT_NOT_WHOLE
+}
+
+// One incoming transaction of an uploaded bank statement (US-42). `externalId` is the bank's id of
+// the operation (or a hash for the generic format), so the same statement uploaded twice adds
+// nothing. A matched one points to the receipt it created.
+model BankTransaction {
+  id               String                 @id @default(cuid())
+  organization     Organization           @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId   String
+  event            Event                  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId          String
+  externalId       String
+  bookedOn         DateTime               @db.Date
+  // Hundredths of CZK, as in the statement.
+  amountCents      Int
+  // ISO code of the statement row; only CZK is ever matched.
+  currency         String                 @default("CZK")
+  variableSymbol   String?
+  counterpartyName String?
+  message          String?
+  status           BankTransactionStatus
+  reason           BankTransactionReason?
+  receiptId        String?
+  application      Application?           @relation(fields: [applicationId], references: [id], onDelete: SetNull)
+  applicationId    String?
+  importedBy       User                   @relation(fields: [importedById], references: [id])
+  importedById     String
+  createdAt        DateTime               @default(now())
+
+  @@unique([organizationId, externalId])
+  @@index([eventId, status])
+  @@map("bank_transaction")
 }
 
 // Manually recorded payment (US-44) of one application in a term (US-137, D-051). Rows rather

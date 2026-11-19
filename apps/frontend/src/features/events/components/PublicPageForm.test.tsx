@@ -67,6 +67,7 @@ const term = (
   capacity: 10,
   confirmedCount: 0,
   waitlistedCount: 0,
+  toEvaluateCount: 0,
   cancelledAt,
   cancelReason: null,
 })

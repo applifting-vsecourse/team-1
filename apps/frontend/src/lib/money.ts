@@ -21,3 +21,14 @@ export function formatTermPrice(priceCzk: number, language: Language = currentLa
     ? i18n.t("price.free", { ns: "common", lng: language })
     : formatCzk(priceCzk, language)
 }
+
+/** An amount of the bank statement in its own currency with its cents (`1 443,50 Kč`, `100,00 €`). */
+export function formatCurrencyAmount(
+  amount: number,
+  currency: string,
+  language: Language = currentLanguage(),
+) {
+  return new Intl.NumberFormat(INTL_LOCALES[language], { style: "currency", currency }).format(
+    amount,
+  )
+}

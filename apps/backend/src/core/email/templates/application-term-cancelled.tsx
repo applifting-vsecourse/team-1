@@ -6,12 +6,13 @@ import * as React from 'react';
 // Figma (Design system): US-116 E-mailová šablona · E-mail 15 (Termín akce byl zrušen) · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15981-806 (360 px: node-id=15981-836)
 // E-mail no. 15 (EMAILY.md, D-065, D-076, D-080): the organizer cancelled the term and the
 // application in it is cancelled; paid payments are refunded. One e-mail per application.
-// The cancellation of a term (US-131) sends it; this story only provides the template.
+// The cancellation of a term (US-131) sends it, see ApplicationConfirmationMailer.sendTermCancelled.
 const copy: Record<
   Locale,
   {
     subject: (event: string) => string;
     heading: string;
+    preview: string;
     text: (name: string, term: string, gender: Gender) => string;
     badge: string;
     button: string;
@@ -19,19 +20,21 @@ const copy: Record<
   }
 > = {
   en: {
-    subject: (event) => `Change in your application: ${event}`,
-    heading: 'The term has been cancelled',
+    subject: (event) => `Event term cancelled: ${event}`,
+    heading: 'The event term has been cancelled',
+    preview: 'The organiser has cancelled the event term and the application for it.',
     text: (name, term) =>
-      `The organiser cancelled ${term}. The application of ${name} in this term is cancelled. Paid payments are being refunded; the organisation will tell you what happens next.`,
+      `The organiser has cancelled the event term shown below (${term}). The application of ${name} for this term has therefore been cancelled. Any payments already made for the cancelled term are to be refunded. The organisation will let you know the next steps.`,
     badge: 'Cancelled',
     button: 'Open my applications',
     footer: (organization) => `${organization} · via Togena`,
   },
   cs: {
-    subject: (event) => `Změna ve vaší přihlášce: ${event}`,
+    subject: (event) => `Termín akce zrušen: ${event}`,
     heading: 'Termín akce byl zrušen',
+    preview: 'Organizátor zrušil termín akce a přihlášku v tomto termínu.',
     text: (name, term) =>
-      `Organizátor zrušil termín ${term}. Přihláška (${name}) v tomto termínu je zrušená. Zaplacené platby se vrací; další postup sdělí organizace.`,
+      `Organizátor zrušil uvedený termín akce (${term}). Přihláška (${name}) v tomto termínu je proto zrušená. Případné platby za zrušený termín se vrací. Další postup vám sdělí organizace.`,
     badge: 'Zrušeno',
     button: 'Otevřít moje přihlášky',
     footer: (organization) => `${organization} · přes Togenu`,
@@ -67,7 +70,7 @@ export const TermCancelled = ({
   return (
     <ChangeLayout
       locale={locale}
-      preview={text.heading}
+      preview={text.preview}
       heading={text.heading}
       eventName={eventName}
       text={text.text(name, term, gender)}

@@ -43,6 +43,9 @@ export class HealthService {
       )
     }
     const decision = decideHealth(input)
+    if (decision.kind === "invalid") {
+      throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED", "Invalid health input")
+    }
     if (decision.kind === "consent-required") {
       throw new AppException(
         HttpStatus.BAD_REQUEST,
@@ -50,7 +53,9 @@ export class HealthService {
         "The health restriction needs the explicit consent with its processing",
       )
     }
-    if (decision.kind === "clear") await this.health.clear(applicationId)
+    if (decision.kind === "clear") {
+      await this.health.clear(applicationId)
+    } else if (decision.kind === "none") await this.health.confirmNoRestriction(applicationId)
     else await this.health.save(organizationId, applicationId, decision.note, new Date())
     return this.getOwn(user, applicationId)
   }

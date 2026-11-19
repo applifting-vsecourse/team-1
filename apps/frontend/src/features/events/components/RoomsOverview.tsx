@@ -181,7 +181,13 @@ export function RoomsOverview({
             {data.rooms.map((room) => (
               <li
                 key={room.id}
-                className="print:mb-4 print:break-inside-avoid"
+                // A room that fits a page is never split; a longer one takes the whole width (a column spanner) and
+                // is split between its chunks of beds (see RoomOverviewCard).
+                className={
+                  isSplitOnPaper(room)
+                    ? "print:mb-4 print:[column-span:all]"
+                    : "print:mb-4 print:break-inside-avoid"
+                }
               >
                 <RoomOverviewCard room={room} />
               </li>
@@ -208,6 +214,23 @@ export function RoomsOverview({
   )
 }
 
+/**
+ * Beds of one room that stay together on paper. A room has at most this many beds in one piece, so
+ * the piece (header and rows) fits an A4 page; a bigger room is printed in several pieces, each
+ * with a repeated header, instead of letting the browser cut it through a row.
+ */
+const PRINT_CHUNK_BEDS = 20
+
+const isSplitOnPaper = (room: AssignmentRoom) => overviewBeds(room).length > PRINT_CHUNK_BEDS
+
+function chunkBeds(beds: OverviewBed[]): OverviewBed[][] {
+  const chunks: OverviewBed[][] = []
+  for (let i = 0; i < beds.length; i += PRINT_CHUNK_BEDS) {
+    chunks.push(beds.slice(i, i + PRINT_CHUNK_BEDS))
+  }
+  return chunks.length > 0 ? chunks : [[]]
+}
+
 /** A room like in the room assignment: name and gender, occupancy with a bar, extra beds, people. */
 function RoomOverviewCard({ room }: { room: AssignmentRoom }) {
   const { t } = useTranslation("events")
@@ -215,58 +238,101 @@ function RoomOverviewCard({ room }: { room: AssignmentRoom }) {
   const count = room.participants.length
   const isFull = count >= room.beds
   const share = Math.min(100, Math.round((count / Math.max(1, room.beds)) * 100))
+  const chunks = chunkBeds(overviewBeds(room))
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded-xl border border-border bg-card print:overflow-visible print:rounded-none print:border-black">
-      <div className="flex flex-col gap-3 p-4 print:flex-row print:items-center print:justify-between print:gap-3 print:px-2 print:py-2">
-        <div className="flex flex-wrap items-center justify-center gap-2 print:justify-start">
-          <h3 className="font-semibold break-words">{room.name}</h3>
-          <Badge
-            variant="secondary"
-            className="print:border-0 print:bg-transparent print:p-0 print:font-normal print:text-black/70 print:lowercase"
-          >
-            {room.gender ? roomGenderLabel(room.gender) : t("roomOverview.mixed")}
-          </Badge>
-        </div>
-        <div className="flex items-center gap-3">
-          <span className="text-sm font-semibold whitespace-nowrap">
-            {count} / {room.beds}
-            {room.extraBeds > 0 ? (
-              <span className="hidden print:inline">
-                {" · "}
-                {t("roomOverview.printExtraBeds", { count: room.extraBeds })}
+    <div className="flex h-full flex-col overflow-hidden rounded-xl border border-border bg-card print:block print:h-auto print:overflow-visible print:rounded-none print:border-0">
+      {chunks.map((chunk, chunkIndex) => (
+        // On screen the pieces are invisible wrappers (`contents`); on paper each is a bordered
+        // block that stays on one page, so a header is never left alone at the bottom of a page.
+        <div
+          key={chunkIndex}
+          className={cn(
+            "contents print:block print:break-inside-avoid print:border print:border-black",
+            chunkIndex > 0 && "print:-mt-px",
+          )}
+        >
+          {chunkIndex === 0 ? (
+            <div className="flex flex-col gap-3 p-4 print:flex-row print:items-center print:justify-between print:gap-3 print:px-2 print:py-2">
+              <div className="flex flex-wrap items-center justify-center gap-2 print:justify-start">
+                <h3 className="font-semibold break-words">{room.name}</h3>
+                <Badge
+                  variant="secondary"
+                  className="print:border-0 print:bg-transparent print:p-0 print:font-normal print:text-black/70 print:lowercase"
+                >
+                  {room.gender ? roomGenderLabel(room.gender) : t("roomOverview.mixed")}
+                </Badge>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-sm font-semibold whitespace-nowrap">
+                  {count} / {room.beds}
+                  {room.extraBeds > 0 ? (
+                    <span className="hidden print:inline">
+                      {" · "}
+                      {t("roomOverview.printExtraBeds", { count: room.extraBeds })}
+                    </span>
+                  ) : null}
+                </span>
+                <div
+                  role="presentation"
+                  className="h-1.5 flex-1 overflow-hidden rounded-full bg-secondary print:hidden"
+                >
+                  <div
+                    className={cn(
+                      "h-full rounded-full",
+                      isFull ? "bg-muted-foreground" : "bg-primary",
+                    )}
+                    style={{ width: `${share}%` }}
+                  />
+                </div>
+                <Badge
+                  variant={isFull ? "secondary" : "success"}
+                  className="print:hidden"
+                >
+                  {freeBedsLabel(room)}
+                </Badge>
+              </div>
+              {room.extraBeds > 0 ? (
+                <div className="flex justify-end print:hidden">
+                  <ExtraBeds room={room} />
+                </div>
+              ) : null}
+            </div>
+          ) : (
+            // The header repeated on the next page of a room that is longer than one page.
+            <div className="hidden items-center gap-2 px-2 py-2 print:flex">
+              <h3 className="font-semibold break-words">
+                {room.name} · {t("roomOverview.continued")}
+              </h3>
+              <span className="text-black/70 lowercase">
+                {room.gender ? roomGenderLabel(room.gender) : t("roomOverview.mixed")}
               </span>
-            ) : null}
-          </span>
-          <div
-            role="presentation"
-            className="h-1.5 flex-1 overflow-hidden rounded-full bg-secondary print:hidden"
+              <span className="ml-auto text-sm font-semibold whitespace-nowrap">
+                {count} / {room.beds}
+              </span>
+            </div>
+          )}
+          <ul
+            className={cn(
+              "flex-1 border-border print:border-t print:border-black",
+              chunkIndex === 0 && "border-t",
+              // Between the pieces of a room the rows keep their line on screen, but not on paper.
+              chunkIndex < chunks.length - 1 && "[&>li:last-child]:border-b",
+              "print:[&>li:last-child]:border-b-0",
+            )}
           >
-            <div
-              className={cn("h-full rounded-full", isFull ? "bg-muted-foreground" : "bg-primary")}
-              style={{ width: `${share}%` }}
-            />
-          </div>
-          <Badge
-            variant={isFull ? "secondary" : "success"}
-            className="print:hidden"
-          >
-            {freeBedsLabel(room)}
-          </Badge>
+            {chunk.map((bed, index) => (
+              <BedRow
+                key={
+                  bed.kind === "taken"
+                    ? bed.participant.applicationTermId
+                    : `free-${chunkIndex}-${index}`
+                }
+                bed={bed}
+              />
+            ))}
+          </ul>
         </div>
-        {room.extraBeds > 0 ? (
-          <div className="flex justify-end print:hidden">
-            <ExtraBeds room={room} />
-          </div>
-        ) : null}
-      </div>
-      <ul className="flex-1 border-t border-border print:border-black">
-        {overviewBeds(room).map((bed, index) => (
-          <BedRow
-            key={bed.kind === "taken" ? bed.participant.applicationTermId : `free-${index}`}
-            bed={bed}
-          />
-        ))}
-      </ul>
+      ))}
     </div>
   )
 }
@@ -343,7 +409,7 @@ function WithoutRoomCard({ people }: { people: UnassignedParticipant[] }) {
         {people.map((person) => (
           <li
             key={person.applicationTermId}
-            className="flex items-start justify-between gap-3 rounded-lg border border-border bg-background px-3 py-2.5 print:rounded-none print:border-black/30"
+            className="flex items-start justify-between gap-3 rounded-lg border border-border bg-background px-3 py-2.5 print:break-inside-avoid print:rounded-none print:border-black/30"
           >
             <span className="flex min-w-0 flex-col gap-0.5">
               <span className="font-medium break-words">{participantName(person)}</span>

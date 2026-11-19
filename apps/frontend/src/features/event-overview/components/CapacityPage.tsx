@@ -345,7 +345,7 @@ function TermDetail({
           helper={
             byGender
               ? t("capacity.totalCapacityBreakdown", {
-                  women: byGender.FEMALE.capacity,
+                  count: byGender.FEMALE.capacity,
                   men: byGender.MALE.capacity,
                 })
               : freeText(term, t)
@@ -383,7 +383,7 @@ function TermDetail({
                   gender: t(gender === "FEMALE" ? "capacity.women" : "capacity.men"),
                   excess: -byGender[gender].free,
                   confirmed: byGender[gender].confirmed,
-                  capacity: byGender[gender].capacity,
+                  count: byGender[gender].capacity,
                 })}
               </p>
             ))}

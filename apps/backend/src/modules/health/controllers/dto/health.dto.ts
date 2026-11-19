@@ -1,6 +1,6 @@
 import { HEALTH_NOTE_MAX_LENGTH, HealthRecord } from "@/modules/health/domain/health"
 import { ApiProperty } from "@nestjs/swagger"
-import { IsBoolean, IsString, MaxLength } from "class-validator"
+import { IsBoolean, IsOptional, IsString, MaxLength } from "class-validator"
 
 export class SaveHealthRequestDto {
   @ApiProperty({
@@ -14,6 +14,14 @@ export class SaveHealthRequestDto {
   @ApiProperty({ description: "Explicit consent with processing; required for a non-empty note." })
   @IsBoolean()
   consent!: boolean
+
+  @ApiProperty({
+    required: false,
+    description: "Confirms having no health restriction (US-150); refused with a non-empty note.",
+  })
+  @IsOptional()
+  @IsBoolean()
+  noRestriction?: boolean
 }
 
 export class HealthResponseDto {
@@ -31,6 +39,9 @@ export class HealthResponseDto {
 
   @ApiProperty({ type: String, nullable: true })
   note!: string | null
+
+  @ApiProperty({ description: "The participant confirmed having no health restriction." })
+  noRestriction!: boolean
 
   @ApiProperty({ type: String, nullable: true, description: "ISO datetime of the consent." })
   consentAt!: string | null

@@ -17,6 +17,10 @@ export const paymentApplicationSchema = z.object({
   gender: z.enum(["FEMALE", "MALE"]),
   /** Contact of the applicant who submitted the application. */
   email: z.string(),
+  /** Phone of the participant; null for an application from before it was required. */
+  phone: z.string().nullable(),
+  /** The details can still be edited (D-141): the application has a live term that has not ended. */
+  isEditable: z.boolean(),
   /** Account the organization receives payments to. */
   bankAccount: z.string(),
   amountDueCzk: z.number().int(),
@@ -34,7 +38,7 @@ export const paymentApplicationSchema = z.object({
       name: z.string().nullable(),
       /** Application number × 1000 + term number: pays this term only. */
       variableSymbol: z.string(),
-      status: z.enum(["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED"]),
+      status: z.enum(["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED", "ARCHIVED"]),
       priceCzk: z.number().int(),
       startsOn: z.string(),
       endsOn: z.string(),
@@ -142,4 +146,20 @@ export async function recordRefund(
   termId: string,
 ) {
   await api.post(`${path(id)}/refunds`, { json: { requestId, amountCzk, termId } })
+}
+
+export type EditApplicationInput = {
+  firstName: string
+  lastName: string
+  /** `YYYY-MM-DD`. */
+  birthDate: string
+  /** Optional; null = no phone. */
+  phone: string | null
+  individualAccommodation: boolean
+  accommodationRequest: string | null
+}
+
+/** An organizer edits the participant's details; the server writes the history and tells the others. */
+export async function saveApplicationDetails(id: string, input: EditApplicationInput) {
+  await api.put(`organizer/applications/${encodeURIComponent(id)}/details`, { json: input })
 }
