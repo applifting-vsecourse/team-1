@@ -197,6 +197,22 @@ describe("room assignment", () => {
     await waitFor(() => expect(success).toHaveBeenCalled())
   })
 
+  it("keeps the room table inside its column: the panel sits beside it only from xl, the table starts at lg", async () => {
+    renderCard()
+    await screen.findByText("Barbora Šimková")
+    // jsdom has no layout, so this guards the breakpoints that stop the table overflowing (1280 px and 1024 px).
+    const table = screen.getByRole("table")
+    expect(table.closest(".lg\\:block")).not.toBeNull()
+    const row = table.closest(".xl\\:flex-row")
+    expect(row).not.toBeNull()
+    expect(row).not.toHaveClass("md:flex-row")
+    expect(
+      within(row as HTMLElement)
+        .getByLabelText("Unassigned participants: 2")
+        .closest(".xl\\:w-72"),
+    ).not.toBeNull()
+  })
+
   it("keeps Assign inactive until a room is picked, then shows what is confirmed (#536)", async () => {
     const user = renderCard()
     await user.click(await screen.findByRole("button", { name: "Assign Nikola Králová to a room" }))
