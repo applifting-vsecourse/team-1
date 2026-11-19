@@ -57,6 +57,17 @@ export class MyApplicationTermDto {
   })
   roomWishes?: string[]
 
+  @ApiPropertyOptional({
+    type: "object",
+    properties: {
+      lateArrival: { type: "string", nullable: true, example: "2027-07-13T10:30" },
+      earlyDeparture: { type: "string", nullable: true, example: "2027-07-18T16:00" },
+    },
+    description:
+      "Later arrival and earlier departure, Prague wall time `yyyy-MM-ddTHH:mm` (US-143). Present while the application in the term is not cancelled or archived.",
+  })
+  stay?: { lateArrival: string | null; earlyDeparture: string | null }
+
   static fromDomain(term: MyApplicationTerm): MyApplicationTermDto {
     return Object.assign(new MyApplicationTermDto(), term)
   }

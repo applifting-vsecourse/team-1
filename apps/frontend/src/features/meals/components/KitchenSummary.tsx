@@ -17,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { formatDate, formatTime } from "@/lib/date"
 import { termLine } from "@/lib/term-label"
 
 import { kitchenSummaryQueryOptions } from "@/features/meals/api/meals"
@@ -26,6 +27,9 @@ import { kitchenSummaryQueryOptions } from "@/features/meals/api/meals"
  * Only what is inside `data-print-area` is printed (see `global.css`).
  */
 // Figma (Design system): #64 / Souhrn pro kuchyni / Desktop · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19795-12002 (360 px: node-id=19795-12163)
+/** `13. 7. 2027 10:30` — the wall time as the participant entered it. */
+const when = (wall: string) => `${formatDate(wall)} ${formatTime(wall)}`
+
 export function KitchenSummary({ eventId, eventName }: { eventId: string; eventName?: string }) {
   const { t } = useTranslation("meals")
   const { data, isPending, error, refetch } = useQuery(kitchenSummaryQueryOptions(eventId))
@@ -46,7 +50,7 @@ export function KitchenSummary({ eventId, eventName }: { eventId: string; eventN
 
   return (
     <section
-      className="flex flex-col gap-6"
+      className="flex flex-col gap-6 sm:max-w-190"
       data-print-area
     >
       <PageHeader
@@ -112,6 +116,32 @@ export function KitchenSummary({ eventId, eventName }: { eventId: string; eventN
                 >
                   {entry.firstName} {entry.lastName} · {entry.specialRequest}
                 </p>
+              ))}
+            </Card>
+          ) : null}
+          {term.stays.length > 0 ? (
+            // Figma (Design system v2): US-143 Organizátor · Souhrn pro kuchyni · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=24969-10806 (mobile 24969-12256)
+            <Card className="gap-4 p-4">
+              <h2 className="text-2xl font-bold">{t("kitchen.staysTitle")}</h2>
+              {term.stays.map((entry) => (
+                <div
+                  key={entry.applicationId}
+                  className="flex flex-col"
+                >
+                  <p>
+                    {entry.firstName} {entry.lastName}
+                  </p>
+                  {entry.lateArrival ? (
+                    <p className="text-sm text-muted-foreground">
+                      {t("kitchen.arrival", { when: when(entry.lateArrival) })}
+                    </p>
+                  ) : null}
+                  {entry.earlyDeparture ? (
+                    <p className="text-sm text-muted-foreground">
+                      {t("kitchen.departure", { when: when(entry.earlyDeparture) })}
+                    </p>
+                  ) : null}
+                </div>
               ))}
             </Card>
           ) : null}

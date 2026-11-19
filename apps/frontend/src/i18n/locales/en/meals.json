@@ -1,13 +1,16 @@
 {
   "kitchen": {
     "allergiesTitle": "Allergies",
+    "arrival": "Arrival {{when}}",
     "countsTitle": "Meal counts",
+    "departure": "Departure {{when}}",
     "description": "{{event}} · Meals",
     "overlapNote": "Restrictions may overlap.",
     "print": "Print summary",
     "regular": "Regular meal",
     "setUpOptions": "Set up meal options",
     "specialRequestsTitle": "Special requests",
+    "staysTitle": "Arrivals and departures",
     "termLabel": "Term",
     "title": "Kitchen summary"
   },
