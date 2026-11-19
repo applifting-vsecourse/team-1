@@ -392,6 +392,24 @@ describe("room assignment", () => {
       })
     })
 
+    it("opens with every term of the participant when Assign picks a room that is full here (button)", async () => {
+      fullEverywhere([{ name: "Room B", beds: 1, freeBeds: 0 }])
+      const user = renderCard()
+      await user.click(
+        await screen.findByRole("button", { name: "Assign Barbora Šimková to a room" }),
+      )
+      const picker = await screen.findByRole("dialog")
+      await user.click(within(picker).getByRole("radio", { name: /Room B/ }))
+      await user.click(within(picker).getByRole("button", { name: "Assign" }))
+      const dialog = await screen.findByRole("dialog", { name: "Room B: add an extra bed" })
+      expect(within(dialog).getAllByRole("checkbox")).toHaveLength(2)
+      await user.click(within(dialog).getByRole("button", { name: "Assign as an extra bed" }))
+      await waitFor(() => expect(put).toHaveBeenCalled())
+      expect(put).toHaveBeenCalledWith("organizer/events/e1/terms/t1/room-assignments/p3", {
+        json: { roomId: "r2", alsoTermIds: ["t2"], confirmExtraBed: true },
+      })
+    })
+
     it("only assigns in the term where the room has a free bed", async () => {
       fullEverywhere([{ name: "Room B", beds: 3, freeBeds: 2 }])
       const { user, dialog } = await dropOnRoomB()
