@@ -162,7 +162,7 @@ it("tells the participant the confirmed, substitute and awaiting-evaluation resu
   expect(en).not.toContain("payment due")
   expect(en).toContain("Awaiting evaluation · do not pay yet")
   expect(cs).toContain("Účast potvrzena")
-  expect(cs).not.toContain("k úhradě")
+  expect(cs).not.toContain("Zbývá zaplatit")
   expect(cs).toContain("Náhradník · zatím neplaťte")
   expect(cs).toContain("Čeká na vyhodnocení · zatím neplaťte")
 })

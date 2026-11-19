@@ -110,7 +110,7 @@
     "paymentDetails": "Payment details",
     "qrAlt": "QR code for the term payment",
     "status": {
-      "NOTHING_DUE": "Nothing to pay",
+      "NOTHING_DUE": "Nothing due",
       "OVERPAID": "Overpaid",
       "PAID": "Paid",
       "PARTIALLY_PAID": "Partly paid",

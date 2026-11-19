@@ -454,7 +454,9 @@ describe("ApplicationDetail", () => {
     await user.click(await screen.findByRole("button", { name: "Cancel participation" }))
     await user.click(screen.getByRole("combobox", { name: "What do you want to cancel?" }))
     await user.click(screen.getByRole("option", { name: /Only 1. týden/ }))
-    expect(screen.getByText("Paid CZK 4,500 · debt after cancellation CZK 0")).toBeInTheDocument()
+    expect(
+      screen.getByText("Paid CZK 4,500 · left to pay after cancellation CZK 0"),
+    ).toBeInTheDocument()
     expect(screen.getByText(/An overpayment of CZK 4,500 will arise/)).toBeInTheDocument()
     expect(
       screen.getByText("The bed is released immediately. The other terms stay unchanged."),
@@ -467,8 +469,8 @@ describe("ApplicationDetail", () => {
   })
 
   it.each([
-    ["Cancel participation", /Debt after cancellation CZK 0|debt after cancellation CZK 0/],
-    ["Change terms", /Paid CZK 0 · overpayment CZK 0 · debt CZK 0/],
+    ["Cancel participation", /left to pay after cancellation CZK 0/],
+    ["Change terms", /Paid CZK 0 · overpayment CZK 0 · left to pay CZK 0/],
   ])("shows debt removed by %s for an unpaid confirmed term", async (open, impact) => {
     const user = userEvent.setup()
     renderDetail(withTerms([termPayment(1, 4500, 0, "UNPAID")], [confirmed]))

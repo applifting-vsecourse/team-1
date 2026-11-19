@@ -338,7 +338,7 @@ describe("PaymentDetail", () => {
     // One button per term with a debt, and one for the whole application under the cards.
     expect(screen.getAllByRole("button", { name: "Record payment for the term" })).toHaveLength(2)
     expect(screen.getByRole("button", { name: "Record payment" })).toBeInTheDocument()
-    expect(screen.queryByRole("button", { name: "Record overpayment refund" })).toBeNull()
+    expect(screen.queryByRole("button", { name: "Record refund" })).toBeNull()
   })
 
   it("keeps a paid term collapsed and puts the debt on the term confirmed later", async () => {
@@ -422,7 +422,7 @@ describe("PaymentDetail", () => {
   it("shows nothing due, no card to pay and no record button without a confirmed term", async () => {
     respondWith(() => application([{ ...first, status: "WAITLISTED" }]))
     setup()
-    expect(await screen.findByText("Nothing to pay yet")).toBeInTheDocument()
+    expect(await screen.findByText("Nothing due yet")).toBeInTheDocument()
     expect(screen.getByText("12–18 Jul 2027 · Waitlisted")).toBeInTheDocument()
     expect(screen.queryByRole("button", { name: /Record payment/ })).not.toBeInTheDocument()
   })
@@ -501,7 +501,7 @@ describe("PaymentDetail", () => {
     const row = screen.getByRole("row", { name: /1,000/ })
     await user.click(within(row).getByRole("button", { name: "Cancel record" }))
     const dialog = screen.getByRole("dialog")
-    expect(within(dialog).getByText(/After cancellation, amount owed:.*1,900/)).toBeInTheDocument()
+    expect(within(dialog).getByText(/After cancellation, debt:.*1,900/)).toBeInTheDocument()
     expect(remove).not.toHaveBeenCalled()
     await user.click(within(dialog).getByRole("button", { name: "Back" }))
     expect(remove).not.toHaveBeenCalled()
@@ -528,7 +528,7 @@ describe("PaymentDetail", () => {
     })
     setup()
     const user = userEvent.setup()
-    await user.click(await screen.findByRole("button", { name: "Record overpayment refund" }))
+    await user.click(await screen.findByRole("button", { name: "Record refund" }))
     expect(screen.getByRole("radio", { name: "Refund" })).toBeChecked()
     await user.click(screen.getByRole("button", { name: "Record refund" }))
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument())
@@ -557,7 +557,7 @@ describe("PaymentDetail", () => {
     expect(screen.queryByText("Variable symbol")).not.toBeInTheDocument()
     // The overpaid term offers the refund, not a payment for the term (#399); a further payment
     // can still be recorded as an overpayment from the actions under the cards.
-    expect(screen.getByRole("button", { name: "Refund overpayment" })).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "Record refund for the term" })).toBeInTheDocument()
     expect(screen.queryByRole("button", { name: "Record payment for the term" })).toBeNull()
     expect(screen.getByRole("button", { name: "Record payment" })).toBeInTheDocument()
     expect(screen.queryByText(/-CZK/)).not.toBeInTheDocument()
@@ -582,9 +582,9 @@ describe("PaymentDetail refund of an overpayment (#399)", () => {
     )
     setup()
     const user = userEvent.setup()
-    await user.click(await screen.findByRole("button", { name: "Refund overpayment" }))
+    await user.click(await screen.findByRole("button", { name: "Record refund for the term" }))
     const dialog = screen.getByRole("dialog")
-    expect(within(dialog).getByRole("heading", { name: "Refund overpayment" })).toBeInTheDocument()
+    expect(within(dialog).getByRole("heading", { name: "Record refund" })).toBeInTheDocument()
     expect(within(dialog).getByRole("radio", { name: "Refund" })).toBeChecked()
     expect(within(dialog).getByRole("combobox", { name: "Term *" })).toHaveTextContent(/500/)
     expect(within(dialog).getByLabelText("Amount *")).toHaveValue("500")
