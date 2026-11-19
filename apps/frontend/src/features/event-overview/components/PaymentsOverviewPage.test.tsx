@@ -220,6 +220,24 @@ describe("PaymentsOverviewPage", () => {
     expect(screen.getAllByRole("link", { name: /^Detail/ })).toHaveLength(4)
   })
 
+  it("prefers a complete symbol over another application with the same suffix", async () => {
+    renderPage([
+      { ...entries[0]!, variableSymbol: "14002", summaryVariableSymbol: "14000" },
+      { ...entries[1]!, variableSymbol: "114002", summaryVariableSymbol: "114000" },
+    ])
+    const user = userEvent.setup()
+    const search = await screen.findByRole("searchbox")
+    for (const symbol of ["14002", "14000"]) {
+      await user.clear(search)
+      await user.type(search, symbol)
+      expect(screen.getByText(/Debt in selection/)).toHaveTextContent(/2,900/)
+      expect(screen.queryByText("Jana Nováková")).toBeNull()
+    }
+    await user.clear(search)
+    await user.type(search, "400")
+    expect(screen.getByText(/Debt in selection/)).toHaveTextContent(/7,800/)
+  })
+
   it("labels a negative balance as an overpayment", async () => {
     renderPage([
       ...entries,

@@ -95,6 +95,15 @@ export function PaymentsOverviewPage({
   }
 
   const words = searchText(search).trim().split(/\s+/).filter(Boolean)
+  const exactSymbols = new Set(
+    words.filter(
+      (word) =>
+        /^\d+$/.test(word) &&
+        data.entries.some(
+          (entry) => entry.variableSymbol === word || entry.summaryVariableSymbol === word,
+        ),
+    ),
+  )
   const entries = data.entries.filter((entry) => {
     if (!matches(entry, status, reminder) || (termId !== "ALL" && entry.termId !== termId)) {
       return false
@@ -104,7 +113,11 @@ export function PaymentsOverviewPage({
         " ",
       ),
     )
-    return words.every((word) => text.includes(word))
+    return words.every((word) =>
+      exactSymbols.has(word)
+        ? entry.variableSymbol === word || entry.summaryVariableSymbol === word
+        : text.includes(word),
+    )
   })
   const selectionDebt = entries.reduce((sum, entry) => sum + entry.payableCzk, 0)
   const clearFilters = () => {
