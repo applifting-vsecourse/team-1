@@ -57,6 +57,7 @@
     "title": "Kontakt organizace"
   },
   "detail": {
+    "archivedText": "Termín skončil, už není co vyřizovat.",
     "archivedTitle": "Archivovaná přihláška",
     "back": "← Všechny přihlášky",
     "errorTitle": "Přihlášku se nepodařilo načíst",
@@ -225,7 +226,7 @@
     "title": "Přání spolubydlení"
   },
   "status": {
-    "archived": "Archivovaná",
+    "archived": "Archivováno",
     "cancelled": "Zrušená",
     "confirmed": "Potvrzeno",
     "toEvaluate": "Čeká na vyhodnocení",

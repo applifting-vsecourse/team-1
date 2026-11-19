@@ -242,6 +242,10 @@ describe("ApplicationDetail", () => {
     )
     expect(await screen.findByText("Archived")).toBeInTheDocument()
     expect(screen.getByRole("heading", { name: "Archived application" })).toBeInTheDocument()
+    expect(
+      screen.getByText("The term has ended, there is nothing left to arrange."),
+    ).toBeInTheDocument()
+    expect(screen.queryByRole("link", { name: "Edit application" })).not.toBeInTheDocument()
     expect(screen.queryByText("Steps before the event")).not.toBeInTheDocument()
     expect(screen.queryByRole("link", { name: "Meals" })).not.toBeInTheDocument()
     expect(screen.queryByRole("link", { name: "Health restriction" })).not.toBeInTheDocument()
@@ -256,6 +260,7 @@ describe("ApplicationDetail", () => {
     )
     expect(await screen.findByText("Archived")).toBeInTheDocument()
     expect(screen.getByText("Steps before the event")).toBeInTheDocument()
+    expect(screen.getByRole("link", { name: "Edit application" })).toBeInTheDocument()
     expect(screen.queryByRole("heading", { name: "Archived application" })).not.toBeInTheDocument()
   })
 

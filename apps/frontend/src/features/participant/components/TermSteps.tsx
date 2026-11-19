@@ -114,8 +114,9 @@ export function isFullyArchived(application: MyApplication): boolean {
 export function ArchivedApplicationCard() {
   const { t } = useTranslation("participant")
   return (
-    <Card className="p-6">
+    <Card className="gap-2 p-6">
       <h3 className="text-lg font-semibold tracking-tight">{t("detail.archivedTitle")}</h3>
+      <p className="text-sm text-muted-foreground">{t("detail.archivedText")}</p>
     </Card>
   )
 }

@@ -78,7 +78,7 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
   )
 
   const hasSteps = data.terms.some((term) => term.status === "CONFIRMED")
-  // Every term archived: nothing is left to arrange, so no steps and no meals or health links (US-584).
+  // Every term archived: nothing is left to arrange, so no steps, no meals or health links and no edit button (US-584).
   const isArchived = isFullyArchived(data)
 
   return (
@@ -89,17 +89,19 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
           title={data.eventName}
           description={`${data.firstName} ${data.lastName} · ${data.code}`}
           actions={
-            <Button
-              asChild
-              variant="outline"
-            >
-              <Link
-                to={ROUTES.participant.editApplication}
-                params={{ applicationId }}
+            isArchived ? null : (
+              <Button
+                asChild
+                variant="outline"
               >
-                {t("edit.open")}
-              </Link>
-            </Button>
+                <Link
+                  to={ROUTES.participant.editApplication}
+                  params={{ applicationId }}
+                >
+                  {t("edit.open")}
+                </Link>
+              </Button>
+            )
           }
         />
       </div>
