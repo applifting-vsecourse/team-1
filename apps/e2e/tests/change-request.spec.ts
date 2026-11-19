@@ -20,7 +20,9 @@ test("participant submits a cancellation request and organizer declines it at 36
     .getByRole("navigation", { name: "Event sections" })
     .getByRole("link", { name: "Settings" })
     .click()
-  await page.getByRole("switch", { name: "Turn on approval" }).click()
+  // Another spec may have switched approval on already; a click would turn it off.
+  const approval = page.getByRole("switch", { name: "Turn on approval" })
+  if ((await approval.getAttribute("aria-checked")) !== "true") await approval.click()
   const cancellationDate = page.getByRole("textbox", { name: "Approve requests from" })
   await cancellationDate.clear()
   await cancellationDate.fill(today)
