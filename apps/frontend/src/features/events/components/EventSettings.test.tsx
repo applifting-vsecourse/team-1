@@ -124,6 +124,31 @@ describe("EventSettings", () => {
     expect(screen.getByRole("radio", { name: "Manual" })).not.toBeChecked()
   })
 
+  it("explains each mode in a popover that opens on click and keeps the card free of extra hints", async () => {
+    renderSettings(event)
+    const user = userEvent.setup()
+
+    await screen.findByRole("radio", { name: "Automatic" })
+    expect(screen.queryByText(/Choose the rule/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/shown in the event overview/)).not.toBeInTheDocument()
+    expect(
+      screen.getByText("You can change the mode until the first application is received."),
+    ).toBeInTheDocument()
+
+    await user.click(screen.getByRole("button", { name: "Explanation: Automatic" }))
+    expect(
+      await screen.findByText(/A freed bed goes to the first substitute\./),
+    ).toBeInTheDocument()
+    await user.keyboard("{Escape}")
+
+    await user.click(screen.getByRole("button", { name: "Explanation: Manual" }))
+    expect(
+      await screen.findByText(
+        "You decide on every application: confirm it, add it to the substitutes or reject it.",
+      ),
+    ).toBeInTheDocument()
+  })
+
   it("saves the chosen mode", async () => {
     const patches = renderSettings(event, () => new Response(JSON.stringify(event)))
     const user = userEvent.setup()
@@ -151,7 +176,7 @@ describe("EventSettings", () => {
     await user.click(await screen.findByRole("radio", { name: "Manual" }))
     await user.click(screen.getByRole("button", { name: "Save mode" }))
 
-    expect(await screen.findByText(/already accepts applications/)).toBeInTheDocument()
+    expect(await screen.findByText(/already has an application/)).toBeInTheDocument()
   })
 
   it("explains why a locked mode cannot be changed", async () => {
@@ -159,7 +184,9 @@ describe("EventSettings", () => {
 
     expect(await screen.findByText("Automatic · locked")).toBeInTheDocument()
     expect(
-      screen.getByText("Applications are open, so the mode can no longer be changed."),
+      screen.getByText(
+        "The event already has an application, so the mode can no longer be changed.",
+      ),
     ).toBeInTheDocument()
     expect(screen.queryByRole("radio")).not.toBeInTheDocument()
     expect(screen.queryByRole("button", { name: "Save mode" })).not.toBeInTheDocument()

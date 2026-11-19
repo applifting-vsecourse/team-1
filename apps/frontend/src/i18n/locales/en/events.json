@@ -58,21 +58,21 @@
     "title": "Delete event?"
   },
   "evaluationMode": {
-    "afterOpenLocked": "The mode will be locked and can no longer be changed.",
-    "afterOpenVisible": "The chosen mode will be shown in the event overview.",
+    "afterOpenLocked": "You can change the mode until the first application is received.",
     "automatic": "Automatic",
+    "automaticInfo": "The app confirms an application when a bed is free, otherwise it adds it to the substitutes. A freed bed goes to the first substitute.",
     "change": "Change",
+    "infoLabel": "Explanation: {{mode}}",
     "legend": "Evaluation mode",
-    "lockedReason": "Applications are open, so the mode can no longer be changed.",
+    "lockedReason": "The event already has an application, so the mode can no longer be changed.",
     "lockedTitle": "Evaluation mode",
     "lockedValue": "{{mode}} · locked",
     "manual": "Manual",
-    "manualHint": "In manual mode the organizer evaluates applications and substitutes.",
+    "manualInfo": "You decide on every application: confirm it, add it to the substitutes or reject it.",
     "overviewLabel": "Evaluation mode",
     "save": "Save mode",
     "saveFailed": "Could not save the change",
     "saved": "Evaluation mode saved.",
-    "subtitle": "Choose the rule before applications open.",
     "title": "Application evaluation mode"
   },
   "extraBedDialog": {

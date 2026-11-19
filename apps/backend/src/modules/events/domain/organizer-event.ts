@@ -80,9 +80,6 @@ export function toOrganizerEvent(event: StoredEvent): OrganizerEvent {
     ...event,
     applicationsOpen: isOpenForApplications(setup),
     missing: missingForApplications(setup),
-    evaluationModeLocked: isEvaluationModeLocked({
-      ...setup,
-      applicationCount: event.applicationCount,
-    }),
+    evaluationModeLocked: isEvaluationModeLocked({ applicationCount: event.applicationCount }),
   }
 }
