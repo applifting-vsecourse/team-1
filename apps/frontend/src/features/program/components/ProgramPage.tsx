@@ -51,11 +51,12 @@ export function ProgramPage({ eventId }: { eventId: string }) {
   const [deleting, setDeleting] = useState<ProgramBlock | null>(null)
   const [isCopying, setIsCopying] = useState(false)
   // The copy result is a snapshot; `blockIds` are the blocks the copy created, so the overlaps are
-  // recomputed from the current blocks after every change.
+  // recomputed from the current blocks after every change. `null` when the program could not be
+  // hasReloaded after the copy: the overlaps the copy reported stay until then.
   const [copied, setCopied] = useState<{
     termId: string
     result: ProgramCopyResult
-    blockIds: ReadonlySet<string>
+    blockIds: ReadonlySet<string> | null
   } | null>(null)
   const queryClient = useQueryClient()
 
@@ -100,7 +101,11 @@ export function ProgramPage({ eventId }: { eventId: string }) {
   }
 
   const copiedOverlaps =
-    copied?.termId === term.termId ? trackedOverlaps(term.blocks, copied.blockIds) : []
+    copied?.termId !== term.termId
+      ? []
+      : copied.blockIds
+        ? trackedOverlaps(term.blocks, copied.blockIds)
+        : copied.result.overlaps
 
   return (
     <div className="flex flex-col gap-6">
@@ -200,15 +205,20 @@ export function ProgramPage({ eventId }: { eventId: string }) {
           onCopied={async (result, strategy) => {
             const before = new Set(term.blocks.map((block) => block.id))
             await queryClient.invalidateQueries({ queryKey: programKeys.event(eventId) })
+            const key = eventProgramQueryOptions(eventId).queryKey
+            const hasReloaded = queryClient.getQueryState(key)?.status === "success"
             const after = queryClient
-              .getQueryData(eventProgramQueryOptions(eventId).queryKey)
+              .getQueryData(key)
               ?.terms.find((item) => item.termId === term.termId)
             // An add keeps the old blocks; a replace deletes them all, so everything is new.
-            const blockIds = new Set(
-              (after?.blocks ?? [])
-                .filter((block) => strategy === "REPLACE" || !before.has(block.id))
-                .map((block) => block.id),
-            )
+            const blockIds =
+              hasReloaded && after
+                ? new Set(
+                    after.blocks
+                      .filter((block) => strategy === "REPLACE" || !before.has(block.id))
+                      .map((block) => block.id),
+                  )
+                : null
             setCopied({ termId: term.termId, result, blockIds })
             notify.success(t(strategy === "REPLACE" ? "copy.replaced" : "copy.done"))
           }}
