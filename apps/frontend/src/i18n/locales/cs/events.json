@@ -97,6 +97,7 @@
     "oneTerm": "{{dates}}"
   },
   "list": {
+    "clearOrganization": "Zrušit filtr",
     "count_few": "{{count}} akce",
     "count_one": "{{count}} akce",
     "count_other": "{{count}} akcí",

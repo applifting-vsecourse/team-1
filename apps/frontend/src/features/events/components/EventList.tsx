@@ -89,7 +89,9 @@ function FilteredEvents({
   const [query, setQuery] = useState("")
   const [status, setStatus] = useState<StatusFilter>("all")
   const [organizationId, setOrganizationId] = useState("all")
-  const organizations = [...new Map(events.map((e) => [e.organizationId, e.organizationName]))]
+  const organizations = new Map(
+    events.map((event) => [event.organizationId, event.organizationName]),
+  )
 
   const needle = query.trim().toLocaleLowerCase()
   const shown = events.filter(
@@ -127,7 +129,7 @@ function FilteredEvents({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">{t("list.organizationAll")}</SelectItem>
-              {organizations.map(([id, name]) => (
+              {Array.from(organizations, ([id, name]) => (
                 <SelectItem
                   key={id}
                   value={id}
@@ -159,10 +161,32 @@ function FilteredEvents({
           </Select>
         </div>
       </div>
-      <h2 className="text-xl font-semibold">
-        <span>{t("list.count", { count: shown.length })}</span> ·{" "}
-        {t("list.organizations", { count: new Set(shown.map((e) => e.organizationId)).size })}
-      </h2>
+      <div className="flex items-center justify-between gap-4">
+        <h2 className="min-w-0 text-xl font-semibold">
+          <span>{t("list.count", { count: shown.length })}</span>
+          {organizationId === "all" ? (
+            <>
+              {" "}
+              ·{" "}
+              {t("list.organizations", {
+                count: new Set(shown.map((event) => event.organizationId)).size,
+              })}
+            </>
+          ) : (
+            <span className="hidden lg:inline"> · {organizations.get(organizationId)}</span>
+          )}
+        </h2>
+        {organizationId !== "all" && (
+          <Button
+            type="button"
+            variant="ghost"
+            className="shrink-0"
+            onClick={() => setOrganizationId("all")}
+          >
+            {t("list.clearOrganization")}
+          </Button>
+        )}
+      </div>
       {shown.length === 0 ? (
         <EmptyState message={t("list.noMatch")} />
       ) : (

@@ -97,6 +97,7 @@
     "oneTerm": "{{dates}}"
   },
   "list": {
+    "clearOrganization": "Clear filter",
     "count_few": "{{count}} events",
     "count_one": "{{count}} event",
     "count_other": "{{count}} events",

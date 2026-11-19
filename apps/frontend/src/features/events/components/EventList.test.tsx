@@ -127,6 +127,22 @@ describe("EventList", () => {
     expect(within(item as HTMLElement).getByText("Application inactive")).toBeInTheDocument()
   })
 
+  it("clears the organization filter while keeping the name search", async () => {
+    const user = userEvent.setup()
+    renderList([event, { ...draft, organizationId: "o2", organizationName: "Summit Events" }])
+    const organization = await screen.findByRole("combobox", { name: "Organization" })
+    await user.click(organization)
+    await user.click(screen.getByRole("option", { name: "Summit Events" }))
+    expect(screen.queryByRole("heading", { name: event.name })).not.toBeInTheDocument()
+    expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent("1 event · Summit Events")
+    const search = screen.getByRole("searchbox")
+    await user.type(search, "jarní")
+    await user.click(screen.getByRole("button", { name: "Clear filter" }))
+    expect(search).toHaveValue("jarní")
+    expect(screen.getByRole("heading", { name: /1 event.*1 organization/ })).toBeVisible()
+    expect(screen.queryByRole("button", { name: "Clear filter" })).not.toBeInTheDocument()
+  })
+
   it("narrows the list by name", async () => {
     renderList([event, draft])
 
