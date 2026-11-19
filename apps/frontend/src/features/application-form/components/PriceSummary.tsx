@@ -29,6 +29,9 @@ export function PriceSummary({ rows, totalCzk, children }: PriceSummaryProps) {
   return (
     <Card className="gap-4 p-4 sm:p-6">
       <h2 className="text-lg font-bold">{t("price.heading")}</h2>
+      <p className="text-sm text-muted-foreground">
+        {t("price.participants", { count: rows.length })}
+      </p>
       <ul className="flex flex-col gap-2">
         {rows.map((row, index) => (
           <li

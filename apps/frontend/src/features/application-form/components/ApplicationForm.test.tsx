@@ -29,7 +29,7 @@ Element.prototype.hasPointerCapture = () => false
 const scrollIntoView = vi.fn()
 Element.prototype.scrollIntoView = scrollIntoView
 
-const submitSpy = () => vi.fn<(values: ApplicationFormValues) => void | Promise<unknown>>()
+const submitSpy = () => vi.fn<(values: ApplicationFormValues) => void | Promise<void>>()
 
 const participantCard = (number: number) => {
   const heading = screen.getByRole("heading", { name: new RegExp(`^Participant ${number}`) })
@@ -492,6 +492,25 @@ describe("ApplicationForm", () => {
     expect(onSubmit).toHaveBeenCalledOnce()
 
     finish?.()
+  })
+
+  it("focuses the server message when a duplicate response identifies no submitted field", async () => {
+    render(
+      <ApplicationForm
+        event={event}
+        onSubmit={vi.fn().mockResolvedValue({ duplicate: null })}
+        errorMessage="Anna is already registered for Week 2."
+      />,
+    )
+
+    await fillParticipant(1, anna)
+    await userEvent.type(screen.getByLabelText("Contact e-mail *"), "anna@example.com")
+    await userEvent.click(screen.getByRole("checkbox", { name: /agree to the processing/ }))
+    await userEvent.click(screen.getByRole("button", { name: "Continue to review" }))
+    await userEvent.click(screen.getByRole("button", { name: "Submit application" }))
+
+    expect(screen.getByRole("alert")).toHaveFocus()
+    expect(screen.getByRole("checkbox", { name: /Week 2/ })).not.toBeInvalid()
   })
 
   it("shows why a submission failed", () => {

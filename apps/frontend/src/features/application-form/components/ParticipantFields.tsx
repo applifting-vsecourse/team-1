@@ -53,7 +53,7 @@ type ParticipantFieldsProps = {
   /** Position in the form, 0-based. */
   index: number
   terms: PublicTerm[]
-  /** Only the second and later participants can be removed. */
+  /** Any participant can be removed while at least one other participant remains. */
   onRemove?: () => void
   isDisabled?: boolean
 }
@@ -204,13 +204,17 @@ export function ParticipantFields({ index, terms, onRemove, isDisabled }: Partic
               {terms.map((term) => {
                 const id = `participant-${index}-term-${term.id}`
                 const selected = field.value ?? []
+                const isInvalid =
+                  fieldState.invalid &&
+                  (fieldState.error?.type !== "duplicate" ||
+                    fieldState.error.types?.termId === term.id)
                 return (
                   <Label
                     key={term.id}
                     htmlFor={id}
                     className={cn(
                       "min-h-14 cursor-pointer gap-3 rounded-md border border-input bg-card px-4 py-3 text-base leading-6 transition-colors hover:bg-accent has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-accent has-[[data-state=checked]]:ring-1 has-[[data-state=checked]]:ring-primary",
-                      fieldState.invalid && "border-destructive",
+                      isInvalid && "border-destructive",
                     )}
                   >
                     <Checkbox
@@ -225,8 +229,8 @@ export function ParticipantFields({ index, terms, onRemove, isDisabled }: Partic
                         )
                       }
                       onBlur={field.onBlur}
-                      aria-invalid={fieldState.invalid}
-                      aria-describedby={fieldState.invalid ? termsMessageId : undefined}
+                      aria-invalid={isInvalid}
+                      aria-describedby={isInvalid ? termsMessageId : undefined}
                     />
                     <span className="flex flex-1 flex-col">
                       <span className="font-semibold">

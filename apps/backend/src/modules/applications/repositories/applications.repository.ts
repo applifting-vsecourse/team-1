@@ -260,6 +260,8 @@ export class ApplicationsRepository {
       "APPLICATION_DUPLICATE",
       "Participant is already registered for this term",
       {
+        participantIndex: String(duplicate.participantIndex),
+        termId: duplicate.termId,
         participant: `${duplicate.participant.firstName} ${duplicate.participant.lastName}`,
         term: termLabel(term, locale),
       },

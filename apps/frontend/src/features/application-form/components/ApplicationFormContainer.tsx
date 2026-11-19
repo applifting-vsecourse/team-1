@@ -1,12 +1,22 @@
 import { useNavigate } from "@tanstack/react-router"
+import { z } from "zod"
 
 import { ROUTES } from "@/app/routes"
-import { apiErrorCode } from "@/lib/api-client"
+import { apiErrorCode, HTTPError } from "@/lib/api-client"
 
 import type { PublicEvent } from "@/features/application-form/api/publicEvent"
 import { ApplicationForm } from "@/features/application-form/components/ApplicationForm"
 import { useSubmitApplication } from "@/features/application-form/hooks/useSubmitApplication"
 import { clearApplicationDraft } from "@/features/application-form/lib/application-draft"
+
+// Error parameters are strings in both the API contract and the translation layer.
+const duplicateSelection = z.object({
+  params: z.object({
+    participantIndex: z.string().regex(/^\d+$/).transform(Number),
+    termId: z.string(),
+    term: z.string(),
+  }),
+})
 
 /**
  * Connects the form to the API and moves on to the confirmation page. Keyed by the link: a client
@@ -35,15 +45,20 @@ function ApplicationFormForLink({ token, event }: { token: string; event: Public
       errorMessage={submit.error?.message}
       onReview={() => submit.reset()}
       onSubmit={async (values) => {
+        let accessToken: string
         try {
-          const { accessToken } = await submit.mutateAsync(values)
-          // Right away, not in an effect after the re-render: the confirmation page may already
-          // be on screen and the form gone before that effect would run.
-          clearApplicationDraft(token)
-          await navigate({ to: ROUTES.applicationConfirmation, params: { accessToken } })
+          const result = await submit.mutateAsync(values)
+          accessToken = result.accessToken
         } catch (error) {
-          if (apiErrorCode(error) === "APPLICATION_DUPLICATE") return "duplicate"
+          if (apiErrorCode(error) === "APPLICATION_DUPLICATE" && error instanceof HTTPError) {
+            const result = duplicateSelection.safeParse(error.data)
+            return { duplicate: result.success ? result.data.params : null }
+          }
+          return
         }
+        // Navigation can unmount the form before its success effect runs.
+        clearApplicationDraft(token)
+        await navigate({ to: ROUTES.applicationConfirmation, params: { accessToken } })
       }}
     />
   )

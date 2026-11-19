@@ -57,12 +57,16 @@ const emptyParticipant: ParticipantDraft = {
   termIds: [],
 }
 
+type SubmissionConflict = {
+  duplicate: { participantIndex: number; termId: string; term: string } | null
+}
+
 type ApplicationFormProps = {
   event: PublicEvent
   /** The application link; the unsent form is kept in sessionStorage under it. Without it nothing is kept. */
   draftKey?: string
   /** Resolves when the submission is over; the button stays disabled until then. */
-  onSubmit: (values: ApplicationFormValues) => void | Promise<unknown>
+  onSubmit: (values: ApplicationFormValues) => void | Promise<void | SubmissionConflict>
   /** Already translated message of a failed submission. */
   errorMessage?: string | null
   onReview?: () => void
@@ -102,7 +106,9 @@ export function ApplicationForm({
   const [invalidSubmitCount, setInvalidSubmitCount] = useState(0)
   // After the failed submission has rendered its errors, the first invalid control is in the DOM.
   useEffect(() => {
-    if (invalidSubmitCount > 0 && formRef.current) focusFirstInvalidField(formRef.current)
+    if (invalidSubmitCount > 0 && formRef.current && !focusFirstInvalidField(formRef.current)) {
+      formRef.current.querySelector<HTMLElement>('[role="alert"]')?.focus()
+    }
   }, [invalidSubmitCount])
   const [review, setReview] = useState<ApplicationFormValues | null>(null)
   const nextField = useRef<ReviewField | null>(null)
@@ -173,7 +179,22 @@ export function ApplicationForm({
               }
               isSending.current = true
               try {
-                if ((await onSubmit(values)) === "duplicate") edit("participants.0.firstName")
+                const conflict = await onSubmit(values)
+                if (conflict) {
+                  const target = conflict.duplicate
+                  if (
+                    target &&
+                    values.participants[target.participantIndex]?.termIds.includes(target.termId)
+                  ) {
+                    form.setError(`participants.${target.participantIndex}.termIds`, {
+                      type: "duplicate",
+                      types: { termId: target.termId },
+                      message: t("form.errors.duplicateTerm", { term: target.term }),
+                    })
+                  }
+                  setReview(null)
+                  setInvalidSubmitCount((count) => count + 1)
+                }
               } finally {
                 isSending.current = false
               }
@@ -329,7 +350,10 @@ export function ApplicationForm({
             totalCzk={totalPrice(prices)}
           >
             {errorMessage ? (
-              <Alert variant="destructive">
+              <Alert
+                variant="destructive"
+                tabIndex={-1}
+              >
                 <AlertDescription>{errorMessage}</AlertDescription>
               </Alert>
             ) : null}

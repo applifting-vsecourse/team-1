@@ -3,6 +3,8 @@ import { render, screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
+import { api } from "@/lib/api-client"
+
 import type { PublicEvent } from "@/features/application-form/api/publicEvent"
 import { ApplicationFormContainer } from "@/features/application-form/components/ApplicationFormContainer"
 
@@ -20,6 +22,7 @@ const event: PublicEvent = {
   location: null,
   terms: [
     { id: "t1", name: "Week 1", startsOn: "2027-07-04", endsOn: "2027-07-10", priceCzk: 4500 },
+    { id: "t2", name: "Week 2", startsOn: "2027-07-11", endsOn: "2027-07-17", priceCzk: 4900 },
   ],
 }
 
@@ -153,6 +156,75 @@ describe("ApplicationFormContainer", () => {
     expect(submitApplication).toHaveBeenCalledTimes(1)
     expect(window.sessionStorage.getItem(keyOf("a"))).toBe(savedDraft)
     expect(navigate).not.toHaveBeenCalled()
+  })
+
+  it("marks the rejected term of the second participant and submits the corrected group once", async () => {
+    const person = {
+      firstName: "Jana",
+      lastName: "Nováková",
+      birthDate: "2012-03-01",
+      gender: "FEMALE",
+      individualAccommodation: false,
+      accommodationRequest: "",
+    }
+    const draft = {
+      email: "rodic@example.com",
+      participants: [
+        { ...person, termIds: ["t2"] },
+        { ...person, termIds: ["t1", "t2"] },
+      ],
+    }
+    window.sessionStorage.setItem(keyOf("a"), JSON.stringify(draft))
+    const apiConflict = api.extend({
+      fetch: vi.fn().mockResolvedValue(
+        Response.json(
+          {
+            code: "APPLICATION_DUPLICATE",
+            params: {
+              participant: "Jana Nováková",
+              participantIndex: "1",
+              term: "Week 2",
+              termId: "t2",
+            },
+          },
+          { status: 409 },
+        ),
+      ),
+    })
+    submitApplication
+      .mockImplementationOnce(() => apiConflict.post("public/events/a/applications").json())
+      .mockResolvedValueOnce({ accessToken: "corrected" })
+    renderContainer("a")
+    await userEvent.click(screen.getByRole("checkbox", { name: /I agree to the processing/ }))
+    await userEvent.click(screen.getByRole("button", { name: "Continue to review" }))
+    await userEvent.click(screen.getByRole("button", { name: "Submit application" }))
+
+    const duplicates = await screen.findAllByRole("checkbox", { name: /Week 2/ })
+    expect(duplicates).toHaveLength(2)
+    expect(duplicates[0]).not.toBeInvalid()
+    expect(duplicates[1]).toHaveFocus()
+    expect(duplicates[1]).toBeInvalid()
+    expect(duplicates[1]).toHaveAccessibleDescription(
+      "This participant is already registered for Week 2.",
+    )
+    expect(screen.getAllByRole("checkbox", { name: /Week 1/ })[1]).not.toBeInvalid()
+
+    await userEvent.click(duplicates[1]!)
+    await userEvent.click(screen.getByRole("button", { name: "Continue to review" }))
+    await userEvent.click(screen.getByRole("button", { name: "Submit application" }))
+    await waitFor(() => expect(navigate).toHaveBeenCalledOnce())
+    expect(submitApplication).toHaveBeenCalledTimes(2)
+    expect(submitApplication.mock.lastCall).toEqual([
+      "a",
+      {
+        email: draft.email,
+        consent: true,
+        participants: [
+          { ...person, termIds: ["t2"] },
+          { ...person, termIds: ["t1"] },
+        ],
+      },
+    ])
   })
 
   it("opens an empty form on a link without a draft and preserves the previous link's entries", async () => {
