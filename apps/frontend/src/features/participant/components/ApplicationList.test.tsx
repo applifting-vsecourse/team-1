@@ -113,6 +113,20 @@ describe("ApplicationList", () => {
     expect(screen.getByRole("button", { name: /Try again|Retry/i })).toBeInTheDocument()
   })
 
+  it("shows no payable amount when the domain returns no payment details", async () => {
+    const data = application()
+    respondWith([
+      application({
+        terms: data.terms.filter((term) => term.status === "WAITLISTED"),
+        paymentDetails: null,
+        amountOwedCzk: 4500,
+      }),
+    ])
+    renderList()
+    expect(await screen.findByRole("link")).toHaveTextContent("—")
+    expect(screen.queryByRole("note")).not.toBeInTheDocument()
+  })
+
   it("lists every application with its variable symbol, term statuses and a link to the detail", async () => {
     respondWith([
       application(),

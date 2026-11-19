@@ -50,9 +50,8 @@ function Applications({ applications }: { applications: MyApplication[] }) {
   return (
     <div className="flex flex-col gap-6">
       {pageItems.map((application) => {
-        const due =
-          application.paymentDetails?.summary.payableCzk ?? Math.max(0, application.amountOwedCzk)
-        return due > 0 ? (
+        const due = application.paymentDetails?.summary.payableCzk
+        return due !== undefined && due > 0 ? (
           <Alert
             key={application.id}
             role="note"

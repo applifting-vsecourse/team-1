@@ -70,12 +70,11 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
           <div>
             <dt className="text-sm text-muted-foreground">{t("list.remaining")}</dt>
             <dd>
-              <MoneyAmount
-                amountCzk={
-                  application.paymentDetails?.summary.payableCzk ??
-                  Math.max(0, application.amountOwedCzk)
-                }
-              />
+              {application.paymentDetails ? (
+                <MoneyAmount amountCzk={application.paymentDetails.summary.payableCzk} />
+              ) : (
+                "—"
+              )}
             </dd>
           </div>
         </dl>
