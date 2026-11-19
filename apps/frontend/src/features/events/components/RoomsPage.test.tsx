@@ -42,6 +42,7 @@ const terms: AccommodationTerm[] = [
     name: "Week 1",
     startsOn: "2027-07-12",
     endsOn: "2027-07-18",
+    roomCount: 2,
     roomMode: "GENDERED",
     byGender: { FEMALE: { free: 0 }, MALE: { free: 2 } },
   },
@@ -50,6 +51,7 @@ const terms: AccommodationTerm[] = [
     name: "Week 3",
     startsOn: "2027-07-26",
     endsOn: "2027-08-01",
+    roomCount: 2,
     roomMode: "GENDERED",
     byGender: { FEMALE: { free: 0 }, MALE: { free: 2 } },
   },
@@ -58,6 +60,7 @@ const terms: AccommodationTerm[] = [
     name: "Week 2",
     startsOn: "2027-07-19",
     endsOn: "2027-07-25",
+    roomCount: 1,
     roomMode: "SHARED",
     byGender: null,
   },
@@ -346,6 +349,7 @@ describe("accommodation by term", () => {
     const dialog = await screen.findByRole("dialog")
     await user.click(within(dialog).getByRole("combobox", { name: "Source term" }))
     await user.click(await screen.findByRole("option", { name: /Week 3/ }))
+    await user.click(await within(dialog).findByRole("button", { name: "Show preview" }))
     await user.click(await within(dialog).findByRole("button", { name: "Add 1 room" }))
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument())
     expect(post).toHaveBeenCalledWith("organizer/events/e1/terms/t1/rooms/copy", {

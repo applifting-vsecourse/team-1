@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { apiErrorCode } from "@/lib/api-client"
 import { formatDate, formatDateRange } from "@/lib/date"
 import { formatCzk } from "@/lib/money"
 import { notify } from "@/lib/notify"
@@ -68,6 +69,9 @@ export function ChangeRequestsPanel({ eventId }: { eventId: string }) {
       />
     )
   }
+  const failureCode = apiErrorCode(mutation.error)
+  const isStale = failureCode === "CHANGE_REQUEST_NOT_PENDING"
+  const hasCapacityChanged = failureCode === "CAPACITY_EXCEEDED"
   const request = query.data.find((item) => item.id === selectedId)
   const summary = (item: EventChangeRequest) =>
     item.kind === "HEALTH"
@@ -110,6 +114,7 @@ export function ChangeRequestsPanel({ eventId }: { eventId: string }) {
               variant="outline"
               className="w-full sm:w-auto"
               onClick={() => {
+                mutation.reset()
                 setSelectedId(item.id)
                 setReason("")
               }}
@@ -217,19 +222,38 @@ export function ChangeRequestsPanel({ eventId }: { eventId: string }) {
               </Alert>
             ) : null}
             <div className="flex flex-col gap-2">
-              <Button
-                disabled={mutation.isPending}
-                onClick={() => mutation.mutate({ id: request.id, decision: "approve" })}
-              >
-                {t("changeRequests.approve")}
-              </Button>
-              <Button
-                variant="destructive"
-                disabled={mutation.isPending}
-                onClick={() => mutation.mutate({ id: request.id, decision: "reject" })}
-              >
-                {t("changeRequests.reject")}
-              </Button>
+              {!isStale && (
+                <>
+                  <Button
+                    disabled={mutation.isPending || hasCapacityChanged}
+                    onClick={() => mutation.mutate({ id: request.id, decision: "approve" })}
+                  >
+                    {t("changeRequests.approve")}
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    disabled={mutation.isPending}
+                    onClick={() => mutation.mutate({ id: request.id, decision: "reject" })}
+                  >
+                    {t("changeRequests.reject")}
+                  </Button>
+                </>
+              )}
+              {(isStale || hasCapacityChanged) && (
+                <Button
+                  type="button"
+                  disabled={query.isFetching || occupancy.isFetching}
+                  onClick={async () => {
+                    const [requests, places] = await Promise.all([
+                      query.refetch(),
+                      occupancy.refetch(),
+                    ])
+                    if (requests.isSuccess && places.isSuccess) mutation.reset()
+                  }}
+                >
+                  {t("changeRequests.refresh")}
+                </Button>
+              )}
               <Button
                 variant="ghost"
                 className="self-start"

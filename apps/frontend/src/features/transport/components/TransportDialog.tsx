@@ -37,6 +37,7 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { formatDate } from "@/lib/date"
 import { termTitle } from "@/lib/term-label"
+import { cn } from "@/lib/utils"
 
 import {
   saveTransport,
@@ -145,7 +146,10 @@ export function TransportDialog({
     >
       <DialogContent
         aria-describedby={undefined}
-        className="max-h-[90dvh] overflow-y-auto bg-card shadow-md sm:max-w-170"
+        className={cn(
+          "max-h-[90dvh] overflow-y-auto bg-card shadow-md",
+          transport ? "sm:max-w-[530px]" : "sm:max-w-170",
+        )}
       >
         <p className="text-xs font-medium text-muted-foreground uppercase">
           {termTitle({ ...term, name: term.termName })}

@@ -1,6 +1,7 @@
 ﻿import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
+import { NetworkError } from "ky"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import type { PaymentApplication } from "@/features/event-overview/api/payments"
@@ -220,6 +221,20 @@ describe("PaymentEditor", () => {
     const alert = await screen.findByRole("alert")
     expect(alert).toHaveTextContent("The refund could not be recorded")
     expect(alert).toHaveTextContent("The term does not belong to this application.")
+  })
+
+  it("refreshes the overview before another refund can be recorded after a lost response", async () => {
+    recordRefund.mockRejectedValueOnce(
+      new NetworkError(new Request("https://example.test/payment")),
+    )
+    const { user, onClose } = setup(7400)
+    await user.click(screen.getByRole("radio", { name: "Refund" }))
+    await user.click(screen.getByRole("button", { name: "Record refund" }))
+    const refresh = await screen.findByRole("button", { name: "Refresh overview" })
+    expect(screen.queryByRole("button", { name: "Record refund" })).not.toBeInTheDocument()
+    await user.click(refresh)
+    await waitFor(() => expect(onClose).toHaveBeenCalledOnce())
+    expect(recordRefund).toHaveBeenCalledOnce()
   })
 
   it("names a term by its name and dates in the choice", async () => {

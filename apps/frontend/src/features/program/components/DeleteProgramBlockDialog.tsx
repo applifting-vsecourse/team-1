@@ -44,7 +44,7 @@ export function DeleteProgramBlockDialog({
         if (!isOpen && !mutation.isPending) onClose()
       }}
     >
-      <DialogContent className="gap-4 p-6 sm:max-w-130">
+      <DialogContent className="gap-4 p-6 sm:max-w-140">
         <DialogHeader>
           <DialogTitle className="text-lg tracking-tight">{t("deleteTitle")}</DialogTitle>
           <DialogDescription>

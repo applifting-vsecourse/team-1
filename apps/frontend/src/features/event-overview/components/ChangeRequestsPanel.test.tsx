@@ -6,7 +6,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import { ChangeRequestsPanel } from "@/features/event-overview/components/ChangeRequestsPanel"
 
 const { get, patch } = vi.hoisted(() => ({ get: vi.fn(), patch: vi.fn() }))
-vi.mock("@/lib/api-client", () => ({ api: { get, patch } }))
+vi.mock("@/lib/api-client", async (importOriginal) => ({
+  ...(await importOriginal<object>()),
+  api: { get, patch },
+}))
 
 const request = {
   id: "r1",

@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/select"
 import { formatCzk } from "@/lib/money"
 import { termDates, termLine, termTitle } from "@/lib/term-label"
+import { cn } from "@/lib/utils"
 
 import {
   recordPayment,
@@ -32,6 +33,10 @@ import {
   type PaymentApplication,
   type PaymentTerm,
 } from "@/features/event-overview/api/payments"
+import {
+  hasUncertainOutcome,
+  RefreshAfterWrite,
+} from "@/features/event-overview/components/RefreshAfterWrite"
 
 type Props = {
   application: PaymentApplication
@@ -161,6 +166,7 @@ export function PaymentEditor({
     },
   })
 
+  const isUncertain = hasUncertainOutcome(mutation.error)
   return (
     <Dialog
       open
@@ -168,7 +174,15 @@ export function PaymentEditor({
         if (!isOpen && !mutation.isPending) onClose()
       }}
     >
-      <DialogContent className="max-h-[calc(100dvh-2rem)] max-w-full gap-4 overflow-y-auto p-6 sm:max-w-160">
+      <DialogContent
+        className={cn(
+          "max-h-[calc(100dvh-2rem)] gap-4 overflow-y-auto p-6 sm:max-w-[370px]",
+          (isRefund ? refundTerms.length === 0 : remaining === 0) && "sm:max-w-160",
+          initialRefundTerm && "sm:max-w-130",
+          !isRefund && remaining === 0 && !isUncertain && "max-sm:max-w-full",
+          isUncertain && "sm:max-w-[370px]",
+        )}
+      >
         <DialogHeader>
           <DialogTitle className="text-lg tracking-tight">
             {t(isRefund ? "payment.refundTitle" : "payment.dialogTitle")}
@@ -183,6 +197,7 @@ export function PaymentEditor({
           noValidate
           onSubmit={(event) => {
             event.preventDefault()
+            if (isUncertain || mutation.isPending) return
             if (!isValid) {
               setIsInvalid(true)
               return
@@ -419,7 +434,14 @@ export function PaymentEditor({
               </div>
             ) : null}
           </div>
-          {mutation.error && isRefund ? (
+          {isUncertain ? (
+            <p
+              role="alert"
+              className="text-sm text-destructive"
+            >
+              {t("payment.uncertainRecord")}
+            </p>
+          ) : mutation.error && isRefund ? (
             <Alert
               variant="destructive"
               role="alert"
@@ -446,21 +468,28 @@ export function PaymentEditor({
             >
               {t("payment.dialogCancel")}
             </Button>
-            <Button
-              type="submit"
-              size="lg"
-              className="sm:flex-1"
-              aria-busy={mutation.isPending}
-              disabled={mutation.isPending}
-            >
-              {mutation.isPending
-                ? t("payment.saving")
-                : isRefund
-                  ? t("payment.refund")
-                  : isValid && receipt !== undefined
-                    ? t("payment.recordAmount", { amount: formatCzk(receipt) })
-                    : t("payment.record")}
-            </Button>
+            {isUncertain ? (
+              <RefreshAfterWrite
+                label={t("payment.refreshOverview")}
+                onRefreshed={onClose}
+              />
+            ) : (
+              <Button
+                type="submit"
+                size="lg"
+                className="sm:flex-1"
+                aria-busy={mutation.isPending}
+                disabled={mutation.isPending}
+              >
+                {mutation.isPending
+                  ? t("payment.saving")
+                  : isRefund
+                    ? t("payment.refund")
+                    : isValid && receipt !== undefined
+                      ? t("payment.recordAmount", { amount: formatCzk(receipt) })
+                      : t("payment.record")}
+              </Button>
+            )}
           </DialogFooter>
         </form>
       </DialogContent>

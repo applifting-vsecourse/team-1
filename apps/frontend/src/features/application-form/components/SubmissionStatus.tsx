@@ -77,9 +77,7 @@ export function SubmissionStatus({
       )}
     >
       <div className="flex min-w-0 flex-col gap-4">
-        <h1 className="text-2xl font-semibold tracking-tight sm:text-4xl/11 sm:font-bold">
-          {t("confirmation.title")}
-        </h1>
+        <h1 className="text-[32px]/10 font-bold tracking-tight">{t("confirmation.title")}</h1>
         <BrandDivider />
 
         <section className="flex flex-col gap-4 rounded-lg border bg-status-success-bg p-4 sm:p-6">

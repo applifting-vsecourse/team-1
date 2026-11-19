@@ -27,7 +27,7 @@ export function EventSummary({ event }: { event: PublicEvent }) {
       aria-label={t("form.heading", { event: event.name })}
       className="flex flex-col gap-2 rounded-xl border border-border bg-secondary p-4"
     >
-      <h2 className="text-lg font-bold tracking-tight">{event.name}</h2>
+      <h2 className="text-sm font-semibold">{event.name}</h2>
       {where ? <p className="text-sm text-muted-foreground">{where}</p> : null}
       {/* Rows: "DS / Event term row" https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=13196-777 */}
       <ul className="flex flex-col">

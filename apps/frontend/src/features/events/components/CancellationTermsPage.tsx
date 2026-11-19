@@ -70,6 +70,8 @@ function CancellationTermsForm({ event, onSaved }: { event: OrganizerEvent; onSa
   const { t } = useTranslation("events")
   const queryClient = useQueryClient()
   const [text, setText] = useState(event.cancellationTerms ?? "")
+  const [isPreview, setPreview] = useState(false)
+  const isDirty = text !== (event.cancellationTerms ?? "")
   const [hasAttempted, setHasAttempted] = useState(false)
   const isInvalid = hasAttempted && text.trim() === ""
   const mutation = useMutation({
@@ -94,69 +96,119 @@ function CancellationTermsForm({ event, onSaved }: { event: OrganizerEvent; onSa
   return (
     <form
       noValidate
-      className="flex max-w-196 flex-col gap-6"
+      className="grid min-w-0 gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(16rem,1fr)] lg:items-start"
       onSubmit={submit}
     >
-      <SectionHeader
-        title={t("cancellationTerms.title")}
-        description={t("cancellationTerms.subtitle", { name: event.name })}
-      />
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="cancellation-terms">{t("cancellationTerms.label")}</Label>
-        <Textarea
-          id="cancellation-terms"
-          rows={4}
-          maxLength={CANCELLATION_TERMS_MAX_LENGTH}
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          aria-invalid={isInvalid || undefined}
-          aria-describedby={isInvalid ? "cancellation-terms-error" : undefined}
-        />
-        {isInvalid ? (
+      <div className="flex min-w-0 flex-col gap-6">
+        {!isPreview && (
+          <>
+            <SectionHeader
+              title={t("cancellationTerms.title")}
+              description={t("cancellationTerms.subtitle", { name: event.name })}
+            />
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="cancellation-terms">{t("cancellationTerms.label")}</Label>
+              <Textarea
+                id="cancellation-terms"
+                rows={4}
+                maxLength={CANCELLATION_TERMS_MAX_LENGTH}
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                aria-invalid={isInvalid || undefined}
+                aria-describedby={isInvalid ? "cancellation-terms-error" : undefined}
+              />
+              {isInvalid ? (
+                <p
+                  id="cancellation-terms-error"
+                  className="text-sm text-destructive"
+                >
+                  {t("cancellationTerms.required")}
+                </p>
+              ) : null}
+            </div>
+            <Alert className="bg-accent">
+              <TriangleAlert aria-hidden="true" />
+              <AlertTitle>{t("cancellationTerms.alertTitle")}</AlertTitle>
+              <AlertDescription>{t("cancellationTerms.alertDescription")}</AlertDescription>
+            </Alert>
+          </>
+        )}
+        {isPreview && (
+          <CancellationTermsPreview
+            text={text}
+            onEdit={() => setPreview(false)}
+          />
+        )}
+        {isDirty && (
           <p
-            id="cancellation-terms-error"
-            className="text-sm text-destructive"
+            className={
+              isPreview
+                ? "text-sm text-muted-foreground"
+                : "text-sm text-muted-foreground lg:hidden"
+            }
           >
-            {t("cancellationTerms.required")}
+            {t("cancellationTerms.unsaved")}
           </p>
+        )}
+        {!isPreview && (
+          <Button
+            type="button"
+            variant="outline"
+            disabled={!text.trim() || mutation.isPending}
+            onClick={() => setPreview(true)}
+          >
+            {t("cancellationTerms.previewTitle")}
+          </Button>
+        )}
+        {isDirty && !isPreview && (
+          <Button
+            type="button"
+            variant="ghost"
+            disabled={mutation.isPending}
+            onClick={() => {
+              setText(event.cancellationTerms ?? "")
+              setHasAttempted(false)
+              mutation.reset()
+            }}
+          >
+            {t("cancellationTerms.discard")}
+          </Button>
+        )}
+        {mutation.isError ? (
+          <ErrorState
+            title={t("cancellationTerms.saveFailed")}
+            error={mutation.error}
+          />
         ) : null}
+        <Button
+          type="submit"
+          size="lg"
+          disabled={mutation.isPending}
+        >
+          {mutation.isPending ? <Loader2 className="animate-spin" /> : null}
+          {t("cancellationTerms.save")}
+        </Button>
       </div>
-      <Alert className="bg-accent">
-        <TriangleAlert aria-hidden="true" />
-        <AlertTitle>{t("cancellationTerms.alertTitle")}</AlertTitle>
-        <AlertDescription>{t("cancellationTerms.alertDescription")}</AlertDescription>
-      </Alert>
-      {mutation.isError ? (
-        <ErrorState
-          title={t("cancellationTerms.saveFailed")}
-          error={mutation.error}
-        />
-      ) : null}
-      <Button
-        type="submit"
-        size="lg"
-        disabled={mutation.isPending}
-      >
-        {mutation.isPending ? <Loader2 className="animate-spin" /> : null}
-        {t("cancellationTerms.save")}
-      </Button>
+      {!isPreview && (
+        <aside className="hidden min-w-0 flex-col gap-4 self-start lg:flex">
+          <h2 className="text-xl font-semibold">{t("cancellationTerms.forApplicant")}</h2>
+          <CancellationText text={text} />
+          {isDirty && (
+            <p className="text-sm text-muted-foreground">{t("cancellationTerms.unsaved")}</p>
+          )}
+        </aside>
+      )}
     </form>
   )
 }
 
 function CancellationTermsPreview({ text, onEdit }: { text: string; onEdit: () => void }) {
   const { t } = useTranslation("events")
-  const paragraphs = text.split("\n").filter((line) => line.trim() !== "")
 
   return (
     <div className="flex max-w-196 flex-col gap-6">
       <SectionHeader title={t("cancellationTerms.previewTitle")} />
-      <Card className="gap-4 p-4">
-        <h3 className="text-2xl font-bold tracking-tight">{t("cancellationTerms.label")}</h3>
-        {paragraphs.map((paragraph, index) => (
-          <p key={index}>{paragraph}</p>
-        ))}
-      </Card>
+      <CancellationText text={text} />
       <Button
         type="button"
         variant="ghost"
@@ -166,5 +218,18 @@ function CancellationTermsPreview({ text, onEdit }: { text: string; onEdit: () =
         {t("cancellationTerms.edit")}
       </Button>
     </div>
+  )
+}
+
+function CancellationText({ text }: { text: string }) {
+  const { t } = useTranslation("events")
+  const paragraphs = text.split("\n").filter((line) => line.trim() !== "")
+  return (
+    <Card className="gap-4 p-4">
+      <h3 className="text-2xl font-bold tracking-tight">{t("cancellationTerms.label")}</h3>
+      {paragraphs.map((paragraph, index) => (
+        <p key={index}>{paragraph}</p>
+      ))}
+    </Card>
   )
 }

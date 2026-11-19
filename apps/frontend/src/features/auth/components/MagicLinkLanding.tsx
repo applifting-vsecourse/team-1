@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { CircleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { ROUTES } from "@/app/routes"
 import VerificationDot from "@/assets/motion/verification-dot.svg?react"
 import VerificationEnd from "@/assets/motion/verification-end.svg?react"
 import VerificationStart from "@/assets/motion/verification-start.svg?react"
@@ -31,13 +32,28 @@ type MagicLinkLandingProps = {
 // Figma (Design system): S18 Vstup odkazem z e-mailu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=13183-22903
 // Figma (Design system): S15 Neplatný přihlašovací odkaz · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=13183-22953
 export function MagicLinkLanding({ token, error }: MagicLinkLandingProps) {
-  const { t } = useTranslation("auth")
-  const [isVerifying, setIsVerifying] = useState(false)
+  const { t } = useTranslation(["auth", "common"])
+  const [phase, setPhase] = useState<"ready" | "checking" | "interrupted">("ready")
+  const verify = () => {
+    if (!token) return
+    if (!navigator.onLine) {
+      setPhase("interrupted")
+      return
+    }
+    setPhase("checking")
+    window.location.assign(magicLinkVerifyUrl(token, window.location.origin))
+  }
   useEffect(() => {
     // Returning from the verification endpoint may restore the page from the browser cache.
-    const restore = () => setIsVerifying(false)
+    const restore = () => setPhase("ready")
+    const interrupt = () =>
+      setPhase((previous) => (previous === "checking" ? "interrupted" : previous))
+    window.addEventListener("offline", interrupt)
     window.addEventListener("pageshow", restore)
-    return () => window.removeEventListener("pageshow", restore)
+    return () => {
+      window.removeEventListener("pageshow", restore)
+      window.removeEventListener("offline", interrupt)
+    }
   }, [])
   const canContinue = Boolean(token) && !error
   // A link that cannot be used must not promise "Open your application".
@@ -46,7 +62,36 @@ export function MagicLinkLanding({ token, error }: MagicLinkLandingProps) {
   // Figma: US-01 waiting for the verification response, Motion M01.
   // Desktop https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15315-213
   // Mobile https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15315-236
-  if (canContinue && isVerifying) {
+  // Figma v2: Interrupted verification, CZ/EN and both widths · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK?node-id=22516-2497
+  if (canContinue && phase === "interrupted") {
+    return (
+      <AccessCardLayout title={t("magicLink.interruptedTitle")}>
+        <HeadingBand>
+          <h1 className="text-2xl font-bold">{t("magicLink.interruptedTitle")}</h1>
+          <p>{t("magicLink.checkConnection")}</p>
+        </HeadingBand>
+        <Alert variant="destructive">
+          <CircleAlert />
+          <AlertTitle>{t("magicLink.interrupted")}</AlertTitle>
+          <AlertDescription>{t("magicLink.interruptedHelp")}</AlertDescription>
+        </Alert>
+        <Button
+          size="lg"
+          onClick={verify}
+        >
+          {t("state.retry", { ns: "common" })}
+        </Button>
+        <Button
+          asChild
+          size="lg"
+          variant="outline"
+        >
+          <a href={ROUTES.participant.magicLink}>{t("magicLink.requestAnother")}</a>
+        </Button>
+      </AccessCardLayout>
+    )
+  }
+  if (canContinue && phase === "checking") {
     return (
       <AccessCardLayout title={t("magicLink.verifying")}>
         <HeadingBand>
@@ -85,10 +130,7 @@ export function MagicLinkLanding({ token, error }: MagicLinkLandingProps) {
         </HeadingBand>
         <Button
           size="lg"
-          onClick={() => {
-            setIsVerifying(true)
-            window.location.assign(magicLinkVerifyUrl(token, window.location.origin))
-          }}
+          onClick={verify}
         >
           {t("magicLink.continue")}
         </Button>

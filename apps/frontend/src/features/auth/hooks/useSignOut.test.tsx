@@ -34,7 +34,9 @@ describe("useSignOut", () => {
       result.current.mutate()
     })
 
-    await waitFor(() => expect(navigate).toHaveBeenCalledWith({ to: ROUTES.home }))
+    await waitFor(() =>
+      expect(navigate).toHaveBeenCalledWith({ to: ROUTES.home, ignoreBlocker: true }),
+    )
     expect(signOut).toHaveBeenCalledOnce()
     expect(queryClient.getQueryData(authKeys.session())).toBeNull()
     expect(queryClient.getQueryData(["secret"])).toBeUndefined()

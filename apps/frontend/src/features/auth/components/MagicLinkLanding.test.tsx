@@ -71,6 +71,25 @@ describe("MagicLinkLanding", () => {
     )
   })
 
+  it("keeps the token unspent while offline and permits another attempt", async () => {
+    const assign = vi.fn()
+    vi.stubGlobal("location", { origin: "http://localhost:3050", assign })
+    const online = vi.spyOn(navigator, "onLine", "get").mockReturnValue(false)
+    try {
+      renderLanding({ token: "abc" })
+      await userEvent.click(screen.getByRole("button", { name: "Continue" }))
+      expect(
+        await screen.findByRole("heading", { name: "We couldn’t verify the link" }),
+      ).toBeVisible()
+      expect(assign).not.toHaveBeenCalled()
+      online.mockReturnValue(true)
+      await userEvent.click(screen.getByRole("button", { name: "Try again" }))
+      expect(assign).toHaveBeenCalledOnce()
+    } finally {
+      online.mockRestore()
+    }
+  })
+
   it("explains a refused link and offers a new one", () => {
     renderLanding({ token: "abc", error: "INVALID_TOKEN" })
 

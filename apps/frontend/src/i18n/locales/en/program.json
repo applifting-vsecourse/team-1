@@ -41,6 +41,7 @@
     "resultTitle_few": "Copied {{count}} blocks",
     "resultTitle_one": "Copied {{count}} block",
     "resultTitle_other": "Copied {{count}} blocks",
+    "retry": "Try again",
     "skippedBody": "The target term does not have day {{days}} of the source.",
     "skippedHeading_few": "{{count}} blocks will be skipped",
     "skippedHeading_one": "{{count}} block will be skipped",

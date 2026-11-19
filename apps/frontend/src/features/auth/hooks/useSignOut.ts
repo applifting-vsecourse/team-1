@@ -22,7 +22,7 @@ export function useSignOut() {
       // Nothing of the previous account may linger in the cache.
       queryClient.clear()
       queryClient.setQueryData(authKeys.session(), null)
-      await navigate({ to: ROUTES.home })
+      await navigate({ to: ROUTES.home, ignoreBlocker: true })
     },
     // Sign-out is started from a menu, which has no form to show the error in.
     onError: () => notify.error(t("menu.signOutFailedTitle"), t("menu.signOutFailedDescription")),

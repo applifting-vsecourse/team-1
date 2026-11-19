@@ -144,6 +144,8 @@
   "bulk": {
     "alertTitle": "Potvrdí se {{confirmed}} ze {{selected}} přihlášek.",
     "cancel": "Zrušit",
+    "changedDescription": "Kapacita nebo stav přihlášek se mezitím změnily. Zkontrolujte nový výsledek a potvrďte ho znovu.",
+    "changedTitle": "Výsledek vyhodnocení se změnil",
     "chooseTerm": "Pro hromadné vyhodnocení přihlášek nejdřív vyberte termín ve filtru.",
     "close": "Zavřít a vrátit se",
     "confirm": "Potvrdit",
@@ -168,6 +170,8 @@
     "men_many": "{{count}} pánských",
     "men_one": "{{count}} pánské",
     "men_other": "{{count}} pánských",
+    "onOtherPages": "Na jiných stránkách",
+    "onThisPage": "Na aktuální stránce",
     "selectAll_few": "Vybrat vše ve filtru ({{count}} přihlášky)",
     "selectAll_many": "Vybrat vše ve filtru ({{count}} přihlášek)",
     "selectAll_one": "Vybrat vše ve filtru ({{count}} přihláška)",
@@ -190,11 +194,14 @@
     "women_other": "{{count}} dámských"
   },
   "bulkDecision": {
+    "refreshList": "Obnovit seznam",
     "reject": "Zamítnout",
     "rejectNames": "Budou zamítnuty",
     "rejectScope": "Platí pouze pro tento termín: přihlášky v něm budou zamítnuty.",
     "rejectSubmit": "Zamítnout přihlášky",
     "rejectTitle": "Zamítnout vybrané přihlášky",
+    "uncertain": "Část přihlášek už mohla být zpracována. Před dalším pokusem obnovte seznam a zkontrolujte aktuální stav.",
+    "uncertainTitle": "Výsledek se nepodařilo ověřit",
     "waitlist": "Zařadit mezi náhradníky",
     "waitlistNames": "Budou zařazeny mezi náhradníky",
     "waitlistScope": "Platí pouze pro tento termín: přihlášky se v něm stanou náhradníky.",
@@ -327,6 +334,7 @@
     "price": "Cena před → po",
     "reason": "Důvod při zamítnutí",
     "reasonPlaceholder": "Vysvětlete přihlašovateli důvod",
+    "refresh": "Obnovit žádost",
     "reject": "Zamítnout žádost",
     "rejected": "Žádost byla zamítnuta",
     "requested": "Požadavek",
@@ -532,6 +540,8 @@
     "recordRefundAction": "Zapsat vrácení přeplatku",
     "recorded": "Úhrada je evidována",
     "recorder": "Zapsal(a)",
+    "refreshHistory": "Obnovit historii",
+    "refreshOverview": "Obnovit přehled",
     "refund": "Zapsat vratku",
     "refundFailed": "Vratku se nepodařilo zapsat",
     "refundHint": "Zadejte kladnou částku. Zápis vratky neodesílá peníze.",
@@ -555,6 +565,8 @@
     "typeChoice": "Typ záznamu",
     "typePayment": "Platba",
     "typeRefund": "Vratka",
+    "uncertainCorrection": "Obnovte historii a ověřte, zda oprava proběhla, než ji zopakujete.",
+    "uncertainRecord": "Výsledek zápisu není ověřený.",
     "wholeApplication": "Celá přihláška (souhrn)"
   },
   "paymentsOverview": {
@@ -701,6 +713,7 @@
     "trigger": "Změnit termín"
   },
   "termStatus": {
+    "acceptOverCapacity": "Vědomě potvrzuji přihlášku nad kapacitu.",
     "action": {
       "cancel": "Zrušit v termínu",
       "confirm": "Potvrdit",

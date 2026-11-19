@@ -54,6 +54,7 @@ export type AccommodationTerm = {
   startsOn: string
   endsOn: string
   roomMode: RoomMode
+  roomCount: number
   byGender: { FEMALE: { free: number }; MALE: { free: number } } | null
 }
 
@@ -357,7 +358,7 @@ export function RoomsPage({
                     </Button>
                   </div>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="px-4 md:px-6">
                   {notices}
                   <TooltipProvider>
                     <RoomAssignmentsCard

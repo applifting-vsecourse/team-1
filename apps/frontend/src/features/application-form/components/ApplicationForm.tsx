@@ -315,7 +315,7 @@ export function ApplicationForm({
                   name="consent"
                   render={({ field }) => (
                     <FormItem>
-                      <div className="flex min-h-11 items-center gap-3">
+                      <div className="flex min-h-11 items-center gap-4">
                         <FormControl>
                           <Checkbox
                             className="size-5"
@@ -324,7 +324,7 @@ export function ApplicationForm({
                             onBlur={field.onBlur}
                           />
                         </FormControl>
-                        <FormLabel className="flex-1 cursor-pointer self-stretch leading-5 font-normal">
+                        <FormLabel className="flex-1 cursor-pointer self-stretch text-base leading-6 font-normal">
                           {t("form.consent")}
                         </FormLabel>
                       </div>

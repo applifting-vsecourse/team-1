@@ -144,6 +144,8 @@
   "bulk": {
     "alertTitle": "{{confirmed}} of {{selected}} applications will be confirmed.",
     "cancel": "Cancel",
+    "changedDescription": "Capacity or application status has changed. Review the new result and confirm it again.",
+    "changedTitle": "The evaluation result has changed",
     "chooseTerm": "To evaluate applications in bulk, choose a term in the filter first.",
     "close": "Close and go back",
     "confirm": "Confirm",
@@ -168,6 +170,8 @@
     "men_many": "{{count}} men's",
     "men_one": "{{count}} men's",
     "men_other": "{{count}} men's",
+    "onOtherPages": "On other pages",
+    "onThisPage": "On this page",
     "selectAll_few": "Select all in the filter ({{count}} applications)",
     "selectAll_many": "Select all in the filter ({{count}} applications)",
     "selectAll_one": "Select all in the filter ({{count}} application)",
@@ -190,11 +194,14 @@
     "women_other": "{{count}} women's"
   },
   "bulkDecision": {
+    "refreshList": "Refresh list",
     "reject": "Reject",
     "rejectNames": "Will be rejected",
     "rejectScope": "Applies to this term only: the applications are rejected in it.",
     "rejectSubmit": "Reject applications",
     "rejectTitle": "Reject selected applications",
+    "uncertain": "Some applications may have been processed. Refresh the list and check their status before trying again.",
+    "uncertainTitle": "The result could not be verified",
     "waitlist": "Move to waitlist",
     "waitlistNames": "Will be moved to the waitlist",
     "waitlistScope": "Applies to this term only: the applications become waitlisted in it.",
@@ -327,6 +334,7 @@
     "price": "Price before → after",
     "reason": "Reason for declining",
     "reasonPlaceholder": "Explain the reason to the applicant",
+    "refresh": "Refresh request",
     "reject": "Decline request",
     "rejected": "Request declined",
     "requested": "Request",
@@ -532,6 +540,8 @@
     "recordRefundAction": "Record overpayment refund",
     "recorded": "Payment is recorded",
     "recorder": "Recorded by",
+    "refreshHistory": "Refresh history",
+    "refreshOverview": "Refresh overview",
     "refund": "Record refund",
     "refundFailed": "The refund could not be recorded",
     "refundHint": "Enter a positive amount. Recording a refund does not send money.",
@@ -555,6 +565,8 @@
     "typeChoice": "Record type",
     "typePayment": "Payment",
     "typeRefund": "Refund",
+    "uncertainCorrection": "Refresh the history to check whether the correction was applied before trying again.",
+    "uncertainRecord": "The result of this entry could not be verified.",
     "wholeApplication": "Whole application (summary)"
   },
   "paymentsOverview": {
@@ -701,6 +713,7 @@
     "trigger": "Change term"
   },
   "termStatus": {
+    "acceptOverCapacity": "I confirm this application over capacity.",
     "action": {
       "cancel": "Cancel in term",
       "confirm": "Confirm",

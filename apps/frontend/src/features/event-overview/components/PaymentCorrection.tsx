@@ -30,6 +30,10 @@ import {
   type Payment,
   type PaymentApplication,
 } from "@/features/event-overview/api/payments"
+import {
+  hasUncertainOutcome,
+  RefreshAfterWrite,
+} from "@/features/event-overview/components/RefreshAfterWrite"
 
 const WHOLE_APPLICATION = "all"
 
@@ -100,6 +104,7 @@ export function PaymentCorrection({
   const previewOwed =
     isSameTerm && originalPreview ? originalPreview.owedCzk : (preview.data?.amountOwedCzk ?? 0)
   const balanceChange = originalPreview?.changeCzk ?? 0
+  const isUncertain = hasUncertainOutcome(mutation.error)
   const formError = mutation.error ?? preview.error
 
   return (
@@ -109,7 +114,7 @@ export function PaymentCorrection({
         if (!isOpen && !mutation.isPending) onClose()
       }}
     >
-      <DialogContent className="top-0 left-0 flex h-dvh max-h-dvh w-screen max-w-none translate-x-0 translate-y-0 flex-col overflow-y-auto rounded-none border-0 bg-card p-4 sm:top-1/2 sm:left-1/2 sm:h-auto sm:max-h-[calc(100dvh-2rem)] sm:max-w-160 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-lg sm:border sm:p-6">
+      <DialogContent className="flex max-h-[calc(100dvh-2rem)] flex-col overflow-y-auto bg-card p-4 sm:max-w-160 sm:p-6">
         <DialogHeader className="pr-10 text-left">
           <DialogTitle className="max-w-64 text-2xl leading-8 sm:max-w-none sm:text-xl sm:leading-7">
             {t("payment.correctTitle")}
@@ -124,6 +129,7 @@ export function PaymentCorrection({
           noValidate
           onSubmit={(event) => {
             event.preventDefault()
+            if (isUncertain || mutation.isPending) return
             if (!isValid) {
               setIsInvalid(true)
               return
@@ -276,7 +282,7 @@ export function PaymentCorrection({
               role="alert"
               className="text-sm text-destructive"
             >
-              {formError.message}
+              {isUncertain ? t("payment.uncertainCorrection") : formError.message}
             </p>
           ) : null}
           <DialogFooter>
@@ -290,14 +296,21 @@ export function PaymentCorrection({
             >
               {t("payment.cancelCorrection")}
             </Button>
-            <Button
-              type="submit"
-              size="lg"
-              disabled={mutation.isPending || !preview.data || preview.isFetching}
-              className="h-12 w-full sm:flex-1"
-            >
-              {t(mutation.isPending ? "payment.saving" : "payment.saveCorrection")}
-            </Button>
+            {isUncertain ? (
+              <RefreshAfterWrite
+                label={t("payment.refreshHistory")}
+                onRefreshed={onClose}
+              />
+            ) : (
+              <Button
+                type="submit"
+                size="lg"
+                disabled={mutation.isPending || !preview.data || preview.isFetching}
+                className="h-12 w-full sm:flex-1"
+              >
+                {t(mutation.isPending ? "payment.saving" : "payment.saveCorrection")}
+              </Button>
+            )}
           </DialogFooter>
         </form>
       </DialogContent>

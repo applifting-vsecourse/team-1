@@ -148,7 +148,7 @@ export function SetPasswordForm({ email }: SetPasswordFormProps) {
           >
             <CircleAlert />
             <AlertTitle>{t("setPassword.errors.failedTitle")}</AlertTitle>
-            <AlertDescription className="text-destructive/90">
+            <AlertDescription className="min-w-0 [overflow-wrap:anywhere] text-destructive/90">
               {setPassword.error.message}
             </AlertDescription>
           </Alert>

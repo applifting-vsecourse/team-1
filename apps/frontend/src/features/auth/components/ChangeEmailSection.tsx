@@ -59,6 +59,7 @@ export function ChangeEmailSection({ user }: ChangeEmailSectionProps) {
   })
   // Only the browser knows a change is waiting: the link is a signed token, nothing is stored.
   const [pendingEmail, setPendingEmail] = useState<string | null>(null)
+  const [isResent, setResent] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
   // Errors shown under the field; the rest (delivery, unknown) is an alert above the buttons.
   const errorCode = request.isError ? apiErrorCode(request.error) : undefined
@@ -67,6 +68,7 @@ export function ChangeEmailSection({ user }: ChangeEmailSectionProps) {
   const onSubmit = async ({ newEmail }: FormValues) => {
     try {
       await request.mutateAsync(newEmail)
+      setResent(newEmail === pendingEmail)
       setPendingEmail(newEmail)
     } catch (error) {
       const code = apiErrorCode(error)
@@ -82,6 +84,7 @@ export function ChangeEmailSection({ user }: ChangeEmailSectionProps) {
     setIsOpen(isNowOpen)
     if (isNowOpen) return
     setPendingEmail(null)
+    setResent(false)
     form.reset()
     request.reset()
   }
@@ -123,7 +126,9 @@ export function ChangeEmailSection({ user }: ChangeEmailSectionProps) {
                 className="rounded-lg border-border bg-accent/30 p-4"
               >
                 <TriangleAlert />
-                <AlertTitle>{t("changeEmail.pending.title")}</AlertTitle>
+                <AlertTitle>
+                  {t(isResent ? "changeEmail.pending.resent" : "changeEmail.pending.title")}
+                </AlertTitle>
                 <AlertDescription>
                   {t("changeEmail.pending.description", { email: pendingEmail })}
                 </AlertDescription>
@@ -134,9 +139,28 @@ export function ChangeEmailSection({ user }: ChangeEmailSectionProps) {
                 type="button"
                 size="lg"
                 className="h-12 w-full rounded-lg"
-                onClick={() => setOpen(false)}
+                disabled={request.isPending}
+                aria-busy={request.isPending}
+                onClick={() => void onSubmit({ newEmail: pendingEmail })}
               >
-                {t("changeEmail.pending.close")}
+                {t("changeEmail.pending.resend")}
+              </Button>
+              {request.isError && (
+                <Alert variant="destructive">
+                  <AlertDescription>{request.error.message}</AlertDescription>
+                </Alert>
+              )}
+              <Button
+                type="button"
+                variant="outline"
+                disabled={request.isPending}
+                onClick={() => {
+                  setPendingEmail(null)
+                  setResent(false)
+                  request.reset()
+                }}
+              >
+                {t("changeEmail.pending.edit")}
               </Button>
             </>
           ) : (

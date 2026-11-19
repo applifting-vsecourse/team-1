@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { Link } from "@tanstack/react-router"
+import { Link, useBlocker } from "@tanstack/react-router"
 import { TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
@@ -13,6 +13,14 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -127,6 +135,11 @@ function EditForm({
     values.birthDate !== initial.birthDate ||
     normalizePhone(values.phone) !== normalizePhone(initial.phone) ||
     isAccommodationChanged
+  const blocker = useBlocker({
+    shouldBlockFn: ({ current, next }) => current.pathname !== next.pathname,
+    disabled: !isChanged || mutation.isSuccess,
+    withResolver: true,
+  })
   const changed = {
     firstName: values.firstName.trim() !== initial.firstName,
     lastName: values.lastName.trim() !== initial.lastName,
@@ -236,6 +249,38 @@ function EditForm({
       }}
     >
       {/* Figma v2: edit application · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=20491-16159 (mobile 20491-16398). */}
+      {/* Figma v2: Discard edits · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK?node-id=22540-121751 (mobile 22540-121810). */}
+      {blocker.status === "blocked" && (
+        <Dialog
+          open
+          onOpenChange={(isOpen) => {
+            if (!isOpen) blocker.reset()
+          }}
+        >
+          <DialogContent className="sm:max-w-160">
+            <DialogHeader>
+              <DialogTitle>{t("edit.discardTitle")}</DialogTitle>
+              <DialogDescription>{t("edit.discardDescription")}</DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={blocker.reset}
+              >
+                {t("edit.keepEditing")}
+              </Button>
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={blocker.proceed}
+              >
+                {t("edit.discard")}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
       <BackLink {...detail}>{t("edit.backToApplication")}</BackLink>
       <HeadingBand motif="forms">
         <h1 className="text-2xl font-bold">

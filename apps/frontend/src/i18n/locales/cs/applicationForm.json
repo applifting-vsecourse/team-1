@@ -54,7 +54,7 @@
     "consent": "Souhlasím se zpracováním osobních údajů pro účely přihlášky. *",
     "contactHeading": "Kontakt pro celou přihlášku",
     "email": "Kontaktní e-mail *",
-    "emailHint": "Na tento e-mail přijde potvrzení celé přihlášky.",
+    "emailHint": "Na tento e-mail pošleme potvrzení a přístup k přihláškám.",
     "errors": {
       "accommodationRequestTooLong": "Poznámka může mít nejvýše 2 000 znaků.",
       "birthDateInvalid": "Zadejte platné datum narození.",
@@ -76,7 +76,7 @@
     "heading": "Přihláška na {{event}}",
     "individualAccommodation": "Chci ubytování řešit individuálně",
     "individualAccommodationHint": "Tuto informaci uvidí jen organizátor akce.",
-    "intro": "Přihlášku vyplníte bez účtu. Každému účastníkovi vyberte jeden nebo více termínů.",
+    "intro": "Přihlášku vyplníte bez registrace. Pro každého účastníka můžete vybrat jeden nebo více termínů.",
     "lastName": "Příjmení *",
     "participantTitle": "Účastník {{number}}",
     "participantTitleNamed": "Účastník {{number}} · {{name}}",
@@ -96,7 +96,7 @@
   "price": {
     "heading": "Cena vybraných termínů",
     "noTerms": "Bez termínu",
-    "note": "Uvedena je celá cena za termíny. K úhradě budou až potvrzené termíny.",
+    "note": "K úhradě budou jen termíny, ve kterých bude účast potvrzená.",
     "participants_few": "{{count}} účastníci",
     "participants_one": "{{count}} účastník",
     "participants_other": "{{count}} účastníků",

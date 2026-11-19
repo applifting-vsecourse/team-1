@@ -173,7 +173,7 @@ describe("NotificationCenter", () => {
     renderCenter()
     const panel = within(await open())
 
-    expect(panel.getByRole("status")).toHaveTextContent("Loading…")
+    expect(panel.getByRole("status")).toHaveTextContent("Loading notifications…")
   })
 
   it("shows the error state and retries", async () => {

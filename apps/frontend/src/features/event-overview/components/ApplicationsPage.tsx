@@ -601,6 +601,7 @@ export function ApplicationsPage({
       )}
       {bulkTerm && dialog === "CONFIRM" && (
         <BulkConfirmDialog
+          currentPageIds={new Set(visibleRows.map((row) => row.id))}
           eventId={eventId}
           termId={bulkTerm.id}
           applications={selected}

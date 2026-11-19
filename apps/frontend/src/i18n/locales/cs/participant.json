@@ -107,6 +107,9 @@
     "cancel": "Zrušit",
     "contactHeading": "Kontakt přihlášky",
     "contactHint": "Tato změna upraví kontakt přihlášky. Přihlašovací e-mail se mění v nastavení účtu.",
+    "discard": "Zahodit změny",
+    "discardDescription": "Změny v přihlášce ještě nejsou uložené. Pokud odejdete, o rozepsané úpravy přijdete.",
+    "discardTitle": "Zahodit změny?",
     "firstName": "Jméno *",
     "historyAccommodation": "požadavek na ubytování",
     "historyContact": "kontakt",
@@ -116,6 +119,7 @@
     "historyPersonal": "osobní údaje",
     "individualAccommodation": "Chci ubytování řešit individuálně",
     "individualAccommodationHint": "Tuto informaci uvidí jen organizátor akce.",
+    "keepEditing": "Pokračovat v úpravách",
     "lastName": "Příjmení *",
     "loadError": "Přihlášku se nepodařilo načíst",
     "open": "Upravit přihlášku",
@@ -168,10 +172,12 @@
     "showSummaryQrMany": "Jedna platba za všechny potvrzené termíny · zobrazit QR",
     "showSummaryQrTwo": "Jedna platba za oba termíny · zobrazit QR",
     "simulation": {
+      "heading": "Zkušební prostředí · simulace platby",
       "logDescription": "Zkušební platby vytvořené tlačítkem „Zaplatil jsem“. Nejde o skutečné bankovní převody.",
       "logLine": "+{{amount}} · {{term}} · zdroj: simulace",
       "logTitle": "Historie simulovaných plateb",
-      "paid": "Zaplatil jsem"
+      "paid": "Zaplatil jsem",
+      "termAmount": "Simulovat doplatek tohoto termínu: {{amount}}"
     },
     "summaryBreakdown": "Rozpis",
     "summaryQrExplanation": "Platí pro všechny potvrzené termíny. Souhrnný VS se liší od VS jednotlivých termínů.",

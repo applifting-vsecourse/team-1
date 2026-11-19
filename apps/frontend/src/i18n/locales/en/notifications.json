@@ -21,7 +21,7 @@
     "emptyTitle": "No notifications yet.",
     "errorDescription": "Please try again.",
     "errorTitle": "The notifications couldn't be loaded.",
-    "loading": "Loading…",
+    "loading": "Loading notifications…",
     "markAllRead": "Mark all as read",
     "retry": "Try again",
     "title": "Notifications"

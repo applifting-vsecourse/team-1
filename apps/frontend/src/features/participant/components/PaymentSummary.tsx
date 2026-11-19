@@ -73,6 +73,9 @@ export function PaymentSummary({ application }: PaymentSummaryProps) {
       id={PAYMENT_SECTION_ID}
       className="flex scroll-mt-6 flex-col gap-6"
     >
+      {application.canSimulatePayment && termsWithDebt > 0 && (
+        <h2 className="text-lg font-semibold">{t("payment.simulation.heading")}</h2>
+      )}
       {confirmed.length > 1 && payableCzk > 0 ? (
         <Card className="gap-2 p-6">
           <h2 className="text-lg font-semibold">{t("payment.totalOwed")}</h2>
@@ -133,6 +136,7 @@ export function PaymentSummary({ application }: PaymentSummaryProps) {
             />
             {application.canSimulatePayment && payment.owedCzk > 0 ? (
               <SimulatePaymentButton
+                amountCzk={payment.owedCzk}
                 applicationId={application.id}
                 termId={payment.termId}
               />

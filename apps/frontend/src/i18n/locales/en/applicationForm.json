@@ -54,7 +54,7 @@
     "consent": "I agree to the processing of personal data for the purpose of the application. *",
     "contactHeading": "Contact for the whole application",
     "email": "Contact e-mail *",
-    "emailHint": "The confirmation of the whole application will be sent to this e-mail.",
+    "emailHint": "We will send confirmation and access to the applications to this e-mail.",
     "errors": {
       "accommodationRequestTooLong": "The note can have at most 2,000 characters.",
       "birthDateInvalid": "Enter a valid date of birth.",
@@ -76,7 +76,7 @@
     "heading": "Application for {{event}}",
     "individualAccommodation": "I want to arrange the accommodation individually",
     "individualAccommodationHint": "Only the event organizer will see this.",
-    "intro": "You can apply without an account. Choose one or more terms for each participant.",
+    "intro": "You can apply without registering. Select one or more terms for each participant.",
     "lastName": "Last name *",
     "participantTitle": "Participant {{number}}",
     "participantTitleNamed": "Participant {{number}} · {{name}}",
@@ -96,7 +96,7 @@
   "price": {
     "heading": "Price of selected terms",
     "noTerms": "No term",
-    "note": "This is the full price of the terms. Only confirmed terms will be payable.",
+    "note": "Only terms with confirmed participation will be payable.",
     "participants_few": "{{count}} participants",
     "participants_one": "{{count}} participant",
     "participants_other": "{{count}} participants",

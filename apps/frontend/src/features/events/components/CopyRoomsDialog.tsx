@@ -8,7 +8,6 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogFooter,
   DialogHeader,
@@ -55,12 +54,13 @@ export function CopyRoomsDialog({
 }: {
   target: TermRooms
   /** The other terms of the event with their room mode. */
-  sourceTerms: (CopyTerm & { roomMode: RoomMode })[]
+  sourceTerms: (CopyTerm & { roomMode: RoomMode; roomCount: number })[]
   onClose: () => void
   onCopied: () => Promise<void>
 }) {
   const { t } = useTranslation("events")
   const cancelRef = useRef<HTMLButtonElement>(null)
+  const [isPreview, setPreview] = useState(false)
   const [sourceId, setSourceId] = useState<string>("")
   const [strategy, setStrategy] = useState<RoomCopyStrategy>("ADD")
   const source = useQuery({
@@ -117,6 +117,9 @@ export function CopyRoomsDialog({
   })
   const modeLabel = (mode: RoomMode) =>
     t(mode === "SHARED" ? "rooms.copy.modeShared" : "rooms.copy.modeGendered")
+  const hasSource = sourceTerms.some(
+    (item) => item.roomMode === target.roomMode && item.roomCount > 0,
+  )
   const isReady = sourceId !== "" && sourceRooms.length > 0
   const sourceTerm = sourceTerms.find((item) => item.id === sourceId)
   return (
@@ -127,7 +130,7 @@ export function CopyRoomsDialog({
       }}
     >
       <DialogContent
-        className="max-h-[90dvh] overflow-y-auto bg-card shadow-md sm:max-w-170"
+        className="max-h-[90dvh] overflow-y-auto bg-card shadow-md sm:max-w-160"
         aria-describedby={undefined}
         onOpenAutoFocus={(e) => {
           e.preventDefault()
@@ -142,20 +145,30 @@ export function CopyRoomsDialog({
             <Label htmlFor="copy-source-term">{t("rooms.copy.sourceLabel")}</Label>
             <Select
               value={sourceId}
-              onValueChange={setSourceId}
+              disabled={mutation.isPending || !hasSource}
+              onValueChange={(id) => {
+                setSourceId(id)
+                setPreview(false)
+                setStrategy("ADD")
+                mutation.reset()
+              }}
             >
               <SelectTrigger
                 id="copy-source-term"
                 className="w-full min-w-0 bg-card"
               >
-                <SelectValue placeholder={t("rooms.copy.sourcePlaceholder")} />
+                <SelectValue
+                  placeholder={t(
+                    hasSource ? "rooms.copy.sourcePlaceholder" : "rooms.copy.noSource",
+                  )}
+                />
               </SelectTrigger>
               <SelectContent>
                 {sourceTerms.map((item) => (
                   <SelectItem
                     key={item.id}
                     value={item.id}
-                    disabled={item.roomMode !== target.roomMode}
+                    disabled={item.roomMode !== target.roomMode || item.roomCount === 0}
                   >
                     {termDatesLine(item)} · {modeLabel(item.roomMode)}
                     {item.roomMode !== target.roomMode ? ` (${t("rooms.copy.modeDiffers")})` : ""}
@@ -164,6 +177,12 @@ export function CopyRoomsDialog({
               </SelectContent>
             </Select>
           </div>
+          {!hasSource && (
+            <Alert>
+              <AlertTitle>{t("rooms.copy.noSourceTitle")}</AlertTitle>
+              <AlertDescription>{t("rooms.copy.noSourceHelp")}</AlertDescription>
+            </Alert>
+          )}
           {source.isError ? (
             <ErrorState
               title={t("rooms.loadFailed")}
@@ -171,7 +190,7 @@ export function CopyRoomsDialog({
             />
           ) : null}
           {source.data && sourceRooms.length === 0 ? <p>{t("rooms.copy.emptySource")}</p> : null}
-          {isReady && sourceTerm ? (
+          {isPreview && isReady && sourceTerm ? (
             <div className="flex min-w-0 flex-col gap-4">
               {hasTargetRooms ? (
                 <>
@@ -298,29 +317,39 @@ export function CopyRoomsDialog({
           />
         ) : null}
         <DialogFooter className="gap-4">
-          <DialogClose asChild>
-            <Button
-              ref={cancelRef}
-              variant="outline"
-              size="lg"
-              className="sm:w-38"
-              disabled={mutation.isPending}
-            >
-              {t("rooms.copy.cancel")}
-            </Button>
-          </DialogClose>
+          <Button
+            ref={cancelRef}
+            onClick={() => {
+              if (isPreview) {
+                setPreview(false)
+                mutation.reset()
+              } else onClose()
+            }}
+            variant="outline"
+            size="lg"
+            className="sm:w-38"
+            disabled={mutation.isPending}
+          >
+            {t(isPreview ? "rooms.copy.back" : "rooms.copy.cancel")}
+          </Button>
+
           <Button
             size="lg"
             className="sm:w-auto"
             disabled={!isReady || mutation.isPending}
-            onClick={() => mutation.mutate()}
+            onClick={() => {
+              if (isPreview) mutation.mutate()
+              else setPreview(true)
+            }}
           >
             {mutation.isPending ? <Loader2 className="animate-spin" /> : null}
-            {!hasTargetRooms
-              ? t("rooms.copy.emptyConfirm")
-              : isReplacing
-                ? t("rooms.copy.replaceConfirm")
-                : t("rooms.copy.addConfirm", { count: sourceRooms.length })}
+            {!isPreview
+              ? t("rooms.copy.preview")
+              : !hasTargetRooms
+                ? t("rooms.copy.emptyConfirm")
+                : isReplacing
+                  ? t("rooms.copy.replaceConfirm")
+                  : t("rooms.copy.addConfirm", { count: sourceRooms.length })}
           </Button>
         </DialogFooter>
       </DialogContent>

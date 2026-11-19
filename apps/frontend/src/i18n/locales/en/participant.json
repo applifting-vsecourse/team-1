@@ -107,6 +107,9 @@
     "cancel": "Cancel",
     "contactHeading": "Application contact",
     "contactHint": "These changes update the application contact. You can change your sign-in email in account settings.",
+    "discard": "Discard changes",
+    "discardDescription": "Your changes to the application have not been saved. If you leave, you will lose your edits.",
+    "discardTitle": "Discard changes?",
     "firstName": "First name *",
     "historyAccommodation": "accommodation request",
     "historyContact": "contact",
@@ -116,6 +119,7 @@
     "historyPersonal": "personal details",
     "individualAccommodation": "I want to arrange the accommodation individually",
     "individualAccommodationHint": "Only the event organizer will see this.",
+    "keepEditing": "Keep editing",
     "lastName": "Last name *",
     "loadError": "Couldn't load the application",
     "open": "Edit application",
@@ -168,10 +172,12 @@
     "showSummaryQrMany": "One payment for all confirmed terms · show QR",
     "showSummaryQrTwo": "One payment for both terms · show QR",
     "simulation": {
+      "heading": "Test environment · payment simulation",
       "logDescription": "Test payments created with the “I paid” button. These are not actual bank transfers.",
       "logLine": "+{{amount}} · {{term}} · source: simulation",
       "logTitle": "Simulated payment history",
-      "paid": "I paid"
+      "paid": "I paid",
+      "termAmount": "Simulate payment of this term’s balance: {{amount}}"
     },
     "summaryBreakdown": "Breakdown",
     "summaryQrExplanation": "Covers all confirmed terms. The summary variable symbol differs from the per-term ones.",

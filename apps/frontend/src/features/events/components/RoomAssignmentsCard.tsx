@@ -11,7 +11,7 @@ import {
   type DragStartEvent,
 } from "@dnd-kit/core"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { ChevronLeft, ChevronRight, Search } from "lucide-react"
+import { ChevronLeft, ChevronRight, Search, X } from "lucide-react"
 import { createPortal } from "react-dom"
 import { useTranslation } from "react-i18next"
 
@@ -399,7 +399,7 @@ export function RoomAssignmentsCard({
           <div className="flex min-w-0 flex-1 flex-col gap-3">
             {hasRooms ? (
               <>
-                <div className="relative hidden md:block md:w-85">
+                <div className="relative w-full md:w-85">
                   <Search
                     className="pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-muted-foreground"
                     aria-hidden
@@ -408,10 +408,22 @@ export function RoomAssignmentsCard({
                     type="search"
                     aria-label={t("roomAssignments.searchLabel")}
                     placeholder={t("roomAssignments.searchPlaceholder")}
-                    className="pl-11"
+                    className="h-12.5 px-11 [&::-webkit-search-cancel-button]:hidden"
                     value={search}
                     onChange={(event) => setSearch(event.target.value)}
                   />
+                  {search && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute top-1/2 right-0 size-11 -translate-y-1/2"
+                      aria-label={t("roomAssignments.clearSearch")}
+                      onClick={() => setSearch("")}
+                    >
+                      <X aria-hidden />
+                    </Button>
+                  )}
                 </div>
                 {visibleRooms.length === 0 ? (
                   <p className="text-sm text-muted-foreground">{t("roomAssignments.noMatch")}</p>
@@ -439,7 +451,7 @@ export function RoomAssignmentsCard({
                   </Table>
                 </div>
                 <ul className="flex flex-col gap-3 md:hidden">
-                  {data.rooms.map((room) => (
+                  {visibleRooms.map((room) => (
                     <RoomCard
                       key={room.id}
                       {...roomProps(room)}

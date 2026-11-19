@@ -142,7 +142,7 @@ export function AssignRoomDialog({
         if (!isOpen && !isPending) onClose()
       }}
     >
-      <DialogContent className="max-h-[90dvh] overflow-y-auto bg-card shadow-md sm:max-w-170">
+      <DialogContent className="max-h-[90dvh] overflow-y-auto bg-card shadow-md sm:max-w-160">
         <DialogTitle>
           {t(isMove ? "roomAssignments.moveTitle" : "roomAssignments.assignTitle")}
         </DialogTitle>

@@ -11,12 +11,14 @@ export function CopyButton({
   value,
   label,
   successMessage,
+  errorMessage,
   showLabel: shouldShowLabel = false,
 }: {
   value: string
   label: string
   showLabel?: boolean
   successMessage?: string
+  errorMessage?: string
 }) {
   const [isFallbackOpen, setIsFallbackOpen] = useState(false)
   const trigger = useRef<HTMLButtonElement>(null)
@@ -30,6 +32,7 @@ export function CopyButton({
       notify.success(successMessage ?? t("clipboard.copied"))
     } catch {
       setCopyCount(0)
+      if (errorMessage) notify.error(errorMessage)
       setIsFallbackOpen(true)
     }
   }

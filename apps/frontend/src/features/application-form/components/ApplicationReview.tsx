@@ -107,7 +107,7 @@ export function ApplicationReview({ values, terms, isSubmitting, onEdit }: Props
         ))}
       </div>
       <Card className="items-start gap-2 rounded-lg p-4">
-        <h2 className="text-lg font-bold">{t("review.consent")}</h2>
+        <h2 className="text-2xl font-bold">{t("review.consent")}</h2>
         <Badge className="bg-primary text-primary-foreground">{t("review.agreed")}</Badge>
       </Card>
     </div>

@@ -247,7 +247,11 @@ export function CopyProgramDialog({
             onClick={() => mutation.mutate()}
           >
             {mutation.isPending ? <Loader2 className="animate-spin" /> : null}
-            {isReplacing ? t("copy.replaceConfirm") : t("copy.confirm", { count })}
+            {mutation.isError
+              ? t("copy.retry")
+              : isReplacing
+                ? t("copy.replaceConfirm")
+                : t("copy.confirm", { count })}
           </Button>
         </DialogFooter>
       </DialogContent>

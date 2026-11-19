@@ -80,6 +80,7 @@ function ShareLink({ link }: { link: string }) {
           value={link}
           label={t("overview.copyLink")}
           successMessage={t("overview.copied")}
+          errorMessage={t("overview.copyFailed")}
         />
       </div>
     </Card>

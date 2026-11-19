@@ -133,14 +133,29 @@ export function CancellationStartForm({ event }: { event: OrganizerEvent }) {
           />
         ) : null}
         {isDirty ? (
-          <Button
-            type="submit"
-            size="lg"
-            disabled={mutation.isPending}
-          >
-            {mutation.isPending ? <Loader2 className="animate-spin" /> : null}
-            {t("cancellationStart.save")}
-          </Button>
+          <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
+            <Button
+              type="button"
+              variant="outline"
+              size="lg"
+              disabled={mutation.isPending}
+              onClick={() => {
+                setDraft(null)
+                setHasAttempted(false)
+                mutation.reset()
+              }}
+            >
+              {t("cancellationStart.revert")}
+            </Button>
+            <Button
+              type="submit"
+              size="lg"
+              disabled={mutation.isPending}
+            >
+              {mutation.isPending ? <Loader2 className="animate-spin" /> : null}
+              {t(mutation.isError ? "cancellationStart.retry" : "cancellationStart.save")}
+            </Button>
+          </div>
         ) : null}
       </form>
     </SettingsCard>

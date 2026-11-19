@@ -139,7 +139,7 @@ export function ConfirmProposalDialog({
         if (!isOpen && !isPending) onClose()
       }}
     >
-      <DialogContent className="bg-card shadow-md sm:max-w-130">
+      <DialogContent className="bg-card shadow-md sm:max-w-160">
         <DialogTitle>{title}</DialogTitle>
         <DialogDescription className="text-base">{description}</DialogDescription>
         {error ? (

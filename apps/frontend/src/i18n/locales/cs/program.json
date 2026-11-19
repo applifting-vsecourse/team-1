@@ -41,6 +41,7 @@
     "resultTitle_few": "Zkopírovány {{count}} bloky",
     "resultTitle_one": "Zkopírován {{count}} blok",
     "resultTitle_other": "Zkopírováno {{count}} bloků",
+    "retry": "Zkusit znovu",
     "skippedBody": "Cílový termín nemá den zdroje č. {{days}}.",
     "skippedHeading_few": "Přeskočí se {{count}} bloky",
     "skippedHeading_one": "Přeskočí se {{count}} blok",
