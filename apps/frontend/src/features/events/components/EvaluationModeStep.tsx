@@ -23,7 +23,7 @@ const MODES = [
 
 /**
  * The step „Zvolte režim vyhodnocování“ of the checklist: both modes with one sentence each,
- * nothing preselected, the step is done by „Potvrdit režim“ (US-560). The button is primary only
+ * nothing preselected, the step is done by „Potvrdit režim vyhodnocování“ (US-560). The button is primary only
  * while this is the first step still to do — one primary action per view.
  */
 // Figma (Design system): A1 Přehled akce · Volba režimu v kroku · Desktop · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=26157-1995
@@ -104,7 +104,7 @@ export function EvaluationModeStep({
           type="submit"
           size="lg"
           variant={isFirstMissing ? "default" : "outline"}
-          className="w-full sm:w-55"
+          className="w-full sm:w-auto sm:min-w-55"
           disabled={mode === null || mutation.isPending}
         >
           {mutation.isPending ? <Loader2 className="animate-spin" /> : null}

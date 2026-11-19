@@ -51,6 +51,6 @@ export async function chooseEvaluationMode(page: Page, mode: "Automatic" | "Manu
     .getByRole("link", { name: "Overview" })
     .click()
   await page.getByRole("radio", { name: mode }).click()
-  await page.getByRole("button", { name: "Confirm mode" }).click()
+  await page.getByRole("button", { name: "Confirm evaluation mode" }).click()
   await expect(page.getByText("Evaluation mode saved.")).toBeVisible()
 }

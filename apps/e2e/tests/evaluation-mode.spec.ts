@@ -18,7 +18,7 @@ test.describe("Evaluation mode", () => {
     // Nothing is preselected and the step is not done until the organizer confirms a mode.
     await expect(page.getByRole("radio", { name: "Automatic" })).not.toBeChecked()
     await expect(page.getByRole("radio", { name: "Manual" })).not.toBeChecked()
-    await expect(page.getByRole("button", { name: "Confirm mode" })).toBeDisabled()
+    await expect(page.getByRole("button", { name: "Confirm evaluation mode" })).toBeDisabled()
 
     await chooseEvaluationMode(page, "Manual")
     await expect(page.getByText("Evaluation mode: Manual")).toBeVisible()

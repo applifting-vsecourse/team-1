@@ -154,16 +154,16 @@ describe("EventSetup", () => {
     expect(screen.getByRole("radio", { name: "Manual" })).toHaveAccessibleDescription(
       /confirm it, add it to the substitutes or reject it/,
     )
-    expect(screen.getByRole("button", { name: "Confirm mode" })).toBeDisabled()
+    expect(screen.getByRole("button", { name: "Confirm evaluation mode" })).toBeDisabled()
     // The row above the checklist is gone; the step replaces it.
     expect(screen.queryByText("Evaluation mode")).not.toBeInTheDocument()
   })
 
   it("makes the confirm button primary only while it is the first step to do", async () => {
     renderSetup(base)
-    expect((await screen.findByRole("button", { name: "Confirm mode" })).className).not.toContain(
-      "bg-primary",
-    )
+    expect(
+      (await screen.findByRole("button", { name: "Confirm evaluation mode" })).className,
+    ).not.toContain("bg-primary")
   })
 
   it("saves the chosen mode and confirms with a toast", async () => {
@@ -175,7 +175,7 @@ describe("EventSetup", () => {
     const user = userEvent.setup()
 
     await user.click(await screen.findByRole("radio", { name: "Manual" }))
-    await user.click(screen.getByRole("button", { name: "Confirm mode" }))
+    await user.click(screen.getByRole("button", { name: "Confirm evaluation mode" }))
 
     await vi.waitFor(() => expect(patches).toEqual([{ evaluationMode: "MANUAL" }]))
     await vi.waitFor(() => expect(success).toHaveBeenCalledWith("Evaluation mode saved."))
