@@ -28,7 +28,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: 64fd2ddff0b31edfd20a15771a36bc25d0bff970
+          ref: 14d995e2605f213ace47b769b8bed81a7352b7ac
           persist-credentials: false
 
       - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
@@ -127,11 +127,20 @@ jobs:
                   const sample = await db.query(`SELECT at."applicationId", at."termId" FROM "application_term" at JOIN "term" t ON t.id=at."termId" WHERE t."eventId"=$1 AND at.status='CONFIRMED' ORDER BY t."startsOn",t.id, at."applicationId" LIMIT 1`, [id])
                   expect(sample.rowCount).toBe(1)
                   const item=sample.rows[0]
+                  for (const [position,name] of ["Vegetarian","Gluten-free"].entries()) {
+                    const key="demo-kitchen-577-"+position
+                    await db.query(`INSERT INTO "meal_option" (id,"eventId","organizationId",name,position) SELECT $1,id,"organizationId",$2,$3 FROM "event" WHERE id=$4 ON CONFLICT (id) DO NOTHING`,[key,name,position,id])
+                  }
+                  await db.query('INSERT INTO "_ApplicationToMealOption" ("A","B") VALUES ($1,$2) ON CONFLICT DO NOTHING',[item.applicationId,"demo-kitchen-577-0"])
                   await db.query(`UPDATE "application" SET allergies=$1,"specialRequest"=$2 WHERE id=$3`,["Sesame allergy","Dinner on arrival",item.applicationId])
                   await db.query(`UPDATE "application_term" at SET "lateArrivalAt"=t."startsOn"+interval '1 day 10 hours', "earlyDepartureAt"=t."endsOn"+interval '12 hours' FROM "term" t WHERE at."termId"=t.id AND at."termId"=$1 AND at."applicationId"=$2`,[item.termId,item.applicationId])
                 } finally { await db.end() }
                 for (const [screen, route] of [["new-event","/organizer/events/new"], ["organizer-account","/organizer/account"], ["overview","/organizer/events/" + id], ["organizer-meals","/organizer/events/"+id+"/meals"], ["meal-options","/organizer/events/"+id+"/meals/options"], ["payment-import","/organizer/events/"+id+"/payments/import"], ["cancellation","/organizer/events/"+id+"/payments/cancellation"], ["new-application","/organizer/events/"+id+"/applications/new"]]) {
                   await page.goto(route)
+                  if (screen === "meal-options") {
+                    await expect(page.getByRole("heading",{name:"Selection preview"})).toBeVisible()
+                    await expect(page.getByRole("checkbox",{name:"Vegetarian"})).toBeDisabled()
+                  }
                   if (screen === "organizer-meals") {
                     await expect(page.getByRole("link",{name:"Back to event overview"})).toBeVisible()
                     await expect(page.getByRole("table",{name:"Portions by diet"})).toBeVisible()
@@ -296,7 +305,7 @@ jobs:
                   assert header[:8] == bytes.fromhex("89504e470d0a1a0a")
                   w, h = struct.unpack(">II", header[16:24])
                   assert w == width and h > 0, (name, w, h)
-                  dest = Path("577") / f"{screen}-{width}-64fd2dd.png"
+                  dest = Path("577") / f"{screen}-{width}-14d995e.png"
                   if dest.exists():
                       assert dest.read_bytes() == p.read_bytes(), dest
                       continue
