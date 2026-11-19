@@ -646,16 +646,14 @@ describe("room assignment", () => {
 
     it("says the rules are followed when there is no warning", async () => {
       renderCard()
-      expect(await screen.findByText("The assignment follows the room rules")).toBeInTheDocument()
-      expect(screen.getByText("All 2 confirmed participants have a bed.")).toBeInTheDocument()
+      expect(await screen.findByText("Room rules are followed")).toBeInTheDocument()
     })
 
-    it("counts the broken rules and the confirmed without a bed, and marks the room", async () => {
+    it("counts the broken rules and marks the room", async () => {
       overcrowded()
       renderCard()
-      expect(await screen.findByText("Room rules summary")).toBeInTheDocument()
-      expect(screen.getByText("rule broken")).toBeInTheDocument()
-      expect(screen.getByText("confirmed without a bed")).toBeInTheDocument()
+      expect(await screen.findByText("rule broken")).toBeInTheDocument()
+      expect(screen.queryByText("confirmed without a bed")).not.toBeInTheDocument()
       const table = screen.getByRole("table")
       expect(
         within(table).getByText("Overcrowded room: 2 participants for 1 bed."),
@@ -704,7 +702,7 @@ describe("room assignment", () => {
       expect(
         within(table).queryByRole("button", { name: "Confirm with a note" }),
       ).not.toBeInTheDocument()
-      expect(screen.getByText("The assignment follows the room rules")).toBeInTheDocument()
+      expect(screen.getByText("Room rules are followed")).toBeInTheDocument()
     })
 
     it("does not check mixed genders in shared rooms and says so", async () => {
@@ -856,7 +854,7 @@ describe("room assignment", () => {
     renderCard()
     await screen.findByText("Barbora Šimková")
     expect(screen.getAllByText(/^Room A/).length).toBe(2)
-    expect(screen.getByText("The assignment follows the room rules")).toBeInTheDocument()
+    expect(screen.getByText("Room rules are followed")).toBeInTheDocument()
     expect(screen.getAllByRole("button", { name: "Actions r1" }).length).toBe(2)
     expect(
       screen.queryByRole("status", { name: "Unassigned participants" }),
