@@ -5,6 +5,7 @@ import { ActiveCorners } from "@/components/atoms/ActiveCorners"
 import { PageHeader } from "@/components/molecules/PageHeader"
 import { Card } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useConnectionFeedback } from "@/hooks/useConnectionFeedback"
 
 import { ChangeEmailSection } from "@/features/auth/components/ChangeEmailSection"
 import { ChangePasswordForm } from "@/features/auth/components/ChangePasswordForm"
@@ -24,6 +25,7 @@ type Section = (typeof SECTIONS)[number]
 // Figma (Design system): US-124 / Nastavení účtu · Profil a jazyk · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16199-2145
 // Figma (Design system): US-124 / Nastavení účtu · Změnit heslo · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16199-2424
 export function AccountPage({ isEmailChanged = false }: { isEmailChanged?: boolean }) {
+  useConnectionFeedback()
   const { t } = useTranslation("auth")
   const { user } = useSession()
   useEmailChangedNotice(isEmailChanged, user?.email)

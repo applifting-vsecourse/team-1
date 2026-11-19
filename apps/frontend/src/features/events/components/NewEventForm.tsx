@@ -79,7 +79,7 @@ export function NewEventPage() {
     >
       <DialogContent
         showCloseButton={!create.isPending}
-        className="max-h-[90dvh] overflow-y-auto sm:max-w-xl"
+        className="max-h-[90dvh] overflow-y-auto sm:max-w-160"
       >
         <DialogHeader>
           <DialogTitle>{t("new.title")}</DialogTitle>
@@ -111,7 +111,7 @@ function NewEventCard({
   organizations: OrganizationSummary[]
   create: ReturnType<typeof useCreateEvent>
 }) {
-  const { t } = useTranslation("events")
+  const { t } = useTranslation(["events", "common"])
   const navigate = useNavigate()
   const schema = useMemo(() => createSchema(t), [t])
   const form = useForm<FormValues>({
@@ -252,7 +252,7 @@ function NewEventCard({
             aria-busy={create.isPending}
             disabled={create.isPending}
           >
-            {t("new.form.submit")}
+            {create.isPending ? t("state.saving", { ns: "common" }) : t("new.form.submit")}
           </Button>
         </div>
       </form>

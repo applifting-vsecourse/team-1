@@ -93,7 +93,7 @@ export function CancelTermDialog({
       open
       onOpenChange={(isOpen) => (isOpen ? undefined : onClose())}
     >
-      <DialogContent className="gap-4 p-6 sm:max-w-170">
+      <DialogContent className="max-h-dvh max-w-full gap-4 overflow-y-auto p-4 sm:max-h-[calc(100dvh-2rem)] sm:max-w-160 sm:p-6">
         <DialogHeader>
           <p className="text-xs font-medium text-muted-foreground uppercase">{eventName}</p>
           <DialogTitle className="text-2xl font-bold tracking-tight">

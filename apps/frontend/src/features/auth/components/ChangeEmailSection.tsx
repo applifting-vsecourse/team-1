@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { CircleAlert, Loader2, TriangleAlert } from "lucide-react"
+import { CircleAlert, TriangleAlert } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
@@ -49,7 +49,7 @@ type ChangeEmailSectionProps = {
 // Figma (Design system): US-125 / Nastavení účtu · Profil · změna e-mailu · Čeká na ověření · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16244-2736 (desktop), https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16244-2799 (mobil)
 // Figma (Design system): US-125 / Nastavení účtu · Profil · změna e-mailu · Neplatná nová adresa · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16244-2930 (desktop), https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16244-3000 (mobil)
 export function ChangeEmailSection({ user }: ChangeEmailSectionProps) {
-  const { t } = useTranslation("auth")
+  const { t } = useTranslation(["auth", "common"])
   const { t: tErrors } = useTranslation("errors")
   const request = useRequestEmailChange()
   const schema = useMemo(() => createSchema(t("changeEmail.errors.invalid")), [t])
@@ -192,10 +192,12 @@ export function ChangeEmailSection({ user }: ChangeEmailSectionProps) {
                     type="submit"
                     size="lg"
                     className="h-12 w-full rounded-lg md:flex-1"
+                    aria-busy={request.isPending}
                     disabled={request.isPending}
                   >
-                    {request.isPending ? <Loader2 className="animate-spin" /> : null}
-                    {t("changeEmail.submit")}
+                    {request.isPending
+                      ? t("state.saving", { ns: "common" })
+                      : t("changeEmail.submit")}
                   </Button>
                 </div>
               </form>

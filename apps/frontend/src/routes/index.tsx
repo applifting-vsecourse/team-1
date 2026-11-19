@@ -160,6 +160,7 @@ function LandingPage() {
       <Seo />
       <PublicLayout
         isFullWidth
+        headerContentClassName="min-h-[55px] py-1 md:min-h-[71px] md:py-2"
         nav={
           <div className="ml-4 hidden items-center gap-1 md:flex">
             <Button
@@ -268,7 +269,7 @@ function LandingPage() {
         <section
           className={cn(CONTENT, "flex flex-col items-center gap-5 pt-12 pb-8 md:gap-14 md:py-24")}
         >
-          <div className="flex max-w-xl flex-col items-center gap-3 text-center">
+          <div className="flex w-full max-w-xl flex-col gap-3 md:items-center md:text-center">
             <Heading>{t("types.title")}</Heading>
             <p className="hidden text-muted-foreground md:block md:text-lg">
               {t("types.description")}
@@ -298,14 +299,14 @@ function LandingPage() {
           className="scroll-mt-16 border-t border-border bg-muted py-12 md:py-24"
         >
           <div className={cn(CONTENT, "flex flex-col gap-5 md:gap-14")}>
-            <Heading className="text-center">{t("features.title")}</Heading>
+            <Heading className="md:text-center">{t("features.title")}</Heading>
             <div className="grid gap-4 md:grid-cols-3 md:gap-6">
               {FEATURES.map(({ key, illustration, artSize }) => (
                 <Card
                   key={key}
                   className="items-center gap-3 p-5 text-center md:gap-4 md:p-6"
                 >
-                  <div className="flex h-40 w-full items-center justify-center rounded-md bg-background md:h-[200px]">
+                  <div className="flex h-[180px] w-full items-center justify-center rounded-md bg-background md:h-[200px]">
                     <Art
                       illustration={illustration}
                       className={artSize}
@@ -324,7 +325,7 @@ function LandingPage() {
         <section className="bg-primary py-12 text-primary-foreground md:py-24">
           <div className={cn(CONTENT, "grid items-center gap-8 md:grid-cols-2 md:gap-16")}>
             <div className="flex flex-col items-start gap-4 md:gap-5">
-              <div className="flex size-10 items-center justify-center rounded-md bg-card text-link">
+              <div className="hidden size-10 items-center justify-center rounded-md bg-card text-link md:flex">
                 <Clock
                   aria-hidden
                   className="size-5"
@@ -341,10 +342,10 @@ function LandingPage() {
                 <Link to={ROUTES.catalog}>{t("catalogLink")}</Link>
               </Button>
             </div>
-            <div className="flex items-center justify-center rounded-lg bg-card p-6 shadow-sm md:order-last">
+            <div className="order-first flex h-50 items-center justify-center rounded-lg bg-card p-6 shadow-sm md:order-last md:h-[380px]">
               <Art
                 illustration={DashboardIllustration}
-                className="max-w-[260px] md:max-w-[480px]"
+                className="max-h-full max-w-[260px] md:max-w-[480px]"
               />
             </div>
           </div>

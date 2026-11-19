@@ -7,6 +7,7 @@ type PublicLayoutProps = {
   /** Navigation links in the header (landing). */
   nav?: ReactNode
   headerAction?: ReactNode
+  headerContentClassName?: string
   /** Under the content, across the page (landing). */
   footer?: ReactNode
   /** Full-width sections that manage their own width (landing). */
@@ -18,6 +19,7 @@ export function PublicLayout({
   children,
   nav,
   headerAction,
+  headerContentClassName,
   footer,
   isFullWidth = false,
 }: PublicLayoutProps) {
@@ -26,6 +28,7 @@ export function PublicLayout({
       <Header
         nav={nav}
         userMenu={headerAction}
+        contentClassName={headerContentClassName}
         isWide={isFullWidth}
       />
       <main className="min-h-svh">

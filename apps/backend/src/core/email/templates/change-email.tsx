@@ -29,7 +29,7 @@ const copy: Record<
   cs: {
     subject: "Potvrďte změnu e-mailu v Togeně",
     preview: "Změna přihlašovací adresy čeká na vaše potvrzení.",
-    heading: "Potvrzení změny e-mailu",
+    heading: "Potvrzení změny e‑mailu",
     body: (currentEmail, newEmail) =>
       `Po potvrzení se přihlašovací e-mail vašeho uživatelského účtu v Togeně změní z ${currentEmail} na ${newEmail}. Do té doby platí dosavadní adresa.`,
     validity:

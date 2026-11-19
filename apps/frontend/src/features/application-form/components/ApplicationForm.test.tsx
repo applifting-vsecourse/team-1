@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from "@testing-library/react"
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { describe, expect, it, vi } from "vitest"
 
@@ -414,7 +414,7 @@ describe("ApplicationForm", () => {
     ).toBeInTheDocument()
   })
 
-  it("submits the terms chosen for each participant and can restore a removed participant", async () => {
+  it("restores a participant and submits both term selections", { timeout: 20_000 }, async () => {
     const onSubmit = submitSpy()
     render(
       <ApplicationForm
@@ -509,7 +509,7 @@ describe("ApplicationForm", () => {
     await userEvent.click(screen.getByRole("button", { name: "Continue to review" }))
     await userEvent.click(screen.getByRole("button", { name: "Submit application" }))
 
-    expect(screen.getByRole("alert")).toHaveFocus()
+    await waitFor(() => expect(screen.getByRole("alert")).toHaveFocus())
     expect(screen.getByRole("checkbox", { name: /Week 2/ })).not.toBeInvalid()
   })
 

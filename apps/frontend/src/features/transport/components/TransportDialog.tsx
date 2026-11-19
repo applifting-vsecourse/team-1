@@ -1,7 +1,6 @@
 import { useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { Loader2 } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
@@ -74,7 +73,7 @@ export function TransportDialog({
   copyable: TransportSummary[]
   onClose: () => void
 }) {
-  const { t } = useTranslation("transport")
+  const { t } = useTranslation(["transport", "common"])
   const client = useQueryClient()
   const required = t("required")
   const [kind, setKind] = useState(initialKind)
@@ -324,10 +323,10 @@ export function TransportDialog({
                 type="submit"
                 size="lg"
                 className="sm:w-38"
+                aria-busy={isPending}
                 disabled={isPending}
               >
-                {isPending ? <Loader2 className="animate-spin" /> : null}
-                {t("save")}
+                {isPending ? t("state.saving", { ns: "common" }) : t("save")}
               </Button>
             </DialogFooter>
           </form>

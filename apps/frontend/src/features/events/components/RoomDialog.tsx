@@ -1,6 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation } from "@tanstack/react-query"
-import { Loader2 } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
@@ -53,7 +52,7 @@ export function RoomDialog({
   onSaved: () => Promise<void>
   onDelete: (room: Room) => void
 }) {
-  const { t } = useTranslation("events")
+  const { t } = useTranslation(["events", "common"])
   const schema = z.object({
     name: z.string().trim().min(1, t("rooms.nameRequired")).max(100, t("rooms.nameTooLong")),
     capacity: z
@@ -237,10 +236,12 @@ export function RoomDialog({
                 type="submit"
                 size="lg"
                 className="sm:w-38"
+                aria-busy={isPending}
                 disabled={isPending}
               >
-                {isPending ? <Loader2 className="animate-spin" /> : null}
-                {t(room ? "rooms.save" : "rooms.add")}
+                {isPending
+                  ? t("state.saving", { ns: "common" })
+                  : t(room ? "rooms.save" : "rooms.add")}
               </Button>
             </DialogFooter>
           </form>

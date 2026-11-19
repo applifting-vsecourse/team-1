@@ -179,6 +179,11 @@ export function TransportList({ eventId }: { eventId: string }) {
                     <div>
                       <dt className="text-sm text-muted-foreground">{t("participantsColumn")}</dt>
                       <dd className="font-semibold tabular-nums">{item.participantsCount}</dd>
+                      {item.participantsCount > 0 && (
+                        <dd className="text-[13px] text-muted-foreground">
+                          {t("usedByParticipants")}
+                        </dd>
+                      )}
                     </div>
                   </dl>{" "}
                   <Button

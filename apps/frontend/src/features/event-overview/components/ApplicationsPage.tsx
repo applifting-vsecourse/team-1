@@ -24,6 +24,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { useConnectionFeedback } from "@/hooks/useConnectionFeedback"
 import { PAGE_SIZE } from "@/hooks/usePagination"
 import { formatDate, formatDateRange, formatDateTime } from "@/lib/date"
 import { notify } from "@/lib/notify"
@@ -67,6 +68,7 @@ export function ApplicationsPage({
   filters: ApplicationsSearch
   onFiltersChange: (filters: ApplicationsSearch) => void
 }) {
+  useConnectionFeedback()
   const { t } = useTranslation("eventOverview")
   const searchInput = useRef<HTMLInputElement>(null)
   const navigate = useNavigate()

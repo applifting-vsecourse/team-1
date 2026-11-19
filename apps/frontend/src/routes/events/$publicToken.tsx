@@ -36,6 +36,7 @@ function CatalogEventRoute() {
       <Seo title={event.name} />
       <PublicLayout
         isFullWidth
+        headerContentClassName="md:min-h-[115px]"
         headerAction={
           <Button
             asChild

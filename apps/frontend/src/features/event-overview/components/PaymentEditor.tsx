@@ -168,7 +168,7 @@ export function PaymentEditor({
         if (!isOpen && !mutation.isPending) onClose()
       }}
     >
-      <DialogContent className="max-h-[calc(100dvh-2rem)] gap-4 overflow-y-auto p-6 sm:max-w-160">
+      <DialogContent className="max-h-[calc(100dvh-2rem)] max-w-full gap-4 overflow-y-auto p-6 sm:max-w-160">
         <DialogHeader>
           <DialogTitle className="text-lg tracking-tight">
             {t(isRefund ? "payment.refundTitle" : "payment.dialogTitle")}
@@ -450,6 +450,7 @@ export function PaymentEditor({
               type="submit"
               size="lg"
               className="sm:flex-1"
+              aria-busy={mutation.isPending}
               disabled={mutation.isPending}
             >
               {mutation.isPending

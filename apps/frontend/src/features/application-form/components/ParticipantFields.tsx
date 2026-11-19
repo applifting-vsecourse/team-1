@@ -75,9 +75,9 @@ export function ParticipantFields({ index, terms, onRemove, isDisabled }: Partic
   const name = [firstName, lastName].filter(Boolean).join(" ").trim()
 
   return (
-    <Card className="gap-4 p-4 sm:p-6">
+    <Card className="gap-4 p-[15px]">
       <div className="flex items-center justify-between gap-2">
-        <h3 className="text-lg font-bold">
+        <h3 className="text-2xl font-semibold">
           {name
             ? t("form.participantTitleNamed", { number, name })
             : t("form.participantTitle", { number })}
@@ -200,7 +200,7 @@ export function ParticipantFields({ index, terms, onRemove, isDisabled }: Partic
           <FormItem>
             {/* Tiles: "DS / Term option" https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=13196-776 */}
             <fieldset className="grid gap-2">
-              <legend className="mb-2 text-sm leading-5 font-medium">{t("form.terms")}</legend>
+              <legend className="mb-2 text-2xl font-semibold">{t("form.terms")}</legend>
               {terms.map((term) => {
                 const id = `participant-${index}-term-${term.id}`
                 const selected = field.value ?? []

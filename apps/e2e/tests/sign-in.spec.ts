@@ -60,7 +60,7 @@ test.describe("Sign-in", () => {
     { tag: "@mobile" },
     async ({ page }) => {
       await signIn(page, "participant", PARTICIPANT)
-      await expect(page.getByRole("heading", { level: 1, name: "Your applications" })).toBeVisible()
+      await expect(page.getByRole("heading", { level: 1, name: "My applications" })).toBeVisible()
 
       await signOut(page, PARTICIPANT)
       // Sign-out ends on the landing page; leaving earlier would abort the request and keep the session.
@@ -72,7 +72,7 @@ test.describe("Sign-in", () => {
 
   test("participant cannot open the organizer area", async ({ page }) => {
     await signIn(page, "participant", PARTICIPANT)
-    await expect(page.getByRole("heading", { level: 1, name: "Your applications" })).toBeVisible()
+    await expect(page.getByRole("heading", { level: 1, name: "My applications" })).toBeVisible()
 
     await page.goto("/organizer")
     await expect(page.getByText(/This area is only available to organizers/)).toBeVisible()

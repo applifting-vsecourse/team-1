@@ -9,6 +9,7 @@ import { Seo } from "@/components/atoms/Seo"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { SectionHeader } from "@/components/molecules/SectionHeader"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -256,6 +257,12 @@ export function RoomsPage({
       ) : (
         <>
           {selectors}
+          {term.rooms.length === 0 && terms.length > 1 ? (
+            <Alert>
+              <AlertTitle>{t("rooms.unavailableTitle")}</AlertTitle>
+              <AlertDescription>{t("rooms.unavailableHint")}</AlertDescription>
+            </Alert>
+          ) : null}
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
             <Label htmlFor="room-mode">{t("rooms.mode")}</Label>
             <Select

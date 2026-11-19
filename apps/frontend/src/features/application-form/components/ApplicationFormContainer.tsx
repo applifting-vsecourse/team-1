@@ -2,6 +2,7 @@ import { useNavigate } from "@tanstack/react-router"
 import { z } from "zod"
 
 import { ROUTES } from "@/app/routes"
+import { useConnectionFeedback } from "@/hooks/useConnectionFeedback"
 import { apiErrorCode, HTTPError } from "@/lib/api-client"
 
 import type { PublicEvent } from "@/features/application-form/api/publicEvent"
@@ -34,6 +35,7 @@ export function ApplicationFormContainer({ token, event }: { token: string; even
 }
 
 function ApplicationFormForLink({ token, event }: { token: string; event: PublicEvent }) {
+  useConnectionFeedback()
   const navigate = useNavigate()
   const submit = useSubmitApplication(token)
 

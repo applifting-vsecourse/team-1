@@ -33,7 +33,7 @@ import { departureText } from "@/features/transport/lib/departure"
 // Figma (Design system): #65 Doprava · Adam Dvořák · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19795-12943
 // Figma v2 · transport selection over the application · desktop 22640:39327, mobile 22640:39416.
 export function ApplicationTransport({ applicationId }: { applicationId: string }) {
-  const { t } = useTranslation("transport")
+  const { t } = useTranslation(["transport", "common"])
   const query = useQuery(applicationTransportQueryOptions(applicationId))
   const client = useQueryClient()
   const navigate = useNavigate()
@@ -190,7 +190,7 @@ export function ApplicationTransport({ applicationId }: { applicationId: string 
               mutation.mutate()
             }}
           >
-            {t("save")}
+            {mutation.isPending ? t("state.saving", { ns: "common" }) : t("save")}
           </Button>
         ) : null}
       </DialogContent>

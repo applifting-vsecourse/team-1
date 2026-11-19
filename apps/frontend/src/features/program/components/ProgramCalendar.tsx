@@ -5,8 +5,7 @@ import type { ProgramBlock } from "@/features/program/api/program"
 import { HOUR_HEIGHT, hourRange, placeBlocks, toMinutes } from "@/features/program/lib/calendar"
 import { calendarDays, formatDayHeader } from "@/features/program/lib/days"
 
-const GUTTER = "3.5rem"
-const DAY_MIN = "9.5rem"
+const DAY_MIN_WIDTH = 150
 
 // Design: Figma (Design system) US-66 · O35 Program termínu (calendar) · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=23263-91745
 /**
@@ -24,7 +23,7 @@ export function ProgramCalendar({
   const days = calendarDays(term)
   const { from, to } = hourRange(term.blocks)
   const hours = Array.from({ length: to - from }, (_, index) => from + index)
-  const columns = `${GUTTER} repeat(${String(days.length)}, minmax(${DAY_MIN}, 1fr))`
+  const columns = `var(--time-column) repeat(${String(days.length)}, minmax(0, 1fr))`
 
   // Shared time tracks can grow to fit a short block's name and touch target on every day.
   const boundaries = [
@@ -44,7 +43,10 @@ export function ProgramCalendar({
       aria-label={t("calendarLabel")}
       className="overflow-x-auto rounded-lg border bg-card shadow-sm"
     >
-      <div className="min-w-max">
+      <div
+        className="[--time-column:3rem] md:[--time-column:3.5rem]"
+        style={{ minWidth: `calc(var(--time-column) + ${String(days.length * DAY_MIN_WIDTH)}px)` }}
+      >
         <div
           className="grid border-b"
           style={{ gridTemplateColumns: columns }}

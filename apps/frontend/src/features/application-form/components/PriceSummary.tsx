@@ -27,8 +27,8 @@ export function PriceSummary({ rows, totalCzk, children }: PriceSummaryProps) {
   const { t } = useTranslation("applicationForm")
 
   return (
-    <Card className="gap-4 p-4 sm:p-6">
-      <h2 className="text-lg font-bold">{t("price.heading")}</h2>
+    <Card className="gap-4 p-[15px]">
+      <h2 className="text-2xl font-semibold">{t("price.heading")}</h2>
       <p className="text-sm text-muted-foreground">
         {t("price.participants", { count: rows.length })}
       </p>
@@ -59,7 +59,7 @@ export function PriceSummary({ rows, totalCzk, children }: PriceSummaryProps) {
       >
         <span className="text-lg font-semibold">{t("price.total")}</span>
         <MoneyAmount
-          className="text-3xl font-bold tracking-tight"
+          className="text-2xl font-semibold tracking-tight"
           amountCzk={totalCzk}
         />
       </p>

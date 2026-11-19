@@ -38,6 +38,7 @@ function ApplicationFormPage() {
       <Seo title={t("form.heading", { event: event.name })} />
       <PublicLayout
         isFullWidth
+        headerContentClassName="min-h-[79px] md:min-h-[115px]"
         headerAction={
           <Button
             asChild
@@ -47,7 +48,7 @@ function ApplicationFormPage() {
           </Button>
         }
       >
-        <div className="mx-auto w-full max-w-[1248px] px-4 py-6 md:p-12">
+        <div className="mx-auto w-full max-w-[1248px] px-4 py-4 md:p-12">
           <ApplicationFormContainer
             token={token}
             event={event}

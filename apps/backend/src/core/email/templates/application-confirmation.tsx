@@ -17,7 +17,7 @@ const copy: Record<
     subject: (event: string) => string
     preview: string
     heading: { one: string; many: string }
-    intro: { one: (event: string) => string; many: (event: string) => string }
+    intro: { one: (event: string, termCount: number) => string; many: (event: string) => string }
     badge: Record<"TO_EVALUATE" | "CONFIRMED" | "WAITLISTED", string>
     termText: Record<"TO_EVALUATE" | "CONFIRMED" | "WAITLISTED", string>
     amountDue: string
@@ -41,8 +41,8 @@ const copy: Record<
       many: "We have received your applications",
     },
     intro: {
-      one: (event) =>
-        `We have received your application for ${event}. Below is a summary of the participant and the status of each term.`,
+      one: (event, termCount) =>
+        `We have received your application for ${event}. ${termCount === 1 ? "Below is the participant and the status of the selected term." : "Below is a summary of the participant and the status of each term."}`,
       many: (event) =>
         `We have received your applications for ${event}. Below is a summary of the participants and the status of each term.`,
     },
@@ -77,8 +77,8 @@ const copy: Record<
     preview: "Přehled přijatých přihlášek a stavů jednotlivých termínů.",
     heading: { one: "Přihlášku jsme přijali", many: "Přihlášky jsme přijali" },
     intro: {
-      one: (event) =>
-        `Přijali jsme vaši přihlášku na akci ${event}. Níže najdete přehled účastníka a stav jednotlivých termínů.`,
+      one: (event, termCount) =>
+        `Přijali jsme vaši přihlášku na akci ${event}. Níže najdete přehled účastníka a stav ${termCount === 1 ? "jednotlivého termínu" : "jednotlivých termínů"}.`,
       many: (event) =>
         `Přijali jsme vaše přihlášky na akci ${event}. Níže najdete přehled účastníků a stav jednotlivých termínů.`,
     },
@@ -157,7 +157,9 @@ export function ApplicationConfirmation({
       heading={single ? text.heading.one : text.heading.many}
       introduction={
         <Text className="mb-0 mt-6 text-base leading-6 text-ink">
-          {(single ? text.intro.one : text.intro.many)(eventName)}
+          {single
+            ? text.intro.one(eventName, applications[0].terms.length)
+            : text.intro.many(eventName)}
         </Text>
       }
     >

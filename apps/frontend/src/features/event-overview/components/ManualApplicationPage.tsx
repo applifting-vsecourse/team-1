@@ -84,7 +84,7 @@ export function ManualApplicationPage({
   terms: TermOption[]
   organizerName: string
 }) {
-  const { t } = useTranslation("eventOverview")
+  const { t } = useTranslation(["eventOverview", "common"])
   const occupancy = useQuery(occupancyQueryOptions(eventId))
   const client = useQueryClient()
   const [draft, setDraft] = useState<Draft>(emptyDraft)
@@ -459,9 +459,10 @@ export function ManualApplicationPage({
           <Button
             type="submit"
             size="lg"
+            aria-busy={mutation.isPending}
             disabled={mutation.isPending}
           >
-            {t("manual.create")}
+            {mutation.isPending ? t("state.saving", { ns: "common" }) : t("manual.create")}
           </Button>
           <Button
             asChild

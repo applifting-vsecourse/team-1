@@ -65,6 +65,7 @@
   "typeOwnHint": "Participants get to the event on their own.",
   "typeRide": "Organized transport",
   "typeRideHint": "Transport you organize, e.g. a bus or a shared ride.",
+  "usedByParticipants": "Participants are already using this option.",
   "whenHint": "Type the date and time or choose from the calendar. E.g. 12/07/2027 08:00.",
   "whenInvalid": "Enter a valid date and time.",
   "whenLabel": "Departure date and time *"

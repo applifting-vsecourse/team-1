@@ -137,7 +137,7 @@ export function OrganizerTermChange({
           if (!isNowOpen && !mutation.isPending) close()
         }}
       >
-        <DialogContent className="flex max-h-[calc(100dvh-2rem)] flex-col gap-0 overflow-hidden p-0 sm:max-w-160">
+        <DialogContent className="flex max-h-[calc(100dvh-2rem)] max-w-full flex-col gap-0 overflow-hidden p-0 sm:max-w-[760px]">
           <div className="flex [scrollbar-width:thin] flex-col gap-6 overflow-y-auto p-6">
             {isFullStep && next && added ? (
               <>
@@ -201,30 +201,32 @@ export function OrganizerTermChange({
                   </DialogDescription>
                 </DialogHeader>
                 {subject}
-                <div className="flex flex-col gap-2">
-                  <Label>{t("termChange.original")}</Label>
-                  <p className="text-sm font-medium">{termLine(original)}</p>
-                </div>
-                <div className="flex flex-col gap-2">
-                  <Label>{t("termChange.next")}</Label>
-                  <Select
-                    value={nextId}
-                    onValueChange={setNextId}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder={t("termChange.pick")} />
-                    </SelectTrigger>
-                    <SelectContent position="popper">
-                      {candidates.map((term) => (
-                        <SelectItem
-                          key={term.id}
-                          value={term.id}
-                        >
-                          {termLine(term)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="flex flex-col gap-2">
+                    <Label>{t("termChange.original")}</Label>
+                    <p className="text-sm font-medium">{termLine(original)}</p>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label>{t("termChange.next")}</Label>
+                    <Select
+                      value={nextId}
+                      onValueChange={setNextId}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder={t("termChange.pick")} />
+                      </SelectTrigger>
+                      <SelectContent position="popper">
+                        {candidates.map((term) => (
+                          <SelectItem
+                            key={term.id}
+                            value={term.id}
+                          >
+                            {termLine(term)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
                 {preview.error ? (
                   <p

@@ -1,7 +1,7 @@
 {
   "applications": {
-    "description": "Přihlášky vedené pod účtem {{name}}.",
-    "title": "Vaše přihlášky"
+    "description": "Všechny přihlášky vašeho účtu, včetně přihlášek dalších účastníků.",
+    "title": "Moje přihlášky"
   },
   "change": {
     "allTerms": "Celá přihláška · všechny termíny ({{count}})",
@@ -95,6 +95,7 @@
     }
   },
   "edit": {
+    "accommodationHeading": "Individuální řešení ubytování",
     "accommodationIndividual": "Individuální řešení",
     "accommodationRequest": "Poznámka pro organizátora",
     "accommodationRequestTooLong": "Poznámka může mít nejvýše 2 000 znaků.",
@@ -103,6 +104,7 @@
     "birthDate": "Datum narození *",
     "cancel": "Zrušit",
     "contactHeading": "Kontakt přihlášky",
+    "contactHint": "Tato změna upraví kontakt přihlášky. Přihlašovací e-mail se mění v nastavení účtu.",
     "firstName": "Jméno *",
     "historyAccommodation": "požadavek na ubytování",
     "historyContact": "kontakt",
@@ -116,7 +118,7 @@
     "loadError": "Přihlášku se nepodařilo načíst",
     "open": "Upravit přihlášku",
     "organizerNotified": "Organizátor dostal upozornění.",
-    "participant": "Účastník",
+    "participant": "Údaje účastníka",
     "phone": "Telefon",
     "phoneInvalid": "Zadejte platné telefonní číslo, například +420 777 123 456.",
     "phoneSummary": "Telefon · {{phone}}",

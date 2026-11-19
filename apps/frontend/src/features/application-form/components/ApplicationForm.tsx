@@ -106,9 +106,15 @@ export function ApplicationForm({
   const [invalidSubmitCount, setInvalidSubmitCount] = useState(0)
   // After the failed submission has rendered its errors, the first invalid control is in the DOM.
   useEffect(() => {
-    if (invalidSubmitCount > 0 && formRef.current && !focusFirstInvalidField(formRef.current)) {
-      formRef.current.querySelector<HTMLElement>('[role="alert"]')?.focus()
-    }
+    const element = formRef.current
+    if (!element || invalidSubmitCount === 0 || focusFirstInvalidField(element)) return
+    // Field controllers can publish their aria-invalid state after the form renders.
+    const frame = requestAnimationFrame(() => {
+      if (!focusFirstInvalidField(element)) {
+        element.querySelector<HTMLElement>('[role="alert"]')?.focus()
+      }
+    })
+    return () => cancelAnimationFrame(frame)
   }, [invalidSubmitCount])
   const [review, setReview] = useState<ApplicationFormValues | null>(null)
   const nextField = useRef<ReviewField | null>(null)
@@ -281,8 +287,8 @@ export function ApplicationForm({
                   </Button>
                 </div>
               )}
-              <Card className="gap-4 p-4 sm:p-6">
-                <h2 className="text-lg font-bold">{t("form.contactHeading")}</h2>
+              <Card className="gap-4 p-[15px]">
+                <h2 className="text-2xl font-semibold">{t("form.contactHeading")}</h2>
                 <FormField
                   control={form.control}
                   name="email"

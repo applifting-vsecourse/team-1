@@ -2,6 +2,7 @@
   "event": {
     "about": "About the event",
     "applicationHint": "Apply without creating an account. You can register several participants and choose their terms individually.",
+    "applicationHintTwo": "Apply without registering. You can register several participants and choose one or both terms for each person.",
     "apply": "Submit application",
     "back": "Back to catalog",
     "call": "Call",

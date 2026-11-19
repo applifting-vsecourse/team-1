@@ -1,7 +1,7 @@
 {
   "applications": {
-    "description": "Applications under the account of {{name}}.",
-    "title": "Your applications"
+    "description": "All applications in your account, including applications for other participants.",
+    "title": "My applications"
   },
   "change": {
     "allTerms": "Whole application · all terms ({{count}})",
@@ -95,6 +95,7 @@
     }
   },
   "edit": {
+    "accommodationHeading": "Individual accommodation arrangements",
     "accommodationIndividual": "Individual arrangement",
     "accommodationRequest": "Note for the organizer",
     "accommodationRequestTooLong": "The note can have at most 2,000 characters.",
@@ -103,6 +104,7 @@
     "birthDate": "Date of birth *",
     "cancel": "Cancel",
     "contactHeading": "Application contact",
+    "contactHint": "These changes update the application contact. You can change your sign-in email in account settings.",
     "firstName": "First name *",
     "historyAccommodation": "accommodation request",
     "historyContact": "contact",
@@ -116,7 +118,7 @@
     "loadError": "Couldn't load the application",
     "open": "Edit application",
     "organizerNotified": "The organizer received a notification.",
-    "participant": "Participant",
+    "participant": "Participant details",
     "phone": "Phone",
     "phoneInvalid": "Enter a valid phone number, for example +420 777 123 456.",
     "phoneSummary": "Phone · {{phone}}",

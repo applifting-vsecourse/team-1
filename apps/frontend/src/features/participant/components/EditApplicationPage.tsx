@@ -5,6 +5,7 @@ import { TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
+import { BackLink } from "@/components/atoms/BackLink"
 import { CharacterCounter } from "@/components/atoms/CharacterCounter"
 import { HeadingBand } from "@/components/atoms/HeadingBand"
 import { LoadingState } from "@/components/molecules/LoadingState"
@@ -225,7 +226,7 @@ function EditForm({
 
   return (
     <form
-      className="mx-auto flex w-full max-w-[720px] flex-col gap-6"
+      className="flex w-full flex-col gap-6"
       onSubmit={(event) => {
         event.preventDefault()
         setIsPhoneChecked(true)
@@ -235,6 +236,7 @@ function EditForm({
       }}
     >
       {/* Figma v2: edit application · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=20491-16159 (mobile 20491-16398). */}
+      <BackLink {...detail}>{t("edit.backToApplication")}</BackLink>
       <HeadingBand motif="forms">
         <h1 className="text-2xl font-bold">
           {t(mutation.isError ? "edit.saveErrorTitle" : "edit.title")}
@@ -245,136 +247,141 @@ function EditForm({
           </p>
         )}
       </HeadingBand>
-      {mutation.isError ? (
-        <Alert variant="destructive">
-          <TriangleAlert aria-hidden="true" />
-          <AlertTitle>{t("edit.saveError")}</AlertTitle>
-          <AlertDescription>{t("edit.valuesPreserved")}</AlertDescription>
-        </Alert>
-      ) : null}
-      {shouldShowPersonalCard ? (
-        <Card className="gap-5 p-4 md:p-5">
-          <h2 className="text-xl font-semibold">{t("edit.participant")}</h2>
-          <div className="grid gap-4 sm:grid-cols-2">
-            {!mutation.isError || visibleFields.firstName ? (
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="edit-first-name">{t("edit.firstName")}</Label>
-                <Input
-                  id="edit-first-name"
-                  required
-                  maxLength={100}
-                  value={values.firstName}
-                  onChange={(event) => set("firstName", event.target.value)}
-                  className="h-12"
-                />
-              </div>
-            ) : null}
-            {!mutation.isError || visibleFields.lastName ? (
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="edit-last-name">{t("edit.lastName")}</Label>
-                <Input
-                  id="edit-last-name"
-                  required
-                  maxLength={100}
-                  value={values.lastName}
-                  onChange={(event) => set("lastName", event.target.value)}
-                  className="h-12"
-                />
-              </div>
-            ) : null}
-          </div>
-          {!mutation.isError || visibleFields.birthDate ? (
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="edit-birth-date">{t("edit.birthDate")}</Label>
-              <Input
-                id="edit-birth-date"
-                required
-                type="date"
-                min="1900-01-01"
-                max={new Date().toISOString().slice(0, 10)}
-                value={values.birthDate}
-                onChange={(event) => set("birthDate", event.target.value)}
-                className="h-12"
-              />
-            </div>
-          ) : null}
-        </Card>
-      ) : null}
-      {!mutation.isError || visibleFields.phone ? (
-        <Card className="gap-4 p-4">
-          <h2 className="text-xl font-semibold">{t("edit.contactHeading")}</h2>
-          {phoneField}
-        </Card>
-      ) : null}
-      {!mutation.isError || visibleFields.accommodationRequest ? (
-        <Card className="gap-4 p-4">
-          <h2 className="text-xl font-semibold">{t("edit.individualAccommodation")}</h2>
-          <div className="flex flex-col gap-1">
-            <div className="flex min-h-11 items-center gap-3">
-              <Checkbox
-                id="edit-individual-accommodation"
-                className="size-5"
-                checked={values.individualAccommodation}
-                onCheckedChange={(isChecked) => set("individualAccommodation", isChecked === true)}
-              />
-              <Label
-                htmlFor="edit-individual-accommodation"
-                className="flex-1 cursor-pointer self-stretch leading-5 font-normal"
-              >
-                {t("edit.individualAccommodation")}
-              </Label>
-            </div>
-            <p className="pl-8 text-sm text-muted-foreground">
-              {t("edit.individualAccommodationHint")}
-            </p>
-          </div>
-          {values.individualAccommodation ? (
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="edit-accommodation">{t("edit.accommodationRequest")}</Label>
-              <Textarea
-                id="edit-accommodation"
-                value={values.accommodationRequest ?? ""}
-                onChange={(event) => set("accommodationRequest", event.target.value)}
-                aria-invalid={isNoteTooLong}
-                aria-describedby={isNoteTooLong ? "edit-accommodation-error" : undefined}
-                className="min-h-32"
-              />
-              <div className="flex items-start gap-3">
-                {isNoteTooLong ? (
-                  <p
-                    id="edit-accommodation-error"
-                    className="text-sm text-destructive"
-                  >
-                    {t("edit.accommodationRequestTooLong")}
-                  </p>
-                ) : null}
-                <CharacterCounter
-                  count={(values.accommodationRequest ?? "").length}
-                  max={MAX_ACCOMMODATION_NOTE_LENGTH}
-                />
-              </div>
-            </div>
-          ) : null}
-        </Card>
-      ) : null}
-      <div className="grid gap-3 sm:grid-cols-2">
-        <Button
-          type="submit"
-          size="lg"
-          className="w-full"
-          disabled={mutation.isPending || !isChanged}
-        >
-          {t(mutation.isError ? "edit.retry" : "edit.save")}
-        </Button>
-        {!mutation.isError ? (
-          <Button
-            asChild
-            variant="ghost"
-            className="w-full"
-          >
-            <Link {...detail}>{t("edit.cancel")}</Link>
-          </Button>
+      <div className="mx-auto flex w-full max-w-[720px] flex-col gap-6">
+        {mutation.isError ? (
+          <Alert variant="destructive">
+            <TriangleAlert aria-hidden="true" />
+            <AlertTitle>{t("edit.saveError")}</AlertTitle>
+            <AlertDescription>{t("edit.valuesPreserved")}</AlertDescription>
+          </Alert>
         ) : null}
+        {shouldShowPersonalCard ? (
+          <Card className="gap-5 p-4 md:p-5">
+            <h2 className="text-2xl font-semibold">{t("edit.participant")}</h2>
+            <div className="grid gap-4 sm:grid-cols-2">
+              {!mutation.isError || visibleFields.firstName ? (
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="edit-first-name">{t("edit.firstName")}</Label>
+                  <Input
+                    id="edit-first-name"
+                    required
+                    maxLength={100}
+                    value={values.firstName}
+                    onChange={(event) => set("firstName", event.target.value)}
+                    className="h-12"
+                  />
+                </div>
+              ) : null}
+              {!mutation.isError || visibleFields.lastName ? (
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="edit-last-name">{t("edit.lastName")}</Label>
+                  <Input
+                    id="edit-last-name"
+                    required
+                    maxLength={100}
+                    value={values.lastName}
+                    onChange={(event) => set("lastName", event.target.value)}
+                    className="h-12"
+                  />
+                </div>
+              ) : null}
+            </div>
+            {!mutation.isError || visibleFields.birthDate ? (
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="edit-birth-date">{t("edit.birthDate")}</Label>
+                <Input
+                  id="edit-birth-date"
+                  required
+                  type="date"
+                  min="1900-01-01"
+                  max={new Date().toISOString().slice(0, 10)}
+                  value={values.birthDate}
+                  onChange={(event) => set("birthDate", event.target.value)}
+                  className="h-12"
+                />
+              </div>
+            ) : null}
+          </Card>
+        ) : null}
+        {!mutation.isError || visibleFields.phone ? (
+          <Card className="gap-4 p-4">
+            <h2 className="text-2xl font-semibold">{t("edit.contactHeading")}</h2>
+            {phoneField}
+            <p className="text-sm text-muted-foreground">{t("edit.contactHint")}</p>
+          </Card>
+        ) : null}
+        {!mutation.isError || visibleFields.accommodationRequest ? (
+          <Card className="gap-4 p-4">
+            <h2 className="text-2xl font-semibold">{t("edit.accommodationHeading")}</h2>
+            <div className="flex flex-col gap-1">
+              <div className="flex min-h-11 items-center gap-3">
+                <Checkbox
+                  id="edit-individual-accommodation"
+                  className="size-5"
+                  checked={values.individualAccommodation}
+                  onCheckedChange={(isChecked) =>
+                    set("individualAccommodation", isChecked === true)
+                  }
+                />
+                <Label
+                  htmlFor="edit-individual-accommodation"
+                  className="flex-1 cursor-pointer self-stretch leading-5 font-normal"
+                >
+                  {t("edit.individualAccommodation")}
+                </Label>
+              </div>
+              <p className="pl-8 text-sm text-muted-foreground">
+                {t("edit.individualAccommodationHint")}
+              </p>
+            </div>
+            {values.individualAccommodation ? (
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="edit-accommodation">{t("edit.accommodationRequest")}</Label>
+                <Textarea
+                  id="edit-accommodation"
+                  value={values.accommodationRequest ?? ""}
+                  onChange={(event) => set("accommodationRequest", event.target.value)}
+                  aria-invalid={isNoteTooLong}
+                  aria-describedby={isNoteTooLong ? "edit-accommodation-error" : undefined}
+                  className="min-h-32"
+                />
+                <div className="flex items-start gap-3">
+                  {isNoteTooLong ? (
+                    <p
+                      id="edit-accommodation-error"
+                      className="text-sm text-destructive"
+                    >
+                      {t("edit.accommodationRequestTooLong")}
+                    </p>
+                  ) : null}
+                  <CharacterCounter
+                    count={(values.accommodationRequest ?? "").length}
+                    max={MAX_ACCOMMODATION_NOTE_LENGTH}
+                  />
+                </div>
+              </div>
+            ) : null}
+          </Card>
+        ) : null}
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Button
+            type="submit"
+            size="lg"
+            className="w-full"
+            disabled={mutation.isPending || !isChanged}
+          >
+            {t(mutation.isError ? "edit.retry" : "edit.save")}
+          </Button>
+          {!mutation.isError ? (
+            <Button
+              asChild
+              variant="ghost"
+              className="w-full"
+            >
+              <Link {...detail}>{t("edit.cancel")}</Link>
+            </Button>
+          ) : null}
+        </div>
       </div>
     </form>
   )

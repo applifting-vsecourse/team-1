@@ -16,7 +16,7 @@ test.describe("Magic link", { tag: "@mobile" }, () => {
     await page.getByRole("button", { name: "Continue" }).click()
 
     // The seeded participant already has a password, so no password step follows.
-    await expect(page.getByRole("heading", { level: 1, name: "Your applications" })).toBeVisible()
+    await expect(page.getByRole("heading", { level: 1, name: "My applications" })).toBeVisible()
   })
 
   test("the e-mail is in English when asked for from the English UI", async ({ page }) => {

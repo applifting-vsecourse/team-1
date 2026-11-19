@@ -4,6 +4,17 @@ import { latestMagicLinkToken } from "./support/magic-link"
 
 // US-23 application from a link, US-40 price, US-25 / US-27 submit and status. Runs on a phone too (@mobile).
 test.describe("Application from a link", { tag: "@mobile" }, () => {
+  test("an incomplete application focuses the first invalid field and describes its error", async ({
+    page,
+  }) => {
+    await page.goto(SUMMER_CAMP_LINK)
+    await page.getByRole("button", { name: "Continue to review" }).click()
+    const firstName = page.getByLabel("First name")
+    await expect(firstName).toBeFocused()
+    await expect(firstName).toHaveAttribute("aria-invalid", "true")
+    await expect(firstName).toHaveAccessibleDescription(/first name/i)
+  })
+
   test("applicant sees the event and the price of the chosen terms", async ({ page }) => {
     await page.goto(SUMMER_CAMP_LINK)
     await expect(
@@ -67,7 +78,7 @@ test.describe("Application from a link", { tag: "@mobile" }, () => {
     await page.getByLabel("Repeat new password").fill("own-password-1")
     await page.getByRole("button", { name: "Set password and open application" }).click()
 
-    await expect(page.getByRole("heading", { level: 1, name: "Your applications" })).toBeVisible()
+    await expect(page.getByRole("heading", { level: 1, name: "My applications" })).toBeVisible()
     await expect(page.getByRole("heading", { name: "Letní kemp 2027", level: 2 })).toBeVisible()
     await expect(page.getByText(/Confirmed|Waitlisted/).first()).toBeVisible()
 

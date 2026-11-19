@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { useLocation, useNavigate } from "@tanstack/react-router"
+import { Link, useLocation, useNavigate } from "@tanstack/react-router"
 import { TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
@@ -117,7 +117,7 @@ export function VerifyOrganizerEmail({ email, error }: Props) {
         </Alert>
       ) : (
         <>
-          <p>{t("registration.verifySent", { email })}</p>
+          {email ? <p>{t("registration.verifySent", { email })}</p> : null}
           <p>{t("registration.verifyDescription")}</p>
           <p>{t("registration.verifyRestriction")}</p>
         </>
@@ -135,8 +135,25 @@ export function VerifyOrganizerEmail({ email, error }: Props) {
       >
         {t(isExpired ? "registration.expiredAction" : "registration.resend")}
       </Button>
+      <p className="text-sm text-muted-foreground">{t("registration.checkSpam")}</p>
+      <div className="flex flex-col gap-2 sm:flex-row">
+        <Button
+          asChild
+          variant="outline"
+        >
+          <Link to={ROUTES.organizer.register}>{t("registration.correctEmail")}</Link>
+        </Button>
+        <Button
+          asChild
+          variant="ghost"
+        >
+          <Link to={ROUTES.organizer.login}>{t("registration.signIn")}</Link>
+        </Button>
+      </div>
       {canBypass ? (
-        <>
+        <section className="flex flex-col gap-3 rounded-lg border bg-muted p-3">
+          <h2 className="font-semibold">{t("registration.demoTitle")}</h2>
+          <p className="text-sm">{t("registration.demoHint")}</p>
           {shouldAskPassword ? (
             <div className="flex flex-col gap-2">
               <label
@@ -164,7 +181,7 @@ export function VerifyOrganizerEmail({ email, error }: Props) {
           >
             {t("registration.verifyBypass")}
           </Button>
-        </>
+        </section>
       ) : null}
     </RegistrationLayout>
   )

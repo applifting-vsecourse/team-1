@@ -69,7 +69,7 @@ export function EventOverview({
           >
             <SelectTrigger
               id="event-switcher"
-              className="w-full"
+              className="w-full md:max-w-120"
             >
               <SelectValue />
             </SelectTrigger>

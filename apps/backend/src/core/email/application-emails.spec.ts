@@ -25,6 +25,27 @@ describe("application e-mail previews", () => {
     expect(html).toContain("Přihlásit se do Togeny")
   })
 
+  it.each([
+    ["cs", "stav jednotlivého termínu.", "stav jednotlivých termínů."],
+    ["en", "the status of the selected term.", "the status of each term."],
+  ] as const)(
+    "matches the number of terms in a single application (%s)",
+    async (locale, singular, plural) => {
+      const preview = ApplicationConfirmation.PreviewProps
+      const [person] = preview.applications
+      const receipt = (count: number): Promise<string> =>
+        render(
+          React.createElement(ApplicationConfirmation, {
+            ...preview,
+            locale,
+            applications: [{ ...person, terms: person.terms.slice(0, count) }],
+          }),
+        )
+      expect(await receipt(1)).toContain(singular)
+      expect(await receipt(2)).toContain(plural)
+    },
+  )
+
   it("renders two participants, existing account, mixed statuses (en)", async () => {
     const html = await render(React.createElement(TwoApplicants))
 

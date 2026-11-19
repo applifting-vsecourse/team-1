@@ -88,8 +88,11 @@
     "free": "Free"
   },
   "state": {
+    "connectionRestored": "Your device is back online.",
     "loading": "Loading…",
-    "retry": "Try again"
+    "offline": "Your device is offline.",
+    "retry": "Try again",
+    "saving": "Saving…"
   },
   "termPayment": {
     "account": "Account",

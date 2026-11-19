@@ -203,7 +203,7 @@ describe("EventTerms", () => {
     const dialog = await screen.findByRole("dialog")
 
     const dates = within(dialog).getByLabelText("Start date *")
-    const name = within(dialog).getByLabelText("Term name")
+    const name = within(dialog).getByLabelText("Term name (optional)")
     const price = within(dialog).getByLabelText("Term price (CZK) *")
     expect(name).toHaveAttribute("placeholder", "e.g. 1st turn, class 5, ages 8–10")
     expect(name).not.toBeRequired()
@@ -225,7 +225,7 @@ describe("EventTerms", () => {
     await userEvent.click(await screen.findByRole("button", { name: "Add term" }))
     const dialog = await screen.findByRole("dialog")
 
-    await userEvent.type(within(dialog).getByLabelText("Term name"), "Letní turnus 3")
+    await userEvent.type(within(dialog).getByLabelText("Term name (optional)"), "Letní turnus 3")
     await userEvent.type(within(dialog).getByLabelText("Start date *"), "09/08/2027")
     await userEvent.type(within(dialog).getByLabelText("End date *"), "08/08/2027")
     await userEvent.type(within(dialog).getByLabelText("Term price (CZK) *"), "7600")
@@ -241,7 +241,7 @@ describe("EventTerms", () => {
     await userEvent.click(await screen.findByRole("button", { name: "Add term" }))
     const dialog = await screen.findByRole("dialog")
 
-    await userEvent.type(within(dialog).getByLabelText("Term name"), "Letní turnus 3")
+    await userEvent.type(within(dialog).getByLabelText("Term name (optional)"), "Letní turnus 3")
     await userEvent.type(within(dialog).getByLabelText("Start date *"), "31/02/2027")
     await userEvent.type(within(dialog).getByLabelText("End date *"), "15/08/2027")
     await userEvent.type(within(dialog).getByLabelText("Term price (CZK) *"), "7600")
@@ -258,7 +258,7 @@ describe("EventTerms", () => {
     await userEvent.click(await screen.findByRole("button", { name: "Add term" }))
     const dialog = await screen.findByRole("dialog")
 
-    await userEvent.type(within(dialog).getByLabelText("Term name"), "Letní turnus 3")
+    await userEvent.type(within(dialog).getByLabelText("Term name (optional)"), "Letní turnus 3")
     await userEvent.type(within(dialog).getByLabelText("Start date *"), "09/08/2027")
     await userEvent.type(within(dialog).getByLabelText("End date *"), "15/08/2027")
     await userEvent.click(within(dialog).getByRole("button", { name: "Add term" }))
@@ -279,7 +279,7 @@ describe("EventTerms", () => {
     await userEvent.click(await screen.findByRole("button", { name: "Add term" }))
     const dialog = await screen.findByRole("dialog")
 
-    await userEvent.type(within(dialog).getByLabelText("Term name"), "Letní turnus 1")
+    await userEvent.type(within(dialog).getByLabelText("Term name (optional)"), "Letní turnus 1")
     await userEvent.type(within(dialog).getByLabelText("Start date *"), "12/07/2027")
     await userEvent.type(within(dialog).getByLabelText("End date *"), "18/07/2027")
     await userEvent.type(within(dialog).getByLabelText("Term price (CZK) *"), "6900")
@@ -301,7 +301,7 @@ describe("EventTerms", () => {
     await userEvent.click(await screen.findByRole("button", { name: "Add term" }))
     const dialog = await screen.findByRole("dialog")
 
-    await userEvent.type(within(dialog).getByLabelText("Term name"), "Zdarma")
+    await userEvent.type(within(dialog).getByLabelText("Term name (optional)"), "Zdarma")
     await userEvent.type(within(dialog).getByLabelText("Start date *"), "12/07/2027")
     await userEvent.type(within(dialog).getByLabelText("End date *"), "18/07/2027")
     await userEvent.type(within(dialog).getByLabelText("Term price (CZK) *"), "0")

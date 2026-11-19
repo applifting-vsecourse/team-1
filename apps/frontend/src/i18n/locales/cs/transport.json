@@ -65,6 +65,7 @@
   "typeOwnHint": "Účastníci se na akci dopraví sami.",
   "typeRide": "Organizovaná doprava",
   "typeRideHint": "Vámi organizovaná doprava, např. autobus nebo sdílená jízda.",
+  "usedByParticipants": "Tuto volbu už používají účastníci.",
   "whenHint": "Datum a čas napište nebo vyberte z kalendáře. Např. 12. 7. 2027 8:00.",
   "whenInvalid": "Zadejte platné datum a čas.",
   "whenLabel": "Datum a čas odjezdu *"

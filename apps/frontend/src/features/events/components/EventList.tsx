@@ -115,7 +115,7 @@ function FilteredEvents({
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder={t("list.search")}
+            placeholder={t("list.searchPlaceholder")}
             aria-label={t("list.search")}
             className="w-full ps-10"
           />

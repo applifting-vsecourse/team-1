@@ -7,7 +7,7 @@ import VerificationEnd from "@/assets/motion/verification-end.svg?react"
 import VerificationStart from "@/assets/motion/verification-start.svg?react"
 import { HeadingBand } from "@/components/atoms/HeadingBand"
 import { Seo } from "@/components/atoms/Seo"
-import { Header } from "@/components/organisms/Header"
+import { AccessCardLayout } from "@/components/templates/AccessCardLayout"
 import { AuthLayout } from "@/components/templates/AuthLayout"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -48,34 +48,51 @@ export function MagicLinkLanding({ token, error }: MagicLinkLandingProps) {
   // Mobile https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15315-236
   if (canContinue && isVerifying) {
     return (
-      <div className="flex min-h-svh flex-col">
-        <Seo title={t("magicLink.verifying")} />
-        <Header />
-        <main className="grid flex-1 place-items-center px-6 py-8 md:py-12">
-          <Card className="w-full max-w-160 rounded-2xl p-8 [--workspace-inset:0px]">
-            <HeadingBand>
-              <div
-                role="status"
-                className="flex flex-col items-center gap-4 text-center"
+      <AccessCardLayout title={t("magicLink.verifying")}>
+        <HeadingBand>
+          <div
+            role="status"
+            className="flex flex-col items-center gap-4 text-center"
+          >
+            <div className="flex w-50 max-w-full flex-col items-center gap-3 self-start p-4">
+              <span
+                aria-hidden="true"
+                className="verifying-mark relative size-14"
               >
-                <div className="flex w-50 max-w-full flex-col items-center gap-3 self-start p-4">
-                  <span
-                    aria-hidden="true"
-                    className="verifying-mark relative size-14"
-                  >
-                    <VerificationStart className="absolute top-[15.5%] left-[15.5%]" />
-                    <VerificationEnd className="absolute right-[15.5%] bottom-[15.5%]" />
-                    <VerificationDot className="absolute top-[44%] left-[44%]" />
-                  </span>
-                  <p className="text-sm font-medium">{t("magicLink.checkingAccess")}</p>
-                </div>
-                <h1 className="text-2xl font-bold">{t("magicLink.verifying")}</h1>
-              </div>
-            </HeadingBand>
-          </Card>
-        </main>
-        <footer className="p-4 text-center text-sm text-muted-foreground">{t("signature")}</footer>
-      </div>
+                <VerificationStart className="absolute top-[15.5%] left-[15.5%]" />
+                <VerificationEnd className="absolute right-[15.5%] bottom-[15.5%]" />
+                <VerificationDot className="absolute top-[44%] left-[44%]" />
+              </span>
+              <p className="text-sm font-medium">{t("magicLink.checkingAccess")}</p>
+            </div>
+            <h1 className="text-2xl font-bold">{t("magicLink.verifying")}</h1>
+          </div>
+        </HeadingBand>
+      </AccessCardLayout>
+    )
+  }
+
+  if (canContinue && token) {
+    return (
+      <AccessCardLayout title={title}>
+        <HeadingBand>
+          <div className="flex flex-col gap-4">
+            <h1 className="text-2xl font-bold">{title}</h1>
+            <p className="text-muted-foreground">{t("magicLink.description")}</p>
+            <h2 className="font-semibold">{t("magicLink.cardTitle")}</h2>
+            <p>{t("magicLink.body")}</p>
+          </div>
+        </HeadingBand>
+        <Button
+          size="lg"
+          onClick={() => {
+            setIsVerifying(true)
+            window.location.assign(magicLinkVerifyUrl(token, window.location.origin))
+          }}
+        >
+          {t("magicLink.continue")}
+        </Button>
+      </AccessCardLayout>
     )
   }
 
@@ -85,53 +102,29 @@ export function MagicLinkLanding({ token, error }: MagicLinkLandingProps) {
       <AuthLayout
         hasBand
         title={title}
-        description={t(canContinue ? "magicLink.description" : "magicLink.requestDescription")}
+        description={t("magicLink.requestDescription")}
       >
-        {canContinue && token ? (
-          <Card className="gap-4">
-            <CardHeader>
-              <CardTitle className="text-lg tracking-tight">{t("magicLink.cardTitle")}</CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-col items-start gap-4">
-              <p>{t("magicLink.body")}</p>
-              <Button
-                size="lg"
-                onClick={() => {
-                  setIsVerifying(true)
-                  window.location.assign(magicLinkVerifyUrl(token, window.location.origin))
-                }}
-              >
-                {t("magicLink.continue")}
-              </Button>
-            </CardContent>
-          </Card>
-        ) : (
-          <>
-            {error ? (
-              <Alert
-                variant="destructive"
-                className="border-destructive/30 bg-destructive/10"
-              >
-                <CircleAlert />
-                <AlertTitle>{t("magicLink.invalidTitle")}</AlertTitle>
-                <AlertDescription className="text-destructive/90">
-                  {t("magicLink.invalidBody")}
-                </AlertDescription>
-              </Alert>
-            ) : null}
-            <Card className="gap-4">
-              <CardHeader>
-                <CardTitle className="text-lg tracking-tight">
-                  {t("requestLink.cardTitle")}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="flex flex-col gap-4">
-                <p>{t("requestLink.body")}</p>
-                <RequestMagicLinkForm />
-              </CardContent>
-            </Card>
-          </>
-        )}
+        {error ? (
+          <Alert
+            variant="destructive"
+            className="border-destructive/30 bg-destructive/10"
+          >
+            <CircleAlert />
+            <AlertTitle>{t("magicLink.invalidTitle")}</AlertTitle>
+            <AlertDescription className="text-destructive/90">
+              {t("magicLink.invalidBody")}
+            </AlertDescription>
+          </Alert>
+        ) : null}
+        <Card className="gap-4">
+          <CardHeader>
+            <CardTitle className="text-lg tracking-tight">{t("requestLink.cardTitle")}</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-4">
+            <p>{t("requestLink.body")}</p>
+            <RequestMagicLinkForm />
+          </CardContent>
+        </Card>
       </AuthLayout>
     </>
   )

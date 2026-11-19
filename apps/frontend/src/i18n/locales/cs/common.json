@@ -88,8 +88,11 @@
     "free": "Zdarma"
   },
   "state": {
+    "connectionRestored": "Připojení zařízení k síti bylo obnoveno.",
     "loading": "Načítání…",
-    "retry": "Zkusit znovu"
+    "offline": "Zařízení je offline.",
+    "retry": "Zkusit znovu",
+    "saving": "Ukládám…"
   },
   "termPayment": {
     "account": "Účet",

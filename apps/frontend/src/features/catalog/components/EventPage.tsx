@@ -24,8 +24,8 @@ export function EventPage({ event }: { event: CatalogEventDetail }) {
       <header className="flex flex-col items-start gap-2">
         <BackLink to={ROUTES.catalog}>{t("event.back")}</BackLink>
         <h1 className="text-2xl font-bold tracking-tight md:text-[32px]/10">{event.name}</h1>
-        <div className="mt-4 w-full">
-          <BrandDivider />
+        <div className="mt-4 w-full md:mt-6">
+          <BrandDivider className="md:[&>span]:w-20" />
         </div>
         <CopyButton
           value={new URL(window.location.pathname, window.location.origin).href}
@@ -62,7 +62,9 @@ export function EventPage({ event }: { event: CatalogEventDetail }) {
               {paragraph}
             </p>
           ))}
-          <p>{t("event.applicationHint")}</p>
+          <p>
+            {t(event.terms.length === 2 ? "event.applicationHintTwo" : "event.applicationHint")}
+          </p>
         </div>
         <div className="flex min-w-0 flex-col gap-6">
           <Card className="gap-4 rounded-xl border-0 p-4 shadow-none">

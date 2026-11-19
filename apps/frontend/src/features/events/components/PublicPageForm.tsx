@@ -1,7 +1,9 @@
 import { useState, type FormEvent } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { Link } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
+import { ROUTES } from "@/app/routes"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { UploadField } from "@/components/molecules/UploadField"
 import {
@@ -67,7 +69,7 @@ const isAcceptedType = (file: File): boolean =>
 // Figma (Design system): US-122 / Nastavení akce · Veřejná prezentace · Uložené · katalog zapnutý · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16135-8563 (mobil 16135-8699)
 // Figma (Design system): US-122 / Nastavení akce · Veřejná prezentace · Chyba fotografie · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16135-8804 (mobil 16135-8929)
 export function PublicPageForm({ event }: { event: OrganizerEvent }) {
-  const { t } = useTranslation("events")
+  const { t } = useTranslation(["events", "common"])
   const queryClient = useQueryClient()
   const [openSection, setOpenSection] = useState("")
   const [values, setValues] = useState<PublicPageInput>(() => valuesOf(event))
@@ -261,7 +263,21 @@ export function PublicPageForm({ event }: { event: OrganizerEvent }) {
                 </li>
               ))}
             </ul>
-            <p className="text-sm text-muted-foreground">{t("publicPage.termsHint")}</p>
+            <div>
+              <Button
+                asChild
+                variant="outline"
+              >
+                <Link
+                  to={ROUTES.organizer.eventTerms}
+                  params={{ eventId: event.id }}
+                  target="_blank"
+                  rel="noopener"
+                >
+                  {t("publicPage.editTerms")}
+                </Link>
+              </Button>
+            </div>
 
             <div className="flex items-center gap-3 py-2">
               <Checkbox
@@ -273,6 +289,23 @@ export function PublicPageForm({ event }: { event: OrganizerEvent }) {
             </div>
             <p className="text-sm text-muted-foreground">{t("publicPage.publishHint")}</p>
 
+            {event.applicationsOpen ? (
+              <div>
+                <Button
+                  asChild
+                  variant="outline"
+                >
+                  <Link
+                    to={ROUTES.event}
+                    params={{ publicToken: event.publicToken }}
+                    target="_blank"
+                    rel="noopener"
+                  >
+                    {t("publicPage.preview")}
+                  </Link>
+                </Button>
+              </div>
+            ) : null}
             {save.isError ? (
               <ErrorState
                 title={t("publicPage.saveFailed")}
@@ -288,7 +321,7 @@ export function PublicPageForm({ event }: { event: OrganizerEvent }) {
                 aria-busy={save.isPending}
                 disabled={save.isPending}
               >
-                {t("publicPage.save")}
+                {save.isPending ? t("state.saving", { ns: "common" }) : t("publicPage.save")}
               </Button>
               <Button
                 type="button"
@@ -314,7 +347,7 @@ export function PublicPageForm({ event }: { event: OrganizerEvent }) {
 }
 
 function FieldError({ id, error }: { id: string; error: PublicPageError | undefined }) {
-  const { t } = useTranslation("events")
+  const { t } = useTranslation(["events", "common"])
   if (!error) return null
   return (
     <p

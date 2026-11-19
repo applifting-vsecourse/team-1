@@ -1,4 +1,6 @@
 import { useQuery } from "@tanstack/react-query"
+import { Link } from "@tanstack/react-router"
+import { Info } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
@@ -6,13 +8,15 @@ import { BackLink } from "@/components/atoms/BackLink"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { PageHeader } from "@/components/molecules/PageHeader"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { formatDateTime } from "@/lib/date"
 
 import { organizerHealthQueryOptions } from "@/features/health/api/health"
 
 /** The participant's health restriction with the time of the explicit consent — organizers only. */
-// Figma (Design system): #68 / Zdravotní omezení · Adam Dvořák · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19795-13718 (360 px: node-id=19795-13852)
+// Figma v2: US-68 / Organizer health detail · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK?node-id=21218-65048 (mobile 21218-65162, empty 21218-65214 / 21218-65318).
 export function OrganizerHealth({
   eventId,
   applicationId,
@@ -53,6 +57,23 @@ export function OrganizerHealth({
         ) : (
           <p>{t("notFilled")}</p>
         )}
+        <Alert role="note">
+          <Info aria-hidden="true" />
+          <AlertTitle>{t("organizerAccessTitle")}</AlertTitle>
+          <AlertDescription>{t("organizerAccessText")}</AlertDescription>
+        </Alert>
+        <Button
+          asChild
+          variant="ghost"
+          className="self-start"
+        >
+          <Link
+            to={ROUTES.organizer.eventMeals}
+            params={{ eventId }}
+          >
+            {t("goMeals")}
+          </Link>
+        </Button>
       </Card>
     </div>
   )
