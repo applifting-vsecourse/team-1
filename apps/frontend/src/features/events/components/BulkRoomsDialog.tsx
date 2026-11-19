@@ -79,8 +79,10 @@ export function BulkRoomsDialog({
           }
         }
         total = toCount(values.countFemale) + toCount(values.countMale)
-        if (!(total >= 1 && total <= BULK_ROOMS_MAX)) {
-          issue("countFemale", t("rooms.bulk.countSumError", { max: BULK_ROOMS_MAX }))
+        if (total > BULK_ROOMS_MAX) {
+          issue("countFemale", t("rooms.bulk.countSumMaxError", { max: BULK_ROOMS_MAX }))
+        } else if (!(total >= 1)) {
+          issue("countFemale", t("rooms.bulk.countSumError"))
         }
       } else {
         total = toInt(values.count)

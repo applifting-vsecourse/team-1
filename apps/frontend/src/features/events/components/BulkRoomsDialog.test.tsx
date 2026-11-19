@@ -136,9 +136,7 @@ describe("bulk rooms dialog", () => {
     const { user } = renderDialog(gendered)
     await fill(user, { "Beds per room *": "4" })
     await user.click(screen.getByRole("button", { name: "Create rooms" }))
-    expect(
-      await screen.findByText(/Enter at least one room\. At most 200 rooms can be created at once/),
-    ).toBeInTheDocument()
+    expect(await screen.findByText(/Enter at least one room\./)).toBeInTheDocument()
     expect(post).not.toHaveBeenCalled()
   })
 
