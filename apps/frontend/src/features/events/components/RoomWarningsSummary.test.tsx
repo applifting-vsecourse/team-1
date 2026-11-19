@@ -1,7 +1,8 @@
 import { render, screen } from "@testing-library/react"
-import { describe, expect, it } from "vitest"
+import userEvent from "@testing-library/user-event"
+import { describe, expect, it, vi } from "vitest"
 
-import { RoomWarningsSummary } from "@/features/events/components/RoomWarnings"
+import { RoomWarningsSummary, RoomWarningStrip } from "@/features/events/components/RoomWarnings"
 
 const person = {
   id: "p1",
@@ -56,5 +57,35 @@ describe("RoomWarningsSummary", () => {
   it("keeps the shared-rooms note", () => {
     renderSummary(0, 0, true)
     expect(screen.getByText("Mixed genders are not checked in shared rooms.")).toBeInTheDocument()
+  })
+})
+
+describe("RoomWarningStrip", () => {
+  const warning = {
+    kind: "OVERCROWDED",
+    roomId: "r1",
+    applicationTermId: null,
+    acknowledged: false,
+    note: null,
+    acknowledgedAt: null,
+    acknowledgedBy: null,
+  } as never
+
+  it("keeps the text and the confirm button apart, so the text is not squeezed beside the button on a phone", async () => {
+    const onAcknowledge = vi.fn()
+    render(
+      <RoomWarningStrip
+        room={room as never}
+        warning={warning}
+        onAcknowledge={onAcknowledge}
+      />,
+    )
+    const button = screen.getByRole("button", { name: /confirm/i })
+    const text = screen.getByText(/overcrowded room/i)
+    // Below the sm breakpoint the strip is a column and the button spans its width.
+    expect(button.className).toContain("w-full")
+    expect(button.parentElement).not.toBe(text.parentElement)
+    await userEvent.click(button)
+    expect(onAcknowledge).toHaveBeenCalledOnce()
   })
 })

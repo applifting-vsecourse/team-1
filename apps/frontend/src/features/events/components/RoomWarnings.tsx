@@ -81,18 +81,22 @@ export function RoomWarningStrip({
     )
   }
   return (
-    <div className="flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-status-warning/40 bg-status-warning-bg px-3 py-2.5">
-      <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-status-warning/15 text-status-warning">
-        <AlertTriangle
-          className="size-4"
-          aria-hidden
-        />
-      </span>
-      <p className="min-w-0 flex-1 text-sm font-medium break-words">{warningText(warning, room)}</p>
+    <div className="flex flex-col gap-3 border-t border-status-warning/40 bg-status-warning-bg px-3 py-2.5 sm:flex-row sm:items-center">
+      <div className="flex min-w-0 flex-1 items-center gap-3">
+        <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-status-warning/15 text-status-warning">
+          <AlertTriangle
+            className="size-4"
+            aria-hidden
+          />
+        </span>
+        <p className="min-w-0 flex-1 text-sm font-medium break-words">
+          {warningText(warning, room)}
+        </p>
+      </div>
       <Button
         type="button"
         size="sm"
-        className="bg-status-warning text-status-warning-bg hover:bg-status-warning/90"
+        className="w-full bg-status-warning text-status-warning-bg hover:bg-status-warning/90 sm:w-auto"
         onClick={() => onAcknowledge(warning, room)}
       >
         {t("roomWarnings.acknowledge")}
