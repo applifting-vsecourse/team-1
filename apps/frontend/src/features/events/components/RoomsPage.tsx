@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, type ReactNode } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
 import { BedSingle, Pencil, Trash2 } from "lucide-react"
@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
 import { Seo } from "@/components/atoms/Seo"
+import { CardGrid } from "@/components/molecules/CardGrid"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { SectionHeader } from "@/components/molecules/SectionHeader"
@@ -190,7 +191,7 @@ export function RoomsPage({
           },
         ]
   const termSelect = (
-    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+    <div className="flex flex-col gap-2">
       <Label htmlFor="accommodation-term">{t("rooms.termLabel")}</Label>
       <Select
         value={selected.id}
@@ -198,7 +199,7 @@ export function RoomsPage({
       >
         <SelectTrigger
           id="accommodation-term"
-          className="w-full bg-card sm:w-60"
+          className="w-full bg-card"
         >
           <SelectValue />
         </SelectTrigger>
@@ -216,26 +217,31 @@ export function RoomsPage({
     </div>
   )
   // The view picker sits left of the term picker, in both views.
-  const selectors = (
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
-      <Select
-        value={view}
-        onValueChange={(next) => onSelectView(next === "overview" ? "overview" : "assignment")}
-      >
-        <SelectTrigger
-          aria-label={t("roomOverview.views")}
-          className="w-full bg-card sm:w-60"
+  const renderSelectors = (extra?: ReactNode) => (
+    <div className="grid w-full gap-4 sm:max-w-xl sm:grid-cols-2">
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="accommodation-view">{t("roomOverview.views")}</Label>
+        <Select
+          value={view}
+          onValueChange={(next) => onSelectView(next === "overview" ? "overview" : "assignment")}
         >
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="assignment">{t("roomOverview.viewAssignment")}</SelectItem>
-          <SelectItem value="overview">{t("roomOverview.viewOverview")}</SelectItem>
-        </SelectContent>
-      </Select>
+          <SelectTrigger
+            id="accommodation-view"
+            className="w-full bg-card"
+          >
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="assignment">{t("roomOverview.viewAssignment")}</SelectItem>
+            <SelectItem value="overview">{t("roomOverview.viewOverview")}</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
       {termSelect}
+      {extra}
     </div>
   )
+  const selectors = renderSelectors()
   return (
     <div className="flex flex-col gap-6">
       <Seo title={t("rooms.title")} />
@@ -260,33 +266,39 @@ export function RoomsPage({
         />
       ) : (
         <>
-          {selectors}
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
-            <Label htmlFor="room-mode">{t("rooms.mode")}</Label>
-            <Select
-              value={term.roomMode}
-              onValueChange={(value) => {
-                const targetMode = roomModeSchema.parse(value)
-                if (targetMode !== term.roomMode) setPendingMode(targetMode)
-              }}
-            >
-              <SelectTrigger
-                id="room-mode"
-                className="w-full bg-card sm:w-60"
-              >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="GENDERED">{t("rooms.genderedMode")}</SelectItem>
-                <SelectItem value="SHARED">{t("rooms.sharedMode")}</SelectItem>
-              </SelectContent>
-            </Select>
-            <p className="text-xs text-muted-foreground">{t("rooms.modeHint")}</p>
-          </div>
-          <RoomsPublicationCard
-            term={term}
-            onChanged={refresh}
-          />
+          {/* Controls left, the publication switch in the otherwise empty right half. */}
+          <CardGrid className="lg:grid-cols-1 xl:grid-cols-2">
+            <div className="flex flex-col gap-6">
+              {renderSelectors(
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="room-mode">{t("rooms.mode")}</Label>
+                  <Select
+                    value={term.roomMode}
+                    onValueChange={(value) => {
+                      const targetMode = roomModeSchema.parse(value)
+                      if (targetMode !== term.roomMode) setPendingMode(targetMode)
+                    }}
+                  >
+                    <SelectTrigger
+                      id="room-mode"
+                      className="w-full bg-card"
+                    >
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="GENDERED">{t("rooms.genderedMode")}</SelectItem>
+                      <SelectItem value="SHARED">{t("rooms.sharedMode")}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">{t("rooms.modeHint")}</p>
+                </div>,
+              )}
+            </div>
+            <RoomsPublicationCard
+              term={term}
+              onChanged={refresh}
+            />
+          </CardGrid>
           <div className={cn("grid gap-4", isGendered ? "md:grid-cols-3" : "md:grid-cols-2")}>
             {metrics.map((metric) => (
               <Card

@@ -418,7 +418,7 @@ export function RoomAssignmentsCard({
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>{t("roomAssignments.roomColumn")}</TableHead>
+                        <TableHead className="pl-4">{t("roomAssignments.roomColumn")}</TableHead>
                         <TableHead>{t("roomAssignments.participantsColumn")}</TableHead>
                         <TableHead>{t("roomAssignments.occupancyColumn")}</TableHead>
                         <TableHead className="w-px pr-4">

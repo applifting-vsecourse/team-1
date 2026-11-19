@@ -1,11 +1,14 @@
 import { useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { Info, Loader2 } from "lucide-react"
+import { Info, ListChecks, Loader2, Lock } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { CARD_GRID_WIDE, CardGrid } from "@/components/molecules/CardGrid"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
+import { SectionHeader } from "@/components/molecules/SectionHeader"
 import { SettingsCard } from "@/components/molecules/SettingsCard"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -48,22 +51,33 @@ export function EventSettings({ eventId }: { eventId: string }) {
     )
   }
 
+  // Row-based and equally tall: evaluation | approval, then public details and delete full width.
   return (
-    <div className="flex w-full max-w-196 flex-col gap-6">
-      {event.evaluationModeLocked ? (
-        <LockedMode mode={event.evaluationMode} />
-      ) : (
-        <ChooseMode
-          eventId={eventId}
-          saved={event.evaluationMode}
-        />
-      )}
-      <CancellationStartForm
-        key={event.id}
-        event={event}
+    <div className="flex flex-col gap-6">
+      <SectionHeader
+        title={t("settings.title")}
+        description={t("settings.description")}
       />
-      <PublicPageForm event={event} />
-      <DeleteEventSection event={event} />
+      <CardGrid className="items-stretch">
+        {event.evaluationModeLocked ? (
+          <LockedMode mode={event.evaluationMode} />
+        ) : (
+          <ChooseMode
+            eventId={eventId}
+            saved={event.evaluationMode}
+          />
+        )}
+        <CancellationStartForm
+          key={event.id}
+          event={event}
+        />
+        <div className={CARD_GRID_WIDE}>
+          <PublicPageForm event={event} />
+        </div>
+        <div className={CARD_GRID_WIDE}>
+          <DeleteEventSection event={event} />
+        </div>
+      </CardGrid>
     </div>
   )
 }
@@ -71,13 +85,25 @@ export function EventSettings({ eventId }: { eventId: string }) {
 function LockedMode({ mode }: { mode: EvaluationMode }) {
   const { t } = useTranslation("events")
   return (
-    <SettingsCard title={t("evaluationMode.lockedTitle")}>
-      <p>
-        {t("evaluationMode.lockedValue", {
-          mode: t(`evaluationMode.${mode === "AUTOMATIC" ? "automatic" : "manual"}`),
-        })}
+    <SettingsCard
+      icon={ListChecks}
+      title={t("evaluationMode.title")}
+      description={t("evaluationMode.description")}
+    >
+      <div className="flex flex-wrap items-center gap-2">
+        <Badge>{t(`evaluationMode.${mode === "AUTOMATIC" ? "automatic" : "manual"}`)}</Badge>
+        <Badge variant="secondary">
+          <Lock aria-hidden="true" />
+          {t("evaluationMode.locked")}
+        </Badge>
+      </div>
+      <p className="mt-auto flex items-start gap-2 text-sm text-muted-foreground">
+        <Lock
+          className="mt-0.5 size-4 shrink-0"
+          aria-hidden="true"
+        />
+        {t("evaluationMode.lockedReason")}
       </p>
-      <p>{t("evaluationMode.lockedReason")}</p>
     </SettingsCard>
   )
 }
@@ -99,9 +125,13 @@ function ChooseMode({ eventId, saved }: { eventId: string; saved: EvaluationMode
   })
 
   return (
-    <SettingsCard title={t("evaluationMode.title")}>
+    <SettingsCard
+      icon={ListChecks}
+      title={t("evaluationMode.title")}
+      description={t("evaluationMode.description")}
+    >
       <form
-        className="flex flex-col gap-4"
+        className="flex flex-1 flex-col gap-4"
         onSubmit={(e) => {
           e.preventDefault()
           mutation.mutate()
@@ -145,7 +175,9 @@ function ChooseMode({ eventId, saved }: { eventId: string; saved: EvaluationMode
             )
           })}
         </RadioGroup>
-        <p>{t("evaluationMode.afterOpenLocked")}</p>
+        <p className="mt-auto text-sm text-muted-foreground">
+          {t("evaluationMode.afterOpenLocked")}
+        </p>
         {mutation.isError ? (
           <ErrorState
             title={t("evaluationMode.saveFailed")}

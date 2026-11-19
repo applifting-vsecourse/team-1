@@ -172,6 +172,6 @@ describe("DeleteEventSection", () => {
     ).toBeInTheDocument()
     const button = screen.getByRole("button", { name: "Delete event" })
     expect(button).toBeDisabled()
-    expect(button).toHaveAttribute("data-variant", "ghost")
+    expect(button).toHaveAttribute("data-variant", "destructive")
   })
 })
