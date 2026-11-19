@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next"
 import { ROUTES } from "@/app/routes"
 import { BackLink } from "@/components/atoms/BackLink"
 import { MoneyAmount } from "@/components/atoms/MoneyAmount"
+import { DetailItem } from "@/components/molecules/DetailItem"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { PageHeader } from "@/components/molecules/PageHeader"
@@ -14,6 +15,7 @@ import { TermLabel } from "@/components/molecules/TermLabel"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { formatDate } from "@/lib/date"
 
 import { myApplicationQueryOptions } from "@/features/participant/api/applications"
 import { ChangeRequestNotice } from "@/features/participant/components/ChangeRequestNotice"
@@ -208,6 +210,28 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
                 </Link>
               </Button>
             </div>
+          )}
+          {(data.applicantEmail !== undefined ||
+            (data.birthDate !== undefined && data.gender !== undefined)) && (
+            <Card className="min-w-0 gap-4 p-4 sm:p-6">
+              <h2 className="text-xl font-semibold">{t("detail.participantCard")}</h2>
+              {data.birthDate && data.gender && (
+                <DetailItem label={t("detail.birthGender")}>
+                  {formatDate(data.birthDate)} ·{" "}
+                  {t(data.gender === "MALE" ? "detail.male" : "detail.female")}
+                </DetailItem>
+              )}
+              {data.applicantEmail && (
+                <DetailItem label={t("detail.applicantContact")}>
+                  <a
+                    className="break-all text-link underline"
+                    href={`mailto:${data.applicantEmail}`}
+                  >
+                    {data.applicantEmail}
+                  </a>
+                </DetailItem>
+              )}
+            </Card>
           )}
           <OrganizationContact contact={data.organizationContact} />
         </aside>

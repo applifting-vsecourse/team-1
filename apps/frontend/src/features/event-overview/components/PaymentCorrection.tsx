@@ -20,6 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { apiErrorCode } from "@/lib/api-client"
 import { formatDateRange } from "@/lib/date"
 import { formatCzk } from "@/lib/money"
 import { termDates } from "@/lib/term-label"
@@ -108,6 +109,8 @@ export function PaymentCorrection({
   const balanceChange = originalPreview?.changeCzk ?? 0
   const formError = mutation.error ?? preview.error
 
+  const isStale = apiErrorCode(formError) === "PAYMENT_RECEIPT_ALREADY_CANCELLED"
+
   return (
     <Dialog
       open
@@ -118,7 +121,11 @@ export function PaymentCorrection({
       <DialogContent
         className={cn(
           "flex max-h-[calc(100dvh-2rem)] flex-col overflow-y-auto bg-card p-4 sm:max-w-160 sm:p-6",
-          isRefund && !isUncertain && "sm:max-w-130",
+          isRefund &&
+            !isUncertain &&
+            !isStale &&
+            apiErrorCode(formError) !== "REFUND_EXCEEDS_OVERPAYMENT" &&
+            "sm:max-w-130",
         )}
       >
         <DialogHeader className="pr-10 text-left">
@@ -135,12 +142,12 @@ export function PaymentCorrection({
           noValidate
           onSubmit={(event) => {
             event.preventDefault()
-            if (isUncertain || mutation.isPending) return
+            if (isUncertain || isStale || mutation.isPending) return
             if (!isValid) {
               setIsInvalid(true)
               return
             }
-            if (!preview.data || preview.isFetching) return
+            if (!preview.data || preview.isFetching || preview.isError) return
             mutation.mutate()
           }}
         >
@@ -157,77 +164,79 @@ export function PaymentCorrection({
               </dd>
             </div>
           </dl>
-          <div className="flex flex-col gap-4 sm:flex-row">
-            <div className="flex min-w-0 flex-1 flex-col gap-2">
-              <Label htmlFor="correct-payment-term">{t("payment.termRequired")}</Label>
-              <Select
-                value={termChoice}
-                disabled={mutation.isPending}
-                onValueChange={setTermChoice}
-              >
-                <SelectTrigger
-                  id="correct-payment-term"
-                  className="w-full text-base data-[size=default]:h-12"
-                >
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {!isRefund ? (
-                    <SelectItem value={WHOLE_APPLICATION}>
-                      {t("payment.wholeApplication")}
-                    </SelectItem>
-                  ) : null}
-                  {application.terms
-                    .filter(
-                      (term) =>
-                        !isRefund ||
-                        term.termId === payment.rows[0]?.termId ||
-                        term.refundableCzk > 0,
-                    )
-                    .map((term) => (
-                      <SelectItem
-                        key={term.termId}
-                        value={term.termId}
-                      >
-                        {termDates(term)}
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex min-w-0 flex-1 flex-col gap-2">
-              <Label htmlFor="correct-payment-amount">{t("payment.correctionAmount")}</Label>
-              <div className="relative">
-                <Input
-                  id="correct-payment-amount"
-                  inputMode="decimal"
-                  className="h-12 pr-12 md:text-base"
-                  value={amount}
+          {!isStale && (
+            <div className="flex flex-col gap-4 sm:flex-row">
+              <div className="flex min-w-0 flex-1 flex-col gap-2">
+                <Label htmlFor="correct-payment-term">{t("payment.termRequired")}</Label>
+                <Select
+                  value={termChoice}
                   disabled={mutation.isPending}
-                  aria-invalid={isInvalid && !isValid}
-                  onChange={(event) => {
-                    setAmount(event.target.value)
-                    setIsInvalid(false)
-                  }}
-                />
-                <span
-                  aria-hidden="true"
-                  className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-sm text-muted-foreground"
+                  onValueChange={setTermChoice}
                 >
-                  CZK
-                </span>
+                  <SelectTrigger
+                    id="correct-payment-term"
+                    className="w-full text-base data-[size=default]:h-12"
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {!isRefund ? (
+                      <SelectItem value={WHOLE_APPLICATION}>
+                        {t("payment.wholeApplication")}
+                      </SelectItem>
+                    ) : null}
+                    {application.terms
+                      .filter(
+                        (term) =>
+                          !isRefund ||
+                          term.termId === payment.rows[0]?.termId ||
+                          term.refundableCzk > 0,
+                      )
+                      .map((term) => (
+                        <SelectItem
+                          key={term.termId}
+                          value={term.termId}
+                        >
+                          {termDates(term)}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
               </div>
-              {isInvalid && !isValid ? (
-                <p
-                  role="alert"
-                  className="text-sm text-destructive"
-                >
-                  {t("payment.invalidAmount")}
-                </p>
-              ) : null}
+              <div className="flex min-w-0 flex-1 flex-col gap-2">
+                <Label htmlFor="correct-payment-amount">{t("payment.correctionAmount")}</Label>
+                <div className="relative">
+                  <Input
+                    id="correct-payment-amount"
+                    inputMode="decimal"
+                    className="h-12 pr-12 md:text-base"
+                    value={amount}
+                    disabled={mutation.isPending}
+                    aria-invalid={isInvalid && !isValid}
+                    onChange={(event) => {
+                      setAmount(event.target.value)
+                      setIsInvalid(false)
+                    }}
+                  />
+                  <span
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-sm text-muted-foreground"
+                  >
+                    CZK
+                  </span>
+                </div>
+                {isInvalid && !isValid ? (
+                  <p
+                    role="alert"
+                    className="text-sm text-destructive"
+                  >
+                    {t("payment.invalidAmount")}
+                  </p>
+                ) : null}
+              </div>
             </div>
-          </div>
-          {isValid && preview.data ? (
+          )}
+          {!isStale && isValid && preview.data ? (
             <div
               className="text-base"
               aria-live="polite"
@@ -281,6 +290,32 @@ export function PaymentCorrection({
                   },
                 )}
               </p>
+              {termChoice === WHOLE_APPLICATION && (
+                <ul className="mt-2 space-y-1">
+                  {preview.data.terms.map((item) => {
+                    const term = application.terms.find((entry) => entry.termId === item.termId)
+                    if (
+                      !term ||
+                      item.allocatedCzk === undefined ||
+                      (!item.allocatedCzk && !item.changeCzk)
+                    ) {
+                      return null
+                    }
+                    return (
+                      <li key={term.termId}>
+                        {t("payment.correctionAllocation", {
+                          term: termDates(term),
+                          amount: formatCzk(item.allocatedCzk),
+                          balanceLabel: t(
+                            item.owedCzk < 0 ? "payment.overpaid" : "payment.remainingToPay",
+                          ),
+                          balance: formatCzk(Math.abs(item.owedCzk)),
+                        })}
+                      </li>
+                    )
+                  })}
+                </ul>
+              )}
             </div>
           ) : null}
           {formError ? (
@@ -288,6 +323,7 @@ export function PaymentCorrection({
               role="alert"
               className="text-sm text-destructive"
             >
+              {isStale && <strong className="mb-1 block">{t("payment.staleCorrection")}</strong>}
               {isUncertain ? t("payment.uncertainCorrection") : formError.message}
             </p>
           ) : null}
@@ -302,7 +338,7 @@ export function PaymentCorrection({
             >
               {t("payment.cancelCorrection")}
             </Button>
-            {isUncertain ? (
+            {isUncertain || isStale ? (
               <RefreshAfterWrite
                 label={t("payment.refreshHistory")}
                 onRefreshed={onClose}
@@ -311,7 +347,9 @@ export function PaymentCorrection({
               <Button
                 type="submit"
                 size="lg"
-                disabled={mutation.isPending || !preview.data || preview.isFetching}
+                disabled={
+                  mutation.isPending || preview.isError || !preview.data || preview.isFetching
+                }
                 className="h-12 w-full sm:flex-1"
               >
                 {t(mutation.isPending ? "payment.saving" : "payment.saveCorrection")}

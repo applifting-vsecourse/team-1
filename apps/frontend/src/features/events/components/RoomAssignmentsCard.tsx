@@ -207,6 +207,12 @@ export function RoomAssignmentsCard({
         name: drag.name,
         isMove: drag.fromRoomId !== null,
         room,
+        // Only an unassigned participant is placed in their other terms too; a move stays here.
+        alsoInTerms:
+          drag.fromRoomId === null
+            ? (data?.unassigned.find((row) => row.applicationTermId === drag.applicationTermId)
+                ?.alsoInTerms ?? [])
+            : [],
       })
       return
     }
@@ -472,12 +478,14 @@ export function RoomAssignmentsCard({
             rooms={data.rooms}
             target={dialog.target}
             onClose={() => setDialog(null)}
-            onNeedsExtraBed={(room) =>
+            onNeedsExtraBed={(room, checkedTermIds) =>
               setExtraBed({
                 applicationTermId: dialog.target.applicationTermId,
                 name: dialog.target.name,
                 isMove: dialog.target.currentRoomId !== null,
                 room,
+                alsoInTerms: dialog.target.currentRoomId === null ? dialog.target.alsoInTerms : [],
+                checkedTermIds,
               })
             }
             onDone={({ room, isMoved }) => confirmPlacement(room, dialog.target.name, isMoved)}

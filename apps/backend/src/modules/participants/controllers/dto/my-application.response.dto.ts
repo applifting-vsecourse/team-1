@@ -124,6 +124,9 @@ export class MyApplicationResponseDto {
   @ApiProperty()
   eventId!: string
 
+  @ApiProperty({ format: "email" })
+  applicantEmail!: string
+
   @ApiProperty({ format: "date" })
   birthDate!: string
 

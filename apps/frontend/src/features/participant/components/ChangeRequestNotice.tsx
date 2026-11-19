@@ -89,6 +89,14 @@ export function ChangeRequestNotice({
             {t(`request.status.${request.status}`)}
           </Badge>
         )}
+        {!isPending && (
+          <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
+            <span>{t("request.createdDate", { date: formatDateTime(request.createdAt) })}</span>
+            {request.reviewedAt && (
+              <span>{t("request.reviewedDate", { date: formatDateTime(request.reviewedAt) })}</span>
+            )}
+          </div>
+        )}
         {isCancel ? (
           <DetailItem label={t("request.request")}>
             {isWholeApplication

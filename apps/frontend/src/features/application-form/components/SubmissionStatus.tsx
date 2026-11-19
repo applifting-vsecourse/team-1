@@ -8,6 +8,7 @@ import { BrandDivider } from "@/components/atoms/BrandDivider"
 import { CopyButton } from "@/components/atoms/CopyButton"
 import { LogoSymbol } from "@/components/atoms/Logo"
 import { MoneyAmount } from "@/components/atoms/MoneyAmount"
+import { PaymentQrDownload } from "@/components/molecules/PaymentQrDownload"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -15,6 +16,7 @@ import { Card } from "@/components/ui/card"
 import { currentLanguage } from "@/i18n"
 import { formatDateRange } from "@/lib/date"
 import { formatCzk } from "@/lib/money"
+import { summaryPaymentSpayd } from "@/lib/payment-qr"
 import { termName } from "@/lib/term-label"
 import { cn } from "@/lib/utils"
 
@@ -109,7 +111,10 @@ export function SubmissionStatus({
       </div>
       {payers.length > 0 ? (
         <aside className="min-w-0 lg:col-start-2 lg:row-span-2 lg:row-start-1">
-          <PaymentCard payers={payers} />
+          <PaymentCard
+            payers={payers}
+            eventName={data.eventName}
+          />
         </aside>
       ) : isAwaitingEvaluation ? (
         // Figma (Design system): Togena / Alert · node-id=15751-1290 (360 px: 15751-1320)
@@ -200,11 +205,24 @@ function TermStatusCard({
 // Figma (Design system): M06p Stav a platba po odeslání · 360 px · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16186-4434
 // One card for the whole submission: the total, the account once, and the summary variable
 // symbol of every paying application. Applications are paid separately (issue #153).
-function PaymentCard({ payers }: { payers: SubmittedApplication[] }) {
+function PaymentCard({ payers, eventName }: { payers: SubmittedApplication[]; eventName: string }) {
   const { t } = useTranslation(["applicationForm", "common"])
   const [first] = payers
   const payments = payers.flatMap((application) =>
-    application.payment ? [{ application, payment: application.payment }] : [],
+    application.payment
+      ? [
+          {
+            application,
+            payment: application.payment,
+            spayd: summaryPaymentSpayd(
+              application.payment.bankAccount,
+              application.payment.summary.payableCzk,
+              application.payment.summary.variableSymbol,
+              eventName,
+            ),
+          },
+        ]
+      : [],
   )
   if (!first?.payment) return null
   const hasSeveralPayers = payments.length > 1
@@ -237,7 +255,7 @@ function PaymentCard({ payers }: { payers: SubmittedApplication[] }) {
             />
           </dd>
         </div>
-        {payments.map(({ application, payment }) => (
+        {payments.map(({ application, payment, spayd }) => (
           <div
             key={application.variableSymbol}
             className="flex flex-col gap-4"
@@ -257,6 +275,15 @@ function PaymentCard({ payers }: { payers: SubmittedApplication[] }) {
                 label={t("common:clipboard.copyVariableSymbol")}
               />
             </dd>
+            {spayd && (
+              <dd>
+                <PaymentQrDownload
+                  key={spayd}
+                  spayd={spayd}
+                  variableSymbol={payment.summary.variableSymbol}
+                />
+              </dd>
+            )}
           </div>
         ))}
       </dl>

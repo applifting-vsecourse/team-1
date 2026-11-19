@@ -141,7 +141,7 @@ describe("ManualApplicationPage", () => {
   })
 
   it.each([
-    ["Confirmed, payment due", "CONFIRMED"],
+    ["Confirmed, with a debt", "CONFIRMED"],
     ["Waitlisted", "WAITLISTED"],
   ] as const)(
     "submits only the second term as %s after deselecting the full first term",
@@ -168,7 +168,7 @@ describe("ManualApplicationPage", () => {
       }))
       setup([term, secondTerm])
       const user = userEvent.setup()
-      await fillForm(user, "Confirmed, payment due")
+      await fillForm(user, "Confirmed, with a debt")
       await user.click(screen.getByRole("combobox", { name: /First/ }))
       await user.click(screen.getByRole("option", { name: "Not selected" }))
       await user.click(screen.getByRole("combobox", { name: /Second/ }))
@@ -273,7 +273,7 @@ describe("ManualApplicationPage", () => {
     loadSavedTerms.mockResolvedValue([{ ...savedTerm, status: "CONFIRMED", priceCzk: 5100 }])
     setup()
     const user = userEvent.setup()
-    await fillForm(user, "Confirmed, payment due")
+    await fillForm(user, "Confirmed, with a debt")
     await user.click(
       screen.getByRole("checkbox", { name: /I confirm that the applicant consented/ }),
     )
@@ -306,9 +306,9 @@ describe("ManualApplicationPage", () => {
       await pending
     })
     expect(await screen.findByText("Application created")).toBeInTheDocument()
-    expect(screen.getByText(/Confirmed, payment due/)).toBeInTheDocument()
+    expect(screen.getByText(/Confirmed, with a debt/)).toBeInTheDocument()
     expect(screen.getByText(/5[,\s]100/)).toBeInTheDocument()
-    expect(screen.queryByText(/Nothing to pay/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/Nothing due/)).not.toBeInTheDocument()
   })
 
   it("shows the submitted participant and saved status after the draft changes during saving", async () => {
@@ -327,7 +327,7 @@ describe("ManualApplicationPage", () => {
     await user.clear(screen.getByLabelText("First name *"))
     await user.type(screen.getByLabelText("First name *"), "Other")
     await user.click(screen.getByRole("combobox", { name: /First/ }))
-    await user.click(screen.getByRole("option", { name: "Confirmed, payment due" }))
+    await user.click(screen.getByRole("option", { name: "Confirmed, with a debt" }))
 
     await act(async () => {
       complete({ applicationId: "a1", number: 1 })
@@ -336,8 +336,8 @@ describe("ManualApplicationPage", () => {
     expect(await screen.findByText("Application created")).toBeInTheDocument()
     expect(screen.getByRole("heading", { name: "Eva Novak" })).toBeInTheDocument()
     expect(screen.getByText(/Waitlisted/)).toBeInTheDocument()
-    expect(screen.getByText(/Nothing to pay/)).toBeInTheDocument()
-    expect(screen.queryByText(/Confirmed, payment due/)).not.toBeInTheDocument()
+    expect(screen.getByText(/Nothing due/)).toBeInTheDocument()
+    expect(screen.queryByText(/Confirmed, with a debt/)).not.toBeInTheDocument()
   })
 
   it("retries loading the saved statuses without creating another application", async () => {
@@ -407,7 +407,7 @@ describe("ManualApplicationPage", () => {
     }))
     setup()
     const user = userEvent.setup()
-    await fillForm(user, "Confirmed, payment due")
+    await fillForm(user, "Confirmed, with a debt")
     await user.click(
       screen.getByRole("checkbox", { name: /I confirm that the applicant consented/ }),
     )

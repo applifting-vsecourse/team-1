@@ -22,7 +22,13 @@ export function RefreshAfterWrite({
   const client = useQueryClient()
   const refresh = useMutation({
     mutationFn: () =>
-      client.invalidateQueries({ queryKey: ["eventOverview"] }, { throwOnError: true }),
+      client.invalidateQueries(
+        {
+          queryKey: ["eventOverview"],
+          predicate: (query) => query.queryKey[1] !== "correctionPreview",
+        },
+        { throwOnError: true },
+      ),
     onSuccess: onRefreshed,
   })
   return (

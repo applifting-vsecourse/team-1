@@ -61,7 +61,7 @@ export type AssignmentOtherTerm = {
   /** ISO dates, `2027-07-04`. */
   startsOn: string
   endsOn: string
-  rooms: { id: string; name: string; gender: Gender | null; freeBeds: number }[]
+  rooms: { id: string; name: string; gender: Gender | null; beds: number; freeBeds: number }[]
 }
 
 export type UnassignedParticipant = AssignmentParticipant & { alsoInTerms: AssignmentOtherTerm[] }

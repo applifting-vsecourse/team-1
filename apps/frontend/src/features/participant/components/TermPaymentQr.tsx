@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next"
 
-import { usePaymentQr } from "@/features/participant/hooks/usePaymentQr"
-import { paymentSpayd } from "@/features/participant/lib/payment-qr"
+import { usePaymentQr } from "@/hooks/usePaymentQr"
+import { paymentSpayd } from "@/lib/payment-qr"
 
 type TermPaymentQrProps = {
   bankAccount: string

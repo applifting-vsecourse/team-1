@@ -28,6 +28,7 @@ class OtherTermRoomDto {
   @ApiProperty() id!: string
   @ApiProperty() name!: string
   @ApiProperty({ enum: ["FEMALE", "MALE"], nullable: true }) gender!: Gender | null
+  @ApiProperty({ description: "Beds of the room, extra beds included" }) beds!: number
   @ApiProperty({ description: "Beds left, extra beds included" }) freeBeds!: number
 }
 class OtherTermDto {

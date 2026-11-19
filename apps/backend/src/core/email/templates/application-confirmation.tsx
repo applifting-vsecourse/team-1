@@ -58,7 +58,7 @@ const copy: Record<
       WAITLISTED:
         "The application is waitlisted. We will e-mail you if the place is confirmed. Please do not pay yet.",
     },
-    amountDue: "Amount due",
+    amountDue: "Left to pay",
     account: "Bank account",
     variableSymbol: "Variable symbol",
     applicationSymbol: "Variable symbol of the whole application",
@@ -93,7 +93,7 @@ const copy: Record<
       WAITLISTED:
         "Přihláška je zařazena mezi náhradníky. Pokud bude účast potvrzena, informujeme vás e-mailem. Zatím nic neplaťte.",
     },
-    amountDue: "K úhradě",
+    amountDue: "Zbývá zaplatit",
     account: "Bankovní účet",
     variableSymbol: "Variabilní symbol",
     applicationSymbol: "VS celé přihlášky",

@@ -99,7 +99,26 @@ describe("ChangeRequestsPanel", () => {
   })
 
   it("sends the entered rejection reason", async () => {
-    patch.mockResolvedValue(undefined)
+    let isRejected = false
+    patch.mockImplementation(() => {
+      isRejected = true
+      return Promise.resolve()
+    })
+    get.mockImplementation((path: string) => ({
+      json: () =>
+        Promise.resolve(
+          path.endsWith("/change-requests/r1")
+            ? {
+                ...request,
+                status: "REJECTED",
+                rejectionReason: "Please contact us",
+                reviewedAt: "2027-07-03T13:00:00Z",
+              }
+            : path.endsWith("/change-requests") && !isRejected
+              ? [request]
+              : [],
+        ),
+    }))
     const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
     render(
       <QueryClientProvider client={client}>
@@ -120,6 +139,11 @@ describe("ChangeRequestsPanel", () => {
     expect(patch).toHaveBeenCalledWith("organizer/events/e1/change-requests/r1/reject", {
       json: { reason: "Please contact us" },
     })
+    expect(await screen.findByText("Please contact us")).toBeVisible()
+    expect(screen.getByText("Declined")).toBeVisible()
+    await user.click(screen.getByRole("button", { name: "Back to requests" }))
+    expect(await screen.findByText("There are no requests awaiting approval.")).toBeVisible()
+    expect(patch).toHaveBeenCalledTimes(1)
   })
 
   it("shows a health request with the current and the requested note and approves it", async () => {

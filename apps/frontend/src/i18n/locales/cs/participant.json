@@ -33,8 +33,8 @@
     "onlyTerm": "Pouze {{term}}",
     "open": "Změnit termíny",
     "overpaidCancel": "Vznikne přeplatek {{overpaid}}. Vrácení peněz vyřeší organizátor, neproběhne automaticky.",
-    "paidCancel": "Zaplaceno {{paid}} · dluh po odhlášení {{debt}}",
-    "paidChange": "Zaplaceno {{paid}} · přeplatek {{overpaid}} · dluh {{debt}}",
+    "paidCancel": "Zaplaceno {{paid}} · po odhlášení zbývá zaplatit {{debt}}",
+    "paidChange": "Zaplaceno {{paid}} · přeplatek {{overpaid}} · zbývá zaplatit {{debt}}",
     "refundByOrganizer": "Výši storna a případnou vratku určí organizátor.",
     "requestSubmit": "Odeslat žádost",
     "saving": "Ukládání…",
@@ -57,12 +57,17 @@
     "title": "Kontakt organizace"
   },
   "detail": {
+    "applicantContact": "Kontakt",
     "archivedText": "Termín skončil, už není co vyřizovat.",
     "archivedTitle": "Archivovaná přihláška",
     "back": "Zpět na Moje přihlášky",
+    "birthGender": "Datum narození a pohlaví",
     "errorTitle": "Přihlášku se nepodařilo načíst",
+    "female": "žena",
     "health": "Zdravotní omezení",
+    "male": "muž",
     "meals": "Stravování",
+    "participantCard": "Údaje účastníka",
     "program": "Program",
     "roomNotAssigned": "Zatím nemáte přiřazený pokoj.",
     "sections": {
@@ -79,7 +84,7 @@
       "mealsView": "Zobrazit stravování",
       "payment": "Zaplacení",
       "paymentPay": "Zaplatit {{amount}}",
-      "paymentView": "Zobrazit platbu",
+      "paymentView": "Zobrazit platební údaje",
       "roomView": "Zobrazit pokoj",
       "title": "Kroky před akcí",
       "todo": "Zbývá",
@@ -194,6 +199,7 @@
   "request": {
     "cancelTitle": "Požadované odhlášení",
     "changeTitle": "Požadovaná změna termínu",
+    "createdDate": "Podáno {{date}}",
     "current": "Původní termín",
     "loadError": "Žádosti se nepodařilo načíst",
     "message": {
@@ -219,6 +225,7 @@
     "reason": "Důvod: {{reason}}",
     "request": "Žádost",
     "requested": "Nový termín",
+    "reviewedDate": "Vyřízeno {{date}}",
     "status": {
       "APPROVED": "Schváleno",
       "PENDING": "Čeká na schválení",

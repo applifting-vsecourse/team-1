@@ -158,7 +158,9 @@ describe("organizer payments (US-44)", () => {
     }
     expect(preview).toMatchObject({
       amountOwedCzk: 1900,
-      terms: expect.arrayContaining([{ termId: firstTermId(), owedCzk: 1900, changeCzk: 1900 }]),
+      terms: expect.arrayContaining([
+        { termId: firstTermId(), owedCzk: 1900, changeCzk: 1900, allocatedCzk: 5000 },
+      ]),
     })
     expect((await summary()).amountPaidCzk).toBe(6900)
     expect(allEmailsTo(applicantEmail).map((mail) => mail.subject)).toEqual([
@@ -195,6 +197,18 @@ describe("organizer payments (US-44)", () => {
     ).toBe(true)
     expect((await latestEmailTo(applicantEmail))?.subject).toContain("Payment correction")
     expect((await request("PATCH", `/${original.id}`, correction)).status).toBe(204)
+    const stalePreview = await request("POST", `/${original.id}/preview`, {
+      amountCzk: 5000,
+      termId: firstTermId(),
+    })
+    const staleWrite = await request("PATCH", `/${original.id}`, {
+      ...correction,
+      requestId: randomUUID(),
+    })
+    for (const response of [stalePreview, staleWrite]) {
+      expect(response.status).toBe(409)
+      expect(await response.json()).toMatchObject({ code: "PAYMENT_RECEIPT_ALREADY_CANCELLED" })
+    }
     expect((await summary()).payments).toHaveLength(2)
     expect((await summary()).terms[0].paymentDueAt).toBe(after.terms[0].paymentDueAt)
   })

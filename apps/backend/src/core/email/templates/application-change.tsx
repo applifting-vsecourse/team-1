@@ -115,7 +115,7 @@ export function ApplicationChange({
       details={
         payment
           ? [
-              { label: cs ? "K úhradě" : "Amount due", value: payment.amount },
+              { label: cs ? "Zbývá zaplatit" : "Left to pay", value: payment.amount },
               { label: cs ? "Bankovní účet" : "Bank account", value: payment.bankAccount },
               {
                 label: payment.terms.length

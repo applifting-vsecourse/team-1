@@ -19,7 +19,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { formatDate } from "@/lib/date"
 import { notify } from "@/lib/notify"
 import { termDatesLine } from "@/lib/term-label"
 
@@ -34,6 +33,7 @@ import { DeleteProgramBlockDialog } from "@/features/program/components/DeletePr
 import { ProgramBlockDetailDialog } from "@/features/program/components/ProgramBlockDetailDialog"
 import { ProgramBlockDialog } from "@/features/program/components/ProgramBlockDialog"
 import { ProgramCalendar } from "@/features/program/components/ProgramCalendar"
+import { formatDay, formatDayHeader, timeRange } from "@/features/program/lib/days"
 
 type Editor = { block?: ProgramBlock; date: string }
 
@@ -149,28 +149,62 @@ export function ProgramPage({ eventId }: { eventId: string }) {
         </div>
       </div>
       {copied?.termId === term.termId ? (
-        <Alert variant={copied.result.overlaps.length > 0 ? "warning" : "default"}>
-          <AlertTitle>
-            {t("copy.resultTitle", { count: copied.result.copied, copied: copied.result.copied })}
-            {copied.result.skipped > 0
-              ? ` · ${t("copy.resultSkipped", { count: copied.result.skipped })}`
-              : ""}
-          </AlertTitle>
-          {copied.result.overlaps.length > 0 ? (
-            <AlertDescription className="text-foreground">
-              <strong>{t("copy.overlapHeading", { count: copied.result.overlaps.length })}</strong>{" "}
-              {copied.result.overlaps
-                .map((item) =>
-                  t("copy.overlapResultItem", {
-                    first: item.first,
-                    second: item.second,
-                    date: formatDate(item.date),
-                  }),
-                )
-                .join(" ")}
-            </AlertDescription>
+        <div className="flex min-w-0 flex-col gap-3">
+          <Alert variant={copied.result.overlaps.length > 0 ? "warning" : "default"}>
+            <AlertTitle>
+              {t("copy.resultTitle", { count: copied.result.copied, copied: copied.result.copied })}
+              {copied.result.skipped > 0
+                ? ` · ${t("copy.resultSkipped", { count: copied.result.skipped })}`
+                : ""}
+            </AlertTitle>
+            {copied.result.overlaps.length > 0 ? (
+              <AlertDescription className="text-foreground">
+                <strong>
+                  {t("copy.overlapHeading", { count: copied.result.overlaps.length })}
+                </strong>{" "}
+                {copied.result.overlaps
+                  .map((item) =>
+                    t(
+                      item.startTime && item.endTime
+                        ? "copy.overlapTimed"
+                        : "copy.overlapResultItem",
+                      {
+                        from: item.startTime,
+                        to: item.endTime,
+                        first: item.first,
+                        second: item.second,
+                        date: formatDay(item.date),
+                      },
+                    ),
+                  )
+                  .join(" ")}
+              </AlertDescription>
+            ) : null}
+          </Alert>
+          {copied.result.blocks?.length ? (
+            <ul
+              aria-label={t("copy.copiedBlocks")}
+              className="mx-3.5 grid grid-cols-1 gap-2 md:mx-[15px] md:grid-cols-3"
+            >
+              {copied.result.blocks.map((block, index) => (
+                <li
+                  key={index}
+                  className="min-w-0 space-y-1 rounded-lg border bg-card p-3"
+                >
+                  <p className="text-xs leading-[18px] text-muted-foreground">
+                    {formatDayHeader(block.date).date}
+                  </p>
+                  <p className="text-sm font-semibold break-words">{block.name}</p>
+                  <p className="text-sm">
+                    {timeRange(block)}
+                    {block.place && ` · ${block.place}`}
+                  </p>
+                  {block.description && <p className="text-sm break-words">{block.description}</p>}
+                </li>
+              ))}
+            </ul>
           ) : null}
-        </Alert>
+        </div>
       ) : null}
       {term.blocks.length === 0 ? (
         <p className="text-sm text-muted-foreground">{t("empty")}</p>

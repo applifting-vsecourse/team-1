@@ -33,8 +33,8 @@
     "onlyTerm": "Only {{term}}",
     "open": "Change terms",
     "overpaidCancel": "An overpayment of {{overpaid}} will arise. The organizer will arrange the refund; it does not happen automatically.",
-    "paidCancel": "Paid {{paid}} · debt after cancellation {{debt}}",
-    "paidChange": "Paid {{paid}} · overpayment {{overpaid}} · debt {{debt}}",
+    "paidCancel": "Paid {{paid}} · left to pay after cancellation {{debt}}",
+    "paidChange": "Paid {{paid}} · overpayment {{overpaid}} · left to pay {{debt}}",
     "refundByOrganizer": "The organizer decides the cancellation fee and any refund.",
     "requestSubmit": "Send request",
     "saving": "Saving…",
@@ -57,12 +57,17 @@
     "title": "Organization contact"
   },
   "detail": {
+    "applicantContact": "Contact",
     "archivedText": "The term has ended, there is nothing left to arrange.",
     "archivedTitle": "Archived application",
     "back": "Back to my applications",
+    "birthGender": "Date of birth and gender",
     "errorTitle": "Couldn't load the application",
+    "female": "woman",
     "health": "Health restriction",
+    "male": "man",
     "meals": "Meals",
+    "participantCard": "Participant details",
     "program": "Program",
     "roomNotAssigned": "You have no room assigned yet.",
     "sections": {
@@ -79,7 +84,7 @@
       "mealsView": "View meals",
       "payment": "Payment",
       "paymentPay": "Pay {{amount}}",
-      "paymentView": "View payment",
+      "paymentView": "View payment details",
       "roomView": "View room",
       "title": "Steps before the event",
       "todo": "To do",
@@ -194,6 +199,7 @@
   "request": {
     "cancelTitle": "Requested cancellation",
     "changeTitle": "Requested term change",
+    "createdDate": "Submitted {{date}}",
     "current": "Original term",
     "loadError": "Couldn't load change requests",
     "message": {
@@ -219,6 +225,7 @@
     "reason": "Reason: {{reason}}",
     "request": "Request",
     "requested": "New term",
+    "reviewedDate": "Reviewed {{date}}",
     "status": {
       "APPROVED": "Approved",
       "PENDING": "Awaiting approval",

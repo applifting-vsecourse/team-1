@@ -6,6 +6,7 @@ import { TermPaymentCard, TermPaymentCards } from "@/components/molecules/TermPa
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { formatCzk } from "@/lib/money"
+import { summaryPaymentSpayd } from "@/lib/payment-qr"
 import { termDatesLine } from "@/lib/term-label"
 
 import type { MyApplication } from "@/features/participant/api/applications"
@@ -13,7 +14,6 @@ import { SimulatePaymentButton } from "@/features/participant/components/Simulat
 import { SummaryPaymentDialog } from "@/features/participant/components/SummaryPaymentDialog"
 import { TermPaymentQr } from "@/features/participant/components/TermPaymentQr"
 import { PAYMENT_SECTION_ID } from "@/features/participant/components/TermSteps"
-import { summaryPaymentSpayd } from "@/features/participant/lib/payment-qr"
 
 type PaymentSummaryProps = {
   application: MyApplication

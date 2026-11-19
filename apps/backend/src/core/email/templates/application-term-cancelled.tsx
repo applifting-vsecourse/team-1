@@ -38,7 +38,7 @@ export function TermCancelled({
       buttonUrl={confirmationUrl}
       note={
         locale === "cs"
-          ? "Případné zaplacené platby za zrušený termín se vrací. Další postup vám sdělí organizace."
+          ? "Případné platby za zrušený termín se vrací. Další postup vám sdělí organizace."
           : "Any payments already made for the cancelled term are to be refunded. The organisation will let you know the next steps."
       }
     />

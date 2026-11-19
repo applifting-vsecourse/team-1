@@ -1,16 +1,16 @@
 import type { ReactNode } from "react"
-import { Download, X } from "lucide-react"
+import { X } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { CopyButton } from "@/components/atoms/CopyButton"
 import { MoneyAmount } from "@/components/atoms/MoneyAmount"
+import { PaymentQrDownload } from "@/components/molecules/PaymentQrDownload"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { formatDateRange } from "@/lib/date"
+import { summaryPaymentSpayd } from "@/lib/payment-qr"
 
 import type { MyApplication } from "@/features/participant/api/applications"
-import { usePaymentQr } from "@/features/participant/hooks/usePaymentQr"
-import { summaryPaymentSpayd } from "@/features/participant/lib/payment-qr"
 
 type Props = { application: MyApplication; onClose: () => void }
 
@@ -32,16 +32,6 @@ export function SummaryPaymentDialog({ application, onClose }: Props) {
     details.summary.variableSymbol,
     application.eventName,
   )
-  const qrImage = usePaymentQr(spayd)
-
-  const saveQr = () => {
-    if (!qrImage) return
-    const link = document.createElement("a")
-    link.href = qrImage
-    link.download = `qr-${details.summary.variableSymbol}.png`
-    link.click()
-  }
-
   return (
     <Dialog
       open
@@ -111,26 +101,12 @@ export function SummaryPaymentDialog({ application, onClose }: Props) {
             </dd>
           </div>
         </dl>
-        <div className="flex flex-col items-center gap-2">
-          {qrImage ? (
-            <img
-              src={qrImage}
-              width={200}
-              height={200}
-              className="size-40 sm:size-32"
-              alt={t("payment.qrAlt")}
-            />
-          ) : null}
-          <Button
-            type="button"
-            variant="outline"
-            disabled={!qrImage}
-            onClick={saveQr}
-          >
-            <Download aria-hidden="true" />
-            {t("payment.saveQr")}
-          </Button>
-        </div>
+        {spayd && (
+          <PaymentQrDownload
+            spayd={spayd}
+            variableSymbol={details.summary.variableSymbol}
+          />
+        )}
         <p className="text-sm text-muted-foreground">{t("payment.summaryQrExplanation")}</p>
       </DialogContent>
     </Dialog>

@@ -28,6 +28,7 @@ import {
   type EventChangeRequest,
 } from "@/features/event-overview/api/changeRequests"
 import { occupancyQueryOptions } from "@/features/event-overview/api/occupancy"
+import { ChangeRequestResult } from "@/features/event-overview/components/ChangeRequestResult"
 
 const termLabels = (request: EventChangeRequest, ids: string[]) =>
   ids
@@ -46,10 +47,18 @@ export function ChangeRequestsPanel({ eventId }: { eventId: string }) {
   const client = useQueryClient()
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [isDeclining, setDeclining] = useState(false)
+  const [completed, setCompleted] = useState<EventChangeRequest | null>(null)
   const [reason, setReason] = useState("")
   const mutation = useMutation({
-    mutationFn: ({ id, decision }: { id: string; decision: "approve" | "reject" }) =>
-      decideChangeRequest(eventId, id, decision, reason),
+    mutationFn: ({
+      request,
+      decision,
+      reason,
+    }: {
+      request: EventChangeRequest
+      decision: "approve" | "reject"
+      reason?: string
+    }) => decideChangeRequest(eventId, request.id, decision, reason),
     onError: () => setDeclining(false),
     onSuccess: async (_data, variables) => {
       await client.invalidateQueries({ queryKey: ["eventOverview"] })
@@ -57,11 +66,22 @@ export function ChangeRequestsPanel({ eventId }: { eventId: string }) {
       setDeclining(false)
       setSelectedId(null)
       setReason("")
+      if (variables.request.kind === "TERMS") setCompleted(variables.request)
       notify.success(
         t(variables.decision === "approve" ? "changeRequests.approved" : "changeRequests.rejected"),
       )
     },
   })
+  if (completed?.eventId === eventId) {
+    return (
+      <ChangeRequestResult
+        eventId={eventId}
+        requestId={completed.id}
+        applicationId={completed.applicationId}
+        onBack={() => setCompleted(null)}
+      />
+    )
+  }
   if (query.isPending) return <LoadingState />
   if (query.isError) {
     return (
@@ -233,7 +253,7 @@ export function ChangeRequestsPanel({ eventId }: { eventId: string }) {
                 <>
                   <Button
                     disabled={mutation.isPending || hasCapacityChanged}
-                    onClick={() => mutation.mutate({ id: request.id, decision: "approve" })}
+                    onClick={() => mutation.mutate({ request, decision: "approve" })}
                   >
                     {t("changeRequests.approve")}
                   </Button>
@@ -242,7 +262,7 @@ export function ChangeRequestsPanel({ eventId }: { eventId: string }) {
                     disabled={mutation.isPending}
                     onClick={() =>
                       request.kind === "HEALTH"
-                        ? mutation.mutate({ id: request.id, decision: "reject" })
+                        ? mutation.mutate({ request, decision: "reject", reason })
                         : setDeclining(true)
                     }
                   >
@@ -298,7 +318,7 @@ export function ChangeRequestsPanel({ eventId }: { eventId: string }) {
                   <Button
                     variant="destructive"
                     disabled={mutation.isPending}
-                    onClick={() => mutation.mutate({ id: request.id, decision: "reject" })}
+                    onClick={() => mutation.mutate({ request, decision: "reject", reason })}
                   >
                     {t("changeRequests.reject")}
                   </Button>

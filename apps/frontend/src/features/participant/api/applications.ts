@@ -65,6 +65,7 @@ export const myApplicationSchema = z.object({
   id: z.string(),
   eventName: z.string(),
   eventId: z.string().optional(),
+  applicantEmail: z.string().optional(),
   birthDate: z.string().optional(),
   gender: z.enum(["FEMALE", "MALE"]).optional(),
   firstName: z.string(),

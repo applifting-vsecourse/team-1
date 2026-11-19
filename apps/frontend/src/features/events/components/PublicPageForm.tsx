@@ -94,7 +94,11 @@ export function PublicPageForm({ event }: { event: OrganizerEvent }) {
     onSuccess: async (saved) => {
       notify.success(
         t("publicPage.saved"),
-        saved.publishedInCatalog ? t("publicPage.savedPublished") : undefined,
+        saved.publishedInCatalog
+          ? t("publicPage.savedPublished")
+          : t(
+              event.applicationsOpen ? "publicPage.savedDirectLink" : "publicPage.savedUnpublished",
+            ),
       )
       setHasSubmitted(false)
       setOpenSection("")
@@ -287,7 +291,11 @@ export function PublicPageForm({ event }: { event: OrganizerEvent }) {
               />
               <Label htmlFor="public-page-published">{t("publicPage.publish")}</Label>
             </div>
-            <p className="text-sm text-muted-foreground">{t("publicPage.publishHint")}</p>
+            <p className="text-sm text-muted-foreground">
+              {values.publishedInCatalog || !event.applicationsOpen
+                ? t("publicPage.publishHint")
+                : t("publicPage.directLinkHint")}
+            </p>
 
             {event.applicationsOpen ? (
               <div>

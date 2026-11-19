@@ -25,6 +25,7 @@ export type MyApplicationRecord = {
   lastName: string
   eventName: string
   eventId?: string
+  applicantEmail?: string
   birthDate?: string
   gender?: "FEMALE" | "MALE"
   /** Account number of the organization that runs the event. */
@@ -131,6 +132,7 @@ export type MyApplication = {
   id: string
   eventName: string
   eventId?: string
+  applicantEmail?: string
   birthDate?: string
   gender?: "FEMALE" | "MALE"
   firstName: string
@@ -199,6 +201,7 @@ export function buildMyApplication(
     id: record.id,
     eventName: record.eventName,
     eventId: record.eventId,
+    applicantEmail: record.applicantEmail,
     birthDate: record.birthDate,
     gender: record.gender,
     firstName: record.firstName,

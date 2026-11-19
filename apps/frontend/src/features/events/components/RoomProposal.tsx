@@ -167,11 +167,12 @@ export function RoomProposal({
       variant="outline"
       size="lg"
       className="max-sm:w-full"
+      aria-busy={propose.isPending}
       disabled={propose.isPending}
       onClick={() => propose.mutate()}
     >
       {propose.isPending ? <Loader2 className="animate-spin" /> : null}
-      {t(propose.isPending ? "roomProposal.creating" : "roomProposal.start")}
+      {t("roomProposal.start")}
     </Button>
   ) : null
   const notices =

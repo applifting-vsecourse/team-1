@@ -45,10 +45,10 @@ export class PaymentsService {
     const application = await this.repository.find(applicationId, organizationId)
     const original =
       application &&
-      paymentSummary(application).receipts.find(
-        (receipt) => receipt.id === receiptId && receipt.cancelledAt === null,
-      )
+      paymentSummary(application).receipts.find((receipt) => receipt.id === receiptId)
     if (!application || !original) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
+    if (original.cancelledAt !== null)
+      throw new AppException(HttpStatus.CONFLICT, "PAYMENT_RECEIPT_ALREADY_CANCELLED")
     const result = computePaymentCorrectionPreview({
       terms: application.terms.map((term) => ({
         ...term,
@@ -65,6 +65,10 @@ export class PaymentsService {
           ? HttpStatus.CONFLICT
           : HttpStatus.BAD_REQUEST,
         result.errorCode,
+        undefined,
+        result.maximum === undefined
+          ? undefined
+          : { maximum: String(result.maximum), context: "limit" },
       )
     return result.preview
   }

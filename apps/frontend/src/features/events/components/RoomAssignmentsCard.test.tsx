@@ -87,7 +87,7 @@ const otherTerm = {
   name: "Week 2",
   startsOn: "2027-07-19",
   endsOn: "2027-07-25",
-  rooms: [{ id: "r3-t2", name: "Room C", gender: "FEMALE" as const, freeBeds: 2 }],
+  rooms: [{ id: "r3-t2", name: "Room C", gender: "FEMALE" as const, beds: 3, freeBeds: 2 }],
 }
 const base = (): RoomAssignments => ({
   eventId: "e1",
@@ -197,69 +197,306 @@ describe("room assignment", () => {
     await waitFor(() => expect(success).toHaveBeenCalled())
   })
 
-  it("asks for a room before saving", async () => {
+  it("keeps Assign inactive until a room is picked, then shows what is confirmed (#536)", async () => {
     const user = renderCard()
     await user.click(await screen.findByRole("button", { name: "Assign Nikola Králová to a room" }))
     const dialog = await screen.findByRole("dialog")
-    expect(within(dialog).getByRole("radio", { name: /Room B/ })).toBeEnabled()
-    await user.click(within(dialog).getByRole("button", { name: "Assign" }))
-    expect(await within(dialog).findByText("Choose a room.")).toBeInTheDocument()
+    const assign = within(dialog).getByRole("button", { name: "Assign" })
+    expect(assign).toBeDisabled()
+    expect(within(dialog).getByText("No room selected yet.")).toBeInTheDocument()
+    await user.click(within(dialog).getByRole("radio", { name: /Room C/ }))
+    expect(assign).toBeEnabled()
+    expect(within(dialog).getByText("Room C · 3 free beds")).toBeInTheDocument()
     expect(put).not.toHaveBeenCalled()
   })
 
-  it("assigns the same room in the other term in one step (AC3)", async () => {
+  it.each([
+    ["desktop", 1280],
+    ["360 px", 360],
+  ])("scrolls only the room list of 25 rooms, the bar stays (#536, %s)", async (_name, width) => {
+    window.innerWidth = width
+    data = {
+      ...base(),
+      rooms: Array.from({ length: 25 }, (_, i) => room(`r${i + 10}`, `Room ${i + 10}`, 3)),
+    }
     const user = renderCard()
-    await user.click(
-      await screen.findByRole("button", { name: "Assign Barbora Šimková to a room" }),
-    )
+    await user.click(await screen.findByRole("button", { name: "Assign Nikola Králová to a room" }))
     const dialog = await screen.findByRole("dialog")
-    expect(within(dialog).queryByRole("checkbox")).not.toBeInTheDocument()
-    await user.click(within(dialog).getByRole("radio", { name: /Room C/ }))
-    await user.click(
-      await within(dialog).findByRole("checkbox", { name: /same room in the term .*Room C/ }),
-    )
-    expect(within(dialog).getByText(/in both terms/)).toBeInTheDocument()
-    await user.click(within(dialog).getByRole("button", { name: "Assign" }))
-    await waitFor(() => expect(put).toHaveBeenCalled())
-    expect(put).toHaveBeenCalledWith("organizer/events/e1/terms/t1/room-assignments/p3", {
-      json: { roomId: "r3", alsoTermIds: ["t2"] },
+    const radios = within(dialog).getAllByRole("radio")
+    expect(radios).toHaveLength(25)
+    const list = radios[0]!.closest(".overflow-y-auto")
+    expect(list).not.toBeNull()
+    for (const radio of radios) expect(list).toContainElement(radio)
+    for (const name of ["Cancel", "Assign"]) {
+      expect(list).not.toContainElement(within(dialog).getByRole("button", { name }))
+    }
+    expect(within(dialog).getByRole("button", { name: "Assign" })).toBeDisabled()
+    await user.click(within(dialog).getByRole("radio", { name: /Room 28/ }))
+    expect(within(dialog).getByRole("button", { name: "Assign" })).toBeEnabled()
+    expect(within(dialog).getByText(/Room \d+ · 3 free beds/)).toBeInTheDocument()
+  })
+
+  describe("a participant in more terms (#539)", () => {
+    const openBarbora = async (roomName: RegExp) => {
+      const user = renderCard()
+      await user.click(
+        await screen.findByRole("button", { name: "Assign Barbora Šimková to a room" }),
+      )
+      const dialog = await screen.findByRole("dialog")
+      await user.click(within(dialog).getByRole("radio", { name: roomName }))
+      return { user, dialog }
+    }
+    const withOtherRooms = (
+      rooms: { id: string; name: string; beds: number; freeBeds: number }[],
+    ) => {
+      data = {
+        ...base(),
+        unassigned: [
+          {
+            ...person("p3", "Barbora", "Šimková"),
+            alsoInTerms: [
+              { ...otherTerm, rooms: rooms.map((r) => ({ ...r, gender: "FEMALE" as const })) },
+            ],
+          },
+        ],
+      }
+    }
+
+    it("ticks the other term where the room has a free bed and assigns both in one step", async () => {
+      const { user, dialog } = await openBarbora(/Room C/)
+      const checkbox = await within(dialog).findByRole("checkbox", {
+        name: /same room in the term .*Room C/,
+      })
+      expect(checkbox).toBeChecked()
+      expect(within(dialog).getByText(/will be in Room C in both terms/)).toBeInTheDocument()
+      await user.click(within(dialog).getByRole("button", { name: "Assign" }))
+      await waitFor(() => expect(put).toHaveBeenCalled())
+      expect(put).toHaveBeenCalledWith("organizer/events/e1/terms/t1/room-assignments/p3", {
+        json: { roomId: "r3", alsoTermIds: ["t2"] },
+      })
+    })
+
+    it("assigns only this term after the tick is removed, and the summary follows", async () => {
+      const { user, dialog } = await openBarbora(/Room C/)
+      await user.click(
+        await within(dialog).findByRole("checkbox", { name: /same room in the term/ }),
+      )
+      expect(within(dialog).queryByText(/in both terms/)).not.toBeInTheDocument()
+      expect(
+        within(dialog).getByText(
+          "After saving, Barbora Šimková will be in Room C and disappear from the unassigned.",
+        ),
+      ).toBeInTheDocument()
+      await user.click(within(dialog).getByRole("button", { name: "Assign" }))
+      await waitFor(() => expect(put).toHaveBeenCalled())
+      expect(put).toHaveBeenCalledWith("organizer/events/e1/terms/t1/room-assignments/p3", {
+        json: { roomId: "r3", alsoTermIds: [] },
+      })
+    })
+
+    it("recomputes the offer when another room is picked", async () => {
+      const { user, dialog } = await openBarbora(/Room C/)
+      await user.click(
+        await within(dialog).findByRole("checkbox", { name: /same room in the term/ }),
+      )
+      await user.click(within(dialog).getByRole("radio", { name: /Room A/ }))
+      expect(within(dialog).queryByRole("checkbox")).not.toBeInTheDocument()
+      await user.click(within(dialog).getByRole("radio", { name: /Room C/ }))
+      expect(
+        await within(dialog).findByRole("checkbox", { name: /same room in the term/ }),
+      ).toBeChecked()
+    })
+
+    it("says why a term is not offered when it has no room of that name", async () => {
+      const { dialog } = await openBarbora(/Room A/)
+      expect(within(dialog).queryByRole("checkbox")).not.toBeInTheDocument()
+      expect(
+        await within(dialog).findByText(
+          /no room with the same name in the term .*stays unassigned/,
+        ),
+      ).toBeInTheDocument()
+    })
+
+    it("offers a full room of the other term unticked and goes on to the extra bed dialog when ticked", async () => {
+      withOtherRooms([{ id: "r3-t2", name: "Room C", beds: 3, freeBeds: 0 }])
+      const { user, dialog } = await openBarbora(/Room C/)
+      const checkbox = await within(dialog).findByRole("checkbox", {
+        name: /Room C.*extra bed will be added/,
+      })
+      expect(checkbox).toBeEnabled()
+      expect(checkbox).not.toBeChecked()
+      expect(within(dialog).getByRole("button", { name: "Assign" })).toBeEnabled()
+      await user.click(checkbox)
+      expect(within(dialog).getByText(/An extra bed will be added in the term/)).toBeInTheDocument()
+      await user.click(within(dialog).getByRole("button", { name: "Continue" }))
+      expect(put).not.toHaveBeenCalled()
+      const confirm = await screen.findByRole("dialog", { name: "Room C: add an extra bed" })
+      const boxes = within(confirm).getAllByRole("checkbox")
+      expect(boxes).toHaveLength(2)
+      expect(boxes[0]!).toBeDisabled()
+      expect(boxes[1]!).toBeChecked()
+      await user.click(within(confirm).getByRole("button", { name: "Assign as an extra bed" }))
+      await waitFor(() => expect(put).toHaveBeenCalled())
+      expect(put).toHaveBeenCalledWith("organizer/events/e1/terms/t1/room-assignments/p3", {
+        json: { roomId: "r3", alsoTermIds: ["t2"], confirmExtraBed: true },
+      })
     })
   })
 
-  it("disables the same-room step when that room of the other term is full", async () => {
-    data = {
-      ...base(),
-      unassigned: [
-        {
-          ...person("p3", "Barbora", "Šimková"),
-          alsoInTerms: [
-            {
-              ...otherTerm,
-              rooms: [{ id: "r3-t2", name: "Room C", gender: "FEMALE", freeBeds: 0 }],
-            },
-          ],
-        },
-      ],
+  describe("the extra bed in every term of the participant (#540)", () => {
+    const fullEverywhere = (otherRooms: { name: string; beds: number; freeBeds: number }[]) => {
+      data = {
+        ...base(),
+        unassigned: [
+          {
+            ...person("p3", "Barbora", "Šimková"),
+            alsoInTerms: [
+              {
+                ...otherTerm,
+                rooms: otherRooms.map((r, i) => ({
+                  ...r,
+                  id: `x${i}-t2`,
+                  gender: "FEMALE" as const,
+                })),
+              },
+            ],
+          },
+        ],
+      }
     }
-    const user = renderCard()
-    await user.click(
-      await screen.findByRole("button", { name: "Assign Barbora Šimková to a room" }),
-    )
-    const dialog = await screen.findByRole("dialog")
-    await user.click(within(dialog).getByRole("radio", { name: /Room C/ }))
-    expect(
-      await within(dialog).findByRole("checkbox", { name: /Room C.*full in that term/ }),
-    ).toBeDisabled()
-  })
+    const dropOnRoomB = async () => {
+      const user = renderCard()
+      await screen.findByText("Barbora Šimková")
+      drop(dragFrom("p3", "Barbora Šimková", null), "r2")
+      return {
+        user,
+        dialog: await screen.findByRole("dialog", { name: "Room B: add an extra bed" }),
+      }
+    }
 
-  it("offers no same-room step when the other term has no room of that name", async () => {
-    const user = renderCard()
-    await user.click(
-      await screen.findByRole("button", { name: "Assign Barbora Šimková to a room" }),
-    )
-    const dialog = await screen.findByRole("dialog")
-    await user.click(within(dialog).getByRole("radio", { name: /Room A/ }))
-    expect(within(dialog).queryByRole("checkbox")).not.toBeInTheDocument()
+    it("adds the extra bed in both terms when the room is full in both", async () => {
+      fullEverywhere([{ name: "Room B", beds: 1, freeBeds: 0 }])
+      const { user, dialog } = await dropOnRoomB()
+      expect(within(dialog).getAllByText("Extra bed +1")).toHaveLength(2)
+      expect(within(dialog).getAllByText("Beds after assigning: 1 + 1 extra bed")).toHaveLength(2)
+      expect(
+        within(dialog).getByText(/in both terms, with an extra bed in both/),
+      ).toBeInTheDocument()
+      const boxes = within(dialog).getAllByRole("checkbox")
+      expect(boxes[0]!).toBeDisabled()
+      expect(boxes[1]!).toBeChecked()
+      await user.click(within(dialog).getByRole("button", { name: "Assign as an extra bed" }))
+      await waitFor(() => expect(put).toHaveBeenCalled())
+      expect(put).toHaveBeenCalledWith("organizer/events/e1/terms/t1/room-assignments/p3", {
+        json: { roomId: "r2", alsoTermIds: ["t2"], confirmExtraBed: true },
+      })
+    })
+
+    it("opens with every term of the participant when Assign picks a room that is full here (button)", async () => {
+      fullEverywhere([{ name: "Room B", beds: 1, freeBeds: 0 }])
+      const user = renderCard()
+      await user.click(
+        await screen.findByRole("button", { name: "Assign Barbora Šimková to a room" }),
+      )
+      const picker = await screen.findByRole("dialog")
+      await user.click(within(picker).getByRole("radio", { name: /Room B/ }))
+      await user.click(within(picker).getByRole("button", { name: "Assign" }))
+      const dialog = await screen.findByRole("dialog", { name: "Room B: add an extra bed" })
+      expect(within(dialog).getAllByRole("checkbox")).toHaveLength(2)
+      await user.click(within(dialog).getByRole("button", { name: "Assign as an extra bed" }))
+      await waitFor(() => expect(put).toHaveBeenCalled())
+      expect(put).toHaveBeenCalledWith("organizer/events/e1/terms/t1/room-assignments/p3", {
+        json: { roomId: "r2", alsoTermIds: ["t2"], confirmExtraBed: true },
+      })
+    })
+
+    it("names the terms with an extra bed when only some of three placed terms get one", async () => {
+      const third = {
+        ...otherTerm,
+        termId: "t3",
+        startsOn: "2027-07-26",
+        endsOn: "2027-08-01",
+      }
+      data = {
+        ...base(),
+        unassigned: [
+          {
+            ...person("p3", "Barbora", "Šimková"),
+            alsoInTerms: [
+              {
+                ...otherTerm,
+                rooms: [{ id: "b-t2", name: "Room B", gender: "FEMALE", beds: 3, freeBeds: 2 }],
+              },
+              {
+                ...third,
+                rooms: [{ id: "b-t3", name: "Room B", gender: "FEMALE", beds: 1, freeBeds: 0 }],
+              },
+            ],
+          },
+        ],
+      }
+      const user = renderCard()
+      await screen.findByText("Barbora Šimková")
+      drop(dragFrom("p3", "Barbora Šimková", null), "r2")
+      const dialog = await screen.findByRole("dialog", { name: "Room B: add an extra bed" })
+      expect(within(dialog).getByText(/with an extra bed in the terms .* and /)).toBeInTheDocument()
+      expect(within(dialog).queryByText(/extra bed in both/)).not.toBeInTheDocument()
+      await user.click(within(dialog).getByRole("button", { name: "Assign as an extra bed" }))
+      await waitFor(() => expect(put).toHaveBeenCalled())
+      expect(put).toHaveBeenCalledWith("organizer/events/e1/terms/t1/room-assignments/p3", {
+        json: { roomId: "r2", alsoTermIds: ["t2", "t3"], confirmExtraBed: true },
+      })
+    })
+
+    it("only assigns in the term where the room has a free bed", async () => {
+      fullEverywhere([{ name: "Room B", beds: 3, freeBeds: 2 }])
+      const { user, dialog } = await dropOnRoomB()
+      expect(within(dialog).getAllByText("Extra bed +1")).toHaveLength(1)
+      expect(within(dialog).getByText("Free bed")).toBeInTheDocument()
+      expect(
+        within(dialog).getByText("Assignment only, the room has a free bed"),
+      ).toBeInTheDocument()
+      expect(within(dialog).getByText(/with an extra bed only in the term/)).toBeInTheDocument()
+      await user.click(within(dialog).getByRole("button", { name: "Assign as an extra bed" }))
+      await waitFor(() => expect(put).toHaveBeenCalled())
+      expect(put).toHaveBeenCalledWith("organizer/events/e1/terms/t1/room-assignments/p3", {
+        json: { roomId: "r2", alsoTermIds: ["t2"], confirmExtraBed: true },
+      })
+    })
+
+    it("leaves out a term the organizer unticks", async () => {
+      fullEverywhere([{ name: "Room B", beds: 1, freeBeds: 0 }])
+      const { user, dialog } = await dropOnRoomB()
+      await user.click(within(dialog).getAllByRole("checkbox")[1]!)
+      expect(within(dialog).getByText("Not assigned")).toBeInTheDocument()
+      await user.click(within(dialog).getByRole("button", { name: "Assign as an extra bed" }))
+      await waitFor(() => expect(put).toHaveBeenCalled())
+      expect(put).toHaveBeenCalledWith("organizer/events/e1/terms/t1/room-assignments/p3", {
+        json: { roomId: "r2", alsoTermIds: [], confirmExtraBed: true },
+      })
+    })
+
+    it("skips a term without a room of that name and cannot tick it", async () => {
+      fullEverywhere([{ name: "Room Z", beds: 3, freeBeds: 2 }])
+      const { user, dialog } = await dropOnRoomB()
+      expect(within(dialog).getByText("Skipped")).toBeInTheDocument()
+      expect(within(dialog).getAllByRole("checkbox")[1]!).toBeDisabled()
+      await user.click(within(dialog).getByRole("button", { name: "Assign as an extra bed" }))
+      await waitFor(() => expect(put).toHaveBeenCalled())
+      expect(put).toHaveBeenCalledWith("organizer/events/e1/terms/t1/room-assignments/p3", {
+        json: { roomId: "r2", alsoTermIds: [], confirmExtraBed: true },
+      })
+    })
+
+    it("says nothing was saved when a term fails, and keeps the dialog open", async () => {
+      fullEverywhere([{ name: "Room B", beds: 1, freeBeds: 0 }])
+      put.mockRejectedValue(new Error("No room with the same name."))
+      const { user, dialog } = await dropOnRoomB()
+      await user.click(within(dialog).getByRole("button", { name: "Assign as an extra bed" }))
+      expect(await within(dialog).findByText(/Nothing was saved, in any term/)).toBeInTheDocument()
+      expect(screen.getByRole("dialog", { name: "Room B: add an extra bed" })).toBeInTheDocument()
+      expect(success).not.toHaveBeenCalled()
+    })
   })
 
   it("moves a person through the menu of their chip, the current room is not a choice", async () => {
@@ -322,7 +559,7 @@ describe("room assignment", () => {
   it("asks before a full room takes someone as an extra bed, and cancelling changes nothing", async () => {
     const user = renderCard()
     await screen.findByText("Barbora Šimková")
-    drop(dragFrom("p3", "Barbora Šimková", null), "r2")
+    drop(dragFrom("p4", "Nikola Králová", null), "r2")
     const dialog = await screen.findByRole("dialog", { name: "Room B is full" })
     expect(within(dialog).getByText("1 + 1 extra bed")).toBeInTheDocument()
     expect(put).not.toHaveBeenCalled()
@@ -334,11 +571,11 @@ describe("room assignment", () => {
   it("assigns as an extra bed after the confirmation (drag)", async () => {
     const user = renderCard()
     await screen.findByText("Barbora Šimková")
-    drop(dragFrom("p3", "Barbora Šimková", null), "r2")
+    drop(dragFrom("p4", "Nikola Králová", null), "r2")
     const dialog = await screen.findByRole("dialog", { name: "Room B is full" })
     await user.click(within(dialog).getByRole("button", { name: "Assign as an extra bed" }))
     await waitFor(() => expect(put).toHaveBeenCalled())
-    expect(put).toHaveBeenCalledWith("organizer/events/e1/terms/t1/room-assignments/p3", {
+    expect(put).toHaveBeenCalledWith("organizer/events/e1/terms/t1/room-assignments/p4", {
       json: { roomId: "r2", alsoTermIds: [], confirmExtraBed: true },
     })
     await waitFor(() => expect(success).toHaveBeenCalled())

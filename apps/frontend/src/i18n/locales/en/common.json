@@ -96,8 +96,8 @@
   },
   "termPayment": {
     "account": "Account",
-    "amountToPay": "Amount to pay",
     "deadline": "Due date",
+    "downloadError": "The QR code could not be downloaded.",
     "due": "Amount due",
     "listTitle": "Payments by term",
     "overpaid": "Overpayment",
@@ -105,13 +105,16 @@
     "paid": "Paid",
     "paymentDetails": "Payment details",
     "qrAlt": "QR code for the term payment",
+    "retryDownload": "Try downloading again or use the account and variable symbol on this card.",
+    "saveQr": "Download QR code",
     "status": {
-      "NOTHING_DUE": "Nothing to pay",
+      "NOTHING_DUE": "Nothing due",
       "OVERPAID": "Overpaid",
       "PAID": "Paid",
       "PARTIALLY_PAID": "Partly paid",
       "UNPAID": "Unpaid"
     },
+    "summaryQrAlt": "QR code for the combined payment",
     "variableSymbol": "Variable symbol",
     "waitlisted": "Waitlisted",
     "waitlistedNote": "You don't pay anything yet."

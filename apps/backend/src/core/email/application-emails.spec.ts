@@ -108,7 +108,7 @@ describe("application e-mail previews", () => {
 
     expect(cs).toContain("Termín akce byl zrušen")
     expect(cs).toContain(
-      "Případné zaplacené platby za zrušený termín se vrací. Další postup vám sdělí organizace.",
+      "Případné platby za zrušený termín se vrací. Další postup vám sdělí organizace.",
     )
     expect(cs).toContain("Adam Dvořák")
     expect(cs).toContain("Alpine Collective · prostřednictvím Togeny")

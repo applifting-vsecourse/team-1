@@ -67,6 +67,7 @@ function toRecord(row: Row): MyApplicationRecord {
     individualAccommodation: row.individualAccommodation,
     eventName: row.event.name,
     eventId: row.eventId,
+    applicantEmail: row.email,
     birthDate: row.birthDate.toISOString().slice(0, 10),
     gender: row.gender,
     bankAccount: row.organization.bankAccount,
