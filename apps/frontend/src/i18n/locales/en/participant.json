@@ -57,6 +57,8 @@
     "title": "Organization contact"
   },
   "detail": {
+    "archivedText": "The term has ended, there is nothing left to arrange.",
+    "archivedTitle": "Archived application",
     "back": "← All applications",
     "errorTitle": "Couldn't load the application",
     "health": "Health restriction",

@@ -26,7 +26,11 @@ import { PaymentSummary } from "@/features/participant/components/PaymentSummary
 import { RoomSection } from "@/features/participant/components/RoomSection"
 import { RoomWishesSection } from "@/features/participant/components/RoomWishes"
 import { TermStaySection } from "@/features/participant/components/TermStay"
-import { TermSteps } from "@/features/participant/components/TermSteps"
+import {
+  ArchivedApplicationCard,
+  isFullyArchived,
+  TermSteps,
+} from "@/features/participant/components/TermSteps"
 import { TermStatusBadge } from "@/features/participant/components/TermSummary"
 
 type ApplicationDetailProps = { applicationId: string }
@@ -74,6 +78,8 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
   )
 
   const hasSteps = data.terms.some((term) => term.status === "CONFIRMED")
+  // Every term archived: nothing is left to arrange, so no steps, no meals or health links and no edit button (US-584).
+  const isArchived = isFullyArchived(data)
 
   return (
     <div className="flex flex-col gap-10">
@@ -83,17 +89,19 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
           title={data.eventName}
           description={`${data.firstName} ${data.lastName} · ${data.code}`}
           actions={
-            <Button
-              asChild
-              variant="outline"
-            >
-              <Link
-                to={ROUTES.participant.editApplication}
-                params={{ applicationId }}
+            isArchived ? null : (
+              <Button
+                asChild
+                variant="outline"
               >
-                {t("edit.open")}
-              </Link>
-            </Button>
+                <Link
+                  to={ROUTES.participant.editApplication}
+                  params={{ applicationId }}
+                >
+                  {t("edit.open")}
+                </Link>
+              </Button>
+            )
           }
         />
       </div>
@@ -124,7 +132,8 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
                   <TermLabel term={term} />
                   <TermStatusBadge term={term} />
                   <span className="w-full sm:w-50 sm:text-right">
-                    {term.status === "TO_EVALUATE" ? null : (
+                    {term.status === "TO_EVALUATE" ||
+                    (term.status === "ARCHIVED" && !term.archivedOverpaymentCzk) ? null : (
                       <>
                         {term.archivedOverpaymentCzk ? `${t("paymentStatus.OVERPAID")} · ` : null}
                         <MoneyAmount amountCzk={term.archivedOverpaymentCzk ?? 0} />
@@ -137,6 +146,7 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
             {hasToEvaluate ? <p className="pt-4">{t("detail.toEvaluate.note")}</p> : null}
           </Card>
         ) : null}
+        {isArchived ? <ArchivedApplicationCard /> : null}
         <ChangeRequestNotice
           applicationId={applicationId}
           terms={data.terms}
@@ -176,7 +186,7 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
           </Button>
         </div>
       ) : null}
-      {hasSteps ? null : (
+      {hasSteps || isArchived ? null : (
         <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
           <Button
             asChild

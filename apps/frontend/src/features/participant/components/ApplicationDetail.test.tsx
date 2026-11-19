@@ -230,6 +230,40 @@ describe("ApplicationDetail", () => {
     expect(screen.queryByRole("button", { name: /Show payment QR/ })).not.toBeInTheDocument()
   })
 
+  it("shows an archived application as a state without steps or step links", async () => {
+    renderDetail(
+      application({
+        terms: [{ ...confirmed, status: "ARCHIVED" }],
+        amountPaidCzk: 4500,
+        amountOwedCzk: 0,
+        paymentStatus: "PAID",
+        paymentDetails: null,
+      }),
+    )
+    expect(await screen.findByText("Archived")).toBeInTheDocument()
+    expect(screen.getByRole("heading", { name: "Archived application" })).toBeInTheDocument()
+    expect(
+      screen.getByText("The term has ended, there is nothing left to arrange."),
+    ).toBeInTheDocument()
+    expect(screen.queryByRole("link", { name: "Edit application" })).not.toBeInTheDocument()
+    expect(screen.queryByText("Steps before the event")).not.toBeInTheDocument()
+    expect(screen.queryByRole("link", { name: "Meals" })).not.toBeInTheDocument()
+    expect(screen.queryByRole("link", { name: "Health restriction" })).not.toBeInTheDocument()
+    expect(screen.queryByText(/CZK|Kč/)).not.toBeInTheDocument()
+  })
+
+  it("keeps the steps of a confirmed term next to an archived one", async () => {
+    renderDetail(
+      application({
+        terms: [confirmed, { ...waitlisted, status: "ARCHIVED" }],
+      }),
+    )
+    expect(await screen.findByText("Archived")).toBeInTheDocument()
+    expect(screen.getByText("Steps before the event")).toBeInTheDocument()
+    expect(screen.getByRole("link", { name: "Edit application" })).toBeInTheDocument()
+    expect(screen.queryByRole("heading", { name: "Archived application" })).not.toBeInTheDocument()
+  })
+
   it("copies the account, the variable symbol of the term and the amount to pay", async () => {
     const user = userEvent.setup()
     const write = vi.spyOn(navigator.clipboard, "writeText")
