@@ -50,6 +50,7 @@ const confirmation = (overrides: Partial<SubmissionConfirmation> = {}): Submissi
   email: "petra@example.com",
   locale: "cs",
   eventName: "Letní kemp 2027",
+  organizationName: "Alpine Collective",
   bankAccount: "2900123456/2010",
   mustSetPassword: true,
   applications: [application()],

@@ -165,6 +165,35 @@ describe("EventTerms", () => {
     })
   })
 
+  it("reflects typed dates in the range and submits the days picked in the calendar", async () => {
+    renderTerms()
+    await userEvent.click(await screen.findByRole("button", { name: "Add term" }))
+    const dialog = within(await screen.findByRole("dialog"))
+    const start = dialog.getByLabelText("Start date *")
+    const end = dialog.getByLabelText("End date *")
+    await userEvent.type(start, "12/07/2027")
+    await userEvent.type(end, "18/07/2027")
+    const calendar = within(dialog.getByRole("region", { name: "Term dates *" }))
+    expect(calendar.getByText("12–18 Jul 2027")).toBeInTheDocument()
+    const grid = within(calendar.getByRole("grid"))
+    await userEvent.click(grid.getByText("19"))
+    expect(start).toHaveValue("19/07/2027")
+    expect(end).toHaveValue("")
+    await userEvent.click(grid.getByText("25"))
+    expect(end).toHaveValue("25/07/2027")
+    expect(calendar.getByText("19–25 Jul 2027")).toBeInTheDocument()
+    await userEvent.type(dialog.getByLabelText("Term price (CZK) *"), "5600")
+    await userEvent.click(dialog.getByRole("button", { name: "Add term" }))
+    await waitFor(() =>
+      expect(sentBodies).toContainEqual({
+        name: "",
+        startsOn: "2027-07-19",
+        endsOn: "2027-07-25",
+        priceCzk: 5600,
+      }),
+    )
+  })
+
   it("has the optional name first, then the dates and the price", async () => {
     window.innerWidth = 360
     renderTerms()

@@ -22,6 +22,7 @@ test.describe("Queue to evaluate", () => {
       .check()
     await page.getByLabel("Contact e-mail").fill(`fronta-${unique}@example.com`)
     await page.getByLabel(/I agree to the processing/).check()
+    await page.getByRole("button", { name: "Continue to review" }).click()
     await page.getByRole("button", { name: "Submit application" }).click()
     await expect(page).toHaveURL(/\/apply\/confirmation\//)
 

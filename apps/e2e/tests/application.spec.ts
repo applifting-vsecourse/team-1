@@ -41,6 +41,8 @@ test.describe("Application from a link", { tag: "@mobile" }, () => {
       .check()
     await page.getByLabel("Contact e-mail").fill(email)
     await page.getByLabel(/I agree to the processing/).check()
+    await page.getByRole("button", { name: "Continue to review" }).click()
+    await expect(page.getByRole("heading", { name: "Review your application" })).toBeVisible()
     await page.getByRole("button", { name: "Submit application" }).click()
 
     await expect(page).toHaveURL(/\/apply\/confirmation\//)

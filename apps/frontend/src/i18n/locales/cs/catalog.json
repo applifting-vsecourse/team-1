@@ -37,8 +37,8 @@
     "title": "Katalog akcí"
   },
   "notFound": {
-    "action": "Přejít na úvodní stránku",
-    "description": "Odkaz na akci není dostupný. Zkontrolujte adresu nebo kontaktujte organizaci.",
-    "title": "Stránka nebyla nalezena"
+    "action": "Na úvodní stránku",
+    "description": "Odkaz může být nesprávný nebo akce ještě není připravená k přihlašování. Ověřte odkaz u organizátora.",
+    "title": "Tato stránka akce není dostupná."
   }
 }

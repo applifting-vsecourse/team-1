@@ -88,10 +88,9 @@
     "title": "Application"
   },
   "notFound": {
-    "action": "Back to Togena",
-    "code": "404",
-    "description": "Check the link address or ask the event organizer for a new link.",
-    "title": "The application link doesn't work"
+    "action": "Go to homepage",
+    "description": "The link may be incorrect or the event may not be ready for applications yet. Check the link with the organizer.",
+    "title": "This page is unavailable."
   },
   "price": {
     "heading": "Price of selected terms",
@@ -101,5 +100,26 @@
     "terms_one": "{{count}} term",
     "terms_other": "{{count}} terms",
     "total": "Total"
+  },
+  "review": {
+    "accommodation": "Accommodation",
+    "agreed": "Consent confirmed",
+    "birthGender": "Date of birth and gender",
+    "consent": "Consent",
+    "contact": "Applicant contact",
+    "continue": "Continue to review",
+    "detailsStep": "1. Details",
+    "editContact": "Edit contact",
+    "editDetails": "Edit details",
+    "email": "We will send confirmation and access to",
+    "individual": "Individual arrangement",
+    "intro": "Check the participants, terms and price. You can edit the details before submitting.",
+    "removed": "Participant {{number}} was removed from the application.",
+    "removedFemale": "{{name}} was removed from the application.",
+    "removedMale": "{{name}} was removed from the application.",
+    "reviewStep": "2. Review",
+    "terms": "Selected terms",
+    "title": "Review your application",
+    "undo": "Undo removal"
   }
 }

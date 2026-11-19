@@ -86,7 +86,7 @@ describe("ApplicationForm", () => {
     expect(birthDate).toHaveAccessibleDescription(hint)
 
     await userEvent.type(birthDate, "31/12/1899")
-    await userEvent.click(screen.getByRole("button", { name: "Submit application" }))
+    await userEvent.click(screen.getByRole("button", { name: "Continue to review" }))
 
     expect(await screen.findByText("Enter a valid date of birth.")).toBeInTheDocument()
     expect(birthDate).toHaveAccessibleDescription(`${hint} Enter a valid date of birth.`)
@@ -103,7 +103,7 @@ describe("ApplicationForm", () => {
 
     const birthDate = screen.getByLabelText("Date of birth *")
     await userEvent.type(birthDate, "31/02/2010")
-    await userEvent.click(screen.getByRole("button", { name: "Submit application" }))
+    await userEvent.click(screen.getByRole("button", { name: "Continue to review" }))
 
     expect(await screen.findByText("Enter the date as DD/MM/YYYY.")).toBeInTheDocument()
     expect(birthDate).toHaveValue("31/02/2010")
@@ -190,7 +190,7 @@ describe("ApplicationForm", () => {
       />,
     )
 
-    await userEvent.click(screen.getByRole("button", { name: "Submit application" }))
+    await userEvent.click(screen.getByRole("button", { name: "Continue to review" }))
 
     expect(await screen.findByText("Enter the first name.")).toBeInTheDocument()
     expect(screen.getByText("Enter the last name.")).toBeInTheDocument()
@@ -214,7 +214,7 @@ describe("ApplicationForm", () => {
       )
       scrollIntoView.mockClear()
 
-      await userEvent.click(screen.getByRole("button", { name: "Submit application" }))
+      await userEvent.click(screen.getByRole("button", { name: "Continue to review" }))
 
       await screen.findByText("Enter the first name.")
       const first = within(participantCard(1)).getByLabelText("First name *")
@@ -234,7 +234,7 @@ describe("ApplicationForm", () => {
       await userEvent.type(card.getByLabelText("Last name *"), "Nováková")
       await userEvent.type(card.getByLabelText("Date of birth *"), "2012-05-01")
 
-      await userEvent.click(screen.getByRole("button", { name: "Submit application" }))
+      await userEvent.click(screen.getByRole("button", { name: "Continue to review" }))
 
       const gender = await card.findByRole("combobox", { name: "Gender for room allocation *" })
       await screen.findByText("Choose Woman or Man.")
@@ -259,7 +259,7 @@ describe("ApplicationForm", () => {
       await userEvent.click(card.getByRole("combobox", { name: "Gender for room allocation *" }))
       await userEvent.click(await screen.findByRole("option", { name: "Woman" }))
 
-      await userEvent.click(screen.getByRole("button", { name: "Submit application" }))
+      await userEvent.click(screen.getByRole("button", { name: "Continue to review" }))
 
       await screen.findByText("Choose at least one term.")
       const firstTerm = card.getAllByRole("checkbox")[0]!
@@ -282,6 +282,13 @@ describe("ApplicationForm", () => {
     await fillParticipant(1, anna)
     await userEvent.type(screen.getByLabelText("Contact e-mail *"), "anna@example.com")
     await userEvent.click(screen.getByRole("checkbox", { name: /agree to the processing/ }))
+    await userEvent.click(screen.getByRole("button", { name: "Continue to review" }))
+    expect(onSubmit).not.toHaveBeenCalled()
+    expect(screen.getByRole("heading", { name: "Review your application" })).toHaveFocus()
+    expect(screen.getByText("anna@example.com")).toBeVisible()
+    await userEvent.click(screen.getByRole("button", { name: "Edit contact" }))
+    expect(screen.getByLabelText("Contact e-mail *")).toHaveFocus()
+    await userEvent.click(screen.getByRole("button", { name: "Continue to review" }))
     await userEvent.click(screen.getByRole("button", { name: "Submit application" }))
 
     expect(onSubmit.mock.lastCall?.[0]).toEqual({
@@ -358,6 +365,7 @@ describe("ApplicationForm", () => {
       await userEvent.type(note()!, "Ground floor, please.")
       await userEvent.type(screen.getByLabelText("Contact e-mail *"), "anna@example.com")
       await userEvent.click(screen.getByRole("checkbox", { name: /agree to the processing/ }))
+      await userEvent.click(screen.getByRole("button", { name: "Continue to review" }))
       await userEvent.click(screen.getByRole("button", { name: "Submit application" }))
 
       expect(onSubmit.mock.lastCall?.[0].participants[0]).toMatchObject({
@@ -381,7 +389,7 @@ describe("ApplicationForm", () => {
       fireEvent.change(note()!, { target: { value: "x".repeat(2001) } })
       await userEvent.type(screen.getByLabelText("Contact e-mail *"), "anna@example.com")
       await userEvent.click(screen.getByRole("checkbox", { name: /agree to the processing/ }))
-      await userEvent.click(screen.getByRole("button", { name: "Submit application" }))
+      await userEvent.click(screen.getByRole("button", { name: "Continue to review" }))
 
       expect(
         await screen.findByText("The note can have at most 2,000 characters."),
@@ -406,7 +414,7 @@ describe("ApplicationForm", () => {
     ).toBeInTheDocument()
   })
 
-  it("adds participants with their own terms; only the later ones can be removed", async () => {
+  it("submits the terms chosen for each participant and can restore a removed participant", async () => {
     const onSubmit = submitSpy()
     render(
       <ApplicationForm
@@ -418,7 +426,7 @@ describe("ApplicationForm", () => {
     expect(screen.queryByRole("button", { name: /Remove participant/ })).not.toBeInTheDocument()
 
     await userEvent.click(screen.getByRole("button", { name: "Add another participant" }))
-    expect(screen.queryByRole("button", { name: "Remove participant 1" })).not.toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "Remove participant 1" })).toBeVisible()
 
     await fillParticipant(1, { ...anna, term: /4–10 Jul/ })
     await fillParticipant(2, {
@@ -430,6 +438,7 @@ describe("ApplicationForm", () => {
     })
     await userEvent.type(screen.getByLabelText("Contact e-mail *"), "anna@example.com")
     await userEvent.click(screen.getByRole("checkbox", { name: /agree to the processing/ }))
+    await userEvent.click(screen.getByRole("button", { name: "Continue to review" }))
     await userEvent.click(screen.getByRole("button", { name: "Submit application" }))
 
     const termsPerParticipant = onSubmit.mock.lastCall?.[0].participants.map(
@@ -437,6 +446,11 @@ describe("ApplicationForm", () => {
     )
     expect(termsPerParticipant).toEqual([["t1"], ["t2"]])
 
+    await userEvent.click(screen.getAllByRole("button", { name: "Edit details" })[0]!)
+    await userEvent.click(screen.getByRole("button", { name: "Remove participant 1" }))
+    expect(screen.getByRole("heading", { name: /Participant 1 · Matěj/ })).toBeVisible()
+    await userEvent.click(screen.getByRole("button", { name: "Undo removal" }))
+    expect(screen.getByRole("heading", { name: /Participant 1 · Anna/ })).toBeVisible()
     await userEvent.click(screen.getByRole("button", { name: "Remove participant 2" }))
     expect(screen.queryByRole("heading", { name: /^Participant 2/ })).not.toBeInTheDocument()
   })
@@ -450,7 +464,7 @@ describe("ApplicationForm", () => {
     )
 
     await userEvent.type(screen.getByLabelText("Date of birth *"), "2999-01-01")
-    await userEvent.click(screen.getByRole("button", { name: "Submit application" }))
+    await userEvent.click(screen.getByRole("button", { name: "Continue to review" }))
 
     expect(await screen.findByText("Enter a valid date of birth.")).toBeInTheDocument()
   })
@@ -468,6 +482,7 @@ describe("ApplicationForm", () => {
     await fillParticipant(1, anna)
     await userEvent.type(screen.getByLabelText("Contact e-mail *"), "anna@example.com")
     await userEvent.click(screen.getByRole("checkbox", { name: /agree to the processing/ }))
+    await userEvent.click(screen.getByRole("button", { name: "Continue to review" }))
     await userEvent.click(screen.getByRole("button", { name: "Submit application" }))
 
     const button = await screen.findByRole("button", { name: "Submitting…" })

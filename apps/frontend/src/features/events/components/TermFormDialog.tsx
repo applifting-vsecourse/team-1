@@ -1,8 +1,8 @@
 import { useMemo } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import type { TFunction } from "i18next"
-import { CircleAlert, Loader2 } from "lucide-react"
-import { useForm } from "react-hook-form"
+import { CircleAlert } from "lucide-react"
+import { useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
@@ -30,6 +30,7 @@ import { Input } from "@/components/ui/input"
 import { isIsoDate } from "@/lib/date-input"
 
 import type { EventTerm } from "@/features/events/api/terms"
+import { TermRangeCalendar } from "@/features/events/components/TermRangeCalendar"
 import { useCreateTerm, useUpdateTerm } from "@/features/events/hooks/useTermMutations"
 
 const createSchema = (t: TFunction<"events">) =>
@@ -101,6 +102,7 @@ export function TermFormDialog({
       priceCzk: term ? String(term.priceCzk) : "",
     },
   })
+  const [startsOn, endsOn] = useWatch({ control: form.control, name: ["startsOn", "endsOn"] })
   const create = useCreateTerm(eventId)
   const update = useUpdateTerm(eventId, term?.id ?? "")
   const mutation = term ? update : create
@@ -121,7 +123,7 @@ export function TermFormDialog({
       open
       onOpenChange={(isOpen) => (isOpen ? undefined : onClose())}
     >
-      <DialogContent className="gap-4 p-6 sm:max-w-170">
+      <DialogContent className="max-h-[calc(100dvh-2rem)] gap-4 overflow-y-auto p-4 sm:max-w-170 sm:p-6">
         <DialogHeader>
           <p className="text-xs font-medium text-muted-foreground uppercase">{eventName}</p>
           <DialogTitle className="text-lg tracking-tight">
@@ -212,7 +214,15 @@ export function TermFormDialog({
                 </FormItem>
               )}
             />
-            <p className="text-xs font-medium text-muted-foreground">{t("terms.form.required")}</p>
+            <TermRangeCalendar
+              startsOn={startsOn}
+              endsOn={endsOn}
+              onChange={(start, end) => {
+                form.setValue("startsOn", start, { shouldDirty: true })
+                form.setValue("endsOn", end, { shouldDirty: true })
+                if (form.formState.isSubmitted) void form.trigger(["startsOn", "endsOn"])
+              }}
+            />
 
             {mutation.isError ? (
               <Alert variant="destructive">
@@ -246,9 +256,13 @@ export function TermFormDialog({
                 type="submit"
                 size="lg"
                 disabled={mutation.isPending}
+                aria-busy={mutation.isPending}
               >
-                {mutation.isPending ? <Loader2 className="size-4 animate-spin" /> : null}
-                {term ? t("terms.form.save") : t("terms.form.submitAdd")}
+                {mutation.isPending
+                  ? t("terms.form.saving")
+                  : term
+                    ? t("terms.form.save")
+                    : t("terms.form.submitAdd")}
               </Button>
             </DialogFooter>
           </form>

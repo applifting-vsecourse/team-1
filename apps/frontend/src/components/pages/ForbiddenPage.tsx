@@ -1,53 +1,43 @@
 import type { ReactNode } from "react"
 import { Link } from "@tanstack/react-router"
-import { Lock } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
-import { AuthLayout } from "@/components/templates/AuthLayout"
+import arrow from "@/assets/status/arrow-left.svg"
+import { SystemStatusLayout } from "@/components/templates/SystemStatusLayout"
 import { Button } from "@/components/ui/button"
 
-type ForbiddenPageProps = {
-  /** Replaces the default texts and button, e.g. for a participant in the organizer area (S06). */
-  variant?: {
-    description: string
-    cardTitle: string
-    body: string
-    actions: ReactNode
-  }
+type Props = {
+  title?: string
+  description?: string
+  back?: { to: string; label: string }
+  accountAction?: ReactNode
 }
 
-/** 403 — shows nothing of the record that was asked for (US-02, US-10). */
-// Figma (Design system): S06 Zakázaný přístup · 403 · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=11987-141
-export function ForbiddenPage({ variant }: ForbiddenPageProps) {
+// Figma: 403 přihlašovatel a cizí záznam · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15377-161 · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=18602-22496
+export function ForbiddenPage({ title, description, back, accountAction }: Props) {
   const { t } = useTranslation()
-
   return (
-    <AuthLayout
-      icon={
-        <div className="flex size-14 items-center justify-center rounded-full bg-accent text-link">
-          <Lock
-            aria-hidden
-            className="size-6"
-          />
-        </div>
-      }
-      title={t("pages.forbidden.title")}
-      description={variant?.description ?? `403 · ${t("pages.forbidden.description")}`}
-      cardTitle={variant?.cardTitle ?? t("pages.forbidden.cardTitle")}
+    <SystemStatusLayout
+      code={403}
+      variant={accountAction ? "compact" : "band"}
+      title={title ?? t("pages.forbidden.title")}
+      description={description ?? t("pages.forbidden.description")}
     >
-      <p>{variant?.body ?? t("pages.forbidden.body")}</p>
-      <div className="flex flex-col gap-5">
-        {variant?.actions ?? (
-          <Button
-            asChild
-            size="lg"
-            className="w-full"
-          >
-            <Link to={ROUTES.home}>{t("pages.forbidden.action")}</Link>
-          </Button>
-        )}
-      </div>
-    </AuthLayout>
+      <Button
+        asChild
+        variant="ghost"
+        className="h-9 self-start rounded-full bg-accent px-4 text-link hover:bg-accent/80"
+      >
+        <Link to={back?.to ?? ROUTES.home}>
+          <img
+            src={arrow}
+            alt=""
+          />
+          {back?.label ?? t("pages.forbidden.action")}
+        </Link>
+      </Button>
+      {accountAction}
+    </SystemStatusLayout>
   )
 }

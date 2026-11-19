@@ -1,6 +1,6 @@
 import * as React from "react"
 import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react"
-import { DayPicker, getDefaultClassNames, type DayButton } from "react-day-picker"
+import { DayPicker, getDefaultClassNames, type DayButton, type Root } from "react-day-picker"
 
 import { Button, buttonVariants } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -106,16 +106,7 @@ function Calendar({
         ...classNames,
       }}
       components={{
-        Root: ({ className, rootRef, ...props }) => {
-          return (
-            <div
-              data-slot="calendar"
-              ref={rootRef}
-              className={cn(className)}
-              {...props}
-            />
-          )
-        },
+        Root: CalendarRoot,
         Chevron: ({ className, orientation, ...props }) => {
           if (orientation === "left") {
             return (
@@ -154,6 +145,17 @@ function Calendar({
         },
         ...components,
       }}
+      {...props}
+    />
+  )
+}
+
+// A stable root keeps the focused day mounted when a controlled range changes.
+function CalendarRoot({ rootRef, ...props }: React.ComponentProps<typeof Root>) {
+  return (
+    <div
+      data-slot="calendar"
+      ref={rootRef}
       {...props}
     />
   )

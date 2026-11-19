@@ -28,6 +28,7 @@ export function RoomSection({ terms }: { terms: MyApplicationTerm[] }) {
       {withRoom.map((term) => (
         <Card
           key={term.termId}
+          id={`room-${term.termId}`}
           className="gap-3 p-4 sm:p-6"
         >
           <p className="text-sm text-muted-foreground">{termLine(term)}</p>

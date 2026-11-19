@@ -1,5 +1,6 @@
 import { useId } from "react"
 import { useQuery } from "@tanstack/react-query"
+import { Link } from "@tanstack/react-router"
 import { TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
@@ -51,6 +52,7 @@ export function CatalogPage({ organizationId, onOrganizationChange }: CatalogPag
 
   const organization = data ? knownOrganizationId(data, organizationId) : undefined
   const events = data ? eventsOf(data, organization) : []
+  const selectedOrganization = data?.organizations.find((org) => org.id === organization)
   const isEmpty = data?.events.length === 0
   const { pageItems, ...pagination } = usePagination(events, organization ?? ALL, 18)
 
@@ -102,9 +104,15 @@ export function CatalogPage({ organizationId, onOrganizationChange }: CatalogPag
         )}
       >
         <HeadingBand>
-          <BackLink to={ROUTES.home}>{t("list.backHome")}</BackLink>
-          <h1 className="mt-6 text-3xl font-bold tracking-tight md:text-4xl">{t("list.title")}</h1>
-          <p className="mt-3 text-muted-foreground">{t("list.description")}</p>
+          <BackLink to={selectedOrganization ? ROUTES.catalog : ROUTES.home}>
+            {t(selectedOrganization ? "event.back" : "list.backHome")}
+          </BackLink>
+          <h1 className="mt-6 text-3xl font-bold tracking-tight md:text-4xl">
+            {selectedOrganization?.name ?? t("list.title")}
+          </h1>
+          {selectedOrganization ? null : (
+            <p className="mt-3 text-muted-foreground">{t("list.description")}</p>
+          )}
         </HeadingBand>
       </section>
 
@@ -146,13 +154,28 @@ export function CatalogPage({ organizationId, onOrganizationChange }: CatalogPag
                 key={org.id}
                 className="flex flex-col gap-4"
               >
-                <div className="flex items-center justify-between gap-3 px-4">
-                  <h2 className="text-sm font-medium">{org.name}</h2>
-                  <Badge className="bg-muted-foreground text-background tabular-nums">
-                    {t("list.eventCount", { count: totals.get(org.id) ?? 0 })}
-                  </Badge>
-                </div>
-                <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {selectedOrganization ? null : (
+                  <div className="flex items-center justify-between gap-3">
+                    <h2>
+                      <Button
+                        variant="ghost"
+                        asChild
+                        className="h-12 max-w-full whitespace-normal"
+                      >
+                        <Link
+                          to={ROUTES.catalog}
+                          search={{ organization: org.id }}
+                        >
+                          {org.name}
+                        </Link>
+                      </Button>
+                    </h2>
+                    <Badge className="bg-muted-foreground text-background tabular-nums">
+                      {t("list.eventCount", { count: totals.get(org.id) ?? 0 })}
+                    </Badge>
+                  </div>
+                )}
+                <ul className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,18rem),22.5rem))] gap-6">
                   {org.events.map((event) => (
                     <li key={event.publicToken}>
                       <EventCard event={event} />

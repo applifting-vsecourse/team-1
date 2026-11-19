@@ -31,9 +31,13 @@ test.describe("Evaluation mode", () => {
     await page.getByRole("link", { name: /Letní kemp 2027(?! – demo)/ }).click()
 
     await sections(page).getByRole("link", { name: "Settings" }).click()
-    await expect(page.getByText("Automatic · locked")).toBeVisible()
+    await expect(page.getByRole("radio", { name: "Automatic" })).toBeChecked()
     await expect(
-      page.getByText("Applications are open, so the mode can no longer be changed."),
+      page
+        .getByRole("note")
+        .getByText(
+          "Applications have already opened. The mode stays locked even if you close applications later.",
+        ),
     ).toBeVisible()
     await expect(page.getByRole("radio", { name: "Automatic" })).toBeDisabled()
     await expect(page.getByRole("radio", { name: "Manual" })).toBeDisabled()

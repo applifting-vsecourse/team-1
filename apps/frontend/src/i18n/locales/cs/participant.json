@@ -78,11 +78,13 @@
       "payment": "Zaplacení",
       "paymentPay": "Zaplatit {{amount}}",
       "paymentView": "Zobrazit platbu",
+      "roomView": "Zobrazit pokoj",
       "title": "Kroky před akcí",
       "todo": "Zbývá",
       "transport": "Doprava",
       "transportChoose": "Vybrat dopravu",
-      "transportView": "Zobrazit dopravu"
+      "transportView": "Zobrazit dopravu",
+      "wishesView": "Zobrazit přání"
     },
     "termsTitle": "Stav podle termínů",
     "title": "Detail přihlášky",

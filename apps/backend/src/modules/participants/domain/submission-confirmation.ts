@@ -13,6 +13,8 @@ export type SubmittedApplication = {
   /** Terms as evaluated; the price is the one frozen at evaluation. */
   terms: {
     name: string
+    /** The localized range when the term appears in the submission receipt. */
+    dates?: string
     /** `Term.number`, the last three digits of the term's variable symbol. */
     termNumber: number
     status: ApplicationTermStatus
@@ -32,6 +34,7 @@ export type SubmissionConfirmation = {
   /** Application.locale — language of the e-mail. */
   locale: Locale
   eventName: string
+  organizationName: string
   /** Account number of the organization that runs the event. */
   bankAccount: string
   /**

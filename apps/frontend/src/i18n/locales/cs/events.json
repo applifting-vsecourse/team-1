@@ -58,23 +58,22 @@
     "title": "Smazat akci?"
   },
   "evaluationMode": {
-    "afterOpenLocked": "Režim se uzamkne a nebude možné jej změnit.",
-    "afterOpenVisible": "Zvolený režim bude vidět v přehledu akce.",
+    "afterOpenLocked": "Po otevření přihlášek už režim vyhodnocení nepůjde změnit.",
     "automatic": "Automaticky",
     "automaticHint": "Při přijetí přihlášky systém rozhodne podle kapacity termínu: potvrdí ji, nebo ji zařadí mezi náhradníky.",
+    "beforeOpenTitle": "Volbu dokončete před otevřením přihlášek",
     "change": "Změnit",
+    "discard": "Zrušit změny",
     "legend": "Režim vyhodnocování",
     "lockNotice": "Režim je uzamčený",
-    "lockedReason": "Přihlášky už byly otevřeny. Režim proto nelze změnit, ani když přihlášky později zavřeš.",
-    "lockedTitle": "Vyhodnocování přihlášek",
+    "lockedReason": "Přihlášky už byly otevřeny. Režim proto nelze změnit, ani když přihlášky později zavřete.",
     "manual": "Ručně",
-    "manualHint": "Každou přihlášku vyhodnotíš ty. Ručně rozhoduješ také o náhradnících.",
+    "manualHint": "Každou přihlášku vyhodnotíte vy. Ručně rozhodujete také o náhradnících.",
     "overviewLabel": "Režim vyhodnocování",
     "save": "Uložit režim",
     "saveFailed": "Změnu se nepodařilo uložit",
     "saved": "Režim vyhodnocování byl uložen.",
-    "subtitle": "Zvolte pravidlo před otevřením přihlášek.",
-    "title": "Režim vyhodnocování přihlášek"
+    "title": "Vyhodnocování přihlášek"
   },
   "extraBedDialog": {
     "bedsAfter": "Lůžka po přiřazení",
@@ -640,8 +639,12 @@
       "price": "Cena termínu (Kč) *",
       "priceHelper": "Celá cena za termín; bez zálohy.",
       "priceRequired": "Vyplňte cenu za osobu v Kč.",
+      "rangeHint": "Kliknutím zvol začátek a potom konec termínu.",
+      "rangeLabel": "Termín konání *",
+      "rangeStart": "{{date}} · vyber konec",
       "required": "* Povinná pole",
       "save": "Uložit změny",
+      "saving": "Ukládám…",
       "startsOn": "Datum začátku *",
       "submitAdd": "Přidat termín"
     },

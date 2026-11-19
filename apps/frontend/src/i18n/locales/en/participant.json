@@ -78,11 +78,13 @@
       "payment": "Payment",
       "paymentPay": "Pay {{amount}}",
       "paymentView": "View payment",
+      "roomView": "View room",
       "title": "Steps before the event",
       "todo": "To do",
       "transport": "Transport",
       "transportChoose": "Choose transport",
-      "transportView": "View transport"
+      "transportView": "View transport",
+      "wishesView": "View wishes"
     },
     "termsTitle": "Status by term",
     "title": "Application details",

@@ -1,9 +1,6 @@
-import { Locale } from "@/core/email/locale"
-import { Button, Section, Text } from "react-email"
-import { emailButton, EmailLayout, EmailLinkHelp } from "@/core/email/email-kit"
-import * as React from "react"
+import { AccountEmail } from "@/core/email/email-kit"
+import type { Locale } from "@/core/email/locale"
 
-// Copy for all locales side by side — a missing translation is a type error.
 const copy: Record<
   Locale,
   {
@@ -11,28 +8,33 @@ const copy: Record<
     preview: string
     heading: string
     body: string
+    validity: string
+    alertTitle: string
+    alertText: string
     button: string
-    fallback: string
-    ignore: string
   }
 > = {
   en: {
-    subject: "Your Togena sign-in link",
-    preview: "Sign in to your application with one click",
-    heading: "Your sign-in link",
-    body: "Hi, use the button below to open your application in Togena. The link works once and is valid for 7 days.",
-    button: "Open my application",
-    fallback: "If the button doesn't work, copy this link into your browser:",
-    ignore: "If you didn't ask for this link, ignore this e-mail — nobody can sign in without it.",
+    subject: "Your sign-in link for Togena",
+    preview: "Use the link in this e-mail to sign in.",
+    heading: "Sign in to Togena",
+    body: "A sign-in link for Togena was requested for this e-mail address. Use the button below to sign in. Do not forward this link to anyone.",
+    validity:
+      "The link is valid for 7 days and can only be used once. If it no longer works, you can request a new one on the Togena sign-in page.",
+    alertTitle: "If you did not request this link",
+    alertText: "Do not use it.",
+    button: "Sign in to Togena",
   },
   cs: {
-    subject: "Váš přihlašovací odkaz do Togeny",
-    preview: "Přihlaste se ke své přihlášce jedním kliknutím",
-    heading: "Váš přihlašovací odkaz",
-    body: "Dobrý den, tlačítkem níže otevřete svou přihlášku v Togeně. Odkaz jde použít jednou a platí 7 dní.",
-    button: "Otevřít moji přihlášku",
-    fallback: "Pokud tlačítko nefunguje, zkopírujte tento odkaz do prohlížeče:",
-    ignore: "Pokud jste si odkaz nevyžádali, tento e-mail ignorujte — bez něj se nikdo nepřihlásí.",
+    subject: "Odkaz pro přihlášení do Togeny",
+    preview: "Přihlaste se pomocí odkazu v tomto e-mailu.",
+    heading: "Přihlášení do Togeny",
+    body: "O přihlášení do Togeny bylo požádáno pro tuto e-mailovou adresu. Přihlaste se tlačítkem níže. Odkaz nikomu nepřeposílejte.",
+    validity:
+      "Odkaz platí 7 dní a lze jej použít pouze jednou. Pokud už nefunguje, na přihlašovací stránce Togeny si můžete nechat poslat nový.",
+    alertTitle: "Pokud jste o přihlášení nežádali",
+    alertText: "Odkaz nepoužívejte.",
+    button: "Přihlásit se do Togeny",
   },
 }
 
@@ -47,26 +49,15 @@ export interface MagicLinkProps {
 export const MagicLink = ({ url, locale }: MagicLinkProps): React.JSX.Element => {
   const text = copy[locale]
   return (
-    <EmailLayout
+    <AccountEmail
       locale={locale}
       preview={text.preview}
       heading={text.heading}
-      introduction={<Text className="text-ink text-base leading-6 mt-4">{text.body}</Text>}
-    >
-      <Section className="my-6 text-center">
-        <Button
-          href={url}
-          className={emailButton}
-        >
-          {text.button}
-        </Button>
-      </Section>
-      <EmailLinkHelp
-        url={url}
-        fallback={text.fallback}
-        warning={text.ignore}
-      />
-    </EmailLayout>
+      introduction={text.body}
+      action={{ url, label: text.button, validity: text.validity }}
+      warningTitle={text.alertTitle}
+      warning={text.alertText}
+    />
   )
 }
 

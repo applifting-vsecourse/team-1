@@ -58,23 +58,22 @@
     "title": "Delete event?"
   },
   "evaluationMode": {
-    "afterOpenLocked": "The mode will be locked and can no longer be changed.",
-    "afterOpenVisible": "The chosen mode will be shown in the event overview.",
+    "afterOpenLocked": "Once applications open, the evaluation mode can no longer be changed.",
     "automatic": "Automatic",
     "automaticHint": "When an application arrives, the system confirms it or puts it on the waiting list according to the term’s capacity.",
+    "beforeOpenTitle": "Choose a mode before opening applications",
     "change": "Change",
+    "discard": "Discard changes",
     "legend": "Evaluation mode",
     "lockNotice": "The mode is locked",
     "lockedReason": "Applications have already opened. The mode stays locked even if you close applications later.",
-    "lockedTitle": "Application evaluation",
     "manual": "Manual",
     "manualHint": "You evaluate each application and decide who moves off the waiting list.",
     "overviewLabel": "Evaluation mode",
     "save": "Save mode",
     "saveFailed": "Could not save the change",
     "saved": "Evaluation mode saved.",
-    "subtitle": "Choose the rule before applications open.",
-    "title": "Application evaluation mode"
+    "title": "Application evaluation"
   },
   "extraBedDialog": {
     "bedsAfter": "Beds after assigning",
@@ -640,8 +639,12 @@
       "price": "Term price (CZK) *",
       "priceHelper": "The whole price of the term; no deposit.",
       "priceRequired": "Fill in the price per person in CZK.",
+      "rangeHint": "Select the start and then the end of the term.",
+      "rangeLabel": "Term dates *",
+      "rangeStart": "{{date}} · select the end",
       "required": "* Required field",
       "save": "Save changes",
+      "saving": "Saving…",
       "startsOn": "Start date *",
       "submitAdd": "Add term"
     },

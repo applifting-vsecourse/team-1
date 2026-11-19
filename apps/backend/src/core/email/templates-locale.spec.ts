@@ -13,6 +13,7 @@ import ChangeEmail, { changeEmailSubject } from "./templates/change-email"
 import ChangeEmailNotice, { changeEmailNoticeSubject } from "./templates/change-email-notice"
 import MagicLink, { magicLinkSubject } from "./templates/magic-link"
 import PaymentCorrectionEmail, { paymentCorrectionSubject } from "./templates/payment-correction"
+import PaymentOverdue, { paymentOverdueSubject } from "./templates/payment-overdue"
 import PaymentReceivedEmail, { paymentReceivedSubject } from "./templates/payment-received"
 import ResetPassword, { resetPasswordSubject } from "./templates/reset-password"
 import VerifyEmail, { verifyEmailSubject } from "./templates/verify-email"
@@ -55,6 +56,10 @@ const templates: Record<
       ...PaymentCorrectionEmail.PreviewProps,
       locale,
     }),
+  }),
+  "payment-overdue": (locale) => ({
+    subject: paymentOverdueSubject(locale, "Camp"),
+    element: React.createElement(PaymentOverdue, { ...PaymentOverdue.PreviewProps, locale }),
   }),
   "payment-received": (locale) => ({
     subject: paymentReceivedSubject(locale, "Term"),
@@ -165,4 +170,25 @@ it("tells the participant the confirmed, substitute and awaiting-evaluation resu
   expect(cs).not.toContain("k úhradě")
   expect(cs).toContain("Náhradník · zatím neplaťte")
   expect(cs).toContain("Čeká na vyhodnocení · zatím neplaťte")
+})
+
+it("renders one overdue notice with the supplied application balance and each confirmed term reference", async () => {
+  const html = await render(
+    React.createElement(PaymentOverdue, {
+      ...PaymentOverdue.PreviewProps,
+      amountDueCzk: 3500,
+      terms: [
+        { termLabel: "Termín A", amountCzk: 2400, variableSymbol: "2027001001" },
+        { termLabel: "Termín B", amountCzk: 1100, variableSymbol: "2027001002" },
+      ],
+    }),
+  )
+  expect(html).toContain("Zbývá uhradit platbu")
+  expect(html).toContain("Termín A")
+  expect(html).toContain("Termín B")
+  expect(html).toMatch(/3[\s\u00a0\u202f]500/)
+  expect(html).toMatch(/1[\s\u00a0\u202f]100/)
+  for (const reference of ["2027001000", "2027001001", "2027001002"])
+    expect(html).toContain(reference)
+  expect(html).toContain(PaymentOverdue.PreviewProps.organizerEmail)
 })

@@ -136,7 +136,7 @@ describe("changing the sign-in e-mail (integration)", () => {
     await requestChange(cookie, { newEmail: `warned-${account.email}` })
 
     const notice = await latestEmailTo(account.email)
-    expect(notice?.subject).toBe("Byla požádána změna přihlašovacího e-mailu")
+    expect(notice?.subject).toBe("Žádost o změnu přihlašovacího e-mailu v Togeně")
   })
 
   it("refuses a request without a session", async () => {
@@ -155,7 +155,7 @@ describe("changing the sign-in e-mail (integration)", () => {
 
     expect(response.status).toBe(204)
     const mail = await latestEmailTo(newEmail)
-    expect(mail?.subject).toBe("Potvrďte změnu e-mailu")
+    expect(mail?.subject).toBe("Potvrďte změnu e-mailu v Togeně")
     expect(mail?.links.some((link) => link.includes("/auth/verify-email?token="))).toBe(true)
     // The old address gets only the notice, never a link.
     expect((await latestEmailTo(account.email))?.links).toEqual([])
@@ -176,7 +176,7 @@ describe("changing the sign-in e-mail (integration)", () => {
 
     await requestChange(cookie, { newEmail })
 
-    expect((await latestEmailTo(newEmail))?.subject).toBe("Confirm your e-mail change")
+    expect((await latestEmailTo(newEmail))?.subject).toBe("Confirm your e-mail change in Togena")
   })
 
   it("changes the e-mail on the click: the new one signs in, the old one no longer does", async () => {

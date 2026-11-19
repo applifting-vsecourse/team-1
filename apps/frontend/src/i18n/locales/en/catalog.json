@@ -37,8 +37,8 @@
     "title": "Event catalog"
   },
   "notFound": {
-    "action": "Go to the home page",
-    "description": "The link to the event is not available. Check the address or contact the organization.",
-    "title": "Page not found"
+    "action": "Go to homepage",
+    "description": "The link may be incorrect or the event may not be ready for applications yet. Check the link with the organizer.",
+    "title": "This event page is unavailable."
   }
 }

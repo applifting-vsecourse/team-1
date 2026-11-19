@@ -20,7 +20,9 @@ describe("EventNotFound", () => {
     })
     render(<RouterProvider router={router} />)
 
-    expect(await screen.findByRole("heading", { level: 1, name: "Page not found" })).toBeVisible()
-    expect(screen.getByRole("link", { name: "Go to the home page" })).toHaveAttribute("href", "/")
+    expect(
+      await screen.findByRole("heading", { level: 1, name: "This event page is unavailable." }),
+    ).toBeVisible()
+    expect(screen.getByRole("link", { name: "Go to homepage" })).toHaveAttribute("href", "/")
   })
 })

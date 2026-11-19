@@ -88,10 +88,9 @@
     "title": "Přihláška"
   },
   "notFound": {
-    "action": "Zpět na Togenu",
-    "code": "404",
-    "description": "Zkontrolujte adresu odkazu nebo požádejte organizátora akce o nový odkaz.",
-    "title": "Odkaz na přihlášku nefunguje"
+    "action": "Na úvodní stránku",
+    "description": "Odkaz může být nesprávný nebo akce ještě není připravená k přihlašování. Ověřte odkaz u organizátora.",
+    "title": "Tato stránka není dostupná."
   },
   "price": {
     "heading": "Cena vybraných termínů",
@@ -101,5 +100,26 @@
     "terms_one": "{{count}} termín",
     "terms_other": "{{count}} termínů",
     "total": "Celkem"
+  },
+  "review": {
+    "accommodation": "Ubytování",
+    "agreed": "Souhlas potvrzený",
+    "birthGender": "Datum narození a pohlaví",
+    "consent": "Souhlas",
+    "contact": "Kontakt přihlašovatele",
+    "continue": "Pokračovat na kontrolu",
+    "detailsStep": "1. Údaje",
+    "editContact": "Upravit kontakt",
+    "editDetails": "Upravit údaje",
+    "email": "Potvrzení a přístup pošleme na",
+    "individual": "Individuální řešení",
+    "intro": "Zkontrolujte účastníky, termíny a cenu. Před odesláním můžete údaje upravit.",
+    "removed": "Účastník {{number}} byl odebrán z přihlášky.",
+    "removedFemale": "{{name}} byla odebrána z přihlášky.",
+    "removedMale": "{{name}} byl odebrán z přihlášky.",
+    "reviewStep": "2. Kontrola",
+    "terms": "Vybrané termíny",
+    "title": "Kontrola přihlášky před odesláním",
+    "undo": "Vrátit odebrání"
   }
 }

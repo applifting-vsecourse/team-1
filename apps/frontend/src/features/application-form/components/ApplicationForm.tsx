@@ -20,6 +20,11 @@ import {
 import { Input } from "@/components/ui/input"
 
 import type { PublicEvent } from "@/features/application-form/api/publicEvent"
+import {
+  ApplicationReview,
+  type ReviewField,
+} from "@/features/application-form/components/ApplicationReview"
+import { ApplicationSteps } from "@/features/application-form/components/ApplicationSteps"
 import { ClearFormDialog } from "@/features/application-form/components/ClearFormDialog"
 import { EventSummary } from "@/features/application-form/components/EventSummary"
 import { ParticipantFields } from "@/features/application-form/components/ParticipantFields"
@@ -60,6 +65,7 @@ type ApplicationFormProps = {
   onSubmit: (values: ApplicationFormValues) => void | Promise<unknown>
   /** Already translated message of a failed submission. */
   errorMessage?: string | null
+  onReview?: () => void
   /** The submission succeeded and the page is about to change. */
   isDone?: boolean
 }
@@ -70,6 +76,7 @@ export function ApplicationForm({
   draftKey,
   onSubmit,
   errorMessage,
+  onReview,
   isDone,
 }: ApplicationFormProps) {
   const { t } = useTranslation("applicationForm")
@@ -97,7 +104,24 @@ export function ApplicationForm({
   useEffect(() => {
     if (invalidSubmitCount > 0 && formRef.current) focusFirstInvalidField(formRef.current)
   }, [invalidSubmitCount])
-  const { fields, append, remove } = useFieldArray({
+  const [review, setReview] = useState<ApplicationFormValues | null>(null)
+  const nextField = useRef<ReviewField | null>(null)
+  const heading = useRef<HTMLHeadingElement>(null)
+  const isSending = useRef(false)
+  const [removed, setRemoved] = useState<{ index: number; person: ParticipantDraft } | null>(null)
+  const { setFocus } = form
+  useEffect(() => {
+    if (review) heading.current?.focus()
+    else if (nextField.current) {
+      setFocus(nextField.current)
+      nextField.current = null
+    }
+  }, [review, setFocus])
+  const edit = (field: ReviewField) => {
+    nextField.current = field
+    setReview(null)
+  }
+  const { fields, append, insert, remove } = useFieldArray({
     control: form.control,
     name: "participants",
   })
@@ -124,136 +148,200 @@ export function ApplicationForm({
   }, [draft, draftKey, isDone])
 
   const clearForm = () => {
+    setRemoved(null)
     form.reset(emptyApplicationDraft())
     if (draftKey) clearApplicationDraft(draftKey)
     setIsClearing(false)
   }
 
-  const isSubmitting = form.formState.isSubmitting || Boolean(isDone)
+  const isSubmitting = (Boolean(review) && form.formState.isSubmitting) || Boolean(isDone)
 
   return (
     <Form {...form}>
       <form
         ref={formRef}
         noValidate
-        onSubmit={form.handleSubmit(
-          async (values) => {
-            // A second press while the first is in flight must not create a second application.
-            if (isSubmitting) return
-            await onSubmit(values)
-          },
-          () => setInvalidSubmitCount((count) => count + 1),
-        )}
+        onSubmit={(submitEvent) =>
+          form.handleSubmit(
+            async (values) => {
+              // A second press while the first is in flight must not create a second application.
+              if (isSending.current || isDone) return
+              if (!review) {
+                onReview?.()
+                setReview(values)
+                return
+              }
+              isSending.current = true
+              try {
+                if ((await onSubmit(values)) === "duplicate") edit("participants.0.firstName")
+              } finally {
+                isSending.current = false
+              }
+            },
+            () => setInvalidSubmitCount((count) => count + 1),
+          )(submitEvent)
+        }
         className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] [&_[data-slot=form-item]]:scroll-mt-24"
         data-invalid-submit={invalidSubmitCount > 0 || undefined}
         data-restored={restoredDraft ? true : undefined}
       >
         <div className="flex min-w-0 flex-col gap-6">
-          <h1 className="text-2xl font-bold tracking-tight md:text-[32px]/10">
-            {t("form.heading", { event: event.name })}
-          </h1>
-          <p>{t("form.intro")}</p>
-          <BrandDivider />
-          <EventSummary event={event} />
-          {fields.map((field, index) => (
-            <ParticipantFields
-              key={field.id}
-              index={index}
-              terms={event.terms}
-              isDisabled={isSubmitting}
-              onRemove={index > 0 ? () => remove(index) : undefined}
-            />
-          ))}
-
-          <Button
-            type="button"
-            variant="outline"
-            size="lg"
-            className="w-full sm:w-auto sm:self-start"
-            disabled={isSubmitting}
-            onClick={() => append({ ...emptyParticipant })}
+          <h1
+            ref={heading}
+            tabIndex={-1}
+            className="text-2xl font-bold tracking-tight outline-none md:text-[32px]/10"
           >
-            {t("form.addParticipant")}
-          </Button>
-
-          <Card className="gap-4 p-4 sm:p-6">
-            <h2 className="text-lg font-bold">{t("form.contactHeading")}</h2>
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("form.email")}</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="email"
-                      autoComplete="email"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormDescription className="text-xs font-medium">
-                    {t("form.emailHint")}
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
+            {review ? t("review.title") : t("form.heading", { event: event.name })}
+          </h1>
+          <ApplicationSteps isReview={Boolean(review)} />
+          <p>{t(review ? "review.intro" : "form.intro")}</p>
+          {review ? (
+            <ApplicationReview
+              values={review}
+              terms={event.terms}
+              onEdit={edit}
+              isSubmitting={isSubmitting}
             />
+          ) : (
+            <>
+              <BrandDivider />
+              <EventSummary event={event} />
+              {fields.map((field, index) => (
+                <ParticipantFields
+                  key={field.id}
+                  index={index}
+                  terms={event.terms}
+                  isDisabled={isSubmitting}
+                  onRemove={
+                    fields.length > 1
+                      ? () => {
+                          setRemoved({ index, person: form.getValues(`participants.${index}`) })
+                          remove(index)
+                        }
+                      : undefined
+                  }
+                />
+              ))}
 
-            <FormField
-              control={form.control}
-              name="consent"
-              render={({ field }) => (
-                <FormItem>
-                  <div className="flex min-h-11 items-center gap-3">
-                    <FormControl>
-                      <Checkbox
-                        className="size-5"
-                        checked={field.value}
-                        onCheckedChange={(isChecked) => field.onChange(isChecked === true)}
-                        onBlur={field.onBlur}
-                      />
-                    </FormControl>
-                    <FormLabel className="flex-1 cursor-pointer self-stretch leading-5 font-normal">
-                      {t("form.consent")}
-                    </FormLabel>
-                  </div>
-                  <FormMessage />
-                </FormItem>
+              <Button
+                type="button"
+                variant="outline"
+                size="lg"
+                className="w-full sm:w-auto sm:self-start"
+                disabled={isSubmitting}
+                onClick={() => append({ ...emptyParticipant })}
+              >
+                {t("form.addParticipant")}
+              </Button>
+
+              {removed && (
+                <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border bg-secondary p-4">
+                  <p role="status">
+                    {removed.person.firstName.trim() &&
+                    removed.person.lastName.trim() &&
+                    removed.person.gender
+                      ? t(
+                          removed.person.gender === "FEMALE"
+                            ? "review.removedFemale"
+                            : "review.removedMale",
+                          { name: `${removed.person.firstName} ${removed.person.lastName}` },
+                        )
+                      : t("review.removed", { number: removed.index + 1 })}
+                  </p>
+                  <Button
+                    type="button"
+                    variant="link"
+                    onClick={() => {
+                      insert(removed.index, removed.person)
+                      setRemoved(null)
+                    }}
+                  >
+                    {t("review.undo")}
+                  </Button>
+                </div>
               )}
-            />
-          </Card>
+              <Card className="gap-4 p-4 sm:p-6">
+                <h2 className="text-lg font-bold">{t("form.contactHeading")}</h2>
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t("form.email")}</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="email"
+                          autoComplete="email"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription className="text-xs font-medium">
+                        {t("form.emailHint")}
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-xs font-medium text-muted-foreground">{t("form.requiredNote")}</p>
-            <Button
-              type="button"
-              variant="ghost"
-              disabled={isSubmitting}
-              onClick={() => setIsClearing(true)}
-            >
-              {t("form.clear")}
-            </Button>
-          </div>
+                <FormField
+                  control={form.control}
+                  name="consent"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="flex min-h-11 items-center gap-3">
+                        <FormControl>
+                          <Checkbox
+                            className="size-5"
+                            checked={field.value}
+                            onCheckedChange={(isChecked) => field.onChange(isChecked === true)}
+                            onBlur={field.onBlur}
+                          />
+                        </FormControl>
+                        <FormLabel className="flex-1 cursor-pointer self-stretch leading-5 font-normal">
+                          {t("form.consent")}
+                        </FormLabel>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </Card>
+
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <p className="text-xs font-medium text-muted-foreground">
+                  {t("form.requiredNote")}
+                </p>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  disabled={isSubmitting}
+                  onClick={() => setIsClearing(true)}
+                >
+                  {t("form.clear")}
+                </Button>
+              </div>
+            </>
+          )}
         </div>
         <aside className="min-w-0 lg:sticky lg:top-24">
           <PriceSummary
             rows={priceRows}
             totalCzk={totalPrice(prices)}
           >
-            {" "}
             {errorMessage ? (
               <Alert variant="destructive">
                 <AlertDescription>{errorMessage}</AlertDescription>
               </Alert>
             ) : null}
             <Button
+              key={review ? "send" : "review"}
               type="submit"
-              aria-busy={form.formState.isSubmitting}
+              aria-busy={isSubmitting}
               size="lg"
               className="w-full"
               disabled={isSubmitting}
             >
-              {isSubmitting ? t("form.submitting") : t("form.submit")}
+              {t(isSubmitting ? "form.submitting" : review ? "form.submit" : "review.continue")}
             </Button>
             {isSubmitting ? (
               <p

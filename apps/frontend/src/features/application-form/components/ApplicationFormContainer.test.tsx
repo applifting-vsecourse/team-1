@@ -117,6 +117,7 @@ describe("ApplicationFormContainer", () => {
     await userEvent.click(screen.getByRole("checkbox", { name: /I agree to the processing/ }))
     expect(window.sessionStorage.getItem(keyOf("a"))).not.toBeNull()
 
+    await userEvent.click(screen.getByRole("button", { name: "Continue to review" }))
     await userEvent.click(screen.getByRole("button", { name: "Submit application" }))
 
     await waitFor(() => expect(navigate).toHaveBeenCalledTimes(1))
@@ -145,6 +146,7 @@ describe("ApplicationFormContainer", () => {
     window.sessionStorage.setItem(keyOf("a"), savedDraft)
     renderContainer("a")
     await userEvent.click(screen.getByRole("checkbox", { name: /I agree to the processing/ }))
+    await userEvent.click(screen.getByRole("button", { name: "Continue to review" }))
     await userEvent.click(screen.getByRole("button", { name: "Submit application" }))
 
     await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent("boom"))

@@ -99,11 +99,42 @@ export function termSteps(
       ),
     },
   )
+  if (term.roomWishes !== undefined) {
+    const hasWishes = term.roomWishes.length > 0
+    steps.push({
+      key: "roomWishes",
+      title: t("roomWishes.title"),
+      isDone: hasWishes,
+      link: (
+        <a
+          href={`#room-wishes-${term.termId}`}
+          className="text-sm font-medium text-primary hover:underline"
+        >
+          {t(hasWishes ? "detail.steps.wishesView" : "roomWishes.add")}
+        </a>
+      ),
+    })
+  }
+  if (term.room !== undefined) {
+    steps.push({
+      key: "room",
+      title: t("detail.sections.room"),
+      isDone: Boolean(term.room.name),
+      link: (
+        <a
+          href={`#room-${term.termId}`}
+          className="text-sm font-medium text-primary hover:underline"
+        >
+          {t("detail.steps.roomView")}
+        </a>
+      ),
+    })
+  }
   return steps
 }
 
 /** One card per confirmed term with what the participant has to arrange before the event. */
-// Figma (Design system): US-149 Dva termíny a kroky · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=24910-14581 (360 px: node-id=24910-14762)
+// Figma (Design system): US-149 Dva termíny a kroky · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=24910-14581 (360 px: node-id=24910-14762)
 export function TermSteps({ application }: { application: MyApplication }) {
   const { t } = useTranslation("participant")
   const cards = application.terms
@@ -116,14 +147,14 @@ export function TermSteps({ application }: { application: MyApplication }) {
       {cards.map(({ term, steps }) => (
         <li key={term.termId}>
           <Card
-            className="gap-4 p-6"
+            className="gap-3 rounded-lg p-4"
             aria-labelledby={`steps-${term.termId}`}
           >
             <div className="flex items-start justify-between gap-3">
               <div className="flex min-w-0 flex-col gap-0.5">
                 <h3
                   id={`steps-${term.termId}`}
-                  className="text-lg font-semibold tracking-tight"
+                  className="text-lg font-bold"
                 >
                   {termName(term) ?? termDates(term)}
                 </h3>
@@ -133,18 +164,21 @@ export function TermSteps({ application }: { application: MyApplication }) {
               </div>
               <TermStatusBadge term={term} />
             </div>
-            <h4 className="text-sm font-medium">{t("detail.steps.title")}</h4>
-            <ul className="flex flex-col">
+            <h4 className="border-t pt-3 text-base font-medium">{t("detail.steps.title")}</h4>
+            <ul className="flex flex-col gap-2">
               {steps.map((step) => (
                 <li
                   key={step.key}
-                  className="flex items-center justify-between gap-3 border-t py-3 first:border-t-0 first:pt-0 last:pb-0"
+                  className="flex items-center justify-between gap-3"
                 >
                   <div className="flex min-w-0 flex-col gap-0.5">
                     <span className="text-sm font-medium">{step.title}</span>
                     {step.link}
                   </div>
-                  <Badge variant={step.isDone ? "success" : "warning"}>
+                  <Badge
+                    variant={step.isDone ? "default" : "warning"}
+                    className={step.isDone ? "bg-primary text-primary-foreground" : undefined}
+                  >
                     {t(step.isDone ? "detail.steps.done" : "detail.steps.todo")}
                   </Badge>
                 </li>

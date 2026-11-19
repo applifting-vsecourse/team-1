@@ -1,62 +1,37 @@
 import { useEffect } from "react"
-import { TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
-import { AuthLayout } from "@/components/templates/AuthLayout"
+import { SystemStatusLayout } from "@/components/templates/SystemStatusLayout"
 import { Button } from "@/components/ui/button"
 
-type ErrorPageProps = {
-  /** Only logged, never shown: the visitor gets a plain explanation, not a technical message. */
-  error: unknown
-}
-
-/**
- * "Something went wrong". Also the fallback of the top-level error boundary, so it must render
- * without router context: the home action is a plain link (a full page load, which is fine here).
- */
-// Figma v2: system error · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=20125-1830
-// Figma (Design system): S19 Něco se pokazilo · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14478-2158
-export function ErrorPage({ error }: ErrorPageProps) {
+// Figma: Něco se pokazilo · desktop 20125:1830, mobil 20125:1865 · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=20125-1830
+export function ErrorPage({ error }: { error: unknown }) {
   const { t } = useTranslation()
-
+  // Keep diagnostic details in the console.
   useEffect(() => {
     console.error(error)
   }, [error])
 
   return (
-    <AuthLayout
-      hasBand
-      icon={
-        <div className="flex size-14 items-center justify-center rounded-full bg-accent text-link">
-          <TriangleAlert
-            aria-hidden
-            className="size-6"
-          />
-        </div>
-      }
+    <SystemStatusLayout
       title={t("pages.error.title")}
       description={t("pages.error.description")}
-      cardTitle={t("pages.error.cardTitle")}
     >
-      <p>{t("pages.error.body")}</p>
-      <div className="flex flex-col gap-5">
-        <Button
-          size="lg"
-          className="w-full"
-          onClick={() => window.location.reload()}
-        >
-          {t("pages.error.action")}
-        </Button>
-        <Button
-          asChild
-          variant="outline"
-          size="lg"
-          className="w-full"
-        >
-          <a href={ROUTES.home}>{t("pages.error.homeAction")}</a>
-        </Button>
-      </div>
-    </AuthLayout>
+      <Button
+        size="lg"
+        className="h-12 w-full"
+        onClick={() => window.location.reload()}
+      >
+        {t("pages.error.action")}
+      </Button>
+      <Button
+        asChild
+        variant="ghost"
+        className="h-9 w-full"
+      >
+        <a href={ROUTES.home}>{t("pages.error.homeAction")}</a>
+      </Button>
+    </SystemStatusLayout>
   )
 }

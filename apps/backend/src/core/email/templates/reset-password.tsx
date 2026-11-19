@@ -1,42 +1,35 @@
-import { Locale } from "@/core/email/locale"
-import { Button, Section, Text } from "react-email"
-import { emailButton, EmailLayout, EmailLinkHelp } from "@/core/email/email-kit"
-import * as React from "react"
+import { AccountEmail } from "@/core/email/email-kit"
+import type { Locale } from "@/core/email/locale"
 
-// Every template keeps its copy for all locales side by side, so a missing
-// translation is a type error, not a silent English e-mail.
 const copy: Record<
   Locale,
   {
     subject: string
     preview: string
     heading: string
-    body: (name: string) => string
+    body: string
+    alertTitle: string
+    alertText: string
     button: string
-    fallback: string
-    ignore: string
   }
 > = {
   en: {
-    subject: "Password reset",
-    preview: "Reset your Togena password",
-    heading: "Reset your password",
-    body: (name) =>
-      `Hi ${name}, we received a request to reset your Togena password. Click the button below to choose a new one.`,
+    subject: "Reset your Togena password",
+    preview: "Use the link in this e-mail to choose a new password.",
+    heading: "Choose a new password",
+    body: "We have received a request to reset the password for your Togena account. Use the button below to choose a new password. The link is valid for 1 hour.",
+    alertTitle: "If you did not request a password reset",
+    alertText: "Ignore this e-mail. This e-mail does not change your password.",
     button: "Choose a new password",
-    fallback: "If the button doesn't work, copy this link into your browser:",
-    ignore:
-      "If you didn't ask for a password reset, ignore this e-mail — your password stays the same.",
   },
   cs: {
-    subject: "Obnova hesla",
-    preview: "Obnova hesla do Togeny",
-    heading: "Obnova hesla",
-    body: (name) =>
-      `Dobrý den, ${name}, dostali jsme žádost o obnovu hesla do Togeny. Nové heslo si nastavíte kliknutím na tlačítko níže.`,
+    subject: "Obnova hesla do Togeny",
+    preview: "Nastavte si nové heslo pomocí odkazu v tomto e-mailu.",
+    heading: "Nastavení nového hesla",
+    body: "Obdrželi jsme žádost o obnovu hesla k vašemu uživatelskému účtu v Togeně. Nové heslo si nastavíte tlačítkem níže. Odkaz platí 1 hodinu.",
+    alertTitle: "Pokud jste o obnovu nežádali",
+    alertText: "Tento e-mail ignorujte. Vaše heslo se tímto e-mailem nemění.",
     button: "Nastavit nové heslo",
-    fallback: "Pokud tlačítko nefunguje, zkopírujte tento odkaz do prohlížeče:",
-    ignore: "Pokud jste o obnovu hesla nežádali, tento e-mail ignorujte — heslo zůstane stejné.",
   },
 }
 
@@ -49,31 +42,18 @@ export interface ResetPasswordProps {
 }
 
 // Figma: E18 · Obnova hesla · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=19681-1519
-export const ResetPassword = ({ username, url, locale }: ResetPasswordProps): React.JSX.Element => {
+export const ResetPassword = ({ url, locale }: ResetPasswordProps): React.JSX.Element => {
   const text = copy[locale]
   return (
-    <EmailLayout
+    <AccountEmail
       locale={locale}
       preview={text.preview}
       heading={text.heading}
-      introduction={
-        <Text className="text-ink text-base leading-6 mt-4">{text.body(username)}</Text>
-      }
-    >
-      <Section className="my-6 text-center">
-        <Button
-          href={url}
-          className={emailButton}
-        >
-          {text.button}
-        </Button>
-      </Section>
-      <EmailLinkHelp
-        url={url}
-        fallback={text.fallback}
-        warning={text.ignore}
-      />
-    </EmailLayout>
+      introduction={text.body}
+      action={{ url, label: text.button }}
+      warningTitle={text.alertTitle}
+      warning={text.alertText}
+    />
   )
 }
 

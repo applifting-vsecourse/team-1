@@ -864,6 +864,21 @@ describe("ApplicationDetail", () => {
       )
     })
 
+    it("links to the wishes and published room of the matching term", async () => {
+      renderDetail(
+        withSteps({ terms: [{ ...confirmed, roomWishes: [], room: { name: "Bříza 204" } }] }),
+      )
+      const wishes = await stepRow(/^1\. týden$/, "Roommate wishes")
+      expect(within(wishes).getByText("To do")).toBeVisible()
+      const room = await stepRow(/^1\. týden$/, "Room")
+      expect(within(room).getByText("Done")).toBeVisible()
+      for (const row of [wishes, room]) {
+        const link = within(row).getByRole("link")
+        const target = document.querySelector(link.getAttribute("href")!)
+        expect(target).toBeVisible()
+      }
+    })
+
     it("shows the payment step as to do while something is owed and links to the payment", async () => {
       renderDetail(withSteps())
 

@@ -2,8 +2,10 @@ import { useEffect, useState } from "react"
 import { CircleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import VerificationDot from "@/assets/motion/verification-dot.svg?react"
+import VerificationEnd from "@/assets/motion/verification-end.svg?react"
+import VerificationStart from "@/assets/motion/verification-start.svg?react"
 import { HeadingBand } from "@/components/atoms/HeadingBand"
-import { LogoSymbol } from "@/components/atoms/Logo"
 import { Seo } from "@/components/atoms/Seo"
 import { Header } from "@/components/organisms/Header"
 import { AuthLayout } from "@/components/templates/AuthLayout"
@@ -56,13 +58,23 @@ export function MagicLinkLanding({ token, error }: MagicLinkLandingProps) {
                 role="status"
                 className="flex flex-col items-center gap-4 text-center"
               >
-                <LogoSymbol className="verifying-mark size-12 text-primary" />
-                <p className="text-sm text-muted-foreground">{t("magicLink.checkingAccess")}</p>
+                <div className="flex w-50 max-w-full flex-col items-center gap-3 self-start p-4">
+                  <span
+                    aria-hidden="true"
+                    className="verifying-mark relative size-14"
+                  >
+                    <VerificationStart className="absolute top-[15.5%] left-[15.5%]" />
+                    <VerificationEnd className="absolute right-[15.5%] bottom-[15.5%]" />
+                    <VerificationDot className="absolute top-[44%] left-[44%]" />
+                  </span>
+                  <p className="text-sm font-medium">{t("magicLink.checkingAccess")}</p>
+                </div>
                 <h1 className="text-2xl font-bold">{t("magicLink.verifying")}</h1>
               </div>
             </HeadingBand>
           </Card>
         </main>
+        <footer className="p-4 text-center text-sm text-muted-foreground">{t("signature")}</footer>
       </div>
     )
   }

@@ -25,6 +25,8 @@
   --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
+  --color-field-border: var(--field-border);
+  --color-field-error: var(--field-error);
   --color-ring: var(--ring);
   --color-link: var(--link);
   --color-status-success: var(--status-success);
@@ -54,6 +56,7 @@
 
   /* Figma DS / Metrics radius/* */
   --radius-sm: 4px;
+  --radius-checkbox: 6px;
   --radius-md: 8px;
   --radius-control: 10px;
   --radius-lg: 12px;
@@ -88,6 +91,8 @@
   --destructive: #ce514d; /* color/status/error */
   --destructive-foreground: #ffffff; /* color/text/inverse */
   --border: #dae3e4; /* color/border/default */
+  --field-border: #718882; /* Togena / Color / input-border */
+  --field-error: #b34640; /* Togena / Color / danger */
   --input: #759398; /* color/border/control */
   --ring: #007f72; /* color/border/focus */
   --link: #006363; /* color/text/link */
@@ -145,6 +150,8 @@
   --status-waitlist: #c9aeff; /* color/status/waitlist */
   --status-waitlist-bg: #302742; /* color/status/waitlist-bg */
   --border: #142223; /* color/border/default */
+  --field-border: var(--input);
+  --field-error: var(--destructive);
   --input: #6e959e; /* color/border/control */
   --ring: #00bba7; /* color/border/focus */
   --link: #00bba7; /* color/text/link */
@@ -174,6 +181,55 @@
   h2,
   h3 {
     @apply tracking-tight;
+  }
+}
+
+/* Figma's drawn controls are decorative layers on the Radix controls. Dark mode and
+   forced colours keep their theme-aware outlines, thumb and selection indicator. */
+@media (forced-colors: none) {
+  .form-radio[data-state="checked"],
+  .form-switch[data-size="default"] {
+    &:not(.dark *) {
+      position: relative;
+      background: transparent;
+      border-color: transparent;
+      outline-color: transparent;
+
+      &::after {
+        content: "";
+        position: absolute;
+        inset: -5px;
+        background: var(--drawn-control) center / auto no-repeat;
+        pointer-events: none;
+      }
+
+      & > [data-slot="radio-group-indicator"],
+      & > [data-slot="switch-thumb"] {
+        opacity: 0;
+      }
+    }
+  }
+  .form-radio[data-state="checked"] {
+    --drawn-control: url("../assets/forms/radio-selected.svg");
+    &:focus-visible {
+      --drawn-control: url("../assets/forms/radio-selected-focus.svg");
+    }
+  }
+  .form-switch[data-state="unchecked"] {
+    --drawn-control: url("../assets/forms/switch-off.svg");
+    &:focus-visible {
+      --drawn-control: url("../assets/forms/switch-off-focus.svg");
+    }
+  }
+  .form-switch[data-state="checked"] {
+    --drawn-control: url("../assets/forms/switch-on.svg");
+    &:focus-visible {
+      --drawn-control: url("../assets/forms/switch-on-focus.svg");
+    }
+  }
+
+  .form-textarea::-webkit-resizer {
+    background: url("../assets/forms/resize.svg") right 4px bottom 4px / auto no-repeat;
   }
 }
 
@@ -299,18 +355,34 @@
   }
 }
 
+/* M01: two 800ms half-turns, then a 400ms hold until the next loop. */
 @media (prefers-reduced-motion: no-preference) {
-  .verifying-mark path {
-    stroke-dasharray: 32;
-    animation: verify-link 1600ms ease-in-out infinite;
+  .verifying-mark {
+    animation: verify-link 2s ease-in-out infinite;
+  }
+  .verifying-mark > :last-child {
+    animation: verify-link-dot 2s ease-in-out infinite;
   }
   @keyframes verify-link {
-    0%,
-    100% {
-      stroke-dashoffset: 0;
+    0% {
+      transform: rotate(0deg);
     }
-    50% {
-      stroke-dashoffset: 16;
+    40% {
+      transform: rotate(180deg);
+    }
+    80%,
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  @keyframes verify-link-dot {
+    0%,
+    80%,
+    100% {
+      opacity: 1;
+    }
+    40% {
+      opacity: 0.45;
     }
   }
 }
@@ -376,42 +448,17 @@
   }
 }
 
-/* M21 keeps the selected range readable throughout the corner movement. */
-[data-slot="calendar"] :is([data-range-start="true"], [data-range-end="true"]) {
-  position: relative;
-}
-[data-slot="calendar"] [data-range-start="true"]::before,
-[data-slot="calendar"] [data-range-end="true"]::after {
-  content: "";
-  position: absolute;
-  width: 7px;
-  height: 7px;
-  pointer-events: none;
-  border-color: currentColor;
-}
-[data-slot="calendar"] [data-range-start="true"]::before {
-  inset: 3px auto auto 3px;
-  border-top-width: 1.5px;
-  border-left-width: 1.5px;
-  border-top-left-radius: 2px;
-}
-[data-slot="calendar"] [data-range-end="true"]::after {
-  inset: auto 3px 3px auto;
-  border-bottom-width: 1.5px;
-  border-right-width: 1.5px;
-  border-bottom-right-radius: 2px;
-}
+/* M16 changes the active step immediately while its content settles into place. */
 @media (prefers-reduced-motion: no-preference) {
-  [data-slot="calendar"] [data-range-start="true"]::before,
-  [data-slot="calendar"] [data-range-end="true"]::after {
-    animation: range-corner 400ms cubic-bezier(0.22, 0.8, 0.2, 1);
+  .review-content {
+    animation: application-review 290ms ease-out;
   }
-  @keyframes range-corner {
+  @keyframes application-review {
     from {
-      transform: scale(0.55);
+      transform: translateX(6px);
     }
     to {
-      transform: scale(1);
+      transform: translateX(0);
     }
   }
 }

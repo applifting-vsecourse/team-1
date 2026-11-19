@@ -124,6 +124,15 @@ describe("EventSettings", () => {
     expect(screen.getByRole("radio", { name: "Manual" })).not.toBeChecked()
   })
 
+  it("discards the local selection without writing to the server", async () => {
+    const patches = renderSettings(event)
+    const user = userEvent.setup()
+    await user.click(await screen.findByRole("radio", { name: "Manual" }))
+    await user.click(screen.getByRole("button", { name: "Discard changes" }))
+    expect(screen.getByRole("radio", { name: "Automatic" })).toBeChecked()
+    expect(patches).toEqual([])
+  })
+
   it("saves the chosen mode", async () => {
     const patches = renderSettings(event, () => new Response(JSON.stringify(event)))
     const user = userEvent.setup()

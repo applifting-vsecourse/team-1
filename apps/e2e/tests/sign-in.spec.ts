@@ -75,7 +75,7 @@ test.describe("Sign-in", () => {
     await expect(page.getByRole("heading", { level: 1, name: "Your applications" })).toBeVisible()
 
     await page.goto("/organizer")
-    await expect(page.getByText("A participant account can't manage events.")).toBeVisible()
+    await expect(page.getByText(/This area is only available to organizers/)).toBeVisible()
   })
 
   test("organizer cannot open another organization's event (US-10)", async ({ page }) => {
@@ -84,9 +84,9 @@ test.describe("Sign-in", () => {
     await openEventList(page)
 
     await page.goto(`/organizer/events/${eventId}`)
-    await expect(page.getByText("403 · The requested record isn't available to you.")).toBeVisible()
+    await expect(page.getByText(/This record is unavailable for your account/)).toBeVisible()
     await expect(page.getByText("Horský víkend 2027")).toHaveCount(0)
-    await page.getByRole("link", { name: "My events" }).click()
+    await page.getByRole("link", { name: "Back to my events", exact: true }).click()
     await expect(page).toHaveURL(/\/organizer\/events$/)
   })
 })

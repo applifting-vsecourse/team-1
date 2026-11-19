@@ -59,25 +59,19 @@
   "pages": {
     "error": {
       "action": "Načíst znovu",
-      "body": "Zkuste stránku načíst znovu. Pokud se chyba opakuje, pokračujte na úvodní stránku a zkuste to později.",
-      "cardTitle": "Co můžete udělat",
-      "description": "Stránku se nepodařilo zobrazit.",
+      "description": "Stránku se nepodařilo zobrazit. Zkuste ji načíst znovu nebo se vraťte na úvodní stránku.",
       "homeAction": "Na úvodní stránku",
       "title": "Něco se pokazilo"
     },
     "forbidden": {
       "action": "Na úvodní stránku",
-      "body": "Tato stránka patří jinému účtu nebo jiné organizaci.",
-      "cardTitle": "Zpět",
-      "description": "Tuto stránku nemůžete otevřít.",
-      "title": "K této stránce nemáte přístup"
+      "description": "Tato stránka patří jinému účtu nebo jiné organizaci.",
+      "title": "K tomuto obsahu nemáte přístup."
     },
     "notFound": {
       "action": "Na úvodní stránku",
-      "body": "Zkontrolujte adresu v prohlížeči, nebo pokračujte na úvodní stránku.",
-      "cardTitle": "Co dál",
-      "description": "Stránka neexistuje, nebo byl odkaz zadán špatně.",
-      "title": "Stránka nenalezena"
+      "description": "Odkaz může být chybný nebo už neplatí. Pokračujte z úvodní stránky.",
+      "title": "Tuhle stránku jsme nenašli."
     }
   },
   "pagination": {

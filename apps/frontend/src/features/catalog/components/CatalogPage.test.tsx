@@ -114,6 +114,10 @@ describe("CatalogPage", () => {
     const card = (await screen.findByRole("heading", { name: "Letní kemp Lipno 2027" })).closest(
       "a",
     )
+    expect(screen.getByRole("link", { name: "Alpine Collective" })).toHaveAttribute(
+      "href",
+      expect.stringContaining("organization=o1"),
+    )
     expect(card).toHaveAttribute("href", "/events/tok")
     expect(card).toHaveTextContent("Alpine Collective")
     expect(card).toHaveTextContent("Lipno nad Vltavou")

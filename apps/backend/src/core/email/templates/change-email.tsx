@@ -1,38 +1,42 @@
-import { Locale } from "@/core/email/locale"
-import { Button, Section, Text } from "react-email"
-import { emailButton, EmailLayout } from "@/core/email/email-kit"
-import * as React from "react"
+import { AccountEmail } from "@/core/email/email-kit"
+import type { Locale } from "@/core/email/locale"
 
-// Every template keeps its copy for all locales side by side, so a missing
-// translation is a type error, not a silent English e-mail.
 const copy: Record<
   Locale,
   {
     subject: string
+    preview: string
     heading: string
-    to: string
     body: (currentEmail: string, newEmail: string) => string
+    validity: string
+    alertTitle: string
+    alertText: string
     button: string
-    ignore: string
   }
 > = {
   en: {
-    subject: "Confirm your e-mail change",
+    subject: "Confirm your e-mail change in Togena",
+    preview: "Your sign-in e-mail change is awaiting confirmation.",
     heading: "Confirm your e-mail change",
-    to: "To",
     body: (currentEmail, newEmail) =>
-      `After you confirm, your sign-in e-mail changes from ${currentEmail} to ${newEmail}.`,
+      `Once confirmed, the sign-in e-mail for your Togena account will change from ${currentEmail} to ${newEmail}. Until then, your current address remains in use.`,
+    validity:
+      "The link is valid for 1 hour. If it expires, sign in using your current e-mail address and request the e-mail change again in your account settings.",
+    alertTitle: "If you did not request this change",
+    alertText: "Do not use the link.",
     button: "Confirm e-mail change",
-    ignore: "If you didn't ask for this change, don't use the link.",
   },
   cs: {
-    subject: "Potvrďte změnu e-mailu",
-    heading: "Potvrďte změnu e-mailu",
-    to: "Komu",
+    subject: "Potvrďte změnu e-mailu v Togeně",
+    preview: "Změna přihlašovací adresy čeká na vaše potvrzení.",
+    heading: "Potvrzení změny e-mailu",
     body: (currentEmail, newEmail) =>
-      `Po potvrzení se přihlašovací e-mail změní z ${currentEmail} na ${newEmail}.`,
+      `Po potvrzení se přihlašovací e-mail vašeho uživatelského účtu v Togeně změní z ${currentEmail} na ${newEmail}. Do té doby platí dosavadní adresa.`,
+    validity:
+      "Odkaz platí 1 hodinu. Pokud vyprší, přihlaste se dosavadní adresou a změnu e-mailu zadejte znovu v nastavení uživatelského účtu.",
+    alertTitle: "Pokud jste o změnu nežádali",
+    alertText: "Odkaz nepoužívejte.",
     button: "Potvrdit změnu e-mailu",
-    ignore: "Pokud jste o změnu nežádali, odkaz nepoužívejte.",
   },
 }
 
@@ -54,27 +58,15 @@ export const ChangeEmail = ({
 }: ChangeEmailProps): React.JSX.Element => {
   const text = copy[locale]
   return (
-    <EmailLayout
+    <AccountEmail
       locale={locale}
-      preview={text.heading}
+      preview={text.preview}
       heading={text.heading}
-      introduction={
-        <Text className="text-ink text-sm leading-5 mt-4">
-          {text.to}: {newEmail}
-        </Text>
-      }
-    >
-      <Text className="text-ink text-base leading-6">{text.body(currentEmail, newEmail)}</Text>
-      <Section className="text-center my-8">
-        <Button
-          href={url}
-          className={emailButton}
-        >
-          {text.button}
-        </Button>
-      </Section>
-      <Text className="text-ink text-sm leading-5">{text.ignore}</Text>
-    </EmailLayout>
+      introduction={text.body(currentEmail, newEmail)}
+      action={{ url, label: text.button, validity: text.validity }}
+      warningTitle={text.alertTitle}
+      warning={text.alertText}
+    />
   )
 }
 
