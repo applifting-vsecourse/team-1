@@ -65,6 +65,7 @@
     "automatic": "Automatic",
     "automaticInfo": "The app confirms an application when a bed is free, otherwise it adds it to the substitutes. A freed bed goes to the first substitute.",
     "change": "Change",
+    "confirm": "Confirm mode",
     "description": "How new applications are processed in every term.",
     "infoLabel": "Explanation: {{mode}}",
     "legend": "Evaluation mode",
@@ -169,6 +170,9 @@
     "missing": {
       "addRoom": "Add a room",
       "addTerm": "Add a term and price",
+      "modeDone": "Evaluation mode: {{mode}}",
+      "modeNote": "After the first application is received, the mode can no longer be changed.",
+      "modeTitle": "Choose the evaluation mode",
       "progress": "{{done}} of {{total}} done",
       "roomTitle": "Add at least one room to every term",
       "termTitle": "Add at least one term with a price",

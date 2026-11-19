@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test"
-import { createEventWithTerm } from "./support/event-setup"
+import { chooseEvaluationMode, createEventWithTerm } from "./support/event-setup"
 
 // US-12 event, US-13 terms, US-16 term price, US-14 rooms. The application link works only once
 // the event has a term with a price and a room.
@@ -16,6 +16,7 @@ test.describe("Event setup", () => {
     await expect(
       page.getByRole("heading", { name: "What is missing to open applications" }),
     ).toBeVisible()
+    await expect(page.getByText("0 of 3 done")).toBeVisible()
     await expect(page.getByRole("button", { name: /Copy/ })).toHaveCount(0)
   })
 
@@ -35,6 +36,8 @@ test.describe("Event setup", () => {
     await dialog.getByRole("button", { name: "Add room" }).click()
     await expect(page.getByRole("cell", { name: "Pokoj E2E", exact: true })).toBeVisible()
 
+    // A room alone does not open the link: the evaluation mode has to be chosen too (US-560).
+    await chooseEvaluationMode(page, "Automatic")
     await page
       .getByRole("navigation", { name: "Event sections" })
       .getByRole("link", { name: "Overview" })

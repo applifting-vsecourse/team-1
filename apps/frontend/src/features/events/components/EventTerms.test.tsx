@@ -33,6 +33,7 @@ const event = {
   endsOn: "2027-08-08",
   applicationsOpen: true,
   evaluationMode: "AUTOMATIC",
+  evaluationModePending: false,
   cancellationStartsOn: null,
   cancellationTerms: null,
   evaluationModeLocked: true,

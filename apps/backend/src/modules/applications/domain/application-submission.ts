@@ -13,6 +13,8 @@ export type SubmissionEvent = {
   evaluationMode: EvaluationMode
   /** Active terms that have no room; the link is closed while any does (US-99). */
   termsWithoutRooms: number
+  /** The organizer has not chosen the evaluation mode yet; the link stays closed (US-560). */
+  evaluationModePending: boolean
   terms: {
     id: string
     name: string | null

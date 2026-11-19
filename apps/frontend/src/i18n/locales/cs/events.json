@@ -65,6 +65,7 @@
     "automatic": "Automaticky",
     "automaticInfo": "Aplikace přihlášku potvrdí, když je volné lůžko, jinak ji zařadí mezi náhradníky. Uvolněné lůžko obsadí první náhradník.",
     "change": "Změnit",
+    "confirm": "Potvrdit režim",
     "description": "Jak se nové přihlášky zpracují v každém termínu.",
     "infoLabel": "Vysvětlení: {{mode}}",
     "legend": "Režim vyhodnocování",
@@ -169,6 +170,9 @@
     "missing": {
       "addRoom": "Přidat pokoj",
       "addTerm": "Přidat termín a cenu",
+      "modeDone": "Režim vyhodnocování: {{mode}}",
+      "modeNote": "Po první přijaté přihlášce už režim nelze změnit.",
+      "modeTitle": "Zvolte režim vyhodnocování",
       "progress": "{{done}} ze {{total}} hotovo",
       "roomTitle": "Přidejte alespoň jeden pokoj ke každému termínu",
       "termTitle": "Přidejte alespoň jeden termín s cenou",

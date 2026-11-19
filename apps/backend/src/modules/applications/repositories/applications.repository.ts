@@ -73,6 +73,7 @@ export class ApplicationsRepository {
       bankAccount: event.organization.bankAccount,
       evaluationMode: event.evaluationMode,
       termsWithoutRooms: event.terms.filter((term) => term._count.rooms === 0).length,
+      evaluationModePending: event.evaluationModePending,
       terms: event.terms.map(({ id, name, startsOn, endsOn, number, priceCzk }) => ({
         id,
         name,

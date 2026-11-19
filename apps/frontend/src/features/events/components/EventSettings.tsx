@@ -64,7 +64,7 @@ export function EventSettings({ eventId }: { eventId: string }) {
         ) : (
           <ChooseMode
             eventId={eventId}
-            saved={event.evaluationMode}
+            saved={event.evaluationModePending ? null : event.evaluationMode}
           />
         )}
         <CancellationStartForm
@@ -108,12 +108,13 @@ function LockedMode({ mode }: { mode: EvaluationMode }) {
   )
 }
 
-function ChooseMode({ eventId, saved }: { eventId: string; saved: EvaluationMode }) {
+// `saved` is null while the organizer has not chosen the mode yet: nothing is preselected (US-560).
+function ChooseMode({ eventId, saved }: { eventId: string; saved: EvaluationMode | null }) {
   const { t } = useTranslation("events")
   const queryClient = useQueryClient()
-  const [mode, setMode] = useState<EvaluationMode>(saved)
+  const [mode, setMode] = useState<EvaluationMode | null>(saved)
   const mutation = useMutation({
-    mutationFn: () => setEvaluationMode(eventId, mode),
+    mutationFn: (chosen: EvaluationMode) => setEvaluationMode(eventId, chosen),
     onSuccess: async (updated) => {
       setMode(updated.evaluationMode)
       notify.success(t("evaluationMode.saved"))
@@ -134,12 +135,12 @@ function ChooseMode({ eventId, saved }: { eventId: string; saved: EvaluationMode
         className="flex flex-1 flex-col gap-4"
         onSubmit={(e) => {
           e.preventDefault()
-          mutation.mutate()
+          if (mode) mutation.mutate(mode)
         }}
       >
         <RadioGroup
           aria-label={t("evaluationMode.legend")}
-          value={mode}
+          value={mode ?? ""}
           onValueChange={(value) => setMode(evaluationModeSchema.parse(value))}
           className="flex flex-col gap-3 sm:flex-row sm:gap-6"
         >
@@ -189,7 +190,7 @@ function ChooseMode({ eventId, saved }: { eventId: string; saved: EvaluationMode
             type="submit"
             size="lg"
             className="sm:flex-1"
-            disabled={mutation.isPending}
+            disabled={mode === null || mutation.isPending}
           >
             {mutation.isPending ? <Loader2 className="animate-spin" /> : null}
             {t("evaluationMode.save")}

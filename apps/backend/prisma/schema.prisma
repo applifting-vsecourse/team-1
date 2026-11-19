@@ -224,6 +224,9 @@ model Event {
   name                 String
   // How applications in a term are evaluated (US-101); fixed once applications open.
   evaluationMode       EvaluationMode @default(AUTOMATIC)
+  // US-560: a new event starts with the mode not chosen yet; the application link stays closed until
+  // the organizer chooses or confirms one. Existing events are not pending (they keep their mode).
+  evaluationModePending Boolean @default(false)
   // D-099: payment period from confirmation; D-101: restarted when a correction creates a debt.
   paymentPeriodDays    Int            @default(10)
   // First calendar day when participant changes require organizer approval (US-113/114).

@@ -15,6 +15,8 @@ type EventBody = {
   publicToken: string
   applicationsOpen: boolean
   missing: string[]
+  evaluationMode: string
+  evaluationModePending: boolean
   cancellationStartsOn: string | null
   cancellationTerms: string | null
 }
@@ -29,6 +31,18 @@ describe("organizer events (integration)", () => {
       method: "POST",
       headers: { "Content-Type": "application/json", Cookie: cookie },
       body: JSON.stringify(body),
+    })
+
+  // The organizer's choice of the evaluation mode, which the application link waits for (US-560).
+  const chooseMode = (
+    cookie: string,
+    id: string,
+    evaluationMode = "AUTOMATIC",
+  ): Promise<Response> =>
+    fetch(api(`/organizer/events/${id}/evaluation-mode`), {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json", Cookie: cookie },
+      body: JSON.stringify({ evaluationMode }),
     })
 
   beforeAll(async () => {
@@ -61,7 +75,8 @@ describe("organizer events (integration)", () => {
       name: "Jarní víkend Lipno 2027",
       organizationName: "Letní kemp z. s.",
       applicationsOpen: false,
-      missing: ["TERM"],
+      missing: ["TERM", "EVALUATION_MODE"],
+      evaluationModePending: true,
     })
 
     // The organization's e-mail comes with the event, in the list and in the detail the form reads.
@@ -113,6 +128,7 @@ describe("organizer events (integration)", () => {
           priceCzk: 1000,
         },
       })
+    await chooseMode(cookieA, created.id)
     const first = await makeTerm("První", 1)
     await prisma.room.create({
       data: {
@@ -146,6 +162,7 @@ describe("organizer events (integration)", () => {
 
   it("opens the public page once every term has a room", async () => {
     const created = (await (await post(cookieA, { name: "Podzim" })).json()) as EventBody
+    await chooseMode(cookieA, created.id)
     const event = await prisma.event.findUniqueOrThrow({ where: { id: created.id } })
     const term = await prisma.term.create({
       data: {
@@ -334,6 +351,8 @@ describe("organizer events (integration)", () => {
     it("defaults to automatic, also for events from the seed", async () => {
       const created = (await (await post(cookieA, { name: "Výchozí režim" })).json()) as EventBody
       expect(created).toMatchObject({ evaluationMode: "AUTOMATIC", evaluationModeLocked: false })
+      // Only the stored default: a new event still waits for the organizer's choice (US-560).
+      expect(created.evaluationModePending).toBe(true)
       // The seed has one manual event (US-103) for the queue to evaluate.
       const seeded = await prisma.event.findMany({
         where: { publicToken: { not: "demo-rucni-vyhodnoceni-2028" } },
@@ -341,11 +360,64 @@ describe("organizer events (integration)", () => {
       expect(seeded.every((event) => event.evaluationMode === "AUTOMATIC")).toBe(true)
     })
 
+    it("keeps the link closed until the mode is chosen, and confirming the default counts (US-560)", async () => {
+      const created = (await (await post(cookieA, { name: "Čeká na režim" })).json()) as EventBody
+      const event = await prisma.event.findUniqueOrThrow({ where: { id: created.id } })
+      const term = await prisma.term.create({
+        data: {
+          organizationId: event.organizationId,
+          eventId: event.id,
+          number: await nextTermNumber(prisma, event.id),
+          name: "Týden",
+          startsOn: new Date("2027-10-01"),
+          endsOn: new Date("2027-10-07"),
+          priceCzk: 1000,
+        },
+      })
+      await prisma.room.create({
+        data: {
+          organizationId: event.organizationId,
+          termId: term.id,
+          name: "A",
+          capacity: 4,
+          gender: "FEMALE",
+        },
+      })
+      expect(await detail(created.id)).toMatchObject({
+        applicationsOpen: false,
+        missing: ["EVALUATION_MODE"],
+        evaluationModePending: true,
+      })
+      expect((await fetch(api(`/public/events/${created.publicToken}`))).status).toBe(404)
+
+      // The stored default is AUTOMATIC, and choosing it is what completes the step.
+      const chosen = await patch(cookieA, created.id, { evaluationMode: "AUTOMATIC" })
+      expect(chosen.status).toBe(200)
+      expect(await chosen.json()).toMatchObject({
+        evaluationMode: "AUTOMATIC",
+        evaluationModePending: false,
+        applicationsOpen: true,
+        missing: [],
+      })
+      expect((await fetch(api(`/public/events/${created.publicToken}`))).status).toBe(200)
+    })
+
+    it("does not block events that already exist (US-560)", async () => {
+      expect(
+        await prisma.event.count({
+          where: { evaluationModePending: true, applications: { some: {} } },
+        }),
+      ).toBe(0)
+      const seededOpen = await fetch(api("/public/events/demo-rucni-vyhodnoceni-2028"))
+      expect(seededOpen.status).toBe(200)
+    })
+
     // An event with a term and a room, so its application link works.
     const openEvent = async (
       name: string,
     ): Promise<{ id: string; publicToken: string; termId: string }> => {
       const created = (await (await post(cookieA, { name })).json()) as EventBody
+      await chooseMode(cookieA, created.id)
       const event = await prisma.event.findUniqueOrThrow({ where: { id: created.id } })
       const term = await prisma.term.create({
         data: {

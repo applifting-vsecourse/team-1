@@ -8,9 +8,11 @@ const isoDate = (date: Date): string => date.toISOString().slice(0, 10)
 export class PublicEventsRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findByPublicToken(
-    publicToken: string,
-  ): Promise<{ event: PublicEvent; termsWithoutRooms: number } | null> {
+  async findByPublicToken(publicToken: string): Promise<{
+    event: PublicEvent
+    termsWithoutRooms: number
+    evaluationModePending: boolean
+  } | null> {
     const event = await this.prisma.event.findUnique({
       where: { publicToken },
       include: {
@@ -25,6 +27,7 @@ export class PublicEventsRepository {
 
     return {
       termsWithoutRooms: event.terms.filter((term) => term._count.rooms === 0).length,
+      evaluationModePending: event.evaluationModePending,
       event: {
         name: event.name,
         description: event.description,

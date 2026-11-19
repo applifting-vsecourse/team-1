@@ -8,6 +8,10 @@ export type ChecklistItem = {
   key: string
   title: string
   body?: string
+  /** Shown right after the title on the same line, e.g. a "· Change" link of a done item. */
+  titleExtra?: ReactNode
+  /** A form or choice that does the step, under the title; the icon then lines up with the title. */
+  content?: ReactNode
   /** A done item shows a check; an open one an empty circle. */
   isDone: boolean
   /** Shown as a badge instead of the icon — the icon looks like a radio button you can click. */
@@ -45,7 +49,9 @@ export function Checklist({ title, intro, progress, items }: ChecklistProps) {
           return (
             <li
               key={item.key}
-              className="flex flex-wrap items-center gap-3 border-t border-border py-4 last:pb-0"
+              className={`flex flex-wrap gap-3 border-t border-border py-4 last:pb-0 ${
+                item.content ? "items-start" : "items-center"
+              }`}
             >
               {item.statusLabel ? null : (
                 <Icon
@@ -54,8 +60,12 @@ export function Checklist({ title, intro, progress, items }: ChecklistProps) {
                 />
               )}
               <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-                <h4 className="text-sm font-medium">{item.title}</h4>
+                <div className="flex flex-wrap items-center gap-x-2">
+                  <h4 className="text-sm font-medium">{item.title}</h4>
+                  {item.titleExtra}
+                </div>
                 {item.body ? <p className="text-sm text-muted-foreground">{item.body}</p> : null}
+                {item.content ? <div className="mt-3">{item.content}</div> : null}
               </div>
               {item.statusLabel ? (
                 <Badge variant={item.isDone ? "success" : "warning"}>{item.statusLabel}</Badge>

@@ -40,3 +40,17 @@ export async function addRoom(page: Page, name = "Pokoj E2E", capacity = "5") {
   await dialog.getByRole("button", { name: "Add room" }).click()
   await expect(page.getByRole("cell", { name, exact: true })).toBeVisible()
 }
+
+/**
+ * Chooses the evaluation mode in the third step of the overview checklist (US-560). The application
+ * link stays closed until the organizer does.
+ */
+export async function chooseEvaluationMode(page: Page, mode: "Automatic" | "Manual") {
+  await page
+    .getByRole("navigation", { name: "Event sections" })
+    .getByRole("link", { name: "Overview" })
+    .click()
+  await page.getByRole("radio", { name: mode }).click()
+  await page.getByRole("button", { name: "Confirm mode" }).click()
+  await expect(page.getByText("Evaluation mode saved.")).toBeVisible()
+}
