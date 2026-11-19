@@ -229,5 +229,37 @@
     "confirmed": "Confirmed",
     "toEvaluate": "Awaiting evaluation",
     "waitlisted": "Waitlisted"
+  },
+  "stay": {
+    "add": "Add late arrival or early departure",
+    "and": "and",
+    "arrival": "Arrival",
+    "arrivalLabel": "Late arrival",
+    "arrivalOutside": "The arrival date must be between {{range}}.",
+    "at": "at",
+    "cancel": "Cancel",
+    "dateLabel": "Date",
+    "delete": "Delete all details",
+    "deleteBody": "Both entered details about the participant's stay in this term will be deleted.",
+    "deleteConfirm": "Delete details",
+    "deleteTitle": "Delete arrival and departure?",
+    "departure": "Departure",
+    "departureBeforeArrival": "The departure must be later than the arrival.",
+    "departureLabel": "Early departure",
+    "departureOutside": "The departure date must be between {{range}}.",
+    "edit": "Edit arrival or departure",
+    "hint": "Fill in only if the participant won't be at the event for the whole term.",
+    "invalid": "Enter a valid date and time.",
+    "pickTime": "Choose time",
+    "removeArrival": "Remove arrival",
+    "removeDeparture": "Remove departure",
+    "save": "Save",
+    "timeLabel": "Time",
+    "timePlaceholder": "HH:MM",
+    "title": "Late arrival or early departure",
+    "toast": {
+      "deleted": "Arrival and departure deleted.",
+      "saved": "Arrival and departure saved."
+    }
   }
 }

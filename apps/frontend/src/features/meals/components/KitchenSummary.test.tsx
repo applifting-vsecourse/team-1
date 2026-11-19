@@ -37,6 +37,22 @@ const terms: KitchenTerm[] = [
         specialRequest: "Early dinner",
       },
     ],
+    stays: [
+      {
+        applicationId: "a1",
+        firstName: "Adam",
+        lastName: "Dvořák",
+        lateArrival: "2027-07-13T10:30",
+        earlyDeparture: "2027-07-18T16:00",
+      },
+      {
+        applicationId: "a3",
+        firstName: "Petr",
+        lastName: "Svoboda",
+        lateArrival: null,
+        earlyDeparture: "2027-07-17T15:00",
+      },
+    ],
   },
   {
     termId: "t2",
@@ -51,6 +67,7 @@ const terms: KitchenTerm[] = [
     ],
     allergies: [],
     specialRequests: [],
+    stays: [],
   },
 ]
 
@@ -102,6 +119,15 @@ describe("KitchenSummary", () => {
     expect(screen.getByText("Adam Dvořák · Early dinner")).toBeVisible()
   })
 
+  it("shows the arrival and departure of the participants who gave them (US-143)", async () => {
+    renderPage()
+    expect(await screen.findByRole("heading", { name: "Arrivals and departures" })).toBeVisible()
+    expect(screen.getByText("Arrival 13 Jul 2027 10:30")).toBeVisible()
+    expect(screen.getByText("Departure 18 Jul 2027 16:00")).toBeVisible()
+    expect(screen.getByText("Departure 17 Jul 2027 15:00")).toBeVisible()
+    expect(screen.getAllByText(/^Arrival /)).toHaveLength(1)
+  })
+
   it("switches the term", async () => {
     const user = userEvent.setup()
     renderPage()
@@ -110,6 +136,9 @@ describe("KitchenSummary", () => {
     expect(screen.getByText("Regular meal · 1")).toBeVisible()
     expect(screen.queryByText("Adam Dvořák · Peanuts")).not.toBeInTheDocument()
     expect(screen.queryByRole("heading", { name: "Special requests" })).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole("heading", { name: "Arrivals and departures" }),
+    ).not.toBeInTheDocument()
   })
 
   it("prints the summary and links to the options", async () => {

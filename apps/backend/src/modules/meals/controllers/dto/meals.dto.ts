@@ -101,6 +101,16 @@ class KitchenSpecialRequestDto {
   @ApiProperty() specialRequest!: string
 }
 
+class KitchenStayDto {
+  @ApiProperty() applicationId!: string
+  @ApiProperty() firstName!: string
+  @ApiProperty() lastName!: string
+  @ApiProperty({ type: String, nullable: true, example: "2027-07-13T10:30" })
+  lateArrival!: string | null
+  @ApiProperty({ type: String, nullable: true, example: "2027-07-18T16:00" })
+  earlyDeparture!: string | null
+}
+
 export class KitchenTermSummaryDto {
   @ApiProperty() termId!: string
   @ApiProperty({ type: String, nullable: true }) name!: string | null
@@ -113,6 +123,12 @@ export class KitchenTermSummaryDto {
   options!: KitchenOptionCountDto[]
   @ApiProperty({ type: [KitchenAllergyDto] }) allergies!: KitchenAllergyDto[]
   @ApiProperty({ type: [KitchenSpecialRequestDto] }) specialRequests!: KitchenSpecialRequestDto[]
+  @ApiProperty({
+    type: [KitchenStayDto],
+    description:
+      "Confirmed participants with a later arrival or earlier departure, Prague wall time (US-143).",
+  })
+  stays!: KitchenStayDto[]
 
   static fromDomain(summary: KitchenTermSummary): KitchenTermSummaryDto {
     return {

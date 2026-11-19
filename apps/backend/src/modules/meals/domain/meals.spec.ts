@@ -16,6 +16,8 @@ const person = (over: Partial<KitchenPerson>): KitchenPerson => ({
   optionIds: [],
   allergies: null,
   specialRequest: null,
+  lateArrival: null,
+  earlyDeparture: null,
   ...over,
 })
 const term = (people: KitchenPerson[]) => ({
@@ -104,8 +106,41 @@ describe("kitchenSummary", () => {
     expect(summary!.specialRequests.map((entry) => entry.applicationId)).toEqual(["5"])
   })
 
+  it("lists participants with a later arrival or earlier departure by name, without counting them", () => {
+    const [summary] = kitchenSummary(
+      [
+        term([
+          person({ applicationId: "1", lateArrival: "2027-07-13T10:30" }),
+          person({ applicationId: "2", lastName: "Adamová", earlyDeparture: "2027-07-18T16:00" }),
+          person({ applicationId: "3" }),
+        ]),
+      ],
+      [veg],
+    )
+    expect(summary!.total).toBe(3)
+    expect(summary!.regular).toBe(3)
+    expect(summary!.stays).toEqual([
+      expect.objectContaining({
+        applicationId: "2",
+        lateArrival: null,
+        earlyDeparture: "2027-07-18T16:00",
+      }),
+      expect.objectContaining({
+        applicationId: "1",
+        lateArrival: "2027-07-13T10:30",
+        earlyDeparture: null,
+      }),
+    ])
+  })
+
   it("is empty for a term without confirmed participants", () => {
     const [summary] = kitchenSummary([term([])], [veg])
-    expect(summary).toMatchObject({ total: 0, regular: 0, allergies: [], specialRequests: [] })
+    expect(summary).toMatchObject({
+      total: 0,
+      regular: 0,
+      allergies: [],
+      specialRequests: [],
+      stays: [],
+    })
   })
 })
