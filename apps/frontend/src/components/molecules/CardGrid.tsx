@@ -24,3 +24,35 @@ export function CardGrid({ className, children }: { className?: string; children
     </div>
   )
 }
+
+/**
+ * Two independent stacks for cards of very different height (kitchen summary): from `lg` the
+ * `left` and `right` cards stack tightly in their own column, so there are no row gaps. Below `lg`
+ * (and in print) both stacks dissolve into one column; give the cards `order-N lg:order-none` to
+ * set the single-column order.
+ */
+export function CardColumns({
+  left,
+  right,
+  className,
+}: {
+  left: ReactNode
+  right: ReactNode
+  className?: string
+}) {
+  return (
+    <div
+      className={cn(
+        "flex flex-col gap-6 lg:flex-row lg:items-start print:flex-col print:items-stretch",
+        className,
+      )}
+    >
+      <div className="contents lg:flex lg:min-w-0 lg:flex-1 lg:flex-col lg:gap-6 print:contents">
+        {left}
+      </div>
+      <div className="contents lg:flex lg:min-w-0 lg:flex-1 lg:flex-col lg:gap-6 print:contents">
+        {right}
+      </div>
+    </div>
+  )
+}

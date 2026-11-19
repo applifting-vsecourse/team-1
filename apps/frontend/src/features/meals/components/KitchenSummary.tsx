@@ -4,7 +4,7 @@ import { Link } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
-import { CardGrid } from "@/components/molecules/CardGrid"
+import { CardColumns } from "@/components/molecules/CardGrid"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { PageHeader } from "@/components/molecules/PageHeader"
@@ -84,71 +84,79 @@ export function KitchenSummary({ eventId, eventName }: { eventId: string; eventN
               </SelectContent>
             </Select>
           </div>
-          <CardGrid>
-            <Card className="gap-4 p-4">
-              <h2 className="text-2xl font-bold">{t("kitchen.countsTitle")}</h2>
-              <p>
-                {t("kitchen.regular")} · {term.regular}
-              </p>
-              {term.options.map((option) => (
-                <p key={option.id}>
-                  {option.name} · {option.count}
-                </p>
-              ))}
-              <p>{t("kitchen.overlapNote")}</p>
-            </Card>
-            {/* The allergies are the long list: right column, beside counts and requests; arrivals and departures below it. */}
-            <Card className="gap-4 p-4 lg:row-span-2">
-              <h2 className="text-2xl font-bold">{t("kitchen.allergiesTitle")}</h2>
-              {term.allergies.map((entry) => (
-                <p
-                  key={entry.applicationId}
-                  className="break-words whitespace-pre-line"
-                >
-                  {entry.firstName} {entry.lastName} · {entry.allergies}
-                </p>
-              ))}
-            </Card>
-            {term.specialRequests.length > 0 ? (
-              <Card className="gap-4 p-4">
-                <h2 className="text-2xl font-bold">{t("kitchen.specialRequestsTitle")}</h2>
-                {term.specialRequests.map((entry) => (
-                  <p
-                    key={entry.applicationId}
-                    className="break-words whitespace-pre-line"
-                  >
-                    {entry.firstName} {entry.lastName} · {entry.specialRequest}
+          {/* Left: counts, requests. Right: allergies (long list), arrivals and departures. One column below lg: counts, allergies, requests, stays. */}
+          <CardColumns
+            left={
+              <>
+                <Card className="order-1 gap-4 p-4 lg:order-none print:order-1">
+                  <h2 className="text-2xl font-bold">{t("kitchen.countsTitle")}</h2>
+                  <p>
+                    {t("kitchen.regular")} · {term.regular}
                   </p>
-                ))}
-              </Card>
-            ) : null}
-            {term.stays.length > 0 ? (
-              // Figma (Design system v2): US-143 Organizátor · Souhrn pro kuchyni · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=24969-10806 (mobile 24969-12256)
-              <Card className="gap-4 p-4 lg:col-start-2">
-                <h2 className="text-2xl font-bold">{t("kitchen.staysTitle")}</h2>
-                {term.stays.map((entry) => (
-                  <div
-                    key={entry.applicationId}
-                    className="flex flex-col"
-                  >
-                    <p>
-                      {entry.firstName} {entry.lastName}
+                  {term.options.map((option) => (
+                    <p key={option.id}>
+                      {option.name} · {option.count}
                     </p>
-                    {entry.lateArrival ? (
-                      <p className="text-sm text-muted-foreground">
-                        {t("kitchen.arrival", { when: when(entry.lateArrival) })}
+                  ))}
+                  <p>{t("kitchen.overlapNote")}</p>
+                </Card>
+                {term.specialRequests.length > 0 ? (
+                  <Card className="order-3 gap-4 p-4 lg:order-none print:order-3">
+                    <h2 className="text-2xl font-bold">{t("kitchen.specialRequestsTitle")}</h2>
+                    {term.specialRequests.map((entry) => (
+                      <p
+                        key={entry.applicationId}
+                        className="break-words whitespace-pre-line"
+                      >
+                        {entry.firstName} {entry.lastName} · {entry.specialRequest}
                       </p>
-                    ) : null}
-                    {entry.earlyDeparture ? (
-                      <p className="text-sm text-muted-foreground">
-                        {t("kitchen.departure", { when: when(entry.earlyDeparture) })}
-                      </p>
-                    ) : null}
-                  </div>
-                ))}
-              </Card>
-            ) : null}
-          </CardGrid>
+                    ))}
+                  </Card>
+                ) : null}
+              </>
+            }
+            right={
+              <>
+                <Card className="order-2 gap-4 p-4 lg:order-none print:order-2">
+                  <h2 className="text-2xl font-bold">{t("kitchen.allergiesTitle")}</h2>
+                  {term.allergies.map((entry) => (
+                    <p
+                      key={entry.applicationId}
+                      className="break-words whitespace-pre-line"
+                    >
+                      {entry.firstName} {entry.lastName} · {entry.allergies}
+                    </p>
+                  ))}
+                </Card>
+                {term.stays.length > 0 ? (
+                  // Figma (Design system v2): US-143 Organizátor · Souhrn pro kuchyni · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=24969-10806 (mobile 24969-12256)
+                  <Card className="order-4 gap-4 p-4 lg:order-none print:order-4">
+                    <h2 className="text-2xl font-bold">{t("kitchen.staysTitle")}</h2>
+                    {term.stays.map((entry) => (
+                      <div
+                        key={entry.applicationId}
+                        className="flex flex-col"
+                      >
+                        <p>
+                          {entry.firstName} {entry.lastName}
+                        </p>
+                        {entry.lateArrival ? (
+                          <p className="text-sm text-muted-foreground">
+                            {t("kitchen.arrival", { when: when(entry.lateArrival) })}
+                          </p>
+                        ) : null}
+                        {entry.earlyDeparture ? (
+                          <p className="text-sm text-muted-foreground">
+                            {t("kitchen.departure", { when: when(entry.earlyDeparture) })}
+                          </p>
+                        ) : null}
+                      </div>
+                    ))}
+                  </Card>
+                ) : null}
+              </>
+            }
+          />
         </>
       ) : null}
       <div className="flex flex-col gap-3 sm:flex-row print:hidden">
