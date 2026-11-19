@@ -170,6 +170,28 @@ describe("TermStatusService", () => {
     )
   })
 
+  it("refuses a change whose expected current status is no longer the status, so a decision made meanwhile stays", async () => {
+    repository.changeStatus.mockImplementation(
+      async (_command: unknown, decide: (snapshot: unknown) => void) => {
+        decide({ status: "CONFIRMED", gender: "MALE", rooms: [], confirmedGenders: [] })
+        return result("WAITLISTED")
+      },
+    )
+
+    await expect(
+      service.applyChange({
+        organizationId: "org",
+        applicationId: "a1",
+        termId: "t1",
+        to: "WAITLISTED",
+        actorId: "u1",
+        isOverCapacityConfirmed: false,
+        expectedFrom: "TO_EVALUATE",
+      }),
+    ).rejects.toMatchObject({ status: 409, code: "INVALID_STATUS_TRANSITION" })
+    expect(mailer.sendApplicationChange).not.toHaveBeenCalled()
+  })
+
   it("sends e-mail no. 6 without payment details when the system cancels a waitlisted application", async () => {
     repository.changeStatus.mockResolvedValue(result("CANCELLED"))
     const command = {
