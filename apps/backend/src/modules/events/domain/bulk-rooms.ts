@@ -1,6 +1,6 @@
 import { RoomInput, RoomMode } from "@/modules/events/domain/rooms"
 
-/** Technical cap on the rooms of ONE bulk request (one transaction); the client splits bigger batches. */
+/** Cap on the rooms of one bulk create (one dialog submit, one transaction); in a gendered term it applies to the sum. */
 export const BULK_ROOMS_MAX_COUNT = 200
 export const BULK_ROOMS_MAX_FIRST_NUMBER = 999_999
 

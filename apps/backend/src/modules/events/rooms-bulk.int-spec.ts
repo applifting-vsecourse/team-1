@@ -81,6 +81,8 @@ describe("bulk room creation (integration)", () => {
     for (const patch of [
       { countFemale: 0, countMale: 0 },
       { countFemale: 150, countMale: 51 },
+      { countFemale: 200, countMale: 200 },
+      { countFemale: 200, countMale: 1 },
       { countFemale: 201 },
       { countFemale: -1 },
       { countMale: 1.5 },

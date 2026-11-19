@@ -118,7 +118,7 @@ export class RoomsBulkRequestDto {
     maximum: BULK_ROOMS_MAX_COUNT,
     required: false,
     description:
-      "Gendered room mode: how many women's rooms. countFemale + countMale is 1 to 200 per request; a bigger batch is sent as several requests",
+      "Gendered room mode: how many women's rooms. countFemale + countMale is 1 to 200 in sum",
   })
   @IsOptional()
   @IsInt()

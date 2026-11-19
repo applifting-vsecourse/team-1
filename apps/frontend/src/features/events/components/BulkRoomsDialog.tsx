@@ -27,14 +27,7 @@ import { Input } from "@/components/ui/input"
 import { notify } from "@/lib/notify"
 
 import { createRoomsBulk, type BulkRoomsResult, type TermRooms } from "@/features/events/api/rooms"
-import {
-  BULK_MAX_NUMBER,
-  BULK_TOTAL_MAX,
-  BulkRoomsInterrupted,
-  formatNumbers,
-  runBulkRooms,
-  splitBulkRooms,
-} from "@/features/events/lib/bulk-rooms"
+import { BULK_MAX_NUMBER, BULK_ROOMS_MAX, formatNumbers } from "@/features/events/lib/bulk-rooms"
 
 const toInt = (value: string) => (/^\d+$/.test(value.trim()) ? Number(value) : Number.NaN)
 const inRange = (value: string, min: number, max: number) => {
@@ -50,7 +43,7 @@ export function nextRoomNumber(rooms: { name: string }[]): number {
   return Math.min(Math.max(0, ...numbers) + 1, BULK_MAX_NUMBER)
 }
 
-// Several identical rooms at once: how many (per gender in a gendered term), beds per room and the first number; the preview is counted here before saving. More than 200 rooms go out as several requests.
+// Several identical rooms at once: how many (per gender in a gendered term), beds per room and the first number; the preview is counted here before saving.
 // No Figma frame exists for this story; built from DESIGN.md and the room dialogs of US-14.
 export function BulkRoomsDialog({
   term,
@@ -59,7 +52,7 @@ export function BulkRoomsDialog({
 }: {
   term: TermRooms
   onClose: () => void
-  /** Called whenever rooms were created, also when a later request failed, so the list can refresh. */
+  /** Called after the rooms were created, so the list can refresh. */
   onSaved: () => Promise<void>
 }) {
   const { t } = useTranslation("events")
@@ -81,18 +74,18 @@ export function BulkRoomsDialog({
       if (isGendered) {
         for (const name of ["countFemale", "countMale"] as const) {
           const value = values[name].trim()
-          if (value !== "" && !inRange(value, 0, BULK_TOTAL_MAX)) {
-            issue(name, t("rooms.bulk.countGenderError", { max: BULK_TOTAL_MAX }))
+          if (value !== "" && !inRange(value, 0, BULK_ROOMS_MAX)) {
+            issue(name, t("rooms.bulk.countGenderError", { max: BULK_ROOMS_MAX }))
           }
         }
         total = toCount(values.countFemale) + toCount(values.countMale)
-        if (!(total >= 1 && total <= BULK_TOTAL_MAX)) {
-          issue("countFemale", t("rooms.bulk.countSumError", { max: BULK_TOTAL_MAX }))
+        if (!(total >= 1 && total <= BULK_ROOMS_MAX)) {
+          issue("countFemale", t("rooms.bulk.countSumError", { max: BULK_ROOMS_MAX }))
         }
       } else {
         total = toInt(values.count)
-        if (!inRange(values.count, 1, BULK_TOTAL_MAX)) {
-          issue("count", t("rooms.bulk.countError", { max: BULK_TOTAL_MAX }))
+        if (!inRange(values.count, 1, BULK_ROOMS_MAX)) {
+          issue("count", t("rooms.bulk.countError", { max: BULK_ROOMS_MAX }))
         }
       }
       const first = toInt(values.firstNumber)
@@ -120,24 +113,28 @@ export function BulkRoomsDialog({
       : t("rooms.bulk.created", { rooms: t("rooms.roomCount", { count: result.created.length }) })
   const mutation = useMutation({
     mutationFn: (values: z.infer<typeof schema>) =>
-      runBulkRooms(
-        splitBulkRooms(
-          isGendered
-            ? { female: toCount(values.countFemale), male: toCount(values.countMale) }
-            : { shared: toInt(values.count) },
-          Number(values.capacity),
-          Number(values.firstNumber),
-        ),
-        (request) => createRoomsBulk(term.eventId, term.termId, request),
+      createRoomsBulk(
+        term.eventId,
+        term.termId,
+        isGendered
+          ? {
+              countFemale: toCount(values.countFemale),
+              countMale: toCount(values.countMale),
+              capacity: Number(values.capacity),
+              firstNumber: Number(values.firstNumber),
+            }
+          : {
+              count: toInt(values.count),
+              capacity: Number(values.capacity),
+              firstNumber: Number(values.firstNumber),
+            },
       ),
   })
-  const interrupted = mutation.error instanceof BulkRoomsInterrupted ? mutation.error : null
   const submit = form.handleSubmit(async (values) => {
     let result: BulkRoomsResult
     try {
       result = await mutation.mutateAsync(values)
-    } catch (error) {
-      if (error instanceof BulkRoomsInterrupted && error.done.created.length) await onSaved()
+    } catch {
       return
     }
     await onSaved()
@@ -155,7 +152,7 @@ export function BulkRoomsDialog({
   const total = isGendered ? female + male : toInt(count)
   const first = toInt(firstNumber)
   const isPreviewable =
-    inRange(String(total), 1, BULK_TOTAL_MAX) &&
+    inRange(String(total), 1, BULK_ROOMS_MAX) &&
     inRange(capacity, 1, Number.MAX_SAFE_INTEGER) &&
     first >= 1 &&
     first + total - 1 <= BULK_MAX_NUMBER
@@ -263,17 +260,10 @@ export function BulkRoomsDialog({
             ) : null}
             <p className="text-xs text-muted-foreground">{t("rooms.required")}</p>
             {mutation.isError ? (
-              <div className="flex flex-col gap-2">
-                {interrupted?.done.created.length || interrupted?.done.skipped.length ? (
-                  <p className="text-sm font-medium">
-                    {t("rooms.bulk.interrupted", { summary: summarize(interrupted.done) })}
-                  </p>
-                ) : null}
-                <ErrorState
-                  title={t("rooms.saveFailed")}
-                  error={interrupted ? interrupted.reason : mutation.error}
-                />
-              </div>
+              <ErrorState
+                title={t("rooms.saveFailed")}
+                error={mutation.error}
+              />
             ) : null}
             <DialogFooter className="gap-4">
               <DialogClose asChild>

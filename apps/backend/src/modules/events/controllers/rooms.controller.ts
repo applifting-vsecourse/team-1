@@ -98,13 +98,13 @@ export class RoomsController {
   @ApiOperation({
     summary: "Create several identical rooms at once with consecutive numbers",
     description:
-      "Shared term: `count` rooms. Gendered term: `countFemale` women's and `countMale` men's rooms. Every room has `capacity` beds and is named by its number, counted from firstNumber (women's rooms first). Rooms whose name the term already has are skipped, the others are created; the response lists both. The cap of 200 rooms applies to one request; the client splits bigger batches. The rooms are ordinary rooms, edited one by one as in US-14.",
+      "Shared term: `count` rooms. Gendered term: `countFemale` women's and `countMale` men's rooms. Every room has `capacity` beds and is named by its number, counted from firstNumber (women's rooms first). Rooms whose name the term already has are skipped, the others are created; the response lists both. At most 200 rooms per request (in a gendered term the sum of both counts). The rooms are ordinary rooms, edited one by one as in US-14.",
   })
   @ApiResponse({ status: 201, type: RoomsBulkResponseDto })
   @ApiResponse({
     status: 400,
     description:
-      "Invalid capacity or first number, or counts not matching the room mode or not 1 to 200 in sum",
+      "Invalid capacity or first number, or counts not matching the room mode or not 1 to 200 in total",
   })
   async bulk(
     @User() user: Identity,

@@ -100,7 +100,7 @@ export async function copyRooms(
 ): Promise<void> {
   await api.post(`${base(eventId, termId)}/rooms/copy`, { json: { sourceTermId, strategy } })
 }
-/** One bulk request: `count` shared rooms, or `countFemale` + `countMale` in a gendered term; at most 200 in sum. */
+/** One bulk create: `count` shared rooms, or `countFemale` + `countMale` in a gendered term; at most 200 in sum. */
 export type BulkRoomsInput = {
   capacity: number
   firstNumber: number

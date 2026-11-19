@@ -102,10 +102,34 @@ describe("bulk rooms dialog", () => {
 
   it("keeps invalid values in the form without sending", async () => {
     const { user } = renderDialog()
-    await fill(user, { "Number of rooms *": "1001", "Beds per room *": "4" })
+    await fill(user, { "Number of rooms *": "201", "Beds per room *": "4" })
     await user.click(screen.getByRole("button", { name: "Create rooms" }))
-    expect(await screen.findByText("Enter a whole number from 1 to 1000.")).toBeInTheDocument()
+    expect(await screen.findByText("Enter a whole number from 1 to 200.")).toBeInTheDocument()
     expect(post).not.toHaveBeenCalled()
+  })
+
+  it("does not save more than 200 rooms in a gendered term, counted in sum", async () => {
+    const { user } = renderDialog(gendered)
+    await fill(user, {
+      "Number of women's rooms": "150",
+      "Number of men's rooms": "51",
+      "Beds per room *": "4",
+    })
+    await user.click(screen.getByRole("button", { name: "Create rooms" }))
+    expect(await screen.findByText(/At most 200 rooms can be created at once/)).toBeInTheDocument()
+    expect(post).not.toHaveBeenCalled()
+  })
+
+  it("accepts exactly 200 rooms in a gendered term as one request", async () => {
+    post.mockReturnValue(respond({ created: [], skipped: [] }))
+    const { user } = renderDialog(gendered)
+    await fill(user, {
+      "Number of women's rooms": "100",
+      "Number of men's rooms": "100",
+      "Beds per room *": "4",
+    })
+    await user.click(screen.getByRole("button", { name: "Create rooms" }))
+    await waitFor(() => expect(post).toHaveBeenCalledTimes(1))
   })
 
   it("asks for at least one room in a gendered term", async () => {
@@ -113,7 +137,7 @@ describe("bulk rooms dialog", () => {
     await fill(user, { "Beds per room *": "4" })
     await user.click(screen.getByRole("button", { name: "Create rooms" }))
     expect(
-      await screen.findByText("Enter at least one room, at most 1000 in total."),
+      await screen.findByText(/Enter at least one room\. At most 200 rooms can be created at once/),
     ).toBeInTheDocument()
     expect(post).not.toHaveBeenCalled()
   })
@@ -156,44 +180,6 @@ describe("bulk rooms dialog", () => {
     expect(notify.success).not.toHaveBeenCalled()
   })
 
-  it("splits 250 rooms into requests of 200 + 50 with continuous numbering", async () => {
-    post
-      .mockReturnValueOnce(
-        respond({ created: Array.from({ length: 200 }, (_, i) => String(8 + i)), skipped: [] }),
-      )
-      .mockReturnValueOnce(
-        respond({ created: Array.from({ length: 50 }, (_, i) => String(208 + i)), skipped: [] }),
-      )
-    const { user, onClose } = renderDialog()
-    await fill(user, { "Number of rooms *": "250", "Beds per room *": "2" })
-    await user.click(screen.getByRole("button", { name: "Create rooms" }))
-    await waitFor(() => expect(onClose).toHaveBeenCalled())
-    expect(post).toHaveBeenNthCalledWith(1, url, {
-      json: { count: 200, capacity: 2, firstNumber: 8 },
-    })
-    expect(post).toHaveBeenNthCalledWith(2, url, {
-      json: { count: 50, capacity: 2, firstNumber: 208 },
-    })
-    expect(notify.success).toHaveBeenCalledWith("Created: 250 rooms")
-  })
-
-  it("stops at a failed request, says what already exists and keeps the dialog open", async () => {
-    post
-      .mockReturnValueOnce(
-        respond({ created: Array.from({ length: 200 }, (_, i) => String(8 + i)), skipped: [] }),
-      )
-      .mockReturnValueOnce(fail(new Error("Connection failed")))
-    const { user, onClose, onSaved } = renderDialog()
-    await fill(user, { "Number of rooms *": "450", "Beds per room *": "2" })
-    await user.click(screen.getByRole("button", { name: "Create rooms" }))
-    expect(await screen.findByText("Connection failed")).toBeInTheDocument()
-    expect(screen.getByText("Saving was interrupted. Created: 200 rooms.")).toBeInTheDocument()
-    expect(post).toHaveBeenCalledTimes(2)
-    expect(onSaved).toHaveBeenCalled()
-    expect(onClose).not.toHaveBeenCalled()
-    expect(screen.getByLabelText("Number of rooms *")).toHaveValue(450)
-  })
-
   it("keeps the entered data on an API error", async () => {
     post.mockReturnValueOnce(fail(new Error("Connection failed")))
     const { user, onClose } = renderDialog()
@@ -202,6 +188,5 @@ describe("bulk rooms dialog", () => {
     expect(await screen.findByText("Connection failed")).toBeInTheDocument()
     expect(screen.getByLabelText("Number of rooms *")).toHaveValue(3)
     expect(onClose).not.toHaveBeenCalled()
-    expect(screen.queryByText(/interrupted/)).not.toBeInTheDocument()
   })
 })
