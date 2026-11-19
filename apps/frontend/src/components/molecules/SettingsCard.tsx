@@ -81,6 +81,7 @@ export function SettingsCard({
   description,
   descriptionId,
   tone = "default",
+  actions,
   children,
 }: {
   icon: ComponentType<{ className?: string; "aria-hidden"?: boolean }>
@@ -88,11 +89,18 @@ export function SettingsCard({
   description?: string
   descriptionId?: string
   tone?: Tone
-  children: ReactNode
+  /** A compact strip: from `lg` the header sits left and the actions right; below they stack. */
+  actions?: ReactNode
+  children?: ReactNode
 }) {
   return (
     <Card
-      className={cn("gap-4", SETTINGS_CARD_CLASS, tone === "danger" && "border-destructive/40")}
+      className={cn(
+        "gap-4",
+        SETTINGS_CARD_CLASS,
+        tone === "danger" && "border-destructive/40",
+        actions && "lg:flex-row lg:items-center lg:justify-between lg:gap-6",
+      )}
     >
       <SettingsCardHeader
         icon={icon}
@@ -101,6 +109,7 @@ export function SettingsCard({
         descriptionId={descriptionId}
         tone={tone}
       />
+      {actions ? <div className="shrink-0">{actions}</div> : null}
       {children}
     </Card>
   )

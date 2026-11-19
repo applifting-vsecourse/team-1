@@ -29,17 +29,19 @@ export function DeleteEventSection({ event }: { event: OrganizerEvent }) {
       title={t("delete.sectionTitle")}
       description={event.hasApplications ? t("delete.blocked") : t("delete.allowed")}
       descriptionId="delete-event-reason"
+      actions={
+        <Button
+          variant="destructive"
+          size="lg"
+          className="w-full lg:w-fit"
+          disabled={event.hasApplications}
+          aria-describedby="delete-event-reason"
+          onClick={() => setIsOpen(true)}
+        >
+          {t("delete.action")}
+        </Button>
+      }
     >
-      <Button
-        variant="destructive"
-        size="lg"
-        className="w-full sm:w-fit"
-        disabled={event.hasApplications}
-        aria-describedby="delete-event-reason"
-        onClick={() => setIsOpen(true)}
-      >
-        {t("delete.action")}
-      </Button>
       {isOpen ? (
         <DeleteEventDialog
           event={event}

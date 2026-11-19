@@ -84,7 +84,7 @@ export function CancellationStartForm({ event }: { event: OrganizerEvent }) {
     >
       <form
         noValidate
-        className="flex flex-col gap-4"
+        className="flex flex-1 flex-col gap-4"
         onSubmit={submit}
       >
         <div className="flex min-h-10 items-center gap-3">
@@ -136,7 +136,7 @@ export function CancellationStartForm({ event }: { event: OrganizerEvent }) {
             ) : null}
           </div>
         ) : null}
-        <p className="text-sm text-muted-foreground">
+        <p className="mt-auto text-sm text-muted-foreground">
           {t(isEnabled ? "cancellationStart.afterDate" : "cancellationStart.noDate")}
         </p>
         {mutation.isError ? (

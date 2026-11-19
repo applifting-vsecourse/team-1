@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { Info, ListChecks, Loader2, Lock } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
-import { CardColumns } from "@/components/molecules/CardGrid"
+import { CARD_GRID_WIDE, CardGrid } from "@/components/molecules/CardGrid"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { SectionHeader } from "@/components/molecules/SectionHeader"
@@ -51,46 +51,33 @@ export function EventSettings({ eventId }: { eventId: string }) {
     )
   }
 
-  // Two stacks (no row gaps between cards of different height); on one column the order is
-  // evaluation, approval, public details, delete.
+  // Row-based and equally tall: evaluation | approval, then public details and delete full width.
   return (
     <div className="flex flex-col gap-6">
       <SectionHeader
         title={t("settings.title")}
         description={t("settings.description")}
       />
-      <CardColumns
-        left={
-          <>
-            <div className="order-1 lg:order-none">
-              {event.evaluationModeLocked ? (
-                <LockedMode mode={event.evaluationMode} />
-              ) : (
-                <ChooseMode
-                  eventId={eventId}
-                  saved={event.evaluationMode}
-                />
-              )}
-            </div>
-            <div className="order-3 lg:order-none">
-              <PublicPageForm event={event} />
-            </div>
-          </>
-        }
-        right={
-          <>
-            <div className="order-2 lg:order-none">
-              <CancellationStartForm
-                key={event.id}
-                event={event}
-              />
-            </div>
-            <div className="order-4 lg:order-none">
-              <DeleteEventSection event={event} />
-            </div>
-          </>
-        }
-      />
+      <CardGrid className="items-stretch">
+        {event.evaluationModeLocked ? (
+          <LockedMode mode={event.evaluationMode} />
+        ) : (
+          <ChooseMode
+            eventId={eventId}
+            saved={event.evaluationMode}
+          />
+        )}
+        <CancellationStartForm
+          key={event.id}
+          event={event}
+        />
+        <div className={CARD_GRID_WIDE}>
+          <PublicPageForm event={event} />
+        </div>
+        <div className={CARD_GRID_WIDE}>
+          <DeleteEventSection event={event} />
+        </div>
+      </CardGrid>
     </div>
   )
 }
@@ -110,7 +97,7 @@ function LockedMode({ mode }: { mode: EvaluationMode }) {
           {t("evaluationMode.locked")}
         </Badge>
       </div>
-      <p className="flex items-start gap-2 text-sm text-muted-foreground">
+      <p className="mt-auto flex items-start gap-2 text-sm text-muted-foreground">
         <Lock
           className="mt-0.5 size-4 shrink-0"
           aria-hidden="true"
@@ -144,7 +131,7 @@ function ChooseMode({ eventId, saved }: { eventId: string; saved: EvaluationMode
       description={t("evaluationMode.description")}
     >
       <form
-        className="flex flex-col gap-4"
+        className="flex flex-1 flex-col gap-4"
         onSubmit={(e) => {
           e.preventDefault()
           mutation.mutate()
@@ -188,7 +175,9 @@ function ChooseMode({ eventId, saved }: { eventId: string; saved: EvaluationMode
             )
           })}
         </RadioGroup>
-        <p className="text-sm text-muted-foreground">{t("evaluationMode.afterOpenLocked")}</p>
+        <p className="mt-auto text-sm text-muted-foreground">
+          {t("evaluationMode.afterOpenLocked")}
+        </p>
         {mutation.isError ? (
           <ErrorState
             title={t("evaluationMode.saveFailed")}
