@@ -490,7 +490,7 @@ describe("ApplicationDetail", () => {
     expect(screen.getByText("Partly paid")).toBeInTheDocument()
     expect(screen.getByText("Amount due").nextSibling).toHaveTextContent("4,500")
     expect(screen.getByText("Paid").nextSibling).toHaveTextContent("2,000")
-    expect(screen.getByText("Left to pay").nextSibling).toHaveTextContent("2,500")
+    expect(screen.getAllByText("Left to pay")[0]?.nextSibling).toHaveTextContent("2,500")
     expect(screen.getByText("2900123456/2010")).toBeInTheDocument()
     expect(screen.getByText("48001")).toBeInTheDocument()
     // The summary symbol and the total are for the whole application, not for one term.
@@ -542,9 +542,9 @@ describe("ApplicationDetail", () => {
     expect(screen.queryByText(/You pay each term separately/)).not.toBeInTheDocument()
     const one = cardOf(/^4–10 Jul 2027/)
     const two = cardOf(/^11–17 Jul 2027/)
-    expect(within(one).getByText("Left to pay").nextSibling).toHaveTextContent("500")
+    expect(within(one).getAllByText("Left to pay")[0]?.nextSibling).toHaveTextContent("500")
     expect(within(one).getByText("48001")).toBeInTheDocument()
-    expect(within(two).getByText("Left to pay").nextSibling).toHaveTextContent("700")
+    expect(within(two).getAllByText("Left to pay")[0]?.nextSibling).toHaveTextContent("700")
     expect(within(two).getByText("48002")).toBeInTheDocument()
     // One symbol per term, no symbol of the whole application.
     expect(screen.queryByText("48000")).not.toBeInTheDocument()
@@ -587,7 +587,7 @@ describe("ApplicationDetail", () => {
     ).toHaveTextContent("4,900")
     expect(screen.queryByText(/You pay each term separately/)).not.toBeInTheDocument()
     expect(
-      within(cardOf(/^11–17 Jul 2027/)).getByText("Left to pay").nextSibling,
+      within(cardOf(/^11–17 Jul 2027/)).getAllByText("Left to pay")[0]?.nextSibling,
     ).toHaveTextContent("4,900")
     expect(unpaid.compareDocumentPosition(paid) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   })
@@ -618,7 +618,7 @@ describe("ApplicationDetail", () => {
     await openAll()
     expect(screen.getByText("Overpayment").nextSibling).toHaveTextContent("600")
     expect(screen.queryByText("Left to pay")).not.toBeInTheDocument()
-    expect(screen.queryByText("Amount to pay")).not.toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: "Copy amount" })).not.toBeInTheDocument()
     expect(screen.queryByText("Variable symbol")).not.toBeInTheDocument()
   })
 

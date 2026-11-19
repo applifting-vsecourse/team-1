@@ -330,9 +330,9 @@ describe("PaymentDetail", () => {
     const cardOne = one.closest<HTMLElement>("[data-slot='card']")!
     const cardTwo = card("19–25 Jul 2027")
     expect(within(cardOne).getByText("Partly paid")).toBeInTheDocument()
-    expect(within(cardOne).getByText("Left to pay").nextSibling).toHaveTextContent("500")
+    expect(within(cardOne).getAllByText("Left to pay")[0]?.nextSibling).toHaveTextContent("500")
     expect(within(cardOne).getByText("12001")).toBeInTheDocument()
-    expect(within(cardTwo).getByText("Left to pay").nextSibling).toHaveTextContent("700")
+    expect(within(cardTwo).getAllByText("Left to pay")[0]?.nextSibling).toHaveTextContent("700")
     expect(within(cardTwo).getByText("12002")).toBeInTheDocument()
     expect(within(cardTwo).getByText("123456789/0000")).toBeInTheDocument()
     // One button per term with a debt, and one for the whole application under the cards.
@@ -371,9 +371,9 @@ describe("PaymentDetail", () => {
     setup()
     const paid = await screen.findByRole("button", { name: /12–18 Jul 2027,\s?Paid/ })
     const unpaid = screen.getByRole("heading", { name: /19–25 Jul 2027/ })
-    expect(within(card("19–25 Jul 2027")).getByText("Left to pay").nextSibling).toHaveTextContent(
-      "5,600",
-    )
+    expect(
+      within(card("19–25 Jul 2027")).getAllByText("Left to pay")[0]?.nextSibling,
+    ).toHaveTextContent("5,600")
     expect(screen.getAllByRole("button", { name: "Record payment for the term" })).toHaveLength(1)
     expect(unpaid.compareDocumentPosition(paid) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   })

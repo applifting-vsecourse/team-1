@@ -100,7 +100,6 @@
   },
   "termPayment": {
     "account": "Účet",
-    "amountToPay": "Částka k platbě",
     "deadline": "Splatnost",
     "due": "Částka k úhradě",
     "listTitle": "Platby po termínech",

@@ -100,7 +100,6 @@
   },
   "termPayment": {
     "account": "Account",
-    "amountToPay": "Amount to pay",
     "deadline": "Due date",
     "due": "Amount due",
     "listTitle": "Payments by term",
