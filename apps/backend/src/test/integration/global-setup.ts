@@ -1,6 +1,8 @@
 // Runs once before all integration tests:
 //   1. create the test database if needed and apply every migration,
-//   2. build the backend and start it against that database.
+//   2. build the backend, seed the database once and keep a copy of the seed
+//      (seed-snapshot.ts) that `resetAndSeed` restores,
+//   3. start the built backend against that database.
 // Tests then talk to the real built server over HTTP — the same artifact that
 // runs on staging. (Importing the Nest app into Jest is not an option:
 // better-auth ships ESM only and Jest runs CommonJS.)
@@ -14,6 +16,7 @@ import { PrismaPg } from "@prisma/adapter-pg"
 import * as dotenv from "dotenv"
 // eslint-disable-next-line no-restricted-imports -- globalSetup is not resolved through the `@/` alias
 import { PrismaClient } from "../../generated/prisma/client"
+import { takeSeedSnapshot } from "./seed-snapshot"
 import { resolveTestDatabaseUrl } from "./test-database-url"
 
 export const backendRoot = resolve(__dirname, "../../..")
@@ -29,6 +32,8 @@ export default async function globalSetup(): Promise<void> {
   await ensureDatabase(testUrl)
   run("npx prisma migrate deploy", testUrl)
   run("npx prisma generate && npx nest build", testUrl)
+  run("node dist/scripts/seed/seed.script.js", testUrl)
+  await snapshotSeed(testUrl)
 
   const port = await freePort()
   const baseUrl = `http://127.0.0.1:${port}`
@@ -101,6 +106,15 @@ async function ensureDatabase(testUrl: string): Promise<void> {
     )
   } finally {
     await admin.$disconnect()
+  }
+}
+
+async function snapshotSeed(testUrl: string): Promise<void> {
+  const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString: testUrl }) })
+  try {
+    await takeSeedSnapshot(prisma)
+  } finally {
+    await prisma.$disconnect()
   }
 }
 
