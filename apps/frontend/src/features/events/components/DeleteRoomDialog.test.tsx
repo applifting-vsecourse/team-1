@@ -105,6 +105,12 @@ describe("DeleteRoomDialog capacity impact", () => {
     },
   )
 
+  it("says „ze 3“ and „ze 2“ for the whole capacity of a room (#627)", async () => {
+    await act(() => i18n.changeLanguage("cs"))
+    renderDialog("SHARED", null, 3, 3)
+    expect(screen.getByText("Kapacita klesne ze 3 na 0 míst")).toBeVisible()
+  })
+
   it("keeps only the capacity warning, without repeated rows", async () => {
     await act(() => i18n.changeLanguage("cs"))
     renderDialog("GENDERED", "FEMALE", 7, 5)
