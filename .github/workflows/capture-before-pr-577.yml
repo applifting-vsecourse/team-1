@@ -93,6 +93,8 @@ jobs:
           import { latestMagicLinkToken } from "./support/magic-link"
           import { openEventList, signIn } from "./support/auth"
           import { eventIdByPublicToken } from "./support/events"
+          import pg from "pg"
+          import { e2eDatabaseUrl } from "../scripts/database-url.mjs"
           
           for (const width of [1440, 360]) {
             test.describe(String(width), () => {
@@ -117,6 +119,15 @@ jobs:
                 await openEventList(page)
                 await capture("events")
                 const id = await eventIdByPublicToken("demo-letni-kemp-2027")
+                const db = new pg.Client({connectionString:e2eDatabaseUrl()})
+                await db.connect()
+                try {
+                  const sample = await db.query(`SELECT at."applicationId", at."termId" FROM "application_term" at JOIN "term" t ON t.id=at."termId" WHERE t."eventId"=$1 AND at.status='CONFIRMED' ORDER BY t."startsOn",t.id, at."applicationId" LIMIT 1`, [id])
+                  expect(sample.rowCount).toBe(1)
+                  const item=sample.rows[0]
+                  await db.query(`UPDATE "application" SET allergies=$1,"specialRequest"=$2 WHERE id=$3`,["Sesame allergy","Dinner on arrival",item.applicationId])
+                  await db.query(`UPDATE "application_term" at SET "lateArrivalAt"=t."startsOn"+interval '1 day 10 hours', "earlyDepartureAt"=t."endsOn"+interval '12 hours' FROM "term" t WHERE at."termId"=t.id AND at."termId"=$1 AND at."applicationId"=$2`,[item.termId,item.applicationId])
+                } finally { await db.end() }
                 for (const [screen, route] of [["new-event","/organizer/events/new"], ["organizer-account","/organizer/account"], ["overview","/organizer/events/" + id], ["organizer-meals","/organizer/events/"+id+"/meals"], ["meal-options","/organizer/events/"+id+"/meals/options"], ["payment-import","/organizer/events/"+id+"/payments/import"], ["cancellation","/organizer/events/"+id+"/payments/cancellation"], ["new-application","/organizer/events/"+id+"/applications/new"]]) {
                   await page.goto(route)
                   await capture(screen)
