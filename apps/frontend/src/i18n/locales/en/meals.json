@@ -3,6 +3,8 @@
     "allergiesTitle": "Allergies and other requests",
     "arrival": "Arrival {{when}}",
     "back": "Back to event overview",
+    "confirmed_few": "{{count}} confirmed participants",
+    "confirmed_many": "{{count}} confirmed participants",
     "confirmed_one": "{{count}} confirmed participant",
     "confirmed_other": "{{count}} confirmed participants",
     "countNote": "Each participant is counted once.",

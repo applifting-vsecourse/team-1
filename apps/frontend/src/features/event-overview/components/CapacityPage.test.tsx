@@ -188,7 +188,7 @@ describe("CapacityPage", () => {
 
       expect(await screen.findByText(`${beds} ${cs} pro ženy · 5 pro muže`)).toBeVisible()
       expect(
-        screen.getByRole("link", { name: new RegExp(`Ženy · kapacita ${beds} ${cs}\\b`) }),
+        screen.getByRole("link", { name: `Ženy · kapacita ${beds} ${cs} · Zobrazit přihlášky` }),
       ).toBeVisible()
     })
 
@@ -197,7 +197,7 @@ describe("CapacityPage", () => {
 
       expect(await screen.findByText(`${beds} ${en} for women · 5 for men`)).toBeVisible()
       expect(
-        screen.getByRole("link", { name: new RegExp(`Women · capacity ${beds} ${en}\\b`) }),
+        screen.getByRole("link", { name: `Women · capacity ${beds} ${en} · View applications` }),
       ).toBeVisible()
     })
 

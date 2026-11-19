@@ -65,7 +65,7 @@ export function TermStaySection({
     <>
       {withStay.map((term) => (
         <TermStayCard
-          key={`${term.termId}:${term.stay?.lateArrival}|${term.stay?.earlyDeparture}`}
+          key={term.termId}
           applicationId={applicationId}
           term={term}
         />
@@ -81,6 +81,7 @@ function TermStayCard({ applicationId, term }: { applicationId: string; term: My
   const [mode, setMode] = useState<"view" | "edit" | "confirmDelete">("view")
   const saved: Stay = term.stay ?? { lateArrival: null, earlyDeparture: null }
   const hasSaved = saved.lateArrival !== null || saved.earlyDeparture !== null
+  const actionRef = useRef<HTMLButtonElement>(null)
   const headingId = `term-stay-${term.termId}`
 
   return (
@@ -111,6 +112,7 @@ function TermStayCard({ applicationId, term }: { applicationId: string; term: My
             type="button"
             variant="outline"
             size="lg"
+            ref={actionRef}
             onClick={() => setMode("edit")}
           >
             {t(hasSaved ? "stay.edit" : "stay.add")}
@@ -125,6 +127,7 @@ function TermStayCard({ applicationId, term }: { applicationId: string; term: My
           hasSaved={hasSaved}
           mode={mode}
           onMode={setMode}
+          restoreFocus={() => actionRef.current?.focus()}
         />
       ) : null}
     </section>
@@ -141,6 +144,7 @@ function StayDialog({
   hasSaved,
   mode,
   onMode,
+  restoreFocus,
 }: {
   applicationId: string
   term: MyApplicationTerm
@@ -148,6 +152,7 @@ function StayDialog({
   hasSaved: boolean
   mode: "edit" | "confirmDelete"
   onMode: (mode: "view" | "edit" | "confirmDelete") => void
+  restoreFocus: () => void
 }) {
   const { t } = useTranslation("participant")
   const client = useQueryClient()
@@ -221,7 +226,13 @@ function StayDialog({
         if (!isOpen) close()
       }}
     >
-      <DialogContent className="flex max-h-[calc(100dvh-2rem)] flex-col gap-4 overflow-y-auto sm:max-w-160">
+      <DialogContent
+        className="flex max-h-[calc(100dvh-2rem)] flex-col gap-4 overflow-y-auto sm:max-w-160"
+        onCloseAutoFocus={(event) => {
+          event.preventDefault()
+          restoreFocus()
+        }}
+      >
         {mode === "confirmDelete" ? (
           <>
             <DialogHeader className="text-left">
