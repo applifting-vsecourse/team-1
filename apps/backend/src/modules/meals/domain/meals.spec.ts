@@ -16,6 +16,7 @@ const person = (over: Partial<KitchenPerson>): KitchenPerson => ({
   optionIds: [],
   allergies: null,
   specialRequest: null,
+  noRestrictions: false,
   lateArrival: null,
   earlyDeparture: null,
   ...over,
@@ -63,7 +64,25 @@ describe("decideSelection", () => {
       optionIds: ["veg"],
       allergies: "peanuts",
       specialRequest: "late arrival",
+      noRestrictions: false,
     })
+  })
+
+  it('keeps the "no restriction" confirmation only while nothing is entered', () => {
+    expect(
+      decideSelection({ optionIds: [], allergies: " ", specialRequest: "", noRestrictions: true }, [
+        veg,
+      ]),
+    ).toMatchObject({ kind: "ok", noRestrictions: true })
+    for (const input of [
+      { optionIds: ["veg"], allergies: "", specialRequest: "" },
+      { optionIds: [], allergies: "Milk", specialRequest: "" },
+      { optionIds: [], allergies: "", specialRequest: "Early dinner" },
+    ]) {
+      expect(decideSelection({ ...input, noRestrictions: true }, [veg]).kind).toBe("invalid")
+      // Entering a restriction later (without the flag) cancels the confirmation.
+      expect(decideSelection(input, [veg])).toMatchObject({ kind: "ok", noRestrictions: false })
+    }
   })
 
   it("clears empty allergies and refuses unknown options", () => {
@@ -72,6 +91,7 @@ describe("decideSelection", () => {
       optionIds: [],
       allergies: null,
       specialRequest: null,
+      noRestrictions: false,
     })
     expect(
       decideSelection({ optionIds: ["other"], allergies: "", specialRequest: "" }, [veg]).kind,
@@ -104,6 +124,21 @@ describe("kitchenSummary", () => {
     ])
     expect(summary!.allergies.map((entry) => entry.applicationId)).toEqual(["4", "3"])
     expect(summary!.specialRequests.map((entry) => entry.applicationId)).toEqual(["5"])
+  })
+
+  it("tells participants who confirmed having no restriction from those who did not answer", () => {
+    const [summary] = kitchenSummary(
+      [
+        term([
+          person({ applicationId: "1" }),
+          person({ applicationId: "2", noRestrictions: true }),
+          person({ applicationId: "3", optionIds: ["veg"] }),
+          person({ applicationId: "4", allergies: "Milk" }),
+        ]),
+      ],
+      [veg],
+    )
+    expect(summary).toMatchObject({ total: 4, undecided: 1 })
   })
 
   it("lists participants with a later arrival or earlier departure by name, without counting them", () => {

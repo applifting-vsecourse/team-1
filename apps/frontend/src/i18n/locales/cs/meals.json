@@ -12,7 +12,8 @@
     "specialRequestsTitle": "Speciální požadavky",
     "staysTitle": "Příjezdy a odjezdy",
     "termLabel": "Termín",
-    "title": "Souhrn pro kuchyni"
+    "title": "Souhrn pro kuchyni",
+    "undecided": "Nevyplněno"
   },
   "options": {
     "add": "Přidat omezení",
@@ -24,6 +25,7 @@
   },
   "own": {
     "allergiesLabel": "Alergie a další stravovací omezení",
+    "noRestrictions": "Nemám žádné stravovací omezení",
     "pageTitle": "Stravování",
     "save": "Uložit stravování",
     "saved": "Stravování uloženo",

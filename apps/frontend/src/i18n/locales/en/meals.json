@@ -12,7 +12,8 @@
     "specialRequestsTitle": "Special requests",
     "staysTitle": "Arrivals and departures",
     "termLabel": "Term",
-    "title": "Kitchen summary"
+    "title": "Kitchen summary",
+    "undecided": "Not filled in"
   },
   "options": {
     "add": "Add restriction",
@@ -24,6 +25,7 @@
   },
   "own": {
     "allergiesLabel": "Allergies and other dietary restrictions",
+    "noRestrictions": "I have no dietary restriction",
     "pageTitle": "Meals",
     "save": "Save meals",
     "saved": "Meals saved",

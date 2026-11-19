@@ -39,6 +39,7 @@ const empty: Health = {
   firstName: "Adam",
   lastName: "Dvořák",
   note: null,
+  noRestriction: false,
   consentAt: null,
   pendingRequest: null,
 }
@@ -82,12 +83,32 @@ describe("ParticipantHealthForm", () => {
     const save = screen.getByRole("button", { name: "Save health restriction" })
     expect(save).toBeDisabled()
 
-    await user.click(screen.getByRole("checkbox"))
+    await user.click(screen.getByRole("checkbox", { name: /explicitly consent/ }))
     expect(save).toBeEnabled()
 
     await user.click(save)
     await waitFor(() =>
-      expect(saveHealth).toHaveBeenCalledWith("a1", { note: "Astma", consent: true }),
+      expect(saveHealth).toHaveBeenCalledWith("a1", {
+        note: "Astma",
+        consent: true,
+        noRestriction: false,
+      }),
+    )
+  })
+
+  it("confirms having no restriction without a note or consent (US-150)", async () => {
+    const user = userEvent.setup()
+    setup()
+    await user.click(await screen.findByRole("checkbox", { name: "I have no health restriction" }))
+    expect(screen.getByLabelText("Participant's health restriction")).toBeDisabled()
+    expect(screen.getByRole("checkbox", { name: /explicitly consent/ })).toBeDisabled()
+    await user.click(screen.getByRole("button", { name: "Save health restriction" }))
+    await waitFor(() =>
+      expect(saveHealth).toHaveBeenCalledWith("a1", {
+        note: "",
+        consent: false,
+        noRestriction: true,
+      }),
     )
   })
 
@@ -95,7 +116,7 @@ describe("ParticipantHealthForm", () => {
     const user = userEvent.setup()
     setup()
     await user.type(await screen.findByLabelText("Participant's health restriction"), "Astma")
-    await user.click(screen.getByRole("checkbox"))
+    await user.click(screen.getByRole("checkbox", { name: /explicitly consent/ }))
     await user.click(screen.getByRole("button", { name: "Save health restriction" }))
     await waitFor(() =>
       expect(navigate).toHaveBeenCalledWith({
@@ -111,7 +132,7 @@ describe("ParticipantHealthForm", () => {
     setup()
     saveHealth.mockRejectedValue(new Error("Server said no"))
     await user.type(await screen.findByLabelText("Participant's health restriction"), "Astma")
-    await user.click(screen.getByRole("checkbox"))
+    await user.click(screen.getByRole("checkbox", { name: /explicitly consent/ }))
     await user.click(screen.getByRole("button", { name: "Save health restriction" }))
     expect(await screen.findByText("Server said no")).toBeVisible()
     expect(navigate).not.toHaveBeenCalled()
@@ -131,7 +152,7 @@ describe("ParticipantHealthForm", () => {
     await user.type(field, "Astma, alergie")
     const send = screen.getByRole("button", { name: "Send request" })
     expect(send).toBeDisabled()
-    await user.click(screen.getByRole("checkbox"))
+    await user.click(screen.getByRole("checkbox", { name: /explicitly consent/ }))
     await user.click(send)
 
     await waitFor(() =>

@@ -11,6 +11,7 @@ const ownSelect = {
   lastName: true,
   allergies: true,
   specialRequest: true,
+  noMealRestrictions: true,
   event: { select: { name: true } },
   mealOptions: { select: { id: true } },
 } as const
@@ -77,6 +78,7 @@ export class MealsRepository {
       selectedOptionIds: row.mealOptions.map((option) => option.id),
       allergies: row.allergies,
       specialRequest: row.specialRequest,
+      noRestrictions: row.noMealRestrictions,
     }
   }
 
@@ -93,10 +95,16 @@ export class MealsRepository {
     optionIds: string[],
     allergies: string | null,
     specialRequest: string | null,
+    noRestrictions: boolean,
   ): Promise<void> {
     await this.prisma.application.update({
       where: { id: applicationId },
-      data: { allergies, specialRequest, mealOptions: { set: optionIds.map((id) => ({ id })) } },
+      data: {
+        allergies,
+        specialRequest,
+        noMealRestrictions: noRestrictions,
+        mealOptions: { set: optionIds.map((id) => ({ id })) },
+      },
     })
   }
 
@@ -122,6 +130,7 @@ export class MealsRepository {
                 lastName: true,
                 allergies: true,
                 specialRequest: true,
+                noMealRestrictions: true,
                 mealOptions: { select: { id: true } },
               },
             },
@@ -140,6 +149,7 @@ export class MealsRepository {
         lastName: application.lastName,
         allergies: application.allergies,
         specialRequest: application.specialRequest,
+        noRestrictions: application.noMealRestrictions,
         optionIds: application.mealOptions.map((option) => option.id),
         lateArrival: lateArrivalAt && toPragueWallTime(lateArrivalAt),
         earlyDeparture: earlyDepartureAt && toPragueWallTime(earlyDepartureAt),

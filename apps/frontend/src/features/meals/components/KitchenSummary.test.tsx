@@ -21,6 +21,7 @@ const terms: KitchenTerm[] = [
     endsOn: "2027-07-19",
     total: 10,
     regular: 6,
+    undecided: 2,
     options: [
       { id: "veg", name: "Vegetarian", count: 3 },
       { id: "gf", name: "Gluten-free", count: 2 },
@@ -61,6 +62,7 @@ const terms: KitchenTerm[] = [
     endsOn: "2027-08-09",
     total: 1,
     regular: 1,
+    undecided: 0,
     options: [
       { id: "veg", name: "Vegetarian", count: 0 },
       { id: "gf", name: "Gluten-free", count: 0 },
@@ -110,6 +112,7 @@ describe("KitchenSummary", () => {
     expect(await screen.findByRole("heading", { name: "Kitchen summary" })).toBeVisible()
     expect(screen.getByText("Summer camp · Meals")).toBeVisible()
     expect(screen.getByText("Regular meal · 6")).toBeVisible()
+    expect(screen.getByText("Not filled in · 2")).toBeVisible()
     expect(screen.getByText("Vegetarian · 3")).toBeVisible()
     expect(screen.getByText("Gluten-free · 2")).toBeVisible()
     expect(screen.getByText("Restrictions may overlap.")).toBeVisible()

@@ -29,10 +29,23 @@ export function decideOptions(inputs: MealOptionInput[]): OptionsDecision {
   return { kind: "ok", options }
 }
 
-export type SelectionInput = { optionIds: string[]; allergies: string; specialRequest: string }
+export type SelectionInput = {
+  optionIds: string[]
+  allergies: string
+  specialRequest: string
+  /** The participant confirms having no restriction (US-150); only valid with nothing entered. */
+  noRestrictions?: boolean
+}
 
 export type SelectionDecision =
-  | { kind: "ok"; optionIds: string[]; allergies: string | null; specialRequest: string | null }
+  | {
+      kind: "ok"
+      optionIds: string[]
+      allergies: string | null
+      specialRequest: string | null
+      /** Stays set only while nothing is entered: a later restriction cancels the confirmation. */
+      noRestrictions: boolean
+    }
   | { kind: "invalid" }
 
 /** The participant ticks only options of the application's event; an empty text clears the allergies. */
@@ -44,11 +57,15 @@ export function decideSelection(input: SelectionInput, available: MealOption[]):
   const specialRequest = input.specialRequest.trim()
   if (allergies.length > ALLERGIES_MAX_LENGTH) return { kind: "invalid" }
   if (specialRequest.length > SPECIAL_REQUEST_MAX_LENGTH) return { kind: "invalid" }
+  const hasRestriction = optionIds.length > 0 || allergies !== "" || specialRequest !== ""
+  // Confirming "no restriction" together with an entered restriction contradicts itself.
+  if (input.noRestrictions === true && hasRestriction) return { kind: "invalid" }
   return {
     kind: "ok",
     optionIds,
     allergies: allergies === "" ? null : allergies,
     specialRequest: specialRequest === "" ? null : specialRequest,
+    noRestrictions: input.noRestrictions === true,
   }
 }
 
@@ -61,6 +78,8 @@ export type OwnMeals = {
   selectedOptionIds: string[]
   allergies: string | null
   specialRequest: string | null
+  /** The participant confirmed having no meal restriction (US-150). */
+  noRestrictions: boolean
 }
 
 export type KitchenPerson = {
@@ -70,9 +89,26 @@ export type KitchenPerson = {
   optionIds: string[]
   allergies: string | null
   specialRequest: string | null
+  /** The participant confirmed having no meal restriction (US-150). */
+  noRestrictions: boolean
   /** Later arrival / earlier departure, Prague wall time `yyyy-MM-ddTHH:mm` (US-143). */
   lateArrival: string | null
   earlyDeparture: string | null
+}
+
+/** Something entered or "no restriction" confirmed — the participant has dealt with the step. */
+export function isMealsDecided(person: {
+  optionIds: string[]
+  allergies: string | null
+  specialRequest: string | null
+  noRestrictions: boolean
+}): boolean {
+  return (
+    person.noRestrictions ||
+    person.optionIds.length > 0 ||
+    person.allergies !== null ||
+    person.specialRequest !== null
+  )
 }
 
 export type KitchenTermInput = {
@@ -92,6 +128,8 @@ export type KitchenTermSummary = {
   total: number
   /** Confirmed participants without any ticked restriction. */
   regular: number
+  /** Confirmed participants who neither entered a restriction nor confirmed having none. */
+  undecided: number
   /** Participants may tick several options, so the counts can overlap. */
   options: (MealOption & { count: number })[]
   allergies: { applicationId: string; firstName: string; lastName: string; allergies: string }[]
@@ -123,6 +161,7 @@ export function kitchenSummary(
     endsOn: term.endsOn,
     total: term.people.length,
     regular: term.people.filter((person) => person.optionIds.length === 0).length,
+    undecided: term.people.filter((person) => !isMealsDecided(person)).length,
     options: options.map((option) => ({
       ...option,
       count: term.people.filter((person) => person.optionIds.includes(option.id)).length,

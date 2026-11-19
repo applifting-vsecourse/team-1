@@ -35,6 +35,7 @@ const meals: OwnMeals = {
   selectedOptionIds: ["gf"],
   allergies: "Peanuts",
   specialRequest: "Early dinner",
+  noRestrictions: false,
 }
 
 function setup(
@@ -81,6 +82,7 @@ describe("ParticipantMeals", () => {
         optionIds: ["veg"],
         allergies: "Milk",
         specialRequest: "Late arrival",
+        noRestrictions: false,
       }),
     )
   })
@@ -128,6 +130,48 @@ describe("ParticipantMeals", () => {
         optionIds: ["gf"],
         allergies: "Peanuts",
         specialRequest: "Early dinner",
+        noRestrictions: false,
+      }),
+    )
+  })
+
+  it("confirms having no restriction: the fields are disabled and nothing else is sent (US-150)", async () => {
+    const user = userEvent.setup()
+    setup()
+    await user.click(await screen.findByRole("checkbox", { name: "I have no dietary restriction" }))
+    expect(screen.getByRole("checkbox", { name: "Vegetarian" })).toBeDisabled()
+    expect(screen.getByLabelText("Allergies and other dietary restrictions")).toBeDisabled()
+    await user.click(screen.getByRole("button", { name: "Save meals" }))
+    await waitFor(() =>
+      expect(saveOwnMeals).toHaveBeenCalledWith("a1", {
+        optionIds: [],
+        allergies: "",
+        specialRequest: "",
+        noRestrictions: true,
+      }),
+    )
+  })
+
+  it("shows the saved confirmation and lets a restriction cancel it", async () => {
+    const user = userEvent.setup()
+    setup({
+      ...meals,
+      selectedOptionIds: [],
+      allergies: null,
+      specialRequest: null,
+      noRestrictions: true,
+    })
+    const none = await screen.findByRole("checkbox", { name: "I have no dietary restriction" })
+    expect(none).toBeChecked()
+    await user.click(none)
+    await user.type(screen.getByLabelText("Allergies and other dietary restrictions"), "Milk")
+    await user.click(screen.getByRole("button", { name: "Save meals" }))
+    await waitFor(() =>
+      expect(saveOwnMeals).toHaveBeenCalledWith("a1", {
+        optionIds: [],
+        allergies: "Milk",
+        specialRequest: "",
+        noRestrictions: false,
       }),
     )
   })
@@ -135,6 +179,6 @@ describe("ParticipantMeals", () => {
   it("shows only the allergies field when the organizer offers no option", async () => {
     setup({ ...meals, options: [], selectedOptionIds: [], allergies: null, specialRequest: null })
     expect(await screen.findByLabelText("Allergies and other dietary restrictions")).toHaveValue("")
-    expect(screen.queryByRole("checkbox")).not.toBeInTheDocument()
+    expect(screen.getAllByRole("checkbox")).toHaveLength(1)
   })
 })

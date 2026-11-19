@@ -88,6 +88,9 @@ export function KitchenSummary({ eventId, eventName }: { eventId: string; eventN
             <p>
               {t("kitchen.regular")} · {term.regular}
             </p>
+            <p>
+              {t("kitchen.undecided")} · {term.undecided}
+            </p>
             {term.options.map((option) => (
               <p key={option.id}>
                 {option.name} · {option.count}

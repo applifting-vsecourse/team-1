@@ -74,8 +74,9 @@ function toRecord(row: Row): MyApplicationRecord {
     mealsFilled:
       row._count.mealOptions > 0 ||
       Boolean(row.allergies?.trim()) ||
-      Boolean(row.specialRequest?.trim()),
-    healthFilled: row.health !== null,
+      Boolean(row.specialRequest?.trim()) ||
+      row.noMealRestrictions,
+    healthFilled: row.health !== null || row.noHealthRestriction,
     terms: row.terms.map(
       ({
         term,

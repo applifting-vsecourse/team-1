@@ -10,6 +10,7 @@ const select = {
   firstName: true,
   lastName: true,
   event: { select: { name: true } },
+  noHealthRestriction: true,
   health: { select: { note: true, consentAt: true } },
   changeRequests: {
     where: { kind: "HEALTH", status: "PENDING" },
@@ -53,9 +54,16 @@ export class HealthRepository {
     // A plain create: the unique `applicationId` makes the first fill atomic. A concurrent second
     // write fails instead of overwriting data that is already filled in.
     try {
-      await this.prisma.applicationHealth.create({
-        data: { organizationId, applicationId, note, consentAt },
-      })
+      await this.prisma.$transaction([
+        this.prisma.applicationHealth.create({
+          data: { organizationId, applicationId, note, consentAt },
+        }),
+        // A restriction entered later cancels the "no restriction" confirmation (US-150).
+        this.prisma.application.update({
+          where: { id: applicationId },
+          data: { noHealthRestriction: false },
+        }),
+      ])
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
         throw new AppException(HttpStatus.CONFLICT, "HEALTH_CHANGE_REQUEST_REQUIRED")
@@ -66,6 +74,14 @@ export class HealthRepository {
 
   async clear(applicationId: string): Promise<void> {
     await this.prisma.applicationHealth.deleteMany({ where: { applicationId } })
+  }
+
+  /** Sets or resets the "no restriction" confirmation (US-150). */
+  async setNoRestriction(applicationId: string, noRestriction: boolean): Promise<void> {
+    await this.prisma.application.update({
+      where: { id: applicationId },
+      data: { noHealthRestriction: noRestriction },
+    })
   }
 
   async findOrganizationId(userId: string, applicationId: string): Promise<string | null> {
@@ -82,6 +98,7 @@ function toRecord(row: {
   firstName: string
   lastName: string
   event: { name: string }
+  noHealthRestriction: boolean
   health: { note: string; consentAt: Date } | null
   changeRequests: { healthNote: string | null; createdAt: Date }[]
 }): HealthRecord {
@@ -91,6 +108,7 @@ function toRecord(row: {
     firstName: row.firstName,
     lastName: row.lastName,
     note: row.health?.note ?? null,
+    noRestriction: row.noHealthRestriction,
     consentAt: row.health?.consentAt ?? null,
     pendingRequest: row.changeRequests[0]
       ? { note: row.changeRequests[0].healthNote ?? "", createdAt: row.changeRequests[0].createdAt }

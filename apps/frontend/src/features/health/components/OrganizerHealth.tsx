@@ -50,6 +50,8 @@ export function OrganizerHealth({
             <p className="break-words whitespace-pre-line">{data.note}</p>
             <p>{t("consentGiven", { at: formatDateTime(data.consentAt) })}</p>
           </>
+        ) : data.noRestriction ? (
+          <p>{t("organizerNoRestriction")}</p>
         ) : (
           <p>{t("notFilled")}</p>
         )}

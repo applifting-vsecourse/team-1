@@ -19,6 +19,8 @@ const ownMealsSchema = z.object({
   /** `null` while nothing is written. */
   allergies: z.string().nullable(),
   specialRequest: z.string().nullable(),
+  /** The participant confirmed having no meal restriction (US-150). */
+  noRestrictions: z.boolean(),
 })
 export type OwnMeals = z.infer<typeof ownMealsSchema>
 
@@ -31,6 +33,8 @@ const kitchenTermSchema = z.object({
   total: z.number().int(),
   /** Confirmed participants without any ticked restriction. */
   regular: z.number().int(),
+  /** Confirmed participants who neither entered a restriction nor confirmed having none. */
+  undecided: z.number().int(),
   options: z.array(optionSchema.extend({ count: z.number().int() })),
   allergies: z.array(
     z.object({
@@ -78,7 +82,12 @@ export const ownMealsQueryOptions = (applicationId: string) =>
 /** `PUT /api/participant/applications/:id/meals` — an empty text clears the allergies. */
 export async function saveOwnMeals(
   applicationId: string,
-  values: { optionIds: string[]; allergies: string; specialRequest: string },
+  values: {
+    optionIds: string[]
+    allergies: string
+    specialRequest: string
+    noRestrictions: boolean
+  },
 ): Promise<OwnMeals> {
   return ownMealsSchema.parse(await api.put(ownPath(applicationId), { json: values }).json())
 }
