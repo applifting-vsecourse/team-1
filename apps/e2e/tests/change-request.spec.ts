@@ -64,7 +64,9 @@ test("participant submits a cancellation request and organizer declines it at 36
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(360)
   await review.getByRole("button", { name: "Decline request" }).click()
   const confirmation = page.getByRole("dialog", { name: "Decline request" })
-  await confirmation.getByRole("textbox", { name: "Reason for declining" }).fill("Please contact us")
+  await confirmation
+    .getByRole("textbox", { name: "Reason for declining" })
+    .fill("Please contact us")
   await confirmation.getByRole("button", { name: "Decline request" }).click()
   await expect(page.getByText("Request declined")).toBeVisible()
 })
