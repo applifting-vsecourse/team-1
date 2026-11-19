@@ -30,6 +30,8 @@ const otherTermSchema = z.object({
       id: z.string(),
       name: z.string(),
       gender: genderSchema.nullable(),
+      /** Capacity plus extra beds. */
+      beds: z.number().int(),
       freeBeds: z.number().int(),
     }),
   ),

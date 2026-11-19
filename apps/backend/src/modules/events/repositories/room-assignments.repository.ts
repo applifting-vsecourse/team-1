@@ -126,6 +126,7 @@ export class RoomAssignmentsRepository {
             id: room.id,
             name: room.name,
             gender: room.gender,
+            beds: computeRoomBeds(room),
             freeBeds: computeFreeRoomBeds(room, room._count.assignments),
           })),
         })),
