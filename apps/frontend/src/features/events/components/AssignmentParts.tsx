@@ -428,12 +428,12 @@ export function RoomTableRow({
         <TableCell
           aria-label={room.name}
           className={cn(
-            "whitespace-normal",
+            "pl-4 whitespace-normal",
             isWarned && "shadow-[inset_4px_0_0_0_var(--color-status-warning)]",
           )}
         >
           <div className="flex flex-wrap items-center gap-2">
-            <span className="font-bold">{room.name}</span>
+            <span className="min-w-6 text-right font-bold tabular-nums">{room.name}</span>
             {room.gender ? <Badge variant="secondary">{roomGenderLabel(room.gender)}</Badge> : null}
             <WarningLabels kinds={openKinds(warnings)} />
           </div>

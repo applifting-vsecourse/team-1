@@ -192,6 +192,7 @@ describe("EventSettings", () => {
     renderSettings({ ...event, applicationsOpen: true, evaluationModeLocked: true })
 
     expect(await screen.findByText("The mode is locked")).toBeVisible()
+    expect(screen.getByText("Locked", { exact: true })).toBeVisible()
     expect(
       screen.getByText(
         "The event already has an application, so the mode can no longer be changed.",
@@ -207,7 +208,7 @@ describe("EventSettings", () => {
     const { writes } = renderCancellation()
     const user = userEvent.setup()
 
-    await user.click(await screen.findByRole("checkbox", { name: "Turn on approval" }))
+    await user.click(await screen.findByRole("switch", { name: "Turn on approval" }))
     await user.type(screen.getByRole("textbox", { name: "Approve requests from" }), "01/07/2027")
     await user.click(screen.getByRole("button", { name: "Save settings" }))
 
@@ -224,7 +225,7 @@ describe("EventSettings", () => {
     const { writes } = renderCancellation("2027-07-01")
     const user = userEvent.setup()
 
-    await user.click(await screen.findByRole("checkbox", { name: "Turn on approval" }))
+    await user.click(await screen.findByRole("switch", { name: "Turn on approval" }))
     await user.click(screen.getByRole("button", { name: "Save settings" }))
 
     await vi.waitFor(() => expect(writes).toEqual([{ cancellationStartsOn: null }]))
@@ -248,7 +249,7 @@ describe("EventSettings", () => {
     await user.click(screen.getByRole("button", { name: "Save settings" }))
 
     await vi.waitFor(() => expect(input).toBeDisabled())
-    expect(screen.getByRole("checkbox", { name: "Turn on approval" })).toBeDisabled()
+    expect(screen.getByRole("switch", { name: "Turn on approval" })).toBeDisabled()
     expect(screen.getByRole("button", { name: "Save settings" })).toBeDisabled()
 
     release()
@@ -276,7 +277,7 @@ describe("EventSettings", () => {
     const { writes } = renderCancellation()
     const user = userEvent.setup()
 
-    await user.click(await screen.findByRole("checkbox", { name: "Turn on approval" }))
+    await user.click(await screen.findByRole("switch", { name: "Turn on approval" }))
     await user.type(screen.getByRole("textbox", { name: "Approve requests from" }), "31/02/2027")
     await user.click(screen.getByRole("button", { name: "Save settings" }))
 
@@ -288,7 +289,7 @@ describe("EventSettings", () => {
     const { writes } = renderCancellation()
     const user = userEvent.setup()
 
-    await user.click(await screen.findByRole("checkbox", { name: "Turn on approval" }))
+    await user.click(await screen.findByRole("switch", { name: "Turn on approval" }))
     await user.type(screen.getByRole("textbox", { name: "Approve requests from" }), "01/01/2020")
     await user.click(screen.getByRole("button", { name: "Save settings" }))
 
@@ -328,7 +329,7 @@ describe("EventSettings", () => {
     const user = userEvent.setup()
     const save = () => screen.queryByRole("button", { name: "Save settings" })
 
-    const checkbox = await screen.findByRole("checkbox", { name: "Turn on approval" })
+    const checkbox = await screen.findByRole("switch", { name: "Turn on approval" })
     expect(checkbox).not.toBeChecked()
     expect(save()).not.toBeInTheDocument()
 
@@ -345,7 +346,7 @@ describe("EventSettings", () => {
     const user = userEvent.setup()
     const save = () => screen.queryByRole("button", { name: "Save settings" })
 
-    const checkbox = await screen.findByRole("checkbox", { name: "Turn on approval" })
+    const checkbox = await screen.findByRole("switch", { name: "Turn on approval" })
     expect(checkbox).toBeChecked()
     expect(save()).not.toBeInTheDocument()
     expect(screen.queryByRole("button", { name: "Cancel" })).not.toBeInTheDocument()
@@ -364,7 +365,7 @@ describe("EventSettings", () => {
 
   it("follows server refetches in an untouched form without offering stale writes", async () => {
     const { writes, refetch } = renderCancellation()
-    const checkbox = await screen.findByRole("checkbox", { name: "Turn on approval" })
+    const checkbox = await screen.findByRole("switch", { name: "Turn on approval" })
 
     await refetch("2027-07-01")
     await waitFor(() => expect(checkbox).toBeChecked())
@@ -400,17 +401,17 @@ describe("EventSettings", () => {
     )
     await refetch(null)
     await waitFor(() =>
-      expect(screen.getByRole("checkbox", { name: "Turn on approval" })).not.toBeChecked(),
+      expect(screen.getByRole("switch", { name: "Turn on approval" })).not.toBeChecked(),
     )
   })
 
   it("preserves a user's switch-off across a server refetch", async () => {
     const { writes, refetch } = renderCancellation("2027-07-01")
     const user = userEvent.setup()
-    await user.click(await screen.findByRole("checkbox", { name: "Turn on approval" }))
+    await user.click(await screen.findByRole("switch", { name: "Turn on approval" }))
     await refetch("2027-07-02")
 
-    expect(screen.getByRole("checkbox", { name: "Turn on approval" })).not.toBeChecked()
+    expect(screen.getByRole("switch", { name: "Turn on approval" })).not.toBeChecked()
     await user.click(screen.getByRole("button", { name: "Save settings" }))
     await vi.waitFor(() => expect(writes).toEqual([{ cancellationStartsOn: null }]))
   })
@@ -418,7 +419,7 @@ describe("EventSettings", () => {
   it("follows refetches again after the user undoes their edit", async () => {
     const { refetch } = renderCancellation()
     const user = userEvent.setup()
-    const checkbox = await screen.findByRole("checkbox", { name: "Turn on approval" })
+    const checkbox = await screen.findByRole("switch", { name: "Turn on approval" })
     await user.click(checkbox)
     await user.click(checkbox)
     await refetch("2027-07-01")

@@ -18,9 +18,12 @@
     "clearedTitle": "Schvalování je vypnuté.",
     "dateInPast": "Datum začátku schvalování nesmí být v minulosti.",
     "dateLabel": "Schvalovat od",
+    "description": "Zda změny termínů a storna čekají na Vaše schválení.",
     "enable": "Zapnout schvalování",
     "invalidDate": "Zadejte platné kalendářní datum.",
     "noDate": "Schvalování je vypnuté. Nové změny termínů a odhlášky se provádějí ihned.",
+    "off": "Vypnuto",
+    "on": "Zapnuto",
     "retry": "Zkusit znovu",
     "revert": "Vrátit změny",
     "save": "Uložit nastavení",
@@ -68,10 +71,12 @@
     "automaticHint": "Při přijetí přihlášky systém rozhodne podle kapacity termínu: potvrdí ji, nebo ji zařadí mezi náhradníky.",
     "automaticInfo": "Aplikace přihlášku potvrdí, když je volné lůžko, jinak ji zařadí mezi náhradníky. Uvolněné lůžko obsadí první náhradník.",
     "change": "Změnit",
+    "description": "Jak se nové přihlášky zpracují v každém termínu.",
     "discard": "Zrušit změny",
     "infoLabel": "Vysvětlení: {{mode}}",
     "legend": "Režim vyhodnocování",
     "lockNotice": "Režim je uzamčený",
+    "locked": "Zamčeno",
     "lockedReason": "Akce už má přihlášku, proto už režim nelze změnit.",
     "manual": "Ručně",
     "manualHint": "Každou přihlášku vyhodnotíte vy. Ručně rozhodujete také o náhradnících.",
@@ -208,8 +213,10 @@
       "phoneInvalid": "Zadejte platné telefonní číslo, např. +420 777 000 001.",
       "requiredForCatalog": "Před zveřejněním v katalogu toto pole vyplňte."
     },
+    "listed": "V katalogu",
     "location": "Místo konání",
     "name": "Název akce",
+    "notListed": "Mimo katalog",
     "photoTitle": "Fotografie akce",
     "preview": "Náhled veřejné stránky",
     "publish": "Zveřejnit akci v katalogu",
@@ -220,6 +227,7 @@
     "savedDirectLink": "Akce není zveřejněná v katalogu. Veřejná stránka je dostupná přes přímý odkaz.",
     "savedPublished": "Akce je zveřejněná v katalogu. Stejné údaje se zobrazují na veřejné stránce akce.",
     "savedUnpublished": "Akce není zveřejněná v katalogu.",
+    "sectionDescription": "Název, popis, místo, fotografie a kontakty zobrazené na stránce akce.",
     "termsTitle": "Zobrazené termíny a ceny",
     "title": "Veřejné údaje",
     "upload": {
@@ -629,7 +637,7 @@
     "title": "Zveřejnění rozdělení"
   },
   "settings": {
-    "description": "Společná nastavení akce a jejího veřejného webu.",
+    "description": "Jak se přihlášky vyhodnocují a schvalují, co ukazuje veřejná stránka a zda lze akci smazat.",
     "title": "Nastavení akce"
   },
   "terms": {

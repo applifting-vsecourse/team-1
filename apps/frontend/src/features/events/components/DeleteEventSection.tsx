@@ -1,8 +1,9 @@
 import { useState } from "react"
+import { Trash2 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { SettingsCard } from "@/components/molecules/SettingsCard"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
 
 import type { OrganizerEvent } from "@/features/events/api/events"
 import { DeleteEventDialog } from "@/features/events/components/DeleteEventDialog"
@@ -22,27 +23,31 @@ export function DeleteEventSection({ event }: { event: OrganizerEvent }) {
   const [isOpen, setIsOpen] = useState(false)
 
   return (
-    <Card className="gap-4 p-6">
-      <h2 className="text-lg font-semibold tracking-tight">{t("delete.sectionTitle")}</h2>
-      <p id="delete-event-reason">
-        {event.hasApplications ? t("delete.blocked") : t("delete.allowed")}
-      </p>
-      <Button
-        variant={event.hasApplications ? "ghost" : "destructive"}
-        size="lg"
-        className="w-full"
-        disabled={event.hasApplications}
-        aria-describedby="delete-event-reason"
-        onClick={() => setIsOpen(true)}
-      >
-        {t("delete.action")}
-      </Button>
+    <SettingsCard
+      icon={Trash2}
+      tone="danger"
+      title={t("delete.sectionTitle")}
+      description={event.hasApplications ? t("delete.blocked") : t("delete.allowed")}
+      descriptionId="delete-event-reason"
+      actions={
+        <Button
+          variant="destructive"
+          size="lg"
+          className="w-full lg:w-fit"
+          disabled={event.hasApplications}
+          aria-describedby="delete-event-reason"
+          onClick={() => setIsOpen(true)}
+        >
+          {t("delete.action")}
+        </Button>
+      }
+    >
       {isOpen ? (
         <DeleteEventDialog
           event={event}
           onClose={() => setIsOpen(false)}
         />
       ) : null}
-    </Card>
+    </SettingsCard>
   )
 }

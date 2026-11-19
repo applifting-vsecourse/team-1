@@ -15,7 +15,7 @@ function EventSettingsPage() {
 
   return (
     <>
-      <Seo title={t("evaluationMode.title")} />
+      <Seo title={t("settings.title")} />
       <EventSettings eventId={eventId} />
     </>
   )

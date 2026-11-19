@@ -13,6 +13,7 @@ import {
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
+import { CardGrid } from "@/components/molecules/CardGrid"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { TermLabel } from "@/components/molecules/TermLabel"
@@ -61,7 +62,7 @@ export function EventOverview({
   return (
     <div className="flex flex-col gap-6">
       {events.length > 0 ? (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 sm:max-w-96">
           <Label htmlFor="event-switcher">{t("switcher.label")}</Label>
           <Select
             value={eventId}
@@ -126,10 +127,7 @@ function AttentionCards({ eventId }: { eventId: string }) {
           <AlertDescription>{t("attention.clear.body")}</AlertDescription>
         </Alert>
       )}
-      <div
-        className="grid grid-cols-2 items-start gap-3 data-[clear=true]:opacity-72 xl:grid-cols-4"
-        data-clear={isClear}
-      >
+      <CardGrid className={isClear ? "items-stretch opacity-72" : "items-stretch"}>
         {cards.map((card) => (
           <AttentionCard
             key={card.key}
@@ -141,7 +139,7 @@ function AttentionCards({ eventId }: { eventId: string }) {
             {card.body}
           </AttentionCard>
         ))}
-      </div>
+      </CardGrid>
     </section>
   )
 }

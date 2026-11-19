@@ -62,6 +62,7 @@ test.describe("Evaluation mode", () => {
     await page.getByRole("link", { name: new RegExp(`E2E zámek ${unique}`) }).click()
     await sections(page).getByRole("link", { name: "Settings" }).click()
     await expect(page.getByRole("radio", { name: "Manual" })).toBeChecked()
+    await expect(page.getByText("Locked", { exact: true })).toBeVisible()
     await expect(
       page.getByText("The event already has an application, so the mode can no longer be changed."),
     ).toBeVisible()
@@ -75,6 +76,7 @@ test.describe("Evaluation mode", () => {
 
     await sections(page).getByRole("link", { name: "Settings" }).click()
     await expect(page.getByRole("radio", { name: "Automatic" })).toBeChecked()
+    await expect(page.getByText("Locked", { exact: true })).toBeVisible()
     await expect(
       page.getByText("The event already has an application, so the mode can no longer be changed."),
     ).toBeVisible()

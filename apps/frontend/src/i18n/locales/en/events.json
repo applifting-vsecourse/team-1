@@ -18,9 +18,12 @@
     "clearedTitle": "Approval is off.",
     "dateInPast": "The approval start date must not be in the past.",
     "dateLabel": "Approve requests from",
+    "description": "Whether term changes and cancellations wait for your approval.",
     "enable": "Turn on approval",
     "invalidDate": "Enter a valid calendar date.",
     "noDate": "Approval is off. New term changes and cancellations are carried out immediately.",
+    "off": "Off",
+    "on": "On",
     "retry": "Try again",
     "revert": "Revert changes",
     "save": "Save settings",
@@ -68,10 +71,12 @@
     "automaticHint": "When an application arrives, the system confirms it or puts it on the waiting list according to the term’s capacity.",
     "automaticInfo": "The app confirms an application when a bed is free, otherwise it adds it to the substitutes. A freed bed goes to the first substitute.",
     "change": "Change",
+    "description": "How new applications are processed in every term.",
     "discard": "Discard changes",
     "infoLabel": "Explanation: {{mode}}",
     "legend": "Evaluation mode",
     "lockNotice": "The mode is locked",
+    "locked": "Locked",
     "lockedReason": "The event already has an application, so the mode can no longer be changed.",
     "manual": "Manual",
     "manualHint": "You evaluate each application and decide who moves off the waiting list.",
@@ -208,8 +213,10 @@
       "phoneInvalid": "Enter a valid phone number, e.g. +420 777 000 001.",
       "requiredForCatalog": "Fill this in before listing the event in the catalog."
     },
+    "listed": "Listed in the catalog",
     "location": "Venue",
     "name": "Event name",
+    "notListed": "Not listed",
     "photoTitle": "Event photo",
     "preview": "Preview public page",
     "publish": "List the event in the catalog",
@@ -220,6 +227,7 @@
     "savedDirectLink": "The event is not listed in the catalog. Its public page is available via a direct link.",
     "savedPublished": "The event is listed in the catalog. The public event page shows the same details.",
     "savedUnpublished": "The event is not listed in the catalog.",
+    "sectionDescription": "Name, description, venue, photo and contacts shown on the event page.",
     "termsTitle": "Terms and prices shown",
     "title": "Public details",
     "upload": {
@@ -629,7 +637,7 @@
     "title": "Publishing the assignment"
   },
   "settings": {
-    "description": "Settings for the event and its public website.",
+    "description": "How applications are evaluated and approved, what the public page shows and whether the event can be deleted.",
     "title": "Event settings"
   },
   "terms": {
