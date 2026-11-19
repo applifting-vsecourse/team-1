@@ -391,6 +391,18 @@
     "beds_few": "{{count}} místa",
     "beds_one": "{{count}} místo",
     "beds_other": "{{count}} míst",
+    "bulk": {
+      "capacity": "Lůžek v pokoji *",
+      "count": "Počet pokojů *",
+      "countError": "Zadejte celé číslo od 1 do 200.",
+      "done": "Pokoje založeny",
+      "firstNumber": "Číslo prvního pokoje *",
+      "firstNumberError": "Zadejte celé číslo od 1 do 999999.",
+      "open": "Přidat více pokojů",
+      "preview": "Vznikne: {{rooms}}, {{beds}} (čísla {{range}})",
+      "submit": "Založit pokoje",
+      "title": "Přidat více pokojů"
+    },
     "capacityColumn": "Kapacita",
     "capacityError": "Zadejte celé číslo alespoň 1.",
     "capacityHint": "Alespoň 1 místo. Kapacita se počítá z pokojů.",

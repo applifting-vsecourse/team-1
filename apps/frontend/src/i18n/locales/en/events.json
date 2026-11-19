@@ -391,6 +391,18 @@
     "beds_few": "{{count}} beds",
     "beds_one": "{{count}} bed",
     "beds_other": "{{count}} beds",
+    "bulk": {
+      "capacity": "Beds per room *",
+      "count": "Number of rooms *",
+      "countError": "Enter a whole number from 1 to 200.",
+      "done": "Rooms created",
+      "firstNumber": "First room number *",
+      "firstNumberError": "Enter a whole number from 1 to 999999.",
+      "open": "Add multiple rooms",
+      "preview": "Will create: {{rooms}}, {{beds}} (numbers {{range}})",
+      "submit": "Create rooms",
+      "title": "Add multiple rooms"
+    },
     "capacityColumn": "Capacity",
     "capacityError": "Enter a whole number of at least 1.",
     "capacityHint": "At least 1 bed. Capacity is calculated from rooms.",

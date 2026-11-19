@@ -100,3 +100,19 @@ export async function copyRooms(
 ): Promise<void> {
   await api.post(`${base(eventId, termId)}/rooms/copy`, { json: { sourceTermId, strategy } })
 }
+/** Rooms created in one go: `count` rooms of `capacity` beds, numbered from `firstNumber`. */
+export type BulkRoomsInput = {
+  count: number
+  capacity: number
+  firstNumber: number
+  /** Required in gendered terms, omitted in shared ones. */
+  gender?: "FEMALE" | "MALE"
+}
+/** Creates all rooms or none (409 `ROOM_BULK_NAMES_TAKEN` when a number is already a room name). */
+export async function createRoomsBulk(
+  eventId: string,
+  termId: string,
+  input: BulkRoomsInput,
+): Promise<void> {
+  await api.post(`${base(eventId, termId)}/rooms/bulk`, { json: input })
+}
