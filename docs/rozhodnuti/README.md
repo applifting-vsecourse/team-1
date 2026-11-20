@@ -2,7 +2,7 @@
 
 > Generováno z [`rozhodnuti.yaml`](rozhodnuti.yaml) (`python generate.py`). Needituj, měň YAML.
 
-**169 platných**, 0 návrhů, 4 nahrazených nebo zrušených.
+**174 platných**, 0 návrhů, 4 nahrazených nebo zrušených.
 
 ## Návrhy čekající na PM
 
@@ -77,6 +77,7 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-177](#d-177) | Souhrn pro kuchyni: počty stravy po kombinacích | 2026-11-20 | `pm` | produkt |
 | [D-173](#d-173) | Vlastní doprava zůstává volný text bez času a místa příjezdu | 2026-11-20 | `pm` | produkt |
 | [D-155](#d-155) | Kopírování programu mezi termíny | 2026-11-14 | `pm` | produkt |
 | [D-123](#d-123) | Program akce: jeden program po termínech, vidí potvrzení | 2026-11-14 | `pm` | produkt |
@@ -110,6 +111,8 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-178](#d-178) | Organizátor smí zapsat platbu na celou přihlášku | 2026-11-20 | `pm` | produkt |
+| [D-175](#d-175) | Dialogy odhlášení a změny termínu: dopad na platbu bez slibu vrácení | 2026-11-20 | `pm` | produkt |
 | [D-170](#d-170) | Souhrnná platba přihlášky s archivovanými termíny se nepřiděluje | 2026-11-20 | `pm` | produkt |
 | [D-169](#d-169) | E-mail o doplacení z importu výpisu chodí jednou za přihlášku | 2026-11-20 | `pm` | produkt |
 | [D-164](#d-164) | Dialog změny termínu: částka k úhradě místo platby | 2026-11-18 | `pm` | produkt |
@@ -158,6 +161,7 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-176](#d-176) | Výsledek žádosti o změnu: čip i u čekající žádosti a červená pro Zamítnuto | 2026-11-20 | `pm` | produkt |
 | [D-168](#d-168) | Jednokrokové vyhodnocení: o přihláškách, které se nevejdou, rozhoduje organizátor | 2026-11-18 | `pm` | produkt |
 | [D-167](#d-167) | Úprava údajů přihlášky organizátorem nikomu neposílá upozornění | 2026-11-18 | `pm` | produkt |
 | [D-163](#d-163) | Přehled kroků po registraci: pořadí a potvrzení bez omezení | 2026-11-18 | `pm` | produkt |
@@ -238,6 +242,7 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-174](#d-174) | Pohledy na ubytování: „Rozřazování“ × „Pokoje“ se stejným ovládáním | 2026-11-20 | `pm` | produkt |
 | [D-171](#d-171) | Pokoj s přiřazenými účastníky nejde smazat | 2026-11-20 | `pm` | produkt |
 | [D-165](#d-165) | Řazení nabídky pokojů při přiřazení | 2026-11-18 | `pm` | produkt |
 | [D-162](#d-162) | Spolubydlící v Moje přihláška se zatím neukazují | 2026-11-18 | `pm` | produkt |
@@ -2208,3 +2213,49 @@ _Nic._
 - **Datum:** 2026-11-20 · **Rozhodl:** `pm`
 - **Text:** U vlastní dopravy organizátor zadává jen volný text s pokyny. Strukturovaný čas ani místo příjezdu se neevidují a do rozsahu nepatří, i když je Figma kreslí. Přihlašovatel má v přihlášce telefon (už je nasazený).
 - **Zdroj:** [PM v chatu k otázkám 3 a 4 z PR #577, 20. 11. 2026](https://github.com/applifting-vsecourse/team-1/pull/577#issuecomment-7028301496)
+
+<a id="d-174"></a>
+
+### D-174 – Pohledy na ubytování: „Rozřazování“ × „Pokoje“ se stejným ovládáním
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** ubytování
+- **Datum:** 2026-11-20 · **Rozhodl:** `pm`
+- **Text:** Pohledy se jmenují „Rozřazování“ a „Pokoje“ (EN „Assignment“ × „Rooms“). Ovládání ubytování je ze všech pohledů stejné: organizátor si zvolí pohled, který mu vyhovuje, a může v něm použít všechny funkce (přiřazení, přesun, odebrání, přistýlky, návrh rozdělení, nesplněná přání, zveřejnění, tisk). Změny SLOVNIK.md jen v textu PR.
+- **Zdroj:** [odpověď PM v #542, 20. 11. 2026](https://github.com/applifting-vsecourse/team-1/issues/542#issuecomment-7042337631)
+
+<a id="d-175"></a>
+
+### D-175 – Dialogy odhlášení a změny termínu: dopad na platbu bez slibu vrácení
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** platby
+- **Datum:** 2026-11-20 · **Rozhodl:** `pm`
+- **Text:** Vrácení zaplacených peněz při odhlášení a změně termínu text neslibuje, říká jen, že vrácení a případné storno řeší organizátor (kontakt je v detailu přihlášky). Text neuvádí lhůtu. Platba se na nový termín nepřevádí (D-088), design ani backend se kvůli tomu nemění; přelévání přeplatků je v plánu v #339. Věta „Před 1. 6. 2027 se změna provede ihned.“ se odstraňuje.
+- **Zdroj:** [odpověď PM v #551, 20. 11. 2026](https://github.com/applifting-vsecourse/team-1/issues/551#issuecomment-7042338174)
+- **Poznámka:** Navazuje na D-051, D-088 a D-103.
+
+<a id="d-176"></a>
+
+### D-176 – Výsledek žádosti o změnu: čip i u čekající žádosti a červená pro Zamítnuto
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** přihlašování na akce
+- **Datum:** 2026-11-20 · **Rozhodl:** `pm`
+- **Text:** U čekající žádosti se přihlašovateli ukazuje čip „Čeká na schválení“ (jantarová, Warning). Pro Zamítnuto se přidává varianta Badge danger s tokeny status-error a status-error-bg.
+- **Zdroj:** [odpověď PM v #552, 20. 11. 2026](https://github.com/applifting-vsecourse/team-1/issues/552#issuecomment-7042338671)
+
+<a id="d-177"></a>
+
+### D-177 – Souhrn pro kuchyni: počty stravy po kombinacích
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** logistika
+- **Datum:** 2026-11-20 · **Rozhodl:** `pm`
+- **Text:** Souhrn pro kuchyni počítá porce po kombinacích omezení (běžné porce, jednotlivé varianty samostatně, kombinace např. vegetariánská + bezlepková), každý účastník se počítá jednou. Není priorita, udělá se později; netvoří se kvůli tomu nový ticket, jde jako Mimo rozsah story do PR #577.
+- **Zdroj:** [odpověď PM v PR #577, 20. 11. 2026](https://github.com/applifting-vsecourse/team-1/pull/577#issuecomment-7042336712)
+
+<a id="d-178"></a>
+
+### D-178 – Organizátor smí zapsat platbu na celou přihlášku
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** platby
+- **Datum:** 2026-11-20 · **Rozhodl:** `pm`
+- **Text:** Organizátor v detailu přihlášky vidí souhrnný variabilní symbol, účet a QR kód a smí zapsat platbu na celou přihlášku (souhrnný VS, D-085). Není priorita a nemá zdržet design, udělá se později.
+- **Zdroj:** [odpověď PM v PR #577, 20. 11. 2026](https://github.com/applifting-vsecourse/team-1/pull/577#issuecomment-7042336712)

@@ -3641,3 +3641,74 @@ rozhodnuti:
   stav: platne
   z_otazek: []
   dokumentace: []
+- id: D-174
+  nazev: 'Pohledy na ubytování: „Rozřazování“ × „Pokoje“ se stejným ovládáním'
+  text: 'Pohledy se jmenují „Rozřazování“ a „Pokoje“ (EN „Assignment“ × „Rooms“). Ovládání ubytování je ze všech pohledů stejné: organizátor si zvolí pohled, který mu vyhovuje, a může v něm použít všechny funkce (přiřazení, přesun, odebrání, přistýlky, návrh rozdělení, nesplněná přání, zveřejnění, tisk). Změny SLOVNIK.md jen v textu PR.'
+  typ: produkt
+  oblast: ubytování
+  datum: '2026-11-20'
+  zdroj:
+  - popis: 'odpověď PM v #542, 20. 11. 2026'
+    url: https://github.com/applifting-vsecourse/team-1/issues/542#issuecomment-7042337631
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-175
+  nazev: 'Dialogy odhlášení a změny termínu: dopad na platbu bez slibu vrácení'
+  text: 'Vrácení zaplacených peněz při odhlášení a změně termínu text neslibuje, říká jen, že vrácení a případné storno řeší organizátor (kontakt je v detailu přihlášky). Text neuvádí lhůtu. Platba se na nový termín nepřevádí (D-088), design ani backend se kvůli tomu nemění; přelévání přeplatků je v plánu v #339. Věta „Před 1. 6. 2027 se změna provede ihned.“ se odstraňuje.'
+  typ: produkt
+  oblast: platby
+  datum: '2026-11-20'
+  zdroj:
+  - popis: 'odpověď PM v #551, 20. 11. 2026'
+    url: https://github.com/applifting-vsecourse/team-1/issues/551#issuecomment-7042338174
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+  poznamka: 'Navazuje na D-051, D-088 a D-103.'
+- id: D-176
+  nazev: 'Výsledek žádosti o změnu: čip i u čekající žádosti a červená pro Zamítnuto'
+  text: 'U čekající žádosti se přihlašovateli ukazuje čip „Čeká na schválení“ (jantarová, Warning). Pro Zamítnuto se přidává varianta Badge danger s tokeny status-error a status-error-bg.'
+  typ: produkt
+  oblast: přihlašování na akce
+  datum: '2026-11-20'
+  zdroj:
+  - popis: 'odpověď PM v #552, 20. 11. 2026'
+    url: https://github.com/applifting-vsecourse/team-1/issues/552#issuecomment-7042338671
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-177
+  nazev: 'Souhrn pro kuchyni: počty stravy po kombinacích'
+  text: 'Souhrn pro kuchyni počítá porce po kombinacích omezení (běžné porce, jednotlivé varianty samostatně, kombinace např. vegetariánská + bezlepková), každý účastník se počítá jednou. Není priorita, udělá se později; netvoří se kvůli tomu nový ticket, jde jako Mimo rozsah story do PR #577.'
+  typ: produkt
+  oblast: logistika
+  datum: '2026-11-20'
+  zdroj:
+  - popis: 'odpověď PM v PR #577, 20. 11. 2026'
+    url: https://github.com/applifting-vsecourse/team-1/pull/577#issuecomment-7042336712
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-178
+  nazev: 'Organizátor smí zapsat platbu na celou přihlášku'
+  text: 'Organizátor v detailu přihlášky vidí souhrnný variabilní symbol, účet a QR kód a smí zapsat platbu na celou přihlášku (souhrnný VS, D-085). Není priorita a nemá zdržet design, udělá se později.'
+  typ: produkt
+  oblast: platby
+  datum: '2026-11-20'
+  zdroj:
+  - popis: 'odpověď PM v PR #577, 20. 11. 2026'
+    url: https://github.com/applifting-vsecourse/team-1/pull/577#issuecomment-7042336712
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
