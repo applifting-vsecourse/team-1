@@ -1,5 +1,4 @@
 import { useRef } from "react"
-import { Trash2 } from "lucide-react"
 
 import { LogoSymbol } from "@/components/atoms/Logo"
 import { Button } from "@/components/ui/button"
@@ -70,13 +69,13 @@ export function UploadField({
           <img
             src={previewUrl}
             alt=""
-            className="max-h-48 w-full rounded-md object-cover"
+            className="h-48 w-full rounded-md object-cover"
           />
         ) : (
           <LogoSymbol className="size-13 text-primary" />
         )}
-        <p className="text-lg font-semibold">{title}</p>
-        <p className="text-muted-foreground">{description}</p>
+        <p className="text-xl leading-7 font-bold">{title}</p>
+        <p className="text-base text-muted-foreground">{description}</p>
         <input
           ref={input}
           type="file"
@@ -95,7 +94,7 @@ export function UploadField({
           type="button"
           variant="outline"
           size="lg"
-          className="w-full"
+          className="h-12 w-full text-sm leading-5 font-medium"
           disabled={isDisabled}
           onClick={() => input.current?.click()}
         >
@@ -106,11 +105,10 @@ export function UploadField({
             type="button"
             variant="outline"
             size="lg"
-            className="w-full border-destructive/30 text-destructive hover:border-destructive/50 hover:bg-destructive/10 hover:text-destructive"
+            className="h-12 w-full border-destructive text-sm leading-5 font-medium text-destructive hover:bg-destructive/10 hover:text-destructive"
             disabled={isDisabled}
             onClick={onRemove}
           >
-            <Trash2 aria-hidden="true" />
             {removeLabel}
           </Button>
         ) : null}
