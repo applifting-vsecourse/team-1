@@ -161,6 +161,7 @@ export function RoomAssignmentsCard({
   }
 
   const hasRooms = data.rooms.length > 0
+  const regularRooms = data.rooms.filter((room) => !room.individual)
   const isNobodyAssigned = data.rooms.every((room) => room.participants.length === 0)
   const visibleRooms = data.rooms.filter((room) =>
     room.name.toLocaleLowerCase().includes(search.trim().toLocaleLowerCase()),
@@ -279,8 +280,8 @@ export function RoomAssignmentsCard({
         <RoomWarningsSummary
           data={data}
           isSharedMode={
-            hasRooms &&
-            data.rooms.filter((room) => !room.individual).every((room) => room.gender === null)
+            // Individual rooms have no gender in either mode; with only those the mode is not shared.
+            regularRooms.length > 0 && regularRooms.every((room) => room.gender === null)
           }
         />
         {/* On a phone the count of the unassigned stays under the top bar while the rooms scroll. */}

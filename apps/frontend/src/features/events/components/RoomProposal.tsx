@@ -63,9 +63,11 @@ export function RoomProposal({
   if (!data) return <>{children({ action: null, notices: null })}</>
 
   const confirmedWaiting = data.unassigned.filter((person) => person.status === "CONFIRMED")
+  // The proposal never fills an individual room (US-145), so only the other rooms count.
+  const hasProposableRooms = data.rooms.some((room) => !room.individual)
   const canPropose =
-    data.rooms.length > 0 && confirmedWaiting.some((person) => !person.individualAccommodation)
-  const hasOnlyIndividual = confirmedWaiting.length > 0 && !canPropose && data.rooms.length > 0
+    hasProposableRooms && confirmedWaiting.some((person) => !person.individualAccommodation)
+  const hasOnlyIndividual = confirmedWaiting.length > 0 && !canPropose && hasProposableRooms
 
   if (draft) {
     const unfulfilled = unfulfilledWishes(data.rooms, draft).length

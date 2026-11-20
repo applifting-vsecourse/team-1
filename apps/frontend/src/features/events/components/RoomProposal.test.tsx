@@ -85,6 +85,17 @@ describe("room proposal (US-147)", () => {
     for (const mock of [get, post, success]) mock.mockReset()
   })
 
+  // US-145: the proposal never fills individual rooms, so with only those there is nothing to propose.
+  it("offers no proposal when the term has only individual rooms", async () => {
+    data = {
+      ...base(),
+      rooms: [{ ...room("r1", "Family", 4), gender: null, individual: true }],
+    }
+    renderProposal()
+    await screen.findByText("Regular assignment")
+    expect(screen.queryByRole("button", { name: "Propose distribution" })).not.toBeInTheDocument()
+  })
+
   it("keeps the proposal as an unsaved draft and saves nothing until it is confirmed", async () => {
     const user = renderProposal()
     await user.click(await screen.findByRole("button", { name: "Propose distribution" }))

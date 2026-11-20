@@ -729,6 +729,20 @@ describe("room assignment", () => {
         await screen.findByText("Mixed genders are not checked in shared rooms."),
       ).toBeInTheDocument()
     })
+
+    // US-145: a gendered term with only individual rooms (no gender) is not a shared-rooms term.
+    it("does not call a term with only individual rooms shared", async () => {
+      overcrowded()
+      data = {
+        ...data,
+        rooms: data.rooms.map((item) => ({ ...item, gender: null, individual: true })),
+      }
+      renderCard()
+      await screen.findByText("Barbora Šimková")
+      expect(
+        screen.queryByText("Mixed genders are not checked in shared rooms."),
+      ).not.toBeInTheDocument()
+    })
   })
 
   it("moves a person by dragging their chip onto another room", async () => {
