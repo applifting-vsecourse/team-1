@@ -318,7 +318,6 @@
     "participantMenu": "Akce pro účastníka {{name}}",
     "participantsColumn": "Účastníci",
     "pickedRoom": "{{room}} · {{free}}",
-    "range": "{{from}}–{{to}} / {{count}}",
     "remove": "Odebrat z pokoje",
     "removed": "Účastník je zase bez pokoje",
     "roomChoice": "Pokoj",

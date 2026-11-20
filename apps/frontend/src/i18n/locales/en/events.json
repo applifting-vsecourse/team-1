@@ -318,7 +318,6 @@
     "participantMenu": "Actions for {{name}}",
     "participantsColumn": "Participants",
     "pickedRoom": "{{room}} · {{free}}",
-    "range": "{{from}}–{{to}} / {{count}}",
     "remove": "Remove from room",
     "removed": "Participant has no room again",
     "roomChoice": "Room",

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
 type PaginationProps = {
+  isCompact?: boolean
   page: number
   pageCount: number
   pageSize: number
@@ -14,25 +15,37 @@ type PaginationProps = {
 
 /** At most this many page numbers are shown; the window slides with the current page. */
 const VISIBLE_PAGES = 5
+const NARROW_VISIBLE_PAGES = 3
 
 const control = "h-11 shrink-0 hover:bg-transparent hover:text-primary"
 
 // Figma (Design system v2): Togena / Navigation / Pagination · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15270-7342
 /** Range, arrows and page numbers; renders nothing when everything fits on one page. */
-export function Pagination({ page, pageCount, pageSize, total, onPageChange }: PaginationProps) {
+export function Pagination({
+  isCompact = false,
+  page,
+  pageCount,
+  pageSize,
+  total,
+  onPageChange,
+}: PaginationProps) {
   const { t } = useTranslation("common")
   if (pageCount <= 1) return null
 
-  const first = Math.max(
-    0,
-    Math.min(page - Math.floor(VISIBLE_PAGES / 2), pageCount - VISIBLE_PAGES),
-  )
+  const firstVisible = (limit: number) =>
+    Math.max(0, Math.min(page - Math.floor(limit / 2), pageCount - limit))
+  const first = firstVisible(VISIBLE_PAGES)
+  const narrowFirst = firstVisible(NARROW_VISIBLE_PAGES)
   const pages = Array.from({ length: Math.min(VISIBLE_PAGES, pageCount) }, (_, i) => first + i)
 
   return (
     <nav
       aria-label={t("pagination.label")}
-      className="flex flex-col gap-2 md:grid md:grid-cols-[1fr_auto_1fr] md:items-center md:gap-3"
+      className={cn(
+        "flex flex-col gap-2",
+        isCompact && "@container/pagination",
+        !isCompact && "md:grid md:grid-cols-[1fr_auto_1fr] md:items-center md:gap-3",
+      )}
     >
       <span className="text-sm text-muted-foreground">
         {t("pagination.range", {
@@ -41,7 +54,7 @@ export function Pagination({ page, pageCount, pageSize, total, onPageChange }: P
           count: total,
         })}
       </span>
-      <div className="flex flex-wrap items-center gap-2 md:justify-center">
+      <div className={cn("flex flex-wrap items-center gap-2", !isCompact && "md:justify-center")}>
         <Button
           type="button"
           variant="ghost"
@@ -62,7 +75,11 @@ export function Pagination({ page, pageCount, pageSize, total, onPageChange }: P
             variant="ghost"
             className={cn(
               control,
-              "relative w-10 px-0 text-base font-normal md:w-12",
+              "relative w-10 px-0 text-base font-normal",
+              !isCompact && "md:w-12",
+              isCompact &&
+                (p < narrowFirst || p >= narrowFirst + NARROW_VISIBLE_PAGES) &&
+                "hidden @min-[328px]/pagination:inline-flex",
               p === page && "text-primary",
             )}
             aria-label={t("pagination.page", { page: p + 1 })}
@@ -73,6 +90,7 @@ export function Pagination({ page, pageCount, pageSize, total, onPageChange }: P
             {p === page && (
               <span
                 aria-hidden="true"
+                data-compact={isCompact || undefined}
                 className="pagination-current-marker pointer-events-none absolute inset-0 bg-current mask-size-[100%_100%]"
               />
             )}

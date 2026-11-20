@@ -846,9 +846,11 @@ describe("room assignment", () => {
     expect(await screen.findByText("Test Osoba00")).toBeInTheDocument()
     expect(screen.getByText("Test Osoba09")).toBeInTheDocument()
     expect(screen.queryByText("Test Osoba10")).not.toBeInTheDocument()
-    expect(screen.getByText("1–10 / 11")).toBeInTheDocument()
+    expect(screen.getByText("1–10 of 11 results")).toBeInTheDocument()
     await user.click(screen.getByRole("button", { name: "Next page" }))
     expect(await screen.findByText("Test Osoba10")).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "Page 2" })).toHaveAttribute("aria-current", "page")
+    expect(screen.getByRole("button", { name: "Next page" })).toBeDisabled()
     expect(screen.queryByText("Test Osoba00")).not.toBeInTheDocument()
   })
 

@@ -11,13 +11,14 @@ import {
   type DragStartEvent,
 } from "@dnd-kit/core"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { ChevronLeft, ChevronRight, Search, X } from "lucide-react"
+import { Search, X } from "lucide-react"
 import { createPortal } from "react-dom"
 import { useTranslation } from "react-i18next"
 
 import { EmptyState } from "@/components/molecules/EmptyState"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
+import { Pagination } from "@/components/molecules/Pagination"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -373,34 +374,15 @@ export function RoomAssignmentsCard({
                   ))}
                 </ul>
                 {paging.pageCount > 1 ? (
-                  <div className="flex items-center justify-between border-t border-border px-2 py-1">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon-lg"
-                      aria-label={t("pagination.previous", { ns: "common" })}
-                      disabled={paging.page === 0}
-                      onClick={() => paging.setPage(paging.page - 1)}
-                    >
-                      <ChevronLeft className="size-5" />
-                    </Button>
-                    <span className="text-base font-medium whitespace-nowrap text-muted-foreground">
-                      {t("roomAssignments.range", {
-                        from: paging.page * paging.pageSize + 1,
-                        to: Math.min((paging.page + 1) * paging.pageSize, paging.total),
-                        count: paging.total,
-                      })}
-                    </span>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon-lg"
-                      aria-label={t("pagination.next", { ns: "common" })}
-                      disabled={paging.page + 1 === paging.pageCount}
-                      onClick={() => paging.setPage(paging.page + 1)}
-                    >
-                      <ChevronRight className="size-5" />
-                    </Button>
+                  <div className="border-t border-border px-2 py-3">
+                    <Pagination
+                      isCompact
+                      page={paging.page}
+                      pageCount={paging.pageCount}
+                      pageSize={paging.pageSize}
+                      total={paging.total}
+                      onPageChange={paging.setPage}
+                    />
                   </div>
                 ) : null}
               </>

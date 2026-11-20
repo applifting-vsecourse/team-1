@@ -766,7 +766,7 @@
 }
 
 @media (min-width: 48rem) {
-  .pagination-current-marker {
+  .pagination-current-marker:not([data-compact]) {
     mask-image: url("../assets/navigation/pagination-current.svg");
   }
 }
