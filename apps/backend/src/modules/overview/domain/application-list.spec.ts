@@ -99,6 +99,73 @@ describe("application list filters", () => {
     expect(applicationList([unpaid], { payment: "UNPAID" })).toHaveLength(1)
     expect(applicationList([row], { payment: "UNPAID" })).toEqual([])
   })
+  it("keeps the debt of one term when another term is overpaid (D-088)", () => {
+    const second = (status: "CONFIRMED" | "WAITLISTED", payments: { amountCzk: number }[]) =>
+      ({ ...row.terms[1], status, priceCzk: 2000, payments }) as ListedApplication["terms"][number]
+    // Term 1: 1000 due, 1500 paid (overpaid by 500). Term 2: 2000 due, 500 paid (owes 1500).
+    const mixed: ListedApplication = {
+      ...row,
+      terms: [
+        { ...row.terms[0], payments: [{ amountCzk: 1500 }] },
+        second("CONFIRMED", [{ amountCzk: 500 }]),
+      ],
+    }
+    // Σdue − Σpaid would be 1000; the sum of positive debts is 1500.
+    expect(applicationList([mixed], {})[0]).toMatchObject({
+      amountDueCzk: 3000,
+      amountPaidCzk: 2000,
+      amountOwedCzk: 1500,
+      paymentStatus: "PARTIALLY_PAID",
+    })
+    expect(applicationList([mixed], { payment: "DEBT" })).toHaveLength(1)
+    expect(applicationList([mixed], { payment: "PARTIALLY_PAID" })).toHaveLength(1)
+    expect(applicationList([mixed], { payment: "OVERPAID" })).toEqual([])
+    expect(applicationList([mixed], { payment: "PAID" })).toEqual([])
+    // Totals that cancel out must not hide the debt or label the application as paid.
+    const cancelling: ListedApplication = {
+      ...mixed,
+      terms: [
+        { ...mixed.terms[0], payments: [{ amountCzk: 1500 }] },
+        second("CONFIRMED", [{ amountCzk: 1500 }]),
+      ],
+    }
+    expect(applicationList([cancelling], {})[0]).toMatchObject({
+      amountOwedCzk: 500,
+      paymentStatus: "PARTIALLY_PAID",
+    })
+    expect(applicationList([cancelling], { payment: "DEBT" })).toHaveLength(1)
+    expect(applicationList([cancelling], { payment: "PAID" })).toEqual([])
+    // An overpaid term and an unpaid one: the debt is the whole price of the unpaid term.
+    const unpaidOther: ListedApplication = {
+      ...mixed,
+      terms: [mixed.terms[0], second("CONFIRMED", [])],
+    }
+    expect(applicationList([unpaidOther], {})[0]).toMatchObject({
+      amountOwedCzk: 2000,
+      paymentStatus: "PARTIALLY_PAID",
+    })
+  })
+  it("has no debt without a confirmed term in debt, and shows the overpayment then", () => {
+    const overpaidOnly: ListedApplication = {
+      ...row,
+      terms: [{ ...row.terms[0], payments: [{ amountCzk: 1500 }] }, row.terms[1]],
+    }
+    expect(applicationList([overpaidOnly], { payment: "DEBT" })).toEqual([])
+    expect(applicationList([overpaidOnly], {})[0]).toMatchObject({
+      amountOwedCzk: -500,
+      paymentStatus: "OVERPAID",
+    })
+    // A waitlisted term with a payment is not a debt either (D-088).
+    const waitlistedPaid: ListedApplication = {
+      ...row,
+      terms: [
+        { ...row.terms[0], payments: [{ amountCzk: 1000 }] },
+        { ...row.terms[1], payments: [{ amountCzk: 300 }] },
+      ],
+    }
+    expect(applicationList([waitlistedPaid], { payment: "DEBT" })).toEqual([])
+    expect(applicationList([waitlistedPaid], {})[0].paymentStatus).toBe("OVERPAID")
+  })
   it("does not label waitlisted-only applications with any payment status", () => {
     const waiting = { ...row, terms: [row.terms[1]] }
     for (const payment of ["UNPAID", "PARTIALLY_PAID", "PAID", "OVERPAID"] as const)

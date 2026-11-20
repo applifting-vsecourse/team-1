@@ -3,6 +3,9 @@ import {
   computeAmountDue,
   computeAmountOwed,
   computeAmountPaid,
+  computeApplicationOwed,
+  computeApplicationPayable,
+  computeApplicationPaymentStatus,
   computePayableAmount,
   computePaymentStatus,
   computeSelectionPrice,
@@ -267,5 +270,54 @@ describe("archived paid terms (US-109)", () => {
     expect(computeTermOwed(archived, [{ amountCzk: 1000 }])).toBe(0)
     expect(computeTermPaymentStatus(archived, [{ amountCzk: 1000 }])).toBe("PAID")
     expect(computeTermPaymentStatus(archived, [{ amountCzk: 1100 }])).toBe("OVERPAID")
+  })
+})
+
+describe("application summary over its terms (D-088)", () => {
+  const confirmed = (priceCzk: number, paid: number) => ({
+    status: "CONFIRMED" as const,
+    priceCzk,
+    payments: paid === 0 ? [] : [{ amountCzk: paid }],
+  })
+  it("sums only positive debts of confirmed terms", () => {
+    const terms = [confirmed(1000, 1500), confirmed(2000, 500)]
+    expect(computeApplicationPayable(terms)).toBe(1500)
+    expect(computeApplicationOwed(terms)).toBe(1500)
+    expect(computeApplicationPaymentStatus(terms)).toBe("PARTIALLY_PAID")
+  })
+  it("is not hidden by an overpayment that cancels the totals out", () => {
+    const terms = [confirmed(1000, 1500), confirmed(1000, 500)]
+    expect(
+      computeAmountOwed(
+        computeAmountDue(terms),
+        computeAmountPaid(terms.flatMap((t) => t.payments)),
+      ),
+    ).toBe(0)
+    expect(computeApplicationOwed(terms)).toBe(500)
+    expect(computeApplicationPaymentStatus(terms)).toBe("PARTIALLY_PAID")
+  })
+  it("is unpaid when nothing was paid anywhere", () => {
+    expect(computeApplicationPaymentStatus([confirmed(1000, 0), confirmed(500, 0)])).toBe("UNPAID")
+  })
+  it("ignores debts of terms that are not confirmed", () => {
+    const terms = [
+      confirmed(1000, 1000),
+      { status: "ARCHIVED" as const, priceCzk: 500, payments: [] },
+    ]
+    expect(computeApplicationPayable(terms)).toBe(0)
+    expect(computeApplicationPaymentStatus(terms)).toBe("PAID")
+  })
+  it("shows the overpayment when no term owes anything", () => {
+    const terms = [
+      confirmed(1000, 1500),
+      { status: "WAITLISTED" as const, priceCzk: 500, payments: [{ amountCzk: 200 }] },
+    ]
+    expect(computeApplicationOwed(terms)).toBe(-700)
+    expect(computeApplicationPaymentStatus(terms)).toBe("OVERPAID")
+  })
+  it("has nothing due without a confirmed term", () => {
+    expect(
+      computeApplicationPaymentStatus([{ status: "WAITLISTED", priceCzk: 500, payments: [] }]),
+    ).toBe("NOTHING_DUE")
   })
 })

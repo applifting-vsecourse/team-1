@@ -6,10 +6,10 @@ import {
   computeApplicationPaid,
 } from "@/modules/applications/domain/payment-details"
 import {
-  computeAmountOwed,
-  computePaymentStatus,
+  computeApplicationOwed,
+  computeApplicationPayable,
+  computeApplicationPaymentStatus,
   PaymentStatus,
-  termHasDebt,
 } from "@/modules/applications/domain/pricing"
 import { eligibleSubstitutes } from "@/modules/applications/domain/substitutes"
 import { variableSymbol } from "@/modules/applications/domain/variable-symbol"
@@ -39,7 +39,8 @@ export type WaitlistFilter = (typeof WAITLIST_FILTERS)[number]
 /**
  * Every payment status can be filtered on, "nothing due" (a waitlisted application) too.
  * `DEBT` is an application with a confirmed term that is not fully paid, the participants of
- * the payments overview (US-45) and of the attention card (US-51).
+ * the payments overview (US-45) and of the attention card (US-51). An overpayment of another term
+ * does not hide it (D-088).
  */
 export type FilterablePaymentStatus = PaymentStatus | "DEBT"
 export const FILTERABLE_PAYMENT_STATUSES: FilterablePaymentStatus[] = [
@@ -180,10 +181,7 @@ export function applicationList(
         ) &&
         (!filters.gender || row.gender === filters.gender) &&
         (filters.accommodation !== "INDIVIDUAL" || row.individualAccommodation) &&
-        (filters.payment !== "DEBT" ||
-          row.terms.some((term) =>
-            termHasDebt({ status: term.status, priceCzk: term.priceCzk }, term.payments),
-          )) &&
+        (filters.payment !== "DEBT" || computeApplicationPayable(row.terms) > 0) &&
         (!(filters.termId || filters.status) ||
           row.terms.some(
             (term) =>
@@ -215,8 +213,8 @@ export function applicationList(
         })),
         amountDueCzk,
         amountPaidCzk,
-        amountOwedCzk: computeAmountOwed(amountDueCzk, amountPaidCzk),
-        paymentStatus: computePaymentStatus(amountDueCzk, amountPaidCzk),
+        amountOwedCzk: computeApplicationOwed(row.terms),
+        paymentStatus: computeApplicationPaymentStatus(row.terms),
       }
     })
     .filter(

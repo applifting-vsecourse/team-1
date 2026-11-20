@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto"
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { variableSymbol } from "@/modules/applications/domain/variable-symbol"
 import { api, connectTestPrisma, resetAndSeed, signIn } from "@/test/integration/test-api"
@@ -37,7 +38,7 @@ describe("application list API", () => {
       gender: source[0].gender,
     })
     expect(rows[0].terms.length).toBeGreaterThan(0)
-    expect(rows[0].amountOwedCzk).toBe(rows[0].amountDueCzk - rows[0].amountPaidCzk)
+    for (const row of rows) expect(typeof row.amountOwedCzk).toBe("number")
   })
 
   it("combines term, status, gender and payment without losing other terms", async () => {
@@ -111,6 +112,71 @@ describe("application list API", () => {
     }[]
     expect(rows.length).toBeGreaterThan(0)
     expect(rows.every((row) => row.paymentStatus === "NOTHING_DUE")).toBe(true)
+  })
+
+  it("keeps the debt of a term when another term of the application is overpaid (D-088)", async () => {
+    const source = await prisma.application.findFirstOrThrow({
+      where: { eventId, terms: { some: {} } },
+      include: { terms: true },
+    })
+    // Two confirmed terms: 1 000 due paid with 1 500 (overpaid), 2 000 due paid with 500 (owes 1 500).
+    const [first, second] = source.terms
+    const otherTerm = await prisma.term.findFirstOrThrow({
+      where: { eventId, id: { not: first.termId } },
+    })
+    const secondTermId = second?.termId ?? otherTerm.id
+    const secondId =
+      second?.id ??
+      (
+        await prisma.applicationTerm.create({
+          data: {
+            organizationId: source.organizationId,
+            applicationId: source.id,
+            termId: secondTermId,
+            status: "CONFIRMED",
+            priceCzk: 2000,
+          },
+        })
+      ).id
+    await prisma.applicationTerm.update({
+      where: { id: first.id },
+      data: { status: "CONFIRMED", priceCzk: 1000 },
+    })
+    await prisma.applicationTerm.update({
+      where: { id: secondId },
+      data: { status: "CONFIRMED", priceCzk: 2000 },
+    })
+    const organizer = await prisma.user.findUniqueOrThrow({
+      where: { email: "organizator@example.com" },
+    })
+    await prisma.payment.deleteMany({
+      where: { applicationTermId: { in: [first.id, secondId] } },
+    })
+    await prisma.payment.createMany({
+      data: [
+        { applicationTermId: first.id, amountCzk: 1500 },
+        { applicationTermId: secondId, amountCzk: 500 },
+      ].map((payment) => ({
+        ...payment,
+        organizationId: source.organizationId,
+        receiptId: randomUUID(),
+        recordedById: organizer.id,
+      })),
+    })
+    const find = async (query: string) =>
+      ((await (await get(query)).json()) as { id: string }[]).map((row) => row.id)
+
+    const row = ((await (await get()).json()) as { id: string }[]).find(
+      (entry) => entry.id === source.id,
+    )
+    expect(row).toMatchObject({
+      amountOwedCzk: 1500,
+      paymentStatus: "PARTIALLY_PAID",
+    })
+    expect(await find("?payment=DEBT")).toContain(source.id)
+    expect(await find("?payment=PARTIALLY_PAID")).toContain(source.id)
+    expect(await find("?payment=OVERPAID")).not.toContain(source.id)
+    expect(await find("?payment=PAID")).not.toContain(source.id)
   })
 
   it("flags and filters applications with a request for individual accommodation (US-38)", async () => {

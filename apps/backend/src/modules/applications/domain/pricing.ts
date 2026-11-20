@@ -104,6 +104,40 @@ export function computeSummaryPayableAmount(
   )
 }
 
+type PricedTerm = {
+  status: ApplicationTermStatus
+  priceCzk: number
+  payments: { amountCzk: number }[]
+}
+
+/** Debt of an application: the positive debts of its confirmed terms, never offset by an overpayment elsewhere (D-088). */
+export function computeApplicationPayable(terms: PricedTerm[]): number {
+  return computeSummaryPayableAmount(
+    terms.map((term) => ({ status: term.status, owedCzk: computeTermOwed(term, term.payments) })),
+  )
+}
+
+/**
+ * Owed of an application in the list (US-52): its debt (see `computeApplicationPayable`). Only
+ * when no term owes anything it is the (negative) overpayment of its terms, so the list still shows it.
+ */
+export function computeApplicationOwed(terms: PricedTerm[]): number {
+  const payable = computeApplicationPayable(terms)
+  if (payable > 0) return payable
+  return terms.reduce((sum, term) => sum + Math.min(0, computeTermOwed(term, term.payments)), 0)
+}
+
+/** A confirmed term in debt makes the application unpaid whatever another term was overpaid (D-088). */
+export function computeApplicationPaymentStatus(terms: PricedTerm[]): PaymentStatus {
+  const owed = computeApplicationOwed(terms)
+  if (owed > 0) {
+    const paid = computeAmountPaid(terms.flatMap((term) => term.payments))
+    return paid === 0 ? "UNPAID" : "PARTIALLY_PAID"
+  }
+  if (owed < 0) return "OVERPAID"
+  return computeAmountDue(terms) === 0 ? "NOTHING_DUE" : "PAID"
+}
+
 export type AllocationTerm = {
   applicationTermId: string
   status: ApplicationTermStatus
