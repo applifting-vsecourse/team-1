@@ -29,8 +29,8 @@ type MagicLinkLandingProps = {
  * "Continue" — never by merely opening the page. A link that no longer works
  * leads straight to asking for a new one.
  */
-// Figma (Design system): S18 Vstup odkazem z e-mailu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=13183-22903
-// Figma (Design system): S15 Neplatný přihlašovací odkaz · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=13183-22953
+// Figma (Design system v2): #157 / Vstup odkazem z e-mailu · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=20162-2029 (mobil 20162-2056)
+// Figma (Design system v2): US-01 / Odkaz vypršel · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15315-90 (mobil 15315-123)
 export function MagicLinkLanding({ token, error }: MagicLinkLandingProps) {
   const { t } = useTranslation(["auth", "common"])
   const [phase, setPhase] = useState<"ready" | "checking" | "interrupted">("ready")
@@ -59,9 +59,7 @@ export function MagicLinkLanding({ token, error }: MagicLinkLandingProps) {
   // A link that cannot be used must not promise "Open your application".
   const title = t(canContinue ? "magicLink.title" : "magicLink.requestTitle")
 
-  // Figma: US-01 waiting for the verification response, Motion M01.
-  // Desktop https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15315-213
-  // Mobile https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15315-236
+  // Figma (Design system v2): #157 / Ověřování odkazu, Motion M01 · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=20162-2107 (mobil 20162-2127)
   // Figma v2: Interrupted verification, CZ/EN and both widths · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK?node-id=22516-2497
   if (canContinue && phase === "interrupted") {
     return (
@@ -111,6 +109,7 @@ export function MagicLinkLanding({ token, error }: MagicLinkLandingProps) {
               <p className="text-sm font-medium">{t("magicLink.checkingAccess")}</p>
             </div>
             <h1 className="text-2xl font-bold">{t("magicLink.verifying")}</h1>
+            <p>{t("magicLink.verifyingDescription")}</p>
           </div>
         </HeadingBand>
       </AccessCardLayout>
@@ -147,15 +146,10 @@ export function MagicLinkLanding({ token, error }: MagicLinkLandingProps) {
         description={t("magicLink.requestDescription")}
       >
         {error ? (
-          <Alert
-            variant="destructive"
-            className="border-destructive/30 bg-destructive/10"
-          >
+          <Alert variant="destructive">
             <CircleAlert />
             <AlertTitle>{t("magicLink.invalidTitle")}</AlertTitle>
-            <AlertDescription className="text-destructive/90">
-              {t("magicLink.invalidBody")}
-            </AlertDescription>
+            <AlertDescription>{t("magicLink.invalidBody")}</AlertDescription>
           </Alert>
         ) : null}
         <Card className="gap-4">

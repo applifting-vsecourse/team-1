@@ -14,7 +14,7 @@ export const Route = createFileRoute("/participant/set-password")({
 })
 
 // US-04 (S09). Mandatory after the first sign-in via magic link.
-// Figma (Design system): S09 První přístup a nové heslo · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=11968-221
+// Figma (Design system v2): US-04 / První nastavení · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15316-10038 (mobil 15316-10075)
 function SetPasswordPage() {
   const { t } = useTranslation("auth")
   const { user } = useSession()
@@ -26,10 +26,10 @@ function SetPasswordPage() {
     >
       <HeadingBand>
         <h1 className="text-2xl font-bold">{t("setPassword.title")}</h1>
-        <p className="mt-4 text-muted-foreground">{t("setPassword.description")}</p>
+        <p className="mt-4">{t("setPassword.description")}</p>
       </HeadingBand>
       <SetPasswordForm email={user?.email ?? ""} />
-      <p className="text-sm text-muted-foreground">{t("setPassword.footer")}</p>
+      <p className="text-sm">{t("setPassword.footer")}</p>
     </AccessCardLayout>
   )
 }

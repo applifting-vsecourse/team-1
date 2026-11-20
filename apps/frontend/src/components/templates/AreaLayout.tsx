@@ -13,6 +13,8 @@ type AreaLayoutProps = {
   nav: ReactNode
   /** Account type shown at the top of the workspace ("Organizátor", "Účastník"). */
   roleLabel: string
+  /** Where the page is ("Alpine Collective / Letní kemp Lipno 2027"); the desktop top bar shows it in place of the role label. */
+  context?: string
   /** The signed-in account at the bottom of the sidebar and the drawer (a slot: `components/` never imports from `features/`). */
   account: ReactNode
   /** `reading` for participant pages, `wide` (1200 px) for organizer tables. */
@@ -39,6 +41,7 @@ type AreaLayoutProps = {
 export function AreaLayout({
   nav,
   roleLabel,
+  context,
   account,
   width,
   logoTo,
@@ -67,7 +70,7 @@ export function AreaLayout({
             <Logo to={logoTo} />
           </div>
           <p className="hidden min-w-0 flex-1 truncate text-base font-medium md:block">
-            {roleLabel}
+            {context ?? roleLabel}
           </p>
           <div className="ml-auto flex items-center gap-1">{notifications}</div>
           <Sheet

@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import type { TFunction } from "i18next"
-import { CircleAlert, Loader2 } from "lucide-react"
+import { CircleAlert } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
@@ -44,6 +44,8 @@ type SignInFormProps = {
   onSubmit: (values: FormValues) => void | Promise<void>
 }
 
+// Figma (Design system v2): US-02 / Přihlášení přihlašovatele · chybné údaje · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=18571-1482
+// The failed sign-in alert sits above the fields, under the page description.
 export function SignInForm({
   emailHint,
   passwordHint,
@@ -70,6 +72,14 @@ export function SignInForm({
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col gap-4"
       >
+        {errorMessage ? (
+          <Alert variant="destructive">
+            <CircleAlert />
+            <AlertTitle>{t("form.errors.failedTitle")}</AlertTitle>
+            <AlertDescription>{errorMessage}</AlertDescription>
+          </Alert>
+        ) : null}
+
         <FormField
           control={form.control}
           name="email"
@@ -113,22 +123,14 @@ export function SignInForm({
           )}
         />
 
-        {errorMessage ? (
-          <Alert variant="destructive">
-            <CircleAlert />
-            <AlertTitle>{t("form.errors.failedTitle")}</AlertTitle>
-            <AlertDescription>{errorMessage}</AlertDescription>
-          </Alert>
-        ) : null}
-
         <Button
           type="submit"
           size="lg"
           className="w-full"
+          aria-busy={isLoading}
           disabled={isLoading}
         >
-          {isLoading ? <Loader2 className="animate-spin" /> : null}
-          {t("form.submit")}
+          {isLoading ? t("state.sending", { ns: "common" }) : t("form.submit")}
         </Button>
       </form>
     </Form>

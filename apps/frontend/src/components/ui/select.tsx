@@ -36,18 +36,14 @@ function SelectValue({ ...props }: React.ComponentProps<typeof SelectPrimitive.V
 // Figma: Togena / Forms / Select · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15187-21
 function SelectTrigger({
   className,
-  size = "default",
   children,
   ...props
-}: React.ComponentProps<typeof SelectPrimitive.Trigger> & {
-  size?: "sm" | "default"
-}) {
+}: React.ComponentProps<typeof SelectPrimitive.Trigger>) {
   return (
     <SelectPrimitive.Trigger
       data-slot="select-trigger"
-      data-size={size}
       className={cn(
-        "group/select flex w-full min-w-0 items-center justify-between gap-2 rounded-lg border border-field-border bg-card px-4 py-3 text-base whitespace-nowrap transition-[color,box-shadow] outline-none focus-visible:border-2 focus-visible:border-ring disabled:cursor-not-allowed disabled:opacity-45 aria-invalid:border-2 aria-invalid:border-field-error data-[placeholder]:text-muted-foreground data-[size=sm]:h-8 data-[size=sm]:px-3 data-[size=sm]:py-1 data-[size=sm]:text-sm *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground",
+        "group/select flex w-full min-w-0 items-center justify-between gap-2 rounded-lg border border-field-border bg-card px-4 py-3 text-base whitespace-nowrap transition-[color,box-shadow] outline-none focus-visible:border-2 focus-visible:border-ring disabled:cursor-not-allowed disabled:opacity-45 aria-invalid:border-2 aria-invalid:border-field-error data-[placeholder]:text-muted-foreground *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground",
         className,
       )}
       {...props}
@@ -57,7 +53,7 @@ function SelectTrigger({
         <img
           src={chevron}
           alt=""
-          className="shrink-0 group-data-[state=open]/select:rotate-180"
+          className="size-5 shrink-0 group-data-[state=open]/select:rotate-180"
         />
       </SelectPrimitive.Icon>
     </SelectPrimitive.Trigger>

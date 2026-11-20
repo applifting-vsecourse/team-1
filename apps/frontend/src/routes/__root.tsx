@@ -19,9 +19,13 @@ function RootComponent() {
   return (
     <>
       <Outlet />
+      {/* Figma (Design system v2): toast on a white surface, icon in the tone colour, close button
+          · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=19795-14950 */}
       <Toaster
-        richColors
+        closeButton
         position="bottom-right"
+        offset={24}
+        mobileOffset={16}
       />
     </>
   )

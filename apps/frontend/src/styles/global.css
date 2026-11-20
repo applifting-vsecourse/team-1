@@ -48,6 +48,11 @@
   --color-field-error: var(--field-error);
   --color-ring: var(--ring);
   --color-link: var(--link);
+  --color-wash: var(--wash);
+  --color-badge-neutral: var(--badge-neutral);
+  --color-badge-positive: var(--badge-positive);
+  --color-badge-danger: var(--badge-danger);
+  --color-badge-foreground: var(--badge-foreground);
   --color-status-success: var(--status-success);
   --color-status-success-bg: var(--status-success-bg);
   --color-status-warning: var(--status-warning);
@@ -115,6 +120,12 @@
   --input: #759398; /* color/border/control */
   --ring: #007f72; /* color/border/focus */
   --link: #006363; /* color/text/link */
+  --wash: #edf6f5; /* Togena / Color / wash: info alert, read-only panels */
+  /* Togena / Color: solid badge tones (Togena / Badge 15189:163) */
+  --badge-neutral: #50686d; /* muted */
+  --badge-positive: #007f72; /* teal */
+  --badge-danger: #b34640; /* danger */
+  --badge-foreground: #ffffff; /* text-on-accent */
   --status-success: #16634a; /* color/status/success */
   --status-success-bg: #eaf6f0; /* color/status/success-bg */
   --status-warning: #8a4b0e; /* color/status/warning */
@@ -174,6 +185,12 @@
   --input: #6e959e; /* color/border/control */
   --ring: #00bba7; /* color/border/focus */
   --link: #00bba7; /* color/text/link */
+  /* Togena / Color Dark has no wash sample in the DS frames; reuse color/bg/subtle. */
+  --wash: var(--secondary);
+  --badge-neutral: #b0c9c3;
+  --badge-positive: #8bdfc4;
+  --badge-danger: #ffaaa3;
+  --badge-foreground: #173438;
   --sidebar: #031011;
   --sidebar-foreground: #e4edee;
   --sidebar-accent: #005f5a;
@@ -374,33 +391,28 @@
   }
 }
 
-/* M01: two 800ms half-turns, then a 400ms hold until the next loop. */
+/* M01 (Figma Togena / Motion): the corners run one 1600ms loop, no hold; ends with the response. */
 @media (prefers-reduced-motion: no-preference) {
   .verifying-mark {
-    animation: verify-link 2s ease-in-out infinite;
+    animation: verify-link 1600ms ease-in-out infinite;
   }
   .verifying-mark > :last-child {
-    animation: verify-link-dot 2s ease-in-out infinite;
+    animation: verify-link-dot 1600ms ease-in-out infinite;
   }
   @keyframes verify-link {
-    0% {
+    from {
       transform: rotate(0deg);
     }
-    40% {
-      transform: rotate(180deg);
-    }
-    80%,
-    100% {
+    to {
       transform: rotate(360deg);
     }
   }
   @keyframes verify-link-dot {
     0%,
-    80%,
     100% {
       opacity: 1;
     }
-    40% {
+    50% {
       opacity: 0.45;
     }
   }
@@ -478,6 +490,21 @@
     }
     to {
       transform: translateX(0);
+    }
+  }
+}
+
+/* M10: an empty state's symbol settles once; the text never waits for it. */
+@media (prefers-reduced-motion: no-preference) {
+  .empty-state-symbol {
+    animation: empty-state-nudge 120ms ease-out;
+  }
+  @keyframes empty-state-nudge {
+    from {
+      transform: translateY(4px);
+    }
+    to {
+      transform: translateY(0);
     }
   }
 }
