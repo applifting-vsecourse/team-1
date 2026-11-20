@@ -35,6 +35,7 @@
   "characterCounter": "{{count}} / {{max}}",
   "clipboard": {
     "copied": "Zkopírováno do schránky",
+    "copiedField": "Údaj byl zkopírován.",
     "copyAccount": "Zkopírovat číslo účtu",
     "copyAmount": "Kopírovat částku",
     "copyVariableSymbol": "Zkopírovat variabilní symbol",

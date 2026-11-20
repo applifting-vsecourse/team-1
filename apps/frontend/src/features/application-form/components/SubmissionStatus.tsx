@@ -1,3 +1,4 @@
+import { useState, type ReactNode } from "react"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
 import { Info } from "lucide-react"
@@ -225,48 +226,33 @@ function PaymentCard({ payers, eventName }: { payers: SubmittedApplication[]; ev
         ))}
       </p>
       <dl className="flex flex-col gap-4">
-        <div className="flex flex-col gap-4">
-          <dt className="text-xs font-medium text-muted-foreground">
-            {t("confirmation.payment.account")}
-          </dt>
-          <dd className="flex min-w-0 items-center gap-2 text-lg font-semibold">
-            <span className="break-all">{first.payment.bankAccount}</span>
-            <CopyButton
-              value={first.payment.bankAccount}
-              label={t("common:clipboard.copyAccount")}
-            />
-          </dd>
-        </div>
+        <PaymentCopyField
+          label={t("confirmation.payment.account")}
+          value={first.payment.bankAccount}
+          copyLabel={t("common:clipboard.copyAccount")}
+        />
         {payments.map(({ application, payment, spayd }) => (
-          <div
+          <PaymentCopyField
             key={application.variableSymbol}
-            className="flex flex-col gap-4"
-          >
-            <dt className="text-xs font-medium text-muted-foreground">
-              {hasSeveralPayers
+            label={
+              hasSeveralPayers
                 ? t("confirmation.payment.variableSymbolOf", {
                     name: application.firstName,
                     amount: formatCzk(payment.summary.payableCzk),
                   })
-                : t("confirmation.payment.variableSymbol")}
-            </dt>
-            <dd className="flex min-w-0 items-center gap-2 text-lg font-semibold">
-              <span className="break-all">{payment.summary.variableSymbol}</span>
-              <CopyButton
-                value={payment.summary.variableSymbol}
-                label={t("common:clipboard.copyVariableSymbol")}
-              />
-            </dd>
+                : t("confirmation.payment.variableSymbol")
+            }
+            value={payment.summary.variableSymbol}
+            copyLabel={t("common:clipboard.copyVariableSymbol")}
+          >
             {spayd && (
-              <dd>
-                <PaymentQrDownload
-                  key={spayd}
-                  spayd={spayd}
-                  variableSymbol={payment.summary.variableSymbol}
-                />
-              </dd>
+              <PaymentQrDownload
+                key={spayd}
+                spayd={spayd}
+                variableSymbol={payment.summary.variableSymbol}
+              />
             )}
-          </div>
+          </PaymentCopyField>
         ))}
       </dl>
       {hasSeveralPayers ? (
@@ -350,5 +336,47 @@ function AccountCard({
         </Button>
       )}
     </>
+  )
+}
+
+// Figma v2: platební údaj po odeslání · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/?node-id=19034-13976
+function PaymentCopyField({
+  label,
+  value,
+  copyLabel,
+  children,
+}: {
+  label: string
+  value: string
+  copyLabel: string
+  children?: ReactNode
+}) {
+  const { t } = useTranslation("common")
+  const [copiedValue, setCopiedValue] = useState<string | null>(null)
+  return (
+    <div className="flex min-w-0 flex-col gap-2">
+      <dt className="text-sm font-medium">{label}</dt>
+      <dd className="flex min-w-0 items-center gap-3">
+        <span className="min-w-0 flex-1 rounded-control border border-field-border bg-card px-4 py-3 text-base break-all">
+          {value}
+        </span>
+        <span className="grid size-12 shrink-0 place-items-center">
+          <CopyButton
+            value={value}
+            label={copyLabel}
+            onCopyResult={(wasCopied) => setCopiedValue(wasCopied ? value : null)}
+          />
+        </span>
+      </dd>
+      {copiedValue === value && (
+        <dd
+          aria-hidden="true"
+          className="text-sm text-primary dark:text-link"
+        >
+          {t("clipboard.copiedField")}
+        </dd>
+      )}
+      {children && <dd className="mt-2">{children}</dd>}
+    </div>
   )
 }
