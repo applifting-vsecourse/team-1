@@ -259,7 +259,11 @@ function RoomOverviewCard({ room }: { room: AssignmentRoom }) {
                   variant="secondary"
                   className="print:border-0 print:bg-transparent print:p-0 print:font-normal print:text-black/70 print:lowercase"
                 >
-                  {room.gender ? roomGenderLabel(room.gender) : t("roomOverview.mixed")}
+                  {room.individual
+                    ? t("rooms.individual")
+                    : room.gender
+                      ? roomGenderLabel(room.gender)
+                      : t("roomOverview.mixed")}
                 </Badge>
               </div>
               <div className="flex items-center gap-3">

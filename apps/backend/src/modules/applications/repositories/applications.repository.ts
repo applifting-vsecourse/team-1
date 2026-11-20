@@ -11,6 +11,7 @@ import { EvaluatedTerm } from "@/modules/applications/domain/evaluation"
 import { EvaluationMode } from "@/modules/applications/domain/evaluation-mode"
 import { OccupancySnapshot } from "@/modules/applications/domain/submission"
 import { termLabel } from "@/modules/applications/domain/term-label"
+import { ROOM_CAPACITY_SELECT } from "@/modules/applications/repositories/room-capacity.select"
 import { AppException } from "@/shared/errors/app.exception"
 import { isoDate } from "@/shared/utils/iso-date"
 import { HttpStatus, Injectable } from "@nestjs/common"
@@ -125,7 +126,7 @@ export class ApplicationsRepository {
       const [rooms, confirmed] = await Promise.all([
         tx.room.findMany({
           where: { termId: { in: termIds } },
-          select: { termId: true, capacity: true, extraBeds: true, gender: true },
+          select: { termId: true, ...ROOM_CAPACITY_SELECT },
         }),
         tx.applicationTerm.findMany({
           where: { termId: { in: termIds }, status: "CONFIRMED" },
@@ -138,8 +139,8 @@ export class ApplicationsRepository {
       }
 
       const roomsByTerm: OccupancySnapshot["roomsByTerm"] = {}
-      for (const { termId, capacity, extraBeds, gender } of rooms) {
-        roomsByTerm[termId] = [...(roomsByTerm[termId] ?? []), { capacity, extraBeds, gender }]
+      for (const { termId, ...room } of rooms) {
+        roomsByTerm[termId] = [...(roomsByTerm[termId] ?? []), room]
       }
 
       const evaluated = evaluate({ roomsByTerm, confirmedGenders }, locked.evaluationMode)

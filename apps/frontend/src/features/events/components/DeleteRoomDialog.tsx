@@ -53,6 +53,8 @@ export function DeleteRoomDialog({
     ].filter((person) => person.status === "CONFIRMED").length
   const before =
     term.roomMode === "GENDERED" && room.gender ? term.capacity[room.gender] : term.capacity.total
+  const occupiedBy = room.occupiedBy ?? { FEMALE: 0, MALE: 0 }
+  const occupied = occupiedBy.FEMALE + occupiedBy.MALE
   return (
     <Dialog
       open
@@ -102,24 +104,45 @@ export function DeleteRoomDialog({
             </div>
             <Alert className="border-status-warning bg-status-warning-bg p-6">
               <AlertTitle className="text-lg text-status-warning">
-                {t(
-                  term.roomMode === "SHARED"
-                    ? "rooms.deleteImpact"
-                    : room.gender === "FEMALE"
-                      ? "rooms.deleteFemaleImpact"
-                      : "rooms.deleteMaleImpact",
-                  { before, count: before - room.beds },
-                )}
+                {room.individual
+                  ? t(
+                      occupied > 0 ? "rooms.deleteIndividualImpact" : "rooms.deleteIndividualEmpty",
+                      {
+                        femaleBefore: term.capacity.FEMALE,
+                        femaleAfter: term.capacity.FEMALE - occupiedBy.FEMALE,
+                        maleBefore: term.capacity.MALE,
+                        maleAfter: term.capacity.MALE - occupiedBy.MALE,
+                      },
+                    )
+                  : t(
+                      term.roomMode === "SHARED"
+                        ? "rooms.deleteImpact"
+                        : room.gender === "FEMALE"
+                          ? "rooms.deleteFemaleImpact"
+                          : "rooms.deleteMaleImpact",
+                      { before, count: before - room.beds },
+                    )}
               </AlertTitle>
-              <AlertDescription>
-                {t("rooms.deleteImpactHint", { name: room.name, count: room.beds })}
-              </AlertDescription>
+              {room.individual ? (
+                // Its beds count into the capacity only while occupied (US-145).
+                occupied > 0 ? (
+                  <AlertDescription>
+                    {t("rooms.deleteIndividualHint", { count: occupied })}
+                  </AlertDescription>
+                ) : null
+              ) : (
+                <AlertDescription>
+                  {t("rooms.deleteImpactHint", { name: room.name, count: room.beds })}
+                </AlertDescription>
+              )}
             </Alert>
             <DialogDescription className="text-base text-foreground">
               {room.name}
               {room.gender
                 ? ` · ${t(room.gender === "FEMALE" ? "rooms.female" : "rooms.male")}`
-                : ""}{" "}
+                : room.individual
+                  ? ` · ${t("rooms.individual")}`
+                  : ""}{" "}
               · {t("rooms.beds", { count: room.beds })}
             </DialogDescription>
             <p className="text-sm text-muted-foreground">{t("rooms.deleteHint")}</p>

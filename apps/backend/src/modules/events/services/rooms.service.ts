@@ -1,4 +1,4 @@
-import { computeRoomCapacity } from "@/modules/applications/domain/capacity"
+import { computeIndividualBeds, computeRoomCapacity } from "@/modules/applications/domain/capacity"
 import { BulkRoomsPlan, BulkRoomsResult } from "@/modules/events/domain/bulk-rooms"
 import {
   RoomCopyStrategy,
@@ -26,7 +26,13 @@ export class RoomsService {
 
   async list(user: Identity, eventId: string, termId: string): Promise<TermRooms> {
     const term = await this.repository.find(await this.scope(user, eventId, termId))
-    return { ...term, capacity: computeRoomCapacity(term.rooms) }
+    return {
+      ...term,
+      capacity: {
+        ...computeRoomCapacity(term.rooms),
+        individualBeds: computeIndividualBeds(term.rooms),
+      },
+    }
   }
 
   async setMode(

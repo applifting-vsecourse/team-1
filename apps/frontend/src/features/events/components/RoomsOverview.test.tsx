@@ -35,7 +35,17 @@ const room = (
   participants: ReturnType<typeof person>[] = [],
   extraBeds = 0,
   gender: "FEMALE" | "MALE" | null = "FEMALE",
-) => ({ id, name, capacity, extraBeds, beds: capacity + extraBeds, gender, participants })
+  isIndividual = false,
+) => ({
+  id,
+  name,
+  capacity,
+  extraBeds,
+  beds: capacity + extraBeds,
+  gender,
+  individual: isIndividual,
+  participants,
+})
 const warning = (over: Partial<RoomWarning> = {}): RoomWarning => ({
   kind: "OVERCROWDED",
   roomId: "r2",
@@ -111,6 +121,28 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllGlobals())
 
 describe("RoomsOverview (US-36)", () => {
+  // US-145: the organizer sees where everybody sleeps, the individual room is marked.
+  it("shows an individual room with its people and a label instead of a gender", async () => {
+    data.rooms.push(
+      room(
+        "r3",
+        "Family room",
+        4,
+        [person("p6", "Petra", "Rodinná"), person("p7", "Pavel", "Rodinný")],
+        0,
+        null,
+        true,
+      ),
+    )
+    renderOverview()
+    const family = within(await roomCard("Family room"))
+    expect(family.getByText("Petra Rodinná")).toBeInTheDocument()
+    expect(family.getByText("Pavel Rodinný")).toBeInTheDocument()
+    expect(family.getByText("2 / 4")).toBeInTheDocument()
+    expect(family.getByText("Individual")).toBeInTheDocument()
+    expect(family.queryByText("Mixed")).not.toBeInTheDocument()
+  })
+
   it("lists every room with its people, birth years, free beds and extra beds (AC1, AC2)", async () => {
     renderOverview()
     const a = within(await roomCard("Room A"))

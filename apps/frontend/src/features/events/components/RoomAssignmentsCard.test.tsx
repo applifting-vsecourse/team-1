@@ -116,11 +116,12 @@ const warning = (over: Partial<RoomWarning>): RoomWarning => ({
 })
 
 let data = base()
+let client = new QueryClient()
 const term = { eventId: "e1", termId: "t1", startsOn: "2027-07-12", endsOn: "2027-07-18" }
 
 function renderCard() {
   get.mockImplementation(() => ({ json: () => Promise.resolve(data) }))
-  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+  client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   render(
     <QueryClientProvider client={client}>
       <RoomAssignmentsCard
@@ -749,6 +750,37 @@ describe("room assignment", () => {
       expect(
         await screen.findByText("Mixed genders are not checked in shared rooms."),
       ).toBeInTheDocument()
+    })
+
+    // US-145: a gendered term with only individual rooms (no gender) is not a shared-rooms term.
+    it("does not call a term with only individual rooms shared", async () => {
+      overcrowded()
+      data = {
+        ...data,
+        rooms: data.rooms.map((item) => ({ ...item, gender: null, individual: true })),
+      }
+      renderCard()
+      await screen.findByText("Barbora Šimková")
+      expect(
+        screen.queryByText("Mixed genders are not checked in shared rooms."),
+      ).not.toBeInTheDocument()
+    })
+  })
+
+  // US-145: an assignment can change the capacity, so the other pages of the event refetch.
+  it("marks the rooms, capacity and occupancy of the event stale after an assignment", async () => {
+    renderCard()
+    await screen.findByText("Barbora Šimková")
+    const keys = [
+      ["events", "e1", "rooms", "t1"],
+      ["events", "e1", "capacity"],
+      ["events", "e1", "occupancy"],
+    ]
+    for (const key of keys) client.setQueryData(key, {})
+    drop(dragFrom("p1", "Jana Nováková", "r1"), "r3")
+    await waitFor(() => expect(put).toHaveBeenCalled())
+    await waitFor(() => {
+      for (const key of keys) expect(client.getQueryState(key)?.isInvalidated).toBe(true)
     })
   })
 

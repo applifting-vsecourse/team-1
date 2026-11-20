@@ -40,6 +40,16 @@ export class RoomRequestDto {
   @ValidateIf((_object, value: unknown) => value !== null && value !== undefined)
   @IsIn(["FEMALE", "MALE"])
   gender?: Gender | null
+
+  @ApiProperty({
+    required: false,
+    default: false,
+    description:
+      "Individual (mixed, family) room of a gendered term (US-145): no gender, counted into the capacity by occupancy, no mixed-gender warning",
+  })
+  @IsOptional()
+  @IsBoolean()
+  individual?: boolean
 }
 
 export class RoomExtraBedsRequestDto {

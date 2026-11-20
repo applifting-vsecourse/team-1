@@ -91,7 +91,12 @@ describe("extra beds of a room (integration)", () => {
     expect((await setExtraBeds(2)).status).toBe(204)
     const [room] = (await rooms(termId)).rooms
     expect(room).toMatchObject({ capacity: 4, extraBeds: 2, beds: 6 })
-    expect((await rooms(termId)).capacity).toEqual({ FEMALE: 6, MALE: 0, total: 6 })
+    expect((await rooms(termId)).capacity).toEqual({
+      FEMALE: 6,
+      MALE: 0,
+      total: 6,
+      individualBeds: 0,
+    })
     const terms = await capacities()
     expect(terms[termId].capacity).toEqual({ FEMALE: 6, MALE: 0 })
     expect(terms[termId].freePlaces).toEqual({ FEMALE: 6, MALE: 0 })
@@ -107,7 +112,12 @@ describe("extra beds of a room (integration)", () => {
   it("counts the extra beds once in the shared pool", async () => {
     expect((await call(termId, "/room-mode", "PATCH", { roomMode: "SHARED" })).status).toBe(204)
     expect((await setExtraBeds(3)).status).toBe(204)
-    expect((await rooms(termId)).capacity).toEqual({ FEMALE: 0, MALE: 0, total: 7 })
+    expect((await rooms(termId)).capacity).toEqual({
+      FEMALE: 0,
+      MALE: 0,
+      total: 7,
+      individualBeds: 0,
+    })
     expect((await capacities())[termId].freePlaces).toEqual({ FEMALE: 7, MALE: 7 })
     await call(termId, "/room-mode", "PATCH", {
       roomMode: "GENDERED",
