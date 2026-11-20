@@ -80,7 +80,7 @@ export function EventPage({ event }: { event: CatalogEventDetail }) {
                     isProminent
                   />
                   <TermPrice
-                    className="text-base/5.5 font-bold tabular-nums"
+                    className="min-h-6.5 text-base/5.5 font-bold tabular-nums"
                     amountCzk={term.priceCzk}
                   />
                 </li>
