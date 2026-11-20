@@ -74,7 +74,7 @@ describe("annotateStatement", () => {
     expect(annotate(text, outcome, "en").split("\n")[0]).toBe(`${HEADER};Matching result`)
   })
 
-  it("names the confirmed terms for a summary variable symbol", () => {
+  it("says it was a summary payment for a summary variable symbol", () => {
     const text = `${HEADER}\n1;05.05.2026;5000;CZK;X;12000;`
     const outcome: RowOutcome = {
       kind: "matched",
@@ -82,10 +82,20 @@ describe("annotateStatement", () => {
       applicantName: "Hana Novotná",
     }
     expect(annotate(text, () => outcome, "cs")).toContain(
-      ";Spárováno: přihláška č. 12 (Hana Novotná), potvrzené termíny",
+      ";Spárováno: přihláška č. 12 (Hana Novotná), souhrnná platba",
     )
     expect(annotate(text, () => outcome, "en")).toContain(
-      ";Matched: application no. 12 (Hana Novotná), confirmed terms",
+      ";Matched: application no. 12 (Hana Novotná), summary payment",
+    )
+  })
+
+  it("puts the result under its header when a row lacks the trailing empty columns", () => {
+    const text = "ID operace;Datum;Objem;VS;Zpráva pro příjemce\n1;05.05.2026;100;12001"
+    expect(annotate(text, () => ({ kind: "duplicate" }), "en")).toBe(
+      [
+        "ID operace;Datum;Objem;VS;Zpráva pro příjemce;Matching result",
+        "1;05.05.2026;100;12001;;Skipped: already imported earlier",
+      ].join("\n"),
     )
   })
 

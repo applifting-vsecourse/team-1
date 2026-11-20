@@ -1,5 +1,5 @@
 import { Locale } from "@/core/email/locale"
-import { UnmatchedReason } from "@/modules/payments/domain/bank-statement"
+import { splitCsv, UnmatchedReason } from "@/modules/payments/domain/bank-statement"
 
 /** What happened to one row of the uploaded statement (US-561). */
 export type RowOutcome =
@@ -7,7 +7,7 @@ export type RowOutcome =
       kind: "matched"
       applicationNumber: number
       applicantName: string
-      /** Undefined = summary symbol, the payment went to the confirmed terms. */
+      /** Undefined = summary symbol, the payment is spread over the terms of the application. */
       termNumber?: number
     }
   | { kind: "unmatched"; reason: UnmatchedReason }
@@ -29,7 +29,7 @@ const COPY: Record<Locale, Copy> = {
     header: "Výsledek párování",
     matched: (outcome) =>
       `Spárováno: přihláška č. ${outcome.applicationNumber} (${outcome.applicantName}), ` +
-      (outcome.termNumber === undefined ? "potvrzené termíny" : `termín ${outcome.termNumber}`),
+      (outcome.termNumber === undefined ? "souhrnná platba" : `termín ${outcome.termNumber}`),
     unmatched: {
       NO_VARIABLE_SYMBOL: "Nespárováno: chybí variabilní symbol",
       UNKNOWN_VARIABLE_SYMBOL:
@@ -44,7 +44,7 @@ const COPY: Record<Locale, Copy> = {
     header: "Matching result",
     matched: (outcome) =>
       `Matched: application no. ${outcome.applicationNumber} (${outcome.applicantName}), ` +
-      (outcome.termNumber === undefined ? "confirmed terms" : `term ${outcome.termNumber}`),
+      (outcome.termNumber === undefined ? "summary payment" : `term ${outcome.termNumber}`),
     unmatched: {
       NO_VARIABLE_SYMBOL: "Unmatched: no variable symbol",
       UNKNOWN_VARIABLE_SYMBOL:
@@ -101,11 +101,18 @@ export function annotateStatement(
     if (outcome.kind === "unmatched") return copy.unmatched[outcome.reason]
     return outcome.kind === "duplicate" ? copy.duplicate : copy.ignored
   }
-  return splitRecords(text)
+  const records = splitRecords(text)
+  const width = splitCsv(records[headerRecord]?.content ?? "", DELIMITER)[0]?.length ?? 0
+  // The parser accepts a row without its trailing empty columns; the result still goes under its header.
+  const added = (content: string, value: string): string => {
+    const missing = Math.max(width - (splitCsv(content, DELIMITER)[0]?.length ?? 0), 0)
+    return `${content}${DELIMITER.repeat(missing)}${DELIMITER}${cell(value)}`
+  }
+  return records
     .map(({ content, eol }, index) => {
       const outcome = outcomes.get(index)
-      if (index === headerRecord) return `${content}${DELIMITER}${cell(copy.header)}${eol}`
-      return outcome ? `${content}${DELIMITER}${cell(describe(outcome))}${eol}` : `${content}${eol}`
+      if (index === headerRecord) return `${added(content, copy.header)}${eol}`
+      return `${outcome ? added(content, describe(outcome)) : content}${eol}`
     })
     .join("")
 }

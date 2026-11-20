@@ -177,7 +177,7 @@ describe("bank statement import (US-42)", () => {
     expect(first[2]).toBe(`${original[2]};Nespárováno: chybí variabilní symbol`)
     expect(first[3]).toBe(`${original[3]};Přeskočeno: odchozí platba`)
     expect(first[4]).toBe(
-      `${original[4]};Spárováno: přihláška č. ${confirmedNumber} (Bank Test), potvrzené termíny`,
+      `${original[4]};Spárováno: přihláška č. ${confirmedNumber} (Bank Test), souhrnná platba`,
     )
 
     // The same file again: the rows paid before are not counted twice, and the copy says so.
