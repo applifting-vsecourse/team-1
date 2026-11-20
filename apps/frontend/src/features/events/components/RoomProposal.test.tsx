@@ -85,6 +85,29 @@ describe("room proposal (US-147)", () => {
     for (const mock of [get, post, success]) mock.mockReset()
   })
 
+  // US-145: an individual room has no gender, but it does not make the rooms shared.
+  it("names the gender of the missing beds next to an individual room", async () => {
+    data = {
+      ...base(),
+      rooms: [
+        room("r1", "Room A", 2),
+        { ...room("r5", "Family", 4), gender: null, individual: true },
+      ],
+    }
+    const original = proposal.unplaced
+    proposal.unplaced = [{ applicationTermId: "p2", reason: "NO_FREE_BED" }]
+    try {
+      const user = renderProposal()
+      await user.click(await screen.findByRole("button", { name: "Propose distribution" }))
+      expect(
+        await screen.findByText("There is no free bed in the women's rooms.", { exact: false }),
+      ).toBeInTheDocument()
+      expect(screen.queryByText("There is no free bed.", { exact: false })).not.toBeInTheDocument()
+    } finally {
+      proposal.unplaced = original
+    }
+  })
+
   // US-145: the proposal never fills individual rooms, so with only those there is nothing to propose.
   it("offers no proposal when the term has only individual rooms", async () => {
     data = {
