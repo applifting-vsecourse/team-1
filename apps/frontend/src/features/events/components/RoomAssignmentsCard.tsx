@@ -27,7 +27,6 @@ import { notify } from "@/lib/notify"
 
 import {
   assignRoom,
-  roomAssignmentsKey,
   roomAssignmentsQueryOptions,
   unassignRoom,
   type AssignmentParticipant,
@@ -127,8 +126,9 @@ export function RoomAssignmentsCard({
     useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 8 } }),
   )
 
-  const refresh = () =>
-    client.invalidateQueries({ queryKey: roomAssignmentsKey(term.eventId, term.termId) })
+  // An assignment can change the capacity (beds of an individual room count by occupancy, US-145),
+  // so the rooms, the capacity and the occupancy of the event are stale as well.
+  const refresh = () => client.invalidateQueries({ queryKey: ["events", term.eventId] })
   const assign = useMutation({
     mutationFn: (input: { applicationTermId: string; roomId: string }) =>
       assignRoom(term.eventId, term.termId, input.applicationTermId, input.roomId),
