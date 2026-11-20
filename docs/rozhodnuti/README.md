@@ -2,7 +2,7 @@
 
 > Generováno z [`rozhodnuti.yaml`](rozhodnuti.yaml) (`python generate.py`). Needituj, měň YAML.
 
-**164 platných**, 0 návrhů, 4 nahrazených nebo zrušených.
+**169 platných**, 0 návrhů, 4 nahrazených nebo zrušených.
 
 ## Návrhy čekající na PM
 
@@ -77,6 +77,7 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-173](#d-173) | Vlastní doprava zůstává volný text bez času a místa příjezdu | 2026-11-20 | `pm` | produkt |
 | [D-155](#d-155) | Kopírování programu mezi termíny | 2026-11-14 | `pm` | produkt |
 | [D-123](#d-123) | Program akce: jeden program po termínech, vidí potvrzení | 2026-11-14 | `pm` | produkt |
 | [D-124](#d-124) | Doprava patří k termínu, bez kapacity a ceny | 2026-11-09 | `pm` | produkt |
@@ -109,6 +110,8 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-170](#d-170) | Souhrnná platba přihlášky s archivovanými termíny se nepřiděluje | 2026-11-20 | `pm` | produkt |
+| [D-169](#d-169) | E-mail o doplacení z importu výpisu chodí jednou za přihlášku | 2026-11-20 | `pm` | produkt |
 | [D-164](#d-164) | Dialog změny termínu: částka k úhradě místo platby | 2026-11-18 | `pm` | produkt |
 | [D-156](#d-156) | Lhůta na zaplacení: 1–60 dní, změna platí jen pro nově potvrzené | 2026-11-14 | `pm` | produkt |
 | [D-125](#d-125) | Import plateb: CSV z jedné banky nebo jednoduchý generický formát | 2026-11-11 | `pm` | produkt |
@@ -146,6 +149,7 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-172](#d-172) | Přehled akce: cílem je US-51 „Co vyžaduje pozornost“ | 2026-11-20 | `pm` | produkt |
 | [D-114](#d-114) | Přehled akce je dashboard; po přihlášení poslední otevřená akce | 2026-11-07 | `pm` | produkt |
 | [D-050](#d-050) | Dashboard organizátora se vrací | 2026-10-28 | `pm` | produkt |
 | [D-042](#d-042) | Dashboard organizátora se ruší | 2026-10-25 | `tech-lead` | produkt |
@@ -234,6 +238,7 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-171](#d-171) | Pokoj s přiřazenými účastníky nejde smazat | 2026-11-20 | `pm` | produkt |
 | [D-165](#d-165) | Řazení nabídky pokojů při přiřazení | 2026-11-18 | `pm` | produkt |
 | [D-162](#d-162) | Spolubydlící v Moje přihláška se zatím neukazují | 2026-11-18 | `pm` | produkt |
 | [D-161](#d-161) | Individuální ubytování: zobrazení, viditelnost a navazující story | 2026-11-15 | `pm` | produkt |
@@ -2154,3 +2159,52 @@ _Nic._
 - **Zdroj:** [issue #484 (US-140), sekce „Změna rozsahu 18. 11. 2026 (PM)“ a poznámka PM 19. 11. po review PR #591](https://github.com/applifting-vsecourse/team-1/issues/484)
 - **Mění:** [D-142](#d-142)
 - **Poznámka:** Mění větu D-142 „Zbytek organizátor zařadí mezi náhradníky druhou hromadnou akcí; jeden krok „potvrdit, kdo se vejde, zbytek mezi náhradníky“ je požadavek PO pro Sprint 4“: v jednom kroku se zbylé podle volby organizátora zařadí mezi náhradníky, nebo zamítnou. Zbytek D-142 (jeden termín, potvrzení v pořadí přijetí jen těch, kdo se vejdou, nad kapacitu jen jednotlivě podle D-059, dvoukroková varianta US-107/US-108 zůstává) platí. Procesní a stavový diagram ručního vyhodnocování už přechod K vyhodnocení → Zrušená zamítnutím obsahují, beze změny.
+
+<a id="d-169"></a>
+
+### D-169 – E-mail o doplacení z importu výpisu chodí jednou za přihlášku
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** platby
+- **Datum:** 2026-11-20 · **Rozhodl:** `pm`
+- **Text:** E-mail č. 8 (PAYMENT_SETTLED) po souhrnné platbě odejde jednou za přihlášku a obsahuje všechny termíny, které platba doplatila. Neodesílá se zvlášť za každý termín. Platí znění v katalogu e-mailů.
+- **Dotčené US:** [US-148](https://github.com/applifting-vsecourse/team-1/issues/508)
+- **Zdroj:** [odpověď PM v PR #644 (US-148), 20. 11. 2026](https://github.com/applifting-vsecourse/team-1/pull/644#issuecomment-7039707032)
+
+<a id="d-170"></a>
+
+### D-170 – Souhrnná platba přihlášky s archivovanými termíny se nepřiděluje
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** platby
+- **Datum:** 2026-11-20 · **Rozhodl:** `pm`
+- **Text:** Platba na souhrnný variabilní symbol přihlášky, která má jen archivované termíny, se archivované přihlášce v termínu nepřiděluje (D-110). Při importu výpisu se uloží jako nespárovaná k ručnímu přiřazení; nová hodnota výčtu ani zápis přeplatku na poslední termín se nezavádí.
+- **Dotčené US:** [US-148](https://github.com/applifting-vsecourse/team-1/issues/508)
+- **Zdroj:** [odpověď PM v PR #644 (US-148), 20. 11. 2026](https://github.com/applifting-vsecourse/team-1/pull/644#issuecomment-7039707032)
+- **Poznámka:** Upřesňuje D-110 pro import výpisu (US-148).
+
+<a id="d-171"></a>
+
+### D-171 – Pokoj s přiřazenými účastníky nejde smazat
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** ubytování
+- **Datum:** 2026-11-20 · **Rozhodl:** `pm`
+- **Text:** Pokoj, ve kterém jsou přiřazení účastníci, nelze smazat (chyba 409 ROOM_HAS_ASSIGNMENTS). Organizátor nejdřív účastníky odebere. Přiřazení se při mazání pokoje neruší automaticky.
+- **Zdroj:** [PM v chatu k otázce 1 z PR #577, 20. 11. 2026](https://github.com/applifting-vsecourse/team-1/pull/577#issuecomment-7028301496)
+- **Poznámka:** Do kódu přišlo v PR #577; PM ještě zkontroluje implementaci.
+
+<a id="d-172"></a>
+
+### D-172 – Přehled akce: cílem je US-51 „Co vyžaduje pozornost“
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** přehledy
+- **Datum:** 2026-11-20 · **Rozhodl:** `pm`
+- **Text:** Cílový rámec přehledu akce je US-51 (karty „Co vyžaduje pozornost“), ne metrické dlaždice z rámce US-13.
+- **Zdroj:** [PM v chatu k otázce 2 z PR #577, 20. 11. 2026](https://github.com/applifting-vsecourse/team-1/pull/577#issuecomment-7028301496)
+
+<a id="d-173"></a>
+
+### D-173 – Vlastní doprava zůstává volný text bez času a místa příjezdu
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** logistika
+- **Datum:** 2026-11-20 · **Rozhodl:** `pm`
+- **Text:** U vlastní dopravy organizátor zadává jen volný text s pokyny. Strukturovaný čas ani místo příjezdu se neevidují a do rozsahu nepatří, i když je Figma kreslí. Přihlašovatel má v přihlášce telefon (už je nasazený).
+- **Zdroj:** [PM v chatu k otázkám 3 a 4 z PR #577, 20. 11. 2026](https://github.com/applifting-vsecourse/team-1/pull/577#issuecomment-7028301496)
