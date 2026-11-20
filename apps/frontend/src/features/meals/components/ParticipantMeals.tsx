@@ -4,12 +4,12 @@ import { useNavigate } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { CheckboxRow } from "@/components/molecules/CheckboxRow"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { PageHeader } from "@/components/molecules/PageHeader"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -153,14 +153,14 @@ function MealsForm({ applicationId, meals }: { applicationId: string; meals: Own
             <AlertDescription>{mutation.error.message}</AlertDescription>
           </Alert>
         ) : null}
-        <Button
+        <PendingButton
+          isPending={mutation.isPending}
           type="submit"
           size="lg"
           className="w-full sm:w-auto sm:self-start"
-          disabled={mutation.isPending}
         >
           {t("own.save")}
-        </Button>
+        </PendingButton>
       </Card>
     </form>
   )

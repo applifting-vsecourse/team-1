@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { DetailItem } from "@/components/molecules/DetailItem"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
@@ -384,7 +385,8 @@ export function ParticipantTermChange({
               {t("change.discard")}
             </Button>
             {!options.isPending && !options.isError ? (
-              <Button
+              <PendingButton
+                isPending={mutation.isPending}
                 size="lg"
                 className="flex-2"
                 variant={mode === "cancel" && isImmediate ? "destructive" : "default"}
@@ -400,7 +402,7 @@ export function ParticipantTermChange({
                         ? "change.confirmCancel"
                         : "change.confirmChange",
                 )}
-              </Button>
+              </PendingButton>
             ) : null}
           </DialogFooter>
         </div>

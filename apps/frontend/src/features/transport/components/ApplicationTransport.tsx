@@ -4,10 +4,10 @@ import { useNavigate } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { Seo } from "@/components/atoms/Seo"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
-import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
@@ -182,17 +182,17 @@ export function ApplicationTransport({ applicationId }: { applicationId: string 
           />
         ) : null}
         {terms.length > 0 ? (
-          <Button
+          <PendingButton
             size="lg"
             className="h-12 w-full"
-            aria-busy={mutation.isPending}
+            isPending={mutation.isPending}
             disabled={mutation.isPending || Object.keys(changes).length === 0}
             onClick={() => {
               mutation.mutate()
             }}
           >
             {mutation.isPending ? t("state.saving", { ns: "common" }) : t("chooseSave")}
-          </Button>
+          </PendingButton>
         ) : null}
       </DialogContent>
     </Dialog>

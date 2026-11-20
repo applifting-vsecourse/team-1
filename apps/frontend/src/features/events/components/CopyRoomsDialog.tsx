@@ -1,8 +1,8 @@
 import { useRef, useState } from "react"
 import { useMutation, useQuery } from "@tanstack/react-query"
-import { Loader2 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -333,7 +333,8 @@ export function CopyRoomsDialog({
             {t(isPreview ? "rooms.copy.back" : "rooms.copy.cancel")}
           </Button>
 
-          <Button
+          <PendingButton
+            isPending={mutation.isPending}
             size="lg"
             className="sm:w-auto"
             disabled={!isReady || mutation.isPending}
@@ -342,7 +343,6 @@ export function CopyRoomsDialog({
               else setPreview(true)
             }}
           >
-            {mutation.isPending ? <Loader2 className="animate-spin" /> : null}
             {!isPreview
               ? t("rooms.copy.preview")
               : !hasTargetRooms
@@ -350,7 +350,7 @@ export function CopyRoomsDialog({
                 : isReplacing
                   ? t("rooms.copy.replaceConfirm")
                   : t("rooms.copy.addConfirm", { count: sourceRooms.length })}
-          </Button>
+          </PendingButton>
         </DialogFooter>
       </DialogContent>
     </Dialog>

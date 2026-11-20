@@ -6,9 +6,9 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { PasswordInput } from "@/components/molecules/PasswordInput"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Button } from "@/components/ui/button"
 import {
   Form,
   FormControl,
@@ -123,15 +123,14 @@ export function SignInForm({
           )}
         />
 
-        <Button
+        <PendingButton
           type="submit"
           size="lg"
           className="w-full"
-          aria-busy={isLoading}
-          disabled={isLoading}
+          isPending={isLoading}
         >
           {isLoading ? t("state.sending", { ns: "common" }) : t("form.submit")}
-        </Button>
+        </PendingButton>
       </form>
     </Form>
   )

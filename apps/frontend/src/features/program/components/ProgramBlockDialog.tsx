@@ -1,10 +1,11 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { Loader2, TriangleAlert } from "lucide-react"
+import { TriangleAlert } from "lucide-react"
 import { useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -317,14 +318,13 @@ export function ProgramBlockDialog({
                   {t("cancel")}
                 </Button>
               </DialogClose>
-              <Button
+              <PendingButton
+                isPending={isPending}
                 type="submit"
                 size="lg"
-                disabled={isPending}
               >
-                {isPending ? <Loader2 className="animate-spin" /> : null}
                 {t(block ? "save" : "add")}
-              </Button>
+              </PendingButton>
             </DialogFooter>
           </form>
         </Form>

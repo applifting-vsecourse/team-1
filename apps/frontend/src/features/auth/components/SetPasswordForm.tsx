@@ -8,9 +8,9 @@ import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
 import { ROUTES } from "@/app/routes"
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { PasswordInput } from "@/components/molecules/PasswordInput"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Button } from "@/components/ui/button"
 import {
   Form,
   FormControl,
@@ -104,15 +104,14 @@ export function SetPasswordForm({ email }: SetPasswordFormProps) {
           </Alert>
         ) : null}
 
-        <Button
+        <PendingButton
           type="submit"
           size="lg"
           className="w-full"
-          aria-busy={setPassword.isPending}
-          disabled={setPassword.isPending}
+          isPending={setPassword.isPending}
         >
           {setPassword.isPending ? t("state.saving", { ns: "common" }) : t("setPassword.submit")}
-        </Button>
+        </PendingButton>
       </form>
     </Form>
   )

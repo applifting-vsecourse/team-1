@@ -8,6 +8,7 @@ import { ROUTES } from "@/app/routes"
 import { BackLink } from "@/components/atoms/BackLink"
 import { CharacterCounter } from "@/components/atoms/CharacterCounter"
 import { HeadingBand } from "@/components/atoms/HeadingBand"
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { DateField } from "@/components/molecules/DateField"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
@@ -359,14 +360,15 @@ function EditForm({
           </Card>
         ) : null}
         <div className="grid gap-3 sm:grid-cols-2">
-          <Button
+          <PendingButton
+            isPending={mutation.isPending}
             type="submit"
             size="lg"
             className="w-full"
             disabled={mutation.isPending || !isChanged}
           >
             {t(mutation.isError ? "edit.retry" : "edit.save")}
-          </Button>
+          </PendingButton>
           {!mutation.isError ? (
             <Button
               asChild

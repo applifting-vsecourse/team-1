@@ -507,11 +507,16 @@ describe("ApplicationForm", () => {
 
     const button = await screen.findByRole("button", { name: "Submitting…" })
     expect(button).toBeDisabled()
+    expect(button).toHaveAttribute("aria-busy", "true")
+    expect(button.querySelector(".submit-mark")).toBeVisible()
     expect(screen.getByRole("status")).toHaveTextContent("Please wait for the confirmation.")
     await userEvent.click(button)
     expect(onSubmit).toHaveBeenCalledOnce()
 
     finish?.()
+    const ready = await screen.findByRole("button", { name: "Submit application" })
+    expect(ready).toBeEnabled()
+    expect(ready.querySelector(".submit-mark")).toBeNull()
   })
 
   it("focuses the server message when a duplicate response identifies no submitted field", async () => {

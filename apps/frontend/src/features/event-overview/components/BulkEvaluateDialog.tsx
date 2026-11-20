@@ -3,10 +3,10 @@ import { useMutation, useQuery } from "@tanstack/react-query"
 import { TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { Alert, AlertTitle } from "@/components/ui/alert"
-import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { apiErrorCode } from "@/lib/api-client"
@@ -73,14 +73,15 @@ export function BulkEvaluateDialog({
       isBusy={evaluate.isPending}
       onClose={onClose}
       submit={
-        <Button
+        <PendingButton
+          isPending={evaluate.isPending}
           size="lg"
           className="h-12 md:min-w-40"
           disabled={!data || evaluate.isPending || preview.isFetching || (hasRest && !rest)}
           onClick={() => data && evaluate.mutate(data.confirm.byGender)}
         >
           {t("bulkEvaluation.submit")}
-        </Button>
+        </PendingButton>
       }
     >
       {!data && preview.isPending ? (

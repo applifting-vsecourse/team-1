@@ -2,6 +2,7 @@ import { useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -269,13 +270,23 @@ export function ChangeRequestsPanel({ eventId }: { eventId: string }) {
             <div className="flex flex-col gap-2">
               {!isStale && (
                 <>
-                  <Button
+                  <PendingButton
+                    isPending={
+                      mutation.isPending &&
+                      mutation.variables?.request.id === request.id &&
+                      mutation.variables.decision === "approve"
+                    }
                     disabled={mutation.isPending || hasCapacityChanged}
                     onClick={() => mutation.mutate({ request, decision: "approve" })}
                   >
                     {t("changeRequests.approve")}
-                  </Button>
-                  <Button
+                  </PendingButton>
+                  <PendingButton
+                    isPending={
+                      mutation.isPending &&
+                      mutation.variables?.request.id === request.id &&
+                      mutation.variables.decision === "reject"
+                    }
                     variant="destructive"
                     disabled={mutation.isPending}
                     onClick={() =>
@@ -285,7 +296,7 @@ export function ChangeRequestsPanel({ eventId }: { eventId: string }) {
                     }
                   >
                     {t("changeRequests.reject")}
-                  </Button>
+                  </PendingButton>
                 </>
               )}
               {(isStale || hasCapacityChanged) && (
@@ -333,13 +344,18 @@ export function ChangeRequestsPanel({ eventId }: { eventId: string }) {
                   </p>
                   {reasonField}
                   <p className="text-sm text-muted-foreground">{t("changeRequests.reasonHint")}</p>
-                  <Button
+                  <PendingButton
+                    isPending={
+                      mutation.isPending &&
+                      mutation.variables?.request.id === request.id &&
+                      mutation.variables.decision === "reject"
+                    }
                     variant="destructive"
                     disabled={mutation.isPending}
                     onClick={() => mutation.mutate({ request, decision: "reject", reason })}
                   >
                     {t("changeRequests.reject")}
-                  </Button>
+                  </PendingButton>
                   <Button
                     variant="outline"
                     disabled={mutation.isPending}

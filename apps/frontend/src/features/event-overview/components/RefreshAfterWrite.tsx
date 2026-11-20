@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { HTTPError, NetworkError, TimeoutError } from "ky"
 
-import { Button } from "@/components/ui/button"
+import { PendingButton } from "@/components/atoms/PendingButton"
 
 /** A timeout, lost response or server error can follow a committed write. */
 export function hasUncertainOutcome(error: unknown): boolean {
@@ -41,15 +41,14 @@ export function RefreshAfterWrite({
           {refresh.error.message}
         </p>
       )}
-      <Button
+      <PendingButton
         type="button"
         size="lg"
-        disabled={refresh.isPending}
-        aria-busy={refresh.isPending}
+        isPending={refresh.isPending}
         onClick={() => refresh.mutate()}
       >
         {label}
-      </Button>
+      </PendingButton>
     </div>
   )
 }

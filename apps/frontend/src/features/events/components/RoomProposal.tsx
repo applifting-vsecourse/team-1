@@ -1,10 +1,10 @@
 import { useState, type ReactNode } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { Loader2, TriangleAlert } from "lucide-react"
+import { TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Button } from "@/components/ui/button"
 import { formatDateRange } from "@/lib/date"
 import { notify } from "@/lib/notify"
 
@@ -164,18 +164,16 @@ export function RoomProposal({
   }
 
   const action = canPropose ? (
-    <Button
+    <PendingButton
       type="button"
       variant="outline"
       size="lg"
       className="max-sm:w-full"
-      aria-busy={propose.isPending}
-      disabled={propose.isPending}
+      isPending={propose.isPending}
       onClick={() => propose.mutate()}
     >
-      {propose.isPending ? <Loader2 className="animate-spin" /> : null}
       {t("roomProposal.start")}
-    </Button>
+    </PendingButton>
   ) : null
   const notices =
     propose.isPending || propose.isError || hasOnlyIndividual ? (

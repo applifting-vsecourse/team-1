@@ -1,8 +1,9 @@
 import { useId, useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { Info, ListChecks, Loader2, Lock, TriangleAlert } from "lucide-react"
+import { Info, ListChecks, Lock, TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { CARD_GRID_WIDE, CardGrid } from "@/components/molecules/CardGrid"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
@@ -238,15 +239,14 @@ function ChooseMode({ eventId, saved }: { eventId: string; saved: EvaluationMode
           />
         ) : null}
         <div className="flex flex-col gap-3 sm:flex-row-reverse">
-          <Button
+          <PendingButton
+            isPending={mutation.isPending}
             type="submit"
             size="lg"
             className="sm:flex-1"
-            disabled={mutation.isPending}
           >
-            {mutation.isPending ? <Loader2 className="animate-spin" /> : null}
             {t("evaluationMode.save")}
-          </Button>
+          </PendingButton>
           <Button
             type="button"
             variant="ghost"

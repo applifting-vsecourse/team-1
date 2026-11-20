@@ -1,10 +1,10 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation } from "@tanstack/react-query"
-import { Loader2 } from "lucide-react"
 import { useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { Button } from "@/components/ui/button"
 import {
@@ -279,15 +279,14 @@ export function BulkRoomsDialog({
                   {t("rooms.close")}
                 </Button>
               </DialogClose>
-              <Button
+              <PendingButton
+                isPending={isPending}
                 type="submit"
                 size="lg"
                 className="sm:w-auto"
-                disabled={isPending}
               >
-                {isPending ? <Loader2 className="animate-spin" /> : null}
                 {t("rooms.bulk.submit")}
-              </Button>
+              </PendingButton>
             </DialogFooter>
           </form>
         </Form>

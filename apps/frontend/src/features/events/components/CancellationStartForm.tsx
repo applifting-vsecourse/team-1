@@ -1,8 +1,9 @@
 import { useState, type FormEvent } from "react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { Loader2, ShieldCheck } from "lucide-react"
+import { ShieldCheck } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { DateField } from "@/components/molecules/DateField"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { SettingsCard } from "@/components/molecules/SettingsCard"
@@ -160,14 +161,13 @@ export function CancellationStartForm({ event }: { event: OrganizerEvent }) {
             >
               {t("cancellationStart.revert")}
             </Button>
-            <Button
+            <PendingButton
+              isPending={mutation.isPending}
               type="submit"
               size="lg"
-              disabled={mutation.isPending}
             >
-              {mutation.isPending ? <Loader2 className="animate-spin" /> : null}
               {t(mutation.isError ? "cancellationStart.retry" : "cancellationStart.save")}
-            </Button>
+            </PendingButton>
           </div>
         ) : null}
       </form>

@@ -2,6 +2,7 @@ import { useState } from "react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -109,14 +110,15 @@ export function TermStatusChange({
           >
             {t("termStatus.dialog.back")}
           </Button>
-          <Button
+          <PendingButton
+            isPending={mutation.isPending}
             variant={to === "CANCELLED" ? "destructive" : "default"}
             size="lg"
             disabled={mutation.isPending || (isOverCapacity && !hasAccepted)}
             onClick={() => mutation.mutate()}
           >
             {t(isOverCapacity ? "termStatus.confirmAnyway" : `termStatus.dialog.${key}Submit`)}
-          </Button>
+          </PendingButton>
         </DialogFooter>
       </DialogContent>
     </Dialog>

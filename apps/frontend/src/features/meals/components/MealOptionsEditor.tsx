@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { Plus, X } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { PageHeader } from "@/components/molecules/PageHeader"
@@ -145,14 +146,14 @@ function OptionsForm({
               <AlertDescription>{mutation.error.message}</AlertDescription>
             </Alert>
           ) : null}
-          <Button
+          <PendingButton
+            isPending={mutation.isPending}
             type="submit"
             size="lg"
             className="w-full sm:w-auto sm:self-start"
-            disabled={mutation.isPending}
           >
             {t("options.save")}
-          </Button>
+          </PendingButton>
         </Card>
         <Card className="gap-4 p-4">
           <h2 className="text-2xl font-bold">{t("options.preview")}</h2>

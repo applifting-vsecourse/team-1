@@ -4,6 +4,7 @@ import { useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -263,17 +264,16 @@ export function RoomDialog({
                   {t("rooms.close")}
                 </Button>
               </DialogClose>
-              <Button
+              <PendingButton
                 type="submit"
                 size="lg"
                 className="sm:w-38"
-                aria-busy={isPending}
-                disabled={isPending}
+                isPending={isPending}
               >
                 {isPending
                   ? t("state.saving", { ns: "common" })
                   : t(room ? "rooms.save" : "rooms.add")}
-              </Button>
+              </PendingButton>
             </DialogFooter>
           </form>
         </Form>

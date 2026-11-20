@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react"
 import { useMutation } from "@tanstack/react-query"
-import { Loader2 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -333,13 +333,13 @@ export function AssignRoomDialog({
                   {t("roomAssignments.cancel")}
                 </Button>
               </DialogClose>
-              <Button
+              <PendingButton
+                isPending={isPending}
                 type="submit"
                 size="lg"
                 className="max-sm:flex-1 sm:w-55"
                 disabled={isPending || !selected}
               >
-                {isPending ? <Loader2 className="animate-spin" /> : null}
                 {t(
                   isExtraBedNeeded
                     ? "roomAssignments.continue"
@@ -347,7 +347,7 @@ export function AssignRoomDialog({
                       ? "roomAssignments.moveSave"
                       : "roomAssignments.save",
                 )}
-              </Button>
+              </PendingButton>
             </DialogFooter>
           </div>
         </form>

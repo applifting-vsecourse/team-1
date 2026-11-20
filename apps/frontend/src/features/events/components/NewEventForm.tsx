@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
 import { ROUTES } from "@/app/routes"
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -245,14 +246,13 @@ function NewEventCard({
               {t("new.cancel")}
             </Button>
           </DialogClose>
-          <Button
+          <PendingButton
             type="submit"
             size="lg"
-            aria-busy={create.isPending}
-            disabled={create.isPending}
+            isPending={create.isPending}
           >
             {create.isPending ? t("state.saving", { ns: "common" }) : t("new.form.submit")}
-          </Button>
+          </PendingButton>
         </div>
       </form>
     </Form>

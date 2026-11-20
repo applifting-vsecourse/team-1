@@ -1,8 +1,8 @@
 import { useRef, useState } from "react"
 import { useMutation } from "@tanstack/react-query"
-import { Loader2 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -246,20 +246,20 @@ export function CopyProgramDialog({
               {t("copy.cancel")}
             </Button>
           </DialogClose>
-          <Button
+          <PendingButton
+            isPending={mutation.isPending}
             size="lg"
             variant={isReplacing ? "destructive" : "default"}
             className="sm:w-auto"
             disabled={!plan || count === 0 || mutation.isPending}
             onClick={() => mutation.mutate()}
           >
-            {mutation.isPending ? <Loader2 className="animate-spin" /> : null}
             {mutation.isError
               ? t("copy.retry")
               : isReplacing
                 ? t("copy.replaceConfirm")
                 : t("copy.confirm", { count })}
-          </Button>
+          </PendingButton>
         </DialogFooter>
       </DialogContent>
     </Dialog>

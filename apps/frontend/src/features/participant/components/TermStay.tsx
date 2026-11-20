@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Clock } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { DateField } from "@/components/molecules/DateField"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -257,15 +258,15 @@ function StayDialog({
               >
                 {t("stay.cancel")}
               </Button>
-              <Button
+              <PendingButton
+                isPending={mutation.isPending}
                 variant="destructive"
                 size="lg"
                 className="flex-1"
-                disabled={mutation.isPending}
                 onClick={() => mutation.mutate({ lateArrival: null, earlyDeparture: null })}
               >
                 {t("stay.deleteConfirm")}
-              </Button>
+              </PendingButton>
             </DialogFooter>
           </>
         ) : (
@@ -323,14 +324,14 @@ function StayDialog({
               >
                 {t("stay.cancel")}
               </Button>
-              <Button
+              <PendingButton
+                isPending={mutation.isPending}
                 type="submit"
                 size="lg"
                 className="flex-2 sm:flex-none"
-                disabled={mutation.isPending}
               >
                 {t("stay.save")}
-              </Button>
+              </PendingButton>
             </DialogFooter>
             {hasSaved ? (
               <Button

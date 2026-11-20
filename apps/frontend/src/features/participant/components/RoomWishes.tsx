@@ -2,6 +2,7 @@ import { useState } from "react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -116,13 +117,13 @@ function RoomWishesCard({
               )
             })}
             <div className="flex flex-wrap gap-3">
-              <Button
+              <PendingButton
+                isPending={mutation.isPending}
                 type="submit"
                 size="lg"
-                disabled={mutation.isPending}
               >
                 {t("roomWishes.save")}
-              </Button>
+              </PendingButton>
               <Button
                 type="button"
                 variant="outline"
@@ -138,15 +139,15 @@ function RoomWishesCard({
             <h3 className="text-lg font-semibold">{t("roomWishes.deleteTitle")}</h3>
             <p className="text-sm text-muted-foreground">{t("roomWishes.deleteBody")}</p>
             <div className="flex flex-wrap gap-3">
-              <Button
+              <PendingButton
+                isPending={mutation.isPending}
                 type="button"
                 variant="destructive"
                 size="lg"
-                disabled={mutation.isPending}
                 onClick={() => mutation.mutate([])}
               >
                 {t("roomWishes.deleteConfirm")}
-              </Button>
+              </PendingButton>
               <Button
                 type="button"
                 variant="outline"

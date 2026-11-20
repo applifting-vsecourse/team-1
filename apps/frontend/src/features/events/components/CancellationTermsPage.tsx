@@ -1,8 +1,9 @@
 import { useState, type FormEvent } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { Loader2, TriangleAlert } from "lucide-react"
+import { TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { SectionHeader } from "@/components/molecules/SectionHeader"
@@ -180,14 +181,13 @@ function CancellationTermsForm({ event, onSaved }: { event: OrganizerEvent; onSa
             error={mutation.error}
           />
         ) : null}
-        <Button
+        <PendingButton
+          isPending={mutation.isPending}
           type="submit"
           size="lg"
-          disabled={mutation.isPending}
         >
-          {mutation.isPending ? <Loader2 className="animate-spin" /> : null}
           {t("cancellationTerms.save")}
-        </Button>
+        </PendingButton>
       </div>
       {!isPreview && (
         <aside className="hidden min-w-0 flex-col gap-4 self-start lg:flex">

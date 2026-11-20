@@ -2,6 +2,7 @@ import { useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -364,7 +365,8 @@ export function PaymentCorrection({
                 onRefreshed={onClose}
               />
             ) : (
-              <Button
+              <PendingButton
+                isPending={mutation.isPending}
                 type="submit"
                 size="lg"
                 disabled={
@@ -377,7 +379,7 @@ export function PaymentCorrection({
                 className="w-full sm:flex-1"
               >
                 {t(mutation.isPending ? "payment.saving" : "payment.saveCorrection")}
-              </Button>
+              </PendingButton>
             )}
           </DialogFooter>
         </form>

@@ -2,6 +2,7 @@ import { useState } from "react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { DetailItem } from "@/components/molecules/DetailItem"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -477,11 +478,11 @@ export function PaymentEditor({
                 onRefreshed={onClose}
               />
             ) : (
-              <Button
+              <PendingButton
                 type="submit"
                 size="lg"
                 className="sm:flex-1"
-                aria-busy={mutation.isPending}
+                isPending={mutation.isPending}
                 disabled={isRefundUnavailable || mutation.isPending}
               >
                 {mutation.isPending
@@ -489,7 +490,7 @@ export function PaymentEditor({
                   : isRefund
                     ? t(isRefundUnavailable ? "payment.confirm" : "payment.refund")
                     : t("payment.record")}
-              </Button>
+              </PendingButton>
             )}
           </DialogFooter>
         </form>

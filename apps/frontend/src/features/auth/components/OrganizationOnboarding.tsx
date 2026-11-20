@@ -6,6 +6,7 @@ import { z } from "zod"
 
 import { ROUTES } from "@/app/routes"
 import { BrandDivider } from "@/components/atoms/BrandDivider"
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { Seo } from "@/components/atoms/Seo"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
@@ -153,14 +154,14 @@ function CreateOrganizationForm({
             <AlertDescription>{failure}</AlertDescription>
           </Alert>
         ) : null}
-        <Button
+        <PendingButton
+          isPending={isPending}
           type="submit"
           size="lg"
-          disabled={isPending}
           className="h-12 w-full"
         >
           {t("registration.createOrganization")}
-        </Button>
+        </PendingButton>
         <p className="text-muted-foreground">{t("registration.organizationNext")}</p>
       </form>
     </RegistrationLayout>
@@ -287,14 +288,14 @@ function OrganizationProfileForm({
             <AlertDescription>{failure}</AlertDescription>
           </Alert>
         ) : null}
-        <Button
+        <PendingButton
+          isPending={isPending}
           type="submit"
           size="lg"
-          disabled={isPending}
           className="h-12 w-full"
         >
           {t("registration.saveProfile")}
-        </Button>
+        </PendingButton>
       </form>
     </RegistrationLayout>
   )

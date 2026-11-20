@@ -1,8 +1,8 @@
 import { useMutation } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { ErrorState } from "@/components/molecules/ErrorState"
-import { Button } from "@/components/ui/button"
 
 import type { ListedApplication } from "@/features/event-overview/api/applications"
 import { decideSelected, type BulkDecision } from "@/features/event-overview/api/bulkDecision"
@@ -61,15 +61,15 @@ export function BulkDecisionDialog({
             onRefreshed={onClose}
           />
         ) : (
-          <Button
+          <PendingButton
+            isPending={decide.isPending}
             variant={isReject ? "destructive" : "default"}
             size="lg"
             className="h-12 md:min-w-40"
-            disabled={decide.isPending}
             onClick={() => decide.mutate()}
           >
             {t(`bulkDecision.${prefix}Submit`)}
-          </Button>
+          </PendingButton>
         )
       }
     >

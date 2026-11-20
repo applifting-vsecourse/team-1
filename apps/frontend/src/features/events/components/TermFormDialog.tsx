@@ -6,6 +6,7 @@ import { useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { DateField } from "@/components/molecules/DateField"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -256,18 +257,17 @@ export function TermFormDialog({
               >
                 {t("terms.form.close")}
               </Button>
-              <Button
+              <PendingButton
                 type="submit"
                 size="lg"
-                disabled={mutation.isPending}
-                aria-busy={mutation.isPending}
+                isPending={mutation.isPending}
               >
                 {mutation.isPending
                   ? t("terms.form.saving")
                   : term
                     ? t("terms.form.save")
                     : t("terms.form.submitAdd")}
-              </Button>
+              </PendingButton>
             </DialogFooter>
           </form>
         </Form>

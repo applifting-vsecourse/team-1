@@ -1,7 +1,7 @@
 import { useState } from "react"
-import { Loader2 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { Button } from "@/components/ui/button"
 import {
@@ -158,16 +158,15 @@ export function ConfirmProposalDialog({
           >
             {t("roomProposal.back")}
           </Button>
-          <Button
+          <PendingButton
+            isPending={isPending}
             type="button"
             size="lg"
             variant={isDestructive ? "destructive" : "default"}
-            disabled={isPending}
             onClick={onConfirm}
           >
-            {isPending ? <Loader2 className="animate-spin" /> : null}
             {confirmLabel}
-          </Button>
+          </PendingButton>
         </DialogFooter>
       </DialogContent>
     </Dialog>

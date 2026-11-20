@@ -1,8 +1,8 @@
 import { useRef, useState } from "react"
 import { useMutation } from "@tanstack/react-query"
-import { Loader2 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -165,15 +165,15 @@ export function RoomModeDialog({
               {t("rooms.modeChange.cancel")}
             </Button>
           </DialogClose>
-          <Button
+          <PendingButton
+            isPending={mutation.isPending}
             size="lg"
             className="sm:w-38"
             disabled={!isAssigned || mutation.isPending}
             onClick={() => mutation.mutate()}
           >
-            {mutation.isPending ? <Loader2 className="animate-spin" /> : null}
             {t("rooms.modeChange.confirm")}
-          </Button>
+          </PendingButton>
         </DialogFooter>
       </DialogContent>
     </Dialog>

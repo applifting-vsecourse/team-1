@@ -5,6 +5,7 @@ import { Globe } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { SETTINGS_CARD_CLASS, SettingsCardHeader } from "@/components/molecules/SettingsCard"
 import { UploadField } from "@/components/molecules/UploadField"
@@ -361,15 +362,14 @@ export function PublicPageForm({ event }: { event: OrganizerEvent }) {
             ) : null}
 
             <div className="flex flex-col gap-3 md:flex-row-reverse">
-              <Button
+              <PendingButton
                 type="submit"
                 size="lg"
                 className="md:flex-1"
-                aria-busy={save.isPending}
-                disabled={save.isPending}
+                isPending={save.isPending}
               >
                 {save.isPending ? t("state.saving", { ns: "common" }) : t("publicPage.save")}
-              </Button>
+              </PendingButton>
               <Button
                 type="button"
                 variant="outline"

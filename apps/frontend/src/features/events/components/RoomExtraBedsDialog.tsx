@@ -1,8 +1,9 @@
 import { useState } from "react"
 import { useMutation } from "@tanstack/react-query"
-import { Loader2, TriangleAlert } from "lucide-react"
+import { TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -176,14 +177,13 @@ export function RoomExtraBedsDialog({
                 {t("rooms.close")}
               </Button>
             </DialogClose>
-            <Button
+            <PendingButton
+              isPending={isPending}
               type="submit"
               size="lg"
-              disabled={isPending}
             >
-              {isPending ? <Loader2 className="animate-spin" /> : null}
               {t("rooms.extraBedsSave")}
-            </Button>
+            </PendingButton>
           </DialogFooter>
         </form>
       </DialogContent>

@@ -1,7 +1,8 @@
 import { useMutation, useQuery } from "@tanstack/react-query"
-import { AlertTriangle, Loader2 } from "lucide-react"
+import { AlertTriangle } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -164,15 +165,15 @@ export function DeleteRoomDialog({
               {t(isOccupied ? "roomAssignments.cancel" : "rooms.keep")}
             </Button>
           </DialogClose>
-          <Button
+          <PendingButton
+            isPending={mutation.isPending}
             variant="destructive"
             size="lg"
             disabled={mutation.isPending || isOccupied}
             onClick={() => mutation.mutate()}
           >
-            {mutation.isPending ? <Loader2 className="animate-spin" /> : null}
             {t(isOccupied ? "rooms.deleteAction" : "rooms.delete")}
-          </Button>
+          </PendingButton>
         </DialogFooter>
       </DialogContent>
     </Dialog>

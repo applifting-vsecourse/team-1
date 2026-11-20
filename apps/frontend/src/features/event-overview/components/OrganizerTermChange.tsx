@@ -4,6 +4,7 @@ import { ArrowRightLeft } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { MoneyAmount } from "@/components/atoms/MoneyAmount"
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -181,13 +182,14 @@ export function OrganizerTermChange({
                   >
                     {t("termChange.full.back")}
                   </Button>
-                  <Button
+                  <PendingButton
+                    isPending={mutation.isPending}
                     size="lg"
                     disabled={!isOverCapacityConfirmed || mutation.isPending}
                     onClick={() => mutation.mutate()}
                   >
                     {t("termChange.full.submit")}
-                  </Button>
+                  </PendingButton>
                 </DialogFooter>
               </>
             ) : (
@@ -306,7 +308,8 @@ export function OrganizerTermChange({
                   >
                     {t("termChange.cancel")}
                   </Button>
-                  <Button
+                  <PendingButton
+                    isPending={mutation.isPending}
                     size="lg"
                     disabled={!preview.data || mutation.isPending}
                     onClick={() =>
@@ -314,7 +317,7 @@ export function OrganizerTermChange({
                     }
                   >
                     {t("termChange.submit")}
-                  </Button>
+                  </PendingButton>
                 </DialogFooter>
               </>
             )}

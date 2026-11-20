@@ -1,9 +1,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { LoaderCircle } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { Alert, AlertTitle } from "@/components/ui/alert"
-import { Button } from "@/components/ui/button"
 import { formatCzk } from "@/lib/money"
 
 import { simulatePayment } from "@/features/participant/api/applications"
@@ -37,22 +36,15 @@ export function SimulatePaymentButton({
           <AlertTitle>{t("payment.simulation.failed")}</AlertTitle>
         </Alert>
       )}
-      <Button
+      <PendingButton
         type="button"
         size="lg"
         className="w-full"
-        disabled={mutation.isPending}
-        aria-busy={mutation.isPending}
+        isPending={mutation.isPending}
         onClick={() => mutation.mutate()}
       >
-        {mutation.isPending && (
-          <LoaderCircle
-            className="size-5 motion-safe:animate-spin"
-            aria-hidden
-          />
-        )}
         {mutation.isError ? t("common:state.retry") : t("payment.simulation.paid")}
-      </Button>
+      </PendingButton>
     </div>
   )
 }

@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import {
@@ -100,15 +101,15 @@ export function PaymentCancellation({
           </p>
         ) : null}
         <DialogFooter className="sm:justify-start">
-          <Button
+          <PendingButton
+            isPending={mutation.isPending}
             variant="destructive"
             size="lg"
             className="sm:min-w-36"
-            disabled={mutation.isPending}
             onClick={() => mutation.mutate()}
           >
             {t(mutation.isPending ? "payment.cancelling" : "payment.cancelRecord")}
-          </Button>
+          </PendingButton>
           <Button
             variant="ghost"
             size="lg"

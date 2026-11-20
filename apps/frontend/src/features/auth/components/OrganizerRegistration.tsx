@@ -5,6 +5,7 @@ import { z } from "zod"
 
 import { ROUTES } from "@/app/routes"
 import { BrandDivider } from "@/components/atoms/BrandDivider"
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { Seo } from "@/components/atoms/Seo"
 import { PasswordInput } from "@/components/molecules/PasswordInput"
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -129,14 +130,14 @@ export function OrganizerRegistration() {
             <AlertDescription>{failure}</AlertDescription>
           </Alert>
         ) : null}
-        <Button
+        <PendingButton
+          isPending={isPending}
           type="submit"
           size="lg"
-          disabled={isPending}
           className="h-12 w-full"
         >
           {t("registration.createAccount")}
-        </Button>
+        </PendingButton>
         <Button
           asChild
           variant="outline"

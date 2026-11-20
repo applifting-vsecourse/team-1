@@ -433,27 +433,72 @@
   }
 }
 
-/* M02 follows the form request. M13 acknowledges the updated selection count. */
-[data-slot="button"][aria-busy="true"]::after {
-  content: "";
-  inline-size: 0.875rem;
-  block-size: 0.875rem;
-  border: 2px solid currentColor;
-  border-inline-end-color: transparent;
-  border-radius: 50%;
+/* Figma Feedback / Loader: the corners turn during the first 1600 ms of a 2 s loop. */
+.submit-mark {
+  position: relative;
+  display: inline-block;
+  flex: none;
+  width: 1.5rem;
+  height: 1.5rem;
 }
-
+.submit-mark::before,
+.submit-mark::after,
+.submit-mark > span {
+  position: absolute;
+  background-color: currentColor;
+  mask: var(--mark-part) center / contain no-repeat;
+}
+.submit-mark::before,
+.submit-mark::after {
+  content: "";
+  width: 45%;
+  height: 49%;
+}
+.submit-mark::before {
+  --mark-part: url("../assets/motion/verification-start.svg");
+  top: 15.5%;
+  left: 15.5%;
+}
+.submit-mark::after {
+  --mark-part: url("../assets/motion/verification-end.svg");
+  bottom: 15.5%;
+  right: 15.5%;
+}
+.submit-mark > span {
+  --mark-part: url("../assets/motion/verification-dot.svg");
+  inset: 44%;
+}
 @media (prefers-reduced-motion: no-preference) {
-  [data-slot="button"][aria-busy="true"]::after {
-    animation: submit-pending 800ms linear infinite;
+  .submit-mark {
+    animation: submit-mark-turn 2s ease-in-out infinite;
+  }
+  .submit-mark > span {
+    animation: submit-mark-dot 2s ease-in-out infinite;
+  }
+  @keyframes submit-mark-turn {
+    0% {
+      transform: rotate(0);
+    }
+    40% {
+      transform: rotate(180deg);
+    }
+    80%,
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  @keyframes submit-mark-dot {
+    0%,
+    80%,
+    100% {
+      opacity: 1;
+    }
+    40% {
+      opacity: 0.45;
+    }
   }
   .selection-count-dot {
     animation: selection-arrival 440ms ease-out;
-  }
-  @keyframes submit-pending {
-    to {
-      transform: rotate(1turn);
-    }
   }
   @keyframes selection-arrival {
     from {

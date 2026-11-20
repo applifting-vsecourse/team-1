@@ -4,6 +4,7 @@ import { Link, useNavigate } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { CheckboxRow } from "@/components/molecules/CheckboxRow"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
@@ -196,14 +197,15 @@ function HealthFields({ applicationId, health }: { applicationId: string; health
               {t("requestChange")}
             </Button>
           ) : (
-            <Button
+            <PendingButton
+              isPending={mutation.isPending}
               type="submit"
               size="lg"
               className="w-full sm:w-auto"
               disabled={!canSave || mutation.isPending}
             >
               {t(isStored ? "requestSubmit" : "save")}
-            </Button>
+            </PendingButton>
           )}
           <Button
             asChild

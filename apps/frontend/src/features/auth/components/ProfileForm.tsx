@@ -5,8 +5,8 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Button } from "@/components/ui/button"
 import {
   Form,
   FormControl,
@@ -96,15 +96,14 @@ export function ProfileForm({ user }: { user: SessionUser }) {
           </Alert>
         ) : null}
 
-        <Button
+        <PendingButton
           type="submit"
           size="lg"
           className={cn("w-full md:w-45 md:self-start", BUTTON)}
-          aria-busy={update.isPending}
-          disabled={update.isPending}
+          isPending={update.isPending}
         >
           {update.isPending ? t("state.saving", { ns: "common" }) : t("profile.submit")}
-        </Button>
+        </PendingButton>
       </form>
     </Form>
   )

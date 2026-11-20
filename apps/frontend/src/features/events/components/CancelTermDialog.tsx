@@ -1,8 +1,9 @@
 import { useState } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { CircleAlert, Loader2 } from "lucide-react"
+import { CircleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -185,26 +186,25 @@ export function CancelTermDialog({
             {t("terms.cancelDialog.back")}
           </Button>
           {isUnverified ? (
-            <Button
+            <PendingButton
+              isPending={isVerifying}
               type="button"
               size="lg"
-              disabled={isVerifying}
               onClick={() => void verify()}
             >
-              {isVerifying ? <Loader2 className="size-4 animate-spin" /> : null}
               {t("terms.cancelDialog.verify")}
-            </Button>
+            </PendingButton>
           ) : (
-            <Button
+            <PendingButton
+              isPending={cancel.isPending}
               type="button"
               variant="destructive"
               size="lg"
               disabled={!isAgreed || cancel.isPending || terms.isFetching || isStale}
               onClick={submit}
             >
-              {cancel.isPending ? <Loader2 className="size-4 animate-spin" /> : null}
               {t("terms.cancelDialog.confirm")}
-            </Button>
+            </PendingButton>
           )}
         </DialogFooter>
       </DialogContent>

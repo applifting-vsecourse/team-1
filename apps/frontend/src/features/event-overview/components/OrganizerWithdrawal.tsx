@@ -4,6 +4,7 @@ import { TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { MoneyAmount } from "@/components/atoms/MoneyAmount"
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import {
@@ -247,14 +248,15 @@ export function OrganizerWithdrawal({
             >
               {t("withdrawal.back")}
             </Button>
-            <Button
+            <PendingButton
+              isPending={mutation.isPending}
               variant="destructive"
               size="lg"
               disabled={!preview.data || mutation.isPending}
               onClick={() => mutation.mutate()}
             >
               {submitLabel}
-            </Button>
+            </PendingButton>
           </DialogFooter>
         </div>
       </DialogContent>

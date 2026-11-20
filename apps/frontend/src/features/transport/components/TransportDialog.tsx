@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { DateField } from "@/components/molecules/DateField"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { Button } from "@/components/ui/button"
@@ -325,17 +326,16 @@ export function TransportDialog({
                   {t("cancelChanges")}
                 </Button>
               </DialogClose>
-              <Button
+              <PendingButton
                 type="submit"
                 size="lg"
                 className="sm:w-38"
-                aria-busy={isPending}
-                disabled={isPending}
+                isPending={isPending}
               >
                 {isPending
                   ? t("state.saving", { ns: "common" })
                   : t(transport ? "save" : "addSubmit")}
-              </Button>
+              </PendingButton>
             </DialogFooter>
           </form>
         </Form>

@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { Info, TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -136,7 +137,8 @@ export function DeleteTransportDialog({
           >
             {t("cancel")}
           </Button>
-          <Button
+          <PendingButton
+            isPending={mutation.isPending}
             variant="destructive"
             className={
               hasParticipants ? undefined : "order-first h-12 flex-1 sm:min-w-53 sm:flex-none"
@@ -148,7 +150,7 @@ export function DeleteTransportDialog({
             }}
           >
             {t(mutation.isPending ? "deleting" : hasParticipants ? "delete" : "deleteUnusedAction")}
-          </Button>
+          </PendingButton>
         </DialogFooter>
       </DialogContent>
     </Dialog>

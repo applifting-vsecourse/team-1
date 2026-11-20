@@ -1,8 +1,8 @@
 import { useState } from "react"
 import { useMutation } from "@tanstack/react-query"
-import { Loader2 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { Button } from "@/components/ui/button"
 import {
@@ -140,15 +140,14 @@ export function AcknowledgeWarningDialog({
                 {t("roomAssignments.cancel")}
               </Button>
             </DialogClose>
-            <Button
+            <PendingButton
+              isPending={isPending}
               type="submit"
               className="sm:w-55"
               size="lg"
-              disabled={isPending}
             >
-              {isPending ? <Loader2 className="animate-spin" /> : null}
               {t("acknowledgeDialog.confirm")}
-            </Button>
+            </PendingButton>
           </DialogFooter>
         </form>
       </DialogContent>

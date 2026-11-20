@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { DetailItem } from "@/components/molecules/DetailItem"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -135,16 +136,15 @@ export function ChangeEmailSection({ user }: ChangeEmailSectionProps) {
               </Alert>
               <DetailItem label={t("changeEmail.pending.original")}>{user.email}</DetailItem>
               <DetailItem label={t("changeEmail.pending.new")}>{pendingEmail}</DetailItem>
-              <Button
+              <PendingButton
                 type="button"
                 size="lg"
                 className="h-12 w-full rounded-lg"
-                disabled={request.isPending}
-                aria-busy={request.isPending}
+                isPending={request.isPending}
                 onClick={() => void onSubmit({ newEmail: pendingEmail })}
               >
                 {t("changeEmail.pending.resend")}
-              </Button>
+              </PendingButton>
               {request.isError && (
                 <Alert variant="destructive">
                   <AlertDescription>{request.error.message}</AlertDescription>
@@ -212,17 +212,16 @@ export function ChangeEmailSection({ user }: ChangeEmailSectionProps) {
                   >
                     {t("changeEmail.cancel")}
                   </Button>
-                  <Button
+                  <PendingButton
                     type="submit"
                     size="lg"
                     className="h-12 w-full rounded-lg md:flex-1"
-                    aria-busy={request.isPending}
-                    disabled={request.isPending}
+                    isPending={request.isPending}
                   >
                     {request.isPending
                       ? t("state.saving", { ns: "common" })
                       : t("changeEmail.submit")}
-                  </Button>
+                  </PendingButton>
                 </div>
               </form>
             </Form>

@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { format } from "date-fns"
 import { useTranslation } from "react-i18next"
 
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { DateField } from "@/components/molecules/DateField"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -276,13 +277,13 @@ export function ParticipantEditDialog({ application, onClose }: ParticipantEditD
             >
               {t("editDetails.cancel")}
             </Button>
-            <Button
+            <PendingButton
+              isPending={mutation.isPending}
               type="submit"
               size="lg"
-              disabled={mutation.isPending}
             >
               {t(mutation.isPending ? "editDetails.saving" : "editDetails.save")}
-            </Button>
+            </PendingButton>
           </DialogFooter>
         </form>
       </DialogContent>

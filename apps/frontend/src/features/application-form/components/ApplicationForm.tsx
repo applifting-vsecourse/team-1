@@ -5,6 +5,7 @@ import { useFieldArray, useForm, useWatch, type FieldErrors, type Resolver } fro
 import { useTranslation } from "react-i18next"
 
 import { BrandDivider } from "@/components/atoms/BrandDivider"
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -403,16 +404,16 @@ export function ApplicationForm({
                 <AlertDescription>{errorMessage}</AlertDescription>
               </Alert>
             ) : null}
-            <Button
+            <PendingButton
               key={review ? "send" : "review"}
               type="submit"
-              aria-busy={isSubmitting}
+              isPending={isSubmitting && !isDone}
+              disabled={isDone}
               size="lg"
               className="w-full"
-              disabled={isSubmitting}
             >
               {t(isSubmitting ? "form.submitting" : review ? "form.submit" : "review.continue")}
-            </Button>
+            </PendingButton>
             {review ? (
               <Button
                 type="button"

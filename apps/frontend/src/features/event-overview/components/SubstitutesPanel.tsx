@@ -2,6 +2,7 @@ import { useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -239,14 +240,14 @@ function SubstituteProposal({
           { range, name },
         )}
       </p>
-      <Button
+      <PendingButton
+        isPending={confirm.isPending}
         className="w-full md:w-55"
         aria-label={`${t("substitutes.proposal.confirm")}: ${name}`}
-        disabled={confirm.isPending}
         onClick={() => confirm.mutate()}
       >
         {t("substitutes.proposal.confirm")}
-      </Button>
+      </PendingButton>
       {confirm.isError && apiErrorCode(confirm.error) !== "BED_ALREADY_TAKEN" && (
         <Alert variant="destructive">
           <AlertDescription>{confirm.error.message}</AlertDescription>
@@ -433,14 +434,14 @@ function ConfirmSubstituteDialog({
       isBusy={confirm.isPending}
       onClose={onClose}
       submit={
-        <Button
+        <PendingButton
+          isPending={confirm.isPending}
           size="lg"
           className="h-12 md:min-w-40"
-          disabled={confirm.isPending}
           onClick={() => confirm.mutate()}
         >
           {t("substitutes.dialogSubmit")}
-        </Button>
+        </PendingButton>
       }
     >
       <p>
