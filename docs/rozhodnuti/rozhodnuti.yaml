@@ -3563,3 +3563,152 @@ rozhodnuti:
   z_otazek: []
   dokumentace: []
   poznamka: 'Mění větu D-142 „Zbytek organizátor zařadí mezi náhradníky druhou hromadnou akcí; jeden krok „potvrdit, kdo se vejde, zbytek mezi náhradníky“ je požadavek PO pro Sprint 4“: v jednom kroku se zbylé podle volby organizátora zařadí mezi náhradníky, nebo zamítnou. Zbytek D-142 (jeden termín, potvrzení v pořadí přijetí jen těch, kdo se vejdou, nad kapacitu jen jednotlivě podle D-059, dvoukroková varianta US-107/US-108 zůstává) platí. Procesní a stavový diagram ručního vyhodnocování už přechod K vyhodnocení → Zrušená zamítnutím obsahují, beze změny.'
+- id: D-169
+  nazev: 'E-mail o doplacení z importu výpisu chodí jednou za přihlášku'
+  text: 'E-mail č. 8 (PAYMENT_SETTLED) po souhrnné platbě odejde jednou za přihlášku a obsahuje všechny termíny, které platba doplatila. Neodesílá se zvlášť za každý termín. Platí znění v katalogu e-mailů.'
+  typ: produkt
+  oblast: platby
+  datum: '2026-11-20'
+  zdroj:
+  - popis: 'odpověď PM v PR #644 (US-148), 20. 11. 2026'
+    url: https://github.com/applifting-vsecourse/team-1/pull/644#issuecomment-7039707032
+  us:
+  - label: US-148
+    url: https://github.com/applifting-vsecourse/team-1/issues/508
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-170
+  nazev: 'Souhrnná platba přihlášky s archivovanými termíny se nepřiděluje'
+  text: 'Platba na souhrnný variabilní symbol přihlášky, která má jen archivované termíny, se archivované přihlášce v termínu nepřiděluje (D-110). Při importu výpisu se uloží jako nespárovaná k ručnímu přiřazení; nová hodnota výčtu ani zápis přeplatku na poslední termín se nezavádí.'
+  typ: produkt
+  oblast: platby
+  datum: '2026-11-20'
+  zdroj:
+  - popis: 'odpověď PM v PR #644 (US-148), 20. 11. 2026'
+    url: https://github.com/applifting-vsecourse/team-1/pull/644#issuecomment-7039707032
+  us:
+  - label: US-148
+    url: https://github.com/applifting-vsecourse/team-1/issues/508
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+  poznamka: 'Upřesňuje D-110 pro import výpisu (US-148).'
+- id: D-171
+  nazev: 'Pokoj s přiřazenými účastníky nejde smazat'
+  text: 'Pokoj, ve kterém jsou přiřazení účastníci, nelze smazat (chyba 409 ROOM_HAS_ASSIGNMENTS). Organizátor nejdřív účastníky odebere. Přiřazení se při mazání pokoje neruší automaticky.'
+  typ: produkt
+  oblast: ubytování
+  datum: '2026-11-20'
+  zdroj:
+  - popis: 'PM v chatu k otázce 1 z PR #577, 20. 11. 2026'
+    url: https://github.com/applifting-vsecourse/team-1/pull/577#issuecomment-7028301496
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+  poznamka: 'Do kódu přišlo v PR #577; PM ještě zkontroluje implementaci.'
+- id: D-172
+  nazev: 'Přehled akce: cílem je US-51 „Co vyžaduje pozornost“'
+  text: 'Cílový rámec přehledu akce je US-51 (karty „Co vyžaduje pozornost“), ne metrické dlaždice z rámce US-13.'
+  typ: produkt
+  oblast: přehledy
+  datum: '2026-11-20'
+  zdroj:
+  - popis: 'PM v chatu k otázce 2 z PR #577, 20. 11. 2026'
+    url: https://github.com/applifting-vsecourse/team-1/pull/577#issuecomment-7028301496
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-173
+  nazev: 'Vlastní doprava zůstává volný text bez času a místa příjezdu'
+  text: 'U vlastní dopravy organizátor zadává jen volný text s pokyny. Strukturovaný čas ani místo příjezdu se neevidují a do rozsahu nepatří, i když je Figma kreslí. Přihlašovatel má v přihlášce telefon (už je nasazený).'
+  typ: produkt
+  oblast: logistika
+  datum: '2026-11-20'
+  zdroj:
+  - popis: 'PM v chatu k otázkám 3 a 4 z PR #577, 20. 11. 2026'
+    url: https://github.com/applifting-vsecourse/team-1/pull/577#issuecomment-7028301496
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-174
+  nazev: 'Pohledy na ubytování: „Rozřazování“ × „Pokoje“ se stejným ovládáním'
+  text: 'Pohledy se jmenují „Rozřazování“ a „Pokoje“ (EN „Assignment“ × „Rooms“). Ovládání ubytování je ze všech pohledů stejné: organizátor si zvolí pohled, který mu vyhovuje, a může v něm použít všechny funkce (přiřazení, přesun, odebrání, přistýlky, návrh rozdělení, nesplněná přání, zveřejnění, tisk). Změny SLOVNIK.md jen v textu PR.'
+  typ: produkt
+  oblast: ubytování
+  datum: '2026-11-20'
+  zdroj:
+  - popis: 'odpověď PM v #542, 20. 11. 2026'
+    url: https://github.com/applifting-vsecourse/team-1/issues/542#issuecomment-7042337631
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-175
+  nazev: 'Dialogy odhlášení a změny termínu: dopad na platbu bez slibu vrácení'
+  text: 'Vrácení zaplacených peněz při odhlášení a změně termínu text neslibuje, říká jen, že vrácení a případné storno řeší organizátor (kontakt je v detailu přihlášky). Text neuvádí lhůtu. Platba se na nový termín nepřevádí (D-088), design ani backend se kvůli tomu nemění; přelévání přeplatků je v plánu v #339. Věta „Před 1. 6. 2027 se změna provede ihned.“ se odstraňuje.'
+  typ: produkt
+  oblast: platby
+  datum: '2026-11-20'
+  zdroj:
+  - popis: 'odpověď PM v #551, 20. 11. 2026'
+    url: https://github.com/applifting-vsecourse/team-1/issues/551#issuecomment-7042338174
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+  poznamka: 'Navazuje na D-051, D-088 a D-103.'
+- id: D-176
+  nazev: 'Výsledek žádosti o změnu: čip i u čekající žádosti a červená pro Zamítnuto'
+  text: 'U čekající žádosti se přihlašovateli ukazuje čip „Čeká na schválení“ (jantarová, Warning). Pro Zamítnuto se přidává varianta Badge danger s tokeny status-error a status-error-bg.'
+  typ: produkt
+  oblast: přihlašování na akce
+  datum: '2026-11-20'
+  zdroj:
+  - popis: 'odpověď PM v #552, 20. 11. 2026'
+    url: https://github.com/applifting-vsecourse/team-1/issues/552#issuecomment-7042338671
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-177
+  nazev: 'Souhrn pro kuchyni: počty stravy po kombinacích'
+  text: 'Souhrn pro kuchyni počítá porce po kombinacích omezení (běžné porce, jednotlivé varianty samostatně, kombinace např. vegetariánská + bezlepková), každý účastník se počítá jednou. Není priorita, udělá se později; netvoří se kvůli tomu nový ticket, jde jako Mimo rozsah story do PR #577.'
+  typ: produkt
+  oblast: logistika
+  datum: '2026-11-20'
+  zdroj:
+  - popis: 'odpověď PM v PR #577, 20. 11. 2026'
+    url: https://github.com/applifting-vsecourse/team-1/pull/577#issuecomment-7042336712
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-178
+  nazev: 'Organizátor smí zapsat platbu na celou přihlášku'
+  text: 'Organizátor v detailu přihlášky vidí souhrnný variabilní symbol, účet a QR kód a smí zapsat platbu na celou přihlášku (souhrnný VS, D-085). Není priorita a nemá zdržet design, udělá se později.'
+  typ: produkt
+  oblast: platby
+  datum: '2026-11-20'
+  zdroj:
+  - popis: 'odpověď PM v PR #577, 20. 11. 2026'
+    url: https://github.com/applifting-vsecourse/team-1/pull/577#issuecomment-7042336712
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
