@@ -337,8 +337,8 @@ export function ApplicationsPage({
               <div className="flex items-center gap-3">
                 <Checkbox
                   id="applications-select-all"
-                  className="size-6 rounded-md"
-                  checked={isAllSelected}
+                  className="size-6"
+                  checked={isAllSelected || (selected.length > 0 && "indeterminate")}
                   onCheckedChange={(checked) =>
                     setSelectedIds(
                       checked === true
@@ -416,9 +416,9 @@ export function ApplicationsPage({
               </div>
             ) : (
               <>
-                <div className="hidden md:block">
+                <div className="hidden md:-mx-6 md:block">
                   <Table>
-                    <TableHeader>
+                    <TableHeader className="bg-action-subtle [&_th]:h-14 [&_th]:px-4">
                       <TableRow>
                         {bulkTerm && (
                           <TableHead className="w-10">
@@ -443,7 +443,8 @@ export function ApplicationsPage({
                       {visibleRows.map((row) => (
                         <TableRow
                           key={row.id}
-                          className="cursor-pointer"
+                          data-state={selectedIds.has(row.id) ? "selected" : undefined}
+                          className="h-[84px] cursor-pointer data-[state=selected]:bg-accent [&>td]:px-4 [&>td]:py-4"
                           onClick={(event) => {
                             // The detail link in the row stays the keyboard and new-tab path; the row only
                             // widens the mouse target. Controls inside the row keep their own behaviour.
@@ -491,14 +492,16 @@ export function ApplicationsPage({
                                 </Badge>
                               )}
                             </p>
-                            <p className="text-xs text-muted-foreground">
+                            <p className="text-sm text-muted-foreground">
                               {formatDate(row.birthDate)} ·{" "}
                               {t(
                                 row.gender === "FEMALE"
                                   ? "applications.female"
                                   : "applications.male",
-                              )}{" "}
-                              · {row.email}
+                              )}
+                              <span className="block wrap-anywhere whitespace-normal">
+                                {row.email}
+                              </span>
                             </p>
                           </TableCell>
                           <TableCell>
@@ -542,10 +545,13 @@ export function ApplicationsPage({
                   {visibleRows.map((row) => (
                     <div
                       key={row.id}
-                      className="flex items-start gap-3 rounded-xl border bg-card px-4"
+                      className={cn(
+                        "flex flex-col items-start gap-2 rounded-lg border bg-card p-4",
+                        selectedIds.has(row.id) && "bg-accent",
+                      )}
                     >
                       {bulkTerm && (
-                        <div className="pt-3">
+                        <div className="flex min-h-10 items-center">
                           <SelectRow
                             row={row}
                             selectedIds={selectedIds}
@@ -556,7 +562,7 @@ export function ApplicationsPage({
                       <Link
                         to={ROUTES.organizer.application}
                         params={{ eventId, applicationId: row.id }}
-                        className="flex min-w-0 flex-1 flex-col gap-2 py-3"
+                        className="flex w-full min-w-0 flex-1 flex-col gap-2"
                       >
                         <span
                           className={cn(
@@ -573,7 +579,7 @@ export function ApplicationsPage({
                             </Badge>
                           )}
                         </span>
-                        <span className="text-xs wrap-anywhere text-muted-foreground">
+                        <span className="text-sm wrap-anywhere text-muted-foreground">
                           {formatDate(row.birthDate)} ·{" "}
                           {t(row.gender === "FEMALE" ? "applications.female" : "applications.male")}
                           {" · "}
@@ -676,7 +682,7 @@ function SelectRow({
   const { t } = useTranslation("eventOverview")
   return (
     <Checkbox
-      className="size-6 rounded-md"
+      className="size-6"
       checked={selectedIds.has(row.id)}
       aria-label={t("bulk.selectRow", { name: `${row.firstName} ${row.lastName}` })}
       onCheckedChange={(checked) => {
