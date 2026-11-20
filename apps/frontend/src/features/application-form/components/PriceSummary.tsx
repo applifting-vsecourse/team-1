@@ -7,9 +7,8 @@ import { Card } from "@/components/ui/card"
 import type { ParticipantPrice } from "@/features/application-form/lib/selection-price"
 
 // Figma (Design system): "Cena vybraných termínů" in
-// V07a https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12666-2708
-// M02a https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12666-18899
-// rows: "DS / Price row" https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=13196-780
+// V07 https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15507-914
+// M02 https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15507-1033
 
 export type PriceSummaryRow = ParticipantPrice & {
   /** Already resolved: the typed name or "Participant N". */
@@ -29,9 +28,7 @@ export function PriceSummary({ rows, totalCzk, children }: PriceSummaryProps) {
   return (
     <Card className="gap-4 p-[15px]">
       <h2 className="text-2xl font-semibold">{t("price.heading")}</h2>
-      <p className="text-sm text-muted-foreground">
-        {t("price.participants", { count: rows.length })}
-      </p>
+      <p className="text-sm font-bold">{t("price.participants", { count: rows.length })}</p>
       <ul className="flex flex-col gap-2">
         {rows.map((row, index) => (
           <li
@@ -39,7 +36,7 @@ export function PriceSummary({ rows, totalCzk, children }: PriceSummaryProps) {
             className="flex items-center justify-between gap-4"
           >
             <span className="flex flex-col">
-              <span className="font-semibold">{row.label}</span>
+              <span className="text-sm">{row.label}</span>
               <span className="text-sm text-muted-foreground">
                 {row.termCount === 0
                   ? t("price.noTerms")
@@ -47,7 +44,7 @@ export function PriceSummary({ rows, totalCzk, children }: PriceSummaryProps) {
               </span>
             </span>
             <MoneyAmount
-              className="font-bold"
+              className="text-sm font-medium"
               amountCzk={row.priceCzk}
             />
           </li>
@@ -55,11 +52,11 @@ export function PriceSummary({ rows, totalCzk, children }: PriceSummaryProps) {
       </ul>
       <p
         aria-live="polite"
-        className="flex items-center justify-between gap-4 border-t border-border pt-4"
+        className="flex items-center justify-between gap-4"
       >
-        <span className="text-lg font-semibold">{t("price.total")}</span>
+        <span className="text-sm font-medium">{t("price.total")}</span>
         <MoneyAmount
-          className="text-2xl font-semibold tracking-tight"
+          className="text-2xl"
           amountCzk={totalCzk}
         />
       </p>

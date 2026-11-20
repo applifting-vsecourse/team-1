@@ -38,13 +38,9 @@ type CatalogPageProps = {
 }
 
 // Figma v2 · public catalog · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22640-12072 (mobile 22640-12173).
-// US-123. Organization and event are a step-by-step choice on one page: the select narrows the cards.
-// Figma (Design system): Katalog akcí · Katalog organizací · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16146-10083
-// Akce organizace · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16146-10135
-// Katalog prázdný · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16146-10267
-// Načítání katalogu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16146-10309
-// Chyba katalogu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16146-10371
-// Mobil: 16146-10109, 16146-10165, 16146-10288, 16146-10340, 16146-10399
+// States: empty 19404-4819, loading 19404-4897, error 19404-4994.
+// US-123. Organization and event are a step-by-step choice on one page: the select narrows the cards
+// (Figma draws a search field instead; the select stays until #366).
 export function CatalogPage({ organizationId, onOrganizationChange }: CatalogPageProps) {
   const { t } = useTranslation("catalog")
   const selectId = useId()

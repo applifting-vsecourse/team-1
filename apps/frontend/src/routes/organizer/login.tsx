@@ -26,6 +26,7 @@ export const Route = createFileRoute("/organizer/login")({
 })
 
 // US-02 (S01, S13) sign-in; US-69 adds public organizer registration.
+// Figma v2: Přihlášení organizátora · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22456-10814
 function OrganizerLoginPage() {
   const { from } = Route.useSearch()
   const { t } = useTranslation("auth")
@@ -47,15 +48,13 @@ function OrganizerLoginPage() {
             >
               <Link to={ROUTES.organizer.register}>{t("organizerLogin.createAccount")}</Link>
             </Button>
-            <div className="flex flex-col items-center gap-1 text-center text-sm text-muted-foreground">
-              {t("organizerLogin.participantHint")}
-              <Link
-                to={ROUTES.participant.login}
-                className="font-medium text-accent-foreground underline underline-offset-4"
-              >
-                {t("organizerLogin.participantLink")}
-              </Link>
-            </div>
+            <Button
+              asChild
+              variant="ghost"
+              className="self-center"
+            >
+              <Link to={ROUTES.participant.login}>{t("organizerLogin.participantLink")}</Link>
+            </Button>
           </div>
         }
       >

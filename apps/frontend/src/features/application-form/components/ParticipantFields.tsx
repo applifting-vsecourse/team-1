@@ -39,15 +39,9 @@ import {
 } from "@/features/application-form/lib/application-form-schema"
 
 // Figma (Design system): "DS / Registration participant"
-// V07a https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12666-2708
-// M02a https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12666-18899
-// M03  https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12666-19517 (errors)
-// US-120 gender label + explanation: #245 Údaje účastníka
-//   desktop https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19799-67177
-//   mobile  https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19799-67279
-// US-38 individual accommodation (checkbox, hint, note; states: unticked, ticked with a note, note too long)
-//   desktop https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=25584-11418
-//   mobile  https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=25584-11441
+// V07 https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15507-914 (mobile 15507-1033)
+// errors https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15506-544
+// US-120 gender label + explanation and US-38 individual accommodation are kept from their stories.
 
 type ParticipantFieldsProps = {
   /** Position in the form, 0-based. */
@@ -144,12 +138,7 @@ export function ParticipantFields({ index, terms, onRemove, isDisabled }: Partic
                   {...field}
                 />
               </FormControl>
-              <div className="flex flex-col">
-                <FormDescription className="text-xs leading-[18px] font-medium">
-                  {t("form.birthDateHint")}
-                </FormDescription>
-                <FormMessage className="text-xs leading-[18px] font-medium" />
-              </div>
+              <FormMessage className="text-xs leading-[18px] font-medium" />
             </FormItem>
           )}
         />
@@ -198,7 +187,6 @@ export function ParticipantFields({ index, terms, onRemove, isDisabled }: Partic
         name={`participants.${index}.termIds`}
         render={({ field, fieldState }) => (
           <FormItem>
-            {/* Tiles: "DS / Term option" https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=13196-776 */}
             <fieldset className="grid gap-2">
               <legend className="mb-2 text-2xl font-semibold">{t("form.terms")}</legend>
               {terms.map((term) => {

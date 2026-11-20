@@ -1,6 +1,6 @@
 import type { ComponentType, ReactNode, SVGProps } from "react"
 import { createFileRoute, Link } from "@tanstack/react-router"
-import { Clock, List } from "lucide-react"
+import { Clock } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
@@ -87,18 +87,14 @@ function CatalogButton({
     <Button
       asChild
       size="lg"
-      variant="outline"
+      variant={isOnPrimary ? "outline" : "default"}
       className={cn(
-        isOnPrimary
-          ? "border-primary-foreground bg-transparent text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
-          : "border-primary bg-accent text-link hover:bg-accent/80",
+        isOnPrimary &&
+          "border-primary-foreground bg-transparent text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground",
         className,
       )}
     >
-      <Link to={ROUTES.catalog}>
-        <List aria-hidden />
-        {t("catalogLink")}
-      </Link>
+      <Link to={ROUTES.catalog}>{t("catalogLink")}</Link>
     </Button>
   )
 }
@@ -333,14 +329,7 @@ function LandingPage() {
               </div>
               <Heading>{t("features.waitlist.title")}</Heading>
               <p className="md:text-lg">{t("features.waitlist.body")}</p>
-              <Button
-                asChild
-                size="lg"
-                variant="secondary"
-                className="bg-card text-link hover:bg-card/90"
-              >
-                <Link to={ROUTES.catalog}>{t("catalogLink")}</Link>
-              </Button>
+              <CatalogButton isOnPrimary />
             </div>
             <div className="order-first flex h-50 items-center justify-center rounded-lg bg-card p-6 shadow-sm md:order-last md:h-[380px]">
               <Art
@@ -365,13 +354,13 @@ function LandingPage() {
           <Heading className="max-w-3xl">{t("participants.title")}</Heading>
           <p className="max-w-xl text-muted-foreground md:text-lg">{t("participants.body")}</p>
           <div className="flex w-full flex-col gap-3 md:w-auto md:flex-row">
-            <CatalogButton className="border-transparent bg-primary text-primary-foreground hover:bg-primary/90" />
+            <CatalogButton />
             <Button
               asChild
               size="lg"
               variant="outline"
             >
-              <Link to={ROUTES.participant.login}>{t("participantCta")}</Link>
+              <Link to={ROUTES.participant.login}>{t("footerLinks.myApplications")}</Link>
             </Button>
           </div>
         </section>

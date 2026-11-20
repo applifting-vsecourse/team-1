@@ -23,8 +23,8 @@ import { authClient } from "@/features/auth/lib/auth-client"
 
 type Props = { email: string; error?: string }
 
-// Figma (Design system): #69 / Ověřte svůj e-mail / Desktop · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19795-23125
-// Figma (Design system): #69 / Ověřovací odkaz vypršel / Desktop · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19795-23779
+// Figma v2: Ověřte svůj e-mail · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22456-11182
+// Figma v2: Ověřovací odkaz vypršel · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=21238-11168
 export function VerifyOrganizerEmail({ email, error }: Props) {
   const { t } = useTranslation("auth")
   const { t: tErrors } = useTranslation("errors")
@@ -124,14 +124,19 @@ export function VerifyOrganizerEmail({ email, error }: Props) {
           <TriangleAlert aria-hidden="true" />
           <AlertTitle>{t("registration.expiredAlertTitle")}</AlertTitle>
           <AlertDescription className="text-muted-foreground">
-            {t("registration.expiredAlertDescription")}
+            {t("registration.expiredAlertDescription", { email })}
           </AlertDescription>
         </Alert>
       ) : (
         <>
-          {email ? <p>{t("registration.verifySent", { email })}</p> : null}
+          {email ? (
+            <div className="flex flex-col gap-1">
+              <p className="text-sm text-muted-foreground">{t("registration.verifySent")}</p>
+              <p className="break-all">{email}</p>
+            </div>
+          ) : null}
           <p>{t("registration.verifyDescription")}</p>
-          <p>{t("registration.verifyRestriction")}</p>
+          <p className="text-muted-foreground">{t("registration.verifyRestriction")}</p>
         </>
       )}
       {failure ? (
@@ -147,21 +152,24 @@ export function VerifyOrganizerEmail({ email, error }: Props) {
       >
         {t(isExpired ? "registration.expiredAction" : "registration.resend")}
       </Button>
-      <p className="text-sm text-muted-foreground">{t("registration.checkSpam")}</p>
-      <div className="flex flex-col gap-2 sm:flex-row">
+      {isExpired ? null : <p className="text-muted-foreground">{t("registration.checkSpam")}</p>}
+      <Button
+        asChild
+        variant="ghost"
+        className="self-start"
+      >
+        <Link to={ROUTES.organizer.register}>{t("registration.correctEmail")}</Link>
+      </Button>
+      {isExpired ? null : (
         <Button
           asChild
           variant="outline"
-        >
-          <Link to={ROUTES.organizer.register}>{t("registration.correctEmail")}</Link>
-        </Button>
-        <Button
-          asChild
-          variant="ghost"
+          size="lg"
+          className="h-12 w-full"
         >
           <Link to={ROUTES.organizer.login}>{t("registration.signIn")}</Link>
         </Button>
-      </div>
+      )}
       {canBypass ? (
         <section className="flex flex-col gap-3 rounded-lg border bg-muted p-3">
           <h2 className="font-semibold">{t("registration.demoTitle")}</h2>

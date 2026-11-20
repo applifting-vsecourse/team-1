@@ -8,10 +8,12 @@ import { ROUTES } from "@/app/routes"
 import { BrandDivider } from "@/components/atoms/BrandDivider"
 import { Seo } from "@/components/atoms/Seo"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 
+import { authSessionQueryOptions } from "@/features/auth/api/authSessionQueryOptions"
 import {
   createOrganization,
   myOnboardingOrganizationsQueryOptions,
@@ -23,9 +25,9 @@ import { RegistrationLayout } from "@/features/auth/components/RegistrationLayou
 
 const bankAccountPattern = /^(?:\d{1,6}-)?\d{1,10}\/\d{4}$/
 
-// Figma (Design system): #69 / Založit organizaci / Desktop · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19795-23249
-// Figma (Design system): #69 / Doplňte profil organizace / Desktop · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19795-23375
-// Figma (Design system): #69 / Organizace je připravená / Desktop · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19795-23521
+// Figma v2: Založit organizaci · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=21238-10576
+// Figma v2: Doplnit profil organizace · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=21238-10700
+// "Organizace je připravená" has no v2 frame; it keeps the US-69 layout.
 export function OrganizationOnboarding() {
   const { t } = useTranslation("auth")
   const memberships = useQuery(myOnboardingOrganizationsQueryOptions())
@@ -86,6 +88,8 @@ function CreateOrganizationForm({
   const [isPending, setPending] = useState(false)
   const [failure, setFailure] = useState<string | null>(null)
   const queryClient = useQueryClient()
+  // The route guard has loaded the session; its e-mail is the one just verified.
+  const email = queryClient.getQueryData(authSessionQueryOptions().queryKey)?.user.email
 
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -113,6 +117,13 @@ function CreateOrganizationForm({
         {t("registration.createOrganizationTitle")}
       </h1>
       <BrandDivider />
+      <Badge
+        variant="success"
+        className="self-start"
+      >
+        {t("registration.emailVerified")}
+      </Badge>
+      {email ? <p>{t("registration.organizationIntro", { email })}</p> : null}
       <form
         noValidate
         onSubmit={(event) => void submit(event)}
@@ -150,6 +161,7 @@ function CreateOrganizationForm({
         >
           {t("registration.createOrganization")}
         </Button>
+        <p className="text-muted-foreground">{t("registration.organizationNext")}</p>
       </form>
     </RegistrationLayout>
   )
@@ -199,6 +211,17 @@ function OrganizationProfileForm({
       <Seo title={t("registration.profileTitle")} />
       <h1 className="text-2xl font-bold tracking-tight">{t("registration.profileTitle")}</h1>
       <BrandDivider />
+      <Badge
+        variant="success"
+        className="self-start"
+      >
+        {t("registration.organizationCreated")}
+      </Badge>
+      <div className="flex flex-col gap-1">
+        <p className="text-sm text-muted-foreground">{t("registration.organization")}</p>
+        <p>{profile.name}</p>
+      </div>
+      <p>{t("registration.profileIntro")}</p>
       <form
         noValidate
         onSubmit={(event) => void submit(event)}

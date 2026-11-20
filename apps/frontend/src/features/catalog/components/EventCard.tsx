@@ -11,8 +11,6 @@ import { termName } from "@/lib/term-label"
 import { catalogEventPhotoUrl, type CatalogEvent } from "@/features/catalog/api/catalog"
 
 // Figma v2: public catalog event cards · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22640-12072 (mobile 22640-12173)
-// desktop · Katalog organizací · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16146-10083
-// mobil · Katalog organizací · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16146-10109
 /** One published event; the whole card opens the event page. */
 export function EventCard({ event }: { event: CatalogEvent }) {
   const { t } = useTranslation("catalog")

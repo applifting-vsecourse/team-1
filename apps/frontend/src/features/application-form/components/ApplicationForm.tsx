@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useFieldArray, useForm, useWatch, type Resolver } from "react-hook-form"
+import { ArrowLeft, Plus, TriangleAlert } from "lucide-react"
+import { useFieldArray, useForm, useWatch, type FieldErrors, type Resolver } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { BrandDivider } from "@/components/atoms/BrandDivider"
-import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -47,6 +48,18 @@ import { priceOfSelection, totalPrice } from "@/features/application-form/lib/se
 // Figma (Design system): the form part of V07 / V07a (desktop) and M02 / M02a (360 px);
 // errors M03, sending M04.
 // https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15507-914 (mobile 15507-1033)
+// Errors with the summary: https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15506-544
+// Review step with "Zpět k úpravám": https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15506-941
+
+/** How many fields carry an error: every leaf of the error tree with a message. */
+function countErrors(errors: FieldErrors | undefined): number {
+  if (!errors) return 0
+  return Object.values(errors).reduce<number>((sum, error) => {
+    if (!error || typeof error !== "object") return sum
+    if ("message" in error && typeof error.message === "string") return sum + 1
+    return sum + countErrors(error as FieldErrors)
+  }, 0)
+}
 
 const emptyParticipant: ParticipantDraft = {
   firstName: "",
@@ -133,6 +146,11 @@ export function ApplicationForm({
     nextField.current = field
     setReview(null)
   }
+  const backToEditing = () => {
+    setReview(null)
+    // The heading is the same element in both steps; focus it so the step change is announced.
+    heading.current?.focus()
+  }
   const { fields, append, insert, remove } = useFieldArray({
     control: form.control,
     name: "participants",
@@ -167,6 +185,9 @@ export function ApplicationForm({
   }
 
   const isSubmitting = (Boolean(review) && form.formState.isSubmitting) || Boolean(isDone)
+  // Read on every render: the form state proxy only keeps the errors fresh once they are subscribed to.
+  const { errors } = form.formState
+  const errorCount = invalidSubmitCount > 0 ? countErrors(errors) : 0
 
   return (
     <Form {...form}>
@@ -233,6 +254,24 @@ export function ApplicationForm({
             <>
               <BrandDivider />
               <EventSummary event={event} />
+              {errorCount > 0 ? (
+                <div className="flex flex-col items-start gap-2">
+                  <Alert variant="destructive">
+                    <TriangleAlert aria-hidden />
+                    <AlertTitle>{t("form.errorSummary.title", { count: errorCount })}</AlertTitle>
+                    <AlertDescription>{t("form.errorSummary.description")}</AlertDescription>
+                  </Alert>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={() => {
+                      if (formRef.current) focusFirstInvalidField(formRef.current)
+                    }}
+                  >
+                    {t("form.errorSummary.goToFirst")}
+                  </Button>
+                </div>
+              ) : null}
               {fields.map((field, index) => (
                 <ParticipantFields
                   key={field.id}
@@ -252,12 +291,13 @@ export function ApplicationForm({
 
               <Button
                 type="button"
-                variant="outline"
+                variant="ghost"
                 size="lg"
                 className="w-full sm:w-auto sm:self-start"
                 disabled={isSubmitting}
                 onClick={() => append({ ...emptyParticipant })}
               >
+                <Plus aria-hidden />
                 {t("form.addParticipant")}
               </Button>
 
@@ -302,10 +342,10 @@ export function ApplicationForm({
                           {...field}
                         />
                       </FormControl>
+                      <FormMessage />
                       <FormDescription className="text-xs font-medium">
                         {t("form.emailHint")}
                       </FormDescription>
-                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -373,6 +413,18 @@ export function ApplicationForm({
             >
               {t(isSubmitting ? "form.submitting" : review ? "form.submit" : "review.continue")}
             </Button>
+            {review ? (
+              <Button
+                type="button"
+                variant="ghost"
+                className="w-fit rounded-full bg-accent px-4 text-link hover:bg-accent/80 has-[>svg]:px-4"
+                disabled={isSubmitting}
+                onClick={backToEditing}
+              >
+                <ArrowLeft aria-hidden />
+                {t("review.backToEditing")}
+              </Button>
+            ) : null}
             {isSubmitting ? (
               <p
                 role="status"
