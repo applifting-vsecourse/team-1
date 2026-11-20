@@ -15,6 +15,8 @@ const badgeVariants = cva(
         success: "bg-status-success-bg text-status-success",
         warning: "bg-status-warning-bg text-status-warning",
         info: "bg-status-info-bg text-status-info",
+        // Figma DS / Badge Tone=Danger: a negative outcome that is not a destructive action (#552)
+        danger: "bg-status-error-bg text-status-error",
       },
     },
     defaultVariants: {

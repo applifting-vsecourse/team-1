@@ -98,7 +98,7 @@ export function ChangeRequestsPanel({ eventId }: { eventId: string }) {
             <h3 className="text-lg font-semibold">{item.participantName}</h3>
             <p className="break-words">{summary(item)}</p>
             <Badge
-              variant="secondary"
+              variant="warning"
               className="self-start"
             >
               {t("changeRequests.pending")}
