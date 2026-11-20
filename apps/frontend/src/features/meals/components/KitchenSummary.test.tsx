@@ -138,7 +138,7 @@ describe("KitchenSummary", () => {
     renderPage()
     await showByCategory()
     expect(await screen.findByRole("heading", { name: "Meals" })).toBeVisible()
-    expect(screen.getByText("Summer camp · Meals")).toBeVisible()
+    expect(screen.getByText("Summer camp")).toBeVisible()
     expect(screen.getByRole("heading", { name: "10 confirmed participants" })).toBeVisible()
     expect(screen.getByText("Each participant is counted once.")).toBeVisible()
     expect(screen.getByRole("link", { name: "Back to event overview" })).toHaveAttribute(
