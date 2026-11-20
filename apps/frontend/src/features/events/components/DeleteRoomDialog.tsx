@@ -75,10 +75,8 @@ export function DeleteRoomDialog({
             </DialogDescription>
             <dl className="grid gap-4">
               <div className="grid gap-2">
-                <dt className="text-sm text-muted-foreground">{t("rooms.deleteCapacityAfter")}</dt>
-                <dd className="font-semibold">
-                  {t("roomWarnings.beds", { count: term.capacity.total - room.beds })}
-                </dd>
+                <dt className="text-sm text-muted-foreground">{t("rooms.deleteRoomCapacity")}</dt>
+                <dd className="font-semibold">{t("roomWarnings.beds", { count: room.beds })}</dd>
               </div>
               {confirmed !== undefined && (
                 <div className="grid gap-2">
