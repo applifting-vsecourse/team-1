@@ -80,6 +80,7 @@
     "hint": "You can also adjust the time with the arrow keys.",
     "instructions": "Press Space or Enter to pick up a block. Up and Down move it by 30 minutes. Left and Right change the day. Space or Enter saves the move. Escape cancels it.",
     "label": "Move block {{name}}",
+    "overlap_few": "Overlap with “{{name}}”: {{count}} minutes.",
     "overlap_one": "Overlap with “{{name}}”: {{count}} minute.",
     "overlap_other": "Overlap with “{{name}}”: {{count}} minutes.",
     "position": "{{name}} · {{date}} · {{time}}"
