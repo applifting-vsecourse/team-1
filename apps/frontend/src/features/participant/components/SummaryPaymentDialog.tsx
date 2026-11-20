@@ -14,8 +14,8 @@ import type { MyApplication } from "@/features/participant/api/applications"
 
 type Props = { application: MyApplication; onClose: () => void }
 
-// Figma (Design system): US-127 / Detail přihlášky · Dialog: Platby · souhrnné QR · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16290-2854
-// Figma (Design system): US-127 / Detail přihlášky · Dialog: Platby · souhrnné QR / Mobile · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16290-2921
+// Figma (Design system v2): US-127 / Detail přihlášky · Dialog: Platby · souhrnné QR · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22408-25109
+// Figma (Design system v2): US-127 / Detail přihlášky · Dialog: Platby · souhrnné QR / Mobile · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22408-25357
 export function SummaryPaymentDialog({ application, onClose }: Props) {
   const { t } = useTranslation(["participant", "common"])
   const details = application.paymentDetails!

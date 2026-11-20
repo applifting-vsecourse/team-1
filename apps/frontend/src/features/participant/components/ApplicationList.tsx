@@ -17,7 +17,7 @@ import {
 import { ApplicationCard } from "@/features/participant/components/ApplicationCard"
 
 /** All applications under the signed-in account — loading, empty and error are all drawn here (DESIGN.md). */
-// Figma (Design system): U01 Přihlášky · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12092-104
+// Figma (Design system v2): US-54 / Moje přihlášky · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15649-2 (360 px: node-id=15649-122; empty: 15649-449)
 export function ApplicationList() {
   const { t } = useTranslation("participant")
   const { data, isPending, error, refetch } = useQuery(myApplicationsQueryOptions())

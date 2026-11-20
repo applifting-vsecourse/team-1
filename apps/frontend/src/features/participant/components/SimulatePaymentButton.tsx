@@ -14,7 +14,7 @@ type SimulatePaymentButtonProps = { applicationId: string; termId: string; amoun
  * Staging and demo only (US-115): records a simulated payment of the term's remaining debt. The
  * parent renders it only when the backend says `canSimulatePayment`.
  */
-// Figma (Design system): US-115 / Detail přihlášky · Platby · simulace · Návrh A · simulace termínu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15954-1005 (360 px: node-id=15954-1133)
+// Figma (Design system v2): US-115 / Detail přihlášky · Platby · simulace · Návrh A · simulace termínu · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=21594-25942 (360 px: node-id=21594-26323)
 export function SimulatePaymentButton({
   applicationId,
   termId,

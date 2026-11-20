@@ -308,7 +308,7 @@ describe("ApplicationDetail", () => {
     })
     renderDetail(application())
 
-    const terms = await screen.findByRole("region", { name: "Terms and payments" })
+    const terms = await screen.findByRole("region", { name: "Terms" })
     expect(within(terms).getByRole("button", { name: "Cancel participation" })).toBeVisible()
     await user.click(await within(terms).findByRole("button", { name: "Change terms" }))
     const dialog = await screen.findByRole("dialog", { name: "Change term" })

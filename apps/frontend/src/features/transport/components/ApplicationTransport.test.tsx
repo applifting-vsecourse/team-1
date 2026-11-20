@@ -97,7 +97,7 @@ describe("ApplicationTransport", () => {
     renderPage()
     await userEvent.click(await screen.findByRole("combobox", { name: "Transport" }))
     await userEvent.click(await screen.findByRole("option", { name: "Autobus z Prahy" }))
-    await userEvent.click(screen.getByRole("button", { name: "Save transport" }))
+    await userEvent.click(screen.getByRole("button", { name: "Save transport choice" }))
 
     expect(await screen.findByText("Application detail")).toBeInTheDocument()
   })
@@ -166,12 +166,12 @@ describe("ApplicationTransport", () => {
     await user.click(await screen.findByRole("option", { name: "Autobus z Prahy" }))
     await user.click(second!)
     await user.click(await screen.findByRole("option", { name: "Vlak z Brna" }))
-    await user.click(screen.getByRole("button", { name: "Save transport" }))
+    await user.click(screen.getByRole("button", { name: "Save transport choice" }))
     await waitFor(() => {
       expect(screen.getAllByRole("combobox")).toHaveLength(1)
     })
 
-    await user.click(screen.getByRole("button", { name: "Save transport" }))
+    await user.click(screen.getByRole("button", { name: "Save transport choice" }))
     expect(await screen.findByText("Application detail")).toBeInTheDocument()
     expect(puts.filter((put) => put === "term1:t1")).toHaveLength(1)
   })

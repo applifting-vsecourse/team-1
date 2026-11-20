@@ -30,8 +30,7 @@ import { departureText } from "@/features/transport/lib/departure"
 
 // The applicant chooses, for each term, how the participant gets to the event and sees where and
 // when it leaves.
-// Figma (Design system): #65 Doprava · Adam Dvořák · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19795-12943
-// Figma v2 · transport selection over the application · desktop 22640:39327, mobile 22640:39416.
+// Figma (Design system v2): #402 / Výběr způsobu dopravy · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22640-39327 (360 px: node-id=22640-39416)
 export function ApplicationTransport({ applicationId }: { applicationId: string }) {
   const { t } = useTranslation(["transport", "common"])
   const query = useQuery(applicationTransportQueryOptions(applicationId))
@@ -89,7 +88,7 @@ export function ApplicationTransport({ applicationId }: { applicationId: string 
   })
 
   const terms = query.data?.terms.filter((term) => term.options.length > 0) ?? []
-  const title = t("choicePlaceholder")
+  const title = t("chooseTitle")
 
   return (
     <Dialog
@@ -158,14 +157,16 @@ export function ApplicationTransport({ applicationId }: { applicationId: string 
                 <Card className="gap-4 p-4">
                   {selected.departureAt ? (
                     <>
-                      <h4 className="text-lg font-semibold">{t("departureTitle")}</h4>
+                      <h4 className="text-2xl font-bold tracking-tight">{t("departureTitle")}</h4>
                       <p>{departureText(selected.departureAt, t("at"))}</p>
                       <p>{selected.departurePlace}</p>
                     </>
                   ) : null}
                   {selected.instructions ? (
                     <>
-                      <h4 className="text-lg font-semibold">{t("instructionsTitle")}</h4>
+                      <h4 className="text-2xl font-bold tracking-tight">
+                        {t("instructionsTitle")}
+                      </h4>
                       <p className="whitespace-pre-line">{selected.instructions}</p>
                     </>
                   ) : null}
@@ -190,7 +191,7 @@ export function ApplicationTransport({ applicationId }: { applicationId: string 
               mutation.mutate()
             }}
           >
-            {mutation.isPending ? t("state.saving", { ns: "common" }) : t("save")}
+            {mutation.isPending ? t("state.saving", { ns: "common" }) : t("chooseSave")}
           </Button>
         ) : null}
       </DialogContent>

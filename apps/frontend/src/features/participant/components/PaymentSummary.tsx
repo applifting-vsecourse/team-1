@@ -25,16 +25,16 @@ type PaymentSummaryProps = {
  * ones, which only say nothing is paid yet, last. Terms still to be evaluated or cancelled are
  * not shown here, and nothing is when no term is confirmed or waitlisted.
  */
-// Figma (Design system): US-115 / Detail přihlášky · Platby · simulace · Návrh A · simulace termínu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15954-1005 (360 px: node-id=15954-1133)
-// Figma (Design system): US-115 / Detail přihlášky · Platby · simulace · Výsledek návrhu A · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15954-1446 (360 px: node-id=15954-1551)
-// Figma (Design system): #311 Moje přihláška · Přeplatek a dluh · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19799-15947 (360 px: node-id=19799-16073)
-// Figma (Design system): Detail přihlášky · Platby · Dluh 500 + 700 Kč · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15845-628 (360 px: node-id=15845-736)
-// Figma (Design system): Detail přihlášky · Platby · První termín zaplacený · druhý nově potvrzený · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15845-463 (360 px: node-id=15845-563)
-// Figma (Design system): Detail přihlášky · Platby · Více nově potvrzených · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19446-21743 (360 px: node-id=19446-21892)
-// Figma (Design system): Detail přihlášky · Platby · Oba termíny zaplacené #203 · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19446-22050 (360 px: node-id=19446-22404)
-// Figma (Design system): Detail přihlášky · Platby · Jeden termín rozbalený #203 · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19446-22213 (360 px: node-id=19446-22517)
-// Figma (Design system): Detail přihlášky · Platby · Náhradník v jednom termínu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19448-8297 (360 px: node-id=19448-8571)
-// Figma (Design system): Detail přihlášky · Platby · Náhradník ve všech termínech · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19448-8453 (360 px: node-id=19448-8677)
+// Figma (Design system v2): US-115 / Detail přihlášky · Platby · simulace · Návrh A · simulace termínu · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=21594-25942 (360 px: node-id=21594-26323)
+// Figma (Design system v2): US-115 / Detail přihlášky · Platby · simulace · Výsledek návrhu A · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=21594-28897 (360 px: node-id=21594-29239)
+// Figma (Design system v2): #311 Moje přihláška · Přeplatek a dluh · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22448-26367 (360 px: node-id=22448-26494)
+// Figma (Design system v2): Detail přihlášky · Platby · Dluh 500 + 700 Kč · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15845-628 (360 px: node-id=15845-736)
+// Figma (Design system v2): Detail přihlášky · Platby · První termín zaplacený · druhý nově potvrzený · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15845-463 (360 px: node-id=15845-563)
+// Figma (Design system v2): Detail přihlášky · Platby · Více nově potvrzených · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=19446-21743 (360 px: node-id=19446-21892)
+// Figma (Design system v2): Detail přihlášky · Platby · Oba termíny zaplacené #203 · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=19446-22050 (360 px: node-id=19446-22404)
+// Figma (Design system v2): Detail přihlášky · Platby · Jeden termín rozbalený #203 · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=19446-22213 (360 px: node-id=19446-22517)
+// Figma (Design system v2): Detail přihlášky · Platby · Náhradník v jednom termínu · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=19448-8297 (360 px: node-id=19448-8571)
+// Figma (Design system v2): Detail přihlášky · Platby · Náhradník ve všech termínech · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=19448-8453 (360 px: node-id=19448-8677)
 export function PaymentSummary({ application }: PaymentSummaryProps) {
   const { t } = useTranslation("participant")
   const [isSummaryOpen, setIsSummaryOpen] = useState(false)

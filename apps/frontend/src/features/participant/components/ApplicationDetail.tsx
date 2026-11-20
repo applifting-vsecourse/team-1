@@ -41,8 +41,10 @@ import { TermStatusBadge } from "@/features/participant/components/TermSummary"
 type ApplicationDetailProps = { applicationId: string }
 
 /** One application: the event, the status of every term and, with a confirmed term, the payment details. */
-// Figma (Design system): Detail přihlášky · Moje přihlášky (K vyhodnocení) · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15751-1721 (360 px: node-id=15751-1784)
-// Figma (Design system): U04 Moje přihláška · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=11988-11066
+// Figma (Design system v2): #509 / Dva potvrzené termíny · kroky a dluh · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=24910-14581 (360 px: node-id=24910-14762)
+// Figma (Design system v2): #407 / Detail · úkoly a akce u termínu · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22640-37641 (360 px: node-id=22640-37793)
+// Figma (Design system v2): US-102 / Detail přihlášky (K vyhodnocení) · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15751-1721 (360 px: node-id=15751-1784)
+// Figma (Design system v2): US-54 + US-121 / Detail přihlášky · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15649-211 (360 px: node-id=15649-293)
 // Action placement follows #407; its linked #311 frames cover the payment cards only.
 export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
   const { t } = useTranslation("participant")
@@ -165,11 +167,11 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
           ) : null}
         </section>
         <aside className="grid min-w-0 gap-4">
+          <RoomSection terms={data.terms} />
           <RoomWishesSection
             applicationId={applicationId}
             terms={data.terms}
           />
-          <RoomSection terms={data.terms} />
           {hasSteps ? (
             <div>
               <Button

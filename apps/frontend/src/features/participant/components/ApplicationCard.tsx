@@ -14,7 +14,7 @@ import { PaymentStatusBadge, TermStatusBadge } from "@/features/participant/comp
 type ApplicationCardProps = { application: MyApplication }
 
 /** One application in the list: event, who and which number, every term with its status. Opens the detail. */
-// Figma v2: US-54 · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15649-2 (mobile 15649-122).
+// Figma (Design system v2): US-54 / Moje přihlášky · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15649-2 (360 px: node-id=15649-122)
 export function ApplicationCard({ application }: ApplicationCardProps) {
   const { t } = useTranslation("participant")
   return (
@@ -24,20 +24,20 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
       aria-label={`${application.eventName} · ${application.firstName} ${application.lastName} · ${application.code}`}
       className="block rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
     >
-      <Card className="gap-3 rounded-xl p-4 shadow-none transition-colors hover:bg-accent/40">
-        <div className="flex items-center justify-between gap-6">
-          <h3 className="text-lg font-semibold">
-            {application.firstName} {application.lastName}
-            {" · "}
-            <span className="text-sm font-normal text-muted-foreground">{application.code}</span>
-          </h3>
-          <ChevronRight
-            aria-hidden
-            className="size-5 shrink-0 text-muted-foreground"
-          />
-        </div>
-        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-          <p className="text-sm text-muted-foreground">
+      <Card className="relative gap-3 rounded-xl p-4 shadow-none transition-colors hover:bg-accent/40 md:grid md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,12rem)] md:gap-6 md:pr-14">
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center justify-between gap-6">
+            <h3>
+              {application.firstName} {application.lastName}
+              {" · "}
+              <span className="text-sm text-muted-foreground">{application.code}</span>
+            </h3>
+            <ChevronRight
+              aria-hidden
+              className="size-5 shrink-0 text-muted-foreground md:hidden"
+            />
+          </div>
+          <p className="text-sm">
             {[
               application.birthDate && formatDate(application.birthDate),
               application.gender &&
@@ -46,21 +46,26 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
               .filter(Boolean)
               .join(" · ")}
           </p>
-          <PaymentStatusBadge status={application.paymentStatus} />
+          <div>
+            <PaymentStatusBadge status={application.paymentStatus} />
+          </div>
         </div>
-        {/* Rows: "U / Term status row" https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=13884-219 */}
-        <ul className="pt-2">
+        {/* Term rows: date and status side by side on a phone, the status under the date on desktop. */}
+        <ul className="flex flex-col gap-2 md:gap-4">
           {application.terms.map((term) => (
             <li
               key={term.termId}
-              className="flex items-center gap-4 py-1"
+              className="flex items-center gap-4 md:flex-col md:items-start md:gap-2"
             >
               <TermLabel term={term} />
-              <TermStatusBadge term={term} />
+              <TermStatusBadge
+                term={term}
+                confirmedLabel={t("list.confirmed")}
+              />
             </li>
           ))}
         </ul>
-        <dl className="grid grid-cols-2 gap-3">
+        <dl className="grid grid-cols-2 gap-3 md:grid-cols-1">
           <div>
             <dt className="text-sm text-muted-foreground">{t("list.termPrice")}</dt>
             <dd>
@@ -78,6 +83,10 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
             </dd>
           </div>
         </dl>
+        <ChevronRight
+          aria-hidden
+          className="absolute top-5 right-5 hidden size-5 text-muted-foreground md:block"
+        />
       </Card>
     </Link>
   )

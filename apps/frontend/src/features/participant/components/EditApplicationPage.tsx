@@ -8,6 +8,7 @@ import { ROUTES } from "@/app/routes"
 import { BackLink } from "@/components/atoms/BackLink"
 import { CharacterCounter } from "@/components/atoms/CharacterCounter"
 import { HeadingBand } from "@/components/atoms/HeadingBand"
+import { DateField } from "@/components/molecules/DateField"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -24,6 +25,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { isIsoDate } from "@/lib/date-input"
 import { isValidPhone, MAX_PHONE_INPUT_LENGTH, normalizePhone } from "@/lib/phone"
 
 import {
@@ -34,9 +36,8 @@ import {
 } from "@/features/participant/api/applicationEdit"
 import { EditDetails } from "@/features/participant/components/ApplicationEditHistory"
 
-// Figma (Design system): Upravit přihlášku · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19795-13915 (mobile: 19795-14057)
-// Figma (Design system): US-38 individuální řešení ubytování v úpravě údajů · nezaškrtnuto node-id=25586-32206 (mobile: 25586-32330); zaškrtnuto s poznámkou 25586-32411 (mobile: 25586-32543); chyba 25586-32632 (mobile: 25586-32768)
-// Figma (Design system): Změny byly uloženy · node-id=19795-14149 (mobile: 19795-14264); Změny se nepodařilo uložit · node-id=19795-14329 (mobile: 19795-14464)
+// Figma (Design system v2): US-34 / Upravit údaje · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=20491-16159 (360 px: 20491-16398); Chyba uložení 20491-17377 (360 px: 20491-17622); Uloženo 20491-17822 (360 px: 20491-18074)
+// Figma (Design system v2): #38 individuální řešení ubytování · nezaškrtnuto node-id=25586-32206 (360 px: 25586-32330); zaškrtnuto s poznámkou 25586-32411 (360 px: 25586-32543); chyba 25586-32632 (360 px: 25586-32768)
 export function EditApplicationPage({ applicationId }: { applicationId: string }) {
   const { t } = useTranslation("participant")
   const query = useQuery(applicationEditQueryOptions(applicationId))
@@ -116,8 +117,10 @@ function EditForm({
     return trimmed?.length ? trimmed : null
   }
   const isPhoneInvalid = !isValidPhone(normalizePhone(values.phone))
-  const [isPhoneChecked, setIsPhoneChecked] = useState(false)
-  const shouldShowPhoneError = isPhoneInvalid && isPhoneChecked
+  const [hasTriedSubmit, setHasTriedSubmit] = useState(false)
+  const shouldShowPhoneError = isPhoneInvalid && hasTriedSubmit
+  const isBirthDateInvalid = !isIsoDate(values.birthDate)
+  const shouldShowBirthDateError = isBirthDateInvalid && hasTriedSubmit
   const isNoteTooLong =
     values.individualAccommodation &&
     (values.accommodationRequest ?? "").length > MAX_ACCOMMODATION_NOTE_LENGTH
@@ -204,8 +207,8 @@ function EditForm({
       className="flex w-full flex-col gap-6"
       onSubmit={(event) => {
         event.preventDefault()
-        setIsPhoneChecked(true)
-        if (isNoteTooLong || isPhoneInvalid) return
+        setHasTriedSubmit(true)
+        if (isNoteTooLong || isPhoneInvalid || isBirthDateInvalid) return
         setFailedFields(changed)
         mutation.mutate()
       }}
@@ -264,7 +267,7 @@ function EditForm({
         ) : null}
         {shouldShowPersonalCard ? (
           <Card className="gap-5 p-4 md:p-5">
-            <h2 className="text-2xl font-semibold">{t("edit.participant")}</h2>
+            <h2 className="text-2xl font-bold tracking-tight">{t("edit.participant")}</h2>
             <div className="grid gap-4 sm:grid-cols-2">
               {!mutation.isError || visibleFields.firstName ? (
                 <div className="flex flex-col gap-2">
@@ -296,50 +299,53 @@ function EditForm({
             {!mutation.isError || visibleFields.birthDate ? (
               <div className="flex flex-col gap-2">
                 <Label htmlFor="edit-birth-date">{t("edit.birthDate")}</Label>
-                <Input
+                <DateField
                   id="edit-birth-date"
                   required
-                  type="date"
                   min="1900-01-01"
                   max={new Date().toISOString().slice(0, 10)}
                   value={values.birthDate}
-                  onChange={(event) => set("birthDate", event.target.value)}
+                  onChange={(value) => set("birthDate", value)}
+                  aria-invalid={shouldShowBirthDateError}
+                  aria-describedby={shouldShowBirthDateError ? "edit-birth-date-error" : undefined}
                   className="h-12"
                 />
+                {shouldShowBirthDateError ? (
+                  <p
+                    id="edit-birth-date-error"
+                    role="alert"
+                    className="text-sm text-destructive"
+                  >
+                    {t("edit.birthDateInvalid")}
+                  </p>
+                ) : null}
               </div>
             ) : null}
           </Card>
         ) : null}
         {!mutation.isError || visibleFields.phone ? (
           <Card className="gap-4 p-4">
-            <h2 className="text-2xl font-semibold">{t("edit.contactHeading")}</h2>
+            <h2 className="text-2xl font-bold tracking-tight">{t("edit.contactHeading")}</h2>
             {phoneField}
             <p className="text-sm text-muted-foreground">{t("edit.contactHint")}</p>
           </Card>
         ) : null}
         {!mutation.isError || visibleFields.accommodationRequest ? (
           <Card className="gap-4 p-4">
-            <h2 className="text-2xl font-semibold">{t("edit.accommodationHeading")}</h2>
-            <div className="flex flex-col gap-1">
-              <div className="flex min-h-11 items-center gap-3">
-                <Checkbox
-                  id="edit-individual-accommodation"
-                  className="size-5"
-                  checked={values.individualAccommodation}
-                  onCheckedChange={(isChecked) =>
-                    set("individualAccommodation", isChecked === true)
-                  }
-                />
-                <Label
-                  htmlFor="edit-individual-accommodation"
-                  className="flex-1 cursor-pointer self-stretch leading-5 font-normal"
-                >
-                  {t("edit.individualAccommodation")}
-                </Label>
-              </div>
-              <p className="pl-8 text-sm text-muted-foreground">
-                {t("edit.individualAccommodationHint")}
-              </p>
+            <h2 className="text-2xl font-bold tracking-tight">{t("edit.accommodationHeading")}</h2>
+            <div className="flex min-h-11 items-center gap-3">
+              <Checkbox
+                id="edit-individual-accommodation"
+                className="size-5"
+                checked={values.individualAccommodation}
+                onCheckedChange={(isChecked) => set("individualAccommodation", isChecked === true)}
+              />
+              <Label
+                htmlFor="edit-individual-accommodation"
+                className="flex-1 cursor-pointer self-stretch leading-5 font-normal"
+              >
+                {t("edit.individualAccommodation")}
+              </Label>
             </div>
             {values.individualAccommodation ? (
               <div className="flex flex-col gap-2">
@@ -368,6 +374,8 @@ function EditForm({
                 </div>
               </div>
             ) : null}
+            {/* #38: the hint sits under the last control — the checkbox, or the note when ticked. */}
+            <p className="text-sm text-muted-foreground">{t("edit.individualAccommodationHint")}</p>
           </Card>
         ) : null}
         <div className="grid gap-3 sm:grid-cols-2">

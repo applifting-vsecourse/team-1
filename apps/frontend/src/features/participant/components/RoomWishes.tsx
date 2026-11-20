@@ -39,10 +39,10 @@ export function RoomWishesSection({
   )
 }
 
-// Figma (Design system): US-146 Přihlašovatel · Zadat přání · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=24910-13607 (mobile 24910-13753)
-// Figma (Design system): US-146 Přihlašovatel · Upravit přání · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=24910-13851 (mobile 24910-13997)
-// Figma (Design system): US-146 Přihlašovatel · Smazat přání · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=25131-31521 (mobile 24910-14223)
-// Figma (Design system): US-146 Přihlašovatel · Po smazání · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=25131-31665 (mobile 24910-14304)
+// Figma (Design system v2): #506 Přihlašovatel · Zadat přání · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=24910-13607 (mobile 24910-13753)
+// Figma (Design system v2): #506 Přihlašovatel · Upravit přání · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=24910-13851 (mobile 24910-13997)
+// Figma (Design system v2): #506 Přihlašovatel · Smazat přání · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=25131-31521 (mobile 24910-14223)
+// Figma (Design system v2): #506 Přihlašovatel · Po smazání · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=25131-31665 (mobile 24910-14304)
 function RoomWishesCard({
   applicationId,
   term,
@@ -77,10 +77,10 @@ function RoomWishesCard({
       aria-labelledby={headingId}
       className="flex flex-col gap-4"
     >
-      <Card className="gap-4 p-4 sm:max-w-190 sm:p-6">
+      <Card className="gap-4 p-4">
         <h2
           id={headingId}
-          className="text-2xl font-semibold tracking-tight"
+          className="text-xl font-bold tracking-tight"
         >
           {t("roomWishes.title")}
         </h2>
@@ -170,7 +170,7 @@ function RoomWishesCard({
           </div>
         ) : (
           <div className="flex flex-col items-start gap-4">
-            <p className="text-lg">{saved.join(", ")}</p>
+            <p>{saved.join(", ")}</p>
             <div className="flex flex-wrap gap-3">
               <Button
                 type="button"

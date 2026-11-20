@@ -4,7 +4,6 @@ import { Link, useNavigate } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
-import { BackLink } from "@/components/atoms/BackLink"
 import { CheckboxRow } from "@/components/molecules/CheckboxRow"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
@@ -30,8 +29,8 @@ const NOTE_MAX_LENGTH = 2000
  * The participant's health restriction: a note and the explicit consent with its processing.
  * Saving is possible only with the consent (an empty note, which removes the data, needs none).
  */
-// Figma (Design system): #68 / Zdravotní omezení · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19795-13334 (360 px: node-id=19795-13459)
-// Figma (Design system): #68 / Zdravotní omezení · souhlas udělen · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19795-13534 (360 px: node-id=19795-13651)
+// Figma (Design system v2): US-68 / Před udělením souhlasu · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=21218-17181 (360 px: node-id=21218-17327)
+// Figma (Design system v2): US-68 / Souhlas udělen · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=21218-17423 (360 px: node-id=21218-17559)
 export function ParticipantHealthForm({ applicationId }: { applicationId: string }) {
   const { t } = useTranslation("health")
   const { data, isPending, error, refetch } = useQuery(ownHealthQueryOptions(applicationId))
@@ -115,12 +114,6 @@ function HealthFields({ applicationId, health }: { applicationId: string; health
         mutation.mutate()
       }}
     >
-      <BackLink
-        to={ROUTES.participant.application}
-        params={{ applicationId }}
-      >
-        {t("backToApplication")}
-      </BackLink>
       <PageHeader
         hasBand
         motif="forms"

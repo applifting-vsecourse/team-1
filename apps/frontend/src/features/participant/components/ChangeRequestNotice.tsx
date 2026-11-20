@@ -13,8 +13,8 @@ import { termLine } from "@/lib/term-label"
 import type { MyApplicationTerm } from "@/features/participant/api/applications"
 import { participantChangeRequestsQueryOptions } from "@/features/participant/api/changeRequests"
 
-// Figma (Design system): #408 Detail · žádost odeslána · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=22640-39109 (mobile: 22640-39243)
-// Figma (Design system): US-114 Detail přihlášky · Žádost čeká / Změna schválená / Žádost zamítnutá · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15928-9271 (mobile: 15928-9331)
+// Figma (Design system v2): #408 Detail · žádost odeslána · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22640-39109 (mobile: 22640-39243)
+// Figma (Design system v2): US-114 Detail přihlášky · Žádost čeká / Změna schválená / Žádost zamítnutá · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15928-9271 (mobile: 15928-9331)
 export function ChangeRequestNotice({
   applicationId,
   terms,

@@ -23,7 +23,7 @@ const ALLERGIES_MAX_LENGTH = 1000
 const SPECIAL_REQUEST_MAX_LENGTH = 1000
 
 /** The meal restrictions of the participant of one application: ticked options and allergies. */
-// Figma (Design system): #64 / Stravování · Adam Dvořák / Desktop · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19795-11810 (360 px: node-id=19795-11931)
+// Figma (Design system v2): US-64 / Upravit stravování / Desktop · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=20697-16009 (360 px: node-id=20697-16148)
 export function ParticipantMeals({ applicationId }: { applicationId: string }) {
   const { t } = useTranslation("meals")
   const { data, isPending, error, refetch } = useQuery(ownMealsQueryOptions(applicationId))
@@ -102,7 +102,7 @@ function MealsForm({ applicationId, meals }: { applicationId: string; meals: Own
         description={meals.eventName}
       />
       <Card className="mx-auto w-full max-w-[720px] gap-4 p-4">
-        <h2 className="text-lg font-semibold">{t("own.restrictions")}</h2>
+        <h2 className="text-2xl font-bold tracking-tight">{t("own.restrictions")}</h2>
         {/* US-150: confirms the step without any restriction; not drawn in Figma. */}
         <CheckboxRow
           id="meal-none"
@@ -148,7 +148,6 @@ function MealsForm({ applicationId, meals }: { applicationId: string; meals: Own
             onChange={(event) => setSpecialRequest(event.target.value)}
           />
         </div>
-        <p className="text-sm text-muted-foreground">{t("own.optional")}</p>
         {mutation.error ? (
           <Alert variant="destructive">
             <AlertDescription>{mutation.error.message}</AlertDescription>

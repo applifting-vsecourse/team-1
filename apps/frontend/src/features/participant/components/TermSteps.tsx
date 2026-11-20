@@ -1,6 +1,7 @@
 import type { ReactNode } from "react"
 import { Link } from "@tanstack/react-router"
 import type { TFunction } from "i18next"
+import { ChevronRight } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
@@ -14,6 +15,10 @@ import { TermStatusBadge } from "@/features/participant/components/TermSummary"
 
 /** The anchor of the payment cards, which the payment step links to. */
 export const PAYMENT_SECTION_ID = "application-payment"
+
+/** Step links end with a „›“ (Figma #509). */
+const stepLinkClass =
+  "inline-flex w-fit items-center gap-0.5 text-sm font-medium text-link hover:underline"
 
 type Step = { key: string; title: string; isDone: boolean; link: ReactNode }
 
@@ -42,11 +47,15 @@ export function termSteps(
       link: (
         <a
           href={`#${PAYMENT_SECTION_ID}`}
-          className="text-sm font-medium text-primary hover:underline"
+          className={stepLinkClass}
         >
           {isDone
             ? t("detail.steps.paymentView")
             : t("detail.steps.paymentPay", { amount: formatCzk(payment.owedCzk) })}
+          <ChevronRight
+            aria-hidden
+            className="size-3.5"
+          />
         </a>
       ),
     })
@@ -62,9 +71,13 @@ export function termSteps(
           to={ROUTES.participant.applicationTransport}
           hash={`transport-${term.termId}`}
           params={{ applicationId }}
-          className="text-sm font-medium text-primary hover:underline"
+          className={stepLinkClass}
         >
           {t(term.transportDecided ? "detail.steps.transportView" : "detail.steps.transportChoose")}
+          <ChevronRight
+            aria-hidden
+            className="size-3.5"
+          />
         </Link>
       ),
     })
@@ -79,9 +92,13 @@ export function termSteps(
         <Link
           to={ROUTES.participant.applicationMeals}
           params={{ applicationId }}
-          className="text-sm font-medium text-primary hover:underline"
+          className={stepLinkClass}
         >
           {t(application.mealsDecided ? "detail.steps.mealsView" : "detail.steps.mealsFill")}
+          <ChevronRight
+            aria-hidden
+            className="size-3.5"
+          />
         </Link>
       ),
     },
@@ -93,9 +110,13 @@ export function termSteps(
         <Link
           to={ROUTES.participant.applicationHealth}
           params={{ applicationId }}
-          className="text-sm font-medium text-primary hover:underline"
+          className={stepLinkClass}
         >
           {t(application.healthDecided ? "detail.steps.healthView" : "detail.steps.healthFill")}
+          <ChevronRight
+            aria-hidden
+            className="size-3.5"
+          />
         </Link>
       ),
     },
@@ -109,9 +130,13 @@ export function termSteps(
       link: (
         <a
           href={`#room-wishes-${term.termId}`}
-          className="text-sm font-medium text-primary hover:underline"
+          className={stepLinkClass}
         >
           {t(hasWishes ? "detail.steps.wishesView" : "roomWishes.add")}
+          <ChevronRight
+            aria-hidden
+            className="size-3.5"
+          />
         </a>
       ),
     })
@@ -124,9 +149,13 @@ export function termSteps(
       link: (
         <a
           href={`#room-${term.termId}`}
-          className="text-sm font-medium text-primary hover:underline"
+          className={stepLinkClass}
         >
           {t("detail.steps.roomView")}
+          <ChevronRight
+            aria-hidden
+            className="size-3.5"
+          />
         </a>
       ),
     })
