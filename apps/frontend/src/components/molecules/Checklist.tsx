@@ -36,7 +36,7 @@ type ChecklistProps = {
 export function Checklist({ title, intro, progress, items }: ChecklistProps) {
   return (
     <Card className="gap-4 p-6">
-      <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
+      <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1 max-sm:flex-col max-sm:items-center max-sm:text-center">
         <div className="flex flex-col gap-1">
           <h3 className="text-lg font-semibold tracking-tight">{title}</h3>
           {intro ? <p className="text-sm text-muted-foreground">{intro}</p> : null}
@@ -49,7 +49,7 @@ export function Checklist({ title, intro, progress, items }: ChecklistProps) {
           return (
             <li
               key={item.key}
-              className={`flex flex-wrap gap-3 border-t border-border py-4 last:pb-0 ${
+              className={`flex flex-wrap gap-3 border-t border-border py-4 last:pb-0 max-sm:justify-center ${
                 item.content ? "items-start" : "items-center"
               }`}
             >
@@ -59,13 +59,19 @@ export function Checklist({ title, intro, progress, items }: ChecklistProps) {
                   className={item.isDone ? "size-5 text-primary" : "size-5 text-muted-foreground"}
                 />
               )}
-              <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-                <div className="flex flex-wrap items-center gap-x-2">
+              <div
+                className={`flex min-w-0 flex-1 flex-col gap-0.5 ${
+                  item.content ? "max-sm:contents" : "max-sm:flex-initial max-sm:text-center"
+                }`}
+              >
+                <div className="flex flex-wrap items-center gap-x-2 max-sm:justify-center max-sm:text-center">
                   <h4 className="text-sm font-medium">{item.title}</h4>
                   {item.titleExtra}
                 </div>
                 {item.body ? <p className="text-sm text-muted-foreground">{item.body}</p> : null}
-                {item.content ? <div className="mt-3">{item.content}</div> : null}
+                {item.content ? (
+                  <div className="mt-3 max-sm:mt-0 max-sm:w-full">{item.content}</div>
+                ) : null}
               </div>
               {item.statusLabel ? (
                 <Badge variant={item.isDone ? "success" : "warning"}>{item.statusLabel}</Badge>
