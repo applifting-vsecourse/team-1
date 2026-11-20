@@ -34,7 +34,12 @@ const participantsSchema = termSchema.extend({
   name: z.string(),
   kind: kindSchema,
   participants: z.array(
-    z.object({ applicationId: z.string(), name: z.string(), email: z.string() }),
+    z.object({
+      applicationId: z.string(),
+      name: z.string(),
+      email: z.string(),
+      phone: z.string().nullable(),
+    }),
   ),
 })
 const applicationTransportSchema = z.object({
