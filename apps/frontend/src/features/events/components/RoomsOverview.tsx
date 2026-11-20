@@ -1,6 +1,5 @@
-import type { ReactNode } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { AlertTriangle } from "lucide-react"
+import { BedSingle, MoreHorizontal } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { EmptyState } from "@/components/molecules/EmptyState"
@@ -9,13 +8,22 @@ import { LoadingState } from "@/components/molecules/LoadingState"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { formatDate } from "@/lib/date"
 import { termDatesLine } from "@/lib/term-label"
 import { cn } from "@/lib/utils"
 
 import {
   roomAssignmentsQueryOptions,
+  type AssignmentParticipant,
   type AssignmentRoom,
+  type RoomWarning,
   type UnassignedParticipant,
 } from "@/features/events/api/room-assignments"
 import type { TermRooms } from "@/features/events/api/rooms"
@@ -30,30 +38,35 @@ import {
   overviewTotals,
   type OverviewBed,
 } from "@/features/events/components/room-overview"
+import { useRoomAssignmentActions } from "@/features/events/components/RoomAssignmentActions"
+import { RoomWarningStrip, warningsOfRoom } from "@/features/events/components/RoomWarnings"
 
-// Who sleeps where in one term, read-only, printable on A4: the rooms as cards like in the room
-// assignment (name, gender, occupancy bar, extra beds) with their beds (people with the year of
-// birth, free beds), and the confirmed people still without a room.
-// Individual accommodation (US-38) is deliberately not read here (D-161); no warnings of US-37 are
-// listed, only a small line back to the assignment where they are handled.
+// Pokoje (dříve Přehled ubytování): who sleeps where in one term, printable on A4: the rooms as cards
+// like in the room assignment (name, gender, occupancy bar, extra beds) with their beds (people with
+// the year of birth, free beds), and the confirmed people still without a room. #542: the view is
+// controlled too: extra beds, move / remove from a room, assigning a person without a room and the
+// room warnings use the same dialogs and mutations as the assignment (useRoomAssignmentActions).
+// Individual accommodation (US-38) is deliberately not read here (D-161). All controls are print:hidden.
 // Figma (Design system): #36 / Přehled ubytování · výchozí · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=25846-112117 (mobile 25846-112551, print A4 25847-112218 · 25847-112433)
-// Figma (Design system): #36 / s odkazem na varování · bez přiřazení · plně obsazený · smíšené pokoje · přistýlka · bez pokojů · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=25786-111071
-// Changes over the first frames (review of the implementation): view picker as a select left of
-// the term, room cards like in the assignment, equal card size, small warning line, no "edit"
-// button, structured print header, "Smíšený" instead of "Společný".
+// Figma (Design system): #542 / Pokoje · výchozí s ovládáním · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=29570-118088 (mobile https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=29570-118501)
+// Figma (Design system): #542 / Pokoje · nabídka účastníka v pokoji · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=29571-118269 (mobile https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=29571-118657)
 export function RoomsOverview({
   term,
-  selectors,
   onShowAssignment,
+  onEditExtraBeds,
+  isPrintOnly = false,
 }: {
   term: TermRooms
-  /** The view and term pickers of the rooms page, shown first in the toolbar. */
-  selectors: ReactNode
-  /** To the room assignment (US-35): from the warning line and from a term without rooms. */
+  /** To the room assignment (Rozřazování): from a term without rooms. */
   onShowAssignment: () => void
+  /** Opens the extra-beds dialog of the rooms page for one room. */
+  onEditExtraBeds: (roomId: string) => void
+  /** The sheet for the print button of the other view: invisible on screen, no controls. */
+  isPrintOnly?: boolean
 }) {
   const { t } = useTranslation("events")
   const query = useQuery(roomAssignmentsQueryOptions(term.eventId, term.termId))
+  const actions = useRoomAssignmentActions(term)
   const data = query.data
   if (!data) {
     return query.isError ? (
@@ -71,9 +84,6 @@ export function RoomsOverview({
   const totals = overviewTotals(data.rooms)
   const extraBeds = data.rooms.reduce((sum, room) => sum + room.extraBeds, 0)
   const withoutRoom = confirmedWithoutRoom(data.unassigned)
-  // Only a broken room rule (overfilled room, mixed genders) counts; one already confirmed knowingly
-  // is not in the summary, and people confirmed without a bed are the business of the assignment.
-  const openWarnings = data.summary.violations
   const hasRooms = data.rooms.length > 0
   const metrics = [
     { label: t("roomOverview.rooms"), value: totals.rooms, helper: null },
@@ -99,7 +109,7 @@ export function RoomsOverview({
 
   return (
     <section
-      className="flex flex-col gap-6 print:text-black"
+      className={cn("flex flex-col gap-6 print:text-black", isPrintOnly && "hidden print:flex")}
       data-print-area
     >
       <div className="hidden flex-col gap-3 print:flex">
@@ -125,17 +135,6 @@ export function RoomsOverview({
           ))}
         </dl>
       </div>
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between print:hidden">
-        {selectors}
-        <Button
-          size="lg"
-          className="max-sm:w-full"
-          disabled={!hasRooms}
-          onClick={() => window.print()}
-        >
-          {t("roomOverview.print")}
-        </Button>
-      </div>
       {hasRooms ? (
         <>
           <dl className="grid grid-cols-2 gap-4 md:grid-cols-4 print:hidden">
@@ -152,31 +151,6 @@ export function RoomsOverview({
               </Card>
             ))}
           </dl>
-          {openWarnings > 0 ? (
-            <div
-              role="status"
-              className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-lg border border-status-warning/30 bg-status-warning-bg px-3 py-2.5 print:hidden"
-            >
-              <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-status-warning/15 text-status-warning">
-                <AlertTriangle
-                  className="size-4"
-                  aria-hidden
-                />
-              </span>
-              <p className="min-w-0 flex-1 text-sm font-medium break-words">
-                {t("roomOverview.warnings", { count: openWarnings })}
-              </p>
-              {/* The warning button of the assignment, a little lighter. */}
-              <Button
-                type="button"
-                size="sm"
-                className="bg-status-warning/85 text-status-warning-bg hover:bg-status-warning"
-                onClick={onShowAssignment}
-              >
-                {t("roomOverview.showWarnings")}
-              </Button>
-            </div>
-          ) : null}
           <ul className="grid items-stretch gap-4 md:auto-rows-fr md:grid-cols-2 print:block print:columns-2 print:gap-4">
             {data.rooms.map((room) => (
               <li
@@ -189,11 +163,33 @@ export function RoomsOverview({
                     : "print:mb-4 print:break-inside-avoid"
                 }
               >
-                <RoomOverviewCard room={room} />
+                <RoomOverviewCard
+                  room={room}
+                  controls={
+                    isPrintOnly
+                      ? undefined
+                      : {
+                          warnings: warningsOfRoom(data.warnings, room.id),
+                          onAcknowledge: actions.acknowledge,
+                          onEditExtraBeds: () => onEditExtraBeds(room.id),
+                          onMove: (participant) => actions.openAssign(participant, room.id),
+                          onRemove: (participant) =>
+                            actions.removeFromRoom(
+                              participant.applicationTermId,
+                              participantName(participant),
+                            ),
+                        }
+                  }
+                />
               </li>
             ))}
           </ul>
-          {withoutRoom.length > 0 ? <WithoutRoomCard people={withoutRoom} /> : null}
+          {withoutRoom.length > 0 ? (
+            <WithoutRoomCard
+              people={withoutRoom}
+              onAssign={isPrintOnly ? undefined : (person) => actions.openAssign(person, null)}
+            />
+          ) : null}
         </>
       ) : (
         <div className="rounded-lg border border-border px-6 print:hidden">
@@ -210,6 +206,7 @@ export function RoomsOverview({
           />
         </div>
       )}
+      {isPrintOnly ? null : actions.dialogs(data.rooms)}
     </section>
   )
 }
@@ -232,7 +229,15 @@ function chunkBeds(beds: OverviewBed[]): OverviewBed[][] {
 }
 
 /** A room like in the room assignment: name and gender, occupancy with a bar, extra beds, people. */
-function RoomOverviewCard({ room }: { room: AssignmentRoom }) {
+type RoomControls = {
+  warnings: RoomWarning[]
+  onAcknowledge: (warning: RoomWarning, room: AssignmentRoom) => void
+  onEditExtraBeds: () => void
+  onMove: (participant: AssignmentParticipant) => void
+  onRemove: (participant: AssignmentParticipant) => void
+}
+
+function RoomOverviewCard({ room, controls }: { room: AssignmentRoom; controls?: RoomControls }) {
   const { t } = useTranslation("events")
   const { roomGenderLabel, freeBedsLabel } = useAssignmentLabels()
   const count = room.participants.length
@@ -294,6 +299,20 @@ function RoomOverviewCard({ room }: { room: AssignmentRoom }) {
                 >
                   {freeBedsLabel(room)}
                 </Badge>
+                {controls ? (
+                  <Button
+                    variant="ghost"
+                    size="icon-lg"
+                    className="print:hidden"
+                    aria-label={t(
+                      room.extraBeds > 0 ? "rooms.extraBedsEditRoom" : "rooms.extraBedsAddRoom",
+                      { count: room.extraBeds, name: room.name },
+                    )}
+                    onClick={controls.onEditExtraBeds}
+                  >
+                    <BedSingle />
+                  </Button>
+                ) : null}
               </div>
               {room.extraBeds > 0 ? (
                 <div className="flex justify-end print:hidden">
@@ -315,6 +334,20 @@ function RoomOverviewCard({ room }: { room: AssignmentRoom }) {
               </span>
             </div>
           )}
+          {chunkIndex === 0 && controls
+            ? controls.warnings.map((warning) => (
+                <div
+                  key={`${warning.kind}-${warning.roomId}`}
+                  className="print:hidden"
+                >
+                  <RoomWarningStrip
+                    room={room}
+                    warning={warning}
+                    onAcknowledge={controls.onAcknowledge}
+                  />
+                </div>
+              ))
+            : null}
           <ul
             className={cn(
               "flex-1 border-border print:border-t print:border-black",
@@ -332,6 +365,7 @@ function RoomOverviewCard({ room }: { room: AssignmentRoom }) {
                     : `free-${chunkIndex}-${index}`
                 }
                 bed={bed}
+                controls={controls}
               />
             ))}
           </ul>
@@ -341,7 +375,7 @@ function RoomOverviewCard({ room }: { room: AssignmentRoom }) {
   )
 }
 
-function BedRow({ bed }: { bed: OverviewBed }) {
+function BedRow({ bed, controls }: { bed: OverviewBed; controls?: RoomControls }) {
   const { t } = useTranslation("events")
   const rowClass =
     "flex items-center gap-3 border-b border-border px-4 py-2.5 last:border-b-0 print:border-black/30 print:px-2"
@@ -389,12 +423,45 @@ function BedRow({ bed }: { bed: OverviewBed }) {
       </span>
       <BirthYear year={participant.birthYear} />
       {extra}
+      {controls ? (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="-my-1.5 print:hidden"
+              aria-label={t("roomAssignments.participantMenu", {
+                name: participantName(participant),
+              })}
+            >
+              <MoreHorizontal />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
+              {participantName(participant)}
+            </DropdownMenuLabel>
+            <DropdownMenuItem onSelect={() => controls.onMove(participant)}>
+              {t("roomAssignments.move")}
+            </DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => controls.onRemove(participant)}>
+              {t("roomAssignments.remove")}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ) : null}
     </li>
   )
 }
 
 /** The confirmed people nobody has put in a room yet: name, gender and status, year of birth. */
-function WithoutRoomCard({ people }: { people: UnassignedParticipant[] }) {
+function WithoutRoomCard({
+  people,
+  onAssign,
+}: {
+  people: UnassignedParticipant[]
+  onAssign?: (person: UnassignedParticipant) => void
+}) {
   const { t } = useTranslation("events")
   const { genderLabel, statusLabel } = useAssignmentLabels()
   return (
@@ -421,7 +488,20 @@ function WithoutRoomCard({ people }: { people: UnassignedParticipant[] }) {
                 {genderLabel(person.gender)} · {statusLabel(person.status)}
               </span>
             </span>
-            <BirthYear year={person.birthYear} />
+            <span className="flex shrink-0 items-center gap-2">
+              <BirthYear year={person.birthYear} />
+              {onAssign ? (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="print:hidden"
+                  aria-label={t("roomAssignments.assignAria", { name: participantName(person) })}
+                  onClick={() => onAssign(person)}
+                >
+                  {t("roomAssignments.assign")}
+                </Button>
+              ) : null}
+            </span>
           </li>
         ))}
       </ul>
