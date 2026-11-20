@@ -441,6 +441,7 @@
     "yes": "ano"
   },
   "manual": {
+    "accommodationNote": "Poznámka pro organizátora (nepovinné)",
     "add": "Přidat přihlášku",
     "applicant": "Přihlašovatel",
     "birthDate": "Datum narození *",
@@ -460,6 +461,7 @@
     "genderMale": "Muž",
     "history": "Historie · Přidáno organizátorem · {{name}}",
     "historyEntry": "{{date}} · Přidáno organizátorem · {{name}}",
+    "individualAccommodation": "Chci ubytování řešit individuálně",
     "infoDescription": "Záznam bude v historii. Přihlašovatel dostane potvrzení i přístup do aplikace.",
     "infoTitle": "Přihlášku přidává organizátor",
     "invalidDate": "Zadejte platné datum narození.",
@@ -468,6 +470,7 @@
     "lastName": "Příjmení *",
     "nameRequired": "Vyplňte jméno a příjmení.",
     "noPayment": "Nic k úhradě",
+    "noteTooLong": "Poznámka může mít nejvýše 2 000 znaků.",
     "openDetail": "Otevřít detail přihlášky",
     "overCapacity": "Potvrzení nad kapacitu",
     "overCapacityDescription": "Potvrzením přihlášky zvýšíte obsazenost z {{before}}/{{capacity}} na {{after}}/{{capacity}}.",

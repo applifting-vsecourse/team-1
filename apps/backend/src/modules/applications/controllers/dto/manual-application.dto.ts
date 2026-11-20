@@ -1,3 +1,4 @@
+import { MAX_ACCOMMODATION_NOTE_LENGTH } from "@/shared/domain/accommodation"
 import { GENDERS } from "@/shared/domain/gender"
 import type { Gender } from "@/shared/domain/gender"
 import { MAX_PHONE_INPUT_LENGTH } from "@/shared/domain/phone"
@@ -48,6 +49,25 @@ export class ManualApplicationRequestDto {
   @ApiProperty({ enum: GENDERS })
   @IsIn(GENDERS)
   gender!: Gender
+
+  @ApiProperty({
+    required: false,
+    description: "The participant wants the accommodation settled individually (US-38).",
+  })
+  @IsOptional()
+  @IsBoolean()
+  individualAccommodation?: boolean
+
+  @ApiProperty({
+    required: false,
+    nullable: true,
+    maxLength: MAX_ACCOMMODATION_NOTE_LENGTH,
+    description: "Optional note to the organizer; kept only with individualAccommodation.",
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(MAX_ACCOMMODATION_NOTE_LENGTH)
+  accommodationRequest?: string | null
 
   @ApiProperty()
   @IsEmail()
