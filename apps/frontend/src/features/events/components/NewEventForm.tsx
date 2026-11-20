@@ -57,11 +57,10 @@ const createSchema = (t: TFunction<"events">) =>
 type FormValues = z.infer<ReturnType<typeof createSchema>>
 
 /**
- * O03a: name, organization, venue and description of a new event in a 784 px column, with
+ * US-12: name, organization, venue and description of a new event in a dialog, with
  * Cancel / Create at the bottom. Terms, prices and rooms come later.
  */
-// Figma (Design system): O03a Vytvoření akce · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12264-711
-// Figma (Design system): O03a Validace povinného názvu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12264-1129
+// Figma v2: US-12 Akce · Dialog: Vytvoření akce · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15398-322 (mobile 15398-382)
 export function NewEventPage() {
   const { t } = useTranslation("events")
   const navigate = useNavigate()
@@ -235,11 +234,11 @@ function NewEventCard({
           </Alert>
         ) : null}
 
-        <div className="flex flex-col-reverse gap-2 border-t pt-3 sm:flex-row sm:justify-end">
+        <div className="flex flex-col-reverse gap-2 sm:grid sm:grid-cols-2">
           <DialogClose asChild>
             <Button
               type="button"
-              variant="outline"
+              variant="ghost"
               size="lg"
               disabled={create.isPending}
             >

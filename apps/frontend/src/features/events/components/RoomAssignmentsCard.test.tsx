@@ -815,7 +815,7 @@ describe("room assignment", () => {
     expect(screen.getByText("Test Osoba09")).toBeInTheDocument()
     expect(screen.queryByText("Test Osoba10")).not.toBeInTheDocument()
     expect(screen.getByText("1–10 / 11")).toBeInTheDocument()
-    await user.click(screen.getByRole("button", { name: "Next →" }))
+    await user.click(screen.getByRole("button", { name: "Next page" }))
     expect(await screen.findByText("Test Osoba10")).toBeInTheDocument()
     expect(screen.queryByText("Test Osoba00")).not.toBeInTheDocument()
   })

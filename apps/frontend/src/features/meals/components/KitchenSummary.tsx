@@ -63,13 +63,27 @@ function participantNotes(term: KitchenTerm) {
 const when = (wall: string) => `${formatDate(wall)} ${formatTime(wall)}`
 
 /** A small table inside a section: the header row names the columns, the cells wrap on a phone. */
-function KitchenTable({ head, children }: { head: string[]; children: ReactNode }) {
+function KitchenTable({
+  head,
+  isLastRight = false,
+  children,
+}: {
+  head: string[]
+  /** The last column holds numbers, aligned right. */
+  isLastRight?: boolean
+  children: ReactNode
+}) {
   return (
     <Table>
       <TableHeader>
         <TableRow>
-          {head.map((label) => (
-            <TableHead key={label}>{label}</TableHead>
+          {head.map((label, index) => (
+            <TableHead
+              key={label}
+              className={cn(isLastRight && index === head.length - 1 && "text-right")}
+            >
+              {label}
+            </TableHead>
           ))}
         </TableRow>
       </TableHeader>
@@ -125,21 +139,20 @@ function KitchenSection({
   )
 }
 
-// Figma: US-143, souhrn pro kuchyni · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=24969-10806 (mobile 24969-12256).
+// Figma v2: US-143 souhrn pro kuchyni · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=24969-10806 (mobile 24969-12256).
 function ParticipantNotes({ term }: { term: KitchenTerm }) {
   const { t } = useTranslation("meals")
   const people = participantNotes(term)
   return (
     <KitchenSection
       title={t("kitchen.participantNotesTitle")}
-      count={people.length}
       className="order-2 lg:order-none print:order-2"
     >
       {people.length > 0 && (
         <Table aria-label={t("kitchen.participantNotesTitle")}>
           <TableHeader className="max-sm:sr-only">
             <TableRow>
-              <TableHead>{t("kitchen.person")}</TableHead>
+              <TableHead>{t("kitchen.personDiet")}</TableHead>
               <TableHead>{t("kitchen.notes")}</TableHead>
             </TableRow>
           </TableHeader>
@@ -152,7 +165,7 @@ function ParticipantNotes({ term }: { term: KitchenTerm }) {
                 <TableCell className="align-top font-medium break-words whitespace-normal max-sm:text-lg">
                   {person.firstName} {person.lastName}
                 </TableCell>
-                <TableCell className="space-y-1 break-words whitespace-pre-line">
+                <TableCell className="space-y-1 text-sm break-words whitespace-pre-line text-muted-foreground">
                   {person.allergies && <p>{person.allergies}</p>}
                   {person.specialRequest && <p>{person.specialRequest}</p>}
                   {person.lateArrival && (
@@ -176,7 +189,8 @@ export function KitchenSummary({ eventId, eventName }: { eventId: string; eventN
   const { data, isPending, error, refetch } = useQuery(kitchenSummaryQueryOptions(eventId))
   const [termId, setTermId] = useState<string | null>(null)
 
-  const [view, setView] = useState("category")
+  // The merged table per participant is the drawn default (24969-10806); by category stays a choice.
+  const [view, setView] = useState("participant")
   const isByParticipant = view === "participant"
 
   if (isPending) return <LoadingState />
@@ -211,49 +225,57 @@ export function KitchenSummary({ eventId, eventName }: { eventId: string; eventN
       />
       {term ? (
         <>
-          <div className="grid gap-4 sm:max-w-196 sm:grid-cols-2">
-            <div className="flex flex-col gap-2 sm:max-w-96">
-              <Label htmlFor="meal-term">{t("kitchen.termLabel")}</Label>
-              <Select
-                value={term.termId}
-                onValueChange={setTermId}
-              >
-                <SelectTrigger
-                  id="meal-term"
-                  className="w-full"
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
+            <div className="grid flex-1 gap-4 sm:max-w-196 sm:grid-cols-2">
+              <div className="flex flex-col gap-2 sm:max-w-96">
+                <Label htmlFor="meal-term">{t("kitchen.termLabel")}</Label>
+                <Select
+                  value={term.termId}
+                  onValueChange={setTermId}
                 >
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {data.map((entry) => (
-                    <SelectItem
-                      key={entry.termId}
-                      value={entry.termId}
-                    >
-                      {termLine(entry)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex flex-col gap-2 sm:max-w-96 print:hidden">
-              <Label htmlFor="kitchen-view">{t("kitchen.viewLabel")}</Label>
-              <Select
-                value={view}
-                onValueChange={setView}
-              >
-                <SelectTrigger
-                  id="kitchen-view"
-                  className="w-full"
+                  <SelectTrigger
+                    id="meal-term"
+                    className="w-full"
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {data.map((entry) => (
+                      <SelectItem
+                        key={entry.termId}
+                        value={entry.termId}
+                      >
+                        {termLine(entry)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex flex-col gap-2 sm:max-w-96 print:hidden">
+                <Label htmlFor="kitchen-view">{t("kitchen.viewLabel")}</Label>
+                <Select
+                  value={view}
+                  onValueChange={setView}
                 >
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="category">{t("kitchen.bySection")}</SelectItem>
-                  <SelectItem value="participant">{t("kitchen.byParticipant")}</SelectItem>
-                </SelectContent>
-              </Select>
+                  <SelectTrigger
+                    id="kitchen-view"
+                    className="w-full"
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="category">{t("kitchen.bySection")}</SelectItem>
+                    <SelectItem value="participant">{t("kitchen.byParticipant")}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
+            <Button
+              className="sm:ml-auto print:hidden"
+              onClick={() => window.print()}
+            >
+              {t("kitchen.print")}
+            </Button>
           </div>
           <Card className="gap-3 p-4">
             <h2 className="text-2xl font-bold tabular-nums">
@@ -267,10 +289,12 @@ export function KitchenSummary({ eventId, eventName }: { eventId: string; eventN
               <>
                 <KitchenSection
                   title={t("kitchen.countsTitle")}
-                  count={term.total}
                   className="order-1 lg:order-none print:order-1"
                 >
-                  <KitchenTable head={[t("kitchen.optionColumn"), t("kitchen.countColumn")]}>
+                  <KitchenTable
+                    head={[t("kitchen.optionColumn"), t("kitchen.portions")]}
+                    isLastRight
+                  >
                     {[
                       { id: "regular", name: t("kitchen.regular"), count: term.regular },
                       ...term.options,
@@ -279,10 +303,8 @@ export function KitchenSummary({ eventId, eventName }: { eventId: string; eventN
                         <TableCell className="break-words whitespace-normal">
                           {option.name}
                         </TableCell>
-                        <TableCell className="tabular-nums">
-                          <span className="max-sm:inline-block max-sm:min-w-7 max-sm:rounded-full max-sm:bg-secondary-foreground max-sm:px-2 max-sm:py-1 max-sm:text-center max-sm:text-secondary">
-                            {option.count}
-                          </span>
+                        <TableCell className="text-right text-sm text-muted-foreground tabular-nums">
+                          {option.count}
                         </TableCell>
                       </TableRow>
                     ))}
@@ -373,15 +395,6 @@ export function KitchenSummary({ eventId, eventName }: { eventId: string; eventN
         </>
       ) : null}
       <div className="flex flex-col gap-3 sm:flex-row print:hidden">
-        {term ? (
-          <Button
-            size="lg"
-            className="w-full sm:w-auto"
-            onClick={() => window.print()}
-          >
-            {t("kitchen.print")}
-          </Button>
-        ) : null}
         <Button
           asChild
           variant="ghost"

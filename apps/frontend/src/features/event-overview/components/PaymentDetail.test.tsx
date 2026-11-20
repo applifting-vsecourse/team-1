@@ -128,6 +128,10 @@ const application = (
   }
 }
 
+const historyItems = () =>
+  within(screen.getByRole("list", { name: "Payment history" })).getAllByRole("listitem")
+const historyItem = (text: RegExp) => historyItems().find((item) => text.test(item.textContent))!
+
 function setup() {
   const root = createRootRoute({ component: () => <PaymentDetail applicationId="a1" /> })
   const route = createRoute({ getParentRoute: () => root, path: "/" })
@@ -211,10 +215,11 @@ describe("PaymentDetail", () => {
     setup()
 
     const details = await screen.findByRole("group", { name: "Participant details" })
-    expect(within(details).getByText("Adam Test")).toBeInTheDocument()
-    expect(within(details).getByText("Date of birth and gender")).toBeInTheDocument()
-    expect(within(details).getByText(/^4 May 2011 · man$/)).toBeInTheDocument()
-    expect(within(details).getByText("Contact")).toBeInTheDocument()
+    expect(within(details).getByText("Date of birth").parentElement).toHaveTextContent(
+      "Date of birth · 4 May 2011",
+    )
+    expect(within(details).getByText("Gender").parentElement).toHaveTextContent("Gender · Male")
+    expect(within(details).getByText("Applicant")).toBeInTheDocument()
     expect(within(details).getByText(/eva\.mala@example\.cz/)).toBeInTheDocument()
     expect(within(details).getByText(/\+420777123456/)).toBeInTheDocument()
   })
@@ -251,16 +256,24 @@ describe("PaymentDetail", () => {
     patch.mockResolvedValue(undefined)
     setup()
     const user = userEvent.setup()
-    await user.click(await screen.findByRole("button", { name: "Edit record" }))
+    await user.click(
+      within(await screen.findByRole("list", { name: "Payment history" })).getByRole("button", {
+        name: "Edit",
+      }),
+    )
     const dialog = screen.getByRole("dialog")
-    expect(within(dialog).getByRole("textbox", { name: "Amount (CZK) *" })).toHaveValue("500,00")
+    expect(within(dialog).getByRole("textbox", { name: "New amount *" })).toHaveValue("500")
+    expect(within(dialog).getByText("Nothing changes yet.")).toBeInTheDocument()
+    expect(within(dialog).getByRole("button", { name: "Save correction" })).toBeDisabled()
+    await user.clear(within(dialog).getByRole("textbox", { name: "New amount *" }))
+    await user.type(within(dialog).getByRole("textbox", { name: "New amount *" }), "600")
     expect(await within(dialog).findByText(/to.*777/)).toBeInTheDocument()
     expect(post).toHaveBeenCalledWith(
       "organizer/applications/a1/payments/p1/preview",
-      expect.objectContaining({ json: { amountCzk: 500, termId: "t1" } }),
+      expect.objectContaining({ json: { amountCzk: 600, termId: "t1" } }),
     )
-    await user.clear(within(dialog).getByRole("textbox", { name: "Amount (CZK) *" }))
-    await user.type(within(dialog).getByRole("textbox", { name: "Amount (CZK) *" }), "700")
+    await user.clear(within(dialog).getByRole("textbox", { name: "New amount *" }))
+    await user.type(within(dialog).getByRole("textbox", { name: "New amount *" }), "700")
     await user.click(within(dialog).getByRole("combobox", { name: "Term *" }))
     await user.click(screen.getByRole("option", { name: /19–25 Jul 2027/ }))
     await waitFor(() =>
@@ -278,7 +291,7 @@ describe("PaymentDetail", () => {
     expect(await screen.findByText("Correction saved.")).toBeInTheDocument()
     expect(screen.getByRole("heading", { name: "System record" })).toBeInTheDocument()
     await user.click(screen.getByRole("button", { name: "Back to payments" }))
-    expect(screen.getByRole("table")).toBeInTheDocument()
+    expect(screen.getByRole("list", { name: "Payment history" })).toBeInTheDocument()
   })
 
   it("reloads payment history without previewing the cancelled original after a lost correction response", async () => {
@@ -310,15 +323,22 @@ describe("PaymentDetail", () => {
     })
     setup()
     const user = userEvent.setup()
-    await user.click(await screen.findByRole("button", { name: "Edit record" }))
+    await user.click(
+      within(await screen.findByRole("list", { name: "Payment history" })).getByRole("button", {
+        name: "Edit",
+      }),
+    )
     const dialog = within(screen.getByRole("dialog"))
+    await user.clear(dialog.getByRole("textbox", { name: "New amount *" }))
+    await user.type(dialog.getByRole("textbox", { name: "New amount *" }), "400")
     const save = dialog.getByRole("button", { name: "Save correction" })
     await waitFor(() => expect(save).toBeEnabled())
+    const previews = post.mock.calls.length
     await user.click(save)
     await user.click(await dialog.findByRole("button", { name: "Refresh history" }))
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument())
     expect(patch).toHaveBeenCalledOnce()
-    expect(post).toHaveBeenCalledOnce()
+    expect(post).toHaveBeenCalledTimes(previews)
     expect(
       get.mock.calls.filter(([path]) => path === "organizer/applications/a1/payments"),
     ).toHaveLength(2)
@@ -340,9 +360,13 @@ describe("PaymentDetail", () => {
     )
     setup()
     const user = userEvent.setup()
-    await user.click(await screen.findByRole("button", { name: "Edit record" }))
+    await user.click(
+      within(await screen.findByRole("list", { name: "Payment history" })).getByRole("button", {
+        name: "Edit",
+      }),
+    )
     const dialog = screen.getByRole("dialog")
-    const amount = within(dialog).getByRole("textbox", { name: "Amount (CZK) *" })
+    const amount = within(dialog).getByRole("textbox", { name: "New amount *" })
     await user.clear(amount)
     await user.type(amount, "200")
     expect(dialog).toHaveTextContent(/Overpayment for this term after correction:.*300/)
@@ -361,7 +385,11 @@ describe("PaymentDetail", () => {
     setup()
     expect(await screen.findByText("Corrected · original entry")).toBeInTheDocument()
     expect(screen.getByText("Correction")).toBeInTheDocument()
-    expect(screen.getAllByRole("button", { name: "Edit record" })).toHaveLength(1)
+    expect(
+      within(screen.getByRole("list", { name: "Payment history" })).getAllByRole("button", {
+        name: "Edit",
+      }),
+    ).toHaveLength(1)
   })
 
   it("shows the debt of each term separately, with its own variable symbol (500 + 700 CZK)", async () => {
@@ -374,6 +402,13 @@ describe("PaymentDetail", () => {
     setup()
 
     const one = await screen.findByRole("heading", { name: /12–18 Jul 2027/ })
+    const whole = within(screen.getByRole("group", { name: "Whole application" }))
+    expect(whole.getByText("Left to pay").nextSibling).toHaveTextContent("1,200")
+    expect(whole.queryByText("Overpayment")).toBeNull()
+    expect(screen.getByRole("button", { name: "Record overpayment refund" })).toBeDisabled()
+    expect(
+      screen.getByText("A refund cannot be recorded: no term has an overpayment."),
+    ).toBeVisible()
     const cardOne = one.closest<HTMLElement>("[data-slot='card']")!
     const cardTwo = card("19–25 Jul 2027")
     expect(within(cardOne).getByText("Partly paid")).toBeInTheDocument()
@@ -457,7 +492,7 @@ describe("PaymentDetail", () => {
     const dialog = screen.getByRole("dialog")
     expect(dialog).toHaveTextContent("19–25 Jul 2027")
     expect(dialog).toHaveTextContent(/Left to pay.*700/)
-    await user.click(within(dialog).getByRole("button", { name: /Record payment.*700/ }))
+    await user.click(within(dialog).getByRole("button", { name: "Record payment" }))
 
     await waitFor(() =>
       expect(post).toHaveBeenCalledWith("organizer/applications/a1/payments", {
@@ -486,7 +521,7 @@ describe("PaymentDetail", () => {
     await user.click(screen.getByRole("radio", { name: "Refund" }))
     expect(screen.getByRole("button", { name: "Confirm" })).toBeDisabled()
     await user.click(screen.getByRole("radio", { name: "Payment" }))
-    await user.click(screen.getByRole("button", { name: /Record payment.*10,500/ }))
+    await user.click(screen.getByRole("button", { name: "Record payment" }))
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument())
     expect(post).toHaveBeenCalledWith("organizer/applications/a1/payments", {
       json: { requestId: expect.any(String) as unknown, amountCzk: 10500 },
@@ -496,7 +531,8 @@ describe("PaymentDetail", () => {
   it("shows no payments and links back to the correct event's applications", async () => {
     respondWith(() => application([first]))
     setup()
-    expect(await screen.findByRole("heading", { name: "Adam Test · C-0047" })).toBeInTheDocument()
+    expect(await screen.findByRole("heading", { name: "Adam Test" })).toBeInTheDocument()
+    expect(screen.getByText(/application C-0047/)).toBeInTheDocument()
     expect(screen.getByText("No payment recorded yet.")).toBeInTheDocument()
     expect(screen.getByRole("link", { name: "← Back to applications" })).toHaveAttribute(
       "href",
@@ -521,16 +557,16 @@ describe("PaymentDetail", () => {
       ),
     )
     setup()
-    await screen.findByRole("table")
+    await screen.findByRole("list", { name: "Payment history" })
 
-    const rows = screen.getAllByRole("row")
-    expect(rows).toHaveLength(4)
-    expect(rows[1]).toHaveTextContent(/12–18 Jul 2027/)
-    expect(rows[1]).toHaveTextContent(/2,400/)
-    expect(rows[2]).toHaveTextContent(/19–25 Jul 2027/)
-    expect(rows[2]).toHaveTextContent(/4,900/)
-    expect(rows[3]).toHaveTextContent(/2,000/)
-    expect(within(rows[3]!).getByRole("cell", { name: "Eva" })).toBeInTheDocument()
+    const rows = historyItems()
+    expect(rows).toHaveLength(3)
+    expect(rows[0]).toHaveTextContent(/Payment · CZK 2,400/)
+    expect(rows[0]).toHaveTextContent(/12–18 Jul 2027/)
+    expect(rows[1]).toHaveTextContent(/19–25 Jul 2027/)
+    expect(rows[1]).toHaveTextContent(/4,900/)
+    expect(rows[2]).toHaveTextContent(/2,000/)
+    expect(rows[2]).toHaveTextContent(/Recorded by Eva · 18 May 2027/)
   })
 
   it("shows the date and every affected term before cancelling a split receipt", async () => {
@@ -549,20 +585,23 @@ describe("PaymentDetail", () => {
     )
     setup()
     const user = userEvent.setup()
-    const row = await screen.findByRole("row", { name: /400/ })
+    await screen.findByRole("list", { name: "Payment history" })
+    const row = historyItem(/400/)
     await user.click(within(row).getByRole("button", { name: "Cancel record" }))
     const dialog = screen.getByRole("dialog")
     expect(
       within(dialog).getByRole("heading", { name: /Receipt dated.*12 Mar 2027/ }),
     ).toBeVisible()
-    expect(within(dialog).getByText("Receipt total").parentElement).toHaveTextContent(/1,200/)
+    expect(within(dialog).getByText(/^Total/)).toHaveTextContent(/1,200/)
     expect(within(dialog).getByText(/original record remains visible in the history/)).toBeVisible()
     const parts = within(dialog).getAllByRole("listitem")
     expect(parts).toHaveLength(2)
     expect(parts[0]).toHaveTextContent(/400/)
     expect(parts[1]).toHaveTextContent(/800/)
     expect(
-      within(dialog).getByText("Cancelling applies to all terms of this receipt."),
+      within(dialog).getByText(
+        "If the receipt is split across several terms, all its rows are cancelled.",
+      ),
     ).toBeVisible()
     expect(remove).not.toHaveBeenCalled()
   })
@@ -580,8 +619,8 @@ describe("PaymentDetail", () => {
     })
     setup()
     const user = userEvent.setup()
-    await screen.findByRole("table")
-    const row = screen.getByRole("row", { name: /1,000/ })
+    await screen.findByRole("list", { name: "Payment history" })
+    const row = historyItem(/1,000/)
     await user.click(within(row).getByRole("button", { name: "Cancel record" }))
     const dialog = screen.getByRole("dialog")
     expect(within(dialog).getByText(/After cancellation, debt:.*1,900/)).toBeInTheDocument()
@@ -596,8 +635,8 @@ describe("PaymentDetail", () => {
       expect(remove).toHaveBeenCalledWith("organizer/applications/a1/payments/p2"),
     )
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument())
-    expect(screen.getAllByRole("row")).toHaveLength(2)
-    expect(screen.getByRole("row", { name: /3,000/ })).toBeInTheDocument()
+    expect(historyItems()).toHaveLength(1)
+    expect(historyItem(/3,000/)).toBeInTheDocument()
   })
 
   it("records a refund of an overpayment of a term, clears it and previews cancelling the refund", async () => {
@@ -618,7 +657,7 @@ describe("PaymentDetail", () => {
     expect(post).toHaveBeenCalledWith("organizer/applications/a1/payments/refunds", {
       json: { requestId: expect.any(String) as unknown, amountCzk: 500, termId: "t1" },
     })
-    const row = screen.getByRole("row", { name: /Overpayment refund/ })
+    const row = historyItem(/Refund ·/)
     expect(row).toHaveTextContent(/-.*500/)
     await user.click(within(row).getByRole("button", { name: "Cancel record" }))
     expect(screen.getByRole("dialog")).toHaveTextContent("Cancel this refund record?")
@@ -636,11 +675,12 @@ describe("PaymentDetail", () => {
     )
     setup()
     expect(await screen.findByText("Overpaid")).toBeInTheDocument()
-    expect(screen.getByText("Overpayment").nextSibling).toHaveTextContent("500")
+    const card = screen.getByText("Overpaid").closest<HTMLElement>("[data-slot=card]")!
+    expect(within(card).getByText("Overpayment").nextSibling).toHaveTextContent("500")
     expect(screen.queryByText("Variable symbol")).not.toBeInTheDocument()
     // The overpaid term offers the refund, not a payment for the term (#399); a further payment
     // can still be recorded as an overpayment from the actions under the cards.
-    expect(screen.getByRole("button", { name: "Record refund for the term" })).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "Record refund" })).toBeInTheDocument()
     expect(screen.queryByRole("button", { name: "Record payment for the term" })).toBeNull()
     expect(screen.getByRole("button", { name: "Record payment" })).toBeInTheDocument()
     expect(screen.queryByText(/-CZK/)).not.toBeInTheDocument()
@@ -665,7 +705,7 @@ describe("PaymentDetail refund of an overpayment (#399)", () => {
     )
     setup()
     const user = userEvent.setup()
-    await user.click(await screen.findByRole("button", { name: "Record refund for the term" }))
+    await user.click(await screen.findByRole("button", { name: "Record refund" }))
     const dialog = screen.getByRole("dialog")
     expect(within(dialog).getByRole("heading", { name: "Record refund" })).toBeInTheDocument()
     expect(within(dialog).getByRole("radio", { name: "Refund" })).toBeChecked()

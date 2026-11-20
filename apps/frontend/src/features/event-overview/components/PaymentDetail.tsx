@@ -1,7 +1,6 @@
-import { useState } from "react"
+import { useState, type ReactNode } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
-import { Pencil, Trash2 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
@@ -14,8 +13,8 @@ import { TermPaymentCard, TermPaymentCards } from "@/components/molecules/TermPa
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { formatDate } from "@/lib/date"
-import { termDates, termLine } from "@/lib/term-label"
+import { formatDateTime } from "@/lib/date"
+import { termLine } from "@/lib/term-label"
 import { cn } from "@/lib/utils"
 
 import {
@@ -47,13 +46,9 @@ const isShown = (term: PaymentTerm): boolean =>
  * payment for the term (a refund of the overpayment when the term is overpaid), and the payment history. A paid term is a collapsed card. On a phone the
  * cards stack and the history becomes a list (M13).
  */
-// Figma (Design system): #399 Detail plateb · akce u přeplatku · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=22642-91955 (360 px: node-id=22642-92182)
-// Figma (Design system): Detail přihlášky · Platby · Organizátor · dluh po termínech · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15845-7697 (360 px: node-id=15845-7814)
-// Figma (Design system): O34 Detail platby, bez potvrzeného termínu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16487-6805
-// Figma (Design system): O34aa Po zápisu vratky · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16845-3106 (360 px: M13w 16845-3385)
-// Figma (Design system): US-112 · Částka platby opravená · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15883-7820 (mobile: 15883-7897)
-// Figma (Design system): US-112 · Platba přesunutá · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15883-7947 (mobile: 15883-8027)
-// Figma (Design system): US-112 · Vratka opravená · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15883-8080 (mobile: 15883-8157)
+// Figma v2: US-111 Detail plateb · dva přeplatky · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=21524-71534 (360 px: node-id=21524-71833)
+// Figma v2: US-111 Detail plateb · dluh po termínech · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=21524-70991 (360 px: node-id=21524-71302)
+// Figma v2: US-112 Historie plateb · akce Upravit · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=21569-72401 (360 px: node-id=21569-72747)
 // Figma (Design system): US-38 card "Individuální ubytování" · with request desktop https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=25587-110703 (mobile: 25587-110821); without 25587-110890 (mobile: 25587-111008)
 export function PaymentDetail({ applicationId }: { applicationId: string }) {
   const { t } = useTranslation("eventOverview")
@@ -78,7 +73,7 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
       <div className="flex flex-col gap-6">
         <Seo title={t("payment.correctionResult")} />
         <h2 className="text-xl font-semibold tracking-tight md:text-2xl">
-          {data.firstName} {data.lastName} · {data.code}
+          {data.firstName} {data.lastName}
         </h2>
         <PaymentCorrectionResult
           application={data}
@@ -114,9 +109,11 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
         <div className="flex flex-col gap-4 md:flex-row md:items-center">
           <div className="flex min-w-0 flex-1 flex-col gap-2">
             <h2 className="text-xl font-semibold tracking-tight md:text-2xl">
-              {data.firstName} {data.lastName} · {data.code}
+              {data.firstName} {data.lastName}
             </h2>
-            <p className="text-sm text-muted-foreground">{t("payment.description")}</p>
+            <p>
+              {data.eventName} · {t("payment.applicationCode", { code: data.code })}
+            </p>
           </div>
           <Button
             asChild
@@ -161,20 +158,39 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
           <AlertDescription>{t("payment.nothingDueDescription")}</AlertDescription>
         </Alert>
       )}
-      {terms.filter((term) => term.owedCzk > 0).length > 1 && data.payableCzk > 0 ? (
-        <Card className="gap-2 p-6">
-          <h2 className="text-lg font-semibold">{t("payment.totalOwed")}</h2>
-          <MoneyAmount
-            amountCzk={data.payableCzk}
-            className="text-2xl font-semibold"
-          />
+      {terms.length > 0 ? (
+        <Card
+          role="group"
+          aria-label={t("payment.wholeApplicationTitle")}
+          className="gap-4 p-4 md:p-6"
+        >
+          <h3 className="text-xl font-bold tracking-tight md:text-2xl">
+            {t("payment.wholeApplicationTitle")}
+          </h3>
+          <dl className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
+            <SummaryItem label={t("payment.due")}>
+              <MoneyAmount amountCzk={data.amountDueCzk} />
+            </SummaryItem>
+            <SummaryItem label={t("payment.paid")}>
+              <MoneyAmount amountCzk={data.amountPaidCzk} />
+            </SummaryItem>
+            <SummaryItem label={t("payment.remainingToPay")}>
+              <MoneyAmount amountCzk={data.payableCzk} />
+            </SummaryItem>
+            {/* The whole application's overpayment is exact only when no term still owes. */}
+            {data.payableCzk === 0 && data.amountOwedCzk < 0 ? (
+              <SummaryItem label={t("payment.overpaid")}>
+                <MoneyAmount amountCzk={-data.amountOwedCzk} />
+              </SummaryItem>
+            ) : null}
+          </dl>
         </Card>
       ) : null}
       <TermPaymentCards>
         {terms.map((term) => (
           <TermPaymentCard
             key={term.termId}
-            title={termDates(term)}
+            title={termLine(term)}
             // A waitlisted term that still holds money keeps its payment status (D-088).
             status={
               term.status === "WAITLISTED" && term.paidCzk === 0 ? "WAITLISTED" : term.paymentStatus
@@ -189,6 +205,7 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
               term.status === "WAITLISTED" && term.paidCzk === 0 ? null : term.refundableCzk > 0 ? (
                 <Button
                   size="lg"
+                  className="w-full"
                   onClick={() => setEditor({ term, type: "refund" })}
                 >
                   {t("payment.returnOverpayment")}
@@ -196,6 +213,7 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
               ) : (
                 <Button
                   size="lg"
+                  className="w-full"
                   onClick={() => setEditor({ term, type: "payment" })}
                 >
                   {t("payment.recordForTerm")}
@@ -207,35 +225,44 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
       </TermPaymentCards>
       {hasConfirmedTerm || hasOverpayment ? (
         // One payment split over the terms, or a refund of an overpayment (Figma "Akce plateb").
-        <div className="flex flex-col gap-4 md:flex-row">
+        <div className="grid gap-x-4 gap-y-2 md:grid-cols-2">
           {hasConfirmedTerm ? (
             <Button
               variant="ghost"
               size="lg"
-              className="md:flex-1"
               onClick={() => setEditor({ type: "payment" })}
             >
               {t("payment.record")}
             </Button>
           ) : null}
-          {hasOverpayment ? (
+          <div className="flex flex-col gap-1">
             <Button
               variant="ghost"
               size="lg"
-              className="md:flex-1"
+              disabled={!hasOverpayment}
+              aria-describedby={hasOverpayment ? undefined : "refund-unavailable"}
               onClick={() => setEditor({ type: "refund" })}
             >
               {t("payment.recordRefundAction")}
             </Button>
-          ) : null}
+            {hasOverpayment ? null : (
+              <p
+                id="refund-unavailable"
+                className="text-center text-sm text-muted-foreground"
+              >
+                {t("payment.refundUnavailableHint")}
+              </p>
+            )}
+          </div>
         </div>
       ) : null}
       <Card className="gap-4 p-4 md:p-6">
-        <h2 className="text-lg font-semibold">{t("payment.history")}</h2>
+        <h2 className="text-xl font-bold tracking-tight md:text-2xl">{t("payment.history")}</h2>
         {data.payments.length === 0 ? (
           <p className="text-sm text-muted-foreground">{t("payment.empty")}</p>
         ) : (
           <PaymentHistory
+            label={t("payment.history")}
             payments={data.payments}
             terms={data.terms}
             onCancel={setPaymentToCancel}
@@ -272,20 +299,21 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
   )
 }
 
-/** One line per term a receipt was split to; a table from md up, on a phone a stacked list. */
+/** One line per term a receipt was split to: type and amount, the term, who recorded it and when. */
 function PaymentHistory({
+  label,
   payments,
   terms,
   onCancel,
   onCorrect,
 }: {
+  label: string
   payments: Payment[]
   terms: PaymentTerm[]
   onCancel: (payment: Payment) => void
   onCorrect: (payment: Payment) => void
 }) {
   const { t } = useTranslation("eventOverview")
-  const detail = "text-xs text-muted-foreground md:text-sm md:text-foreground"
   const lines = payments.flatMap((payment) =>
     payment.rows.map((row) => ({
       payment,
@@ -295,44 +323,27 @@ function PaymentHistory({
   )
 
   return (
-    <table className="w-full text-left text-sm">
-      <thead className="hidden text-xs text-muted-foreground md:table-header-group">
-        <tr className="bg-muted">
-          <th className="h-10 rounded-l-md px-3 font-medium">{t("payment.date")}</th>
-          <th className="h-10 px-3 font-medium">{t("payment.term")}</th>
-          <th className="h-10 px-3 font-medium">{t("payment.method")}</th>
-          <th className="h-10 px-3 text-right font-medium">{t("payment.historyAmount")}</th>
-          <th className="h-10 px-3 font-medium">{t("payment.recorder")}</th>
-          <th className="h-10 rounded-r-md px-3">
-            <span className="sr-only">{t("payment.correctRecord")}</span>
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        {lines.map(({ payment, amountCzk, term }) => (
-          <tr
-            key={`${payment.id}-${term?.termId ?? amountCzk}`}
-            className={cn(
-              "grid grid-cols-[minmax(0,1fr)_auto] border-b py-2 last:border-b-0 md:table-row",
-              payment.cancelledAt && "text-muted-foreground",
-            )}
-          >
-            <td className={cn("col-start-1 row-start-2 md:px-3 md:py-4", detail)}>
-              {formatDate(payment.createdAt)}
-            </td>
-            <td className={cn("col-start-1 row-start-3 md:px-3 md:py-4", detail)}>
-              {term ? termLine(term) : null}
-            </td>
-            <td className={cn("col-start-1 row-start-4 md:px-3 md:py-4", detail)}>
-              {t(amountCzk < 0 ? "payment.refundMethod" : "payment.manual")}
-            </td>
-            <td className="col-start-1 row-start-1 font-semibold md:px-3 md:py-4 md:text-right">
+    <ul
+      aria-label={label}
+      className="flex flex-col"
+    >
+      {lines.map(({ payment, amountCzk, term }) => (
+        <li
+          key={`${payment.id}-${term?.termId ?? amountCzk}`}
+          className={cn(
+            "flex flex-col gap-2 border-t py-3 first:border-t-0 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between",
+            payment.cancelledAt && "text-muted-foreground",
+          )}
+        >
+          <div className="flex min-w-0 flex-col gap-1">
+            <p>
+              {t(amountCzk < 0 ? "payment.refundMethod" : "payment.manual")} ·{" "}
               <MoneyAmount
                 amountCzk={amountCzk}
                 className={cn(amountCzk < 0 && "text-status-warning")}
               />
               {payment.cancelledAt ? (
-                <span className="ml-2 text-xs font-normal text-muted-foreground">
+                <span className="ml-2 text-sm text-muted-foreground">
                   {t(
                     payments.some((item) => item.correctsReceiptId === payment.id)
                       ? "payment.correctedOriginal"
@@ -340,39 +351,46 @@ function PaymentHistory({
                   )}
                 </span>
               ) : payment.correctsReceiptId ? (
-                <span className="ml-2 text-xs font-normal text-muted-foreground">
+                <span className="ml-2 text-sm text-muted-foreground">
                   {t("payment.correctionHistory")}
                 </span>
               ) : null}
-            </td>
-            <td className={cn("col-start-1 row-start-5 md:px-3 md:py-4", detail)}>
-              {payment.recordedByName}
-            </td>
-            <td className="col-start-2 row-span-5 row-start-1 self-center text-right md:px-3 md:py-2">
-              {payment.cancelledAt ? null : (
-                <div className="flex items-center">
-                  <Button
-                    variant="ghost"
-                    size="icon-lg"
-                    aria-label={t("payment.correctRecord")}
-                    onClick={() => onCorrect(payment)}
-                  >
-                    <Pencil />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon-lg"
-                    aria-label={t("payment.cancelRecord")}
-                    onClick={() => onCancel(payment)}
-                  >
-                    <Trash2 />
-                  </Button>
-                </div>
-              )}
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+            </p>
+            {term ? <p className="text-sm text-muted-foreground">{termLine(term)}</p> : null}
+            <p className="text-sm text-muted-foreground">
+              {t("payment.recordedBy", {
+                name: payment.recordedByName,
+                date: formatDateTime(payment.createdAt),
+              })}
+            </p>
+          </div>
+          {payment.cancelledAt ? null : (
+            <div className="flex shrink-0 items-center gap-2">
+              <Button
+                variant="ghost"
+                onClick={() => onCorrect(payment)}
+              >
+                {t("payment.correctRecord")}
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => onCancel(payment)}
+              >
+                {t("payment.cancelRecord")}
+              </Button>
+            </div>
+          )}
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+function SummaryItem({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div className="flex flex-col gap-2">
+      <dt className="text-sm text-muted-foreground">{label}</dt>
+      <dd>{children}</dd>
+    </div>
   )
 }

@@ -52,6 +52,7 @@ const applicationTransportSchema = z.object({
 export type TransportSummary = z.infer<typeof summarySchema>
 export type TransportOption = z.infer<typeof optionSchema>
 export type TermTransport = z.infer<typeof eventTransportSchema>["terms"][number]
+export type TransportParticipant = z.infer<typeof participantsSchema>["participants"][number]
 export type TransportKind = z.infer<typeof kindSchema>
 export type TransportInput = {
   name?: string

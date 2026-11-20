@@ -1,6 +1,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -12,19 +14,16 @@ import {
 } from "@/components/ui/dialog"
 import { formatDate } from "@/lib/date"
 import { formatCzk } from "@/lib/money"
-import { termLine } from "@/lib/term-label"
+import { termTitle } from "@/lib/term-label"
 
 import {
   cancelPayment,
   type Payment,
   type PaymentApplication,
 } from "@/features/event-overview/api/payments"
-import { SummaryBox } from "@/features/event-overview/components/PaymentEditor"
 
-/** Cancel one payment or refund record: what it changes, the balance after, Back / Cancel record. */
-// Figma (Design system): O34f Zrušit zápis platby · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12796-20185
-// Figma (Design system): O34i Zrušit dílčí platbu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12796-20995
-// Figma (Design system): O34m Zrušit platbu při přeplatku · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=13980-10919
+/** Cancel one payment or refund record: the whole receipt with its rows, the balance after, Cancel record / Back. */
+// Figma v2: US-44 Zrušit zápis platby · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22479-86873
 export function PaymentCancellation({
   application,
   payment,
@@ -56,50 +55,38 @@ export function PaymentCancellation({
     >
       <DialogContent className="max-h-[calc(100dvh-2rem)] gap-4 overflow-y-auto p-6 sm:max-w-160">
         <DialogHeader>
-          <DialogTitle className="text-lg tracking-tight">
+          <DialogTitle className="text-xl tracking-tight">
             {t(payment.amountCzk < 0 ? "payment.cancelRefundTitle" : "payment.cancelTitle")}
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="sr-only">
             {application.firstName} {application.lastName} · {application.code} ·{" "}
             {application.eventName}
           </DialogDescription>
         </DialogHeader>
-        <section className="flex flex-col gap-2">
-          <h3 className="font-semibold">
+        <Alert variant="destructive">
+          <TriangleAlert aria-hidden />
+          <AlertTitle className="line-clamp-none">{t("payment.cancelWholeReceipt")}</AlertTitle>
+          <AlertDescription>{t("payment.cancelAllAllocations")}</AlertDescription>
+        </Alert>
+        <section className="flex flex-col gap-2 rounded-lg border p-3">
+          <h3 className="text-xl font-bold tracking-tight">
             {t("payment.cancelReceiptDate", { date: formatDate(payment.createdAt) })}
           </h3>
-          <ul className="space-y-1 text-sm">
+          <p>{t("payment.receiptTotal", { amount: formatCzk(payment.amountCzk) })}</p>
+          <ul className="flex flex-col gap-2">
             {payment.rows.map((row) => {
               const term = application.terms.find((item) => item.termId === row.termId)
               return (
                 <li key={row.termId}>
-                  {term ? termLine(term) + " · " : ""}
+                  {term ? termTitle(term) + " · " : ""}
                   {formatCzk(row.amountCzk)}
                 </li>
               )
             })}
           </ul>
-          {payment.rows.length > 1 && (
-            <p className="text-sm text-muted-foreground">{t("payment.cancelAllAllocations")}</p>
-          )}
+          <p>{t("payment.cancelKeepsHistory")}</p>
         </section>
-        <SummaryBox
-          rows={[
-            [t("payment.editorDue"), formatCzk(application.amountDueCzk)],
-            [t("payment.paidNow"), formatCzk(application.amountPaidCzk)],
-            [
-              t(payment.amountCzk < 0 ? "payment.cancelledRecord" : "payment.receiptTotal"),
-              formatCzk(Math.abs(payment.amountCzk)),
-            ],
-          ]}
-        />
-        <p>
-          {t(
-            payment.amountCzk < 0 ? "payment.cancelRefundDescription" : "payment.cancelDescription",
-            { amount: formatCzk(Math.abs(payment.amountCzk)) },
-          )}
-        </p>
-        <p className="border-t pt-3 font-semibold">
+        <p className="font-semibold">
           {t(balanceAfter < 0 ? "payment.cancelOverpaidPreview" : "payment.cancelPreview", {
             amount: formatCzk(Math.abs(balanceAfter)),
           })}
@@ -112,22 +99,23 @@ export function PaymentCancellation({
             {mutation.error.message}
           </p>
         ) : null}
-        <DialogFooter>
+        <DialogFooter className="sm:justify-start">
           <Button
-            variant="outline"
+            variant="destructive"
+            size="lg"
+            className="sm:min-w-36"
+            disabled={mutation.isPending}
+            onClick={() => mutation.mutate()}
+          >
+            {t(mutation.isPending ? "payment.cancelling" : "payment.cancelRecord")}
+          </Button>
+          <Button
+            variant="ghost"
             size="lg"
             disabled={mutation.isPending}
             onClick={onClose}
           >
             {t(payment.amountCzk < 0 ? "payment.keepRefund" : "payment.keep")}
-          </Button>
-          <Button
-            variant="destructive"
-            size="lg"
-            disabled={mutation.isPending}
-            onClick={() => mutation.mutate()}
-          >
-            {t(mutation.isPending ? "payment.cancelling" : "payment.cancelRecord")}
           </Button>
         </DialogFooter>
       </DialogContent>

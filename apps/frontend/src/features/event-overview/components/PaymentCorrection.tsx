@@ -23,7 +23,7 @@ import {
 import { apiErrorCode } from "@/lib/api-client"
 import { formatDateRange } from "@/lib/date"
 import { formatCzk } from "@/lib/money"
-import { termDates } from "@/lib/term-label"
+import { termDates, termLine, termTitle } from "@/lib/term-label"
 import { cn } from "@/lib/utils"
 
 import {
@@ -39,8 +39,9 @@ import {
 
 const WHOLE_APPLICATION = "all"
 
-// Figma (Design system): US-112 · Upravit platbu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15883-7397 (mobile: 15883-7481)
-// Figma (Design system): US-112 · Upravit vratku · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15883-7679 (mobile: 15883-7763)
+// Figma v2: US-112 Upravit platbu · předvyplněný zápis · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=21569-73036 (360 px: node-id=21569-73472)
+// Figma v2: US-112 Upravit vratku · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=21569-78237 (360 px: node-id=21569-78678)
+// Figma v2: US-112 Oprava vratky převyšuje limit · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=21569-79733 · Probíhá ukládání opravy · node-id=21569-80544
 export function PaymentCorrection({
   application,
   payment,
@@ -61,7 +62,7 @@ export function PaymentCorrection({
       ? WHOLE_APPLICATION
       : (payment.rows[0]?.termId ?? WHOLE_APPLICATION),
   )
-  const [amount, setAmount] = useState(`${Math.abs(payment.amountCzk)},00`)
+  const [amount, setAmount] = useState(String(Math.abs(payment.amountCzk)))
   const [isInvalid, setIsInvalid] = useState(false)
   const normalized = amount.replace(/\s/g, "")
   const parsed = /^\d+(?:,00)?$/.test(normalized) ? Number(normalized.replace(/,00$/, "")) : NaN
@@ -110,6 +111,13 @@ export function PaymentCorrection({
   const formError = mutation.error ?? preview.error
 
   const isStale = apiErrorCode(formError) === "PAYMENT_RECEIPT_ALREADY_CANCELLED"
+  // The refund limit is a fault of the amount: it is shown under the field (Figma 21569-79733).
+  const isOverLimit = apiErrorCode(formError) === "REFUND_EXCEEDS_OVERPAYMENT"
+  const initialTermChoice =
+    payment.isSummary === true || payment.rows.length !== 1
+      ? WHOLE_APPLICATION
+      : (payment.rows[0]?.termId ?? WHOLE_APPLICATION)
+  const isUnchanged = parsed === Math.abs(payment.amountCzk) && termChoice === initialTermChoice
 
   return (
     <Dialog
@@ -129,12 +137,12 @@ export function PaymentCorrection({
         )}
       >
         <DialogHeader className="pr-10 text-left">
-          <DialogTitle className="max-w-64 text-2xl leading-8 sm:max-w-none sm:text-xl sm:leading-7">
-            {t("payment.correctTitle")}
+          <DialogTitle className="text-xl tracking-tight">
+            {t(isRefund ? "payment.correctRefundTitle" : "payment.correctTitle")}
           </DialogTitle>
-          <DialogDescription className="sr-only">
-            {application.firstName} {application.lastName} · {application.code} ·{" "}
-            {application.eventName}
+          <DialogDescription>
+            {application.firstName} {application.lastName} ·{" "}
+            {t("payment.applicationCode", { code: application.code })}
           </DialogDescription>
         </DialogHeader>
         <form
@@ -151,22 +159,17 @@ export function PaymentCorrection({
             mutation.mutate()
           }}
         >
-          <dl className="flex flex-col gap-4 text-base">
-            <div>
-              <dt className="text-sm text-muted-foreground">{t("payment.typeChoice")}</dt>
-              <dd className="mt-2">{t(isRefund ? "payment.typeRefund" : "payment.typePayment")}</dd>
-            </div>
-            <div>
-              <dt className="text-sm text-muted-foreground">{t("payment.originalValue")}</dt>
-              <dd className="mt-2">
-                {formatCzk(Math.abs(payment.amountCzk))}
-                {originalTerm ? ` · ${termDates(originalTerm)}` : ""}
-              </dd>
-            </div>
+          <dl>
+            <dt className="text-sm text-muted-foreground">{t("payment.originalValue")}</dt>
+            <dd className="mt-2">
+              {t(isRefund ? "payment.typeRefund" : "payment.typePayment")}{" "}
+              {formatCzk(payment.amountCzk)}
+              {originalTerm ? ` · ${termTitle(originalTerm)}` : ""}
+            </dd>
           </dl>
           {!isStale && (
-            <div className="flex flex-col gap-4 sm:flex-row">
-              <div className="flex min-w-0 flex-1 flex-col gap-2">
+            <div className="flex flex-col gap-4">
+              <div className="flex min-w-0 flex-col gap-2">
                 <Label htmlFor="correct-payment-term">{t("payment.termRequired")}</Label>
                 <Select
                   value={termChoice}
@@ -175,7 +178,7 @@ export function PaymentCorrection({
                 >
                   <SelectTrigger
                     id="correct-payment-term"
-                    className="w-full text-base data-[size=default]:h-12"
+                    className="w-full"
                   >
                     <SelectValue />
                   </SelectTrigger>
@@ -197,22 +200,23 @@ export function PaymentCorrection({
                           key={term.termId}
                           value={term.termId}
                         >
-                          {termDates(term)}
+                          {termLine(term)}
                         </SelectItem>
                       ))}
                   </SelectContent>
                 </Select>
               </div>
-              <div className="flex min-w-0 flex-1 flex-col gap-2">
+              <div className="flex min-w-0 flex-col gap-2">
                 <Label htmlFor="correct-payment-amount">{t("payment.correctionAmount")}</Label>
                 <div className="relative">
                   <Input
                     id="correct-payment-amount"
                     inputMode="decimal"
-                    className="h-12 pr-12 md:text-base"
+                    className="pr-12"
                     value={amount}
                     disabled={mutation.isPending}
-                    aria-invalid={isInvalid && !isValid}
+                    aria-invalid={(isInvalid && !isValid) || isOverLimit}
+                    aria-describedby={isOverLimit ? "correct-payment-limit" : undefined}
                     onChange={(event) => {
                       setAmount(event.target.value)
                       setIsInvalid(false)
@@ -222,7 +226,7 @@ export function PaymentCorrection({
                     aria-hidden="true"
                     className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-sm text-muted-foreground"
                   >
-                    CZK
+                    {t("payment.currency")}
                   </span>
                 </div>
                 {isInvalid && !isValid ? (
@@ -232,16 +236,29 @@ export function PaymentCorrection({
                   >
                     {t("payment.invalidAmount")}
                   </p>
+                ) : isOverLimit && formError ? (
+                  <p
+                    id="correct-payment-limit"
+                    role="alert"
+                    className="text-sm text-destructive"
+                  >
+                    {formError.message}
+                  </p>
                 ) : null}
               </div>
             </div>
           )}
-          {!isStale && isValid && preview.data ? (
+          {!isStale && isUnchanged ? (
+            <div aria-live="polite">
+              <span className="text-sm text-muted-foreground">{t("payment.correctionAfter")}</span>
+              <p className="mt-2">{t("payment.correctionUnchanged")}</p>
+            </div>
+          ) : !isStale && isValid && preview.data ? (
             <div
               className="text-base"
               aria-live="polite"
             >
-              <span className="text-sm text-muted-foreground">{t("payment.afterCorrection")}</span>
+              <span className="text-sm text-muted-foreground">{t("payment.correctionAfter")}</span>
               <p className="mt-2">
                 {t(
                   shouldShowMove
@@ -318,7 +335,10 @@ export function PaymentCorrection({
               )}
             </div>
           ) : null}
-          {formError ? (
+          {!isStale && !isRefund ? (
+            <p className="text-sm text-muted-foreground">{t("payment.correctionKeepsHistory")}</p>
+          ) : null}
+          {formError && !isOverLimit ? (
             <p
               role="alert"
               className="text-sm text-destructive"
@@ -330,10 +350,10 @@ export function PaymentCorrection({
           <DialogFooter>
             <Button
               type="button"
-              variant="ghost"
+              variant="outline"
               size="lg"
               disabled={mutation.isPending}
-              className="h-12 w-full sm:flex-1"
+              className="w-full sm:flex-1"
               onClick={onClose}
             >
               {t("payment.cancelCorrection")}
@@ -348,9 +368,13 @@ export function PaymentCorrection({
                 type="submit"
                 size="lg"
                 disabled={
-                  mutation.isPending || preview.isError || !preview.data || preview.isFetching
+                  isUnchanged ||
+                  mutation.isPending ||
+                  preview.isError ||
+                  !preview.data ||
+                  preview.isFetching
                 }
-                className="h-12 w-full sm:flex-1"
+                className="w-full sm:flex-1"
               >
                 {t(mutation.isPending ? "payment.saving" : "payment.saveCorrection")}
               </Button>

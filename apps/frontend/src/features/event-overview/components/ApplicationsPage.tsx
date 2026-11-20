@@ -53,12 +53,10 @@ import { SubstituteTaken } from "@/features/event-overview/components/Substitute
 import { UnfinishedEvent } from "@/features/event-overview/components/UnfinishedEvent"
 import type { ApplicationsSearch } from "@/features/event-overview/lib/applications-search"
 
-// Figma (Design system): O05, O05g · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12110-326
-// Figma (Design system): O05 / Náhradníci (waitlist of a term and gender) · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12769-3721
-// Figma (Design system): M12 · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14070-41596
-// Figma (Design system): US-103 view chips + queue (ApplicationViews, ApplicationQueue) · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15765-4897
+// Figma v2: US-52 Přihlášky · Seznam přihlášek · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15628-3232 (mobile 15628-3407); empty 15628-3783 (mobile 15628-3874)
+// Figma v2: US-30 Pořadník · Dámská skupina · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=19316-26503 (mobile 19316-26798)
+// Figma v2: US-103 view chips + queue (ApplicationViews, ApplicationQueue) · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15765-4897 (mobile 15765-5018)
 // Figma (Design system): US-38 badge in the row, empty filter · desktop https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=25587-109569 (mobile: 25587-109801); empty 25587-110253 (mobile: 25587-110406)
-// Figma (Design system): M12b / Empty results · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14189-43641
 export function ApplicationsPage({
   eventId,
   isAutomatic = false,
@@ -176,7 +174,13 @@ export function ApplicationsPage({
   const views = (
     <div className="flex flex-col gap-4">
       <h2 className="text-2xl font-bold">
-        {t(automaticTerm ? "automaticCapacity.heading" : "applications.title")}
+        {t(
+          automaticTerm
+            ? "automaticCapacity.heading"
+            : isWaitlist
+              ? "applications.waitlistTitle"
+              : "applications.title",
+        )}
       </h2>
       <ApplicationViews
         eventId={eventId}
@@ -422,9 +426,9 @@ export function ApplicationsPage({
                             "participant",
                             "terms",
                             "payment",
-                            "owed",
+                            "dueAndOwed",
                             "submitted",
-                            "actions",
+                            "detail",
                           ] as const
                         ).map((key) => (
                           <TableHead key={key}>{t(`applications.${key}`)}</TableHead>
@@ -500,7 +504,12 @@ export function ApplicationsPage({
                             <PaymentStatus application={row} />
                           </TableCell>
                           <TableCell>
-                            <MoneyAmount amountCzk={row.amountOwedCzk} />
+                            <p className="tabular-nums">
+                              <MoneyAmount amountCzk={row.amountDueCzk} />
+                            </p>
+                            <p className="text-sm text-muted-foreground tabular-nums">
+                              {t("applications.owed")} <MoneyAmount amountCzk={row.amountOwedCzk} />
+                            </p>
                           </TableCell>
                           <TableCell>{formatDateTime(row.submittedAt)}</TableCell>
                           <TableCell>
@@ -513,7 +522,9 @@ export function ApplicationsPage({
                                 params={{ eventId, applicationId: row.id }}
                               >
                                 {t(
-                                  row.amountOwedCzk > 0 ? "payment.record" : "applications.detail",
+                                  row.amountOwedCzk > 0
+                                    ? "payment.record"
+                                    : "applications.applicationDetail",
                                 )}
                               </Link>
                             </Button>
@@ -573,7 +584,11 @@ export function ApplicationsPage({
                           {t("applications.submitted")} · {formatDateTime(row.submittedAt)}
                         </span>
                         <span className="mt-2 text-sm font-medium text-link">
-                          {t(row.amountOwedCzk > 0 ? "payment.record" : "applications.detail")}
+                          {t(
+                            row.amountOwedCzk > 0
+                              ? "payment.record"
+                              : "applications.applicationDetail",
+                          )}
                         </span>
                       </Link>
                     </div>

@@ -55,6 +55,8 @@ const WHOLE_APPLICATION = "all"
  * result after saving and Back / Record on the right. A refund is offered only for terms the
  * backend reports an overpayment for (`refundableTermId`, `refundableCzk`) and is limited by it.
  */
+// Figma v2: US-111 Zapsat platbu k termínu · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=21524-72082 (360 px: node-id=21524-72479)
+// Figma v2: US-111 Vratka není dostupná · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=21524-77365 (360 px: node-id=21524-77723)
 // Figma (Design system): #399 Dialog · vratka předvoleného termínu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=22642-92343 (360 px: node-id=22642-92611)
 // Figma (Design system): O34q Zápis platby na souhrn · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16050-235 (360 px: M13q 16487-7776)
 // Figma (Design system): O34r Zápis platby na termín · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16050-467
@@ -187,7 +189,7 @@ export function PaymentEditor({
       >
         <DialogHeader>
           <DialogTitle className="text-lg tracking-tight">
-            {t(isRefund ? "payment.refundTitle" : "payment.dialogTitle")}
+            {t(isRefund ? "payment.refundTitle" : "payment.record")}
           </DialogTitle>
           <DialogDescription>
             {application.firstName} {application.lastName} ·{" "}
@@ -246,7 +248,14 @@ export function PaymentEditor({
               <Label htmlFor="payment-type-refund">{t("payment.typeRefund")}</Label>
             </div>
           </RadioGroup>
-          {isRefundUnavailable && <p role="status">{t("payment.refundUnavailable")}</p>}
+          {isRefundUnavailable && (
+            <p
+              role="status"
+              className="text-sm text-muted-foreground"
+            >
+              {t("payment.refundUnavailable")}
+            </p>
+          )}
           <div
             hidden={isRefundUnavailable}
             className="flex flex-col gap-2"
@@ -349,9 +358,7 @@ export function PaymentEditor({
           ) : null}
           {isCustomAmount && !isRefundUnavailable ? (
             <div className="flex flex-col gap-2">
-              <Label htmlFor="payment-amount">
-                {t(isRefund ? "payment.amountRequired" : "payment.requiredAmount")}
-              </Label>
+              <Label htmlFor="payment-amount">{t("payment.amountRequired")}</Label>
               <div className="relative">
                 <Input
                   id="payment-amount"
@@ -360,7 +367,7 @@ export function PaymentEditor({
                   value={amount}
                   disabled={mutation.isPending}
                   placeholder={t("payment.placeholder")}
-                  className={isRefund ? "pr-14" : undefined}
+                  className="pr-14"
                   aria-invalid={isInvalid && !isValid}
                   aria-describedby={
                     isInvalid && !isValid
@@ -372,30 +379,18 @@ export function PaymentEditor({
                     setIsInvalid(false)
                   }}
                 />
-                {isRefund ? (
-                  <span
-                    aria-hidden="true"
-                    className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-sm font-medium text-muted-foreground"
-                  >
-                    {t("payment.currency")}
-                  </span>
-                ) : null}
+                <span
+                  aria-hidden="true"
+                  className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-sm font-medium text-muted-foreground"
+                >
+                  {t("payment.currency")}
+                </span>
               </div>
               <p
                 id="payment-amount-hint"
-                className={
-                  isRefund ? "text-sm text-muted-foreground" : "text-xs text-muted-foreground"
-                }
+                className="text-sm text-muted-foreground"
               >
-                {isRefund
-                  ? t("payment.refundHint")
-                  : hasOverpayment
-                    ? t("payment.receivedHint")
-                    : remaining === 0
-                      ? t("payment.noDebtHint")
-                      : isValid
-                        ? t("payment.partialHint", { owed: preview })
-                        : null}
+                {t(isRefund ? "payment.refundHint" : "payment.paymentHint")}
               </p>
               {isInvalid && !isValid ? (
                 <p
@@ -423,6 +418,14 @@ export function PaymentEditor({
                   paid: formatCzk(scope.paid),
                   newPaid: formatCzk(scope.paid - receipt),
                   overpayment: preview,
+                })}
+              </DetailItem>
+            ) : isValid && term && receipt !== undefined && !hasOverpayment ? (
+              <DetailItem label={t("payment.afterCorrection")}>
+                {t("payment.paymentResult", {
+                  paid: formatCzk(scope.paid),
+                  newPaid: formatCzk(scope.paid + receipt),
+                  owed: preview,
                 })}
               </DetailItem>
             ) : isValid ? (
@@ -485,9 +488,7 @@ export function PaymentEditor({
                   ? t("payment.saving")
                   : isRefund
                     ? t(isRefundUnavailable ? "payment.confirm" : "payment.refund")
-                    : isValid && receipt !== undefined
-                      ? t("payment.recordAmount", { amount: formatCzk(receipt) })
-                      : t("payment.record")}
+                    : t("payment.record")}
               </Button>
             )}
           </DialogFooter>

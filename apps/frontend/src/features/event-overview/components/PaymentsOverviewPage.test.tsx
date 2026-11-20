@@ -133,9 +133,8 @@ describe("PaymentsOverviewPage", () => {
   it("shows the unfiltered debt total and opens the existing payment history", async () => {
     renderPage()
     expect(await screen.findByText("Summer camp")).toBeVisible()
-    expect(screen.getByRole("heading", { name: "Total debt" }).parentElement).toHaveTextContent(
-      /7,800/,
-    )
+    expect(screen.getByText("Debt across the event").parentElement).toHaveTextContent(/7,800/)
+    expect(screen.getByText("2 participants with debt · all terms")).toBeVisible()
     expect(screen.getAllByRole("link", { name: /^Detail/ })).toHaveLength(3)
     expect(screen.getByRole("link", { name: "Detail Adam Dvořák" }).getAttribute("href")).toContain(
       "/organizer/events/e1/applications/a1",
@@ -161,11 +160,11 @@ describe("PaymentsOverviewPage", () => {
     expect(screen.getByText("Adam Dvořák")).toBeVisible()
     expect(screen.getByText("Jana Nováková")).toBeVisible()
     expect(screen.queryByText("Petr Černý")).not.toBeInTheDocument()
-    expect(screen.getByText(/Debt in selection/)).toHaveTextContent(/7,800/)
+    expect(screen.getByText(/debt in selection/)).toHaveTextContent(/7,800/)
     await user.click(screen.getByRole("combobox", { name: "Payment reminders" }))
     await user.click(await screen.findByRole("option", { name: "Sent, still unpaid" }))
     expect(screen.queryByText("Jana Nováková")).not.toBeInTheDocument()
-    expect(screen.getByText(/Debt in selection/)).toHaveTextContent(/2,900/)
+    expect(screen.getByText(/debt in selection/)).toHaveTextContent(/2,900/)
   })
 
   it("shows only still-indebted participants when filtering sent reminders", async () => {
@@ -177,7 +176,7 @@ describe("PaymentsOverviewPage", () => {
     expect(screen.getByText("Adam Dvořák")).toBeVisible()
     expect(screen.queryByText("Jana Nováková")).not.toBeInTheDocument()
     expect(screen.queryByText("Petr Černý")).not.toBeInTheDocument()
-    expect(screen.getByText(/Debt in selection/)).toHaveTextContent(/2,900/)
+    expect(screen.getByText(/debt in selection/)).toHaveTextContent(/2,900/)
   })
 
   it("intersects the search, term, status and reminder across the whole selection", async () => {
@@ -195,7 +194,7 @@ describe("PaymentsOverviewPage", () => {
       },
     ])
     const search = await screen.findByRole("searchbox")
-    const debt = () => screen.getByText(/Debt in selection/)
+    const debt = () => screen.getByText(/debt in selection/)
     await user.type(search, "dvorak Adam")
     expect(debt()).toHaveTextContent(/3,600/)
     await user.clear(search)
@@ -230,12 +229,12 @@ describe("PaymentsOverviewPage", () => {
     for (const symbol of ["14002", "14000"]) {
       await user.clear(search)
       await user.type(search, symbol)
-      expect(screen.getByText(/Debt in selection/)).toHaveTextContent(/2,900/)
+      expect(screen.getByText(/debt in selection/)).toHaveTextContent(/2,900/)
       expect(screen.queryByText("Jana Nováková")).toBeNull()
     }
     await user.clear(search)
     await user.type(search, "400")
-    expect(screen.getByText(/Debt in selection/)).toHaveTextContent(/7,800/)
+    expect(screen.getByText(/debt in selection/)).toHaveTextContent(/7,800/)
   })
 
   it("labels a negative balance as an overpayment", async () => {
@@ -253,6 +252,25 @@ describe("PaymentsOverviewPage", () => {
     ])
     expect(await screen.findByText("Eva Malá")).toBeVisible()
     expect(screen.getByText(/Overpayment/)).toHaveTextContent("Overpayment CZK 500")
+  })
+
+  it("uses the overdue and reminder tiles as shortcuts to the filters", async () => {
+    const user = userEvent.setup()
+    renderPage()
+    await user.click(await screen.findByRole("button", { name: /^Past due/ }))
+    expect(screen.getByRole("combobox", { name: "Payment status" })).toHaveTextContent("Past due")
+    expect(screen.getByText(/debt in selection/)).toHaveTextContent(
+      "1 application in a term · debt in selection CZK 2,900",
+    )
+    await user.click(screen.getByRole("button", { name: /^After a sent reminder/ }))
+    expect(screen.getByRole("combobox", { name: "Payment status" })).toHaveTextContent(
+      "All statuses",
+    )
+    expect(screen.getByRole("combobox", { name: "Payment reminders" })).toHaveTextContent(
+      "Sent, still unpaid",
+    )
+    await user.click(screen.getByRole("button", { name: "Clear filters" }))
+    expect(screen.queryByRole("button", { name: "Clear filters" })).toBeNull()
   })
 
   it("identifies an unnamed term by its dates", async () => {

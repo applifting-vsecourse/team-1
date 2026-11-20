@@ -53,7 +53,7 @@ type Values = { name: string; departurePlace: string; departureAt: string; instr
 
 // Add or edit a way of transport of a term: a ride (name, place and time of departure) or own
 // transport (only instructions). Both can carry optional instructions for the participant.
-// Design proposal (US-402), in the pattern of the room dialog. Based on Figma (Design system): #65 Upravit dopravu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19795-12715
+// Figma v2: US-65 Přidat způsob dopravy · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=21206-64321 (360 px: node-id=21206-64486); edit own transport 21206-64053.
 export function TransportDialog({
   eventId,
   term,
@@ -322,7 +322,7 @@ export function TransportDialog({
                   className="sm:w-38"
                   disabled={isPending}
                 >
-                  {t("cancel")}
+                  {t("cancelChanges")}
                 </Button>
               </DialogClose>
               <Button
@@ -332,7 +332,9 @@ export function TransportDialog({
                 aria-busy={isPending}
                 disabled={isPending}
               >
-                {isPending ? t("state.saving", { ns: "common" }) : t("save")}
+                {isPending
+                  ? t("state.saving", { ns: "common" })
+                  : t(transport ? "save" : "addSubmit")}
               </Button>
             </DialogFooter>
           </form>

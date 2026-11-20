@@ -36,7 +36,7 @@ const MODES = ["AUTOMATIC", "MANUAL"] as const
  * and the public page content (US-122).
  */
 // Figma v2: US-101 evaluation settings before opening, desktop and mobile · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15741-4669 (mobile 15741-4746)
-// Locked mode · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15741-4923 (mobile 15741-5004)
+// Locked mode · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15741-4923 (mobile 15741-5004); after opening 19335-29698
 export function EventSettings({ eventId }: { eventId: string }) {
   const { t } = useTranslation("events")
   const { data: event, isPending, error, refetch } = useQuery(eventQueryOptions(eventId))

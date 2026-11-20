@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
+import { Copy } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
@@ -11,6 +12,7 @@ import { LoadingState } from "@/components/molecules/LoadingState"
 import { SectionHeader } from "@/components/molecules/SectionHeader"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import {
   Select,
@@ -39,8 +41,9 @@ type Editor = { block?: ProgramBlock; date: string }
 
 // The program of an event, term by term: pick a term, see its days with blocks by time, add / edit
 // in a dialog, delete after a confirmation. Each term has its own program.
-// Design: Figma (Design system) US-66 · O35 Program termínu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=23263-91745
-// Mobile · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=23266-93029
+// Figma v2: US-66 O35 Program termínu · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=23263-91745 (360 px: M14 23266-93029)
+// Figma v2: O35a Prázdný program · node-id=23263-92161 (360 px: M14a 23266-93325); O35b Akce bez termínů · node-id=23263-92538 (M14b 23266-93636)
+// Figma v2: Program zkopírován / nahrazen · node-id=24910-18756 / 24910-18343
 export function ProgramPage({ eventId }: { eventId: string }) {
   const { t } = useTranslation("program")
   const query = useQuery(eventProgramQueryOptions(eventId))
@@ -95,10 +98,7 @@ export function ProgramPage({ eventId }: { eventId: string }) {
   return (
     <div className="flex flex-col gap-6">
       <Seo title={t("title")} />
-      <SectionHeader
-        title={t("title")}
-        description={t("description")}
-      />
+      <SectionHeader title={t("title")} />
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="flex flex-col gap-2">
           <Label htmlFor="program-term">{t("termLabel")}</Label>
@@ -143,25 +143,26 @@ export function ProgramPage({ eventId }: { eventId: string }) {
                 setIsCopying(true)
               }}
             >
+              <Copy aria-hidden />
               {t("copy.open")}
             </Button>
           ) : null}
         </div>
       </div>
       {copied?.termId === term.termId ? (
-        <div className="flex min-w-0 flex-col gap-3">
-          <Alert variant={copied.result.overlaps.length > 0 ? "warning" : "default"}>
-            <AlertTitle>
-              {t("copy.resultTitle", { count: copied.result.copied, copied: copied.result.copied })}
-              {copied.result.skipped > 0
-                ? ` · ${t("copy.resultSkipped", { count: copied.result.skipped })}`
-                : ""}
-            </AlertTitle>
-            {copied.result.overlaps.length > 0 ? (
+        <Card className="min-w-0 gap-3 p-4">
+          <p className="text-sm font-semibold">
+            {t("copy.resultTitle", { count: copied.result.copied, copied: copied.result.copied })}
+            {copied.result.skipped > 0
+              ? ` · ${t("copy.resultSkipped", { count: copied.result.skipped })}`
+              : ""}
+          </p>
+          {copied.result.overlaps.length > 0 ? (
+            <Alert variant="warning">
+              <AlertTitle>
+                {t("copy.overlapHeading", { count: copied.result.overlaps.length })}
+              </AlertTitle>
               <AlertDescription className="text-foreground">
-                <strong>
-                  {t("copy.overlapHeading", { count: copied.result.overlaps.length })}
-                </strong>{" "}
                 {copied.result.overlaps
                   .map((item) =>
                     t(
@@ -179,19 +180,19 @@ export function ProgramPage({ eventId }: { eventId: string }) {
                   )
                   .join(" ")}
               </AlertDescription>
-            ) : null}
-          </Alert>
+            </Alert>
+          ) : null}
           {copied.result.blocks?.length ? (
             <ul
               aria-label={t("copy.copiedBlocks")}
-              className="mx-3.5 grid grid-cols-1 gap-2 md:mx-[15px] md:grid-cols-3"
+              className="grid grid-cols-1 gap-2 md:grid-cols-3"
             >
               {copied.result.blocks.map((block, index) => (
                 <li
                   key={index}
-                  className="min-w-0 space-y-1 rounded-lg border bg-card p-3"
+                  className="min-w-0 space-y-1 rounded-lg border bg-muted p-3"
                 >
-                  <p className="text-xs leading-[18px] text-muted-foreground">
+                  <p className="text-xs text-muted-foreground">
                     {formatDayHeader(block.date).date}
                   </p>
                   <p className="text-sm font-semibold break-words">{block.name}</p>
@@ -199,12 +200,14 @@ export function ProgramPage({ eventId }: { eventId: string }) {
                     {timeRange(block)}
                     {block.place && ` · ${block.place}`}
                   </p>
-                  {block.description && <p className="text-sm break-words">{block.description}</p>}
+                  {block.description && (
+                    <p className="text-sm break-words text-muted-foreground">{block.description}</p>
+                  )}
                 </li>
               ))}
             </ul>
           ) : null}
-        </div>
+        </Card>
       ) : null}
       {term.blocks.length === 0 ? (
         <p className="text-sm text-muted-foreground">{t("empty")}</p>

@@ -108,11 +108,9 @@ describe("EventList", () => {
       "a",
     ) as HTMLElement
     expect(within(card).getByText("Published")).toBeInTheDocument()
-    expect(within(card).getByText("2 terms · July 2027 · Kemp Lipno")).toBeInTheDocument()
-    expect(within(card).getByText("79 / 120 places in 2 terms")).toBeInTheDocument()
-    expect(
-      within(card).getByRole("progressbar", { name: "79 / 120 places in 2 terms" }),
-    ).toBeInTheDocument()
+    expect(within(card).getByText("Kemp Lipno · 2 terms · July 2027")).toBeInTheDocument()
+    expect(within(card).getByText("79/120 confirmed")).toBeInTheDocument()
+    expect(within(card).getByRole("progressbar", { name: "79/120 confirmed" })).toBeInTheDocument()
   })
 
   it("highlights the event that was just created and says it has no term yet", async () => {
@@ -122,7 +120,7 @@ describe("EventList", () => {
       "li",
     )
     expect(item).toHaveAttribute("data-created", "true")
-    expect(within(item as HTMLElement).getByText("No term yet · Kemp Lipno")).toBeInTheDocument()
+    expect(within(item as HTMLElement).getByText("Kemp Lipno · No term yet")).toBeInTheDocument()
     expect(within(item as HTMLElement).queryByRole("progressbar")).not.toBeInTheDocument()
     expect(within(item as HTMLElement).getByText("Application inactive")).toBeInTheDocument()
   })

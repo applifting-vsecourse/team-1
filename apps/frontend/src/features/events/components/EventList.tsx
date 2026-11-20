@@ -202,7 +202,7 @@ function FilteredEvents({
             className="hidden grid-cols-[minmax(0,1fr)_9rem_minmax(8rem,1fr)_1.25rem] gap-4 rounded-t-lg border bg-secondary px-4 py-3 text-sm font-medium lg:grid"
           >
             <span>{t("list.eventAndOrganization")}</span>
-            <span>{t("list.statusFilter")}</span>
+            <span>{t("list.statusColumn")}</span>
             <span>{t("list.occupancy")}</span>
           </div>
           <ul className="flex flex-col gap-4 lg:gap-0">
@@ -240,10 +240,15 @@ function EventRow({ event }: { event: OrganizerEvent }) {
       params={{ eventId: event.id }}
       className="grid grid-cols-1 items-center gap-3 p-4 transition-colors hover:bg-accent/40 focus-visible:outline-2 focus-visible:outline-ring lg:grid-cols-[minmax(0,1fr)_9rem_minmax(8rem,1fr)_1.25rem]"
     >
+      {/* Phone: organization above the name, then the dates; from `lg` the row reads name, then
+          "organization · dates". */}
       <div className="flex min-w-0 flex-col gap-0.5">
-        <p className="text-sm text-muted-foreground">{event.organizationName}</p>
-        <h3 className="text-lg font-semibold">{event.name}</h3>
-        <p className="text-xs text-muted-foreground">{termsSummary(event, t)}</p>
+        <p className="text-sm text-muted-foreground lg:hidden">{event.organizationName}</p>
+        <h3 className="text-lg font-semibold lg:text-base lg:font-medium">{event.name}</h3>
+        <p className="text-sm text-muted-foreground lg:hidden">
+          {termsSummary(event, t, "header")}
+        </p>
+        <p className="hidden text-sm text-muted-foreground lg:block">{termsSummary(event, t)}</p>
         {event.location ? <p className="text-sm text-muted-foreground">{event.location}</p> : null}
       </div>
       <ChevronRight
@@ -265,7 +270,7 @@ function EventRow({ event }: { event: OrganizerEvent }) {
   )
 }
 
-/** Confirmed of all beds across the terms, with a bar; a dash until there are terms and rooms. */
+/** Confirmed of all beds across the terms ("152/160 potvrzených"), with a bar; a dash until there are terms and rooms. */
 function Occupancy({ event }: { event: OrganizerEvent }) {
   const { t } = useTranslation("events")
   const confirmed = event.terms.reduce((sum, term) => sum + term.confirmedCount, 0)
@@ -274,10 +279,7 @@ function Occupancy({ event }: { event: OrganizerEvent }) {
   if (capacity === 0) {
     return <span className="text-sm font-medium">{t("list.noCapacity")}</span>
   }
-  const label =
-    event.terms.length === 1
-      ? t("list.occupancyOne", { confirmed, capacity })
-      : t("list.occupancyMany", { confirmed, capacity, count: event.terms.length })
+  const label = t("list.occupancyConfirmed", { confirmed, capacity })
 
   return (
     <>

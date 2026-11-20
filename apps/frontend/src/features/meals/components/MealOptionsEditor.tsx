@@ -23,7 +23,7 @@ import {
 const NAME_MAX_LENGTH = 100
 
 /** The meal restrictions an event offers on the application, defined by the organizer. */
-// US-64 · Design v2 · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=20719-62231 (mobile 20719-62373)
+// Figma v2: US-64 Upravit varianty stravy · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=20719-62231 (mobile 20719-62373)
 export function MealOptionsEditor({ eventId, eventName }: { eventId: string; eventName?: string }) {
   const { t } = useTranslation("meals")
   const { data, isPending, error, refetch } = useQuery(mealOptionsQueryOptions(eventId))

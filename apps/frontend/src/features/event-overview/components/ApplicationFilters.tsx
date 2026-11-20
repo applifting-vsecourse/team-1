@@ -35,7 +35,7 @@ type FilterOption = {
 }
 
 // Figma (Design system): US-38 filter "Ubytování" · desktop https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=25587-109948 (mobile: 25587-110135)
-// Figma (Design system): M12 / M12a · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14182-3993
+// Figma v2: US-52 filters · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15628-3232; mobile sheet 18186-20765
 export function ApplicationFilters({
   filters,
   terms,
@@ -83,7 +83,7 @@ export function ApplicationFilters({
       : []),
     {
       key: "payment",
-      label: t("applications.payment"),
+      label: t("applications.paymentFilter"),
       all: t("applications.allPayments"),
       values: [
         { id: "DEBT", name: t("applications.debt") },

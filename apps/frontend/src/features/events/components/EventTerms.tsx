@@ -244,7 +244,7 @@ function TermOccupancy({ term }: { term: EventTerm }) {
   const { t } = useTranslation("events")
   const label =
     term.capacity > 0
-      ? t("terms.occupancy", { confirmed: term.confirmedCount, count: term.capacity })
+      ? t("terms.occupancy", { confirmed: term.confirmedCount, capacity: term.capacity })
       : t("list.noCapacity")
 
   return (
@@ -262,7 +262,7 @@ function TermOccupancy({ term }: { term: EventTerm }) {
           confirmed={term.confirmedCount}
           capacity={term.capacity}
           label={label}
-          className="w-full"
+          className="h-1 w-full"
         />
       ) : null}
     </div>

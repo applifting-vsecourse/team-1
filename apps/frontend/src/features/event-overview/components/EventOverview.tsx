@@ -16,7 +16,6 @@ import { ROUTES } from "@/app/routes"
 import { CardGrid } from "@/components/molecules/CardGrid"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
-import { TermLabel } from "@/components/molecules/TermLabel"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -30,6 +29,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { formatCzk } from "@/lib/money"
+import { termLine } from "@/lib/term-label"
 
 import { attentionQueryOptions, type Attention } from "@/features/event-overview/api/attention"
 import { occupancyQueryOptions } from "@/features/event-overview/api/occupancy"
@@ -44,7 +44,7 @@ type Translate = ReturnType<typeof useTranslation<"eventOverview">>["t"]
  * occupancy of the terms (the list of US-29). "Náhradníci k vyřešení" counts waitlisted applicants
  * the organizer can approve now: a free bed for them, in both evaluation modes (PO, 2026-11-07; US-31).
  */
-// Figma v2: Needs your attention and occupancy by term · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=20580-45007 (mobile 20580-45260).
+// Figma v2: US-51 Co vyžaduje pozornost · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=20580-44169 (mobile 20580-44426).
 export function EventOverview({
   eventId,
   events,
@@ -257,7 +257,7 @@ function Occupancy({ eventId }: { eventId: string }) {
             key={term.id}
             className="gap-4 rounded-xl p-4 shadow-none"
           >
-            <TermLabel term={term} />
+            <h3 className="text-lg font-semibold tracking-tight">{termLine(term)}</h3>
             <div className="flex flex-col gap-2">
               <span className="text-sm font-medium">{t("overview.occupied")}</span>
               <Progress
@@ -270,7 +270,7 @@ function Occupancy({ eventId }: { eventId: string }) {
             </div>
             <dl className="grid grid-cols-2 gap-3">
               <div>
-                <dt className="text-sm text-muted-foreground">{t("capacity.freeColumn")}</dt>
+                <dt className="text-sm text-muted-foreground">{t("overview.freeBeds")}</dt>
                 <dd className="tabular-nums">{term.free}</dd>
               </div>
               <div>
@@ -278,7 +278,7 @@ function Occupancy({ eventId }: { eventId: string }) {
                 <dd className="tabular-nums">{term.waitlisted}</dd>
               </div>
             </dl>
-            <div className="flex flex-col gap-1 sm:flex-row">
+            <div className="grid gap-1 sm:grid-cols-2">
               <Button
                 asChild
                 variant="ghost"

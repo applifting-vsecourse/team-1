@@ -42,12 +42,7 @@ import { termsSummary } from "@/features/events/lib/terms-summary"
  * the sections are one tap away without opening the drawer.
  */
 // Figma v2: application detail https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22475-86190 and settings https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=19395-33879.
-// Figma (Design system): N8 Mobil · detail akce · výběr sekce · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14178-43230
-// Figma (Design system): N9 Mobil · detail akce · výběr sekce otevřený · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14178-43273
-// Figma (Design system): N / Event section switcher · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14179-986
-// Figma (Design system): N / Event section menu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14179-995
-// Figma (Design system): O / Event tabs · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14057-36915
-// Figma (Design system): O04 Přehled akce · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12110-156
+// Figma v2: event header and tabs (US-51 overview) · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=20580-44169; mobile section switcher (Navigace akce / Přehled / 360) https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=18359-20490
 export function EventHeader({ eventId }: { eventId: string }) {
   const { t } = useTranslation("events")
   const match = useMatchRoute()

@@ -192,7 +192,7 @@ describe("ApplicationsPage", () => {
       setup([application], false, undefined, { terms: [shared] }, { term: "t1" })
       await screen.findAllByText("Jana Test")
       expect(screen.queryByText("Shared capacity: 2/2 beds")).not.toBeInTheDocument()
-      expect(screen.getByText("Sorted: newest received first")).toBeVisible()
+      expect(screen.getByText("Sorted: most recently received applications")).toBeVisible()
     })
   })
   describe("individual accommodation (US-38)", () => {
@@ -246,7 +246,7 @@ describe("ApplicationsPage", () => {
     const user = userEvent.setup()
     await user.click(await screen.findByRole("button", { name: "Filters · 4" }))
     const dialog = screen.getByRole("dialog", { name: "Filters" })
-    await user.click(within(dialog).getByRole("combobox", { name: "Status in term" }))
+    await user.click(within(dialog).getByRole("combobox", { name: "Status" }))
     await user.click(screen.getByRole("option", { name: "Waitlisted" }))
     expect(change).toHaveBeenLastCalledWith({
       term: "t1",
@@ -302,8 +302,8 @@ describe("ApplicationsPage", () => {
     expect(within(dialog).getAllByRole("combobox")).toHaveLength(4)
     await user.click(within(dialog).getByRole("button", { name: "Clear filters" }))
     expect(change).toHaveBeenLastCalledWith({})
-    expect(within(dialog).getByRole("combobox", { name: "Status in term" })).toHaveTextContent(
-      "All term statuses",
+    expect(within(dialog).getByRole("combobox", { name: "Status" })).toHaveTextContent(
+      "All statuses",
     )
     await user.click(within(dialog).getByRole("button", { name: "Show applications" }))
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
@@ -355,10 +355,10 @@ describe("ApplicationsPage", () => {
   it("starts at the first page of search results", async () => {
     setup(Array.from({ length: 21 }, (_, index) => ({ ...application, id: `a${index}` })))
     const user = userEvent.setup()
-    await user.click(await screen.findByRole("button", { name: "Next →" }))
-    expect(screen.getByText("Showing 21–21 of 21")).toBeInTheDocument()
+    await user.click(await screen.findByRole("button", { name: "Next page" }))
+    expect(screen.getByText("21–21 of 21 results")).toBeInTheDocument()
     await user.type(screen.getByRole("searchbox"), "jana")
-    expect(await screen.findByText("Showing 1–20 of 21")).toBeInTheDocument()
+    expect(await screen.findByText("1–20 of 21 results")).toBeInTheDocument()
   })
   it("passes combined filters, displays all terms and links to payment", async () => {
     setup()
@@ -484,8 +484,8 @@ describe("ApplicationsPage", () => {
   })
   it.each([
     [600, "Record payment"],
-    [0, "Detail"],
-    [-100, "Detail"],
+    [0, "Application detail"],
+    [-100, "Application detail"],
   ])("labels the row action for an amount owed of %s as %s", async (amountOwedCzk, label) => {
     setup([{ ...application, amountOwedCzk }])
     expect(await screen.findByRole("link", { name: label })).toHaveAttribute(
@@ -496,7 +496,7 @@ describe("ApplicationsPage", () => {
   it("shows one debt column and no amount-to-pay column", async () => {
     setup([application])
     await screen.findByRole("link", { name: "Record payment" })
-    expect(screen.getByRole("columnheader", { name: "Debt" })).toBeInTheDocument()
+    expect(screen.getByRole("columnheader", { name: "Due / debt" })).toBeInTheDocument()
     expect(screen.queryByRole("columnheader", { name: "Amount due" })).not.toBeInTheDocument()
   })
   describe("clickable row", () => {
@@ -581,7 +581,7 @@ describe("ApplicationsPage", () => {
       ["WAITLISTED", "Waitlisted"],
     ] as const)("fixes the status filter to the %s view", async (status, label) => {
       setup([waiting], false, undefined, null, { status })
-      const select = (await screen.findAllByRole("combobox", { name: "Status in term" }))[0]!
+      const select = (await screen.findAllByRole("combobox", { name: "Status" }))[0]!
       expect(select).toBeDisabled()
       expect(select).toHaveTextContent(label)
       await userEvent.setup().hover(select.parentElement!)

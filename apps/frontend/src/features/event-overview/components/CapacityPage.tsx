@@ -10,6 +10,7 @@ import { CapacityProgress } from "@/components/atoms/CapacityProgress"
 import { Seo } from "@/components/atoms/Seo"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
+import { SectionHeader } from "@/components/molecules/SectionHeader"
 import { TermLabel } from "@/components/molecules/TermLabel"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -48,9 +49,8 @@ function roomGroups(rooms: readonly Room[], gender: Gender) {
  * one term. A whole row or card is the link; the numbers are plain text.
  * `rooms` only feeds the room summary of the detail, so the route passes it in.
  */
-// Figma (Design system): N4 Kapacity · všechny termíny · podle pohlaví / Desktop · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14178-12869
-// Figma (Design system): N3 Kapacity · detail termínu / Desktop · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14178-12842
-// Figma (Design system): O08d Obsazenost všech termínů · společné pokoje · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12768-3229
+// Figma v2: US-26 Kapacita · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=18770-24198 (mobile 18770-24345). The all-terms list and
+// the term detail behind `?termId=` stay as approved in N3 / N4 (docs/FIGMA-REMAKE.md, 25. 10.).
 export function CapacityPage({
   eventId,
   termId,
@@ -68,6 +68,10 @@ export function CapacityPage({
   return (
     <div className="flex flex-col gap-6">
       <Seo title={t("capacity.title")} />
+      <SectionHeader
+        title={t("capacity.title")}
+        description={t("capacity.intro")}
+      />
       {query.isError ? (
         <ErrorState
           title={t("capacity.loadFailed")}
@@ -167,7 +171,7 @@ export function TermList({ eventId, terms }: { eventId: string; terms: TermOccup
     <Card className="gap-4 p-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex flex-col gap-1">
-          <h2 className="text-lg font-semibold tracking-tight">{t("capacity.tableTitle")}</h2>
+          <h3 className="text-lg font-semibold tracking-tight">{t("capacity.tableTitle")}</h3>
           <p className="text-sm text-muted-foreground">{t("capacity.tableHint")}</p>
         </div>
         <ManageRoomsButton eventId={eventId} />
@@ -339,7 +343,7 @@ function TermDetail({
         </div>
       </div>
       <div className="flex flex-col gap-1">
-        <h2 className="text-2xl font-semibold tracking-tight">{termTitle(term)}</h2>
+        <h3 className="text-xl font-semibold tracking-tight">{termTitle(term)}</h3>
         {termName(term) ? (
           <p className="text-sm">
             {formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })}
@@ -479,7 +483,7 @@ function MetricCard({
 
   return (
     <Card className={cn("gap-2 px-6", isOver && "border-destructive bg-destructive/8")}>
-      <h3 className="text-xs font-medium text-muted-foreground">{label}</h3>
+      <h4 className="text-xs font-medium text-muted-foreground">{label}</h4>
       <p
         className={cn(
           "text-4xl font-bold tracking-tight tabular-nums",

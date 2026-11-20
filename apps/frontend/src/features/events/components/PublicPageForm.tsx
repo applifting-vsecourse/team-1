@@ -68,9 +68,7 @@ const isAcceptedType = (file: File): boolean =>
  * (US-122). A section of the event settings, closed until opened. The photo is sent as soon as it
  * is chosen; the rest is saved with the button, which closes the section again.
  */
-// Figma (Design system): US-122 / Nastavení akce · Veřejná prezentace · Úprava · katalog vypnutý · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16135-8343 (mobil 16135-8470)
-// Figma (Design system): US-122 / Nastavení akce · Veřejná prezentace · Uložené · katalog zapnutý · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16135-8563 (mobil 16135-8699)
-// Figma (Design system): US-122 / Nastavení akce · Veřejná prezentace · Chyba fotografie · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16135-8804 (mobil 16135-8929)
+// Figma v2: US-122 Úprava · katalog vypnutý · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=19395-33879; uloženo · katalog zapnutý 19395-34774; chyba fotografie 19395-35250
 export function PublicPageForm({ event }: { event: OrganizerEvent }) {
   const { t } = useTranslation(["events", "common"])
   const queryClient = useQueryClient()
@@ -186,134 +184,157 @@ export function PublicPageForm({ event }: { event: OrganizerEvent }) {
               if (Object.keys(validatePublicPage(values)).length === 0) save.mutate()
             }}
           >
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="public-page-name">{t("publicPage.name")}</Label>
-              <Input
-                {...field("name", "public-page-name")}
-                value={values.name}
-                maxLength={200}
-                onChange={(e) => change({ name: e.target.value })}
-              />
-              {fieldError("name", "public-page-name")}
-            </div>
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="public-page-description">{t("publicPage.description")}</Label>
-              <Textarea
-                {...field("description", "public-page-description")}
-                value={values.description}
-                maxLength={5000}
-                onChange={(e) => change({ description: e.target.value })}
-              />
-              {fieldError("description", "public-page-description")}
-            </div>
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="public-page-location">{t("publicPage.location")}</Label>
-              <Input
-                {...field("location", "public-page-location")}
-                value={values.location}
-                maxLength={200}
-                onChange={(e) => change({ location: e.target.value })}
-              />
-              {fieldError("location", "public-page-location")}
-            </div>
+            <section className="flex flex-col gap-4">
+              <h4 className="text-lg font-semibold tracking-tight">
+                {t("publicPage.contentTitle")}
+              </h4>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="public-page-name">{t("publicPage.name")}</Label>
+                <Input
+                  {...field("name", "public-page-name")}
+                  value={values.name}
+                  maxLength={200}
+                  onChange={(e) => change({ name: e.target.value })}
+                />
+                {fieldError("name", "public-page-name")}
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="public-page-description">{t("publicPage.description")}</Label>
+                <Textarea
+                  {...field("description", "public-page-description")}
+                  value={values.description}
+                  maxLength={5000}
+                  onChange={(e) => change({ description: e.target.value })}
+                />
+                {fieldError("description", "public-page-description")}
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="public-page-location">{t("publicPage.location")}</Label>
+                <Input
+                  {...field("location", "public-page-location")}
+                  value={values.location}
+                  maxLength={200}
+                  onChange={(e) => change({ location: e.target.value })}
+                />
+                {fieldError("location", "public-page-location")}
+              </div>
+            </section>
 
-            <h4 className="text-lg font-semibold tracking-tight">{t("publicPage.photoTitle")}</h4>
-            <UploadField
-              title={t(
-                event.photoFileName ? "publicPage.upload.doneTitle" : "publicPage.upload.idleTitle",
-              )}
-              description={event.photoFileName ?? t("publicPage.upload.hint")}
-              buttonLabel={t("publicPage.upload.button")}
-              note={t("publicPage.upload.limit")}
-              removeLabel={event.photoFileName ? t("publicPage.upload.remove") : undefined}
-              onRemove={event.photoFileName ? () => remove.mutate() : undefined}
-              previewUrl={photoUrl}
-              uploadLabel={upload.isPending ? t("publicPage.upload.uploading") : undefined}
-              uploadFraction={uploadFraction}
-              error={photoError}
-              accept={EVENT_PHOTO.types.join(",")}
-              isDisabled={upload.isPending || remove.isPending}
-              onSelect={(file) => {
-                if (!isAcceptedType(file)) {
-                  setPhotoError(t("publicPage.upload.invalidType"))
-                } else if (file.size > EVENT_PHOTO.maxBytes) {
-                  setPhotoError(t("publicPage.upload.tooLarge"))
-                } else {
-                  upload.mutate(file)
-                }
-              }}
-            />
-
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="public-page-email">{t("publicPage.contactEmail")}</Label>
-              <Input
-                {...field("contactEmail", "public-page-email")}
-                type="email"
-                value={values.contactEmail}
-                maxLength={200}
-                onChange={(e) => change({ contactEmail: e.target.value })}
+            <section className="flex flex-col gap-4 border-t border-border pt-6">
+              <h4 className="text-lg font-semibold tracking-tight">{t("publicPage.photoTitle")}</h4>
+              <UploadField
+                title={t(
+                  event.photoFileName
+                    ? "publicPage.upload.doneTitle"
+                    : "publicPage.upload.idleTitle",
+                )}
+                description={event.photoFileName ?? t("publicPage.upload.hint")}
+                buttonLabel={t("publicPage.upload.button")}
+                note={t("publicPage.upload.limit")}
+                removeLabel={event.photoFileName ? t("publicPage.upload.remove") : undefined}
+                onRemove={event.photoFileName ? () => remove.mutate() : undefined}
+                previewUrl={photoUrl}
+                uploadLabel={upload.isPending ? t("publicPage.upload.uploading") : undefined}
+                uploadFraction={uploadFraction}
+                error={photoError}
+                accept={EVENT_PHOTO.types.join(",")}
+                isDisabled={upload.isPending || remove.isPending}
+                onSelect={(file) => {
+                  if (!isAcceptedType(file)) {
+                    setPhotoError(t("publicPage.upload.invalidType"))
+                  } else if (file.size > EVENT_PHOTO.maxBytes) {
+                    setPhotoError(t("publicPage.upload.tooLarge"))
+                  } else {
+                    upload.mutate(file)
+                  }
+                }}
               />
-              {fieldError("contactEmail", "public-page-email")}
-            </div>
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="public-page-phone">{t("publicPage.contactPhone")}</Label>
-              <Input
-                {...field("contactPhone", "public-page-phone")}
-                type="tel"
-                inputMode="tel"
-                value={values.contactPhone}
-                maxLength={50}
-                onChange={(e) => change({ contactPhone: e.target.value })}
-              />
-              {fieldError("contactPhone", "public-page-phone")}
-            </div>
+            </section>
 
-            <h4 className="text-lg font-semibold tracking-tight">{t("publicPage.termsTitle")}</h4>
-            <ul className="flex flex-col gap-3">
-              {offeredTerms.map((term) => (
-                <li
-                  key={term.id}
-                  className="flex flex-col py-2 tabular-nums"
+            <section className="flex flex-col gap-4 border-t border-border pt-6">
+              <h4 className="text-lg font-semibold tracking-tight">
+                {t("publicPage.contactTitle")}
+              </h4>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="public-page-email">{t("publicPage.contactEmail")}</Label>
+                  <Input
+                    {...field("contactEmail", "public-page-email")}
+                    type="email"
+                    value={values.contactEmail}
+                    maxLength={200}
+                    onChange={(e) => change({ contactEmail: e.target.value })}
+                  />
+                  {fieldError("contactEmail", "public-page-email")}
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="public-page-phone">{t("publicPage.contactPhone")}</Label>
+                  <Input
+                    {...field("contactPhone", "public-page-phone")}
+                    type="tel"
+                    inputMode="tel"
+                    value={values.contactPhone}
+                    maxLength={50}
+                    onChange={(e) => change({ contactPhone: e.target.value })}
+                  />
+                  {fieldError("contactPhone", "public-page-phone")}
+                </div>
+              </div>
+            </section>
+
+            <section className="flex flex-col gap-4 border-t border-border pt-6">
+              <h4 className="text-lg font-semibold tracking-tight">{t("publicPage.termsTitle")}</h4>
+              <ul className="flex flex-col gap-3">
+                {offeredTerms.map((term) => (
+                  <li
+                    key={term.id}
+                    className="flex flex-col py-2 tabular-nums"
+                  >
+                    <span>
+                      {formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })} ·{" "}
+                      {formatCzk(term.priceCzk)}
+                    </span>
+                    {termName(term) ? (
+                      <span className="text-sm text-muted-foreground">{termName(term)}</span>
+                    ) : null}
+                  </li>
+                ))}
+              </ul>
+              <div>
+                <Button
+                  asChild
+                  variant="outline"
                 >
-                  <span>
-                    {formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })} ·{" "}
-                    {formatCzk(term.priceCzk)}
-                  </span>
-                  {termName(term) ? (
-                    <span className="text-sm text-muted-foreground">{termName(term)}</span>
-                  ) : null}
-                </li>
-              ))}
-            </ul>
-            <div>
-              <Button
-                asChild
-                variant="outline"
-              >
-                <Link
-                  to={ROUTES.organizer.eventTerms}
-                  params={{ eventId: event.id }}
-                  target="_blank"
-                  rel="noopener"
-                >
-                  {t("publicPage.editTerms")}
-                </Link>
-              </Button>
-            </div>
+                  <Link
+                    to={ROUTES.organizer.eventTerms}
+                    params={{ eventId: event.id }}
+                    target="_blank"
+                    rel="noopener"
+                  >
+                    {t("publicPage.editTerms")}
+                  </Link>
+                </Button>
+              </div>
+            </section>
 
-            <div className="flex items-center gap-3 py-2">
-              <Checkbox
-                id="public-page-published"
-                checked={values.publishedInCatalog}
-                onCheckedChange={(checked) => change({ publishedInCatalog: checked === true })}
-              />
-              <Label htmlFor="public-page-published">{t("publicPage.publish")}</Label>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              {values.publishedInCatalog || !event.applicationsOpen
-                ? t("publicPage.publishHint")
-                : t("publicPage.directLinkHint")}
-            </p>
+            <section className="flex flex-col gap-4 border-t border-border pt-6">
+              <h4 className="text-lg font-semibold tracking-tight">
+                {t("publicPage.catalogTitle")}
+              </h4>
+              <div className="flex items-center gap-3">
+                <Checkbox
+                  id="public-page-published"
+                  checked={values.publishedInCatalog}
+                  onCheckedChange={(checked) => change({ publishedInCatalog: checked === true })}
+                />
+                <Label htmlFor="public-page-published">{t("publicPage.publish")}</Label>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                {values.publishedInCatalog || !event.applicationsOpen
+                  ? t("publicPage.publishHint")
+                  : t("publicPage.directLinkHint")}
+              </p>
+            </section>
 
             {event.applicationsOpen ? (
               <div>

@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
+import { Search } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
@@ -9,9 +10,9 @@ import { Seo } from "@/components/atoms/Seo"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { Pagination } from "@/components/molecules/Pagination"
+import { SectionHeader } from "@/components/molecules/SectionHeader"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
@@ -31,7 +32,7 @@ import {
 } from "@/components/ui/table"
 import { usePagination } from "@/hooks/usePagination"
 import { formatDate } from "@/lib/date"
-import { termTitle } from "@/lib/term-label"
+import { termDates, termName, termTitle } from "@/lib/term-label"
 
 import {
   paymentOverviewQueryOptions,
@@ -62,10 +63,7 @@ function matches(entry: PaymentOverviewEntry, status: StatusFilter, reminder: Re
   return isPaymentMatch && isReminderMatch
 }
 
-// Figma (Design system): #399 Přehled plateb · detail a storno podmínky · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=22642-92813 (360 px: node-id=22642-93088)
-// Figma (Design system): #45 / Platby / Desktop · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19786-51878
-// Figma (Design system): #45 / Platby / Mobile · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19786-52056
-// Figma (Design system): #45 / Žádné přihlášky neodpovídají filtru · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19786-52384 (mobile: 19786-52519)
+// Figma v2: US-45 Všechny platby · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=20544-42470 (360 px: node-id=20544-42849)
 export function PaymentsOverviewPage({
   eventId,
   eventName,
@@ -120,82 +118,119 @@ export function PaymentsOverviewPage({
     )
   })
   const selectionDebt = entries.reduce((sum, entry) => sum + entry.payableCzk, 0)
-  const clearFilters = () => {
+  const isFiltered = search !== "" || termId !== "ALL" || status !== "ALL" || reminder !== "ALL"
+  // A tile is a shortcut to the same selection through the existing filters.
+  const showOnly = (nextStatus: StatusFilter, nextReminder: ReminderFilter) => {
     setSearch("")
     setTermId("ALL")
-    setStatus("ALL")
-    setReminder("ALL")
+    setStatus(nextStatus)
+    setReminder(nextReminder)
   }
+  const clearFilters = () => showOnly("ALL", "ALL")
+  const tiles = [
+    {
+      title: t("paymentsOverview.totalDebt"),
+      amount: data.totalDebtCzk,
+      detail: t("paymentsOverview.debtors", { count: data.debtorCount }),
+    },
+    {
+      title: t("paymentsOverview.statuses.OVERDUE"),
+      amount: data.debtByFilter.OVERDUE.ALL,
+      detail: t("paymentsOverview.overdueCount", {
+        count: data.entries.filter((entry) => matches(entry, "OVERDUE", "ALL")).length,
+      }),
+      onSelect: () => showOnly("OVERDUE", "ALL"),
+    },
+    {
+      title: t("paymentsOverview.remindedDebt"),
+      amount: data.debtByFilter.ALL.SENT,
+      detail: t("paymentsOverview.remindedCount", {
+        count: data.entries.filter((entry) => matches(entry, "ALL", "SENT")).length,
+      }),
+      onSelect: () => showOnly("ALL", "SENT"),
+    },
+  ]
   return (
     <section className="flex flex-col gap-6">
       <Seo title={t("paymentsOverview.title")} />
-      <div className="flex flex-col gap-2">
-        <h2 className="text-2xl font-bold tracking-tight">{t("paymentsOverview.title")}</h2>
-        {eventName ? <p>{eventName}</p> : null}
-        <Button
-          asChild
-          variant="ghost"
-          size="lg"
-          className="self-start"
-        >
-          <Link
-            to={ROUTES.organizer.eventCancellationTerms}
-            params={{ eventId }}
-          >
-            {t("paymentsOverview.cancellationTerms")}
-          </Link>
-        </Button>
-        <Button
-          asChild
-          size="lg"
-          className="self-start"
-        >
-          <Link
-            to={ROUTES.organizer.eventPaymentsImport}
-            params={{ eventId }}
-          >
-            {t("paymentsOverview.uploadStatement")}
-          </Link>
-        </Button>
+      <SectionHeader
+        title={t("paymentsOverview.title")}
+        description={eventName}
+        actions={
+          <>
+            <Button
+              asChild
+              variant="ghost"
+              size="lg"
+            >
+              <Link
+                to={ROUTES.organizer.eventCancellationTerms}
+                params={{ eventId }}
+              >
+                {t("paymentsOverview.cancellationTerms")}
+              </Link>
+            </Button>
+            <Button
+              asChild
+              size="lg"
+            >
+              <Link
+                to={ROUTES.organizer.eventPaymentsImport}
+                params={{ eventId }}
+              >
+                {t("paymentsOverview.uploadStatement")}
+              </Link>
+            </Button>
+          </>
+        }
+      />
+      {/* 360 px: the three tiles are rows of one box. */}
+      <div className="grid gap-4 rounded-lg border bg-card p-4 sm:grid-cols-3 sm:border-0 sm:bg-transparent sm:p-0">
+        {tiles.map((tile) => {
+          const content = (
+            <>
+              <span className="flex items-center justify-between gap-2">
+                <span className="text-sm font-medium">{tile.title}</span>
+                <MoneyAmount
+                  amountCzk={tile.amount}
+                  className="text-2xl font-medium"
+                />
+              </span>
+              <span className="text-sm sm:text-base">{tile.detail}</span>
+            </>
+          )
+          const box =
+            "flex flex-col gap-1 text-left sm:gap-4 sm:rounded-lg sm:border sm:bg-card sm:p-4"
+          return tile.onSelect ? (
+            <button
+              key={tile.title}
+              type="button"
+              className={`${box} rounded-md hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none`}
+              onClick={tile.onSelect}
+            >
+              {content}
+            </button>
+          ) : (
+            <div
+              key={tile.title}
+              className={box}
+            >
+              {content}
+            </div>
+          )
+        })}
       </div>
-      <div className="grid gap-3 sm:grid-cols-3">
-        {[
-          {
-            title: t("paymentsOverview.totalDebt"),
-            amount: data.totalDebtCzk,
-            detail: t("paymentsOverview.debtors", { count: data.debtorCount }),
-          },
-          {
-            title: t("paymentsOverview.statuses.OVERDUE"),
-            amount: data.debtByFilter.OVERDUE.ALL,
-            detail: t("paymentsOverview.overdueCount", { count: data.overdueCount }),
-          },
-          {
-            title: t("paymentsOverview.remindedDebt"),
-            amount: data.debtByFilter.ALL.SENT,
-            detail: t("paymentsOverview.debtors", {
-              count: data.remindedDebtorCount,
-            }),
-          },
-        ].map((metric) => (
-          <Card
-            key={metric.title}
-            className="gap-2 p-4"
-          >
-            <h3 className="text-sm font-medium">{metric.title}</h3>
-            <p className="text-2xl font-semibold">
-              <MoneyAmount amountCzk={metric.amount} />
-            </p>
-            <p className="text-sm text-muted-foreground">{metric.detail}</p>
-          </Card>
-        ))}
-      </div>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="payment-search">{t("paymentsOverview.search")}</Label>
+      <div className="grid gap-4 md:grid-cols-2 md:items-end lg:grid-cols-4">
+        <div className="relative">
+          <Search
+            aria-hidden
+            className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-muted-foreground"
+          />
           <Input
-            id="payment-search"
             type="search"
+            aria-label={t("paymentsOverview.search")}
+            placeholder={t("paymentsOverview.search")}
+            className="pl-10"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
           />
@@ -276,9 +311,21 @@ export function PaymentsOverviewPage({
           </Select>
         </div>
       </div>
-      <p className="text-sm font-medium">
-        {t("paymentsOverview.selectionDebt")} · <MoneyAmount amountCzk={selectionDebt} />
-      </p>
+      <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <p aria-live="polite">
+          {t("paymentsOverview.selection", { count: entries.length })}
+          {" · "}
+          {t("paymentsOverview.selectionDebt")} <MoneyAmount amountCzk={selectionDebt} />
+        </p>
+        {isFiltered ? (
+          <Button
+            variant="ghost"
+            onClick={clearFilters}
+          >
+            {t("paymentsOverview.clearFilters")}
+          </Button>
+        ) : null}
+      </div>
       {entries.length === 0 ? (
         <div className="flex flex-col items-center gap-6 py-4">
           <h3 className="text-xl font-semibold">
@@ -288,14 +335,6 @@ export function PaymentsOverviewPage({
                 : "paymentsOverview.empty",
             )}
           </h3>
-          {data.entries.length > 0 ? (
-            <Button
-              variant="ghost"
-              onClick={clearFilters}
-            >
-              {t("paymentsOverview.clearFilters")}
-            </Button>
-          ) : null}
         </div>
       ) : (
         <PaymentEntries
@@ -321,7 +360,6 @@ function PaymentEntries({
   const { pageItems, ...pagination } = usePagination(entries, resetKey)
   return (
     <div className="flex flex-col gap-4">
-      {/* Figma v2: US-45 payment cards · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=20544-42849 (desktop 20544-42470). */}
       <div className="md:rounded-lg md:border md:bg-card">
         <Table className="block w-full md:table">
           <caption className="sr-only">{t("paymentsOverview.list")}</caption>
@@ -362,42 +400,75 @@ function PaymentOverviewRow({ entry, eventId }: { entry: PaymentOverviewEntry; e
     entry.paymentStatus === "OVERPAID" || entry.paymentStatus === "NOTHING_DUE"
       ? "PAID"
       : entry.paymentStatus
+  const name = termName({ name: entry.termName })
   return (
-    <TableRow className="grid gap-2 rounded-lg border bg-card p-4 max-md:last:border-b md:table-row md:rounded-none md:border-x-0 md:border-t-0 md:p-0">
-      <TableCell className="p-0 font-semibold whitespace-normal md:px-4 md:py-4 md:font-normal">
-        {entry.firstName} {entry.lastName}
-      </TableCell>
-      <TableCell className="p-0 whitespace-normal text-muted-foreground md:px-4 md:py-4 md:text-foreground">
-        {termTitle({ name: entry.termName, startsOn: entry.startsOn, endsOn: entry.endsOn })}
-      </TableCell>
+    <TableRow className="grid gap-4 rounded-lg border bg-card p-4 max-md:last:border-b md:table-row md:rounded-none md:border-x-0 md:border-t-0 md:p-0">
       <TableCell className="p-0 whitespace-normal md:px-4 md:py-4">
+        <span className="text-2xl font-bold md:text-sm md:font-medium">
+          {entry.firstName} {entry.lastName}
+        </span>
+        <span className="hidden text-sm text-muted-foreground md:block">
+          #{entry.summaryVariableSymbol}
+        </span>
+      </TableCell>
+      <TableCell className="p-0 whitespace-normal md:px-4 md:py-4 md:text-sm md:text-muted-foreground">
+        {name ? (
+          <>
+            <span className="md:block">{name}</span>
+            <span className="md:hidden"> · </span>
+          </>
+        ) : null}
+        <span className="md:block">
+          {termDates({ startsOn: entry.startsOn, endsOn: entry.endsOn })}
+        </span>
+      </TableCell>
+      <TableCell className="flex flex-wrap gap-2 p-0 whitespace-normal md:table-cell md:px-4 md:py-4">
         <Badge
-          variant={
-            status === "PAID" ? "success" : status === "PARTIALLY_PAID" ? "warning" : "secondary"
+          variant={status === "PARTIALLY_PAID" ? "warning" : undefined}
+          className={
+            status === "PAID"
+              ? "bg-primary text-primary-foreground"
+              : status === "UNPAID"
+                ? "bg-destructive text-destructive-foreground"
+                : undefined
           }
         >
           {t(`paymentsOverview.statuses.${status}`)}
         </Badge>
+        {entry.overdue ? (
+          <Badge className="bg-destructive text-destructive-foreground md:hidden">
+            {t("paymentsOverview.statuses.OVERDUE")}
+          </Badge>
+        ) : null}
       </TableCell>
-      <TableCell className="p-0 whitespace-normal md:px-4 md:py-4">
+      <TableCell className="flex items-center justify-between gap-2 p-0 whitespace-normal md:table-cell md:px-4 md:py-4 md:text-sm md:text-muted-foreground">
         {entry.amountOwedCzk >= 0 && (
-          <span className="mr-2 font-medium md:hidden">{t("paymentsOverview.debt")}</span>
+          <span className="text-sm font-medium text-foreground md:hidden">
+            {t("paymentsOverview.toPay")}
+          </span>
         )}
         {entry.amountOwedCzk < 0 ? (
           <span>
             {t("paymentsOverview.overpayment")} <MoneyAmount amountCzk={-entry.amountOwedCzk} />
           </span>
         ) : (
-          <MoneyAmount amountCzk={entry.amountOwedCzk} />
+          <MoneyAmount
+            amountCzk={entry.amountOwedCzk}
+            className="text-2xl font-medium md:text-sm md:font-normal"
+          />
         )}
       </TableCell>
-      <TableCell className="p-0 whitespace-normal md:px-4 md:py-4">
-        <span className={entry.overdue ? "text-destructive" : undefined}>
+      <TableCell className="flex flex-col gap-4 p-0 whitespace-normal md:table-cell md:px-4 md:py-4 md:text-sm">
+        <span className={entry.overdue ? "md:text-destructive" : undefined}>
+          <span className="md:hidden">{t("paymentsOverview.dueOn")} </span>
           {formatDate(entry.paymentDueAt)}
-          {entry.overdue ? ` · ${t("paymentsOverview.statuses.OVERDUE").toLowerCase()}` : null}
+          {entry.overdue ? (
+            <span className="max-md:hidden">
+              {` · ${t("paymentsOverview.statuses.OVERDUE").toLowerCase()}`}
+            </span>
+          ) : null}
         </span>
-        <br />
-        <span className={entry.overdue ? "text-destructive" : undefined}>
+        <span className={entry.overdue ? "md:block md:text-destructive" : "md:block"}>
           {entry.lastReminderAt
             ? t("paymentsOverview.remindersLast", {
                 count: entry.reminderCount,
@@ -405,19 +476,20 @@ function PaymentOverviewRow({ entry, eventId }: { entry: PaymentOverviewEntry; e
               })
             : t("paymentsOverview.remindersLine", { count: entry.reminderCount })}
         </span>
+        <span className="md:hidden">VS {entry.variableSymbol}</span>
       </TableCell>
       <TableCell className="p-0 md:px-4 md:py-2">
         <Button
           asChild
           variant="ghost"
-          size="lg"
         >
           <Link
             to={ROUTES.organizer.application}
             params={{ eventId, applicationId: entry.applicationId }}
             aria-label={`${t("paymentsOverview.detail")} ${entry.firstName} ${entry.lastName}`}
           >
-            {t("paymentsOverview.detail")}
+            <span className="md:hidden">{t("paymentsOverview.paymentDetail")}</span>
+            <span className="max-md:hidden">{t("paymentsOverview.detail")}</span>
           </Link>
         </Button>
       </TableCell>

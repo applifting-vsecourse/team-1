@@ -1,4 +1,12 @@
-import { createFileRoute, Link, Outlet, redirect } from "@tanstack/react-router"
+import { useQuery } from "@tanstack/react-query"
+import {
+  createFileRoute,
+  Link,
+  Outlet,
+  redirect,
+  useMatchRoute,
+  useParams,
+} from "@tanstack/react-router"
 import { Calendar, Plus } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
@@ -15,6 +23,7 @@ import {
 import { OrganizerAreaError } from "@/features/auth/components/OrganizerAreaError"
 import { SidebarAccount } from "@/features/auth/components/SidebarAccount"
 import { requireAccount } from "@/features/auth/lib/require-account"
+import { eventQueryOptions } from "@/features/events/api/events"
 import { NotificationCenter } from "@/features/notifications/components/NotificationCenter"
 
 // Every /organizer/* page except the login sits under this layout.
@@ -43,6 +52,7 @@ export const Route = createFileRoute("/organizer/_app")({
 function OrganizerLayout() {
   const { t } = useTranslation()
   const { t: tEvents } = useTranslation("events")
+  const context = usePageContext()
 
   return (
     <>
@@ -51,11 +61,12 @@ function OrganizerLayout() {
         width="wide"
         logoTo={ROUTES.organizer.events}
         roleLabel={t("accountRole.ORGANIZER")}
+        context={context}
         nav={
           <>
             {/* Temporarily without the "Přehled" item (#394): it only redirected to the last event and lit up
                 before "Akce". Bring it back in a later sprint. */}
-            {/* Figma (Design system): #51 Letní kemp Lipno 2027 / Desktop · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19798-36893 */}
+            {/* Figma v2: US-10 Akce · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15376-2 */}
             <SidebarLink
               to={ROUTES.organizer.events}
               icon={Calendar}
@@ -72,7 +83,7 @@ function OrganizerLayout() {
                   aria-hidden
                   className="size-5"
                 />
-                {tEvents("new.title")}
+                {tEvents("list.create")}
               </Link>
             </Button>
           </>
@@ -84,4 +95,22 @@ function OrganizerLayout() {
       </AreaLayout>
     </>
   )
+}
+
+/**
+ * What the desktop top bar names: "<organization> / <event>" on an event's pages, "Akce" on the
+ * events list; elsewhere the role label stays.
+ */
+function usePageContext(): string | undefined {
+  const { t } = useTranslation("events")
+  const matchRoute = useMatchRoute()
+  const { eventId } = useParams({ strict: false })
+  const { data: event } = useQuery({
+    ...eventQueryOptions(eventId ?? ""),
+    enabled: Boolean(eventId),
+  })
+
+  if (eventId) return event ? `${event.organizationName} / ${event.name}` : undefined
+  if (matchRoute({ to: ROUTES.organizer.events })) return t("list.title")
+  return undefined
 }

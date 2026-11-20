@@ -118,7 +118,7 @@ describe("EventOverview", () => {
     expect(debt.getAttribute("href")).toContain("payment=DEBT")
     const requests = screen.getByRole("link", { name: /Requests awaiting approval · 2/ })
     expect(requests.getAttribute("href")).toContain("view=CHANGE_REQUESTS")
-    expect(await screen.findByText("Summer week")).toBeVisible()
+    expect(await screen.findByText(/^Summer week · /)).toBeVisible()
     expect(screen.getByRole("link", { name: "View waitlist" })).toHaveAttribute(
       "href",
       expect.stringContaining("term=t1"),
@@ -137,7 +137,7 @@ describe("EventOverview", () => {
     expect(await screen.findByRole("link", { name: /Awaiting review · 0/ })).toBeVisible()
     expect(screen.getByRole("link", { name: /Substitutes to resolve · 0/ })).toBeVisible()
     expect(screen.getByRole("status")).toHaveTextContent("Everything is up to date")
-    expect(await screen.findByText("Summer week")).toBeVisible()
+    expect(await screen.findByText(/^Summer week · /)).toBeVisible()
   })
 
   it("puts the setup steps the event still needs between the switcher and the cards", async () => {

@@ -114,11 +114,29 @@ function expectRow(...cells: string[]) {
   expect(rows).toHaveLength(1)
 }
 
+async function showByCategory() {
+  const user = userEvent.setup()
+  await user.click(await screen.findByRole("combobox", { name: "View" }))
+  await user.click(await screen.findByRole("option", { name: "By category" }))
+}
+
 afterEach(() => vi.restoreAllMocks())
 
 describe("KitchenSummary", () => {
+  it("starts with the merged table per participant, as drawn", async () => {
+    renderPage()
+    expect(await screen.findByRole("combobox", { name: "View" })).toHaveTextContent(
+      "By participant",
+    )
+    expect(screen.getByRole("button", { name: "Portions by diet" })).toBeVisible()
+    expect(screen.getByRole("button", { name: "Allergies and other requests" })).toBeVisible()
+    expect(screen.getByRole("columnheader", { name: "Participant / diet" })).toBeInTheDocument()
+    expect(screen.getByRole("columnheader", { name: "Portions" })).toBeInTheDocument()
+  })
+
   it("shows the counts and the allergies of the first term", async () => {
     renderPage()
+    await showByCategory()
     expect(await screen.findByRole("heading", { name: "Kitchen summary" })).toBeVisible()
     expect(screen.getByText("Summer camp · Meals")).toBeVisible()
     expect(screen.getByRole("heading", { name: "10 confirmed participants" })).toBeVisible()
@@ -139,6 +157,7 @@ describe("KitchenSummary", () => {
 
   it("shows the arrival and departure of the participants who gave them (US-143)", async () => {
     renderPage()
+    await showByCategory()
     expect(await screen.findByRole("button", { name: "Arrivals and departures · 2" })).toBeVisible()
     expectRow("Adam Dvořák", "13 Jul 2027 10:30", "18 Jul 2027 16:00")
     expectRow("Petr Svoboda", "–", "17 Jul 2027 15:00")
@@ -146,8 +165,9 @@ describe("KitchenSummary", () => {
 
   it("shows the item count in each section header and starts expanded", async () => {
     renderPage()
+    await showByCategory()
     for (const name of [
-      "Meal counts · 10",
+      "Portions by diet",
       "Allergies · 2",
       "Special requests · 1",
       "Arrivals and departures · 2",
@@ -159,6 +179,7 @@ describe("KitchenSummary", () => {
   it("collapses and expands a section on its own", async () => {
     const user = userEvent.setup()
     renderPage()
+    await showByCategory()
     const allergies = await screen.findByRole("button", { name: "Allergies · 2" })
     await user.click(allergies)
     expect(allergies).toHaveAttribute("aria-expanded", "false")
@@ -193,8 +214,7 @@ describe("KitchenSummary", () => {
       },
       terms[1]!,
     ])
-    await user.click(await screen.findByRole("combobox", { name: "View" }))
-    await user.click(await screen.findByRole("option", { name: "By participant" }))
+    await screen.findByRole("combobox", { name: "View" })
     const people = within(screen.getByRole("table", { name: "Allergies and other requests" }))
     const firstAdam = within(people.getByRole("row", { name: /Adam Dvořák.*Peanuts/ }))
     expect(firstAdam.getByText("Early dinner")).toBeVisible()
@@ -210,10 +230,10 @@ describe("KitchenSummary", () => {
     expect(
       screen.queryByRole("button", { name: /^Arrivals and departures/ }),
     ).not.toBeInTheDocument()
-    expect(screen.getByRole("button", { name: "Allergies and other requests · 4" })).toBeVisible()
+    expect(screen.getByRole("button", { name: "Allergies and other requests" })).toBeVisible()
     await user.click(screen.getByRole("combobox", { name: "Term" }))
     await user.click(await screen.findByRole("option", { name: /Aug 2027/ }))
-    expect(screen.getByRole("button", { name: "Allergies and other requests · 0" })).toBeVisible()
+    expect(screen.getByRole("button", { name: "Allergies and other requests" })).toBeVisible()
     expect(screen.queryByText("Petr Svoboda")).not.toBeInTheDocument()
     expectRow("Regular meal", "1")
   })
@@ -221,6 +241,7 @@ describe("KitchenSummary", () => {
   it("switches the term", async () => {
     const user = userEvent.setup()
     renderPage()
+    await showByCategory()
     await user.click(await screen.findByRole("combobox", { name: "Term" }))
     await user.click(await screen.findByRole("option", { name: /Aug 2027/ }))
     expectRow("Regular meal", "1")

@@ -18,7 +18,7 @@ import {
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { apiErrorCode } from "@/lib/api-client"
-import { formatDate, formatDateRange } from "@/lib/date"
+import { formatDateRange, formatDateTime } from "@/lib/date"
 import { formatCzk } from "@/lib/money"
 import { notify } from "@/lib/notify"
 
@@ -39,7 +39,7 @@ const termLabels = (request: EventChangeRequest, ids: string[]) =>
     .filter(Boolean)
     .join(", ")
 
-// Figma (Design system): US-114 Přihlášky · Fronta žádostí / Posoudit změnu termínu / Posoudit odhlášení · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15928-8145 (mobile: 15928-8214)
+// Figma v2: US-114 Přihlášky · Žádosti o změnu · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=21584-78141
 export function ChangeRequestsPanel({ eventId }: { eventId: string }) {
   const { t } = useTranslation("eventOverview")
   const query = useQuery(eventChangeRequestsQueryOptions(eventId))
@@ -105,6 +105,22 @@ export function ChangeRequestsPanel({ eventId }: { eventId: string }) {
             current: termLabels(item, item.currentTermIds),
             requested: termLabels(item, item.requestedTermIds),
           })
+  // The row in the queue: what kind of request (muted label) and what it asks for.
+  const requestType = (item: EventChangeRequest) =>
+    item.kind === "HEALTH"
+      ? t("changeRequests.healthSummary")
+      : t(
+          item.requestedTermIds.length === 0
+            ? "changeRequests.cancelType"
+            : "changeRequests.changeType",
+        )
+  const requestValue = (item: EventChangeRequest) =>
+    item.requestedTermIds.length === 0
+      ? t("changeRequests.cancelValue", { current: termLabels(item, item.currentTermIds) })
+      : t("changeRequests.changeValue", {
+          current: termLabels(item, item.currentTermIds),
+          requested: termLabels(item, item.requestedTermIds),
+        })
   const freePlaces = (item: EventChangeRequest, termId: string) => {
     const term = occupancy.data?.terms.find((term) => term.id === termId)
     return term?.byGender ? term.byGender[item.participantGender].free : term?.free
@@ -124,7 +140,6 @@ export function ChangeRequestsPanel({ eventId }: { eventId: string }) {
   )
   return (
     <section className="flex min-w-0 flex-col gap-4">
-      <h2 className="text-2xl font-semibold tracking-tight">{t("changeRequests.title")}</h2>
       {query.data.length === 0 ? (
         <Card className="p-6">
           <p>{t("changeRequests.empty")}</p>
@@ -133,21 +148,24 @@ export function ChangeRequestsPanel({ eventId }: { eventId: string }) {
         query.data.map((item) => (
           <Card
             key={item.id}
-            className="min-w-0 gap-4 p-4 sm:p-6"
+            className="min-w-0 flex-col gap-4 p-4 sm:flex-row sm:items-center sm:p-6"
           >
-            <h3 className="text-lg font-semibold">{item.participantName}</h3>
-            <p className="break-words">{summary(item)}</p>
-            <Badge
-              variant="secondary"
-              className="self-start"
-            >
-              {t("changeRequests.pending")}
-            </Badge>
-            <p className="text-sm text-muted-foreground">
-              {t("changeRequests.submitted", { date: formatDate(item.createdAt) })}
-            </p>
+            <div className="flex min-w-0 flex-1 flex-col gap-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <h3 className="text-xl font-semibold tracking-tight">{item.participantName}</h3>
+                <Badge variant="neutral">{t("changeRequests.pending")}</Badge>
+              </div>
+              <div className="flex flex-col gap-1">
+                <p className="text-sm text-muted-foreground">{requestType(item)}</p>
+                {item.kind === "TERMS" ? <p className="break-words">{requestValue(item)}</p> : null}
+              </div>
+              <p className="text-sm text-muted-foreground">
+                {t("changeRequests.submitted", { date: formatDateTime(item.createdAt) })}
+              </p>
+            </div>
             <Button
               variant="outline"
+              size="lg"
               className="w-full sm:w-auto"
               onClick={() => {
                 mutation.reset()

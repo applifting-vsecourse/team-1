@@ -65,12 +65,10 @@ export type AccommodationTerm = {
 // and the room table with edit / delete icon buttons in each row.
 // Each room also shows its extra beds (přistýlky) and an icon button with a count badge that opens their dialog (US-80, #530).
 // The list of rooms is the room assignment of US-35 (RoomAssignmentsCard); the room actions stay here.
-// Figma (Design system): Pokoje v termínu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19786-37078 (mobile 19786-37234)
+// Figma v2: US-14 Ubytování · Pokoje podle pohlaví · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15577-2448 (mobile 15577-2548); společné pokoje 15434-1143 (mobile 15434-1235)
 // Figma (Design system): #530 Ikona přistýlky · podle pohlaví · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=26056-112911 (mobile 26064-113690)
 // Figma (Design system): #530 Ikona přistýlky · společné pokoje · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=26060-113154 (mobile 26064-114034)
 // Figma (Design system): #530 Ikona přistýlky · tooltip a fokus · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=26060-113550
-// Figma (Design system): O18a / O18b · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12358-1789
-// Shared-room variant · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12358-3883
 export function RoomsPage({
   eventId,
   termId,
