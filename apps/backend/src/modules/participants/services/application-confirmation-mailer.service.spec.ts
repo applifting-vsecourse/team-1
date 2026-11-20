@@ -222,6 +222,51 @@ describe("ApplicationConfirmationMailer.sendSubmissionConfirmation", () => {
     expect(warn).toHaveBeenCalledTimes(1)
   })
 
+  describe("summary for several participants (D-117)", () => {
+    const twoParticipants = (
+      overrides: Partial<SubmissionConfirmation> = {},
+    ): SubmissionConfirmation =>
+      confirmation({
+        applications: [application(), application({ number: 49, accessToken: "token-49" })],
+        ...overrides,
+      })
+
+    it("carries one magic link for a new account, issued once for the whole submission", async () => {
+      const { mailer, sendEmail, createLink } = setup()
+
+      await mailer.sendSubmissionConfirmation(twoParticipants({ mustSetPassword: true }))
+
+      expect(createLink).toHaveBeenCalledTimes(1)
+      expect(createLink).toHaveBeenCalledWith("petra@example.com")
+      const { html } = sent(sendEmail)
+      expect(html).toContain(MAGIC_LINK.replace(/&/g, "&amp;"))
+      expect(html.split("Otevřít moje přihlášky")).toHaveLength(2)
+    })
+
+    it("links the sign-in page to an account with a password and issues no magic link", async () => {
+      const { mailer, sendEmail, createLink } = setup()
+
+      await mailer.sendSubmissionConfirmation(twoParticipants({ mustSetPassword: false }))
+
+      expect(createLink).not.toHaveBeenCalled()
+      const { html } = sent(sendEmail)
+      expect(html).toContain(`${FRONTEND}/participant/login`)
+      expect(html).not.toContain("magic-link")
+    })
+
+    it("still sends the e-mail with the sign-in page when the magic link cannot be issued", async () => {
+      const warn = jest.spyOn(Logger.prototype, "warn").mockImplementation(() => undefined)
+      const { mailer, sendEmail } = setup({ link: null })
+
+      await mailer.sendSubmissionConfirmation(twoParticipants({ mustSetPassword: true }))
+
+      const { html } = sent(sendEmail)
+      expect(html).toContain(`${FRONTEND}/participant/login`)
+      expect(html).toContain("Jana Nováková")
+      expect(warn).toHaveBeenCalledTimes(1)
+    })
+  })
+
   it("links the confirmation page of every application", async () => {
     const { mailer, sendEmail } = setup()
 
