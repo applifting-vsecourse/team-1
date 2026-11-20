@@ -1,7 +1,11 @@
 import { inReceiptOrder } from "@/modules/applications/domain/bulk-confirmation"
 import { BulkDecision, DECISION_TARGET } from "@/modules/applications/domain/bulk-decision"
 import { planBulkEvaluation } from "@/modules/applications/domain/bulk-evaluation"
-import { computeAvailablePlaces, countByGender } from "@/modules/applications/domain/capacity"
+import {
+  computeAvailablePlaces,
+  countByGender,
+  hasSharedRooms,
+} from "@/modules/applications/domain/capacity"
 import {
   BulkConfirmationRepository,
   BulkTermState,
@@ -140,7 +144,7 @@ export class BulkEvaluationService {
       confirm: pick(plan.confirm),
       rest: pick(plan.rest),
       freePlaces: computeAvailablePlaces(state.rooms, state.confirmedGenders),
-      isShared: state.rooms.some((room) => room.gender === null),
+      isShared: hasSharedRooms(state.rooms),
     }
   }
 

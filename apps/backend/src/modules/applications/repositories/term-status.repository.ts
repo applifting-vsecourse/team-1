@@ -4,6 +4,7 @@ import {
   computeAvailablePlaces,
   computeTermCapacity,
   computeTotalBeds,
+  hasSharedRooms,
 } from "@/modules/applications/domain/capacity"
 import {
   sameSelection,
@@ -308,7 +309,7 @@ export class TermStatusRepository {
           0,
         ),
         freePlaces: computeAvailablePlaces(term.rooms, genders),
-        genderCapacity: term.rooms.some((room) => room.gender === null)
+        genderCapacity: hasSharedRooms(term.rooms)
           ? computeTotalBeds(term.rooms)
           : computeTermCapacity(term.rooms)[application.gender],
       }

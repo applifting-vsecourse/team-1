@@ -9,6 +9,7 @@ import {
   computeTermCapacity,
   computeTotalBeds,
   countByGender,
+  hasSharedRooms,
   RoomCapacity,
 } from "./capacity"
 import { evaluateQueue } from "./evaluation"
@@ -163,6 +164,12 @@ describe("individual rooms", () => {
       FEMALE: 2,
       MALE: 0,
     })
+  })
+
+  it("do not make a gendered term shared, and only shared rooms do", () => {
+    expect(hasSharedRooms([...gendered, individual])).toBe(false)
+    expect(hasSharedRooms([individual])).toBe(false)
+    expect(hasSharedRooms([...gendered, { capacity: 2, extraBeds: 0, gender: null }])).toBe(true)
   })
 
   it("are never a shared pool of their own", () => {

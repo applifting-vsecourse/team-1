@@ -318,7 +318,9 @@ export class RoomAssignmentsRepository {
         if (room.termId !== termId) throw new AppException(HttpStatus.CONFLICT, "ROOM_NOT_IN_TERM")
         // A proposal never contains people with individual accommodation (US-38, US-147).
         const isWrongGender = room.gender !== null && room.gender !== application.application.gender
+        // An individual room is filled by hand only (US-145), also when it became one after the proposal.
         if (
+          room.individual ||
           application.roomAssignment ||
           application.application.individualAccommodation ||
           isWrongGender

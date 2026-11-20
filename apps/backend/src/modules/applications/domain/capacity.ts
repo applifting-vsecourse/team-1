@@ -17,6 +17,14 @@ function capacityRooms(rooms: RoomCapacity[]): RoomCapacity[] {
   return rooms.filter((room) => !room.individual)
 }
 
+/**
+ * Whether the term's rooms are shared, that is without a gender. Individual rooms (US-145) have
+ * none in either mode, so they never decide it; the only place that tells the two apart by rooms.
+ */
+export function hasSharedRooms(rooms: RoomCapacity[]): boolean {
+  return capacityRooms(rooms).some((room) => room.gender === null)
+}
+
 /** Beds in individual rooms: shown next to the capacity, never part of it. */
 export function computeIndividualBeds(rooms: RoomCapacity[]): number {
   return rooms
@@ -82,7 +90,7 @@ export function computeRoomCapacity(rooms: RoomCapacity[]): GenderCounts & { tot
 
 /** Shared rooms serve all genders from one pool. Existing confirmations keep their places. */
 export function computeAvailablePlaces(rooms: RoomCapacity[], confirmed: Gender[]): GenderCounts {
-  if (capacityRooms(rooms).some((room) => room.gender === null)) {
+  if (hasSharedRooms(rooms)) {
     const free = computeRoomCapacity(rooms).total - confirmed.length
     return { FEMALE: free, MALE: free }
   }
