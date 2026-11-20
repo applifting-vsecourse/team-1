@@ -141,7 +141,8 @@ function ParticipantTable({
                   <span className="block text-sm text-muted-foreground">{term}</span>
                 </TableCell>
                 <TableCell className="px-4 py-3 text-sm break-all whitespace-normal text-muted-foreground">
-                  {participant.email}
+                  <span className="block">{participant.email}</span>
+                  {participant.phone ? <span className="block">{participant.phone}</span> : null}
                 </TableCell>
               </TableRow>
             ))}
