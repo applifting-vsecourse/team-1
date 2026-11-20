@@ -53,16 +53,21 @@ describe("OrganizerHealth", () => {
 
   it("shows the note and when the consent was given", async () => {
     setup(health)
-    expect(
-      await screen.findByRole("heading", { name: "Health restriction · Adam Dvořák" }),
-    ).toBeInTheDocument()
+    expect(await screen.findByRole("heading", { name: "Health restriction" })).toBeInTheDocument()
+    expect(screen.getByText(`Adam Dvořák · ${health.eventName}`)).toBeInTheDocument()
+    expect(screen.getByRole("link", { name: "Go to meals" })).toHaveAttribute(
+      "href",
+      "/organizer/events/$eventId/meals",
+    )
     expect(screen.getByText("Astma · inhalátor u sebe.")).toBeInTheDocument()
-    expect(screen.getByText(/Explicit consent given · /)).toBeInTheDocument()
+    expect(screen.getByText("Explicit consent given")).toBeInTheDocument()
   })
 
   it("links back to the application", async () => {
     setup(health)
-    expect(await screen.findByRole("link", { name: "← Application" })).toBeInTheDocument()
+    expect(
+      await screen.findByRole("link", { name: "Back to application detail" }),
+    ).toBeInTheDocument()
   })
 
   it("tells a confirmed absence of a restriction from an unfilled one (US-150)", async () => {
@@ -75,7 +80,12 @@ describe("OrganizerHealth", () => {
   it("says so when nothing was entered", async () => {
     setup({ ...health, note: null, consentAt: null })
     expect(
-      await screen.findByText("The participant has not entered a health restriction."),
+      await screen.findByText("The applicant has not provided any health restriction yet."),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        "Missing information does not mean the participant has no health restriction.",
+      ),
     ).toBeInTheDocument()
   })
 })

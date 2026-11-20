@@ -1,8 +1,9 @@
 import { useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { TriangleAlert } from "lucide-react"
+import { Info, TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -16,6 +17,7 @@ import {
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { notify } from "@/lib/notify"
+import { cn } from "@/lib/utils"
 
 import {
   deleteTransport,
@@ -26,7 +28,7 @@ import {
 
 // Deleting a transport: a confirmation, and when participants chose it an extra step — the system
 // warns what happens to them and the organizer has to acknowledge it.
-// Design proposal (US-402): not in Figma yet.
+// Figma: #402, deleting unused transport · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK?node-id=22642-93908 (mobile 22642-94065)
 export function DeleteTransportDialog({
   eventId,
   transport: opened,
@@ -67,11 +69,25 @@ export function DeleteTransportDialog({
         if (!isOpen && !mutation.isPending) onClose()
       }}
     >
-      <DialogContent className="gap-4 p-6 sm:max-w-130">
-        <DialogHeader>
-          <DialogTitle className="text-lg tracking-tight">{t("deleteTitle")}</DialogTitle>
+      <DialogContent
+        className={cn(
+          "max-h-[calc(100dvh-2rem)] gap-4 overflow-y-auto p-4 sm:max-w-160 sm:p-6",
+          !hasParticipants &&
+            "min-h-[min(20.25rem,calc(100dvh-2rem))] content-between sm:min-h-[min(17.5rem,calc(100dvh-2rem))]",
+        )}
+      >
+        <DialogHeader className={hasParticipants ? undefined : "gap-2 text-left"}>
+          <DialogTitle className={cn("tracking-tight", !hasParticipants && "text-2xl")}>
+            {t(hasParticipants ? "deleteTitle" : "deleteUnusedTitle")}
+          </DialogTitle>
           <DialogDescription>
-            {t("deleteDescription", { name: transport.kind === "OWN" ? t("own") : transport.name })}
+            {hasParticipants
+              ? t("deleteDescription", {
+                  name: transport.kind === "OWN" ? t("own") : transport.name,
+                })
+              : transport.kind === "OWN"
+                ? t("own")
+                : transport.name}
           </DialogDescription>
         </DialogHeader>
         {hasParticipants ? (
@@ -99,31 +115,42 @@ export function DeleteTransportDialog({
               </Label>
             </div>
           </>
-        ) : null}
+        ) : (
+          <Alert>
+            <Info aria-hidden />
+            <AlertTitle>{t("deleteUnusedInfo")}</AlertTitle>
+            <AlertDescription>{t("deleteUnusedEffect")}</AlertDescription>
+          </Alert>
+        )}
         {mutation.isError ? (
           <Alert variant="destructive">
             <AlertTitle>{t("deleteFailed")}</AlertTitle>
           </Alert>
         ) : null}
-        <DialogFooter>
+        <DialogFooter className={hasParticipants ? undefined : "flex-row sm:justify-start"}>
           <Button
-            variant="outline"
+            variant={hasParticipants ? "outline" : "ghost"}
+            className={hasParticipants ? undefined : "h-12 flex-1 sm:flex-none"}
             size="lg"
             disabled={mutation.isPending}
             onClick={onClose}
           >
             {t("cancel")}
           </Button>
-          <Button
+          <PendingButton
+            isPending={mutation.isPending}
             variant="destructive"
+            className={
+              hasParticipants ? undefined : "order-first h-12 flex-1 sm:min-w-53 sm:flex-none"
+            }
             size="lg"
             disabled={mutation.isPending || (hasParticipants && !isAcknowledged)}
             onClick={() => {
               mutation.mutate()
             }}
           >
-            {t(mutation.isPending ? "deleting" : "delete")}
-          </Button>
+            {t(mutation.isPending ? "deleting" : hasParticipants ? "delete" : "deleteUnusedAction")}
+          </PendingButton>
         </DialogFooter>
       </DialogContent>
     </Dialog>

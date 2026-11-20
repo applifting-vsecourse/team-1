@@ -554,6 +554,25 @@ describe("room assignment", () => {
     })
   })
 
+  it("confirms a drop only after the write succeeds", async () => {
+    let finish!: () => void
+    const saved = new Promise<void>((resolve) => {
+      finish = resolve
+    })
+    put.mockReturnValueOnce(saved)
+    renderCard()
+    await screen.findByText("Barbora Šimková")
+    drop(dragFrom("p3", "Barbora Šimková", null), "r3")
+    await waitFor(() => expect(put).toHaveBeenCalled())
+    expect(success).not.toHaveBeenCalled()
+    expect(screen.getByLabelText("Unassigned participants: 2")).toHaveTextContent("2")
+    await act(async () => {
+      finish()
+      await saved
+    })
+    await waitFor(() => expect(success).toHaveBeenCalledTimes(1))
+  })
+
   it("asks before a full room takes someone as an extra bed, and cancelling changes nothing", async () => {
     const user = renderCard()
     await screen.findByText("Barbora Šimková")
@@ -630,7 +649,9 @@ describe("room assignment", () => {
       }
       renderCard()
       // The text is on the page twice (desktop table and mobile card); both count the same.
-      const texts = await screen.findAllByText("Mixed genders: 1 woman and 1 man.")
+      const texts = await screen.findAllByText(
+        "Mixed genders: 1 woman and 1 man. Lucie Veselá has individual accommodation and is excluded from the count.",
+      )
       expect(texts.length).toBeGreaterThan(0)
       expect(screen.queryByText("Mixed genders: 2 women and 1 man.")).not.toBeInTheDocument()
     })
@@ -825,9 +846,11 @@ describe("room assignment", () => {
     expect(await screen.findByText("Test Osoba00")).toBeInTheDocument()
     expect(screen.getByText("Test Osoba09")).toBeInTheDocument()
     expect(screen.queryByText("Test Osoba10")).not.toBeInTheDocument()
-    expect(screen.getByText("1–10 / 11")).toBeInTheDocument()
-    await user.click(screen.getByRole("button", { name: "Next →" }))
+    expect(screen.getByText("1–10 of 11 results")).toBeInTheDocument()
+    await user.click(screen.getByRole("button", { name: "Next page" }))
     expect(await screen.findByText("Test Osoba10")).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "Page 2" })).toHaveAttribute("aria-current", "page")
+    expect(screen.getByRole("button", { name: "Next page" })).toBeDisabled()
     expect(screen.queryByText("Test Osoba00")).not.toBeInTheDocument()
   })
 
@@ -888,7 +911,9 @@ describe("room assignment", () => {
 
   it("shows the rooms as cards at 360 px and keeps the count in a bar once the list is scrolled away", async () => {
     window.innerWidth = 360
-    let notify: (entries: { isIntersecting: boolean }[]) => void = () => undefined
+    let notify: (
+      entries: { isIntersecting: boolean; boundingClientRect: { bottom: number } }[],
+    ) => void = () => undefined
     vi.stubGlobal(
       "IntersectionObserver",
       class {
@@ -907,7 +932,7 @@ describe("room assignment", () => {
     expect(
       screen.queryByRole("status", { name: "Unassigned participants" }),
     ).not.toBeInTheDocument()
-    act(() => notify([{ isIntersecting: false }]))
+    act(() => notify([{ isIntersecting: false, boundingClientRect: { bottom: -10 } }]))
     expect(
       await screen.findByRole("status", { name: "Unassigned participants" }),
     ).toHaveTextContent("Unassigned participants2")

@@ -3,7 +3,7 @@ import { createRootRouteWithContext, Outlet } from "@tanstack/react-router"
 
 import "@/styles/global.css"
 
-import { Toaster } from "@/components/ui/sonner"
+import { AppToaster } from "@/components/atoms/AppToaster"
 
 import { useApplyPreferredLanguage } from "@/features/auth/hooks/useApplyPreferredLanguage"
 
@@ -19,10 +19,7 @@ function RootComponent() {
   return (
     <>
       <Outlet />
-      <Toaster
-        richColors
-        position="bottom-right"
-      />
+      <AppToaster />
     </>
   )
 }

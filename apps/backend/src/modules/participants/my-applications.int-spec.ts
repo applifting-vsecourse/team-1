@@ -197,6 +197,16 @@ describe("participant applications (integration)", () => {
       await addApplication(email, payments)
       const [application] = await listOf(await sessionCookie(email))
 
+      const detail = await get(
+        `/participant/applications/${application.id}`,
+        await sessionCookie(email),
+      )
+      expect(await detail.json()).toMatchObject({
+        applicantEmail: email,
+        birthDate: "2000-01-01",
+        gender: "MALE",
+      })
+
       const [first, second] = application.paymentDetails!.terms
       expect(first).toMatchObject({ paymentStatus: firstStatus, owedCzk: firstOwed })
       expect(first.paymentDeadline).toBeNull()

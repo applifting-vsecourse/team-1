@@ -1,6 +1,7 @@
 import type { ReactNode } from "react"
 import { Link } from "@tanstack/react-router"
 import type { TFunction } from "i18next"
+import { ChevronRight } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
@@ -14,6 +15,10 @@ import { TermStatusBadge } from "@/features/participant/components/TermSummary"
 
 /** The anchor of the payment cards, which the payment step links to. */
 export const PAYMENT_SECTION_ID = "application-payment"
+
+/** Step links end with a „›“ (Figma #509). */
+const stepLinkClass =
+  "inline-flex w-fit items-center gap-0.5 text-sm font-medium text-link hover:underline"
 
 type Step = { key: string; title: string; isDone: boolean; link: ReactNode }
 
@@ -42,11 +47,15 @@ export function termSteps(
       link: (
         <a
           href={`#${PAYMENT_SECTION_ID}`}
-          className="text-sm font-medium text-primary hover:underline"
+          className={stepLinkClass}
         >
           {isDone
             ? t("detail.steps.paymentView")
             : t("detail.steps.paymentPay", { amount: formatCzk(payment.owedCzk) })}
+          <ChevronRight
+            aria-hidden
+            className="size-3.5"
+          />
         </a>
       ),
     })
@@ -60,10 +69,15 @@ export function termSteps(
       link: (
         <Link
           to={ROUTES.participant.applicationTransport}
+          hash={`transport-${term.termId}`}
           params={{ applicationId }}
-          className="text-sm font-medium text-primary hover:underline"
+          className={stepLinkClass}
         >
           {t(term.transportDecided ? "detail.steps.transportView" : "detail.steps.transportChoose")}
+          <ChevronRight
+            aria-hidden
+            className="size-3.5"
+          />
         </Link>
       ),
     })
@@ -78,9 +92,13 @@ export function termSteps(
         <Link
           to={ROUTES.participant.applicationMeals}
           params={{ applicationId }}
-          className="text-sm font-medium text-primary hover:underline"
+          className={stepLinkClass}
         >
           {t(application.mealsDecided ? "detail.steps.mealsView" : "detail.steps.mealsFill")}
+          <ChevronRight
+            aria-hidden
+            className="size-3.5"
+          />
         </Link>
       ),
     },
@@ -92,13 +110,56 @@ export function termSteps(
         <Link
           to={ROUTES.participant.applicationHealth}
           params={{ applicationId }}
-          className="text-sm font-medium text-primary hover:underline"
+          className={stepLinkClass}
         >
           {t(application.healthDecided ? "detail.steps.healthView" : "detail.steps.healthFill")}
+          <ChevronRight
+            aria-hidden
+            className="size-3.5"
+          />
         </Link>
       ),
     },
   )
+  if (term.roomWishes !== undefined) {
+    const hasWishes = term.roomWishes.length > 0
+    steps.push({
+      key: "roomWishes",
+      title: t("roomWishes.title"),
+      isDone: hasWishes,
+      link: (
+        <a
+          href={`#room-wishes-${term.termId}`}
+          className={stepLinkClass}
+        >
+          {t(hasWishes ? "detail.steps.wishesView" : "roomWishes.add")}
+          <ChevronRight
+            aria-hidden
+            className="size-3.5"
+          />
+        </a>
+      ),
+    })
+  }
+  if (term.room !== undefined) {
+    steps.push({
+      key: "room",
+      title: t("detail.sections.room"),
+      isDone: Boolean(term.room.name),
+      link: (
+        <a
+          href={`#room-${term.termId}`}
+          className={stepLinkClass}
+        >
+          {t("detail.steps.roomView")}
+          <ChevronRight
+            aria-hidden
+            className="size-3.5"
+          />
+        </a>
+      ),
+    })
+  }
   return steps
 }
 
@@ -122,7 +183,7 @@ export function ArchivedApplicationCard() {
 }
 
 /** One card per confirmed term with what the participant has to arrange before the event. */
-// Figma (Design system): US-149 Dva termíny a kroky · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=24910-14581 (360 px: node-id=24910-14762)
+// Figma (Design system): US-149 Dva termíny a kroky · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=24910-14581 (360 px: node-id=24910-14762)
 export function TermSteps({ application }: { application: MyApplication }) {
   const { t } = useTranslation("participant")
   const cards = application.terms
@@ -135,14 +196,14 @@ export function TermSteps({ application }: { application: MyApplication }) {
       {cards.map(({ term, steps }) => (
         <li key={term.termId}>
           <Card
-            className="gap-4 p-6"
+            className="gap-3 rounded-lg p-4"
             aria-labelledby={`steps-${term.termId}`}
           >
             <div className="flex items-start justify-between gap-3">
               <div className="flex min-w-0 flex-col gap-0.5">
                 <h3
                   id={`steps-${term.termId}`}
-                  className="text-lg font-semibold tracking-tight"
+                  className="text-lg font-bold"
                 >
                   {termName(term) ?? termDates(term)}
                 </h3>
@@ -152,18 +213,21 @@ export function TermSteps({ application }: { application: MyApplication }) {
               </div>
               <TermStatusBadge term={term} />
             </div>
-            <h4 className="text-sm font-medium">{t("detail.steps.title")}</h4>
-            <ul className="flex flex-col">
+            <h4 className="border-t pt-3 text-base font-medium">{t("detail.steps.title")}</h4>
+            <ul className="flex flex-col gap-2">
               {steps.map((step) => (
                 <li
                   key={step.key}
-                  className="flex items-center justify-between gap-3 border-t py-3 first:border-t-0 first:pt-0 last:pb-0"
+                  className="flex items-center justify-between gap-3"
                 >
                   <div className="flex min-w-0 flex-col gap-0.5">
                     <span className="text-sm font-medium">{step.title}</span>
                     {step.link}
                   </div>
-                  <Badge variant={step.isDone ? "success" : "warning"}>
+                  <Badge
+                    variant={step.isDone ? "default" : "warning"}
+                    className={step.isDone ? "bg-primary text-primary-foreground" : undefined}
+                  >
                     {t(step.isDone ? "detail.steps.done" : "detail.steps.todo")}
                   </Badge>
                 </li>

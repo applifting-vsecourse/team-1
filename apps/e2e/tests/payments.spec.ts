@@ -17,12 +17,20 @@ test.describe("Payments", () => {
     await page.getByRole("link", { name: "Record payment" }).first().click()
     await page.getByRole("button", { name: "Record payment for the term" }).first().click()
     await page.getByLabel("Record another amount").check()
-    await page.getByLabel("Amount of this payment (CZK)").fill("1")
+    await page
+      .getByRole("dialog")
+      .getByRole("textbox", { name: /^Amount/ })
+      .fill("1")
     await page
       .getByRole("dialog")
       .getByRole("button", { name: /Record payment/ })
       .click()
     await expect(page.getByRole("dialog")).not.toBeVisible()
-    await expect(page.getByRole("row", { name: /Manual entry/ }).last()).toBeVisible()
+    await expect(
+      page
+        .getByRole("listitem")
+        .filter({ hasText: /Recorded by/ })
+        .last(),
+    ).toBeVisible()
   })
 })

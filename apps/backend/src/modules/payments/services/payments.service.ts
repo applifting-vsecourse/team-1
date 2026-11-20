@@ -45,10 +45,10 @@ export class PaymentsService {
     const application = await this.repository.find(applicationId, organizationId)
     const original =
       application &&
-      paymentSummary(application).receipts.find(
-        (receipt) => receipt.id === receiptId && receipt.cancelledAt === null,
-      )
+      paymentSummary(application).receipts.find((receipt) => receipt.id === receiptId)
     if (!application || !original) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
+    if (original.cancelledAt !== null)
+      throw new AppException(HttpStatus.CONFLICT, "PAYMENT_RECEIPT_ALREADY_CANCELLED")
     const result = computePaymentCorrectionPreview({
       terms: application.terms.map((term) => ({
         ...term,
@@ -65,6 +65,10 @@ export class PaymentsService {
           ? HttpStatus.CONFLICT
           : HttpStatus.BAD_REQUEST,
         result.errorCode,
+        undefined,
+        result.maximum === undefined
+          ? undefined
+          : { maximum: String(result.maximum), context: "limit" },
       )
     return result.preview
   }
@@ -182,7 +186,7 @@ export class PaymentsService {
       locale: context.locale,
       eventName: context.eventName,
       organizationName: context.organizationName,
-      firstName: context.firstName,
+      participant: `${context.firstName} ${context.lastName}`,
       termName: terms.map((term) => termLabel(term, context.locale)).join(", "),
     })
   }
@@ -199,6 +203,7 @@ export class PaymentsService {
       name: `${context.firstName} ${context.lastName}`,
       amountOwedCzk: notice.amountOwedCzk,
       debts: notice.terms.map((term) => ({
+        termLabel: termLabel(term, context.locale),
         termNumber: term.termNumber,
         amountCzk: term.amountOwedCzk,
         variableSymbol: variableSymbol(context.number, term.termNumber),

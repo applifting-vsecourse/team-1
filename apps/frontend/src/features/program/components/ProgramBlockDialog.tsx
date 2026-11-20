@@ -1,10 +1,11 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { Loader2, TriangleAlert } from "lucide-react"
+import { TriangleAlert } from "lucide-react"
 import { useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -57,15 +58,15 @@ const DEFAULT_END = "10:00"
 
 /** One hour after `time`, kept within the day. */
 function hourAfter(time: string): string {
-  const minutes = Math.min(toMinutes(time) + 60, 23 * 60 + 55)
+  const minutes = Math.min(toMinutes(time) + 60, 23 * 60 + 59)
   return `${String(Math.floor(minutes / 60)).padStart(2, "0")}:${String(minutes % 60).padStart(2, "0")}`
 }
 
 // Add or edit a block of the program of a term: day (only the days of the term), time from–to, name
 // (required), place and description. A change shows to the participants at once.
-// Overlap warning: X25e · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=23390-121032
+// Overlap warning: X25e · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=23390-121032
 // Design: Figma (Design system) US-66 · X25 Přidat blok / X25a Upravit blok / X25b Chyby u polí /
-// X25c Den mimo termín · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=23264-91877
+// X25c Den mimo termín · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=23264-91877
 export function ProgramBlockDialog({
   eventId,
   term,
@@ -125,7 +126,9 @@ export function ProgramBlockDialog({
   const mutation = useMutation({
     mutationFn: (values: Values) =>
       saveProgramBlock(eventId, values, block ? { id: block.id } : { termId: term.termId }),
-    onSuccess: () => client.invalidateQueries({ queryKey: programKeys.event(eventId) }),
+    onSuccess: () => {
+      void client.invalidateQueries({ queryKey: programKeys.event(eventId) })
+    },
   })
   const submit = form.handleSubmit(async (values) => {
     try {
@@ -150,20 +153,20 @@ export function ProgramBlockDialog({
         if (!isOpen && !isPending) onClose()
       }}
     >
-      <DialogContent className="max-h-[90dvh] overflow-y-auto bg-card shadow-md sm:max-w-140">
+      <DialogContent className="flex max-h-[92dvh] flex-col overflow-hidden bg-card p-4 shadow-md sm:max-w-140 sm:p-6 [@media(max-height:480px)]:overflow-y-auto">
         <DialogTitle className="pr-8">{t(block ? "editTitle" : "addTitle")}</DialogTitle>
         <DialogDescription>{t(block ? "hintEdit" : "hintAdd")}</DialogDescription>
         <Form {...form}>
           <form
             noValidate
-            className="flex flex-col gap-4"
+            className="flex min-h-0 flex-col gap-3 [@media(max-height:480px)]:shrink-0"
             onSubmit={(event) => {
               void submit(event)
             }}
           >
             <fieldset
               disabled={isPending}
-              className="flex flex-col gap-4"
+              className="flex min-h-0 min-w-0 flex-col gap-3 overflow-y-auto overscroll-contain px-1 py-1 [@media(max-height:480px)]:overflow-visible"
             >
               <FormField
                 control={form.control}
@@ -283,9 +286,13 @@ export function ProgramBlockDialog({
                   </FormItem>
                 )}
               />
+              <p className="text-xs text-muted-foreground">* {t("required")}</p>
             </fieldset>
             {clashes.length ? (
-              <Alert className="border-status-warning/30 bg-status-warning-bg text-status-warning *:data-[slot=alert-description]:text-status-warning">
+              <Alert
+                variant="warning"
+                className="max-h-32 shrink-0 overflow-y-auto"
+              >
                 <TriangleAlert />
                 <AlertDescription>
                   {t("overlapWarning", {
@@ -294,14 +301,13 @@ export function ProgramBlockDialog({
                 </AlertDescription>
               </Alert>
             ) : null}
-            <p className="text-xs text-muted-foreground">* {t("required")}</p>
             {mutation.isError ? (
               <ErrorState
                 title={t("saveFailed")}
                 error={mutation.error}
               />
             ) : null}
-            <DialogFooter className="gap-4 max-sm:flex-col-reverse sm:items-center sm:justify-end">
+            <DialogFooter className="shrink-0 gap-2 border-t bg-card pt-3 max-sm:flex-col-reverse sm:items-center sm:justify-end">
               <DialogClose asChild>
                 <Button
                   type="button"
@@ -312,14 +318,13 @@ export function ProgramBlockDialog({
                   {t("cancel")}
                 </Button>
               </DialogClose>
-              <Button
+              <PendingButton
+                isPending={isPending}
                 type="submit"
                 size="lg"
-                disabled={isPending}
               >
-                {isPending ? <Loader2 className="animate-spin" /> : null}
                 {t(block ? "save" : "add")}
-              </Button>
+              </PendingButton>
             </DialogFooter>
           </form>
         </Form>

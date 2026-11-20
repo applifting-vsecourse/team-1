@@ -4,6 +4,7 @@ import { ArrowRightLeft } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { MoneyAmount } from "@/components/atoms/MoneyAmount"
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -137,7 +138,7 @@ export function OrganizerTermChange({
           if (!isNowOpen && !mutation.isPending) close()
         }}
       >
-        <DialogContent className="flex max-h-[calc(100dvh-2rem)] flex-col gap-0 overflow-hidden p-0 sm:max-w-160">
+        <DialogContent className="flex max-h-[calc(100dvh-2rem)] max-w-full flex-col gap-0 overflow-hidden p-0 sm:max-w-[760px]">
           <div className="flex [scrollbar-width:thin] flex-col gap-6 overflow-y-auto p-6">
             {isFullStep && next && added ? (
               <>
@@ -181,13 +182,14 @@ export function OrganizerTermChange({
                   >
                     {t("termChange.full.back")}
                   </Button>
-                  <Button
+                  <PendingButton
+                    isPending={mutation.isPending}
                     size="lg"
                     disabled={!isOverCapacityConfirmed || mutation.isPending}
                     onClick={() => mutation.mutate()}
                   >
                     {t("termChange.full.submit")}
-                  </Button>
+                  </PendingButton>
                 </DialogFooter>
               </>
             ) : (
@@ -201,30 +203,32 @@ export function OrganizerTermChange({
                   </DialogDescription>
                 </DialogHeader>
                 {subject}
-                <div className="flex flex-col gap-2">
-                  <Label>{t("termChange.original")}</Label>
-                  <p className="text-sm font-medium">{termLine(original)}</p>
-                </div>
-                <div className="flex flex-col gap-2">
-                  <Label>{t("termChange.next")}</Label>
-                  <Select
-                    value={nextId}
-                    onValueChange={setNextId}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder={t("termChange.pick")} />
-                    </SelectTrigger>
-                    <SelectContent position="popper">
-                      {candidates.map((term) => (
-                        <SelectItem
-                          key={term.id}
-                          value={term.id}
-                        >
-                          {termLine(term)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="flex flex-col gap-2">
+                    <Label>{t("termChange.original")}</Label>
+                    <p className="text-sm font-medium">{termLine(original)}</p>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label>{t("termChange.next")}</Label>
+                    <Select
+                      value={nextId}
+                      onValueChange={setNextId}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder={t("termChange.pick")} />
+                      </SelectTrigger>
+                      <SelectContent position="popper">
+                        {candidates.map((term) => (
+                          <SelectItem
+                            key={term.id}
+                            value={term.id}
+                          >
+                            {termLine(term)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
                 {preview.error ? (
                   <p
@@ -304,7 +308,8 @@ export function OrganizerTermChange({
                   >
                     {t("termChange.cancel")}
                   </Button>
-                  <Button
+                  <PendingButton
+                    isPending={mutation.isPending}
                     size="lg"
                     disabled={!preview.data || mutation.isPending}
                     onClick={() =>
@@ -312,7 +317,7 @@ export function OrganizerTermChange({
                     }
                   >
                     {t("termChange.submit")}
-                  </Button>
+                  </PendingButton>
                 </DialogFooter>
               </>
             )}

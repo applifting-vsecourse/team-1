@@ -21,8 +21,10 @@ describe("NotFoundPage", () => {
 
     expect(await screen.findByRole("heading", { name: "Page not found" })).toBeInTheDocument()
     expect(
-      screen.getByText("404 · The page doesn't exist or the link was mistyped."),
+      screen.getByText(
+        "The link may be incorrect or no longer valid. You can continue from the homepage.",
+      ),
     ).toBeInTheDocument()
-    expect(screen.getByRole("link", { name: "Go to home page" })).toHaveAttribute("href", "/")
+    expect(screen.getByRole("link", { name: "Go to homepage" })).toHaveAttribute("href", "/")
   })
 })

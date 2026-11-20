@@ -114,6 +114,27 @@ describe("OrganizerWithdrawal", () => {
     })
   })
 
+  it("explains that withdrawing a waitlisted term releases no bed and has no financial impact", async () => {
+    get.mockImplementation((path: string) => ({
+      json: () =>
+        Promise.resolve(
+          path.endsWith("withdraw-preview")
+            ? {
+                terms: [
+                  { ...row("t2", true, 0, 0), status: "WAITLISTED", hasFinancialImpact: false },
+                ],
+                overpaymentCzk: 0,
+              }
+            : application,
+        ),
+    }))
+    setup("t2")
+    expect(
+      await screen.findByText("No bed is assigned. The financial impact is zero."),
+    ).toBeVisible()
+    expect(screen.queryByText("The payment is not refunded automatically")).toBeNull()
+    expect(screen.getByRole("button", { name: "Withdraw waitlisted participant" })).toBeEnabled()
+  })
   it("withdraws from the whole application with the impact per term", async () => {
     const onClose = setup(null)
     const user = userEvent.setup()

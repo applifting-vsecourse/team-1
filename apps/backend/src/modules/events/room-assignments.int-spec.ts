@@ -136,6 +136,20 @@ describe("room assignments (integration)", () => {
     await prisma.$disconnect()
   })
 
+  it("keeps an occupied room and allows deletion after the participant is moved out", async () => {
+    const id = await makeRoom(term1, "Delete after moving", 1)
+    const path = `/organizer/events/${eventId}/terms/${term1}/rooms/${id}`
+    const { rows } = await makeApplication("Occupant", [{ termId: term1, status: "CONFIRMED" }])
+    expect((await assign(rows[term1], id)).status).toBe(204)
+    expect((await call(path, "DELETE", undefined, foreignCookie)).status).toBe(403)
+    const blocked = await call(path, "DELETE")
+    expect(blocked.status).toBe(409)
+    expect(await blocked.json()).toMatchObject({ code: "ROOM_HAS_ASSIGNMENTS" })
+    expect(await roomOf(rows[term1])).toBe(id)
+    expect((await call(`${base()}/${rows[term1]}`, "DELETE")).status).toBe(204)
+    expect((await call(path, "DELETE")).status).toBe(204)
+  })
+
   it("protects every endpoint by session, role and organization", async () => {
     const { rows } = await makeApplication("Auth", [{ termId: term1, status: "CONFIRMED" }])
     const id = rows[term1]

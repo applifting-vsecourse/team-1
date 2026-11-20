@@ -24,10 +24,16 @@ function useWarningText() {
       const counted = room.participants.filter((person) => !person.individualAccommodation)
       const women = counted.filter((person) => person.gender === "FEMALE").length
       const men = counted.length - women
-      return t("roomWarnings.mixedGender", {
+      const counts = t("roomWarnings.mixedGender", {
         women: t("roomWarnings.women", { count: women }),
         men: t("roomWarnings.men", { count: men }),
       })
+      const exclusions = room.participants
+        .filter((person) => person.individualAccommodation)
+        .map((person) =>
+          t("roomWarnings.excludedIndividual", { name: `${person.firstName} ${person.lastName}` }),
+        )
+      return [counts, ...exclusions].join(" ")
     }
     return t("roomWarnings.overcrowded", {
       people: t("roomWarnings.people", { count: room.participants.length }),

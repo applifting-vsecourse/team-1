@@ -76,6 +76,7 @@ export class ApplicationConfirmationMailer {
       const html = await renderEmail(ApplicationConfirmationEmail, {
         locale: confirmation.locale,
         eventName: confirmation.eventName,
+        organizationName: confirmation.organizationName,
         access,
         applications: buildConfirmationApplications(confirmation, this.config.frontendUrl),
       })
@@ -107,7 +108,7 @@ export class ApplicationConfirmationMailer {
                 ApplicationChangeEmail,
                 buildChangeProps({ ...change, kind }, this.config.frontendUrl),
               ),
-              applicationChangeSubject(change.locale, change.eventName),
+              applicationChangeSubject(change.locale, change.eventName, kind),
             ]
       await this.email.sendEmail(change.email, subject, html)
     } catch (error) {
@@ -167,7 +168,7 @@ export class ApplicationConfirmationMailer {
     }
   }
 
-  /** E-mail no. 8 (US-117): one per term whose debt a payment closed; never carries an amount. */
+  /** E-mail no. 8 (US-117): one per application for all terms settled by the payment; carries no amount. */
   async sendPaymentReceived(
     input: { email: string; accessToken: string } & Omit<
       PaymentReceivedEmailProps,
@@ -181,7 +182,7 @@ export class ApplicationConfirmationMailer {
       })
       await this.email.sendEmail(
         input.email,
-        paymentReceivedSubject(input.locale, input.termName),
+        paymentReceivedSubject(input.locale, input.eventName),
         html,
       )
     } catch (error) {

@@ -22,13 +22,14 @@ type PreviewTerm = {
 
 export type PaymentCorrectionPreview = {
   amountOwedCzk: number
-  terms: { termId: string; owedCzk: number; changeCzk: number }[]
+  terms: { termId: string; owedCzk: number; changeCzk: number; allocatedCzk: number }[]
 }
 
 type PreviewResult =
   | { ok: true; preview: PaymentCorrectionPreview }
   | {
       ok: false
+      maximum?: number
       errorCode:
         | "REFUND_TERM_REQUIRED"
         | "PAYMENT_TERM_NOT_IN_APPLICATION"
@@ -53,13 +54,14 @@ export function computePaymentCorrectionPreview(input: {
     return { ok: false, errorCode: "REFUND_TERM_REQUIRED" }
   if (input.termId !== undefined && !target)
     return { ok: false, errorCode: "PAYMENT_TERM_NOT_IN_APPLICATION" }
-  if (
-    input.isRefund &&
-    target &&
-    input.amountCzk >
-      computeRefundableAmount(computeTermDue(target), computeTermPaid(target.payments))
-  )
-    return { ok: false, errorCode: "REFUND_EXCEEDS_OVERPAYMENT" }
+  if (input.isRefund && target) {
+    const maximum = computeRefundableAmount(
+      computeTermDue(target),
+      computeTermPaid(target.payments),
+    )
+    if (input.amountCzk > maximum)
+      return { ok: false, errorCode: "REFUND_EXCEEDS_OVERPAYMENT", maximum }
+  }
 
   const rows = target
     ? [
@@ -74,14 +76,13 @@ export function computePaymentCorrectionPreview(input: {
       )
   if (rows.length === 0) return { ok: false, errorCode: "VALIDATION_FAILED" }
   const terms = remaining.map((term, index) => {
-    const payments = [
-      ...term.payments,
-      ...rows.filter((row) => row.applicationTermId === term.applicationTermId),
-    ]
+    const allocation = rows.find((row) => row.applicationTermId === term.applicationTermId)
+    const payments = allocation ? [...term.payments, allocation] : term.payments
     const owedCzk = computeTermOwed(term, payments)
     return {
       termId: term.termId,
       owedCzk,
+      allocatedCzk: allocation?.amountCzk ?? 0,
       changeCzk: owedCzk - computeTermOwed(input.terms[index], input.terms[index].payments),
     }
   })

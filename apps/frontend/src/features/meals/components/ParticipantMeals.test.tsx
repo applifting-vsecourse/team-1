@@ -61,12 +61,11 @@ describe("ParticipantMeals", () => {
 
   it("shows the participant, the event, the offered options and the saved values", async () => {
     setup()
-    expect(await screen.findByRole("heading", { name: "Meals" })).toBeVisible()
-    expect(screen.getByText("Adam Dvořák · Letní kemp Lipno 2027")).toBeVisible()
-    expect(screen.getByRole("link", { name: "← Application" })).toBeVisible()
+    expect(await screen.findByRole("heading", { name: "Meals · Adam Dvořák" })).toBeVisible()
+    expect(screen.getByText("Letní kemp Lipno 2027")).toBeVisible()
     expect(screen.getByRole("checkbox", { name: "Vegetarian" })).not.toBeChecked()
     expect(screen.getByRole("checkbox", { name: "Gluten-free" })).toBeChecked()
-    expect(screen.getByLabelText("Allergies and other dietary restrictions")).toHaveValue("Peanuts")
+    expect(screen.getByLabelText("Allergies and other dietary requirements")).toHaveValue("Peanuts")
     expect(screen.getByLabelText("Special request")).toHaveValue("Early dinner")
   })
 
@@ -75,7 +74,7 @@ describe("ParticipantMeals", () => {
     setup()
     await user.click(await screen.findByRole("checkbox", { name: "Vegetarian" }))
     await user.click(screen.getByRole("checkbox", { name: "Gluten-free" }))
-    const allergies = screen.getByLabelText("Allergies and other dietary restrictions")
+    const allergies = screen.getByLabelText("Allergies and other dietary requirements")
     await user.clear(allergies)
     await user.type(allergies, "Milk")
     const request = screen.getByLabelText("Special request")
@@ -146,7 +145,7 @@ describe("ParticipantMeals", () => {
     setup()
     await user.click(await screen.findByRole("checkbox", { name: "I have no dietary restriction" }))
     expect(screen.getByRole("checkbox", { name: "Vegetarian" })).toBeDisabled()
-    expect(screen.getByLabelText("Allergies and other dietary restrictions")).toBeDisabled()
+    expect(screen.getByLabelText("Allergies and other dietary requirements")).toBeDisabled()
     await user.click(screen.getByRole("button", { name: "Save meals" }))
     await waitFor(() =>
       expect(saveOwnMeals).toHaveBeenCalledWith("a1", {
@@ -170,7 +169,7 @@ describe("ParticipantMeals", () => {
     const none = await screen.findByRole("checkbox", { name: "I have no dietary restriction" })
     expect(none).toBeChecked()
     await user.click(none)
-    await user.type(screen.getByLabelText("Allergies and other dietary restrictions"), "Milk")
+    await user.type(screen.getByLabelText("Allergies and other dietary requirements"), "Milk")
     await user.click(screen.getByRole("button", { name: "Save meals" }))
     await waitFor(() =>
       expect(saveOwnMeals).toHaveBeenCalledWith("a1", {
@@ -184,7 +183,7 @@ describe("ParticipantMeals", () => {
 
   it("shows only the allergies field when the organizer offers no option", async () => {
     setup({ ...meals, options: [], selectedOptionIds: [], allergies: null, specialRequest: null })
-    expect(await screen.findByLabelText("Allergies and other dietary restrictions")).toHaveValue("")
+    expect(await screen.findByLabelText("Allergies and other dietary requirements")).toHaveValue("")
     expect(screen.getAllByRole("checkbox")).toHaveLength(1)
   })
 })

@@ -137,7 +137,12 @@ describe("copying the program between terms (integration)", () => {
   it("copies day N to day N, skips the days the target does not have and leaves the source", async () => {
     const response = await copy(target, source, "ADD")
     expect(response.status).toBe(200)
-    expect((await response.json()) as Result).toEqual({ copied: 2, skipped: 2, overlaps: [] })
+    expect((await response.json()) as Result).toMatchObject({
+      copied: 2,
+      skipped: 2,
+      overlaps: [],
+      blocks: [{ name: "První" }, { name: "Druhý" }],
+    })
     expect(
       (await blocks(target)).map(({ date, name, place, description, startTime, endTime }) => ({
         date,
@@ -190,7 +195,7 @@ describe("copying the program between terms (integration)", () => {
     await prisma.programBlock.create({ data: block(target, "2027-06-10", "Hry", "10:30", "12:00") })
     const response = await copy(target, source, "ADD")
     expect(response.status).toBe(200)
-    expect(((await response.json()) as Result).overlaps).toEqual([
+    expect(((await response.json()) as Result).overlaps).toMatchObject([
       { date: "2027-06-10", first: "První", second: "Hry" },
       // The copy of day 2 meets the copy made before.
       { date: "2027-06-11", first: "Druhý", second: "Druhý" },
@@ -205,7 +210,12 @@ describe("copying the program between terms (integration)", () => {
 
   it("replaces the existing program", async () => {
     const response = await copy(target, source, "REPLACE")
-    expect((await response.json()) as Result).toEqual({ copied: 2, skipped: 2, overlaps: [] })
+    expect((await response.json()) as Result).toMatchObject({
+      copied: 2,
+      skipped: 2,
+      overlaps: [],
+      blocks: [{ name: "První" }, { name: "Druhý" }],
+    })
     expect((await blocks(target)).map((item) => item.name)).toEqual(["První", "Druhý"])
   })
 

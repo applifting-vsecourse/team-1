@@ -18,18 +18,15 @@ test(
     await page.goto(`/participant/magic-link?token=${await latestMagicLinkToken()}`)
     await page.getByRole("button", { name: "Continue" }).click()
 
-    await expect(
-      page.getByRole("heading", { level: 1, name: "Set your own password" }),
-    ).toBeVisible()
+    await expect(page.getByRole("heading", { level: 1, name: "Set your password" })).toBeVisible()
     await page.getByLabel("New password", { exact: true }).fill(password)
-    await page.getByLabel("Repeat new password").fill(password)
-    await page.getByRole("button", { name: "Set password and open application" }).click()
-    await expect(page.getByRole("heading", { level: 1, name: "Your applications" })).toBeVisible()
+    await page.getByRole("button", { name: "Set password", exact: true }).click()
+    await expect(page.getByRole("heading", { level: 1, name: "My applications" })).toBeVisible()
 
     await signOut(page, { email, password })
     // Sign-out ends on the landing page; leaving earlier would abort the request and keep the session.
     await expect(page).toHaveURL(/\/$/)
     await signIn(page, "participant", { email, password })
-    await expect(page.getByRole("heading", { level: 1, name: "Your applications" })).toBeVisible()
+    await expect(page.getByRole("heading", { level: 1, name: "My applications" })).toBeVisible()
   },
 )

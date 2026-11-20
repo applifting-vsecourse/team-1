@@ -18,7 +18,7 @@ import {
  * the status in a term, the recorded payments and the edits of the details, newest first. The author is the person who made
  * the change, the system for an automatic one. The server decides what the history holds.
  */
-// Figma (Design system): #53 / Adam Dvořák / Desktop · Historie změn · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19786-50731 (mobile: 19786-50736)
+// Figma v2: US-53 Detail účastníka · Historie změn · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22475-86190 (mobile 22475-86352)
 export function ApplicationHistory({ applicationId }: { applicationId: string }) {
   const { t } = useTranslation("eventOverview")
   const { data, isPending, error, refetch } = useQuery(
@@ -80,14 +80,19 @@ export function ApplicationHistory({ applicationId }: { applicationId: string })
   return (
     <Card className="gap-4 p-4 md:p-6">
       <h2 className="text-lg font-semibold">{t("history.title")}</h2>
-      <ul className="flex flex-col gap-2 text-sm">
+      <ul className="flex flex-col gap-3">
         {data.map((entry) => (
-          <li key={entry.id}>
-            {t("history.entry", {
-              date: formatDateTime(entry.at),
-              who: entry.author ?? t("history.system"),
-              change: describe(entry),
-            })}
+          <li
+            key={entry.id}
+            className="flex flex-col gap-0.5"
+          >
+            <p>{describe(entry)}</p>
+            <p className="text-xs text-muted-foreground">
+              {t("history.entry", {
+                date: formatDateTime(entry.at),
+                who: entry.author ?? t("history.system"),
+              })}
+            </p>
           </li>
         ))}
       </ul>

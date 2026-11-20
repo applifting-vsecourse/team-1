@@ -1,8 +1,7 @@
 import type { ReactNode } from "react"
 
 import { Logo } from "@/components/atoms/Logo"
-import { LanguageSwitcher } from "@/components/molecules/LanguageSwitcher"
-import { ThemeSwitcher } from "@/components/molecules/ThemeSwitcher"
+import { PublicPreferences } from "@/components/molecules/PublicPreferences"
 import { cn } from "@/lib/utils"
 
 type HeaderProps = {
@@ -13,25 +12,27 @@ type HeaderProps = {
   userMenu?: ReactNode
   /** Content width of the landing (1200 px) instead of the 896 px of the other public pages. */
   isWide?: boolean
+  contentClassName?: string
 }
 
 /** Public header: logo on the left, language and theme switchers on the right. */
+// Figma v2: organizer sign-in (desktop and mobile) — https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22456-10919
 // Figma (Design system): V08 Veřejná hlavička · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12734-1365
-export function Header({ nav, userMenu, isWide = false }: HeaderProps) {
+export function Header({ nav, userMenu, isWide = false, contentClassName }: HeaderProps) {
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border bg-card">
       <div
         className={cn(
-          "mx-auto flex w-full items-center gap-4 px-4 py-4",
-          isWide ? "max-w-300" : "max-w-224",
+          "mx-auto flex w-full items-center gap-4 px-4 py-4 md:px-8",
+          isWide && nav && "max-w-320",
+          contentClassName,
         )}
       >
         <Logo />
         {nav ? <nav className="flex items-center gap-1">{nav}</nav> : null}
         <div className="ml-auto flex items-center gap-1">
-          <LanguageSwitcher />
-          <ThemeSwitcher />
           {userMenu}
+          <PublicPreferences />
         </div>
       </div>
     </header>

@@ -105,7 +105,7 @@ describe("CatalogPage", () => {
   it("leads back to the landing page", async () => {
     renderPage(() => json(catalog))
 
-    expect(await screen.findByRole("link", { name: "Home" })).toHaveAttribute("href", "/")
+    expect(await screen.findByRole("link", { name: "Back to home" })).toHaveAttribute("href", "/")
   })
 
   it("lists the published events as cards that open the event page", async () => {
@@ -113,6 +113,10 @@ describe("CatalogPage", () => {
 
     const card = (await screen.findByRole("heading", { name: "Letní kemp Lipno 2027" })).closest(
       "a",
+    )
+    expect(screen.getByRole("link", { name: "Alpine Collective" })).toHaveAttribute(
+      "href",
+      expect.stringContaining("organization=o1"),
     )
     expect(card).toHaveAttribute("href", "/events/tok")
     expect(card).toHaveTextContent("Alpine Collective")
@@ -165,7 +169,7 @@ describe("CatalogPage", () => {
   it("shows the loading state until the catalog arrives", async () => {
     renderPage(() => new Promise(() => undefined))
 
-    expect(await screen.findByRole("status")).toHaveTextContent("Loading…")
+    expect(await screen.findByRole("status")).toHaveTextContent("Loading events…")
     expect(screen.getByRole("heading", { name: "Event catalog" })).toBeInTheDocument()
   })
 

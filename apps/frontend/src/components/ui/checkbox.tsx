@@ -1,24 +1,30 @@
 import * as React from "react"
-import { CheckIcon } from "lucide-react"
 import { Checkbox as CheckboxPrimitive } from "radix-ui"
 
+import check from "@/assets/forms/checkbox-check.svg"
 import { cn } from "@/lib/utils"
 
+// Figma: Togena / Forms / Checkbox · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15187-22
 function Checkbox({ className, ...props }: React.ComponentProps<typeof CheckboxPrimitive.Root>) {
   return (
     <CheckboxPrimitive.Root
       data-slot="checkbox"
       className={cn(
-        "peer size-4 shrink-0 rounded-[4px] border border-input transition-shadow outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground dark:bg-input/30 dark:aria-invalid:ring-destructive/40 dark:data-[state=checked]:bg-primary",
+        "peer grid size-6 shrink-0 place-items-center rounded-checkbox border border-field-border bg-card outline-none focus-visible:border-2 focus-visible:border-ring focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:cursor-not-allowed disabled:opacity-45 aria-invalid:border-field-error data-[state=checked]:bg-primary data-[state=indeterminate]:bg-primary data-[state=indeterminate]:focus-visible:outline-none",
         className,
       )}
       {...props}
     >
       <CheckboxPrimitive.Indicator
         data-slot="checkbox-indicator"
-        className="grid place-content-center text-current transition-none"
+        className="group/indicator grid place-content-center"
       >
-        <CheckIcon className="size-3.5" />
+        <img
+          src={check}
+          alt=""
+          className="group-data-[state=indeterminate]/indicator:hidden"
+        />
+        <span className="hidden h-0.5 w-3 rounded-full bg-primary-foreground group-data-[state=indeterminate]/indicator:block" />
       </CheckboxPrimitive.Indicator>
     </CheckboxPrimitive.Root>
   )

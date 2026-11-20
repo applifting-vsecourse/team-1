@@ -8,17 +8,44 @@
     "organizer": "Organizer",
     "participant": "My application"
   },
+  "calendar": {
+    "back": "Back to day selection",
+    "boundaries": "The corners mark the start and end of the selection.",
+    "chooseDay": "Choose a day.",
+    "days": {
+      "next": "Next month",
+      "previous": "Previous month"
+    },
+    "emptyDay": "Choose a date.",
+    "emptyRange": "Select the start and end dates.",
+    "lastDay": "Now select the last day.",
+    "monthHint": "Choose a month. Your date selection is preserved.",
+    "months": {
+      "next": "Next year",
+      "previous": "Previous year"
+    },
+    "saveRange": "The range is set when you select the last day.",
+    "selectEnd": "{{date}} · now select the end.",
+    "yearHint": "Choose a year, then a month.",
+    "years": {
+      "next": "Next 12 years",
+      "previous": "Previous 12 years"
+    }
+  },
   "characterCounter": "{{count}} / {{max}}",
   "clipboard": {
     "copied": "Copied to the clipboard",
+    "copiedField": "The value was copied.",
     "copyAccount": "Copy account number",
     "copyAmount": "Copy amount",
     "copyVariableSymbol": "Copy variable symbol",
     "failedDescription": "Copy it manually.",
     "failedTitle": "Copying failed"
   },
+  "close": "Close",
   "comingSoon": "Coming soon — {{story}}.",
   "dateField": {
+    "chooseTime": "Choose a time from the list",
     "done": "Done",
     "month": "Month",
     "openCalendar": "Choose a date in the calendar",
@@ -48,44 +75,39 @@
   },
   "nav": {
     "applications": "Applications",
-    "collapsePanel": "Collapse panel",
-    "collapseShortcut": "Ctrl B",
     "eventSections": "Event sections",
     "events": "Events",
-    "expandPanel": "Expand panel",
     "main": "Main navigation",
     "openMenu": "Open navigation",
     "overview": "Overview"
   },
+  "navigationPreferences": "Language and appearance",
   "pages": {
     "error": {
-      "action": "Reload",
-      "body": "Try reloading the page. If the error keeps coming back, continue to the home page and try again later.",
-      "cardTitle": "What you can do",
-      "description": "The page couldn't be displayed.",
-      "homeAction": "Go to home page",
+      "action": "Reload page",
+      "description": "We couldn’t display this page. Try reloading it, or return to the homepage.",
+      "homeAction": "Go to homepage",
       "title": "Something went wrong"
     },
     "forbidden": {
-      "action": "Go to the home page",
-      "body": "This page belongs to another account or another organization.",
-      "cardTitle": "Go back",
-      "description": "You can't open this page.",
-      "title": "You don't have access to this page"
+      "action": "Go to homepage",
+      "description": "This page belongs to another account or another organization.",
+      "title": "You don’t have access to this content."
     },
     "notFound": {
-      "action": "Go to home page",
-      "body": "Check the address in your browser or continue to the home page.",
-      "cardTitle": "What next",
-      "description": "The page doesn't exist or the link was mistyped.",
+      "action": "Go to homepage",
+      "description": "The link may be incorrect or no longer valid. You can continue from the homepage.",
       "title": "Page not found"
     }
   },
   "pagination": {
     "label": "Pagination",
-    "next": "Next →",
-    "previous": "← Previous",
-    "range": "Showing {{from}}–{{to}} of {{count}}"
+    "next": "Next page",
+    "page": "Page {{page}}",
+    "previous": "Previous page",
+    "range_few": "{{from}}–{{to}} of {{count}} results",
+    "range_one": "{{from}}–{{to}} of {{count}} result",
+    "range_other": "{{from}}–{{to}} of {{count}} results"
   },
   "password": {
     "hide": "Hide password",
@@ -95,12 +117,17 @@
     "free": "Free"
   },
   "state": {
+    "connectionRestored": "Your device is back online.",
     "loading": "Loading…",
-    "retry": "Try again"
+    "offline": "Your device is offline.",
+    "retry": "Try again",
+    "saving": "Saving…",
+    "sending": "Sending…"
   },
   "termPayment": {
     "account": "Account",
     "deadline": "Due date",
+    "downloadError": "The QR code could not be downloaded.",
     "due": "Amount due",
     "listTitle": "Payments by term",
     "overpaid": "Overpayment",
@@ -108,6 +135,8 @@
     "paid": "Paid",
     "paymentDetails": "Payment details",
     "qrAlt": "QR code for the term payment",
+    "retryDownload": "Try downloading again or use the account and variable symbol on this card.",
+    "saveQr": "Download QR code",
     "status": {
       "NOTHING_DUE": "Nothing due",
       "OVERPAID": "Overpaid",
@@ -115,6 +144,7 @@
       "PARTIALLY_PAID": "Partly paid",
       "UNPAID": "Unpaid"
     },
+    "summaryQrAlt": "QR code for the combined payment",
     "variableSymbol": "Variable symbol",
     "waitlisted": "Waitlisted",
     "waitlistedNote": "You don't pay anything yet."
