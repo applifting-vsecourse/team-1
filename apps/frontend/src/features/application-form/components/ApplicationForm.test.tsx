@@ -127,7 +127,8 @@ describe("ApplicationForm", () => {
     ).toBeInTheDocument()
   })
 
-  it("explains why the gender is asked and links the explanation to the field", () => {
+  it("explains why the gender is asked in a popover that opens by keyboard and links to the individual accommodation (#528)", async () => {
+    const user = userEvent.setup()
     render(
       <ApplicationForm
         event={event}
@@ -135,10 +136,40 @@ describe("ApplicationForm", () => {
       />,
     )
 
-    const hint = screen.getByText(/to allocate rooms and bed capacity/)
+    // The long text under the select is gone; the help sits behind a labelled button.
+    expect(screen.queryByText(/to assign rooms and count beds/)).not.toBeInTheDocument()
+    const help = screen.getByRole("button", { name: "Why do we ask about gender?" })
+    help.focus()
+    await user.keyboard("{Enter}")
     expect(
-      screen.getByRole("combobox", { name: "Gender for room allocation *" }),
-    ).toHaveAccessibleDescription(hint.textContent ?? "")
+      await screen.findByText(/We need your gender to assign rooms and count beds/),
+    ).toBeVisible()
+
+    await user.click(
+      screen.getByRole("button", {
+        name: "Neither option fits? Arrange accommodation individually",
+      }),
+    )
+    await vi.waitFor(() =>
+      expect(
+        screen.getByRole("checkbox", { name: "I’d like individual accommodation" }),
+      ).toHaveFocus(),
+    )
+  })
+
+  it("tells the individual accommodation apart from a roommate wish", () => {
+    render(
+      <ApplicationForm
+        event={event}
+        onSubmit={submitSpy()}
+      />,
+    )
+
+    expect(
+      screen.getByText(
+        /Want to room with friends\? You can add that after your place is confirmed/,
+      ),
+    ).toBeVisible()
   })
 
   it("shows the price of the ticked terms per participant and updates it with every change", async () => {
@@ -312,11 +343,15 @@ describe("ApplicationForm", () => {
         />,
       )
       const card = within(participantCard(1))
-      expect(card.getByText("Only the event organizer will see this.")).toBeInTheDocument()
+      expect(
+        card.getByText(
+          "Tick this if room assignment by gender doesn’t suit you. Only the event organizers will see it.",
+        ),
+      ).toBeInTheDocument()
       expect(note()).not.toBeInTheDocument()
 
       await userEvent.click(
-        card.getByRole("checkbox", { name: "I want to arrange the accommodation individually" }),
+        card.getByRole("checkbox", { name: "I’d like individual accommodation" }),
       )
       expect(note()).toBeInTheDocument()
       // The gender stays required next to it.
@@ -333,7 +368,7 @@ describe("ApplicationForm", () => {
       const card = within(participantCard(1))
       const terms = card.getByRole("group", { name: /Choose terms/ })
       const box = card.getByRole("checkbox", {
-        name: "I want to arrange the accommodation individually",
+        name: "I’d like individual accommodation",
       })
       expect(terms.compareDocumentPosition(box) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
 
@@ -353,7 +388,7 @@ describe("ApplicationForm", () => {
       )
       await fillParticipant(1, anna)
       await userEvent.click(
-        screen.getByRole("checkbox", { name: "I want to arrange the accommodation individually" }),
+        screen.getByRole("checkbox", { name: "I’d like individual accommodation" }),
       )
       await userEvent.type(note()!, "Ground floor, please.")
       await userEvent.type(screen.getByLabelText("Contact e-mail *"), "anna@example.com")
@@ -376,7 +411,7 @@ describe("ApplicationForm", () => {
       )
       await fillParticipant(1, anna)
       await userEvent.click(
-        screen.getByRole("checkbox", { name: "I want to arrange the accommodation individually" }),
+        screen.getByRole("checkbox", { name: "I’d like individual accommodation" }),
       )
       fireEvent.change(note()!, { target: { value: "x".repeat(2001) } })
       await userEvent.type(screen.getByLabelText("Contact e-mail *"), "anna@example.com")

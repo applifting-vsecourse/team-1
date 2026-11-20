@@ -296,16 +296,23 @@ describe("EditApplicationPage", () => {
       get.mockReturnValue({ json: () => Promise.resolve(withoutRequest) })
       renderEdit(new QueryClient({ defaultOptions: { queries: { retry: false } } }))
     }
-    const box = () =>
-      screen.findByRole("checkbox", { name: "I want to arrange the accommodation individually" })
+    const box = () => screen.findByRole("checkbox", { name: "I’d like individual accommodation" })
     const note = () => screen.queryByRole("textbox", { name: "Note for the organizer" })
 
     it("asks for the note only once the box is ticked and says who sees it", async () => {
       const user = userEvent.setup()
       renderUnticked()
       await user.click(await box())
-      expect(screen.getByText("Only the event organizer will see this.")).toBeInTheDocument()
+      expect(
+        screen.getByText(
+          "Tick this if room assignment by gender doesn’t suit you. Only the event organizers will see it.",
+        ),
+      ).toBeInTheDocument()
       expect(note()).toBeInTheDocument()
+      expect(
+        screen.getByText("Write what would suit you. You don’t have to give reasons."),
+      ).toBeVisible()
+      expect(screen.getByText(/Want to room with friends\?/)).toBeVisible()
       await user.click(await box())
       expect(note()).not.toBeInTheDocument()
       expect(screen.getByRole("button", { name: "Save changes" })).toBeDisabled()

@@ -257,6 +257,9 @@ function EditForm({
             <p className="pl-8 text-sm text-muted-foreground">
               {t("edit.individualAccommodationHint")}
             </p>
+            <p className="pl-8 text-sm text-muted-foreground">
+              {t("edit.individualAccommodationFriends")}
+            </p>
           </div>
           {values.individualAccommodation ? (
             <div className="flex flex-col gap-2">
@@ -270,6 +273,9 @@ function EditForm({
                 className="min-h-32"
               />
               <div className="flex items-start gap-3">
+                <p className="flex-1 text-sm text-muted-foreground">
+                  {t("edit.accommodationRequestHint")}
+                </p>
                 {isNoteTooLong ? (
                   <p
                     id="edit-accommodation-error"

@@ -1,5 +1,6 @@
+import { useState } from "react"
 import { format } from "date-fns"
-import { X } from "lucide-react"
+import { Info, X } from "lucide-react"
 import { useFormContext, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -19,6 +20,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import {
   Select,
   SelectContent,
@@ -158,7 +160,10 @@ export function ParticipantFields({ index, terms, onRemove, isDisabled }: Partic
           name={`participants.${index}.gender`}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{t("form.gender")}</FormLabel>
+              <div className="flex items-center gap-1">
+                <FormLabel>{t("form.gender")}</FormLabel>
+                <GenderHelp index={index} />
+              </div>
               <Select
                 value={field.value ?? ""}
                 onValueChange={field.onChange}
@@ -183,9 +188,6 @@ export function ParticipantFields({ index, terms, onRemove, isDisabled }: Partic
                 </SelectContent>
               </Select>
               <div className="flex flex-col">
-                <FormDescription className="text-xs leading-[18px] font-medium">
-                  {t("form.genderHint")}
-                </FormDescription>
                 <FormMessage className="text-xs leading-[18px] font-medium" />
               </div>
             </FormItem>
@@ -260,7 +262,10 @@ export function ParticipantFields({ index, terms, onRemove, isDisabled }: Partic
           name={`participants.${index}.individualAccommodation`}
           render={({ field }) => (
             <FormItem className="gap-1">
-              <div className="flex min-h-11 items-center gap-3">
+              <div
+                id={individualAnchor(index)}
+                className="flex min-h-11 items-center gap-3"
+              >
                 <FormControl>
                   <Checkbox
                     className="size-5"
@@ -275,6 +280,9 @@ export function ParticipantFields({ index, terms, onRemove, isDisabled }: Partic
               </div>
               <FormDescription className="pl-8 text-sm">
                 {t("form.individualAccommodationHint")}
+              </FormDescription>
+              <FormDescription className="pl-8 text-sm">
+                {t("form.individualAccommodationFriends")}
               </FormDescription>
             </FormItem>
           )}
@@ -293,6 +301,9 @@ export function ParticipantFields({ index, terms, onRemove, isDisabled }: Partic
                   />
                 </FormControl>
                 <div className="flex items-start gap-3">
+                  <FormDescription className="flex-1 text-sm">
+                    {t("form.accommodationRequestHint")}
+                  </FormDescription>
                   <FormMessage />
                   <CharacterCounter
                     count={field.value.length}
@@ -305,5 +316,62 @@ export function ParticipantFields({ index, terms, onRemove, isDisabled }: Partic
         ) : null}
       </div>
     </Card>
+  )
+}
+
+/** The id of the individual accommodation row of one participant, the target of the link in the gender help. */
+const individualAnchor = (index: number) => `participant-${index}-individual-accommodation`
+
+/**
+ * #528: the short help next to the gender question. A popover, not a tooltip: it holds a link, so it
+ * opens by keyboard, touch and screen reader. The link jumps to the individual accommodation box.
+ */
+// Figma (Design system): #528 Přihláška · nápověda u pohlaví otevřená · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=29565-45366 (mobile: 29565-45442)
+function GenderHelp({ index }: { index: number }) {
+  const { t } = useTranslation("applicationForm")
+  const [isOpen, setIsOpen] = useState(false)
+  const jump = () => {
+    setIsOpen(false)
+    const box = document
+      .getElementById(individualAnchor(index))
+      ?.querySelector<HTMLElement>("[role=checkbox]")
+    box?.scrollIntoView({ block: "center" })
+    // After the popover has returned focus to its trigger.
+    setTimeout(() => box?.focus(), 0)
+  }
+  return (
+    <Popover
+      open={isOpen}
+      onOpenChange={setIsOpen}
+    >
+      <PopoverTrigger asChild>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="size-7"
+          aria-label={t("form.genderHelpLabel")}
+        >
+          <Info
+            className="size-4 text-muted-foreground"
+            aria-hidden
+          />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent
+        align="start"
+        className="flex w-80 max-w-[calc(100vw-2rem)] flex-col gap-3 text-sm"
+        onCloseAutoFocus={(event) => event.preventDefault()}
+      >
+        <p>{t("form.genderHelp")}</p>
+        <button
+          type="button"
+          className="text-left font-medium text-link underline underline-offset-2"
+          onClick={jump}
+        >
+          {t("form.genderHelpLink")}
+        </button>
+      </PopoverContent>
+    </Popover>
   )
 }
