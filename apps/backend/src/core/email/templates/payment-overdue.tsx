@@ -84,10 +84,10 @@ export function PaymentOverdue(props: PaymentOverdueProps) {
         rows={[
           { label: pay.amountDue, value: formatCzk(amountDueCzk, locale) },
           { label: pay.account, value: bankAccount },
-          {
-            label: terms.length > 1 ? pay.applicationSymbol : pay.variableSymbol,
-            value: applicationSymbol,
-          },
+          // One term is paid with its own symbol; several terms share the application-wide one.
+          terms.length > 1
+            ? { label: pay.applicationSymbol, value: applicationSymbol }
+            : { label: pay.variableSymbol, value: terms[0].variableSymbol },
           ...(terms.length > 1
             ? terms.flatMap(({ termLabel, amountCzk, variableSymbol }) => [
                 { label: `${termLabel} · ${pay.amountDue}`, value: formatCzk(amountCzk, locale) },
