@@ -126,7 +126,7 @@ describe("extra beds of a room (integration)", () => {
     await setExtraBeds(0)
   })
 
-  it("keeps the extra beds when the room is edited and does not copy them", async () => {
+  it("keeps the extra beds when the room is edited and copies them with the room (#623)", async () => {
     await setExtraBeds(2)
     expect(
       (await call(termId, `/rooms/${roomId}`, "PUT", { name: "A1", capacity: 5, gender: "FEMALE" }))
@@ -138,7 +138,7 @@ describe("extra beds of a room (integration)", () => {
       strategy: "REPLACE",
     })
     expect(copy.status).toBe(204)
-    expect((await rooms(otherTermId)).rooms[0]).toMatchObject({ capacity: 5, extraBeds: 0 })
+    expect((await rooms(otherTermId)).rooms[0]).toMatchObject({ capacity: 5, extraBeds: 2 })
     await setExtraBeds(0)
   })
 
