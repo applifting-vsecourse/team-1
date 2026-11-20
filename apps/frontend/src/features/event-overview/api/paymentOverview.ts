@@ -23,6 +23,7 @@ const paymentOverviewSchema = z.object({
   entries: z.array(
     z.object({
       applicationId: z.string(),
+      applicationNumber: z.number().int().optional(),
       variableSymbol: z.string(),
       summaryVariableSymbol: z.string(),
       payableCzk: z.number().int().nonnegative(),

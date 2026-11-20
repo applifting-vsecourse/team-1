@@ -1,22 +1,12 @@
-import { useState, type ChangeEvent, type ComponentProps } from "react"
-import { format } from "date-fns"
-import { cs, enGB } from "date-fns/locale"
+import { useState, type ComponentProps } from "react"
 import { Calendar as CalendarIcon } from "lucide-react"
-import type { DropdownProps } from "react-day-picker"
 import { useTranslation } from "react-i18next"
 
+import { DateCalendar } from "@/components/atoms/DateCalendar"
 import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { currentLanguage } from "@/i18n"
 import {
   formatDateInput,
@@ -32,7 +22,6 @@ import {
 } from "@/lib/date-input"
 import { cn } from "@/lib/utils"
 
-const DATE_FNS_LOCALES = { cs, en: enGB }
 /** Years offered by the calendar when the field has no `min` / `max`. */
 const DEFAULT_YEAR_SPAN = 20
 
@@ -58,61 +47,9 @@ type DateFieldProps = Omit<
 /** The time a day gets when it is picked in the calendar before any time was given. */
 const DEFAULT_TIME = "08:00"
 
-const MonthsDropdown = (props: DropdownProps) => (
-  <CalendarDropdown
-    {...props}
-    kind="month"
-  />
-)
-const YearsDropdown = (props: DropdownProps) => (
-  <CalendarDropdown
-    {...props}
-    kind="year"
-  />
-)
-
-const capitalize = (text: string) => text.charAt(0).toLocaleUpperCase() + text.slice(1)
-
 const toDisplay = (value: string, language: "cs" | "en", hasTime: boolean) => {
   if (hasTime) return isIsoDateTime(value) ? formatDateTimeInput(value, language) : value
   return isIsoDate(value) ? formatDateInput(value, language) : value
-}
-
-/** Month / year picker in the calendar header: the kit Select behind DayPicker's dropdown slot. */
-// Figma (Design system): DS / Date picker · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14790-1710
-function CalendarDropdown({
-  options,
-  value,
-  onChange,
-  "aria-label": label,
-  kind,
-}: DropdownProps & { kind: "month" | "year" }) {
-  return (
-    <Select
-      value={String(value)}
-      onValueChange={(next) =>
-        onChange?.({ target: { value: next } } as unknown as ChangeEvent<HTMLSelectElement>)
-      }
-    >
-      <SelectTrigger
-        aria-label={label}
-        className={cn(kind === "month" ? "min-w-0 flex-1" : "w-26")}
-      >
-        <SelectValue />
-      </SelectTrigger>
-      <SelectContent position="popper">
-        {options?.map((option) => (
-          <SelectItem
-            key={option.value}
-            value={String(option.value)}
-            disabled={option.disabled}
-          >
-            {option.label}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
-  )
 }
 
 /**
@@ -122,7 +59,7 @@ function CalendarDropdown({
  * on as it is, so the form can show an error and the text stays in the field.
  * Built to sit in a `FormControl`: the rest of the props go to the input.
  */
-// Figma (Design system): DS / Date field · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14790-1698
+// Figma (Design system): DS / Date field · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=26740-15028
 export function DateField({
   value,
   onChange,
@@ -167,10 +104,15 @@ export function DateField({
     maxDate?.getFullYear() ?? thisYear + DEFAULT_YEAR_SPAN,
     selected?.getFullYear() ?? thisYear,
   )
+  const preferredMonth = selected ?? (openOn ? isoToLocalDate(openOn) : undefined) ?? today
   const opensOn =
-    selected ??
-    (openOn ? isoToLocalDate(openOn) : undefined) ??
-    (maxDate && today > maxDate ? maxDate : minDate && today < minDate ? minDate : today)
+    maxDate && preferredMonth > maxDate
+      ? maxDate
+      : minDate && preferredMonth < minDate
+        ? minDate
+        : preferredMonth
+
+  const [month, setMonth] = useState(opensOn)
 
   const handleTyped = (typed: string) => {
     setText(typed)
@@ -182,7 +124,10 @@ export function DateField({
       open={isOpen}
       onOpenChange={(isNext) => {
         setIsOpen(isNext)
-        if (isNext) setTimeText(time)
+        if (isNext) {
+          setTimeText(time)
+          setMonth(opensOn)
+        }
       }}
     >
       <PopoverAnchor asChild>
@@ -219,11 +164,9 @@ export function DateField({
       <PopoverContent
         align="start"
         collisionPadding={8}
-        className="w-auto rounded-lg p-0"
+        className="w-auto max-w-[calc(100vw-1rem)] rounded-2xl border-0 p-0"
       >
-        {/* key: the calendar starts on the selected month each time it opens */}
-        <Calendar
-          key={`${isOpen}`}
+        <DateCalendar
           mode="single"
           required
           selected={selected}
@@ -241,31 +184,12 @@ export function DateField({
             setText(show(picked))
             onChange(picked)
           }}
-          defaultMonth={opensOn}
-          startMonth={new Date(firstYear, 0, 1)}
-          endMonth={new Date(lastYear, 11, 1)}
-          disabled={[
-            ...(minDate ? [{ before: minDate }] : []),
-            ...(maxDate ? [{ after: maxDate }] : []),
-          ]}
-          captionLayout="dropdown"
-          hideNavigation
-          weekStartsOn={1}
-          locale={DATE_FNS_LOCALES[language]}
-          labels={{
-            labelMonthDropdown: () => t("dateField.month"),
-            labelYearDropdown: () => t("dateField.year"),
-          }}
-          formatters={{
-            formatMonthDropdown: (date) =>
-              format(date, "LLLL", { locale: DATE_FNS_LOCALES[language] }),
-            // Po Út St … in Czech (date-fns gives them lowercase)
-            formatWeekdayName: (date) =>
-              capitalize(format(date, "EEEEEE", { locale: DATE_FNS_LOCALES[language] })),
-          }}
-          className="[--cell-size:--spacing(10)]"
-          classNames={{ month: "flex w-full flex-col gap-2" }}
-          components={{ MonthsDropdown, YearsDropdown }}
+          month={month}
+          onMonthChange={setMonth}
+          startMonth={minDate ?? new Date(firstYear, 0, 1)}
+          endMonth={maxDate ?? new Date(lastYear, 11, 1)}
+          min={minDate}
+          max={maxDate}
         />
         {hasTime ? (
           <div className="flex items-end gap-3 border-t p-3">

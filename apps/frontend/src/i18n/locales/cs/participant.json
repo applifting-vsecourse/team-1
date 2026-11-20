@@ -51,9 +51,9 @@
     "waitlistedNoPayment": "Náhradník · bez platebního dopadu"
   },
   "contact": {
-    "email": "E-mail",
+    "email": "Napsat e-mail",
     "none": "Organizace zatím nezveřejnila kontakt.",
-    "phone": "Telefon",
+    "phone": "Zavolat",
     "title": "Kontakt organizace"
   },
   "detail": {

@@ -1,11 +1,12 @@
-import { ChevronDown, Monitor, Moon, Sun } from "lucide-react"
+import { Monitor, Moon, Sun } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useTheme } from "@/hooks/useTheme"
@@ -23,34 +24,38 @@ export function ThemeSwitcher({ isLabeled = false }: { isLabeled?: boolean }) {
           variant="ghost"
           size={isLabeled ? "lg" : "icon-lg"}
           className={
-            isLabeled ? "w-full justify-start gap-4 px-3 text-base font-normal" : undefined
+            isLabeled
+              ? "min-w-0 justify-start gap-2 p-0 text-base font-normal has-[>svg]:px-0"
+              : undefined
           }
           aria-label={t("theme.toggle")}
         >
           {isLabeled ? (
             <>
-              <ModeIcon className="size-5" />
-              <span className="flex-1 text-left">{t(`theme.${mode}`)}</span>
-              <ChevronDown className="size-4" />
+              <span className="grid size-11 shrink-0 place-items-center">
+                <ModeIcon className="size-5" />
+              </span>
+              <span className="truncate text-left">{t(`theme.${mode}`)}</span>
             </>
           ) : (
-            <>
-              <Sun className="size-4 dark:hidden" />
-              <Moon className="hidden size-4 dark:block" />
-            </>
+            <ModeIcon className="size-5" />
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => setTheme("light")}>
-          <Sun className="size-4" /> {t("theme.light")}
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("dark")}>
-          <Moon className="size-4" /> {t("theme.dark")}
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("system")}>
-          <Monitor className="size-4" /> {t("theme.system")}
-        </DropdownMenuItem>
+      <DropdownMenuContent
+        align="end"
+        sideOffset={12}
+        collisionPadding={8}
+        className="w-60 rounded-md p-1"
+      >
+        <DropdownMenuRadioGroup
+          value={mode}
+          onValueChange={setTheme}
+        >
+          <DropdownMenuRadioItem value="light">{t("theme.light")}</DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="dark">{t("theme.dark")}</DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="system">{t("theme.system")}</DropdownMenuRadioItem>
+        </DropdownMenuRadioGroup>
       </DropdownMenuContent>
     </DropdownMenu>
   )

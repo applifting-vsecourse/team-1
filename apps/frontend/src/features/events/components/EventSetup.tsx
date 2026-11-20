@@ -1,4 +1,4 @@
-import { useId } from "react"
+import { useId, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
 import { ArrowUpRight, Check, TriangleAlert } from "lucide-react"
@@ -65,7 +65,14 @@ export function EventSetup({ eventId }: { eventId: string }) {
           </>
         )}
       </p>
-      {event.applicationsOpen ? <ShareLink link={link} /> : <MissingSteps event={event} />}
+      {event.applicationsOpen ? (
+        <ShareLink
+          key={link}
+          link={link}
+        />
+      ) : (
+        <MissingSteps event={event} />
+      )}
     </CardGrid>
   )
 }
@@ -73,6 +80,7 @@ export function EventSetup({ eventId }: { eventId: string }) {
 function ShareLink({ link }: { link: string }) {
   const { t } = useTranslation("events")
   const headingId = useId()
+  const [isCopied, setIsCopied] = useState(false)
 
   return (
     <Card className={`${CARD_GRID_WIDE} gap-3 p-6`}>
@@ -95,6 +103,7 @@ function ShareLink({ link }: { link: string }) {
           label={t("overview.copyLink")}
           successMessage={t("overview.copied")}
           errorMessage={t("overview.copyFailed")}
+          onCopyResult={setIsCopied}
         />
         <Button
           asChild
@@ -110,6 +119,7 @@ function ShareLink({ link }: { link: string }) {
           </a>
         </Button>
       </div>
+      {isCopied && <p className="text-sm text-primary">{t("overview.copiedHint")}</p>}
     </Card>
   )
 }

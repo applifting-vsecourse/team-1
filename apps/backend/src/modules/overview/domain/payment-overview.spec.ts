@@ -39,6 +39,7 @@ describe("payment overview", () => {
         {
           paymentStatus: "PARTIALLY_PAID",
           payableCzk: 2900,
+          applicationNumber: 246,
           variableSymbol: "246003",
           summaryVariableSymbol: "246000",
           amountPaidCzk: 2000,

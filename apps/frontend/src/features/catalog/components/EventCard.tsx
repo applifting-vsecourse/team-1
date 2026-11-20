@@ -19,9 +19,9 @@ export function EventCard({ event }: { event: CatalogEvent }) {
     <Link
       to={ROUTES.event}
       params={{ publicToken: event.publicToken }}
-      className="group block rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+      className="group block rounded-lg outline-none"
     >
-      <Card className="h-full min-h-[214px] gap-0 overflow-hidden p-0 transition-colors group-hover:border-primary">
+      <Card className="h-full min-h-[214px] gap-0 overflow-hidden p-0 shadow-none transition-colors group-hover:border-field-border group-focus-visible:min-h-[216px] group-focus-visible:border-2 group-focus-visible:border-ring">
         {event.hasPhoto ? (
           <img
             src={catalogEventPhotoUrl(event.publicToken)}
@@ -32,7 +32,7 @@ export function EventCard({ event }: { event: CatalogEvent }) {
         ) : null}
         <div className="flex flex-1 flex-col gap-3 p-5">
           <span className="sr-only">{event.organizationName}</span>
-          <h3 className="text-2xl/8 font-bold tracking-tight">{event.name}</h3>
+          <h3 className="text-2xl/8 font-bold">{event.name}</h3>
           {event.terms.length > 0 ? (
             <ul>
               {event.terms.map((term) => (

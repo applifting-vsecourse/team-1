@@ -138,7 +138,7 @@ export function TermFormDialog({
             onSubmit={form.handleSubmit(onSubmit)}
             className="flex flex-col gap-4"
           >
-            <div className="grid items-start gap-6 md:grid-cols-2">
+            <div className="grid items-start gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,408px)]">
               <div className="flex min-w-0 flex-col gap-4">
                 <FormField
                   control={form.control}
@@ -169,7 +169,10 @@ export function TermFormDialog({
                           {t("terms.form.startsOn")}
                         </FormLabel>
                         <FormControl>
-                          <DateField {...field} />
+                          <DateField
+                            {...field}
+                            disabled={mutation.isPending}
+                          />
                         </FormControl>
                         <FormMessage className="text-xs leading-[18px] font-medium" />
                       </FormItem>
@@ -184,7 +187,10 @@ export function TermFormDialog({
                           {t("terms.form.endsOn")}
                         </FormLabel>
                         <FormControl>
-                          <DateField {...field} />
+                          <DateField
+                            {...field}
+                            disabled={mutation.isPending}
+                          />
                         </FormControl>
                         <FormMessage className="text-xs leading-[18px] font-medium" />
                       </FormItem>
@@ -220,6 +226,7 @@ export function TermFormDialog({
                 />
               </div>
               <TermRangeCalendar
+                isDisabled={mutation.isPending}
                 startsOn={startsOn}
                 endsOn={endsOn}
                 onChange={(start, end) => {

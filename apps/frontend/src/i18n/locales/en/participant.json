@@ -51,9 +51,9 @@
     "waitlistedNoPayment": "Waitlisted · no payment impact"
   },
   "contact": {
-    "email": "E-mail",
+    "email": "Send an e-mail",
     "none": "The organization hasn't published a contact yet.",
-    "phone": "Phone",
+    "phone": "Call",
     "title": "Organization contact"
   },
   "detail": {

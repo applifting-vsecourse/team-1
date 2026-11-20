@@ -12,6 +12,7 @@ export function CopyButton({
   label,
   successMessage,
   errorMessage,
+  onCopyResult,
   showLabel: shouldShowLabel = false,
 }: {
   value: string
@@ -19,6 +20,7 @@ export function CopyButton({
   showLabel?: boolean
   successMessage?: string
   errorMessage?: string
+  onCopyResult?: (didCopy: boolean) => void
 }) {
   const [isFallbackOpen, setIsFallbackOpen] = useState(false)
   const trigger = useRef<HTMLButtonElement>(null)
@@ -28,9 +30,11 @@ export function CopyButton({
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(value)
+      onCopyResult?.(true)
       setCopyCount((count) => count + 1)
       notify.success(successMessage ?? t("clipboard.copied"))
     } catch {
+      onCopyResult?.(false)
       setCopyCount(0)
       if (errorMessage) notify.error(errorMessage)
       setIsFallbackOpen(true)

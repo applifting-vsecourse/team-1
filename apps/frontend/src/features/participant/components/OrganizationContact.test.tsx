@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react"
+import { render, screen, within } from "@testing-library/react"
 import { describe, expect, it } from "vitest"
 
 import type { OrganizationContact as OrganizationContactData } from "@/features/participant/api/applications"
@@ -25,13 +25,17 @@ describe("OrganizationContact", () => {
     expect(phone).toHaveAttribute("href", "tel:+420777000003")
     // Shown as the organizer typed it.
     expect(phone).toHaveTextContent("+420 777 000 003")
+    expect(within(phone).getByText("Call")).toBeVisible()
+    expect(
+      within(screen.getByRole("link", { name: "info@alpine.example" })).getByText("Send an e-mail"),
+    ).toBeVisible()
   })
 
   it("leaves out the phone when there is only an e-mail", () => {
     render(<OrganizationContact contact={contact({ phone: null })} />)
 
     expect(screen.getByRole("link", { name: "info@alpine.example" })).toBeInTheDocument()
-    expect(screen.queryByText("Phone")).not.toBeInTheDocument()
+    expect(screen.queryByText("Call")).not.toBeInTheDocument()
     expect(screen.queryByRole("link", { name: /\+420/ })).not.toBeInTheDocument()
   })
 
@@ -39,7 +43,7 @@ describe("OrganizationContact", () => {
     render(<OrganizationContact contact={contact({ email: null })} />)
 
     expect(screen.getByRole("link", { name: "+420 777 000 003" })).toBeInTheDocument()
-    expect(screen.queryByText("E-mail")).not.toBeInTheDocument()
+    expect(screen.queryByText("Send an e-mail")).not.toBeInTheDocument()
     expect(screen.queryByRole("link", { name: /alpine/ })).not.toBeInTheDocument()
   })
 
@@ -49,8 +53,8 @@ describe("OrganizationContact", () => {
     expect(screen.getByText("Alpine Collective")).toBeInTheDocument()
     expect(screen.getByText("The organization hasn't published a contact yet.")).toBeInTheDocument()
     expect(screen.queryByRole("link")).not.toBeInTheDocument()
-    expect(screen.queryByText("E-mail")).not.toBeInTheDocument()
-    expect(screen.queryByText("Phone")).not.toBeInTheDocument()
+    expect(screen.queryByText("Send an e-mail")).not.toBeInTheDocument()
+    expect(screen.queryByText("Call")).not.toBeInTheDocument()
   })
 
   it("does not show the note while there is a contact", () => {
@@ -63,7 +67,9 @@ describe("OrganizationContact", () => {
     render(<OrganizationContact contact={contact()} />)
 
     const row = screen.getByText("Alpine Collective").parentElement!
-    expect(row).toHaveClass("flex-col")
-    expect(row).not.toHaveClass("md:flex-row")
+    expect(row).toHaveClass("@container")
+    expect(screen.getByRole("link", { name: "info@alpine.example" }).parentElement).toHaveClass(
+      "@min-[34rem]:grid-cols-2",
+    )
   })
 })

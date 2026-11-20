@@ -311,6 +311,20 @@ describe("accommodation by term", () => {
     expect(screen.queryByText("Capacity exhausted")).not.toBeInTheDocument()
   })
 
+  it("labels each room action when hovered or focused", async () => {
+    const { user } = renderRooms("t1")
+    const table = await screen.findByRole("table")
+    const edit = within(table).getByRole("button", { name: "Edit room Gendered room" })
+    const remove = within(table).getByRole("button", { name: "Delete room Gendered room" })
+    await user.hover(edit)
+    expect(await screen.findByRole("tooltip", { name: "Edit room" })).toBeVisible()
+    await user.unhover(edit)
+    edit.focus()
+    await user.tab()
+    expect(remove).toHaveFocus()
+    expect(await screen.findByRole("tooltip", { name: "Delete room" })).toBeVisible()
+  })
+
   it("keeps editing and deleting available and opens the room of the term", async () => {
     const { user } = renderRooms("t1")
     const table = await screen.findByRole("table")

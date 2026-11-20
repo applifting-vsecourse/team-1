@@ -16,6 +16,7 @@ import { PaymentsOverviewPage } from "@/features/event-overview/components/Payme
 const entries: PaymentOverviewEntry[] = [
   {
     applicationId: "a1",
+    applicationNumber: 23,
     variableSymbol: "23001",
     summaryVariableSymbol: "23000",
     payableCzk: 2900,
@@ -144,6 +145,8 @@ describe("PaymentsOverviewPage", () => {
   it("lists the payments in a table with the due date and reminders of each row", async () => {
     renderPage()
     const row = (await screen.findByText("Adam Dvořák")).closest("tr")!
+    expect(row).toHaveTextContent("#23")
+    expect(row).toHaveTextContent("VS 23001")
     expect(row).toHaveTextContent("Partly paid")
     expect(row).toHaveTextContent(/2,900/)
     expect(row).toHaveTextContent("past due")

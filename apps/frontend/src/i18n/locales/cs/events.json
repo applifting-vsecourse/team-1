@@ -183,6 +183,7 @@
   },
   "overview": {
     "copied": "Odkaz zkopírován do schránky",
+    "copiedHint": "Odkaz je ve schránce.",
     "copy": "Kopírovat odkaz na přihlášku",
     "copyAgain": "Kopírovat znovu",
     "copyFailed": "Odkaz se nepodařilo zkopírovat.",
@@ -561,6 +562,7 @@
       "targetHeading": "Existující cíl",
       "title": "Zkopírovat pokoje do termínu"
     },
+    "decreaseBeds": "Snížit počet lůžek",
     "delete": "Smazat pokoj",
     "deleteAction": "Smazat",
     "deleteAttendance": "Potvrzená účast",
@@ -621,6 +623,7 @@
     "genderLabel": "Pohlaví pokoje *",
     "genderedDescription": "Pokoj podle pohlaví v tomto termínu",
     "genderedMode": "Podle pohlaví",
+    "increaseBeds": "Zvýšit počet lůžek",
     "individual": "Individuální",
     "individualBeds_few": "{{count}} lůžka v individuálních pokojích, do kapacity se počítají obsazená",
     "individualBeds_one": "{{count}} lůžko v individuálních pokojích, do kapacity se počítají obsazená",

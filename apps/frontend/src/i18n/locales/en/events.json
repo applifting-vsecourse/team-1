@@ -183,6 +183,7 @@
   },
   "overview": {
     "copied": "Link copied to the clipboard",
+    "copiedHint": "The link is on the clipboard.",
     "copy": "Copy application link",
     "copyAgain": "Copy again",
     "copyFailed": "The link could not be copied.",
@@ -561,6 +562,7 @@
       "targetHeading": "Existing target",
       "title": "Copy rooms to the term"
     },
+    "decreaseBeds": "Decrease bed count",
     "delete": "Delete room",
     "deleteAction": "Delete",
     "deleteAttendance": "Confirmed attendance",
@@ -621,6 +623,7 @@
     "genderLabel": "Room gender *",
     "genderedDescription": "Room by gender in this term",
     "genderedMode": "By gender",
+    "increaseBeds": "Increase bed count",
     "individual": "Individual",
     "individualBeds_few": "{{count}} beds in individual rooms, only occupied ones count towards the capacity",
     "individualBeds_one": "{{count}} bed in individual rooms, only occupied ones count towards the capacity",

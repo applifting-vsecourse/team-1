@@ -15,12 +15,12 @@ import {
   DialogFooter,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { formatDateRange } from "@/lib/date"
 import { notify } from "@/lib/notify"
 
 import { setExtraBeds, type Room, type TermRooms } from "@/features/events/api/rooms"
+import { RoomBedCountField } from "@/features/events/components/RoomBedCountField"
 
 const MAX_EXTRA_BEDS = 2147483647
 // Characters a number input accepts besides digits that never make a valid count here.
@@ -108,13 +108,9 @@ export function RoomExtraBedsDialog({
             className="flex flex-col gap-2"
           >
             <Label htmlFor="extra-beds">{t("rooms.extraBedsLabel")}</Label>
-            <Input
+            <RoomBedCountField
               id="extra-beds"
-              type="number"
-              inputMode="numeric"
-              min={1}
               max={MAX_EXTRA_BEDS}
-              step={1}
               value={value}
               aria-invalid={error ? true : undefined}
               aria-describedby={error ? "extra-beds-error" : undefined}
@@ -126,8 +122,8 @@ export function RoomExtraBedsDialog({
                   event.preventDefault()
                 }
               }}
-              onChange={(event) => {
-                setValue(event.target.value)
+              onValueChange={(next) => {
+                setValue(next)
                 setError(null)
               }}
             />

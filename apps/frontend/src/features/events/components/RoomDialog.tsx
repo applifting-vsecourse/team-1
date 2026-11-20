@@ -37,6 +37,7 @@ import { apiErrorCode } from "@/lib/api-client"
 import { formatDateRange } from "@/lib/date"
 
 import { saveRoom, type Room, type TermRooms } from "@/features/events/api/rooms"
+import { RoomBedCountField } from "@/features/events/components/RoomBedCountField"
 
 // Room of one term; the form is the one of the earlier iteration, only the term is new.
 // Figma (Design system): X19 / X20 / X22 / X23, X19a / X22a · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12370-121
@@ -158,12 +159,9 @@ export function RoomDialog({
                   <FormItem>
                     <FormLabel>{t("rooms.capacityLabel")}</FormLabel>
                     <FormControl>
-                      <Input
+                      <RoomBedCountField
                         {...field}
-                        type="number"
-                        inputMode="numeric"
-                        min={1}
-                        step={1}
+                        onValueChange={field.onChange}
                       />
                     </FormControl>
                     {form.formState.errors.capacity ? (

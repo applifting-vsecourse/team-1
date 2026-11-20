@@ -669,6 +669,7 @@
       "PARTIALLY_PAID": "Partly paid",
       "UNPAID": "Unpaid"
     },
+    "symbol": "VS {{value}}",
     "term": "Term",
     "title": "Payments",
     "toPay": "To pay",

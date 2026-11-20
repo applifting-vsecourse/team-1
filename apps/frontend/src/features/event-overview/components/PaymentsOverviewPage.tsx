@@ -408,8 +408,13 @@ function PaymentOverviewRow({ entry, eventId }: { entry: PaymentOverviewEntry; e
         <span className="text-2xl font-bold md:text-sm md:font-medium">
           {entry.firstName} {entry.lastName}
         </span>
-        <span className="hidden text-sm text-muted-foreground md:block">
-          #{entry.summaryVariableSymbol}
+        {entry.applicationNumber !== undefined && (
+          <span className="hidden text-sm font-normal text-muted-foreground md:block">
+            #{entry.applicationNumber}
+          </span>
+        )}
+        <span className="block text-sm font-normal text-muted-foreground md:hidden">
+          {t("paymentsOverview.symbol", { value: entry.variableSymbol })}
         </span>
       </TableCell>
       <TableCell className="p-0 whitespace-normal md:px-4 md:py-4 md:text-sm md:text-muted-foreground">

@@ -8,6 +8,30 @@
     "organizer": "Organizátor",
     "participant": "Moje přihláška"
   },
+  "calendar": {
+    "back": "Zpět na výběr dne",
+    "boundaries": "Začátek a konec výběru označují krajní rohy.",
+    "chooseDay": "Vyber den.",
+    "days": {
+      "next": "Další měsíc",
+      "previous": "Předchozí měsíc"
+    },
+    "emptyDay": "Vyber datum.",
+    "emptyRange": "Vyber začátek a konec.",
+    "lastDay": "Teď vyber poslední den.",
+    "monthHint": "Vyber měsíc. Výběr data zůstává zachovaný.",
+    "months": {
+      "next": "Další rok",
+      "previous": "Předchozí rok"
+    },
+    "saveRange": "Termín se uloží po výběru posledního dne.",
+    "selectEnd": "{{date}} · teď vyber konec.",
+    "yearHint": "Vyber rok. Potom zvol měsíc.",
+    "years": {
+      "next": "Dalších 12 let",
+      "previous": "Předchozích 12 let"
+    }
+  },
   "characterCounter": "{{count}} / {{max}}",
   "clipboard": {
     "copied": "Zkopírováno do schránky",

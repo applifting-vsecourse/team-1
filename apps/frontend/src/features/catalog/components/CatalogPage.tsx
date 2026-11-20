@@ -8,7 +8,7 @@ import { ROUTES } from "@/app/routes"
 import { HeadingBand } from "@/components/atoms/HeadingBand"
 import { LogoSymbol } from "@/components/atoms/Logo"
 import { BackLink } from "@/components/molecules/BackLink"
-import { ListSkeleton } from "@/components/molecules/ListSkeleton"
+import { LoadingState } from "@/components/molecules/LoadingState"
 import { Pagination } from "@/components/molecules/Pagination"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
@@ -113,7 +113,7 @@ export function CatalogPage({ organizationId, onOrganizationChange }: CatalogPag
       </section>
 
       <div className={cn(CONTENT, "flex flex-col gap-6 pt-8 pb-12 md:pt-12 md:pb-20")}>
-        {isPending ? <ListSkeleton label={t("list.loading")} /> : null}
+        {isPending ? <LoadingState label={t("list.loading")} /> : null}
 
         {isError ? (
           <Alert variant="destructive">

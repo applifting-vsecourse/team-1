@@ -5,6 +5,7 @@ import { BedSingle, Pencil, Trash2 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
+import { HelpTooltipContent } from "@/components/atoms/HelpTooltipContent"
 import { Seo } from "@/components/atoms/Seo"
 import { CardGrid } from "@/components/molecules/CardGrid"
 import { ErrorState } from "@/components/molecules/ErrorState"
@@ -22,7 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Tooltip, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { notify } from "@/lib/notify"
 import { roomCapacityIncreaseKey, type RoomCapacityIncrease } from "@/lib/room-capacity-increase"
 import { termDatesLine } from "@/lib/term-label"
@@ -154,7 +155,7 @@ export function RoomsPage({
               : t("rooms.addExtraBedShort")}
           </Button>
         </TooltipTrigger>
-        <TooltipContent>{label}</TooltipContent>
+        <HelpTooltipContent>{label}</HelpTooltipContent>
       </Tooltip>
     )
   }
@@ -401,22 +402,32 @@ export function RoomsPage({
                         return (
                           <>
                             {extraBedsButton(room)}
-                            <Button
-                              variant="ghost"
-                              size="icon-lg"
-                              aria-label={t("rooms.editRoom", { name: room.name })}
-                              onClick={() => setEditor(room)}
-                            >
-                              <Pencil />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon-lg"
-                              aria-label={t("rooms.deleteRoom", { name: room.name })}
-                              onClick={() => setDeleting(room)}
-                            >
-                              <Trash2 />
-                            </Button>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon-lg"
+                                  aria-label={t("rooms.editRoom", { name: room.name })}
+                                  onClick={() => setEditor(room)}
+                                >
+                                  <Pencil />
+                                </Button>
+                              </TooltipTrigger>
+                              <HelpTooltipContent>{t("rooms.edit")}</HelpTooltipContent>
+                            </Tooltip>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon-lg"
+                                  aria-label={t("rooms.deleteRoom", { name: room.name })}
+                                  onClick={() => setDeleting(room)}
+                                >
+                                  <Trash2 />
+                                </Button>
+                              </TooltipTrigger>
+                              <HelpTooltipContent>{t("rooms.delete")}</HelpTooltipContent>
+                            </Tooltip>
                           </>
                         )
                       }}

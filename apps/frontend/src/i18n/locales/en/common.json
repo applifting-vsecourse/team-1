@@ -8,6 +8,30 @@
     "organizer": "Organizer",
     "participant": "My application"
   },
+  "calendar": {
+    "back": "Back to day selection",
+    "boundaries": "The corners mark the start and end of the selection.",
+    "chooseDay": "Choose a day.",
+    "days": {
+      "next": "Next month",
+      "previous": "Previous month"
+    },
+    "emptyDay": "Choose a date.",
+    "emptyRange": "Select the start and end dates.",
+    "lastDay": "Now select the last day.",
+    "monthHint": "Choose a month. Your date selection is preserved.",
+    "months": {
+      "next": "Next year",
+      "previous": "Previous year"
+    },
+    "saveRange": "The range is set when you select the last day.",
+    "selectEnd": "{{date}} · now select the end.",
+    "yearHint": "Choose a year, then a month.",
+    "years": {
+      "next": "Next 12 years",
+      "previous": "Previous 12 years"
+    }
+  },
   "characterCounter": "{{count}} / {{max}}",
   "clipboard": {
     "copied": "Copied to the clipboard",

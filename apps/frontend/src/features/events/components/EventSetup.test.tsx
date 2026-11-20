@@ -121,6 +121,7 @@ describe("EventSetup", () => {
 
     expect(writeText).toHaveBeenCalledWith(link)
     expect(success).toHaveBeenCalledWith("Link copied to the clipboard")
+    expect(screen.getByText("The link is on the clipboard.")).toBeVisible()
   })
   it("shows the evaluation mode with a link to change it while it is open", async () => {
     renderSetup(base)

@@ -7,7 +7,10 @@ import { toTelHref } from "@/features/participant/lib/format"
 
 type OrganizationContactProps = { contact: OrganizationContactData }
 
-const linkClass = "w-fit p-1 text-link underline underline-offset-4"
+const linkClass =
+  "flex min-w-0 flex-col gap-2 rounded-md bg-action-subtle px-3 py-2 hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+const valueClass =
+  "flex min-h-11 items-center wrap-anywhere p-1 text-primary underline dark:text-link"
 
 /** Who to call or write to about the event: the organization, its e-mail and phone. A missing line is left out; with neither e-mail nor phone a note says the contact isn't published (D-092). */
 // Figma (Design system v2): US-121 / Kontakt organizace u přihlášky · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=19390-20928 (360 px: node-id=19390-21088)
@@ -16,36 +19,43 @@ export function OrganizationContact({ contact }: OrganizationContactProps) {
   const { t } = useTranslation("participant")
 
   return (
-    <Card className="gap-2 p-4">
-      <h2 className="text-2xl/8 font-bold tracking-tight">{t("contact.title")}</h2>
-      <div className="flex flex-col gap-3">
-        <p className="text-xl/7 font-bold tracking-tight">{contact.name}</p>
-        {!contact.email && !contact.phone ? (
-          <p className="text-sm text-muted-foreground">{t("contact.none")}</p>
-        ) : null}
-        {contact.email ? (
-          <div className="flex min-w-0 flex-col gap-1">
-            <span className="text-sm text-muted-foreground">{t("contact.email")}</span>
+    <Card className="@container gap-3 rounded-lg p-4 shadow-none">
+      <h2 className="text-2xl/8 font-bold">{t("contact.title")}</h2>
+      <p className="text-xl/7 font-bold">{contact.name}</p>
+      {!contact.email && !contact.phone ? (
+        <p className="text-sm text-muted-foreground">{t("contact.none")}</p>
+      ) : (
+        <div className="grid gap-3 @min-[34rem]:grid-cols-2">
+          {contact.email && (
             <a
-              className={`${linkClass} break-all`}
+              className={linkClass}
               href={`mailto:${contact.email}`}
             >
-              {contact.email}
+              <span
+                aria-hidden="true"
+                className="text-sm text-muted-foreground"
+              >
+                {t("contact.email")}
+              </span>
+              <span className={valueClass}>{contact.email}</span>
             </a>
-          </div>
-        ) : null}
-        {contact.phone ? (
-          <div className="flex min-w-0 flex-col gap-1">
-            <span className="text-sm text-muted-foreground">{t("contact.phone")}</span>
+          )}
+          {contact.phone && (
             <a
               className={linkClass}
               href={toTelHref(contact.phone)}
             >
-              {contact.phone}
+              <span
+                aria-hidden="true"
+                className="text-sm text-muted-foreground"
+              >
+                {t("contact.phone")}
+              </span>
+              <span className={valueClass}>{contact.phone}</span>
             </a>
-          </div>
-        ) : null}
-      </div>
+          )}
+        </div>
+      )}
     </Card>
   )
 }

@@ -28,6 +28,7 @@ export type PaymentOverviewTerm = {
 }
 
 export type PaymentOverviewEntry = {
+  applicationNumber: number
   variableSymbol: string
   summaryVariableSymbol: string
   payableCzk: number
@@ -88,6 +89,7 @@ export function paymentOverview(
     })
     return {
       applicationId: term.applicationId,
+      applicationNumber: term.applicationNumber,
       variableSymbol: variableSymbol(term.applicationNumber, term.termNumber),
       summaryVariableSymbol: variableSymbol(term.applicationNumber),
       payableCzk: computePayableAmount([amountOwedCzk]),

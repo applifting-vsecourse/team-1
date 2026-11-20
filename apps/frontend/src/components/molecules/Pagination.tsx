@@ -41,7 +41,7 @@ export function Pagination({ page, pageCount, pageSize, total, onPageChange }: P
           count: total,
         })}
       </span>
-      <div className="flex items-center gap-2 md:justify-center">
+      <div className="flex flex-wrap items-center gap-2 md:justify-center">
         <Button
           type="button"
           variant="ghost"
@@ -60,12 +60,22 @@ export function Pagination({ page, pageCount, pageSize, total, onPageChange }: P
             key={p}
             type="button"
             variant="ghost"
-            className={cn(control, "w-12 text-base", p === page && "font-semibold text-primary")}
+            className={cn(
+              control,
+              "relative w-10 px-0 text-base font-normal md:w-12",
+              p === page && "text-primary",
+            )}
             aria-label={t("pagination.page", { page: p + 1 })}
             aria-current={p === page ? "page" : undefined}
             onClick={() => onPageChange(p)}
           >
             {p + 1}
+            {p === page && (
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 bg-current mask-[url(@/assets/navigation/pagination-current-compact.svg)] mask-size-[100%_100%] md:mask-[url(@/assets/navigation/pagination-current.svg)]"
+              />
+            )}
           </Button>
         ))}
         <Button

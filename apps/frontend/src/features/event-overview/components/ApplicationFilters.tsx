@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { X } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { HelpTooltipContent } from "@/components/atoms/HelpTooltipContent"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import {
@@ -19,7 +20,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Tooltip, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 
 import type { ApplicationsSearch } from "@/features/event-overview/lib/applications-search"
@@ -298,7 +299,7 @@ function FilterFields({
               <TooltipTrigger asChild>
                 <span className="block">{select}</span>
               </TooltipTrigger>
-              <TooltipContent>{t("applications.statusLocked")}</TooltipContent>
+              <HelpTooltipContent isLong>{t("applications.statusLocked")}</HelpTooltipContent>
             </Tooltip>
             <span
               id={`${idPrefix}-filter-${option.key}-locked`}

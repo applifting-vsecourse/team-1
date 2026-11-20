@@ -669,6 +669,7 @@
       "PARTIALLY_PAID": "Částečně",
       "UNPAID": "Nezaplaceno"
     },
+    "symbol": "VS {{value}}",
     "term": "Termín",
     "title": "Platby",
     "toPay": "K úhradě",

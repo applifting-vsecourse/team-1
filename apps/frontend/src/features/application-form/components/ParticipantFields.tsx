@@ -192,6 +192,7 @@ export function ParticipantFields({ index, terms, onRemove, isDisabled }: Partic
               {terms.map((term) => {
                 const id = `participant-${index}-term-${term.id}`
                 const selected = field.value ?? []
+                const isSelected = selected.includes(term.id)
                 const isInvalid =
                   fieldState.invalid &&
                   (fieldState.error?.type !== "duplicate" ||
@@ -201,14 +202,17 @@ export function ParticipantFields({ index, terms, onRemove, isDisabled }: Partic
                     key={term.id}
                     htmlFor={id}
                     className={cn(
-                      "min-h-14 cursor-pointer gap-3 rounded-md border border-input bg-card px-4 py-3 text-base leading-6 transition-colors hover:bg-accent has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-accent has-[[data-state=checked]]:ring-1 has-[[data-state=checked]]:ring-primary",
-                      isInvalid && "border-destructive",
+                      "min-h-20 cursor-pointer gap-2 rounded-lg border border-border bg-card p-4 text-sm leading-5 transition-colors hover:bg-accent",
+                      isSelected && "border-2 border-primary bg-accent",
+                      isInvalid && "border-2 border-action-destructive",
+                      isDisabled && "cursor-default opacity-65",
                     )}
                   >
                     <Checkbox
                       id={id}
-                      className="size-5"
-                      checked={selected.includes(term.id)}
+                      className="size-6"
+                      disabled={isDisabled}
+                      checked={isSelected}
                       onCheckedChange={(isChecked) =>
                         field.onChange(
                           isChecked
@@ -220,8 +224,10 @@ export function ParticipantFields({ index, terms, onRemove, isDisabled }: Partic
                       aria-invalid={isInvalid}
                       aria-describedby={isInvalid ? termsMessageId : undefined}
                     />
-                    <span className="flex flex-1 flex-col">
-                      <span className="font-semibold">
+                    <span className="flex min-w-0 flex-1 flex-col gap-1">
+                      <span
+                        className={cn("font-medium", isSelected && "text-primary dark:text-link")}
+                      >
                         {formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })}
                       </span>
                       {termName(term) ? (
@@ -233,7 +239,7 @@ export function ParticipantFields({ index, terms, onRemove, isDisabled }: Partic
                     </span>
                     <span className="sr-only"> · </span>
                     <TermPrice
-                      className="font-bold"
+                      className="font-medium"
                       amountCzk={term.priceCzk}
                     />
                   </Label>

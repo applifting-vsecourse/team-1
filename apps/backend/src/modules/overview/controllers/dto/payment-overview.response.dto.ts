@@ -6,6 +6,7 @@ class PaymentOverviewEntryDto {
   @ApiProperty() summaryVariableSymbol!: string
   @ApiProperty() payableCzk!: number
   @ApiProperty() applicationId!: string
+  @ApiProperty() applicationNumber!: number
   @ApiProperty() firstName!: string
   @ApiProperty() lastName!: string
   @ApiProperty() termId!: string

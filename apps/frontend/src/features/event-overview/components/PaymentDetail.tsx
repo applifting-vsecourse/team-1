@@ -205,7 +205,7 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
               term.status === "WAITLISTED" && term.paidCzk === 0 ? null : term.refundableCzk > 0 ? (
                 <Button
                   size="lg"
-                  className="w-full"
+                  className="min-h-12 w-full"
                   onClick={() => setEditor({ term, type: "refund" })}
                 >
                   {t("payment.returnOverpayment")}
@@ -213,7 +213,7 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
               ) : (
                 <Button
                   size="lg"
-                  className="w-full"
+                  className="min-h-12 w-full"
                   onClick={() => setEditor({ term, type: "payment" })}
                 >
                   {t("payment.recordForTerm")}
