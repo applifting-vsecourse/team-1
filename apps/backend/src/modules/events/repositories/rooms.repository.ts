@@ -1,6 +1,7 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { Prisma } from "@/generated/prisma/client"
 import { computeRoomBeds } from "@/modules/applications/domain/capacity"
+import { ROOM_CAPACITY_SELECT } from "@/modules/applications/repositories/room-capacity.select"
 import { BulkRoomsPlan, BulkRoomsResult, planBulkRooms } from "@/modules/events/domain/bulk-rooms"
 import {
   RoomCopyStrategy,
@@ -24,7 +25,11 @@ export class RoomsRepository {
       where: { id: termId, eventId, organizationId },
       include: {
         event: { select: { name: true, organization: { select: { name: true } } } },
-        rooms: { orderBy: [{ createdAt: "asc" }, { id: "asc" }] },
+        rooms: {
+          orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+          // Who sleeps in an individual room counts into the capacity by gender (US-145).
+          include: { assignments: ROOM_CAPACITY_SELECT.assignments },
+        },
       },
     })
     if (!term) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
@@ -38,15 +43,18 @@ export class RoomsRepository {
       endsOn: term.endsOn.toISOString().slice(0, 10),
       roomMode: term.roomMode,
       roomsPublished: term.roomsPublishedAt !== null,
-      rooms: term.rooms.map(({ id, name, capacity, extraBeds, gender, individual }) => ({
-        id,
-        name,
-        capacity,
-        extraBeds,
-        beds: computeRoomBeds({ capacity, extraBeds }),
-        gender,
-        individual,
-      })),
+      rooms: term.rooms.map(
+        ({ id, name, capacity, extraBeds, gender, individual, assignments }) => ({
+          id,
+          name,
+          capacity,
+          extraBeds,
+          beds: computeRoomBeds({ capacity, extraBeds }),
+          gender,
+          individual,
+          assignments,
+        }),
+      ),
     }
   }
 

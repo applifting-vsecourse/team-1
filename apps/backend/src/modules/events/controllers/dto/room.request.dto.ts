@@ -45,7 +45,7 @@ export class RoomRequestDto {
     required: false,
     default: false,
     description:
-      "Individual (mixed, family) room of a gendered term (US-145): no gender, outside the capacity, no mixed-gender warning",
+      "Individual (mixed, family) room of a gendered term (US-145): no gender, counted into the capacity by occupancy, no mixed-gender warning",
   })
   @IsOptional()
   @IsBoolean()

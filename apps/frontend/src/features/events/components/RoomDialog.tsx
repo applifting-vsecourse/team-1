@@ -176,6 +176,30 @@ export function RoomDialog({
                   </FormItem>
                 )}
               />
+              {term.roomMode === "GENDERED" ? (
+                <FormField
+                  control={form.control}
+                  name="isIndividual"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="flex items-center gap-2">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={(checked) => {
+                              field.onChange(checked === true)
+                            }}
+                          />
+                        </FormControl>
+                        <FormLabel className="leading-snug">{t("rooms.individualLabel")}</FormLabel>
+                      </div>
+                      <FormDescription className="text-xs">
+                        {t("rooms.individualHint")}
+                      </FormDescription>
+                    </FormItem>
+                  )}
+                />
+              ) : null}
               {term.roomMode === "GENDERED" && !isIndividual ? (
                 <FormField
                   control={form.control}
@@ -204,30 +228,6 @@ export function RoomDialog({
                       </Select>
                       <FormDescription className="text-xs">{t("rooms.genderHint")}</FormDescription>
                       <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              ) : null}
-              {term.roomMode === "GENDERED" ? (
-                <FormField
-                  control={form.control}
-                  name="isIndividual"
-                  render={({ field }) => (
-                    <FormItem>
-                      <div className="flex items-center gap-2">
-                        <FormControl>
-                          <Checkbox
-                            checked={field.value}
-                            onCheckedChange={(checked) => {
-                              field.onChange(checked === true)
-                            }}
-                          />
-                        </FormControl>
-                        <FormLabel className="leading-snug">{t("rooms.individualLabel")}</FormLabel>
-                      </div>
-                      <FormDescription className="text-xs">
-                        {t("rooms.individualHint")}
-                      </FormDescription>
                     </FormItem>
                   )}
                 />

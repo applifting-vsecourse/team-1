@@ -121,8 +121,8 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllGlobals())
 
 describe("RoomsOverview (US-36)", () => {
-  // US-145: like the participants with an individual request (US-38), an individual room stays out.
-  it("leaves out an individual room, its people and its beds", async () => {
+  // US-145: the organizer sees where everybody sleeps, the individual room is marked.
+  it("shows an individual room with its people and a label instead of a gender", async () => {
     data.rooms.push(
       room(
         "r3",
@@ -135,13 +135,12 @@ describe("RoomsOverview (US-36)", () => {
       ),
     )
     renderOverview()
-    await roomCard("Room A")
-    expect(screen.queryByText("Family room")).not.toBeInTheDocument()
-    expect(screen.queryByText("Petra Rodinná")).not.toBeInTheDocument()
-    expect(screen.queryByText("Pavel Rodinný")).not.toBeInTheDocument()
-    // Two rooms and their 4 + 3 beds, as without the individual one.
-    expect(within(summaryList()).getAllByText("2")[0]).toBeInTheDocument()
-    expect(within(summaryList()).queryByText("11")).not.toBeInTheDocument()
+    const family = within(await roomCard("Family room"))
+    expect(family.getByText("Petra Rodinná")).toBeInTheDocument()
+    expect(family.getByText("Pavel Rodinný")).toBeInTheDocument()
+    expect(family.getByText("2 / 4")).toBeInTheDocument()
+    expect(family.getByText("Individual")).toBeInTheDocument()
+    expect(family.queryByText("Mixed")).not.toBeInTheDocument()
   })
 
   it("lists every room with its people, birth years, free beds and extra beds (AC1, AC2)", async () => {

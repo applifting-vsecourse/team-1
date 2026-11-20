@@ -400,7 +400,7 @@ model Room {
   extraBeds      Int          @default(0)
   gender         Gender?
   // Individual (mixed, family) room of a gendered term (US-145): has no gender, its beds are outside
-  // the capacity of both genders and it never warns about mixed genders.
+  // the capacity of a gender by occupancy and it never warns about mixed genders.
   individual     Boolean      @default(false)
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @default(now()) @updatedAt

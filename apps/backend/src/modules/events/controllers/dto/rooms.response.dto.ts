@@ -9,14 +9,19 @@ class RoomResponseDto {
   @ApiProperty({ description: "Extra beds (přistýlky), each one more bed" }) extraBeds!: number
   @ApiProperty({ description: "All beds of the room: capacity plus extra beds" }) beds!: number
   @ApiProperty({ enum: ["FEMALE", "MALE"], nullable: true }) gender!: Gender | null
-  @ApiProperty({ description: "Individual (mixed, family) room, outside the capacity (US-145)" })
+  @ApiProperty({
+    description: "Individual (mixed, family) room, counted into the capacity by occupancy (US-145)",
+  })
   individual!: boolean
 }
 class RoomCapacityDto {
   @ApiProperty() FEMALE!: number
   @ApiProperty() MALE!: number
   @ApiProperty() total!: number
-  @ApiProperty({ description: "Beds in individual rooms, not part of the capacity above (US-145)" })
+  @ApiProperty({
+    description:
+      "All beds in individual rooms; only the occupied ones are in the capacity above (US-145)",
+  })
   individualBeds!: number
 }
 export class RoomsResponseDto {
@@ -34,6 +39,16 @@ export class RoomsResponseDto {
   @ApiProperty({ type: RoomCapacityDto }) capacity!: RoomCapacityDto
 
   static fromDomain(term: TermRooms): RoomsResponseDto {
-    return Object.assign(new RoomsResponseDto(), term)
+    // The occupants of individual rooms only feed the capacity; they stay out of the response.
+    const rooms = term.rooms.map(({ id, name, capacity, extraBeds, beds, gender, individual }) => ({
+      id,
+      name,
+      capacity,
+      extraBeds,
+      beds,
+      gender,
+      individual,
+    }))
+    return Object.assign(new RoomsResponseDto(), { ...term, rooms })
   }
 }

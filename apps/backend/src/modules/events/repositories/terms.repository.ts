@@ -2,13 +2,14 @@ import { PrismaService } from "@/core/prisma/prisma.service"
 import { Prisma } from "@/generated/prisma/client"
 import { computeTotalBeds } from "@/modules/applications/domain/capacity"
 import { MAX_TERM_NUMBER } from "@/modules/applications/domain/variable-symbol"
+import { ROOM_CAPACITY_SELECT } from "@/modules/applications/repositories/room-capacity.select"
 import { EventTerm, TermInput } from "@/modules/events/domain/event-term"
 import { AppException } from "@/shared/errors/app.exception"
 import { HttpStatus, Injectable } from "@nestjs/common"
 
 const include = {
   applicationTerms: { select: { status: true } },
-  rooms: { select: { capacity: true, extraBeds: true, gender: true, individual: true } },
+  rooms: { select: ROOM_CAPACITY_SELECT },
 } as const
 
 type TermRow = Prisma.TermGetPayload<{ include: typeof include }>

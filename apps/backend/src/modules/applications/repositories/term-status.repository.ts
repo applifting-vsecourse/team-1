@@ -49,6 +49,7 @@ import {
   TermStatusDetail,
 } from "@/modules/applications/domain/term-status"
 import { bedGroup, WaitlistCandidate } from "@/modules/applications/domain/waitlist"
+import { ROOM_CAPACITY_SELECT } from "@/modules/applications/repositories/room-capacity.select"
 import { buildNotification, isoDay } from "@/modules/notifications/domain/notification"
 import { NotificationsRepository } from "@/modules/notifications/repositories/notifications.repository"
 import { resolveChangeEmailLocale } from "@/modules/participants/domain/change-email-locale"
@@ -158,7 +159,7 @@ export class TermStatusRepository {
                 endsOn: true,
                 priceCzk: true,
                 rooms: {
-                  select: { capacity: true, extraBeds: true, gender: true, individual: true },
+                  select: ROOM_CAPACITY_SELECT,
                 },
                 applicationTerms: {
                   where: { status: "CONFIRMED" },
@@ -286,7 +287,7 @@ export class TermStatusRepository {
       select: {
         id: true,
         priceCzk: true,
-        rooms: { select: { capacity: true, extraBeds: true, gender: true, individual: true } },
+        rooms: { select: ROOM_CAPACITY_SELECT },
       },
     })
     if (offered.length !== addedIds.length || offered.some((term) => term.rooms.length === 0)) {
@@ -580,13 +581,7 @@ export class TermStatusRepository {
         const [rooms, confirmed] = await Promise.all([
           tx.room.findMany({
             where: { organizationId: application.organizationId, termId: { in: addedIds } },
-            select: {
-              termId: true,
-              capacity: true,
-              extraBeds: true,
-              gender: true,
-              individual: true,
-            },
+            select: { termId: true, ...ROOM_CAPACITY_SELECT },
           }),
           tx.applicationTerm.findMany({
             where: {
@@ -900,7 +895,7 @@ export class TermStatusRepository {
       const [rooms, confirmed] = await Promise.all([
         tx.room.findMany({
           where: { termId: command.termId },
-          select: { capacity: true, extraBeds: true, gender: true, individual: true },
+          select: ROOM_CAPACITY_SELECT,
         }),
         tx.applicationTerm.findMany({
           where: {

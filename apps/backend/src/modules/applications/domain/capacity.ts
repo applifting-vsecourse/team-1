@@ -6,15 +6,29 @@ export type RoomCapacity = {
   extraBeds: number
   gender: Gender | null
   /**
-   * Individual (mixed, family) room (US-145): has no gender and sits outside the capacity of the
-   * term. Its beds are filled by assigning already confirmed participants (D-111), never by evaluation.
+   * Individual (mixed, family) room (US-145): has no gender, so its beds count into the capacity
+   * of a gender by occupancy, one for each confirmed participant of that gender who sleeps there.
    */
   individual?: boolean
+  /**
+   * Confirmed participants assigned to the room, as the database returns them; read only for
+   * individual rooms (see `ROOM_CAPACITY_SELECT`).
+   */
+  assignments?: { applicationTerm: { application: { gender: Gender } } }[]
 }
 
-/** The rooms that make up the capacity of a term: all but the individual ones (US-145). */
-function capacityRooms(rooms: RoomCapacity[]): RoomCapacity[] {
+/** The rooms with a say in the mode and in the capacity by gender: all but the individual ones. */
+function regularRooms(rooms: RoomCapacity[]): RoomCapacity[] {
   return rooms.filter((room) => !room.individual)
+}
+
+/** Genders of the confirmed participants sleeping in individual rooms (US-145, variant b). */
+function individualOccupants(rooms: RoomCapacity[]): Gender[] {
+  return rooms
+    .filter((room) => room.individual)
+    .flatMap((room) =>
+      (room.assignments ?? []).map((row) => row.applicationTerm.application.gender),
+    )
 }
 
 /**
@@ -22,10 +36,10 @@ function capacityRooms(rooms: RoomCapacity[]): RoomCapacity[] {
  * none in either mode, so they never decide it; the only place that tells the two apart by rooms.
  */
 export function hasSharedRooms(rooms: RoomCapacity[]): boolean {
-  return capacityRooms(rooms).some((room) => room.gender === null)
+  return regularRooms(rooms).some((room) => room.gender === null)
 }
 
-/** Beds in individual rooms: shown next to the capacity, never part of it. */
+/** All beds of individual rooms; only the occupied ones are in the capacity (`individualOccupants`). */
 export function computeIndividualBeds(rooms: RoomCapacity[]): number {
   return rooms
     .filter((room) => room.individual)
@@ -47,14 +61,15 @@ export function computeFreeRoomBeds(
 
 /**
  * Capacity of a term (US-26): women = beds in women's rooms, men = beds in
- * men's rooms; individual rooms (US-145) count for neither. Rooms belong to one term (US-99), so every term has its own
+ * men's rooms, plus the confirmed people who sleep in individual rooms (US-145, by their gender). Rooms belong to one term (US-99), so every term has its own
  * capacity; the shared mode has one common pool instead (`computeRoomCapacity`).
  */
 export function computeTermCapacity(rooms: RoomCapacity[]): GenderCounts {
   const capacity = emptyGenderCounts()
-  for (const room of capacityRooms(rooms)) {
+  for (const room of regularRooms(rooms)) {
     if (room.gender !== null) capacity[room.gender] += computeRoomBeds(room)
   }
+  for (const gender of individualOccupants(rooms)) capacity[gender] += 1
   return capacity
 }
 
@@ -84,7 +99,9 @@ export function computeFreePlaces(capacity: GenderCounts, confirmed: GenderCount
 export function computeRoomCapacity(rooms: RoomCapacity[]): GenderCounts & { total: number } {
   return {
     ...computeTermCapacity(rooms),
-    total: capacityRooms(rooms).reduce((sum, room) => sum + computeRoomBeds(room), 0),
+    total:
+      regularRooms(rooms).reduce((sum, room) => sum + computeRoomBeds(room), 0) +
+      individualOccupants(rooms).length,
   }
 }
 

@@ -5,7 +5,7 @@ export type RoomMode = "GENDERED" | "SHARED"
 /** `beds` = `capacity` + `extraBeds`, computed by `computeRoomBeds`; clients only display it. */
 export type Room = RoomCapacity & { id: string; name: string; beds: number; individual: boolean }
 /** What the organizer edits in a room; extra beds have their own action. */
-export type RoomInput = Omit<Room, "id" | "extraBeds" | "beds" | "individual"> & {
+export type RoomInput = Omit<Room, "id" | "extraBeds" | "beds" | "individual" | "assignments"> & {
   /** Individual (mixed, family) room (US-145); false when left out. */
   individual?: boolean
 }

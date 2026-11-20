@@ -1,4 +1,5 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
+import { ROOM_CAPACITY_SELECT } from "@/modules/applications/repositories/room-capacity.select"
 import { ListedApplication } from "@/modules/overview/domain/application-list"
 import { Injectable } from "@nestjs/common"
 
@@ -25,7 +26,7 @@ export class ApplicationListRepository {
             term: {
               include: {
                 rooms: {
-                  select: { capacity: true, extraBeds: true, gender: true, individual: true },
+                  select: ROOM_CAPACITY_SELECT,
                 },
               },
             },

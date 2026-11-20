@@ -107,7 +107,7 @@ describe("individual rooms (integration)", () => {
     await prisma.$disconnect()
   })
 
-  it("creates an individual room without a gender, outside the capacity", async () => {
+  it("creates an individual room without a gender; empty, it adds nothing to the capacity", async () => {
     const created = await call(`${termId}/rooms`, "POST", {
       name: "Rodinný",
       capacity: 4,
@@ -117,6 +117,7 @@ describe("individual rooms (integration)", () => {
     const listing = await rooms()
     const room = listing.rooms.find((item) => item.name === "Rodinný")
     expect(room).toMatchObject({ gender: null, individual: true, beds: 4 })
+    expect(room).not.toHaveProperty("assignments")
     expect(listing.capacity).toEqual({ FEMALE: 1, MALE: 1, total: 2, individualBeds: 4 })
   })
 
@@ -137,7 +138,7 @@ describe("individual rooms (integration)", () => {
     expect((await rooms(sharedTermId)).rooms).toEqual([])
   })
 
-  it("leaves the free places of both genders as they were", async () => {
+  it("changes no free places while the individual room is empty", async () => {
     expect(await freePlaces()).toMatchObject({
       capacity: { FEMALE: 1, MALE: 1 },
       freePlaces: { FEMALE: 1, MALE: 1 },
@@ -155,6 +156,12 @@ describe("individual rooms (integration)", () => {
       expect(response.status).toBe(204)
     }
     expect((await warnings()).warnings).toEqual([])
+    // Their beds count into the capacity of their gender, so they take no regular place (variant b).
+    expect((await rooms()).capacity).toEqual({ FEMALE: 2, MALE: 2, total: 4, individualBeds: 4 })
+    expect(await freePlaces()).toMatchObject({
+      capacity: { FEMALE: 2, MALE: 2 },
+      freePlaces: { FEMALE: 1, MALE: 1 },
+    })
 
     await prisma.room.update({ where: { id: individual.id }, data: { capacity: 1 } })
     const overfilled = await warnings()

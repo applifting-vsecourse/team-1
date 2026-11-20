@@ -37,10 +37,8 @@ export function DeleteRoomDialog({
       onClose()
     },
   })
-  // An individual room (US-145) is outside the capacity: removing it changes nothing there.
   const before =
     term.roomMode === "GENDERED" && room.gender ? term.capacity[room.gender] : term.capacity.total
-  const lostBeds = room.individual ? 0 : room.beds
   return (
     <Dialog
       open
@@ -58,12 +56,15 @@ export function DeleteRoomDialog({
         <Alert className="border-status-warning bg-status-warning-bg p-6">
           <AlertTitle className="text-lg text-status-warning">
             {t(
-              term.roomMode === "SHARED" || room.individual
-                ? "rooms.deleteImpact"
-                : room.gender === "FEMALE"
-                  ? "rooms.deleteFemaleImpact"
-                  : "rooms.deleteMaleImpact",
-              { before, count: before - lostBeds },
+              // The beds of an individual room (US-145) are in the capacity only while occupied.
+              room.individual
+                ? "rooms.deleteIndividualImpact"
+                : term.roomMode === "SHARED"
+                  ? "rooms.deleteImpact"
+                  : room.gender === "FEMALE"
+                    ? "rooms.deleteFemaleImpact"
+                    : "rooms.deleteMaleImpact",
+              { before, count: before - room.beds },
             )}
           </AlertTitle>
           <AlertDescription>

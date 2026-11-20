@@ -15,8 +15,17 @@ function renderDialog(
   gender: Room["gender"],
   before: number,
   beds: number,
+  isIndividual = false,
 ) {
-  const room: Room = { id: "r1", name: "Room 1", capacity: beds, extraBeds: 0, beds, gender }
+  const room: Room = {
+    id: "r1",
+    name: "Room 1",
+    capacity: beds,
+    extraBeds: 0,
+    beds,
+    gender,
+    individual: isIndividual,
+  }
   const term: TermRooms = {
     eventId: "e1",
     eventName: "Summer camp",
@@ -114,5 +123,15 @@ describe("DeleteRoomDialog capacity impact", () => {
     expect(
       screen.getByText(`Room 1 má ${beds} ${cs}. Smazání přepočítá kapacitu pouze tohoto termínu.`),
     ).toBeVisible()
+  })
+
+  // US-145: the beds of an individual room are in the capacity only while occupied.
+  it("says that the occupied beds of an individual room leave the capacity", () => {
+    renderDialog("GENDERED", null, 10, 4, true)
+    expect(
+      screen.getByText(
+        "The occupied beds of this room leave the capacity and its participants are left without a bed.",
+      ),
+    ).toBeInTheDocument()
   })
 })
