@@ -1,6 +1,7 @@
 import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
 type PaginationProps = {
@@ -14,8 +15,7 @@ type PaginationProps = {
 /** At most this many page numbers are shown; the window slides with the current page. */
 const VISIBLE_PAGES = 5
 
-const control =
-  "inline-flex h-11 shrink-0 items-center justify-center rounded-control outline-none transition-colors focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-ring disabled:pointer-events-none disabled:opacity-45"
+const control = "h-11 shrink-0 hover:bg-transparent hover:text-primary"
 
 // Figma (Design system v2): Togena / Navigation / Pagination · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15270-7342
 /** Range, arrows and page numbers; renders nothing when everything fits on one page. */
@@ -42,9 +42,10 @@ export function Pagination({ page, pageCount, pageSize, total, onPageChange }: P
         })}
       </span>
       <div className="flex items-center gap-2 md:justify-center">
-        <button
+        <Button
           type="button"
-          className={cn(control, "w-10 hover:text-primary")}
+          variant="ghost"
+          className={cn(control, "w-10 [&_svg]:size-6")}
           aria-label={t("pagination.previous")}
           disabled={page === 0}
           onClick={() => onPageChange(page - 1)}
@@ -53,26 +54,24 @@ export function Pagination({ page, pageCount, pageSize, total, onPageChange }: P
             aria-hidden="true"
             className="size-6"
           />
-        </button>
+        </Button>
         {pages.map((p) => (
-          <button
+          <Button
             key={p}
             type="button"
-            className={cn(
-              control,
-              "w-12 text-base hover:text-primary",
-              p === page && "font-semibold text-primary",
-            )}
+            variant="ghost"
+            className={cn(control, "w-12 text-base", p === page && "font-semibold text-primary")}
             aria-label={t("pagination.page", { page: p + 1 })}
             aria-current={p === page ? "page" : undefined}
             onClick={() => onPageChange(p)}
           >
             {p + 1}
-          </button>
+          </Button>
         ))}
-        <button
+        <Button
           type="button"
-          className={cn(control, "w-10 hover:text-primary")}
+          variant="ghost"
+          className={cn(control, "w-10 [&_svg]:size-6")}
           aria-label={t("pagination.next")}
           disabled={page + 1 === pageCount}
           onClick={() => onPageChange(page + 1)}
@@ -81,7 +80,7 @@ export function Pagination({ page, pageCount, pageSize, total, onPageChange }: P
             aria-hidden="true"
             className="size-6"
           />
-        </button>
+        </Button>
       </div>
     </nav>
   )
