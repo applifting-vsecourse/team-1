@@ -73,7 +73,7 @@ export function Pagination({ page, pageCount, pageSize, total, onPageChange }: P
             {p === page && (
               <span
                 aria-hidden="true"
-                className="pointer-events-none absolute inset-0 bg-current mask-[url(@/assets/navigation/pagination-current-compact.svg)] mask-size-[100%_100%] md:mask-[url(@/assets/navigation/pagination-current.svg)]"
+                className="pointer-events-none absolute inset-0 pagination-current-marker bg-current mask-size-[100%_100%]"
               />
             )}
           </Button>

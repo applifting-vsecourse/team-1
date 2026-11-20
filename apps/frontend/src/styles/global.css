@@ -753,3 +753,13 @@
   min-height: 2.75rem;
   padding-inline-end: 3.75rem;
 }
+
+.pagination-current-marker {
+  mask-image: url("../assets/navigation/pagination-current-compact.svg");
+}
+
+@media (min-width: 48rem) {
+  .pagination-current-marker {
+    mask-image: url("../assets/navigation/pagination-current.svg");
+  }
+}
