@@ -51,10 +51,12 @@ import { ImpactFigure } from "@/features/event-overview/components/ImpactFigure"
 export function OrganizerTermChange({
   applicationId,
   term,
+  triggerClassName,
 }: {
   applicationId: string
   /** The term of the application that is swapped for another one. */
   term: TermStatusDetail
+  triggerClassName?: string
 }) {
   const { t } = useTranslation("eventOverview")
   const client = useQueryClient()
@@ -123,7 +125,10 @@ export function OrganizerTermChange({
     <>
       <Button
         variant="secondary"
-        className="transition-colors hover:bg-accent hover:text-accent-foreground"
+        className={cn(
+          "transition-colors hover:bg-accent hover:text-accent-foreground",
+          triggerClassName,
+        )}
         onClick={() => {
           setNextId("")
           setIsOpen(true)

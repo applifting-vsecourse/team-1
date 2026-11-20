@@ -817,7 +817,8 @@
       "WAITLISTED": "Náhradník"
     },
     "system": "Systém",
-    "title": "Stav v termínech"
+    "title": "Stav v termínech",
+    "waitlistPosition": "{{position}}. v pořadníku"
   },
   "withdrawal": {
     "back": "Zpět",

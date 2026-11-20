@@ -46,6 +46,7 @@ const savedTerm: TermStatusDetail = {
   allowedStatuses: [],
   history: [],
   substituteRecords: [],
+  waitlistPosition: null,
 }
 
 async function fillForm(

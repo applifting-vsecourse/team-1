@@ -17,6 +17,7 @@ const termStatusSchema = z.object({
   endsOn: z.string(),
   status: statusSchema,
   priceCzk: z.number().int(),
+  waitlistPosition: z.number().int().positive().nullable().default(null),
   /** Statuses the organizer may set now, decided by the server. */
   allowedStatuses: z.array(targetSchema),
   history: z.array(
