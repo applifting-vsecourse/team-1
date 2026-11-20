@@ -472,17 +472,15 @@ export function RoomsPage({
               (room) => room.name === addedName && !previousIds.has(room.id),
             )
             if (current?.roomMode !== "GENDERED" || !added?.gender) return
-            const gain = current.capacity[added.gender] - term.capacity[added.gender]
-            if (gain === added.beds && current.capacity.total - term.capacity.total === gain) {
-              client.setQueryData<RoomCapacityIncrease>(
-                roomCapacityIncreaseKey(eventId, term.termId),
-                {
-                  gender: added.gender,
-                  addedBeds: gain,
-                  capacity: current.capacity,
-                },
-              )
-            }
+            // The banner shows the new room's beds and the capacity the server returned; nothing is derived here.
+            client.setQueryData<RoomCapacityIncrease>(
+              roomCapacityIncreaseKey(eventId, term.termId),
+              {
+                gender: added.gender,
+                addedBeds: added.beds,
+                capacity: current.capacity,
+              },
+            )
           }}
           onDelete={(room) => {
             setEditor(null)

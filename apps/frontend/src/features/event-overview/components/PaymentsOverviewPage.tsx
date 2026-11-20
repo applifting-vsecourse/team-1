@@ -476,7 +476,9 @@ function PaymentOverviewRow({ entry, eventId }: { entry: PaymentOverviewEntry; e
               })
             : t("paymentsOverview.remindersLine", { count: entry.reminderCount })}
         </span>
-        <span className="md:hidden">VS {entry.variableSymbol}</span>
+        <span className="md:hidden">
+          {t("termPayment.variableSymbol", { ns: "common" })} {entry.variableSymbol}
+        </span>
       </TableCell>
       <TableCell className="p-0 md:px-4 md:py-2">
         <Button
