@@ -3,38 +3,43 @@
     "account": {
       "existingAccount": "You already have an account for {{email}}. We attached the application to it and sent a sign-in link in the e-mail. We do not send a new password.",
       "existingAccountAction": "Sign in to the application",
-      "newAccount": "We created a participant account for {{email}}. The confirmation e-mail contains a sign-in link. After opening it for the first time, you set your own password. The link is valid for 7 days.",
+      "firstAccessText": "Open the link from the e-mail and set your password. The link is valid for 7 days.",
+      "firstAccessTitle": "First access to your account",
+      "newAccount": "We created an account for you automatically. You will find the link for your first access in the e-mail. You could submit the application without registering.",
       "newAccountAction": "Go to sign in",
+      "noEmail": "No e-mail? Check your spam and bulk mail folders too.",
       "setPassword": "Set password",
-      "title": "We sent the confirmation by e-mail",
+      "title": "How to get back to your application",
       "viewApplication": "View application",
       "viewApplications": "View applications"
     },
+    "applicationCode": "Application no. {{code}}",
     "doNotPayYet": "Do not pay yet",
-    "intro": "The application for {{names}} has been submitted. You can see the status of each selected term below.",
-    "introOneTerm": "The application for {{names}} has been submitted. You can see the status of the selected term below.",
     "payment": {
       "account": "Organization bank account",
-      "onlyConfirmed": "Pay only for the confirmed terms. Do not pay for a term where you are waitlisted yet.",
+      "note": "Pay the amount for the confirmed terms under the variable symbol shown.",
       "payEachItem": "{{name}} {{amount}} / VS {{variableSymbol}}",
       "payEachSeparately": "Pay each application separately: {{list}}.",
-      "title": "To pay for the confirmed terms",
+      "title": "Payment for the confirmed terms",
+      "total": "Total to pay",
       "variableSymbol": "Variable symbol",
       "variableSymbolOf": "{{name}} · {{amount}} · variable symbol"
     },
+    "pricePerConfirmedTerm": "{{price}} for the confirmed term",
+    "sentTo": "We sent the confirmation and the status of the terms to {{email}}.",
     "status": {
       "archived": "Archived",
       "cancelled": "Cancelled",
-      "confirmed": "Confirmed",
+      "confirmed": "Participation confirmed",
       "toEvaluate": "Awaiting evaluation",
       "waitlisted": "Waitlisted"
     },
-    "termsHeading": "Status of the selected terms",
+    "subtitleToEvaluate": "{{event}} · participation not confirmed yet",
     "title": "We've received your application",
     "toEvaluate": {
-      "alertText": "You will get the payment details once your participation is confirmed.",
-      "alertTitle": "Don't pay yet.",
-      "note": "The organizer will review the application in each term separately. It is not a confirmed place or a waitlist spot yet."
+      "alertText": "The organizer will review each term separately. You will get the result by e-mail and find it under My applications. Don't pay anything yet.",
+      "alertTitle": "What happens next",
+      "note": "The organizer will decide on participation in this term."
     },
     "waitlist": {
       "description": "You are waitlisted in all the selected terms. You will get the payment details once a place is confirmed.",
@@ -45,7 +50,6 @@
     "accommodationRequest": "Note for the organizer",
     "addParticipant": "Add another participant",
     "birthDate": "Date of birth *",
-    "birthDateHint": "Type a date or choose from the calendar. E.g. 25/10/1990.",
     "clear": "Clear",
     "clearCancel": "Keep it",
     "clearConfirm": "Clear the form",
@@ -55,13 +59,20 @@
     "contactHeading": "Contact for the whole application",
     "email": "Contact e-mail *",
     "emailHint": "We will send confirmation and access to the applications to this e-mail.",
+    "errorSummary": {
+      "description": "Correct the marked fields. Details are shown next to each field.",
+      "goToFirst": "Go to the first error",
+      "title_few": "Correct {{count}} errors in the form",
+      "title_one": "Correct {{count}} error in the form",
+      "title_other": "Correct {{count}} errors in the form"
+    },
     "errors": {
       "accommodationRequestTooLong": "The note can have at most 2,000 characters.",
       "birthDateInvalid": "Enter a valid date of birth.",
-      "consentRequired": "Consent to the processing of personal data is required to submit.",
-      "dateFormat": "Enter the date as DD/MM/YYYY.",
+      "consentRequired": "Confirm your consent before submitting.",
+      "dateFormat": "Enter the date as DD/MM/YYYY, e.g. 04/05/2011.",
       "duplicateTerm": "This participant is already registered for {{term}}.",
-      "emailInvalid": "Enter a valid e-mail address.",
+      "emailInvalid": "Enter a valid e-mail.",
       "firstNameRequired": "Enter the first name.",
       "genderRequired": "Choose Woman or Man.",
       "lastNameRequired": "Enter the last name.",
@@ -70,7 +81,7 @@
     "firstName": "First name *",
     "gender": "Gender for room allocation *",
     "genderFemale": "Woman",
-    "genderHint": "We ask about gender to allocate rooms and bed capacity. The organizer will see your answer and use it to arrange accommodation.",
+    "genderHint": "The organizer will see your answer and use it only to allocate rooms and calculate bed capacity.",
     "genderMale": "Man",
     "genderPlaceholder": "Select gender",
     "heading": "Application for {{event}}",
@@ -85,7 +96,7 @@
     "submit": "Submit application",
     "submitting": "Submitting…",
     "submittingHint": "We're submitting your application. Please wait for the confirmation.",
-    "terms": "Choose terms (at least one) *",
+    "terms": "Choose at least one term *",
     "title": "Application"
   },
   "notFound": {
@@ -108,6 +119,7 @@
   "review": {
     "accommodation": "Accommodation",
     "agreed": "Consent confirmed",
+    "backToEditing": "Back to editing",
     "birthGender": "Date of birth and gender",
     "consent": "Consent",
     "contact": "Applicant contact",

@@ -1,6 +1,5 @@
 {
   "event": {
-    "about": "O akci",
     "applicationHint": "Přihlášku vyplníte bez registrace. Můžete přihlásit více účastníků a každému vybrat termíny.",
     "applicationHintTwo": "Přihlášku vyplníte bez registrace. Můžete přihlásit více účastníků a každému vybrat jeden nebo oba termíny.",
     "apply": "Podat přihlášku",
@@ -8,14 +7,13 @@
     "call": "Zavolat",
     "contact": "Kontakt organizace",
     "copyLink": "Zkopírovat odkaz",
-    "perPerson": "/ osoba",
     "priceNote": "Uvedené ceny jsou za jednoho účastníka.",
     "terms": "Termíny a ceny",
     "write": "Napsat e-mail"
   },
   "list": {
     "allOrganizations": "Všechny organizace",
-    "backHome": "Domů",
+    "backHome": "Zpět na úvod",
     "badgeOpen": "Přihlašování otevřené",
     "badgePublished": "Publikováno",
     "description": "Najděte organizaci a její zveřejněné akce na jednom místě.",
@@ -26,7 +24,7 @@
     "eventCount_few": "{{count}} akce",
     "eventCount_one": "{{count}} akce",
     "eventCount_other": "{{count}} akcí",
-    "loading": "Načítám…",
+    "loading": "Načítám akce…",
     "organization": "Organizace",
     "retry": "Zkusit znovu",
     "summaryFrom_few": "{{count}} termíny · od {{price}}",

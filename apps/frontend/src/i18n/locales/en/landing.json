@@ -38,7 +38,6 @@
     "participants": "For participants"
   },
   "organizerCta": "I'm an organizer",
-  "participantCta": "I'm a participant",
   "participants": {
     "body": "Applicants pick one or more terms from the link and see the status of each one after submitting.",
     "title": "Participants apply from a link, without signing up"

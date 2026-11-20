@@ -21,7 +21,9 @@ test.describe("Application from a link", { tag: "@mobile" }, () => {
       page.getByRole("region", { name: "Application for Letní kemp 2027" }),
     ).toBeVisible()
 
-    const terms = page.getByRole("group", { name: /Choose terms/ }).getByRole("checkbox")
+    const terms = page
+      .getByRole("group", { name: /Choose at least one term/ })
+      .getByRole("checkbox")
     const total = page.locator("p", { hasText: "Total" })
 
     await terms.nth(0).check()
@@ -46,7 +48,7 @@ test.describe("Application from a link", { tag: "@mobile" }, () => {
     await page.getByLabel("Gender").click()
     await page.getByRole("option", { name: "Man", exact: true }).click()
     await page
-      .getByRole("group", { name: /Choose terms/ })
+      .getByRole("group", { name: /Choose at least one term/ })
       .getByRole("checkbox")
       .first()
       .check()
@@ -61,9 +63,9 @@ test.describe("Application from a link", { tag: "@mobile" }, () => {
       page.getByRole("heading", { level: 1, name: "We've received your application" }),
     ).toBeVisible()
     // US-25: the term status and where to pay.
-    await expect(page.getByText("Confirmed", { exact: true })).toBeVisible()
+    await expect(page.getByText("Participation confirmed", { exact: true })).toBeVisible()
     await expect(
-      page.getByRole("heading", { name: "To pay for the confirmed terms" }),
+      page.getByRole("heading", { name: "Payment for the confirmed terms" }),
     ).toBeVisible()
     await expect(page.getByText("2900123456/2010")).toBeVisible()
 
@@ -75,12 +77,11 @@ test.describe("Application from a link", { tag: "@mobile" }, () => {
     await page.goto(`/participant/magic-link?token=${await latestMagicLinkToken()}`)
     await page.getByRole("button", { name: "Continue" }).click()
     await page.getByLabel("New password", { exact: true }).fill("own-password-1")
-    await page.getByLabel("Repeat new password").fill("own-password-1")
-    await page.getByRole("button", { name: "Set password and open application" }).click()
+    await page.getByRole("button", { name: "Set password", exact: true }).click()
 
     await expect(page.getByRole("heading", { level: 1, name: "My applications" })).toBeVisible()
     await expect(page.getByRole("heading", { name: "Letní kemp 2027", level: 2 })).toBeVisible()
-    await expect(page.getByText(/Confirmed|Waitlisted/).first()).toBeVisible()
+    await expect(page.getByText(/Participation confirmed|Waitlisted/).first()).toBeVisible()
 
     // US-121: the detail ends with who to call or write to; one tap dials or opens the mail.
     await page.getByRole("link", { name: /Letní kemp 2027/ }).click()

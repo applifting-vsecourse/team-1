@@ -16,7 +16,7 @@ test.describe("Status of an application in a term", () => {
     await page.getByLabel("Gender").click()
     await page.getByRole("option", { name: "Man", exact: true }).click()
     await page
-      .getByRole("group", { name: /Choose terms/ })
+      .getByRole("group", { name: /Choose at least one term/ })
       .getByRole("checkbox")
       .first()
       .check()

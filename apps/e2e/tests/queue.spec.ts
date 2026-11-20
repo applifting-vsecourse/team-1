@@ -16,7 +16,7 @@ test.describe("Queue to evaluate", () => {
     await page.getByLabel("Gender").click()
     await page.getByRole("option", { name: "Woman", exact: true }).click()
     await page
-      .getByRole("group", { name: /Choose terms/ })
+      .getByRole("group", { name: /Choose at least one term/ })
       .getByRole("checkbox")
       .first()
       .check()

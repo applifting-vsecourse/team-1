@@ -38,7 +38,6 @@
     "participants": "Pro účastníky"
   },
   "organizerCta": "Jsem organizátor",
-  "participantCta": "Jsem účastník",
   "participants": {
     "body": "Zájemce si z odkazu vybere termín nebo více termínů a po odeslání vidí stav každého z nich.",
     "title": "Účastníci se přihlásí z odkazu bez registrace"

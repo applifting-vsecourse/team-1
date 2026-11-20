@@ -31,7 +31,7 @@
   },
   "eventTabs": {
     "applications": "Přihlášky",
-    "capacity": "Kapacity",
+    "capacity": "Kapacita",
     "meals": "Stravování",
     "overview": "Přehled",
     "payments": "Platby",
@@ -76,9 +76,12 @@
   },
   "pagination": {
     "label": "Stránkování",
-    "next": "Další →",
-    "previous": "← Předchozí",
-    "range": "Zobrazeno {{from}}–{{to}} z {{count}}"
+    "next": "Další stránka",
+    "page": "Stránka {{page}}",
+    "previous": "Předchozí stránka",
+    "range_few": "{{from}}–{{to}} z {{count}} výsledků",
+    "range_one": "{{from}}–{{to}} z {{count}} výsledku",
+    "range_other": "{{from}}–{{to}} z {{count}} výsledků"
   },
   "password": {
     "hide": "Skrýt heslo",
@@ -92,7 +95,8 @@
     "loading": "Načítání…",
     "offline": "Zařízení je offline.",
     "retry": "Zkusit znovu",
-    "saving": "Ukládám…"
+    "saving": "Ukládám…",
+    "sending": "Odesílám…"
   },
   "termPayment": {
     "account": "Účet",

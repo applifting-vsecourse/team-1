@@ -76,9 +76,12 @@
   },
   "pagination": {
     "label": "Pagination",
-    "next": "Next →",
-    "previous": "← Previous",
-    "range": "Showing {{from}}–{{to}} of {{count}}"
+    "next": "Next page",
+    "page": "Page {{page}}",
+    "previous": "Previous page",
+    "range_few": "{{from}}–{{to}} of {{count}} results",
+    "range_one": "{{from}}–{{to}} of {{count}} result",
+    "range_other": "{{from}}–{{to}} of {{count}} results"
   },
   "password": {
     "hide": "Hide password",
@@ -92,7 +95,8 @@
     "loading": "Loading…",
     "offline": "Your device is offline.",
     "retry": "Try again",
-    "saving": "Saving…"
+    "saving": "Saving…",
+    "sending": "Sending…"
   },
   "termPayment": {
     "account": "Account",

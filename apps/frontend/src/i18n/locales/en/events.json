@@ -135,21 +135,20 @@
     "count_other": "{{count}} events",
     "create": "Create event",
     "created": "The event {{name}} was created.",
-    "description": "Events of your organizations and events you run on your own.",
+    "description": "Events of all organizations you belong to.",
     "empty": "There are no events yet.",
     "errorTitle": "Couldn't load the events",
     "eventAndOrganization": "Event and organization",
-    "manyTerms_few": "{{count}} terms · {{months}} · {{organization}}",
-    "manyTerms_one": "{{count}} term · {{months}} · {{organization}}",
-    "manyTerms_other": "{{count}} terms · {{months}} · {{organization}}",
+    "manyTerms_few": "{{organization}} · {{count}} terms · {{months}}",
+    "manyTerms_one": "{{organization}} · {{count}} term · {{months}}",
+    "manyTerms_other": "{{organization}} · {{count}} terms · {{months}}",
     "noCapacity": "—",
     "noMatch": "No event matches the search and filters.",
-    "noTerms": "No term yet · {{organization}}",
+    "noTerms": "{{organization}} · No term yet",
     "occupancy": "Occupancy",
-    "occupancyMany": "{{confirmed}} / {{capacity}} places in {{count}} terms",
-    "occupancyOne": "{{confirmed}} / {{capacity}} participants",
-    "oneTerm": "{{dates}} · {{organization}}",
-    "organizationAll": "All my organizations",
+    "occupancyConfirmed": "{{confirmed}}/{{capacity}} confirmed",
+    "oneTerm": "{{organization}} · {{dates}}",
+    "organizationAll": "All organizations",
     "organizationFilter": "Organization",
     "organizations_few": "{{count}} organizations",
     "organizations_one": "{{count}} organization",
@@ -158,14 +157,15 @@
     "searchPlaceholder": "Search event name…",
     "statusAll": "All statuses",
     "statusClosed": "Application inactive",
-    "statusFilter": "Status",
+    "statusColumn": "Status",
+    "statusFilter": "Event status",
     "statusOpen": "Published",
-    "title": "Event list"
+    "title": "Events"
   },
   "new": {
     "back": "Back to the list",
     "cancel": "Cancel",
-    "description": "Create the event. You add terms, prices and rooms afterwards.",
+    "description": "Create the event first. You add terms, prices and capacity in the next step.",
     "form": {
       "description": "Event description (optional)",
       "heading": "Basic details",
@@ -173,12 +173,12 @@
       "name": "Event name *",
       "nameHelper": "Applicants see the name too.",
       "nameRequired": "Enter the event name.",
-      "organization": "Organization",
+      "organization": "Organization *",
       "organizationHelper": "Choose your organization, or On your own.",
-      "required": "* Required field",
+      "required": "* Required fields.",
       "submit": "Create event"
     },
-    "next": "You open applications once every term has a price and at least one room.",
+    "next": "The application opens once a term with a price and capacity are added.",
     "title": "Create event"
   },
   "overview": {
@@ -188,22 +188,41 @@
     "copyFailed": "The link could not be copied.",
     "copyLink": "Copy link",
     "errorTitle": "Couldn't load the event",
-    "missing": {
-      "addRoom": "Add a room",
-      "addTerm": "Add a term and price",
-      "progress": "{{done}} of {{total}} done",
-      "roomTitle": "Add at least one room to every term",
-      "termTitle": "Add at least one term with a price",
-      "title": "What is missing to open applications"
-    },
+    "openPage": "Open page",
     "ready": {
-      "title": "Applications are ready to share"
+      "title": "The application is available"
+    },
+    "setup": {
+      "addTerm": "Add a term and price",
+      "createdBody": "You prepare the application in two steps. Then you can share the link.",
+      "createdTitle": "The event is created",
+      "done": "Done",
+      "headingROOM": "{{done}}/{{total}} done · Capacity setup",
+      "headingTERM": "{{done}}/{{total}} done · Application setup",
+      "introROOM": "The term and price are saved. You set the capacity in Accommodation.",
+      "introTERM": "Start with a term and its price. You find the next step right on the page with its settings.",
+      "later": "Next · {{step}}",
+      "now": "Now · {{step}}",
+      "roomLater": "In accommodation you set up the rooms and their capacity.",
+      "roomNow": "In accommodation, add rooms and their number of beds.",
+      "roomStep": "2. Capacity",
+      "setCapacity": "Set capacity",
+      "steps": "Application setup steps",
+      "termDone": "Saved. The term has its dates and a price for taking part.",
+      "termNow": "Enter the start and end of the term and the price for taking part.",
+      "termSavedBody": "The first step is done. Continue with the capacity.",
+      "termSavedTitle": "The term and price are saved",
+      "termStep": "1. Term and price",
+      "termTab": "1. Term"
     }
   },
   "publicPage": {
     "cancel": "Cancel",
+    "catalogTitle": "Catalog listing",
     "contactEmail": "Contact e-mail",
     "contactPhone": "Contact phone",
+    "contactTitle": "Public contact",
+    "contentTitle": "Page content",
     "description": "Description",
     "directLinkHint": "The event will not be listed in the catalog. Its public page can be opened via a direct link.",
     "editTerms": "Edit terms and prices",
@@ -571,7 +590,7 @@
     "deletePeople_other": "{{count}} people",
     "deleteRoom": "Delete room {{name}}",
     "deleteTitle": "Delete {{name}}?",
-    "description": "Rooms, mode and capacity of the selected term.",
+    "description": "Manage the rooms and number of beds for the selected term.",
     "edit": "Edit room",
     "editExtraBedsShort": "Edit extra beds ({{count}})",
     "editRoom": "Edit room {{name}}",
@@ -652,7 +671,7 @@
     "title": "Publishing the assignment"
   },
   "settings": {
-    "description": "How applications are evaluated and approved, what the public page shows and whether the event can be deleted.",
+    "description": "Shared settings of the event and its public website.",
     "title": "Event settings"
   },
   "terms": {
@@ -741,9 +760,7 @@
       "added": "The term {{name}} was added.",
       "edited": "Changes to the term {{name}} were saved."
     },
-    "occupancy_few": "{{confirmed}} / {{count}} places",
-    "occupancy_one": "{{confirmed}} / {{count}} place",
-    "occupancy_other": "{{confirmed}} / {{count}} places",
+    "occupancy": "Occupied {{confirmed}}/{{capacity}}",
     "priceLabel": "Price:",
     "title": "Terms"
   }

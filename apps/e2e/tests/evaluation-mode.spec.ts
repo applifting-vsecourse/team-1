@@ -33,7 +33,7 @@ test.describe("Evaluation mode", () => {
 
     // Applications are open (the link works), yet no application has arrived.
     await sections(page).getByRole("link", { name: "Overview" }).click()
-    const applyLink = await page.getByRole("link", { name: /\/apply\// }).innerText()
+    const applyLink = (await page.getByRole("link", { name: "Open page" }).getAttribute("href")) ?? ""
     await sections(page).getByRole("link", { name: "Settings" }).click()
     await expect(page.getByRole("radio", { name: "Automatic" })).toBeChecked()
     await page.getByRole("radio", { name: "Manual" }).click()
@@ -48,7 +48,7 @@ test.describe("Evaluation mode", () => {
     await page.getByLabel("Gender").click()
     await page.getByRole("option", { name: "Woman", exact: true }).click()
     await page
-      .getByRole("group", { name: /Choose terms/ })
+      .getByRole("group", { name: /Choose at least one term/ })
       .getByRole("checkbox")
       .first()
       .check()

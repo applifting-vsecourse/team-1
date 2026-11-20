@@ -135,21 +135,20 @@
     "count_other": "{{count}} akcí",
     "create": "Vytvořit akci",
     "created": "Akce {{name}} byla založena.",
-    "description": "Akce vašich organizací a akce pořádané samostatně.",
+    "description": "Akce všech organizací, do kterých patříte.",
     "empty": "Zatím tu nejsou žádné akce.",
     "errorTitle": "Akce se nepodařilo načíst",
     "eventAndOrganization": "Akce a organizace",
-    "manyTerms_few": "{{count}} termíny · {{months}} · {{organization}}",
-    "manyTerms_one": "{{count}} termín · {{months}} · {{organization}}",
-    "manyTerms_other": "{{count}} termínů · {{months}} · {{organization}}",
+    "manyTerms_few": "{{organization}} · {{count}} termíny · {{months}}",
+    "manyTerms_one": "{{organization}} · {{count}} termín · {{months}}",
+    "manyTerms_other": "{{organization}} · {{count}} termínů · {{months}}",
     "noCapacity": "—",
     "noMatch": "Hledání ani filtrům neodpovídá žádná akce.",
-    "noTerms": "Zatím bez termínu · {{organization}}",
+    "noTerms": "{{organization}} · Zatím bez termínu",
     "occupancy": "Obsazenost",
-    "occupancyMany": "{{confirmed}} / {{capacity}} míst ve {{count}} termínech",
-    "occupancyOne": "{{confirmed}} / {{capacity}} účastníků",
-    "oneTerm": "{{dates}} · {{organization}}",
-    "organizationAll": "Všechny moje organizace",
+    "occupancyConfirmed": "{{confirmed}}/{{capacity}} potvrzených",
+    "oneTerm": "{{organization}} · {{dates}}",
+    "organizationAll": "Všechny organizace",
     "organizationFilter": "Organizace",
     "organizations_few": "{{count}} organizace",
     "organizations_one": "{{count}} organizace",
@@ -158,14 +157,15 @@
     "searchPlaceholder": "Hledat název akce…",
     "statusAll": "Všechny stavy",
     "statusClosed": "Přihláška neaktivní",
-    "statusFilter": "Stav",
-    "statusOpen": "Zveřejněno",
-    "title": "Seznam akcí"
+    "statusColumn": "Stav",
+    "statusFilter": "Stav akce",
+    "statusOpen": "Publikováno",
+    "title": "Akce"
   },
   "new": {
     "back": "Zpět na seznam",
     "cancel": "Zrušit",
-    "description": "Založte akci. Termíny, ceny a pokoje doplníte následně.",
+    "description": "Nejdříve založte akci. Termíny, ceny a kapacitu doplníte v dalším kroku.",
     "form": {
       "description": "Popis akce (nepovinný)",
       "heading": "Základní údaje",
@@ -173,13 +173,13 @@
       "name": "Název akce *",
       "nameHelper": "Název uvidí také účastníci.",
       "nameRequired": "Vyplňte název akce.",
-      "organization": "Organizace",
+      "organization": "Organizace *",
       "organizationHelper": "Vyberte svou organizaci, nebo Samostatně.",
-      "required": "* Povinné pole",
-      "submit": "Založit akci"
+      "required": "* Povinné údaje.",
+      "submit": "Vytvořit akci"
     },
-    "next": "Přihlášku zpřístupníte, až bude mít každý termín cenu a alespoň jeden pokoj.",
-    "title": "Vytvoření akce"
+    "next": "Přihláška se zpřístupní až po doplnění termínu s cenou a kapacity.",
+    "title": "Vytvořit akci"
   },
   "overview": {
     "copied": "Odkaz zkopírován do schránky",
@@ -188,22 +188,41 @@
     "copyFailed": "Odkaz se nepodařilo zkopírovat.",
     "copyLink": "Zkopírovat odkaz",
     "errorTitle": "Akci se nepodařilo načíst",
-    "missing": {
-      "addRoom": "Přidat pokoj",
-      "addTerm": "Přidat termín a cenu",
-      "progress": "{{done}} ze {{total}} hotovo",
-      "roomTitle": "Přidejte alespoň jeden pokoj ke každému termínu",
-      "termTitle": "Přidejte alespoň jeden termín s cenou",
-      "title": "Co chybí ke zpřístupnění přihlášky"
-    },
+    "openPage": "Otevřít stránku",
     "ready": {
-      "title": "Přihláška je připravená ke sdílení"
+      "title": "Přihláška je dostupná"
+    },
+    "setup": {
+      "addTerm": "Přidat termín a cenu",
+      "createdBody": "Přihlášku připravíte ve dvou krocích. Potom můžete sdílet odkaz.",
+      "createdTitle": "Akce je vytvořená",
+      "done": "Hotovo",
+      "headingROOM": "{{done}}/{{total}} hotovo · Nastavení kapacity",
+      "headingTERM": "{{done}}/{{total}} hotovo · Příprava přihlášky",
+      "introROOM": "Termín a cena jsou uložené. Kapacitu nastavíte v Ubytování.",
+      "introTERM": "Začněte termínem a cenou. Další krok najdete přímo na stránce s příslušným nastavením.",
+      "later": "Potom · {{step}}",
+      "now": "Teď · {{step}}",
+      "roomLater": "Ve správě ubytování nastavíte pokoje a jejich kapacitu.",
+      "roomNow": "Ve správě ubytování přidejte pokoje a jejich počet lůžek.",
+      "roomStep": "2. Kapacita",
+      "setCapacity": "Nastavit kapacitu",
+      "steps": "Kroky přípravy přihlášky",
+      "termDone": "Uloženo. Termín má datum konání a cenu za účast.",
+      "termNow": "Zadejte začátek a konec termínu a cenu za účast.",
+      "termSavedBody": "První krok je hotový. Pokračujte nastavením kapacity.",
+      "termSavedTitle": "Termín a cena jsou uložené",
+      "termStep": "1. Termín a cena",
+      "termTab": "1. Termín"
     }
   },
   "publicPage": {
     "cancel": "Zrušit",
+    "catalogTitle": "Zveřejnění v katalogu",
     "contactEmail": "Kontaktní e-mail",
     "contactPhone": "Kontaktní telefon",
+    "contactTitle": "Veřejný kontakt",
+    "contentTitle": "Obsah stránky",
     "description": "Popis",
     "directLinkHint": "Akce nebude v katalogu. Veřejnou stránku lze otevřít přes přímý odkaz.",
     "editTerms": "Upravit termíny a ceny",
@@ -571,7 +590,7 @@
     "deletePeople_other": "{{count}} osob",
     "deleteRoom": "Smazat pokoj {{name}}",
     "deleteTitle": "Smazat {{name}}?",
-    "description": "Pokoje, režim a kapacita vybraného termínu.",
+    "description": "Spravujte pokoje a počet lůžek pro vybraný termín.",
     "edit": "Upravit pokoj",
     "editExtraBedsShort": "Upravit přistýlky ({{count}})",
     "editRoom": "Upravit pokoj {{name}}",
@@ -652,7 +671,7 @@
     "title": "Zveřejnění rozdělení"
   },
   "settings": {
-    "description": "Jak se přihlášky vyhodnocují a schvalují, co ukazuje veřejná stránka a zda lze akci smazat.",
+    "description": "Společná nastavení akce a jejího veřejného webu.",
     "title": "Nastavení akce"
   },
   "terms": {
@@ -741,9 +760,7 @@
       "added": "Termín {{name}} byl přidán.",
       "edited": "Změny termínu {{name}} byly uloženy."
     },
-    "occupancy_few": "{{confirmed}} / {{count}} místa",
-    "occupancy_one": "{{confirmed}} / {{count}} místo",
-    "occupancy_other": "{{confirmed}} / {{count}} míst",
+    "occupancy": "Obsazeno {{confirmed}}/{{capacity}}",
     "priceLabel": "Cena:",
     "title": "Termíny"
   }

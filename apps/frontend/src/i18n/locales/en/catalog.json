@@ -1,6 +1,5 @@
 {
   "event": {
-    "about": "About the event",
     "applicationHint": "Apply without creating an account. You can register several participants and choose their terms individually.",
     "applicationHintTwo": "Apply without registering. You can register several participants and choose one or both terms for each person.",
     "apply": "Submit application",
@@ -8,14 +7,13 @@
     "call": "Call",
     "contact": "Organization contact",
     "copyLink": "Copy link",
-    "perPerson": "/ person",
     "priceNote": "Prices are per participant.",
     "terms": "Terms and prices",
     "write": "Send an e-mail"
   },
   "list": {
     "allOrganizations": "All organizations",
-    "backHome": "Home",
+    "backHome": "Back to home",
     "badgeOpen": "Applications open",
     "badgePublished": "Published",
     "description": "Find an organization and its published events in one place.",
@@ -26,7 +24,7 @@
     "eventCount_few": "{{count}} events",
     "eventCount_one": "{{count}} event",
     "eventCount_other": "{{count}} events",
-    "loading": "Loading…",
+    "loading": "Loading events…",
     "organization": "Organization",
     "retry": "Try again",
     "summaryFrom_few": "{{count}} terms · from {{price}}",

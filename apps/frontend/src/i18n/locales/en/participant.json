@@ -22,7 +22,7 @@
     "confirmChange": "Confirm change",
     "discard": "Cancel",
     "impact": "Change impact",
-    "impactNew": "New term · new amount due",
+    "impactNew": "New term · new payment",
     "impactOriginal": "Original term · refund",
     "impactOriginalRequest": "Original term",
     "loadError": "Couldn't load available terms",
@@ -57,7 +57,7 @@
     "title": "Organization contact"
   },
   "detail": {
-    "applicantContact": "Contact",
+    "applicantContact": "Applicant contact",
     "archivedText": "The term has ended, there is nothing left to arrange.",
     "archivedTitle": "Archived application",
     "back": "Back to my applications",
@@ -72,7 +72,7 @@
     "roomNotAssigned": "You have no room assigned yet.",
     "sections": {
       "room": "Room",
-      "terms": "Terms and payments"
+      "terms": "Terms"
     },
     "steps": {
       "done": "Done",
@@ -105,12 +105,13 @@
     "accommodationHeading": "Individual accommodation arrangements",
     "accommodationIndividual": "Individual arrangement",
     "accommodationRemovalNotified": "The organizer was notified that the request was withdrawn.",
-    "accommodationRequest": "Note for the organizer",
+    "accommodationRequest": "Note for the organizer (optional)",
     "accommodationRequestTooLong": "The note can have at most 2,000 characters.",
     "accommodationSummary": "Accommodation · {{request}}",
     "accommodationSummaryTitle": "Accommodation request",
     "backToApplication": "Back to application",
     "birthDate": "Date of birth *",
+    "birthDateInvalid": "Enter a valid date of birth.",
     "cancel": "Cancel",
     "contactHeading": "Application contact",
     "contactHint": "These changes update the application contact. You can change your sign-in email in account settings.",
@@ -148,11 +149,12 @@
     "valuesPreserved": "Your entries have been kept."
   },
   "list": {
+    "confirmed": "Participation confirmed",
     "empty": "You have no applications yet. Once you apply for an event, it will appear here.",
     "errorTitle": "Couldn't load your applications",
     "female": "female",
     "male": "male",
-    "paymentNote": "Payment is due only for confirmed terms.",
+    "paymentNote": "This applies only to the confirmed term; don't pay for a waitlisted term yet.",
     "remaining": "Remaining to pay",
     "termPrice": "Term price"
   },

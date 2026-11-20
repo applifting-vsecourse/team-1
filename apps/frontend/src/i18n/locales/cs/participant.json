@@ -22,7 +22,7 @@
     "confirmChange": "Potvrdit změnu",
     "discard": "Zrušit",
     "impact": "Dopad změny",
-    "impactNew": "Nový termín · nová částka k úhradě",
+    "impactNew": "Nový termín · nová úhrada",
     "impactOriginal": "Původní termín · vratka",
     "impactOriginalRequest": "Původní termín",
     "loadError": "Dostupné termíny se nepodařilo načíst",
@@ -57,7 +57,7 @@
     "title": "Kontakt organizace"
   },
   "detail": {
-    "applicantContact": "Kontakt",
+    "applicantContact": "Kontakt přihlašovatele",
     "archivedText": "Termín skončil, už není co vyřizovat.",
     "archivedTitle": "Archivovaná přihláška",
     "back": "Zpět na Moje přihlášky",
@@ -72,7 +72,7 @@
     "roomNotAssigned": "Zatím nemáte přiřazený pokoj.",
     "sections": {
       "room": "Pokoj",
-      "terms": "Termíny a platby"
+      "terms": "Termíny"
     },
     "steps": {
       "done": "Hotovo",
@@ -105,12 +105,13 @@
     "accommodationHeading": "Individuální řešení ubytování",
     "accommodationIndividual": "Individuální řešení",
     "accommodationRemovalNotified": "Zrušení požadavku bylo předáno organizátorovi.",
-    "accommodationRequest": "Poznámka pro organizátora",
+    "accommodationRequest": "Poznámka pro organizátora (nepovinné)",
     "accommodationRequestTooLong": "Poznámka může mít nejvýše 2 000 znaků.",
     "accommodationSummary": "Ubytování · {{request}}",
     "accommodationSummaryTitle": "Požadavek na ubytování",
     "backToApplication": "Zpět na přihlášku",
     "birthDate": "Datum narození *",
+    "birthDateInvalid": "Zadejte platné datum narození.",
     "cancel": "Zrušit",
     "contactHeading": "Kontakt přihlášky",
     "contactHint": "Tato změna upraví kontakt přihlášky. Přihlašovací e-mail se mění v nastavení účtu.",
@@ -148,11 +149,12 @@
     "valuesPreserved": "Vyplněné údaje zůstaly zachované."
   },
   "list": {
+    "confirmed": "Účast potvrzena",
     "empty": "Zatím tu nemáte žádnou přihlášku. Až se přihlásíte na akci, objeví se tady.",
     "errorTitle": "Přihlášky se nepodařilo načíst",
     "female": "žena",
     "male": "muž",
-    "paymentNote": "Platí se pouze za potvrzené termíny.",
+    "paymentNote": "Platí jen pro potvrzený termín; za náhradnický termín zatím neplaťte.",
     "remaining": "Zbývá zaplatit",
     "termPrice": "Cena termínů"
   },
