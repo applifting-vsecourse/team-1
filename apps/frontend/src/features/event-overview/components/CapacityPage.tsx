@@ -100,11 +100,6 @@ export function CapacityPage({
           terms={occupancy.terms}
         />
       )}
-      {occupancy &&
-      occupancy.terms.length > 0 &&
-      occupancy.terms.some((term) => term.roomCount > 0) ? (
-        <p className="text-sm text-muted-foreground">{t("capacity.footnote")}</p>
-      ) : null}
     </div>
   )
 }
