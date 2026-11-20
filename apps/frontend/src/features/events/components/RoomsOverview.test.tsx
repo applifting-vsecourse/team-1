@@ -7,8 +7,8 @@ import type { RoomAssignments, RoomWarning } from "@/features/events/api/room-as
 import type { TermRooms } from "@/features/events/api/rooms"
 import { RoomsOverview } from "@/features/events/components/RoomsOverview"
 
-const { get } = vi.hoisted(() => ({ get: vi.fn() }))
-vi.mock("@/lib/api-client", () => ({ api: { get }, apiErrorCode: () => undefined }))
+const { get, del } = vi.hoisted(() => ({ get: vi.fn(), del: vi.fn() }))
+vi.mock("@/lib/api-client", () => ({ api: { get, delete: del }, apiErrorCode: () => undefined }))
 
 const LONG_NAME = "Maximiliána Alexandra Hohenlohe-Schillingsfürstová"
 
@@ -89,16 +89,18 @@ const term: TermRooms = {
 
 let data = base()
 const onShowAssignment = vi.fn()
+const onEditExtraBeds = vi.fn()
 
-function renderOverview() {
+function renderOverview(isPrintOnly = false) {
   get.mockImplementation(() => ({ json: () => Promise.resolve(data) }))
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   render(
     <QueryClientProvider client={client}>
       <RoomsOverview
         term={term}
-        selectors={<span>Term picker</span>}
+        isPrintOnly={isPrintOnly}
         onShowAssignment={onShowAssignment}
+        onEditExtraBeds={onEditExtraBeds}
       />
     </QueryClientProvider>,
   )
@@ -108,8 +110,8 @@ function renderOverview() {
 const summaryList = (): HTMLElement =>
   screen
     .getAllByText("Rooms")
-    .map((label) => label.closest("dl")!)
-    .find((list) => list.classList.contains("md:grid-cols-4"))!
+    .map((label) => label.closest("dl"))
+    .find((list) => list?.classList.contains("md:grid-cols-4"))!
 const roomCard = async (name: string) =>
   (await screen.findByRole("heading", { name, level: 3 })).closest("li") as HTMLElement
 
@@ -117,6 +119,8 @@ beforeEach(() => {
   data = base()
   get.mockReset()
   onShowAssignment.mockReset()
+  onEditExtraBeds.mockReset()
+  del.mockReset()
 })
 afterEach(() => vi.unstubAllGlobals())
 
@@ -210,7 +214,6 @@ describe("RoomsOverview (US-36)", () => {
     renderOverview()
     expect(within(await roomCard("Room A")).getAllByText("Free bed")).toHaveLength(3)
     expect(screen.getAllByText("Free bed")).toHaveLength(5)
-    expect(screen.getByRole("button", { name: "Print overview" })).toBeEnabled()
   })
 
   it("says Full and hides the list of people without a room when everyone sleeps somewhere", async () => {
@@ -226,45 +229,96 @@ describe("RoomsOverview (US-36)", () => {
     data.unassigned = []
     const user = renderOverview()
     expect(await screen.findByText("Rooms of this term will appear here.")).toBeInTheDocument()
-    expect(screen.getByRole("button", { name: "Print overview" })).toBeDisabled()
-    await user.click(screen.getByRole("button", { name: "Go to the room assignment" }))
+    await user.click(screen.getByRole("button", { name: "Go to Assignment" }))
     expect(onShowAssignment).toHaveBeenCalledOnce()
   })
 
-  it("links to the assignment from open warnings only (US-37), never lists them", async () => {
-    data.warnings = [warning(), warning({ acknowledged: true })]
-    data.summary = { violations: 1, acknowledged: 1, confirmedWithoutBed: 0 }
+  it("shows an open room warning in the card with the confirm button of the assignment (#542)", async () => {
+    data.warnings = [warning()]
+    data.summary = { violations: 1, acknowledged: 0, confirmedWithoutBed: 0 }
     const user = renderOverview()
-    expect(await screen.findByText("The room assignment has 1 warning.")).toBeInTheDocument()
-    await user.click(screen.getByRole("button", { name: "Show in the assignment" }))
-    expect(onShowAssignment).toHaveBeenCalledOnce()
+    const card = within(await roomCard("Room B"))
+    expect(card.getByText(/Overcrowded room/)).toBeInTheDocument()
+    await user.click(card.getByRole("button", { name: "Confirm with a note" }))
+    expect(await screen.findByRole("dialog")).toBeInTheDocument()
   })
 
-  it("has no warning line when only people without a bed are warned about", async () => {
+  it("has no warning strip when only people without a bed are warned about", async () => {
     data.warnings = [
       warning({ kind: "CONFIRMED_WITHOUT_BED", roomId: null, applicationTermId: "p4" }),
     ]
     data.summary = { violations: 0, acknowledged: 0, confirmedWithoutBed: 1 }
     renderOverview()
     await roomCard("Room A")
-    expect(screen.queryByText(/warning/)).not.toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: "Confirm with a note" })).not.toBeInTheDocument()
   })
 
-  it("has no warning line without an open warning", async () => {
-    data.warnings = [warning({ acknowledged: true })]
+  it("has no print button of its own: printing sits in the bar of the rooms page", async () => {
     renderOverview()
     await roomCard("Room A")
-    expect(screen.queryByText(/warning/)).not.toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: "Print overview" })).not.toBeInTheDocument()
   })
 
-  it("prints, and has no button to edit the assignment", async () => {
-    const print = vi.spyOn(window, "print").mockImplementation(() => undefined)
-    const user = renderOverview()
-    await roomCard("Room A")
-    expect(screen.queryByRole("button", { name: "Edit assignment" })).not.toBeInTheDocument()
-    await user.click(screen.getByRole("button", { name: "Print overview" }))
-    expect(print).toHaveBeenCalledOnce()
-    print.mockRestore()
+  describe("controls (#542)", () => {
+    it("assigns a person without a room with the same dialog as the assignment", async () => {
+      const user = renderOverview()
+      await roomCard("Room A")
+      await user.click(screen.getByRole("button", { name: "Assign Barbora Šimková to a room" }))
+      const dialog = await screen.findByRole("dialog", { name: "Assign a participant to a room" })
+      expect(within(dialog).getByText("Barbora Šimková")).toBeInTheDocument()
+    })
+
+    it("moves a person from the menu with the same dialog as the assignment", async () => {
+      const user = renderOverview()
+      const card = within(await roomCard("Room A"))
+      await user.click(card.getByRole("button", { name: "Actions for Jana Nováková" }))
+      await user.click(await screen.findByRole("menuitem", { name: "Move to another room…" }))
+      expect(
+        await screen.findByRole("dialog", { name: "Move the participant to another room" }),
+      ).toBeInTheDocument()
+    })
+
+    it("removes a person from the room and reads the assignments again", async () => {
+      del.mockReturnValue(Promise.resolve({}))
+      const user = renderOverview()
+      const card = within(await roomCard("Room A"))
+      await user.click(card.getByRole("button", { name: "Actions for Jana Nováková" }))
+      await user.click(await screen.findByRole("menuitem", { name: "Remove from room" }))
+      await vi.waitFor(() => expect(del).toHaveBeenCalledOnce())
+      // The event's queries are invalidated, so the change shows at once in both views.
+      await vi.waitFor(() => expect(get.mock.calls.length).toBeGreaterThan(1))
+    })
+
+    it("opens the extra-beds dialog of the page from the room header", async () => {
+      const user = renderOverview()
+      await user.click(
+        within(await roomCard("Room B")).getByRole("button", {
+          name: "Edit extra beds (1) – Room B",
+        }),
+      )
+      expect(onEditExtraBeds).toHaveBeenCalledWith("r2")
+      await user.click(
+        within(await roomCard("Room A")).getByRole("button", { name: "Add an extra bed – Room A" }),
+      )
+      expect(onEditExtraBeds).toHaveBeenLastCalledWith("r1")
+    })
+
+    it("hides every control from the paper", async () => {
+      renderOverview()
+      await roomCard("Room A")
+      const area = document.querySelector<HTMLElement>("[data-print-area]")!
+      for (const button of within(area).getAllByRole("button")) {
+        expect(button).toHaveClass("print:hidden")
+      }
+    })
+
+    it("renders the print sheet without any control and hidden on screen", async () => {
+      renderOverview(true)
+      await roomCard("Room A")
+      const area = document.querySelector<HTMLElement>("[data-print-area]")!
+      expect(area).toHaveClass("hidden", "print:flex")
+      expect(within(area).queryAllByRole("button")).toHaveLength(0)
+    })
   })
 
   it("puts the to-evaluate label next to the name, not into the year of birth", async () => {
@@ -295,8 +349,6 @@ describe("RoomsOverview (US-36)", () => {
     it("hides the toolbar, the summary and the buttons from the paper", async () => {
       renderOverview()
       await roomCard("Room A")
-      const toolbar = screen.getByText("Term picker").parentElement!
-      expect(toolbar).toHaveClass("print:hidden")
       expect(summaryList()).toHaveClass("print:hidden")
       // Nothing that is clicked is printed: every button sits inside the hidden toolbar.
       for (const button of screen.getAllByRole("button")) {
@@ -370,13 +422,12 @@ describe("RoomsOverview (US-36)", () => {
     })
   })
 
-  it("stacks on a phone: one column, buttons over the whole width (360 px)", async () => {
+  it("stacks on a phone: one column (360 px)", async () => {
     // jsdom has no layout, the classes decide: no column before `md`, full-width buttons before `sm`.
     vi.stubGlobal("innerWidth", 360)
     renderOverview()
     const card = await roomCard("Room A")
     expect(card.parentElement).toHaveClass("md:grid-cols-2")
     expect(card.parentElement).not.toHaveClass("grid-cols-2")
-    expect(screen.getByRole("button", { name: "Print overview" })).toHaveClass("max-sm:w-full")
   })
 })
