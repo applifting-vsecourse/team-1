@@ -202,14 +202,15 @@ export function PaymentsOverviewPage({
           const box =
             "flex flex-col gap-1 text-left sm:gap-4 sm:rounded-lg sm:border sm:bg-card sm:p-4"
           return tile.onSelect ? (
-            <button
+            <Button
               key={tile.title}
               type="button"
-              className={`${box} rounded-md hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none`}
+              variant="ghost"
+              className={`${box} h-auto items-stretch justify-start rounded-md font-normal whitespace-normal hover:text-foreground`}
               onClick={tile.onSelect}
             >
               {content}
-            </button>
+            </Button>
           ) : (
             <div
               key={tile.title}
