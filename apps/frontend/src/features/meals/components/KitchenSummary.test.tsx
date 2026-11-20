@@ -82,12 +82,7 @@ function renderPage(data: KitchenTerm[] = terms) {
   const page = createRoute({
     getParentRoute: () => root,
     path: "/",
-    component: () => (
-      <KitchenSummary
-        eventId="e1"
-        eventName="Summer camp"
-      />
-    ),
+    component: () => <KitchenSummary eventId="e1" />,
   })
   const router = createRouter({
     routeTree: root.addChildren([page]),
@@ -138,7 +133,6 @@ describe("KitchenSummary", () => {
     renderPage()
     await showByCategory()
     expect(await screen.findByRole("heading", { name: "Meals" })).toBeVisible()
-    expect(screen.getByText("Summer camp")).toBeVisible()
     expect(screen.getByRole("heading", { name: "10 confirmed participants" })).toBeVisible()
     expect(screen.getByText("Each participant is counted once.")).toBeVisible()
     expect(screen.queryByRole("link", { name: "Back to event overview" })).not.toBeInTheDocument()

@@ -107,7 +107,6 @@ function renderPage(visibleEntries = entries) {
     component: () => (
       <PaymentsOverviewPage
         eventId="e1"
-        eventName="Summer camp"
         terms={[
           { id: "t1", name: "Summer week", startsOn: "2027-07-01", endsOn: "2027-07-07" },
           { id: "t2", name: "Second week", startsOn: "2027-07-12", endsOn: "2027-07-18" },
@@ -133,8 +132,9 @@ afterEach(() => vi.restoreAllMocks())
 describe("PaymentsOverviewPage", () => {
   it("shows the unfiltered debt total and opens the existing payment history", async () => {
     renderPage()
-    expect(await screen.findByText("Summer camp")).toBeVisible()
-    expect(screen.getByText("Debt across the event").parentElement).toHaveTextContent(/7,800/)
+    expect((await screen.findByText("Debt across the event")).parentElement).toHaveTextContent(
+      /7,800/,
+    )
     expect(screen.getByText("2 participants with debt · all terms")).toBeVisible()
     expect(screen.getAllByRole("link", { name: /^Detail/ })).toHaveLength(3)
     expect(screen.getByRole("link", { name: "Detail Adam Dvořák" }).getAttribute("href")).toContain(

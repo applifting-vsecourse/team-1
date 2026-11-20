@@ -15,7 +15,7 @@ export function SectionHeader({ title, description, actions }: SectionHeaderProp
   return (
     <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
       <div className="flex min-w-0 flex-1 flex-col gap-1">
-        <h2 className="text-xl font-semibold tracking-tight md:text-2xl">{title}</h2>
+        <h2 className="text-2xl font-bold">{title}</h2>
         {description ? <p className="text-sm text-muted-foreground">{description}</p> : null}
       </div>
       {actions ? (

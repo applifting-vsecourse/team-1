@@ -594,7 +594,6 @@
     "deleteRoom": "Smazat pokoj {{name}}",
     "deleteRoomCapacity": "Kapacita pokoje",
     "deleteTitle": "Smazat {{name}}?",
-    "description": "Spravujte pokoje a počet lůžek pro vybraný termín.",
     "edit": "Upravit pokoj",
     "editExtraBedsShort": "Upravit přistýlky ({{count}})",
     "editRoom": "Upravit pokoj {{name}}",
@@ -682,7 +681,6 @@
     "title": "Zveřejnění rozdělení"
   },
   "settings": {
-    "description": "Společná nastavení akce a jejího veřejného webu.",
     "title": "Nastavení akce"
   },
   "terms": {
@@ -737,7 +735,6 @@
     "cancelledTitle_few": "Zrušené termíny",
     "cancelledTitle_one": "Zrušený termín",
     "cancelledTitle_other": "Zrušené termíny",
-    "description": "Přidejte termíny, nastavte jejich data a cenu. Každý termín se vyhodnocuje samostatně.",
     "edit": "Upravit",
     "empty": "Akce zatím nemá žádný termín.",
     "errorTitle": "Termíny se nepodařilo načíst",

@@ -66,11 +66,9 @@ function matches(entry: PaymentOverviewEntry, status: StatusFilter, reminder: Re
 // Figma v2: US-45 Všechny platby · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=20544-42470 (360 px: node-id=20544-42849)
 export function PaymentsOverviewPage({
   eventId,
-  eventName,
   terms,
 }: {
   eventId: string
-  eventName?: string
   terms: { id: string; name: string | null; startsOn: string; endsOn: string }[]
 }) {
   const { t } = useTranslation("eventOverview")
@@ -155,7 +153,6 @@ export function PaymentsOverviewPage({
       <Seo title={t("paymentsOverview.title")} />
       <SectionHeader
         title={t("paymentsOverview.title")}
-        description={eventName}
         actions={
           <>
             <Button

@@ -7,7 +7,7 @@ import { ROUTES } from "@/app/routes"
 import { CardColumns } from "@/components/molecules/CardGrid"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
-import { PageHeader } from "@/components/molecules/PageHeader"
+import { SectionHeader } from "@/components/molecules/SectionHeader"
 import {
   Accordion,
   AccordionContent,
@@ -186,7 +186,7 @@ function ParticipantNotes({ term }: { term: KitchenTerm }) {
   )
 }
 
-export function KitchenSummary({ eventId, eventName }: { eventId: string; eventName?: string }) {
+export function KitchenSummary({ eventId }: { eventId: string }) {
   const { t } = useTranslation("meals")
   const { data, isPending, error, refetch } = useQuery(kitchenSummaryQueryOptions(eventId))
   const [termId, setTermId] = useState<string | null>(null)
@@ -213,10 +213,7 @@ export function KitchenSummary({ eventId, eventName }: { eventId: string; eventN
       className="flex min-w-0 flex-col gap-6"
       data-print-area
     >
-      <PageHeader
-        title={t("kitchen.title")}
-        description={eventName}
-      />
+      <SectionHeader title={t("kitchen.title")} />
       {term ? (
         <>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end">

@@ -289,7 +289,6 @@
     "increasedWomen_few": "Women's capacity increased by {{count}} beds",
     "increasedWomen_one": "Women's capacity increased by {{count}} bed",
     "increasedWomen_other": "Women's capacity increased by {{count}} beds",
-    "intro": "Occupancy of the selected term by confirmed applications. Waitlisted applicants don’t take up beds.",
     "loadFailed": "Capacity could not be loaded",
     "manageRooms": "Manage rooms",
     "men": "Men",

@@ -110,10 +110,7 @@ export function RoomsPage({
     return (
       <div className="flex flex-col gap-6">
         <Seo title={t("rooms.title")} />
-        <SectionHeader
-          title={t("rooms.title")}
-          description={t("rooms.description")}
-        />
+        <SectionHeader title={t("rooms.title")} />
         <p className="text-sm text-muted-foreground">{t("rooms.noTerms")}</p>
       </div>
     )
@@ -254,10 +251,7 @@ export function RoomsPage({
   return (
     <div className="flex flex-col gap-6">
       <Seo title={t("rooms.title")} />
-      <SectionHeader
-        title={t("rooms.title")}
-        description={view === "assignment" ? t("rooms.description") : undefined}
-      />
+      <SectionHeader title={t("rooms.title")} />
       {query.isError ? (
         <ErrorState
           title={t("rooms.loadFailed")}

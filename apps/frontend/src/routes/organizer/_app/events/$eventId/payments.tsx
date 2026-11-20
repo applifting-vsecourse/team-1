@@ -14,7 +14,6 @@ function EventPaymentsPage() {
   return (
     <PaymentsOverviewPage
       eventId={eventId}
-      eventName={event?.name}
       terms={event?.terms ?? []}
     />
   )

@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { termDatesLine, termLine } from "@/lib/term-label"
+import { termDatesLine } from "@/lib/term-label"
 
 import {
   eventTransportQueryOptions,
@@ -103,10 +103,7 @@ export function TransportList({ eventId }: { eventId: string }) {
   return (
     <div className="flex flex-col gap-6">
       <Seo title={t("title")} />
-      <SectionHeader
-        title={t("title")}
-        description={`${query.data.eventName} · ${termLine({ ...term, name: term.termName })}`}
-      />
+      <SectionHeader title={t("title")} />
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
         <Label htmlFor="transport-term">{t("termLabel")}</Label>
         <Select

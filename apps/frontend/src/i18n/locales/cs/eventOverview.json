@@ -289,7 +289,6 @@
     "increasedWomen_few": "Dámská kapacita se zvýšila o {{count}} lůžka",
     "increasedWomen_one": "Dámská kapacita se zvýšila o {{count}} lůžko",
     "increasedWomen_other": "Dámská kapacita se zvýšila o {{count}} lůžek",
-    "intro": "Obsazenost vybraného termínu podle potvrzených přihlášek. Náhradníci lůžka neblokují.",
     "loadFailed": "Kapacity se nepodařilo načíst",
     "manageRooms": "Spravovat pokoje",
     "men": "Muži",
