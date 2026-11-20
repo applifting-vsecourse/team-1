@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { Link, useNavigate } from "@tanstack/react-router"
-import { BedDouble, FilterX, Plus } from "lucide-react"
+import { BedDouble, FilterX, Plus, Search } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
@@ -262,7 +262,7 @@ export function ApplicationsPage({
             id="term-waitlist"
             role="search"
             aria-label={t("applications.search")}
-            className="w-full md:w-auto"
+            className="relative w-full md:w-auto"
             onSubmit={(event) => event.preventDefault()}
           >
             <Label
@@ -271,6 +271,10 @@ export function ApplicationsPage({
             >
               {t("applications.search")}
             </Label>
+            <Search
+              aria-hidden
+              className="pointer-events-none absolute top-1/2 left-[17px] size-5 -translate-y-1/2 text-muted-foreground"
+            />
             <Input
               ref={searchInput}
               id="applications-search"
@@ -279,7 +283,7 @@ export function ApplicationsPage({
               maxLength={100}
               defaultValue={filters.q ?? ""}
               placeholder={t("applications.searchPlaceholder")}
-              className="w-full md:w-56"
+              className="w-full pl-11 md:w-56"
               onChange={(event) => {
                 setPage(0)
                 const q = event.target.value.trim()

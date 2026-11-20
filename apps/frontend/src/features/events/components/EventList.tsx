@@ -109,7 +109,7 @@ function FilteredEvents({
         <div className="relative">
           <Search
             aria-hidden
-            className="pointer-events-none absolute start-3 top-1/2 size-5 -translate-y-1/2 text-muted-foreground"
+            className="pointer-events-none absolute start-[17px] top-1/2 size-5 -translate-y-1/2 text-muted-foreground"
           />
           <Input
             type="search"
@@ -117,7 +117,7 @@ function FilteredEvents({
             onChange={(e) => setQuery(e.target.value)}
             placeholder={t("list.searchPlaceholder")}
             aria-label={t("list.search")}
-            className="w-full ps-10"
+            className="w-full ps-11"
           />
         </div>
         <div className="flex min-w-0 flex-col gap-2">

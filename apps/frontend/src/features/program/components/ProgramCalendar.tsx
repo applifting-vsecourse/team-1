@@ -41,7 +41,7 @@ export function ProgramCalendar({
   return (
     <section
       aria-label={t("calendarLabel")}
-      className="overflow-x-auto rounded-lg border bg-card shadow-sm"
+      className="overflow-x-auto rounded-lg border bg-card"
     >
       <div
         className="[--time-column:3rem] md:[--time-column:3.5rem]"
@@ -57,7 +57,7 @@ export function ProgramCalendar({
             return (
               <h2
                 key={day}
-                className="flex items-baseline gap-2 border-l px-3 py-3 text-sm"
+                className="flex min-h-12 items-center gap-2 border-l px-3 text-sm"
               >
                 <span className="font-medium">{header.weekday}</span>
                 <span className="text-muted-foreground">{header.date}</span>
@@ -132,7 +132,7 @@ function CalendarBlock({
   const minutes = toMinutes(block.endTime) - start
   return (
     <article
-      className="relative col-start-1 my-px min-h-11 min-w-0 rounded-md border-l-4 border-l-primary bg-accent text-accent-foreground transition-colors hover:bg-accent/80"
+      className="relative col-start-1 my-px min-h-11 min-w-0 rounded-checkbox border-l-4 border-l-primary bg-accent text-accent-foreground transition-colors hover:bg-accent/80"
       style={{
         gridRow,
         marginLeft: `calc(${String((column * 100) / columns)}% + 2px)`,
@@ -142,7 +142,7 @@ function CalendarBlock({
       <button
         type="button"
         aria-label={t("info", { name: block.name })}
-        className="absolute inset-0 rounded-sm outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+        className="absolute inset-0 rounded-checkbox outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
         onClick={() => {
           onSelect(block)
         }}

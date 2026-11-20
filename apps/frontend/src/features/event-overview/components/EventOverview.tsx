@@ -214,16 +214,16 @@ function AttentionCard({
       search={search}
       className="group block rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
     >
-      <Card className="gap-3 rounded-xl p-3 shadow-none transition-colors group-hover:border-primary group-hover:bg-muted md:p-4">
+      <Card className="min-h-[104px] gap-2 rounded-lg p-3 shadow-none transition-colors group-hover:border-primary group-hover:bg-muted md:p-4">
         <div className="flex items-center gap-2">
           <Icon
             aria-hidden
-            className="size-5 shrink-0 text-link"
+            className="size-6 shrink-0 text-primary dark:text-link"
           />
-          <h3 className="min-w-0 flex-1 font-semibold break-words">{title}</h3>
+          <h3 className="min-w-0 flex-1 font-bold break-words">{title}</h3>
           <ChevronRight
             aria-hidden
-            className="size-4 shrink-0 text-muted-foreground"
+            className="size-5 shrink-0 text-muted-foreground"
           />
         </div>
         <p className="text-sm text-muted-foreground">{children}</p>

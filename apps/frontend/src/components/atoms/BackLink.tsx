@@ -11,7 +11,7 @@ export function BackLink({ children, ...props }: LinkProps & { children: ReactNo
       asChild
       variant="ghost"
       size="lg"
-      className="self-start rounded-full bg-accent px-4 text-link hover:bg-accent/80 has-[>svg]:px-4"
+      className="h-9 self-start rounded-full bg-accent px-4 text-sm leading-5 font-medium text-link hover:bg-accent/80 has-[>svg]:px-4"
     >
       <Link {...props}>
         <ArrowLeft aria-hidden="true" />

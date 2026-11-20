@@ -225,13 +225,13 @@ export function PaymentsOverviewPage({
         <div className="relative">
           <Search
             aria-hidden
-            className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-muted-foreground"
+            className="pointer-events-none absolute top-1/2 left-[17px] size-5 -translate-y-1/2 text-muted-foreground"
           />
           <Input
             type="search"
             aria-label={t("paymentsOverview.search")}
             placeholder={t("paymentsOverview.search")}
-            className="pl-10"
+            className="pl-11"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
           />

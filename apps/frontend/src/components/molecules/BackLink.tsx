@@ -10,7 +10,7 @@ export function BackLink({ to, children }: { to: string; children: ReactNode }) 
     <Button
       asChild
       variant="ghost"
-      className="w-fit rounded-full bg-accent px-4 text-link hover:bg-accent/80 has-[>svg]:px-4"
+      className="h-9 w-fit rounded-full bg-accent px-4 text-sm leading-5 font-medium text-link hover:bg-accent/80 has-[>svg]:px-4"
     >
       <Link to={to}>
         <ArrowLeft aria-hidden />

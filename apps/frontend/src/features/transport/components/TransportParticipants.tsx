@@ -83,13 +83,13 @@ export function TransportParticipants({
           <div className="relative md:max-w-84">
             <Search
               aria-hidden
-              className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-muted-foreground"
+              className="pointer-events-none absolute top-1/2 left-[17px] size-5 -translate-y-1/2 text-muted-foreground"
             />
             <Input
               type="search"
               aria-label={t("searchParticipant")}
               placeholder={t("searchParticipant")}
-              className="pl-10"
+              className="pl-11"
               value={search}
               onChange={(event) => setSearch(event.target.value)}
             />

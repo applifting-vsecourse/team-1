@@ -723,3 +723,8 @@
 [data-slot="progress-indicator"] {
   border-radius: inherit;
 }
+
+/* Figma Feedback / Badge, warning. */
+[data-slot="badge"][data-variant="warning"] {
+  border-width: 0;
+}

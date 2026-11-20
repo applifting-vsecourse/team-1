@@ -151,10 +151,10 @@ export function DateField({
             <Button
               type="button"
               variant="ghost"
-              size="icon"
+              size="icon-lg"
               disabled={inputProps.disabled}
               aria-label={t("dateField.openCalendar")}
-              className="absolute top-1/2 right-1 size-9 -translate-y-1/2 text-muted-foreground"
+              className="absolute top-1/2 right-1 -translate-y-1/2 text-muted-foreground"
             >
               <CalendarIcon className="size-5" />
             </Button>

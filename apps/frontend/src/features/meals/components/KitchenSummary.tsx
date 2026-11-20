@@ -80,7 +80,10 @@ function KitchenTable({
           {head.map((label, index) => (
             <TableHead
               key={label}
-              className={cn(isLastRight && index === head.length - 1 && "text-right")}
+              className={cn(
+                isLastRight && "md:h-14 md:px-4",
+                isLastRight && index === head.length - 1 && "text-right",
+              )}
             >
               {label}
             </TableHead>
@@ -299,11 +302,14 @@ export function KitchenSummary({ eventId, eventName }: { eventId: string; eventN
                       { id: "regular", name: t("kitchen.regular"), count: term.regular },
                       ...term.options,
                     ].map((option) => (
-                      <TableRow key={option.id}>
-                        <TableCell className="break-words whitespace-normal">
+                      <TableRow
+                        key={option.id}
+                        className="md:h-[84px]"
+                      >
+                        <TableCell className="break-words whitespace-normal md:p-4 md:text-base">
                           {option.name}
                         </TableCell>
-                        <TableCell className="text-right text-sm text-muted-foreground tabular-nums">
+                        <TableCell className="text-right text-sm text-muted-foreground tabular-nums md:w-40 md:p-4">
                           {option.count}
                         </TableCell>
                       </TableRow>

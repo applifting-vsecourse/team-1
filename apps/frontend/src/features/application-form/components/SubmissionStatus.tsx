@@ -155,14 +155,19 @@ function ApplicationStatusCard({ application }: { application: SubmittedApplicat
             return (
               <li
                 key={term.termId}
-                className="flex flex-col gap-1"
+                className="flex flex-col gap-2"
               >
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="text-sm font-medium">
                     {formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })}
                     {termName(term) ? <span className="sr-only"> · {termName(term)}</span> : null}
                   </span>
-                  <Badge variant={isConfirmed ? "success" : "neutral"}>
+                  <Badge
+                    variant={
+                      isConfirmed ? "success" : term.status === "WAITLISTED" ? "warning" : "neutral"
+                    }
+                    className={term.status === "WAITLISTED" ? "border-0" : undefined}
+                  >
                     {t(statusKey(term.status))}
                   </Badge>
                 </div>

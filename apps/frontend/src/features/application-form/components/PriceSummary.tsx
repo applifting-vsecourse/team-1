@@ -33,10 +33,10 @@ export function PriceSummary({ rows, totalCzk, children }: PriceSummaryProps) {
         {rows.map((row, index) => (
           <li
             key={index}
-            className="flex items-center justify-between gap-4"
+            className="flex items-center justify-between gap-2"
           >
-            <span className="flex flex-col">
-              <span className="text-sm">{row.label}</span>
+            <span className="flex min-w-0 flex-col gap-1">
+              <span className="text-sm font-medium">{row.label}</span>
               <span className="text-sm text-muted-foreground">
                 {row.termCount === 0
                   ? t("price.noTerms")
@@ -52,11 +52,11 @@ export function PriceSummary({ rows, totalCzk, children }: PriceSummaryProps) {
       </ul>
       <p
         aria-live="polite"
-        className="flex items-center justify-between gap-4"
+        className="flex items-center justify-between gap-2"
       >
         <span className="text-sm font-medium">{t("price.total")}</span>
         <MoneyAmount
-          className="text-2xl"
+          className="text-2xl/5 font-medium"
           amountCzk={totalCzk}
         />
       </p>
