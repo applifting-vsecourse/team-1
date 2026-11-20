@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { PageHeader } from "@/components/molecules/PageHeader"
@@ -22,6 +23,7 @@ const SECTIONS = ["profile", "security"] as const
 // Figma (Design system v2): US-124 / Profil a jazyk · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=19504-8672 (360 px: node-id=19504-8792)
 // Figma (Design system v2): US-124 / Změnit heslo · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=19504-9261 (360 px: node-id=19504-9400); US-125 / Změna e-mailu · node-id=22404-23993
 export function AccountPage({ isEmailChanged = false }: { isEmailChanged?: boolean }) {
+  const [isPointerFocus, setIsPointerFocus] = useState(false)
   useConnectionFeedback()
   const { t } = useTranslation("auth")
   const { user } = useSession()
@@ -45,6 +47,12 @@ export function AccountPage({ isEmailChanged = false }: { isEmailChanged?: boole
         <TabsList
           aria-label={t("account.title")}
           variant="line"
+          data-pointer-focus={isPointerFocus || undefined}
+          onPointerDownCapture={() => setIsPointerFocus(true)}
+          onKeyDownCapture={() => setIsPointerFocus(false)}
+          onBlurCapture={(event) => {
+            if (!event.currentTarget.contains(event.relatedTarget)) setIsPointerFocus(false)
+          }}
           className="mx-auto w-[calc(100vw-36px)] max-w-full justify-start gap-2 p-0 group-data-[orientation=horizontal]/tabs:h-12 md:mx-0 md:w-full md:group-data-[orientation=horizontal]/tabs:h-15"
         >
           {SECTIONS.map((key) => (

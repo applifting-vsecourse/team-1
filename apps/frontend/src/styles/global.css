@@ -600,9 +600,16 @@
 .account-tab[data-state="active"]:focus-visible {
   outline-width: 2px;
 }
-.account-tab[data-state="active"]:focus-visible::before {
+[role="tablist"]:not([data-pointer-focus])
+  > .account-tab[data-state="active"]:focus-visible::before {
   inset: -2px;
   mask-image: url("../assets/navigation/tab-corners-focus.svg");
+}
+
+/* The tab primitive focuses the trigger in its mouse handler. Keep the full
+   outline for keyboard navigation and the active corners for pointer selection. */
+[data-pointer-focus] > .account-tab:focus-visible {
+  outline: none;
 }
 
 /* Figma v2 action states. Keep the kit's sized hit areas and override only its semantic variants. */
