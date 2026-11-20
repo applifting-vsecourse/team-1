@@ -59,6 +59,11 @@ export function ProgramPage({ eventId }: { eventId: string }) {
     blockIds: ReadonlySet<string> | null
   } | null>(null)
   const queryClient = useQueryClient()
+  // The copy result describes the program as it was right after the copy, so the organizer's next
+  // action in the program (another term, a block, adding, another copy) dismisses it.
+  const dismissCopied = () => {
+    setCopied(null)
+  }
 
   if (!query.data) {
     return query.isError ? (
@@ -119,7 +124,10 @@ export function ProgramPage({ eventId }: { eventId: string }) {
           <Label htmlFor="program-term">{t("termLabel")}</Label>
           <Select
             value={term.termId}
-            onValueChange={setTermId}
+            onValueChange={(value) => {
+              dismissCopied()
+              setTermId(value)
+            }}
           >
             <SelectTrigger
               id="program-term"
@@ -146,6 +154,7 @@ export function ProgramPage({ eventId }: { eventId: string }) {
               size="lg"
               className="max-sm:w-full"
               onClick={() => {
+                dismissCopied()
                 setIsCopying(true)
               }}
             >
@@ -156,6 +165,7 @@ export function ProgramPage({ eventId }: { eventId: string }) {
             size="lg"
             className="max-sm:w-full"
             onClick={() => {
+              dismissCopied()
               setEditor({ date: term.startsOn })
             }}
           >
@@ -192,7 +202,10 @@ export function ProgramPage({ eventId }: { eventId: string }) {
       ) : null}
       <ProgramCalendar
         term={term}
-        onSelect={setViewing}
+        onSelect={(block) => {
+          dismissCopied()
+          setViewing(block)
+        }}
       />
       {isCopying ? (
         <CopyProgramDialog
