@@ -33,7 +33,8 @@ test.describe("Evaluation mode", () => {
 
     // Applications are open (the link works), yet no application has arrived.
     await sections(page).getByRole("link", { name: "Overview" }).click()
-    const applyLink = (await page.getByRole("link", { name: "Open page" }).getAttribute("href")) ?? ""
+    const applyLink =
+      (await page.getByRole("link", { name: "Open page" }).getAttribute("href")) ?? ""
     await sections(page).getByRole("link", { name: "Settings" }).click()
     await expect(page.getByRole("radio", { name: "Automatic" })).toBeChecked()
     await page.getByRole("radio", { name: "Manual" }).click()
