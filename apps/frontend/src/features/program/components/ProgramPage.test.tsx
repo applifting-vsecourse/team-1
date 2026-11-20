@@ -287,4 +287,18 @@ describe("ProgramPage", () => {
     await copyIntoOverlap({ shouldFailReload: true })
     expect(screen.getByText(/Dílny and Hry on .* overlap\./)).toBeInTheDocument()
   })
+
+  it("dismisses the copy result with the next action in the program", async () => {
+    await copyIntoOverlap()
+    expect(screen.getByText("Copied 1 block")).toBeInTheDocument()
+    await userEvent.click(await screen.findByRole("button", { name: "Show details of Hry" }))
+    expect(screen.queryByText("Copied 1 block")).not.toBeInTheDocument()
+    expect(screen.queryByText(/Dílny and Hry on/)).not.toBeInTheDocument()
+  })
+
+  it("dismisses the copy result when the organizer adds a block", async () => {
+    await copyIntoOverlap()
+    await userEvent.click(screen.getByRole("button", { name: "Add block" }))
+    expect(screen.queryByText("Copied 1 block")).not.toBeInTheDocument()
+  })
 })
