@@ -147,6 +147,47 @@ describe("bank statement import (US-42)", () => {
     ])
   })
 
+  it("hands back the uploaded CSV with the result of each row, in the request language (US-561)", async () => {
+    const confirmedNumber = await createApplication(true)
+    const id = String(Date.now())
+    const rows: [number, string][] = [
+      [7000, String(confirmedNumber * 1000 + firstTerm.number)],
+      [200, ""],
+      [-50, "1"],
+      [100, String(confirmedNumber * 1000)],
+    ]
+    const csv = statement(id, rows)
+    const send = async (language: string): Promise<string[]> => {
+      const response = await fetch(api(`/organizer/events/${eventId}/bank-statements`), {
+        method: "POST",
+        headers: { "Content-Type": "text/csv", "Accept-Language": language, Cookie: cookie },
+        body: csv,
+      })
+      return ((await response.json()) as { annotatedCsv: string }).annotatedCsv.split("\r\n")
+    }
+    const original = csv.split("\r\n")
+
+    const first = await send("cs")
+    // Every original row is untouched; only the result is added at the end of it.
+    first.forEach((line, index) => expect(line.startsWith(original[index])).toBe(true))
+    expect(first[0]).toBe(`${original[0]};Výsledek párování`)
+    expect(first[1]).toBe(
+      `${original[1]};Spárováno: přihláška č. ${confirmedNumber} (Bank Test), termín ${firstTerm.number}`,
+    )
+    expect(first[2]).toBe(`${original[2]};Nespárováno: chybí variabilní symbol`)
+    expect(first[3]).toBe(`${original[3]};Přeskočeno: odchozí platba`)
+    expect(first[4]).toBe(
+      `${original[4]};Spárováno: přihláška č. ${confirmedNumber} (Bank Test), potvrzené termíny`,
+    )
+
+    // The same file again: the rows paid before are not counted twice, and the copy says so.
+    const second = await send("en")
+    expect(second[0]).toBe(`${original[0]};Matching result`)
+    expect(second[1]).toBe(`${original[1]};Skipped: already imported earlier`)
+    expect(second[2]).toBe(`${original[2]};Unmatched: no variable symbol`)
+    expect(second[3]).toBe(`${original[3]};Skipped: outgoing transaction`)
+  })
+
   describe("summary variable symbol (US-148)", () => {
     type Status = "CONFIRMED" | "WAITLISTED" | "ARCHIVED"
     let participantId: string

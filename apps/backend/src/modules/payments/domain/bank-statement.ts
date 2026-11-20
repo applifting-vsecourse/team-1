@@ -25,6 +25,12 @@ export type ParsedStatement = {
   incoming: StatementRow[]
   /** Outgoing transactions and zero amounts; not payments, so they are not stored. */
   ignoredCount: number
+  /** Position of each incoming row among the records of the CSV text, parallel to `incoming`. */
+  incomingRecords: number[]
+  /** Position of each ignored row, for the copy of the statement with the result (US-561). */
+  ignoredRecords: number[]
+  /** Position of the header row. */
+  headerRecord: number
 }
 
 /** The upload limit of the endpoint; the parser refuses more, so loops over the text stay bounded. */
@@ -131,8 +137,11 @@ export function parseBankStatement(input: string): ParsedStatement {
   const columns = header.columns
 
   const incoming: StatementRow[] = []
+  const incomingRecords: number[] = []
+  const ignoredRecords: number[] = []
   let ignoredCount = 0
-  for (const row of rows.slice(headerIndex + 1)) {
+  for (const [offset, row] of rows.slice(headerIndex + 1).entries()) {
+    const record = headerIndex + 1 + offset
     if (row.every((cell) => cell.trim() === "")) continue
     const cell = (key: string): string =>
       columns[key] === undefined ? "" : (row[columns[key]] ?? "").trim()
@@ -142,6 +151,7 @@ export function parseBankStatement(input: string): ParsedStatement {
       throw new InvalidStatementError(`Invalid row: ${row.join(";").slice(0, 80)}`)
     if (amountCents <= 0) {
       ignoredCount++
+      ignoredRecords.push(record)
       continue
     }
     const rawCurrency = cell("currency").toUpperCase()
@@ -163,8 +173,9 @@ export function parseBankStatement(input: string): ParsedStatement {
       counterpartyName,
       message,
     })
+    incomingRecords.push(record)
   }
-  return { incoming, ignoredCount }
+  return { incoming, ignoredCount, incomingRecords, ignoredRecords, headerRecord: headerIndex }
 }
 
 export type UnmatchedReason =
@@ -174,6 +185,13 @@ export type UnmatchedReason =
 export type MatchableApplication = {
   id: string
   terms: { termId: string; termNumber: number; status: ApplicationTermStatus; owedCzk: number }[]
+}
+
+/** The application found for a variable symbol, with what the copy of the statement says about it. */
+export type FoundApplication = MatchableApplication & {
+  number: number
+  firstName: string
+  lastName: string
 }
 
 export type MatchDecision =
