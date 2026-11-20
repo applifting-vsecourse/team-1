@@ -1,9 +1,22 @@
-import { MapPin } from "lucide-react"
+import { useRef, type KeyboardEvent } from "react"
+import {
+  DndContext,
+  PointerSensor,
+  pointerWithin,
+  useDraggable,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core"
+import { GripVertical, MapPin } from "lucide-react"
 import { useTranslation } from "react-i18next"
+
+import { ActiveCorners } from "@/components/atoms/ActiveCorners"
 
 import type { ProgramBlock } from "@/features/program/api/program"
 import { HOUR_HEIGHT, hourRange, placeBlocks, toMinutes } from "@/features/program/lib/calendar"
-import { calendarDays, formatDayHeader } from "@/features/program/lib/days"
+import { calendarDays, formatDayHeader, timeRange } from "@/features/program/lib/days"
+
+import { ProgramDayColumn, useProgramDrag } from "./ProgramDrag"
 
 const DAY_MIN_WIDTH = 150
 
@@ -15,7 +28,11 @@ const DAY_MIN_WIDTH = 150
 export function ProgramCalendar({
   term,
   onSelect,
+  onMove,
+  isSaving = false,
 }: {
+  onMove?: (block: ProgramBlock) => void
+  isSaving?: boolean
   term: { startsOn: string; endsOn: string; blocks: ProgramBlock[] }
   onSelect: (block: ProgramBlock) => void
 }) {
@@ -38,7 +55,13 @@ export function ProgramCalendar({
     .slice(1)
     .map((end, i) => `minmax(${((end - boundaries[i]!) * HOUR_HEIGHT) / 60}px, auto)`)
     .join(" ")
-  return (
+  const grid = useRef<HTMLDivElement>(null)
+  const drag = useProgramDrag(term, days, boundaries, grid, onMove)
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
+  const conflictNames = drag.conflicts
+    .map(({ name, minutes }) => t("move.overlap", { name, count: minutes }))
+    .join(" ")
+  const calendar = (
     <section
       aria-label={t("calendarLabel")}
       className="overflow-x-auto rounded-lg border bg-card"
@@ -66,7 +89,8 @@ export function ProgramCalendar({
           })}
         </div>
         <div
-          className="grid"
+          ref={grid}
+          className="relative grid"
           style={{ gridTemplateColumns: columns, gridTemplateRows: rows }}
         >
           {hours.map((hour) => (
@@ -93,10 +117,11 @@ export function ProgramCalendar({
             </span>
           ))}
           {days.map((day, index) => (
-            <div
+            <ProgramDayColumn
               key={day}
-              className="grid min-w-0 grid-rows-subgrid border-l"
-              style={{ gridColumn: index + 2, gridRow: "1 / -1" }}
+              date={day}
+              index={index}
+              isReadOnly={!onMove || day < term.startsOn || day > term.endsOn}
             >
               {placeBlocks(term.blocks.filter((block) => block.date === day)).map((item) => (
                 <CalendarBlock
@@ -104,13 +129,67 @@ export function ProgramCalendar({
                   {...item}
                   gridRow={`${line(toMinutes(item.block.startTime))} / ${line(toMinutes(item.block.endTime))}`}
                   onSelect={onSelect}
+                  onMoveKeyDown={onMove && drag.keyDown}
+                  isSaving={isSaving}
+                  isSource={drag.preview?.id === item.block.id}
                 />
               ))}
-            </div>
+              {drag.preview?.date === day && (
+                <div
+                  aria-hidden
+                  data-program-preview
+                  data-status="active"
+                  style={drag.previewStyle()}
+                  className={`group pointer-events-none absolute inset-x-0.5 z-20 flex min-h-11 flex-col justify-center overflow-hidden rounded-lg border px-3 text-sm ${conflictNames ? "border-destructive bg-card text-destructive" : "border-border bg-accent text-accent-foreground opacity-[.92]"}`}
+                >
+                  <span className="truncate font-medium">{drag.preview.name}</span>
+                  <span className="text-xs">{timeRange(drag.preview)}</span>
+                  {!conflictNames && <ActiveCorners />}
+                </div>
+              )}
+            </ProgramDayColumn>
           ))}
         </div>
       </div>
     </section>
+  )
+  if (!onMove) return calendar
+  return (
+    <DndContext
+      sensors={sensors}
+      collisionDetection={pointerWithin}
+      accessibility={{
+        screenReaderInstructions: { draggable: t("move.instructions") },
+        announcements: {
+          onDragStart: () => undefined,
+          onDragOver: () => undefined,
+          onDragEnd: () => undefined,
+          onDragCancel: () => undefined,
+        },
+      }}
+      onDragStart={({ active }) => drag.pointerStart(active.id)}
+      onDragMove={drag.pointerMove}
+      onDragOver={drag.pointerMove}
+      onDragEnd={drag.pointerEnd}
+      onDragCancel={drag.cancel}
+    >
+      {calendar}
+      <p
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        className={
+          drag.preview
+            ? `text-sm ${conflictNames ? "text-destructive" : "text-muted-foreground"}`
+            : "sr-only"
+        }
+      >
+        {drag.preview &&
+          (conflictNames
+            ? drag.message + " " + conflictNames
+            : drag.message + " " + t("move.hint"))}
+      </p>
+    </DndContext>
   )
 }
 
@@ -120,19 +199,31 @@ function CalendarBlock({
   columns,
   gridRow,
   onSelect,
+  onMoveKeyDown,
+  isSaving,
+  isSource,
 }: {
   block: ProgramBlock
   column: number
   columns: number
+  onMoveKeyDown?: (event: KeyboardEvent<HTMLButtonElement>, block: ProgramBlock) => void
+  isSaving: boolean
+  isSource?: boolean
   gridRow: string
   onSelect: (block: ProgramBlock) => void
 }) {
   const { t } = useTranslation("program")
+  const { attributes, listeners, setNodeRef, setActivatorNodeRef } = useDraggable({
+    id: block.id,
+    disabled: !onMoveKeyDown || isSaving,
+  })
   const start = toMinutes(block.startTime)
   const minutes = toMinutes(block.endTime) - start
   return (
     <article
-      className="relative col-start-1 my-px min-h-11 min-w-0 rounded-checkbox border-l-4 border-l-primary bg-accent text-accent-foreground transition-colors hover:bg-accent/80"
+      ref={setNodeRef}
+      data-moving={isSource}
+      className="relative col-start-1 my-px min-h-11 min-w-0 rounded-checkbox border-l-4 border-l-primary bg-accent text-accent-foreground transition-colors hover:bg-accent/80 data-[moving=true]:opacity-40"
       style={{
         gridRow,
         marginLeft: `calc(${String((column * 100) / columns)}% + 2px)`,
@@ -141,13 +232,37 @@ function CalendarBlock({
     >
       <button
         type="button"
+        onPointerDown={(event) => {
+          if (event.pointerType === "mouse") listeners?.onPointerDown?.(event)
+        }}
         aria-label={t("info", { name: block.name })}
         className="absolute inset-0 rounded-checkbox outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
         onClick={() => {
           onSelect(block)
         }}
       />
-      <div className="pointer-events-none relative flex min-w-0 flex-col gap-0.5 px-2 py-1">
+      {onMoveKeyDown && (
+        <button
+          type="button"
+          ref={setActivatorNodeRef}
+          {...attributes}
+          {...listeners}
+          disabled={isSaving}
+          data-program-move={block.id}
+          aria-label={t("move.label", { name: block.name })}
+          aria-pressed={isSource}
+          onKeyDown={(event) => onMoveKeyDown(event, block)}
+          className="absolute top-0 right-0 z-10 grid size-11 cursor-grab touch-none place-items-center rounded-checkbox text-primary outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset active:cursor-grabbing"
+        >
+          <GripVertical
+            aria-hidden
+            className="size-4"
+          />
+        </button>
+      )}
+      <div
+        className={`pointer-events-none relative flex min-w-0 flex-col gap-0.5 px-2 py-1 ${onMoveKeyDown ? "pr-10" : ""}`}
+      >
         <span className="text-sm leading-tight font-medium break-words text-foreground">
           {block.name}
         </span>

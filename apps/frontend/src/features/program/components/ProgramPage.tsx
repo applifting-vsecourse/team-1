@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
 import { Copy } from "lucide-react"
 import { useTranslation } from "react-i18next"
@@ -27,6 +27,7 @@ import { termDatesLine } from "@/lib/term-label"
 import {
   eventProgramQueryOptions,
   programKeys,
+  saveProgramBlock,
   type ProgramBlock,
   type ProgramCopyResult,
 } from "@/features/program/api/program"
@@ -62,6 +63,20 @@ export function ProgramPage({ eventId }: { eventId: string }) {
     blockIds: ReadonlySet<string> | null
   } | null>(null)
   const queryClient = useQueryClient()
+
+  const move = useMutation({
+    mutationFn: ({ id, date, startTime, endTime, name, place, description }: ProgramBlock) =>
+      saveProgramBlock(
+        eventId,
+        { date, startTime, endTime, name, place: place ?? "", description: description ?? "" },
+        { id },
+      ),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: programKeys.event(eventId) })
+      notify.success(t("saved"), t("savedDescription"))
+    },
+    onError: (error) => notify.error(t("saveFailed"), error.message),
+  })
 
   if (!query.data) {
     return query.isError ? (
@@ -227,6 +242,22 @@ export function ProgramPage({ eventId }: { eventId: string }) {
         <p className="text-sm text-muted-foreground">{t("empty")}</p>
       ) : null}
       <ProgramCalendar
+        key={term.termId}
+        onMove={(block) => {
+          const handle = document.activeElement
+          const shouldRestoreFocus =
+            handle instanceof HTMLElement && handle.dataset.programMove === block.id
+          move.mutate(block, {
+            onSuccess: () => {
+              if (shouldRestoreFocus && document.activeElement === document.body) {
+                document
+                  .querySelector<HTMLButtonElement>(`[data-program-move="${CSS.escape(block.id)}"]`)
+                  ?.focus()
+              }
+            },
+          })
+        }}
+        isSaving={move.isPending}
         term={term}
         onSelect={setViewing}
       />

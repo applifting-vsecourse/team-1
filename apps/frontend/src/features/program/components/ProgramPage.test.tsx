@@ -42,9 +42,10 @@ const term = {
   ],
 }
 
-function renderPage(data: unknown) {
+function renderPage(data: unknown, onPut?: (body: unknown) => void) {
   const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation((input, init) => {
     const method = input instanceof Request ? input.method : (init?.method ?? "GET")
+    if (method === "PUT" && input instanceof Request && onPut) void input.clone().json().then(onPut)
     return Promise.resolve(
       method === "GET"
         ? new Response(JSON.stringify(data), { headers: { "Content-Type": "application/json" } })
@@ -80,6 +81,55 @@ describe("ProgramPage", () => {
     ).toHaveLength(3)
     expect(screen.getByText("Dílny")).toBeInTheDocument()
     expect(screen.queryByText("10:00–12:00")).not.toBeInTheDocument()
+  })
+
+  it("previews a keyboard move, warns about overlaps and only writes on confirmation", async () => {
+    const onPut = vi.fn()
+    const fetchMock = renderPage(
+      program([
+        {
+          ...term,
+          blocks: [
+            ...term.blocks,
+            {
+              ...term.blocks[0],
+              id: "overlap",
+              name: "Workshop",
+              date: "2027-07-14",
+              startTime: "12:00",
+              endTime: "13:00",
+            },
+          ],
+        },
+      ]),
+      onPut,
+    )
+    const handle = await screen.findByRole("button", { name: "Move block Dílny" })
+    handle.focus()
+    await userEvent.keyboard("[Space]{ArrowDown}{ArrowRight}")
+    expect(screen.getByText(/Overlap with “Workshop”: 30 minutes/)).toHaveTextContent("10:30–12:30")
+    await userEvent.keyboard("{Escape}")
+    expect(
+      fetchMock.mock.calls.some(([req]) => req instanceof Request && req.method === "PUT"),
+    ).toBe(false)
+    await userEvent.keyboard("{Enter}{ArrowRight}{ArrowDown}{Enter}")
+    await waitFor(() =>
+      expect(
+        fetchMock.mock.calls.some(([req]) => req instanceof Request && req.method === "PUT"),
+      ).toBe(true),
+    )
+    await waitFor(() =>
+      expect(onPut).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: "Dílny",
+          date: "2027-07-14",
+          startTime: "10:30",
+          endTime: "12:30",
+          place: "Chata A–C",
+          description: "Výroba suvenýrů",
+        }),
+      ),
+    )
   })
 
   it("opens all about a block on a click, with edit and delete for the organizer", async () => {

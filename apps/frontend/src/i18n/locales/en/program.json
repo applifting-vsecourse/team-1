@@ -76,6 +76,14 @@
   "info": "Show details of {{name}}",
   "loadFailed": "Couldn't load the program",
   "minutes": "Minutes",
+  "move": {
+    "hint": "You can also adjust the time with the arrow keys.",
+    "instructions": "Press Space or Enter to pick up a block. Up and Down move it by 30 minutes. Left and Right change the day. Space or Enter saves the move. Escape cancels it.",
+    "label": "Move block {{name}}",
+    "overlap_one": "Overlap with “{{name}}”: {{count}} minute.",
+    "overlap_other": "Overlap with “{{name}}”: {{count}} minutes.",
+    "position": "{{name}} · {{date}} · {{time}}"
+  },
   "nameLabel": "Block name",
   "nameRequired": "Enter the block name.",
   "noTerms": "The event has no terms yet. The program is built per term, so add a term first.",
