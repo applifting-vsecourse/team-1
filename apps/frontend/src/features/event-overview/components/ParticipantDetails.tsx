@@ -26,8 +26,8 @@ type ParticipantDetailsProps = {
 }
 
 /**
- * The participant's date of birth, gender and phone as "label · value" rows (the name is the
- * page heading), and the applicant's e-mail, with a button that opens the edit dialog while the
+ * The participant's date of birth, gender as "label · value" rows (the name is the
+ * page heading), and the applicant's e-mail and phone, with a button that opens the edit dialog while the
  * application can still be edited (#515). Stacked on a phone, two columns from md up.
  */
 // Figma v2: US-53 Detail účastníka · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22475-86190 (mobile 22475-86352)
@@ -40,7 +40,6 @@ export function ParticipantDetails({ application }: ParticipantDetailsProps) {
       t("participant.gender"),
       t(application.gender === "FEMALE" ? "participant.female" : "participant.male"),
     ],
-    [t("participant.phone"), application.phone ?? t("payment.phoneNone")],
   ] as const
 
   return (
@@ -81,6 +80,16 @@ export function ParticipantDetails({ application }: ParticipantDetailsProps) {
         >
           {application.email}
         </a>
+        {application.phone ? (
+          <a
+            className="break-all text-link underline"
+            href={`tel:${application.phone}`}
+          >
+            {application.phone}
+          </a>
+        ) : (
+          <span className="text-muted-foreground">{t("payment.phoneNone")}</span>
+        )}
       </Card>
       {isEditing ? (
         <ParticipantEditDialog
