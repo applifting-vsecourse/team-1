@@ -1,6 +1,6 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { Prisma } from "@/generated/prisma/client"
-import { computeRoomBeds } from "@/modules/applications/domain/capacity"
+import { computeRoomBeds, countByGender } from "@/modules/applications/domain/capacity"
 import { ROOM_CAPACITY_SELECT } from "@/modules/applications/repositories/room-capacity.select"
 import { BulkRoomsPlan, BulkRoomsResult, planBulkRooms } from "@/modules/events/domain/bulk-rooms"
 import {
@@ -53,6 +53,9 @@ export class RoomsRepository {
           gender,
           individual,
           assignments,
+          occupiedBy: countByGender(
+            assignments.map((row) => ({ gender: row.applicationTerm.application.gender })),
+          ),
         }),
       ),
     }

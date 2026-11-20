@@ -5,7 +5,14 @@ import { api, connectTestPrisma, resetAndSeed, signIn } from "@/test/integration
 type Gender = "FEMALE" | "MALE"
 type Status = "CONFIRMED" | "WAITLISTED"
 type Rooms = {
-  rooms: { id: string; name: string; gender: Gender | null; individual: boolean; beds: number }[]
+  rooms: {
+    id: string
+    name: string
+    gender: Gender | null
+    individual: boolean
+    beds: number
+    occupiedBy: { FEMALE: number; MALE: number }
+  }[]
   capacity: { FEMALE: number; MALE: number; total: number; individualBeds: number }
 }
 type Assignments = {
@@ -158,6 +165,10 @@ describe("individual rooms (integration)", () => {
     expect((await warnings()).warnings).toEqual([])
     // Their beds count into the capacity of their gender, so they take no regular place (variant b).
     expect((await rooms()).capacity).toEqual({ FEMALE: 2, MALE: 2, total: 4, individualBeds: 4 })
+    // The room tells what it adds to the capacity, the delete dialog needs it.
+    expect((await rooms()).rooms.find((room) => room.id === individual.id)).toMatchObject({
+      occupiedBy: { FEMALE: 1, MALE: 1 },
+    })
     expect(await freePlaces()).toMatchObject({
       capacity: { FEMALE: 2, MALE: 2 },
       freePlaces: { FEMALE: 1, MALE: 1 },

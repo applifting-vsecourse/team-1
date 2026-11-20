@@ -15,6 +15,8 @@ const roomSchema = z.object({
   gender: z.enum(["FEMALE", "MALE"]).nullable(),
   /** Individual (mixed, family) room (US-145): no gender, counted into the capacity by occupancy. */
   individual: z.boolean().optional(),
+  /** Confirmed people in an individual room by gender: what it adds to the capacity. */
+  occupiedBy: z.object({ FEMALE: z.number().int(), MALE: z.number().int() }).optional(),
 })
 const termRoomsSchema = z.object({
   eventId: z.string(),

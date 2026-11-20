@@ -1,11 +1,21 @@
 import { RoomCapacity } from "@/modules/applications/domain/capacity"
-import { Gender } from "@/shared/domain/gender"
+import { Gender, GenderCounts } from "@/shared/domain/gender"
 
 export type RoomMode = "GENDERED" | "SHARED"
 /** `beds` = `capacity` + `extraBeds`, computed by `computeRoomBeds`; clients only display it. */
-export type Room = RoomCapacity & { id: string; name: string; beds: number; individual: boolean }
+export type Room = RoomCapacity & {
+  id: string
+  name: string
+  beds: number
+  individual: boolean
+  /** Confirmed people sleeping in an individual room, by gender: what the room adds to the capacity (US-145). */
+  occupiedBy: GenderCounts
+}
 /** What the organizer edits in a room; extra beds have their own action. */
-export type RoomInput = Omit<Room, "id" | "extraBeds" | "beds" | "individual" | "assignments"> & {
+export type RoomInput = Omit<
+  Room,
+  "id" | "extraBeds" | "beds" | "individual" | "assignments" | "occupiedBy"
+> & {
   /** Individual (mixed, family) room (US-145); false when left out. */
   individual?: boolean
 }
