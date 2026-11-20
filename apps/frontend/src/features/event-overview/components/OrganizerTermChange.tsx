@@ -53,7 +53,7 @@ export function OrganizerTermChange({
 }: {
   applicationId: string
   /** The term of the application that is swapped for another one. */
-  term: TermStatusDetail
+  term: TermStatusDetail | null
 }) {
   const { t } = useTranslation("eventOverview")
   const client = useQueryClient()
@@ -69,7 +69,7 @@ export function OrganizerTermChange({
   const original = term
   const next = candidates.find((row) => row.id === nextId)
   const termIds = next
-    ? [...current.filter((row) => row.id !== term.termId).map((row) => row.id), next.id]
+    ? [...current.filter((row) => row.id !== term?.termId).map((row) => row.id), next.id]
     : []
   const preview = useQuery({
     ...termChangePreviewQueryOptions(applicationId, termIds),
@@ -78,7 +78,7 @@ export function OrganizerTermChange({
   const added = preview.data?.added[0]
   const removed = preview.data?.removed[0]
   const originalPrice =
-    application.data?.terms.find((row) => row.termId === term.termId)?.priceCzk ?? 0
+    application.data?.terms.find((row) => row.termId === term?.termId)?.priceCzk ?? 0
 
   const close = () => {
     setIsOpen(false)
@@ -121,15 +121,17 @@ export function OrganizerTermChange({
   return (
     <>
       <Button
-        variant="secondary"
-        className="transition-colors hover:bg-accent hover:text-accent-foreground"
+        variant={term ? "secondary" : "ghost"}
+        className={
+          term ? "transition-colors hover:bg-accent hover:text-accent-foreground" : "h-12 w-full"
+        }
         onClick={() => {
           setNextId("")
           setIsOpen(true)
         }}
       >
-        <ArrowRightLeft aria-hidden />
-        {t("termChange.trigger")}
+        {term ? <ArrowRightLeft aria-hidden /> : null}
+        {t(term ? "termChange.trigger" : "termStatus.changeTerms")}
       </Button>
       <Dialog
         open={isOpen}
@@ -201,10 +203,12 @@ export function OrganizerTermChange({
                   </DialogDescription>
                 </DialogHeader>
                 {subject}
-                <div className="flex flex-col gap-2">
-                  <Label>{t("termChange.original")}</Label>
-                  <p className="text-sm font-medium">{termLine(original)}</p>
-                </div>
+                {original ? (
+                  <div className="flex flex-col gap-2">
+                    <Label>{t("termChange.original")}</Label>
+                    <p className="text-sm font-medium">{termLine(original)}</p>
+                  </div>
+                ) : null}
                 <div className="flex flex-col gap-2">
                   <Label>{t("termChange.next")}</Label>
                   <Select
@@ -234,31 +238,33 @@ export function OrganizerTermChange({
                     {t("termChange.impact.errorTitle")}
                   </p>
                 ) : null}
-                {preview.data && added && removed && next ? (
+                {preview.data && added && next ? (
                   <section className="flex flex-col gap-4">
                     <h3 className="text-lg font-semibold tracking-tight">
                       {t("termChange.impact.title")}
                     </h3>
-                    <div className="flex flex-col gap-3 border-t pt-4">
-                      <p className="font-medium">
-                        {t("termChange.original")}
-                        <span className="font-normal text-muted-foreground">
-                          {" · "}
-                          {termTitle(original)}
-                        </span>
-                      </p>
-                      <dl className="grid grid-cols-3 gap-3">
-                        <ImpactFigure label={t("termChange.impact.price")}>
-                          <MoneyAmount amountCzk={originalPrice} />
-                        </ImpactFigure>
-                        <ImpactFigure label={t("termChange.impact.paid")}>
-                          <MoneyAmount amountCzk={removed.paidCzk} />
-                        </ImpactFigure>
-                        <ImpactFigure label={t("termChange.impact.overpayment")}>
-                          <MoneyAmount amountCzk={removed.overpaymentCzk} />
-                        </ImpactFigure>
-                      </dl>
-                    </div>
+                    {original && removed ? (
+                      <div className="flex flex-col gap-3 border-t pt-4">
+                        <p className="font-medium">
+                          {t("termChange.original")}
+                          <span className="font-normal text-muted-foreground">
+                            {" · "}
+                            {termTitle(original)}
+                          </span>
+                        </p>
+                        <dl className="grid grid-cols-3 gap-3">
+                          <ImpactFigure label={t("termChange.impact.price")}>
+                            <MoneyAmount amountCzk={originalPrice} />
+                          </ImpactFigure>
+                          <ImpactFigure label={t("termChange.impact.paid")}>
+                            <MoneyAmount amountCzk={removed.paidCzk} />
+                          </ImpactFigure>
+                          <ImpactFigure label={t("termChange.impact.overpayment")}>
+                            <MoneyAmount amountCzk={removed.overpaymentCzk} />
+                          </ImpactFigure>
+                        </dl>
+                      </div>
+                    ) : null}
                     <div className="flex flex-col gap-3 border-t pt-4">
                       <p className="font-medium">
                         {t("termChange.next")}
