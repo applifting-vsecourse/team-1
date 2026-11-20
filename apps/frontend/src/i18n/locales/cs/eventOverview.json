@@ -679,7 +679,7 @@
     "emptyHint": "Nové přihlášky v ručním režimu se objeví v této frontě.",
     "loading": "Načítám…",
     "proposalCount": "{{view}}, počet lůžek čekajících na potvrzení: {{count}}",
-    "status": "Čeká na vyhodnocení",
+    "status": "K vyhodnocení",
     "viewAll": "Všechny přihlášky",
     "viewRequests": "Žádosti o změnu",
     "viewWaitlist": "Náhradníci",
