@@ -382,6 +382,7 @@
     "yes": "yes"
   },
   "manual": {
+    "accommodationNote": "Note for the organizer (optional)",
     "add": "Add application",
     "applicant": "Applicant",
     "birthDate": "Date of birth *",
@@ -401,6 +402,7 @@
     "genderMale": "Male",
     "history": "History · Added by organiser · {{name}}",
     "historyEntry": "{{date}} · Added by organiser · {{name}}",
+    "individualAccommodation": "I want to arrange the accommodation individually",
     "infoDescription": "This will be recorded in the history. The applicant will receive confirmation and access to the app.",
     "infoTitle": "An organiser is adding this application",
     "invalidDate": "Enter a valid date of birth.",
@@ -409,6 +411,7 @@
     "lastName": "Last name *",
     "nameRequired": "Enter a first and last name.",
     "noPayment": "Nothing due",
+    "noteTooLong": "The note can have at most 2,000 characters.",
     "openDetail": "Open application detail",
     "overCapacity": "Confirm over capacity",
     "overCapacityDescription": "Confirming this application will increase occupancy from {{before}}/{{capacity}} to {{after}}/{{capacity}}.",

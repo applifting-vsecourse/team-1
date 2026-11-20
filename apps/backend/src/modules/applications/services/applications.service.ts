@@ -46,6 +46,8 @@ export type ManualApplicationInput = {
   lastName: string
   birthDate: string
   gender: Gender
+  individualAccommodation?: boolean
+  accommodationRequest?: string | null
   terms: { termId: string; status: "CONFIRMED" | "WAITLISTED" }[]
   confirmOverCapacity?: boolean
 }
@@ -114,6 +116,7 @@ export class ApplicationsService {
       const submitted: ApplicationToSave = {
         ...participant,
         gender: input.gender,
+        ...normalizeAccommodation(input.individualAccommodation, input.accommodationRequest),
         email,
         phone: phone ?? undefined,
         locale,
