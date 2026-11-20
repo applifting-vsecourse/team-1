@@ -8,13 +8,7 @@ import type { EditableApplication } from "@/features/participant/api/application
 const isAccommodation = (field: string) =>
   field === "accommodationRequest" || field === "individualAccommodation"
 
-function EditHistoryLine({
-  change,
-  isDetailed = false,
-}: {
-  change: EditableApplication["history"][number]
-  isDetailed?: boolean
-}) {
+function EditHistoryLine({ change }: { change: EditableApplication["history"][number] }) {
   const { t } = useTranslation("participant")
   const fields = change.changedFields
   const hasAccommodationChanges = fields.some(isAccommodation)
@@ -31,24 +25,13 @@ function EditHistoryLine({
     hasAccommodationChanges && fields.filter((field) => !isAccommodation(field)).join() === "phone"
       ? t("edit.historyContactAccommodation")
       : t("edit.historyOther", { fields: kinds.join(", ") })
-  if (isDetailed) {
-    return (
-      <li className="flex flex-col gap-4 text-sm">
-        <p>
-          {formatDateTime(change.createdAt)} · {change.authorName}
-        </p>
-        <p>{description}</p>
-      </li>
-    )
-  }
   return (
-    <p>
-      {t("edit.historyLine", {
-        date: formatDateTime(change.createdAt),
-        author: change.authorName,
-        description,
-      })}
-    </p>
+    <li className="flex flex-col gap-4 text-sm">
+      <p>
+        {formatDateTime(change.createdAt)} · {change.authorName}
+      </p>
+      <p>{description}</p>
+    </li>
   )
 }
 
@@ -64,43 +47,6 @@ function AccommodationSummary({ saved }: { saved: EditableApplication }) {
           })
         : t("edit.noAccommodationRequest")}
     </p>
-  )
-}
-
-export function EditDetails({
-  saved,
-  hasJustSaved = false,
-}: {
-  saved: EditableApplication
-  hasJustSaved?: boolean
-}) {
-  const { t } = useTranslation("participant")
-  const history = hasJustSaved ? saved.history.slice(0, 1) : saved.history
-  const hasRemovedAccommodation =
-    saved.history[0]?.changedFields.includes("individualAccommodation") &&
-    !saved.individualAccommodation
-  return (
-    <>
-      <p>
-        {saved.phone ? t("edit.phoneSummary", { phone: saved.phone }) : t("edit.phoneSummaryNone")}
-      </p>
-      <AccommodationSummary saved={saved} />
-      {hasJustSaved && (
-        <p>
-          {t(
-            hasRemovedAccommodation
-              ? "edit.accommodationRemovalNotified"
-              : "edit.organizerNotified",
-          )}
-        </p>
-      )}
-      {history.map((change) => (
-        <EditHistoryLine
-          key={change.id}
-          change={change}
-        />
-      ))}
-    </>
   )
 }
 
@@ -120,7 +66,6 @@ export function ApplicationEditHistory({ saved }: { saved: EditableApplication }
             <EditHistoryLine
               key={change.id}
               change={change}
-              isDetailed
             />
           ))}
         </ul>

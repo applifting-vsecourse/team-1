@@ -104,7 +104,6 @@
   "edit": {
     "accommodationHeading": "Individual accommodation arrangements",
     "accommodationIndividual": "Individual arrangement",
-    "accommodationRemovalNotified": "The organizer was notified that the request was withdrawn.",
     "accommodationRequest": "Note for the organizer (optional)",
     "accommodationRequestTooLong": "The note can have at most 2,000 characters.",
     "accommodationSummary": "Accommodation · {{request}}",
@@ -123,7 +122,6 @@
     "historyContact": "contact",
     "historyContactAccommodation": "Updated contact and accommodation request.",
     "historyHeading": "Change history",
-    "historyLine": "History · {{date}} · {{author}} · {{description}}",
     "historyLoadFailed": "The change history could not be loaded.",
     "historyOther": "Updated: {{fields}}.",
     "historyPersonal": "personal details",
@@ -134,18 +132,18 @@
     "loadError": "Couldn't load the application",
     "noAccommodationRequest": "No individual accommodation requested.",
     "open": "Edit application",
-    "organizerNotified": "The organizer received a notification.",
     "participant": "Participant details",
     "phone": "Phone",
     "phoneInvalid": "Enter a valid phone number, for example +420 777 123 456.",
-    "phoneSummary": "Phone · {{phone}}",
-    "phoneSummaryNone": "Phone · —",
     "retry": "Try again",
     "save": "Save changes",
     "saveError": "Try saving your changes again",
     "saveErrorTitle": "Changes couldn't be saved",
-    "successTitle": "Changes were saved",
     "title": "Edit application",
+    "toast": {
+      "organizerNotified": "The organizer received a notification.",
+      "saved": "Changes saved"
+    },
     "valuesPreserved": "Your entries have been kept."
   },
   "list": {

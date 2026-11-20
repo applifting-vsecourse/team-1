@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { Link, useBlocker } from "@tanstack/react-router"
+import { Link, useBlocker, useNavigate } from "@tanstack/react-router"
 import { TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
@@ -26,6 +26,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { isIsoDate } from "@/lib/date-input"
+import { notify } from "@/lib/notify"
 import { isValidPhone, MAX_PHONE_INPUT_LENGTH, normalizePhone } from "@/lib/phone"
 
 import {
@@ -34,9 +35,8 @@ import {
   type EditableApplication,
   type EditApplicationInput,
 } from "@/features/participant/api/applicationEdit"
-import { EditDetails } from "@/features/participant/components/ApplicationEditHistory"
 
-// Figma (Design system v2): US-34 / Upravit údaje · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=20491-16159 (360 px: 20491-16398); Chyba uložení 20491-17377 (360 px: 20491-17622); Uloženo 20491-17822 (360 px: 20491-18074)
+// Figma (Design system v2): US-34 / Upravit údaje · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=20491-16159 (360 px: 20491-16398); Chyba uložení 20491-17377 (360 px: 20491-17622)
 // Figma (Design system v2): #38 individuální řešení ubytování · nezaškrtnuto node-id=25586-32206 (360 px: 25586-32330); zaškrtnuto s poznámkou 25586-32411 (360 px: 25586-32543); chyba 25586-32632 (360 px: 25586-32768)
 export function EditApplicationPage({ applicationId }: { applicationId: string }) {
   const { t } = useTranslation("participant")
@@ -78,6 +78,8 @@ function EditForm({
 }) {
   const { t } = useTranslation("participant")
   const client = useQueryClient()
+  const navigate = useNavigate()
+  const detail = { to: ROUTES.participant.application, params: { applicationId } } as const
   // Untouched fields follow refreshed server data; only local edits override it.
   const [edits, setEdits] = useState<Partial<EditApplicationInput>>({})
   const values: EditApplicationInput = {
@@ -108,10 +110,13 @@ function EditForm({
         accommodationRequest: values.individualAccommodation ? values.accommodationRequest : null,
       }),
     onSuccess: async () => {
+      // The result is a toast over the application detail; there is no result page.
+      notify.success(t("edit.toast.saved"), t("edit.toast.organizerNotified"))
+      // The save is done, so leaving the form must not ask to discard the changes.
+      await navigate({ ...detail, ignoreBlocker: true })
       await client.invalidateQueries({ queryKey: ["participant", "applications"] })
     },
   })
-  const detail = { to: ROUTES.participant.application, params: { applicationId } } as const
   const nullableTrimmed = (value: string | null) => {
     const trimmed = value?.trim()
     return trimmed?.length ? trimmed : null
@@ -176,31 +181,6 @@ function EditForm({
       ) : null}
     </div>
   )
-
-  if (mutation.isSuccess) {
-    const saved = mutation.data
-    return (
-      <div className="mx-auto flex w-full max-w-[720px] flex-col gap-6">
-        <h1 className="text-2xl font-bold">{t("edit.successTitle")}</h1>
-        <Card className="gap-4 p-4 md:p-5">
-          <h2 className="text-xl font-semibold">
-            {saved.firstName} {saved.lastName}
-          </h2>
-          <EditDetails
-            saved={saved}
-            hasJustSaved
-          />
-        </Card>
-        <Button
-          asChild
-          variant="ghost"
-          className="self-center"
-        >
-          <Link {...detail}>{t("edit.backToApplication")}</Link>
-        </Button>
-      </div>
-    )
-  }
 
   return (
     <form
