@@ -1,11 +1,12 @@
 import { useState } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { useLocation, useNavigate } from "@tanstack/react-router"
+import { Link, useLocation, useNavigate } from "@tanstack/react-router"
 import { TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
 import { ROUTES } from "@/app/routes"
+import { BrandDivider } from "@/components/atoms/BrandDivider"
 import { Seo } from "@/components/atoms/Seo"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -22,11 +23,12 @@ import { authClient } from "@/features/auth/lib/auth-client"
 
 type Props = { email: string; error?: string }
 
-// Figma (Design system): #69 / Ověřte svůj e-mail / Desktop · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19795-23125
-// Figma (Design system): #69 / Ověřovací odkaz vypršel / Desktop · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19795-23779
+// Figma v2: Ověřte svůj e-mail · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22456-11182
+// Figma v2: Ověřovací odkaz vypršel · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=21238-11168
 export function VerifyOrganizerEmail({ email, error }: Props) {
   const { t } = useTranslation("auth")
   const { t: tErrors } = useTranslation("errors")
+  const [resentTo, setResentTo] = useState("")
   const [isPending, setPending] = useState(false)
   const [failure, setFailure] = useState<string | null>(null)
   const navigate = useNavigate()
@@ -45,7 +47,8 @@ export function VerifyOrganizerEmail({ email, error }: Props) {
   const [password, setPassword] = useState("")
   const shouldAskPassword = !bypassToken || isTokenRefused
   const canBypass = Boolean(isBypassOn && email)
-  const isExpired = Boolean(error)
+  const isResent = Boolean(email) && resentTo === email
+  const isExpired = Boolean(error) && !isResent
   const title = t(isExpired ? "registration.expiredTitle" : "registration.verifyTitle")
 
   const resend = async () => {
@@ -59,6 +62,8 @@ export function VerifyOrganizerEmail({ email, error }: Props) {
         setFailure(
           sendError.status === 429 ? tErrors("TOO_MANY_REQUESTS") : t("registration.resendFailed"),
         )
+      } else {
+        setResentTo(email)
       }
     } catch {
       setFailure(t("registration.resendFailed"))
@@ -102,6 +107,15 @@ export function VerifyOrganizerEmail({ email, error }: Props) {
     <RegistrationLayout>
       <Seo title={title} />
       <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
+      <BrandDivider />
+      {isResent && (
+        <p
+          role="status"
+          className="font-medium text-primary"
+        >
+          {t("registration.resent")}
+        </p>
+      )}
       {isExpired ? (
         <Alert
           variant="destructive"
@@ -110,14 +124,19 @@ export function VerifyOrganizerEmail({ email, error }: Props) {
           <TriangleAlert aria-hidden="true" />
           <AlertTitle>{t("registration.expiredAlertTitle")}</AlertTitle>
           <AlertDescription className="text-muted-foreground">
-            {t("registration.expiredAlertDescription")}
+            {t("registration.expiredAlertDescription", { email })}
           </AlertDescription>
         </Alert>
       ) : (
         <>
-          <p>{t("registration.verifySent", { email })}</p>
+          {email ? (
+            <div className="flex flex-col gap-1">
+              <p className="text-sm text-muted-foreground">{t("registration.verifySent")}</p>
+              <p className="break-all">{email}</p>
+            </div>
+          ) : null}
           <p>{t("registration.verifyDescription")}</p>
-          <p>{t("registration.verifyRestriction")}</p>
+          <p className="text-muted-foreground">{t("registration.verifyRestriction")}</p>
         </>
       )}
       {failure ? (
@@ -133,8 +152,28 @@ export function VerifyOrganizerEmail({ email, error }: Props) {
       >
         {t(isExpired ? "registration.expiredAction" : "registration.resend")}
       </Button>
+      {isExpired ? null : <p className="text-muted-foreground">{t("registration.checkSpam")}</p>}
+      <Button
+        asChild
+        variant="ghost"
+        className="self-start"
+      >
+        <Link to={ROUTES.organizer.register}>{t("registration.correctEmail")}</Link>
+      </Button>
+      {isExpired ? null : (
+        <Button
+          asChild
+          variant="outline"
+          size="lg"
+          className="h-12 w-full"
+        >
+          <Link to={ROUTES.organizer.login}>{t("registration.signIn")}</Link>
+        </Button>
+      )}
       {canBypass ? (
-        <>
+        <section className="flex flex-col gap-3 rounded-lg border bg-muted p-3">
+          <h2 className="font-semibold">{t("registration.demoTitle")}</h2>
+          <p className="text-sm">{t("registration.demoHint")}</p>
           {shouldAskPassword ? (
             <div className="flex flex-col gap-2">
               <label
@@ -162,7 +201,7 @@ export function VerifyOrganizerEmail({ email, error }: Props) {
           >
             {t("registration.verifyBypass")}
           </Button>
-        </>
+        </section>
       ) : null}
     </RegistrationLayout>
   )

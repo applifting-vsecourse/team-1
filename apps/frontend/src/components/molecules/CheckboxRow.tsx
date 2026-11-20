@@ -10,15 +10,14 @@ export function CheckboxRow({
   ...props
 }: Omit<ComponentProps<typeof Checkbox>, "className"> & { id: string; label: string }) {
   return (
-    <div className="flex min-h-11 items-center gap-3">
+    <div className="flex items-center gap-3 py-2">
       <Checkbox
         id={id}
-        className="size-5"
         {...props}
       />
       <Label
         htmlFor={id}
-        className="flex-1 cursor-pointer leading-5 font-normal"
+        className="flex-1 cursor-pointer text-base leading-6 font-normal"
       >
         {label}
       </Label>

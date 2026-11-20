@@ -1,7 +1,15 @@
-import { forwardRef, useState, type ComponentProps } from "react"
-import { Eye, EyeOff } from "lucide-react"
+import {
+  forwardRef,
+  useImperativeHandle,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ComponentProps,
+} from "react"
 import { useTranslation } from "react-i18next"
 
+import eyeOff from "@/assets/forms/eye-off.svg"
+import eye from "@/assets/forms/eye.svg"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
@@ -10,16 +18,48 @@ import { cn } from "@/lib/utils"
  * Password input with a show / hide button. Toggling changes neither the value
  * nor the focus of the field; the button carries `aria-pressed`.
  */
-// Figma (Design system): Togena / Password field · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15303-10792
+// Figma: Togena / Forms / Password field · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15271-7417
 export const PasswordInput = forwardRef<HTMLInputElement, Omit<ComponentProps<"input">, "type">>(
   function PasswordInput({ className, ...props }, ref) {
     const { t } = useTranslation("common")
     const [isVisible, setIsVisible] = useState(false)
 
+    const inputRef = useRef<HTMLInputElement>(null)
+    const selectionRef = useRef<{
+      start: number | null
+      end: number | null
+      direction: "forward" | "backward" | "none" | null
+    } | null>(null)
+
+    useImperativeHandle(ref, () => inputRef.current!, [])
+    useLayoutEffect(() => {
+      const selection = selectionRef.current
+      if (selection) {
+        inputRef.current?.setSelectionRange(
+          selection.start,
+          selection.end,
+          selection.direction ?? undefined,
+        )
+        selectionRef.current = null
+      }
+    }, [isVisible])
+
+    function toggleVisibility() {
+      const input = inputRef.current
+      if (input) {
+        selectionRef.current = {
+          start: input.selectionStart,
+          end: input.selectionEnd,
+          direction: input.selectionDirection,
+        }
+      }
+      setIsVisible((isShown) => !isShown)
+    }
+
     return (
       <div className="relative">
         <Input
-          ref={ref}
+          ref={inputRef}
           type={isVisible ? "text" : "password"}
           className={cn("pr-12", className)}
           {...props}
@@ -28,24 +68,18 @@ export const PasswordInput = forwardRef<HTMLInputElement, Omit<ComponentProps<"i
           type="button"
           variant="ghost"
           size="icon-lg"
-          className="absolute top-0 right-0 size-12"
+          className="absolute top-1/2 right-1 -translate-y-1/2"
+          disabled={props.disabled}
           aria-label={t(isVisible ? "password.hide" : "password.show")}
           aria-pressed={isVisible}
           // Keeps the focus (and the caret) in the field.
           onMouseDown={(event) => event.preventDefault()}
-          onClick={() => setIsVisible((isShown) => !isShown)}
+          onClick={toggleVisibility}
         >
-          {isVisible ? (
-            <EyeOff
-              className="size-5"
-              aria-hidden="true"
-            />
-          ) : (
-            <Eye
-              className="size-5"
-              aria-hidden="true"
-            />
-          )}
+          <img
+            src={isVisible ? eyeOff : eye}
+            alt=""
+          />
         </Button>
       </div>
     )

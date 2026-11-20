@@ -2,6 +2,7 @@ import { useState } from "react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { DetailItem } from "@/components/molecules/DetailItem"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -25,6 +26,7 @@ import {
 } from "@/components/ui/select"
 import { formatCzk } from "@/lib/money"
 import { termDates, termLine, termTitle } from "@/lib/term-label"
+import { cn } from "@/lib/utils"
 
 import {
   recordPayment,
@@ -32,6 +34,10 @@ import {
   type PaymentApplication,
   type PaymentTerm,
 } from "@/features/event-overview/api/payments"
+import {
+  hasUncertainOutcome,
+  RefreshAfterWrite,
+} from "@/features/event-overview/components/RefreshAfterWrite"
 
 type Props = {
   application: PaymentApplication
@@ -50,6 +56,8 @@ const WHOLE_APPLICATION = "all"
  * result after saving and Back / Record on the right. A refund is offered only for terms the
  * backend reports an overpayment for (`refundableTermId`, `refundableCzk`) and is limited by it.
  */
+// Figma v2: US-111 Zapsat platbu k termínu · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=21524-72082 (360 px: node-id=21524-72479)
+// Figma v2: US-111 Vratka není dostupná · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=21524-77365 (360 px: node-id=21524-77723)
 // Figma (Design system): #399 Dialog · vratka předvoleného termínu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=22642-92343 (360 px: node-id=22642-92611)
 // Figma (Design system): O34q Zápis platby na souhrn · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16050-235 (360 px: M13q 16487-7776)
 // Figma (Design system): O34r Zápis platby na termín · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16050-467
@@ -86,6 +94,7 @@ export function PaymentEditor({
       : undefined
   const [type, setType] = useState<RecordType>(initialRefundTerm ? "refund" : "payment")
   const isRefund = type === "refund"
+  const isRefundUnavailable = isRefund && application.refundableTermId === null
   const [termChoice, setTermChoice] = useState(
     initialRefundTerm?.termId ?? initialTerm?.termId ?? WHOLE_APPLICATION,
   )
@@ -161,6 +170,7 @@ export function PaymentEditor({
     },
   })
 
+  const isUncertain = hasUncertainOutcome(mutation.error)
   return (
     <Dialog
       open
@@ -168,10 +178,19 @@ export function PaymentEditor({
         if (!isOpen && !mutation.isPending) onClose()
       }}
     >
-      <DialogContent className="max-h-[calc(100dvh-2rem)] gap-4 overflow-y-auto p-6 sm:max-w-160">
+      <DialogContent
+        className={cn(
+          "max-h-[calc(100dvh-2rem)] gap-4 overflow-y-auto p-6 sm:max-w-[370px]",
+          (isRefund ? refundTerms.length === 0 : scope.owed === 0) && "sm:max-w-160",
+          initialRefundTerm && "sm:max-w-130",
+          isRefundUnavailable && "sm:gap-6",
+          !isRefund && scope.owed === 0 && !isUncertain && "max-sm:max-w-full",
+          isUncertain && "sm:max-w-[370px]",
+        )}
+      >
         <DialogHeader>
           <DialogTitle className="text-lg tracking-tight">
-            {t(isRefund ? "payment.refundTitle" : "payment.dialogTitle")}
+            {t(isRefund ? "payment.refundTitle" : "payment.record")}
           </DialogTitle>
           <DialogDescription>
             {application.firstName} {application.lastName} ·{" "}
@@ -183,6 +202,7 @@ export function PaymentEditor({
           noValidate
           onSubmit={(event) => {
             event.preventDefault()
+            if (isRefundUnavailable || isUncertain || mutation.isPending) return
             if (!isValid) {
               setIsInvalid(true)
               return
@@ -225,17 +245,22 @@ export function PaymentEditor({
                 value="refund"
                 id="payment-type-refund"
                 className="size-5"
-                disabled={application.refundableTermId === null}
               />
-              <Label
-                htmlFor="payment-type-refund"
-                className={application.refundableTermId === null ? "opacity-55" : undefined}
-              >
-                {t("payment.typeRefund")}
-              </Label>
+              <Label htmlFor="payment-type-refund">{t("payment.typeRefund")}</Label>
             </div>
           </RadioGroup>
-          <div className="flex flex-col gap-2">
+          {isRefundUnavailable && (
+            <p
+              role="status"
+              className="text-sm text-muted-foreground"
+            >
+              {t("payment.refundUnavailable")}
+            </p>
+          )}
+          <div
+            hidden={isRefundUnavailable}
+            className="flex flex-col gap-2"
+          >
             <Label htmlFor="payment-term">
               {t(isRefund ? "payment.termRequired" : "payment.termLabel")}
             </Label>
@@ -332,11 +357,9 @@ export function PaymentEditor({
               </div>
             </RadioGroup>
           ) : null}
-          {isCustomAmount ? (
+          {isCustomAmount && !isRefundUnavailable ? (
             <div className="flex flex-col gap-2">
-              <Label htmlFor="payment-amount">
-                {t(isRefund ? "payment.amountRequired" : "payment.requiredAmount")}
-              </Label>
+              <Label htmlFor="payment-amount">{t("payment.amountRequired")}</Label>
               <div className="relative">
                 <Input
                   id="payment-amount"
@@ -345,7 +368,7 @@ export function PaymentEditor({
                   value={amount}
                   disabled={mutation.isPending}
                   placeholder={t("payment.placeholder")}
-                  className={isRefund ? "pr-14" : undefined}
+                  className="pr-14"
                   aria-invalid={isInvalid && !isValid}
                   aria-describedby={
                     isInvalid && !isValid
@@ -357,30 +380,18 @@ export function PaymentEditor({
                     setIsInvalid(false)
                   }}
                 />
-                {isRefund ? (
-                  <span
-                    aria-hidden="true"
-                    className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-sm font-medium text-muted-foreground"
-                  >
-                    {t("payment.currency")}
-                  </span>
-                ) : null}
+                <span
+                  aria-hidden="true"
+                  className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-sm font-medium text-muted-foreground"
+                >
+                  {t("payment.currency")}
+                </span>
               </div>
               <p
                 id="payment-amount-hint"
-                className={
-                  isRefund ? "text-sm text-muted-foreground" : "text-xs text-muted-foreground"
-                }
+                className="text-sm text-muted-foreground"
               >
-                {isRefund
-                  ? t("payment.refundHint")
-                  : hasOverpayment
-                    ? t("payment.receivedHint")
-                    : remaining === 0
-                      ? t("payment.noDebtHint")
-                      : isValid
-                        ? t("payment.partialHint", { owed: preview })
-                        : null}
+                {t(isRefund ? "payment.refundHint" : "payment.paymentHint")}
               </p>
               {isInvalid && !isValid ? (
                 <p
@@ -410,6 +421,14 @@ export function PaymentEditor({
                   overpayment: preview,
                 })}
               </DetailItem>
+            ) : isValid && term && receipt !== undefined && !hasOverpayment ? (
+              <DetailItem label={t("payment.afterCorrection")}>
+                {t("payment.paymentResult", {
+                  paid: formatCzk(scope.paid),
+                  newPaid: formatCzk(scope.paid + receipt),
+                  owed: preview,
+                })}
+              </DetailItem>
             ) : isValid ? (
               <div className="flex items-baseline justify-between gap-4 border-t pt-3">
                 <span className="text-sm text-muted-foreground">
@@ -419,7 +438,14 @@ export function PaymentEditor({
               </div>
             ) : null}
           </div>
-          {mutation.error && isRefund ? (
+          {isUncertain ? (
+            <p
+              role="alert"
+              className="text-sm text-destructive"
+            >
+              {t("payment.uncertainRecord")}
+            </p>
+          ) : mutation.error && isRefund ? (
             <Alert
               variant="destructive"
               role="alert"
@@ -446,20 +472,26 @@ export function PaymentEditor({
             >
               {t("payment.dialogCancel")}
             </Button>
-            <Button
-              type="submit"
-              size="lg"
-              className="sm:flex-1"
-              disabled={mutation.isPending}
-            >
-              {mutation.isPending
-                ? t("payment.saving")
-                : isRefund
-                  ? t("payment.refund")
-                  : isValid && receipt !== undefined
-                    ? t("payment.recordAmount", { amount: formatCzk(receipt) })
+            {isUncertain ? (
+              <RefreshAfterWrite
+                label={t("payment.refreshOverview")}
+                onRefreshed={onClose}
+              />
+            ) : (
+              <PendingButton
+                type="submit"
+                size="lg"
+                className="sm:flex-1"
+                isPending={mutation.isPending}
+                disabled={isRefundUnavailable || mutation.isPending}
+              >
+                {mutation.isPending
+                  ? t("payment.saving")
+                  : isRefund
+                    ? t(isRefundUnavailable ? "payment.confirm" : "payment.refund")
                     : t("payment.record")}
-            </Button>
+              </PendingButton>
+            )}
           </DialogFooter>
         </form>
       </DialogContent>

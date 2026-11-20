@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
 import { TermPrice } from "@/components/atoms/MoneyAmount"
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { Seo } from "@/components/atoms/Seo"
 import { DateField } from "@/components/molecules/DateField"
 import { ErrorState } from "@/components/molecules/ErrorState"
@@ -84,7 +85,7 @@ export function ManualApplicationPage({
   terms: TermOption[]
   organizerName: string
 }) {
-  const { t } = useTranslation("eventOverview")
+  const { t } = useTranslation(["eventOverview", "common"])
   const occupancy = useQuery(occupancyQueryOptions(eventId))
   const client = useQueryClient()
   const [draft, setDraft] = useState<Draft>(emptyDraft)
@@ -283,7 +284,8 @@ export function ManualApplicationPage({
               <AlertDescription>{mutation.error.message}</AlertDescription>
             </Alert>
           ) : null}
-          <Button
+          <PendingButton
+            isPending={mutation.isPending}
             size="lg"
             disabled={
               !isOverCapacityConfirmed || mutation.isPending || occupancy.isFetching || !payload
@@ -291,7 +293,7 @@ export function ManualApplicationPage({
             onClick={() => payload && mutation.mutate({ ...payload, confirmOverCapacity: true })}
           >
             {t("manual.create")}
-          </Button>
+          </PendingButton>
           <Button
             variant="ghost"
             size="lg"
@@ -456,13 +458,13 @@ export function ManualApplicationPage({
               <AlertDescription>{mutation.error.message}</AlertDescription>
             </Alert>
           ) : null}
-          <Button
+          <PendingButton
             type="submit"
             size="lg"
-            disabled={mutation.isPending}
+            isPending={mutation.isPending}
           >
-            {t("manual.create")}
-          </Button>
+            {mutation.isPending ? t("state.saving", { ns: "common" }) : t("manual.create")}
+          </PendingButton>
           <Button
             asChild
             variant="ghost"

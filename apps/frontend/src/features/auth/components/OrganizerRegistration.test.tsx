@@ -59,22 +59,21 @@ describe("organizer registration", () => {
     await userEvent.type(screen.getByLabelText("Password *"), "short")
     await userEvent.click(screen.getByRole("button", { name: "Create account" }))
 
-    expect(
-      screen.getByRole("heading", { name: "Check your registration details" }),
-    ).toBeInTheDocument()
-    expect(screen.getByText("Enter a valid e-mail.")).toBeInTheDocument()
+    expect(screen.getByRole("heading", { name: "Create an organizer account" })).toBeInTheDocument()
+    expect(screen.getByText("Enter a valid e-mail, e.g. kuba@example.cz.")).toBeInTheDocument()
+    expect(screen.getByLabelText("Password *")).toHaveAccessibleDescription(
+      "At least 8 characters.",
+    )
     expect(signUp).not.toHaveBeenCalled()
   })
 
-  it("blocks submit when the repeated password differs", async () => {
+  it("asks for the password once and lets the applicant show it", async () => {
     render(<OrganizerRegistration />)
-    await userEvent.type(screen.getByLabelText("E-mail *"), "new@example.com")
-    await userEvent.type(screen.getByLabelText("Password *"), "password123")
-    await userEvent.type(screen.getByLabelText("Repeat password *"), "password124")
-    await userEvent.click(screen.getByRole("button", { name: "Create account" }))
-
-    expect(screen.getByText("The passwords do not match.")).toBeInTheDocument()
-    expect(signUp).not.toHaveBeenCalled()
+    expect(screen.queryByLabelText(/Repeat password/)).not.toBeInTheDocument()
+    const password = screen.getByLabelText("Password *")
+    expect(password).toHaveAttribute("type", "password")
+    await userEvent.click(screen.getByRole("button", { name: /show password/i }))
+    expect(password).toHaveAttribute("type", "text")
   })
 
   it("sends a verification link and opens the instructions", async () => {
@@ -82,7 +81,6 @@ describe("organizer registration", () => {
     render(<OrganizerRegistration />)
     await userEvent.type(screen.getByLabelText("E-mail *"), "new@example.com")
     await userEvent.type(screen.getByLabelText("Password *"), "password123")
-    await userEvent.type(screen.getByLabelText("Repeat password *"), "password123")
     await userEvent.click(screen.getByRole("button", { name: "Create account" }))
 
     await waitFor(() =>
@@ -109,6 +107,7 @@ describe("organizer registration", () => {
     expect(
       screen.getByRole("heading", { name: "The verification link has expired" }),
     ).toBeInTheDocument()
+    expect(screen.getByText(/new verification link to new@example.com/)).toBeInTheDocument()
 
     await userEvent.click(screen.getByRole("button", { name: "Send a new verification link" }))
     await waitFor(() =>

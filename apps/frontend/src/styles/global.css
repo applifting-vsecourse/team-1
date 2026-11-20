@@ -1,11 +1,29 @@
 @import "@fontsource-variable/inter";
-@import "@fontsource-variable/jetbrains-mono";
 @import "tailwindcss";
 @plugin "tailwindcss-animate";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  --animate-accordion-down: accordion-down 200ms ease-out;
+  --animate-accordion-up: accordion-up 200ms ease-out;
+  @keyframes accordion-down {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+    }
+  }
+  @keyframes accordion-up {
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+    to {
+      height: 0;
+    }
+  }
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -13,6 +31,8 @@
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-pressed: var(--primary-pressed);
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
@@ -20,12 +40,23 @@
   --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+  --color-action-destructive: var(--action-destructive);
+  --color-action-destructive-foreground: var(--action-destructive-foreground);
+  --color-action-destructive-pressed: var(--action-destructive-pressed);
+  --color-action-subtle: var(--action-subtle);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
+  --color-field-border: var(--field-border);
+  --color-field-error: var(--field-error);
   --color-ring: var(--ring);
   --color-link: var(--link);
+  --color-wash: var(--wash);
+  --color-badge-neutral: var(--badge-neutral);
+  --color-badge-positive: var(--badge-positive);
+  --color-badge-danger: var(--badge-danger);
+  --color-badge-foreground: var(--badge-foreground);
   --color-status-success: var(--status-success);
   --color-status-success-bg: var(--status-success-bg);
   --color-status-warning: var(--status-warning);
@@ -34,6 +65,8 @@
   --color-status-info-bg: var(--status-info-bg);
   --color-status-waitlist: var(--status-waitlist);
   --color-status-waitlist-bg: var(--status-waitlist-bg);
+  --color-tooltip: #092226;
+  --color-tooltip-foreground: #e9f6f0;
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-accent: var(--sidebar-accent);
@@ -41,7 +74,6 @@
   --color-sidebar-border: var(--sidebar-border);
 
   --font-sans: var(--font-sans);
-  --font-mono: var(--font-mono);
 
   --shadow-2xs: var(--shadow-2xs);
   --shadow-xs: var(--shadow-xs);
@@ -54,7 +86,9 @@
 
   /* Figma DS / Metrics radius/* */
   --radius-sm: 4px;
+  --radius-checkbox: 6px;
   --radius-md: 8px;
+  --radius-control: 10px;
   --radius-lg: 12px;
   --radius-xl: 20px;
 }
@@ -68,7 +102,6 @@
  */
 :root {
   --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono Variable", ui-monospace, SFMono-Regular, Menlo, monospace;
   --background: #f9fdff; /* color/bg/canvas */
   --foreground: #031a1e; /* color/text/primary */
   --card: #ffffff; /* color/bg/surface */
@@ -76,6 +109,8 @@
   --popover: #ffffff; /* color/bg/surface */
   --popover-foreground: #031a1e; /* color/text/primary */
   --primary: #007f72; /* color/bg/accent */
+  --primary-hover: #006f63;
+  --primary-pressed: #005f55;
   --primary-foreground: #ffffff; /* color/text/inverse */
   --secondary: #f5f9fa; /* color/bg/subtle */
   --secondary-foreground: #031a1e; /* color/text/primary */
@@ -83,12 +118,24 @@
   --muted-foreground: #50686d; /* color/text/secondary */
   --accent: #c3ecdf; /* color/bg/selected */
   --accent-foreground: #031a1e; /* color/text/primary */
+  --action-destructive: #b34640;
+  --action-destructive-foreground: #ffffff;
+  --action-destructive-pressed: #963932;
+  --action-subtle: #edf6f5;
   --destructive: #ce514d; /* color/status/error */
   --destructive-foreground: #ffffff; /* color/text/inverse */
   --border: #dae3e4; /* color/border/default */
+  --field-border: #718882; /* Togena / Color / input-border */
+  --field-error: #b34640; /* Togena / Color / danger */
   --input: #759398; /* color/border/control */
   --ring: #007f72; /* color/border/focus */
   --link: #006363; /* color/text/link */
+  --wash: #edf6f5; /* Togena / Color / wash: info alert, read-only panels */
+  /* Togena / Color: solid badge tones (Togena / Badge 15189:163) */
+  --badge-neutral: #50686d; /* muted */
+  --badge-positive: #007f72; /* teal */
+  --badge-danger: #b34640; /* danger */
+  --badge-foreground: #ffffff; /* text-on-accent */
   --status-success: #16634a; /* color/status/success */
   --status-success-bg: #eaf6f0; /* color/status/success-bg */
   --status-warning: #8a4b0e; /* color/status/warning */
@@ -132,6 +179,10 @@
   --muted-foreground: #7a9596; /* color/text/secondary */
   --accent: #005f5a; /* color/bg/selected */
   --accent-foreground: #e4edee;
+  --action-destructive: #ffaaa3;
+  --action-destructive-foreground: #173438;
+  --action-destructive-pressed: #ee918c;
+  --action-subtle: #1d3d3b;
   --destructive: #f84b4b; /* color/status/error */
   --destructive-foreground: #14292f;
   --status-success: #75dbaf; /* color/status/success */
@@ -143,9 +194,17 @@
   --status-waitlist: #c9aeff; /* color/status/waitlist */
   --status-waitlist-bg: #302742; /* color/status/waitlist-bg */
   --border: #142223; /* color/border/default */
+  --field-border: var(--input);
+  --field-error: var(--destructive);
   --input: #6e959e; /* color/border/control */
   --ring: #00bba7; /* color/border/focus */
   --link: #00bba7; /* color/text/link */
+  /* Togena / Color Dark has no wash sample in the DS frames; reuse color/bg/subtle. */
+  --wash: var(--secondary);
+  --badge-neutral: #b0c9c3;
+  --badge-positive: #8bdfc4;
+  --badge-danger: #ffaaa3;
+  --badge-foreground: #173438;
   --sidebar: #031011;
   --sidebar-foreground: #e4edee;
   --sidebar-accent: #005f5a;
@@ -154,6 +213,14 @@
 }
 
 @layer base {
+  :root {
+    --workspace-inset: 18px;
+  }
+  @media (min-width: 48rem) {
+    :root {
+      --workspace-inset: 42px;
+    }
+  }
   * {
     @apply border-border outline-ring/50;
   }
@@ -164,6 +231,55 @@
   h2,
   h3 {
     @apply tracking-tight;
+  }
+}
+
+/* Figma's drawn controls are decorative layers on the Radix controls. Dark mode and
+   forced colours keep their theme-aware outlines, thumb and selection indicator. */
+@media (forced-colors: none) {
+  .form-radio[data-state="checked"],
+  .form-switch[data-size="default"] {
+    &:not(.dark *) {
+      position: relative;
+      background: transparent;
+      border-color: transparent;
+      outline-color: transparent;
+
+      &::after {
+        content: "";
+        position: absolute;
+        inset: -5px;
+        background: var(--drawn-control) center / auto no-repeat;
+        pointer-events: none;
+      }
+
+      & > [data-slot="radio-group-indicator"],
+      & > [data-slot="switch-thumb"] {
+        opacity: 0;
+      }
+    }
+  }
+  .form-radio[data-state="checked"] {
+    --drawn-control: url("../assets/forms/radio-selected.svg");
+    &:focus-visible {
+      --drawn-control: url("../assets/forms/radio-selected-focus.svg");
+    }
+  }
+  .form-switch[data-state="unchecked"] {
+    --drawn-control: url("../assets/forms/switch-off.svg");
+    &:focus-visible {
+      --drawn-control: url("../assets/forms/switch-off-focus.svg");
+    }
+  }
+  .form-switch[data-state="checked"] {
+    --drawn-control: url("../assets/forms/switch-on.svg");
+    &:focus-visible {
+      --drawn-control: url("../assets/forms/switch-on-focus.svg");
+    }
+  }
+
+  .form-textarea::-webkit-resizer {
+    background: url("../assets/forms/resize.svg") right 4px bottom 4px / auto no-repeat;
   }
 }
 
@@ -185,5 +301,472 @@
     position: absolute;
     inset-inline: 0;
     top: 0;
+  }
+}
+
+/* Keep status text and controls available while honoring the OS motion setting. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .placement-mark {
+    position: absolute;
+    pointer-events: none;
+    inset: 0;
+  }
+
+  .placement-mark::before,
+  .placement-mark::after {
+    content: "";
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border: solid var(--primary);
+    animation: placement-corners 900ms ease-out both;
+  }
+
+  .placement-mark::before {
+    inset: 1px auto auto 1px;
+    border-width: 2px 0 0 2px;
+    border-top-left-radius: var(--radius-sm);
+  }
+
+  .placement-mark::after {
+    inset: auto 1px 1px auto;
+    border-width: 0 2px 2px 0;
+    border-bottom-right-radius: var(--radius-sm);
+  }
+
+  .placement-mark > span {
+    position: absolute;
+    inset: 3px 3px auto auto;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--primary);
+    animation: placement-dot 520ms ease-out both;
+  }
+
+  @keyframes placement-corners {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+
+  @keyframes placement-dot {
+    from {
+      opacity: 1;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(0);
+    }
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  form[data-restored] > :first-child {
+    animation: restored-draft 600ms ease-out;
+  }
+
+  @keyframes restored-draft {
+    from {
+      outline: 2px solid var(--ring);
+    }
+    to {
+      outline: 2px solid transparent;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .copy-confirmation {
+    position: absolute;
+    right: 8px;
+    top: 8px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--status-success);
+    pointer-events: none;
+    animation: placement-dot 480ms ease-out both;
+  }
+}
+
+/* M01 (Figma Togena / Motion): the corners run one 1600ms loop, no hold; ends with the response. */
+@media (prefers-reduced-motion: no-preference) {
+  .verifying-mark {
+    animation: verify-link 1600ms ease-in-out infinite;
+  }
+  .verifying-mark > :last-child {
+    animation: verify-link-dot 1600ms ease-in-out infinite;
+  }
+  @keyframes verify-link {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  @keyframes verify-link-dot {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.45;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .saved-mark path {
+    stroke-dasharray: 32;
+    animation: saved-mark 650ms ease-out;
+  }
+  @keyframes saved-mark {
+    from {
+      stroke-dashoffset: 32;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+}
+
+/* Figma Feedback / Loader: the corners turn during the first 1600 ms of a 2 s loop. */
+.submit-mark {
+  position: relative;
+  display: inline-block;
+  flex: none;
+  width: var(--loading-mark-size, 1.5rem);
+  height: var(--loading-mark-size, 1.5rem);
+}
+.submit-mark::before,
+.submit-mark::after,
+.submit-mark > span {
+  position: absolute;
+  background-color: currentColor;
+  mask: var(--mark-part) center / contain no-repeat;
+}
+.submit-mark::before,
+.submit-mark::after {
+  content: "";
+  width: 45%;
+  height: 49%;
+}
+.submit-mark::before {
+  --mark-part: url("../assets/motion/verification-start.svg");
+  top: 15.5%;
+  left: 15.5%;
+}
+.submit-mark::after {
+  --mark-part: url("../assets/motion/verification-end.svg");
+  bottom: 15.5%;
+  right: 15.5%;
+}
+.submit-mark > span {
+  --mark-part: url("../assets/motion/verification-dot.svg");
+  inset: 44%;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .submit-mark {
+    animation: submit-mark-turn 2s ease-in-out infinite;
+  }
+  .submit-mark > span {
+    animation: submit-mark-dot 2s ease-in-out infinite;
+  }
+  @keyframes submit-mark-turn {
+    0% {
+      transform: rotate(0);
+    }
+    40% {
+      transform: rotate(180deg);
+    }
+    80%,
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  @keyframes submit-mark-dot {
+    0%,
+    80%,
+    100% {
+      opacity: 1;
+    }
+    40% {
+      opacity: 0.45;
+    }
+  }
+  .selection-count-dot {
+    animation: selection-arrival 440ms ease-out;
+  }
+  @keyframes selection-arrival {
+    from {
+      transform: translateX(-0.5rem) scale(0.6);
+    }
+    to {
+      transform: translateX(0) scale(1);
+    }
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .upload-symbol path {
+    transition: stroke-dashoffset 100ms linear;
+  }
+  form[data-invalid-submit] [aria-invalid="true"]:focus {
+    animation: invalid-field 180ms ease-out;
+  }
+  @keyframes invalid-field {
+    50% {
+      transform: translateX(2px);
+    }
+  }
+}
+
+/* M16 changes the active step immediately while its content settles into place. */
+@media (prefers-reduced-motion: no-preference) {
+  .review-content {
+    animation: application-review 290ms ease-out;
+  }
+  @keyframes application-review {
+    from {
+      transform: translateX(6px);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+}
+
+/* M10: an empty state's symbol settles once; the text never waits for it. */
+@media (prefers-reduced-motion: no-preference) {
+  .empty-state-symbol {
+    animation: empty-state-nudge 120ms ease-out;
+  }
+  @keyframes empty-state-nudge {
+    from {
+      transform: translateY(4px);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+}
+
+/* Togena / Navigation / Tab in the account settings. */
+.account-tab {
+  color: var(--foreground);
+}
+.account-tab[data-state="active"] {
+  color: var(--foreground);
+  background: var(--accent);
+}
+.account-tab::after {
+  display: none;
+}
+.account-tab[data-state="active"]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: var(--ring);
+  mask: url("../assets/navigation/tab-corners-mobile.svg") center / 100% 100% no-repeat;
+}
+@media (min-width: 48rem) {
+  .account-tab[data-state="active"]::before {
+    mask-image: url("../assets/navigation/tab-corners.svg");
+  }
+}
+.account-tab:focus-visible {
+  outline: 1px solid var(--ring);
+  outline-offset: 0;
+  box-shadow: none;
+}
+.account-tab[data-state="active"]:focus-visible {
+  outline-width: 2px;
+}
+[role="tablist"]:not([data-pointer-focus])
+  > .account-tab[data-state="active"]:focus-visible::before {
+  inset: -2px;
+  mask-image: url("../assets/navigation/tab-corners-focus.svg");
+}
+
+/* The tab primitive focuses the trigger in its mouse handler. Keep the full
+   outline for keyboard navigation and the active corners for pointer selection. */
+[data-pointer-focus] > .account-tab:focus-visible {
+  outline: none;
+}
+
+/* Figma v2 action states. Keep the kit's sized hit areas and override only its semantic variants. */
+[data-slot="button"][data-variant="destructive"] {
+  background-color: var(--action-destructive);
+  color: var(--action-destructive-foreground);
+}
+@media (hover: hover) {
+  [data-slot="button"][data-variant="destructive"]:where(
+      :not(:disabled, [aria-disabled="true"])
+    ):hover {
+    opacity: 0.92;
+  }
+  [data-slot="button"][data-variant="ghost"]:where(:not(:disabled, [aria-disabled="true"])):hover {
+    background-color: var(--action-subtle);
+  }
+}
+[data-slot="button"][data-variant="destructive"]:where(
+    :not(:disabled, [aria-disabled="true"])
+  ):active {
+  background-color: var(--action-destructive-pressed);
+  opacity: 1;
+}
+[data-slot="button"][data-variant="ghost"]:where(:not(:disabled, [aria-disabled="true"])):active {
+  background-color: var(--accent);
+}
+[data-slot="button"]:focus-visible {
+  --tw-ring-color: transparent;
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+[data-slot="button"][data-variant="destructive"]:focus-visible {
+  outline-color: var(--action-destructive);
+}
+[data-slot="button"][aria-busy="true"]:disabled {
+  opacity: 1;
+}
+
+/* The current language or theme uses the same trailing check as a selected menu option. */
+[data-slot="dropdown-menu-radio-item"] {
+  min-height: 3rem;
+  padding: 0.75rem 2.75rem 0.75rem 0.75rem;
+  font-size: 1rem;
+  gap: 0.75rem;
+}
+[data-slot="dropdown-menu-radio-item"]:focus {
+  background-color: var(--action-subtle);
+}
+[data-slot="dropdown-menu-radio-item"][data-state="checked"] {
+  background-color: var(--accent);
+}
+[data-slot="dropdown-menu-radio-item"] > span:first-child {
+  inset-inline: auto 0.75rem;
+  width: 1.25rem;
+  height: 1.25rem;
+}
+[data-slot="dropdown-menu-radio-item"] > span:first-child svg {
+  visibility: hidden;
+}
+[data-slot="dropdown-menu-radio-item"][data-state="checked"] > span:first-child {
+  background-color: currentColor;
+  mask: url("../assets/forms/option-check.svg") center / contain no-repeat;
+}
+
+/* Figma v2 · Calendar day, 15205:1206 */
+[data-slot="date-calendar"] {
+  --calendar-ink: var(--primary);
+  --calendar-selected: var(--accent);
+}
+.dark [data-slot="date-calendar"] {
+  --calendar-ink: #8bdfc4;
+  --calendar-selected: #244f47;
+}
+.calendar-period {
+  border-radius: var(--radius-checkbox);
+}
+.calendar-period[aria-pressed="true"] {
+  background-color: var(--calendar-selected);
+  color: var(--calendar-ink);
+}
+.calendar-day:enabled:hover,
+.calendar-period:enabled:hover,
+.calendar-middle .calendar-day {
+  background-color: var(--action-subtle);
+}
+.calendar-selected .calendar-day {
+  background-color: var(--calendar-selected);
+  color: var(--calendar-ink);
+}
+.calendar-selected.calendar-middle .calendar-day {
+  background-color: var(--action-subtle);
+}
+.calendar-day:focus-visible,
+.calendar-period:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: -2px;
+}
+.calendar-day:disabled {
+  opacity: 0.45;
+}
+[data-slot="date-calendar"]:disabled button:not([disabled]) {
+  opacity: 1;
+}
+.calendar-today:not(.calendar-selected) .calendar-day::after {
+  content: "";
+  position: absolute;
+  left: calc(50% - 1.5px);
+  bottom: 3px;
+  width: 3px;
+  height: 3px;
+  background: url("../assets/calendar/today.svg") center / contain no-repeat;
+}
+
+/* Figma Feedback / Progress, medium and small share the same track and rounded fill. */
+[data-slot="progress"] {
+  background-color: var(--wash);
+}
+[data-slot="progress-indicator"] {
+  border-radius: inherit;
+}
+
+/* Figma Feedback / Badge, warning. */
+[data-slot="badge"][data-variant="warning"] {
+  border-width: 0;
+}
+
+/* Figma Dialog / Dialog actions: both actions share a 48 px target on either layout. */
+[data-slot="dialog-footer"] > [data-slot="button"][data-size="default"],
+[data-slot="sheet-footer"] > [data-slot="button"][data-size="default"] {
+  min-height: 3rem;
+}
+
+@media (min-width: 40rem) {
+  [data-slot="dialog-content"][class~="sm:max-w-lg"] {
+    max-width: 32.5rem;
+  }
+}
+[data-slot="dialog-content"]:has(> [data-slot="dialog-close"])
+  > [data-slot="dialog-header"]:has(> [data-slot="dialog-title"]:first-child) {
+  gap: 1.25rem;
+  padding-inline-end: 0;
+}
+[data-slot="dialog-content"]:has(> [data-slot="dialog-close"])
+  > [data-slot="dialog-header"]
+  > [data-slot="dialog-title"]:first-child {
+  display: flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding-inline-end: 3.75rem;
+}
+
+.pagination-current-marker {
+  mask-image: url("../assets/navigation/pagination-current-compact.svg");
+}
+
+@media (min-width: 48rem) {
+  .pagination-current-marker:not([data-compact]) {
+    mask-image: url("../assets/navigation/pagination-current.svg");
   }
 }

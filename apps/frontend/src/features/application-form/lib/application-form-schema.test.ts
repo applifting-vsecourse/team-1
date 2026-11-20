@@ -58,13 +58,13 @@ describe("application form schema", () => {
   })
 
   it("requires the contact e-mail to look like one", () => {
-    expect(messagesFor({ ...valid, email: "" })).toContain("Enter a valid e-mail address.")
-    expect(messagesFor({ ...valid, email: "anna@" })).toContain("Enter a valid e-mail address.")
+    expect(messagesFor({ ...valid, email: "" })).toContain("Enter a valid e-mail.")
+    expect(messagesFor({ ...valid, email: "anna@" })).toContain("Enter a valid e-mail.")
   })
 
   it("requires consent", () => {
     expect(messagesFor({ ...valid, consent: false })).toContain(
-      "Consent to the processing of personal data is required to submit.",
+      "Confirm your consent before submitting.",
     )
   })
 
@@ -99,10 +99,10 @@ describe("application form schema", () => {
     )
     expect(
       messagesFor({ ...valid, participants: [{ ...participant, birthDate: "31. 2. 2010" }] }),
-    ).toContain("Enter the date as DD/MM/YYYY.")
+    ).toContain("Enter the date as DD/MM/YYYY, e.g. 04/05/2011.")
     expect(
       messagesFor({ ...valid, participants: [{ ...participant, birthDate: "17. 5." }] }),
-    ).toContain("Enter the date as DD/MM/YYYY.")
+    ).toContain("Enter the date as DD/MM/YYYY, e.g. 04/05/2011.")
     expect(
       messagesFor({ ...valid, participants: [{ ...participant, birthDate: "1. 1. 1850" }] }),
     ).toContain("Enter a valid date of birth.")

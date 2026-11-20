@@ -1,10 +1,10 @@
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { ActiveCorners } from "@/components/atoms/ActiveCorners"
 import { PageHeader } from "@/components/molecules/PageHeader"
 import { Card } from "@/components/ui/card"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useConnectionFeedback } from "@/hooks/useConnectionFeedback"
 
 import { ChangeEmailSection } from "@/features/auth/components/ChangeEmailSection"
 import { ChangePasswordForm } from "@/features/auth/components/ChangePasswordForm"
@@ -13,76 +13,79 @@ import { ProfileForm } from "@/features/auth/components/ProfileForm"
 import { useEmailChangedNotice } from "@/features/auth/hooks/useEmailChangedNotice"
 import { useSession } from "@/features/auth/hooks/useSession"
 
-const SECTIONS = ["profile", "preferences", "security"] as const
-type Section = (typeof SECTIONS)[number]
+const SECTIONS = ["profile", "security"] as const
 
 /**
  * Account settings of every signed-in account: „Profil“ (name, e-mail), „Předvolby“
  * (language, theme) and „Zabezpečení“ (password). Signing out stays
  * in the account menu of the sidebar.
  */
-// Figma (Design system): US-124 / Nastavení účtu · Profil a jazyk · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16199-2145
-// Figma (Design system): US-124 / Nastavení účtu · Změnit heslo · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16199-2424
+// Figma (Design system v2): US-124 / Profil a jazyk · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=19504-8672 (360 px: node-id=19504-8792)
+// Figma (Design system v2): US-124 / Změnit heslo · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=19504-9261 (360 px: node-id=19504-9400); US-125 / Změna e-mailu · node-id=22404-23993
 export function AccountPage({ isEmailChanged = false }: { isEmailChanged?: boolean }) {
+  const [isPointerFocus, setIsPointerFocus] = useState(false)
+  useConnectionFeedback()
   const { t } = useTranslation("auth")
   const { user } = useSession()
   useEmailChangedNotice(isEmailChanged, user?.email)
-  const [section, setSection] = useState<Section>("profile")
 
   if (!user) return null
 
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
+        hasBand
         title={t("account.title")}
         description={t("account.description")}
       />
 
       <Tabs
-        value={section}
-        onValueChange={(value) => setSection(value as Section)}
+        defaultValue="profile"
         className="gap-6"
       >
+        {/* Figma v2: Sekce účtu · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK?node-id=27081-144433 (mobile 19504-9405) */}
         <TabsList
+          aria-label={t("account.title")}
           variant="line"
-          className="h-auto w-full gap-2 p-0 md:w-fit"
+          data-pointer-focus={isPointerFocus || undefined}
+          onPointerDownCapture={() => setIsPointerFocus(true)}
+          onKeyDownCapture={() => setIsPointerFocus(false)}
+          onBlurCapture={(event) => {
+            if (!event.currentTarget.contains(event.relatedTarget)) setIsPointerFocus(false)
+          }}
+          className="mx-auto grid w-[calc(100vw-36px)] max-w-full auto-cols-fr grid-flow-col gap-2 p-0 group-data-[orientation=horizontal]/tabs:h-12 md:mx-0 md:w-fit md:group-data-[orientation=horizontal]/tabs:h-15"
         >
           {SECTIONS.map((key) => (
             <TabsTrigger
               key={key}
               value={key}
-              data-status={section === key ? "active" : undefined}
-              // Togena / Tab: 60 px, no fill; the active label is the accent text colour
-              // with the dot under it (and the logo corners), the inactive one is muted.
-              className="group h-15 flex-1 rounded-sm px-2 text-muted-foreground after:hidden hover:text-foreground data-[state=active]:bg-transparent data-[state=active]:text-link md:w-45 md:flex-none"
+              className="account-tab h-full rounded-control border-0 p-3 text-base leading-6 font-normal transition-colors md:min-w-[122px]"
             >
               {t(`account.tabs.${key}`)}
-              <span
-                aria-hidden="true"
-                className="absolute bottom-1 left-1/2 size-1.75 -translate-x-1/2 rounded-full bg-primary opacity-0 group-data-[state=active]:opacity-100"
-              />
-              <ActiveCorners />
             </TabsTrigger>
           ))}
         </TabsList>
-      </Tabs>
-
-      {section === "profile" ? (
-        <div className="grid gap-6 md:grid-cols-2">
+        <TabsContent
+          value="profile"
+          className="mx-auto grid w-full max-w-[560px] gap-4"
+        >
           <Card className="gap-4 p-4">
             <h2 className="text-2xl font-bold">{t("profile.title")}</h2>
             <ProfileForm user={user} />
           </Card>
+          <PreferencesCard user={user} />
           <ChangeEmailSection user={user} />
-        </div>
-      ) : section === "preferences" ? (
-        <PreferencesCard user={user} />
-      ) : (
-        <Card className="gap-4 p-4">
-          <h2 className="text-2xl font-bold">{t("changePassword.title")}</h2>
-          <ChangePasswordForm />
-        </Card>
-      )}
+        </TabsContent>
+        <TabsContent
+          value="security"
+          className="mx-auto w-full max-w-[560px]"
+        >
+          <Card className="gap-4 p-4">
+            <h2 className="text-2xl font-bold">{t("changePassword.title")}</h2>
+            <ChangePasswordForm />
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }

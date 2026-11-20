@@ -4,6 +4,7 @@ import { ROUTES } from "@/app/routes"
 import { EmbeddedPageContext } from "@/components/atoms/EmbeddedPage"
 import { LogoSymbol } from "@/components/atoms/Logo"
 import { ErrorPage } from "@/components/pages/ErrorPage"
+import { i18n } from "@/i18n"
 
 type State = { error: unknown; failed: boolean }
 
@@ -25,24 +26,33 @@ export class RootErrorBoundary extends Component<{ children: ReactNode }, State>
     if (!this.state.failed) return this.props.children
 
     return (
-      <>
-        <header className="w-full border-b border-border bg-card">
-          <div className="mx-auto flex w-full max-w-224 items-center gap-4 px-4 py-4">
+      <div className="flex min-h-svh flex-col">
+        <header className="w-full bg-card">
+          <div className="flex min-h-20 w-full items-center justify-between gap-4 px-4 py-4 md:min-h-29 md:px-8">
             <a
               href={ROUTES.home}
-              className="flex items-center gap-2 text-lg font-semibold tracking-tight md:gap-3 md:text-2xl"
+              className="flex items-center gap-1.5 text-lg leading-none font-semibold tracking-tight md:gap-2.5 md:text-3xl"
             >
-              <LogoSymbol className="size-8 text-primary" />
+              <LogoSymbol className="size-6 text-primary md:size-10" />
               <span>togena</span>
+            </a>
+            <a
+              href={ROUTES.participant.login}
+              className="rounded-control px-4 py-3 text-sm font-medium hover:bg-accent"
+            >
+              {i18n.t("auth:form.submit")}
             </a>
           </div>
         </header>
-        <main className="min-h-svh px-4">
+        <main className="grid flex-1 content-center px-4 md:px-12">
           <EmbeddedPageContext.Provider value>
             <ErrorPage error={this.state.error} />
           </EmbeddedPageContext.Provider>
         </main>
-      </>
+        <footer className="p-4 text-center text-sm text-muted-foreground">
+          {i18n.t("auth:signature")}
+        </footer>
+      </div>
     )
   }
 }

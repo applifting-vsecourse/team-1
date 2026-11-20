@@ -1,6 +1,6 @@
 import type { ComponentType, ReactNode, SVGProps } from "react"
 import { createFileRoute, Link } from "@tanstack/react-router"
-import { Clock, List } from "lucide-react"
+import { Clock } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
@@ -35,18 +35,34 @@ export const Route = createFileRoute("/")({
 type Illustration = ComponentType<SVGProps<SVGSVGElement>>
 
 const EVENT_TYPES = [
-  { key: "camps", illustration: ChildrenIllustration },
-  { key: "conferences", illustration: ConferenceIllustration },
-  { key: "trips", illustration: HikingIllustration },
+  { key: "camps", illustration: ChildrenIllustration, artSize: "max-w-[220px] md:max-w-[300px]" },
+  {
+    key: "conferences",
+    illustration: ConferenceIllustration,
+    artSize: "max-w-[150px] md:max-w-[220px]",
+  },
+  { key: "trips", illustration: HikingIllustration, artSize: "max-w-[220px] md:max-w-[300px]" },
 ] as const
 
 const FEATURES = [
-  { key: "multiTerm", illustration: ScheduleIllustration },
-  { key: "capacity", illustration: CapacityIllustration },
-  { key: "payments", illustration: PaymentsIllustration },
+  {
+    key: "multiTerm",
+    illustration: ScheduleIllustration,
+    artSize: "max-w-[150px] md:max-w-[200px]",
+  },
+  {
+    key: "capacity",
+    illustration: CapacityIllustration,
+    artSize: "max-w-[140px] md:max-w-[190px]",
+  },
+  {
+    key: "payments",
+    illustration: PaymentsIllustration,
+    artSize: "max-w-[200px] md:max-w-[260px]",
+  },
 ] as const
 
-const CONTENT = "mx-auto w-full max-w-300 px-4 md:px-6"
+const CONTENT = "mx-auto w-full max-w-[1248px] px-4 md:px-6"
 
 /** Decorative unDraw illustration in the theme colours (see `assets/illustrations/README.md`). */
 function Art({ illustration: Svg, className }: { illustration: Illustration; className?: string }) {
@@ -71,18 +87,14 @@ function CatalogButton({
     <Button
       asChild
       size="lg"
-      variant="outline"
+      variant={isOnPrimary ? "outline" : "default"}
       className={cn(
-        isOnPrimary
-          ? "border-primary-foreground bg-transparent text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
-          : "border-primary bg-accent text-link hover:bg-accent/80",
+        isOnPrimary &&
+          "border-primary-foreground bg-transparent text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground",
         className,
       )}
     >
-      <Link to={ROUTES.catalog}>
-        <List aria-hidden />
-        {t("catalogLink")}
-      </Link>
+      <Link to={ROUTES.catalog}>{t("catalogLink")}</Link>
     </Button>
   )
 }
@@ -92,30 +104,34 @@ function HeroVisual() {
   const { t } = useTranslation("landing")
 
   return (
-    <div className="relative mx-auto flex w-full max-w-md flex-col gap-4 lg:block lg:max-w-none">
-      <Art
-        illustration={CampIllustration}
-        className="lg:px-4"
-      />
-      <div className="rounded-lg border border-border bg-card p-4 shadow-sm lg:absolute lg:-bottom-6 lg:left-0 lg:w-80 lg:rotate-6">
+    <div className="relative mx-auto flex w-full max-w-md flex-col gap-5 lg:block lg:h-[550px] lg:max-w-none">
+      <div className="relative isolate flex h-[300px] items-start justify-center overflow-hidden pt-2.5 lg:h-auto lg:overflow-visible lg:pt-0">
+        <div
+          aria-hidden
+          className="absolute inset-x-[-25%] top-[58%] -z-10 h-full -rotate-8 border-t-4 border-primary bg-accent lg:hidden"
+        />
+        <Art
+          illustration={CampIllustration}
+          className="max-w-[300px] lg:max-w-none"
+        />
+      </div>
+      <div className="rounded-lg border border-border bg-card p-4 shadow-sm lg:absolute lg:top-[73%] lg:left-[3%] lg:w-80 lg:-rotate-5">
         <div className="flex items-center justify-between gap-2 text-sm font-semibold">
           <span>{t("preview.event")}</span>
-          <span className="font-mono whitespace-nowrap">51 / 64</span>
+          <span className="whitespace-nowrap tabular-nums">148 / 180</span>
         </div>
         <Progress
-          value={80}
-          className="mt-3"
+          value={(148 / 180) * 100}
+          className="mt-3 h-1"
         />
-        <div className="mt-3 flex flex-wrap gap-2">
-          <Badge variant="success">{t("preview.confirmed")}</Badge>
-          <Badge className="bg-status-waitlist-bg text-status-waitlist">
-            {t("preview.waitlist")}
-          </Badge>
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          <Badge className="bg-primary text-primary-foreground">{t("preview.confirmed")}</Badge>
+          <Badge className="bg-muted-foreground text-background">{t("preview.waitlist")}</Badge>
         </div>
       </div>
-      <div className="hidden w-48 rounded-lg border border-border bg-card p-4 shadow-sm lg:absolute lg:top-4 lg:right-0 lg:block lg:-rotate-6">
+      <div className="hidden w-48 rounded-lg border border-border bg-card p-4 shadow-sm lg:absolute lg:top-20 lg:right-0 lg:block lg:rotate-5">
         <p className="text-xs text-muted-foreground">{t("preview.paid")}</p>
-        <p className="font-mono text-3xl font-semibold text-link">93 %</p>
+        <p className="text-3xl font-semibold text-link">87 %</p>
       </div>
     </div>
   )
@@ -130,8 +146,8 @@ function Heading({ children, className }: { children: ReactNode; className?: str
 }
 
 // Landing of the product: hero with the two entries and the catalog, event types, what Togena does, participants.
-// Figma (Togena – Landing, návrh podle Waitlyst): Landing v2 Desktop 1440 · https://www.figma.com/design/g7XqI8jbKRumGK6LhIrEut?node-id=10-2
-// Figma (Togena – Landing, návrh podle Waitlyst): Landing v2 Mobile 360 · https://www.figma.com/design/g7XqI8jbKRumGK6LhIrEut?node-id=12-2
+// Figma (Togena – Landing, návrh podle Waitlyst): Landing v2 Desktop 1440 · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22640-10977
+// Figma (Togena – Landing, návrh podle Waitlyst): Landing v2 Mobile 360 · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22640-11536
 function LandingPage() {
   const { t } = useTranslation("landing")
 
@@ -140,6 +156,7 @@ function LandingPage() {
       <Seo />
       <PublicLayout
         isFullWidth
+        headerContentClassName="min-h-[55px] py-1 md:min-h-[71px] md:py-2"
         nav={
           <div className="ml-4 hidden items-center gap-1 md:flex">
             <Button
@@ -211,19 +228,19 @@ function LandingPage() {
         <section className="relative overflow-hidden">
           <div
             aria-hidden
-            className="absolute inset-x-0 bottom-0 h-48 border-t-4 border-primary bg-accent [clip-path:polygon(0_70%,100%_0,100%_100%,0_100%)] lg:h-60"
+            className="absolute -inset-x-1/4 bottom-[-12%] hidden h-[46%] -rotate-8 border-t-[6px] border-primary bg-accent lg:block"
           />
           <div
             className={cn(
               CONTENT,
-              "relative grid items-center gap-24 pt-12 pb-20 lg:grid-cols-2 lg:gap-12 lg:pt-24 lg:pb-52",
+              "relative grid items-start gap-5 pt-10 pb-8 lg:min-h-[780px] lg:grid-cols-[minmax(0,560px)_minmax(0,1fr)] lg:gap-12 lg:pt-[70px] lg:pb-16",
             )}
           >
-            <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-5 lg:gap-6 lg:pt-20">
               <h1 className="text-4xl leading-11 font-bold tracking-tight md:text-5xl md:leading-14 xl:text-6xl xl:leading-16">
                 {t("title")} <span className="text-link">{t("titleAccent")}</span>
               </h1>
-              <p className="max-w-lg text-muted-foreground md:text-lg">{t("description")}</p>
+              <p className="max-w-[520px] text-muted-foreground md:text-lg">{t("description")}</p>
               <div className="flex flex-col gap-3 md:flex-row md:flex-wrap">
                 <Button
                   asChild
@@ -236,7 +253,7 @@ function LandingPage() {
                   size="lg"
                   variant="outline"
                 >
-                  <Link to={ROUTES.participant.login}>{t("participantCta")}</Link>
+                  <Link to={ROUTES.participant.login}>{t("footerLinks.myApplications")}</Link>
                 </Button>
                 <CatalogButton />
               </div>
@@ -246,22 +263,24 @@ function LandingPage() {
         </section>
 
         <section
-          className={cn(CONTENT, "flex flex-col items-center gap-8 py-12 md:gap-12 md:py-24")}
+          className={cn(CONTENT, "flex flex-col items-center gap-5 pt-12 pb-8 md:gap-14 md:py-24")}
         >
-          <div className="flex max-w-xl flex-col items-center gap-3 text-center">
+          <div className="flex w-full max-w-xl flex-col gap-3 md:items-center md:text-center">
             <Heading>{t("types.title")}</Heading>
-            <p className="text-muted-foreground md:text-lg">{t("types.description")}</p>
+            <p className="hidden text-muted-foreground md:block md:text-lg">
+              {t("types.description")}
+            </p>
           </div>
-          <div className="grid w-full gap-6 md:grid-cols-3 md:gap-8">
-            {EVENT_TYPES.map(({ key, illustration }) => (
+          <div className="grid w-full max-w-[1084px] gap-5 md:grid-cols-3 md:gap-8">
+            {EVENT_TYPES.map(({ key, illustration, artSize }) => (
               <div
                 key={key}
                 className="flex flex-col items-center gap-3 text-center"
               >
-                <div className="flex h-44 w-full items-center justify-center rounded-lg bg-muted p-4 md:h-56">
+                <div className="flex h-[180px] w-full items-center justify-center rounded-lg bg-muted md:h-[230px]">
                   <Art
                     illustration={illustration}
-                    className="h-full w-auto"
+                    className={artSize}
                   />
                 </div>
                 <h3 className="text-lg leading-6.5 font-semibold">{t(`types.${key}.title`)}</h3>
@@ -275,18 +294,18 @@ function LandingPage() {
           id="organizers"
           className="scroll-mt-16 border-t border-border bg-muted py-12 md:py-24"
         >
-          <div className={cn(CONTENT, "flex flex-col gap-8 md:gap-12")}>
-            <Heading className="text-center">{t("features.title")}</Heading>
+          <div className={cn(CONTENT, "flex flex-col gap-5 md:gap-14")}>
+            <Heading className="md:text-center">{t("features.title")}</Heading>
             <div className="grid gap-4 md:grid-cols-3 md:gap-6">
-              {FEATURES.map(({ key, illustration }) => (
+              {FEATURES.map(({ key, illustration, artSize }) => (
                 <Card
                   key={key}
-                  className="items-center gap-4 p-6 text-center"
+                  className="items-center gap-3 p-5 text-center md:gap-4 md:p-6"
                 >
-                  <div className="flex h-40 w-full items-center justify-center rounded-md bg-background p-4">
+                  <div className="flex h-[180px] w-full items-center justify-center rounded-md bg-background md:h-[200px]">
                     <Art
                       illustration={illustration}
-                      className="h-full w-auto"
+                      className={artSize}
                     />
                   </div>
                   <h3 className="text-lg leading-6.5 font-semibold">
@@ -302,7 +321,7 @@ function LandingPage() {
         <section className="bg-primary py-12 text-primary-foreground md:py-24">
           <div className={cn(CONTENT, "grid items-center gap-8 md:grid-cols-2 md:gap-16")}>
             <div className="flex flex-col items-start gap-4 md:gap-5">
-              <div className="flex size-10 items-center justify-center rounded-md bg-card text-link">
+              <div className="hidden size-10 items-center justify-center rounded-md bg-card text-link md:flex">
                 <Clock
                   aria-hidden
                   className="size-5"
@@ -310,19 +329,12 @@ function LandingPage() {
               </div>
               <Heading>{t("features.waitlist.title")}</Heading>
               <p className="md:text-lg">{t("features.waitlist.body")}</p>
-              <Button
-                asChild
-                size="lg"
-                variant="secondary"
-                className="bg-card text-link hover:bg-card/90"
-              >
-                <Link to={ROUTES.catalog}>{t("catalogLink")}</Link>
-              </Button>
+              <CatalogButton isOnPrimary />
             </div>
-            <div className="flex items-center justify-center rounded-lg bg-card p-6 shadow-sm md:order-last">
+            <div className="order-first flex h-50 items-center justify-center rounded-lg bg-card p-6 shadow-sm md:order-last md:h-[380px]">
               <Art
                 illustration={DashboardIllustration}
-                className="max-h-72"
+                className="max-h-full max-w-[260px] md:max-w-[480px]"
               />
             </div>
           </div>
@@ -337,18 +349,18 @@ function LandingPage() {
         >
           <Art
             illustration={SignUpIllustration}
-            className="w-48 md:w-64"
+            className="w-[200px] md:w-[260px]"
           />
           <Heading className="max-w-3xl">{t("participants.title")}</Heading>
           <p className="max-w-xl text-muted-foreground md:text-lg">{t("participants.body")}</p>
           <div className="flex w-full flex-col gap-3 md:w-auto md:flex-row">
-            <CatalogButton className="border-transparent bg-primary text-primary-foreground hover:bg-primary/90" />
+            <CatalogButton />
             <Button
               asChild
               size="lg"
               variant="outline"
             >
-              <Link to={ROUTES.participant.login}>{t("participantCta")}</Link>
+              <Link to={ROUTES.participant.login}>{t("footerLinks.myApplications")}</Link>
             </Button>
           </div>
         </section>
@@ -373,7 +385,7 @@ function LandingPage() {
             <div className="flex items-center justify-center rounded-lg bg-card p-6">
               <Art
                 illustration={CelebrateIllustration}
-                className="w-48 md:w-64"
+                className="w-[220px] md:w-[300px]"
               />
             </div>
           </div>

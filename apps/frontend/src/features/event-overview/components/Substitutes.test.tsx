@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { render, screen, within } from "@testing-library/react"
+import { render, screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
@@ -31,7 +31,22 @@ const item = (id: string, firstName: string, position: number) => ({
   priceCzk: 4900,
   isProposed: position === 1,
 })
-const term = { id: "t1", startsOn: "2027-07-12", endsOn: "2027-07-18" }
+const term = {
+  id: "t1",
+  name: null,
+  startsOn: "2027-07-12",
+  endsOn: "2027-07-18",
+  confirmed: 52,
+  capacity: 53,
+  free: 1,
+  waitlisted: 0,
+  roomCount: 2,
+  roomMode: "GENDERED" as const,
+  byGender: {
+    MALE: { confirmed: 49, capacity: 50, free: 1, waitlisted: 0 },
+    FEMALE: { confirmed: 3, capacity: 3, free: 0, waitlisted: 0 },
+  },
+}
 const list = (overrides = {}) => ({
   termId: "t1",
   evaluationMode: "MANUAL",
@@ -43,7 +58,7 @@ const list = (overrides = {}) => ({
 
 const onConfirmed = vi.fn()
 
-function Harness() {
+function Harness({ hasWaitlistedParticipants = false }: { hasWaitlistedParticipants?: boolean }) {
   const [taken, setTaken] = useState<SubstituteTaken | null>(null)
   return taken ? (
     <SubstituteTakenScreen
@@ -53,19 +68,32 @@ function Harness() {
   ) : (
     <SubstitutesPanel
       eventId="e1"
-      term={term}
+      term={
+        hasWaitlistedParticipants
+          ? {
+              ...term,
+              confirmed: 53,
+              free: 0,
+              byGender: {
+                ...term.byGender,
+                MALE: { ...term.byGender.MALE, confirmed: 50, free: 0 },
+              },
+            }
+          : term
+      }
       onConfirmed={onConfirmed}
+      hasWaitlistedParticipants={hasWaitlistedParticipants}
       onTaken={setTaken}
     />
   )
 }
-function setup(data: unknown = list()) {
+function setup(data: unknown = list(), hasWaitlistedParticipants = false) {
   get.mockReturnValue({ json: () => Promise.resolve(data) })
   render(
     <QueryClientProvider
       client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
     >
-      <Harness />
+      <Harness hasWaitlistedParticipants={hasWaitlistedParticipants} />
     </QueryClientProvider>,
   )
 }
@@ -163,10 +191,34 @@ describe("suitable substitutes (US-104)", () => {
     expect(await screen.findAllByText("Waitlisted · 1")).not.toHaveLength(0)
   })
 
-  it("shows nothing without suitable substitutes or in the automatic mode", async () => {
+  it("shows the free bed group when nobody can take it", async () => {
     setup(list({ items: [] }))
-    await screen.findByText(/./, undefined, { timeout: 100 }).catch(() => undefined)
-    expect(screen.queryByRole("list")).toBeNull()
+    expect(
+      await screen.findByRole("heading", { name: "No suitable substitutes are waiting" }),
+    ).toBeVisible()
+    expect(screen.getByText("Men · Occupied 49/50")).toBeVisible()
+    expect(screen.queryByText(/Occupied 52\/53/)).toBeNull()
+    expect(screen.getByText(/1 free men's bed/)).toBeVisible()
+    expect(screen.getByRole("link", { name: "Show the whole waitlist" })).toHaveAttribute(
+      "href",
+      "#term-waitlist",
+    )
+    expect(screen.queryByRole("button", { name: /Confirm/ })).toBeNull()
+  })
+
+  it("shows that capacity is full while applicants remain on the manual waitlist", async () => {
+    setup(list({ freeBeds: { MALE: 0, FEMALE: 0 }, items: [] }), true)
+    expect(await screen.findByRole("heading", { name: "Capacity is full" })).toBeVisible()
+    expect(screen.getByText("Men · Occupied 50/50")).toBeVisible()
+    expect(screen.getByText("Women · Occupied 3/3")).toBeVisible()
+    expect(screen.getByText("The remaining substitutes stay on the waitlist.")).toBeVisible()
+    expect(screen.queryByRole("button", { name: /Confirm/ })).toBeNull()
+  })
+
+  it("does not show a manual empty state in automatic evaluation", async () => {
+    setup(list({ evaluationMode: "AUTOMATIC", items: [] }))
+    await waitFor(() => expect(get).toHaveBeenCalled())
+    expect(screen.queryByText("No suitable substitutes are waiting")).not.toBeInTheDocument()
   })
 
   it("asks first, then confirms and hands over to the application", async () => {

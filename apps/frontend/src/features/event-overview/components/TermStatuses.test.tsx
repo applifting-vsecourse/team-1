@@ -112,6 +112,10 @@ describe("TermStatuses", () => {
     await user.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Confirm" }))
 
     expect(await screen.findByText("No free bed for this gender")).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "Confirm anyway" })).toBeDisabled()
+    await user.click(
+      screen.getByRole("checkbox", { name: "I confirm this application over capacity." }),
+    )
     await user.click(screen.getByRole("button", { name: "Confirm anyway" }))
 
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument())

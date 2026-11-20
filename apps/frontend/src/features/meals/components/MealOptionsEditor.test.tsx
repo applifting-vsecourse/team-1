@@ -46,7 +46,7 @@ describe("MealOptionsEditor", () => {
     expect(await screen.findByRole("heading", { name: "Meal options" })).toBeVisible()
     expect(
       screen
-        .getAllByRole("textbox", { name: "Restriction name" })
+        .getAllByRole("textbox", { name: /^Option \d+$/ })
         .map((i) => (i as HTMLInputElement).value),
     ).toEqual(["Vegetarian", "Gluten-free"])
   })
@@ -56,8 +56,11 @@ describe("MealOptionsEditor", () => {
     setup()
     await user.click(await screen.findByRole("button", { name: "Remove Gluten-free" }))
     await user.click(screen.getByRole("button", { name: "Add restriction" }))
-    const inputs = screen.getAllByRole("textbox", { name: "Restriction name" })
+    const inputs = screen.getAllByRole("textbox", { name: /^Option \d+$/ })
     await user.type(inputs[1]!, "Vegan")
+    expect(screen.getByRole("checkbox", { name: "Vegan" })).toBeDisabled()
+    expect(screen.queryByRole("checkbox", { name: "Gluten-free" })).not.toBeInTheDocument()
+    expect(screen.getByText("Allergies and other requests are entered separately.")).toBeVisible()
     await user.click(screen.getByRole("button", { name: "Save options" }))
 
     await waitFor(() =>

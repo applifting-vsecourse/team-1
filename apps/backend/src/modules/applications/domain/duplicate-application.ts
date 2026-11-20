@@ -15,7 +15,11 @@ export function normalizeName(name: string): string {
   return name.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase().trim().replace(/\s+/g, " ")
 }
 
-const identityKey = ({ firstName, lastName, birthDate }: Omit<ParticipantOnTerm, "termId">) =>
+const identityKey = ({
+  firstName,
+  lastName,
+  birthDate,
+}: Omit<ParticipantOnTerm, "termId">): string =>
   `${normalizeName(firstName)}|${normalizeName(lastName)}|${birthDate}`
 
 /**
@@ -26,12 +30,16 @@ const identityKey = ({ firstName, lastName, birthDate }: Omit<ParticipantOnTerm,
 export function findDuplicate(
   existing: ParticipantOnTerm[],
   submitted: (Omit<ParticipantOnTerm, "termId"> & { termIds: string[] })[],
-): { participant: Omit<ParticipantOnTerm, "termId">; termId: string } | null {
+): {
+  participantIndex: number
+  participant: Omit<ParticipantOnTerm, "termId">
+  termId: string
+} | null {
   const taken = new Set(existing.map((row) => `${identityKey(row)}|${row.termId}`))
-  for (const participant of submitted) {
+  for (const [participantIndex, participant] of submitted.entries()) {
     const key = identityKey(participant)
     for (const termId of participant.termIds) {
-      if (taken.has(`${key}|${termId}`)) return { participant, termId }
+      if (taken.has(`${key}|${termId}`)) return { participantIndex, participant, termId }
     }
     for (const termId of participant.termIds) taken.add(`${key}|${termId}`)
   }

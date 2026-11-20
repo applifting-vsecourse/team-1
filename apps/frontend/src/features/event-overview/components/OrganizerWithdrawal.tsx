@@ -4,6 +4,7 @@ import { TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { MoneyAmount } from "@/components/atoms/MoneyAmount"
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import {
@@ -89,12 +90,23 @@ export function OrganizerWithdrawal({
     ? `${application.data.firstName} ${application.data.lastName} · ${application.data.eventName}`
     : null
   const title = t(isWhole ? "withdrawal.wholeTitle" : "withdrawal.title")
+  const impactRows = preview.data?.terms.filter((row) => row.isWithdrawn) ?? []
+  const isWaitlistWithdrawal =
+    !isWhole && impactRows.length === 1 && impactRows[0]?.status === "WAITLISTED"
+  const hasNoWaitlistImpact =
+    isWaitlistWithdrawal &&
+    impactRows.every(
+      (row) =>
+        !row.hasFinancialImpact &&
+        row.paidCzk === 0 &&
+        row.debtCzk === 0 &&
+        row.overpaymentCzk === 0,
+    )
   const submitLabel = !isWhole
-    ? t("withdrawal.submit")
+    ? t(isWaitlistWithdrawal ? "withdrawal.submitWaitlist" : "withdrawal.submit")
     : terms.length === 2
       ? t("withdrawal.submitWholeTwo")
       : t("withdrawal.submitWholeAll")
-  const impactRows = preview.data?.terms.filter((row) => row.isWithdrawn) ?? []
   const substituteRows = impactRows.flatMap((row) => {
     const term = terms.find((candidate) => candidate.termId === row.termId)
     return row.substitute && term ? [{ row, term }] : []
@@ -107,7 +119,7 @@ export function OrganizerWithdrawal({
         if (!isOpen && !mutation.isPending) onClose()
       }}
     >
-      <DialogContent className="flex max-h-[calc(100dvh-2rem)] flex-col gap-0 overflow-hidden p-0 sm:max-w-160">
+      <DialogContent className="flex max-h-[calc(100dvh-2rem)] max-w-full flex-col gap-0 overflow-hidden p-0 sm:max-w-160">
         <div className="flex [scrollbar-width:thin] flex-col gap-6 overflow-y-auto p-6">
           <DialogHeader>
             <DialogTitle className="text-2xl">{title}</DialogTitle>
@@ -166,6 +178,7 @@ export function OrganizerWithdrawal({
                     className="flex flex-col gap-3 border-t pt-4"
                   >
                     <p className="font-medium">{termTitle(term)}</p>
+                    {row.status === "WAITLISTED" && <p>{t("termStatus.state.WAITLISTED")}</p>}
                     <dl className="flex flex-col gap-2 sm:grid sm:grid-cols-3 sm:gap-3">
                       <ImpactFigure
                         label={t("withdrawal.paid")}
@@ -207,8 +220,16 @@ export function OrganizerWithdrawal({
           ))}
           <Alert>
             <TriangleAlert aria-hidden />
-            <AlertTitle className="line-clamp-none">{t("withdrawal.noRefundTitle")}</AlertTitle>
-            <AlertDescription>{t("withdrawal.noRefundDescription")}</AlertDescription>
+            <AlertTitle className="line-clamp-none">
+              {t(hasNoWaitlistImpact ? "withdrawal.waitlistImpact" : "withdrawal.noRefundTitle")}
+            </AlertTitle>
+            <AlertDescription>
+              {t(
+                hasNoWaitlistImpact
+                  ? "withdrawal.waitlistNotice"
+                  : "withdrawal.noRefundDescription",
+              )}
+            </AlertDescription>
           </Alert>
           {mutation.error ? (
             <p
@@ -227,14 +248,15 @@ export function OrganizerWithdrawal({
             >
               {t("withdrawal.back")}
             </Button>
-            <Button
+            <PendingButton
+              isPending={mutation.isPending}
               variant="destructive"
               size="lg"
               disabled={!preview.data || mutation.isPending}
               onClick={() => mutation.mutate()}
             >
               {submitLabel}
-            </Button>
+            </PendingButton>
           </DialogFooter>
         </div>
       </DialogContent>

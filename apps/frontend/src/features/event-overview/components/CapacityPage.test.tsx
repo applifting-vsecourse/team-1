@@ -10,6 +10,7 @@ import { act, cleanup, render, screen } from "@testing-library/react"
 import { afterEach, describe, expect, it, vi } from "vitest"
 
 import { i18n } from "@/i18n"
+import { roomCapacityIncreaseKey } from "@/lib/room-capacity-increase"
 
 import { CapacityPage } from "@/features/event-overview/components/CapacityPage"
 
@@ -57,6 +58,7 @@ function renderPage(
     termId?: string
     rooms?: { gender: "FEMALE" | "MALE" | null; beds: number }[]
   } = {},
+  client = new QueryClient({ defaultOptions: { queries: { retry: false } } }),
 ) {
   vi.spyOn(globalThis, "fetch").mockImplementation(() =>
     Promise.resolve(
@@ -82,9 +84,7 @@ function renderPage(
     history: createMemoryHistory({ initialEntries: ["/"] }),
   })
   render(
-    <QueryClientProvider
-      client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
-    >
+    <QueryClientProvider client={client}>
       <RouterProvider router={router} />
     </QueryClientProvider>,
   )
@@ -96,6 +96,25 @@ afterEach(async () => {
 })
 
 describe("CapacityPage", () => {
+  it.each([
+    ["t1", 5, true],
+    ["other-term", 5, false],
+    ["t1", 99, false],
+  ] as const)(
+    "shows the room increase only for the saved term and matching totals (%s, %i)",
+    async (id, femaleBeds, isShown) => {
+      const client = new QueryClient()
+      client.setQueryData(roomCapacityIncreaseKey("e1", id), {
+        gender: "FEMALE",
+        addedBeds: 2,
+        capacity: { FEMALE: femaleBeds, MALE: 5, total: femaleBeds + 5 },
+      })
+      renderPage(gendered, 200, { termId: "t1" }, client)
+      await screen.findByText("2 / 5")
+      expect(Boolean(screen.queryByText("Women's capacity increased by 2 beds"))).toBe(isShown)
+    },
+  )
+
   it("lists every term with bars for women and men and no percent text", async () => {
     renderPage(gendered)
 
@@ -133,16 +152,27 @@ describe("CapacityPage", () => {
     })
 
     expect(await screen.findByRole("heading", { name: "Letní turnus 1" })).toBeVisible()
-    expect(screen.getByRole("link", { name: "← All terms" }).getAttribute("href")).not.toContain(
+    expect(screen.getByRole("link", { name: "All terms" }).getAttribute("href")).not.toContain(
       "termId",
     )
-    const women = screen.getByRole("link", { name: /Women · capacity 5 beds/ })
-    expect(women).toHaveTextContent("2 / 5")
-    expect(women).toHaveTextContent("3 free places · 1 women’s room of 5 beds")
+    const women = screen.getByRole("link", { name: /Women · capacity 5 beds.*View applications/ })
+    expect(
+      screen.getByRole("heading", { name: /Women · capacity 5 beds/ }).parentElement,
+    ).toHaveTextContent("2 / 5")
+    expect(
+      screen.getByRole("heading", { name: /Women · capacity 5 beds/ }).parentElement,
+    ).toHaveTextContent("3 free places · 1 women’s room of 5 beds")
     for (const part of ["term=t1", "status=CONFIRMED", "gender=FEMALE"]) {
       expect(women.getAttribute("href")).toContain(part)
     }
-    expect(screen.getByRole("link", { name: /Total term capacity/ })).toHaveTextContent("7 / 10")
+    expect(
+      screen
+        .getByRole("link", { name: /Women · capacity 5 beds.*Waitlisted/ })
+        .getAttribute("href"),
+    ).toContain("status=WAITLISTED")
+    expect(
+      screen.getByRole("heading", { name: /Total term capacity/ }).parentElement,
+    ).toHaveTextContent("7 / 10")
     expect(screen.getByText("Free places for women cannot be used for men.")).toBeVisible()
     expect(screen.getByText(/3 places left in total, all for women/)).toBeVisible()
   })
@@ -177,7 +207,7 @@ describe("CapacityPage", () => {
 
       expect(await screen.findByText(`${beds} ${cs} pro ženy · 5 pro muže`)).toBeVisible()
       expect(
-        screen.getByRole("link", { name: new RegExp(`Ženy · kapacita ${beds} ${cs}\\b`) }),
+        screen.getByRole("link", { name: `Ženy · kapacita ${beds} ${cs} · Zobrazit přihlášky` }),
       ).toBeVisible()
     })
 
@@ -186,7 +216,7 @@ describe("CapacityPage", () => {
 
       expect(await screen.findByText(`${beds} ${en} for women · 5 for men`)).toBeVisible()
       expect(
-        screen.getByRole("link", { name: new RegExp(`Women · capacity ${beds} ${en}\\b`) }),
+        screen.getByRole("link", { name: `Women · capacity ${beds} ${en} · View applications` }),
       ).toBeVisible()
     })
 

@@ -134,22 +134,33 @@ describe("SubmissionStatus", () => {
     expect(screen.getByText("Awaiting evaluation")).toBeInTheDocument()
     expect(screen.queryByText(/waitlisted/i)).not.toBeInTheDocument()
     expect(screen.queryByText("Waitlisted")).not.toBeInTheDocument()
-    expect(screen.getByText("Don't pay yet.")).toBeInTheDocument()
-    expect(screen.getByText(/not a confirmed place or a waitlist spot yet/)).toBeInTheDocument()
+    expect(
+      screen.getByText("Letní kemp 2027 · participation not confirmed yet"),
+    ).toBeInTheDocument()
+    expect(screen.getByText("What happens next")).toBeInTheDocument()
+    expect(screen.getByText(/Don't pay anything yet/)).toBeInTheDocument()
+    expect(
+      screen.getByText("The organizer will decide on participation in this term."),
+    ).toBeInTheDocument()
     expect(screen.queryByText("Do not pay yet")).not.toBeInTheDocument()
     expect(screen.queryByText("123456789/0800")).not.toBeInTheDocument()
-    expect(screen.queryByRole("heading", { name: "To pay for the confirmed terms" })).toBeNull()
+    expect(screen.queryByRole("heading", { name: "Payment for the confirmed terms" })).toBeNull()
   })
 
   it("shows a confirmed term with the amount and the payment details", async () => {
     await renderStatus(data())
 
-    expect(screen.getByText("LK-0048 · Letní kemp 2027")).toBeInTheDocument()
+    expect(screen.getByText("Application no. LK-0048")).toBeInTheDocument()
+    expect(
+      screen.getByText("We sent the confirmation and the status of the terms to jana@example.com."),
+    ).toBeInTheDocument()
     expect(screen.getByText("Confirmed")).toBeInTheDocument()
-    expect(screen.getByRole("heading", { name: "To pay for the confirmed terms" })).toBeVisible()
+    expect(screen.getByText(/for the confirmed term$/)).toBeInTheDocument()
+    expect(screen.getByRole("heading", { name: "Payment for the confirmed terms" })).toBeVisible()
     expect(screen.getByText("123456789/0800")).toBeInTheDocument()
     expect(screen.getByText("48000")).toBeInTheDocument()
-    expect(screen.getByText(/created a participant account for jana@example.com/)).toBeVisible()
+    expect(screen.getByText(/We created an account for you automatically/)).toBeVisible()
+    expect(screen.getByText(/The link is valid for 7 days/)).toBeVisible()
     expect(screen.getByRole("link", { name: "Go to sign in" })).toHaveAttribute(
       "href",
       "/participant/login",
@@ -166,11 +177,11 @@ describe("SubmissionStatus", () => {
       }),
     )
 
-    expect(screen.getAllByRole("heading", { name: "To pay for the confirmed terms" })).toHaveLength(
-      1,
-    )
+    expect(
+      screen.getAllByRole("heading", { name: "Payment for the confirmed terms" }),
+    ).toHaveLength(1)
     const card = screen.getByRole("heading", {
-      name: "To pay for the confirmed terms",
+      name: "Payment for the confirmed terms",
     }).parentElement!
     expect(card).toHaveTextContent(/14.300/)
     expect(card).toHaveTextContent(/Jana: .*6.900.* \+ Matěj: .*7.400/)
@@ -201,9 +212,9 @@ describe("SubmissionStatus", () => {
     expect(screen.getByText("Waitlisted")).toBeInTheDocument()
     expect(screen.getByText("Do not pay yet")).toBeInTheDocument()
     expect(screen.queryByText(/in line|position/i)).not.toBeInTheDocument()
-    expect(screen.getAllByRole("heading", { name: "To pay for the confirmed terms" })).toHaveLength(
-      1,
-    )
+    expect(
+      screen.getAllByRole("heading", { name: "Payment for the confirmed terms" }),
+    ).toHaveLength(1)
     expect(screen.queryByText("49000")).not.toBeInTheDocument()
   })
 

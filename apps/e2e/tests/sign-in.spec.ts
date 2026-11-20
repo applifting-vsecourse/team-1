@@ -6,6 +6,13 @@ import { eventIdByPublicToken } from "./support/events"
 // US-96 landing → US-02 sign-in and sign-out, and the boundary between the two account types.
 // Edge cases (wrong password, 401/403 of the API) live in Vitest and *.int-spec.ts (docs/E2E.md).
 test.describe("Sign-in", () => {
+  test("participant can request a new sign-in link", { tag: "@mobile" }, async ({ page }) => {
+    await page.goto("/participant/login")
+    await page.getByRole("link", { name: "Get a new link" }).click()
+    await expect(page).toHaveURL(/\/participant\/magic-link$/)
+    await expect(page.getByRole("button", { name: "Send me a link" })).toBeVisible()
+  })
+
   test("organizer gets from the landing page to the events list and signs out", async ({
     page,
   }) => {
@@ -53,7 +60,7 @@ test.describe("Sign-in", () => {
     { tag: "@mobile" },
     async ({ page }) => {
       await signIn(page, "participant", PARTICIPANT)
-      await expect(page.getByRole("heading", { level: 1, name: "Your applications" })).toBeVisible()
+      await expect(page.getByRole("heading", { level: 1, name: "My applications" })).toBeVisible()
 
       await signOut(page, PARTICIPANT)
       // Sign-out ends on the landing page; leaving earlier would abort the request and keep the session.
@@ -65,10 +72,10 @@ test.describe("Sign-in", () => {
 
   test("participant cannot open the organizer area", async ({ page }) => {
     await signIn(page, "participant", PARTICIPANT)
-    await expect(page.getByRole("heading", { level: 1, name: "Your applications" })).toBeVisible()
+    await expect(page.getByRole("heading", { level: 1, name: "My applications" })).toBeVisible()
 
     await page.goto("/organizer")
-    await expect(page.getByText("A participant account can't manage events.")).toBeVisible()
+    await expect(page.getByText(/This area is only available to organizers/)).toBeVisible()
   })
 
   test("organizer cannot open another organization's event (US-10)", async ({ page }) => {
@@ -77,9 +84,37 @@ test.describe("Sign-in", () => {
     await openEventList(page)
 
     await page.goto(`/organizer/events/${eventId}`)
-    await expect(page.getByText("403 · The requested record isn't available to you.")).toBeVisible()
+    await expect(page.getByText(/This record is unavailable for your account/)).toBeVisible()
     await expect(page.getByText("Horský víkend 2027")).toHaveCount(0)
-    await page.getByRole("link", { name: "My events" }).click()
+    await page.getByRole("link", { name: "Back to my events", exact: true }).click()
     await expect(page).toHaveURL(/\/organizer\/events$/)
+  })
+})
+
+test.describe("Organizer workspace at 360 px", () => {
+  test.use({ viewport: { width: 360, height: 800 } })
+
+  test("opens the account drawer and the program editor from the mobile workspace", async ({
+    page,
+  }) => {
+    await signIn(page, "organizer", ORGANIZER)
+    await openEventList(page)
+    const openMenu = page.getByRole("button", { name: "Open navigation" })
+    await openMenu.click()
+    const drawer = page.getByRole("dialog")
+    await expect(drawer.getByRole("button", { name: /organizator@example\.com/ })).toBeVisible()
+    await page.keyboard.press("Escape")
+    await expect(drawer).toBeHidden()
+
+    const eventId = await eventIdByPublicToken("demo-letni-kemp-2027")
+    await page.goto(`/organizer/events/${eventId}/program`)
+    await page.getByRole("button", { name: "Add block" }).click()
+    const dialog = page.getByRole("dialog", { name: "Add block" })
+    await expect(dialog).toBeVisible()
+    await expect(dialog.getByLabel("Block name")).toBeVisible()
+    await page.keyboard.press("Escape")
+    await expect(dialog).toBeHidden()
+    await expect(openMenu).toBeVisible()
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(360)
   })
 })

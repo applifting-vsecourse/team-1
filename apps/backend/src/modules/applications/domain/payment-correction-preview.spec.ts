@@ -26,8 +26,8 @@ describe("computePaymentCorrectionPreview", () => {
       preview: {
         amountOwedCzk: 1500,
         terms: [
-          { termId: "1", owedCzk: 1000, changeCzk: 1000 },
-          { termId: "2", owedCzk: 500, changeCzk: -500 },
+          { termId: "1", owedCzk: 1000, allocatedCzk: 0, changeCzk: 1000 },
+          { termId: "2", owedCzk: 500, allocatedCzk: 500, changeCzk: -500 },
         ],
       },
     })
@@ -49,8 +49,8 @@ describe("computePaymentCorrectionPreview", () => {
       preview: {
         amountOwedCzk: 200,
         terms: [
-          { termId: "1", owedCzk: -500, changeCzk: 0 },
-          { termId: "2", owedCzk: 700, changeCzk: 200 },
+          { termId: "1", owedCzk: -500, allocatedCzk: 0, changeCzk: 0 },
+          { termId: "2", owedCzk: 700, allocatedCzk: 300, changeCzk: 200 },
         ],
       },
     })
@@ -73,7 +73,10 @@ describe("computePaymentCorrectionPreview", () => {
       }),
     ).toEqual({
       ok: true,
-      preview: { amountOwedCzk: -300, terms: [{ termId: "1", owedCzk: -300, changeCzk: -200 }] },
+      preview: {
+        amountOwedCzk: -300,
+        terms: [{ termId: "1", owedCzk: -300, allocatedCzk: -200, changeCzk: -200 }],
+      },
     })
     expect(
       computePaymentCorrectionPreview({
@@ -83,7 +86,7 @@ describe("computePaymentCorrectionPreview", () => {
         amountCzk: 600,
         isRefund: true,
       }),
-    ).toEqual({ ok: false, errorCode: "REFUND_EXCEEDS_OVERPAYMENT" })
+    ).toEqual({ ok: false, errorCode: "REFUND_EXCEEDS_OVERPAYMENT", maximum: 500 })
   })
 
   it("allows targeted corrections when the only term is archived", () => {
@@ -104,7 +107,10 @@ describe("computePaymentCorrectionPreview", () => {
     })
     expect(computePaymentCorrectionPreview({ ...input, termId: "1" })).toEqual({
       ok: true,
-      preview: { amountOwedCzk: 200, terms: [{ termId: "1", owedCzk: 200, changeCzk: 200 }] },
+      preview: {
+        amountOwedCzk: 200,
+        terms: [{ termId: "1", owedCzk: 200, allocatedCzk: 800, changeCzk: 200 }],
+      },
     })
   })
 

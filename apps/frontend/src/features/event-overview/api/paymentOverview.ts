@@ -3,13 +3,30 @@ import { z } from "zod"
 
 import { api } from "@/lib/api-client"
 
+const debtByReminderSchema = z.object({
+  ALL: z.number().int(),
+  SENT: z.number().int(),
+  NOT_SENT: z.number().int(),
+})
 const paymentOverviewSchema = z.object({
+  debtByFilter: z.object({
+    ALL: debtByReminderSchema,
+    UNPAID: debtByReminderSchema,
+    PARTIALLY_PAID: debtByReminderSchema,
+    OVERDUE: debtByReminderSchema,
+    PAID: debtByReminderSchema,
+  }),
+  remindedDebtorCount: z.number().int(),
   totalDebtCzk: z.number().int(),
   debtorCount: z.number().int(),
   overdueCount: z.number().int(),
   entries: z.array(
     z.object({
       applicationId: z.string(),
+      applicationNumber: z.number().int().optional(),
+      variableSymbol: z.string(),
+      summaryVariableSymbol: z.string(),
+      payableCzk: z.number().int().nonnegative(),
       firstName: z.string(),
       lastName: z.string(),
       termId: z.string(),

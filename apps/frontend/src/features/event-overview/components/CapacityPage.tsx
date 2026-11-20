@@ -1,21 +1,22 @@
 import type { ReactNode } from "react"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
-import { ChevronRight, TriangleAlert } from "lucide-react"
+import { CheckCircle2, ChevronRight, TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
 import { BackLink } from "@/components/atoms/BackLink"
 import { CapacityProgress } from "@/components/atoms/CapacityProgress"
 import { Seo } from "@/components/atoms/Seo"
-import { CardLink } from "@/components/molecules/CardLink"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
+import { SectionHeader } from "@/components/molecules/SectionHeader"
 import { TermLabel } from "@/components/molecules/TermLabel"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { formatDateRange } from "@/lib/date"
+import { roomCapacityIncreaseKey, type RoomCapacityIncrease } from "@/lib/room-capacity-increase"
 import { termName, termTitle } from "@/lib/term-label"
 import { cn } from "@/lib/utils"
 
@@ -48,9 +49,8 @@ function roomGroups(rooms: readonly Room[], gender: Gender) {
  * one term. A whole row or card is the link; the numbers are plain text.
  * `rooms` only feeds the room summary of the detail, so the route passes it in.
  */
-// Figma (Design system): N4 Kapacity · všechny termíny · podle pohlaví / Desktop · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14178-12869
-// Figma (Design system): N3 Kapacity · detail termínu / Desktop · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14178-12842
-// Figma (Design system): O08d Obsazenost všech termínů · společné pokoje · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12768-3229
+// Figma v2: US-26 Kapacita · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=18770-24198 (mobile 18770-24345). The all-terms list and
+// the term detail behind `?termId=` stay as approved in N3 / N4 (docs/FIGMA-REMAKE.md, 25. 10.).
 export function CapacityPage({
   eventId,
   termId,
@@ -68,6 +68,7 @@ export function CapacityPage({
   return (
     <div className="flex flex-col gap-6">
       <Seo title={t("capacity.title")} />
+      <SectionHeader title={t("capacity.title")} />
       {query.isError ? (
         <ErrorState
           title={t("capacity.loadFailed")}
@@ -96,11 +97,6 @@ export function CapacityPage({
           terms={occupancy.terms}
         />
       )}
-      {occupancy &&
-      occupancy.terms.length > 0 &&
-      occupancy.terms.some((term) => term.roomCount > 0) ? (
-        <p className="text-sm text-muted-foreground">{t("capacity.footnote")}</p>
-      ) : null}
     </div>
   )
 }
@@ -167,7 +163,7 @@ export function TermList({ eventId, terms }: { eventId: string; terms: TermOccup
     <Card className="gap-4 p-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex flex-col gap-1">
-          <h2 className="text-lg font-semibold tracking-tight">{t("capacity.tableTitle")}</h2>
+          <h3 className="text-lg font-semibold tracking-tight">{t("capacity.tableTitle")}</h3>
           <p className="text-sm text-muted-foreground">{t("capacity.tableHint")}</p>
         </div>
         <ManageRoomsButton eventId={eventId} />
@@ -304,8 +300,18 @@ function TermDetail({
   term: TermOccupancy
   rooms: readonly Room[]
 }) {
-  const { t } = useTranslation("eventOverview")
+  const { t } = useTranslation(["eventOverview", "events"])
   const byGender = term.byGender
+  const storedIncrease = useQueryClient().getQueryData<RoomCapacityIncrease>(
+    roomCapacityIncreaseKey(eventId, term.id),
+  )
+  const increase =
+    storedIncrease &&
+    byGender &&
+    GENDERS.every((gender) => byGender[gender].capacity === storedIncrease.capacity[gender])
+      ? storedIncrease
+      : undefined
+  const changedFigures = increase && byGender?.[increase.gender]
   const isGendered = byGender !== null
   const overCapacity = byGender ? GENDERS.filter((gender) => byGender[gender].free < 0) : []
   const isWomenOnly = byGender !== null && byGender.FEMALE.free > 0 && byGender.MALE.free <= 0
@@ -329,7 +335,7 @@ function TermDetail({
         </div>
       </div>
       <div className="flex flex-col gap-1">
-        <h2 className="text-2xl font-semibold tracking-tight">{termTitle(term)}</h2>
+        <h3 className="text-xl font-semibold tracking-tight">{termTitle(term)}</h3>
         {termName(term) ? (
           <p className="text-sm">
             {formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })}
@@ -372,6 +378,36 @@ function TermDetail({
             ))
           : null}
       </div>
+      {increase && changedFigures ? (
+        <Alert
+          role="status"
+          className="border-border bg-status-success-bg"
+        >
+          <CheckCircle2 aria-hidden="true" />
+          <AlertTitle className="line-clamp-none">
+            {t(increase.gender === "FEMALE" ? "capacity.increasedWomen" : "capacity.increasedMen", {
+              count: increase.addedBeds,
+            })}
+          </AlertTitle>
+          <AlertDescription>
+            {t(
+              increase.gender === "FEMALE"
+                ? "capacity.increaseWomenDetail"
+                : "capacity.increaseMenDetail",
+              {
+                confirmed: t("events:terms.cancelDialog.confirmed", {
+                  count: changedFigures.confirmed,
+                }),
+                beds: t("capacity.increaseBedTotal", { count: changedFigures.capacity }),
+                free:
+                  changedFigures.free < 0
+                    ? t("capacity.missingBeds", { count: -changedFigures.free })
+                    : t("capacity.increaseFree", { count: changedFigures.free }),
+              },
+            )}
+          </AlertDescription>
+        </Alert>
+      ) : null}
       {overCapacity.length > 0 && byGender ? (
         <Alert variant="destructive">
           <TriangleAlert aria-hidden="true" />
@@ -434,16 +470,12 @@ function MetricCard({
   figures: OccupancyFigures
   helper: string
 }) {
+  const { t } = useTranslation("eventOverview")
   const isOver = figures.confirmed > figures.capacity
 
   return (
-    <CardLink
-      to={ROUTES.organizer.eventApplications}
-      params={{ eventId }}
-      search={search}
-      className={cn("gap-2 px-6", isOver && "border-destructive bg-destructive/8")}
-    >
-      <h3 className="text-xs font-medium text-muted-foreground">{label}</h3>
+    <Card className={cn("gap-2 px-6", isOver && "border-destructive bg-destructive/8")}>
+      <h4 className="text-xs font-medium text-muted-foreground">{label}</h4>
       <p
         className={cn(
           "text-4xl font-bold tracking-tight tabular-nums",
@@ -458,6 +490,34 @@ function MetricCard({
         label={label}
       />
       <p className="text-sm text-muted-foreground">{helper}</p>
-    </CardLink>
+      <div className="mt-auto flex flex-wrap gap-2">
+        <Button
+          asChild
+          variant="outline"
+        >
+          <Link
+            to={ROUTES.organizer.eventApplications}
+            params={{ eventId }}
+            search={search}
+            aria-label={label + " · " + t("capacity.openApplications")}
+          >
+            {t("capacity.openApplications")}
+          </Link>
+        </Button>
+        <Button
+          asChild
+          variant="ghost"
+        >
+          <Link
+            to={ROUTES.organizer.eventApplications}
+            params={{ eventId }}
+            search={{ ...search, status: "WAITLISTED" }}
+            aria-label={label + " · " + t("capacity.waitlistedColumn")}
+          >
+            {t("capacity.waitlistedColumn")} ({figures.waitlisted})
+          </Link>
+        </Button>
+      </div>
+    </Card>
   )
 }

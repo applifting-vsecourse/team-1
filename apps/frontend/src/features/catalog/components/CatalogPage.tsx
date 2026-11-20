@@ -1,17 +1,18 @@
 import { useId } from "react"
 import { useQuery } from "@tanstack/react-query"
+import { Link } from "@tanstack/react-router"
 import { TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
-import CampIllustration from "@/assets/illustrations/camp.svg?react"
-import { BandBackdrop } from "@/components/atoms/BandBackdrop"
+import { HeadingBand } from "@/components/atoms/HeadingBand"
 import { LogoSymbol } from "@/components/atoms/Logo"
 import { BackLink } from "@/components/molecules/BackLink"
+import { LoadingState } from "@/components/molecules/LoadingState"
 import { Pagination } from "@/components/molecules/Pagination"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import {
   Select,
@@ -20,7 +21,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Skeleton } from "@/components/ui/skeleton"
 import { usePagination } from "@/hooks/usePagination"
 import { cn } from "@/lib/utils"
 
@@ -37,13 +37,10 @@ type CatalogPageProps = {
   onOrganizationChange: (organizationId: string | undefined) => void
 }
 
-// US-123. Organization and event are a step-by-step choice on one page: the select narrows the cards.
-// Figma (Design system): Katalog akcí · Katalog organizací · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16146-10083
-// Akce organizace · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16146-10135
-// Katalog prázdný · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16146-10267
-// Načítání katalogu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16146-10309
-// Chyba katalogu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16146-10371
-// Mobil: 16146-10109, 16146-10165, 16146-10288, 16146-10340, 16146-10399
+// Figma v2 · public catalog · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22640-12072 (mobile 22640-12173).
+// States: empty 19404-4819, loading 19404-4897, error 19404-4994.
+// US-123. Organization and event are a step-by-step choice on one page: the select narrows the cards
+// (Figma draws a search field instead; the select stays until #366).
 export function CatalogPage({ organizationId, onOrganizationChange }: CatalogPageProps) {
   const { t } = useTranslation("catalog")
   const selectId = useId()
@@ -51,8 +48,20 @@ export function CatalogPage({ organizationId, onOrganizationChange }: CatalogPag
 
   const organization = data ? knownOrganizationId(data, organizationId) : undefined
   const events = data ? eventsOf(data, organization) : []
+  const selectedOrganization = data?.organizations.find((org) => org.id === organization)
   const isEmpty = data?.events.length === 0
   const { pageItems, ...pagination } = usePagination(events, organization ?? ALL, 18)
+
+  const totals = new Map<string, number>()
+  for (const event of events) {
+    totals.set(event.organizationId, (totals.get(event.organizationId) ?? 0) + 1)
+  }
+  const groups = (data?.organizations ?? [])
+    .map((org) => ({
+      ...org,
+      events: pageItems.filter((event) => event.organizationId === org.id),
+    }))
+    .filter((org) => org.events.length > 0)
 
   const select = (
     <div className="flex w-full flex-col gap-2 md:w-82">
@@ -84,46 +93,27 @@ export function CatalogPage({ organizationId, onOrganizationChange }: CatalogPag
 
   return (
     <>
-      <section className="relative overflow-hidden">
-        <BandBackdrop />
-        <div className={cn(CONTENT, "relative flex flex-col gap-6 pt-4 pb-16 md:pt-8 lg:pb-24")}>
-          <BackLink to={ROUTES.home}>{t("list.backHome")}</BackLink>
-          <div className="grid items-center gap-6 lg:grid-cols-[1fr_auto] lg:gap-12">
-            <div className="flex flex-col gap-3">
-              <h1 className="text-4xl/11 font-bold tracking-tight md:text-5xl/14">
-                {t("list.title")}
-              </h1>
-              <p className="max-w-lg text-muted-foreground md:text-lg">{t("list.description")}</p>
-            </div>
-            <CampIllustration
-              aria-hidden
-              className="hidden h-44 w-auto lg:block"
-            />
-          </div>
-        </div>
+      <section
+        className={cn(
+          CONTENT,
+          "pt-4 [--workspace-inset:1rem] md:pt-8 md:[--workspace-inset:1.5rem]",
+        )}
+      >
+        <HeadingBand>
+          <BackLink to={selectedOrganization ? ROUTES.catalog : ROUTES.home}>
+            {t(selectedOrganization ? "event.back" : "list.backHome")}
+          </BackLink>
+          <h1 className="mt-6 text-2xl/8 font-bold tracking-tight md:text-4xl">
+            {selectedOrganization?.name ?? t("list.title")}
+          </h1>
+          {selectedOrganization ? null : (
+            <p className="mt-3 text-muted-foreground">{t("list.description")}</p>
+          )}
+        </HeadingBand>
       </section>
 
       <div className={cn(CONTENT, "flex flex-col gap-6 pt-8 pb-12 md:pt-12 md:pb-20")}>
-        {isPending ? (
-          <Card
-            role="status"
-            className="max-w-160 gap-4 p-6 shadow-none"
-          >
-            {[0, 1, 2].map((row) => (
-              <div
-                key={row}
-                className="flex items-center gap-3"
-              >
-                <Skeleton className="size-10 shrink-0 rounded-full" />
-                <div className="flex flex-1 flex-col gap-1.5">
-                  <Skeleton className="h-4 w-full rounded-lg" />
-                  <Skeleton className="h-3 w-full rounded-lg" />
-                </div>
-              </div>
-            ))}
-            <p className="text-sm text-muted-foreground">{t("list.loading")}</p>
-          </Card>
-        ) : null}
+        {isPending ? <LoadingState label={t("list.loading")} /> : null}
 
         {isError ? (
           <Alert variant="destructive">
@@ -155,13 +145,41 @@ export function CatalogPage({ organizationId, onOrganizationChange }: CatalogPag
 
         {data && !isEmpty ? (
           <>
-            <ul className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {pageItems.map((event) => (
-                <li key={event.publicToken}>
-                  <EventCard event={event} />
-                </li>
-              ))}
-            </ul>
+            {groups.map((org) => (
+              <section
+                key={org.id}
+                className="flex flex-col gap-4"
+              >
+                {selectedOrganization ? null : (
+                  <div className="flex items-center justify-between gap-3">
+                    <h2>
+                      <Button
+                        variant="ghost"
+                        asChild
+                        className="h-12 max-w-full whitespace-normal"
+                      >
+                        <Link
+                          to={ROUTES.catalog}
+                          search={{ organization: org.id }}
+                        >
+                          {org.name}
+                        </Link>
+                      </Button>
+                    </h2>
+                    <Badge className="bg-muted-foreground text-background tabular-nums">
+                      {t("list.eventCount", { count: totals.get(org.id) ?? 0 })}
+                    </Badge>
+                  </div>
+                )}
+                <ul className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,18rem),22.5rem))] gap-6">
+                  {org.events.map((event) => (
+                    <li key={event.publicToken}>
+                      <EventCard event={event} />
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            ))}
             <Pagination
               {...pagination}
               onPageChange={pagination.setPage}

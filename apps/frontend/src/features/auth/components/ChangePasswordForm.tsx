@@ -1,12 +1,13 @@
 import { useMemo } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useNavigate, useRouter } from "@tanstack/react-router"
-import { CircleAlert, Loader2 } from "lucide-react"
+import { CircleAlert } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
 import { ROUTES } from "@/app/routes"
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { PasswordInput } from "@/components/molecules/PasswordInput"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -49,7 +50,7 @@ const emptyValues: FormValues = { currentPassword: "", newPassword: "" }
 // Figma (Design system): US-124 / Nastavení účtu · Krátké nové heslo · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16199-2738 (desktop), https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16199-2825 (mobil)
 // Figma (Design system): US-124 / Nastavení účtu · Nesprávné současné heslo · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16199-2585 (desktop), https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16199-2680 (mobil)
 export function ChangePasswordForm() {
-  const { t } = useTranslation("auth")
+  const { t } = useTranslation(["auth", "common"])
   const { t: tErrors } = useTranslation("errors")
   const changePassword = useChangePassword()
   const router = useRouter()
@@ -158,15 +159,16 @@ export function ChangePasswordForm() {
           >
             {t("changePassword.back")}
           </Button>
-          <Button
+          <PendingButton
             type="submit"
             size="lg"
             className="h-12 rounded-lg md:flex-1"
-            disabled={changePassword.isPending}
+            isPending={changePassword.isPending}
           >
-            {changePassword.isPending ? <Loader2 className="animate-spin" /> : null}
-            {t("changePassword.submit")}
-          </Button>
+            {changePassword.isPending
+              ? t("state.saving", { ns: "common" })
+              : t("changePassword.submit")}
+          </PendingButton>
         </div>
       </form>
     </Form>

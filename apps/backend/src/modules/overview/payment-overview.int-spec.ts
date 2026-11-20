@@ -1,4 +1,5 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
+import { variableSymbol } from "@/modules/applications/domain/variable-symbol"
 import { api, connectTestPrisma, resetAndSeed, signIn } from "@/test/integration/test-api"
 
 describe("payment overview API", () => {
@@ -85,6 +86,29 @@ describe("payment overview API", () => {
       reminderCount: 1,
       lastReminderAt: sentAt.toISOString(),
       amountOwedCzk: debt(paid),
+    })
+  })
+
+  it("exposes the searchable term and summary symbols of a confirmed application", async () => {
+    const source = await prisma.applicationTerm.findFirstOrThrow({
+      where: { application: { eventId }, status: "CONFIRMED" },
+      select: {
+        application: { select: { id: true, number: true } },
+        term: { select: { id: true, number: true } },
+      },
+    })
+    const response = await get()
+    expect(response.status).toBe(200)
+    const { entries } = await response.json()
+    const symbol = variableSymbol(source.application.number, source.term.number)
+    const result = entries.filter(
+      (entry: { variableSymbol: string }) => entry.variableSymbol === symbol,
+    )
+    expect(result).toHaveLength(1)
+    expect(result[0]).toMatchObject({
+      applicationId: source.application.id,
+      termId: source.term.id,
+      summaryVariableSymbol: variableSymbol(source.application.number),
     })
   })
 

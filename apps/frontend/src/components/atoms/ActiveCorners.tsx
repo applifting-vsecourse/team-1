@@ -7,12 +7,12 @@ import { cn } from "@/lib/utils"
  *
  * Put it inside a `relative group` element; it shows while that element has
  * `data-status="active"` (what the router's Link sets). The corners slide in
- * from 6 px and fade in (180 ms, ease-out); with reduced motion they only fade.
+ * from 6 px and fade in (400 ms, ease-out); reduced motion shows the final state immediately.
  */
-// Figma (Design system): DS / Graphic / Active corners · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=13134-19498
+// Figma (Design system): DS / Graphic / Active corners · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=26793-3511
 export function ActiveCorners({ className }: { className?: string }) {
   const corner =
-    "absolute size-4.5 opacity-0 transition-[opacity,translate] duration-180 ease-out group-data-[status=active]:translate-0 group-data-[status=active]:opacity-100 motion-reduce:translate-0"
+    "absolute size-4.5 opacity-0 transition-[opacity,translate] duration-400 ease-out group-data-[status=active]:translate-0 group-data-[status=active]:opacity-100 motion-reduce:translate-0 motion-reduce:transition-none"
 
   return (
     <span

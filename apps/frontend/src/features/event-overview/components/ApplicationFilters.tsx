@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { X } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { HelpTooltipContent } from "@/components/atoms/HelpTooltipContent"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import {
@@ -19,7 +20,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Tooltip, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 
 import type { ApplicationsSearch } from "@/features/event-overview/lib/applications-search"
@@ -35,7 +36,7 @@ type FilterOption = {
 }
 
 // Figma (Design system): US-38 filter "Ubytování" · desktop https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=25587-109948 (mobile: 25587-110135)
-// Figma (Design system): M12 / M12a · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14182-3993
+// Figma v2: US-52 filters · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15628-3232; mobile sheet 18186-20765
 export function ApplicationFilters({
   filters,
   terms,
@@ -57,6 +58,7 @@ export function ApplicationFilters({
     return () => desktop.removeEventListener("change", closeOnDesktop)
   }, [])
   const options: FilterOption[] = [
+    { key: "term", label: t("applications.term"), all: t("applications.allTerms"), values: terms },
     {
       key: "status",
       label: t("applications.status"),
@@ -82,7 +84,7 @@ export function ApplicationFilters({
       : []),
     {
       key: "payment",
-      label: t("applications.payment"),
+      label: t("applications.paymentFilter"),
       all: t("applications.allPayments"),
       values: [
         { id: "DEBT", name: t("applications.debt") },
@@ -93,7 +95,6 @@ export function ApplicationFilters({
         { id: "OVERPAID", name: t("applications.overpaid") },
       ],
     },
-    { key: "term", label: t("applications.term"), all: t("applications.allTerms"), values: terms },
     // US-38: who asked to settle the accommodation individually.
     {
       key: "accommodation",
@@ -298,7 +299,7 @@ function FilterFields({
               <TooltipTrigger asChild>
                 <span className="block">{select}</span>
               </TooltipTrigger>
-              <TooltipContent>{t("applications.statusLocked")}</TooltipContent>
+              <HelpTooltipContent isLong>{t("applications.statusLocked")}</HelpTooltipContent>
             </Tooltip>
             <span
               id={`${idPrefix}-filter-${option.key}-locked`}

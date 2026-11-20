@@ -1,9 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useNavigate } from "@tanstack/react-router"
-import { CircleAlert, Loader2 } from "lucide-react"
+import { CircleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -119,16 +120,15 @@ export function DeleteEventDialog({
                 {t("delete.cancel")}
               </Button>
             </DialogClose>
-            <Button
+            <PendingButton
+              isPending={mutation.isPending}
               variant="destructive"
               size="lg"
               className="flex-1 sm:flex-none"
-              disabled={mutation.isPending}
               onClick={() => mutation.mutate()}
             >
-              {mutation.isPending ? <Loader2 className="animate-spin" /> : null}
               {t("delete.confirm")}
-            </Button>
+            </PendingButton>
           </DialogFooter>
         )}
       </DialogContent>

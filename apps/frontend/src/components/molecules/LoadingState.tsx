@@ -1,4 +1,3 @@
-import { Loader2 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 type LoadingStateProps = {
@@ -12,13 +11,15 @@ export function LoadingState({ label }: LoadingStateProps) {
   return (
     <div
       role="status"
-      className="flex items-center justify-center py-8 text-muted-foreground"
+      className="mx-auto flex w-full max-w-50 flex-col items-center gap-3 p-4 text-center"
     >
-      <Loader2
-        aria-hidden
-        className="size-5 animate-spin"
-      />
-      <span className="sr-only">{label ?? t("state.loading")}</span>
+      <span
+        aria-hidden="true"
+        className="submit-mark text-primary [--loading-mark-size:3.5rem]"
+      >
+        <span />
+      </span>
+      <span className="text-sm font-medium">{label ?? t("state.loading")}</span>
     </div>
   )
 }

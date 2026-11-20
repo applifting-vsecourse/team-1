@@ -8,6 +8,7 @@ import {
 // payment details, the e-mail explains that you pay once a place is confirmed.
 const props = {
   locale: 'cs',
+  organizationName: 'Alpine Collective',
   eventName: 'Horský víkend 2027',
   access: {
     kind: 'MAGIC_LINK',
