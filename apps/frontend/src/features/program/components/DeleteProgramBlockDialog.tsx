@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { Button } from "@/components/ui/button"
 import {
@@ -44,7 +45,7 @@ export function DeleteProgramBlockDialog({
         if (!isOpen && !mutation.isPending) onClose()
       }}
     >
-      <DialogContent className="gap-4 p-6 sm:max-w-130">
+      <DialogContent className="gap-4 p-6 sm:max-w-140">
         <DialogHeader>
           <DialogTitle className="text-lg tracking-tight">{t("deleteTitle")}</DialogTitle>
           <DialogDescription>
@@ -69,16 +70,16 @@ export function DeleteProgramBlockDialog({
           >
             {t("cancel")}
           </Button>
-          <Button
+          <PendingButton
+            isPending={mutation.isPending}
             variant="destructive"
             size="lg"
-            disabled={mutation.isPending}
             onClick={() => {
               mutation.mutate()
             }}
           >
             {t(mutation.isPending ? "deleting" : "delete")}
-          </Button>
+          </PendingButton>
         </DialogFooter>
       </DialogContent>
     </Dialog>

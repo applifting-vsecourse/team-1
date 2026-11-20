@@ -12,6 +12,7 @@ describe("findDuplicate", () => {
   it("finds a stored participant with the same name and birth date on a selected term", () => {
     const existing = [{ ...jan, firstName: "JAN", lastName: "novak", termId: "t1" }]
     expect(findDuplicate(existing, [{ ...jan, termIds: ["t2", "t1"] }])).toEqual({
+      participantIndex: 0,
       participant: expect.objectContaining(jan),
       termId: "t1",
     })
@@ -44,6 +45,6 @@ describe("findDuplicate", () => {
           { ...jan, termIds: ["t2"] },
         ],
       ),
-    ).toMatchObject({ termId: "t2" })
+    ).toMatchObject({ participantIndex: 1, termId: "t2" })
   })
 })

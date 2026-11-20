@@ -46,10 +46,10 @@ describe("OrganizerAreaError", () => {
     renderWith(organizer, new ForbiddenError())
 
     expect(
-      screen.getByRole("heading", { name: "You don't have access to this page" }),
+      screen.getByRole("heading", { name: "You don’t have access to this content." }),
     ).toBeInTheDocument()
-    expect(screen.getByText(/The requested record isn't available to you/)).toBeInTheDocument()
-    expect(screen.getByRole("link", { name: "My events" })).toHaveAttribute(
+    expect(screen.getByText(/This record is unavailable for your account/)).toBeInTheDocument()
+    expect(screen.getByRole("link", { name: "Back to my events" })).toHaveAttribute(
       "href",
       "/organizer/events",
     )
@@ -60,10 +60,10 @@ describe("OrganizerAreaError", () => {
     renderWith(participant, new ForbiddenError())
 
     expect(
-      screen.getByRole("heading", { name: "You don't have access to this page" }),
+      screen.getByRole("heading", { name: "You don’t have access to this content." }),
     ).toBeInTheDocument()
-    expect(screen.getByText(/A participant account can't manage events/)).toBeInTheDocument()
-    expect(screen.getByRole("link", { name: "My application" })).toHaveAttribute(
+    expect(screen.getByText(/This area is only available to organizers/)).toBeInTheDocument()
+    expect(screen.getByRole("link", { name: "Back to my applications" })).toHaveAttribute(
       "href",
       "/participant",
     )
@@ -75,6 +75,6 @@ describe("OrganizerAreaError", () => {
   it("falls back to the generic error page for other errors", () => {
     renderWith(participant, new Error("boom"))
 
-    expect(screen.queryByText(/participant account can't manage events/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/This area is only available to organizers/)).not.toBeInTheDocument()
   })
 })

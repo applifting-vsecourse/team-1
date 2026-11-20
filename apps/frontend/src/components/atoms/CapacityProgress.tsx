@@ -25,6 +25,7 @@ export function CapacityProgress({
       aria-label={label}
       aria-valuetext={`${confirmed} / ${capacity}`}
       className={cn(
+        "motion-safe:[&_[data-slot=progress-indicator]]:duration-[600ms]",
         confirmed > capacity && "[&_[data-slot=progress-indicator]]:bg-destructive",
         className,
       )}

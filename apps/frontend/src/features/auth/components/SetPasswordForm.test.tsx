@@ -22,10 +22,9 @@ const renderForm = () =>
     </QueryClientProvider>,
   )
 
-const fill = async (password: string, repeat: string) => {
+const fill = async (password: string) => {
   await userEvent.type(screen.getByLabelText("New password"), password)
-  await userEvent.type(screen.getByLabelText("Repeat new password"), repeat)
-  await userEvent.click(screen.getByRole("button", { name: "Set password and open application" }))
+  await userEvent.click(screen.getByRole("button", { name: "Set password" }))
 }
 
 describe("SetPasswordForm", () => {
@@ -47,31 +46,21 @@ describe("SetPasswordForm", () => {
     })
   })
 
-  it("shows the e-mail of the application, read-only", () => {
+  it("shows the e-mail of the application as read-only text", () => {
     renderForm()
 
-    expect(screen.getByLabelText("E-mail")).toHaveValue("petra@example.com")
-    expect(screen.getByLabelText("E-mail")).toBeDisabled()
+    expect(screen.getByRole("term")).toHaveTextContent("Your e-mail")
+    expect(screen.getByRole("definition")).toHaveTextContent("petra@example.com")
+    expect(screen.queryByRole("textbox", { name: /e-mail/i })).not.toBeInTheDocument()
   })
 
   it("refuses a password shorter than 8 characters and sends nothing", async () => {
     renderForm()
 
-    await fill("short", "short")
+    await fill("short")
 
     expect(
       await screen.findByText("The password must have at least 8 characters."),
-    ).toBeInTheDocument()
-    expect(setPassword).not.toHaveBeenCalled()
-  })
-
-  it("refuses passwords that don't match and sends nothing", async () => {
-    renderForm()
-
-    await fill("my-own-password", "my-own-passwor")
-
-    expect(
-      await screen.findByText("The passwords don't match. Enter the same new password."),
     ).toBeInTheDocument()
     expect(setPassword).not.toHaveBeenCalled()
   })
@@ -80,13 +69,9 @@ describe("SetPasswordForm", () => {
     setPassword.mockReturnValue(new Promise(() => undefined))
     renderForm()
 
-    await fill("my-own-password", "my-own-password")
+    await fill("my-own-password")
 
-    await waitFor(() =>
-      expect(
-        screen.getByRole("button", { name: "Set password and open application" }),
-      ).toBeDisabled(),
-    )
+    await waitFor(() => expect(screen.getByRole("button", { name: "Saving…" })).toBeDisabled())
     expect(setPassword).toHaveBeenCalledTimes(1)
   })
 
@@ -94,7 +79,7 @@ describe("SetPasswordForm", () => {
     setPassword.mockResolvedValue(undefined)
     renderForm()
 
-    await fill("my-own-password", "my-own-password")
+    await fill("my-own-password")
 
     await waitFor(() => expect(navigate).toHaveBeenCalledWith({ to: "/participant" }))
     expect(setPassword).toHaveBeenCalledWith("my-own-password")
@@ -105,7 +90,7 @@ describe("SetPasswordForm", () => {
     setPassword.mockRejectedValue(new Error("Your password is already set."))
     renderForm()
 
-    await fill("my-own-password", "my-own-password")
+    await fill("my-own-password")
 
     expect(await screen.findByText("Couldn't set the password")).toBeInTheDocument()
     expect(screen.getByText("Your password is already set.")).toBeInTheDocument()

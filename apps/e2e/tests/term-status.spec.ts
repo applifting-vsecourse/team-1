@@ -16,12 +16,13 @@ test.describe("Status of an application in a term", () => {
     await page.getByLabel("Gender").click()
     await page.getByRole("option", { name: "Man", exact: true }).click()
     await page
-      .getByRole("group", { name: /Choose terms/ })
+      .getByRole("group", { name: /Choose at least one term/ })
       .getByRole("checkbox")
       .first()
       .check()
     await page.getByLabel("Contact e-mail").fill(`zruseni-${Date.now()}@example.com`)
     await page.getByLabel(/I agree to the processing/).check()
+    await page.getByRole("button", { name: "Continue to review" }).click()
     await page.getByRole("button", { name: "Submit application" }).click()
     await expect(page).toHaveURL(/\/apply\/confirmation\//)
 

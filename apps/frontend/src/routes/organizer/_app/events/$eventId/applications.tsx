@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query"
 import { createFileRoute, redirect } from "@tanstack/react-router"
 
 import { ROUTES } from "@/app/routes"
@@ -8,6 +9,7 @@ import {
   readApplicationsSearch,
   saveApplicationsSearch,
 } from "@/features/event-overview/lib/applications-search-session"
+import { eventQueryOptions } from "@/features/events/api/events"
 
 export const Route = createFileRoute("/organizer/_app/events/$eventId/applications")({
   // Preserve the filters linked from occupancy counts (US-29).
@@ -33,11 +35,13 @@ export const Route = createFileRoute("/organizer/_app/events/$eventId/applicatio
 
 function EventApplicationsPage() {
   const { eventId } = Route.useParams()
+  const { data: event } = useQuery(eventQueryOptions(eventId))
   const filters = Route.useSearch()
   const navigate = Route.useNavigate()
   return (
     <ApplicationsPage
       eventId={eventId}
+      isAutomatic={event?.evaluationMode === "AUTOMATIC"}
       filters={filters}
       onFiltersChange={(search) => {
         saveApplicationsSearch(eventId, search)

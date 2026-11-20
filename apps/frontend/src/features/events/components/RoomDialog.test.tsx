@@ -54,6 +54,21 @@ describe("room form", () => {
     put.mockReset()
   })
 
+  it("changes the form value using the room stepper and respects the minimum", async () => {
+    const { user } = renderDialog()
+    const down = screen.getByRole("button", { name: "Decrease bed count" })
+    const up = screen.getByRole("button", { name: "Increase bed count" })
+    expect(down).toBeDisabled()
+    await user.click(up)
+    expect(screen.getByLabelText("Capacity *")).toHaveValue(1)
+    expect(down).toBeDisabled()
+    await user.click(up)
+    expect(down).toBeEnabled()
+    await user.click(down)
+    expect(screen.getByLabelText("Capacity *")).toHaveValue(1)
+    expect(post).not.toHaveBeenCalled()
+  })
+
   it("keeps invalid capacity in the form and focuses it without sending", async () => {
     const { user } = renderDialog()
     await user.type(screen.getByLabelText("Room name *"), "12")

@@ -1,7 +1,7 @@
 {
   "applications": {
-    "description": "Applications under the account of {{name}}.",
-    "title": "Your applications"
+    "description": "All applications in your account, including applications for other participants.",
+    "title": "My applications"
   },
   "change": {
     "allTerms": "Whole application · all terms ({{count}})",
@@ -22,7 +22,7 @@
     "confirmChange": "Confirm change",
     "discard": "Cancel",
     "impact": "Change impact",
-    "impactNew": "New term · new amount due",
+    "impactNew": "New term · new payment",
     "impactOriginal": "Original term · refund",
     "impactOriginalRequest": "Original term",
     "loadError": "Couldn't load available terms",
@@ -51,23 +51,28 @@
     "waitlistedNoPayment": "Waitlisted · no payment impact"
   },
   "contact": {
-    "email": "E-mail",
+    "email": "Send an e-mail",
     "none": "The organization hasn't published a contact yet.",
-    "phone": "Phone",
+    "phone": "Call",
     "title": "Organization contact"
   },
   "detail": {
+    "applicantContact": "Applicant contact",
     "archivedText": "The term has ended, there is nothing left to arrange.",
     "archivedTitle": "Archived application",
-    "back": "← All applications",
+    "back": "Back to my applications",
+    "birthGender": "Date of birth and gender",
     "errorTitle": "Couldn't load the application",
+    "female": "woman",
     "health": "Health restriction",
+    "male": "man",
     "meals": "Meals",
+    "participantCard": "Participant details",
     "program": "Program",
     "roomNotAssigned": "You have no room assigned yet.",
     "sections": {
       "room": "Room",
-      "terms": "Terms and payments"
+      "terms": "Terms"
     },
     "steps": {
       "done": "Done",
@@ -80,14 +85,16 @@
       "payment": "Payment",
       "paymentPay": "Pay {{amount}}",
       "paymentView": "View payment details",
+      "roomView": "View room",
       "title": "Steps before the event",
       "todo": "To do",
       "transport": "Transport",
       "transportChoose": "Choose transport",
-      "transportView": "View transport"
+      "transportView": "View transport",
+      "wishesView": "View wishes"
     },
     "termsTitle": "Status by term",
-    "title": "My application",
+    "title": "Application details",
     "toEvaluate": {
       "alertText": "You will get the payment details once your participation is confirmed.",
       "alertTitle": "Don't pay yet.",
@@ -95,17 +102,37 @@
     }
   },
   "edit": {
-    "accommodationRequest": "Note for the organizer",
+    "accommodationHeading": "Individual accommodation arrangements",
+    "accommodationIndividual": "Individual arrangement",
+    "accommodationRequest": "Note for the organizer (optional)",
     "accommodationRequestTooLong": "The note can have at most 2,000 characters.",
+    "accommodationSummary": "Accommodation · {{request}}",
+    "accommodationSummaryTitle": "Accommodation request",
+    "backToApplication": "Back to application",
     "birthDate": "Date of birth *",
+    "birthDateInvalid": "Enter a valid date of birth.",
     "cancel": "Cancel",
+    "contactHeading": "Application contact",
+    "contactHint": "These changes update the application contact. You can change your sign-in email in account settings.",
+    "discard": "Discard changes",
+    "discardDescription": "Your changes to the application have not been saved. If you leave, you will lose your edits.",
+    "discardTitle": "Discard changes?",
     "firstName": "First name *",
+    "historyAccommodation": "accommodation request",
+    "historyContact": "contact",
+    "historyContactAccommodation": "Updated contact and accommodation request.",
+    "historyHeading": "Change history",
+    "historyLoadFailed": "The change history could not be loaded.",
+    "historyOther": "Updated: {{fields}}.",
+    "historyPersonal": "personal details",
     "individualAccommodation": "I want to arrange the accommodation individually",
     "individualAccommodationHint": "Only the event organizer will see this.",
+    "keepEditing": "Keep editing",
     "lastName": "Last name *",
     "loadError": "Couldn't load the application",
+    "noAccommodationRequest": "No individual accommodation requested.",
     "open": "Edit application",
-    "participant": "Participant",
+    "participant": "Participant details",
     "phone": "Phone",
     "phoneInvalid": "Enter a valid phone number, for example +420 777 123 456.",
     "retry": "Try again",
@@ -121,7 +148,12 @@
   },
   "list": {
     "empty": "You have no applications yet. Once you apply for an event, it will appear here.",
-    "errorTitle": "Couldn't load your applications"
+    "errorTitle": "Couldn't load your applications",
+    "female": "female",
+    "male": "male",
+    "paymentNote": "This applies only to the confirmed term; don't pay for a waitlisted term yet.",
+    "remaining": "Remaining to pay",
+    "termPrice": "Term price"
   },
   "notifications": {
     "empty": "No notifications yet.",
@@ -149,10 +181,13 @@
     "showSummaryQrMany": "One payment for all confirmed terms · show QR",
     "showSummaryQrTwo": "One payment for both terms · show QR",
     "simulation": {
+      "failed": "The simulated payment could not be recorded.",
+      "heading": "Test environment · payment simulation",
       "logDescription": "Test payments created with the “I paid” button. These are not actual bank transfers.",
       "logLine": "+{{amount}} · {{term}} · source: simulation",
       "logTitle": "Simulated payment history",
-      "paid": "I paid"
+      "paid": "I paid",
+      "termAmount": "Simulate payment of this term’s balance: {{amount}}"
     },
     "summaryBreakdown": "Breakdown",
     "summaryQrExplanation": "Covers all confirmed terms. The summary variable symbol differs from the per-term ones.",
@@ -169,6 +204,7 @@
   "request": {
     "cancelTitle": "Requested cancellation",
     "changeTitle": "Requested term change",
+    "createdDate": "Submitted {{date}}",
     "current": "Original term",
     "loadError": "Couldn't load change requests",
     "message": {
@@ -194,6 +230,7 @@
     "reason": "Reason: {{reason}}",
     "request": "Request",
     "requested": "New term",
+    "reviewedDate": "Reviewed {{date}}",
     "status": {
       "APPROVED": "Approved",
       "PENDING": "Awaiting approval",

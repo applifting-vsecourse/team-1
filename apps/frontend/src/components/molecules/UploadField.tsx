@@ -1,5 +1,4 @@
 import { useRef } from "react"
-import { Trash2 } from "lucide-react"
 
 import { LogoSymbol } from "@/components/atoms/Logo"
 import { Button } from "@/components/ui/button"
@@ -14,6 +13,8 @@ type UploadFieldProps = {
   removeLabel?: string
   onRemove?: () => void
   /** The chosen image; shown above the title once there is one. */
+  uploadLabel?: string
+  uploadFraction?: number
   previewUrl?: string | null
   /** What went wrong with the last file, under the frame. */
   error?: string | null
@@ -37,6 +38,8 @@ export function UploadField({
   removeLabel,
   onRemove,
   previewUrl,
+  uploadLabel,
+  uploadFraction,
   error,
   accept,
   isDisabled = false,
@@ -47,17 +50,32 @@ export function UploadField({
   return (
     <div className="flex flex-col gap-2">
       <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed border-border p-6 text-center">
-        {previewUrl ? (
+        {uploadLabel ? (
+          <div
+            role="progressbar"
+            aria-label={uploadLabel}
+            aria-valuenow={
+              uploadFraction === undefined ? undefined : Math.round(uploadFraction * 100)
+            }
+            className="flex flex-col items-center gap-2 text-primary"
+          >
+            <LogoSymbol
+              className="upload-symbol size-13"
+              fraction={uploadFraction}
+            />
+            <span className="text-sm text-muted-foreground">{uploadLabel}</span>
+          </div>
+        ) : previewUrl ? (
           <img
             src={previewUrl}
             alt=""
-            className="max-h-48 w-full rounded-md object-cover"
+            className="h-48 w-full rounded-md object-cover"
           />
         ) : (
           <LogoSymbol className="size-13 text-primary" />
         )}
-        <p className="text-lg font-semibold">{title}</p>
-        <p className="text-muted-foreground">{description}</p>
+        <p className="text-xl leading-7 font-bold">{title}</p>
+        <p className="text-base text-muted-foreground">{description}</p>
         <input
           ref={input}
           type="file"
@@ -76,7 +94,7 @@ export function UploadField({
           type="button"
           variant="outline"
           size="lg"
-          className="w-full"
+          className="h-12 w-full text-sm leading-5 font-medium"
           disabled={isDisabled}
           onClick={() => input.current?.click()}
         >
@@ -87,11 +105,10 @@ export function UploadField({
             type="button"
             variant="outline"
             size="lg"
-            className="w-full border-destructive/30 text-destructive hover:border-destructive/50 hover:bg-destructive/10 hover:text-destructive"
+            className="h-12 w-full border-destructive text-sm leading-5 font-medium text-destructive hover:bg-destructive/10 hover:text-destructive"
             disabled={isDisabled}
             onClick={onRemove}
           >
-            <Trash2 aria-hidden="true" />
             {removeLabel}
           </Button>
         ) : null}

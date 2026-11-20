@@ -9,8 +9,9 @@ export async function createEventWithTerm(page: Page, name: string) {
   await openEventList(page)
 
   await page.goto("/organizer/events/new")
-  await page.getByLabel("Event name").fill(name)
-  await page.getByRole("button", { name: "Create event" }).click()
+  const newEvent = page.getByRole("dialog")
+  await newEvent.getByLabel("Event name").fill(name)
+  await newEvent.getByRole("button", { name: "Create event" }).click()
   await expect(page.getByText(`The event ${name} was created.`)).toBeVisible()
 
   await page.getByRole("link", { name: new RegExp(name) }).click()
@@ -32,7 +33,7 @@ export async function addRoom(page: Page, name = "Pokoj E2E", capacity = "5") {
     .getByRole("navigation", { name: "Event sections" })
     .getByRole("link", { name: "Overview" })
     .click()
-  await page.getByRole("link", { name: "Add a room" }).click()
+  await page.getByRole("link", { name: "Set capacity" }).click()
   await page.getByRole("button", { name: "Add room" }).first().click()
   const dialog = page.getByRole("dialog")
   await dialog.getByLabel("Room name").fill(name)

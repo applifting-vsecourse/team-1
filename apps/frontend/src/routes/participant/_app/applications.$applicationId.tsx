@@ -10,7 +10,7 @@ export const Route = createFileRoute("/participant/_app/applications/$applicatio
 })
 
 // US-54 (U04): status of every term and the payment details of one application.
-// Figma (Design system): U04 Moje přihláška · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=11988-11066
+// Figma (Design system v2): U04 Moje přihláška · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15649-211
 function ParticipantApplicationPage() {
   const { t } = useTranslation("participant")
   const { applicationId } = Route.useParams()

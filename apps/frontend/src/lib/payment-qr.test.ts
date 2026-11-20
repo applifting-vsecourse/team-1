@@ -1,11 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import {
-  czechIban,
-  paymentSpayd,
-  spaydMessage,
-  summaryPaymentSpayd,
-} from "@/features/participant/lib/payment-qr"
+import { czechIban, paymentSpayd, spaydMessage, summaryPaymentSpayd } from "@/lib/payment-qr"
 
 describe("summary payment QR", () => {
   it("converts a Czech account with a prefix to IBAN and includes the summary amount and symbol", () => {

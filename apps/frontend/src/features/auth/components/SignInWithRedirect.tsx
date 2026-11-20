@@ -15,7 +15,7 @@ type SignInWithRedirectProps = {
   accountType: AccountType
   /** Area home used when there is no `from`. */
   fallback: string
-  emailHint: string
+  emailHint?: string
   passwordHint?: string
 }
 

@@ -46,6 +46,8 @@ const paymentTerms: PaymentOverviewTerm[] = applications.flatMap((application) =
     .filter((item) => item.status === "CONFIRMED")
     .map((item) => ({
       applicationId: application.id,
+      applicationNumber: application.number,
+      termNumber: item.termNumber,
       firstName: "A",
       lastName: "B",
       termId: item.id,

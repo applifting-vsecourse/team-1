@@ -23,7 +23,11 @@ describe("ErrorPage", () => {
     renderPage(error)
 
     expect(screen.getByRole("heading", { name: "Something went wrong" })).toBeInTheDocument()
-    expect(screen.getByText("The page couldn't be displayed.")).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        "We couldn’t display this page. Try reloading it, or return to the homepage.",
+      ),
+    ).toBeInTheDocument()
     expect(screen.queryByText(/ECONNREFUSED/)).not.toBeInTheDocument()
     expect(consoleError).toHaveBeenCalledWith(error)
   })
@@ -32,7 +36,7 @@ describe("ErrorPage", () => {
     vi.spyOn(console, "error").mockImplementation(() => undefined)
     renderPage(new Error("boom"))
 
-    expect(screen.getByRole("button", { name: "Reload" })).toBeInTheDocument()
-    expect(screen.getByRole("link", { name: "Go to home page" })).toHaveAttribute("href", "/")
+    expect(screen.getByRole("button", { name: "Reload page" })).toBeInTheDocument()
+    expect(screen.getByRole("link", { name: "Go to homepage" })).toHaveAttribute("href", "/")
   })
 })

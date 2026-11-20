@@ -47,6 +47,7 @@ describe("organizer payments (US-44)", () => {
   let foreignCookie: string
   let applicationId: string
   let applicationNumber: number
+  let eventName: string
   /** Terms of the test application: the first is confirmed (6900), the second waitlisted (9900). */
   let termIds: string[]
   const firstTermId = (): string => termIds[0]
@@ -118,6 +119,7 @@ describe("organizer payments (US-44)", () => {
         },
       },
     })
+    eventName = event.name
     applicationId = application.id
     applicationNumber = application.number
     termIds = event.terms.slice(0, 2).map((term) => term.id)
@@ -156,11 +158,13 @@ describe("organizer payments (US-44)", () => {
     }
     expect(preview).toMatchObject({
       amountOwedCzk: 1900,
-      terms: expect.arrayContaining([{ termId: firstTermId(), owedCzk: 1900, changeCzk: 1900 }]),
+      terms: expect.arrayContaining([
+        { termId: firstTermId(), owedCzk: 1900, changeCzk: 1900, allocatedCzk: 5000 },
+      ]),
     })
     expect((await summary()).amountPaidCzk).toBe(6900)
     expect(allEmailsTo(applicantEmail).map((mail) => mail.subject)).toEqual([
-      expect.stringMatching(/^Payment for .+ received$/),
+      expect.stringMatching(/^Payment received: .+$/),
     ])
     expect((await request("PATCH", `/${original.id}`, correction)).status).toBe(204)
     const after = await summary()
@@ -193,6 +197,18 @@ describe("organizer payments (US-44)", () => {
     ).toBe(true)
     expect((await latestEmailTo(applicantEmail))?.subject).toContain("Payment correction")
     expect((await request("PATCH", `/${original.id}`, correction)).status).toBe(204)
+    const stalePreview = await request("POST", `/${original.id}/preview`, {
+      amountCzk: 5000,
+      termId: firstTermId(),
+    })
+    const staleWrite = await request("PATCH", `/${original.id}`, {
+      ...correction,
+      requestId: randomUUID(),
+    })
+    for (const response of [stalePreview, staleWrite]) {
+      expect(response.status).toBe(409)
+      expect(await response.json()).toMatchObject({ code: "PAYMENT_RECEIPT_ALREADY_CANCELLED" })
+    }
     expect((await summary()).payments).toHaveLength(2)
     expect((await summary()).terms[0].paymentDueAt).toBe(after.terms[0].paymentDueAt)
   })
@@ -328,9 +344,8 @@ describe("organizer payments (US-44)", () => {
     expect(await hasSentNothingTo(applicantEmail)).toBe(true)
     expect((await request("POST", "", { amountCzk: 3900 })).status).toBe(204)
     const mail = await latestEmailTo(applicantEmail)
-    expect(mail?.subject).toMatch(/^Payment for .+ received$/)
+    expect(mail?.subject).toBe(`Payment received: ${eventName}`)
     expect(allEmailsTo(applicantEmail)).toHaveLength(1)
-    expect(mail?.subject).not.toMatch(/\d{3}/)
   })
 
   it("sends no further e-mail 8 for an overpayment or a retry", async () => {
@@ -361,7 +376,7 @@ describe("organizer payments (US-44)", () => {
       ).status,
     ).toBe(204)
     expect(allEmailsTo(applicantEmail).map((mail) => mail.subject)).toEqual([
-      expect.stringMatching(/^Payment for .+ received$/),
+      expect.stringMatching(/^Payment received: .+$/),
     ])
   })
 
@@ -374,7 +389,7 @@ describe("organizer payments (US-44)", () => {
     expect((await summary()).amountOwedCzk).toBe(0)
     const mails = allEmailsTo(applicantEmail)
     expect(mails).toHaveLength(1)
-    expect(mails[0].subject).toContain(", ")
+    expect(mails[0].subject).toBe(`Payment received: ${eventName}`)
   })
 
   it("sends no e-mail 8 for a payment of a waitlisted term", async () => {

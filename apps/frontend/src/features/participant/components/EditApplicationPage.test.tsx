@@ -87,7 +87,7 @@ describe("EditApplicationPage", () => {
     renderPage()
     await user.type(await screen.findByRole("textbox", { name: "Phone" }), "+420 777 123 456")
     await user.type(
-      screen.getByRole("textbox", { name: "Note for the organizer" }),
+      screen.getByRole("textbox", { name: "Note for the organizer (optional)" }),
       "Ground floor, please.",
     )
     await user.click(screen.getByRole("button", { name: "Save changes" }))
@@ -206,7 +206,7 @@ describe("EditApplicationPage", () => {
     put.mockReturnValue({ json: () => Promise.resolve(initial) })
     const client = renderPage()
     const accommodation = await screen.findByRole("textbox", {
-      name: "Note for the organizer",
+      name: "Note for the organizer (optional)",
     })
     await user.type(accommodation, "Ground floor, please.")
     const refreshed = {
@@ -226,9 +226,11 @@ describe("EditApplicationPage", () => {
       expect(screen.getByRole("textbox", { name: "First name *" })).toHaveValue("Petra"),
     )
     expect(screen.getByRole("textbox", { name: "Last name *" })).toHaveValue("Nová")
-    expect(screen.getByLabelText("Date of birth *")).toHaveValue("2001-02-03")
+    expect(screen.getByLabelText("Date of birth *")).toHaveValue("03/02/2001")
     expect(screen.getByRole("textbox", { name: "Phone" })).toHaveValue(refreshed.phone)
-    expect(screen.getByRole("textbox", { name: "Note for the organizer" })).toBe(accommodation)
+    expect(screen.getByRole("textbox", { name: "Note for the organizer (optional)" })).toBe(
+      accommodation,
+    )
     expect(accommodation).toHaveValue("Ground floor, please.")
     await user.click(screen.getByRole("button", { name: "Save changes" }))
     expect(put).toHaveBeenCalledWith("participant/applications/a1/edit", {
@@ -254,9 +256,9 @@ describe("EditApplicationPage", () => {
     })
 
     await waitFor(() =>
-      expect(screen.getByRole("textbox", { name: "Note for the organizer" })).toHaveValue(
-        "Ground floor",
-      ),
+      expect(
+        screen.getByRole("textbox", { name: "Note for the organizer (optional)" }),
+      ).toHaveValue("Ground floor"),
     )
     expect(screen.getByRole("button", { name: "Save changes" })).toBeDisabled()
   })
@@ -265,7 +267,7 @@ describe("EditApplicationPage", () => {
     const user = userEvent.setup()
     const client = renderPage()
     const firstName = await screen.findByRole("textbox", { name: "First name *" })
-    const accommodation = screen.getByRole("textbox", { name: "Note for the organizer" })
+    const accommodation = screen.getByRole("textbox", { name: "Note for the organizer (optional)" })
     get.mockReturnValue({
       json: () => Promise.resolve({ ...initial, accommodationRequest: "Ground floor" }),
     })
@@ -298,7 +300,7 @@ describe("EditApplicationPage", () => {
     }
     const box = () =>
       screen.findByRole("checkbox", { name: "I want to arrange the accommodation individually" })
-    const note = () => screen.queryByRole("textbox", { name: "Note for the organizer" })
+    const note = () => screen.queryByRole("textbox", { name: "Note for the organizer (optional)" })
 
     it("asks for the note only once the box is ticked and says who sees it", async () => {
       const user = userEvent.setup()
@@ -364,7 +366,20 @@ describe("EditApplicationPage", () => {
         json: () =>
           Promise.resolve({ ...initial, accommodationRequest: "Ground floor", history: [] }),
       })
-      put.mockReturnValue({ json: () => Promise.resolve(withoutRequest) })
+      put.mockReturnValue({
+        json: () =>
+          Promise.resolve({
+            ...withoutRequest,
+            history: [
+              {
+                id: "h1",
+                createdAt: "2026-11-05T13:30:00Z",
+                authorName: "Jana Nováková",
+                changedFields: ["phone", "individualAccommodation", "accommodationRequest"],
+              },
+            ],
+          }),
+      })
       renderPage()
       get.mockReturnValue({
         json: () =>
@@ -383,6 +398,7 @@ describe("EditApplicationPage", () => {
           accommodationRequest: null,
         },
       })
+      expect(await screen.findByRole("heading", { name: "Application detail" })).toBeVisible()
     })
 
     it("shows an error under a note over 2,000 characters and does not save it", async () => {

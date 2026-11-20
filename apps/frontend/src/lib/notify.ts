@@ -5,8 +5,8 @@ export const TOAST_DURATION = { success: 4000, info: 4000, warning: 8000, error:
 
 type Tone = keyof typeof TOAST_DURATION
 
-const show = (tone: Tone, title: string, description?: string) =>
-  toast[tone](title, { description, duration: TOAST_DURATION[tone] })
+const show = (tone: Tone, title: string, description?: string, id?: string) =>
+  toast[tone](title, { description, duration: TOAST_DURATION[tone], ...(id && { id }) })
 
 /**
  * The one way to show a toast. Title = result of the action, description only when it adds
@@ -17,7 +17,8 @@ const show = (tone: Tone, title: string, description?: string) =>
 // Figma (Design system): Toast / Texty v aplikaci · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14491-1615
 export const notify = {
   success: (title: string, description?: string) => show("success", title, description),
-  info: (title: string, description?: string) => show("info", title, description),
-  warning: (title: string, description?: string) => show("warning", title, description),
+  info: (title: string, description?: string, id?: string) => show("info", title, description, id),
+  warning: (title: string, description?: string, id?: string) =>
+    show("warning", title, description, id),
   error: (title: string, description?: string) => show("error", title, description),
 }

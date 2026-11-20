@@ -162,7 +162,7 @@ describe("ApplicationForm draft in sessionStorage", () => {
     renderForm()
 
     const clear = screen.getByRole("button", { name: "Clear" })
-    const submit = screen.getByRole("button", { name: "Submit application" })
+    const submit = screen.getByRole("button", { name: "Continue to review" })
     expect(clear.closest("[data-slot=card]")).toBeNull()
     expect(submit.closest("[data-slot=card]")).not.toBeNull()
   })

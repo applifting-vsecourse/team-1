@@ -33,7 +33,10 @@ function ApplicationConfirmationPage() {
   return (
     <>
       <Seo title={t("confirmation.title")} />
-      <PublicLayout>
+      <PublicLayout
+        isFullWidth
+        headerContentClassName="md:min-h-[115px]"
+      >
         <SubmissionStatus
           accessToken={accessToken}
           signedInParticipant={

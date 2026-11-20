@@ -2,6 +2,7 @@ import { useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -17,6 +18,7 @@ import { apiErrorCode } from "@/lib/api-client"
 import { formatDate, formatDateRange, formatDateTime } from "@/lib/date"
 import { formatCzk } from "@/lib/money"
 
+import type { TermOccupancy } from "@/features/event-overview/api/occupancy"
 import {
   confirmSubstitute,
   substitutesQueryOptions,
@@ -42,9 +44,11 @@ export function SubstitutesPanel({
   term,
   onConfirmed,
   onTaken,
+  hasWaitlistedParticipants = false,
 }: {
   eventId: string
-  term: SubstituteTerm
+  term: TermOccupancy
+  hasWaitlistedParticipants?: boolean
   onConfirmed: (applicationId: string) => void
   onTaken: (taken: SubstituteTaken) => void
 }) {
@@ -52,7 +56,61 @@ export function SubstitutesPanel({
   const query = useQuery(substitutesQueryOptions(eventId, term.id))
   const [chosen, setChosen] = useState<Substitute | null>(null)
   const list = query.data
-  if (!list || list.items.length === 0) return null
+  if (!list) return null
+  if (list.items.length === 0) {
+    if (list.evaluationMode !== "MANUAL") return null
+    const free = list.freeBeds
+    const hasFreeBeds = free.MALE > 0 || free.FEMALE > 0
+    if (!hasFreeBeds && !hasWaitlistedParticipants) return null
+    return (
+      <section className="flex flex-col gap-3 rounded-lg border bg-card p-4 md:p-6">
+        <h2 className="text-lg font-semibold">
+          {t(hasFreeBeds ? "substitutes.emptyTitle" : "substitutes.fullTitle")}
+        </h2>
+        {list.roomMode === "SHARED" ? (
+          <p>{t("substitutes.occupied", { confirmed: term.confirmed, capacity: term.capacity })}</p>
+        ) : term.byGender ? (
+          <div className="text-sm">
+            {(["MALE", "FEMALE"] as const).map((gender) => {
+              const group = term.byGender![gender]
+              if (hasFreeBeds ? free[gender] <= 0 : group.capacity === 0 && group.confirmed === 0) {
+                return null
+              }
+              return (
+                <p key={gender}>
+                  {t(gender === "MALE" ? "substitutes.groupMale" : "substitutes.groupFemale")} ·{" "}
+                  {t("substitutes.occupied", {
+                    confirmed: group.confirmed,
+                    capacity: group.capacity,
+                  })}
+                </p>
+              )
+            })}
+          </div>
+        ) : null}
+        {hasFreeBeds ? (
+          <div className="text-sm">
+            {list.roomMode === "SHARED" ? (
+              <p>{t("substitutes.freeShared", { count: free.MALE })}</p>
+            ) : (
+              <>
+                {free.MALE > 0 && <p>{t("substitutes.freeMale", { count: free.MALE })}</p>}
+                {free.FEMALE > 0 && <p>{t("substitutes.freeFemale", { count: free.FEMALE })}</p>}
+              </>
+            )}
+          </div>
+        ) : (
+          <p>{t("substitutes.fullDetail")}</p>
+        )}
+        <a
+          href="#term-waitlist"
+          className="self-start text-sm text-link underline"
+        >
+          {t("substitutes.openWaitlist")}
+        </a>
+      </section>
+    )
+  }
   const range = formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })
   // Men and women wait for different beds, so each queue is a card of its own; shared rooms have
   // one queue.
@@ -182,14 +240,14 @@ function SubstituteProposal({
           { range, name },
         )}
       </p>
-      <Button
+      <PendingButton
+        isPending={confirm.isPending}
         className="w-full md:w-55"
         aria-label={`${t("substitutes.proposal.confirm")}: ${name}`}
-        disabled={confirm.isPending}
         onClick={() => confirm.mutate()}
       >
         {t("substitutes.proposal.confirm")}
-      </Button>
+      </PendingButton>
       {confirm.isError && apiErrorCode(confirm.error) !== "BED_ALREADY_TAKEN" && (
         <Alert variant="destructive">
           <AlertDescription>{confirm.error.message}</AlertDescription>
@@ -376,14 +434,14 @@ function ConfirmSubstituteDialog({
       isBusy={confirm.isPending}
       onClose={onClose}
       submit={
-        <Button
+        <PendingButton
+          isPending={confirm.isPending}
           size="lg"
           className="h-12 md:min-w-40"
-          disabled={confirm.isPending}
           onClick={() => confirm.mutate()}
         >
           {t("substitutes.dialogSubmit")}
-        </Button>
+        </PendingButton>
       }
     >
       <p>
