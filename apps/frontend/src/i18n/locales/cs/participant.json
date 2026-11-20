@@ -5,12 +5,8 @@
   },
   "change": {
     "allTerms": "Celá přihláška · všechny termíny ({{count}})",
-    "approvalDescription": "Schvalování organizátorem už je zapnuté, proto odesíláte žádost. Původní přihláška a lůžko zůstávají do rozhodnutí beze změny.",
     "approvalTitle": "Žádost schvaluje organizátor",
     "bedAfterApproval": "Lůžko se uvolní až po schválení.",
-    "bedCancel": "Lůžko se uvolní ihned.",
-    "bedCancelKept": "Lůžko se uvolní ihned. Ostatní termíny zůstanou beze změny.",
-    "bedChange": "Po potvrzení se původní lůžko ihned uvolní.",
     "cancelImpact": "Dopad odhlášení",
     "cancelImpactAfterApproval": "Dopad po schválení",
     "cancelOpen": "Odhlásit se",
@@ -22,33 +18,43 @@
     "confirmChange": "Potvrdit změnu",
     "discard": "Zrušit",
     "impact": "Dopad změny",
-    "impactNew": "Nový termín · nová částka k úhradě",
-    "impactOriginal": "Původní termín · vratka",
-    "impactOriginalRequest": "Původní termín",
     "loadError": "Dostupné termíny se nepodařilo načíst",
-    "newPrice": "Cena {{price}} · k úhradě {{owed}}",
     "noAvailableTerms": "Není dostupný další termín.",
-    "noPayment": "Bez platebního dopadu",
-    "noTransfer": "Platba se mezi termíny nepřevádí. Peníze se nevracejí automaticky.",
     "onlyTerm": "Pouze {{term}}",
     "open": "Změnit termíny",
-    "overpaidCancel": "Vznikne přeplatek {{overpaid}}. Vrácení peněz vyřeší organizátor, neproběhne automaticky.",
-    "paidCancel": "Zaplaceno {{paid}} · po odhlášení zbývá zaplatit {{debt}}",
-    "paidChange": "Zaplaceno {{paid}} · přeplatek {{overpaid}} · zbývá zaplatit {{debt}}",
-    "refundByOrganizer": "Výši storna a případnou vratku určí organizátor.",
     "requestSubmit": "Odeslat žádost",
     "saving": "Ukládání…",
     "sourceTerm": "Původní termín",
+    "state": {
+      "newTerm": "Za nový termín zaplatíte {{owed}}.",
+      "newTermFree": "Za nový termín nic neplatíte.",
+      "paid": "Zaplatili jste {{paid}}.",
+      "partialCancel": "Zaplatili jste {{paid}} z {{total}}. Zbytek už doplácet nemusíte.",
+      "partialChange": "Zaplatili jste {{paid}} z {{total}}.",
+      "toEvaluate": "Zatím nemáte lůžko ani platbu.",
+      "unpaidCancel": "Zatím jste nic nezaplatili, nemusíte nic řešit.",
+      "unpaidChange": "Zatím jste nic nezaplatili.",
+      "waitlisted": "Jste náhradník, platby se to netýká."
+    },
     "targetTerm": "Nový termín",
     "title": "Změnit termín",
-    "toEvaluateNoBed": "Čeká na vyhodnocení · bez lůžka i platby",
     "toast": {
       "cancelled": "Termín byl odhlášen",
       "changed": "Termín byl změněn",
       "requestedCancel": "Žádost o odhlášení byla odeslána",
       "requestedChange": "Žádost o změnu termínu byla odeslána"
     },
-    "waitlistedNoPayment": "Náhradník · bez platebního dopadu"
+    "warning": {
+      "afterConfirm": "Co se stane po potvrzení",
+      "bedCancel": "Lůžko se hned uvolní.",
+      "bedCancelTitle": "Lůžko se po potvrzení hned uvolní",
+      "bedChange": "Původní lůžko se hned uvolní.",
+      "bedChangeTitle": "Původní lůžko se po potvrzení hned uvolní",
+      "noRefundCancel": "Zaplacené peníze se nevracejí automaticky, vrácení a případné storno řeší organizátor.",
+      "noRefundChange": "Zaplacené peníze se nevracejí automaticky, vrácení řeší organizátor.",
+      "noRefundRequest": "Storno a vrácení zaplacených peněz určí organizátor, automaticky se nevrací.",
+      "noTransfer": "Platba se na nový termín nepřevádí."
+    }
   },
   "contact": {
     "email": "E-mail",
@@ -176,20 +182,14 @@
         "cancel": "Organizátor žádost schválil. Výsledek najdete také v e-mailu.",
         "change": "Organizátor změnu schválil. Výsledek najdete také v e-mailu."
       },
-      "PENDING": {
-        "cancel": "Lůžko se uvolní až po schválení. Storno a případnou vratku určí organizátor.",
-        "cancelWithoutBed": "Odhlášení se provede až po schválení. Storno a případnou vratku určí organizátor.",
-        "change": "Původní lůžko se uvolní až po schválení.",
-        "changeWithoutBed": "Změna termínu se provede až po schválení."
-      },
       "REJECTED": {
         "cancel": "Organizátor žádost zamítl. Vaše původní účast zůstává platná.",
         "change": "Organizátor žádost zamítl. Vaše původní účast zůstává platná."
       }
     },
     "onlyTerms": "Pouze {{terms}}",
-    "pendingDescription": "Odesláno {{date}}. Do schválení se termíny, lůžko ani platby nemění. O rozhodnutí vás informujeme e-mailem i v aplikaci.",
-    "pendingDescriptionWithoutBed": "Odesláno {{date}}. Do schválení se termíny ani platby nemění. O rozhodnutí vás informujeme e-mailem i v aplikaci.",
+    "pendingDescription": "Odesláno {{date}}. Do schválení se termíny, lůžko ani platby nemění.",
+    "pendingDescriptionWithoutBed": "Odesláno {{date}}. Do schválení se termíny ani platby nemění.",
     "pendingTitle": "Žádost čeká na rozhodnutí organizátora",
     "reason": "Důvod: {{reason}}",
     "request": "Žádost",

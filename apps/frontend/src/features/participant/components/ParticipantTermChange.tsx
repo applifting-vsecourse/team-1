@@ -37,8 +37,10 @@ import {
   participantChangeRequestsQueryOptions,
   submitChangeRequest,
 } from "@/features/participant/api/changeRequests"
+import type { ChangeMode } from "@/features/participant/components/change-impact"
+import { impactWarning, termImpact } from "@/features/participant/components/change-impact"
 
-export type ChangeMode = "change" | "cancel"
+export type { ChangeMode }
 
 // Figma (Design system): Detail přihlášky · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15649-211 (mobile: 15649-293)
 export function ParticipantTermActions({
@@ -86,6 +88,9 @@ export function ParticipantTermActions({
 // Figma (Design system): #408 Dialog · změna termínu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=22640-37880 (mobile: 22640-38042)
 // Figma (Design system): #408 Dialog · odhlášení termínu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=22640-38153 (mobile: 22640-38316)
 // Figma (Design system): #408 Dialog · žádost o odhlášení · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=22640-38428 (mobile: 22640-38601)
+// Figma (Design system): #551 Dialog · změnit termín · zaplaceno · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=29562-32740 (mobile: 29562-32885)
+// Figma (Design system): #551 Dialog · odhlásit · zaplaceno · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=29562-33218 (mobile: 29562-33357)
+// Figma (Design system): #551 Dialog · žádost o odhlášení · zaplaceno · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=29563-33919 (mobile: 29563-34060)
 export function ParticipantTermChange({
   application,
   mode,
@@ -133,7 +138,8 @@ export function ParticipantTermChange({
   ]
   const canSubmit = removed.length > 0 && (mode === "cancel" || Boolean(target))
   const isImmediate = options.data?.canChangeImmediately ?? true
-  const overpaidCzk = removed.reduce((sum, term) => sum + term.overpaymentAfterCancellationCzk, 0)
+  const hasPaid = removed.some((term) => term.paidCzk > 0)
+  const warning = canSubmit ? impactWarning({ mode, isImmediate, hasRemovedBed, hasPaid }) : null
 
   const mutation = useMutation({
     mutationFn: async () => {
@@ -162,33 +168,33 @@ export function ParticipantTermChange({
     },
   })
 
-  /** What happens to the payment of a term that leaves the application. */
+  /** What happens to the payment of a term that leaves the application, in one sentence. */
   const removedValue = (term: NonNullable<typeof source>) => {
-    const status = application.terms.find((item) => item.termId === term.id)?.status
-    const hasPaymentImpact =
-      term.paidCzk !== 0 ||
-      term.owedBeforeCancellationCzk !== 0 ||
-      term.owedAfterCancellationCzk !== 0
-    if (hasPaymentImpact) {
-      return t(mode === "change" ? "change.paidChange" : "change.paidCancel", {
-        paid: formatCzk(term.paidCzk),
-        overpaid: formatCzk(term.overpaymentAfterCancellationCzk),
-        debt: formatCzk(term.owedAfterCancellationCzk),
-      })
-    }
-    if (mode === "change") return t("change.noPayment")
-    if (status === "TO_EVALUATE") return t("change.toEvaluateNoBed")
-    return t(status === "WAITLISTED" ? "change.waitlistedNoPayment" : "change.noPayment")
+    const status = application.terms.find((item) => item.termId === term.id)?.status ?? "CONFIRMED"
+    const impact = termImpact(mode, { ...term, status })
+    return impact.params
+      ? t(impact.key, {
+          paid: formatCzk(impact.params.paid),
+          total: formatCzk(impact.params.total),
+        })
+      : t(impact.key)
   }
 
-  const impactNote =
-    mode === "change"
-      ? t("change.noTransfer")
-      : !isImmediate
-        ? t("change.refundByOrganizer")
-        : overpaidCzk > 0
-          ? t("change.overpaidCancel", { overpaid: formatCzk(overpaidCzk) })
-          : null
+  const warningBlock = warning ? (
+    <Alert>
+      <TriangleAlert aria-hidden />
+      <AlertTitle className="line-clamp-none">{t(warning.title)}</AlertTitle>
+      {warning.lines.length > 0 ? (
+        <AlertDescription>
+          <ul className="flex flex-col gap-1">
+            {warning.lines.map((line) => (
+              <li key={line}>{t(line)}</li>
+            ))}
+          </ul>
+        </AlertDescription>
+      ) : null}
+    </Alert>
+  ) : null
 
   const title = t(
     mode === "change"
@@ -212,13 +218,7 @@ export function ParticipantTermChange({
     }
     return (
       <>
-        {!isImmediate ? (
-          <Alert>
-            <TriangleAlert aria-hidden />
-            <AlertTitle className="line-clamp-none">{t("change.approvalTitle")}</AlertTitle>
-            <AlertDescription>{t("change.approvalDescription")}</AlertDescription>
-          </Alert>
-        ) : null}
+        {!isImmediate ? warningBlock : null}
         {mode === "change" ? (
           <>
             {active.length > 1 ? (
@@ -306,8 +306,8 @@ export function ParticipantTermChange({
           </div>
         )}
         {canSubmit ? (
-          <section className="flex flex-col gap-3 rounded-lg border p-4">
-            <h3 className="text-2xl font-bold tracking-tight">
+          <section className="flex flex-col gap-3 border-t border-border pt-4">
+            <h3 className="text-lg font-bold tracking-tight">
               {t(
                 mode === "change"
                   ? "change.impact"
@@ -319,33 +319,21 @@ export function ParticipantTermChange({
             {removed.map((term) => (
               <DetailItem
                 key={term.id}
-                label={
-                  mode === "change"
-                    ? t(isImmediate ? "change.impactOriginal" : "change.impactOriginalRequest")
-                    : termLine(term)
-                }
+                label={mode === "change" ? t("change.sourceTerm") : termLine(term)}
               >
                 {removedValue(term)}
               </DetailItem>
             ))}
             {mode === "change" && target ? (
-              <DetailItem label={t("change.impactNew")}>
-                {t("change.newPrice", {
-                  price: formatCzk(target.priceCzk),
-                  owed: formatCzk(target.owedAfterChangeCzk),
-                })}
+              <DetailItem label={t("change.targetTerm")}>
+                {target.owedAfterChangeCzk > 0
+                  ? t("change.state.newTerm", { owed: formatCzk(target.owedAfterChangeCzk) })
+                  : t("change.state.newTermFree")}
               </DetailItem>
             ) : null}
-            {impactNote ? <p>{impactNote}</p> : null}
           </section>
         ) : null}
-        {!hasRemovedBed ? null : !isImmediate ? (
-          <p>{t("change.bedAfterApproval")}</p>
-        ) : mode === "change" ? (
-          <p>{t("change.bedChange")}</p>
-        ) : (
-          <p>{t(kept.length > 0 ? "change.bedCancelKept" : "change.bedCancel")}</p>
-        )}
+        {isImmediate ? warningBlock : null}
         {mutation.error ? (
           <Alert variant="destructive">
             <AlertDescription>{mutation.error.message}</AlertDescription>

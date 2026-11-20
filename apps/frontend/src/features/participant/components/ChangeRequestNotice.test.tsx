@@ -58,7 +58,7 @@ describe("ChangeRequestNotice", () => {
     expect(screen.getByRole("heading", { name: "Requested cancellation" })).toBeInTheDocument()
     expect(screen.getByText("Request")).toBeInTheDocument()
     expect(screen.getByText("Whole application · all terms (2)")).toBeInTheDocument()
-    expect(screen.getByText(/The bed is released only after approval\./)).toBeInTheDocument()
+    expect(screen.queryByText(/released only after approval/)).not.toBeInTheDocument()
     expect(screen.queryByText("Awaiting approval")).not.toBeInTheDocument()
   })
 
@@ -79,7 +79,6 @@ describe("ChangeRequestNotice", () => {
     expect(await screen.findByRole("heading", { name: "Requested term change" })).toBeVisible()
     expect(screen.getByText("Original term")).toBeInTheDocument()
     expect(screen.getByText("New term")).toBeInTheDocument()
-    expect(screen.getByText("The original bed is released only after approval.")).toBeVisible()
   })
 
   it.each(["TO_EVALUATE", "WAITLISTED", "CONFIRMED"] as const)(
@@ -92,12 +91,10 @@ describe("ChangeRequestNotice", () => {
 
       await screen.findByRole("heading", { name: "Requested cancellation" })
       if (status === "CONFIRMED") {
-        expect(screen.getByText(/The bed is released only after approval\./)).toBeVisible()
+        expect(screen.getByText(/Until approval, terms, bed and payments/)).toBeVisible()
       } else {
         expect(screen.queryAllByText(/bed/i)).toHaveLength(0)
-        expect(
-          screen.getByText(/The cancellation takes effect only after approval\./),
-        ).toBeVisible()
+        expect(screen.getByText(/Until approval, terms and payments do not change/)).toBeVisible()
       }
     },
   )
@@ -115,10 +112,10 @@ describe("ChangeRequestNotice", () => {
 
       await screen.findByRole("heading", { name: "Requested term change" })
       if (status === "CONFIRMED") {
-        expect(screen.getByText("The original bed is released only after approval.")).toBeVisible()
+        expect(screen.getByText(/Until approval, terms, bed and payments/)).toBeVisible()
       } else {
         expect(screen.queryAllByText(/bed/i)).toHaveLength(0)
-        expect(screen.getByText("The term change takes effect only after approval.")).toBeVisible()
+        expect(screen.getByText(/Until approval, terms and payments do not change/)).toBeVisible()
       }
     },
   )
@@ -142,5 +139,23 @@ describe("ChangeRequestNotice", () => {
     expect(await screen.findByText("Declined")).toBeInTheDocument()
     expect(screen.getByText("Reason: Full")).toBeInTheDocument()
     expect(screen.queryByText("Request awaiting the organizer's decision")).not.toBeInTheDocument()
+  })
+
+  it.each([
+    ["APPROVED", "Approved", "success"],
+    ["REJECTED", "Declined", "danger"],
+  ])("colours the %s result chip by its outcome", async (status, label, variant) => {
+    renderNotice([request({ status })])
+
+    const chip = await screen.findByText(label)
+    expect(chip).toHaveAttribute("data-variant", variant)
+  })
+
+  it("shows no result chip while the request is pending", async () => {
+    renderNotice([request()])
+
+    await screen.findByText("Request awaiting the organizer's decision")
+    expect(screen.queryByText("Approved")).not.toBeInTheDocument()
+    expect(screen.queryByText("Declined")).not.toBeInTheDocument()
   })
 })

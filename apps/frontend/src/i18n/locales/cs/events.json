@@ -289,7 +289,7 @@
     "beds": "Lůžka",
     "born": "nar. {{year}}",
     "continued": "pokračování",
-    "emptyAction": "Přejít na rozdělení do pokojů",
+    "emptyAction": "Přejít na Rozřazování",
     "extraBed": "Přistýlka",
     "free": "Volná lůžka",
     "freeBed": "Volné lůžko",
@@ -302,14 +302,10 @@
     "printExtraBeds": "přistýlka +{{count}}",
     "printed": "Vytištěno {{date}}",
     "rooms": "Pokoje",
-    "showWarnings": "Zobrazit v rozdělení",
     "unassignedTitle": "Potvrzení bez pokoje",
-    "viewAssignment": "Rozdělení do pokojů",
-    "viewOverview": "Přehled ubytování",
-    "views": "Pohled na ubytování",
-    "warnings_few": "Rozdělení do pokojů má {{count}} varování.",
-    "warnings_one": "Rozdělení do pokojů má {{count}} varování.",
-    "warnings_other": "Rozdělení do pokojů má {{count}} varování."
+    "viewAssignment": "Rozřazování",
+    "viewOverview": "Pokoje",
+    "views": "Pohled na ubytování"
   },
   "roomProposal": {
     "back": "Zpět k návrhu",
