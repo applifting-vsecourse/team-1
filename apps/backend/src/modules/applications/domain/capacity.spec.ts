@@ -2,7 +2,9 @@ import { Gender } from "@/shared/domain/gender"
 import {
   computeAvailablePlaces,
   computeFreePlaces,
+  computeIndividualBeds,
   computeRoomBeds,
+  computeRoomCapacity,
   computeSharedFreePlaces,
   computeTermCapacity,
   computeTotalBeds,
@@ -129,5 +131,41 @@ describe("extra beds (přistýlky)", () => {
       FEMALE: 4,
       MALE: -1,
     })
+  })
+})
+
+// US-145: an individual (mixed, family) room has no gender and sits outside the capacity of the term.
+describe("individual rooms", () => {
+  const individual: RoomCapacity = { capacity: 4, extraBeds: 1, gender: null, individual: true }
+  const gendered = [...rooms(1, 3, "FEMALE"), ...rooms(1, 2, "MALE")]
+
+  it("count for neither gender nor for the total", () => {
+    expect(computeTermCapacity([...gendered, individual])).toEqual({ FEMALE: 3, MALE: 2 })
+    expect(computeRoomCapacity([...gendered, individual])).toEqual({
+      FEMALE: 3,
+      MALE: 2,
+      total: 5,
+    })
+    expect(computeTotalBeds([...gendered, individual])).toBe(5)
+  })
+
+  it("are shown apart, extra beds included", () => {
+    expect(computeIndividualBeds([...gendered, individual])).toBe(5)
+    expect(computeIndividualBeds(gendered)).toBe(0)
+  })
+
+  it("do not turn a gendered term into a shared pool and change no free places", () => {
+    const confirmed: Gender[] = ["FEMALE", "MALE", "MALE"]
+    expect(computeAvailablePlaces([...gendered, individual], confirmed)).toEqual(
+      computeAvailablePlaces(gendered, confirmed),
+    )
+    expect(computeAvailablePlaces([...gendered, individual], confirmed)).toEqual({
+      FEMALE: 2,
+      MALE: 0,
+    })
+  })
+
+  it("are never a shared pool of their own", () => {
+    expect(computeAvailablePlaces([individual], ["FEMALE"])).toEqual({ FEMALE: -1, MALE: 0 })
   })
 })

@@ -13,6 +13,8 @@ const roomSchema = z.object({
   /** Capacity plus extra beds, computed by the API. */
   beds: z.number().int().min(1),
   gender: z.enum(["FEMALE", "MALE"]).nullable(),
+  /** Individual (mixed, family) room (US-145): no gender, outside the capacity. */
+  individual: z.boolean().optional(),
 })
 const termRoomsSchema = z.object({
   eventId: z.string(),
@@ -27,7 +29,13 @@ const termRoomsSchema = z.object({
   /** Confirmed participants see their room (US-144). */
   roomsPublished: z.boolean(),
   rooms: z.array(roomSchema),
-  capacity: z.object({ FEMALE: z.number().int(), MALE: z.number().int(), total: z.number().int() }),
+  capacity: z.object({
+    FEMALE: z.number().int(),
+    MALE: z.number().int(),
+    total: z.number().int(),
+    /** Beds in individual rooms (US-145), not part of the capacity above. */
+    individualBeds: z.number().int().optional(),
+  }),
 })
 export type Room = z.infer<typeof roomSchema>
 export type RoomMode = z.infer<typeof roomModeSchema>

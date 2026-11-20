@@ -387,6 +387,7 @@ export function RoomTableRow({
   onMoveParticipant,
   onRemoveParticipant,
 }: RoomProps) {
+  const { t } = useTranslation("events")
   const { roomGenderLabel } = useAssignmentLabels()
   const { setNodeRef, isOver } = useDroppable({
     id: `row:${room.id}`,
@@ -417,6 +418,7 @@ export function RoomTableRow({
           <div className="flex flex-wrap items-center gap-2">
             <span className="min-w-6 text-right font-bold tabular-nums">{room.name}</span>
             {room.gender ? <Badge variant="secondary">{roomGenderLabel(room.gender)}</Badge> : null}
+            {room.individual ? <Badge variant="secondary">{t("rooms.individual")}</Badge> : null}
             <WarningLabels kinds={openKinds(warnings)} />
           </div>
         </TableCell>
@@ -471,6 +473,7 @@ export function RoomCard({
   onMoveParticipant,
   onRemoveParticipant,
 }: RoomProps) {
+  const { t } = useTranslation("events")
   const { roomGenderLabel, freeBedsLabel } = useAssignmentLabels()
   const { setNodeRef, isOver } = useDroppable({
     id: `card:${room.id}`,
@@ -496,6 +499,7 @@ export function RoomCard({
         <div className="flex flex-wrap items-center justify-center gap-2">
           <span className="font-semibold break-words">{room.name}</span>
           {room.gender ? <Badge variant="secondary">{roomGenderLabel(room.gender)}</Badge> : null}
+          {room.individual ? <Badge variant="secondary">{t("rooms.individual")}</Badge> : null}
           <WarningLabels kinds={kinds} />
         </div>
         <div className="flex items-center gap-3">

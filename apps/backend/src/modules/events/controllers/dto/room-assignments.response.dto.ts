@@ -28,6 +28,7 @@ class OtherTermRoomDto {
   @ApiProperty() id!: string
   @ApiProperty() name!: string
   @ApiProperty({ enum: ["FEMALE", "MALE"], nullable: true }) gender!: Gender | null
+  @ApiProperty({ description: "Individual (mixed, family) room (US-145)" }) individual!: boolean
   @ApiProperty({ description: "Beds of the room, extra beds included" }) beds!: number
   @ApiProperty({ description: "Beds left, extra beds included" }) freeBeds!: number
 }
@@ -52,6 +53,7 @@ class AssignmentRoomDto {
   @ApiProperty() extraBeds!: number
   @ApiProperty({ description: "All beds: capacity plus extra beds" }) beds!: number
   @ApiProperty({ enum: ["FEMALE", "MALE"], nullable: true }) gender!: Gender | null
+  @ApiProperty({ description: "Individual (mixed, family) room (US-145)" }) individual!: boolean
   @ApiProperty({ type: [ParticipantDto] }) participants!: ParticipantDto[]
 }
 

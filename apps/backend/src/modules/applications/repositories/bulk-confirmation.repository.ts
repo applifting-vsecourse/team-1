@@ -30,7 +30,7 @@ export class BulkConfirmationRepository {
     const [rooms, confirmed, waiting] = await Promise.all([
       this.prisma.room.findMany({
         where: { termId },
-        select: { capacity: true, extraBeds: true, gender: true },
+        select: { capacity: true, extraBeds: true, gender: true, individual: true },
       }),
       this.prisma.applicationTerm.findMany({
         where: { organizationId, termId, status: "CONFIRMED" },

@@ -68,13 +68,15 @@ export function RoomsOverview({
       <LoadingState />
     )
   }
-  const totals = overviewTotals(data.rooms)
-  const extraBeds = data.rooms.reduce((sum, room) => sum + room.extraBeds, 0)
+  // Individual rooms and who sleeps in them stay out of the overview and its print (US-145, as US-38).
+  const rooms = data.rooms.filter((room) => !room.individual)
+  const totals = overviewTotals(rooms)
+  const extraBeds = rooms.reduce((sum, room) => sum + room.extraBeds, 0)
   const withoutRoom = confirmedWithoutRoom(data.unassigned)
   // Only a broken room rule (overfilled room, mixed genders) counts; one already confirmed knowingly
   // is not in the summary, and people confirmed without a bed are the business of the assignment.
   const openWarnings = data.summary.violations
-  const hasRooms = data.rooms.length > 0
+  const hasRooms = rooms.length > 0
   const metrics = [
     { label: t("roomOverview.rooms"), value: totals.rooms, helper: null },
     {
@@ -178,7 +180,7 @@ export function RoomsOverview({
             </div>
           ) : null}
           <ul className="grid items-stretch gap-4 md:auto-rows-fr md:grid-cols-2 print:block print:columns-2 print:gap-4">
-            {data.rooms.map((room) => (
+            {rooms.map((room) => (
               <li
                 key={room.id}
                 // A room that fits a page is never split; a longer one takes the whole width (a column spanner) and

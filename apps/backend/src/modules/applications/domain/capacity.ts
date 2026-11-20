@@ -5,6 +5,23 @@ export type RoomCapacity = {
   /** Extra beds (přistýlky) of the room in its term, each one more bed (US-80). */
   extraBeds: number
   gender: Gender | null
+  /**
+   * Individual (mixed, family) room (US-145): has no gender and sits outside the capacity of the
+   * term. Its beds are filled by assigning already confirmed participants (D-111), never by evaluation.
+   */
+  individual?: boolean
+}
+
+/** The rooms that make up the capacity of a term: all but the individual ones (US-145). */
+function capacityRooms(rooms: RoomCapacity[]): RoomCapacity[] {
+  return rooms.filter((room) => !room.individual)
+}
+
+/** Beds in individual rooms: shown next to the capacity, never part of it. */
+export function computeIndividualBeds(rooms: RoomCapacity[]): number {
+  return rooms
+    .filter((room) => room.individual)
+    .reduce((sum, room) => sum + computeRoomBeds(room), 0)
 }
 
 /** Beds of one room: its own beds plus its extra beds. The only place that adds them up. */
@@ -22,12 +39,12 @@ export function computeFreeRoomBeds(
 
 /**
  * Capacity of a term (US-26): women = beds in women's rooms, men = beds in
- * men's rooms. Rooms belong to one term (US-99), so every term has its own
+ * men's rooms; individual rooms (US-145) count for neither. Rooms belong to one term (US-99), so every term has its own
  * capacity; the shared mode has one common pool instead (`computeRoomCapacity`).
  */
 export function computeTermCapacity(rooms: RoomCapacity[]): GenderCounts {
   const capacity = emptyGenderCounts()
-  for (const room of rooms) {
+  for (const room of capacityRooms(rooms)) {
     if (room.gender !== null) capacity[room.gender] += computeRoomBeds(room)
   }
   return capacity
@@ -59,13 +76,13 @@ export function computeFreePlaces(capacity: GenderCounts, confirmed: GenderCount
 export function computeRoomCapacity(rooms: RoomCapacity[]): GenderCounts & { total: number } {
   return {
     ...computeTermCapacity(rooms),
-    total: rooms.reduce((sum, room) => sum + computeRoomBeds(room), 0),
+    total: capacityRooms(rooms).reduce((sum, room) => sum + computeRoomBeds(room), 0),
   }
 }
 
 /** Shared rooms serve all genders from one pool. Existing confirmations keep their places. */
 export function computeAvailablePlaces(rooms: RoomCapacity[], confirmed: Gender[]): GenderCounts {
-  if (rooms.some((room) => room.gender === null)) {
+  if (capacityRooms(rooms).some((room) => room.gender === null)) {
     const free = computeRoomCapacity(rooms).total - confirmed.length
     return { FEMALE: free, MALE: free }
   }

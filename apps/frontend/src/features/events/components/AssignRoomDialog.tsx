@@ -233,6 +233,9 @@ export function AssignRoomDialog({
                         {room.gender ? (
                           <Badge variant="secondary">{roomGenderLabel(room.gender)}</Badge>
                         ) : null}
+                        {room.individual ? (
+                          <Badge variant="secondary">{t("rooms.individual")}</Badge>
+                        ) : null}
                         {room.extraBeds > 0 ? (
                           <Badge variant="info">
                             {t("roomAssignments.extraBeds", { count: room.extraBeds })}

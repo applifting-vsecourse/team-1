@@ -99,6 +99,7 @@ export class RoomAssignmentsRepository {
       extraBeds: room.extraBeds,
       beds: computeRoomBeds(room),
       gender: room.gender,
+      individual: room.individual,
       participants: room.assignments.map((assignment) => ({
         ...toParticipant(assignment.applicationTerm),
         // Individual accommodation has no wishes, even when some were saved before the switch.
@@ -126,6 +127,7 @@ export class RoomAssignmentsRepository {
             id: room.id,
             name: room.name,
             gender: room.gender,
+            individual: room.individual,
             beds: computeRoomBeds(room),
             freeBeds: computeFreeRoomBeds(room, room._count.assignments),
           })),
@@ -257,16 +259,19 @@ export class RoomAssignmentsRepository {
       orderBy: { id: "asc" },
     })
     return proposeRoomAssignments({
-      rooms: term.rooms.map((room) => ({
-        id: room.id,
-        gender: room.gender,
-        freeBeds: Math.max(0, computeFreeRoomBeds(room, room.assignments.length)),
-        occupants: room.assignments.map(({ applicationTerm }) => ({
-          applicationTermId: applicationTerm.id,
-          firstName: applicationTerm.application.firstName,
-          lastName: applicationTerm.application.lastName,
+      // Individual rooms are filled by hand only (US-145), never by the proposal.
+      rooms: term.rooms
+        .filter((room) => !room.individual)
+        .map((room) => ({
+          id: room.id,
+          gender: room.gender,
+          freeBeds: Math.max(0, computeFreeRoomBeds(room, room.assignments.length)),
+          occupants: room.assignments.map(({ applicationTerm }) => ({
+            applicationTermId: applicationTerm.id,
+            firstName: applicationTerm.application.firstName,
+            lastName: applicationTerm.application.lastName,
+          })),
         })),
-      })),
       participants: waiting.map((row) => ({
         applicationTermId: row.id,
         firstName: row.application.firstName,

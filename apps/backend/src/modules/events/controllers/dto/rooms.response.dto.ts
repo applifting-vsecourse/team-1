@@ -9,11 +9,15 @@ class RoomResponseDto {
   @ApiProperty({ description: "Extra beds (přistýlky), each one more bed" }) extraBeds!: number
   @ApiProperty({ description: "All beds of the room: capacity plus extra beds" }) beds!: number
   @ApiProperty({ enum: ["FEMALE", "MALE"], nullable: true }) gender!: Gender | null
+  @ApiProperty({ description: "Individual (mixed, family) room, outside the capacity (US-145)" })
+  individual!: boolean
 }
 class RoomCapacityDto {
   @ApiProperty() FEMALE!: number
   @ApiProperty() MALE!: number
   @ApiProperty() total!: number
+  @ApiProperty({ description: "Beds in individual rooms, not part of the capacity above (US-145)" })
+  individualBeds!: number
 }
 export class RoomsResponseDto {
   @ApiProperty() eventId!: string

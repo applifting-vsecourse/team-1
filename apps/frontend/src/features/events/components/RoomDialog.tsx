@@ -1,12 +1,13 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation } from "@tanstack/react-query"
 import { Loader2 } from "lucide-react"
-import { useForm } from "react-hook-form"
+import { useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import {
   Dialog,
   DialogClose,
@@ -40,6 +41,7 @@ import { saveRoom, type Room, type TermRooms } from "@/features/events/api/rooms
 // Room of one term; the form is the one of the earlier iteration, only the term is new.
 // Figma (Design system): X19 / X20 / X22 / X23, X19a / X22a · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12370-121
 // Shared-room variant · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12370-767
+// Figma (Design system v2): US-145 / Přidat individuální pokoj · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=24910-3908 (mobile 24910-4362), Změnit příznak po vyhodnocení · 24910-4737
 export function RoomDialog({
   term,
   room,
@@ -60,6 +62,7 @@ export function RoomDialog({
       .string()
       .refine((value) => /^\d+$/.test(value) && Number(value) >= 1, t("rooms.capacityError")),
     gender: z.enum(["FEMALE", "MALE"]),
+    isIndividual: z.boolean(),
   })
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
@@ -67,6 +70,7 @@ export function RoomDialog({
       name: room?.name ?? "",
       capacity: room ? String(room.capacity) : "",
       gender: room?.gender ?? "FEMALE",
+      isIndividual: room?.individual ?? false,
     },
   })
   const mutation = useMutation({
@@ -77,7 +81,9 @@ export function RoomDialog({
         {
           name: values.name,
           capacity: Number(values.capacity),
-          gender: term.roomMode === "GENDERED" ? values.gender : null,
+          // An individual room (US-145) has no gender.
+          gender: term.roomMode === "GENDERED" && !values.isIndividual ? values.gender : null,
+          individual: term.roomMode === "GENDERED" && values.isIndividual,
         },
         room?.id,
       )
@@ -96,6 +102,7 @@ export function RoomDialog({
     onClose()
   })
   const isPending = mutation.isPending || form.formState.isSubmitting
+  const isIndividual = useWatch({ control: form.control, name: "isIndividual" })
   return (
     <Dialog
       open
@@ -169,7 +176,7 @@ export function RoomDialog({
                   </FormItem>
                 )}
               />
-              {term.roomMode === "GENDERED" ? (
+              {term.roomMode === "GENDERED" && !isIndividual ? (
                 <FormField
                   control={form.control}
                   name="gender"
@@ -197,6 +204,30 @@ export function RoomDialog({
                       </Select>
                       <FormDescription className="text-xs">{t("rooms.genderHint")}</FormDescription>
                       <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              ) : null}
+              {term.roomMode === "GENDERED" ? (
+                <FormField
+                  control={form.control}
+                  name="isIndividual"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="flex items-center gap-2">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={(checked) => {
+                              field.onChange(checked === true)
+                            }}
+                          />
+                        </FormControl>
+                        <FormLabel className="leading-snug">{t("rooms.individualLabel")}</FormLabel>
+                      </div>
+                      <FormDescription className="text-xs">
+                        {t("rooms.individualHint")}
+                      </FormDescription>
                     </FormItem>
                   )}
                 />

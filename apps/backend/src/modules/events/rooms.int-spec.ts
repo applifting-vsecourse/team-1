@@ -119,14 +119,14 @@ describe("term rooms (integration)", () => {
       (await request("/rooms", "POST", { name: "12", capacity: 5, gender: "FEMALE" })).status,
     ).toBe(409)
     let body = (await (await request("/rooms")).json()) as TermRooms
-    expect(body.capacity).toEqual({ FEMALE: 1, MALE: 100, total: 101 })
+    expect(body.capacity).toEqual({ FEMALE: 1, MALE: 100, total: 101, individualBeds: 0 })
     roomId = body.rooms[0].id
     expect(
       (await request(`/rooms/${roomId}`, "PUT", { name: "Updated", capacity: 21, gender: "MALE" }))
         .status,
     ).toBe(204)
     body = (await (await request("/rooms")).json()) as TermRooms
-    expect(body.capacity).toEqual({ FEMALE: 0, MALE: 121, total: 121 })
+    expect(body.capacity).toEqual({ FEMALE: 0, MALE: 121, total: 121, individualBeds: 0 })
     expect((await request(`/rooms/${roomId}`, "DELETE")).status).toBe(204)
     expect((await request(`/rooms/${roomId}`, "DELETE")).status).toBe(403)
   })

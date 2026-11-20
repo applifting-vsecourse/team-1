@@ -125,7 +125,7 @@ describe("bulk room creation (integration)", () => {
       ...[107, 108, 109, 110].map((number) => `${number}:MALE`),
     ])
     expect(result.rooms.every((room) => room.capacity === 5)).toBe(true)
-    expect(result.capacity).toEqual({ FEMALE: 30, MALE: 20, total: 50 })
+    expect(result.capacity).toEqual({ FEMALE: 30, MALE: 20, total: 50, individualBeds: 0 })
   })
 
   it("creates shared rooms without a gender", async () => {

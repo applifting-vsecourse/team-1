@@ -278,7 +278,10 @@ export function RoomAssignmentsCard({
       <div className="flex flex-col gap-4">
         <RoomWarningsSummary
           data={data}
-          isSharedMode={hasRooms && data.rooms.every((room) => room.gender === null)}
+          isSharedMode={
+            hasRooms &&
+            data.rooms.filter((room) => !room.individual).every((room) => room.gender === null)
+          }
         />
         {/* On a phone the count of the unassigned stays under the top bar while the rooms scroll. */}
         {isPanelScrolledOut ? (

@@ -399,6 +399,9 @@ model Room {
   // Extra beds (přistýlky) of this room in this term; each adds one bed to the capacity (US-80).
   extraBeds      Int          @default(0)
   gender         Gender?
+  // Individual (mixed, family) room of a gendered term (US-145): has no gender, its beds are outside
+  // the capacity of both genders and it never warns about mixed genders.
+  individual     Boolean      @default(false)
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @default(now()) @updatedAt
 

@@ -23,7 +23,11 @@ export class ApplicationListRepository {
         terms: {
           include: {
             term: {
-              include: { rooms: { select: { capacity: true, extraBeds: true, gender: true } } },
+              include: {
+                rooms: {
+                  select: { capacity: true, extraBeds: true, gender: true, individual: true },
+                },
+              },
             },
             payments: { where: { cancelledAt: null }, select: { amountCzk: true } },
           },

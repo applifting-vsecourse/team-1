@@ -124,7 +124,7 @@ export class ApplicationsRepository {
       const [rooms, confirmed] = await Promise.all([
         tx.room.findMany({
           where: { termId: { in: termIds } },
-          select: { termId: true, capacity: true, extraBeds: true, gender: true },
+          select: { termId: true, capacity: true, extraBeds: true, gender: true, individual: true },
         }),
         tx.applicationTerm.findMany({
           where: { termId: { in: termIds }, status: "CONFIRMED" },
@@ -137,8 +137,11 @@ export class ApplicationsRepository {
       }
 
       const roomsByTerm: OccupancySnapshot["roomsByTerm"] = {}
-      for (const { termId, capacity, extraBeds, gender } of rooms) {
-        roomsByTerm[termId] = [...(roomsByTerm[termId] ?? []), { capacity, extraBeds, gender }]
+      for (const { termId, capacity, extraBeds, gender, individual } of rooms) {
+        roomsByTerm[termId] = [
+          ...(roomsByTerm[termId] ?? []),
+          { capacity, extraBeds, gender, individual },
+        ]
       }
 
       const evaluated = evaluate({ roomsByTerm, confirmedGenders }, locked.evaluationMode)

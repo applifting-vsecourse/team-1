@@ -178,7 +178,14 @@ export function RoomsPage({
             }),
             free: selected.byGender?.MALE.free,
           },
-          { label: t("rooms.totalRooms"), value: term.rooms.length, helper: null },
+          {
+            label: t("rooms.totalRooms"),
+            value: term.rooms.length,
+            helper:
+              (term.capacity.individualBeds ?? 0) > 0
+                ? t("rooms.individualBeds", { count: term.capacity.individualBeds })
+                : null,
+          },
         ]
       : [
           {
