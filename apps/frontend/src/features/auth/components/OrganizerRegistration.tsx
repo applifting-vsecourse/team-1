@@ -4,7 +4,10 @@ import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
 import { ROUTES } from "@/app/routes"
+import { BrandDivider } from "@/components/atoms/BrandDivider"
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { Seo } from "@/components/atoms/Seo"
+import { PasswordInput } from "@/components/molecules/PasswordInput"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -14,27 +17,24 @@ import { bypassTokenOf } from "@/features/auth/api/emailVerificationBypass"
 import { RegistrationLayout } from "@/features/auth/components/RegistrationLayout"
 import { authClient } from "@/features/auth/lib/auth-client"
 
-// Figma (Design system): #69 / Vytvořit účet organizátora / Desktop · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19795-22977
-// Figma (Design system): #69 / Zkontrolujte registrační údaje / Desktop · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19795-23643
+// Figma v2: Vytvořit účet organizátora · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22456-10994 (mobile 22456-11097)
 export function OrganizerRegistration() {
   const { t } = useTranslation("auth")
   const { t: tErrors } = useTranslation("errors")
   const navigate = useNavigate()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [passwordRepeat, setPasswordRepeat] = useState("")
   const [isSubmitted, setSubmitted] = useState(false)
   const [isPending, setPending] = useState(false)
   const [failure, setFailure] = useState<string | null>(null)
   const isValidEmail = z.string().email().safeParse(email.trim()).success
   const isValidPassword = password.length >= 8
-  const isRepeatMatching = passwordRepeat === password
 
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setSubmitted(true)
     setFailure(null)
-    if (!isValidEmail || !isValidPassword || !isRepeatMatching) return
+    if (!isValidEmail || !isValidPassword) return
 
     setPending(true)
     const address = email.trim().toLowerCase()
@@ -62,15 +62,16 @@ export function OrganizerRegistration() {
     }
   }
 
-  const title =
-    isSubmitted && (!isValidEmail || !isValidPassword || !isRepeatMatching)
-      ? t("registration.invalidTitle")
-      : t("registration.title")
+  const title = t("registration.title")
 
   return (
     <RegistrationLayout>
       <Seo title={title} />
-      <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
+      <div className="flex flex-col gap-2">
+        <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
+        <p>{t("registration.description")}</p>
+      </div>
+      <BrandDivider />
       <form
         noValidate
         onSubmit={(event) => void submit(event)}
@@ -94,7 +95,7 @@ export function OrganizerRegistration() {
             placeholder={t("registration.emailPlaceholder")}
           />
           {isSubmitted && !isValidEmail ? (
-            <p className="text-sm text-destructive">{t("registration.emailInvalid")}</p>
+            <p className="text-sm text-destructive">{t("registration.emailInvalidExample")}</p>
           ) : null}
         </div>
         <div className="flex flex-col gap-2">
@@ -104,52 +105,39 @@ export function OrganizerRegistration() {
           >
             {t("registration.password")}
           </label>
-          <Input
+          <PasswordInput
             id="registration-password"
             className="h-12"
-            type="password"
             autoComplete="new-password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             aria-invalid={isSubmitted && !isValidPassword}
+            aria-describedby="registration-password-hint"
           />
-          <p className={isSubmitted && !isValidPassword ? "text-sm text-destructive" : "text-base"}>
+          <p
+            id="registration-password-hint"
+            className={
+              isSubmitted && !isValidPassword
+                ? "text-sm text-destructive"
+                : "text-sm text-muted-foreground"
+            }
+          >
             {t("registration.passwordHint")}
           </p>
-        </div>
-        <div className="flex flex-col gap-2">
-          <label
-            htmlFor="registration-password-repeat"
-            className="text-sm font-medium"
-          >
-            {t("registration.passwordRepeat")}
-          </label>
-          <Input
-            id="registration-password-repeat"
-            className="h-12"
-            type="password"
-            autoComplete="new-password"
-            value={passwordRepeat}
-            onChange={(event) => setPasswordRepeat(event.target.value)}
-            aria-invalid={isSubmitted && !isRepeatMatching}
-          />
-          {isSubmitted && !isRepeatMatching ? (
-            <p className="text-sm text-destructive">{t("registration.passwordMismatch")}</p>
-          ) : null}
         </div>
         {failure ? (
           <Alert variant="destructive">
             <AlertDescription>{failure}</AlertDescription>
           </Alert>
         ) : null}
-        <Button
+        <PendingButton
+          isPending={isPending}
           type="submit"
           size="lg"
-          disabled={isPending}
           className="h-12 w-full"
         >
           {t("registration.createAccount")}
-        </Button>
+        </PendingButton>
         <Button
           asChild
           variant="outline"

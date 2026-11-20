@@ -7,7 +7,7 @@ import { evaluateManualSubmission } from "@/modules/applications/domain/manual-s
 import { isOpenForApplications } from "@/modules/applications/domain/public-event"
 import { evaluateSubmission, isValidBirthDate } from "@/modules/applications/domain/submission"
 import { hasEndedTerm } from "@/modules/applications/domain/term-ended"
-import { termLabel } from "@/modules/applications/domain/term-label"
+import { formatTermDates, termLabel } from "@/modules/applications/domain/term-label"
 import { todayInPrague } from "@/modules/applications/domain/waitlist-expiry"
 import {
   ApplicationsRepository,
@@ -245,6 +245,7 @@ export class ApplicationsService {
    */
   private async sendConfirmation(
     event: {
+      organizationName: string
       name: string
       bankAccount: string
       terms: { id: string; name: string | null; startsOn: string; endsOn: string; number: number }[]
@@ -262,6 +263,7 @@ export class ApplicationsService {
         email,
         locale,
         eventName: event.name,
+        organizationName: event.organizationName,
         bankAccount: event.bankAccount,
         mustSetPassword,
         applications: saved.map((application) => ({
@@ -275,6 +277,7 @@ export class ApplicationsService {
             if (!eventTerm) throw new Error(`Term ${term.termId} is missing in the event`)
             return {
               name: termLabel(eventTerm, locale),
+              dates: formatTermDates(eventTerm.startsOn, eventTerm.endsOn, locale),
               termNumber: eventTerm.number,
               status: term.status,
               priceCzk: term.priceCzk,

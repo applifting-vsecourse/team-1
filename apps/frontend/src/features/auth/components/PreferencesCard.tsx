@@ -13,10 +13,9 @@ import {
 } from "@/components/ui/select"
 import { useTheme } from "@/hooks/useTheme"
 import { LANGUAGES } from "@/i18n"
-import { notify } from "@/lib/notify"
 
-import { localeSchema, type SessionUser } from "@/features/auth/api/authSessionQueryOptions"
-import { useUpdateProfile } from "@/features/auth/hooks/useUpdateProfile"
+import type { SessionUser } from "@/features/auth/api/authSessionQueryOptions"
+import { useAccountLanguage } from "@/features/auth/hooks/useAccountLanguage"
 
 const THEMES = [
   { value: "light", icon: Sun },
@@ -59,18 +58,7 @@ export function PreferencesCard({ user }: { user: SessionUser }) {
   const { t } = useTranslation("auth")
   const { t: tCommon } = useTranslation("common")
   const { theme, setTheme } = useTheme()
-  const update = useUpdateProfile()
-
-  const changeLanguage = async (value: string) => {
-    const parsed = localeSchema.safeParse(value)
-    if (!parsed.success || parsed.data === user.locale) return
-    try {
-      await update.mutateAsync({ locale: parsed.data })
-      notify.success(t("profile.saved.title"), t(`profile.saved.description.${parsed.data}`))
-    } catch {
-      notify.error(t("appearance.languageFailed"))
-    }
-  }
+  const { changeLanguage, isPending } = useAccountLanguage(user.locale)
 
   return (
     <Card className="max-w-196 gap-4 p-4 md:p-6">
@@ -83,7 +71,7 @@ export function PreferencesCard({ user }: { user: SessionUser }) {
         <Select
           value={user.locale ?? ""}
           onValueChange={(value) => void changeLanguage(value)}
-          disabled={update.isPending}
+          disabled={isPending}
         >
           <SelectTrigger
             id="preference-language"

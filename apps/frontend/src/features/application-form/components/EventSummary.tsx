@@ -1,6 +1,5 @@
 import { useTranslation } from "react-i18next"
 
-import { BrandDivider } from "@/components/atoms/BrandDivider"
 import { TermPrice } from "@/components/atoms/MoneyAmount"
 import { formatDateRange, formatMonthRange } from "@/lib/date"
 import { termName } from "@/lib/term-label"
@@ -8,8 +7,8 @@ import { termName } from "@/lib/term-label"
 import type { PublicEvent } from "@/features/application-form/api/publicEvent"
 
 // Figma (Design system): "Akce a ceny termínů" in
-// V07 https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12666-2538
-// M02 https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12666-18727
+// V07 https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15507-914
+// M02 https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15507-1033
 
 /** The event with the dates and prices of its terms — what the applicant chooses from. */
 export function EventSummary({ event }: { event: PublicEvent }) {
@@ -26,19 +25,18 @@ export function EventSummary({ event }: { event: PublicEvent }) {
   return (
     <section
       aria-label={t("form.heading", { event: event.name })}
-      className="flex flex-col gap-2 rounded-lg border border-border bg-secondary p-4 sm:p-6"
+      className="flex flex-col gap-2 rounded-xl border border-border bg-secondary p-4"
     >
-      <h2 className="text-lg font-bold tracking-tight">{event.name}</h2>
+      <h2 className="text-sm font-medium">{event.name}</h2>
       {where ? <p className="text-sm text-muted-foreground">{where}</p> : null}
-      {/* Rows: "DS / Event term row" https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=13196-777 */}
       <ul className="flex flex-col">
         {event.terms.map((term) => (
           <li
             key={term.id}
-            className="flex items-center justify-between gap-4 border-t border-border py-3"
+            className="flex items-center justify-between gap-4 py-1"
           >
             <span className="flex flex-col">
-              <span className="font-semibold">
+              <span className="text-sm font-medium">
                 {formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })}
               </span>
               {termName(term) ? (
@@ -50,13 +48,12 @@ export function EventSummary({ event }: { event: PublicEvent }) {
             </span>
             <span className="sr-only"> · </span>
             <TermPrice
-              className="font-bold"
+              className="text-sm font-medium"
               amountCzk={term.priceCzk}
             />
           </li>
         ))}
       </ul>
-      <BrandDivider />
     </section>
   )
 }

@@ -1,8 +1,11 @@
 import { useSuspenseQuery } from "@tanstack/react-query"
-import { createFileRoute, notFound } from "@tanstack/react-router"
+import { createFileRoute, Link, notFound } from "@tanstack/react-router"
+import { useTranslation } from "react-i18next"
 
+import { ROUTES } from "@/app/routes"
 import { Seo } from "@/components/atoms/Seo"
 import { PublicLayout } from "@/components/templates/PublicLayout"
+import { Button } from "@/components/ui/button"
 import { HTTPError } from "@/lib/api-client"
 
 import { catalogEventQueryOptions } from "@/features/catalog/api/catalog"
@@ -24,14 +27,26 @@ export const Route = createFileRoute("/events/$publicToken")({
 })
 
 function CatalogEventRoute() {
+  const { t } = useTranslation("auth")
   const { publicToken } = Route.useParams()
   const { data: event } = useSuspenseQuery(catalogEventQueryOptions(publicToken))
 
   return (
     <>
       <Seo title={event.name} />
-      <PublicLayout isFullWidth>
-        <div className="mx-auto w-full max-w-200 px-4 py-8 md:py-12">
+      <PublicLayout
+        isFullWidth
+        headerContentClassName="md:min-h-[115px]"
+        headerAction={
+          <Button
+            asChild
+            variant="ghost"
+          >
+            <Link to={ROUTES.participant.login}>{t("form.submit")}</Link>
+          </Button>
+        }
+      >
+        <div className="mx-auto w-full max-w-[1196px] px-4 py-4 md:p-12">
           <EventPage event={event} />
         </div>
       </PublicLayout>

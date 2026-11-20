@@ -1,10 +1,10 @@
 import { useState, type ReactNode } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { Loader2, TriangleAlert } from "lucide-react"
+import { TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Button } from "@/components/ui/button"
 import { formatDateRange } from "@/lib/date"
 import { notify } from "@/lib/notify"
 
@@ -63,9 +63,11 @@ export function RoomProposal({
   if (!data) return <>{children({ action: null, notices: null })}</>
 
   const confirmedWaiting = data.unassigned.filter((person) => person.status === "CONFIRMED")
+  // The proposal never fills an individual room (US-145), so only the other rooms count.
+  const hasProposableRooms = data.rooms.some((room) => !room.individual)
   const canPropose =
-    data.rooms.length > 0 && confirmedWaiting.some((person) => !person.individualAccommodation)
-  const hasOnlyIndividual = confirmedWaiting.length > 0 && !canPropose && data.rooms.length > 0
+    hasProposableRooms && confirmedWaiting.some((person) => !person.individualAccommodation)
+  const hasOnlyIndividual = confirmedWaiting.length > 0 && !canPropose && hasProposableRooms
 
   if (draft) {
     const unfulfilled = unfulfilledWishes(data.rooms, draft).length
@@ -162,17 +164,16 @@ export function RoomProposal({
   }
 
   const action = canPropose ? (
-    <Button
+    <PendingButton
       type="button"
       variant="outline"
       size="lg"
       className="max-sm:w-full"
-      disabled={propose.isPending}
+      isPending={propose.isPending}
       onClick={() => propose.mutate()}
     >
-      {propose.isPending ? <Loader2 className="animate-spin" /> : null}
-      {t(propose.isPending ? "roomProposal.creating" : "roomProposal.start")}
-    </Button>
+      {t("roomProposal.start")}
+    </PendingButton>
   ) : null
   const notices =
     propose.isPending || propose.isError || hasOnlyIndividual ? (

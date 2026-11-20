@@ -1,10 +1,9 @@
 import { useState } from "react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { Loader2 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { ErrorState } from "@/components/molecules/ErrorState"
-import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { notify } from "@/lib/notify"
@@ -23,18 +22,12 @@ const MODES = [
 
 /**
  * The step „Zvolte režim vyhodnocování“ of the checklist: both modes with one sentence each,
- * nothing preselected, the step is done by „Potvrdit režim vyhodnocování“ (US-560). The button is primary only
- * while this is the first step still to do — one primary action per view.
+ * nothing preselected, the step is done by „Potvrdit režim vyhodnocování“ (US-560). It is shown
+ * as the current step of the overview stepper, so its button is the one primary action.
  */
 // Figma (Design system): A1 Přehled akce · Volba režimu v kroku · Desktop · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=26157-1995
 // Figma (Design system): A3 Přehled akce · Volba režimu v kroku · Mobil 360 px · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=26157-2050
-export function EvaluationModeStep({
-  eventId,
-  isFirstMissing,
-}: {
-  eventId: string
-  isFirstMissing: boolean
-}) {
+export function EvaluationModeStep({ eventId }: { eventId: string }) {
   const { t } = useTranslation("events")
   const queryClient = useQueryClient()
   const [mode, setMode] = useState<EvaluationMode | null>(null)
@@ -92,7 +85,7 @@ export function EvaluationModeStep({
           </div>
         ))}
       </RadioGroup>
-      <p className="text-sm text-muted-foreground">{t("overview.missing.modeNote")}</p>
+      <p className="text-sm text-muted-foreground">{t("overview.setup.modeNote")}</p>
       {mutation.isError ? (
         <ErrorState
           title={t("evaluationMode.saveFailed")}
@@ -100,16 +93,15 @@ export function EvaluationModeStep({
         />
       ) : null}
       <div className="flex sm:justify-end">
-        <Button
+        <PendingButton
+          isPending={mutation.isPending}
           type="submit"
           size="lg"
-          variant={isFirstMissing ? "default" : "outline"}
           className="w-full sm:w-auto sm:min-w-55"
-          disabled={mode === null || mutation.isPending}
+          disabled={mode === null}
         >
-          {mutation.isPending ? <Loader2 className="animate-spin" /> : null}
           {t("evaluationMode.confirm")}
-        </Button>
+        </PendingButton>
       </div>
     </form>
   )

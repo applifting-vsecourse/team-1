@@ -137,6 +137,15 @@ describe("EventSettings", () => {
     expect(screen.getByRole("button", { name: "Save mode" })).toBeEnabled()
   })
 
+  it("discards the local selection without writing to the server", async () => {
+    const patches = renderSettings(event)
+    const user = userEvent.setup()
+    await user.click(await screen.findByRole("radio", { name: "Manual" }))
+    await user.click(screen.getByRole("button", { name: "Discard changes" }))
+    expect(screen.getByRole("radio", { name: "Automatic" })).toBeChecked()
+    expect(patches).toEqual([])
+  })
+
   it("explains each mode in a popover that opens on click and keeps the card free of extra hints", async () => {
     renderSettings(event)
     const user = userEvent.setup()
@@ -195,14 +204,16 @@ describe("EventSettings", () => {
   it("explains why a locked mode cannot be changed", async () => {
     renderSettings({ ...event, applicationsOpen: true, evaluationModeLocked: true })
 
-    expect(await screen.findByText("Automatic")).toBeInTheDocument()
-    expect(screen.getByText("Locked")).toBeInTheDocument()
+    expect(await screen.findByText("The mode is locked")).toBeVisible()
+    expect(screen.getByText("Locked", { exact: true })).toBeVisible()
     expect(
       screen.getByText(
         "The event already has an application, so the mode can no longer be changed.",
       ),
     ).toBeInTheDocument()
-    expect(screen.queryByRole("radio")).not.toBeInTheDocument()
+    expect(screen.getByRole("radio", { name: "Automatic" })).toBeChecked()
+    expect(screen.getByRole("radio", { name: "Automatic" })).toBeDisabled()
+    expect(screen.getByRole("radio", { name: "Manual" })).toBeDisabled()
     expect(screen.queryByRole("button", { name: "Save mode" })).not.toBeInTheDocument()
   })
 

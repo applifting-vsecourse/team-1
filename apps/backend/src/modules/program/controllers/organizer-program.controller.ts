@@ -80,7 +80,12 @@ export class OrganizerProgramController {
     @Body() body: ProgramCopyRequestDto,
   ): Promise<ProgramCopyResponseDto> {
     const plan = await this.program.copy(user, eventId, termId, body.sourceTermId, body.strategy)
-    return { copied: plan.blocks.length, skipped: plan.skipped, overlaps: plan.overlaps }
+    return {
+      blocks: plan.blocks,
+      copied: plan.blocks.length,
+      skipped: plan.skipped,
+      overlaps: plan.overlaps,
+    }
   }
 
   @Put("blocks/:id")

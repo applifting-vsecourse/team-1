@@ -15,7 +15,7 @@ import {
   participantNotificationsQueryOptions,
 } from "@/features/participant/api/notifications"
 
-// Figma (Design system): US-114 Detail přihlášky · Žádost čeká / Změna schválená / Žádost zamítnutá, notification trigger · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15928-9331
+// Figma (Design system v2): US-114 Detail přihlášky · Žádost čeká / Změna schválená / Žádost zamítnutá, notification trigger · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15928-9331
 export function ChangeRequestNotifications({
   children,
 }: {

@@ -11,6 +11,7 @@ import { EvaluatedTerm } from "@/modules/applications/domain/evaluation"
 import { EvaluationMode } from "@/modules/applications/domain/evaluation-mode"
 import { OccupancySnapshot } from "@/modules/applications/domain/submission"
 import { termLabel } from "@/modules/applications/domain/term-label"
+import { ROOM_CAPACITY_SELECT } from "@/modules/applications/repositories/room-capacity.select"
 import { AppException } from "@/shared/errors/app.exception"
 import { isoDate } from "@/shared/utils/iso-date"
 import { HttpStatus, Injectable } from "@nestjs/common"
@@ -57,7 +58,7 @@ export class ApplicationsRepository {
     const event = await this.prisma.event.findUnique({
       where,
       include: {
-        organization: { select: { bankAccount: true } },
+        organization: { select: { name: true, bankAccount: true } },
         terms: {
           where: { cancelledAt: null },
           orderBy: [{ startsOn: "asc" }, { endsOn: "asc" }, { id: "asc" }],
@@ -69,6 +70,7 @@ export class ApplicationsRepository {
     return {
       id: event.id,
       organizationId: event.organizationId,
+      organizationName: event.organization.name,
       name: event.name,
       bankAccount: event.organization.bankAccount,
       evaluationMode: event.evaluationMode,
@@ -125,7 +127,7 @@ export class ApplicationsRepository {
       const [rooms, confirmed] = await Promise.all([
         tx.room.findMany({
           where: { termId: { in: termIds } },
-          select: { termId: true, capacity: true, extraBeds: true, gender: true },
+          select: { termId: true, ...ROOM_CAPACITY_SELECT },
         }),
         tx.applicationTerm.findMany({
           where: { termId: { in: termIds }, status: "CONFIRMED" },
@@ -138,8 +140,8 @@ export class ApplicationsRepository {
       }
 
       const roomsByTerm: OccupancySnapshot["roomsByTerm"] = {}
-      for (const { termId, capacity, extraBeds, gender } of rooms) {
-        roomsByTerm[termId] = [...(roomsByTerm[termId] ?? []), { capacity, extraBeds, gender }]
+      for (const { termId, ...room } of rooms) {
+        roomsByTerm[termId] = [...(roomsByTerm[termId] ?? []), room]
       }
 
       const evaluated = evaluate({ roomsByTerm, confirmedGenders }, locked.evaluationMode)
@@ -260,6 +262,8 @@ export class ApplicationsRepository {
       "APPLICATION_DUPLICATE",
       "Participant is already registered for this term",
       {
+        participantIndex: String(duplicate.participantIndex),
+        termId: duplicate.termId,
         participant: `${duplicate.participant.firstName} ${duplicate.participant.lastName}`,
         term: termLabel(term, locale),
       },

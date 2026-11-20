@@ -1,7 +1,9 @@
 import type { ReactNode } from "react"
+import { useTranslation } from "react-i18next"
 
-import { BandBackdrop } from "@/components/atoms/BandBackdrop"
+import { BrandDivider } from "@/components/atoms/BrandDivider"
 import { useIsEmbeddedPage } from "@/components/atoms/EmbeddedPage"
+import { HeadingBand } from "@/components/atoms/HeadingBand"
 import { Header } from "@/components/organisms/Header"
 import { Card } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
@@ -10,6 +12,9 @@ type AuthLayoutProps = {
   title: string
   description: string
   /** Round icon above the heading (403). */
+  isSingleCard?: boolean
+  hasBand?: boolean
+  showDivider?: boolean
   icon?: ReactNode
   /** Heading of the form card. Without it the children sit directly on the page. */
   cardTitle?: string
@@ -31,41 +36,59 @@ export function AuthLayout({
   description,
   icon,
   cardTitle,
+  isSingleCard = false,
+  hasBand = false,
+  showDivider: shouldShowDivider = true,
   back,
   children,
   footer,
 }: AuthLayoutProps) {
+  const { t } = useTranslation("auth")
   const isEmbedded = useIsEmbeddedPage()
+  const heading = (
+    <div className="flex flex-col items-start gap-2">
+      {icon}
+      <h1 className="text-2xl font-bold">{title}</h1>
+      <p className="text-muted-foreground">{description}</p>
+    </div>
+  )
   const content = (
     <div
       className={
         isEmbedded
-          ? "mx-auto flex w-full max-w-110 flex-col gap-6 pt-10 pb-12"
+          ? "mx-auto flex w-full max-w-128 flex-col gap-6 pt-10 pb-12"
           : cn(
-              "mx-auto flex w-full max-w-110 flex-col gap-6 px-4 pb-12 md:pb-28",
-              back ? "pt-4 md:pt-8" : "pt-10 md:pt-20",
+              "mx-auto flex w-full max-w-[528px] flex-col gap-6 px-6 pb-12",
+              back ? "pt-4 md:pt-8" : "pt-8",
             )
       }
     >
       {back}
-      <div className="flex flex-col items-center gap-4 text-center">
-        {icon}
-        <div className="flex flex-col gap-2">
-          <h1 className="text-3xl font-bold md:text-4xl">{title}</h1>
-          <p className="text-muted-foreground">{description}</p>
-        </div>
-      </div>
-
-      {cardTitle ? (
-        <Card className="gap-5 p-6">
-          <h2 className="text-lg font-semibold">{cardTitle}</h2>
+      {isSingleCard ? (
+        <Card className="gap-4 rounded-2xl p-6 shadow-none md:p-8">
+          {heading}
+          {shouldShowDivider ? <BrandDivider /> : null}
           {children}
+          {footer}
         </Card>
       ) : (
-        children
-      )}
+        <>
+          {hasBand ? <HeadingBand>{heading}</HeadingBand> : heading}
 
-      {footer ? <div className="text-center text-sm text-muted-foreground">{footer}</div> : null}
+          {cardTitle ? (
+            <Card className="gap-5 p-6">
+              <h2 className="text-lg font-semibold">{cardTitle}</h2>
+              {children}
+            </Card>
+          ) : (
+            children
+          )}
+
+          {footer ? (
+            <div className="text-center text-sm text-muted-foreground">{footer}</div>
+          ) : null}
+        </>
+      )}
     </div>
   )
 
@@ -73,12 +96,14 @@ export function AuthLayout({
   if (isEmbedded) return content
 
   return (
-    <>
+    <div className="flex min-h-svh flex-col">
       <Header />
-      <main className="relative min-h-svh overflow-hidden">
-        <BandBackdrop className="h-40 lg:h-56" />
+      <main className="relative flex-1">
         <div className="relative">{content}</div>
       </main>
-    </>
+      {isSingleCard ? (
+        <footer className="p-4 text-center text-sm text-muted-foreground">{t("signature")}</footer>
+      ) : null}
+    </div>
   )
 }

@@ -22,8 +22,8 @@ describe("ApplicationLinkNotFound", () => {
 
     expect(await screen.findByText("404")).toBeInTheDocument()
     expect(
-      screen.getByRole("heading", { level: 1, name: "The application link doesn't work" }),
+      screen.getByRole("heading", { level: 1, name: "This page is unavailable." }),
     ).toBeInTheDocument()
-    expect(screen.getByRole("link", { name: "Back to Togena" })).toHaveAttribute("href", "/")
+    expect(screen.getByRole("link", { name: "Go to homepage" })).toHaveAttribute("href", "/")
   })
 })

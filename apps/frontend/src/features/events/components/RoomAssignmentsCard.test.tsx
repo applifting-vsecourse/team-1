@@ -116,11 +116,12 @@ const warning = (over: Partial<RoomWarning>): RoomWarning => ({
 })
 
 let data = base()
+let client = new QueryClient()
 const term = { eventId: "e1", termId: "t1", startsOn: "2027-07-12", endsOn: "2027-07-18" }
 
 function renderCard() {
   get.mockImplementation(() => ({ json: () => Promise.resolve(data) }))
-  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+  client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   render(
     <QueryClientProvider client={client}>
       <RoomAssignmentsCard
@@ -173,7 +174,7 @@ describe("room assignment", () => {
     renderCard()
     expect(await screen.findByText("Barbora Šimková")).toBeInTheDocument()
     expect(screen.getByText("Woman · Confirmed")).toBeInTheDocument()
-    expect(screen.getByText("Woman · To evaluate")).toBeInTheDocument()
+    expect(screen.getByText("Woman · Awaiting evaluation")).toBeInTheDocument()
     expect(screen.getByLabelText("Unassigned participants: 2")).toHaveTextContent("2")
     const table = screen.getByRole("table")
     expect(within(table).getByText("Jana Nováková")).toBeInTheDocument()
@@ -553,6 +554,25 @@ describe("room assignment", () => {
     })
   })
 
+  it("confirms a drop only after the write succeeds", async () => {
+    let finish!: () => void
+    const saved = new Promise<void>((resolve) => {
+      finish = resolve
+    })
+    put.mockReturnValueOnce(saved)
+    renderCard()
+    await screen.findByText("Barbora Šimková")
+    drop(dragFrom("p3", "Barbora Šimková", null), "r3")
+    await waitFor(() => expect(put).toHaveBeenCalled())
+    expect(success).not.toHaveBeenCalled()
+    expect(screen.getByLabelText("Unassigned participants: 2")).toHaveTextContent("2")
+    await act(async () => {
+      finish()
+      await saved
+    })
+    await waitFor(() => expect(success).toHaveBeenCalledTimes(1))
+  })
+
   it("asks before a full room takes someone as an extra bed, and cancelling changes nothing", async () => {
     const user = renderCard()
     await screen.findByText("Barbora Šimková")
@@ -607,7 +627,7 @@ describe("room assignment", () => {
       }
       renderCard()
       expect(await screen.findByText("Barbora Šimková")).toBeInTheDocument()
-      expect(screen.getByText("Woman · To evaluate")).toBeInTheDocument()
+      expect(screen.getByText("Woman · Awaiting evaluation")).toBeInTheDocument()
       // The unassigned one has the full badge; in the room, in the table and in the card of the
       // phone layout, the chip carries a short one. Nobody else has any.
       expect(screen.getAllByText("Individual accommodation")).toHaveLength(1)
@@ -629,7 +649,9 @@ describe("room assignment", () => {
       }
       renderCard()
       // The text is on the page twice (desktop table and mobile card); both count the same.
-      const texts = await screen.findAllByText("Mixed genders: 1 woman and 1 man.")
+      const texts = await screen.findAllByText(
+        "Mixed genders: 1 woman and 1 man. Lucie Veselá has individual accommodation and is excluded from the count.",
+      )
       expect(texts.length).toBeGreaterThan(0)
       expect(screen.queryByText("Mixed genders: 2 women and 1 man.")).not.toBeInTheDocument()
     })
@@ -729,6 +751,37 @@ describe("room assignment", () => {
         await screen.findByText("Mixed genders are not checked in shared rooms."),
       ).toBeInTheDocument()
     })
+
+    // US-145: a gendered term with only individual rooms (no gender) is not a shared-rooms term.
+    it("does not call a term with only individual rooms shared", async () => {
+      overcrowded()
+      data = {
+        ...data,
+        rooms: data.rooms.map((item) => ({ ...item, gender: null, individual: true })),
+      }
+      renderCard()
+      await screen.findByText("Barbora Šimková")
+      expect(
+        screen.queryByText("Mixed genders are not checked in shared rooms."),
+      ).not.toBeInTheDocument()
+    })
+  })
+
+  // US-145: an assignment can change the capacity, so the other pages of the event refetch.
+  it("marks the rooms, capacity and occupancy of the event stale after an assignment", async () => {
+    renderCard()
+    await screen.findByText("Barbora Šimková")
+    const keys = [
+      ["events", "e1", "rooms", "t1"],
+      ["events", "e1", "capacity"],
+      ["events", "e1", "occupancy"],
+    ]
+    for (const key of keys) client.setQueryData(key, {})
+    drop(dragFrom("p1", "Jana Nováková", "r1"), "r3")
+    await waitFor(() => expect(put).toHaveBeenCalled())
+    await waitFor(() => {
+      for (const key of keys) expect(client.getQueryState(key)?.isInvalidated).toBe(true)
+    })
   })
 
   it("moves a person by dragging their chip onto another room", async () => {
@@ -793,9 +846,11 @@ describe("room assignment", () => {
     expect(await screen.findByText("Test Osoba00")).toBeInTheDocument()
     expect(screen.getByText("Test Osoba09")).toBeInTheDocument()
     expect(screen.queryByText("Test Osoba10")).not.toBeInTheDocument()
-    expect(screen.getByText("1–10 / 11")).toBeInTheDocument()
-    await user.click(screen.getByRole("button", { name: "Next →" }))
+    expect(screen.getByText("1–10 of 11 results")).toBeInTheDocument()
+    await user.click(screen.getByRole("button", { name: "Next page" }))
     expect(await screen.findByText("Test Osoba10")).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "Page 2" })).toHaveAttribute("aria-current", "page")
+    expect(screen.getByRole("button", { name: "Next page" })).toBeDisabled()
     expect(screen.queryByText("Test Osoba00")).not.toBeInTheDocument()
   })
 
@@ -856,7 +911,9 @@ describe("room assignment", () => {
 
   it("shows the rooms as cards at 360 px and keeps the count in a bar once the list is scrolled away", async () => {
     window.innerWidth = 360
-    let notify: (entries: { isIntersecting: boolean }[]) => void = () => undefined
+    let notify: (
+      entries: { isIntersecting: boolean; boundingClientRect: { bottom: number } }[],
+    ) => void = () => undefined
     vi.stubGlobal(
       "IntersectionObserver",
       class {
@@ -875,7 +932,7 @@ describe("room assignment", () => {
     expect(
       screen.queryByRole("status", { name: "Unassigned participants" }),
     ).not.toBeInTheDocument()
-    act(() => notify([{ isIntersecting: false }]))
+    act(() => notify([{ isIntersecting: false, boundingClientRect: { bottom: -10 } }]))
     expect(
       await screen.findByRole("status", { name: "Unassigned participants" }),
     ).toHaveTextContent("Unassigned participants2")

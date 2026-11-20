@@ -12,6 +12,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { notify } from "@/lib/notify"
 
+import type { EditableApplication } from "@/features/participant/api/applicationEdit"
 import type { MyApplication } from "@/features/participant/api/applications"
 import { ApplicationDetail } from "@/features/participant/components/ApplicationDetail"
 
@@ -138,6 +139,7 @@ const renderDetail = (
   canChangeImmediately = true,
   owedAfterChangeCzk = 4900,
   optionsState?: "loading" | "error",
+  edits: EditableApplication["history"] = [],
 ) => {
   const paid = (termId: string) =>
     data.paymentDetails?.terms.find((payment) => payment.termId === termId)?.paidCzk ?? 0
@@ -147,6 +149,19 @@ const renderDetail = (
   }
   get.mockImplementation((path: string) => ({
     json: () => {
+      if (path.endsWith("/edit")) {
+        return Promise.resolve({
+          id: data.id,
+          eventName: data.eventName,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          birthDate: data.birthDate ?? "2011-05-04",
+          phone: "+420 777 123 456",
+          individualAccommodation: false,
+          accommodationRequest: null,
+          history: edits,
+        })
+      }
       if (path.endsWith("change-options")) {
         if (optionsState === "loading") return new Promise(() => undefined)
         if (optionsState === "error") return Promise.reject(new Error("Options unavailable"))
@@ -293,7 +308,7 @@ describe("ApplicationDetail", () => {
     })
     renderDetail(application())
 
-    const terms = await screen.findByRole("region", { name: "Terms and payments" })
+    const terms = await screen.findByRole("region", { name: "Terms" })
     expect(within(terms).getByRole("button", { name: "Cancel participation" })).toBeVisible()
     await user.click(await within(terms).findByRole("button", { name: "Change terms" }))
     const dialog = await screen.findByRole("dialog", { name: "Change term" })
@@ -518,7 +533,7 @@ describe("ApplicationDetail", () => {
     renderDetail(application())
 
     expect(
-      await screen.findByRole("heading", { level: 1, name: "Letní kemp 2027" }),
+      await screen.findByRole("heading", { level: 1, name: "Application details" }),
     ).toBeInTheDocument()
     await openAll()
     expect(screen.getByText("Partly paid")).toBeInTheDocument()
@@ -530,7 +545,7 @@ describe("ApplicationDetail", () => {
     // The summary symbol and the total are for the whole application, not for one term.
     expect(screen.queryByText("48000")).not.toBeInTheDocument()
     expect(screen.queryByText("Left to pay in total")).not.toBeInTheDocument()
-    expect(screen.getByRole("link", { name: "← All applications" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Back to my applications" })).toHaveAttribute(
       "href",
       "/participant",
     )
@@ -547,14 +562,14 @@ describe("ApplicationDetail", () => {
     )
   })
 
-  it("names the event prominently with the application code", async () => {
+  it("shows the participant and event in the heading area and the application code with the terms", async () => {
     renderDetail(application())
 
     expect(
-      await screen.findByRole("heading", { level: 1, name: "Letní kemp 2027" }),
+      await screen.findByRole("heading", { level: 1, name: "Application details" }),
     ).toBeInTheDocument()
-    expect(screen.getByText("Jana Nováková · LKL-0048")).toBeInTheDocument()
-    expect(screen.queryByText("My application")).not.toBeInTheDocument()
+    expect(screen.getByText("Jana Nováková · Letní kemp 2027")).toBeInTheDocument()
+    expect(screen.getByText("LKL-0048")).toBeInTheDocument()
   })
 
   it("shows the debt of each confirmed term separately and the total (500 + 700 CZK)", async () => {
@@ -813,6 +828,24 @@ describe("ApplicationDetail", () => {
     })
   })
 
+  it("shows the persisted phone, accommodation and author on a fresh detail visit", async () => {
+    renderDetail(application(), true, 4900, undefined, [
+      {
+        id: "change1",
+        authorName: "Eva Malá",
+        createdAt: "2026-11-05T13:30:00Z",
+        changedFields: ["phone", "individualAccommodation"],
+      },
+    ])
+    expect(await screen.findByRole("heading", { name: "Change history" })).toBeVisible()
+    expect(screen.getByText("+420 777 123 456")).toBeVisible()
+    expect(screen.getByRole("heading", { name: "Accommodation request" })).toBeVisible()
+    expect(screen.getByText("No individual accommodation requested.")).toBeVisible()
+    expect(screen.getByText(/Eva Malá/)).toBeVisible()
+    expect(screen.getByText("Updated contact and accommodation request.")).toBeVisible()
+    expect(screen.queryByText(/organizer was notified/i)).not.toBeInTheDocument()
+  })
+
   describe("payment simulation (US-115)", () => {
     it("shows no simulation where the backend does not offer it (production)", async () => {
       renderDetail(application())
@@ -852,6 +885,34 @@ describe("ApplicationDetail", () => {
       })
     })
 
+    it("marks the term button busy while its simulated payment is pending", async () => {
+      post.mockReturnValue(new Promise(() => undefined))
+      const user = userEvent.setup()
+      renderDetail(application({ canSimulatePayment: true }))
+      const button = await screen.findByRole("button", { name: "I paid" })
+      await user.click(button)
+      expect(button).toBeDisabled()
+      expect(button).toHaveAttribute("aria-busy", "true")
+    })
+
+    it("reports a failed simulation and retries only that term", async () => {
+      post.mockRejectedValueOnce(new Error("Request failed")).mockResolvedValueOnce({})
+      const user = userEvent.setup()
+      renderDetail(application({ canSimulatePayment: true }))
+
+      await user.click(await screen.findByRole("button", { name: "I paid" }))
+      expect(await screen.findByText("The simulated payment could not be recorded.")).toBeVisible()
+      await user.click(screen.getByRole("button", { name: "Try again" }))
+
+      expect(post).toHaveBeenCalledTimes(2)
+      expect(post).toHaveBeenNthCalledWith(2, "participant/applications/a1/payments/simulation", {
+        json: { termId: "t1" },
+      })
+      await waitFor(() => {
+        expect(screen.queryByText("The simulated payment could not be recorded.")).toBeNull()
+      })
+    })
+
     it("offers no button for a term with nothing left to pay", async () => {
       renderDetail({
         ...withTerms([termPayment(1, 4500, 4500, "PAID")], [confirmed]),
@@ -884,7 +945,7 @@ describe("ApplicationDetail", () => {
       expect(within(transport).getByText("To do")).toBeVisible()
       expect(within(transport).getByRole("link", { name: "Choose transport" })).toHaveAttribute(
         "href",
-        "/participant/applications/a1/transport",
+        `/participant/applications/a1/transport#transport-${confirmed.termId}`,
       )
       const meals = await stepRow(/^1\. týden$/, "Meals")
       expect(within(meals).getByText("Done")).toBeVisible()
@@ -898,6 +959,21 @@ describe("ApplicationDetail", () => {
         "href",
         "/participant/applications/a1/health",
       )
+    })
+
+    it("links to the wishes and published room of the matching term", async () => {
+      renderDetail(
+        withSteps({ terms: [{ ...confirmed, roomWishes: [], room: { name: "Bříza 204" } }] }),
+      )
+      const wishes = await stepRow(/^1\. týden$/, "Roommate wishes")
+      expect(within(wishes).getByText("To do")).toBeVisible()
+      const room = await stepRow(/^1\. týden$/, "Room")
+      expect(within(room).getByText("Done")).toBeVisible()
+      for (const row of [wishes, room]) {
+        const link = within(row).getByRole("link")
+        const target = document.querySelector(link.getAttribute("href")!)
+        expect(target).toBeVisible()
+      }
     })
 
     it("shows the payment step as to do while something is owed and links to the payment", async () => {

@@ -61,7 +61,14 @@ export type AssignmentOtherTerm = {
   /** ISO dates, `2027-07-04`. */
   startsOn: string
   endsOn: string
-  rooms: { id: string; name: string; gender: Gender | null; beds: number; freeBeds: number }[]
+  rooms: {
+    id: string
+    name: string
+    gender: Gender | null
+    individual: boolean
+    beds: number
+    freeBeds: number
+  }[]
 }
 
 export type UnassignedParticipant = AssignmentParticipant & { alsoInTerms: AssignmentOtherTerm[] }
@@ -73,6 +80,8 @@ export type AssignmentRoom = {
   extraBeds: number
   beds: number
   gender: Gender | null
+  /** Individual (mixed, family) room (US-145). */
+  individual: boolean
   participants: AssignmentParticipant[]
 }
 

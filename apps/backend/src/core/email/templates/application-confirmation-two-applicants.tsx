@@ -8,6 +8,7 @@ import {
 // (link to the sign-in), mixed statuses, each application with its own symbol.
 const props = {
   locale: 'en',
+  organizationName: 'Alpine Collective',
   eventName: 'Summer camp 2027',
   access: {
     kind: 'LOGIN',

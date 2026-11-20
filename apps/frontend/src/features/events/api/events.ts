@@ -3,6 +3,8 @@ import { z } from "zod"
 
 import { api } from "@/lib/api-client"
 
+import { photoUploadTransport } from "@/features/events/api/photo-upload"
+
 export const eventTermSummarySchema = z.object({
   id: z.string(),
   name: z.string().nullable(),
@@ -165,11 +167,16 @@ export async function savePublicPage(
 }
 
 /** `PUT /api/organizer/events/:eventId/photo` — the image itself is the body (JPEG / PNG, up to 2 MB). */
-export async function uploadEventPhoto(eventId: string, file: File): Promise<OrganizerEvent> {
+export async function uploadEventPhoto(
+  eventId: string,
+  file: File,
+  onProgress?: (fraction: number) => void,
+): Promise<OrganizerEvent> {
   return organizerEventSchema.parse(
     await api
       .put(`organizer/events/${encodeURIComponent(eventId)}/photo`, {
         body: file,
+        ...(onProgress && { fetch: photoUploadTransport(file, onProgress) }),
         headers: { "Content-Type": file.type, "X-File-Name": encodeURIComponent(file.name) },
       })
       .json(),

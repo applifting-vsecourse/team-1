@@ -19,8 +19,8 @@ export class PaymentOverviewRepository {
       this.prisma.applicationTerm.findMany({
         where: { organizationId, status: "CONFIRMED", application: { eventId } },
         select: {
-          application: { select: { id: true, firstName: true, lastName: true } },
-          term: { select: { id: true, name: true, startsOn: true, endsOn: true } },
+          application: { select: { id: true, number: true, firstName: true, lastName: true } },
+          term: { select: { id: true, number: true, name: true, startsOn: true, endsOn: true } },
           priceCzk: true,
           evaluatedAt: true,
           paymentPeriodStartedAt: true,
@@ -40,6 +40,8 @@ export class PaymentOverviewRepository {
       paymentPeriodDays: event.paymentPeriodDays,
       terms: rows.map((row) => ({
         applicationId: row.application.id,
+        applicationNumber: row.application.number,
+        termNumber: row.term.number,
         firstName: row.application.firstName,
         lastName: row.application.lastName,
         termId: row.term.id,

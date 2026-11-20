@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Clock } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { DateField } from "@/components/molecules/DateField"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -65,7 +66,7 @@ export function TermStaySection({
     <>
       {withStay.map((term) => (
         <TermStayCard
-          key={`${term.termId}:${term.stay?.lateArrival}|${term.stay?.earlyDeparture}`}
+          key={term.termId}
           applicationId={applicationId}
           term={term}
         />
@@ -81,6 +82,7 @@ function TermStayCard({ applicationId, term }: { applicationId: string; term: My
   const [mode, setMode] = useState<"view" | "edit" | "confirmDelete">("view")
   const saved: Stay = term.stay ?? { lateArrival: null, earlyDeparture: null }
   const hasSaved = saved.lateArrival !== null || saved.earlyDeparture !== null
+  const actionRef = useRef<HTMLButtonElement>(null)
   const headingId = `term-stay-${term.termId}`
 
   return (
@@ -111,6 +113,8 @@ function TermStayCard({ applicationId, term }: { applicationId: string; term: My
             type="button"
             variant="outline"
             size="lg"
+            className="h-auto min-h-12 w-full whitespace-normal sm:w-auto"
+            ref={actionRef}
             onClick={() => setMode("edit")}
           >
             {t(hasSaved ? "stay.edit" : "stay.add")}
@@ -125,6 +129,7 @@ function TermStayCard({ applicationId, term }: { applicationId: string; term: My
           hasSaved={hasSaved}
           mode={mode}
           onMode={setMode}
+          restoreFocus={() => actionRef.current?.focus()}
         />
       ) : null}
     </section>
@@ -141,6 +146,7 @@ function StayDialog({
   hasSaved,
   mode,
   onMode,
+  restoreFocus,
 }: {
   applicationId: string
   term: MyApplicationTerm
@@ -148,6 +154,7 @@ function StayDialog({
   hasSaved: boolean
   mode: "edit" | "confirmDelete"
   onMode: (mode: "view" | "edit" | "confirmDelete") => void
+  restoreFocus: () => void
 }) {
   const { t } = useTranslation("participant")
   const client = useQueryClient()
@@ -221,7 +228,13 @@ function StayDialog({
         if (!isOpen) close()
       }}
     >
-      <DialogContent className="flex max-h-[calc(100dvh-2rem)] flex-col gap-4 overflow-y-auto sm:max-w-160">
+      <DialogContent
+        className="flex max-h-[calc(100dvh-2rem)] flex-col gap-4 overflow-y-auto sm:max-w-160"
+        onCloseAutoFocus={(event) => {
+          event.preventDefault()
+          restoreFocus()
+        }}
+      >
         {mode === "confirmDelete" ? (
           <>
             <DialogHeader className="text-left">
@@ -245,15 +258,15 @@ function StayDialog({
               >
                 {t("stay.cancel")}
               </Button>
-              <Button
+              <PendingButton
+                isPending={mutation.isPending}
                 variant="destructive"
                 size="lg"
                 className="flex-1"
-                disabled={mutation.isPending}
                 onClick={() => mutation.mutate({ lateArrival: null, earlyDeparture: null })}
               >
                 {t("stay.deleteConfirm")}
-              </Button>
+              </PendingButton>
             </DialogFooter>
           </>
         ) : (
@@ -311,14 +324,14 @@ function StayDialog({
               >
                 {t("stay.cancel")}
               </Button>
-              <Button
+              <PendingButton
+                isPending={mutation.isPending}
                 type="submit"
                 size="lg"
                 className="flex-2 sm:flex-none"
-                disabled={mutation.isPending}
               >
                 {t("stay.save")}
-              </Button>
+              </PendingButton>
             </DialogFooter>
             {hasSaved ? (
               <Button

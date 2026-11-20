@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react"
 import { useMutation } from "@tanstack/react-query"
-import { Loader2 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -76,7 +76,7 @@ export function AssignRoomDialog({
   rooms: AssignmentRoom[]
   target: AssignTarget
   onClose: () => void
-  onDone: (result: { roomTitle: string; isMoved: boolean }) => Promise<void>
+  onDone: (result: { room: AssignmentRoom; isMoved: boolean }) => void
   /**
    * The picked room is full here or in a checked term: the extra bed dialog takes over (US-37).
    * `checkedTermIds` are the other terms the organizer ticked; without it all of them are offered.
@@ -130,7 +130,7 @@ export function AssignRoomDialog({
     } catch {
       return
     }
-    await onDone({ roomTitle: roomTitle(selected), isMoved: isMove })
+    onDone({ room: selected, isMoved: isMove })
     onClose()
   }
   const name = target.name
@@ -193,7 +193,7 @@ export function AssignRoomDialog({
           <div className="flex shrink-0 flex-col gap-0.5 rounded-lg border border-border px-3 py-2.5">
             <span className="text-sm font-medium break-words">{name}</span>
             <span className="text-sm text-muted-foreground">
-              {genderLabel(target.gender)} · {statusLabel(target.status, target.gender)}
+              {genderLabel(target.gender)} · {statusLabel(target.status)}
               {current ? ` · ${t("roomAssignments.nowIn", { room: roomTitle(current) })}` : ""}
             </span>
           </div>
@@ -232,6 +232,9 @@ export function AssignRoomDialog({
                         <span className="font-medium break-words">{room.name}</span>
                         {room.gender ? (
                           <Badge variant="secondary">{roomGenderLabel(room.gender)}</Badge>
+                        ) : null}
+                        {room.individual ? (
+                          <Badge variant="secondary">{t("rooms.individual")}</Badge>
                         ) : null}
                         {room.extraBeds > 0 ? (
                           <Badge variant="info">
@@ -330,13 +333,13 @@ export function AssignRoomDialog({
                   {t("roomAssignments.cancel")}
                 </Button>
               </DialogClose>
-              <Button
+              <PendingButton
+                isPending={isPending}
                 type="submit"
                 size="lg"
                 className="max-sm:flex-1 sm:w-55"
                 disabled={isPending || !selected}
               >
-                {isPending ? <Loader2 className="animate-spin" /> : null}
                 {t(
                   isExtraBedNeeded
                     ? "roomAssignments.continue"
@@ -344,7 +347,7 @@ export function AssignRoomDialog({
                       ? "roomAssignments.moveSave"
                       : "roomAssignments.save",
                 )}
-              </Button>
+              </PendingButton>
             </DialogFooter>
           </div>
         </form>

@@ -33,5 +33,5 @@ export async function signOut(page: Page, account: Account) {
 export async function openEventList(page: Page) {
   await expect(page).toHaveURL(/\/organizer\/events/)
   await page.goto("/organizer/events")
-  await expect(page.getByRole("heading", { level: 1, name: "Event list" })).toBeVisible()
+  await expect(page.getByRole("heading", { level: 1, name: "Events" })).toBeVisible()
 }

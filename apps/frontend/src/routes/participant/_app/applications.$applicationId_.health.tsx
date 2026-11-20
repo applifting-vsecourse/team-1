@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
+import { ROUTES } from "@/app/routes"
+import { BackLink } from "@/components/atoms/BackLink"
 import { Seo } from "@/components/atoms/Seo"
 
 import { ParticipantHealthForm } from "@/features/health/components/ParticipantHealthForm"
@@ -17,6 +19,12 @@ function ParticipantHealthPage() {
   return (
     <>
       <Seo title={t("title")} />
+      <BackLink
+        to={ROUTES.participant.application}
+        params={{ applicationId }}
+      >
+        {t("back")}
+      </BackLink>
       <ParticipantHealthForm applicationId={applicationId} />
     </>
   )

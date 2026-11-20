@@ -7,6 +7,7 @@ import { EvaluationMode } from "./evaluation-mode"
 export type SubmissionEvent = {
   id: string
   organizationId: string
+  organizationName: string
   name: string
   bankAccount: string
   /** How a new application is evaluated; fixed once applications open (US-101). */

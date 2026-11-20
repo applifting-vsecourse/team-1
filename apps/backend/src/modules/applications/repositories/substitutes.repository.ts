@@ -1,6 +1,7 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { RoomCapacity } from "@/modules/applications/domain/capacity"
 import { WaitlistCandidate } from "@/modules/applications/domain/waitlist"
+import { ROOM_CAPACITY_SELECT } from "@/modules/applications/repositories/room-capacity.select"
 import { Gender } from "@/shared/domain/gender"
 import { Injectable } from "@nestjs/common"
 
@@ -87,7 +88,7 @@ export class SubstitutesRepository {
     const [rooms, confirmed, waiting] = await Promise.all([
       this.prisma.room.findMany({
         where: { termId },
-        select: { capacity: true, extraBeds: true, gender: true },
+        select: ROOM_CAPACITY_SELECT,
       }),
       this.prisma.applicationTerm.findMany({
         where: { organizationId, termId, status: "CONFIRMED" },

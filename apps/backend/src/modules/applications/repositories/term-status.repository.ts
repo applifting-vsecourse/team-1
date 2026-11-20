@@ -4,6 +4,7 @@ import {
   computeAvailablePlaces,
   computeTermCapacity,
   computeTotalBeds,
+  hasSharedRooms,
 } from "@/modules/applications/domain/capacity"
 import {
   sameSelection,
@@ -32,14 +33,14 @@ import {
   ParticipantChangeOptions,
   ParticipantTermChangeResult,
 } from "@/modules/applications/domain/participant-term-change"
-import { computeTermDue } from "@/modules/applications/domain/pricing"
+import { computeTermDue, computeTermPaid } from "@/modules/applications/domain/pricing"
 import {
   changeEmailKind,
   StatusChangeSnapshot,
 } from "@/modules/applications/domain/status-transition"
 import { skippedSubstitutes } from "@/modules/applications/domain/substitute-skips"
 import { FreedBed } from "@/modules/applications/domain/substitutes"
-import { termLabel } from "@/modules/applications/domain/term-label"
+import { formatTermDates, termLabel } from "@/modules/applications/domain/term-label"
 import {
   ExpiredWaitlistEntry,
   StatusChangeCommand,
@@ -48,6 +49,7 @@ import {
   TermStatusDetail,
 } from "@/modules/applications/domain/term-status"
 import { bedGroup, WaitlistCandidate } from "@/modules/applications/domain/waitlist"
+import { ROOM_CAPACITY_SELECT } from "@/modules/applications/repositories/room-capacity.select"
 import { buildNotification, isoDay } from "@/modules/notifications/domain/notification"
 import { NotificationsRepository } from "@/modules/notifications/repositories/notifications.repository"
 import { resolveChangeEmailLocale } from "@/modules/participants/domain/change-email-locale"
@@ -156,7 +158,9 @@ export class TermStatusRepository {
                 startsOn: true,
                 endsOn: true,
                 priceCzk: true,
-                rooms: { select: { capacity: true, extraBeds: true, gender: true } },
+                rooms: {
+                  select: ROOM_CAPACITY_SELECT,
+                },
                 applicationTerms: {
                   where: { status: "CONFIRMED" },
                   select: { application: { select: { gender: true } } },
@@ -283,7 +287,7 @@ export class TermStatusRepository {
       select: {
         id: true,
         priceCzk: true,
-        rooms: { select: { capacity: true, extraBeds: true, gender: true } },
+        rooms: { select: ROOM_CAPACITY_SELECT },
       },
     })
     if (offered.length !== addedIds.length || offered.some((term) => term.rooms.length === 0)) {
@@ -306,7 +310,7 @@ export class TermStatusRepository {
           0,
         ),
         freePlaces: computeAvailablePlaces(term.rooms, genders),
-        genderCapacity: term.rooms.some((room) => room.gender === null)
+        genderCapacity: hasSharedRooms(term.rooms)
           ? computeTotalBeds(term.rooms)
           : computeTermCapacity(term.rooms)[application.gender],
       }
@@ -450,6 +454,7 @@ export class TermStatusRepository {
 
       const current = await tx.applicationTerm.findMany({
         where: { applicationId, organizationId: application.organizationId },
+        include: { payments: { where: { cancelledAt: null }, select: { amountCzk: true } } },
       })
       const active = current.filter((row) => row.status !== "CANCELLED")
       const activeIds = new Set(active.map((row) => row.termId))
@@ -577,7 +582,7 @@ export class TermStatusRepository {
         const [rooms, confirmed] = await Promise.all([
           tx.room.findMany({
             where: { organizationId: application.organizationId, termId: { in: addedIds } },
-            select: { termId: true, capacity: true, extraBeds: true, gender: true },
+            select: { termId: true, ...ROOM_CAPACITY_SELECT },
           }),
           tx.applicationTerm.findMany({
             where: {
@@ -687,6 +692,7 @@ export class TermStatusRepository {
         firstApplicationLocale: first?.locale ?? application.locale,
       })
       const oneCancelled = removed.length === 1 && addedIds.length === 0
+      const changedIds = new Set([...addedIds, ...removed.map((row) => row.termId)])
       const changedTerm = oneCancelled
         ? terms.find((row) => row.termId === removed[0].termId)
         : null
@@ -747,6 +753,7 @@ export class TermStatusRepository {
         bankAccount: application.event.organization.bankAccount,
         gender: application.gender,
         termName: changedTerm ? termLabel(changedTerm.term, locale) : "",
+        hadPayment: oneCancelled && computeTermPaid(removed[0].payments) > 0,
         kind: oneCancelled && !organizer ? "CANCELLED" : "TERMS_CHANGED",
         isAmountChanged: hasNewConfirmation,
         application: {
@@ -761,6 +768,8 @@ export class TermStatusRepository {
             )
             .map((row) => ({
               name: termLabel(row.term, locale),
+              dates: formatTermDates(row.term.startsOn, row.term.endsOn, locale),
+              includedInChange: changedIds.has(row.termId),
               termNumber: row.term.number,
               status: row.status,
               priceCzk: row.priceCzk,
@@ -884,14 +893,17 @@ export class TermStatusRepository {
         where: {
           applicationId_termId: { applicationId: application.id, termId: command.termId },
         },
-        include: { term: { select: { name: true, startsOn: true, endsOn: true } } },
+        include: {
+          term: { select: { name: true, startsOn: true, endsOn: true } },
+          payments: { where: { cancelledAt: null }, select: { amountCzk: true } },
+        },
       })
       if (!current) return null
 
       const [rooms, confirmed] = await Promise.all([
         tx.room.findMany({
           where: { termId: command.termId },
-          select: { capacity: true, extraBeds: true, gender: true },
+          select: ROOM_CAPACITY_SELECT,
         }),
         tx.applicationTerm.findMany({
           where: {
@@ -999,6 +1011,7 @@ export class TermStatusRepository {
         bankAccount: application.event.organization.bankAccount,
         gender: application.gender,
         termName: termLabel(current.term, locale),
+        hadPayment: command.to === "CANCELLED" && computeTermPaid(current.payments) > 0,
         application: {
           number: application.number,
           firstName: application.firstName,

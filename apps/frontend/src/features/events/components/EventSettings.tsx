@@ -1,19 +1,22 @@
-import { useState } from "react"
+import { useId, useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { Info, ListChecks, Loader2, Lock } from "lucide-react"
+import { Info, ListChecks, Lock, TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { CARD_GRID_WIDE, CardGrid } from "@/components/molecules/CardGrid"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { SectionHeader } from "@/components/molecules/SectionHeader"
 import { SettingsCard } from "@/components/molecules/SettingsCard"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { notify } from "@/lib/notify"
+import { cn } from "@/lib/utils"
 
 import {
   evaluationModeSchema,
@@ -30,12 +33,11 @@ const MODES = ["AUTOMATIC", "MANUAL"] as const
 
 /**
  * Settings of an event under the event header (US-101): the evaluation mode,
- * chosen before applications open and shown locked with the reason afterwards,
+ * editable until the first application arrives and shown locked with the reason afterwards,
  * and the public page content (US-122).
  */
-// Figma (Design system): US-101 Volba režimu před otevřením přihlášek · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14825-13299
-// Figma (Design system): O24 Nastavení akce · uzamčený režim · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12282-1018
-// Figma (Design system): US-101 Režim vyhodnocování · Mobil 360 · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14840-3513
+// Figma v2: US-101 evaluation settings before opening, desktop and mobile · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15741-4669 (mobile 15741-4746)
+// Locked mode · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15741-4923 (mobile 15741-5004); after opening 19335-29698
 export function EventSettings({ eventId }: { eventId: string }) {
   const { t } = useTranslation("events")
   const { data: event, isPending, error, refetch } = useQuery(eventQueryOptions(eventId))
@@ -54,10 +56,7 @@ export function EventSettings({ eventId }: { eventId: string }) {
   // Row-based and equally tall: evaluation | approval, then public details and delete full width.
   return (
     <div className="flex flex-col gap-6">
-      <SectionHeader
-        title={t("settings.title")}
-        description={t("settings.description")}
-      />
+      <SectionHeader title={t("settings.title")} />
       <CardGrid className="items-stretch">
         {event.evaluationModeLocked ? (
           <LockedMode mode={event.evaluationMode} />
@@ -82,6 +81,52 @@ export function EventSettings({ eventId }: { eventId: string }) {
   )
 }
 
+function LockedChoices({ selected }: { selected: EvaluationMode }) {
+  const { t } = useTranslation("events")
+  const groupId = useId()
+  return (
+    <RadioGroup
+      disabled
+      value={selected}
+      aria-label={t("evaluationMode.legend")}
+      className="grid gap-4"
+    >
+      {MODES.map((mode) => {
+        const id = `${groupId}-${mode}`
+        const name = t(mode === "AUTOMATIC" ? "evaluationMode.automatic" : "evaluationMode.manual")
+        return (
+          <Label
+            key={mode}
+            htmlFor={id}
+            className={cn(
+              "flex-col items-start gap-1 rounded-lg border px-4 py-3",
+              selected === mode && "bg-accent",
+            )}
+          >
+            <span className="flex items-center gap-3 py-2">
+              <RadioGroupItem
+                value={mode}
+                id={id}
+                aria-labelledby={id + "-label"}
+                aria-describedby={id + "-hint"}
+              />
+              <span id={id + "-label"}>{name}</span>
+            </span>
+            <span
+              id={id + "-hint"}
+              className="text-sm font-normal text-muted-foreground"
+            >
+              {t(
+                mode === "AUTOMATIC" ? "evaluationMode.automaticHint" : "evaluationMode.manualHint",
+              )}
+            </span>
+          </Label>
+        )
+      })}
+    </RadioGroup>
+  )
+}
+
 function LockedMode({ mode }: { mode: EvaluationMode }) {
   const { t } = useTranslation("events")
   return (
@@ -97,13 +142,15 @@ function LockedMode({ mode }: { mode: EvaluationMode }) {
           {t("evaluationMode.locked")}
         </Badge>
       </div>
-      <p className="mt-auto flex items-start gap-2 text-sm text-muted-foreground">
-        <Lock
-          className="mt-0.5 size-4 shrink-0"
-          aria-hidden="true"
-        />
-        {t("evaluationMode.lockedReason")}
-      </p>
+      <LockedChoices selected={mode} />
+      <Alert
+        role="note"
+        className="mt-auto bg-secondary"
+      >
+        <TriangleAlert aria-hidden />
+        <AlertTitle>{t("evaluationMode.lockNotice")}</AlertTitle>
+        <AlertDescription>{t("evaluationMode.lockedReason")}</AlertDescription>
+      </Alert>
     </SettingsCard>
   )
 }
@@ -142,20 +189,26 @@ function ChooseMode({ eventId, saved }: { eventId: string; saved: EvaluationMode
           aria-label={t("evaluationMode.legend")}
           value={mode ?? ""}
           onValueChange={(value) => setMode(evaluationModeSchema.parse(value))}
-          className="flex flex-col gap-3 sm:flex-row sm:gap-6"
+          disabled={mutation.isPending}
+          className="grid gap-4"
         >
           {MODES.map((value) => {
             const name = t(`evaluationMode.${value === "AUTOMATIC" ? "automatic" : "manual"}`)
             return (
-              <div
+              <Label
                 key={value}
-                className="flex items-center gap-2"
+                htmlFor={`evaluation-mode-${value}`}
+                className={cn(
+                  "cursor-pointer gap-3 rounded-lg border px-4 py-3",
+                  value === mode && "bg-accent",
+                )}
               >
                 <RadioGroupItem
                   id={`evaluation-mode-${value}`}
                   value={value}
+                  aria-labelledby={`evaluation-mode-${value}-label`}
                 />
-                <Label htmlFor={`evaluation-mode-${value}`}>{name}</Label>
+                <span id={`evaluation-mode-${value}-label`}>{name}</span>
                 {/* A popover, not a tooltip: it opens on tap and on Enter / Space too. */}
                 <Popover>
                   <PopoverTrigger asChild>
@@ -172,7 +225,7 @@ function ChooseMode({ eventId, saved }: { eventId: string; saved: EvaluationMode
                     {t(`evaluationMode.${value === "AUTOMATIC" ? "automaticInfo" : "manualInfo"}`)}
                   </PopoverContent>
                 </Popover>
-              </div>
+              </Label>
             )
           })}
         </RadioGroup>
@@ -186,14 +239,27 @@ function ChooseMode({ eventId, saved }: { eventId: string; saved: EvaluationMode
           />
         ) : null}
         <div className="flex flex-col gap-3 sm:flex-row-reverse">
-          <Button
+          <PendingButton
+            isPending={mutation.isPending}
             type="submit"
             size="lg"
             className="sm:flex-1"
-            disabled={mode === null || mutation.isPending}
+            disabled={mode === null}
           >
-            {mutation.isPending ? <Loader2 className="animate-spin" /> : null}
             {t("evaluationMode.save")}
+          </PendingButton>
+          <Button
+            type="button"
+            variant="ghost"
+            size="lg"
+            className="sm:flex-1"
+            disabled={mutation.isPending}
+            onClick={() => {
+              setMode(saved)
+              mutation.reset()
+            }}
+          >
+            {t("evaluationMode.discard")}
           </Button>
         </div>
       </form>

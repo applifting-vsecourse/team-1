@@ -22,8 +22,8 @@ describe("CopyButton", () => {
     expect(success).toHaveBeenCalledWith("Copied to the clipboard")
   })
 
-  it("shows an error toast when the clipboard is unavailable", async () => {
-    const error = vi.spyOn(notify, "error").mockReturnValue("id")
+  it("offers the selected value for manual copying and restores focus after a failed write", async () => {
+    const success = vi.spyOn(notify, "success").mockReturnValue("id")
     const user = userEvent.setup()
     vi.spyOn(navigator.clipboard, "writeText").mockRejectedValue(new Error("denied"))
     render(
@@ -33,6 +33,13 @@ describe("CopyButton", () => {
       />,
     )
     await user.click(screen.getByRole("button", { name: "Copy" }))
-    expect(error).toHaveBeenCalledWith("Copying failed", "Copy it manually.")
+    expect(await screen.findByRole("dialog", { name: "Copying failed" })).toBeVisible()
+    const field = screen.getByRole<HTMLInputElement>("textbox", { name: "Copy" })
+    expect(field).toHaveValue("abc")
+    expect(field.selectionStart).toBe(0)
+    expect(field.selectionEnd).toBe(3)
+    expect(success).not.toHaveBeenCalled()
+    await user.keyboard("{Escape}")
+    expect(screen.getByRole("button", { name: "Copy" })).toHaveFocus()
   })
 })

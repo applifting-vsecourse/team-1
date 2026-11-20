@@ -22,12 +22,17 @@ test.describe("Capacity", () => {
     await expect(page.getByRole("heading", { name: "Occupancy of all terms" })).toBeVisible()
     await page.getByRole("main").getByRole("list").getByRole("link").first().click()
 
-    // The card of the women is the link to their confirmed applications.
-    const women = page.getByRole("link", { name: /^Women · capacity \d+ beds/ })
+    // Each gender offers separate links to confirmed applications and the waitlist.
+    const women = page.getByRole("link", { name: /^Women · capacity \d+ beds.*View applications/ })
     await expect(women).toBeVisible()
-    await expect(page.getByRole("link", { name: /^Men · capacity \d+ beds/ })).toBeVisible()
+    await expect(
+      page.getByRole("link", { name: /^Men · capacity \d+ beds.*View applications/ }),
+    ).toBeVisible()
     await expect(women).toHaveAttribute("href", /status=CONFIRMED/)
     await expect(women).toHaveAttribute("href", /gender=FEMALE/)
+    const waitlist = page.getByRole("link", { name: /^Women · capacity \d+ beds.*Waitlisted/ })
+    await expect(waitlist).toHaveAttribute("href", /status=WAITLISTED/)
+    await expect(waitlist).toHaveAttribute("href", /gender=FEMALE/)
     await women.click()
     await expect(page).toHaveURL(/\/applications\?term=.*status=CONFIRMED.*gender=FEMALE/)
   })

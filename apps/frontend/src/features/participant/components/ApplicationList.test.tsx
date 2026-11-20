@@ -113,6 +113,20 @@ describe("ApplicationList", () => {
     expect(screen.getByRole("button", { name: /Try again|Retry/i })).toBeInTheDocument()
   })
 
+  it("shows no payable amount when the domain returns no payment details", async () => {
+    const data = application()
+    respondWith([
+      application({
+        terms: data.terms.filter((term) => term.status === "WAITLISTED"),
+        paymentDetails: null,
+        amountOwedCzk: 4500,
+      }),
+    ])
+    renderList()
+    expect(await screen.findByRole("link")).toHaveTextContent("—")
+    expect(screen.queryByRole("note")).not.toBeInTheDocument()
+  })
+
   it("lists every application with its variable symbol, term statuses and a link to the detail", async () => {
     respondWith([
       application(),
@@ -127,8 +141,8 @@ describe("ApplicationList", () => {
 
     expect(await screen.findByRole("heading", { name: "Letní kemp 2027" })).toBeInTheDocument()
     expect(screen.getByRole("heading", { name: "Horský víkend 2027" })).toBeInTheDocument()
-    expect(screen.getAllByText(/Jana Nováková · LKL-0048/)).toHaveLength(1)
-    expect(screen.getByText(/Jana Nováková · HV-0051/)).toBeInTheDocument()
+    expect(screen.getByRole("heading", { name: /Jana Nováková · LKL-0048/ })).toBeVisible()
+    expect(screen.getByRole("heading", { name: /Jana Nováková · HV-0051/ })).toBeVisible()
     expect(screen.getAllByText("4–10 Jul 2027")).toHaveLength(2)
     expect(screen.getAllByText("1. týden")).toHaveLength(2)
     expect(screen.getAllByText("Confirmed")).toHaveLength(2)

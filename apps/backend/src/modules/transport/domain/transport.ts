@@ -37,7 +37,12 @@ export type EventTransport = {
   terms: TermTransport[]
 }
 
-export type TransportParticipant = { applicationId: string; name: string; email: string }
+export type TransportParticipant = {
+  applicationId: string
+  name: string
+  email: string
+  phone: string | null
+}
 
 export type TransportParticipants = TermInfo & {
   /** Empty for own transport (the frontend translates it). */

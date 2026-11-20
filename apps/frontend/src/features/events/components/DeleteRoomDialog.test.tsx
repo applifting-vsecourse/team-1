@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest"
 
 import { i18n } from "@/i18n"
 
+import { roomAssignmentsKey } from "@/features/events/api/room-assignments"
 import type { Room, TermRooms } from "@/features/events/api/rooms"
 import { DeleteRoomDialog } from "@/features/events/components/DeleteRoomDialog"
 
@@ -15,8 +16,20 @@ function renderDialog(
   gender: Room["gender"],
   before: number,
   beds: number,
+  isIndividual = false,
+  occupiedBy = { FEMALE: 0, MALE: 0 },
+  isOccupied = false,
 ) {
-  const room: Room = { id: "r1", name: "Room 1", capacity: beds, extraBeds: 0, beds, gender }
+  const room: Room = {
+    id: "r1",
+    name: "Room 1",
+    capacity: beds,
+    extraBeds: 0,
+    beds,
+    gender,
+    individual: isIndividual,
+    occupiedBy,
+  }
   const term: TermRooms = {
     eventId: "e1",
     eventName: "Summer camp",
@@ -30,8 +43,13 @@ function renderDialog(
     rooms: [room],
     capacity: { FEMALE: before, MALE: before, total: before },
   }
+  const client = new QueryClient({ defaultOptions: { queries: { staleTime: Infinity } } })
+  client.setQueryData(roomAssignmentsKey(term.eventId, term.termId), {
+    rooms: [{ id: room.id, participants: isOccupied ? [{ status: "CONFIRMED" }] : [] }],
+    unassigned: [],
+  })
   render(
-    <QueryClientProvider client={new QueryClient()}>
+    <QueryClientProvider client={client}>
       <DeleteRoomDialog
         term={term}
         room={room}
@@ -115,4 +133,31 @@ describe("DeleteRoomDialog capacity impact", () => {
       screen.getByText(`Room 1 má ${beds} ${cs}. Smazání přepočítá kapacitu pouze tohoto termínu.`),
     ).toBeVisible()
   })
+
+  // US-145: the beds of an individual room are in the capacity only while occupied.
+  it("tells how the capacity of each gender drops when an occupied individual room goes", () => {
+    renderDialog("GENDERED", null, 10, 4, true, { FEMALE: 2, MALE: 1 })
+    expect(
+      screen.getByText("Capacity drops: women from 10 to 8, men from 10 to 9."),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        "Its beds counted towards the capacity only while occupied. The people in the room (3) are left without a bed.",
+      ),
+    ).toBeInTheDocument()
+  })
+
+  it("says the capacity stays the same when an empty individual room goes", () => {
+    renderDialog("GENDERED", null, 10, 4, true)
+    expect(
+      screen.getByText("The room is empty, the capacity of the term stays the same."),
+    ).toBeInTheDocument()
+  })
+})
+
+it("explains how to empty an occupied room and disables deletion", () => {
+  renderDialog("SHARED", null, 3, 1, false, undefined, true)
+  expect(screen.getByText("Move the participants assigned to this room first.")).toBeVisible()
+  expect(screen.getByRole("button", { name: "Delete" })).toBeDisabled()
+  expect(screen.getByRole("button", { name: "Cancel" })).toBeEnabled()
 })

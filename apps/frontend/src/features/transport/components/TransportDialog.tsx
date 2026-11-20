@@ -1,11 +1,11 @@
 import { useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { Loader2 } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { DateField } from "@/components/molecules/DateField"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { Button } from "@/components/ui/button"
@@ -37,7 +37,9 @@ import {
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { formatDate } from "@/lib/date"
+import { notify } from "@/lib/notify"
 import { termTitle } from "@/lib/term-label"
+import { cn } from "@/lib/utils"
 
 import {
   saveTransport,
@@ -52,7 +54,7 @@ type Values = { name: string; departurePlace: string; departureAt: string; instr
 
 // Add or edit a way of transport of a term: a ride (name, place and time of departure) or own
 // transport (only instructions). Both can carry optional instructions for the participant.
-// Design proposal (US-402), in the pattern of the room dialog. Based on Figma (Design system): #65 Upravit dopravu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19795-12715
+// Figma v2: US-65 Přidat způsob dopravy · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=21206-64321 (360 px: node-id=21206-64486); edit own transport 21206-64053.
 export function TransportDialog({
   eventId,
   term,
@@ -74,7 +76,7 @@ export function TransportDialog({
   copyable: TransportSummary[]
   onClose: () => void
 }) {
-  const { t } = useTranslation("transport")
+  const { t } = useTranslation(["transport", "common"])
   const client = useQueryClient()
   const required = t("required")
   const [kind, setKind] = useState(initialKind)
@@ -133,6 +135,7 @@ export function TransportDialog({
     } catch {
       return
     }
+    notify.success(t("detailsSaved"))
     onClose()
   })
   const isPending = mutation.isPending || form.formState.isSubmitting
@@ -146,7 +149,10 @@ export function TransportDialog({
     >
       <DialogContent
         aria-describedby={undefined}
-        className="max-h-[90dvh] overflow-y-auto bg-card shadow-md sm:max-w-170"
+        className={cn(
+          "max-h-[90dvh] overflow-y-auto bg-card shadow-md",
+          transport ? "sm:max-w-[530px]" : "sm:max-w-170",
+        )}
       >
         <p className="text-xs font-medium text-muted-foreground uppercase">
           {termTitle({ ...term, name: term.termName })}
@@ -317,18 +323,19 @@ export function TransportDialog({
                   className="sm:w-38"
                   disabled={isPending}
                 >
-                  {t("cancel")}
+                  {t("cancelChanges")}
                 </Button>
               </DialogClose>
-              <Button
+              <PendingButton
                 type="submit"
                 size="lg"
                 className="sm:w-38"
-                disabled={isPending}
+                isPending={isPending}
               >
-                {isPending ? <Loader2 className="animate-spin" /> : null}
-                {t("save")}
-              </Button>
+                {isPending
+                  ? t("state.saving", { ns: "common" })
+                  : t(transport ? "save" : "addSubmit")}
+              </PendingButton>
             </DialogFooter>
           </form>
         </Form>
