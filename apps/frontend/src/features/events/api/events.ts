@@ -45,6 +45,8 @@ export const organizerEventSchema = z.object({
   /** The application link works; otherwise the public page is a 404. */
   applicationsOpen: z.boolean(),
   evaluationMode: evaluationModeSchema,
+  /** The organizer has not chosen the mode yet; `evaluationMode` is then only the stored default (US-560). */
+  evaluationModePending: z.boolean(),
   /** ISO day; null means participant changes do not wait for approval. */
   cancellationStartsOn: z.string().nullable(),
   /** Free text shown to applicants (US-47); null until the organizer writes it. */
@@ -53,7 +55,7 @@ export const organizerEventSchema = z.object({
   evaluationModeLocked: z.boolean(),
   /** At least one application exists; the event can no longer be deleted. */
   hasApplications: z.boolean(),
-  missing: z.array(z.enum(["TERM", "ROOM"])),
+  missing: z.array(z.enum(["TERM", "ROOM", "EVALUATION_MODE"])),
   /** Terms that are still offered, in chronological order. */
   terms: z.array(eventTermSummarySchema),
 })

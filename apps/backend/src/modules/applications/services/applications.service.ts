@@ -78,6 +78,7 @@ export class ApplicationsService {
       !isOpenForApplications({
         termCount: event.terms.length,
         termsWithoutRooms: event.termsWithoutRooms,
+        evaluationModePending: event.evaluationModePending,
       })
     ) {
       throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
@@ -174,6 +175,7 @@ export class ApplicationsService {
       !isOpenForApplications({
         termCount: event.terms.length,
         termsWithoutRooms: event.termsWithoutRooms,
+        evaluationModePending: event.evaluationModePending,
       })
     ) {
       throw new AppException(HttpStatus.NOT_FOUND, "NOT_FOUND")

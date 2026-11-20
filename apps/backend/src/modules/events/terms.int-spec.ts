@@ -154,7 +154,10 @@ describe("organizer terms (integration)", () => {
 
   it("cancels a term, keeps it listed last and out of the public form", async () => {
     const [first, second] = await list()
-    // The public form is open only while every offered term has a room.
+    // The public form is open only while every offered term has a room and the mode is chosen.
+    await send(cookieA, "PATCH", `/organizer/events/${eventId}/evaluation-mode`, {
+      evaluationMode: "AUTOMATIC",
+    })
     await prisma.room.create({
       data: {
         organizationId: (await prisma.event.findUniqueOrThrow({ where: { id: eventId } }))

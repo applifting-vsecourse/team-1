@@ -17,6 +17,7 @@ const event: SubmissionEvent = {
   bankAccount: "2900123456/2010",
   evaluationMode: "AUTOMATIC",
   termsWithoutRooms: 0,
+  evaluationModePending: false,
   terms: [
     {
       id: "t1",

@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test"
 import { ORGANIZER } from "./support/accounts"
 import { openEventList, signIn } from "./support/auth"
-import { addRoom, createEventWithTerm } from "./support/event-setup"
+import { addRoom, chooseEvaluationMode, createEventWithTerm } from "./support/event-setup"
 
 const sections = (page: import("@playwright/test").Page) =>
   page.getByRole("navigation", { name: "Event sections" })
@@ -9,17 +9,20 @@ const sections = (page: import("@playwright/test").Page) =>
 // US-101, D-083: the evaluation mode can be changed until the event receives its first application.
 // Opening the applications does not lock it.
 test.describe("Evaluation mode", () => {
-  test("organizer chooses manual evaluation before applications open and sees it in the overview", async ({
+  test("organizer chooses manual evaluation in the checklist before applications open", async ({
     page,
   }) => {
     await createEventWithTerm(page, `E2E režim ${Date.now()}`)
-
-    await sections(page).getByRole("link", { name: "Settings" }).click()
-    await expect(page.getByRole("radio", { name: "Automatic" })).toBeChecked()
-    await page.getByRole("radio", { name: "Manual" }).click()
-    await page.getByRole("button", { name: "Save mode" }).click()
-
+    await addRoom(page)
     await sections(page).getByRole("link", { name: "Overview" }).click()
+
+    // Nothing is preselected and the step is not done until the organizer confirms a mode.
+    await expect(page.getByRole("radio", { name: "Automatic" })).not.toBeChecked()
+    await expect(page.getByRole("radio", { name: "Manual" })).not.toBeChecked()
+    await expect(page.getByRole("button", { name: "Confirm evaluation mode" })).toBeDisabled()
+
+    await chooseEvaluationMode(page, "Manual")
+    // All steps are done: the link is open and the overview shows the chosen mode.
     await expect(page.getByText("Evaluation mode:")).toBeVisible()
     await expect(page.getByText("Manual", { exact: true })).toBeVisible()
   })
@@ -30,6 +33,7 @@ test.describe("Evaluation mode", () => {
     const unique = `${Date.now()}`
     await createEventWithTerm(page, `E2E zámek ${unique}`)
     await addRoom(page)
+    await chooseEvaluationMode(page, "Automatic")
 
     // Applications are open (the link works), yet no application has arrived.
     await sections(page).getByRole("link", { name: "Overview" }).click()

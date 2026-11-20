@@ -28,7 +28,11 @@ describe("PublicEventsService", () => {
   })
 
   it("returns the event behind the link", async () => {
-    repository.findByPublicToken.mockResolvedValue({ event, termsWithoutRooms: 0 })
+    repository.findByPublicToken.mockResolvedValue({
+      event,
+      termsWithoutRooms: 0,
+      evaluationModePending: false,
+    })
 
     await expect(service.getByPublicToken("token")).resolves.toEqual(event)
     expect(repository.findByPublicToken).toHaveBeenCalledWith("token")
@@ -44,17 +48,32 @@ describe("PublicEventsService", () => {
   })
 
   it("answers an event with a term without rooms with 404", async () => {
-    repository.findByPublicToken.mockResolvedValue({ event, termsWithoutRooms: 1 })
+    repository.findByPublicToken.mockResolvedValue({
+      event,
+      termsWithoutRooms: 1,
+      evaluationModePending: false,
+    })
 
     await expect(service.getByPublicToken("token")).rejects.toMatchObject({
       status: 404,
     })
   })
 
+  it("answers an event whose evaluation mode is not chosen yet with 404 (US-560)", async () => {
+    repository.findByPublicToken.mockResolvedValue({
+      event,
+      termsWithoutRooms: 0,
+      evaluationModePending: true,
+    })
+
+    await expect(service.getByPublicToken("token")).rejects.toMatchObject({ status: 404 })
+  })
+
   it("answers an event without terms with 404", async () => {
     repository.findByPublicToken.mockResolvedValue({
       event: { ...event, terms: [] },
       termsWithoutRooms: 0,
+      evaluationModePending: false,
     })
 
     await expect(service.getByPublicToken("token")).rejects.toMatchObject({

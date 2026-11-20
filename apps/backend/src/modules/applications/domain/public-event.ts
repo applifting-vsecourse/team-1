@@ -15,41 +15,50 @@ export type PublicEvent = {
   terms: PublicTerm[]
 }
 
-export type MissingForApplications = "TERM" | "ROOM"
+export type MissingForApplications = "TERM" | "ROOM" | "EVALUATION_MODE"
 
 /**
  * What an event still lacks before its application link works: at least one
  * term (every term has a price, `Term.priceCzk`) and at least one room in
  * every term, which gives the term its capacity (docs/PROJEKT.md, section 5,
- * D-052). "ROOM" means some term has no room yet.
+ * D-052). "ROOM" means some term has no room yet. "EVALUATION_MODE" means the
+ * organizer has not chosen the evaluation mode yet (US-560): a new event has
+ * none until they choose or confirm one.
  */
 export function missingForApplications(counts: {
   termCount: number
   termsWithoutRooms: number
+  evaluationModePending: boolean
 }): MissingForApplications[] {
   const missing: MissingForApplications[] = []
   if (counts.termCount === 0) missing.push("TERM")
   if (counts.termsWithoutRooms > 0) missing.push("ROOM")
+  if (counts.evaluationModePending) missing.push("EVALUATION_MODE")
   return missing
 }
 
 /**
  * The application link works once the event has at least one term and every
- * term has a price and at least one room (docs/PROJEKT.md, section 5). Until
- * then it answers like an unknown link; adding a term without rooms closes it
- * again.
+ * term has a price and at least one room (docs/PROJEKT.md, section 5) and the
+ * organizer has chosen the evaluation mode (US-560). Until then it answers like
+ * an unknown link; adding a term without rooms closes it again.
  */
 export function isOpenForApplications(counts: {
   termCount: number
   termsWithoutRooms: number
+  evaluationModePending: boolean
 }): boolean {
   return missingForApplications(counts).length === 0
 }
 
 /** The same check over loaded terms: how many there are and how many have no room. */
-export function isOpenForTerms(terms: { roomCount: number }[]): boolean {
+export function isOpenForTerms(
+  terms: { roomCount: number }[],
+  evaluationModePending: boolean,
+): boolean {
   return isOpenForApplications({
     termCount: terms.length,
     termsWithoutRooms: terms.filter((term) => term.roomCount === 0).length,
+    evaluationModePending,
   })
 }

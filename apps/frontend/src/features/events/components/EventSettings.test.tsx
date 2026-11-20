@@ -37,6 +37,7 @@ const event = {
   endsOn: null,
   applicationsOpen: false,
   evaluationMode: "AUTOMATIC",
+  evaluationModePending: false,
   cancellationStartsOn: null,
   cancellationTerms: null,
   evaluationModeLocked: false,
@@ -122,6 +123,18 @@ describe("EventSettings", () => {
 
     expect(await screen.findByRole("radio", { name: "Automatic" })).toBeChecked()
     expect(screen.getByRole("radio", { name: "Manual" })).not.toBeChecked()
+  })
+
+  it("preselects nothing and keeps saving off until a mode is chosen while it is pending (US-560)", async () => {
+    renderSettings({ ...event, evaluationModePending: true })
+    const user = userEvent.setup()
+
+    expect(await screen.findByRole("radio", { name: "Automatic" })).not.toBeChecked()
+    expect(screen.getByRole("radio", { name: "Manual" })).not.toBeChecked()
+    expect(screen.getByRole("button", { name: "Save mode" })).toBeDisabled()
+
+    await user.click(screen.getByRole("radio", { name: "Automatic" }))
+    expect(screen.getByRole("button", { name: "Save mode" })).toBeEnabled()
   })
 
   it("discards the local selection without writing to the server", async () => {

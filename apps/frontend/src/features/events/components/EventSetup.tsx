@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 
 import { eventQueryOptions, type OrganizerEvent } from "@/features/events/api/events"
+import { EvaluationModeStep } from "@/features/events/components/EvaluationModeStep"
 import { applicationLink } from "@/features/events/lib/application-link"
 
 /**
@@ -47,29 +48,31 @@ export function EventSetup({ eventId }: { eventId: string }) {
 
   return (
     <CardGrid>
-      <p className={`${CARD_GRID_WIDE} text-sm`}>
-        <span className="text-muted-foreground">{t("evaluationMode.overviewLabel")}: </span>
-        <span className="font-medium">
-          {t(`evaluationMode.${event.evaluationMode === "AUTOMATIC" ? "automatic" : "manual"}`)}
-        </span>
-        {event.evaluationModeLocked ? null : (
-          <>
-            {" · "}
-            <Link
-              to={ROUTES.organizer.eventSettings}
-              params={{ eventId }}
-              className="text-link hover:underline"
-            >
-              {t("evaluationMode.change")}
-            </Link>
-          </>
-        )}
-      </p>
       {event.applicationsOpen ? (
-        <ShareLink
-          key={link}
-          link={link}
-        />
+        <>
+          <p className={`${CARD_GRID_WIDE} text-sm`}>
+            <span className="text-muted-foreground">{t("evaluationMode.overviewLabel")}: </span>
+            <span className="font-medium">
+              {t(`evaluationMode.${event.evaluationMode === "AUTOMATIC" ? "automatic" : "manual"}`)}
+            </span>
+            {event.evaluationModeLocked ? null : (
+              <>
+                {" · "}
+                <Link
+                  to={ROUTES.organizer.eventSettings}
+                  params={{ eventId }}
+                  className="text-link hover:underline"
+                >
+                  {t("evaluationMode.change")}
+                </Link>
+              </>
+            )}
+          </p>
+          <ShareLink
+            key={link}
+            link={link}
+          />
+        </>
       ) : (
         <MissingSteps event={event} />
       )}
@@ -124,7 +127,7 @@ function ShareLink({ link }: { link: string }) {
   )
 }
 
-const STEPS = ["TERM", "ROOM"] as const
+const STEPS = ["TERM", "ROOM", "EVALUATION_MODE"] as const
 type Step = (typeof STEPS)[number]
 
 /**
@@ -135,7 +138,7 @@ type Step = (typeof STEPS)[number]
  */
 function MissingSteps({ event }: { event: OrganizerEvent }) {
   const { t } = useTranslation("events")
-  const current = STEPS.find((step) => event.missing.includes(step)) ?? "ROOM"
+  const current = STEPS.find((step) => event.missing.includes(step)) ?? "EVALUATION_MODE"
   const done = STEPS.filter((step) => !event.missing.includes(step)).length
   const steps = {
     TERM: {
@@ -156,19 +159,28 @@ function MissingSteps({ event }: { event: OrganizerEvent }) {
       action: t("overview.setup.setCapacity"),
       to: ROUTES.organizer.eventRooms,
     },
+    EVALUATION_MODE: {
+      tab: t("overview.setup.modeTab"),
+      title: t("overview.setup.modeStep"),
+      now: t("overview.setup.modeNow"),
+      later: t("overview.setup.modeLater"),
+      done: t("overview.setup.modeDone", {
+        mode: t(`evaluationMode.${event.evaluationMode === "AUTOMATIC" ? "automatic" : "manual"}`),
+      }),
+      action: null,
+      to: ROUTES.organizer.eventSettings,
+    },
   } as const satisfies Record<Step, unknown>
-  const isFirstStep = current === "TERM"
+  const alertKey = ({ TERM: "created", ROOM: "termSaved", EVALUATION_MODE: "roomSaved" } as const)[
+    current
+  ]
 
   return (
     <>
       <Alert className={CARD_GRID_WIDE}>
         <TriangleAlert aria-hidden />
-        <AlertTitle>
-          {t(isFirstStep ? "overview.setup.createdTitle" : "overview.setup.termSavedTitle")}
-        </AlertTitle>
-        <AlertDescription>
-          {t(isFirstStep ? "overview.setup.createdBody" : "overview.setup.termSavedBody")}
-        </AlertDescription>
+        <AlertTitle>{t(`overview.setup.${alertKey}Title`)}</AlertTitle>
+        <AlertDescription>{t(`overview.setup.${alertKey}Body`)}</AlertDescription>
       </Alert>
       <Card className={`${CARD_GRID_WIDE} gap-4 p-6`}>
         <ol
@@ -224,8 +236,26 @@ function MissingSteps({ event }: { event: OrganizerEvent }) {
                           step: title,
                         })}
                   </h3>
-                  {isDone ? doneText ? <p>{doneText}</p> : null : <p>{isCurrent ? now : later}</p>}
-                  {isCurrent ? (
+                  {isDone ? (
+                    doneText ? (
+                      <p>{doneText}</p>
+                    ) : null
+                  ) : step === "EVALUATION_MODE" && isCurrent ? null : (
+                    <p>{isCurrent ? now : later}</p>
+                  )}
+                  {isDone && step === "EVALUATION_MODE" && !event.evaluationModeLocked ? (
+                    <Link
+                      to={to}
+                      params={{ eventId: event.id }}
+                      className="self-start text-sm font-medium text-link hover:underline"
+                    >
+                      {t("evaluationMode.change")}
+                    </Link>
+                  ) : null}
+                  {isCurrent && step === "EVALUATION_MODE" ? (
+                    <EvaluationModeStep eventId={event.id} />
+                  ) : null}
+                  {isCurrent && action ? (
                     <Button
                       asChild
                       size="lg"
