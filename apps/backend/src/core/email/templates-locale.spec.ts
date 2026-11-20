@@ -125,19 +125,17 @@ it("includes the corrected debt and transfer details in e-mail 16", async () => 
           termNumber: 1,
           amountCzk: 1200,
           variableSymbol: "12345001",
-          paymentDueAt: new Date("2027-06-20T12:00:00Z"),
         },
-        { termNumber: 2, amountCzk: 500, variableSymbol: "12345002", paymentDueAt: null },
+        { termNumber: 2, amountCzk: 500, variableSymbol: "12345002" },
       ],
     }),
   )
-  expect(html).toContain("K úhradě")
+  expect(html).toContain("Zbývá zaplatit")
   expect(html).toMatch(/1[\s\u00a0\u202f]200/)
   expect(html).toContain("123456789/2010")
   expect(html).toContain("12345001")
   expect(html).toContain("12345002")
-  expect(html).toContain("Zaplaťte do")
-  expect(html).toContain("20. června 2027")
+  expect(html).not.toContain("Zaplaťte do")
 })
 
 it("tells the participant the confirmed, substitute and awaiting-evaluation results of changed terms", async () => {
@@ -207,7 +205,7 @@ it("renders one overdue notice with the supplied application balance and each co
       ],
     }),
   )
-  expect(html).toContain("Zbývá uhradit platbu")
+  expect(html).toContain("Zbývá zaplatit")
   expect(html).toContain("Termín A")
   expect(html).toContain("Termín B")
   expect(html).toMatch(/3[\s\u00a0\u202f]500/)

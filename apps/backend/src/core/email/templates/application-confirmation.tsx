@@ -6,6 +6,7 @@ import {
   EmailLayout,
   EmailRows,
   EmailTerm,
+  paymentLabels,
 } from "@/core/email/email-kit"
 import type { Locale } from "@/core/email/locale"
 import { Fragment } from "react"
@@ -20,11 +21,6 @@ const copy: Record<
     intro: { one: (event: string, termCount: number) => string; many: (event: string) => string }
     badge: Record<"TO_EVALUATE" | "CONFIRMED" | "WAITLISTED", string>
     termText: Record<"TO_EVALUATE" | "CONFIRMED" | "WAITLISTED", string>
-    amountDue: string
-    account: string
-    variableSymbol: string
-    applicationSymbol: string
-    termSymbol: (term: string) => string
     viewApplication: string
     severalPayments: string
     magicLinkNote: string
@@ -58,11 +54,6 @@ const copy: Record<
       WAITLISTED:
         "The application is waitlisted. We will e-mail you if the place is confirmed. Please do not pay yet.",
     },
-    amountDue: "Left to pay",
-    account: "Bank account",
-    variableSymbol: "Variable symbol",
-    applicationSymbol: "Variable symbol of the whole application",
-    termSymbol: (term) => `Variable symbol of the term · ${term}`,
     viewApplication: "View application",
     severalPayments:
       "Please pay only for confirmed terms. Pay for each application separately using the amount and variable symbol shown.",
@@ -93,11 +84,6 @@ const copy: Record<
       WAITLISTED:
         "Přihláška je zařazena mezi náhradníky. Pokud bude účast potvrzena, informujeme vás e-mailem. Zatím nic neplaťte.",
     },
-    amountDue: "Zbývá zaplatit",
-    account: "Bankovní účet",
-    variableSymbol: "Variabilní symbol",
-    applicationSymbol: "VS celé přihlášky",
-    termSymbol: (term) => `VS termínu · ${term}`,
     viewApplication: "Zobrazit přihlášku",
     severalPayments:
       "Plaťte pouze za potvrzené termíny. Každou přihlášku zaplaťte samostatně podle uvedené částky a variabilního symbolu.",
@@ -148,6 +134,7 @@ export function ApplicationConfirmation({
   applications,
 }: ApplicationConfirmationProps) {
   const text = copy[locale]
+  const pay = paymentLabels[locale]
   const single = applications.length === 1
   const magicLink = access.kind === "MAGIC_LINK"
   return (
@@ -205,14 +192,14 @@ export function ApplicationConfirmation({
             <EmailRows
               spaced
               rows={[
-                { label: text.amountDue, value: payment.amount },
-                { label: text.account, value: payment.bankAccount },
+                { label: pay.amountDue, value: payment.amount },
+                { label: pay.account, value: payment.bankAccount },
                 {
-                  label: payment.terms.length ? text.applicationSymbol : text.variableSymbol,
+                  label: payment.terms.length ? pay.applicationSymbol : pay.variableSymbol,
                   value: payment.variableSymbol,
                 },
                 ...payment.terms.map((term) => ({
-                  label: text.termSymbol(term.name),
+                  label: pay.termSymbol(term.name),
                   value: `${term.amount} · ${term.variableSymbol}`,
                 })),
               ]}

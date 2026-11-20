@@ -1,24 +1,21 @@
 import {
   ApplicationEmailFooter,
-  emailButton,
+  EmailAction,
   EmailIdentification,
   EmailLayout,
   EmailRows,
+  paymentLabels,
 } from "@/core/email/email-kit"
 import { formatCzk } from "@/core/email/format-czk"
 import type { Locale } from "@/core/email/locale"
-import { Button, Section, Text } from "react-email"
+import { Text } from "react-email"
 
 const copy = {
   cs: {
     subject: (event: string) => `Výzva k zaplacení: ${event}`,
     preview: "Uplynula lhůta pro zaplacení. Zkontrolujte zbývající částku.",
-    heading: "Zbývá uhradit platbu",
-    body: "U přihlášky v uvedeném termínu uplynula lhůta pro zaplacení a evidujeme nedoplatek. Uhraďte prosím zbývající částku podle údajů níže.",
-    amount: "K úhradě",
-    account: "Bankovní účet",
-    symbol: "Variabilní symbol",
-    termSymbol: "Variabilní symbol termínu",
+    heading: "Zbývá zaplatit",
+    body: "U přihlášky v uvedeném termínu uplynula lhůta pro zaplacení a evidujeme nedoplatek. Zaplaťte prosím zbývající částku podle údajů níže.",
     button: "Zobrazit přihlášku",
   },
   en: {
@@ -26,10 +23,6 @@ const copy = {
     preview: "The payment deadline has passed. Please check the outstanding amount.",
     heading: "Payment is outstanding",
     body: "The payment deadline for the application in the term shown below has passed and an amount remains outstanding. Please pay the outstanding amount using the details below.",
-    amount: "Amount due",
-    account: "Bank account",
-    symbol: "Variable symbol",
-    termSymbol: "Variable symbol of the term",
     button: "View application",
   },
 } satisfies Record<Locale, object>
@@ -72,6 +65,7 @@ export function PaymentOverdue(props: PaymentOverdueProps) {
     terms,
   } = props
   const text = copy[locale]
+  const pay = paymentLabels[locale]
   return (
     <EmailLayout
       locale={locale}
@@ -88,25 +82,21 @@ export function PaymentOverdue(props: PaymentOverdueProps) {
       <EmailRows
         spaced
         rows={[
-          { label: text.amount, value: formatCzk(amountDueCzk, locale) },
-          { label: text.account, value: bankAccount },
-          { label: text.symbol, value: applicationSymbol },
+          { label: pay.amountDue, value: formatCzk(amountDueCzk, locale) },
+          { label: pay.account, value: bankAccount },
+          {
+            label: terms.length > 1 ? pay.applicationSymbol : pay.variableSymbol,
+            value: applicationSymbol,
+          },
           ...(terms.length > 1
             ? terms.flatMap(({ termLabel, amountCzk, variableSymbol }) => [
-                { label: `${termLabel} · ${text.amount}`, value: formatCzk(amountCzk, locale) },
-                { label: `${termLabel} · ${text.termSymbol}`, value: variableSymbol },
+                { label: `${termLabel} · ${pay.amountDue}`, value: formatCzk(amountCzk, locale) },
+                { label: pay.termSymbol(termLabel), value: variableSymbol },
               ])
             : []),
         ]}
       />
-      <Section className="mt-6">
-        <Button
-          href={applicationUrl}
-          className={emailButton}
-        >
-          {text.button}
-        </Button>
-      </Section>
+      <EmailAction href={applicationUrl}>{text.button}</EmailAction>
       <ApplicationEmailFooter
         locale={locale}
         organization={organizationName}

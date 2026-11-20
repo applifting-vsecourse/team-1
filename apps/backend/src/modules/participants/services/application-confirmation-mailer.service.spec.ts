@@ -250,7 +250,7 @@ describe("ApplicationConfirmationMailer.sendSubmissionConfirmation", () => {
     expect(subject).toBe("Application received: Summer camp 2027")
     expect(html).toContain("We have received your application")
     expect(html).toContain("CZK 9,400")
-    expect(html).toContain("Variable symbol")
+    expect(html).toContain("Whole application variable symbol")
   })
 
   it("does not fail the caller when delivery fails, and logs only the recipient address", async () => {

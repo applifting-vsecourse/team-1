@@ -1,6 +1,6 @@
 import { Section } from "react-email"
 import { changeMessages } from "@/core/email/change-messages"
-import { EmailTerm } from "@/core/email/email-kit"
+import { EmailTerm, paymentLabels } from "@/core/email/email-kit"
 import type { Locale } from "@/core/email/locale"
 import { ChangeLayout } from "@/core/email/templates/application-change-layout"
 import type { ApplicationTermStatus } from "@/modules/applications/domain/evaluation"
@@ -86,7 +86,7 @@ export function ApplicationChange({
 }: ApplicationChangeProps) {
   const cs = locale === "cs"
   const message = messageOf(locale, kind)
-  const symbol = cs ? "Variabilní symbol" : "Variable symbol"
+  const pay = paymentLabels[locale]
   const refundNote = cs
     ? "Informace o případném vrácení platby vám sdělí organizátor."
     : "The organiser will let you know about any possible refund."
@@ -115,18 +115,14 @@ export function ApplicationChange({
       details={
         payment
           ? [
-              { label: cs ? "Zbývá zaplatit" : "Left to pay", value: payment.amount },
-              { label: cs ? "Bankovní účet" : "Bank account", value: payment.bankAccount },
+              { label: pay.amountDue, value: payment.amount },
+              { label: pay.account, value: payment.bankAccount },
               {
-                label: payment.terms.length
-                  ? cs
-                    ? "VS celé přihlášky"
-                    : "Variable symbol of the whole application"
-                  : symbol,
+                label: payment.terms.length ? pay.applicationSymbol : pay.variableSymbol,
                 value: payment.variableSymbol,
               },
               ...payment.terms.map((item) => ({
-                label: `${symbol} · ${item.name}`,
+                label: pay.termSymbol(item.name),
                 value: `${item.amount} · ${item.variableSymbol}`,
               })),
             ]

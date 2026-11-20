@@ -1,4 +1,5 @@
 import { changeMessages } from "@/core/email/change-messages"
+import { paymentLabels } from "@/core/email/email-kit"
 import { formatCzk } from "@/core/email/format-czk"
 import { Locale } from "@/core/email/locale"
 import { ChangeLayout } from "@/core/email/templates/application-change-layout"
@@ -20,7 +21,6 @@ export interface PaymentCorrectionEmailProps {
     termLabel?: string
     amountCzk: number
     variableSymbol: string
-    paymentDueAt: Date | null
   }[]
   confirmationUrl: string
 }
@@ -36,22 +36,8 @@ export const PaymentCorrectionEmail = ({
   debts,
   confirmationUrl,
 }: PaymentCorrectionEmailProps): React.JSX.Element => {
-  const text =
-    locale === "cs"
-      ? {
-          amount: "K úhradě",
-          account: "Bankovní účet",
-          term: "Termín",
-          symbol: "Variabilní symbol termínu",
-          due: "Zaplaťte do",
-        }
-      : {
-          amount: "Amount due",
-          account: "Bank account",
-          term: "Term",
-          symbol: "Variable symbol of the term",
-          due: "Pay by",
-        }
+  const pay = paymentLabels[locale]
+  const term = locale === "cs" ? "Termín" : "Term"
   return (
     <ChangeLayout
       locale={locale}
@@ -61,36 +47,24 @@ export const PaymentCorrectionEmail = ({
       termLabel={debts.map((debt) => debt.termLabel ?? String(debt.termNumber)).join(" · ")}
       organizationName={organizationName}
       details={[
-        { label: text.amount, value: formatCzk(amountOwedCzk, locale) },
-        { label: text.account, value: bankAccount },
+        { label: pay.amountDue, value: formatCzk(amountOwedCzk, locale) },
+        { label: pay.account, value: bankAccount },
         ...debts.flatMap((debt) => [
           ...(debts.length > 1
             ? [
                 {
-                  label: `${text.term} ${debt.termNumber} · ${text.amount}`,
+                  label: `${term} ${debt.termNumber} · ${pay.amountDue}`,
                   value: formatCzk(debt.amountCzk, locale),
                 },
               ]
             : []),
           {
             label:
-              debts.length > 1 ? `${text.term} ${debt.termNumber} · ${text.symbol}` : text.symbol,
+              debts.length > 1
+                ? pay.termSymbol(debt.termLabel ?? `${term} ${debt.termNumber}`)
+                : pay.variableSymbol,
             value: debt.variableSymbol,
           },
-          ...(debt.paymentDueAt
-            ? [
-                {
-                  label:
-                    debts.length > 1 ? `${text.term} ${debt.termNumber} · ${text.due}` : text.due,
-                  value: new Intl.DateTimeFormat(locale === "cs" ? "cs-CZ" : "en-GB", {
-                    day: "numeric",
-                    month: "long",
-                    year: "numeric",
-                    timeZone: "Europe/Prague",
-                  }).format(debt.paymentDueAt),
-                },
-              ]
-            : []),
         ]),
       ]}
       buttonUrl={confirmationUrl}
@@ -111,7 +85,6 @@ PaymentCorrectionEmail.PreviewProps = {
       termLabel: "12.–18. 7. 2027",
       amountCzk: 1200,
       variableSymbol: "12345001",
-      paymentDueAt: new Date("2027-06-20T12:00:00Z"),
     },
   ],
   confirmationUrl: "https://example.com/apply/confirmation/example",

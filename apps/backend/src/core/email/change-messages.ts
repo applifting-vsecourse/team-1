@@ -62,7 +62,7 @@ export const changeMessages = {
       preview:
         "Předchozí potvrzení o úplném zaplacení již neplatí. Níže najdete částku k doplacení.",
       heading: "Po opravě platby zbývá nedoplatek",
-      body: "Po opravě evidence platby organizátorem zbývá u přihlášky v uvedeném termínu doplatit částku uvedenou níže. Předchozí potvrzení o úplném zaplacení již neplatí. Uhraďte prosím nedoplatek podle uvedených platebních údajů.",
+      body: "Po opravě evidence platby organizátorem zbývá u přihlášky v uvedeném termínu doplatit částku uvedenou níže. Předchozí potvrzení o úplném zaplacení již neplatí. Zaplaťte prosím nedoplatek podle uvedených platebních údajů.",
     },
     TERMS_CHANGED: {
       subject: (event: string): string => `Změny v přihlášce: ${event}`,

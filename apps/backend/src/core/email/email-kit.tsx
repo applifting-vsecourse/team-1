@@ -25,12 +25,28 @@ const colors = {
   muted: "#50686d",
   accent: "#007f72",
   line: "#dae3e4",
-  surface: "#f4f8f9",
   link: "#006363",
   warning: "#8a4b0e",
   warningSurface: "#fff5e6",
-  positive: "#e8f5ee",
 }
+
+/** Payment block labels shared by the confirmation, change and overdue e-mails (TEXTY.md, common parts). */
+export const paymentLabels = {
+  cs: {
+    amountDue: "Zbývá zaplatit",
+    account: "Bankovní účet",
+    variableSymbol: "Variabilní symbol",
+    applicationSymbol: "VS celé přihlášky",
+    termSymbol: (term: string): string => `VS termínu · ${term}`,
+  },
+  en: {
+    amountDue: "Left to pay",
+    account: "Bank account",
+    variableSymbol: "Variable symbol",
+    applicationSymbol: "Whole application variable symbol",
+    termSymbol: (term: string): string => `Term variable symbol · ${term}`,
+  },
+} satisfies Record<Locale, object>
 
 export const emailButton =
   "block box-border min-h-[44px] w-full rounded-lg bg-accent px-4 py-3 text-center text-sm font-medium leading-5 text-white"
