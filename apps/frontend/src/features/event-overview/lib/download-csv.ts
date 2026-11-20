@@ -1,0 +1,18 @@
+/**
+ * Offers CSV text as a file download. The BOM makes Excel read the UTF-8 file with its diacritics;
+ * the CSV text itself stays as the server sent it.
+ */
+export function downloadCsv(fileName: string, text: string): void {
+  const url = URL.createObjectURL(new Blob(["﻿", text], { type: "text/csv;charset=utf-8" }))
+  const link = document.createElement("a")
+  link.href = url
+  link.download = fileName
+  link.click()
+  URL.revokeObjectURL(url)
+}
+
+/** `vypis.csv` → `vypis-result.csv` */
+export function resultFileName(uploadedName: string): string {
+  const base = uploadedName.replace(/\.[^./\\]*$/, "") || "statement"
+  return `${base}-result.csv`
+}

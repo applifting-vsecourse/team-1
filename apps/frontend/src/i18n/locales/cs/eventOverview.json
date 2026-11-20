@@ -114,6 +114,7 @@
     "description": "Nahrajte výpis z Fio banky ve formátu CSV. Platby se k přihláškám spárují podle variabilního symbolu.",
     "done": "Výpis byl zpracován",
     "result": {
+      "download": "Stáhnout kopii výpisu s výsledkem",
       "duplicates_few": "{{count}} transakce už byly nahrané dříve a nezapočítaly se znovu.",
       "duplicates_one": "{{count}} transakce už byla nahraná dříve a nezapočítala se znovu.",
       "duplicates_other": "{{count}} transakcí už bylo nahraných dříve a nezapočítaly se znovu.",
