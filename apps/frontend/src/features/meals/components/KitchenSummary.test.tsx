@@ -137,7 +137,7 @@ describe("KitchenSummary", () => {
   it("shows the counts and the allergies of the first term", async () => {
     renderPage()
     await showByCategory()
-    expect(await screen.findByRole("heading", { name: "Kitchen summary" })).toBeVisible()
+    expect(await screen.findByRole("heading", { name: "Meals" })).toBeVisible()
     expect(screen.getByText("Summer camp · Meals")).toBeVisible()
     expect(screen.getByRole("heading", { name: "10 confirmed participants" })).toBeVisible()
     expect(screen.getByText("Each participant is counted once.")).toBeVisible()

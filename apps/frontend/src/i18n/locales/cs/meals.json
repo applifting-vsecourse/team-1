@@ -4,7 +4,6 @@
     "allergiesTitle": "Alergie",
     "arrival": "Příjezd {{when}}",
     "arrivalColumn": "Příjezd",
-    "back": "Zpět na přehled akce",
     "byParticipant": "Podle účastníků",
     "bySection": "Podle kategorií",
     "confirmed_few": "{{count}} potvrzení účastníci",
@@ -32,7 +31,7 @@
     "specialRequestsTitle": "Speciální požadavky",
     "staysTitle": "Příjezdy a odjezdy",
     "termLabel": "Termín",
-    "title": "Souhrn pro kuchyni",
+    "title": "Stravování",
     "viewLabel": "Zobrazení"
   },
   "options": {

@@ -4,7 +4,6 @@
     "allergiesTitle": "Allergies",
     "arrival": "Arrival {{when}}",
     "arrivalColumn": "Arrival",
-    "back": "Back to event overview",
     "byParticipant": "By participant",
     "bySection": "By category",
     "confirmed_few": "{{count}} confirmed participants",
@@ -32,7 +31,7 @@
     "specialRequestsTitle": "Special requests",
     "staysTitle": "Arrivals and departures",
     "termLabel": "Term",
-    "title": "Kitchen summary",
+    "title": "Meals",
     "viewLabel": "View"
   },
   "options": {

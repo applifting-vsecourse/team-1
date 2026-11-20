@@ -34,9 +34,7 @@ function EventLayout() {
   const { eventId } = Route.useParams()
 
   const matchRoute = useMatchRoute()
-  const hasMealHeader =
-    matchRoute({ to: ROUTES.organizer.eventMeals, params: { eventId } }) ||
-    matchRoute({ to: ROUTES.organizer.eventMealOptions, params: { eventId } })
+  const hasMealHeader = matchRoute({ to: ROUTES.organizer.eventMealOptions, params: { eventId } })
 
   return (
     <>

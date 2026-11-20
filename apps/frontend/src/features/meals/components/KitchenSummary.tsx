@@ -4,7 +4,6 @@ import { Link } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
-import { BackLink } from "@/components/atoms/BackLink"
 import { CardColumns } from "@/components/molecules/CardGrid"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
@@ -214,17 +213,9 @@ export function KitchenSummary({ eventId, eventName }: { eventId: string; eventN
       className="flex min-w-0 flex-col gap-6"
       data-print-area
     >
-      <div className="self-start print:hidden">
-        <BackLink
-          to={ROUTES.organizer.event}
-          params={{ eventId }}
-        >
-          {t("kitchen.back")}
-        </BackLink>
-      </div>
       <PageHeader
         title={t("kitchen.title")}
-        description={eventName ? t("kitchen.description", { event: eventName }) : undefined}
+        description={eventName}
       />
       {term ? (
         <>
