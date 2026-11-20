@@ -194,18 +194,20 @@ function ChooseMode({ eventId, saved }: { eventId: string; saved: EvaluationMode
           {MODES.map((value) => {
             const name = t(`evaluationMode.${value === "AUTOMATIC" ? "automatic" : "manual"}`)
             return (
-              <div
+              <Label
                 key={value}
+                htmlFor={`evaluation-mode-${value}`}
                 className={cn(
-                  "flex items-center gap-3 rounded-lg border px-4 py-3",
+                  "cursor-pointer gap-3 rounded-lg border px-4 py-3",
                   value === mode && "bg-accent",
                 )}
               >
                 <RadioGroupItem
                   id={`evaluation-mode-${value}`}
                   value={value}
+                  aria-labelledby={`evaluation-mode-${value}-label`}
                 />
-                <Label htmlFor={`evaluation-mode-${value}`}>{name}</Label>
+                <span id={`evaluation-mode-${value}-label`}>{name}</span>
                 {/* A popover, not a tooltip: it opens on tap and on Enter / Space too. */}
                 <Popover>
                   <PopoverTrigger asChild>
@@ -222,7 +224,7 @@ function ChooseMode({ eventId, saved }: { eventId: string; saved: EvaluationMode
                     {t(`evaluationMode.${value === "AUTOMATIC" ? "automaticInfo" : "manualInfo"}`)}
                   </PopoverContent>
                 </Popover>
-              </div>
+              </Label>
             )
           })}
         </RadioGroup>
