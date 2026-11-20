@@ -53,13 +53,13 @@ export function AccountPage({ isEmailChanged = false }: { isEmailChanged?: boole
           onBlurCapture={(event) => {
             if (!event.currentTarget.contains(event.relatedTarget)) setIsPointerFocus(false)
           }}
-          className="mx-auto w-[calc(100vw-36px)] max-w-full justify-start gap-2 p-0 group-data-[orientation=horizontal]/tabs:h-12 md:mx-0 md:w-full md:group-data-[orientation=horizontal]/tabs:h-15"
+          className="mx-auto grid w-[calc(100vw-36px)] max-w-full auto-cols-fr grid-flow-col gap-2 p-0 group-data-[orientation=horizontal]/tabs:h-12 md:mx-0 md:w-fit md:group-data-[orientation=horizontal]/tabs:h-15"
         >
           {SECTIONS.map((key) => (
             <TabsTrigger
               key={key}
               value={key}
-              className="account-tab h-full rounded-control border-0 p-3 text-base leading-6 font-normal transition-colors md:flex-none md:px-2 md:first:min-w-[63px] md:last:min-w-[122px]"
+              className="account-tab h-full rounded-control border-0 p-3 text-base leading-6 font-normal transition-colors md:min-w-[122px]"
             >
               {t(`account.tabs.${key}`)}
             </TabsTrigger>
