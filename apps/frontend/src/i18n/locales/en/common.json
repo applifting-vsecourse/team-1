@@ -44,6 +44,7 @@
   "close": "Close",
   "comingSoon": "Coming soon — {{story}}.",
   "dateField": {
+    "chooseTime": "Choose a time from the list",
     "done": "Done",
     "month": "Month",
     "openCalendar": "Choose a date in the calendar",
