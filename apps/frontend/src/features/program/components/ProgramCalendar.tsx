@@ -11,6 +11,7 @@ import { GripVertical, MapPin } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ActiveCorners } from "@/components/atoms/ActiveCorners"
+import { Button } from "@/components/ui/button"
 
 import type { ProgramBlock } from "@/features/program/api/program"
 import { HOUR_HEIGHT, hourRange, placeBlocks, toMinutes } from "@/features/program/lib/calendar"
@@ -230,20 +231,23 @@ function CalendarBlock({
         width: `calc(${String(100 / columns)}% - 4px)`,
       }}
     >
-      <button
+      <Button
         type="button"
+        variant="ghost"
         onPointerDown={(event) => {
           if (event.pointerType === "mouse") listeners?.onPointerDown?.(event)
         }}
         aria-label={t("info", { name: block.name })}
-        className="absolute inset-0 rounded-checkbox outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
+        className="absolute inset-0 size-full rounded-checkbox p-0 focus-visible:-outline-offset-2"
         onClick={() => {
           onSelect(block)
         }}
       />
       {onMoveKeyDown && (
-        <button
+        <Button
           type="button"
+          variant="ghost"
+          size="icon-lg"
           ref={setActivatorNodeRef}
           {...attributes}
           {...listeners}
@@ -252,13 +256,13 @@ function CalendarBlock({
           aria-label={t("move.label", { name: block.name })}
           aria-pressed={isSource}
           onKeyDown={(event) => onMoveKeyDown(event, block)}
-          className="absolute top-0 right-0 z-10 grid size-11 cursor-grab touch-none place-items-center rounded-checkbox text-primary outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset active:cursor-grabbing"
+          className="absolute top-0 right-0 z-10 cursor-grab touch-none rounded-checkbox text-primary focus-visible:-outline-offset-2 active:cursor-grabbing"
         >
           <GripVertical
             aria-hidden
             className="size-4"
           />
-        </button>
+        </Button>
       )}
       <div
         className={`pointer-events-none relative flex min-w-0 flex-col gap-0.5 px-2 py-1 ${onMoveKeyDown ? "pr-10" : ""}`}

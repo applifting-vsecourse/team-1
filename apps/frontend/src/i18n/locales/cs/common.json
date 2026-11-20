@@ -11,22 +11,22 @@
   "calendar": {
     "back": "Zpět na výběr dne",
     "boundaries": "Začátek a konec výběru označují krajní rohy.",
-    "chooseDay": "Vyber den.",
+    "chooseDay": "Vyberte den.",
     "days": {
       "next": "Další měsíc",
       "previous": "Předchozí měsíc"
     },
-    "emptyDay": "Vyber datum.",
-    "emptyRange": "Vyber začátek a konec.",
-    "lastDay": "Teď vyber poslední den.",
-    "monthHint": "Vyber měsíc. Výběr data zůstává zachovaný.",
+    "emptyDay": "Vyberte datum.",
+    "emptyRange": "Vyberte začátek a konec.",
+    "lastDay": "Teď vyberte poslední den.",
+    "monthHint": "Vyberte měsíc. Výběr data zůstává zachovaný.",
     "months": {
       "next": "Další rok",
       "previous": "Předchozí rok"
     },
     "saveRange": "Termín se uloží po výběru posledního dne.",
-    "selectEnd": "{{date}} · teď vyber konec.",
-    "yearHint": "Vyber rok. Potom zvol měsíc.",
+    "selectEnd": "{{date}} · teď vyberte konec.",
+    "yearHint": "Vyberte rok. Potom zvolte měsíc.",
     "years": {
       "next": "Dalších 12 let",
       "previous": "Předchozích 12 let"
