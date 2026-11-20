@@ -1,6 +1,7 @@
 import {
   decideMatch,
   InvalidStatementError,
+  MatchableApplication,
   parseAmountCents,
   parseBankStatement,
   parseStatementDate,
@@ -70,7 +71,7 @@ describe("parsing values", () => {
 })
 
 describe("decideMatch", () => {
-  const application = {
+  const application: MatchableApplication = {
     id: "a1",
     terms: [
       { termId: "t1", termNumber: 1, status: "CONFIRMED", owedCzk: 6900 },
@@ -112,6 +113,69 @@ describe("decideMatch", () => {
     expect(decideMatch(row("12000", 100000), application)).toMatchObject({
       kind: "matched",
       overpaidCzk: 0,
+    })
+  })
+
+  describe("summary symbol (US-148, D-087, D-088)", () => {
+    const owing = {
+      id: "a2",
+      terms: [
+        { termId: "t1", termNumber: 1, status: "CONFIRMED" as const, owedCzk: 6900 },
+        { termId: "t2", termNumber: 2, status: "CONFIRMED" as const, owedCzk: 9900 },
+        { termId: "t3", termNumber: 3, status: "WAITLISTED" as const, owedCzk: 0 },
+      ],
+    }
+
+    it("settles the debt of all confirmed terms without an overpayment", () => {
+      expect(decideMatch(row("22000", 1680000), owing)).toEqual({
+        kind: "matched",
+        applicationId: "a2",
+        amountCzk: 16800,
+        overpaidCzk: 0,
+      })
+    })
+
+    it("reports a shortfall as no overpayment and the rest above the debt as one", () => {
+      expect(decideMatch(row("22000", 500000), owing)).toMatchObject({ overpaidCzk: 0 })
+      expect(decideMatch(row("22000", 1700000), owing)).toMatchObject({
+        amountCzk: 17000,
+        overpaidCzk: 200,
+      })
+    })
+
+    it("does not count the debt of a term the split skips (archived, not confirmed)", () => {
+      const application = {
+        id: "a3",
+        terms: [
+          { termId: "t1", termNumber: 1, status: "ARCHIVED" as const, owedCzk: 500 },
+          { termId: "t2", termNumber: 2, status: "CONFIRMED" as const, owedCzk: 1000 },
+        ],
+      }
+      expect(decideMatch(row("32000", 150000), application)).toMatchObject({ overpaidCzk: 500 })
+    })
+
+    it("takes everything as an overpayment when no term is confirmed (D-088)", () => {
+      const application = {
+        id: "a4",
+        terms: [{ termId: "t1", termNumber: 1, status: "WAITLISTED" as const, owedCzk: 0 }],
+      }
+      expect(decideMatch(row("42000", 100000), application)).toMatchObject({
+        kind: "matched",
+        amountCzk: 1000,
+        overpaidCzk: 1000,
+      })
+    })
+
+    it("leaves it unmatched when every term is archived, so there is nothing to split over", () => {
+      const application = {
+        id: "a5",
+        terms: [{ termId: "t1", termNumber: 1, status: "ARCHIVED" as const, owedCzk: 0 }],
+      }
+      expect(decideMatch(row("52000", 100000), application)).toEqual({
+        kind: "unmatched",
+        reason: "UNKNOWN_VARIABLE_SYMBOL",
+        applicationId: "a5",
+      })
     })
   })
 

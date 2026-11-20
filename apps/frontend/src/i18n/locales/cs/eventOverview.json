@@ -142,7 +142,7 @@
       "reasons": {
         "AMOUNT_NOT_WHOLE": "Částka není v celých korunách",
         "NO_VARIABLE_SYMBOL": "Chybí variabilní symbol",
-        "UNKNOWN_VARIABLE_SYMBOL": "Žádná přihláška s tímto variabilním symbolem",
+        "UNKNOWN_VARIABLE_SYMBOL": "Variabilní symbol neodpovídá přihlášce ani termínu, na který lze platbu zapsat",
         "UNSUPPORTED_CURRENCY": "Měna není CZK"
       },
       "title": "Platby k ručnímu přiřazení",
