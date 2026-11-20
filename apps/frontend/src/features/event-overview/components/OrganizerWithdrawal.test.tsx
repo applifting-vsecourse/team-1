@@ -38,16 +38,22 @@ const row = (termId: string, isWithdrawn: boolean, paidCzk: number, overpaymentC
   paidCzk,
   debtCzk: 0,
   overpaymentCzk,
+  substitute: null,
 })
 
-function mockApi() {
+function mockApi(
+  substitute: { applicationId: string; firstName: string; lastName: string } | null = null,
+) {
   get.mockImplementation((path: string, options?: { searchParams?: { termIds: string } }) => ({
     json: () => {
       if (!path.endsWith("withdraw-preview")) return Promise.resolve(application)
       const ids = options?.searchParams?.termIds.split(",") ?? []
       return Promise.resolve({
         terms: [
-          row("t1", ids.includes("t1"), 4900, ids.includes("t1") ? 4900 : 0),
+          {
+            ...row("t1", ids.includes("t1"), 4900, ids.includes("t1") ? 4900 : 0),
+            substitute: ids.includes("t1") ? substitute : null,
+          },
           row("t2", ids.includes("t2"), 0, 0),
         ],
         overpaymentCzk: 4900,
@@ -89,7 +95,12 @@ describe("OrganizerWithdrawal", () => {
     expect(within(dialog).getByRole("heading", { name: "Withdraw participant" })).toBeVisible()
     expect(await within(dialog).findByText("Debt after withdrawal")).toBeVisible()
     expect(within(dialog).getByText("Overpayment")).toBeVisible()
-    expect(within(dialog).getByText("The other term stays unchanged.")).toBeVisible()
+    // Only the impact and the refund warning: no reassurances, no e-mail or history notes.
+    expect(within(dialog).getByText("The payment is not refunded automatically")).toBeVisible()
+    expect(within(dialog).getByText("Record the refund manually.")).toBeVisible()
+    expect(within(dialog).queryByText(/other term/i)).not.toBeInTheDocument()
+    expect(within(dialog).queryByText(/e-mail/i)).not.toBeInTheDocument()
+    expect(within(dialog).queryByText(/history/i)).not.toBeInTheDocument()
     expect(get).toHaveBeenCalledWith(
       "organizer/applications/a1/terms/withdraw-preview",
       expect.objectContaining({ searchParams: { termIds: "t1" } }),
@@ -100,7 +111,7 @@ describe("OrganizerWithdrawal", () => {
 
     await waitFor(() => expect(onClose).toHaveBeenCalled())
     expect(post).toHaveBeenCalledWith("organizer/applications/a1/terms/withdraw", {
-      json: { termIds: ["t1"] },
+      json: { termIds: ["t1"], expectedSubstitutes: [{ termId: "t1", applicationId: null }] },
     })
   })
 
@@ -122,7 +133,13 @@ describe("OrganizerWithdrawal", () => {
 
     await waitFor(() => expect(onClose).toHaveBeenCalled())
     expect(post).toHaveBeenCalledWith("organizer/applications/a1/terms/withdraw", {
-      json: { termIds: ["t1", "t2"] },
+      json: {
+        termIds: ["t1", "t2"],
+        expectedSubstitutes: [
+          { termId: "t1", applicationId: null },
+          { termId: "t2", applicationId: null },
+        ],
+      },
     })
   })
 
@@ -131,5 +148,46 @@ describe("OrganizerWithdrawal", () => {
     setup("t1")
 
     expect(await screen.findByRole("button", { name: "Withdraw participant" })).toBeDisabled()
+  })
+})
+
+describe("OrganizerWithdrawal substitute warning (US-546)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it("names the substitute who fills the bed automatically", async () => {
+    mockApi({ applicationId: "a2", firstName: "Petr", lastName: "Novák" })
+    setup("t1")
+
+    expect(await screen.findByText("A substitute fills the bed automatically")).toBeInTheDocument()
+    expect(screen.getByText(/Petr Novák/)).toBeInTheDocument()
+  })
+
+  it("shows no warning when nobody takes the bed", async () => {
+    mockApi(null)
+    setup("t1")
+
+    await screen.findByText("Impact of the withdrawal")
+    expect(screen.queryByText("A substitute fills the bed automatically")).not.toBeInTheDocument()
+  })
+
+  it("sends the previewed substitute and reloads the preview when the server refuses it", async () => {
+    mockApi({ applicationId: "a2", firstName: "Petr", lastName: "Novák" })
+    post.mockReturnValue({ json: () => Promise.reject(new Error("changed")) })
+    const user = userEvent.setup()
+    setup("t1")
+
+    const button = await screen.findByRole("button", { name: "Withdraw participant" })
+    await screen.findByText(/Petr Novák/)
+    const previews = () =>
+      get.mock.calls.filter(([path]) => String(path).endsWith("withdraw-preview")).length
+    const before = previews()
+    await user.click(button)
+
+    await waitFor(() => expect(previews()).toBeGreaterThan(before))
+    expect(post).toHaveBeenCalledWith("organizer/applications/a1/terms/withdraw", {
+      json: { termIds: ["t1"], expectedSubstitutes: [{ termId: "t1", applicationId: "a2" }] },
+    })
   })
 })

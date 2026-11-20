@@ -61,7 +61,7 @@ async function fillForm(
   })
   await user.click(screen.getByRole("combobox", { name: "Gender for room assignment *" }))
   await user.click(screen.getByRole("option", { name: "Female" }))
-  await user.type(screen.getByLabelText("Phone *"), phone)
+  if (phone) await user.type(screen.getByLabelText("Phone"), phone)
   await user.type(screen.getByLabelText("E-mail *"), "eva@example.com")
   await user.click(screen.getByRole("combobox", { name: /First/ }))
   await user.click(screen.getByRole("option", { name: status }))
@@ -142,7 +142,7 @@ describe("ManualApplicationPage", () => {
   })
 
   it.each([
-    ["Confirmed, payment due", "CONFIRMED"],
+    ["Confirmed, with a debt", "CONFIRMED"],
     ["Waitlisted", "WAITLISTED"],
   ] as const)(
     "submits only the second term as %s after deselecting the full first term",
@@ -169,7 +169,7 @@ describe("ManualApplicationPage", () => {
       }))
       setup([term, secondTerm])
       const user = userEvent.setup()
-      await fillForm(user, "Confirmed, payment due")
+      await fillForm(user, "Confirmed, with a debt")
       await user.click(screen.getByRole("combobox", { name: /First/ }))
       await user.click(screen.getByRole("option", { name: "Not selected" }))
       await user.click(screen.getByRole("combobox", { name: /Second/ }))
@@ -198,7 +198,7 @@ describe("ManualApplicationPage", () => {
     },
   )
 
-  it.each(["       ", "-------", "123 456"])(
+  it.each(["abc", "123 456", "+420 777 abc", "123454623123121221212121212112"])(
     "validates consent and phone digits before creating a waitlisted application: %j",
     async (invalidPhone) => {
       setup()
@@ -215,11 +215,11 @@ describe("ManualApplicationPage", () => {
       await user.click(screen.getByRole("button", { name: "Create application" }))
       expect(post).not.toHaveBeenCalled()
       expect(
-        screen.getByLabelText("Phone *").parentElement?.querySelector('[role="alert"]'),
+        screen.getByLabelText("Phone").parentElement?.querySelector('[role="alert"]'),
       ).not.toBeNull()
 
-      await user.clear(screen.getByLabelText("Phone *"))
-      await user.type(screen.getByLabelText("Phone *"), " +420 (777) 123-456 ")
+      await user.clear(screen.getByLabelText("Phone"))
+      await user.type(screen.getByLabelText("Phone"), " +420 (777) 123-456 ")
       await user.click(screen.getByRole("button", { name: "Create application" }))
 
       expect(await screen.findByText("Application created")).toBeInTheDocument()
@@ -238,6 +238,33 @@ describe("ManualApplicationPage", () => {
     },
   )
 
+  it.each(["", "   ", "( ) - ( )"])(
+    "sends no phone when it is left empty (%j): the phone is optional",
+    async (emptyPhone) => {
+      setup()
+      const user = userEvent.setup()
+      await fillForm(user, "Waitlisted", emptyPhone)
+      await user.click(
+        screen.getByRole("checkbox", { name: /I confirm that the applicant consented/ }),
+      )
+      await user.click(screen.getByRole("button", { name: "Create application" }))
+
+      expect(await screen.findByText("Application created")).toBeInTheDocument()
+      expect(post).toHaveBeenCalledWith("organizer/events/e1/applications", {
+        json: {
+          firstName: "Eva",
+          lastName: "Novak",
+          birthDate: "2000-05-15",
+          gender: "FEMALE",
+          phone: null,
+          email: "eva@example.com",
+          consent: true,
+          terms: [{ termId: "t1", status: "WAITLISTED" }],
+        },
+      })
+    },
+  )
+
   it("disables returning to waitlist during a slow save and shows the stored confirmation and price", async () => {
     let complete!: (saved: { applicationId: string; number: number }) => void
     const pending = new Promise<{ applicationId: string; number: number }>((resolve) => {
@@ -247,7 +274,7 @@ describe("ManualApplicationPage", () => {
     loadSavedTerms.mockResolvedValue([{ ...savedTerm, status: "CONFIRMED", priceCzk: 5100 }])
     setup()
     const user = userEvent.setup()
-    await fillForm(user, "Confirmed, payment due")
+    await fillForm(user, "Confirmed, with a debt")
     await user.click(
       screen.getByRole("checkbox", { name: /I confirm that the applicant consented/ }),
     )
@@ -280,9 +307,9 @@ describe("ManualApplicationPage", () => {
       await pending
     })
     expect(await screen.findByText("Application created")).toBeInTheDocument()
-    expect(screen.getByText(/Confirmed, payment due/)).toBeInTheDocument()
+    expect(screen.getByText(/Confirmed, with a debt/)).toBeInTheDocument()
     expect(screen.getByText(/5[,\s]100/)).toBeInTheDocument()
-    expect(screen.queryByText(/Nothing to pay/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/Nothing due/)).not.toBeInTheDocument()
   })
 
   it("shows the submitted participant and saved status after the draft changes during saving", async () => {
@@ -301,7 +328,7 @@ describe("ManualApplicationPage", () => {
     await user.clear(screen.getByLabelText("First name *"))
     await user.type(screen.getByLabelText("First name *"), "Other")
     await user.click(screen.getByRole("combobox", { name: /First/ }))
-    await user.click(screen.getByRole("option", { name: "Confirmed, payment due" }))
+    await user.click(screen.getByRole("option", { name: "Confirmed, with a debt" }))
 
     await act(async () => {
       complete({ applicationId: "a1", number: 1 })
@@ -310,8 +337,8 @@ describe("ManualApplicationPage", () => {
     expect(await screen.findByText("Application created")).toBeInTheDocument()
     expect(screen.getByRole("heading", { name: "Eva Novak" })).toBeInTheDocument()
     expect(screen.getByText(/Waitlisted/)).toBeInTheDocument()
-    expect(screen.getByText(/Nothing to pay/)).toBeInTheDocument()
-    expect(screen.queryByText(/Confirmed, payment due/)).not.toBeInTheDocument()
+    expect(screen.getByText(/Nothing due/)).toBeInTheDocument()
+    expect(screen.queryByText(/Confirmed, with a debt/)).not.toBeInTheDocument()
   })
 
   it("retries loading the saved statuses without creating another application", async () => {
@@ -381,7 +408,7 @@ describe("ManualApplicationPage", () => {
     }))
     setup()
     const user = userEvent.setup()
-    await fillForm(user, "Confirmed, payment due")
+    await fillForm(user, "Confirmed, with a debt")
     await user.click(
       screen.getByRole("checkbox", { name: /I confirm that the applicant consented/ }),
     )

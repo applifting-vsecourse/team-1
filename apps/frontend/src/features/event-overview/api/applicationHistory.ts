@@ -6,6 +6,15 @@ import { api } from "@/lib/api-client"
 const statusSchema = z.enum(["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED", "ARCHIVED"])
 const base = { id: z.string(), at: z.string(), author: z.string().nullable() }
 
+export const EDITABLE_FIELDS = [
+  "firstName",
+  "lastName",
+  "birthDate",
+  "phone",
+  "individualAccommodation",
+  "accommodationRequest",
+] as const
+
 const historyEntrySchema = z.discriminatedUnion("kind", [
   z.object({ ...base, kind: z.literal("APPLICATION_CREATED") }),
   z.object({
@@ -16,6 +25,21 @@ const historyEntrySchema = z.discriminatedUnion("kind", [
     endsOn: z.string(),
     fromStatus: statusSchema,
     toStatus: statusSchema,
+  }),
+  z.object({
+    ...base,
+    kind: z.literal("EDIT"),
+    /**
+     * The changed details; a flag is the text `true` or `false`, an empty value is null. The
+     * accommodation note comes without values: its history only says that it changed.
+     */
+    changes: z.array(
+      z.object({
+        field: z.enum(EDITABLE_FIELDS),
+        from: z.string().nullable().optional(),
+        to: z.string().nullable().optional(),
+      }),
+    ),
   }),
   z.object({
     ...base,

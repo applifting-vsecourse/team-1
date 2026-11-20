@@ -1,4 +1,5 @@
-import { computeRoomCapacity } from "@/modules/applications/domain/capacity"
+import { computeIndividualBeds, computeRoomCapacity } from "@/modules/applications/domain/capacity"
+import { BulkRoomsPlan, BulkRoomsResult } from "@/modules/events/domain/bulk-rooms"
 import {
   RoomCopyStrategy,
   RoomGenderAssignment,
@@ -25,7 +26,13 @@ export class RoomsService {
 
   async list(user: Identity, eventId: string, termId: string): Promise<TermRooms> {
     const term = await this.repository.find(await this.scope(user, eventId, termId))
-    return { ...term, capacity: computeRoomCapacity(term.rooms) }
+    return {
+      ...term,
+      capacity: {
+        ...computeRoomCapacity(term.rooms),
+        individualBeds: computeIndividualBeds(term.rooms),
+      },
+    }
   }
 
   async setMode(
@@ -38,6 +45,15 @@ export class RoomsService {
     await this.repository.setMode(await this.scope(user, eventId, termId), mode, assignments)
   }
 
+  async setPublished(
+    user: Identity,
+    eventId: string,
+    termId: string,
+    published: boolean,
+  ): Promise<void> {
+    await this.repository.setPublished(await this.scope(user, eventId, termId), published)
+  }
+
   async save(
     user: Identity,
     eventId: string,
@@ -46,6 +62,15 @@ export class RoomsService {
     id?: string,
   ): Promise<void> {
     await this.repository.save(await this.scope(user, eventId, termId), input, id)
+  }
+
+  async createBulk(
+    user: Identity,
+    eventId: string,
+    termId: string,
+    plan: BulkRoomsPlan,
+  ): Promise<BulkRoomsResult> {
+    return this.repository.createMany(await this.scope(user, eventId, termId), plan)
   }
 
   async setExtraBeds(

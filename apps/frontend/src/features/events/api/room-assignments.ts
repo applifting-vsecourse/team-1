@@ -16,6 +16,8 @@ const participantSchema = z.object({
   /** Asked to settle the accommodation individually (US-38). */
   individualAccommodation: z.boolean(),
   status: z.enum(["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED"]),
+  /** Roommate wishes (US-146): free text; fulfilled when the named person is in the same room. */
+  wishes: z.array(z.object({ name: z.string(), fulfilled: z.boolean() })),
 })
 const otherTermSchema = z.object({
   termId: z.string(),
@@ -28,6 +30,9 @@ const otherTermSchema = z.object({
       id: z.string(),
       name: z.string(),
       gender: genderSchema.nullable(),
+      individual: z.boolean().optional(),
+      /** Capacity plus extra beds. */
+      beds: z.number().int(),
       freeBeds: z.number().int(),
     }),
   ),
@@ -44,6 +49,8 @@ const assignmentRoomSchema = z.object({
   /** Capacity plus extra beds, computed by the API. */
   beds: z.number().int(),
   gender: genderSchema.nullable(),
+  /** Individual (mixed, family) room (US-145). */
+  individual: z.boolean().optional(),
   participants: z.array(participantSchema),
 })
 const warningKindSchema = z.enum(["OVERCROWDED", "MIXED_GENDER", "CONFIRMED_WITHOUT_BED"])
@@ -138,4 +145,42 @@ export async function unassignRoom(
   applicationTermId: string,
 ): Promise<void> {
   await api.delete(`${base(eventId, termId)}/${encodeURIComponent(applicationTermId)}`)
+}
+
+const proposalSchema = z.object({
+  /** Proposed rooms for confirmed participants without one; nothing is saved by the API. */
+  placements: z.array(z.object({ applicationTermId: z.string(), roomId: z.string() })),
+  /** Confirmed participants without a room who got none (US-147). */
+  unplaced: z.array(
+    z.object({
+      applicationTermId: z.string(),
+      reason: z.enum(["INDIVIDUAL_ACCOMMODATION", "NO_FREE_BED"]),
+    }),
+  ),
+  /** Wishes of the people given a bed; `matches` are the people the name stands for. */
+  wishes: z.array(
+    z.object({
+      applicationTermId: z.string(),
+      name: z.string(),
+      matches: z.array(z.string()),
+      fulfilled: z.boolean(),
+    }),
+  ),
+})
+
+export type RoomProposal = z.infer<typeof proposalSchema>
+export type RoomProposalWish = RoomProposal["wishes"][number]
+
+/** Asks for a proposal of rooms for the unassigned confirmed participants; saves nothing (US-147). */
+export async function proposeRooms(eventId: string, termId: string): Promise<RoomProposal> {
+  return proposalSchema.parse(await api.post(`${base(eventId, termId)}/proposal`).json())
+}
+
+/** Saves a confirmed proposal: every assignment in one transaction, or none (US-147). */
+export async function saveRoomProposal(
+  eventId: string,
+  termId: string,
+  placements: { applicationTermId: string; roomId: string }[],
+): Promise<void> {
+  await api.post(`${base(eventId, termId)}/bulk`, { json: { assignments: placements } })
 }

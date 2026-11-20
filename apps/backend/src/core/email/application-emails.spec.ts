@@ -38,7 +38,7 @@ describe("application e-mail previews", () => {
   it("renders no confirmed term without payment details", async () => {
     const html = await render(React.createElement(Waitlisted))
 
-    expect(html).toContain("jste náhradník")
+    expect(html).toContain("Náhradník")
     expect(html).toContain("Žádný termín zatím není potvrzený")
     expect(html).not.toContain("Variabilní symbol")
   })
@@ -77,18 +77,20 @@ describe("application e-mail previews", () => {
     expect(html).not.toContain("Variabilní symbol")
   })
 
-  it("renders e-mail no. 15, the cancelled term, in both languages (template only, US-131 sends it)", async () => {
+  it("renders e-mail no. 15, the cancelled term, in both languages", async () => {
     const cs = await render(React.createElement(TermCancelled, TermCancelled.PreviewProps))
     const en = await render(
       React.createElement(TermCancelled, { ...TermCancelled.PreviewProps, locale: "en" }),
     )
 
     expect(cs).toContain("Termín akce byl zrušen")
-    expect(cs).toContain("Zaplacené platby se vrací; další postup sdělí organizace.")
+    expect(cs).toContain(
+      "Případné platby za zrušený termín se vrací. Další postup vám sdělí organizace.",
+    )
     expect(cs).toContain("Adam Dvořák")
     expect(cs).toContain("Alpine Collective · přes Togenu")
-    expect(en).toContain("The term has been cancelled")
-    expect(en).toContain("Paid payments are being refunded")
+    expect(en).toContain("The event term has been cancelled")
+    expect(en).toContain("Any payments already made for the cancelled term are to be refunded")
     expect(en).toContain("Alpine Collective · via Togena")
   })
 })

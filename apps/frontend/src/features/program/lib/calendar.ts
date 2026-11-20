@@ -79,3 +79,24 @@ export function overlapping<T extends Timed & { id: string; date: string }>(
       start < toMinutes(block.endTime),
   )
 }
+
+/**
+ * Overlaps of same-day blocks in which at least one block is in `trackedIds` (the blocks a copy
+ * created), computed from the current blocks, so the warning follows every edit and delete.
+ * `first` is the tracked block, `second` the other one.
+ */
+export function trackedOverlaps<T extends Timed & { id: string; date: string; name: string }>(
+  blocks: T[],
+  trackedIds: ReadonlySet<string>,
+): { date: string; first: string; second: string }[] {
+  const found: { date: string; first: string; second: string }[] = []
+  blocks.forEach((block, index) => {
+    if (!trackedIds.has(block.id)) return
+    for (const other of overlapping(blocks, block, block.id)) {
+      // A pair of tracked blocks is reported once, from the earlier one.
+      if (trackedIds.has(other.id) && blocks.indexOf(other) < index) continue
+      found.push({ date: block.date, first: block.name, second: other.name })
+    }
+  })
+  return found
+}

@@ -415,14 +415,14 @@ describe("ApplicationsPage", () => {
     await user.click(screen.getAllByRole("combobox", { name: "Payment" })[0]!)
     expect(screen.getAllByRole("option").map((option) => option.textContent)).toEqual([
       "All payments",
-      "With a balance due",
-      "No amount due",
+      "With a debt",
+      "Nothing due",
       "Unpaid",
-      "Partially paid",
+      "Partly paid",
       "Paid",
       "Overpaid",
     ])
-    await user.click(screen.getByRole("option", { name: "Partially paid" }))
+    await user.click(screen.getByRole("option", { name: "Partly paid" }))
     expect(change).toHaveBeenLastCalledWith({ payment: "PARTIALLY_PAID" })
     expect(get).toHaveBeenLastCalledWith(
       expect.stringContaining("applications"),
@@ -443,7 +443,7 @@ describe("ApplicationsPage", () => {
   it("shows one debt column and no amount-to-pay column", async () => {
     setup([application])
     await screen.findByRole("link", { name: "Record payment" })
-    expect(screen.getByRole("columnheader", { name: "Balance due" })).toBeInTheDocument()
+    expect(screen.getByRole("columnheader", { name: "Debt" })).toBeInTheDocument()
     expect(screen.queryByRole("columnheader", { name: "Amount due" })).not.toBeInTheDocument()
   })
   describe("clickable row", () => {
@@ -554,7 +554,7 @@ describe("ApplicationsPage", () => {
     it("opens the queue from the view chips", async () => {
       const change = setup([application], false, undefined, null, {})
       const user = userEvent.setup()
-      await user.click(await screen.findByRole("radio", { name: "To evaluate" }))
+      await user.click(await screen.findByRole("radio", { name: "Awaiting evaluation" }))
       expect(change).toHaveBeenLastCalledWith({ status: "TO_EVALUATE" })
     })
   })

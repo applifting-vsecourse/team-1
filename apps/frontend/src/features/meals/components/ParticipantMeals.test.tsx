@@ -7,7 +7,12 @@ import type { OwnMeals } from "@/features/meals/api/meals"
 import { ParticipantMeals } from "@/features/meals/components/ParticipantMeals"
 
 const { navigate, success } = vi.hoisted(() => ({ navigate: vi.fn(), success: vi.fn() }))
-vi.mock("@tanstack/react-router", () => ({ useNavigate: () => navigate }))
+vi.mock("@tanstack/react-router", () => ({
+  useNavigate: () => navigate,
+  Link: ({ to, children }: { to: string; children: React.ReactNode }) => (
+    <a href={to}>{children}</a>
+  ),
+}))
 vi.mock("@/lib/notify", () => ({ notify: { success } }))
 
 const { getMeals, saveOwnMeals } = vi.hoisted(() => ({ getMeals: vi.fn(), saveOwnMeals: vi.fn() }))
@@ -35,15 +40,17 @@ const meals: OwnMeals = {
   selectedOptionIds: ["gf"],
   allergies: "Peanuts",
   specialRequest: "Early dinner",
+  noRestrictions: false,
 }
 
-function setup(value: OwnMeals = meals) {
+function setup(
+  value: OwnMeals = meals,
+  client = new QueryClient({ defaultOptions: { queries: { retry: false } } }),
+) {
   getMeals.mockResolvedValue(value)
   saveOwnMeals.mockResolvedValue(value)
   render(
-    <QueryClientProvider
-      client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
-    >
+    <QueryClientProvider client={client}>
       <ParticipantMeals applicationId="a1" />
     </QueryClientProvider>,
   )
@@ -54,8 +61,9 @@ describe("ParticipantMeals", () => {
 
   it("shows the participant, the event, the offered options and the saved values", async () => {
     setup()
-    expect(await screen.findByRole("heading", { name: "Meals · Adam Dvořák" })).toBeVisible()
-    expect(screen.getByText("Letní kemp Lipno 2027")).toBeVisible()
+    expect(await screen.findByRole("heading", { name: "Meals" })).toBeVisible()
+    expect(screen.getByText("Adam Dvořák · Letní kemp Lipno 2027")).toBeVisible()
+    expect(screen.getByRole("link", { name: "← Application" })).toBeVisible()
     expect(screen.getByRole("checkbox", { name: "Vegetarian" })).not.toBeChecked()
     expect(screen.getByRole("checkbox", { name: "Gluten-free" })).toBeChecked()
     expect(screen.getByLabelText("Allergies and other dietary restrictions")).toHaveValue("Peanuts")
@@ -80,6 +88,7 @@ describe("ParticipantMeals", () => {
         optionIds: ["veg"],
         allergies: "Milk",
         specialRequest: "Late arrival",
+        noRestrictions: false,
       }),
     )
   })
@@ -95,6 +104,17 @@ describe("ParticipantMeals", () => {
       }),
     )
     expect(success).toHaveBeenCalledWith("Meals saved")
+  })
+
+  it("refreshes the overview of the application so its meals step turns done (US-149)", async () => {
+    const user = userEvent.setup()
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+    const invalidate = vi.spyOn(client, "invalidateQueries")
+    setup(meals, client)
+    await user.click(await screen.findByRole("button", { name: "Save meals" }))
+    await waitFor(() =>
+      expect(invalidate).toHaveBeenCalledWith({ queryKey: ["participant", "applications", "a1"] }),
+    )
   })
 
   it("shows the error and stays on the form when saving fails", async () => {
@@ -116,6 +136,48 @@ describe("ParticipantMeals", () => {
         optionIds: ["gf"],
         allergies: "Peanuts",
         specialRequest: "Early dinner",
+        noRestrictions: false,
+      }),
+    )
+  })
+
+  it("confirms having no restriction: the fields are disabled and nothing else is sent (US-150)", async () => {
+    const user = userEvent.setup()
+    setup()
+    await user.click(await screen.findByRole("checkbox", { name: "I have no dietary restriction" }))
+    expect(screen.getByRole("checkbox", { name: "Vegetarian" })).toBeDisabled()
+    expect(screen.getByLabelText("Allergies and other dietary restrictions")).toBeDisabled()
+    await user.click(screen.getByRole("button", { name: "Save meals" }))
+    await waitFor(() =>
+      expect(saveOwnMeals).toHaveBeenCalledWith("a1", {
+        optionIds: [],
+        allergies: "",
+        specialRequest: "",
+        noRestrictions: true,
+      }),
+    )
+  })
+
+  it("shows the saved confirmation and lets a restriction cancel it", async () => {
+    const user = userEvent.setup()
+    setup({
+      ...meals,
+      selectedOptionIds: [],
+      allergies: null,
+      specialRequest: null,
+      noRestrictions: true,
+    })
+    const none = await screen.findByRole("checkbox", { name: "I have no dietary restriction" })
+    expect(none).toBeChecked()
+    await user.click(none)
+    await user.type(screen.getByLabelText("Allergies and other dietary restrictions"), "Milk")
+    await user.click(screen.getByRole("button", { name: "Save meals" }))
+    await waitFor(() =>
+      expect(saveOwnMeals).toHaveBeenCalledWith("a1", {
+        optionIds: [],
+        allergies: "Milk",
+        specialRequest: "",
+        noRestrictions: false,
       }),
     )
   })
@@ -123,6 +185,6 @@ describe("ParticipantMeals", () => {
   it("shows only the allergies field when the organizer offers no option", async () => {
     setup({ ...meals, options: [], selectedOptionIds: [], allergies: null, specialRequest: null })
     expect(await screen.findByLabelText("Allergies and other dietary restrictions")).toHaveValue("")
-    expect(screen.queryByRole("checkbox")).not.toBeInTheDocument()
+    expect(screen.getAllByRole("checkbox")).toHaveLength(1)
   })
 })

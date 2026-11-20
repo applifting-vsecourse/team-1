@@ -28,12 +28,14 @@ const base: TermRooms = {
   startsOn: "2027-08-02",
   endsOn: "2027-08-08",
   roomMode: "GENDERED",
+  roomsPublished: false,
   rooms: [{ id: "r1", name: "12", capacity: 5, extraBeds: 0, beds: 5, gender: "FEMALE" }],
   capacity: { FEMALE: 5, MALE: 0, total: 5 },
 }
 const shared: TermRooms = {
   ...base,
   roomMode: "SHARED",
+  roomsPublished: false,
   rooms: [
     { id: "r1", name: "12", capacity: 5, extraBeds: 0, beds: 5, gender: null },
     { id: "r2", name: "13", capacity: 4, extraBeds: 0, beds: 4, gender: null },

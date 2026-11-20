@@ -31,6 +31,7 @@ const termRooms = (termId: string, rooms: TermRooms["rooms"]): TermRooms => ({
   startsOn: "2027-07-12",
   endsOn: "2027-07-18",
   roomMode: "GENDERED",
+  roomsPublished: false,
   rooms,
   capacity: {
     FEMALE: 0,

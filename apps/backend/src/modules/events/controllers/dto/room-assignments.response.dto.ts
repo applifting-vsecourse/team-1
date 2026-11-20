@@ -1,9 +1,15 @@
 import { TermAssignments } from "@/modules/events/domain/room-assignment"
+import { RoomProposal } from "@/modules/events/domain/room-proposal"
 import { Gender } from "@/shared/domain/gender"
 import { ApiProperty } from "@nestjs/swagger"
 
 const STATUSES = ["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED"]
 
+class RoomWishDto {
+  @ApiProperty({ description: "Name as the participant wrote it (free text)" }) name!: string
+  @ApiProperty({ description: "The named person is in the same room of the same term" })
+  fulfilled!: boolean
+}
 class ParticipantDto {
   @ApiProperty({ description: "Application in the term; the id the assignment endpoints take" })
   applicationTermId!: string
@@ -15,11 +21,15 @@ class ParticipantDto {
   @ApiProperty({ enum: ["FEMALE", "MALE"] }) gender!: Gender
   @ApiProperty() individualAccommodation!: boolean
   @ApiProperty({ enum: STATUSES }) status!: string
+  @ApiProperty({ type: [RoomWishDto], description: "Roommate wishes, at most 3 (US-146)" })
+  wishes!: RoomWishDto[]
 }
 class OtherTermRoomDto {
   @ApiProperty() id!: string
   @ApiProperty() name!: string
   @ApiProperty({ enum: ["FEMALE", "MALE"], nullable: true }) gender!: Gender | null
+  @ApiProperty({ description: "Individual (mixed, family) room (US-145)" }) individual!: boolean
+  @ApiProperty({ description: "Beds of the room, extra beds included" }) beds!: number
   @ApiProperty({ description: "Beds left, extra beds included" }) freeBeds!: number
 }
 class OtherTermDto {
@@ -43,6 +53,7 @@ class AssignmentRoomDto {
   @ApiProperty() extraBeds!: number
   @ApiProperty({ description: "All beds: capacity plus extra beds" }) beds!: number
   @ApiProperty({ enum: ["FEMALE", "MALE"], nullable: true }) gender!: Gender | null
+  @ApiProperty({ description: "Individual (mixed, family) room (US-145)" }) individual!: boolean
   @ApiProperty({ type: [ParticipantDto] }) participants!: ParticipantDto[]
 }
 
@@ -85,5 +96,39 @@ export class RoomAssignmentsResponseDto {
 
   static fromDomain(assignments: TermAssignments): RoomAssignmentsResponseDto {
     return Object.assign(new RoomAssignmentsResponseDto(), assignments)
+  }
+}
+
+class ProposalPlacementDto {
+  @ApiProperty() applicationTermId!: string
+  @ApiProperty() roomId!: string
+}
+class ProposalUnplacedDto {
+  @ApiProperty() applicationTermId!: string
+  @ApiProperty({ enum: ["INDIVIDUAL_ACCOMMODATION", "NO_FREE_BED"] }) reason!: string
+}
+class ProposalWishDto {
+  @ApiProperty({ description: "Who wished it; somebody the proposal gave a bed" })
+  applicationTermId!: string
+  @ApiProperty() name!: string
+  @ApiProperty({ type: [String], description: "People of the term the name stands for" })
+  matches!: string[]
+  @ApiProperty({ description: "The named person sleeps in the same room in the proposal" })
+  fulfilled!: boolean
+}
+
+export class RoomProposalResponseDto {
+  @ApiProperty({ type: [ProposalPlacementDto], description: "Proposed rooms; nothing is saved" })
+  placements!: ProposalPlacementDto[]
+  @ApiProperty({
+    type: [ProposalUnplacedDto],
+    description: "Confirmed participants without a room who got none in the proposal",
+  })
+  unplaced!: ProposalUnplacedDto[]
+  @ApiProperty({ type: [ProposalWishDto], description: "Wishes of the people given a bed" })
+  wishes!: ProposalWishDto[]
+
+  static fromDomain(proposal: RoomProposal): RoomProposalResponseDto {
+    return Object.assign(new RoomProposalResponseDto(), proposal)
   }
 }

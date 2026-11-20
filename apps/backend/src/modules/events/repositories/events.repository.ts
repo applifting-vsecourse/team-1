@@ -5,6 +5,7 @@ import {
   EvaluationMode,
   isEvaluationModeLocked,
 } from "@/modules/applications/domain/evaluation-mode"
+import { ROOM_CAPACITY_SELECT } from "@/modules/applications/repositories/room-capacity.select"
 import { sortTerms } from "@/modules/events/domain/event-term"
 import { NewEvent, StoredEvent } from "@/modules/events/domain/organizer-event"
 import { PhotoContentType, PublicPageInput } from "@/modules/events/domain/public-page"
@@ -22,7 +23,7 @@ const include = {
       startsOn: true,
       endsOn: true,
       roomMode: true,
-      rooms: { select: { capacity: true, extraBeds: true, gender: true } },
+      rooms: { select: ROOM_CAPACITY_SELECT },
       _count: { select: { applicationTerms: { where: { status: "CONFIRMED" } } } },
     },
   },
@@ -201,22 +202,13 @@ export class EventsRepository {
       await tx.$queryRaw`SELECT id FROM event WHERE id = ${id} AND "organizationId" = ${organizationId} FOR UPDATE`
       const row = await tx.event.findFirst({
         where: { id, organizationId },
-        include: {
-          terms: {
-            where: { cancelledAt: null },
-            select: { id: true, _count: { select: { rooms: true } } },
-          },
-          _count: { select: { applications: true } },
-        },
+        include: { _count: { select: { applications: true } } },
       })
       if (!row) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
       if (row.evaluationMode === evaluationMode) return
-      const locked = isEvaluationModeLocked({
-        termCount: row.terms.length,
-        termsWithoutRooms: row.terms.filter((term) => term._count.rooms === 0).length,
-        applicationCount: row._count.applications,
-      })
-      if (locked) throw new AppException(HttpStatus.CONFLICT, "EVALUATION_MODE_LOCKED")
+      if (isEvaluationModeLocked({ applicationCount: row._count.applications })) {
+        throw new AppException(HttpStatus.CONFLICT, "EVALUATION_MODE_LOCKED")
+      }
       await tx.event.update({ where: { id }, data: { evaluationMode } })
     })
   }

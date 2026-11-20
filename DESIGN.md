@@ -66,6 +66,21 @@ All toasts go through `notify` (`@/lib/notify`) — never `toast` from `sonner` 
 - **Alert in the page**: a form submission error (validation, server error) — it stays above the submit button until fixed; the state of the whole page (link sent, invalid link, what is missing to publish). A form that stays open shows its error with an Alert, not a toast.
 - Server errors are always shown as a translated message by error code (`errors.json`), never the raw message.
 
+## Copy
+
+Copy exists only so the user makes the right decision or knows the next step; everything else is noise. These rules come from the PM's business review (#495, #546, #550, #578) and apply to every new or changed text in the UI — dialogs above all. Where a Figma frame's copy breaks them, follow the rules and report it in the PR. Wording and terms: [`docs/SLOVNIK.md`](docs/SLOVNIK.md); Czech always uses vykání.
+
+1. **Don't repeat what is on screen.** No sentence restating a value shown in the line above or elsewhere in the view. ✗ „Dámská kapacita klesne ze 2 na 0 míst“ followed by „Provizorní F má 2 místa.“ — keep the first line only.
+2. **Only what changes the decision.** For each sentence ask: does the user decide differently or have to do something because of it? If not, delete it. This especially covers what the system does on its own in the background — e-mails to other people, history entries, recalculations. ✗ „Náhradník dostane e-mail o změně přihlášky s platebními údaji.“, „Změna zůstane v historii a přihlašovatel dostane e-mail.“, „Smazání přepočítá kapacitu pouze tohoto termínu.“ ✓ „Lůžko automaticky zaplní náhradník.“ (the organizer must know before confirming).
+3. **Don't reassure about what doesn't happen.** No sentence saying something stays unchanged when nobody would expect it to change. ✗ „Program zdrojového termínu zůstane stejný. Kopii můžete dále upravovat samostatně.“, „Existující potvrzení účastníků se nezmění.“ Warn only about the unexpected or irreversible: ✓ „Stávající program se smaže. Nelze vzít zpět.“
+4. **The heading carries the point; a description only when it says what to do.** ✓ **Platba se automaticky nevrací.** Vratku zapište ručně.
+5. **Warnings for one action go in one block.** Several warnings are not separate sentences scattered over a dialog but one Alert with one short line each. ✗ „Platba se mezi termíny nepřevádí.“ … „Peníze se nevracejí automaticky.“ … „Po potvrzení se původní lůžko ihned uvolní.“ in three places.
+6. **No add-ons after a dot in headings.** A subheading is a name, not a list of contents. ✗ „Původní termín · vratka“, „Nový termín · nová částka k úhradě“ ✓ „Původní termín“, „Nový termín“.
+7. **The user's language, not accounting or system terms.** ✗ „Zaplaceno 0 Kč · dluh po odhlášení 0 Kč“ ✓ „Zatím jste nic neplatili, nemusíte nic řešit.“
+8. **An action result doesn't linger.** It is a toast (see above), or it disappears with the next action. ✗ „Zkopírovány 2 bloky · 2 bloky přeskočeny“ still shown after the next edit.
+
+Before handing over: every sentence in a dialog maps to a decision or step of the user; nothing on the screen is said twice; warnings sit in one block with a heading; counts and prepositions are declined correctly („1 lůžko“, „ze 2“).
+
 ## Every list has three states
 
 Loading, empty, and error — all three, always. An empty list renders an empty state with one sentence saying what would appear here, not a blank area. An error renders the message and a way to retry.

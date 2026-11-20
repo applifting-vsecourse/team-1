@@ -3,6 +3,7 @@ import { computeAvailablePlaces, RoomCapacity } from "@/modules/applications/dom
 import {
   bedGroup,
   BedGroup,
+  RoomMode,
   WaitlistCandidate,
   waitlistKey,
   waitlistPositions,
@@ -87,4 +88,25 @@ export function substituteForFreedBed(
     term,
     waitlisted.filter((candidate) => candidate.applicationId !== except),
   ).find((row) => row.group === group)
+}
+
+/**
+ * Who would take the bed of a confirmed participant who is about to be withdrawn (US-546): the
+ * same pick as `substituteForFreedBed`, made on the state of the term after the withdrawal, so
+ * the warning shown before it names the one the system really confirms afterwards.
+ */
+export function substituteAfterWithdrawal(
+  term: SubstituteTerm,
+  waitlisted: WaitlistCandidate[],
+  gender: Gender,
+  roomMode: RoomMode,
+): EligibleSubstitute | undefined {
+  const confirmedGenders = [...term.confirmedGenders]
+  const index = confirmedGenders.indexOf(gender)
+  if (index >= 0) confirmedGenders.splice(index, 1)
+  return substituteForFreedBed(
+    { rooms: term.rooms, confirmedGenders },
+    waitlisted,
+    bedGroup(roomMode, gender),
+  )
 }

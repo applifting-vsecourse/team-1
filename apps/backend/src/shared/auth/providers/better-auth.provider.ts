@@ -56,8 +56,8 @@ const createAuth = (
       disableSignUp: false,
       sendResetPassword: async ({ user, token }) => {
         const passwordResetUrl = `${config.frontendUrl}/${config.frontendResetPasswordUrl}?token=${token}`
-        // E-mails go out in the account's language (User.locale).
-        const locale = toLocale((user as { locale?: unknown }).locale)
+        // E-mails go out in the account's language (User.locale, else its first application).
+        const locale = await authUsers.findEmailLocale(user.id)
         const html = await renderEmail(ResetPassword, {
           username: user.name,
           url: passwordResetUrl,
@@ -102,7 +102,7 @@ const createAuth = (
       },
       sendVerificationEmail: async ({ user, url }) => {
         try {
-          const locale = toLocale((user as { locale?: unknown }).locale)
+          const locale = await authUsers.findEmailLocale(user.id)
           // For an e-mail change BetterAuth hands over the user with the NEW address,
           // while the stored one is still the current address.
           const storedEmail = await authUsers.findEmail(user.id)

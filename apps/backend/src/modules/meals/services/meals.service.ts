@@ -72,6 +72,7 @@ export class MealsService {
       decision.optionIds,
       decision.allergies,
       decision.specialRequest,
+      decision.noRestrictions,
     )
     return this.getOwn(user, applicationId)
   }

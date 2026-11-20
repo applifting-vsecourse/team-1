@@ -3,6 +3,7 @@ import { computeRoomWarnings, RoomWarningsInput } from "@/modules/events/domain/
 const men = { id: "men", capacity: 2, extraBeds: 0, gender: "MALE" as const }
 const women = { id: "women", capacity: 2, extraBeds: 0, gender: "FEMALE" as const }
 const shared = { id: "shared", capacity: 2, extraBeds: 0, gender: null }
+const individualRoom = { id: "mixed", capacity: 4, extraBeds: 0, gender: null, individual: true }
 
 const base = (over: Partial<RoomWarningsInput>): RoomWarningsInput => ({
   rooms: [men, women],
@@ -87,6 +88,31 @@ describe("computeRoomWarnings", () => {
       }),
     )
     expect(result.warnings).toEqual([])
+  })
+
+  it("does not warn about mixed genders in an individual room (US-145)", () => {
+    const result = computeRoomWarnings(
+      base({
+        rooms: [men, individualRoom],
+        assignments: [...at("mixed", 2), ...at("mixed", 2, "FEMALE")],
+      }),
+    )
+    expect(result.warnings).toEqual([])
+  })
+
+  it("still warns about an overfilled individual room and a confirmed person without a bed", () => {
+    const result = computeRoomWarnings(
+      base({
+        rooms: [individualRoom],
+        assignments: [...at("mixed", 3), ...at("mixed", 2, "FEMALE")],
+        confirmedWithoutRoom: [{ applicationTermId: "a" }],
+      }),
+    )
+    expect(result.warnings).toMatchObject([
+      { kind: "OVERCROWDED", roomId: "mixed" },
+      { kind: "CONFIRMED_WITHOUT_BED", applicationTermId: "a" },
+    ])
+    expect(result.summary).toEqual({ violations: 1, acknowledged: 0, confirmedWithoutBed: 1 })
   })
 
   it("warns about more people than beds, extra beds included", () => {

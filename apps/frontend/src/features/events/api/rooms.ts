@@ -13,6 +13,10 @@ const roomSchema = z.object({
   /** Capacity plus extra beds, computed by the API. */
   beds: z.number().int().min(1),
   gender: z.enum(["FEMALE", "MALE"]).nullable(),
+  /** Individual (mixed, family) room (US-145): no gender, counted into the capacity by occupancy. */
+  individual: z.boolean().optional(),
+  /** Confirmed people in an individual room by gender: what it adds to the capacity. */
+  occupiedBy: z.object({ FEMALE: z.number().int(), MALE: z.number().int() }).optional(),
 })
 const termRoomsSchema = z.object({
   eventId: z.string(),
@@ -24,8 +28,16 @@ const termRoomsSchema = z.object({
   startsOn: z.string(),
   endsOn: z.string(),
   roomMode: roomModeSchema,
+  /** Confirmed participants see their room (US-144). */
+  roomsPublished: z.boolean(),
   rooms: z.array(roomSchema),
-  capacity: z.object({ FEMALE: z.number().int(), MALE: z.number().int(), total: z.number().int() }),
+  capacity: z.object({
+    FEMALE: z.number().int(),
+    MALE: z.number().int(),
+    total: z.number().int(),
+    /** All beds in individual rooms (US-145); only the occupied ones are in the capacity above. */
+    individualBeds: z.number().int().optional(),
+  }),
 })
 export type Room = z.infer<typeof roomSchema>
 export type RoomMode = z.infer<typeof roomModeSchema>
@@ -68,6 +80,16 @@ export async function setExtraBeds(
 export async function deleteRoom(eventId: string, termId: string, id: string): Promise<void> {
   await api.delete(`${base(eventId, termId)}/rooms/${encodeURIComponent(id)}`)
 }
+/** Publishes the room assignment of the term to the confirmed participants, or takes it back (US-144). */
+export async function setRoomsPublished(
+  eventId: string,
+  termId: string,
+  isPublished: boolean,
+): Promise<void> {
+  await api.patch(`${base(eventId, termId)}/rooms-published`, {
+    json: { published: isPublished },
+  })
+}
 /** `rooms` carries a gender for every existing room when switching to gendered rooms. */
 export async function setRoomMode(
   eventId: string,
@@ -87,4 +109,28 @@ export async function copyRooms(
   strategy: RoomCopyStrategy,
 ): Promise<void> {
   await api.post(`${base(eventId, termId)}/rooms/copy`, { json: { sourceTermId, strategy } })
+}
+/** One bulk create: `count` shared rooms, or `countFemale` + `countMale` in a gendered term; at most 200 in sum. */
+export type BulkRoomsInput = {
+  capacity: number
+  firstNumber: number
+  count?: number
+  countFemale?: number
+  countMale?: number
+}
+const bulkRoomsResultSchema = z.object({
+  created: z.array(z.string()),
+  skipped: z.array(z.string()),
+})
+/** Names created, and names skipped because the term already has a room with that name. */
+export type BulkRoomsResult = z.infer<typeof bulkRoomsResultSchema>
+/** Creates the rooms of one request; rooms whose name already exists are skipped, not refused. */
+export async function createRoomsBulk(
+  eventId: string,
+  termId: string,
+  input: BulkRoomsInput,
+): Promise<BulkRoomsResult> {
+  return bulkRoomsResultSchema.parse(
+    await api.post(`${base(eventId, termId)}/rooms/bulk`, { json: input }).json(),
+  )
 }

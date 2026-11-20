@@ -32,6 +32,12 @@ export type MyApplicationRecord = {
   /** Public contact of the event (US-122); optional unless the event is in the catalog. */
   contactEmail: string | null
   contactPhone: string | null
+  /** The participant has entered a meal restriction: an option, an allergy or a request (US-64). */
+  mealsFilled: boolean
+  /** The participant has saved a health restriction (US-68); a row exists only with consent. */
+  healthFilled: boolean
+  /** The applicant settles the accommodation individually (US-38); no room is shown to them. */
+  individualAccommodation: boolean
   terms: {
     termId: string
     /** `Term.number`, part of the term's variable symbol. */
@@ -56,6 +62,17 @@ export type MyApplicationRecord = {
     transportOffered: boolean
     /** The participant chose a transport or their own transport for this term. */
     transportDecided: boolean
+    /** The organizer published the room assignment of this term (US-144). */
+    roomsPublished: boolean
+    /** Name of the assigned room, `null` while not assigned. */
+    roomName: string | null
+    /** The term is cancelled by the organizer; nothing is arranged for it. */
+    termCancelled: boolean
+    /** Names the participant wishes to room with (US-146). */
+    roomWishes: string[]
+    /** Later arrival / earlier departure, Prague wall time `yyyy-MM-ddTHH:mm` (US-143). */
+    lateArrival: string | null
+    earlyDeparture: string | null
   }[]
 }
 
@@ -72,6 +89,21 @@ export type MyApplicationTerm = {
   transportOffered: boolean
   /** The participant has told how they get there. */
   transportDecided: boolean
+  /**
+   * Present only for a confirmed term whose room assignment is published, and never for a
+   * participant with individual accommodation. `name` is `null` while no room is assigned (US-144).
+   */
+  room?: { name: string | null }
+  /**
+   * Present only for a confirmed term that is not cancelled, and never for a participant with
+   * individual accommodation — the only case they can write wishes (US-146); empty = none yet.
+   */
+  roomWishes?: string[]
+  /**
+   * Present while the application in the term is not cancelled or archived — the only case the
+   * participant can set them (US-143). Both `null` when nothing is given.
+   */
+  stay?: { lateArrival: string | null; earlyDeparture: string | null }
 }
 
 /** Where and how much to pay — only when at least one term is confirmed (US-25). */
@@ -102,6 +134,10 @@ export type MyApplication = {
   /** The summary variable symbol: application number × 1000, 48 → "48000". */
   variableSymbol: string
   terms: MyApplicationTerm[]
+  /** Meal restrictions entered (application-wide, so the same in every term). */
+  mealsDecided: boolean
+  /** Health restriction entered (application-wide). */
+  healthDecided: boolean
   amountDueCzk: number
   amountPaidCzk: number
   /** Due − paid; negative is an overpayment and is shown as such. */
@@ -179,7 +215,18 @@ export function buildMyApplication(
           : {}),
         transportOffered: term.transportOffered,
         transportDecided: term.transportDecided,
+        ...(term.status === "CONFIRMED" && term.roomsPublished && !record.individualAccommodation
+          ? { room: { name: term.roomName } }
+          : {}),
+        ...(term.status === "CONFIRMED" && !term.termCancelled && !record.individualAccommodation
+          ? { roomWishes: term.roomWishes }
+          : {}),
+        ...(term.status !== "CANCELLED" && term.status !== "ARCHIVED" && !term.termCancelled
+          ? { stay: { lateArrival: term.lateArrival, earlyDeparture: term.earlyDeparture } }
+          : {}),
       })),
+    mealsDecided: record.mealsFilled,
+    healthDecided: record.healthFilled,
     amountDueCzk,
     amountPaidCzk,
     amountOwedCzk: computeAmountOwed(amountDueCzk, amountPaidCzk),

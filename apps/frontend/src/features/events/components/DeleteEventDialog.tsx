@@ -100,7 +100,7 @@ export function DeleteEventDialog({
           <DialogFooter className="flex-row justify-start gap-2">
             <DialogClose asChild>
               <Button
-                variant="ghost"
+                variant="secondary"
                 size="lg"
                 className="w-full sm:w-auto"
               >

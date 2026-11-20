@@ -1,8 +1,10 @@
 import { useState, type FormEvent } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { Globe } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ErrorState } from "@/components/molecules/ErrorState"
+import { SETTINGS_CARD_CLASS, SettingsCardHeader } from "@/components/molecules/SettingsCard"
 import { UploadField } from "@/components/molecules/UploadField"
 import {
   Accordion,
@@ -10,6 +12,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
@@ -144,13 +147,28 @@ export function PublicPageForm({ event }: { event: OrganizerEvent }) {
     >
       <AccordionItem
         value={SECTION}
-        className="rounded-lg border bg-card px-3 shadow-sm last:border-b"
+        className={`rounded-lg border bg-card text-card-foreground shadow-sm last:border-b ${SETTINGS_CARD_CLASS} py-0 sm:py-0`}
       >
-        <AccordionTrigger className="my-1 items-center rounded-md px-1 text-lg font-semibold tracking-tight hover:bg-muted hover:no-underline [&>svg]:size-5 [&>svg]:translate-y-0 [&>svg]:text-foreground">
-          {t("publicPage.title")}
+        <AccordionTrigger
+          aria-label={t("publicPage.title")}
+          aria-describedby="public-page-summary"
+          className="items-center rounded-md py-4 hover:no-underline sm:py-6 [&>svg]:size-5 [&>svg]:translate-y-0 [&>svg]:text-foreground"
+        >
+          <SettingsCardHeader
+            icon={Globe}
+            as="span"
+            title={t("publicPage.title")}
+            description={t("publicPage.sectionDescription")}
+            descriptionId="public-page-summary"
+            aside={
+              <Badge variant={event.publishedInCatalog ? "success" : "secondary"}>
+                {t(event.publishedInCatalog ? "publicPage.listed" : "publicPage.notListed")}
+              </Badge>
+            }
+          />
         </AccordionTrigger>
         {/* The padding keeps the focus ring of the fields from being cut off by the collapsing box. */}
-        <AccordionContent className="px-1 pt-1">
+        <AccordionContent className="px-1 pt-1 pb-4 sm:pb-6">
           <form
             noValidate
             className="flex flex-col gap-4"

@@ -4,12 +4,13 @@ import { useNavigate } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
+import { BackLink } from "@/components/atoms/BackLink"
+import { CheckboxRow } from "@/components/molecules/CheckboxRow"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { PageHeader } from "@/components/molecules/PageHeader"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { notify } from "@/lib/notify"
@@ -52,17 +53,26 @@ function MealsForm({ applicationId, meals }: { applicationId: string; meals: Own
   const [optionIds, setOptionIds] = useState(new Set(meals.selectedOptionIds))
   const [allergies, setAllergies] = useState(meals.allergies ?? "")
   const [specialRequest, setSpecialRequest] = useState(meals.specialRequest ?? "")
+  const [hasNone, setHasNone] = useState(meals.noRestrictions)
 
   const mutation = useMutation({
     // An option the organizer removed meanwhile is no longer offered, so it is not sent either.
     mutationFn: () =>
-      saveOwnMeals(applicationId, {
-        optionIds: meals.options.map((option) => option.id).filter((id) => optionIds.has(id)),
-        allergies,
-        specialRequest,
-      }),
+      saveOwnMeals(
+        applicationId,
+        hasNone
+          ? { optionIds: [], allergies: "", specialRequest: "", noRestrictions: true }
+          : {
+              optionIds: meals.options.map((option) => option.id).filter((id) => optionIds.has(id)),
+              allergies,
+              specialRequest,
+              noRestrictions: false,
+            },
+      ),
     onSuccess: async (saved) => {
       client.setQueryData(ownMealsQueryOptions(applicationId).queryKey, saved)
+      // The overview of the application shows the meals step as done (US-149).
+      void client.invalidateQueries({ queryKey: ["participant", "applications", applicationId] })
       void client.invalidateQueries({ queryKey: ["organizer", "events"] })
       notify.success(t("own.saved"))
       await navigate({ to: ROUTES.participant.application, params: { applicationId } })
@@ -79,45 +89,46 @@ function MealsForm({ applicationId, meals }: { applicationId: string; meals: Own
 
   return (
     <form
-      className="flex flex-col gap-6"
+      className="flex max-w-196 flex-col gap-6"
       onSubmit={(event) => {
         event.preventDefault()
         mutation.mutate()
       }}
     >
+      <BackLink
+        to={ROUTES.participant.application}
+        params={{ applicationId }}
+      >
+        {t("own.backToApplication")}
+      </BackLink>
       <PageHeader
-        title={t("own.title", { name: `${meals.firstName} ${meals.lastName}` })}
-        description={meals.eventName}
+        title={t("own.pageTitle")}
+        description={`${meals.firstName} ${meals.lastName} · ${meals.eventName}`}
       />
-      {meals.options.length > 0 ? (
-        <div className="flex flex-col gap-6">
-          {meals.options.map((option) => (
-            <div
-              key={option.id}
-              className="flex items-center gap-3 py-2"
-            >
-              <Checkbox
-                id={`meal-${option.id}`}
-                className="size-6"
-                checked={optionIds.has(option.id)}
-                onCheckedChange={(isChecked) => toggle(option.id, isChecked === true)}
-              />
-              <Label
-                htmlFor={`meal-${option.id}`}
-                className="flex-1 cursor-pointer leading-5 font-normal"
-              >
-                {option.name}
-              </Label>
-            </div>
-          ))}
-        </div>
-      ) : null}
+      {/* US-150: confirms the step without any restriction; not drawn in Figma. */}
+      <CheckboxRow
+        id="meal-none"
+        label={t("own.noRestrictions")}
+        checked={hasNone}
+        onCheckedChange={(isChecked) => setHasNone(isChecked === true)}
+      />
+      {meals.options.map((option) => (
+        <CheckboxRow
+          key={option.id}
+          id={`meal-${option.id}`}
+          label={option.name}
+          checked={optionIds.has(option.id)}
+          disabled={hasNone}
+          onCheckedChange={(isChecked) => toggle(option.id, isChecked === true)}
+        />
+      ))}
       <div className="flex flex-col gap-2">
         <Label htmlFor="meal-allergies">{t("own.allergiesLabel")}</Label>
         <Textarea
           id="meal-allergies"
           className="min-h-32"
           maxLength={ALLERGIES_MAX_LENGTH}
+          disabled={hasNone}
           value={allergies}
           onChange={(event) => setAllergies(event.target.value)}
         />
@@ -129,6 +140,7 @@ function MealsForm({ applicationId, meals }: { applicationId: string; meals: Own
           id="meal-special-request"
           className="min-h-32"
           maxLength={SPECIAL_REQUEST_MAX_LENGTH}
+          disabled={hasNone}
           value={specialRequest}
           onChange={(event) => setSpecialRequest(event.target.value)}
         />

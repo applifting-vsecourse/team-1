@@ -155,8 +155,8 @@ describe("ApplicationConfirmationMailer.sendSubmissionConfirmation", () => {
     )
 
     const { html } = sent(sendEmail)
-    expect(html).toMatch(/1\. týden:\s*<strong>potvrzený/)
-    expect(html).toMatch(/2\. týden:\s*<strong>jste náhradník/)
+    expect(html).toMatch(/1\. týden:\s*<strong>Potvrzeno/)
+    expect(html).toMatch(/2\. týden:\s*<strong>Náhradník/)
     expect(html).toContain("4 500 Kč")
     expect(html).not.toContain("9 400 Kč")
     expect(html).toContain("2900123456/2010")
@@ -445,7 +445,7 @@ describe("ApplicationConfirmationMailer.sendApplicationChange", () => {
         await mailer.sendApplicationChange(change({ kind, isAmountChanged: true }))
 
         const { html } = sent(sendEmail)
-        expect(html).toContain("K úhradě")
+        expect(html).toContain("Zbývá zaplatit")
         expect(html).toContain("4 900 Kč")
         expect(html).toContain("Bankovní účet")
         expect(html).toContain("2900123456/2010")
@@ -460,7 +460,7 @@ describe("ApplicationConfirmationMailer.sendApplicationChange", () => {
       await mailer.sendApplicationChange(change({ locale: "en", isAmountChanged: true }))
 
       const { html } = sent(sendEmail)
-      expect(html).toContain("Amount due")
+      expect(html).toContain("Left to pay")
       expect(html).toContain("Bank account")
       expect(html).toContain("Reference number")
       expect(html).toContain("CZK 4,900")
@@ -493,7 +493,7 @@ describe("ApplicationConfirmationMailer.sendApplicationChange", () => {
 
       const { html } = sent(sendEmail)
       expect(html).not.toContain("Variabilní symbol")
-      expect(html).not.toContain("K úhradě")
+      expect(html).not.toContain("Zbývá zaplatit")
       expect(html).not.toContain("2900123456/2010")
     })
 

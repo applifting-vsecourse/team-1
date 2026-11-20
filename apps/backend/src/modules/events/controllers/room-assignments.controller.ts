@@ -1,5 +1,11 @@
-import { RoomAssignmentRequestDto } from "@/modules/events/controllers/dto/room-assignments.request.dto"
-import { RoomAssignmentsResponseDto } from "@/modules/events/controllers/dto/room-assignments.response.dto"
+import {
+  RoomAssignmentRequestDto,
+  RoomAssignmentsBulkRequestDto,
+} from "@/modules/events/controllers/dto/room-assignments.request.dto"
+import {
+  RoomAssignmentsResponseDto,
+  RoomProposalResponseDto,
+} from "@/modules/events/controllers/dto/room-assignments.response.dto"
 import { RoomAssignmentsService } from "@/modules/events/services/room-assignments.service"
 import { Auth } from "@/shared/auth/decorators/auth.decorator"
 import { User } from "@/shared/auth/decorators/user.decorator"
@@ -11,6 +17,7 @@ import {
   Get,
   HttpCode,
   Param,
+  Post,
   Put,
   UsePipes,
   ValidationPipe,
@@ -35,6 +42,42 @@ export class RoomAssignmentsController {
     @Param("termId") termId: string,
   ): Promise<RoomAssignmentsResponseDto> {
     return RoomAssignmentsResponseDto.fromDomain(await this.assignments.list(user, eventId, termId))
+  }
+
+  @Post("proposal")
+  @HttpCode(200)
+  @ApiOperation({
+    summary:
+      "Proposes rooms for the confirmed participants without one (US-147); saves nothing, the organizer confirms it with POST bulk",
+  })
+  @ApiResponse({ status: 200, type: RoomProposalResponseDto })
+  @ApiResponse({ status: 409, description: "Cancelled term" })
+  async propose(
+    @User() user: Identity,
+    @Param("eventId") eventId: string,
+    @Param("termId") termId: string,
+  ): Promise<RoomProposalResponseDto> {
+    return RoomProposalResponseDto.fromDomain(await this.assignments.propose(user, eventId, termId))
+  }
+
+  @Post("bulk")
+  @HttpCode(204)
+  @ApiOperation({
+    summary: "Saves a confirmed room proposal: all assignments in one transaction or none",
+  })
+  @ApiResponse({ status: 204 })
+  @ApiResponse({
+    status: 409,
+    description:
+      "Proposal out of date (somebody already has a room, wrong gender), room full, participant not assignable, room of another term, cancelled term",
+  })
+  async assignMany(
+    @User() user: Identity,
+    @Param("eventId") eventId: string,
+    @Param("termId") termId: string,
+    @Body() body: RoomAssignmentsBulkRequestDto,
+  ): Promise<void> {
+    await this.assignments.assignMany(user, eventId, termId, body.assignments)
   }
 
   @Put(":applicationTermId")
