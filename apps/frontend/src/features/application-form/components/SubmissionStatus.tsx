@@ -364,7 +364,7 @@ function PaymentCopyField({
           <CopyButton
             value={value}
             label={copyLabel}
-            onCopyResult={(wasCopied) => setCopiedValue(wasCopied ? value : null)}
+            onCopyResult={(didCopy) => setCopiedValue(didCopy ? value : null)}
           />
         </span>
       </dd>
