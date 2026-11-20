@@ -728,3 +728,28 @@
 [data-slot="badge"][data-variant="warning"] {
   border-width: 0;
 }
+
+/* Figma Dialog / Dialog actions: both actions share a 48 px target on either layout. */
+[data-slot="dialog-footer"] > [data-slot="button"][data-size="default"],
+[data-slot="sheet-footer"] > [data-slot="button"][data-size="default"] {
+  min-height: 3rem;
+}
+
+@media (min-width: 40rem) {
+  [data-slot="dialog-content"][class~="sm:max-w-lg"] {
+    max-width: 32.5rem;
+  }
+}
+[data-slot="dialog-content"]:has(> [data-slot="dialog-close"])
+  > [data-slot="dialog-header"]:has(> [data-slot="dialog-title"]:first-child) {
+  gap: 1.25rem;
+  padding-inline-end: 0;
+}
+[data-slot="dialog-content"]:has(> [data-slot="dialog-close"])
+  > [data-slot="dialog-header"]
+  > [data-slot="dialog-title"]:first-child {
+  display: flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding-inline-end: 3.75rem;
+}
