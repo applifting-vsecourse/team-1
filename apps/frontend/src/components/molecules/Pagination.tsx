@@ -73,7 +73,7 @@ export function Pagination({ page, pageCount, pageSize, total, onPageChange }: P
             {p === page && (
               <span
                 aria-hidden="true"
-                className="pointer-events-none absolute inset-0 pagination-current-marker bg-current mask-size-[100%_100%]"
+                className="pagination-current-marker pointer-events-none absolute inset-0 bg-current mask-size-[100%_100%]"
               />
             )}
           </Button>
