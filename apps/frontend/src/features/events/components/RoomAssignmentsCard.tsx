@@ -27,7 +27,6 @@ import { notify } from "@/lib/notify"
 
 import {
   assignRoom,
-  roomAssignmentsKey,
   roomAssignmentsQueryOptions,
   unassignRoom,
   type AssignmentParticipant,
@@ -127,8 +126,9 @@ export function RoomAssignmentsCard({
     useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 8 } }),
   )
 
-  const refresh = () =>
-    client.invalidateQueries({ queryKey: roomAssignmentsKey(term.eventId, term.termId) })
+  // An assignment can change the capacity (beds of an individual room count by occupancy, US-145),
+  // so the rooms, the capacity and the occupancy of the event are stale as well.
+  const refresh = () => client.invalidateQueries({ queryKey: ["events", term.eventId] })
   const assign = useMutation({
     mutationFn: (input: { applicationTermId: string; roomId: string }) =>
       assignRoom(term.eventId, term.termId, input.applicationTermId, input.roomId),
@@ -161,6 +161,7 @@ export function RoomAssignmentsCard({
   }
 
   const hasRooms = data.rooms.length > 0
+  const regularRooms = data.rooms.filter((room) => !room.individual)
   const isNobodyAssigned = data.rooms.every((room) => room.participants.length === 0)
   const visibleRooms = data.rooms.filter((room) =>
     room.name.toLocaleLowerCase().includes(search.trim().toLocaleLowerCase()),
@@ -278,7 +279,10 @@ export function RoomAssignmentsCard({
       <div className="flex flex-col gap-4">
         <RoomWarningsSummary
           data={data}
-          isSharedMode={hasRooms && data.rooms.every((room) => room.gender === null)}
+          isSharedMode={
+            // Individual rooms have no gender in either mode; with only those the mode is not shared.
+            regularRooms.length > 0 && regularRooms.every((room) => room.gender === null)
+          }
         />
         {/* On a phone the count of the unassigned stays under the top bar while the rooms scroll. */}
         {isPanelScrolledOut ? (

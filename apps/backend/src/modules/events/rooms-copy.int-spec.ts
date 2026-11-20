@@ -110,7 +110,7 @@ describe("copying rooms between terms (integration)", () => {
       { name: "A", capacity: 4, gender: "FEMALE" },
       { name: "B", capacity: 6, gender: "MALE" },
     ])
-    expect(copied.capacity).toEqual({ FEMALE: 4, MALE: 6, total: 10 })
+    expect(copied.capacity).toEqual({ FEMALE: 4, MALE: 6, total: 10, individualBeds: 0 })
   })
 
   it("leaves the copies independent of the source", async () => {
@@ -126,7 +126,7 @@ describe("copying rooms between terms (integration)", () => {
     ).toBe(204)
     const original = await rooms(source)
     expect(original.rooms.map((room) => room.name)).toEqual(["A", "B"])
-    expect(original.capacity).toEqual({ FEMALE: 4, MALE: 6, total: 10 })
+    expect(original.capacity).toEqual({ FEMALE: 4, MALE: 6, total: 10, individualBeds: 0 })
     expect(first.id).not.toBe(original.rooms[0].id)
   })
 
@@ -154,14 +154,14 @@ describe("copying rooms between terms (integration)", () => {
     expect((await copy(target, source, "ADD")).status).toBe(204)
     const after = await rooms(target)
     expect(after.rooms.map((room) => room.name).sort()).toEqual(["A", "B", "Own"])
-    expect(after.capacity).toEqual({ FEMALE: 4, MALE: 8, total: 12 })
+    expect(after.capacity).toEqual({ FEMALE: 4, MALE: 8, total: 12, individualBeds: 0 })
   })
 
   it("replaces the rooms the term already has", async () => {
     expect((await copy(target, source, "REPLACE")).status).toBe(204)
     const replaced = await rooms(target)
     expect(replaced.rooms.map((room) => room.name)).toEqual(["A", "B"])
-    expect(replaced.capacity).toEqual({ FEMALE: 4, MALE: 6, total: 10 })
+    expect(replaced.capacity).toEqual({ FEMALE: 4, MALE: 6, total: 10, individualBeds: 0 })
   })
 
   it("copies shared rooms between shared terms", async () => {

@@ -37,7 +37,8 @@ export function RoomProposalDraftView({
   const people = new Map(data.unassigned.map((person) => [person.applicationTermId, person]))
   const count = Object.keys(draft.placements).length
   const failedWishes = unfulfilledWishes(data.rooms, draft)
-  const hasSharedRooms = data.rooms.some((room) => room.gender === null)
+  // An individual room has no gender either, but it never makes the rooms shared (US-145).
+  const hasSharedRooms = data.rooms.some((room) => room.gender === null && !room.individual)
   const nameOf = (id: string): string => {
     const person = people.get(id)
     return person ? participantName(person) : id

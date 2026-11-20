@@ -5,6 +5,7 @@ import {
   EvaluationMode,
   isEvaluationModeLocked,
 } from "@/modules/applications/domain/evaluation-mode"
+import { ROOM_CAPACITY_SELECT } from "@/modules/applications/repositories/room-capacity.select"
 import { sortTerms } from "@/modules/events/domain/event-term"
 import { NewEvent, StoredEvent } from "@/modules/events/domain/organizer-event"
 import { PhotoContentType, PublicPageInput } from "@/modules/events/domain/public-page"
@@ -22,7 +23,7 @@ const include = {
       startsOn: true,
       endsOn: true,
       roomMode: true,
-      rooms: { select: { capacity: true, extraBeds: true, gender: true } },
+      rooms: { select: ROOM_CAPACITY_SELECT },
       _count: { select: { applicationTerms: { where: { status: "CONFIRMED" } } } },
     },
   },

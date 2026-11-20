@@ -1,4 +1,5 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
+import { ROOM_CAPACITY_SELECT } from "@/modules/applications/repositories/room-capacity.select"
 import { EventOccupancySource } from "@/modules/overview/domain/occupancy"
 import { AppException } from "@/shared/errors/app.exception"
 import { HttpStatus, Injectable } from "@nestjs/common"
@@ -18,7 +19,7 @@ export class OccupancyRepository {
           where: { cancelledAt: null },
           orderBy: [{ startsOn: "asc" }, { endsOn: "asc" }, { id: "asc" }],
           include: {
-            rooms: { select: { capacity: true, extraBeds: true, gender: true } },
+            rooms: { select: ROOM_CAPACITY_SELECT },
             applicationTerms: {
               select: { status: true, application: { select: { gender: true } } },
             },

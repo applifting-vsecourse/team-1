@@ -30,6 +30,7 @@ const otherTermSchema = z.object({
       id: z.string(),
       name: z.string(),
       gender: genderSchema.nullable(),
+      individual: z.boolean().optional(),
       /** Capacity plus extra beds. */
       beds: z.number().int(),
       freeBeds: z.number().int(),
@@ -48,6 +49,8 @@ const assignmentRoomSchema = z.object({
   /** Capacity plus extra beds, computed by the API. */
   beds: z.number().int(),
   gender: genderSchema.nullable(),
+  /** Individual (mixed, family) room (US-145). */
+  individual: z.boolean().optional(),
   participants: z.array(participantSchema),
 })
 const warningKindSchema = z.enum(["OVERCROWDED", "MIXED_GENDER", "CONFIRMED_WITHOUT_BED"])

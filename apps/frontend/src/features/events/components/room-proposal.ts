@@ -52,13 +52,21 @@ export function movableBeds(
   person: { applicationTermId: string; gender: "FEMALE" | "MALE" },
 ): { room: AssignmentRoom; number: number }[] {
   const own = draft.placements[person.applicationTermId]
-  return rooms
-    .filter((room) => room.id !== own && (room.gender === null || room.gender === person.gender))
-    .flatMap((room) => {
-      const taken = room.participants.length + proposedIn(draft, room.id).length
-      return Array.from({ length: draftFreeBeds(room, draft) }, (_, index) => ({
-        room,
-        number: taken + index + 1,
-      }))
-    })
+  return (
+    rooms
+      // An individual room (US-145) is filled by hand only, so a proposal never moves anybody there.
+      .filter(
+        (room) =>
+          room.id !== own &&
+          !room.individual &&
+          (room.gender === null || room.gender === person.gender),
+      )
+      .flatMap((room) => {
+        const taken = room.participants.length + proposedIn(draft, room.id).length
+        return Array.from({ length: draftFreeBeds(room, draft) }, (_, index) => ({
+          room,
+          number: taken + index + 1,
+        }))
+      })
+  )
 }
