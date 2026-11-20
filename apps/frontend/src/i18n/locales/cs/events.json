@@ -745,7 +745,7 @@
       "price": "Cena termínu (Kč) *",
       "priceHelper": "Celá cena za termín; bez zálohy.",
       "priceRequired": "Vyplňte cenu za osobu v Kč.",
-      "rangeHint": "Kliknutím zvol začátek a potom konec termínu.",
+      "rangeHint": "Kliknutím zvolte začátek a potom konec termínu.",
       "rangeLabel": "Termín konání *",
       "rangeStart": "{{date}} · vyberte konec",
       "required": "* Povinná pole",
