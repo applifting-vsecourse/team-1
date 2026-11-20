@@ -23,8 +23,8 @@
       "variableSymbolOf": "{{name}} · {{amount}} · variabilní symbol"
     },
     "status": {
-      "archived": "Archivovaná",
-      "cancelled": "Zrušená",
+      "archived": "Archivováno",
+      "cancelled": "Zrušeno",
       "confirmed": "Potvrzeno",
       "toEvaluate": "Čeká na vyhodnocení",
       "waitlisted": "Náhradník"

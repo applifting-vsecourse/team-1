@@ -193,7 +193,7 @@ export function AssignRoomDialog({
           <div className="flex shrink-0 flex-col gap-0.5 rounded-lg border border-border px-3 py-2.5">
             <span className="text-sm font-medium break-words">{name}</span>
             <span className="text-sm text-muted-foreground">
-              {genderLabel(target.gender)} · {statusLabel(target.status, target.gender)}
+              {genderLabel(target.gender)} · {statusLabel(target.status)}
               {current ? ` · ${t("roomAssignments.nowIn", { room: roomTitle(current) })}` : ""}
             </span>
           </div>

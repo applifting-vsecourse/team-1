@@ -23,7 +23,7 @@ const copy: Record<
     heading: 'Your confirmation was withdrawn. You are a substitute',
     text: (name, term, gender) =>
       `The organiser withdrew the confirmation of ${name}’s place for ${term} and moved them among the substitutes. This is not waiting for the first evaluation.`,
-    badge: 'Substitute',
+    badge: 'Waitlisted',
     button: 'Open my applications',
     footer: (organization) => `${organization} · via Togena`,
   },

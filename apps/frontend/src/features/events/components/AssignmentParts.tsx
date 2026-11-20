@@ -204,8 +204,7 @@ export function UnassignedRow({
             ) : null}
           </span>
           <span className="text-sm text-muted-foreground">
-            {genderLabel(participant.gender)} ·{" "}
-            {statusLabel(participant.status, participant.gender)}
+            {genderLabel(participant.gender)} · {statusLabel(participant.status)}
           </span>
         </div>
       </div>

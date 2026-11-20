@@ -155,8 +155,8 @@ describe("ApplicationConfirmationMailer.sendSubmissionConfirmation", () => {
     )
 
     const { html } = sent(sendEmail)
-    expect(html).toMatch(/1\. týden:\s*<strong>potvrzený/)
-    expect(html).toMatch(/2\. týden:\s*<strong>jste náhradník/)
+    expect(html).toMatch(/1\. týden:\s*<strong>Potvrzeno/)
+    expect(html).toMatch(/2\. týden:\s*<strong>Náhradník/)
     expect(html).toContain("4 500 Kč")
     expect(html).not.toContain("9 400 Kč")
     expect(html).toContain("2900123456/2010")

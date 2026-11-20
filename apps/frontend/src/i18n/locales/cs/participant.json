@@ -218,7 +218,7 @@
   },
   "status": {
     "archived": "Archivováno",
-    "cancelled": "Zrušená",
+    "cancelled": "Zrušeno",
     "confirmed": "Potvrzeno",
     "toEvaluate": "Čeká na vyhodnocení",
     "waitlisted": "Náhradník"
