@@ -108,13 +108,22 @@ export class OrganizerTermChangeController {
   @ApiOperation({ summary: "Withdraw the participant from terms as an organizer (US-32)" })
   @ApiResponse({ status: 200, type: OrganizerWithdrawalResponseDto })
   @ApiResponse({ status: 403, description: "Wrong account type or foreign application" })
-  @ApiResponse({ status: 409, description: "A term is not one the application is in" })
+  @ApiResponse({
+    status: 409,
+    description:
+      "A term is not one the application is in, or the substitute differs from the preview (WITHDRAWAL_SUBSTITUTE_CHANGED)",
+  })
   async withdraw(
     @User() user: Identity,
     @Param("applicationId") applicationId: string,
     @Body() body: OrganizerWithdrawalRequestDto,
   ): Promise<OrganizerWithdrawalResponseDto> {
-    const result = await this.statuses.withdrawByOrganizer(user, applicationId, body.termIds)
+    const result = await this.statuses.withdrawByOrganizer(
+      user,
+      applicationId,
+      body.termIds,
+      body.expectedSubstitutes,
+    )
     return { changedAt: result.changedAt.toISOString(), changedByName: result.changedByName }
   }
 }

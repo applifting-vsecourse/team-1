@@ -1,13 +1,22 @@
 {
   "kitchen": {
+    "allergiesColumn": "Alergie",
     "allergiesTitle": "Alergie",
+    "arrivalColumn": "Příjezd",
+    "countColumn": "Počet",
     "countsTitle": "Počty stravování",
+    "departureColumn": "Odjezd",
     "description": "{{event}} · Stravování",
+    "nameColumn": "Jméno",
+    "optionColumn": "Strava",
     "overlapNote": "Omezení se mohou překrývat.",
     "print": "Vytisknout souhrn",
     "regular": "Běžná strava",
+    "requestColumn": "Požadavek",
+    "sectionTitle": "{{title}} · {{count}}",
     "setUpOptions": "Nastavit varianty stravy",
     "specialRequestsTitle": "Speciální požadavky",
+    "staysTitle": "Příjezdy a odjezdy",
     "termLabel": "Termín",
     "title": "Souhrn pro kuchyni"
   },
@@ -21,10 +30,11 @@
   },
   "own": {
     "allergiesLabel": "Alergie a další stravovací omezení",
+    "backToApplication": "← Přihláška",
+    "noRestrictions": "Nemám žádné stravovací omezení",
     "pageTitle": "Stravování",
     "save": "Uložit stravování",
     "saved": "Stravování uloženo",
-    "specialRequestLabel": "Speciální požadavek",
-    "title": "Stravování · {{name}}"
+    "specialRequestLabel": "Speciální požadavek"
   }
 }

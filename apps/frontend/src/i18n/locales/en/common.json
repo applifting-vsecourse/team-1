@@ -100,7 +100,6 @@
   },
   "termPayment": {
     "account": "Account",
-    "amountToPay": "Amount to pay",
     "deadline": "Due date",
     "due": "Amount due",
     "listTitle": "Payments by term",
@@ -116,7 +115,7 @@
     "qrAlt": "QR code for the term payment",
     "status": {
       "CANCELLED": "Cancelled",
-      "NOTHING_DUE": "Nothing to pay",
+      "NOTHING_DUE": "Nothing due",
       "OVERPAID": "Overpaid",
       "PAID": "Paid",
       "PARTIALLY_PAID": "Partly paid",

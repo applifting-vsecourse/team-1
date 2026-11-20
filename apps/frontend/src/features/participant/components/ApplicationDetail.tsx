@@ -4,13 +4,10 @@ import { Link } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
-import { Checklist } from "@/components/molecules/Checklist"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { PageHeader } from "@/components/molecules/PageHeader"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { termTitle } from "@/lib/term-label"
 
 import { myApplicationQueryOptions } from "@/features/participant/api/applications"
 import { ChangeRequestNotice } from "@/features/participant/components/ChangeRequestNotice"
@@ -21,6 +18,14 @@ import {
   type ChangeMode,
 } from "@/features/participant/components/ParticipantTermChange"
 import { PaymentSummary } from "@/features/participant/components/PaymentSummary"
+import { RoomSection } from "@/features/participant/components/RoomSection"
+import { RoomWishesSection } from "@/features/participant/components/RoomWishes"
+import { TermStaySection } from "@/features/participant/components/TermStay"
+import {
+  ArchivedApplicationCard,
+  isFullyArchived,
+  TermSteps,
+} from "@/features/participant/components/TermSteps"
 
 type ApplicationDetailProps = { applicationId: string }
 
@@ -59,25 +64,9 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
     )
   }
 
-  // Transport is asked for every confirmed term the organizer offers it to.
-  const transportTerms = data.terms.filter(
-    (term) => term.status === "CONFIRMED" && term.transportOffered,
-  )
-  const transportOpen = transportTerms.filter((term) => !term.transportDecided).length
-  const transportLink = (isOpen: boolean) => (
-    <Button
-      asChild
-      variant={isOpen ? "default" : "outline"}
-      size="lg"
-    >
-      <Link
-        to={ROUTES.participant.applicationTransport}
-        params={{ applicationId }}
-      >
-        {t(isOpen ? "detail.todo.choose" : "detail.todo.change")}
-      </Link>
-    </Button>
-  )
+  const hasSteps = data.terms.some((term) => term.status === "CONFIRMED")
+  // Every term archived: nothing is left to arrange, so no steps, no meals or health links and no edit button (US-584).
+  const isArchived = isFullyArchived(data)
 
   return (
     <div className="flex flex-col gap-10">
@@ -87,39 +76,22 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
           title={data.eventName}
           description={`${data.firstName} ${data.lastName} · ${data.code}`}
           actions={
-            <Button
-              asChild
-              variant="outline"
-            >
-              <Link
-                to={ROUTES.participant.editApplication}
-                params={{ applicationId }}
+            isArchived ? null : (
+              <Button
+                asChild
+                variant="outline"
               >
-                {t("edit.open")}
-              </Link>
-            </Button>
+                <Link
+                  to={ROUTES.participant.editApplication}
+                  params={{ applicationId }}
+                >
+                  {t("edit.open")}
+                </Link>
+              </Button>
+            )
           }
         />
       </div>
-      {transportOpen > 0 ? (
-        <Checklist
-          title={t("detail.todo.title")}
-          intro={t("detail.todo.intro")}
-          progress={t("detail.todo.progress", {
-            done: transportTerms.length - transportOpen,
-            total: transportTerms.length,
-          })}
-          items={transportTerms.map((term) => ({
-            key: term.termId,
-            title: t("detail.todo.transportTitle", { term: termTitle(term) }),
-            body: t("detail.todo.transportBody"),
-            isDone: term.transportDecided,
-            statusLabel: t(
-              term.transportDecided ? "detail.todo.statusDone" : "detail.todo.statusOpen",
-            ),
-          }))}
-        />
-      ) : null}
       <section
         aria-labelledby="application-terms"
         className="flex flex-col gap-6"
@@ -130,35 +102,29 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
         >
           {t("detail.sections.terms")}
         </h2>
+        <TermSteps application={data} />
         <ParticipantTermActions
           application={data}
           onStart={setChangeMode}
         />
+        {isArchived ? <ArchivedApplicationCard /> : null}
         <ChangeRequestNotice
           applicationId={applicationId}
           terms={data.terms}
         />
         <PaymentSummary application={data} />
       </section>
-      {transportTerms.length > 0 ? (
-        <section
-          aria-labelledby="application-transport"
-          className="flex flex-col gap-4"
-        >
-          <h2
-            id="application-transport"
-            className="text-2xl font-semibold tracking-tight"
-          >
-            {t("detail.sections.transport")}
-          </h2>
-          <Card className="gap-4 p-6">
-            <p>{t("detail.transportIntro")}</p>
-            <div>{transportLink(transportOpen > 0)}</div>
-          </Card>
-        </section>
-      ) : null}
-      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-        {data.terms.some((term) => term.status === "CONFIRMED") ? (
+      <RoomWishesSection
+        applicationId={applicationId}
+        terms={data.terms}
+      />
+      <TermStaySection
+        applicationId={applicationId}
+        terms={data.terms}
+      />
+      <RoomSection terms={data.terms} />
+      {hasSteps ? (
+        <div>
           <Button
             asChild
             variant="secondary"
@@ -171,32 +137,36 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
               {t("detail.program")}
             </Link>
           </Button>
-        ) : null}
-        <Button
-          asChild
-          variant="secondary"
-          size="lg"
-        >
-          <Link
-            to={ROUTES.participant.applicationMeals}
-            params={{ applicationId }}
+        </div>
+      ) : null}
+      {hasSteps || isArchived ? null : (
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+          <Button
+            asChild
+            variant="secondary"
+            size="lg"
           >
-            {t("detail.meals")}
-          </Link>
-        </Button>
-        <Button
-          asChild
-          variant="secondary"
-          size="lg"
-        >
-          <Link
-            to={ROUTES.participant.applicationHealth}
-            params={{ applicationId }}
+            <Link
+              to={ROUTES.participant.applicationMeals}
+              params={{ applicationId }}
+            >
+              {t("detail.meals")}
+            </Link>
+          </Button>
+          <Button
+            asChild
+            variant="secondary"
+            size="lg"
           >
-            {t("detail.health")}
-          </Link>
-        </Button>
-      </div>
+            <Link
+              to={ROUTES.participant.applicationHealth}
+              params={{ applicationId }}
+            >
+              {t("detail.health")}
+            </Link>
+          </Button>
+        </div>
+      )}
       <OrganizationContact contact={data.organizationContact} />
       {changeMode ? (
         <ParticipantTermChange

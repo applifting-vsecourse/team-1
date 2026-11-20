@@ -26,7 +26,8 @@ vi.stubGlobal(
   },
 )
 Element.prototype.hasPointerCapture = () => false
-Element.prototype.scrollIntoView = vi.fn()
+const scrollIntoView = vi.fn()
+Element.prototype.scrollIntoView = scrollIntoView
 
 const submitSpy = () => vi.fn<(values: ApplicationFormValues) => void | Promise<unknown>>()
 
@@ -203,6 +204,72 @@ describe("ApplicationForm", () => {
     expect(onSubmit).not.toHaveBeenCalled()
   })
 
+  describe("moving to the first invalid field", () => {
+    it("focuses the first field and scrolls its item into view", async () => {
+      render(
+        <ApplicationForm
+          event={event}
+          onSubmit={submitSpy()}
+        />,
+      )
+      scrollIntoView.mockClear()
+
+      await userEvent.click(screen.getByRole("button", { name: "Submit application" }))
+
+      await screen.findByText("Enter the first name.")
+      const first = within(participantCard(1)).getByLabelText("First name *")
+      expect(first).toHaveFocus()
+      expect(scrollIntoView).toHaveBeenCalledWith(expect.objectContaining({ block: "nearest" }))
+    })
+
+    it("focuses the gender select when it is the first thing missing, with its error linked", async () => {
+      render(
+        <ApplicationForm
+          event={event}
+          onSubmit={submitSpy()}
+        />,
+      )
+      const card = within(participantCard(1))
+      await userEvent.type(card.getByLabelText("First name *"), "Jana")
+      await userEvent.type(card.getByLabelText("Last name *"), "Nováková")
+      await userEvent.type(card.getByLabelText("Date of birth *"), "2012-05-01")
+
+      await userEvent.click(screen.getByRole("button", { name: "Submit application" }))
+
+      const gender = await card.findByRole("combobox", { name: "Gender for room allocation *" })
+      await screen.findByText("Choose Woman or Man.")
+      expect(gender).toHaveFocus()
+      expect(gender).toHaveAttribute("aria-invalid", "true")
+      expect(gender.getAttribute("aria-describedby")).toContain(
+        screen.getByText("Choose Woman or Man.").id,
+      )
+    })
+
+    it("focuses the first term when no term is chosen", async () => {
+      render(
+        <ApplicationForm
+          event={event}
+          onSubmit={submitSpy()}
+        />,
+      )
+      const card = within(participantCard(1))
+      await userEvent.type(card.getByLabelText("First name *"), "Jana")
+      await userEvent.type(card.getByLabelText("Last name *"), "Nováková")
+      await userEvent.type(card.getByLabelText("Date of birth *"), "2012-05-01")
+      await userEvent.click(card.getByRole("combobox", { name: "Gender for room allocation *" }))
+      await userEvent.click(await screen.findByRole("option", { name: "Woman" }))
+
+      await userEvent.click(screen.getByRole("button", { name: "Submit application" }))
+
+      await screen.findByText("Choose at least one term.")
+      const firstTerm = card.getAllByRole("checkbox")[0]!
+      expect(firstTerm).toHaveFocus()
+      expect(firstTerm.getAttribute("aria-describedby")).toContain(
+        screen.getByText("Choose at least one term.").id,
+      )
+    })
+  })
+
   it("submits a complete application with the shared contact data", async () => {
     const onSubmit = submitSpy()
     render(
@@ -235,7 +302,7 @@ describe("ApplicationForm", () => {
   })
 
   describe("individual accommodation (US-38)", () => {
-    const note = () => screen.queryByLabelText("Note for the organizer (optional)")
+    const note = () => screen.queryByLabelText("Note for the organizer")
 
     it("asks for a note only after the box is ticked and says who sees it", async () => {
       render(

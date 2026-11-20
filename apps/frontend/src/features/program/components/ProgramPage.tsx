@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
@@ -9,6 +9,7 @@ import { EmptyState } from "@/components/molecules/EmptyState"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { SectionHeader } from "@/components/molecules/SectionHeader"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import {
@@ -18,9 +19,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { formatDate } from "@/lib/date"
+import { notify } from "@/lib/notify"
 import { termDatesLine } from "@/lib/term-label"
 
-import { eventProgramQueryOptions, type ProgramBlock } from "@/features/program/api/program"
+import {
+  eventProgramQueryOptions,
+  programKeys,
+  type ProgramBlock,
+  type ProgramCopyResult,
+} from "@/features/program/api/program"
+import { CopyProgramDialog } from "@/features/program/components/CopyProgramDialog"
 import { DeleteProgramBlockDialog } from "@/features/program/components/DeleteProgramBlockDialog"
 import { ProgramBlockDetailDialog } from "@/features/program/components/ProgramBlockDetailDialog"
 import { ProgramBlockDialog } from "@/features/program/components/ProgramBlockDialog"
@@ -39,6 +48,9 @@ export function ProgramPage({ eventId }: { eventId: string }) {
   const [viewing, setViewing] = useState<ProgramBlock | null>(null)
   const [editor, setEditor] = useState<Editor | null>(null)
   const [deleting, setDeleting] = useState<ProgramBlock | null>(null)
+  const [isCopying, setIsCopying] = useState(false)
+  const [copied, setCopied] = useState<{ termId: string; result: ProgramCopyResult } | null>(null)
+  const queryClient = useQueryClient()
 
   if (!query.data) {
     return query.isError ? (
@@ -112,16 +124,54 @@ export function ProgramPage({ eventId }: { eventId: string }) {
             </SelectContent>
           </Select>
         </div>
-        <Button
-          size="lg"
-          className="max-sm:w-full"
-          onClick={() => {
-            setEditor({ date: term.startsOn })
-          }}
-        >
-          {t("add")}
-        </Button>
+        <div className="flex flex-col gap-4 sm:flex-row">
+          {terms.length > 1 ? (
+            <Button
+              variant="outline"
+              size="lg"
+              className="max-sm:w-full"
+              onClick={() => {
+                setIsCopying(true)
+              }}
+            >
+              {t("copy.open")}
+            </Button>
+          ) : null}
+          <Button
+            size="lg"
+            className="max-sm:w-full"
+            onClick={() => {
+              setEditor({ date: term.startsOn })
+            }}
+          >
+            {t("add")}
+          </Button>
+        </div>
       </div>
+      {copied?.termId === term.termId ? (
+        <Alert variant={copied.result.overlaps.length > 0 ? "warning" : "default"}>
+          <AlertTitle>
+            {t("copy.resultTitle", { count: copied.result.copied, copied: copied.result.copied })}
+            {copied.result.skipped > 0
+              ? ` · ${t("copy.resultSkipped", { count: copied.result.skipped })}`
+              : ""}
+          </AlertTitle>
+          {copied.result.overlaps.length > 0 ? (
+            <AlertDescription className="text-foreground">
+              <strong>{t("copy.overlapHeading", { count: copied.result.overlaps.length })}</strong>{" "}
+              {copied.result.overlaps
+                .map((item) =>
+                  t("copy.overlapResultItem", {
+                    first: item.first,
+                    second: item.second,
+                    date: formatDate(item.date),
+                  }),
+                )
+                .join(" ")}
+            </AlertDescription>
+          ) : null}
+        </Alert>
+      ) : null}
       {term.blocks.length === 0 ? (
         <p className="text-sm text-muted-foreground">{t("empty")}</p>
       ) : null}
@@ -129,6 +179,21 @@ export function ProgramPage({ eventId }: { eventId: string }) {
         term={term}
         onSelect={setViewing}
       />
+      {isCopying ? (
+        <CopyProgramDialog
+          eventId={eventId}
+          target={term}
+          sourceTerms={terms.filter((item) => item.termId !== term.termId)}
+          onClose={() => {
+            setIsCopying(false)
+          }}
+          onCopied={async (result, strategy) => {
+            await queryClient.invalidateQueries({ queryKey: programKeys.event(eventId) })
+            setCopied({ termId: term.termId, result })
+            notify.success(t(strategy === "REPLACE" ? "copy.replaced" : "copy.done"))
+          }}
+        />
+      ) : null}
       {viewing ? (
         <ProgramBlockDetailDialog
           block={viewing}

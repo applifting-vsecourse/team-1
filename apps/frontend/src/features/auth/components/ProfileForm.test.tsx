@@ -63,14 +63,14 @@ describe("ProfileForm", () => {
   })
 
   it("confirms a saved name with a toast", async () => {
-    updateProfile.mockResolvedValue({ name: "Eva Nová", locale: "cs" })
+    updateProfile.mockResolvedValue({ name: "Eva Nová" })
     renderForm()
 
     await userEvent.clear(screen.getByLabelText("Full name"))
     await userEvent.type(screen.getByLabelText("Full name"), "Eva Nová")
     await userEvent.click(screen.getByRole("button", { name: "Save changes" }))
 
-    expect(updateProfile).toHaveBeenCalledWith({ name: "Eva Nová", locale: "cs" })
+    expect(updateProfile).toHaveBeenCalledWith({ name: "Eva Nová" })
     await waitFor(() => expect(notify.success).toHaveBeenCalledWith("New details saved"))
   })
 

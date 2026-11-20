@@ -341,17 +341,11 @@ describe("organizer events (integration)", () => {
       expect(seeded.every((event) => event.evaluationMode === "AUTOMATIC")).toBe(true)
     })
 
-    it("changes the mode before applications open and locks it afterwards", async () => {
-      const created = (await (await post(cookieA, { name: "Zamykání" })).json()) as EventBody
-      const manual = await patch(cookieA, created.id, { evaluationMode: "MANUAL" })
-      expect(manual.status).toBe(200)
-      expect(await manual.json()).toMatchObject({
-        evaluationMode: "MANUAL",
-        evaluationModeLocked: false,
-        hasApplications: false,
-      })
-      expect((await patch(cookieA, created.id, { evaluationMode: "nope" })).status).toBe(400)
-
+    // An event with a term and a room, so its application link works.
+    const openEvent = async (
+      name: string,
+    ): Promise<{ id: string; publicToken: string; termId: string }> => {
+      const created = (await (await post(cookieA, { name })).json()) as EventBody
       const event = await prisma.event.findUniqueOrThrow({ where: { id: created.id } })
       const term = await prisma.term.create({
         data: {
@@ -373,20 +367,83 @@ describe("organizer events (integration)", () => {
           gender: "FEMALE",
         },
       })
+      return { id: event.id, publicToken: event.publicToken, termId: term.id }
+    }
 
-      const locked = await patch(cookieA, created.id, { evaluationMode: "AUTOMATIC" })
+    const apply = (publicToken: string, termId: string): Promise<Response> =>
+      fetch(api(`/public/events/${publicToken}/applications`), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: `zamek-${Date.now()}@example.com`,
+          consent: true,
+          participants: [
+            {
+              firstName: "Test",
+              lastName: `Zámek${Date.now()}`,
+              birthDate: "2014-05-18",
+              gender: "FEMALE",
+              termIds: [termId],
+            },
+          ],
+        }),
+      })
+
+    const detail = async (id: string): Promise<object> =>
+      (await fetch(api(`/organizer/events/${id}`), { headers: { Cookie: cookieA } })).json()
+
+    it("changes the mode while the event has no application, also after applications open (D-083)", async () => {
+      const created = (await (await post(cookieA, { name: "Zamykání" })).json()) as EventBody
+      const manual = await patch(cookieA, created.id, { evaluationMode: "MANUAL" })
+      expect(manual.status).toBe(200)
+      expect(await manual.json()).toMatchObject({
+        evaluationMode: "MANUAL",
+        evaluationModeLocked: false,
+        hasApplications: false,
+      })
+      expect((await patch(cookieA, created.id, { evaluationMode: "nope" })).status).toBe(400)
+
+      const open = await openEvent("Zamykání po otevření")
+      expect(await detail(open.id)).toMatchObject({
+        applicationsOpen: true,
+        evaluationModeLocked: false,
+      })
+      const changed = await patch(cookieA, open.id, { evaluationMode: "MANUAL" })
+      expect(changed.status).toBe(200)
+      expect(await changed.json()).toMatchObject({
+        evaluationMode: "MANUAL",
+        evaluationModeLocked: false,
+      })
+    })
+
+    it("locks the mode with the first received application", async () => {
+      const open = await openEvent("Zamčeno první přihláškou")
+      expect((await apply(open.publicToken, open.termId)).status).toBe(201)
+
+      const locked = await patch(cookieA, open.id, { evaluationMode: "MANUAL" })
       expect(locked.status).toBe(409)
       expect(await locked.json()).toMatchObject({ code: "EVALUATION_MODE_LOCKED" })
       expect(
-        (await prisma.event.findUniqueOrThrow({ where: { id: created.id } })).evaluationMode,
-      ).toBe("MANUAL")
-      const detail = await fetch(api(`/organizer/events/${created.id}`), {
-        headers: { Cookie: cookieA },
-      })
-      expect(await detail.json()).toMatchObject({
-        evaluationMode: "MANUAL",
+        (await prisma.event.findUniqueOrThrow({ where: { id: open.id } })).evaluationMode,
+      ).toBe("AUTOMATIC")
+      expect(await detail(open.id)).toMatchObject({
+        evaluationMode: "AUTOMATIC",
         evaluationModeLocked: true,
       })
+    })
+
+    it("keeps the mode locked when the application was cancelled", async () => {
+      const open = await openEvent("Zamčeno zrušenou přihláškou")
+      expect((await apply(open.publicToken, open.termId)).status).toBe(201)
+      await prisma.applicationTerm.updateMany({
+        where: { termId: open.termId },
+        data: { status: "CANCELLED" },
+      })
+
+      const locked = await patch(cookieA, open.id, { evaluationMode: "MANUAL" })
+      expect(locked.status).toBe(409)
+      expect(await locked.json()).toMatchObject({ code: "EVALUATION_MODE_LOCKED" })
+      expect(await detail(open.id)).toMatchObject({ evaluationModeLocked: true })
     })
 
     it("keeps organizations and accounts apart", async () => {

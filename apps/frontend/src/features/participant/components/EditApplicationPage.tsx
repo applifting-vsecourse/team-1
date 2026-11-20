@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { Link } from "@tanstack/react-router"
+import { Link, useNavigate } from "@tanstack/react-router"
 import { TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
@@ -14,7 +14,8 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { formatDateTime } from "@/lib/date"
+import { notify } from "@/lib/notify"
+import { isValidPhone, MAX_PHONE_INPUT_LENGTH, normalizePhone } from "@/lib/phone"
 
 import {
   applicationEditQueryOptions,
@@ -25,7 +26,7 @@ import {
 
 // Figma (Design system): Upravit přihlášku · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19795-13915 (mobile: 19795-14057)
 // Figma (Design system): US-38 individuální řešení ubytování v úpravě údajů · nezaškrtnuto node-id=25586-32206 (mobile: 25586-32330); zaškrtnuto s poznámkou 25586-32411 (mobile: 25586-32543); chyba 25586-32632 (mobile: 25586-32768)
-// Figma (Design system): Změny byly uloženy · node-id=19795-14149 (mobile: 19795-14264); Změny se nepodařilo uložit · node-id=19795-14329 (mobile: 19795-14464)
+// Figma (Design system): Změny se nepodařilo uložit · node-id=19795-14329 (mobile: 19795-14464)
 export function EditApplicationPage({ applicationId }: { applicationId: string }) {
   const { t } = useTranslation("participant")
   const query = useQuery(applicationEditQueryOptions(applicationId))
@@ -57,10 +58,6 @@ export function EditApplicationPage({ applicationId }: { applicationId: string }
 
 const MAX_ACCOMMODATION_NOTE_LENGTH = 2000
 
-/** The request for individual accommodation and its note are one change in the history (US-38). */
-const isAccommodation = (fields: string[]): boolean =>
-  fields.some((field) => field === "accommodationRequest" || field === "individualAccommodation")
-
 function EditForm({
   applicationId,
   initial,
@@ -70,6 +67,8 @@ function EditForm({
 }) {
   const { t } = useTranslation("participant")
   const client = useQueryClient()
+  const navigate = useNavigate()
+  const detail = { to: ROUTES.participant.application, params: { applicationId } } as const
   // Untouched fields follow refreshed server data; only local edits override it.
   const [edits, setEdits] = useState<Partial<EditApplicationInput>>({})
   const values: EditApplicationInput = {
@@ -95,18 +94,24 @@ function EditForm({
     mutationFn: () =>
       saveApplicationEdit(applicationId, {
         ...values,
+        phone: normalizePhone(values.phone) === null ? null : (values.phone ?? "").trim(),
         // The note belongs to the request: without it none is sent.
         accommodationRequest: values.individualAccommodation ? values.accommodationRequest : null,
       }),
     onSuccess: async () => {
+      // The result is a toast over the application detail; there is no result page.
+      notify.success(t("edit.toast.saved"), t("edit.toast.organizerNotified"))
+      await navigate(detail)
       await client.invalidateQueries({ queryKey: ["participant", "applications"] })
     },
   })
-  const detail = { to: ROUTES.participant.application, params: { applicationId } } as const
   const nullableTrimmed = (value: string | null) => {
     const trimmed = value?.trim()
     return trimmed?.length ? trimmed : null
   }
+  const isPhoneInvalid = !isValidPhone(normalizePhone(values.phone))
+  const [isPhoneChecked, setIsPhoneChecked] = useState(false)
+  const shouldShowPhoneError = isPhoneInvalid && isPhoneChecked
   const isNoteTooLong =
     values.individualAccommodation &&
     (values.accommodationRequest ?? "").length > MAX_ACCOMMODATION_NOTE_LENGTH
@@ -118,13 +123,13 @@ function EditForm({
     values.firstName.trim() !== initial.firstName ||
     values.lastName.trim() !== initial.lastName ||
     values.birthDate !== initial.birthDate ||
-    nullableTrimmed(values.phone) !== initial.phone ||
+    normalizePhone(values.phone) !== normalizePhone(initial.phone) ||
     isAccommodationChanged
   const changed = {
     firstName: values.firstName.trim() !== initial.firstName,
     lastName: values.lastName.trim() !== initial.lastName,
     birthDate: values.birthDate !== initial.birthDate,
-    phone: nullableTrimmed(values.phone) !== initial.phone,
+    phone: normalizePhone(values.phone) !== normalizePhone(initial.phone),
     accommodationRequest: isAccommodationChanged,
   }
   const visibleFields = mutation.isError && failedFields ? failedFields : changed
@@ -138,78 +143,33 @@ function EditForm({
       <Label htmlFor="edit-phone">{t("edit.phone")}</Label>
       <Input
         id="edit-phone"
-        required
         type="tel"
-        maxLength={30}
-        pattern={String.raw`\+?[0-9 \(\)\-]{7,30}`}
+        maxLength={MAX_PHONE_INPUT_LENGTH}
         value={values.phone ?? ""}
         onChange={(event) => set("phone", event.target.value)}
+        aria-invalid={shouldShowPhoneError}
+        aria-describedby={shouldShowPhoneError ? "edit-phone-error" : undefined}
         className="h-12"
       />
+      {shouldShowPhoneError ? (
+        <p
+          id="edit-phone-error"
+          role="alert"
+          className="text-sm text-destructive"
+        >
+          {t("edit.phoneInvalid")}
+        </p>
+      ) : null}
     </div>
   )
-
-  if (mutation.isSuccess) {
-    const saved = mutation.data
-    const change = saved.history[0]
-    const fields = change?.changedFields ?? []
-    const kinds = [
-      fields.some((field) => ["firstName", "lastName", "birthDate"].includes(field))
-        ? t("edit.historyPersonal")
-        : null,
-      fields.includes("phone") ? t("edit.historyContact") : null,
-      isAccommodation(fields) ? t("edit.historyAccommodation") : null,
-    ].filter(Boolean)
-    const historyDescription =
-      isAccommodation(fields) &&
-      fields.filter((field) => !isAccommodation([field])).join() === "phone"
-        ? t("edit.historyContactAccommodation")
-        : t("edit.historyOther", { fields: kinds.join(", ") })
-    return (
-      <div className="mx-auto flex w-full max-w-[805px] flex-col gap-6">
-        <h1 className="text-2xl font-bold">{t("edit.successTitle")}</h1>
-        <Card className="gap-4 p-4 md:p-5">
-          <h2 className="text-xl font-semibold">
-            {saved.firstName} {saved.lastName}
-          </h2>
-          <p>{t("edit.phoneSummary", { phone: saved.phone })}</p>
-          <p>
-            {t("edit.accommodationSummary", {
-              request: saved.individualAccommodation
-                ? [t("edit.accommodationIndividual"), saved.accommodationRequest]
-                    .filter(Boolean)
-                    .join(" · ")
-                : "—",
-            })}
-          </p>
-          <p>{t("edit.organizerNotified")}</p>
-          {change ? (
-            <p>
-              {t("edit.historyLine", {
-                date: formatDateTime(change.createdAt),
-                author: change.authorName,
-                description: historyDescription,
-              })}
-            </p>
-          ) : null}
-        </Card>
-        <Button
-          asChild
-          variant="ghost"
-          className="self-center"
-        >
-          <Link {...detail}>{t("edit.backToApplication")}</Link>
-        </Button>
-      </div>
-    )
-  }
 
   return (
     <form
       className="mx-auto flex w-full max-w-[805px] flex-col gap-6"
       onSubmit={(event) => {
         event.preventDefault()
-        if (isNoteTooLong) return
+        setIsPhoneChecked(true)
+        if (isNoteTooLong || isPhoneInvalid) return
         setFailedFields(changed)
         mutation.mutate()
       }}
@@ -276,7 +236,7 @@ function EditForm({
           {!mutation.isError ? phoneField : null}
         </Card>
       ) : null}
-      {mutation.isError && (visibleFields.phone || !initial.phone) ? phoneField : null}
+      {mutation.isError && visibleFields.phone ? phoneField : null}
       {!mutation.isError || visibleFields.accommodationRequest ? (
         <div className="flex flex-col gap-4 border-t border-border pt-4">
           <div className="flex flex-col gap-1">

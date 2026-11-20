@@ -2281,3 +2281,45 @@ otazky:
     url: https://github.com/applifting-vsecourse/team-1/blob/7e88428b276a2b1cabd4f95a48456856b04c60d4/docs/zapisy/2026-11-11-status-s-po.md
     citace: '„PO preferuje spíše optimistický přístup uvnitř uzavřené skupiny potvrzených účastníků.“'
   poznamka: 'Doporučení: jen jméno, iniciála příjmení a termín; dobrovolně se souhlasem (výchozí vypnuto); organizátor viditelnost u akce vypne.'
+- id: Q-UBY-07
+  otazka: 'Ukazovat spolubydlícům v Moje přihláška celá jména, nebo jen křestní (GDPR)?'
+  epic: ubytování
+  us:
+  - label: 'US-144'
+    url: https://github.com/applifting-vsecourse/team-1/issues/504
+  stav: rozhodnuto
+  priorita: P2
+  priorita_duvod: 'Blokovalo dokončení PR #575.'
+  ceka_na: pm
+  zdroje:
+  - popis: 'PR #575 (US-144)'
+    url: https://github.com/applifting-vsecourse/team-1/pull/575
+  rozhodnuti_ref: D-162
+- id: Q-PRI-26
+  otazka: 'Které kroky a v jakém pořadí má přehled kroků po registraci ukazovat, kdy je „hotovo“ u stravování a zdraví a co s archivovanou přihláškou?'
+  epic: přihlašování na akce
+  us:
+  - label: 'US-149'
+    url: https://github.com/applifting-vsecourse/team-1/issues/509
+  stav: rozhodnuto
+  priorita: P2
+  priorita_duvod: 'Blokovalo dokončení PR #574.'
+  ceka_na: pm
+  zdroje:
+  - popis: 'PR #574 (US-149)'
+    url: https://github.com/applifting-vsecourse/team-1/pull/574
+  rozhodnuti_ref: D-163
+- id: Q-UBY-08
+  otazka: 'V jakém pořadí nabízet pokoje při přiřazení účastníka (pohlaví, volná lůžka)?'
+  epic: ubytování
+  us:
+  - label: '#534'
+    url: https://github.com/applifting-vsecourse/team-1/issues/534
+  stav: rozhodnuto
+  priorita: P2
+  priorita_duvod: 'Blokovalo dokončení PR #569.'
+  ceka_na: pm
+  zdroje:
+  - popis: 'PR #569 (issue #534)'
+    url: https://github.com/applifting-vsecourse/team-1/pull/569
+  rozhodnuti_ref: D-165

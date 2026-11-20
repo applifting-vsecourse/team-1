@@ -69,6 +69,18 @@ export class PaymentApplicationResponseDto {
   @ApiProperty({ enum: ["FEMALE", "MALE"] }) gender!: string
   @ApiProperty({ example: "eva.mala@example.cz", description: "Contact of the applicant." })
   email!: string
+  @ApiProperty({
+    nullable: true,
+    type: String,
+    example: "+420777123456",
+    description: "Phone of the participant; null when none was given.",
+  })
+  phone!: string | null
+  @ApiProperty({
+    description:
+      "The organizer can edit the details (D-141): the application has a live term that has not ended.",
+  })
+  isEditable!: boolean
   @ApiProperty({ example: "12345000", description: "Summary symbol: pays the whole debt." })
   variableSymbol!: string
   @ApiProperty() amountDueCzk!: number
@@ -101,6 +113,8 @@ export class PaymentApplicationResponseDto {
       birthDate: application.birthDate.toISOString().slice(0, 10),
       gender: application.gender,
       email: application.email,
+      phone: application.phone,
+      isEditable: application.isEditable,
       variableSymbol: application.variableSymbol,
       amountDueCzk: application.amountDueCzk,
       amountPaidCzk: application.amountPaidCzk,

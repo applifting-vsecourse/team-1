@@ -40,6 +40,7 @@ import {
   ParticipantGhost,
   RoomCard,
   RoomTableRow,
+  UnassignedDropZone,
   UnassignedRow,
   type DragData,
 } from "@/features/events/components/AssignmentParts"
@@ -192,6 +193,12 @@ export function RoomAssignmentsCard({
         name: drag.name,
         isMove: drag.fromRoomId !== null,
         room,
+        // Only an unassigned participant is placed in their other terms too; a move stays here.
+        alsoInTerms:
+          drag.fromRoomId === null
+            ? (data?.unassigned.find((row) => row.applicationTermId === drag.applicationTermId)
+                ?.alsoInTerms ?? [])
+            : [],
       })
       return
     }
@@ -217,17 +224,20 @@ export function RoomAssignmentsCard({
     setDragged((event.active.data.current as DragData | undefined) ?? null)
   const onDragEnd = (event: DragEndEvent) => {
     const drag = event.active.data.current as DragData | undefined
-    const roomId = (event.over?.data.current as { roomId?: string } | undefined)?.roomId
+    const over = event.over?.data.current as { roomId?: string; isUnassigned?: boolean } | undefined
+    const roomId = over?.roomId
     setDragged(null)
+    if (drag && over?.isUnassigned) {
+      if (drag.fromRoomId !== null) removeFromRoom(drag.applicationTermId, drag.name)
+      return
+    }
     const room = data.rooms.find((item) => item.id === roomId)
     if (drag && room) dropOn(drag, room)
   }
-  const remove = (participant: AssignmentParticipant) =>
-    unassign.mutate(participant.applicationTermId, {
+  const removeFromRoom = (applicationTermId: string, name: string) =>
+    unassign.mutate(applicationTermId, {
       onSuccess: () => {
-        void refresh().then(() =>
-          notify.success(t("roomAssignments.removed"), participantName(participant)),
-        )
+        void refresh().then(() => notify.success(t("roomAssignments.removed"), name))
       },
       onError: notifyFailure,
     })
@@ -241,7 +251,8 @@ export function RoomAssignmentsCard({
     actions: roomActions(room.id),
     onMoveParticipant: (participant: AssignmentParticipant) =>
       setDialog({ target: toTarget(participant, room.id) }),
-    onRemoveParticipant: remove,
+    onRemoveParticipant: (participant: AssignmentParticipant) =>
+      removeFromRoom(participant.applicationTermId, participantName(participant)),
   })
 
   const roomsEmpty = (
@@ -274,7 +285,7 @@ export function RoomAssignmentsCard({
           <div
             role="status"
             aria-label={t("roomAssignments.unassignedTitle")}
-            className="sticky top-14 z-20 -mx-4 flex items-center gap-2 border-b border-border bg-card px-4 py-2.5 shadow-sm md:hidden"
+            className="sticky top-14 z-20 -mx-4 flex items-center gap-2 border-b border-border bg-card px-4 py-2.5 shadow-sm xl:hidden"
           >
             <span className="flex-1 text-sm font-medium">
               {t("roomAssignments.unassignedTitle")}
@@ -285,10 +296,11 @@ export function RoomAssignmentsCard({
             />
           </div>
         ) : null}
-        <div className="flex flex-col gap-4 md:flex-row md:items-start">
-          <div
-            ref={setPanel}
-            className="flex shrink-0 flex-col rounded-lg border border-border bg-card md:sticky md:top-20 md:w-85"
+        <div className="flex flex-col gap-4 xl:flex-row xl:items-start">
+          <UnassignedDropZone
+            panelRef={setPanel}
+            isDragActive={dragged !== null && dragged.fromRoomId !== null}
+            className="flex shrink-0 flex-col rounded-lg border border-border bg-card xl:sticky xl:top-20 xl:w-72"
           >
             <div className="flex flex-col gap-1 px-3 pt-3 pb-2.5">
               <div className="flex items-center gap-2">
@@ -381,11 +393,11 @@ export function RoomAssignmentsCard({
                 ) : null}
               </>
             )}
-          </div>
+          </UnassignedDropZone>
           <div className="flex min-w-0 flex-1 flex-col gap-3">
             {hasRooms ? (
               <>
-                <div className="relative hidden md:block md:w-85">
+                <div className="relative hidden lg:block lg:w-85">
                   <Search
                     className="pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-muted-foreground"
                     aria-hidden
@@ -402,14 +414,14 @@ export function RoomAssignmentsCard({
                 {visibleRooms.length === 0 ? (
                   <p className="text-sm text-muted-foreground">{t("roomAssignments.noMatch")}</p>
                 ) : null}
-                <div className="hidden overflow-hidden rounded-lg border border-border md:block">
+                <div className="hidden overflow-hidden rounded-lg border border-border lg:block">
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>{t("roomAssignments.roomColumn")}</TableHead>
+                        <TableHead className="pl-4">{t("roomAssignments.roomColumn")}</TableHead>
                         <TableHead>{t("roomAssignments.participantsColumn")}</TableHead>
                         <TableHead>{t("roomAssignments.occupancyColumn")}</TableHead>
-                        <TableHead>
+                        <TableHead className="w-px pr-4">
                           <span className="sr-only">{t("rooms.actionsColumn")}</span>
                         </TableHead>
                       </TableRow>
@@ -424,7 +436,7 @@ export function RoomAssignmentsCard({
                     </TableBody>
                   </Table>
                 </div>
-                <ul className="flex flex-col gap-3 md:hidden">
+                <ul className="flex flex-col gap-3 lg:hidden">
                   {data.rooms.map((room) => (
                     <RoomCard
                       key={room.id}
@@ -446,12 +458,14 @@ export function RoomAssignmentsCard({
             rooms={data.rooms}
             target={dialog.target}
             onClose={() => setDialog(null)}
-            onNeedsExtraBed={(room) =>
+            onNeedsExtraBed={(room, checkedTermIds) =>
               setExtraBed({
                 applicationTermId: dialog.target.applicationTermId,
                 name: dialog.target.name,
                 isMove: dialog.target.currentRoomId !== null,
                 room,
+                alsoInTerms: dialog.target.currentRoomId === null ? dialog.target.alsoInTerms : [],
+                checkedTermIds,
               })
             }
             onDone={async ({ roomTitle: title, isMoved }) => {

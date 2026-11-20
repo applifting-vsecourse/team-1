@@ -86,3 +86,22 @@ export type ApplicationChange = {
   /** The amount due changed: the e-mail repeats the payment details. */
   isAmountChanged: boolean
 }
+
+/**
+ * E-mail no. 15 (US-131): the organizer cancelled a term, so the application in it is cancelled.
+ * One per cancelled application, never one per term.
+ */
+export type TermCancelledNotice = {
+  email: string
+  /** Language of the e-mail, decided by `resolveChangeEmailLocale` (D-078). */
+  locale: Locale
+  eventName: string
+  organizationName: string
+  /** The cancelled term: its name, else its dates. */
+  termName: string
+  /** Of the participant: the Czech copy is gendered. */
+  gender: Gender
+  firstName: string
+  lastName: string
+  accessToken: string
+}

@@ -142,7 +142,7 @@ export function TermPaymentCard({
             {owedCzk > 0 ? (
               <CopyRow
                 isStacked={isStacked}
-                label={t("termPayment.amountToPay")}
+                label={t("termPayment.owed")}
                 value={String(owedCzk)}
                 copyLabel={t("clipboard.copyAmount")}
               >

@@ -10,6 +10,7 @@ import type { MyApplication } from "@/features/participant/api/applications"
 import { SimulatePaymentButton } from "@/features/participant/components/SimulatePaymentButton"
 import { SummaryPaymentDetails } from "@/features/participant/components/SummaryPaymentDetails"
 import { TermPaymentQr } from "@/features/participant/components/TermPaymentQr"
+import { PAYMENT_SECTION_ID } from "@/features/participant/components/TermSteps"
 import { TermStatusBadge } from "@/features/participant/components/TermSummary"
 
 type PaymentSummaryProps = {
@@ -45,7 +46,10 @@ export function PaymentSummary({ application }: PaymentSummaryProps) {
   const simulatedPayments = application.simulatedPayments
 
   return (
-    <div className="flex flex-col gap-6">
+    <div
+      id={PAYMENT_SECTION_ID}
+      className="flex scroll-mt-6 flex-col gap-6"
+    >
       {paymentDetails && paymentDetails.summary.payableCzk > 0 ? (
         <SummaryPaymentDetails application={application} />
       ) : null}
@@ -97,10 +101,12 @@ export function PaymentSummary({ application }: PaymentSummaryProps) {
               <div>
                 <TermStatusBadge term={term} />
               </div>
-              <p className="text-sm">
-                {term.archivedOverpaymentCzk ? `${t("paymentStatus.OVERPAID")} · ` : null}
-                <MoneyAmount amountCzk={term.archivedOverpaymentCzk ?? 0} />
-              </p>
+              {term.archivedOverpaymentCzk ? (
+                <p className="text-sm">
+                  {t("paymentStatus.OVERPAID")} ·{" "}
+                  <MoneyAmount amountCzk={term.archivedOverpaymentCzk} />
+                </p>
+              ) : null}
             </Card>
           ) : (
             <TermPaymentCard

@@ -1,9 +1,6 @@
-import { execSync } from "node:child_process"
 import { readFileSync } from "node:fs"
-import { resolve } from "node:path"
 import { PrismaService } from "@/core/prisma/prisma.service"
-
-const backendRoot = resolve(__dirname, "../../..")
+import { restoreSeedSnapshot } from "./seed-snapshot"
 
 /** URL of the built test server started in global-setup.ts, e.g. `api('/me')`. */
 export function api(path: string): string {
@@ -20,19 +17,13 @@ export async function connectTestPrisma(): Promise<PrismaService> {
 }
 
 /**
- * Wipes the test database and runs the regular (built) seed: the same
- * organizations, organizers, events and applications as `pnpm dev`
- * (CONTRIBUTING.md, „Účty ze seedu“).
+ * Puts the test database back to the regular seed: the same organizations,
+ * organizers, events and applications as `pnpm dev` (CONTRIBUTING.md,
+ * „Účty ze seedu“). The seed runs once in global-setup.ts; this restores
+ * its copy (seed-snapshot.ts).
  */
 export async function resetAndSeed(prisma: PrismaService): Promise<void> {
-  await prisma.$executeRawUnsafe(
-    'TRUNCATE TABLE "organization", "session", "account", "verification", "user" RESTART IDENTITY CASCADE;',
-  )
-  execSync("node dist/scripts/seed/seed.script.js", {
-    cwd: backendRoot,
-    env: process.env,
-    stdio: "pipe",
-  })
+  await restoreSeedSnapshot(prisma)
 }
 
 /** Next free `Term.number` of an event — for tests that create terms straight through Prisma. */

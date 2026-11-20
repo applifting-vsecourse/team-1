@@ -2,6 +2,7 @@ import { computeFreeRoomBeds } from "@/modules/applications/domain/capacity"
 import { ApplicationTermStatus, isAssignable } from "@/modules/applications/domain/evaluation"
 import { RoomWarning, RoomWarningsSummary } from "@/modules/events/domain/room-warnings"
 import { Gender } from "@/shared/domain/gender"
+import { RoomWish } from "@/shared/domain/room-wishes"
 
 export type AssignmentRejection = "ROOM_ASSIGNMENT_STATUS_INVALID" | "ROOM_FULL"
 
@@ -45,6 +46,8 @@ export type AssignmentParticipant = {
   /** The applicant asked to settle the accommodation individually (US-38). */
   individualAccommodation: boolean
   status: ApplicationTermStatus
+  /** Who they wish to room with and whether that person is in their room (US-146); free text. */
+  wishes: RoomWish[]
 }
 
 /**
@@ -58,7 +61,7 @@ export type AssignmentOtherTerm = {
   /** ISO dates, `2027-07-04`. */
   startsOn: string
   endsOn: string
-  rooms: { id: string; name: string; gender: Gender | null; freeBeds: number }[]
+  rooms: { id: string; name: string; gender: Gender | null; beds: number; freeBeds: number }[]
 }
 
 export type UnassignedParticipant = AssignmentParticipant & { alsoInTerms: AssignmentOtherTerm[] }

@@ -1,5 +1,8 @@
 import { CancelTermDto, TermDto } from "@/modules/events/controllers/dto/term.dto"
-import { TermResponseDto } from "@/modules/events/controllers/dto/term.response.dto"
+import {
+  CancelTermResponseDto,
+  TermResponseDto,
+} from "@/modules/events/controllers/dto/term.response.dto"
 import { TermsService } from "@/modules/events/services/terms.service"
 import { Auth } from "@/shared/auth/decorators/auth.decorator"
 import { User } from "@/shared/auth/decorators/user.decorator"
@@ -58,9 +61,10 @@ export class OrganizerTermsController {
 
   @Post(":termId/cancel")
   @ApiOperation({
-    summary: "Cancel a term: it is no longer offered, applications and history stay",
+    summary:
+      "Cancel a term and the applications in it in every status but archived; one e-mail each (US-131)",
   })
-  @ApiResponse({ status: 201, type: TermResponseDto })
+  @ApiResponse({ status: 201, type: CancelTermResponseDto })
   @ApiResponse({ status: 403, description: "Unknown term or of another organization." })
   @ApiResponse({ status: 409, description: "TERM_CANCELLED." })
   async cancel(
@@ -68,7 +72,13 @@ export class OrganizerTermsController {
     @Param("eventId") eventId: string,
     @Param("termId") termId: string,
     @Body() dto: CancelTermDto,
-  ): Promise<TermResponseDto> {
-    return TermResponseDto.fromDomain(await this.terms.cancel(user, eventId, termId, dto.reason))
+  ): Promise<CancelTermResponseDto> {
+    const { term, cancelledApplications } = await this.terms.cancel(
+      user,
+      eventId,
+      termId,
+      dto.reason,
+    )
+    return CancelTermResponseDto.fromCancellation(term, cancelledApplications)
   }
 }

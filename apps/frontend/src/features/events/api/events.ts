@@ -47,7 +47,7 @@ export const organizerEventSchema = z.object({
   cancellationStartsOn: z.string().nullable(),
   /** Free text shown to applicants (US-47); null until the organizer writes it. */
   cancellationTerms: z.string().nullable(),
-  /** Applications are open, so the mode can no longer change. */
+  /** The event has received an application (cancelled ones too), so the mode can no longer change. */
   evaluationModeLocked: z.boolean(),
   /** At least one application exists; the event can no longer be deleted. */
   hasApplications: z.boolean(),

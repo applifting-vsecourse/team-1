@@ -51,4 +51,14 @@ describe("AccountService", () => {
       locale: "cs",
     })
   })
+
+  it("leaves the language unset when only the name is saved", async () => {
+    repository.updateProfile.mockResolvedValue({ name: "Eva Malá", locale: null })
+    const participant = new Identity("u2", "p@example.com", "Petr", "PARTICIPANT", false)
+
+    const account = await service.updateProfile(participant, { name: "Eva Malá" })
+
+    expect(repository.updateProfile).toHaveBeenCalledWith("u2", { name: "Eva Malá" })
+    expect(account.locale).toBeNull()
+  })
 })
