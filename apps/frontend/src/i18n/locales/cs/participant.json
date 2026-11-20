@@ -147,7 +147,6 @@
     "valuesPreserved": "Vyplněné údaje zůstaly zachované."
   },
   "list": {
-    "confirmed": "Účast potvrzena",
     "empty": "Zatím tu nemáte žádnou přihlášku. Až se přihlásíte na akci, objeví se tady.",
     "errorTitle": "Přihlášky se nepodařilo načíst",
     "female": "žena",
@@ -256,7 +255,7 @@
   },
   "status": {
     "archived": "Archivováno",
-    "cancelled": "Zrušená",
+    "cancelled": "Zrušeno",
     "confirmed": "Potvrzeno",
     "toEvaluate": "Čeká na vyhodnocení",
     "waitlisted": "Náhradník"

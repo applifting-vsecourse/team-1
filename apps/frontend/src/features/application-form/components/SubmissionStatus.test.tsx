@@ -154,7 +154,7 @@ describe("SubmissionStatus", () => {
     expect(
       screen.getByText("We sent the confirmation and the status of the terms to jana@example.com."),
     ).toBeInTheDocument()
-    expect(screen.getByText("Participation confirmed")).toBeInTheDocument()
+    expect(screen.getByText("Confirmed")).toBeInTheDocument()
     expect(screen.getByText(/for the confirmed term$/)).toBeInTheDocument()
     expect(screen.getByRole("heading", { name: "Payment for the confirmed terms" })).toBeVisible()
     expect(screen.getByText("123456789/0800")).toBeInTheDocument()

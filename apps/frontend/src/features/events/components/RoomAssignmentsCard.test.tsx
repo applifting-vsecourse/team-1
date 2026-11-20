@@ -173,7 +173,7 @@ describe("room assignment", () => {
     renderCard()
     expect(await screen.findByText("Barbora Šimková")).toBeInTheDocument()
     expect(screen.getByText("Woman · Confirmed")).toBeInTheDocument()
-    expect(screen.getByText("Woman · To evaluate")).toBeInTheDocument()
+    expect(screen.getByText("Woman · Awaiting evaluation")).toBeInTheDocument()
     expect(screen.getByLabelText("Unassigned participants: 2")).toHaveTextContent("2")
     const table = screen.getByRole("table")
     expect(within(table).getByText("Jana Nováková")).toBeInTheDocument()
@@ -626,7 +626,7 @@ describe("room assignment", () => {
       }
       renderCard()
       expect(await screen.findByText("Barbora Šimková")).toBeInTheDocument()
-      expect(screen.getByText("Woman · To evaluate")).toBeInTheDocument()
+      expect(screen.getByText("Woman · Awaiting evaluation")).toBeInTheDocument()
       // The unassigned one has the full badge; in the room, in the table and in the card of the
       // phone layout, the chip carries a short one. Nobody else has any.
       expect(screen.getAllByText("Individual accommodation")).toHaveLength(1)

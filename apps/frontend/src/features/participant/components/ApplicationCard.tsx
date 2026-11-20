@@ -58,10 +58,7 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
               className="flex items-center gap-4 md:flex-col md:items-start md:gap-2"
             >
               <TermLabel term={term} />
-              <TermStatusBadge
-                term={term}
-                confirmedLabel={t("list.confirmed")}
-              />
+              <TermStatusBadge term={term} />
             </li>
           ))}
         </ul>

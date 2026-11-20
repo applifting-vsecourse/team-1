@@ -327,9 +327,8 @@
     "searchPeopleLabel": "Hledat nepřiřazené účastníky",
     "searchPeoplePlaceholder": "Hledat účastníka…",
     "searchPlaceholder": "Hledat pokoj podle názvu…",
-    "statusConfirmed": "Potvrzená",
-    "statusConfirmedMale": "Potvrzen",
-    "statusToEvaluate": "K vyhodnocení",
+    "statusConfirmed": "Potvrzeno",
+    "statusToEvaluate": "Čeká na vyhodnocení",
     "unassignedStatus": "Nepřiřazení účastníci: {{count}}",
     "unassignedTitle": "Nepřiřazení účastníci"
   },

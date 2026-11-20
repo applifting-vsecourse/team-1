@@ -53,13 +53,13 @@ export interface ApplicationChangeProps {
 const statusLabel = {
   cs: {
     TO_EVALUATE: "Čeká na vyhodnocení",
-    CONFIRMED: "Účast potvrzena",
+    CONFIRMED: "Potvrzeno",
     WAITLISTED: "Náhradník",
     CANCELLED: "Zrušeno",
   },
   en: {
-    TO_EVALUATE: "Awaiting review",
-    CONFIRMED: "Place confirmed",
+    TO_EVALUATE: "Awaiting evaluation",
+    CONFIRMED: "Confirmed",
     WAITLISTED: "Waitlisted",
     CANCELLED: "Cancelled",
   },

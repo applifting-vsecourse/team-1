@@ -328,8 +328,7 @@
     "searchPeoplePlaceholder": "Search participants…",
     "searchPlaceholder": "Search rooms by name…",
     "statusConfirmed": "Confirmed",
-    "statusConfirmedMale": "Confirmed",
-    "statusToEvaluate": "To evaluate",
+    "statusToEvaluate": "Awaiting evaluation",
     "unassignedStatus": "Unassigned participants: {{count}}",
     "unassignedTitle": "Unassigned participants"
   },

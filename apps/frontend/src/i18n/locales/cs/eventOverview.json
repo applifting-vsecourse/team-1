@@ -10,12 +10,12 @@
     "allTerms": "Všechny termíny",
     "allWaitlisted": "Všichni náhradníci",
     "applicationDetail": "Detail přihlášky",
-    "archived": "Archivovaná",
-    "cancelled": "Zrušená",
+    "archived": "Archivováno",
+    "cancelled": "Zrušeno",
     "clear": "Vymazat filtry",
     "clearSearchAndFilters": "Vymazat hledání a filtry",
     "closeFilters": "Zavřít filtry",
-    "confirmed": "Potvrzená",
+    "confirmed": "Potvrzeno",
     "count_few": "{{count}} přihlášky",
     "count_one": "{{count}} přihláška",
     "count_other": "{{count}} přihlášek",
@@ -62,8 +62,7 @@
     "waitlistNoteTitle": "Náhradníci mají pořadí, místo zatím nemají potvrzené.",
     "waitlistTitle": "Pořadník náhradníků",
     "waitlisted": "Náhradník",
-    "waitlistedPositionFemale": "Náhradnice · {{position}}",
-    "waitlistedPositionMale": "Náhradník · {{position}}"
+    "waitlistedPosition": "Náhradník · {{position}}"
   },
   "attention": {
     "clear": {
@@ -86,7 +85,7 @@
     },
     "toEvaluate": {
       "body": "Přihlášky čekající na rozhodnutí",
-      "title": "K vyhodnocení · {{count}}"
+      "title": "Čeká na vyhodnocení · {{count}}"
     }
   },
   "autoConfirmed": {
@@ -199,10 +198,10 @@
     "selectedApplications_many": "{{count}} přihlášek",
     "selectedApplications_one": "{{count}} přihláška",
     "selectedApplications_other": "{{count}} přihlášek",
-    "skippedStays_few": "{{names}} se do kapacity nevejdou a zůstanou K vyhodnocení.",
-    "skippedStays_many": "{{names}} se do kapacity nevejdou a zůstanou K vyhodnocení.",
-    "skippedStays_one": "{{names}} se do kapacity nevejde a zůstane K vyhodnocení.",
-    "skippedStays_other": "{{names}} se do kapacity nevejdou a zůstanou K vyhodnocení.",
+    "skippedStays_few": "{{names}} se do kapacity nevejdou a dál čekají na vyhodnocení.",
+    "skippedStays_many": "{{names}} se do kapacity nevejdou a dál čekají na vyhodnocení.",
+    "skippedStays_one": "{{names}} se do kapacity nevejde a dál čeká na vyhodnocení.",
+    "skippedStays_other": "{{names}} se do kapacity nevejdou a dál čekají na vyhodnocení.",
     "statusConfirmed": "Účast potvrzena",
     "willConfirm": "Budou potvrzeny",
     "women_few": "{{count}} dámské",
@@ -681,7 +680,7 @@
     "emptyHint": "Nové přihlášky v ručním režimu se objeví v této frontě.",
     "loading": "Načítám…",
     "proposalCount": "{{view}}, počet lůžek čekajících na potvrzení: {{count}}",
-    "status": "K vyhodnocení",
+    "status": "Čeká na vyhodnocení",
     "viewAll": "Všechny přihlášky",
     "viewRequests": "Žádosti o změnu",
     "viewWaitlist": "Náhradníci",
@@ -809,9 +808,9 @@
     "overCapacityDescription": "Potvrzením se překročí kapacita termínu. Potvrďte, jen pokud to vědomě přijímáte.",
     "overCapacityTitle": "Pro toto pohlaví není volné lůžko",
     "state": {
-      "ARCHIVED": "Archivovaná",
-      "CANCELLED": "Zrušená",
-      "CONFIRMED": "Potvrzená",
+      "ARCHIVED": "Archivováno",
+      "CANCELLED": "Zrušeno",
+      "CONFIRMED": "Potvrzeno",
       "TO_EVALUATE": "Čeká na vyhodnocení",
       "WAITLISTED": "Náhradník"
     },
@@ -824,10 +823,9 @@
     "done": "Účastník byl odhlášen",
     "errorTitle": "Dopad odhlášení se nepodařilo načíst",
     "impactTitle": "Dopad odhlášení",
-    "noRefundDescription": "Vratku zapíšete ručně po domluvě s přihlašovatelem. Změna zůstane v historii a přihlašovatel dostane e-mail.",
+    "noRefundDescription": "Vratku zapište ručně.",
     "noRefundTitle": "Platba se automaticky nevrací",
     "oneTerm": "Jeden termín · {{term}}",
-    "othersUnchanged": "Ostatní termíny zůstanou beze změny.",
     "overpaymentLabel": "Přeplatek",
     "paid": "Zaplaceno",
     "scope": "Rozsah odhlášení",

@@ -30,7 +30,7 @@
     "status": {
       "archived": "Archived",
       "cancelled": "Cancelled",
-      "confirmed": "Participation confirmed",
+      "confirmed": "Confirmed",
       "toEvaluate": "Awaiting evaluation",
       "waitlisted": "Waitlisted"
     },

@@ -149,4 +149,92 @@ describe("ProgramPage", () => {
       "organizer/events/e1/program/terms/t1/blocks",
     )
   })
+
+  async function copyIntoOverlap({
+    shouldFailReload = false,
+  }: { shouldFailReload?: boolean } = {}) {
+    const block = (id: string, name: string, startTime: string, endTime: string) => ({
+      id,
+      date: "2027-07-13",
+      startTime,
+      endTime,
+      name,
+      place: "Louka",
+      description: "",
+    })
+    const target = { ...term, blocks: [block("x", "Hry", "10:30", "12:00")] }
+    const source = {
+      termId: "t2",
+      termName: "Zdroj",
+      startsOn: "2027-07-19",
+      endsOn: "2027-07-21",
+      blocks: [{ ...block("a", "Dílny", "10:00", "11:00"), date: "2027-07-20" }],
+    }
+    let blocks = target.blocks
+    let isCopied = false
+    vi.spyOn(globalThis, "fetch").mockImplementation((input, init) => {
+      const request = input instanceof Request ? input : new Request(String(input), init)
+      const json = (body: unknown) =>
+        new Response(JSON.stringify(body), { headers: { "Content-Type": "application/json" } })
+      if (request.method === "POST") {
+        blocks = [...blocks, block("c", "Dílny", "10:00", "11:00")]
+        isCopied = true
+        return Promise.resolve(
+          json({
+            copied: 1,
+            skipped: 0,
+            overlaps: [{ date: "2027-07-13", first: "Dílny", second: "Hry" }],
+          }),
+        )
+      }
+      if (request.method === "DELETE") {
+        blocks = blocks.filter((item) => item.id !== "x")
+        return Promise.resolve(new Response(null, { status: 204 }))
+      }
+      if (shouldFailReload && isCopied) return Promise.resolve(new Response(null, { status: 500 }))
+      return Promise.resolve(json(program([{ ...target, blocks }, source])))
+    })
+    const root = createRootRoute()
+    const page = createRoute({
+      getParentRoute: () => root,
+      path: "/",
+      component: () => <ProgramPage eventId="e1" />,
+    })
+    render(
+      <QueryClientProvider
+        client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
+      >
+        <RouterProvider
+          router={createRouter({
+            routeTree: root.addChildren([page]),
+            history: createMemoryHistory({ initialEntries: ["/"] }),
+          })}
+        />
+      </QueryClientProvider>,
+    )
+
+    await userEvent.click(await screen.findByRole("button", { name: "Copy program" }))
+    const copyDialog = await screen.findByRole("dialog")
+    await userEvent.click(within(copyDialog).getByRole("combobox", { name: "Source term" }))
+    await userEvent.click(await screen.findByRole("option", { name: /Zdroj/ }))
+    await userEvent.click(within(copyDialog).getByRole("button", { name: "Copy 1 block" }))
+    expect(await screen.findByText(/Dílny and Hry on .* overlap\./)).toBeInTheDocument()
+  }
+
+  it("drops the copy overlap warning once the overlap is resolved", async () => {
+    await copyIntoOverlap()
+    await userEvent.click(await screen.findByRole("button", { name: "Show details of Hry" }))
+    await userEvent.click(await screen.findByRole("button", { name: "Delete block" }))
+    const confirm = await screen.findByRole("dialog")
+    await userEvent.click(within(confirm).getByRole("button", { name: "Delete block" }))
+    await waitFor(() => {
+      expect(screen.queryByText(/Dílny and Hry on/)).not.toBeInTheDocument()
+    })
+    expect(screen.queryByText(/time overlap/)).not.toBeInTheDocument()
+  })
+
+  it("keeps the overlaps the copy reported when the program cannot be reloaded after it", async () => {
+    await copyIntoOverlap({ shouldFailReload: true })
+    expect(screen.getByText(/Dílny and Hry on .* overlap\./)).toBeInTheDocument()
+  })
 })

@@ -94,7 +94,12 @@ describe("OrganizerWithdrawal", () => {
     expect(within(dialog).getByRole("heading", { name: "Withdraw participant" })).toBeVisible()
     expect(await within(dialog).findByText("Debt after withdrawal")).toBeVisible()
     expect(within(dialog).getByText("Overpayment")).toBeVisible()
-    expect(within(dialog).getByText("The other term stays unchanged.")).toBeVisible()
+    // Only the impact and the refund warning: no reassurances, no e-mail or history notes.
+    expect(within(dialog).getByText("The payment is not refunded automatically")).toBeVisible()
+    expect(within(dialog).getByText("Record the refund manually.")).toBeVisible()
+    expect(within(dialog).queryByText(/other term/i)).not.toBeInTheDocument()
+    expect(within(dialog).queryByText(/e-mail/i)).not.toBeInTheDocument()
+    expect(within(dialog).queryByText(/history/i)).not.toBeInTheDocument()
     expect(get).toHaveBeenCalledWith(
       "organizer/applications/a1/terms/withdraw-preview",
       expect.objectContaining({ searchParams: { termIds: "t1" } }),

@@ -28,9 +28,9 @@
     "pricePerConfirmedTerm": "{{price}} za potvrzený termín",
     "sentTo": "Potvrzení a stav termínů jsme poslali na {{email}}.",
     "status": {
-      "archived": "Archivovaná",
-      "cancelled": "Zrušená",
-      "confirmed": "Účast potvrzena",
+      "archived": "Archivováno",
+      "cancelled": "Zrušeno",
+      "confirmed": "Potvrzeno",
       "toEvaluate": "Čeká na vyhodnocení",
       "waitlisted": "Náhradník"
     },

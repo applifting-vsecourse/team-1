@@ -373,7 +373,7 @@ function Person({ item }: { item: Substitute }) {
   )
 }
 
-/** The term and the purple waitlist chip, "Náhradník" or "Náhradnice" with the position. */
+/** The term and the purple waitlist chip, "Náhradník" with the position. */
 function TermStatus({ item, range }: { item: Substitute; range: string }) {
   const { t } = useTranslation("eventOverview")
   return (
@@ -383,12 +383,7 @@ function TermStatus({ item, range }: { item: Substitute; range: string }) {
         variant="secondary"
         className="bg-status-waitlist-bg text-status-waitlist"
       >
-        {t(
-          item.gender === "FEMALE"
-            ? "applications.waitlistedPositionFemale"
-            : "applications.waitlistedPositionMale",
-          { position: item.position },
-        )}
+        {t("applications.waitlistedPosition", { position: item.position })}
       </Badge>
     </div>
   )

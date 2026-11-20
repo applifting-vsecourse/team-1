@@ -106,7 +106,7 @@ describe("EventOverview", () => {
       debt: { debtorCount: 6, overdueCount: 3, totalDebtCzk: 18400 },
       changeRequestCount: 2,
     })
-    const toEvaluate = await screen.findByRole("link", { name: /Awaiting review · 12/ })
+    const toEvaluate = await screen.findByRole("link", { name: /Awaiting evaluation · 12/ })
     expect(toEvaluate.getAttribute("href")).toContain("status=TO_EVALUATE")
     const substitutes = screen.getByRole("link", { name: /Substitutes to resolve · 3/ })
     expect(substitutes).toHaveTextContent("Freed beds in the matching group")
@@ -134,7 +134,7 @@ describe("EventOverview", () => {
       debt: { debtorCount: 0, overdueCount: 0, totalDebtCzk: 0 },
       changeRequestCount: 0,
     })
-    expect(await screen.findByRole("link", { name: /Awaiting review · 0/ })).toBeVisible()
+    expect(await screen.findByRole("link", { name: /Awaiting evaluation · 0/ })).toBeVisible()
     expect(screen.getByRole("link", { name: /Substitutes to resolve · 0/ })).toBeVisible()
     expect(screen.getByRole("status")).toHaveTextContent("Everything is up to date")
     expect(await screen.findByText(/^Summer week · /)).toBeVisible()
@@ -150,7 +150,7 @@ describe("EventOverview", () => {
       },
       <p>Setup steps</p>,
     )
-    const cards = await screen.findByRole("link", { name: /Awaiting review/ })
+    const cards = await screen.findByRole("link", { name: /Awaiting evaluation/ })
     const setup = screen.getByText("Setup steps")
     const switcher = screen.getByRole("combobox", { name: "Event" })
     expect(switcher.compareDocumentPosition(setup) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
@@ -201,7 +201,7 @@ describe("EventOverview", () => {
       debt: { debtorCount: 0, overdueCount: 0, totalDebtCzk: 0 },
       changeRequestCount: 0,
     })
-    await screen.findByRole("link", { name: /Awaiting review/ })
+    await screen.findByRole("link", { name: /Awaiting evaluation/ })
     expect(screen.queryByRole("alert")).not.toBeInTheDocument()
   })
 })

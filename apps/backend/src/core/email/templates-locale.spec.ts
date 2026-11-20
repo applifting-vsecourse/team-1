@@ -161,10 +161,10 @@ it("tells the participant the confirmed, substitute and awaiting-evaluation resu
     for (const term of terms) expect(html).toContain(term.name)
   }
   expect(en).toContain("Waitlisted")
-  expect(en).toContain("Place confirmed")
+  expect(en).toContain("Confirmed")
   expect(en).not.toContain("payment due")
-  expect(en).toContain("Awaiting review")
-  expect(cs).toContain("Účast potvrzena")
+  expect(en).toContain("Awaiting evaluation")
+  expect(cs).toContain("Potvrzeno")
   expect(cs).not.toContain("Zbývá zaplatit")
   expect(cs).toContain("Náhradník")
   expect(cs).toContain("Čeká na vyhodnocení")

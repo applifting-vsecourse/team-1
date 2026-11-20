@@ -145,7 +145,7 @@ describe("ApplicationList", () => {
     expect(screen.getByRole("heading", { name: /Jana Nováková · HV-0051/ })).toBeVisible()
     expect(screen.getAllByText("4–10 Jul 2027")).toHaveLength(2)
     expect(screen.getAllByText("1. týden")).toHaveLength(2)
-    expect(screen.getAllByText("Participation confirmed")).toHaveLength(2)
+    expect(screen.getAllByText("Confirmed")).toHaveLength(2)
     expect(screen.getAllByText("Waitlisted")).toHaveLength(2)
     expect(screen.getAllByText("Unpaid")).toHaveLength(2)
     expect(screen.queryByText(/in line|position/i)).not.toBeInTheDocument()

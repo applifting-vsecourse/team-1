@@ -6,14 +6,7 @@ import type { MyApplicationTerm, PaymentStatus } from "@/features/participant/ap
 
 /** Awaiting evaluation, confirmed, waitlisted or cancelled — the participant never sees a place in line. */
 // Figma (Design system v2): term status badges in US-54 / Moje přihlášky · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15649-2
-export function TermStatusBadge({
-  term,
-  confirmedLabel,
-}: {
-  term: MyApplicationTerm
-  /** The list of applications says „Účast potvrzena“ instead of the short „Potvrzeno“. */
-  confirmedLabel?: string
-}) {
+export function TermStatusBadge({ term }: { term: MyApplicationTerm }) {
   const { t } = useTranslation("participant")
   const isConfirmed = term.status === "CONFIRMED"
   const label = (
@@ -26,11 +19,7 @@ export function TermStatusBadge({
     } as const
   )[term.status]
 
-  return (
-    <Badge variant={isConfirmed ? "success" : "secondary"}>
-      {isConfirmed && confirmedLabel ? confirmedLabel : t(`status.${label}`)}
-    </Badge>
-  )
+  return <Badge variant={isConfirmed ? "success" : "secondary"}>{t(`status.${label}`)}</Badge>
 }
 
 const paymentTone = {

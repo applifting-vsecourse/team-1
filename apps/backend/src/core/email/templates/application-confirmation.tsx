@@ -43,8 +43,8 @@ const copy: Record<
         `We have received your applications for ${event}. Below is a summary of the participants and the status of each term.`,
     },
     badge: {
-      TO_EVALUATE: "Awaiting review",
-      CONFIRMED: "Place confirmed",
+      TO_EVALUATE: "Awaiting evaluation",
+      CONFIRMED: "Confirmed",
       WAITLISTED: "Waitlisted",
     },
     termText: {
@@ -75,7 +75,7 @@ const copy: Record<
     },
     badge: {
       TO_EVALUATE: "Čeká na vyhodnocení",
-      CONFIRMED: "Účast potvrzena",
+      CONFIRMED: "Potvrzeno",
       WAITLISTED: "Náhradník",
     },
     termText: {

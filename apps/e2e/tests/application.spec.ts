@@ -63,7 +63,7 @@ test.describe("Application from a link", { tag: "@mobile" }, () => {
       page.getByRole("heading", { level: 1, name: "We've received your application" }),
     ).toBeVisible()
     // US-25: the term status and where to pay.
-    await expect(page.getByText("Participation confirmed", { exact: true })).toBeVisible()
+    await expect(page.getByText("Confirmed", { exact: true })).toBeVisible()
     await expect(
       page.getByRole("heading", { name: "Payment for the confirmed terms" }),
     ).toBeVisible()
@@ -81,7 +81,7 @@ test.describe("Application from a link", { tag: "@mobile" }, () => {
 
     await expect(page.getByRole("heading", { level: 1, name: "My applications" })).toBeVisible()
     await expect(page.getByRole("heading", { name: "Letní kemp 2027", level: 2 })).toBeVisible()
-    await expect(page.getByText(/Participation confirmed|Waitlisted/).first()).toBeVisible()
+    await expect(page.getByText(/Confirmed|Waitlisted/).first()).toBeVisible()
 
     // US-121: the detail ends with who to call or write to; one tap dials or opens the mail.
     await page.getByRole("link", { name: /Letní kemp 2027/ }).click()

@@ -62,8 +62,7 @@
     "waitlistNoteTitle": "Waitlisted applicants have a place in the queue, not a confirmed place.",
     "waitlistTitle": "Substitute waitlist",
     "waitlisted": "Waitlisted",
-    "waitlistedPositionFemale": "Waitlisted · {{position}}",
-    "waitlistedPositionMale": "Waitlisted · {{position}}"
+    "waitlistedPosition": "Waitlisted · {{position}}"
   },
   "attention": {
     "clear": {
@@ -86,7 +85,7 @@
     },
     "toEvaluate": {
       "body": "Applications awaiting a decision",
-      "title": "Awaiting review · {{count}}"
+      "title": "Awaiting evaluation · {{count}}"
     }
   },
   "autoConfirmed": {
@@ -199,10 +198,10 @@
     "selectedApplications_many": "{{count}} applications",
     "selectedApplications_one": "{{count}} application",
     "selectedApplications_other": "{{count}} applications",
-    "skippedStays_few": "{{names}} do not fit into the capacity and stay To evaluate.",
-    "skippedStays_many": "{{names}} do not fit into the capacity and stay To evaluate.",
-    "skippedStays_one": "{{names}} does not fit into the capacity and stays To evaluate.",
-    "skippedStays_other": "{{names}} do not fit into the capacity and stay To evaluate.",
+    "skippedStays_few": "{{names}} do not fit into the capacity and keep awaiting evaluation.",
+    "skippedStays_many": "{{names}} do not fit into the capacity and keep awaiting evaluation.",
+    "skippedStays_one": "{{names}} does not fit into the capacity and keeps awaiting evaluation.",
+    "skippedStays_other": "{{names}} do not fit into the capacity and keep awaiting evaluation.",
     "statusConfirmed": "Participation confirmed",
     "willConfirm": "Will be confirmed",
     "women_few": "{{count}} women's",
@@ -681,7 +680,7 @@
     "emptyHint": "New applications in manual mode will appear in this queue.",
     "loading": "Loading…",
     "proposalCount": "{{view}}, beds waiting for confirmation: {{count}}",
-    "status": "To evaluate",
+    "status": "Awaiting evaluation",
     "viewAll": "All applications",
     "viewRequests": "Change requests",
     "viewWaitlist": "Waitlisted",
@@ -824,10 +823,9 @@
     "done": "The participant was withdrawn",
     "errorTitle": "Could not load the impact of the withdrawal",
     "impactTitle": "Impact of the withdrawal",
-    "noRefundDescription": "You record the refund by hand after agreeing it with the applicant. The change stays in the history and the applicant gets an e-mail.",
+    "noRefundDescription": "Record the refund manually.",
     "noRefundTitle": "The payment is not refunded automatically",
     "oneTerm": "One term · {{term}}",
-    "othersUnchanged": "The other term stays unchanged.",
     "overpaymentLabel": "Overpayment",
     "paid": "Paid",
     "scope": "Withdrawal scope",
