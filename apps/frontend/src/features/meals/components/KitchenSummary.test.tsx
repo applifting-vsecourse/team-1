@@ -141,10 +141,7 @@ describe("KitchenSummary", () => {
     expect(screen.getByText("Summer camp")).toBeVisible()
     expect(screen.getByRole("heading", { name: "10 confirmed participants" })).toBeVisible()
     expect(screen.getByText("Each participant is counted once.")).toBeVisible()
-    expect(screen.getByRole("link", { name: "Back to event overview" })).toHaveAttribute(
-      "href",
-      "/organizer/events/e1",
-    )
+    expect(screen.queryByRole("link", { name: "Back to event overview" })).not.toBeInTheDocument()
     expectRow("Regular meal", "6")
     expectRow("Vegetarian", "3")
     expectRow("Gluten-free", "2")
