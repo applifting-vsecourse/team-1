@@ -508,3 +508,40 @@
     }
   }
 }
+
+/* Togena / Navigation / Tab in the account settings. */
+.account-tab {
+  color: var(--foreground);
+}
+.account-tab[data-state="active"] {
+  color: var(--foreground);
+  background: var(--accent);
+}
+.account-tab::after {
+  display: none;
+}
+.account-tab[data-state="active"]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: var(--ring);
+  mask: url("../assets/navigation/tab-corners-mobile.svg") center / 100% 100% no-repeat;
+}
+@media (min-width: 48rem) {
+  .account-tab[data-state="active"]::before {
+    mask-image: url("../assets/navigation/tab-corners.svg");
+  }
+}
+.account-tab:focus-visible {
+  outline: 1px solid var(--ring);
+  outline-offset: 0;
+  box-shadow: none;
+}
+.account-tab[data-state="active"]:focus-visible {
+  outline-width: 2px;
+}
+.account-tab[data-state="active"]:focus-visible::before {
+  inset: -2px;
+  mask-image: url("../assets/navigation/tab-corners-focus.svg");
+}

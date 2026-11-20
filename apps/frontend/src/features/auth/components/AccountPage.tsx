@@ -1,7 +1,5 @@
-import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { ActiveCorners } from "@/components/atoms/ActiveCorners"
 import { PageHeader } from "@/components/molecules/PageHeader"
 import { Card } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -15,7 +13,6 @@ import { useEmailChangedNotice } from "@/features/auth/hooks/useEmailChangedNoti
 import { useSession } from "@/features/auth/hooks/useSession"
 
 const SECTIONS = ["profile", "security"] as const
-type Section = (typeof SECTIONS)[number]
 
 /**
  * Account settings of every signed-in account: „Profil“ (name, e-mail), „Předvolby“
@@ -29,7 +26,6 @@ export function AccountPage({ isEmailChanged = false }: { isEmailChanged?: boole
   const { t } = useTranslation("auth")
   const { user } = useSession()
   useEmailChangedNotice(isEmailChanged, user?.email)
-  const [section, setSection] = useState<Section>("profile")
 
   if (!user) return null
 
@@ -42,29 +38,22 @@ export function AccountPage({ isEmailChanged = false }: { isEmailChanged?: boole
       />
 
       <Tabs
-        value={section}
-        onValueChange={(value) => setSection(value as Section)}
+        defaultValue="profile"
         className="gap-6"
       >
+        {/* Figma v2: Sekce účtu · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK?node-id=27081-144433 (mobile 19504-9405) */}
         <TabsList
+          aria-label={t("account.title")}
           variant="line"
-          className="h-auto w-full gap-2 p-0 md:w-fit"
+          className="mx-auto w-[calc(100vw-36px)] max-w-full justify-start gap-2 p-0 group-data-[orientation=horizontal]/tabs:h-12 md:mx-0 md:w-full md:group-data-[orientation=horizontal]/tabs:h-15"
         >
           {SECTIONS.map((key) => (
             <TabsTrigger
               key={key}
               value={key}
-              data-status={section === key ? "active" : undefined}
-              // Togena / Tab: 60 px, no fill; the active label is the accent text colour
-              // with the dot under it (and the logo corners), the inactive one is muted.
-              className="group h-15 flex-1 rounded-sm px-2 text-muted-foreground after:hidden hover:text-foreground data-[state=active]:bg-transparent data-[state=active]:text-link md:w-45 md:flex-none"
+              className="account-tab h-full rounded-control border-0 p-3 text-base leading-6 font-normal transition-colors md:flex-none md:px-2 md:first:min-w-[63px] md:last:min-w-[122px]"
             >
               {t(`account.tabs.${key}`)}
-              <span
-                aria-hidden="true"
-                className="absolute bottom-1 left-1/2 size-1.75 -translate-x-1/2 rounded-full bg-primary opacity-0 group-data-[state=active]:opacity-100"
-              />
-              <ActiveCorners />
             </TabsTrigger>
           ))}
         </TabsList>
