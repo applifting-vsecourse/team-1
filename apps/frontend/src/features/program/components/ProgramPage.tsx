@@ -50,6 +50,7 @@ export function ProgramPage({ eventId }: { eventId: string }) {
   const { t } = useTranslation("program")
   const query = useQuery(eventProgramQueryOptions(eventId))
   const [termId, setTermId] = useState<string | null>(null)
+  const [agendaDay, setAgendaDay] = useState<string | null>(null)
   const [viewing, setViewing] = useState<ProgramBlock | null>(null)
   const [editor, setEditor] = useState<Editor | null>(null)
   const [deleting, setDeleting] = useState<ProgramBlock | null>(null)
@@ -143,6 +144,7 @@ export function ProgramPage({ eventId }: { eventId: string }) {
             onValueChange={(value) => {
               dismissCopied()
               setTermId(value)
+              setAgendaDay(null)
             }}
           >
             <SelectTrigger
@@ -169,7 +171,11 @@ export function ProgramPage({ eventId }: { eventId: string }) {
             className="max-sm:w-full"
             onClick={() => {
               dismissCopied()
-              setEditor({ date: term.startsOn })
+              const date =
+                agendaDay && agendaDay >= term.startsOn && agendaDay <= term.endsOn
+                  ? agendaDay
+                  : term.startsOn
+              setEditor({ date })
             }}
           >
             {t("add")}
@@ -253,6 +259,7 @@ export function ProgramPage({ eventId }: { eventId: string }) {
       ) : null}
       <ProgramCalendar
         key={term.termId}
+        onDayChange={setAgendaDay}
         onMove={(block) => {
           const handle = document.activeElement
           const shouldRestoreFocus =
