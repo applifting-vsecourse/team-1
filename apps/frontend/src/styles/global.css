@@ -5,8 +5,9 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --animate-accordion-down: accordion-down 200ms ease-out;
-  --animate-accordion-up: accordion-up 200ms ease-out;
+  /* Height makes it clear which item reveals the details and which one gives up space. */
+  --animate-accordion-down: accordion-down 180ms ease-out;
+  --animate-accordion-up: accordion-up 120ms ease-in;
   @keyframes accordion-down {
     from {
       height: 0;
@@ -304,8 +305,41 @@
   }
 }
 
+/* The backdrop and panel appear together so focus moves to a distinct task. */
+[data-slot="dialog-overlay"][data-state="open"],
+[data-slot="dialog-content"][data-state="open"] {
+  animation: dialog-appear 160ms ease-out;
+}
+
+[data-slot="dialog-overlay"][data-state="closed"],
+[data-slot="dialog-content"][data-state="closed"] {
+  animation: dialog-disappear 120ms ease-in;
+}
+
+@keyframes dialog-appear {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes dialog-disappear {
+  to {
+    opacity: 0;
+  }
+}
+
+/* Let the result of a completed action become readable as the toast enters the stack. */
+[data-sonner-toast][data-mounted="true"][data-removed="false"][data-swiping="false"] {
+  transition-duration: 180ms;
+}
+
 /* Keep status text and controls available while honoring the OS motion setting. */
 @media (prefers-reduced-motion: reduce) {
+  [data-slot="dialog-overlay"],
+  [data-slot="dialog-content"] {
+    animation: none;
+  }
+
   *,
   *::before,
   *::after {
