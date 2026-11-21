@@ -6,6 +6,7 @@ import {
   decideSelection,
   KitchenTermInput,
   MealOption,
+  OrganizerMeals,
   OwnMeals,
   SelectionInput,
 } from "@/modules/meals/domain/meals"
@@ -51,7 +52,7 @@ function mealRecord(
 function organizerRecord(
   row: Prisma.ApplicationGetPayload<{ select: typeof organizerSelect }>,
   options: MealOption[],
-) {
+): OrganizerMeals {
   return {
     ...mealRecord(row, options),
     editable: isApplicationEditable(
@@ -116,7 +117,11 @@ export class MealsRepository {
     return row && mealRecord(row, await this.listOptions(row.eventId))
   }
 
-  async organizerMeals(organizationId: string, eventId: string, id: string) {
+  async organizerMeals(
+    organizationId: string,
+    eventId: string,
+    id: string,
+  ): Promise<OrganizerMeals | null> {
     const row = await this.prisma.application.findFirst({
       where: { id, organizationId, eventId },
       select: organizerSelect,
@@ -124,7 +129,11 @@ export class MealsRepository {
     return row && organizerRecord(row, await this.listOptions(eventId))
   }
 
-  async termRoster(organizationId: string, eventId: string, termId: string) {
+  async termRoster(
+    organizationId: string,
+    eventId: string,
+    termId: string,
+  ): Promise<OrganizerMeals[]> {
     const [rows, options] = await Promise.all([
       this.prisma.application.findMany({
         where: {
@@ -145,7 +154,7 @@ export class MealsRepository {
     eventId: string,
     id: string,
     input: SelectionInput,
-  ) {
+  ): Promise<OrganizerMeals> {
     return this.prisma.$transaction(async (tx) => {
       // Match the lock order used by term changes and organizer edits.
       await tx.$queryRaw`SELECT id FROM event WHERE id = ${eventId} FOR UPDATE`

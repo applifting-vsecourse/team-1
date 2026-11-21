@@ -34,15 +34,15 @@ export function OrganizerMealEditor({
   meals: OrganizerMeals
 }) {
   const { t } = useTranslation("meals")
-  const [open, setOpen] = useState(false)
-  const [saving, setSaving] = useState(false)
+  const [isOpen, setIsOpen] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
   const label = t("edit.forPerson", { name: `${meals.firstName} ${meals.lastName}` })
   if (!meals.editable) return null
   return (
     <Dialog
-      open={open}
-      onOpenChange={(value) => {
-        if (!saving) setOpen(value)
+      open={isOpen}
+      onOpenChange={(isNextOpen) => {
+        if (!isSaving) setIsOpen(isNextOpen)
       }}
     >
       <DialogTrigger asChild>
@@ -56,10 +56,10 @@ export function OrganizerMealEditor({
           <Pencil aria-hidden />
         </Button>
       </DialogTrigger>
-      {open && (
+      {isOpen && (
         <DialogContent
           className="max-h-[90dvh] overflow-y-auto sm:max-w-[520px]"
-          showCloseButton={!saving}
+          showCloseButton={!isSaving}
         >
           <DialogHeader>
             <DialogTitle>{t("edit.title")}</DialogTitle>
@@ -70,8 +70,8 @@ export function OrganizerMealEditor({
           <EditorForm
             eventId={eventId}
             meals={meals}
-            onClose={() => setOpen(false)}
-            onSaving={setSaving}
+            onClose={() => setIsOpen(false)}
+            onSaving={setIsSaving}
           />
         </DialogContent>
       )}
@@ -88,7 +88,7 @@ function EditorForm({
   eventId: string
   meals: OrganizerMeals
   onClose: () => void
-  onSaving: (saving: boolean) => void
+  onSaving: (isSaving: boolean) => void
 }) {
   const { t } = useTranslation("meals")
   const client = useQueryClient()

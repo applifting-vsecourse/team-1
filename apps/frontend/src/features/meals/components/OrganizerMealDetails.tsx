@@ -45,7 +45,7 @@ export function OrganizerMealCard({
     organizerMealsQueryOptions(eventId, applicationId),
   )
   if (isPending) return <LoadingState />
-  if (error)
+  if (error) {
     return (
       <ErrorState
         title={t("own.pageTitle")}
@@ -53,6 +53,7 @@ export function OrganizerMealCard({
         onRetry={() => void refetch()}
       />
     )
+  }
   const state = status(data)
   return (
     <Card className="gap-3 p-4">
@@ -88,7 +89,7 @@ export function OrganizerMealRoster({ eventId, termId }: { eventId: string; term
   const filters = ["all", "missing", "none", "restricted"] as const
   const [filter, setFilter] = useState<(typeof filters)[number]>("all")
   if (isPending) return <LoadingState />
-  if (error)
+  if (error) {
     return (
       <ErrorState
         title={t("edit.roster")}
@@ -96,6 +97,7 @@ export function OrganizerMealRoster({ eventId, termId }: { eventId: string; term
         onRetry={() => void refetch()}
       />
     )
+  }
   const matches = data.filter(
     (person) =>
       (filter === "all" || status(person) === filter) &&
