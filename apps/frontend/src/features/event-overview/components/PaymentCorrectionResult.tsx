@@ -88,11 +88,12 @@ export function PaymentCorrectionResult({
         ) : null}
       </dl>
       <Button
-        variant="secondary"
-        className="self-start rounded-full"
+        variant="outline"
+        size="lg"
+        className="max-w-full self-start whitespace-normal"
         onClick={onBack}
       >
-        <ArrowLeft /> {t("payment.backToPayments")}
+        <ArrowLeft aria-hidden="true" /> {t("payment.backToPayments")}
       </Button>
     </Card>
   )

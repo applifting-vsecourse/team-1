@@ -12,7 +12,7 @@ import { ListSkeleton } from "@/components/molecules/ListSkeleton"
 import { Pagination } from "@/components/molecules/Pagination"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import { Button, buttonVariants } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -519,10 +519,11 @@ export function ApplicationsPage({
                             </p>
                           </TableCell>
                           <TableCell>{formatDateTime(row.submittedAt)}</TableCell>
-                          <TableCell>
+                          <TableCell className="text-right">
                             <Button
                               asChild
-                              variant="ghost"
+                              variant="outline"
+                              size="lg"
                             >
                               <Link
                                 to={ROUTES.organizer.application}
@@ -562,7 +563,7 @@ export function ApplicationsPage({
                       <Link
                         to={ROUTES.organizer.application}
                         params={{ eventId, applicationId: row.id }}
-                        className="flex w-full min-w-0 flex-1 flex-col gap-2"
+                        className="flex w-full min-w-0 flex-1 flex-col gap-2 rounded-control focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-ring"
                       >
                         <span
                           className={cn(
@@ -593,7 +594,12 @@ export function ApplicationsPage({
                         <span className="text-sm text-muted-foreground">
                           {t("applications.submitted")} · {formatDateTime(row.submittedAt)}
                         </span>
-                        <span className="mt-2 text-sm font-medium text-link">
+                        <span
+                          className={cn(
+                            buttonVariants({ variant: "outline", size: "lg" }),
+                            "mt-2 max-w-full self-start whitespace-normal",
+                          )}
+                        >
                           {t(
                             row.amountOwedCzk > 0
                               ? "payment.record"

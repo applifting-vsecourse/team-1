@@ -4,14 +4,14 @@ import { ArrowLeft } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 
-/** "← Back to …" above a heading: DS / Button Style=Quiet without left padding, aligned with the title. */
+/** Back navigation above a heading, using the secondary action treatment. */
 export function BackLink({ children, ...props }: LinkProps & { children: ReactNode }) {
   return (
     <Button
       asChild
-      variant="ghost"
+      variant="outline"
       size="lg"
-      className="h-9 self-start rounded-full bg-accent px-4 text-sm leading-5 font-medium text-link hover:bg-accent/80 has-[>svg]:px-4"
+      className="max-w-full self-start whitespace-normal"
     >
       <Link {...props}>
         <ArrowLeft aria-hidden="true" />

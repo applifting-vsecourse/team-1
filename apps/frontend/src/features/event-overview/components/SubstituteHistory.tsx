@@ -51,8 +51,8 @@ export function SubstituteHistory({ eventId, term }: { eventId: string; term: { 
             <Button
               asChild
               variant="outline"
-              size="sm"
-              className="self-start sm:self-center"
+              size="lg"
+              className="max-w-full self-start whitespace-normal sm:self-center"
             >
               <Link
                 to={ROUTES.organizer.application}

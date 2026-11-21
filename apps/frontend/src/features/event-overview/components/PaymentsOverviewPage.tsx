@@ -483,10 +483,12 @@ function PaymentOverviewRow({ entry, eventId }: { entry: PaymentOverviewEntry; e
           {t("termPayment.variableSymbol", { ns: "common" })} {entry.variableSymbol}
         </span>
       </TableCell>
-      <TableCell className="p-0 md:px-4 md:py-2">
+      <TableCell className="p-0 md:px-4 md:py-2 md:text-right">
         <Button
           asChild
-          variant="ghost"
+          variant="outline"
+          size="lg"
+          className="max-w-full whitespace-normal"
         >
           <Link
             to={ROUTES.organizer.application}
