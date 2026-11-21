@@ -38,7 +38,7 @@ export function EventList({ createdEventId }: { createdEventId?: string }) {
   const { data, isPending, error, refetch } = useQuery(eventsQueryOptions())
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-4">
       <PageHeader
         hasBand
         motif="planning"
@@ -205,7 +205,7 @@ function FilteredEvents({
             <span>{t("list.statusColumn")}</span>
             <span>{t("list.occupancy")}</span>
           </div>
-          <ul className="flex flex-col gap-4 lg:gap-0">
+          <ul className="flex flex-col gap-2 lg:gap-0">
             {pageItems.map((event) => (
               // The event that was just created keeps the selected surface (O02a).
               <li
@@ -238,7 +238,7 @@ function EventRow({ event }: { event: OrganizerEvent }) {
     <Link
       to={ROUTES.organizer.event}
       params={{ eventId: event.id }}
-      className="grid grid-cols-1 items-center gap-3 p-4 transition-colors hover:bg-accent/40 focus-visible:outline-2 focus-visible:outline-ring lg:grid-cols-[minmax(0,1fr)_9rem_minmax(8rem,1fr)_1.25rem]"
+      className="grid grid-cols-1 items-center gap-2 px-4 py-3 transition-colors hover:bg-accent/40 focus-visible:outline-2 focus-visible:outline-ring lg:grid-cols-[minmax(0,1fr)_9rem_minmax(8rem,1fr)_1.25rem]"
     >
       {/* Phone: organization above the name, then the dates; from `lg` the row reads name, then
           "organization · dates". */}
@@ -248,7 +248,7 @@ function EventRow({ event }: { event: OrganizerEvent }) {
         <p className="text-sm text-muted-foreground lg:hidden">
           {termsSummary(event, t, "header")}
         </p>
-        <p className="hidden text-sm text-muted-foreground lg:block">{termsSummary(event, t)}</p>
+        <p className="hidden text-sm font-medium lg:block">{termsSummary(event, t)}</p>
         {event.location ? <p className="text-sm text-muted-foreground">{event.location}</p> : null}
       </div>
       <ChevronRight

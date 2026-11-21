@@ -10,6 +10,12 @@ import { Seo } from "@/components/atoms/Seo"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { ListSkeleton } from "@/components/molecules/ListSkeleton"
 import { Pagination } from "@/components/molecules/Pagination"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -418,7 +424,7 @@ export function ApplicationsPage({
               <>
                 <div className="hidden md:-mx-6 md:block">
                   <Table>
-                    <TableHeader className="bg-action-subtle [&_th]:h-14 [&_th]:px-4">
+                    <TableHeader className="bg-action-subtle [&_th]:h-10 [&_th]:px-4">
                       <TableRow>
                         {bulkTerm && (
                           <TableHead className="w-10">
@@ -444,7 +450,7 @@ export function ApplicationsPage({
                         <TableRow
                           key={row.id}
                           data-state={selectedIds.has(row.id) ? "selected" : undefined}
-                          className="h-[84px] cursor-pointer data-[state=selected]:bg-accent [&>td]:px-4 [&>td]:py-4"
+                          className="cursor-pointer data-[state=selected]:bg-accent [&>td]:px-4 [&>td]:py-2"
                           onClick={(event) => {
                             // The detail link in the row stays the keyboard and new-tab path; the row only
                             // widens the mouse target. Controls inside the row keep their own behaviour.
@@ -477,32 +483,7 @@ export function ApplicationsPage({
                             </TableCell>
                           )}
                           <TableCell>
-                            <p
-                              className={cn(
-                                "flex flex-wrap items-center gap-x-2 gap-y-1 font-medium",
-                                row.individualAccommodation && "mb-2",
-                              )}
-                            >
-                              <span>
-                                {row.firstName} {row.lastName}
-                              </span>
-                              {row.individualAccommodation && (
-                                <Badge variant="secondary">
-                                  {t("applications.individualAccommodation")}
-                                </Badge>
-                              )}
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                              {formatDate(row.birthDate)} ·{" "}
-                              {t(
-                                row.gender === "FEMALE"
-                                  ? "applications.female"
-                                  : "applications.male",
-                              )}
-                              <span className="block wrap-anywhere whitespace-normal">
-                                {row.email}
-                              </span>
-                            </p>
+                            <ApplicationIdentity application={row} />
                           </TableCell>
                           <TableCell>
                             <Terms application={row} />
@@ -541,66 +522,55 @@ export function ApplicationsPage({
                     </TableBody>
                   </Table>
                 </div>
-                <div className="flex flex-col gap-4 md:hidden">
+                <div className="flex flex-col gap-2 md:hidden">
                   {visibleRows.map((row) => (
                     <div
                       key={row.id}
                       className={cn(
-                        "flex flex-col items-start gap-2 rounded-lg border bg-card p-4",
+                        "flex flex-col gap-2 rounded-lg border bg-card px-3 pb-2",
                         selectedIds.has(row.id) && "bg-accent",
                       )}
                     >
-                      {bulkTerm && (
-                        <div className="flex min-h-10 items-center">
-                          <SelectRow
-                            row={row}
-                            selectedIds={selectedIds}
-                            onChange={setSelectedIds}
-                          />
-                        </div>
-                      )}
-                      <Link
-                        to={ROUTES.organizer.application}
-                        params={{ eventId, applicationId: row.id }}
-                        className="flex w-full min-w-0 flex-1 flex-col gap-2"
-                      >
-                        <span
-                          className={cn(
-                            "flex flex-wrap items-center gap-x-2 gap-y-1 font-medium",
-                            row.individualAccommodation && "mb-1",
-                          )}
-                        >
-                          <span>
-                            {row.firstName} {row.lastName}
-                          </span>
-                          {row.individualAccommodation && (
-                            <Badge variant="secondary">
-                              {t("applications.individualAccommodation")}
-                            </Badge>
-                          )}
-                        </span>
-                        <span className="text-sm wrap-anywhere text-muted-foreground">
-                          {formatDate(row.birthDate)} ·{" "}
-                          {t(row.gender === "FEMALE" ? "applications.female" : "applications.male")}
-                          {" · "}
-                          {row.email}
-                        </span>
-                        <Terms application={row} />
+                      <div className="flex items-start gap-3">
+                        {bulkTerm && (
+                          <div className="flex min-h-11 items-center">
+                            <SelectRow
+                              row={row}
+                              selectedIds={selectedIds}
+                              onChange={setSelectedIds}
+                            />
+                          </div>
+                        )}
+                        <ApplicationIdentity application={row} />
+                      </div>
+                      <Terms application={row} />
+                      <div className="flex flex-wrap items-center gap-2 text-sm">
                         <PaymentStatus application={row} />
-                        <span className="text-sm">
+                        <span className="font-medium">
                           {t("applications.owed")}: <MoneyAmount amountCzk={row.amountOwedCzk} />
                         </span>
-                        <span className="text-sm text-muted-foreground">
-                          {t("applications.submitted")} · {formatDateTime(row.submittedAt)}
-                        </span>
-                        <span className="mt-2 text-sm font-medium text-link">
+                      </div>
+                      <Button
+                        asChild
+                        variant="ghost"
+                        className="min-h-11 self-start"
+                      >
+                        <Link
+                          to={ROUTES.organizer.application}
+                          params={{ eventId, applicationId: row.id }}
+                          aria-label={`${t(
+                            row.amountOwedCzk > 0
+                              ? "payment.record"
+                              : "applications.applicationDetail",
+                          )} · ${row.firstName} ${row.lastName}`}
+                        >
                           {t(
                             row.amountOwedCzk > 0
                               ? "payment.record"
                               : "applications.applicationDetail",
                           )}
-                        </span>
-                      </Link>
+                        </Link>
+                      </Button>
                     </div>
                   ))}
                 </div>
@@ -669,6 +639,40 @@ export function ApplicationsPage({
 }
 
 type BulkDone = { changed: number; unchanged: number }
+
+function ApplicationIdentity({ application }: { application: ListedApplication }) {
+  const { t } = useTranslation("eventOverview")
+  return (
+    <Accordion
+      type="single"
+      collapsible
+      className="min-w-0 flex-1"
+    >
+      <AccordionItem value={application.id}>
+        <AccordionTrigger className="min-h-11 items-center gap-2 py-2 text-base font-semibold">
+          <span className="flex min-w-0 flex-wrap items-center gap-2 wrap-anywhere">
+            <span>
+              {application.firstName} {application.lastName}
+            </span>
+            {application.individualAccommodation && (
+              <Badge variant="secondary">{t("applications.individualAccommodation")}</Badge>
+            )}
+          </span>
+        </AccordionTrigger>
+        <AccordionContent className="pb-2 wrap-anywhere whitespace-normal text-muted-foreground">
+          <p>
+            {formatDate(application.birthDate)} ·{" "}
+            {t(application.gender === "FEMALE" ? "applications.female" : "applications.male")}
+          </p>
+          <p>{application.email}</p>
+          <p className="md:hidden">
+            {t("applications.submitted")} · {formatDateTime(application.submittedAt)}
+          </p>
+        </AccordionContent>
+      </AccordionItem>
+    </Accordion>
+  )
+}
 
 function SelectRow({
   row,

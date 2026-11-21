@@ -1,9 +1,15 @@
-import type { ReactNode } from "react"
+import type { ComponentProps, ReactNode } from "react"
 import { useCallback, useRef, useState } from "react"
 import { useDraggable, useDroppable } from "@dnd-kit/core"
 import { AlertTriangle, GripVertical } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -262,6 +268,37 @@ function Chips({
   )
 }
 
+function AssignedParticipants({
+  room,
+  scope,
+  onMoveParticipant,
+  onRemoveParticipant,
+}: ComponentProps<typeof Chips>) {
+  const { t } = useTranslation("events")
+  if (!room.participants.length) return null
+
+  return (
+    <Accordion
+      type="single"
+      collapsible
+    >
+      <AccordionItem value={room.id}>
+        <AccordionTrigger className="min-h-11 items-center gap-2 py-2">
+          {t("roomAssignments.participantsColumn")}
+        </AccordionTrigger>
+        <AccordionContent className="pb-2">
+          <Chips
+            room={room}
+            scope={scope}
+            onMoveParticipant={onMoveParticipant}
+            onRemoveParticipant={onRemoveParticipant}
+          />
+        </AccordionContent>
+      </AccordionItem>
+    </Accordion>
+  )
+}
+
 export function ExtraBeds({ room }: { room: AssignmentRoom }) {
   const { t } = useTranslation("events")
   return room.extraBeds > 0 ? (
@@ -440,7 +477,7 @@ export function RoomTableRow({
           </div>
         </TableCell>
         <TableCell className="min-w-40 whitespace-normal">
-          <Chips
+          <AssignedParticipants
             room={room}
             scope="row"
             onMoveParticipant={onMoveParticipant}
@@ -514,8 +551,8 @@ export function RoomCard({
             : kinds.length > 0 && "border-l-4 border-l-status-warning bg-status-warning-bg",
       )}
     >
-      <div className="flex flex-col gap-3 p-4">
-        <div className="flex flex-wrap items-center justify-center gap-2">
+      <div className="flex flex-col gap-2 p-3">
+        <div className="flex flex-wrap items-center gap-2">
           <span className="font-semibold break-words">{room.name}</span>
           {room.gender ? <Badge variant="secondary">{roomGenderLabel(room.gender)}</Badge> : null}
           {room.individual ? <Badge variant="secondary">{t("rooms.individual")}</Badge> : null}
@@ -542,8 +579,8 @@ export function RoomCard({
         <ExtraBeds room={room} />
       </div>
       {room.participants.length ? (
-        <div className="border-t border-border p-4">
-          <Chips
+        <div className="border-t border-border px-3">
+          <AssignedParticipants
             room={room}
             scope="card"
             onMoveParticipant={onMoveParticipant}
@@ -556,7 +593,7 @@ export function RoomCard({
         warnings={warnings}
         onAcknowledge={onAcknowledge}
       />
-      <div className="flex items-center justify-end gap-1 border-t border-border p-3">
+      <div className="flex items-center justify-end gap-1 border-t border-border px-3 py-1">
         {actions}
       </div>
     </li>

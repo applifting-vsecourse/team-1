@@ -11,15 +11,13 @@ import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { Pagination } from "@/components/molecules/Pagination"
 import { SectionHeader } from "@/components/molecules/SectionHeader"
-import { Input } from "@/components/ui/input"
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
+import { Input } from "@/components/ui/input"
 import { usePagination } from "@/hooks/usePagination"
 import { termLine, termTitle } from "@/lib/term-label"
 
@@ -121,34 +119,32 @@ function ParticipantTable({
   term: string
   resetKey: string
 }) {
-  const { t } = useTranslation("transport")
   const { pageItems, ...pagination } = usePagination(participants, resetKey)
   return (
     <div className="flex flex-col gap-4">
-      <div className="rounded-lg border bg-card">
-        <Table>
-          <TableHeader className="bg-muted">
-            <TableRow>
-              <TableHead className="px-4">{t("participantTermColumn")}</TableHead>
-              <TableHead className="px-4">{t("contactColumn")}</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {pageItems.map((participant) => (
-              <TableRow key={participant.applicationId}>
-                <TableCell className="px-4 py-3 whitespace-normal">
-                  <span className="block">{participant.name}</span>
-                  <span className="block text-sm text-muted-foreground">{term}</span>
-                </TableCell>
-                <TableCell className="px-4 py-3 text-sm break-all whitespace-normal text-muted-foreground">
-                  <span className="block">{participant.email}</span>
-                  {participant.phone ? <span className="block">{participant.phone}</span> : null}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+      <Accordion
+        type="multiple"
+        className="rounded-lg border bg-card"
+      >
+        {pageItems.map((participant) => (
+          <AccordionItem
+            key={participant.applicationId}
+            value={participant.applicationId}
+            className="px-3"
+          >
+            <AccordionTrigger className="min-h-11 items-center gap-2 py-2">
+              <span className="flex min-w-0 flex-wrap items-baseline gap-x-3 gap-y-1 wrap-anywhere">
+                <span className="text-base font-semibold">{participant.name}</span>
+                <span className="text-muted-foreground">{term}</span>
+              </span>
+            </AccordionTrigger>
+            <AccordionContent className="pb-2 wrap-anywhere text-muted-foreground">
+              <p>{participant.email}</p>
+              {participant.phone ? <p>{participant.phone}</p> : null}
+            </AccordionContent>
+          </AccordionItem>
+        ))}
+      </Accordion>
       <Pagination
         {...pagination}
         onPageChange={pagination.setPage}

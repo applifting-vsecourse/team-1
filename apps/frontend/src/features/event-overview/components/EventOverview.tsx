@@ -60,7 +60,7 @@ export function EventOverview({
   const { t } = useTranslation("eventOverview")
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-4">
       {events.length > 0 ? (
         <div className="flex flex-col gap-2 sm:max-w-96">
           <Label htmlFor="event-switcher">{t("switcher.label")}</Label>
@@ -112,7 +112,7 @@ function AttentionCards({ eventId }: { eventId: string }) {
   const cards = attentionCards(data, t)
   const isClear = cards.every((card) => card.count === 0)
   return (
-    <section className="flex flex-col gap-4">
+    <section className="flex flex-col gap-3">
       <h2 className="text-2xl font-semibold">{t("attention.heading")}</h2>
       {isClear && (
         <Alert
@@ -214,7 +214,7 @@ function AttentionCard({
       search={search}
       className="group block rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
     >
-      <Card className="min-h-[104px] gap-2 rounded-lg p-3 shadow-none transition-colors group-hover:border-primary group-hover:bg-muted md:p-4">
+      <Card className="gap-2 rounded-lg p-3 shadow-none transition-colors group-hover:border-primary group-hover:bg-muted md:p-4">
         <div className="flex items-center gap-2">
           <Icon
             aria-hidden
@@ -249,13 +249,13 @@ function Occupancy({ eventId }: { eventId: string }) {
   // An event without rooms has nothing to occupy; the setup block below says what is missing.
   if (data.terms.every((term) => term.roomCount === 0)) return null
   return (
-    <section className="flex flex-col gap-4">
+    <section className="flex flex-col gap-3">
       <h2 className="text-2xl font-semibold">{t("overview.occupancy")}</h2>
       <div className="grid gap-4 lg:grid-cols-2">
         {data.terms.map((term) => (
           <Card
             key={term.id}
-            className="gap-4 rounded-xl p-4 shadow-none"
+            className="gap-3 rounded-lg p-3 shadow-none md:p-4"
           >
             <h3 className="text-lg font-semibold tracking-tight">{termLine(term)}</h3>
             <div className="flex flex-col gap-2">
@@ -271,11 +271,11 @@ function Occupancy({ eventId }: { eventId: string }) {
             <dl className="grid grid-cols-2 gap-3">
               <div>
                 <dt className="text-sm text-muted-foreground">{t("overview.freeBeds")}</dt>
-                <dd className="tabular-nums">{term.free}</dd>
+                <dd className="font-semibold tabular-nums">{term.free}</dd>
               </div>
               <div>
                 <dt className="text-sm text-muted-foreground">{t("capacity.waitlistedColumn")}</dt>
-                <dd className="tabular-nums">{term.waitlisted}</dd>
+                <dd className="font-semibold tabular-nums">{term.waitlisted}</dd>
               </div>
             </dl>
             <div className="grid gap-1 sm:grid-cols-2">

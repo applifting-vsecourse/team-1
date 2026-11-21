@@ -78,8 +78,13 @@ describe("TransportList", () => {
   it("lists the transport of a term, own transport only where it was added", async () => {
     renderList()
 
-    expect((await screen.findAllByText("Autobus z Prahy")).length).toBeGreaterThan(0)
-    expect(screen.getAllByText("Praha, Černý Most").length).toBeGreaterThan(0)
+    const user = userEvent.setup()
+    const busDetails = await screen.findByRole("button", { name: /^Autobus z Prahy/ })
+    expect(busDetails).toHaveAttribute("aria-expanded", "false")
+    expect(screen.queryByText("Praha, Černý Most")).not.toBeInTheDocument()
+    await user.click(busDetails)
+    expect(screen.getByText("Praha, Černý Most")).toBeVisible()
+    expect(screen.getByRole("link", { name: /Autobus z Prahy/ })).toBeVisible()
     expect(screen.getAllByText("Own transport").length).toBeGreaterThan(0)
     expect(screen.getAllByRole("button", { name: "Add transport" })).toHaveLength(1)
     expect(screen.queryByRole("button", { name: "Add own transport" })).not.toBeInTheDocument()
