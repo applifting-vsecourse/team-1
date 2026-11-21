@@ -111,7 +111,8 @@ function DialogContent({
         style={{ ...viewportStyle, ...style }}
         className={cn(
           "fixed top-[var(--dialog-viewport-center,50%)] left-[50%] z-50 grid max-h-[calc(var(--dialog-viewport-height,100dvh)-2rem)] w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] grid-cols-[minmax(0,1fr)] gap-5 overflow-y-auto overscroll-contain rounded-lg border bg-card p-6 wrap-anywhere shadow-lg duration-200 outline-none data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 sm:max-w-lg",
-          showCloseButton && "[&_[data-slot=dialog-header]]:pr-15 [&>[data-slot=dialog-title]]:pr-15",
+          showCloseButton &&
+            "[&_[data-slot=dialog-header]]:pr-15 [&>[data-slot=dialog-title]]:pr-15",
           className,
         )}
         {...props}
